@@ -1,0 +1,40 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "points",
+    hdrs = [
+        "affine_point.h",
+        "jacobian_point.h",
+        "jacobian_point_impl.h",
+        "sw_curve_config.h",
+    ],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base:no_destructor",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/elliptic_curves/msm",
+    ],
+)
+
+tachyon_cc_library(
+    name = "test_config",
+    testonly = True,
+    srcs = ["test_config.cc"],
+    hdrs = ["test_config.h"],
+    deps = [
+        ":points",
+        "//tachyon/math/finite_fields:prime_field",
+    ],
+)
+
+tachyon_cc_test(
+    name = "short_weierstrass_unittests",
+    srcs = [
+        "affine_point_unittest.cc",
+        "jacobian_point_unittest.cc",
+    ],
+    deps = [":test_config"],
+)

@@ -1,0 +1,33 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "msm",
+    srcs = [
+        "variable_base_msm.cc",
+    ],
+    hdrs = [
+        "msm_util.h",
+        "variable_base_msm.h",
+    ],
+    deps = [
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/ranges:algorithm",
+        "//tachyon/math/base:gmp_util",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_test(
+    name = "msm_unittests",
+    srcs = [
+        "variable_base_msm_unittest.cc",
+    ],
+    deps = [
+        ":msm",
+        "//tachyon/math/elliptic_curves/short_weierstrass:test_config",
+    ],
+)

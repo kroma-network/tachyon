@@ -1,0 +1,14 @@
+build --cxxopt=-std=c++17
+
+# Enable googletest build with absl
+build --define absl=1
+
+# gmp needs exception
+build --//:has_exception
+
+# Enable gmp backend for prime field
+build:gmp_backend --//:gmp_backend
+
+test --test_tag_filters -benchmark,-manual
+
+try-import %workspace%/.bazelrc.user

@@ -1,0 +1,38 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "compiler_specific",
+    hdrs = ["compiler_specific.h"],
+    deps = ["//tachyon/build:build_config"],
+)
+
+tachyon_cc_library(
+    name = "functor_traits",
+    hdrs = ["functor_traits.h"],
+    deps = [
+        ":type_list",
+        "@com_google_absl//absl/meta:type_traits",
+    ],
+)
+
+tachyon_cc_library(
+    name = "logging",
+    srcs = ["logging.cc"],
+    hdrs = ["logging.h"],
+    deps = [
+        "//tachyon:export",
+        "@com_github_google_glog//:glog",
+    ],
+)
+
+tachyon_cc_library(
+    name = "no_destructor",
+    hdrs = ["no_destructor.h"],
+)
+
+tachyon_cc_library(
+    name = "type_list",
+    hdrs = ["type_list.h"],
+)

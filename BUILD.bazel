@@ -1,0 +1,49 @@
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+
+bool_flag(
+    name = "framework_shared_object",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
+bool_flag(
+    name = "has_exception",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
+# 3rd party libraries
+bool_flag(
+    name = "gmp_backend",
+    build_setting_default = False,
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "optimized",
+    values = {"compilation_mode": "opt"},
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "tachyon_framework_shared_object",
+    flag_values = {":framework_shared_object": "true"},
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "tachyon_has_exception",
+    flag_values = {":has_exception": "true"},
+    visibility = ["//visibility:public"],
+)
+
+config_setting(
+    name = "tachyon_gmp_backend",
+    flag_values = {":gmp_backend": "true"},
+    visibility = ["//visibility:public"],
+)
+
+buildifier(
+    name = "buildifier",
+)
