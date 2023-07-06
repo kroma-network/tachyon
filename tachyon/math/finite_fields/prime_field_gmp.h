@@ -141,10 +141,10 @@ class PrimeFieldGmp : public PrimeFieldBase<F> {
   }
 
  private:
-  friend class internal::SupportsAdd<F>;
-  friend class internal::SupportsSub<F>;
-  friend class internal::SupportsMul<F>;
-  friend class internal::SupportsDiv<F>;
+  friend struct internal::SupportsAdd<F>;
+  friend struct internal::SupportsSub<F>;
+  friend struct internal::SupportsMul<F>;
+  friend struct internal::SupportsDiv<F>;
   friend class AdditiveMonoid<F>;
   friend class AdditiveGroup<F>;
   friend class MultiplicativeMonoid<F>;
