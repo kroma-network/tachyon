@@ -35,37 +35,19 @@ class VariableBaseMSM {
                            BaseInputIterator bases_last,
                            ScalarInputIterator scalars_first,
                            ScalarInputIterator scalars_last) {
-    if constexpr (JacobianPoint::NEGATION_IS_CHEAP) {
-      return DoMSMWindowNAF(std::move(bases_first), std::move(bases_last),
-                            std::move(scalars_first), std::move(scalars_last));
-    } else {
-      return DoMSM(std::move(bases_first), std::move(bases_last),
-                   std::move(scalars_first), std::move(scalars_last));
-    }
+    return DoMSM(std::move(bases_first), std::move(bases_last),
+                 std::move(scalars_first), std::move(scalars_last),
+                 JacobianPoint::NEGATION_IS_CHEAP);
   }
 
  private:
   FRIEND_TEST(VariableBaseMSMTest, DoMSM);
   FRIEND_TEST(VariableBaseMSMTest, DoMSMWindowNAF);
 
-  template <
-      typename BaseInputIterator, typename ScalarInputIterator,
-      std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
-                                   JacobianPoint, ScalarField>>* = nullptr>
-  static JacobianPoint DoMSMWindowNAF(BaseInputIterator bases_first,
-                                      BaseInputIterator bases_last,
-                                      ScalarInputIterator scalars_first,
-                                      ScalarInputIterator scalars_last) {
-    size_t size = std::min(std::distance(bases_first, bases_last),
-                           std::distance(scalars_first, scalars_last));
-
-    size_t c;
-    if (size < 32) {
-      c = 3;
-    } else {
-      c = LnWithoutFloats(size) + 2;
-    }
-
+  template <typename BaseInputIterator, typename ScalarInputIterator>
+  static std::vector<JacobianPoint> CreateWindowSumsForMSMWindowNAF(
+      BaseInputIterator bases_first, ScalarInputIterator scalars_first,
+      ScalarInputIterator scalars_last, size_t c) {
     size_t num_bits = ScalarField::MODULUS_BITS;
     size_t digits_count = (num_bits + c - 1) / c;
 
@@ -78,6 +60,7 @@ class VariableBaseMSM {
         base::Map(scalars_first, scalars_last, std::move(op));
     std::vector<JacobianPoint> window_sums;
     window_sums.reserve(digits_count);
+    // TODO(chokobole): Optimize with openmp.
     for (size_t i = 0; i < digits_count; ++i) {
       std::vector<JacobianPoint> buckets =
           base::CreateVector(1 << c, JacobianPoint::Zero());
@@ -102,49 +85,19 @@ class VariableBaseMSM {
       window_sums.push_back(std::move(ret));
     }
 
-    // We store the sum for the lowest window.
-    JacobianPoint lowest = std::move(*window_sums.begin());
-
-    auto view = absl::MakeConstSpan(window_sums);
-    view.remove_prefix(1);
-
-    // We're traversing windows from high to low.
-    return lowest +
-           std::accumulate(view.rbegin(), view.rend(), JacobianPoint::Zero(),
-                           [c](JacobianPoint& total, const JacobianPoint& sum) {
-                             total += sum;
-                             for (size_t i = 0; i < c; ++i) {
-                               total.DoubleInPlace();
-                             }
-                             return total;
-                           });
+    return window_sums;
   }
 
-  template <
-      typename BaseInputIterator, typename ScalarInputIterator,
-      std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
-                                   JacobianPoint, ScalarField>>* = nullptr>
-  static JacobianPoint DoMSM(BaseInputIterator bases_first,
-                             BaseInputIterator bases_last,
-                             ScalarInputIterator scalars_first,
-                             ScalarInputIterator scalars_last) {
-    size_t size = std::min(std::distance(bases_first, bases_last),
-                           std::distance(scalars_first, scalars_last));
-
-    size_t c;
-    if (size < 32) {
-      c = 3;
-    } else {
-      c = LnWithoutFloats(size) + 2;
-    }
-
+  template <typename BaseInputIterator, typename ScalarInputIterator>
+  static std::vector<JacobianPoint> CreateWindowSumsForMSM(
+      BaseInputIterator bases_first, ScalarInputIterator scalars_first,
+      size_t size, size_t c) {
     size_t num_bits = ScalarField::MODULUS_BITS;
-
     std::vector<size_t> window_starts =
         base::CreateRangedVector(static_cast<size_t>(0), num_bits, c);
 
-    std::function<JacobianPoint(size_t)> op = [c, size, &bases_first,
-                                               &scalars_first](size_t w_start) {
+    std::function<JacobianPoint(size_t)> op = [&bases_first, &scalars_first,
+                                               size, c](size_t w_start) {
       JacobianPoint ret = JacobianPoint::Zero();
       // We don't need the "zero" bucket, so we only have 2^c - 1
       // buckets.
@@ -209,8 +162,37 @@ class VariableBaseMSM {
     // Each window is of size `c`.
     // We divide up the bits 0..num_bits into windows of size `c`, and
     // in parallel process each such window.
-    std::vector<JacobianPoint> window_sums =
-        base::Map(window_starts.begin(), window_starts.end(), std::move(op));
+    return base::Map(window_starts.begin(), window_starts.end(), std::move(op));
+  }
+
+  template <
+      typename BaseInputIterator, typename ScalarInputIterator,
+      std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
+                                   JacobianPoint, ScalarField>>* = nullptr>
+  static JacobianPoint DoMSM(BaseInputIterator bases_first,
+                             BaseInputIterator bases_last,
+                             ScalarInputIterator scalars_first,
+                             ScalarInputIterator scalars_last,
+                             bool use_msm_window_naf) {
+    size_t size = std::min(std::distance(bases_first, bases_last),
+                           std::distance(scalars_first, scalars_last));
+
+    size_t c;
+    if (size < 32) {
+      c = 3;
+    } else {
+      c = LnWithoutFloats(size) + 2;
+    }
+
+    std::vector<JacobianPoint> window_sums;
+    if (use_msm_window_naf) {
+      window_sums = CreateWindowSumsForMSMWindowNAF(std::move(bases_first),
+                                                    std::move(scalars_first),
+                                                    std::move(scalars_last), c);
+    } else {
+      window_sums = CreateWindowSumsForMSM(std::move(bases_first),
+                                           std::move(scalars_first), size, c);
+    }
 
     // We store the sum for the lowest window.
     JacobianPoint lowest = std::move(*window_sums.begin());

@@ -41,15 +41,13 @@ class VariableBaseMSMTest : public ::testing::Test {
 }  // namespace
 
 TEST_F(VariableBaseMSMTest, DoMSM) {
-  EXPECT_EQ(VariableBaseMSM<JacobianPoint<Config>>::DoMSM(
-                bases_.begin(), bases_.end(), scalars_.begin(), scalars_.end()),
-            answer_);
-}
-
-TEST_F(VariableBaseMSMTest, DoMSMWindowNAF) {
-  EXPECT_EQ(VariableBaseMSM<JacobianPoint<Config>>::DoMSMWindowNAF(
-                bases_.begin(), bases_.end(), scalars_.begin(), scalars_.end()),
-            answer_);
+  for (int i = 0; i < 2; ++i) {
+    bool use_window_naf = i == 0;
+    EXPECT_EQ(VariableBaseMSM<JacobianPoint<Config>>::DoMSM(
+                  bases_.begin(), bases_.end(), scalars_.begin(),
+                  scalars_.end(), use_window_naf),
+              answer_);
+  }
 }
 
 }  // namespace math
