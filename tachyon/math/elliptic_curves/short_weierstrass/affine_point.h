@@ -52,6 +52,10 @@ class AffinePoint<Config,
     return point.ToAffine();
   }
 
+  constexpr static AffinePoint Random() {
+    return FromJacobian(JacobianPoint<Config>::Random());
+  }
+
   static bool IsOnCurve(const AffinePoint& p) {
     if (p.infinity_) return true;
     return Config::IsOnCurve(p.x_, p.y_);

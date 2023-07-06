@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test_config.h"
 

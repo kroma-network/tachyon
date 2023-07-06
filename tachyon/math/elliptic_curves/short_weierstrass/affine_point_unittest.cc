@@ -29,6 +29,18 @@ TEST_F(AffinePointTest, Zero) {
   EXPECT_TRUE(AffinePoint<Config>::Zero().infinity());
 }
 
+TEST_F(AffinePointTest, Random) {
+  bool success = false;
+  AffinePoint<Config> r = AffinePoint<Config>::Random();
+  for (size_t i = 0; i < 100; ++i) {
+    if (r != AffinePoint<Config>::Random()) {
+      success = true;
+      break;
+    }
+  }
+  EXPECT_TRUE(success);
+}
+
 TEST_F(AffinePointTest, EqualityOperator) {
   AffinePoint<Config> p(Fp7(1), Fp7(2));
   AffinePoint<Config> p2(Fp7(3), Fp7(4));

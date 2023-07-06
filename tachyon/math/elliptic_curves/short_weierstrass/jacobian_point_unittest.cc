@@ -31,6 +31,18 @@ TEST_F(JacobianPointTest, IsZero) {
   EXPECT_FALSE(JacobianPoint<Config>(Fp7(1), Fp7(2), Fp7(1)).IsZero());
 }
 
+TEST_F(JacobianPointTest, Random) {
+  bool success = false;
+  JacobianPoint<Config> r = JacobianPoint<Config>::Random();
+  for (size_t i = 0; i < 100; ++i) {
+    if (r != JacobianPoint<Config>::Random()) {
+      success = true;
+      break;
+    }
+  }
+  EXPECT_TRUE(success);
+}
+
 TEST_F(JacobianPointTest, EqualityOperators) {
   {
     // case 1) p.IsZero() && p2.IsZero()
