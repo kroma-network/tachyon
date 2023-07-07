@@ -3,8 +3,10 @@
 #
 # ----CONFIG OPTIONS----
 #
+# Other build options:
+#     dbg:       Build with debug info
 #
-# Hardware support options:
+# 3rd party library options:
 #     gmp_backend: Use a prime field with gmp backend.
 #
 # Hardware support options:
