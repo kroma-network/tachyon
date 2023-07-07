@@ -3,6 +3,21 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "string_number_conversions",
+    srcs = [
+        "string_number_conversions.cc",
+        "string_number_conversions_internal.h",
+    ],
+    hdrs = ["string_number_conversions.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
     name = "string_util",
     srcs = ["string_util.cc"],
     hdrs = ["string_util.h"],
@@ -15,8 +30,12 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "strings_unittest",
-    srcs = ["string_util_unittest.cc"],
+    srcs = [
+        "string_number_conversions_unittest.cc",
+        "string_util_unittest.cc",
+    ],
     deps = [
+        ":string_number_conversions",
         ":string_util",
     ],
 )
