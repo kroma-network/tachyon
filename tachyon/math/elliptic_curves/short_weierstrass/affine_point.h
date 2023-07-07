@@ -64,10 +64,9 @@ class AffinePoint<Config,
   template <
       typename BaseInputIterator, typename ScalarInputIterator,
       std::enable_if_t<
-          std::is_same_v<AffinePoint,
-                         base::internal::iterator_value_t<BaseInputIterator>> &&
-          std::is_same_v<ScalarField, base::internal::iterator_value_t<
-                                          ScalarInputIterator>>>* = nullptr>
+          std::is_same_v<AffinePoint, base::iter_value_t<BaseInputIterator>> &&
+          std::is_same_v<ScalarField,
+                         base::iter_value_t<ScalarInputIterator>>>* = nullptr>
   static JacobianPoint<Config> MSM(BaseInputIterator bases_first,
                                    BaseInputIterator bases_last,
                                    ScalarInputIterator scalars_first,

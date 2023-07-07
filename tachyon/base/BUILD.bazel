@@ -43,6 +43,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "template_util",
+    hdrs = ["template_util.h"],
+)
+
+tachyon_cc_library(
     name = "type_list",
     hdrs = ["type_list.h"],
 )

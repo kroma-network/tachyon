@@ -21,10 +21,6 @@ template <typename Iter, typename = decltype(++std::declval<Iter&>()),
 using iterator_category_t =
     typename std::iterator_traits<Iter>::iterator_category;
 
-template <typename Iter, typename = decltype(++std::declval<Iter&>()),
-          typename = decltype(std::declval<Iter&>()++)>
-using iterator_value_t = typename std::iterator_traits<Iter>::value_type;
-
 }  // namespace internal
 }  // namespace base
 }  // namespace tachyon

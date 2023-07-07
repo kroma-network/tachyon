@@ -4,7 +4,7 @@
 #include <cmath>
 #include <type_traits>
 
-#include "tachyon/base/ranges/algorithm.h"
+#include "tachyon/base/template_util.h"
 
 namespace tachyon {
 namespace math {
@@ -12,10 +12,8 @@ namespace math {
 template <typename BaseInputIterator, typename ScalarInputIterator,
           typename JacobianPoint, typename ScalarField>
 inline constexpr bool IsAbleToMSM =
-    std::is_same_v<JacobianPoint,
-                   base::internal::iterator_value_t<BaseInputIterator>>&&
-        std::is_same_v<ScalarField,
-                       base::internal::iterator_value_t<ScalarInputIterator>>;
+    std::is_same_v<JacobianPoint, base::iter_value_t<BaseInputIterator>>&&
+        std::is_same_v<ScalarField, base::iter_value_t<ScalarInputIterator>>;
 
 /// The result of this function is only approximately `ln(a)`
 /// [`Explanation of usage`]

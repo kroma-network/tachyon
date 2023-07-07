@@ -12,9 +12,9 @@ tachyon_cc_library(
         "variable_base_msm.h",
     ],
     deps = [
+        "//tachyon/base:template_util",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
-        "//tachyon/base/ranges:algorithm",
         "//tachyon/math/base:gmp_util",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",

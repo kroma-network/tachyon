@@ -41,7 +41,7 @@ tachyon_cc_library(
     hdrs = ["rings.h"],
     deps = [
         ":groups",
-        "//tachyon/base/ranges:algorithm",
+        "//tachyon/base:template_util",
     ],
 )
 

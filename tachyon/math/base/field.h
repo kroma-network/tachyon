@@ -9,9 +9,10 @@ namespace math {
 template <typename F>
 class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
  public:
-  template <typename InputIterator,
-            std::enable_if_t<std::is_same_v<
-                F, base::internal::iterator_value_t<InputIterator>>>* = nullptr>
+  template <
+      typename InputIterator,
+      std::enable_if_t<std::is_same_v<F, base::iter_value_t<InputIterator>>>* =
+          nullptr>
   constexpr static F SumOfProducts(InputIterator a_first, InputIterator a_last,
                                    InputIterator b_first,
                                    InputIterator b_last) {
