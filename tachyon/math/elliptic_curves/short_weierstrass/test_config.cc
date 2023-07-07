@@ -4,12 +4,14 @@
 
 namespace tachyon {
 namespace math {
+namespace test {
 
 // static
-void TestSwCurveConfig::Init() {
-  B() = Fp7(5);
-  Generator() = JacobianPoint<SWCurveConfig<Fp7, Fp7>>(Fp7(5), Fp7(5), Fp7(1));
+void SwCurveConfig::Init() {
+  B() = GF7(5);
+  Generator() = JacobianPoint<SWCurveConfig<GF7, GF7>>(GF7(5), GF7(5), GF7(1));
 }
 
+}  // namespace test
 }  // namespace math
 }  // namespace tachyon

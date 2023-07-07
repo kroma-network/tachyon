@@ -6,14 +6,16 @@
 
 namespace tachyon {
 namespace math {
+namespace test {
 
-class TestSwCurveConfig : public SWCurveConfig<Fp7, Fp7> {
+class SwCurveConfig : public ::tachyon::math::SWCurveConfig<GF7, GF7> {
  public:
-  using Config = SWCurveConfig<Fp7, Fp7>;
+  using Config = SWCurveConfig<GF7, GF7>;
 
   static void Init();
 };
 
+}  // namespace test
 }  // namespace math
 }  // namespace tachyon
 

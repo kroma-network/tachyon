@@ -11,14 +11,14 @@ namespace {
 class DenseUnivariatePolynomialTest : public ::testing::Test {
  public:
   DenseUnivariatePolynomialTest() {
-    Fp7::Init();
+    GF7::Init();
 
-    polys_.push_back(DenseUnivariatePolynomial<Fp7, 5>(
-        DenseCoefficients<Fp7, 5>({Fp7(3), Fp7(0), Fp7(1), Fp7(0), Fp7(2)})));
+    polys_.push_back(DenseUnivariatePolynomial<GF7, 5>(
+        DenseCoefficients<GF7, 5>({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));
     polys_.push_back(
-        DenseUnivariatePolynomial<Fp7, 5>(DenseCoefficients<Fp7, 5>({Fp7(3)})));
-    polys_.push_back(DenseUnivariatePolynomial<Fp7, 5>(
-        DenseCoefficients<Fp7, 5>({Fp7(0), Fp7(0), Fp7(0), Fp7(5)})));
+        DenseUnivariatePolynomial<GF7, 5>(DenseCoefficients<GF7, 5>({GF7(3)})));
+    polys_.push_back(DenseUnivariatePolynomial<GF7, 5>(
+        DenseCoefficients<GF7, 5>({GF7(0), GF7(0), GF7(0), GF7(5)})));
   }
   DenseUnivariatePolynomialTest(const DenseUnivariatePolynomialTest&) = delete;
   DenseUnivariatePolynomialTest& operator=(
@@ -26,14 +26,14 @@ class DenseUnivariatePolynomialTest : public ::testing::Test {
   ~DenseUnivariatePolynomialTest() override = default;
 
  protected:
-  std::vector<DenseUnivariatePolynomial<Fp7, 5>> polys_;
+  std::vector<DenseUnivariatePolynomial<GF7, 5>> polys_;
 };
 
 }  // namespace
 
 TEST_F(DenseUnivariatePolynomialTest, IndexingOperator) {
   struct {
-    const DenseUnivariatePolynomial<Fp7, 5>& poly;
+    const DenseUnivariatePolynomial<GF7, 5>& poly;
     std::vector<int> coefficients;
   } tests[] = {
       {polys_[0], {3, 0, 1, 0, 2}},
@@ -44,7 +44,7 @@ TEST_F(DenseUnivariatePolynomialTest, IndexingOperator) {
   for (const auto& test : tests) {
     for (size_t i = 0; i < 5; ++i) {
       if (i < test.coefficients.size()) {
-        EXPECT_EQ(*test.poly[i], Fp7(test.coefficients[i]));
+        EXPECT_EQ(*test.poly[i], GF7(test.coefficients[i]));
       } else {
         EXPECT_EQ(test.poly[i], nullptr);
       }
@@ -54,7 +54,7 @@ TEST_F(DenseUnivariatePolynomialTest, IndexingOperator) {
 
 TEST_F(DenseUnivariatePolynomialTest, Degree) {
   struct {
-    const DenseUnivariatePolynomial<Fp7, 5>& poly;
+    const DenseUnivariatePolynomial<GF7, 5>& poly;
     size_t degree;
   } tests[] = {
       {polys_[0], 4},
@@ -69,22 +69,22 @@ TEST_F(DenseUnivariatePolynomialTest, Degree) {
 
 TEST_F(DenseUnivariatePolynomialTest, Evaluate) {
   struct {
-    const DenseUnivariatePolynomial<Fp7, 5>& poly;
-    Fp7 expected;
+    const DenseUnivariatePolynomial<GF7, 5>& poly;
+    GF7 expected;
   } tests[] = {
-      {polys_[0], Fp7(6)},
-      {polys_[1], Fp7(3)},
-      {polys_[2], Fp7(2)},
+      {polys_[0], GF7(6)},
+      {polys_[1], GF7(3)},
+      {polys_[2], GF7(2)},
   };
 
   for (const auto& test : tests) {
-    EXPECT_EQ(test.poly.Evaluate(Fp7(3)), test.expected);
+    EXPECT_EQ(test.poly.Evaluate(GF7(3)), test.expected);
   }
 }
 
 TEST_F(DenseUnivariatePolynomialTest, ToString) {
   struct {
-    const DenseUnivariatePolynomial<Fp7, 5>& poly;
+    const DenseUnivariatePolynomial<GF7, 5>& poly;
     std::string_view expected;
   } tests[] = {
       {polys_[0], "2 * x^4 + 1 * x^2 + 3"},

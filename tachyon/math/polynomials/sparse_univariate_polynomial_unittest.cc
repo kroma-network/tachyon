@@ -13,14 +13,14 @@ namespace {
 class SparseUnivariatePolynomialTest : public ::testing::Test {
  public:
   SparseUnivariatePolynomialTest() {
-    Fp7::Init();
+    GF7::Init();
 
-    polys_.push_back(SparseUnivariatePolynomial<Fp7, 5>(
-        SparseCoefficients<Fp7, 5>({{0, Fp7(3)}, {2, Fp7(1)}, {4, Fp7(2)}})));
-    polys_.push_back(SparseUnivariatePolynomial<Fp7, 5>(
-        SparseCoefficients<Fp7, 5>({{0, Fp7(3)}})));
-    polys_.push_back(SparseUnivariatePolynomial<Fp7, 5>(
-        SparseCoefficients<Fp7, 5>({{3, Fp7(5)}})));
+    polys_.push_back(SparseUnivariatePolynomial<GF7, 5>(
+        SparseCoefficients<GF7, 5>({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})));
+    polys_.push_back(SparseUnivariatePolynomial<GF7, 5>(
+        SparseCoefficients<GF7, 5>({{0, GF7(3)}})));
+    polys_.push_back(SparseUnivariatePolynomial<GF7, 5>(
+        SparseCoefficients<GF7, 5>({{3, GF7(5)}})));
   }
   SparseUnivariatePolynomialTest(const SparseUnivariatePolynomialTest&) =
       delete;
@@ -29,14 +29,14 @@ class SparseUnivariatePolynomialTest : public ::testing::Test {
   ~SparseUnivariatePolynomialTest() override = default;
 
  protected:
-  std::vector<SparseUnivariatePolynomial<Fp7, 5>> polys_;
+  std::vector<SparseUnivariatePolynomial<GF7, 5>> polys_;
 };
 
 }  // namespace
 
 TEST_F(SparseUnivariatePolynomialTest, IndexingOperator) {
   struct {
-    const SparseUnivariatePolynomial<Fp7, 5>& poly;
+    const SparseUnivariatePolynomial<GF7, 5>& poly;
     std::vector<std::optional<int>> coefficients;
   } tests[] = {
       {polys_[0], {3, std::nullopt, 1, std::nullopt, 2}},
@@ -48,7 +48,7 @@ TEST_F(SparseUnivariatePolynomialTest, IndexingOperator) {
     for (size_t i = 0; i < 5; ++i) {
       if (i < test.coefficients.size()) {
         if (test.coefficients[i].has_value()) {
-          EXPECT_EQ(*test.poly[i], Fp7(test.coefficients[i].value()));
+          EXPECT_EQ(*test.poly[i], GF7(test.coefficients[i].value()));
         } else {
           EXPECT_EQ(test.poly[i], nullptr);
         }
@@ -61,7 +61,7 @@ TEST_F(SparseUnivariatePolynomialTest, IndexingOperator) {
 
 TEST_F(SparseUnivariatePolynomialTest, Degree) {
   struct {
-    const SparseUnivariatePolynomial<Fp7, 5>& poly;
+    const SparseUnivariatePolynomial<GF7, 5>& poly;
     size_t degree;
   } tests[] = {
       {polys_[0], 4},
@@ -76,7 +76,7 @@ TEST_F(SparseUnivariatePolynomialTest, Degree) {
 
 TEST_F(SparseUnivariatePolynomialTest, Evaluate) {
   struct {
-    const SparseUnivariatePolynomial<Fp7, 5>& poly;
+    const SparseUnivariatePolynomial<GF7, 5>& poly;
     size_t degree;
   } tests[] = {
       {polys_[0], 4},
@@ -91,7 +91,7 @@ TEST_F(SparseUnivariatePolynomialTest, Evaluate) {
 
 TEST_F(SparseUnivariatePolynomialTest, ToString) {
   struct {
-    const SparseUnivariatePolynomial<Fp7, 5>& poly;
+    const SparseUnivariatePolynomial<GF7, 5>& poly;
     std::string_view expected;
   } tests[] = {
       {polys_[0], "2 * x^4 + 1 * x^2 + 3"},

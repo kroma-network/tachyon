@@ -8,7 +8,7 @@ namespace tachyon {
 namespace math {
 
 // static
-void Fp7::Init() {
+void GF7::Init() {
   static absl::once_flag once;
   absl::call_once(once, []() {
 #if defined(TACHYON_GMP_BACKEND)

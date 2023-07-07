@@ -12,19 +12,19 @@ namespace math {
 
 namespace {
 
-using Config = TestSwCurveConfig::Config;
+using Config = test::SwCurveConfig::Config;
 
 const size_t g_size = 40;
 
 class VariableBaseMSMTest : public ::testing::Test {
  public:
   VariableBaseMSMTest() {
-    Fp7::Init();
-    TestSwCurveConfig::Init();
+    GF7::Init();
+    test::SwCurveConfig::Init();
 
     bases_ = base::CreateVector(
         g_size, []() { return JacobianPoint<Config>::Random(); });
-    scalars_ = base::CreateVector(g_size, []() { return Fp7::Random(); });
+    scalars_ = base::CreateVector(g_size, []() { return GF7::Random(); });
 
     for (size_t i = 0; i < bases_.size(); ++i) {
       answer_ += (bases_[i] * scalars_[i]);
@@ -36,7 +36,7 @@ class VariableBaseMSMTest : public ::testing::Test {
 
  protected:
   std::vector<JacobianPoint<Config>> bases_;
-  std::vector<Fp7> scalars_;
+  std::vector<GF7> scalars_;
   JacobianPoint<Config> answer_;
 };
 

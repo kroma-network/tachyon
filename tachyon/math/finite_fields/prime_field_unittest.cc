@@ -9,7 +9,7 @@ namespace {
 
 class PrimeFieldTest : public ::testing::Test {
  public:
-  PrimeFieldTest() { Fp7::Init(); }
+  PrimeFieldTest() { GF7::Init(); }
   PrimeFieldTest(const PrimeFieldTest&) = delete;
   PrimeFieldTest& operator=(const PrimeFieldTest&) = delete;
   ~PrimeFieldTest() override = default;
@@ -17,53 +17,53 @@ class PrimeFieldTest : public ::testing::Test {
 
 }  // namespace
 
-TEST_F(PrimeFieldTest, Normalize) { EXPECT_EQ(Fp7(-2), Fp7(5)); }
+TEST_F(PrimeFieldTest, Normalize) { EXPECT_EQ(GF7(-2), GF7(5)); }
 
 TEST_F(PrimeFieldTest, FromString) {
-  EXPECT_EQ(Fp7::FromDecString("3"), Fp7(3));
-  EXPECT_EQ(Fp7::FromHexString("0x3"), Fp7(3));
+  EXPECT_EQ(GF7::FromDecString("3"), GF7(3));
+  EXPECT_EQ(GF7::FromHexString("0x3"), GF7(3));
 }
 
 TEST_F(PrimeFieldTest, ToString) {
-  Fp7 f(3);
+  GF7 f(3);
 
   EXPECT_EQ(f.ToString(), "3");
   EXPECT_EQ(f.ToHexString(), "0x3");
 }
 
 TEST_F(PrimeFieldTest, Zero) {
-  EXPECT_TRUE(Fp7::Zero().IsZero());
-  EXPECT_FALSE(Fp7::One().IsZero());
+  EXPECT_TRUE(GF7::Zero().IsZero());
+  EXPECT_FALSE(GF7::One().IsZero());
 }
 
 TEST_F(PrimeFieldTest, One) {
-  EXPECT_TRUE(Fp7::One().IsOne());
-  EXPECT_FALSE(Fp7::Zero().IsOne());
+  EXPECT_TRUE(GF7::One().IsOne());
+  EXPECT_FALSE(GF7::Zero().IsOne());
 }
 
 TEST_F(PrimeFieldTest, ToIntegers) {
   {
     uint64_t out;
-    EXPECT_TRUE(Fp7(1).ToUint64(&out));
+    EXPECT_TRUE(GF7(1).ToUint64(&out));
     EXPECT_EQ(out, 1);
   }
   {
     int64_t out;
-    EXPECT_TRUE(Fp7(1).ToInt64(&out));
+    EXPECT_TRUE(GF7(1).ToInt64(&out));
     EXPECT_EQ(out, 1);
   }
 }
 
 TEST_F(PrimeFieldTest, EqualityOperators) {
-  Fp7 f(3);
-  Fp7 f2(4);
+  GF7 f(3);
+  GF7 f2(4);
   EXPECT_TRUE(f == f);
   EXPECT_TRUE(f != f2);
 }
 
 TEST_F(PrimeFieldTest, ComparisonOperator) {
-  Fp7 f(3);
-  Fp7 f2(4);
+  GF7 f(3);
+  GF7 f2(4);
   EXPECT_TRUE(f < f2);
   EXPECT_TRUE(f <= f2);
   EXPECT_FALSE(f > f2);
@@ -72,14 +72,14 @@ TEST_F(PrimeFieldTest, ComparisonOperator) {
 
 TEST_F(PrimeFieldTest, AdditiveOperators) {
   struct {
-    Fp7 a;
-    Fp7 b;
-    Fp7 sum;
-    Fp7 amb;
-    Fp7 bma;
+    GF7 a;
+    GF7 b;
+    GF7 sum;
+    GF7 amb;
+    GF7 bma;
   } tests[] = {
-      {Fp7(3), Fp7(2), Fp7(5), Fp7(1), Fp7(6)},
-      {Fp7(5), Fp7(3), Fp7(1), Fp7(2), Fp7(5)},
+      {GF7(3), GF7(2), GF7(5), GF7(1), GF7(6)},
+      {GF7(5), GF7(3), GF7(1), GF7(2), GF7(5)},
   };
 
   for (const auto& test : tests) {
@@ -88,7 +88,7 @@ TEST_F(PrimeFieldTest, AdditiveOperators) {
     EXPECT_EQ(test.a - test.b, test.amb);
     EXPECT_EQ(test.b - test.a, test.bma);
 
-    Fp7 tmp = test.a;
+    GF7 tmp = test.a;
     tmp += test.b;
     EXPECT_EQ(tmp, test.sum);
     tmp -= test.b;
@@ -97,27 +97,27 @@ TEST_F(PrimeFieldTest, AdditiveOperators) {
 }
 
 TEST_F(PrimeFieldTest, AdditiveGroupOperators) {
-  Fp7 f(3);
-  EXPECT_EQ(f.Negative(), Fp7(-3));
+  GF7 f(3);
+  EXPECT_EQ(f.Negative(), GF7(-3));
   f.NegativeInPlace();
-  EXPECT_EQ(f, Fp7(-3));
+  EXPECT_EQ(f, GF7(-3));
 
-  f = Fp7(3);
-  EXPECT_EQ(f.Double(), Fp7(6));
+  f = GF7(3);
+  EXPECT_EQ(f.Double(), GF7(6));
   f.DoubleInPlace();
-  EXPECT_EQ(f, Fp7(6));
+  EXPECT_EQ(f, GF7(6));
 }
 
 TEST_F(PrimeFieldTest, MultiplicativeOperators) {
   struct {
-    Fp7 a;
-    Fp7 b;
-    Fp7 mul;
-    Fp7 adb;
-    Fp7 bda;
+    GF7 a;
+    GF7 b;
+    GF7 mul;
+    GF7 adb;
+    GF7 bda;
   } tests[] = {
-      {Fp7(3), Fp7(2), Fp7(6), Fp7(5), Fp7(3)},
-      {Fp7(5), Fp7(3), Fp7(1), Fp7(4), Fp7(2)},
+      {GF7(3), GF7(2), GF7(6), GF7(5), GF7(3)},
+      {GF7(5), GF7(3), GF7(1), GF7(4), GF7(2)},
   };
 
   for (const auto& test : tests) {
@@ -126,7 +126,7 @@ TEST_F(PrimeFieldTest, MultiplicativeOperators) {
     EXPECT_EQ(test.a / test.b, test.adb);
     EXPECT_EQ(test.b / test.a, test.bda);
 
-    Fp7 tmp = test.a;
+    GF7 tmp = test.a;
     tmp *= test.b;
     EXPECT_EQ(tmp, test.mul);
     tmp /= test.b;
@@ -136,35 +136,35 @@ TEST_F(PrimeFieldTest, MultiplicativeOperators) {
 
 TEST_F(PrimeFieldTest, MultiplicativeGroupOperators) {
   for (int i = 1; i < 7; ++i) {
-    Fp7 f(i);
-    EXPECT_EQ(f * f.Inverse(), Fp7::One());
-    Fp7 f_tmp = f;
+    GF7 f(i);
+    EXPECT_EQ(f * f.Inverse(), GF7::One());
+    GF7 f_tmp = f;
     f.InverseInPlace();
-    EXPECT_EQ(f * f_tmp, Fp7::One());
+    EXPECT_EQ(f * f_tmp, GF7::One());
   }
 
-  Fp7 f(3);
-  EXPECT_EQ(f.Square(), Fp7(2));
+  GF7 f(3);
+  EXPECT_EQ(f.Square(), GF7(2));
   f.SquareInPlace();
-  EXPECT_EQ(f, Fp7(2));
+  EXPECT_EQ(f, GF7(2));
 
-  f = Fp7(3);
-  EXPECT_EQ(f.Pow(5), Fp7(5));
+  f = GF7(3);
+  EXPECT_EQ(f.Pow(5), GF7(5));
 }
 
 TEST_F(PrimeFieldTest, SumOfProducts) {
-  const Fp7 a[] = {Fp7(3), Fp7(2)};
-  const Fp7 b[] = {Fp7(2), Fp7(5)};
-  EXPECT_EQ(Fp7::SumOfProducts(std::begin(a), std::end(a), std::begin(b),
+  const GF7 a[] = {GF7(3), GF7(2)};
+  const GF7 b[] = {GF7(2), GF7(5)};
+  EXPECT_EQ(GF7::SumOfProducts(std::begin(a), std::end(a), std::begin(b),
                                std::end(b)),
-            Fp7(2));
+            GF7(2));
 }
 
 TEST_F(PrimeFieldTest, Random) {
   bool success = false;
-  Fp7 r = Fp7::Random();
+  GF7 r = GF7::Random();
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Fp7::Random()) {
+    if (r != GF7::Random()) {
       success = true;
       break;
     }
@@ -181,8 +181,8 @@ TEST_F(PrimeFieldTest, DivBy2Exp) {
   };
 
   for (const auto& test : tests) {
-    Fp7 p(test.v);
-    for (size_t i = 0; i < Fp7::MODULUS_BITS; ++i) {
+    GF7 p(test.v);
+    for (size_t i = 0; i < GF7::MODULUS_BITS; ++i) {
       mpz_class q = p.DivBy2Exp(i);
       EXPECT_EQ(q, mpz_class(test.v / (1 << i)));
     }

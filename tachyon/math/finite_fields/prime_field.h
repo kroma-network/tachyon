@@ -15,11 +15,9 @@ using PrimeField = PrimeFieldGmp<F, MODULUS_BITS>;
 using PrimeField = PrimeFieldFallback<F, MODULUS_BITS>;
 #endif
 
-class TACHYON_EXPORT Fp7 : public PrimeField<Fp7, 3> {
+class TACHYON_EXPORT GF7 : public PrimeField<GF7, 3> {
  public:
-  using value_type = PrimeField<Fp7, 3>::value_type;
-
-  using PrimeField<Fp7, 3>::PrimeField;
+  using PrimeField<GF7, 3>::PrimeField;
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 
