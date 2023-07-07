@@ -1,0 +1,23 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "file_path",
+    srcs = ["file_path.cc"],
+    hdrs = ["file_path.h"],
+    deps = [
+        "//tachyon/base/strings:string_util",
+        "//tachyon/build:build_config",
+    ],
+)
+
+tachyon_cc_test(
+    name = "files_unittests",
+    srcs = [
+        "file_path_unittest.cc",
+    ],
+    deps = [
+        ":file_path",
+    ],
+)
