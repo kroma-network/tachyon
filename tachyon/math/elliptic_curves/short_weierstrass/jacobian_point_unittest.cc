@@ -45,7 +45,7 @@ TEST_F(JacobianPointTest, Random) {
 
 TEST_F(JacobianPointTest, EqualityOperators) {
   {
-    // case 1) p.IsZero() && p2.IsZero()
+    SCOPED_TRACE("p.IsZero() && p2.IsZero()");
     JacobianPoint<Config> p(Fp7(1), Fp7(2), Fp7(0));
     JacobianPoint<Config> p2(Fp7(3), Fp7(4), Fp7(0));
     EXPECT_TRUE(p == p2);
@@ -53,7 +53,7 @@ TEST_F(JacobianPointTest, EqualityOperators) {
   }
 
   {
-    // case 2) !p.IsZero() && p2.IsZero()
+    SCOPED_TRACE("!p.IsZero() && p2.IsZero()");
     JacobianPoint<Config> p(Fp7(1), Fp7(2), Fp7(1));
     JacobianPoint<Config> p2(Fp7(3), Fp7(4), Fp7(0));
     EXPECT_TRUE(p != p2);
@@ -61,7 +61,7 @@ TEST_F(JacobianPointTest, EqualityOperators) {
   }
 
   {
-    // other case
+    SCOPED_TRACE("other");
     JacobianPoint<Config> p(Fp7(1), Fp7(2), Fp7(3));
     JacobianPoint<Config> p2(Fp7(1), Fp7(2), Fp7(3));
     EXPECT_TRUE(p == p2);

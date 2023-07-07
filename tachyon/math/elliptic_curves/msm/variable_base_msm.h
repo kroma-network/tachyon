@@ -7,12 +7,12 @@
 #include <vector>
 
 #include "absl/types/span.h"
-#include "gmpxx.h"
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/export.h"
+#include "tachyon/math/base/gmp_util.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
 
 namespace tachyon {
@@ -65,8 +65,7 @@ class VariableBaseMSM {
       std::vector<JacobianPoint> buckets =
           base::CreateVector(1 << c, JacobianPoint::Zero());
       auto bases_it = bases_first;
-      for (size_t j = 0; j < scalar_digits.size();
-           j += digits_count, ++bases_it) {
+      for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
         const JacobianPoint& base = *bases_it;
         int64_t scalar = scalar_digits[j][i];
         if (0 < scalar) {
@@ -108,8 +107,10 @@ class VariableBaseMSM {
       auto bases_it = bases_first;
       auto scalars_it = scalars_first;
       for (size_t i = 0; i < size; ++i, ++bases_it, ++scalars_it) {
-        const JacobianPoint& base = *bases_it;
         ScalarField& scalar = *scalars_it;
+        if (scalar.IsZero()) continue;
+
+        const JacobianPoint& base = *bases_it;
         if (scalar.IsOne()) {
           // We only process unit scalars once in the first window.
           if (w_start == 0) {
@@ -118,13 +119,11 @@ class VariableBaseMSM {
         } else {
           // We right-shift by w_start, thus getting rid of the lower
           // bits.
-          if (w_start > 0) {
-            scalar /= ScalarField(w_start);
-          }
+          mpz_class q = scalar.DivBy2Exp(w_start);
 
           // We mod the remaining bits by 2^{window size}, thus taking
           // `c` bits.
-          uint64_t idx = scalar % (1 << c);
+          uint64_t idx = gmp::GetLimb(q, 0) % (1 << c);
 
           // If the scalar is non-zero, we update the corresponding
           // bucket.

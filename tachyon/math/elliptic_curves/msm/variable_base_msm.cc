@@ -1,7 +1,5 @@
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 
-#include "tachyon/math/base/gmp_util.h"
-
 namespace tachyon {
 namespace math {
 
@@ -9,6 +7,7 @@ namespace math {
 // https://github.com/arkworks-rs/gemini/blob/main/src/kzg/msm/variable_base.rs#L20
 std::vector<int64_t> MakeDigits(const mpz_class& scalar, size_t w,
                                 size_t num_bits) {
+  static_assert(GMP_LIMB_BITS == 64, "This code assumes limb bits is 64 bit");
   uint64_t radix = 1 << w;
   uint64_t window_mask = radix - 1;
 
@@ -24,9 +23,13 @@ std::vector<int64_t> MakeDigits(const mpz_class& scalar, size_t w,
     size_t bit_offset = i * w;
     size_t u64_idx = bit_offset / 64;
     size_t bit_idx = bit_offset % 64;
+
+    size_t limb_size = gmp::GetLimbSize(scalar);
     // Read the bits from the scalar
-    size_t bit_buf;
-    if (bit_idx < 64 - w || u64_idx == gmp::GetLimbSize(scalar) - 1) {
+    uint64_t bit_buf;
+    if (limb_size == 0) {
+      bit_buf = 0;
+    } else if (bit_idx < 64 - w || u64_idx == limb_size - 1) {
       // This window's bits are contained in a single u64,
       // or it's the last u64 anyway.
       bit_buf = gmp::GetLimb(scalar, u64_idx) >> bit_idx;

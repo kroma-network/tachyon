@@ -134,6 +134,14 @@ class PrimeFieldGmp : public PrimeFieldBase<F> {
     return static_cast<F&>(*this);
   }
 
+  // This is needed by MSM.
+  // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
+  mpz_class DivBy2Exp(uint64_t exp) const {
+    mpz_class ret;
+    mpz_fdiv_q_2exp(ret.get_mpz_t(), value_.get_mpz_t(), exp);
+    return ret;
+  }
+
  protected:
   static mpz_class& RawModulus() {
     static base::NoDestructor<mpz_class> prime;
@@ -186,13 +194,6 @@ class PrimeFieldGmp : public PrimeFieldBase<F> {
   F& DivInPlace(const F& other) {
     value_ = DoMod(value_ * other.Inverse().value_);
     return static_cast<F&>(*this);
-  }
-
-  // PrimeFieldBase methods
-  // This and `DoMod()` are completely unrelated. `Mod()` exists to support the
-  // `operator%()` defined in `PrimeFieldBase`.
-  uint64_t Mod(uint64_t mod) const {
-    return mpz_fdiv_ui(value_.get_mpz_t(), mod);
   }
 
   static mpz_class DoMod(mpz_class value) { return value % RawModulus(); }

@@ -123,6 +123,14 @@ class PrimeFieldFallback : public PrimeFieldBase<F> {
     return static_cast<F&>(*this);
   }
 
+  // This is needed by MSM.
+  // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
+  mpz_class DivBy2Exp(uint64_t exp) const {
+    mpz_class ret;
+    NOTIMPLEMENTED();
+    return ret;
+  }
+
  private:
   friend class AdditiveMonoid<F>;
   friend class AdditiveGroup<F>;
@@ -176,12 +184,6 @@ class PrimeFieldFallback : public PrimeFieldBase<F> {
   F& DivInPlace(const F& other) {
     NOTIMPLEMENTED();
     return static_cast<F&>(*this);
-  }
-
-  // PrimeFieldBase methods
-  uint64_t Mod(uint64_t mod) const {
-    NOTIMPLEMENTED();
-    return 0;
   }
 
   uint64_t limbs_[LIMB_NUMS] = {

@@ -172,9 +172,21 @@ TEST_F(PrimeFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TEST_F(PrimeFieldTest, ModOperators) {
-  Fp7 p(5);
-  EXPECT_EQ(p % 3, 2);
+TEST_F(PrimeFieldTest, DivBy2Exp) {
+  struct {
+    int v;
+  } tests[] = {
+      {5},
+      {0},
+  };
+
+  for (const auto& test : tests) {
+    Fp7 p(test.v);
+    for (size_t i = 0; i < Fp7::MODULUS_BITS; ++i) {
+      mpz_class q = p.DivBy2Exp(i);
+      EXPECT_EQ(q, mpz_class(test.v / (1 << i)));
+    }
+  }
 }
 
 }  // namespace math

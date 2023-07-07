@@ -7,15 +7,7 @@ namespace tachyon {
 namespace math {
 
 template <typename F>
-class PrimeFieldBase : public Field<F> {
- public:
-  // This is needed by MSM.
-  // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
-  constexpr uint64_t operator%(uint64_t mod) const {
-    const F* f = static_cast<const F*>(this);
-    return f->Mod(mod);
-  }
-};
+class PrimeFieldBase : public Field<F> {};
 
 }  // namespace math
 }  // namespace tachyon
