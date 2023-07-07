@@ -32,10 +32,6 @@ struct T {
   constexpr int end() const { return 1; }
 };
 
-constexpr int begin(const T& t) { return 2; }
-
-constexpr int end(const T& t) { return 2; }
-
 // constexpr utility to generate a std::array. Ensures that a mutable array can
 // be used in a constexpr context.
 template <size_t N>
