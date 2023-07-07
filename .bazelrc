@@ -1,14 +1,43 @@
-build --cxxopt=-std=c++17
+# Tachyon Bazel configuration file.
+# This file tries to group and simply build option for Tachyon
+#
+# ----CONFIG OPTIONS----
+#
+#
+# Hardware support options:
+#     gmp_backend: Use a prime field with gmp backend.
+#
+# Default build options. These are applied first and unconditionally.
 
-# Enable googletest build with absl
+# For projects which use Tachyon as part of a Bazel build process, putting
+# nothing in a bazelrc will default to a monolithic build. The following line
+# opts in to modular op registration support by default.
+build -c opt
+
+# Make Bazel print out all options from rc files.
+build --announce_rc
+
+# Debug config
+build:dbg -c dbg
+
+# By default, build Tachyon in C++ 17 mode.
+build:linux --cxxopt=-std=c++17
+build:macos --cxxopt=-std=c++17
+build:windows --cxxopt=/std:c++17
+
+# Enable googletest build with absl.
+# See https://github.com/google/googletest/blob/v1.13.0/BUILD.bazel#L67C1-L70
 build --define absl=1
 
-# gmp needs exception
+# gmp needs exception.
 build --//:has_exception
 
-# Enable gmp backend for prime field
+# Enable gmp backend for prime field.
 build:gmp_backend --//:gmp_backend
 
 test --test_tag_filters -benchmark,-manual
 
+# Config-specific options should come above this line.
+
+# Load rc file with user-specific options.
 try-import %workspace%/.bazelrc.user

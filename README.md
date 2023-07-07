@@ -20,16 +20,34 @@ Please follow the instructions [here](https://bazel.build/install).
 > brew install gmp
 ```
 
-## Build
+## Getting started
+
+### Build
+
+#### Build on Linux
 
 ```shell
-> bazel build //...
+> bazel build --config linux //...
 ```
 
-## Test
+#### Build on Macos
 
 ```shell
-> bazel test //...
+> bazel build --config macos //...
+```
+
+### Test
+
+#### Test on Linux
+
+```shell
+> bazel test --config linux //...
+```
+
+#### Test on Macos
+
+```shell
+> bazel test --config macos //...
 ```
 
 ## Configuration
