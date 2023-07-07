@@ -1,4 +1,5 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon.bzl", "if_posix")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -6,6 +7,15 @@ tachyon_cc_library(
     name = "compiler_specific",
     hdrs = ["compiler_specific.h"],
     deps = ["//tachyon/build:build_config"],
+)
+
+tachyon_cc_library(
+    name = "environment",
+    srcs = if_posix([
+        "environment_posix.cc",
+    ]),
+    hdrs = ["environment.h"],
+    deps = ["//tachyon:export"],
 )
 
 tachyon_cc_library(
@@ -35,4 +45,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "type_list",
     hdrs = ["type_list.h"],
+)
+
+tachyon_cc_test(
+    name = "base_unittests",
+    srcs = ["environment_unittest.cc"],
+    deps = [":environment"],
 )
