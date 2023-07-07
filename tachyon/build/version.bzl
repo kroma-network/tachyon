@@ -2,7 +2,7 @@ load("//tachyon/build:lastchange.bzl", "LastChangeInfo")
 
 def _write_version_header_impl(ctx):
     output = ctx.actions.declare_file(ctx.attr.output)
-    tool_path = ctx.expand_location("$(location @com_github_lightscale_tachyon//tachyon/build:write_version_header.py)", [ctx.attr._tool])
+    tool_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/build:write_version_header.py)", [ctx.attr._tool])
 
     command = "%s %s %s %s %s %s" % (
         tool_path,
@@ -32,7 +32,7 @@ write_version_header = rule(
     attrs = {
         "_tool": attr.label(
             allow_single_file = True,
-            default = Label("@com_github_lightscale_tachyon//tachyon/build:write_version_header.py"),
+            default = Label("@kroma_network_tachyon//tachyon/build:write_version_header.py"),
         ),
         "output": attr.string(mandatory = True),
         "project": attr.string(mandatory = True),

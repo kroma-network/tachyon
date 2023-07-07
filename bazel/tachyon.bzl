@@ -55,24 +55,24 @@ def if_posix(a, b = []):
 
 def if_optimized(a, b = []):
     return select({
-        "@com_github_lightscale_tachyon//:optimized": a,
+        "@kroma_network_tachyon//:optimized": a,
         "//conditions:default": b,
     })
 
 def if_static(a, b = []):
     return select({
-        "@com_github_lightscale_tachyon//:tachyon_framework_shared_object": b,
+        "@kroma_network_tachyon//:tachyon_framework_shared_object": b,
         "//conditions:default": a,
     })
 
 def if_has_exception(a, b = []):
     return select({
-        "@com_github_lightscale_tachyon//:tachyon_has_exception": a,
+        "@kroma_network_tachyon//:tachyon_has_exception": a,
         "//conditions:default": b,
     })
 
 def if_gmp_backend(a, b = []):
     return select({
-        "@com_github_lightscale_tachyon//:tachyon_gmp_backend": a,
+        "@kroma_network_tachyon//:tachyon_gmp_backend": a,
         "//conditions:default": b,
     })

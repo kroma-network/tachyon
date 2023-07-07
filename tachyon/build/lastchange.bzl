@@ -7,7 +7,7 @@ LastChangeInfo = provider(
 
 def _lastchange_impl(ctx):
     outputs = [ctx.actions.declare_file("LASTCHANGE"), ctx.actions.declare_file("LASTCHANGE.committime")]
-    tool_path = ctx.expand_location("$(location @com_github_lightscale_tachyon//tachyon/build:lastchange.py)", [ctx.attr._tool])
+    tool_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/build:lastchange.py)", [ctx.attr._tool])
     ctx.actions.run_shell(
         tools = ctx.files._tool,
         outputs = outputs,
@@ -33,7 +33,7 @@ lastchange = rule(
     attrs = {
         "_tool": attr.label(
             allow_single_file = True,
-            default = Label("@com_github_lightscale_tachyon//tachyon/build:lastchange.py"),
+            default = Label("@kroma_network_tachyon//tachyon/build:lastchange.py"),
         ),
     },
 )

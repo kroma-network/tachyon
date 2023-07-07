@@ -1,4 +1,4 @@
-workspace(name = "com_github_lightscale_tachyon")
+workspace(name = "kroma_network_tachyon")
 
 load("//bazel:tachyon_deps.bzl", "tachyon_deps")
 
