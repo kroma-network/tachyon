@@ -16,14 +16,26 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "contains",
+    hdrs = ["contains.h"],
+    deps = [
+        "//tachyon/base/ranges",
+        "//tachyon/base/ranges:algorithm",
+    ],
+)
+
 tachyon_cc_test(
     name = "containers_unittests",
     srcs = [
         "adapters_unittest.cc",
         "container_util_unittest.cc",
+        "contains_unittest.cc",
     ],
     deps = [
         ":adapters",
         ":container_util",
+        ":contains",
+        "//tachyon/base/functional:identity",
     ],
 )
