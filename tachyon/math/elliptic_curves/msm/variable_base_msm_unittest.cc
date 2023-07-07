@@ -26,8 +26,9 @@ class VariableBaseMSMTest : public ::testing::Test {
         g_size, []() { return JacobianPoint<Config>::Random(); });
     scalars_ = base::CreateVector(g_size, []() { return GF7::Random(); });
 
+    answer_ = std::make_unique<JacobianPoint<Config>>();
     for (size_t i = 0; i < bases_.size(); ++i) {
-      answer_ += (bases_[i] * scalars_[i]);
+      *answer_ += (bases_[i] * scalars_[i]);
     }
   }
   VariableBaseMSMTest(const VariableBaseMSMTest&) = delete;
@@ -37,7 +38,7 @@ class VariableBaseMSMTest : public ::testing::Test {
  protected:
   std::vector<JacobianPoint<Config>> bases_;
   std::vector<GF7> scalars_;
-  JacobianPoint<Config> answer_;
+  std::unique_ptr<JacobianPoint<Config>> answer_;
 };
 
 }  // namespace
@@ -49,7 +50,7 @@ TEST_F(VariableBaseMSMTest, DoMSM) {
     EXPECT_EQ(VariableBaseMSM<JacobianPoint<Config>>::DoMSM(
                   bases_.begin(), bases_.end(), scalars_.begin(),
                   scalars_.end(), use_window_naf),
-              answer_);
+              *answer_);
   }
 }
 

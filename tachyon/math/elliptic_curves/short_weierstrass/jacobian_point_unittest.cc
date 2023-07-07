@@ -122,7 +122,7 @@ TEST_F(JacobianPointTest, ScalarMulOperator) {
 TEST_F(JacobianPointTest, NegativeOperator) {
   JacobianPoint<Config> jp(GF7(5), GF7(5), GF7(1));
   jp.NegativeInPlace();
-  EXPECT_EQ(jp, JacobianPoint<Config>(GF7(5), GF7(-5), GF7(1)));
+  EXPECT_EQ(jp, JacobianPoint<Config>(GF7(5), GF7(2), GF7(1)));
 }
 
 TEST_F(JacobianPointTest, ToAffine) {

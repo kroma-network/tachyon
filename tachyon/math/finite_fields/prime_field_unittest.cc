@@ -17,8 +17,6 @@ class PrimeFieldTest : public ::testing::Test {
 
 }  // namespace
 
-TEST_F(PrimeFieldTest, Normalize) { EXPECT_EQ(GF7(-2), GF7(5)); }
-
 TEST_F(PrimeFieldTest, FromString) {
   EXPECT_EQ(GF7::FromDecString("3"), GF7(3));
   EXPECT_EQ(GF7::FromHexString("0x3"), GF7(3));
@@ -98,9 +96,9 @@ TEST_F(PrimeFieldTest, AdditiveOperators) {
 
 TEST_F(PrimeFieldTest, AdditiveGroupOperators) {
   GF7 f(3);
-  EXPECT_EQ(f.Negative(), GF7(-3));
+  EXPECT_EQ(f.Negative(), GF7(4));
   f.NegativeInPlace();
-  EXPECT_EQ(f, GF7(-3));
+  EXPECT_EQ(f, GF7(4));
 
   f = GF7(3);
   EXPECT_EQ(f.Double(), GF7(6));

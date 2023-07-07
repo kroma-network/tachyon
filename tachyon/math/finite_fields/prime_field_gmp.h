@@ -29,10 +29,12 @@ class PrimeFieldGmp : public PrimeFieldBase<F> {
 
   PrimeFieldGmp() = default;
   explicit PrimeFieldGmp(const mpz_class& value) : value_(value) {
-    Normalize();
+    DCHECK(!gmp::IsNegative(value));
+    DCHECK_LT(value, RawModulus());
   }
   explicit PrimeFieldGmp(mpz_class&& value) : value_(std::move(value)) {
-    Normalize();
+    DCHECK(!gmp::IsNegative(value));
+    DCHECK_LT(value, RawModulus());
   }
   PrimeFieldGmp(const PrimeFieldGmp& other) = default;
   PrimeFieldGmp& operator=(const PrimeFieldGmp& other) = default;
