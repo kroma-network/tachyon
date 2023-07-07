@@ -52,8 +52,31 @@ Please follow the instructions [here](https://bazel.build/install).
 
 ## Configuration
 
+### Prime field
+
+#### GMP backend
+
 - `--config gmp_backend`: Enable [gmp](https://gmplib.org/) prime field backend.
 
    ```shell
-   > bazel build --config gmp_backend //...
+   > bazel build --config ${os} --config gmp_backend //...
    ```
+
+### Hardware acceleration
+
+#### CUDA backend
+
+- `--config cuda`: Enable [cuda] backend.
+
+   ```shell
+   > bazel build --config ${os} --config cuda //...
+   ```
+
+- `--config rocm`: Enable [rocm] backend.
+
+   ```shell
+   > bazel build --config ${os} --config rocm //...
+   ```
+
+[cuda]: https://developer.nvidia.com/cuda-toolkit
+[rocm]: https://www.amd.com/en/graphics/servers-solutions-rocm

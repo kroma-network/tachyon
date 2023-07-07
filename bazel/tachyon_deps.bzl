@@ -1,10 +1,14 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//third_party/env:env_configure.bzl", "env_configure")
 load("//third_party/gmp:gmp_configure.bzl", "gmp_configure")
+load("//third_party/gpus:cuda_configure.bzl", "cuda_configure")
+load("//third_party/gpus:rocm_configure.bzl", "rocm_configure")
 
 def tachyon_deps():
+    cuda_configure(name = "local_config_cuda")
     env_configure(name = "local_config_env")
     gmp_configure(name = "local_config_gmp")
+    rocm_configure(name = "local_config_rocm")
 
     if not native.existing_rule("bazel_skylib"):
         http_archive(
@@ -41,6 +45,8 @@ def tachyon_deps():
             sha256 = "51d676b6846440210da48899e4df618a357e6e44ecde7106f1e44ea16ae8adc7",
             strip_prefix = "abseil-cpp-20230125.3",
             urls = ["https://github.com/abseil/abseil-cpp/archive/20230125.3.zip"],
+            patch_args = ["-p1"],
+            patches = ["@kroma_network_tachyon//third_party/absl:add_missing_linkopts.patch"],
         )
 
     if not native.existing_rule("com_google_googletest"):
