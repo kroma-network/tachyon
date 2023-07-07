@@ -1,0 +1,25 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "identity",
+    hdrs = ["identity.h"],
+)
+
+tachyon_cc_library(
+    name = "invoke",
+    hdrs = ["invoke.h"],
+)
+
+tachyon_cc_test(
+    name = "functional_unittests",
+    srcs = [
+        "identity_unittest.cc",
+        "invoke_unittest.cc",
+    ],
+    deps = [
+        ":identity",
+        ":invoke",
+    ],
+)
