@@ -10,8 +10,6 @@ namespace bn254 {
 
 class TACHYON_EXPORT Fr : public PrimeField<Fr, 254> {
  public:
-  using value_type = PrimeField<Fr, 254>::value_type;
-
   using PrimeField<Fr, 254>::PrimeField;
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
