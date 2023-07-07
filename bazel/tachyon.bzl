@@ -71,6 +71,12 @@ def if_has_exception(a, b = []):
         "//conditions:default": b,
     })
 
+def if_has_rtti(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:tachyon_has_rtti": a,
+        "//conditions:default": b,
+    })
+
 def if_gmp_backend(a, b = []):
     return select({
         "@kroma_network_tachyon//:tachyon_gmp_backend": a,
