@@ -12,6 +12,7 @@ tachyon_cc_library(
     deps = [
         ":polynomial",
         "//tachyon/base:logging",
+        "//tachyon/base/ranges:algorithm",
         "//tachyon/base/strings:string_util",
         "@com_google_absl//absl/numeric:bits",
         "@com_google_absl//absl/types:span",

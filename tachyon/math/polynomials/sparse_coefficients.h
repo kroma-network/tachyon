@@ -12,6 +12,7 @@
 #include "absl/numeric/internal/bits.h"
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
 
 namespace tachyon {
@@ -27,16 +28,20 @@ class SparseCoefficients {
   struct Element {
     size_t degree;
     F coefficient;
+
+    bool operator<(const Element& other) const { return degree < other.degree; }
   };
 
   constexpr SparseCoefficients() = default;
   constexpr explicit SparseCoefficients(const std::vector<Element>& elements)
       : elements_(elements) {
     CHECK_LE(Degree(), MAX_DEGREE);
+    DCHECK(base::ranges::is_sorted(elements_.begin(), elements_.end()));
   }
   constexpr explicit SparseCoefficients(std::vector<Element>&& elements)
       : elements_(std::move(elements)) {
     CHECK_LE(Degree(), MAX_DEGREE);
+    DCHECK(base::ranges::is_sorted(elements_.begin(), elements_.end()));
   }
 
   constexpr Field* Get(size_t i) {

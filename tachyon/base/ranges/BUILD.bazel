@@ -7,6 +7,7 @@ tachyon_cc_library(
     hdrs = ["algorithm.h"],
     deps = [
         ":functional",
+        ":ranges",
         "//tachyon/base:compiler_specific",
         "//tachyon/base:cxx20_is_constant_evaluated",
         "//tachyon/base:logging",
