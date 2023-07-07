@@ -42,7 +42,6 @@ class VariableBaseMSM {
 
  private:
   FRIEND_TEST(VariableBaseMSMTest, DoMSM);
-  FRIEND_TEST(VariableBaseMSMTest, DoMSMWindowNAF);
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
   static std::vector<JacobianPoint> CreateWindowSumsForMSMWindowNAF(
