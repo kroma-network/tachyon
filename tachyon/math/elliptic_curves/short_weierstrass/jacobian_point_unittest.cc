@@ -16,7 +16,7 @@ using Config = test::SwCurveConfig::Config;
 class JacobianPointTest : public ::testing::Test {
  public:
   JacobianPointTest() {
-    GF7::Init();
+    GF7Config::Init();
     test::SwCurveConfig::Init();
   }
   JacobianPointTest(const JacobianPointTest&) = delete;
@@ -105,7 +105,7 @@ TEST_F(JacobianPointTest, AdditiveGroupOperators) {
 TEST_F(JacobianPointTest, ScalarMulOperator) {
   std::vector<AffinePoint<Config>> points;
   for (size_t i = 0; i < 7; ++i) {
-    points.push_back((GF7(i) * Config::Generator()).ToAffine());
+    points.push_back((mpz_class(i) * Config::Generator()).ToAffine());
   }
 
   EXPECT_THAT(points, ::testing::UnorderedElementsAreArray(

@@ -15,7 +15,7 @@ using Config = test::SwCurveConfig::Config;
 class AffinePointTest : public ::testing::Test {
  public:
   AffinePointTest() {
-    GF7::Init();
+    GF7Config::Init();
     test::SwCurveConfig::Init();
   }
   AffinePointTest(const AffinePointTest&) = delete;

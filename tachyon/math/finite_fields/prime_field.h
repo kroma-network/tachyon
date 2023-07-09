@@ -8,21 +8,25 @@
 namespace tachyon {
 namespace math {
 
-template <typename F, size_t MODULUS_BITS>
+template <typename Config>
 #if defined(TACHYON_GMP_BACKEND)
-using PrimeField = PrimeFieldGmp<F, MODULUS_BITS>;
+using PrimeField = PrimeFieldGmp<Config>;
 #else  // !defined(TACHYON_GMP_BACKEND)
-using PrimeField = PrimeFieldFallback<F, MODULUS_BITS>;
+using PrimeField = PrimeFieldFallback<Config>;
 #endif
 
-class TACHYON_EXPORT GF7 : public PrimeField<GF7, 3> {
+class TACHYON_EXPORT GF7Config {
  public:
-  using PrimeField<GF7, 3>::PrimeField;
+  constexpr static size_t MODULUS_BITS = 3;
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 
   static void Init();
+
+  static PrimeField<GF7Config>& Modulus();
 };
+
+using GF7 = PrimeField<GF7Config>;
 
 }  // namespace math
 }  // namespace tachyon

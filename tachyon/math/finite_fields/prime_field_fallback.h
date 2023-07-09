@@ -18,11 +18,14 @@
 namespace tachyon {
 namespace math {
 
-template <typename F, size_t _MODULUS_BITS>
-class PrimeFieldFallback : public PrimeFieldBase<F> {
+template <typename _Config>
+class PrimeFieldFallback : public PrimeFieldBase<PrimeFieldFallback<_Config>> {
  public:
-  static constexpr size_t MODULUS_BITS = _MODULUS_BITS;
+  static constexpr size_t MODULUS_BITS = _Config::MODULUS_BITS;
   static constexpr size_t LIMB_NUMS = (MODULUS_BITS + 63) / 64;
+
+  using Config = _Config;
+  using value_type = uint64_t[LIMB_NUMS];
 
   constexpr PrimeFieldFallback() = default;
   constexpr explicit PrimeFieldFallback(uint64_t value) { limbs_[0] = value; }
@@ -34,17 +37,17 @@ class PrimeFieldFallback : public PrimeFieldBase<F> {
   constexpr PrimeFieldFallback(PrimeFieldFallback&& other) = default;
   constexpr PrimeFieldFallback& operator=(PrimeFieldFallback&& other) = default;
 
-  constexpr static F Zero() { return F(); }
+  constexpr static PrimeFieldFallback Zero() { return PrimeFieldFallback(); }
 
-  constexpr static F One() { return F(1); }
+  constexpr static PrimeFieldFallback One() { return PrimeFieldFallback(1); }
 
-  constexpr static F FromDecString(std::string_view str) {
+  constexpr static PrimeFieldFallback FromDecString(std::string_view str) {
     NOTIMPLEMENTED();
-    return F();
+    return PrimeFieldFallback();
   }
-  constexpr static F FromHexString(std::string_view str) {
+  constexpr static PrimeFieldFallback FromHexString(std::string_view str) {
     NOTIMPLEMENTED();
-    return F();
+    return PrimeFieldFallback();
   }
 
   constexpr bool IsZero() const { return *this == Zero(); }
@@ -111,18 +114,6 @@ class PrimeFieldFallback : public PrimeFieldBase<F> {
     return false;
   }
 
-  // AdditiveGroup methods
-  constexpr F& NegativeInPlace() {
-    NOTIMPLEMENTED();
-    return static_cast<F&>(*this);
-  }
-
-  // MultiplicativeGroup methods
-  F& InverseInPlace() {
-    NOTIMPLEMENTED();
-    return static_cast<F&>(*this);
-  }
-
   // This is needed by MSM.
   // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
   mpz_class DivBy2Exp(uint64_t exp) const {
@@ -131,59 +122,69 @@ class PrimeFieldFallback : public PrimeFieldBase<F> {
     return ret;
   }
 
- private:
-  friend class AdditiveMonoid<F>;
-  friend class AdditiveGroup<F>;
-  friend class MultiplicativeMonoid<F>;
-  friend class MultiplicativeGroup<F>;
-  friend class PrimeFieldBase<F>;
-
   // AdditiveMonoid methods
-  constexpr F Add(const F& other) const {
-    F f;
+  constexpr PrimeFieldFallback Add(const PrimeFieldFallback& other) const {
+    PrimeFieldFallback f;
     NOTIMPLEMENTED();
     return f;
   }
 
-  constexpr F& AddInPlace(const F& other) {
+  constexpr PrimeFieldFallback& AddInPlace(const PrimeFieldFallback& other) {
     NOTIMPLEMENTED();
-    return static_cast<F&>(*this);
+    return *this;
+  }
+
+  PrimeFieldFallback& DoubleInPlace() {
+    NOTIMPLEMENTED();
+    return *this;
   }
 
   // AdditiveGroup methods
-  constexpr F Sub(const F& other) const {
-    F f;
+  constexpr PrimeFieldFallback Sub(const PrimeFieldFallback& other) const {
+    PrimeFieldFallback f;
     NOTIMPLEMENTED();
     return f;
   }
 
-  constexpr F& SubInPlace(const F& other) {
+  constexpr PrimeFieldFallback& SubInPlace(const PrimeFieldFallback& other) {
     NOTIMPLEMENTED();
-    return static_cast<F&>(*this);
+    return *this;
+  }
+
+  PrimeFieldFallback& NegativeInPlace() {
+    NOTIMPLEMENTED();
+    return *this;
   }
 
   // MultiplicativeMonoid methods
-  F Mul(const F& other) const {
-    F f;
+  PrimeFieldFallback Mul(const PrimeFieldFallback& other) const {
+    PrimeFieldFallback f;
     NOTIMPLEMENTED();
     return f;
   }
 
-  F& MulInPlace(const F& other) {
+  PrimeFieldFallback& MulInPlace(const PrimeFieldFallback& other) {
     NOTIMPLEMENTED();
-    return static_cast<F&>(*this);
+    return *this;
   }
+
+  PrimeFieldFallback& SquareInPlace() { return MulInPlace(*this); }
 
   // MultiplicativeGroup methods
-  F Div(const F& other) const {
-    F f;
+  PrimeFieldFallback Div(const PrimeFieldFallback& other) const {
+    PrimeFieldFallback f;
     NOTIMPLEMENTED();
     return f;
   }
 
-  F& DivInPlace(const F& other) {
+  PrimeFieldFallback& DivInPlace(const PrimeFieldFallback& other) {
     NOTIMPLEMENTED();
-    return static_cast<F&>(*this);
+    return *this;
+  }
+
+  PrimeFieldFallback& InverseInPlace() {
+    NOTIMPLEMENTED();
+    return *this;
   }
 
   uint64_t limbs_[LIMB_NUMS] = {
@@ -191,9 +192,9 @@ class PrimeFieldFallback : public PrimeFieldBase<F> {
   };
 };
 
-template <typename F, size_t MODULUS_BITS>
+template <typename Config>
 std::ostream& operator<<(std::ostream& os,
-                         const PrimeFieldFallback<F, MODULUS_BITS>& f) {
+                         const PrimeFieldFallback<Config>& f) {
   return os << f.ToString();
 }
 

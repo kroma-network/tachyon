@@ -7,6 +7,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config.h"
@@ -18,7 +19,8 @@ template <typename Config>
 class AffinePoint<Config,
                   std::enable_if_t<std::is_same_v<
                       Config, SWCurveConfig<typename Config::BaseField,
-                                            typename Config::ScalarField>>>> {
+                                            typename Config::ScalarField>>>>
+    : public AdditiveGroup<AffinePoint<Config>> {
  public:
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
@@ -98,37 +100,32 @@ class AffinePoint<Config,
     return !operator==(other);
   }
 
-  template <typename U>
-  constexpr JacobianPoint<Config> operator+(const U& other) const {
-    JacobianPoint<Config> point = ToJacobian();
-    return point + other;
-  }
-
-  template <typename U>
-  constexpr JacobianPoint<Config> operator-(const U& other) const {
-    JacobianPoint<Config> point = ToJacobian();
-    return point - other;
-  }
-
   constexpr JacobianPoint<Config> ToJacobian() const {
     if (infinity_) return JacobianPoint<Config>::Zero();
     return {x_, y_, BaseField::One()};
   }
 
-  constexpr AffinePoint operator-() const { return {x_, -y_}; }
+  std::string ToString() const {
+    return absl::Substitute("($0, $1)", x_.ToString(), y_.ToString());
+  }
 
-  constexpr JacobianPoint<Config> operator*(const ScalarField& v) const {
+  // AdditiveMonoid methods
+  template <typename U>
+  constexpr JacobianPoint<Config> Add(const U& other) const {
     JacobianPoint<Config> point = ToJacobian();
-    return point.MulInPlace(v);
+    return point + other;
+  }
+
+  // AdditiveGroup methods
+  template <typename U>
+  constexpr JacobianPoint<Config> Sub(const U& other) const {
+    JacobianPoint<Config> point = ToJacobian();
+    return point - other;
   }
 
   constexpr AffinePoint& NegativeInPlace() {
     y_.NegativeInPlace();
     return *this;
-  }
-
-  std::string ToString() const {
-    return absl::Substitute("($0, $1)", x_.ToString(), y_.ToString());
   }
 
  private:

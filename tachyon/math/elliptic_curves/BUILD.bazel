@@ -8,4 +8,5 @@ tachyon_cc_library(
         "affine_point.h",
         "jacobian_point.h",
     ],
+    deps = ["@local_config_gmp//:gmp"],
 )

@@ -10,7 +10,6 @@
 
 #include <gmpxx.h>
 
-#include "tachyon/base/no_destructor.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
@@ -18,23 +17,29 @@
 namespace tachyon {
 namespace math {
 
-template <typename F, size_t _MODULUS_BITS>
-class PrimeFieldGmp : public PrimeFieldBase<F> {
+template <typename _Config>
+class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
  public:
-  static constexpr size_t MODULUS_BITS = _MODULUS_BITS;
-
-  using value_type = mpz_class;
-
+  static constexpr size_t MODULUS_BITS = _Config::MODULUS_BITS;
   static constexpr size_t LIMB_NUMS = (MODULUS_BITS + 63) / 64;
 
+  using Config = _Config;
+  using value_type = mpz_class;
+
   PrimeFieldGmp() = default;
-  explicit PrimeFieldGmp(const mpz_class& value) : value_(value) {
+  explicit PrimeFieldGmp(const mpz_class& value, bool init = false)
+      : value_(value) {
     DCHECK(!gmp::IsNegative(value));
-    DCHECK_LT(value, RawModulus());
+    if (!init) {
+      DCHECK_LT(value, Config::Modulus().value_);
+    }
   }
-  explicit PrimeFieldGmp(mpz_class&& value) : value_(std::move(value)) {
+  explicit PrimeFieldGmp(mpz_class&& value, bool init = false)
+      : value_(std::move(value)) {
     DCHECK(!gmp::IsNegative(value));
-    DCHECK_LT(value, RawModulus());
+    if (!init) {
+      DCHECK_LT(value, Config::Modulus().value_);
+    }
   }
   PrimeFieldGmp(const PrimeFieldGmp& other) = default;
   PrimeFieldGmp& operator=(const PrimeFieldGmp& other) = default;
@@ -43,26 +48,26 @@ class PrimeFieldGmp : public PrimeFieldBase<F> {
 
   const value_type& value() const { return value_; }
 
-  static F Zero() { return F(); }
+  static PrimeFieldGmp Zero() { return PrimeFieldGmp(); }
 
-  static F One() { return F(1); }
+  static PrimeFieldGmp One() { return PrimeFieldGmp(1); }
 
-  static F Random() {
+  static PrimeFieldGmp Random() {
     mpz_class value;
     mpz_urandomm(value.get_mpz_t(), gmp::GetRandomState(),
-                 RawModulus().get_mpz_t());
-    return F(value);
+                 Config::Modulus().value_.get_mpz_t());
+    return PrimeFieldGmp(value);
   }
 
-  static F FromDecString(std::string_view str) {
+  static PrimeFieldGmp FromDecString(std::string_view str) {
     mpz_class value;
     gmp::MustParseIntoMpz(str, 10, &value);
-    return F(std::move(value));
+    return PrimeFieldGmp(std::move(value));
   }
-  static F FromHexString(std::string_view str) {
+  static PrimeFieldGmp FromHexString(std::string_view str) {
     mpz_class value;
     gmp::MustParseIntoMpz(str, 16, &value);
-    return F(std::move(value));
+    return PrimeFieldGmp(std::move(value));
   }
 
   bool IsZero() const { return *this == Zero(); }
@@ -117,25 +122,6 @@ class PrimeFieldGmp : public PrimeFieldBase<F> {
     return mpz_cmp(value_.get_mpz_t(), other.value_.get_mpz_t()) >= 0;
   }
 
-  // AdditiveMonoid methods
-  F& DoubleInPlace() { return AddInPlace(static_cast<const F&>(*this)); }
-
-  // AdditiveGroup methods
-  F& NegativeInPlace() {
-    value_ = RawModulus() - value_;
-    return static_cast<F&>(*this);
-  }
-
-  // MultiplicativeMonoid methods
-  F& SquareInPlace() { return MulInPlace(static_cast<F&>(*this)); }
-
-  // MultiplicativeGroup methods
-  F& InverseInPlace() {
-    mpz_invert(value_.get_mpz_t(), value_.get_mpz_t(),
-               RawModulus().get_mpz_t());
-    return static_cast<F&>(*this);
-  }
-
   // This is needed by MSM.
   // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
   mpz_class DivBy2Exp(uint64_t exp) const {
@@ -144,75 +130,84 @@ class PrimeFieldGmp : public PrimeFieldBase<F> {
     return ret;
   }
 
- protected:
-  static mpz_class& RawModulus() {
-    static base::NoDestructor<mpz_class> prime;
-    return *prime;
+  // AdditiveMonoid methods
+  PrimeFieldGmp Add(const PrimeFieldGmp& other) const {
+    return PrimeFieldGmp(DoMod(value_ + other.value_));
   }
 
- private:
-  friend struct internal::SupportsAdd<F>;
-  friend struct internal::SupportsSub<F>;
-  friend struct internal::SupportsMul<F>;
-  friend struct internal::SupportsDiv<F>;
-  friend class AdditiveMonoid<F>;
-  friend class AdditiveGroup<F>;
-  friend class MultiplicativeMonoid<F>;
-  friend class MultiplicativeGroup<F>;
-  friend class PrimeFieldBase<F>;
-
-  // AdditiveMonoid methods
-  F Add(const F& other) const { return F(DoMod(value_ + other.value_)); }
-
-  F& AddInPlace(const F& other) {
+  PrimeFieldGmp& AddInPlace(const PrimeFieldGmp& other) {
     value_ = DoMod(value_ + other.value_);
-    return static_cast<F&>(*this);
+    return *this;
+  }
+
+  PrimeFieldGmp& DoubleInPlace() {
+    return AddInPlace(static_cast<const PrimeFieldGmp&>(*this));
   }
 
   // AdditiveGroup methods
-  F Sub(const F& other) const {
-    F ret = F((value_ - other.value_) % RawModulus());
+  PrimeFieldGmp Sub(const PrimeFieldGmp& other) const {
+    PrimeFieldGmp ret =
+        PrimeFieldGmp((value_ - other.value_) % Config::Modulus().value_);
     return ret.Normalize();
   }
 
-  F& SubInPlace(const F& other) {
-    value_ = (value_ - other.value_) % RawModulus();
+  PrimeFieldGmp& SubInPlace(const PrimeFieldGmp& other) {
+    value_ = (value_ - other.value_) % Config::Modulus().value_;
     return Normalize();
   }
 
-  // MultiplicativeMonoid methods
-  F Mul(const F& other) const { return F(DoMod(value_ * other.value_)); }
+  PrimeFieldGmp& NegativeInPlace() {
+    value_ = Config::Modulus().value_ - value_;
+    return *this;
+  }
 
-  F& MulInPlace(const F& other) {
+  // MultiplicativeMonoid methods
+  PrimeFieldGmp Mul(const PrimeFieldGmp& other) const {
+    return PrimeFieldGmp(DoMod(value_ * other.value_));
+  }
+
+  PrimeFieldGmp& MulInPlace(const PrimeFieldGmp& other) {
     value_ = DoMod(value_ * other.value_);
-    return static_cast<F&>(*this);
+    return *this;
+  }
+
+  PrimeFieldGmp& SquareInPlace() {
+    return MulInPlace(static_cast<PrimeFieldGmp&>(*this));
   }
 
   // MultiplicativeGroup methods
-  F Div(const F& other) const {
-    return F(DoMod(value_ * other.Inverse().value_));
+  PrimeFieldGmp Div(const PrimeFieldGmp& other) const {
+    return PrimeFieldGmp(DoMod(value_ * other.Inverse().value_));
   }
 
-  F& DivInPlace(const F& other) {
+  PrimeFieldGmp& DivInPlace(const PrimeFieldGmp& other) {
     value_ = DoMod(value_ * other.Inverse().value_);
-    return static_cast<F&>(*this);
+    return *this;
   }
 
-  static mpz_class DoMod(mpz_class value) { return value % RawModulus(); }
+  PrimeFieldGmp& InverseInPlace() {
+    mpz_invert(value_.get_mpz_t(), value_.get_mpz_t(),
+               Config::Modulus().value_.get_mpz_t());
+    return *this;
+  }
 
-  F& Normalize() {
+ private:
+  static mpz_class DoMod(mpz_class value) {
+    return value % Config::Modulus().value_;
+  }
+
+  PrimeFieldGmp& Normalize() {
     if (gmp::IsNegative(value_)) {
-      value_ = RawModulus() + value_;
+      value_ = Config::Modulus().value_ + value_;
     }
-    return static_cast<F&>(*this);
+    return *this;
   }
 
   mpz_class value_;
 };
 
-template <typename F, size_t MODULUS_BITS>
-std::ostream& operator<<(std::ostream& os,
-                         const PrimeFieldGmp<F, MODULUS_BITS>& f) {
+template <typename Config>
+std::ostream& operator<<(std::ostream& os, const PrimeFieldGmp<Config>& f) {
   return os << f.ToString();
 }
 

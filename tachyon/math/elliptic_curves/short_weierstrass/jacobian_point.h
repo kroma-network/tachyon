@@ -6,6 +6,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/logging.h"
+#include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
@@ -18,7 +19,8 @@ template <typename Config>
 class JacobianPoint<Config,
                     std::enable_if_t<std::is_same_v<
                         Config, SWCurveConfig<typename Config::BaseField,
-                                              typename Config::ScalarField>>>> {
+                                              typename Config::ScalarField>>>>
+    : public AdditiveGroup<JacobianPoint<Config>> {
  public:
   constexpr static const bool NEGATION_IS_CHEAP = true;
 
@@ -54,7 +56,7 @@ class JacobianPoint<Config,
   }
 
   constexpr static JacobianPoint Random() {
-    return ScalarField::Random() * Config::Generator();
+    return ScalarField::Random().ToMpzClass() * Config::Generator();
   }
 
   template <
@@ -99,46 +101,6 @@ class JacobianPoint<Config,
     return !operator==(other);
   }
 
-  template <typename U>
-  constexpr JacobianPoint operator+(const U& other) const {
-    JacobianPoint point = *this;
-    return point.AddInPlace(other);
-  }
-
-  template <typename U>
-  constexpr JacobianPoint& operator+=(const U& other) {
-    return AddInPlace(other);
-  }
-
-  template <typename U>
-  constexpr JacobianPoint operator-(const U& other) const {
-    JacobianPoint point = *this;
-    return point.AddInPlace(-other);
-  }
-
-  template <typename U>
-  constexpr JacobianPoint& operator-=(const U& other) {
-    return AddInPlace(-other);
-  }
-
-  constexpr JacobianPoint operator-() const { return {x_, -y_, z_}; }
-
-  constexpr JacobianPoint operator*(const ScalarField& v) const {
-    JacobianPoint point = *this;
-    return point.MulInPlace(v);
-  }
-
-  constexpr JacobianPoint& operator*=(const ScalarField& v) {
-    return MulInPlace(v);
-  }
-
-  constexpr JacobianPoint& NegativeInPlace() {
-    y_.NegativeInPlace();
-    return *this;
-  }
-
-  constexpr JacobianPoint& DoubleInPlace();
-
   constexpr bool IsZero() const { return z_ == BaseField::Zero(); }
 
   // The jacobian point X, Y, Z is represented in the affine
@@ -160,13 +122,18 @@ class JacobianPoint<Config,
                             z_.ToString());
   }
 
- private:
+  // AdditiveMonoid methods
   constexpr JacobianPoint& AddInPlace(const JacobianPoint& other);
   constexpr JacobianPoint& AddInPlace(const AffinePoint<Config>& other);
-  constexpr JacobianPoint& MulInPlace(const ScalarField& scalar) {
-    return *this = Config::DoubleAndAdd(*this, scalar);
+  constexpr JacobianPoint& DoubleInPlace();
+
+  // AdditiveGroup methods
+  constexpr JacobianPoint& NegativeInPlace() {
+    y_.NegativeInPlace();
+    return *this;
   }
 
+ private:
   BaseField x_;
   BaseField y_;
   BaseField z_;

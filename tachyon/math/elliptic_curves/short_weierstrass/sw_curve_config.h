@@ -4,7 +4,6 @@
 #include <type_traits>
 
 #include "tachyon/base/no_destructor.h"
-#include "tachyon/math/base/gmp_util.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 
@@ -43,22 +42,6 @@ class SWCurveConfig {
       right += A() * x;
     }
     return y.Square() == right;
-  }
-
-  static JacobianPointTy DoubleAndAdd(const JacobianPointTy& base,
-                                      const ScalarField& scalar) {
-    JacobianPointTy ret = JacobianPointTy::Zero();
-    mpz_class mpz_value = scalar.ToMpzClass();
-    auto it = gmp::BitIteratorBE::begin(&mpz_value);
-    auto end = gmp::BitIteratorBE::end(&mpz_value);
-    while (it != end) {
-      ret.DoubleInPlace();
-      if (*it) {
-        ret += base;
-      }
-      ++it;
-    }
-    return ret;
   }
 
   template <

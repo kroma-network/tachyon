@@ -7,41 +7,74 @@ namespace tachyon {
 namespace math {
 namespace internal {
 
-template <typename T, typename = void>
+template <typename L, typename R, typename = void>
 struct SupportsDiv : std::false_type {};
 
-template <typename T>
-struct SupportsDiv<T, decltype(void(std::declval<T>().Div(
-                          std::declval<const T&>())))> : std::true_type {};
+template <typename L, typename R>
+struct SupportsDiv<
+    L, R, decltype(void(std::declval<L>().Div(std::declval<const R&>())))>
+    : std::true_type {};
 
-template <typename T, typename = void>
+template <typename L, typename R, typename = void>
+struct SupportsDivInPlace : std::false_type {};
+
+template <typename L, typename R>
+struct SupportsDivInPlace<L, R,
+                          decltype(void(std::declval<L>().DivInPlace(
+                              std::declval<const R&>())))> : std::true_type {};
+
+template <typename L, typename R, typename = void>
 struct SupportsSub : std::false_type {};
 
-template <typename T>
-struct SupportsSub<T, decltype(void(std::declval<T>().Sub(
-                          std::declval<const T&>())))> : std::true_type {};
+template <typename L, typename R>
+struct SupportsSub<
+    L, R, decltype(void(std::declval<L>().Sub(std::declval<const R&>())))>
+    : std::true_type {};
+
+template <typename L, typename R, typename = void>
+struct SupportsSubInPlace : std::false_type {};
+
+template <typename L, typename R>
+struct SupportsSubInPlace<L, R,
+                          decltype(void(std::declval<L>().SubInPlace(
+                              std::declval<const R&>())))> : std::true_type {};
 
 }  // namespace internal
 
 template <typename G>
 class MultiplicativeGroup : public MultiplicativeMonoid<G> {
  public:
-  constexpr G operator/(const G& other) const {
-    if constexpr (internal::SupportsDiv<G>::value) {
+  template <typename G2>
+  constexpr auto operator/(const G2& other) const {
+    if constexpr (internal::SupportsDiv<G, G2>::value) {
       const G* g = static_cast<const G*>(this);
       return g->Div(other);
-    } else {
+    } else if constexpr (internal::SupportsDivInPlace<G, G2>::value) {
       G g = *static_cast<const G*>(this);
       return g.DivInPlace(other);
+    } else {
+      return this->operator*(other.Inverse());
     }
   }
 
-  constexpr G& operator/=(const G& other) {
+  template <
+      typename G2,
+      std::enable_if_t<internal::SupportsDivInPlace<G, G2>::value>* = nullptr>
+  constexpr auto operator/=(const G2& other) {
     G* g = static_cast<G*>(this);
     return g->DivInPlace(other);
   }
 
-  [[nodiscard]] constexpr G Inverse() const {
+  template <
+      typename G2,
+      std::enable_if_t<!internal::SupportsDivInPlace<G, G2>::value &&
+                       internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
+  constexpr auto& operator/=(const G2& other) {
+    G* g = static_cast<G*>(this);
+    return g->MulInPlace(other.Inverse());
+  }
+
+  [[nodiscard]] constexpr auto Inverse() const {
     G ret = *static_cast<const G*>(this);
     return ret.InverseInPlace();
   }
@@ -50,27 +83,39 @@ class MultiplicativeGroup : public MultiplicativeMonoid<G> {
 template <typename G>
 class AdditiveGroup : public AdditiveMonoid<G> {
  public:
-  constexpr G operator-(const G& other) const {
-    if constexpr (internal::SupportsSub<G>::value) {
+  template <typename G2>
+  constexpr auto operator-(const G2& other) const {
+    if constexpr (internal::SupportsSub<G, G2>::value) {
       const G* g = static_cast<const G*>(this);
       return g->Sub(other);
-    } else {
+    } else if constexpr (internal::SupportsSubInPlace<G, G2>::value) {
       G g = *static_cast<const G*>(this);
       return g.SubInPlace(other);
+    } else {
+      return this->operator+(other.Negative());
     }
   }
 
-  constexpr G& operator-=(const G& other) {
+  template <
+      typename G2,
+      std::enable_if_t<internal::SupportsSubInPlace<G, G2>::value>* = nullptr>
+  constexpr auto& operator-=(const G2& other) {
     G* g = static_cast<G*>(this);
     return g->SubInPlace(other);
   }
 
-  constexpr G operator-() const {
-    const G* g = static_cast<const G*>(this);
-    return g->Negative();
+  template <
+      typename G2,
+      std::enable_if_t<!internal::SupportsSubInPlace<G, G2>::value &&
+                       internal::SupportsAddInPlace<G, G2>::value>* = nullptr>
+  constexpr auto& operator-=(const G2& other) {
+    G* g = static_cast<G*>(this);
+    return g->AddInPlace(other.Negative());
   }
 
-  [[nodiscard]] constexpr G Negative() const {
+  constexpr auto operator-() const { return Negative(); }
+
+  [[nodiscard]] constexpr auto Negative() const {
     G ret = *static_cast<const G*>(this);
     return ret.NegativeInPlace();
   }

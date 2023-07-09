@@ -19,7 +19,7 @@ const size_t g_size = 40;
 class VariableBaseMSMTest : public ::testing::Test {
  public:
   VariableBaseMSMTest() {
-    GF7::Init();
+    GF7Config::Init();
     test::SwCurveConfig::Init();
 
     bases_ = base::CreateVector(
@@ -28,7 +28,7 @@ class VariableBaseMSMTest : public ::testing::Test {
 
     answer_ = std::make_unique<JacobianPoint<Config>>();
     for (size_t i = 0; i < bases_.size(); ++i) {
-      *answer_ += (bases_[i] * scalars_[i]);
+      *answer_ += (bases_[i] * scalars_[i].ToMpzClass());
     }
   }
   VariableBaseMSMTest(const VariableBaseMSMTest&) = delete;

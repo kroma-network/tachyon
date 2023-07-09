@@ -2,6 +2,7 @@
 
 #include "absl/base/call_once.h"
 
+#include "tachyon/base/no_destructor.h"
 #include "tachyon/math/base/gmp_util.h"
 
 namespace tachyon {
@@ -9,15 +10,23 @@ namespace math {
 namespace bn254 {
 
 // static
-void Fr::Init() {
+void FrConfig::Init() {
   static absl::once_flag once;
   absl::call_once(once, []() {
 #if defined(TACHYON_GMP_BACKEND)
+    mpz_class modulus;
     gmp::MustParseIntoMpz(
         "0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001",
-        16, &RawModulus());
+        16, &modulus);
+    Modulus() = Fr(modulus, true);
 #endif
   });
+}
+
+// static
+Fr& FrConfig::Modulus() {
+  static base::NoDestructor<Fr> modulus;
+  return *modulus;
 }
 
 }  // namespace bn254

@@ -13,7 +13,7 @@ namespace {
 class SparseUnivariatePolynomialTest : public ::testing::Test {
  public:
   SparseUnivariatePolynomialTest() {
-    GF7::Init();
+    GF7Config::Init();
 
     polys_.push_back(SparseUnivariatePolynomial<GF7, 5>(
         SparseCoefficients<GF7, 5>({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})));

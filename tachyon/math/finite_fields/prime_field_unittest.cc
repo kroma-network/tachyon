@@ -9,7 +9,7 @@ namespace {
 
 class PrimeFieldTest : public ::testing::Test {
  public:
-  PrimeFieldTest() { GF7::Init(); }
+  PrimeFieldTest() { GF7Config::Init(); }
   PrimeFieldTest(const PrimeFieldTest&) = delete;
   PrimeFieldTest& operator=(const PrimeFieldTest&) = delete;
   ~PrimeFieldTest() override = default;

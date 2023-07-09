@@ -3,6 +3,8 @@
 
 #include <ostream>
 
+#include "gmpxx.h"
+
 namespace tachyon {
 namespace math {
 
@@ -14,10 +16,10 @@ std::ostream& operator<<(std::ostream& os, const JacobianPoint<Config>& point) {
   return os << point.ToString();
 }
 
-template <typename Config, typename ScalarField = typename Config::ScalarField>
-JacobianPoint<Config> operator*(const ScalarField& v,
+template <typename Config>
+JacobianPoint<Config> operator*(const mpz_class& scalar,
                                 const JacobianPoint<Config>& point) {
-  return point * v;
+  return point * scalar;
 }
 
 }  // namespace math

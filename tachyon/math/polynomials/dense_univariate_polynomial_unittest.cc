@@ -11,7 +11,7 @@ namespace {
 class DenseUnivariatePolynomialTest : public ::testing::Test {
  public:
   DenseUnivariatePolynomialTest() {
-    GF7::Init();
+    GF7Config::Init();
 
     polys_.push_back(DenseUnivariatePolynomial<GF7, 5>(
         DenseCoefficients<GF7, 5>({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));

@@ -8,14 +8,18 @@ namespace tachyon {
 namespace math {
 namespace bn254 {
 
-class TACHYON_EXPORT Fq : public PrimeField<Fq, 254> {
+class TACHYON_EXPORT FqConfig {
  public:
-  using PrimeField<Fq, 254>::PrimeField;
+  constexpr static size_t MODULUS_BITS = 254;
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 
   static void Init();
+
+  static PrimeField<FqConfig>& Modulus();
 };
+
+using Fq = PrimeField<FqConfig>;
 
 }  // namespace bn254
 }  // namespace math
