@@ -14,7 +14,7 @@ namespace {
 
 using Config = test::SwCurveConfig::Config;
 
-const size_t g_size = 40;
+const size_t kSize = 40;
 
 class VariableBaseMSMTest : public ::testing::Test {
  public:
@@ -23,8 +23,8 @@ class VariableBaseMSMTest : public ::testing::Test {
     test::SwCurveConfig::Init();
 
     bases_ = base::CreateVector(
-        g_size, []() { return JacobianPoint<Config>::Random(); });
-    scalars_ = base::CreateVector(g_size, []() { return GF7::Random(); });
+        kSize, []() { return JacobianPoint<Config>::Random(); });
+    scalars_ = base::CreateVector(kSize, []() { return GF7::Random(); });
 
     answer_ = std::make_unique<JacobianPoint<Config>>();
     for (size_t i = 0; i < bases_.size(); ++i) {
