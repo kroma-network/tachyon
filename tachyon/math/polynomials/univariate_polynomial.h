@@ -27,7 +27,25 @@ class UnivariatePolynomial
   constexpr explicit UnivariatePolynomial(Coefficients&& coefficients)
       : coefficients_(std::move(coefficients)) {}
 
+  constexpr static UnivariatePolynomial Zero() {
+    return UnivariatePolynomial();
+  }
+
+  constexpr static UnivariatePolynomial Random(size_t degree) {
+    return UnivariatePolynomial(Coefficients::Random(degree));
+  }
+
+  constexpr bool IsZero() const { return coefficients_.IsEmpty(); }
+
   const Coefficients& coefficients() const { return coefficients_; }
+
+  constexpr bool operator==(const UnivariatePolynomial& other) const {
+    return coefficients_ == other.coefficients_;
+  }
+
+  constexpr bool operator!=(const UnivariatePolynomial& other) const {
+    return !operator==(other);
+  }
 
   constexpr Field* operator[](size_t i) { return coefficients_.Get(i); }
 
@@ -35,10 +53,69 @@ class UnivariatePolynomial
     return coefficients_.Get(i);
   }
 
+  auto ToSparse() const {
+    return internal::UnivariatePolynomialOp<Coefficients>::ToSparsePolynomial(
+        *this);
+  }
+
+  auto ToDense() const {
+    return internal::UnivariatePolynomialOp<Coefficients>::ToDensePolynomial(
+        *this);
+  }
+
   std::string ToString() const { return coefficients_.ToString(); }
+
+  // AdditiveMonoid methods
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolyAdd<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  constexpr auto Add(const UnivariatePolynomial<Coefficients2>& other) const {
+    return internal::UnivariatePolynomialOp<Coefficients>::Add(*this, other);
+  }
+
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolyAddInPlace<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  constexpr auto& AddInPlace(const UnivariatePolynomial<Coefficients2>& other) {
+    return internal::UnivariatePolynomialOp<Coefficients>::AddInPlace(*this,
+                                                                      other);
+  }
+
+  // AdditiveGroup methods
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolySub<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  constexpr auto Sub(const UnivariatePolynomial<Coefficients2>& other) const {
+    return internal::UnivariatePolynomialOp<Coefficients>::Sub(*this, other);
+  }
+
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolySubInPlace<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  constexpr auto& SubInPlace(const UnivariatePolynomial<Coefficients2>& other) {
+    return internal::UnivariatePolynomialOp<Coefficients>::SubInPlace(*this,
+                                                                      other);
+  }
+
+  UnivariatePolynomial& NegativeInPlace() {
+    return internal::UnivariatePolynomialOp<Coefficients>::NegativeInPlace(
+        *this);
+  }
+
+  // MultiplicativeMonoid methods
+  constexpr UnivariatePolynomial& MulInPlace(
+      const UnivariatePolynomial& other) {
+    NOTIMPLEMENTED();
+    return *this;
+  }
 
  private:
   friend class Polynomial<UnivariatePolynomial<Coefficients>>;
+  friend class internal::UnivariatePolynomialOp<Coefficients>;
 
   // Polynomial methods
   constexpr size_t DoDegree() const { return coefficients_.Degree(); }
@@ -72,5 +149,7 @@ using SparseUnivariatePolynomial =
 
 }  // namespace math
 }  // namespace tachyon
+
+#include "tachyon/math/polynomials/univariate_polynomial_ops.h"
 
 #endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_POLYNOMIAL_H_

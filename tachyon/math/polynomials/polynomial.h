@@ -27,35 +27,6 @@ class Polynomial : public Ring<Derived> {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoEvaluate(point);
   }
-
-  // AdditiveGroup methods
-  Derived& NegativeInPlace() {
-    NOTIMPLEMENTED();
-    return static_cast<Derived&>(*this);
-  }
-
- private:
-  friend class AdditiveMonoid<Derived>;
-  friend class AdditiveGroup<Derived>;
-  friend class MultiplicativeMonoid<Derived>;
-
-  // AdditiveMonoid methods
-  constexpr Derived& AddInPlace(const Derived& other) {
-    NOTIMPLEMENTED();
-    return *this;
-  }
-
-  // AdditiveGroup methods
-  constexpr Derived& SubInPlace(const Derived& other) {
-    NOTIMPLEMENTED();
-    return *this;
-  }
-
-  // MultiplicativeMonoid methods
-  constexpr Derived& MulInPlace(const Derived& other) {
-    NOTIMPLEMENTED();
-    return *this;
-  }
 };
 
 }  // namespace math

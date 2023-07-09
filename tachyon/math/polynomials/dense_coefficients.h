@@ -8,10 +8,15 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/math/polynomials/univariate_polynomial_ops_forward.h"
 
 namespace tachyon {
 namespace math {
+
+template <typename F, size_t MAX_DEGREE>
+class SparseCoefficients;
 
 template <typename F, size_t _MAX_DEGREE>
 class DenseCoefficients {
@@ -30,6 +35,19 @@ class DenseCoefficients {
     CHECK_LE(Degree(), MAX_DEGREE);
   }
 
+  constexpr static DenseCoefficients Random(size_t degree) {
+    return DenseCoefficients(
+        base::CreateVector(degree + 1, []() { return F::Random(); }));
+  }
+
+  constexpr bool operator==(const DenseCoefficients& other) const {
+    return coefficients_ == other.coefficients_;
+  }
+
+  constexpr bool operator!=(const DenseCoefficients& other) const {
+    return coefficients_ != other.coefficients_;
+  }
+
   constexpr Field* Get(size_t i) {
     return const_cast<Field*>(std::as_const(*this).Get(i));
   }
@@ -40,6 +58,8 @@ class DenseCoefficients {
     }
     return nullptr;
   }
+
+  constexpr bool IsEmpty() const { return coefficients_.empty(); }
 
   constexpr size_t Degree() const {
     if (coefficients_.empty()) return 0;
@@ -78,6 +98,11 @@ class DenseCoefficients {
   }
 
  private:
+  friend class internal::UnivariatePolynomialOp<
+      DenseCoefficients<F, MAX_DEGREE>>;
+  friend class internal::UnivariatePolynomialOp<
+      SparseCoefficients<F, MAX_DEGREE>>;
+
   constexpr Field DoEvaluate(const Field& point) const {
     return HornerEvaluate(point);
   }

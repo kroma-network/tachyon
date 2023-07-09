@@ -8,17 +8,21 @@ namespace math {
 
 namespace {
 
+const size_t kMaxDegree = 5;
+
+using Poly = DenseUnivariatePolynomial<GF7, kMaxDegree>;
+using Coeffs = DenseCoefficients<GF7, kMaxDegree>;
+
 class DenseUnivariatePolynomialTest : public ::testing::Test {
  public:
   DenseUnivariatePolynomialTest() {
     GF7Config::Init();
 
-    polys_.push_back(DenseUnivariatePolynomial<GF7, 5>(
-        DenseCoefficients<GF7, 5>({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));
-    polys_.push_back(
-        DenseUnivariatePolynomial<GF7, 5>(DenseCoefficients<GF7, 5>({GF7(3)})));
-    polys_.push_back(DenseUnivariatePolynomial<GF7, 5>(
-        DenseCoefficients<GF7, 5>({GF7(0), GF7(0), GF7(0), GF7(5)})));
+    polys_.push_back(Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));
+    polys_.push_back(Poly(Coeffs({GF7(3)})));
+    polys_.push_back(Poly(Coeffs({GF7(0), GF7(0), GF7(0), GF7(5)})));
+    polys_.push_back(Poly(Coeffs({GF7(0), GF7(0), GF7(0), GF7(0), GF7(5)})));
+    polys_.push_back(Poly::Zero());
   }
   DenseUnivariatePolynomialTest(const DenseUnivariatePolynomialTest&) = delete;
   DenseUnivariatePolynomialTest& operator=(
@@ -26,23 +30,34 @@ class DenseUnivariatePolynomialTest : public ::testing::Test {
   ~DenseUnivariatePolynomialTest() override = default;
 
  protected:
-  std::vector<DenseUnivariatePolynomial<GF7, 5>> polys_;
+  std::vector<Poly> polys_;
 };
 
 }  // namespace
 
+TEST_F(DenseUnivariatePolynomialTest, Random) {
+  bool success = false;
+  Poly r = Poly::Random(kMaxDegree);
+  for (size_t i = 0; i < 100; ++i) {
+    if (r != Poly::Random(kMaxDegree)) {
+      success = true;
+      break;
+    }
+  }
+  EXPECT_TRUE(success);
+}
+
 TEST_F(DenseUnivariatePolynomialTest, IndexingOperator) {
   struct {
-    const DenseUnivariatePolynomial<GF7, 5>& poly;
+    const Poly& poly;
     std::vector<int> coefficients;
   } tests[] = {
-      {polys_[0], {3, 0, 1, 0, 2}},
-      {polys_[1], {3}},
-      {polys_[2], {0, 0, 0, 5}},
+      {polys_[0], {3, 0, 1, 0, 2}}, {polys_[1], {3}}, {polys_[2], {0, 0, 0, 5}},
+      {polys_[3], {0, 0, 0, 0, 5}}, {polys_[4], {}},
   };
 
   for (const auto& test : tests) {
-    for (size_t i = 0; i < 5; ++i) {
+    for (size_t i = 0; i < kMaxDegree; ++i) {
       if (i < test.coefficients.size()) {
         EXPECT_EQ(*test.poly[i], GF7(test.coefficients[i]));
       } else {
@@ -54,12 +69,11 @@ TEST_F(DenseUnivariatePolynomialTest, IndexingOperator) {
 
 TEST_F(DenseUnivariatePolynomialTest, Degree) {
   struct {
-    const DenseUnivariatePolynomial<GF7, 5>& poly;
+    const Poly& poly;
     size_t degree;
   } tests[] = {
-      {polys_[0], 4},
-      {polys_[1], 0},
-      {polys_[2], 3},
+      {polys_[0], 4}, {polys_[1], 0}, {polys_[2], 3},
+      {polys_[3], 4}, {polys_[4], 0},
   };
 
   for (const auto& test : tests) {
@@ -69,12 +83,11 @@ TEST_F(DenseUnivariatePolynomialTest, Degree) {
 
 TEST_F(DenseUnivariatePolynomialTest, Evaluate) {
   struct {
-    const DenseUnivariatePolynomial<GF7, 5>& poly;
+    const Poly& poly;
     GF7 expected;
   } tests[] = {
-      {polys_[0], GF7(6)},
-      {polys_[1], GF7(3)},
-      {polys_[2], GF7(2)},
+      {polys_[0], GF7(6)}, {polys_[1], GF7(3)}, {polys_[2], GF7(2)},
+      {polys_[3], GF7(6)}, {polys_[4], GF7(0)},
   };
 
   for (const auto& test : tests) {
@@ -84,16 +97,85 @@ TEST_F(DenseUnivariatePolynomialTest, Evaluate) {
 
 TEST_F(DenseUnivariatePolynomialTest, ToString) {
   struct {
-    const DenseUnivariatePolynomial<GF7, 5>& poly;
+    const Poly& poly;
     std::string_view expected;
   } tests[] = {
       {polys_[0], "2 * x^4 + 1 * x^2 + 3"},
       {polys_[1], "3"},
       {polys_[2], "5 * x^3"},
+      {polys_[3], "5 * x^4"},
+      {polys_[4], ""},
   };
 
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.ToString(), test.expected);
+  }
+}
+
+TEST_F(DenseUnivariatePolynomialTest, AdditiveOperators) {
+  struct {
+    const Poly& a;
+    const Poly& b;
+    Poly sum;
+    Poly amb;
+    Poly bma;
+  } tests[] = {
+      {
+          polys_[0],
+          polys_[1],
+          Poly(Coeffs({GF7(6), GF7(0), GF7(1), GF7(0), GF7(2)})),
+          Poly(Coeffs({GF7(0), GF7(0), GF7(1), GF7(0), GF7(2)})),
+          Poly(Coeffs({GF7(0), GF7(0), GF7(6), GF7(0), GF7(5)})),
+      },
+      {
+          polys_[0],
+          polys_[2],
+          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(5), GF7(2)})),
+          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(2), GF7(2)})),
+          Poly(Coeffs({GF7(4), GF7(0), GF7(6), GF7(5), GF7(5)})),
+      },
+      {
+          polys_[0],
+          polys_[3],
+          Poly(Coeffs({GF7(3), GF7(0), GF7(1)})),
+          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(4)})),
+          Poly(Coeffs({GF7(4), GF7(0), GF7(6), GF7(0), GF7(3)})),
+      },
+      {
+          polys_[0],
+          polys_[4],
+          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})),
+          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})),
+          Poly(Coeffs({GF7(4), GF7(0), GF7(6), GF7(0), GF7(5)})),
+      },
+  };
+
+  for (const auto& test : tests) {
+    const auto a_sparse = test.a.ToSparse();
+    const auto b_sparse = test.b.ToSparse();
+    EXPECT_EQ(test.a + test.b, test.sum);
+    EXPECT_EQ(test.b + test.a, test.sum);
+    EXPECT_EQ(test.a + b_sparse, test.sum);
+    EXPECT_EQ(test.b + a_sparse, test.sum);
+    EXPECT_EQ(test.a - test.b, test.amb);
+    EXPECT_EQ(test.b - test.a, test.bma);
+    EXPECT_EQ(test.a - b_sparse, test.amb);
+    EXPECT_EQ(test.b - a_sparse, test.bma);
+
+    {
+      Poly tmp = test.a;
+      tmp += test.b;
+      EXPECT_EQ(tmp, test.sum);
+      tmp -= test.b;
+      EXPECT_EQ(tmp, test.a);
+    }
+    {
+      Poly tmp = test.a;
+      tmp += b_sparse;
+      EXPECT_EQ(tmp, test.sum);
+      tmp -= b_sparse;
+      EXPECT_EQ(tmp, test.a);
+    }
   }
 }
 

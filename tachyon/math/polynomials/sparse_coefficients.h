@@ -14,9 +14,13 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/math/polynomials/univariate_polynomial_ops_forward.h"
 
 namespace tachyon {
 namespace math {
+
+template <typename F, size_t MAX_DEGREE>
+class DenseCoefficients;
 
 template <typename F, size_t _MAX_DEGREE>
 class SparseCoefficients {
@@ -29,7 +33,15 @@ class SparseCoefficients {
     size_t degree;
     F coefficient;
 
+    Element operator-() const { return {degree, -coefficient}; }
+
     bool operator<(const Element& other) const { return degree < other.degree; }
+    bool operator==(const Element& other) const {
+      return degree == other.degree && coefficient == other.coefficient;
+    }
+    bool operator!=(const Element& other) const {
+      return degree != other.degree || coefficient != other.coefficient;
+    }
   };
 
   constexpr SparseCoefficients() = default;
@@ -42,6 +54,25 @@ class SparseCoefficients {
       : elements_(std::move(elements)) {
     CHECK_LE(Degree(), MAX_DEGREE);
     DCHECK(base::ranges::is_sorted(elements_.begin(), elements_.end()));
+  }
+
+  constexpr static SparseCoefficients Random(size_t degree) {
+    // TODO(chokobole): Better idea?
+    std::vector<Element> elements;
+    for (size_t i = 0; i < degree + 1; ++i) {
+      F f = F::Random();
+      if (f.IsZero()) continue;
+      elements.push_back({i, std::move(f)});
+    }
+    return SparseCoefficients(std::move(elements));
+  }
+
+  constexpr bool operator==(const SparseCoefficients& other) const {
+    return elements_ == other.elements_;
+  }
+
+  constexpr bool operator!=(const SparseCoefficients& other) const {
+    return elements_ != other.elements_;
   }
 
   constexpr Field* Get(size_t i) {
@@ -57,6 +88,8 @@ class SparseCoefficients {
     if (it->degree != i) return nullptr;
     return &it->coefficient;
   }
+
+  constexpr bool IsEmpty() const { return elements_.empty(); }
 
   constexpr size_t Degree() const {
     if (elements_.empty()) return 0;
@@ -112,6 +145,11 @@ class SparseCoefficients {
   }
 
  private:
+  friend class internal::UnivariatePolynomialOp<
+      DenseCoefficients<F, MAX_DEGREE>>;
+  friend class internal::UnivariatePolynomialOp<
+      SparseCoefficients<F, MAX_DEGREE>>;
+
   std::vector<Element> elements_;
 };
 

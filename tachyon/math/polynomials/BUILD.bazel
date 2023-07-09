@@ -8,10 +8,13 @@ tachyon_cc_library(
         "dense_coefficients.h",
         "sparse_coefficients.h",
         "univariate_polynomial.h",
+        "univariate_polynomial_ops.h",
+        "univariate_polynomial_ops_forward.h",
     ],
     deps = [
         ":polynomial",
         "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
         "//tachyon/base/ranges:algorithm",
         "//tachyon/base/strings:string_util",
         "@com_google_absl//absl/numeric:bits",
