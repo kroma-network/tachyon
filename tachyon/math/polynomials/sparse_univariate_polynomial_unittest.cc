@@ -77,15 +77,15 @@ TEST_F(SparseUnivariatePolynomialTest, Degree) {
 TEST_F(SparseUnivariatePolynomialTest, Evaluate) {
   struct {
     const SparseUnivariatePolynomial<GF7, 5>& poly;
-    size_t degree;
+    GF7 expectd;
   } tests[] = {
-      {polys_[0], 4},
-      {polys_[1], 0},
-      {polys_[2], 3},
+      {polys_[0], GF7(6)},
+      {polys_[1], GF7(3)},
+      {polys_[2], GF7(2)},
   };
 
   for (const auto& test : tests) {
-    EXPECT_EQ(test.poly.Degree(), test.degree);
+    EXPECT_EQ(test.poly.Evaluate(GF7(3)), test.expectd);
   }
 }
 

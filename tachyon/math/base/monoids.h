@@ -110,7 +110,8 @@ class MultiplicativeMonoid {
     return g;
   }
 
-  static G PowWithTable(absl::Span<G> powers_of_2, const mpz_class& exponent) {
+  static G PowWithTable(absl::Span<const G> powers_of_2,
+                        const mpz_class& exponent) {
     auto it = gmp::BitIteratorLE::begin(&exponent);
     auto end = gmp::BitIteratorLE::end(&exponent);
     G g = G::One();
