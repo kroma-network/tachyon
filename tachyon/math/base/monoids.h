@@ -157,19 +157,27 @@ class AdditiveMonoid {
     }
   }
 
-  template <
-      typename T = G,
-      std::enable_if_t<internal::SupportsDoubleInPlace<T>::value &&
-                       internal::SupportsAddInPlace<T, G>::value>* = nullptr>
-  auto operator*(const mpz_class& scalar) const {
+  // FIXME(chokobole): In g++ (Ubuntu 11.3.0-1ubuntu1~22.04.1) 11.3.0, if I use
+  // the function below, then it gives me an error "error: request for member
+  // 'operator*' is ambiguous".
+  // constexpr auto operator*(const mpz_class& scalar) const {
+  constexpr auto ScalarMul(const mpz_class& scalar) const {
     const G* g = static_cast<const G*>(this);
     G ret = G::Zero();
     auto it = gmp::BitIteratorBE::begin(&scalar);
     auto end = gmp::BitIteratorBE::end(&scalar);
     while (it != end) {
-      ret.DoubleInPlace();
+      if constexpr (internal::SupportsDoubleInPlace<G>::value) {
+        ret.DoubleInPlace();
+      } else {
+        ret = ret.Double();
+      }
       if (*it) {
-        ret += *g;
+        if constexpr (internal::SupportsAddInPlace<G, G>::value) {
+          ret.AddInPlace(*g);
+        } else {
+          ret = ret.Add(*g);
+        }
       }
       ++it;
     }

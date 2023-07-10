@@ -19,7 +19,7 @@ std::ostream& operator<<(std::ostream& os, const JacobianPoint<Config>& point) {
 template <typename Config>
 JacobianPoint<Config> operator*(const mpz_class& scalar,
                                 const JacobianPoint<Config>& point) {
-  return point * scalar;
+  return point.ScalarMul(scalar);
 }
 
 }  // namespace math
