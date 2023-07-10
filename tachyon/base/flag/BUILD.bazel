@@ -1,5 +1,7 @@
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 
+package(default_visibility = ["//visibility:public"])
+
 tachyon_cc_library(
     name = "flag",
     srcs = ["flag.cc"],
@@ -9,7 +11,6 @@ tachyon_cc_library(
         "flag_value_traits.h",
         "numeric_flags.h",
     ],
-    visibility = ["//visibility:public"],
     deps = [
         "//tachyon/base:environment",
         "//tachyon/base:logging",
@@ -26,7 +27,6 @@ tachyon_cc_library(
     name = "flag_parser",
     srcs = ["flag_parser.cc"],
     hdrs = ["flag_parser.h"],
-    visibility = ["//visibility:public"],
     deps = [
         ":flag",
         "//tachyon/base:compiler_specific",
