@@ -38,7 +38,7 @@ build:cuda_clang --@local_config_cuda//:cuda_compiler=clang
 build:rocm --crosstool_top=@local_config_rocm//crosstool:toolchain
 build:rocm --define=using_rocm_hipcc=true
 build:rocm --define=tensorflow_mkldnn_contraction_kernel=0
-build:rocm --repo_env TF_NEED_ROCM=1
+build:rocm --repo_env TACHYON_NEED_ROCM=1
 
 # Debug config
 build:dbg -c dbg
