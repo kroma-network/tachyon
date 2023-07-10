@@ -26,8 +26,9 @@ TEST(ContainerUtilTest, CreateRangedVector) {
 }
 
 TEST(ContainerUtilTest, CreateVectorWithGenerator) {
-  int i = 1;
-  EXPECT_THAT(CreateVector(5, std::function<int()>([&i]() { return i++; })),
+  EXPECT_THAT(CreateVector(5, ([]() { return 3; })),
+              ::testing::ContainerEq(std::vector<int>{3, 3, 3, 3, 3}));
+  EXPECT_THAT(CreateVector(5, ([](int idx) { return idx + 1; })),
               ::testing::ContainerEq(std::vector<int>{1, 2, 3, 4, 5}));
 }
 

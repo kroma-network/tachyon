@@ -29,12 +29,35 @@ std::vector<T> CreateRangedVector(T start, T end, T step = 1) {
 
 template <typename Generator,
           typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
-          typename ReturnType = typename FunctorTraits::ReturnType>
+          typename RunType = typename FunctorTraits::RunType,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = GetSize<ArgList>,
+          std::enable_if_t<ArgNum == 0>* = nullptr>
 std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
   std::vector<ReturnType> ret;
   ret.reserve(size);
   std::generate_n(std::back_inserter(ret), size,
                   std::forward<Generator>(generator));
+  return ret;
+}
+
+template <typename Generator,
+          typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = GetSize<ArgList>,
+          std::enable_if_t<ArgNum == 1>* = nullptr>
+std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
+  std::vector<ReturnType> ret;
+  ret.reserve(size);
+  size_t idx = 0;
+  std::generate_n(
+      std::back_inserter(ret), size,
+      [&idx, generator = std::forward<Generator>(generator)]() mutable {
+        return generator(idx++);
+      });
   return ret;
 }
 
