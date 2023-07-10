@@ -12,7 +12,7 @@ def if_cuda(if_true, if_false = []):
     })
 
 def if_cuda_clang(if_true, if_false = []):
-   """Shorthand for select()'ing on wheteher we're building with cuda-clang.
+   """Shorthand for select()'ing on whether we're building with cuda-clang.
 
     Returns a select statement which evaluates to if_true if we're building
     with cuda-clang.  Otherwise, the select statement evaluates to if_false.
@@ -24,7 +24,7 @@ def if_cuda_clang(if_true, if_false = []):
    })
 
 def cuda_compiler(if_cuda_clang, if_nvcc, neither = []):
-    """Shorthand for select()'ing on wheteher we're building with cuda-clang or nvcc.
+    """Shorthand for select()'ing on whether we're building with cuda-clang or nvcc.
 
      Returns a select statement which evaluates to if_cuda_clang if we're building
      with cuda-clang, if_nvcc if we're building with NVCC.
@@ -43,7 +43,7 @@ def cuda_compiler(if_cuda_clang, if_nvcc, neither = []):
         })
 
 def if_cuda_clang_opt(if_true, if_false = []):
-   """Shorthand for select()'ing on wheteher we're building with cuda-clang
+   """Shorthand for select()'ing on whether we're building with cuda-clang
    in opt mode.
 
     Returns a select statement which evaluates to if_true if we're building
@@ -60,7 +60,7 @@ def cuda_default_copts():
     """Default options for all CUDA compilations."""
     return if_cuda([
         "-x", "cuda",
-        "-DGOOGLE_CUDA=1",
+        "-DTACHYON_CUDA=1",
     ] + %{cuda_extra_copts}) + if_cuda_clang_opt(
         # Some important CUDA optimizations are only enabled at O3.
         ["-O3"]
@@ -122,7 +122,7 @@ def cuda_library(copts = [], **kwargs):
 
 def cuda_cc_test(copts = [], **kwargs):
     """Wrapper over cc_test which adds default CUDA options."""
-    native.cc_test(copts = copts + if_cuda(["-DGOOGLE_CUDA=1"]), **kwargs)
+    native.cc_test(copts = copts + if_cuda(["-DTACHYON_CUDA=1"]), **kwargs)
 
 EnableCudaInfo = provider()
 
