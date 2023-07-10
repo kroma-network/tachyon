@@ -28,14 +28,20 @@ class UnivariatePolynomial
       : coefficients_(std::move(coefficients)) {}
 
   constexpr static UnivariatePolynomial Zero() {
-    return UnivariatePolynomial();
+    return UnivariatePolynomial(Coefficients::Zero());
+  }
+
+  constexpr static UnivariatePolynomial One() {
+    return UnivariatePolynomial(Coefficients::One());
   }
 
   constexpr static UnivariatePolynomial Random(size_t degree) {
     return UnivariatePolynomial(Coefficients::Random(degree));
   }
 
-  constexpr bool IsZero() const { return coefficients_.IsEmpty(); }
+  constexpr bool IsZero() const { return coefficients_.IsZero(); }
+
+  constexpr bool IsOne() const { return coefficients_.IsOne(); }
 
   const Coefficients& coefficients() const { return coefficients_; }
 

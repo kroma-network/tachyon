@@ -49,11 +49,21 @@ class SparseCoefficients {
       : elements_(elements) {
     CHECK_LE(Degree(), MAX_DEGREE);
     DCHECK(base::ranges::is_sorted(elements_.begin(), elements_.end()));
+    RemoveHighDegreeZeros();
   }
   constexpr explicit SparseCoefficients(std::vector<Element>&& elements)
       : elements_(std::move(elements)) {
     CHECK_LE(Degree(), MAX_DEGREE);
     DCHECK(base::ranges::is_sorted(elements_.begin(), elements_.end()));
+    RemoveHighDegreeZeros();
+  }
+
+  constexpr static SparseCoefficients Zero() {
+    return SparseCoefficients({{0, Field::Zero()}});
+  }
+
+  constexpr static SparseCoefficients One() {
+    return SparseCoefficients({{0, Field::One()}});
   }
 
   constexpr static SparseCoefficients Random(size_t degree) {
@@ -89,7 +99,14 @@ class SparseCoefficients {
     return &it->coefficient;
   }
 
-  constexpr bool IsEmpty() const { return elements_.empty(); }
+  constexpr bool IsZero() const {
+    return elements_.empty() ||
+           (elements_.size() == 1 && elements_[0].coefficient.IsZero());
+  }
+
+  constexpr bool IsOne() const {
+    return elements_.size() == 1 && elements_[0].coefficient.IsOne();
+  }
 
   constexpr size_t Degree() const {
     if (elements_.empty()) return 0;
@@ -149,6 +166,16 @@ class SparseCoefficients {
       DenseCoefficients<F, MAX_DEGREE>>;
   friend class internal::UnivariatePolynomialOp<
       SparseCoefficients<F, MAX_DEGREE>>;
+
+  void RemoveHighDegreeZeros() {
+    while (!elements_.empty()) {
+      if (elements_.back().coefficient.IsZero()) {
+        elements_.pop_back();
+      } else {
+        break;
+      }
+    }
+  }
 
   std::vector<Element> elements_;
 };

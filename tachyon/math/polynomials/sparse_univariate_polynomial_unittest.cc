@@ -38,6 +38,23 @@ class SparseUnivariatePolynomialTest : public ::testing::Test {
 
 }  // namespace
 
+TEST_F(SparseUnivariatePolynomialTest, IsZero) {
+  EXPECT_TRUE(Poly::Zero().IsZero());
+  EXPECT_TRUE(Poly(Coeffs({{0, GF7(0)}})).IsZero());
+  for (size_t i = 0; i < polys_.size() - 1; ++i) {
+    EXPECT_FALSE(polys_[i].IsZero());
+  }
+  EXPECT_TRUE(polys_[polys_.size() - 1].IsZero());
+}
+
+TEST_F(SparseUnivariatePolynomialTest, IsOne) {
+  EXPECT_TRUE(Poly::One().IsOne());
+  EXPECT_TRUE(Poly(Coeffs({{0, GF7(1)}})).IsOne());
+  for (size_t i = 0; i < polys_.size() - 1; ++i) {
+    EXPECT_FALSE(polys_[i].IsOne());
+  }
+}
+
 TEST_F(SparseUnivariatePolynomialTest, Random) {
   bool success = false;
   Poly r = Poly::Random(kMaxDegree);

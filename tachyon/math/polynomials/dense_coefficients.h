@@ -29,10 +29,20 @@ class DenseCoefficients {
   constexpr explicit DenseCoefficients(const std::vector<F>& coefficients)
       : coefficients_(coefficients) {
     CHECK_LE(Degree(), MAX_DEGREE);
+    RemoveHighDegreeZeros();
   }
   constexpr explicit DenseCoefficients(std::vector<F>&& coefficients)
       : coefficients_(std::move(coefficients)) {
     CHECK_LE(Degree(), MAX_DEGREE);
+    RemoveHighDegreeZeros();
+  }
+
+  constexpr static DenseCoefficients Zero() {
+    return DenseCoefficients({Field::Zero()});
+  }
+
+  constexpr static DenseCoefficients One() {
+    return DenseCoefficients({Field::One()});
   }
 
   constexpr static DenseCoefficients Random(size_t degree) {
@@ -59,7 +69,14 @@ class DenseCoefficients {
     return nullptr;
   }
 
-  constexpr bool IsEmpty() const { return coefficients_.empty(); }
+  constexpr bool IsZero() const {
+    return coefficients_.empty() ||
+           (coefficients_.size() == 1 && coefficients_[0].IsZero());
+  }
+
+  constexpr bool IsOne() const {
+    return coefficients_.size() == 1 && coefficients_[0].IsOne();
+  }
 
   constexpr size_t Degree() const {
     if (coefficients_.empty()) return 0;
@@ -113,6 +130,16 @@ class DenseCoefficients {
                            [&point](Field result, const Field& coeff) {
                              return result * point + coeff;
                            });
+  }
+
+  void RemoveHighDegreeZeros() {
+    while (!coefficients_.empty()) {
+      if (coefficients_.back().IsZero()) {
+        coefficients_.pop_back();
+      } else {
+        break;
+      }
+    }
   }
 
   std::vector<Field> coefficients_;

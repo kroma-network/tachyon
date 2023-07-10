@@ -41,7 +41,8 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MAX_DEGREE>> {
       l_coefficients[i] += (other[i] == nullptr) ? F::Zero() : *other[i];
     }
 
-    return RemoveHighDegreeZeros(self);
+    self.coefficients_.RemoveHighDegreeZeros();
+    return self;
   }
 
   static UnivariatePolynomial<D>& AddInPlace(
@@ -78,7 +79,8 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MAX_DEGREE>> {
                           std::make_move_iterator(upper_coeffs.begin()),
                           std::make_move_iterator(upper_coeffs.end()));
 
-    return RemoveHighDegreeZeros(self);
+    self.coefficients_.RemoveHighDegreeZeros();
+    return self;
   }
 
   static UnivariatePolynomial<D>& SubInPlace(
@@ -107,7 +109,8 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MAX_DEGREE>> {
       l_coefficients[i] -= (other[i] == nullptr) ? F::Zero() : *other[i];
     }
 
-    return RemoveHighDegreeZeros(self);
+    self.coefficients_.RemoveHighDegreeZeros();
+    return self;
   }
 
   static UnivariatePolynomial<D>& SubInPlace(
@@ -144,7 +147,8 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MAX_DEGREE>> {
                           std::make_move_iterator(upper_coeffs.begin()),
                           std::make_move_iterator(upper_coeffs.end()));
 
-    return RemoveHighDegreeZeros(self);
+    self.coefficients_.RemoveHighDegreeZeros();
+    return self;
   }
 
   static UnivariatePolynomial<D>& NegativeInPlace(
@@ -174,20 +178,6 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MAX_DEGREE>> {
       elements.push_back({i, *self[i]});
     }
     return UnivariatePolynomial<S>(S(std::move(elements)));
-  }
-
- private:
-  static UnivariatePolynomial<D>& RemoveHighDegreeZeros(
-      UnivariatePolynomial<D>& self) {
-    std::vector<F>& coefficients = self.coefficients_.coefficients_;
-    while (!coefficients.empty()) {
-      if (coefficients.back().IsZero()) {
-        coefficients.pop_back();
-      } else {
-        break;
-      }
-    }
-    return self;
   }
 };
 
@@ -244,6 +234,7 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MAX_DEGREE>> {
       }
     }
     l_elements = std::move(ret);
+    self.coefficients_.RemoveHighDegreeZeros();
     return self;
   }
 
@@ -296,6 +287,7 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MAX_DEGREE>> {
       }
     }
     l_elements = std::move(ret);
+    self.coefficients_.RemoveHighDegreeZeros();
     return self;
   }
 
