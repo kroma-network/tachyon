@@ -1,3 +1,4 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "cuda_library")
 load(
     "//bazel:tachyon.bzl",
     "if_has_exception",
@@ -95,5 +96,22 @@ def tachyon_cc_test(
         local_defines = local_defines + tachyon_local_defines(),
         linkstatic = linkstatic,
         deps = deps + ["@com_google_googletest//:gtest_main"],
+        **kwargs
+    )
+
+def tachyon_cuda_library(
+        name,
+        copts = [],
+        defines = [],
+        local_defines = [],
+        safe_code = True,
+        force_exceptions = False,
+        force_rtti = False,
+        **kwargs):
+    cuda_library(
+        name = name,
+        copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
+        defines = defines + tachyon_defines(),
+        local_defines = local_defines + tachyon_local_defines(),
         **kwargs
     )
