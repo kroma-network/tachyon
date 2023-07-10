@@ -164,8 +164,6 @@ TEST_F(SparseUnivariatePolynomialTest, AdditiveOperators) {
     const auto a_dense = test.a.ToDense();
     const auto b_dense = test.b.ToDense();
     const auto sum_dense = test.sum.ToDense();
-    LOG(ERROR) << "a :" << test.a;
-    LOG(ERROR) << "b :" << test.b;
     EXPECT_EQ(test.a + test.b, test.sum);
     EXPECT_EQ(test.b + test.a, test.sum);
     EXPECT_EQ(test.a + b_dense, sum_dense);
