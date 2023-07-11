@@ -62,7 +62,7 @@ class VariableBaseMSM {
     // TODO(chokobole): Optimize with openmp.
     for (size_t i = 0; i < digits_count; ++i) {
       std::vector<JacobianPoint> buckets =
-          base::CreateVector(1 << c, JacobianPoint::Zero());
+          base::CreateVector(1 << (c - 1), JacobianPoint::Zero());
       auto bases_it = bases_first;
       for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
         const JacobianPoint& base = *bases_it;
