@@ -7,37 +7,8 @@ namespace tachyon {
 namespace math {
 namespace internal {
 
-template <typename L, typename R, typename = void>
-struct SupportsDiv : std::false_type {};
-
-template <typename L, typename R>
-struct SupportsDiv<
-    L, R, decltype(void(std::declval<L>().Div(std::declval<const R&>())))>
-    : std::true_type {};
-
-template <typename L, typename R, typename = void>
-struct SupportsDivInPlace : std::false_type {};
-
-template <typename L, typename R>
-struct SupportsDivInPlace<L, R,
-                          decltype(void(std::declval<L>().DivInPlace(
-                              std::declval<const R&>())))> : std::true_type {};
-
-template <typename L, typename R, typename = void>
-struct SupportsSub : std::false_type {};
-
-template <typename L, typename R>
-struct SupportsSub<
-    L, R, decltype(void(std::declval<L>().Sub(std::declval<const R&>())))>
-    : std::true_type {};
-
-template <typename L, typename R, typename = void>
-struct SupportsSubInPlace : std::false_type {};
-
-template <typename L, typename R>
-struct SupportsSubInPlace<L, R,
-                          decltype(void(std::declval<L>().SubInPlace(
-                              std::declval<const R&>())))> : std::true_type {};
+SUPPORTS_BINARY_OPERATOR(Div);
+SUPPORTS_BINARY_OPERATOR(Sub);
 
 }  // namespace internal
 

@@ -5,57 +5,42 @@
 
 #include "tachyon/math/base/gmp_util.h"
 
+#define SUPPORTS_BINARY_OPERATOR(Name)                                        \
+  template <typename L, typename R, typename = void>                          \
+  struct Supports##Name : std::false_type {};                                 \
+                                                                              \
+  template <typename L, typename R>                                           \
+  struct Supports##Name<                                                      \
+      L, R, decltype(void(std::declval<L>().Name(std::declval<const R&>())))> \
+      : std::true_type {};                                                    \
+                                                                              \
+  template <typename L, typename R, typename = void>                          \
+  struct Supports##Name##InPlace : std::false_type {};                        \
+                                                                              \
+  template <typename L, typename R>                                           \
+  struct Supports##Name##InPlace<L, R,                                        \
+                                 decltype(void(                               \
+                                     std::declval<L>().Name##InPlace(         \
+                                         std::declval<const R&>())))>         \
+      : std::true_type {}
+
+#define SUPPORTS_UNARY_IN_PLACE_OPERATOR(Name)                               \
+  template <typename T, typename = void>                                     \
+  struct Supports##Name##InPlace : std::false_type {};                       \
+                                                                             \
+  template <typename T>                                                      \
+  struct Supports##Name##InPlace<T, decltype(void(                           \
+                                        std::declval<T>().Name##InPlace()))> \
+      : std::true_type {}
+
 namespace tachyon {
 namespace math {
 namespace internal {
 
-template <typename L, typename R, typename = void>
-struct SupportsMul : std::false_type {};
-
-template <typename L, typename R>
-struct SupportsMul<
-    L, R, decltype(void(std::declval<L>().Mul(std::declval<const R&>())))>
-    : std::true_type {};
-
-template <typename L, typename R, typename = void>
-struct SupportsMulInPlace : std::false_type {};
-
-template <typename L, typename R>
-struct SupportsMulInPlace<L, R,
-                          decltype(void(std::declval<L>().MulInPlace(
-                              std::declval<const R&>())))> : std::true_type {};
-
-template <typename T, typename = void>
-struct SupportsSquareInPlace : std::false_type {};
-
-template <typename T>
-struct SupportsSquareInPlace<T,
-                             decltype(void(std::declval<T>().SquareInPlace()))>
-    : std::true_type {};
-
-template <typename L, typename R, typename = void>
-struct SupportsAdd : std::false_type {};
-
-template <typename L, typename R>
-struct SupportsAdd<
-    L, R, decltype(void(std::declval<L>().Add(std::declval<const R&>())))>
-    : std::true_type {};
-
-template <typename L, typename R, typename = void>
-struct SupportsAddInPlace : std::false_type {};
-
-template <typename L, typename R>
-struct SupportsAddInPlace<L, R,
-                          decltype(void(std::declval<L>().AddInPlace(
-                              std::declval<const R&>())))> : std::true_type {};
-
-template <typename T, typename = void>
-struct SupportsDoubleInPlace : std::false_type {};
-
-template <typename T>
-struct SupportsDoubleInPlace<T,
-                             decltype(void(std::declval<T>().DoubleInPlace()))>
-    : std::true_type {};
+SUPPORTS_BINARY_OPERATOR(Mul);
+SUPPORTS_UNARY_IN_PLACE_OPERATOR(Square);
+SUPPORTS_BINARY_OPERATOR(Add);
+SUPPORTS_UNARY_IN_PLACE_OPERATOR(Double);
 
 }  // namespace internal
 

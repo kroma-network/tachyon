@@ -71,41 +71,31 @@ class UnivariatePolynomial
 
   std::string ToString() const { return coefficients_.ToString(); }
 
-  // AdditiveMonoid methods
-  template <typename Coefficients2,
-            std::enable_if_t<internal::SupportsPolyAdd<
-                Coefficients, UnivariatePolynomial<Coefficients>,
-                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
-  constexpr auto Add(const UnivariatePolynomial<Coefficients2>& other) const {
-    return internal::UnivariatePolynomialOp<Coefficients>::Add(*this, other);
+#define OPERATION_METHOD(Name)                                                 \
+  template <typename Coefficients2,                                            \
+            std::enable_if_t<internal::SupportsPoly##Name<                     \
+                Coefficients, UnivariatePolynomial<Coefficients>,              \
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>       \
+  constexpr auto Name(const UnivariatePolynomial<Coefficients2>& other)        \
+      const {                                                                  \
+    return internal::UnivariatePolynomialOp<Coefficients>::Name(*this, other); \
+  }                                                                            \
+                                                                               \
+  template <typename Coefficients2,                                            \
+            std::enable_if_t<internal::SupportsPoly##Name##InPlace<            \
+                Coefficients, UnivariatePolynomial<Coefficients>,              \
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>       \
+  constexpr auto& Name##InPlace(                                               \
+      const UnivariatePolynomial<Coefficients2>& other) {                      \
+    return internal::UnivariatePolynomialOp<Coefficients>::Name##InPlace(      \
+        *this, other);                                                         \
   }
 
-  template <typename Coefficients2,
-            std::enable_if_t<internal::SupportsPolyAddInPlace<
-                Coefficients, UnivariatePolynomial<Coefficients>,
-                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
-  constexpr auto& AddInPlace(const UnivariatePolynomial<Coefficients2>& other) {
-    return internal::UnivariatePolynomialOp<Coefficients>::AddInPlace(*this,
-                                                                      other);
-  }
+  // AdditiveMonoid methods
+  OPERATION_METHOD(Add)
 
   // AdditiveGroup methods
-  template <typename Coefficients2,
-            std::enable_if_t<internal::SupportsPolySub<
-                Coefficients, UnivariatePolynomial<Coefficients>,
-                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
-  constexpr auto Sub(const UnivariatePolynomial<Coefficients2>& other) const {
-    return internal::UnivariatePolynomialOp<Coefficients>::Sub(*this, other);
-  }
-
-  template <typename Coefficients2,
-            std::enable_if_t<internal::SupportsPolySubInPlace<
-                Coefficients, UnivariatePolynomial<Coefficients>,
-                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
-  constexpr auto& SubInPlace(const UnivariatePolynomial<Coefficients2>& other) {
-    return internal::UnivariatePolynomialOp<Coefficients>::SubInPlace(*this,
-                                                                      other);
-  }
+  OPERATION_METHOD(Sub)
 
   UnivariatePolynomial& NegativeInPlace() {
     return internal::UnivariatePolynomialOp<Coefficients>::NegativeInPlace(
@@ -113,22 +103,9 @@ class UnivariatePolynomial
   }
 
   // MultiplicativeMonoid methods
-  template <typename Coefficients2,
-            std::enable_if_t<internal::SupportsPolyMul<
-                Coefficients, UnivariatePolynomial<Coefficients>,
-                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
-  constexpr auto Mul(const UnivariatePolynomial<Coefficients2>& other) const {
-    return internal::UnivariatePolynomialOp<Coefficients>::Mul(*this, other);
-  }
+  OPERATION_METHOD(Mul)
 
-  template <typename Coefficients2,
-            std::enable_if_t<internal::SupportsPolyMulInPlace<
-                Coefficients, UnivariatePolynomial<Coefficients>,
-                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
-  constexpr auto& MulInPlace(const UnivariatePolynomial<Coefficients2>& other) {
-    return internal::UnivariatePolynomialOp<Coefficients>::MulInPlace(*this,
-                                                                      other);
-  }
+#undef OPERATION_METHOD
 
  private:
   friend class Polynomial<UnivariatePolynomial<Coefficients>>;
