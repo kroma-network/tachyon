@@ -25,6 +25,23 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "cxx20_erase",
+    hdrs = [
+        "cxx20_erase.h",
+        "cxx20_erase_deque.h",
+        "cxx20_erase_forward_list.h",
+        "cxx20_erase_internal.h",
+        "cxx20_erase_list.h",
+        "cxx20_erase_map.h",
+        "cxx20_erase_set.h",
+        "cxx20_erase_string.h",
+        "cxx20_erase_unordered_map.h",
+        "cxx20_erase_unordered_set.h",
+        "cxx20_erase_vector.h",
+    ],
+)
+
 tachyon_cc_test(
     name = "containers_unittests",
     srcs = [
