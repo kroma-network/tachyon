@@ -78,11 +78,17 @@ class SparseCoefficients {
   }
 
   constexpr bool operator==(const SparseCoefficients& other) const {
+    if (IsZero()) {
+      return other.IsZero();
+    }
+    if (other.IsZero()) {
+      return false;
+    }
     return elements_ == other.elements_;
   }
 
   constexpr bool operator!=(const SparseCoefficients& other) const {
-    return elements_ != other.elements_;
+    return !operator==(other);
   }
 
   constexpr Field* Get(size_t i) {

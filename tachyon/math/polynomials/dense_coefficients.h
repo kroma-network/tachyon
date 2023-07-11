@@ -51,11 +51,17 @@ class DenseCoefficients {
   }
 
   constexpr bool operator==(const DenseCoefficients& other) const {
+    if (IsZero()) {
+      return other.IsZero();
+    }
+    if (other.IsZero()) {
+      return false;
+    }
     return coefficients_ == other.coefficients_;
   }
 
   constexpr bool operator!=(const DenseCoefficients& other) const {
-    return coefficients_ != other.coefficients_;
+    return !operator==(other);
   }
 
   constexpr Field* Get(size_t i) {
