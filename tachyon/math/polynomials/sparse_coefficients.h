@@ -58,9 +58,7 @@ class SparseCoefficients {
     RemoveHighDegreeZeros();
   }
 
-  constexpr static SparseCoefficients Zero() {
-    return SparseCoefficients({{0, Field::Zero()}});
-  }
+  constexpr static SparseCoefficients Zero() { return SparseCoefficients(); }
 
   constexpr static SparseCoefficients One() {
     return SparseCoefficients({{0, Field::One()}});

@@ -159,7 +159,7 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MAX_DEGREE>> {
       l_coefficients = r_coefficients;
       return self;
     } else if (other.IsZero()) {
-      l_coefficients = {F::Zero()};
+      l_coefficients = {};
       return self;
     }
 
@@ -191,7 +191,7 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MAX_DEGREE>> {
     } else if (self.IsOne()) {
       return Copy<false>(self, other);
     } else if (other.IsZero()) {
-      l_coefficients = {F::Zero()};
+      l_coefficients = {};
       return self;
     }
 
@@ -330,7 +330,7 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MAX_DEGREE>> {
       l_elements = r_elements;
       return self;
     } else if (other.IsZero()) {
-      l_elements = {{0, F::Zero()}};
+      l_elements = {};
       return self;
     }
 

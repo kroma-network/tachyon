@@ -37,9 +37,7 @@ class DenseCoefficients {
     RemoveHighDegreeZeros();
   }
 
-  constexpr static DenseCoefficients Zero() {
-    return DenseCoefficients({Field::Zero()});
-  }
+  constexpr static DenseCoefficients Zero() { return DenseCoefficients(); }
 
   constexpr static DenseCoefficients One() {
     return DenseCoefficients({Field::One()});
