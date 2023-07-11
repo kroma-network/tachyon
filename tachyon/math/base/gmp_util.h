@@ -9,7 +9,7 @@
 #include <string_view>
 #include <type_traits>
 
-#include "gmpxx.h"
+#include "third_party/gmp/include/gmpxx.h"
 
 #include "tachyon/build/build_config.h"
 #include "tachyon/export.h"

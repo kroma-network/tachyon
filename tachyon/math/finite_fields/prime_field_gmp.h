@@ -8,8 +8,7 @@
 #include <ostream>
 #include <string>
 
-#include <gmpxx.h>
-
+#include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"

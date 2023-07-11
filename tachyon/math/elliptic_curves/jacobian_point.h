@@ -3,7 +3,7 @@
 
 #include <ostream>
 
-#include "gmpxx.h"
+#include "third_party/gmp/include/gmpxx.h"
 
 namespace tachyon {
 namespace math {
