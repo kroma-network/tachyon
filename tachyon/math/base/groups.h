@@ -31,7 +31,7 @@ class MultiplicativeGroup : public MultiplicativeMonoid<G> {
   template <
       typename G2,
       std::enable_if_t<internal::SupportsDivInPlace<G, G2>::value>* = nullptr>
-  constexpr auto operator/=(const G2& other) {
+  constexpr auto& operator/=(const G2& other) {
     G* g = static_cast<G*>(this);
     return g->DivInPlace(other);
   }
