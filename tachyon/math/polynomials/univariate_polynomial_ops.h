@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/math/base/division_result.h"
 #include "tachyon/math/polynomials/univariate_polynomial.h"
 
 namespace tachyon {
@@ -218,6 +219,24 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MAX_DEGREE>> {
     return self;
   }
 
+  template <typename DOrS>
+  static UnivariatePolynomial<D>& DivInPlace(
+      UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
+    DivisionResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    self = std::move(result.quotient);
+    self.coefficients_.RemoveHighDegreeZeros();
+    return self;
+  }
+
+  template <typename DOrS>
+  static UnivariatePolynomial<D>& ModInPlace(
+      UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
+    DivisionResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    self = std::move(result.remainder);
+    self.coefficients_.RemoveHighDegreeZeros();
+    return self;
+  }
+
   static UnivariatePolynomial<D> ToDensePolynomial(
       const UnivariatePolynomial<D>& self) {
     return self;
@@ -255,6 +274,48 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MAX_DEGREE>> {
     }
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
+  }
+
+  template <typename DOrS>
+  static DivisionResult<UnivariatePolynomial<D>> Divide(
+      UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
+    if (self.IsZero()) {
+      return {UnivariatePolynomial<D>::Zero(), UnivariatePolynomial<D>::Zero()};
+    } else if (other.IsZero()) {
+      NOTREACHED() << "Divide by zero polynomial";
+    } else if (self.Degree() < other.Degree()) {
+      return {UnivariatePolynomial<D>::Zero(), self.ToDense()};
+    }
+    std::vector<F> quotient =
+        base::CreateVector(self.Degree() - other.Degree() + 1, F::Zero());
+    UnivariatePolynomial<D> remainder = self.ToDense();
+    std::vector<F>& r_coefficients = remainder.coefficients_.coefficients_;
+    // Can unwrap here because we know self is not zero.
+    F divisor_leading_inv = other.GetLeadingCoefficient()->Inverse();
+
+    while (!remainder.IsZero() && remainder.Degree() >= other.Degree()) {
+      F q_coeff =
+          remainder.coefficients_.coefficients_.back() * divisor_leading_inv;
+      size_t degree = remainder.Degree() - other.Degree();
+      quotient[degree] = q_coeff;
+
+      if constexpr (std::is_same_v<DOrS, D>) {
+        const std::vector<F>& d_elements = other.coefficients_.coefficients_;
+        for (size_t i = 0; i < d_elements.size(); ++i) {
+          r_coefficients[degree + i] -= q_coeff * d_elements[i];
+        }
+      } else {
+        const std::vector<Element>& d_elements = other.coefficients().elements_;
+        for (const Element& d_elem : d_elements) {
+          r_coefficients[degree + d_elem.degree] -=
+              q_coeff * d_elem.coefficient;
+        }
+      }
+      remainder.coefficients_.RemoveHighDegreeZeros();
+    }
+    D d(std::move(quotient));
+    d.RemoveHighDegreeZeros();
+    return {UnivariatePolynomial<D>(std::move(d)), std::move(remainder)};
   }
 };
 
@@ -358,6 +419,18 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MAX_DEGREE>> {
     base::ranges::sort(l_elements);
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
+  }
+
+  template <typename DOrS>
+  static UnivariatePolynomial<D> Div(const UnivariatePolynomial<S>& self,
+                                     const UnivariatePolynomial<DOrS>& other) {
+    return self.ToDense() / other;
+  }
+
+  template <typename DOrS>
+  static UnivariatePolynomial<D> Mod(const UnivariatePolynomial<S>& self,
+                                     const UnivariatePolynomial<DOrS>& other) {
+    return self.ToDense() % other;
   }
 
   static UnivariatePolynomial<D> ToDensePolynomial(

@@ -31,6 +31,8 @@ class UnivariatePolynomialOp;
 SUPPORTS_POLY_OPERATOR(Add);
 SUPPORTS_POLY_OPERATOR(Sub);
 SUPPORTS_POLY_OPERATOR(Mul);
+SUPPORTS_POLY_OPERATOR(Div);
+SUPPORTS_POLY_OPERATOR(Mod);
 
 }  // namespace internal
 }  // namespace math

@@ -200,29 +200,48 @@ TEST_F(SparseUnivariatePolynomialTest, AdditiveOperators) {
 
 TEST_F(SparseUnivariatePolynomialTest, MultiplicativeOperators) {
   Poly a(Coeffs({{0, GF7(3)}, {1, GF7(1)}}));
-  Poly b(Coeffs({{0, GF7(5)}, {1, GF7(2)}, {2, GF7(4)}}));
+  Poly b(Coeffs({{0, GF7(5)}, {1, GF7(2)}, {2, GF7(5)}}));
   Poly one = Poly::One();
   Poly zero = Poly::Zero();
+
+  using DensePoly = DenseUnivariatePolynomial<GF7, kMaxDegree>;
+  using DenseCoeffs = DenseCoefficients<GF7, kMaxDegree>;
 
   struct {
     const Poly& a;
     const Poly& b;
     Poly mul;
+    DensePoly adb;
+    DensePoly amb;
+    DensePoly bda;
+    DensePoly bma;
   } tests[] = {
       {
           a,
           b,
-          Poly(Coeffs({{0, GF7(1)}, {1, GF7(4)}, {3, GF7(4)}})),
+          Poly(Coeffs({{0, GF7(1)}, {1, GF7(4)}, {2, GF7(3)}, {3, GF7(5)}})),
+          zero.ToDense(),
+          a.ToDense(),
+          DensePoly(DenseCoeffs({GF7(1), GF7(5)})),
+          DensePoly(DenseCoeffs({GF7(2)})),
       },
       {
           a,
           one,
           a,
+          a.ToDense(),
+          zero.ToDense(),
+          zero.ToDense(),
+          one.ToDense(),
       },
       {
           a,
           zero,
           zero,
+          zero.ToDense(),
+          zero.ToDense(),
+          zero.ToDense(),
+          zero.ToDense(),
       },
   };
 
@@ -232,8 +251,24 @@ TEST_F(SparseUnivariatePolynomialTest, MultiplicativeOperators) {
     const auto mul_dense = test.mul.ToDense();
     EXPECT_EQ(test.a * test.b, test.mul);
     EXPECT_EQ(test.b * test.a, test.mul);
+    if (!test.b.IsZero()) {
+      EXPECT_EQ(test.a / test.b, test.adb);
+      EXPECT_EQ(test.a % test.b, test.amb);
+    }
+    if (!test.a.IsZero()) {
+      EXPECT_EQ(test.b / test.a, test.bda);
+      EXPECT_EQ(test.b % test.a, test.bma);
+    }
     EXPECT_EQ(test.a * b_dense, mul_dense);
     EXPECT_EQ(test.b * a_dense, mul_dense);
+    if (!b_dense.IsZero()) {
+      EXPECT_EQ(test.a / b_dense, test.adb);
+      EXPECT_EQ(test.a % b_dense, test.amb);
+    }
+    if (!a_dense.IsZero()) {
+      EXPECT_EQ(test.b / a_dense, test.bda);
+      EXPECT_EQ(test.b % a_dense, test.bma);
+    }
 
     {
       Poly tmp = test.a;

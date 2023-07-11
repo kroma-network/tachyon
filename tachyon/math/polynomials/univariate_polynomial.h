@@ -59,6 +59,10 @@ class UnivariatePolynomial
     return coefficients_.Get(i);
   }
 
+  constexpr const Field* GetLeadingCoefficient() const {
+    return coefficients_.GetLeadingCoefficient();
+  }
+
   auto ToSparse() const {
     return internal::UnivariatePolynomialOp<Coefficients>::ToSparsePolynomial(
         *this);
@@ -105,7 +109,46 @@ class UnivariatePolynomial
   // MultiplicativeMonoid methods
   OPERATION_METHOD(Mul)
 
+  OPERATION_METHOD(Div)
+  OPERATION_METHOD(Mod)
+
 #undef OPERATION_METHOD
+
+  template <typename Coefficients2>
+  constexpr auto operator/(
+      const UnivariatePolynomial<Coefficients2>& other) const {
+    if constexpr (internal::SupportsDiv<
+                      UnivariatePolynomial,
+                      UnivariatePolynomial<Coefficients2>>::value) {
+      return Div(other);
+    } else {
+      UnivariatePolynomial poly = *this;
+      return poly.DivInPlace(other);
+    }
+  }
+
+  template <typename Coefficients2>
+  constexpr auto& operator/=(const UnivariatePolynomial<Coefficients2>& other) {
+    return DivInPlace(other);
+  }
+
+  template <typename Coefficients2>
+  constexpr auto operator%(
+      const UnivariatePolynomial<Coefficients2>& other) const {
+    if constexpr (internal::SupportsMod<
+                      UnivariatePolynomial,
+                      UnivariatePolynomial<Coefficients2>>::value) {
+      return Mod(other);
+    } else {
+      UnivariatePolynomial poly = *this;
+      return poly.ModInPlace(other);
+    }
+  }
+
+  template <typename Coefficients2>
+  constexpr auto& operator%=(const UnivariatePolynomial<Coefficients2>& other) {
+    return ModInPlace(other);
+  }
 
  private:
   friend class Polynomial<UnivariatePolynomial<Coefficients>>;

@@ -103,6 +103,11 @@ class SparseCoefficients {
     return &it->coefficient;
   }
 
+  constexpr const Field* GetLeadingCoefficient() const {
+    if (elements_.empty()) return nullptr;
+    return &elements_.back().coefficient;
+  }
+
   constexpr bool IsZero() const {
     return elements_.empty() ||
            (elements_.size() == 1 && elements_[0].coefficient.IsZero());

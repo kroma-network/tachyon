@@ -73,6 +73,11 @@ class DenseCoefficients {
     return nullptr;
   }
 
+  constexpr const Field* GetLeadingCoefficient() const {
+    if (coefficients_.empty()) return nullptr;
+    return &coefficients_.back();
+  }
+
   constexpr bool IsZero() const {
     return coefficients_.empty() ||
            (coefficients_.size() == 1 && coefficients_[0].IsZero());

@@ -9,6 +9,7 @@ namespace internal {
 
 SUPPORTS_BINARY_OPERATOR(Div);
 SUPPORTS_BINARY_OPERATOR(Sub);
+SUPPORTS_BINARY_OPERATOR(Mod);
 
 }  // namespace internal
 

@@ -198,7 +198,7 @@ TEST_F(DenseUnivariatePolynomialTest, AdditiveOperators) {
 
 TEST_F(DenseUnivariatePolynomialTest, MultiplicativeOperators) {
   Poly a(Coeffs({GF7(3), GF7(1)}));
-  Poly b(Coeffs({GF7(5), GF7(2), GF7(4)}));
+  Poly b(Coeffs({GF7(5), GF7(2), GF7(5)}));
   Poly one = Poly::One();
   Poly zero = Poly::Zero();
 
@@ -206,19 +206,35 @@ TEST_F(DenseUnivariatePolynomialTest, MultiplicativeOperators) {
     const Poly& a;
     const Poly& b;
     Poly mul;
+    Poly adb;
+    Poly amb;
+    Poly bda;
+    Poly bma;
   } tests[] = {
       {
           a,
           b,
-          Poly(Coeffs({GF7(1), GF7(4), GF7(0), GF7(4)})),
+          Poly(Coeffs({GF7(1), GF7(4), GF7(3), GF7(5)})),
+          zero,
+          a,
+          Poly(Coeffs({GF7(1), GF7(5)})),
+          Poly(Coeffs({GF7(2)})),
       },
       {
           a,
           one,
           a,
+          a,
+          zero,
+          zero,
+          one,
       },
       {
           a,
+          zero,
+          zero,
+          zero,
+          zero,
           zero,
           zero,
       },
@@ -229,13 +245,33 @@ TEST_F(DenseUnivariatePolynomialTest, MultiplicativeOperators) {
     const auto b_sparse = test.b.ToSparse();
     EXPECT_EQ(test.a * test.b, test.mul);
     EXPECT_EQ(test.b * test.a, test.mul);
+    if (!test.b.IsZero()) {
+      EXPECT_EQ(test.a / test.b, test.adb);
+      EXPECT_EQ(test.a % test.b, test.amb);
+    }
+    if (!test.a.IsZero()) {
+      EXPECT_EQ(test.b / test.a, test.bda);
+      EXPECT_EQ(test.b % test.a, test.bma);
+    }
     EXPECT_EQ(test.a * b_sparse, test.mul);
     EXPECT_EQ(test.b * a_sparse, test.mul);
+    if (!b_sparse.IsZero()) {
+      EXPECT_EQ(test.a / b_sparse, test.adb);
+      EXPECT_EQ(test.a % b_sparse, test.amb);
+    }
+    if (!a_sparse.IsZero()) {
+      EXPECT_EQ(test.b / a_sparse, test.bda);
+      EXPECT_EQ(test.b % a_sparse, test.bma);
+    }
 
     {
       Poly tmp = test.a;
       tmp *= test.b;
       EXPECT_EQ(tmp, test.mul);
+      if (!test.b.IsZero()) {
+        tmp /= test.b;
+        EXPECT_EQ(tmp, test.a);
+      }
     }
   }
 }
