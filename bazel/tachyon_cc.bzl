@@ -1,4 +1,4 @@
-load("@local_config_cuda//cuda:build_defs.bzl", "cuda_library")
+load("@local_config_cuda//cuda:build_defs.bzl", "cuda_library", "if_cuda")
 load(
     "//bazel:tachyon.bzl",
     "if_has_exception",
@@ -113,5 +113,33 @@ def tachyon_cuda_library(
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
         defines = defines + tachyon_defines(),
         local_defines = local_defines + tachyon_local_defines(),
+        **kwargs
+    )
+
+def tachyon_cuda_binary(
+        name,
+        srcs = [],
+        deps = [],
+        **kwargs):
+    tachyon_cc_binary(
+        name = name,
+        srcs = if_cuda(srcs),
+        deps = deps + if_cuda([
+            "@local_config_cuda//cuda:cudart",
+        ]),
+        **kwargs
+    )
+
+def tachyon_cuda_test(
+        name,
+        srcs = [],
+        deps = [],
+        **kwargs):
+    tachyon_cc_test(
+        name = name,
+        srcs = if_cuda(srcs),
+        deps = deps + if_cuda([
+            "@local_config_cuda//cuda:cudart",
+        ]),
         **kwargs
     )
