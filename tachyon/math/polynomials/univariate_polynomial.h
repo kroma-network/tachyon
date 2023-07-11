@@ -113,10 +113,21 @@ class UnivariatePolynomial
   }
 
   // MultiplicativeMonoid methods
-  constexpr UnivariatePolynomial& MulInPlace(
-      const UnivariatePolynomial& other) {
-    NOTIMPLEMENTED();
-    return *this;
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolyMul<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  constexpr auto Mul(const UnivariatePolynomial<Coefficients2>& other) const {
+    return internal::UnivariatePolynomialOp<Coefficients>::Mul(*this, other);
+  }
+
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolyMulInPlace<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  constexpr auto& MulInPlace(const UnivariatePolynomial<Coefficients2>& other) {
+    return internal::UnivariatePolynomialOp<Coefficients>::MulInPlace(*this,
+                                                                      other);
   }
 
  private:

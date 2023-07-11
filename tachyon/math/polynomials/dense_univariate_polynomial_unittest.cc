@@ -196,5 +196,49 @@ TEST_F(DenseUnivariatePolynomialTest, AdditiveOperators) {
   }
 }
 
+TEST_F(DenseUnivariatePolynomialTest, MultiplicativeOperators) {
+  Poly a(Coeffs({GF7(3), GF7(1)}));
+  Poly b(Coeffs({GF7(5), GF7(2), GF7(4)}));
+  Poly one = Poly::One();
+  Poly zero = Poly::Zero();
+
+  struct {
+    const Poly& a;
+    const Poly& b;
+    Poly mul;
+  } tests[] = {
+      {
+          a,
+          b,
+          Poly(Coeffs({GF7(1), GF7(4), GF7(0), GF7(4)})),
+      },
+      {
+          a,
+          one,
+          a,
+      },
+      {
+          a,
+          zero,
+          zero,
+      },
+  };
+
+  for (const auto& test : tests) {
+    const auto a_sparse = test.a.ToSparse();
+    const auto b_sparse = test.b.ToSparse();
+    EXPECT_EQ(test.a * test.b, test.mul);
+    EXPECT_EQ(test.b * test.a, test.mul);
+    EXPECT_EQ(test.a * b_sparse, test.mul);
+    EXPECT_EQ(test.b * a_sparse, test.mul);
+
+    {
+      Poly tmp = test.a;
+      tmp *= test.b;
+      EXPECT_EQ(tmp, test.mul);
+    }
+  }
+}
+
 }  // namespace math
 }  // namespace tachyon
