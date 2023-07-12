@@ -21,15 +21,15 @@ namespace math {
 template <typename _Config>
 class PrimeFieldFallback : public PrimeFieldBase<PrimeFieldFallback<_Config>> {
  public:
-  static constexpr size_t MODULUS_BITS = _Config::MODULUS_BITS;
-  static constexpr size_t LIMB_NUMS = (MODULUS_BITS + 63) / 64;
+  static constexpr size_t kModulusBits = _Config::kModulusBits;
+  static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
 
   using Config = _Config;
-  using value_type = uint64_t[LIMB_NUMS];
+  using value_type = uint64_t[kLimbNums];
 
   constexpr PrimeFieldFallback() = default;
   constexpr explicit PrimeFieldFallback(uint64_t value) { limbs_[0] = value; }
-  constexpr explicit PrimeFieldFallback(uint64_t limbs[LIMB_NUMS])
+  constexpr explicit PrimeFieldFallback(uint64_t limbs[kLimbNums])
       : limbs_(limbs) {}
   constexpr PrimeFieldFallback(const PrimeFieldFallback& other) = default;
   constexpr PrimeFieldFallback& operator=(const PrimeFieldFallback& other) =
@@ -69,7 +69,7 @@ class PrimeFieldFallback : public PrimeFieldBase<PrimeFieldFallback<_Config>> {
   }
 
   constexpr bool ToInt64(int64_t* out) const {
-    for (size_t i = 1; i < LIMB_NUMS; ++i) {
+    for (size_t i = 1; i < kLimbNums; ++i) {
       if (limbs_[i] != 0) return false;
     }
     *out = static_cast<int64_t>(limbs_[0]);
@@ -77,7 +77,7 @@ class PrimeFieldFallback : public PrimeFieldBase<PrimeFieldFallback<_Config>> {
   }
 
   constexpr bool ToUint64(uint64_t* out) const {
-    for (size_t i = 1; i < LIMB_NUMS; ++i) {
+    for (size_t i = 1; i < kLimbNums; ++i) {
       if (limbs_[i] != 0) return false;
     }
     *out = static_cast<uint64_t>(limbs_[0]);
@@ -187,7 +187,7 @@ class PrimeFieldFallback : public PrimeFieldBase<PrimeFieldFallback<_Config>> {
     return *this;
   }
 
-  uint64_t limbs_[LIMB_NUMS] = {
+  uint64_t limbs_[kLimbNums] = {
       0,
   };
 };

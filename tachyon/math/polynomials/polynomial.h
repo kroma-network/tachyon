@@ -14,7 +14,7 @@ class CoefficientsTraits;
 template <typename Derived>
 class Polynomial : public Ring<Derived> {
  public:
-  constexpr static const size_t MAX_DEGREE = Derived::MAX_DEGREE;
+  constexpr static const size_t kMaxDegree = Derived::kMaxDegree;
 
   using Field = typename CoefficientsTraits<Derived>::Field;
 

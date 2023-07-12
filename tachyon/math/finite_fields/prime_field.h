@@ -17,7 +17,7 @@ using PrimeField = PrimeFieldFallback<Config>;
 
 class TACHYON_EXPORT GF7Config {
  public:
-  constexpr static size_t MODULUS_BITS = 3;
+  constexpr static size_t kModulusBits = 3;
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 

@@ -17,7 +17,7 @@ template <typename Coefficients>
 class UnivariatePolynomial
     : public Polynomial<UnivariatePolynomial<Coefficients>> {
  public:
-  constexpr static const size_t MAX_DEGREE = Coefficients::MAX_DEGREE;
+  constexpr static const size_t kMaxDegree = Coefficients::kMaxDegree;
 
   using Field = typename Coefficients::Field;
 
@@ -176,13 +176,13 @@ class CoefficientsTraits<UnivariatePolynomial<Coefficients>> {
   using Field = typename Coefficients::Field;
 };
 
-template <typename F, size_t MAX_DEGREE>
+template <typename F, size_t MaxDegree>
 using DenseUnivariatePolynomial =
-    UnivariatePolynomial<DenseCoefficients<F, MAX_DEGREE>>;
+    UnivariatePolynomial<DenseCoefficients<F, MaxDegree>>;
 
-template <typename F, size_t MAX_DEGREE>
+template <typename F, size_t MaxDegree>
 using SparseUnivariatePolynomial =
-    UnivariatePolynomial<SparseCoefficients<F, MAX_DEGREE>>;
+    UnivariatePolynomial<SparseCoefficients<F, MaxDegree>>;
 
 }  // namespace math
 }  // namespace tachyon

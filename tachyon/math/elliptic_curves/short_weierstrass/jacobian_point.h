@@ -22,7 +22,7 @@ class JacobianPoint<Config,
                                               typename Config::ScalarField>>>>
     : public AdditiveGroup<JacobianPoint<Config>> {
  public:
-  constexpr static const bool NEGATION_IS_CHEAP = true;
+  constexpr static const bool kNegationIsCheap = true;
 
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;

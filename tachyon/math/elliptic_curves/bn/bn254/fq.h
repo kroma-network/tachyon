@@ -10,7 +10,7 @@ namespace bn254 {
 
 class TACHYON_EXPORT FqConfig {
  public:
-  constexpr static size_t MODULUS_BITS = 254;
+  constexpr static size_t kModulusBits = 254;
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 

@@ -19,13 +19,13 @@
 namespace tachyon {
 namespace math {
 
-template <typename F, size_t MAX_DEGREE>
+template <typename F, size_t MaxDegree>
 class DenseCoefficients;
 
-template <typename F, size_t _MAX_DEGREE>
+template <typename F, size_t MaxDegree>
 class SparseCoefficients {
  public:
-  constexpr static const size_t MAX_DEGREE = _MAX_DEGREE;
+  constexpr static const size_t kMaxDegree = MaxDegree;
 
   using Field = F;
 
@@ -47,13 +47,13 @@ class SparseCoefficients {
   constexpr SparseCoefficients() = default;
   constexpr explicit SparseCoefficients(const std::vector<Element>& elements)
       : elements_(elements) {
-    CHECK_LE(Degree(), MAX_DEGREE);
+    CHECK_LE(Degree(), kMaxDegree);
     DCHECK(base::ranges::is_sorted(elements_.begin(), elements_.end()));
     RemoveHighDegreeZeros();
   }
   constexpr explicit SparseCoefficients(std::vector<Element>&& elements)
       : elements_(std::move(elements)) {
-    CHECK_LE(Degree(), MAX_DEGREE);
+    CHECK_LE(Degree(), kMaxDegree);
     DCHECK(base::ranges::is_sorted(elements_.begin(), elements_.end()));
     RemoveHighDegreeZeros();
   }
@@ -172,9 +172,9 @@ class SparseCoefficients {
 
  private:
   friend class internal::UnivariatePolynomialOp<
-      DenseCoefficients<F, MAX_DEGREE>>;
+      DenseCoefficients<F, MaxDegree>>;
   friend class internal::UnivariatePolynomialOp<
-      SparseCoefficients<F, MAX_DEGREE>>;
+      SparseCoefficients<F, MaxDegree>>;
 
   void RemoveHighDegreeZeros() {
     while (!elements_.empty()) {
@@ -189,9 +189,9 @@ class SparseCoefficients {
   std::vector<Element> elements_;
 };
 
-template <typename F, size_t MAX_DEGREE>
+template <typename F, size_t MaxDegree>
 std::ostream& operator<<(std::ostream& os,
-                         const SparseCoefficients<F, MAX_DEGREE>& p) {
+                         const SparseCoefficients<F, MaxDegree>& p) {
   return os << p.ToString();
 }
 

@@ -15,25 +15,25 @@
 namespace tachyon {
 namespace math {
 
-template <typename F, size_t MAX_DEGREE>
+template <typename F, size_t MaxDegree>
 class SparseCoefficients;
 
-template <typename F, size_t _MAX_DEGREE>
+template <typename F, size_t MaxDegree>
 class DenseCoefficients {
  public:
-  constexpr static const size_t MAX_DEGREE = _MAX_DEGREE;
+  constexpr static const size_t kMaxDegree = MaxDegree;
 
   using Field = F;
 
   constexpr DenseCoefficients() = default;
   constexpr explicit DenseCoefficients(const std::vector<F>& coefficients)
       : coefficients_(coefficients) {
-    CHECK_LE(Degree(), MAX_DEGREE);
+    CHECK_LE(Degree(), kMaxDegree);
     RemoveHighDegreeZeros();
   }
   constexpr explicit DenseCoefficients(std::vector<F>&& coefficients)
       : coefficients_(std::move(coefficients)) {
-    CHECK_LE(Degree(), MAX_DEGREE);
+    CHECK_LE(Degree(), kMaxDegree);
     RemoveHighDegreeZeros();
   }
 
@@ -125,9 +125,9 @@ class DenseCoefficients {
 
  private:
   friend class internal::UnivariatePolynomialOp<
-      DenseCoefficients<F, MAX_DEGREE>>;
+      DenseCoefficients<F, MaxDegree>>;
   friend class internal::UnivariatePolynomialOp<
-      SparseCoefficients<F, MAX_DEGREE>>;
+      SparseCoefficients<F, MaxDegree>>;
 
   constexpr Field DoEvaluate(const Field& point) const {
     return HornerEvaluate(point);
@@ -154,9 +154,9 @@ class DenseCoefficients {
   std::vector<Field> coefficients_;
 };
 
-template <typename F, size_t MAX_DEGREE>
+template <typename F, size_t MaxDegree>
 std::ostream& operator<<(std::ostream& os,
-                         const DenseCoefficients<F, MAX_DEGREE>& p) {
+                         const DenseCoefficients<F, MaxDegree>& p) {
   return os << p.ToString();
 }
 

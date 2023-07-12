@@ -37,7 +37,7 @@ class VariableBaseMSM {
                            ScalarInputIterator scalars_last) {
     return DoMSM(std::move(bases_first), std::move(bases_last),
                  std::move(scalars_first), std::move(scalars_last),
-                 JacobianPoint::NEGATION_IS_CHEAP);
+                 JacobianPoint::kNegationIsCheap);
   }
 
  private:
@@ -47,7 +47,7 @@ class VariableBaseMSM {
   static std::vector<JacobianPoint> CreateWindowSumsForMSMWindowNAF(
       BaseInputIterator bases_first, ScalarInputIterator scalars_first,
       ScalarInputIterator scalars_last, size_t c) {
-    size_t num_bits = ScalarField::MODULUS_BITS;
+    size_t num_bits = ScalarField::kModulusBits;
     size_t digits_count = (num_bits + c - 1) / c;
 
     std::function<std::vector<int64_t>(const ScalarField&)> op =
@@ -90,7 +90,7 @@ class VariableBaseMSM {
   static std::vector<JacobianPoint> CreateWindowSumsForMSM(
       BaseInputIterator bases_first, ScalarInputIterator scalars_first,
       size_t size, size_t c) {
-    size_t num_bits = ScalarField::MODULUS_BITS;
+    size_t num_bits = ScalarField::kModulusBits;
     std::vector<size_t> window_starts =
         base::CreateRangedVector(static_cast<size_t>(0), num_bits, c);
 
