@@ -1,0 +1,23 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "gpu_driver",
+    srcs = if_gpu_is_configured(["gpu_driver.cc"]),
+    hdrs = ["gpu_driver.h"],
+    deps = [
+        ":gpu_types",
+        "//tachyon/base:logging",
+    ],
+)
+
+tachyon_cc_library(
+    name = "gpu_types",
+    hdrs = ["gpu_types.h"],
+    deps = if_cuda([
+        "@local_config_cuda//cuda:cuda_headers",
+    ]),
+)

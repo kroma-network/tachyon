@@ -83,7 +83,7 @@ Related: #<issue number>
 #   │       │             └─⫸ Summary in present tense. Not capitalized.
 #   │       │                 No period at the end.
 #   │       │
-#   │       └─⫸ Commit Scope: base|build|examples|math
+#   │       └─⫸ Commit Scope: base|build|device|examples|math
 #   │
 #   └─⫸ Commit Type: build|chore|ci|docs|feat|fix|perf|refac|test
 # ```

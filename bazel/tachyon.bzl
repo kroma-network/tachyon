@@ -1,3 +1,6 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda_is_configured")
+load("@local_config_rocm//rocm:build_defs.bzl", "if_rocm_is_configured")
+
 # See https://semver.org/
 VERSION_MAJOR = 0
 VERSION_MINOR = 0
@@ -82,3 +85,6 @@ def if_gmp_backend(a, b = []):
         "@kroma_network_tachyon//:tachyon_gmp_backend": a,
         "//conditions:default": b,
     })
+
+def if_gpu_is_configured(x):
+    return if_cuda_is_configured(x) + if_rocm_is_configured(x)

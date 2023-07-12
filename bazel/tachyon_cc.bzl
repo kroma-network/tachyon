@@ -30,8 +30,14 @@ def tachyon_copts(safe_code = True):
 def tachyon_cxxopts(safe_code = True, force_exceptions = False, force_rtti = False):
     return tachyon_copts(safe_code) + tachyon_exceptions(force_exceptions) + tachyon_rtti(force_rtti)
 
-def tachyon_defines():
-    return tachyon_defines_component_build()
+def tachyon_cuda_defines():
+    return ["TACHYON_CUDA"]
+
+def tachyon_defines(use_cuda = False):
+    defines = tachyon_defines_component_build()
+    if use_cuda:
+        defines += if_cuda(tachyon_cuda_defines())
+    return defines
 
 def tachyon_defines_component_build():
     return if_static([], ["TACHYON_COMPONENT_BUILD"])
@@ -52,11 +58,12 @@ def tachyon_cc_library(
         safe_code = True,
         force_exceptions = False,
         force_rtti = False,
+        use_cuda = False,
         **kwargs):
     native.cc_library(
         name = name,
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
-        defines = defines + tachyon_defines(),
+        defines = defines + tachyon_defines(use_cuda),
         local_defines = local_defines + tachyon_local_defines(),
         **kwargs
     )
@@ -69,11 +76,12 @@ def tachyon_cc_binary(
         safe_code = True,
         force_exceptions = False,
         force_rtti = False,
+        use_cuda = False,
         **kwargs):
     native.cc_binary(
         name = name,
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
-        defines = defines + tachyon_defines(),
+        defines = defines + tachyon_defines(use_cuda),
         local_defines = local_defines + tachyon_local_defines(),
         **kwargs
     )
@@ -88,11 +96,12 @@ def tachyon_cc_test(
         safe_code = True,
         force_exceptions = False,
         force_rtti = False,
+        use_cuda = False,
         **kwargs):
     native.cc_test(
         name = name,
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
-        defines = defines + tachyon_defines(),
+        defines = defines + tachyon_defines(use_cuda),
         local_defines = local_defines + tachyon_local_defines(),
         linkstatic = linkstatic,
         deps = deps + ["@com_google_googletest//:gtest_main"],
@@ -111,7 +120,7 @@ def tachyon_cuda_library(
     cuda_library(
         name = name,
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
-        defines = defines + tachyon_defines(),
+        defines = defines + tachyon_defines(use_cuda = True),
         local_defines = local_defines + tachyon_local_defines(),
         **kwargs
     )
@@ -127,6 +136,7 @@ def tachyon_cuda_binary(
         deps = deps + if_cuda([
             "@local_config_cuda//cuda:cudart",
         ]),
+        use_cuda = True,
         **kwargs
     )
 
@@ -141,5 +151,6 @@ def tachyon_cuda_test(
         deps = deps + if_cuda([
             "@local_config_cuda//cuda:cudart",
         ]),
+        use_cuda = True,
         **kwargs
     )
