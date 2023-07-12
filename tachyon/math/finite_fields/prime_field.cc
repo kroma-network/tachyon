@@ -13,8 +13,7 @@ void GF7Config::Init() {
   static absl::once_flag once;
   absl::call_once(once, []() {
 #if defined(TACHYON_GMP_BACKEND)
-    mpz_class modulus;
-    gmp::UnsignedIntegerToMpz(7, &modulus);
+    mpz_class modulus = gmp::FromSignedInt(7);
     Modulus() = GF7(modulus, true);
 #endif
   });

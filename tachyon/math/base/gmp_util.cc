@@ -121,8 +121,16 @@ void MustParseIntoMpz(std::string_view str, int base, mpz_class* out) {
   CHECK(ParseIntoMpz(str, base, out));
 }
 
-void UnsignedIntegerToMpz(unsigned long int value, mpz_class* out) {
-  mpz_set_ui(out->get_mpz_t(), value);
+mpz_class FromDecString(std::string_view str) {
+  mpz_class ret;
+  MustParseIntoMpz(str, 10, &ret);
+  return ret;
+}
+
+mpz_class FromHexString(std::string_view str) {
+  mpz_class ret;
+  MustParseIntoMpz(str, 16, &ret);
+  return ret;
 }
 
 bool IsZero(const mpz_class& out) { return Sign(out) == 0; }
@@ -130,6 +138,12 @@ bool IsZero(const mpz_class& out) { return Sign(out) == 0; }
 bool IsNegative(const mpz_class& out) { return Sign(out) == -1; }
 
 bool IsPositive(const mpz_class& out) { return Sign(out) == 1; }
+
+mpz_class Abs(const mpz_class& value) {
+  mpz_class ret;
+  mpz_abs(ret.get_mpz_t(), value.get_mpz_t());
+  return ret;
+}
 
 size_t GetNumBits(const mpz_class& value) {
   return GetLimbSize(value) * GMP_LIMB_BITS;

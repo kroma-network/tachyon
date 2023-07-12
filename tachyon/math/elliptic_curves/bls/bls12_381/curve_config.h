@@ -4,6 +4,9 @@
 #include "tachyon/export.h"
 #include "tachyon/math/elliptic_curves/bls/bls12_381/fq.h"
 #include "tachyon/math/elliptic_curves/bls/bls12_381/fr.h"
+#include "tachyon/math/elliptic_curves/msm/glv.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config.h"
 
 namespace tachyon {
@@ -15,7 +18,18 @@ class TACHYON_EXPORT CurveConfig : public SWCurveConfig<Fq, Fr> {
   using Config = SWCurveConfig<Fq, Fr>;
 
   static void Init();
+
+  static Fq& EndomorphismCoefficient();
+  static Fr& Lambda();
+  static GLV<CurveConfig>::Coefficients ScalarDecompositionCoefficients();
+
+  static JacobianPoint<Config> Endomorphism(const JacobianPoint<Config>& point);
+  static AffinePoint<Config> EndomorphismAffine(
+      const AffinePoint<Config>& point);
 };
+
+using G1AffinePoint = AffinePoint<CurveConfig::Config>;
+using G1JacobianPoint = JacobianPoint<CurveConfig::Config>;
 
 }  // namespace bls12_381
 }  // namespace math

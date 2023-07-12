@@ -59,15 +59,18 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     return PrimeFieldGmp(value);
   }
 
-  static PrimeFieldGmp FromDecString(std::string_view str) {
-    mpz_class value;
-    gmp::MustParseIntoMpz(str, 10, &value);
+  static PrimeFieldGmp FromMpzClass(const mpz_class& value) {
+    return PrimeFieldGmp(value);
+  }
+  static PrimeFieldGmp FromMpzClass(mpz_class&& value) {
     return PrimeFieldGmp(std::move(value));
   }
+
+  static PrimeFieldGmp FromDecString(std::string_view str) {
+    return PrimeFieldGmp(gmp::FromDecString(str));
+  }
   static PrimeFieldGmp FromHexString(std::string_view str) {
-    mpz_class value;
-    gmp::MustParseIntoMpz(str, 16, &value);
-    return PrimeFieldGmp(std::move(value));
+    return PrimeFieldGmp(gmp::FromHexString(str));
   }
 
   bool IsZero() const { return *this == Zero(); }

@@ -8,6 +8,8 @@ namespace test {
 
 // static
 void CurveConfig::Init() {
+  GF7::Config::Init();
+
   B() = GF7(5);
   Generator() = JacobianPoint<SWCurveConfig<GF7, GF7>>(GF7(5), GF7(5), GF7(1));
 }

@@ -9,6 +9,7 @@ namespace bn254 {
 
 // static
 void CurveConfig::Init() {
+  Fq::Config::Init();
   B() = Fq(3);
 
   Generator() =

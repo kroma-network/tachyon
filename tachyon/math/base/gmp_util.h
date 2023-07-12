@@ -141,12 +141,28 @@ TACHYON_EXPORT bool ParseIntoMpz(std::string_view str, int base,
 TACHYON_EXPORT void MustParseIntoMpz(std::string_view str, int base,
                                      mpz_class* out);
 
-TACHYON_EXPORT void UnsignedIntegerToMpz(unsigned long int value,
-                                         mpz_class* out);
+TACHYON_EXPORT mpz_class FromDecString(std::string_view str);
+TACHYON_EXPORT mpz_class FromHexString(std::string_view str);
+
+template <typename T, std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>
+mpz_class FromUnsignedInt(T value) {
+  mpz_class ret;
+  mpz_set_ui(ret.get_mpz_t(), value);
+  return ret;
+}
+
+template <typename T, std::enable_if_t<std::is_signed_v<T>>* = nullptr>
+mpz_class FromSignedInt(T value) {
+  mpz_class ret;
+  mpz_set_si(ret.get_mpz_t(), value);
+  return ret;
+}
 
 TACHYON_EXPORT bool IsZero(const mpz_class& out);
 TACHYON_EXPORT bool IsNegative(const mpz_class& out);
 TACHYON_EXPORT bool IsPositive(const mpz_class& out);
+
+TACHYON_EXPORT mpz_class Abs(const mpz_class& value);
 
 TACHYON_EXPORT size_t GetNumBits(const mpz_class& value);
 TACHYON_EXPORT size_t GetLimbSize(const mpz_class& value);
