@@ -42,6 +42,8 @@ TEST(ContainerUtilTest, Map) {
   EXPECT_THAT(Map(arr.begin(), arr.end(),
                   [](int v) { return static_cast<double>(v * 2); }),
               ::testing::ContainerEq(std::vector<double>{2.0, 4.0, 6.0}));
+  EXPECT_THAT(Map(arr, [](int v) { return static_cast<double>(v * 2); }),
+              ::testing::ContainerEq(std::vector<double>{2.0, 4.0, 6.0}));
 }
 
 }  // namespace base

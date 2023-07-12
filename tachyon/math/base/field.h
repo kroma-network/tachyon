@@ -19,6 +19,12 @@ class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
     return Ring<F>::SumOfProducts(std::move(a_first), std::move(a_last),
                                   std::move(b_first), std::move(b_last));
   }
+
+  template <typename Container>
+  constexpr static F SumOfProducts(Container&& a, Container&& b) {
+    return Ring<F>::SumOfProducts(std::forward<Container>(a),
+                                  std::forward<Container>(b));
+  }
 };
 
 }  // namespace math

@@ -153,9 +153,7 @@ TEST_F(PrimeFieldTest, MultiplicativeGroupOperators) {
 TEST_F(PrimeFieldTest, SumOfProducts) {
   const GF7 a[] = {GF7(3), GF7(2)};
   const GF7 b[] = {GF7(2), GF7(5)};
-  EXPECT_EQ(GF7::SumOfProducts(std::begin(a), std::end(a), std::begin(b),
-                               std::end(b)),
-            GF7(2));
+  EXPECT_EQ(GF7::SumOfProducts(a, b), GF7(2));
 }
 
 TEST_F(PrimeFieldTest, Random) {

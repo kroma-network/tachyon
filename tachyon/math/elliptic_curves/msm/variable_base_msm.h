@@ -40,6 +40,14 @@ class VariableBaseMSM {
                  JacobianPoint::kNegationIsCheap);
   }
 
+  template <typename BaseContainer, typename ScalarContainer>
+  static JacobianPoint MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
+    return DoMSM(std::begin(std::forward<BaseContainer>(bases)),
+                 std::end(std::forward<BaseContainer>(bases)),
+                 std::begin(std::forward<ScalarContainer>(scalars)),
+                 std::end(std::forward<ScalarContainer>(scalars)));
+  }
+
  private:
   FRIEND_TEST(VariableBaseMSMTest, DoMSM);
 

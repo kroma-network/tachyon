@@ -143,8 +143,11 @@ TEST_F(JacobianPointTest, MSM) {
       GF7(2),
       GF7(3),
   };
-  JacobianPoint<Config>::MSM(bases.begin(), bases.end(), scalars.begin(),
-                             scalars.end());
+  JacobianPoint<Config> expected = JacobianPoint<Config>::Zero();
+  for (size_t i = 0; i < bases.size(); ++i) {
+    expected += bases[i].ScalarMul(scalars[i].ToMpzClass());
+  }
+  EXPECT_EQ(JacobianPoint<Config>::MSM(bases, scalars), expected);
 }
 
 }  // namespace math

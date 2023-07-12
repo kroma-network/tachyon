@@ -27,6 +27,12 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeMonoid<F> {
     }
     return sum;
   }
+
+  template <typename Container>
+  constexpr static F SumOfProducts(Container&& a, Container&& b) {
+    return SumOfProducts(std::begin(a), std::end(a), std::begin(b),
+                         std::end(b));
+  }
 };
 
 }  // namespace math

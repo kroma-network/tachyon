@@ -94,8 +94,11 @@ TEST_F(AffinePointTest, MSM) {
       GF7(2),
       GF7(3),
   };
-  AffinePoint<Config>::MSM(bases.begin(), bases.end(), scalars.begin(),
-                           scalars.end());
+  JacobianPoint<Config> expected = JacobianPoint<Config>::Zero();
+  for (size_t i = 0; i < bases.size(); ++i) {
+    expected += bases[i].ToJacobian().ScalarMul(scalars[i].ToMpzClass());
+  }
+  EXPECT_EQ(AffinePoint<Config>::MSM(bases, scalars), expected);
 }
 
 }  // namespace math

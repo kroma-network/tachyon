@@ -71,6 +71,15 @@ class JacobianPoint<Config,
                        std::move(scalars_first), std::move(scalars_last));
   }
 
+    template <typename BaseContainer, typename ScalarContainer>
+  static JacobianPoint<Config> MSM(BaseContainer&& bases,
+                                   ScalarContainer&& scalars) {
+    return MSM(std::begin(std::forward<BaseContainer>(bases)),
+               std::end(std::forward<BaseContainer>(bases)),
+               std::begin(std::forward<ScalarContainer>(scalars)),
+               std::end(std::forward<ScalarContainer>(scalars)));
+  }
+
   constexpr const BaseField& x() const { return x_; }
   constexpr const BaseField& y() const { return y_; }
   constexpr const BaseField& z() const { return z_; }

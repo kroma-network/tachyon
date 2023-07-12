@@ -82,6 +82,12 @@ std::vector<ReturnType> Map(InputIterator begin, InputIterator end,
   return ret;
 }
 
+template <typename Container, typename UnaryOp>
+auto Map(Container&& container, UnaryOp&& op) {
+  return Map(std::begin(container), std::end(container),
+             std::forward<UnaryOp>(op));
+}
+
 }  // namespace base
 }  // namespace tachyon
 
