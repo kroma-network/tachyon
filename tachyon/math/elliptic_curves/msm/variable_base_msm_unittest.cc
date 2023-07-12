@@ -12,7 +12,7 @@ namespace math {
 
 namespace {
 
-using Config = test::SwCurveConfig::Config;
+using Config = test::CurveConfig::Config;
 
 const size_t kSize = 40;
 
@@ -20,7 +20,7 @@ class VariableBaseMSMTest : public ::testing::Test {
  public:
   VariableBaseMSMTest() {
     GF7Config::Init();
-    test::SwCurveConfig::Init();
+    test::CurveConfig::Init();
 
     bases_ = base::CreateVector(
         kSize, []() { return JacobianPoint<Config>::Random(); });

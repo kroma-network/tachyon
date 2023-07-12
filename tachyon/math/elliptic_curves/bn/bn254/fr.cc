@@ -15,9 +15,11 @@ void FrConfig::Init() {
   absl::call_once(once, []() {
 #if defined(TACHYON_GMP_BACKEND)
     mpz_class modulus;
+    // Hex: 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
     gmp::MustParseIntoMpz(
-        "0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001",
-        16, &modulus);
+        "2188824287183927522224640574525727508854836440041603434369820418657580"
+        "8495617",
+        10, &modulus);
     Modulus() = Fr(modulus, true);
 #endif
   });

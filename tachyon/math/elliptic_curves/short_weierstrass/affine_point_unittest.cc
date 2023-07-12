@@ -10,13 +10,13 @@ namespace math {
 
 namespace {
 
-using Config = test::SwCurveConfig::Config;
+using Config = test::CurveConfig::Config;
 
 class AffinePointTest : public ::testing::Test {
  public:
   AffinePointTest() {
     GF7Config::Init();
-    test::SwCurveConfig::Init();
+    test::CurveConfig::Init();
   }
   AffinePointTest(const AffinePointTest&) = delete;
   AffinePointTest& operator=(const AffinePointTest&) = delete;

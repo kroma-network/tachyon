@@ -7,7 +7,7 @@ namespace math {
 namespace test {
 
 // static
-void SwCurveConfig::Init() {
+void CurveConfig::Init() {
   B() = GF7(5);
   Generator() = JacobianPoint<SWCurveConfig<GF7, GF7>>(GF7(5), GF7(5), GF7(1));
 }

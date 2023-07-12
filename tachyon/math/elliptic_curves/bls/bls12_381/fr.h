@@ -1,16 +1,16 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_BN_BN254_FR_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_BN_BN254_FR_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_BLS_BLS12_381_FR_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_BLS_BLS12_381_FR_H_
 
 #include "tachyon/export.h"
 #include "tachyon/math/finite_fields/prime_field.h"
 
 namespace tachyon {
 namespace math {
-namespace bn254 {
+namespace bls12_381 {
 
 class TACHYON_EXPORT FrConfig {
  public:
-  constexpr static size_t kModulusBits = 254;
+  constexpr static size_t kModulusBits = 255;
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 
@@ -21,8 +21,8 @@ class TACHYON_EXPORT FrConfig {
 
 using Fr = PrimeField<FrConfig>;
 
-}  // namespace bn254
+}  // namespace bls12_381
 }  // namespace math
 }  // namespace tachyon
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_BN_BN254_FR_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_BLS_BLS12_381_FR_H_

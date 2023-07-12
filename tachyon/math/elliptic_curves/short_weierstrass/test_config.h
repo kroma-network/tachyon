@@ -8,7 +8,7 @@ namespace tachyon {
 namespace math {
 namespace test {
 
-class SwCurveConfig : public ::tachyon::math::SWCurveConfig<GF7, GF7> {
+class CurveConfig : public ::tachyon::math::SWCurveConfig<GF7, GF7> {
  public:
   using Config = SWCurveConfig<GF7, GF7>;
 

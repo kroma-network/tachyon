@@ -1,4 +1,4 @@
-#include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
+#include "tachyon/math/elliptic_curves/bls/bls12_381/fr.h"
 
 #include "absl/base/call_once.h"
 
@@ -7,30 +7,30 @@
 
 namespace tachyon {
 namespace math {
-namespace bn254 {
+namespace bls12_381 {
 
 // static
-void FqConfig::Init() {
+void FrConfig::Init() {
   static absl::once_flag once;
   absl::call_once(once, []() {
 #if defined(TACHYON_GMP_BACKEND)
     mpz_class modulus;
-    // Hex: 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
+    // Hex: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
     gmp::MustParseIntoMpz(
-        "2188824287183927522224640574525727508869631115729782366268903789464522"
-        "6208583",
+        "5243587517512619047944774050818596583769055250052763782260365869993858"
+        "1184513",
         10, &modulus);
-    Modulus() = Fq(modulus, true);
+    Modulus() = Fr(modulus, true);
 #endif
   });
 }
 
 // static
-Fq& FqConfig::Modulus() {
-  static base::NoDestructor<Fq> modulus;
+Fr& FrConfig::Modulus() {
+  static base::NoDestructor<Fr> modulus;
   return *modulus;
 }
 
-}  // namespace bn254
+}  // namespace bls12_381
 }  // namespace math
 }  // namespace tachyon

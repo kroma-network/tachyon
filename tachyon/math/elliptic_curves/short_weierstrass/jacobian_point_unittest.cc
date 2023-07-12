@@ -11,13 +11,13 @@ namespace math {
 
 namespace {
 
-using Config = test::SwCurveConfig::Config;
+using Config = test::CurveConfig::Config;
 
 class JacobianPointTest : public ::testing::Test {
  public:
   JacobianPointTest() {
     GF7Config::Init();
-    test::SwCurveConfig::Init();
+    test::CurveConfig::Init();
   }
   JacobianPointTest(const JacobianPointTest&) = delete;
   JacobianPointTest& operator=(const JacobianPointTest&) = delete;
