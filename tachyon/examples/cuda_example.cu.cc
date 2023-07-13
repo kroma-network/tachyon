@@ -39,9 +39,9 @@
 #include <string.h>
 #include <math.h>
 
-#if defined(TACHYON_CUDA)
+#if TACHYON_CUDA
 // For the CUDA runtime routines (prefixed with "cuda_")
-#include <cuda_runtime.h>
+#include "third_party/gpus/cuda/include/cuda_runtime.h"
 
 namespace tachyon {
 
@@ -222,4 +222,4 @@ int main(int argc, char **argv) {
   std::cerr << "please build with --config cuda" << std::endl;
   return 1;
 }
-#endif // defined(TACHYON_CUDA)
+#endif  // TACHYON_CUDA
