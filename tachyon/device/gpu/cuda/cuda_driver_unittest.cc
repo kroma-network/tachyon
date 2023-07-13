@@ -13,6 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+#if TACHYON_CUDA
+
 #include "tachyon/device/gpu/cuda/cuda_driver.h"
 
 #include "absl/memory/memory.h"
@@ -76,3 +78,5 @@ TEST(CudaDriverTest, ScopedActivateContextTest) {
 }  // namespace gpu
 }  // namespace device
 }  // namespace tachyon
+
+#endif  // TACHYON_CUDA
