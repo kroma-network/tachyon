@@ -80,8 +80,6 @@ TEST_F(JacobianPointTest, AdditiveGroupOperators) {
       JacobianPoint<Config>::CreateChecked(GF7(6), GF7(5), GF7(1));
   AffinePoint<Config> ap = jp.ToAffine();
   AffinePoint<Config> ap2 = jp2.ToAffine();
-  AffinePoint<Config> ap3 = jp3.ToAffine();
-  AffinePoint<Config> ap4 = jp4.ToAffine();
 
   EXPECT_EQ(jp + jp2, jp3);
   EXPECT_EQ(jp - jp3, -jp2);
