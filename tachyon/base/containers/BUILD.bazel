@@ -54,5 +54,6 @@ tachyon_cc_test(
         ":container_util",
         ":contains",
         "//tachyon/base/functional:identity",
+        "@com_google_absl//absl/container:flat_hash_set",
     ],
 )

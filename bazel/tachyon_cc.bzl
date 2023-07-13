@@ -58,12 +58,11 @@ def tachyon_cc_library(
         safe_code = True,
         force_exceptions = False,
         force_rtti = False,
-        use_cuda = False,
         **kwargs):
     native.cc_library(
         name = name,
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
-        defines = defines + tachyon_defines(use_cuda),
+        defines = defines + tachyon_defines(),
         local_defines = local_defines + tachyon_local_defines(),
         **kwargs
     )
@@ -76,12 +75,11 @@ def tachyon_cc_binary(
         safe_code = True,
         force_exceptions = False,
         force_rtti = False,
-        use_cuda = False,
         **kwargs):
     native.cc_binary(
         name = name,
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
-        defines = defines + tachyon_defines(use_cuda),
+        defines = defines + tachyon_defines(),
         local_defines = local_defines + tachyon_local_defines(),
         **kwargs
     )
@@ -96,12 +94,11 @@ def tachyon_cc_test(
         safe_code = True,
         force_exceptions = False,
         force_rtti = False,
-        use_cuda = False,
         **kwargs):
     native.cc_test(
         name = name,
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
-        defines = defines + tachyon_defines(use_cuda),
+        defines = defines + tachyon_defines(),
         local_defines = local_defines + tachyon_local_defines(),
         linkstatic = linkstatic,
         deps = deps + ["@com_google_googletest//:gtest_main"],
@@ -127,30 +124,40 @@ def tachyon_cuda_library(
 
 def tachyon_cuda_binary(
         name,
-        srcs = [],
         deps = [],
         **kwargs):
-    tachyon_cc_binary(
-        name = name,
-        srcs = if_cuda(srcs),
+    lib_name = "{}_lib".format(name)
+    tachyon_cuda_library(
+        name = lib_name,
         deps = deps + if_cuda([
             "@local_config_cuda//cuda:cudart",
         ]),
-        use_cuda = True,
         **kwargs
+    )
+
+    tachyon_cc_binary(
+        name = name,
+        deps = [":" + lib_name],
     )
 
 def tachyon_cuda_test(
         name,
-        srcs = [],
         deps = [],
         **kwargs):
-    tachyon_cc_test(
-        name = name,
-        srcs = if_cuda(srcs),
+    lib_name = "{}_lib".format(name)
+    tachyon_cuda_library(
+        name = lib_name,
         deps = deps + if_cuda([
             "@local_config_cuda//cuda:cudart",
-        ]),
-        use_cuda = True,
+        ]) + [
+            "@com_google_googletest//:gtest",
+        ],
+        # NOTE(chokobole): Without this, tests are not contained in a final binary.
+        alwayslink = True,
         **kwargs
+    )
+
+    tachyon_cc_test(
+        name = name,
+        deps = [":" + lib_name],
     )
