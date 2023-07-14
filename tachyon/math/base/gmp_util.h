@@ -34,6 +34,7 @@ class TACHYON_EXPORT BitIteratorBE {
   constexpr BitIteratorBE& operator=(const BitIteratorBE& other) = default;
 
   static BitIteratorBE begin(const mpz_class* field);
+  static BitIteratorBE WithoutLeadingZeros(const mpz_class* field);
   static BitIteratorBE end(const mpz_class* field);
 
   constexpr bool operator==(const BitIteratorBE& other) const {
@@ -44,7 +45,7 @@ class TACHYON_EXPORT BitIteratorBE {
   }
 
   constexpr BitIteratorBE& operator++() {
-#if ARCH_CPU_BIG_ENDIAN == 1
+#if ARCH_CPU_BIG_ENDIAN
     ++index_;
 #else
     --index_;
@@ -85,6 +86,7 @@ class TACHYON_EXPORT BitIteratorLE {
 
   static BitIteratorLE begin(const mpz_class* field);
   static BitIteratorLE end(const mpz_class* field);
+  static BitIteratorLE WithoutTrailingZeros(const mpz_class* field);
 
   bool operator==(const BitIteratorLE& other) const {
     return field_ == other.field_ && index_ == other.index_;
@@ -94,7 +96,7 @@ class TACHYON_EXPORT BitIteratorLE {
   }
 
   constexpr BitIteratorLE& operator++() {
-#if ARCH_CPU_LITTLE_ENDIAN == 1
+#if ARCH_CPU_LITTLE_ENDIAN
     ++index_;
 #else
     --index_;
@@ -114,7 +116,7 @@ class TACHYON_EXPORT BitIteratorLE {
 
  private:
   constexpr BitIteratorLE& operator--() {
-#if ARCH_CPU_LITTLE_ENDIAN == 1
+#if ARCH_CPU_LITTLE_ENDIAN
     --index_;
 #else
     ++index_;

@@ -10,7 +10,7 @@
 namespace tachyon {
 namespace math {
 
-TEST(GmpUtilTest, BitIteratorLE) {
+TEST(GmpUtilTest, BitIteratorLEWithoutTrailingZeros) {
   struct {
     mpz_class value;
     std::vector<bool> answers;
@@ -23,7 +23,7 @@ TEST(GmpUtilTest, BitIteratorLE) {
   for (const auto& test : tests) {
     std::vector<bool> bits;
     auto it = gmp::BitIteratorLE::begin(&test.value);
-    auto end = gmp::BitIteratorLE::end(&test.value);
+    auto end = gmp::BitIteratorLE::WithoutTrailingZeros(&test.value);
     while (it != end) {
       bits.push_back(*it);
       ++it;
@@ -37,7 +37,7 @@ TEST(GmpUtilTest, BitIteratorLEWithZero) {
   std::vector<bool> bits;
   mpz_class value;
   auto it = gmp::BitIteratorLE::begin(&value);
-  auto end = gmp::BitIteratorLE::end(&value);
+  auto end = gmp::BitIteratorLE::WithoutTrailingZeros(&value);
   while (it != end) {
     bits.push_back(*it);
     ++it;
@@ -45,7 +45,7 @@ TEST(GmpUtilTest, BitIteratorLEWithZero) {
   EXPECT_TRUE(bits.empty());
 }
 
-TEST(GmpUtilTest, BitIteratorBE) {
+TEST(GmpUtilTest, BitIteratorBEWithoutLeadingZeros) {
   struct {
     mpz_class value;
     std::vector<bool> answers;
@@ -57,7 +57,7 @@ TEST(GmpUtilTest, BitIteratorBE) {
 
   for (const auto& test : tests) {
     std::vector<bool> bits;
-    auto it = gmp::BitIteratorBE::begin(&test.value);
+    auto it = gmp::BitIteratorBE::WithoutLeadingZeros(&test.value);
     auto end = gmp::BitIteratorBE::end(&test.value);
     while (it != end) {
       bits.push_back(*it);
@@ -71,7 +71,7 @@ TEST(GmpUtilTest, BitIteratorBE) {
 TEST(GmpUtilTest, BitIteratorBEWithZero) {
   std::vector<bool> bits;
   mpz_class value;
-  auto it = gmp::BitIteratorBE::begin(&value);
+  auto it = gmp::BitIteratorBE::WithoutLeadingZeros(&value);
   auto end = gmp::BitIteratorBE::end(&value);
   while (it != end) {
     bits.push_back(*it);

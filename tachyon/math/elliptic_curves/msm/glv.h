@@ -92,10 +92,10 @@ class GLV {
     }
 
     if (!result.k1.sign) {
-      b1 = -b1;
+      b1.NegativeInPlace();
     }
     if (!result.k2.sign) {
-      b2 = -b2;
+      b2.NegativeInPlace();
     }
 
     JacobianPointTy b1b2 = b1 + b2;
@@ -111,8 +111,11 @@ class GLV {
     while (k1_it != k1_end) {
       if (skip_zeros && !(*k1_it) && !(*k2_it)) {
         skip_zeros = false;
+        ++k1_it;
+        ++k2_it;
         continue;
       }
+      skip_zeros = false;
       ret.DoubleInPlace();
       if ((*k1_it)) {
         if (*(k2_it)) {

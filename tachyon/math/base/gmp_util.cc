@@ -21,15 +21,26 @@ bool TestBit(const mpz_class* field, size_t index) {
 
 // static
 BitIteratorBE BitIteratorBE::begin(const mpz_class* field) {
-#if ARCH_CPU_BIG_ENDIAN == 1
-  BitIteratorBE ret(field, 0);
-#else
+#if ARCH_CPU_BIG_ENDIAN
+  return {field, 0};
+#else  // ARCH_CPU_LITTLE_ENDIAN
   size_t bits = GetNumBits(*field);
   if (bits == 0) {
     return end(field);
   }
-  BitIteratorBE ret(field, bits - 1);
+  return {field, bits - 1};
 #endif
+}
+
+// static
+BitIteratorBE BitIteratorBE::WithoutLeadingZeros(const mpz_class* field) {
+  BitIteratorBE ret = begin(field);
+#if ARCH_CPU_LITTLE_ENDIAN
+  size_t bits = GetNumBits(*field);
+  if (bits == 0) {
+    return ret;
+  }
+#endif  // ARCH_CPU_LITTLE_ENDIAN
   while (*ret == 0) {
     ++ret;
   }
@@ -38,13 +49,13 @@ BitIteratorBE BitIteratorBE::begin(const mpz_class* field) {
 
 // static
 BitIteratorBE BitIteratorBE::end(const mpz_class* field) {
-#if ARCH_CPU_BIG_ENDIAN == 1
+#if ARCH_CPU_BIG_ENDIAN
   size_t bits = GetNumBits(*field);
   if (bits == 0) {
     return begin(field);
   }
   return BitIteratorBE(field, bits);
-#else
+#else  // ARCH_CPU_LITTLE_ENDIAN
   return BitIteratorBE(field, std::numeric_limits<size_t>::max());
 #endif
 }
@@ -61,9 +72,9 @@ const bool& BitIteratorBE::operator*() const {
 
 // static
 BitIteratorLE BitIteratorLE::begin(const mpz_class* field) {
-#if ARCH_CPU_LITTLE_ENDIAN == 1
+#if ARCH_CPU_LITTLE_ENDIAN
   return BitIteratorLE(field, 0);
-#else
+#else  // ARCH_CPU_BIG_ENDIAN
   size_t bits = GetNumBits(*field);
   if (bits == 0) {
     return end(field);
@@ -74,14 +85,25 @@ BitIteratorLE BitIteratorLE::begin(const mpz_class* field) {
 
 // static
 BitIteratorLE BitIteratorLE::end(const mpz_class* field) {
-#if ARCH_CPU_LITTLE_ENDIAN == 1
+#if ARCH_CPU_LITTLE_ENDIAN
   size_t bits = GetNumBits(*field);
   if (bits == 0) {
     return begin(field);
   }
-  BitIteratorLE ret(field, bits);
-#else
-  BitIteratorLE ret(field, std::numeric_limits<size_t>::max());
+  return {field, bits};
+#else  // ARCH_CPU_BIG_ENDIAN
+  return {field, std::numeric_limits<size_t>::max()};
+#endif
+}
+
+// static
+BitIteratorLE BitIteratorLE::WithoutTrailingZeros(const mpz_class* field) {
+  BitIteratorLE ret = end(field);
+#if ARCH_CPU_LITTLE_ENDIAN
+  size_t bits = GetNumBits(*field);
+  if (bits == 0) {
+    return ret;
+  }
 #endif
   while (*ret == 0) {
     --ret;

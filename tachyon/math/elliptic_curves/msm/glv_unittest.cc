@@ -19,10 +19,26 @@ class GLVTest : public ::testing::Test {
 
 }  // namespace
 
+TEST_F(GLVTest, Endomorphism) {
+  EXPECT_TRUE(bls12_381::CurveConfig::EndomorphismCoefficient().Pow(3).IsOne());
+  bls12_381::G1JacobianPoint base = bls12_381::G1JacobianPoint::Random();
+  EXPECT_EQ(base.ScalarMul(bls12_381::CurveConfig::Lambda().ToMpzClass()),
+            bls12_381::CurveConfig::Endomorphism(base));
+}
+
+TEST_F(GLVTest, Decompose) {
+  bls12_381::Fr scalar = bls12_381::Fr::Random();
+  auto result = GLV<bls12_381::CurveConfig>::Decompose(scalar);
+  bls12_381::Fr k1(result.k1.value);
+  bls12_381::Fr k2(result.k2.value);
+  if (!result.k1.sign) k1.NegativeInPlace();
+  if (!result.k2.sign) k2.NegativeInPlace();
+  EXPECT_EQ(scalar, k1 + bls12_381::CurveConfig::Lambda() * k2);
+}
+
 TEST_F(GLVTest, Mul) {
   bls12_381::G1JacobianPoint base = bls12_381::G1JacobianPoint::Random();
   bls12_381::Fr scalar = bls12_381::Fr::Random();
-
   EXPECT_EQ(GLV<bls12_381::CurveConfig>::Mul(base, scalar),
             base.ScalarMul(scalar.ToMpzClass()));
 
