@@ -1,0 +1,36 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "matrix_view",
+    hdrs = [
+        "matrix_to_string_operator.h",
+        "matrix_traits.h",
+        "matrix_view.h",
+    ],
+    deps = [
+        "//tachyon/base:logging",
+    ],
+)
+
+tachyon_cc_library(
+    name = "matrix",
+    hdrs = [
+        "matrix.h",
+        "matrix_inverse_operator.h",
+    ],
+    deps = [
+        ":matrix_view",
+        "//tachyon/math/base:rings",
+    ],
+)
+
+tachyon_cc_test(
+    name = "matrix_unittests",
+    srcs = ["matrix_unittest.cc"],
+    deps = [
+        ":matrix",
+        "//tachyon/math/finite_fields:prime_field",
+    ],
+)
