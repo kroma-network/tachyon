@@ -159,7 +159,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     return Normalize();
   }
 
-  PrimeFieldGmp& NegativeInPlace() {
+  PrimeFieldGmp& NegInPlace() {
     if (value_ == mpz_class(0)) return *this;
     value_ = Config::Modulus().value_ - value_;
     return *this;

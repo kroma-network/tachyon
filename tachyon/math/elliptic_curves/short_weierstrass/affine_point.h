@@ -132,8 +132,8 @@ class AffinePoint<Config,
     return point - other;
   }
 
-  constexpr AffinePoint& NegativeInPlace() {
-    y_.NegativeInPlace();
+  constexpr AffinePoint& NegInPlace() {
+    y_.NegInPlace();
     return *this;
   }
 

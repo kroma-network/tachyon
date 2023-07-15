@@ -65,7 +65,7 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
 
     // J = -H * I
     BaseField j = h;
-    j.NegativeInPlace();
+    j.NegInPlace();
     j *= i;
 
     // r = 2 * (S2 - S1)
@@ -143,7 +143,7 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Config>& other) {
 
     // J = -H * I
     BaseField j = h;
-    j.NegativeInPlace();
+    j.NegInPlace();
     j *= i;
 
     // r = 2 * (S2 - Y1)

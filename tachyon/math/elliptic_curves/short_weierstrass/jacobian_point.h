@@ -137,8 +137,8 @@ class JacobianPoint<Config,
   constexpr JacobianPoint& DoubleInPlace();
 
   // AdditiveGroup methods
-  constexpr JacobianPoint& NegativeInPlace() {
-    y_.NegativeInPlace();
+  constexpr JacobianPoint& NegInPlace() {
+    y_.NegInPlace();
     return *this;
   }
 

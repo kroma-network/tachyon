@@ -151,7 +151,7 @@ class PrimeFieldFallback : public PrimeFieldBase<PrimeFieldFallback<_Config>> {
     return *this;
   }
 
-  PrimeFieldFallback& NegativeInPlace() {
+  PrimeFieldFallback& NegInPlace() {
     NOTIMPLEMENTED();
     return *this;
   }

@@ -89,7 +89,7 @@ class AdditiveGroup : public AdditiveMonoid<G> {
 
   [[nodiscard]] constexpr auto Negative() const {
     G ret = *static_cast<const G*>(this);
-    return ret.NegativeInPlace();
+    return ret.NegInPlace();
   }
 };
 

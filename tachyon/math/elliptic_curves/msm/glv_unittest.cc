@@ -31,8 +31,8 @@ TEST_F(GLVTest, Decompose) {
   auto result = GLV<bls12_381::CurveConfig>::Decompose(scalar);
   bls12_381::Fr k1(result.k1.value);
   bls12_381::Fr k2(result.k2.value);
-  if (!result.k1.sign) k1.NegativeInPlace();
-  if (!result.k2.sign) k2.NegativeInPlace();
+  if (!result.k1.sign) k1.NegInPlace();
+  if (!result.k2.sign) k2.NegInPlace();
   EXPECT_EQ(scalar, k1 + bls12_381::CurveConfig::Lambda() * k2);
 }
 

@@ -97,7 +97,7 @@ TEST_F(PrimeFieldTest, AdditiveOperators) {
 TEST_F(PrimeFieldTest, AdditiveGroupOperators) {
   GF7 f(3);
   EXPECT_EQ(f.Negative(), GF7(4));
-  f.NegativeInPlace();
+  f.NegInPlace();
   EXPECT_EQ(f, GF7(4));
 
   f = GF7(3);

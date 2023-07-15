@@ -101,9 +101,8 @@ class UnivariatePolynomial
   // AdditiveGroup methods
   OPERATION_METHOD(Sub)
 
-  UnivariatePolynomial& NegativeInPlace() {
-    return internal::UnivariatePolynomialOp<Coefficients>::NegativeInPlace(
-        *this);
+  UnivariatePolynomial& NegInPlace() {
+    return internal::UnivariatePolynomialOp<Coefficients>::NegInPlace(*this);
   }
 
   // MultiplicativeMonoid methods

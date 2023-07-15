@@ -141,11 +141,10 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
-  static UnivariatePolynomial<D>& NegativeInPlace(
-      UnivariatePolynomial<D>& self) {
+  static UnivariatePolynomial<D>& NegInPlace(UnivariatePolynomial<D>& self) {
     std::vector<F>& coefficients = self.coefficients_.coefficients_;
     for (F& coefficient : coefficients) {
-      coefficient.NegativeInPlace();
+      coefficient.NegInPlace();
     }
     return self;
   }
@@ -367,11 +366,10 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
     return DoAddition<true>(self, other);
   }
 
-  static UnivariatePolynomial<S>& NegativeInPlace(
-      UnivariatePolynomial<S>& self) {
+  static UnivariatePolynomial<S>& NegInPlace(UnivariatePolynomial<S>& self) {
     std::vector<Element>& elements = self.coefficients_.elements_;
     for (Element& elem : elements) {
-      elem.coefficient.NegativeInPlace();
+      elem.coefficient.NegInPlace();
     }
     return self;
   }

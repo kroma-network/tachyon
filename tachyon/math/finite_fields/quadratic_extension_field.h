@@ -14,7 +14,7 @@ class QuadraticExtensionField {
   constexpr QuadraticExtensionField(BaseField&& c0, BaseField&& c1): c0_(std::move(c0)), c1_(std::move(c1)) {}
 
   QuadraticExtensionField& ConjugateInPlace() {
-    c1_.NegativeInPlace();
+    c1_.NegInPlace();
     return *this;
   }
 
