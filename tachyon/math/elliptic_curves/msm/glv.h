@@ -3,7 +3,6 @@
 
 #include <array>
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/base/gmp_util.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
@@ -17,25 +16,17 @@ class GLV {
   using JacobianPointTy = JacobianPoint<typename GLVConfig::Config>;
   using ScalarField = typename JacobianPointTy::ScalarField;
 
-  struct Coefficient {
-    bool sign;
-    mpz_class value;
-  };
-
-  using Coefficients = std::array<GLV<GLVConfig>::Coefficient, 4>;
+  using Coefficients = std::array<mpz_class, 4>;
 
   struct CoefficientDecompositionResult {
-    Coefficient k1;
-    Coefficient k2;
+    gmp::SignedMpzClass k1;
+    gmp::SignedMpzClass k2;
   };
 
   // Decomposes a scalar |k| into k1, k2, s.t. k = k1 + lambda k2,
   static CoefficientDecompositionResult Decompose(const ScalarField& k) {
-    std::vector<mpz_class> coefficients =
-        base::Map(GLVConfig::ScalarDecompositionCoefficients(),
-                  [](const Coefficient& coeff) {
-                    return coeff.sign ? coeff.value : -coeff.value;
-                  });
+    const std::array<mpz_class, 4> coefficients =
+        GLVConfig::ScalarDecompositionCoefficients();
 
     const mpz_class scalar = k.ToMpzClass();
     const mpz_class& n11 = coefficients[0];
@@ -67,16 +58,11 @@ class GLV {
 
     // k1
     mpz_class k1 = scalar - b1;
-    mpz_class k1_abs = gmp::Abs(k1);
 
     // k2
     mpz_class k2 = -b2;
-    mpz_class k2_abs = gmp::Abs(k2);
 
-    return {
-        {gmp::IsPositive(k1), std::move(k1_abs)},
-        {gmp::IsPositive(k2), std::move(k2_abs)},
-    };
+    return {gmp::SignedMpzClass(k1), gmp::SignedMpzClass(k2)};
   }
 
   template <typename Point>
@@ -91,18 +77,18 @@ class GLV {
       b2 = GLVConfig::EndomorphismAffine(p);
     }
 
-    if (!result.k1.sign) {
+    if (result.k1.sign == Sign::kNegative) {
       b1.NegInPlace();
     }
-    if (!result.k2.sign) {
+    if (result.k2.sign == Sign::kNegative) {
       b2.NegInPlace();
     }
 
     JacobianPointTy b1b2 = b1 + b2;
 
-    auto k1_begin = gmp::BitIteratorBE::begin(&result.k1.value);
-    auto k1_end = gmp::BitIteratorBE::end(&result.k1.value);
-    auto k2_begin = gmp::BitIteratorBE::begin(&result.k2.value);
+    auto k1_begin = gmp::BitIteratorBE::begin(&result.k1.abs_value);
+    auto k1_end = gmp::BitIteratorBE::end(&result.k1.abs_value);
+    auto k2_begin = gmp::BitIteratorBE::begin(&result.k2.abs_value);
 
     JacobianPointTy ret = JacobianPointTy::Zero();
     bool skip_zeros = true;

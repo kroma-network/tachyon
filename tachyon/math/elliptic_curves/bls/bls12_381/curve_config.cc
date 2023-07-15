@@ -34,15 +34,11 @@ void CurveConfig::Init() {
   // Family, from Guide to Pairing Based Cryptography by El Mrabet
   ScalarDecompositionCoefficients() = GLV<CurveConfig>::Coefficients({
       // v_2 = (X², 1)
-      GLV<CurveConfig>::Coefficient(
-          {true,
-           gmp::FromDecString("228988810152649578064853576960394133504")}),
-      GLV<CurveConfig>::Coefficient({true, mpz_class(1)}),
+      gmp::FromDecString("228988810152649578064853576960394133504"),
+      mpz_class(1),
       // v_1 = (-1, X² - 1)
-      GLV<CurveConfig>::Coefficient({false, mpz_class(1)}),
-      GLV<CurveConfig>::Coefficient(
-          {true,
-           gmp::FromDecString("228988810152649578064853576960394133503")}),
+      mpz_class(-1),
+      gmp::FromDecString("228988810152649578064853576960394133503"),
   });
 }
 

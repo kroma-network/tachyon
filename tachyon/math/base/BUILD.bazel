@@ -22,6 +22,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
+        "//tachyon/math/base:sign",
         "@com_google_absl//absl/base",
         "@local_config_gmp//:gmp",
     ],
@@ -51,12 +52,24 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "sign",
+    srcs = ["sign.cc"],
+    hdrs = ["sign.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/strings:string_util",
+    ],
+)
+
 tachyon_cc_test(
     name = "base_unittests",
     srcs = [
         "gmp_util_unittest.cc",
+        "sign_unittest.cc",
     ],
     deps = [
         ":gmp_util",
+        ":sign",
     ],
 )

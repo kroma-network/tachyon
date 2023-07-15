@@ -6,7 +6,6 @@ tachyon_cc_library(
     name = "glv",
     hdrs = ["glv.h"],
     deps = [
-        "//tachyon/base/containers:container_util",
         "//tachyon/math/base:gmp_util",
         "//tachyon/math/elliptic_curves:points",
     ],

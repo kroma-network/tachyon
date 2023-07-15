@@ -11,8 +11,6 @@ namespace gmp {
 
 namespace {
 
-int Sign(const mpz_class& out) { return mpz_sgn(out.get_mpz_t()); }
-
 bool TestBit(const mpz_class* field, size_t index) {
   return mpz_tstbit(field->get_mpz_t(), index) == 1;
 }
@@ -155,13 +153,21 @@ mpz_class FromHexString(std::string_view str) {
   return ret;
 }
 
-bool IsZero(const mpz_class& out) { return Sign(out) == 0; }
+Sign GetSign(const mpz_class& out) {
+  return ToSign(mpz_sgn(out.get_mpz_t()));
+}
 
-bool IsNegative(const mpz_class& out) { return Sign(out) == -1; }
+bool IsZero(const mpz_class& value) { return GetSign(value) == Sign::kZero; }
 
-bool IsPositive(const mpz_class& out) { return Sign(out) == 1; }
+bool IsNegative(const mpz_class& value) {
+  return GetSign(value) == Sign::kNegative;
+}
 
-mpz_class Abs(const mpz_class& value) {
+bool IsPositive(const mpz_class& value) {
+  return GetSign(value) == Sign::kPositive;
+}
+
+mpz_class GetAbs(const mpz_class& value) {
   mpz_class ret;
   mpz_abs(ret.get_mpz_t(), value.get_mpz_t());
   return ret;
