@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_BASE_GMP_UTIL_H_
-#define TACHYON_MATH_BASE_GMP_UTIL_H_
+#ifndef TACHYON_MATH_BASE_GMP_GMP_UTIL_H_
+#define TACHYON_MATH_BASE_GMP_GMP_UTIL_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -172,32 +172,8 @@ TACHYON_EXPORT size_t GetNumBits(const mpz_class& value);
 TACHYON_EXPORT size_t GetLimbSize(const mpz_class& value);
 TACHYON_EXPORT uint64_t GetLimb(const mpz_class& value, size_t idx);
 
-struct TACHYON_EXPORT SignedMpzClass {
-  Sign sign;
-  mpz_class abs_value;
-
-  SignedMpzClass() = default;
-  explicit SignedMpzClass(const mpz_class& value)
-      : sign(GetSign(value)), abs_value(GetAbs(value)) {}
-
-  mpz_class ToValue() const {
-    switch (sign) {
-      case Sign::kZero:
-      case Sign::kPositive:
-        return abs_value;
-      case Sign::kNegative:
-        return -abs_value;
-      case Sign::kNaN:
-        NOTREACHED();
-        return abs_value;
-    }
-    NOTREACHED();
-    return abs_value;
-  }
-};
-
 }  // namespace gmp
 }  // namespace math
 }  // namespace tachyon
 
-#endif  // TACHYON_MATH_BASE_GMP_UTIL_H_
+#endif  // TACHYON_MATH_BASE_GMP_GMP_UTIL_H_

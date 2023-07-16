@@ -3,7 +3,7 @@
 
 #include "absl/types/span.h"
 
-#include "tachyon/math/base/gmp_util.h"
+#include "tachyon/math/base/gmp/gmp_util.h"
 
 #define SUPPORTS_BINARY_OPERATOR(Name)                                        \
   template <typename L, typename R, typename = void>                          \

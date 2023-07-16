@@ -3,7 +3,7 @@
 #include "absl/base/call_once.h"
 
 #include "tachyon/base/no_destructor.h"
-#include "tachyon/math/base/gmp_util.h"
+#include "tachyon/math/base/gmp/gmp_util.h"
 
 namespace tachyon {
 namespace math {

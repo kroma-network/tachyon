@@ -12,7 +12,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/export.h"
-#include "tachyon/math/base/gmp_util.h"
+#include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
 
 namespace tachyon {

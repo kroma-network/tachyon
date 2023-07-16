@@ -1,4 +1,4 @@
-#include "tachyon/math/base/gmp_util.h"
+#include "tachyon/math/base/gmp/gmp_util.h"
 
 #include "absl/base/call_once.h"
 
@@ -153,9 +153,7 @@ mpz_class FromHexString(std::string_view str) {
   return ret;
 }
 
-Sign GetSign(const mpz_class& out) {
-  return ToSign(mpz_sgn(out.get_mpz_t()));
-}
+Sign GetSign(const mpz_class& out) { return ToSign(mpz_sgn(out.get_mpz_t())); }
 
 bool IsZero(const mpz_class& value) { return GetSign(value) == Sign::kZero; }
 

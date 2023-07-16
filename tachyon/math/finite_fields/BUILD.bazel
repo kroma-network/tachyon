@@ -20,8 +20,8 @@ tachyon_cc_library(
         "//tachyon/base/containers:adapters",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:field",
-        "//tachyon/math/base:gmp_util",
         "//tachyon/math/base:identities",
+        "//tachyon/math/base/gmp:gmp_util",
     ],
 )
 

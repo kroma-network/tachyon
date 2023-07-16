@@ -2,7 +2,8 @@
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 
 #include "tachyon/math/base/gmp/gmp_identities.h"
-#include "tachyon/math/base/gmp_util.h"
+#include "tachyon/math/base/gmp/gmp_util.h"
+#include "tachyon/math/base/gmp/signed_value.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/matrix/matrix.h"
@@ -19,8 +20,8 @@ class GLV {
   using Coefficients = Matrix<mpz_class, 2, 2>;
 
   struct CoefficientDecompositionResult {
-    gmp::SignedMpzClass k1;
-    gmp::SignedMpzClass k2;
+    SignedValue<mpz_class> k1;
+    SignedValue<mpz_class> k2;
   };
 
   // Decomposes a scalar |k| into k1, k2, s.t. k = k1 + lambda k2,
@@ -53,7 +54,7 @@ class GLV {
     // k2
     mpz_class k2 = -b[1];
 
-    return {gmp::SignedMpzClass(k1), gmp::SignedMpzClass(k2)};
+    return {SignedValue<mpz_class>(k1), SignedValue<mpz_class>(k2)};
   }
 
   template <typename Point>

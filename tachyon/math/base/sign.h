@@ -50,6 +50,9 @@ constexpr Sign GetSign(T x) {
   }
 }
 
+template <typename T, typename SFINAE = void>
+class SignedValue;
+
 }  // namespace math
 }  // namespace tachyon
 

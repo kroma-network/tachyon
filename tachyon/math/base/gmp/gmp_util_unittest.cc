@@ -1,4 +1,4 @@
-#include "tachyon/math/base/gmp_util.h"
+#include "tachyon/math/base/gmp/gmp_util.h"
 
 #include <vector>
 

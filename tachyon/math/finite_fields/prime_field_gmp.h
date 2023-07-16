@@ -11,7 +11,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/no_destructor.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/math/base/gmp_util.h"
+#include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/base/identities.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
