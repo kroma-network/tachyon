@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/math/base/identities.h"
 #include "tachyon/math/matrix/matrix_to_string_operator.h"
 #include "tachyon/math/matrix/matrix_traits.h"
 
@@ -68,7 +69,7 @@ class MatrixView : public MatrixToStringOperator<MatrixView<T>> {
     size_t data_idx = 0;
     for (size_t i = 0; i < rows_; ++i) {
       for (size_t j = 0; j < cols_; ++j) {
-        if (!data_[data_idx + j].IsZero()) return false;
+        if (!math::IsZero(data_[data_idx + j])) return false;
       }
       data_idx += stride_;
     }
@@ -79,7 +80,7 @@ class MatrixView : public MatrixToStringOperator<MatrixView<T>> {
     if (!IsSquare()) return false;
     size_t data_idx = 0;
     for (size_t i = 0; i < rows_; ++i) {
-      if (!data_[data_idx].IsOne()) return false;
+      if (!math::IsOne(data_[data_idx])) return false;
       data_idx += stride_ + 1;
     }
     return true;
@@ -87,9 +88,9 @@ class MatrixView : public MatrixToStringOperator<MatrixView<T>> {
 
   constexpr bool IsSquare() const { return rows_ == cols_; }
 
-  constexpr value_type Trace() const {
+  constexpr T Trace() const {
     CHECK(IsSquare()) << "Trace is only defined for square matrix";
-    value_type sum = value_type::Zero();
+    T sum = Zero<T>();
     size_t data_idx = 0;
     for (size_t i = 0; i < rows_; ++i) {
       sum += data_[data_idx];

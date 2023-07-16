@@ -7,7 +7,9 @@ tachyon_cc_library(
     hdrs = ["glv.h"],
     deps = [
         "//tachyon/math/base:gmp_util",
+        "//tachyon/math/base/gmp:gmp_identities",
         "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/matrix",
     ],
 )
 

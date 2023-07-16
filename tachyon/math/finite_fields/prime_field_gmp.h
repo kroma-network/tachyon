@@ -9,8 +9,10 @@
 #include <string>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/no_destructor.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp_util.h"
+#include "tachyon/math/base/identities.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon {
@@ -214,6 +216,32 @@ template <typename Config>
 std::ostream& operator<<(std::ostream& os, const PrimeFieldGmp<Config>& f) {
   return os << f.ToString();
 }
+
+template <typename Config>
+class MultiplicativeIdentity<PrimeFieldGmp<Config>> {
+ public:
+  using F = PrimeFieldGmp<Config>;
+
+  static const F& One() {
+    static base::NoDestructor<F> one(F::One());
+    return *one;
+  }
+
+  constexpr static bool IsOne(const F& value) { return value.IsOne(); }
+};
+
+template <typename Config>
+class AdditiveIdentity<PrimeFieldGmp<Config>> {
+ public:
+  using F = PrimeFieldGmp<Config>;
+
+  static const F& Zero() {
+    static base::NoDestructor<F> zero(F::Zero());
+    return *zero;
+  }
+
+  constexpr static bool IsZero(const F& value) { return value.IsZero(); }
+};
 
 }  // namespace math
 }  // namespace tachyon

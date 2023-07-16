@@ -7,6 +7,8 @@
 #include <sstream>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/no_destructor.h"
+#include "tachyon/math/base/identities.h"
 #include "tachyon/math/base/rings.h"
 #include "tachyon/math/matrix/matrix_inverse_operator.h"
 #include "tachyon/math/matrix/matrix_to_string_operator.h"
@@ -265,7 +267,7 @@ class Matrix : public Ring<Matrix<T, Rows_, Cols_>>,
   friend class Matrix;
 
   T data_[Size] = {
-      T::Zero(),
+      math::Zero<T>(),
   };
 };
 
@@ -442,6 +444,32 @@ struct MatrixTraits<Matrix<T, Rows_, Cols_>> {
   static constexpr bool is_view = false;
 
   typedef T value_type;
+};
+
+template <typename T, size_t Rows, size_t Cols>
+class MultiplicativeIdentity<Matrix<T, Rows, Cols>> {
+ public:
+  using M = Matrix<T, Rows, Cols>;
+
+  static const M& One() {
+    static base::NoDestructor<M> one(M::Identity());
+    return *one;
+  }
+
+  constexpr static bool IsOne(const M& value) { return value.IsIdentity(); }
+};
+
+template <typename T, size_t Rows, size_t Cols>
+class AdditiveIdentity<Matrix<T, Rows, Cols>> {
+ public:
+  using M = Matrix<T, Rows, Cols>;
+
+  static const M& Zero() {
+    static base::NoDestructor<M> zero(M::Zero());
+    return *zero;
+  }
+
+  constexpr static bool IsZero(const M& value) { return value.IsZero(); }
 };
 
 }  // namespace math

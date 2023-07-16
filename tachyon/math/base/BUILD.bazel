@@ -35,6 +35,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "identities",
+    hdrs = ["identities.h"],
+)
+
+tachyon_cc_library(
     name = "monoids",
     hdrs = ["monoids.h"],
     deps = [

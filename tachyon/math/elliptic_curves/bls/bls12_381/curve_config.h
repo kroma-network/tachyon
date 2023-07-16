@@ -21,7 +21,7 @@ class TACHYON_EXPORT CurveConfig : public SWCurveConfig<Fq, Fr> {
 
   static Fq& EndomorphismCoefficient();
   static Fr& Lambda();
-  static GLV<CurveConfig>::Coefficients ScalarDecompositionCoefficients();
+  static GLV<CurveConfig>::Coefficients& ScalarDecompositionCoefficients();
 
   static JacobianPoint<Config> Endomorphism(const JacobianPoint<Config>& point);
   static AffinePoint<Config> EndomorphismAffine(

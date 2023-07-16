@@ -1,11 +1,11 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 
-#include <array>
-
+#include "tachyon/math/base/gmp/gmp_identities.h"
 #include "tachyon/math/base/gmp_util.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
+#include "tachyon/math/matrix/matrix.h"
 
 namespace tachyon {
 namespace math {
@@ -16,7 +16,7 @@ class GLV {
   using JacobianPointTy = JacobianPoint<typename GLVConfig::Config>;
   using ScalarField = typename JacobianPointTy::ScalarField;
 
-  using Coefficients = std::array<mpz_class, 4>;
+  using Coefficients = Matrix<mpz_class, 2, 2>;
 
   struct CoefficientDecompositionResult {
     gmp::SignedMpzClass k1;
@@ -25,42 +25,33 @@ class GLV {
 
   // Decomposes a scalar |k| into k1, k2, s.t. k = k1 + lambda k2,
   static CoefficientDecompositionResult Decompose(const ScalarField& k) {
-    const std::array<mpz_class, 4> coefficients =
+    const Coefficients& coefficients =
         GLVConfig::ScalarDecompositionCoefficients();
 
     const mpz_class scalar = k.ToMpzClass();
-    const mpz_class& n11 = coefficients[0];
     const mpz_class& n12 = coefficients[1];
-    const mpz_class& n21 = coefficients[2];
     const mpz_class& n22 = coefficients[3];
     const mpz_class r = ScalarField::Config::Modulus().ToMpzClass();
 
-    // beta = vector([k, 0]) * self.curve.N_inv
-    // The inverse of N is 1 / r * Matrix([[n22, -n12], [-n21, n11]]).
-    // so β = (k * n22, -k * n12) / r
-
+    // NOTE(chokobole): We can't calculate using below directly.
+    //
+    // Matrix<mpz_class, 1, 2>(scalar, mpz_class(0)) * coefficients.Inverse()
+    //
+    //
+    // This is because the result of |coefficients.Inverse()| is a zero matrix.
+    // Therefore, we need to perform a similar operation to overcome the integer
+    // issue.
     mpz_class beta_1 = scalar * n22 / r;
-    mpz_class beta_2 = scalar * n12 / r;
+    mpz_class beta_2 = scalar * (-n12) / r;
 
-    // b = vector([int(beta[0]), int(beta[1])]) * self.curve.N
-    // b = (β1 * N11 + β2 * N21, β1 * N12 + β2 * N22) with the signs!
-    //   = (b11      + b12     , b21      + b22)   with the signs!
-
-    // b1
-    mpz_class b11 = beta_1 * n11;
-    mpz_class b12 = beta_2 * n21;
-    mpz_class b1 = b11 + b12;
-
-    // b2
-    mpz_class b21 = beta_1 * n12;
-    mpz_class b22 = beta_2 * n22;
-    mpz_class b2 = b21 + b22;
+    Matrix<mpz_class, 1, 2> b =
+        Matrix<mpz_class, 1, 2>(beta_1, beta_2) * coefficients;
 
     // k1
-    mpz_class k1 = scalar - b1;
+    mpz_class k1 = scalar - b[0];
 
     // k2
-    mpz_class k2 = -b2;
+    mpz_class k2 = -b[1];
 
     return {gmp::SignedMpzClass(k1), gmp::SignedMpzClass(k2)};
   }

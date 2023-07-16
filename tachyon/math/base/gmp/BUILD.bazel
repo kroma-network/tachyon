@@ -1,0 +1,23 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "gmp_identities",
+    hdrs = ["gmp_identities.h"],
+    deps = [
+        "//tachyon/base:no_destructor",
+        "//tachyon/math/base:identities",
+        "@local_config_gmp//:gmp",
+    ],
+)
+
+tachyon_cc_test(
+    name = "gmp_unittets",
+    srcs = [
+        "gmp_identities_unittest.cc",
+    ],
+    deps = [
+        ":gmp_identities",
+    ],
+)

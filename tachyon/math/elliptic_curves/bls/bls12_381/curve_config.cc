@@ -32,14 +32,13 @@ void CurveConfig::Init() {
 
   // Optimal decomposition as per Ch. 6.3.2: Decompositions for the k = 12 BLS
   // Family, from Guide to Pairing Based Cryptography by El Mrabet
-  ScalarDecompositionCoefficients() = GLV<CurveConfig>::Coefficients({
+  ScalarDecompositionCoefficients() = GLV<CurveConfig>::Coefficients(
       // v_2 = (X², 1)
       gmp::FromDecString("228988810152649578064853576960394133504"),
       mpz_class(1),
       // v_1 = (-1, X² - 1)
       mpz_class(-1),
-      gmp::FromDecString("228988810152649578064853576960394133503"),
-  });
+      gmp::FromDecString("228988810152649578064853576960394133503"));
 }
 
 // static
@@ -55,7 +54,7 @@ Fr& CurveConfig::Lambda() {
 }
 
 // static
-GLV<CurveConfig>::Coefficients CurveConfig::ScalarDecompositionCoefficients() {
+GLV<CurveConfig>::Coefficients& CurveConfig::ScalarDecompositionCoefficients() {
   static base::NoDestructor<GLV<CurveConfig>::Coefficients> coefficients;
   return *coefficients;
 }

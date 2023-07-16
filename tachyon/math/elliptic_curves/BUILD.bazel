@@ -8,5 +8,9 @@ tachyon_cc_library(
         "affine_point.h",
         "jacobian_point.h",
     ],
-    deps = ["@local_config_gmp//:gmp"],
+    deps = [
+        "//tachyon/base:no_destructor",
+        "//tachyon/math/base:identities",
+        "@local_config_gmp//:gmp",
+    ],
 )

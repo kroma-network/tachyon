@@ -11,6 +11,7 @@ tachyon_cc_library(
     ],
     deps = [
         "//tachyon/base:logging",
+        "//tachyon/math/base:identities",
     ],
 )
 

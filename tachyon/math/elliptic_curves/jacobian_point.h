@@ -5,6 +5,9 @@
 
 #include "third_party/gmp/include/gmpxx.h"
 
+#include "tachyon/base/no_destructor.h"
+#include "tachyon/math/base/identities.h"
+
 namespace tachyon {
 namespace math {
 
@@ -21,6 +24,32 @@ JacobianPoint<Config> operator*(const mpz_class& scalar,
                                 const JacobianPoint<Config>& point) {
   return point.ScalarMul(scalar);
 }
+
+template <typename Config>
+class MultiplicativeIdentity<JacobianPoint<Config>> {
+ public:
+  using P = JacobianPoint<Config>;
+
+  static const P& One() {
+    static base::NoDestructor<P> one(P::One());
+    return *one;
+  }
+
+  constexpr static bool IsOne(const P& value) { return value.IsOne(); }
+};
+
+template <typename Config>
+class AdditiveIdentity<JacobianPoint<Config>> {
+ public:
+  using P = JacobianPoint<Config>;
+
+  static const P& Zero() {
+    static base::NoDestructor<P> zero(P::Zero());
+    return *zero;
+  }
+
+  constexpr static bool IsZero(const P& value) { return value.IsZero(); }
+};
 
 }  // namespace math
 }  // namespace tachyon
