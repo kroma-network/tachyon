@@ -18,7 +18,7 @@ bool_flag(
     build_setting_default = False,
 )
 
-# 3rd party libraries
+# prime field backend
 bool_flag(
     name = "gmp_backend",
     build_setting_default = False,

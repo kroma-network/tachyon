@@ -1,6 +1,7 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "cuda_library", "if_cuda")
 load(
     "//bazel:tachyon.bzl",
+    "if_gmp_backend",
     "if_has_exception",
     "if_has_rtti",
     "if_static",
@@ -33,8 +34,11 @@ def tachyon_cxxopts(safe_code = True, force_exceptions = False, force_rtti = Fal
 def tachyon_cuda_defines():
     return ["TACHYON_CUDA"]
 
+def tachyon_prime_field_defines():
+    return if_gmp_backend(["TACHYON_GMP_BACKEND"])
+
 def tachyon_defines(use_cuda = False):
-    defines = tachyon_defines_component_build()
+    defines = tachyon_defines_component_build() + tachyon_prime_field_defines()
     if use_cuda:
         defines += if_cuda(tachyon_cuda_defines())
     return defines

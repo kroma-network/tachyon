@@ -52,9 +52,7 @@ Please follow the instructions [here](https://bazel.build/install).
 
 ## Configuration
 
-### Prime field
-
-#### GMP backend
+### GMP backend prime field
 
 - `--config gmp_backend`: Enable [gmp](https://gmplib.org/) prime field backend.
 

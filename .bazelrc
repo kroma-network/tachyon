@@ -6,8 +6,8 @@
 # Other build options:
 #     dbg:       Build with debug info
 #
-# 3rd party library options:
-#     gmp_backend: Use a prime field with gmp backend.
+# Prime field implementation options:
+#     gmp_backend:  Support a prime field with gmp backend.
 #
 # Hardware support options:
 #     cuda: Build with NVIDIA GPU support (cuda).

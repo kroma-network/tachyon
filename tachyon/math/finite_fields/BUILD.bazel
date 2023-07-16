@@ -1,4 +1,3 @@
-load("//bazel:tachyon.bzl", "if_gmp_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 
 package(default_visibility = ["//visibility:public"])
@@ -12,9 +11,6 @@ tachyon_cc_library(
         "prime_field_fallback.h",
         "prime_field_gmp.h",
     ],
-    defines = if_gmp_backend([
-        "TACHYON_GMP_BACKEND",
-    ]),
     deps = [
         "//tachyon/base:no_destructor",
         "//tachyon/base/containers:adapters",
