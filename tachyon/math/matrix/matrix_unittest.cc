@@ -217,6 +217,7 @@ TEST_F(MatrixTest, Inverse) {
         GF7(5), GF7(3)
       );
      EXPECT_EQ(matrix.Inverse(), expected);
+     EXPECT_TRUE((matrix * matrix.Inverse()).IsIdentity());
    }
    {
       Matrix33GF7 matrix(
@@ -230,6 +231,7 @@ TEST_F(MatrixTest, Inverse) {
         GF7(3), GF7(2), GF7(5)
       );
       EXPECT_EQ(matrix.Inverse(), expected);
+      EXPECT_TRUE((matrix * matrix.Inverse()).IsIdentity());
    }
    {
       Matrix<GF7, 4, 4> matrix(
@@ -245,6 +247,7 @@ TEST_F(MatrixTest, Inverse) {
         GF7(4), GF7(3), GF7(6), GF7(6)
       );
       EXPECT_EQ(matrix.Inverse(), expected);
+      EXPECT_TRUE((matrix * matrix.Inverse()).IsIdentity());
    }
    {
       GF7 data[25] = {
@@ -264,6 +267,7 @@ TEST_F(MatrixTest, Inverse) {
       };
       Matrix<GF7, 5, 5> expected(inv_data);
       EXPECT_EQ(matrix.Inverse(), expected);
+      EXPECT_TRUE((matrix * matrix.Inverse()).IsIdentity());
    }
   // clang-format on
 }
