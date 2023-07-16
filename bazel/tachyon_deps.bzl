@@ -39,6 +39,8 @@ def tachyon_deps():
             sha256 = "21bc744fb7f2fa701ee8db339ded7dce4f975d0d55837a97be7d46e8382dea5a",
             strip_prefix = "glog-0.5.0",
             urls = ["https://github.com/google/glog/archive/v0.5.0.zip"],
+            patch_args = ["-p1"],
+            patches = ["@kroma_network_tachyon//third_party/glog:enable_constexpr_check_op.patch"],
         )
 
     if not native.existing_rule("com_google_absl"):
