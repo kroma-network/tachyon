@@ -3,7 +3,7 @@
 
 #include "absl/types/span.h"
 
-#include "tachyon/math/base/gmp/gmp_util.h"
+#include "tachyon/math/base/gmp/bit_iterator.h"
 
 #define SUPPORTS_BINARY_OPERATOR(Name)                                        \
   template <typename L, typename R, typename = void>                          \
@@ -76,8 +76,8 @@ class MultiplicativeMonoid {
   }
 
   [[nodiscard]] G Pow(const mpz_class& exponent) const {
-    auto it = gmp::BitIteratorBE::WithoutLeadingZeros(&exponent);
-    auto end = gmp::BitIteratorBE::end(&exponent);
+    auto it = BitIteratorBE<mpz_class>::begin(&exponent, true);
+    auto end = BitIteratorBE<mpz_class>::end(&exponent);
     const G& self = *static_cast<const G*>(this);
     G g = G::One();
     while (it != end) {
@@ -97,8 +97,8 @@ class MultiplicativeMonoid {
 
   static G PowWithTable(absl::Span<const G> powers_of_2,
                         const mpz_class& exponent) {
-    auto it = gmp::BitIteratorLE::begin(&exponent);
-    auto end = gmp::BitIteratorLE::WithoutTrailingZeros(&exponent);
+    auto it = BitIteratorLE<mpz_class>::begin(&exponent);
+    auto end = BitIteratorLE<mpz_class>::end(&exponent, true);
     G g = G::One();
     size_t i = 0;
     while (it != end) {
@@ -150,8 +150,8 @@ class AdditiveMonoid {
   constexpr auto ScalarMul(const mpz_class& scalar) const {
     const G* g = static_cast<const G*>(this);
     G ret = G::Zero();
-    auto it = gmp::BitIteratorBE::WithoutLeadingZeros(&scalar);
-    auto end = gmp::BitIteratorBE::end(&scalar);
+    auto it = BitIteratorBE<mpz_class>::begin(&scalar, true);
+    auto end = BitIteratorBE<mpz_class>::end(&scalar);
     while (it != end) {
       if constexpr (internal::SupportsDoubleInPlace<G>::value) {
         ret.DoubleInPlace();

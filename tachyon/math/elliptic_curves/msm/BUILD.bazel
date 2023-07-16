@@ -6,8 +6,8 @@ tachyon_cc_library(
     name = "glv",
     hdrs = ["glv.h"],
     deps = [
+        "//tachyon/math/base/gmp:bit_iterator",
         "//tachyon/math/base/gmp:gmp_identities",
-        "//tachyon/math/base/gmp:gmp_util",
         "//tachyon/math/base/gmp:signed_value",
         "//tachyon/math/elliptic_curves:points",
         "//tachyon/math/matrix",

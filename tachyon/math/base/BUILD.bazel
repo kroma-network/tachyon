@@ -3,6 +3,12 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "bit_iterator",
+    hdrs = ["bit_iterator.h"],
+    deps = ["//tachyon/build:build_config"],
+)
+
+tachyon_cc_library(
     name = "division_result",
     hdrs = ["division_result.h"],
     deps = ["@com_google_absl//absl/strings"],
@@ -29,7 +35,7 @@ tachyon_cc_library(
     name = "monoids",
     hdrs = ["monoids.h"],
     deps = [
-        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/base/gmp:bit_iterator",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -56,9 +62,11 @@ tachyon_cc_library(
 tachyon_cc_test(
     name = "base_unittests",
     srcs = [
+        "bit_iterator_unittest.cc",
         "sign_unittest.cc",
     ],
     deps = [
+        ":bit_iterator",
         ":sign",
     ],
 )

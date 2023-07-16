@@ -1,8 +1,8 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 
+#include "tachyon/math/base/gmp/bit_iterator.h"
 #include "tachyon/math/base/gmp/gmp_identities.h"
-#include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/base/gmp/signed_value.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
@@ -78,9 +78,9 @@ class GLV {
 
     JacobianPointTy b1b2 = b1 + b2;
 
-    auto k1_begin = gmp::BitIteratorBE::begin(&result.k1.abs_value);
-    auto k1_end = gmp::BitIteratorBE::end(&result.k1.abs_value);
-    auto k2_begin = gmp::BitIteratorBE::begin(&result.k2.abs_value);
+    auto k1_begin = BitIteratorBE<mpz_class>::begin(&result.k1.abs_value);
+    auto k1_end = BitIteratorBE<mpz_class>::end(&result.k1.abs_value);
+    auto k2_begin = BitIteratorBE<mpz_class>::begin(&result.k2.abs_value);
 
     JacobianPointTy ret = JacobianPointTy::Zero();
     bool skip_zeros = true;
