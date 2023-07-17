@@ -52,6 +52,12 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
   constexpr static size_t kSmallestLimbIdx = 0;
 #endif
 
+#if ARCH_CPU_BIG_ENDIAN
+  constexpr static size_t kBiggestLimbIdx = 0;
+#else  // ARCH_CPU_LITTLE_ENDIAN
+  constexpr static size_t kBiggestLimbIdx = N - 1;
+#endif
+
   constexpr BigInt() = default;
   constexpr explicit BigInt(int value) : BigInt(static_cast<uint64_t>(value)) {
     DCHECK_GE(value, 0);

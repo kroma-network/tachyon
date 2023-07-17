@@ -13,13 +13,18 @@ class Modulus {
   // outlined [here](https://hackmd.io/@gnark/modular_multiplication)?
   //
   // This optimization applies if
-  // (a) `modulus[N - 1] < max(uint64_t) >> 1`, and
+  // (a) `modulus[biggest_limb_idx] < max(uint64_t) >> 1`, and
   // (b) the bits of the modulus are not all 1.
   static constexpr bool CanUseNoCarryMulOptimization(const BigInt<N>& modulus) {
-    bool top_bit_is_zero = modulus[N - 1] >> 63 == 0;
+    uint64_t biggest_limb = modulus[BigInt<N>::kBiggestLimbIdx];
+    bool top_bit_is_zero = biggest_limb >> 63 == 0;
     bool all_remain_bits_are_one =
-        modulus[N - 1] == std::numeric_limits<uint64_t>::max() >> 1;
+        biggest_limb == std::numeric_limits<uint64_t>::max() >> 1;
+#if ARCH_CPU_BIG_ENDIAN
+    for (size_t i = 0; i < N - 1; ++i) {
+#else  // ARCH_CPU_LITTLE_ENDIAN
     for (size_t i = 1; i < N; ++i) {
+#endif
       all_remain_bits_are_one &=
           modulus[N - i - 1] == std::numeric_limits<uint64_t>::max();
     }
@@ -29,11 +34,15 @@ class Modulus {
   // Does the modulus have a spare unused bit?
   //
   // This condition applies if
-  // (a) `modulus[N - 1] >> 63 == 0`
+  // (a) `modulus[biggest_limb_idx] >> 63 == 0`
   static constexpr bool HasSparseBit(const BigInt<N>& modulus) {
-    return modulus[N - 1] >> 63 == 0;
+    uint64_t biggest_limb = modulus[BigInt<N>::kBiggestLimbIdx];
+    return biggest_limb >> 63 == 0;
   }
 };
+
+#undef FOR_FROM_BIGGEST
+#undef FOR_FROM_SMALLEST
 
 }  // namespace math
 }  // namespace tachyon
