@@ -5,7 +5,7 @@
 namespace tachyon {
 namespace math {
 
-template <class ObserverType>
+template <typename IntegerType>
 class SignTest : public ::testing::Test {
  public:
   SignTest() = default;
