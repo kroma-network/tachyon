@@ -7,6 +7,7 @@
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/build/build_config.h"
+#include "tachyon/math/base/arithmetics.h"
 
 namespace tachyon {
 namespace math {
@@ -31,6 +32,13 @@ TACHYON_EXPORT std::string LimbsToHexString(const uint64_t* limbs,
 #else  // ARCH_CPU_LITTLE_ENDIAN
 #define FOR_FROM_BIGGEST(start, end) \
   for (size_t i = end - 1; i != static_cast<size_t>(start - 1); --i)
+#endif
+
+#if ARCH_CPU_BIG_ENDIAN
+#define FOR_FROM_SMALLEST(start, end) \
+  for (size_t i = end - 1; i != static_cast<size_t>(start - 1); --i)
+#else  // ARCH_CPU_LITTLE_ENDIAN
+#define FOR_FROM_SMALLEST(start, end) for (size_t i = start; i < end; ++i)
 #endif
 
 template <size_t N>
@@ -156,6 +164,138 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
     return true;
   }
 
+  constexpr BigInt& AddInPlace(const BigInt& other, uint8_t& carry) {
+    carry = 0;
+
+#define ADD_WITH_CARRY_INLINE(num) \
+  if constexpr (N >= (num + 1))    \
+  carry = internal::AddWithCarryInPlace(limbs[num], other.limbs[num], carry)
+
+#if ARCH_CPU_BIG_ENDIAN
+    ADD_WITH_CARRY_INLINE(N - 1);
+    ADD_WITH_CARRY_INLINE(N - 2);
+    ADD_WITH_CARRY_INLINE(N - 3);
+    ADD_WITH_CARRY_INLINE(N - 4);
+    ADD_WITH_CARRY_INLINE(N - 5);
+    ADD_WITH_CARRY_INLINE(N - 6);
+#else  // ARCH_CPU_LITTLE_ENDIAN
+    ADD_WITH_CARRY_INLINE(0);
+    ADD_WITH_CARRY_INLINE(1);
+    ADD_WITH_CARRY_INLINE(2);
+    ADD_WITH_CARRY_INLINE(3);
+    ADD_WITH_CARRY_INLINE(4);
+    ADD_WITH_CARRY_INLINE(5);
+#endif
+
+#undef ADD_WITH_CARRY_INLINE
+
+    FOR_FROM_SMALLEST(6, N) {
+      carry = internal::AddWithCarryInPlace(limbs[i], other.limbs[i], carry);
+    }
+    return *this;
+  }
+
+  constexpr BigInt& SubInPlace(const BigInt& other, uint8_t& borrow) {
+    borrow = 0;
+
+#define SUB_WITH_BORROW_INLINE(num) \
+  if constexpr (N >= (num + 1))     \
+  borrow = internal::SubWithBorrowInPlace(limbs[num], other.limbs[num], borrow)
+
+#if ARCH_CPU_BIG_ENDIAN
+    SUB_WITH_CARRY_INLINE(N - 1);
+    SUB_WITH_CARRY_INLINE(N - 2);
+    SUB_WITH_CARRY_INLINE(N - 3);
+    SUB_WITH_CARRY_INLINE(N - 4);
+    SUB_WITH_CARRY_INLINE(N - 5);
+    SUB_WITH_CARRY_INLINE(N - 6);
+#else  // ARCH_CPU_LITTLE_ENDIAN
+    SUB_WITH_BORROW_INLINE(0);
+    SUB_WITH_BORROW_INLINE(1);
+    SUB_WITH_BORROW_INLINE(2);
+    SUB_WITH_BORROW_INLINE(3);
+    SUB_WITH_BORROW_INLINE(4);
+    SUB_WITH_BORROW_INLINE(5);
+#endif
+
+#undef SUB_WITH_BORROW_INLINE
+
+    FOR_FROM_SMALLEST(6, N) {
+      borrow = internal::SubWithBorrowInPlace(limbs[i], other.limbs[i], borrow);
+    }
+    return *this;
+  }
+
+  constexpr BigInt& MulBy2InPlace(uint8_t& carry) {
+    carry = 0;
+    FOR_FROM_SMALLEST(0, N) {
+      uint64_t temp = limbs[i] >> 63;
+      limbs[i] <<= 1;
+      limbs[i] |= carry;
+      carry = temp;
+    }
+    return *this;
+  }
+
+  constexpr BigInt& MulBy2ExpInPlace(uint32_t n) {
+    if (n >= static_cast<uint32_t>(64 * N)) {
+      memset(limbs, 0, sizeof(uint64_t) * N);
+      return *this;
+    }
+
+    while (n >= 64) {
+      uint64_t t = 0;
+      FOR_FROM_SMALLEST(0, N) { std::exchange(t, limbs[i]); }
+      n -= 64;
+    }
+
+    if (n > static_cast<uint32_t>(0)) {
+      uint64_t t = 0;
+      FOR_FROM_SMALLEST(0, N) {
+        uint64_t t2 = limbs[i] >> (64 - n);
+        limbs[i] <<= n;
+        limbs[i] |= t;
+        t = t2;
+      }
+    }
+    return *this;
+  }
+
+  constexpr BigInt& DivBy2InPlace() {
+    uint64_t last = 0;
+    FOR_FROM_SMALLEST(0, N) {
+      uint64_t temp = limbs[i] << 63;
+      limbs[i] >>= 1;
+      limbs[i] |= last;
+      last = temp;
+    }
+    return *this;
+  }
+
+  constexpr BigInt& DivByExpInPlace(uint32_t n) {
+    if (n >= static_cast<uint32_t>(64 * N)) {
+      memset(limbs, 0, sizeof(uint64_t) * N);
+      return *this;
+    }
+
+    while (n >= 64) {
+      uint64_t t = 0;
+      FOR_FROM_BIGGEST(0, N) { std::exchange(t, limbs[1]); }
+      n -= 64;
+    }
+
+    if (n > static_cast<uint32_t>(0)) {
+      uint64_t t = 0;
+      FOR_FROM_BIGGEST(0, N) {
+        uint64_t t2 = limbs[i] << (64 - n);
+        limbs[i] >>= n;
+        limbs[i] |= t;
+        t = t2;
+      }
+    }
+    return *this;
+  }
+
   std::string ToString() const { return internal::LimbsToString(limbs, N); }
   std::string ToHexString() const {
     return internal::LimbsToHexString(limbs, N);
@@ -163,6 +303,7 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
 };
 
 #undef FOR_FROM_BIGGEST
+#undef FOR_FROM_SMALLEST
 
 template <size_t N>
 std::ostream& operator<<(std::ostream& os, const BigInt<N>& bigint) {

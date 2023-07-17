@@ -10,9 +10,9 @@
 #include "third_party/gmp/include/gmpxx.h"
 
 #include "tachyon/base/random.h"
+#include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/identities.h"
-#include "tachyon/math/finite_fields/arithmetics.h"
 #include "tachyon/math/finite_fields/modulus.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
@@ -142,26 +142,32 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
 
   // AdditiveMonoid methods
   PrimeFieldMont& AddInPlace(const PrimeFieldMont& other) {
-    return Clamp(AddWithCarry<kLimbNums>(value_.limbs, other.value_.limbs));
+    uint8_t carry = 0;
+    value_.AddInPlace(other.value_, carry);
+    return Clamp(carry);
   }
 
   PrimeFieldMont& DoubleInPlace() {
-    return Clamp(Mul2<kLimbNums>(value_.limbs));
+    uint8_t carry = 0;
+    value_.MulBy2InPlace(carry);
+    return Clamp(carry);
   }
 
   // AdditiveGroup methods
   PrimeFieldMont& SubInPlace(const PrimeFieldMont& other) {
+    uint8_t unused = 0;
     if (other > *this) {
-      AddWithCarry<kLimbNums>(value_.limbs, kModulus.limbs);
+      value_.AddInPlace(kModulus, unused);
     }
-    SubWithBorrow<kLimbNums>(value_.limbs, other.value_.limbs);
+    value_.SubInPlace(other.value_, unused);
     return *this;
   }
 
   PrimeFieldMont& NegInPlace() {
     if (!IsZero()) {
       BigInt<kLimbNums> tmp(kModulus);
-      SubWithBorrow<kLimbNums>(tmp.limbs, value_.limbs);
+      uint8_t unused = 0;
+      tmp.SubInPlace(value_, unused);
       value_ = tmp;
     }
     return *this;
@@ -190,7 +196,8 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
       needs_to_clamp = carry || value_ >= kModulus;
     }
     if (needs_to_clamp) {
-      SubWithBorrow<kLimbNums>(value_.limbs, kModulus.limbs);
+      uint8_t unused = 0;
+      value_.SubInPlace(kModulus, unused);
     }
     return *this;
   }

@@ -3,14 +3,25 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "arithmetics",
+    hdrs = ["arithmetics.h"],
+    deps = [
+        "//tachyon/base:compiler_specific",
+        "//tachyon/build:build_config",
+        "@com_google_absl//absl/numeric:int128",
+    ],
+)
+
+tachyon_cc_library(
     name = "big_int",
     srcs = ["big_int.cc"],
     hdrs = ["big_int.h"],
     deps = [
+        ":arithmetics",
         "//tachyon/base:compiler_specific",
+        "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
         "//tachyon/math/base/gmp:gmp_util",
-        "//tachyon/base/strings:string_util",
     ],
 )
 
