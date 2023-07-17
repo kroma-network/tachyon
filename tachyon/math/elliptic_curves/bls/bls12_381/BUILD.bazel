@@ -9,6 +9,7 @@ tachyon_cc_library(
     deps = [
         ":fq",
         ":fr",
+        "//tachyon/math/base:conversions",
         "//tachyon/math/elliptic_curves/msm:glv",
         "//tachyon/math/elliptic_curves/short_weierstrass:points",
     ],

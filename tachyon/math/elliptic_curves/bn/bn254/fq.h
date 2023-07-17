@@ -27,7 +27,7 @@ class TACHYON_EXPORT FqConfig {
   static void Init();
 };
 
-using Fq = PrimeField<FqConfig>;
+using Fq = PrimeFieldGmp<FqConfig>;
 
 }  // namespace bn254
 }  // namespace math

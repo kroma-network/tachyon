@@ -10,6 +10,7 @@ tachyon_cc_library(
         "//tachyon/base:compiler_specific",
         "//tachyon/build:build_config",
         "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/base/strings:string_util",
     ],
 )
 
@@ -17,6 +18,11 @@ tachyon_cc_library(
     name = "bit_iterator",
     hdrs = ["bit_iterator.h"],
     deps = [":big_int"],
+)
+
+tachyon_cc_library(
+    name = "conversions",
+    hdrs = ["conversions.h"],
 )
 
 tachyon_cc_library(

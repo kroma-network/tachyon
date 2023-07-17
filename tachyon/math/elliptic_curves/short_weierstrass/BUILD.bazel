@@ -16,6 +16,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves:points",
         "//tachyon/math/elliptic_curves/msm",
+        "//tachyon/base:static_storage",
     ],
 )
 

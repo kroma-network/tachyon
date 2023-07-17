@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "tachyon/base/no_destructor.h"
+#include "tachyon/base/static_storage.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 
@@ -21,20 +22,9 @@ class SWCurveConfig {
   using ScalarField = _ScalarField;
   using JacobianPointTy = JacobianPoint<SWCurveConfig<BaseField, ScalarField>>;
 
-  static BaseField& A() {
-    static base::NoDestructor<BaseField> a;
-    return *a;
-  }
-
-  static BaseField& B() {
-    static base::NoDestructor<BaseField> b;
-    return *b;
-  }
-
-  static JacobianPointTy& Generator() {
-    static base::NoDestructor<JacobianPointTy> g;
-    return *g;
-  }
+  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(BaseField, A)
+  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(BaseField, B)
+  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(JacobianPointTy, Generator)
 
   static bool IsOnCurve(const BaseField& x, const BaseField& y) {
     BaseField right = x.Square() * x + B();

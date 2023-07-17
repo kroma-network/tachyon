@@ -33,8 +33,17 @@ struct ALIGNAS(internal::ComputeAlignment(LimbNums)) BigInt {
   };
 
   constexpr BigInt() = default;
-  constexpr explicit BigInt(int value) : BigInt(static_cast<uint64_t>(value)) {}
-  constexpr explicit BigInt(uint64_t value) { limbs[0] = value; }
+  constexpr explicit BigInt(int value) : BigInt(static_cast<uint64_t>(value)) {
+    DCHECK_GE(value, 0);
+  }
+  constexpr explicit BigInt(uint64_t value) {
+#if ARCH_CPU_BIG_ENDIAN
+    size_t idx = LimbNums - 1;
+#else  // ARCH_CPU_LITTLE_ENDIAN
+    size_t idx = 0;
+#endif
+    limbs[idx] = value;
+  }
   constexpr explicit BigInt(std::initializer_list<int> values) {
     DCHECK_EQ(values.size(), LimbNums);
     auto it = values.begin();
@@ -53,6 +62,10 @@ struct ALIGNAS(internal::ComputeAlignment(LimbNums)) BigInt {
     return *this;
   }
 
+  constexpr static BigInt Zero() { return BigInt(0); }
+
+  constexpr static BigInt One() { return BigInt(1); }
+
   static constexpr BigInt FromDecString(std::string_view str) {
     BigInt ret;
     CHECK(internal::StringToLimbs(str, ret.limbs, LimbNums));
@@ -63,6 +76,27 @@ struct ALIGNAS(internal::ComputeAlignment(LimbNums)) BigInt {
     BigInt ret;
     CHECK(internal::HexStringToLimbs(str, ret.limbs, LimbNums));
     return ret;
+  }
+
+  constexpr bool IsZero() const {
+    for (size_t i = 0; i < LimbNums; ++i) {
+      if (limbs[i] != 0) return false;
+    }
+    return true;
+  }
+
+  constexpr bool IsOne() const {
+#if ARCH_CPU_BIG_ENDIAN
+    for (size_t i = 0; i < LimbNums - 1; ++i) {
+      if (limbs[i] != 0) return false;
+    }
+    return limbs[LimbNums - 1] == 1;
+#else  // ARCH_CPU_LITTLE_ENDIAN
+    for (size_t i = 1; i < LimbNums; ++i) {
+      if (limbs[i] != 0) return false;
+    }
+    return limbs[0] == 1;
+#endif
   }
 
   constexpr uint64_t& operator[](size_t i) {

@@ -26,7 +26,7 @@ class TACHYON_EXPORT FqConfig {
   static void Init();
 };
 
-using Fq = PrimeField<FqConfig>;
+using Fq = PrimeFieldGmp<FqConfig>;
 
 }  // namespace bls12_381
 }  // namespace math

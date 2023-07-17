@@ -10,18 +10,21 @@ namespace {
 
 const size_t kMaxDegree = 5;
 
-using Poly = DenseUnivariatePolynomial<GF7, kMaxDegree>;
-using Coeffs = DenseCoefficients<GF7, kMaxDegree>;
+using Poly = DenseUnivariatePolynomial<GF7Gmp, kMaxDegree>;
+using Coeffs = DenseCoefficients<GF7Gmp, kMaxDegree>;
 
 class DenseUnivariatePolynomialTest : public ::testing::Test {
  public:
   DenseUnivariatePolynomialTest() {
     GF7Config::Init();
 
-    polys_.push_back(Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));
-    polys_.push_back(Poly(Coeffs({GF7(3)})));
-    polys_.push_back(Poly(Coeffs({GF7(0), GF7(0), GF7(0), GF7(5)})));
-    polys_.push_back(Poly(Coeffs({GF7(0), GF7(0), GF7(0), GF7(0), GF7(5)})));
+    polys_.push_back(
+        Poly(Coeffs({GF7Gmp(3), GF7Gmp(0), GF7Gmp(1), GF7Gmp(0), GF7Gmp(2)})));
+    polys_.push_back(Poly(Coeffs({GF7Gmp(3)})));
+    polys_.push_back(
+        Poly(Coeffs({GF7Gmp(0), GF7Gmp(0), GF7Gmp(0), GF7Gmp(5)})));
+    polys_.push_back(
+        Poly(Coeffs({GF7Gmp(0), GF7Gmp(0), GF7Gmp(0), GF7Gmp(0), GF7Gmp(5)})));
     polys_.push_back(Poly::Zero());
   }
   DenseUnivariatePolynomialTest(const DenseUnivariatePolynomialTest&) = delete;
@@ -37,7 +40,7 @@ class DenseUnivariatePolynomialTest : public ::testing::Test {
 
 TEST_F(DenseUnivariatePolynomialTest, IsZero) {
   EXPECT_TRUE(Poly::Zero().IsZero());
-  EXPECT_TRUE(Poly(Coeffs({GF7(0)})).IsZero());
+  EXPECT_TRUE(Poly(Coeffs({GF7Gmp(0)})).IsZero());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
     EXPECT_FALSE(polys_[i].IsZero());
   }
@@ -46,7 +49,7 @@ TEST_F(DenseUnivariatePolynomialTest, IsZero) {
 
 TEST_F(DenseUnivariatePolynomialTest, IsOne) {
   EXPECT_TRUE(Poly::One().IsOne());
-  EXPECT_TRUE(Poly(Coeffs({GF7(1)})).IsOne());
+  EXPECT_TRUE(Poly(Coeffs({GF7Gmp(1)})).IsOne());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
     EXPECT_FALSE(polys_[i].IsOne());
   }
@@ -76,7 +79,7 @@ TEST_F(DenseUnivariatePolynomialTest, IndexingOperator) {
   for (const auto& test : tests) {
     for (size_t i = 0; i < kMaxDegree; ++i) {
       if (i < test.coefficients.size()) {
-        EXPECT_EQ(*test.poly[i], GF7(test.coefficients[i]));
+        EXPECT_EQ(*test.poly[i], GF7Gmp(test.coefficients[i]));
       } else {
         EXPECT_EQ(test.poly[i], nullptr);
       }
@@ -101,14 +104,14 @@ TEST_F(DenseUnivariatePolynomialTest, Degree) {
 TEST_F(DenseUnivariatePolynomialTest, Evaluate) {
   struct {
     const Poly& poly;
-    GF7 expected;
+    GF7Gmp expected;
   } tests[] = {
-      {polys_[0], GF7(6)}, {polys_[1], GF7(3)}, {polys_[2], GF7(2)},
-      {polys_[3], GF7(6)}, {polys_[4], GF7(0)},
+      {polys_[0], GF7Gmp(6)}, {polys_[1], GF7Gmp(3)}, {polys_[2], GF7Gmp(2)},
+      {polys_[3], GF7Gmp(6)}, {polys_[4], GF7Gmp(0)},
   };
 
   for (const auto& test : tests) {
-    EXPECT_EQ(test.poly.Evaluate(GF7(3)), test.expected);
+    EXPECT_EQ(test.poly.Evaluate(GF7Gmp(3)), test.expected);
   }
 }
 
@@ -140,30 +143,30 @@ TEST_F(DenseUnivariatePolynomialTest, AdditiveOperators) {
       {
           polys_[0],
           polys_[1],
-          Poly(Coeffs({GF7(6), GF7(0), GF7(1), GF7(0), GF7(2)})),
-          Poly(Coeffs({GF7(0), GF7(0), GF7(1), GF7(0), GF7(2)})),
-          Poly(Coeffs({GF7(0), GF7(0), GF7(6), GF7(0), GF7(5)})),
+          Poly(Coeffs({GF7Gmp(6), GF7Gmp(0), GF7Gmp(1), GF7Gmp(0), GF7Gmp(2)})),
+          Poly(Coeffs({GF7Gmp(0), GF7Gmp(0), GF7Gmp(1), GF7Gmp(0), GF7Gmp(2)})),
+          Poly(Coeffs({GF7Gmp(0), GF7Gmp(0), GF7Gmp(6), GF7Gmp(0), GF7Gmp(5)})),
       },
       {
           polys_[0],
           polys_[2],
-          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(5), GF7(2)})),
-          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(2), GF7(2)})),
-          Poly(Coeffs({GF7(4), GF7(0), GF7(6), GF7(5), GF7(5)})),
+          Poly(Coeffs({GF7Gmp(3), GF7Gmp(0), GF7Gmp(1), GF7Gmp(5), GF7Gmp(2)})),
+          Poly(Coeffs({GF7Gmp(3), GF7Gmp(0), GF7Gmp(1), GF7Gmp(2), GF7Gmp(2)})),
+          Poly(Coeffs({GF7Gmp(4), GF7Gmp(0), GF7Gmp(6), GF7Gmp(5), GF7Gmp(5)})),
       },
       {
           polys_[0],
           polys_[3],
-          Poly(Coeffs({GF7(3), GF7(0), GF7(1)})),
-          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(4)})),
-          Poly(Coeffs({GF7(4), GF7(0), GF7(6), GF7(0), GF7(3)})),
+          Poly(Coeffs({GF7Gmp(3), GF7Gmp(0), GF7Gmp(1)})),
+          Poly(Coeffs({GF7Gmp(3), GF7Gmp(0), GF7Gmp(1), GF7Gmp(0), GF7Gmp(4)})),
+          Poly(Coeffs({GF7Gmp(4), GF7Gmp(0), GF7Gmp(6), GF7Gmp(0), GF7Gmp(3)})),
       },
       {
           polys_[0],
           polys_[4],
-          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})),
-          Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})),
-          Poly(Coeffs({GF7(4), GF7(0), GF7(6), GF7(0), GF7(5)})),
+          Poly(Coeffs({GF7Gmp(3), GF7Gmp(0), GF7Gmp(1), GF7Gmp(0), GF7Gmp(2)})),
+          Poly(Coeffs({GF7Gmp(3), GF7Gmp(0), GF7Gmp(1), GF7Gmp(0), GF7Gmp(2)})),
+          Poly(Coeffs({GF7Gmp(4), GF7Gmp(0), GF7Gmp(6), GF7Gmp(0), GF7Gmp(5)})),
       },
   };
 
@@ -197,8 +200,8 @@ TEST_F(DenseUnivariatePolynomialTest, AdditiveOperators) {
 }
 
 TEST_F(DenseUnivariatePolynomialTest, MultiplicativeOperators) {
-  Poly a(Coeffs({GF7(3), GF7(1)}));
-  Poly b(Coeffs({GF7(5), GF7(2), GF7(5)}));
+  Poly a(Coeffs({GF7Gmp(3), GF7Gmp(1)}));
+  Poly b(Coeffs({GF7Gmp(5), GF7Gmp(2), GF7Gmp(5)}));
   Poly one = Poly::One();
   Poly zero = Poly::Zero();
 
@@ -214,11 +217,11 @@ TEST_F(DenseUnivariatePolynomialTest, MultiplicativeOperators) {
       {
           a,
           b,
-          Poly(Coeffs({GF7(1), GF7(4), GF7(3), GF7(5)})),
+          Poly(Coeffs({GF7Gmp(1), GF7Gmp(4), GF7Gmp(3), GF7Gmp(5)})),
           zero,
           a,
-          Poly(Coeffs({GF7(1), GF7(5)})),
-          Poly(Coeffs({GF7(2)})),
+          Poly(Coeffs({GF7Gmp(1), GF7Gmp(5)})),
+          Poly(Coeffs({GF7Gmp(2)})),
       },
       {
           a,

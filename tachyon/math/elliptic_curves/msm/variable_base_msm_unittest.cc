@@ -24,7 +24,7 @@ class VariableBaseMSMTest : public ::testing::Test {
 
     bases_ = base::CreateVector(
         kSize, []() { return JacobianPoint<Config>::Random(); });
-    scalars_ = base::CreateVector(kSize, []() { return GF7::Random(); });
+    scalars_ = base::CreateVector(kSize, []() { return GF7Gmp::Random(); });
 
     answer_ = std::make_unique<JacobianPoint<Config>>();
     for (size_t i = 0; i < bases_.size(); ++i) {
@@ -37,7 +37,7 @@ class VariableBaseMSMTest : public ::testing::Test {
 
  protected:
   std::vector<JacobianPoint<Config>> bases_;
-  std::vector<GF7> scalars_;
+  std::vector<GF7Gmp> scalars_;
   std::unique_ptr<JacobianPoint<Config>> answer_;
 };
 

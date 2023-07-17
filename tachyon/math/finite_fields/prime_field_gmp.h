@@ -29,6 +29,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   static constexpr size_t kModulusBits = _Config::kModulusBits;
   static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
   static constexpr const uint64_t* kModulus = _Config::kModulus;
+  static constexpr bool kIsTriviallyDestructible = false;
 
   using Config = _Config;
   using value_type = mpz_class;
@@ -46,8 +47,6 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   PrimeFieldGmp& operator=(const PrimeFieldGmp& other) = default;
   PrimeFieldGmp(PrimeFieldGmp&& other) = default;
   PrimeFieldGmp& operator=(PrimeFieldGmp&& other) = default;
-
-  const value_type& value() const { return value_; }
 
   static PrimeFieldGmp Zero() { return PrimeFieldGmp(); }
 
@@ -91,6 +90,8 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     static base::NoDestructor<mpz_class> modulus;
     return *modulus;
   }
+
+  const value_type& value() const { return value_; }
 
   bool IsZero() const { return *this == Zero(); }
 

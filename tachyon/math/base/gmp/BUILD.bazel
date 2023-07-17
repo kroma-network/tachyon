@@ -12,6 +12,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "conversions",
+    hdrs = ["conversions.h"],
+    deps = [
+        ":gmp_util",
+        "//tachyon/math/base:conversions",
+    ],
+)
+
+tachyon_cc_library(
     name = "gmp_identities",
     hdrs = ["gmp_identities.h"],
     deps = [

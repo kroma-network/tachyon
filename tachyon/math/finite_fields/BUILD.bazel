@@ -3,21 +3,44 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "prime_field_base",
+    hdrs = ["prime_field_base.h"],
+    deps = ["//tachyon/math/base:field"],
+)
+
+tachyon_cc_library(
     name = "prime_field",
     srcs = ["prime_field.cc"],
-    hdrs = [
-        "prime_field.h",
-        "prime_field_base.h",
-        "prime_field_fallback.h",
-        "prime_field_gmp.h",
-    ],
+    hdrs = ["prime_field.h"],
     deps = [
+        ":prime_field_gmp",
+        ":prime_field_mont",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prime_field_gmp",
+    hdrs = ["prime_field_gmp.h"],
+    deps = [
+        ":prime_field_base",
         "//tachyon/base:no_destructor",
-        "//tachyon/base/containers:adapters",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:field",
         "//tachyon/math/base:identities",
         "//tachyon/math/base/gmp:gmp_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prime_field_mont",
+    hdrs = ["prime_field_mont.h"],
+    deps = [
+        ":prime_field_base",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:random",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/base:identities",
     ],
 )
 

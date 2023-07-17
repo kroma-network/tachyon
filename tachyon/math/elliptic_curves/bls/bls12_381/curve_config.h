@@ -19,9 +19,10 @@ class TACHYON_EXPORT CurveConfig : public SWCurveConfig<Fq, Fr> {
 
   static void Init();
 
-  static Fq& EndomorphismCoefficient();
-  static Fr& Lambda();
-  static GLV<CurveConfig>::Coefficients& ScalarDecompositionCoefficients();
+  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(Fq, EndomorphismCoefficient);
+  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(Fr, Lambda);
+  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(GLV<CurveConfig>::Coefficients,
+                                        ScalarDecompositionCoefficients);
 
   static JacobianPoint<Config> Endomorphism(const JacobianPoint<Config>& point);
   static AffinePoint<Config> EndomorphismAffine(

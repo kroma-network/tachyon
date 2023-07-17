@@ -27,7 +27,7 @@ class TACHYON_EXPORT FrConfig {
   static void Init();
 };
 
-using Fr = PrimeField<FrConfig>;
+using Fr = PrimeFieldGmp<FrConfig>;
 
 }  // namespace bn254
 }  // namespace math

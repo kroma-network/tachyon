@@ -2,18 +2,17 @@
 #define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_H_
 
 #include "tachyon/export.h"
-#include "tachyon/math/finite_fields/prime_field_fallback.h"
+#include "tachyon/math/finite_fields/prime_field_mont.h"
+
+#if defined(TACHYON_GMP_BACKEND)
 #include "tachyon/math/finite_fields/prime_field_gmp.h"
+#endif  // defined(TACHYON_GMP_BACKEND)
 
 namespace tachyon {
 namespace math {
 
 template <typename Config>
-#if defined(TACHYON_GMP_BACKEND)
-using PrimeField = PrimeFieldGmp<Config>;
-#else  // !defined(TACHYON_GMP_BACKEND)
-using PrimeField = PrimeFieldFallback<Config>;
-#endif
+using PrimeField = PrimeFieldMont<Config>;
 
 class TACHYON_EXPORT GF7Config {
  public:
@@ -26,6 +25,9 @@ class TACHYON_EXPORT GF7Config {
 };
 
 using GF7 = PrimeField<GF7Config>;
+#if defined(TACHYON_GMP_BACKEND)
+using GF7Gmp = PrimeFieldGmp<GF7Config>;
+#endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace math
 }  // namespace tachyon

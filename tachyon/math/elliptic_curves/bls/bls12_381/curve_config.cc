@@ -1,7 +1,5 @@
 #include "tachyon/math/elliptic_curves/bls/bls12_381/curve_config.h"
 
-#include "tachyon/base/no_destructor.h"
-
 namespace tachyon {
 namespace math {
 namespace bls12_381 {
@@ -39,24 +37,6 @@ void CurveConfig::Init() {
       // v_1 = (-1, X² - 1)
       mpz_class(-1),
       gmp::FromDecString("228988810152649578064853576960394133503"));
-}
-
-// static
-Fq& CurveConfig::EndomorphismCoefficient() {
-  static base::NoDestructor<Fq> coeff;
-  return *coeff;
-}
-
-// static
-Fr& CurveConfig::Lambda() {
-  static base::NoDestructor<Fr> lambda;
-  return *lambda;
-}
-
-// static
-GLV<CurveConfig>::Coefficients& CurveConfig::ScalarDecompositionCoefficients() {
-  static base::NoDestructor<GLV<CurveConfig>::Coefficients> coefficients;
-  return *coefficients;
 }
 
 // static

@@ -27,8 +27,8 @@ class JacobianPointTest : public ::testing::Test {
 }  // namespace
 
 TEST_F(JacobianPointTest, IsZero) {
-  EXPECT_TRUE(JacobianPoint<Config>(GF7(1), GF7(2), GF7(0)).IsZero());
-  EXPECT_FALSE(JacobianPoint<Config>(GF7(1), GF7(2), GF7(1)).IsZero());
+  EXPECT_TRUE(JacobianPoint<Config>(GF7Gmp(1), GF7Gmp(2), GF7Gmp(0)).IsZero());
+  EXPECT_FALSE(JacobianPoint<Config>(GF7Gmp(1), GF7Gmp(2), GF7Gmp(1)).IsZero());
 }
 
 TEST_F(JacobianPointTest, Random) {
@@ -46,24 +46,24 @@ TEST_F(JacobianPointTest, Random) {
 TEST_F(JacobianPointTest, EqualityOperators) {
   {
     SCOPED_TRACE("p.IsZero() && p2.IsZero()");
-    JacobianPoint<Config> p(GF7(1), GF7(2), GF7(0));
-    JacobianPoint<Config> p2(GF7(3), GF7(4), GF7(0));
+    JacobianPoint<Config> p(GF7Gmp(1), GF7Gmp(2), GF7Gmp(0));
+    JacobianPoint<Config> p2(GF7Gmp(3), GF7Gmp(4), GF7Gmp(0));
     EXPECT_TRUE(p == p2);
     EXPECT_TRUE(p2 == p);
   }
 
   {
     SCOPED_TRACE("!p.IsZero() && p2.IsZero()");
-    JacobianPoint<Config> p(GF7(1), GF7(2), GF7(1));
-    JacobianPoint<Config> p2(GF7(3), GF7(4), GF7(0));
+    JacobianPoint<Config> p(GF7Gmp(1), GF7Gmp(2), GF7Gmp(1));
+    JacobianPoint<Config> p2(GF7Gmp(3), GF7Gmp(4), GF7Gmp(0));
     EXPECT_TRUE(p != p2);
     EXPECT_TRUE(p2 != p);
   }
 
   {
     SCOPED_TRACE("other");
-    JacobianPoint<Config> p(GF7(1), GF7(2), GF7(3));
-    JacobianPoint<Config> p2(GF7(1), GF7(2), GF7(3));
+    JacobianPoint<Config> p(GF7Gmp(1), GF7Gmp(2), GF7Gmp(3));
+    JacobianPoint<Config> p2(GF7Gmp(1), GF7Gmp(2), GF7Gmp(3));
     EXPECT_TRUE(p == p2);
     EXPECT_TRUE(p2 == p);
   }
@@ -71,13 +71,13 @@ TEST_F(JacobianPointTest, EqualityOperators) {
 
 TEST_F(JacobianPointTest, AdditiveGroupOperators) {
   JacobianPoint<Config> jp =
-      JacobianPoint<Config>::CreateChecked(GF7(5), GF7(5), GF7(1));
+      JacobianPoint<Config>::CreateChecked(GF7Gmp(5), GF7Gmp(5), GF7Gmp(1));
   JacobianPoint<Config> jp2 =
-      JacobianPoint<Config>::CreateChecked(GF7(3), GF7(2), GF7(1));
+      JacobianPoint<Config>::CreateChecked(GF7Gmp(3), GF7Gmp(2), GF7Gmp(1));
   JacobianPoint<Config> jp3 =
-      JacobianPoint<Config>::CreateChecked(GF7(3), GF7(5), GF7(1));
+      JacobianPoint<Config>::CreateChecked(GF7Gmp(3), GF7Gmp(5), GF7Gmp(1));
   JacobianPoint<Config> jp4 =
-      JacobianPoint<Config>::CreateChecked(GF7(6), GF7(5), GF7(1));
+      JacobianPoint<Config>::CreateChecked(GF7Gmp(6), GF7Gmp(5), GF7Gmp(1));
   AffinePoint<Config> ap = jp.ToAffine();
   AffinePoint<Config> ap2 = jp2.ToAffine();
 
@@ -103,43 +103,43 @@ TEST_F(JacobianPointTest, AdditiveGroupOperators) {
 TEST_F(JacobianPointTest, ScalarMulOperator) {
   std::vector<AffinePoint<Config>> points;
   for (size_t i = 0; i < 7; ++i) {
-    points.push_back((GF7(i) * Config::Generator()).ToAffine());
+    points.push_back((GF7Gmp(i) * Config::Generator()).ToAffine());
   }
 
   EXPECT_THAT(points, ::testing::UnorderedElementsAreArray(
                           std::vector<AffinePoint<Config>>{
-                              AffinePoint<Config>(GF7(0), GF7(0), true),
-                              AffinePoint<Config>(GF7(3), GF7(2)),
-                              AffinePoint<Config>(GF7(5), GF7(2)),
-                              AffinePoint<Config>(GF7(6), GF7(2)),
-                              AffinePoint<Config>(GF7(3), GF7(5)),
-                              AffinePoint<Config>(GF7(5), GF7(5)),
-                              AffinePoint<Config>(GF7(6), GF7(5))}));
+                              AffinePoint<Config>(GF7Gmp(0), GF7Gmp(0), true),
+                              AffinePoint<Config>(GF7Gmp(3), GF7Gmp(2)),
+                              AffinePoint<Config>(GF7Gmp(5), GF7Gmp(2)),
+                              AffinePoint<Config>(GF7Gmp(6), GF7Gmp(2)),
+                              AffinePoint<Config>(GF7Gmp(3), GF7Gmp(5)),
+                              AffinePoint<Config>(GF7Gmp(5), GF7Gmp(5)),
+                              AffinePoint<Config>(GF7Gmp(6), GF7Gmp(5))}));
 }
 
 TEST_F(JacobianPointTest, NegativeOperator) {
-  JacobianPoint<Config> jp(GF7(5), GF7(5), GF7(1));
+  JacobianPoint<Config> jp(GF7Gmp(5), GF7Gmp(5), GF7Gmp(1));
   jp.NegInPlace();
-  EXPECT_EQ(jp, JacobianPoint<Config>(GF7(5), GF7(2), GF7(1)));
+  EXPECT_EQ(jp, JacobianPoint<Config>(GF7Gmp(5), GF7Gmp(2), GF7Gmp(1)));
 }
 
 TEST_F(JacobianPointTest, ToAffine) {
-  EXPECT_EQ(JacobianPoint<Config>(GF7(1), GF7(2), GF7(0)).ToAffine(),
+  EXPECT_EQ(JacobianPoint<Config>(GF7Gmp(1), GF7Gmp(2), GF7Gmp(0)).ToAffine(),
             AffinePoint<Config>::Identity());
-  EXPECT_EQ(JacobianPoint<Config>(GF7(1), GF7(2), GF7(1)).ToAffine(),
-            AffinePoint<Config>(GF7(1), GF7(2)));
-  EXPECT_EQ(JacobianPoint<Config>(GF7(1), GF7(2), GF7(3)).ToAffine(),
-            AffinePoint<Config>(GF7(4), GF7(5)));
+  EXPECT_EQ(JacobianPoint<Config>(GF7Gmp(1), GF7Gmp(2), GF7Gmp(1)).ToAffine(),
+            AffinePoint<Config>(GF7Gmp(1), GF7Gmp(2)));
+  EXPECT_EQ(JacobianPoint<Config>(GF7Gmp(1), GF7Gmp(2), GF7Gmp(3)).ToAffine(),
+            AffinePoint<Config>(GF7Gmp(4), GF7Gmp(5)));
 }
 
 TEST_F(JacobianPointTest, MSM) {
   std::vector<JacobianPoint<Config>> bases = {
-      {GF7(5), GF7(5), GF7(1)},
-      {GF7(3), GF7(2), GF7(1)},
+      {GF7Gmp(5), GF7Gmp(5), GF7Gmp(1)},
+      {GF7Gmp(3), GF7Gmp(2), GF7Gmp(1)},
   };
-  std::vector<GF7> scalars = {
-      GF7(2),
-      GF7(3),
+  std::vector<GF7Gmp> scalars = {
+      GF7Gmp(2),
+      GF7Gmp(3),
   };
   JacobianPoint<Config> expected = JacobianPoint<Config>::Zero();
   for (size_t i = 0; i < bases.size(); ++i) {

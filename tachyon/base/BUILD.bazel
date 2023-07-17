@@ -58,6 +58,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "static_storage",
+    hdrs = ["static_storage.h"],
+    deps = [":no_destructor"],
+)
+
+tachyon_cc_library(
     name = "template_util",
     hdrs = ["template_util.h"],
 )

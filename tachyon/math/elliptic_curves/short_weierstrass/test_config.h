@@ -8,9 +8,9 @@ namespace tachyon {
 namespace math {
 namespace test {
 
-class CurveConfig : public SWCurveConfig<GF7, GF7> {
+class CurveConfig : public SWCurveConfig<GF7Gmp, GF7Gmp> {
  public:
-  using Config = SWCurveConfig<GF7, GF7>;
+  using Config = SWCurveConfig<GF7Gmp, GF7Gmp>;
 
   static void Init();
 };
