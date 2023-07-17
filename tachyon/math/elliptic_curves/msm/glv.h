@@ -32,7 +32,7 @@ class GLV {
     decltype(auto) scalar = k.ToMpzClass();
     const mpz_class& n12 = coefficients[1];
     const mpz_class& n22 = coefficients[3];
-    decltype(auto) r = ScalarField::Config::Modulus().ToMpzClass();
+    decltype(auto) r = ScalarField::Modulus();
 
     // NOTE(chokobole): We can't calculate using below directly.
     //

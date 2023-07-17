@@ -11,12 +11,20 @@ namespace bn254 {
 class TACHYON_EXPORT FrConfig {
  public:
   constexpr static size_t kModulusBits = 254;
+  // clang-format off
+  // Dec: 2188824287183927522224640574525727508854836440041603434369820418657580849561
+  // Hex: 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+  // clang-format on
+  constexpr static uint64_t kModulus[4] = {
+      UINT64_C(13401866920200346009),
+      UINT64_C(16891761104669281089),
+      UINT64_C(10551491231982245282),
+      UINT64_C(348699826680297066),
+  };
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 
   static void Init();
-
-  static PrimeField<FrConfig>& Modulus();
 };
 
 using Fr = PrimeField<FrConfig>;

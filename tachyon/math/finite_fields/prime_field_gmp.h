@@ -8,9 +8,13 @@
 #include <ostream>
 #include <string>
 
+#include "absl/base/call_once.h"
+#include "absl/base/internal/endian.h"
+
 #include "tachyon/base/logging.h"
 #include "tachyon/base/no_destructor.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/build/build_config.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/base/identities.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
@@ -24,24 +28,19 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   static_assert(GMP_LIMB_BITS == 64, "This code assumes limb bits is 64 bit");
   static constexpr size_t kModulusBits = _Config::kModulusBits;
   static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
+  static constexpr const uint64_t* kModulus = _Config::kModulus;
 
   using Config = _Config;
   using value_type = mpz_class;
 
   PrimeFieldGmp() = default;
-  explicit PrimeFieldGmp(const mpz_class& value, bool init = false)
-      : value_(value) {
+  explicit PrimeFieldGmp(const mpz_class& value) : value_(value) {
     DCHECK(!gmp::IsNegative(value));
-    if (!init) {
-      DCHECK_LT(value, Config::Modulus().value_);
-    }
+    DCHECK_LT(value, Modulus());
   }
-  explicit PrimeFieldGmp(mpz_class&& value, bool init = false)
-      : value_(std::move(value)) {
+  explicit PrimeFieldGmp(mpz_class&& value) : value_(std::move(value)) {
     DCHECK(!gmp::IsNegative(value));
-    if (!init) {
-      DCHECK_LT(value, Config::Modulus().value_);
-    }
+    DCHECK_LT(value, Modulus());
   }
   PrimeFieldGmp(const PrimeFieldGmp& other) = default;
   PrimeFieldGmp& operator=(const PrimeFieldGmp& other) = default;
@@ -55,7 +54,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   static PrimeFieldGmp One() { return PrimeFieldGmp(1); }
 
   static PrimeFieldGmp Random() {
-    return PrimeFieldGmp(gmp::Random(Config::Modulus().value_));
+    return PrimeFieldGmp(gmp::Random(Modulus()));
   }
 
   static PrimeFieldGmp FromMpzClass(const mpz_class& value) {
@@ -70,6 +69,27 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   }
   static PrimeFieldGmp FromHexString(std::string_view str) {
     return PrimeFieldGmp(gmp::FromHexString(str));
+  }
+
+  static void Init() {
+    static absl::once_flag once;
+    absl::call_once(once, []() {
+#if ARCH_CPU_BIG_ENDIAN
+      uint64_t modulus[kLimbNums];
+      for (size_t i = 0; i < kLimbNums; ++i) {
+        uint64_t value = absl::little_endian::Load64(modulus[i]);
+        memcpy(&modulus[kLimbNums - i - 1], &value, sizeof(uint64_t));
+      }
+#else
+      const uint64_t* modulus = kModulus;
+#endif
+      gmp::WriteLimbs(modulus, kLimbNums, &Modulus());
+    });
+  }
+
+  static mpz_class& Modulus() {
+    static base::NoDestructor<mpz_class> modulus;
+    return *modulus;
   }
 
   bool IsZero() const { return *this == Zero(); }
@@ -135,19 +155,18 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 
   // AdditiveGroup methods
   PrimeFieldGmp Sub(const PrimeFieldGmp& other) const {
-    PrimeFieldGmp ret =
-        PrimeFieldGmp((value_ - other.value_) % Config::Modulus().value_);
+    PrimeFieldGmp ret = PrimeFieldGmp((value_ - other.value_) % Modulus());
     return ret.Normalize();
   }
 
   PrimeFieldGmp& SubInPlace(const PrimeFieldGmp& other) {
-    value_ = (value_ - other.value_) % Config::Modulus().value_;
+    value_ = (value_ - other.value_) % Modulus();
     return Normalize();
   }
 
   PrimeFieldGmp& NegInPlace() {
     if (value_ == mpz_class(0)) return *this;
-    value_ = Config::Modulus().value_ - value_;
+    value_ = Modulus() - value_;
     return *this;
   }
 
@@ -176,19 +195,16 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   }
 
   PrimeFieldGmp& InverseInPlace() {
-    mpz_invert(value_.get_mpz_t(), value_.get_mpz_t(),
-               Config::Modulus().value_.get_mpz_t());
+    mpz_invert(value_.get_mpz_t(), value_.get_mpz_t(), Modulus().get_mpz_t());
     return *this;
   }
 
  private:
-  static mpz_class DoMod(mpz_class value) {
-    return value % Config::Modulus().value_;
-  }
+  static mpz_class DoMod(mpz_class value) { return value % Modulus(); }
 
   PrimeFieldGmp& Normalize() {
     if (gmp::IsNegative(value_)) {
-      value_ = Config::Modulus().value_ + value_;
+      value_ = Modulus() + value_;
     }
     return *this;
   }
