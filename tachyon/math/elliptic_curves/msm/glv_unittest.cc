@@ -20,9 +20,11 @@ class GLVTest : public ::testing::Test {
 }  // namespace
 
 TEST_F(GLVTest, Endomorphism) {
-  EXPECT_TRUE(bls12_381::CurveConfig::EndomorphismCoefficient().Pow(3).IsOne());
+  EXPECT_TRUE(bls12_381::CurveConfig::EndomorphismCoefficient()
+                  .Pow(BigInt<1>(3))
+                  .IsOne());
   bls12_381::G1JacobianPoint base = bls12_381::G1JacobianPoint::Random();
-  EXPECT_EQ(base.ScalarMul(bls12_381::CurveConfig::Lambda().ToMpzClass()),
+  EXPECT_EQ(base.ScalarMul(bls12_381::CurveConfig::Lambda().ToBigInt()),
             bls12_381::CurveConfig::Endomorphism(base));
 }
 
@@ -44,10 +46,10 @@ TEST_F(GLVTest, Mul) {
   bls12_381::G1JacobianPoint base = bls12_381::G1JacobianPoint::Random();
   bls12_381::Fr scalar = bls12_381::Fr::Random();
   EXPECT_EQ(GLV<bls12_381::CurveConfig>::Mul(base, scalar),
-            base.ScalarMul(scalar.ToMpzClass()));
+            base.ScalarMul(scalar.ToBigInt()));
 
   EXPECT_EQ(GLV<bls12_381::CurveConfig>::Mul(base.ToAffine(), scalar),
-            base.ScalarMul(scalar.ToMpzClass()));
+            base.ScalarMul(scalar.ToBigInt()));
 }
 
 }  // namespace math

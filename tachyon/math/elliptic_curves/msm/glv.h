@@ -29,10 +29,10 @@ class GLV {
     const Coefficients& coefficients =
         GLVConfig::ScalarDecompositionCoefficients();
 
-    const mpz_class scalar = k.ToMpzClass();
+    decltype(auto) scalar = k.ToMpzClass();
     const mpz_class& n12 = coefficients[1];
     const mpz_class& n22 = coefficients[3];
-    const mpz_class r = ScalarField::Config::Modulus().ToMpzClass();
+    decltype(auto) r = ScalarField::Config::Modulus().ToMpzClass();
 
     // NOTE(chokobole): We can't calculate using below directly.
     //

@@ -103,7 +103,7 @@ TEST_F(JacobianPointTest, AdditiveGroupOperators) {
 TEST_F(JacobianPointTest, ScalarMulOperator) {
   std::vector<AffinePoint<Config>> points;
   for (size_t i = 0; i < 7; ++i) {
-    points.push_back((mpz_class(i) * Config::Generator()).ToAffine());
+    points.push_back((GF7(i) * Config::Generator()).ToAffine());
   }
 
   EXPECT_THAT(points, ::testing::UnorderedElementsAreArray(
@@ -143,7 +143,7 @@ TEST_F(JacobianPointTest, MSM) {
   };
   JacobianPoint<Config> expected = JacobianPoint<Config>::Zero();
   for (size_t i = 0; i < bases.size(); ++i) {
-    expected += bases[i].ScalarMul(scalars[i].ToMpzClass());
+    expected += bases[i].ScalarMul(scalars[i].ToBigInt());
   }
   EXPECT_EQ(JacobianPoint<Config>::MSM(bases, scalars), expected);
 }

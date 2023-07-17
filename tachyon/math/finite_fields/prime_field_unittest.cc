@@ -134,7 +134,7 @@ TEST_F(PrimeFieldTest, MultiplicativeGroupOperators) {
   EXPECT_EQ(f, GF7(2));
 
   f = GF7(3);
-  EXPECT_EQ(f.Pow(5), GF7(5));
+  EXPECT_EQ(f.Pow(GF7(5).ToBigInt()), GF7(5));
 }
 
 TEST_F(PrimeFieldTest, SumOfProducts) {

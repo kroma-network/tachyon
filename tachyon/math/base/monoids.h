@@ -3,7 +3,7 @@
 
 #include "absl/types/span.h"
 
-#include "tachyon/math/base/gmp/bit_iterator.h"
+#include "tachyon/math/base/bit_iterator.h"
 
 #define SUPPORTS_BINARY_OPERATOR(Name)                                        \
   template <typename L, typename R, typename = void>                          \
@@ -75,9 +75,10 @@ class MultiplicativeMonoid {
     }
   }
 
-  [[nodiscard]] G Pow(const mpz_class& exponent) const {
-    auto it = BitIteratorBE<mpz_class>::begin(&exponent, true);
-    auto end = BitIteratorBE<mpz_class>::end(&exponent);
+  template <size_t LimbNums>
+  [[nodiscard]] G Pow(const BigInt<LimbNums>& exponent) const {
+    auto it = BitIteratorBE<BigInt<LimbNums>>::begin(&exponent, true);
+    auto end = BitIteratorBE<BigInt<LimbNums>>::end(&exponent);
     const G& self = *static_cast<const G*>(this);
     G g = G::One();
     while (it != end) {
@@ -95,10 +96,11 @@ class MultiplicativeMonoid {
     return g;
   }
 
+  template <size_t LimbNums>
   static G PowWithTable(absl::Span<const G> powers_of_2,
-                        const mpz_class& exponent) {
-    auto it = BitIteratorLE<mpz_class>::begin(&exponent);
-    auto end = BitIteratorLE<mpz_class>::end(&exponent, true);
+                        const BigInt<LimbNums>& exponent) {
+    auto it = BitIteratorLE<BigInt<LimbNums>>::begin(&exponent);
+    auto end = BitIteratorLE<BigInt<LimbNums>>::end(&exponent, true);
     G g = G::One();
     size_t i = 0;
     while (it != end) {
@@ -146,12 +148,13 @@ class AdditiveMonoid {
   // FIXME(chokobole): In g++ (Ubuntu 11.3.0-1ubuntu1~22.04.1) 11.3.0, if I use
   // the function below, then it gives me an error "error: request for member
   // 'operator*' is ambiguous".
-  // constexpr auto operator*(const mpz_class& scalar) const {
-  constexpr auto ScalarMul(const mpz_class& scalar) const {
+  // constexpr auto operator*(const BigInt<LimbNums>& scalar) const {
+  template <size_t LimbNums>
+  constexpr auto ScalarMul(const BigInt<LimbNums>& scalar) const {
     const G* g = static_cast<const G*>(this);
     G ret = G::Zero();
-    auto it = BitIteratorBE<mpz_class>::begin(&scalar, true);
-    auto end = BitIteratorBE<mpz_class>::end(&scalar);
+    auto it = BitIteratorBE<BigInt<LimbNums>>::begin(&scalar, true);
+    auto end = BitIteratorBE<BigInt<LimbNums>>::end(&scalar);
     while (it != end) {
       if constexpr (internal::SupportsDoubleInPlace<G>::value) {
         ret.DoubleInPlace();

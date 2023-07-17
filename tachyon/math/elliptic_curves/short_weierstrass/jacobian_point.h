@@ -56,7 +56,7 @@ class JacobianPoint<Config,
   }
 
   constexpr static JacobianPoint Random() {
-    return ScalarField::Random().ToMpzClass() * Config::Generator();
+    return ScalarField::Random() * Config::Generator();
   }
 
   template <

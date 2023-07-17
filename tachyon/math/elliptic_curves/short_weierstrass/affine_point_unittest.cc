@@ -96,7 +96,7 @@ TEST_F(AffinePointTest, MSM) {
   };
   JacobianPoint<Config> expected = JacobianPoint<Config>::Zero();
   for (size_t i = 0; i < bases.size(); ++i) {
-    expected += bases[i].ToJacobian().ScalarMul(scalars[i].ToMpzClass());
+    expected += bases[i].ToJacobian().ScalarMul(scalars[i].ToBigInt());
   }
   EXPECT_EQ(AffinePoint<Config>::MSM(bases, scalars), expected);
 }

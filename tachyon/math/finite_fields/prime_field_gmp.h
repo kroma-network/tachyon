@@ -81,8 +81,13 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     return base::MaybePrepend0x(value_.get_str(16));
   }
 
-  // TODO(chokobole): Can we avoid copying?
-  mpz_class ToMpzClass() const { return value_; }
+  const mpz_class& ToMpzClass() const { return value_; }
+
+  BigInt<kLimbNums> ToBigInt() const {
+    BigInt<kLimbNums> result;
+    gmp::CopyLimbs(value_, result.limbs);
+    return result;
+  }
 
   bool operator==(const PrimeFieldGmp& other) const {
     return value_ == other.value_;

@@ -62,11 +62,7 @@ class PrimeFieldFallback : public PrimeFieldBase<PrimeFieldFallback<_Config>> {
         }));
   }
 
-  // TODO(chokobole): Can we avoid copying?
-  mpz_class ToMpzClass() const {
-    NOTIMPLEMENTED();
-    return {};
-  }
+  BigInt<kLimbNums> ToBigInt() const { return BigInt(limbs_); }
 
   constexpr bool operator==(const PrimeFieldFallback& other) const {
     NOTIMPLEMENTED();

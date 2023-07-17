@@ -5,6 +5,7 @@
 #include <limits>
 
 #include "tachyon/build/build_config.h"
+#include "tachyon/math/base/big_int.h"
 
 namespace tachyon {
 namespace math {
@@ -13,18 +14,18 @@ template <typename T, typename SFINAE = void>
 class BitTraits;
 
 template <size_t LimbNums>
-class BitTraits<uint64_t[LimbNums]> {
+class BitTraits<BigInt<LimbNums>> {
  public:
-  static constexpr size_t GetNumBits(const uint64_t limbs[LimbNums]) {
+  static constexpr size_t GetNumBits(const BigInt<LimbNums>& _) {
     return LimbNums * 64;
   }
 
-  static constexpr bool TestBit(const uint64_t limbs[LimbNums], size_t index) {
+  static constexpr bool TestBit(const BigInt<LimbNums>& bigint, size_t index) {
     size_t limb_index = index >> 6;
     if (limb_index >= LimbNums) return false;
     size_t bit_index = index & 63;
     uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
-    return (limbs[limb_index] & bit_index_value) == bit_index_value;
+    return (bigint[limb_index] & bit_index_value) == bit_index_value;
   }
 };
 

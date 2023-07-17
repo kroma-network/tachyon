@@ -11,13 +11,13 @@ namespace math {
 
 TEST(GmpUtilTest, BitIteratorLE) {
   struct {
-    uint64_t value[1];
+    BigInt<1> value;
     std::vector<bool> answers;
   } tests[] = {
-      {{0}, std::vector<bool>{}},
-      {{2}, std::vector<bool>{0, 1}},
-      {{4}, std::vector<bool>{0, 0, 1}},
-      {{5}, std::vector<bool>{1, 0, 1}},
+      {BigInt<1>(0), std::vector<bool>{}},
+      {BigInt<1>(2), std::vector<bool>{0, 1}},
+      {BigInt<1>(4), std::vector<bool>{0, 0, 1}},
+      {BigInt<1>(5), std::vector<bool>{1, 0, 1}},
   };
 
   for (int i = 0; i < 2; ++i) {
@@ -26,9 +26,9 @@ TEST(GmpUtilTest, BitIteratorLE) {
         absl::Substitute("skip_trailing_zeros: $0", skip_trailing_zeros));
     for (const auto& test : tests) {
       std::vector<bool> bits;
-      auto it = BitIteratorLE<uint64_t[1]>::begin(&test.value);
+      auto it = BitIteratorLE<BigInt<1>>::begin(&test.value);
       auto end =
-          BitIteratorLE<uint64_t[1]>::end(&test.value, skip_trailing_zeros);
+          BitIteratorLE<BigInt<1>>::end(&test.value, skip_trailing_zeros);
       while (it != end) {
         bits.push_back(*it);
         ++it;
@@ -49,13 +49,13 @@ TEST(GmpUtilTest, BitIteratorLE) {
 
 TEST(GmpUtilTest, BitIteratorBE) {
   struct {
-    uint64_t value[1];
+    BigInt<1> value;
     std::vector<bool> answers;
   } tests[] = {
-      {{0}, std::vector<bool>{}},
-      {{2}, std::vector<bool>{1, 0}},
-      {{4}, std::vector<bool>{1, 0, 0}},
-      {{5}, std::vector<bool>{1, 0, 1}},
+      {BigInt<1>(0), std::vector<bool>{}},
+      {BigInt<1>(2), std::vector<bool>{1, 0}},
+      {BigInt<1>(4), std::vector<bool>{1, 0, 0}},
+      {BigInt<1>(5), std::vector<bool>{1, 0, 1}},
   };
 
   for (int i = 0; i < 2; ++i) {
@@ -65,8 +65,8 @@ TEST(GmpUtilTest, BitIteratorBE) {
     for (const auto& test : tests) {
       std::vector<bool> bits;
       auto it =
-          BitIteratorBE<uint64_t[1]>::begin(&test.value, skip_leading_zeros);
-      auto end = BitIteratorBE<uint64_t[1]>::end(&test.value);
+          BitIteratorBE<BigInt<1>>::begin(&test.value, skip_leading_zeros);
+      auto end = BitIteratorBE<BigInt<1>>::end(&test.value);
       while (it != end) {
         bits.push_back(*it);
         ++it;

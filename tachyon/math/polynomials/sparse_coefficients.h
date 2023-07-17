@@ -141,7 +141,7 @@ class SparseCoefficients {
     Field sum = Field::Zero();
     for (const Element& element : elements_) {
       sum += Field::PowWithTable(absl::MakeConstSpan(powers_of_2),
-                                 mpz_class(element.degree)) *
+                                 Field(element.degree).ToBigInt()) *
              element.coefficient;
     }
     return sum;

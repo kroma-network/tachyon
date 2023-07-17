@@ -28,7 +28,7 @@ class VariableBaseMSMTest : public ::testing::Test {
 
     answer_ = std::make_unique<JacobianPoint<Config>>();
     for (size_t i = 0; i < bases_.size(); ++i) {
-      *answer_ += bases_[i].ScalarMul(scalars_[i].ToMpzClass());
+      *answer_ += bases_[i].ScalarMul(scalars_[i].ToBigInt());
     }
   }
   VariableBaseMSMTest(const VariableBaseMSMTest&) = delete;

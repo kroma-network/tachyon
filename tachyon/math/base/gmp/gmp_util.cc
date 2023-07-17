@@ -87,6 +87,20 @@ uint64_t GetLimb(const mpz_class& value, size_t idx) {
   return value.__get_mp()->_mp_d[idx];
 }
 
+void CopyLimbs(const mpz_class& value, uint64_t* limbs) {
+  for (size_t i = 0; i < GetLimbSize(value); ++i) {
+    limbs[i] = GetLimb(value, i);
+  }
+}
+
+void WriteLimbs(const uint64_t* limbs_src, size_t limb_size, mpz_class* out) {
+  mp_ptr limbs_dst = mpz_limbs_write(out->get_mpz_t(), limb_size);
+  for (size_t i = 0; i < limb_size; ++i) {
+    limbs_dst[i] = limbs_src[i];
+  }
+  mpz_limbs_finish(out->get_mpz_t(), limb_size);
+}
+
 mpz_class DivBy2Exp(const mpz_class& value, uint64_t exp) {
   mpz_class ret;
   mpz_fdiv_q_2exp(ret.get_mpz_t(), value.get_mpz_t(), exp);
