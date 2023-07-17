@@ -16,6 +16,8 @@ class BitTraits;
 template <size_t LimbNums>
 class BitTraits<BigInt<LimbNums>> {
  public:
+  static constexpr bool kIsDynamic = false;
+
   static constexpr size_t GetNumBits(const BigInt<LimbNums>& _) {
     return LimbNums * 64;
   }
@@ -50,8 +52,10 @@ class BitIteratorBE {
     BitIteratorBE ret(value, 0);
 #else  // ARCH_CPU_LITTLE_ENDIAN
     size_t bits = BitTraits<T>::GetNumBits(*value);
-    if (bits == 0) {
-      return end(value);
+    if constexpr (BitTraits<T>::kIsDynamic) {
+      if (bits == 0) {
+        return end(value);
+      }
     }
     BitIteratorBE ret(value, bits - 1);
 #endif
@@ -135,8 +139,10 @@ class BitIteratorLE {
     return BitIteratorLE(value, 0);
 #else  // ARCH_CPU_BIG_ENDIAN
     size_t bits = BitTraits<T>::GetNumBits(*value);
-    if (bits == 0) {
-      return end(value);
+    if constexpr (BitTraits<T>::kIsDynamic) {
+      if (bits == 0) {
+        return end(value);
+      }
     }
     return BitIteratorLE(value, bits - 1);
 #endif
