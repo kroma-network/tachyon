@@ -59,7 +59,7 @@ class BitIteratorBE {
         ++ret;
 #if ARCH_CPU_BIG_ENDIAN
         if (ret.index_ == bits) return ret;
-#else
+#else  // ARCH_CPU_LITTLE_ENDIAN
         if (ret.index_ == std::numeric_limits<size_t>::max()) return ret;
 #endif
       }
@@ -89,7 +89,7 @@ class BitIteratorBE {
   constexpr BitIteratorBE& operator++() {
 #if ARCH_CPU_BIG_ENDIAN
     ++index_;
-#else
+#else  // ARCH_CPU_LITTLE_ENDIAN
     --index_;
 #endif
     return *this;
@@ -157,7 +157,7 @@ class BitIteratorLE {
       --ret;
 #if ARCH_CPU_LITTLE_ENDIAN
       if (ret.index_ == 0) return ret;
-#else
+#else  // ARCH_CPU_BIG_ENDIAN
       if (ret.index_ == bits - 1) return ret;
 #endif
     }
@@ -174,7 +174,7 @@ class BitIteratorLE {
   constexpr BitIteratorLE& operator++() {
 #if ARCH_CPU_LITTLE_ENDIAN
     ++index_;
-#else
+#else  // ARCH_CPU_BIG_ENDIAN
     --index_;
 #endif
     return *this;
@@ -198,7 +198,7 @@ class BitIteratorLE {
   constexpr BitIteratorLE& operator--() {
 #if ARCH_CPU_LITTLE_ENDIAN
     --index_;
-#else
+#else  // ARCH_CPU_BIG_ENDIAN
     ++index_;
 #endif
     return *this;
