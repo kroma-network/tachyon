@@ -6,8 +6,6 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/base/logging.h"
-
 namespace tachyon {
 namespace math {
 
