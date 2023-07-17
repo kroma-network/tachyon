@@ -19,6 +19,9 @@ class TACHYON_EXPORT GF7Config {
   constexpr static size_t kModulusBits = 3;
   constexpr static uint64_t kModulus[1] = {7};
 
+  constexpr static bool kCanUseNoCarryMulOptimization = true;
+  constexpr static bool kModulusHasSparseBit = true;
+
   constexpr static uint64_t ExtensionDegree() { return 1; }
 
   static void Init();

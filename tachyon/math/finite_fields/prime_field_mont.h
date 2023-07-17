@@ -12,6 +12,8 @@
 #include "tachyon/base/random.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/identities.h"
+#include "tachyon/math/finite_fields/arithmetics.h"
+#include "tachyon/math/finite_fields/modulus.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon {
@@ -56,8 +58,12 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
 
   static PrimeFieldMont Random() {
-    NOTIMPLEMENTED();
-    return PrimeFieldMont();
+    PrimeFieldMont ret;
+    for (size_t i = 0; i < kLimbNums; ++i) {
+      ret.value_[i] = base::Uniform<uint64_t, uint64_t>(
+          0, std::numeric_limits<uint64_t>::max());
+    }
+    return ret.Clamp(0);
   }
 
   constexpr static PrimeFieldMont FromDecString(std::string_view str) {
@@ -75,6 +81,15 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     for (size_t i = 0; i < kLimbNums; ++i) {
       kModulus[i] = Config::kModulus[i];
     }
+
+    // NOTE(chokobole): |Config::kModulusHasSparseBit| and
+    // |Config::kCanUseNoCarryMulOptimization| are flags to be used at compile
+    // time. Since accessing static storage is not possible at compile time,
+    // the validity is checked at runtime, as shown below.
+    CHECK_EQ(Config::kModulusHasSparseBit,
+             Modulus<kLimbNums>::HasSparseBit(kModulus));
+    CHECK_EQ(Config::kCanUseNoCarryMulOptimization,
+             Modulus<kLimbNums>::CanUseNoCarryMulOptimization(kModulus));
   }
 
   const value_type& value() const { return value_; }
@@ -127,23 +142,28 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
 
   // AdditiveMonoid methods
   PrimeFieldMont& AddInPlace(const PrimeFieldMont& other) {
-    NOTIMPLEMENTED();
-    return *this;
+    return Clamp(AddWithCarry<kLimbNums>(value_.limbs, other.value_.limbs));
   }
 
   PrimeFieldMont& DoubleInPlace() {
-    NOTIMPLEMENTED();
-    return *this;
+    return Clamp(Mul2<kLimbNums>(value_.limbs));
   }
 
   // AdditiveGroup methods
   PrimeFieldMont& SubInPlace(const PrimeFieldMont& other) {
-    NOTIMPLEMENTED();
+    if (other > *this) {
+      AddWithCarry<kLimbNums>(value_.limbs, kModulus.limbs);
+    }
+    SubWithBorrow<kLimbNums>(value_.limbs, other.value_.limbs);
     return *this;
   }
 
   PrimeFieldMont& NegInPlace() {
-    NOTIMPLEMENTED();
+    if (!IsZero()) {
+      BigInt<kLimbNums> tmp(kModulus);
+      SubWithBorrow<kLimbNums>(tmp.limbs, value_.limbs);
+      value_ = tmp;
+    }
     return *this;
   }
 
@@ -162,6 +182,19 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
 
  private:
+  PrimeFieldMont& Clamp(uint8_t carry) {
+    bool needs_to_clamp = false;
+    if constexpr (Config::kModulusHasSparseBit) {
+      needs_to_clamp = value_ >= kModulus;
+    } else {
+      needs_to_clamp = carry || value_ >= kModulus;
+    }
+    if (needs_to_clamp) {
+      SubWithBorrow<kLimbNums>(value_.limbs, kModulus.limbs);
+    }
+    return *this;
+  }
+
   BigInt<kLimbNums> value_;
 };
 
