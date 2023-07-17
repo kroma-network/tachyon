@@ -3,11 +3,11 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "bit_iterator",
-    hdrs = ["bit_iterator.h"],
+    name = "bit_traits",
+    hdrs = ["bit_traits.h"],
     deps = [
         ":gmp_util",
-        "//tachyon/math/base:bit_iterator",
+        "//tachyon/math/base:bit_traits",
     ],
 )
 

@@ -1,7 +1,7 @@
 #ifndef TACHYON_MATH_BASE_GMP_BIT_TRAITS_H_
 #define TACHYON_MATH_BASE_GMP_BIT_TRAITS_H_
 
-#include "tachyon/math/base/bit_iterator.h"
+#include "tachyon/math/base/bit_traits.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 
 namespace tachyon {

@@ -14,7 +14,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "modulus",
     hdrs = ["modulus.h"],
-    deps = ["//tachyon/math/base:big_int"],
+    deps = ["//tachyon/math/base:bit_traits"],
 )
 
 tachyon_cc_library(

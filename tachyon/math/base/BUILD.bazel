@@ -17,6 +17,12 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bit_iterator",
     hdrs = ["bit_iterator.h"],
+    deps = [":bit_traits"],
+)
+
+tachyon_cc_library(
+    name = "bit_traits",
+    hdrs = ["bit_traits.h"],
     deps = [":big_int"],
 )
 

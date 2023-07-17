@@ -1,7 +1,8 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 
-#include "tachyon/math/base/gmp/bit_iterator.h"
+#include "tachyon/math/base/bit_iterator.h"
+#include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/base/gmp/gmp_identities.h"
 #include "tachyon/math/base/gmp/signed_value.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
