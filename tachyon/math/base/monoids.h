@@ -75,10 +75,10 @@ class MultiplicativeMonoid {
     }
   }
 
-  template <size_t LimbNums>
-  [[nodiscard]] G Pow(const BigInt<LimbNums>& exponent) const {
-    auto it = BitIteratorBE<BigInt<LimbNums>>::begin(&exponent, true);
-    auto end = BitIteratorBE<BigInt<LimbNums>>::end(&exponent);
+  template <size_t N>
+  [[nodiscard]] G Pow(const BigInt<N>& exponent) const {
+    auto it = BitIteratorBE<BigInt<N>>::begin(&exponent, true);
+    auto end = BitIteratorBE<BigInt<N>>::end(&exponent);
     const G& self = *static_cast<const G*>(this);
     G g = G::One();
     while (it != end) {
@@ -96,11 +96,11 @@ class MultiplicativeMonoid {
     return g;
   }
 
-  template <size_t LimbNums>
+  template <size_t N>
   static G PowWithTable(absl::Span<const G> powers_of_2,
-                        const BigInt<LimbNums>& exponent) {
-    auto it = BitIteratorLE<BigInt<LimbNums>>::begin(&exponent);
-    auto end = BitIteratorLE<BigInt<LimbNums>>::end(&exponent, true);
+                        const BigInt<N>& exponent) {
+    auto it = BitIteratorLE<BigInt<N>>::begin(&exponent);
+    auto end = BitIteratorLE<BigInt<N>>::end(&exponent, true);
     G g = G::One();
     size_t i = 0;
     while (it != end) {
@@ -148,13 +148,13 @@ class AdditiveMonoid {
   // FIXME(chokobole): In g++ (Ubuntu 11.3.0-1ubuntu1~22.04.1) 11.3.0, if I use
   // the function below, then it gives me an error "error: request for member
   // 'operator*' is ambiguous".
-  // constexpr auto operator*(const BigInt<LimbNums>& scalar) const {
-  template <size_t LimbNums>
-  constexpr auto ScalarMul(const BigInt<LimbNums>& scalar) const {
+  // constexpr auto operator*(const BigInt<N>& scalar) const {
+  template <size_t N>
+  constexpr auto ScalarMul(const BigInt<N>& scalar) const {
     const G* g = static_cast<const G*>(this);
     G ret = G::Zero();
-    auto it = BitIteratorBE<BigInt<LimbNums>>::begin(&scalar, true);
-    auto end = BitIteratorBE<BigInt<LimbNums>>::end(&scalar);
+    auto it = BitIteratorBE<BigInt<N>>::begin(&scalar, true);
+    auto end = BitIteratorBE<BigInt<N>>::end(&scalar);
     while (it != end) {
       if constexpr (internal::SupportsDoubleInPlace<G>::value) {
         ret.DoubleInPlace();

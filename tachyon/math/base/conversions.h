@@ -27,24 +27,24 @@ R FromInt(T v) {
   return IntConversion<R>::FromInt(v);
 }
 
-template <size_t LimbNumbs>
-class StringNumberConversion<BigInt<LimbNumbs>> {
+template <size_t N>
+class StringNumberConversion<BigInt<N>> {
  public:
-  static BigInt<LimbNumbs> FromDecString(std::string_view str) {
-    return BigInt<LimbNumbs>::FromDecString(str);
+  static BigInt<N> FromDecString(std::string_view str) {
+    return BigInt<N>::FromDecString(str);
   }
 
-  static BigInt<LimbNumbs> FromHexString(std::string_view str) {
-    return BigInt<LimbNumbs>::FromHexString(str);
+  static BigInt<N> FromHexString(std::string_view str) {
+    return BigInt<N>::FromHexString(str);
   }
 };
 
-template <size_t LimbNumbs>
-class IntConversion<BigInt<LimbNumbs>> {
+template <size_t N>
+class IntConversion<BigInt<N>> {
  public:
   template <typename T>
-  static BigInt<LimbNumbs> FromInt(T v) {
-    return BigInt<LimbNumbs>(v);
+  static BigInt<N> FromInt(T v) {
+    return BigInt<N>(v);
   }
 };
 

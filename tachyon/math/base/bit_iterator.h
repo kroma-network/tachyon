@@ -13,18 +13,16 @@ namespace math {
 template <typename T, typename SFINAE = void>
 class BitTraits;
 
-template <size_t LimbNums>
-class BitTraits<BigInt<LimbNums>> {
+template <size_t N>
+class BitTraits<BigInt<N>> {
  public:
   static constexpr bool kIsDynamic = false;
 
-  static constexpr size_t GetNumBits(const BigInt<LimbNums>& _) {
-    return LimbNums * 64;
-  }
+  static constexpr size_t GetNumBits(const BigInt<N>& _) { return N * 64; }
 
-  static constexpr bool TestBit(const BigInt<LimbNums>& bigint, size_t index) {
+  static constexpr bool TestBit(const BigInt<N>& bigint, size_t index) {
     size_t limb_index = index >> 6;
-    if (limb_index >= LimbNums) return false;
+    if (limb_index >= N) return false;
     size_t bit_index = index & 63;
     uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
     return (bigint[limb_index] & bit_index_value) == bit_index_value;
