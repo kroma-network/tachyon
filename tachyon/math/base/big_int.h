@@ -26,6 +26,13 @@ TACHYON_EXPORT std::string LimbsToHexString(const uint64_t* limbs,
 
 }  // namespace internal
 
+#if ARCH_CPU_BIG_ENDIAN
+#define FOR_FROM_BIGGEST(start, end) for (size_t i = start; i < end; ++i)
+#else  // ARCH_CPU_LITTLE_ENDIAN
+#define FOR_FROM_BIGGEST(start, end) \
+  for (size_t i = end - 1; i != static_cast<size_t>(start - 1); --i)
+#endif
+
 template <size_t N>
 struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
   uint64_t limbs[N] = {
@@ -86,13 +93,11 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
   constexpr bool IsOne() const {
 #if ARCH_CPU_BIG_ENDIAN
     for (size_t i = 0; i < N - 1; ++i) {
-      if (limbs[i] != 0) return false;
-    }
 #else  // ARCH_CPU_LITTLE_ENDIAN
     for (size_t i = 1; i < N; ++i) {
+#endif
       if (limbs[i] != 0) return false;
     }
-#endif
     return limbs[kSmallestLimbIdx] == 1;
   }
 
@@ -120,53 +125,33 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
   }
 
   constexpr bool operator<(const BigInt& other) const {
-    for (size_t i = 0; i < N; ++i) {
-#if ARCH_CPU_BIG_ENDIAN
-      size_t idx = i;
-#else  // ARCH_CPU_LITTLE_ENDIAN
-      size_t idx = N - i - 1;
-#endif
-      if (limbs[idx] == other.limbs[idx]) continue;
-      return limbs[idx] < other.limbs[idx];
+    FOR_FROM_BIGGEST(0, N) {
+      if (limbs[i] == other.limbs[i]) continue;
+      return limbs[i] < other.limbs[i];
     }
     return false;
   }
 
   constexpr bool operator>(const BigInt& other) const {
-    for (size_t i = 0; i < N; ++i) {
-#if ARCH_CPU_BIG_ENDIAN
-      size_t idx = i;
-#else  // ARCH_CPU_LITTLE_ENDIAN
-      size_t idx = N - i - 1;
-#endif
-      if (limbs[idx] == other.limbs[idx]) continue;
-      return limbs[idx] > other.limbs[idx];
+    FOR_FROM_BIGGEST(0, N) {
+      if (limbs[i] == other.limbs[i]) continue;
+      return limbs[i] > other.limbs[i];
     }
     return false;
   }
 
   constexpr bool operator<=(const BigInt& other) const {
-    for (size_t i = 0; i < N; ++i) {
-#if ARCH_CPU_BIG_ENDIAN
-      size_t idx = i;
-#else  // ARCH_CPU_LITTLE_ENDIAN
-      size_t idx = N - i - 1;
-#endif
-      if (limbs[idx] == other.limbs[idx]) continue;
-      return limbs[idx] < other.limbs[idx];
+    FOR_FROM_BIGGEST(0, N) {
+      if (limbs[i] == other.limbs[i]) continue;
+      return limbs[i] < other.limbs[i];
     }
     return true;
   }
 
   constexpr bool operator>=(const BigInt& other) const {
-    for (size_t i = 0; i < N; ++i) {
-#if ARCH_CPU_BIG_ENDIAN
-      size_t idx = i;
-#else  // ARCH_CPU_LITTLE_ENDIAN
-      size_t idx = N - i - 1;
-#endif
-      if (limbs[idx] == other.limbs[idx]) continue;
-      return limbs[idx] > other.limbs[idx];
+    FOR_FROM_BIGGEST(0, N) {
+      if (limbs[i] == other.limbs[i]) continue;
+      return limbs[i] > other.limbs[i];
     }
     return true;
   }
@@ -176,6 +161,8 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
     return internal::LimbsToHexString(limbs, N);
   }
 };
+
+#undef FOR_FROM_BIGGEST
 
 template <size_t N>
 std::ostream& operator<<(std::ostream& os, const BigInt<N>& bigint) {
