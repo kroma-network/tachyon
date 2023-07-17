@@ -68,22 +68,6 @@ class PrimeFieldFallback : public PrimeFieldBase<PrimeFieldFallback<_Config>> {
     return {};
   }
 
-  constexpr bool ToInt64(int64_t* out) const {
-    for (size_t i = 1; i < kLimbNums; ++i) {
-      if (limbs_[i] != 0) return false;
-    }
-    *out = static_cast<int64_t>(limbs_[0]);
-    return true;
-  }
-
-  constexpr bool ToUint64(uint64_t* out) const {
-    for (size_t i = 1; i < kLimbNums; ++i) {
-      if (limbs_[i] != 0) return false;
-    }
-    *out = static_cast<uint64_t>(limbs_[0]);
-    return true;
-  }
-
   constexpr bool operator==(const PrimeFieldFallback& other) const {
     NOTIMPLEMENTED();
     return false;

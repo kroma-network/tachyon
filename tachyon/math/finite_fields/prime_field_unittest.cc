@@ -39,19 +39,6 @@ TEST_F(PrimeFieldTest, One) {
   EXPECT_FALSE(GF7::Zero().IsOne());
 }
 
-TEST_F(PrimeFieldTest, ToIntegers) {
-  {
-    uint64_t out;
-    EXPECT_TRUE(GF7(1).ToUint64(&out));
-    EXPECT_EQ(out, 1);
-  }
-  {
-    int64_t out;
-    EXPECT_TRUE(GF7(1).ToInt64(&out));
-    EXPECT_EQ(out, 1);
-  }
-}
-
 TEST_F(PrimeFieldTest, EqualityOperators) {
   GF7 f(3);
   GF7 f2(4);

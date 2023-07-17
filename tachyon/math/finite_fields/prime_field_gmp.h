@@ -84,22 +84,6 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   // TODO(chokobole): Can we avoid copying?
   mpz_class ToMpzClass() const { return value_; }
 
-  [[nodiscard]] constexpr bool ToInt64(int64_t* out) const {
-    if (value_.fits_slong_p()) {
-      *out = value_.get_si();
-      return true;
-    }
-    return false;
-  }
-
-  [[nodiscard]] constexpr bool ToUint64(uint64_t* out) const {
-    if (value_.fits_ulong_p()) {
-      *out = value_.get_ui();
-      return true;
-    }
-    return false;
-  }
-
   bool operator==(const PrimeFieldGmp& other) const {
     return value_ == other.value_;
   }
