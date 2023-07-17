@@ -5,6 +5,22 @@
 namespace tachyon {
 namespace math {
 
+TEST(BigIntTest, Zero) {
+  BigInt<2> big_int = BigInt<2>::Zero();
+  EXPECT_TRUE(big_int.IsZero());
+  EXPECT_FALSE(big_int.IsOne());
+  EXPECT_TRUE(big_int.IsEven());
+  EXPECT_FALSE(big_int.IsOdd());
+}
+
+TEST(BigIntTest, One) {
+  BigInt<2> big_int = BigInt<2>::One();
+  EXPECT_FALSE(big_int.IsZero());
+  EXPECT_TRUE(big_int.IsOne());
+  EXPECT_FALSE(big_int.IsEven());
+  EXPECT_TRUE(big_int.IsOdd());
+}
+
 TEST(BigIntTest, DecString) {
   // 1 << 65
   BigInt<2> big_int = BigInt<2>::FromDecString("36893488147419103232");

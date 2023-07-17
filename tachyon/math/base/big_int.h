@@ -31,19 +31,17 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
   uint64_t limbs[N] = {
       0,
   };
+#if ARCH_CPU_BIG_ENDIAN
+  constexpr static size_t kSmallestLimbIdx = N - 1;
+#else  // ARCH_CPU_LITTLE_ENDIAN
+  constexpr static size_t kSmallestLimbIdx = 0;
+#endif
 
   constexpr BigInt() = default;
   constexpr explicit BigInt(int value) : BigInt(static_cast<uint64_t>(value)) {
     DCHECK_GE(value, 0);
   }
-  constexpr explicit BigInt(uint64_t value) {
-#if ARCH_CPU_BIG_ENDIAN
-    size_t idx = N - 1;
-#else  // ARCH_CPU_LITTLE_ENDIAN
-    size_t idx = 0;
-#endif
-    limbs[idx] = value;
-  }
+  constexpr explicit BigInt(uint64_t value) { limbs[kSmallestLimbIdx] = value; }
   constexpr explicit BigInt(std::initializer_list<int> values) {
     DCHECK_EQ(values.size(), N);
     auto it = values.begin();
@@ -90,14 +88,16 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
     for (size_t i = 0; i < N - 1; ++i) {
       if (limbs[i] != 0) return false;
     }
-    return limbs[N - 1] == 1;
 #else  // ARCH_CPU_LITTLE_ENDIAN
     for (size_t i = 1; i < N; ++i) {
       if (limbs[i] != 0) return false;
     }
-    return limbs[0] == 1;
 #endif
+    return limbs[kSmallestLimbIdx] == 1;
   }
+
+  constexpr bool IsEven() const { return limbs[kSmallestLimbIdx] % 2 == 0; }
+  constexpr bool IsOdd() const { return limbs[kSmallestLimbIdx] % 2 == 1; }
 
   constexpr uint64_t& operator[](size_t i) {
     DCHECK_LT(i, N);
