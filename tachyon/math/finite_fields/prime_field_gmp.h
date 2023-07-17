@@ -55,10 +55,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   static PrimeFieldGmp One() { return PrimeFieldGmp(1); }
 
   static PrimeFieldGmp Random() {
-    mpz_class value;
-    mpz_urandomm(value.get_mpz_t(), gmp::GetRandomState(),
-                 Config::Modulus().value_.get_mpz_t());
-    return PrimeFieldGmp(value);
+    return PrimeFieldGmp(gmp::Random(Config::Modulus().value_));
   }
 
   static PrimeFieldGmp FromMpzClass(const mpz_class& value) {
@@ -104,35 +101,33 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   }
 
   bool operator==(const PrimeFieldGmp& other) const {
-    return mpz_cmp(value_.get_mpz_t(), other.value_.get_mpz_t()) == 0;
+    return value_ == other.value_;
   }
 
   bool operator!=(const PrimeFieldGmp& other) const {
-    return !operator==(other);
+    return value_ != other.value_;
   }
 
   bool operator<(const PrimeFieldGmp& other) const {
-    return mpz_cmp(value_.get_mpz_t(), other.value_.get_mpz_t()) < 0;
+    return value_ < other.value_;
   }
 
   bool operator>(const PrimeFieldGmp& other) const {
-    return mpz_cmp(value_.get_mpz_t(), other.value_.get_mpz_t()) > 0;
+    return value_ > other.value_;
   }
 
   bool operator<=(const PrimeFieldGmp& other) const {
-    return mpz_cmp(value_.get_mpz_t(), other.value_.get_mpz_t()) <= 0;
+    return value_ <= other.value_;
   }
 
   bool operator>=(const PrimeFieldGmp& other) const {
-    return mpz_cmp(value_.get_mpz_t(), other.value_.get_mpz_t()) >= 0;
+    return value_ >= other.value_;
   }
 
   // This is needed by MSM.
   // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
   mpz_class DivBy2Exp(uint64_t exp) const {
-    mpz_class ret;
-    mpz_fdiv_q_2exp(ret.get_mpz_t(), value_.get_mpz_t(), exp);
-    return ret;
+    return gmp::DivBy2Exp(value_, exp);
   }
 
   // AdditiveMonoid methods

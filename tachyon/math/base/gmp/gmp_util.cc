@@ -9,6 +9,8 @@ namespace tachyon {
 namespace math {
 namespace gmp {
 
+namespace {
+
 gmp_randstate_t& GetRandomState() {
   static gmp_randstate_t random_state;
   static absl::once_flag once;
@@ -17,6 +19,14 @@ gmp_randstate_t& GetRandomState() {
     gmp_randseed_ui(random_state, time(NULL));
   });
   return random_state;
+}
+
+}  // namespace
+
+mpz_class Random(mpz_class n) {
+  mpz_class value;
+  mpz_urandomm(value.get_mpz_t(), GetRandomState(), n.get_mpz_t());
+  return value;
 }
 
 bool ParseIntoMpz(std::string_view str, int base, mpz_class* out) {
@@ -75,6 +85,12 @@ size_t GetLimbSize(const mpz_class& value) {
 
 uint64_t GetLimb(const mpz_class& value, size_t idx) {
   return value.__get_mp()->_mp_d[idx];
+}
+
+mpz_class DivBy2Exp(const mpz_class& value, uint64_t exp) {
+  mpz_class ret;
+  mpz_fdiv_q_2exp(ret.get_mpz_t(), value.get_mpz_t(), exp);
+  return ret;
 }
 
 }  // namespace gmp

@@ -14,7 +14,8 @@ namespace tachyon {
 namespace math {
 namespace gmp {
 
-TACHYON_EXPORT gmp_randstate_t& GetRandomState();
+// Generate a uniform integer in the range 0 to n-1, inclusive.
+TACHYON_EXPORT mpz_class Random(mpz_class n);
 
 TACHYON_EXPORT bool ParseIntoMpz(std::string_view str, int base,
                                  mpz_class* out);
@@ -51,6 +52,8 @@ TACHYON_EXPORT bool TestBit(const mpz_class& value, size_t index);
 
 TACHYON_EXPORT size_t GetLimbSize(const mpz_class& value);
 TACHYON_EXPORT uint64_t GetLimb(const mpz_class& value, size_t idx);
+
+TACHYON_EXPORT mpz_class DivBy2Exp(const mpz_class& value, uint64_t exp);
 
 }  // namespace gmp
 }  // namespace math
