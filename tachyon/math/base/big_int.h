@@ -62,7 +62,10 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
   constexpr explicit BigInt(int value) : BigInt(static_cast<uint64_t>(value)) {
     DCHECK_GE(value, 0);
   }
-  constexpr explicit BigInt(uint64_t value) { limbs[kSmallestLimbIdx] = value; }
+  template <typename T, std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>
+  constexpr explicit BigInt(T value) {
+    limbs[kSmallestLimbIdx] = value;
+  }
   constexpr explicit BigInt(std::initializer_list<int> values) {
     DCHECK_EQ(values.size(), N);
     auto it = values.begin();
@@ -71,14 +74,17 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
       limbs[i] = *it;
     }
   }
-  constexpr explicit BigInt(std::initializer_list<uint64_t> values) {
+  template <typename T, std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>
+  constexpr explicit BigInt(std::initializer_list<T> values) {
     DCHECK_EQ(values.size(), N);
     auto it = values.begin();
     for (size_t i = 0; i < N; ++i, ++it) {
       limbs[i] = *it;
     }
   }
-  constexpr explicit BigInt(uint64_t limbs[N]) : limbs(limbs) {}
+  constexpr explicit BigInt(uint64_t limbs[N]) {
+    memcpy(this->limbs, limbs, sizeof(uint64_t) * N);
+  }
 
   BigInt(const BigInt& other) {
     memcpy(limbs, other.limbs, sizeof(uint64_t) * N);
