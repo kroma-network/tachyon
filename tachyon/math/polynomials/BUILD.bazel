@@ -17,7 +17,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/ranges:algorithm",
         "//tachyon/base/strings:string_util",
-        "//tachyon/math/base:division_result",
+        "//tachyon/math/base:arithmetics_results",
         "//tachyon/math/base:identities",
         "@com_google_absl//absl/numeric:bits",
         "@com_google_absl//absl/types:span",

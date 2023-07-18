@@ -28,7 +28,8 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   static_assert(GMP_LIMB_BITS == 64, "This code assumes limb bits is 64 bit");
   static constexpr size_t kModulusBits = _Config::kModulusBits;
   static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
-  static constexpr const uint64_t* kModulus = _Config::kModulus;
+  static constexpr size_t N = kLimbNums;
+  static constexpr const uint64_t* kModulus = _Config::kModulus.limbs;
   static constexpr bool kIsTriviallyDestructible = false;
 
   using Config = _Config;
@@ -74,15 +75,15 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     static absl::once_flag once;
     absl::call_once(once, []() {
 #if ARCH_CPU_BIG_ENDIAN
-      uint64_t modulus[kLimbNums];
-      for (size_t i = 0; i < kLimbNums; ++i) {
-        uint64_t value = absl::little_endian::Load64(modulus[i]);
-        memcpy(&modulus[kLimbNums - i - 1], &value, sizeof(uint64_t));
+      uint64_t modulus[N];
+      for (size_t i = 0; i < N; ++i) {
+        uint64_t value = absl::little_endian::Load64(kModulus[i]);
+        memcpy(&modulus[N - i - 1], &value, sizeof(uint64_t));
       }
 #else
       const uint64_t* modulus = kModulus;
 #endif
-      gmp::WriteLimbs(modulus, kLimbNums, &Modulus());
+      gmp::WriteLimbs(modulus, N, &Modulus());
     });
   }
 
@@ -104,8 +105,8 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 
   const mpz_class& ToMpzClass() const { return value_; }
 
-  BigInt<kLimbNums> ToBigInt() const {
-    BigInt<kLimbNums> result;
+  BigInt<N> ToBigInt() const {
+    BigInt<N> result;
     gmp::CopyLimbs(value_, result.limbs);
     return result;
   }

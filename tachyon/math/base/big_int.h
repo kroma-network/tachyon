@@ -71,12 +71,19 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
       limbs[i] = *it;
     }
   }
+  constexpr explicit BigInt(std::initializer_list<uint64_t> values) {
+    DCHECK_EQ(values.size(), N);
+    auto it = values.begin();
+    for (size_t i = 0; i < N; ++i, ++it) {
+      limbs[i] = *it;
+    }
+  }
   constexpr explicit BigInt(uint64_t limbs[N]) : limbs(limbs) {}
 
-  constexpr BigInt(const BigInt& other) {
+  BigInt(const BigInt& other) {
     memcpy(limbs, other.limbs, sizeof(uint64_t) * N);
   }
-  constexpr BigInt& operator=(const BigInt& other) {
+  BigInt& operator=(const BigInt& other) {
     memcpy(limbs, other.limbs, sizeof(uint64_t) * N);
     return *this;
   }
@@ -170,12 +177,22 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
     return true;
   }
 
-  constexpr BigInt& AddInPlace(const BigInt& other, uint8_t& carry) {
-    carry = 0;
+  constexpr BigInt& AddInPlace(const BigInt& other) {
+    uint64_t unused = 0;
+    return AddInPlace(other, unused);
+  }
 
-#define ADD_WITH_CARRY_INLINE(num) \
-  if constexpr (N >= (num + 1))    \
-  carry = internal::AddWithCarryInPlace(limbs[num], other.limbs[num], carry)
+  constexpr BigInt& AddInPlace(const BigInt& other, uint64_t& carry) {
+    AddResult<uint64_t> result;
+
+#define ADD_WITH_CARRY_INLINE(num)                                            \
+  do {                                                                        \
+    if constexpr (N >= (num + 1)) {                                           \
+      result =                                                                \
+          internal::AddWithCarry(limbs[num], other.limbs[num], result.carry); \
+      limbs[num] = result.result;                                             \
+    }                                                                         \
+  } while (false)
 
 #if ARCH_CPU_BIG_ENDIAN
     ADD_WITH_CARRY_INLINE(N - 1);
@@ -196,17 +213,29 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
 #undef ADD_WITH_CARRY_INLINE
 
     FOR_FROM_SMALLEST(6, N) {
-      carry = internal::AddWithCarryInPlace(limbs[i], other.limbs[i], carry);
+      result = internal::AddWithCarry(limbs[i], other.limbs[i], result.carry);
+      limbs[i] = result.result;
     }
+    carry = result.carry;
     return *this;
   }
 
-  constexpr BigInt& SubInPlace(const BigInt& other, uint8_t& borrow) {
-    borrow = 0;
+  constexpr BigInt& SubInPlace(const BigInt& other) {
+    uint64_t unused = 0;
+    return SubInPlace(other, unused);
+  }
 
-#define SUB_WITH_BORROW_INLINE(num) \
-  if constexpr (N >= (num + 1))     \
-  borrow = internal::SubWithBorrowInPlace(limbs[num], other.limbs[num], borrow)
+  constexpr BigInt& SubInPlace(const BigInt& other, uint64_t& borrow) {
+    SubResult<uint64_t> result;
+
+#define SUB_WITH_BORROW_INLINE(num)                                  \
+  do {                                                               \
+    if constexpr (N >= (num + 1)) {                                  \
+      result = internal::SubWithBorrow(limbs[num], other.limbs[num], \
+                                       result.borrow);               \
+      limbs[num] = result.result;                                    \
+    }                                                                \
+  } while (false)
 
 #if ARCH_CPU_BIG_ENDIAN
     SUB_WITH_CARRY_INLINE(N - 1);
@@ -227,12 +256,19 @@ struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
 #undef SUB_WITH_BORROW_INLINE
 
     FOR_FROM_SMALLEST(6, N) {
-      borrow = internal::SubWithBorrowInPlace(limbs[i], other.limbs[i], borrow);
+      result = internal::SubWithBorrow(limbs[i], other.limbs[i], result.borrow);
+      limbs[i] = result.result;
     }
+    borrow = result.borrow;
     return *this;
   }
 
-  constexpr BigInt& MulBy2InPlace(uint8_t& carry) {
+  constexpr BigInt& MulBy2InPlace() {
+    uint64_t unused = 0;
+    return MulBy2InPlace(unused);
+  }
+
+  constexpr BigInt& MulBy2InPlace(uint64_t& carry) {
     carry = 0;
     FOR_FROM_SMALLEST(0, N) {
       uint64_t temp = limbs[i] >> 63;

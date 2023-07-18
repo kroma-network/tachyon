@@ -42,21 +42,17 @@ TEST_F(AffinePointTest, Random) {
 }
 
 TEST_F(AffinePointTest, EqualityOperator) {
-  AffinePoint<Config> p(GF7Gmp(1), GF7Gmp(2));
-  AffinePoint<Config> p2(GF7Gmp(3), GF7Gmp(4));
+  AffinePoint<Config> p(GF7(1), GF7(2));
+  AffinePoint<Config> p2(GF7(3), GF7(4));
   EXPECT_TRUE(p == p);
   EXPECT_TRUE(p != p2);
 }
 
 TEST_F(AffinePointTest, AdditiveGroupOperators) {
-  AffinePoint<Config> ap =
-      AffinePoint<Config>::CreateChecked(GF7Gmp(5), GF7Gmp(5));
-  AffinePoint<Config> ap2 =
-      AffinePoint<Config>::CreateChecked(GF7Gmp(3), GF7Gmp(2));
-  AffinePoint<Config> ap3 =
-      AffinePoint<Config>::CreateChecked(GF7Gmp(3), GF7Gmp(5));
-  AffinePoint<Config> ap4 =
-      AffinePoint<Config>::CreateChecked(GF7Gmp(6), GF7Gmp(5));
+  AffinePoint<Config> ap = AffinePoint<Config>::CreateChecked(GF7(5), GF7(5));
+  AffinePoint<Config> ap2 = AffinePoint<Config>::CreateChecked(GF7(3), GF7(2));
+  AffinePoint<Config> ap3 = AffinePoint<Config>::CreateChecked(GF7(3), GF7(5));
+  AffinePoint<Config> ap4 = AffinePoint<Config>::CreateChecked(GF7(6), GF7(5));
   JacobianPoint<Config> jp = ap.ToJacobian();
   JacobianPoint<Config> jp2 = ap2.ToJacobian();
   JacobianPoint<Config> jp3 = ap3.ToJacobian();
@@ -76,28 +72,27 @@ TEST_F(AffinePointTest, AdditiveGroupOperators) {
 TEST_F(AffinePointTest, ToJacobian) {
   EXPECT_EQ(AffinePoint<Config>::Identity().ToJacobian(),
             JacobianPoint<Config>::Zero());
-  AffinePoint<Config> p(GF7Gmp(3), GF7Gmp(2));
-  EXPECT_EQ(p.ToJacobian(),
-            JacobianPoint<Config>(GF7Gmp(3), GF7Gmp(2), GF7Gmp(1)));
+  AffinePoint<Config> p(GF7(3), GF7(2));
+  EXPECT_EQ(p.ToJacobian(), JacobianPoint<Config>(GF7(3), GF7(2), GF7(1)));
 }
 
 TEST_F(AffinePointTest, IsOnCurve) {
-  AffinePoint<Config> invalid_point(GF7Gmp(1), GF7Gmp(2));
+  AffinePoint<Config> invalid_point(GF7(1), GF7(2));
   EXPECT_FALSE(AffinePoint<Config>::IsOnCurve(invalid_point));
-  AffinePoint<Config> valid_point(GF7Gmp(3), GF7Gmp(2));
+  AffinePoint<Config> valid_point(GF7(3), GF7(2));
   EXPECT_TRUE(AffinePoint<Config>::IsOnCurve(valid_point));
-  valid_point = AffinePoint<Config>(GF7Gmp(3), GF7Gmp(5));
+  valid_point = AffinePoint<Config>(GF7(3), GF7(5));
   EXPECT_TRUE(AffinePoint<Config>::IsOnCurve(valid_point));
 }
 
 TEST_F(AffinePointTest, MSM) {
   std::vector<AffinePoint<Config>> bases = {
-      {GF7Gmp(5), GF7Gmp(5)},
-      {GF7Gmp(3), GF7Gmp(2)},
+      {GF7(5), GF7(5)},
+      {GF7(3), GF7(2)},
   };
-  std::vector<GF7Gmp> scalars = {
-      GF7Gmp(2),
-      GF7Gmp(3),
+  std::vector<GF7> scalars = {
+      GF7(2),
+      GF7(3),
   };
   JacobianPoint<Config> expected = JacobianPoint<Config>::Zero();
   for (size_t i = 0; i < bases.size(); ++i) {

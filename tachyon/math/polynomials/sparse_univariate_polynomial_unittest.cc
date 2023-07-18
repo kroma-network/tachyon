@@ -12,19 +12,18 @@ namespace {
 
 const size_t kMaxDegree = 5;
 
-using Poly = SparseUnivariatePolynomial<GF7Gmp, kMaxDegree>;
-using Coeffs = SparseCoefficients<GF7Gmp, kMaxDegree>;
+using Poly = SparseUnivariatePolynomial<GF7, kMaxDegree>;
+using Coeffs = SparseCoefficients<GF7, kMaxDegree>;
 
 class SparseUnivariatePolynomialTest : public ::testing::Test {
  public:
   SparseUnivariatePolynomialTest() {
     GF7Config::Init();
 
-    polys_.push_back(
-        Poly(Coeffs({{0, GF7Gmp(3)}, {2, GF7Gmp(1)}, {4, GF7Gmp(2)}})));
-    polys_.push_back(Poly(Coeffs({{0, GF7Gmp(3)}})));
-    polys_.push_back(Poly(Coeffs({{3, GF7Gmp(5)}})));
-    polys_.push_back(Poly(Coeffs({{4, GF7Gmp(5)}})));
+    polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})));
+    polys_.push_back(Poly(Coeffs({{0, GF7(3)}})));
+    polys_.push_back(Poly(Coeffs({{3, GF7(5)}})));
+    polys_.push_back(Poly(Coeffs({{4, GF7(5)}})));
     polys_.push_back(Poly::Zero());
   }
   SparseUnivariatePolynomialTest(const SparseUnivariatePolynomialTest&) =
@@ -41,7 +40,7 @@ class SparseUnivariatePolynomialTest : public ::testing::Test {
 
 TEST_F(SparseUnivariatePolynomialTest, IsZero) {
   EXPECT_TRUE(Poly::Zero().IsZero());
-  EXPECT_TRUE(Poly(Coeffs({{0, GF7Gmp(0)}})).IsZero());
+  EXPECT_TRUE(Poly(Coeffs({{0, GF7(0)}})).IsZero());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
     EXPECT_FALSE(polys_[i].IsZero());
   }
@@ -50,7 +49,7 @@ TEST_F(SparseUnivariatePolynomialTest, IsZero) {
 
 TEST_F(SparseUnivariatePolynomialTest, IsOne) {
   EXPECT_TRUE(Poly::One().IsOne());
-  EXPECT_TRUE(Poly(Coeffs({{0, GF7Gmp(1)}})).IsOne());
+  EXPECT_TRUE(Poly(Coeffs({{0, GF7(1)}})).IsOne());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
     EXPECT_FALSE(polys_[i].IsOne());
   }
@@ -84,7 +83,7 @@ TEST_F(SparseUnivariatePolynomialTest, IndexingOperator) {
     for (size_t i = 0; i < kMaxDegree; ++i) {
       if (i < test.coefficients.size()) {
         if (test.coefficients[i].has_value()) {
-          EXPECT_EQ(*test.poly[i], GF7Gmp(test.coefficients[i].value()));
+          EXPECT_EQ(*test.poly[i], GF7(test.coefficients[i].value()));
         } else {
           EXPECT_EQ(test.poly[i], nullptr);
         }
@@ -112,14 +111,14 @@ TEST_F(SparseUnivariatePolynomialTest, Degree) {
 TEST_F(SparseUnivariatePolynomialTest, Evaluate) {
   struct {
     const Poly& poly;
-    GF7Gmp expected;
+    GF7 expected;
   } tests[] = {
-      {polys_[0], GF7Gmp(6)}, {polys_[1], GF7Gmp(3)}, {polys_[2], GF7Gmp(2)},
-      {polys_[3], GF7Gmp(6)}, {polys_[4], GF7Gmp(0)},
+      {polys_[0], GF7(6)}, {polys_[1], GF7(3)}, {polys_[2], GF7(2)},
+      {polys_[3], GF7(6)}, {polys_[4], GF7(0)},
   };
 
   for (const auto& test : tests) {
-    EXPECT_EQ(test.poly.Evaluate(GF7Gmp(3)), test.expected);
+    EXPECT_EQ(test.poly.Evaluate(GF7(3)), test.expected);
   }
 }
 
@@ -151,39 +150,30 @@ TEST_F(SparseUnivariatePolynomialTest, AdditiveOperators) {
       {
           polys_[0],
           polys_[1],
-          Poly(Coeffs({{0, GF7Gmp(6)}, {2, GF7Gmp(1)}, {4, GF7Gmp(2)}})),
-          Poly(Coeffs({{2, GF7Gmp(1)}, {4, GF7Gmp(2)}})),
-          Poly(Coeffs({{2, GF7Gmp(6)}, {4, GF7Gmp(5)}})),
+          Poly(Coeffs({{0, GF7(6)}, {2, GF7(1)}, {4, GF7(2)}})),
+          Poly(Coeffs({{2, GF7(1)}, {4, GF7(2)}})),
+          Poly(Coeffs({{2, GF7(6)}, {4, GF7(5)}})),
       },
       {
           polys_[0],
           polys_[2],
-          Poly(Coeffs({{0, GF7Gmp(3)},
-                       {2, GF7Gmp(1)},
-                       {3, GF7Gmp(5)},
-                       {4, GF7Gmp(2)}})),
-          Poly(Coeffs({{0, GF7Gmp(3)},
-                       {2, GF7Gmp(1)},
-                       {3, GF7Gmp(2)},
-                       {4, GF7Gmp(2)}})),
-          Poly(Coeffs({{0, GF7Gmp(4)},
-                       {2, GF7Gmp(6)},
-                       {3, GF7Gmp(5)},
-                       {4, GF7Gmp(5)}})),
+          Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {3, GF7(5)}, {4, GF7(2)}})),
+          Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {3, GF7(2)}, {4, GF7(2)}})),
+          Poly(Coeffs({{0, GF7(4)}, {2, GF7(6)}, {3, GF7(5)}, {4, GF7(5)}})),
       },
       {
           polys_[0],
           polys_[3],
-          Poly(Coeffs({{0, GF7Gmp(3)}, {2, GF7Gmp(1)}})),
-          Poly(Coeffs({{0, GF7Gmp(3)}, {2, GF7Gmp(1)}, {4, GF7Gmp(4)}})),
-          Poly(Coeffs({{0, GF7Gmp(4)}, {2, GF7Gmp(6)}, {4, GF7Gmp(3)}})),
+          Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}})),
+          Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(4)}})),
+          Poly(Coeffs({{0, GF7(4)}, {2, GF7(6)}, {4, GF7(3)}})),
       },
       {
           polys_[0],
           polys_[4],
-          Poly(Coeffs({{0, GF7Gmp(3)}, {2, GF7Gmp(1)}, {4, GF7Gmp(2)}})),
-          Poly(Coeffs({{0, GF7Gmp(3)}, {2, GF7Gmp(1)}, {4, GF7Gmp(2)}})),
-          Poly(Coeffs({{0, GF7Gmp(4)}, {2, GF7Gmp(6)}, {4, GF7Gmp(5)}})),
+          Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})),
+          Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})),
+          Poly(Coeffs({{0, GF7(4)}, {2, GF7(6)}, {4, GF7(5)}})),
       },
   };
 
@@ -209,13 +199,13 @@ TEST_F(SparseUnivariatePolynomialTest, AdditiveOperators) {
 }
 
 TEST_F(SparseUnivariatePolynomialTest, MultiplicativeOperators) {
-  Poly a(Coeffs({{0, GF7Gmp(3)}, {1, GF7Gmp(1)}}));
-  Poly b(Coeffs({{0, GF7Gmp(5)}, {1, GF7Gmp(2)}, {2, GF7Gmp(5)}}));
+  Poly a(Coeffs({{0, GF7(3)}, {1, GF7(1)}}));
+  Poly b(Coeffs({{0, GF7(5)}, {1, GF7(2)}, {2, GF7(5)}}));
   Poly one = Poly::One();
   Poly zero = Poly::Zero();
 
-  using DensePoly = DenseUnivariatePolynomial<GF7Gmp, kMaxDegree>;
-  using DenseCoeffs = DenseCoefficients<GF7Gmp, kMaxDegree>;
+  using DensePoly = DenseUnivariatePolynomial<GF7, kMaxDegree>;
+  using DenseCoeffs = DenseCoefficients<GF7, kMaxDegree>;
 
   struct {
     const Poly& a;
@@ -229,14 +219,11 @@ TEST_F(SparseUnivariatePolynomialTest, MultiplicativeOperators) {
       {
           a,
           b,
-          Poly(Coeffs({{0, GF7Gmp(1)},
-                       {1, GF7Gmp(4)},
-                       {2, GF7Gmp(3)},
-                       {3, GF7Gmp(5)}})),
+          Poly(Coeffs({{0, GF7(1)}, {1, GF7(4)}, {2, GF7(3)}, {3, GF7(5)}})),
           zero.ToDense(),
           a.ToDense(),
-          DensePoly(DenseCoeffs({GF7Gmp(1), GF7Gmp(5)})),
-          DensePoly(DenseCoeffs({GF7Gmp(2)})),
+          DensePoly(DenseCoeffs({GF7(1), GF7(5)})),
+          DensePoly(DenseCoeffs({GF7(2)})),
       },
       {
           a,

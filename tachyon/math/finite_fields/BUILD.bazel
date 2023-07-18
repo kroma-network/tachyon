@@ -49,12 +49,14 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:arithmetics",
         "//tachyon/math/base:identities",
+        "//tachyon/math/base/gmp:gmp_util",
     ],
 )
 
 tachyon_cc_test(
     name = "finite_fields_unittests",
     srcs = [
+        "modulus_unittest.cc",
         "prime_field_unittest.cc",
     ],
     deps = [

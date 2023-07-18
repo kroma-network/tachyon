@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/math/base/division_result.h"
+#include "tachyon/math/base/arithmetics_results.h"
 #include "tachyon/math/polynomials/univariate_polynomial.h"
 
 namespace tachyon {
@@ -221,7 +221,7 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
   template <typename DOrS>
   static UnivariatePolynomial<D>& DivInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
-    DivisionResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
     self = std::move(result.quotient);
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
@@ -230,7 +230,7 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
   template <typename DOrS>
   static UnivariatePolynomial<D>& ModInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
-    DivisionResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
     self = std::move(result.remainder);
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
@@ -276,7 +276,7 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
   }
 
   template <typename DOrS>
-  static DivisionResult<UnivariatePolynomial<D>> Divide(
+  static DivResult<UnivariatePolynomial<D>> Divide(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
     if (self.IsZero()) {
       return {UnivariatePolynomial<D>::Zero(), UnivariatePolynomial<D>::Zero()};

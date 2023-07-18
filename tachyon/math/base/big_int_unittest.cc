@@ -56,7 +56,7 @@ TEST(BigIntTest, Operations) {
   BigInt<2> big_int = BigInt<2>::FromDecString("123456789012345678909876543211235312");
   BigInt<2> big_int2 = BigInt<2>::FromDecString("734581237591230158128731489729873983");
   {
-    uint8_t carry = 0;
+    uint64_t carry = 0;
     BigInt<2> a = big_int;
     BigInt<2> sum = BigInt<2>::FromDecString("858038026603575837038608032941109295");
     BigInt<2> b = big_int2;
@@ -66,7 +66,7 @@ TEST(BigIntTest, Operations) {
     EXPECT_EQ(carry, 0);
   }
   {
-    uint8_t borrow = 0;
+    uint64_t borrow = 0;
     BigInt<2> a = big_int;
     BigInt<2> amb =
         BigInt<2>::FromDecString("339671242472359578984155752485249572785");
@@ -78,14 +78,14 @@ TEST(BigIntTest, Operations) {
     EXPECT_EQ(borrow, 0);
   }
   {
-    uint8_t carry = 0;
+    uint64_t carry = 0;
     BigInt<2> a = big_int;
     BigInt<2> mulby2 = BigInt<2>::FromDecString("246913578024691357819753086422470624");
     EXPECT_EQ(a.MulBy2InPlace(carry), mulby2);
     EXPECT_EQ(carry, 0);
   }
   {
-    uint8_t carry = 0;
+    uint64_t carry = 0;
     BigInt<2> a = big_int;
     BigInt<2> mulbyn = BigInt<2>::FromDecString("3950617248395061725116049382759529984");
     EXPECT_EQ(a.MulBy2ExpInPlace(5), mulbyn);

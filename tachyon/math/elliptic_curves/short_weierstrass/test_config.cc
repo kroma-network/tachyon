@@ -10,9 +10,8 @@ namespace test {
 void CurveConfig::Init() {
   GF7::Config::Init();
 
-  B() = GF7Gmp(5);
-  Generator() = JacobianPoint<SWCurveConfig<GF7Gmp, GF7Gmp>>(
-      GF7Gmp(5), GF7Gmp(5), GF7Gmp(1));
+  B() = GF7(5);
+  Generator() = JacobianPoint<SWCurveConfig<GF7, GF7>>(GF7(5), GF7(5), GF7(1));
 }
 
 }  // namespace test

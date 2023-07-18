@@ -15,12 +15,12 @@ class TACHYON_EXPORT FrConfig {
   // Dec: 52435875175126190479447740508185965837690552500527637822603658699938581184513
   // Hex: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
   // clang-format on
-  constexpr static uint64_t kModulus[4] = {
+  constexpr static BigInt<4> kModulus = BigInt<4>({
       UINT64_C(18446744069414584321),
       UINT64_C(6034159408538082302),
       UINT64_C(3691218898639771653),
       UINT64_C(8353516859464449352),
-  };
+  });
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 
