@@ -35,7 +35,7 @@ ALWAYS_INLINE constexpr SubResult<uint64_t> SubWithBorrow(uint64_t& a,
   SubResult<uint64_t> result;
   result.result = static_cast<uint64_t>(tmp);
   result.borrow =
-      static_cast<uint64_t>(static_cast<uint64_t>(tmp >> 64 == 0 ? 1 : 0));
+      static_cast<uint64_t>(static_cast<uint64_t>((tmp >> 64) == 0 ? 1 : 0));
   return result;
 }
 
