@@ -59,6 +59,8 @@ def tachyon_deps():
             sha256 = "ffa17fbc5953900994e2deec164bb8949879ea09b411e07f215bfbb1f87f4632",
             strip_prefix = "googletest-1.13.0",
             urls = ["https://github.com/google/googletest/archive/v1.13.0.zip"],
+            patch_args = ["-p1"],
+            patches = ["@kroma_network_tachyon//third_party/gtest:add_missing_linkopts.patch"],
         )
 
     # Needed by com_google_googletest
