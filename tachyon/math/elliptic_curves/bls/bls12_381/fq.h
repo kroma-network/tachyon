@@ -24,12 +24,35 @@ class TACHYON_EXPORT FqConfig {
       UINT64_C(1873798617647539866),
   });
 
+  constexpr static bool kCanUseNoCarryMulOptimization = true;
+  constexpr static bool kModulusHasSparseBit = true;
+  constexpr static BigInt<6> kMontgomeryR = BigInt<6>({
+      UINT64_C(8505329371266088957),
+      UINT64_C(17002214543764226050),
+      UINT64_C(6865905132761471162),
+      UINT64_C(8632934651105793861),
+      UINT64_C(6631298214892334189),
+      UINT64_C(1582556514881692819),
+  });
+  constexpr static BigInt<6> kMontgomeryR2 = BigInt<6>({
+      UINT64_C(17644856173732828998),
+      UINT64_C(754043588434789617),
+      UINT64_C(10224657059481499349),
+      UINT64_C(7488229067341005760),
+      UINT64_C(11130996698012816685),
+      UINT64_C(1267921511277847466),
+  });
+  constexpr static uint64_t kInverse = UINT64_C(9940570264628428797);
+
   constexpr static uint64_t ExtensionDegree() { return 1; }
 
   static void Init();
 };
 
-using Fq = PrimeFieldGmp<FqConfig>;
+using Fq = PrimeField<FqConfig>;
+#if defined(TACHYON_GMP_BACKEND)
+using FqGmp = PrimeFieldGmp<FqConfig>;
+#endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace bls12_381
 }  // namespace math

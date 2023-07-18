@@ -6,7 +6,6 @@
 
 #include <ostream>
 #include <string>
-#include <tuple>
 
 #include "tachyon/base/random.h"
 #include "tachyon/math/base/arithmetics.h"

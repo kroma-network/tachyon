@@ -8,6 +8,10 @@
 #include "tachyon/math/finite_fields/prime_field_gmp.h"
 #endif  // defined(TACHYON_GMP_BACKEND)
 
+#if TACHYON_CUDA
+#include "tachyon/math/finite_fields/prime_field_mont_cuda.h"
+#endif  // TACHYON_CUDA
+
 namespace tachyon {
 namespace math {
 
@@ -34,6 +38,9 @@ using GF7 = PrimeField<GF7Config>;
 #if defined(TACHYON_GMP_BACKEND)
 using GF7Gmp = PrimeFieldGmp<GF7Config>;
 #endif  // defined(TACHYON_GMP_BACKEND)
+#if TACHYON_CUDA
+using GF7Cuda = PrimeFieldMontCuda<GF7Config>;
+#endif
 
 }  // namespace math
 }  // namespace tachyon

@@ -1,3 +1,4 @@
+load("//bazel:tachyon.bzl", "if_gmp_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 
 package(default_visibility = ["//visibility:public"])
@@ -37,9 +38,10 @@ tachyon_cc_library(
 tachyon_cc_test(
     name = "msm_unittests",
     srcs = [
-        "glv_unittest.cc",
         "variable_base_msm_unittest.cc",
-    ],
+    ] + if_gmp_backend([
+        "glv_unittest.cc",
+    ]),
     deps = [
         ":glv",
         ":msm",

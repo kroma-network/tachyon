@@ -5,7 +5,12 @@ namespace math {
 namespace bn254 {
 
 // static
-void FqConfig::Init() { Fq::Init(); }
+void FqConfig::Init() {
+  Fq::Init();
+#if defined(TACHYON_GMP_BACKEND)
+  FqGmp::Init();
+#endif  // defined(TACHYON_GMP_BACKEND)
+}
 
 }  // namespace bn254
 }  // namespace math
