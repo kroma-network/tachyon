@@ -26,7 +26,6 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
   static constexpr size_t N = kLimbNums;
   static BigInt<N> kModulus;
-  static constexpr bool kIsTriviallyDestructible = true;
 
   using Config = _Config;
   using value_type = BigInt<N>;

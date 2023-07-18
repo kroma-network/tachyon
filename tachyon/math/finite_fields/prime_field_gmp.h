@@ -30,7 +30,6 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
   static constexpr size_t N = kLimbNums;
   static constexpr const uint64_t* kModulus = _Config::kModulus.limbs;
-  static constexpr bool kIsTriviallyDestructible = false;
 
   using Config = _Config;
   using value_type = mpz_class;
