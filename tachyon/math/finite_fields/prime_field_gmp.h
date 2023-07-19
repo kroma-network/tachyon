@@ -71,7 +71,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   }
 
   template <typename T>
-  constexpr static PrimeFieldGmp FromDevice(const T& field_device) {
+  static PrimeFieldGmp FromDevice(const T& field_device) {
     BigInt<N> big_int = field_device.ToBigInt();
     mpz_class out;
     gmp::WriteLimbs(big_int.limbs, N, &out);
