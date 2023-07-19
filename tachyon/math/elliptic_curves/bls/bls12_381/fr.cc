@@ -6,7 +6,6 @@ namespace bls12_381 {
 
 // static
 void FrConfig::Init() {
-  Fr::Init();
 #if defined(TACHYON_GMP_BACKEND)
   FrGmp::Init();
 #endif  // defined(TACHYON_GMP_BACKEND)

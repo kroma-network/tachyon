@@ -29,7 +29,6 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   static constexpr size_t kModulusBits = _Config::kModulusBits;
   static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
   static constexpr size_t N = kLimbNums;
-  static constexpr const uint64_t* kModulus = _Config::kModulus.limbs;
 
   using Config = _Config;
   using value_type = mpz_class;
@@ -76,11 +75,11 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 #if ARCH_CPU_BIG_ENDIAN
       uint64_t modulus[N];
       for (size_t i = 0; i < N; ++i) {
-        uint64_t value = absl::little_endian::Load64(kModulus[i]);
+        uint64_t value = absl::little_endian::Load64(Config::kModulus.limbs[i]);
         memcpy(&modulus[N - i - 1], &value, sizeof(uint64_t));
       }
 #else
-      const uint64_t* modulus = kModulus;
+          const uint64_t* modulus = Config::kModulus.limbs;
 #endif
       gmp::WriteLimbs(modulus, N, &Modulus());
     });

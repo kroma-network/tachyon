@@ -24,10 +24,19 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   static constexpr size_t kModulusBits = _Config::kModulusBits;
   static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
   static constexpr size_t N = kLimbNums;
-  static BigInt<N> kModulus;
 
   using Config = _Config;
   using value_type = BigInt<N>;
+
+  static constexpr bool kModulusHasSparseBit =
+      Modulus<N>::HasSparseBit(Config::kModulus);
+  static constexpr bool kCanUseNoCarryMulOptimization =
+      Modulus<N>::CanUseNoCarryMulOptimization(Config::kModulus);
+  static constexpr BigInt<N> kMontgomeryR =
+      Modulus<N>::MontgomeryR(Config::kModulus);
+  static constexpr BigInt<N> kMontgomeryR2 =
+      Modulus<N>::MontgomeryR2(Config::kModulus);
+  static constexpr uint64_t kInverse = Modulus<N>::Inverse(Config::kModulus);
 
   constexpr PrimeFieldMont() = default;
   template <typename T,
@@ -35,9 +44,9 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   constexpr explicit PrimeFieldMont(T value)
       : PrimeFieldMont(BigInt<N>(value)) {}
   constexpr explicit PrimeFieldMont(const BigInt<N>& value) : value_(value) {
-    DCHECK_LT(value, kModulus);
+    DCHECK_LT(value, Config::kModulus);
     PrimeFieldMont p;
-    p.value_ = Config::kMontgomeryR2;
+    p.value_ = kMontgomeryR2;
     MulInPlace(p);
   }
   constexpr PrimeFieldMont(const PrimeFieldMont& other) = default;
@@ -59,7 +68,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
       big_int.limbs[i] = base::Uniform<uint64_t, uint64_t>(
           0, std::numeric_limits<uint64_t>::max());
     }
-    while (big_int >= kModulus) {
+    while (big_int >= Config::kModulus) {
       big_int.DivBy2InPlace();
     }
     return PrimeFieldMont(big_int);
@@ -70,21 +79,6 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
   constexpr static PrimeFieldMont FromHexString(std::string_view str) {
     return PrimeFieldMont(BigInt<N>::FromHexString(str));
-  }
-
-  constexpr static void Init() {
-    kModulus = Config::kModulus;
-
-    // NOTE(chokobole): |Config::kModulusHasSparseBit| and
-    // |Config::kCanUseNoCarryMulOptimization| are flags to be used at compile
-    // time. Since accessing static storage is not possible at compile time,
-    // the validity is checked at runtime, as shown below.
-    CHECK_EQ(Config::kModulusHasSparseBit, Modulus<N>::HasSparseBit(kModulus));
-    CHECK_EQ(Config::kCanUseNoCarryMulOptimization,
-             Modulus<N>::CanUseNoCarryMulOptimization(kModulus));
-    CHECK_EQ(Config::kMontgomeryR, Modulus<N>::MontgomeryR(kModulus));
-    CHECK_EQ(Config::kMontgomeryR2, Modulus<N>::MontgomeryR2(kModulus));
-    CHECK_EQ(Config::kInverse, Modulus<N>::Inverse(kModulus));
   }
 
   const value_type& value() const { return value_; }
@@ -103,16 +97,16 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
 
   // TODO(chokobole): Support bigendian.
-  BigInt<N> ToBigInt() const {
+  constexpr BigInt<N> ToBigInt() const {
     BigInt<N> r = value_;
     // Montgomery Reduction
     for (size_t i = 0; i < N; ++i) {
-      uint64_t k = r[i] * Config::kInverse;
+      uint64_t k = r[i] * kInverse;
       MulResult<uint64_t> result =
-          internal::MulAddWithCarry(r[i], k, kModulus[0]);
+          internal::MulAddWithCarry(r[i], k, Config::kModulus[0]);
       for (size_t j = 1; j < N; ++j) {
-        result = internal::MulAddWithCarry(r[(j + i) % N], k, kModulus[j],
-                                           result.hi);
+        result = internal::MulAddWithCarry(r[(j + i) % N], k,
+                                           Config::kModulus[j], result.hi);
         r[(j + i) % N] = result.lo;
       }
       r[i] = result.hi;
@@ -151,30 +145,30 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
 
   // AdditiveSemigroup methods
-  PrimeFieldMont& AddInPlace(const PrimeFieldMont& other) {
+  constexpr PrimeFieldMont& AddInPlace(const PrimeFieldMont& other) {
     uint64_t carry = 0;
     value_.AddInPlace(other.value_, carry);
     return Clamp(carry);
   }
 
-  PrimeFieldMont& DoubleInPlace() {
+  constexpr PrimeFieldMont& DoubleInPlace() {
     uint64_t carry = 0;
     value_.MulBy2InPlace(carry);
     return Clamp(carry);
   }
 
   // AdditiveGroup methods
-  PrimeFieldMont& SubInPlace(const PrimeFieldMont& other) {
+  constexpr PrimeFieldMont& SubInPlace(const PrimeFieldMont& other) {
     if (other.value_ > value_) {
-      value_.AddInPlace(kModulus);
+      value_.AddInPlace(Config::kModulus);
     }
     value_.SubInPlace(other.value_);
     return *this;
   }
 
-  PrimeFieldMont& NegInPlace() {
+  constexpr PrimeFieldMont& NegInPlace() {
     if (!IsZero()) {
-      BigInt<N> tmp(kModulus);
+      BigInt<N> tmp(Config::kModulus);
       tmp.SubInPlace(value_);
       value_ = tmp;
     }
@@ -183,8 +177,8 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
 
   // TODO(chokobole): Support bigendian.
   // MultiplicativeSemigroup methods
-  PrimeFieldMont& MulInPlace(const PrimeFieldMont& other) {
-    if constexpr (Config::kCanUseNoCarryMulOptimization) {
+  constexpr PrimeFieldMont& MulInPlace(const PrimeFieldMont& other) {
+    if constexpr (kCanUseNoCarryMulOptimization) {
       BigInt<N> r;
       for (size_t i = 0; i < N; ++i) {
         MulResult<uint64_t> result;
@@ -192,16 +186,17 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
                                            other.value_.limbs[0]);
         r.limbs[0] = result.lo;
 
-        uint64_t k = r.limbs[0] * Config::kInverse;
+        uint64_t k = r.limbs[0] * kInverse;
         MulResult<uint64_t> result2;
-        result2 = internal::MulAddWithCarry(r.limbs[0], k, kModulus.limbs[0]);
+        result2 =
+            internal::MulAddWithCarry(r.limbs[0], k, Config::kModulus.limbs[0]);
 
         for (size_t j = 1; j < N; ++j) {
           result = internal::MulAddWithCarry(r[j], value_.limbs[j],
                                              other.value_.limbs[i], result.hi);
           r[j] = result.lo;
-          result2 =
-              internal::MulAddWithCarry(r[j], k, kModulus.limbs[j], result2.hi);
+          result2 = internal::MulAddWithCarry(
+              r[j], k, Config::kModulus.limbs[j], result2.hi);
           r[j - 1] = result2.lo;
         }
         r[N - 1] = result.hi + result2.hi;
@@ -218,7 +213,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     }
   }
 
-  PrimeFieldMont& SquareInPlace() {
+  constexpr PrimeFieldMont& SquareInPlace() {
     if (N == 1) {
       return MulInPlace(*this);
     }
@@ -253,11 +248,11 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     // Montgomery reduction
     add_result.carry = 0;
     for (size_t i = 0; i < N; ++i) {
-      uint64_t k = r[i] * Config::kInverse;
-      mul_result = internal::MulAddWithCarry(r[i], k, kModulus[0]);
+      uint64_t k = r[i] * kInverse;
+      mul_result = internal::MulAddWithCarry(r[i], k, Config::kModulus[0]);
       for (size_t j = 1; j < N; ++j) {
-        mul_result =
-            internal::MulAddWithCarry(r[j + i], k, kModulus[j], mul_result.hi);
+        mul_result = internal::MulAddWithCarry(r[j + i], k, Config::kModulus[j],
+                                               mul_result.hi);
         r[j + i] = mul_result.lo;
       }
       add_result =
@@ -268,7 +263,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
 
   // MultiplicativeGroup methods
-  PrimeFieldMont& InverseInPlace() {
+  constexpr PrimeFieldMont& InverseInPlace() {
     CHECK(!IsZero());
     // Guajardo Kumar Paar Pelzl
     // Efficient Software-Implementation of Finite Fields with Applications to
@@ -276,9 +271,9 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     // Algorithm 16 (BEA for Inversion in Fp)
 
     BigInt<N> u = value_;
-    BigInt<N> v = kModulus;
+    BigInt<N> v = Config::kModulus;
     PrimeFieldMont b;
-    b.value_ = Config::kMontgomeryR2;
+    b.value_ = kMontgomeryR2;
     PrimeFieldMont c;
 
     while (!u.IsOne() && !v.IsOne()) {
@@ -289,9 +284,9 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
           b.value_.DivBy2InPlace();
         } else {
           uint64_t carry = 0;
-          b.value_.AddInPlace(kModulus, carry);
+          b.value_.AddInPlace(Config::kModulus, carry);
           b.value_.DivBy2InPlace();
-          if constexpr (!Config::kModulusHasSparseBit) {
+          if constexpr (!kModulusHasSparseBit) {
             if (carry) {
               b.value_[N - 1] |= static_cast<uint64_t>(1) << 63;
             }
@@ -306,9 +301,9 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
           c.value_.DivBy2InPlace();
         } else {
           uint64_t carry = 0;
-          c.value_.AddInPlace(kModulus, carry);
+          c.value_.AddInPlace(Config::kModulus, carry);
           c.value_.DivBy2InPlace();
-          if constexpr (!Config::kModulusHasSparseBit) {
+          if constexpr (!kModulusHasSparseBit) {
             if (carry) {
               c.value_[N - 1] |= static_cast<uint64_t>(1) << 63;
             }
@@ -336,23 +331,23 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
 
  private:
-  PrimeFieldMont& Clamp(bool carry) {
+  constexpr PrimeFieldMont& Clamp(bool carry) {
     bool needs_to_clamp = false;
-    if constexpr (Config::kModulusHasSparseBit) {
-      needs_to_clamp = value_ >= kModulus;
+    if constexpr (kModulusHasSparseBit) {
+      needs_to_clamp = value_ >= Config::kModulus;
     } else {
-      needs_to_clamp = carry || value_ >= kModulus;
+      needs_to_clamp = carry || value_ >= Config::kModulus;
     }
     if (needs_to_clamp) {
       uint64_t unused = 0;
-      value_.SubInPlace(kModulus, unused);
+      value_.SubInPlace(Config::kModulus, unused);
     }
     return *this;
   }
 
   // TODO(chokobole): Support bigendian.
-  PrimeFieldMont& MulWithoutConditionSubtract(const PrimeFieldMont& other,
-                                              uint64_t& carry) {
+  constexpr PrimeFieldMont& MulWithoutConditionSubtract(
+      const PrimeFieldMont& other, uint64_t& carry) {
     BigInt<N> lo;
     BigInt<N> hi;
     MulResult<uint64_t> mul_result;
@@ -375,18 +370,18 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     // Montgomery reduction
     AddResult<uint64_t> add_result;
     for (size_t i = 0; i < N; ++i) {
-      uint64_t tmp = lo.limbs[i] * Config::kInverse;
-      mul_result = internal::MulAddWithCarry(lo[i], tmp, kModulus.limbs[0],
-                                             mul_result.hi);
+      uint64_t tmp = lo.limbs[i] * kInverse;
+      mul_result = internal::MulAddWithCarry(
+          lo[i], tmp, Config::kModulus.limbs[0], mul_result.hi);
       for (size_t j = 0; j < N; ++j) {
         size_t k = i + j;
         if (k >= N) {
           mul_result = internal::MulAddWithCarry(
-              hi.limbs[k - N], tmp, kModulus.limbs[j], mul_result.hi);
+              hi.limbs[k - N], tmp, Config::kModulus.limbs[j], mul_result.hi);
           hi.limbs[k - N] = mul_result.lo;
         } else {
           mul_result = internal::MulAddWithCarry(
-              lo.limbs[k], tmp, kModulus.limbs[j], mul_result.hi);
+              lo.limbs[k], tmp, Config::kModulus.limbs[j], mul_result.hi);
           lo.limbs[k] = mul_result.lo;
         }
       }
@@ -401,10 +396,6 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
 
   BigInt<N> value_;
 };
-
-// static
-template <typename Config>
-BigInt<PrimeFieldMont<Config>::N> PrimeFieldMont<Config>::kModulus;
 
 template <typename Config>
 std::ostream& operator<<(std::ostream& os, const PrimeFieldMont<Config>& f) {

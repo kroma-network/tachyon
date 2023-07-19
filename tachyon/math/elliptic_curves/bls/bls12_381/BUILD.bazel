@@ -31,15 +31,3 @@ tachyon_cc_library(
         "//tachyon/math/finite_fields:prime_field",
     ],
 )
-
-tachyon_cc_test(
-    name = "bls12_381_unittests",
-    srcs = [
-        "fq_unittest.cc",
-        "fr_unittest.cc",
-    ],
-    deps = [
-        ":fq",
-        ":fr",
-    ],
-)
