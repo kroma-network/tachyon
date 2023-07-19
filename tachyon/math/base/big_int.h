@@ -83,14 +83,6 @@ struct BigInt {
     memcpy(this->limbs, limbs, sizeof(uint64_t) * N);
   }
 
-  BigInt(const BigInt& other) {
-    memcpy(limbs, other.limbs, sizeof(uint64_t) * N);
-  }
-  BigInt& operator=(const BigInt& other) {
-    memcpy(limbs, other.limbs, sizeof(uint64_t) * N);
-    return *this;
-  }
-
   constexpr static BigInt Zero() { return BigInt(0); }
 
   constexpr static BigInt One() { return BigInt(1); }

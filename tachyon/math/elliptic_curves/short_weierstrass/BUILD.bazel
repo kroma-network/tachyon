@@ -13,10 +13,10 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:logging",
         "//tachyon/base:no_destructor",
+        "//tachyon/base:static_storage",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves:points",
         "//tachyon/math/elliptic_curves/msm",
-        "//tachyon/base:static_storage",
     ],
 )
 

@@ -15,6 +15,7 @@
 #include "tachyon/base/no_destructor.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
+#include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/base/identities.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
@@ -67,6 +68,14 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   }
   static PrimeFieldGmp FromHexString(std::string_view str) {
     return PrimeFieldGmp(gmp::FromHexString(str));
+  }
+
+  template <typename T>
+  constexpr static PrimeFieldGmp FromDevice(const T& field_device) {
+    BigInt<N> big_int = field_device.ToBigInt();
+    mpz_class out;
+    gmp::WriteLimbs(big_int.limbs, N, &out);
+    return PrimeFieldGmp(std::move(out));
   }
 
   static void Init() {

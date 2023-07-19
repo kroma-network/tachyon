@@ -81,6 +81,11 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     return PrimeFieldMont(BigInt<N>::FromHexString(str));
   }
 
+  template <typename T>
+  constexpr static PrimeFieldMont FromDevice(const T& field_device) {
+    return PrimeFieldMont(field_device.ToBigInt());
+  }
+
   const value_type& value() const { return value_; }
 
   constexpr bool IsZero() const { return value_.IsZero(); }

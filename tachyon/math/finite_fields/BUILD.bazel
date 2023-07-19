@@ -1,4 +1,11 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+    "tachyon_cuda_library",
+    "tachyon_cuda_test",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -21,6 +28,7 @@ tachyon_cc_library(
     deps = [
         ":prime_field_gmp",
         ":prime_field_mont",
+        ":prime_field_mont_cuda",
     ],
 )
 
@@ -53,13 +61,38 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cuda_library(
+    name = "prime_field_mont_cuda",
+    hdrs = ["prime_field_mont_cuda.h"],
+    deps = [
+        ":modulus",
+        ":prime_field_base",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:random",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/base:arithmetics",
+        "//tachyon/math/base:identities",
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields/kernels:carry_chain",
+    ],
+)
+
 tachyon_cc_test(
     name = "finite_fields_unittests",
     srcs = [
         "modulus_unittest.cc",
         "prime_field_unittest.cc",
     ],
+    deps = [":prime_field"],
+)
+
+tachyon_cuda_test(
+    name = "finite_fields_cuda_unittests",
+    srcs = if_cuda(["prime_field_mont_cuda_unittest.cc"]),
     deps = [
         ":prime_field",
+        "//tachyon/device/gpu/cuda:cuda_memory",
+        "//tachyon/math/finite_fields/kernels:prime_field_ops",
     ],
 )
