@@ -18,10 +18,12 @@ const size_t kSize = 40;
 
 class VariableBaseMSMTest : public ::testing::Test {
  public:
-  VariableBaseMSMTest() {
+  static void SetUpTestSuite() {
     GF7Config::Init();
     test::CurveConfig::Init();
+  }
 
+  VariableBaseMSMTest() {
     bases_ = base::CreateVector(
         kSize, []() { return JacobianPoint<Config>::Random(); });
     scalars_ = base::CreateVector(kSize, []() { return GF7::Random(); });

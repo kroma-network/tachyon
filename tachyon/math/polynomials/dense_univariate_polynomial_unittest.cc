@@ -15,9 +15,9 @@ using Coeffs = DenseCoefficients<GF7, kMaxDegree>;
 
 class DenseUnivariatePolynomialTest : public ::testing::Test {
  public:
-  DenseUnivariatePolynomialTest() {
-    GF7Config::Init();
+  static void SetUpTestSuite() { GF7Config::Init(); }
 
+  DenseUnivariatePolynomialTest() {
     polys_.push_back(Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));
     polys_.push_back(Poly(Coeffs({GF7(3)})));
     polys_.push_back(Poly(Coeffs({GF7(0), GF7(0), GF7(0), GF7(5)})));

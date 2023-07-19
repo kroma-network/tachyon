@@ -17,9 +17,9 @@ using Coeffs = SparseCoefficients<GF7, kMaxDegree>;
 
 class SparseUnivariatePolynomialTest : public ::testing::Test {
  public:
-  SparseUnivariatePolynomialTest() {
-    GF7Config::Init();
+  static void SetUpTestSuite() { GF7Config::Init(); }
 
+  SparseUnivariatePolynomialTest() {
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})));
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}})));
     polys_.push_back(Poly(Coeffs({{3, GF7(5)}})));

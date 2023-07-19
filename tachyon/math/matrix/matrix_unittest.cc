@@ -15,10 +15,7 @@ using Matrix33GF7 = Matrix<GF7, 3, 3>;
 
 class MatrixTest : public ::testing::Test {
  public:
-  MatrixTest() { GF7Config::Init(); }
-  MatrixTest(const MatrixTest&) = delete;
-  MatrixTest& operator=(const MatrixTest&) = delete;
-  ~MatrixTest() override = default;
+  static void SetUpTestSuite() { GF7Config::Init(); }
 };
 
 }  // namespace

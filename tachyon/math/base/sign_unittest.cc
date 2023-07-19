@@ -6,13 +6,7 @@ namespace tachyon {
 namespace math {
 
 template <typename IntegerType>
-class SignTest : public ::testing::Test {
- public:
-  SignTest() = default;
-  SignTest(const SignTest&) = delete;
-  SignTest& operator=(const SignTest&) = delete;
-  ~SignTest() override = default;
-};
+class SignTest : public ::testing::Test {};
 
 using IntegerTypes = ::testing::Types<int, unsigned int, double>;
 TYPED_TEST_SUITE(SignTest, IntegerTypes);

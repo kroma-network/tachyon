@@ -13,10 +13,7 @@ using CurveConfig = bls12_381::CurveConfig<bls12_381::FqGmp, bls12_381::FrGmp>;
 
 class GLVTest : public ::testing::Test {
  public:
-  GLVTest() { CurveConfig::Init(); }
-  GLVTest(const GLVTest&) = delete;
-  GLVTest& operator=(const GLVTest&) = delete;
-  ~GLVTest() override = default;
+  static void SetUpTestSuite() { CurveConfig::Init(); }
 };
 
 }  // namespace

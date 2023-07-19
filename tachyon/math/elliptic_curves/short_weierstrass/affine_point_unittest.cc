@@ -14,13 +14,10 @@ using Config = test::CurveConfig::Config;
 
 class AffinePointTest : public ::testing::Test {
  public:
-  AffinePointTest() {
+  static void SetUpTestSuite() {
     GF7Config::Init();
     test::CurveConfig::Init();
   }
-  AffinePointTest(const AffinePointTest&) = delete;
-  AffinePointTest& operator=(const AffinePointTest&) = delete;
-  ~AffinePointTest() override = default;
 };
 
 }  // namespace

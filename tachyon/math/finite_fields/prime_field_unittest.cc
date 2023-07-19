@@ -10,14 +10,11 @@ namespace {
 template <typename PrimeFieldType>
 class PrimeFieldTest : public ::testing::Test {
  public:
-  PrimeFieldTest() {
+  static void SetUpTestSuite() {
     if constexpr (std::is_same_v<PrimeFieldType, GF7Gmp>) {
       PrimeFieldType::Init();
     }
   }
-  PrimeFieldTest(const PrimeFieldTest&) = delete;
-  PrimeFieldTest& operator=(const PrimeFieldTest&) = delete;
-  ~PrimeFieldTest() override = default;
 };
 
 }  // namespace

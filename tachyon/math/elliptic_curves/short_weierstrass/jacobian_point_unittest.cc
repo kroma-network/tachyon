@@ -15,13 +15,10 @@ using Config = test::CurveConfig::Config;
 
 class JacobianPointTest : public ::testing::Test {
  public:
-  JacobianPointTest() {
+  static void SetUpTestSuite() {
     GF7Config::Init();
     test::CurveConfig::Init();
   }
-  JacobianPointTest(const JacobianPointTest&) = delete;
-  JacobianPointTest& operator=(const JacobianPointTest&) = delete;
-  ~JacobianPointTest() override = default;
 };
 
 }  // namespace
