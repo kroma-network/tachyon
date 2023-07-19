@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics.h"
@@ -12,8 +11,6 @@
 namespace tachyon {
 namespace math {
 namespace internal {
-
-constexpr size_t ComputeAlignment(size_t x) { return x % 4 == 0 ? 16 : 8; }
 
 TACHYON_EXPORT bool StringToLimbs(std::string_view str, uint64_t* limbs,
                                   size_t limb_nums);
@@ -42,7 +39,7 @@ TACHYON_EXPORT std::string LimbsToHexString(const uint64_t* limbs,
 #endif
 
 template <size_t N>
-struct ALIGNAS(internal::ComputeAlignment(N)) BigInt {
+struct BigInt {
   uint64_t limbs[N] = {
       0,
   };
