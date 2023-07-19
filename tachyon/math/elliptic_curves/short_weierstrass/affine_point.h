@@ -118,7 +118,7 @@ class AffinePoint<Config,
     return absl::Substitute("($0, $1)", x_.ToString(), y_.ToString());
   }
 
-  // AdditiveMonoid methods
+  // AdditiveSemigroup methods
   template <typename U>
   constexpr JacobianPoint<Config> Add(const U& other) const {
     JacobianPoint<Config> point = ToJacobian();

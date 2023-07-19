@@ -140,7 +140,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     return gmp::DivBy2Exp(value_, exp);
   }
 
-  // AdditiveMonoid methods
+  // AdditiveSemigroup methods
   PrimeFieldGmp Add(const PrimeFieldGmp& other) const {
     return PrimeFieldGmp(DoMod(value_ + other.value_));
   }
@@ -171,7 +171,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     return *this;
   }
 
-  // MultiplicativeMonoid methods
+  // MultiplicativeSemigroup methods
   PrimeFieldGmp Mul(const PrimeFieldGmp& other) const {
     return PrimeFieldGmp(DoMod(value_ * other.value_));
   }

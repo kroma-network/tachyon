@@ -150,7 +150,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     return gmp::DivBy2Exp(ToMpzClass(), exp);
   }
 
-  // AdditiveMonoid methods
+  // AdditiveSemigroup methods
   PrimeFieldMont& AddInPlace(const PrimeFieldMont& other) {
     uint64_t carry = 0;
     value_.AddInPlace(other.value_, carry);
@@ -182,7 +182,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
 
   // TODO(chokobole): Support bigendian.
-  // MultiplicativeMonoid methods
+  // MultiplicativeSemigroup methods
   PrimeFieldMont& MulInPlace(const PrimeFieldMont& other) {
     if constexpr (Config::kCanUseNoCarryMulOptimization) {
       BigInt<N> r;

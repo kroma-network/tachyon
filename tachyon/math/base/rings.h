@@ -10,7 +10,7 @@ namespace tachyon {
 namespace math {
 
 template <typename F>
-class Ring : public AdditiveGroup<F>, public MultiplicativeMonoid<F> {
+class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
  public:
   template <
       typename InputIterator,

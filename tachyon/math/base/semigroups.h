@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_BASE_MONOIDS_H_
-#define TACHYON_MATH_BASE_MONOIDS_H_
+#ifndef TACHYON_MATH_BASE_SEMIGROUPS_H_
+#define TACHYON_MATH_BASE_SEMIGROUPS_H_
 
 #include "absl/types/span.h"
 
@@ -45,7 +45,7 @@ SUPPORTS_UNARY_IN_PLACE_OPERATOR(Double);
 }  // namespace internal
 
 template <typename G>
-class MultiplicativeMonoid {
+class MultiplicativeSemigroup {
  public:
   template <typename G2>
   constexpr auto operator*(const G2& other) const {
@@ -115,7 +115,7 @@ class MultiplicativeMonoid {
 };
 
 template <typename G>
-class AdditiveMonoid {
+class AdditiveSemigroup {
  public:
   template <typename G2>
   constexpr auto operator+(const G2& other) const {
@@ -177,4 +177,4 @@ class AdditiveMonoid {
 }  // namespace math
 }  // namespace tachyon
 
-#endif  // TACHYON_MATH_BASE_MONOIDS_H_
+#endif  // TACHYON_MATH_BASE_SEMIGROUPS_H_
