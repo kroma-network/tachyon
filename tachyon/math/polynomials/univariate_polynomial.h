@@ -95,7 +95,7 @@ class UnivariatePolynomial
         *this, other);                                                         \
   }
 
-  // AdditiveMonoid methods
+  // AdditiveSemigroup methods
   OPERATION_METHOD(Add)
 
   // AdditiveGroup methods
@@ -105,7 +105,7 @@ class UnivariatePolynomial
     return internal::UnivariatePolynomialOp<Coefficients>::NegInPlace(*this);
   }
 
-  // MultiplicativeMonoid methods
+  // MultiplicativeSemigroup methods
   OPERATION_METHOD(Mul)
 
   OPERATION_METHOD(Div)

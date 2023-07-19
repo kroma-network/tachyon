@@ -50,15 +50,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "groups",
-    hdrs = ["groups.h"],
-    deps = [":monoids"],
-)
-
-tachyon_cc_library(
     name = "field",
     hdrs = ["field.h"],
     deps = [":rings"],
+)
+
+tachyon_cc_library(
+    name = "groups",
+    hdrs = ["groups.h"],
+    deps = [":semigroups"],
 )
 
 tachyon_cc_library(
@@ -67,20 +67,20 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "monoids",
-    hdrs = ["monoids.h"],
-    deps = [
-        ":bit_iterator",
-        "@com_google_absl//absl/types:span",
-    ],
-)
-
-tachyon_cc_library(
     name = "rings",
     hdrs = ["rings.h"],
     deps = [
         ":groups",
         "//tachyon/base:template_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "semigroups",
+    hdrs = ["semigroups.h"],
+    deps = [
+        ":bit_iterator",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

@@ -1,7 +1,7 @@
 #ifndef TACHYON_MATH_BASE_GROUPS_H_
 #define TACHYON_MATH_BASE_GROUPS_H_
 
-#include "tachyon/math/base/monoids.h"
+#include "tachyon/math/base/semigroups.h"
 
 namespace tachyon {
 namespace math {
@@ -14,7 +14,7 @@ SUPPORTS_BINARY_OPERATOR(Mod);
 }  // namespace internal
 
 template <typename G>
-class MultiplicativeGroup : public MultiplicativeMonoid<G> {
+class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
  public:
   template <typename G2>
   constexpr auto operator/(const G2& other) const {
@@ -53,7 +53,7 @@ class MultiplicativeGroup : public MultiplicativeMonoid<G> {
 };
 
 template <typename G>
-class AdditiveGroup : public AdditiveMonoid<G> {
+class AdditiveGroup : public AdditiveSemigroup<G> {
  public:
   template <typename G2>
   constexpr auto operator-(const G2& other) const {

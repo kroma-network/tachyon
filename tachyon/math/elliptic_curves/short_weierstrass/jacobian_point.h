@@ -131,7 +131,7 @@ class JacobianPoint<Config,
                             z_.ToString());
   }
 
-  // AdditiveMonoid methods
+  // AdditiveSemigroup methods
   constexpr JacobianPoint& AddInPlace(const JacobianPoint& other);
   constexpr JacobianPoint& AddInPlace(const AffinePoint<Config>& other);
   constexpr JacobianPoint& DoubleInPlace();

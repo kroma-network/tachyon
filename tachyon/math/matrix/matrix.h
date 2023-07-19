@@ -139,7 +139,7 @@ class Matrix : public Ring<Matrix<T, Rows_, Cols_>>,
     return !operator==(other);
   }
 
-  // AdditiveMonoid methods
+  // AdditiveSemigroup methods
   constexpr Matrix Add(const Matrix& other) const {
     Matrix ret;
     for (size_t i = 0; i < Size; ++i) {
@@ -185,7 +185,7 @@ class Matrix : public Ring<Matrix<T, Rows_, Cols_>>,
     return *this;
   }
 
-  // MultiplicativeMonoid methods
+  // MultiplicativeSemigroup methods
   template <size_t Cols2>
   constexpr Matrix<T, Rows, Cols2> Mul(
       const Matrix<T, Cols, Cols2>& other) const {
