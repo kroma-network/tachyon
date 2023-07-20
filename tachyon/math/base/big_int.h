@@ -99,6 +99,29 @@ struct BigInt {
     return ret;
   }
 
+  static constexpr BigInt FromMontgomery(const BigInt<N>& value,
+                                         const BigInt<N>& modulus,
+                                         uint64_t inverse) {
+    BigInt<N> r = value;
+    // Montgomery Reduction
+    FOR_FROM_SMALLEST(0, N) {
+      uint64_t k = r[i] * inverse;
+      MulResult<uint64_t> result =
+          internal::u64::MulAddWithCarry(r[i], k, modulus[0]);
+#if ARCH_CPU_BIG_ENDIAN
+      for (size_t j = N - 2; i != std::numeric_limits<size_t>::max(); --i) {
+#else  // ARCH_CPU_LITTLE_ENDIAN
+      for (size_t j = 1; j < N; ++j) {
+#endif
+        result = internal::u64::MulAddWithCarry(r[(j + i) % N], k, modulus[j],
+                                                result.hi);
+        r[(j + i) % N] = result.lo;
+      }
+      r[i] = result.hi;
+    }
+    return r;
+  }
+
   constexpr bool IsZero() const {
     for (size_t i = 0; i < N; ++i) {
       if (limbs[i] != 0) return false;

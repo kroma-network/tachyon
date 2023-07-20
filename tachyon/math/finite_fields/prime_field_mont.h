@@ -109,20 +109,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
 
   // TODO(chokobole): Support bigendian.
   constexpr BigInt<N> ToBigInt() const {
-    BigInt<N> r = value_;
-    // Montgomery Reduction
-    for (size_t i = 0; i < N; ++i) {
-      uint64_t k = r[i] * kInverse;
-      MulResult<uint64_t> result =
-          internal::u64::MulAddWithCarry(r[i], k, Config::kModulus[0]);
-      for (size_t j = 1; j < N; ++j) {
-        result = internal::u64::MulAddWithCarry(r[(j + i) % N], k,
-                                                Config::kModulus[j], result.hi);
-        r[(j + i) % N] = result.lo;
-      }
-      r[i] = result.hi;
-    }
-    return r;
+    return BigInt<N>::FromMontgomery(value_, Config::kModulus, kInverse);
   }
 
   constexpr bool operator==(const PrimeFieldMont& other) const {
