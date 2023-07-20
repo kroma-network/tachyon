@@ -118,10 +118,10 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   std::string ToString() const { return ToBigInt().ToString(); }
   std::string ToHexString() const { return ToBigInt().ToHexString(); }
 
-  // TODO(chokobole): Can we avoid copying?
   mpz_class ToMpzClass() const {
-    NOTIMPLEMENTED();
-    return {};
+    mpz_class ret;
+    gmp::WriteLimbs(ToBigInt().limbs, N, &ret);
+    return ret;
   }
 
   constexpr BigInt<N> ToBigInt() const { return value_; }
@@ -163,9 +163,7 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   // This is needed by MSM.
   // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
   mpz_class DivBy2Exp(uint64_t exp) const {
-    mpz_class ret;
-    NOTIMPLEMENTED();
-    return ret;
+    return gmp::DivBy2Exp(ToMpzClass(), exp);
   }
 
   // AdditiveSemigroup methods
