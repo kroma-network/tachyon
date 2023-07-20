@@ -34,7 +34,7 @@ using GF7Gmp = PrimeFieldGmp<GF7Config>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 #if TACHYON_CUDA
 using GF7Cuda = PrimeFieldMontCuda<GF7Config>;
-#endif
+#endif  // TACHYON_CUDA
 
 }  // namespace math
 }  // namespace tachyon

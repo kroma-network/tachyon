@@ -31,6 +31,9 @@ using Fr = PrimeField<FrConfig>;
 #if defined(TACHYON_GMP_BACKEND)
 using FrGmp = PrimeFieldGmp<FrConfig>;
 #endif  // defined(TACHYON_GMP_BACKEND)
+#if TACHYON_CUDA
+using FrCuda = PrimeFieldMontCuda<FrConfig>;
+#endif  // TACHYON_CUDA
 
 }  // namespace bn254
 }  // namespace math

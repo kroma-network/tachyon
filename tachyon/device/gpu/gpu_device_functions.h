@@ -3,7 +3,7 @@
 
 #if TACHYON_CUDA
 #include "third_party/gpus/cuda/include/cuda_runtime_api.h"
-#endif
+#endif  // TACHYON_CUDA
 
 #if TACHYON_CUDA
 using gpuStream_t = cudaStream_t;
