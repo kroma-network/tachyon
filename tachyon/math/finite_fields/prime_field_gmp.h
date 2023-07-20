@@ -36,12 +36,12 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 
   PrimeFieldGmp() = default;
   explicit PrimeFieldGmp(const mpz_class& value) : value_(value) {
-    DCHECK(!gmp::IsNegative(value));
-    DCHECK_LT(value, Modulus());
+    DCHECK(!gmp::IsNegative(value_));
+    DCHECK_LT(value_, Modulus());
   }
   explicit PrimeFieldGmp(mpz_class&& value) : value_(std::move(value)) {
-    DCHECK(!gmp::IsNegative(value));
-    DCHECK_LT(value, Modulus());
+    DCHECK(!gmp::IsNegative(value_));
+    DCHECK_LT(value_, Modulus());
   }
   PrimeFieldGmp(const PrimeFieldGmp& other) = default;
   PrimeFieldGmp& operator=(const PrimeFieldGmp& other) = default;
@@ -164,13 +164,19 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 
   // AdditiveGroup methods
   PrimeFieldGmp Sub(const PrimeFieldGmp& other) const {
-    PrimeFieldGmp ret = PrimeFieldGmp((value_ - other.value_) % Modulus());
-    return ret.Normalize();
+    mpz_class sub = value_ - other.value_;
+    if (sub < 0) {
+      sub += Modulus();
+    }
+    return PrimeFieldGmp(sub);
   }
 
   PrimeFieldGmp& SubInPlace(const PrimeFieldGmp& other) {
-    value_ = (value_ - other.value_) % Modulus();
-    return Normalize();
+    value_ -= other.value_;
+    if (value_ < 0) {
+      value_ += Modulus();
+    }
+    return *this;
   }
 
   PrimeFieldGmp& NegInPlace() {
@@ -210,13 +216,6 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 
  private:
   static mpz_class DoMod(mpz_class value) { return value % Modulus(); }
-
-  PrimeFieldGmp& Normalize() {
-    if (gmp::IsNegative(value_)) {
-      value_ = Modulus() + value_;
-    }
-    return *this;
-  }
 
   mpz_class value_;
 };
