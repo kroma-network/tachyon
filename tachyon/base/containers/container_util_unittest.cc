@@ -21,29 +21,29 @@ TEST(ContainerUtilTest, CreateRangedVector) {
 
   for (const auto& test : tests) {
     auto ranges = CreateRangedVector(test.start, test.end, test.step);
-    EXPECT_THAT(ranges, ::testing::ContainerEq(test.answers));
+    EXPECT_THAT(ranges, testing::ContainerEq(test.answers));
   }
 }
 
 TEST(ContainerUtilTest, CreateVectorWithGenerator) {
   EXPECT_THAT(CreateVector(5, ([]() { return 3; })),
-              ::testing::ContainerEq(std::vector<int>{3, 3, 3, 3, 3}));
+              testing::ContainerEq(std::vector<int>{3, 3, 3, 3, 3}));
   EXPECT_THAT(CreateVector(5, ([](int idx) { return idx + 1; })),
-              ::testing::ContainerEq(std::vector<int>{1, 2, 3, 4, 5}));
+              testing::ContainerEq(std::vector<int>{1, 2, 3, 4, 5}));
 }
 
 TEST(ContainerUtilTest, CreateVectorWithInitialValue) {
   EXPECT_THAT(CreateVector(5, 1),
-              ::testing::ContainerEq(std::vector<int>{1, 1, 1, 1, 1}));
+              testing::ContainerEq(std::vector<int>{1, 1, 1, 1, 1}));
 }
 
 TEST(ContainerUtilTest, Map) {
   std::vector<int> arr({1, 2, 3});
   EXPECT_THAT(Map(arr.begin(), arr.end(),
                   [](int v) { return static_cast<double>(v * 2); }),
-              ::testing::ContainerEq(std::vector<double>{2.0, 4.0, 6.0}));
+              testing::ContainerEq(std::vector<double>{2.0, 4.0, 6.0}));
   EXPECT_THAT(Map(arr, [](int v) { return static_cast<double>(v * 2); }),
-              ::testing::ContainerEq(std::vector<double>{2.0, 4.0, 6.0}));
+              testing::ContainerEq(std::vector<double>{2.0, 4.0, 6.0}));
 }
 
 }  // namespace base

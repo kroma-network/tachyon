@@ -8,7 +8,7 @@ namespace math {
 namespace {
 
 template <typename PrimeFieldType>
-class PrimeFieldTest : public ::testing::Test {
+class PrimeFieldTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
     if constexpr (std::is_same_v<PrimeFieldType, GF7Gmp>) {
@@ -20,9 +20,9 @@ class PrimeFieldTest : public ::testing::Test {
 }  // namespace
 
 #if defined(TACHYON_GMP_BACKEND)
-using PrimeFiledTypes = ::testing::Types<GF7, GF7Gmp>;
+using PrimeFiledTypes = testing::Types<GF7, GF7Gmp>;
 #else
-using PrimeFiledTypes = ::testing::Types<GF7>;
+using PrimeFiledTypes = testing::Types<GF7>;
 #endif
 TYPED_TEST_SUITE(PrimeFieldTest, PrimeFiledTypes);
 

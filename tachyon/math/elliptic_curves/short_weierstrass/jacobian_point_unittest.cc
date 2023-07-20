@@ -13,7 +13,7 @@ namespace {
 
 using Config = test::CurveConfig::Config;
 
-class JacobianPointTest : public ::testing::Test {
+class JacobianPointTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
     GF7Config::Init();
@@ -103,7 +103,7 @@ TEST_F(JacobianPointTest, ScalarMulOperator) {
     points.push_back((GF7(i) * Config::Generator()).ToAffine());
   }
 
-  EXPECT_THAT(points, ::testing::UnorderedElementsAreArray(
+  EXPECT_THAT(points, testing::UnorderedElementsAreArray(
                           std::vector<AffinePoint<Config>>{
                               AffinePoint<Config>(GF7(0), GF7(0), true),
                               AffinePoint<Config>(GF7(3), GF7(2)),

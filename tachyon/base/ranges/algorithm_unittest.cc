@@ -16,13 +16,13 @@
 
 #include "tachyon/base/ranges/functional.h"
 
-using ::testing::ElementsAre;
-using ::testing::Field;
-using ::testing::Ge;
-using ::testing::Gt;
-using ::testing::Le;
-using ::testing::Lt;
-using ::testing::Pair;
+using testing::ElementsAre;
+using testing::Field;
+using testing::Ge;
+using testing::Gt;
+using testing::Le;
+using testing::Lt;
+using testing::Pair;
 
 namespace tachyon {
 namespace base {
@@ -826,10 +826,10 @@ TEST(RangesTest, Shuffle) {
   EXPECT_EQ(input[0], 0);
   EXPECT_EQ(input[1], 1);
   EXPECT_EQ(input[4], 4);
-  EXPECT_THAT(input, ::testing::UnorderedElementsAre(0, 1, 2, 3, 4));
+  EXPECT_THAT(input, testing::UnorderedElementsAre(0, 1, 2, 3, 4));
 
   EXPECT_EQ(input + 5, ranges::shuffle(input, std::default_random_engine()));
-  EXPECT_THAT(input, ::testing::UnorderedElementsAre(0, 1, 2, 3, 4));
+  EXPECT_THAT(input, testing::UnorderedElementsAre(0, 1, 2, 3, 4));
 }
 
 TEST(RangesTest, Sort) {

@@ -11,7 +11,7 @@ namespace {
 
 using CurveConfig = bls12_381::CurveConfig<bls12_381::FqGmp, bls12_381::FrGmp>;
 
-class GLVTest : public ::testing::Test {
+class GLVTest : public testing::Test {
  public:
   static void SetUpTestSuite() { CurveConfig::Init(); }
 };

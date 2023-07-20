@@ -15,7 +15,7 @@ const size_t kMaxDegree = 5;
 using Poly = SparseUnivariatePolynomial<GF7, kMaxDegree>;
 using Coeffs = SparseCoefficients<GF7, kMaxDegree>;
 
-class SparseUnivariatePolynomialTest : public ::testing::Test {
+class SparseUnivariatePolynomialTest : public testing::Test {
  public:
   static void SetUpTestSuite() { GF7Config::Init(); }
 

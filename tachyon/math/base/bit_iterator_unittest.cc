@@ -35,13 +35,13 @@ TEST(GmpUtilTest, BitIteratorLE) {
       }
 
       if (skip_trailing_zeros) {
-        EXPECT_THAT(bits, ::testing::ContainerEq(test.answers));
+        EXPECT_THAT(bits, testing::ContainerEq(test.answers));
       } else {
         std::vector<bool> answers = test.answers;
         answers.reserve(64);
         std::fill_n(std::back_inserter(answers), 64 - test.answers.size(),
                     false);
-        EXPECT_THAT(bits, ::testing::ContainerEq(answers));
+        EXPECT_THAT(bits, testing::ContainerEq(answers));
       }
     }
   }
@@ -73,14 +73,14 @@ TEST(GmpUtilTest, BitIteratorBE) {
       }
 
       if (skip_leading_zeros) {
-        EXPECT_THAT(bits, ::testing::ContainerEq(test.answers));
+        EXPECT_THAT(bits, testing::ContainerEq(test.answers));
       } else {
         std::vector<bool> answers;
         answers.reserve(64);
         std::fill_n(std::back_inserter(answers), 64 - test.answers.size(),
                     false);
         answers.insert(answers.end(), test.answers.begin(), test.answers.end());
-        EXPECT_THAT(bits, ::testing::ContainerEq(answers));
+        EXPECT_THAT(bits, testing::ContainerEq(answers));
       }
     }
   }

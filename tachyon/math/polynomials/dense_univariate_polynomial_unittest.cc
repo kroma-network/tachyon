@@ -13,7 +13,7 @@ const size_t kMaxDegree = 5;
 using Poly = DenseUnivariatePolynomial<GF7, kMaxDegree>;
 using Coeffs = DenseCoefficients<GF7, kMaxDegree>;
 
-class DenseUnivariatePolynomialTest : public ::testing::Test {
+class DenseUnivariatePolynomialTest : public testing::Test {
  public:
   static void SetUpTestSuite() { GF7Config::Init(); }
 

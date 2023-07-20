@@ -6,9 +6,9 @@ namespace tachyon {
 namespace math {
 
 template <typename IntegerType>
-class SignTest : public ::testing::Test {};
+class SignTest : public testing::Test {};
 
-using IntegerTypes = ::testing::Types<int, unsigned int, double>;
+using IntegerTypes = testing::Types<int, unsigned int, double>;
 TYPED_TEST_SUITE(SignTest, IntegerTypes);
 
 TYPED_TEST(SignTest, GetSign) {

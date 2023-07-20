@@ -75,7 +75,7 @@ TEST(StringNumberConversionTest, HexStringToSomethingElse) {
       std::vector<uint8_t> output;
       EXPECT_EQ(HexStringToBytes(test.hex_input, &output), test.ret);
       if (test.ret) {
-        EXPECT_THAT(output, ::testing::ContainerEq(test.vec_answer));
+        EXPECT_THAT(output, testing::ContainerEq(test.vec_answer));
       }
     }
     {
@@ -91,8 +91,8 @@ TEST(StringNumberConversionTest, HexStringToSomethingElse) {
       EXPECT_EQ(HexStringToSpan(test.hex_input, absl::MakeSpan(output)),
                 test.ret);
       if (test.ret) {
-        EXPECT_THAT(output, ::testing::ElementsAreArray(test.vec_answer.begin(),
-                                                        test.vec_answer.end()));
+        EXPECT_THAT(output, testing::ElementsAreArray(test.vec_answer.begin(),
+                                                      test.vec_answer.end()));
       }
     }
   }

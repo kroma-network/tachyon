@@ -27,7 +27,7 @@ cudaError_t LaunchSub(const GF7Cuda* x, const GF7Cuda* y, GF7Cuda* result,
   return error ? error : cudaDeviceSynchronize();
 }
 
-class PrimeFieldMontCudaTest : public ::testing::Test {
+class PrimeFieldMontCudaTest : public testing::Test {
  public:
   constexpr static size_t N = 5;
 

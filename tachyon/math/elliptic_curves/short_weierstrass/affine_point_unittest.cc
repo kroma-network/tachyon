@@ -12,7 +12,7 @@ namespace {
 
 using Config = test::CurveConfig::Config;
 
-class AffinePointTest : public ::testing::Test {
+class AffinePointTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
     GF7Config::Init();

@@ -16,7 +16,7 @@ using Config = test::CurveConfig::Config;
 
 const size_t kSize = 40;
 
-class VariableBaseMSMTest : public ::testing::Test {
+class VariableBaseMSMTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
     GF7Config::Init();

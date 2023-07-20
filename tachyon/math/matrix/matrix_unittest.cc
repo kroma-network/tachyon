@@ -13,7 +13,7 @@ namespace {
 
 using Matrix33GF7 = Matrix<GF7, 3, 3>;
 
-class MatrixTest : public ::testing::Test {
+class MatrixTest : public testing::Test {
  public:
   static void SetUpTestSuite() { GF7Config::Init(); }
 };
