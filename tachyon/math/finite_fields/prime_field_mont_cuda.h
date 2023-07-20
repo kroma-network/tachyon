@@ -84,9 +84,13 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     return PrimeFieldMontCuda(BigInt<N>::FromHexString(str));
   }
 
+  constexpr static PrimeFieldMontCuda FromBigInt(const BigInt<N>& big_int) {
+    return PrimeFieldMontCuda(big_int);
+  }
+
   template <typename T>
   constexpr static PrimeFieldMontCuda FromHost(const T& field_host) {
-    return PrimeFieldMontCuda(field_host.ToBigInt());
+    return FromBigInt(field_host.ToBigInt());
   }
 
   __host__ __device__ static constexpr BigInt<N> GetModulus() {

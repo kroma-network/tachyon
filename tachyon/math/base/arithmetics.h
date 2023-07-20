@@ -45,7 +45,7 @@ ALWAYS_INLINE constexpr SubResult<uint64_t> SubWithBorrow(uint64_t& a,
 ALWAYS_INLINE MulResult<uint64_t> MulAddWithCarry(uint64_t a, uint64_t b,
                                                   uint64_t c,
                                                   uint64_t carry = 0) {
-  absl::uint128 tmp = absl::uint128(a) + absl::uint128(b) * absl::uint128(c);
+  absl::uint128 tmp = absl::uint128(a) + absl::uint128(b) * absl::uint128(c) + carry;
   MulResult<uint64_t> result;
   result.lo = static_cast<uint64_t>(tmp);
   result.hi = static_cast<uint64_t>(tmp >> 64);

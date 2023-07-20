@@ -1,4 +1,5 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon.bzl", "if_gmp_backend")
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
@@ -58,6 +59,7 @@ tachyon_cc_library(
         "//tachyon/math/base:arithmetics",
         "//tachyon/math/base:identities",
         "//tachyon/math/base/gmp:gmp_util",
+        "@com_google_googletest//:gtest_prod",
     ],
 )
 
@@ -94,5 +96,15 @@ tachyon_cuda_test(
         ":prime_field",
         "//tachyon/device/gpu/cuda:cuda_memory",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
+    ],
+)
+
+tachyon_cc_test(
+    name = "finite_field_correctness_test",
+    srcs = if_gmp_backend(["finite_field_correctness_test.cc"]),
+    tags = ["manual"],
+    deps = [
+        ":prime_field",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
     ],
 )

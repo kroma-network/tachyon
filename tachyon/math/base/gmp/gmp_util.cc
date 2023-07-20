@@ -79,6 +79,8 @@ bool TestBit(const mpz_class& value, size_t index) {
   return mpz_tstbit(value.get_mpz_t(), index) == 1;
 }
 
+uint64_t* GetLimbs(const mpz_class& value) { return value.__get_mp()->_mp_d; }
+
 size_t GetLimbSize(const mpz_class& value) {
   return value.__get_mp()->_mp_size;
 }

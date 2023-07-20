@@ -300,7 +300,7 @@ struct BigInt {
 
   constexpr BigInt& DivBy2InPlace() {
     uint64_t last = 0;
-    FOR_FROM_SMALLEST(0, N) {
+    FOR_FROM_BIGGEST(0, N) {
       uint64_t temp = limbs[i] << 63;
       limbs[i] >>= 1;
       limbs[i] |= last;

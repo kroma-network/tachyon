@@ -70,12 +70,15 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     return PrimeFieldGmp(gmp::FromHexString(str));
   }
 
-  template <typename T>
-  static PrimeFieldGmp FromDevice(const T& field_device) {
-    BigInt<N> big_int = field_device.ToBigInt();
+  static PrimeFieldGmp FromBigInt(const BigInt<N>& big_int) {
     mpz_class out;
     gmp::WriteLimbs(big_int.limbs, N, &out);
     return PrimeFieldGmp(std::move(out));
+  }
+
+  template <typename T>
+  static PrimeFieldGmp FromDevice(const T& field_device) {
+    return FromBigInt(field_device.ToBigInt());
   }
 
   static void Init() {

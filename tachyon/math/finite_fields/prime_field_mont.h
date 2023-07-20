@@ -7,6 +7,8 @@
 #include <ostream>
 #include <string>
 
+#include "gtest/gtest_prod.h"
+
 #include "tachyon/base/random.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
@@ -81,9 +83,13 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     return PrimeFieldMont(BigInt<N>::FromHexString(str));
   }
 
+  constexpr static PrimeFieldMont FromBigInt(const BigInt<N>& big_int) {
+    return PrimeFieldMont(big_int);
+  }
+
   template <typename T>
   constexpr static PrimeFieldMont FromDevice(const T& field_device) {
-    return PrimeFieldMont(field_device.ToBigInt());
+    return FromBigInt(field_device.ToBigInt());
   }
 
   const value_type& value() const { return value_; }
@@ -184,35 +190,9 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   // MultiplicativeSemigroup methods
   constexpr PrimeFieldMont& MulInPlace(const PrimeFieldMont& other) {
     if constexpr (kCanUseNoCarryMulOptimization) {
-      BigInt<N> r;
-      for (size_t i = 0; i < N; ++i) {
-        MulResult<uint64_t> result;
-        result = internal::MulAddWithCarry(r[0], value_[0], other.value_[0]);
-        r[0] = result.lo;
-
-        uint64_t k = r[0] * kInverse;
-        MulResult<uint64_t> result2;
-        result2 = internal::MulAddWithCarry(r[0], k, Config::kModulus[0]);
-
-        for (size_t j = 1; j < N; ++j) {
-          result = internal::MulAddWithCarry(r[j], value_[j], other.value_[i],
-                                             result.hi);
-          r[j] = result.lo;
-          result2 = internal::MulAddWithCarry(r[j], k, Config::kModulus[j],
-                                              result2.hi);
-          r[j - 1] = result2.lo;
-        }
-        r[N - 1] = result.hi + result2.hi;
-      }
-      value_ = r;
-      return Clamp(0);
+      return FastMulInPlace(other);
     } else {
-      // Alternative implementation, CIOS.
-      uint64_t carry = 0;
-      MulWithoutConditionSubtract(other, carry);
-      // NOTE(chokobole): This is different from arkworks!
-      // Seems like arkworks bugs..?
-      return Clamp(carry);
+      return SlowMulInPlace(other);
     }
   }
 
@@ -248,21 +228,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
       r[2 * i + 1] = add_result.result;
       mul_result.hi = add_result.carry;
     }
-    // Montgomery reduction
-    add_result.carry = 0;
-    for (size_t i = 0; i < N; ++i) {
-      uint64_t k = r[i] * kInverse;
-      mul_result = internal::MulAddWithCarry(r[i], k, Config::kModulus[0]);
-      for (size_t j = 1; j < N; ++j) {
-        mul_result = internal::MulAddWithCarry(r[j + i], k, Config::kModulus[j],
-                                               mul_result.hi);
-        r[j + i] = mul_result.lo;
-      }
-      add_result =
-          internal::AddWithCarry(r[N + i], mul_result.hi, add_result.carry);
-    }
-    memcpy(&value_[0], &r[N], sizeof(uint64_t) * N);
-    return Clamp(add_result.carry);
+    return Reduce(r);
   }
 
   // MultiplicativeGroup methods
@@ -277,7 +243,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     BigInt<N> v = Config::kModulus;
     PrimeFieldMont b;
     b.value_ = kMontgomeryR2;
-    PrimeFieldMont c;
+    PrimeFieldMont c = PrimeFieldMont::Zero();
 
     while (!u.IsOne() && !v.IsOne()) {
       while (u.IsEven()) {
@@ -334,6 +300,8 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
 
  private:
+  FRIEND_TEST(PrimeFieldCorrectnessTest, MultiplicativeOperators);
+
   constexpr PrimeFieldMont& Clamp(bool carry) {
     bool needs_to_clamp = false;
     if constexpr (kModulusHasSparseBit) {
@@ -348,51 +316,64 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     return *this;
   }
 
-  // TODO(chokobole): Support bigendian.
-  constexpr PrimeFieldMont& MulWithoutConditionSubtract(
-      const PrimeFieldMont& other, uint64_t& carry) {
-    BigInt<N> lo;
-    BigInt<N> hi;
+  constexpr PrimeFieldMont& Reduce(BigInt<N * 2>& r) {
+    AddResult<uint64_t> add_result;
+    for (size_t i = 0; i < N; ++i) {
+      uint64_t tmp = r[i] * kInverse;
+      MulResult<uint64_t> mul_result;
+      mul_result = internal::MulAddWithCarry(r[i], tmp, Config::kModulus[0],
+                                             mul_result.hi);
+      for (size_t j = 1; j < N; ++j) {
+        mul_result = internal::MulAddWithCarry(
+            r[i + j], tmp, Config::kModulus[j], mul_result.hi);
+        r[i + j] = mul_result.lo;
+      }
+      add_result =
+          internal::AddWithCarry(r[N + i], mul_result.hi, add_result.carry);
+      r[N + i] = add_result.result;
+    }
+    memcpy(&value_[0], &r[N], sizeof(uint64_t) * N);
+    return Clamp(add_result.carry);
+  }
+
+  constexpr PrimeFieldMont& FastMulInPlace(const PrimeFieldMont& other) {
+    BigInt<N> r;
+    for (size_t i = 0; i < N; ++i) {
+      MulResult<uint64_t> result;
+      result = internal::MulAddWithCarry(r[0], value_[0], other.value_[i]);
+      r[0] = result.lo;
+
+      uint64_t k = r[0] * kInverse;
+      MulResult<uint64_t> result2;
+      result2 = internal::MulAddWithCarry(r[0], k, Config::kModulus[0]);
+
+      for (size_t j = 1; j < N; ++j) {
+        result = internal::MulAddWithCarry(r[j], value_[j], other.value_[i],
+                                           result.hi);
+        r[j] = result.lo;
+        result2 =
+            internal::MulAddWithCarry(r[j], k, Config::kModulus[j], result2.hi);
+        r[j - 1] = result2.lo;
+      }
+      r[N - 1] = result.hi + result2.hi;
+    }
+    value_ = r;
+    return Clamp(0);
+  }
+
+  constexpr PrimeFieldMont& SlowMulInPlace(const PrimeFieldMont& other) {
+    BigInt<N * 2> r;
     MulResult<uint64_t> mul_result;
     for (size_t i = 0; i < N; ++i) {
       for (size_t j = 0; j < N; ++j) {
-        size_t k = i + j;
-        if (k >= N) {
-          mul_result = internal::MulAddWithCarry(
-              hi[k - N], value_[i], other.value_[j], mul_result.hi);
-          hi[k - N] = mul_result.lo;
-        } else {
-          mul_result = internal::MulAddWithCarry(
-              lo[k], value_[i], other.value_[j], mul_result.hi);
-          lo[k] = mul_result.lo;
-        }
+        mul_result = internal::MulAddWithCarry(r[i + j], value_[i],
+                                               other.value_[j], mul_result.hi);
+        r[i + j] = mul_result.lo;
       }
+      r[i + N] = mul_result.hi;
+      mul_result.hi = 0;
     }
-    // Montgomery reduction
-    AddResult<uint64_t> add_result;
-    for (size_t i = 0; i < N; ++i) {
-      uint64_t tmp = lo[i] * kInverse;
-      mul_result = internal::MulAddWithCarry(lo[i], tmp, Config::kModulus[0],
-                                             mul_result.hi);
-      for (size_t j = 0; j < N; ++j) {
-        size_t k = i + j;
-        if (k >= N) {
-          mul_result = internal::MulAddWithCarry(
-              hi[k - N], tmp, Config::kModulus[j], mul_result.hi);
-          hi[k - N] = mul_result.lo;
-        } else {
-          mul_result = internal::MulAddWithCarry(
-              lo[k], tmp, Config::kModulus[j], mul_result.hi);
-          lo[k] = mul_result.lo;
-        }
-      }
-      add_result =
-          internal::AddWithCarry(hi[i], add_result.carry, mul_result.hi);
-    }
-
-    value_ = hi;
-    carry = add_result.carry;
-    return *this;
+    return Reduce(r);
   }
 
   BigInt<N> value_;

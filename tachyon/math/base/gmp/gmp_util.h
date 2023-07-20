@@ -50,6 +50,7 @@ TACHYON_EXPORT mpz_class GetAbs(const mpz_class& value);
 TACHYON_EXPORT size_t GetNumBits(const mpz_class& value);
 TACHYON_EXPORT bool TestBit(const mpz_class& value, size_t index);
 
+TACHYON_EXPORT uint64_t* GetLimbs(const mpz_class& value);
 TACHYON_EXPORT size_t GetLimbSize(const mpz_class& value);
 TACHYON_EXPORT uint64_t GetLimb(const mpz_class& value, size_t idx);
 TACHYON_EXPORT void CopyLimbs(const mpz_class& value, uint64_t* limbs);
