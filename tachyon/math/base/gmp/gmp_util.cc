@@ -23,6 +23,8 @@ gmp_randstate_t& GetRandomState() {
 
 }  // namespace
 
+static_assert(sizeof(mp_limb_t) == sizeof(uint64_t), "limb should be 64 bit");
+
 mpz_class Random(mpz_class n) {
   mpz_class value;
   mpz_urandomm(value.get_mpz_t(), GetRandomState(), n.get_mpz_t());
@@ -79,7 +81,9 @@ bool TestBit(const mpz_class& value, size_t index) {
   return mpz_tstbit(value.get_mpz_t(), index) == 1;
 }
 
-uint64_t* GetLimbs(const mpz_class& value) { return value.__get_mp()->_mp_d; }
+uint64_t* GetLimbs(const mpz_class& value) {
+  return reinterpret_cast<uint64_t*>(value.__get_mp()->_mp_d);
+}
 
 size_t GetLimbSize(const mpz_class& value) {
   return value.__get_mp()->_mp_size;

@@ -13,8 +13,6 @@ constexpr size_t kTestNum = 1000;
 
 class PrimeFieldCorrectnessTest : public testing::Test {
  public:
-  static constexpr size_t N = bn254::Fq::kLimbNums;
-
   static void SetUpTestSuite() {
     bn254::FqGmp::Init();
     kMontgomeryRGmp = bn254::FqGmp::FromBigInt(bn254::Fq::kMontgomeryR);
