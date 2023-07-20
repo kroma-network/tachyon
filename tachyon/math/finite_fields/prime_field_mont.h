@@ -65,7 +65,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   static PrimeFieldMont Random() {
     BigInt<N> big_int;
     for (size_t i = 0; i < N; ++i) {
-      big_int.limbs[i] = base::Uniform<uint64_t, uint64_t>(
+      big_int[i] = base::Uniform<uint64_t, uint64_t>(
           0, std::numeric_limits<uint64_t>::max());
     }
     while (big_int >= Config::kModulus) {
@@ -187,21 +187,19 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
       BigInt<N> r;
       for (size_t i = 0; i < N; ++i) {
         MulResult<uint64_t> result;
-        result = internal::MulAddWithCarry(r.limbs[0], value_.limbs[0],
-                                           other.value_.limbs[0]);
-        r.limbs[0] = result.lo;
+        result = internal::MulAddWithCarry(r[0], value_[0], other.value_[0]);
+        r[0] = result.lo;
 
-        uint64_t k = r.limbs[0] * kInverse;
+        uint64_t k = r[0] * kInverse;
         MulResult<uint64_t> result2;
-        result2 =
-            internal::MulAddWithCarry(r.limbs[0], k, Config::kModulus.limbs[0]);
+        result2 = internal::MulAddWithCarry(r[0], k, Config::kModulus[0]);
 
         for (size_t j = 1; j < N; ++j) {
-          result = internal::MulAddWithCarry(r[j], value_.limbs[j],
-                                             other.value_.limbs[i], result.hi);
+          result = internal::MulAddWithCarry(r[j], value_[j], other.value_[i],
+                                             result.hi);
           r[j] = result.lo;
-          result2 = internal::MulAddWithCarry(
-              r[j], k, Config::kModulus.limbs[j], result2.hi);
+          result2 = internal::MulAddWithCarry(r[j], k, Config::kModulus[j],
+                                              result2.hi);
           r[j - 1] = result2.lo;
         }
         r[N - 1] = result.hi + result2.hi;
@@ -263,7 +261,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
       add_result =
           internal::AddWithCarry(r[N + i], mul_result.hi, add_result.carry);
     }
-    memcpy(value_.limbs, &r.limbs[N], sizeof(uint64_t) * N);
+    memcpy(&value_[0], &r[N], sizeof(uint64_t) * N);
     return Clamp(add_result.carry);
   }
 
@@ -360,38 +358,36 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
       for (size_t j = 0; j < N; ++j) {
         size_t k = i + j;
         if (k >= N) {
-          mul_result =
-              internal::MulAddWithCarry(hi.limbs[k - N], value_.limbs[i],
-                                        other.value_.limbs[j], mul_result.hi);
-          hi.limbs[k - N] = mul_result.lo;
+          mul_result = internal::MulAddWithCarry(
+              hi[k - N], value_[i], other.value_[j], mul_result.hi);
+          hi[k - N] = mul_result.lo;
         } else {
-          mul_result =
-              internal::MulAddWithCarry(lo.limbs[k], value_.limbs[i],
-                                        other.value_.limbs[j], mul_result.hi);
-          lo.limbs[k] = mul_result.lo;
+          mul_result = internal::MulAddWithCarry(
+              lo[k], value_[i], other.value_[j], mul_result.hi);
+          lo[k] = mul_result.lo;
         }
       }
     }
     // Montgomery reduction
     AddResult<uint64_t> add_result;
     for (size_t i = 0; i < N; ++i) {
-      uint64_t tmp = lo.limbs[i] * kInverse;
-      mul_result = internal::MulAddWithCarry(
-          lo[i], tmp, Config::kModulus.limbs[0], mul_result.hi);
+      uint64_t tmp = lo[i] * kInverse;
+      mul_result = internal::MulAddWithCarry(lo[i], tmp, Config::kModulus[0],
+                                             mul_result.hi);
       for (size_t j = 0; j < N; ++j) {
         size_t k = i + j;
         if (k >= N) {
           mul_result = internal::MulAddWithCarry(
-              hi.limbs[k - N], tmp, Config::kModulus.limbs[j], mul_result.hi);
-          hi.limbs[k - N] = mul_result.lo;
+              hi[k - N], tmp, Config::kModulus[j], mul_result.hi);
+          hi[k - N] = mul_result.lo;
         } else {
           mul_result = internal::MulAddWithCarry(
-              lo.limbs[k], tmp, Config::kModulus.limbs[j], mul_result.hi);
-          lo.limbs[k] = mul_result.lo;
+              lo[k], tmp, Config::kModulus[j], mul_result.hi);
+          lo[k] = mul_result.lo;
         }
       }
       add_result =
-          internal::AddWithCarry(hi.limbs[i], add_result.carry, mul_result.hi);
+          internal::AddWithCarry(hi[i], add_result.carry, mul_result.hi);
     }
 
     value_ = hi;
