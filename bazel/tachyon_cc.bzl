@@ -158,6 +158,7 @@ def tachyon_cuda_test(
         ],
         # NOTE(chokobole): Without this, tests are not contained in a final binary.
         alwayslink = True,
+        testonly = True,
         **kwargs
     )
 
