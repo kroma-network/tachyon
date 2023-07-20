@@ -15,19 +15,51 @@ class PrimeFieldCorrectnessTest : public testing::Test {
   static void SetUpTestSuite() {
     bn254::FqGmp::Init();
     kMontgomeryRGmp = bn254::FqGmp::FromBigInt(bn254::Fq::kMontgomeryR);
+
+    a_gmps_.reserve(kTestNum);
+    b_gmps_.reserve(kTestNum);
+    as_.reserve(kTestNum);
+    bs_.reserve(kTestNum);
+
+    for (size_t i = 0; i < kTestNum; ++i) {
+      bn254::FqGmp a_gmp = bn254::FqGmp::Random();
+      bn254::FqGmp b_gmp = bn254::FqGmp::Random();
+      bn254::Fq a = bn254::Fq::FromBigInt(a_gmp.ToBigInt());
+      bn254::Fq b = bn254::Fq::FromBigInt(b_gmp.ToBigInt());
+
+      a_gmps_.push_back(std::move(a_gmp));
+      b_gmps_.push_back(std::move(b_gmp));
+      as_.push_back(std::move(a));
+      bs_.push_back(std::move(b));
+    }
+  }
+
+  static void TearDownTestSuite() {
+    a_gmps_.clear();
+    b_gmps_.clear();
+    as_.clear();
+    bs_.clear();
   }
 
   static bn254::FqGmp kMontgomeryRGmp;
+  static std::vector<bn254::FqGmp> a_gmps_;
+  static std::vector<bn254::FqGmp> b_gmps_;
+  static std::vector<bn254::Fq> as_;
+  static std::vector<bn254::Fq> bs_;
 };
 
 bn254::FqGmp PrimeFieldCorrectnessTest::kMontgomeryRGmp;
+std::vector<bn254::FqGmp> PrimeFieldCorrectnessTest::a_gmps_;
+std::vector<bn254::FqGmp> PrimeFieldCorrectnessTest::b_gmps_;
+std::vector<bn254::Fq> PrimeFieldCorrectnessTest::as_;
+std::vector<bn254::Fq> PrimeFieldCorrectnessTest::bs_;
 
 }  // namespace
 
 TEST_F(PrimeFieldCorrectnessTest, MontgomeryForm) {
   for (size_t i = 0; i < kTestNum; ++i) {
-    bn254::FqGmp a_gmp = bn254::FqGmp::Random();
-    bn254::Fq a = bn254::Fq::FromBigInt(a_gmp.ToBigInt());
+    const bn254::FqGmp& a_gmp = a_gmps_[i];
+    const bn254::Fq& a = as_[i];
 
     SCOPED_TRACE(absl::Substitute("a: $0", a_gmp.ToString()));
     bn254::FqGmp a_gmp_mont = a_gmp * kMontgomeryRGmp;
@@ -37,10 +69,10 @@ TEST_F(PrimeFieldCorrectnessTest, MontgomeryForm) {
 
 TEST_F(PrimeFieldCorrectnessTest, AdditiveOperators) {
   for (size_t i = 0; i < kTestNum; ++i) {
-    bn254::FqGmp a_gmp = bn254::FqGmp::Random();
-    bn254::FqGmp b_gmp = bn254::FqGmp::Random();
-    bn254::Fq a = bn254::Fq::FromBigInt(a_gmp.ToBigInt());
-    bn254::Fq b = bn254::Fq::FromBigInt(b_gmp.ToBigInt());
+    bn254::FqGmp a_gmp = a_gmps_[i];
+    const bn254::FqGmp& b_gmp = b_gmps_[i];
+    bn254::Fq a = as_[i];
+    const bn254::Fq& b = bs_[i];
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", a_gmp.ToString(), b_gmp.ToString()));
 
@@ -58,8 +90,8 @@ TEST_F(PrimeFieldCorrectnessTest, AdditiveOperators) {
 
 TEST_F(PrimeFieldCorrectnessTest, AdditiveGroupOperators) {
   for (size_t i = 0; i < kTestNum; ++i) {
-    bn254::FqGmp a_gmp = bn254::FqGmp::Random();
-    bn254::Fq a = bn254::Fq::FromBigInt(a_gmp.ToBigInt());
+    bn254::FqGmp a_gmp = a_gmps_[i];
+    bn254::Fq a = as_[i];
     SCOPED_TRACE(absl::Substitute("a: $0", a_gmp.ToString()));
 
     ASSERT_EQ(a.Negative().ToBigInt(), a_gmp.Negative().ToBigInt());
@@ -76,10 +108,10 @@ TEST_F(PrimeFieldCorrectnessTest, AdditiveGroupOperators) {
 
 TEST_F(PrimeFieldCorrectnessTest, MultiplicativeOperators) {
   for (size_t i = 0; i < 1000; ++i) {
-    bn254::FqGmp a_gmp = bn254::FqGmp::Random();
-    bn254::FqGmp b_gmp = bn254::FqGmp::Random();
-    bn254::Fq a = bn254::Fq::FromBigInt(a_gmp.ToBigInt());
-    bn254::Fq b = bn254::Fq::FromBigInt(b_gmp.ToBigInt());
+    bn254::FqGmp a_gmp = a_gmps_[i];
+    const bn254::FqGmp& b_gmp = b_gmps_[i];
+    bn254::Fq a = as_[i];
+    const bn254::Fq& b = bs_[i];
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", a_gmp.ToString(), b_gmp.ToString()));
 
@@ -100,8 +132,8 @@ TEST_F(PrimeFieldCorrectnessTest, MultiplicativeOperators) {
 
 TEST_F(PrimeFieldCorrectnessTest, MultiplicativeGroupOperators) {
   for (size_t i = 0; i < kTestNum; ++i) {
-    bn254::FqGmp a_gmp = bn254::FqGmp::Random();
-    bn254::Fq a = bn254::Fq::FromBigInt(a_gmp.ToBigInt());
+    bn254::FqGmp a_gmp = a_gmps_[i];
+    bn254::Fq a = as_[i];
     SCOPED_TRACE(absl::Substitute("a: $0", a_gmp.ToString()));
 
     ASSERT_EQ(a.Inverse().ToBigInt(), a_gmp.Inverse().ToBigInt());
@@ -117,29 +149,8 @@ TEST_F(PrimeFieldCorrectnessTest, MultiplicativeGroupOperators) {
 }
 
 TEST_F(PrimeFieldCorrectnessTest, SumOfProducts) {
-  std::vector<bn254::FqGmp> gmp_nums;
-  std::vector<bn254::FqGmp> gmp_nums2;
-  std::vector<bn254::Fq> nums;
-  std::vector<bn254::Fq> nums2;
-  gmp_nums.reserve(kTestNum / 2);
-  gmp_nums2.reserve(kTestNum / 2);
-  nums.reserve(kTestNum / 2);
-  nums2.reserve(kTestNum / 2);
-  for (size_t i = 0; i < kTestNum; ++i) {
-    bn254::FqGmp a_gmp = bn254::FqGmp::Random();
-    bn254::Fq a = bn254::Fq::FromBigInt(a_gmp.ToBigInt());
-
-    if (i < kTestNum / 2) {
-      gmp_nums.push_back(a_gmp);
-      nums.push_back(a);
-    } else {
-      gmp_nums2.push_back(a_gmp);
-      nums2.push_back(a);
-    }
-  }
-
-  ASSERT_EQ(bn254::Fq::SumOfProducts(nums, nums2).ToBigInt(),
-            bn254::FqGmp::SumOfProducts(gmp_nums, gmp_nums2).ToBigInt());
+  ASSERT_EQ(bn254::Fq::SumOfProducts(as_, bs_).ToBigInt(),
+            bn254::FqGmp::SumOfProducts(a_gmps_, b_gmps_).ToBigInt());
 }
 
 }  // namespace math
