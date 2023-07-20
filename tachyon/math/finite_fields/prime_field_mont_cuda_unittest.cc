@@ -10,22 +10,30 @@ namespace math {
 
 namespace {
 
-cudaError_t LaunchAdd(const GF7Cuda* x, const GF7Cuda* y, GF7Cuda* result,
-                      size_t count) {
-  kernels::Add<<<(count - 1) / 32 + 1, 32>>>(x, y, result, count);
-  cudaError_t error = cudaGetLastError();
-  GPU_LOG_IF_ERROR(ERROR, error) << "1";
-  error = error ? error : cudaDeviceSynchronize();
-  GPU_LOG_IF_ERROR(ERROR, error) << "2";
-  return error;
-}
+#define DEFINE_LAUNCH_OP(method, type)                                         \
+  cudaError_t Launch##method(const GF7Cuda* x, const GF7Cuda* y, type* result, \
+                             size_t count) {                                   \
+    kernels::method<<<(count - 1) / 32 + 1, 32>>>(x, y, result, count);        \
+    cudaError_t error = cudaGetLastError();                                    \
+    return error ? error : cudaDeviceSynchronize();                            \
+  }
 
-cudaError_t LaunchSub(const GF7Cuda* x, const GF7Cuda* y, GF7Cuda* result,
-                      size_t count) {
-  kernels::Sub<<<(count - 1) / 32 + 1, 32>>>(x, y, result, count);
-  cudaError_t error = cudaGetLastError();
-  return error ? error : cudaDeviceSynchronize();
-}
+#define DEFINE_LAUNCH_FIELD_OP(method) DEFINE_LAUNCH_OP(method, GF7Cuda)
+#define DEFINE_LAUNCH_COMPARISON_OP(method) DEFINE_LAUNCH_OP(method, bool)
+
+DEFINE_LAUNCH_FIELD_OP(Add)
+DEFINE_LAUNCH_FIELD_OP(Sub)
+
+DEFINE_LAUNCH_COMPARISON_OP(Eq)
+DEFINE_LAUNCH_COMPARISON_OP(Ne)
+DEFINE_LAUNCH_COMPARISON_OP(Lt)
+DEFINE_LAUNCH_COMPARISON_OP(Le)
+DEFINE_LAUNCH_COMPARISON_OP(Gt)
+DEFINE_LAUNCH_COMPARISON_OP(Ge)
+
+#undef DEFINE_LAUNCH_COMPARISON_OP
+#undef DEFINE_LAUNCH_FIELD_OP
+#undef DEFINE_LAUNCH_OP
 
 class PrimeFieldMontCudaTest : public testing::Test {
  public:
@@ -36,7 +44,7 @@ class PrimeFieldMontCudaTest : public testing::Test {
     xs_ = device::gpu::MakeManagedUnique<GF7Cuda>(N * sizeof(GF7Cuda));
     ys_ = device::gpu::MakeManagedUnique<GF7Cuda>(N * sizeof(GF7Cuda));
     results_ = device::gpu::MakeManagedUnique<GF7Cuda>(N * sizeof(GF7Cuda));
-    results2_ = device::gpu::MakeManagedUnique<GF7Cuda>(N * sizeof(GF7Cuda));
+    bool_results_ = device::gpu::MakeManagedUnique<bool>(N * sizeof(bool));
 
     GF7Config::Init();
   }
@@ -45,7 +53,7 @@ class PrimeFieldMontCudaTest : public testing::Test {
     xs_.reset();
     ys_.reset();
     results_.reset();
-    results2_.reset();
+    bool_results_.reset();
 
     GPU_SUCCESS(cudaDeviceReset());
   }
@@ -54,22 +62,39 @@ class PrimeFieldMontCudaTest : public testing::Test {
     GPU_SUCCESS(cudaMemset(xs_.get(), 0, N * sizeof(GF7Cuda)));
     GPU_SUCCESS(cudaMemset(ys_.get(), 0, N * sizeof(GF7Cuda)));
     GPU_SUCCESS(cudaMemset(results_.get(), 0, N * sizeof(GF7Cuda)));
-    GPU_SUCCESS(cudaMemset(results2_.get(), 0, N * sizeof(GF7Cuda)));
   }
 
  protected:
   static device::gpu::ScopedMemory<GF7Cuda> xs_;
   static device::gpu::ScopedMemory<GF7Cuda> ys_;
   static device::gpu::ScopedMemory<GF7Cuda> results_;
-  static device::gpu::ScopedMemory<GF7Cuda> results2_;
+  static device::gpu::ScopedMemory<bool> bool_results_;
 };
 
 device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::xs_;
 device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::ys_;
 device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::results_;
-device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::results2_;
+device::gpu::ScopedMemory<bool> PrimeFieldMontCudaTest::bool_results_;
 
 }  // namespace
+
+#define RUN_OPERATION_TESTS(method, results)                                  \
+  for (size_t i = 0; i < std::size(tests); ++i) {                             \
+    const auto& test = tests[i];                                              \
+    (xs_.get())[i] = GF7Cuda::FromHost(test.x);                               \
+    (ys_.get())[i] = GF7Cuda::FromHost(test.y);                               \
+  }                                                                           \
+  GPU_SUCCESS(                                                                \
+      Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests))); \
+  for (size_t i = 0; i < std::size(tests); ++i)
+
+#define RUN_FIELD_OPERATION_TESTS(method) \
+  RUN_OPERATION_TESTS(method, results_)   \
+  ASSERT_EQ(GF7::FromDevice((results_.get())[i]), tests[i].result)
+
+#define RUN_COMPARISON_OPERATION_TESTS(method) \
+  RUN_OPERATION_TESTS(method, bool_results_)   \
+  ASSERT_EQ((bool_results_.get())[i], tests[i].result)
 
 TEST_F(PrimeFieldMontCudaTest, FromString) {
   EXPECT_EQ(GF7Cuda::FromDecString("3"), GF7Cuda(3));
@@ -93,98 +118,145 @@ TEST_F(PrimeFieldMontCudaTest, One) {
   EXPECT_FALSE(GF7Cuda::Zero().IsOne());
 }
 
-TEST_F(PrimeFieldMontCudaTest, AdditiveOperators) {
+TEST_F(PrimeFieldMontCudaTest, Add) {
   struct {
     GF7 x;
     GF7 y;
-    GF7 add;
-    GF7 sub;
+    GF7 result;
   } tests[] = {
-      {GF7(3), GF7(2), GF7(5), GF7(1)},
-      {GF7(2), GF7(3), GF7(5), GF7(6)},
-      {GF7(5), GF7(3), GF7(1), GF7(2)},
-      {GF7(3), GF7(5), GF7(1), GF7(5)},
+      {GF7(3), GF7(2), GF7(5)},
+      {GF7(2), GF7(3), GF7(5)},
+      {GF7(5), GF7(3), GF7(1)},
+      {GF7(3), GF7(5), GF7(1)},
+  };
+
+  RUN_FIELD_OPERATION_TESTS(Add);
+}
+
+TEST_F(PrimeFieldMontCudaTest, Sub) {
+  struct {
+    GF7 x;
+    GF7 y;
+    GF7 result;
+  } tests[] = {
+      {GF7(3), GF7(2), GF7(1)},
+      {GF7(2), GF7(3), GF7(6)},
+      {GF7(5), GF7(3), GF7(2)},
+      {GF7(3), GF7(5), GF7(5)},
+  };
+
+  RUN_FIELD_OPERATION_TESTS(Sub);
+}
+
+TEST_F(PrimeFieldMontCudaTest, Eq) {
+  struct {
+    GF7 x;
+    GF7 y;
+    bool result;
+  } tests[] = {
+      {GF7(3), GF7(2), false},
+      {GF7(2), GF7(3), false},
+      {GF7(3), GF7(3), true},
   };
 
   for (size_t i = 0; i < std::size(tests); ++i) {
     const auto& test = tests[i];
     (xs_.get())[i] = GF7Cuda::FromHost(test.x);
     (ys_.get())[i] = GF7Cuda::FromHost(test.y);
+    ASSERT_EQ((xs_.get())[i] == (ys_.get())[i], test.result);
   }
 
   GPU_SUCCESS(
-      LaunchAdd(xs_.get(), ys_.get(), results_.get(), std::size(tests)));
+      LaunchEq(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)));
   for (size_t i = 0; i < std::size(tests); ++i) {
-    ASSERT_EQ(GF7::FromDevice((results_.get())[i]), tests[i].add);
+    ASSERT_EQ((bool_results_.get())[i], tests[i].result);
   }
-
-  // GPU_SUCCESS(
-  //     LaunchSub(xs_.get(), ys_.get(), results2_.get(), std::size(tests)));
-  // for (size_t i = 0; i < std::size(tests); ++i) {
-  //   ASSERT_EQ(GF7::FromDevice((results2_.get())[i]), tests[i].sub);
-  // }
 }
 
-// TEST_F(PrimeFieldMontCudaTest, DeviceXMinusZeroEqualsX) {
-//   GPU_SUCCESS(LaunchSubPrimeField(xs_, zeroes_, results1_, N));
-//   for (size_t i = 0; i < N; ++i) ASSERT_EQ(xs_[i], results1_[i]);
-// }
+TEST_F(PrimeFieldMontCudaTest, Ne) {
+  struct {
+    GF7 x;
+    GF7 y;
+    bool result;
+  } tests[] = {
+      {GF7(3), GF7(2), true},
+      {GF7(2), GF7(3), true},
+      {GF7(3), GF7(3), false},
+  };
 
-// // Device x-x == 0
-// TEST_F(PrimeFieldMontCudaTest, DeviceXMinusXEqualsZero) {
-//   LOG(ERROR) << "!!";
-//   GPU_SUCCESS(LaunchSubPrimeField(xs_, xs_, results1_, N));
-//   for (size_t i = 0; i < N; ++i) ASSERT_EQ(results1_[i], zeroes_[i]);
-// }
+  for (size_t i = 0; i < std::size(tests); ++i) {
+    const auto& test = tests[i];
+    (xs_.get())[i] = GF7Cuda::FromHost(test.x);
+    (ys_.get())[i] = GF7Cuda::FromHost(test.y);
+    ASSERT_EQ((xs_.get())[i] != (ys_.get())[i], test.result);
+  }
 
-// TEST_F(PrimeFieldMontCudaTest, FromString) {
-//   EXPECT_EQ(GF7::FromDecString("3"), GF7(3));
-//   EXPECT_EQ(GF7::FromHexString("0x3"), GF7(3));
-// }
+  GPU_SUCCESS(
+      LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)));
+  for (size_t i = 0; i < std::size(tests); ++i) {
+    ASSERT_EQ((bool_results_.get())[i], tests[i].result);
+  }
+}
 
-// TEST_F(PrimeFieldMontCudaTest, ToString) {
-//   GF7 f(3);
+TEST_F(PrimeFieldMontCudaTest, Lt) {
+  struct {
+    GF7 x;
+    GF7 y;
+    bool result;
+  } tests[] = {
+      {GF7(3), GF7(2), false},
+      {GF7(2), GF7(3), true},
+      {GF7(3), GF7(3), false},
+  };
 
-//   EXPECT_EQ(f.ToString(), "3");
-//   EXPECT_EQ(f.ToHexString(), "0x3");
-// }
+  RUN_COMPARISON_OPERATION_TESTS(Lt);
+}
 
-// TEST_F(PrimeFieldMontCudaTest, Zero) {
-//   EXPECT_TRUE(GF7::Zero().IsZero());
-//   EXPECT_FALSE(GF7::One().IsZero());
-// }
+TEST_F(PrimeFieldMontCudaTest, Le) {
+  struct {
+    GF7 x;
+    GF7 y;
+    bool result;
+  } tests[] = {
+      {GF7(3), GF7(2), false},
+      {GF7(2), GF7(3), true},
+      {GF7(3), GF7(3), true},
+  };
 
-// TEST_F(PrimeFieldMontCudaTest, One) {
-//   EXPECT_TRUE(GF7::One().IsOne());
-//   EXPECT_FALSE(GF7::Zero().IsOne());
-// }
+  RUN_COMPARISON_OPERATION_TESTS(Le);
+}
 
-// TEST_F(PrimeFieldMontCudaTest, AdditiveOperators) {
-//   struct {
-//     GF7Cuda a;
-//     GF7Cuda b;
-//     GF7Cuda sum;
-//     GF7Cuda amb;
-//     GF7Cuda bma;
-//   } tests[] = {
-//       {GF7Cuda(3), GF7Cuda(2), GF7Cuda(5), GF7Cuda(1),
-//       GF7Cuda(6)}, {GF7Cuda(5), GF7Cuda(3), GF7Cuda(1),
-//       GF7Cuda(2), GF7Cuda(5)},
-//   };
+TEST_F(PrimeFieldMontCudaTest, Gt) {
+  struct {
+    GF7 x;
+    GF7 y;
+    bool result;
+  } tests[] = {
+      {GF7(3), GF7(2), true},
+      {GF7(2), GF7(3), false},
+      {GF7(3), GF7(3), false},
+  };
 
-//   for (const auto& test : tests) {
-//     EXPECT_EQ(test.a + test.b, test.sum);
-//     // EXPECT_EQ(test.b + test.a, test.sum);
-//     // EXPECT_EQ(test.a - test.b, test.amb);
-//     // EXPECT_EQ(test.b - test.a, test.bma);
+  RUN_COMPARISON_OPERATION_TESTS(Gt);
+}
 
-//     // GF7Cuda tmp = test.a;
-//     // tmp += test.b;
-//     // EXPECT_EQ(tmp, test.sum);
-//     // tmp -= test.b;
-//     // EXPECT_EQ(tmp, test.a);
-//   }
-// }
+TEST_F(PrimeFieldMontCudaTest, Ge) {
+  struct {
+    GF7 x;
+    GF7 y;
+    bool result;
+  } tests[] = {
+      {GF7(3), GF7(2), true},
+      {GF7(2), GF7(3), false},
+      {GF7(3), GF7(3), true},
+  };
+
+  RUN_COMPARISON_OPERATION_TESTS(Ge);
+}
+
+#undef RUN_COMPARISON_OPERATION_TESTS
+#undef RUN_FIELD_OPERATION_TESTS
+#undef RUN_OPERATION_TESTS
 
 }  // namespace math
 }  // namespace tachyon

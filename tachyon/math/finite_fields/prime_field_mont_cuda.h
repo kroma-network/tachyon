@@ -111,6 +111,10 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     return x[0] == 1 && limbs_or == 0;
   }
 
+  __host__ __device__ constexpr bool IsEven() const { return value_[0] & 1; }
+
+  __host__ __device__ constexpr bool IsOdd() const { return ~value_[0] & 1; }
+
   std::string ToString() const { return ToBigInt().ToString(); }
   std::string ToHexString() const { return ToBigInt().ToHexString(); }
 
@@ -120,7 +124,7 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     return {};
   }
 
-  __host__ __device__ BigInt<N> ToBigInt() const { return value_; }
+  constexpr BigInt<N> ToBigInt() const { return value_; }
 
   __host__ __device__ constexpr bool operator==(
       const PrimeFieldMontCuda& other) const {
@@ -133,31 +137,27 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
 
   __host__ __device__ constexpr bool operator!=(
       const PrimeFieldMontCuda& other) const {
-    return operator==(other);
+    return !operator==(other);
   }
 
-  __host__ __device__ constexpr bool operator<(
-      const PrimeFieldMontCuda& other) const {
-    NOTIMPLEMENTED();
-    return false;
+  __device__ constexpr bool operator<(const PrimeFieldMontCuda& other) const {
+    PrimeFieldMontCuda results;
+    uint64_t carry = SubLimbs<true>(value_, other.value_, results.value_);
+    return carry;
   }
 
-  __host__ __device__ constexpr bool operator>(
-      const PrimeFieldMontCuda& other) const {
-    NOTIMPLEMENTED();
-    return false;
+  __device__ constexpr bool operator>(const PrimeFieldMontCuda& other) const {
+    PrimeFieldMontCuda results;
+    uint64_t carry = SubLimbs<true>(other.value_, value_, results.value_);
+    return carry;
   }
 
-  __host__ __device__ constexpr bool operator<=(
-      const PrimeFieldMontCuda& other) const {
-    NOTIMPLEMENTED();
-    return false;
+  __device__ constexpr bool operator<=(const PrimeFieldMontCuda& other) const {
+    return !operator>(other);
   }
 
-  __host__ __device__ constexpr bool operator>=(
-      const PrimeFieldMontCuda& other) const {
-    NOTIMPLEMENTED();
-    return false;
+  __device__ constexpr bool operator>=(const PrimeFieldMontCuda& other) const {
+    return !operator<(other);
   }
 
   // This is needed by MSM.
@@ -176,37 +176,39 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     return *this;
   }
 
-  __device__ PrimeFieldMontCuda& DoubleInPlace() { return AddInPlace(*this); }
+  __device__ constexpr PrimeFieldMontCuda& DoubleInPlace() {
+    return AddInPlace(*this);
+  }
 
   // AdditiveGroup methods
   __device__ constexpr PrimeFieldMontCuda& SubInPlace(
       const PrimeFieldMontCuda& other) {
-    uint64_t borrow = SubLimbs<true>(value_, other.value_, value_);
-    if (borrow == 0) return *this;
+    uint64_t carry = SubLimbs<true>(value_, other.value_, value_);
+    if (carry == 0) return *this;
     AddLimbs<false>(value_, GetModulus(), value_);
     return *this;
   }
 
-  __device__ PrimeFieldMontCuda& NegInPlace() {
+  __device__ constexpr PrimeFieldMontCuda& NegInPlace() {
     NOTIMPLEMENTED();
     return *this;
   }
 
   // MultiplicativeSemigroup methods
-  __device__ PrimeFieldMontCuda& MulInPlace(const PrimeFieldMontCuda& other) {
-    NOTIMPLEMENTED();
+  // NOTE(chokobole): This needs __host__ to allow to construct
+  // PrimeFieldMontCuda from host side.
+  __host__ __device__ constexpr PrimeFieldMontCuda& MulInPlace(
+      const PrimeFieldMontCuda& other) {
+    // NOTIMPLEMENTED();
     return *this;
   }
 
-  __device__ PrimeFieldMontCuda& SquareInPlace() { return MulInPlace(*this); }
+  __device__ constexpr PrimeFieldMontCuda& SquareInPlace() {
+    return MulInPlace(*this);
+  }
 
   // MultiplicativeGroup methods
-  __device__ PrimeFieldMontCuda& DivInPlace(const PrimeFieldMontCuda& other) {
-    NOTIMPLEMENTED();
-    return *this;
-  }
-
-  __device__ PrimeFieldMontCuda& InverseInPlace() {
+  __device__ constexpr PrimeFieldMontCuda& InverseInPlace() {
     NOTIMPLEMENTED();
     return *this;
   }
