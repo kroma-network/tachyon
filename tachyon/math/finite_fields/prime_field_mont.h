@@ -114,10 +114,10 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     for (size_t i = 0; i < N; ++i) {
       uint64_t k = r[i] * kInverse;
       MulResult<uint64_t> result =
-          internal::MulAddWithCarry(r[i], k, Config::kModulus[0]);
+          internal::u64::MulAddWithCarry(r[i], k, Config::kModulus[0]);
       for (size_t j = 1; j < N; ++j) {
-        result = internal::MulAddWithCarry(r[(j + i) % N], k,
-                                           Config::kModulus[j], result.hi);
+        result = internal::u64::MulAddWithCarry(r[(j + i) % N], k,
+                                                Config::kModulus[j], result.hi);
         r[(j + i) % N] = result.lo;
       }
       r[i] = result.hi;
@@ -205,7 +205,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     MulResult<uint64_t> mul_result;
     for (size_t i = 0; i < N - 1; ++i) {
       for (size_t j = i + 1; j < N; ++j) {
-        mul_result = internal::MulAddWithCarry(r[i + j], value_[i], value_[j],
+        mul_result = internal::u64::MulAddWithCarry(r[i + j], value_[i], value_[j],
                                                mul_result.hi);
         r[i + j] = mul_result.lo;
       }
@@ -221,10 +221,10 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
 
     AddResult<uint64_t> add_result;
     for (size_t i = 0; i < N; ++i) {
-      mul_result = internal::MulAddWithCarry(r[2 * i], value_[i], value_[i],
+      mul_result = internal::u64::MulAddWithCarry(r[2 * i], value_[i], value_[i],
                                              mul_result.hi);
       r[2 * i] = mul_result.lo;
-      add_result = internal::AddWithCarry(r[2 * i + 1], 0, mul_result.hi);
+      add_result = internal::u64::AddWithCarry(r[2 * i + 1], 0, mul_result.hi);
       r[2 * i + 1] = add_result.result;
       mul_result.hi = add_result.carry;
     }
@@ -321,15 +321,15 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     for (size_t i = 0; i < N; ++i) {
       uint64_t tmp = r[i] * kInverse;
       MulResult<uint64_t> mul_result;
-      mul_result = internal::MulAddWithCarry(r[i], tmp, Config::kModulus[0],
+      mul_result = internal::u64::MulAddWithCarry(r[i], tmp, Config::kModulus[0],
                                              mul_result.hi);
       for (size_t j = 1; j < N; ++j) {
-        mul_result = internal::MulAddWithCarry(
+        mul_result = internal::u64::MulAddWithCarry(
             r[i + j], tmp, Config::kModulus[j], mul_result.hi);
         r[i + j] = mul_result.lo;
       }
       add_result =
-          internal::AddWithCarry(r[N + i], mul_result.hi, add_result.carry);
+          internal::u64::AddWithCarry(r[N + i], mul_result.hi, add_result.carry);
       r[N + i] = add_result.result;
     }
     memcpy(&value_[0], &r[N], sizeof(uint64_t) * N);
@@ -340,19 +340,19 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     BigInt<N> r;
     for (size_t i = 0; i < N; ++i) {
       MulResult<uint64_t> result;
-      result = internal::MulAddWithCarry(r[0], value_[0], other.value_[i]);
+      result = internal::u64::MulAddWithCarry(r[0], value_[0], other.value_[i]);
       r[0] = result.lo;
 
       uint64_t k = r[0] * kInverse;
       MulResult<uint64_t> result2;
-      result2 = internal::MulAddWithCarry(r[0], k, Config::kModulus[0]);
+      result2 = internal::u64::MulAddWithCarry(r[0], k, Config::kModulus[0]);
 
       for (size_t j = 1; j < N; ++j) {
-        result = internal::MulAddWithCarry(r[j], value_[j], other.value_[i],
+        result = internal::u64::MulAddWithCarry(r[j], value_[j], other.value_[i],
                                            result.hi);
         r[j] = result.lo;
         result2 =
-            internal::MulAddWithCarry(r[j], k, Config::kModulus[j], result2.hi);
+            internal::u64::MulAddWithCarry(r[j], k, Config::kModulus[j], result2.hi);
         r[j - 1] = result2.lo;
       }
       r[N - 1] = result.hi + result2.hi;
@@ -366,7 +366,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     MulResult<uint64_t> mul_result;
     for (size_t i = 0; i < N; ++i) {
       for (size_t j = 0; j < N; ++j) {
-        mul_result = internal::MulAddWithCarry(r[i + j], value_[i],
+        mul_result = internal::u64::MulAddWithCarry(r[i + j], value_[i],
                                                other.value_[j], mul_result.hi);
         r[i + j] = mul_result.lo;
       }

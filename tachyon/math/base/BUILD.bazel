@@ -96,6 +96,7 @@ tachyon_cc_library(
 tachyon_cc_test(
     name = "base_unittests",
     srcs = [
+        "arithmetics_unittest.cc",
         "big_int_unittest.cc",
         "bit_iterator_unittest.cc",
         "sign_unittest.cc",
@@ -104,5 +105,6 @@ tachyon_cc_test(
         ":big_int",
         ":bit_iterator",
         ":sign",
+        "//tachyon/base:random",
     ],
 )

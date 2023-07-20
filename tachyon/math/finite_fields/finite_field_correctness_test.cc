@@ -2,7 +2,6 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
-#include "tachyon/math/finite_fields/prime_field.h"
 
 namespace tachyon {
 namespace math {

@@ -184,7 +184,7 @@ struct BigInt {
   do {                                                                        \
     if constexpr (N >= (num + 1)) {                                           \
       result =                                                                \
-          internal::AddWithCarry(limbs[num], other.limbs[num], result.carry); \
+          internal::u64::AddWithCarry(limbs[num], other.limbs[num], result.carry); \
       limbs[num] = result.result;                                             \
     }                                                                         \
   } while (false)
@@ -208,7 +208,7 @@ struct BigInt {
 #undef ADD_WITH_CARRY_INLINE
 
     FOR_FROM_SMALLEST(6, N) {
-      result = internal::AddWithCarry(limbs[i], other.limbs[i], result.carry);
+      result = internal::u64::AddWithCarry(limbs[i], other.limbs[i], result.carry);
       limbs[i] = result.result;
     }
     carry = result.carry;
@@ -226,7 +226,7 @@ struct BigInt {
 #define SUB_WITH_BORROW_INLINE(num)                                  \
   do {                                                               \
     if constexpr (N >= (num + 1)) {                                  \
-      result = internal::SubWithBorrow(limbs[num], other.limbs[num], \
+      result = internal::u64::SubWithBorrow(limbs[num], other.limbs[num], \
                                        result.borrow);               \
       limbs[num] = result.result;                                    \
     }                                                                \
@@ -251,7 +251,7 @@ struct BigInt {
 #undef SUB_WITH_BORROW_INLINE
 
     FOR_FROM_SMALLEST(6, N) {
-      result = internal::SubWithBorrow(limbs[i], other.limbs[i], result.borrow);
+      result = internal::u64::SubWithBorrow(limbs[i], other.limbs[i], result.borrow);
       limbs[i] = result.result;
     }
     borrow = result.borrow;
