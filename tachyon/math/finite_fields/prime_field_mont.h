@@ -38,7 +38,8 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
       Modulus<N>::MontgomeryR(Config::kModulus);
   static constexpr BigInt<N> kMontgomeryR2 =
       Modulus<N>::MontgomeryR2(Config::kModulus);
-  static constexpr uint64_t kInverse = Modulus<N>::Inverse(Config::kModulus);
+  static constexpr uint64_t kInverse =
+      Modulus<N>::template Inverse<uint64_t>(Config::kModulus);
 
   constexpr PrimeFieldMont() = default;
   template <typename T,

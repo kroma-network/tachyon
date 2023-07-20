@@ -86,7 +86,10 @@ tachyon_cc_test(
         "modulus_unittest.cc",
         "prime_field_unittest.cc",
     ],
-    deps = [":prime_field"],
+    deps = [
+        ":prime_field",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
+    ],
 )
 
 tachyon_cuda_test(

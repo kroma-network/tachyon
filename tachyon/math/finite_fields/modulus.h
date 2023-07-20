@@ -133,23 +133,25 @@ class Modulus {
     return Mod(two_pow_n_times_64_square, modulus);
   }
 
-  // Compute -M^{-1} mod 2^64.
-  static constexpr uint64_t Inverse(const BigInt<N>& modulus) {
+  // Compute -M^{-1} mod 2^B.
+  template <typename T, size_t B = 8 * sizeof(T),
+            std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>
+  static constexpr T Inverse(const BigInt<N>& modulus) {
     // We compute this as follows.
-    // First, modulus mod 2^64 is just the lower 64 bits of modulus.
-    // Hence modulus mod 2^64 = modulus[0] mod 2^64.
+    // First, modulus mod 2^B is just the lower B bits of modulus.
+    // Hence modulus mod 2^B = modulus[0] mod 2^B.
     //
-    // Next, computing the inverse mod 2^64 involves exponentiating by
-    // the multiplicative group order, which is euler_totient(2^64) - 1.
-    // Now, euler_totient(2^64) = 1 << 63, and so
-    // euler_totient(2^64) - 1 = (1 << 63) - 1 = 1111111... (63 digits).
-    // We compute this powering via standard square and multiply.
-    uint64_t inv = 1;
-    for (size_t i = 0; i < 63; ++i) {
+    // Next, computing the inverse mod 2^B involves exponentiating by
+    // the multiplicative group order, which is euler_totient(2^B) - 1.
+    // Now, euler_totient(2^B) = 1 << (B - 1), and so
+    // euler_totient(2^B) - 1 = (1 << (B - 1)) - 1 = 1111111... ((B - 1)
+    // digits). We compute this powering via standard square and multiply.
+    T inv = 1;
+    for (size_t i = 0; i < (B - 1); ++i) {
       // Square
       inv *= inv;
       // Multiply
-      inv *= modulus[0];
+      inv *= static_cast<T>(modulus[0]);
     };
     return -inv;
   }
