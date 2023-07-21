@@ -17,7 +17,7 @@ namespace internal {
 namespace u32 {
 
 // Calculates a + b + carry.
-constexpr ALWAYS_INLINE AddResult<uint32_t> AddWithCarry(uint32_t a, uint32_t b,
+ALWAYS_INLINE constexpr AddResult<uint32_t> AddWithCarry(uint32_t a, uint32_t b,
                                                          uint32_t carry = 0) {
   uint64_t tmp = static_cast<uint64_t>(a) + static_cast<uint64_t>(b) +
                  static_cast<uint64_t>(carry);
@@ -28,7 +28,7 @@ constexpr ALWAYS_INLINE AddResult<uint32_t> AddWithCarry(uint32_t a, uint32_t b,
 }
 
 // Calculates a - b - borrow.
-constexpr ALWAYS_INLINE SubResult<uint32_t> SubWithBorrow(uint32_t a,
+ALWAYS_INLINE constexpr SubResult<uint32_t> SubWithBorrow(uint32_t a,
                                                           uint32_t b,
                                                           uint32_t borrow = 0) {
   uint64_t tmp = (static_cast<uint64_t>(1) << 32) + static_cast<uint64_t>(a) -
@@ -41,9 +41,8 @@ constexpr ALWAYS_INLINE SubResult<uint32_t> SubWithBorrow(uint32_t a,
 }
 
 // Calculates a + b * c.
-ALWAYS_INLINE MulResult<uint32_t> MulAddWithCarry(uint32_t a, uint32_t b,
-                                                  uint32_t c,
-                                                  uint32_t carry = 0) {
+ALWAYS_INLINE constexpr MulResult<uint32_t> MulAddWithCarry(
+    uint32_t a, uint32_t b, uint32_t c, uint32_t carry = 0) {
   uint64_t tmp = static_cast<uint64_t>(a) +
                  static_cast<uint64_t>(b) * static_cast<uint64_t>(c) +
                  static_cast<uint64_t>(carry);
