@@ -147,6 +147,7 @@ def tachyon_cuda_binary(
 def tachyon_cuda_test(
         name,
         deps = [],
+        tags = [],
         **kwargs):
     lib_name = "{}_lib".format(name)
     tachyon_cuda_library(
@@ -164,5 +165,6 @@ def tachyon_cuda_test(
 
     tachyon_cc_test(
         name = name,
+        tags = tags,
         deps = [":" + lib_name],
     )
