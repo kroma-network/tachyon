@@ -142,82 +142,79 @@ __device__ ALWAYS_INLINE uint64_t MovB64(uint32_t lo, uint32_t hi) {
 
 namespace u64 {
 
-__device__ ALWAYS_INLINE uint64_t Add(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t Add(uint64_t x, uint64_t y) {
   uint64_t result;
   asm("add.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t AddCc(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t AddCc(uint64_t x, uint64_t y) {
   uint64_t result;
   asm volatile("add.cc.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t Addc(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t Addc(uint64_t x, uint64_t y) {
   uint64_t result;
   asm volatile("addc.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t AddcCc(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t AddcCc(uint64_t x, uint64_t y) {
   uint64_t result;
   asm volatile("addc.cc.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t Sub(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t Sub(uint64_t x, uint64_t y) {
   uint64_t result;
   asm("sub.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t SubCc(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t SubCc(uint64_t x, uint64_t y) {
   uint64_t result;
   asm volatile("sub.cc.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t Subc(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t Subc(uint64_t x, uint64_t y) {
   uint64_t result;
   asm volatile("subc.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t SubcCc(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t SubcCc(uint64_t x, uint64_t y) {
   uint64_t result;
   asm volatile("subc.cc.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MulLo(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t MulLo(uint64_t x, uint64_t y) {
   uint64_t result;
   asm("mul.lo.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MulHi(const uint64_t x, const uint64_t y) {
+__device__ ALWAYS_INLINE uint64_t MulHi(uint64_t x, uint64_t y) {
   uint64_t result;
   asm("mul.hi.u64 %0, %1, %2;" : "=l"(result) : "l"(x), "l"(y));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MadLo(const uint64_t x, const uint64_t y,
-                                        const uint64_t z) {
+__device__ ALWAYS_INLINE uint64_t MadLo(uint64_t x, uint64_t y, uint64_t z) {
   uint64_t result;
   asm("mad.lo.u64 %0, %1, %2, %3;" : "=l"(result) : "l"(x), "l"(y), "l"(z));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MadHi(const uint64_t x, const uint64_t y,
-                                        const uint64_t z) {
+__device__ ALWAYS_INLINE uint64_t MadHi(uint64_t x, uint64_t y, uint64_t z) {
   uint64_t result;
   asm("mad.hi.u64 %0, %1, %2, %3;" : "=l"(result) : "l"(x), "l"(y), "l"(z));
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MadLoCc(const uint64_t x, const uint64_t y,
-                                          const uint64_t z) {
+__device__ ALWAYS_INLINE uint64_t MadLoCc(uint64_t x, uint64_t y, uint64_t z) {
   uint64_t result;
   asm volatile("mad.lo.cc.u64 %0, %1, %2, %3;"
                : "=l"(result)
@@ -225,8 +222,7 @@ __device__ ALWAYS_INLINE uint64_t MadLoCc(const uint64_t x, const uint64_t y,
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MadHiCc(const uint64_t x, const uint64_t y,
-                                          const uint64_t z) {
+__device__ ALWAYS_INLINE uint64_t MadHiCc(uint64_t x, uint64_t y, uint64_t z) {
   uint64_t result;
   asm volatile("mad.hi.cc.u64 %0, %1, %2, %3;"
                : "=l"(result)
@@ -234,8 +230,7 @@ __device__ ALWAYS_INLINE uint64_t MadHiCc(const uint64_t x, const uint64_t y,
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MadcLo(const uint64_t x, const uint64_t y,
-                                         const uint64_t z) {
+__device__ ALWAYS_INLINE uint64_t MadcLo(uint64_t x, uint64_t y, uint64_t z) {
   uint64_t result;
   asm volatile("madc.lo.u64 %0, %1, %2, %3;"
                : "=l"(result)
@@ -243,8 +238,7 @@ __device__ ALWAYS_INLINE uint64_t MadcLo(const uint64_t x, const uint64_t y,
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MadcHi(const uint64_t x, const uint64_t y,
-                                         const uint64_t z) {
+__device__ ALWAYS_INLINE uint64_t MadcHi(uint64_t x, uint64_t y, uint64_t z) {
   uint64_t result;
   asm volatile("madc.hi.u64 %0, %1, %2, %3;"
                : "=l"(result)
@@ -252,8 +246,7 @@ __device__ ALWAYS_INLINE uint64_t MadcHi(const uint64_t x, const uint64_t y,
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MadcLoCc(const uint64_t x, const uint64_t y,
-                                           const uint64_t z) {
+__device__ ALWAYS_INLINE uint64_t MadcLoCc(uint64_t x, uint64_t y, uint64_t z) {
   uint64_t result;
   asm volatile("madc.lo.cc.u64 %0, %1, %2, %3;"
                : "=l"(result)
@@ -261,8 +254,7 @@ __device__ ALWAYS_INLINE uint64_t MadcLoCc(const uint64_t x, const uint64_t y,
   return result;
 }
 
-__device__ ALWAYS_INLINE uint64_t MadcHiCc(const uint64_t x, const uint64_t y,
-                                           const uint64_t z) {
+__device__ ALWAYS_INLINE uint64_t MadcHiCc(uint64_t x, uint64_t y, uint64_t z) {
   uint64_t result;
   asm volatile("madc.hi.cc.u64 %0, %1, %2, %3;"
                : "=l"(result)
