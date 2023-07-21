@@ -12,6 +12,7 @@ class TACHYON_EXPORT FqConfig {
  public:
   constexpr static size_t kModulusBits = 254;
   // clang-format off
+  // Parameters are from https://zips.z.cash/protocol/protocol.pdf#page=97
   // Dec: 21888242871839275222246405745257275088696311157297823662689037894645226208583
   // Hex: 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
   // clang-format on

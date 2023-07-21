@@ -12,6 +12,7 @@ class TACHYON_EXPORT FrConfig {
  public:
   constexpr static size_t kModulusBits = 255;
   // clang-format off
+  // Parameters are from https://electriccoin.co/blog/new-snark-curve/
   // Dec: 52435875175126190479447740508185965837690552500527637822603658699938581184513
   // Hex: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
   // clang-format on

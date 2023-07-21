@@ -1,0 +1,31 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "curve_config",
+    hdrs = ["curve_config.h"],
+    deps = [
+        ":fq",
+        ":fr",
+        "//tachyon/math/elliptic_curves/short_weierstrass:points",
+    ],
+)
+
+tachyon_cc_library(
+    name = "fq",
+    srcs = ["fq.cc"],
+    hdrs = ["fq.h"],
+    deps = [
+        "//tachyon/math/finite_fields:prime_field",
+    ],
+)
+
+tachyon_cc_library(
+    name = "fr",
+    srcs = ["fr.cc"],
+    hdrs = ["fr.h"],
+    deps = [
+        "//tachyon/math/finite_fields:prime_field",
+    ],
+)
