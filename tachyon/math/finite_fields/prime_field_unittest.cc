@@ -48,6 +48,16 @@ TYPED_TEST(PrimeFieldTest, One) {
   EXPECT_FALSE(TypeParam::Zero().IsOne());
 }
 
+TYPED_TEST(PrimeFieldTest, BigIntConversion) {
+  TypeParam r = TypeParam::Random();
+  EXPECT_EQ(TypeParam::FromBigInt(r.ToBigInt()), r);
+}
+
+TYPED_TEST(PrimeFieldTest, MontgomeryConversion) {
+  TypeParam r = TypeParam::Random();
+  EXPECT_EQ(TypeParam::FromMontgomery(r.ToMontgomery()), r);
+}
+
 TYPED_TEST(PrimeFieldTest, EqualityOperators) {
   TypeParam f(3);
   TypeParam f2(4);

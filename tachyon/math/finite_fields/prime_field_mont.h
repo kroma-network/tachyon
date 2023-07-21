@@ -47,7 +47,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   constexpr explicit PrimeFieldMont(T value)
       : PrimeFieldMont(BigInt<N>(value)) {}
   constexpr explicit PrimeFieldMont(const BigInt<N>& value) : value_(value) {
-    DCHECK_LT(value, Config::kModulus);
+    DCHECK_LT(value_, Config::kModulus);
     PrimeFieldMont p;
     p.value_ = kMontgomeryR2;
     MulInPlace(p);
@@ -88,9 +88,10 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     return PrimeFieldMont(big_int);
   }
 
-  template <typename T>
-  constexpr static PrimeFieldMont FromDevice(const T& field_device) {
-    return FromBigInt(field_device.ToBigInt());
+  static PrimeFieldMont FromMontgomery(const BigInt<N>& big_int) {
+    PrimeFieldMont ret;
+    ret.value_ = big_int;
+    return ret;
   }
 
   const value_type& value() const { return value_; }
@@ -112,6 +113,8 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   constexpr BigInt<N> ToBigInt() const {
     return BigInt<N>::FromMontgomery(value_, Config::kModulus, kInverse);
   }
+
+  constexpr const BigInt<N>& ToMontgomery() const { return value_; }
 
   constexpr bool operator==(const PrimeFieldMont& other) const {
     return ToBigInt() == other.ToBigInt();

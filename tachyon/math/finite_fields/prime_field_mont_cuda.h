@@ -15,6 +15,7 @@
 #include "tachyon/math/finite_fields/kernels/carry_chain.cu.h"
 #include "tachyon/math/finite_fields/modulus.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
+#include "tachyon/math/finite_fields/prime_field_mont.h"
 
 namespace tachyon {
 namespace math {
@@ -47,12 +48,10 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
   constexpr explicit PrimeFieldMontCuda(T value)
       : PrimeFieldMontCuda(BigInt<N>(value)) {}
-  constexpr explicit PrimeFieldMontCuda(const BigInt<N>& value)
-      : value_(value) {
+  constexpr explicit PrimeFieldMontCuda(const BigInt<N>& value) {
     DCHECK_LT(value, GetModulus());
-    PrimeFieldMontCuda p;
-    p.value_ = kMontgomeryR2;
-    MulInPlace(p);
+    PrimeFieldMont<Config> p(value);
+    value_ = p.value();
   }
   constexpr PrimeFieldMontCuda(const PrimeFieldMontCuda& other) = default;
   constexpr PrimeFieldMontCuda& operator=(const PrimeFieldMontCuda& other) =
@@ -91,14 +90,17 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     return PrimeFieldMontCuda(big_int);
   }
 
-  template <typename T>
-  constexpr static PrimeFieldMontCuda FromHost(const T& field_host) {
-    return FromBigInt(field_host.ToBigInt());
+  constexpr static PrimeFieldMontCuda FromMontgomery(const BigInt<N>& big_int) {
+    PrimeFieldMontCuda ret;
+    ret.value_ = big_int;
+    return ret;
   }
 
   __host__ __device__ static constexpr BigInt<N> GetModulus() {
     return Config::kModulus;
   }
+
+  __host__ __device__ const value_type& value() const { return value_; }
 
   __host__ __device__ constexpr bool IsZero() const {
     const uint64_t* x = value_.limbs;
@@ -108,15 +110,16 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   }
 
   __host__ __device__ constexpr bool IsOne() const {
-    const uint64_t* x = value_.limbs;
+    BigInt<N> value = ToBigInt();
+    const uint64_t* x = value.limbs;
     uint64_t limbs_or = 0;
     for (size_t i = 1; i < N; ++i) limbs_or |= x[i];
     return x[0] == 1 && limbs_or == 0;
   }
 
-  __host__ __device__ constexpr bool IsEven() const { return value_[0] & 1; }
+  __host__ __device__ constexpr bool IsEven() const { return value_.IsEven(); }
 
-  __host__ __device__ constexpr bool IsOdd() const { return ~value_[0] & 1; }
+  __host__ __device__ constexpr bool IsOdd() const { return value_.IsOdd(); }
 
   std::string ToString() const { return ToBigInt().ToString(); }
   std::string ToHexString() const { return ToBigInt().ToHexString(); }
@@ -127,7 +130,11 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     return ret;
   }
 
-  constexpr BigInt<N> ToBigInt() const { return value_; }
+  constexpr BigInt<N> ToBigInt() const {
+    return BigInt<N>::FromMontgomery(value_, Config::kModulus, kInverse64);
+  }
+
+  constexpr const BigInt<N>& ToMontgomery() const { return value_; }
 
   __host__ __device__ constexpr bool operator==(
       const PrimeFieldMontCuda& other) const {

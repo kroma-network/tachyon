@@ -81,8 +81,8 @@ device::gpu::ScopedMemory<bool> PrimeFieldMontCudaTest::bool_results_;
 #define RUN_OPERATION_TESTS(method, results)                                  \
   for (size_t i = 0; i < std::size(tests); ++i) {                             \
     const auto& test = tests[i];                                              \
-    (xs_.get())[i] = GF7Cuda::FromHost(test.x);                               \
-    (ys_.get())[i] = GF7Cuda::FromHost(test.y);                               \
+    (xs_.get())[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());                  \
+    (ys_.get())[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());                  \
   }                                                                           \
   GPU_SUCCESS(                                                                \
       Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests))); \
@@ -90,7 +90,7 @@ device::gpu::ScopedMemory<bool> PrimeFieldMontCudaTest::bool_results_;
 
 #define RUN_FIELD_OPERATION_TESTS(method) \
   RUN_OPERATION_TESTS(method, results_)   \
-  ASSERT_EQ(GF7::FromDevice((results_.get())[i]), tests[i].result)
+  ASSERT_EQ(GF7::FromBigInt((results_.get())[i].ToBigInt()), tests[i].result)
 
 #define RUN_COMPARISON_OPERATION_TESTS(method) \
   RUN_OPERATION_TESTS(method, bool_results_)   \
@@ -161,8 +161,8 @@ TEST_F(PrimeFieldMontCudaTest, Eq) {
 
   for (size_t i = 0; i < std::size(tests); ++i) {
     const auto& test = tests[i];
-    (xs_.get())[i] = GF7Cuda::FromHost(test.x);
-    (ys_.get())[i] = GF7Cuda::FromHost(test.y);
+    (xs_.get())[i] = GF7Cuda::FromBigInt(test.x.value());
+    (ys_.get())[i] = GF7Cuda::FromBigInt(test.y.value());
     ASSERT_EQ((xs_.get())[i] == (ys_.get())[i], test.result);
   }
 
@@ -186,8 +186,8 @@ TEST_F(PrimeFieldMontCudaTest, Ne) {
 
   for (size_t i = 0; i < std::size(tests); ++i) {
     const auto& test = tests[i];
-    (xs_.get())[i] = GF7Cuda::FromHost(test.x);
-    (ys_.get())[i] = GF7Cuda::FromHost(test.y);
+    (xs_.get())[i] = GF7Cuda::FromBigInt(test.x.value());
+    (ys_.get())[i] = GF7Cuda::FromBigInt(test.y.value());
     ASSERT_EQ((xs_.get())[i] != (ys_.get())[i], test.result);
   }
 

@@ -15,10 +15,7 @@
 #include "tachyon/base/no_destructor.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
-#include "tachyon/math/base/big_int.h"
-#include "tachyon/math/base/gmp/gmp_util.h"
-#include "tachyon/math/base/identities.h"
-#include "tachyon/math/finite_fields/prime_field_base.h"
+#include "tachyon/math/finite_fields/prime_field_mont.h"
 
 namespace tachyon {
 namespace math {
@@ -33,6 +30,9 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 
   using Config = _Config;
   using value_type = mpz_class;
+
+  static constexpr uint64_t kInverse =
+      Modulus<N>::template Inverse<uint64_t>(Config::kModulus);
 
   PrimeFieldGmp() = default;
   explicit PrimeFieldGmp(const mpz_class& value) : value_(value) {
@@ -76,9 +76,9 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     return PrimeFieldGmp(std::move(out));
   }
 
-  template <typename T>
-  static PrimeFieldGmp FromDevice(const T& field_device) {
-    return FromBigInt(field_device.ToBigInt());
+  static PrimeFieldGmp FromMontgomery(const BigInt<N>& big_int) {
+    return FromBigInt(
+        BigInt<N>::FromMontgomery(big_int, Config::kModulus, kInverse));
   }
 
   static void Init() {
@@ -119,6 +119,10 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     BigInt<N> result;
     gmp::CopyLimbs(value_, result.limbs);
     return result;
+  }
+
+  BigInt<N> ToMontgomery() const {
+    return PrimeFieldMont<Config>(ToBigInt()).value();
   }
 
   bool operator==(const PrimeFieldGmp& other) const {
