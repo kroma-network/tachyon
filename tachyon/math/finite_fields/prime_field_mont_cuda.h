@@ -131,7 +131,7 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   }
 
   constexpr BigInt<N> ToBigInt() const {
-    return BigInt<N>::FromMontgomery(value_, Config::kModulus, kInverse64);
+    return BigInt<N>::FromMontgomery64(value_, Config::kModulus, kInverse64);
   }
 
   constexpr const BigInt<N>& ToMontgomery() const { return value_; }

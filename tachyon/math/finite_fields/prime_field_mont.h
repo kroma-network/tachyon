@@ -111,7 +111,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
 
   // TODO(chokobole): Support bigendian.
   constexpr BigInt<N> ToBigInt() const {
-    return BigInt<N>::FromMontgomery(value_, Config::kModulus, kInverse);
+    return BigInt<N>::FromMontgomery64(value_, Config::kModulus, kInverse);
   }
 
   constexpr const BigInt<N>& ToMontgomery() const { return value_; }
@@ -150,13 +150,17 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   constexpr PrimeFieldMont& AddInPlace(const PrimeFieldMont& other) {
     uint64_t carry = 0;
     value_.AddInPlace(other.value_, carry);
-    return Clamp(carry);
+    BigInt<N>::template Clamp<kModulusHasSpareBit>(Config::kModulus, &value_,
+                                                   carry);
+    return *this;
   }
 
   constexpr PrimeFieldMont& DoubleInPlace() {
     uint64_t carry = 0;
     value_.MulBy2InPlace(carry);
-    return Clamp(carry);
+    BigInt<N>::template Clamp<kModulusHasSpareBit>(Config::kModulus, &value_,
+                                                   carry);
+    return *this;
   }
 
   // AdditiveGroup methods
@@ -196,8 +200,8 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     MulResult<uint64_t> mul_result;
     for (size_t i = 0; i < N - 1; ++i) {
       for (size_t j = i + 1; j < N; ++j) {
-        mul_result = internal::u64::MulAddWithCarry(r[i + j], value_[i], value_[j],
-                                               mul_result.hi);
+        mul_result = internal::u64::MulAddWithCarry(r[i + j], value_[i],
+                                                    value_[j], mul_result.hi);
         r[i + j] = mul_result.lo;
       }
       r[i + N] = mul_result.hi;
@@ -212,14 +216,16 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
 
     AddResult<uint64_t> add_result;
     for (size_t i = 0; i < N; ++i) {
-      mul_result = internal::u64::MulAddWithCarry(r[2 * i], value_[i], value_[i],
-                                             mul_result.hi);
+      mul_result = internal::u64::MulAddWithCarry(r[2 * i], value_[i],
+                                                  value_[i], mul_result.hi);
       r[2 * i] = mul_result.lo;
       add_result = internal::u64::AddWithCarry(r[2 * i + 1], 0, mul_result.hi);
       r[2 * i + 1] = add_result.result;
       mul_result.hi = add_result.carry;
     }
-    return Reduce(r);
+    BigInt<N>::template MontgomeryReduce64<kModulusHasSpareBit>(
+        r, Config::kModulus, kInverse, &value_);
+    return *this;
   }
 
   // MultiplicativeGroup methods
@@ -293,40 +299,6 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
  private:
   FRIEND_TEST(PrimeFieldCorrectnessTest, MultiplicativeOperators);
 
-  constexpr PrimeFieldMont& Clamp(bool carry) {
-    bool needs_to_clamp = false;
-    if constexpr (kModulusHasSpareBit) {
-      needs_to_clamp = value_ >= Config::kModulus;
-    } else {
-      needs_to_clamp = carry || value_ >= Config::kModulus;
-    }
-    if (needs_to_clamp) {
-      uint64_t unused = 0;
-      value_.SubInPlace(Config::kModulus, unused);
-    }
-    return *this;
-  }
-
-  constexpr PrimeFieldMont& Reduce(BigInt<N * 2>& r) {
-    AddResult<uint64_t> add_result;
-    for (size_t i = 0; i < N; ++i) {
-      uint64_t tmp = r[i] * kInverse;
-      MulResult<uint64_t> mul_result;
-      mul_result = internal::u64::MulAddWithCarry(r[i], tmp, Config::kModulus[0],
-                                             mul_result.hi);
-      for (size_t j = 1; j < N; ++j) {
-        mul_result = internal::u64::MulAddWithCarry(
-            r[i + j], tmp, Config::kModulus[j], mul_result.hi);
-        r[i + j] = mul_result.lo;
-      }
-      add_result =
-          internal::u64::AddWithCarry(r[N + i], mul_result.hi, add_result.carry);
-      r[N + i] = add_result.result;
-    }
-    memcpy(&value_[0], &r[N], sizeof(uint64_t) * N);
-    return Clamp(add_result.carry);
-  }
-
   constexpr PrimeFieldMont& FastMulInPlace(const PrimeFieldMont& other) {
     BigInt<N> r;
     for (size_t i = 0; i < N; ++i) {
@@ -339,17 +311,19 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
       result2 = internal::u64::MulAddWithCarry(r[0], k, Config::kModulus[0]);
 
       for (size_t j = 1; j < N; ++j) {
-        result = internal::u64::MulAddWithCarry(r[j], value_[j], other.value_[i],
-                                           result.hi);
+        result = internal::u64::MulAddWithCarry(r[j], value_[j],
+                                                other.value_[i], result.hi);
         r[j] = result.lo;
-        result2 =
-            internal::u64::MulAddWithCarry(r[j], k, Config::kModulus[j], result2.hi);
+        result2 = internal::u64::MulAddWithCarry(r[j], k, Config::kModulus[j],
+                                                 result2.hi);
         r[j - 1] = result2.lo;
       }
       r[N - 1] = result.hi + result2.hi;
     }
     value_ = r;
-    return Clamp(0);
+    BigInt<N>::template Clamp<kModulusHasSpareBit>(Config::kModulus, &value_,
+                                                   0);
+    return *this;
   }
 
   constexpr PrimeFieldMont& SlowMulInPlace(const PrimeFieldMont& other) {
@@ -357,14 +331,16 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
     MulResult<uint64_t> mul_result;
     for (size_t i = 0; i < N; ++i) {
       for (size_t j = 0; j < N; ++j) {
-        mul_result = internal::u64::MulAddWithCarry(r[i + j], value_[i],
-                                               other.value_[j], mul_result.hi);
+        mul_result = internal::u64::MulAddWithCarry(
+            r[i + j], value_[i], other.value_[j], mul_result.hi);
         r[i + j] = mul_result.lo;
       }
       r[i + N] = mul_result.hi;
       mul_result.hi = 0;
     }
-    return Reduce(r);
+    BigInt<N>::template MontgomeryReduce64<kModulusHasSpareBit>(
+        r, Config::kModulus, kInverse, &value_);
+    return *this;
   }
 
   BigInt<N> value_;

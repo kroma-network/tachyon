@@ -78,7 +78,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 
   static PrimeFieldGmp FromMontgomery(const BigInt<N>& big_int) {
     return FromBigInt(
-        BigInt<N>::FromMontgomery(big_int, Config::kModulus, kInverse));
+        BigInt<N>::FromMontgomery64(big_int, Config::kModulus, kInverse));
   }
 
   static void Init() {

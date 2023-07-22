@@ -99,9 +99,34 @@ struct BigInt {
     return ret;
   }
 
-  constexpr static BigInt FromMontgomery(const BigInt<N>& value,
-                                         const BigInt<N>& modulus,
-                                         uint64_t inverse) {
+  constexpr static BigInt FromMontgomery32(const BigInt<N>& value,
+                                           const BigInt<N>& modulus,
+                                           uint32_t inverse) {
+    BigInt<N> r = value;
+    uint32_t* r_ptr = reinterpret_cast<uint32_t*>(r.limbs);
+    const uint32_t* m_ptr = reinterpret_cast<const uint32_t*>(modulus.limbs);
+    // Montgomery Reduction
+    FOR_FROM_SMALLEST(0, 2 * N) {
+      uint32_t k = r_ptr[i] * inverse;
+      MulResult<uint32_t> result =
+          internal::u32::MulAddWithCarry(r_ptr[i], k, m_ptr[0]);
+#if ARCH_CPU_BIG_ENDIAN
+      for (size_t j = 2 * N - 2; i != std::numeric_limits<size_t>::max(); --i) {
+#else  // ARCH_CPU_LITTLE_ENDIAN
+      for (size_t j = 1; j < 2 * N; ++j) {
+#endif
+        result = internal::u32::MulAddWithCarry(r_ptr[(j + i) % (2 * N)], k,
+                                                m_ptr[j], result.hi);
+        r_ptr[(j + i) % (2 * N)] = result.lo;
+      }
+      r_ptr[i] = result.hi;
+    }
+    return r;
+  }
+
+  constexpr static BigInt FromMontgomery64(const BigInt<N>& value,
+                                           const BigInt<N>& modulus,
+                                           uint64_t inverse) {
     BigInt<N> r = value;
     // Montgomery Reduction
     FOR_FROM_SMALLEST(0, N) {
@@ -120,6 +145,68 @@ struct BigInt {
       r[i] = result.hi;
     }
     return r;
+  }
+
+  template <bool ModulusHasSpareBit>
+  constexpr static void Clamp(const BigInt& modulus, BigInt* value,
+                              bool carry = false) {
+    bool needs_to_clamp = false;
+    if constexpr (ModulusHasSpareBit) {
+      needs_to_clamp = *value >= modulus;
+    } else {
+      needs_to_clamp = carry || *value >= modulus;
+    }
+    if (needs_to_clamp) {
+      value->SubInPlace(modulus);
+    }
+  }
+
+  template <bool ModulusHasSpareBit>
+  constexpr static void MontgomeryReduce32(BigInt<2 * N>& r,
+                                           const BigInt& modulus,
+                                           uint32_t inverse, BigInt* out) {
+    uint32_t* r_ptr = reinterpret_cast<uint32_t*>(r.limbs);
+    const uint32_t* m_ptr = reinterpret_cast<const uint32_t*>(modulus.limbs);
+    AddResult<uint32_t> add_result;
+    for (size_t i = 0; i < 2 * N; ++i) {
+      uint32_t tmp = r_ptr[i] * inverse;
+      MulResult<uint32_t> mul_result;
+      mul_result = internal::u32::MulAddWithCarry(r_ptr[i], tmp, m_ptr[0],
+                                                  mul_result.hi);
+      for (size_t j = 1; j < 2 * N; ++j) {
+        mul_result = internal::u32::MulAddWithCarry(r_ptr[i + j], tmp, m_ptr[j],
+                                                    mul_result.hi);
+        r_ptr[i + j] = mul_result.lo;
+      }
+      add_result = internal::u32::AddWithCarry(r_ptr[2 * N + i], mul_result.hi,
+                                               add_result.carry);
+      r_ptr[2 * N + i] = add_result.result;
+    }
+    memcpy(&(*out)[0], &r[N], sizeof(uint64_t) * N);
+    Clamp<ModulusHasSpareBit>(modulus, out, add_result.carry);
+  }
+
+  template <bool ModulusHasSpareBit>
+  constexpr static void MontgomeryReduce64(BigInt<2 * N>& r,
+                                           const BigInt& modulus,
+                                           uint64_t inverse, BigInt* out) {
+    AddResult<uint64_t> add_result;
+    for (size_t i = 0; i < N; ++i) {
+      uint64_t tmp = r[i] * inverse;
+      MulResult<uint64_t> mul_result;
+      mul_result =
+          internal::u64::MulAddWithCarry(r[i], tmp, modulus[0], mul_result.hi);
+      for (size_t j = 1; j < N; ++j) {
+        mul_result = internal::u64::MulAddWithCarry(r[i + j], tmp, modulus[j],
+                                                    mul_result.hi);
+        r[i + j] = mul_result.lo;
+      }
+      add_result = internal::u64::AddWithCarry(r[N + i], mul_result.hi,
+                                               add_result.carry);
+      r[N + i] = add_result.result;
+    }
+    memcpy(&(*out)[0], &r[N], sizeof(uint64_t) * N);
+    Clamp<ModulusHasSpareBit>(modulus, out, add_result.carry);
   }
 
   constexpr bool IsZero() const {
@@ -203,13 +290,13 @@ struct BigInt {
   constexpr BigInt& AddInPlace(const BigInt& other, uint64_t& carry) {
     AddResult<uint64_t> result;
 
-#define ADD_WITH_CARRY_INLINE(num)                                            \
-  do {                                                                        \
-    if constexpr (N >= (num + 1)) {                                           \
-      result =                                                                \
-          internal::u64::AddWithCarry(limbs[num], other.limbs[num], result.carry); \
-      limbs[num] = result.result;                                             \
-    }                                                                         \
+#define ADD_WITH_CARRY_INLINE(num)                                       \
+  do {                                                                   \
+    if constexpr (N >= (num + 1)) {                                      \
+      result = internal::u64::AddWithCarry(limbs[num], other.limbs[num], \
+                                           result.carry);                \
+      limbs[num] = result.result;                                        \
+    }                                                                    \
   } while (false)
 
 #if ARCH_CPU_BIG_ENDIAN
@@ -231,7 +318,8 @@ struct BigInt {
 #undef ADD_WITH_CARRY_INLINE
 
     FOR_FROM_SMALLEST(6, N) {
-      result = internal::u64::AddWithCarry(limbs[i], other.limbs[i], result.carry);
+      result =
+          internal::u64::AddWithCarry(limbs[i], other.limbs[i], result.carry);
       limbs[i] = result.result;
     }
     carry = result.carry;
@@ -246,13 +334,13 @@ struct BigInt {
   constexpr BigInt& SubInPlace(const BigInt& other, uint64_t& borrow) {
     SubResult<uint64_t> result;
 
-#define SUB_WITH_BORROW_INLINE(num)                                  \
-  do {                                                               \
-    if constexpr (N >= (num + 1)) {                                  \
+#define SUB_WITH_BORROW_INLINE(num)                                       \
+  do {                                                                    \
+    if constexpr (N >= (num + 1)) {                                       \
       result = internal::u64::SubWithBorrow(limbs[num], other.limbs[num], \
-                                       result.borrow);               \
-      limbs[num] = result.result;                                    \
-    }                                                                \
+                                            result.borrow);               \
+      limbs[num] = result.result;                                         \
+    }                                                                     \
   } while (false)
 
 #if ARCH_CPU_BIG_ENDIAN
@@ -274,7 +362,8 @@ struct BigInt {
 #undef SUB_WITH_BORROW_INLINE
 
     FOR_FROM_SMALLEST(6, N) {
-      result = internal::u64::SubWithBorrow(limbs[i], other.limbs[i], result.borrow);
+      result =
+          internal::u64::SubWithBorrow(limbs[i], other.limbs[i], result.borrow);
       limbs[i] = result.result;
     }
     borrow = result.borrow;
