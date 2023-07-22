@@ -30,8 +30,8 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   using Config = _Config;
   using value_type = BigInt<N>;
 
-  static constexpr bool kModulusHasSparseBit =
-      Modulus<N>::HasSparseBit(Config::kModulus);
+  static constexpr bool kModulusHasSpareBit =
+      Modulus<N>::HasSpareBit(Config::kModulus);
   static constexpr bool kCanUseNoCarryMulOptimization =
       Modulus<N>::CanUseNoCarryMulOptimization(Config::kModulus);
   static constexpr BigInt<N> kMontgomeryR =
@@ -246,7 +246,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
           uint64_t carry = 0;
           b.value_.AddInPlace(Config::kModulus, carry);
           b.value_.DivBy2InPlace();
-          if constexpr (!kModulusHasSparseBit) {
+          if constexpr (!kModulusHasSpareBit) {
             if (carry) {
               b.value_[N - 1] |= static_cast<uint64_t>(1) << 63;
             }
@@ -263,7 +263,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
           uint64_t carry = 0;
           c.value_.AddInPlace(Config::kModulus, carry);
           c.value_.DivBy2InPlace();
-          if constexpr (!kModulusHasSparseBit) {
+          if constexpr (!kModulusHasSpareBit) {
             if (carry) {
               c.value_[N - 1] |= static_cast<uint64_t>(1) << 63;
             }
@@ -295,7 +295,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
 
   constexpr PrimeFieldMont& Clamp(bool carry) {
     bool needs_to_clamp = false;
-    if constexpr (kModulusHasSparseBit) {
+    if constexpr (kModulusHasSpareBit) {
       needs_to_clamp = value_ >= Config::kModulus;
     } else {
       needs_to_clamp = carry || value_ >= Config::kModulus;

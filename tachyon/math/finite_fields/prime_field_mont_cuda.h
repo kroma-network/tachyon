@@ -30,8 +30,8 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   using Config = _Config;
   using value_type = BigInt<N>;
 
-  static constexpr bool kModulusHasSparseBit =
-      Modulus<N>::HasSparseBit(Config::kModulus);
+  static constexpr bool kModulusHasSpareBit =
+      Modulus<N>::HasSpareBit(Config::kModulus);
   static constexpr bool kCanUseNoCarryMulOptimization =
       Modulus<N>::CanUseNoCarryMulOptimization(Config::kModulus);
   static constexpr BigInt<N> kMontgomeryR =

@@ -118,7 +118,7 @@ class Modulus {
   //
   // This condition applies if
   // (a) `modulus[biggest_limb_idx] >> 63 == 0`
-  static constexpr bool HasSparseBit(const BigInt<N>& modulus) {
+  static constexpr bool HasSpareBit(const BigInt<N>& modulus) {
     uint64_t biggest_limb = modulus[BigInt<N>::kBiggestLimbIdx];
     return biggest_limb >> 63 == 0;
   }

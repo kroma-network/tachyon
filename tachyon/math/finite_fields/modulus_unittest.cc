@@ -16,11 +16,11 @@ TEST(ModulusTest, CanUseNoCarryMulOptimization) {
   EXPECT_TRUE(Modulus<1>::CanUseNoCarryMulOptimization(modulus));
 }
 
-TEST(ModulusTest, HasSparseBit) {
+TEST(ModulusTest, HasSpareBit) {
   BigInt<1> modulus = BigInt<1>::FromHexString("0x8000000000000000");
-  EXPECT_FALSE(Modulus<1>::HasSparseBit(modulus));
+  EXPECT_FALSE(Modulus<1>::HasSpareBit(modulus));
   modulus = BigInt<1>::FromHexString("0x7000000000000000");
-  EXPECT_TRUE(Modulus<1>::HasSparseBit(modulus));
+  EXPECT_TRUE(Modulus<1>::HasSpareBit(modulus));
 }
 
 TEST(ModulusTest, Montgomery) {
