@@ -10,7 +10,7 @@ namespace math {
 template <>
 class BitTraits<mpz_class> {
  public:
-  static constexpr bool kIsDynamic = true;
+  constexpr static bool kIsDynamic = true;
 
   static size_t GetNumBits(const mpz_class& value) {
     return gmp::GetNumBits(value);

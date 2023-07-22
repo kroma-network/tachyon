@@ -25,9 +25,9 @@ class Matrix : public Ring<Matrix<T, Rows_, Cols_>>,
                public MatrixToStringOperator<Matrix<T, Rows_, Cols_>>,
                public MatInverseOperator<Matrix<T, Rows_, Cols_>> {
  public:
-  static constexpr size_t Rows = Rows_;
-  static constexpr size_t Cols = Cols_;
-  static constexpr size_t Size = Rows * Cols;
+  constexpr static size_t Rows = Rows_;
+  constexpr static size_t Cols = Cols_;
+  constexpr static size_t Size = Rows * Cols;
 
   static_assert(Rows != 0 && Cols != 0, "Invalid rows or cols");
 
@@ -437,11 +437,11 @@ constexpr Matrix<T, Rows_, Cols_>::Matrix(T v0, T v1, T v2, T v3, T v4, T v5,
 template <typename T, size_t Rows_, size_t Cols_>
 struct MatrixTraits<Matrix<T, Rows_, Cols_>> {
  public:
-  static constexpr size_t Rows = Rows_;
-  static constexpr size_t Cols = Cols_;
-  static constexpr size_t Size = Rows * Cols;
+  constexpr static size_t Rows = Rows_;
+  constexpr static size_t Cols = Cols_;
+  constexpr static size_t Size = Rows * Cols;
 
-  static constexpr bool is_view = false;
+  constexpr static bool is_view = false;
 
   typedef T value_type;
 };

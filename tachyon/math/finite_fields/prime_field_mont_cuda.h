@@ -23,24 +23,24 @@ namespace math {
 template <typename _Config>
 class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
  public:
-  static constexpr size_t kModulusBits = _Config::kModulusBits;
-  static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
-  static constexpr size_t N = kLimbNums;
+  constexpr static size_t kModulusBits = _Config::kModulusBits;
+  constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;
+  constexpr static size_t N = kLimbNums;
 
   using Config = _Config;
   using value_type = BigInt<N>;
 
-  static constexpr bool kModulusHasSpareBit =
+  constexpr static bool kModulusHasSpareBit =
       Modulus<N>::HasSpareBit(Config::kModulus);
-  static constexpr bool kCanUseNoCarryMulOptimization =
+  constexpr static bool kCanUseNoCarryMulOptimization =
       Modulus<N>::CanUseNoCarryMulOptimization(Config::kModulus);
-  static constexpr BigInt<N> kMontgomeryR =
+  constexpr static BigInt<N> kMontgomeryR =
       Modulus<N>::MontgomeryR(Config::kModulus);
-  static constexpr BigInt<N> kMontgomeryR2 =
+  constexpr static BigInt<N> kMontgomeryR2 =
       Modulus<N>::MontgomeryR2(Config::kModulus);
-  static constexpr uint64_t kInverse64 =
+  constexpr static uint64_t kInverse64 =
       Modulus<N>::template Inverse<uint64_t>(Config::kModulus);
-  static constexpr uint32_t kInverse32 =
+  constexpr static uint32_t kInverse32 =
       Modulus<N>::template Inverse<uint32_t>(Config::kModulus);
 
   constexpr PrimeFieldMontCuda() = default;
@@ -96,7 +96,7 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     return ret;
   }
 
-  __host__ __device__ static constexpr BigInt<N> GetModulus() {
+  __host__ __device__ constexpr static BigInt<N> GetModulus() {
     return Config::kModulus;
   }
 

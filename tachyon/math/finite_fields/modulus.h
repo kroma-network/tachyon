@@ -48,14 +48,14 @@ struct R2Buffer {
 template <size_t N>
 class BitTraits<internal::RBuffer<N>> {
  public:
-  static constexpr bool kIsDynamic = false;
+  constexpr static bool kIsDynamic = false;
 
-  static constexpr size_t GetNumBits(const internal::RBuffer<N>& r_buffer) {
+  constexpr static size_t GetNumBits(const internal::RBuffer<N>& r_buffer) {
     return N * 64 +
            (64 - absl::numeric_internal::CountLeadingZeroes64(r_buffer.value));
   }
 
-  static constexpr bool TestBit(const internal::RBuffer<N>& r_buffer,
+  constexpr static bool TestBit(const internal::RBuffer<N>& r_buffer,
                                 size_t index) {
     size_t limb_index = index >> 6;
     size_t bit_index = index & 63;
@@ -69,14 +69,14 @@ class BitTraits<internal::RBuffer<N>> {
 template <size_t N>
 class BitTraits<internal::R2Buffer<N>> {
  public:
-  static constexpr bool kIsDynamic = false;
+  constexpr static bool kIsDynamic = false;
 
-  static constexpr size_t GetNumBits(const internal::R2Buffer<N>& r2_buffer) {
+  constexpr static size_t GetNumBits(const internal::R2Buffer<N>& r2_buffer) {
     return 2 * N * 64 +
            (64 - absl::numeric_internal::CountLeadingZeroes64(r2_buffer.value));
   }
 
-  static constexpr bool TestBit(const internal::R2Buffer<N>& r2_buffer,
+  constexpr static bool TestBit(const internal::R2Buffer<N>& r2_buffer,
                                 size_t index) {
     size_t limb_index = index >> 6;
     size_t bit_index = index & 63;
@@ -98,7 +98,7 @@ class Modulus {
   // This optimization applies if
   // (a) `modulus[biggest_limb_idx] < max(uint64_t) >> 1`, and
   // (b) the bits of the modulus are not all 1.
-  static constexpr bool CanUseNoCarryMulOptimization(const BigInt<N>& modulus) {
+  constexpr static bool CanUseNoCarryMulOptimization(const BigInt<N>& modulus) {
     uint64_t biggest_limb = modulus[BigInt<N>::kBiggestLimbIdx];
     bool top_bit_is_zero = biggest_limb >> 63 == 0;
     bool all_remain_bits_are_one =
@@ -118,17 +118,17 @@ class Modulus {
   //
   // This condition applies if
   // (a) `modulus[biggest_limb_idx] >> 63 == 0`
-  static constexpr bool HasSpareBit(const BigInt<N>& modulus) {
+  constexpr static bool HasSpareBit(const BigInt<N>& modulus) {
     uint64_t biggest_limb = modulus[BigInt<N>::kBiggestLimbIdx];
     return biggest_limb >> 63 == 0;
   }
 
-  static constexpr BigInt<N> MontgomeryR(const BigInt<N>& modulus) {
+  constexpr static BigInt<N> MontgomeryR(const BigInt<N>& modulus) {
     internal::RBuffer<N> two_pow_n_times_64;
     return Mod(two_pow_n_times_64, modulus);
   }
 
-  static constexpr BigInt<N> MontgomeryR2(const BigInt<N>& modulus) {
+  constexpr static BigInt<N> MontgomeryR2(const BigInt<N>& modulus) {
     internal::R2Buffer<N> two_pow_n_times_64_square;
     return Mod(two_pow_n_times_64_square, modulus);
   }
@@ -136,7 +136,7 @@ class Modulus {
   // Compute -M^{-1} mod 2^B.
   template <typename T, size_t B = 8 * sizeof(T),
             std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>
-  static constexpr T Inverse(const BigInt<N>& modulus) {
+  constexpr static T Inverse(const BigInt<N>& modulus) {
     // We compute this as follows.
     // First, modulus mod 2^B is just the lower B bits of modulus.
     // Hence modulus mod 2^B = modulus[0] mod 2^B.
@@ -158,7 +158,7 @@ class Modulus {
 
  private:
   template <typename T>
-  static constexpr BigInt<N> Mod(const T& buffer, const BigInt<N>& modulus) {
+  constexpr static BigInt<N> Mod(const T& buffer, const BigInt<N>& modulus) {
     // Stupid slow base-2 long division taken from
     // https://en.wikipedia.org/wiki/Division_algorithm
     CHECK(!modulus.IsZero());

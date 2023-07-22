@@ -24,14 +24,14 @@ template <typename _Config>
 class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
  public:
   static_assert(GMP_LIMB_BITS == 64, "This code assumes limb bits is 64 bit");
-  static constexpr size_t kModulusBits = _Config::kModulusBits;
-  static constexpr size_t kLimbNums = (kModulusBits + 63) / 64;
-  static constexpr size_t N = kLimbNums;
+  constexpr static size_t kModulusBits = _Config::kModulusBits;
+  constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;
+  constexpr static size_t N = kLimbNums;
 
   using Config = _Config;
   using value_type = mpz_class;
 
-  static constexpr uint64_t kInverse =
+  constexpr static uint64_t kInverse =
       Modulus<N>::template Inverse<uint64_t>(Config::kModulus);
 
   PrimeFieldGmp() = default;

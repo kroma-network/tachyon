@@ -12,11 +12,11 @@ class BitTraits;
 template <size_t N>
 class BitTraits<BigInt<N>> {
  public:
-  static constexpr bool kIsDynamic = false;
+  constexpr static bool kIsDynamic = false;
 
-  static constexpr size_t GetNumBits(const BigInt<N>& _) { return N * 64; }
+  constexpr static size_t GetNumBits(const BigInt<N>& _) { return N * 64; }
 
-  static constexpr bool TestBit(const BigInt<N>& bigint, size_t index) {
+  constexpr static bool TestBit(const BigInt<N>& bigint, size_t index) {
     size_t limb_index = index >> 6;
     if (limb_index >= N) return false;
     size_t bit_index = index & 63;

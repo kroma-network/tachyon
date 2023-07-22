@@ -87,19 +87,19 @@ struct BigInt {
 
   constexpr static BigInt One() { return BigInt(1); }
 
-  static constexpr BigInt FromDecString(std::string_view str) {
+  constexpr static BigInt FromDecString(std::string_view str) {
     BigInt ret;
     CHECK(internal::StringToLimbs(str, ret.limbs, N));
     return ret;
   }
 
-  static constexpr BigInt FromHexString(std::string_view str) {
+  constexpr static BigInt FromHexString(std::string_view str) {
     BigInt ret;
     CHECK(internal::HexStringToLimbs(str, ret.limbs, N));
     return ret;
   }
 
-  static constexpr BigInt FromMontgomery(const BigInt<N>& value,
+  constexpr static BigInt FromMontgomery(const BigInt<N>& value,
                                          const BigInt<N>& modulus,
                                          uint64_t inverse) {
     BigInt<N> r = value;

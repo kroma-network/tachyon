@@ -167,11 +167,11 @@ std::ostream& operator<<(std::ostream& os, const MatrixView<T>& matrix) {
 template <typename T>
 struct MatrixTraits<MatrixView<T>> {
  public:
-  static constexpr size_t Rows = kDynamic;
-  static constexpr size_t Cols = kDynamic;
-  static constexpr size_t Size = kDynamic;
+  constexpr static size_t Rows = kDynamic;
+  constexpr static size_t Cols = kDynamic;
+  constexpr static size_t Size = kDynamic;
 
-  static constexpr bool is_view = true;
+  constexpr static bool is_view = true;
 
   typedef T value_type;
 };
