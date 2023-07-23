@@ -25,66 +25,25 @@ namespace math {
 namespace internal {
 
 template <size_t N>
-struct RBuffer {
-  uint64_t limbs[N] = {
-      0,
-  };
-  uint64_t value = 1;
-};
-
-template <size_t N>
-struct R2Buffer {
-  uint64_t lo[N] = {
-      0,
-  };
-  uint64_t hi[N] = {
-      0,
-  };
-  uint64_t value = 1;
-};
+struct PowerOfTwo {};
 
 }  // namespace internal
 
 template <size_t N>
-class BitTraits<internal::RBuffer<N>> {
+class BitTraits<internal::PowerOfTwo<N>> {
  public:
   constexpr static bool kIsDynamic = false;
 
-  constexpr static size_t GetNumBits(const internal::RBuffer<N>& r_buffer) {
-    return N * 64 +
-           (64 - absl::numeric_internal::CountLeadingZeroes64(r_buffer.value));
+  constexpr static size_t GetNumBits(const internal::PowerOfTwo<N>& _) {
+    return N * 64 + 1;
   }
 
-  constexpr static bool TestBit(const internal::RBuffer<N>& r_buffer,
+  constexpr static bool TestBit(const internal::PowerOfTwo<N>& r_buffer,
                                 size_t index) {
     size_t limb_index = index >> 6;
     size_t bit_index = index & 63;
     uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
-    uint64_t value =
-        limb_index == N ? r_buffer.value : r_buffer.limbs[limb_index];
-    return (value & bit_index_value) == bit_index_value;
-  }
-};
-
-template <size_t N>
-class BitTraits<internal::R2Buffer<N>> {
- public:
-  constexpr static bool kIsDynamic = false;
-
-  constexpr static size_t GetNumBits(const internal::R2Buffer<N>& r2_buffer) {
-    return 2 * N * 64 +
-           (64 - absl::numeric_internal::CountLeadingZeroes64(r2_buffer.value));
-  }
-
-  constexpr static bool TestBit(const internal::R2Buffer<N>& r2_buffer,
-                                size_t index) {
-    size_t limb_index = index >> 6;
-    size_t bit_index = index & 63;
-    uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
-    uint64_t value = limb_index == 2 * N
-                         ? r2_buffer.value
-                         : (limb_index >= N ? r2_buffer.hi[limb_index - N]
-                                            : r2_buffer.lo[limb_index]);
+    uint64_t value = static_cast<uint64_t>(limb_index == N ? 1 : 0);
     return (value & bit_index_value) == bit_index_value;
   }
 };
@@ -124,12 +83,12 @@ class Modulus {
   }
 
   constexpr static BigInt<N> MontgomeryR(const BigInt<N>& modulus) {
-    internal::RBuffer<N> two_pow_n_times_64;
+    internal::PowerOfTwo<N> two_pow_n_times_64;
     return Mod(two_pow_n_times_64, modulus);
   }
 
   constexpr static BigInt<N> MontgomeryR2(const BigInt<N>& modulus) {
-    internal::R2Buffer<N> two_pow_n_times_64_square;
+    internal::PowerOfTwo<2 * N> two_pow_n_times_64_square;
     return Mod(two_pow_n_times_64_square, modulus);
   }
 
