@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/macro_utils.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics.h"
 
@@ -24,36 +25,13 @@ TACHYON_EXPORT std::string LimbsToHexString(const uint64_t* limbs,
 
 }  // namespace internal
 
-#if ARCH_CPU_BIG_ENDIAN
-#define FOR_FROM_BIGGEST(start, end) for (size_t i = start; i < end; ++i)
-#else  // ARCH_CPU_LITTLE_ENDIAN
-#define FOR_FROM_BIGGEST(start, end) \
-  for (size_t i = end - 1; i != static_cast<size_t>(start - 1); --i)
-#endif
-
-#if ARCH_CPU_BIG_ENDIAN
-#define FOR_FROM_SMALLEST(start, end) \
-  for (size_t i = end - 1; i != static_cast<size_t>(start - 1); --i)
-#else  // ARCH_CPU_LITTLE_ENDIAN
-#define FOR_FROM_SMALLEST(start, end) for (size_t i = start; i < end; ++i)
-#endif
-
 template <size_t N>
 struct BigInt {
   uint64_t limbs[N] = {
       0,
   };
-#if ARCH_CPU_BIG_ENDIAN
-  constexpr static size_t kSmallestLimbIdx = N - 1;
-#else  // ARCH_CPU_LITTLE_ENDIAN
-  constexpr static size_t kSmallestLimbIdx = 0;
-#endif
-
-#if ARCH_CPU_BIG_ENDIAN
-  constexpr static size_t kBiggestLimbIdx = 0;
-#else  // ARCH_CPU_LITTLE_ENDIAN
-  constexpr static size_t kBiggestLimbIdx = N - 1;
-#endif
+  constexpr static size_t kSmallestLimbIdx = SMALLEST_INDEX(N);
+  constexpr static size_t kBiggestLimbIdx = BIGGEST_INDEX(N);
 
   constexpr BigInt() = default;
   constexpr explicit BigInt(int value) : BigInt(static_cast<uint64_t>(value)) {
@@ -102,49 +80,13 @@ struct BigInt {
   constexpr static BigInt FromMontgomery32(const BigInt<N>& value,
                                            const BigInt<N>& modulus,
                                            uint32_t inverse) {
-    BigInt<N> r = value;
-    uint32_t* r_ptr = reinterpret_cast<uint32_t*>(r.limbs);
-    const uint32_t* m_ptr = reinterpret_cast<const uint32_t*>(modulus.limbs);
-    // Montgomery Reduction
-    FOR_FROM_SMALLEST(0, 2 * N) {
-      uint32_t k = r_ptr[i] * inverse;
-      MulResult<uint32_t> result =
-          internal::u32::MulAddWithCarry(r_ptr[i], k, m_ptr[0]);
-#if ARCH_CPU_BIG_ENDIAN
-      for (size_t j = 2 * N - 2; i != std::numeric_limits<size_t>::max(); --i) {
-#else  // ARCH_CPU_LITTLE_ENDIAN
-      for (size_t j = 1; j < 2 * N; ++j) {
-#endif
-        result = internal::u32::MulAddWithCarry(r_ptr[(j + i) % (2 * N)], k,
-                                                m_ptr[j], result.hi);
-        r_ptr[(j + i) % (2 * N)] = result.lo;
-      }
-      r_ptr[i] = result.hi;
-    }
-    return r;
+    return FromMontgomery(value, modulus, inverse);
   }
 
   constexpr static BigInt FromMontgomery64(const BigInt<N>& value,
                                            const BigInt<N>& modulus,
                                            uint64_t inverse) {
-    BigInt<N> r = value;
-    // Montgomery Reduction
-    FOR_FROM_SMALLEST(0, N) {
-      uint64_t k = r[i] * inverse;
-      MulResult<uint64_t> result =
-          internal::u64::MulAddWithCarry(r[i], k, modulus[0]);
-#if ARCH_CPU_BIG_ENDIAN
-      for (size_t j = N - 2; i != std::numeric_limits<size_t>::max(); --i) {
-#else  // ARCH_CPU_LITTLE_ENDIAN
-      for (size_t j = 1; j < N; ++j) {
-#endif
-        result = internal::u64::MulAddWithCarry(r[(j + i) % N], k, modulus[j],
-                                                result.hi);
-        r[(j + i) % N] = result.lo;
-      }
-      r[i] = result.hi;
-    }
-    return r;
+    return FromMontgomery(value, modulus, inverse);
   }
 
   template <bool ModulusHasSpareBit>
@@ -165,48 +107,14 @@ struct BigInt {
   constexpr static void MontgomeryReduce32(BigInt<2 * N>& r,
                                            const BigInt& modulus,
                                            uint32_t inverse, BigInt* out) {
-    uint32_t* r_ptr = reinterpret_cast<uint32_t*>(r.limbs);
-    const uint32_t* m_ptr = reinterpret_cast<const uint32_t*>(modulus.limbs);
-    AddResult<uint32_t> add_result;
-    for (size_t i = 0; i < 2 * N; ++i) {
-      uint32_t tmp = r_ptr[i] * inverse;
-      MulResult<uint32_t> mul_result;
-      mul_result = internal::u32::MulAddWithCarry(r_ptr[i], tmp, m_ptr[0],
-                                                  mul_result.hi);
-      for (size_t j = 1; j < 2 * N; ++j) {
-        mul_result = internal::u32::MulAddWithCarry(r_ptr[i + j], tmp, m_ptr[j],
-                                                    mul_result.hi);
-        r_ptr[i + j] = mul_result.lo;
-      }
-      add_result = internal::u32::AddWithCarry(r_ptr[2 * N + i], mul_result.hi,
-                                               add_result.carry);
-      r_ptr[2 * N + i] = add_result.result;
-    }
-    memcpy(&(*out)[0], &r[N], sizeof(uint64_t) * N);
-    Clamp<ModulusHasSpareBit>(modulus, out, add_result.carry);
+    MontgomeryReduce<ModulusHasSpareBit>(r, modulus, inverse, out);
   }
 
   template <bool ModulusHasSpareBit>
   constexpr static void MontgomeryReduce64(BigInt<2 * N>& r,
                                            const BigInt& modulus,
                                            uint64_t inverse, BigInt* out) {
-    AddResult<uint64_t> add_result;
-    for (size_t i = 0; i < N; ++i) {
-      uint64_t tmp = r[i] * inverse;
-      MulResult<uint64_t> mul_result;
-      mul_result =
-          internal::u64::MulAddWithCarry(r[i], tmp, modulus[0], mul_result.hi);
-      for (size_t j = 1; j < N; ++j) {
-        mul_result = internal::u64::MulAddWithCarry(r[i + j], tmp, modulus[j],
-                                                    mul_result.hi);
-        r[i + j] = mul_result.lo;
-      }
-      add_result = internal::u64::AddWithCarry(r[N + i], mul_result.hi,
-                                               add_result.carry);
-      r[N + i] = add_result.result;
-    }
-    memcpy(&(*out)[0], &r[N], sizeof(uint64_t) * N);
-    Clamp<ModulusHasSpareBit>(modulus, out, add_result.carry);
+    MontgomeryReduce<ModulusHasSpareBit>(r, modulus, inverse, out);
   }
 
   constexpr bool IsZero() const {
@@ -217,11 +125,7 @@ struct BigInt {
   }
 
   constexpr bool IsOne() const {
-#if ARCH_CPU_BIG_ENDIAN
-    for (size_t i = 0; i < N - 1; ++i) {
-#else  // ARCH_CPU_LITTLE_ENDIAN
-    for (size_t i = 1; i < N; ++i) {
-#endif
+    FOR_BUT_SMALLEST(i, N) {
       if (limbs[i] != 0) return false;
     }
     return limbs[kSmallestLimbIdx] == 1;
@@ -251,7 +155,7 @@ struct BigInt {
   }
 
   constexpr bool operator<(const BigInt& other) const {
-    FOR_FROM_BIGGEST(0, N) {
+    FOR_FROM_BIGGEST(i, 0, N) {
       if (limbs[i] == other.limbs[i]) continue;
       return limbs[i] < other.limbs[i];
     }
@@ -259,7 +163,7 @@ struct BigInt {
   }
 
   constexpr bool operator>(const BigInt& other) const {
-    FOR_FROM_BIGGEST(0, N) {
+    FOR_FROM_BIGGEST(i, 0, N) {
       if (limbs[i] == other.limbs[i]) continue;
       return limbs[i] > other.limbs[i];
     }
@@ -267,7 +171,7 @@ struct BigInt {
   }
 
   constexpr bool operator<=(const BigInt& other) const {
-    FOR_FROM_BIGGEST(0, N) {
+    FOR_FROM_BIGGEST(i, 0, N) {
       if (limbs[i] == other.limbs[i]) continue;
       return limbs[i] < other.limbs[i];
     }
@@ -275,11 +179,29 @@ struct BigInt {
   }
 
   constexpr bool operator>=(const BigInt& other) const {
-    FOR_FROM_BIGGEST(0, N) {
+    FOR_FROM_BIGGEST(i, 0, N) {
       if (limbs[i] == other.limbs[i]) continue;
       return limbs[i] > other.limbs[i];
     }
     return true;
+  }
+
+  constexpr BigInt operator+(const BigInt& other) const {
+    BigInt ret = *this;
+    return ret.AddInPlace(other);
+  }
+
+  constexpr BigInt& operator+=(const BigInt& other) {
+    return AddInPlace(other);
+  }
+
+  constexpr BigInt operator-(const BigInt& other) const {
+    BigInt ret = *this;
+    return ret.SubInPlace(other);
+  }
+
+  constexpr BigInt& operator-=(const BigInt& other) {
+    return SubInPlace(other);
   }
 
   constexpr BigInt& AddInPlace(const BigInt& other) {
@@ -317,7 +239,7 @@ struct BigInt {
 
 #undef ADD_WITH_CARRY_INLINE
 
-    FOR_FROM_SMALLEST(6, N) {
+    FOR_FROM_SMALLEST(i, 6, N) {
       result =
           internal::u64::AddWithCarry(limbs[i], other.limbs[i], result.carry);
       limbs[i] = result.result;
@@ -361,7 +283,7 @@ struct BigInt {
 
 #undef SUB_WITH_BORROW_INLINE
 
-    FOR_FROM_SMALLEST(6, N) {
+    FOR_FROM_SMALLEST(i, 6, N) {
       result =
           internal::u64::SubWithBorrow(limbs[i], other.limbs[i], result.borrow);
       limbs[i] = result.result;
@@ -377,7 +299,7 @@ struct BigInt {
 
   constexpr BigInt& MulBy2InPlace(uint64_t& carry) {
     carry = 0;
-    FOR_FROM_SMALLEST(0, N) {
+    FOR_FROM_SMALLEST(i, 0, N) {
       uint64_t temp = limbs[i] >> 63;
       limbs[i] <<= 1;
       limbs[i] |= carry;
@@ -394,13 +316,13 @@ struct BigInt {
 
     while (n >= 64) {
       uint64_t t = 0;
-      FOR_FROM_SMALLEST(0, N) { std::exchange(t, limbs[i]); }
+      FOR_FROM_SMALLEST(i, 0, N) { std::exchange(t, limbs[i]); }
       n -= 64;
     }
 
     if (n > static_cast<uint32_t>(0)) {
       uint64_t t = 0;
-      FOR_FROM_SMALLEST(0, N) {
+      FOR_FROM_SMALLEST(i, 0, N) {
         uint64_t t2 = limbs[i] >> (64 - n);
         limbs[i] <<= n;
         limbs[i] |= t;
@@ -412,7 +334,7 @@ struct BigInt {
 
   constexpr BigInt& DivBy2InPlace() {
     uint64_t last = 0;
-    FOR_FROM_BIGGEST(0, N) {
+    FOR_FROM_BIGGEST(i, 0, N) {
       uint64_t temp = limbs[i] << 63;
       limbs[i] >>= 1;
       limbs[i] |= last;
@@ -429,13 +351,13 @@ struct BigInt {
 
     while (n >= 64) {
       uint64_t t = 0;
-      FOR_FROM_BIGGEST(0, N) { std::exchange(t, limbs[1]); }
+      FOR_FROM_BIGGEST(i, 0, N) { std::exchange(t, limbs[1]); }
       n -= 64;
     }
 
     if (n > static_cast<uint32_t>(0)) {
       uint64_t t = 0;
-      FOR_FROM_BIGGEST(0, N) {
+      FOR_FROM_BIGGEST(i, 0, N) {
         uint64_t t2 = limbs[i] << (64 - n);
         limbs[i] >>= n;
         limbs[i] |= t;
@@ -449,10 +371,73 @@ struct BigInt {
   std::string ToHexString() const {
     return internal::LimbsToHexString(limbs, N);
   }
-};
 
-#undef FOR_FROM_BIGGEST
-#undef FOR_FROM_SMALLEST
+ private:
+  template <typename T>
+  constexpr static BigInt FromMontgomery(const BigInt<N>& value,
+                                         const BigInt<N>& modulus, T inverse) {
+    BigInt<N> r = value;
+    T* r_ptr = reinterpret_cast<T*>(r.limbs);
+    const T* m_ptr = reinterpret_cast<const T*>(modulus.limbs);
+    size_t num;
+    MulResult<T> (*mul_add_with_carry)(T, T, T, T);
+    if constexpr (std::is_same_v<T, uint32_t>) {
+      num = 2 * N;
+      mul_add_with_carry = internal::u32::MulAddWithCarry;
+    } else {
+      num = N;
+      mul_add_with_carry = internal::u64::MulAddWithCarry;
+    }
+    // Montgomery Reduction
+    FOR_FROM_SMALLEST(i, 0, num) {
+      T k = r_ptr[i] * inverse;
+      MulResult<T> result = mul_add_with_carry(r_ptr[i], k, m_ptr[0], 0);
+      FOR_FROM_SECOND_SMALLEST(j, 0, num) {
+        result =
+            mul_add_with_carry(r_ptr[(j + i) % num], k, m_ptr[j], result.hi);
+        r_ptr[(j + i) % num] = result.lo;
+      }
+      r_ptr[i] = result.hi;
+    }
+    return r;
+  }
+
+  template <bool ModulusHasSpareBit, typename T>
+  constexpr static void MontgomeryReduce(BigInt<2 * N>& r,
+                                         const BigInt& modulus, T inverse,
+                                         BigInt* out) {
+    T* r_ptr = reinterpret_cast<T*>(r.limbs);
+    const T* m_ptr = reinterpret_cast<const T*>(modulus.limbs);
+    size_t num;
+    MulResult<T> (*mul_add_with_carry)(T, T, T, T);
+    AddResult<T> (*add_with_carry)(T, T, T);
+    if constexpr (std::is_same_v<T, uint32_t>) {
+      num = 2 * N;
+      mul_add_with_carry = internal::u32::MulAddWithCarry;
+      add_with_carry = internal::u32::AddWithCarry;
+    } else {
+      num = N;
+      mul_add_with_carry = internal::u64::MulAddWithCarry;
+      add_with_carry = internal::u64::AddWithCarry;
+    }
+    AddResult<T> add_result;
+    FOR_FROM_SMALLEST(i, 0, num) {
+      T tmp = r_ptr[i] * inverse;
+      MulResult<T> mul_result;
+      mul_result = mul_add_with_carry(r_ptr[i], tmp, m_ptr[0], mul_result.hi);
+      FOR_FROM_SECOND_SMALLEST(j, 0, num) {
+        mul_result =
+            mul_add_with_carry(r_ptr[i + j], tmp, m_ptr[j], mul_result.hi);
+        r_ptr[i + j] = mul_result.lo;
+      }
+      add_result =
+          add_with_carry(r_ptr[num + i], mul_result.hi, add_result.carry);
+      r_ptr[num + i] = add_result.result;
+    }
+    memcpy(&(*out)[0], &r[N], sizeof(uint64_t) * N);
+    Clamp<ModulusHasSpareBit>(modulus, out, add_result.carry);
+  }
+};
 
 template <size_t N>
 std::ostream& operator<<(std::ostream& os, const BigInt<N>& bigint) {

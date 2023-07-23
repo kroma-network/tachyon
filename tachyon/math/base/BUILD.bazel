@@ -25,6 +25,7 @@ tachyon_cc_library(
     hdrs = ["big_int.h"],
     deps = [
         ":arithmetics",
+        "//tachyon/base:macro_utils",
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
         "//tachyon/math/base/gmp:gmp_util",

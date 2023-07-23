@@ -6,20 +6,6 @@
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/bit_traits.h"
 
-#if ARCH_CPU_BIG_ENDIAN
-#define FOR_FROM_BIGGEST(start, end) for (size_t i = start; i < end; ++i)
-#else  // ARCH_CPU_LITTLE_ENDIAN
-#define FOR_FROM_BIGGEST(start, end) \
-  for (size_t i = end - 1; i != static_cast<size_t>(start - 1); --i)
-#endif
-
-#if ARCH_CPU_BIG_ENDIAN
-#define FOR_FROM_SMALLEST(start, end) \
-  for (size_t i = end - 1; i != static_cast<size_t>(start - 1); --i)
-#else  // ARCH_CPU_LITTLE_ENDIAN
-#define FOR_FROM_SMALLEST(start, end) for (size_t i = start; i < end; ++i)
-#endif
-
 namespace tachyon {
 namespace math {
 namespace internal {
@@ -62,11 +48,7 @@ class Modulus {
     bool top_bit_is_zero = biggest_limb >> 63 == 0;
     bool all_remain_bits_are_one =
         biggest_limb == std::numeric_limits<uint64_t>::max() >> 1;
-#if ARCH_CPU_BIG_ENDIAN
-    for (size_t i = 0; i < N - 1; ++i) {
-#else  // ARCH_CPU_LITTLE_ENDIAN
-    for (size_t i = 1; i < N; ++i) {
-#endif
+    FOR_BUT_SMALLEST(i, N) {
       all_remain_bits_are_one &=
           modulus[N - i - 1] == std::numeric_limits<uint64_t>::max();
     }
@@ -125,7 +107,7 @@ class Modulus {
     size_t bits = BitTraits<T>::GetNumBits(buffer);
     uint64_t carry = 0;
     uint64_t& smallest_bit = remainder.limbs[BigInt<N>::kSmallestLimbIdx];
-    FOR_FROM_BIGGEST(0, bits) {
+    FOR_FROM_BIGGEST(i, 0, bits) {
       remainder.MulBy2InPlace(carry);
       smallest_bit |= BitTraits<T>::TestBit(buffer, i);
       if (remainder >= modulus || carry) {
@@ -137,9 +119,6 @@ class Modulus {
     return remainder;
   }
 };
-
-#undef FOR_FROM_BIGGEST
-#undef FOR_FROM_SMALLEST
 
 }  // namespace math
 }  // namespace tachyon
