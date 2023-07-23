@@ -41,10 +41,12 @@ TEST(ModulusTest, Montgomery) {
 }
 
 TEST(ModulusTest, Inverse) {
-  EXPECT_EQ(Modulus<4>::Inverse<uint32_t>(bn254::FqConfig::kModulus),
-            UINT32_C(3834012553));
-  EXPECT_EQ(Modulus<4>::Inverse<uint64_t>(bn254::FqConfig::kModulus),
-            UINT64_C(9786893198990664585));
+  uint32_t inv32 = Modulus<4>::Inverse<uint32_t>(bn254::FqConfig::kModulus);
+  EXPECT_EQ(inv32, UINT32_C(3834012553));
+  EXPECT_EQ(static_cast<uint32_t>(inv32 * bn254::FqConfig::kModulus[0]), -1);
+  uint64_t inv64 = Modulus<4>::Inverse<uint64_t>(bn254::FqConfig::kModulus);
+  EXPECT_EQ(inv64, UINT64_C(9786893198990664585));
+  EXPECT_EQ(inv64 * bn254::FqConfig::kModulus[0], -1);
 }
 
 }  // namespace math
