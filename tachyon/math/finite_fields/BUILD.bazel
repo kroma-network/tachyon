@@ -1,5 +1,5 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
-load("//bazel:tachyon.bzl", "if_gmp_backend", "if_cuda_and_gmp_backend")
+load("//bazel:tachyon.bzl", "if_cuda_and_gmp_backend", "if_gmp_backend")
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_benchmark",
@@ -126,8 +126,6 @@ tachyon_cc_test(
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
     ],
 )
-
-
 
 tachyon_cuda_test(
     name = "finite_field_correctness_cuda_tests",

@@ -2,7 +2,6 @@
 #define TACHYON_MATH_FINITE_FIELDS_KERNELS_PRIME_FIELD_OPS_CU_H_
 
 #include <stddef.h>
-#include <stdio.h>
 
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
 

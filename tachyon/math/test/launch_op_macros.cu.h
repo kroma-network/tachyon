@@ -4,7 +4,7 @@
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/device/gpu/gpu_logging.h"
 
-#define DEFINE_LAUNCH_UNARY_OP(thread_num, method, result_type)         \
+#define DEFINE_LAUNCH_UNARY_OP(thread_num, method, type, result_type)   \
   cudaError_t Launch##method(const type* x, result_type* result,        \
                              size_t count) {                            \
     ::tachyon::math::kernels::                                          \

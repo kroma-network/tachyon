@@ -91,6 +91,8 @@ device::gpu::ScopedMemory<bool> PrimeFieldMontCudaTest::bool_results_;
   RUN_OPERATION_TESTS(method, bool_results_)   \
   ASSERT_EQ((bool_results_.get())[i], tests[i].result)
 
+#undef RUN_OPERATION_TESTS
+
 TEST_F(PrimeFieldMontCudaTest, FromString) {
   EXPECT_EQ(GF7Cuda::FromDecString("3"), GF7Cuda(3));
   EXPECT_EQ(GF7Cuda::FromHexString("0x3"), GF7Cuda(3));
@@ -266,7 +268,6 @@ TEST_F(PrimeFieldMontCudaTest, Ge) {
 
 #undef RUN_COMPARISON_OPERATION_TESTS
 #undef RUN_FIELD_OPERATION_TESTS
-#undef RUN_OPERATION_TESTS
 
 }  // namespace math
 }  // namespace tachyon

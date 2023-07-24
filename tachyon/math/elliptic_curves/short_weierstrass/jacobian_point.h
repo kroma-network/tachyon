@@ -111,7 +111,7 @@ class JacobianPoint<_Config,
     return !operator==(other);
   }
 
-  constexpr bool IsZero() const { return z_ == BaseField::Zero(); }
+  constexpr bool IsZero() const { return z_.IsZero(); }
 
   // The jacobian point X, Y, Z is represented in the affine
   // coordinates as X/Z², Y/Z³.
