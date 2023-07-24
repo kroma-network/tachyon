@@ -121,6 +121,9 @@ class PrimeFieldMontCudaDebug
 
   constexpr const BigInt<N>& ToMontgomery() const { return value_; }
 
+  constexpr uint64_t& operator[](size_t i) { return value_[i]; }
+  constexpr const uint64_t& operator[](size_t i) const { return value_[i]; }
+
   constexpr bool operator==(const PrimeFieldMontCudaDebug& other) const {
     return ToBigInt() == other.ToBigInt();
   }

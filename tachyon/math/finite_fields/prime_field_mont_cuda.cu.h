@@ -139,6 +139,13 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
 
   constexpr const BigInt<N>& ToMontgomery() const { return value_; }
 
+  __host__ __device__ constexpr uint64_t& operator[](size_t i) {
+    return value_[i];
+  }
+  __host__ __device__ constexpr const uint64_t& operator[](size_t i) const {
+    return value_[i];
+  }
+
   __host__ __device__ constexpr bool operator==(
       const PrimeFieldMontCuda& other) const {
     const uint64_t* x = value_.limbs;

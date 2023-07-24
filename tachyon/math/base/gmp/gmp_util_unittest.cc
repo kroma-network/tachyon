@@ -88,7 +88,7 @@ TEST(GmpUtilTest, Bits) {
 TEST(GmpUtilTest, Limbs) {
   mpz_class value(1234);
   EXPECT_EQ(GetLimbSize(value), static_cast<size_t>(1));
-  EXPECT_EQ(GetLimb(value, 0), 1234);
+  EXPECT_EQ(GetLimbConstRef(value, 0), 1234);
 }
 
 }  // namespace gmp

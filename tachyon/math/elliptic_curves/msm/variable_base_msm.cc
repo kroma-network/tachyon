@@ -32,11 +32,11 @@ std::vector<int64_t> MakeDigits(const mpz_class& scalar, size_t w,
     } else if (bit_idx < 64 - w || u64_idx == limb_size - 1) {
       // This window's bits are contained in a single u64,
       // or it's the last u64 anyway.
-      bit_buf = gmp::GetLimb(scalar, u64_idx) >> bit_idx;
+      bit_buf = gmp::GetLimbConstRef(scalar, u64_idx) >> bit_idx;
     } else {
       // Combine the current u64's bits with the bits from the next u64
-      bit_buf = (gmp::GetLimb(scalar, u64_idx) >> bit_idx) |
-                (gmp::GetLimb(scalar, 1 + u64_idx) << (64 - bit_idx));
+      bit_buf = (gmp::GetLimbConstRef(scalar, u64_idx) >> bit_idx) |
+                (gmp::GetLimbConstRef(scalar, 1 + u64_idx) << (64 - bit_idx));
     }
 
     // Read the actual coefficient value from the window

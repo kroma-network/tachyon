@@ -130,7 +130,7 @@ class VariableBaseMSM {
 
           // We mod the remaining bits by 2^{window size}, thus taking
           // `c` bits.
-          uint64_t idx = gmp::GetLimb(q, 0) % (1 << c);
+          uint64_t idx = gmp::GetLimbConstRef(q, 0) % (1 << c);
 
           // If the scalar is non-zero, we update the corresponding
           // bucket.

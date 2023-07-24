@@ -101,13 +101,17 @@ size_t GetLimbSize(const mpz_class& value) {
   return value.__get_mp()->_mp_size;
 }
 
-uint64_t GetLimb(const mpz_class& value, size_t idx) {
+const uint64_t& GetLimbConstRef(const mpz_class& value, size_t idx) {
+  return value.__get_mp()->_mp_d[idx];
+}
+
+uint64_t& GetLimbRef(mpz_class& value, size_t idx) {
   return value.__get_mp()->_mp_d[idx];
 }
 
 void CopyLimbs(const mpz_class& value, uint64_t* limbs) {
   for (size_t i = 0; i < GetLimbSize(value); ++i) {
-    limbs[i] = GetLimb(value, i);
+    limbs[i] = GetLimbConstRef(value, i);
   }
 }
 

@@ -125,6 +125,11 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     return PrimeFieldMont<Config>(ToBigInt()).value();
   }
 
+  const uint64_t& operator[](size_t i) const {
+    return gmp::GetLimbConstRef(value_, i);
+  }
+  uint64_t& operator[](size_t i) { return gmp::GetLimbRef(value_, i); }
+
   bool operator==(const PrimeFieldGmp& other) const {
     return value_ == other.value_;
   }
