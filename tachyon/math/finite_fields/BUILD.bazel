@@ -1,3 +1,4 @@
+load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon.bzl", "if_gmp_backend")
 load(
@@ -29,6 +30,14 @@ tachyon_cc_library(
     deps = [
         ":prime_field_gmp",
         ":prime_field_mont",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prime_field_cuda",
+    hdrs = ["prime_field.cu.h"],
+    deps = [
+        ":prime_field",
         ":prime_field_mont_cuda",
     ],
 )
@@ -67,16 +76,20 @@ tachyon_cuda_library(
     name = "prime_field_mont_cuda",
     hdrs = ["prime_field_mont_cuda.h"],
     deps = [
-        ":modulus",
-        ":prime_field_base",
-        "//tachyon/base:compiler_specific",
-        "//tachyon/base:random",
-        "//tachyon/base/containers:adapters",
-        "//tachyon/base/strings:string_util",
-        "//tachyon/math/base:arithmetics",
-        "//tachyon/math/base:identities",
-        "//tachyon/math/base/gmp:gmp_util",
+        ":prime_field_mont",
         "//tachyon/math/finite_fields/kernels:carry_chain",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prime_field_mont_cuda_debug",
+    hdrs = [
+        "carry_chain.h",
+        "prime_field_mont_cuda_debug.h",
+        "prime_field_ops_internal.h",
+    ],
+    deps = [
+        ":prime_field_mont",
     ],
 )
 
@@ -94,20 +107,48 @@ tachyon_cc_test(
 
 tachyon_cuda_test(
     name = "finite_fields_cuda_unittests",
-    srcs = if_cuda(["prime_field_mont_cuda_unittest.cc"]),
+    srcs = if_cuda(["prime_field_mont_cuda_unittest.cu.cc"]),
     deps = [
         ":prime_field",
         "//tachyon/device/gpu/cuda:cuda_memory",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
+        "//tachyon/math/finite_fields/kernels/test:launch_op_macros",
     ],
 )
 
 tachyon_cc_test(
-    name = "finite_field_correctness_test",
+    name = "finite_field_correctness_tests",
     srcs = if_gmp_backend(["finite_field_correctness_test.cc"]),
     tags = ["manual"],
     deps = [
-        ":prime_field",
+        ":prime_field_cuda",
+        ":prime_field_mont_cuda_debug",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/finite_fields/goldilocks_prime:goldilocks_prime_field",
+    ],
+)
+
+selects.config_setting_group(
+    name = "cuda_and_gmp",
+    match_all = [
+        "@local_config_cuda//:is_cuda_enabled",
+        "@kroma_network_tachyon//:tachyon_gmp_backend",
+    ],
+)
+
+tachyon_cuda_test(
+    name = "finite_field_correctness_cuda_tests",
+    srcs = select({
+        ":cuda_and_gmp": ["finite_field_correctness_cuda_test.cu.cc"],
+        "//conditions:default": [],
+    }),
+    tags = ["manual"],
+    deps = [
+        ":prime_field_cuda",
+        "//tachyon/device/gpu/cuda:cuda_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq_cuda",
+        "//tachyon/math/finite_fields/goldilocks_prime:goldilocks_prime_field",
+        "//tachyon/math/finite_fields/kernels:prime_field_ops",
+        "//tachyon/math/finite_fields/kernels/test:launch_op_macros",
     ],
 )

@@ -1,0 +1,13 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cuda_library(
+    name = "launch_op_macros",
+    testonly = True,
+    hdrs = ["launch_op_macros.cu.h"],
+    deps = [
+        "//tachyon/device/gpu:gpu_device_functions",
+        "//tachyon/device/gpu:gpu_logging",
+    ],
+)

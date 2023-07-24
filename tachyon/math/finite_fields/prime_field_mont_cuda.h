@@ -7,6 +7,8 @@
 #include <ostream>
 #include <string>
 
+#include "third_party/gpus/cuda/include/cuda_runtime.h"
+
 #include "tachyon/base/random.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
@@ -26,6 +28,7 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;
   constexpr static size_t N = kLimbNums;
+  constexpr static size_t N32 = kLimbNums * 2;
 
   using Config = _Config;
   using value_type = BigInt<N>;
@@ -198,16 +201,22 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   }
 
   __device__ constexpr PrimeFieldMontCuda& NegInPlace() {
-    NOTIMPLEMENTED();
+    BigInt<N> result;
+    SubLimbs<false>(Config::kModulus, value_, result);
+    value_ = result;
     return *this;
   }
 
   // MultiplicativeSemigroup methods
-  // NOTE(chokobole): This needs __host__ to allow to construct
-  // PrimeFieldMontCuda from host side.
-  __host__ __device__ constexpr PrimeFieldMontCuda& MulInPlace(
+  __device__ constexpr PrimeFieldMontCuda& MulInPlace(
       const PrimeFieldMontCuda& other) {
-    // NOTIMPLEMENTED();
+    // Forces us to think more carefully about the last carry bit if we use a
+    // modulus with fewer than 2 leading zeroes of slack.
+    static_assert(!(Config::kModulus[N - 1] >> 62));
+    BigInt<N> result;
+    MulLimbs(value_, other.value_, result);
+    value_ = result;
+    *this = Clamp(*this);
     return *this;
   }
 
@@ -217,7 +226,43 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
 
   // MultiplicativeGroup methods
   __device__ constexpr PrimeFieldMontCuda& InverseInPlace() {
-    NOTIMPLEMENTED();
+    if (IsZero()) return *this;
+
+    BigInt<N> u = value_;
+    BigInt<N> v = GetModulus();
+    PrimeFieldMontCuda b;
+    b.value_ = kMontgomeryR2;
+    // NOTE(chokobole): Do not use this.
+    // PrimeFieldMontCuda c = PrimeFieldMontCuda::Zero();
+    PrimeFieldMontCuda c;
+
+    while (!u.IsOne() && !v.IsOne()) {
+      while (u.IsEven()) {
+        u = DivBy2Limbs(u);
+        if (b.IsOdd()) AddLimbs<false>(b.value_, GetModulus(), b.value_);
+        b.value_ = DivBy2Limbs(b.value_);
+      }
+
+      while (v.IsEven()) {
+        v = DivBy2Limbs(v);
+        if (c.IsOdd()) AddLimbs<false>(c.value_, GetModulus(), c.value_);
+        c.value_ = DivBy2Limbs(c.value_);
+      }
+
+      if (v < u) {
+        SubLimbs<false>(u, v, u);
+        b -= c;
+      } else {
+        SubLimbs<false>(v, u, v);
+        c -= b;
+      }
+    }
+    if (u.IsOne()) {
+      *this = b;
+    } else {
+      *this = c;
+    }
+
     return *this;
   }
 
@@ -229,7 +274,7 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     const uint64_t* x = xs.limbs;
     const uint64_t* y = ys.limbs;
     uint64_t* r = results.limbs;
-    CarryChain<CarryOut ? N + 1 : N> chain;
+    kernels::u64::CarryChain<CarryOut ? N + 1 : N> chain;
     for (size_t i = 0; i < N; ++i) {
       r[i] = chain.Add(x[i], y[i]);
     }
@@ -244,12 +289,110 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     const uint64_t* x = xs.limbs;
     const uint64_t* y = ys.limbs;
     uint64_t* r = results.limbs;
-    CarryChain<CarryOut ? N + 1 : N> chain;
+    kernels::u64::CarryChain<CarryOut ? N + 1 : N> chain;
     for (size_t i = 0; i < N; ++i) {
       r[i] = chain.Sub(x[i], y[i]);
     }
     if constexpr (!CarryOut) return 0;
     return chain.Sub(0, 0);
+  }
+
+  __device__ constexpr static void MulLimbs(const BigInt<N>& xs,
+                                            const BigInt<N>& ys,
+                                            BigInt<N>& results) {
+    constexpr uint32_t n = N32;
+    const uint32_t* x = reinterpret_cast<const uint32_t*>(xs.limbs);
+    const uint32_t* y = reinterpret_cast<const uint32_t*>(ys.limbs);
+    uint32_t* even = reinterpret_cast<uint32_t*>(results.limbs);
+
+    ALIGNAS(8)
+    uint32_t odd[n + 1] = {
+        0,
+    };
+    size_t i;
+    for (i = 0; i < n; i += 2) {
+      MadNRedc(&even[0], &odd[0], x, y[i], i == 0);
+      MadNRedc(&odd[0], &even[0], x, y[i + 1]);
+    }
+
+    // merge |even| and |odd|
+    even[0] = ptx::u32::AddCc(even[0], odd[1]);
+    for (i = 1; i < n - 1; ++i) {
+      even[i] = ptx::u32::AddcCc(even[i], odd[i + 1]);
+    }
+    even[i] = ptx::u32::Addc(even[i], 0);
+
+    // final reduction from [0, 2 * mod) to [0, mod) not done here, instead
+    // performed optionally in MulInPlace.
+  }
+
+  __device__ constexpr static BigInt<N> DivBy2Limbs(const BigInt<N>& xs) {
+    BigInt<N> results;
+    const uint32_t* x = reinterpret_cast<const uint32_t*>(xs.limbs);
+    uint32_t* r = reinterpret_cast<uint32_t*>(results.limbs);
+    for (size_t i = 0; i < N32 - 1; ++i) {
+      r[i] = static_cast<uint32_t>(__funnelshift_rc(x[i], x[i + 1], 1));
+    }
+    r[N32 - 1] = x[N32 - 1] >> 1;
+    return results;
+  }
+
+  // The following algorithms are adaptations of
+  // http://www.acsel-lab.com/arithmetic/arith23/data/1616a047.pdf,
+  // taken from https://github.com/z-prize/test-msm-gpu (under Apache 2.0
+  // license) and modified to use our datatypes. We had our own implementation
+  // of http://www.acsel-lab.com/arithmetic/arith23/data/1616a047.pdf, but the
+  // sppark versions achieved lower instruction count thanks to clever carry
+  // handling, so we decided to just use theirs.
+
+  __device__ constexpr static void MulN(uint32_t* acc, const uint32_t* a,
+                                        uint32_t bi, size_t n = N32) {
+    for (size_t i = 0; i < n; i += 2) {
+      acc[i] = ptx::u32::MulLo(a[i], bi);
+      acc[i + 1] = ptx::u32::MulHi(a[i], bi);
+    }
+  }
+
+  __device__ constexpr static void CMadN(uint32_t* acc, const uint32_t* a,
+                                         uint32_t bi, size_t n = N32) {
+    acc[0] = ptx::u32::MadLoCc(a[0], bi, acc[0]);
+    acc[1] = ptx::u32::MadcHiCc(a[0], bi, acc[1]);
+    for (size_t i = 2; i < n; i += 2) {
+      acc[i] = ptx::u32::MadcLoCc(a[i], bi, acc[i]);
+      acc[i + 1] = ptx::u32::MadcHiCc(a[i], bi, acc[i + 1]);
+    }
+  }
+
+  __device__ constexpr static void MadcNRshift(uint32_t* odd, const uint32_t* a,
+                                               uint32_t bi) {
+    constexpr uint32_t n = N32;
+    for (size_t i = 0; i < n - 2; i += 2) {
+      odd[i] = ptx::u32::MadcLoCc(a[i], bi, odd[i + 2]);
+      odd[i + 1] = ptx::u32::MadcHiCc(a[i], bi, odd[i + 3]);
+    }
+    odd[n - 2] = ptx::u32::MadcLoCc(a[n - 2], bi, 0);
+    odd[n - 1] = ptx::u32::MadcHi(a[n - 2], bi, 0);
+  }
+
+  __device__ constexpr static void MadNRedc(uint32_t* even, uint32_t* odd,
+                                            const uint32_t* a, uint32_t bi,
+                                            bool first = false) {
+    constexpr uint32_t n = N32;
+    const uint32_t* const modulus =
+        reinterpret_cast<const uint32_t* const>(GetModulus().limbs);
+    if (first) {
+      MulN(odd, a + 1, bi);
+      MulN(even, a, bi);
+    } else {
+      even[0] = ptx::u32::AddCc(even[0], odd[1]);
+      MadcNRshift(odd, a + 1, bi);
+      CMadN(even, a, bi);
+      odd[n - 1] = ptx::u32::Addc(odd[n - 1], 0);
+    }
+    uint32_t mi = even[0] * kInverse32;
+    CMadN(odd, modulus + 1, mi);
+    CMadN(even, modulus, mi);
+    odd[n - 1] = ptx::u32::Addc(odd[n - 1], 0);
   }
 
   __device__ constexpr static PrimeFieldMontCuda Clamp(PrimeFieldMontCuda& xs) {

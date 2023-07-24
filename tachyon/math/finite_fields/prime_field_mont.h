@@ -297,6 +297,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   }
 
  private:
+  template <typename PrimeFieldType>
   FRIEND_TEST(PrimeFieldCorrectnessTest, MultiplicativeOperators);
 
   constexpr PrimeFieldMont& FastMulInPlace(const PrimeFieldMont& other) {

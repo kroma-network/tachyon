@@ -1,0 +1,15 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "goldilocks_prime_field",
+    hdrs = ["goldilocks_prime_field.h"],
+    deps = ["//tachyon/math/finite_fields:prime_field"],
+)
+
+tachyon_cc_library(
+    name = "goldilocks_prime_field_cuda",
+    hdrs = ["goldilocks_prime_field.cu.h"],
+    deps = ["//tachyon/math/finite_fields:prime_field_cuda"],
+)

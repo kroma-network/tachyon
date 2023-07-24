@@ -18,8 +18,15 @@ tachyon_cc_library(
     name = "fq",
     srcs = ["fq.cc"],
     hdrs = ["fq.h"],
+    deps = ["//tachyon/math/finite_fields:prime_field"],
+)
+
+tachyon_cc_library(
+    name = "fq_cuda",
+    hdrs = ["fq.cu.h"],
     deps = [
-        "//tachyon/math/finite_fields:prime_field",
+        ":fq",
+        "//tachyon/math/finite_fields:prime_field_cuda",
     ],
 )
 
@@ -27,7 +34,14 @@ tachyon_cc_library(
     name = "fr",
     srcs = ["fr.cc"],
     hdrs = ["fr.h"],
+    deps = ["//tachyon/math/finite_fields:prime_field"],
+)
+
+tachyon_cc_library(
+    name = "fr_cuda",
+    hdrs = ["fr.cu.h"],
     deps = [
-        "//tachyon/math/finite_fields:prime_field",
+        ":fr",
+        "//tachyon/math/finite_fields:prime_field_cuda",
     ],
 )

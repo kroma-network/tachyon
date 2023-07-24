@@ -32,9 +32,6 @@ using Fq = PrimeField<FqConfig>;
 #if defined(TACHYON_GMP_BACKEND)
 using FqGmp = PrimeFieldGmp<FqConfig>;
 #endif  // defined(TACHYON_GMP_BACKEND)
-#if TACHYON_CUDA
-using FqCuda = PrimeFieldMontCuda<FqConfig>;
-#endif  // TACHYON_CUDA
 
 }  // namespace bn254
 }  // namespace math

@@ -24,6 +24,8 @@ namespace kernels {
 
 DEFINE_FIELD_OP(Add, +)
 DEFINE_FIELD_OP(Sub, -)
+DEFINE_FIELD_OP(Mul, *)
+DEFINE_FIELD_OP(Div, /)
 
 #undef DEFINE_FIELD_OP
 
