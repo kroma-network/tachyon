@@ -18,6 +18,8 @@ class CurveConfig : public SWCurveConfig<Fq, Fr> {
 
   static void Init() {
     Fq::Config::Init();
+    Fr::Config::Init();
+
     Config::B() = Fq(3);
 
     Config::Generator() =
