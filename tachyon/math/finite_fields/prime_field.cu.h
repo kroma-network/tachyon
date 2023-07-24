@@ -4,7 +4,7 @@
 #include "tachyon/math/finite_fields/prime_field.h"
 
 #if TACHYON_CUDA
-#include "tachyon/math/finite_fields/prime_field_mont_cuda.h"
+#include "tachyon/math/finite_fields/prime_field_mont_cuda.cu.h"
 #endif  // TACHYON_CUDA
 
 namespace tachyon {

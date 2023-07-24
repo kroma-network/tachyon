@@ -75,7 +75,7 @@ tachyon_cc_library(
 
 tachyon_cuda_library(
     name = "prime_field_mont_cuda",
-    hdrs = ["prime_field_mont_cuda.h"],
+    hdrs = ["prime_field_mont_cuda.cu.h"],
     deps = [
         ":prime_field_mont",
         "//tachyon/math/finite_fields/kernels:carry_chain",

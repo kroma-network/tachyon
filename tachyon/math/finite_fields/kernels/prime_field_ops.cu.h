@@ -6,7 +6,7 @@
 
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
 
-#include "tachyon/math/finite_fields/prime_field_mont_cuda.h"
+#include "tachyon/math/finite_fields/prime_field_mont_cuda.cu.h"
 
 namespace tachyon {
 namespace math {
