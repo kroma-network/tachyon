@@ -202,7 +202,7 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
 
   __device__ constexpr PrimeFieldMontCuda& NegInPlace() {
     BigInt<N> result;
-    SubLimbs<false>(Config::kModulus, value_, result);
+    SubLimbs<false>(GetModulus(), value_, result);
     value_ = result;
     return *this;
   }
