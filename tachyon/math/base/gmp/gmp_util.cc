@@ -81,6 +81,18 @@ bool TestBit(const mpz_class& value, size_t index) {
   return mpz_tstbit(value.get_mpz_t(), index) == 1;
 }
 
+void SetBit(mpz_class& value, size_t index, bool bit_value) {
+  bit_value ? SetBit(value, index) : ClearBit(value, index);
+}
+
+void SetBit(mpz_class& value, size_t index) {
+  mpz_setbit(value.get_mpz_t(), index);
+}
+
+void ClearBit(mpz_class& value, size_t index) {
+  mpz_clrbit(value.get_mpz_t(), index);
+}
+
 uint64_t* GetLimbs(const mpz_class& value) {
   return reinterpret_cast<uint64_t*>(value.__get_mp()->_mp_d);
 }

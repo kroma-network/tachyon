@@ -53,12 +53,15 @@ TEST(BigIntTest, Comparison) {
 }
 
 TEST(BigIntTest, Operations) {
-  BigInt<2> big_int = BigInt<2>::FromDecString("123456789012345678909876543211235312");
-  BigInt<2> big_int2 = BigInt<2>::FromDecString("734581237591230158128731489729873983");
+  BigInt<2> big_int =
+      BigInt<2>::FromDecString("123456789012345678909876543211235312");
+  BigInt<2> big_int2 =
+      BigInt<2>::FromDecString("734581237591230158128731489729873983");
   {
     uint64_t carry = 0;
     BigInt<2> a = big_int;
-    BigInt<2> sum = BigInt<2>::FromDecString("858038026603575837038608032941109295");
+    BigInt<2> sum =
+        BigInt<2>::FromDecString("858038026603575837038608032941109295");
     BigInt<2> b = big_int2;
     EXPECT_EQ(a.AddInPlace(big_int2, carry), sum);
     EXPECT_EQ(carry, 0);
@@ -73,33 +76,62 @@ TEST(BigIntTest, Operations) {
     EXPECT_EQ(a.SubInPlace(big_int2, borrow), amb);
     EXPECT_EQ(borrow, 1);
     BigInt<2> b = big_int2;
-    BigInt<2> bma = BigInt<2>::FromDecString("611124448578884479218854946518638671");
+    BigInt<2> bma =
+        BigInt<2>::FromDecString("611124448578884479218854946518638671");
     EXPECT_EQ(b.SubInPlace(big_int, borrow), bma);
     EXPECT_EQ(borrow, 0);
   }
   {
     uint64_t carry = 0;
     BigInt<2> a = big_int;
-    BigInt<2> mulby2 = BigInt<2>::FromDecString("246913578024691357819753086422470624");
+    BigInt<2> mulby2 =
+        BigInt<2>::FromDecString("246913578024691357819753086422470624");
     EXPECT_EQ(a.MulBy2InPlace(carry), mulby2);
     EXPECT_EQ(carry, 0);
   }
   {
     uint64_t carry = 0;
     BigInt<2> a = big_int;
-    BigInt<2> mulbyn = BigInt<2>::FromDecString("3950617248395061725116049382759529984");
+    BigInt<2> mulbyn =
+        BigInt<2>::FromDecString("3950617248395061725116049382759529984");
     EXPECT_EQ(a.MulBy2ExpInPlace(5), mulbyn);
     EXPECT_EQ(carry, 0);
   }
   {
     BigInt<2> a = big_int;
-    BigInt<2> divby2 = BigInt<2>::FromDecString("61728394506172839454938271605617656");
+    BigInt<2> b = big_int2;
+    BigInt<2> hi;
+    a.MulInPlace(b, hi);
+    EXPECT_EQ(
+        a, BigInt<2>::FromDecString("335394729415762779748307316131549975568"));
+    EXPECT_EQ(hi,
+              BigInt<2>::FromDecString("266511138036132956757991041665338"));
+  }
+  {
+    BigInt<2> a = big_int;
+    BigInt<2> divby2 =
+        BigInt<2>::FromDecString("61728394506172839454938271605617656");
     EXPECT_EQ(a.DivBy2InPlace(), divby2);
   }
   {
     BigInt<2> a = big_int;
-    BigInt<2> divbyn = BigInt<2>::FromDecString("3858024656635802465933641975351103");
+    BigInt<2> divbyn =
+        BigInt<2>::FromDecString("3858024656635802465933641975351103");
     EXPECT_EQ(a.DivByExpInPlace(5), divbyn);
+  }
+  {
+    BigInt<2> a = big_int;
+    BigInt<2> b = big_int2;
+    DivResult<BigInt<2>> adb = {
+        BigInt<2>(),
+        a,
+    };
+    EXPECT_EQ(a.Divide(b), adb);
+    DivResult<BigInt<2>> bda = {
+        BigInt<2>(5),
+        BigInt<2>::FromDecString("117297292529501763579348773673697423"),
+    };
+    EXPECT_EQ(b.Divide(a), bda);
   }
 }
 

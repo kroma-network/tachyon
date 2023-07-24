@@ -6,6 +6,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/math/base/big_int.h"
+
 namespace tachyon {
 namespace math {
 

@@ -79,6 +79,10 @@ TEST(GmpUtilTest, Bits) {
   EXPECT_EQ(TestBit(value, 3), false);
   EXPECT_EQ(TestBit(value, 4), true);
 #endif
+  ClearBit(value, 4);
+  EXPECT_EQ(TestBit(value, 4), false);
+  SetBit(value, 4);
+  EXPECT_EQ(TestBit(value, 4), true);
 }
 
 TEST(GmpUtilTest, Limbs) {

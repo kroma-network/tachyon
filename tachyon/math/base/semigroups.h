@@ -3,6 +3,7 @@
 
 #include "absl/types/span.h"
 
+#include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/bit_iterator.h"
 
 #define SUPPORTS_BINARY_OPERATOR(Name)                                        \

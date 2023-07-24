@@ -19,6 +19,10 @@ class BitTraits<mpz_class> {
   static bool TestBit(const mpz_class& value, size_t index) {
     return gmp::TestBit(value, index);
   }
+
+  static void SetBit(mpz_class& value, size_t index, bool bit_value) {
+    return gmp::SetBit(value, index, bit_value);
+  }
 };
 
 }  // namespace math

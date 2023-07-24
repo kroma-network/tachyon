@@ -8,6 +8,7 @@
 #include "tachyon/base/macro_utils.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics.h"
+#include "tachyon/math/base/bit_traits.h"
 
 namespace tachyon {
 namespace math {
@@ -89,6 +90,26 @@ struct BigInt {
     return FromMontgomery(value, modulus, inverse);
   }
 
+  template <size_t N2>
+  constexpr BigInt<N2> Extend() const {
+    static_assert(N2 > N);
+    BigInt<N2> ret;
+    for (size_t i = 0; i < N; ++i) {
+      ret[i] = limbs[i];
+    }
+    return ret;
+  }
+
+  template <size_t N2>
+  constexpr BigInt<N2> Shrink() const {
+    static_assert(N2 < N);
+    BigInt<N2> ret;
+    for (size_t i = 0; i < N2; ++i) {
+      ret[i] = limbs[i];
+    }
+    return ret;
+  }
+
   template <bool ModulusHasSpareBit>
   constexpr static void Clamp(const BigInt& modulus, BigInt* value,
                               bool carry = false) {
@@ -133,6 +154,16 @@ struct BigInt {
 
   constexpr bool IsEven() const { return limbs[kSmallestLimbIdx] % 2 == 0; }
   constexpr bool IsOdd() const { return limbs[kSmallestLimbIdx] % 2 == 1; }
+
+  constexpr uint64_t& biggest_limb() { return limbs[kBiggestLimbIdx]; }
+  constexpr const uint64_t& biggest_limb() const {
+    return limbs[kBiggestLimbIdx];
+  }
+
+  constexpr uint64_t& smallest_limb() { return limbs[kSmallestLimbIdx]; }
+  constexpr const uint64_t& smallest_limb() const {
+    return limbs[kSmallestLimbIdx];
+  }
 
   constexpr uint64_t& operator[](size_t i) {
     DCHECK_LT(i, N);
@@ -202,6 +233,29 @@ struct BigInt {
 
   constexpr BigInt& operator-=(const BigInt& other) {
     return SubInPlace(other);
+  }
+
+  constexpr BigInt operator*(const BigInt& other) const {
+    BigInt ret = *this;
+    return ret.MulInPlace(other);
+  }
+
+  constexpr BigInt& operator*=(const BigInt& other) {
+    return MulInPlace(other);
+  }
+
+  constexpr BigInt operator/(const BigInt& other) const { return Div(other); }
+
+  constexpr BigInt& operator/=(const BigInt& other) {
+    *this = Div(other);
+    return *this;
+  }
+
+  constexpr BigInt operator%(const BigInt& other) const { return Mod(other); }
+
+  constexpr BigInt& operator%=(const BigInt& other) {
+    *this = Mod(other);
+    return *this;
   }
 
   constexpr BigInt& AddInPlace(const BigInt& other) {
@@ -332,6 +386,28 @@ struct BigInt {
     return *this;
   }
 
+  constexpr BigInt& MulInPlace(const BigInt& other) {
+    BigInt hi;
+    return MulInPlace(other, hi);
+  }
+
+  constexpr BigInt& MulInPlace(const BigInt& other, BigInt& hi) {
+    BigInt lo;
+    MulResult<uint64_t> mul_result;
+    FOR_FROM_SMALLEST(i, 0, N) {
+      FOR_FROM_SMALLEST(j, 0, N) {
+        uint64_t& limb = (i + j) >= N ? hi.limbs[(i + j) - N] : lo.limbs[i + j];
+        mul_result = internal::u64::MulAddWithCarry(
+            limb, limbs[i], other.limbs[j], mul_result.hi);
+        limb = mul_result.lo;
+      }
+      hi[i] = mul_result.hi;
+      mul_result.hi = 0;
+    }
+    *this = lo;
+    return *this;
+  }
+
   constexpr BigInt& DivBy2InPlace() {
     uint64_t last = 0;
     FOR_FROM_BIGGEST(i, 0, N) {
@@ -365,6 +441,37 @@ struct BigInt {
       }
     }
     return *this;
+  }
+
+  constexpr BigInt Div(const BigInt& other) const {
+    return Divide(other).quotient;
+  }
+
+  constexpr BigInt Mod(const BigInt& other) const {
+    return Divide(other).remainder;
+  }
+
+  constexpr DivResult<BigInt> Divide(const BigInt<N>& divisor) const {
+    // Stupid slow base-2 long division taken from
+    // https://en.wikipedia.org/wiki/Division_algorithm
+    CHECK(!divisor.IsZero());
+    BigInt quotient;
+    BigInt remainder;
+    size_t bits = BitTraits<BigInt>::GetNumBits(*this);
+    uint64_t carry = 0;
+    uint64_t& smallest_bit = remainder.limbs[kSmallestLimbIdx];
+    FOR_FROM_BIGGEST(i, 0, bits) {
+      carry = 0;
+      remainder.MulBy2InPlace(carry);
+      smallest_bit |= BitTraits<BigInt>::TestBit(*this, i);
+      if (remainder >= divisor || carry) {
+        uint64_t borrow = 0;
+        remainder.SubInPlace(divisor, borrow);
+        CHECK_EQ(borrow, carry);
+        BitTraits<BigInt>::SetBit(quotient, i, 1);
+      }
+    }
+    return {quotient, remainder};
   }
 
   std::string ToString() const { return internal::LimbsToString(limbs, N); }
@@ -443,6 +550,35 @@ template <size_t N>
 std::ostream& operator<<(std::ostream& os, const BigInt<N>& bigint) {
   return os << bigint.ToString();
 }
+
+template <size_t N>
+class BitTraits<BigInt<N>> {
+ public:
+  constexpr static bool kIsDynamic = false;
+
+  constexpr static size_t GetNumBits(const BigInt<N>& _) { return N * 64; }
+
+  constexpr static bool TestBit(const BigInt<N>& bigint, size_t index) {
+    size_t limb_index = index >> 6;
+    if (limb_index >= N) return false;
+    size_t bit_index = index & 63;
+    uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
+    return (bigint[limb_index] & bit_index_value) == bit_index_value;
+  }
+
+  constexpr static void SetBit(BigInt<N>& bigint, size_t index,
+                               bool bit_value) {
+    size_t limb_index = index >> 6;
+    if (limb_index >= N) return;
+    size_t bit_index = index & 63;
+    uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
+    if (bit_value) {
+      bigint[limb_index] |= bit_index_value;
+    } else {
+      bigint[limb_index] &= ~bit_index_value;
+    }
+  }
+};
 
 }  // namespace math
 }  // namespace tachyon

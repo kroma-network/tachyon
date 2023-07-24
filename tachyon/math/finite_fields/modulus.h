@@ -1,38 +1,10 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_MODULUS_H_
 #define TACHYON_MATH_FINITE_FIELDS_MODULUS_H_
 
-#include "absl/numeric/internal/bits.h"
-
 #include "tachyon/math/base/big_int.h"
-#include "tachyon/math/base/bit_traits.h"
 
 namespace tachyon {
 namespace math {
-namespace internal {
-
-template <size_t N>
-struct PowerOfTwo {};
-
-}  // namespace internal
-
-template <size_t N>
-class BitTraits<internal::PowerOfTwo<N>> {
- public:
-  constexpr static bool kIsDynamic = false;
-
-  constexpr static size_t GetNumBits(const internal::PowerOfTwo<N>& _) {
-    return N * 64 + 1;
-  }
-
-  constexpr static bool TestBit(const internal::PowerOfTwo<N>& r_buffer,
-                                size_t index) {
-    size_t limb_index = index >> 6;
-    size_t bit_index = index & 63;
-    uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
-    uint64_t value = static_cast<uint64_t>(limb_index == N ? 1 : 0);
-    return (value & bit_index_value) == bit_index_value;
-  }
-};
 
 template <size_t N>
 class Modulus {
@@ -65,13 +37,17 @@ class Modulus {
   }
 
   constexpr static BigInt<N> MontgomeryR(const BigInt<N>& modulus) {
-    internal::PowerOfTwo<N> two_pow_n_times_64;
-    return Mod(two_pow_n_times_64, modulus);
+    BigInt<N + 1> two_pow_n_times_64;
+    two_pow_n_times_64.biggest_limb() = static_cast<uint64_t>(1);
+    return (two_pow_n_times_64 % modulus.template Extend<N + 1>())
+        .template Shrink<N>();
   }
 
   constexpr static BigInt<N> MontgomeryR2(const BigInt<N>& modulus) {
-    internal::PowerOfTwo<2 * N> two_pow_n_times_64_square;
-    return Mod(two_pow_n_times_64_square, modulus);
+    BigInt<2 * N + 1> two_pow_n_times_64_square;
+    two_pow_n_times_64_square.biggest_limb() = static_cast<uint64_t>(1);
+    return (two_pow_n_times_64_square % modulus.template Extend<2 * N + 1>())
+        .template Shrink<N>();
   }
 
   // Compute -M^{-1} mod 2^B.
@@ -95,28 +71,6 @@ class Modulus {
       inv *= static_cast<T>(modulus[0]);
     };
     return -inv;
-  }
-
- private:
-  template <typename T>
-  constexpr static BigInt<N> Mod(const T& buffer, const BigInt<N>& modulus) {
-    // Stupid slow base-2 long division taken from
-    // https://en.wikipedia.org/wiki/Division_algorithm
-    CHECK(!modulus.IsZero());
-    BigInt<N> remainder;
-    size_t bits = BitTraits<T>::GetNumBits(buffer);
-    uint64_t carry = 0;
-    uint64_t& smallest_bit = remainder.limbs[BigInt<N>::kSmallestLimbIdx];
-    FOR_FROM_BIGGEST(i, 0, bits) {
-      remainder.MulBy2InPlace(carry);
-      smallest_bit |= BitTraits<T>::TestBit(buffer, i);
-      if (remainder >= modulus || carry) {
-        uint64_t borrow = 0;
-        remainder.SubInPlace(modulus, borrow);
-        CHECK_EQ(borrow, carry);
-      }
-    }
-    return remainder;
   }
 };
 

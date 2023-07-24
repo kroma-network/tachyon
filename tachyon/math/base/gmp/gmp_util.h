@@ -49,6 +49,12 @@ TACHYON_EXPORT mpz_class GetAbs(const mpz_class& value);
 
 TACHYON_EXPORT size_t GetNumBits(const mpz_class& value);
 TACHYON_EXPORT bool TestBit(const mpz_class& value, size_t index);
+// This calls either SetBit(value, index) or ClearBit(value, index)
+// based on the value of bit_value.
+TACHYON_EXPORT void SetBit(mpz_class& value, size_t index, bool bit_value);
+
+TACHYON_EXPORT void SetBit(mpz_class& value, size_t index);
+TACHYON_EXPORT void ClearBit(mpz_class& value, size_t index);
 
 TACHYON_EXPORT uint64_t* GetLimbs(const mpz_class& value);
 TACHYON_EXPORT size_t GetLimbSize(const mpz_class& value);

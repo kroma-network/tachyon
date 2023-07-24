@@ -13,7 +13,7 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "modulus",
     hdrs = ["modulus.h"],
-    deps = ["//tachyon/math/base:bit_traits"],
+    deps = ["//tachyon/math/base:big_int"],
 )
 
 tachyon_cc_library(
