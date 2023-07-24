@@ -5,52 +5,56 @@
 
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
 
+#include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 
 namespace tachyon {
 namespace math {
 namespace kernels {
 
-#define DEFINE_FIELD_OP(method, operator)                               \
-  template <typename Config>                                            \
-  __global__ void method(const JacobianPoint<Config>* x,                \
-                         const JacobianPoint<Config>* y,                \
-                         JacobianPoint<Config>* result, size_t count) { \
-    size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                 \
-    if (gid >= count) return;                                           \
-    result[gid] = x[gid] operator y[gid];                               \
+#define DEFINE_FIELD_OP(method, operator, src_type, dst_type)                  \
+  template <typename Config>                                                   \
+  __global__ void method(const src_type<Config>* x, const src_type<Config>* y, \
+                         dst_type<Config>* result, size_t count) {             \
+    size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                        \
+    if (gid >= count) return;                                                  \
+    result[gid] = x[gid] operator y[gid];                                      \
   }
 
-DEFINE_FIELD_OP(Add, +)
+DEFINE_FIELD_OP(Add, +, JacobianPoint, JacobianPoint)
+DEFINE_FIELD_OP(Add, +, AffinePoint, JacobianPoint)
 
 #undef DEFINE_FIELD_OP
 
-#define DEFINE_COMPARISON_OP(method, operator)                         \
+#define DEFINE_COMPARISON_OP(method, operator, type)                   \
   template <typename Config>                                           \
-  __global__ void method(const JacobianPoint<Config>* x,               \
-                         const JacobianPoint<Config>* y, bool* result, \
-                         size_t count) {                               \
+  __global__ void method(const type<Config>* x, const type<Config>* y, \
+                         bool* result, size_t count) {                 \
     size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                \
     if (gid >= count) return;                                          \
     result[gid] = x[gid] operator y[gid];                              \
   }
 
-DEFINE_COMPARISON_OP(Eq, ==)
-DEFINE_COMPARISON_OP(Ne, !=)
+DEFINE_COMPARISON_OP(Eq, ==, JacobianPoint)
+DEFINE_COMPARISON_OP(Ne, !=, JacobianPoint)
+DEFINE_COMPARISON_OP(Eq, ==, AffinePoint)
+DEFINE_COMPARISON_OP(Ne, !=, AffinePoint)
 
 #undef DEFINE_COMPARISON_OP
 
-#define DEFINE_UNARY_OP(method)                                         \
-  template <typename Config>                                            \
-  __global__ void method(const JacobianPoint<Config>* x,                \
-                         JacobianPoint<Config>* result, size_t count) { \
-    size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                 \
-    if (gid >= count) return;                                           \
-    result[gid] = x[gid].method();                                      \
+#define DEFINE_UNARY_OP(method, src_type, dst_type)                           \
+  template <typename Config>                                                  \
+  __global__ void method(const src_type<Config>* x, dst_type<Config>* result, \
+                         size_t count) {                                      \
+    size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                       \
+    if (gid >= count) return;                                                 \
+    result[gid] = x[gid].method();                                            \
   }
 
-DEFINE_UNARY_OP(Double)
-DEFINE_UNARY_OP(Negative)
+DEFINE_UNARY_OP(Double, JacobianPoint, JacobianPoint)
+DEFINE_UNARY_OP(Double, AffinePoint, JacobianPoint)
+DEFINE_UNARY_OP(Negative, JacobianPoint, JacobianPoint)
+DEFINE_UNARY_OP(Negative, AffinePoint, AffinePoint)
 
 #undef DEFINE_UNARY_OP
 

@@ -49,6 +49,7 @@ tachyon_cc_test(
 tachyon_cuda_test(
     name = "short_weierstrass_correctness_cuda_tests",
     srcs = if_cuda_and_gmp_backend([
+        "affine_point_correctness_cuda_test.cu.cc",
         "jacobian_point_correctness_cuda_test.cu.cc",
     ]),
     tags = ["manual"],

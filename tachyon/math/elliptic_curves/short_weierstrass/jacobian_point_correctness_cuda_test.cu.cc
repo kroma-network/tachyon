@@ -11,6 +11,14 @@ namespace math {
 
 namespace {
 
+#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                     \
+  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1JacobianPointCuda, \
+                          bn254::G1JacobianPointCuda)
+
+DEFINE_LAUNCH_FIELD_BINARY_OP(Add)
+
+#undef DEFINE_LAUNCH_FIELD_BINARY_OP
+
 #define DEFINE_LAUNCH_FIELD_UNARY_OP(method)                     \
   DEFINE_LAUNCH_UNARY_OP(32, method, bn254::G1JacobianPointCuda, \
                          bn254::G1JacobianPointCuda)
@@ -19,14 +27,6 @@ DEFINE_LAUNCH_FIELD_UNARY_OP(Double)
 DEFINE_LAUNCH_FIELD_UNARY_OP(Negative)
 
 #undef DEFINE_LAUNCH_FIELD_UNARY_OP
-
-#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                     \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1JacobianPointCuda, \
-                          bn254::G1JacobianPointCuda)
-
-DEFINE_LAUNCH_FIELD_BINARY_OP(Add)
-
-#undef DEFINE_LAUNCH_FIELD_BINARY_OP
 
 #define DEFINE_LAUNCH_COMPARISON_OP(method) \
   DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1JacobianPointCuda, bool)
