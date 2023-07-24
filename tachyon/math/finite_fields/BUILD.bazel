@@ -125,7 +125,6 @@ tachyon_cc_test(
         ":prime_field_cuda",
         ":prime_field_mont_cuda_debug",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
-        "//tachyon/math/finite_fields/goldilocks_prime:goldilocks_prime_field",
     ],
 )
 
@@ -148,7 +147,6 @@ tachyon_cuda_test(
         ":prime_field_cuda",
         "//tachyon/device/gpu/cuda:cuda_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:fq_cuda",
-        "//tachyon/math/finite_fields/goldilocks_prime:goldilocks_prime_field",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
         "//tachyon/math/finite_fields/kernels/test:launch_op_macros",
     ],

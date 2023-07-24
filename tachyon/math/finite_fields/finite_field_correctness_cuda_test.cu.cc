@@ -3,7 +3,6 @@
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.cu.h"
-#include "tachyon/math/finite_fields/goldilocks_prime/goldilocks_prime_field.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
 #include "tachyon/math/finite_fields/kernels/test/launch_op_macros.cu.h"
 
