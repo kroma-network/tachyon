@@ -110,7 +110,7 @@ tachyon_cuda_test(
     name = "finite_fields_cuda_unittests",
     srcs = if_cuda(["prime_field_mont_cuda_unittest.cu.cc"]),
     deps = [
-        ":prime_field",
+        ":prime_field_cuda",
         "//tachyon/device/gpu/cuda:cuda_memory",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
         "//tachyon/math/finite_fields/kernels/test:launch_op_macros",

@@ -3,14 +3,10 @@
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
 #include "tachyon/math/finite_fields/kernels/test/launch_op_macros.cu.h"
-#include "tachyon/math/finite_fields/prime_field.h"
+#include "tachyon/math/finite_fields/prime_field.cu.h"
 
 namespace tachyon {
 namespace math {
-
-#if TACHYON_CUDA
-using GF7Cuda = PrimeFieldMontCuda<GF7Config>;
-#endif  // TACHYON_CUDA
 
 namespace {
 
