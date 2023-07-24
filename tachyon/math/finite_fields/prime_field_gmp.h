@@ -32,7 +32,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   using value_type = mpz_class;
 
   constexpr static uint64_t kInverse =
-      Modulus<N>::template Inverse<uint64_t>(Config::kModulus);
+      math::Modulus<N>::template Inverse<uint64_t>(Config::kModulus);
 
   PrimeFieldGmp() = default;
   explicit PrimeFieldGmp(const mpz_class& value) : value_(value) {
