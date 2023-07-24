@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -51,5 +51,17 @@ tachyon_cc_library(
     deps = [
         ":fr",
         "//tachyon/math/finite_fields:prime_field_cuda",
+    ],
+)
+
+tachyon_cc_test(
+    name = "bn254_unittests",
+    srcs = [
+        "fq_unittest.cc",
+        "fr_unittest.cc",
+    ],
+    deps = [
+        ":fq",
+        ":fr",
     ],
 )

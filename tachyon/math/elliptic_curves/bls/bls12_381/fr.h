@@ -22,6 +22,12 @@ class TACHYON_EXPORT FrConfig {
       UINT64_C(3691218898639771653),
       UINT64_C(8353516859464449352),
   });
+  constexpr static BigInt<4> kOne = BigInt<4>({
+      UINT64_C(8589934590),
+      UINT64_C(6378425256633387010),
+      UINT64_C(11064306276430008309),
+      UINT64_C(1739710354780652911),
+  });
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 

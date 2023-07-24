@@ -22,6 +22,12 @@ class TACHYON_EXPORT FqConfig {
       UINT64_C(18446744073709551615),
       UINT64_C(18446744073709551615),
   });
+  constexpr static BigInt<4> kOne = BigInt<4>({
+      UINT64_C(4294968273),
+      UINT64_C(0),
+      UINT64_C(0),
+      UINT64_C(0),
+  });
 
   static void Init();
 };

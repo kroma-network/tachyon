@@ -18,6 +18,7 @@ class TACHYON_EXPORT GF7Config {
  public:
   constexpr static size_t kModulusBits = 3;
   constexpr static BigInt<1> kModulus = BigInt<1>(7);
+  constexpr static BigInt<1> kOne = BigInt<1>(2);
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
 

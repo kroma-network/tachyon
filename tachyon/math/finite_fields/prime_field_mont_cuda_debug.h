@@ -64,11 +64,13 @@ class PrimeFieldMontCudaDebug
       PrimeFieldMontCudaDebug&& other) = default;
 
   constexpr static PrimeFieldMontCudaDebug Zero() {
-    return PrimeFieldMontCudaDebug(BigInt<N>::Zero());
+    return PrimeFieldMontCudaDebug();
   }
 
   constexpr static PrimeFieldMontCudaDebug One() {
-    return PrimeFieldMontCudaDebug(BigInt<N>::One());
+    PrimeFieldMontCudaDebug ret;
+    ret.value_ = Config::kOne;
+    return ret;
   }
 
   static PrimeFieldMontCudaDebug Random() {

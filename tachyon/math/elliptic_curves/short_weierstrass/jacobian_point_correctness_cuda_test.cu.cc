@@ -117,19 +117,18 @@ std::vector<bn254::G1JacobianPointGmp>
 
 }  // namespace
 
-// TODO(chokobole): Enable this test.
-// TEST_F(JacobianPointCorrectnessCudaTest, Add) {
-//   GPU_SUCCESS(LaunchAdd(xs_.get(), ys_.get(), results_.get(), N));
-//   for (size_t i = 0; i < N; ++i) {
-//     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
-//                                   (ys_.get())[i].ToString()));
-//     auto result = bn254::G1JacobianPointGmp(
-//         bn254::FqGmp::FromMontgomery((results_.get())[i].x().ToMontgomery()),
-//         bn254::FqGmp::FromMontgomery((results_.get())[i].y().ToMontgomery()),
-//         bn254::FqGmp::FromMontgomery((results_.get())[i].z().ToMontgomery()));
-//     ASSERT_EQ(result, x_gmps_[i] + y_gmps_[i]);
-//   }
-// }
+TEST_F(JacobianPointCorrectnessCudaTest, Add) {
+  GPU_SUCCESS(LaunchAdd(xs_.get(), ys_.get(), results_.get(), N));
+  for (size_t i = 0; i < N; ++i) {
+    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
+                                  (ys_.get())[i].ToString()));
+    auto result = bn254::G1JacobianPointGmp(
+        bn254::FqGmp::FromMontgomery((results_.get())[i].x().ToMontgomery()),
+        bn254::FqGmp::FromMontgomery((results_.get())[i].y().ToMontgomery()),
+        bn254::FqGmp::FromMontgomery((results_.get())[i].z().ToMontgomery()));
+    ASSERT_EQ(result, x_gmps_[i] + y_gmps_[i]);
+  }
+}
 
 // TODO(chokobole): Enable this test.
 // TEST_F(JacobianPointCorrectnessCudaTest, Double) {

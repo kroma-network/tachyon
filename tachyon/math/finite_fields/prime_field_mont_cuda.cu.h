@@ -63,11 +63,13 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   constexpr PrimeFieldMontCuda& operator=(PrimeFieldMontCuda&& other) = default;
 
   __host__ __device__ constexpr static PrimeFieldMontCuda Zero() {
-    return PrimeFieldMontCuda(BigInt<N>::Zero());
+    return PrimeFieldMontCuda();
   }
 
   __host__ __device__ constexpr static PrimeFieldMontCuda One() {
-    return PrimeFieldMontCuda(BigInt<N>::One());
+    PrimeFieldMontCuda ret;
+    ret.value_ = GetOne();
+    return ret;
   }
 
   static PrimeFieldMontCuda Random() {
@@ -101,6 +103,10 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
 
   __host__ __device__ constexpr static BigInt<N> GetModulus() {
     return Config::kModulus;
+  }
+
+  __host__ __device__ constexpr static BigInt<N> GetOne() {
+    return Config::kOne;
   }
 
   __host__ __device__ const value_type& value() const { return value_; }

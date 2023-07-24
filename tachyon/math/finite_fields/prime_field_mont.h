@@ -57,12 +57,12 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   constexpr PrimeFieldMont(PrimeFieldMont&& other) = default;
   constexpr PrimeFieldMont& operator=(PrimeFieldMont&& other) = default;
 
-  constexpr static PrimeFieldMont Zero() {
-    return PrimeFieldMont(BigInt<N>::Zero());
-  }
+  constexpr static PrimeFieldMont Zero() { return PrimeFieldMont(); }
 
   constexpr static PrimeFieldMont One() {
-    return PrimeFieldMont(BigInt<N>::One());
+    PrimeFieldMont ret;
+    ret.value_ = Config::kOne;
+    return ret;
   }
 
   static PrimeFieldMont Random() {

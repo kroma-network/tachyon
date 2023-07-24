@@ -46,6 +46,7 @@ TYPED_TEST(PrimeFieldTest, Zero) {
 TYPED_TEST(PrimeFieldTest, One) {
   EXPECT_TRUE(TypeParam::One().IsOne());
   EXPECT_FALSE(TypeParam::Zero().IsOne());
+  EXPECT_EQ(TypeParam::Config::kOne, TypeParam::One().ToMontgomery());
 }
 
 TYPED_TEST(PrimeFieldTest, BigIntConversion) {
