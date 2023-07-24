@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELIIPTIC_CURVES_SECP_SECP256K1_FR_CU_H_
-#define TACHYON_MATH_ELIIPTIC_CURVES_SECP_SECP256K1_FR_CU_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_SECP_SECP256K1_FR_CU_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_SECP_SECP256K1_FR_CU_H_
 
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fr.h"
 
@@ -19,4 +19,4 @@ using FrCuda = PrimeFieldMontCuda<FrConfig>;
 }  // namespace math
 }  // namespace tachyon
 
-#endif  // TACHYON_MATH_ELIIPTIC_CURVES_SECP_SECP256K1_FR_CU_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_SECP_SECP256K1_FR_CU_H_

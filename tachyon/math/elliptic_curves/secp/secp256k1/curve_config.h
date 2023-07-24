@@ -23,7 +23,7 @@ class CurveConfig : public SWCurveConfig<Fq, Fr> {
 
     // clang-format off
     // Parameters are from https://www.secg.org/sec2-v2.pdf#page=13
-    
+
     // Dec: 55066263022277343669578718895168534326250603453777594175500187360389116729240
     // Hex: 79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
     Fq g1_x = Fq::FromDecString("55066263022277343669578718895168534326250603453777594175500187360389116729240");
@@ -41,11 +41,11 @@ class CurveConfig : public SWCurveConfig<Fq, Fr> {
   }
 };
 
-using G1AffinePoint = AffinePoint<CurveConfig::Config<Fq, Fr>>;
-using G1JacobianPoint = JacobianPoint<CurveConfig::Config<Fq, Fr>>;
+using G1AffinePoint = AffinePoint<CurveConfig<Fq, Fr>::Config>;
+using G1JacobianPoint = JacobianPoint<CurveConfig<Fq, Fr>::Config>;
 #if defined(TACHYON_GMP_BACKEND)
-using G1AffinePointGmp = AffinePoint<CurveConfig::Config<FqGmp, FrGmp>>;
-using G1JacobianPointGmp = JacobianPoint<CurveConfig::Config<FqGmp, FrGmp>>;
+using G1AffinePointGmp = AffinePoint<CurveConfig<FqGmp, FrGmp>::Config>;
+using G1JacobianPointGmp = JacobianPoint<CurveConfig<FqGmp, FrGmp>::Config>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace secp256k1

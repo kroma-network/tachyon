@@ -13,6 +13,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "curve_config_cuda",
+    hdrs = ["curve_config_cuda.cu.h"],
+    deps = [
+        ":curve_config",
+        ":fq_cuda",
+        ":fr_cuda",
+    ],
+)
+
+tachyon_cc_library(
     name = "fq",
     srcs = ["fq.cc"],
     hdrs = ["fq.h"],
@@ -21,7 +31,7 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "fq_cuda",
-    hdrs = ["fq.cu.h"],
+    hdrs = ["fq_cuda.cu.h"],
     deps = [
         ":fq",
         "//tachyon/math/finite_fields:prime_field_cuda",
@@ -37,7 +47,7 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "fr_cuda",
-    hdrs = ["fr.cu.h"],
+    hdrs = ["fr_cuda.cu.h"],
     deps = [
         ":fr",
         "//tachyon/math/finite_fields:prime_field_cuda",

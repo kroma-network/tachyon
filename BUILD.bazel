@@ -1,3 +1,4 @@
+load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 
@@ -47,6 +48,14 @@ config_setting(
 config_setting(
     name = "tachyon_gmp_backend",
     flag_values = {":gmp_backend": "true"},
+)
+
+selects.config_setting_group(
+    name = "cuda_and_gmp",
+    match_all = [
+        "@local_config_cuda//:is_cuda_enabled",
+        "@kroma_network_tachyon//:tachyon_gmp_backend",
+    ],
 )
 
 buildifier(

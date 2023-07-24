@@ -25,11 +25,11 @@ class CurveConfig : public SWCurveConfig<Fq, Fr> {
   }
 };
 
-using G1AffinePoint = AffinePoint<CurveConfig::Config<Fq, Fr>>;
-using G1JacobianPoint = JacobianPoint<CurveConfig::Config<Fq, Fr>>;
+using G1AffinePoint = AffinePoint<CurveConfig<Fq, Fr>::Config>;
+using G1JacobianPoint = JacobianPoint<CurveConfig<Fq, Fr>::Config>;
 #if defined(TACHYON_GMP_BACKEND)
-using G1AffinePointGmp = AffinePoint<CurveConfig::Config<FqGmp, FrGmp>>;
-using G1JacobianPointGmp = JacobianPoint<CurveConfig::Config<FqGmp, FrGmp>>;
+using G1AffinePointGmp = AffinePoint<CurveConfig<FqGmp, FrGmp>::Config>;
+using G1JacobianPointGmp = JacobianPoint<CurveConfig<FqGmp, FrGmp>::Config>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace bn254

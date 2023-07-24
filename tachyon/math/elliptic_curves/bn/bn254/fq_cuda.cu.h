@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELIIPTIC_CURVES_BN_BN254_FQ_CU_H_
-#define TACHYON_MATH_ELIIPTIC_CURVES_BN_BN254_FQ_CU_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_BN_BN254_FQ_CU_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_BN_BN254_FQ_CU_H_
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 
@@ -19,4 +19,4 @@ using FqCuda = PrimeFieldMontCuda<FqConfig>;
 }  // namespace math
 }  // namespace tachyon
 
-#endif  // TACHYON_MATH_ELIIPTIC_CURVES_BN_BN254_FQ_CU_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_BN_BN254_FQ_CU_H_

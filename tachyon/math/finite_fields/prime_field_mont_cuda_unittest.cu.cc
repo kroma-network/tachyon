@@ -2,8 +2,8 @@
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
-#include "tachyon/math/finite_fields/kernels/test/launch_op_macros.cu.h"
 #include "tachyon/math/finite_fields/prime_field.cu.h"
+#include "tachyon/math/test/launch_op_macros.cu.h"
 
 namespace tachyon {
 namespace math {
@@ -11,9 +11,9 @@ namespace math {
 namespace {
 
 #define DEFINE_LAUNCH_FIELD_OP(method) \
-  DEFINE_LAUNCH_OP(32, method, GF7Cuda, GF7Cuda)
+  DEFINE_LAUNCH_BINARY_OP(32, method, GF7Cuda, GF7Cuda)
 #define DEFINE_LAUNCH_COMPARISON_OP(method) \
-  DEFINE_LAUNCH_OP(32, method, GF7Cuda, bool)
+  DEFINE_LAUNCH_BINARY_OP(32, method, GF7Cuda, bool)
 
 DEFINE_LAUNCH_FIELD_OP(Add)
 DEFINE_LAUNCH_FIELD_OP(Sub)

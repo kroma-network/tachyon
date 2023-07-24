@@ -86,5 +86,11 @@ def if_gmp_backend(a, b = []):
         "//conditions:default": b,
     })
 
+def if_cuda_and_gmp_backend(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:cuda_and_gmp": a,
+        "//conditions:default": b,
+    })
+
 def if_gpu_is_configured(x):
     return if_cuda_is_configured(x) + if_rocm_is_configured(x)

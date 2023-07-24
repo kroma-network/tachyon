@@ -2,9 +2,9 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/fq.cu.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fq_cuda.cu.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
-#include "tachyon/math/finite_fields/kernels/test/launch_op_macros.cu.h"
+#include "tachyon/math/test/launch_op_macros.cu.h"
 
 namespace tachyon {
 namespace math {
@@ -12,12 +12,14 @@ namespace math {
 namespace {
 
 #define DEFINE_LAUNCH_FIELD_OP(method) \
-  DEFINE_LAUNCH_OP(32, method, bn254::FqCuda, bn254::FqCuda)
+  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::FqCuda, bn254::FqCuda)
 
 DEFINE_LAUNCH_FIELD_OP(Add)
 DEFINE_LAUNCH_FIELD_OP(Sub)
 DEFINE_LAUNCH_FIELD_OP(Mul)
 DEFINE_LAUNCH_FIELD_OP(Div)
+
+#undef DEFINE_LAUNCH_FIELD_OP
 
 class PrimeFieldCorrectnessCudaTest : public testing::Test {
  public:
