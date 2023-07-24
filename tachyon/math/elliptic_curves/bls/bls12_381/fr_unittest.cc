@@ -8,7 +8,7 @@ namespace bls12_381 {
 
 TEST(Fr, Init) {
   Fr::Config::Init();
-  EXPECT_EQ(Fr::Config::kOne, Fr::One().ToMontgomery());
+  EXPECT_EQ(Fr::Config::kOne, Fr(1).ToMontgomery());
 }
 
 }  // namespace bls12_381

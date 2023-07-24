@@ -8,7 +8,7 @@ namespace secp256k1 {
 
 TEST(Fr, Init) {
   Fr::Config::Init();
-  EXPECT_EQ(Fr::Config::kOne, Fr::One().ToMontgomery());
+  EXPECT_EQ(Fr::Config::kOne, Fr(1).ToMontgomery());
 }
 
 }  // namespace secp256k1
