@@ -15,15 +15,16 @@
 namespace tachyon {
 namespace math {
 
-template <typename Config>
-class JacobianPoint<Config,
+template <typename _Config>
+class JacobianPoint<_Config,
                     std::enable_if_t<std::is_same_v<
-                        Config, SWCurveConfig<typename Config::BaseField,
-                                              typename Config::ScalarField>>>>
-    : public AdditiveGroup<JacobianPoint<Config>> {
+                        _Config, SWCurveConfig<typename _Config::BaseField,
+                                               typename _Config::ScalarField>>>>
+    : public AdditiveGroup<JacobianPoint<_Config>> {
  public:
   constexpr static const bool kNegationIsCheap = true;
 
+  using Config = _Config;
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
 
@@ -71,7 +72,7 @@ class JacobianPoint<Config,
                        std::move(scalars_first), std::move(scalars_last));
   }
 
-    template <typename BaseContainer, typename ScalarContainer>
+  template <typename BaseContainer, typename ScalarContainer>
   static JacobianPoint<Config> MSM(BaseContainer&& bases,
                                    ScalarContainer&& scalars) {
     return MSM(std::begin(std::forward<BaseContainer>(bases)),

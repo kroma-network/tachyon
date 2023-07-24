@@ -15,13 +15,14 @@
 namespace tachyon {
 namespace math {
 
-template <typename Config>
-class AffinePoint<Config,
+template <typename _Config>
+class AffinePoint<_Config,
                   std::enable_if_t<std::is_same_v<
-                      Config, SWCurveConfig<typename Config::BaseField,
-                                            typename Config::ScalarField>>>>
-    : public AdditiveGroup<AffinePoint<Config>> {
+                      _Config, SWCurveConfig<typename _Config::BaseField,
+                                             typename _Config::ScalarField>>>>
+    : public AdditiveGroup<AffinePoint<_Config>> {
  public:
+  using Config = _Config;
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
 
