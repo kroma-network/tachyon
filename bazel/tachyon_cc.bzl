@@ -109,6 +109,29 @@ def tachyon_cc_test(
         **kwargs
     )
 
+def tachyon_cc_benchmark(
+        name,
+        copts = [],
+        defines = [],
+        local_defines = [],
+        tags = [],
+        linkstatic = 1,
+        deps = [],
+        safe_code = True,
+        force_exceptions = False,
+        force_rtti = False,
+        **kwargs):
+    native.cc_test(
+        name = name,
+        copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
+        defines = defines + tachyon_defines(),
+        local_defines = local_defines + tachyon_local_defines(),
+        tags = tags + ["benchmark"],
+        deps = deps + ["@com_github_google_benchmark//:benchmark_main"],
+        linkstatic = linkstatic,
+        **kwargs
+    )
+
 def tachyon_cuda_library(
         name,
         copts = [],
