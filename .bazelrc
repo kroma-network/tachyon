@@ -59,7 +59,7 @@ build --//:has_exception
 # Enable gmp backend for prime field.
 build:gmp_backend --//:gmp_backend
 
-test --test_tag_filters -benchmark,-manual
+test --test_tag_filters -benchmark,-manual,-cuda
 
 # Config-specific options should come above this line.
 

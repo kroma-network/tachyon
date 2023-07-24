@@ -52,7 +52,7 @@ tachyon_cuda_test(
         "affine_point_correctness_cuda_test.cu.cc",
         "jacobian_point_correctness_cuda_test.cu.cc",
     ]),
-    tags = ["manual"],
+    tags = ["cuda"],
     deps = [
         "//tachyon/device/gpu/cuda:cuda_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:curve_config_cuda",
