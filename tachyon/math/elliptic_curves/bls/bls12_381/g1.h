@@ -6,7 +6,6 @@
 #include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
-#include "tachyon/math/geometry/point2.h"
 
 namespace tachyon {
 namespace math {

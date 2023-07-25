@@ -59,12 +59,10 @@ class AffinePointCorrectnessCudaTest : public testing::Test {
       bn254::G1AffinePointGmp x_gmp = bn254::G1AffinePointGmp::Random();
       bn254::G1AffinePointGmp y_gmp = bn254::G1AffinePointGmp::Random();
 
-      (xs_.get())[i] = bn254::G1AffinePointCuda(
-          bn254::FqCuda::FromMontgomery(x_gmp.x().ToMontgomery()),
-          bn254::FqCuda::FromMontgomery(x_gmp.y().ToMontgomery()));
-      (ys_.get())[i] = bn254::G1AffinePointCuda(
-          bn254::FqCuda::FromMontgomery(y_gmp.x().ToMontgomery()),
-          bn254::FqCuda::FromMontgomery(y_gmp.y().ToMontgomery()));
+      (xs_.get())[i] =
+          bn254::G1AffinePointCuda::FromMontgomery(x_gmp.ToMontgomery());
+      (ys_.get())[i] =
+          bn254::G1AffinePointCuda::FromMontgomery(y_gmp.ToMontgomery());
 
       x_gmps_.push_back(std::move(x_gmp));
       y_gmps_.push_back(std::move(y_gmp));
@@ -124,13 +122,8 @@ TEST_F(AffinePointCorrectnessCudaTest, Add) {
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
                                   (ys_.get())[i].ToString()));
-    auto result = bn254::G1JacobianPointGmp(
-        bn254::FqGmp::FromMontgomery(
-            (jacobian_results_.get())[i].x().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery(
-            (jacobian_results_.get())[i].y().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery(
-            (jacobian_results_.get())[i].z().ToMontgomery()));
+    auto result = bn254::G1JacobianPointGmp::FromMontgomery(
+        (jacobian_results_.get())[i].ToMontgomery());
     ASSERT_EQ(result, x_gmps_[i] + y_gmps_[i]);
   }
 }
@@ -139,13 +132,8 @@ TEST_F(AffinePointCorrectnessCudaTest, Double) {
   GPU_SUCCESS(LaunchDouble(xs_.get(), jacobian_results_.get(), N));
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
-    auto result = bn254::G1JacobianPointGmp(
-        bn254::FqGmp::FromMontgomery(
-            (jacobian_results_.get())[i].x().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery(
-            (jacobian_results_.get())[i].y().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery(
-            (jacobian_results_.get())[i].z().ToMontgomery()));
+    auto result = bn254::G1JacobianPointGmp::FromMontgomery(
+        (jacobian_results_.get())[i].ToMontgomery());
     ASSERT_EQ(result, x_gmps_[i].Double());
   }
 }
@@ -154,11 +142,8 @@ TEST_F(AffinePointCorrectnessCudaTest, Negative) {
   GPU_SUCCESS(LaunchNegative(xs_.get(), affine_results_.get(), N));
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
-    auto result = bn254::G1AffinePointGmp(
-        bn254::FqGmp::FromMontgomery(
-            (affine_results_.get())[i].x().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery(
-            (affine_results_.get())[i].y().ToMontgomery()));
+    auto result = bn254::G1AffinePointGmp::FromMontgomery(
+        (affine_results_.get())[i].ToMontgomery());
     ASSERT_EQ(result, x_gmps_[i].Negative());
   }
 }

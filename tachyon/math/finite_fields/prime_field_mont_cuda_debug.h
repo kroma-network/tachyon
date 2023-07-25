@@ -30,6 +30,7 @@ class PrimeFieldMontCudaDebug
   constexpr static size_t N32 = kLimbNums * 2;
 
   using Config = _Config;
+  using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
 
   constexpr static bool kModulusHasSpareBit =

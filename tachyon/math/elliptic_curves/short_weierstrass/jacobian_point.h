@@ -13,6 +13,7 @@
 #include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
+#include "tachyon/math/geometry/point3.h"
 
 namespace tachyon {
 namespace math {
@@ -54,6 +55,13 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static JacobianPoint FromAffine(const AffinePoint<Curve>& point) {
     return {point.x(), point.y(), BaseField::One()};
+  }
+
+  constexpr static JacobianPoint FromMontgomery(
+      const Point3<typename BaseField::BigIntTy>& point) {
+    return JacobianPoint(BaseField::FromMontgomery(point.x),
+                         BaseField::FromMontgomery(point.y),
+                         BaseField::FromMontgomery(point.z));
   }
 
   constexpr static JacobianPoint Random() {
@@ -129,6 +137,10 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
       BaseField z_inv_square = z_inv * z_inv;
       return AffinePoint<Curve>(x_ * z_inv_square, y_ * z_inv_square * z_inv);
     }
+  }
+
+  constexpr Point3<typename BaseField::BigIntTy> ToMontgomery() const {
+    return {x_.ToMontgomery(), y_.ToMontgomery(), z_.ToMontgomery()};
   }
 
   std::string ToString() const {

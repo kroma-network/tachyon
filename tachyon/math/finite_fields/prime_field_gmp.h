@@ -29,6 +29,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   constexpr static size_t N = kLimbNums;
 
   using Config = _Config;
+  using BigIntTy = BigInt<N>;
   using value_type = mpz_class;
 
   constexpr static uint64_t kInverse =

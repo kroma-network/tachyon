@@ -28,6 +28,7 @@ class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
   constexpr static size_t N = kLimbNums;
 
   using Config = _Config;
+  using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
 
   constexpr static bool kModulusHasSpareBit =

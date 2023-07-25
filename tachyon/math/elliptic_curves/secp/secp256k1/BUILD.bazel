@@ -9,7 +9,6 @@ tachyon_cc_library(
         ":fq",
         ":fr",
         "//tachyon/math/elliptic_curves/short_weierstrass:points",
-        "//tachyon/math/geometry:point2",
     ],
 )
 

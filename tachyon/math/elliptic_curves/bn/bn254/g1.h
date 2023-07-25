@@ -5,7 +5,6 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
-#include "tachyon/math/geometry/point2.h"
 
 namespace tachyon {
 namespace math {

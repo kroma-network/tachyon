@@ -32,6 +32,16 @@ TYPED_TEST(AffinePointTest, Zero) {
   EXPECT_TRUE(AffinePointTy::Zero().infinity());
 }
 
+TYPED_TEST(AffinePointTest, Montgomery) {
+  using AffinePointTy = TypeParam;
+
+  AffinePointTy r = AffinePointTy::Random();
+  while (r.infinity()) {
+    r = AffinePointTy::Random();
+  }
+  EXPECT_EQ(r, AffinePointTy::FromMontgomery(r.ToMontgomery()));
+}
+
 TYPED_TEST(AffinePointTest, Random) {
   using AffinePointTy = TypeParam;
 

@@ -60,14 +60,10 @@ class JacobianPointCorrectnessCudaTest : public testing::Test {
       bn254::G1JacobianPointGmp x_gmp = bn254::G1JacobianPointGmp::Random();
       bn254::G1JacobianPointGmp y_gmp = bn254::G1JacobianPointGmp::Random();
 
-      (xs_.get())[i] = bn254::G1JacobianPointCuda(
-          bn254::FqCuda::FromMontgomery(x_gmp.x().ToMontgomery()),
-          bn254::FqCuda::FromMontgomery(x_gmp.y().ToMontgomery()),
-          bn254::FqCuda::FromMontgomery(x_gmp.z().ToMontgomery()));
-      (ys_.get())[i] = bn254::G1JacobianPointCuda(
-          bn254::FqCuda::FromMontgomery(y_gmp.x().ToMontgomery()),
-          bn254::FqCuda::FromMontgomery(y_gmp.y().ToMontgomery()),
-          bn254::FqCuda::FromMontgomery(y_gmp.z().ToMontgomery()));
+      (xs_.get())[i] =
+          bn254::G1JacobianPointCuda::FromMontgomery(x_gmp.ToMontgomery());
+      (ys_.get())[i] =
+          bn254::G1JacobianPointCuda::FromMontgomery(y_gmp.ToMontgomery());
 
       x_gmps_.push_back(std::move(x_gmp));
       y_gmps_.push_back(std::move(y_gmp));
@@ -122,10 +118,8 @@ TEST_F(JacobianPointCorrectnessCudaTest, Add) {
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
                                   (ys_.get())[i].ToString()));
-    auto result = bn254::G1JacobianPointGmp(
-        bn254::FqGmp::FromMontgomery((results_.get())[i].x().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery((results_.get())[i].y().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery((results_.get())[i].z().ToMontgomery()));
+    auto result = bn254::G1JacobianPointGmp::FromMontgomery(
+        (results_.get())[i].ToMontgomery());
     ASSERT_EQ(result, x_gmps_[i] + y_gmps_[i]);
   }
 }
@@ -134,10 +128,8 @@ TEST_F(JacobianPointCorrectnessCudaTest, Double) {
   GPU_SUCCESS(LaunchDouble(xs_.get(), results_.get(), N));
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
-    auto result = bn254::G1JacobianPointGmp(
-        bn254::FqGmp::FromMontgomery((results_.get())[i].x().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery((results_.get())[i].y().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery((results_.get())[i].z().ToMontgomery()));
+    auto result = bn254::G1JacobianPointGmp::FromMontgomery(
+        (results_.get())[i].ToMontgomery());
     ASSERT_EQ(result, x_gmps_[i].Double());
   }
 }
@@ -146,10 +138,8 @@ TEST_F(JacobianPointCorrectnessCudaTest, Negative) {
   GPU_SUCCESS(LaunchNegative(xs_.get(), results_.get(), N));
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
-    auto result = bn254::G1JacobianPointGmp(
-        bn254::FqGmp::FromMontgomery((results_.get())[i].x().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery((results_.get())[i].y().ToMontgomery()),
-        bn254::FqGmp::FromMontgomery((results_.get())[i].z().ToMontgomery()));
+    auto result = bn254::G1JacobianPointGmp::FromMontgomery(
+        (results_.get())[i].ToMontgomery());
     ASSERT_EQ(result, x_gmps_[i].Negative());
   }
 }
