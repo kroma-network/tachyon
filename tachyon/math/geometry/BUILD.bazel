@@ -14,15 +14,23 @@ tachyon_cc_library(
     deps = ["@com_google_absl//absl/strings"],
 )
 
+tachyon_cc_library(
+    name = "point4",
+    hdrs = ["point4.h"],
+    deps = ["@com_google_absl//absl/strings"],
+)
+
 tachyon_cc_test(
     name = "geometry_unittests",
     srcs = [
         "point2_unittest.cc",
         "point3_unittest.cc",
+        "point4_unittest.cc",
     ],
     deps = [
         ":point2",
         ":point3",
+        ":point4",
         "//tachyon/math/finite_fields:prime_field",
     ],
 )
