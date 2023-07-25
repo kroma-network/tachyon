@@ -3,8 +3,6 @@
 
 #include <ostream>
 
-#include "third_party/gmp/include/gmpxx.h"
-
 #include "tachyon/base/no_destructor.h"
 #include "tachyon/math/base/identities.h"
 

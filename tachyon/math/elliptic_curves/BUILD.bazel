@@ -12,6 +12,5 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:no_destructor",
         "//tachyon/math/base:identities",
-        "@local_config_gmp//:gmp",
     ],
 )
