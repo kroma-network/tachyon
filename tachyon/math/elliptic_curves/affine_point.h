@@ -6,24 +6,24 @@
 namespace tachyon {
 namespace math {
 
-template <typename Config, typename SFINAE = void>
+template <typename Curve, typename SFINAE = void>
 class AffinePoint;
 
-template <typename Config>
-std::ostream& operator<<(std::ostream& os, const AffinePoint<Config>& point) {
+template <typename Curve>
+std::ostream& operator<<(std::ostream& os, const AffinePoint<Curve>& point) {
   return os << point.ToString();
 }
 
-template <typename Config, typename ScalarField = typename Config::ScalarField>
-JacobianPoint<Config> operator*(const ScalarField& v,
-                                const AffinePoint<Config>& point) {
+template <typename Curve, typename ScalarField = typename Curve::ScalarField>
+JacobianPoint<Curve> operator*(const ScalarField& v,
+                               const AffinePoint<Curve>& point) {
   return point * v;
 }
 
-template <typename Config>
-class MultiplicativeIdentity<AffinePoint<Config>> {
+template <typename Curve>
+class MultiplicativeIdentity<AffinePoint<Curve>> {
  public:
-  using P = AffinePoint<Config>;
+  using P = AffinePoint<Curve>;
 
   static const P& One() {
     static base::NoDestructor<P> one(P::One());
@@ -33,10 +33,10 @@ class MultiplicativeIdentity<AffinePoint<Config>> {
   constexpr static bool IsOne(const P& value) { return value.IsOne(); }
 };
 
-template <typename Config>
-class AdditiveIdentity<AffinePoint<Config>> {
+template <typename Curve>
+class AdditiveIdentity<AffinePoint<Curve>> {
  public:
-  using P = AffinePoint<Config>;
+  using P = AffinePoint<Curve>;
 
   static const P& Zero() {
     static base::NoDestructor<P> zero(P::Zero());

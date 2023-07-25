@@ -8,25 +8,25 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/elliptic_curves/curve_config.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
+#include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 
 namespace tachyon {
 namespace math {
 
-template <typename _Config>
-class JacobianPoint<_Config,
-                    std::enable_if_t<std::is_same_v<
-                        _Config, SWCurveConfig<typename _Config::BaseField,
-                                               typename _Config::ScalarField>>>>
-    : public AdditiveGroup<JacobianPoint<_Config>> {
+template <typename _Curve>
+class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
+    : public AdditiveGroup<JacobianPoint<_Curve>> {
  public:
   constexpr static const bool kNegationIsCheap = true;
 
-  using Config = _Config;
-  using BaseField = typename Config::BaseField;
-  using ScalarField = typename Config::ScalarField;
+  using Curve = _Curve;
+  using BaseField = typename Curve::BaseField;
+  using ScalarField = typename Curve::ScalarField;
+  using AffinePointTy = AffinePoint<Curve>;
 
   constexpr JacobianPoint()
       : JacobianPoint(BaseField::One(), BaseField::One(), BaseField::Zero()) {}
@@ -39,25 +39,25 @@ class JacobianPoint<_Config,
   static JacobianPoint CreateChecked(const BaseField& x, const BaseField& y,
                                      const BaseField& z) {
     JacobianPoint ret = {x, y, z};
-    CHECK(AffinePoint<Config>::IsOnCurve(ret.ToAffine()));
+    CHECK(AffinePoint<Curve>::IsOnCurve(ret.ToAffine()));
     return ret;
   }
 
   static JacobianPoint CreateChecked(BaseField&& x, BaseField&& y,
                                      BaseField&& z) {
     JacobianPoint ret = {std::move(x), std::move(y), std::move(z)};
-    CHECK(AffinePoint<Config>::IsOnCurve(ret.ToAffine()));
+    CHECK(AffinePoint<Curve>::IsOnCurve(ret.ToAffine()));
     return ret;
   }
 
   constexpr static JacobianPoint Zero() { return JacobianPoint(); }
 
-  constexpr static JacobianPoint FromAffine(const AffinePoint<Config>& point) {
+  constexpr static JacobianPoint FromAffine(const AffinePoint<Curve>& point) {
     return {point.x(), point.y(), BaseField::One()};
   }
 
   constexpr static JacobianPoint Random() {
-    return ScalarField::Random() * Config::Generator();
+    return ScalarField::Random() * Curve::Generator();
   }
 
   template <
@@ -68,17 +68,21 @@ class JacobianPoint<_Config,
                            BaseInputIterator bases_last,
                            ScalarInputIterator scalars_first,
                            ScalarInputIterator scalars_last) {
-    return Config::MSM(std::move(bases_first), std::move(bases_last),
-                       std::move(scalars_first), std::move(scalars_last));
+    return Curve::MSM(std::move(bases_first), std::move(bases_last),
+                      std::move(scalars_first), std::move(scalars_last));
   }
 
   template <typename BaseContainer, typename ScalarContainer>
-  static JacobianPoint<Config> MSM(BaseContainer&& bases,
-                                   ScalarContainer&& scalars) {
+  static JacobianPoint MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
     return MSM(std::begin(std::forward<BaseContainer>(bases)),
                std::end(std::forward<BaseContainer>(bases)),
                std::begin(std::forward<ScalarContainer>(scalars)),
                std::end(std::forward<ScalarContainer>(scalars)));
+  }
+
+  constexpr static JacobianPoint Endomorphism(const JacobianPoint& point) {
+    return JacobianPoint(point.x_ * GLV<Curve>::EndomorphismCoefficient(),
+                         point.y_, point.z_);
   }
 
   constexpr const BaseField& x() const { return x_; }
@@ -115,15 +119,15 @@ class JacobianPoint<_Config,
 
   // The jacobian point X, Y, Z is represented in the affine
   // coordinates as X/Z², Y/Z³.
-  constexpr AffinePoint<Config> ToAffine() const {
+  constexpr AffinePoint<Curve> ToAffine() const {
     if (IsZero()) {
-      return AffinePoint<Config>::Identity();
+      return AffinePoint<Curve>::Identity();
     } else if (z_.IsOne()) {
-      return AffinePoint<Config>(x_, y_);
+      return AffinePoint<Curve>(x_, y_);
     } else {
       BaseField z_inv = z_.Inverse();
       BaseField z_inv_square = z_inv * z_inv;
-      return AffinePoint<Config>(x_ * z_inv_square, y_ * z_inv_square * z_inv);
+      return AffinePoint<Curve>(x_ * z_inv_square, y_ * z_inv_square * z_inv);
     }
   }
 
@@ -134,7 +138,7 @@ class JacobianPoint<_Config,
 
   // AdditiveSemigroup methods
   constexpr JacobianPoint& AddInPlace(const JacobianPoint& other);
-  constexpr JacobianPoint& AddInPlace(const AffinePoint<Config>& other);
+  constexpr JacobianPoint& AddInPlace(const AffinePoint<Curve>& other);
   constexpr JacobianPoint& DoubleInPlace();
 
   // AdditiveGroup methods

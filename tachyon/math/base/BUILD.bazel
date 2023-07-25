@@ -47,6 +47,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "conversions",
     hdrs = ["conversions.h"],
+    deps = [":big_int"],
 )
 
 tachyon_cc_library(

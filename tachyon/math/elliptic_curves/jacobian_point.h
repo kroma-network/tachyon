@@ -11,24 +11,24 @@
 namespace tachyon {
 namespace math {
 
-template <typename Config, typename SFINAE = void>
+template <typename Curve, typename SFINAE = void>
 class JacobianPoint;
 
-template <typename Config>
-std::ostream& operator<<(std::ostream& os, const JacobianPoint<Config>& point) {
+template <typename Curve>
+std::ostream& operator<<(std::ostream& os, const JacobianPoint<Curve>& point) {
   return os << point.ToString();
 }
 
-template <typename Config, typename ScalarField = typename Config::ScalarField>
-JacobianPoint<Config> operator*(const ScalarField& v,
-                                const JacobianPoint<Config>& point) {
+template <typename Curve, typename ScalarField = typename Curve::ScalarField>
+JacobianPoint<Curve> operator*(const ScalarField& v,
+                               const JacobianPoint<Curve>& point) {
   return point.ScalarMul(v.ToBigInt());
 }
 
-template <typename Config>
-class MultiplicativeIdentity<JacobianPoint<Config>> {
+template <typename Curve>
+class MultiplicativeIdentity<JacobianPoint<Curve>> {
  public:
-  using P = JacobianPoint<Config>;
+  using P = JacobianPoint<Curve>;
 
   static const P& One() {
     static base::NoDestructor<P> one(P::One());
@@ -38,10 +38,10 @@ class MultiplicativeIdentity<JacobianPoint<Config>> {
   constexpr static bool IsOne(const P& value) { return value.IsOne(); }
 };
 
-template <typename Config>
-class AdditiveIdentity<JacobianPoint<Config>> {
+template <typename Curve>
+class AdditiveIdentity<JacobianPoint<Curve>> {
  public:
-  using P = JacobianPoint<Config>;
+  using P = JacobianPoint<Curve>;
 
   static const P& Zero() {
     static base::NoDestructor<P> zero(P::Zero());

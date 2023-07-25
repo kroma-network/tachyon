@@ -6,13 +6,9 @@
 namespace tachyon {
 namespace math {
 
-#define CLASS                                                         \
-  JacobianPoint<Config,                                               \
-                std::enable_if_t<std::is_same_v<                      \
-                    Config, SWCurveConfig<typename Config::BaseField, \
-                                          typename Config::ScalarField>>>>
+#define CLASS JacobianPoint<Curve, std::enable_if_t<Curve::kIsSWCurve>>
 
-template <typename Config>
+template <typename Curve>
 constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
   if (IsZero()) {
     return *this = other;
@@ -102,8 +98,8 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
   return *this;
 }
 
-template <typename Config>
-constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Config>& other) {
+template <typename Curve>
+constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
   // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-madd-2007-bl
   if (other.infinity()) return *this;
   if (IsZero()) {
@@ -181,16 +177,16 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Config>& other) {
 // computed as `self + self`. Instead, this implementation uses the following
 // specialized doubling formulae:
 // clang-format off
-  // * [`Config::A()` is zero](http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l)
-  // * [`Config::A()` is not zero](https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-2007-bl)
+  // * [`Curve::A()` is zero](http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l)
+  // * [`Curve::A()` is not zero](https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-2007-bl)
 // clang-format on
-template <typename Config>
+template <typename Curve>
 constexpr CLASS& CLASS::DoubleInPlace() {
   if (IsZero()) {
     return *this;
   }
 
-  if (Config::A().IsZero()) {
+  if (Curve::A().IsZero()) {
     // A = X1²
     BaseField a = x_;
     a.SquareInPlace();
@@ -262,7 +258,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     BaseField m = xx;
     m.DoubleInPlace();
     m += xx;
-    m += Config::A() * zz.Square();
+    m += Curve::A() * zz.Square();
 
     // T = M² - 2 * S
     // X3 = T

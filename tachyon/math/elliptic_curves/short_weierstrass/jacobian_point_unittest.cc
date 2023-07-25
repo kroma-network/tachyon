@@ -4,35 +4,46 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/test_config.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
 namespace tachyon {
 namespace math {
 
 namespace {
 
-using Config = test::CurveConfig::Config;
-
+template <typename JacobianPointType>
 class JacobianPointTest : public testing::Test {
  public:
-  static void SetUpTestSuite() {
-    GF7Config::Init();
-    test::CurveConfig::Init();
-  }
+  static void SetUpTestSuite() { JacobianPointType::Curve::Init(); }
 };
 
 }  // namespace
 
-TEST_F(JacobianPointTest, IsZero) {
-  EXPECT_TRUE(JacobianPoint<Config>(GF7(1), GF7(2), GF7(0)).IsZero());
-  EXPECT_FALSE(JacobianPoint<Config>(GF7(1), GF7(2), GF7(1)).IsZero());
+#if defined(TACHYON_GMP_BACKEND)
+using JacobianPointTypes =
+    testing::Types<test::JacobianPoint, test::JacobianPointGmp>;
+#else
+using JacobianPointTypes = testing::Types<test::JacobianPoint>;
+#endif
+TYPED_TEST_SUITE(JacobianPointTest, JacobianPointTypes);
+
+TYPED_TEST(JacobianPointTest, IsZero) {
+  using JacobianPointTy = TypeParam;
+  using BaseField = typename JacobianPointTy::BaseField;
+
+  EXPECT_TRUE(
+      JacobianPointTy(BaseField(1), BaseField(2), BaseField(0)).IsZero());
+  EXPECT_FALSE(
+      JacobianPointTy(BaseField(1), BaseField(2), BaseField(1)).IsZero());
 }
 
-TEST_F(JacobianPointTest, Random) {
+TYPED_TEST(JacobianPointTest, Random) {
+  using JacobianPointTy = TypeParam;
+
   bool success = false;
-  JacobianPoint<Config> r = JacobianPoint<Config>::Random();
+  JacobianPointTy r = JacobianPointTy::Random();
   for (size_t i = 0; i < 100; ++i) {
-    if (r != JacobianPoint<Config>::Random()) {
+    if (r != JacobianPointTy::Random()) {
       success = true;
       break;
     }
@@ -40,43 +51,50 @@ TEST_F(JacobianPointTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TEST_F(JacobianPointTest, EqualityOperators) {
+TYPED_TEST(JacobianPointTest, EqualityOperators) {
+  using JacobianPointTy = TypeParam;
+  using BaseField = typename JacobianPointTy::BaseField;
+
   {
     SCOPED_TRACE("p.IsZero() && p2.IsZero()");
-    JacobianPoint<Config> p(GF7(1), GF7(2), GF7(0));
-    JacobianPoint<Config> p2(GF7(3), GF7(4), GF7(0));
+    JacobianPointTy p(BaseField(1), BaseField(2), BaseField(0));
+    JacobianPointTy p2(BaseField(3), BaseField(4), BaseField(0));
     EXPECT_TRUE(p == p2);
     EXPECT_TRUE(p2 == p);
   }
 
   {
     SCOPED_TRACE("!p.IsZero() && p2.IsZero()");
-    JacobianPoint<Config> p(GF7(1), GF7(2), GF7(1));
-    JacobianPoint<Config> p2(GF7(3), GF7(4), GF7(0));
+    JacobianPointTy p(BaseField(1), BaseField(2), BaseField(1));
+    JacobianPointTy p2(BaseField(3), BaseField(4), BaseField(0));
     EXPECT_TRUE(p != p2);
     EXPECT_TRUE(p2 != p);
   }
 
   {
     SCOPED_TRACE("other");
-    JacobianPoint<Config> p(GF7(1), GF7(2), GF7(3));
-    JacobianPoint<Config> p2(GF7(1), GF7(2), GF7(3));
+    JacobianPointTy p(BaseField(1), BaseField(2), BaseField(3));
+    JacobianPointTy p2(BaseField(1), BaseField(2), BaseField(3));
     EXPECT_TRUE(p == p2);
     EXPECT_TRUE(p2 == p);
   }
 }
 
-TEST_F(JacobianPointTest, AdditiveGroupOperators) {
-  JacobianPoint<Config> jp =
-      JacobianPoint<Config>::CreateChecked(GF7(5), GF7(5), GF7(1));
-  JacobianPoint<Config> jp2 =
-      JacobianPoint<Config>::CreateChecked(GF7(3), GF7(2), GF7(1));
-  JacobianPoint<Config> jp3 =
-      JacobianPoint<Config>::CreateChecked(GF7(3), GF7(5), GF7(1));
-  JacobianPoint<Config> jp4 =
-      JacobianPoint<Config>::CreateChecked(GF7(6), GF7(5), GF7(1));
-  AffinePoint<Config> ap = jp.ToAffine();
-  AffinePoint<Config> ap2 = jp2.ToAffine();
+TYPED_TEST(JacobianPointTest, AdditiveGroupOperators) {
+  using JacobianPointTy = TypeParam;
+  using AffinePointTy = typename JacobianPointTy::AffinePointTy;
+  using BaseField = typename JacobianPointTy::BaseField;
+
+  JacobianPointTy jp =
+      JacobianPointTy::CreateChecked(BaseField(5), BaseField(5), BaseField(1));
+  JacobianPointTy jp2 =
+      JacobianPointTy::CreateChecked(BaseField(3), BaseField(2), BaseField(1));
+  JacobianPointTy jp3 =
+      JacobianPointTy::CreateChecked(BaseField(3), BaseField(5), BaseField(1));
+  JacobianPointTy jp4 =
+      JacobianPointTy::CreateChecked(BaseField(6), BaseField(5), BaseField(1));
+  AffinePointTy ap = jp.ToAffine();
+  AffinePointTy ap2 = jp2.ToAffine();
 
   EXPECT_EQ(jp + jp2, jp3);
   EXPECT_EQ(jp - jp3, -jp2);
@@ -84,7 +102,7 @@ TEST_F(JacobianPointTest, AdditiveGroupOperators) {
   EXPECT_EQ(jp - jp4, -jp);
 
   {
-    JacobianPoint<Config> jp_tmp = jp;
+    JacobianPointTy jp_tmp = jp;
     jp_tmp += jp2;
     EXPECT_EQ(jp_tmp, jp3);
     jp_tmp -= jp2;
@@ -97,52 +115,72 @@ TEST_F(JacobianPointTest, AdditiveGroupOperators) {
   EXPECT_EQ(jp - jp4, -jp);
 }
 
-TEST_F(JacobianPointTest, ScalarMulOperator) {
-  std::vector<AffinePoint<Config>> points;
+TYPED_TEST(JacobianPointTest, ScalarMulOperator) {
+  using JacobianPointTy = TypeParam;
+  using AffinePointTy = typename JacobianPointTy::AffinePointTy;
+  using BaseField = typename JacobianPointTy::BaseField;
+  using ScalarField = typename JacobianPointTy::ScalarField;
+
+  std::vector<AffinePointTy> points;
   for (size_t i = 0; i < 7; ++i) {
-    points.push_back((GF7(i) * Config::Generator()).ToAffine());
+    points.push_back(
+        (ScalarField(i) * JacobianPointTy::Curve::Generator()).ToAffine());
   }
 
-  EXPECT_THAT(points, testing::UnorderedElementsAreArray(
-                          std::vector<AffinePoint<Config>>{
-                              AffinePoint<Config>(GF7(0), GF7(0), true),
-                              AffinePoint<Config>(GF7(3), GF7(2)),
-                              AffinePoint<Config>(GF7(5), GF7(2)),
-                              AffinePoint<Config>(GF7(6), GF7(2)),
-                              AffinePoint<Config>(GF7(3), GF7(5)),
-                              AffinePoint<Config>(GF7(5), GF7(5)),
-                              AffinePoint<Config>(GF7(6), GF7(5))}));
+  EXPECT_THAT(points,
+              testing::UnorderedElementsAreArray(std::vector<AffinePointTy>{
+                  AffinePointTy(BaseField(0), BaseField(0), true),
+                  AffinePointTy(BaseField(3), BaseField(2)),
+                  AffinePointTy(BaseField(5), BaseField(2)),
+                  AffinePointTy(BaseField(6), BaseField(2)),
+                  AffinePointTy(BaseField(3), BaseField(5)),
+                  AffinePointTy(BaseField(5), BaseField(5)),
+                  AffinePointTy(BaseField(6), BaseField(5))}));
 }
 
-TEST_F(JacobianPointTest, NegativeOperator) {
-  JacobianPoint<Config> jp(GF7(5), GF7(5), GF7(1));
+TYPED_TEST(JacobianPointTest, NegativeOperator) {
+  using JacobianPointTy = TypeParam;
+  using BaseField = typename JacobianPointTy::BaseField;
+
+  JacobianPointTy jp(BaseField(5), BaseField(5), BaseField(1));
   jp.NegInPlace();
-  EXPECT_EQ(jp, JacobianPoint<Config>(GF7(5), GF7(2), GF7(1)));
+  EXPECT_EQ(jp, JacobianPointTy(BaseField(5), BaseField(2), BaseField(1)));
 }
 
-TEST_F(JacobianPointTest, ToAffine) {
-  EXPECT_EQ(JacobianPoint<Config>(GF7(1), GF7(2), GF7(0)).ToAffine(),
-            AffinePoint<Config>::Identity());
-  EXPECT_EQ(JacobianPoint<Config>(GF7(1), GF7(2), GF7(1)).ToAffine(),
-            AffinePoint<Config>(GF7(1), GF7(2)));
-  EXPECT_EQ(JacobianPoint<Config>(GF7(1), GF7(2), GF7(3)).ToAffine(),
-            AffinePoint<Config>(GF7(4), GF7(5)));
+TYPED_TEST(JacobianPointTest, ToAffine) {
+  using JacobianPointTy = TypeParam;
+  using AffinePointTy = typename JacobianPointTy::AffinePointTy;
+  using BaseField = typename JacobianPointTy::BaseField;
+
+  EXPECT_EQ(
+      JacobianPointTy(BaseField(1), BaseField(2), BaseField(0)).ToAffine(),
+      AffinePointTy::Identity());
+  EXPECT_EQ(
+      JacobianPointTy(BaseField(1), BaseField(2), BaseField(1)).ToAffine(),
+      AffinePointTy(BaseField(1), BaseField(2)));
+  EXPECT_EQ(
+      JacobianPointTy(BaseField(1), BaseField(2), BaseField(3)).ToAffine(),
+      AffinePointTy(BaseField(4), BaseField(5)));
 }
 
-TEST_F(JacobianPointTest, MSM) {
-  std::vector<JacobianPoint<Config>> bases = {
-      {GF7(5), GF7(5), GF7(1)},
-      {GF7(3), GF7(2), GF7(1)},
+TYPED_TEST(JacobianPointTest, MSM) {
+  using JacobianPointTy = TypeParam;
+  using BaseField = typename JacobianPointTy::BaseField;
+  using ScalarField = typename JacobianPointTy::ScalarField;
+
+  std::vector<JacobianPointTy> bases = {
+      {BaseField(5), BaseField(5), BaseField(1)},
+      {BaseField(3), BaseField(2), BaseField(1)},
   };
-  std::vector<GF7> scalars = {
-      GF7(2),
-      GF7(3),
+  std::vector<ScalarField> scalars = {
+      ScalarField(2),
+      ScalarField(3),
   };
-  JacobianPoint<Config> expected = JacobianPoint<Config>::Zero();
+  JacobianPointTy expected = JacobianPointTy::Zero();
   for (size_t i = 0; i < bases.size(); ++i) {
     expected += bases[i].ScalarMul(scalars[i].ToBigInt());
   }
-  EXPECT_EQ(JacobianPoint<Config>::MSM(bases, scalars), expected);
+  EXPECT_EQ(JacobianPointTy::MSM(bases, scalars), expected);
 }
 
 }  // namespace math

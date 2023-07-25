@@ -101,6 +101,10 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     return ret;
   }
 
+  static void Init() {
+    // Do nothing.
+  }
+
   __host__ __device__ constexpr static BigInt<N> GetModulus() {
     return Config::kModulus;
   }

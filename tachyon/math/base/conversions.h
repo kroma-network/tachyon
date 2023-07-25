@@ -3,6 +3,8 @@
 
 #include <string_view>
 
+#include "tachyon/math/base/big_int.h"
+
 namespace tachyon {
 namespace math {
 

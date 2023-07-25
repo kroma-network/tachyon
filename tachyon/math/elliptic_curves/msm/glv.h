@@ -1,6 +1,7 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 
+#include "tachyon/base/static_storage.h"
 #include "tachyon/math/base/bit_iterator.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/base/gmp/gmp_identities.h"
@@ -12,11 +13,13 @@
 namespace tachyon {
 namespace math {
 
-template <typename GLVConfig>
+template <typename Curve>
 class GLV {
  public:
-  using JacobianPointTy = JacobianPoint<typename GLVConfig::Config>;
-  using ScalarField = typename JacobianPointTy::ScalarField;
+  using BaseField = typename Curve::BaseField;
+  using ScalarField = typename Curve::ScalarField;
+  using AffinePointTy = AffinePoint<Curve>;
+  using JacobianPointTy = JacobianPoint<Curve>;
 
   using Coefficients = Matrix<mpz_class, 2, 2>;
 
@@ -25,10 +28,32 @@ class GLV {
     SignedValue<mpz_class> k2;
   };
 
+  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(BaseField, EndomorphismCoefficient);
+  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(ScalarField, Lambda);
+  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(Coefficients,
+                                        ScalarDecompositionCoefficients);
+
+  static void Init() {
+    EndomorphismCoefficient() =
+        BaseField::FromMontgomery(Curve::Config::kEndomorphismCoefficient);
+    Lambda() = ScalarField::FromMontgomery(Curve::Config::kLambda);
+    Coefficients() = Matrix<mpz_class, 2, 2>(
+        ScalarField::FromMontgomery(Curve::Config::kGLVCoeff00).ToMpzClass(),
+        ScalarField::FromMontgomery(Curve::Config::kGLVCoeff01).ToMpzClass(),
+        ScalarField::FromMontgomery(Curve::Config::kGLVCoeff10).ToMpzClass(),
+        ScalarField::FromMontgomery(Curve::Config::kGLVCoeff11).ToMpzClass());
+  }
+
+  static JacobianPointTy Endomorphism(const JacobianPointTy& point) {
+    return JacobianPointTy::Endomorphism(point);
+  }
+  static AffinePointTy EndomorphismAffine(const AffinePointTy& point) {
+    return AffinePointTy::EndomorphismAffine(point);
+  }
+
   // Decomposes a scalar |k| into k1, k2, s.t. k = k1 + lambda k2,
   static CoefficientDecompositionResult Decompose(const ScalarField& k) {
-    const Coefficients& coefficients =
-        GLVConfig::ScalarDecompositionCoefficients();
+    const Coefficients& coefficients = ScalarDecompositionCoefficients();
 
     decltype(auto) scalar = k.ToMpzClass();
     const mpz_class& n12 = coefficients[1];
@@ -65,9 +90,9 @@ class GLV {
     Point b1 = p;
     Point b2;
     if constexpr (std::is_same_v<Point, JacobianPointTy>) {
-      b2 = GLVConfig::Endomorphism(p);
+      b2 = Endomorphism(p);
     } else {
-      b2 = GLVConfig::EndomorphismAffine(p);
+      b2 = EndomorphismAffine(p);
     }
 
     if (result.k1.sign == Sign::kNegative) {

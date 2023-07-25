@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/curve_config_cuda.cu.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
 
@@ -49,8 +49,8 @@ class AffinePointCorrectnessCudaTest : public testing::Test {
             N * sizeof(bn254::G1JacobianPointCuda));
     bool_results_ = device::gpu::MakeManagedUnique<bool>(N * sizeof(bool));
 
-    bn254::CurveConfig<bn254::FqGmp, bn254::FrGmp>::Init();
-    bn254::CurveConfig<bn254::FqCuda, bn254::FrCuda>::Init();
+    bn254::G1AffinePointGmp::Curve::Init();
+    bn254::G1AffinePointCuda::Curve::Init();
 
     x_gmps_.reserve(N);
     y_gmps_.reserve(N);
@@ -135,21 +135,20 @@ TEST_F(AffinePointCorrectnessCudaTest, Add) {
   }
 }
 
-// TODO(chokobole): Enable this test.
-// TEST_F(AffinePointCorrectnessCudaTest, Double) {
-//   GPU_SUCCESS(LaunchDouble(xs_.get(), jacobian_results_.get(), N));
-//   for (size_t i = 0; i < N; ++i) {
-//     SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
-//     auto result = bn254::G1JacobianPointGmp(
-//         bn254::FqGmp::FromMontgomery(
-//             (jacobian_results_.get())[i].x().ToMontgomery()),
-//         bn254::FqGmp::FromMontgomery(
-//             (jacobian_results_.get())[i].y().ToMontgomery()),
-//         bn254::FqGmp::FromMontgomery(
-//             (jacobian_results_.get())[i].z().ToMontgomery()));
-//     ASSERT_EQ(result, x_gmps_[i].Double());
-//   }
-// }
+TEST_F(AffinePointCorrectnessCudaTest, Double) {
+  GPU_SUCCESS(LaunchDouble(xs_.get(), jacobian_results_.get(), N));
+  for (size_t i = 0; i < N; ++i) {
+    SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
+    auto result = bn254::G1JacobianPointGmp(
+        bn254::FqGmp::FromMontgomery(
+            (jacobian_results_.get())[i].x().ToMontgomery()),
+        bn254::FqGmp::FromMontgomery(
+            (jacobian_results_.get())[i].y().ToMontgomery()),
+        bn254::FqGmp::FromMontgomery(
+            (jacobian_results_.get())[i].z().ToMontgomery()));
+    ASSERT_EQ(result, x_gmps_[i].Double());
+  }
+}
 
 TEST_F(AffinePointCorrectnessCudaTest, Negative) {
   GPU_SUCCESS(LaunchNegative(xs_.get(), affine_results_.get(), N));

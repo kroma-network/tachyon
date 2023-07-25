@@ -4,11 +4,7 @@ namespace tachyon {
 namespace math {
 
 // static
-void GoldilocksConfig::Init() {
-#if defined(TACHYON_GMP_BACKEND)
-  GoldilocksGmp::Init();
-#endif  // defined(TACHYON_GMP_BACKEND)
-}
+void GoldilocksConfig::Init() { GoldilocksGmp::Init(); }
 
 }  // namespace math
 }  // namespace tachyon

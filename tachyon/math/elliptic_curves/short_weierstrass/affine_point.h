@@ -9,22 +9,22 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/elliptic_curves/curve_config.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config.h"
+#include "tachyon/math/elliptic_curves/msm/glv.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 
 namespace tachyon {
 namespace math {
 
-template <typename _Config>
-class AffinePoint<_Config,
-                  std::enable_if_t<std::is_same_v<
-                      _Config, SWCurveConfig<typename _Config::BaseField,
-                                             typename _Config::ScalarField>>>>
-    : public AdditiveGroup<AffinePoint<_Config>> {
+template <typename _Curve>
+class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
+    : public AdditiveGroup<AffinePoint<_Curve>> {
  public:
-  using Config = _Config;
-  using BaseField = typename Config::BaseField;
-  using ScalarField = typename Config::ScalarField;
+  using Curve = _Curve;
+  using BaseField = typename Curve::BaseField;
+  using ScalarField = typename Curve::ScalarField;
+  using JacobianPointTy = JacobianPoint<Curve>;
 
   constexpr AffinePoint()
       : AffinePoint(BaseField::Zero(), BaseField::Zero(), true) {}
@@ -50,18 +50,17 @@ class AffinePoint<_Config,
 
   constexpr static AffinePoint Zero() { return AffinePoint(); }
 
-  constexpr static AffinePoint FromJacobian(
-      const JacobianPoint<Config>& point) {
+  constexpr static AffinePoint FromJacobian(const JacobianPoint<Curve>& point) {
     return point.ToAffine();
   }
 
   constexpr static AffinePoint Random() {
-    return FromJacobian(JacobianPoint<Config>::Random());
+    return FromJacobian(JacobianPoint<Curve>::Random());
   }
 
   static bool IsOnCurve(const AffinePoint& p) {
     if (p.infinity_) return true;
-    return Config::IsOnCurve(p.x_, p.y_);
+    return Curve::IsOnCurve(p.x_, p.y_);
   }
 
   template <
@@ -70,24 +69,29 @@ class AffinePoint<_Config,
           std::is_same_v<AffinePoint, base::iter_value_t<BaseInputIterator>> &&
           std::is_same_v<ScalarField,
                          base::iter_value_t<ScalarInputIterator>>>* = nullptr>
-  static JacobianPoint<Config> MSM(BaseInputIterator bases_first,
-                                   BaseInputIterator bases_last,
-                                   ScalarInputIterator scalars_first,
-                                   ScalarInputIterator scalars_last) {
-    std::vector<JacobianPoint<Config>> bases =
+  static JacobianPoint<Curve> MSM(BaseInputIterator bases_first,
+                                  BaseInputIterator bases_last,
+                                  ScalarInputIterator scalars_first,
+                                  ScalarInputIterator scalars_last) {
+    std::vector<JacobianPoint<Curve>> bases =
         base::Map(std::move(bases_first), std::move(bases_last),
                   [](const AffinePoint& point) { return point.ToJacobian(); });
-    return Config::MSM(bases.begin(), bases.end(), std::move(scalars_first),
-                       std::move(scalars_last));
+    return Curve::MSM(bases.begin(), bases.end(), std::move(scalars_first),
+                      std::move(scalars_last));
   }
 
   template <typename BaseContainer, typename ScalarContainer>
-  static JacobianPoint<Config> MSM(BaseContainer&& bases,
-                                   ScalarContainer&& scalars) {
+  static JacobianPoint<Curve> MSM(BaseContainer&& bases,
+                                  ScalarContainer&& scalars) {
     return MSM(std::begin(std::forward<BaseContainer>(bases)),
                std::end(std::forward<BaseContainer>(bases)),
                std::begin(std::forward<ScalarContainer>(scalars)),
                std::end(std::forward<ScalarContainer>(scalars)));
+  }
+
+  constexpr static AffinePoint EndomorphismAffine(const AffinePoint& point) {
+    return AffinePoint(point.x_ * GLV<Curve>::EndomorphismCoefficient(),
+                       point.y_);
   }
 
   constexpr const BaseField& x() const { return x_; }
@@ -110,8 +114,8 @@ class AffinePoint<_Config,
     return !operator==(other);
   }
 
-  constexpr JacobianPoint<Config> ToJacobian() const {
-    if (infinity_) return JacobianPoint<Config>::Zero();
+  constexpr JacobianPoint<Curve> ToJacobian() const {
+    if (infinity_) return JacobianPoint<Curve>::Zero();
     return {x_, y_, BaseField::One()};
   }
 
@@ -121,15 +125,15 @@ class AffinePoint<_Config,
 
   // AdditiveSemigroup methods
   template <typename U>
-  constexpr JacobianPoint<Config> Add(const U& other) const {
-    JacobianPoint<Config> point = ToJacobian();
+  constexpr JacobianPoint<Curve> Add(const U& other) const {
+    JacobianPoint<Curve> point = ToJacobian();
     return point + other;
   }
 
   // AdditiveGroup methods
   template <typename U>
-  constexpr JacobianPoint<Config> Sub(const U& other) const {
-    JacobianPoint<Config> point = ToJacobian();
+  constexpr JacobianPoint<Curve> Sub(const U& other) const {
+    JacobianPoint<Curve> point = ToJacobian();
     return point - other;
   }
 

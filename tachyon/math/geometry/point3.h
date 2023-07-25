@@ -14,8 +14,10 @@ struct Point3 {
   T y;
   T z;
 
-  constexpr Point3() : Point3(0, 0, 0) {}
-  constexpr Point3(T x, T y, T z) : x(x), y(y), z(z) {}
+  constexpr Point3() : Point3(T::Zero(), T::Zero(), T::Zero()) {}
+  constexpr Point3(const T& x, const T& y, const T& z) : x(x), y(y), z(z) {}
+  constexpr Point3(T&& x, T&& y, T&& z)
+      : x(std::move(x)), y(std::move(y)), z(std::move(z)) {}
 
   constexpr bool operator==(const Point3& other) const {
     return x == other.x && y == other.y && z == other.z;
@@ -26,7 +28,8 @@ struct Point3 {
   }
 
   std::string ToString() const {
-    return absl::Substitute("($0, $1, $2)", x, y, z);
+    return absl::Substitute("($0, $1, $2)", x.ToString(), y.ToString(),
+                            z.ToString());
   }
 };
 

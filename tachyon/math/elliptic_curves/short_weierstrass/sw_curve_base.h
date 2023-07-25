@@ -1,12 +1,11 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CONFIG_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CONFIG_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_BASE_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_BASE_H_
 
 #include <type_traits>
 
-#include "tachyon/base/no_destructor.h"
-#include "tachyon/base/static_storage.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config_traits.h"
 
 namespace tachyon {
 namespace math {
@@ -15,21 +14,20 @@ namespace math {
 // See https://www.hyperelliptic.org/EFD/g1p/auto-shortw.html for more details.
 // This config represents `y² = x³ + a * x + b`, where `a` and `b` are
 // constants.
-template <typename _BaseField, typename _ScalarField>
-class SWCurveConfig {
+template <typename SWCurveConfig>
+class SWCurveBase {
  public:
-  using BaseField = _BaseField;
-  using ScalarField = _ScalarField;
-  using JacobianPointTy = JacobianPoint<SWCurveConfig<BaseField, ScalarField>>;
-
-  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(BaseField, A)
-  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(BaseField, B)
-  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(JacobianPointTy, Generator)
+  using BaseField = typename SWCurveConfigTraits<SWCurveConfig>::BaseField;
+  using ScalarField = typename SWCurveConfigTraits<SWCurveConfig>::ScalarField;
+  using AffinePointTy =
+      typename SWCurveConfigTraits<SWCurveConfig>::AffinePointTy;
+  using JacobianPointTy =
+      typename SWCurveConfigTraits<SWCurveConfig>::JacobianPointTy;
 
   static bool IsOnCurve(const BaseField& x, const BaseField& y) {
-    BaseField right = x.Square() * x + B();
-    if (!A().IsZero()) {
-      right += A() * x;
+    BaseField right = x.Square() * x + SWCurveConfig::B();
+    if (!SWCurveConfig::A().IsZero()) {
+      right += SWCurveConfig::A() * x;
     }
     return y.Square() == right;
   }
@@ -59,4 +57,4 @@ class SWCurveConfig {
 }  // namespace math
 }  // namespace tachyon
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CONFIG_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_BASE_H_

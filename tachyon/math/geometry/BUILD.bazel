@@ -5,17 +5,13 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "point2",
     hdrs = ["point2.h"],
-    deps = [
-        "@com_google_absl//absl/strings",
-    ],
+    deps = ["@com_google_absl//absl/strings"],
 )
 
 tachyon_cc_library(
     name = "point3",
     hdrs = ["point3.h"],
-    deps = [
-        "@com_google_absl//absl/strings",
-    ],
+    deps = ["@com_google_absl//absl/strings"],
 )
 
 tachyon_cc_test(
@@ -27,5 +23,6 @@ tachyon_cc_test(
     deps = [
         ":point2",
         ":point3",
+        "//tachyon/math/finite_fields:prime_field",
     ],
 )

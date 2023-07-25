@@ -13,8 +13,9 @@ struct Point2 {
   T x;
   T y;
 
-  constexpr Point2() : Point2(0, 0) {}
-  constexpr Point2(T x, T y) : x(x), y(y) {}
+  constexpr Point2() : Point2(T::Zero(), T::Zero()) {}
+  constexpr Point2(const T& x, const T& y) : x(x), y(y) {}
+  constexpr Point2(T&& x, T&& y) : x(std::move(x)), y(std::move(y)) {}
 
   constexpr bool operator==(const Point2& other) const {
     return x == other.x && y == other.y;
@@ -24,7 +25,9 @@ struct Point2 {
     return !operator==(other);
   }
 
-  std::string ToString() const { return absl::Substitute("($0, $1)", x, y); }
+  std::string ToString() const {
+    return absl::Substitute("($0, $1)", x.ToString(), y.ToString());
+  }
 };
 
 template <typename T>

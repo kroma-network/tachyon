@@ -3,26 +3,6 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "curve_config",
-    hdrs = ["curve_config.h"],
-    deps = [
-        ":fq",
-        ":fr",
-        "//tachyon/math/elliptic_curves/short_weierstrass:points",
-    ],
-)
-
-tachyon_cc_library(
-    name = "curve_config_cuda",
-    hdrs = ["curve_config_cuda.cu.h"],
-    deps = [
-        ":curve_config",
-        ":fq_cuda",
-        ":fr_cuda",
-    ],
-)
-
-tachyon_cc_library(
     name = "fq",
     srcs = ["fq.cc"],
     hdrs = ["fq.h"],
@@ -54,14 +34,34 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "g1",
+    hdrs = ["g1.h"],
+    deps = [
+        ":fq",
+        ":fr",
+        "//tachyon/math/elliptic_curves/short_weierstrass:points",
+        "//tachyon/math/geometry:point2",
+    ],
+)
+
+tachyon_cc_library(
+    name = "g1_cuda",
+    hdrs = ["g1_cuda.cu.h"],
+    deps = [
+        ":fq_cuda",
+        ":fr_cuda",
+        ":g1",
+        "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve_cuda",
+    ],
+)
+
 tachyon_cc_test(
     name = "bn254_unittests",
     srcs = [
         "fq_unittest.cc",
         "fr_unittest.cc",
+        "g1_unittest.cc",
     ],
-    deps = [
-        ":fq",
-        ":fr",
-    ],
+    deps = [":g1"],
 )

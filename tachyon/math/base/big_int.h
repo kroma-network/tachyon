@@ -408,6 +408,16 @@ struct BigInt {
     return *this;
   }
 
+  constexpr BigInt<2 * N> Mul(const BigInt& other) {
+    BigInt<2 * N> ret;
+    BigInt lo = *this;
+    BigInt hi;
+    lo.MulInPlace(other, hi);
+    memcpy(&ret[0], &lo[0], sizeof(uint64_t) * N);
+    memcpy(&ret[N], &hi[0], sizeof(uint64_t) * N);
+    return ret;
+  }
+
   constexpr BigInt& DivBy2InPlace() {
     uint64_t last = 0;
     FOR_FROM_BIGGEST(i, 0, N) {

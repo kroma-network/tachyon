@@ -98,6 +98,10 @@ class PrimeFieldMontCudaDebug
     return ret;
   }
 
+  static void Init() {
+    // Do nothing.
+  }
+
   const value_type& value() const { return value_; }
 
   constexpr bool IsZero() const { return ToBigInt().IsZero(); }

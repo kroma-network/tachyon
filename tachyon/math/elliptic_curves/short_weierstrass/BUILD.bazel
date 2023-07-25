@@ -3,6 +3,7 @@ load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
     "tachyon_cc_test",
+    "tachyon_cuda_library",
     "tachyon_cuda_test",
 )
 
@@ -14,26 +15,32 @@ tachyon_cc_library(
         "affine_point.h",
         "jacobian_point.h",
         "jacobian_point_impl.h",
-        "sw_curve_config.h",
+        "sw_curve.h",
+        "sw_curve_config_traits.h",
     ],
     deps = [
-        "//tachyon/base:logging",
-        "//tachyon/base:no_destructor",
+        ":sw_curve_base",
         "//tachyon/base:static_storage",
         "//tachyon/base/containers:container_util",
-        "//tachyon/math/elliptic_curves:points",
-        "//tachyon/math/elliptic_curves/msm",
+        "//tachyon/math/elliptic_curves/msm:glv",
+    ],
+)
+
+tachyon_cuda_library(
+    name = "sw_curve_cuda",
+    srcs = ["sw_curve_cuda.cu.h"],
+    deps = [
+        ":points",
+        "//tachyon/math/geometry:point2",
     ],
 )
 
 tachyon_cc_library(
-    name = "test_config",
-    testonly = True,
-    srcs = ["test_config.cc"],
-    hdrs = ["test_config.h"],
+    name = "sw_curve_base",
+    hdrs = ["sw_curve_base.h"],
     deps = [
-        ":points",
-        "//tachyon/math/finite_fields:prime_field",
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/elliptic_curves/msm",
     ],
 )
 
@@ -43,7 +50,10 @@ tachyon_cc_test(
         "affine_point_unittest.cc",
         "jacobian_point_unittest.cc",
     ],
-    deps = [":test_config"],
+    deps = [
+        ":points",
+        "//tachyon/math/elliptic_curves/short_weierstrass/test:curve_config",
+    ],
 )
 
 tachyon_cuda_test(
@@ -55,7 +65,7 @@ tachyon_cuda_test(
     tags = ["cuda"],
     deps = [
         "//tachyon/device/gpu/cuda:cuda_memory",
-        "//tachyon/math/elliptic_curves/bn/bn254:curve_config_cuda",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
         "//tachyon/math/elliptic_curves/short_weierstrass/kernels:elliptic_curve_ops",
         "//tachyon/math/test:launch_op_macros",
     ],
