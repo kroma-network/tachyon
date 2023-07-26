@@ -1,0 +1,35 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+tachyon_cc_library(
+    name = "console",
+    srcs = [
+        "console.cc",
+        "console_stream.cc",
+        "iostream.cc",
+        "sgr_parameters.cc",
+    ],
+    hdrs = [
+        "console.h",
+        "console_stream.h",
+        "iostream.h",
+        "sgr_parameter_list.h",
+        "sgr_parameters.h",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//tachyon/base:environment",
+        "//tachyon/base/color:color_conversions",
+    ],
+)
+
+tachyon_cc_library(
+    name = "table_writer",
+    srcs = ["table_writer.cc"],
+    hdrs = ["table_writer.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//tachyon:export",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+    ],
+)
