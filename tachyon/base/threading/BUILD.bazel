@@ -1,0 +1,37 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon.bzl", "if_linux", "if_posix")
+
+tachyon_cc_library(
+    name = "platform_thread",
+    srcs = [
+        "platform_thread.cc",
+        "platform_thread_ref.cc",
+        "platform_thread_ref.h",
+    ] + if_posix([
+        "platform_thread_posix.cc",
+        "platform_thread_internal_posix.cc",
+        "platform_thread_internal_posix.h",
+        # "thread_id_name_manager.cc",
+    ]) + if_linux([
+        "platform_thread_linux.cc",
+    ]),
+    hdrs = [
+        "platform_thread.h",
+        # "thread_id_name_manager.h",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        # ":thread_local",
+        "//tachyon/base:no_destructor",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:contains",
+        "//tachyon/base/containers:cxx20_erase",
+        "//tachyon/base/files:file_path",
+        "//tachyon/base/message_loop:message_pump_type",
+        "//tachyon/base/posix:can_lower_nice_to",
+        "//tachyon/base/process:process_handle",
+        "//tachyon/base/time",
+        "//tachyon/base/strings:string_number_conversions",
+        "@com_google_absl//absl/synchronization",
+    ],
+)

@@ -52,8 +52,14 @@ tachyon_cc_test(
     name = "time_unittests",
     srcs = [
         "time_delta_flag_unittest.cc",
+        "time_interval_unittest.cc",
+        "time_stamp_unittest.cc",
+        "time_unittest.cc",
     ],
     deps = [
         ":time_delta_flag",
+        ":time_interval",
+        ":time_stamp",
+        "//tachyon/base/threading:platform_thread",
     ],
 )
