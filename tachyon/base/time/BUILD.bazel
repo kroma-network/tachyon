@@ -1,0 +1,59 @@
+load("//bazel:tachyon.bzl", "if_posix")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load(":time_buildflags.bzl", "time_buildflag_header")
+
+package(default_visibility = ["//visibility:public"])
+
+time_buildflag_header(name = "time_buildflags")
+
+tachyon_cc_library(
+    name = "time",
+    srcs = ["time.cc"] + if_posix([
+        "time_conversion_posix.cc",
+        "time_now_posix.cc",
+    ]),
+    hdrs = ["time.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:logging",
+        "//tachyon/base/numerics:checked_math",
+        "//tachyon/base/numerics:clamped_math",
+        "@com_google_absl//absl/time",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
+    name = "time_delta_flag",
+    srcs = ["time_delta_flag.h"],
+    deps = [
+        ":time",
+        "//tachyon/base/flag",
+        "//tachyon/base/numerics:safe_conversions",
+    ],
+)
+
+tachyon_cc_library(
+    name = "time_interval",
+    srcs = ["time_interval.cc"],
+    hdrs = ["time_interval.h"],
+    deps = [":time"],
+)
+
+tachyon_cc_library(
+    name = "time_stamp",
+    srcs = ["time_stamp.cc"],
+    hdrs = ["time_stamp.h"],
+    deps = [":time"],
+)
+
+tachyon_cc_test(
+    name = "time_unittests",
+    srcs = [
+        "time_delta_flag_unittest.cc",
+    ],
+    deps = [
+        ":time_delta_flag",
+    ],
+)
