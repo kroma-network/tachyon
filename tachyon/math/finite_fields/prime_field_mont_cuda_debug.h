@@ -286,7 +286,7 @@ class PrimeFieldMontCudaDebug
     BigInt<N + 1> results2;
     uint32_t* even = reinterpret_cast<uint32_t*>(results.limbs);
     uint32_t* odd = reinterpret_cast<uint32_t*>(results2.limbs);
-    size_t i;
+    size_t i = 0;
     for (i = 0; i < n; i += 2) {
       MadNRedc(&even[0], &odd[0], x, y[i], i == 0);
       MadNRedc(&odd[0], &even[0], x, y[i + 1]);

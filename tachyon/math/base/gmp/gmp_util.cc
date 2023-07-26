@@ -101,11 +101,11 @@ size_t GetLimbSize(const mpz_class& value) {
   return value.__get_mp()->_mp_size;
 }
 
-const uint64_t& GetLimbConstRef(const mpz_class& value, size_t idx) {
+const mp_limb_t& GetLimbConstRef(const mpz_class& value, size_t idx) {
   return value.__get_mp()->_mp_d[idx];
 }
 
-uint64_t& GetLimbRef(mpz_class& value, size_t idx) {
+mp_limb_t& GetLimbRef(mpz_class& value, size_t idx) {
   return value.__get_mp()->_mp_d[idx];
 }
 

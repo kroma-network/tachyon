@@ -496,7 +496,7 @@ struct BigInt {
     BigInt<N> r = value;
     T* r_ptr = reinterpret_cast<T*>(r.limbs);
     const T* m_ptr = reinterpret_cast<const T*>(modulus.limbs);
-    size_t num;
+    size_t num = 0;
     MulResult<T> (*mul_add_with_carry)(T, T, T, T);
     if constexpr (std::is_same_v<T, uint32_t>) {
       num = 2 * N;
@@ -525,7 +525,7 @@ struct BigInt {
                                          BigInt* out) {
     T* r_ptr = reinterpret_cast<T*>(r.limbs);
     const T* m_ptr = reinterpret_cast<const T*>(modulus.limbs);
-    size_t num;
+    size_t num = 0;
     MulResult<T> (*mul_add_with_carry)(T, T, T, T);
     AddResult<T> (*add_with_carry)(T, T, T);
     if constexpr (std::is_same_v<T, uint32_t>) {
