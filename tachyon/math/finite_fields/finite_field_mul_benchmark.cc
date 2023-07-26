@@ -1,5 +1,3 @@
-#include <chrono>
-
 #include "absl/base/call_once.h"
 #include "benchmark/benchmark.h"
 

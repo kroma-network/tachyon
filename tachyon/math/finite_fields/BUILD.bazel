@@ -28,9 +28,10 @@ tachyon_cc_library(
     srcs = ["prime_field.cc"],
     hdrs = ["prime_field.h"],
     deps = [
-        ":prime_field_gmp",
         ":prime_field_mont",
-    ],
+    ] + if_gmp_backend([
+        ":prime_field_gmp",
+    ]),
 )
 
 tachyon_cc_library(
@@ -45,6 +46,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "prime_field_gmp",
     hdrs = ["prime_field_gmp.h"],
+    defines = ["TACHYON_GMP_BACKEND"],
     deps = [
         ":prime_field_base",
         "//tachyon/base:no_destructor",
@@ -143,6 +145,6 @@ tachyon_cuda_test(
 tachyon_cc_benchmark(
     name = "finite_field_mul_benchmark",
     size = "small",
-    srcs = ["finite_field_mul_benchmark.cc"],
+    srcs = if_gmp_backend(["finite_field_mul_benchmark.cc"]),
     deps = ["//tachyon/math/elliptic_curves/bn/bn254:fq"],
 )

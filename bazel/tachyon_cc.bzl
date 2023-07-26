@@ -32,15 +32,12 @@ def tachyon_cxxopts(safe_code = True, force_exceptions = False, force_rtti = Fal
     return tachyon_copts(safe_code) + tachyon_exceptions(force_exceptions) + tachyon_rtti(force_rtti)
 
 def tachyon_cuda_defines():
-    return ["TACHYON_CUDA"]
-
-def tachyon_prime_field_defines():
-    return if_gmp_backend(["TACHYON_GMP_BACKEND"])
+    return if_cuda(["TACHYON_CUDA"])
 
 def tachyon_defines(use_cuda = False):
-    defines = tachyon_defines_component_build() + tachyon_prime_field_defines()
+    defines = tachyon_defines_component_build()
     if use_cuda:
-        defines += if_cuda(tachyon_cuda_defines())
+        defines += tachyon_cuda_defines()
     return defines
 
 def tachyon_defines_component_build():

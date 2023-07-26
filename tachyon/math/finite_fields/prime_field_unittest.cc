@@ -11,9 +11,11 @@ template <typename PrimeFieldType>
 class PrimeFieldTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
+#if defined(TACHYON_GMP_BACKEND)
     if constexpr (std::is_same_v<PrimeFieldType, GF7Gmp>) {
       PrimeFieldType::Init();
     }
+#endif  // defined(TACHYON_GMP_BACKEND)
   }
 };
 
