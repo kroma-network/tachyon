@@ -15,7 +15,7 @@ namespace tachyon {
 namespace base {
 namespace {
 
-#if defined(OS_POSIX)
+#if BUILDFLAG(IS_POSIX)
 constexpr const char* kRootPath = "/";
 constexpr const char* kSeparator = "/";
 constexpr const char* kExtensionSeparator = ".";
