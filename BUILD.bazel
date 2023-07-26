@@ -25,6 +25,11 @@ bool_flag(
     build_setting_default = False,
 )
 
+bool_flag(
+    name = "has_matplotlib",
+    build_setting_default = False,
+)
+
 config_setting(
     name = "optimized",
     values = {"compilation_mode": "opt"},
@@ -48,6 +53,11 @@ config_setting(
 config_setting(
     name = "tachyon_gmp_backend",
     flag_values = {":gmp_backend": "true"},
+)
+
+config_setting(
+    name = "tachyon_has_matplotlib",
+    flag_values = {":has_matplotlib": "true"},
 )
 
 selects.config_setting_group(

@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#if defined(TACHYON_HAS_MATPLOTLIB)
 #include "third_party/matplotlibcpp17/include/animation.h"
 #include "third_party/matplotlibcpp17/include/pyplot.h"
 
@@ -31,3 +32,11 @@ int main() {
 
   plt.show();
 }
+#else
+#include <iostream>
+
+int main() {
+  std::cerr << "Please build with --//:tachyon_has_matplotlib" << std::endl;
+  return 0;
+}
+#endif

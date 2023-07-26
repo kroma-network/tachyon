@@ -1,8 +1,8 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "cuda_library", "if_cuda")
 load(
     "//bazel:tachyon.bzl",
-    "if_gmp_backend",
     "if_has_exception",
+    "if_has_matplotlib",
     "if_has_rtti",
     "if_static",
 )
@@ -33,6 +33,9 @@ def tachyon_cxxopts(safe_code = True, force_exceptions = False, force_rtti = Fal
 
 def tachyon_cuda_defines():
     return if_cuda(["TACHYON_CUDA"])
+
+def tachyon_matplotlib_defines():
+    return if_has_matplotlib(["TACHYON_HAS_MATPLOTLIB"])
 
 def tachyon_defines(use_cuda = False):
     defines = tachyon_defines_component_build()
