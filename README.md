@@ -78,3 +78,19 @@ Please follow the instructions [here](https://bazel.build/install).
 
 [cuda]: https://developer.nvidia.com/cuda-toolkit
 [rocm]: https://www.amd.com/en/graphics/servers-solutions-rocm
+
+### Matplotlib
+
+### Pyenv
+
+If you are using pyenv, don't forget to add a option `--enable-shared`.
+
+```shell
+> CONFIGURE_OPTS=--enable-shared pyenv install <version>
+```
+
+### Python dependencies
+
+```shell
+> pip install matplotlib
+```

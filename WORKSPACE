@@ -23,3 +23,7 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
 # End of buildifier
+
+load("//bazel:pybind11_deps.bzl", "pybind11_deps")
+
+pybind11_deps()

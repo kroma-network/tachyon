@@ -56,6 +56,9 @@ build:windows --cxxopt=/std:c++17
 # gmp needs exception.
 build --//:has_exception
 
+# pybind needs runtime type information.
+build --//:has_rtti
+
 # Enable gmp backend for prime field.
 build:gmp_backend --//:gmp_backend
 

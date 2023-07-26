@@ -1,0 +1,7 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
+
+tachyon_cc_binary(
+    name = "plot_example",
+    srcs = ["plot_example.cc"],
+    deps = ["@com_github_soblin_matplotlibcpp17//:matplotlibcpp17"],
+)

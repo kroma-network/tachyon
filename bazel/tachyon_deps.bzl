@@ -3,12 +3,14 @@ load("//third_party/env:env_configure.bzl", "env_configure")
 load("//third_party/gmp:gmp_configure.bzl", "gmp_configure")
 load("//third_party/gpus:cuda_configure.bzl", "cuda_configure")
 load("//third_party/gpus:rocm_configure.bzl", "rocm_configure")
+load("//third_party/py:python_configure.bzl", "python_configure")
 
 def tachyon_deps():
     cuda_configure(name = "local_config_cuda")
     env_configure(name = "local_config_env")
     gmp_configure(name = "local_config_gmp")
     rocm_configure(name = "local_config_rocm")
+    python_configure(name = "local_config_python")
 
     if not native.existing_rule("bazel_skylib"):
         http_archive(
@@ -49,6 +51,15 @@ def tachyon_deps():
             urls = ["https://github.com/google/glog/archive/v0.5.0.zip"],
             patch_args = ["-p1"],
             patches = ["@kroma_network_tachyon//third_party/glog:enable_constexpr_check_op.patch"],
+        )
+
+    if not native.existing_rule("com_github_soblin_matplotlibcpp17"):
+        http_archive(
+            name = "com_github_soblin_matplotlibcpp17",
+            sha256 = "f5889241b57c6a06e9f07745c2e4062bb2c584a67756aad3dd042a65147cc830",
+            strip_prefix = "matplotlibcpp17-779f108f192a27761cae3724929850fe65de625c",
+            urls = ["https://github.com/soblin/matplotlibcpp17/archive/779f108f192a27761cae3724929850fe65de625c.tar.gz"],
+            build_file = "@kroma_network_tachyon//third_party/matplotlibcpp17:matplotlibcpp17.BUILD",
         )
 
     if not native.existing_rule("com_google_absl"):
