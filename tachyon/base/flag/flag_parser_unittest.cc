@@ -186,7 +186,7 @@ TEST(FlagParserTest, CustomParseValueCallback) {
           value = std::string(arg);
           return true;
         }
-        *reason = absl::StrFormat("%s is not either cat or dog", arg);
+        *reason = absl::Substitute("$0 is not either cat or dog", arg);
         return false;
       })
       .set_short_name("-a");

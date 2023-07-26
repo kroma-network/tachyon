@@ -57,9 +57,10 @@ struct CheckedAddOp<T,
 
     // Double the underlying type up to a full machine word.
     using FastPromotion = typename FastIntegerArithmeticPromotion<T, U>::type;
+    // NOTE(chokobole): To make it build with nvcc.
+    constexpr bool cond = IntegerBitsPlusSign<FastPromotion>::value > IntegerBitsPlusSign<intptr_t>::value;
     using Promotion =
-        typename std::conditional<(IntegerBitsPlusSign<FastPromotion>::value >
-                                   IntegerBitsPlusSign<intptr_t>::value),
+        typename std::conditional<cond,
                                   typename BigEnoughPromotion<T, U>::type,
                                   FastPromotion>::type;
     // Fail if either operand is out of range for the promoted type.
@@ -120,9 +121,10 @@ struct CheckedSubOp<T,
 
     // Double the underlying type up to a full machine word.
     using FastPromotion = typename FastIntegerArithmeticPromotion<T, U>::type;
+    // NOTE(chokobole): To make it build with nvcc.
+    constexpr bool cond = IntegerBitsPlusSign<FastPromotion>::value > IntegerBitsPlusSign<intptr_t>::value;
     using Promotion =
-        typename std::conditional<(IntegerBitsPlusSign<FastPromotion>::value >
-                                   IntegerBitsPlusSign<intptr_t>::value),
+        typename std::conditional<cond,
                                   typename BigEnoughPromotion<T, U>::type,
                                   FastPromotion>::type;
     // Fail if either operand is out of range for the promoted type.

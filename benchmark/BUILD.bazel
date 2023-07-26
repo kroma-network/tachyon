@@ -1,9 +1,23 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon.bzl", "if_has_matplotlib")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary", "tachyon_matplotlib_defines")
+load("//bazel:tachyon_cc.bzl", "tachyon_cuda_binary", "tachyon_matplotlib_defines")
 
-tachyon_cc_binary(
-    name = "plot_example",
-    srcs = ["plot_example.cc"],
+tachyon_cuda_binary(
+    name = "ec_double_benchmark",
+    srcs = ["ec_double_benchmark.cu.cc"],
     local_defines = tachyon_matplotlib_defines(),
-    deps = if_has_matplotlib(["@com_github_soblin_matplotlibcpp17//:matplotlibcpp17"]),
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/base/ranges:algorithm",
+        "//tachyon/base/time:time_interval",
+        "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu/cuda:cuda_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/short_weierstrass/kernels:elliptic_curve_ops",
+    ] + if_has_matplotlib([
+        "@com_github_soblin_matplotlibcpp17//:matplotlibcpp17",
+    ]) + if_cuda([
+        "@local_config_cuda//cuda:cuda_headers",
+    ]),
 )

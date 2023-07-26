@@ -18,7 +18,6 @@ tachyon_cc_library(
         "//tachyon/base/files:file_path",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
-        "@com_google_absl//absl/strings:str_format",
         "@com_google_googletest//:gtest_prod",
     ],
 )
