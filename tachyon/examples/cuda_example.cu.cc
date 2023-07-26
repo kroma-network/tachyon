@@ -216,10 +216,10 @@ int RealMain(int argc, char **argv) {
 
 int main(int argc, char **argv) { return tachyon::RealMain(argc, argv); }
 #else
-#include <iostream>
+#include "tachyon/base/console/iostream.h"
 
 int main(int argc, char **argv) {
-  std::cerr << "please build with --config cuda" << std::endl;
+  tachyon_cerr << "please build with --config cuda" << std::endl;
   return 1;
 }
 #endif  // TACHYON_CUDA
