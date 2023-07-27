@@ -10,10 +10,10 @@ namespace tachyon {
 namespace math {
 
 template <typename BaseInputIterator, typename ScalarInputIterator,
-          typename JacobianPoint, typename ScalarField>
+          typename PointTy, typename ScalarField>
 inline constexpr bool IsAbleToMSM =
-    std::is_same_v<JacobianPoint, base::iter_value_t<BaseInputIterator>> &&
-    std::is_same_v<ScalarField, base::iter_value_t<ScalarInputIterator>>;
+    std::is_same_v<PointTy, base::iter_value_t<BaseInputIterator>>&&
+        std::is_same_v<ScalarField, base::iter_value_t<ScalarInputIterator>>;
 
 /// The result of this function is only approximately `ln(a)`
 /// [`Explanation of usage`]

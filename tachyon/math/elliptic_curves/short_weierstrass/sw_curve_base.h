@@ -76,6 +76,26 @@ class SWCurveBase {
                std::begin(std::forward<ScalarContainer>(scalars)),
                std::end(std::forward<ScalarContainer>(scalars)));
   }
+
+  template <typename BaseInputIterator, typename ScalarInputIterator,
+            std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
+                                         PointXYZZTy, ScalarField>>* = nullptr>
+  static PointXYZZTy MSM(BaseInputIterator bases_first,
+                         BaseInputIterator bases_last,
+                         ScalarInputIterator scalars_first,
+                         ScalarInputIterator scalars_last) {
+    return VariableBaseMSM<PointXYZZTy>::MSM(
+        std::move(bases_first), std::move(bases_last), std::move(scalars_first),
+        std::move(scalars_last));
+  }
+
+  template <typename BaseContainer, typename ScalarContainer>
+  static PointXYZZTy MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
+    return MSM(std::begin(std::forward<BaseContainer>(bases)),
+               std::end(std::forward<BaseContainer>(bases)),
+               std::begin(std::forward<ScalarContainer>(scalars)),
+               std::end(std::forward<ScalarContainer>(scalars)));
+  }
 };
 
 }  // namespace math
