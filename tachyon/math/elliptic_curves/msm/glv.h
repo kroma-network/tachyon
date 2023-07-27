@@ -15,6 +15,16 @@
 namespace tachyon {
 namespace math {
 
+template <typename PointTy>
+struct GLVTraits {
+  using ReturnType = PointTy;
+};
+
+template <typename Config>
+struct GLVTraits<AffinePoint<Config>> {
+  using ReturnType = JacobianPoint<Config>;
+};
+
 template <typename Curve>
 class GLV {
  public:
@@ -94,15 +104,18 @@ class GLV {
     return {SignedValue<mpz_class>(k1), SignedValue<mpz_class>(k2)};
   }
 
-  template <typename Point>
-  static JacobianPointTy Mul(const Point& p, const ScalarField& k) {
+  template <typename PointTy,
+            typename ReturnTy = typename GLVTraits<PointTy>::ReturnType>
+  static ReturnTy Mul(const PointTy& p, const ScalarField& k) {
     CoefficientDecompositionResult result = Decompose(k);
 
-    Point b1 = p;
-    Point b2;
-    if constexpr (std::is_same_v<Point, JacobianPointTy>) {
+    PointTy b1 = p;
+    PointTy b2;
+    if constexpr (std::is_same_v<PointTy, ProjectivePointTy>) {
+      b2 = EndomorphismProjective(p);
+    } else if constexpr (std::is_same_v<PointTy, JacobianPointTy>) {
       b2 = EndomorphismJacobian(p);
-    } else if constexpr (std::is_same_v<Point, PointXYZZTy>) {
+    } else if constexpr (std::is_same_v<PointTy, PointXYZZTy>) {
       b2 = EndomorphismXYZZ(p);
     } else {
       b2 = EndomorphismAffine(p);
@@ -115,13 +128,13 @@ class GLV {
       b2.NegInPlace();
     }
 
-    JacobianPointTy b1b2 = b1 + b2;
+    ReturnTy b1b2 = b1 + b2;
 
     auto k1_begin = BitIteratorBE<mpz_class>::begin(&result.k1.abs_value);
     auto k1_end = BitIteratorBE<mpz_class>::end(&result.k1.abs_value);
     auto k2_begin = BitIteratorBE<mpz_class>::begin(&result.k2.abs_value);
 
-    JacobianPointTy ret = JacobianPointTy::Zero();
+    ReturnTy ret = ReturnTy::Zero();
     bool skip_zeros = true;
     auto k1_it = k1_begin;
     auto k2_it = k2_begin;

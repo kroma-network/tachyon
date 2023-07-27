@@ -12,6 +12,7 @@ namespace {
 using Config = bls12_381::G1CurveConfig<bls12_381::FqGmp, bls12_381::FrGmp>;
 using Curve = SWCurve<Config>;
 
+template <typename PointTy>
 class GLVTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
@@ -22,14 +23,31 @@ class GLVTest : public testing::Test {
 
 }  // namespace
 
-TEST_F(GLVTest, Endomorphism) {
+using PointTypes =
+    testing::Types<bls12_381::G1AffinePointGmp, bls12_381::G1ProjectivePointGmp,
+                   bls12_381::G1JacobianPointGmp, bls12_381::G1PointXYZZGmp>;
+TYPED_TEST_SUITE(GLVTest, PointTypes);
+
+TYPED_TEST(GLVTest, Endomorphism) {
+  using PointTy = TypeParam;
+
   EXPECT_TRUE(GLV<Curve>::EndomorphismCoefficient().Pow(BigInt<1>(3)).IsOne());
-  bls12_381::G1JacobianPointGmp base = bls12_381::G1JacobianPointGmp::Random();
-  EXPECT_EQ(base.ScalarMul(GLV<Curve>::Lambda().ToBigInt()),
-            GLV<Curve>::EndomorphismJacobian(base));
+  PointTy base = PointTy::Random();
+
+  PointTy expected;
+  auto lambda = GLV<Curve>::Lambda().ToBigInt();
+  if constexpr (std::is_same_v<PointTy, bls12_381::G1AffinePointGmp>) {
+    expected = base.ToJacobian().ScalarMul(lambda).ToAffine();
+  } else {
+    expected = base.ScalarMul(lambda);
+  }
+  EXPECT_EQ(expected, PointTy::Endomorphism(base));
 }
 
-TEST_F(GLVTest, Decompose) {
+TEST(GLVTestDecompose, Decompose) {
+  Curve::Init();
+  GLV<Curve>::Init();
+
   bls12_381::FrGmp scalar = bls12_381::FrGmp::Random();
   auto result = GLV<Curve>::Decompose(scalar);
   bls12_381::FrGmp k1(result.k1.abs_value);
@@ -43,13 +61,19 @@ TEST_F(GLVTest, Decompose) {
   EXPECT_EQ(scalar, k1 + GLV<Curve>::Lambda() * k2);
 }
 
-TEST_F(GLVTest, Mul) {
-  bls12_381::G1JacobianPointGmp base = bls12_381::G1JacobianPointGmp::Random();
-  bls12_381::FrGmp scalar = bls12_381::FrGmp::Random();
-  EXPECT_EQ(GLV<Curve>::Mul(base, scalar), base.ScalarMul(scalar.ToBigInt()));
+TYPED_TEST(GLVTest, Mul) {
+  using PointTy = TypeParam;
+  using PointRetTy = typename GLVTraits<PointTy>::ReturnType;
 
-  EXPECT_EQ(GLV<Curve>::Mul(base.ToAffine(), scalar),
-            base.ScalarMul(scalar.ToBigInt()));
+  PointTy base = PointTy::Random();
+  bls12_381::FrGmp scalar = bls12_381::FrGmp::Random();
+  PointRetTy expected;
+  if constexpr (std::is_same_v<PointTy, bls12_381::G1AffinePointGmp>) {
+    expected = base.ToJacobian().ScalarMul(scalar.ToBigInt());
+  } else {
+    expected = base.ScalarMul(scalar.ToBigInt());
+  }
+  EXPECT_EQ(GLV<Curve>::Mul(base, scalar), expected);
 }
 
 }  // namespace math
