@@ -80,7 +80,7 @@
 // Include a system header to pull in features.h for glibc/uclibc macros.
 #include <assert.h>
 #if defined(__GLIBC__) && !defined(__UCLIBC__)
-// we really are using glibc, not uClibc pretending to be glibc
+// We really are using glibc, not uClibc pretending to be glibc.
 #define LIBC_GLIBC 1
 #endif
 #elif defined(_WIN32)
@@ -100,7 +100,7 @@
 #elif defined(_AIX)
 #define OS_AIX 1
 #elif defined(__asmjs__) || defined(__wasm__)
-#define OS_ASMJS
+#define OS_ASMJS 1
 #elif defined(__MVS__)
 #define OS_ZOS 1
 #else
@@ -119,10 +119,11 @@
 
 // For access to standard POSIXish features, use OS_POSIX instead of a
 // more specific macro.
-#if defined(OS_AIX) || defined(OS_ANDROID) || defined(OS_ASMJS) ||    \
-    defined(OS_FREEBSD) || defined(OS_LINUX) || defined(OS_MACOSX) || \
-    defined(OS_NACL) || defined(OS_NETBSD) || defined(OS_OPENBSD) ||  \
-    defined(OS_QNX) || defined(OS_SOLARIS)
+#if defined(OS_AIX) || defined(OS_ANDROID) || defined(OS_ASMJS) ||  \
+    defined(OS_FREEBSD) || defined(OS_IOS) || defined(OS_LINUX) ||  \
+    defined(OS_CHROMEOS) || defined(OS_MAC) || defined(OS_NACL) ||  \
+    defined(OS_NETBSD) || defined(OS_OPENBSD) || defined(OS_QNX) || \
+    defined(OS_SOLARIS) || defined(OS_ZOS)
 #define OS_POSIX 1
 #endif
 
@@ -302,9 +303,6 @@
 #define ARCH_CPU_64_BITS 1
 #define ARCH_CPU_LITTLE_ENDIAN 1
 #elif defined(__pnacl__) || defined(__asmjs__) || defined(__wasm__)
-#define ARCH_CPU_32_BITS 1
-#define ARCH_CPU_LITTLE_ENDIAN 1
-#elif defined(__asmjs__) || defined(__wasm__)
 #define ARCH_CPU_32_BITS 1
 #define ARCH_CPU_LITTLE_ENDIAN 1
 #elif defined(__MIPSEL__)
