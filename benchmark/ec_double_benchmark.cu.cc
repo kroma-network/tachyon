@@ -1,8 +1,11 @@
 #if TACHYON_CUDA
 #include <iostream>
 
-#include "third_party/matplotlibcpp17/include/animation.h"
+#if defined(TACHYON_HAS_MATPLOTLIB)
 #include "third_party/matplotlibcpp17/include/pyplot.h"
+
+using namespace matplotlibcpp17;
+#endif  // defined(TACHYON_HAS_MATPLOTLIB)
 
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/flag/flag_parser.h"
@@ -12,8 +15,6 @@
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
-
-using namespace matplotlibcpp17;
 
 namespace tachyon {
 
