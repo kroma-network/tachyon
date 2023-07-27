@@ -5,27 +5,28 @@
 namespace tachyon {
 namespace math {
 
-template <typename IntegerType>
+template <typename NumType>
 class SignTest : public testing::Test {};
 
-using IntegerTypes = testing::Types<int, unsigned int, double>;
-TYPED_TEST_SUITE(SignTest, IntegerTypes);
+using NumTypes = testing::Types<int, unsigned int, double>;
+TYPED_TEST_SUITE(SignTest, NumTypes);
 
 TYPED_TEST(SignTest, GetSign) {
-  EXPECT_EQ(GetSign(TypeParam(0)), Sign::kZero);
-  EXPECT_EQ(GetSign(TypeParam(1)), Sign::kPositive);
-  if constexpr (std::is_signed_v<TypeParam>) {
-    EXPECT_EQ(GetSign(TypeParam(-1)), Sign::kNegative);
+  using NumType = TypeParam;
+
+  EXPECT_EQ(GetSign(NumType(0)), Sign::kZero);
+  EXPECT_EQ(GetSign(NumType(1)), Sign::kPositive);
+  if constexpr (std::is_signed_v<NumType>) {
+    EXPECT_EQ(GetSign(NumType(-1)), Sign::kNegative);
   }
-  if constexpr (std::is_floating_point_v<TypeParam>) {
-    EXPECT_EQ(GetSign(TypeParam(std::numeric_limits<TypeParam>::quiet_NaN())),
+  if constexpr (std::is_floating_point_v<NumType>) {
+    EXPECT_EQ(GetSign(NumType(std::numeric_limits<NumType>::quiet_NaN())),
               Sign::kNaN);
-    EXPECT_EQ(
-        GetSign(TypeParam(std::numeric_limits<TypeParam>::signaling_NaN())),
-        Sign::kNaN);
-    EXPECT_EQ(GetSign(TypeParam(std::numeric_limits<TypeParam>::infinity())),
+    EXPECT_EQ(GetSign(NumType(std::numeric_limits<NumType>::signaling_NaN())),
+              Sign::kNaN);
+    EXPECT_EQ(GetSign(NumType(std::numeric_limits<NumType>::infinity())),
               Sign::kPositive);
-    EXPECT_EQ(GetSign(TypeParam(-std::numeric_limits<TypeParam>::infinity())),
+    EXPECT_EQ(GetSign(NumType(-std::numeric_limits<NumType>::infinity())),
               Sign::kNegative);
   }
 }

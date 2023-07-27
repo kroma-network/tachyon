@@ -69,25 +69,27 @@ using PrimeFiledTypes = testing::Types<bn254::Fq, FqCudaDebug>;
 TYPED_TEST_SUITE(PrimeFieldCorrectnessTest, PrimeFiledTypes);
 
 TYPED_TEST(PrimeFieldCorrectnessTest, MontgomeryForm) {
+  using F = TypeParam;
+
   for (size_t i = 0; i < kTestNum; ++i) {
-    const bn254::FqGmp& a_gmp =
-        PrimeFieldCorrectnessTest<TypeParam>::a_gmps_[i];
-    const TypeParam& a = PrimeFieldCorrectnessTest<TypeParam>::as_[i];
+    const bn254::FqGmp& a_gmp = PrimeFieldCorrectnessTest<F>::a_gmps_[i];
+    const F& a = PrimeFieldCorrectnessTest<F>::as_[i];
 
     SCOPED_TRACE(absl::Substitute("a: $0", a_gmp.ToString()));
     bn254::FqGmp a_gmp_mont =
-        a_gmp * PrimeFieldCorrectnessTest<TypeParam>::kMontgomeryRGmp;
+        a_gmp * PrimeFieldCorrectnessTest<F>::kMontgomeryRGmp;
     ASSERT_EQ(a_gmp_mont.ToBigInt(), a.value());
   }
 }
 
 TYPED_TEST(PrimeFieldCorrectnessTest, AdditiveOperators) {
+  using F = TypeParam;
+
   for (size_t i = 0; i < kTestNum; ++i) {
-    bn254::FqGmp a_gmp = PrimeFieldCorrectnessTest<TypeParam>::a_gmps_[i];
-    const bn254::FqGmp& b_gmp =
-        PrimeFieldCorrectnessTest<TypeParam>::b_gmps_[i];
-    TypeParam a = PrimeFieldCorrectnessTest<TypeParam>::as_[i];
-    const TypeParam& b = PrimeFieldCorrectnessTest<TypeParam>::bs_[i];
+    bn254::FqGmp a_gmp = PrimeFieldCorrectnessTest<F>::a_gmps_[i];
+    const bn254::FqGmp& b_gmp = PrimeFieldCorrectnessTest<F>::b_gmps_[i];
+    F a = PrimeFieldCorrectnessTest<F>::as_[i];
+    const F& b = PrimeFieldCorrectnessTest<F>::bs_[i];
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", a_gmp.ToString(), b_gmp.ToString()));
 
@@ -104,9 +106,11 @@ TYPED_TEST(PrimeFieldCorrectnessTest, AdditiveOperators) {
 }
 
 TYPED_TEST(PrimeFieldCorrectnessTest, AdditiveGroupOperators) {
+  using F = TypeParam;
+
   for (size_t i = 0; i < kTestNum; ++i) {
-    bn254::FqGmp a_gmp = PrimeFieldCorrectnessTest<TypeParam>::a_gmps_[i];
-    TypeParam a = PrimeFieldCorrectnessTest<TypeParam>::as_[i];
+    bn254::FqGmp a_gmp = PrimeFieldCorrectnessTest<F>::a_gmps_[i];
+    F a = PrimeFieldCorrectnessTest<F>::as_[i];
     SCOPED_TRACE(absl::Substitute("a: $0", a_gmp.ToString()));
 
     ASSERT_EQ(a.Negative().ToBigInt(), a_gmp.Negative().ToBigInt());
@@ -122,17 +126,18 @@ TYPED_TEST(PrimeFieldCorrectnessTest, AdditiveGroupOperators) {
 }
 
 TYPED_TEST(PrimeFieldCorrectnessTest, MultiplicativeOperators) {
+  using F = TypeParam;
+
   for (size_t i = 0; i < kTestNum; ++i) {
-    bn254::FqGmp a_gmp = PrimeFieldCorrectnessTest<TypeParam>::a_gmps_[i];
-    const bn254::FqGmp& b_gmp =
-        PrimeFieldCorrectnessTest<TypeParam>::b_gmps_[i];
-    TypeParam a = PrimeFieldCorrectnessTest<TypeParam>::as_[i];
-    const TypeParam& b = PrimeFieldCorrectnessTest<TypeParam>::bs_[i];
+    bn254::FqGmp a_gmp = PrimeFieldCorrectnessTest<F>::a_gmps_[i];
+    const bn254::FqGmp& b_gmp = PrimeFieldCorrectnessTest<F>::b_gmps_[i];
+    F a = PrimeFieldCorrectnessTest<F>::as_[i];
+    const F& b = PrimeFieldCorrectnessTest<F>::bs_[i];
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", a_gmp.ToString(), b_gmp.ToString()));
 
     ASSERT_EQ((a * b).ToBigInt(), (a_gmp * b_gmp).ToBigInt());
-    if constexpr (std::is_same_v<TypeParam, bn254::Fq>) {
+    if constexpr (std::is_same_v<F, bn254::Fq>) {
       a.FastMulInPlace(b);
       a_gmp *= b_gmp;
       ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
@@ -153,9 +158,11 @@ TYPED_TEST(PrimeFieldCorrectnessTest, MultiplicativeOperators) {
 }
 
 TYPED_TEST(PrimeFieldCorrectnessTest, MultiplicativeGroupOperators) {
+  using F = TypeParam;
+
   for (size_t i = 0; i < kTestNum; ++i) {
-    bn254::FqGmp a_gmp = PrimeFieldCorrectnessTest<TypeParam>::a_gmps_[i];
-    TypeParam a = PrimeFieldCorrectnessTest<TypeParam>::as_[i];
+    bn254::FqGmp a_gmp = PrimeFieldCorrectnessTest<F>::a_gmps_[i];
+    F a = PrimeFieldCorrectnessTest<F>::as_[i];
     SCOPED_TRACE(absl::Substitute("a: $0", a_gmp.ToString()));
 
     ASSERT_EQ(a.Inverse().ToBigInt(), a_gmp.Inverse().ToBigInt());
@@ -171,11 +178,13 @@ TYPED_TEST(PrimeFieldCorrectnessTest, MultiplicativeGroupOperators) {
 }
 
 TYPED_TEST(PrimeFieldCorrectnessTest, SumOfProducts) {
-  const auto& as = PrimeFieldCorrectnessTest<TypeParam>::as_;
-  const auto& bs = PrimeFieldCorrectnessTest<TypeParam>::bs_;
-  const auto& a_gmps = PrimeFieldCorrectnessTest<TypeParam>::a_gmps_;
-  const auto& b_gmps = PrimeFieldCorrectnessTest<TypeParam>::b_gmps_;
-  ASSERT_EQ(TypeParam::SumOfProducts(as, bs).ToBigInt(),
+  using F = TypeParam;
+
+  const auto& as = PrimeFieldCorrectnessTest<F>::as_;
+  const auto& bs = PrimeFieldCorrectnessTest<F>::bs_;
+  const auto& a_gmps = PrimeFieldCorrectnessTest<F>::a_gmps_;
+  const auto& b_gmps = PrimeFieldCorrectnessTest<F>::b_gmps_;
+  ASSERT_EQ(F::SumOfProducts(as, bs).ToBigInt(),
             bn254::FqGmp::SumOfProducts(a_gmps, b_gmps).ToBigInt());
 }
 
