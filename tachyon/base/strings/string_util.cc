@@ -95,9 +95,7 @@ bool ConsumeSuffix(std::string_view* str, std::string_view search_for,
   return false;
 }
 
-bool ConsumePrefix0x(std::string_view* str) {
-  return ConsumePrefix(str, k0x);
-}
+bool ConsumePrefix0x(std::string_view* str) { return ConsumePrefix(str, k0x); }
 
 std::string MaybePrepend0x(std::string_view str) {
   return DoMaybePrepend0x(str);

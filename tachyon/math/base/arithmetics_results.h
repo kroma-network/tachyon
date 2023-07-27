@@ -16,7 +16,9 @@ struct AddResult {
   constexpr bool operator==(const AddResult& other) const {
     return result == other.result && carry == other.carry;
   }
-  constexpr bool operator!=(const AddResult& other) const { return !operator==(other); }
+  constexpr bool operator!=(const AddResult& other) const {
+    return !operator==(other);
+  }
 
   std::string ToString() const {
     return absl::Substitute("($0, $1)", result.ToString(), carry.ToString());
@@ -36,7 +38,9 @@ struct SubResult {
   constexpr bool operator==(const SubResult& other) const {
     return result == other.result && borrow == other.borrow;
   }
-  constexpr bool operator!=(const SubResult& other) const { return !operator==(other); }
+  constexpr bool operator!=(const SubResult& other) const {
+    return !operator==(other);
+  }
 
   std::string ToString() const {
     return absl::Substitute("($0, $1)", result.ToString(), borrow.ToString());
@@ -56,7 +60,9 @@ struct MulResult {
   constexpr bool operator==(const MulResult& other) const {
     return hi == other.hi && lo == other.lo;
   }
-  constexpr bool operator!=(const MulResult& other) const { return !operator==(other); }
+  constexpr bool operator!=(const MulResult& other) const {
+    return !operator==(other);
+  }
 
   std::string ToString() const {
     return absl::Substitute("($0, $1)", hi.ToString(), lo.ToString());
@@ -76,7 +82,9 @@ struct DivResult {
   constexpr bool operator==(const DivResult& other) const {
     return quotient == other.quotient && remainder == other.remainder;
   }
-  constexpr bool operator!=(const DivResult& other) const { return !operator==(other); }
+  constexpr bool operator!=(const DivResult& other) const {
+    return !operator==(other);
+  }
 
   std::string ToString() const {
     return absl::Substitute("($0, $1)", quotient.ToString(),

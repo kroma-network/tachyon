@@ -21,20 +21,14 @@ namespace base {
 // Note: there is no std::erase for standard associative containers so we don't
 // have it either.
 
-template <class Key,
-          class Hash,
-          class KeyEqual,
-          class Allocator,
+template <class Key, class Hash, class KeyEqual, class Allocator,
           class Predicate>
 size_t EraseIf(std::unordered_set<Key, Hash, KeyEqual, Allocator>& container,
                Predicate pred) {
   return internal::IterateAndEraseIf(container, pred);
 }
 
-template <class Key,
-          class Hash,
-          class KeyEqual,
-          class Allocator,
+template <class Key, class Hash, class KeyEqual, class Allocator,
           class Predicate>
 size_t EraseIf(
     std::unordered_multiset<Key, Hash, KeyEqual, Allocator>& container,

@@ -125,9 +125,7 @@ TEST(FlagParserTest, PositionalArgumtens) {
   uint16_t value2;
   parser.AddFlag<Uint16Flag>(&value).set_name("flag");
   parser.AddFlag<Uint16Flag>(&value2).set_name("flag2");
-  {
-    EXPECT_PARSE_FALSE("program", "12");
-  }
+  { EXPECT_PARSE_FALSE("program", "12"); }
   { EXPECT_PARSE_TRUE("program", "12", "34"); }
   EXPECT_EQ(value, 12);
   EXPECT_EQ(value2, 34);

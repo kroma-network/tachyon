@@ -10,8 +10,10 @@ class QuadraticExtensionField {
   using BaseField = F;
 
   constexpr QuadraticExtensionField() = default;
-  constexpr QuadraticExtensionField(const BaseField& c0, const BaseField& c1): c0_(c0), c1_(c1) {}
-  constexpr QuadraticExtensionField(BaseField&& c0, BaseField&& c1): c0_(std::move(c0)), c1_(std::move(c1)) {}
+  constexpr QuadraticExtensionField(const BaseField& c0, const BaseField& c1)
+      : c0_(c0), c1_(c1) {}
+  constexpr QuadraticExtensionField(BaseField&& c0, BaseField&& c1)
+      : c0_(std::move(c0)), c1_(std::move(c1)) {}
 
   QuadraticExtensionField& ConjugateInPlace() {
     c1_.NegInPlace();

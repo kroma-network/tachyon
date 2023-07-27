@@ -35,7 +35,8 @@ TEST(Point4Test, EqualityOperators) {
 }
 
 TEST(Point4Test, ToString) {
-  EXPECT_EQ(Point4GF7(GF7(1), GF7(2), GF7(3), GF7(4)).ToString(), "(1, 2, 3, 4)");
+  EXPECT_EQ(Point4GF7(GF7(1), GF7(2), GF7(3), GF7(4)).ToString(),
+            "(1, 2, 3, 4)");
 }
 
 }  // namespace math

@@ -33,11 +33,11 @@
  * of the programming guide with some additions like error checking.
  */
 
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #if TACHYON_CUDA
 // For the CUDA runtime routines (prefixed with "cuda_")
