@@ -23,8 +23,9 @@ namespace {
 std::vector<math::bn254::G1JacobianPoint> CreateRandomPoints(size_t nums) {
   std::vector<math::bn254::G1JacobianPoint> ret;
   ret.reserve(nums);
+  math::bn254::G1JacobianPoint p = math::bn254::G1JacobianPoint::Curve::Generator();
   for (size_t i = 0; i < nums; ++i) {
-    ret.push_back(math::bn254::G1JacobianPoint::Random());
+    ret.push_back(p.DoubleInPlace());
   }
   return ret;
 }
@@ -72,6 +73,7 @@ int RealMain(int argc, char** argv) {
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {
     tachyon_cerr << error << std::endl;
+    return 1;
   }
 
   math::bn254::G1AffinePointCuda::Curve::Init();
