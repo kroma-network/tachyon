@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
 namespace tachyon {
@@ -28,8 +29,11 @@ TYPED_TEST_SUITE(AffinePointTest, AffinePointTypes);
 
 TYPED_TEST(AffinePointTest, Zero) {
   using AffinePointTy = TypeParam;
+  using BaseField = typename AffinePointTy::BaseField;
 
   EXPECT_TRUE(AffinePointTy::Zero().infinity());
+  EXPECT_TRUE(AffinePointTy::Zero().IsZero());
+  EXPECT_FALSE(AffinePointTy(BaseField(1), BaseField(2)).IsZero());
 }
 
 TYPED_TEST(AffinePointTest, Montgomery) {
@@ -89,6 +93,16 @@ TYPED_TEST(AffinePointTest, AdditiveGroupOperators) {
   EXPECT_EQ(ap + jp, jp4);
   EXPECT_EQ(ap - jp3, -jp2);
   EXPECT_EQ(ap - jp4, -jp);
+
+  EXPECT_EQ(ap.Double(), jp4);
+  EXPECT_EQ(ap.DoubleXYZZ(), ap4.ToXYZZ());
+
+  EXPECT_EQ(ap.Negative(), AffinePointTy(BaseField(5), BaseField(2)));
+  {
+    AffinePointTy ap_tmp = ap;
+    ap_tmp.NegInPlace();
+    EXPECT_EQ(ap_tmp, AffinePointTy(BaseField(5), BaseField(2)));
+  }
 }
 
 TYPED_TEST(AffinePointTest, ToJacobian) {
@@ -96,10 +110,21 @@ TYPED_TEST(AffinePointTest, ToJacobian) {
   using JacobianPointTy = typename AffinePointTy::JacobianPointTy;
   using BaseField = typename AffinePointTy::BaseField;
 
-  EXPECT_EQ(AffinePointTy::Identity().ToJacobian(), JacobianPointTy::Zero());
+  EXPECT_EQ(AffinePointTy::Zero().ToJacobian(), JacobianPointTy::Zero());
   AffinePointTy p(BaseField(3), BaseField(2));
   EXPECT_EQ(p.ToJacobian(),
             JacobianPointTy(BaseField(3), BaseField(2), BaseField(1)));
+}
+
+TYPED_TEST(AffinePointTest, ToPointXYZZ) {
+  using AffinePointTy = TypeParam;
+  using PointXYZZTy = typename AffinePointTy::PointXYZZTy;
+  using BaseField = typename AffinePointTy::BaseField;
+
+  EXPECT_EQ(AffinePointTy::Zero().ToXYZZ(), PointXYZZTy::Zero());
+  AffinePointTy p(BaseField(3), BaseField(2));
+  EXPECT_EQ(p.ToXYZZ(), PointXYZZTy(BaseField(3), BaseField(2), BaseField(1),
+                                    BaseField(1)));
 }
 
 TYPED_TEST(AffinePointTest, IsOnCurve) {

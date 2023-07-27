@@ -12,6 +12,7 @@
 #include "tachyon/math/elliptic_curves/curve_config.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/glv.h"
+#include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 #include "tachyon/math/geometry/point2.h"
 
@@ -26,6 +27,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
   using JacobianPointTy = JacobianPoint<Curve>;
+  using PointXYZZTy = PointXYZZ<Curve>;
 
   constexpr AffinePoint()
       : AffinePoint(BaseField::Zero(), BaseField::Zero(), true) {}
@@ -35,19 +37,18 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   constexpr AffinePoint(BaseField&& x, BaseField&& y, bool infinity = false)
       : x_(std::move(x)), y_(std::move(y)), infinity_(infinity) {}
 
-  static AffinePoint CreateChecked(const BaseField& x, const BaseField& y) {
+  constexpr static AffinePoint CreateChecked(const BaseField& x,
+                                             const BaseField& y) {
     AffinePoint ret = {x, y};
     CHECK(IsOnCurve(ret));
     return ret;
   }
 
-  static AffinePoint CreateChecked(BaseField&& x, BaseField&& y) {
+  constexpr static AffinePoint CreateChecked(BaseField&& x, BaseField&& y) {
     AffinePoint ret = {std::move(x), std::move(y)};
     CHECK(IsOnCurve(ret));
     return ret;
   }
-
-  constexpr static AffinePoint Identity() { return AffinePoint(); }
 
   constexpr static AffinePoint Zero() { return AffinePoint(); }
 
@@ -55,19 +56,22 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     return point.ToAffine();
   }
 
+  constexpr static AffinePoint FromXYZZ(const PointXYZZ<Curve>& point) {
+    return point.ToAffine();
+  }
+
   constexpr static AffinePoint FromMontgomery(
       const Point2<typename BaseField::BigIntTy>& point) {
-    return AffinePoint(BaseField::FromMontgomery(point.x),
-                       BaseField::FromMontgomery(point.y));
+    return {BaseField::FromMontgomery(point.x),
+            BaseField::FromMontgomery(point.y)};
   }
 
   constexpr static AffinePoint Random() {
     return FromJacobian(JacobianPoint<Curve>::Random());
   }
 
-  static bool IsOnCurve(const AffinePoint& p) {
-    if (p.infinity_) return true;
-    return Curve::IsOnCurve(p.x_, p.y_);
+  constexpr static bool IsOnCurve(const AffinePoint& p) {
+    return Curve::IsOnCurve(p);
   }
 
   template <
@@ -96,7 +100,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
                std::end(std::forward<ScalarContainer>(scalars)));
   }
 
-  constexpr static AffinePoint EndomorphismAffine(const AffinePoint& point) {
+  constexpr static AffinePoint Endomorphism(const AffinePoint& point) {
     return AffinePoint(point.x_ * GLV<Curve>::EndomorphismCoefficient(),
                        point.y_);
   }
@@ -121,9 +125,16 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     return !operator==(other);
   }
 
+  constexpr bool IsZero() const { return infinity_; }
+
   constexpr JacobianPoint<Curve> ToJacobian() const {
     if (infinity_) return JacobianPoint<Curve>::Zero();
     return {x_, y_, BaseField::One()};
+  }
+
+  constexpr PointXYZZ<Curve> ToXYZZ() const {
+    if (infinity_) return PointXYZZ<Curve>::Zero();
+    return {x_, y_, BaseField::One(), BaseField::One()};
   }
 
   constexpr Point2<typename BaseField::BigIntTy> ToMontgomery() const {
@@ -135,23 +146,19 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   // AdditiveSemigroup methods
-  template <typename U>
-  constexpr JacobianPoint<Curve> Add(const U& other) const {
-    JacobianPoint<Curve> point = ToJacobian();
-    return point + other;
+  constexpr JacobianPoint<Curve> Add(const AffinePoint& other) const {
+    return ToJacobian() + other.ToJacobian();
   }
-
-  // AdditiveGroup methods
-  template <typename U>
-  constexpr JacobianPoint<Curve> Sub(const U& other) const {
-    JacobianPoint<Curve> point = ToJacobian();
-    return point - other;
+  constexpr JacobianPoint<Curve> Add(const JacobianPoint<Curve>& other) const {
+    return ToJacobian() + other;
   }
 
   constexpr AffinePoint& NegInPlace() {
     y_.NegInPlace();
     return *this;
   }
+
+  constexpr PointXYZZ<Curve> DoubleXYZZ() const;
 
  private:
   BaseField x_;
@@ -161,5 +168,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
 }  // namespace math
 }  // namespace tachyon
+
+#include "tachyon/math/elliptic_curves/short_weierstrass/affine_point_impl.h"
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_AFFINE_POINT_H_

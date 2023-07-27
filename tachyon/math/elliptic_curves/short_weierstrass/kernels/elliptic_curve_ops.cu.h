@@ -7,6 +7,7 @@
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 
 namespace tachyon {
 namespace math {
@@ -21,8 +22,9 @@ namespace kernels {
     result[gid] = x[gid] operator y[gid];                                      \
   }
 
-DEFINE_FIELD_OP(Add, +, JacobianPoint, JacobianPoint)
 DEFINE_FIELD_OP(Add, +, AffinePoint, JacobianPoint)
+DEFINE_FIELD_OP(Add, +, JacobianPoint, JacobianPoint)
+DEFINE_FIELD_OP(Add, +, PointXYZZ, PointXYZZ)
 
 #undef DEFINE_FIELD_OP
 
@@ -35,10 +37,12 @@ DEFINE_FIELD_OP(Add, +, AffinePoint, JacobianPoint)
     result[gid] = x[gid] operator y[gid];                              \
   }
 
-DEFINE_COMPARISON_OP(Eq, ==, JacobianPoint)
-DEFINE_COMPARISON_OP(Ne, !=, JacobianPoint)
 DEFINE_COMPARISON_OP(Eq, ==, AffinePoint)
 DEFINE_COMPARISON_OP(Ne, !=, AffinePoint)
+DEFINE_COMPARISON_OP(Eq, ==, JacobianPoint)
+DEFINE_COMPARISON_OP(Ne, !=, JacobianPoint)
+DEFINE_COMPARISON_OP(Eq, ==, PointXYZZ)
+DEFINE_COMPARISON_OP(Ne, !=, PointXYZZ)
 
 #undef DEFINE_COMPARISON_OP
 
@@ -51,10 +55,12 @@ DEFINE_COMPARISON_OP(Ne, !=, AffinePoint)
     result[gid] = x[gid].method();                                            \
   }
 
-DEFINE_UNARY_OP(Double, JacobianPoint, JacobianPoint)
 DEFINE_UNARY_OP(Double, AffinePoint, JacobianPoint)
-DEFINE_UNARY_OP(Negative, JacobianPoint, JacobianPoint)
+DEFINE_UNARY_OP(Double, JacobianPoint, JacobianPoint)
+DEFINE_UNARY_OP(Double, PointXYZZ, PointXYZZ)
 DEFINE_UNARY_OP(Negative, AffinePoint, AffinePoint)
+DEFINE_UNARY_OP(Negative, JacobianPoint, JacobianPoint)
+DEFINE_UNARY_OP(Negative, PointXYZZ, PointXYZZ)
 
 #undef DEFINE_UNARY_OP
 

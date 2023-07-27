@@ -8,6 +8,7 @@
 #include "tachyon/math/base/gmp/signed_value.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
+#include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/matrix/matrix.h"
 
 namespace tachyon {
@@ -20,6 +21,7 @@ class GLV {
   using ScalarField = typename Curve::ScalarField;
   using AffinePointTy = AffinePoint<Curve>;
   using JacobianPointTy = JacobianPoint<Curve>;
+  using PointXYZZTy = PointXYZZ<Curve>;
 
   using Coefficients = Matrix<mpz_class, 2, 2>;
 
@@ -44,11 +46,14 @@ class GLV {
         ScalarField::FromMontgomery(Curve::Config::kGLVCoeff11).ToMpzClass());
   }
 
-  static JacobianPointTy Endomorphism(const JacobianPointTy& point) {
+  static AffinePointTy EndomorphismAffine(const AffinePointTy& point) {
+    return AffinePointTy::Endomorphism(point);
+  }
+  static JacobianPointTy EndomorphismJacobian(const JacobianPointTy& point) {
     return JacobianPointTy::Endomorphism(point);
   }
-  static AffinePointTy EndomorphismAffine(const AffinePointTy& point) {
-    return AffinePointTy::EndomorphismAffine(point);
+  static PointXYZZTy EndomorphismXYZZ(const PointXYZZTy& point) {
+    return PointXYZZTy::Endomorphism(point);
   }
 
   // Decomposes a scalar |k| into k1, k2, s.t. k = k1 + lambda k2,
@@ -90,7 +95,9 @@ class GLV {
     Point b1 = p;
     Point b2;
     if constexpr (std::is_same_v<Point, JacobianPointTy>) {
-      b2 = Endomorphism(p);
+      b2 = EndomorphismJacobian(p);
+    } else if constexpr (std::is_same_v<Point, PointXYZZTy>) {
+      b2 = EndomorphismXYZZ(p);
     } else {
       b2 = EndomorphismAffine(p);
     }

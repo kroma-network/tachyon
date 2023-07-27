@@ -4,6 +4,7 @@
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/curve_config.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
+#include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 #include "tachyon/math/finite_fields/prime_field.h"
 #include "tachyon/math/geometry/point2.h"
@@ -29,10 +30,12 @@ class CurveConfig {
 
 using AffinePoint = math::AffinePoint<SWCurve<CurveConfig<GF7, GF7>>>;
 using JacobianPoint = math::JacobianPoint<SWCurve<CurveConfig<GF7, GF7>>>;
+using PointXYZZ = math::PointXYZZ<SWCurve<CurveConfig<GF7, GF7>>>;
 #if defined(TACHYON_GMP_BACKEND)
 using AffinePointGmp = math::AffinePoint<SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>>;
 using JacobianPointGmp =
     math::JacobianPoint<SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>>;
+using PointXYZZGmp = math::PointXYZZ<SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace test

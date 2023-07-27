@@ -26,7 +26,7 @@ TEST_F(GLVTest, Endomorphism) {
   EXPECT_TRUE(GLV<Curve>::EndomorphismCoefficient().Pow(BigInt<1>(3)).IsOne());
   bls12_381::G1JacobianPointGmp base = bls12_381::G1JacobianPointGmp::Random();
   EXPECT_EQ(base.ScalarMul(GLV<Curve>::Lambda().ToBigInt()),
-            GLV<Curve>::Endomorphism(base));
+            GLV<Curve>::EndomorphismJacobian(base));
 }
 
 TEST_F(GLVTest, Decompose) {

@@ -5,6 +5,7 @@
 
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
+#include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config_traits.h"
 
 namespace tachyon {
@@ -23,13 +24,36 @@ class SWCurveBase {
       typename SWCurveConfigTraits<SWCurveConfig>::AffinePointTy;
   using JacobianPointTy =
       typename SWCurveConfigTraits<SWCurveConfig>::JacobianPointTy;
+  using PointXYZZTy = typename SWCurveConfigTraits<SWCurveConfig>::PointXYZZTy;
 
-  static bool IsOnCurve(const BaseField& x, const BaseField& y) {
-    BaseField right = x.Square() * x + SWCurveConfig::B();
+  constexpr static bool IsOnCurve(const AffinePointTy& point) {
+    if (point.infinity()) return false;
+    BaseField right = point.x().Square() * point.x() + SWCurveConfig::B();
     if (!SWCurveConfig::A().IsZero()) {
-      right += SWCurveConfig::A() * x;
+      right += SWCurveConfig::A() * point.x();
     }
-    return y.Square() == right;
+    return point.y().Square() == right;
+  }
+
+  constexpr static bool IsOnCurve(const JacobianPointTy& point) {
+    if (point.z().IsZero()) return false;
+    BaseField z3 = point.z().Square() * point.z();
+    BaseField right =
+        point.x().Square() * point.x() + SWCurveConfig::B() * z3.Square();
+    if (!SWCurveConfig::A().IsZero()) {
+      right += SWCurveConfig::A() * point.x() * z3 * point.z();
+    }
+    return point.y().Square() == right;
+  }
+
+  constexpr static bool IsOnCurve(const PointXYZZTy& point) {
+    if (point.zzz().IsZero()) return false;
+    BaseField right = point.x().Square() * point.x() +
+                      SWCurveConfig::B() * point.zzz().Square();
+    if (!SWCurveConfig::A().IsZero()) {
+      right += SWCurveConfig::A() * point.x() * point.zz().Square();
+    }
+    return point.y().Square() == right;
   }
 
   template <

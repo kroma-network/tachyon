@@ -41,6 +41,7 @@ struct SWCurveConfigTraits<SWCurve<Config>> {
   using ScalarField = typename Config::ScalarField;
   using AffinePointTy = AffinePoint<SWCurve<Config>>;
   using JacobianPointTy = JacobianPoint<SWCurve<Config>>;
+  using PointXYZZTy = PointXYZZ<SWCurve<Config>>;
 };
 
 }  // namespace math

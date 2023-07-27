@@ -16,6 +16,7 @@ class SWCurveCuda : public SWCurveBase<SWCurveCuda<_Config>> {
   using ScalarField = typename Config::ScalarField;
   using AffinePointTy = AffinePoint<SWCurveCuda<Config>>;
   using JacobianPointTy = JacobianPoint<SWCurveCuda<Config>>;
+  using PointXYZZTy = PointXYZZ<SWCurveCuda<Config>>;
 
   constexpr static bool kIsSWCurve = true;
 
@@ -47,6 +48,7 @@ struct SWCurveConfigTraits<SWCurveCuda<Config>> {
   using ScalarField = typename Config::ScalarField;
   using AffinePointTy = AffinePoint<SWCurveCuda<Config>>;
   using JacobianPointTy = JacobianPoint<SWCurveCuda<Config>>;
+  using PointXYZZTy = PointXYZZ<SWCurveCuda<Config>>;
 };
 
 }  // namespace math

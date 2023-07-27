@@ -15,6 +15,7 @@ using G1AffinePointCuda =
     AffinePoint<SWCurveCuda<G1CurveConfig<FqCuda, FrCuda>>>;
 using G1JacobianPointCuda =
     JacobianPoint<SWCurveCuda<G1CurveConfig<FqCuda, FrCuda>>>;
+using G1PointXYZZCuda = PointXYZZ<SWCurveCuda<G1CurveConfig<FqCuda, FrCuda>>>;
 #endif  // TACHYON_CUDA
 
 }  // namespace bls12_381

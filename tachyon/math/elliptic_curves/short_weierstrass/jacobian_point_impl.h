@@ -19,8 +19,6 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
   }
 
   // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
-  // Works for all curves.
-
   // Z1Z1 = Z1²
   BaseField z1z1 = z_.Square();
 
@@ -83,10 +81,13 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
     v -= x_;
     y_ = s1;
     y_.DoubleInPlace();
-    BaseField a[] = {r, y_};
-    BaseField b[] = {v, j};
-    y_ = BaseField::SumOfProducts(std::begin(a), std::end(a), std::begin(b),
-                                  std::end(b));
+    std::array<BaseField, 2> a;
+    a[0] = std::move(r);
+    a[1] = y_;
+    std::array<BaseField, 2> b;
+    b[0] = std::move(v);
+    b[1] = std::move(j);
+    y_ = BaseField::SumOfProducts(a, b);
 
     // Z3 = ((Z1 + Z2)² - Z1Z1 - Z2Z2) * H
     // This is equal to Z3 = 2 * Z1 * Z2 * H, and computing it this way is
@@ -100,12 +101,12 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
 
 template <typename Curve>
 constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
-  // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-madd-2007-bl
   if (other.infinity()) return *this;
   if (IsZero()) {
     return *this = JacobianPoint::FromAffine(other);
   }
 
+  // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-madd-2007-bl
   // Z1Z1 = Z1²
   BaseField z1z1 = z_;
   z1z1.SquareInPlace();
@@ -159,10 +160,13 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
     // Y3 = r * (V - X3) + 2 * Y1 * J
     v -= x_;
     y_.DoubleInPlace();
-    BaseField a[] = {r, y_};
-    BaseField b[] = {v, j};
-    y_ = BaseField::SumOfProducts(std::begin(a), std::end(a), std::begin(b),
-                                  std::end(b));
+    std::array<BaseField, 2> a;
+    a[0] = std::move(r);
+    a[1] = y_;
+    std::array<BaseField, 2> b;
+    b[0] = std::move(v);
+    b[1] = std::move(j);
+    y_ = BaseField::SumOfProducts(a, b);
 
     // Z3 = 2 * Z1 * H;
     // Can alternatively be computed as (Z1 + H)² - Z1Z1 - HH, but the latter is
@@ -173,13 +177,6 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
   return *this;
 }
 
-// Note that Jacobian formulae are incomplete, and so doubling cannot be
-// computed as `self + self`. Instead, this implementation uses the following
-// specialized doubling formulae:
-// clang-format off
-  // * [`Curve::A()` is zero](http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l)
-  // * [`Curve::A()` is not zero](https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-2007-bl)
-// clang-format on
 template <typename Curve>
 constexpr CLASS& CLASS::DoubleInPlace() {
   if (IsZero()) {
@@ -187,6 +184,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   }
 
   if (Curve::A().IsZero()) {
+    // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
     // A = X1²
     BaseField a = x_;
     a.SquareInPlace();
@@ -236,7 +234,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     y_ *= e;
     y_ -= c.DoubleInPlace().DoubleInPlace().DoubleInPlace();
   } else {
-    // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
+    // https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-2007-bl
     // XX = X1²
     BaseField xx = x_.Square();
 

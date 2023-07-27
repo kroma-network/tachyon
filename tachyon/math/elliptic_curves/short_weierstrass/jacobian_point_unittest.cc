@@ -4,6 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
 namespace tachyon {
@@ -31,8 +32,7 @@ TYPED_TEST(JacobianPointTest, IsZero) {
   using JacobianPointTy = TypeParam;
   using BaseField = typename JacobianPointTy::BaseField;
 
-  EXPECT_TRUE(
-      JacobianPointTy(BaseField(1), BaseField(2), BaseField(0)).IsZero());
+  EXPECT_TRUE(JacobianPointTy::Zero().IsZero());
   EXPECT_FALSE(
       JacobianPointTy(BaseField(1), BaseField(2), BaseField(1)).IsZero());
 }
@@ -120,6 +120,22 @@ TYPED_TEST(JacobianPointTest, AdditiveGroupOperators) {
   EXPECT_EQ(jp + ap, jp4);
   EXPECT_EQ(jp - jp3, -jp2);
   EXPECT_EQ(jp - jp4, -jp);
+
+  EXPECT_EQ(jp.Double(), jp4);
+  {
+    JacobianPointTy jp_tmp = jp;
+    jp_tmp.DoubleInPlace();
+    EXPECT_EQ(jp_tmp, jp4);
+  }
+
+  EXPECT_EQ(jp.Negative(),
+            JacobianPointTy(BaseField(5), BaseField(2), BaseField(1)));
+  {
+    JacobianPointTy jp_tmp = jp;
+    jp_tmp.NegInPlace();
+    EXPECT_EQ(jp_tmp,
+              JacobianPointTy(BaseField(5), BaseField(2), BaseField(1)));
+  }
 }
 
 TYPED_TEST(JacobianPointTest, ScalarMulOperator) {
@@ -145,15 +161,6 @@ TYPED_TEST(JacobianPointTest, ScalarMulOperator) {
                   AffinePointTy(BaseField(6), BaseField(5))}));
 }
 
-TYPED_TEST(JacobianPointTest, NegativeOperator) {
-  using JacobianPointTy = TypeParam;
-  using BaseField = typename JacobianPointTy::BaseField;
-
-  JacobianPointTy jp(BaseField(5), BaseField(5), BaseField(1));
-  jp.NegInPlace();
-  EXPECT_EQ(jp, JacobianPointTy(BaseField(5), BaseField(2), BaseField(1)));
-}
-
 TYPED_TEST(JacobianPointTest, ToAffine) {
   using JacobianPointTy = TypeParam;
   using AffinePointTy = typename JacobianPointTy::AffinePointTy;
@@ -161,13 +168,25 @@ TYPED_TEST(JacobianPointTest, ToAffine) {
 
   EXPECT_EQ(
       JacobianPointTy(BaseField(1), BaseField(2), BaseField(0)).ToAffine(),
-      AffinePointTy::Identity());
+      AffinePointTy::Zero());
   EXPECT_EQ(
       JacobianPointTy(BaseField(1), BaseField(2), BaseField(1)).ToAffine(),
       AffinePointTy(BaseField(1), BaseField(2)));
   EXPECT_EQ(
       JacobianPointTy(BaseField(1), BaseField(2), BaseField(3)).ToAffine(),
       AffinePointTy(BaseField(4), BaseField(5)));
+}
+
+TYPED_TEST(JacobianPointTest, ToXYZZ) {
+  using JacobianPointTy = TypeParam;
+  using PointXYZZTy = typename JacobianPointTy::PointXYZZTy;
+  using BaseField = typename JacobianPointTy::BaseField;
+
+  EXPECT_EQ(JacobianPointTy(BaseField(1), BaseField(2), BaseField(0)).ToXYZZ(),
+            PointXYZZTy::Zero());
+  EXPECT_EQ(
+      JacobianPointTy(BaseField(1), BaseField(2), BaseField(3)).ToXYZZ(),
+      PointXYZZTy(BaseField(1), BaseField(2), BaseField(2), BaseField(6)));
 }
 
 TYPED_TEST(JacobianPointTest, MSM) {

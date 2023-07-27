@@ -5,6 +5,7 @@
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fr.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 
 namespace tachyon {
 namespace math {
@@ -52,9 +53,11 @@ class CurveConfig {
 
 using G1AffinePoint = AffinePoint<SWCurve<CurveConfig<Fq, Fr>>>;
 using G1JacobianPoint = JacobianPoint<SWCurve<CurveConfig<Fq, Fr>>>;
+using G1PointXYZZ = PointXYZZ<SWCurve<CurveConfig<Fq, Fr>>>;
 #if defined(TACHYON_GMP_BACKEND)
 using G1AffinePointGmp = AffinePoint<SWCurve<CurveConfig<FqGmp, FrGmp>>>;
 using G1JacobianPointGmp = JacobianPoint<SWCurve<CurveConfig<FqGmp, FrGmp>>>;
+using G1PointXYZZGmp = PointXYZZ<SWCurve<CurveConfig<FqGmp, FrGmp>>>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace secp256k1

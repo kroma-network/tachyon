@@ -13,8 +13,11 @@ tachyon_cc_library(
     name = "points",
     hdrs = [
         "affine_point.h",
+        "affine_point_impl.h",
         "jacobian_point.h",
         "jacobian_point_impl.h",
+        "point_xyzz.h",
+        "point_xyzz_impl.h",
         "sw_curve.h",
         "sw_curve_config_traits.h",
     ],
@@ -25,6 +28,7 @@ tachyon_cc_library(
         "//tachyon/math/elliptic_curves/msm:glv",
         "//tachyon/math/geometry:point2",
         "//tachyon/math/geometry:point3",
+        "//tachyon/math/geometry:point4",
     ],
 )
 
@@ -48,6 +52,7 @@ tachyon_cc_test(
     srcs = [
         "affine_point_unittest.cc",
         "jacobian_point_unittest.cc",
+        "point_xyzz_unittest.cc",
     ],
     deps = [
         ":points",
@@ -60,6 +65,7 @@ tachyon_cuda_test(
     srcs = if_cuda_and_gmp_backend([
         "affine_point_correctness_cuda_test.cu.cc",
         "jacobian_point_correctness_cuda_test.cu.cc",
+        "point_xyzz_correctness_cuda_test.cu.cc",
     ]),
     tags = ["cuda"],
     deps = [

@@ -12,6 +12,7 @@
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
+#include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 #include "tachyon/math/geometry/point3.h"
 
@@ -28,6 +29,7 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
   using AffinePointTy = AffinePoint<Curve>;
+  using PointXYZZTy = PointXYZZ<Curve>;
 
   constexpr JacobianPoint()
       : JacobianPoint(BaseField::One(), BaseField::One(), BaseField::Zero()) {}
@@ -37,35 +39,44 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   constexpr JacobianPoint(BaseField&& x, BaseField&& y, BaseField&& z)
       : x_(std::move(x)), y_(std::move(y)), z_(std::move(z)) {}
 
-  static JacobianPoint CreateChecked(const BaseField& x, const BaseField& y,
-                                     const BaseField& z) {
+  constexpr static JacobianPoint CreateChecked(const BaseField& x,
+                                               const BaseField& y,
+                                               const BaseField& z) {
     JacobianPoint ret = {x, y, z};
-    CHECK(AffinePoint<Curve>::IsOnCurve(ret.ToAffine()));
+    CHECK(IsOnCurve(ret));
     return ret;
   }
 
-  static JacobianPoint CreateChecked(BaseField&& x, BaseField&& y,
-                                     BaseField&& z) {
+  constexpr static JacobianPoint CreateChecked(BaseField&& x, BaseField&& y,
+                                               BaseField&& z) {
     JacobianPoint ret = {std::move(x), std::move(y), std::move(z)};
-    CHECK(AffinePoint<Curve>::IsOnCurve(ret.ToAffine()));
+    CHECK(IsOnCurve(ret));
     return ret;
   }
 
   constexpr static JacobianPoint Zero() { return JacobianPoint(); }
 
   constexpr static JacobianPoint FromAffine(const AffinePoint<Curve>& point) {
-    return {point.x(), point.y(), BaseField::One()};
+    return point.ToJacobian();
+  }
+
+  constexpr static JacobianPoint FromXYZZ(const PointXYZZ<Curve>& point) {
+    return point.ToJacobian();
   }
 
   constexpr static JacobianPoint FromMontgomery(
       const Point3<typename BaseField::BigIntTy>& point) {
-    return JacobianPoint(BaseField::FromMontgomery(point.x),
-                         BaseField::FromMontgomery(point.y),
-                         BaseField::FromMontgomery(point.z));
+    return {BaseField::FromMontgomery(point.x),
+            BaseField::FromMontgomery(point.y),
+            BaseField::FromMontgomery(point.z)};
   }
 
   constexpr static JacobianPoint Random() {
     return ScalarField::Random() * Curve::Generator();
+  }
+
+  constexpr static bool IsOnCurve(const JacobianPoint& p) {
+    return Curve::IsOnCurve(p);
   }
 
   template <
@@ -107,8 +118,8 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     }
 
     // The points (X, Y, Z) and (X', Y', Z')
-    // are equal when (X * Z²) = (X' * Z'²)
-    // and (Y * Z³) = (Y' * Z'³).
+    // are equal when (X * Z'²) = (X' * Z²)
+    // and (Y * Z'³) = (Y' * Z³).
     const BaseField z1z1 = z_ * z_;
     const BaseField z2z2 = other.z_ * other.z_;
 
@@ -129,14 +140,21 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   // coordinates as X/Z², Y/Z³.
   constexpr AffinePoint<Curve> ToAffine() const {
     if (IsZero()) {
-      return AffinePoint<Curve>::Identity();
+      return AffinePoint<Curve>::Zero();
     } else if (z_.IsOne()) {
-      return AffinePoint<Curve>(x_, y_);
+      return {x_, y_};
     } else {
       BaseField z_inv = z_.Inverse();
       BaseField z_inv_square = z_inv * z_inv;
-      return AffinePoint<Curve>(x_ * z_inv_square, y_ * z_inv_square * z_inv);
+      return {x_ * z_inv_square, y_ * z_inv_square * z_inv};
     }
+  }
+
+  // The jacobian point X, Y, Z is represented in the xyzz
+  // coordinates as X, Y, Z², Z³.
+  constexpr PointXYZZ<Curve> ToXYZZ() const {
+    BaseField zz = z_.Square();
+    return {x_, y_, zz, zz * z_};
   }
 
   constexpr Point3<typename BaseField::BigIntTy> ToMontgomery() const {
