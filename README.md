@@ -94,3 +94,13 @@ If you are using pyenv, don't forget to add a option `--enable-shared`.
 ```shell
 > pip install matplotlib
 ```
+
+### Frequently Asked Questions
+
+#### Debugging on macOS
+
+Please add this line to your `.bazelrc.user`.
+
+```
+build --spawn_strategy=local
+```
