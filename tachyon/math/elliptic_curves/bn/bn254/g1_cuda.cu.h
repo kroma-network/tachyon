@@ -13,6 +13,8 @@ namespace bn254 {
 #if TACHYON_CUDA
 using G1AffinePointCuda =
     AffinePoint<SWCurveCuda<G1CurveConfig<FqCuda, FrCuda>>>;
+using G1ProjectivePointCuda =
+    ProjectivePoint<SWCurveCuda<G1CurveConfig<FqCuda, FrCuda>>>;
 using G1JacobianPointCuda =
     JacobianPoint<SWCurveCuda<G1CurveConfig<FqCuda, FrCuda>>>;
 using G1PointXYZZCuda = PointXYZZ<SWCurveCuda<G1CurveConfig<FqCuda, FrCuda>>>;

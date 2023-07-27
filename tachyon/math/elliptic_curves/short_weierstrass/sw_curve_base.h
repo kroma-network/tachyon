@@ -6,6 +6,7 @@
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config_traits.h"
 
 namespace tachyon {
@@ -22,6 +23,8 @@ class SWCurveBase {
   using ScalarField = typename SWCurveConfigTraits<SWCurveConfig>::ScalarField;
   using AffinePointTy =
       typename SWCurveConfigTraits<SWCurveConfig>::AffinePointTy;
+  using ProjectivePointTy =
+      typename SWCurveConfigTraits<SWCurveConfig>::ProjectivePointTy;
   using JacobianPointTy =
       typename SWCurveConfigTraits<SWCurveConfig>::JacobianPointTy;
   using PointXYZZTy = typename SWCurveConfigTraits<SWCurveConfig>::PointXYZZTy;
@@ -33,6 +36,17 @@ class SWCurveBase {
       right += SWCurveConfig::A() * point.x();
     }
     return point.y().Square() == right;
+  }
+
+  constexpr static bool IsOnCurve(const ProjectivePointTy& point) {
+    if (point.z().IsZero()) return false;
+    BaseField z2 = point.z().Square();
+    BaseField z3 = z2 * point.z();
+    BaseField right = point.x().Square() * point.x() + SWCurveConfig::B() * z3;
+    if (!SWCurveConfig::A().IsZero()) {
+      right += SWCurveConfig::A() * point.x() * z2;
+    }
+    return point.y().Square() * point.z() == right;
   }
 
   constexpr static bool IsOnCurve(const JacobianPointTy& point) {
@@ -56,41 +70,21 @@ class SWCurveBase {
     return point.y().Square() == right;
   }
 
-  template <
-      typename BaseInputIterator, typename ScalarInputIterator,
-      std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
-                                   JacobianPointTy, ScalarField>>* = nullptr>
-  static JacobianPointTy MSM(BaseInputIterator bases_first,
-                             BaseInputIterator bases_last,
-                             ScalarInputIterator scalars_first,
-                             ScalarInputIterator scalars_last) {
-    return VariableBaseMSM<JacobianPointTy>::MSM(
-        std::move(bases_first), std::move(bases_last), std::move(scalars_first),
-        std::move(scalars_last));
-  }
-
-  template <typename BaseContainer, typename ScalarContainer>
-  static JacobianPointTy MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
-    return MSM(std::begin(std::forward<BaseContainer>(bases)),
-               std::end(std::forward<BaseContainer>(bases)),
-               std::begin(std::forward<ScalarContainer>(scalars)),
-               std::end(std::forward<ScalarContainer>(scalars)));
-  }
-
-  template <typename BaseInputIterator, typename ScalarInputIterator,
+  template <typename PointTy, typename BaseInputIterator,
+            typename ScalarInputIterator,
             std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
-                                         PointXYZZTy, ScalarField>>* = nullptr>
-  static PointXYZZTy MSM(BaseInputIterator bases_first,
-                         BaseInputIterator bases_last,
-                         ScalarInputIterator scalars_first,
-                         ScalarInputIterator scalars_last) {
-    return VariableBaseMSM<PointXYZZTy>::MSM(
+                                         PointTy, ScalarField>>* = nullptr>
+  static PointTy MSM(BaseInputIterator bases_first,
+                     BaseInputIterator bases_last,
+                     ScalarInputIterator scalars_first,
+                     ScalarInputIterator scalars_last) {
+    return VariableBaseMSM<PointTy>::MSM(
         std::move(bases_first), std::move(bases_last), std::move(scalars_first),
         std::move(scalars_last));
   }
 
-  template <typename BaseContainer, typename ScalarContainer>
-  static PointXYZZTy MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
+  template <typename PointTy, typename BaseContainer, typename ScalarContainer>
+  static PointTy MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
     return MSM(std::begin(std::forward<BaseContainer>(bases)),
                std::end(std::forward<BaseContainer>(bases)),
                std::begin(std::forward<ScalarContainer>(scalars)),

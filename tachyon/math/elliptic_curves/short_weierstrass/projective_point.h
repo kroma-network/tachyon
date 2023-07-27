@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_JACOBIAN_POINT_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_JACOBIAN_POINT_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_H_
 
 #include <type_traits>
 
@@ -21,8 +21,8 @@ namespace tachyon {
 namespace math {
 
 template <typename _Curve>
-class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
-    : public AdditiveGroup<JacobianPoint<_Curve>> {
+class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
+    : public AdditiveGroup<ProjectivePoint<_Curve>> {
  public:
   constexpr static const bool kNegationIsCheap = true;
 
@@ -30,93 +30,94 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
   using AffinePointTy = AffinePoint<Curve>;
-  using ProjectivePointTy = ProjectivePoint<Curve>;
+  using JacobianPointTy = JacobianPoint<Curve>;
   using PointXYZZTy = PointXYZZ<Curve>;
 
-  constexpr JacobianPoint()
-      : JacobianPoint(BaseField::One(), BaseField::One(), BaseField::Zero()) {}
-  constexpr JacobianPoint(const BaseField& x, const BaseField& y,
-                          const BaseField& z)
+  constexpr ProjectivePoint()
+      : ProjectivePoint(BaseField::One(), BaseField::One(), BaseField::Zero()) {
+  }
+  constexpr ProjectivePoint(const BaseField& x, const BaseField& y,
+                            const BaseField& z)
       : x_(x), y_(y), z_(z) {}
-  constexpr JacobianPoint(BaseField&& x, BaseField&& y, BaseField&& z)
+  constexpr ProjectivePoint(BaseField&& x, BaseField&& y, BaseField&& z)
       : x_(std::move(x)), y_(std::move(y)), z_(std::move(z)) {}
 
-  constexpr static JacobianPoint CreateChecked(const BaseField& x,
-                                               const BaseField& y,
-                                               const BaseField& z) {
-    JacobianPoint ret = {x, y, z};
+  constexpr static ProjectivePoint CreateChecked(const BaseField& x,
+                                                 const BaseField& y,
+                                                 const BaseField& z) {
+    ProjectivePoint ret = {x, y, z};
     CHECK(IsOnCurve(ret));
     return ret;
   }
 
-  constexpr static JacobianPoint CreateChecked(BaseField&& x, BaseField&& y,
-                                               BaseField&& z) {
-    JacobianPoint ret = {std::move(x), std::move(y), std::move(z)};
+  constexpr static ProjectivePoint CreateChecked(BaseField&& x, BaseField&& y,
+                                                 BaseField&& z) {
+    ProjectivePoint ret = {std::move(x), std::move(y), std::move(z)};
     CHECK(IsOnCurve(ret));
     return ret;
   }
 
-  constexpr static JacobianPoint Zero() { return JacobianPoint(); }
+  constexpr static ProjectivePoint Zero() { return ProjectivePoint(); }
 
-  constexpr static JacobianPoint FromAffine(const AffinePoint<Curve>& point) {
-    return point.ToJacobian();
+  constexpr static ProjectivePoint FromAffine(const AffinePoint<Curve>& point) {
+    return point.ToProjective();
   }
 
-  constexpr static JacobianPoint FromProjective(
-      const ProjectivePoint<Curve>& point) {
-    return point.ToJacobian();
+  constexpr static ProjectivePoint FromJacobian(
+      const JacobianPoint<Curve>& point) {
+    return point.ToProjective();
   }
 
-  constexpr static JacobianPoint FromXYZZ(const PointXYZZ<Curve>& point) {
-    return point.ToJacobian();
+  constexpr static ProjectivePoint FromXYZZ(const PointXYZZ<Curve>& point) {
+    return point.ToProjective();
   }
 
-  constexpr static JacobianPoint FromMontgomery(
+  constexpr static ProjectivePoint FromMontgomery(
       const Point3<typename BaseField::BigIntTy>& point) {
     return {BaseField::FromMontgomery(point.x),
             BaseField::FromMontgomery(point.y),
             BaseField::FromMontgomery(point.z)};
   }
 
-  constexpr static JacobianPoint Random() {
-    return ScalarField::Random() * Curve::Generator();
+  constexpr static ProjectivePoint Random() {
+    return FromJacobian(ScalarField::Random() * Curve::Generator());
   }
 
-  constexpr static bool IsOnCurve(const JacobianPoint& p) {
+  constexpr static bool IsOnCurve(const ProjectivePoint& p) {
     return Curve::IsOnCurve(p);
   }
 
   template <
       typename BaseInputIterator, typename ScalarInputIterator,
       std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
-                                   JacobianPoint, ScalarField>>* = nullptr>
-  static JacobianPoint MSM(BaseInputIterator bases_first,
-                           BaseInputIterator bases_last,
-                           ScalarInputIterator scalars_first,
-                           ScalarInputIterator scalars_last) {
-    return Curve::template MSM<JacobianPoint>(
+                                   ProjectivePoint, ScalarField>>* = nullptr>
+  static ProjectivePoint MSM(BaseInputIterator bases_first,
+                             BaseInputIterator bases_last,
+                             ScalarInputIterator scalars_first,
+                             ScalarInputIterator scalars_last) {
+    return Curve::template MSM<ProjectivePoint>(
         std::move(bases_first), std::move(bases_last), std::move(scalars_first),
         std::move(scalars_last));
   }
 
   template <typename BaseContainer, typename ScalarContainer>
-  static JacobianPoint MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
+  static ProjectivePoint MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
     return MSM(std::begin(std::forward<BaseContainer>(bases)),
                std::end(std::forward<BaseContainer>(bases)),
                std::begin(std::forward<ScalarContainer>(scalars)),
                std::end(std::forward<ScalarContainer>(scalars)));
   }
 
-  constexpr static JacobianPoint Endomorphism(const JacobianPoint& point) {
-    return JacobianPoint(point.x_ * GLV<Curve>::EndomorphismCoefficient(),
-                         point.y_, point.z_);
+  constexpr static ProjectivePoint Endomorphism(const ProjectivePoint& point) {
+    return ProjectivePoint(point.x_ * GLV<Curve>::EndomorphismCoefficient(),
+                           point.y_, point.z_);
   }
 
   constexpr const BaseField& x() const { return x_; }
   constexpr const BaseField& y() const { return y_; }
   constexpr const BaseField& z() const { return z_; }
 
-  constexpr bool operator==(const JacobianPoint& other) const {
+  constexpr bool operator==(const ProjectivePoint& other) const {
     if (IsZero()) {
       return other.IsZero();
     }
@@ -126,26 +127,23 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     }
 
     // The points (X, Y, Z) and (X', Y', Z')
-    // are equal when (X * Z'²) = (X' * Z²)
-    // and (Y * Z'³) = (Y' * Z³).
-    const BaseField z1z1 = z_ * z_;
-    const BaseField z2z2 = other.z_ * other.z_;
-
-    if (x_ * z2z2 != other.x_ * z1z1) {
+    // are equal when (X * Z') = (X' * Z)
+    // and (Y * Z') = (Y' * Z).
+    if (x_ * other.z_ != other.x_ * z_) {
       return false;
     } else {
-      return y_ * (z2z2 * other.z_) == other.y_ * (z1z1 * z_);
+      return y_ * other.z_ == other.y_ * z_;
     }
   }
 
-  constexpr bool operator!=(const JacobianPoint& other) const {
+  constexpr bool operator!=(const ProjectivePoint& other) const {
     return !operator==(other);
   }
 
   constexpr bool IsZero() const { return z_.IsZero(); }
 
   // The jacobian point X, Y, Z is represented in the affine
-  // coordinates as X/Z², Y/Z³.
+  // coordinates as X/Z, Y/Z.
   constexpr AffinePoint<Curve> ToAffine() const {
     if (IsZero()) {
       return AffinePoint<Curve>::Zero();
@@ -153,23 +151,22 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
       return {x_, y_};
     } else {
       BaseField z_inv = z_.Inverse();
-      BaseField z_inv_square = z_inv * z_inv;
-      return {x_ * z_inv_square, y_ * z_inv_square * z_inv};
+      return {x_ * z_inv, y_ * z_inv};
     }
   }
 
-  // The jacobian point X, Y, Z is represented in the projective
-  // coordinates as X*Z, Y, Z³.
-  constexpr ProjectivePoint<Curve> ToProjective() const {
+  // The jacobian point X, Y, Z is represented in the jacobian
+  // coordinates as X*Z, Y*Z², Z.
+  constexpr JacobianPoint<Curve> ToJacobian() const {
     BaseField zz = z_.Square();
-    return {x_ * z_, y_, zz * z_};
+    return {x_ * z_, y_ * zz, z_};
   }
 
   // The jacobian point X, Y, Z is represented in the xyzz
-  // coordinates as X, Y, Z², Z³.
+  // coordinates as X*Z, Y*Z², Z², Z³.
   constexpr PointXYZZ<Curve> ToXYZZ() const {
     BaseField zz = z_.Square();
-    return {x_, y_, zz, zz * z_};
+    return {x_ * z_, y_ * zz, zz, z_ * zz};
   }
 
   constexpr Point3<typename BaseField::BigIntTy> ToMontgomery() const {
@@ -182,12 +179,12 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   // AdditiveSemigroup methods
-  constexpr JacobianPoint& AddInPlace(const JacobianPoint& other);
-  constexpr JacobianPoint& AddInPlace(const AffinePoint<Curve>& other);
-  constexpr JacobianPoint& DoubleInPlace();
+  constexpr ProjectivePoint& AddInPlace(const ProjectivePoint& other);
+  constexpr ProjectivePoint& AddInPlace(const AffinePoint<Curve>& other);
+  constexpr ProjectivePoint& DoubleInPlace();
 
   // AdditiveGroup methods
-  constexpr JacobianPoint& NegInPlace() {
+  constexpr ProjectivePoint& NegInPlace() {
     y_.NegInPlace();
     return *this;
   }
@@ -201,6 +198,6 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 }  // namespace math
 }  // namespace tachyon
 
-#include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point_impl.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/projective_point_impl.h"
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_H_

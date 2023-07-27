@@ -12,6 +12,7 @@
 #include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 #include "tachyon/math/geometry/point4.h"
 
@@ -28,6 +29,7 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
   using AffinePointTy = AffinePoint<Curve>;
+  using ProjectivePointTy = ProjectivePoint<Curve>;
   using JacobianPointTy = JacobianPoint<Curve>;
 
   constexpr PointXYZZ()
@@ -65,6 +67,11 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     return point.ToXYZZ();
   }
 
+  constexpr static PointXYZZ FromProjective(
+      const ProjectivePoint<Curve>& point) {
+    return point.ToXYZZ();
+  }
+
   constexpr static PointXYZZ FromJacobian(const JacobianPoint<Curve>& point) {
     return point.ToXYZZ();
   }
@@ -91,8 +98,9 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
                        BaseInputIterator bases_last,
                        ScalarInputIterator scalars_first,
                        ScalarInputIterator scalars_last) {
-    return Curve::MSM(std::move(bases_first), std::move(bases_last),
-                      std::move(scalars_first), std::move(scalars_last));
+    return Curve::template MSM<PointXYZZ>(
+        std::move(bases_first), std::move(bases_last), std::move(scalars_first),
+        std::move(scalars_last));
   }
 
   template <typename BaseContainer, typename ScalarContainer>
@@ -154,15 +162,27 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   // The xyzz point X, Y, ZZ, ZZZ is represented in the projective
-  // coordinates as X, Y, ZZZ/ZZ.
+  // coordinates as X*ZZZ, Y*ZZ, ZZ*ZZZ.
+  constexpr ProjectivePoint<Curve> ToProjective() const {
+    if (IsZero()) {
+      return ProjectivePoint<Curve>::Zero();
+    } else if (zz_.IsOne()) {
+      return {x_, y_, BaseField::One()};
+    } else {
+      return {x_ * zzz_, y_ * zz_, zz_ * zzz_};
+    }
+  }
+
+  // The xyzz point X, Y, ZZ, ZZZ is represented in the jacobian
+  // coordinates as X*ZZZ²*ZZ, Y*ZZ³*ZZZ², ZZZ*ZZ.
   constexpr JacobianPoint<Curve> ToJacobian() const {
     if (IsZero()) {
       return JacobianPoint<Curve>::Zero();
     } else if (zz_.IsOne()) {
       return {x_, y_, BaseField::One()};
     } else {
-      BaseField zz_inv_square = zz_.Inverse();
-      return {x_, y_, zz_inv_square * zzz_};
+      BaseField z = zz_ * zzz_;
+      return {x_ * zzz_ * z, y_ * zz_ * z.Square(), z};
     }
   }
 

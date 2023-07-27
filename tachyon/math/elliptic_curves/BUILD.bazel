@@ -9,6 +9,7 @@ tachyon_cc_library(
         "curve_config.h",
         "jacobian_point.h",
         "point_xyzz.h",
+        "projective_point.h",
     ],
     deps = [
         "//tachyon/base:no_destructor",

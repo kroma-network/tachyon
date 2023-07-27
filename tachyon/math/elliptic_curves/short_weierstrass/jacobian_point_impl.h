@@ -158,13 +158,13 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
     x_ -= v.Double();
 
     // Y3 = r * (V - X3) + 2 * Y1 * J
-    v -= x_;
-    y_.DoubleInPlace();
     std::array<BaseField, 2> a;
     a[0] = std::move(r);
     a[1] = y_;
+    a[1].DoubleInPlace();
     std::array<BaseField, 2> b;
     b[0] = std::move(v);
+    b[0] -= x_;
     b[1] = std::move(j);
     y_ = BaseField::SumOfProducts(a, b);
 

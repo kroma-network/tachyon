@@ -13,6 +13,7 @@
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 #include "tachyon/math/geometry/point2.h"
 
@@ -26,6 +27,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   using Curve = _Curve;
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
+  using ProjectivePointTy = ProjectivePoint<Curve>;
   using JacobianPointTy = JacobianPoint<Curve>;
   using PointXYZZTy = PointXYZZ<Curve>;
 
@@ -51,6 +53,11 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static AffinePoint Zero() { return AffinePoint(); }
+
+  constexpr static AffinePoint FromProjective(
+      const ProjectivePoint<Curve>& point) {
+    return point.ToAffine();
+  }
 
   constexpr static AffinePoint FromJacobian(const JacobianPoint<Curve>& point) {
     return point.ToAffine();
@@ -87,8 +94,9 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     std::vector<JacobianPoint<Curve>> bases =
         base::Map(std::move(bases_first), std::move(bases_last),
                   [](const AffinePoint& point) { return point.ToJacobian(); });
-    return Curve::MSM(bases.begin(), bases.end(), std::move(scalars_first),
-                      std::move(scalars_last));
+    return Curve::template MSM<JacobianPoint<Curve>>(bases.begin(), bases.end(),
+                                                     std::move(scalars_first),
+                                                     std::move(scalars_last));
   }
 
   template <typename BaseContainer, typename ScalarContainer>
@@ -127,6 +135,11 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr bool IsZero() const { return infinity_; }
 
+  constexpr ProjectivePoint<Curve> ToProjective() const {
+    if (infinity_) return ProjectivePoint<Curve>::Zero();
+    return {x_, y_, BaseField::One()};
+  }
+
   constexpr JacobianPoint<Curve> ToJacobian() const {
     if (infinity_) return JacobianPoint<Curve>::Zero();
     return {x_, y_, BaseField::One()};
@@ -149,8 +162,15 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   constexpr JacobianPoint<Curve> Add(const AffinePoint& other) const {
     return ToJacobian() + other.ToJacobian();
   }
+  constexpr ProjectivePoint<Curve> Add(
+      const ProjectivePoint<Curve>& other) const {
+    return ToProjective() + other;
+  }
   constexpr JacobianPoint<Curve> Add(const JacobianPoint<Curve>& other) const {
     return ToJacobian() + other;
+  }
+  constexpr PointXYZZ<Curve> Add(const PointXYZZ<Curve>& other) const {
+    return ToXYZZ() + other;
   }
 
   constexpr AffinePoint& NegInPlace() {
@@ -158,6 +178,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     return *this;
   }
 
+  constexpr ProjectivePoint<Curve> DoubleProjective() const;
   constexpr PointXYZZ<Curve> DoubleXYZZ() const;
 
  private:

@@ -6,6 +6,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 
 namespace tachyon {
 namespace math {
@@ -46,10 +47,13 @@ class G1CurveConfig {
 };
 
 using G1AffinePoint = AffinePoint<SWCurve<G1CurveConfig<Fq, Fr>>>;
+using G1ProjectivePoint = ProjectivePoint<SWCurve<G1CurveConfig<Fq, Fr>>>;
 using G1JacobianPoint = JacobianPoint<SWCurve<G1CurveConfig<Fq, Fr>>>;
 using G1PointXYZZ = PointXYZZ<SWCurve<G1CurveConfig<Fq, Fr>>>;
 #if defined(TACHYON_GMP_BACKEND)
 using G1AffinePointGmp = AffinePoint<SWCurve<G1CurveConfig<FqGmp, FrGmp>>>;
+using G1ProjectivePointGmp =
+    ProjectivePoint<SWCurve<G1CurveConfig<FqGmp, FrGmp>>>;
 using G1JacobianPointGmp = JacobianPoint<SWCurve<G1CurveConfig<FqGmp, FrGmp>>>;
 using G1PointXYZZGmp = PointXYZZ<SWCurve<G1CurveConfig<FqGmp, FrGmp>>>;
 #endif  // defined(TACHYON_GMP_BACKEND)

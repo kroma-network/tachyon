@@ -5,6 +5,7 @@
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
 namespace tachyon {
@@ -143,28 +144,28 @@ TYPED_TEST(PointXYZZTest, AdditiveGroupOperators) {
   }
 }
 
-// TYPED_TEST(PointXYZZTest, ScalarMulOperator) {
-//   using PointXYZZTy = TypeParam;
-//   using AffinePointTy = typename PointXYZZTy::AffinePointTy;
-//   using BaseField = typename PointXYZZTy::BaseField;
-//   using ScalarField = typename PointXYZZTy::ScalarField;
+TYPED_TEST(PointXYZZTest, ScalarMulOperator) {
+  using PointXYZZTy = TypeParam;
+  using AffinePointTy = typename PointXYZZTy::AffinePointTy;
+  using BaseField = typename PointXYZZTy::BaseField;
+  using ScalarField = typename PointXYZZTy::ScalarField;
 
-//   std::vector<AffinePointTy> points;
-//   for (size_t i = 0; i < 7; ++i) {
-//     points.push_back(
-//         (ScalarField(i) * PointXYZZTy::Curve::Generator()).ToAffine());
-//   }
+  std::vector<AffinePointTy> points;
+  for (size_t i = 0; i < 7; ++i) {
+    points.push_back(
+        (ScalarField(i) * PointXYZZTy::Curve::Generator()).ToAffine());
+  }
 
-//   EXPECT_THAT(points,
-//               testing::UnorderedElementsAreArray(std::vector<AffinePointTy>{
-//                   AffinePointTy(BaseField(0), BaseField(0), true),
-//                   AffinePointTy(BaseField(3), BaseField(2)),
-//                   AffinePointTy(BaseField(5), BaseField(2)),
-//                   AffinePointTy(BaseField(6), BaseField(2)),
-//                   AffinePointTy(BaseField(3), BaseField(5)),
-//                   AffinePointTy(BaseField(5), BaseField(5)),
-//                   AffinePointTy(BaseField(6), BaseField(5))}));
-// }
+  EXPECT_THAT(points,
+              testing::UnorderedElementsAreArray(std::vector<AffinePointTy>{
+                  AffinePointTy(BaseField(0), BaseField(0), true),
+                  AffinePointTy(BaseField(3), BaseField(2)),
+                  AffinePointTy(BaseField(5), BaseField(2)),
+                  AffinePointTy(BaseField(6), BaseField(2)),
+                  AffinePointTy(BaseField(3), BaseField(5)),
+                  AffinePointTy(BaseField(5), BaseField(5)),
+                  AffinePointTy(BaseField(6), BaseField(5))}));
+}
 
 TYPED_TEST(PointXYZZTest, ToAffine) {
   using PointXYZZTy = TypeParam;
@@ -182,6 +183,22 @@ TYPED_TEST(PointXYZZTest, ToAffine) {
             AffinePointTy(BaseField(4), BaseField(5)));
 }
 
+TYPED_TEST(PointXYZZTest, ToProjective) {
+  using PointXYZZTy = TypeParam;
+  using ProjectivePointTy = typename PointXYZZTy::ProjectivePointTy;
+  using BaseField = typename PointXYZZTy::BaseField;
+
+  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(0), BaseField(0))
+                .ToProjective(),
+            ProjectivePointTy::Zero());
+  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(1), BaseField(1))
+                .ToProjective(),
+            ProjectivePointTy(BaseField(1), BaseField(2), BaseField(1)));
+  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(2), BaseField(6))
+                .ToProjective(),
+            ProjectivePointTy(BaseField(6), BaseField(4), BaseField(5)));
+}
+
 TYPED_TEST(PointXYZZTest, ToJacobian) {
   using PointXYZZTy = TypeParam;
   using JacobianPointTy = typename PointXYZZTy::JacobianPointTy;
@@ -195,28 +212,28 @@ TYPED_TEST(PointXYZZTest, ToJacobian) {
             JacobianPointTy(BaseField(1), BaseField(2), BaseField(1)));
   EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(2), BaseField(6))
                 .ToJacobian(),
-            JacobianPointTy(BaseField(1), BaseField(2), BaseField(3)));
+            JacobianPointTy(BaseField(2), BaseField(2), BaseField(5)));
 }
 
-// TYPED_TEST(PointXYZZTest, MSM) {
-//   using PointXYZZTy = TypeParam;
-//   using BaseField = typename PointXYZZTy::BaseField;
-//   using ScalarField = typename PointXYZZTy::ScalarField;
+TYPED_TEST(PointXYZZTest, MSM) {
+  using PointXYZZTy = TypeParam;
+  using BaseField = typename PointXYZZTy::BaseField;
+  using ScalarField = typename PointXYZZTy::ScalarField;
 
-//   std::vector<PointXYZZTy> bases = {
-//       {BaseField(5), BaseField(5), BaseField(1)},
-//       {BaseField(3), BaseField(2), BaseField(1)},
-//   };
-//   std::vector<ScalarField> scalars = {
-//       ScalarField(2),
-//       ScalarField(3),
-//   };
-//   PointXYZZTy expected = PointXYZZTy::Zero();
-//   for (size_t i = 0; i < bases.size(); ++i) {
-//     expected += bases[i].ScalarMul(scalars[i].ToBigInt());
-//   }
-//   EXPECT_EQ(PointXYZZTy::MSM(bases, scalars), expected);
-// }
+  std::vector<PointXYZZTy> bases = {
+      {BaseField(5), BaseField(5), BaseField(1), BaseField(1)},
+      {BaseField(3), BaseField(2), BaseField(1), BaseField(1)},
+  };
+  std::vector<ScalarField> scalars = {
+      ScalarField(2),
+      ScalarField(3),
+  };
+  PointXYZZTy expected = PointXYZZTy::Zero();
+  for (size_t i = 0; i < bases.size(); ++i) {
+    expected += bases[i].ScalarMul(scalars[i].ToBigInt());
+  }
+  EXPECT_EQ(PointXYZZTy::MSM(bases, scalars), expected);
+}
 
 }  // namespace math
 }  // namespace tachyon

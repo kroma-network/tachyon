@@ -4,6 +4,7 @@
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
 namespace tachyon {
@@ -95,6 +96,7 @@ TYPED_TEST(AffinePointTest, AdditiveGroupOperators) {
   EXPECT_EQ(ap - jp4, -jp);
 
   EXPECT_EQ(ap.Double(), jp4);
+  EXPECT_EQ(ap.DoubleProjective(), ap4.ToProjective());
   EXPECT_EQ(ap.DoubleXYZZ(), ap4.ToXYZZ());
 
   EXPECT_EQ(ap.Negative(), AffinePointTy(BaseField(5), BaseField(2)));
@@ -103,6 +105,17 @@ TYPED_TEST(AffinePointTest, AdditiveGroupOperators) {
     ap_tmp.NegInPlace();
     EXPECT_EQ(ap_tmp, AffinePointTy(BaseField(5), BaseField(2)));
   }
+}
+
+TYPED_TEST(AffinePointTest, ToProjective) {
+  using AffinePointTy = TypeParam;
+  using ProjectivePointTy = typename AffinePointTy::ProjectivePointTy;
+  using BaseField = typename AffinePointTy::BaseField;
+
+  EXPECT_EQ(AffinePointTy::Zero().ToProjective(), ProjectivePointTy::Zero());
+  AffinePointTy p(BaseField(3), BaseField(2));
+  EXPECT_EQ(p.ToProjective(),
+            ProjectivePointTy(BaseField(3), BaseField(2), BaseField(1)));
 }
 
 TYPED_TEST(AffinePointTest, ToJacobian) {

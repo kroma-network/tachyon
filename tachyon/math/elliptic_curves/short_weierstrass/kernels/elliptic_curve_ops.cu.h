@@ -8,6 +8,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 
 namespace tachyon {
 namespace math {
@@ -23,6 +24,7 @@ namespace kernels {
   }
 
 DEFINE_FIELD_OP(Add, +, AffinePoint, JacobianPoint)
+DEFINE_FIELD_OP(Add, +, ProjectivePoint, ProjectivePoint)
 DEFINE_FIELD_OP(Add, +, JacobianPoint, JacobianPoint)
 DEFINE_FIELD_OP(Add, +, PointXYZZ, PointXYZZ)
 
@@ -39,6 +41,8 @@ DEFINE_FIELD_OP(Add, +, PointXYZZ, PointXYZZ)
 
 DEFINE_COMPARISON_OP(Eq, ==, AffinePoint)
 DEFINE_COMPARISON_OP(Ne, !=, AffinePoint)
+DEFINE_COMPARISON_OP(Eq, ==, ProjectivePoint)
+DEFINE_COMPARISON_OP(Ne, !=, ProjectivePoint)
 DEFINE_COMPARISON_OP(Eq, ==, JacobianPoint)
 DEFINE_COMPARISON_OP(Ne, !=, JacobianPoint)
 DEFINE_COMPARISON_OP(Eq, ==, PointXYZZ)
@@ -57,9 +61,11 @@ DEFINE_COMPARISON_OP(Ne, !=, PointXYZZ)
 
 DEFINE_UNARY_OP(Double, AffinePoint, JacobianPoint)
 DEFINE_UNARY_OP(Double, JacobianPoint, JacobianPoint)
+DEFINE_UNARY_OP(Double, ProjectivePoint, ProjectivePoint)
 DEFINE_UNARY_OP(Double, PointXYZZ, PointXYZZ)
 DEFINE_UNARY_OP(Negative, AffinePoint, AffinePoint)
 DEFINE_UNARY_OP(Negative, JacobianPoint, JacobianPoint)
+DEFINE_UNARY_OP(Negative, ProjectivePoint, ProjectivePoint)
 DEFINE_UNARY_OP(Negative, PointXYZZ, PointXYZZ)
 
 #undef DEFINE_UNARY_OP

@@ -18,6 +18,8 @@ tachyon_cc_library(
         "jacobian_point_impl.h",
         "point_xyzz.h",
         "point_xyzz_impl.h",
+        "projective_point.h",
+        "projective_point_impl.h",
         "sw_curve.h",
         "sw_curve_config_traits.h",
     ],
@@ -53,6 +55,7 @@ tachyon_cc_test(
         "affine_point_unittest.cc",
         "jacobian_point_unittest.cc",
         "point_xyzz_unittest.cc",
+        "projective_point_unittest.cc",
     ],
     deps = [
         ":points",
@@ -64,8 +67,7 @@ tachyon_cuda_test(
     name = "short_weierstrass_correctness_cuda_tests",
     srcs = if_cuda_and_gmp_backend([
         "affine_point_correctness_cuda_test.cu.cc",
-        "jacobian_point_correctness_cuda_test.cu.cc",
-        "point_xyzz_correctness_cuda_test.cu.cc",
+        "non_affine_point_correctness_cuda_test.cu.cc",
     ]),
     tags = ["cuda"],
     deps = [

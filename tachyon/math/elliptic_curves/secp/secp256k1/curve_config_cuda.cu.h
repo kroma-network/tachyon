@@ -12,8 +12,11 @@ namespace secp256k1 {
 
 #if TACHYON_CUDA
 using G1AffinePointCuda = AffinePoint<CurveConfigCuda<FqCuda, FrCuda>::Config>;
+using G1ProjectivePointCuda =
+    ProjectivePoint<CurveConfigCuda<FqCuda, FrCuda>::Config>;
 using G1JacobianPointCuda =
     JacobianPoint<CurveConfigCuda<FqCuda, FrCuda>::Config>;
+using G1PointXYZZCuda = PointXYZZ<CurveConfigCuda<FqCuda, FrCuda>::Config>;
 #endif  // TACHYON_CUDA
 
 }  // namespace secp256k1

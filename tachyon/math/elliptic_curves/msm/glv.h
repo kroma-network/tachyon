@@ -9,6 +9,7 @@
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/matrix/matrix.h"
 
 namespace tachyon {
@@ -20,6 +21,7 @@ class GLV {
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
   using AffinePointTy = AffinePoint<Curve>;
+  using ProjectivePointTy = ProjectivePoint<Curve>;
   using JacobianPointTy = JacobianPoint<Curve>;
   using PointXYZZTy = PointXYZZ<Curve>;
 
@@ -48,6 +50,10 @@ class GLV {
 
   static AffinePointTy EndomorphismAffine(const AffinePointTy& point) {
     return AffinePointTy::Endomorphism(point);
+  }
+  static ProjectivePointTy EndomorphismProjective(
+      const ProjectivePointTy& point) {
+    return ProjectivePointTy::Endomorphism(point);
   }
   static JacobianPointTy EndomorphismJacobian(const JacobianPointTy& point) {
     return JacobianPointTy::Endomorphism(point);

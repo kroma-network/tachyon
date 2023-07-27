@@ -5,6 +5,7 @@
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
 namespace tachyon {
@@ -175,6 +176,19 @@ TYPED_TEST(JacobianPointTest, ToAffine) {
   EXPECT_EQ(
       JacobianPointTy(BaseField(1), BaseField(2), BaseField(3)).ToAffine(),
       AffinePointTy(BaseField(4), BaseField(5)));
+}
+
+TYPED_TEST(JacobianPointTest, ToProjective) {
+  using JacobianPointTy = TypeParam;
+  using ProjectivePointTy = typename JacobianPointTy::ProjectivePointTy;
+  using BaseField = typename JacobianPointTy::BaseField;
+
+  EXPECT_EQ(
+      JacobianPointTy(BaseField(1), BaseField(2), BaseField(0)).ToProjective(),
+      ProjectivePointTy::Zero());
+  EXPECT_EQ(
+      JacobianPointTy(BaseField(1), BaseField(2), BaseField(3)).ToProjective(),
+      ProjectivePointTy(BaseField(3), BaseField(2), BaseField(6)));
 }
 
 TYPED_TEST(JacobianPointTest, ToXYZZ) {

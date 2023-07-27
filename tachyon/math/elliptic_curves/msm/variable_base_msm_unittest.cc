@@ -5,6 +5,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
 namespace tachyon {
@@ -40,7 +41,8 @@ class VariableBaseMSMTest : public testing::Test {
 
 }  // namespace
 
-using PointTypes = testing::Types<test::JacobianPoint, test::PointXYZZ>;
+using PointTypes =
+    testing::Types<test::ProjectivePoint, test::JacobianPoint, test::PointXYZZ>;
 TYPED_TEST_SUITE(VariableBaseMSMTest, PointTypes);
 
 TYPED_TEST(VariableBaseMSMTest, DoMSM) {
