@@ -43,8 +43,8 @@ cc_library(
         "-lgmpxx",
         "-lgmp",
     ] + select({
-        ":macos_x86_64": ["-L/usr/local/lib"],
-        ":macos_aarch64": ["-L/opt/homebrew/lib"],
+        "@kroma_network_tachyon//:macos_x86_64": ["-L/usr/local/lib"],
+        "@kroma_network_tachyon//:macos_aarch64": ["-L/opt/homebrew/lib"],
         "//conditions:default": [],
     }),
 )
