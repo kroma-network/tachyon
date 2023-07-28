@@ -1,6 +1,6 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon.bzl", "if_gpu_is_configured")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_defines")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -19,6 +19,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "gpu_device_functions",
     hdrs = ["gpu_device_functions.h"],
+    defines = tachyon_cuda_defines(),
     deps = if_cuda([
         "@local_config_cuda//cuda:cuda_headers",
     ]),
@@ -53,6 +54,7 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "gpu_logging",
+    srcs = ["gpu_logging.cc"],
     hdrs = ["gpu_logging.h"],
     deps = [
         ":gpu_device_functions",
@@ -63,6 +65,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "gpu_types",
     hdrs = ["gpu_types.h"],
+    defines = tachyon_cuda_defines(),
     deps = if_cuda([
         "@local_config_cuda//cuda:cuda_headers",
     ]),

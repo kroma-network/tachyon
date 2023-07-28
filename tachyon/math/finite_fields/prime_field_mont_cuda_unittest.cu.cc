@@ -36,7 +36,8 @@ class PrimeFieldMontCudaTest : public testing::Test {
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
-    GPU_SUCCESS(cudaDeviceReset());
+    cudaError_t error = cudaDeviceReset();
+    GPU_CHECK(error == cudaSuccess, error);
     xs_ = device::gpu::MakeManagedUnique<GF7Cuda>(N * sizeof(GF7Cuda));
     ys_ = device::gpu::MakeManagedUnique<GF7Cuda>(N * sizeof(GF7Cuda));
     results_ = device::gpu::MakeManagedUnique<GF7Cuda>(N * sizeof(GF7Cuda));
@@ -51,14 +52,19 @@ class PrimeFieldMontCudaTest : public testing::Test {
     results_.reset();
     bool_results_.reset();
 
-    GPU_SUCCESS(cudaDeviceReset());
+    cudaError_t error = cudaDeviceReset();
+    GPU_CHECK(error == cudaSuccess, error);
   }
 
   void SetUp() override {
-    GPU_SUCCESS(cudaMemset(xs_.get(), 0, N * sizeof(GF7Cuda)));
-    GPU_SUCCESS(cudaMemset(ys_.get(), 0, N * sizeof(GF7Cuda)));
-    GPU_SUCCESS(cudaMemset(results_.get(), 0, N * sizeof(GF7Cuda)));
-    GPU_SUCCESS(cudaMemset(bool_results_.get(), 0, N * sizeof(bool)));
+    cudaError_t error = cudaMemset(xs_.get(), 0, N * sizeof(GF7Cuda));
+    GPU_CHECK(error == cudaSuccess, error);
+    error = cudaMemset(ys_.get(), 0, N * sizeof(GF7Cuda));
+    GPU_CHECK(error == cudaSuccess, error);
+    error = cudaMemset(results_.get(), 0, N * sizeof(GF7Cuda));
+    GPU_CHECK(error == cudaSuccess, error);
+    error = cudaMemset(bool_results_.get(), 0, N * sizeof(bool));
+    GPU_CHECK(error == cudaSuccess, error);
   }
 
  protected:
@@ -75,14 +81,16 @@ device::gpu::ScopedMemory<bool> PrimeFieldMontCudaTest::bool_results_;
 
 }  // namespace
 
-#define RUN_OPERATION_TESTS(method, results)                                  \
-  for (size_t i = 0; i < std::size(tests); ++i) {                             \
-    const auto& test = tests[i];                                              \
-    (xs_.get())[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());                  \
-    (ys_.get())[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());                  \
-  }                                                                           \
-  GPU_SUCCESS(                                                                \
-      Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests))); \
+#define RUN_OPERATION_TESTS(method, results)                                 \
+  for (size_t i = 0; i < std::size(tests); ++i) {                            \
+    const auto& test = tests[i];                                             \
+    (xs_.get())[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());                 \
+    (ys_.get())[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());                 \
+  }                                                                          \
+  cudaError_t error =                                                        \
+      Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests)); \
+  GPU_CHECK(error == cudaSuccess, error);                                    \
+  << "Failed to " method "()";                                               \
   for (size_t i = 0; i < std::size(tests); ++i)
 
 #define RUN_FIELD_OPERATION_TESTS(method) \
@@ -178,8 +186,9 @@ TEST_F(PrimeFieldMontCudaTest, Eq) {
     ASSERT_EQ((xs_.get())[i] == (ys_.get())[i], test.result);
   }
 
-  GPU_SUCCESS(
-      LaunchEq(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)));
+  cudaError_t error =
+      LaunchEq(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests));
+  GPU_CHECK(error == cudaSuccess, error);
   for (size_t i = 0; i < std::size(tests); ++i) {
     ASSERT_EQ((bool_results_.get())[i], tests[i].result);
   }
@@ -203,8 +212,9 @@ TEST_F(PrimeFieldMontCudaTest, Ne) {
     ASSERT_EQ((xs_.get())[i] != (ys_.get())[i], test.result);
   }
 
-  GPU_SUCCESS(
-      LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)));
+  cudaError_t error =
+      LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests));
+  GPU_CHECK(error == cudaSuccess, error);
   for (size_t i = 0; i < std::size(tests); ++i) {
     ASSERT_EQ((bool_results_.get())[i], tests[i].result);
   }

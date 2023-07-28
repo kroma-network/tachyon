@@ -12,7 +12,8 @@ template <typename T>
 ScopedMemory<T> MakeManagedUnique(size_t size,
                                   unsigned int flags = cudaMemAttachGlobal) {
   T* ptr = nullptr;
-  GPU_SUCCESS(cudaMallocManaged(&ptr, size, flags));
+  cudaError_t error = cudaMallocManaged(&ptr, size, flags);
+  GPU_CHECK(error == cudaSuccess, error);
   ScopedMemory<T> ret;
   ret.reset(ptr);
   return ret;

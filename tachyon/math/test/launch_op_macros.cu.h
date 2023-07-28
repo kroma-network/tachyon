@@ -11,9 +11,11 @@
         method<<<(count - 1) / thread_num + 1, thread_num>>>(x, result, \
                                                              count);    \
     cudaError_t error = cudaGetLastError();                             \
-    GPU_LOG_IF_ERROR(ERROR, error);                                     \
-    error = error ? error : cudaDeviceSynchronize();                    \
-    GPU_LOG_IF_ERROR(ERROR, error);                                     \
+    GPU_LOG_IF(ERROR, error != CUDA_SUCCESS, error)                     \
+        << "Failed to " method "()";                                    \
+    error = cudaDeviceSynchronize();                                    \
+    GPU_LOG_IF(ERROR, error != cudaSuccess, error)                      \
+        << "Failed to cudaDeviceSynchronize()";                         \
     return error;                                                       \
   }
 
@@ -24,9 +26,11 @@
         method<<<(count - 1) / thread_num + 1, thread_num>>>(x, y, result, \
                                                              count);       \
     cudaError_t error = cudaGetLastError();                                \
-    GPU_LOG_IF_ERROR(ERROR, error);                                        \
-    error = error ? error : cudaDeviceSynchronize();                       \
-    GPU_LOG_IF_ERROR(ERROR, error);                                        \
+    GPU_LOG_IF(ERROR, error != CUDA_SUCCESS, error)                        \
+        << "Failed to " method "()";                                       \
+    error = cudaDeviceSynchronize();                                       \
+    GPU_LOG_IF(ERROR, error != cudaSuccess, error)                         \
+        << "Failed to cudaDeviceSynchronize()";                            \
     return error;                                                          \
   }
 

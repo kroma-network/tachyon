@@ -23,7 +23,8 @@ namespace {
 std::vector<math::bn254::G1JacobianPoint> CreateRandomPoints(size_t nums) {
   std::vector<math::bn254::G1JacobianPoint> ret;
   ret.reserve(nums);
-  math::bn254::G1JacobianPoint p = math::bn254::G1JacobianPoint::Curve::Generator();
+  math::bn254::G1JacobianPoint p =
+      math::bn254::G1JacobianPoint::Curve::Generator();
   for (size_t i = 0; i < nums; ++i) {
     ret.push_back(p.DoubleInPlace());
   }
@@ -43,9 +44,13 @@ cudaError_t LaunchDouble(const math::bn254::G1JacobianPointCuda* x,
                          math::bn254::G1JacobianPointCuda* y, uint64_t count) {
   math::kernels::Double<<<(count - 1) / 32 + 1, 32>>>(x, y, count);
   cudaError_t error = cudaGetLastError();
-  GPU_LOG_IF_ERROR(ERROR, error);
-  error = error ? error : cudaDeviceSynchronize();
-  GPU_LOG_IF_ERROR(ERROR, error);
+  if (error != cudaSuccess) {
+    GPU_LOG(ERROR) << "Failed to LaunchDouble()";
+    return error;
+  }
+  error = cudaDeviceSynchronize();
+  GPU_LOG_IF(ERROR, error != cudaSuccess, error)
+      << "Failed to cudaDeviceSynchronize()";
   return error;
 }
 
@@ -104,7 +109,8 @@ int RealMain(int argc, char** argv) {
     results.push_back(interval.GetTimeDelta().InSecondsF());
   }
 
-  GPU_SUCCESS(cudaDeviceReset());
+  cudaError_t error = cudaDeviceReset();
+  GPU_CHECK(error == cudaSuccess, error);
   auto bases_cuda =
       device::gpu::MakeManagedUnique<math::bn254::G1JacobianPointCuda>(
           max_nums * sizeof(math::bn254::G1JacobianPointCuda));
