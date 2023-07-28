@@ -4,6 +4,16 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "bits",
+    hdrs = ["bits.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/build:build_config",
+    ]
+)
+
+tachyon_cc_library(
     name = "callback_forward",
     hdrs = ["callback_forward.h"],
 )
@@ -99,6 +109,7 @@ tachyon_cc_library(
 tachyon_cc_test(
     name = "base_unittests",
     srcs = [
+        "bits_unittest.cc",
         "cxx20_is_constant_evaluated_unittest.cc",
         "environment_unittest.cc",
         "macro_utils_unittest.cc",
@@ -106,6 +117,7 @@ tachyon_cc_test(
         "scoped_generic_unittest.cc",
     ],
     deps = [
+        ":bits",
         ":cxx20_is_constant_evaluated",
         ":environment",
         ":macro_utils",
