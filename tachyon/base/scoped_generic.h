@@ -14,8 +14,7 @@
 #include "tachyon/base/logging.h"
 // #include "base/memory/raw_ptr.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // This class acts like unique_ptr with a custom deleter (although is slightly
 // less fancy in some of the more escoteric respects) except that it keeps a
@@ -324,8 +323,7 @@ bool operator!=(const T& value, const ScopedGeneric<T, Traits>& scoped) {
   return value != scoped.get();
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_SCOPED_GENERIC_H_
 

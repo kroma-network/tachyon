@@ -18,8 +18,7 @@
 // #include "tachyon/base/memory/raw_ptr.h"
 #include "tachyon/build/build_config.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace {
 
@@ -324,7 +323,6 @@ TEST(ScopedGenericTest, NoCompile) {
 }
 #endif
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 // clang-format on
