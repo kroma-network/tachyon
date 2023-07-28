@@ -5,6 +5,18 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "device_perf_info",
+    srcs = ["device_perf_info.cc"],
+    hdrs = ["device_perf_info.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:no_destructor",
+        "//tachyon/build:build_config",
+        "@com_google_absl//absl/synchronization",
+    ],
+)
+
+tachyon_cc_library(
     name = "gpu_device_functions",
     hdrs = ["gpu_device_functions.h"],
     deps = if_cuda([
@@ -19,6 +31,23 @@ tachyon_cc_library(
     deps = [
         ":gpu_types",
         "//tachyon/base:logging",
+    ],
+)
+
+tachyon_cc_library(
+    name = "gpu_info",
+    srcs = [
+        "gpu_info.cc",
+        "gpu_util.cc",
+    ],
+    hdrs = [
+        "gpu_info.h",
+        "gpu_util.h",
+    ],
+    deps = [
+        ":device_perf_info",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/time",
     ],
 )
 
