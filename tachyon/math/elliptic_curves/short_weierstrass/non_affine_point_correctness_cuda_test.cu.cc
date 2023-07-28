@@ -10,24 +10,26 @@ namespace tachyon::math {
 
 namespace {
 
-#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                       \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1ProjectivePointCuda, \
-                          bn254::G1ProjectivePointCuda)             \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1JacobianPointCuda,   \
-                          bn254::G1JacobianPointCuda)               \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1PointXYZZCuda,       \
+constexpr size_t kThreadNum = 32;
+
+#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                               \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1ProjectivePointCuda, \
+                          bn254::G1ProjectivePointCuda)                     \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1JacobianPointCuda,   \
+                          bn254::G1JacobianPointCuda)                       \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1PointXYZZCuda,       \
                           bn254::G1PointXYZZCuda)
 
 DEFINE_LAUNCH_FIELD_BINARY_OP(Add)
 
 #undef DEFINE_LAUNCH_FIELD_BINARY_OP
 
-#define DEFINE_LAUNCH_FIELD_UNARY_OP(method)                       \
-  DEFINE_LAUNCH_UNARY_OP(32, method, bn254::G1ProjectivePointCuda, \
-                         bn254::G1ProjectivePointCuda)             \
-  DEFINE_LAUNCH_UNARY_OP(32, method, bn254::G1JacobianPointCuda,   \
-                         bn254::G1JacobianPointCuda)               \
-  DEFINE_LAUNCH_UNARY_OP(32, method, bn254::G1PointXYZZCuda,       \
+#define DEFINE_LAUNCH_FIELD_UNARY_OP(method)                               \
+  DEFINE_LAUNCH_UNARY_OP(kThreadNum, method, bn254::G1ProjectivePointCuda, \
+                         bn254::G1ProjectivePointCuda)                     \
+  DEFINE_LAUNCH_UNARY_OP(kThreadNum, method, bn254::G1JacobianPointCuda,   \
+                         bn254::G1JacobianPointCuda)                       \
+  DEFINE_LAUNCH_UNARY_OP(kThreadNum, method, bn254::G1PointXYZZCuda,       \
                          bn254::G1PointXYZZCuda)
 
 DEFINE_LAUNCH_FIELD_UNARY_OP(Double)
@@ -35,10 +37,12 @@ DEFINE_LAUNCH_FIELD_UNARY_OP(Negative)
 
 #undef DEFINE_LAUNCH_FIELD_UNARY_OP
 
-#define DEFINE_LAUNCH_COMPARISON_OP(method)                               \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1ProjectivePointCuda, bool) \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1JacobianPointCuda, bool)   \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1PointXYZZCuda, bool)
+#define DEFINE_LAUNCH_COMPARISON_OP(method)                                 \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1ProjectivePointCuda, \
+                          bool)                                             \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1JacobianPointCuda,   \
+                          bool)                                             \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1PointXYZZCuda, bool)
 
 DEFINE_LAUNCH_COMPARISON_OP(Eq)
 DEFINE_LAUNCH_COMPARISON_OP(Ne)
@@ -51,7 +55,8 @@ class PointCorrectnessCudaTest : public testing::Test {
   using Actual = typename PointType::Actual;
   using Expected = typename PointType::Expected;
 
-  constexpr static size_t N = 1000;
+  // Runs tests with |N| data.
+  constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
     GPU_SUCCESS(cudaDeviceReset());

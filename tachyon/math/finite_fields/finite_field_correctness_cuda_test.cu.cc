@@ -10,8 +10,10 @@ namespace tachyon::math {
 
 namespace {
 
+constexpr size_t kThreadNum = 32;
+
 #define DEFINE_LAUNCH_FIELD_OP(method) \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::FqCuda, bn254::FqCuda)
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::FqCuda, bn254::FqCuda)
 
 DEFINE_LAUNCH_FIELD_OP(Add)
 DEFINE_LAUNCH_FIELD_OP(Sub)
@@ -22,7 +24,8 @@ DEFINE_LAUNCH_FIELD_OP(Div)
 
 class PrimeFieldCorrectnessCudaTest : public testing::Test {
  public:
-  constexpr static size_t N = 1000;
+  // Runs tests with |N| data.
+  constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
     GPU_SUCCESS(cudaDeviceReset());

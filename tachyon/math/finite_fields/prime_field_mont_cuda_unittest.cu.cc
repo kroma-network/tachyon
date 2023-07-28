@@ -9,10 +9,12 @@ namespace tachyon::math {
 
 namespace {
 
+constexpr size_t kThreadNum = 32;
+
 #define DEFINE_LAUNCH_FIELD_OP(method) \
-  DEFINE_LAUNCH_BINARY_OP(32, method, GF7Cuda, GF7Cuda)
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, GF7Cuda, GF7Cuda)
 #define DEFINE_LAUNCH_COMPARISON_OP(method) \
-  DEFINE_LAUNCH_BINARY_OP(32, method, GF7Cuda, bool)
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, GF7Cuda, bool)
 
 DEFINE_LAUNCH_FIELD_OP(Add)
 DEFINE_LAUNCH_FIELD_OP(Sub)
@@ -30,7 +32,8 @@ DEFINE_LAUNCH_COMPARISON_OP(Ge)
 
 class PrimeFieldMontCudaTest : public testing::Test {
  public:
-  constexpr static size_t N = 5;
+  // Runs tests with |N| data.
+  constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
     GPU_SUCCESS(cudaDeviceReset());

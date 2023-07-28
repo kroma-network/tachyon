@@ -10,21 +10,23 @@ namespace tachyon::math {
 
 namespace {
 
-#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                   \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1AffinePointCuda, \
+constexpr size_t kThreadNum = 32;
+
+#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                           \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1AffinePointCuda, \
                           bn254::G1JacobianPointCuda)
 
 DEFINE_LAUNCH_FIELD_BINARY_OP(Add)
 
-DEFINE_LAUNCH_UNARY_OP(32, Double, bn254::G1AffinePointCuda,
+DEFINE_LAUNCH_UNARY_OP(kThreadNum, Double, bn254::G1AffinePointCuda,
                        bn254::G1JacobianPointCuda)
-DEFINE_LAUNCH_UNARY_OP(32, Negative, bn254::G1AffinePointCuda,
+DEFINE_LAUNCH_UNARY_OP(kThreadNum, Negative, bn254::G1AffinePointCuda,
                        bn254::G1AffinePointCuda)
 
 #undef DEFINE_LAUNCH_FIELD_BINARY_OP
 
 #define DEFINE_LAUNCH_COMPARISON_OP(method) \
-  DEFINE_LAUNCH_BINARY_OP(32, method, bn254::G1AffinePointCuda, bool)
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1AffinePointCuda, bool)
 
 DEFINE_LAUNCH_COMPARISON_OP(Eq)
 DEFINE_LAUNCH_COMPARISON_OP(Ne)
@@ -33,7 +35,8 @@ DEFINE_LAUNCH_COMPARISON_OP(Ne)
 
 class AffinePointCorrectnessCudaTest : public testing::Test {
  public:
-  constexpr static size_t N = 1000;
+  // Runs tests with |N| data.
+  constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
     GPU_SUCCESS(cudaDeviceReset());
