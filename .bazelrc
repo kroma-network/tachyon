@@ -12,6 +12,7 @@
 # Hardware support options:
 #     cuda: Build with NVIDIA GPU support (cuda).
 #     rocm: Build with AMD GPU support (rocm).
+#     numa: Enable numa using hwloc.
 #
 # Default build options. These are applied first and unconditionally.
 
@@ -39,6 +40,9 @@ build:rocm --crosstool_top=@local_config_rocm//crosstool:toolchain
 build:rocm --define=using_rocm_hipcc=true
 build:rocm --define=tensorflow_mkldnn_contraction_kernel=0
 build:rocm --repo_env TACHYON_NEED_ROCM=1
+
+# Options extracted from configure script
+build:numa --//:has_numa
 
 # Debug config
 build:dbg -c dbg

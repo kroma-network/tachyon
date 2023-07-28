@@ -1,0 +1,21 @@
+load("//bazel:tachyon.bzl", "if_has_numa")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "numa",
+    srcs = ["numa.cc"],
+    hdrs = ["numa.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/build:build_config",
+        "//tachyon/base/memory:aligned_memory",
+    ] + if_has_numa(["@hwloc"]),
+)
+
+tachyon_cc_test(
+    name = "device_unittests",
+    srcs = ["numa_unittest.cc"],
+    deps = [":numa"],
+)

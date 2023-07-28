@@ -1,0 +1,17 @@
+# hwloc: Portable Hardware Locality Library
+licenses(["notice"])
+
+filegroup(
+    name = "COPYING",
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "hwloc",
+    defines = ["TACHYON_USE_NUMA"],
+    linkopts = select({
+        "@kroma_network_tachyon//:tachyon_has_numa": ["-lhwloc"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//visibility:public"],
+)
