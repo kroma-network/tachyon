@@ -8,8 +8,7 @@
 #include "tachyon/math/matrix/matrix_to_string_operator.h"
 #include "tachyon/math/matrix/matrix_traits.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename T, size_t Rows_, size_t Cols_>
 class Matrix;
@@ -176,7 +175,6 @@ struct MatrixTraits<MatrixView<T>> {
   typedef T value_type;
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_MATRIX_MATRIX_VIEW_H_

@@ -5,8 +5,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config_traits.h"
 #include "tachyon/math/geometry/point2.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename _Config>
 class SWCurveCuda : public SWCurveBase<SWCurveCuda<_Config>> {
@@ -53,7 +52,6 @@ struct SWCurveConfigTraits<SWCurveCuda<Config>> {
   using PointXYZZTy = PointXYZZ<SWCurveCuda<Config>>;
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CUDA_CU_H_

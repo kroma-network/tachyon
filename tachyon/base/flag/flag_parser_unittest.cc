@@ -9,8 +9,7 @@
 
 #include "tachyon/base/test/scoped_environment.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 #define EXPECT_PARSE_TRUE(...)        \
   const char* argv[] = {__VA_ARGS__}; \
@@ -303,5 +302,4 @@ TEST(FlagParserTest, SubParserTest) {
 #undef EXPECT_PARSE_TRUE
 #undef EXPECT_PARSE_FALSE
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

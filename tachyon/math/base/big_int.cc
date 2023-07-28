@@ -3,9 +3,7 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 
-namespace tachyon {
-namespace math {
-namespace internal {
+namespace tachyon::math::internal {
 
 namespace {
 
@@ -44,6 +42,4 @@ std::string LimbsToHexString(const uint64_t* limbs, size_t limb_nums) {
   return base::MaybePrepend0x(DoLimbsToString<16>(limbs, limb_nums));
 }
 
-}  // namespace internal
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::internal

@@ -3,8 +3,7 @@
 
 #include "tachyon/math/base/big_int.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <size_t N>
 class Modulus {
@@ -74,7 +73,6 @@ class Modulus {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_MODULUS_H_

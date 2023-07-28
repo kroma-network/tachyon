@@ -8,8 +8,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace secp256k1 {
 
 template <typename Fq, typename Fr>
@@ -65,7 +64,6 @@ using G1PointXYZZGmp = PointXYZZ<SWCurve<CurveConfig<FqGmp, FrGmp>>>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace secp256k1
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SECP_SECP256K1_CURVE_CONFIG_H_

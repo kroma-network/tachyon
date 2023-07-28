@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace bn254 {
 
 TEST(G1CurveConfig, Params) {
@@ -17,5 +16,4 @@ TEST(G1CurveConfig, Params) {
 }
 
 }  // namespace bn254
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

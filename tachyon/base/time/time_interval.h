@@ -7,8 +7,7 @@
 #include "tachyon/base/time/time.h"
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // This is a convenience class for getting tachyon::base::TimeDelta between
 // events. A typical usecase is getting time delta between robot movements.
@@ -61,7 +60,6 @@ class TACHYON_EXPORT TimeInterval {
 #endif
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_TIME_TIME_INTERVAL_H_

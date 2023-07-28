@@ -11,8 +11,7 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace {
 
 #if BUILDFLAG(IS_POSIX)
@@ -211,5 +210,4 @@ std::ostream& operator<<(std::ostream& out, const FilePath& file_path) {
   return out;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

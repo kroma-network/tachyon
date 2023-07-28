@@ -8,8 +8,7 @@
 
 #include "tachyon/base/color/named_color.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(ColorConversions, RgbaAndHsv) {
   Hsv hsv = RgbaToHsv(colors::kMagenta);
@@ -20,5 +19,4 @@ TEST(ColorConversions, RgbaAndHsv) {
   EXPECT_EQ(colors::kMagenta, rgba);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

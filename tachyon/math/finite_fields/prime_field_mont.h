@@ -17,8 +17,7 @@
 #include "tachyon/math/finite_fields/modulus.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename _Config>
 class PrimeFieldMont : public PrimeFieldBase<PrimeFieldMont<_Config>> {
@@ -386,7 +385,6 @@ class AdditiveIdentity<PrimeFieldMont<Config>> {
   constexpr static bool IsZero(const F& value) { return value.IsZero(); }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_MONT_H_

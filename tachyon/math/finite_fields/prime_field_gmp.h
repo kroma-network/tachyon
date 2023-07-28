@@ -17,8 +17,7 @@
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/finite_fields/prime_field_mont.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename _Config>
 class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
@@ -264,8 +263,7 @@ class AdditiveIdentity<PrimeFieldGmp<Config>> {
   constexpr static bool IsZero(const F& value) { return value.IsZero(); }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_GMP_H_
 

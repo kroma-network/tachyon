@@ -3,8 +3,7 @@
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 #define CLASS JacobianPoint<Curve, std::enable_if_t<Curve::kIsSWCurve>>
 
@@ -280,7 +279,6 @@ constexpr CLASS& CLASS::DoubleInPlace() {
 
 #undef CLASS
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_JACOBIAN_POINT_IMPL_H_

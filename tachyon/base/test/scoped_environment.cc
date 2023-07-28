@@ -2,8 +2,7 @@
 
 #include "tachyon/base/environment.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 ScopedEnvironment::ScopedEnvironment(std::string_view env_name,
                                      std::string_view value)
@@ -13,5 +12,4 @@ ScopedEnvironment::ScopedEnvironment(std::string_view env_name,
 
 ScopedEnvironment::~ScopedEnvironment() { Environment::Unset(env_name_); }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

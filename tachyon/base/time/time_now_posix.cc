@@ -8,8 +8,7 @@
 #include "tachyon/base/time/time.h"
 #include "tachyon/build/build_config.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace {
 
@@ -54,5 +53,4 @@ ThreadTicks ThreadTicks::Now() {
   return ThreadTicks(ClockNow(CLOCK_THREAD_CPUTIME_ID));
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

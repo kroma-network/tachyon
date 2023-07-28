@@ -10,8 +10,7 @@
 // Internal portion of base/containers/cxx20_erase_*.h. Please include those
 // headers instead of including this directly.
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace internal {
 
@@ -31,7 +30,6 @@ size_t IterateAndEraseIf(Container& container, Predicate pred) {
 
 }  // namespace internal
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_CXX20_ERASE_INTERNAL_H_

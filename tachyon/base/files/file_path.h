@@ -12,8 +12,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // This is a class represents file path inside tachyon projects.
 // CAUTION: On linux, unlike your expectation, it's not utf-8 encoded, encoding
@@ -133,7 +132,6 @@ class TACHYON_EXPORT FilePath {
 TACHYON_EXPORT std::ostream& operator<<(std::ostream& out,
                                         const FilePath& file_path);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_FILES_FILE_PATH_H_

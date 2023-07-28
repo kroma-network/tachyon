@@ -3,8 +3,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_number_conversions_internal.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 bool StringToInt(std::string_view input, int* output) {
   return absl::SimpleAtoi(input, output);
@@ -92,5 +91,4 @@ bool HexStringToSpan(std::string_view input, absl::Span<uint8_t> output) {
   return internal::HexStringToByteContainer(input, output.begin());
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

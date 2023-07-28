@@ -10,9 +10,7 @@
 
 #include "tachyon/math/base/sign.h"
 
-namespace tachyon {
-namespace math {
-namespace gmp {
+namespace tachyon::math::gmp {
 
 // Generate a uniform integer in the range 0 to n-1, inclusive.
 TACHYON_EXPORT mpz_class Random(mpz_class n);
@@ -67,8 +65,6 @@ TACHYON_EXPORT void WriteLimbs(const uint64_t* limbs, size_t limb_size,
 
 TACHYON_EXPORT mpz_class DivBy2Exp(const mpz_class& value, uint64_t exp);
 
-}  // namespace gmp
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::gmp
 
 #endif  // TACHYON_MATH_BASE_GMP_GMP_UTIL_H_

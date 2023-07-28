@@ -6,13 +6,11 @@
 
 #include <ostream>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 std::ostream& operator<<(std::ostream& os, const PlatformThreadRef& ref) {
   os << ref.id_;
   return os;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

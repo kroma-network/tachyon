@@ -15,13 +15,11 @@
 #include "glog/logging.h"
 #include "glog/raw_logging.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TACHYON_EXPORT extern std::ostream* g_swallow_stream;
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 // Helper macro which avoids evaluating the arguments to a stream if
 // the condition doesn't hold. Condition is evaluated once and only once.

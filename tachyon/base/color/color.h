@@ -12,9 +12,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
-
+namespace tachyon::base {
 struct TACHYON_EXPORT RgbaIndexes {
   int r;
   int g;
@@ -167,7 +165,6 @@ inline bool operator!=(const Hsv& hsv, const Hsv& hsv2) {
 
 TACHYON_EXPORT std::ostream& operator<<(std::ostream& os, const Hsv& hsv);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_COLOR_COLOR_H_

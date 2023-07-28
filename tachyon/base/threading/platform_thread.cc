@@ -11,8 +11,7 @@
 #include "tachyon/base/fuchsia/scheduler.h"
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace {
 
@@ -83,5 +82,4 @@ void SetCurrentThreadType(ThreadType thread_type,
 
 }  // namespace internal
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

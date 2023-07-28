@@ -8,8 +8,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(FunctionalTest, Identity) {
   static constexpr identity id;
@@ -21,5 +20,4 @@ TEST(FunctionalTest, Identity) {
   static_assert(arr == id(arr), "");
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

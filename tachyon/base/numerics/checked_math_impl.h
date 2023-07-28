@@ -17,8 +17,7 @@
 #include "tachyon/base/numerics/safe_conversions.h"
 #include "tachyon/base/numerics/safe_math_shared_impl.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 template <typename T>
@@ -591,7 +590,6 @@ class CheckedNumericState<T, NUMERIC_FLOATING> {
 };
 
 }  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_CHECKED_MATH_IMPL_H_

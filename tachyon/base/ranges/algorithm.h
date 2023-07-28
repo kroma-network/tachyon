@@ -19,8 +19,7 @@
 #include "tachyon/base/ranges/functional.h"
 #include "tachyon/base/ranges/ranges.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace internal {
 
@@ -5016,7 +5015,6 @@ constexpr auto prev_permutation(Range&& range, Comp comp = {}, Proj proj = {}) {
 
 }  // namespace ranges
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_RANGES_ALGORITHM_H_

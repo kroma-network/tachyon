@@ -12,8 +12,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/logging.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace internal {
 
@@ -62,5 +61,4 @@ int GetCurrentThreadNiceValue() {
 
 }  // namespace internal
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

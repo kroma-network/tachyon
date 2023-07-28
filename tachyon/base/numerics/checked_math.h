@@ -12,8 +12,7 @@
 
 #include "tachyon/base/numerics/checked_math_impl.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 template <typename T>
@@ -376,7 +375,6 @@ using internal::MakeCheckedNum;
 using internal::ValueOrDefaultForType;
 using internal::ValueOrDieForType;
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_CHECKED_MATH_H_

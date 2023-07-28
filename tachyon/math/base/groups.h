@@ -3,8 +3,7 @@
 
 #include "tachyon/math/base/semigroups.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace internal {
 
 SUPPORTS_BINARY_OPERATOR(Div);
@@ -93,7 +92,6 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_GROUPS_H_

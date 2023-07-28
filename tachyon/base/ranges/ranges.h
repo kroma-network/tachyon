@@ -12,8 +12,7 @@
 
 #include "tachyon/base/template_util.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace internal {
 
@@ -136,7 +135,6 @@ using range_value_t = iter_value_t<iterator_t<Range>>;
 
 }  // namespace ranges
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_RANGES_RANGES_H_

@@ -14,8 +14,7 @@
 #include "tachyon/math/matrix/matrix_to_string_operator.h"
 #include "tachyon/math/matrix/matrix_view.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 // This class is aiming for stack allocated simple 2-D matrix.
 // If you want to use complicated matrix operation, please use another 3rd party
@@ -472,7 +471,6 @@ class AdditiveIdentity<Matrix<T, Rows, Cols>> {
   constexpr static bool IsZero(const M& value) { return value.IsZero(); }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_MATRIX_MATRIX_H_

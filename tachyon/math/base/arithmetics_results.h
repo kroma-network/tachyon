@@ -5,8 +5,7 @@
 
 #include "absl/strings/substitute.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename T>
 struct AddResult {
@@ -97,7 +96,6 @@ std::ostream& operator<<(std::ostream& os, const DivResult<T>& result) {
   return os << result.ToString();
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_ARITHMETICS_RESULTS_H_

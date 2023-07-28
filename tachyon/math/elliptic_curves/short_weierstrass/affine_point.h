@@ -17,8 +17,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 #include "tachyon/math/geometry/point2.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename _Curve>
 class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
@@ -187,8 +186,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   bool infinity_;
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point_impl.h"
 

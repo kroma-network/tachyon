@@ -1,7 +1,6 @@
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 // From:
 // https://github.com/arkworks-rs/gemini/blob/main/src/kzg/msm/variable_base.rs#L20
@@ -52,5 +51,4 @@ std::vector<int64_t> MakeDigits(const mpz_class& scalar, size_t w,
   return digits;
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

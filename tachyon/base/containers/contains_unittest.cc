@@ -14,8 +14,7 @@
 
 #include "tachyon/base/functional/identity.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(ContainsTest, GenericContains) {
   constexpr char allowed_chars[] = {'a', 'b', 'c', 'd'};
@@ -68,5 +67,4 @@ TEST(ContainsTest, ContainsWithContains) {
   EXPECT_FALSE(Contains(set, 0));
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

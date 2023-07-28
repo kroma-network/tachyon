@@ -31,8 +31,7 @@
 #include <unistd.h>
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 #if BUILDFLAG(IS_CHROMEOS)
 BASE_FEATURE(kSchedUtilHints,
@@ -512,5 +511,4 @@ size_t GetDefaultThreadStackSize(const pthread_attr_t& attributes) {
 #endif
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

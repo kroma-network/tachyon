@@ -34,8 +34,7 @@
                                         std::declval<T>().Name##InPlace()))> \
       : std::true_type {}
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace internal {
 
 SUPPORTS_BINARY_OPERATOR(Mul);
@@ -175,7 +174,6 @@ class AdditiveSemigroup {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_SEMIGROUPS_H_

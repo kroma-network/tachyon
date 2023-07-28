@@ -4,8 +4,7 @@
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/base/sign.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <>
 class SignedValue<mpz_class> {
@@ -33,7 +32,6 @@ class SignedValue<mpz_class> {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_GMP_GMP_SIGN_H_

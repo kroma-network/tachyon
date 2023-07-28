@@ -10,8 +10,7 @@
 #include "tachyon/math/finite_fields/prime_field.h"
 #include "tachyon/math/geometry/point2.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace test {
 
 template <typename _BaseField, typename _ScalarField>
@@ -43,7 +42,6 @@ using PointXYZZGmp = math::PointXYZZ<SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace test
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_TEST_CURVE_CONFIG_H_

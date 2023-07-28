@@ -11,8 +11,7 @@
 #include "tachyon/base/threading/platform_thread.h"
 #include "tachyon/build/build_config.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace internal {
 
@@ -72,7 +71,6 @@ int GetCurrentThreadNiceValue();
 
 }  // namespace internal
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_THREADING_PLATFORM_THREAD_INTERNAL_POSIX_H_

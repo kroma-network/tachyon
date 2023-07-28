@@ -10,8 +10,7 @@
 #include <iterator>
 #include <type_traits>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 // Helper to express preferences in an overload set. If more than one overload
@@ -85,7 +84,6 @@ struct projected {
   IndirectResultT operator*() const;  // not defined
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_TEMPLATE_UTIL_H_

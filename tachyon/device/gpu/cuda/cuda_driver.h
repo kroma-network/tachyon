@@ -27,8 +27,7 @@ limitations under the License.
 #include "tachyon/device/gpu/gpu_driver.h"
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace device {
+namespace tachyon::device {
 namespace gpu {
 
 // Formats CUresult to output prettified values into a log stream.
@@ -166,7 +165,6 @@ using CudaContext = gpu::GpuContext;
 CUcontext CurrentContextOrDie();
 
 }  // namespace cuda
-}  // namespace device
-}  // namespace tachyon
+}  // namespace tachyon::device
 
 #endif  // TACHYON_DEVICE_GPU_CUDA_CUDA_DRIVER_H_

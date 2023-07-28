@@ -8,8 +8,7 @@
 
 #include "tachyon/base/color/named_color.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(Rgba, StringConversion) {
   EXPECT_EQ(colors::kGold.ToRgbString(), "rgb(255, 215, 0)");
@@ -47,5 +46,4 @@ TEST(Hsv, StringConversion) {
   EXPECT_EQ(hsv, hsv2);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

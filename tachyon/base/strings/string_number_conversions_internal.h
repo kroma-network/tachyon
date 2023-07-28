@@ -11,8 +11,7 @@
 #include <optional>
 #include <string_view>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 // Utility to convert a character to a digit in a given base
@@ -46,7 +45,6 @@ static bool HexStringToByteContainer(std::string_view input, OutIter output) {
 }
 
 }  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_STRINGS_STRING_NUMBER_CONVERSIONS_INTERNAL_H_

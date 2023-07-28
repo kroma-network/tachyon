@@ -7,8 +7,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // This is a wrapper class to interact with environment variables.
 // NOTE: Do not call directly getenv() or setenv() inside tachyon project.
@@ -32,7 +31,6 @@ class TACHYON_EXPORT Environment {
 
 using EnvironmentMap = std::map<std::string, std::string>;
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_ENVIRONMENT_H_

@@ -9,8 +9,7 @@
 
 #include <string>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 template <typename T>
 class Flag;
@@ -48,7 +47,6 @@ using Int64RangeFlag = RangeFlag<int64_t>;
 using FloatRangeFlag = RangeFlag<float>;
 using DoubleRangeFlag = RangeFlag<double>;
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_FLAG_FLAG_FORWARD_H_

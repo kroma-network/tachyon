@@ -6,8 +6,7 @@
 
 #include "tachyon/math/finite_fields/prime_field.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -353,5 +352,4 @@ TEST_F(MatrixTest, ToString) {
   EXPECT_EQ(matrix.ToString(), expected);
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

@@ -21,9 +21,7 @@ limitations under the License.
 #include "gtest/gtest.h"
 #include "third_party/gpus/cuda/include/cuda_runtime_api.h"
 
-namespace tachyon {
-namespace device {
-namespace gpu {
+namespace tachyon::device::gpu {
 
 void CheckCuda(CUresult result, const char* file, int line) {
   if (result == CUDA_SUCCESS) {
@@ -75,8 +73,6 @@ TEST(CudaDriverTest, ScopedActivateContextTest) {
   */
 }
 
-}  // namespace gpu
-}  // namespace device
-}  // namespace tachyon
+}  // namespace tachyon::device::gpu
 
 #endif  // TACHYON_CUDA

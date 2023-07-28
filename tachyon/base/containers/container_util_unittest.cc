@@ -5,8 +5,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(ContainerUtilTest, CreateRangedVector) {
   struct {
@@ -46,5 +45,4 @@ TEST(ContainerUtilTest, Map) {
               testing::ContainerEq(std::vector<double>{2.0, 4.0, 6.0}));
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

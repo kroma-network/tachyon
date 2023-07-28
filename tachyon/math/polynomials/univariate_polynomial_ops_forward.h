@@ -21,9 +21,7 @@
       decltype(void(UnivariatePolynomialOp<Coefficients>::Name##InPlace(    \
           std::declval<L&>(), std::declval<const R&>())))> : std::true_type {}
 
-namespace tachyon {
-namespace math {
-namespace internal {
+namespace tachyon::math::internal {
 
 template <typename Coefficients, typename SFINAE = void>
 class UnivariatePolynomialOp;
@@ -34,9 +32,7 @@ SUPPORTS_POLY_OPERATOR(Mul);
 SUPPORTS_POLY_OPERATOR(Div);
 SUPPORTS_POLY_OPERATOR(Mod);
 
-}  // namespace internal
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::internal
 
 #undef SUPPORTS_POLY_OPERATOR
 

@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(StringUtilTest, EmptyString) { EXPECT_EQ(EmptyString(), ""); }
 
@@ -53,5 +52,4 @@ TEST(StringUtilTest, MaybePrepend0x) {
   EXPECT_EQ(MaybePrepend0x(sv), "0x3456");
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

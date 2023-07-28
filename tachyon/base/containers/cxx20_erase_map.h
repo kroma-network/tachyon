@@ -9,8 +9,7 @@
 
 #include "tachyon/base/containers/cxx20_erase_internal.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // EraseIf is based on C++20's uniform container erasure API:
 // - https://eel.is/c++draft/libraryindex#:erase
@@ -33,7 +32,6 @@ size_t EraseIf(std::multimap<Key, T, Compare, Allocator>& container,
   return internal::IterateAndEraseIf(container, pred);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_CXX20_ERASE_MAP_H_

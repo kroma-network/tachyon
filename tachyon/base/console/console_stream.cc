@@ -6,8 +6,7 @@
 
 #include "tachyon/base/color/color_conversions.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 ConsoleStream::ConsoleStream(std::ostream& ostream)
     : ostream_(ostream), console_info_(Console::GetInfo()) {}
@@ -166,5 +165,4 @@ ConsoleStream& ConsoleStream::EraseScreen() {
   return *this;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

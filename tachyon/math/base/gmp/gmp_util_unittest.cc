@@ -8,9 +8,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/build/build_config.h"
 
-namespace tachyon {
-namespace math {
-namespace gmp {
+namespace tachyon::math::gmp {
 
 TEST(GmpUtilTest, FromDecString) {
   EXPECT_EQ(FromDecString("1234"), mpz_class(1234));
@@ -91,6 +89,4 @@ TEST(GmpUtilTest, Limbs) {
   EXPECT_EQ(GetLimbConstRef(value, 0), 1234);
 }
 
-}  // namespace gmp
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::gmp

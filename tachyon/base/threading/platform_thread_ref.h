@@ -21,8 +21,7 @@
 #include <pthread.h>
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // Used for thread checking and debugging.
 // Meant to be as fast as possible.
@@ -58,7 +57,6 @@ class PlatformThreadRef {
 TACHYON_EXPORT std::ostream& operator<<(std::ostream& os,
                                         const PlatformThreadRef& ref);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_THREADING_PLATFORM_THREAD_REF_H_

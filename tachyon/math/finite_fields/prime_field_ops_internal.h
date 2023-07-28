@@ -6,9 +6,7 @@
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/math/base/arithmetics.h"
 
-namespace tachyon {
-namespace math {
-namespace internal {
+namespace tachyon::math::internal {
 namespace u32 {
 
 constexpr ALWAYS_INLINE AddResult<uint32_t> Add(uint32_t x, uint32_t y) {
@@ -198,8 +196,6 @@ ALWAYS_INLINE AddResult<uint64_t> MadcHiCc(uint64_t x, uint64_t y, uint64_t z,
 }
 
 }  // namespace u64
-}  // namespace internal
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::internal
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_OPS_INTERNAL_CU_H_

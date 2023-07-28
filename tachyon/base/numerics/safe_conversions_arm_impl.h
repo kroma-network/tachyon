@@ -11,8 +11,7 @@
 
 #include "tachyon/base/numerics/safe_conversions_impl.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 // Fast saturation to a destination type.
@@ -47,7 +46,6 @@ struct SaturateFastAsmOp {
 };
 
 }  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_SAFE_CONVERSIONS_ARM_IMPL_H_

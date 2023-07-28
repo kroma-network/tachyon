@@ -1,8 +1,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 #define TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename F>
 class QuadraticExtensionField {
@@ -26,7 +25,6 @@ class QuadraticExtensionField {
   BaseField c1_;
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_

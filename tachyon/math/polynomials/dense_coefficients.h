@@ -12,8 +12,7 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/univariate_polynomial_ops_forward.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename F, size_t MaxDegree>
 class SparseCoefficients;
@@ -160,7 +159,6 @@ std::ostream& operator<<(std::ostream& os,
   return os << p.ToString();
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_POLYNOMIALS_DENSE_COEFFICIENTS_H_

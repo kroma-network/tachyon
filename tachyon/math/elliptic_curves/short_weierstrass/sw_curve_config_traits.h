@@ -1,13 +1,11 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CONFIG_TRAITS_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CONFIG_TRAITS_H_
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename T>
 struct SWCurveConfigTraits;
 
-}
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CONFIG_TRAITS_H_

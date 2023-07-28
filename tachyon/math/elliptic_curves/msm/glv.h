@@ -12,8 +12,7 @@
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/matrix/matrix.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename PointTy>
 struct GLVTraits {
@@ -165,7 +164,6 @@ class GLV {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_

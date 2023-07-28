@@ -39,9 +39,7 @@ typedef struct curandGenerator_st* curandGenerator_t;
 
 #endif
 
-namespace tachyon {
-namespace device {
-namespace gpu {
+namespace tachyon::device::gpu {
 
 #if TACHYON_USE_ROCM
 
@@ -83,8 +81,6 @@ using GpuRngHandle = curandGenerator_t;
 
 #endif
 
-}  // namespace gpu
-}  // namespace device
-}  // namespace tachyon
+}  // namespace tachyon::device::gpu
 
 #endif  // TACHYON_DEVICE_GPU_GPU_TYPES_H_

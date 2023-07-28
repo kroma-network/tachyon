@@ -5,8 +5,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TACHYON_EXPORT absl::BitGen& GetAbslBitGen();
 
@@ -20,7 +19,6 @@ auto Uniform(TagType tag, L min, R max) {
   return absl::Uniform(tag, GetAbslBitGen(), min, max);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_RANDOM_H_

@@ -93,8 +93,7 @@
 #include <unistd.h>
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 class TimeDelta;
 
@@ -958,7 +957,6 @@ class TACHYON_EXPORT ThreadTicks : public time_internal::TimeBase<ThreadTicks> {
 TACHYON_EXPORT std::ostream& operator<<(std::ostream& os,
                                         ThreadTicks thread_ticks);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_TIME_TIME_H_

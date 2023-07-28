@@ -9,8 +9,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 class TACHYON_EXPORT Console {
  public:
@@ -29,7 +28,6 @@ class TACHYON_EXPORT Console {
   static bool IsConnected(std::ostream& os);
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONSOLE_CONSOLE_H_

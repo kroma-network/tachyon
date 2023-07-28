@@ -19,8 +19,7 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TACHYON_EXPORT bool IsValidFlagName(std::string_view text);
 
@@ -407,7 +406,6 @@ bool RangeFlag<T>::ParseValueFromEnvironment(std::string* reason) {
   return true;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_FLAG_FLAG_H_

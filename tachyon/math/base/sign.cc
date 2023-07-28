@@ -2,8 +2,7 @@
 
 #include "tachyon/base/strings/string_util.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 std::string SignToString(Sign sign) {
   switch (sign) {
@@ -20,5 +19,4 @@ std::string SignToString(Sign sign) {
   return base::EmptyString();
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

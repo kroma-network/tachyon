@@ -24,8 +24,7 @@ using testing::Le;
 using testing::Lt;
 using testing::Pair;
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace {
 
@@ -1716,5 +1715,4 @@ TEST(RangesTest, DontClashWithPredicateFromInternalInvoke) {
   }
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

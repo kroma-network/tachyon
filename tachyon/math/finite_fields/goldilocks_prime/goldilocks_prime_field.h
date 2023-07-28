@@ -3,8 +3,7 @@
 
 #include "tachyon/math/finite_fields/prime_field.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 class TACHYON_EXPORT GoldilocksConfig {
  public:
@@ -25,7 +24,6 @@ using Goldilocks = PrimeField<GoldilocksConfig>;
 using GoldilocksGmp = PrimeFieldGmp<GoldilocksConfig>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_PRIME_GOLDILOCKS_PRIME_FIELD_H_

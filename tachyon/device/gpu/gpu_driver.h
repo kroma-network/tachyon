@@ -6,9 +6,7 @@
 #include "tachyon/device/gpu/gpu_types.h"
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace device {
-namespace gpu {
+namespace tachyon::device::gpu {
 
 // Identifies the memory space where an allocation resides. See
 // GpuDriver::GetPointerMemorySpace().
@@ -38,8 +36,6 @@ class TACHYON_EXPORT ScopedActivateContext {
   GpuContext* to_restore_ = nullptr;
 };
 
-}  // namespace gpu
-}  // namespace device
-}  // namespace tachyon
+}  // namespace tachyon::device::gpu
 
 #endif  // TACHYON_DEVICE_GPU_GPU_DRIVER_H_

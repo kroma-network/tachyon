@@ -6,8 +6,7 @@
 #include "tachyon/math/elliptic_curves/bls/bls12_381/g1.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_cuda.cu.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace bls12_381 {
 
 #if TACHYON_CUDA
@@ -21,7 +20,6 @@ using G1PointXYZZCuda = PointXYZZ<SWCurveCuda<G1CurveConfig<FqCuda, FrCuda>>>;
 #endif  // TACHYON_CUDA
 
 }  // namespace bls12_381
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_BLS_BLS12_381_G1_CUDA_CU_H_

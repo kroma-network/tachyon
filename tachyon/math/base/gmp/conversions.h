@@ -4,8 +4,7 @@
 #include "tachyon/math/base/conversions.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <>
 class StringNumberConversion<mpz_class> {
@@ -32,7 +31,6 @@ class IntConversion<mpz_class> {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_GMP_CONVERSIONS_H_

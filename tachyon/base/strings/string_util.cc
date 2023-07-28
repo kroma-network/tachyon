@@ -6,8 +6,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/no_destructor.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace {
 
 constexpr const char* k0x = "0x";
@@ -109,5 +108,4 @@ std::string MaybePrepend0x(std::string&& str) {
   return DoMaybePrepend0x(std::move(str));
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

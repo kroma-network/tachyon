@@ -16,8 +16,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 #include "tachyon/math/geometry/point4.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename _Curve>
 class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
@@ -214,8 +213,7 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   BaseField zzz_;
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz_impl.h"
 

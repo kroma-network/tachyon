@@ -21,8 +21,7 @@
 #include <zircon/types.h>
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 class FilePath;
 
@@ -129,7 +128,6 @@ TACHYON_EXPORT ProcessHandle GetCurrentProcessHandle();
 // processes.
 TACHYON_EXPORT ProcessId GetProcId(ProcessHandle process);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_PROCESS_PROCESS_HANDLE_H_

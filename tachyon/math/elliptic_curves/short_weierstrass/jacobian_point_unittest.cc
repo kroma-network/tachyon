@@ -8,8 +8,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -223,5 +222,4 @@ TYPED_TEST(JacobianPointTest, MSM) {
   EXPECT_EQ(JacobianPointTy::MSM(bases, scalars), expected);
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

@@ -13,8 +13,7 @@
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/ranges/ranges.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 // Small helper to detect whether a given type has a nested `key_type` typedef.
@@ -89,7 +88,6 @@ constexpr bool Contains(const Container& container, const Value& value,
          ranges::end(container);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_CONTAINS_H_

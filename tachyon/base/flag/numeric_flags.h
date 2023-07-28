@@ -3,8 +3,7 @@
 
 #include "tachyon/base/flag/flag.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace flag_internal {
 
 template <typename T>
@@ -51,7 +50,6 @@ using PositiveInt64Flag = Flag<flag_internal::PositiveInt64>;
 using PositiveFloatFlag = Flag<flag_internal::PositiveFloat>;
 using PositiveDoubleFlag = Flag<flag_internal::PositiveDouble>;
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_FLAG_NUMERIC_FLAGS_H_

@@ -7,8 +7,7 @@
 #include "tachyon/math/finite_fields/prime_field_mont_cuda.cu.h"
 #endif  // TACHYON_CUDA
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace secp256k1 {
 
 #if TACHYON_CUDA
@@ -16,7 +15,6 @@ using FrCuda = PrimeFieldMontCuda<FrConfig>;
 #endif  // TACHYON_CUDA
 
 }  // namespace secp256k1
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SECP_SECP256K1_FR_CU_H_

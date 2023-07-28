@@ -10,8 +10,7 @@
 #include "tachyon/math/polynomials/polynomial.h"
 #include "tachyon/math/polynomials/sparse_coefficients.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename Coefficients>
 class UnivariatePolynomial
@@ -183,8 +182,7 @@ template <typename F, size_t MaxDegree>
 using SparseUnivariatePolynomial =
     UnivariatePolynomial<SparseCoefficients<F, MaxDegree>>;
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #include "tachyon/math/polynomials/univariate_polynomial_ops.h"
 

@@ -8,8 +8,7 @@
 #include "tachyon/base/functor_traits.h"
 #include "tachyon/base/logging.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 template <typename T>
 std::vector<T> CreateRangedVector(T start, T end, T step = 1) {
@@ -88,7 +87,6 @@ auto Map(Container&& container, UnaryOp&& op) {
              std::forward<UnaryOp>(op));
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_CONTAINER_UTIL_H_

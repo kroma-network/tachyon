@@ -1,7 +1,6 @@
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fq.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace secp256k1 {
 
 // static
@@ -12,5 +11,4 @@ void FqConfig::Init() {
 }
 
 }  // namespace secp256k1
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

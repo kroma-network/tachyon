@@ -5,8 +5,7 @@
 #ifndef TACHYON_BASE_CXX20_IS_CONSTANT_EVALUATED_H_
 #define TACHYON_BASE_CXX20_IS_CONSTANT_EVALUATED_H_
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // Implementation of C++20's std::is_constant_evaluated.
 //
@@ -17,7 +16,6 @@ constexpr bool is_constant_evaluated() noexcept {
   return __builtin_is_constant_evaluated();
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CXX20_IS_CONSTANT_EVALUATED_H_

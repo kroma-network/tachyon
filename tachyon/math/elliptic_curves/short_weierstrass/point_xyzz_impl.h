@@ -3,8 +3,7 @@
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 #define CLASS PointXYZZ<Curve, std::enable_if_t<Curve::kIsSWCurve>>
 
@@ -212,7 +211,6 @@ constexpr CLASS& CLASS::DoubleInPlace() {
 
 #undef CLASS
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_IMPL_H_

@@ -2,9 +2,7 @@
 
 #include <iostream>
 
-namespace tachyon {
-namespace base {
-namespace internal {
+namespace tachyon::base::internal {
 
 ConsoleErrStream::ConsoleErrStream() : console_stream_(std::cerr) {
   console_stream_.Red();
@@ -13,6 +11,4 @@ ConsoleErrStream::ConsoleErrStream() : console_stream_(std::cerr) {
 
 ConsoleErrStream::~ConsoleErrStream() = default;
 
-}  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base::internal

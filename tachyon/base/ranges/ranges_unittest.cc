@@ -10,8 +10,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace {
 
@@ -105,5 +104,4 @@ TEST(RangesTest, BeginEndStdArray) {
   static_assert(array[2] == 2, "");
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

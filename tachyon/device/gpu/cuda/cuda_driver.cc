@@ -24,8 +24,7 @@ limitations under the License.
     }                                                       \
   } while (0)
 
-namespace tachyon {
-namespace device {
+namespace tachyon::device {
 namespace gpu {
 
 // static
@@ -52,5 +51,4 @@ CUcontext CurrentContextOrDie() {
 }
 
 }  // namespace cuda
-}  // namespace device
-}  // namespace tachyon
+}  // namespace tachyon::device

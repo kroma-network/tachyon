@@ -7,9 +7,7 @@
 
 #include "tachyon/math/finite_fields/prime_field_mont_cuda.cu.h"
 
-namespace tachyon {
-namespace math {
-namespace kernels {
+namespace tachyon::math::kernels {
 
 #define DEFINE_FIELD_OP(method, operator)                                    \
   template <typename Config>                                                 \
@@ -47,8 +45,6 @@ DEFINE_COMPARISON_OP(Ge, >=)
 
 #undef DEFINE_COMPARISON_OP
 
-}  // namespace kernels
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::kernels
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_KERNELS_PRIME_FIELD_OPS_CU_H_

@@ -8,9 +8,7 @@
 
 #include "tachyon/math/finite_fields/kernels/prime_field_ops_internal.cu.h"
 
-namespace tachyon {
-namespace math {
-namespace kernels {
+namespace tachyon::math::kernels {
 namespace u32 {
 
 template <size_t OpsCount = std::numeric_limits<size_t>::max(),
@@ -134,8 +132,6 @@ struct CarryChain {
 };
 
 }  // namespace u64
-}  // namespace kernels
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::kernels
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_KERNELS_CARRY_CHAIN_CU_H_

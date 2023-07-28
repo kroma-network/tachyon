@@ -9,8 +9,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace ranges {
 
@@ -28,7 +27,6 @@ using less_equal = std::less_equal<>;
 
 }  // namespace ranges
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_RANGES_FUNCTIONAL_H_

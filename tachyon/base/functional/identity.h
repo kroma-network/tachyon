@@ -7,8 +7,7 @@
 
 #include <utility>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // Implementation of C++20's std::identity.
 //
@@ -24,7 +23,6 @@ struct identity {
   using is_transparent = void;
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_FUNCTIONAL_IDENTITY_H_

@@ -5,17 +5,13 @@
 #ifndef TACHYON_BASE_POSIX_CAN_LOWER_NICE_TO_H_
 #define TACHYON_BASE_POSIX_CAN_LOWER_NICE_TO_H_
 
-namespace tachyon {
-namespace base {
-namespace internal {
+namespace tachyon::base::internal {
 
 // Returns true if lowering the nice value of a process or thread to
 // |nice_value| using setpriority() or nice() should succeed. Note: A lower nice
 // value means a higher priority.
 bool CanLowerNiceTo(int nice_value);
 
-}  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base::internal
 
 #endif  // TACHYON_BASE_POSIX_CAN_LOWER_NICE_TO_H_

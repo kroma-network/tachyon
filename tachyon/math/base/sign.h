@@ -7,8 +7,7 @@
 
 #include "tachyon/base/logging.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 enum class Sign {
   kZero,
@@ -53,7 +52,6 @@ constexpr Sign GetSign(T x) {
 template <typename T, typename SFINAE = void>
 class SignedValue;
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_SIGN_H_

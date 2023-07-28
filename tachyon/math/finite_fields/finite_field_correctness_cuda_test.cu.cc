@@ -6,8 +6,7 @@
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -127,5 +126,4 @@ TEST_F(PrimeFieldCorrectnessCudaTest, Div) {
 
 #undef RUN_OPERATION_TESTS
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

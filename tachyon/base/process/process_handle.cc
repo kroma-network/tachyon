@@ -11,8 +11,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/build/build_config.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace {
 ProcessId g_pid_outside_of_namespace = kNullProcessId;
@@ -40,5 +39,4 @@ void InitUniqueIdForProcessInPidNamespace(ProcessId pid_outside_of_namespace) {
 
 #endif
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

@@ -1,8 +1,7 @@
 #ifndef TACHYON_MATH_BASE_IDENTITIES_H_
 #define TACHYON_MATH_BASE_IDENTITIES_H_
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename T, typename SFINAE = void>
 class MultiplicativeIdentity;
@@ -30,7 +29,6 @@ constexpr bool IsZero(const T& value) {
   return AdditiveIdentity<T>::IsZero(value);
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_IDENTITIES_H_

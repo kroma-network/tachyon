@@ -1,12 +1,10 @@
 #include "tachyon/base/random.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 absl::BitGen& GetAbslBitGen() {
   static absl::BitGen bitgen;
   return bitgen;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

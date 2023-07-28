@@ -18,8 +18,7 @@
 #define BASE_NUMERICS_UNLIKELY(x) (x)
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 // The std library doesn't provide a binary max_exponent for integers, however
@@ -843,7 +842,6 @@ constexpr Dst CommonMaxOrMin(bool is_min) {
 }
 
 }  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_SAFE_CONVERSIONS_IMPL_H_

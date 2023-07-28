@@ -1,7 +1,6 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace bn254 {
 
 // static
@@ -12,5 +11,4 @@ void FqConfig::Init() {
 }
 
 }  // namespace bn254
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

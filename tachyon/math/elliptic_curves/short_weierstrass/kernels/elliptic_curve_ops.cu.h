@@ -10,9 +10,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 
-namespace tachyon {
-namespace math {
-namespace kernels {
+namespace tachyon::math::kernels {
 
 #define DEFINE_FIELD_OP(method, operator, src_type, dst_type)                  \
   template <typename Config>                                                   \
@@ -70,8 +68,6 @@ DEFINE_UNARY_OP(Negative, PointXYZZ, PointXYZZ)
 
 #undef DEFINE_UNARY_OP
 
-}  // namespace kernels
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::kernels
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_KERNELS_ELLIPTIC_CURVE_OPS_CU_H_

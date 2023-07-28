@@ -6,8 +6,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(RangesTest, EqualTo) {
   ranges::equal_to eq;
@@ -23,5 +22,4 @@ TEST(RangesTest, Less) {
   EXPECT_FALSE(lt(1, 0));
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

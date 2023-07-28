@@ -10,8 +10,7 @@
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace {
 
 // 0 ~ 255
@@ -200,5 +199,4 @@ std::ostream& operator<<(std::ostream& os, const Hsv& hsv) {
   return os << hsv.ToString();
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

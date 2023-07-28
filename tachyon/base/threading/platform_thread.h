@@ -32,8 +32,7 @@
 #include <unistd.h>
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // Used for logging. Always an integer value.
 #if BUILDFLAG(IS_WIN)
@@ -321,7 +320,6 @@ void SetCurrentThreadTypeImpl(ThreadType thread_type,
 
 }  // namespace internal
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_THREADING_PLATFORM_THREAD_H_

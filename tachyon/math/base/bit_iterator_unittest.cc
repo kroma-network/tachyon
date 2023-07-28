@@ -8,8 +8,7 @@
 
 #include "tachyon/math/base/big_int.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 TEST(GmpUtilTest, BitIteratorLE) {
   struct {
@@ -88,5 +87,4 @@ TEST(GmpUtilTest, BitIteratorBE) {
   }
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

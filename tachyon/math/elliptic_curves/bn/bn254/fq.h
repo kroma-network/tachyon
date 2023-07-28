@@ -4,8 +4,7 @@
 #include "tachyon/export.h"
 #include "tachyon/math/finite_fields/prime_field.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace bn254 {
 
 class TACHYON_EXPORT FqConfig {
@@ -40,7 +39,6 @@ using FqGmp = PrimeFieldGmp<FqConfig>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace bn254
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_BN_BN254_FQ_H_

@@ -3,8 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 TEST(SemigroupsTest, Mul) {
   class Int : public MultiplicativeSemigroup<Int> {
@@ -110,5 +109,4 @@ TEST(SemigroupsTest, AddOverAddInPlace) {
   static_cast<void>(d);
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

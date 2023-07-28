@@ -6,8 +6,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // These threadsafe functions return references to globally unique empty
 // strings.
@@ -53,7 +52,6 @@ TACHYON_EXPORT std::string MaybePrepend0x(std::string_view str);
 TACHYON_EXPORT std::string MaybePrepend0x(std::string&& str);
 TACHYON_EXPORT std::string MaybePrepend0x(const std::string& str);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_STRINGS_STRING_UTIL_H_

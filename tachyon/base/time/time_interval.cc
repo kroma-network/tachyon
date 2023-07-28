@@ -2,8 +2,7 @@
 
 #include <utility>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 void TimeInterval::Start() {
 #if DCHECK_IS_ON()
@@ -24,5 +23,4 @@ TimeDelta TimeInterval::GetTimeDelta(bool update) {
   return dt;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

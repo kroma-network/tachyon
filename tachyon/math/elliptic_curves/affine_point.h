@@ -3,8 +3,7 @@
 
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename Curve, typename SFINAE = void>
 class AffinePoint;
@@ -46,7 +45,6 @@ class AdditiveIdentity<AffinePoint<Curve>> {
   constexpr static bool IsZero(const P& value) { return value.IsZero(); }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_AFFINE_POINT_H_

@@ -7,8 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 Rgba HsvToRgba(const Hsv& hsv) {
   if (!hsv.IsValid()) return {};
@@ -93,5 +92,4 @@ Hsv RgbaToHsv(Rgba rgba) {
   return {h, s, v, a};
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

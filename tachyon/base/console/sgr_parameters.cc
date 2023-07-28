@@ -6,8 +6,7 @@
 
 #include "absl/strings/substitute.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 std::string Grayscale8(uint8_t level) {
   if (level > 24) return "";
@@ -42,5 +41,4 @@ uint8_t Ansi8BitColor(uint8_t r, uint8_t g, uint8_t b) {
   return 16 + 36 * r_scaled + 6 * g_scaled + b_scaled;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

@@ -4,8 +4,7 @@
 #include <string>
 #include <string_view>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 class ScopedEnvironment {
  public:
@@ -16,7 +15,6 @@ class ScopedEnvironment {
   std::string env_name_;
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_TEST_SCOPED_ENVIRONMENT_H_

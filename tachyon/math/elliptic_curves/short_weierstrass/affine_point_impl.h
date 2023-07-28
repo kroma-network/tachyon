@@ -3,8 +3,7 @@
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 #define CLASS AffinePoint<Curve, std::enable_if_t<Curve::kIsSWCurve>>
 
@@ -126,7 +125,6 @@ constexpr PointXYZZ<Curve> CLASS::DoubleXYZZ() const {
 
 #undef CLASS
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_AFFINE_POINT_IMPL_H_

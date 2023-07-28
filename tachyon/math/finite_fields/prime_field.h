@@ -8,8 +8,7 @@
 #include "tachyon/math/finite_fields/prime_field_gmp.h"
 #endif  // defined(TACHYON_GMP_BACKEND)
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename Config>
 using PrimeField = PrimeFieldMont<Config>;
@@ -30,7 +29,6 @@ using GF7 = PrimeField<GF7Config>;
 using GF7Gmp = PrimeFieldGmp<GF7Config>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_H_

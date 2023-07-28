@@ -4,8 +4,7 @@
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 TEST(ModulusTest, CanUseNoCarryMulOptimization) {
   BigInt<1> modulus = BigInt<1>::FromHexString("0x8000000000000000");
@@ -49,5 +48,4 @@ TEST(ModulusTest, Inverse) {
   EXPECT_EQ(inv64 * bn254::FqConfig::kModulus[0], -1);
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

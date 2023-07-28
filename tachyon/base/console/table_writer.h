@@ -12,8 +12,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 class TACHYON_EXPORT TableWriter {
  public:
@@ -99,7 +98,6 @@ class TACHYON_EXPORT TableWriterBuilder {
 TACHYON_EXPORT std::ostream& operator<<(std::ostream& os,
                                         const TableWriter& table_writer);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONSOLE_TABLE_WRITER_H_

@@ -11,8 +11,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 template <typename T, std::enable_if_t<std::is_arithmetic<T>::value>* = nullptr>
 std::string NumberToString(T value) {
@@ -62,7 +61,6 @@ TACHYON_EXPORT bool HexStringToString(std::string_view input,
 TACHYON_EXPORT bool HexStringToSpan(std::string_view input,
                                     absl::Span<uint8_t> output);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_STRINGS_STRING_NUMBER_CONVERSIONS_H_

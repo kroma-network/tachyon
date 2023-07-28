@@ -9,8 +9,7 @@
 #include <deque>
 #include <iterator>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // Erase/EraseIf are based on C++20's uniform container erasure API:
 // - https://eel.is/c++draft/libraryindex#:erase
@@ -37,7 +36,6 @@ size_t EraseIf(std::deque<T, Allocator>& container, Predicate pred) {
   return removed;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_CXX20_ERASE_DEQUE_H_

@@ -10,8 +10,7 @@
 #include <iterator>
 #include <utility>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 // Internal adapter class for implementing tachyon::base::Reversed.
@@ -48,7 +47,6 @@ internal::ReversedAdapter<T> Reversed(T& t) {
   return internal::ReversedAdapter<T>(t);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_ADAPTERS_H_

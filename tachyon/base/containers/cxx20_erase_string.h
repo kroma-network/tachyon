@@ -9,8 +9,7 @@
 #include <iterator>
 #include <string>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // Erase/EraseIf are based on C++20's uniform container erasure API:
 // - https://eel.is/c++draft/libraryindex#:erase
@@ -39,7 +38,6 @@ size_t EraseIf(std::basic_string<CharT, Traits, Allocator>& container,
   return removed;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_CXX20_ERASE_STRING_H_

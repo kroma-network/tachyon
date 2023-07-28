@@ -4,8 +4,7 @@
 
 #include "tachyon/math/finite_fields/prime_field.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -39,5 +38,4 @@ TEST(Point4Test, ToString) {
             "(1, 2, 3, 4)");
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

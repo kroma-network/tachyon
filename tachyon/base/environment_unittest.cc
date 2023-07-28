@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(Environment, BasicTest) {
   std::string_view value;
@@ -19,5 +18,4 @@ TEST(Environment, BasicTest) {
   EXPECT_FALSE(Environment::Has("foo"));
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

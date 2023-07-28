@@ -6,8 +6,7 @@
 #include "tachyon/base/no_destructor.h"
 #include "tachyon/math/base/identities.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <>
 class MultiplicativeIdentity<mpz_class> {
@@ -31,7 +30,6 @@ class AdditiveIdentity<mpz_class> {
   static bool IsZero(const mpz_class& value) { return value == Zero(); }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_GMP_GMP_IDENTITIES_H_

@@ -10,8 +10,7 @@
 #include "absl/strings/strip.h"
 #include <sys/ioctl.h>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TableWriter::TableWriter() = default;
 
@@ -213,5 +212,4 @@ std::ostream& operator<<(std::ostream& os, const TableWriter& table_writer) {
   return os << table_writer.ToString();
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

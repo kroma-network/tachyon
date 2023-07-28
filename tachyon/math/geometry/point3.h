@@ -3,8 +3,7 @@
 
 #include "absl/strings/substitute.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename T>
 struct Point3 {
@@ -38,7 +37,6 @@ std::ostream& operator<<(std::ostream& os, const Point3<T>& point) {
   return os << point.ToString();
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_GEOMETRY_POINT3_H_

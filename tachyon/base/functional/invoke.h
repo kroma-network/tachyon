@@ -8,8 +8,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace internal {
 
@@ -148,7 +147,6 @@ constexpr decltype(auto) invoke(F&& f, Args&&... args) {
   return internal::InvokeImpl(std::forward<F>(f), std::forward<Args>(args)...);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_FUNCTIONAL_INVOKE_H_

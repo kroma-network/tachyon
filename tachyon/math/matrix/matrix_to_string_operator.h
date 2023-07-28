@@ -3,8 +3,7 @@
 
 #include <sstream>
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename Matrix>
 class MatrixToStringOperator {
@@ -32,7 +31,6 @@ class MatrixToStringOperator {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_MATRIX_MATRIX_TO_STRING_OPERATOR_H_

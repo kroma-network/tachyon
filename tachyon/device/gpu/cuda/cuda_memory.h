@@ -6,9 +6,7 @@
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/device/gpu/scoped_memory.h"
 
-namespace tachyon {
-namespace device {
-namespace gpu {
+namespace tachyon::device::gpu {
 
 template <typename T>
 ScopedMemory<T> MakeManagedUnique(size_t size,
@@ -20,8 +18,6 @@ ScopedMemory<T> MakeManagedUnique(size_t size,
   return ret;
 }
 
-}  // namespace gpu
-}  // namespace device
-}  // namespace tachyon
+}  // namespace tachyon::device::gpu
 
 #endif  // TACHYON_DEVICE_GPU_CUDA_CUDA_MEMORY_H_

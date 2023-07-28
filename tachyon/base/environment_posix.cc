@@ -2,8 +2,7 @@
 
 #include "tachyon/base/environment.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // static
 bool Environment::Has(std::string_view variable_name) {
@@ -28,5 +27,4 @@ bool Environment::Unset(std::string_view variable_name) {
   return unsetenv(variable_name.data()) == 0;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

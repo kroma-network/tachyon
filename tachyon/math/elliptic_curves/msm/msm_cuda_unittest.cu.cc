@@ -5,8 +5,7 @@
 #include "tachyon/math/finite_fields/prime_field.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -72,5 +71,4 @@ device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::results_;
 device::gpu::ScopedMemory<bool> PrimeFieldMontCudaTest::bool_results_;
 
 }  // namespace
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

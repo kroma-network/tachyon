@@ -6,8 +6,7 @@
 
 #include "absl/time/clock.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // TimeDelta ------------------------------------------------------------------
 
@@ -212,5 +211,4 @@ std::ostream& operator<<(std::ostream& os, ThreadTicks thread_ticks) {
   return os << as_time_delta.InMicroseconds() << " bogo-thread-microseconds";
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

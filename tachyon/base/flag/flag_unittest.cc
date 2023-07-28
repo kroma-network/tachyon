@@ -6,8 +6,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(FlagTest, ShortName) {
   bool value;
@@ -119,5 +118,4 @@ TEST(FlagTest, ParseValue) {
   EXPECT_EQ(reason, "6 is not in range");
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

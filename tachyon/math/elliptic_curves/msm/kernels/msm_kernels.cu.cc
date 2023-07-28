@@ -1,8 +1,6 @@
 #include "tachyon/math/elliptic_curves/msm/kernels/msm_kernels.cu.h"
 
-namespace tachyon {
-namespace math {
-namespace kernels {
+namespace tachyon::math::kernels {
 
 namespace {
 
@@ -29,6 +27,4 @@ bool set_kernel_attributes(T *func) {
 
 bool SetMSMKernelAttributes() { GPU_SUCCESS() }
 
-}  // namespace kernels
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::kernels

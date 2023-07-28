@@ -18,8 +18,7 @@
 #include "tachyon/base/numerics/safe_conversions.h"
 #include "tachyon/base/numerics/safe_math_shared_impl.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 template <typename T,
@@ -336,7 +335,6 @@ BASE_FLOAT_ARITHMETIC_OPS(Div, /)
 #undef BASE_FLOAT_ARITHMETIC_OPS
 
 }  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_CLAMPED_MATH_IMPL_H_

@@ -20,8 +20,7 @@ limitations under the License.
 
 #include "tensorflow/tsl/platform/status.h"
 
-namespace tachyon {
-namespace device {
+namespace tachyon::device {
 
 class Platform;
 
@@ -37,10 +36,9 @@ Platform* GPUMachineManager();
 
 // Returns the string describing the name of the GPU platform in use.
 // This value is "CUDA" by default, and
-// "ROCM" when TF is built with `--config==rocm`
+// "ROCM" when TACHYON is built with `--config==rocm`
 std::string GpuPlatformName();
 
-}  // namespace device
-}  // namespace tachyon
+}  // namespace tachyon::device
 
 #endif  // TACHYON_DEVICE_GPU_GPU_INIT_H_

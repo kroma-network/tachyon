@@ -18,8 +18,7 @@
 #define BASE_HAS_ASSEMBLER_SAFE_MATH (0)
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 // These are the non-functioning boilerplate implementations of the optimized
@@ -153,7 +152,6 @@ struct ClampedNegFastOp {
 };
 
 }  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_SAFE_MATH_CLANG_GCC_IMPL_H_

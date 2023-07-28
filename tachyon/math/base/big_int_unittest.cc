@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 TEST(BigIntTest, Zero) {
   BigInt<2> big_int = BigInt<2>::Zero();
@@ -135,5 +134,4 @@ TEST(BigIntTest, Operations) {
   }
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

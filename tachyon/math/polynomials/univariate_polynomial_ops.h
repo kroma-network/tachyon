@@ -9,8 +9,7 @@
 #include "tachyon/math/base/arithmetics_results.h"
 #include "tachyon/math/polynomials/univariate_polynomial.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace internal {
 
 template <typename F, size_t MaxDegree>
@@ -504,7 +503,6 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
 };
 
 }  // namespace internal
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_POLYNOMIAL_OPS_H_

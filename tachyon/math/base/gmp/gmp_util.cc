@@ -5,9 +5,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 
-namespace tachyon {
-namespace math {
-namespace gmp {
+namespace tachyon::math::gmp {
 
 namespace {
 
@@ -129,6 +127,4 @@ mpz_class DivBy2Exp(const mpz_class& value, uint64_t exp) {
   return ret;
 }
 
-}  // namespace gmp
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::gmp

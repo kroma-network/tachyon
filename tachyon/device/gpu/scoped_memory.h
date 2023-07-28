@@ -5,9 +5,7 @@
 
 #include "tachyon/device/gpu/gpu_device_functions.h"
 
-namespace tachyon {
-namespace device {
-namespace gpu {
+namespace tachyon::device::gpu {
 
 struct MemoryDeleter {
   void operator()(void* dev_ptr) const { gpuFree(dev_ptr); }
@@ -16,8 +14,6 @@ struct MemoryDeleter {
 template <typename T>
 using ScopedMemory = std::unique_ptr<T, MemoryDeleter>;
 
-}  // namespace gpu
-}  // namespace device
-}  // namespace tachyon
+}  // namespace tachyon::device::gpu
 
 #endif  // TACHYON_DEVICE_GPU_SCOPED_MEMORY_H_

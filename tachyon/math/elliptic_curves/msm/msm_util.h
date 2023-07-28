@@ -6,8 +6,7 @@
 
 #include "tachyon/base/template_util.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename BaseInputIterator, typename ScalarInputIterator,
           typename PointTy, typename ScalarField>
@@ -25,7 +24,6 @@ constexpr size_t LnWithoutFloats(size_t a) {
   return log2(a) * 69 / 100;
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_MSM_UTIL_H_

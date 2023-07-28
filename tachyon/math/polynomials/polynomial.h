@@ -7,8 +7,7 @@
 #include "tachyon/math/base/identities.h"
 #include "tachyon/math/base/rings.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename T, typename SFINAE = void>
 class CoefficientsTraits;
@@ -57,7 +56,6 @@ class AdditiveIdentity<Polynomial<Derived>> {
   constexpr static bool IsZero(const P& value) { return value.IsZero(); }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_POLYNOMIALS_POLYNOMIAL_H_

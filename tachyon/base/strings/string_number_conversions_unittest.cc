@@ -3,8 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(StringNumberConversionTest, NumberToString) {
   EXPECT_EQ(NumberToString(3), "3");
@@ -98,5 +97,4 @@ TEST(StringNumberConversionTest, HexStringToSomethingElse) {
   }
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

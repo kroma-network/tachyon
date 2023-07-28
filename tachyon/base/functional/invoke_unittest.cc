@@ -8,8 +8,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(FunctionalTest, Invoke) {
   struct S {
@@ -32,5 +31,4 @@ TEST(FunctionalTest, Invoke) {
   static_assert(base::invoke(std::plus<>(), 1, 2) == 3, "");
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

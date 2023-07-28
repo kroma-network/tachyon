@@ -9,8 +9,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // Helper type to create a function-local static variable of type `T` when `T`
 // has a non-trivial destructor. Storing a `T` in a
@@ -115,7 +114,6 @@ class NoDestructor {
   alignas(T) char storage_[sizeof(T)];
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NO_DESTRUCTOR_H_

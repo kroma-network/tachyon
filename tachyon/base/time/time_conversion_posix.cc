@@ -8,8 +8,7 @@
 #include "tachyon/base/time/time.h"
 #include "tachyon/build/build_config.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // static
 TimeDelta TimeDelta::FromTimeSpec(const timespec& ts) {
@@ -59,5 +58,4 @@ struct timeval Time::ToTimeVal() const {
   return result;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

@@ -12,8 +12,7 @@
 #include "tachyon/base/environment.h"
 #include "tachyon/base/strings/string_util.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 Console::Info::Info() { Init(); }
 
@@ -67,5 +66,4 @@ bool Console::IsConnected(std::ostream& os) {
   return false;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

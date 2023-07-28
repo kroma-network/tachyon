@@ -5,8 +5,7 @@
 #ifndef TACHYON_BASE_NUMERICS_MATH_CONSTANTS_H_
 #define TACHYON_BASE_NUMERICS_MATH_CONSTANTS_H_
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 constexpr double kPiDouble = 3.14159265358979323846;
 constexpr float kPiFloat = 3.14159265358979323846f;
@@ -27,7 +26,6 @@ constexpr float kSqrtHalfFloat = 0.70710678118654752440f;
 constexpr double kMeanGravityDouble = 9.80665;
 constexpr float kMeanGravityFloat = 9.80665f;
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_MATH_CONSTANTS_H_

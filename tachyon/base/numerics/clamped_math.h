@@ -12,8 +12,7 @@
 
 #include "tachyon/base/numerics/clamped_math_impl.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 template <typename T>
@@ -256,7 +255,6 @@ using internal::ClampSub;
 using internal::ClampXor;
 using internal::MakeClampedNum;
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_CLAMPED_MATH_H_

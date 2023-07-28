@@ -6,13 +6,11 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(Cxx20IsConstantEvaluated, Basic) {
   static_assert(is_constant_evaluated(), "");
   EXPECT_FALSE(is_constant_evaluated());
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

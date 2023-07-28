@@ -7,8 +7,7 @@
 #include "tachyon/math/finite_fields/prime_field_mont_cuda.cu.h"
 #endif  // TACHYON_CUDA
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace bls12_381 {
 
 #if TACHYON_CUDA
@@ -16,7 +15,6 @@ using FqCuda = PrimeFieldMontCuda<FqConfig>;
 #endif  // TACHYON_CUDA
 
 }  // namespace bls12_381
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_BLS_BLS12_381_FQ_CUDA_CU_H_

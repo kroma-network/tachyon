@@ -9,8 +9,7 @@
 
 #include "tachyon/base/threading/platform_thread.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(TimeTest, Max) {
   constexpr Time kMax = Time::Max();
@@ -925,5 +924,4 @@ TEST(TimeTicks, ChronoConversion) {
               (TimeTicks::FromChrono(tp) - TimeTicks()).InMicroseconds(), 1);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

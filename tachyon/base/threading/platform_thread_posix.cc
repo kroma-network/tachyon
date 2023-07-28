@@ -39,8 +39,7 @@
 #include <sys/resource.h>
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 void InitThreading();
 void TerminateOnThread();
@@ -411,5 +410,4 @@ size_t PlatformThread::GetDefaultThreadStackSize() {
   return base::GetDefaultThreadStackSize(attributes);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

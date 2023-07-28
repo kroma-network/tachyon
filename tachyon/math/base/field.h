@@ -3,8 +3,7 @@
 
 #include "tachyon/math/base/rings.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename F>
 class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
@@ -27,7 +26,6 @@ class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_FIELD_H_

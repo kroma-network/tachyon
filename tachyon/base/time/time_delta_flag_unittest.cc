@@ -5,8 +5,7 @@
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(TimeDeltaFlagTest, ParseValue) {
   TimeDelta time_delta;
@@ -68,5 +67,4 @@ TEST(TimeDeltaFlagTest, ParseValue) {
   EXPECT_EQ(time_delta, Nanoseconds(1.2));
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

@@ -20,8 +20,7 @@
 #define BASE_HAS_OPTIMIZED_SAFE_CONVERSIONS (0)
 #endif
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 #if !BASE_HAS_OPTIMIZED_SAFE_CONVERSIONS
@@ -384,7 +383,6 @@ Dst ClampRound(Src value) {
   return saturated_cast<Dst>(rounded);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_SAFE_CONVERSIONS_H_

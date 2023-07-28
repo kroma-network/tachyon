@@ -8,8 +8,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -58,5 +57,4 @@ TYPED_TEST(VariableBaseMSMTest, DoMSM) {
   }
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

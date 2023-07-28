@@ -6,8 +6,7 @@
 #include "tachyon/base/template_util.h"
 #include "tachyon/math/base/groups.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename F>
 class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
@@ -35,7 +34,6 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_RINGS_H_

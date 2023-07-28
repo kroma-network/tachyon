@@ -3,8 +3,7 @@
 #include <iostream>
 #include <tuple>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace {
 
@@ -567,5 +566,4 @@ bool SubParser::ParseValue(std::string_view arg, std::string* reason) {
   return false;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

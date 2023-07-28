@@ -6,8 +6,7 @@
 
 constexpr const size_t kTestNum = 1000;
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace {
 
 static std::vector<bn254::FqGmp>& PrepareTestSet() {
@@ -43,8 +42,7 @@ void BM_Mul(benchmark::State& state) {
 BENCHMARK_TEMPLATE(BM_Mul, bn254::FqGmp)->Arg(kTestNum);
 BENCHMARK_TEMPLATE(BM_Mul, bn254::Fq)->Arg(kTestNum);
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 // clang-format off
 // Executing tests from //tachyon/math/finite_fields:finite_field_mul_benchmark

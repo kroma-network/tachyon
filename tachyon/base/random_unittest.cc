@@ -3,8 +3,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 constexpr const int kMin = 0;
 constexpr const int kMax = 1000;
@@ -21,5 +20,4 @@ TEST(Random, BasicTest) {
   FAIL() << "random seems not working";
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

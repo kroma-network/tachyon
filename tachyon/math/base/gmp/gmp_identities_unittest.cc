@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 TEST(GmpIdentities, MultiplicativeIdentity) {
   EXPECT_EQ(One<mpz_class>(), mpz_class(1));
@@ -17,5 +16,4 @@ TEST(GmpIdentities, AdditiveIdentity) {
   EXPECT_FALSE(IsZero<mpz_class>(mpz_class(1)));
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

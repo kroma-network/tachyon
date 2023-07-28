@@ -5,8 +5,7 @@
 
 #include "tachyon/math/matrix/matrix_traits.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace internal {
 
 namespace {
@@ -232,7 +231,6 @@ class MatInverseOperator {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_MATRIX_MATRIX_INVERSE_OPERATOR_H_

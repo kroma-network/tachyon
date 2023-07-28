@@ -9,8 +9,7 @@
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config_traits.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 // Config for Short Weierstrass model.
 // See https://www.hyperelliptic.org/EFD/g1p/auto-shortw.html for more details.
@@ -92,7 +91,6 @@ class SWCurveBase {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_BASE_H_

@@ -4,8 +4,7 @@
 
 #include "tachyon/math/finite_fields/prime_field.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -36,5 +35,4 @@ TEST(Point3Test, ToString) {
   EXPECT_EQ(Point3GF7(GF7(1), GF7(2), GF7(3)).ToString(), "(1, 2, 3)");
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

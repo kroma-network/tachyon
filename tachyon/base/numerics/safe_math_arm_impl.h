@@ -10,8 +10,7 @@
 
 #include "tachyon/base/numerics/safe_conversions.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 template <typename T, typename U>
@@ -121,7 +120,6 @@ struct ClampedMulFastAsmOp {
 };
 
 }  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_SAFE_MATH_ARM_IMPL_H_

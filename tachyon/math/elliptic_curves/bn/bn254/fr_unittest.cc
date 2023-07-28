@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace bn254 {
 
 TEST(Fr, Init) {
@@ -12,5 +11,4 @@ TEST(Fr, Init) {
 }
 
 }  // namespace bn254
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

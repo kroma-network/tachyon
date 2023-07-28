@@ -4,8 +4,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 #include "tachyon/math/finite_fields/prime_field_mont_cuda_debug.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -188,5 +187,4 @@ TYPED_TEST(PrimeFieldCorrectnessTest, SumOfProducts) {
             bn254::FqGmp::SumOfProducts(a_gmps, b_gmps).ToBigInt());
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

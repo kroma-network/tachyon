@@ -14,8 +14,7 @@
 #include "tachyon/base/console/sgr_parameters.h"
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 class TACHYON_EXPORT ConsoleStream {
  public:
@@ -92,7 +91,6 @@ class TACHYON_EXPORT ConsoleStream {
   Console::Info console_info_;
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONSOLE_CONSOLE_STREAM_H_

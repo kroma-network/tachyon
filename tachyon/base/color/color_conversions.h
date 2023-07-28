@@ -8,14 +8,12 @@
 #include "tachyon/base/color/color.h"
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TACHYON_EXPORT Rgba HsvToRgba(const Hsv& hsv);
 
 TACHYON_EXPORT Hsv RgbaToHsv(Rgba rgba);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_COLOR_COLOR_CONVERSIONS_H_

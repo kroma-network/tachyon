@@ -8,8 +8,7 @@
 
 #include "tachyon/math/finite_fields/prime_field_ops_internal.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace u32 {
 
 template <size_t OpsCount = std::numeric_limits<size_t>::max(),
@@ -137,7 +136,6 @@ struct CarryChain {
 };
 
 }  // namespace u64
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_CARRY_CHAIN_H_

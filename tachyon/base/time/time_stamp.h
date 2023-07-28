@@ -6,8 +6,7 @@
 #include "tachyon/base/time/time.h"
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // This is a convenience class for getting tachyon::base::TimeDelta from a base
 // event. A typical usecase is getting timestamp for video frame. In this case,
@@ -52,7 +51,6 @@ class TACHYON_EXPORT TimeStamp {
   TimeTicks base_time_;
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_TIME_TIME_STAMP_H_

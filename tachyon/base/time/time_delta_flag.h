@@ -9,8 +9,7 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/base/time/time.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 template <>
 class FlagValueTraits<TimeDelta> {
@@ -70,7 +69,6 @@ class FlagValueTraits<TimeDelta> {
 
 typedef Flag<TimeDelta> TimeDeltaFlag;
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_TIME_TIME_DELTA_FLAG_H_

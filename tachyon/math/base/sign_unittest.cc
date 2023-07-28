@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename NumType>
 class SignTest : public testing::Test {};
@@ -31,5 +30,4 @@ TYPED_TEST(SignTest, GetSign) {
   }
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

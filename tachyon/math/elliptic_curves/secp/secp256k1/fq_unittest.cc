@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace secp256k1 {
 
 TEST(Fq, Init) {
@@ -12,5 +11,4 @@ TEST(Fq, Init) {
 }
 
 }  // namespace secp256k1
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

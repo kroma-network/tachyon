@@ -13,8 +13,7 @@
 #include "tachyon/base/flag/flag.h"
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 class TACHYON_EXPORT FlagParserBase {
  public:
@@ -166,7 +165,6 @@ class TACHYON_EXPORT SubParser : public FlagBase,
   bool* is_set_ = nullptr;
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_FLAG_FLAG_PARSER_H_

@@ -7,9 +7,7 @@
 
 #include "tachyon/base/color/color.h"
 
-namespace tachyon {
-namespace base {
-namespace colors {
+namespace tachyon::base::colors {
 // https://developer.mozilla.org/ko/docs/Web/CSS/color_value
 
 // CSS Level 1
@@ -165,8 +163,6 @@ constexpr const Rgba kYellowgreen = Rgba(154, 205, 50);
 // CSS Color Module Level 4
 constexpr const Rgba kRebeccapurple = Rgba(102, 51, 153);
 
-}  // namespace colors
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base::colors
 
 #endif  // TACHYON_BASE_COLOR_NAMED_COLOR_H_

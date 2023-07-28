@@ -6,8 +6,7 @@
 
 #include <unistd.h>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 ProcessId GetCurrentProcId() {
   return getpid();
@@ -21,5 +20,4 @@ ProcessId GetProcId(ProcessHandle process) {
   return process;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

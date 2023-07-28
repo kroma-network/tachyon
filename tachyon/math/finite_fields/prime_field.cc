@@ -1,7 +1,6 @@
 #include "tachyon/math/finite_fields/prime_field.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 // static
 void GF7Config::Init() {
@@ -10,5 +9,4 @@ void GF7Config::Init() {
 #endif  // defined(TACHYON_GMP_BACKEND)
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

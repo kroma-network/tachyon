@@ -7,9 +7,7 @@
 
 #include "tachyon/base/compiler_specific.h"
 
-namespace tachyon {
-namespace math {
-namespace ptx {
+namespace tachyon::math::ptx {
 namespace u32 {
 
 __device__ ALWAYS_INLINE uint32_t Add(uint32_t x, uint32_t y) {
@@ -274,8 +272,6 @@ __device__ ALWAYS_INLINE void BarSync(const unsigned name,
   asm volatile("bar.sync %0, %1;" : : "r"(name), "r"(count) : "memory");
 }
 
-}  // namespace ptx
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::ptx
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_KERNELS_PRIME_FIELD_OPS_INTERNAL_CU_H_

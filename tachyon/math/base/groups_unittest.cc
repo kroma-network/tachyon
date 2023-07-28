@@ -3,8 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 TEST(GroupsTest, Div) {
   class Int : public MultiplicativeGroup<Int> {
@@ -110,5 +109,4 @@ TEST(GroupsTest, SubOverAdd) {
   static_cast<void>(c);
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

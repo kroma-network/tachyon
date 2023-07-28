@@ -10,8 +10,7 @@
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/bit_traits.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace internal {
 
 TACHYON_EXPORT bool StringToLimbs(std::string_view str, uint64_t* limbs,
@@ -590,7 +589,6 @@ class BitTraits<BigInt<N>> {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_BIG_INT_H_

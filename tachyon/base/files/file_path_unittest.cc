@@ -3,8 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(FilePathTest, GetComponents) {
   std::vector<std::string> components;
@@ -98,5 +97,4 @@ TEST(FilePathTest, ReferencesParent) {
   EXPECT_FALSE(FilePath("foo/bar").ReferencesParent());
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

@@ -17,8 +17,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 #include "tachyon/math/geometry/point3.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename _Curve>
 class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
@@ -195,8 +194,7 @@ class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   BaseField z_;
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point_impl.h"
 

@@ -4,8 +4,7 @@
 #include "tachyon/math/base/bit_traits.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <>
 class BitTraits<mpz_class> {
@@ -25,7 +24,6 @@ class BitTraits<mpz_class> {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_GMP_BIT_TRAITS_H_

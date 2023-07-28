@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -224,5 +223,4 @@ TYPED_TEST(PrimeFieldTest, DivBy2Exp) {
   }
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

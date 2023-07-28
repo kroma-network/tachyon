@@ -12,8 +12,7 @@
 #include <tuple>
 #include <type_traits>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // Packs a list of types to hold them in a single type.
 template <typename... Types>
@@ -121,7 +120,6 @@ struct GetSizeImpl<TypeList<Types...>> {
 template <typename List>
 inline constexpr size_t GetSize = GetSizeImpl<List>::value;
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  //  TACHYON_BASE_TYPE_LIST_H_

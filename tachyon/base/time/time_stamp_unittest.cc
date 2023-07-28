@@ -4,8 +4,7 @@
 
 #include "tachyon/base/threading/platform_thread.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(TimeStampTest, GetTimeDelta) {
   TimeStamp ts;
@@ -23,5 +22,4 @@ TEST(TimeStampTest, GetTimeDelta) {
   EXPECT_GT(ts2.GetTimeDelta(false), dt);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

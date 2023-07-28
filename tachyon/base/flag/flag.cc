@@ -6,8 +6,7 @@
 
 #include <algorithm>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace {
 
 size_t Append(std::ostream& ss, std::string_view text) {
@@ -90,5 +89,4 @@ bool FlagBase::ConsumeNamePrefix(FlagParserBase& parser,
   return false;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

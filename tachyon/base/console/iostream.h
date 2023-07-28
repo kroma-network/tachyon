@@ -6,9 +6,7 @@
 #include "tachyon/base/console/console_stream.h"
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
-namespace internal {
+namespace tachyon::base::internal {
 
 class TACHYON_EXPORT ConsoleErrStream {
  public:
@@ -23,9 +21,7 @@ class TACHYON_EXPORT ConsoleErrStream {
   ConsoleStream console_stream_;
 };
 
-}  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base::internal
 
 #define tachyon_cerr ::tachyon::base::internal::ConsoleErrStream().ostream()
 

@@ -7,8 +7,7 @@
 
 #include <ostream>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 namespace internal {
 
 template <typename T>
@@ -31,7 +30,6 @@ std::ostream& operator<<(std::ostream& os, const ClampedNumeric<T>& value) {
 }
 
 }  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_OSTREAM_OPERATORS_H_

@@ -11,8 +11,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 namespace sgr_params {
 #define SGR_PARAMETER_LIST(name, code) \
@@ -36,7 +35,6 @@ TACHYON_EXPORT std::string BgRgb24(uint8_t r, uint8_t g, uint8_t b);
 // 6 × 6 × 6 cube (216 colors): 16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
 TACHYON_EXPORT uint8_t Ansi8BitColor(uint8_t r, uint8_t g, uint8_t b);
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_CONSOLE_SGR_PARAMETERS_H_

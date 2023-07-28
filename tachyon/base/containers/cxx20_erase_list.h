@@ -9,8 +9,7 @@
 
 #include <list>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // Erase/EraseIf are based on C++20's uniform container erasure API:
 // - https://eel.is/c++draft/libraryindex#:erase
@@ -36,7 +35,6 @@ size_t Erase(std::list<T, Allocator>& container, const Value& value) {
   return EraseIf(container, [&](const T& cur) { return cur == value; });
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_CXX20_ERASE_LIST_H_

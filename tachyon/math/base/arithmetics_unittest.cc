@@ -5,9 +5,7 @@
 
 #include "tachyon/base/random.h"
 
-namespace tachyon {
-namespace math {
-namespace internal {
+namespace tachyon::math::internal {
 namespace {
 
 uint32_t GetRandomLo32() {
@@ -148,6 +146,4 @@ TEST(Arithmetics, MulAddWithCarry64) {
   EXPECT_EQ(result2.hi, 1);
 }
 
-}  // namespace internal
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math::internal

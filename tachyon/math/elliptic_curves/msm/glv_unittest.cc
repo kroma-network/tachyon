@@ -4,8 +4,7 @@
 
 #include "tachyon/math/elliptic_curves/bls/bls12_381/g1.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -76,5 +75,4 @@ TYPED_TEST(GLVTest, Mul) {
   EXPECT_EQ(GLV<Curve>::Mul(base, scalar), expected);
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

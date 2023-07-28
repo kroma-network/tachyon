@@ -7,8 +7,7 @@
 
 #include "tachyon/build/build_config.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 // A MessagePump has a particular type, which indicates the set of
 // asynchronous events it may process in addition to tasks and timers.
@@ -42,7 +41,6 @@ enum class MessagePumpType {
 #endif  // BUILDFLAG(IS_APPLE)
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_MESSAGE_LOOP_MESSAGE_PUMP_TYPE_H_

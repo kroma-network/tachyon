@@ -7,8 +7,7 @@
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/bit_traits.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename T>
 class BitIteratorBE {
@@ -200,7 +199,6 @@ class BitIteratorLE {
   size_t index_ = 0;
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_BASE_BIT_ITERATOR_H_

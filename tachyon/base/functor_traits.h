@@ -13,9 +13,7 @@
 
 #include "tachyon/base/type_list.h"
 
-namespace tachyon {
-namespace base {
-namespace internal {
+namespace tachyon::base::internal {
 
 // Used for MakeFunctionType implementation.
 template <typename R, typename ArgList>
@@ -244,8 +242,6 @@ struct BindTypeHelper {
   using UnboundRunType = MakeFunctionType<ReturnType, UnboundParamsList>;
 };
 
-}  // namespace internal
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base::internal
 
 #endif  // TACHYON_BASE_FUNCTOR_TRAITS_H_

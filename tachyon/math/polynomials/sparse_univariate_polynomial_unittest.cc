@@ -5,8 +5,7 @@
 #include "tachyon/math/finite_fields/prime_field.h"
 #include "tachyon/math/polynomials/univariate_polynomial.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 namespace {
 
@@ -278,5 +277,4 @@ TEST_F(SparseUnivariatePolynomialTest, MultiplicativeOperators) {
   }
 }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

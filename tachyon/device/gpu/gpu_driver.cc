@@ -2,9 +2,7 @@
 
 #include "tachyon/base/logging.h"
 
-namespace tachyon {
-namespace device {
-namespace gpu {
+namespace tachyon::device::gpu {
 
 std::string MemorySpaceString(MemorySpace memory_space) {
   switch (memory_space) {
@@ -17,6 +15,4 @@ std::string MemorySpaceString(MemorySpace memory_space) {
   }
 }
 
-}  // namespace gpu
-}  // namespace device
-}  // namespace tachyon
+}  // namespace tachyon::device::gpu

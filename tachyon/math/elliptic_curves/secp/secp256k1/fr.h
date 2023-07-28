@@ -4,8 +4,7 @@
 #include "tachyon/export.h"
 #include "tachyon/math/finite_fields/prime_field.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 namespace secp256k1 {
 
 class TACHYON_EXPORT FrConfig {
@@ -38,7 +37,6 @@ using FrGmp = PrimeFieldGmp<FrConfig>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace secp256k1
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_SECP_SECP256K1_FR_H_

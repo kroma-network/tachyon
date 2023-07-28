@@ -1,10 +1,8 @@
 #include "tachyon/math/finite_fields/goldilocks_prime/goldilocks_prime_field.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 // static
 void GoldilocksConfig::Init() { GoldilocksGmp::Init(); }
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math

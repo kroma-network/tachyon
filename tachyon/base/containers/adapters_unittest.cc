@@ -8,8 +8,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(AdaptersTest, Reversed) {
   std::vector<int> v;
@@ -50,5 +49,4 @@ TEST(AdaptersTest, ReversedConst) {
   }
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base

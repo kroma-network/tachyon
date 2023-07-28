@@ -8,8 +8,7 @@
 #include <cmath>
 #include <type_traits>
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 template <typename T>
 constexpr bool IsApproximatelyEqual(T lhs, T rhs, T tolerance) {
@@ -17,7 +16,6 @@ constexpr bool IsApproximatelyEqual(T lhs, T rhs, T tolerance) {
   return std::abs(rhs - lhs) <= tolerance;
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_NUMERICS_RANGES_H_

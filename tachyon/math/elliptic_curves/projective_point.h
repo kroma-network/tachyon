@@ -6,8 +6,7 @@
 #include "tachyon/base/no_destructor.h"
 #include "tachyon/math/base/identities.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename Curve, typename SFINAE = void>
 class ProjectivePoint;
@@ -50,7 +49,6 @@ class AdditiveIdentity<ProjectivePoint<Curve>> {
   constexpr static bool IsZero(const P& value) { return value.IsZero(); }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_PROJECTIVE_POINT_H_

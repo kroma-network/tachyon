@@ -15,8 +15,7 @@
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 TACHYON_EXPORT std::vector<int64_t> MakeDigits(const mpz_class& a, size_t w,
                                                size_t num_bits);
@@ -215,7 +214,6 @@ class VariableBaseMSM {
   }
 };
 
-}  // namespace math
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_H_

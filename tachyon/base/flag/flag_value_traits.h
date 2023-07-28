@@ -16,8 +16,7 @@
 
 #include "tachyon/base/strings/string_number_conversions.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 template <typename T, typename SFINAE = void>
 class FlagValueTraits;
@@ -159,7 +158,6 @@ class FlagValueTraits<std::vector<T>> {
   }
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_FLAG_FLAG_VALUE_TRAITS_H_

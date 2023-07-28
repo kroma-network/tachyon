@@ -4,8 +4,7 @@
 
 #include "tachyon/base/threading/platform_thread.h"
 
-namespace tachyon {
-namespace base {
+namespace tachyon::base {
 
 TEST(TimeIntervalTest, GetTimeDelta) {
   TimeInterval ti;
@@ -31,5 +30,4 @@ TEST(TimeIntervalTest, GetTimeDelta) {
   EXPECT_GT(ti2.last_time_, last_time);
 }
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::base
