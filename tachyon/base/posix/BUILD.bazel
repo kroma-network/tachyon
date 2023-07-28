@@ -1,10 +1,11 @@
+load("//bazel:tachyon.bzl", "if_linux")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
     name = "can_lower_nice_to",
-    srcs = ["can_lower_nice_to.cc"],
+    srcs = if_linux(["can_lower_nice_to.cc"]),
     hdrs = ["can_lower_nice_to.h"],
     deps = ["//tachyon/build:build_config"],
 )

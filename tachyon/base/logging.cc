@@ -7,4 +7,9 @@ namespace tachyon::base {
 // operator.
 std::ostream* g_swallow_stream;
 
+bool ShouldCreateLogMessage(int severity) {
+  // TODO(chokobole): enable this.
+  return true;
+}
+
 }  // namespace tachyon::base

@@ -46,6 +46,7 @@ build:dbg -c dbg
 # By default, build Tachyon in C++ 17 mode.
 build:linux --cxxopt=-std=c++17
 build:macos --cxxopt=-std=c++17
+build:macos --objccopt=-std=c++17
 build:windows --cxxopt=/std:c++17
 
 # Enable googletest build with absl.
@@ -62,7 +63,13 @@ build --//:has_rtti
 # Enable gmp backend for prime field.
 build:gmp_backend --//:gmp_backend
 
+# Chromium things
+build:macos --define=enable_mach_absolute_time_ticks=true
+
 test --test_tag_filters -benchmark,-manual,-cuda
+
+build:linux --build_tag_filters -objc
+build:windows --build_tag_filters -objc
 
 # Config-specific options should come above this line.
 

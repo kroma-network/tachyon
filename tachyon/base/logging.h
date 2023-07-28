@@ -19,12 +19,37 @@ namespace tachyon::base {
 
 TACHYON_EXPORT extern std::ostream* g_swallow_stream;
 
+// Used by LOG_IS_ON to lazy-evaluate stream arguments.
+TACHYON_EXPORT bool ShouldCreateLogMessage(int severity);
+
 }  // namespace tachyon::base
 
 // Helper macro which avoids evaluating the arguments to a stream if
 // the condition doesn't hold. Condition is evaluated once and only once.
 #define LAZY_STREAM(stream, condition) \
   !(condition) ? (void)0 : ::google::LogMessageVoidify() & (stream)
+
+// As special cases, we can assume that LOG_IS_ON(FATAL) always holds. Also,
+// LOG_IS_ON(DFATAL) always holds in debug mode. In particular, CHECK()s will
+// always fire if they fail.
+#define LOG_IS_ON(severity) \
+  (::tachyon::base::ShouldCreateLogMessage(::google::GLOG_##severity))
+
+// A few definitions of macros that don't generate much code. These are used
+// by LOG() and LOG_IF, etc. Since these are used all over our code, it's
+// better to have compact code for these operations.
+#define COMPACT_GOOGLE_LOG_EX_INFO(ClassName, ...) \
+  ::google::ClassName(__FILE__, __LINE__, ::google::GLOG_INFO, ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_WARNING(ClassName, ...) \
+  ::google::ClassName(__FILE__, __LINE__, ::google::GLOG_WARNING, ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_ERROR(ClassName, ...) \
+  ::google::ClassName(__FILE__, __LINE__, ::google::GLOG_ERROR, ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_FATAL(ClassName, ...) \
+  ::google::ClassName(__FILE__, __LINE__, ::google::GLOG_FATAL, ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_DFATAL(ClassName, ...) \
+  ::google::ClassName(__FILE__, __LINE__, ::google::GLOG_DFATAL, ##__VA_ARGS__)
+#define COMPACT_GOOGLE_LOG_EX_DCHECK(ClassName, ...) \
+  ::google::ClassName(__FILE__, __LINE__, ::google::GLOG_DCHECK, ##__VA_ARGS__)
 
 // Note that g_swallow_stream is used instead of an arbitrary LOG() stream to
 // avoid the creation of an object with a non-trivial destructor (LogMessage).
@@ -55,6 +80,7 @@ TACHYON_EXPORT extern std::ostream* g_swallow_stream;
 
 #if DCHECK_IS_ON()
 
+#define DLOG_IS_ON(severity) LOG_IS_ON(severity)
 #define DPLOG_IF(severity, condition) PLOG_IF(severity, condition)
 #define DVLOG_IF(verboselevel, condition) VLOG_IF(verboselevel, condition)
 #define DVPLOG_IF(verboselevel, condition) VPLOG_IF(verboselevel, condition)
@@ -63,6 +89,11 @@ TACHYON_EXPORT extern std::ostream* g_swallow_stream;
 
 #else  // !DCHECK_IS_ON()
 
+// If !DCHECK_IS_ON(), we want to avoid emitting any references to |condition|
+// (which may reference a variable defined only if DCHECK_IS_ON()).
+// Contrast this with DCHECK et al., which has different behavior.
+
+#define DLOG_IS_ON(severity) false
 #define DPLOG_IF(severity, condition) EAT_STREAM_PARAMETERS
 #define DVLOG_IF(verboselevel, condition) EAT_STREAM_PARAMETERS
 #define DVPLOG_IF(verboselevel, condition) EAT_STREAM_PARAMETERS

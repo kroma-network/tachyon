@@ -1,5 +1,10 @@
-load("//bazel:tachyon.bzl", "if_posix")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//bazel:tachyon.bzl", "if_macos", "if_posix")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+    "tachyon_objc_library",
+)
 load(":time_buildflags.bzl", "time_buildflag_header")
 
 package(default_visibility = ["//visibility:public"])
@@ -7,20 +12,45 @@ package(default_visibility = ["//visibility:public"])
 time_buildflag_header(name = "time_buildflags")
 
 tachyon_cc_library(
-    name = "time",
-    srcs = ["time.cc"] + if_posix([
-        "time_conversion_posix.cc",
-        "time_now_posix.cc",
-    ]),
+    name = "time_base",
     hdrs = ["time.h"],
+    visibility = ["//visibility:private"],
     deps = [
-        "//tachyon:export",
+        ":time_buildflags",
         "//tachyon/base:compiler_specific",
         "//tachyon/base:logging",
-        "//tachyon/base/numerics:checked_math",
         "//tachyon/base/numerics:clamped_math",
         "@com_google_absl//absl/time",
         "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
+    name = "time",
+    srcs = ["time.cc"] + select({
+        "@platforms//os:macos": [],
+        "@platforms//os:windows": [],
+        "//conditions:default": [
+            "time_now_posix.cc",
+        ],
+    }) + if_posix([
+        "time_conversion_posix.cc",
+    ]),
+    deps = [
+        ":time_base",
+        "//tachyon/base/numerics:checked_math",
+    ] + if_macos([
+        ":time_mac",
+    ]),
+)
+
+tachyon_objc_library(
+    name = "time_mac",
+    srcs = ["time_mac.mm"],
+    deps = [
+        ":time_base",
+        "//tachyon/base/mac:scoped_cftyperef",
+        "//tachyon/base/mac:scoped_mach_port",
     ],
 )
 

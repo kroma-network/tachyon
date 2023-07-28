@@ -50,15 +50,15 @@ namespace {
 struct ThreadParams {
   ThreadParams() = default;
 
-  // raw_ptr<PlatformThread::Delegate> delegate = nullptr;
-  PlatformThread::Delegate* delegate = nullptr;
+  // raw_ptr<PlatformThreadBase::Delegate> delegate = nullptr;
+  PlatformThreadBase::Delegate* delegate = nullptr;
   bool joinable = false;
   ThreadType thread_type = ThreadType::kDefault;
   MessagePumpType message_pump_type = MessagePumpType::DEFAULT;
 };
 
 void* ThreadFunc(void* params) {
-  PlatformThread::Delegate* delegate = nullptr;
+  PlatformThreadBase::Delegate* delegate = nullptr;
 
   {
     std::unique_ptr<ThreadParams> thread_params(
@@ -78,21 +78,21 @@ void* ThreadFunc(void* params) {
     // Threads on linux/android may inherit their priority from the thread
     // where they were created. This explicitly sets the priority of all new
     // threads.
-    PlatformThread::SetCurrentThreadType(thread_params->thread_type);
+    PlatformThreadBase::SetCurrentThreadType(thread_params->thread_type);
 #endif  //  !BUILDFLAG(IS_NACL)
   }
 
   // TODO(chokobole):
   // ThreadIdNameManager::GetInstance()->RegisterThread(
-  //     PlatformThread::CurrentHandle().platform_handle(),
-  //     PlatformThread::CurrentId());
+  //     PlatformThreadBase::CurrentHandle().platform_handle(),
+  //     PlatformThreadBase::CurrentId());
 
   delegate->ThreadMain();
 
   // TODO(chokobole):
   // ThreadIdNameManager::GetInstance()->RemoveName(
-  //     PlatformThread::CurrentHandle().platform_handle(),
-  //     PlatformThread::CurrentId());
+  //     PlatformThreadBase::CurrentHandle().platform_handle(),
+  //     PlatformThreadBase::CurrentId());
 
   base::TerminateOnThread();
   return nullptr;
@@ -100,7 +100,7 @@ void* ThreadFunc(void* params) {
 
 bool CreateThread(size_t stack_size,
                   bool joinable,
-                  PlatformThread::Delegate* delegate,
+                  PlatformThreadBase::Delegate* delegate,
                   PlatformThreadHandle* thread_handle,
                   ThreadType thread_type,
                   MessagePumpType message_pump_type) {
@@ -150,7 +150,7 @@ bool CreateThread(size_t stack_size,
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 
 // Store the thread ids in local storage since calling the SWI can be
-// expensive and PlatformThread::CurrentId is used liberally.
+// expensive and PlatformThreadBase::CurrentId is used liberally.
 thread_local pid_t g_thread_id = -1;
 
 // A boolean value that indicates that the value stored in |g_thread_id| on the
@@ -168,7 +168,7 @@ std::atomic<bool> g_main_thread_tid_cache_valid = false;
 
 // Tracks whether the current thread is the main thread, and therefore whether
 // |g_main_thread_tid_cache_valid| is relevant for the current thread. This is
-// also updated by PlatformThread::CurrentId().
+// also updated by PlatformThreadBase::CurrentId().
 thread_local bool g_is_main_thread = true;
 
 class InitAtFork {
@@ -195,7 +195,7 @@ void InvalidateTidCache() {
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
 
 // static
-PlatformThreadId PlatformThread::CurrentId() {
+PlatformThreadId PlatformThreadBase::CurrentId() {
   // Pthreads doesn't have the concept of a thread ID, so we have to reach down
   // into the kernel.
 #if BUILDFLAG(IS_APPLE)
@@ -255,24 +255,24 @@ PlatformThreadId PlatformThread::CurrentId() {
 }
 
 // static
-PlatformThreadRef PlatformThread::CurrentRef() {
+PlatformThreadRef PlatformThreadBase::CurrentRef() {
   return PlatformThreadRef(pthread_self());
 }
 
 // static
-PlatformThreadHandle PlatformThread::CurrentHandle() {
+PlatformThreadHandle PlatformThreadBase::CurrentHandle() {
   return PlatformThreadHandle(pthread_self());
 }
 
 #if !BUILDFLAG(IS_APPLE)
 // static
-void PlatformThread::YieldCurrentThread() {
+void PlatformThreadBase::YieldCurrentThread() {
   sched_yield();
 }
 #endif  // !BUILDFLAG(IS_APPLE)
 
 // static
-void PlatformThread::Sleep(TimeDelta duration) {
+void PlatformThreadBase::Sleep(TimeDelta duration) {
   struct timespec sleep_time, remaining;
 
   // Break the duration into seconds and nanoseconds.
@@ -287,14 +287,14 @@ void PlatformThread::Sleep(TimeDelta duration) {
 }
 
 // static
-const char* PlatformThread::GetName() {
+const char* PlatformThreadBase::GetName() {
   return "";
   // TODO(chokobole):
   // return ThreadIdNameManager::GetInstance()->GetName(CurrentId());
 }
 
 // static
-bool PlatformThread::CreateWithType(size_t stack_size,
+bool PlatformThreadBase::CreateWithType(size_t stack_size,
                                     Delegate* delegate,
                                     PlatformThreadHandle* thread_handle,
                                     ThreadType thread_type,
@@ -304,15 +304,15 @@ bool PlatformThread::CreateWithType(size_t stack_size,
 }
 
 // static
-bool PlatformThread::CreateNonJoinable(size_t stack_size, Delegate* delegate) {
+bool PlatformThreadBase::CreateNonJoinable(size_t stack_size, Delegate* delegate) {
   return CreateNonJoinableWithType(stack_size, delegate, ThreadType::kDefault);
 }
 
 // static
-bool PlatformThread::CreateNonJoinableWithType(size_t stack_size,
-                                               Delegate* delegate,
-                                               ThreadType thread_type,
-                                               MessagePumpType pump_type_hint) {
+bool PlatformThreadBase::CreateNonJoinableWithType(size_t stack_size,
+                                                   Delegate* delegate,
+                                                   ThreadType thread_type,
+                                                   MessagePumpType pump_type_hint) {
   PlatformThreadHandle unused;
 
   bool result = CreateThread(stack_size, false /* non-joinable thread */,
@@ -321,7 +321,7 @@ bool PlatformThread::CreateNonJoinableWithType(size_t stack_size,
 }
 
 // static
-void PlatformThread::Join(PlatformThreadHandle thread_handle) {
+void PlatformThreadBase::Join(PlatformThreadHandle thread_handle) {
   // Joining another thread may block the current thread for a long time, since
   // the thread referred to by |thread_handle| may still be running long-lived /
   // blocking tasks.
@@ -332,7 +332,7 @@ void PlatformThread::Join(PlatformThreadHandle thread_handle) {
 }
 
 // static
-void PlatformThread::Detach(PlatformThreadHandle thread_handle) {
+void PlatformThreadBase::Detach(PlatformThreadHandle thread_handle) {
   CHECK_EQ(0, pthread_detach(thread_handle.platform_handle()));
 }
 
@@ -341,7 +341,7 @@ void PlatformThread::Detach(PlatformThreadHandle thread_handle) {
 #if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA)
 
 // static
-bool PlatformThread::CanChangeThreadType(ThreadType from, ThreadType to) {
+bool PlatformThreadBase::CanChangeThreadType(ThreadType from, ThreadType to) {
 #if BUILDFLAG(IS_NACL)
   return false;
 #else
@@ -376,7 +376,7 @@ void SetCurrentThreadTypeImpl(ThreadType thread_type,
   const int nice_setting = internal::ThreadTypeToNiceValue(thread_type);
   if (setpriority(PRIO_PROCESS, 0, nice_setting)) {
     DVPLOG(1) << "Failed to set nice value of thread ("
-              << PlatformThread::CurrentId() << ") to " << nice_setting;
+              << PlatformThreadBase::CurrentId() << ") to " << nice_setting;
   }
 #endif  // BUILDFLAG(IS_NACL)
 }
@@ -384,7 +384,7 @@ void SetCurrentThreadTypeImpl(ThreadType thread_type,
 }  // namespace internal
 
 // static
-ThreadPriorityForTest PlatformThread::GetCurrentThreadPriorityForTest() {
+ThreadPriorityForTest PlatformThreadBase::GetCurrentThreadPriorityForTest() {
 #if BUILDFLAG(IS_NACL)
   NOTIMPLEMENTED();
   return ThreadPriorityForTest::kNormal;
@@ -404,7 +404,7 @@ ThreadPriorityForTest PlatformThread::GetCurrentThreadPriorityForTest() {
 #endif  // !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA)
 
 // static
-size_t PlatformThread::GetDefaultThreadStackSize() {
+size_t PlatformThreadBase::GetDefaultThreadStackSize() {
   pthread_attr_t attributes;
   pthread_attr_init(&attributes);
   return base::GetDefaultThreadStackSize(attributes);

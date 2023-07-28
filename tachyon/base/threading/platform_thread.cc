@@ -39,7 +39,7 @@ std::ostream& operator<<(std::ostream& os, ThreadType thread_type) {
 }
 
 // static
-void PlatformThread::SetCurrentThreadType(ThreadType thread_type) {
+void PlatformThreadBase::SetCurrentThreadType(ThreadType thread_type) {
   MessagePumpType message_pump_type = MessagePumpType::DEFAULT;
   // TODO(chokobole):
   //   if (CurrentIOThread::IsSet()) {
@@ -54,12 +54,12 @@ void PlatformThread::SetCurrentThreadType(ThreadType thread_type) {
 }
 
 // static
-ThreadType PlatformThread::GetCurrentThreadType() {
+ThreadType PlatformThreadBase::GetCurrentThreadType() {
   return current_thread_type;
 }
 
 // static
-std::optional<TimeDelta> PlatformThread::GetThreadLeewayOverride() {
+std::optional<TimeDelta> PlatformThreadBase::GetThreadLeewayOverride() {
 #if BUILDFLAG(IS_FUCHSIA)
   // On Fuchsia, all audio threads run with the CPU scheduling profile that uses
   // an interval of |kAudioSchedulingPeriod|. Using the default leeway may lead
@@ -69,6 +69,12 @@ std::optional<TimeDelta> PlatformThread::GetThreadLeewayOverride() {
     return kAudioSchedulingPeriod;
 #endif
   return std::nullopt;
+}
+
+// static
+void PlatformThreadBase::SetNameCommon(const std::string& name) {
+  // TODO(chokobole):
+  // ThreadIdNameManager::GetInstance()->SetName(name);
 }
 
 namespace internal {

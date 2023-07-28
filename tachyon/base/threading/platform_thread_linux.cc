@@ -397,7 +397,7 @@ GetCurrentThreadPriorityForPlatformForTest() {
 }  // namespace internal
 
 // static
-void PlatformThread::SetName(const std::string& name) {
+void PlatformThreadBase::SetName(const std::string& name) {
   // TODO(chokobole):
   // ThreadIdNameManager::GetInstance()->SetName(name);
 

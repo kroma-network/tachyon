@@ -78,12 +78,10 @@
 #include "tachyon/export.h"
 
 #if BUILDFLAG(IS_APPLE)
-#include "tachyon/base/time/buildflags/buildflags.h"
-#endif
-
-#if BUILDFLAG(IS_APPLE)
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach/mach_time.h>
+
+#include "tachyon/base/time/time_buildflags.h"
 // Avoid Mac system header macro leak.
 #undef TYPE_BOOL
 #endif
@@ -571,9 +569,7 @@ class TACHYON_EXPORT Time : public time_internal::TimeBase<Time> {
   static constexpr Time FromDeltaSinceUnixEpoch(TimeDelta delta) {
     return Time(delta.InMicroseconds());
   }
-  constexpr TimeDelta ToDeltaSinceUnixEpoch() const {
-    return Microseconds(us_);
-  }
+  constexpr TimeDelta ToDeltaSinceUnixEpoch() const;
 
   // Converts to/from time_t in UTC and a Time class.
   static constexpr Time FromTimeT(time_t tt);
@@ -596,6 +592,15 @@ class TACHYON_EXPORT Time : public time_internal::TimeBase<Time> {
 
   static Time FromTimeVal(struct timeval t);
   struct timeval ToTimeVal() const;
+#endif
+
+#if BUILDFLAG(IS_APPLE)
+  static Time FromCFAbsoluteTime(CFAbsoluteTime t);
+  CFAbsoluteTime ToCFAbsoluteTime() const;
+#if defined(__OBJC__)
+  static Time FromNSDate(NSDate* date);
+  NSDate* ToNSDate() const;
+#endif
 #endif
 
   static Time FromAbsl(absl::Time time);
@@ -816,6 +821,10 @@ constexpr TimeClass TimeBase<TimeClass>::operator-(TimeDelta delta) const {
 }  // namespace time_internal
 
 // Time functions that must appear below the declarations of Time/TimeDelta
+
+constexpr TimeDelta Time::ToDeltaSinceUnixEpoch() const {
+  return Microseconds(us_);
+}
 
 // static
 constexpr Time Time::FromTimeT(time_t tt) {

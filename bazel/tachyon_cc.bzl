@@ -132,6 +132,23 @@ def tachyon_cc_benchmark(
         **kwargs
     )
 
+def tachyon_objc_library(
+        name,
+        copts = [],
+        defines = [],
+        tags = [],
+        safe_code = True,
+        force_exceptions = False,
+        force_rtti = False,
+        **kwargs):
+    native.objc_library(
+        name = name,
+        copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
+        defines = defines + tachyon_defines(),
+        tags = tags + ["objc"],
+        **kwargs
+    )
+
 def tachyon_cuda_library(
         name,
         copts = [],

@@ -1,0 +1,45 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_objc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_objc_library(
+    name = "foundation_util",
+    hdrs = ["foundation_util.h"],
+    deps = [":scoped_cftyperef"],
+)
+
+tachyon_objc_library(
+    name = "mach_logging",
+    srcs = ["mach_logging.cc"],
+    hdrs = ["mach_logging.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/build:build_config",
+        "@com_google_absl//absl/strings:str_format",
+    ],
+)
+
+tachyon_objc_library(
+    name = "scoped_cftyperef",
+    hdrs = ["scoped_cftyperef.h"],
+    deps = [":scoped_typeref"],
+)
+
+tachyon_objc_library(
+    name = "scoped_mach_port",
+    srcs = ["scoped_mach_port.cc"],
+    hdrs = ["scoped_mach_port.h"],
+    deps = [
+        ":mach_logging",
+        "//tachyon/base:scoped_generic",
+    ],
+)
+
+tachyon_objc_library(
+    name = "scoped_typeref",
+    hdrs = ["scoped_typeref.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/memory:scoped_policy",
+    ],
+)
