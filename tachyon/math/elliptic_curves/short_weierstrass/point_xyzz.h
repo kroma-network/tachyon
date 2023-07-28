@@ -111,8 +111,8 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static PointXYZZ Endomorphism(const PointXYZZ& point) {
-    return PointXYZZ(point.x_ * GLV<Curve>::EndomorphismCoefficient(), point.y_,
-                     point.zz_, point.zzz_);
+    return PointXYZZ(point.x_ * GLV<PointXYZZ>::EndomorphismCoefficient(),
+                     point.y_, point.zz_, point.zzz_);
   }
 
   constexpr const BaseField& x() const { return x_; }

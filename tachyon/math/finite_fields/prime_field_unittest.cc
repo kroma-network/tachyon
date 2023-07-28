@@ -72,6 +72,13 @@ TYPED_TEST(PrimeFieldTest, MontgomeryConversion) {
   EXPECT_EQ(F::FromMontgomery(r.ToMontgomery()), r);
 }
 
+TYPED_TEST(PrimeFieldTest, MpzClassConversion) {
+  using F = TypeParam;
+
+  F r = F::Random();
+  EXPECT_EQ(F::FromMpzClass(r.ToMpzClass()), r);
+}
+
 TYPED_TEST(PrimeFieldTest, EqualityOperators) {
   using F = TypeParam;
 

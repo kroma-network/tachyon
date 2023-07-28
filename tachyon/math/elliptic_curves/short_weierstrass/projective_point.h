@@ -108,8 +108,9 @@ class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static ProjectivePoint Endomorphism(const ProjectivePoint& point) {
-    return ProjectivePoint(point.x_ * GLV<Curve>::EndomorphismCoefficient(),
-                           point.y_, point.z_);
+    return ProjectivePoint(
+        point.x_ * GLV<ProjectivePoint>::EndomorphismCoefficient(), point.y_,
+        point.z_);
   }
 
   constexpr const BaseField& x() const { return x_; }

@@ -98,6 +98,12 @@ class PrimeFieldMontCudaDebug
     return ret;
   }
 
+  static PrimeFieldMontCudaDebug FromMpzClass(const mpz_class& value) {
+    BigInt<N> big_int;
+    gmp::CopyLimbs(value, big_int.limbs);
+    return FromBigInt(big_int);
+  }
+
   static void Init() {
     // Do nothing.
   }

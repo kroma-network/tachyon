@@ -105,11 +105,10 @@ class G1CurveConfig {
   // clang-format on
 };
 
-// TODO(chokobole): Enable this
-// using G1AffinePoint = AffinePoint<SWCurve<G1CurveConfig<Fq, Fr>>>;
-// using G1ProjectivePoint = ProjectivePoint<SWCurve<G1CurveConfig<Fq, Fr>>>;
-// using G1JacobianPoint = JacobianPoint<SWCurve<G1CurveConfig<Fq, Fr>>>;
-// using G1PointXYZZ = PointXYZZ<SWCurve<G1CurveConfig<Fq, Fr>>>;
+using G1AffinePoint = AffinePoint<SWCurve<G1CurveConfig<Fq, Fr>>>;
+using G1ProjectivePoint = ProjectivePoint<SWCurve<G1CurveConfig<Fq, Fr>>>;
+using G1JacobianPoint = JacobianPoint<SWCurve<G1CurveConfig<Fq, Fr>>>;
+using G1PointXYZZ = PointXYZZ<SWCurve<G1CurveConfig<Fq, Fr>>>;
 #if defined(TACHYON_GMP_BACKEND)
 using G1AffinePointGmp = AffinePoint<SWCurve<G1CurveConfig<FqGmp, FrGmp>>>;
 using G1ProjectivePointGmp =

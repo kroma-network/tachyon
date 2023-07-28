@@ -107,8 +107,9 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static JacobianPoint Endomorphism(const JacobianPoint& point) {
-    return JacobianPoint(point.x_ * GLV<Curve>::EndomorphismCoefficient(),
-                         point.y_, point.z_);
+    return JacobianPoint(
+        point.x_ * GLV<JacobianPoint>::EndomorphismCoefficient(), point.y_,
+        point.z_);
   }
 
   constexpr const BaseField& x() const { return x_; }

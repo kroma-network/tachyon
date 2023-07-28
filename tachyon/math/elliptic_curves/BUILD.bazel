@@ -8,6 +8,7 @@ tachyon_cc_library(
         "affine_point.h",
         "curve_config.h",
         "jacobian_point.h",
+        "point_traits.h",
         "point_xyzz.h",
         "projective_point.h",
     ],

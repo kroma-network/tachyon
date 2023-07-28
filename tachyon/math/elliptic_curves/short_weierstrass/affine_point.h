@@ -108,7 +108,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static AffinePoint Endomorphism(const AffinePoint& point) {
-    return AffinePoint(point.x_ * GLV<Curve>::EndomorphismCoefficient(),
+    return AffinePoint(point.x_ * GLV<AffinePoint>::EndomorphismCoefficient(),
                        point.y_);
   }
 
