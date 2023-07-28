@@ -1,8 +1,21 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "aligned_memory",
+    srcs = ["aligned_memory.cc"],
+    hdrs = ["aligned_memory.h"],
+    deps = ["//tachyon/base:bits"],
+)
+
+tachyon_cc_library(
     name = "scoped_policy",
     hdrs = ["scoped_policy.h"],
+)
+
+tachyon_cc_test(
+    name = "memory_unittests",
+    srcs = ["aligned_memory_unittest.cc"],
+    deps = [":aligned_memory"],
 )
