@@ -1,3 +1,4 @@
+load("//bazel:tachyon.bzl", "if_gmp_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 
 package(default_visibility = ["//visibility:public"])
@@ -27,7 +28,9 @@ tachyon_cc_library(
     name = "fq",
     srcs = ["fq.cc"],
     hdrs = ["fq.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field"],
+    deps = ["//tachyon/math/finite_fields:prime_field"] + if_gmp_backend([
+        "//tachyon/math/finite_fields:prime_field_gmp",
+    ]),
 )
 
 tachyon_cc_library(
@@ -43,7 +46,9 @@ tachyon_cc_library(
     name = "fr",
     srcs = ["fr.cc"],
     hdrs = ["fr.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field"],
+    deps = ["//tachyon/math/finite_fields:prime_field"] + if_gmp_backend([
+        "//tachyon/math/finite_fields:prime_field_gmp",
+    ]),
 )
 
 tachyon_cc_library(

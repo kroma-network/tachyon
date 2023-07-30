@@ -3,12 +3,17 @@
 
 #include "tachyon/export.h"
 #include "tachyon/math/finite_fields/prime_field.h"
+#if defined(TACHYON_GMP_BACKEND)
+#include "tachyon/math/finite_fields/prime_field_gmp.h"
+#endif  // defined(TACHYON_GMP_BACKEND)
 
 namespace tachyon::math {
 namespace bn254 {
 
 class TACHYON_EXPORT FqConfig {
  public:
+  constexpr static bool kIsSpecialPrime = false;
+
   constexpr static size_t kModulusBits = 254;
   // clang-format off
   // Parameters are from https://zips.z.cash/protocol/protocol.pdf#page=97

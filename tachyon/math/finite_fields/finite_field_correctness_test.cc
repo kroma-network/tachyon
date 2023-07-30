@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
-#include "tachyon/math/finite_fields/prime_field_mont_cuda_debug.h"
+#include "tachyon/math/finite_fields/prime_field_cuda_debug.h"
 
 namespace tachyon::math {
 
@@ -10,7 +10,7 @@ namespace {
 
 constexpr size_t kTestNum = 1000;
 
-using FqCudaDebug = PrimeFieldMontCudaDebug<bn254::FqConfig>;
+using FqCudaDebug = PrimeFieldCudaDebug<bn254::FqConfig>;
 
 template <typename PrimeFieldType>
 class PrimeFieldCorrectnessTest : public testing::Test {

@@ -60,6 +60,12 @@ Please follow the instructions [here](https://bazel.build/install).
    > bazel build --config ${os} --config gmp_backend //...
    ```
 
+- `--config goldilocks_backend`: Enable [goldilocks](https://github.com/0xPolygonHermez/goldilocks) prime field backend.
+
+   ```shell
+   > bazel build --config ${os} --config goldilocks_backend //...
+   ```
+
 ### Hardware acceleration
 
 #### CUDA backend

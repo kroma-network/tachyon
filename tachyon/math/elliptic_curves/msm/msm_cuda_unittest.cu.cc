@@ -30,7 +30,7 @@ DEFINE_LAUNCH_COMPARISON_OP(Ge)
 #undef DEFINE_LAUNCH_COMPARISON_OP
 #undef DEFINE_LAUNCH_FIELD_OP
 
-class PrimeFieldMontCudaTest : public testing::Test {
+class PrimeFieldCudaTest : public testing::Test {
  public:
   // Runs tests with |N| data.
   constexpr static size_t N = kThreadNum * 2;
@@ -68,10 +68,10 @@ class PrimeFieldMontCudaTest : public testing::Test {
   static device::gpu::ScopedMemory<bool> bool_results_;
 };
 
-device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::xs_;
-device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::ys_;
-device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::results_;
-device::gpu::ScopedMemory<bool> PrimeFieldMontCudaTest::bool_results_;
+device::gpu::ScopedMemory<GF7Cuda> PrimeFieldCudaTest::xs_;
+device::gpu::ScopedMemory<GF7Cuda> PrimeFieldCudaTest::ys_;
+device::gpu::ScopedMemory<GF7Cuda> PrimeFieldCudaTest::results_;
+device::gpu::ScopedMemory<bool> PrimeFieldCudaTest::bool_results_;
 
 }  // namespace
 }  // namespace tachyon::math

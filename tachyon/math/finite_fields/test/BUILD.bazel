@@ -1,0 +1,26 @@
+load("//bazel:tachyon.bzl", "if_gmp_backend")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "gf7",
+    testonly = True,
+    srcs = ["gf7.cc"],
+    hdrs = ["gf7.h"],
+    deps = [
+        "//tachyon/math/finite_fields:prime_field",
+    ] + if_gmp_backend([
+        "//tachyon/math/finite_fields:prime_field_gmp",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "gf7_cuda",
+    testonly = True,
+    hdrs = ["gf7_cuda.cu.h"],
+    deps = [
+        ":gf7",
+        "//tachyon/math/finite_fields:prime_field_cuda",
+    ],
+)

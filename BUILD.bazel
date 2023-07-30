@@ -26,6 +26,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "goldilocks_backend",
+    build_setting_default = False,
+)
+
+bool_flag(
     name = "has_matplotlib",
     build_setting_default = False,
 )
@@ -109,6 +114,11 @@ config_setting(
 )
 
 config_setting(
+    name = "tachyon_goldilocks_backend",
+    flag_values = {":goldilocks_backend": "true"},
+)
+
+config_setting(
     name = "tachyon_has_matplotlib",
     flag_values = {":has_matplotlib": "true"},
 )
@@ -123,6 +133,14 @@ selects.config_setting_group(
     match_all = [
         "@local_config_cuda//:is_cuda_enabled",
         "@kroma_network_tachyon//:tachyon_gmp_backend",
+    ],
+)
+
+selects.config_setting_group(
+    name = "x86_64_and_goldilocks",
+    match_all = [
+        "@platforms//cpu:x86_64",
+        "@kroma_network_tachyon//:tachyon_goldilocks_backend",
     ],
 )
 

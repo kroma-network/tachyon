@@ -24,26 +24,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "prime_field",
-    srcs = ["prime_field.cc"],
-    hdrs = ["prime_field.h"],
-    deps = [
-        ":prime_field_mont",
-    ] + if_gmp_backend([
-        ":prime_field_gmp",
-    ]),
-)
-
-tachyon_cc_library(
-    name = "prime_field_cuda",
-    hdrs = ["prime_field.cu.h"],
-    deps = [
-        ":prime_field",
-        ":prime_field_mont_cuda",
-    ],
-)
-
-tachyon_cc_library(
     name = "prime_field_gmp",
     hdrs = ["prime_field_gmp.h"],
     defines = ["TACHYON_GMP_BACKEND"],
@@ -58,11 +38,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "prime_field_mont",
-    hdrs = ["prime_field_mont.h"],
+    name = "prime_field",
+    hdrs = ["prime_field.h"],
     deps = [
         ":modulus",
         ":prime_field_base",
+        ":prime_field_traits",
         "//tachyon/base:compiler_specific",
         "//tachyon/base:random",
         "//tachyon/base/containers:adapters",
@@ -75,24 +56,27 @@ tachyon_cc_library(
 )
 
 tachyon_cuda_library(
-    name = "prime_field_mont_cuda",
-    hdrs = ["prime_field_mont_cuda.cu.h"],
+    name = "prime_field_cuda",
+    hdrs = ["prime_field_cuda.cu.h"],
     deps = [
-        ":prime_field_mont",
+        ":prime_field",
         "//tachyon/math/finite_fields/kernels:carry_chain",
     ],
 )
 
 tachyon_cc_library(
-    name = "prime_field_mont_cuda_debug",
+    name = "prime_field_cuda_debug",
     hdrs = [
         "carry_chain.h",
-        "prime_field_mont_cuda_debug.h",
+        "prime_field_cuda_debug.h",
         "prime_field_ops_internal.h",
     ],
-    deps = [
-        ":prime_field_mont",
-    ],
+    deps = [":prime_field"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_traits",
+    hdrs = ["prime_field_traits.h"],
 )
 
 tachyon_cc_test(
@@ -102,18 +86,18 @@ tachyon_cc_test(
         "prime_field_unittest.cc",
     ],
     deps = [
-        ":prime_field",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/finite_fields/test:gf7",
     ],
 )
 
 tachyon_cuda_test(
     name = "finite_fields_cuda_unittests",
-    srcs = if_cuda(["prime_field_mont_cuda_unittest.cu.cc"]),
+    srcs = if_cuda(["prime_field_cuda_unittest.cu.cc"]),
     deps = [
-        ":prime_field_cuda",
         "//tachyon/device/gpu/cuda:cuda_memory",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
+        "//tachyon/math/finite_fields/test:gf7_cuda",
         "//tachyon/math/test:launch_op_macros",
     ],
 )
@@ -124,7 +108,7 @@ tachyon_cc_test(
     tags = ["cuda"],
     deps = [
         ":prime_field_cuda",
-        ":prime_field_mont_cuda_debug",
+        ":prime_field_cuda_debug",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
     ],
 )

@@ -4,6 +4,7 @@ load("//third_party/gmp:gmp_configure.bzl", "gmp_configure")
 load("//third_party/gpus:cuda_configure.bzl", "cuda_configure")
 load("//third_party/gpus:rocm_configure.bzl", "rocm_configure")
 load("//third_party/py:python_configure.bzl", "python_configure")
+load("//third_party/goldilocks:workspace.bzl", goldilocks = "repo")
 load("//third_party/hwloc:workspace.bzl", hwloc = "repo")
 
 def tachyon_deps():
@@ -13,6 +14,7 @@ def tachyon_deps():
     rocm_configure(name = "local_config_rocm")
     python_configure(name = "local_config_python")
 
+    goldilocks()
     hwloc()
 
     if not native.existing_rule("bazel_skylib"):

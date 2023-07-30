@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/finite_fields/prime_field.h"
+#include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
 

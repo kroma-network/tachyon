@@ -32,6 +32,6 @@ tachyon_cc_test(
     srcs = ["matrix_unittest.cc"],
     deps = [
         ":matrix",
-        "//tachyon/math/finite_fields:prime_field",
+        "//tachyon/math/finite_fields/test:gf7",
     ],
 )

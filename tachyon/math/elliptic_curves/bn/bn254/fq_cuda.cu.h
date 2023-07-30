@@ -4,14 +4,14 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 
 #if TACHYON_CUDA
-#include "tachyon/math/finite_fields/prime_field_mont_cuda.cu.h"
+#include "tachyon/math/finite_fields/prime_field_cuda.cu.h"
 #endif  // TACHYON_CUDA
 
 namespace tachyon::math {
 namespace bn254 {
 
 #if TACHYON_CUDA
-using FqCuda = PrimeFieldMontCuda<FqConfig>;
+using FqCuda = PrimeFieldCuda<FqConfig>;
 #endif  // TACHYON_CUDA
 
 }  // namespace bn254

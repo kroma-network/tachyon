@@ -1,12 +1,15 @@
-#ifndef TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_PRIME_GOLDILOCKS_PRIME_FIELD_H_
-#define TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_PRIME_GOLDILOCKS_PRIME_FIELD_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_PRIME_GOLDILOCKS_H_
+#define TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_PRIME_GOLDILOCKS_H_
 
+#include "tachyon/math/finite_fields/goldilocks_prime/prime_field_goldilocks.h"
 #include "tachyon/math/finite_fields/prime_field.h"
 
 namespace tachyon::math {
 
 class TACHYON_EXPORT GoldilocksConfig {
  public:
+  constexpr static bool kIsGoldilocks = true;
+
   constexpr static size_t kModulusBits = 64;
   // 2^64 - 2^32 + 1
   // Dec: 18446744069414584321
@@ -26,4 +29,4 @@ using GoldilocksGmp = PrimeFieldGmp<GoldilocksConfig>;
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_PRIME_GOLDILOCKS_PRIME_FIELD_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_GOLDILOCKS_PRIME_GOLDILOCKS_H_

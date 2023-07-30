@@ -15,7 +15,7 @@
 #include "tachyon/base/no_destructor.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
-#include "tachyon/math/finite_fields/prime_field_mont.h"
+#include "tachyon/math/finite_fields/prime_field.h"
 
 namespace tachyon::math {
 
@@ -122,7 +122,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   }
 
   BigInt<N> ToMontgomery() const {
-    return PrimeFieldMont<Config>(ToBigInt()).value();
+    return PrimeField<Config>(ToBigInt()).value();
   }
 
   const uint64_t& operator[](size_t i) const {

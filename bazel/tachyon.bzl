@@ -86,9 +86,21 @@ def if_gmp_backend(a, b = []):
         "//conditions:default": b,
     })
 
+def if_goldilocks_backend(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:tachyon_goldilocks_backend": a,
+        "//conditions:default": b,
+    })
+
 def if_cuda_and_gmp_backend(a, b = []):
     return select({
         "@kroma_network_tachyon//:cuda_and_gmp": a,
+        "//conditions:default": b,
+    })
+
+def if_x86_64_and_goldilocks_backend(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:x86_64_and_goldilocks": a,
         "//conditions:default": b,
     })
 

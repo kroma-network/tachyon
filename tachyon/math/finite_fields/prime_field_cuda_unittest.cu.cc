@@ -30,7 +30,7 @@ DEFINE_LAUNCH_COMPARISON_OP(Ge)
 #undef DEFINE_LAUNCH_COMPARISON_OP
 #undef DEFINE_LAUNCH_FIELD_OP
 
-class PrimeFieldMontCudaTest : public testing::Test {
+class PrimeFieldCudaTest : public testing::Test {
  public:
   // Runs tests with |N| data.
   constexpr static size_t N = kThreadNum * 2;
@@ -74,10 +74,10 @@ class PrimeFieldMontCudaTest : public testing::Test {
   static device::gpu::ScopedMemory<bool> bool_results_;
 };
 
-device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::xs_;
-device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::ys_;
-device::gpu::ScopedMemory<GF7Cuda> PrimeFieldMontCudaTest::results_;
-device::gpu::ScopedMemory<bool> PrimeFieldMontCudaTest::bool_results_;
+device::gpu::ScopedMemory<GF7Cuda> PrimeFieldCudaTest::xs_;
+device::gpu::ScopedMemory<GF7Cuda> PrimeFieldCudaTest::ys_;
+device::gpu::ScopedMemory<GF7Cuda> PrimeFieldCudaTest::results_;
+device::gpu::ScopedMemory<bool> PrimeFieldCudaTest::bool_results_;
 
 }  // namespace
 
@@ -101,29 +101,29 @@ device::gpu::ScopedMemory<bool> PrimeFieldMontCudaTest::bool_results_;
   RUN_OPERATION_TESTS(method, bool_results_)   \
   ASSERT_EQ((bool_results_.get())[i], tests[i].result)
 
-TEST_F(PrimeFieldMontCudaTest, FromString) {
+TEST_F(PrimeFieldCudaTest, FromString) {
   EXPECT_EQ(GF7Cuda::FromDecString("3"), GF7Cuda(3));
   EXPECT_EQ(GF7Cuda::FromHexString("0x3"), GF7Cuda(3));
 }
 
-TEST_F(PrimeFieldMontCudaTest, ToString) {
+TEST_F(PrimeFieldCudaTest, ToString) {
   GF7Cuda f(3);
 
   EXPECT_EQ(f.ToString(), "3");
   EXPECT_EQ(f.ToHexString(), "0x3");
 }
 
-TEST_F(PrimeFieldMontCudaTest, Zero) {
+TEST_F(PrimeFieldCudaTest, Zero) {
   EXPECT_TRUE(GF7Cuda::Zero().IsZero());
   EXPECT_FALSE(GF7Cuda::One().IsZero());
 }
 
-TEST_F(PrimeFieldMontCudaTest, One) {
+TEST_F(PrimeFieldCudaTest, One) {
   EXPECT_TRUE(GF7Cuda::One().IsOne());
   EXPECT_FALSE(GF7Cuda::Zero().IsOne());
 }
 
-TEST_F(PrimeFieldMontCudaTest, Add) {
+TEST_F(PrimeFieldCudaTest, Add) {
   struct {
     GF7 x;
     GF7 y;
@@ -138,7 +138,7 @@ TEST_F(PrimeFieldMontCudaTest, Add) {
   RUN_FIELD_OPERATION_TESTS(Add);
 }
 
-TEST_F(PrimeFieldMontCudaTest, Sub) {
+TEST_F(PrimeFieldCudaTest, Sub) {
   struct {
     GF7 x;
     GF7 y;
@@ -153,7 +153,7 @@ TEST_F(PrimeFieldMontCudaTest, Sub) {
   RUN_FIELD_OPERATION_TESTS(Sub);
 }
 
-TEST_F(PrimeFieldMontCudaTest, Mul) {
+TEST_F(PrimeFieldCudaTest, Mul) {
   struct {
     GF7 x;
     GF7 y;
@@ -168,7 +168,7 @@ TEST_F(PrimeFieldMontCudaTest, Mul) {
   RUN_FIELD_OPERATION_TESTS(Mul);
 }
 
-TEST_F(PrimeFieldMontCudaTest, Eq) {
+TEST_F(PrimeFieldCudaTest, Eq) {
   struct {
     GF7 x;
     GF7 y;
@@ -194,7 +194,7 @@ TEST_F(PrimeFieldMontCudaTest, Eq) {
   }
 }
 
-TEST_F(PrimeFieldMontCudaTest, Ne) {
+TEST_F(PrimeFieldCudaTest, Ne) {
   struct {
     GF7 x;
     GF7 y;
@@ -220,7 +220,7 @@ TEST_F(PrimeFieldMontCudaTest, Ne) {
   }
 }
 
-TEST_F(PrimeFieldMontCudaTest, Lt) {
+TEST_F(PrimeFieldCudaTest, Lt) {
   struct {
     GF7 x;
     GF7 y;
@@ -234,7 +234,7 @@ TEST_F(PrimeFieldMontCudaTest, Lt) {
   RUN_COMPARISON_OPERATION_TESTS(Lt);
 }
 
-TEST_F(PrimeFieldMontCudaTest, Le) {
+TEST_F(PrimeFieldCudaTest, Le) {
   struct {
     GF7 x;
     GF7 y;
@@ -248,7 +248,7 @@ TEST_F(PrimeFieldMontCudaTest, Le) {
   RUN_COMPARISON_OPERATION_TESTS(Le);
 }
 
-TEST_F(PrimeFieldMontCudaTest, Gt) {
+TEST_F(PrimeFieldCudaTest, Gt) {
   struct {
     GF7 x;
     GF7 y;
@@ -262,7 +262,7 @@ TEST_F(PrimeFieldMontCudaTest, Gt) {
   RUN_COMPARISON_OPERATION_TESTS(Gt);
 }
 
-TEST_F(PrimeFieldMontCudaTest, Ge) {
+TEST_F(PrimeFieldCudaTest, Ge) {
   struct {
     GF7 x;
     GF7 y;

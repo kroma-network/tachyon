@@ -1,15 +1,45 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("@polygon_zkevm_goldilocks//:build_defs.bzl", "goldilocks_copts")
+load("//bazel:tachyon.bzl", "if_goldilocks_backend")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "goldilocks_prime_field",
-    hdrs = ["goldilocks_prime_field.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field"],
+    name = "goldilocks",
+    srcs = if_goldilocks_backend(["goldilocks.cc"]),
+    hdrs = ["goldilocks.h"],
+    copts = goldilocks_copts(),
+    deps = [
+        ":prime_field_goldilocks",
+        "//tachyon/math/finite_fields:prime_field",
+    ],
 )
 
 tachyon_cc_library(
-    name = "goldilocks_prime_field_cuda",
-    hdrs = ["goldilocks_prime_field.cu.h"],
+    name = "goldilocks_cuda",
+    hdrs = ["goldilocks.cu.h"],
     deps = ["//tachyon/math/finite_fields:prime_field_cuda"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_goldilocks",
+    hdrs = ["prime_field_goldilocks.h"],
+    defines = ["TACHYON_GOLDILOCKS_BACKEND"],
+    deps = [
+        "//tachyon/base:random",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/finite_fields:prime_field_traits",
+    ] + if_goldilocks_backend([
+        "@polygon_zkevm_goldilocks//:base_field",
+    ]),
+)
+
+tachyon_cc_test(
+    name = "goldilocks_prime_unittests",
+    srcs = if_goldilocks_backend(["prime_field_goldilocks_unittest.cc"]),
+    copts = goldilocks_copts(),
+    deps = [":goldilocks"],
 )

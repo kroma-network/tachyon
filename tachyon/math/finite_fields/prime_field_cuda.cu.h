@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_MONT_CUDA_H_
-#define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_MONT_CUDA_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CUDA_H_
+#define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CUDA_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -16,13 +16,13 @@
 #include "tachyon/math/base/identities.h"
 #include "tachyon/math/finite_fields/kernels/carry_chain.cu.h"
 #include "tachyon/math/finite_fields/modulus.h"
+#include "tachyon/math/finite_fields/prime_field.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
-#include "tachyon/math/finite_fields/prime_field_mont.h"
 
 namespace tachyon::math {
 
 template <typename _Config>
-class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
+class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;
@@ -46,33 +46,32 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   constexpr static uint32_t kInverse32 =
       Modulus<N>::template Inverse<uint32_t>(Config::kModulus);
 
-  constexpr PrimeFieldMontCuda() = default;
+  constexpr PrimeFieldCuda() = default;
   template <typename T,
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
-  constexpr explicit PrimeFieldMontCuda(T value)
-      : PrimeFieldMontCuda(BigInt<N>(value)) {}
-  constexpr explicit PrimeFieldMontCuda(const BigInt<N>& value) {
+  constexpr explicit PrimeFieldCuda(T value)
+      : PrimeFieldCuda(BigInt<N>(value)) {}
+  constexpr explicit PrimeFieldCuda(const BigInt<N>& value) {
     DCHECK_LT(value, GetModulus());
-    PrimeFieldMont<Config> p(value);
+    PrimeField<Config> p(value);
     value_ = p.value();
   }
-  constexpr PrimeFieldMontCuda(const PrimeFieldMontCuda& other) = default;
-  constexpr PrimeFieldMontCuda& operator=(const PrimeFieldMontCuda& other) =
-      default;
-  constexpr PrimeFieldMontCuda(PrimeFieldMontCuda&& other) = default;
-  constexpr PrimeFieldMontCuda& operator=(PrimeFieldMontCuda&& other) = default;
+  constexpr PrimeFieldCuda(const PrimeFieldCuda& other) = default;
+  constexpr PrimeFieldCuda& operator=(const PrimeFieldCuda& other) = default;
+  constexpr PrimeFieldCuda(PrimeFieldCuda&& other) = default;
+  constexpr PrimeFieldCuda& operator=(PrimeFieldCuda&& other) = default;
 
-  __host__ __device__ constexpr static PrimeFieldMontCuda Zero() {
-    return PrimeFieldMontCuda();
+  __host__ __device__ constexpr static PrimeFieldCuda Zero() {
+    return PrimeFieldCuda();
   }
 
-  __host__ __device__ constexpr static PrimeFieldMontCuda One() {
-    PrimeFieldMontCuda ret;
+  __host__ __device__ constexpr static PrimeFieldCuda One() {
+    PrimeFieldCuda ret;
     ret.value_ = GetOne();
     return ret;
   }
 
-  static PrimeFieldMontCuda Random() {
+  static PrimeFieldCuda Random() {
     BigInt<N> big_int;
     for (size_t i = 0; i < N; ++i) {
       big_int.limbs[i] = base::Uniform<uint64_t, uint64_t>(
@@ -81,27 +80,27 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     while (big_int >= GetModulus()) {
       big_int.DivBy2InPlace();
     }
-    return PrimeFieldMontCuda(big_int);
+    return PrimeFieldCuda(big_int);
   }
 
-  constexpr static PrimeFieldMontCuda FromDecString(std::string_view str) {
-    return PrimeFieldMontCuda(BigInt<N>::FromDecString(str));
+  constexpr static PrimeFieldCuda FromDecString(std::string_view str) {
+    return PrimeFieldCuda(BigInt<N>::FromDecString(str));
   }
-  constexpr static PrimeFieldMontCuda FromHexString(std::string_view str) {
-    return PrimeFieldMontCuda(BigInt<N>::FromHexString(str));
-  }
-
-  constexpr static PrimeFieldMontCuda FromBigInt(const BigInt<N>& big_int) {
-    return PrimeFieldMontCuda(big_int);
+  constexpr static PrimeFieldCuda FromHexString(std::string_view str) {
+    return PrimeFieldCuda(BigInt<N>::FromHexString(str));
   }
 
-  constexpr static PrimeFieldMontCuda FromMontgomery(const BigInt<N>& big_int) {
-    PrimeFieldMontCuda ret;
+  constexpr static PrimeFieldCuda FromBigInt(const BigInt<N>& big_int) {
+    return PrimeFieldCuda(big_int);
+  }
+
+  constexpr static PrimeFieldCuda FromMontgomery(const BigInt<N>& big_int) {
+    PrimeFieldCuda ret;
     ret.value_ = big_int;
     return ret;
   }
 
-  static PrimeFieldMontCuda FromMpzClass(const mpz_class& value) {
+  static PrimeFieldCuda FromMpzClass(const mpz_class& value) {
     BigInt<N> big_int;
     gmp::CopyLimbs(value, big_int.limbs);
     return FromBigInt(big_int);
@@ -163,7 +162,7 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   }
 
   __host__ __device__ constexpr bool operator==(
-      const PrimeFieldMontCuda& other) const {
+      const PrimeFieldCuda& other) const {
     const uint64_t* x = value_.limbs;
     const uint64_t* y = other.value_.limbs;
     uint64_t limbs_or = x[0] ^ y[0];
@@ -172,27 +171,27 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   }
 
   __host__ __device__ constexpr bool operator!=(
-      const PrimeFieldMontCuda& other) const {
+      const PrimeFieldCuda& other) const {
     return !operator==(other);
   }
 
-  __device__ constexpr bool operator<(const PrimeFieldMontCuda& other) const {
-    PrimeFieldMontCuda results;
+  __device__ constexpr bool operator<(const PrimeFieldCuda& other) const {
+    PrimeFieldCuda results;
     uint64_t carry = SubLimbs<true>(value_, other.value_, results.value_);
     return carry;
   }
 
-  __device__ constexpr bool operator>(const PrimeFieldMontCuda& other) const {
-    PrimeFieldMontCuda results;
+  __device__ constexpr bool operator>(const PrimeFieldCuda& other) const {
+    PrimeFieldCuda results;
     uint64_t carry = SubLimbs<true>(other.value_, value_, results.value_);
     return carry;
   }
 
-  __device__ constexpr bool operator<=(const PrimeFieldMontCuda& other) const {
+  __device__ constexpr bool operator<=(const PrimeFieldCuda& other) const {
     return !operator>(other);
   }
 
-  __device__ constexpr bool operator>=(const PrimeFieldMontCuda& other) const {
+  __device__ constexpr bool operator>=(const PrimeFieldCuda& other) const {
     return !operator<(other);
   }
 
@@ -203,27 +202,25 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   }
 
   // AdditiveSemigroup methods
-  __device__ constexpr PrimeFieldMontCuda& AddInPlace(
-      const PrimeFieldMontCuda& other) {
+  __device__ constexpr PrimeFieldCuda& AddInPlace(const PrimeFieldCuda& other) {
     AddLimbs<false>(value_, other.value_, value_);
     *this = Clamp(*this);
     return *this;
   }
 
-  __device__ constexpr PrimeFieldMontCuda& DoubleInPlace() {
+  __device__ constexpr PrimeFieldCuda& DoubleInPlace() {
     return AddInPlace(*this);
   }
 
   // AdditiveGroup methods
-  __device__ constexpr PrimeFieldMontCuda& SubInPlace(
-      const PrimeFieldMontCuda& other) {
+  __device__ constexpr PrimeFieldCuda& SubInPlace(const PrimeFieldCuda& other) {
     uint64_t carry = SubLimbs<true>(value_, other.value_, value_);
     if (carry == 0) return *this;
     AddLimbs<false>(value_, GetModulus(), value_);
     return *this;
   }
 
-  __device__ constexpr PrimeFieldMontCuda& NegInPlace() {
+  __device__ constexpr PrimeFieldCuda& NegInPlace() {
     BigInt<N> result;
     SubLimbs<false>(GetModulus(), value_, result);
     value_ = result;
@@ -231,8 +228,7 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
   }
 
   // MultiplicativeSemigroup methods
-  __device__ constexpr PrimeFieldMontCuda& MulInPlace(
-      const PrimeFieldMontCuda& other) {
+  __device__ constexpr PrimeFieldCuda& MulInPlace(const PrimeFieldCuda& other) {
     // Forces us to think more carefully about the last carry bit if we use a
     // modulus with fewer than 2 leading zeroes of slack.
     static_assert(!(Config::kModulus[N - 1] >> 62));
@@ -243,21 +239,21 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     return *this;
   }
 
-  __device__ constexpr PrimeFieldMontCuda& SquareInPlace() {
+  __device__ constexpr PrimeFieldCuda& SquareInPlace() {
     return MulInPlace(*this);
   }
 
   // MultiplicativeGroup methods
-  __device__ constexpr PrimeFieldMontCuda& InverseInPlace() {
+  __device__ constexpr PrimeFieldCuda& InverseInPlace() {
     if (IsZero()) return *this;
 
     BigInt<N> u = value_;
     BigInt<N> v = GetModulus();
-    PrimeFieldMontCuda b;
+    PrimeFieldCuda b;
     b.value_ = kMontgomeryR2;
     // NOTE(chokobole): Do not use this.
-    // PrimeFieldMontCuda c = PrimeFieldMontCuda::Zero();
-    PrimeFieldMontCuda c;
+    // PrimeFieldCuda c = PrimeFieldCuda::Zero();
+    PrimeFieldCuda c;
 
     while (!u.IsOne() && !v.IsOne()) {
       while (u.IsEven()) {
@@ -418,8 +414,8 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
     odd[n - 1] = ptx::u32::Addc(odd[n - 1], 0);
   }
 
-  __device__ constexpr static PrimeFieldMontCuda Clamp(PrimeFieldMontCuda& xs) {
-    PrimeFieldMontCuda results;
+  __device__ constexpr static PrimeFieldCuda Clamp(PrimeFieldCuda& xs) {
+    PrimeFieldCuda results;
     return SubLimbs<true>(xs.value_, GetModulus(), results.value_) ? xs
                                                                    : results;
   }
@@ -428,15 +424,14 @@ class PrimeFieldMontCuda : public PrimeFieldBase<PrimeFieldMontCuda<_Config>> {
 };
 
 template <typename Config>
-std::ostream& operator<<(std::ostream& os,
-                         const PrimeFieldMontCuda<Config>& f) {
+std::ostream& operator<<(std::ostream& os, const PrimeFieldCuda<Config>& f) {
   return os << f.ToString();
 }
 
 template <typename Config>
-class MultiplicativeIdentity<PrimeFieldMontCuda<Config>> {
+class MultiplicativeIdentity<PrimeFieldCuda<Config>> {
  public:
-  using F = PrimeFieldMontCuda<Config>;
+  using F = PrimeFieldCuda<Config>;
 
   static const F& One() {
     static F one(F::One());
@@ -447,9 +442,9 @@ class MultiplicativeIdentity<PrimeFieldMontCuda<Config>> {
 };
 
 template <typename Config>
-class AdditiveIdentity<PrimeFieldMontCuda<Config>> {
+class AdditiveIdentity<PrimeFieldCuda<Config>> {
  public:
-  using F = PrimeFieldMontCuda<Config>;
+  using F = PrimeFieldCuda<Config>;
 
   static const F& Zero() {
     static F zero(F::Zero());
@@ -461,4 +456,4 @@ class AdditiveIdentity<PrimeFieldMontCuda<Config>> {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_MONT_CUDA_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CUDA_H_

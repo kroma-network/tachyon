@@ -30,6 +30,7 @@ struct BigInt {
   uint64_t limbs[N] = {
       0,
   };
+  constexpr static size_t kLimbNums = N;
   constexpr static size_t kSmallestLimbIdx = SMALLEST_INDEX(N);
   constexpr static size_t kBiggestLimbIdx = BIGGEST_INDEX(N);
 

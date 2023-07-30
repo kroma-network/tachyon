@@ -1,11 +1,11 @@
-#include "tachyon/math/finite_fields/prime_field.h"
+#include "tachyon/math/finite_fields/goldilocks_prime/goldilocks.h"
 
 namespace tachyon::math {
 
 // static
-void GF7Config::Init() {
+void GoldilocksConfig::Init() {
 #if defined(TACHYON_GMP_BACKEND)
-  GF7Gmp::Init();
+  GoldilocksGmp::Init();
 #endif  // defined(TACHYON_GMP_BACKEND)
 }
 
