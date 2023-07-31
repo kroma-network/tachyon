@@ -3,6 +3,19 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "copy_only_int",
+    testonly = True,
+    srcs = ["copy_only_int.cc"],
+    hdrs = ["copy_only_int.h"],
+)
+
+tachyon_cc_library(
+    name = "move_only_int",
+    testonly = True,
+    hdrs = ["move_only_int.h"],
+)
+
+tachyon_cc_library(
     name = "scoped_environment",
     testonly = True,
     srcs = ["scoped_environment.cc"],

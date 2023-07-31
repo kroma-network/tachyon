@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// clang-format off
+
 #ifndef TACHYON_BASE_TEMPLATE_UTIL_H_
 #define TACHYON_BASE_TEMPLATE_UTIL_H_
 
@@ -12,6 +14,18 @@
 
 namespace tachyon::base {
 namespace internal {
+
+// Used to detect whether the given type is an iterator.  This is normally used
+// with std::enable_if to provide disambiguation for functions that take
+// templated iterators as input.
+template <typename T, typename = void>
+struct is_iterator : std::false_type {};
+
+template <typename T>
+struct is_iterator<
+    T,
+    std::void_t<typename std::iterator_traits<T>::iterator_category>>
+    : std::true_type {};
 
 // Helper to express preferences in an overload set. If more than one overload
 // are available for a given set of parameters the overload with the higher
@@ -87,3 +101,5 @@ struct projected {
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_TEMPLATE_UTIL_H_
+
+// clang-format on
