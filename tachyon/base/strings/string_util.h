@@ -9,6 +9,34 @@
 
 namespace tachyon::base {
 
+// ASCII-specific tolower.  The standard library's tolower is locale sensitive,
+// so we don't want to use it here.
+template <typename CharT,
+          typename = std::enable_if_t<std::is_integral<CharT>::value>>
+constexpr CharT ToLowerASCII(CharT c) {
+  return internal::ToLowerASCII(c);
+}
+
+// ASCII-specific toupper.  The standard library's toupper is locale sensitive,
+// so we don't want to use it here.
+template <typename CharT,
+          typename = std::enable_if_t<std::is_integral<CharT>::value>>
+CharT ToUpperASCII(CharT c) {
+  return (c >= 'a' && c <= 'z') ? static_cast<CharT>(c + 'A' - 'a') : c;
+}
+
+// Converts the given string to its ASCII-lowercase equivalent. Non-ASCII
+// bytes (or UTF-16 code units in `std::u16string_view`) are permitted but will
+// be unmodified.
+TACHYON_EXPORT std::string ToLowerASCII(std::string_view str);
+TACHYON_EXPORT std::u16string ToLowerASCII(std::u16string_view str);
+
+// Converts the given string to its ASCII-uppercase equivalent. Non-ASCII
+// bytes (or UTF-16 code units in `std::u16string_view`) are permitted but will
+// be unmodified.
+TACHYON_EXPORT std::string ToUpperASCII(std::string_view str);
+TACHYON_EXPORT std::u16string ToUpperASCII(std::u16string_view str);
+
 // Like strcasecmp for ASCII case-insensitive comparisons only. Returns:
 //   -1  (a < b)
 //    0  (a == b)
@@ -18,8 +46,8 @@ namespace tachyon::base {
 // or base::i18n::FoldCase and then just call the normal string operators on the
 // result.
 //
-// Non-ASCII bytes (or UTF-16 code units in `StringPiece16`) are permitted but
-// will be compared unmodified.
+// Non-ASCII bytes (or UTF-16 code units in `std::u16string_view`) are permitted
+// but will be compared unmodified.
 TACHYON_EXPORT constexpr int CompareCaseInsensitiveASCII(std::string_view a,
                                                          std::string_view b) {
   return internal::CompareCaseInsensitiveASCIIT(a, b);

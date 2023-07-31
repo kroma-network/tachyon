@@ -1,42 +1,24 @@
 load("//bazel:tachyon.bzl", "if_gmp_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
-tachyon_cc_library(
+# Parameters are from https://electriccoin.co/blog/new-snark-curve/
+generate_prime_fields(
     name = "fq",
-    srcs = ["fq.cc"],
-    hdrs = ["fq.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field"] + if_gmp_backend([
-        "//tachyon/math/finite_fields:prime_field_gmp",
-    ]),
+    class_name = "Fq",
+    # Hex: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+    modulus = "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787",
+    namespace = "tachyon::math::bls12_381",
 )
 
-tachyon_cc_library(
-    name = "fq_cuda",
-    hdrs = ["fq_cuda.cu.h"],
-    deps = [
-        ":fq",
-        "//tachyon/math/finite_fields:prime_field_cuda",
-    ],
-)
-
-tachyon_cc_library(
+generate_prime_fields(
     name = "fr",
-    srcs = ["fr.cc"],
-    hdrs = ["fr.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field"] + if_gmp_backend([
-        "//tachyon/math/finite_fields:prime_field_gmp",
-    ]),
-)
-
-tachyon_cc_library(
-    name = "fr_cuda",
-    hdrs = ["fr_cuda.cu.h"],
-    deps = [
-        ":fr",
-        "//tachyon/math/finite_fields:prime_field_cuda",
-    ],
+    class_name = "Fr",
+    # Hex: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
+    modulus = "52435875175126190479447740508185965837690552500527637822603658699938581184513",
+    namespace = "tachyon::math::bls12_381",
 )
 
 tachyon_cc_library(
@@ -64,10 +46,6 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "bls12_381_unittests",
-    srcs = [
-        "fq_unittest.cc",
-        "fr_unittest.cc",
-        "g1_unittest.cc",
-    ],
+    srcs = ["g1_unittest.cc"],
     deps = [":g1"],
 )

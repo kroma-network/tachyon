@@ -1,5 +1,5 @@
-load("//bazel:tachyon.bzl", "if_gmp_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -24,48 +24,25 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cc_library(
+# Parameters are from https://www.secg.org/sec2-v2.pdf#page=13
+generate_prime_fields(
     name = "fq",
-    srcs = ["fq.cc"],
-    hdrs = ["fq.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field"] + if_gmp_backend([
-        "//tachyon/math/finite_fields:prime_field_gmp",
-    ]),
+    class_name = "Fq",
+    # Hex: fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f
+    modulus = "115792089237316195423570985008687907853269984665640564039457584007908834671663",
+    namespace = "tachyon::math::secp256k1",
 )
 
-tachyon_cc_library(
-    name = "fq_cuda",
-    hdrs = ["fq_cuda.cu.h"],
-    deps = [
-        ":fq",
-        "//tachyon/math/finite_fields:prime_field_cuda",
-    ],
-)
-
-tachyon_cc_library(
+generate_prime_fields(
     name = "fr",
-    srcs = ["fr.cc"],
-    hdrs = ["fr.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field"] + if_gmp_backend([
-        "//tachyon/math/finite_fields:prime_field_gmp",
-    ]),
-)
-
-tachyon_cc_library(
-    name = "fr_cuda",
-    hdrs = ["fr_cuda.cu.h"],
-    deps = [
-        ":fr",
-        "//tachyon/math/finite_fields:prime_field_cuda",
-    ],
+    class_name = "Fr",
+    # Hex: fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
+    modulus = "115792089237316195423570985008687907852837564279074904382605163141518161494337",
+    namespace = "tachyon::math::secp256k1",
 )
 
 tachyon_cc_test(
     name = "secp256k1_unittests",
-    srcs = [
-        "curve_config_unittest.cc",
-        "fq_unittest.cc",
-        "fr_unittest.cc",
-    ],
+    srcs = ["curve_config_unittest.cc"],
     deps = [":curve_config"],
 )

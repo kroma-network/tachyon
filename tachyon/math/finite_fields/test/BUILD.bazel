@@ -1,26 +1,11 @@
-load("//bazel:tachyon.bzl", "if_gmp_backend")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
-tachyon_cc_library(
+generate_prime_fields(
     name = "gf7",
     testonly = True,
-    srcs = ["gf7.cc"],
-    hdrs = ["gf7.h"],
-    deps = [
-        "//tachyon/math/finite_fields:prime_field",
-    ] + if_gmp_backend([
-        "//tachyon/math/finite_fields:prime_field_gmp",
-    ]),
-)
-
-tachyon_cc_library(
-    name = "gf7_cuda",
-    testonly = True,
-    hdrs = ["gf7_cuda.cu.h"],
-    deps = [
-        ":gf7",
-        "//tachyon/math/finite_fields:prime_field_cuda",
-    ],
+    class_name = "GF7",
+    modulus = "7",
+    namespace = "tachyon::math",
 )

@@ -25,7 +25,10 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "string_util",
-    srcs = ["string_util.cc"],
+    srcs = [
+        "string_util.cc",
+        "string_util_impl_helpers.h",
+    ],
     hdrs = [
         "string_util.h",
         "string_util_internal.h",

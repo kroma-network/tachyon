@@ -5,6 +5,7 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/base/no_destructor.h"
+#include "tachyon/base/strings/string_util_impl_helpers.h"
 
 namespace tachyon::base {
 namespace {
@@ -29,6 +30,22 @@ std::string DoMaybePrepend0x(T&& str) {
 }
 
 }  // namespace
+
+std::string ToLowerASCII(std::string_view str) {
+  return internal::ToLowerASCIIImpl(str);
+}
+
+std::u16string ToLowerASCII(std::u16string_view str) {
+  return internal::ToLowerASCIIImpl(str);
+}
+
+std::string ToUpperASCII(std::string_view str) {
+  return internal::ToUpperASCIIImpl(str);
+}
+
+std::u16string ToUpperASCII(std::u16string_view str) {
+  return internal::ToUpperASCIIImpl(str);
+}
 
 const std::string& EmptyString() {
   static const NoDestructor<std::string> s;

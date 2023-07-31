@@ -39,6 +39,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "file_path_flag",
+    hdrs = ["file_path_flag.h"],
+    deps = [
+        ":file_path",
+        "//tachyon/base/flag",
+    ],
+)
+
+tachyon_cc_library(
     name = "file_util_base",
     hdrs = [
         "file_enumerator.h",

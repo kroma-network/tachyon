@@ -9,10 +9,10 @@ tachyon_objc_library(
     deps = [
         ":mac_logging",
         ":scoped_cftyperef",
+        "//tachyon/base/apple:bundle_locations",
         "//tachyon/base/numerics:checked_math",
         "//tachyon/base/numerics:safe_conversions",
         "//tachyon/base/strings:string_util",
-        "//tachyon/base/apple:bundle_locations",
         "//tachyon/base/strings:sys_string_conversions",
     ],
 )
