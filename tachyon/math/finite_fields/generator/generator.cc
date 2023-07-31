@@ -1,99 +1,14 @@
-#include <sstream>
-
 #include "absl/strings/str_replace.h"
 
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/flag/flag_parser.h"
-#include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
-#include "tachyon/math/base/gmp/gmp_util.h"
-#include "tachyon/math/finite_fields/modulus.h"
+#include "tachyon/math/finite_fields/generator/generator_util.h"
 #include "tachyon/math/finite_fields/prime_field.h"
 
 namespace tachyon {
-
-namespace {
-
-base::FilePath BazelOutToHdrPath(const base::FilePath& out) {
-  std::vector<std::string> components = out.GetComponents();
-  base::FilePath header_path(absl::StrJoin(components.begin() + 3,
-                                           components.end() - 1,
-                                           base::FilePath::kSeparators));
-  header_path =
-      header_path.Append(out.BaseName().RemoveExtension().value() + ".h");
-  return header_path;
-}
-
-std::string BazelOutToHdrGuardMacro(const base::FilePath& out) {
-  std::vector<std::string> components = out.GetComponents();
-  base::FilePath header_path(absl::StrJoin(components.begin() + 3,
-                                           components.end() - 1,
-                                           base::FilePath::kSeparators));
-  return base::ToUpperASCII(absl::StrCat(
-      absl::StrJoin(components.begin() + 3, components.end() - 1, "_"),
-      absl::Substitute("_$0_H_", out.BaseName().RemoveExtension().value())));
-}
-
-// TODO(chokobole): Consider bigendian.
-std::string MpzClassToString(const mpz_class& m, size_t n) {
-  size_t limb_size = math::gmp::GetLimbSize(m);
-  std::vector<std::string> ret;
-  ret.reserve(limb_size);
-  for (size_t i = 0; i < limb_size; ++i) {
-    ret.push_back(
-        absl::Substitute("UINT64_C($0)", math::gmp::GetLimbConstRef(m, i)));
-  }
-  for (size_t i = limb_size; i < n; ++i) {
-    ret.push_back("UINT64_C(0)");
-  }
-  return absl::StrJoin(ret, ",");
-}
-
-template <size_t N>
-std::string OneMontToStringHelper(const mpz_class& m_in, size_t n) {
-  math::BigInt<N> m;
-  math::gmp::CopyLimbs(m_in, m.limbs);
-  math::BigInt<N> r2 = math::Modulus<N>::MontgomeryR2(m);
-  uint64_t inv = math::Modulus<N>::template Inverse<uint64_t>(m);
-
-  math::BigInt<N> one(1);
-  math::BigInt<N* 2> mul_result = one.Mul(r2);
-  math::BigInt<N>::template MontgomeryReduce64<false>(mul_result, m, inv, &one);
-
-  mpz_class m_out;
-  math::gmp::WriteLimbs(one.limbs, N, &m_out);
-  return MpzClassToString(m_out, n);
-}
-
-std::string OneMontToString(const mpz_class& m, size_t n) {
-  size_t limb_size = math::gmp::GetLimbSize(m);
-  switch (limb_size) {
-    case 1:
-      return OneMontToStringHelper<1>(m, n);
-    case 2:
-      return OneMontToStringHelper<2>(m, n);
-    case 3:
-      return OneMontToStringHelper<3>(m, n);
-    case 4:
-      return OneMontToStringHelper<4>(m, n);
-    case 5:
-      return OneMontToStringHelper<5>(m, n);
-    case 6:
-      return OneMontToStringHelper<6>(m, n);
-    case 7:
-      return OneMontToStringHelper<7>(m, n);
-    case 8:
-      return OneMontToStringHelper<8>(m, n);
-    case 9:
-      return OneMontToStringHelper<9>(m, n);
-  }
-  NOTREACHED();
-  return "";
-}
-
-}  // namespace
 
 struct GenerationConfig {
   base::FilePath out;
@@ -166,15 +81,16 @@ int GenerationConfig::GenerateConfigHdr() const {
   size_t n = math::gmp::GetLimbSize(m);
 
   std::string content = absl::StrReplaceAll(
-      tpl_content, {
-                       {"%{header_guard_macro}", BazelOutToHdrGuardMacro(out)},
-                       {"%{namespace}", ns_name},
-                       {"%{class}", class_name},
-                       {"%{modulus_bits}", absl::StrCat(num_bits)},
-                       {"%{n}", absl::StrCat(n)},
-                       {"%{modulus}", MpzClassToString(m, n)},
-                       {"%{one_mont_form}", OneMontToString(m, n)},
-                   });
+      tpl_content,
+      {
+          {"%{header_guard_macro}", math::BazelOutToHdrGuardMacro(out)},
+          {"%{namespace}", ns_name},
+          {"%{class}", class_name},
+          {"%{modulus_bits}", absl::StrCat(num_bits)},
+          {"%{n}", absl::StrCat(n)},
+          {"%{modulus}", math::MpzClassToString(m)},
+          {"%{one_mont_form}", math::MpzClassToMontString(mpz_class(1), m)},
+      });
   return Write(content);
 }
 
@@ -196,7 +112,7 @@ int GenerationConfig::GenerateConfigCpp() const {
   };
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  std::string header_path = BazelOutToHdrPath(out).value();
+  std::string header_path = math::BazelOutToHdrPath(out).value();
   std::string content =
       absl::StrReplaceAll(tpl_content, {
                                            {"%{header_path}", header_path},
@@ -230,8 +146,11 @@ int GenerationConfig::GenerateConfigCudaHdr() const {
   };
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  std::string header_guard_macro = BazelOutToHdrGuardMacro(out);
-  std::string header_path = BazelOutToHdrPath(out).value();
+  std::string header_guard_macro = math::BazelOutToHdrGuardMacro(out);
+  base::FilePath hdr_path = math::BazelOutToHdrPath(out);
+  std::string basename = hdr_path.BaseName().value();
+  basename = basename.substr(0, basename.find_first_of("_cuda"));
+  std::string header_path = hdr_path.DirName().Append(basename + ".h").value();
   std::string content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{header_guard_macro}", header_guard_macro},
@@ -252,9 +171,7 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.ns_name)
       .set_long_name("--namespace")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.class_name)
-      .set_long_name("--class")
-      .set_required();
+  parser.AddFlag<base::StringFlag>(&config.class_name).set_long_name("--class");
   parser.AddFlag<base::StringFlag>(&config.modulus)
       .set_long_name("--modulus")
       .set_required();

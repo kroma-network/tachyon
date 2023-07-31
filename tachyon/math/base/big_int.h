@@ -43,18 +43,18 @@ struct BigInt {
     limbs[kSmallestLimbIdx] = value;
   }
   constexpr explicit BigInt(std::initializer_list<int> values) {
-    DCHECK_EQ(values.size(), N);
+    DCHECK_LE(values.size(), N);
     auto it = values.begin();
-    for (size_t i = 0; i < N; ++i, ++it) {
+    for (size_t i = 0; i < values.size(); ++i, ++it) {
       DCHECK_GE(*it, 0);
       limbs[i] = *it;
     }
   }
   template <typename T, std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>
   constexpr explicit BigInt(std::initializer_list<T> values) {
-    DCHECK_EQ(values.size(), N);
+    DCHECK_LE(values.size(), N);
     auto it = values.begin();
-    for (size_t i = 0; i < N; ++i, ++it) {
+    for (size_t i = 0; i < values.size(); ++i, ++it) {
       limbs[i] = *it;
     }
   }

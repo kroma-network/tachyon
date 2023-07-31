@@ -1,48 +1,39 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
-tachyon_cc_library(
-    name = "curve_config",
-    hdrs = ["curve_config.h"],
-    deps = [
-        ":fq",
-        ":fr",
-        "//tachyon/math/elliptic_curves/short_weierstrass:points",
-    ],
-)
-
-tachyon_cc_library(
-    name = "curve_config_cuda",
-    hdrs = ["curve_config_cuda.cu.h"],
-    deps = [
-        ":curve_config",
-        ":fq_cuda",
-        ":fr_cuda",
-        "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve_cuda",
-    ],
-)
-
 # Parameters are from https://www.secg.org/sec2-v2.pdf#page=13
+# Hex: 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f
+FQ_MODULUS = "115792089237316195423570985008687907853269984665640564039457584007908834671663"
+
+# Hex: 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
+FR_MODULUS = "115792089237316195423570985008687907852837564279074904382605163141518161494337"
+
 generate_prime_fields(
     name = "fq",
     class_name = "Fq",
-    # Hex: fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f
-    modulus = "115792089237316195423570985008687907853269984665640564039457584007908834671663",
+    modulus = FQ_MODULUS,
     namespace = "tachyon::math::secp256k1",
 )
 
 generate_prime_fields(
     name = "fr",
     class_name = "Fr",
-    # Hex: fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
-    modulus = "115792089237316195423570985008687907852837564279074904382605163141518161494337",
+    modulus = FR_MODULUS,
     namespace = "tachyon::math::secp256k1",
 )
 
-tachyon_cc_test(
-    name = "secp256k1_unittests",
-    srcs = ["curve_config_unittest.cc"],
-    deps = [":curve_config"],
+generate_ec_points(
+    name = "curve",
+    a = "0",
+    b = "7",
+    class_name = "",
+    fq_modulus = FQ_MODULUS,
+    fr_modulus = FR_MODULUS,
+    namespace = "tachyon::math::secp256k1",
+    # Hex: 0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
+    x = "55066263022277343669578718895168534326250603453777594175500187360389116729240",
+    # Hex: 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8
+    y = "32670510020758816978083085130507043184471273380659243275938904335757337482424",
 )

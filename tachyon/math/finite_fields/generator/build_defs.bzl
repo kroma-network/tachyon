@@ -5,16 +5,20 @@ def _generate_prime_field_impl(ctx):
     out = ctx.outputs.out
     tool_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/finite_fields/generator)", [ctx.attr._tool])
 
+    cmd = "%s --out %s --namespace %s --modulus %s" % (
+        tool_path,
+        out.path,
+        ctx.attr.namespace,
+        ctx.attr.modulus,
+    )
+
+    if len(ctx.attr.class_name) > 0:
+        cmd += " --class %s" % (ctx.attr.class_name)
+
     ctx.actions.run_shell(
         tools = ctx.files._tool,
         outputs = [out],
-        command = "%s --out %s --namespace %s --class %s --modulus %s" % (
-            tool_path,
-            out.path,
-            ctx.attr.namespace,
-            ctx.attr.class_name,
-            ctx.attr.modulus,
-        ),
+        command = cmd,
     )
 
     return [DefaultInfo(files = depset([out]))]

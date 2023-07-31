@@ -2,7 +2,7 @@
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
-#include "tachyon/math/finite_fields/prime_field.cu.h"
+#include "tachyon/math/finite_fields/test/gf7_cuda.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
 
 namespace tachyon::math {

@@ -1,48 +1,37 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
 # Parameters are from https://zips.z.cash/protocol/protocol.pdf#page=97
+# Hex: 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
+FQ_MODULUS = "21888242871839275222246405745257275088696311157297823662689037894645226208583"
+
+# Hex: 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
+FR_MODULUS = "21888242871839275222246405745257275088548364400416034343698204186575808495617"
+
 generate_prime_fields(
     name = "fq",
     class_name = "Fq",
-    # Hex: 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
-    modulus = "21888242871839275222246405745257275088696311157297823662689037894645226208583",
+    modulus = FQ_MODULUS,
     namespace = "tachyon::math::bn254",
 )
 
 generate_prime_fields(
     name = "fr",
     class_name = "Fr",
-    # Hex: 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
-    modulus = "21888242871839275222246405745257275088548364400416034343698204186575808495617",
+    modulus = FR_MODULUS,
     namespace = "tachyon::math::bn254",
 )
 
-tachyon_cc_library(
+generate_ec_points(
     name = "g1",
-    hdrs = ["g1.h"],
-    deps = [
-        ":fq",
-        ":fr",
-        "//tachyon/math/elliptic_curves/short_weierstrass:points",
-    ],
-)
-
-tachyon_cc_library(
-    name = "g1_cuda",
-    hdrs = ["g1_cuda.cu.h"],
-    deps = [
-        ":fq_cuda",
-        ":fr_cuda",
-        ":g1",
-        "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve_cuda",
-    ],
-)
-
-tachyon_cc_test(
-    name = "bn254_unittests",
-    srcs = ["g1_unittest.cc"],
-    deps = [":g1"],
+    a = "0",
+    b = "3",
+    class_name = "G1",
+    fq_modulus = FQ_MODULUS,
+    fr_modulus = FR_MODULUS,
+    namespace = "tachyon::math::bn254",
+    x = "1",
+    y = "2",
 )

@@ -45,7 +45,7 @@ tachyon_cc_library(
     hdrs = ["sw_curve_base.h"],
     deps = [
         "//tachyon/math/elliptic_curves:points",
-        "//tachyon/math/elliptic_curves/msm",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
     ],
 )
 
