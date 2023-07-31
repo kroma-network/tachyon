@@ -1,3 +1,4 @@
+load("@polygon_zkevm_goldilocks//:build_defs.bzl", "goldilocks_copts")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon.bzl", "if_cuda_and_gmp_backend", "if_gmp_backend")
 load(
@@ -127,8 +128,12 @@ tachyon_cuda_test(
 )
 
 tachyon_cc_benchmark(
-    name = "finite_field_mul_benchmark",
+    name = "prime_field_benchmark",
     size = "small",
-    srcs = if_gmp_backend(["finite_field_mul_benchmark.cc"]),
-    deps = ["//tachyon/math/elliptic_curves/bn/bn254:fq"],
+    srcs = ["prime_field_benchmark.cc"],
+    copts = goldilocks_copts(),
+    deps = [
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/finite_fields/goldilocks_prime:goldilocks",
+    ],
 )
