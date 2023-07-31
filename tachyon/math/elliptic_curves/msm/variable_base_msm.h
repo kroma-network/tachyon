@@ -56,13 +56,10 @@ class VariableBaseMSM {
     size_t num_bits = ScalarField::kModulusBits;
     size_t digits_count = (num_bits + c - 1) / c;
 
-    std::function<std::vector<int64_t>(const ScalarField&)> op =
-        [c, num_bits](const ScalarField& scalar) {
+    std::vector<std::vector<int64_t>> scalar_digits = base::Map(
+        scalars_first, scalars_last, [c, num_bits](const ScalarField& scalar) {
           return MakeDigits(scalar.ToMpzClass(), c, num_bits);
-        };
-
-    std::vector<std::vector<int64_t>> scalar_digits =
-        base::Map(scalars_first, scalars_last, std::move(op));
+        });
     std::vector<PointTy> window_sums;
     window_sums.reserve(digits_count);
     // TODO(chokobole): Optimize with openmp.

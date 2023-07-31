@@ -5,7 +5,7 @@
 #include <iterator>
 #include <vector>
 
-#include "tachyon/base/functor_traits.h"
+#include "tachyon/base/functional/functor_traits.h"
 #include "tachyon/base/logging.h"
 
 namespace tachyon::base {
@@ -31,7 +31,7 @@ template <typename Generator,
           typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
           typename ArgList = internal::ExtractArgs<RunType>,
-          size_t ArgNum = GetSize<ArgList>,
+          size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 0>* = nullptr>
 std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
   std::vector<ReturnType> ret;
@@ -46,7 +46,7 @@ template <typename Generator,
           typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
           typename ArgList = internal::ExtractArgs<RunType>,
-          size_t ArgNum = GetSize<ArgList>,
+          size_t ArgNum = internal::GetSize<ArgList>,
           std::enable_if_t<ArgNum == 1>* = nullptr>
 std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
   std::vector<ReturnType> ret;

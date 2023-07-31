@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef TACHYON_BASE_CALLBACK_FORWARD_H_
-#define TACHYON_BASE_CALLBACK_FORWARD_H_
+#ifndef TACHYON_BASE_FUNCTIONAL_CALLBACK_FORWARD_H_
+#define TACHYON_BASE_FUNCTIONAL_CALLBACK_FORWARD_H_
 
 namespace tachyon::base {
 
@@ -21,4 +21,4 @@ using RepeatingClosure = RepeatingCallback<void()>;
 
 }  // namespace tachyon::base
 
-#endif  // TACHYON_BASE_CALLBACK_FORWARD_H_
+#endif  // TACHYON_BASE_FUNCTIONAL_CALLBACK_FORWARD_H_

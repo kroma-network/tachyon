@@ -4,8 +4,8 @@
 
 // Derived from chromium/base/bind_internal.h
 
-#ifndef TACHYON_BASE_FUNCTOR_TRAITS_H_
-#define TACHYON_BASE_FUNCTOR_TRAITS_H_
+#ifndef TACHYON_BASE_FUNCTIONAL_FUNCTOR_TRAITS_H_
+#define TACHYON_BASE_FUNCTIONAL_FUNCTOR_TRAITS_H_
 
 #include <functional>
 
@@ -99,10 +99,11 @@ struct IsCallableObject<Callable, absl::void_t<decltype(&Callable::operator())>>
 template <typename Functor, typename SFINAE = void>
 struct FunctorTraits;
 
-// For empty callable types.
-// This specialization is intended to allow binding captureless lambdas, based
-// on the fact that captureless lambdas are empty while capturing lambdas are
-// not. This also allows any functors as far as it's an empty class.
+// For callable types.
+// This specialization handles lambdas (captureless and capturing) and functors
+// with a call operator. Capturing lambdas and stateful functors are explicitly
+// disallowed by BindImpl().
+//
 // Example:
 //
 //   // Captureless lambdas are allowed.
@@ -119,14 +120,14 @@ struct FunctorTraits;
 //   };
 template <typename Functor>
 struct FunctorTraits<Functor,
-                     std::enable_if_t<IsCallableObject<Functor>::value &&
-                                      std::is_empty<Functor>::value>> {
+                     std::enable_if_t<IsCallableObject<Functor>::value>> {
   using RunType = ExtractCallableRunType<Functor>;
   using ReturnType = ExtractReturnType<RunType>;
 
   static constexpr bool is_method = false;
   static constexpr bool is_nullable = false;
   static constexpr bool is_callback = false;
+  static constexpr bool is_stateless = std::is_empty_v<Functor>;
 
   template <typename RunFunctor, typename... RunArgs>
   static ExtractReturnType<RunType> Invoke(RunFunctor&& functor,
@@ -144,6 +145,7 @@ struct FunctorTraits<R (*)(Args...)> {
   static constexpr bool is_method = false;
   static constexpr bool is_nullable = true;
   static constexpr bool is_callback = false;
+  static constexpr bool is_stateless = true;
 
   template <typename Function, typename... RunArgs>
   static R Invoke(Function&& function, RunArgs&&... args) {
@@ -160,6 +162,7 @@ struct FunctorTraits<R (Receiver::*)(Args...)> {
   static constexpr bool is_method = true;
   static constexpr bool is_nullable = true;
   static constexpr bool is_callback = false;
+  static constexpr bool is_stateless = true;
 
   template <typename Method, typename ReceiverPtr, typename... RunArgs>
   static R Invoke(Method method, ReceiverPtr&& receiver_ptr,
@@ -177,6 +180,7 @@ struct FunctorTraits<R (Receiver::*)(Args...) const> {
   static constexpr bool is_method = true;
   static constexpr bool is_nullable = true;
   static constexpr bool is_callback = false;
+  static constexpr bool is_stateless = true;
 
   template <typename Method, typename ReceiverPtr, typename... RunArgs>
   static R Invoke(Method method, ReceiverPtr&& receiver_ptr,
@@ -201,14 +205,6 @@ template <typename R, typename Receiver, typename... Args>
 struct FunctorTraits<R (Receiver::*)(Args...) const noexcept>
     : FunctorTraits<R (Receiver::*)(Args...) const> {};
 #endif
-
-// For lambda.
-template <typename R, typename... Args>
-struct FunctorTraits<std::function<R(Args...)>> {
-  constexpr static bool is_method = false;
-  using RunType = R(Args...);
-  using ReturnType = ExtractReturnType<RunType>;
-};
 
 template <typename Functor>
 using MakeFunctorTraits = FunctorTraits<std::decay_t<Functor>>;
@@ -244,4 +240,4 @@ struct BindTypeHelper {
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_BASE_FUNCTOR_TRAITS_H_
+#endif  // TACHYON_BASE_FUNCTIONAL_FUNCTOR_TRAITS_H_

@@ -85,8 +85,7 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
       const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
       l_coefficients = base::CreateVector(
           r_coefficients.size(),
-          std::function<F(size_t)>(
-              [&r_coefficients](size_t idx) { return -r_coefficients[idx]; }));
+          [&r_coefficients](size_t idx) { return -r_coefficients[idx]; });
       return self;
     } else if (other.IsZero()) {
       return self;
@@ -355,8 +354,7 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
     if (self.IsZero()) {
       l_elements = base::CreateVector(
           r_elements.size(),
-          std::function<Element(size_t)>(
-              [&r_elements](size_t idx) { return -r_elements[idx]; }));
+          [&r_elements](size_t idx) { return -r_elements[idx]; });
       return self;
     } else if (other.IsZero()) {
       return self;

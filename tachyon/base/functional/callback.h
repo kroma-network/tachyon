@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef TACHYON_BASE_CALLBACK_H_
-#define TACHYON_BASE_CALLBACK_H_
+#ifndef TACHYON_BASE_FUNCTIONAL_CALLBACK_H_
+#define TACHYON_BASE_FUNCTIONAL_CALLBACK_H_
 
 #include <functional>
 #include <type_traits>
 
 #include "absl/functional/function_ref.h"
 
-#include "tachyon/base/callback_forward.h"
+#include "tachyon/base/functional/callback_forward.h"
 
 namespace tachyon::base {
 
@@ -89,4 +89,4 @@ class RepeatingCallback<R(Args...)> {
 
 }  // namespace tachyon::base
 
-#endif  // TACHYON_BASE_CALLBACK_H_
+#endif  // TACHYON_BASE_FUNCTIONAL_CALLBACK_H_

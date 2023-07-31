@@ -21,7 +21,7 @@ tachyon_cc_library(
     name = "container_util",
     hdrs = ["container_util.h"],
     deps = [
-        "//tachyon/base:functor_traits",
+        "//tachyon/base/functional:function_ref",
         "//tachyon/base:logging",
     ],
 )

@@ -14,6 +14,25 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "function_ref",
+    hdrs = ["function_ref.h"],
+    deps = [
+        ":functor_traits",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/functional:function_ref",
+    ],
+)
+
+tachyon_cc_library(
+    name = "functor_traits",
+    hdrs = ["functor_traits.h"],
+    deps = [
+        "//tachyon/base:type_list",
+        "@com_google_absl//absl/meta:type_traits",
+    ],
+)
+
+tachyon_cc_library(
     name = "identity",
     hdrs = ["identity.h"],
 )
@@ -26,10 +45,12 @@ tachyon_cc_library(
 tachyon_cc_test(
     name = "functional_unittests",
     srcs = [
+        "function_ref_unittest.cc",
         "identity_unittest.cc",
         "invoke_unittest.cc",
     ],
     deps = [
+        ":function_ref",
         ":identity",
         ":invoke",
     ],
