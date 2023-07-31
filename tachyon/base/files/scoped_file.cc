@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// clang-format off
-
 #include "tachyon/base/files/scoped_file.h"
 
 #include "tachyon/base/logging.h"
@@ -49,5 +47,3 @@ void ScopedFDCloseTraits::Free(int fd) {
 
 }  // namespace internal
 }  // namespace tachyon::base
-
-// clang-format on

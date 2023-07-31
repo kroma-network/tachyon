@@ -78,6 +78,13 @@ tachyon_cc_library(
     deps = [":time"],
 )
 
+tachyon_objc_library(
+    name = "time_mac_unittests",
+    srcs = ["time_mac_unittest.mm"],
+    deps = [":time"],
+    alwayslink = True,
+)
+
 tachyon_cc_test(
     name = "time_unittests",
     srcs = [
@@ -91,5 +98,7 @@ tachyon_cc_test(
         ":time_interval",
         ":time_stamp",
         "//tachyon/base/threading:platform_thread",
-    ],
+    ] + if_macos([
+        ":time_mac_unittests",
+    ]),
 )

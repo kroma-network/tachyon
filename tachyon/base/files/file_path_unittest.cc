@@ -6,14 +6,13 @@
 namespace tachyon::base {
 
 TEST(FilePathTest, GetComponents) {
-  std::vector<std::string> components;
-  FilePath("foo/bar").GetComponents(&components);
+  std::vector<std::string> components = FilePath("foo/bar").GetComponents();
   EXPECT_THAT(components,
               testing::ContainerEq(std::vector<std::string>{"foo", "bar"}));
-  FilePath("/foo/bar").GetComponents(&components);
+  components = FilePath("/foo/bar").GetComponents();
   EXPECT_THAT(components, testing::ContainerEq(
                               std::vector<std::string>{"/", "foo", "bar"}));
-  FilePath("./foo/bar").GetComponents(&components);
+  components = FilePath("./foo/bar").GetComponents();
   EXPECT_THAT(components, testing::ContainerEq(
                               std::vector<std::string>{".", "foo", "bar"}));
 }

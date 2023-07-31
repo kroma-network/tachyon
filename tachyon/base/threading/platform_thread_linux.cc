@@ -224,7 +224,7 @@ void SetThreadLatencySensitivity(ProcessId process_id,
   // FindThreadID().
   std::string thread_dir;
   if (thread_id)
-    thread_dir = base::StringPrintf("/proc/%d/task/%d/", process_id, thread_id);
+    thread_dir = absl::StrFormat("/proc/%d/task/%d/", process_id, thread_id);
   else
     thread_dir = "/proc/thread-self/";
 

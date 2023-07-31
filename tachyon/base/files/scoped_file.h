@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// clang-format off
-
 #ifndef TACHYON_BASE_FILES_SCOPED_FILE_H_
 #define TACHYON_BASE_FILES_SCOPED_FILE_H_
 
@@ -115,5 +113,3 @@ bool TACHYON_EXPORT IsFDOwned(int fd);
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_FILES_SCOPED_FILE_H_
-
-// clang-format on

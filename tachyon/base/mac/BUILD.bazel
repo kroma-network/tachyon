@@ -4,8 +4,27 @@ package(default_visibility = ["//visibility:public"])
 
 tachyon_objc_library(
     name = "foundation_util",
+    srcs = ["foundation_util.mm"],
     hdrs = ["foundation_util.h"],
-    deps = [":scoped_cftyperef"],
+    deps = [
+        ":mac_logging",
+        ":scoped_cftyperef",
+        "//tachyon/base/numerics:checked_math",
+        "//tachyon/base/numerics:safe_conversions",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/base/apple:bundle_locations",
+        "//tachyon/base/strings:sys_string_conversions",
+    ],
+)
+
+tachyon_objc_library(
+    name = "mac_logging",
+    srcs = ["mac_logging.mm"],
+    hdrs = ["mac_logging.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/build:build_config",
+    ],
 )
 
 tachyon_objc_library(

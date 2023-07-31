@@ -119,6 +119,8 @@ TYPE_NAME_FOR_CF_TYPE_DECL(CFString);
 TYPE_NAME_FOR_CF_TYPE_DECL(CFURL);
 TYPE_NAME_FOR_CF_TYPE_DECL(CFUUID);
 
+/*
+TODO(chokobole):
 TYPE_NAME_FOR_CF_TYPE_DECL(CGColor);
 
 TYPE_NAME_FOR_CF_TYPE_DECL(CTFont);
@@ -128,7 +130,7 @@ TYPE_NAME_FOR_CF_TYPE_DECL(SecAccessControl);
 TYPE_NAME_FOR_CF_TYPE_DECL(SecCertificate);
 TYPE_NAME_FOR_CF_TYPE_DECL(SecKey);
 TYPE_NAME_FOR_CF_TYPE_DECL(SecPolicy);
-
+*/
 #undef TYPE_NAME_FOR_CF_TYPE_DECL
 
 // Returns the base bundle ID, which can be set by SetBaseBundleID but
@@ -182,6 +184,8 @@ CF_CAST_DECL(CFString);
 CF_CAST_DECL(CFURL);
 CF_CAST_DECL(CFUUID);
 
+/*
+TODO(chokobole):
 CF_CAST_DECL(CGColor);
 
 CF_CAST_DECL(CTFont);
@@ -192,7 +196,7 @@ CF_CAST_DECL(SecAccessControl);
 CF_CAST_DECL(SecCertificate);
 CF_CAST_DECL(SecKey);
 CF_CAST_DECL(SecPolicy);
-
+*/
 #undef CF_CAST_DECL
 
 #if defined(__OBJC__)

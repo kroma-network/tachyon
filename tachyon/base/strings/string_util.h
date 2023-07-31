@@ -4,9 +4,33 @@
 #include <string>
 #include <string_view>
 
+#include "tachyon/base/strings/string_util_internal.h"
 #include "tachyon/export.h"
 
 namespace tachyon::base {
+
+// Like strcasecmp for ASCII case-insensitive comparisons only. Returns:
+//   -1  (a < b)
+//    0  (a == b)
+//    1  (a > b)
+// (unlike strcasecmp which can return values greater or less than 1/-1). To
+// compare all Unicode code points case-insensitively, use base::i18n::ToLower
+// or base::i18n::FoldCase and then just call the normal string operators on the
+// result.
+//
+// Non-ASCII bytes (or UTF-16 code units in `StringPiece16`) are permitted but
+// will be compared unmodified.
+TACHYON_EXPORT constexpr int CompareCaseInsensitiveASCII(std::string_view a,
+                                                         std::string_view b) {
+  return internal::CompareCaseInsensitiveASCIIT(a, b);
+}
+
+// Equality for ASCII case-insensitive comparisons. Non-ASCII bytes (or UTF-16
+// code units in `std::u16string_view`) are permitted but will be compared
+// unmodified.
+inline bool EqualsCaseInsensitiveASCII(std::string_view a, std::string_view b) {
+  return internal::EqualsCaseInsensitiveASCIIT(a, b);
+}
 
 // These threadsafe functions return references to globally unique empty
 // strings.

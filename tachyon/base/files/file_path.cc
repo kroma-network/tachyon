@@ -14,21 +14,73 @@
 namespace tachyon::base {
 namespace {
 
-#if BUILDFLAG(IS_POSIX)
-constexpr const char* kRootPath = "/";
-constexpr const char* kSeparator = "/";
-constexpr const char* kExtensionSeparator = ".";
-constexpr const char* kParentDirectory = "..";
-#else
-#error Unsupported platform
-#endif
+const char* const kCommonDoubleExtensionSuffixes[] = {
+    "bz", "bz2", "gz", "lz", "lzma", "lzo", "xz", "z", "zst"};
 
 bool AreAllSeparators(const std::string& input) {
   for (char it : input) {
-    if (it != kSeparator[0]) return false;
+    if (!FilePath::IsSeparator(it)) return false;
   }
 
   return true;
+}
+
+// Find the position of the '.' that separates the extension from the rest
+// of the file name. The position is relative to BaseName(), not value().
+// Returns npos if it can't find an extension.
+std::string::size_type FinalExtensionSeparatorPosition(const std::string& path) {
+  // Special case "." and ".."
+  if (path == FilePath::kCurrentDirectory || path == FilePath::kParentDirectory)
+    return std::string::npos;
+
+  return path.rfind(FilePath::kExtensionSeparator);
+}
+
+// Same as above, but allow a second extension component of up to 4
+// characters when the rightmost extension component is a common double
+// extension (gz, bz2, Z).  For example, foo.tar.gz or foo.tar.Z would have
+// extension components of '.tar.gz' and '.tar.Z' respectively.
+std::string::size_type ExtensionSeparatorPosition(const std::string& path) {
+  const std::string::size_type last_dot = FinalExtensionSeparatorPosition(path);
+
+  // No extension, or the extension is the whole filename.
+  if (last_dot == std::string::npos || last_dot == 0U)
+    return last_dot;
+
+  const std::string::size_type penultimate_dot =
+      path.rfind(FilePath::kExtensionSeparator, last_dot - 1);
+  const std::string::size_type last_separator =
+      path.find_last_of(FilePath::kSeparators, last_dot - 1,
+                        FilePath::kSeparatorsLength - 1);
+
+  if (penultimate_dot == std::string::npos ||
+      (last_separator != std::string::npos &&
+       penultimate_dot < last_separator)) {
+    return last_dot;
+  }
+
+  std::string extension(path, last_dot + 1);
+  for (auto* i : kCommonDoubleExtensionSuffixes) {
+    if (EqualsCaseInsensitiveASCII(extension, i)) {
+      if ((last_dot - penultimate_dot) <= 5U &&
+          (last_dot - penultimate_dot) > 1U) {
+        return penultimate_dot;
+      }
+    }
+  }
+
+  return last_dot;
+}
+
+// Returns true if path is "", ".", or "..".
+bool IsEmptyOrSpecialCase(std::string_view path) {
+  // Special cases "", ".", and ".."
+  if (path.empty() || path == FilePath::kCurrentDirectory ||
+      path == FilePath::kParentDirectory) {
+    return true;
+  }
+
+  return false;
 }
 
 }  // namespace
@@ -49,11 +101,19 @@ bool FilePath::IsRoot() const {
   return path_.length() > 0 && AreAllSeparators(path_);
 }
 
-void FilePath::GetComponents(std::vector<std::string>* components) const {
-  DCHECK(components);
-  if (!components) return;
-  components->clear();
-  if (value().empty()) return;
+// static
+bool FilePath::IsSeparator(char character) {
+  for (size_t i = 0; i < kSeparatorsLength - 1; ++i) {
+    if (character == kSeparators[i]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+std::vector<std::string> FilePath::GetComponents() const {
+  if (value().empty()) return {};
 
   std::vector<std::string> ret_val;
   FilePath current = *this;
@@ -67,9 +127,9 @@ void FilePath::GetComponents(std::vector<std::string>* components) const {
   }
 
   // Capture root, if any.
-  if (current.IsRoot()) ret_val.push_back(kRootPath);
+  if (current.IsRoot()) ret_val.push_back(FilePath::kRootPath);
 
-  *components = std::vector<std::string>(ret_val.rbegin(), ret_val.rend());
+  return {ret_val.rbegin(), ret_val.rend()};
 }
 
 bool FilePath::IsParent(const FilePath& child) const {
@@ -77,10 +137,8 @@ bool FilePath::IsParent(const FilePath& child) const {
 }
 
 bool FilePath::AppendRelativePath(const FilePath& child, FilePath* path) const {
-  std::vector<std::string> parent_components;
-  std::vector<std::string> child_components;
-  GetComponents(&parent_components);
-  child.GetComponents(&child_components);
+  std::vector<std::string> parent_components = GetComponents();
+  std::vector<std::string> child_components = child.GetComponents();
 
   if (parent_components.empty() ||
       parent_components.size() >= child_components.size())
@@ -99,14 +157,14 @@ bool FilePath::AppendRelativePath(const FilePath& child, FilePath* path) const {
 
   if (path) {
     *path = path->Append(FilePath(
-        absl::StrJoin(child_comp, child_components.cend(), kSeparator)));
+        absl::StrJoin(child_comp, child_components.cend(), kSeparators)));
   }
   return true;
 }
 
 FilePath FilePath::DirName() const {
   std::string_view p = path_;
-  size_t last_separator = p.find_last_of(kSeparator, std::string::npos);
+  size_t last_separator = p.find_last_of(kSeparators, std::string::npos);
   if (last_separator == std::string::npos) {
     return FilePath();
   } else if (last_separator == 0) {
@@ -119,7 +177,7 @@ FilePath FilePath::DirName() const {
 
 FilePath FilePath::BaseName() const {
   std::string_view p = path_;
-  size_t last_separator = p.find_last_of(kSeparator, std::string::npos);
+  size_t last_separator = p.find_last_of(kSeparators, std::string::npos);
   if (last_separator == std::string::npos) {
     return FilePath(path_);
   }
@@ -137,6 +195,48 @@ std::string FilePath::Extension() const {
   return std::string(p.substr(last_separator, p.length() - last_separator));
 }
 
+std::string FilePath::FinalExtension() const {
+  FilePath base(BaseName());
+  const std::string::size_type dot = FinalExtensionSeparatorPosition(base.path_);
+  if (dot == std::string::npos)
+    return std::string();
+
+  return base.path_.substr(dot, std::string::npos);
+}
+
+FilePath FilePath::RemoveExtension() const {
+  if (Extension().empty())
+    return *this;
+
+  const std::string::size_type dot = ExtensionSeparatorPosition(path_);
+  if (dot == std::string::npos)
+    return *this;
+
+  return FilePath(path_.substr(0, dot));
+}
+
+FilePath FilePath::RemoveFinalExtension() const {
+  if (FinalExtension().empty())
+    return *this;
+
+  const std::string::size_type dot = FinalExtensionSeparatorPosition(path_);
+  if (dot == std::string::npos)
+    return *this;
+
+  return FilePath(path_.substr(0, dot));
+}
+
+FilePath FilePath::InsertBeforeExtension(std::string_view suffix) const {
+  if (suffix.empty())
+    return FilePath(path_);
+
+  if (IsEmptyOrSpecialCase(BaseName().value()))
+    return FilePath();
+
+  return FilePath(
+      absl::StrCat(RemoveExtension().value(), suffix, Extension()));
+}
+
 FilePath FilePath::Append(std::string_view component) const {
   return Append(FilePath(component));
 }
@@ -147,7 +247,7 @@ FilePath FilePath::Append(const FilePath& component) const {
   if (EndsWithSeparator()) {
     return FilePath(absl::StrCat(path_, component.value()));
   }
-  return FilePath(absl::StrJoin({path_, component.value()}, kSeparator));
+  return FilePath(absl::StrJoin({path_, component.value()}, kSeparators));
 }
 
 FilePath FilePath::operator/(std::string_view component) const {
@@ -168,11 +268,13 @@ FilePath& FilePath::operator/=(const FilePath& component) {
   return *this;
 }
 
-bool FilePath::IsAbsolute() const { return StartsWith(path_, kSeparator); }
+bool FilePath::IsAbsolute() const {
+ return path_.length() > 0 && FilePath::IsSeparator(path_[0]);
+}
 
 bool FilePath::EndsWithSeparator() const {
   if (path_.empty()) return false;
-  return EndsWith(path_, kSeparator);
+  return IsSeparator(path_.back());
 }
 
 FilePath FilePath::AsEndingWithSeparator() const {
@@ -181,7 +283,7 @@ FilePath FilePath::AsEndingWithSeparator() const {
   std::string path_str;
   path_str.reserve(path_.length() + 1);  // Only allocate string once.
   path_str = path_;
-  path_str.push_back(kSeparator[0]);
+  path_str.push_back(kSeparators[0]);
   return FilePath(path_str);
 }
 
@@ -193,7 +295,7 @@ FilePath FilePath::StripTrailingSeparators() const {
 }
 
 void FilePath::StripTrailingSeparatorsInternal() {
-  size_t pos = path_.find_last_not_of(kSeparator);
+  size_t pos = path_.find_last_not_of(kSeparators);
   if (pos == std::string::npos) {
     path_.resize(1);
   } else {

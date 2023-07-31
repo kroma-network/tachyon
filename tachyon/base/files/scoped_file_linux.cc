@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// clang-format off
-
 #include "tachyon/base/files/scoped_file.h"
 
 #include <dlfcn.h>
@@ -115,5 +113,3 @@ __attribute__((visibility("default"), noinline)) int close(int fd) {
 }
 
 }  // extern "C"
-
-// clang-format on
