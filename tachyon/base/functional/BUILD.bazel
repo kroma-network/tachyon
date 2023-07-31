@@ -3,6 +3,17 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "callback_forward",
+    hdrs = ["callback_forward.h"],
+)
+
+tachyon_cc_library(
+    name = "callback",
+    hdrs = ["callback.h"],
+    deps = [":callback_forward"],
+)
+
+tachyon_cc_library(
     name = "identity",
     hdrs = ["identity.h"],
 )

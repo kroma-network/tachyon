@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// clang-format off
+
 #ifndef TACHYON_BASE_SCOPED_GENERIC_H_
 #define TACHYON_BASE_SCOPED_GENERIC_H_
-
-// clang-format off
 
 #include <stdlib.h>
 

@@ -1,3 +1,4 @@
+load("//bazel:tachyon.bzl", "if_linux")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 
 package(default_visibility = ["//visibility:public"])
@@ -9,6 +10,21 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
+    ],
+)
+
+tachyon_cc_library(
+    name = "scoped_file",
+    srcs = ["scoped_file.cc"] + if_linux([
+        "scoped_file_linux.cc"
+    ]),
+    hdrs = ["scoped_file.h"],
+    deps = [
+        "//tachyon/base/posix:eintr_wrapper",
+        "//tachyon:export",
+        "//tachyon/base:scoped_generic",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:immediate_crash",
     ],
 )
 

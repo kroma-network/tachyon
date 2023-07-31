@@ -14,17 +14,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "callback_forward",
-    hdrs = ["callback_forward.h"],
-)
-
-tachyon_cc_library(
-    name = "callback",
-    hdrs = ["callback.h"],
-    deps = [":callback_forward"],
-)
-
-tachyon_cc_library(
     name = "compiler_specific",
     hdrs = ["compiler_specific.h"],
     deps = ["//tachyon/build:build_config"],
@@ -51,6 +40,12 @@ tachyon_cc_library(
         ":type_list",
         "@com_google_absl//absl/meta:type_traits",
     ],
+)
+
+tachyon_cc_library(
+    name = "immediate_crash",
+    hdrs = ["immediate_crash.h"],
+    deps = ["//tachyon/build:build_config"],
 )
 
 tachyon_cc_library(
