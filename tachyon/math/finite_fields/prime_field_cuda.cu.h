@@ -94,7 +94,8 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     return PrimeFieldCuda(big_int);
   }
 
-  constexpr static PrimeFieldCuda FromMontgomery(const BigInt<N>& big_int) {
+  __host__ __device__ constexpr static PrimeFieldCuda FromMontgomery(
+      const BigInt<N>& big_int) {
     PrimeFieldCuda ret;
     ret.value_ = big_int;
     return ret;
@@ -118,16 +119,31 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     return Config::kOne;
   }
 
+  // This is needed by MSM.
+  // See
+  // tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_setup_kernels.cu.h
+  static __device__ uint32_t ExtractBits(const PrimeFieldCuda& xs,
+                                         unsigned int offset,
+                                         unsigned int count) {
+    unsigned int limb_index = offset / warpSize;
+    const uint32_t* x = reinterpret_cast<const uint32_t*>(xs.value().limbs);
+    const uint32_t low_limb = x[limb_index];
+    const uint32_t high_limb = limb_index < (N32 - 1) ? x[limb_index + 1] : 0;
+    uint32_t result = __funnelshift_r(low_limb, high_limb, offset);
+    result &= (1 << count) - 1;
+    return result;
+  }
+
   __host__ __device__ const value_type& value() const { return value_; }
 
-  __host__ __device__ constexpr bool IsZero() const {
+  __device__ constexpr bool IsZero() const {
     const uint64_t* x = value_.limbs;
     uint64_t limbs_or = x[0];
     for (size_t i = 1; i < N; ++i) limbs_or |= x[i];
     return limbs_or == 0;
   }
 
-  __host__ __device__ constexpr bool IsOne() const {
+  __device__ constexpr bool IsOne() const {
     BigInt<N> value = ToBigInt();
     const uint64_t* x = value.limbs;
     uint64_t limbs_or = 0;
@@ -135,20 +151,28 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     return x[0] == 1 && limbs_or == 0;
   }
 
+  constexpr bool IsZeroHost() const { return value_.IsZero(); }
+
+  constexpr bool IsOneHost() const { return ToBigIntHost().IsOne(); }
+
   __host__ __device__ constexpr bool IsEven() const { return value_.IsEven(); }
 
   __host__ __device__ constexpr bool IsOdd() const { return value_.IsOdd(); }
 
-  std::string ToString() const { return ToBigInt().ToString(); }
-  std::string ToHexString() const { return ToBigInt().ToHexString(); }
+  std::string ToString() const { return ToBigIntHost().ToString(); }
+  std::string ToHexString() const { return ToBigIntHost().ToHexString(); }
 
   mpz_class ToMpzClass() const {
     mpz_class ret;
-    gmp::WriteLimbs(ToBigInt().limbs, N, &ret);
+    gmp::WriteLimbs(ToBigIntHost().limbs, N, &ret);
     return ret;
   }
 
-  constexpr BigInt<N> ToBigInt() const {
+  __device__ constexpr BigInt<N> ToBigInt() const {
+    return this->operator*(FromMontgomery(BigInt<N>(1))).value_;
+  }
+
+  constexpr BigInt<N> ToBigIntHost() const {
     return BigInt<N>::FromMontgomery64(value_, Config::kModulus, kInverse64);
   }
 
@@ -193,12 +217,6 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
 
   __device__ constexpr bool operator>=(const PrimeFieldCuda& other) const {
     return !operator<(other);
-  }
-
-  // This is needed by MSM.
-  // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
-  mpz_class DivBy2Exp(uint64_t exp) const {
-    return gmp::DivBy2Exp(ToMpzClass(), exp);
   }
 
   // AdditiveSemigroup methods

@@ -4,6 +4,29 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "allocator",
+    srcs = [
+        "allocator.cc",
+        "allocator_registry.cc",
+        "tracking_allocator.cc",
+    ],
+    hdrs = [
+        "allocator.h",
+        "allocator_registry.h",
+        "tracking_allocator.h",
+    ],
+    deps = [
+        ":numa",
+        "//tachyon/base:no_destructor",
+        "//tachyon/base/time",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:inlined_vector",
+        "@com_google_absl//absl/synchronization",
+    ],
+)
+
+tachyon_cc_library(
     name = "numa",
     srcs = ["numa.cc"],
     hdrs = ["numa.h"],

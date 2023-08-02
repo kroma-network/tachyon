@@ -39,10 +39,10 @@ class VariableBaseMSM {
 
   template <typename BaseContainer, typename ScalarContainer>
   static PointTy MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
-    return DoMSM(std::begin(std::forward<BaseContainer>(bases)),
-                 std::end(std::forward<BaseContainer>(bases)),
-                 std::begin(std::forward<ScalarContainer>(scalars)),
-                 std::end(std::forward<ScalarContainer>(scalars)));
+    return MSM(std::begin(std::forward<BaseContainer>(bases)),
+               std::end(std::forward<BaseContainer>(bases)),
+               std::begin(std::forward<ScalarContainer>(scalars)),
+               std::end(std::forward<ScalarContainer>(scalars)));
   }
 
  private:

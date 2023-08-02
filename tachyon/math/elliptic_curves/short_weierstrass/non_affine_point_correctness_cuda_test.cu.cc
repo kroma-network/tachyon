@@ -1,7 +1,7 @@
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/device/gpu/cuda/cuda_memory.h"
+#include "tachyon/device/gpu/cuda/scoped_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
@@ -49,6 +49,8 @@ DEFINE_LAUNCH_COMPARISON_OP(Ne)
 
 #undef DEFINE_LAUNCH_COMPARISON_OP
 
+using namespace device;
+
 template <typename PointType>
 class PointCorrectnessCudaTest : public testing::Test {
  public:
@@ -59,12 +61,12 @@ class PointCorrectnessCudaTest : public testing::Test {
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
-    cudaError_t error = cudaDeviceReset();
-    GPU_CHECK(error == cudaSuccess, error);
-    xs_ = device::gpu::MakeManagedUnique<Actual>(N * sizeof(Actual));
-    ys_ = device::gpu::MakeManagedUnique<Actual>(N * sizeof(Actual));
-    results_ = device::gpu::MakeManagedUnique<Actual>(N * sizeof(Actual));
-    bool_results_ = device::gpu::MakeManagedUnique<bool>(N * sizeof(bool));
+    gpuError_t error = gpuDeviceReset();
+    GPU_CHECK(error == gpuSuccess, error);
+    xs_ = gpu::MallocManaged<Actual>(N);
+    ys_ = gpu::MallocManaged<Actual>(N);
+    results_ = gpu::MallocManaged<Actual>(N);
+    bool_results_ = gpu::MallocManaged<bool>(N);
 
     Expected::Curve::Init();
     Actual::Curve::Init();
@@ -90,44 +92,44 @@ class PointCorrectnessCudaTest : public testing::Test {
     results_.reset();
     bool_results_.reset();
 
-    cudaError_t error = cudaDeviceReset();
-    GPU_CHECK(error == cudaSuccess, error);
+    gpuError_t error = gpuDeviceReset();
+    GPU_CHECK(error == gpuSuccess, error);
 
     x_gmps_.clear();
     y_gmps_.clear();
   }
 
   void SetUp() override {
-    cudaError_t error = cudaMemset(results_.get(), 0, N * sizeof(Actual));
-    GPU_CHECK(error == cudaSuccess, error);
-    error = cudaMemset(bool_results_.get(), 0, N * sizeof(bool));
-    GPU_CHECK(error == cudaSuccess, error);
+    gpuError_t error = gpuMemset(results_.get(), 0, N * sizeof(Actual));
+    GPU_CHECK(error == gpuSuccess, error);
+    error = gpuMemset(bool_results_.get(), 0, N * sizeof(bool));
+    GPU_CHECK(error == gpuSuccess, error);
   }
 
  protected:
-  static device::gpu::ScopedMemory<Actual> xs_;
-  static device::gpu::ScopedMemory<Actual> ys_;
-  static device::gpu::ScopedMemory<Actual> results_;
-  static device::gpu::ScopedMemory<bool> bool_results_;
+  static gpu::ScopedUnifiedMemory<Actual> xs_;
+  static gpu::ScopedUnifiedMemory<Actual> ys_;
+  static gpu::ScopedUnifiedMemory<Actual> results_;
+  static gpu::ScopedUnifiedMemory<bool> bool_results_;
 
   static std::vector<Expected> x_gmps_;
   static std::vector<Expected> y_gmps_;
 };
 
 template <typename PointType>
-device::gpu::ScopedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
+gpu::ScopedUnifiedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
     PointCorrectnessCudaTest<PointType>::xs_;
 
 template <typename PointType>
-device::gpu::ScopedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
+gpu::ScopedUnifiedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
     PointCorrectnessCudaTest<PointType>::ys_;
 
 template <typename PointType>
-device::gpu::ScopedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
+gpu::ScopedUnifiedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
     PointCorrectnessCudaTest<PointType>::results_;
 
 template <typename PointType>
-device::gpu::ScopedMemory<bool>
+gpu::ScopedUnifiedMemory<bool>
     PointCorrectnessCudaTest<PointType>::bool_results_;
 
 template <typename PointType>
@@ -163,9 +165,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Add) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  cudaError_t error =
+  gpuError_t error =
       LaunchAdd(this->xs_.get(), this->ys_.get(), this->results_.get(), N);
-  GPU_CHECK(error == cudaSuccess, error);
+  GPU_CHECK(error == gpuSuccess, error);
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
                                   (this->xs_.get())[i].ToString(),
@@ -180,8 +182,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Double) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  cudaError_t error = LaunchDouble(this->xs_.get(), this->results_.get(), N);
-  GPU_CHECK(error == cudaSuccess, error);
+  gpuError_t error = LaunchDouble(this->xs_.get(), this->results_.get(), N);
+  GPU_CHECK(error == gpuSuccess, error);
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (this->xs_.get())[i].ToString()));
     auto result =
@@ -194,8 +196,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Negative) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  cudaError_t error = LaunchNegative(this->xs_.get(), this->results_.get(), N);
-  GPU_CHECK(error == cudaSuccess, error);
+  gpuError_t error = LaunchNegative(this->xs_.get(), this->results_.get(), N);
+  GPU_CHECK(error == gpuSuccess, error);
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (this->xs_.get())[i].ToString()));
     auto result =
@@ -207,9 +209,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Negative) {
 TYPED_TEST(PointCorrectnessCudaTest, Eq) {
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  cudaError_t error =
+  gpuError_t error =
       LaunchEq(this->xs_.get(), this->xs_.get(), this->bool_results_.get(), N);
-  GPU_CHECK(error == cudaSuccess, error);
+  GPU_CHECK(error == gpuSuccess, error);
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
                                   (this->xs_.get())[i].ToString(),
@@ -221,9 +223,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Eq) {
 TYPED_TEST(PointCorrectnessCudaTest, Ne) {
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  cudaError_t error =
+  gpuError_t error =
       LaunchNe(this->xs_.get(), this->ys_.get(), this->bool_results_.get(), N);
-  GPU_CHECK(error == cudaSuccess, error);
+  GPU_CHECK(error == gpuSuccess, error);
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
                                   (this->xs_.get())[i].ToString(),

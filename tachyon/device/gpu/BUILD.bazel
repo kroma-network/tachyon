@@ -1,6 +1,10 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon.bzl", "if_gpu_is_configured")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_defines")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cuda_defines",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -13,6 +17,18 @@ tachyon_cc_library(
         "//tachyon/base:no_destructor",
         "//tachyon/build:build_config",
         "@com_google_absl//absl/synchronization",
+    ],
+)
+
+tachyon_cc_library(
+    name = "gpu_cudamallocasync_allocator",
+    srcs = if_cuda(["gpu_cudamallocasync_allocator.cc"]),
+    hdrs = ["gpu_cudamallocasync_allocator.h"],
+    defines = tachyon_cuda_defines(),
+    deps = [
+        ":gpu_logging",
+        ":platform_device_id",
+        "//tachyon/device:allocator",
     ],
 )
 
@@ -36,6 +52,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "gpu_enums",
+    hdrs = ["gpu_enums.h"],
+    defines = tachyon_cuda_defines(),
+    deps = if_cuda([
+        "@local_config_cuda//cuda:cuda_headers",
+    ]),
+)
+
+tachyon_cc_library(
     name = "gpu_info",
     srcs = [
         "gpu_info.cc",
@@ -50,6 +75,14 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/time",
     ],
+)
+
+tachyon_cc_library(
+    name = "gpu_init",
+    srcs = ["gpu_init.cc"],
+    hdrs = ["gpu_init.h"],
+    defines = tachyon_cuda_defines(),
+    deps = ["//tachyon/base:logging"],
 )
 
 tachyon_cc_library(
@@ -72,7 +105,65 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "platform_device_id",
+    hdrs = ["platform_device_id.h"],
+)
+
+tachyon_cc_library(
+    name = "scoped_async_memory",
+    hdrs = ["scoped_async_memory.h"],
+    deps = [
+        ":gpu_device_functions",
+        ":gpu_enums",
+        ":gpu_logging",
+        "//tachyon:export",
+    ],
+)
+
+tachyon_cc_library(
+    name = "scoped_event",
+    srcs = if_gpu_is_configured(["scoped_event.cc"]),
+    hdrs = ["scoped_event.h"],
+    deps = [
+        ":gpu_device_functions",
+        ":gpu_enums",
+        ":gpu_logging",
+        "//tachyon:export",
+    ],
+)
+
+tachyon_cc_library(
+    name = "scoped_mem_pool",
+    srcs = if_gpu_is_configured(["scoped_mem_pool.cc"]),
+    hdrs = ["scoped_mem_pool.h"],
+    deps = [
+        ":gpu_device_functions",
+        ":gpu_enums",
+        ":gpu_logging",
+        "//tachyon:export",
+    ],
+)
+
+tachyon_cc_library(
     name = "scoped_memory",
+    srcs = if_gpu_is_configured(["scoped_memory.cc"]),
     hdrs = ["scoped_memory.h"],
-    deps = [":gpu_device_functions"],
+    deps = [
+        ":gpu_device_functions",
+        ":gpu_enums",
+        ":gpu_logging",
+        "//tachyon:export",
+    ],
+)
+
+tachyon_cc_library(
+    name = "scoped_stream",
+    srcs = if_gpu_is_configured(["scoped_stream.cc"]),
+    hdrs = ["scoped_stream.h"],
+    deps = [
+        ":gpu_device_functions",
+        ":gpu_enums",
+        ":gpu_logging",
+        "//tachyon:export",
+    ],
 )

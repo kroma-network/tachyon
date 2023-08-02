@@ -11,12 +11,14 @@ using namespace matplotlibcpp17;
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/time/time_interval.h"
-#include "tachyon/device/gpu/cuda/cuda_memory.h"
+#include "tachyon/device/gpu/cuda/scoped_memory.h"
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 
 namespace tachyon {
+
+using namespace device;
 
 namespace {
 
@@ -40,17 +42,17 @@ void TestDoubleOnCPU(const std::vector<math::bn254::G1JacobianPoint>& bases,
   }
 }
 
-cudaError_t LaunchDouble(const math::bn254::G1JacobianPointCuda* x,
+gpuError_t LaunchDouble(const math::bn254::G1JacobianPointCuda* x,
                          math::bn254::G1JacobianPointCuda* y, uint64_t count) {
   math::kernels::Double<<<(count - 1) / 32 + 1, 32>>>(x, y, count);
-  cudaError_t error = cudaGetLastError();
-  if (error != cudaSuccess) {
-    GPU_LOG(ERROR) << "Failed to LaunchDouble()";
+  gpuError_t error = gpuGetLastError();
+  if (error != gpuSuccess) {
+    GPU_LOG(ERROR, error) << "Failed to LaunchDouble()";
     return error;
   }
-  error = cudaDeviceSynchronize();
-  GPU_LOG_IF(ERROR, error != cudaSuccess, error)
-      << "Failed to cudaDeviceSynchronize()";
+  error = gpuDeviceSynchronize();
+  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
+      << "Failed to gpuDeviceSynchronize()";
   return error;
 }
 
@@ -75,10 +77,12 @@ int RealMain(int argc, char** argv) {
       .set_short_name("-n")
       .set_required()
       .set_help("The number of points to test");
-  std::string error;
-  if (!parser.Parse(argc, argv, &error)) {
-    tachyon_cerr << error << std::endl;
-    return 1;
+  {
+    std::string error;
+    if (!parser.Parse(argc, argv, &error)) {
+      tachyon_cerr << error << std::endl;
+      return 1;
+    }
   }
 
   math::bn254::G1AffinePointCuda::Curve::Init();
@@ -109,14 +113,12 @@ int RealMain(int argc, char** argv) {
     results.push_back(interval.GetTimeDelta().InSecondsF());
   }
 
-  cudaError_t error = cudaDeviceReset();
+  gpuError_t error = cudaDeviceReset();
   GPU_CHECK(error == cudaSuccess, error);
   auto bases_cuda =
-      device::gpu::MakeManagedUnique<math::bn254::G1JacobianPointCuda>(
-          max_nums * sizeof(math::bn254::G1JacobianPointCuda));
+      gpu::MallocManaged<math::bn254::G1JacobianPointCuda>(max_nums);
   auto results_cuda =
-      device::gpu::MakeManagedUnique<math::bn254::G1JacobianPointCuda>(
-          max_nums * sizeof(math::bn254::G1JacobianPointCuda));
+      gpu::MallocManaged<math::bn254::G1JacobianPointCuda>(max_nums);
 
   interval.Start();
   for (uint64_t test_num : test_nums) {

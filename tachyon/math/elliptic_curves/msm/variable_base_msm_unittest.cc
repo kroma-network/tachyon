@@ -23,9 +23,9 @@ class VariableBaseMSMTest : public testing::Test {
     bases_ = base::CreateVector(kSize, []() { return PointTy::Random(); });
     scalars_ = base::CreateVector(kSize, []() { return GF7::Random(); });
 
-    answer_ = std::make_unique<PointTy>();
+    answer_ = PointTy::Zero();
     for (size_t i = 0; i < bases_.size(); ++i) {
-      *answer_ += bases_[i].ScalarMul(scalars_[i].ToBigInt());
+      answer_ += bases_[i].ScalarMul(scalars_[i].ToBigInt());
     }
   }
   VariableBaseMSMTest(const VariableBaseMSMTest&) = delete;
@@ -35,7 +35,7 @@ class VariableBaseMSMTest : public testing::Test {
  protected:
   std::vector<PointTy> bases_;
   std::vector<GF7> scalars_;
-  std::unique_ptr<PointTy> answer_;
+  PointTy answer_;
 };
 
 }  // namespace
@@ -53,7 +53,7 @@ TYPED_TEST(VariableBaseMSMTest, DoMSM) {
     EXPECT_EQ(VariableBaseMSM<PointTy>::DoMSM(
                   this->bases_.begin(), this->bases_.end(),
                   this->scalars_.begin(), this->scalars_.end(), use_window_naf),
-              *this->answer_);
+              this->answer_);
   }
 }
 

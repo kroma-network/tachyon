@@ -15,8 +15,8 @@ namespace tachyon::math::kernels {
 #define DEFINE_FIELD_OP(method, operator, src_type, dst_type)                  \
   template <typename Config>                                                   \
   __global__ void method(const src_type<Config>* x, const src_type<Config>* y, \
-                         dst_type<Config>* result, size_t count) {             \
-    size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                        \
+                         dst_type<Config>* result, unsigned int count) {       \
+    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;                  \
     if (gid >= count) return;                                                  \
     result[gid] = x[gid] operator y[gid];                                      \
   }
@@ -31,8 +31,8 @@ DEFINE_FIELD_OP(Add, +, PointXYZZ, PointXYZZ)
 #define DEFINE_COMPARISON_OP(method, operator, type)                   \
   template <typename Config>                                           \
   __global__ void method(const type<Config>* x, const type<Config>* y, \
-                         bool* result, size_t count) {                 \
-    size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                \
+                         bool* result, unsigned int count) {           \
+    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;          \
     if (gid >= count) return;                                          \
     result[gid] = x[gid] operator y[gid];                              \
   }
@@ -51,8 +51,8 @@ DEFINE_COMPARISON_OP(Ne, !=, PointXYZZ)
 #define DEFINE_UNARY_OP(method, src_type, dst_type)                           \
   template <typename Config>                                                  \
   __global__ void method(const src_type<Config>* x, dst_type<Config>* result, \
-                         size_t count) {                                      \
-    size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                       \
+                         unsigned int count) {                                \
+    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;                 \
     if (gid >= count) return;                                                 \
     result[gid] = x[gid].method();                                            \
   }

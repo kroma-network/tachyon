@@ -9,14 +9,14 @@
 
 namespace tachyon::math::kernels {
 
-#define DEFINE_FIELD_OP(method, operator)                                \
-  template <typename Config>                                             \
-  __global__ void method(const PrimeFieldCuda<Config>* x,                \
-                         const PrimeFieldCuda<Config>* y,                \
-                         PrimeFieldCuda<Config>* result, size_t count) { \
-    size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                  \
-    if (gid >= count) return;                                            \
-    result[gid] = x[gid] operator y[gid];                                \
+#define DEFINE_FIELD_OP(method, operator)                                      \
+  template <typename Config>                                                   \
+  __global__ void method(const PrimeFieldCuda<Config>* x,                      \
+                         const PrimeFieldCuda<Config>* y,                      \
+                         PrimeFieldCuda<Config>* result, unsigned int count) { \
+    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;                  \
+    if (gid >= count) return;                                                  \
+    result[gid] = x[gid] operator y[gid];                                      \
   }
 
 DEFINE_FIELD_OP(Add, +)
@@ -30,8 +30,8 @@ DEFINE_FIELD_OP(Div, /)
   template <typename Config>                                            \
   __global__ void method(const PrimeFieldCuda<Config>* x,               \
                          const PrimeFieldCuda<Config>* y, bool* result, \
-                         size_t count) {                                \
-    size_t gid = blockIdx.x * blockDim.x + threadIdx.x;                 \
+                         unsigned int count) {                          \
+    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;           \
     if (gid >= count) return;                                           \
     result[gid] = x[gid] operator y[gid];                               \
   }

@@ -1,7 +1,7 @@
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/device/gpu/cuda/cuda_memory.h"
+#include "tachyon/device/gpu/cuda/scoped_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fq_cuda.cu.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
@@ -22,20 +22,19 @@ DEFINE_LAUNCH_FIELD_OP(Div)
 
 #undef DEFINE_LAUNCH_FIELD_OP
 
+using namespace device;
+
 class PrimeFieldCorrectnessCudaTest : public testing::Test {
  public:
   // Runs tests with |N| data.
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
-    cudaError_t error = cudaDeviceReset();
-    GPU_CHECK(error == cudaSuccess, error);
-    xs_ = device::gpu::MakeManagedUnique<bn254::FqCuda>(N *
-                                                        sizeof(bn254::FqCuda));
-    ys_ = device::gpu::MakeManagedUnique<bn254::FqCuda>(N *
-                                                        sizeof(bn254::FqCuda));
-    results_ = device::gpu::MakeManagedUnique<bn254::FqCuda>(
-        N * sizeof(bn254::FqCuda));
+    gpuError_t error = gpuDeviceReset();
+    GPU_CHECK(error == gpuSuccess, error);
+    xs_ = gpu::MallocManaged<bn254::FqCuda>(N);
+    ys_ = gpu::MallocManaged<bn254::FqCuda>(N);
+    results_ = gpu::MallocManaged<bn254::FqCuda>(N);
 
     bn254::FqGmp::Init();
 
@@ -59,32 +58,31 @@ class PrimeFieldCorrectnessCudaTest : public testing::Test {
     ys_.reset();
     results_.reset();
 
-    cudaError_t error = cudaDeviceReset();
-    GPU_CHECK(error == cudaSuccess, error);
+    gpuError_t error = gpuDeviceReset();
+    GPU_CHECK(error == gpuSuccess, error);
 
     x_gmps_.clear();
     y_gmps_.clear();
   }
 
   void SetUp() override {
-    cudaError_t error =
-        cudaMemset(results_.get(), 0, N * sizeof(bn254::FqCuda));
-    GPU_CHECK(error == cudaSuccess, error);
+    gpuError_t error =
+        gpuMemset(results_.get(), 0, N * sizeof(bn254::FqCuda));
+    GPU_CHECK(error == gpuSuccess, error);
   }
 
  protected:
-  static device::gpu::ScopedMemory<bn254::FqCuda> xs_;
-  static device::gpu::ScopedMemory<bn254::FqCuda> ys_;
-  static device::gpu::ScopedMemory<bn254::FqCuda> results_;
+  static gpu::ScopedUnifiedMemory<bn254::FqCuda> xs_;
+  static gpu::ScopedUnifiedMemory<bn254::FqCuda> ys_;
+  static gpu::ScopedUnifiedMemory<bn254::FqCuda> results_;
 
   static std::vector<bn254::FqGmp> x_gmps_;
   static std::vector<bn254::FqGmp> y_gmps_;
 };
 
-device::gpu::ScopedMemory<bn254::FqCuda> PrimeFieldCorrectnessCudaTest::xs_;
-device::gpu::ScopedMemory<bn254::FqCuda> PrimeFieldCorrectnessCudaTest::ys_;
-device::gpu::ScopedMemory<bn254::FqCuda>
-    PrimeFieldCorrectnessCudaTest::results_;
+gpu::ScopedUnifiedMemory<bn254::FqCuda> PrimeFieldCorrectnessCudaTest::xs_;
+gpu::ScopedUnifiedMemory<bn254::FqCuda> PrimeFieldCorrectnessCudaTest::ys_;
+gpu::ScopedUnifiedMemory<bn254::FqCuda> PrimeFieldCorrectnessCudaTest::results_;
 
 std::vector<bn254::FqGmp> PrimeFieldCorrectnessCudaTest::x_gmps_;
 std::vector<bn254::FqGmp> PrimeFieldCorrectnessCudaTest::y_gmps_;
@@ -92,15 +90,15 @@ std::vector<bn254::FqGmp> PrimeFieldCorrectnessCudaTest::y_gmps_;
 }  // namespace
 
 #define RUN_OPERATION_TESTS(method)                                            \
-  cudaError_t error = Launch##method(xs_.get(), ys_.get(), results_.get(), N); \
-  GPU_CHECK(error == cudaSuccess, error);                                      \
+  gpuError_t error = Launch##method(xs_.get(), ys_.get(), results_.get(), N); \
+  GPU_CHECK(error == gpuSuccess, error);                                      \
   for (size_t i = 0; i < N; ++i)
 
 TEST_F(PrimeFieldCorrectnessCudaTest, Add) {
   RUN_OPERATION_TESTS(Add) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
                                   (ys_.get())[i].ToString()));
-    ASSERT_EQ((results_.get())[i].ToBigInt(),
+    ASSERT_EQ((results_.get())[i].ToBigIntHost(),
               (x_gmps_[i] + y_gmps_[i]).ToBigInt());
   }
 }
@@ -109,7 +107,7 @@ TEST_F(PrimeFieldCorrectnessCudaTest, Sub) {
   RUN_OPERATION_TESTS(Sub) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
                                   (ys_.get())[i].ToString()));
-    ASSERT_EQ((results_.get())[i].ToBigInt(),
+    ASSERT_EQ((results_.get())[i].ToBigIntHost(),
               (x_gmps_[i] - y_gmps_[i]).ToBigInt());
   }
 }
@@ -118,7 +116,7 @@ TEST_F(PrimeFieldCorrectnessCudaTest, Mul) {
   RUN_OPERATION_TESTS(Mul) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
                                   (ys_.get())[i].ToString()));
-    ASSERT_EQ((results_.get())[i].ToBigInt(),
+    ASSERT_EQ((results_.get())[i].ToBigIntHost(),
               (x_gmps_[i] * y_gmps_[i]).ToBigInt());
   }
 }
@@ -127,7 +125,7 @@ TEST_F(PrimeFieldCorrectnessCudaTest, Div) {
   RUN_OPERATION_TESTS(Div) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
                                   (ys_.get())[i].ToString()));
-    ASSERT_EQ((results_.get())[i].ToBigInt(),
+    ASSERT_EQ((results_.get())[i].ToBigIntHost(),
               (x_gmps_[i] / y_gmps_[i]).ToBigInt());
   }
 }

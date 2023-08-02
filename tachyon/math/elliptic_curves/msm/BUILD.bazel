@@ -1,5 +1,11 @@
 load("//bazel:tachyon.bzl", "if_gmp_backend")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+    "tachyon_cuda_library",
+    "tachyon_cuda_test",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -18,10 +24,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "msm",
-    srcs = [
-        "variable_base_msm.cc",
-    ],
+    name = "variable_base_msm",
+    srcs = ["variable_base_msm.cc"],
     hdrs = [
         "msm_util.h",
         "variable_base_msm.h",
@@ -36,6 +40,12 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cuda_library(
+    name = "variable_base_msm_cuda",
+    hdrs = ["variable_base_msm_cuda.cu.h"],
+    deps = ["//tachyon/math/elliptic_curves/msm/kernels"],
+)
+
 tachyon_cc_test(
     name = "msm_unittests",
     srcs = [
@@ -45,8 +55,20 @@ tachyon_cc_test(
     ]),
     deps = [
         ":glv",
-        ":msm",
+        ":variable_base_msm",
         "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
         "//tachyon/math/elliptic_curves/short_weierstrass/test:curve_config",
+    ],
+)
+
+tachyon_cuda_test(
+    name = "msm_cuda_unittests",
+    srcs = ["variable_base_msm_cuda_unittest.cu.cc"],
+    deps = [
+        ":variable_base_msm",
+        ":variable_base_msm_cuda",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
     ],
 )

@@ -6,32 +6,94 @@
 #endif  // TACHYON_CUDA
 
 #if TACHYON_CUDA
-using gpuStream_t = cudaStream_t;
+using gpuError_t = cudaError_t;
+#define gpuGetLastError cudaGetLastError
+#define gpuGetErrorString cudaGetErrorString
+
+#define gpuDeviceReset cudaDeviceReset
+#define gpuDeviceSynchronize cudaDeviceSynchronize
+
 using gpuEvent_t = cudaEvent_t;
-#define gpuEventRecord cudaEventRecord
-#define gpuEventSynchronize cudaEventSynchronize
-#define gpuEventDestroy cudaEventDestroy
 #define gpuEventCreate cudaEventCreate
 #define gpuEventCreateWithFlags cudaEventCreateWithFlags
+#define gpuEventDestroy cudaEventDestroy
 #define gpuEventDisableTiming cudaEventDisableTiming
-#define gpuDeviceSynchronize cudaDeviceSynchronize
+#define gpuEventElapsedTime cudaEventElapsedTime
+#define gpuEventRecord cudaEventRecord
+#define gpuEventSynchronize cudaEventSynchronize
+
+using gpuMemPool_t = cudaMemPool_t;
+using gpuMemPoolProps = cudaMemPoolProps;
+#define gpuMemPoolCreate cudaMemPoolCreate
+#define gpuMemPoolDestroy cudaMemPoolDestroy
+#define gpuMemPoolSetAttribute cudaMemPoolSetAttribute
+
+using gpuStream_t = cudaStream_t;
+#define gpuStreamCreate cudaStreamCreate
+#define gpuStreamCreateWithFlags cudaStreamCreateWithFlags
+#define gpuStreamDestroy cudaStreamDestroy
+#define gpuStreamSynchronize cudaStreamSynchronize
+#define gpuStreamWaitEvent cudaStreamWaitEvent
+
+#define gpuMalloc cudaMalloc
+#define gpuMallocHost cudaMallocHost
+#define gpuMallocFromPoolAsync cudaMallocFromPoolAsync
+
 #define gpuFree cudaFree
+#define gpuFreeHost cudaFreeHost
+#define gpuFreeAsync cudaFreeAsync
+
+#define gpuMemcpy cudaMemcpy
+#define gpuMemset cudaMemset
+
+#define gpuMemGetInfo cudaMemGetInfo
 #elif TACHYON_USE_ROCM
-using gpuStream_t = hipStream_t;
-using gpuEvent_t = hipEvent_t;
 using cudaError = int;
 using cudaError_t = int;
 #define cudaSuccess 0
 #define cudaGetLastError hipGetLastError
-#define gpuEventRecord hipEventRecord
-#define gpuEventDestroy hipEventDestroy
-#define gpuEventSynchronize hipEventSynchronize
+#define gpuGetLastError hipGetLastError
+#define gpuGetErrorString cudaGetErrorString
+static std::string cudaGetErrorString(int err) { return std::to_string(err); }
+
+using gpuError_t = int;
+
+#define gpuDeviceSynchronize hipDeviceSynchronize
+
+using gpuEvent_t = hipEvent_t;
 #define gpuEventCreate hipEventCreate
 #define gpuEventCreateWithFlags hipEventCreateWithFlags
+#define gpuEventDestroy hipEventDestroy
 #define gpuEventDisableTiming hipEventDisableTiming
-#define gpuDeviceSynchronize hipDeviceSynchronize
+#define gpuEventElapsedTime hipEventElapsedTime
+#define gpuEventRecord hipEventRecord
+#define gpuEventSynchronize hipEventSynchronize
+
+using gpuMemPool_t = hipMemPool_t;
+using gpuMemPoolProps = hipMemPoolProps;
+#define gpuMemPoolCreate hipMemPoolCreate
+#define gpuMemPoolDestroy hipMemPoolDestroy
+#define gpuMemPoolSetAttribute hipMemPoolSetAttribute
+
+using gpuStream_t = hipStream_t;
+#define gpuStreamCreate hipStreamCreate
+#define gpuStreamCreateWithFlags hipStreamCreateWithFlags
+#define gpuStreamDestroy hipStreamDestroy
+#define gpuStreamSynchronize hipStreamSynchronize
+#define gpuStreamWaitEvent hipStreamWaitEvent
+
+#define gpuMalloc hipMalloc
+#define gpuMallocHost hipMallocHost
+#define gpuMallocFromPoolAsync hipMallocFromPoolAsync
+
 #define gpuFree hipFree
-static std::string cudaGetErrorString(int err) { return std::to_string(err); }
+#define gpuFreeHost hipFreeHost
+#define gpuFreeAsync hipFreeAsync
+
+#define gpuMemcpy hipMemcpy
+#define gpuMemset hipMemset
+
+#define gpuMemGetInfo hipMemGetInfo
 #endif
 
 #endif  // TACHYON_DEVICE_GPU_GPU_DEVICE_FUNCTIONS_H_

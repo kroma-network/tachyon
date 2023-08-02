@@ -205,6 +205,6 @@ def tachyon_cuda_test(
 
     tachyon_cc_test(
         name = name,
-        tags = tags,
+        tags = tags + ["cuda"],
         deps = [":" + lib_name],
     )

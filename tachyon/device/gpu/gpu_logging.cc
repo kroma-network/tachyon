@@ -3,11 +3,11 @@
 namespace google {
 
 GpuLogMessage::GpuLogMessage(const char* file_path, int line,
-                             LogSeverity severity, cudaError_t cuda_err)
-    : LogMessage(file_path, line, severity), cuda_err_(cuda_err) {}
+                             LogSeverity severity, gpuError_t gpu_err)
+    : LogMessage(file_path, line, severity), gpu_err_(gpu_err) {}
 
 GpuLogMessage::~GpuLogMessage() {
-  stream() << ": " << cudaGetErrorString(cuda_err_);
+  stream() << ": " << gpuGetErrorString(gpu_err_);
 }
 
 }  // namespace google

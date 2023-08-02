@@ -20,10 +20,13 @@ tachyon_cuda_library(
 tachyon_cuda_library(
     name = "cuda_memory",
     hdrs = ["cuda_memory.h"],
-    deps = [
-        "//tachyon/device/gpu:gpu_logging",
-        "//tachyon/device/gpu:scoped_memory",
-    ],
+    deps = ["//tachyon/base:compiler_specific"],
+)
+
+tachyon_cuda_library(
+    name = "scoped_memory",
+    hdrs = ["scoped_memory.h"],
+    deps = ["//tachyon/device/gpu:scoped_memory"],
 )
 
 tachyon_cuda_test(

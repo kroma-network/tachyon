@@ -1,9 +1,19 @@
-# load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library")
 
-# package(default_visibility = ["//visibility:public"])
+package(default_visibility = ["//visibility:public"])
 
-# tachyon_cuda_library(
-#     name = "msm_kernel",
-#     srcs = ["msm_kernel.cu.cc"],
-#     hdrs = ["msm_kernel.cu.h"],
-# )
+tachyon_cuda_library(
+    name = "kernels",
+    hdrs = [
+        "variable_base_msm_execution_kernels.cu.h",
+        "variable_base_msm_setup_kernels.cu.h",
+    ],
+    deps = [
+        "//tachyon/base:bits",
+        "//tachyon/device/gpu:scoped_async_memory",
+        "//tachyon/device/gpu:scoped_event",
+        "//tachyon/device/gpu:scoped_stream",
+        "//tachyon/device/gpu/cuda:cuda_memory",
+        "//tachyon/math/elliptic_curves/short_weierstrass:points",
+    ],
+)

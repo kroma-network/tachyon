@@ -18,9 +18,7 @@ limitations under the License.
 
 #include <string>
 
-#include "tensorflow/tsl/platform/status.h"
-
-namespace tachyon::device {
+namespace tachyon::device::gpu {
 
 class Platform;
 
@@ -39,6 +37,6 @@ Platform* GPUMachineManager();
 // "ROCM" when TACHYON is built with `--config==rocm`
 std::string GpuPlatformName();
 
-}  // namespace tachyon::device
+}  // namespace tachyon::device::gpu
 
 #endif  // TACHYON_DEVICE_GPU_GPU_INIT_H_
