@@ -113,8 +113,8 @@ int RealMain(int argc, char** argv) {
     results.push_back(interval.GetTimeDelta().InSecondsF());
   }
 
-  gpuError_t error = cudaDeviceReset();
-  GPU_CHECK(error == cudaSuccess, error);
+  gpuError_t error = gpuDeviceReset();
+  GPU_CHECK(error == gpuSuccess, error);
   auto bases_cuda =
       gpu::MallocManaged<math::bn254::G1JacobianPointCuda>(max_nums);
   auto results_cuda =
