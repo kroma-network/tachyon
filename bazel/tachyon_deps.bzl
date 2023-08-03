@@ -96,6 +96,15 @@ def tachyon_deps():
             urls = ["https://github.com/google/re2/archive/2023-06-02.tar.gz"],
         )
 
+    if not native.existing_rule("cxx.rs"):
+        http_archive(
+            name = "cxx.rs",
+            sha256 = "ab918028d85b1c0a5c21a24d9a78bb6a1adc78608191e6ff382bcbb2bcd57ccd",
+            strip_prefix = "cxx-1.0.102",
+            urls = ["https://github.com/dtolnay/cxx/archive/refs/tags/1.0.102.tar.gz"],
+        )
+
+
     # Needed by com_google_googletest
     if not native.existing_rule("rules_python"):
         http_archive(
@@ -103,4 +112,11 @@ def tachyon_deps():
             sha256 = "84aec9e21cc56fbc7f1335035a71c850d1b9b5cc6ff497306f84cced9a769841",
             strip_prefix = "rules_python-0.23.1",
             urls = ["https://github.com/bazelbuild/rules_python/releases/download/0.23.1/rules_python-0.23.1.tar.gz"],
+        )
+
+    if not native.existing_rule("rules_rust"):
+        http_archive(
+            name = "rules_rust",
+            sha256 = "9d04e658878d23f4b00163a72da3db03ddb451273eb347df7d7c50838d698f49",
+            urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.26.0/rules_rust-v0.26.0.tar.gz"],
         )

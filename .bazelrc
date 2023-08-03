@@ -74,10 +74,11 @@ build:goldilocks_backend --//:goldilocks_backend
 # Chromium things
 build:macos --define=enable_mach_absolute_time_ticks=true
 
-test --test_tag_filters -benchmark,-manual,-cuda
+test --test_tag_filters -benchmark,-manual,-cuda,-rust
 
-build:linux --build_tag_filters -objc
-build:windows --build_tag_filters -objc
+build:linux --build_tag_filters -objc,-rust
+build:macos --build_tag_filters -rust
+build:windows --build_tag_filters -objc,-rust
 
 # Config-specific options should come above this line.
 
