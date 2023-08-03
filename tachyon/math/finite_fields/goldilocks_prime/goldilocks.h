@@ -3,6 +3,7 @@
 
 #if defined(TACHYON_GOLDILOCKS_BACKEND)
 #include "tachyon/math/finite_fields/goldilocks_prime/prime_field_goldilocks.h"
+#include "tachyon/build/build_config.h"
 #else
 #include "tachyon/math/finite_fields/prime_field.h"
 #endif
@@ -12,7 +13,11 @@ namespace tachyon::math {
 class TACHYON_EXPORT GoldilocksConfig {
  public:
 #if defined(TACHYON_GOLDILOCKS_BACKEND)
+#if ARCH_CPU_X86_64
   constexpr static bool kIsGoldilocks = true;
+#else
+  #error "Goldilocks backend is only supported on x86_64 platform."
+#endif
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif

@@ -10,7 +10,10 @@ tachyon_cc_library(
     hdrs = ["goldilocks.h"],
     copts = goldilocks_copts(),
     deps = if_goldilocks_backend(
-        [":prime_field_goldilocks"],
+        [
+            ":prime_field_goldilocks",
+            "//tachyon/build:build_config",
+        ],
         ["//tachyon/math/finite_fields:prime_field"],
     ),
 )
