@@ -2,6 +2,7 @@
 #define TACHYON_DEVICE_GPU_GPU_DEVICE_FUNCTIONS_H_
 
 #if TACHYON_CUDA
+#include "third_party/gpus/cuda/include/cuda.h"
 #include "third_party/gpus/cuda/include/cuda_runtime_api.h"
 #endif  // TACHYON_CUDA
 
@@ -22,11 +23,14 @@ using gpuEvent_t = cudaEvent_t;
 #define gpuEventRecord cudaEventRecord
 #define gpuEventSynchronize cudaEventSynchronize
 
+#if CUDA_VERSION >= 11020  // CUDA 11.2
+// See https://developer.nvidia.com/blog/enhancing-memory-allocation-with-new-cuda-11-2-features/
 using gpuMemPool_t = cudaMemPool_t;
 using gpuMemPoolProps = cudaMemPoolProps;
 #define gpuMemPoolCreate cudaMemPoolCreate
 #define gpuMemPoolDestroy cudaMemPoolDestroy
 #define gpuMemPoolSetAttribute cudaMemPoolSetAttribute
+#endif
 
 using gpuStream_t = cudaStream_t;
 #define gpuStreamCreate cudaStreamCreate

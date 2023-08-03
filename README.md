@@ -117,5 +117,7 @@ Please update g++ version and try build again! The default `g++-9` is not workin
 
 ```shell
 > sudo apt install g++-10
-> export CC=/usr/bin/g++-10
+> export CC=/usr/bin/gcc-10
+> export CXX=/usr/bin/g++-10
+> export GCC_HOST_COMPILER_PATH=/usr/bin/gcc-10
 ```
