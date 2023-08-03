@@ -1,4 +1,4 @@
-load("//bazel:tachyon.bzl", "if_gmp_backend")
+load("//bazel:tachyon.bzl", "if_gmp_backend", "if_gpu_is_configured")
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
@@ -63,7 +63,7 @@ tachyon_cc_test(
 
 tachyon_cuda_test(
     name = "msm_cuda_unittests",
-    srcs = ["variable_base_msm_cuda_unittest.cu.cc"],
+    srcs = if_gpu_is_configured(["variable_base_msm_cuda_unittest.cu.cc"]),
     deps = [
         ":variable_base_msm",
         ":variable_base_msm_cuda",
