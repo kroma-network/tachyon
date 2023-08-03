@@ -110,3 +110,12 @@ Please add this line to your `.bazelrc.user`.
 ```
 build --spawn_strategy=local
 ```
+
+#### Build on Ubuntu 20.04
+
+Please update g++ version and try build again! The default `g++-9` is not working.
+
+```shell
+> sudo apt install g++-10
+> export CC=/usr/bin/g++-10
+```

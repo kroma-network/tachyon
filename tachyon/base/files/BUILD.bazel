@@ -110,6 +110,7 @@ tachyon_cc_library(
         "scoped_file_linux.cc",
     ]),
     hdrs = ["scoped_file.h"],
+    linkopts = if_linux(["-ldl"]),
     deps = [
         "//tachyon:export",
         "//tachyon/base:compiler_specific",

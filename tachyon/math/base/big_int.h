@@ -117,7 +117,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
 
   template <bool ModulusHasSpareBit>
   constexpr static void Clamp(const BigInt& modulus, BigInt* value,
-                              bool carry = false) {
+                              [[maybe_unused]] bool carry = false) {
     bool needs_to_clamp = false;
     if constexpr (ModulusHasSpareBit) {
       needs_to_clamp = *value >= modulus;
