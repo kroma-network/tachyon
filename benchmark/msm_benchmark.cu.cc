@@ -8,6 +8,7 @@ using namespace matplotlibcpp17;
 #endif  // defined(TACHYON_HAS_MATPLOTLIB)
 
 #include "tachyon/base/console/iostream.h"
+#include "tachyon/base/console/table_writer.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/time/time_interval.h"
@@ -181,6 +182,20 @@ int RealMain(int argc, char** argv) {
   }
 
   CHECK(results_cpu == results_gpu) << "Result not matched";
+
+  base::TableWriterBuilder builder;
+  base::TableWriter writer = builder.AlignHeaderLeft()
+                                 .AddSpace(1)
+                                 .FitToTerminalWidth()
+                                 .StripTrailingAsciiWhitespace()
+                                 .AddColumn("NAME")
+                                 .AddColumn("TIME(sec)")
+                                 .Build();
+  for (size_t i = 0; i < results.size(); ++i) {
+    writer.SetElement(i, 0, names[i]);
+    writer.SetElement(i, 1, absl::StrCat(results[i]));
+  }
+  writer.Print(true);
 
 #if defined(TACHYON_HAS_MATPLOTLIB)
   py::scoped_interpreter guard{};

@@ -8,6 +8,7 @@ tachyon_cuda_binary(
     local_defines = tachyon_matplotlib_defines(),
     deps = [
         "//tachyon/base/console",
+        "//tachyon/base/console:table_writer",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/base/ranges:algorithm",
         "//tachyon/base/time:time_interval",
@@ -28,6 +29,7 @@ tachyon_cuda_binary(
     local_defines = tachyon_matplotlib_defines(),
     deps = [
         "//tachyon/base/console",
+        "//tachyon/base/console:table_writer",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/base/ranges:algorithm",
         "//tachyon/base/time:time_interval",
