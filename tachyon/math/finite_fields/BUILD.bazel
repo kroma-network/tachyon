@@ -1,6 +1,11 @@
 load("@polygon_zkevm_goldilocks//:build_defs.bzl", "goldilocks_copts")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
-load("//bazel:tachyon.bzl", "if_cuda_and_gmp_backend", "if_gmp_backend")
+load(
+    "//bazel:tachyon.bzl",
+    "if_cuda_and_gmp_backend",
+    "if_gmp_backend",
+    "if_polygon_zkevm_backend",
+)
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_benchmark",
@@ -46,7 +51,6 @@ tachyon_cc_library(
         ":prime_field_base",
         ":prime_field_traits",
         "//tachyon/base:compiler_specific",
-        "//tachyon/base:random",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:arithmetics",
@@ -105,17 +109,21 @@ tachyon_cuda_test(
 
 tachyon_cc_test(
     name = "finite_field_correctness_tests",
-    srcs = if_gmp_backend(["finite_field_correctness_test.cc"]),
+    srcs = if_gmp_backend(["prime_field_correctness_test.cc"]),
     deps = [
         ":prime_field_cuda",
         ":prime_field_cuda_debug",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+    ] + if_polygon_zkevm_backend([
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
-    ],
+        "//tachyon/math/elliptic_curves/secp/secp256k1:fq",
+        "//tachyon/math/elliptic_curves/secp/secp256k1:fr",
+    ]),
 )
 
 tachyon_cuda_test(
     name = "finite_field_correctness_cuda_tests",
-    srcs = if_cuda_and_gmp_backend(["finite_field_correctness_cuda_test.cu.cc"]),
+    srcs = if_cuda_and_gmp_backend(["prime_field_correctness_cuda_test.cu.cc"]),
     deps = [
         ":prime_field_cuda",
         "//tachyon/device/gpu/cuda:scoped_memory",
@@ -132,6 +140,7 @@ tachyon_cc_benchmark(
     copts = goldilocks_copts(),
     deps = [
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/goldilocks_prime:goldilocks",
     ],
 )

@@ -1,9 +1,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load(":build_defs.bzl", "goldilocks_copts")
 
-package(
-    default_visibility = ["//visibility:public"],
-)
+package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "base_field",

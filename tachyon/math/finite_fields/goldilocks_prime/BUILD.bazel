@@ -1,5 +1,5 @@
 load("@polygon_zkevm_goldilocks//:build_defs.bzl", "goldilocks_copts")
-load("//bazel:tachyon.bzl", "if_goldilocks_backend")
+load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
 
@@ -17,14 +17,15 @@ generate_prime_fields(
 #if defined(TACHYON_GMP_BACKEND)
 #include "tachyon/math/finite_fields/prime_field_gmp.h"
 #endif  // defined(TACHYON_GMP_BACKEND)
-#if defined(TACHYON_GOLDILOCKS_BACKEND)
+#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #include "tachyon/math/finite_fields/goldilocks_prime/prime_field_goldilocks.h"
 #include "tachyon/build/build_config.h"
-#endif  // defined(TACHYON_GOLDILOCKS_BACKEND)""",
+#endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = GOLDILOCKS_MODULUS,
     namespace = "tachyon::math",
-    special_prime_override = """#if defined(TACHYON_GOLDILOCKS_BACKEND)
+    special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #if ARCH_CPU_X86_64
+  constexpr static bool kIsSpecialPrime = true;
   constexpr static bool kIsGoldilocks = true;
 #else
   #error Goldilocks backend is only supported on x86_64 platform.
@@ -32,7 +33,7 @@ generate_prime_fields(
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif""",
-    deps = if_goldilocks_backend([
+    deps = if_polygon_zkevm_backend([
         ":prime_field_goldilocks",
         "//tachyon/build:build_config",
     ]),
@@ -41,7 +42,7 @@ generate_prime_fields(
 tachyon_cc_library(
     name = "prime_field_goldilocks",
     hdrs = ["prime_field_goldilocks.h"],
-    defines = ["TACHYON_GOLDILOCKS_BACKEND"],
+    defines = ["TACHYON_POLYGON_ZKEVM_BACKEND"],
     deps = [
         "//tachyon/base:random",
         "//tachyon/base/strings:string_number_conversions",
@@ -49,14 +50,14 @@ tachyon_cc_library(
         "//tachyon/math/base/gmp:gmp_util",
         "//tachyon/math/finite_fields:prime_field_base",
         "//tachyon/math/finite_fields:prime_field_traits",
-    ] + if_goldilocks_backend([
+    ] + if_polygon_zkevm_backend([
         "@polygon_zkevm_goldilocks//:base_field",
     ]),
 )
 
 tachyon_cc_test(
     name = "goldilocks_prime_unittests",
-    srcs = if_goldilocks_backend(["prime_field_goldilocks_unittest.cc"]),
+    srcs = if_polygon_zkevm_backend(["prime_field_goldilocks_unittest.cc"]),
     copts = goldilocks_copts(),
     deps = [":goldilocks"],
 )

@@ -26,6 +26,7 @@ tachyon_cc_library(
     deps = [
         ":arithmetics",
         ":bit_traits",
+        "//tachyon/base:random",
         "//tachyon/base:compiler_specific",
         "//tachyon/base:macro_utils",
         "//tachyon/base/strings:string_util",
@@ -112,6 +113,5 @@ tachyon_cc_test(
         ":bit_iterator",
         ":groups",
         ":sign",
-        "//tachyon/base:random",
     ],
 )

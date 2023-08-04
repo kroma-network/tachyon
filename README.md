@@ -60,10 +60,10 @@ Please follow the instructions [here](https://bazel.build/install).
    > bazel build --config ${os} --config gmp_backend //...
    ```
 
-- `--config goldilocks_backend`: Enable [goldilocks](https://github.com/0xPolygonHermez/goldilocks) prime field backend.
+- `--config polygon_zkevm_backend`: Enable [goldilocks](https://github.com/0xPolygonHermez/goldilocks) and [zkevm-prover](https://github.com/0xPolygonHermez/zkevm-prover) prime field backend.
 
    ```shell
-   > bazel build --config ${os} --config goldilocks_backend //...
+   > bazel build --config ${os} --config polygon_zkevm_backend //...
    ```
 
 ### Hardware acceleration

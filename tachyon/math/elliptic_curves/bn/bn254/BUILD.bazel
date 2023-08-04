@@ -1,3 +1,5 @@
+load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
 
@@ -13,15 +15,101 @@ FR_MODULUS = "218882428718392752222464057452572750885483644004160343436982041865
 generate_prime_fields(
     name = "fq",
     class_name = "Fq",
+    hdr_include_override = """#include "tachyon/export.h"
+#if defined(TACHYON_GMP_BACKEND)
+#include "tachyon/math/finite_fields/prime_field_gmp.h"
+#endif  // defined(TACHYON_GMP_BACKEND)
+#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+#include "tachyon/math/elliptic_curves/bn/bn254/prime_field_fq.h"
+#include "tachyon/build/build_config.h"
+#endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = FQ_MODULUS,
     namespace = "tachyon::math::bn254",
+    special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+#if ARCH_CPU_X86_64
+  constexpr static bool kIsSpecialPrime = true;
+  constexpr static bool kIsBn254Fq = true;
+#else
+  #error Polygon bn254 backend is only supported on x86_64 platform.
+#endif
+#else
+  constexpr static bool kIsSpecialPrime = false;
+#endif""",
+    deps = if_polygon_zkevm_backend([
+        ":prime_field_fq",
+        "//tachyon/build:build_config",
+    ]),
 )
 
 generate_prime_fields(
     name = "fr",
     class_name = "Fr",
+    hdr_include_override = """#include "tachyon/export.h"
+#if defined(TACHYON_GMP_BACKEND)
+#include "tachyon/math/finite_fields/prime_field_gmp.h"
+#endif  // defined(TACHYON_GMP_BACKEND)
+#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+#include "tachyon/math/elliptic_curves/bn/bn254/prime_field_fr.h"
+#include "tachyon/build/build_config.h"
+#endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = FR_MODULUS,
     namespace = "tachyon::math::bn254",
+    special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+#if ARCH_CPU_X86_64
+  constexpr static bool kIsSpecialPrime = true;
+  constexpr static bool kIsBn254Fr = true;
+#else
+  #error Polygon bn254 backend is only supported on x86_64 platform.
+#endif
+#else
+  constexpr static bool kIsSpecialPrime = false;
+#endif""",
+    deps = if_polygon_zkevm_backend([
+        ":prime_field_fr",
+        "//tachyon/build:build_config",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "fq_fail",
+    srcs = if_polygon_zkevm_backend(["fq_fail.cc"]),
+    hdrs = ["fq_fail.h"],
+    deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_fq",
+    hdrs = ["prime_field_fq.h"],
+    defines = ["TACHYON_POLYGON_ZKEVM_BACKEND"],
+    deps = [
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/finite_fields:prime_field_traits",
+    ] + if_polygon_zkevm_backend([
+        ":fq_fail",
+        "@polygon_zkevm_zkevm_prover//:fq",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "fr_fail",
+    srcs = if_polygon_zkevm_backend(["fr_fail.cc"]),
+    hdrs = ["fr_fail.h"],
+    deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_fr",
+    hdrs = ["prime_field_fr.h"],
+    defines = ["TACHYON_POLYGON_ZKEVM_BACKEND"],
+    deps = [
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/finite_fields:prime_field_traits",
+    ] + if_polygon_zkevm_backend([
+        ":fr_fail",
+        "@polygon_zkevm_zkevm_prover//:fr",
+    ]),
 )
 
 generate_ec_points(

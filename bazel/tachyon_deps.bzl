@@ -3,9 +3,11 @@ load("//third_party/env:env_configure.bzl", "env_configure")
 load("//third_party/gmp:gmp_configure.bzl", "gmp_configure")
 load("//third_party/gpus:cuda_configure.bzl", "cuda_configure")
 load("//third_party/gpus:rocm_configure.bzl", "rocm_configure")
-load("//third_party/py:python_configure.bzl", "python_configure")
-load("//third_party/goldilocks:workspace.bzl", goldilocks = "repo")
 load("//third_party/hwloc:workspace.bzl", hwloc = "repo")
+load("//third_party/nasm:workspace.bzl", nasm = "repo")
+load("//third_party/py:python_configure.bzl", "python_configure")
+load("//third_party/polygon_zkevm/goldilocks:workspace.bzl", goldilocks = "repo")
+load("//third_party/polygon_zkevm/zkevm_prover:workspace.bzl", zkevm_prover = "repo")
 
 def tachyon_deps():
     cuda_configure(name = "local_config_cuda")
@@ -16,6 +18,8 @@ def tachyon_deps():
 
     goldilocks()
     hwloc()
+    nasm()
+    zkevm_prover()
 
     if not native.existing_rule("bazel_skylib"):
         http_archive(
@@ -103,7 +107,6 @@ def tachyon_deps():
             strip_prefix = "cxx-1.0.102",
             urls = ["https://github.com/dtolnay/cxx/archive/refs/tags/1.0.102.tar.gz"],
         )
-
 
     # Needed by com_google_googletest
     if not native.existing_rule("rules_python"):

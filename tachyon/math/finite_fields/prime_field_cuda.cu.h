@@ -9,7 +9,6 @@
 
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
 
-#include "tachyon/base/random.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
@@ -72,15 +71,7 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
   }
 
   static PrimeFieldCuda Random() {
-    BigInt<N> big_int;
-    for (size_t i = 0; i < N; ++i) {
-      big_int.limbs[i] = base::Uniform<uint64_t, uint64_t>(
-          0, std::numeric_limits<uint64_t>::max());
-    }
-    while (big_int >= GetModulus()) {
-      big_int.DivBy2InPlace();
-    }
-    return PrimeFieldCuda(big_int);
+    return PrimeFieldCuda(BigInt<N>::Random(Config::kModulus));
   }
 
   constexpr static PrimeFieldCuda FromDecString(std::string_view str) {

@@ -66,8 +66,7 @@ class PrimeFieldCorrectnessCudaTest : public testing::Test {
   }
 
   void SetUp() override {
-    gpuError_t error =
-        gpuMemset(results_.get(), 0, N * sizeof(bn254::FqCuda));
+    gpuError_t error = gpuMemset(results_.get(), 0, N * sizeof(bn254::FqCuda));
     GPU_CHECK(error == gpuSuccess, error);
   }
 
@@ -89,7 +88,7 @@ std::vector<bn254::FqGmp> PrimeFieldCorrectnessCudaTest::y_gmps_;
 
 }  // namespace
 
-#define RUN_OPERATION_TESTS(method)                                            \
+#define RUN_OPERATION_TESTS(method)                                           \
   gpuError_t error = Launch##method(xs_.get(), ys_.get(), results_.get(), N); \
   GPU_CHECK(error == gpuSuccess, error);                                      \
   for (size_t i = 0; i < N; ++i)

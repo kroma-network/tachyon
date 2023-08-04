@@ -1,3 +1,5 @@
+load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
 
@@ -13,15 +15,101 @@ FR_MODULUS = "115792089237316195423570985008687907852837564279074904382605163141
 generate_prime_fields(
     name = "fq",
     class_name = "Fq",
+    hdr_include_override = """#include "tachyon/export.h"
+#if defined(TACHYON_GMP_BACKEND)
+#include "tachyon/math/finite_fields/prime_field_gmp.h"
+#endif  // defined(TACHYON_GMP_BACKEND)
+#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+#include "tachyon/math/elliptic_curves/secp/secp256k1/prime_field_fq.h"
+#include "tachyon/build/build_config.h"
+#endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = FQ_MODULUS,
     namespace = "tachyon::math::secp256k1",
+    special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+#if ARCH_CPU_X86_64
+  constexpr static bool kIsSpecialPrime = true;
+  constexpr static bool kIsSecp256k1Fq = true;
+#else
+  #error Polygon secp256k1 backend is only supported on x86_64 platform.
+#endif
+#else
+  constexpr static bool kIsSpecialPrime = false;
+#endif""",
+    deps = if_polygon_zkevm_backend([
+        ":prime_field_fq",
+        "//tachyon/build:build_config",
+    ]),
 )
 
 generate_prime_fields(
     name = "fr",
     class_name = "Fr",
+    hdr_include_override = """#include "tachyon/export.h"
+#if defined(TACHYON_GMP_BACKEND)
+#include "tachyon/math/finite_fields/prime_field_gmp.h"
+#endif  // defined(TACHYON_GMP_BACKEND)
+#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+#include "tachyon/math/elliptic_curves/secp/secp256k1/prime_field_fr.h"
+#include "tachyon/build/build_config.h"
+#endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = FR_MODULUS,
     namespace = "tachyon::math::secp256k1",
+    special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+#if ARCH_CPU_X86_64
+  constexpr static bool kIsSpecialPrime = true;
+  constexpr static bool kIsSecp256k1Fr = true;
+#else
+  #error Polygon secp256k1 backend is only supported on x86_64 platform.
+#endif
+#else
+  constexpr static bool kIsSpecialPrime = false;
+#endif""",
+    deps = if_polygon_zkevm_backend([
+        ":prime_field_fr",
+        "//tachyon/build:build_config",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "fec_fail",
+    srcs = if_polygon_zkevm_backend(["fec_fail.cc"]),
+    hdrs = ["fec_fail.h"],
+    deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_fq",
+    hdrs = ["prime_field_fq.h"],
+    defines = ["TACHYON_POLYGON_ZKEVM_BACKEND"],
+    deps = [
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/finite_fields:prime_field_traits",
+    ] + if_polygon_zkevm_backend([
+        ":fec_fail",
+        "@polygon_zkevm_zkevm_prover//:fec",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "fnec_fail",
+    srcs = if_polygon_zkevm_backend(["fnec_fail.cc"]),
+    hdrs = ["fnec_fail.h"],
+    deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_fr",
+    hdrs = ["prime_field_fr.h"],
+    defines = ["TACHYON_POLYGON_ZKEVM_BACKEND"],
+    deps = [
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/finite_fields:prime_field_traits",
+    ] + if_polygon_zkevm_backend([
+        ":fnec_fail",
+        "@polygon_zkevm_zkevm_prover//:fnec",
+    ]),
 )
 
 generate_ec_points(

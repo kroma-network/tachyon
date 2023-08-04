@@ -7,6 +7,7 @@
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/macro_utils.h"
+#include "tachyon/base/random.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/bit_traits.h"
@@ -70,6 +71,18 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   constexpr static BigInt Zero() { return BigInt(0); }
 
   constexpr static BigInt One() { return BigInt(1); }
+
+  constexpr static BigInt Random(const BigInt& max) {
+    BigInt ret;
+    for (size_t i = 0; i < N; ++i) {
+      ret[i] = base::Uniform<uint64_t, uint64_t>(
+          0, std::numeric_limits<uint64_t>::max());
+    }
+    while (ret >= max) {
+      ret.DivBy2InPlace();
+    }
+    return ret;
+  }
 
   constexpr static BigInt FromDecString(std::string_view str) {
     BigInt ret;
@@ -492,6 +505,80 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   std::string ToString() const { return internal::LimbsToString(limbs, N); }
   std::string ToHexString() const {
     return internal::LimbsToHexString(limbs, N);
+  }
+
+  template <bool ModulusHasSpareBit>
+  constexpr BigInt MontgomeryInverse(const BigInt& modulus,
+                                     const BigInt& r2) const {
+    CHECK(!IsZero());
+
+    // Guajardo Kumar Paar Pelzl
+    // Efficient Software-Implementation of Finite Fields with Applications to
+    // Cryptography
+    // Algorithm 16 (BEA for Inversion in Fp)
+
+    BigInt u = *this;
+    BigInt v = modulus;
+    BigInt b = r2;
+    BigInt c = BigInt::Zero();
+
+    while (!u.IsOne() && !v.IsOne()) {
+      while (u.IsEven()) {
+        u.DivBy2InPlace();
+
+        if (b.IsEven()) {
+          b.DivBy2InPlace();
+        } else {
+          uint64_t carry = 0;
+          b.AddInPlace(modulus, carry);
+          b.DivBy2InPlace();
+          if constexpr (!ModulusHasSpareBit) {
+            if (carry) {
+              b[N - 1] |= static_cast<uint64_t>(1) << 63;
+            }
+          }
+        }
+      }
+
+      while (v.IsEven()) {
+        v.DivBy2InPlace();
+
+        if (c.IsEven()) {
+          c.DivBy2InPlace();
+        } else {
+          uint64_t carry = 0;
+          c.AddInPlace(modulus, carry);
+          c.DivBy2InPlace();
+          if constexpr (!ModulusHasSpareBit) {
+            if (carry) {
+              c[N - 1] |= static_cast<uint64_t>(1) << 63;
+            }
+          }
+        }
+      }
+
+      if (v < u) {
+        u.SubInPlace(v);
+        if (b >= c) {
+          b -= c;
+        } else {
+          b += (modulus - c);
+        }
+      } else {
+        v.SubInPlace(u);
+        if (c >= b) {
+          c -= b;
+        } else {
+          c += (modulus - b);
+        }
+      }
+    }
+
+    if (u.IsOne()) {
+      return b;
+    } else {
+      return c;
+    }
   }
 
  private:

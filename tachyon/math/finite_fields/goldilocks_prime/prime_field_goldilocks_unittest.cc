@@ -26,8 +26,7 @@ TEST(PrimeFieldGoldilocksTest, Zero) {
 TEST(PrimeFieldGoldilocksTest, One) {
   EXPECT_TRUE(Goldilocks::One().IsOne());
   EXPECT_FALSE(Goldilocks::Zero().IsOne());
-  // TODO(chokobole)
-  // EXPECT_EQ(Goldilocks::Config::kOne, Goldilocks(1).ToMontgomery());
+  EXPECT_EQ(Goldilocks::Config::kOne, Goldilocks(1).ToMontgomery());
 }
 
 TEST(PrimeFieldGoldilocksTest, BigIntConversion) {

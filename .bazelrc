@@ -8,7 +8,7 @@
 #
 # Prime field implementation options:
 #     gmp_backend:        Support a prime field with gmp backend.
-#     goldilocks_backend: Support a prime field with polygon zkevm goldilocks backend.
+#     polygon_zkevm_backend: Support a prime field with polygon zkevm prover backend.
 #
 # Hardware support options:
 #     cuda: Build with NVIDIA GPU support (cuda).
@@ -68,8 +68,8 @@ build --//:has_rtti
 # Enable gmp backend for prime field.
 build:gmp_backend --//:gmp_backend
 
-# Enable polygon zkevm goldilocks backend for prime field.
-build:goldilocks_backend --//:goldilocks_backend
+# Enable polygon zkevm backend for prime field.
+build:polygon_zkevm_backend --//:polygon_zkevm_backend
 
 # Chromium things
 build:macos --define=enable_mach_absolute_time_ticks=true

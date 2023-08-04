@@ -9,7 +9,6 @@
 
 #include "gtest/gtest_prod.h"
 
-#include "tachyon/base/random.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
@@ -67,15 +66,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
   }
 
   static PrimeField Random() {
-    BigInt<N> big_int;
-    for (size_t i = 0; i < N; ++i) {
-      big_int[i] = base::Uniform<uint64_t, uint64_t>(
-          0, std::numeric_limits<uint64_t>::max());
-    }
-    while (big_int >= Config::kModulus) {
-      big_int.DivBy2InPlace();
-    }
-    return PrimeField(big_int);
+    return PrimeField(BigInt<N>::Random(Config::kModulus));
   }
 
   constexpr static PrimeField FromDecString(std::string_view str) {
@@ -244,69 +235,8 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
 
   // MultiplicativeGroup methods
   constexpr PrimeField& InverseInPlace() {
-    CHECK(!IsZero());
-    // Guajardo Kumar Paar Pelzl
-    // Efficient Software-Implementation of Finite Fields with Applications to
-    // Cryptography
-    // Algorithm 16 (BEA for Inversion in Fp)
-
-    BigInt<N> u = value_;
-    BigInt<N> v = Config::kModulus;
-    PrimeField b;
-    b.value_ = kMontgomeryR2;
-    PrimeField c = PrimeField::Zero();
-
-    while (!u.IsOne() && !v.IsOne()) {
-      while (u.IsEven()) {
-        u.DivBy2InPlace();
-
-        if (b.value_.IsEven()) {
-          b.value_.DivBy2InPlace();
-        } else {
-          uint64_t carry = 0;
-          b.value_.AddInPlace(Config::kModulus, carry);
-          b.value_.DivBy2InPlace();
-          if constexpr (!kModulusHasSpareBit) {
-            if (carry) {
-              b.value_[N - 1] |= static_cast<uint64_t>(1) << 63;
-            }
-          }
-        }
-      }
-
-      while (v.IsEven()) {
-        v.DivBy2InPlace();
-
-        if (c.value_.IsEven()) {
-          c.value_.DivBy2InPlace();
-        } else {
-          uint64_t carry = 0;
-          c.value_.AddInPlace(Config::kModulus, carry);
-          c.value_.DivBy2InPlace();
-          if constexpr (!kModulusHasSpareBit) {
-            if (carry) {
-              c.value_[N - 1] |= static_cast<uint64_t>(1) << 63;
-            }
-          }
-        }
-      }
-
-      uint64_t unused = 0;
-      if (v < u) {
-        u.SubInPlace(v, unused);
-        b -= c;
-      } else {
-        v.SubInPlace(u, unused);
-        c -= b;
-      }
-    }
-
-    if (u.IsOne()) {
-      *this = b;
-    } else {
-      *this = c;
-    }
-
+    value_ = value_.template MontgomeryInverse<kModulusHasSpareBit>(
+        Config::kModulus, kMontgomeryR2);
     return *this;
   }
 
