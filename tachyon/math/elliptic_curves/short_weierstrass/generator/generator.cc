@@ -210,7 +210,7 @@ int GenerationConfig::GenerateConfigCudaHdr() const {
   std::string header_guard_macro = math::BazelOutToHdrGuardMacro(out);
   base::FilePath hdr_path = math::BazelOutToHdrPath(out);
   std::string basename = hdr_path.BaseName().value();
-  basename = basename.substr(0, basename.find_first_of("_cuda"));
+  basename = basename.substr(0, basename.find("_cuda"));
   std::string header_path = hdr_path.DirName().Append(basename + ".h").value();
   std::string content = absl::StrReplaceAll(
       tpl_content, {

@@ -1,27 +1,41 @@
 load("@polygon_zkevm_goldilocks//:build_defs.bzl", "goldilocks_copts")
 load("//bazel:tachyon.bzl", "if_goldilocks_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
-tachyon_cc_library(
-    name = "goldilocks",
-    srcs = if_goldilocks_backend(["goldilocks.cc"]),
-    hdrs = ["goldilocks.h"],
-    copts = goldilocks_copts(),
-    deps = if_goldilocks_backend(
-        [
-            ":prime_field_goldilocks",
-            "//tachyon/build:build_config",
-        ],
-        ["//tachyon/math/finite_fields:prime_field"],
-    ),
-)
+# 2^64 - 2^32 + 1
+# Hex: 0xffffffff00000001
+GOLDILOCKS_MODULUS = "18446744069414584321"
 
-tachyon_cc_library(
-    name = "goldilocks_cuda",
-    hdrs = ["goldilocks.cu.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field_cuda"],
+generate_prime_fields(
+    name = "goldilocks",
+    class_name = "Goldilocks",
+    copts = goldilocks_copts(),
+    hdr_include_override = """#include "tachyon/export.h"
+#if defined(TACHYON_GMP_BACKEND)
+#include "tachyon/math/finite_fields/prime_field_gmp.h"
+#endif  // defined(TACHYON_GMP_BACKEND)
+#if defined(TACHYON_GOLDILOCKS_BACKEND)
+#include "tachyon/math/finite_fields/goldilocks_prime/prime_field_goldilocks.h"
+#include "tachyon/build/build_config.h"
+#endif  // defined(TACHYON_GOLDILOCKS_BACKEND)""",
+    modulus = GOLDILOCKS_MODULUS,
+    namespace = "tachyon::math",
+    special_prime_override = """#if defined(TACHYON_GOLDILOCKS_BACKEND)
+#if ARCH_CPU_X86_64
+  constexpr static bool kIsGoldilocks = true;
+#else
+  #error Goldilocks backend is only supported on x86_64 platform.
+#endif
+#else
+  constexpr static bool kIsSpecialPrime = false;
+#endif""",
+    deps = if_goldilocks_backend([
+        ":prime_field_goldilocks",
+        "//tachyon/build:build_config",
+    ]),
 )
 
 tachyon_cc_library(
