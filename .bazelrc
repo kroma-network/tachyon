@@ -29,6 +29,7 @@ build --announce_rc
 build:cuda --repo_env TACHYON_NEED_CUDA=1
 build:cuda --crosstool_top=@local_config_cuda//crosstool:toolchain
 build:cuda --@local_config_cuda//:enable_cuda
+build:cuda --//:has_rtti
 
 # This config refers to building CUDA op kernels with clang.
 # NOTE(chokobole): I didn't test it, though!
@@ -56,14 +57,15 @@ build:windows --cxxopt=/std:c++17
 
 # Enable googletest build with absl.
 # See https://github.com/google/googletest/blob/v1.13.0/BUILD.bazel#L67C1-L70
+build --define absl=1
 # FIXME(chokobole): If this option is enabled, gtest cannot be built with nvcc.
-# build --define absl=1
+build:cuda --define absl=0
 
 # gmp needs exception.
 build --//:has_exception
 
 # pybind needs runtime type information.
-build --//:has_rtti
+build:pybind --//:has_rtti
 
 # Enable gmp backend for prime field.
 build:gmp_backend --//:gmp_backend
