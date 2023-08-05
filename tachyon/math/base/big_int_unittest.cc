@@ -116,7 +116,7 @@ TEST(BigIntTest, Operations) {
     BigInt<2> a = big_int;
     BigInt<2> divbyn =
         BigInt<2>::FromDecString("3858024656635802465933641975351103");
-    EXPECT_EQ(a.DivByExpInPlace(5), divbyn);
+    EXPECT_EQ(a.DivBy2ExpInPlace(5), divbyn);
   }
   {
     BigInt<2> a = big_int;

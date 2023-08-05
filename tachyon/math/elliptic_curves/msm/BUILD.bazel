@@ -25,7 +25,6 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "variable_base_msm",
-    srcs = ["variable_base_msm.cc"],
     hdrs = [
         "msm_util.h",
         "variable_base_msm.h",
@@ -34,7 +33,6 @@ tachyon_cc_library(
         "//tachyon/base:template_util",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
-        "//tachyon/math/base/gmp:gmp_util",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",
     ],

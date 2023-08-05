@@ -447,7 +447,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
-  constexpr BigInt& DivByExpInPlace(uint32_t n) {
+  constexpr BigInt& DivBy2ExpInPlace(uint32_t n) {
     if (n >= static_cast<uint32_t>(64 * N)) {
       memset(limbs, 0, sizeof(uint64_t) * N);
       return *this;

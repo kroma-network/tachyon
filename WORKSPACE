@@ -31,7 +31,7 @@ rules_rust_dependencies()
 rust_register_toolchains(
     edition = "2021",
     versions = [
-        "1.66.1"
+        "1.66.1",
     ],
 )
 

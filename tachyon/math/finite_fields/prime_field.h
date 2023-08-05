@@ -97,6 +97,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
   }
 
   const value_type& value() const { return value_; }
+  size_t GetLimbSize() const { return N; }
 
   constexpr bool IsZero() const { return value_.IsZero(); }
 
@@ -147,8 +148,8 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
 
   // This is needed by MSM.
   // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
-  mpz_class DivBy2Exp(uint64_t exp) const {
-    return gmp::DivBy2Exp(ToMpzClass(), exp);
+  BigInt<N> DivBy2Exp(uint32_t exp) const {
+    return ToBigInt().DivBy2ExpInPlace(exp);
   }
 
   // AdditiveSemigroup methods

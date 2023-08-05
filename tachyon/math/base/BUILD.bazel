@@ -26,9 +26,9 @@ tachyon_cc_library(
     deps = [
         ":arithmetics",
         ":bit_traits",
-        "//tachyon/base:random",
         "//tachyon/base:compiler_specific",
         "//tachyon/base:macro_utils",
+        "//tachyon/base:random",
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
         "//tachyon/math/base/gmp:gmp_util",

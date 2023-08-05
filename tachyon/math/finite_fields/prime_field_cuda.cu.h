@@ -126,6 +126,7 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
   }
 
   __host__ __device__ const value_type& value() const { return value_; }
+  __host__ __device__ size_t GetLimbSize() const { return N; }
 
   __device__ constexpr bool IsZero() const {
     const uint64_t* x = value_.limbs;

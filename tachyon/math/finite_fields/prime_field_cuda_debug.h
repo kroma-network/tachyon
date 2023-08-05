@@ -105,6 +105,7 @@ class PrimeFieldCudaDebug
   }
 
   const value_type& value() const { return value_; }
+  size_t GetLimbSize() const { return N; }
 
   constexpr bool IsZero() const { return ToBigInt().IsZero(); }
 
@@ -154,12 +155,6 @@ class PrimeFieldCudaDebug
 
   constexpr bool operator>=(const PrimeFieldCudaDebug& other) const {
     return ToBigInt() >= other.ToBigInt();
-  }
-
-  // This is needed by MSM.
-  // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
-  mpz_class DivBy2Exp(uint64_t exp) const {
-    return gmp::DivBy2Exp(ToMpzClass(), exp);
   }
 
   // AdditiveSemigroup methods

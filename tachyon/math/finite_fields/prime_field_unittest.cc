@@ -224,8 +224,8 @@ TYPED_TEST(PrimeFieldTest, DivBy2Exp) {
   for (const auto& test : tests) {
     F p(test.v);
     for (size_t i = 0; i < F::kModulusBits; ++i) {
-      mpz_class q = p.DivBy2Exp(i);
-      EXPECT_EQ(q, mpz_class(test.v / (1 << i)));
+      BigInt<1> q = p.DivBy2Exp(i);
+      EXPECT_EQ(q, BigInt<1>(test.v / (1 << i)));
     }
   }
 }
