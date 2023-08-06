@@ -1,0 +1,34 @@
+load("@crate_index//:defs.bzl", "all_crate_deps")
+load("@cxx.rs//tools/bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_rust.bzl", "tachyon_rust_binary")
+
+tachyon_rust_binary(
+    name = "arkworks_benchmark",
+    srcs = glob(["src/**/*.rs"]),
+    deps = all_crate_deps(normal = True) + [
+        ":arkworks_benchmark_sys",
+        ":bridge",
+    ],
+)
+
+rust_cxx_bridge(
+    name = "bridge",
+    src = "src/main.rs",
+    deps = [":arkworks_benchmark_include"],
+)
+
+tachyon_cc_library(
+    name = "arkworks_benchmark_sys",
+    srcs = ["src/arkworks_benchmark.cc"],
+    deps = [
+        ":arkworks_benchmark_include",
+        ":bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "arkworks_benchmark_include",
+    hdrs = ["include/arkworks_benchmark.h"],
+    deps = ["@cxx.rs//:core"],
+)

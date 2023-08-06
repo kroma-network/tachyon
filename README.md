@@ -121,3 +121,17 @@ Please update g++ version and try build again! The default `g++-9` is not workin
 > export CXX=/usr/bin/g++-10
 > export GCC_HOST_COMPILER_PATH=/usr/bin/gcc-10
 ```
+
+#### Build on Apple M2 chip
+
+```
+ERROR: Compiling ... failed: undeclared inclusion(s) in rule '...':
+this rule is missing dependency declarations for the following files included by '...':
+  '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/...'
+```
+
+If you got a missing dependency error like the above on Apple M2, please add this line to your `.bazelrc.user`.
+
+```
+build --action_env=CPLUS_INCLUDE_PATH=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+```
