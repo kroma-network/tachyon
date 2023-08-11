@@ -1,0 +1,101 @@
+# Tachyon Bazel configuration file.
+# This file tries to group and simply build option for Tachyon
+#
+# ----CONFIG OPTIONS----
+#
+# Other build options:
+#     dbg:       Build with debug info
+#
+# Prime field implementation options:
+#     gmp_backend:        Support a prime field with gmp backend.
+#     polygon_zkevm_backend: Support a prime field with polygon zkevm prover backend.
+#
+# Hardware support options:
+#     cuda: Build with NVIDIA GPU support (cuda).
+#     rocm: Build with AMD GPU support (rocm).
+#     numa: Enable numa using hwloc.
+#
+# Default build options. These are applied first and unconditionally.
+
+# For projects which use Tachyon as part of a Bazel build process, putting
+# nothing in a bazelrc will default to a monolithic build. The following line
+# opts in to modular op registration support by default.
+build -c opt
+
+# Make Bazel print out all options from rc files.
+build --announce_rc
+
+# TODO(chokobole): Remove when `cc_shared_library` is enabled by default
+build --experimental_cc_shared_library
+
+build:macos_x86_64 --config=macos
+build:macos_x86_64 --cpu=darwin_x86_64
+build:macos_x86_64 --host_cpu=darwin_x86_64
+build:macos_arm64 --config=macos
+build:macos_arm64 --cpu=darwin_arm64
+build:macos_arm64 --host_cpu=darwin_arm64
+
+# This config refers to building sources with nvcc.
+build:cuda --repo_env TACHYON_NEED_CUDA=1
+build:cuda --crosstool_top=@local_config_cuda//crosstool:toolchain
+build:cuda --@local_config_cuda//:enable_cuda
+build:cuda --//:has_rtti
+
+# This config refers to building sources with clang.
+# NOTE(chokobole): I didn't test it, though!
+build:cuda_clang --config=cuda
+build:cuda_clang --repo_env TACHYON_CUDA_CLANG=1
+build:cuda_clang --@local_config_cuda//:cuda_compiler=clang
+
+# This config refers to building sources kernels.
+build:rocm --crosstool_top=@local_config_rocm//crosstool:toolchain
+build:rocm --define=using_rocm_hipcc=true
+build:rocm --define=tensorflow_mkldnn_contraction_kernel=0
+build:rocm --repo_env TACHYON_NEED_ROCM=1
+
+# Options extracted from configure script
+build:numa --//:has_numa
+
+# Debug config
+build:dbg -c dbg
+
+# By default, build Tachyon in C++ 17 mode.
+build:linux --cxxopt=-std=c++17
+build:linux --host_cxxopt=-std=c++17
+build:macos --cxxopt=-std=c++17
+build:macos --host_cxxopt=-std=c++17
+build:macos --objccopt=-std=c++17
+build:windows --cxxopt=/std:c++17
+build:windows --host_cxxopt=/std:c++17
+
+# Enable googletest build with absl.
+# See https://github.com/google/googletest/blob/v1.13.0/BUILD.bazel#L67C1-L70
+build --define absl=1
+# FIXME(chokobole): If this option is enabled, gtest cannot be built with nvcc.
+build:cuda --define absl=0
+
+# gmp needs exception.
+build --//:has_exception
+
+# pybind needs runtime type information.
+build:pybind --//:has_rtti
+
+# Enable gmp backend for prime field.
+build:gmp_backend --//:gmp_backend
+
+# Enable polygon zkevm backend for prime field.
+build:polygon_zkevm_backend --//:polygon_zkevm_backend
+
+# Chromium things
+build:macos --define=enable_mach_absolute_time_ticks=true
+
+test --test_tag_filters -benchmark,-manual,-cuda,-rust
+
+build:linux --build_tag_filters -objc,-cuda,-rust
+build:macos --build_tag_filters -cuda,-rust
+build:windows --build_tag_filters -objc,-cuda,-rust
+
+# Config-specific options should come above this line.
+
+# Load rc file with user-specific options.
+try-import %workspace%/.bazelrc.user

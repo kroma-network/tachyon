@@ -1,0 +1,141 @@
+load(
+    "//bazel:tachyon.bzl",
+    "if_linux",
+    "if_macos",
+    "if_posix",
+)
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+    "tachyon_objc_library",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "file",
+    srcs = ["file.cc"] + if_posix(["file_posix.cc"]),
+    hdrs = ["file.h"],
+    deps = [
+        ":file_path",
+        ":platform_file",
+        "//tachyon/base:logging",
+        "//tachyon/base/numerics:safe_conversions",
+        "//tachyon/base/posix:eintr_wrapper",
+        "//tachyon/base/time",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
+    name = "file_path",
+    srcs = ["file_path.cc"],
+    hdrs = ["file_path.h"],
+    deps = [
+        "//tachyon/base/strings:string_util",
+        "//tachyon/build:build_config",
+    ],
+)
+
+tachyon_cc_library(
+    name = "file_path_flag",
+    hdrs = ["file_path_flag.h"],
+    deps = [
+        ":file_path",
+        "//tachyon/base/flag",
+    ],
+)
+
+tachyon_cc_library(
+    name = "file_util_base",
+    hdrs = [
+        "file_enumerator.h",
+        "file_util.h",
+    ],
+    deps = [
+        ":file",
+        "//tachyon/base/containers:stack",
+        "//tachyon/base/functional:callback",
+        "//tachyon/base/functional:function_ref",
+        "//tachyon/base/posix:eintr_wrapper",
+    ],
+)
+
+tachyon_cc_library(
+    name = "file_util",
+    srcs = [
+        "file_util.cc",
+        "file_enumerator.cc",
+    ] + if_posix([
+        "file_enumerator_posix.cc",
+        "file_util_posix.cc",
+    ]),
+    deps = [
+        ":file_util_base",
+        "//tachyon/base:bit_cast",
+        "//tachyon/base:bits",
+        "//tachyon/base:environment",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:contains",
+        "//tachyon/base/strings:string_util",
+        "@com_google_absl//absl/strings:str_format",
+    ] + if_macos([
+        ":file_util_mac",
+    ]),
+)
+
+tachyon_objc_library(
+    name = "file_util_mac",
+    srcs = ["file_util_mac.mm"],
+    deps = [
+        ":file_util_base",
+        "//tachyon/base/mac:foundation_util",
+        "//tachyon/base/strings:string_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "platform_file",
+    hdrs = ["platform_file.h"],
+    deps = [
+        ":scoped_file",
+        "//tachyon/build:build_config",
+    ],
+)
+
+tachyon_cc_library(
+    name = "scoped_file",
+    srcs = ["scoped_file.cc"] + if_linux([
+        "scoped_file_linux.cc",
+    ]),
+    hdrs = ["scoped_file.h"],
+    linkopts = if_linux(["-ldl"]),
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:immediate_crash",
+        "//tachyon/base:scoped_generic",
+        "//tachyon/base/posix:eintr_wrapper",
+    ],
+)
+
+tachyon_cc_library(
+    name = "scoped_temp_dir",
+    srcs = ["scoped_temp_dir.cc"],
+    hdrs = ["scoped_temp_dir.h"],
+    deps = [":file_util"],
+)
+
+tachyon_cc_test(
+    name = "files_unittests",
+    srcs = [
+        "file_unittest.cc",
+        "file_enumerator_unittest.cc",
+        "file_path_unittest.cc",
+        "scoped_temp_dir_unittest.cc",
+    ] + if_linux([
+        "scoped_file_linux_unittest.cc",
+    ]),
+    deps = [":scoped_temp_dir"],
+)

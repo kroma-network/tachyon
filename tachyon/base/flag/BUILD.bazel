@@ -1,0 +1,45 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "flag",
+    srcs = ["flag.cc"],
+    hdrs = [
+        "flag.h",
+        "flag_forward.h",
+        "flag_value_traits.h",
+        "numeric_flags.h",
+    ],
+    deps = [
+        "//tachyon/base:environment",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:contains",
+        "//tachyon/base/files:file_path",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/strings:string_util",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
+    name = "flag_parser",
+    srcs = ["flag_parser.cc"],
+    hdrs = ["flag_parser.h"],
+    deps = [
+        ":flag",
+        "//tachyon/base:compiler_specific",
+    ],
+)
+
+tachyon_cc_test(
+    name = "flag_unittests",
+    srcs = [
+        "flag_parser_unittest.cc",
+        "flag_unittest.cc",
+    ],
+    deps = [
+        ":flag_parser",
+        "//tachyon/base/test:scoped_environment",
+    ],
+)

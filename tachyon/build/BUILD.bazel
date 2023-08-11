@@ -1,0 +1,29 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load(":lastchange.bzl", "lastchange")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "lastchange.py",
+    "write_buildflag_header.py",
+    "write_version_header.py",
+])
+
+exports_files([
+    "write_version_header.py",
+])
+
+lastchange(
+    name = "lastchange",
+)
+
+tachyon_cc_library(
+    name = "build_config",
+    hdrs = ["build_config.h"],
+    deps = [":buildflag"],
+)
+
+tachyon_cc_library(
+    name = "buildflag",
+    hdrs = ["buildflag.h"],
+)

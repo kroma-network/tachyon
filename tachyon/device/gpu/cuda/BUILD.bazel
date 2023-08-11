@@ -1,0 +1,40 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library", "tachyon_cuda_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cuda_library(
+    name = "cuda_driver",
+    srcs = if_cuda(["cuda_driver.cc"]),
+    hdrs = ["cuda_driver.h"],
+    deps = [
+        "//tachyon/device/gpu:gpu_driver",
+        "@com_google_absl//absl/container:node_hash_map",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/synchronization",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cuda_driver",
+    ]),
+)
+
+tachyon_cuda_library(
+    name = "cuda_memory",
+    hdrs = ["cuda_memory.h"],
+    deps = ["//tachyon/base:compiler_specific"],
+)
+
+tachyon_cuda_library(
+    name = "scoped_memory",
+    hdrs = ["scoped_memory.h"],
+    deps = ["//tachyon/device/gpu:scoped_memory"],
+)
+
+tachyon_cuda_test(
+    name = "cuda_unittests",
+    srcs = [
+        "cuda_driver_unittest.cc",
+    ],
+    deps = [
+        ":cuda_driver",
+    ],
+)

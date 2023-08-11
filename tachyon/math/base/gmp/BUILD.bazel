@@ -1,0 +1,66 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "bit_traits",
+    hdrs = ["bit_traits.h"],
+    deps = [
+        ":gmp_util",
+        "//tachyon/math/base:bit_traits",
+    ],
+)
+
+tachyon_cc_library(
+    name = "conversions",
+    hdrs = ["conversions.h"],
+    deps = [
+        ":gmp_util",
+        "//tachyon/math/base:conversions",
+    ],
+)
+
+tachyon_cc_library(
+    name = "gmp_identities",
+    hdrs = ["gmp_identities.h"],
+    deps = [
+        "//tachyon/base:no_destructor",
+        "//tachyon/math/base:identities",
+        "@local_config_gmp//:gmp",
+    ],
+)
+
+tachyon_cc_library(
+    name = "gmp_util",
+    srcs = ["gmp_util.cc"],
+    hdrs = ["gmp_util.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/base:sign",
+        "@com_google_absl//absl/base",
+        "@local_config_gmp//:gmp",
+    ],
+)
+
+tachyon_cc_library(
+    name = "signed_value",
+    hdrs = ["signed_value.h"],
+    deps = [
+        ":gmp_util",
+        "//tachyon/math/base:sign",
+    ],
+)
+
+tachyon_cc_test(
+    name = "gmp_unittets",
+    srcs = [
+        "gmp_identities_unittest.cc",
+        "gmp_util_unittest.cc",
+    ],
+    deps = [
+        ":gmp_identities",
+        ":gmp_util",
+        "//tachyon/build:build_config",
+    ],
+)

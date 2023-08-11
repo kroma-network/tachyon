@@ -1,0 +1,12 @@
+sh_binary(
+    name = "install_package",
+    srcs = select({
+        "@platforms//os:windows": [],
+        "//conditions:default": ["install_package.sh"],
+    }),
+    data = [
+        "copy_hdr.py",
+        "//tachyon/c:tachyon",
+        "//tachyon/c:tachyon_hdrs",
+    ],
+)

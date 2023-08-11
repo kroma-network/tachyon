@@ -1,0 +1,43 @@
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "msm_hdrs",
+    srcs = ["msm.h"] + if_gpu_is_configured([
+        "msm_gpu.h",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "msm",
+    srcs = ["msm.cc"],
+    hdrs = ["msm.h"],
+    deps = [
+        "//tachyon/base/containers:container_util",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:point2",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+    ],
+)
+
+tachyon_cuda_library(
+    name = "msm_gpu",
+    srcs = if_gpu_is_configured(["msm_gpu.cc"]),
+    hdrs = ["msm_gpu.h"],
+    deps = [
+        "//tachyon/base:bits",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:point2",
+        "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_memory",
+        "//tachyon/device/gpu/cuda:scoped_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm_cuda",
+    ],
+)

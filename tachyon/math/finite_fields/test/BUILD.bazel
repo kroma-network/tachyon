@@ -1,0 +1,11 @@
+load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
+
+package(default_visibility = ["//visibility:public"])
+
+generate_prime_fields(
+    name = "gf7",
+    testonly = True,
+    class_name = "GF7",
+    modulus = "7",
+    namespace = "tachyon::math",
+)

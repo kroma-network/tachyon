@@ -1,0 +1,57 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_objc_library")
+load("//bazel:tachyon.bzl", "if_linux", "if_macos", "if_posix")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "platform_thread_base",
+    hdrs = ["platform_thread.h"],
+    visibility = ["//visibility:private"],
+    deps = [
+        ":platform_thread_ref",
+        "//tachyon/base/message_loop:message_pump_type",
+        "//tachyon/base/time",
+    ],
+)
+
+tachyon_cc_library(
+    name = "platform_thread",
+    srcs = [
+        "platform_thread.cc",
+    ] + if_posix([
+        "platform_thread_posix.cc",
+    ]) + if_linux([
+        "platform_thread_linux.cc",
+        "platform_thread_internal_posix.cc",
+        "platform_thread_internal_posix.h",
+    ]),
+    deps = [
+        ":platform_thread_base",
+        "//tachyon/base:no_destructor",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:contains",
+        "//tachyon/base/containers:cxx20_erase",
+        "//tachyon/base/files:file_path",
+        "//tachyon/base/posix:can_lower_nice_to",
+        "//tachyon/base/process:process_handle",
+        "//tachyon/base/strings:string_number_conversions",
+    ] + if_macos([
+        ":platform_thread_mac",
+    ]),
+)
+
+tachyon_objc_library(
+    name = "platform_thread_mac",
+    srcs = ["platform_thread_mac.mm"],
+    deps = [":platform_thread_base"],
+)
+
+tachyon_cc_library(
+    name = "platform_thread_ref",
+    srcs = ["platform_thread_ref.cc"],
+    hdrs = ["platform_thread_ref.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/build:build_config",
+    ],
+)

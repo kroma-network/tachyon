@@ -1,0 +1,29 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "generator_util",
+    srcs = ["generator_util.cc"],
+    hdrs = ["generator_util.h"],
+    deps = [
+        "//tachyon/base/files:file_path",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields:modulus",
+    ],
+)
+
+tachyon_cc_binary(
+    name = "generator",
+    srcs = ["generator.cc"],
+    deps = [
+        ":generator_util",
+        "//tachyon/base/console",
+        "//tachyon/base/files:file_path_flag",
+        "//tachyon/base/files:file_util",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/math/base/gmp:bit_traits",
+        "//tachyon/math/finite_fields:prime_field",
+    ],
+)

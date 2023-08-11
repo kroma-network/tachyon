@@ -1,0 +1,69 @@
+load("@bazel_skylib//rules:expand_template.bzl", "expand_template")
+load("@rules_pkg//pkg:deb.bzl", "pkg_deb")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("//bazel:tachyon.bzl", "VERSION")
+load("//scripts/packages/debian:debian.bzl", "HOMEPAGE", "MAINTAINER")
+
+expand_template(
+    name = "pkg_config",
+    out = "tachyon.pc",
+    substitutions = {
+        "%{version}": VERSION,
+    },
+    template = "tachyon.pc.tpl",
+)
+
+pkg_tar(
+    name = "debian_data",
+    extension = "tar.gz",
+    deps = [
+        ":debian_hdrs",
+        ":debian_lib",
+        ":debian_pkgconfig",
+    ],
+)
+
+pkg_tar(
+    name = "debian_hdrs",
+    srcs = ["//tachyon/c:tachyon_hdrs"],
+    extension = "tar.gz",
+    remap_paths = {
+        "": "./usr/include/",
+    },
+    strip_prefix = ".",
+)
+
+pkg_tar(
+    name = "debian_lib",
+    extension = "tar.gz",
+    symlinks = {
+        "./usr/lib/x86_64-linux-gnu/libtachyon.so": "libtachyon.so.%s" % VERSION,
+    },
+)
+
+pkg_tar(
+    name = "debian_pkgconfig",
+    srcs = [":pkg_config"],
+    extension = "tar.gz",
+    remap_paths = {
+        "": "./usr/lib/x86_64-linux-gnu/pkgconfig",
+    },
+)
+
+pkg_deb(
+    name = "debian",
+    architecture = "amd64",
+    built_using = "bazel",
+    data = ":debian_data",
+    depends = [
+        "libgmp10-dev",
+        "libtachyon",
+    ],
+    description_file = "//scripts/packages/debian:description",
+    homepage = HOMEPAGE,
+    license = "MIT",
+    maintainer = MAINTAINER,
+    package = "libtachyon-dev",
+    section = "contrib/devel",
+    version = VERSION,
+)

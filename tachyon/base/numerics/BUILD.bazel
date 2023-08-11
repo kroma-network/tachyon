@@ -1,0 +1,56 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "checked_math",
+    hdrs = [
+        "checked_math.h",
+        "checked_math_impl.h",
+    ],
+    deps = [":safe_math_impl"],
+)
+
+tachyon_cc_library(
+    name = "clamped_math",
+    hdrs = [
+        "clamped_math.h",
+        "clamped_math_impl.h",
+    ],
+    deps = [":checked_math"],
+)
+
+tachyon_cc_library(
+    name = "math_constants",
+    hdrs = ["math_constants.h"],
+)
+
+tachyon_cc_library(
+    name = "safe_conversions",
+    hdrs = [
+        "safe_conversions.h",
+        "safe_conversions_arm_impl.h",
+        "safe_conversions_impl.h",
+    ],
+    deps = ["//tachyon/build:build_config"],
+)
+
+tachyon_cc_library(
+    name = "safe_math_impl",
+    hdrs = [
+        "safe_math_arm_impl.h",
+        "safe_math_clang_gcc_impl.h",
+        "safe_math_shared_impl.h",
+    ],
+    deps = [":safe_conversions"],
+)
+
+tachyon_cc_library(
+    name = "safe_math",
+    hdrs = ["safe_math.h"],
+    deps = [
+        ":checked_math",
+        ":clamped_math",
+        ":safe_conversions",
+    ],
+)

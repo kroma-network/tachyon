@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "benchmark/msm/arkworks",
+    "vendors/halo2",
+]

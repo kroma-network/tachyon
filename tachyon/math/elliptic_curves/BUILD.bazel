@@ -1,0 +1,19 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "points",
+    hdrs = [
+        "affine_point.h",
+        "curve_config.h",
+        "jacobian_point.h",
+        "point_traits.h",
+        "point_xyzz.h",
+        "projective_point.h",
+    ],
+    deps = [
+        "//tachyon/base:no_destructor",
+        "//tachyon/math/base:identities",
+    ],
+)

@@ -1,0 +1,149 @@
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
+
+package(default_visibility = ["//visibility:public"])
+
+bool_flag(
+    name = "shared_object",
+    build_setting_default = False,
+)
+
+bool_flag(
+    name = "has_exception",
+    build_setting_default = False,
+)
+
+bool_flag(
+    name = "has_rtti",
+    build_setting_default = False,
+)
+
+# prime field backend
+bool_flag(
+    name = "gmp_backend",
+    build_setting_default = False,
+)
+
+bool_flag(
+    name = "polygon_zkevm_backend",
+    build_setting_default = False,
+)
+
+bool_flag(
+    name = "has_matplotlib",
+    build_setting_default = False,
+)
+
+bool_flag(
+    name = "has_numa",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "linux_x86_64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+config_setting(
+    name = "linux_aarch64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:aarch64",
+    ],
+)
+
+config_setting(
+    name = "linux_ppc",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:ppc",
+    ],
+)
+
+config_setting(
+    name = "linux_s390x",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:s390x",
+    ],
+)
+
+config_setting(
+    name = "macos_x86_64",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+config_setting(
+    name = "macos_aarch64",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:aarch64",
+    ],
+)
+
+config_setting(
+    name = "optimized",
+    values = {"compilation_mode": "opt"},
+)
+
+config_setting(
+    name = "tachyon_shared_object",
+    flag_values = {":shared_object": "true"},
+)
+
+config_setting(
+    name = "tachyon_has_exception",
+    flag_values = {":has_exception": "true"},
+)
+
+config_setting(
+    name = "tachyon_has_rtti",
+    flag_values = {":has_rtti": "true"},
+)
+
+config_setting(
+    name = "tachyon_gmp_backend",
+    flag_values = {":gmp_backend": "true"},
+)
+
+config_setting(
+    name = "tachyon_polygon_zkevm_backend",
+    flag_values = {":polygon_zkevm_backend": "true"},
+)
+
+config_setting(
+    name = "tachyon_has_matplotlib",
+    flag_values = {":has_matplotlib": "true"},
+)
+
+config_setting(
+    name = "tachyon_has_numa",
+    flag_values = {"has_numa": "true"},
+)
+
+selects.config_setting_group(
+    name = "cuda_and_gmp",
+    match_all = [
+        "@local_config_cuda//:is_cuda_enabled",
+        "@kroma_network_tachyon//:tachyon_gmp_backend",
+    ],
+)
+
+selects.config_setting_group(
+    name = "x86_64_and_polygon_zkevm",
+    match_all = [
+        "@platforms//cpu:x86_64",
+        "@kroma_network_tachyon//:tachyon_polygon_zkevm_backend",
+    ],
+)
+
+buildifier(
+    name = "buildifier",
+)

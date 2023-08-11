@@ -1,0 +1,146 @@
+load("@polygon_zkevm_goldilocks//:build_defs.bzl", "goldilocks_copts")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load(
+    "//bazel:tachyon.bzl",
+    "if_cuda_and_gmp_backend",
+    "if_gmp_backend",
+    "if_polygon_zkevm_backend",
+)
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_benchmark",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+    "tachyon_cuda_library",
+    "tachyon_cuda_test",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "modulus",
+    hdrs = ["modulus.h"],
+    deps = ["//tachyon/math/base:big_int"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_base",
+    hdrs = ["prime_field_base.h"],
+    deps = ["//tachyon/math/base:field"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_gmp",
+    hdrs = ["prime_field_gmp.h"],
+    defines = ["TACHYON_GMP_BACKEND"],
+    deps = [
+        ":prime_field_base",
+        "//tachyon/base:no_destructor",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/base:field",
+        "//tachyon/math/base:identities",
+        "//tachyon/math/base/gmp:gmp_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prime_field",
+    hdrs = ["prime_field.h"],
+    deps = [
+        ":modulus",
+        ":prime_field_base",
+        ":prime_field_traits",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/base:arithmetics",
+        "//tachyon/math/base:identities",
+        "//tachyon/math/base/gmp:gmp_util",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cuda_library(
+    name = "prime_field_cuda",
+    hdrs = ["prime_field_cuda.cu.h"],
+    deps = [
+        ":prime_field",
+        "//tachyon/math/finite_fields/kernels:carry_chain",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prime_field_cuda_debug",
+    hdrs = [
+        "carry_chain.h",
+        "prime_field_cuda_debug.h",
+        "prime_field_ops_internal.h",
+    ],
+    deps = [":prime_field"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_traits",
+    hdrs = ["prime_field_traits.h"],
+)
+
+tachyon_cc_test(
+    name = "finite_fields_unittests",
+    srcs = [
+        "modulus_unittest.cc",
+        "prime_field_unittest.cc",
+    ],
+    deps = [
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/finite_fields/test:gf7",
+    ],
+)
+
+tachyon_cuda_test(
+    name = "finite_fields_cuda_unittests",
+    srcs = if_cuda(["prime_field_cuda_unittest.cu.cc"]),
+    deps = [
+        "//tachyon/device/gpu/cuda:scoped_memory",
+        "//tachyon/math/finite_fields/kernels:prime_field_ops",
+        "//tachyon/math/finite_fields/test:gf7_cuda",
+        "//tachyon/math/test:launch_op_macros",
+    ],
+)
+
+tachyon_cc_test(
+    name = "finite_field_correctness_tests",
+    srcs = if_gmp_backend(["prime_field_correctness_test.cc"]),
+    deps = [
+        ":prime_field_cuda",
+        ":prime_field_cuda_debug",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+    ] + if_polygon_zkevm_backend([
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/elliptic_curves/secp/secp256k1:fq",
+        "//tachyon/math/elliptic_curves/secp/secp256k1:fr",
+    ]),
+)
+
+tachyon_cuda_test(
+    name = "finite_field_correctness_cuda_tests",
+    srcs = if_cuda_and_gmp_backend(["prime_field_correctness_cuda_test.cu.cc"]),
+    deps = [
+        ":prime_field_cuda",
+        "//tachyon/device/gpu/cuda:scoped_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq_cuda",
+        "//tachyon/math/finite_fields/kernels:prime_field_ops",
+        "//tachyon/math/test:launch_op_macros",
+    ],
+)
+
+tachyon_cc_benchmark(
+    name = "prime_field_benchmark",
+    size = "small",
+    srcs = ["prime_field_benchmark.cc"],
+    copts = goldilocks_copts(),
+    deps = [
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/finite_fields/goldilocks_prime:goldilocks",
+    ],
+)

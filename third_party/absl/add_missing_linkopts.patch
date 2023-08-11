@@ -1,0 +1,15 @@
+diff --git a/absl/strings/BUILD.bazel b/absl/strings/BUILD.bazel
+index 53c57718..f4188685 100644
+--- a/absl/strings/BUILD.bazel
++++ b/absl/strings/BUILD.bazel
+@@ -71,7 +71,9 @@ cc_library(
+         "substitute.h",
+     ],
+     copts = ABSL_DEFAULT_COPTS,
+-    linkopts = ABSL_DEFAULT_LINKOPTS,
++    linkopts = ABSL_DEFAULT_LINKOPTS + [
++        "-lm",
++    ],
+     deps = [
+         ":internal",
+         "//absl/base",

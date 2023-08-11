@@ -1,0 +1,42 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "algorithm",
+    hdrs = ["algorithm.h"],
+    deps = [
+        ":functional",
+        ":ranges",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:cxx20_is_constant_evaluated",
+        "//tachyon/base:logging",
+        "//tachyon/base/functional:identity",
+        "//tachyon/base/functional:invoke",
+    ],
+)
+
+tachyon_cc_library(
+    name = "functional",
+    hdrs = ["functional.h"],
+)
+
+tachyon_cc_library(
+    name = "ranges",
+    hdrs = ["ranges.h"],
+    deps = ["//tachyon/base:template_util"],
+)
+
+tachyon_cc_test(
+    name = "ranges_unittests",
+    srcs = [
+        "algorithm_unittest.cc",
+        "functional_unittest.cc",
+        "ranges_unittest.cc",
+    ],
+    deps = [
+        ":algorithm",
+        ":functional",
+        ":ranges",
+    ],
+)

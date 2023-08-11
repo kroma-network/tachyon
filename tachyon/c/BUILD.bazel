@@ -1,0 +1,34 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon.bzl", "VERSION")
+load("//bazel:tachyon_cc.bzl", "collect_hdrs", "tachyon_cc_library", "tachyon_cc_shared_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "export",
+    hdrs = ["export.h"],
+)
+
+tachyon_cc_shared_library(
+    name = "tachyon",
+    linkstatic = True,
+    soversion = VERSION,
+    tags = ["manual"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/msm",
+        "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)
+
+collect_hdrs(
+    name = "tachyon_hdrs",
+    hdrs = [
+        "api.h",
+        "export.h",
+    ],
+    deps = [
+        "//tachyon/c/math:math_hdrs",
+    ],
+)

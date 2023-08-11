@@ -1,0 +1,103 @@
+load("//bazel:tachyon.bzl", "if_macos")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+    "tachyon_objc_library",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "string_number_conversions",
+    srcs = [
+        "string_number_conversions.cc",
+        "string_number_conversions_internal.h",
+    ],
+    hdrs = ["string_number_conversions.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
+    name = "string_util",
+    srcs = [
+        "string_util.cc",
+        "string_util_impl_helpers.h",
+    ],
+    hdrs = [
+        "string_util.h",
+        "string_util_internal.h",
+    ],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base:no_destructor",
+        "//tachyon/base/ranges:algorithm",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "sys_string_conversions_base",
+    hdrs = ["sys_string_conversions.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/build:build_config",
+    ] + if_macos([
+        "//tachyon/base/mac:scoped_cftyperef",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "sys_string_conversions",
+    srcs = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:windows": [],
+        "//conditions:default": ["sys_string_conversions_posix.cc"],
+    }),
+    deps = [
+        ":sys_string_conversions_base",
+        "//tachyon/base:logging",
+    ] + if_macos([
+        ":sys_string_conversions_mac",
+    ]),
+)
+
+tachyon_objc_library(
+    name = "sys_string_conversions_mac",
+    srcs = ["sys_string_conversions_mac.mm"],
+    deps = [
+        ":sys_string_conversions_base",
+        "//tachyon/base/apple:bridging",
+        "//tachyon/base/numerics:safe_conversions",
+    ],
+)
+
+tachyon_objc_library(
+    name = "strings_mac_unittests",
+    testonly = True,
+    srcs = ["sys_string_conversions_mac_unittest.mm"],
+    deps = [
+        ":sys_string_conversions_mac",
+        "@com_google_googletest//:gtest",
+    ],
+    alwayslink = True,
+)
+
+tachyon_cc_test(
+    name = "strings_unittests",
+    srcs = [
+        "string_number_conversions_unittest.cc",
+        "string_util_unittest.cc",
+    ],
+    deps = [
+        ":string_number_conversions",
+        ":string_util",
+    ] + if_macos([
+        ":strings_mac_unittests",
+    ]),
+)

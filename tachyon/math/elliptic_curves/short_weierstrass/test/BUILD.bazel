@@ -1,0 +1,13 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "curve_config",
+    testonly = True,
+    hdrs = ["curve_config.h"],
+    deps = [
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/finite_fields/test:gf7",
+    ],
+)

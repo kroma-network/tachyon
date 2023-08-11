@@ -1,0 +1,63 @@
+diff --git a/src/glog/logging.h.in b/src/glog/logging.h.in
+index 421f1e0..04cdf3b 100644
+--- a/src/glog/logging.h.in
++++ b/src/glog/logging.h.in
+@@ -673,10 +673,10 @@ class LogSink;  // defined below
+ // A container for a string pointer which can be evaluated to a bool -
+ // true iff the pointer is NULL.
+ struct CheckOpString {
+-  CheckOpString(std::string* str) : str_(str) { }
++  constexpr CheckOpString(std::string* str) : str_(str) { }
+   // No destructor: if str_ is non-NULL, we're about to LOG(FATAL),
+   // so there's no point in cleaning up str_.
+-  operator bool() const {
++  constexpr operator bool() const {
+     return GOOGLE_PREDICT_BRANCH_NOT_TAKEN(str_ != NULL);
+   }
+   std::string* str_;
+@@ -686,18 +686,18 @@ struct CheckOpString {
+ // integrals declared in classes and not defined to be used as arguments to
+ // CHECK* macros. It's not encouraged though.
+ template <class T>
+-inline const T&       GetReferenceableValue(const T&           t) { return t; }
+-inline char           GetReferenceableValue(char               t) { return t; }
+-inline unsigned char  GetReferenceableValue(unsigned char      t) { return t; }
+-inline signed char    GetReferenceableValue(signed char        t) { return t; }
+-inline short          GetReferenceableValue(short              t) { return t; }
+-inline unsigned short GetReferenceableValue(unsigned short     t) { return t; }
+-inline int            GetReferenceableValue(int                t) { return t; }
+-inline unsigned int   GetReferenceableValue(unsigned int       t) { return t; }
+-inline long           GetReferenceableValue(long               t) { return t; }
+-inline unsigned long  GetReferenceableValue(unsigned long      t) { return t; }
+-inline long long      GetReferenceableValue(long long          t) { return t; }
+-inline unsigned long long GetReferenceableValue(unsigned long long t) {
++constexpr inline const T&       GetReferenceableValue(const T&           t) { return t; }
++constexpr inline char           GetReferenceableValue(char               t) { return t; }
++constexpr inline unsigned char  GetReferenceableValue(unsigned char      t) { return t; }
++constexpr inline signed char    GetReferenceableValue(signed char        t) { return t; }
++constexpr inline short          GetReferenceableValue(short              t) { return t; }
++constexpr inline unsigned short GetReferenceableValue(unsigned short     t) { return t; }
++constexpr inline int            GetReferenceableValue(int                t) { return t; }
++constexpr inline unsigned int   GetReferenceableValue(unsigned int       t) { return t; }
++constexpr inline long           GetReferenceableValue(long               t) { return t; }
++constexpr inline unsigned long  GetReferenceableValue(unsigned long      t) { return t; }
++constexpr inline long long      GetReferenceableValue(long long          t) { return t; }
++constexpr inline unsigned long long GetReferenceableValue(unsigned long long t) {
+   return t;
+ }
+ 
+@@ -793,12 +793,12 @@ std::string* MakeCheckOpString(const T1& v1, const T2& v2, const char* exprtext)
+ // unnamed enum type - see comment below.
+ #define DEFINE_CHECK_OP_IMPL(name, op) \
+   template <typename T1, typename T2> \
+-  inline std::string* name##Impl(const T1& v1, const T2& v2,    \
++  constexpr inline std::string* name##Impl(const T1& v1, const T2& v2,    \
+                             const char* exprtext) { \
+     if (GOOGLE_PREDICT_TRUE(v1 op v2)) return NULL; \
+     else return MakeCheckOpString(v1, v2, exprtext); \
+   } \
+-  inline std::string* name##Impl(int v1, int v2, const char* exprtext) { \
++  constexpr inline std::string* name##Impl(int v1, int v2, const char* exprtext) { \
+     return name##Impl<int, int>(v1, v2, exprtext); \
+   }
+ 

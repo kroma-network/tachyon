@@ -1,0 +1,52 @@
+load(
+    "//bazel:tachyon.bzl",
+    "VERSION_MAJOR",
+    "VERSION_MINOR",
+    "VERSION_PATCH",
+    "VERSION_PRERELEASE",
+)
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+)
+load("//tachyon/build:version.bzl", "write_version_header")
+
+package(default_visibility = ["//visibility:public"])
+
+write_version_header(
+    name = "version_generated",
+    lastchange = "//tachyon/build:lastchange",
+    major = VERSION_MAJOR,
+    minor = VERSION_MINOR,
+    output = "version_generated.h",
+    patch = VERSION_PATCH,
+    prerelease = VERSION_PRERELEASE,
+    project = "TACHYON",
+)
+
+tachyon_cc_library(
+    name = "export",
+    hdrs = ["export.h"],
+)
+
+tachyon_cc_library(
+    name = "version",
+    srcs = ["version.cc"],
+    hdrs = [
+        "version.h",
+        ":version_generated",
+    ],
+    deps = [":export"],
+)
+
+tachyon_cc_test(
+    name = "tachyon_unittests",
+    srcs = [
+        "version_unittest.cc",
+    ],
+    deps = [
+        ":version",
+        "@com_google_absl//absl/strings",
+    ],
+)

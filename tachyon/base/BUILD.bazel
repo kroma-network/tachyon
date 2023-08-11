@@ -1,0 +1,123 @@
+load("//bazel:tachyon.bzl", "if_posix")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "bit_cast",
+    hdrs = ["bit_cast.h"],
+    deps = ["//tachyon/base:compiler_specific"],
+)
+
+tachyon_cc_library(
+    name = "bits",
+    hdrs = ["bits.h"],
+    deps = [
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:logging",
+        "//tachyon/build:build_config",
+    ],
+)
+
+tachyon_cc_library(
+    name = "compiler_specific",
+    hdrs = ["compiler_specific.h"],
+    deps = ["//tachyon/build:build_config"],
+)
+
+tachyon_cc_library(
+    name = "cxx20_is_constant_evaluated",
+    hdrs = ["cxx20_is_constant_evaluated.h"],
+)
+
+tachyon_cc_library(
+    name = "environment",
+    srcs = if_posix([
+        "environment_posix.cc",
+    ]),
+    hdrs = ["environment.h"],
+    deps = ["//tachyon:export"],
+)
+
+tachyon_cc_library(
+    name = "immediate_crash",
+    hdrs = ["immediate_crash.h"],
+    deps = ["//tachyon/build:build_config"],
+)
+
+tachyon_cc_library(
+    name = "logging",
+    srcs = ["logging.cc"],
+    hdrs = ["logging.h"],
+    deps = [
+        "//tachyon:export",
+        "@com_github_google_glog//:glog",
+    ],
+)
+
+tachyon_cc_library(
+    name = "macro_utils",
+    hdrs = ["macro_utils.h"],
+    deps = ["//tachyon/build:build_config"],
+)
+
+tachyon_cc_library(
+    name = "no_destructor",
+    hdrs = ["no_destructor.h"],
+)
+
+tachyon_cc_library(
+    name = "random",
+    srcs = ["random.cc"],
+    hdrs = ["random.h"],
+    deps = [
+        "//tachyon:export",
+        "@com_google_absl//absl/random",
+    ],
+)
+
+tachyon_cc_library(
+    name = "scoped_generic",
+    hdrs = ["scoped_generic.h"],
+    deps = [":logging"],
+)
+
+tachyon_cc_library(
+    name = "static_storage",
+    hdrs = ["static_storage.h"],
+    deps = [":no_destructor"],
+)
+
+tachyon_cc_library(
+    name = "template_util",
+    hdrs = ["template_util.h"],
+)
+
+tachyon_cc_library(
+    name = "type_list",
+    hdrs = ["type_list.h"],
+)
+
+tachyon_cc_test(
+    name = "base_unittests",
+    srcs = [
+        "bit_cast_unittest.cc",
+        "bits_unittest.cc",
+        "cxx20_is_constant_evaluated_unittest.cc",
+        "environment_unittest.cc",
+        "macro_utils_unittest.cc",
+        "random_unittest.cc",
+        "scoped_generic_unittest.cc",
+    ],
+    deps = [
+        ":bit_cast",
+        ":bits",
+        ":cxx20_is_constant_evaluated",
+        ":environment",
+        ":macro_utils",
+        ":random",
+        ":scoped_generic",
+        "//tachyon/base/containers:contains",
+        "//tachyon/base/containers:cxx20_erase",
+    ],
+)

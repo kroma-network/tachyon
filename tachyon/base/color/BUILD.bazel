@@ -1,0 +1,37 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "color",
+    srcs = ["color.cc"],
+    hdrs = [
+        "color.h",
+        "named_color.h",
+    ],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/strings:string_util",
+        "@com_google_absl//absl/strings:str_format",
+    ],
+)
+
+tachyon_cc_library(
+    name = "color_conversions",
+    srcs = ["color_conversions.cc"],
+    hdrs = ["color_conversions.h"],
+    deps = [":color"],
+)
+
+tachyon_cc_test(
+    name = "color_unittests",
+    srcs = [
+        "color_conversions_unittest.cc",
+        "color_unittest.cc",
+    ],
+    deps = [
+        ":color",
+        ":color_conversions",
+    ],
+)

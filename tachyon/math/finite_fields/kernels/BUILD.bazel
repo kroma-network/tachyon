@@ -1,0 +1,26 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cuda_library(
+    name = "carry_chain",
+    hdrs = ["carry_chain.cu.h"],
+    deps = [":prime_field_ops_internal"],
+)
+
+tachyon_cuda_library(
+    name = "prime_field_ops",
+    hdrs = ["prime_field_ops.cu.h"],
+    deps = ["//tachyon/math/finite_fields:prime_field_cuda"],
+)
+
+tachyon_cuda_library(
+    name = "prime_field_ops_internal",
+    hdrs = ["prime_field_ops_internal.cu.h"],
+    deps = [
+        "//tachyon/base:compiler_specific",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cuda_headers",
+    ]),
+)

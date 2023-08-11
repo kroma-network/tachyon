@@ -1,0 +1,71 @@
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load("@cxx.rs//tools/bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_rust.bzl", "tachyon_rust_library", "tachyon_rust_test")
+
+FEATUERS = if_gpu_is_configured(["gpu"])
+
+tachyon_rust_library(
+    name = "halo2",
+    srcs = glob(["src/**/*.rs"]),
+    aliases = aliases(),
+    crate_features = FEATUERS,
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    deps = all_crate_deps(normal = True) + [
+        ":bridge",
+        ":msm",
+        ":msm_gpu",
+    ],
+)
+
+rust_cxx_bridge(
+    name = "bridge",
+    src = "src/lib.rs",
+    args = if_gpu_is_configured([
+        '--cfg=feature="gpu"',
+    ]),
+    out_dir = "tachyon_halo2",
+    deps = [":msm_include"],
+)
+
+tachyon_cc_library(
+    name = "msm",
+    srcs = ["src/msm.cc"],
+    deps = [
+        ":bridge/include",
+        ":msm_include",
+        "//tachyon/c/math/elliptic_curves/msm",
+    ],
+)
+
+tachyon_cc_library(
+    name = "msm_gpu",
+    srcs = if_gpu_is_configured(["src/msm_gpu.cc"]),
+    deps = [
+        ":bridge/include",
+        ":msm_include",
+        "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
+    ],
+)
+
+tachyon_cc_library(
+    name = "msm_include",
+    hdrs = ["include/msm.h"],
+    include_prefix = "tachyon_halo2",
+    deps = ["@cxx.rs//:core"],
+)
+
+tachyon_rust_test(
+    name = "halo2_test",
+    aliases = aliases(),
+    crate = ":halo2",
+    crate_features = FEATUERS,
+    proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+    deps = all_crate_deps(normal_dev = True) + [
+        "@local_config_gmp//:gmp",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)

@@ -1,0 +1,48 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon.bzl", "if_has_matplotlib")
+load("//bazel:tachyon_cc.bzl", "tachyon_cuda_binary", "tachyon_matplotlib_defines")
+
+tachyon_cuda_binary(
+    name = "ec_double_benchmark",
+    srcs = ["ec_double_benchmark.cu.cc"],
+    local_defines = tachyon_matplotlib_defines(),
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/console:table_writer",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/base/ranges:algorithm",
+        "//tachyon/base/time:time_interval",
+        "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu/cuda:scoped_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/short_weierstrass/kernels:elliptic_curve_ops",
+    ] + if_has_matplotlib([
+        "@com_github_soblin_matplotlibcpp17//:matplotlibcpp17",
+    ]) + if_cuda([
+        "@local_config_cuda//cuda:cuda_headers",
+    ]),
+)
+
+tachyon_cuda_binary(
+    name = "msm_benchmark",
+    srcs = ["msm_benchmark.cu.cc"],
+    local_defines = tachyon_matplotlib_defines(),
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/console:table_writer",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/base/ranges:algorithm",
+        "//tachyon/base/time:time_interval",
+        "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_memory",
+        "//tachyon/device/gpu/cuda:scoped_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm_cuda",
+    ] + if_has_matplotlib([
+        "@com_github_soblin_matplotlibcpp17//:matplotlibcpp17",
+    ]) + if_cuda([
+        "@local_config_cuda//cuda:cuda_headers",
+    ]),
+)

@@ -1,0 +1,43 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "bn254_hdrs",
+    srcs = [
+        "fq.h",
+        "fr.h",
+        "g1.h",
+        "point2.h",
+    ],
+)
+
+tachyon_cc_library(
+    name = "fq",
+    hdrs = ["fq.h"],
+    deps = ["//tachyon/c:export"],
+)
+
+tachyon_cc_library(
+    name = "fr",
+    hdrs = ["fr.h"],
+    deps = ["//tachyon/c:export"],
+)
+
+tachyon_cc_library(
+    name = "g1",
+    hdrs = ["g1.h"],
+    deps = [":fq"],
+)
+
+tachyon_cc_library(
+    name = "point2",
+    hdrs = ["point2.h"],
+    deps = [":fq"],
+)
+
+tachyon_cc_library(
+    name = "point3",
+    hdrs = ["point3.h"],
+    deps = [":fq"],
+)

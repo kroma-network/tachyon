@@ -1,0 +1,122 @@
+<type>(<scope>): <summary>
+# ──────────────────────────────── 80 chars ───────────────────────────────────┤
+
+<Describe the motivation behind this change - explain WHY you are making this
+change. Wrap all lines at 80 characters.>
+
+See #<reference>
+
+Resolves: #<issue number>
+Related: #<issue number>
+
+# ──────────────────────────────── 80 chars ───────────────────────────────────┤
+
+
+# Example Commit Messages
+# =======================
+
+
+# ─── Example: Simple refactor ────────────────────────────────────────────────┤
+# refac: remove system dictator
+#
+# Since the owner of all contracts in this system is ProxyAdmin, SystemDictator
+# is no longer necessary. Additionally, the deployment scripts have been
+# modified to update the proxy when deploying implementation contracts.
+#
+# Resolves: #36332
+# ─────────────────────────────────────────────────────────────────────────────┤
+
+
+# ─── Example: Simple docs change ─────────────────────────────────────────────┤
+# docs: update commit message format
+# ─────────────────────────────────────────────────────────────────────────────┤
+
+
+# ─── Example: A bug fix ──────────────────────────────────────────────────────┤
+# fix(trie): use hash once on account to compute path
+#
+# Path must be computed using poseidon hash once. But, by mistake, it
+# was computed using twice.
+# ─────────────────────────────────────────────────────────────────────────────┤
+
+# ─── Example: A feature ──────────────────────────────────────────────────────┤
+# feat!: use keccak256 for codehash
+#
+# BREAKING CHANGE: Previously, codehash was calculated using poseidon.
+# So the state root since this commit will be produced differently.
+#
+# See belows for details.
+#
+# - https://eips.ethereum.org/EIPS/eip-1052
+# - https://github.com/scroll-tech/go-ethereum/pull/188
+# ─────────────────────────────────────────────────────────────────────────────┤
+
+# Commit Message Format
+# =====================
+#
+# We have very precise rules over how our Git commit messages must be formatted.
+# This format leads to easier to read commit history.
+#
+# Each commit message consists of a header, a body, and a footer.
+#
+# <header>
+# <BLANK LINE>
+# <body>
+# <BLANK LINE>
+# <footer>
+#
+# The header is mandatory.
+#
+# The body is mandatory for all commits except for those of type “docs”. When
+# the body is present it must be at least 20 characters long.
+#
+# The footer is optional.
+#
+# Any line of the commit message cannot be longer than 80 characters.
+#
+# Commit Message Header
+# ---------------------
+#
+# ```
+# <type>(<scope>): <short summary>
+#   │       │             │
+#   │       │             └─⫸ Summary in present tense. Not capitalized.
+#   │       │                 No period at the end.
+#   │       │
+#   │       └─⫸ Commit Scope: base|benchmark|build|device|examples|halo2|
+#   │                         math
+#   │
+#   │
+#   └─⫸ Commit Type: build|chore|ci|docs|feat|fix|perf|refac|test
+# ```
+#
+# Commit Message Body
+# -------------------
+#
+# Just as in the summary, use the imperative, present tense: “fix” not “fixed”
+# nor “fixes”.
+#
+# Explain the motivation for the change in the commit message body. This commit
+# message should explain why you are making the change. You can include a
+# comparison of the previous behavior with the new behavior in order to
+# illustrate the impact of the change.
+#
+# Commit Message Footer
+# ---------------------
+#
+# The footer can contain information about usage and is also the place to
+# reference GitHub issues, yona links, and other PRs that this commit closes or
+# is related to.
+#
+# ```
+# USAGE: <usage summary>
+# <BLANK LINE>
+# <usage description + instruction example>
+# <BLANK LINE>
+# See #<reference>
+# <BLANK LINE>
+# Resolves|Related #<issue number>
+# ```
+#
+# USAGE section should start with the phrase “USAGE: ” followed by a summary of
+# the usage summary, a blank line, and a detailed description of the usage.

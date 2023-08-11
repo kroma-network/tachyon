@@ -1,0 +1,55 @@
+load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
+load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
+
+package(default_visibility = ["//visibility:public"])
+
+# Parameters are from https://zips.z.cash/protocol/protocol.pdf#page=98
+# Hex: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+FQ_MODULUS = "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787"
+
+# Hex: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
+FR_MODULUS = "52435875175126190479447740508185965837690552500527637822603658699938581184513"
+
+generate_prime_fields(
+    name = "fq",
+    class_name = "Fq",
+    modulus = FQ_MODULUS,
+    namespace = "tachyon::math::bls12_381",
+)
+
+generate_prime_fields(
+    name = "fr",
+    class_name = "Fr",
+    modulus = FR_MODULUS,
+    namespace = "tachyon::math::bls12_381",
+)
+
+generate_ec_points(
+    name = "g1",
+    a = "0",
+    b = "4",
+    class_name = "G1",
+    # Hex: 0x5f19672fdf76ce51ba69c6076a0f77eaddb3a93be6f89688de17d813620a00022e01fffffffefffe
+    endomorphism_coefficient = "793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350",
+    fq_modulus = FQ_MODULUS,
+    fr_modulus = FR_MODULUS,
+    # Optimal decomposition as per Ch. 6.3.2: Decompositions for the k = 12 BLS
+    # Family, from Guide to Pairing Based Cryptography by El Mrabet
+    glv_coeffs = [
+        # X²
+        # Hex: 0xac45a4010001a4020000000100000000
+        "228988810152649578064853576960394133504",
+        "1",
+        "-1",
+        # X² - 1
+        # Hex: 0xac45a4010001a40200000000ffffffff
+        "228988810152649578064853576960394133503",
+    ],
+    # Hex: 0x73eda753299d7d483339d80809a1d804a7780001fffcb7fcfffffffe00000001
+    lambda_ = "52435875175126190479447740508185965837461563690374988244538805122978187051009",
+    namespace = "tachyon::math::bls12_381",
+    # Hex: 0x17f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb
+    x = "3685416753713387016781088315183077757961620795782546409894578378688607592378376318836054947676345821548104185464507",
+    # Hex: 0x8b3f481e3aaa0f1a09e30ed741d8ae4fcf5e095d5d00af600db18cb2c04b3edd03cc744a2888ae40caa232946c5e7e1
+    y = "1339506544944476473020471379941921221584933875938349620426543736416511423956333506472724655353366534992391756441569",
+)

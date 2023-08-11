@@ -1,0 +1,72 @@
+load("//bazel:tachyon.bzl", "if_gmp_backend", "if_gpu_is_configured")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+    "tachyon_cuda_library",
+    "tachyon_cuda_test",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "glv",
+    hdrs = ["glv.h"],
+    deps = [
+        "//tachyon/base:static_storage",
+        "//tachyon/math/base:bit_iterator",
+        "//tachyon/math/base/gmp:bit_traits",
+        "//tachyon/math/base/gmp:gmp_identities",
+        "//tachyon/math/base/gmp:signed_value",
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/matrix",
+    ],
+)
+
+tachyon_cc_library(
+    name = "variable_base_msm",
+    hdrs = [
+        "msm_util.h",
+        "variable_base_msm.h",
+    ],
+    deps = [
+        "//tachyon/base:template_util",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:container_util",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cuda_library(
+    name = "variable_base_msm_cuda",
+    hdrs = ["variable_base_msm_cuda.cu.h"],
+    deps = ["//tachyon/math/elliptic_curves/msm/kernels"],
+)
+
+tachyon_cc_test(
+    name = "msm_unittests",
+    srcs = [
+        "variable_base_msm_unittest.cc",
+    ] + if_gmp_backend([
+        "glv_unittest.cc",
+    ]),
+    deps = [
+        ":glv",
+        ":variable_base_msm",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
+        "//tachyon/math/elliptic_curves/short_weierstrass/test:curve_config",
+    ],
+)
+
+tachyon_cuda_test(
+    name = "msm_cuda_unittests",
+    srcs = if_gpu_is_configured(["variable_base_msm_cuda_unittest.cu.cc"]),
+    deps = [
+        ":variable_base_msm",
+        ":variable_base_msm_cuda",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+    ],
+)

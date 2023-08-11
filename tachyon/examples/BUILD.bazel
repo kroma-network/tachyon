@@ -1,0 +1,27 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_binary",
+    "tachyon_cuda_binary",
+)
+
+tachyon_cuda_binary(
+    name = "cuda_example",
+    srcs = ["cuda_example.cu.cc"],
+    deps = if_cuda(
+        [
+            "@local_config_cuda//cuda:cuda_headers",
+        ],
+        [
+            "//tachyon/base/console",
+        ],
+    ),
+)
+
+tachyon_cc_binary(
+    name = "version",
+    srcs = ["version.cc"],
+    deps = [
+        "//tachyon:version",
+    ],
+)

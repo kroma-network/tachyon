@@ -1,0 +1,20 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_objc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_objc_library(
+    name = "bridging",
+    hdrs = ["bridging.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/mac:scoped_cftyperef",
+        "//tachyon/base/types:always_false",
+    ],
+)
+
+tachyon_objc_library(
+    name = "bundle_locations",
+    srcs = ["bundle_locations.mm"],
+    hdrs = ["bundle_locations.h"],
+    deps = ["//tachyon/base/files:file_path"],
+)

@@ -1,0 +1,33 @@
+[package]
+name = "tachyon_halo2"
+version = "0.0.1"
+authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
+edition = "2021"
+rust-version = "1.56.1"
+description = """
+Halo2 KZG commitment based on tachyon
+"""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/kroma-network/tachyon"
+documentation = "https://docs.rs/tachyon_halo2"
+readme = "README.md"
+categories = ["cryptography"]
+keywords = ["tachyon", "halo", "proofs", "zkp", "zkSNARKs"]
+publish = false
+
+[dependencies]
+cxx = "1.0"
+halo2_proofs = { git = "https://github.com/kroma-network/halo2.git", rev = "9922fbb" }
+halo2curves = { git = "https://github.com/kroma-network/halo2curves.git", rev = "c0ac193" }
+
+[dev-dependencies]
+rand_core = { version = "0.6", default-features = false, features = [
+    "getrandom",
+] }
+
+[build-dependencies]
+cxx-build = "1.0"
+
+[features]
+default = []
+gpu = []

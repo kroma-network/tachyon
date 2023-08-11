@@ -1,0 +1,96 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "adapters",
+    hdrs = ["adapters.h"],
+)
+
+tachyon_cc_library(
+    name = "circular_deque",
+    hdrs = ["circular_deque.h"],
+    deps = [
+        ":vector_buffer",
+        "//tachyon/base:template_util",
+        "//tachyon/base/ranges:algorithm",
+    ],
+)
+
+tachyon_cc_library(
+    name = "container_util",
+    hdrs = ["container_util.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/functional:function_ref",
+    ],
+)
+
+tachyon_cc_library(
+    name = "contains",
+    hdrs = ["contains.h"],
+    deps = [
+        "//tachyon/base/ranges",
+        "//tachyon/base/ranges:algorithm",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cxx20_erase",
+    hdrs = [
+        "cxx20_erase.h",
+        "cxx20_erase_deque.h",
+        "cxx20_erase_forward_list.h",
+        "cxx20_erase_internal.h",
+        "cxx20_erase_list.h",
+        "cxx20_erase_map.h",
+        "cxx20_erase_set.h",
+        "cxx20_erase_string.h",
+        "cxx20_erase_unordered_map.h",
+        "cxx20_erase_unordered_set.h",
+        "cxx20_erase_vector.h",
+    ],
+)
+
+tachyon_cc_library(
+    name = "stack",
+    hdrs = ["stack.h"],
+    deps = [":circular_deque"],
+)
+
+tachyon_cc_library(
+    name = "util",
+    hdrs = ["util.h"],
+)
+
+tachyon_cc_library(
+    name = "vector_buffer",
+    hdrs = ["vector_buffer.h"],
+    deps = [
+        ":util",
+        "//tachyon/base:logging",
+        "//tachyon/base/numerics:checked_math",
+    ],
+)
+
+tachyon_cc_test(
+    name = "containers_unittests",
+    srcs = [
+        "adapters_unittest.cc",
+        "circular_deque_unittest.cc",
+        "container_util_unittest.cc",
+        "contains_unittest.cc",
+        "vector_buffer_unittest.cc",
+    ],
+    deps = [
+        ":adapters",
+        ":circular_deque",
+        ":container_util",
+        ":contains",
+        ":vector_buffer",
+        "//tachyon/base/functional:identity",
+        "//tachyon/base/test:copy_only_int",
+        "//tachyon/base/test:move_only_int",
+        "@com_google_absl//absl/container:flat_hash_set",
+    ],
+)

@@ -1,0 +1,16 @@
+load("//bazel:tachyon.bzl", "if_posix")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "process_handle",
+    srcs = ["process_handle.cc"] + if_posix([
+        "process_handle_posix.cc",
+    ]),
+    hdrs = ["process_handle.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/build:build_config",
+    ],
+)
