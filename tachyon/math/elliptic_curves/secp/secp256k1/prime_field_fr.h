@@ -10,7 +10,7 @@
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
-#include "tachyon/math/finite_fields/prime_field_traits.h"
+#include "tachyon/math/finite_fields/prime_field_forward.h"
 
 extern "C" void Fnec_rawAdd(uint64_t result[4], const uint64_t a[4],
                             const uint64_t b[4]);
