@@ -162,30 +162,24 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
   if (!dry_run) {
     ScopedEvent execution_started_event =
         CreateEventWithFlags(gpuEventDisableTiming);
-    error = gpuEventRecord(execution_started_event.get(), stream);
-    if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-      return error;
-    }
+    RETURN_AND_LOG_IF_GPU_ERROR(
+        gpuEventRecord(execution_started_event.get(), stream),
+        "Failed to gpuEventRecord()");
 
     if (copy_scalars) {
       stream_copy_scalars = CreateStream();
-      error = gpuStreamWaitEvent(stream_copy_scalars.get(),
-                                 execution_started_event.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-        return error;
-      }
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          gpuStreamWaitEvent(stream_copy_scalars.get(),
+                             execution_started_event.get()),
+          "Failed to gpuStreamWaitEvent()");
     }
 
     if (copy_bases) {
       stream_copy_bases = CreateStream();
-      error = gpuStreamWaitEvent(stream_copy_bases.get(),
-                                 execution_started_event.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-        return error;
-      }
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          gpuStreamWaitEvent(stream_copy_bases.get(),
+                             execution_started_event.get()),
+          "Failed to gpuStreamWaitEvent()");
     }
 
     if (copy_scalars || copy_bases) {
@@ -193,20 +187,14 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     }
 
     stream_sort_a = CreateStream();
-    error =
-        gpuStreamWaitEvent(stream_sort_a.get(), execution_started_event.get());
-    if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-      return error;
-    }
+    RETURN_AND_LOG_IF_GPU_ERROR(
+        gpuStreamWaitEvent(stream_sort_a.get(), execution_started_event.get()),
+        "Failed to gpuStreamWaitEvent()");
 
     stream_sort_b = CreateStream();
-    error =
-        gpuStreamWaitEvent(stream_sort_b.get(), execution_started_event.get());
-    if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-      return error;
-    }
+    RETURN_AND_LOG_IF_GPU_ERROR(
+        gpuStreamWaitEvent(stream_sort_b.get(), execution_started_event.get()),
+        "Failed to gpuStreamWaitEvent()");
   }
 
   ScopedAsyncMemory<PointXYZZ<Curve>> buckets_pass_one =
@@ -244,95 +232,70 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     if (!dry_run) {
       if (is_first_loop &&
           (config.scalars_attributes.type == cudaMemoryTypeUnregistered ||
-           config.bases_attributes.type == cudaMemoryTypeUnregistered))
+           config.bases_attributes.type == cudaMemoryTypeUnregistered)) {
         error = InitializeBuckets(buckets_pass_one.get(),
                                   buckets_count_pass_one, stream);
-      if (error != gpuSuccess) return error;
+        if (UNLIKELY(error != gpuSuccess)) return error;
+      }
       if (copy_scalars) {
-        error = gpuStreamWaitEvent(stream_copy_scalars.get(),
-                                   event_scalars_free.get());
-        if (error != gpuSuccess) {
-          GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-          return error;
-        }
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            gpuStreamWaitEvent(stream_copy_scalars.get(),
+                               event_scalars_free.get()),
+            "Failed to gpuStreamWaitEvent()");
         const size_t inputs_size = sizeof(ScalarField) << log_inputs_count;
-        error = cudaMemcpyAsync(
-            inputs_scalars.get(), ec.scalars + inputs_offset, inputs_size,
-            gpuMemcpyHostToDevice, stream_copy_scalars.get());
-        if (error != gpuSuccess) {
-          GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-          return error;
-        }
-        error = gpuEventRecord(event_scalars_loaded.get(),
-                               stream_copy_scalars.get());
-        if (error != gpuSuccess) {
-          GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-          return error;
-        }
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            cudaMemcpyAsync(inputs_scalars.get(), ec.scalars + inputs_offset,
+                            inputs_size, gpuMemcpyHostToDevice,
+                            stream_copy_scalars.get()),
+            "Failed to cudaMemcpyAsync()");
+        RETURN_AND_LOG_IF_GPU_ERROR(gpuEventRecord(event_scalars_loaded.get(),
+                                                   stream_copy_scalars.get()),
+                                    "Failed to gpuEventRecord()");
       }
       if (copy_bases) {
         if (copy_scalars) {
-          error = gpuStreamWaitEvent(stream_copy_bases.get(),
-                                     event_scalars_loaded.get());
-          if (error != gpuSuccess) {
-            GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-            return error;
-          }
+          RETURN_AND_LOG_IF_GPU_ERROR(
+              gpuStreamWaitEvent(stream_copy_bases.get(),
+                                 event_scalars_loaded.get()),
+              "Failed to gpuStreamWaitEvent()");
         }
-        error =
-            gpuStreamWaitEvent(stream_copy_bases.get(), event_bases_free.get());
-        if (error != gpuSuccess) {
-          GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-          return error;
-        }
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            gpuStreamWaitEvent(stream_copy_bases.get(), event_bases_free.get()),
+            "Failed to gpuStreamWaitEvent()");
         size_t bases_size = sizeof(AffinePoint<Curve>) << log_inputs_count;
-        error = cudaMemcpyAsync(inputs_bases.get(), ec.bases + inputs_offset,
-                                bases_size, gpuMemcpyHostToDevice,
-                                stream_copy_bases.get());
-        if (error != gpuSuccess) {
-          GPU_LOG(ERROR, error) << "Failed to cudaMemcpyAsync()";
-          return error;
-        }
-        error =
-            gpuEventRecord(event_bases_loaded.get(), stream_copy_bases.get());
-        if (error != gpuSuccess) {
-          GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-          return error;
-        }
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            cudaMemcpyAsync(inputs_bases.get(), ec.bases + inputs_offset,
+                            bases_size, gpuMemcpyHostToDevice,
+                            stream_copy_bases.get()),
+            "Failed to cudaMemcpyAsync()");
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            gpuEventRecord(event_bases_loaded.get(), stream_copy_bases.get()),
+            "Failed to gpuEventRecord()");
       }
       if (is_last_loop && (copy_bases || copy_scalars)) {
         if (copy_scalars) {
-          error = gpuStreamWaitEvent(stream_copy_finished.get(),
-                                     event_scalars_loaded.get());
-          if (error != gpuSuccess) {
-            GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-            return error;
-          }
+          RETURN_AND_LOG_IF_GPU_ERROR(
+              gpuStreamWaitEvent(stream_copy_finished.get(),
+                                 event_scalars_loaded.get()),
+              "Failed to gpuStreamWaitEvent()");
         }
         if (copy_bases) {
-          error = gpuStreamWaitEvent(stream_copy_finished.get(),
-                                     event_bases_loaded.get());
-          if (error != gpuSuccess) {
-            GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-            return error;
-          }
+          RETURN_AND_LOG_IF_GPU_ERROR(
+              gpuStreamWaitEvent(stream_copy_finished.get(),
+                                 event_bases_loaded.get()),
+              "Failed to gpuStreamWaitEvent()");
         }
         if (ec.h2d_copy_finished) {
-          error =
-              gpuEventRecord(ec.h2d_copy_finished, stream_copy_finished.get());
-          if (error != gpuSuccess) {
-            GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-            return error;
-          }
+          RETURN_AND_LOG_IF_GPU_ERROR(
+              gpuEventRecord(ec.h2d_copy_finished, stream_copy_finished.get()),
+              "Failed to gpuEventRecord()");
         }
         if (ec.h2d_copy_finished_callback) {
-          error = cudaLaunchHostFunc(stream_copy_finished.get(),
-                                     ec.h2d_copy_finished_callback,
-                                     ec.h2d_copy_finished_callback_data);
-          if (error != gpuSuccess) {
-            GPU_LOG(ERROR, error) << "Failed to cudaLaunchHostFunc()";
-            return error;
-          }
+          RETURN_AND_LOG_IF_GPU_ERROR(
+              cudaLaunchHostFunc(stream_copy_finished.get(),
+                                 ec.h2d_copy_finished_callback,
+                                 ec.h2d_copy_finished_callback_data),
+              "Failed to cudaLaunchHostFunc()");
         }
       }
       if (is_first_loop &&
@@ -340,7 +303,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           config.bases_attributes.type != cudaMemoryTypeUnregistered) {
         error = InitializeBuckets(buckets_pass_one.get(),
                                   buckets_count_pass_one, stream);
-        if (error != gpuSuccess) return error;
+        if (UNLIKELY(error != gpuSuccess)) return error;
       }
     }
 
@@ -353,19 +316,20 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
                                           pool, stream);
     if (!dry_run) {
       if (copy_scalars) {
-        error = gpuStreamWaitEvent(stream, event_scalars_loaded.get());
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            gpuStreamWaitEvent(stream, event_scalars_loaded.get()),
+            "Failed to gpuStreamWaitEvent()");
       }
       error = ComputeBucketIndexes(
           copy_scalars ? inputs_scalars.get() : ec.scalars + inputs_offset,
           windows_count_pass_one, bits_count_pass_one,
           bucket_indexes.get() + inputs_count,
           base_indexes.get() + inputs_count, inputs_count, stream);
-      if (error != gpuSuccess) return error;
-      if (copy_scalars)
-        error = gpuEventRecord(event_scalars_free.get(), stream);
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-        return error;
+      if (UNLIKELY(error != gpuSuccess)) return error;
+      if (copy_scalars) {
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            gpuEventRecord(event_scalars_free.get(), stream),
+            "Failed to gpuEventRecord()");
       }
     }
 
@@ -376,33 +340,29 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     // sort base indexes by bucket indexes
     ScopedAsyncMemory<uint8_t> input_indexes_sort_temp_storage;
     size_t input_indexes_sort_temp_storage_bytes = 0;
-    error = cub::DeviceRadixSort::SortPairs(
-        input_indexes_sort_temp_storage.get(),
-        input_indexes_sort_temp_storage_bytes,
-        bucket_indexes.get() + inputs_count, bucket_indexes.get(),
-        base_indexes.get() + inputs_count, base_indexes.get(), inputs_count, 0,
-        bits_count_pass_one);
-    if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to cub::DeviceRadixSort::SortPairs()";
-      return error;
-    }
+    RETURN_AND_LOG_IF_GPU_ERROR(
+        cub::DeviceRadixSort::SortPairs(
+            input_indexes_sort_temp_storage.get(),
+            input_indexes_sort_temp_storage_bytes,
+            bucket_indexes.get() + inputs_count, bucket_indexes.get(),
+            base_indexes.get() + inputs_count, base_indexes.get(), inputs_count,
+            0, bits_count_pass_one),
+        "Failed to cub::DeviceRadixSort::SortPairs()");
     input_indexes_sort_temp_storage = MallocFromPoolAsync<uint8_t>(
         input_indexes_sort_temp_storage_bytes, pool, stream);
     if (!dry_run) {
       for (unsigned int i = 0; i < windows_count_pass_one; ++i) {
         unsigned int offset_out = i * inputs_count;
         unsigned int offset_in = offset_out + inputs_count;
-        error = cub::DeviceRadixSort::SortPairs(
-            input_indexes_sort_temp_storage.get(),
-            input_indexes_sort_temp_storage_bytes,
-            bucket_indexes.get() + offset_in, bucket_indexes.get() + offset_out,
-            base_indexes.get() + offset_in, base_indexes.get() + offset_out,
-            inputs_count, 0, bits_count_pass_one, stream);
-        if (error != gpuSuccess) {
-          GPU_LOG(ERROR, error)
-              << "Failed to cub::DeviceRadixSort::SortPairs()";
-          return error;
-        }
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            cub::DeviceRadixSort::SortPairs(
+                input_indexes_sort_temp_storage.get(),
+                input_indexes_sort_temp_storage_bytes,
+                bucket_indexes.get() + offset_in,
+                bucket_indexes.get() + offset_out,
+                base_indexes.get() + offset_in, base_indexes.get() + offset_out,
+                inputs_count, 0, bits_count_pass_one, stream),
+            "Failed to cub::DeviceRadixSort::SortPairs()");
       }
     }
     input_indexes_sort_temp_storage.reset(stream);
@@ -418,27 +378,23 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
         MallocFromPoolAsync<unsigned int>(1, pool, stream);
     ScopedAsyncMemory<uint8_t> encode_temp_storage;
     size_t encode_temp_storage_bytes = 0;
-    error = cub::DeviceRunLengthEncode::Encode(
-        encode_temp_storage.get(), encode_temp_storage_bytes,
-        bucket_indexes.get(), unique_bucket_indexes.get(),
-        bucket_run_lengths.get(), bucket_runs_count.get(), input_indexes_count);
-    if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to cub::DeviceRunLengthEncode::Encode()";
-      return error;
-    }
+    RETURN_AND_LOG_IF_GPU_ERROR(
+        cub::DeviceRunLengthEncode::Encode(
+            encode_temp_storage.get(), encode_temp_storage_bytes,
+            bucket_indexes.get(), unique_bucket_indexes.get(),
+            bucket_run_lengths.get(), bucket_runs_count.get(),
+            input_indexes_count),
+        "Failed to cub::DeviceRunLengthEncode::Encode()");
     encode_temp_storage =
         MallocFromPoolAsync<uint8_t>(encode_temp_storage_bytes, pool, stream);
     if (!dry_run) {
-      error = cub::DeviceRunLengthEncode::Encode(
-          encode_temp_storage.get(), encode_temp_storage_bytes,
-          bucket_indexes.get(), unique_bucket_indexes.get(),
-          bucket_run_lengths.get(), bucket_runs_count.get(),
-          input_indexes_count, stream);
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error)
-            << "Failed to cub::DeviceRunLengthEncode::Encode()";
-        return error;
-      }
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          cub::DeviceRunLengthEncode::Encode(
+              encode_temp_storage.get(), encode_temp_storage_bytes,
+              bucket_indexes.get(), unique_bucket_indexes.get(),
+              bucket_run_lengths.get(), bucket_runs_count.get(),
+              input_indexes_count, stream),
+          "Failed to cub::DeviceRunLengthEncode::Encode()");
     }
     encode_temp_storage.reset(stream);
     bucket_indexes.reset(stream);
@@ -449,25 +405,21 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
                                           stream);
     ScopedAsyncMemory<uint8_t> scan_temp_storage;
     size_t scan_temp_storage_bytes = 0;
-    error = cub::DeviceScan::ExclusiveSum(
-        scan_temp_storage.get(), scan_temp_storage_bytes,
-        bucket_run_lengths.get(), bucket_run_offsets.get(),
-        extended_buckets_count_pass_one);
-    if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error) << "Failed to cub::DeviceScan::ExclusiveSum()";
-      return error;
-    }
+    RETURN_AND_LOG_IF_GPU_ERROR(
+        cub::DeviceScan::ExclusiveSum(
+            scan_temp_storage.get(), scan_temp_storage_bytes,
+            bucket_run_lengths.get(), bucket_run_offsets.get(),
+            extended_buckets_count_pass_one),
+        "Failed to cub::DeviceScan::ExclusiveSum()");
     scan_temp_storage =
         MallocFromPoolAsync<uint8_t>(scan_temp_storage_bytes, pool, stream);
     if (!dry_run) {
-      error = cub::DeviceScan::ExclusiveSum(
-          scan_temp_storage.get(), scan_temp_storage_bytes,
-          bucket_run_lengths.get(), bucket_run_offsets.get(),
-          extended_buckets_count_pass_one, stream);
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to cub::DeviceScan::ExclusiveSum()";
-        return error;
-      }
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          cub::DeviceScan::ExclusiveSum(
+              scan_temp_storage.get(), scan_temp_storage_bytes,
+              bucket_run_lengths.get(), bucket_run_offsets.get(),
+              extended_buckets_count_pass_one, stream),
+          "Failed to cub::DeviceScan::ExclusiveSum()");
     }
     scan_temp_storage.reset(stream);
 
@@ -475,7 +427,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       error = RemoveZeroBuckets(
           unique_bucket_indexes.get(), bucket_run_lengths.get(),
           bucket_runs_count.get(), extended_buckets_count_pass_one, stream);
-      if (error != gpuSuccess) return error;
+      if (UNLIKELY(error != gpuSuccess)) return error;
     }
     bucket_runs_count.reset(stream);
 
@@ -493,99 +445,73 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
 
     ScopedAsyncMemory<uint8_t> sort_offsets_temp_storage;
     size_t sort_offsets_temp_storage_bytes = 0;
-    error = cub::DeviceRadixSort::SortPairsDescending(
-        sort_offsets_temp_storage.get(), sort_offsets_temp_storage_bytes,
-        bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
-        bucket_run_offsets.get(), sorted_bucket_run_offsets.get(),
-        extended_buckets_count_pass_one, 0, log_inputs_count + 1);
-    if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error)
-          << "Failed to cub::DeviceRadixSort::SortPairsDescending()";
-      return error;
-    }
+    RETURN_AND_LOG_IF_GPU_ERROR(
+        cub::DeviceRadixSort::SortPairsDescending(
+            sort_offsets_temp_storage.get(), sort_offsets_temp_storage_bytes,
+            bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
+            bucket_run_offsets.get(), sorted_bucket_run_offsets.get(),
+            extended_buckets_count_pass_one, 0, log_inputs_count + 1),
+        "Failed to cub::DeviceRadixSort::SortPairsDescending()");
     sort_offsets_temp_storage = MallocFromPoolAsync<uint8_t>(
         sort_offsets_temp_storage_bytes, pool, stream);
 
     ScopedAsyncMemory<uint8_t> sort_indexes_temp_storage;
     size_t sort_indexes_temp_storage_bytes = 0;
-    error = cub::DeviceRadixSort::SortPairsDescending(
-        sort_indexes_temp_storage.get(), sort_indexes_temp_storage_bytes,
-        bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
-        unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
-        extended_buckets_count_pass_one, 0, log_inputs_count + 1);
-    if (error != gpuSuccess) {
-      GPU_LOG(ERROR, error)
-          << "Failed to cub::DeviceRadixSort::SortPairsDescending()";
-      return error;
-    }
+    RETURN_AND_LOG_IF_GPU_ERROR(
+        cub::DeviceRadixSort::SortPairsDescending(
+            sort_indexes_temp_storage.get(), sort_indexes_temp_storage_bytes,
+            bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
+            unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
+            extended_buckets_count_pass_one, 0, log_inputs_count + 1),
+        "Failed to cub::DeviceRadixSort::SortPairsDescending()");
     sort_indexes_temp_storage = MallocFromPoolAsync<uint8_t>(
         sort_indexes_temp_storage_bytes, pool, stream);
 
     if (!dry_run) {
       ScopedEvent event_sort_inputs_ready =
           CreateEventWithFlags(gpuEventDisableTiming);
-      error = gpuEventRecord(event_sort_inputs_ready.get(), stream);
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-        return error;
-      }
-      error = gpuStreamWaitEvent(stream_sort_a.get(),
-                                 event_sort_inputs_ready.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-        return error;
-      }
-      error = gpuStreamWaitEvent(stream_sort_b.get(),
-                                 event_sort_inputs_ready.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-        return error;
-      }
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          gpuEventRecord(event_sort_inputs_ready.get(), stream),
+          "Failed to gpuEventRecord()");
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          gpuStreamWaitEvent(stream_sort_a.get(),
+                             event_sort_inputs_ready.get()),
+          "Failed to gpuStreamWaitEvent()");
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          gpuStreamWaitEvent(stream_sort_b.get(),
+                             event_sort_inputs_ready.get()),
+          "Failed to gpuStreamWaitEvent()");
       event_sort_inputs_ready.reset();
-      error = cub::DeviceRadixSort::SortPairsDescending(
-          sort_offsets_temp_storage.get(), sort_offsets_temp_storage_bytes,
-          bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
-          bucket_run_offsets.get(), sorted_bucket_run_offsets.get(),
-          extended_buckets_count_pass_one, 0, log_inputs_count + 1,
-          stream_sort_a.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error)
-            << "Failed to cub::DeviceRadixSort::SortPairsDescending()";
-        return error;
-      }
-      error = cub::DeviceRadixSort::SortPairsDescending(
-          sort_indexes_temp_storage.get(), sort_indexes_temp_storage_bytes,
-          bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
-          unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
-          extended_buckets_count_pass_one, 0, log_inputs_count + 1,
-          stream_sort_b.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error)
-            << "Failed to cub::DeviceRadixSort::SortPairsDescending()";
-        return error;
-      }
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          cub::DeviceRadixSort::SortPairsDescending(
+              sort_offsets_temp_storage.get(), sort_offsets_temp_storage_bytes,
+              bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
+              bucket_run_offsets.get(), sorted_bucket_run_offsets.get(),
+              extended_buckets_count_pass_one, 0, log_inputs_count + 1,
+              stream_sort_a.get()),
+          "Failed to cub::DeviceRadixSort::SortPairsDescending()");
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          cub::DeviceRadixSort::SortPairsDescending(
+              sort_indexes_temp_storage.get(), sort_indexes_temp_storage_bytes,
+              bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
+              unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
+              extended_buckets_count_pass_one, 0, log_inputs_count + 1,
+              stream_sort_b.get()),
+          "Failed to cub::DeviceRadixSort::SortPairsDescending()");
       ScopedEvent event_sort_a = CreateEventWithFlags(gpuEventDisableTiming);
       ScopedEvent event_sort_b = CreateEventWithFlags(gpuEventDisableTiming);
-      error = gpuEventRecord(event_sort_a.get(), stream_sort_a.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-        return error;
-      }
-      error = gpuEventRecord(event_sort_b.get(), stream_sort_b.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-        return error;
-      }
-      error = gpuStreamWaitEvent(stream, event_sort_a.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-        return error;
-      }
-      error = gpuStreamWaitEvent(stream, event_sort_b.get());
-      if (error != gpuSuccess) {
-        GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-        return error;
-      }
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          gpuEventRecord(event_sort_a.get(), stream_sort_a.get()),
+          "Failed to gpuEventRecord()");
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          gpuEventRecord(event_sort_b.get(), stream_sort_b.get()),
+          "Failed to gpuEventRecord()");
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          gpuStreamWaitEvent(stream, event_sort_a.get()),
+          "Failed to gpuStreamWaitEvent()");
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          gpuStreamWaitEvent(stream, event_sort_b.get()),
+          "Failed to gpuStreamWaitEvent()");
     }
 
     sort_offsets_temp_storage.reset(stream);
@@ -597,24 +523,20 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     // aggregate buckets
     if (!dry_run) {
       if (copy_bases) {
-        error = gpuStreamWaitEvent(stream, event_bases_loaded.get());
-        if (error != gpuSuccess) {
-          GPU_LOG(ERROR, error) << "Failed to gpuStreamWaitEvent()";
-          return error;
-        }
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            gpuStreamWaitEvent(stream, event_bases_loaded.get()),
+            "Failed to gpuStreamWaitEvent()");
       }
       error = AggregateBuckets(
           is_first_loop, base_indexes.get(), sorted_bucket_run_offsets.get(),
           sorted_bucket_run_lengths.get(), sorted_unique_bucket_indexes.get(),
           copy_bases ? inputs_bases.get() : ec.bases + inputs_offset,
           buckets_pass_one.get(), buckets_count_pass_one, stream);
-      if (error != gpuSuccess) return error;
+      if (UNLIKELY(error != gpuSuccess)) return error;
       if (copy_bases) {
-        error = gpuEventRecord(event_bases_free.get(), stream);
-        if (error != gpuSuccess) {
-          GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-          return error;
-        }
+        RETURN_AND_LOG_IF_GPU_ERROR(
+            gpuEventRecord(event_bases_free.get(), stream),
+            "Failed to gpuEventRecord()");
       }
     }
     base_indexes.reset(stream);
@@ -663,17 +585,17 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
         error =
             ReduceBuckets(buckets_pass_one.get() + top_window_offset,
                           1 << (signed_bits_count_pass_one - i - 1), stream);
-        if (error != gpuSuccess) return error;
+        if (UNLIKELY(error != gpuSuccess)) return error;
       }
       error = InitializeBuckets(
           buckets_pass_one.get() + top_window_unused_buckets_offset,
           top_window_unused_buckets_count, stream);
-      if (error != gpuSuccess) return error;
+      if (UNLIKELY(error != gpuSuccess)) return error;
     }
     error = ExtractTopBuckets(buckets_pass_one.get(), top_buckets.get(),
                               signed_bits_count_pass_one,
                               windows_count_pass_one, stream);
-    if (error != gpuSuccess) return error;
+    if (UNLIKELY(error != gpuSuccess)) return error;
   }
 
   unsigned int source_bits_count = signed_bits_count_pass_one;
@@ -696,7 +618,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       error = SplitWindows(source_bits_count, source_windows_count,
                            source_buckets.get(), target_buckets.get(),
                            total_buckets_count, stream);
-      if (error != gpuSuccess) return error;
+      if (UNLIKELY(error != gpuSuccess)) return error;
     }
     source_buckets.reset(stream);
 
@@ -704,7 +626,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       for (unsigned int j = 0; j < log_data_split; ++j) {
         error = ReduceBuckets(target_buckets.get(),
                               total_buckets_count >> (j + 1), stream);
-        if (error != gpuSuccess) return error;
+        if (UNLIKELY(error != gpuSuccess)) return error;
       }
     }
     if (target_bits_count == 1) {
@@ -719,30 +641,24 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
                                top_buckets.get(),
                                copy_results ? results.get() : ec.results,
                                result_windows_count, stream);
-        if (error != gpuSuccess) return error;
+        if (UNLIKELY(error != gpuSuccess)) return error;
         if (copy_results) {
-          error = cudaMemcpyAsync(
-              ec.results, results.get(),
-              sizeof(JacobianPoint<Curve>) * result_windows_count,
-              gpuMemcpyDeviceToHost, stream);
-          if (error != gpuSuccess) {
-            GPU_LOG(ERROR, error) << "Failed to cudaMemcpyAsync()";
-            return error;
-          }
+          RETURN_AND_LOG_IF_GPU_ERROR(
+              cudaMemcpyAsync(
+                  ec.results, results.get(),
+                  sizeof(JacobianPoint<Curve>) * result_windows_count,
+                  gpuMemcpyDeviceToHost, stream),
+              "Failed to cudaMemcpyAsync()");
           if (ec.d2h_copy_finished) {
-            error = gpuEventRecord(ec.d2h_copy_finished, stream);
-            if (error != gpuSuccess) {
-              GPU_LOG(ERROR, error) << "Failed to gpuEventRecord()";
-              return error;
-            }
+            RETURN_AND_LOG_IF_GPU_ERROR(
+                gpuEventRecord(ec.d2h_copy_finished, stream),
+                "Failed to gpuEventRecord()");
           }
           if (ec.d2h_copy_finished_callback) {
-            error = cudaLaunchHostFunc(stream, ec.d2h_copy_finished_callback,
-                                       ec.d2h_copy_finished_callback_data);
-            if (error != gpuSuccess) {
-              GPU_LOG(ERROR, error) << "Failed to cudaLaunchHostFunc()";
-              return error;
-            }
+            RETURN_AND_LOG_IF_GPU_ERROR(
+                cudaLaunchHostFunc(stream, ec.d2h_copy_finished_callback,
+                                   ec.d2h_copy_finished_callback_data),
+                "Failed to cudaLaunchHostFunc()");
           }
         }
       }
@@ -763,36 +679,24 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
 template <typename Curve>
 gpuError_t ExecuteAsync(const ExecutionConfig<Curve>& config) {
   int device_id;
-  gpuError_t error = cudaGetDevice(&device_id);
-  if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to cudaGetDevice()";
-    return error;
-  }
+  RETURN_AND_LOG_IF_GPU_ERROR(cudaGetDevice(&device_id),
+                              "Failed to cudaGetDevice()");
   cudaDeviceProp props{};
-  error = cudaGetDeviceProperties(&props, device_id);
-  if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to cudaGetDeviceProperties()";
-    return error;
-  }
+  RETURN_AND_LOG_IF_GPU_ERROR(cudaGetDeviceProperties(&props, device_id),
+                              "Failed to cudaGetDeviceProperties()");
   unsigned int log_scalars_count = config.log_scalars_count;
   cudaPointerAttributes scalars_attributes{};
   cudaPointerAttributes bases_attributes{};
   cudaPointerAttributes results_attributes{};
-  error = cudaPointerGetAttributes(&scalars_attributes, config.scalars);
-  if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to cudaPointerGetAttributes()";
-    return error;
-  }
-  error = cudaPointerGetAttributes(&bases_attributes, config.bases);
-  if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to cudaPointerGetAttributes()";
-    return error;
-  }
-  error = cudaPointerGetAttributes(&results_attributes, config.results);
-  if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to cudaPointerGetAttributes()";
-    return error;
-  }
+  RETURN_AND_LOG_IF_GPU_ERROR(
+      cudaPointerGetAttributes(&scalars_attributes, config.scalars),
+      "Failed to cudaPointerGetAttributes()");
+  RETURN_AND_LOG_IF_GPU_ERROR(
+      cudaPointerGetAttributes(&bases_attributes, config.bases),
+      "Failed to cudaPointerGetAttributes()");
+  RETURN_AND_LOG_IF_GPU_ERROR(
+      cudaPointerGetAttributes(&results_attributes, config.results),
+      "Failed to cudaPointerGetAttributes()");
   bool copy_scalars = scalars_attributes.type == cudaMemoryTypeUnregistered ||
                       scalars_attributes.type == cudaMemoryTypeHost;
   unsigned int log_min_inputs_count =

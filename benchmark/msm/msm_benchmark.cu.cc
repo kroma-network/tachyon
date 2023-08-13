@@ -55,16 +55,16 @@ int RealMain(int argc, char** argv) {
     reporter.AddResult(duration.InSecondsF());
   }
 
-  gpuError_t error = gpuDeviceReset();
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
   gpuMemPoolProps props = {gpuMemAllocationTypePinned,
                            gpuMemHandleTypeNone,
                            {gpuMemLocationTypeDevice, 0}};
   gpu::ScopedMemPool mem_pool = gpu::CreateMemPool(&props);
   uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
-  error = gpuMemPoolSetAttribute(mem_pool.get(), gpuMemPoolAttrReleaseThreshold,
-                                 &mem_pool_threshold);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuMemPoolSetAttribute()";
+  GPU_MUST_SUCCESS(
+      gpuMemPoolSetAttribute(mem_pool.get(), gpuMemPoolAttrReleaseThreshold,
+                             &mem_pool_threshold),
+      "Failed to gpuMemPoolSetAttribute()");
 
   gpu::ScopedDeviceMemory<bn254::G1AffinePointCuda> d_bases =
       gpu::Malloc<bn254::G1AffinePointCuda>(point_nums.back());
@@ -88,17 +88,21 @@ int RealMain(int argc, char** argv) {
 
   interval.Start();
   for (size_t i = 0; i < config.degrees().size(); ++i) {
-    gpuMemcpy(d_bases.get(), bases.data(),
-              sizeof(bn254::G1AffinePointCuda) * point_nums[i],
-              gpuMemcpyHostToDevice);
-    gpuMemcpy(d_scalars.get(), scalars.data(),
-              sizeof(bn254::FrCuda) * point_nums[i], gpuMemcpyHostToDevice);
+    GPU_MUST_SUCCESS(gpuMemcpy(d_bases.get(), bases.data(),
+                               sizeof(bn254::G1AffinePointCuda) * point_nums[i],
+                               gpuMemcpyHostToDevice),
+                     "Failed to gpuMemcpy()");
+    GPU_MUST_SUCCESS(
+        gpuMemcpy(d_scalars.get(), scalars.data(),
+                  sizeof(bn254::FrCuda) * point_nums[i], gpuMemcpyHostToDevice),
+        "Failed to gpuMemcpy()");
     execution_config.log_scalars_count = config.degrees()[i];
 
     bn254::G1JacobianPoint result;
-    error = VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Execute(
-        execution_config, u_results.get(), &result);
-    GPU_CHECK(error == gpuSuccess, error) << "Failed to Execute()";
+    GPU_MUST_SUCCESS(
+        VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Execute(
+            execution_config, u_results.get(), &result),
+        "Failed to Execute()");
     results_gpu.push_back(result);
     reporter.AddResult(interval.GetTimeDelta().InSecondsF());
   }

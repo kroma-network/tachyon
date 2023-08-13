@@ -1,8 +1,10 @@
 #ifndef TACHYON_DEVICE_GPU_GPU_LOGGING_H_
 #define TACHYON_DEVICE_GPU_GPU_LOGGING_H_
 
+#include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/device/gpu/gpu_device_functions.h"
+#include "tachyon/device/gpu/gpu_enums.h"
 
 namespace google {
 
@@ -66,5 +68,38 @@ class TACHYON_EXPORT GpuLogMessage : public LogMessage {
 #define GPU_DCHECK(condition, gpu_err)                                        \
   LAZY_STREAM(GPU_LOG_STREAM(FATAL, gpu_err), DCHECK_IS_ON() && !(condition)) \
       << "Check failed: " #condition << ". "
+
+#define LOG_IF_GPU_ERROR(x, msg)         \
+  ({                                     \
+    gpuError_t error = (x);              \
+    if (UNLIKELY(error != gpuSuccess)) { \
+      GPU_LOG(ERROR, error) << msg;      \
+    }                                    \
+    error;                               \
+  })
+
+#define RETURN_AND_LOG_IF_GPU_ERROR(x, msg) \
+  ({                                        \
+    gpuError_t error = (x);                 \
+    if (UNLIKELY(error != gpuSuccess)) {    \
+      GPU_LOG(ERROR, error) << msg;         \
+      return error;                         \
+    }                                       \
+  })
+
+#define LOG_IF_GPU_LAST_ERROR(msg)        \
+  ({                                      \
+    gpuError_t error = gpuGetLastError(); \
+    if (UNLIKELY(error != gpuSuccess)) {  \
+      GPU_LOG(ERROR, error) << msg;       \
+    }                                     \
+    error;                                \
+  })
+
+#define GPU_MUST_SUCCESS(x, msg)                  \
+  ({                                              \
+    gpuError_t error = (x);                       \
+    GPU_CHECK(error == gpuSuccess, error) << msg; \
+  })
 
 #endif  // TACHYON_DEVICE_GPU_GPU_LOGGING_H_

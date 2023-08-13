@@ -49,8 +49,7 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
     d_scalars_.reset();
     d_results_.reset();
 
-    gpuError_t error = gpuDeviceReset();
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
   }
 
  protected:

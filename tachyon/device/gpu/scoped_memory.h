@@ -5,8 +5,6 @@
 #include <ostream>
 #include <string>
 
-#include "tachyon/device/gpu/gpu_device_functions.h"
-#include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/export.h"
 
@@ -48,8 +46,7 @@ using ScopedMemory = std::unique_ptr<T, MemoryDeleter<M>>;
 template <typename T>
 ScopedMemory<T, MemoryType::kDevice> Malloc(size_t size) {
   T* ptr = nullptr;
-  gpuError_t error = gpuMalloc(&ptr, sizeof(T) * size);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuMalloc()";
+  GPU_MUST_SUCCESS(gpuMalloc(&ptr, sizeof(T) * size), "Failed to gpuMalloc()");
   return ScopedMemory<T, MemoryType::kDevice>(ptr);
 }
 

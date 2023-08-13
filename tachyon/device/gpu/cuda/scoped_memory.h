@@ -8,8 +8,8 @@ namespace tachyon::device::gpu {
 template <typename T>
 ScopedMemory<T, MemoryType::kUnified> MallocManaged(size_t size) {
   T* ptr = nullptr;
-  cudaError_t error = cudaMallocManaged(&ptr, sizeof(T) * size);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(cudaMallocManaged(&ptr, sizeof(T) * size),
+                   "Failed to cudaMallocManaged()");
   return ScopedMemory<T, MemoryType::kUnified>(ptr);
 }
 

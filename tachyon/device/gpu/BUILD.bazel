@@ -91,6 +91,8 @@ tachyon_cc_library(
     hdrs = ["gpu_logging.h"],
     deps = [
         ":gpu_device_functions",
+        ":gpu_enums",
+        "//tachyon/base:compiler_specific",
         "//tachyon/base:logging",
     ],
 )
@@ -113,8 +115,6 @@ tachyon_cc_library(
     name = "scoped_async_memory",
     hdrs = ["scoped_async_memory.h"],
     deps = [
-        ":gpu_device_functions",
-        ":gpu_enums",
         ":gpu_logging",
         "//tachyon:export",
     ],
@@ -125,8 +125,6 @@ tachyon_cc_library(
     srcs = if_gpu_is_configured(["scoped_event.cc"]),
     hdrs = ["scoped_event.h"],
     deps = [
-        ":gpu_device_functions",
-        ":gpu_enums",
         ":gpu_logging",
         "//tachyon:export",
     ],
@@ -137,8 +135,6 @@ tachyon_cc_library(
     srcs = if_gpu_is_configured(["scoped_mem_pool.cc"]),
     hdrs = ["scoped_mem_pool.h"],
     deps = [
-        ":gpu_device_functions",
-        ":gpu_enums",
         ":gpu_logging",
         "//tachyon:export",
     ],
@@ -149,8 +145,6 @@ tachyon_cc_library(
     srcs = if_gpu_is_configured(["scoped_memory.cc"]),
     hdrs = ["scoped_memory.h"],
     deps = [
-        ":gpu_device_functions",
-        ":gpu_enums",
         ":gpu_logging",
         "//tachyon:export",
     ],
@@ -161,8 +155,6 @@ tachyon_cc_library(
     srcs = if_gpu_is_configured(["scoped_stream.cc"]),
     hdrs = ["scoped_stream.h"],
     deps = [
-        ":gpu_device_functions",
-        ":gpu_enums",
         ":gpu_logging",
         "//tachyon:export",
     ],

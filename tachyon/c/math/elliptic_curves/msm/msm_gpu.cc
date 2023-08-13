@@ -5,7 +5,6 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/device/gpu/cuda/scoped_memory.h"
-#include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
@@ -41,16 +40,15 @@ bn254::G1JacobianPoint DoMSMGpu(absl::Span<const bn254::G1AffinePoint> bases,
   config.log_scalars_count = base::bits::Log2Ceiling(scalars.size());
 
   bn254::G1JacobianPoint ret;
-  gpuError_t error =
+  GPU_MUST_SUCCESS(
       VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Execute(
-          config, g_u_results.get(), &ret);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to Execute()";
+          config, g_u_results.get(), &ret),
+      "Failed to Execute()");
   return ret;
 }
 
 void DoInitMSMGpu(uint8_t degree) {
-  gpuError_t error = gpuDeviceReset();
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuDeviceReset()";
+  GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
 
   VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Setup();
 
@@ -59,9 +57,10 @@ void DoInitMSMGpu(uint8_t degree) {
                            {gpuMemLocationTypeDevice, 0}};
   g_mem_pool = gpu::CreateMemPool(&props);
   uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
-  error = gpuMemPoolSetAttribute(
-      g_mem_pool.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuMemPoolSetAttribute()";
+  GPU_MUST_SUCCESS(
+      gpuMemPoolSetAttribute(g_mem_pool.get(), gpuMemPoolAttrReleaseThreshold,
+                             &mem_pool_threshold),
+      "Failed to gpuMemPoolSetAttribute()");
 
   uint64_t size = static_cast<uint64_t>(1) << degree;
   g_d_bases = gpu::Malloc<bn254::G1AffinePointCuda>(size);

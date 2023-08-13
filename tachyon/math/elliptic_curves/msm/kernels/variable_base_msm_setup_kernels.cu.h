@@ -37,10 +37,7 @@ gpuError_t InitializeBuckets(PointXYZZ<Curve>* buckets, unsigned int count,
   dim3 grid_dim = (count_u4 - 1) / block_dim.x + 1;
   InitializeBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(buckets,
                                                               count_u4);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to InitializeBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to InitializeBucketsKernel()");
 }
 #undef MAX_THREADS
 
@@ -112,10 +109,7 @@ gpuError_t ComputeBucketIndexes(const ScalarField* scalars,
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
   ComputeBucketIndexesKernel<<<grid_dim, block_dim, 0, stream>>>(
       scalars, windows_count, window_bits, bucket_indexes, base_indexes, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to ComputeBucketIndexesKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to ComputeBucketIndexesKernel()");
 }
 #undef MAX_THREADS
 
@@ -140,10 +134,7 @@ gpuError_t RemoveZeroBuckets(unsigned int* unique_bucket_indexes,
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
   RemoveZeroBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(
       unique_bucket_indexes, bucket_run_lengths, bucket_runs_count, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to RemoveZeroBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to RemoveZeroBucketsKernel()");
 }
 #undef MAX_THREADS
 
@@ -210,10 +201,7 @@ gpuError_t AggregateBuckets(const bool is_first, unsigned int* base_indexes,
   kernel<<<grid_dim, block_dim, 0, stream>>>(base_indexes, bucket_run_offsets,
                                              bucket_run_lengths, bucket_indexes,
                                              bases, buckets, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to AggregateBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to AggregateBucketsKernel()");
 }
 
 #define MAX_THREADS 32
@@ -239,10 +227,7 @@ gpuError_t ExtractTopBuckets(PointXYZZ<Curve>* buckets,
   const dim3 grid_dim = (windows_count - 1) / block_dim.x + 1;
   ExtractTopBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(
       buckets, top_buckets, bits_count, windows_count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to ExtractTopBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to ExtractTopBucketsKernel()");
 }
 #undef MAX_THREADS
 
@@ -309,10 +294,7 @@ gpuError_t SplitWindows(unsigned int source_window_bits_count,
   SplitWindowsKernel<<<grid_dim, block_dim, 0, stream>>>(
       source_window_bits_count, source_windows_count, source_buckets,
       target_buckets, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to SplitWindowsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to SplitWindowsKernel()");
 }
 #undef MAX_THREADS
 #undef MIN_BLOCKS
@@ -336,10 +318,7 @@ gpuError_t ReduceBuckets(PointXYZZ<Curve>* buckets, unsigned int count,
   dim3 block_dim = count < MAX_THREADS ? count : MAX_THREADS;
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
   ReduceBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(buckets, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to ReduceBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to ReduceBucketsKernel()");
 }
 #undef MAX_THREADS
 #undef MIN_BLOCKS
@@ -387,37 +366,31 @@ gpuError_t LastPassGather(unsigned int bits_count_pass_one,
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
   LastPassGatherKernel<<<grid_dim, block_dim, 0, stream>>>(
       bits_count_pass_one, source, top_buckets, target, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to LastPassGatherKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to LastPassGatherKernel()");
 }
 #undef MAX_THREADS
 
 template <typename T>
-bool SetKernelAttributes(T* func) {
-  gpuError_t error = cudaFuncSetCacheConfig(func, cudaFuncCachePreferL1);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to cudaFuncSetCacheConfig()";
-  error =
+void SetKernelAttributes(T* func) {
+  GPU_MUST_SUCCESS(cudaFuncSetCacheConfig(func, cudaFuncCachePreferL1),
+                   "Failed to cudaFuncSetCacheConfig()");
+  GPU_MUST_SUCCESS(
       cudaFuncSetAttribute(func, cudaFuncAttributePreferredSharedMemoryCarveout,
-                           cudaSharedmemCarveoutMaxL1);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to cudaFuncSetAttribute()";
-  return true;
+                           cudaSharedmemCarveoutMaxL1),
+      "Failed to cudaFuncSetAttribute()");
 }
 
 template <typename Curve, typename ScalarField = typename Curve::ScalarField>
-bool SetupKernels() {
-  if (!SetKernelAttributes(InitializeBucketsKernel<Curve>)) return false;
-  if (!SetKernelAttributes(ComputeBucketIndexesKernel<ScalarField>))
-    return false;
-  if (!SetKernelAttributes(RemoveZeroBucketsKernel)) return false;
-  if (!SetKernelAttributes(AggregateBucketsKernel<Curve, false>)) return false;
-  if (!SetKernelAttributes(AggregateBucketsKernel<Curve, true>)) return false;
-  if (!SetKernelAttributes(ExtractTopBucketsKernel<Curve>)) return false;
-  if (!SetKernelAttributes(SplitWindowsKernel<Curve>)) return false;
-  if (!SetKernelAttributes(ReduceBucketsKernel<Curve>)) return false;
-  if (!SetKernelAttributes(LastPassGatherKernel<Curve>)) return false;
-  return true;
+void SetupKernels() {
+  SetKernelAttributes(InitializeBucketsKernel<Curve>);
+  SetKernelAttributes(ComputeBucketIndexesKernel<ScalarField>);
+  SetKernelAttributes(RemoveZeroBucketsKernel);
+  SetKernelAttributes(AggregateBucketsKernel<Curve, false>);
+  SetKernelAttributes(AggregateBucketsKernel<Curve, true>);
+  SetKernelAttributes(ExtractTopBucketsKernel<Curve>);
+  SetKernelAttributes(SplitWindowsKernel<Curve>);
+  SetKernelAttributes(ReduceBucketsKernel<Curve>);
+  SetKernelAttributes(LastPassGatherKernel<Curve>);
 }
 
 }  // namespace msm

@@ -4,8 +4,6 @@
 #include <memory>
 #include <type_traits>
 
-#include "tachyon/device/gpu/gpu_device_functions.h"
-#include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/export.h"
 
@@ -13,8 +11,7 @@ namespace tachyon::device::gpu {
 
 struct TACHYON_EXPORT EventDestroyer {
   void operator()(gpuEvent_t event) const {
-    gpuError_t error = gpuEventDestroy(event);
-    GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuEventDestroy()";
+    GPU_MUST_SUCCESS(gpuEventDestroy(event), "Failed to gpuEventDestroy()");
   }
 };
 
