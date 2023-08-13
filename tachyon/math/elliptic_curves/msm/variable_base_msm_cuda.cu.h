@@ -3,8 +3,8 @@
 
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/device/gpu/gpu_enums.h"
-#include "tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_execution_kernels.cu.h"
-#include "tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_setup_kernels.cu.h"
+#include "tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_kernels.cu.h"
+#include "tachyon/math/elliptic_curves/msm/variable_base_msm_cuda_impl.cu.h"
 
 namespace tachyon::math {
 
@@ -16,21 +16,20 @@ class VariableBaseMSMCuda {
 
   constexpr static size_t kModulusBits = ScalarField::Config::kModulusBits;
 
-  static void Setup() { kernels::msm::SetupKernels<Curve>(); }
+  static void Setup() { msm::kernels::SetupKernels<Curve>(); }
 
-  static gpuError_t ExecuteAsync(
-      const kernels::msm::ExecutionConfig<Curve>& config) {
-    return kernels::msm::ExecuteAsync(config);
+  static gpuError_t ExecuteAsync(const msm::ExecutionConfig<Curve>& config) {
+    return msm::ExecuteAsync(config);
   }
 
   template <typename CPUJacobianPointTy>
-  static gpuError_t Execute(const kernels::msm::ExecutionConfig<Curve>& config,
+  static gpuError_t Execute(const msm::ExecutionConfig<Curve>& config,
                             CPUJacobianPointTy* results,
                             CPUJacobianPointTy* out) {
     gpuError_t error = ExecuteAsync(config);
     if (error != gpuSuccess) return error;
-    error = gpuStreamSynchronize(config.stream);
-    if (error != gpuSuccess) return error;
+    RETURN_AND_LOG_IF_GPU_ERROR(gpuStreamSynchronize(config.stream),
+                                "Failed to gpuStreamSynchronize()");
 
     gpuMemcpy(results, config.results,
               sizeof(JacobianPoint<Curve>) * kModulusBits, gpuMemcpyDefault);

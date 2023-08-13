@@ -40,8 +40,17 @@ tachyon_cc_library(
 
 tachyon_cuda_library(
     name = "variable_base_msm_cuda",
-    hdrs = ["variable_base_msm_cuda.cu.h"],
-    deps = ["//tachyon/math/elliptic_curves/msm/kernels"],
+    hdrs = [
+        "variable_base_msm_cuda.cu.h",
+        "variable_base_msm_cuda_impl.cu.h",
+    ],
+    deps = [
+        "//tachyon/base:bits",
+        "//tachyon/device/gpu:scoped_async_memory",
+        "//tachyon/device/gpu:scoped_event",
+        "//tachyon/device/gpu:scoped_stream",
+        "//tachyon/math/elliptic_curves/msm/kernels",
+    ],
 )
 
 tachyon_cc_test(

@@ -83,7 +83,7 @@ TEST_F(VariableMSMCorrectnessCudaTest, MSM) {
   ASSERT_EQ(error, gpuSuccess);
 
   gpu::ScopedStream stream = gpu::CreateStream();
-  kernels::msm::ExecutionConfig<bn254::G1AffinePointCuda::Curve> config;
+  msm::ExecutionConfig<bn254::G1AffinePointCuda::Curve> config;
   config.mem_pool = mem_pool.get();
   config.stream = stream.get();
   config.bases = d_bases_.get();

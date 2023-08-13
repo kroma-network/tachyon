@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_SETUP_KERNELS_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_SETUP_KERNELS_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_KERNELS_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_KERNELS_H_
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/device/gpu/gpu_logging.h"
@@ -7,8 +7,8 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 
-namespace tachyon::math::kernels {
-namespace msm {
+namespace tachyon::math::msm {
+namespace kernels {
 using namespace device::gpu;
 
 #define MAX_THREADS 128
@@ -393,7 +393,7 @@ void SetupKernels() {
   SetKernelAttributes(LastPassGatherKernel<Curve>);
 }
 
-}  // namespace msm
-}  // namespace tachyon::math::kernels
+}  // namespace kernels
+}  // namespace tachyon::math::msm
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_SETUP_KERNELS_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_KERNELS_H_

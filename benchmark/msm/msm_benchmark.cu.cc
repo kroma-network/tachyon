@@ -76,8 +76,7 @@ int RealMain(int argc, char** argv) {
       new bn254::G1JacobianPoint[256]);
 
   gpu::ScopedStream stream = gpu::CreateStream();
-  kernels::msm::ExecutionConfig<bn254::G1AffinePointCuda::Curve>
-      execution_config;
+  msm::ExecutionConfig<bn254::G1AffinePointCuda::Curve> execution_config;
   execution_config.mem_pool = mem_pool.get();
   execution_config.stream = stream.get();
   execution_config.bases = d_bases.get();

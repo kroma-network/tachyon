@@ -31,7 +31,7 @@ bn254::G1JacobianPoint DoMSMGpu(absl::Span<const bn254::G1AffinePoint> bases,
             gpuMemcpyHostToDevice);
   gpuMemcpy(g_d_scalars.get(), scalars.data(),
             sizeof(bn254::FrCuda) * scalars.size(), gpuMemcpyHostToDevice);
-  kernels::msm::ExecutionConfig<bn254::G1AffinePointCuda::Curve> config;
+  msm::ExecutionConfig<bn254::G1AffinePointCuda::Curve> config;
   config.mem_pool = g_mem_pool.get();
   config.stream = g_stream.get();
   config.bases = g_d_bases.get();
