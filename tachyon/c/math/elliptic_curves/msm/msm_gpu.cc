@@ -40,26 +40,11 @@ bn254::G1JacobianPoint DoMSMGpu(absl::Span<const bn254::G1AffinePoint> bases,
   config.results = g_d_results.get();
   config.log_scalars_count = base::bits::Log2Ceiling(scalars.size());
 
+  bn254::G1JacobianPoint ret;
   gpuError_t error =
-      VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::ExecuteAsync(
-          config);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to ExecuteAsync()";
-  error = gpuStreamSynchronize(g_stream.get());
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuStreamSynchronize()";
-
-  gpuMemcpy(g_u_results.get(), config.results,
-            sizeof(bn254::G1JacobianPointCuda) * 256, gpuMemcpyDefault);
-  bn254::G1JacobianPoint ret = bn254::G1JacobianPoint::Zero();
-  for (size_t i = 0; i < bn254::Fr::Config::kModulusBits; ++i) {
-    size_t index = bn254::Fr::Config::kModulusBits - i - 1;
-    bn254::G1JacobianPoint bucket = g_u_results[index];
-    if (i == 0) {
-      ret = bucket;
-    } else {
-      ret.DoubleInPlace();
-      ret += bucket;
-    }
-  }
+      VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Execute(
+          config, g_u_results.get(), &ret);
+  GPU_CHECK(error == gpuSuccess, error) << "Failed to Execute()";
   return ret;
 }
 

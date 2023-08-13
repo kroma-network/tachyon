@@ -88,41 +88,17 @@ int RealMain(int argc, char** argv) {
 
   interval.Start();
   for (size_t i = 0; i < config.degrees().size(); ++i) {
-    auto now = base::TimeTicks::Now();
     gpuMemcpy(d_bases.get(), bases.data(),
               sizeof(bn254::G1AffinePointCuda) * point_nums[i],
               gpuMemcpyHostToDevice);
     gpuMemcpy(d_scalars.get(), scalars.data(),
               sizeof(bn254::FrCuda) * point_nums[i], gpuMemcpyHostToDevice);
-    std::cout << "host -> device:"
-              << (base::TimeTicks::Now() - now).InSecondsF() << std::endl;
     execution_config.log_scalars_count = config.degrees()[i];
 
-    now = base::TimeTicks::Now();
-    error = VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::ExecuteAsync(
-        execution_config);
-    GPU_CHECK(error == gpuSuccess, error) << "Failed to ExecuteAsync()";
-    error = gpuStreamSynchronize(stream.get());
-    GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuStreamSynchronize()";
-    std::cout << "calculate:" << (base::TimeTicks::Now() - now).InSecondsF()
-              << std::endl;
-
-    now = base::TimeTicks::Now();
-    gpuMemcpy(u_results.get(), execution_config.results,
-              sizeof(bn254::G1JacobianPointCuda) * 256, gpuMemcpyDefault);
-    std::cout << "device -> host:"
-              << (base::TimeTicks::Now() - now).InSecondsF() << std::endl;
-    bn254::G1JacobianPoint result = bn254::G1JacobianPoint::Zero();
-    for (size_t i = 0; i < bn254::Fr::Config::kModulusBits; ++i) {
-      size_t index = bn254::Fr::Config::kModulusBits - i - 1;
-      bn254::G1JacobianPoint bucket = u_results[index];
-      if (i == 0) {
-        result = bucket;
-      } else {
-        result.DoubleInPlace();
-        result += bucket;
-      }
-    }
+    bn254::G1JacobianPoint result;
+    error = VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Execute(
+        execution_config, u_results.get(), &result);
+    GPU_CHECK(error == gpuSuccess, error) << "Failed to Execute()";
     results_gpu.push_back(result);
     reporter.AddResult(interval.GetTimeDelta().InSecondsF());
   }

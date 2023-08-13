@@ -92,25 +92,10 @@ TEST_F(VariableMSMCorrectnessCudaTest, MSM) {
   config.results = d_results_.get();
   config.log_scalars_count = kLogCount;
 
-  error = VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::ExecuteAsync(
-      config);
+  bn254::G1JacobianPoint actual;
+  error = VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Execute(
+      config, u_results_.get(), &actual);
   ASSERT_EQ(error, gpuSuccess);
-  error = gpuStreamSynchronize(stream.get());
-  ASSERT_EQ(error, gpuSuccess);
-
-  gpuMemcpy(u_results_.get(), config.results,
-            sizeof(bn254::G1JacobianPointCuda) * 256, gpuMemcpyDefault);
-  bn254::G1JacobianPoint actual = bn254::G1JacobianPoint::Zero();
-  for (size_t i = 0; i < bn254::Fr::Config::kModulusBits; ++i) {
-    size_t index = bn254::Fr::Config::kModulusBits - i - 1;
-    bn254::G1JacobianPoint bucket = u_results_[index];
-    if (i == 0) {
-      actual = bucket;
-    } else {
-      actual.DoubleInPlace();
-      actual += bucket;
-    }
-  }
   EXPECT_EQ(actual, expected_);
 }
 
