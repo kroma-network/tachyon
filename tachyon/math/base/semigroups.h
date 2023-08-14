@@ -76,24 +76,27 @@ class MultiplicativeSemigroup {
   }
 
   template <size_t N>
-  [[nodiscard]] G Pow(const BigInt<N>& exponent) const {
+  [[nodiscard]] constexpr auto Pow(const BigInt<N>& exponent) const {
+    const G* g = static_cast<const G*>(this);
+    G ret = G::One();
     auto it = BitIteratorBE<BigInt<N>>::begin(&exponent, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&exponent);
-    const G& self = *static_cast<const G*>(this);
-    G g = G::One();
     while (it != end) {
       if constexpr (internal::SupportsSquareInPlace<G>::value) {
-        g.SquareInPlace();
+        ret.SquareInPlace();
       } else {
-        g *= g;
+        ret = ret.Square();
       }
-
       if (*it) {
-        g *= self;
+        if constexpr (internal::SupportsMulInPlace<G, G>::value) {
+          ret.MulInPlace(*g);
+        } else {
+          ret = ret.Mul(*g);
+        }
       }
       ++it;
     }
-    return g;
+    return ret;
   }
 
   template <size_t N>
@@ -150,7 +153,7 @@ class AdditiveSemigroup {
   // 'operator*' is ambiguous".
   // constexpr auto operator*(const BigInt<N>& scalar) const {
   template <size_t N>
-  constexpr auto ScalarMul(const BigInt<N>& scalar) const {
+  [[nodiscard]] constexpr auto ScalarMul(const BigInt<N>& scalar) const {
     const G* g = static_cast<const G*>(this);
     G ret = G::Zero();
     auto it = BitIteratorBE<BigInt<N>>::begin(&scalar, true);
