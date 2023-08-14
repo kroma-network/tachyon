@@ -27,6 +27,10 @@ struct Point2 {
   std::string ToString() const {
     return absl::Substitute("($0, $1)", x.ToString(), y.ToString());
   }
+
+  std::string ToHexString() const {
+    return absl::Substitute("($0, $1)", x.ToHexString(), y.ToHexString());
+  }
 };
 
 template <typename T>

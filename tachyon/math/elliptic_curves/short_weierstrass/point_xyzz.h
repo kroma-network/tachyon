@@ -200,6 +200,12 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
                             zz_.ToString(), zzz_.ToString());
   }
 
+  std::string ToHexString() const {
+    return absl::Substitute("($0, $1, $2, $3)", x_.ToHexString(),
+                            y_.ToHexString(), zz_.ToHexString(),
+                            zzz_.ToHexString());
+  }
+
   // AdditiveSemigroup methods
   constexpr PointXYZZ& AddInPlace(const PointXYZZ& other);
   constexpr PointXYZZ& AddInPlace(const AffinePoint<Curve>& other);

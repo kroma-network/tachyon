@@ -32,6 +32,11 @@ struct Point4 {
     return absl::Substitute("($0, $1, $2, $3)", x.ToString(), y.ToString(),
                             z.ToString(), w.ToString());
   }
+
+  std::string ToHexString() const {
+    return absl::Substitute("($0, $1, $2, $3)", x.ToHexString(),
+                            y.ToHexString(), z.ToHexString(), w.ToHexString());
+  }
 };
 
 template <typename T>

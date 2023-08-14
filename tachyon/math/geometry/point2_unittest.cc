@@ -33,4 +33,8 @@ TEST(Point2Test, ToString) {
   EXPECT_EQ(Point2GF7(GF7(1), GF7(2)).ToString(), "(1, 2)");
 }
 
+TEST(Point2Test, ToHexString) {
+  EXPECT_EQ(Point2GF7(GF7(1), GF7(2)).ToHexString(), "(0x1, 0x2)");
+}
+
 }  // namespace tachyon::math
