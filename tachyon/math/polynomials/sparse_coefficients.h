@@ -11,6 +11,7 @@
 
 #include "absl/numeric/internal/bits.h"
 
+#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
@@ -103,26 +104,23 @@ class SparseCoefficients {
   }
 
   constexpr const Field* GetLeadingCoefficient() const {
-    if (elements_.empty()) return nullptr;
+    if (IsZero()) return nullptr;
     return &elements_.back().coefficient;
   }
 
-  constexpr bool IsZero() const {
-    return elements_.empty() ||
-           (elements_.size() == 1 && elements_[0].coefficient.IsZero());
-  }
+  constexpr bool IsZero() const { return elements_.empty(); }
 
   constexpr bool IsOne() const {
     return elements_.size() == 1 && elements_[0].coefficient.IsOne();
   }
 
   constexpr size_t Degree() const {
-    if (elements_.empty()) return 0;
+    if (IsZero()) return 0;
     return elements_.back().degree;
   }
 
   constexpr Field Evaluate(const Field& point) const {
-    if (elements_.empty()) return Field::Zero();
+    if (IsZero()) return Field::Zero();
 
     static_assert(sizeof(size_t) == sizeof(uint64_t));
     size_t num_powers = absl::numeric_internal::CountLeadingZeroes64(0) -
@@ -147,13 +145,10 @@ class SparseCoefficients {
   }
 
   std::string ToString() const {
-    if (elements_.empty()) return base::EmptyString();
-    size_t len = elements_.size() - 1;
+    if (IsZero()) return base::EmptyString();
     std::stringstream ss;
     bool has_elem = false;
-    while (len >= 0) {
-      size_t i = len--;
-      const Element& elem = elements_[i];
+    for (const Element& elem : base::Reversed(elements_)) {
       if (has_elem) ss << " + ";
       has_elem = true;
       ss << elem.coefficient.ToString();
@@ -164,7 +159,6 @@ class SparseCoefficients {
       } else {
         ss << " * x^" << elem.degree;
       }
-      if (i == 0) break;
     }
     return ss.str();
   }
@@ -176,7 +170,7 @@ class SparseCoefficients {
       SparseCoefficients<F, MaxDegree>>;
 
   void RemoveHighDegreeZeros() {
-    while (!elements_.empty()) {
+    while (!IsZero()) {
       if (elements_.back().coefficient.IsZero()) {
         elements_.pop_back();
       } else {
