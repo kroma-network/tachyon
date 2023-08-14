@@ -167,7 +167,7 @@ TYPED_TEST(AffinePointTest, MSM) {
   };
   JacobianPointTy expected = JacobianPointTy::Zero();
   for (size_t i = 0; i < bases.size(); ++i) {
-    expected += bases[i].ToJacobian().ScalarMul(scalars[i].ToBigInt());
+    expected += bases[i].ScalarMul(scalars[i].ToBigInt());
   }
   EXPECT_EQ(AffinePointTy::MSM(bases, scalars), expected);
 }

@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
@@ -17,13 +18,15 @@ const size_t kSize = 40;
 template <typename PointTy>
 class VariableBaseMSMTest : public testing::Test {
  public:
+  using ReturnTy = typename VariableBaseMSM<PointTy>::ReturnTy;
+
   static void SetUpTestSuite() { PointTy::Curve::Init(); }
 
   VariableBaseMSMTest() {
     bases_ = base::CreateVector(kSize, []() { return PointTy::Random(); });
     scalars_ = base::CreateVector(kSize, []() { return GF7::Random(); });
 
-    answer_ = PointTy::Zero();
+    answer_ = ReturnTy::Zero();
     for (size_t i = 0; i < bases_.size(); ++i) {
       answer_ += bases_[i].ScalarMul(scalars_[i].ToBigInt());
     }
@@ -35,13 +38,13 @@ class VariableBaseMSMTest : public testing::Test {
  protected:
   std::vector<PointTy> bases_;
   std::vector<GF7> scalars_;
-  PointTy answer_;
+  ReturnTy answer_;
 };
 
 }  // namespace
 
-using PointTypes =
-    testing::Types<test::ProjectivePoint, test::JacobianPoint, test::PointXYZZ>;
+using PointTypes = testing::Types<test::AffinePoint, test::ProjectivePoint,
+                                  test::JacobianPoint, test::PointXYZZ>;
 TYPED_TEST_SUITE(VariableBaseMSMTest, PointTypes);
 
 TYPED_TEST(VariableBaseMSMTest, DoMSM) {
