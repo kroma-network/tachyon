@@ -55,7 +55,7 @@ tachyon_cc_test(
         ":glv",
         ":variable_base_msm",
         "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
-        "//tachyon/math/elliptic_curves/short_weierstrass/test:curve_config",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
     ],
 )
 

@@ -388,7 +388,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
 
     while (n >= 64) {
       uint64_t t = 0;
-      FOR_FROM_SMALLEST(i, 0, N) { std::exchange(t, limbs[i]); }
+      FOR_FROM_SMALLEST(i, 0, N) { std::swap(t, limbs[i]); }
       n -= 64;
     }
 
@@ -456,7 +456,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     if constexpr (N > 1) {
       while (n >= 64) {
         uint64_t t = 0;
-        FOR_FROM_BIGGEST(i, 0, N) { std::exchange(t, limbs[1]); }
+        FOR_FROM_BIGGEST(i, 0, N) { std::swap(t, limbs[i]); }
         n -= 64;
       }
     }
