@@ -1,5 +1,5 @@
 {
-  "checksum": "a989b2c14174a532ddc3732c4d3164e8f34bf5a8fefd50fd098be283428c3d59",
+  "checksum": "9b93b83d933ee0eaece7638cb5583aa351ff617d2383b397740c7cfa8f19d2b4",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -73,6 +73,61 @@
         }
       },
       "license": "MIT OR Apache-2.0"
+    },
+    "ark-bn254 0.4.0": {
+      "name": "ark-bn254",
+      "version": "0.4.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/ark-bn254/0.4.0/download",
+          "sha256": "a22f4561524cd949590d78d7d4c5df8f592430d221f7f3c9497bbafd8972120f"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "ark_bn254",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "ark_bn254",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "curve",
+            "default",
+            "scalar_field"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "ark-ec 0.4.2",
+              "target": "ark_ec"
+            },
+            {
+              "id": "ark-ff 0.4.2",
+              "target": "ark_ff"
+            },
+            {
+              "id": "ark-std 0.4.0",
+              "target": "ark_std"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.4.0"
+      },
+      "license": "MIT/Apache-2.0"
     },
     "ark-ec 0.4.2": {
       "name": "ark-ec",
@@ -181,12 +236,6 @@
         "compile_data_glob": [
           "**"
         ],
-        "crate_features": {
-          "common": [
-            "default"
-          ],
-          "selects": {}
-        },
         "deps": {
           "common": [
             {
@@ -614,65 +663,21 @@
       },
       "license": "MIT/Apache-2.0"
     },
-    "ark-test-curves 0.4.2": {
-      "name": "ark-test-curves",
-      "version": "0.4.2",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/ark-test-curves/0.4.2/download",
-          "sha256": "83c22c2469f93dfcace9a98baabb7af1bc0c40de82c07cffbc0deba4acf41a90"
-        }
-      },
+    "arkworks_benchmark 0.0.1": {
+      "name": "arkworks_benchmark",
+      "version": "0.0.1",
+      "repository": null,
       "targets": [
         {
-          "Library": {
-            "crate_name": "ark_test_curves",
-            "crate_root": "src/lib.rs",
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
             "srcs": [
               "**/*.rs"
             ]
           }
         }
       ],
-      "library_target_name": "ark_test_curves",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "crate_features": {
-          "common": [
-            "bls12_381_curve",
-            "bls12_381_scalar_field"
-          ],
-          "selects": {}
-        },
-        "deps": {
-          "common": [
-            {
-              "id": "ark-ec 0.4.2",
-              "target": "ark_ec"
-            },
-            {
-              "id": "ark-ff 0.4.2",
-              "target": "ark_ff"
-            },
-            {
-              "id": "ark-std 0.4.0",
-              "target": "ark_std"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.4.2"
-      },
-      "license": "MIT/Apache-2.0"
-    },
-    "arkworks_benchmark 0.0.1": {
-      "name": "arkworks_benchmark",
-      "version": "0.0.1",
-      "repository": null,
-      "targets": [],
       "library_target_name": null,
       "common_attrs": {
         "compile_data_glob": [
@@ -681,23 +686,23 @@
         "deps": {
           "common": [
             {
-              "id": "ark-ec 0.4.2",
-              "target": "ark_ec"
+              "id": "ark-bn254 0.4.0",
+              "target": "ark_bn254"
             },
             {
-              "id": "ark-ff 0.4.2",
-              "target": "ark_ff"
+              "id": "ark-ec 0.4.2",
+              "target": "ark_ec"
             },
             {
               "id": "ark-std 0.4.0",
               "target": "ark_std"
             },
             {
-              "id": "ark-test-curves 0.4.2",
-              "target": "ark_test_curves"
+              "id": "arkworks_benchmark 0.0.1",
+              "target": "build_script_build"
             },
             {
-              "id": "cxx 1.0.103",
+              "id": "cxx 1.0.105",
               "target": "cxx"
             }
           ],
@@ -706,7 +711,30 @@
         "edition": "2021",
         "version": "0.0.1"
       },
-      "license": null
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "cxx-build 1.0.105",
+              "target": "cxx_build"
+            }
+          ],
+          "selects": {}
+        },
+        "link_deps": {
+          "common": [
+            {
+              "id": "cxx 1.0.105",
+              "target": "cxx"
+            }
+          ],
+          "selects": {}
+        }
+      },
+      "license": "MIT OR Apache-2.0"
     },
     "arrayref 0.3.7": {
       "name": "arrayref",
@@ -982,13 +1010,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "cc 1.0.81": {
+    "cc 1.0.82": {
       "name": "cc",
-      "version": "1.0.81",
+      "version": "1.0.82",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/cc/1.0.81/download",
-          "sha256": "6c6b2562119bf28c3439f7f02db99faf0aa1a8cdfe5772a2ee155d32227239f0"
+          "url": "https://crates.io/api/v1/crates/cc/1.0.82/download",
+          "sha256": "305fe645edc1442a0fa8b6726ba61d422798d37a52e12eaecf4b022ebbb88f01"
         }
       },
       "targets": [
@@ -1019,7 +1047,7 @@
           }
         },
         "edition": "2018",
-        "version": "1.0.81"
+        "version": "1.0.82"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -1508,13 +1536,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "cxx 1.0.103": {
+    "cxx 1.0.105": {
       "name": "cxx",
-      "version": "1.0.103",
+      "version": "1.0.105",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/cxx/1.0.103/download",
-          "sha256": "7a470da33f8c5350d645567d897986b3e6322d289eebad78f3e1e8a3dc06db7d"
+          "url": "https://crates.io/api/v1/crates/cxx/1.0.105/download",
+          "sha256": "666a3ec767f4bbaf0dcfcc3b4ea048b90520b254fdf88813e763f4c762636c14"
         }
       },
       "targets": [
@@ -1553,7 +1581,7 @@
         "deps": {
           "common": [
             {
-              "id": "cxx 1.0.103",
+              "id": "cxx 1.0.105",
               "target": "build_script_build"
             },
             {
@@ -1567,13 +1595,13 @@
         "proc_macro_deps": {
           "common": [
             {
-              "id": "cxxbridge-macro 1.0.103",
+              "id": "cxxbridge-macro 1.0.105",
               "target": "cxxbridge_macro"
             }
           ],
           "selects": {}
         },
-        "version": "1.0.103"
+        "version": "1.0.105"
       },
       "build_script_attrs": {
         "data_glob": [
@@ -1582,11 +1610,11 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.81",
+              "id": "cc 1.0.82",
               "target": "cc"
             },
             {
-              "id": "cxxbridge-flags 1.0.103",
+              "id": "cxxbridge-flags 1.0.105",
               "target": "cxxbridge_flags"
             }
           ],
@@ -1605,13 +1633,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "cxx-build 1.0.104": {
+    "cxx-build 1.0.105": {
       "name": "cxx-build",
-      "version": "1.0.104",
+      "version": "1.0.105",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/cxx-build/1.0.104/download",
-          "sha256": "ac9ec8372f860c6ee7c6463b96a26d08dd590bcbcd9bf2d1894db09ae81410d3"
+          "url": "https://crates.io/api/v1/crates/cxx-build/1.0.105/download",
+          "sha256": "162bec16c4cc28b19e26db0197b60ba5480fdb9a4cbf0f4c6c104a937741b78e"
         }
       },
       "targets": [
@@ -1633,7 +1661,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.81",
+              "id": "cc 1.0.82",
               "target": "cc"
             },
             {
@@ -1664,17 +1692,17 @@
           "selects": {}
         },
         "edition": "2021",
-        "version": "1.0.104"
+        "version": "1.0.105"
       },
       "license": "MIT OR Apache-2.0"
     },
-    "cxxbridge-flags 1.0.103": {
+    "cxxbridge-flags 1.0.105": {
       "name": "cxxbridge-flags",
-      "version": "1.0.103",
+      "version": "1.0.105",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/cxxbridge-flags/1.0.103/download",
-          "sha256": "ed60da09cc09c7e0d8a72371784fe8127b9a8784ee68f4cad7b8d71ef597fa50"
+          "url": "https://crates.io/api/v1/crates/cxxbridge-flags/1.0.105/download",
+          "sha256": "d6e8c238aadc4b9f2c00269d04c87abb23f96dd240803872536eed1a304bb40e"
         }
       },
       "targets": [
@@ -1700,17 +1728,17 @@
           "selects": {}
         },
         "edition": "2021",
-        "version": "1.0.103"
+        "version": "1.0.105"
       },
       "license": "MIT OR Apache-2.0"
     },
-    "cxxbridge-macro 1.0.103": {
+    "cxxbridge-macro 1.0.105": {
       "name": "cxxbridge-macro",
-      "version": "1.0.103",
+      "version": "1.0.105",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/cxxbridge-macro/1.0.103/download",
-          "sha256": "ec1d01fc252851e76d06f7d4638cc60485613f0f54bffef377eeff42205fcb8d"
+          "url": "https://crates.io/api/v1/crates/cxxbridge-macro/1.0.105/download",
+          "sha256": "59d9ffb4193dd22180b8d5747b1e095c3d9c9c665ce39b0483a488948f437e06"
         }
       },
       "targets": [
@@ -1747,7 +1775,7 @@
           "selects": {}
         },
         "edition": "2021",
-        "version": "1.0.103"
+        "version": "1.0.105"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -2293,7 +2321,7 @@
               "target": "halo2curves"
             },
             {
-              "id": "log 0.4.19",
+              "id": "log 0.4.20",
               "target": "log"
             },
             {
@@ -2756,7 +2784,7 @@
         "deps": {
           "common": [
             {
-              "id": "cc 1.0.81",
+              "id": "cc 1.0.82",
               "target": "cc"
             }
           ],
@@ -2766,13 +2794,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "log 0.4.19": {
+    "log 0.4.20": {
       "name": "log",
-      "version": "0.4.19",
+      "version": "0.4.20",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/log/0.4.19/download",
-          "sha256": "b06a4cde4c0f271a446782e3eff8de789548ce57dbc8eca9292c27f4a42004b4"
+          "url": "https://crates.io/api/v1/crates/log/0.4.20/download",
+          "sha256": "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
         }
       },
       "targets": [
@@ -2792,7 +2820,7 @@
           "**"
         ],
         "edition": "2015",
-        "version": "0.4.19"
+        "version": "0.4.20"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -3334,13 +3362,13 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "pin-project-lite 0.2.11": {
+    "pin-project-lite 0.2.12": {
       "name": "pin-project-lite",
-      "version": "0.2.11",
+      "version": "0.2.12",
       "repository": {
         "Http": {
-          "url": "https://crates.io/api/v1/crates/pin-project-lite/0.2.11/download",
-          "sha256": "2c516611246607d0c04186886dbb3a754368ef82c79e9827a802c6d836dd111c"
+          "url": "https://crates.io/api/v1/crates/pin-project-lite/0.2.12/download",
+          "sha256": "12cc1b0bf1727a77a54b6654e7b5f1af8604923edc8b81885f8ec92f9e3f0a05"
         }
       },
       "targets": [
@@ -3360,7 +3388,7 @@
           "**"
         ],
         "edition": "2018",
-        "version": "0.2.11"
+        "version": "0.2.12"
       },
       "license": "Apache-2.0 OR MIT"
     },
@@ -4498,7 +4526,7 @@
         "deps": {
           "common": [
             {
-              "id": "cxx 1.0.103",
+              "id": "cxx 1.0.105",
               "target": "cxx"
             },
             {
@@ -4535,7 +4563,7 @@
         "deps": {
           "common": [
             {
-              "id": "cxx-build 1.0.104",
+              "id": "cxx-build 1.0.105",
               "target": "cxx_build"
             }
           ],
@@ -4544,7 +4572,7 @@
         "link_deps": {
           "common": [
             {
-              "id": "cxx 1.0.103",
+              "id": "cxx 1.0.105",
               "target": "cxx"
             }
           ],
@@ -4665,7 +4693,7 @@
               "target": "cfg_if"
             },
             {
-              "id": "pin-project-lite 0.2.11",
+              "id": "pin-project-lite 0.2.12",
               "target": "pin_project_lite"
             },
             {

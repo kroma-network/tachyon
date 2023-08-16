@@ -7,10 +7,12 @@ namespace tachyon {
 
 bool ECConfig::Parse(int argc, char** argv) {
   base::FlagParser parser;
+  // clang-format off
   parser.AddFlag<base::Flag<std::vector<uint64_t>>>(&degrees_)
       .set_short_name("-n")
       .set_required()
-      .set_help("The log number of points to test");
+      .set_help("Specify the exponent 'n' where the number of points to test is 2^n.");
+  // clang-format on
   {
     std::string error;
     if (!parser.Parse(argc, argv, &error)) {

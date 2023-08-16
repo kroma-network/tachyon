@@ -14,6 +14,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "ark-bn254"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a22f4561524cd949590d78d7d4c5df8f592430d221f7f3c9497bbafd8972120f"
+dependencies = [
+ "ark-ec",
+ "ark-ff",
+ "ark-std 0.4.0",
+]
+
+[[package]]
 name = "ark-ec"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -130,25 +141,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "ark-test-curves"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83c22c2469f93dfcace9a98baabb7af1bc0c40de82c07cffbc0deba4acf41a90"
-dependencies = [
- "ark-ec",
- "ark-ff",
- "ark-std 0.4.0",
-]
-
-[[package]]
 name = "arkworks_benchmark"
 version = "0.0.1"
 dependencies = [
+ "ark-bn254",
  "ark-ec",
- "ark-ff",
  "ark-std 0.4.0",
- "ark-test-curves",
  "cxx",
+ "cxx-build",
 ]
 
 [[package]]
@@ -210,9 +210,9 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 
 [[package]]
 name = "cc"
-version = "1.0.81"
+version = "1.0.82"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c6b2562119bf28c3439f7f02db99faf0aa1a8cdfe5772a2ee155d32227239f0"
+checksum = "305fe645edc1442a0fa8b6726ba61d422798d37a52e12eaecf4b022ebbb88f01"
 dependencies = [
  "libc",
 ]
@@ -309,9 +309,9 @@ dependencies = [
 
 [[package]]
 name = "cxx"
-version = "1.0.103"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a470da33f8c5350d645567d897986b3e6322d289eebad78f3e1e8a3dc06db7d"
+checksum = "666a3ec767f4bbaf0dcfcc3b4ea048b90520b254fdf88813e763f4c762636c14"
 dependencies = [
  "cc",
  "cxxbridge-flags",
@@ -321,9 +321,9 @@ dependencies = [
 
 [[package]]
 name = "cxx-build"
-version = "1.0.104"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac9ec8372f860c6ee7c6463b96a26d08dd590bcbcd9bf2d1894db09ae81410d3"
+checksum = "162bec16c4cc28b19e26db0197b60ba5480fdb9a4cbf0f4c6c104a937741b78e"
 dependencies = [
  "cc",
  "codespan-reporting",
@@ -336,15 +336,15 @@ dependencies = [
 
 [[package]]
 name = "cxxbridge-flags"
-version = "1.0.103"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed60da09cc09c7e0d8a72371784fe8127b9a8784ee68f4cad7b8d71ef597fa50"
+checksum = "d6e8c238aadc4b9f2c00269d04c87abb23f96dd240803872536eed1a304bb40e"
 
 [[package]]
 name = "cxxbridge-macro"
-version = "1.0.103"
+version = "1.0.105"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec1d01fc252851e76d06f7d4638cc60485613f0f54bffef377eeff42205fcb8d"
+checksum = "59d9ffb4193dd22180b8d5747b1e095c3d9c9c665ce39b0483a488948f437e06"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -532,9 +532,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.19"
+version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b06a4cde4c0f271a446782e3eff8de789548ce57dbc8eca9292c27f4a42004b4"
+checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 
 [[package]]
 name = "memoffset"
@@ -621,9 +621,9 @@ checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
 
 [[package]]
 name = "pin-project-lite"
-version = "0.2.11"
+version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c516611246607d0c04186886dbb3a754368ef82c79e9827a802c6d836dd111c"
+checksum = "12cc1b0bf1727a77a54b6654e7b5f1af8604923edc8b81885f8ec92f9e3f0a05"
 
 [[package]]
 name = "poseidon"
