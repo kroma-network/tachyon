@@ -10,7 +10,7 @@ jobs:
           - os: ubuntu-latest
             bazel_config: linux
           - os: macos-latest
-            bazel_config: macos
+            bazel_config: macos_x86_64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
