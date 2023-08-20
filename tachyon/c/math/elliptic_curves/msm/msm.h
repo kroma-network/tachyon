@@ -23,5 +23,4 @@ TACHYON_C_EXPORT tachyon_bn254_g1_jacobian* tachyon_msm_g1_affine(
 }  // extern "C"
 #endif
 
-
 #endif  // TACHYON_C_MATH_ELLIPTIC_CURVES_MSM_MSM_H_
