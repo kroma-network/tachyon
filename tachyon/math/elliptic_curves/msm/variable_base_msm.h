@@ -13,6 +13,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
+#include "tachyon/math/elliptic_curves/semigroups.h"
 
 namespace tachyon::math {
 
@@ -66,21 +67,23 @@ template <typename PointTy>
 class VariableBaseMSM {
  public:
   using ScalarField = typename PointTy::ScalarField;
+  using ReturnTy =
+      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
   template <typename BaseInputIterator, typename ScalarInputIterator,
             std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
                                          PointTy, ScalarField>>* = nullptr>
-  static PointTy MSM(BaseInputIterator bases_first,
-                     BaseInputIterator bases_last,
-                     ScalarInputIterator scalars_first,
-                     ScalarInputIterator scalars_last) {
+  static ReturnTy MSM(BaseInputIterator bases_first,
+                      BaseInputIterator bases_last,
+                      ScalarInputIterator scalars_first,
+                      ScalarInputIterator scalars_last) {
     return DoMSM(std::move(bases_first), std::move(bases_last),
                  std::move(scalars_first), std::move(scalars_last),
                  PointTy::kNegationIsCheap);
   }
 
   template <typename BaseContainer, typename ScalarContainer>
-  static PointTy MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
+  static ReturnTy MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
     return MSM(std::begin(std::forward<BaseContainer>(bases)),
                std::end(std::forward<BaseContainer>(bases)),
                std::begin(std::forward<ScalarContainer>(scalars)),
@@ -92,7 +95,7 @@ class VariableBaseMSM {
   FRIEND_TEST(VariableBaseMSMTest, DoMSM);
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
-  static std::vector<PointTy> CreateWindowSumsForMSMWindowNAF(
+  static std::vector<ReturnTy> CreateWindowSumsForMSMWindowNAF(
       BaseInputIterator bases_first, ScalarInputIterator scalars_first,
       ScalarInputIterator scalars_last, size_t c) {
     size_t num_bits = ScalarField::kModulusBits;
@@ -102,12 +105,12 @@ class VariableBaseMSM {
         scalars_first, scalars_last, [c, num_bits](const ScalarField& scalar) {
           return MakeDigits(scalar.ToBigInt(), c, num_bits);
         });
-    std::vector<PointTy> window_sums;
+    std::vector<ReturnTy> window_sums;
     window_sums.reserve(digits_count);
     // TODO(chokobole): Optimize with openmp.
     for (size_t i = 0; i < digits_count; ++i) {
-      std::vector<PointTy> buckets =
-          base::CreateVector(1 << (c - 1), PointTy::Zero());
+      std::vector<ReturnTy> buckets =
+          base::CreateVector(1 << (c - 1), ReturnTy::Zero());
       auto bases_it = bases_first;
       for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
         const PointTy& base = *bases_it;
@@ -119,8 +122,8 @@ class VariableBaseMSM {
         }
       }
 
-      PointTy running_sum = PointTy::Zero();
-      PointTy ret = PointTy::Zero();
+      ReturnTy running_sum = ReturnTy::Zero();
+      ReturnTy ret = ReturnTy::Zero();
       for (const auto& bucket : base::Reversed(buckets)) {
         running_sum += bucket;
         ret += running_sum;
@@ -132,20 +135,20 @@ class VariableBaseMSM {
   }
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
-  static std::vector<PointTy> CreateWindowSumsForMSM(
+  static std::vector<ReturnTy> CreateWindowSumsForMSM(
       BaseInputIterator bases_first, ScalarInputIterator scalars_first,
       size_t size, size_t c) {
     size_t num_bits = ScalarField::kModulusBits;
     std::vector<size_t> window_starts =
         base::CreateRangedVector(static_cast<size_t>(0), num_bits, c);
 
-    std::function<PointTy(size_t)> op = [&bases_first, &scalars_first, size,
-                                         c](size_t w_start) {
-      PointTy ret = PointTy::Zero();
+    std::function<ReturnTy(size_t)> op = [&bases_first, &scalars_first, size,
+                                          c](size_t w_start) {
+      ReturnTy ret = ReturnTy::Zero();
       // We don't need the "zero" bucket, so we only have 2^c - 1
       // buckets.
-      std::vector<PointTy> buckets =
-          base::CreateVector((1 << c) - 1, PointTy::Zero());
+      std::vector<ReturnTy> buckets =
+          base::CreateVector((1 << c) - 1, ReturnTy::Zero());
       // This clone is cheap, because the iterator contains just a
       // pointer and an index into the original vectors.
       auto bases_it = bases_first;
@@ -194,7 +197,7 @@ class VariableBaseMSM {
 
       // `running_sum` = sum_{j in i..num_buckets} bucket[j],
       // where we iterate backward from i = num_buckets to 0.
-      PointTy running_sum = PointTy::Zero();
+      ReturnTy running_sum = ReturnTy::Zero();
       for (const auto& bucket : base::Reversed(buckets)) {
         running_sum += bucket;
         ret += running_sum;
@@ -212,11 +215,11 @@ class VariableBaseMSM {
   template <typename BaseInputIterator, typename ScalarInputIterator,
             std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
                                          PointTy, ScalarField>>* = nullptr>
-  static PointTy DoMSM(BaseInputIterator bases_first,
-                       BaseInputIterator bases_last,
-                       ScalarInputIterator scalars_first,
-                       ScalarInputIterator scalars_last,
-                       bool use_msm_window_naf) {
+  static ReturnTy DoMSM(BaseInputIterator bases_first,
+                        BaseInputIterator bases_last,
+                        ScalarInputIterator scalars_first,
+                        ScalarInputIterator scalars_last,
+                        bool use_msm_window_naf) {
     size_t size = std::min(std::distance(bases_first, bases_last),
                            std::distance(scalars_first, scalars_last));
 
@@ -227,7 +230,7 @@ class VariableBaseMSM {
       c = LnWithoutFloats(size) + 2;
     }
 
-    std::vector<PointTy> window_sums;
+    std::vector<ReturnTy> window_sums;
     if (use_msm_window_naf) {
       window_sums = CreateWindowSumsForMSMWindowNAF(std::move(bases_first),
                                                     std::move(scalars_first),
@@ -238,13 +241,14 @@ class VariableBaseMSM {
     }
 
     // We store the sum for the lowest window.
-    PointTy lowest = std::move(*window_sums.begin());
+    ReturnTy lowest = std::move(*window_sums.begin());
     auto view = absl::MakeConstSpan(window_sums);
     view.remove_prefix(1);
 
     // We're traversing windows from high to low.
-    return lowest + std::accumulate(view.rbegin(), view.rend(), PointTy::Zero(),
-                                    [c](PointTy& total, const PointTy& sum) {
+    return lowest + std::accumulate(view.rbegin(), view.rend(),
+                                    ReturnTy::Zero(),
+                                    [c](ReturnTy& total, const ReturnTy& sum) {
                                       total += sum;
                                       for (size_t i = 0; i < c; ++i) {
                                         total.DoubleInPlace();

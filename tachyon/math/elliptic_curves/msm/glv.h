@@ -8,9 +8,9 @@
 #include "tachyon/math/base/gmp/signed_value.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
-#include "tachyon/math/elliptic_curves/point_traits.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
+#include "tachyon/math/elliptic_curves/semigroups.h"
 #include "tachyon/math/matrix/matrix.h"
 
 namespace tachyon::math {
@@ -20,7 +20,8 @@ class GLV {
  public:
   using BaseField = typename PointTy::BaseField;
   using ScalarField = typename PointTy::ScalarField;
-  using ReturnTy = typename PointTraits<PointTy>::AdditionResultTy;
+  using ReturnTy =
+      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
   using Coefficients = Matrix<mpz_class, 2, 2>;
 

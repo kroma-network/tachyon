@@ -1,7 +1,6 @@
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/scoped_async_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
@@ -32,10 +31,7 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
     std::vector<bn254::Fr> scalars =
         base::CreateVector(kCount, []() { return bn254::Fr::Random(); });
 
-    expected_ = VariableBaseMSM<bn254::G1JacobianPoint>::MSM(
-        base::Map(bases,
-                  [](const bn254::G1AffinePoint& p) { return p.ToJacobian(); }),
-        scalars);
+    expected_ = VariableBaseMSM<bn254::G1AffinePoint>::MSM(bases, scalars);
 
     d_bases_ = gpu::Malloc<bn254::G1AffinePointCuda>(kCount);
     d_scalars_ = gpu::Malloc<bn254::FrCuda>(kCount);

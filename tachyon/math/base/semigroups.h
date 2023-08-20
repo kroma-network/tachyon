@@ -42,6 +42,16 @@ SUPPORTS_UNARY_IN_PLACE_OPERATOR(Square);
 SUPPORTS_BINARY_OPERATOR(Add);
 SUPPORTS_UNARY_IN_PLACE_OPERATOR(Double);
 
+template <typename G>
+struct MultiplicativeSemigroupTraits {
+  using ReturnTy = G;
+};
+
+template <typename G>
+struct AdditiveSemigroupTraits {
+  using ReturnTy = G;
+};
+
 }  // namespace internal
 
 template <typename G>
@@ -75,33 +85,40 @@ class MultiplicativeSemigroup {
     }
   }
 
-  template <size_t N>
-  [[nodiscard]] G Pow(const BigInt<N>& exponent) const {
+  template <size_t N,
+            typename ReturnTy =
+                typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
+  [[nodiscard]] constexpr ReturnTy Pow(const BigInt<N>& exponent) const {
+    const G* g = static_cast<const G*>(this);
+    ReturnTy ret = ReturnTy::One();
     auto it = BitIteratorBE<BigInt<N>>::begin(&exponent, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&exponent);
-    const G& self = *static_cast<const G*>(this);
-    G g = G::One();
     while (it != end) {
       if constexpr (internal::SupportsSquareInPlace<G>::value) {
-        g.SquareInPlace();
+        ret.SquareInPlace();
       } else {
-        g *= g;
+        ret = ret.Square();
       }
-
       if (*it) {
-        g *= self;
+        if constexpr (internal::SupportsMulInPlace<ReturnTy, G>::value) {
+          ret.MulInPlace(*g);
+        } else {
+          ret = ret.Mul(*g);
+        }
       }
       ++it;
     }
-    return g;
+    return ret;
   }
 
-  template <size_t N>
-  static G PowWithTable(absl::Span<const G> powers_of_2,
-                        const BigInt<N>& exponent) {
+  template <size_t N,
+            typename ReturnTy =
+                typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
+  static ReturnTy PowWithTable(absl::Span<const G> powers_of_2,
+                               const BigInt<N>& exponent) {
     auto it = BitIteratorLE<BigInt<N>>::begin(&exponent);
     auto end = BitIteratorLE<BigInt<N>>::end(&exponent, true);
-    G g = G::One();
+    ReturnTy g = ReturnTy::One();
     size_t i = 0;
     while (it != end) {
       if (*it) {
@@ -149,10 +166,12 @@ class AdditiveSemigroup {
   // the function below, then it gives me an error "error: request for member
   // 'operator*' is ambiguous".
   // constexpr auto operator*(const BigInt<N>& scalar) const {
-  template <size_t N>
-  constexpr auto ScalarMul(const BigInt<N>& scalar) const {
+  template <size_t N,
+            typename ReturnTy =
+                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
+  [[nodiscard]] constexpr ReturnTy ScalarMul(const BigInt<N>& scalar) const {
     const G* g = static_cast<const G*>(this);
-    G ret = G::Zero();
+    ReturnTy ret = ReturnTy::Zero();
     auto it = BitIteratorBE<BigInt<N>>::begin(&scalar, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&scalar);
     while (it != end) {
@@ -162,7 +181,7 @@ class AdditiveSemigroup {
         ret = ret.Double();
       }
       if (*it) {
-        if constexpr (internal::SupportsAddInPlace<G, G>::value) {
+        if constexpr (internal::SupportsAddInPlace<ReturnTy, G>::value) {
           ret.AddInPlace(*g);
         } else {
           ret = ret.Add(*g);

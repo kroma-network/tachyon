@@ -5,7 +5,6 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
@@ -23,6 +22,8 @@ template <typename _Curve>
 class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     : public AdditiveGroup<AffinePoint<_Curve>> {
  public:
+  constexpr static const bool kNegationIsCheap = true;
+
   using Curve = _Curve;
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
@@ -94,12 +95,9 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
                                   BaseInputIterator bases_last,
                                   ScalarInputIterator scalars_first,
                                   ScalarInputIterator scalars_last) {
-    std::vector<JacobianPoint<Curve>> bases =
-        base::Map(std::move(bases_first), std::move(bases_last),
-                  [](const AffinePoint& point) { return point.ToJacobian(); });
-    return Curve::template MSM<JacobianPoint<Curve>>(bases.begin(), bases.end(),
-                                                     std::move(scalars_first),
-                                                     std::move(scalars_last));
+    return Curve::template MSM<AffinePoint>(
+        std::move(bases_first), std::move(bases_last), std::move(scalars_first),
+        std::move(scalars_last));
   }
 
   template <typename BaseContainer, typename ScalarContainer>

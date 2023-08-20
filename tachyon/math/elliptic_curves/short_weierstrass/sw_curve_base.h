@@ -73,17 +73,16 @@ class SWCurveBase {
             typename ScalarInputIterator,
             std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
                                          PointTy, ScalarField>>* = nullptr>
-  static PointTy MSM(BaseInputIterator bases_first,
-                     BaseInputIterator bases_last,
-                     ScalarInputIterator scalars_first,
-                     ScalarInputIterator scalars_last) {
+  static auto MSM(BaseInputIterator bases_first, BaseInputIterator bases_last,
+                  ScalarInputIterator scalars_first,
+                  ScalarInputIterator scalars_last) {
     return VariableBaseMSM<PointTy>::MSM(
         std::move(bases_first), std::move(bases_last), std::move(scalars_first),
         std::move(scalars_last));
   }
 
-  template <typename PointTy, typename BaseContainer, typename ScalarContainer>
-  static PointTy MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
+  template <typename BaseContainer, typename ScalarContainer>
+  static auto MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
     return MSM(std::begin(std::forward<BaseContainer>(bases)),
                std::end(std::forward<BaseContainer>(bases)),
                std::begin(std::forward<ScalarContainer>(scalars)),

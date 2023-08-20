@@ -34,7 +34,7 @@ TYPED_TEST(GLVTest, Endomorphism) {
   PointTy expected;
   auto lambda = GLV<PointTy>::Lambda().ToBigInt();
   if constexpr (std::is_same_v<PointTy, bls12_381::G1AffinePoint>) {
-    expected = base.ToJacobian().ScalarMul(lambda).ToAffine();
+    expected = base.ScalarMul(lambda).ToAffine();
   } else {
     expected = base.ScalarMul(lambda);
   }
@@ -59,13 +59,14 @@ TYPED_TEST(GLVTest, Decompose) {
 
 TYPED_TEST(GLVTest, Mul) {
   using PointTy = TypeParam;
-  using ReturnTy = typename PointTraits<PointTy>::AdditionResultTy;
+  using ReturnTy =
+      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
   PointTy base = PointTy::Random();
   bls12_381::Fr scalar = bls12_381::Fr::Random();
   ReturnTy expected;
   if constexpr (std::is_same_v<PointTy, bls12_381::G1AffinePoint>) {
-    expected = base.ToJacobian().ScalarMul(scalar.ToBigInt());
+    expected = base.ScalarMul(scalar.ToBigInt());
   } else {
     expected = base.ScalarMul(scalar.ToBigInt());
   }
