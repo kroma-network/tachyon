@@ -65,6 +65,7 @@ tachyon_cc_test(
         ":variable_base_msm",
         "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )
 
@@ -77,5 +78,6 @@ tachyon_cuda_test(
         "//tachyon/device/gpu:scoped_mem_pool",
         "//tachyon/device/gpu:scoped_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )

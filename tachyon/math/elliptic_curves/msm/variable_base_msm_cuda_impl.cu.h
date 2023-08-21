@@ -24,8 +24,8 @@ template <typename Curve>
 struct ExecutionConfig {
   gpuMemPool_t mem_pool = nullptr;
   gpuStream_t stream = nullptr;
-  AffinePoint<Curve>* bases = nullptr;
-  typename AffinePoint<Curve>::ScalarField* scalars = nullptr;
+  const AffinePoint<Curve>* bases = nullptr;
+  const typename AffinePoint<Curve>::ScalarField* scalars = nullptr;
   JacobianPoint<Curve>* results = nullptr;
   unsigned int log_scalars_count = 0;
   gpuEvent_t h2d_copy_finished = nullptr;

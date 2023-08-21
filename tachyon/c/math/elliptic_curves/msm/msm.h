@@ -11,6 +11,10 @@
 extern "C" {
 #endif
 
+TACHYON_C_EXPORT void tachyon_init_msm(uint8_t degree);
+
+TACHYON_C_EXPORT void tachyon_release_msm();
+
 TACHYON_C_EXPORT tachyon_bn254_g1_jacobian* tachyon_msm_g1_point2(
     const tachyon_bn254_point2* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len);

@@ -6,6 +6,7 @@
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/device/gpu/scoped_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
+#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_cuda.cu.h"
 
@@ -26,22 +27,20 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
     bn254::G1AffinePoint::Curve::Init();
     VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Setup();
 
-    std::vector<bn254::G1AffinePoint> bases = base::CreateVector(
-        kCount, []() { return bn254::G1AffinePoint::Random(); });
-    std::vector<bn254::Fr> scalars =
-        base::CreateVector(kCount, []() { return bn254::Fr::Random(); });
-
-    expected_ = VariableBaseMSM<bn254::G1AffinePoint>::MSM(bases, scalars);
+    MSMTestSet<bn254::G1AffinePoint> test_set =
+        MSMTestSet<bn254::G1AffinePoint>::Random(kCount,
+                                                 /*use_msm=*/true);
 
     d_bases_ = gpu::Malloc<bn254::G1AffinePointCuda>(kCount);
     d_scalars_ = gpu::Malloc<bn254::FrCuda>(kCount);
     d_results_ = gpu::Malloc<bn254::G1JacobianPointCuda>(256);
     u_results_.reset(new bn254::G1JacobianPoint[256]);
 
-    gpuMemcpy(d_bases_.get(), bases.data(),
+    gpuMemcpy(d_bases_.get(), test_set.bases.data(),
               sizeof(bn254::G1AffinePointCuda) * kCount, gpuMemcpyHostToDevice);
-    gpuMemcpy(d_scalars_.get(), scalars.data(), sizeof(bn254::FrCuda) * kCount,
-              gpuMemcpyHostToDevice);
+    gpuMemcpy(d_scalars_.get(), test_set.scalars.data(),
+              sizeof(bn254::FrCuda) * kCount, gpuMemcpyHostToDevice);
+    expected_ = std::move(test_set.answer);
   }
 
   static void TearDownTestSuite() {

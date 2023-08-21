@@ -6,6 +6,10 @@
 namespace tachyon {
 namespace halo2 {
 
+void init_msm(uint8_t degree) { tachyon_init_msm(degree); }
+
+void release_msm() { tachyon_release_msm(); }
+
 rust::Box<CppG1Jacobian> msm(rust::Slice<const CppG1Affine> bases,
                              rust::Slice<const CppFr> scalars) {
   auto ret = tachyon_msm_g1_point2(

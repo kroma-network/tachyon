@@ -2,8 +2,8 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
@@ -22,23 +22,14 @@ class VariableBaseMSMTest : public testing::Test {
 
   static void SetUpTestSuite() { PointTy::Curve::Init(); }
 
-  VariableBaseMSMTest() {
-    bases_ = base::CreateVector(kSize, []() { return PointTy::Random(); });
-    scalars_ = base::CreateVector(kSize, []() { return bn254::Fr::Random(); });
-
-    answer_ = ReturnTy::Zero();
-    for (size_t i = 0; i < bases_.size(); ++i) {
-      answer_ += bases_[i].ScalarMul(scalars_[i].ToBigInt());
-    }
-  }
+  VariableBaseMSMTest()
+      : test_set_(MSMTestSet<PointTy>::Random(kSize, /*use_msm=*/false)) {}
   VariableBaseMSMTest(const VariableBaseMSMTest&) = delete;
   VariableBaseMSMTest& operator=(const VariableBaseMSMTest&) = delete;
   ~VariableBaseMSMTest() override = default;
 
  protected:
-  std::vector<PointTy> bases_;
-  std::vector<bn254::Fr> scalars_;
-  ReturnTy answer_;
+  MSMTestSet<PointTy> test_set_;
 };
 
 }  // namespace
@@ -51,13 +42,16 @@ TYPED_TEST_SUITE(VariableBaseMSMTest, PointTypes);
 TYPED_TEST(VariableBaseMSMTest, DoMSM) {
   using PointTy = TypeParam;
 
+  const MSMTestSet<PointTy>& test_set = this->test_set_;
+
   for (int i = 0; i < 2; ++i) {
     bool use_window_naf = i == 0;
     SCOPED_TRACE(absl::Substitute("use_window_naf: $0", use_window_naf));
-    EXPECT_EQ(VariableBaseMSM<PointTy>::DoMSM(
-                  this->bases_.begin(), this->bases_.end(),
-                  this->scalars_.begin(), this->scalars_.end(), use_window_naf),
-              this->answer_);
+    EXPECT_EQ(
+        VariableBaseMSM<PointTy>::DoMSM(
+            test_set.bases.begin(), test_set.bases.end(),
+            test_set.scalars.begin(), test_set.scalars.end(), use_window_naf),
+        test_set.answer);
   }
 }
 

@@ -1,68 +1,73 @@
 #include "tachyon/c/math/elliptic_curves/msm/msm.h"
 
+#include <tuple>
+
 #include "absl/types/span.h"
 
+#include "tachyon/base/console/console_stream.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
+#include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 
-namespace tachyon {
+namespace tachyon::math {
 
 namespace {
 
-using namespace math;
+std::unique_ptr<internal::MSMInputProvider> g_provider;
 
-bn254::G1JacobianPoint DoMSM(const tachyon_bn254_point2* bases_in,
-                             size_t bases_len,
-                             const tachyon_bn254_fr* scalars_in,
-                             size_t scalars_len) {
-  absl::Span<const Point2<bn254::Fq>> points(
-      reinterpret_cast<const Point2<bn254::Fq>*>(bases_in), bases_len);
-  std::vector<bn254::G1AffinePoint> bases =
-      base::Map(points, [](const Point2<bn254::Fq>& point) {
-        if (point.x.IsZero() && point.y.IsZero()) {
-          return bn254::G1AffinePoint::Zero();
-        }
-        return bn254::G1AffinePoint(point);
-      });
-  absl::Span<const bn254::Fr> scalars(
-      reinterpret_cast<const bn254::Fr*>(scalars_in), scalars_len);
-  return VariableBaseMSM<bn254::G1AffinePoint>::MSM(bases, scalars);
+void DoInitMSM(uint8_t degree) {
+  {
+    // NOTE(chokobole): This should be replaced with VLOG().
+    // Currently, there's no way to delegate VLOG flags from rust side.
+    base::ConsoleStream cs;
+    cs.Green();
+    std::cout << "DoInitMSM()" << std::endl;
+  }
+  bn254::G1AffinePoint::Curve::Init();
+
+  std::ignore = degree;
+  g_provider.reset(new internal::MSMInputProvider());
 }
 
-bn254::G1JacobianPoint DoMSM(const tachyon_bn254_g1_affine* bases_in,
-                             size_t bases_len,
-                             const tachyon_bn254_fr* scalars_in,
-                             size_t scalars_len) {
-  absl::Span<const bn254::G1AffinePoint> bases(
-      reinterpret_cast<const bn254::G1AffinePoint*>(bases_in), bases_len);
-  absl::Span<const bn254::Fr> scalars(
-      reinterpret_cast<const bn254::Fr*>(scalars_in), scalars_len);
-  return VariableBaseMSM<bn254::G1AffinePoint>::MSM(bases, scalars);
+void DoReleaseMSM() {
+  {
+    // NOTE(chokobole): This should be replaced with VLOG().
+    // Currently, there's no way to delegate VLOG flags from rust side.
+    base::ConsoleStream cs;
+    cs.Green();
+    std::cout << "DoReleaseMSM()" << std::endl;
+  }
+  g_provider.reset();
 }
 
-tachyon_bn254_g1_jacobian* ToCCPtr(const bn254::G1JacobianPoint& point) {
-  tachyon_bn254_g1_jacobian* ret = new tachyon_bn254_g1_jacobian;
-  memcpy(&ret->x, point.x().value().limbs, sizeof(uint64_t) * 4);
-  memcpy(&ret->y, point.y().value().limbs, sizeof(uint64_t) * 4);
-  memcpy(&ret->z, point.z().value().limbs, sizeof(uint64_t) * 4);
-  return ret;
+template <typename T>
+tachyon_bn254_g1_jacobian* DoMSM(const T* bases, size_t bases_len,
+                                 const tachyon_bn254_fr* scalars,
+                                 size_t scalars_len) {
+  g_provider->Inject(bases, bases_len, scalars, scalars_len);
+  return CreateCPoint3Ptr<tachyon_bn254_g1_jacobian>(
+      VariableBaseMSM<bn254::G1AffinePoint>::MSM(g_provider->bases(),
+                                                 g_provider->scalars()));
 }
 
 }  // namespace
 
-}  // namespace tachyon
+}  // namespace tachyon::math
+
+void tachyon_init_msm(uint8_t degree) { tachyon::math::DoInitMSM(degree); }
+
+void tachyon_release_msm() { tachyon::math::DoReleaseMSM(); }
 
 tachyon_bn254_g1_jacobian* tachyon_msm_g1_point2(
     const tachyon_bn254_point2* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
-  return tachyon::ToCCPtr(
-      tachyon::DoMSM(bases, bases_len, scalars, scalars_len));
+  return tachyon::math::DoMSM(bases, bases_len, scalars, scalars_len);
 }
 
 tachyon_bn254_g1_jacobian* tachyon_msm_g1_affine(
     const tachyon_bn254_g1_affine* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
-  return tachyon::ToCCPtr(
-      tachyon::DoMSM(bases, bases_len, scalars, scalars_len));
+  return tachyon::math::DoMSM(bases, bases_len, scalars, scalars_len);
 }

@@ -11,8 +11,14 @@ filegroup(
 
 tachyon_cc_library(
     name = "bn254_util",
-    srcs = ["bn254_util.cc"],
-    hdrs = ["bn254_util.h"],
+    srcs = [
+        "bn254_util.cc",
+        "bn254_util_internal.cc",
+    ],
+    hdrs = [
+        "bn254_util.h",
+        "bn254_util_internal.h",
+    ],
     deps = [
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/math/elliptic_curves/bn/bn254:g1",

@@ -12,6 +12,8 @@ mod ffi {
     unsafe extern "C++" {
         include!("tachyon_halo2/include/msm.h");
 
+        fn init_msm(degree: u8);
+        fn release_msm();
         fn msm(bases: &[CppG1Affine], scalars: &[CppFr]) -> Box<CppG1Jacobian>;
         #[cfg(feature = "gpu")]
         fn init_msm_gpu(degree: u8);
@@ -80,7 +82,6 @@ mod test {
         let bases: Vec<G1Affine> = (0..n).map(|_| G1Affine::random(OsRng)).collect();
         let scalars: Vec<Fr> = (0..n).map(|_| Fr::random(OsRng)).collect();
 
-
         let mut timer = Timer::new();
         let expected = {
             let ret = best_multiexp(&scalars, &bases);
@@ -93,10 +94,14 @@ mod test {
             let bases: Vec<CppG1Affine> = mem::transmute(bases);
             let scalars: Vec<CppFr> = mem::transmute(scalars);
 
+            ffi::init_msm(degree);
+
             let actual = ffi::msm(&bases, &scalars);
             let actual: Box<G1> = mem::transmute(actual);
             timer.end("msm");
             assert_eq!(*actual, expected);
+
+            ffi::release_msm();
         }
     }
 

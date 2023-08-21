@@ -1,0 +1,10 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "msm_test_set",
+    testonly = True,
+    hdrs = ["msm_test_set.h"],
+    deps = ["//tachyon/math/elliptic_curves/msm:variable_base_msm"],
+)

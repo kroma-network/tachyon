@@ -1,5 +1,11 @@
 load("//bazel:tachyon.bzl", "if_gpu_is_configured")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+    "tachyon_cuda_library",
+    "tachyon_cuda_test",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -11,15 +17,27 @@ filegroup(
 )
 
 tachyon_cc_library(
-    name = "msm",
-    srcs = ["msm.cc"],
-    hdrs = ["msm.h"],
+    name = "msm_input_provider",
+    srcs = ["msm_input_provider.cc"],
+    hdrs = ["msm_input_provider.h"],
     deps = [
-        "//tachyon/base/containers:container_util",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/c/math/elliptic_curves/bn/bn254:point2",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "@com_google_absl//absl/numeric:bits",
+    ],
+)
+
+tachyon_cc_library(
+    name = "msm",
+    srcs = ["msm.cc"],
+    hdrs = ["msm.h"],
+    deps = [
+        ":msm_input_provider",
+        "//tachyon/base/console",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/cc/math/elliptic_curves:point_conversions",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
     ],
 )
@@ -29,15 +47,34 @@ tachyon_cuda_library(
     srcs = if_gpu_is_configured(["msm_gpu.cc"]),
     hdrs = ["msm_gpu.h"],
     deps = [
-        "//tachyon/base:bits",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:point2",
+        ":msm_input_provider",
+        "//tachyon/base/console",
+        "//tachyon/cc/math/elliptic_curves:point_conversions",
         "//tachyon/device/gpu:gpu_logging",
         "//tachyon/device/gpu:scoped_mem_pool",
         "//tachyon/device/gpu:scoped_memory",
         "//tachyon/device/gpu/cuda:scoped_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm_cuda",
+    ],
+)
+
+tachyon_cc_test(
+    name = "msm_unittests",
+    srcs = ["msm_unittest.cc"],
+    deps = [
+        ":msm",
+        "//tachyon/cc/math/elliptic_curves/bn/bn254:bn254_util",
+        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+    ],
+)
+
+tachyon_cuda_test(
+    name = "msm_cuda_unittest",
+    srcs = if_gpu_is_configured(["msm_gpu_unittest.cu.cc"]),
+    deps = [
+        ":msm_gpu",
+        "//tachyon/cc/math/elliptic_curves/bn/bn254:bn254_util",
+        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )
