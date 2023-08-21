@@ -1,0 +1,42 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_binary")
+
+tachyon_cc_library(
+    name = "ec_config",
+    srcs = ["ec_config.cc"],
+    hdrs = ["ec_config.h"],
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/flag:flag_parser",
+    ],
+)
+
+tachyon_cc_library(
+    name = "ec_util",
+    srcs = ["ec_util.cc"],
+    hdrs = ["ec_util.h"],
+    visibility = ["//benchmark:__subpackages__"],
+    deps = ["//tachyon/math/elliptic_curves/bn/bn254:g1"],
+)
+
+tachyon_cc_library(
+    name = "simple_ec_benchmark_reporter",
+    srcs = ["simple_ec_benchmark_reporter.cc"],
+    hdrs = ["simple_ec_benchmark_reporter.h"],
+    visibility = ["//benchmark:__subpackages__"],
+    deps = ["//benchmark:simple_benchmark_reporter"],
+)
+
+tachyon_cuda_binary(
+    name = "ec_double_benchmark",
+    srcs = ["ec_double_benchmark.cu.cc"],
+    deps = [
+        ":ec_config",
+        ":ec_util",
+        ":simple_ec_benchmark_reporter",
+        "//tachyon/base/time:time_interval",
+        "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu/cuda:scoped_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/short_weierstrass/kernels:elliptic_curve_ops",
+    ],
+)
