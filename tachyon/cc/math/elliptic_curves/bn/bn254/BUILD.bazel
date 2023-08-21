@@ -1,0 +1,23 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "bn254_hdrs",
+    srcs = [
+        "bn254_util.h",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_util",
+    srcs = ["bn254_util.cc"],
+    hdrs = ["bn254_util.h"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:point2",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:point3",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+    ],
+)
