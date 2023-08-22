@@ -9,6 +9,7 @@
 #include <cub/cub.cuh>
 
 #include "tachyon/base/bits.h"
+#include "tachyon/device/gpu/cuda/cub_helper.h"
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/scoped_async_memory.h"
@@ -338,35 +339,36 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     }
 
     // sort base indexes by bucket indexes
-    ScopedAsyncMemory<uint8_t> input_indexes_sort_temp_storage;
-    size_t input_indexes_sort_temp_storage_bytes = 0;
-    RETURN_AND_LOG_IF_GPU_ERROR(
-        cub::DeviceRadixSort::SortPairs(
-            input_indexes_sort_temp_storage.get(),
-            input_indexes_sort_temp_storage_bytes,
-            &(bucket_indexes.get())[inputs_count], bucket_indexes.get(),
-            &(base_indexes.get())[inputs_count], base_indexes.get(),
-            inputs_count, 0, bits_count_pass_one),
-        "Failed to cub::DeviceRadixSort::SortPairs()");
-    input_indexes_sort_temp_storage = MallocFromPoolAsync<uint8_t>(
-        input_indexes_sort_temp_storage_bytes, pool, stream);
-    if (!dry_run) {
-      for (unsigned int i = 0; i < windows_count_pass_one; ++i) {
-        unsigned int offset_out = i * inputs_count;
-        unsigned int offset_in = offset_out + inputs_count;
-        RETURN_AND_LOG_IF_GPU_ERROR(
-            cub::DeviceRadixSort::SortPairs(
-                input_indexes_sort_temp_storage.get(),
-                input_indexes_sort_temp_storage_bytes,
-                &(bucket_indexes.get())[offset_in],
-                &(bucket_indexes.get())[offset_out],
-                &(base_indexes.get())[offset_in],
-                &(base_indexes.get())[offset_out], inputs_count, 0,
-                bits_count_pass_one),
-            "Failed to cub::DeviceRadixSort::SortPairs()");
+    {
+      ScopedAsyncMemory<uint8_t> input_indexes_sort_temp_storage;
+      size_t input_indexes_sort_temp_storage_bytes = 0;
+      RETURN_AND_LOG_IF_GPU_ERROR(
+          cub::DeviceRadixSort::SortPairs(
+              input_indexes_sort_temp_storage.get(),
+              input_indexes_sort_temp_storage_bytes,
+              &(bucket_indexes.get())[inputs_count], bucket_indexes.get(),
+              &(base_indexes.get())[inputs_count], base_indexes.get(),
+              inputs_count, 0, bits_count_pass_one),
+          "Failed to cub::DeviceRadixSort::SortPairs()");
+      input_indexes_sort_temp_storage = MallocFromPoolAsync<uint8_t>(
+          input_indexes_sort_temp_storage_bytes, pool, stream);
+      if (!dry_run) {
+        for (unsigned int i = 0; i < windows_count_pass_one; ++i) {
+          unsigned int offset_out = i * inputs_count;
+          unsigned int offset_in = offset_out + inputs_count;
+          RETURN_AND_LOG_IF_GPU_ERROR(
+              cub::DeviceRadixSort::SortPairs(
+                  input_indexes_sort_temp_storage.get(),
+                  input_indexes_sort_temp_storage_bytes,
+                  &(bucket_indexes.get())[offset_in],
+                  &(bucket_indexes.get())[offset_out],
+                  &(base_indexes.get())[offset_in],
+                  &(base_indexes.get())[offset_out], inputs_count, 0,
+                  bits_count_pass_one, stream),
+              "Failed to cub::DeviceRadixSort::SortPairs()");
+        }
       }
     }
-    input_indexes_sort_temp_storage.reset();
 
     // run length encode bucket runs
     ScopedAsyncMemory<unsigned int> unique_bucket_indexes =
@@ -377,52 +379,36 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
                                           stream);
     ScopedAsyncMemory<unsigned int> bucket_runs_count =
         MallocFromPoolAsync<unsigned int>(1, pool, stream);
-    ScopedAsyncMemory<uint8_t> encode_temp_storage;
-    size_t encode_temp_storage_bytes = 0;
-    RETURN_AND_LOG_IF_GPU_ERROR(
-        cub::DeviceRunLengthEncode::Encode(
-            encode_temp_storage.get(), encode_temp_storage_bytes,
-            bucket_indexes.get(), unique_bucket_indexes.get(),
-            bucket_run_lengths.get(), bucket_runs_count.get(),
-            input_indexes_count),
-        "Failed to cub::DeviceRunLengthEncode::Encode()");
-    encode_temp_storage =
-        MallocFromPoolAsync<uint8_t>(encode_temp_storage_bytes, pool, stream);
-    if (!dry_run) {
-      RETURN_AND_LOG_IF_GPU_ERROR(
-          cub::DeviceRunLengthEncode::Encode(
-              encode_temp_storage.get(), encode_temp_storage_bytes,
-              bucket_indexes.get(), unique_bucket_indexes.get(),
-              bucket_run_lengths.get(), bucket_runs_count.get(),
-              input_indexes_count, stream),
-          "Failed to cub::DeviceRunLengthEncode::Encode()");
+    if (dry_run) {
+      error = CUB_TRY_ALLOCATE_WITH_POOL(
+          pool, stream, cub::DeviceRunLengthEncode::Encode,
+          bucket_indexes.get(), unique_bucket_indexes.get(),
+          bucket_run_lengths.get(), bucket_runs_count.get(),
+          input_indexes_count);
+    } else {
+      error = CUB_INVOKE_WITH_POOL(
+          pool, stream, cub::DeviceRunLengthEncode::Encode,
+          bucket_indexes.get(), unique_bucket_indexes.get(),
+          bucket_run_lengths.get(), bucket_runs_count.get(),
+          input_indexes_count, stream);
     }
-    encode_temp_storage.reset();
+    if (error != gpuSuccess) return error;
     bucket_indexes.reset();
 
     // compute bucket run offsets
     ScopedAsyncMemory<unsigned int> bucket_run_offsets =
         MallocFromPoolAsync<unsigned int>(extended_buckets_count_pass_one, pool,
                                           stream);
-    ScopedAsyncMemory<uint8_t> scan_temp_storage;
-    size_t scan_temp_storage_bytes = 0;
-    RETURN_AND_LOG_IF_GPU_ERROR(
-        cub::DeviceScan::ExclusiveSum(
-            scan_temp_storage.get(), scan_temp_storage_bytes,
-            bucket_run_lengths.get(), bucket_run_offsets.get(),
-            extended_buckets_count_pass_one),
-        "Failed to cub::DeviceScan::ExclusiveSum()");
-    scan_temp_storage =
-        MallocFromPoolAsync<uint8_t>(scan_temp_storage_bytes, pool, stream);
-    if (!dry_run) {
-      RETURN_AND_LOG_IF_GPU_ERROR(
-          cub::DeviceScan::ExclusiveSum(
-              scan_temp_storage.get(), scan_temp_storage_bytes,
-              bucket_run_lengths.get(), bucket_run_offsets.get(),
-              extended_buckets_count_pass_one, stream),
-          "Failed to cub::DeviceScan::ExclusiveSum()");
+    if (dry_run) {
+      error = CUB_TRY_ALLOCATE_WITH_POOL(
+          pool, stream, cub::DeviceScan::ExclusiveSum, bucket_run_lengths.get(),
+          bucket_run_offsets.get(), extended_buckets_count_pass_one);
+    } else {
+      error = CUB_INVOKE_WITH_POOL(
+          pool, stream, cub::DeviceScan::ExclusiveSum, bucket_run_lengths.get(),
+          bucket_run_offsets.get(), extended_buckets_count_pass_one, stream);
     }
-    scan_temp_storage.reset();
+    if (error != gpuSuccess) return error;
 
     if (!dry_run) {
       error = kernels::RemoveZeroBuckets(
@@ -444,31 +430,20 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
         MallocFromPoolAsync<unsigned int>(extended_buckets_count_pass_one, pool,
                                           stream);
 
-    ScopedAsyncMemory<uint8_t> sort_offsets_temp_storage;
-    size_t sort_offsets_temp_storage_bytes = 0;
-    RETURN_AND_LOG_IF_GPU_ERROR(
-        cub::DeviceRadixSort::SortPairsDescending(
-            sort_offsets_temp_storage.get(), sort_offsets_temp_storage_bytes,
-            bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
-            bucket_run_offsets.get(), sorted_bucket_run_offsets.get(),
-            extended_buckets_count_pass_one, 0, log_inputs_count + 1),
-        "Failed to cub::DeviceRadixSort::SortPairsDescending()");
-    sort_offsets_temp_storage = MallocFromPoolAsync<uint8_t>(
-        sort_offsets_temp_storage_bytes, pool, stream);
-
-    ScopedAsyncMemory<uint8_t> sort_indexes_temp_storage;
-    size_t sort_indexes_temp_storage_bytes = 0;
-    RETURN_AND_LOG_IF_GPU_ERROR(
-        cub::DeviceRadixSort::SortPairsDescending(
-            sort_indexes_temp_storage.get(), sort_indexes_temp_storage_bytes,
-            bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
-            unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
-            extended_buckets_count_pass_one, 0, log_inputs_count + 1),
-        "Failed to cub::DeviceRadixSort::SortPairsDescending()");
-    sort_indexes_temp_storage = MallocFromPoolAsync<uint8_t>(
-        sort_indexes_temp_storage_bytes, pool, stream);
-
-    if (!dry_run) {
+    if (dry_run) {
+      error = CUB_TRY_ALLOCATE_WITH_POOL(
+          pool, stream, cub::DeviceRadixSort::SortPairsDescending,
+          bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
+          bucket_run_offsets.get(), sorted_bucket_run_offsets.get(),
+          extended_buckets_count_pass_one, 0, log_inputs_count + 1);
+      if (error != gpuSuccess) return error;
+      error = CUB_TRY_ALLOCATE_WITH_POOL(
+          pool, stream, cub::DeviceRadixSort::SortPairsDescending,
+          bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
+          unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
+          extended_buckets_count_pass_one, 0, log_inputs_count + 1);
+      if (error != gpuSuccess) return error;
+    } else {
       ScopedEvent event_sort_inputs_ready =
           CreateEventWithFlags(gpuEventDisableTiming);
       RETURN_AND_LOG_IF_GPU_ERROR(
@@ -483,22 +458,18 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
                              event_sort_inputs_ready.get()),
           "Failed to gpuStreamWaitEvent()");
       event_sort_inputs_ready.reset();
-      RETURN_AND_LOG_IF_GPU_ERROR(
-          cub::DeviceRadixSort::SortPairsDescending(
-              sort_offsets_temp_storage.get(), sort_offsets_temp_storage_bytes,
-              bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
-              bucket_run_offsets.get(), sorted_bucket_run_offsets.get(),
-              extended_buckets_count_pass_one, 0, log_inputs_count + 1,
-              stream_sort_a.get()),
-          "Failed to cub::DeviceRadixSort::SortPairsDescending()");
-      RETURN_AND_LOG_IF_GPU_ERROR(
-          cub::DeviceRadixSort::SortPairsDescending(
-              sort_indexes_temp_storage.get(), sort_indexes_temp_storage_bytes,
-              bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
-              unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
-              extended_buckets_count_pass_one, 0, log_inputs_count + 1,
-              stream_sort_b.get()),
-          "Failed to cub::DeviceRadixSort::SortPairsDescending()");
+      error = CUB_INVOKE_WITH_POOL(
+          pool, stream, cub::DeviceRadixSort::SortPairsDescending,
+          bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
+          bucket_run_offsets.get(), sorted_bucket_run_offsets.get(),
+          extended_buckets_count_pass_one, 0, log_inputs_count + 1);
+      if (error != gpuSuccess) return error;
+      error = CUB_INVOKE_WITH_POOL(
+          pool, stream, cub::DeviceRadixSort::SortPairsDescending,
+          bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
+          unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
+          extended_buckets_count_pass_one, 0, log_inputs_count + 1);
+      if (error != gpuSuccess) return error;
       ScopedEvent event_sort_a = CreateEventWithFlags(gpuEventDisableTiming);
       ScopedEvent event_sort_b = CreateEventWithFlags(gpuEventDisableTiming);
       RETURN_AND_LOG_IF_GPU_ERROR(
@@ -515,8 +486,6 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           "Failed to gpuStreamWaitEvent()");
     }
 
-    sort_offsets_temp_storage.reset();
-    sort_indexes_temp_storage.reset();
     bucket_run_lengths.reset();
     bucket_run_offsets.reset();
     unique_bucket_indexes.reset();

@@ -9,6 +9,7 @@ tachyon_cuda_library(
     ],
     deps = [
         "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu/cuda:cub_helper",
         "//tachyon/device/gpu/cuda:cuda_memory",
         "//tachyon/math/elliptic_curves/short_weierstrass:points",
     ],

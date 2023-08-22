@@ -4,6 +4,15 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library", "tachyon_cuda_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cuda_library(
+    name = "cub_helper",
+    hdrs = ["cub_helper.h"],
+    deps = [
+        "//tachyon/device/gpu:scoped_async_memory",
+        "//tachyon/device/gpu:scoped_memory",
+    ],
+)
+
+tachyon_cuda_library(
     name = "cuda_driver",
     srcs = if_cuda(["cuda_driver.cc"]),
     hdrs = ["cuda_driver.h"],
