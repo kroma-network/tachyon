@@ -116,7 +116,7 @@ gpuError_t ComputeBucketIndexes(const ScalarField* scalars,
 #define MAX_THREADS 128
 __global__ void RemoveZeroBucketsKernel(
     const unsigned int* unique_bucket_indexes, unsigned int* bucket_run_lengths,
-    const unsigned int* bucket_runs_count, const unsigned int count) {
+    const unsigned int* bucket_runs_count, unsigned int count) {
   constexpr unsigned int kHighestBitMask = 0x80000000;
   unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid >= count) return;
@@ -126,10 +126,10 @@ __global__ void RemoveZeroBucketsKernel(
   if (gid >= runs_count || is_zero) bucket_run_lengths[gid] = 0;
 }
 
-gpuError_t RemoveZeroBuckets(unsigned int* unique_bucket_indexes,
+gpuError_t RemoveZeroBuckets(const unsigned int* unique_bucket_indexes,
                              unsigned int* bucket_run_lengths,
                              const unsigned int* bucket_runs_count,
-                             const unsigned int count, gpuStream_t stream) {
+                             unsigned int count, gpuStream_t stream) {
   dim3 block_dim = count < MAX_THREADS ? count : MAX_THREADS;
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
   RemoveZeroBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(
@@ -142,10 +142,10 @@ gpuError_t RemoveZeroBuckets(unsigned int* unique_bucket_indexes,
 #define MIN_BLOCKS 16
 template <typename Curve, bool IsFirst>
 __global__ void AggregateBucketsKernel(
-    unsigned int* __restrict__ base_indexes,
-    unsigned int* __restrict__ bucket_run_offsets,
-    unsigned int* __restrict__ bucket_run_lengths,
-    unsigned int* __restrict__ bucket_indexes,
+    const unsigned int* __restrict__ base_indexes,
+    const unsigned int* __restrict__ bucket_run_offsets,
+    const unsigned int* __restrict__ bucket_run_lengths,
+    const unsigned int* __restrict__ bucket_indexes,
     const AffinePoint<Curve>* __restrict__ bases,
     PointXYZZ<Curve>* __restrict__ buckets, unsigned int count) {
   constexpr unsigned int kNegativeSign = 0x80000000;
@@ -154,7 +154,7 @@ __global__ void AggregateBucketsKernel(
   unsigned int length = bucket_run_lengths[gid];
   if (length == 0) return;
   unsigned int base_indexes_offset = bucket_run_offsets[gid];
-  unsigned int* indexes = base_indexes + base_indexes_offset;
+  const unsigned int* indexes = base_indexes + base_indexes_offset;
   unsigned int bucket_index = bucket_indexes[gid] >> 1;
   PointXYZZ<Curve> bucket;
   if constexpr (IsFirst) {
@@ -187,12 +187,12 @@ __global__ void AggregateBucketsKernel(
 }
 
 template <typename Curve>
-gpuError_t AggregateBuckets(const bool is_first, unsigned int* base_indexes,
-                            unsigned int* bucket_run_offsets,
-                            unsigned int* bucket_run_lengths,
-                            unsigned int* bucket_indexes,
+gpuError_t AggregateBuckets(bool is_first, const unsigned int* base_indexes,
+                            const unsigned int* bucket_run_offsets,
+                            const unsigned int* bucket_run_lengths,
+                            const unsigned int* bucket_indexes,
                             const AffinePoint<Curve>* bases,
-                            PointXYZZ<Curve>* buckets, const unsigned count,
+                            PointXYZZ<Curve>* buckets, unsigned int count,
                             gpuStream_t stream) {
   dim3 block_dim = count < MAX_THREADS ? count : MAX_THREADS;
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
