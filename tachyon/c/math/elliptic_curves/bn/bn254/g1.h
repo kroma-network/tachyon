@@ -1,8 +1,8 @@
 #ifndef TACHYON_C_MATH_ELLIPTIC_CURVES_BN_BN254_G1_H_
 #define TACHYON_C_MATH_ELLIPTIC_CURVES_BN_BN254_G1_H_
 
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fq.h"
 #include "tachyon/c/export.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fq.h"
 
 struct TACHYON_C_EXPORT tachyon_bn254_g1_affine {
   tachyon_bn254_fq x;
