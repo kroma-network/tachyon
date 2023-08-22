@@ -24,7 +24,7 @@ __global__ void InitializeBucketsKernel(PointXYZZ<Curve>* buckets,
   unsigned int element_index = gid % kUint4Count;
   uint4* elements = const_cast<uint4*>(
       reinterpret_cast<const uint4*>(&buckets[bucket_index].zz()));
-  Store<uint4, CacheOperator::kStreaming>(elements + element_index, uint4());
+  Store<uint4, CacheOperator::kStreaming>(&elements[element_index], uint4());
 }
 
 template <typename Curve,
@@ -154,7 +154,7 @@ __global__ void AggregateBucketsKernel(
   unsigned int length = bucket_run_lengths[gid];
   if (length == 0) return;
   unsigned int base_indexes_offset = bucket_run_offsets[gid];
-  const unsigned int* indexes = base_indexes + base_indexes_offset;
+  const unsigned int* indexes = &base_indexes[base_indexes_offset];
   unsigned int bucket_index = bucket_indexes[gid] >> 1;
   PointXYZZ<Curve> bucket;
   if constexpr (IsFirst) {
@@ -162,27 +162,27 @@ __global__ void AggregateBucketsKernel(
     unsigned int sign = base_index & kNegativeSign;
     base_index &= ~kNegativeSign;
     auto base =
-        Load<AffinePoint<Curve>, CacheOperator::kNone>(bases + base_index);
+        Load<AffinePoint<Curve>, CacheOperator::kNone>(&bases[base_index]);
     if (sign) {
       base = base.NegInPlace();
     }
     bucket = base.ToXYZZ();
   } else {
-    bucket = Load<PointXYZZ<Curve>, CacheOperator::kStreaming>(buckets +
-                                                               bucket_index);
+    bucket = Load<PointXYZZ<Curve>, CacheOperator::kStreaming>(
+        &buckets[bucket_index]);
   }
   for (unsigned int i = IsFirst ? 1 : 0; i < length; i++) {
     unsigned int base_index = *indexes++;
     unsigned int sign = base_index & kNegativeSign;
     base_index &= ~kNegativeSign;
     auto base =
-        Load<AffinePoint<Curve>, CacheOperator::kNone>(bases + base_index);
+        Load<AffinePoint<Curve>, CacheOperator::kNone>(&bases[base_index]);
     if (sign) {
       base.NegInPlace();
     }
     bucket += base;
   }
-  Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(buckets + bucket_index,
+  Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(&buckets[bucket_index],
                                                      bucket);
 }
 
@@ -274,12 +274,12 @@ __global__ void SplitWindowsKernel(
         i & index_mask | (i & ~index_mask) << target_window_bits_count;
     unsigned int load_offset = global_offset + index_offset;
     PointXYZZ<Curve> source_bucket =
-        Load<PointXYZZ<Curve>, CacheOperator::kNone>(source_buckets +
-                                                     load_offset);
+        Load<PointXYZZ<Curve>, CacheOperator::kNone>(
+            &source_buckets[load_offset]);
     target_bucket = i == target_partition_index ? source_bucket
                                                 : target_bucket + source_bucket;
   }
-  Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(target_buckets + gid,
+  Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(&target_buckets[gid],
                                                      target_bucket);
 }
 
@@ -308,7 +308,7 @@ __global__ void ReduceBucketsKernel(PointXYZZ<Curve>* buckets,
   if (gid >= count) return;
   buckets += gid;
   auto a = Load<PointXYZZ<Curve>, CacheOperator::kNone>(buckets);
-  auto b = Load<PointXYZZ<Curve>, CacheOperator::kNone>(buckets + count);
+  auto b = Load<PointXYZZ<Curve>, CacheOperator::kNone>(&buckets[count]);
   Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(buckets, a + b);
 }
 
@@ -337,8 +337,8 @@ __global__ void LastPassGatherKernel(
   unsigned int window_tid = gid % bits_count_pass_one;
   PointXYZZ<Curve> pz;
   if (window_tid == signed_bits_count_pass_one || gid == count - 1) {
-    pz = Load<PointXYZZ<Curve>, CacheOperator::kNone>(top_buckets +
-                                                      window_index);
+    pz = Load<PointXYZZ<Curve>, CacheOperator::kNone>(
+        &top_buckets[window_index]);
   } else {
     for (unsigned int bits_count = signed_bits_count_pass_one;
          bits_count > 1;) {
@@ -350,9 +350,9 @@ __global__ void LastPassGatherKernel(
       }
     }
     unsigned int sid = (window_index << 1) + 1;
-    pz = Load<PointXYZZ<Curve>, CacheOperator::kNone>(source + sid);
+    pz = Load<PointXYZZ<Curve>, CacheOperator::kNone>(&source[sid]);
   }
-  Store<JacobianPoint<Curve>, CacheOperator::kStreaming>(target + gid,
+  Store<JacobianPoint<Curve>, CacheOperator::kStreaming>(&target[gid],
                                                          pz.ToJacobian());
 }
 

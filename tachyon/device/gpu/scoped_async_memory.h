@@ -24,6 +24,12 @@ class ScopedAsyncMemory {
   }
   ~ScopedAsyncMemory() { reset(); }
 
+  T& operator*() { return *get(); }
+  const T& operator*() const { return *get(); }
+
+  T* operator->() { return get(); }
+  const T* operator->() const { return get(); }
+
   T* get() { return ptr_; }
   const T* get() const { return ptr_; }
 

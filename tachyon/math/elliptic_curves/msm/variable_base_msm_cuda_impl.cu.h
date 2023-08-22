@@ -244,7 +244,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             "Failed to gpuStreamWaitEvent()");
         const size_t inputs_size = sizeof(ScalarField) << log_inputs_count;
         RETURN_AND_LOG_IF_GPU_ERROR(
-            cudaMemcpyAsync(inputs_scalars.get(), ec.scalars + inputs_offset,
+            cudaMemcpyAsync(inputs_scalars.get(), &ec.scalars[inputs_offset],
                             inputs_size, gpuMemcpyHostToDevice,
                             stream_copy_scalars.get()),
             "Failed to cudaMemcpyAsync()");
@@ -264,7 +264,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             "Failed to gpuStreamWaitEvent()");
         size_t bases_size = sizeof(AffinePoint<Curve>) << log_inputs_count;
         RETURN_AND_LOG_IF_GPU_ERROR(
-            cudaMemcpyAsync(inputs_bases.get(), ec.bases + inputs_offset,
+            cudaMemcpyAsync(inputs_bases.get(), &ec.bases[inputs_offset],
                             bases_size, gpuMemcpyHostToDevice,
                             stream_copy_bases.get()),
             "Failed to cudaMemcpyAsync()");
@@ -321,10 +321,10 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             "Failed to gpuStreamWaitEvent()");
       }
       error = kernels::ComputeBucketIndexes(
-          copy_scalars ? inputs_scalars.get() : ec.scalars + inputs_offset,
+          copy_scalars ? inputs_scalars.get() : &ec.scalars[inputs_offset],
           windows_count_pass_one, bits_count_pass_one,
-          bucket_indexes.get() + inputs_count,
-          base_indexes.get() + inputs_count, inputs_count, stream);
+          &(bucket_indexes.get())[inputs_count],
+          &(base_indexes.get())[inputs_count], inputs_count, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
       if (copy_scalars) {
         RETURN_AND_LOG_IF_GPU_ERROR(
@@ -344,9 +344,9 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
         cub::DeviceRadixSort::SortPairs(
             input_indexes_sort_temp_storage.get(),
             input_indexes_sort_temp_storage_bytes,
-            bucket_indexes.get() + inputs_count, bucket_indexes.get(),
-            base_indexes.get() + inputs_count, base_indexes.get(), inputs_count,
-            0, bits_count_pass_one),
+            &(bucket_indexes.get())[inputs_count], bucket_indexes.get(),
+            &(base_indexes.get())[inputs_count], base_indexes.get(),
+            inputs_count, 0, bits_count_pass_one),
         "Failed to cub::DeviceRadixSort::SortPairs()");
     input_indexes_sort_temp_storage = MallocFromPoolAsync<uint8_t>(
         input_indexes_sort_temp_storage_bytes, pool, stream);
@@ -358,10 +358,11 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             cub::DeviceRadixSort::SortPairs(
                 input_indexes_sort_temp_storage.get(),
                 input_indexes_sort_temp_storage_bytes,
-                bucket_indexes.get() + offset_in,
-                bucket_indexes.get() + offset_out,
-                base_indexes.get() + offset_in, base_indexes.get() + offset_out,
-                inputs_count, 0, bits_count_pass_one, stream),
+                &(bucket_indexes.get())[offset_in],
+                &(bucket_indexes.get())[offset_out],
+                &(base_indexes.get())[offset_in],
+                &(base_indexes.get())[offset_out], inputs_count, 0,
+                bits_count_pass_one),
             "Failed to cub::DeviceRadixSort::SortPairs()");
       }
     }
@@ -530,7 +531,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       error = kernels::AggregateBuckets(
           is_first_loop, base_indexes.get(), sorted_bucket_run_offsets.get(),
           sorted_bucket_run_lengths.get(), sorted_unique_bucket_indexes.get(),
-          copy_bases ? inputs_bases.get() : ec.bases + inputs_offset,
+          copy_bases ? inputs_bases.get() : &ec.bases[inputs_offset],
           buckets_pass_one.get(), buckets_count_pass_one, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
       if (copy_bases) {
@@ -583,12 +584,12 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           top_window_offset + top_window_used_buckets_count;
       for (unsigned int i = 0; i < top_window_unused_bits; ++i) {
         error = kernels::ReduceBuckets(
-            buckets_pass_one.get() + top_window_offset,
+            &(buckets_pass_one.get())[top_window_offset],
             1 << (signed_bits_count_pass_one - i - 1), stream);
         if (UNLIKELY(error != gpuSuccess)) return error;
       }
       error = kernels::InitializeBuckets(
-          buckets_pass_one.get() + top_window_unused_buckets_offset,
+          &(buckets_pass_one.get())[top_window_unused_buckets_offset],
           top_window_unused_buckets_count, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
     }
