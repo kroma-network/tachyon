@@ -334,7 +334,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     }
 
     if (is_last_loop && copy_scalars) {
-      inputs_scalars.reset(stream);
+      inputs_scalars.reset();
     }
 
     // sort base indexes by bucket indexes
@@ -365,7 +365,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             "Failed to cub::DeviceRadixSort::SortPairs()");
       }
     }
-    input_indexes_sort_temp_storage.reset(stream);
+    input_indexes_sort_temp_storage.reset();
 
     // run length encode bucket runs
     ScopedAsyncMemory<unsigned int> unique_bucket_indexes =
@@ -396,8 +396,8 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
               input_indexes_count, stream),
           "Failed to cub::DeviceRunLengthEncode::Encode()");
     }
-    encode_temp_storage.reset(stream);
-    bucket_indexes.reset(stream);
+    encode_temp_storage.reset();
+    bucket_indexes.reset();
 
     // compute bucket run offsets
     ScopedAsyncMemory<unsigned int> bucket_run_offsets =
@@ -421,7 +421,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
               extended_buckets_count_pass_one, stream),
           "Failed to cub::DeviceScan::ExclusiveSum()");
     }
-    scan_temp_storage.reset(stream);
+    scan_temp_storage.reset();
 
     if (!dry_run) {
       error = kernels::RemoveZeroBuckets(
@@ -429,7 +429,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           bucket_runs_count.get(), extended_buckets_count_pass_one, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
     }
-    bucket_runs_count.reset(stream);
+    bucket_runs_count.reset();
 
     // sort run offsets by run lengths
     // sort run indexes by run lengths
@@ -514,11 +514,11 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           "Failed to gpuStreamWaitEvent()");
     }
 
-    sort_offsets_temp_storage.reset(stream);
-    sort_indexes_temp_storage.reset(stream);
-    bucket_run_lengths.reset(stream);
-    bucket_run_offsets.reset(stream);
-    unique_bucket_indexes.reset(stream);
+    sort_offsets_temp_storage.reset();
+    sort_indexes_temp_storage.reset();
+    bucket_run_lengths.reset();
+    bucket_run_offsets.reset();
+    unique_bucket_indexes.reset();
 
     // aggregate buckets
     if (!dry_run) {
@@ -539,12 +539,12 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             "Failed to gpuEventRecord()");
       }
     }
-    base_indexes.reset(stream);
-    sorted_bucket_run_offsets.reset(stream);
-    sorted_bucket_run_lengths.reset(stream);
-    sorted_unique_bucket_indexes.reset(stream);
+    base_indexes.reset();
+    sorted_bucket_run_offsets.reset();
+    sorted_bucket_run_lengths.reset();
+    sorted_unique_bucket_indexes.reset();
     if (is_last_loop && copy_bases) {
-      inputs_bases.reset(stream);
+      inputs_bases.reset();
     }
     inputs_offset += inputs_count;
     if (!is_first_loop && log_inputs_count < log_max_inputs_count)
@@ -620,7 +620,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
                                     total_buckets_count, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
     }
-    source_buckets.reset(stream);
+    source_buckets.reset();
 
     if (!dry_run) {
       for (unsigned int j = 0; j < log_data_split; ++j) {
@@ -662,9 +662,9 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           }
         }
       }
-      if (copy_results) results.reset(stream);
-      target_buckets.reset(stream);
-      top_buckets.reset(stream);
+      if (copy_results) results.reset();
+      target_buckets.reset();
+      top_buckets.reset();
 
       break;
     }

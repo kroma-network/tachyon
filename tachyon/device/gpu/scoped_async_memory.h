@@ -27,16 +27,12 @@ class ScopedAsyncMemory {
   T* get() { return ptr_; }
   const T* get() const { return ptr_; }
 
-  void reset(gpuStream_t stream) {
-    GPU_MUST_SUCCESS(gpuFreeAsync(ptr_, stream), "Failed to gpuFreeAsync()");
+  void reset() {
+    if (ptr_) {
+      GPU_MUST_SUCCESS(gpuFreeAsync(ptr_, stream_), "Failed to gpuFreeAsync()");
+    }
     ptr_ = nullptr;
     stream_ = nullptr;
-  }
-
-  void reset() {
-    if (ptr_ != nullptr) {
-      reset(stream_);
-    }
   }
 
  private:
