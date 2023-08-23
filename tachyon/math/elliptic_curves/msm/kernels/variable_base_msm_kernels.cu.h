@@ -22,6 +22,16 @@ __global__ void InitializeBucketsKernel(PointXYZZ<Curve>* buckets,
   constexpr size_t kUint4Count = sizeof(BaseField) / sizeof(uint4);
   unsigned int bucket_index = gid / kUint4Count;
   unsigned int element_index = gid % kUint4Count;
+  // | x     | y     |
+  // |-------| ------|
+  // | 0 | 1 | 0 | 1 |
+  // |-------| ------|
+  // | zz    | zzz   |
+  // |-------| ------|
+  // | 0 | 1 | 0 | 1 |
+  // <-- 0 -->
+  // This sets zeros to above a certain region, and this is enough to make a
+  // point in |buckets| zero.
   uint4* elements = const_cast<uint4*>(
       reinterpret_cast<const uint4*>(&buckets[bucket_index].zz()));
   Store<uint4, CacheOperator::kStreaming>(&elements[element_index], uint4());
@@ -47,7 +57,7 @@ __global__ void ComputeBucketIndexesKernel(
     const ScalarField* __restrict__ scalars, unsigned int windows_count,
     unsigned int window_bits, unsigned int* __restrict__ bucket_indexes,
     unsigned int* __restrict__ base_indexes, unsigned int count) {
-  constexpr unsigned kHighestBitMask = 0x80000000;
+  constexpr unsigned int kHighestBitMask = 0x80000000;
   unsigned int scalar_index = blockIdx.x * blockDim.x + threadIdx.x;
   if (scalar_index >= count) return;
   unsigned int top_window_unused_bits =
@@ -73,13 +83,52 @@ __global__ void ComputeBucketIndexesKernel(
     bucket_index += borrow;
     borrow = 0;
     unsigned int sign = global_sign;
+    // NOTE(chokobole): The code below should not be executed when dealing with
+    // the top window. For instance, in the case of the curve bn254, where the
+    // modulus uses only 254 bits, the |window_bits| amount to 16 bits when the
+    // degree is 20.
+    // Consequently, scalar decomposition appears as follows:
+    //
+    // S = S_0 + S_1 * 2^16 + S_2 * 2^32 + ... + S_15 * 2^240
+    //
+    // Even with the addition of a borrow to S_15, the resulting value remains
+    // below 2^14 - 1. This ensures that it remains within the bounds of
+    // |top_bucket_index|, which is 2^15.
     if (bucket_index > top_bucket_index) {
+      // When |window_bits| is 4 bits, the value of |top_bucket_index| is 8. In
+      // a scenario where |bucket_index| surpasses 8(let's assume it's 10), the
+      // resulting |bucket_index| transformation is as follows:
+
+      // 10 * B = 10 * B - 16 * B + 16 * B
+      //        = -6 * B + 16 * B
+      //        = 6 * (-B) + 16 * B
       bucket_index = (top_bucket_index << 1) - bucket_index;
       borrow = 1;
       sign ^= kHighestBitMask;
     }
     bool is_top_window = window_index == windows_count - 1;
+    // Ultimately, a dot product is required between the scalar and the base:
+    //
+    // (S_0, S_1 * 2^16, S_2 * 2^32, ..., S_15 * 2^240) * (B, B, B, ..., B)
+    //
+    // When |bucket_index| is zero, it indicates the potential to optimize the
+    // computation of the dot product by subsequently reducing the required
+    // number of multiplications.
+    // See RemoveZeroBucketsKernel() for more details.
     unsigned int zero_mask = bucket_index ? 0 : kHighestBitMask;
+    // For bn254 scalar field with degree 20, |bucket_index| appears as follows:
+    //
+    // In case of top window,
+    //
+    // | 2      | 13          | 1    |
+    // |--------|-------------|------|
+    // | unused |bucket_index | sign |
+    //
+    // Otherwise,
+    //
+    // | 15           | 1    |
+    // |--------------|------|
+    // | bucket_index | sign |
     bucket_index =
         ((bucket_index &
           ((is_top_window ? top_window_top_bucket_index : top_bucket_index) -
@@ -87,13 +136,20 @@ __global__ void ComputeBucketIndexesKernel(
          << 1) |
         (bucket_index >>
          (is_top_window ? top_window_signed_window_bits : signed_window_bits));
+    // NOTE(chokobole): You can think of it as like padding.
     unsigned int bucket_index_offset =
         is_top_window
             ? (scalar_index & top_window_unused_mask) << top_window_used_bits
             : 0;
     unsigned int output_index = window_index * count + scalar_index;
+    // | 1         | window_bits -1 | 31                       | 1    |
+    // |-----------|----------------|--------------------------|------|
+    // | zero_mask | window_mask    | bucket_index(w/ padding) | sign |
     bucket_indexes[output_index] =
         zero_mask | window_mask | bucket_index_offset | bucket_index;
+    // | 1    | 31           |
+    // |------|--------------|
+    // | sign | scalar_index |
     base_indexes[output_index] = sign | scalar_index;
   }
 }
@@ -152,9 +208,11 @@ __global__ void AggregateBucketsKernel(
   unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid >= count) return;
   unsigned int length = bucket_run_lengths[gid];
+  // NOTE(chokobole): This is zeroed out in RemoveZeroBucketsKernel().
   if (length == 0) return;
   unsigned int base_indexes_offset = bucket_run_offsets[gid];
   const unsigned int* indexes = &base_indexes[base_indexes_offset];
+  // NOTE(chokobole): The last bit is sign bit.
   unsigned int bucket_index = bucket_indexes[gid] >> 1;
   PointXYZZ<Curve> bucket;
   if constexpr (IsFirst) {
@@ -171,6 +229,25 @@ __global__ void AggregateBucketsKernel(
     bucket = Load<PointXYZZ<Curve>, CacheOperator::kStreaming>(
         &buckets[bucket_index]);
   }
+  // What we need to compute is as follows:
+  //
+  // B_0 * S_0 + B_1 * S_1 + B_2 * S_2 + ... + B_{N - 1} * S_{N - 1}
+  //
+  // For each scalar, it's decomposed based on the window bits.
+  // Let's take the example of the bn254 curve again:
+  //
+  // S_0 = S_0_0 + S_0_1 * 2^16 + S_0_2 * 2^32 + ... + S_0_15 * 2^240
+  // S_1 = S_1_0 + S_1_1 * 2^16 + S_1_2 * 2^32 + ... + S_1_15 * 2^240
+  // ...
+  // S_{N - 1} = S_{N - 1}_0 + S_{N - 1}_1 * 2^16 + S_{N - 1}_2 * 2^32 + ... +
+  // S_{N - 1}_15 * 2^240
+  //
+  // S_{i}_{j} ranges from 0 to 2^15. (Be cautious, it's not 2^16.)
+  // The bucket index can be calculated as follows:
+  //
+  // bucket_index = j * 2^16 + S_{i}_{j}.
+  //
+  // This accumulates the base belonging to the same |bucket_index|.
   for (unsigned int i = IsFirst ? 1 : 0; i < length; i++) {
     unsigned int base_index = *indexes++;
     unsigned int sign = base_index & kNegativeSign;
