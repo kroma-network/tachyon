@@ -441,7 +441,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           pool, stream, cub::DeviceRadixSort::SortPairsDescending,
           bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
           unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
-          extended_buckets_count_pass_one, 0, log_inputs_count + 1);
+          extended_buckets_count_pass_one, 0, log_inputs_count + 1, stream);
       if (error != gpuSuccess) return error;
     } else {
       ScopedEvent event_sort_inputs_ready =
@@ -468,7 +468,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           pool, stream, cub::DeviceRadixSort::SortPairsDescending,
           bucket_run_lengths.get(), sorted_bucket_run_lengths.get(),
           unique_bucket_indexes.get(), sorted_unique_bucket_indexes.get(),
-          extended_buckets_count_pass_one, 0, log_inputs_count + 1);
+          extended_buckets_count_pass_one, 0, log_inputs_count + 1, stream);
       if (error != gpuSuccess) return error;
       ScopedEvent event_sort_a = CreateEventWithFlags(gpuEventDisableTiming);
       ScopedEvent event_sort_b = CreateEventWithFlags(gpuEventDisableTiming);
