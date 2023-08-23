@@ -183,6 +183,11 @@ class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
                             z_.ToString());
   }
 
+  std::string ToHexString() const {
+    return absl::Substitute("($0, $1, $2)", x_.ToHexString(), y_.ToHexString(),
+                            z_.ToHexString());
+  }
+
   // AdditiveSemigroup methods
   constexpr ProjectivePoint& AddInPlace(const ProjectivePoint& other);
   constexpr ProjectivePoint& AddInPlace(const AffinePoint<Curve>& other);

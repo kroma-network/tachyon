@@ -186,6 +186,11 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
                             z_.ToString());
   }
 
+  std::string ToHexString() const {
+    return absl::Substitute("($0, $1, $2)", x_.ToHexString(), y_.ToHexString(),
+                            z_.ToHexString());
+  }
+
   // AdditiveSemigroup methods
   constexpr JacobianPoint& AddInPlace(const JacobianPoint& other);
   constexpr JacobianPoint& AddInPlace(const AffinePoint<Curve>& other);
