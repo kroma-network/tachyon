@@ -79,15 +79,16 @@ void arkworks_benchmark(rust::Slice<const rust::u64> test_nums,
 
   std::vector<bn254::G1JacobianPoint> results_tachyon;
   for (uint64_t test_num : test_nums) {
-    tachyon_bn254_g1_jacobian* ret = tachyon_msm_g1_affine(
+    std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
+    ret.reset(tachyon_msm_g1_affine(
         reinterpret_cast<const tachyon_bn254_g1_affine*>(bases.data()),
         test_num, reinterpret_cast<const tachyon_bn254_fr*>(scalars.data()),
-        test_num);
-    results_tachyon.push_back(*reinterpret_cast<bn254::G1JacobianPoint*>(ret));
+        test_num));
+    results_tachyon.push_back(
+        *reinterpret_cast<bn254::G1JacobianPoint*>(ret.get()));
     tachyon::base::TimeDelta duration = interval.GetTimeDelta();
     std::cout << "calculate: " << duration.InSecondsF() << std::endl;
     reporter.AddResult(duration.InSecondsF());
-    delete ret;
   }
 
   absl::Span<const bn254::G1JacobianPoint> results_arkworks =
