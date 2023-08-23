@@ -4,7 +4,7 @@
 
 namespace tachyon::math::internal {
 
-void MSMInputProvider::Inject(const tachyon_bn254_point2* bases_in,
+void MSMInputProvider::Inject(const tachyon_bn254_g1_point2* bases_in,
                               size_t bases_len,
                               const tachyon_bn254_fr* scalars_in,
                               size_t scalars_len) {

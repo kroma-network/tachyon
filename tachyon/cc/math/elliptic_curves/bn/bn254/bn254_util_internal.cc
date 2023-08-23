@@ -40,14 +40,14 @@ bn254::G1PointXYZZ ToPointXYZZ(const tachyon_bn254_g1_xyzz& point_in) {
   return bn254::G1PointXYZZ(point);
 }
 
-Point2<bn254::Fq> ToPoint2(const tachyon_bn254_point2& point_in) {
+Point2<bn254::Fq> ToPoint2(const tachyon_bn254_g1_point2& point_in) {
   Point2<bn254::Fq> point;
   point.x = bn254::Fq::FromMontgomery(BigInt<4>(point_in.x.limbs));
   point.y = bn254::Fq::FromMontgomery(BigInt<4>(point_in.y.limbs));
   return point;
 }
 
-Point3<bn254::Fq> ToPoint3(const tachyon_bn254_point3& point_in) {
+Point3<bn254::Fq> ToPoint3(const tachyon_bn254_g1_point3& point_in) {
   Point3<bn254::Fq> point;
   point.x = bn254::Fq::FromMontgomery(BigInt<4>(point_in.x.limbs));
   point.y = bn254::Fq::FromMontgomery(BigInt<4>(point_in.y.limbs));

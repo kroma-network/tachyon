@@ -80,7 +80,7 @@ void arkworks_benchmark(rust::Slice<const rust::u64> test_nums,
   std::vector<bn254::G1JacobianPoint> results_tachyon;
   for (uint64_t test_num : test_nums) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
-    ret.reset(tachyon_msm_g1_affine(
+    ret.reset(tachyon_bn254_g1_affine_msm(
         reinterpret_cast<const tachyon_bn254_g1_affine*>(bases.data()),
         test_num, reinterpret_cast<const tachyon_bn254_fr*>(scalars.data()),
         test_num));

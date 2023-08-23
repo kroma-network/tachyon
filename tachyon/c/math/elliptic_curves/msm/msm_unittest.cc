@@ -37,8 +37,8 @@ TEST_F(MSMTest, MSMPoint2) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
     std::vector<Point2<BigInt<4>>> bases = base::CreateVector(
         t.bases.size(), [&t](size_t i) { return t.bases[i].ToMontgomery(); });
-    ret.reset(tachyon_msm_g1_point2(
-        reinterpret_cast<const tachyon_bn254_point2*>(bases.data()),
+    ret.reset(tachyon_bn254_g1_point2_msm(
+        reinterpret_cast<const tachyon_bn254_g1_point2*>(bases.data()),
         bases.size(),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
         t.scalars.size()));
@@ -49,7 +49,7 @@ TEST_F(MSMTest, MSMPoint2) {
 TEST_F(MSMTest, MSMG1Affine) {
   for (const MSMTestSet<bn254::G1AffinePoint>& t : test_sets) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
-    ret.reset(tachyon_msm_g1_affine(
+    ret.reset(tachyon_bn254_g1_affine_msm(
         reinterpret_cast<const tachyon_bn254_g1_affine*>(t.bases.data()),
         t.bases.size(),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),

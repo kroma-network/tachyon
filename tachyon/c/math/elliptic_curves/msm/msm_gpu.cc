@@ -124,8 +124,8 @@ void tachyon_init_msm_gpu(uint8_t degree) {
 
 void tachyon_release_msm_gpu() { tachyon::math::DoReleaseMSMGpu(); }
 
-tachyon_bn254_g1_jacobian* tachyon_msm_g1_point2_gpu(
-    const tachyon_bn254_point2* bases, size_t bases_len,
+tachyon_bn254_g1_jacobian* tachyon_bn254_g1_point2_msm_gpu(
+    const tachyon_bn254_g1_point2* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
   return tachyon::math::DoMSMGpu(bases, bases_len, scalars, scalars_len);
 }

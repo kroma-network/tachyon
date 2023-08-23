@@ -3,8 +3,6 @@
 
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/point2.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/point3.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
 namespace tachyon::math {
@@ -23,9 +21,9 @@ bn254::G1JacobianPoint ToJacobianPoint(
 
 bn254::G1PointXYZZ ToPointXYZZ(const tachyon_bn254_g1_xyzz& point_in);
 
-Point2<bn254::Fq> ToPoint2(const tachyon_bn254_point2& point_in);
+Point2<bn254::Fq> ToPoint2(const tachyon_bn254_g1_point2& point_in);
 
-Point3<bn254::Fq> ToPoint3(const tachyon_bn254_point3& point_in);
+Point3<bn254::Fq> ToPoint3(const tachyon_bn254_g1_point3& point_in);
 
 }  // namespace tachyon::math
 

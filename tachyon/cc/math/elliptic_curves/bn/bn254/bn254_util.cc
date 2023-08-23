@@ -32,11 +32,13 @@ std::ostream& operator<<(std::ostream& os, const tachyon_bn254_g1_xyzz& point) {
   return os << ToPointXYZZ(point);
 }
 
-std::ostream& operator<<(std::ostream& os, const tachyon_bn254_point2& point) {
+std::ostream& operator<<(std::ostream& os,
+                         const tachyon_bn254_g1_point2& point) {
   return os << ToPoint2(point);
 }
 
-std::ostream& operator<<(std::ostream& os, const tachyon_bn254_point3& point) {
+std::ostream& operator<<(std::ostream& os,
+                         const tachyon_bn254_g1_point3& point) {
   return os << ToPoint3(point);
 }
 
@@ -128,18 +130,22 @@ bool operator!=(const tachyon_bn254_g1_xyzz& a,
   return ToPointXYZZ(a) != ToPointXYZZ(b);
 }
 
-bool operator==(const tachyon_bn254_point2& a, const tachyon_bn254_point2& b) {
+bool operator==(const tachyon_bn254_g1_point2& a,
+                const tachyon_bn254_g1_point2& b) {
   return ToPoint2(a) == ToPoint2(b);
 }
 
-bool operator!=(const tachyon_bn254_point2& a, const tachyon_bn254_point2& b) {
+bool operator!=(const tachyon_bn254_g1_point2& a,
+                const tachyon_bn254_g1_point2& b) {
   return ToPoint2(a) != ToPoint2(b);
 }
 
-bool operator==(const tachyon_bn254_point3& a, const tachyon_bn254_point3& b) {
+bool operator==(const tachyon_bn254_g1_point3& a,
+                const tachyon_bn254_g1_point3& b) {
   return ToPoint3(a) == ToPoint3(b);
 }
 
-bool operator!=(const tachyon_bn254_point3& a, const tachyon_bn254_point3& b) {
+bool operator!=(const tachyon_bn254_g1_point3& a,
+                const tachyon_bn254_g1_point3& b) {
   return ToPoint3(a) != ToPoint3(b);
 }

@@ -60,13 +60,13 @@ void tachyon_init_msm(uint8_t degree) { tachyon::math::DoInitMSM(degree); }
 
 void tachyon_release_msm() { tachyon::math::DoReleaseMSM(); }
 
-tachyon_bn254_g1_jacobian* tachyon_msm_g1_point2(
-    const tachyon_bn254_point2* bases, size_t bases_len,
+tachyon_bn254_g1_jacobian* tachyon_bn254_g1_point2_msm(
+    const tachyon_bn254_g1_point2* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
   return tachyon::math::DoMSM(bases, bases_len, scalars, scalars_len);
 }
 
-tachyon_bn254_g1_jacobian* tachyon_msm_g1_affine(
+tachyon_bn254_g1_jacobian* tachyon_bn254_g1_affine_msm(
     const tachyon_bn254_g1_affine* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
   return tachyon::math::DoMSM(bases, bases_len, scalars, scalars_len);

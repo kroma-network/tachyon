@@ -39,8 +39,8 @@ TEST_F(MSMGpuTest, MSMPoint2) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
     std::vector<Point2<BigInt<4>>> bases = base::CreateVector(
         t.bases.size(), [&t](size_t i) { return t.bases[i].ToMontgomery(); });
-    ret.reset(tachyon_msm_g1_point2_gpu(
-        reinterpret_cast<const tachyon_bn254_point2*>(bases.data()),
+    ret.reset(tachyon_bn254_g1_point2_msm_gpu(
+        reinterpret_cast<const tachyon_bn254_g1_point2*>(bases.data()),
         bases.size(),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
         t.scalars.size()));

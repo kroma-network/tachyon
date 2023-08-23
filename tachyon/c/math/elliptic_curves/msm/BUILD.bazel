@@ -23,7 +23,6 @@ tachyon_cc_library(
     deps = [
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:point2",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "@com_google_absl//absl/numeric:bits",
     ],
@@ -64,6 +63,7 @@ tachyon_cc_test(
     srcs = ["msm_unittest.cc"],
     deps = [
         ":msm",
+        "//tachyon/base:bits",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:bn254_util",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],

@@ -37,7 +37,7 @@ int RealMain(int argc, char** argv) {
   std::vector<bn254::G1JacobianPoint> results_cpu;
   for (uint64_t point_num : point_nums) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
-    ret.reset(tachyon_msm_g1_affine(
+    ret.reset(tachyon_bn254_g1_affine_msm(
         reinterpret_cast<const tachyon_bn254_g1_affine*>(bases.data()),
         point_num, reinterpret_cast<const tachyon_bn254_fr*>(scalars.data()),
         point_num));

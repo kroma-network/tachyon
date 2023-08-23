@@ -17,8 +17,8 @@ void release_msm_gpu() { tachyon_release_msm_gpu(); }
 
 rust::Box<CppG1Jacobian> msm_gpu(rust::Slice<const CppG1Affine> bases,
                                  rust::Slice<const CppFr> scalars) {
-  auto ret = tachyon_msm_g1_point2_gpu(
-      reinterpret_cast<const tachyon_bn254_point2*>(bases.data()),
+  auto ret = tachyon_bn254_g1_point2_msm_gpu(
+      reinterpret_cast<const tachyon_bn254_g1_point2*>(bases.data()),
       bases.length(), reinterpret_cast<const tachyon_bn254_fr*>(scalars.data()),
       scalars.length());
   return rust::Box<CppG1Jacobian>::from_raw(

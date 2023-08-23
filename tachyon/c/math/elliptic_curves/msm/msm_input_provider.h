@@ -3,7 +3,6 @@
 
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/point2.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
 namespace tachyon::math::internal {
@@ -15,7 +14,7 @@ class MSMInputProvider {
   absl::Span<const bn254::G1AffinePoint> bases() const { return bases_; }
   absl::Span<const bn254::Fr> scalars() const { return scalars_; }
 
-  void Inject(const tachyon_bn254_point2* bases_in, size_t bases_len,
+  void Inject(const tachyon_bn254_g1_point2* bases_in, size_t bases_len,
               const tachyon_bn254_fr* scalars_in, size_t scalars_len);
 
   void Inject(const tachyon_bn254_g1_affine* bases_in, size_t bases_len,
