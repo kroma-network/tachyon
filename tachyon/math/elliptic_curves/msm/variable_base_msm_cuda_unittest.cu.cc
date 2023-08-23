@@ -33,8 +33,9 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
 
     d_bases_ = gpu::Malloc<bn254::G1AffinePointCuda>(kCount);
     d_scalars_ = gpu::Malloc<bn254::FrCuda>(kCount);
-    d_results_ = gpu::Malloc<bn254::G1JacobianPointCuda>(256);
-    u_results_.reset(new bn254::G1JacobianPoint[256]);
+    size_t bit_size = bn254::FrCuda::kModulusBits;
+    d_results_ = gpu::Malloc<bn254::G1JacobianPointCuda>(bit_size);
+    u_results_.reset(new bn254::G1JacobianPoint[bit_size]);
 
     gpuMemcpy(d_bases_.get(), test_set.bases.data(),
               sizeof(bn254::G1AffinePointCuda) * kCount, gpuMemcpyHostToDevice);
