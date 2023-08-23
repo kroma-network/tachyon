@@ -95,7 +95,7 @@ int RealMain(int argc, char** argv) {
   auto results_cuda =
       gpu::MallocManaged<math::bn254::G1JacobianPointCuda>(max_point_num);
 
-  interval.Start();
+  interval.Reset();
   for (uint64_t point_num : config.point_nums()) {
     TestDoubleOnGPU(bases_cuda.get(), results_cuda.get(), bases, point_num);
     reporter.AddResult(interval.GetTimeDelta().InSecondsF());

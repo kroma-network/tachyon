@@ -85,7 +85,7 @@ int RealMain(int argc, char** argv) {
 
   std::vector<bn254::G1JacobianPoint> results_gpu;
 
-  interval.Start();
+  interval.Reset();
   for (size_t i = 0; i < config.degrees().size(); ++i) {
     GPU_MUST_SUCCESS(gpuMemcpy(d_bases.get(), bases.data(),
                                sizeof(bn254::G1AffinePointCuda) * point_nums[i],
