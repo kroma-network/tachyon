@@ -64,7 +64,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       limbs[i] = *it;
     }
   }
-  constexpr explicit BigInt(uint64_t limbs[N]) {
+  constexpr explicit BigInt(const uint64_t limbs[N]) {
     memcpy(this->limbs, limbs, sizeof(uint64_t) * N);
   }
 

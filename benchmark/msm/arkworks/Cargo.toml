@@ -1,15 +1,27 @@
 [package]
 name = "arkworks_benchmark"
 version = "0.0.1"
+authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
 edition = "2021"
+rust-version = "1.56.1"
+description = """
+Arkworks MSM Benchmark
+"""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/kroma-network/tachyon"
+documentation = "https://docs.rs/arkworks_benchmark"
+readme = "README.md"
+categories = ["cryptography"]
+keywords = ["tachyon", "benchmark", "arkworks"]
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+ark-bn254 = "0.4.0"
 ark-ec = "0.4.2"
-ark-ff = "0.4.2"
 ark-std = "0.4.0"
-ark-test-curves = { version = "0.4.2", default-features = false, features = [
-    "bls12_381_curve",
-] }
 cxx = "1.0"
+
+[build-dependencies]
+cxx-build = "1.0"

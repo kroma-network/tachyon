@@ -1,13 +1,15 @@
-load("@crate_index//:defs.bzl", "all_crate_deps")
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@cxx.rs//tools/bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//bazel:tachyon_rust.bzl", "tachyon_rust_binary")
 
 tachyon_rust_binary(
-    name = "arkworks_benchmark",
+    name = "arkworks_msm_benchmark",
     srcs = glob(["src/**/*.rs"]),
+    aliases = aliases(),
+    proc_macro_deps = all_crate_deps(proc_macro = True),
     deps = all_crate_deps(normal = True) + [
-        ":arkworks_benchmark_sys",
+        ":arkworks_benchmark",
         ":bridge",
     ],
 )
@@ -19,11 +21,19 @@ rust_cxx_bridge(
 )
 
 tachyon_cc_library(
-    name = "arkworks_benchmark_sys",
+    name = "arkworks_benchmark",
     srcs = ["src/arkworks_benchmark.cc"],
     deps = [
         ":arkworks_benchmark_include",
         ":bridge/include",
+        "//benchmark:simple_benchmark_reporter",
+        "//tachyon/base/console",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/base/time:time_interval",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/msm",
+        "//tachyon/cc/math/elliptic_curves/bn/bn254:bn254_util",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
     ],
 )
 

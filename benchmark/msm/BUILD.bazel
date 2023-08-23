@@ -1,0 +1,31 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_binary", "tachyon_matplotlib_defines")
+
+tachyon_cc_library(
+    name = "msm_config",
+    srcs = ["msm_config.cc"],
+    hdrs = ["msm_config.h"],
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+    ],
+)
+
+tachyon_cuda_binary(
+    name = "msm_benchmark",
+    srcs = ["msm_benchmark.cu.cc"],
+    local_defines = tachyon_matplotlib_defines(),
+    deps = [
+        ":msm_config",
+        "//benchmark/ec:ec_util",
+        "//benchmark/ec:simple_ec_benchmark_reporter",
+        "//tachyon/base/time:time_interval",
+        "//tachyon/device/gpu:gpu_logging",
+        "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/device/gpu:scoped_memory",
+        "//tachyon/device/gpu/cuda:scoped_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm_cuda",
+    ],
+)
