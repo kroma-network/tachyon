@@ -104,6 +104,9 @@ bn254::G1JacobianPoint DoMSMGpu(const tachyon_bn254_point2* bases_in,
       reinterpret_cast<const Point2<bn254::Fq>*>(bases_in), bases_len);
   std::vector<bn254::G1AffinePoint> bases =
       base::Map(points, [](const Point2<bn254::Fq>& point) {
+        if (point.x.IsZero() && point.y.IsZero()) {
+          return bn254::G1AffinePoint::Zero();
+        }
         return bn254::G1AffinePoint(point);
       });
   absl::Span<const bn254::Fr> scalars(
