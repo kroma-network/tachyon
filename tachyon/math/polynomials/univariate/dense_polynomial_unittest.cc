@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/test/gf7.h"
-#include "tachyon/math/polynomials/univariate_polynomial.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
 

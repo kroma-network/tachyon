@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_SPARSE_COEFFICIENTS_H_
-#define TACHYON_MATH_POLYNOMIALS_SPARSE_COEFFICIENTS_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_SPARSE_COEFFICIENTS_H_
+#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_SPARSE_COEFFICIENTS_H_
 
 #include <stddef.h>
 
@@ -15,7 +15,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/math/polynomials/univariate_polynomial_ops_forward.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial_ops_forward.h"
 
 namespace tachyon::math {
 
@@ -169,7 +169,7 @@ class SparseCoefficients {
   friend class internal::UnivariatePolynomialOp<
       SparseCoefficients<F, MaxDegree>>;
 
-  void RemoveHighDegreeZeros() {
+  void RemoveHighDegreeZeros() {  // Fix to RemoveZeros
     while (!IsZero()) {
       if (elements_.back().coefficient.IsZero()) {
         elements_.pop_back();
@@ -190,4 +190,4 @@ std::ostream& operator<<(std::ostream& os,
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_POLYNOMIALS_SPARSE_COEFFICIENTS_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_SPARSE_COEFFICIENTS_H_

@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_POLYNOMIAL_OPS_H_
-#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_POLYNOMIAL_OPS_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_POLYNOMIAL_OPS_H_
+#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_POLYNOMIAL_OPS_H_
 
 #include <algorithm>
 #include <iterator>
@@ -7,7 +7,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/base/arithmetics_results.h"
-#include "tachyon/math/polynomials/univariate_polynomial.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
 namespace internal {
@@ -503,4 +503,4 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
 }  // namespace internal
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_POLYNOMIAL_OPS_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_POLYNOMIAL_OPS_H_

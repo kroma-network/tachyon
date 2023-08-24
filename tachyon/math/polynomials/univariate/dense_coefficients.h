@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_DENSE_COEFFICIENTS_H_
-#define TACHYON_MATH_POLYNOMIALS_DENSE_COEFFICIENTS_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_DENSE_COEFFICIENTS_H_
+#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_DENSE_COEFFICIENTS_H_
 
 #include <stddef.h>
 
@@ -11,7 +11,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/math/polynomials/univariate_polynomial_ops_forward.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial_ops_forward.h"
 
 namespace tachyon::math {
 
@@ -157,4 +157,4 @@ std::ostream& operator<<(std::ostream& os,
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_POLYNOMIALS_DENSE_COEFFICIENTS_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_DENSE_COEFFICIENTS_H_
