@@ -17,7 +17,7 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
  public:
   using D = DenseCoefficients<F, MaxDegree>;
   using S = SparseCoefficients<F, MaxDegree>;
-  using Element = typename S::Element;
+  using Term = typename S::Term;
 
   static UnivariatePolynomial<D>& AddInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<D>& other) {
@@ -62,12 +62,12 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
     }
 
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
-    const std::vector<Element>& r_elements = other.coefficients().elements_;
-    for (const Element& r_elem : r_elements) {
-      if (r_elem.degree <= degree) {
-        l_coefficients[r_elem.degree] += r_elem.coefficient;
+    const std::vector<Term>& r_terms = other.coefficients().terms_;
+    for (const Term& r_term : r_terms) {
+      if (r_term.degree <= degree) {
+        l_coefficients[r_term.degree] += r_term.coefficient;
       } else {
-        upper_coeffs[r_elem.degree - degree - 1] = r_elem.coefficient;
+        upper_coeffs[r_term.degree - degree - 1] = r_term.coefficient;
       }
     }
     l_coefficients.insert(l_coefficients.end(),
@@ -123,12 +123,12 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
     }
 
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
-    const std::vector<Element>& r_elements = other.coefficients().elements_;
-    for (const Element& r_elem : r_elements) {
-      if (r_elem.degree <= degree) {
-        l_coefficients[r_elem.degree] -= r_elem.coefficient;
+    const std::vector<Term>& r_terms = other.coefficients().terms_;
+    for (const Term& r_term : r_terms) {
+      if (r_term.degree <= degree) {
+        l_coefficients[r_term.degree] -= r_term.coefficient;
       } else {
-        upper_coeffs[r_elem.degree - degree - 1] = -r_elem.coefficient;
+        upper_coeffs[r_term.degree - degree - 1] = -r_term.coefficient;
       }
     }
     l_coefficients.insert(l_coefficients.end(),
@@ -198,13 +198,13 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
     std::vector<F> coefficients =
         base::CreateVector(degree + other_degree + 1, F::Zero());
 
-    const std::vector<Element>& r_elements = other.coefficients().elements_;
-    for (size_t i = 0; i < r_elements.size(); ++i) {
-      const F& r = r_elements[i].coefficient;
+    const std::vector<Term>& r_terms = other.coefficients().terms_;
+    for (size_t i = 0; i < r_terms.size(); ++i) {
+      const F& r = r_terms[i].coefficient;
       if (r.IsZero()) {
         continue;
       } else {
-        size_t r_degree = r_elements[i].degree;
+        size_t r_degree = r_terms[i].degree;
         for (size_t j = 0; j < l_coefficients.size(); ++j) {
           coefficients[r_degree + j] += l_coefficients[j] * r;
         }
@@ -241,17 +241,17 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S> ToSparsePolynomial(
       const UnivariatePolynomial<D>& self) {
-    std::vector<Element> elements;
+    std::vector<Term> terms;
     size_t size = self.Degree() + 1;
     // TODO(chokobole): What if this dense polynomial is really sparse..?
-    elements.reserve(size);
+    terms.reserve(size);
     for (size_t i = 0; i < size; ++i) {
       if (self[i] == nullptr || self[i]->IsZero()) {
         continue;
       }
-      elements.push_back({i, *self[i]});
+      terms.push_back({i, *self[i]});
     }
-    return UnivariatePolynomial<S>(S(std::move(elements)));
+    return UnivariatePolynomial<S>(S(std::move(terms)));
   }
 
  private:
@@ -261,12 +261,12 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
     l_coefficients = base::CreateVector(other.Degree() + 1, F::Zero());
 
-    const std::vector<Element>& r_elements = other.coefficients().elements_;
-    for (const Element& r_elem : r_elements) {
+    const std::vector<Term>& r_terms = other.coefficients().terms_;
+    for (const Term& r_term : r_terms) {
       if constexpr (NEGATION) {
-        l_coefficients[r_elem.degree] = -r_elem.coefficient;
+        l_coefficients[r_term.degree] = -r_term.coefficient;
       } else {
-        l_coefficients[r_elem.degree] = r_elem.coefficient;
+        l_coefficients[r_term.degree] = r_term.coefficient;
       }
     }
     self.coefficients_.RemoveHighDegreeZeros();
@@ -297,15 +297,15 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
       quotient[degree] = q_coeff;
 
       if constexpr (std::is_same_v<DOrS, D>) {
-        const std::vector<F>& d_elements = other.coefficients_.coefficients_;
-        for (size_t i = 0; i < d_elements.size(); ++i) {
-          r_coefficients[degree + i] -= q_coeff * d_elements[i];
+        const std::vector<F>& d_terms = other.coefficients_.coefficients_;
+        for (size_t i = 0; i < d_terms.size(); ++i) {
+          r_coefficients[degree + i] -= q_coeff * d_terms[i];
         }
       } else {
-        const std::vector<Element>& d_elements = other.coefficients().elements_;
-        for (const Element& d_elem : d_elements) {
-          r_coefficients[degree + d_elem.degree] -=
-              q_coeff * d_elem.coefficient;
+        const std::vector<Term>& d_terms = other.coefficients().terms_;
+        for (const Term& d_term : d_terms) {
+          r_coefficients[degree + d_term.degree] -=
+              q_coeff * d_term.coefficient;
         }
       }
       remainder.coefficients_.RemoveHighDegreeZeros();
@@ -321,7 +321,7 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
  public:
   using D = DenseCoefficients<F, MaxDegree>;
   using S = SparseCoefficients<F, MaxDegree>;
-  using Element = typename S::Element;
+  using Term = typename S::Term;
 
   static UnivariatePolynomial<D> Add(const UnivariatePolynomial<S>& self,
                                      const UnivariatePolynomial<D>& other) {
@@ -330,10 +330,10 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S>& AddInPlace(
       UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
-    std::vector<Element>& l_elements = self.coefficients_.elements_;
-    const std::vector<Element>& r_elements = other.coefficients_.elements_;
+    std::vector<Term>& l_terms = self.coefficients_.terms_;
+    const std::vector<Term>& r_terms = other.coefficients_.terms_;
     if (self.IsZero()) {
-      l_elements = r_elements;
+      l_terms = r_terms;
       return self;
     } else if (other.IsZero()) {
       return self;
@@ -349,12 +349,11 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S>& SubInPlace(
       UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
-    std::vector<Element>& l_elements = self.coefficients_.elements_;
-    const std::vector<Element>& r_elements = other.coefficients_.elements_;
+    std::vector<Term>& l_terms = self.coefficients_.terms_;
+    const std::vector<Term>& r_terms = other.coefficients_.terms_;
     if (self.IsZero()) {
-      l_elements = base::CreateVector(
-          r_elements.size(),
-          [&r_elements](size_t idx) { return -r_elements[idx]; });
+      l_terms = base::CreateVector(
+          r_terms.size(), [&r_terms](size_t idx) { return -r_terms[idx]; });
       return self;
     } else if (other.IsZero()) {
       return self;
@@ -364,9 +363,9 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
   }
 
   static UnivariatePolynomial<S>& NegInPlace(UnivariatePolynomial<S>& self) {
-    std::vector<Element>& elements = self.coefficients_.elements_;
-    for (Element& elem : elements) {
-      elem.coefficient.NegInPlace();
+    std::vector<Term>& terms = self.coefficients_.terms_;
+    for (Term& term : terms) {
+      term.coefficient.NegInPlace();
     }
     return self;
   }
@@ -378,28 +377,27 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S>& MulInPlace(
       UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
-    std::vector<Element>& l_elements = self.coefficients_.elements_;
-    const std::vector<Element>& r_elements = other.coefficients_.elements_;
+    std::vector<Term>& l_terms = self.coefficients_.terms_;
+    const std::vector<Term>& r_terms = other.coefficients_.terms_;
     if (self.IsZero() || other.IsOne()) {
       return self;
     } else if (self.IsOne()) {
-      l_elements = r_elements;
+      l_terms = r_terms;
       return self;
     } else if (other.IsZero()) {
-      l_elements = {};
+      l_terms = {};
       return self;
     }
 
-    std::vector<Element> records;
-    for (const Element& l_elem : l_elements) {
-      for (const Element& r_elem : r_elements) {
-        F f = l_elem.coefficient * r_elem.coefficient;
+    std::vector<Term> records;
+    for (const Term& l_term : l_terms) {
+      for (const Term& r_term : r_terms) {
+        F f = l_term.coefficient * r_term.coefficient;
         if (f.IsZero()) continue;
-        size_t degree = l_elem.degree + r_elem.degree;
-        auto it =
-            base::ranges::find_if(records, [degree](const Element& element) {
-              return element.degree == degree;
-            });
+        size_t degree = l_term.degree + r_term.degree;
+        auto it = base::ranges::find_if(records, [degree](const Term& term) {
+          return term.degree == degree;
+        });
         if (it != records.end()) {
           it->coefficient += f;
           if (it->coefficient.IsZero()) {
@@ -410,8 +408,8 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
         }
       }
     }
-    l_elements = std::move(records);
-    base::ranges::sort(l_elements);
+    l_terms = std::move(records);
+    base::ranges::sort(l_terms);
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
   }
@@ -448,14 +446,14 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
   template <bool NEGATION>
   static UnivariatePolynomial<S>& DoAddition(
       UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
-    std::vector<Element>& l_elements = self.coefficients_.elements_;
-    const std::vector<Element>& r_elements = other.coefficients_.elements_;
+    std::vector<Term>& l_terms = self.coefficients_.terms_;
+    const std::vector<Term>& r_terms = other.coefficients_.terms_;
 
-    auto l_it = l_elements.begin();
-    auto r_it = r_elements.begin();
-    std::vector<Element> ret;
-    while (l_it != l_elements.end() || r_it != r_elements.end()) {
-      if (l_it == l_elements.end()) {
+    auto l_it = l_terms.begin();
+    auto r_it = r_terms.begin();
+    std::vector<Term> ret;
+    while (l_it != l_terms.end() || r_it != r_terms.end()) {
+      if (l_it == l_terms.end()) {
         if constexpr (NEGATION) {
           ret.push_back(-(*r_it));
         } else {
@@ -464,7 +462,7 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
         ++r_it;
         continue;
       }
-      if (r_it == r_elements.end()) {
+      if (r_it == r_terms.end()) {
         ret.push_back(*l_it);
         ++l_it;
         continue;
@@ -494,7 +492,7 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
       }
     }
 
-    l_elements = std::move(ret);
+    l_terms = std::move(ret);
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
   }
