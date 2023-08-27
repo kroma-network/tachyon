@@ -1,5 +1,5 @@
-#ifndef BENCHMARK_SIMPLE_EC_BENCHMARK_REPORTER_H_
-#define BENCHMARK_SIMPLE_EC_BENCHMARK_REPORTER_H_
+#ifndef BENCHMARK_EC_SIMPLE_EC_BENCHMARK_REPORTER_H_
+#define BENCHMARK_EC_SIMPLE_EC_BENCHMARK_REPORTER_H_
 
 #include "benchmark/simple_benchmark_reporter.h"
 
@@ -15,4 +15,4 @@ class SimpleECBenchmarkReporter : public SimpleBenchmarkReporter {
 
 }  // namespace tachyon
 
-#endif  // BENCHMARK_SIMPLE_EC_BENCHMARK_REPORTER_H_
+#endif  // BENCHMARK_EC_SIMPLE_EC_BENCHMARK_REPORTER_H_
