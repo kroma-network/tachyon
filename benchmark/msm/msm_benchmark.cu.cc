@@ -15,7 +15,7 @@ namespace tachyon {
 using namespace math;
 
 int RealMain(int argc, char** argv) {
-  ECConfig config;
+  MSMConfig config;
   if (!config.Parse(argc, argv)) {
     return 1;
   }

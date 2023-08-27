@@ -7,11 +7,11 @@
 
 namespace tachyon {
 
-class ECConfig {
+class MSMConfig {
  public:
-  ECConfig() = default;
-  ECConfig(const ECConfig& other) = delete;
-  ECConfig& operator=(const ECConfig& other) = delete;
+  MSMConfig() = default;
+  MSMConfig(const MSMConfig& other) = delete;
+  MSMConfig& operator=(const MSMConfig& other) = delete;
 
   const std::vector<uint64_t>& degrees() const { return degrees_; }
 

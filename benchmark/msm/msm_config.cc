@@ -5,7 +5,7 @@
 
 namespace tachyon {
 
-bool ECConfig::Parse(int argc, char** argv) {
+bool MSMConfig::Parse(int argc, char** argv) {
   base::FlagParser parser;
   // clang-format off
   parser.AddFlag<base::Flag<std::vector<uint64_t>>>(&degrees_)
@@ -25,7 +25,7 @@ bool ECConfig::Parse(int argc, char** argv) {
   return true;
 }
 
-std::vector<uint64_t> ECConfig::GetPointNums() const {
+std::vector<uint64_t> MSMConfig::GetPointNums() const {
   std::vector<uint64_t> point_nums;
   for (uint64_t degree : degrees_) {
     point_nums.push_back(1 << degree);
