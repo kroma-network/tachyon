@@ -21,7 +21,3 @@ publish = false
 ark-bn254 = "0.4.0"
 ark-ec = "0.4.2"
 ark-std = "0.4.0"
-cxx = "1.0"
-
-[build-dependencies]
-cxx-build = "1.0"

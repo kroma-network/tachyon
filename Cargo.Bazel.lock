@@ -1,5 +1,5 @@
 {
-  "checksum": "9b93b83d933ee0eaece7638cb5583aa351ff617d2383b397740c7cfa8f19d2b4",
+  "checksum": "575213232addf54717d5c7ea2a4605ed3661c79ef4804bfd2fd6440cb6b37387",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -669,16 +669,16 @@
       "repository": null,
       "targets": [
         {
-          "BuildScript": {
-            "crate_name": "build_script_build",
-            "crate_root": "build.rs",
+          "Library": {
+            "crate_name": "arkworks_benchmark",
+            "crate_root": "src/lib.rs",
             "srcs": [
               "**/*.rs"
             ]
           }
         }
       ],
-      "library_target_name": null,
+      "library_target_name": "arkworks_benchmark",
       "common_attrs": {
         "compile_data_glob": [
           "**"
@@ -696,43 +696,12 @@
             {
               "id": "ark-std 0.4.0",
               "target": "ark_std"
-            },
-            {
-              "id": "arkworks_benchmark 0.0.1",
-              "target": "build_script_build"
-            },
-            {
-              "id": "cxx 1.0.105",
-              "target": "cxx"
             }
           ],
           "selects": {}
         },
         "edition": "2021",
         "version": "0.0.1"
-      },
-      "build_script_attrs": {
-        "data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "cxx-build 1.0.105",
-              "target": "cxx_build"
-            }
-          ],
-          "selects": {}
-        },
-        "link_deps": {
-          "common": [
-            {
-              "id": "cxx 1.0.105",
-              "target": "cxx"
-            }
-          ],
-          "selects": {}
-        }
       },
       "license": "MIT OR Apache-2.0"
     },

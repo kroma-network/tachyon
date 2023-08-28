@@ -1,4 +1,9 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_binary")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_binary",
+    "tachyon_cc_library",
+    "tachyon_cuda_binary",
+)
 
 tachyon_cc_library(
     name = "msm_config",
@@ -11,14 +16,42 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cuda_binary(
+tachyon_cc_library(
+    name = "msm_runner",
+    hdrs = ["msm_runner.h"],
+    deps = [
+        ":simple_msm_benchmark_reporter",
+        "//tachyon/base/time",
+        "//tachyon/cc/math/elliptic_curves/bn/bn254:point_traits",
+    ],
+)
+
+tachyon_cc_library(
+    name = "simple_msm_benchmark_reporter",
+    srcs = ["simple_msm_benchmark_reporter.cc"],
+    hdrs = ["simple_msm_benchmark_reporter.h"],
+    deps = ["//benchmark:simple_benchmark_reporter"],
+)
+
+tachyon_cc_binary(
     name = "msm_benchmark",
+    srcs = ["msm_benchmark.cc"],
+    deps = [
+        ":msm_config",
+        ":msm_runner",
+        "//benchmark/ec:ec_util",
+        "//benchmark/msm/arkworks",
+        "//tachyon/c/math/elliptic_curves/msm",
+    ],
+)
+
+tachyon_cuda_binary(
+    name = "msm_benchmark_gpu",
     srcs = ["msm_benchmark.cu.cc"],
     deps = [
         ":msm_config",
+        ":msm_runner",
         "//benchmark/ec:ec_util",
-        "//benchmark/ec:simple_ec_benchmark_reporter",
-        "//tachyon/base/time:time_interval",
         "//tachyon/c/math/elliptic_curves/msm",
         "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
     ],

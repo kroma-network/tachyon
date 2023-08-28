@@ -147,8 +147,6 @@ dependencies = [
  "ark-bn254",
  "ark-ec",
  "ark-std 0.4.0",
- "cxx",
- "cxx-build",
 ]
 
 [[package]]
