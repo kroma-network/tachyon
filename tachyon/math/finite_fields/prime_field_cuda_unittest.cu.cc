@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "tachyon/device/gpu/cuda/scoped_memory.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
 #include "tachyon/math/finite_fields/test/gf7_cuda.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
@@ -39,10 +39,10 @@ class PrimeFieldCudaTest : public testing::Test {
 
   static void SetUpTestSuite() {
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
-    xs_ = gpu::MallocManaged<GF7Cuda>(N);
-    ys_ = gpu::MallocManaged<GF7Cuda>(N);
-    results_ = gpu::MallocManaged<GF7Cuda>(N);
-    bool_results_ = gpu::MallocManaged<bool>(N);
+    xs_ = gpu::GpuMemory<GF7Cuda>::MallocManaged(N);
+    ys_ = gpu::GpuMemory<GF7Cuda>::MallocManaged(N);
+    results_ = gpu::GpuMemory<GF7Cuda>::MallocManaged(N);
+    bool_results_ = gpu::GpuMemory<bool>::MallocManaged(N);
 
     GF7Config::Init();
   }
@@ -57,23 +57,23 @@ class PrimeFieldCudaTest : public testing::Test {
   }
 
   void SetUp() override {
-    GPU_MUST_SUCCESS(gpuMemset(xs_.get(), 0, N * sizeof(GF7Cuda)), "");
-    GPU_MUST_SUCCESS(gpuMemset(ys_.get(), 0, N * sizeof(GF7Cuda)), "");
-    GPU_MUST_SUCCESS(gpuMemset(results_.get(), 0, N * sizeof(GF7Cuda)), "");
-    GPU_MUST_SUCCESS(gpuMemset(bool_results_.get(), 0, N * sizeof(bool)), "");
+    CHECK(xs_.Memset());
+    CHECK(ys_.Memset());
+    CHECK(results_.Memset());
+    CHECK(bool_results_.Memset());
   }
 
  protected:
-  static gpu::ScopedUnifiedMemory<GF7Cuda> xs_;
-  static gpu::ScopedUnifiedMemory<GF7Cuda> ys_;
-  static gpu::ScopedUnifiedMemory<GF7Cuda> results_;
-  static gpu::ScopedUnifiedMemory<bool> bool_results_;
+  static gpu::GpuMemory<GF7Cuda> xs_;
+  static gpu::GpuMemory<GF7Cuda> ys_;
+  static gpu::GpuMemory<GF7Cuda> results_;
+  static gpu::GpuMemory<bool> bool_results_;
 };
 
-gpu::ScopedUnifiedMemory<GF7Cuda> PrimeFieldCudaTest::xs_;
-gpu::ScopedUnifiedMemory<GF7Cuda> PrimeFieldCudaTest::ys_;
-gpu::ScopedUnifiedMemory<GF7Cuda> PrimeFieldCudaTest::results_;
-gpu::ScopedUnifiedMemory<bool> PrimeFieldCudaTest::bool_results_;
+gpu::GpuMemory<GF7Cuda> PrimeFieldCudaTest::xs_;
+gpu::GpuMemory<GF7Cuda> PrimeFieldCudaTest::ys_;
+gpu::GpuMemory<GF7Cuda> PrimeFieldCudaTest::results_;
+gpu::GpuMemory<bool> PrimeFieldCudaTest::bool_results_;
 
 }  // namespace
 

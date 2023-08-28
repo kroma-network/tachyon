@@ -31,8 +31,9 @@ class VariableBaseMSMCuda {
     RETURN_AND_LOG_IF_GPU_ERROR(gpuStreamSynchronize(config.stream),
                                 "Failed to gpuStreamSynchronize()");
 
-    gpuMemcpy(results, config.results,
-              sizeof(JacobianPoint<Curve>) * kModulusBits, gpuMemcpyDefault);
+    device::gpu::GpuMemcpy(results, config.results,
+                           sizeof(JacobianPoint<Curve>) * kModulusBits,
+                           gpuMemcpyDefault);
     *out = Accumulate(results);
     return gpuSuccess;
   }

@@ -7,8 +7,7 @@
 #include "benchmark/ec/ec_util.h"
 // clang-format on
 #include "tachyon/base/time/time_interval.h"
-#include "tachyon/device/gpu/cuda/scoped_memory.h"
-#include "tachyon/device/gpu/gpu_logging.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 
@@ -91,9 +90,11 @@ int RealMain(int argc, char** argv) {
 
   GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
   auto bases_cuda =
-      gpu::MallocManaged<math::bn254::G1AffinePointCuda>(max_point_num);
+      gpu::GpuMemory<math::bn254::G1AffinePointCuda>::MallocManaged(
+          max_point_num);
   auto results_cuda =
-      gpu::MallocManaged<math::bn254::G1JacobianPointCuda>(max_point_num);
+      gpu::GpuMemory<math::bn254::G1JacobianPointCuda>::MallocManaged(
+          max_point_num);
 
   interval.Reset();
   for (uint64_t point_num : config.point_nums()) {

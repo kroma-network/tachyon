@@ -2,9 +2,8 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/device/gpu/gpu_enums.h"
-#include "tachyon/device/gpu/scoped_async_memory.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
-#include "tachyon/device/gpu/scoped_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
@@ -31,16 +30,15 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
         MSMTestSet<bn254::G1AffinePoint>::Random(kCount,
                                                  /*use_msm=*/true);
 
-    d_bases_ = gpu::Malloc<bn254::G1AffinePointCuda>(kCount);
-    d_scalars_ = gpu::Malloc<bn254::FrCuda>(kCount);
+    d_bases_ = gpu::GpuMemory<bn254::G1AffinePointCuda>::Malloc(kCount);
+    d_scalars_ = gpu::GpuMemory<bn254::FrCuda>::Malloc(kCount);
     size_t bit_size = bn254::FrCuda::kModulusBits;
-    d_results_ = gpu::Malloc<bn254::G1JacobianPointCuda>(bit_size);
+    d_results_ = gpu::GpuMemory<bn254::G1JacobianPointCuda>::Malloc(bit_size);
     u_results_.reset(new bn254::G1JacobianPoint[bit_size]);
 
-    gpuMemcpy(d_bases_.get(), test_set.bases.data(),
-              sizeof(bn254::G1AffinePointCuda) * kCount, gpuMemcpyHostToDevice);
-    gpuMemcpy(d_scalars_.get(), test_set.scalars.data(),
-              sizeof(bn254::FrCuda) * kCount, gpuMemcpyHostToDevice);
+    CHECK(d_bases_.CopyFrom(test_set.bases.data(), gpu::GpuMemoryType::kHost));
+    CHECK(d_scalars_.CopyFrom(test_set.scalars.data(),
+                              gpu::GpuMemoryType::kHost));
     expected_ = std::move(test_set.answer);
   }
 
@@ -53,18 +51,17 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
   }
 
  protected:
-  static gpu::ScopedDeviceMemory<bn254::G1AffinePointCuda> d_bases_;
-  static gpu::ScopedDeviceMemory<bn254::FrCuda> d_scalars_;
-  static gpu::ScopedDeviceMemory<bn254::G1JacobianPointCuda> d_results_;
+  static gpu::GpuMemory<bn254::G1AffinePointCuda> d_bases_;
+  static gpu::GpuMemory<bn254::FrCuda> d_scalars_;
+  static gpu::GpuMemory<bn254::G1JacobianPointCuda> d_results_;
   static std::unique_ptr<bn254::G1JacobianPoint[]> u_results_;
   static bn254::G1JacobianPoint expected_;
 };
 
-gpu::ScopedDeviceMemory<bn254::G1AffinePointCuda>
+gpu::GpuMemory<bn254::G1AffinePointCuda>
     VariableMSMCorrectnessCudaTest::d_bases_;
-gpu::ScopedDeviceMemory<bn254::FrCuda>
-    VariableMSMCorrectnessCudaTest::d_scalars_;
-gpu::ScopedDeviceMemory<bn254::G1JacobianPointCuda>
+gpu::GpuMemory<bn254::FrCuda> VariableMSMCorrectnessCudaTest::d_scalars_;
+gpu::GpuMemory<bn254::G1JacobianPointCuda>
     VariableMSMCorrectnessCudaTest::d_results_;
 std::unique_ptr<bn254::G1JacobianPoint[]>
     VariableMSMCorrectnessCudaTest::u_results_;

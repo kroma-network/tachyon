@@ -1,7 +1,7 @@
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/device/gpu/cuda/scoped_memory.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
@@ -62,10 +62,10 @@ class PointCorrectnessCudaTest : public testing::Test {
 
   static void SetUpTestSuite() {
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
-    xs_ = gpu::MallocManaged<Actual>(N);
-    ys_ = gpu::MallocManaged<Actual>(N);
-    results_ = gpu::MallocManaged<Actual>(N);
-    bool_results_ = gpu::MallocManaged<bool>(N);
+    xs_ = gpu::GpuMemory<Actual>::MallocManaged(N);
+    ys_ = gpu::GpuMemory<Actual>::MallocManaged(N);
+    results_ = gpu::GpuMemory<Actual>::MallocManaged(N);
+    bool_results_ = gpu::GpuMemory<bool>::MallocManaged(N);
 
     Expected::Curve::Init();
     Actual::Curve::Init();
@@ -98,35 +98,34 @@ class PointCorrectnessCudaTest : public testing::Test {
   }
 
   void SetUp() override {
-    GPU_MUST_SUCCESS(gpuMemset(results_.get(), 0, N * sizeof(Actual)), "");
-    GPU_MUST_SUCCESS(gpuMemset(bool_results_.get(), 0, N * sizeof(bool)), "");
+    CHECK(results_.Memset());
+    CHECK(bool_results_.Memset());
   }
 
  protected:
-  static gpu::ScopedUnifiedMemory<Actual> xs_;
-  static gpu::ScopedUnifiedMemory<Actual> ys_;
-  static gpu::ScopedUnifiedMemory<Actual> results_;
-  static gpu::ScopedUnifiedMemory<bool> bool_results_;
+  static gpu::GpuMemory<Actual> xs_;
+  static gpu::GpuMemory<Actual> ys_;
+  static gpu::GpuMemory<Actual> results_;
+  static gpu::GpuMemory<bool> bool_results_;
 
   static std::vector<Expected> x_gmps_;
   static std::vector<Expected> y_gmps_;
 };
 
 template <typename PointType>
-gpu::ScopedUnifiedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
+gpu::GpuMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
     PointCorrectnessCudaTest<PointType>::xs_;
 
 template <typename PointType>
-gpu::ScopedUnifiedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
+gpu::GpuMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
     PointCorrectnessCudaTest<PointType>::ys_;
 
 template <typename PointType>
-gpu::ScopedUnifiedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
+gpu::GpuMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
     PointCorrectnessCudaTest<PointType>::results_;
 
 template <typename PointType>
-gpu::ScopedUnifiedMemory<bool>
-    PointCorrectnessCudaTest<PointType>::bool_results_;
+gpu::GpuMemory<bool> PointCorrectnessCudaTest<PointType>::bool_results_;
 
 template <typename PointType>
 std::vector<typename PointCorrectnessCudaTest<PointType>::Expected>

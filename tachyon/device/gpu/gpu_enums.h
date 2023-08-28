@@ -9,13 +9,6 @@
 #if TACHYON_CUDA
 #define gpuSuccess cudaSuccess
 
-// cudaMemcpyKind
-#define gpuMemcpyHostToHost cudaMemcpyHostToHost
-#define gpuMemcpyHostToDevice cudaMemcpyHostToDevice
-#define gpuMemcpyDeviceToHost cudaMemcpyDeviceToHost
-#define gpuMemcpyDeviceToDevice cudaMemcpyDeviceToDevice
-#define gpuMemcpyDefault cudaMemcpyDefault
-
 // cudaMemAllocationHandleType
 #define gpuMemAllocationTypeInvalid cudaMemAllocationTypeInvalid
 #define gpuMemAllocationTypePinned cudaMemAllocationTypePinned
@@ -43,13 +36,6 @@
 
 #elif TACHYON_USE_ROCM
 #define gpuSuccess hipSuccess
-
-// hipMemcpyKind
-#define gpuMemcpyHostToHost hipMemcpyHostToHost
-#define gpuMemcpyHostToDevice hipMemcpyHostToDevice
-#define gpuMemcpyDeviceToHost hipMemcpyDeviceToHost
-#define gpuMemcpyDeviceToDevice hipMemcpyDeviceToDevice
-#define gpuMemcpyDefault hipMemcpyDefault
 
 // hipMemAllocationHandleType
 #define gpuMemAllocationTypeInvalid hipMemAllocationTypeInvalid

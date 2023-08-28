@@ -40,19 +40,6 @@ using gpuStream_t = cudaStream_t;
 #define gpuStreamDestroy cudaStreamDestroy
 #define gpuStreamSynchronize cudaStreamSynchronize
 #define gpuStreamWaitEvent cudaStreamWaitEvent
-
-#define gpuMalloc cudaMalloc
-#define gpuMallocHost cudaMallocHost
-#define gpuMallocFromPoolAsync cudaMallocFromPoolAsync
-
-#define gpuFree cudaFree
-#define gpuFreeHost cudaFreeHost
-#define gpuFreeAsync cudaFreeAsync
-
-#define gpuMemcpy cudaMemcpy
-#define gpuMemset cudaMemset
-
-#define gpuMemGetInfo cudaMemGetInfo
 #elif TACHYON_USE_ROCM
 using cudaError = int;
 using cudaError_t = int;
@@ -88,19 +75,6 @@ using gpuStream_t = hipStream_t;
 #define gpuStreamDestroy hipStreamDestroy
 #define gpuStreamSynchronize hipStreamSynchronize
 #define gpuStreamWaitEvent hipStreamWaitEvent
-
-#define gpuMalloc hipMalloc
-#define gpuMallocHost hipMallocHost
-#define gpuMallocFromPoolAsync hipMallocFromPoolAsync
-
-#define gpuFree hipFree
-#define gpuFreeHost hipFreeHost
-#define gpuFreeAsync hipFreeAsync
-
-#define gpuMemcpy hipMemcpy
-#define gpuMemset hipMemset
-
-#define gpuMemGetInfo hipMemGetInfo
 #endif
 // clang-format on
 

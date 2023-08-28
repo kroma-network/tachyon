@@ -1,7 +1,7 @@
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/device/gpu/cuda/scoped_memory.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
@@ -42,11 +42,13 @@ class AffinePointCorrectnessCudaTest : public testing::Test {
 
   static void SetUpTestSuite() {
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
-    xs_ = gpu::MallocManaged<bn254::G1AffinePointCuda>(N);
-    ys_ = gpu::MallocManaged<bn254::G1AffinePointCuda>(N);
-    affine_results_ = gpu::MallocManaged<bn254::G1AffinePointCuda>(N);
-    jacobian_results_ = gpu::MallocManaged<bn254::G1JacobianPointCuda>(N);
-    bool_results_ = gpu::MallocManaged<bool>(N);
+    xs_ = gpu::GpuMemory<bn254::G1AffinePointCuda>::MallocManaged(N);
+    ys_ = gpu::GpuMemory<bn254::G1AffinePointCuda>::MallocManaged(N);
+    affine_results_ =
+        gpu::GpuMemory<bn254::G1AffinePointCuda>::MallocManaged(N);
+    jacobian_results_ =
+        gpu::GpuMemory<bn254::G1JacobianPointCuda>::MallocManaged(N);
+    bool_results_ = gpu::GpuMemory<bool>::MallocManaged(N);
 
     bn254::G1AffinePointGmp::Curve::Init();
     bn254::G1AffinePointCuda::Curve::Init();
@@ -82,35 +84,29 @@ class AffinePointCorrectnessCudaTest : public testing::Test {
   }
 
   void SetUp() override {
-    GPU_MUST_SUCCESS(gpuMemset(affine_results_.get(), 0,
-                               N * sizeof(bn254::G1AffinePointCuda)),
-                     "");
-    GPU_MUST_SUCCESS(gpuMemset(jacobian_results_.get(), 0,
-                               N * sizeof(bn254::G1JacobianPointCuda)),
-                     "");
-    GPU_MUST_SUCCESS(gpuMemset(bool_results_.get(), 0, N * sizeof(bool)), "");
+    affine_results_.Memset();
+    jacobian_results_.Memset();
+    bool_results_.Memset();
   }
 
  protected:
-  static gpu::ScopedUnifiedMemory<bn254::G1AffinePointCuda> xs_;
-  static gpu::ScopedUnifiedMemory<bn254::G1AffinePointCuda> ys_;
-  static gpu::ScopedUnifiedMemory<bn254::G1AffinePointCuda> affine_results_;
-  static gpu::ScopedUnifiedMemory<bn254::G1JacobianPointCuda> jacobian_results_;
-  static gpu::ScopedUnifiedMemory<bool> bool_results_;
+  static gpu::GpuMemory<bn254::G1AffinePointCuda> xs_;
+  static gpu::GpuMemory<bn254::G1AffinePointCuda> ys_;
+  static gpu::GpuMemory<bn254::G1AffinePointCuda> affine_results_;
+  static gpu::GpuMemory<bn254::G1JacobianPointCuda> jacobian_results_;
+  static gpu::GpuMemory<bool> bool_results_;
 
   static std::vector<bn254::G1AffinePointGmp> x_gmps_;
   static std::vector<bn254::G1AffinePointGmp> y_gmps_;
 };
 
-gpu::ScopedUnifiedMemory<bn254::G1AffinePointCuda>
-    AffinePointCorrectnessCudaTest::xs_;
-gpu::ScopedUnifiedMemory<bn254::G1AffinePointCuda>
-    AffinePointCorrectnessCudaTest::ys_;
-gpu::ScopedUnifiedMemory<bn254::G1AffinePointCuda>
+gpu::GpuMemory<bn254::G1AffinePointCuda> AffinePointCorrectnessCudaTest::xs_;
+gpu::GpuMemory<bn254::G1AffinePointCuda> AffinePointCorrectnessCudaTest::ys_;
+gpu::GpuMemory<bn254::G1AffinePointCuda>
     AffinePointCorrectnessCudaTest::affine_results_;
-gpu::ScopedUnifiedMemory<bn254::G1JacobianPointCuda>
+gpu::GpuMemory<bn254::G1JacobianPointCuda>
     AffinePointCorrectnessCudaTest::jacobian_results_;
-gpu::ScopedUnifiedMemory<bool> AffinePointCorrectnessCudaTest::bool_results_;
+gpu::GpuMemory<bool> AffinePointCorrectnessCudaTest::bool_results_;
 
 std::vector<bn254::G1AffinePointGmp> AffinePointCorrectnessCudaTest::x_gmps_;
 std::vector<bn254::G1AffinePointGmp> AffinePointCorrectnessCudaTest::y_gmps_;
