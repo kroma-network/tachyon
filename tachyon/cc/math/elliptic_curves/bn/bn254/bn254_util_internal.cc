@@ -1,6 +1,10 @@
 #include "tachyon/cc/math/elliptic_curves/bn/bn254/bn254_util_internal.h"
 
-namespace tachyon::math {
+namespace tachyon {
+
+using namespace math;
+
+namespace cc::math {
 
 BigInt<4> ToBigInt(const tachyon_bn254_fq& fq) { return BigInt<4>(fq.limbs); }
 
@@ -55,4 +59,5 @@ Point3<bn254::Fq> ToPoint3(const tachyon_bn254_g1_point3& point_in) {
   return point;
 }
 
-}  // namespace tachyon::math
+}  // namespace cc::math
+}  // namespace tachyon

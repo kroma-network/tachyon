@@ -2,7 +2,11 @@
 
 #include "absl/numeric/bits.h"
 
-namespace tachyon::math::internal {
+namespace tachyon {
+
+using namespace math;
+
+namespace c::math {
 
 void MSMInputProvider::Inject(const tachyon_bn254_g1_point2* bases_in,
                               size_t bases_len,
@@ -72,4 +76,5 @@ void MSMInputProvider::Inject(const tachyon_bn254_g1_affine* bases_in,
   }
 }
 
-}  // namespace tachyon::math::internal
+}  // namespace c::math
+}  // namespace tachyon
