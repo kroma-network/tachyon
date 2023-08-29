@@ -1,15 +1,8 @@
 #include "tachyon/base/time/time_interval.h"
 
-#include <utility>
-
 namespace tachyon::base {
 
-void TimeInterval::Start() {
-#if DCHECK_IS_ON()
-  DCHECK(!std::exchange(started_, true));
-#endif
-  last_time_ = TimeTicks::Now();
-}
+void TimeInterval::Reset() { last_time_ = TimeTicks::Now(); }
 
 TimeDelta TimeInterval::GetTimeDelta(bool update) {
   TimeTicks now = TimeTicks::Now();

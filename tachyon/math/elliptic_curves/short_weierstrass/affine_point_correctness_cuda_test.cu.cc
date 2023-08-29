@@ -41,8 +41,7 @@ class AffinePointCorrectnessCudaTest : public testing::Test {
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
-    gpuError_t error = gpuDeviceReset();
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
     xs_ = gpu::MallocManaged<bn254::G1AffinePointCuda>(N);
     ys_ = gpu::MallocManaged<bn254::G1AffinePointCuda>(N);
     affine_results_ = gpu::MallocManaged<bn254::G1AffinePointCuda>(N);
@@ -76,22 +75,20 @@ class AffinePointCorrectnessCudaTest : public testing::Test {
     jacobian_results_.reset();
     bool_results_.reset();
 
-    gpuError_t error = gpuDeviceReset();
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
 
     x_gmps_.clear();
     y_gmps_.clear();
   }
 
   void SetUp() override {
-    gpuError_t error = gpuMemset(affine_results_.get(), 0,
-                                 N * sizeof(bn254::G1AffinePointCuda));
-    GPU_CHECK(error == gpuSuccess, error);
-    error = gpuMemset(jacobian_results_.get(), 0,
-                      N * sizeof(bn254::G1JacobianPointCuda));
-    GPU_CHECK(error == gpuSuccess, error);
-    error = gpuMemset(bool_results_.get(), 0, N * sizeof(bool));
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuMemset(affine_results_.get(), 0,
+                               N * sizeof(bn254::G1AffinePointCuda)),
+                     "");
+    GPU_MUST_SUCCESS(gpuMemset(jacobian_results_.get(), 0,
+                               N * sizeof(bn254::G1JacobianPointCuda)),
+                     "");
+    GPU_MUST_SUCCESS(gpuMemset(bool_results_.get(), 0, N * sizeof(bool)), "");
   }
 
  protected:
@@ -121,9 +118,8 @@ std::vector<bn254::G1AffinePointGmp> AffinePointCorrectnessCudaTest::y_gmps_;
 }  // namespace
 
 TEST_F(AffinePointCorrectnessCudaTest, Add) {
-  gpuError_t error =
-      LaunchAdd(xs_.get(), ys_.get(), jacobian_results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(LaunchAdd(xs_.get(), ys_.get(), jacobian_results_.get(), N),
+                   "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
                                   (ys_.get())[i].ToString()));
@@ -134,8 +130,7 @@ TEST_F(AffinePointCorrectnessCudaTest, Add) {
 }
 
 TEST_F(AffinePointCorrectnessCudaTest, Double) {
-  gpuError_t error = LaunchDouble(xs_.get(), jacobian_results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(LaunchDouble(xs_.get(), jacobian_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
     auto result = bn254::G1JacobianPointGmp::FromMontgomery(
@@ -145,8 +140,7 @@ TEST_F(AffinePointCorrectnessCudaTest, Double) {
 }
 
 TEST_F(AffinePointCorrectnessCudaTest, Negative) {
-  gpuError_t error = LaunchNegative(xs_.get(), affine_results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(LaunchNegative(xs_.get(), affine_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
     auto result = bn254::G1AffinePointGmp::FromMontgomery(
@@ -156,8 +150,7 @@ TEST_F(AffinePointCorrectnessCudaTest, Negative) {
 }
 
 TEST_F(AffinePointCorrectnessCudaTest, Eq) {
-  gpuError_t error = LaunchEq(xs_.get(), xs_.get(), bool_results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(LaunchEq(xs_.get(), xs_.get(), bool_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
                                   (xs_.get())[i].ToString()));
@@ -166,8 +159,7 @@ TEST_F(AffinePointCorrectnessCudaTest, Eq) {
 }
 
 TEST_F(AffinePointCorrectnessCudaTest, Ne) {
-  gpuError_t error = LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
                                   (ys_.get())[i].ToString()));

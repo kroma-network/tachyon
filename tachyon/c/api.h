@@ -4,8 +4,6 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/point2.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/point3.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_gpu.h"
 

@@ -61,8 +61,7 @@ class PointCorrectnessCudaTest : public testing::Test {
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
-    gpuError_t error = gpuDeviceReset();
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
     xs_ = gpu::MallocManaged<Actual>(N);
     ys_ = gpu::MallocManaged<Actual>(N);
     results_ = gpu::MallocManaged<Actual>(N);
@@ -92,18 +91,15 @@ class PointCorrectnessCudaTest : public testing::Test {
     results_.reset();
     bool_results_.reset();
 
-    gpuError_t error = gpuDeviceReset();
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
 
     x_gmps_.clear();
     y_gmps_.clear();
   }
 
   void SetUp() override {
-    gpuError_t error = gpuMemset(results_.get(), 0, N * sizeof(Actual));
-    GPU_CHECK(error == gpuSuccess, error);
-    error = gpuMemset(bool_results_.get(), 0, N * sizeof(bool));
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuMemset(results_.get(), 0, N * sizeof(Actual)), "");
+    GPU_MUST_SUCCESS(gpuMemset(bool_results_.get(), 0, N * sizeof(bool)), "");
   }
 
  protected:
@@ -165,9 +161,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Add) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  gpuError_t error =
-      LaunchAdd(this->xs_.get(), this->ys_.get(), this->results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(
+      LaunchAdd(this->xs_.get(), this->ys_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
                                   (this->xs_.get())[i].ToString(),
@@ -182,8 +177,7 @@ TYPED_TEST(PointCorrectnessCudaTest, Double) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  gpuError_t error = LaunchDouble(this->xs_.get(), this->results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(LaunchDouble(this->xs_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (this->xs_.get())[i].ToString()));
     auto result =
@@ -196,8 +190,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Negative) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  gpuError_t error = LaunchNegative(this->xs_.get(), this->results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(LaunchNegative(this->xs_.get(), this->results_.get(), N),
+                   "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", (this->xs_.get())[i].ToString()));
     auto result =
@@ -209,9 +203,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Negative) {
 TYPED_TEST(PointCorrectnessCudaTest, Eq) {
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  gpuError_t error =
-      LaunchEq(this->xs_.get(), this->xs_.get(), this->bool_results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(
+      LaunchEq(this->xs_.get(), this->xs_.get(), this->bool_results_.get(), N),
+      "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
                                   (this->xs_.get())[i].ToString(),
@@ -223,9 +217,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Eq) {
 TYPED_TEST(PointCorrectnessCudaTest, Ne) {
   size_t N = PointCorrectnessCudaTest<TypeParam>::N;
 
-  gpuError_t error =
-      LaunchNe(this->xs_.get(), this->ys_.get(), this->bool_results_.get(), N);
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(
+      LaunchNe(this->xs_.get(), this->ys_.get(), this->bool_results_.get(), N),
+      "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
                                   (this->xs_.get())[i].ToString(),

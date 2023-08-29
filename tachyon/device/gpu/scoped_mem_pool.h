@@ -4,8 +4,6 @@
 #include <memory>
 #include <type_traits>
 
-#include "tachyon/device/gpu/gpu_device_functions.h"
-#include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/export.h"
 
@@ -13,8 +11,8 @@ namespace tachyon::device::gpu {
 
 struct TACHYON_EXPORT MemPoolDestroyer {
   void operator()(gpuMemPool_t mem_pool) const {
-    gpuError_t error = gpuMemPoolDestroy(mem_pool);
-    GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuMemPoolDestroy()";
+    GPU_MUST_SUCCESS(gpuMemPoolDestroy(mem_pool),
+                     "Failed to gpuMemPoolDestroy()");
   }
 };
 

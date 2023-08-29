@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_SETUP_KERNELS_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_SETUP_KERNELS_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_KERNELS_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_KERNELS_H_
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/device/gpu/gpu_logging.h"
@@ -7,8 +7,8 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 
-namespace tachyon::math::kernels {
-namespace msm {
+namespace tachyon::math::msm {
+namespace kernels {
 using namespace device::gpu;
 
 #define MAX_THREADS 128
@@ -22,9 +22,19 @@ __global__ void InitializeBucketsKernel(PointXYZZ<Curve>* buckets,
   constexpr size_t kUint4Count = sizeof(BaseField) / sizeof(uint4);
   unsigned int bucket_index = gid / kUint4Count;
   unsigned int element_index = gid % kUint4Count;
+  // | x     | y     |
+  // |-------| ------|
+  // | 0 | 1 | 0 | 1 |
+  // |-------| ------|
+  // | zz    | zzz   |
+  // |-------| ------|
+  // | 0 | 1 | 0 | 1 |
+  // <-- 0 -->
+  // This sets zeros to above a certain region, and this is enough to make a
+  // point in |buckets| zero.
   uint4* elements = const_cast<uint4*>(
       reinterpret_cast<const uint4*>(&buckets[bucket_index].zz()));
-  Store<uint4, CacheOperator::kStreaming>(elements + element_index, uint4());
+  Store<uint4, CacheOperator::kStreaming>(&elements[element_index], uint4());
 }
 
 template <typename Curve,
@@ -37,10 +47,7 @@ gpuError_t InitializeBuckets(PointXYZZ<Curve>* buckets, unsigned int count,
   dim3 grid_dim = (count_u4 - 1) / block_dim.x + 1;
   InitializeBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(buckets,
                                                               count_u4);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to InitializeBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to InitializeBucketsKernel()");
 }
 #undef MAX_THREADS
 
@@ -50,7 +57,7 @@ __global__ void ComputeBucketIndexesKernel(
     const ScalarField* __restrict__ scalars, unsigned int windows_count,
     unsigned int window_bits, unsigned int* __restrict__ bucket_indexes,
     unsigned int* __restrict__ base_indexes, unsigned int count) {
-  constexpr unsigned kHighestBitMask = 0x80000000;
+  constexpr unsigned int kHighestBitMask = 0x80000000;
   unsigned int scalar_index = blockIdx.x * blockDim.x + threadIdx.x;
   if (scalar_index >= count) return;
   unsigned int top_window_unused_bits =
@@ -76,13 +83,52 @@ __global__ void ComputeBucketIndexesKernel(
     bucket_index += borrow;
     borrow = 0;
     unsigned int sign = global_sign;
+    // NOTE(chokobole): The code below should not be executed when dealing with
+    // the top window. For instance, in the case of the curve bn254, where the
+    // modulus uses only 254 bits, the |window_bits| amount to 16 bits when the
+    // degree is 20.
+    // Consequently, scalar decomposition appears as follows:
+    //
+    // S = S_0 + S_1 * 2^16 + S_2 * 2^32 + ... + S_15 * 2^240
+    //
+    // Even with the addition of a borrow to S_15, the resulting value remains
+    // below 2^14 - 1. This ensures that it remains within the bounds of
+    // |top_bucket_index|, which is 2^15.
     if (bucket_index > top_bucket_index) {
+      // When |window_bits| is 4 bits, the value of |top_bucket_index| is 8. In
+      // a scenario where |bucket_index| surpasses 8(let's assume it's 10), the
+      // resulting |bucket_index| transformation is as follows:
+
+      // 10 * B = 10 * B - 16 * B + 16 * B
+      //        = -6 * B + 16 * B
+      //        = 6 * (-B) + 16 * B
       bucket_index = (top_bucket_index << 1) - bucket_index;
       borrow = 1;
       sign ^= kHighestBitMask;
     }
     bool is_top_window = window_index == windows_count - 1;
+    // Ultimately, a dot product is required between the scalar and the base:
+    //
+    // (S_0, S_1 * 2^16, S_2 * 2^32, ..., S_15 * 2^240) * (B, B, B, ..., B)
+    //
+    // When |bucket_index| is zero, it indicates the potential to optimize the
+    // computation of the dot product by subsequently reducing the required
+    // number of multiplications.
+    // See RemoveZeroBucketsKernel() for more details.
     unsigned int zero_mask = bucket_index ? 0 : kHighestBitMask;
+    // For bn254 scalar field with degree 20, |bucket_index| appears as follows:
+    //
+    // In case of top window,
+    //
+    // | 2      | 13          | 1    |
+    // |--------|-------------|------|
+    // | unused |bucket_index | sign |
+    //
+    // Otherwise,
+    //
+    // | 15           | 1    |
+    // |--------------|------|
+    // | bucket_index | sign |
     bucket_index =
         ((bucket_index &
           ((is_top_window ? top_window_top_bucket_index : top_bucket_index) -
@@ -90,13 +136,20 @@ __global__ void ComputeBucketIndexesKernel(
          << 1) |
         (bucket_index >>
          (is_top_window ? top_window_signed_window_bits : signed_window_bits));
+    // NOTE(chokobole): You can think of it as like padding.
     unsigned int bucket_index_offset =
         is_top_window
             ? (scalar_index & top_window_unused_mask) << top_window_used_bits
             : 0;
     unsigned int output_index = window_index * count + scalar_index;
+    // | 1         | window_bits -1 | 31                       | 1    |
+    // |-----------|----------------|--------------------------|------|
+    // | zero_mask | window_mask    | bucket_index(w/ padding) | sign |
     bucket_indexes[output_index] =
         zero_mask | window_mask | bucket_index_offset | bucket_index;
+    // | 1    | 31           |
+    // |------|--------------|
+    // | sign | scalar_index |
     base_indexes[output_index] = sign | scalar_index;
   }
 }
@@ -112,17 +165,14 @@ gpuError_t ComputeBucketIndexes(const ScalarField* scalars,
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
   ComputeBucketIndexesKernel<<<grid_dim, block_dim, 0, stream>>>(
       scalars, windows_count, window_bits, bucket_indexes, base_indexes, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to ComputeBucketIndexesKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to ComputeBucketIndexesKernel()");
 }
 #undef MAX_THREADS
 
 #define MAX_THREADS 128
 __global__ void RemoveZeroBucketsKernel(
     const unsigned int* unique_bucket_indexes, unsigned int* bucket_run_lengths,
-    const unsigned int* bucket_runs_count, const unsigned int count) {
+    const unsigned int* bucket_runs_count, unsigned int count) {
   constexpr unsigned int kHighestBitMask = 0x80000000;
   unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid >= count) return;
@@ -132,18 +182,15 @@ __global__ void RemoveZeroBucketsKernel(
   if (gid >= runs_count || is_zero) bucket_run_lengths[gid] = 0;
 }
 
-gpuError_t RemoveZeroBuckets(unsigned int* unique_bucket_indexes,
+gpuError_t RemoveZeroBuckets(const unsigned int* unique_bucket_indexes,
                              unsigned int* bucket_run_lengths,
                              const unsigned int* bucket_runs_count,
-                             const unsigned int count, gpuStream_t stream) {
+                             unsigned int count, gpuStream_t stream) {
   dim3 block_dim = count < MAX_THREADS ? count : MAX_THREADS;
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
   RemoveZeroBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(
       unique_bucket_indexes, bucket_run_lengths, bucket_runs_count, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to RemoveZeroBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to RemoveZeroBucketsKernel()");
 }
 #undef MAX_THREADS
 
@@ -151,19 +198,21 @@ gpuError_t RemoveZeroBuckets(unsigned int* unique_bucket_indexes,
 #define MIN_BLOCKS 16
 template <typename Curve, bool IsFirst>
 __global__ void AggregateBucketsKernel(
-    unsigned int* __restrict__ base_indexes,
-    unsigned int* __restrict__ bucket_run_offsets,
-    unsigned int* __restrict__ bucket_run_lengths,
-    unsigned int* __restrict__ bucket_indexes,
+    const unsigned int* __restrict__ base_indexes,
+    const unsigned int* __restrict__ bucket_run_offsets,
+    const unsigned int* __restrict__ bucket_run_lengths,
+    const unsigned int* __restrict__ bucket_indexes,
     const AffinePoint<Curve>* __restrict__ bases,
     PointXYZZ<Curve>* __restrict__ buckets, unsigned int count) {
   constexpr unsigned int kNegativeSign = 0x80000000;
   unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid >= count) return;
   unsigned int length = bucket_run_lengths[gid];
+  // NOTE(chokobole): This is zeroed out in RemoveZeroBucketsKernel().
   if (length == 0) return;
   unsigned int base_indexes_offset = bucket_run_offsets[gid];
-  unsigned int* indexes = base_indexes + base_indexes_offset;
+  const unsigned int* indexes = &base_indexes[base_indexes_offset];
+  // NOTE(chokobole): The last bit is sign bit.
   unsigned int bucket_index = bucket_indexes[gid] >> 1;
   PointXYZZ<Curve> bucket;
   if constexpr (IsFirst) {
@@ -171,37 +220,56 @@ __global__ void AggregateBucketsKernel(
     unsigned int sign = base_index & kNegativeSign;
     base_index &= ~kNegativeSign;
     auto base =
-        Load<AffinePoint<Curve>, CacheOperator::kNone>(bases + base_index);
+        Load<AffinePoint<Curve>, CacheOperator::kNone>(&bases[base_index]);
     if (sign) {
       base = base.NegInPlace();
     }
     bucket = base.ToXYZZ();
   } else {
-    bucket = Load<PointXYZZ<Curve>, CacheOperator::kStreaming>(buckets +
-                                                               bucket_index);
+    bucket = Load<PointXYZZ<Curve>, CacheOperator::kStreaming>(
+        &buckets[bucket_index]);
   }
+  // What we need to compute is as follows:
+  //
+  // B_0 * S_0 + B_1 * S_1 + B_2 * S_2 + ... + B_{N - 1} * S_{N - 1}
+  //
+  // For each scalar, it's decomposed based on the window bits.
+  // Let's take the example of the bn254 curve again:
+  //
+  // S_0 = S_0_0 + S_0_1 * 2^16 + S_0_2 * 2^32 + ... + S_0_15 * 2^240
+  // S_1 = S_1_0 + S_1_1 * 2^16 + S_1_2 * 2^32 + ... + S_1_15 * 2^240
+  // ...
+  // S_{N - 1} = S_{N - 1}_0 + S_{N - 1}_1 * 2^16 + S_{N - 1}_2 * 2^32 + ... +
+  // S_{N - 1}_15 * 2^240
+  //
+  // S_{i}_{j} ranges from 0 to 2^15. (Be cautious, it's not 2^16.)
+  // The bucket index can be calculated as follows:
+  //
+  // bucket_index = j * 2^16 + S_{i}_{j}.
+  //
+  // This accumulates the base belonging to the same |bucket_index|.
   for (unsigned int i = IsFirst ? 1 : 0; i < length; i++) {
     unsigned int base_index = *indexes++;
     unsigned int sign = base_index & kNegativeSign;
     base_index &= ~kNegativeSign;
     auto base =
-        Load<AffinePoint<Curve>, CacheOperator::kNone>(bases + base_index);
+        Load<AffinePoint<Curve>, CacheOperator::kNone>(&bases[base_index]);
     if (sign) {
       base.NegInPlace();
     }
     bucket += base;
   }
-  Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(buckets + bucket_index,
+  Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(&buckets[bucket_index],
                                                      bucket);
 }
 
 template <typename Curve>
-gpuError_t AggregateBuckets(const bool is_first, unsigned int* base_indexes,
-                            unsigned int* bucket_run_offsets,
-                            unsigned int* bucket_run_lengths,
-                            unsigned int* bucket_indexes,
+gpuError_t AggregateBuckets(bool is_first, const unsigned int* base_indexes,
+                            const unsigned int* bucket_run_offsets,
+                            const unsigned int* bucket_run_lengths,
+                            const unsigned int* bucket_indexes,
                             const AffinePoint<Curve>* bases,
-                            PointXYZZ<Curve>* buckets, const unsigned count,
+                            PointXYZZ<Curve>* buckets, unsigned int count,
                             gpuStream_t stream) {
   dim3 block_dim = count < MAX_THREADS ? count : MAX_THREADS;
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
@@ -210,10 +278,7 @@ gpuError_t AggregateBuckets(const bool is_first, unsigned int* base_indexes,
   kernel<<<grid_dim, block_dim, 0, stream>>>(base_indexes, bucket_run_offsets,
                                              bucket_run_lengths, bucket_indexes,
                                              bases, buckets, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to AggregateBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to AggregateBucketsKernel()");
 }
 
 #define MAX_THREADS 32
@@ -239,10 +304,7 @@ gpuError_t ExtractTopBuckets(PointXYZZ<Curve>* buckets,
   const dim3 grid_dim = (windows_count - 1) / block_dim.x + 1;
   ExtractTopBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(
       buckets, top_buckets, bits_count, windows_count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to ExtractTopBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to ExtractTopBucketsKernel()");
 }
 #undef MAX_THREADS
 
@@ -289,12 +351,12 @@ __global__ void SplitWindowsKernel(
         i & index_mask | (i & ~index_mask) << target_window_bits_count;
     unsigned int load_offset = global_offset + index_offset;
     PointXYZZ<Curve> source_bucket =
-        Load<PointXYZZ<Curve>, CacheOperator::kNone>(source_buckets +
-                                                     load_offset);
+        Load<PointXYZZ<Curve>, CacheOperator::kNone>(
+            &source_buckets[load_offset]);
     target_bucket = i == target_partition_index ? source_bucket
                                                 : target_bucket + source_bucket;
   }
-  Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(target_buckets + gid,
+  Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(&target_buckets[gid],
                                                      target_bucket);
 }
 
@@ -309,10 +371,7 @@ gpuError_t SplitWindows(unsigned int source_window_bits_count,
   SplitWindowsKernel<<<grid_dim, block_dim, 0, stream>>>(
       source_window_bits_count, source_windows_count, source_buckets,
       target_buckets, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to SplitWindowsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to SplitWindowsKernel()");
 }
 #undef MAX_THREADS
 #undef MIN_BLOCKS
@@ -326,7 +385,7 @@ __global__ void ReduceBucketsKernel(PointXYZZ<Curve>* buckets,
   if (gid >= count) return;
   buckets += gid;
   auto a = Load<PointXYZZ<Curve>, CacheOperator::kNone>(buckets);
-  auto b = Load<PointXYZZ<Curve>, CacheOperator::kNone>(buckets + count);
+  auto b = Load<PointXYZZ<Curve>, CacheOperator::kNone>(&buckets[count]);
   Store<PointXYZZ<Curve>, CacheOperator::kStreaming>(buckets, a + b);
 }
 
@@ -336,10 +395,7 @@ gpuError_t ReduceBuckets(PointXYZZ<Curve>* buckets, unsigned int count,
   dim3 block_dim = count < MAX_THREADS ? count : MAX_THREADS;
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
   ReduceBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(buckets, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to ReduceBucketsKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to ReduceBucketsKernel()");
 }
 #undef MAX_THREADS
 #undef MIN_BLOCKS
@@ -358,8 +414,8 @@ __global__ void LastPassGatherKernel(
   unsigned int window_tid = gid % bits_count_pass_one;
   PointXYZZ<Curve> pz;
   if (window_tid == signed_bits_count_pass_one || gid == count - 1) {
-    pz = Load<PointXYZZ<Curve>, CacheOperator::kNone>(top_buckets +
-                                                      window_index);
+    pz = Load<PointXYZZ<Curve>, CacheOperator::kNone>(
+        &top_buckets[window_index]);
   } else {
     for (unsigned int bits_count = signed_bits_count_pass_one;
          bits_count > 1;) {
@@ -371,9 +427,9 @@ __global__ void LastPassGatherKernel(
       }
     }
     unsigned int sid = (window_index << 1) + 1;
-    pz = Load<PointXYZZ<Curve>, CacheOperator::kNone>(source + sid);
+    pz = Load<PointXYZZ<Curve>, CacheOperator::kNone>(&source[sid]);
   }
-  Store<JacobianPoint<Curve>, CacheOperator::kStreaming>(target + gid,
+  Store<JacobianPoint<Curve>, CacheOperator::kStreaming>(&target[gid],
                                                          pz.ToJacobian());
 }
 
@@ -387,40 +443,34 @@ gpuError_t LastPassGather(unsigned int bits_count_pass_one,
   dim3 grid_dim = (count - 1) / block_dim.x + 1;
   LastPassGatherKernel<<<grid_dim, block_dim, 0, stream>>>(
       bits_count_pass_one, source, top_buckets, target, count);
-  gpuError_t error = gpuGetLastError();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to LastPassGatherKernel()";
-  return error;
+  return LOG_IF_GPU_LAST_ERROR("Failed to LastPassGatherKernel()");
 }
 #undef MAX_THREADS
 
 template <typename T>
-bool SetKernelAttributes(T* func) {
-  gpuError_t error = cudaFuncSetCacheConfig(func, cudaFuncCachePreferL1);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to cudaFuncSetCacheConfig()";
-  error =
+void SetKernelAttributes(T* func) {
+  GPU_MUST_SUCCESS(cudaFuncSetCacheConfig(func, cudaFuncCachePreferL1),
+                   "Failed to cudaFuncSetCacheConfig()");
+  GPU_MUST_SUCCESS(
       cudaFuncSetAttribute(func, cudaFuncAttributePreferredSharedMemoryCarveout,
-                           cudaSharedmemCarveoutMaxL1);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to cudaFuncSetAttribute()";
-  return true;
+                           cudaSharedmemCarveoutMaxL1),
+      "Failed to cudaFuncSetAttribute()");
 }
 
 template <typename Curve, typename ScalarField = typename Curve::ScalarField>
-bool SetupKernels() {
-  if (!SetKernelAttributes(InitializeBucketsKernel<Curve>)) return false;
-  if (!SetKernelAttributes(ComputeBucketIndexesKernel<ScalarField>))
-    return false;
-  if (!SetKernelAttributes(RemoveZeroBucketsKernel)) return false;
-  if (!SetKernelAttributes(AggregateBucketsKernel<Curve, false>)) return false;
-  if (!SetKernelAttributes(AggregateBucketsKernel<Curve, true>)) return false;
-  if (!SetKernelAttributes(ExtractTopBucketsKernel<Curve>)) return false;
-  if (!SetKernelAttributes(SplitWindowsKernel<Curve>)) return false;
-  if (!SetKernelAttributes(ReduceBucketsKernel<Curve>)) return false;
-  if (!SetKernelAttributes(LastPassGatherKernel<Curve>)) return false;
-  return true;
+void SetupKernels() {
+  SetKernelAttributes(InitializeBucketsKernel<Curve>);
+  SetKernelAttributes(ComputeBucketIndexesKernel<ScalarField>);
+  SetKernelAttributes(RemoveZeroBucketsKernel);
+  SetKernelAttributes(AggregateBucketsKernel<Curve, false>);
+  SetKernelAttributes(AggregateBucketsKernel<Curve, true>);
+  SetKernelAttributes(ExtractTopBucketsKernel<Curve>);
+  SetKernelAttributes(SplitWindowsKernel<Curve>);
+  SetKernelAttributes(ReduceBucketsKernel<Curve>);
+  SetKernelAttributes(LastPassGatherKernel<Curve>);
 }
 
-}  // namespace msm
-}  // namespace tachyon::math::kernels
+}  // namespace kernels
+}  // namespace tachyon::math::msm
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_SETUP_KERNELS_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_KERNELS_H_

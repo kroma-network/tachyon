@@ -30,8 +30,7 @@ class PrimeFieldCorrectnessCudaTest : public testing::Test {
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
-    gpuError_t error = gpuDeviceReset();
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
     xs_ = gpu::MallocManaged<bn254::FqCuda>(N);
     ys_ = gpu::MallocManaged<bn254::FqCuda>(N);
     results_ = gpu::MallocManaged<bn254::FqCuda>(N);
@@ -58,16 +57,15 @@ class PrimeFieldCorrectnessCudaTest : public testing::Test {
     ys_.reset();
     results_.reset();
 
-    gpuError_t error = gpuDeviceReset();
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
 
     x_gmps_.clear();
     y_gmps_.clear();
   }
 
   void SetUp() override {
-    gpuError_t error = gpuMemset(results_.get(), 0, N * sizeof(bn254::FqCuda));
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuMemset(results_.get(), 0, N * sizeof(bn254::FqCuda)),
+                     "");
   }
 
  protected:
@@ -88,9 +86,9 @@ std::vector<bn254::FqGmp> PrimeFieldCorrectnessCudaTest::y_gmps_;
 
 }  // namespace
 
-#define RUN_OPERATION_TESTS(method)                                           \
-  gpuError_t error = Launch##method(xs_.get(), ys_.get(), results_.get(), N); \
-  GPU_CHECK(error == gpuSuccess, error);                                      \
+#define RUN_OPERATION_TESTS(method)                                         \
+  GPU_MUST_SUCCESS(Launch##method(xs_.get(), ys_.get(), results_.get(), N), \
+                   "");                                                     \
   for (size_t i = 0; i < N; ++i)
 
 TEST_F(PrimeFieldCorrectnessCudaTest, Add) {

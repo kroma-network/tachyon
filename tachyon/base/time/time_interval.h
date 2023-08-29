@@ -3,7 +3,6 @@
 
 #include "gtest/gtest_prod.h"
 
-#include "tachyon/base/logging.h"
 #include "tachyon/base/time/time.h"
 #include "tachyon/export.h"
 
@@ -18,7 +17,7 @@ namespace tachyon::base {
 //   tachyon::base::TimeInterval ti(TimeTicks::Now());
 //   // or you can do like below.
 //   // tachyon::base::TimeInterval ti;
-//   // ti.Start();
+//   // ti.Reset();
 //   while (true) {
 //     // heavy calculation
 //     tachyon::base::TimeDelta dt = ti.GetTimeDelta();
@@ -36,15 +35,9 @@ class TACHYON_EXPORT TimeInterval {
  public:
   constexpr TimeInterval() {}
   explicit constexpr TimeInterval(TimeTicks last_time)
-      : last_time_(last_time)
-#if DCHECK_IS_ON()
-        ,
-        started_(true)
-#endif
-  {
-  }
+      : last_time_(last_time) {}
 
-  void Start();
+  void Reset();
 
   // Returns TimeDelta from |last_time_|. For the first call, it might return a
   // bogus value if |last_time_| is not given to this class. If |update| is not
@@ -55,9 +48,6 @@ class TACHYON_EXPORT TimeInterval {
   FRIEND_TEST(TimeIntervalTest, GetTimeDelta);
 
   TimeTicks last_time_;
-#if DCHECK_IS_ON()
-  bool started_ = false;
-#endif
 };
 
 }  // namespace tachyon::base

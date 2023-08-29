@@ -38,8 +38,7 @@ class PrimeFieldCudaTest : public testing::Test {
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
-    gpuError_t error = gpuDeviceReset();
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
     xs_ = gpu::MallocManaged<GF7Cuda>(N);
     ys_ = gpu::MallocManaged<GF7Cuda>(N);
     results_ = gpu::MallocManaged<GF7Cuda>(N);
@@ -54,19 +53,14 @@ class PrimeFieldCudaTest : public testing::Test {
     results_.reset();
     bool_results_.reset();
 
-    gpuError_t error = gpuDeviceReset();
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
   }
 
   void SetUp() override {
-    gpuError_t error = gpuMemset(xs_.get(), 0, N * sizeof(GF7Cuda));
-    GPU_CHECK(error == gpuSuccess, error);
-    error = gpuMemset(ys_.get(), 0, N * sizeof(GF7Cuda));
-    GPU_CHECK(error == gpuSuccess, error);
-    error = gpuMemset(results_.get(), 0, N * sizeof(GF7Cuda));
-    GPU_CHECK(error == gpuSuccess, error);
-    error = gpuMemset(bool_results_.get(), 0, N * sizeof(bool));
-    GPU_CHECK(error == gpuSuccess, error);
+    GPU_MUST_SUCCESS(gpuMemset(xs_.get(), 0, N * sizeof(GF7Cuda)), "");
+    GPU_MUST_SUCCESS(gpuMemset(ys_.get(), 0, N * sizeof(GF7Cuda)), "");
+    GPU_MUST_SUCCESS(gpuMemset(results_.get(), 0, N * sizeof(GF7Cuda)), "");
+    GPU_MUST_SUCCESS(gpuMemset(bool_results_.get(), 0, N * sizeof(bool)), "");
   }
 
  protected:
@@ -89,9 +83,9 @@ gpu::ScopedUnifiedMemory<bool> PrimeFieldCudaTest::bool_results_;
     (xs_.get())[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());                 \
     (ys_.get())[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());                 \
   }                                                                          \
-  gpuError_t error =                                                         \
-      Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests)); \
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to " #method "()";        \
+  GPU_MUST_SUCCESS(                                                          \
+      Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests)), \
+      "Failed to " #method "()");                                            \
   for (size_t i = 0; i < std::size(tests); ++i)
 
 #define RUN_FIELD_OPERATION_TESTS(method)                        \
@@ -188,9 +182,9 @@ TEST_F(PrimeFieldCudaTest, Eq) {
     ASSERT_EQ((xs_.get())[i] == (ys_.get())[i], test.result);
   }
 
-  gpuError_t error =
-      LaunchEq(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests));
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(
+      LaunchEq(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
+      "Failed to Eq()");
   for (size_t i = 0; i < std::size(tests); ++i) {
     ASSERT_EQ((bool_results_.get())[i], tests[i].result);
   }
@@ -214,9 +208,9 @@ TEST_F(PrimeFieldCudaTest, Ne) {
     ASSERT_EQ((xs_.get())[i] != (ys_.get())[i], test.result);
   }
 
-  gpuError_t error =
-      LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests));
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(
+      LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
+      "Failed to Ne()");
   for (size_t i = 0; i < std::size(tests); ++i) {
     ASSERT_EQ((bool_results_.get())[i], tests[i].result);
   }

@@ -3,8 +3,6 @@
 
 #include <utility>
 
-#include "tachyon/device/gpu/gpu_device_functions.h"
-#include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/gpu_logging.h"
 
 namespace tachyon::device::gpu {
@@ -26,20 +24,21 @@ class ScopedAsyncMemory {
   }
   ~ScopedAsyncMemory() { reset(); }
 
+  T& operator*() { return *get(); }
+  const T& operator*() const { return *get(); }
+
+  T* operator->() { return get(); }
+  const T* operator->() const { return get(); }
+
   T* get() { return ptr_; }
   const T* get() const { return ptr_; }
 
-  void reset(gpuStream_t stream) {
-    gpuError_t error = gpuFreeAsync(ptr_, stream);
-    GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuFreeAsync()";
+  void reset() {
+    if (ptr_) {
+      GPU_MUST_SUCCESS(gpuFreeAsync(ptr_, stream_), "Failed to gpuFreeAsync()");
+    }
     ptr_ = nullptr;
     stream_ = nullptr;
-  }
-
-  void reset() {
-    if (ptr_ != nullptr) {
-      reset(stream_);
-    }
   }
 
  private:
@@ -51,9 +50,8 @@ template <typename T>
 ScopedAsyncMemory<T> MallocFromPoolAsync(size_t size, gpuMemPool_t pool,
                                          gpuStream_t stream) {
   T* ptr = nullptr;
-  gpuError_t error =
-      gpuMallocFromPoolAsync(&ptr, sizeof(T) * size, pool, stream);
-  GPU_CHECK(error == gpuSuccess, error) << "Failed to gpuMallocFromPoolAsync()";
+  GPU_MUST_SUCCESS(gpuMallocFromPoolAsync(&ptr, sizeof(T) * size, pool, stream),
+                   "Failed to gpuMallocFromPoolAsync()");
   return {ptr, stream};
 }
 

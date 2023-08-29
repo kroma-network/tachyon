@@ -42,15 +42,11 @@ void TestDoubleOnCPU(const std::vector<math::bn254::G1AffinePoint>& bases,
 gpuError_t LaunchDouble(const math::bn254::G1AffinePointCuda* x,
                         math::bn254::G1JacobianPointCuda* y, uint64_t count) {
   math::kernels::Double<<<(count - 1) / 32 + 1, 32>>>(x, y, count);
-  gpuError_t error = gpuGetLastError();
-  if (error != gpuSuccess) {
-    GPU_LOG(ERROR, error) << "Failed to LaunchDouble()";
-    return error;
-  }
-  error = gpuDeviceSynchronize();
-  GPU_LOG_IF(ERROR, error != gpuSuccess, error)
-      << "Failed to gpuDeviceSynchronize()";
-  return error;
+  gpuError_t error = LOG_IF_GPU_LAST_ERROR("Failed to Double()");
+  return error == gpuSuccess
+             ? LOG_IF_GPU_ERROR(gpuDeviceSynchronize(),
+                                "Failed to gpuDeviceSynchronize")
+             : error;
 }
 
 void TestDoubleOnGPU(math::bn254::G1AffinePointCuda* bases_cuda,
@@ -93,14 +89,13 @@ int RealMain(int argc, char** argv) {
     reporter.AddResult(interval.GetTimeDelta().InSecondsF());
   }
 
-  gpuError_t error = gpuDeviceReset();
-  GPU_CHECK(error == gpuSuccess, error);
+  GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
   auto bases_cuda =
       gpu::MallocManaged<math::bn254::G1AffinePointCuda>(max_point_num);
   auto results_cuda =
       gpu::MallocManaged<math::bn254::G1JacobianPointCuda>(max_point_num);
 
-  interval.Start();
+  interval.Reset();
   for (uint64_t point_num : config.point_nums()) {
     TestDoubleOnGPU(bases_cuda.get(), results_cuda.get(), bases, point_num);
     reporter.AddResult(interval.GetTimeDelta().InSecondsF());

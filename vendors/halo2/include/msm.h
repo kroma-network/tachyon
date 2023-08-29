@@ -10,6 +10,10 @@ struct CppG1Affine;
 struct CppG1Jacobian;
 struct CppFr;
 
+void init_msm(uint8_t degree);
+
+void release_msm();
+
 rust::Box<CppG1Jacobian> msm(rust::Slice<const CppG1Affine> bases,
                              rust::Slice<const CppFr> scalars);
 
