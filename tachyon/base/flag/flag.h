@@ -70,12 +70,6 @@ class FlagBaseBuilder {
     impl->is_required_ = true;
     return *impl;
   }
-
-  T& set_sequential() {
-    T* impl = static_cast<T*>(this);
-    impl->is_sequential_ = true;
-    return *impl;
-  }
 };
 
 // FlagBase must have |short_name_|, |long_name_| or |name_|.
@@ -99,8 +93,6 @@ class TACHYON_EXPORT FlagBase {
 
   // Returns true if the flag was marked with required.
   bool is_required() const { return is_required_; }
-  // Returns true if the flag was marked with sequential.
-  bool is_sequential() const { return is_sequential_; }
   // Returns true |name_| was set.
   bool is_positional() const { return !name_.empty(); }
   // Returns true |short_name_| or |long_name_| was set.
@@ -143,7 +135,6 @@ class TACHYON_EXPORT FlagBase {
   std::string name_;
   std::string help_;
   bool is_required_ = false;
-  bool is_sequential_ = false;
   bool is_set_ = false;
 };
 

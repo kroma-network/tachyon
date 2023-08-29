@@ -13,7 +13,7 @@ std::vector<math::bn254::G1AffinePoint> CreateRandomBn254Points(uint64_t nums) {
   return ret;
 }
 
-std::vector<math::bn254::Fr> CreateRandomBn254Scalars(size_t nums) {
+std::vector<math::bn254::Fr> CreateRandomBn254Scalars(uint64_t nums) {
   using namespace math;
   std::vector<bn254::Fr> ret;
   ret.reserve(nums);

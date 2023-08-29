@@ -6,3 +6,8 @@ tachyon_cc_library(
     name = "point_conversions",
     hdrs = ["point_conversions.h"],
 )
+
+tachyon_cc_library(
+    name = "point_traits",
+    hdrs = ["point_traits.h"],
+)

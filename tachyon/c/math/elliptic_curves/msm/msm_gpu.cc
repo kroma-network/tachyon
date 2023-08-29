@@ -14,9 +14,12 @@
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_cuda.cu.h"
 
-namespace tachyon::math {
+namespace tachyon {
 
+using namespace math;
 using namespace device;
+
+namespace c::math {
 
 namespace {
 
@@ -26,7 +29,7 @@ gpu::ScopedDeviceMemory<bn254::G1AffinePointCuda> g_d_bases;
 gpu::ScopedDeviceMemory<bn254::FrCuda> g_d_scalars;
 gpu::ScopedDeviceMemory<bn254::G1JacobianPointCuda> g_d_results;
 std::unique_ptr<bn254::G1JacobianPoint[]> g_u_results;
-std::unique_ptr<internal::MSMInputProvider> g_provider;
+std::unique_ptr<MSMInputProvider> g_provider;
 
 void DoInitMSMGpu(uint8_t degree) {
   {
@@ -59,7 +62,7 @@ void DoInitMSMGpu(uint8_t degree) {
   g_u_results.reset(new bn254::G1JacobianPoint[bit_size]);
 
   g_stream = gpu::CreateStream();
-  g_provider.reset(new internal::MSMInputProvider());
+  g_provider.reset(new MSMInputProvider());
   g_provider->set_needs_align(true);
 }
 
@@ -116,22 +119,23 @@ tachyon_bn254_g1_jacobian* DoMSMGpu(const T* bases, size_t bases_len,
 
 }  // namespace
 
-}  // namespace tachyon::math
+}  // namespace c::math
+}  // namespace tachyon
 
 void tachyon_init_msm_gpu(uint8_t degree) {
-  tachyon::math::DoInitMSMGpu(degree);
+  tachyon::c::math::DoInitMSMGpu(degree);
 }
 
-void tachyon_release_msm_gpu() { tachyon::math::DoReleaseMSMGpu(); }
+void tachyon_release_msm_gpu() { tachyon::c::math::DoReleaseMSMGpu(); }
 
 tachyon_bn254_g1_jacobian* tachyon_bn254_g1_point2_msm_gpu(
     const tachyon_bn254_g1_point2* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
-  return tachyon::math::DoMSMGpu(bases, bases_len, scalars, scalars_len);
+  return tachyon::c::math::DoMSMGpu(bases, bases_len, scalars, scalars_len);
 }
 
 tachyon_bn254_g1_jacobian* tachyon_msm_g1_affine_gpu(
     const tachyon_bn254_g1_affine* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
-  return tachyon::math::DoMSMGpu(bases, bases_len, scalars, scalars_len);
+  return tachyon::c::math::DoMSMGpu(bases, bases_len, scalars, scalars_len);
 }

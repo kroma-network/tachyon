@@ -1,4 +1,10 @@
-load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_static_library",
+    "rust_test",
+)
 
 def tachyon_rustc_flags():
     return select({
@@ -32,6 +38,18 @@ def tachyon_rust_library(
         rustc_flags = [],
         **kwargs):
     rust_library(
+        name = name,
+        rustc_flags = rustc_flags + tachyon_rustc_flags(),
+        tags = tags + tachyon_rust_tags(),
+        **kwargs
+    )
+
+def tachyon_rust_static_library(
+        name,
+        tags = [],
+        rustc_flags = [],
+        **kwargs):
+    rust_static_library(
         name = name,
         rustc_flags = rustc_flags + tachyon_rustc_flags(),
         tags = tags + tachyon_rust_tags(),

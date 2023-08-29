@@ -11,11 +11,15 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 
-namespace tachyon::math {
+namespace tachyon {
+
+using namespace math;
+
+namespace c::math {
 
 namespace {
 
-std::unique_ptr<internal::MSMInputProvider> g_provider;
+std::unique_ptr<MSMInputProvider> g_provider;
 
 void DoInitMSM(uint8_t degree) {
   {
@@ -28,7 +32,7 @@ void DoInitMSM(uint8_t degree) {
   bn254::G1AffinePoint::Curve::Init();
 
   std::ignore = degree;
-  g_provider.reset(new internal::MSMInputProvider());
+  g_provider.reset(new MSMInputProvider());
 }
 
 void DoReleaseMSM() {
@@ -54,20 +58,21 @@ tachyon_bn254_g1_jacobian* DoMSM(const T* bases, size_t bases_len,
 
 }  // namespace
 
-}  // namespace tachyon::math
+}  // namespace c::math
+}  // namespace tachyon
 
-void tachyon_init_msm(uint8_t degree) { tachyon::math::DoInitMSM(degree); }
+void tachyon_init_msm(uint8_t degree) { tachyon::c::math::DoInitMSM(degree); }
 
-void tachyon_release_msm() { tachyon::math::DoReleaseMSM(); }
+void tachyon_release_msm() { tachyon::c::math::DoReleaseMSM(); }
 
 tachyon_bn254_g1_jacobian* tachyon_bn254_g1_point2_msm(
     const tachyon_bn254_g1_point2* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
-  return tachyon::math::DoMSM(bases, bases_len, scalars, scalars_len);
+  return tachyon::c::math::DoMSM(bases, bases_len, scalars, scalars_len);
 }
 
 tachyon_bn254_g1_jacobian* tachyon_bn254_g1_affine_msm(
     const tachyon_bn254_g1_affine* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
-  return tachyon::math::DoMSM(bases, bases_len, scalars, scalars_len);
+  return tachyon::c::math::DoMSM(bases, bases_len, scalars, scalars_len);
 }

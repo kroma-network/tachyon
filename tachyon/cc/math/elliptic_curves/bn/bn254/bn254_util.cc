@@ -3,7 +3,7 @@
 #include "tachyon/cc/math/elliptic_curves/bn/bn254/bn254_util_internal.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
-using namespace tachyon::math;
+using namespace tachyon::cc::math;
 
 std::ostream& operator<<(std::ostream& os, const tachyon_bn254_fq& fq) {
   return os << ToBigInt(fq);

@@ -1,4 +1,3 @@
-#if TACHYON_CUDA
 #include <iostream>
 
 // clang-format off
@@ -8,20 +7,26 @@
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
 // clang-format on
 #include "tachyon/c/math/elliptic_curves/msm/msm.h"
-#include "tachyon/c/math/elliptic_curves/msm/msm_gpu.h"
 
 namespace tachyon {
 
 using namespace math;
 
+extern "C" tachyon_bn254_g1_jacobian* run_msm_arkworks(
+    const tachyon_bn254_g1_affine* bases, size_t bases_len,
+    const tachyon_bn254_fr* scalars, size_t scalars_len,
+    uint64_t* duration_in_us);
+
 int RealMain(int argc, char** argv) {
   MSMConfig config;
-  if (!config.Parse(argc, argv, false)) {
+  if (!config.Parse(argc, argv, true)) {
     return 1;
   }
 
   SimpleMSMBenchmarkReporter reporter(config.degrees());
-  reporter.AddVendor("tachyon_gpu");
+  for (const MSMConfig::Vendor vendor : config.vendors()) {
+    reporter.AddVendor(MSMConfig::VendorToString(vendor));
+  }
 
   std::vector<uint64_t> point_nums = config.GetPointNums();
 
@@ -36,19 +41,22 @@ int RealMain(int argc, char** argv) {
 
   MSMRunner<bn254::G1AffinePoint> runner(&reporter);
   runner.SetInputs(&bases, &scalars);
+  std::vector<bn254::G1JacobianPoint> results;
+  runner.Run(tachyon_bn254_g1_affine_msm, point_nums, &results);
+  for (const MSMConfig::Vendor vendor : config.vendors()) {
+    std::vector<bn254::G1JacobianPoint> results_vendor;
+    if (vendor == MSMConfig::Vendor::kArkworks) {
+      runner.RunExternal(run_msm_arkworks, point_nums, &results_vendor);
+    }
 
-  std::vector<bn254::G1JacobianPoint> results_cpu;
-  runner.Run(tachyon_bn254_g1_affine_msm, point_nums, &results_cpu);
-  tachyon_release_msm();
-
-  tachyon_init_msm_gpu(config.degrees().back());
-  std::vector<bn254::G1JacobianPoint> results_gpu;
-  runner.Run(tachyon_msm_g1_affine_gpu, point_nums, &results_gpu);
-  tachyon_release_msm_gpu();
-
-  CHECK(results_cpu == results_gpu) << "Result not matched";
+    if (config.check_results()) {
+      CHECK(results == results_vendor) << "Result not matched";
+    }
+  }
 
   reporter.Show();
+
+  tachyon_release_msm();
 
   return 0;
 }
@@ -56,11 +64,3 @@ int RealMain(int argc, char** argv) {
 }  // namespace tachyon
 
 int main(int argc, char** argv) { return tachyon::RealMain(argc, argv); }
-#else
-#include "tachyon/base/console/iostream.h"
-
-int main(int argc, char **argv) {
-  tachyon_cerr << "please build with --config cuda" << std::endl;
-  return 1;
-}
-#endif  // TACHYON_CUDA
