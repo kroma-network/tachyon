@@ -19,22 +19,20 @@ namespace tachyon::math {
 
 // From:
 // https://github.com/arkworks-rs/gemini/blob/main/src/kzg/msm/variable_base.rs#L20
-template <size_t N>
-std::vector<int64_t> MakeDigits(const BigInt<N>& scalar, size_t window_bits,
-                                size_t num_bits) {
+template <typename ScalarField>
+std::vector<int64_t> MakeDigits(const ScalarField& scalar, size_t window_bits) {
   uint64_t radix = 1 << window_bits;
 
   uint64_t carry = 0;
-  if (num_bits == 0) {
-    num_bits = N * 64;
-  }
-  size_t digits_count = (num_bits + window_bits - 1) / window_bits;
+  size_t digits_count = ComputeWindowsCount<ScalarField>(window_bits);
   std::vector<int64_t> digits =
       base::CreateVector(digits_count, static_cast<int64_t>(0));
+  auto scalar_bigint = scalar.ToBigInt();
   for (size_t i = 0, bit_offset = 0; i < digits.size();
        ++i, bit_offset += window_bits) {
-    // Construct a buffer of bits of the scalar, starting at `bit_offset`.
-    uint64_t bits = scalar.ExtractBits64(bit_offset, window_bits);
+    // Construct a buffer of bits of the |scalar_bigint|, starting at
+    // `bit_offset`.
+    uint64_t bits = scalar_bigint.ExtractBits64(bit_offset, window_bits);
 
     // Read the actual coefficient value from the window
     uint64_t coeff = carry + bits;  // coeff = [0, 2^w)
@@ -84,20 +82,18 @@ class VariableBaseMSM {
   template <typename BaseInputIterator, typename ScalarInputIterator>
   static std::vector<ReturnTy> CreateWindowSumsForMSMWindowNAF(
       BaseInputIterator bases_first, ScalarInputIterator scalars_first,
-      ScalarInputIterator scalars_last, size_t c) {
-    size_t num_bits = ScalarField::kModulusBits;
-    size_t digits_count = (num_bits + c - 1) / c;
-
+      ScalarInputIterator scalars_last, size_t window_bits) {
     std::vector<std::vector<int64_t>> scalar_digits = base::Map(
-        scalars_first, scalars_last, [c, num_bits](const ScalarField& scalar) {
-          return MakeDigits(scalar.ToBigInt(), c, num_bits);
+        scalars_first, scalars_last, [window_bits](const ScalarField& scalar) {
+          return MakeDigits(scalar, window_bits);
         });
     std::vector<ReturnTy> window_sums;
+    size_t digits_count = ComputeWindowsCount<ScalarField>(window_bits);
     window_sums.reserve(digits_count);
     // TODO(chokobole): Optimize with openmp.
     for (size_t i = 0; i < digits_count; ++i) {
       std::vector<ReturnTy> buckets =
-          base::CreateVector(1 << (c - 1), ReturnTy::Zero());
+          base::CreateVector(1 << (window_bits - 1), ReturnTy::Zero());
       auto bases_it = bases_first;
       for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
         const PointTy& base = *bases_it;
@@ -124,20 +120,18 @@ class VariableBaseMSM {
   template <typename BaseInputIterator, typename ScalarInputIterator>
   static std::vector<ReturnTy> CreateWindowSumsForMSM(
       BaseInputIterator bases_first, ScalarInputIterator scalars_first,
-      size_t size, size_t c) {
+      size_t size, size_t window_bits) {
     size_t num_bits = ScalarField::kModulusBits;
     std::vector<size_t> window_starts =
-        base::CreateRangedVector(static_cast<size_t>(0), num_bits, c);
+        base::CreateRangedVector(static_cast<size_t>(0), num_bits, window_bits);
 
     std::function<ReturnTy(size_t)> op = [&bases_first, &scalars_first, size,
-                                          c](size_t w_start) {
+                                          window_bits](size_t w_start) {
       ReturnTy ret = ReturnTy::Zero();
-      // We don't need the "zero" bucket, so we only have 2^c - 1
+      // We don't need the "zero" bucket, so we only have 2^{window_bits} - 1
       // buckets.
       std::vector<ReturnTy> buckets =
-          base::CreateVector((1 << c) - 1, ReturnTy::Zero());
-      // This clone is cheap, because the iterator contains just a
-      // pointer and an index into the original vectors.
+          base::CreateVector((1 << window_bits) - 1, ReturnTy::Zero());
       auto bases_it = bases_first;
       auto scalars_it = scalars_first;
       for (size_t i = 0; i < size; ++i, ++bases_it, ++scalars_it) {
@@ -157,8 +151,8 @@ class VariableBaseMSM {
           scalar_bigint.DivBy2ExpInPlace(w_start);
 
           // We mod the remaining bits by 2^{window size}, thus taking
-          // `c` bits.
-          uint64_t idx = scalar_bigint[0] % (1 << c);
+          // |window_bits|.
+          uint64_t idx = scalar_bigint[0] % (1 << window_bits);
 
           // If the scalar is non-zero, we update the corresponding
           // bucket.
@@ -193,8 +187,8 @@ class VariableBaseMSM {
     };
 
     // TODO(chokobole): Optimize with openmp.
-    // Each window is of size `c`.
-    // We divide up the bits 0..num_bits into windows of size `c`, and
+    // Each window is of size |window_bits|.
+    // We divide up the bits 0..num_bits into windows of size |window_bits|, and
     // in parallel process each such window.
     return base::Map(window_starts.begin(), window_starts.end(), std::move(op));
   }
@@ -210,21 +204,15 @@ class VariableBaseMSM {
     size_t size = std::min(std::distance(bases_first, bases_last),
                            std::distance(scalars_first, scalars_last));
 
-    size_t c;
-    if (size < 32) {
-      c = 3;
-    } else {
-      c = LnWithoutFloats(size) + 2;
-    }
-
+    size_t window_bits = ComputeWindowsBits(size);
     std::vector<ReturnTy> window_sums;
     if (use_msm_window_naf) {
-      window_sums = CreateWindowSumsForMSMWindowNAF(std::move(bases_first),
-                                                    std::move(scalars_first),
-                                                    std::move(scalars_last), c);
+      window_sums = CreateWindowSumsForMSMWindowNAF(
+          std::move(bases_first), std::move(scalars_first),
+          std::move(scalars_last), window_bits);
     } else {
-      window_sums = CreateWindowSumsForMSM(std::move(bases_first),
-                                           std::move(scalars_first), size, c);
+      window_sums = CreateWindowSumsForMSM(
+          std::move(bases_first), std::move(scalars_first), size, window_bits);
     }
 
     // We store the sum for the lowest window.
@@ -233,15 +221,15 @@ class VariableBaseMSM {
     view.remove_prefix(1);
 
     // We're traversing windows from high to low.
-    return lowest + std::accumulate(view.rbegin(), view.rend(),
-                                    ReturnTy::Zero(),
-                                    [c](ReturnTy& total, const ReturnTy& sum) {
-                                      total += sum;
-                                      for (size_t i = 0; i < c; ++i) {
-                                        total.DoubleInPlace();
-                                      }
-                                      return total;
-                                    });
+    return lowest +
+           std::accumulate(view.rbegin(), view.rend(), ReturnTy::Zero(),
+                           [window_bits](ReturnTy& total, const ReturnTy& sum) {
+                             total += sum;
+                             for (size_t i = 0; i < window_bits; ++i) {
+                               total.DoubleInPlace();
+                             }
+                             return total;
+                           });
   }
 };
 

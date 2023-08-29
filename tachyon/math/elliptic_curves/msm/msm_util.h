@@ -11,17 +11,27 @@ namespace tachyon::math {
 template <typename BaseInputIterator, typename ScalarInputIterator,
           typename PointTy, typename ScalarField>
 inline constexpr bool IsAbleToMSM =
-    std::is_same_v<PointTy, base::iter_value_t<BaseInputIterator>>&&
-        std::is_same_v<ScalarField, base::iter_value_t<ScalarInputIterator>>;
+    std::is_same_v<PointTy, base::iter_value_t<BaseInputIterator>> &&
+    std::is_same_v<ScalarField, base::iter_value_t<ScalarInputIterator>>;
 
-/// The result of this function is only approximately `ln(a)`
-/// [`Explanation of usage`]
-///
-/// [`Explanation of usage`]:
-/// https://github.com/scipr-lab/zexe/issues/79#issue-556220473
+// The result of this function is only approximately `ln(a)`.
+// See https://github.com/scipr-lab/zexe/issues/79#issue-556220473
 constexpr size_t LnWithoutFloats(size_t a) {
   // log2(a) * ln(2)
   return log2(a) * 69 / 100;
+}
+
+constexpr size_t ComputeWindowsBits(size_t size) {
+  if (size < 32) {
+    return 3;
+  } else {
+    return LnWithoutFloats(size) + 2;
+  }
+}
+
+template <typename ScalarField>
+size_t ComputeWindowsCount(size_t window_bits) {
+  return (ScalarField::Config::kModulusBits + window_bits - 1) / window_bits;
 }
 
 }  // namespace tachyon::math
