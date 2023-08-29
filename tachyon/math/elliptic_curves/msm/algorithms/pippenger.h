@@ -18,18 +18,17 @@ namespace tachyon::math {
 
 // From:
 // https://github.com/arkworks-rs/gemini/blob/main/src/kzg/msm/variable_base.rs#L20
-template <typename ScalarField>
-void FillDigits(const ScalarField& scalar, size_t window_bits,
+template <size_t N>
+void FillDigits(const BigInt<N>& scalar, size_t window_bits,
                 std::vector<int64_t>* digits) {
   uint64_t radix = 1 << window_bits;
 
   uint64_t carry = 0;
   size_t bit_offset = 0;
-  auto scalar_bigint = scalar.ToBigInt();
   for (size_t i = 0; i < digits->size(); ++i) {
-    // Construct a buffer of bits of the |scalar_bigint|, starting at
+    // Construct a buffer of bits of the |scalar|, starting at
     // `bit_offset`.
-    uint64_t bits = scalar_bigint.ExtractBits64(bit_offset, window_bits);
+    uint64_t bits = scalar.ExtractBits64(bit_offset, window_bits);
 
     // Read the actual coefficient value from the window
     uint64_t coeff = carry + bits;  // coeff = [0, 2^|window_bits|)
@@ -52,6 +51,8 @@ class Pippenger {
   using ReturnTy =
       typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
+  constexpr static size_t N = ScalarField::N;
+
   Pippenger() : use_msm_window_naf_(PointTy::kNegationIsCheap) {}
 
   void SetUseMSMWindowNAForTesting(bool use_msm_window_naf) {
@@ -72,10 +73,15 @@ class Pippenger {
     }
     Prepare(bases_size);
 
+    auto scalars_it = scalars_first;
+    for (size_t i = 0; i < scalars_size; ++i, ++scalars_it) {
+      scalars_[i] = scalars_it->ToBigInt();
+    }
+
     if (use_msm_window_naf_) {
-      AccumulateWindowNAFSums(std::move(bases_first), std::move(scalars_first));
+      AccumulateWindowNAFSums(std::move(bases_first));
     } else {
-      AccumulateWindowSums(std::move(bases_first), std::move(scalars_first));
+      AccumulateWindowSums(std::move(bases_first));
     }
 
     // We store the sum for the lowest window.
@@ -113,6 +119,7 @@ class Pippenger {
       buckets_.resize((1 << window_bits_) - 1);
     }
     window_sums_.resize(window_count_);
+    scalars_.resize(size);
     cached_size_ = size;
   }
 
@@ -144,12 +151,10 @@ class Pippenger {
     return window_sum;
   }
 
-  template <typename BaseInputIterator, typename ScalarInputIterator>
-  void AccumulateWindowNAFSums(BaseInputIterator bases_first,
-                               ScalarInputIterator scalars_first) {
-    auto scalars_it = scalars_first;
-    for (size_t i = 0; i < cached_size_; ++i, ++scalars_it) {
-      FillDigits(*scalars_it, window_bits_, &scalar_digits_[i]);
+  template <typename BaseInputIterator>
+  void AccumulateWindowNAFSums(BaseInputIterator bases_first) {
+    for (size_t i = 0; i < cached_size_; ++i) {
+      FillDigits(scalars_[i], window_bits_, &scalar_digits_[i]);
     }
     // TODO(chokobole): Optimize with openmp.
     for (size_t i = 0; i < window_sums_.size(); ++i) {
@@ -168,35 +173,33 @@ class Pippenger {
     }
   }
 
-  template <typename BaseInputIterator, typename ScalarInputIterator>
-  void AccumulateWindowSums(BaseInputIterator bases_first,
-                            ScalarInputIterator scalars_first) {
+  template <typename BaseInputIterator>
+  void AccumulateWindowSums(BaseInputIterator bases_first) {
     // TODO(chokobole): Optimize with openmp.
     size_t window_offset = 0;
     for (size_t i = 0; i < window_sums_.size(); ++i) {
       ReturnTy window_sum = ReturnTy::Zero();
       InitBuckets();
       auto bases_it = bases_first;
-      auto scalars_it = scalars_first;
-      for (size_t j = 0; j < cached_size_; ++j, ++bases_it, ++scalars_it) {
-        const ScalarField& scalar = *scalars_it;
+      for (size_t j = 0; j < cached_size_; ++j, ++bases_it) {
+        const BigInt<N>& scalar = scalars_[j];
         if (scalar.IsZero()) continue;
 
-        auto scalar_bigint = scalar.ToBigInt();
         const PointTy& base = *bases_it;
-        if (scalar_bigint.IsOne()) {
+        if (scalar.IsOne()) {
           // We only process unit scalars once in the first window.
           if (window_offset == 0) {
             window_sum += base;
           }
         } else {
+          BigInt<N> scalar_tmp = scalar;
           // We right-shift by |window_offset|, thus getting rid of the lower
           // bits.
-          scalar_bigint.DivBy2ExpInPlace(window_offset);
+          scalar_tmp.DivBy2ExpInPlace(window_offset);
 
           // We mod the remaining bits by 2^{window_bits_}, thus taking
           // |window_bits_|.
-          uint64_t idx = scalar_bigint[0] % (1 << window_bits_);
+          uint64_t idx = scalar_tmp[0] % (1 << window_bits_);
 
           // If the scalar is non-zero, we update the corresponding
           // bucket.
@@ -218,6 +221,7 @@ class Pippenger {
   std::vector<std::vector<int64_t>> scalar_digits_;
   std::vector<ReturnTy> window_sums_;
   std::vector<ReturnTy> buckets_;
+  std::vector<BigInt<N>> scalars_;
 };
 
 }  // namespace tachyon::math
