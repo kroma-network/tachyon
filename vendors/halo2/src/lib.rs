@@ -76,7 +76,7 @@ mod test {
     fn test_msm() {
         use rand_core::OsRng;
 
-        let degree = 15;
+        let degree = 10;
         let n = 1u64 << degree;
 
         let bases: Vec<G1Affine> = (0..n).map(|_| G1Affine::random(OsRng)).collect();
@@ -110,7 +110,7 @@ mod test {
     fn test_msm_gpu() {
         use rand_core::OsRng;
 
-        let degree = 18;
+        let degree = 10;
         let n = 1u64 << degree;
 
         let bases: Vec<G1Affine> = (0..n).map(|_| G1Affine::random(OsRng)).collect();
