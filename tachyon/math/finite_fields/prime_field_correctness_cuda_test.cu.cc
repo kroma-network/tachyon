@@ -44,8 +44,8 @@ class PrimeFieldCorrectnessCudaTest : public testing::Test {
       bn254::FqGmp x_gmp = bn254::FqGmp::Random();
       bn254::FqGmp y_gmp = bn254::FqGmp::Random();
 
-      (xs_.get())[i] = bn254::FqCuda::FromMontgomery(x_gmp.ToMontgomery());
-      (ys_.get())[i] = bn254::FqCuda::FromMontgomery(y_gmp.ToMontgomery());
+      xs_[i] = bn254::FqCuda::FromMontgomery(x_gmp.ToMontgomery());
+      ys_[i] = bn254::FqCuda::FromMontgomery(y_gmp.ToMontgomery());
 
       x_gmps_.push_back(std::move(x_gmp));
       y_gmps_.push_back(std::move(y_gmp));
@@ -90,37 +90,33 @@ std::vector<bn254::FqGmp> PrimeFieldCorrectnessCudaTest::y_gmps_;
 
 TEST_F(PrimeFieldCorrectnessCudaTest, Add) {
   RUN_OPERATION_TESTS(Add) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
-                                  (ys_.get())[i].ToString()));
-    ASSERT_EQ((results_.get())[i].ToBigIntHost(),
-              (x_gmps_[i] + y_gmps_[i]).ToBigInt());
+    SCOPED_TRACE(
+        absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
+    ASSERT_EQ(results_[i].ToBigIntHost(), (x_gmps_[i] + y_gmps_[i]).ToBigInt());
   }
 }
 
 TEST_F(PrimeFieldCorrectnessCudaTest, Sub) {
   RUN_OPERATION_TESTS(Sub) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
-                                  (ys_.get())[i].ToString()));
-    ASSERT_EQ((results_.get())[i].ToBigIntHost(),
-              (x_gmps_[i] - y_gmps_[i]).ToBigInt());
+    SCOPED_TRACE(
+        absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
+    ASSERT_EQ(results_[i].ToBigIntHost(), (x_gmps_[i] - y_gmps_[i]).ToBigInt());
   }
 }
 
 TEST_F(PrimeFieldCorrectnessCudaTest, Mul) {
   RUN_OPERATION_TESTS(Mul) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
-                                  (ys_.get())[i].ToString()));
-    ASSERT_EQ((results_.get())[i].ToBigIntHost(),
-              (x_gmps_[i] * y_gmps_[i]).ToBigInt());
+    SCOPED_TRACE(
+        absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
+    ASSERT_EQ(results_[i].ToBigIntHost(), (x_gmps_[i] * y_gmps_[i]).ToBigInt());
   }
 }
 
 TEST_F(PrimeFieldCorrectnessCudaTest, Div) {
   RUN_OPERATION_TESTS(Div) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
-                                  (ys_.get())[i].ToString()));
-    ASSERT_EQ((results_.get())[i].ToBigIntHost(),
-              (x_gmps_[i] / y_gmps_[i]).ToBigInt());
+    SCOPED_TRACE(
+        absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
+    ASSERT_EQ(results_[i].ToBigIntHost(), (x_gmps_[i] / y_gmps_[i]).ToBigInt());
   }
 }
 

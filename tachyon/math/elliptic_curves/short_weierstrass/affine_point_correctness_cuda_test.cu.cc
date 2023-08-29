@@ -60,10 +60,8 @@ class AffinePointCorrectnessCudaTest : public testing::Test {
       bn254::G1AffinePointGmp x_gmp = bn254::G1AffinePointGmp::Random();
       bn254::G1AffinePointGmp y_gmp = bn254::G1AffinePointGmp::Random();
 
-      (xs_.get())[i] =
-          bn254::G1AffinePointCuda::FromMontgomery(x_gmp.ToMontgomery());
-      (ys_.get())[i] =
-          bn254::G1AffinePointCuda::FromMontgomery(y_gmp.ToMontgomery());
+      xs_[i] = bn254::G1AffinePointCuda::FromMontgomery(x_gmp.ToMontgomery());
+      ys_[i] = bn254::G1AffinePointCuda::FromMontgomery(y_gmp.ToMontgomery());
 
       x_gmps_.push_back(std::move(x_gmp));
       y_gmps_.push_back(std::move(y_gmp));
@@ -117,10 +115,10 @@ TEST_F(AffinePointCorrectnessCudaTest, Add) {
   GPU_MUST_SUCCESS(LaunchAdd(xs_.get(), ys_.get(), jacobian_results_.get(), N),
                    "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
-                                  (ys_.get())[i].ToString()));
+    SCOPED_TRACE(
+        absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
     auto result = bn254::G1JacobianPointGmp::FromMontgomery(
-        (jacobian_results_.get())[i].ToMontgomery());
+        jacobian_results_[i].ToMontgomery());
     ASSERT_EQ(result, x_gmps_[i] + y_gmps_[i]);
   }
 }
@@ -128,9 +126,9 @@ TEST_F(AffinePointCorrectnessCudaTest, Add) {
 TEST_F(AffinePointCorrectnessCudaTest, Double) {
   GPU_MUST_SUCCESS(LaunchDouble(xs_.get(), jacobian_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
+    SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
     auto result = bn254::G1JacobianPointGmp::FromMontgomery(
-        (jacobian_results_.get())[i].ToMontgomery());
+        jacobian_results_[i].ToMontgomery());
     ASSERT_EQ(result, x_gmps_[i].Double());
   }
 }
@@ -138,9 +136,9 @@ TEST_F(AffinePointCorrectnessCudaTest, Double) {
 TEST_F(AffinePointCorrectnessCudaTest, Negative) {
   GPU_MUST_SUCCESS(LaunchNegative(xs_.get(), affine_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0", (xs_.get())[i].ToString()));
+    SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
     auto result = bn254::G1AffinePointGmp::FromMontgomery(
-        (affine_results_.get())[i].ToMontgomery());
+        affine_results_[i].ToMontgomery());
     ASSERT_EQ(result, x_gmps_[i].Negative());
   }
 }
@@ -148,18 +146,18 @@ TEST_F(AffinePointCorrectnessCudaTest, Negative) {
 TEST_F(AffinePointCorrectnessCudaTest, Eq) {
   GPU_MUST_SUCCESS(LaunchEq(xs_.get(), xs_.get(), bool_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
-                                  (xs_.get())[i].ToString()));
-    ASSERT_TRUE((bool_results_.get())[i]);
+    SCOPED_TRACE(
+        absl::Substitute("a: $0, b: $1", xs_[i].ToString(), xs_[i].ToString()));
+    ASSERT_TRUE(bool_results_[i]);
   }
 }
 
 TEST_F(AffinePointCorrectnessCudaTest, Ne) {
   GPU_MUST_SUCCESS(LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", (xs_.get())[i].ToString(),
-                                  (ys_.get())[i].ToString()));
-    ASSERT_TRUE((bool_results_.get())[i]);
+    SCOPED_TRACE(
+        absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
+    ASSERT_TRUE(bool_results_[i]);
   }
 }
 

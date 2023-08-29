@@ -77,8 +77,8 @@ class PointCorrectnessCudaTest : public testing::Test {
       Expected x_gmp = Expected::Random();
       Expected y_gmp = Expected::Random();
 
-      (xs_.get())[i] = Actual::FromMontgomery(x_gmp.ToMontgomery());
-      (ys_.get())[i] = Actual::FromMontgomery(y_gmp.ToMontgomery());
+      xs_[i] = Actual::FromMontgomery(x_gmp.ToMontgomery());
+      ys_[i] = Actual::FromMontgomery(y_gmp.ToMontgomery());
 
       x_gmps_.push_back(std::move(x_gmp));
       y_gmps_.push_back(std::move(y_gmp));
@@ -163,11 +163,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Add) {
   GPU_MUST_SUCCESS(
       LaunchAdd(this->xs_.get(), this->ys_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
-                                  (this->xs_.get())[i].ToString(),
-                                  (this->ys_.get())[i].ToString()));
-    auto result =
-        Expected::FromMontgomery((this->results_.get())[i].ToMontgomery());
+    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
+                                  this->ys_[i].ToString()));
+    auto result = Expected::FromMontgomery(this->results_[i].ToMontgomery());
     ASSERT_EQ(result, this->x_gmps_[i] + this->y_gmps_[i]);
   }
 }
@@ -178,9 +176,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Double) {
 
   GPU_MUST_SUCCESS(LaunchDouble(this->xs_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0", (this->xs_.get())[i].ToString()));
-    auto result =
-        Expected::FromMontgomery((this->results_.get())[i].ToMontgomery());
+    SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
+    auto result = Expected::FromMontgomery(this->results_[i].ToMontgomery());
     ASSERT_EQ(result, this->x_gmps_[i].Double());
   }
 }
@@ -192,9 +189,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Negative) {
   GPU_MUST_SUCCESS(LaunchNegative(this->xs_.get(), this->results_.get(), N),
                    "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0", (this->xs_.get())[i].ToString()));
-    auto result =
-        Expected::FromMontgomery((this->results_.get())[i].ToMontgomery());
+    SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
+    auto result = Expected::FromMontgomery(this->results_[i].ToMontgomery());
     ASSERT_EQ(result, this->x_gmps_[i].Negative());
   }
 }
@@ -206,10 +202,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Eq) {
       LaunchEq(this->xs_.get(), this->xs_.get(), this->bool_results_.get(), N),
       "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
-                                  (this->xs_.get())[i].ToString(),
-                                  (this->xs_.get())[i].ToString()));
-    ASSERT_TRUE((this->bool_results_.get())[i]);
+    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
+                                  this->xs_[i].ToString()));
+    ASSERT_TRUE(this->bool_results_[i]);
   }
 }
 
@@ -220,10 +215,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Ne) {
       LaunchNe(this->xs_.get(), this->ys_.get(), this->bool_results_.get(), N),
       "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
-                                  (this->xs_.get())[i].ToString(),
-                                  (this->ys_.get())[i].ToString()));
-    ASSERT_TRUE((this->bool_results_.get())[i]);
+    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
+                                  this->ys_[i].ToString()));
+    ASSERT_TRUE(this->bool_results_[i]);
   }
 }
 

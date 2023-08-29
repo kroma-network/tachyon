@@ -319,8 +319,8 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       error = kernels::ComputeBucketIndexes(
           copy_scalars ? inputs_scalars.get() : &ec.scalars[inputs_offset],
           windows_count_pass_one, bits_count_pass_one,
-          &(bucket_indexes.get())[inputs_count],
-          &(base_indexes.get())[inputs_count], inputs_count, stream);
+          &bucket_indexes[inputs_count], &base_indexes[inputs_count],
+          inputs_count, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
       if (copy_scalars) {
         RETURN_AND_LOG_IF_GPU_ERROR(
@@ -341,9 +341,9 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           cub::DeviceRadixSort::SortPairs(
               input_indexes_sort_temp_storage.get(),
               input_indexes_sort_temp_storage_bytes,
-              &(bucket_indexes.get())[inputs_count], bucket_indexes.get(),
-              &(base_indexes.get())[inputs_count], base_indexes.get(),
-              inputs_count, 0, bits_count_pass_one),
+              &bucket_indexes[inputs_count], bucket_indexes.get(),
+              &base_indexes[inputs_count], base_indexes.get(), inputs_count, 0,
+              bits_count_pass_one),
           "Failed to cub::DeviceRadixSort::SortPairs()");
       input_indexes_sort_temp_storage = GpuMemory<uint8_t>::MallocFromPoolAsync(
           input_indexes_sort_temp_storage_bytes, pool, stream);
@@ -355,11 +355,9 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
               cub::DeviceRadixSort::SortPairs(
                   input_indexes_sort_temp_storage.get(),
                   input_indexes_sort_temp_storage_bytes,
-                  &(bucket_indexes.get())[offset_in],
-                  &(bucket_indexes.get())[offset_out],
-                  &(base_indexes.get())[offset_in],
-                  &(base_indexes.get())[offset_out], inputs_count, 0,
-                  bits_count_pass_one, stream),
+                  &bucket_indexes[offset_in], &bucket_indexes[offset_out],
+                  &base_indexes[offset_in], &base_indexes[offset_out],
+                  inputs_count, 0, bits_count_pass_one, stream),
               "Failed to cub::DeviceRadixSort::SortPairs()");
         }
       }
@@ -548,12 +546,12 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           top_window_offset + top_window_used_buckets_count;
       for (unsigned int i = 0; i < top_window_unused_bits; ++i) {
         error = kernels::ReduceBuckets(
-            &(buckets_pass_one.get())[top_window_offset],
+            &buckets_pass_one[top_window_offset],
             1 << (signed_bits_count_pass_one - i - 1), stream);
         if (UNLIKELY(error != gpuSuccess)) return error;
       }
       error = kernels::InitializeBuckets(
-          &(buckets_pass_one.get())[top_window_unused_buckets_offset],
+          &buckets_pass_one[top_window_unused_buckets_offset],
           top_window_unused_buckets_count, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
     }

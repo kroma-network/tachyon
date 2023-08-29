@@ -80,22 +80,21 @@ gpu::GpuMemory<bool> PrimeFieldCudaTest::bool_results_;
 #define RUN_OPERATION_TESTS(method, results)                                 \
   for (size_t i = 0; i < std::size(tests); ++i) {                            \
     const auto& test = tests[i];                                             \
-    (xs_.get())[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());                 \
-    (ys_.get())[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());                 \
+    xs_[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());                         \
+    ys_[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());                         \
   }                                                                          \
   GPU_MUST_SUCCESS(                                                          \
       Launch##method(xs_.get(), ys_.get(), results.get(), std::size(tests)), \
       "Failed to " #method "()");                                            \
   for (size_t i = 0; i < std::size(tests); ++i)
 
-#define RUN_FIELD_OPERATION_TESTS(method)                        \
-  RUN_OPERATION_TESTS(method, results_)                          \
-  ASSERT_EQ(GF7::FromBigInt((results_.get())[i].ToBigIntHost()), \
-            tests[i].result)
+#define RUN_FIELD_OPERATION_TESTS(method) \
+  RUN_OPERATION_TESTS(method, results_)   \
+  ASSERT_EQ(GF7::FromBigInt(results_[i].ToBigIntHost()), tests[i].result)
 
 #define RUN_COMPARISON_OPERATION_TESTS(method) \
   RUN_OPERATION_TESTS(method, bool_results_)   \
-  ASSERT_EQ((bool_results_.get())[i], tests[i].result)
+  ASSERT_EQ(bool_results_[i], tests[i].result)
 
 TEST_F(PrimeFieldCudaTest, FromString) {
   EXPECT_EQ(GF7Cuda::FromDecString("3"), GF7Cuda(3));
@@ -177,16 +176,16 @@ TEST_F(PrimeFieldCudaTest, Eq) {
 
   for (size_t i = 0; i < std::size(tests); ++i) {
     const auto& test = tests[i];
-    (xs_.get())[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());
-    (ys_.get())[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());
-    ASSERT_EQ((xs_.get())[i] == (ys_.get())[i], test.result);
+    xs_[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());
+    ys_[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());
+    ASSERT_EQ(xs_[i] == ys_[i], test.result);
   }
 
   GPU_MUST_SUCCESS(
       LaunchEq(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
       "Failed to Eq()");
   for (size_t i = 0; i < std::size(tests); ++i) {
-    ASSERT_EQ((bool_results_.get())[i], tests[i].result);
+    ASSERT_EQ(bool_results_[i], tests[i].result);
   }
 }
 
@@ -203,16 +202,16 @@ TEST_F(PrimeFieldCudaTest, Ne) {
 
   for (size_t i = 0; i < std::size(tests); ++i) {
     const auto& test = tests[i];
-    (xs_.get())[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());
-    (ys_.get())[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());
-    ASSERT_EQ((xs_.get())[i] != (ys_.get())[i], test.result);
+    xs_[i] = GF7Cuda::FromBigInt(test.x.ToBigInt());
+    ys_[i] = GF7Cuda::FromBigInt(test.y.ToBigInt());
+    ASSERT_EQ(xs_[i] != ys_[i], test.result);
   }
 
   GPU_MUST_SUCCESS(
       LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), std::size(tests)),
       "Failed to Ne()");
   for (size_t i = 0; i < std::size(tests); ++i) {
-    ASSERT_EQ((bool_results_.get())[i], tests[i].result);
+    ASSERT_EQ(bool_results_[i], tests[i].result);
   }
 }
 
