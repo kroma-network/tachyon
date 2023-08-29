@@ -51,6 +51,21 @@ TEST(BigIntTest, Comparison) {
   EXPECT_TRUE(big_int2 >= big_int);
 }
 
+TEST(BigIntTest, ExtractBits) {
+  BigInt<2> big_int = BigInt<2>::Random();
+  size_t bit_count = 4;
+  for (size_t offset = 0; offset < 16; offset += bit_count) {
+    uint64_t value = 0;
+    for (size_t i = 0; i < bit_count; ++i) {
+      if (BitTraits<BigInt<2>>::TestBit(big_int, offset + i)) {
+        value |= UINT64_C(1) << i;
+      }
+    }
+    EXPECT_EQ(big_int.ExtractBits64(offset, bit_count), value);
+    EXPECT_EQ(big_int.ExtractBits32(offset, bit_count), value);
+  }
+}
+
 TEST(BigIntTest, Operations) {
   BigInt<2> big_int =
       BigInt<2>::FromDecString("123456789012345678909876543211235312");

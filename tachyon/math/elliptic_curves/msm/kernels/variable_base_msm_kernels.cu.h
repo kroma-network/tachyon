@@ -78,8 +78,9 @@ __global__ void ComputeBucketIndexesKernel(
   for (unsigned int i = 0; i < windows_count; i++) {
     unsigned int window_index = i;
     unsigned int window_mask = window_index << window_bits;
-    unsigned int bucket_index = ScalarField::ExtractBits(
-        scalar, window_index * window_bits, window_bits);
+    // TODO(chokobole): Replace this with BigInt<N>.ExtractBits32().
+    unsigned int bucket_index =
+        scalar.ExtractBits(window_index * window_bits, window_bits);
     bucket_index += borrow;
     borrow = 0;
     unsigned int sign = global_sign;

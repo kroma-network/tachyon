@@ -20,45 +20,32 @@ namespace tachyon::math {
 // From:
 // https://github.com/arkworks-rs/gemini/blob/main/src/kzg/msm/variable_base.rs#L20
 template <size_t N>
-std::vector<int64_t> MakeDigits(const BigInt<N>& scalar, size_t w,
+std::vector<int64_t> MakeDigits(const BigInt<N>& scalar, size_t window_bits,
                                 size_t num_bits) {
-  uint64_t radix = 1 << w;
-  uint64_t window_mask = radix - 1;
+  uint64_t radix = 1 << window_bits;
 
   uint64_t carry = 0;
   if (num_bits == 0) {
     num_bits = N * 64;
   }
-  size_t digits_count = (num_bits + w - 1) / w;
+  size_t digits_count = (num_bits + window_bits - 1) / window_bits;
   std::vector<int64_t> digits =
       base::CreateVector(digits_count, static_cast<int64_t>(0));
-  for (size_t i = 0; i < digits.size(); ++i) {
+  for (size_t i = 0, bit_offset = 0; i < digits.size();
+       ++i, bit_offset += window_bits) {
     // Construct a buffer of bits of the scalar, starting at `bit_offset`.
-    size_t bit_offset = i * w;
-    size_t u64_idx = bit_offset / 64;
-    size_t bit_idx = bit_offset % 64;
-
-    // Read the bits from the scalar
-    uint64_t bit_buf;
-    if (bit_idx < 64 - w || u64_idx == N - 1) {
-      // This window's bits are contained in a single u64,
-      // or it's the last u64 anyway.
-      bit_buf = scalar[u64_idx] >> bit_idx;
-    } else {
-      // Combine the current u64's bits with the bits from the next u64
-      bit_buf = (scalar[u64_idx] >> bit_idx) |
-                (scalar[1 + u64_idx] << (64 - bit_idx));
-    }
+    uint64_t bits = scalar.ExtractBits64(bit_offset, window_bits);
 
     // Read the actual coefficient value from the window
-    uint64_t coeff = carry + (bit_buf & window_mask);  // coeff = [0, 2^r)
+    uint64_t coeff = carry + bits;  // coeff = [0, 2^w)
 
     // Recenter coefficients from [0,2^w) to [-2^w/2, 2^w/2)
-    carry = (coeff + radix / 2) >> w;
-    digits[i] = static_cast<int64_t>(coeff) - static_cast<int64_t>(carry << w);
+    carry = (coeff + radix / 2) >> window_bits;
+    digits[i] = static_cast<int64_t>(coeff) -
+                static_cast<int64_t>(carry << window_bits);
   }
 
-  digits[digits_count - 1] += static_cast<int64_t>(carry << w);
+  digits[digits_count - 1] += static_cast<int64_t>(carry << window_bits);
 
   return digits;
 }

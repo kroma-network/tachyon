@@ -110,21 +110,6 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     return Config::kOne;
   }
 
-  // This is needed by MSM.
-  // See
-  // tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_setup_kernels.cu.h
-  static __device__ uint32_t ExtractBits(const PrimeFieldCuda& xs,
-                                         unsigned int offset,
-                                         unsigned int count) {
-    unsigned int limb_index = offset / warpSize;
-    const uint32_t* x = reinterpret_cast<const uint32_t*>(xs.value().limbs);
-    const uint32_t low_limb = x[limb_index];
-    const uint32_t high_limb = limb_index < (N32 - 1) ? x[limb_index + 1] : 0;
-    uint32_t result = __funnelshift_r(low_limb, high_limb, offset);
-    result &= (1 << count) - 1;
-    return result;
-  }
-
   __host__ __device__ const value_type& value() const { return value_; }
   __host__ __device__ size_t GetLimbSize() const { return N; }
 
@@ -169,6 +154,20 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
   }
 
   constexpr const BigInt<N>& ToMontgomery() const { return value_; }
+
+  // This is needed by MSM.
+  // See
+  // tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_kernels.cu.h
+  __device__ constexpr uint32_t ExtractBits(unsigned int offset,
+                                            unsigned int count) const {
+    unsigned int limb_index = offset / warpSize;
+    const uint32_t* x = reinterpret_cast<const uint32_t*>(value_.limbs);
+    const uint32_t low_limb = x[limb_index];
+    const uint32_t high_limb = limb_index < (N32 - 1) ? x[limb_index + 1] : 0;
+    uint32_t result = __funnelshift_r(low_limb, high_limb, offset);
+    result &= (1 << count) - 1;
+    return result;
+  }
 
   __host__ __device__ constexpr uint64_t& operator[](size_t i) {
     return value_[i];
