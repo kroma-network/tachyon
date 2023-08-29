@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <unordered_map>
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/base/arithmetics_results.h"
