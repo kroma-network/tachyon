@@ -1,6 +1,8 @@
-# Tachyon
-
-This is a ZKP accelerator using CUDA.
+<div align="center">
+  <img src="tachyon_logo_horizontal.png">
+</div>
+<br/>
+Tachyon is a ZKP accelerator using CUDA.
 
 ## Prerequisites
 
