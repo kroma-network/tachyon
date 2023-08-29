@@ -33,7 +33,8 @@ struct MSMTestSet {
   void ComputeAnswer(bool use_msm) {
     answer = ReturnTy::Zero();
     if (use_msm) {
-      answer = VariableBaseMSM<PointTy>::MSM(bases, scalars);
+      VariableBaseMSM<PointTy> msm;
+      msm.Run(bases, scalars, &answer);
     } else {
       for (size_t i = 0; i < bases.size(); ++i) {
         answer += bases[i].ScalarMul(scalars[i].ToBigInt());

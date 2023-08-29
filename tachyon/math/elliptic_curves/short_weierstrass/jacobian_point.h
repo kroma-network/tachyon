@@ -11,7 +11,6 @@
 #include "tachyon/math/elliptic_curves/curve_config.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/msm/glv.h"
-#include "tachyon/math/elliptic_curves/msm/msm_util.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
@@ -88,27 +87,6 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static bool IsOnCurve(const JacobianPoint& p) {
     return Curve::IsOnCurve(p);
-  }
-
-  template <
-      typename BaseInputIterator, typename ScalarInputIterator,
-      std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
-                                   JacobianPoint, ScalarField>>* = nullptr>
-  static JacobianPoint MSM(BaseInputIterator bases_first,
-                           BaseInputIterator bases_last,
-                           ScalarInputIterator scalars_first,
-                           ScalarInputIterator scalars_last) {
-    return Curve::template MSM<JacobianPoint>(
-        std::move(bases_first), std::move(bases_last), std::move(scalars_first),
-        std::move(scalars_last));
-  }
-
-  template <typename BaseContainer, typename ScalarContainer>
-  static JacobianPoint MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
-    return MSM(std::begin(std::forward<BaseContainer>(bases)),
-               std::end(std::forward<BaseContainer>(bases)),
-               std::begin(std::forward<ScalarContainer>(scalars)),
-               std::end(std::forward<ScalarContainer>(scalars)));
   }
 
   constexpr static JacobianPoint Endomorphism(const JacobianPoint& point) {

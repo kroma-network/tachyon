@@ -20,6 +20,7 @@ namespace c::math {
 namespace {
 
 std::unique_ptr<MSMInputProvider> g_provider;
+std::unique_ptr<VariableBaseMSM<bn254::G1AffinePoint>> g_msm;
 
 void DoInitMSM(uint8_t degree) {
   {
@@ -33,6 +34,7 @@ void DoInitMSM(uint8_t degree) {
 
   std::ignore = degree;
   g_provider.reset(new MSMInputProvider());
+  g_msm.reset(new VariableBaseMSM<bn254::G1AffinePoint>());
 }
 
 void DoReleaseMSM() {
@@ -44,6 +46,7 @@ void DoReleaseMSM() {
     std::cout << "DoReleaseMSM()" << std::endl;
   }
   g_provider.reset();
+  g_msm.reset();
 }
 
 template <typename T>
@@ -51,9 +54,9 @@ tachyon_bn254_g1_jacobian* DoMSM(const T* bases, size_t bases_len,
                                  const tachyon_bn254_fr* scalars,
                                  size_t scalars_len) {
   g_provider->Inject(bases, bases_len, scalars, scalars_len);
-  return CreateCPoint3Ptr<tachyon_bn254_g1_jacobian>(
-      VariableBaseMSM<bn254::G1AffinePoint>::MSM(g_provider->bases(),
-                                                 g_provider->scalars()));
+  bn254::G1JacobianPoint ret;
+  CHECK(g_msm->Run(g_provider->bases(), g_provider->scalars(), &ret));
+  return CreateCPoint3Ptr<tachyon_bn254_g1_jacobian>(ret);
 }
 
 }  // namespace

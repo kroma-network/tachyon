@@ -4,7 +4,6 @@
 #include <type_traits>
 
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
-#include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config_traits.h"
@@ -67,26 +66,6 @@ class SWCurveBase {
       right += SWCurveConfig::A() * point.x() * point.zz().Square();
     }
     return point.y().Square() == right;
-  }
-
-  template <typename PointTy, typename BaseInputIterator,
-            typename ScalarInputIterator,
-            std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
-                                         PointTy, ScalarField>>* = nullptr>
-  static auto MSM(BaseInputIterator bases_first, BaseInputIterator bases_last,
-                  ScalarInputIterator scalars_first,
-                  ScalarInputIterator scalars_last) {
-    return VariableBaseMSM<PointTy>::MSM(
-        std::move(bases_first), std::move(bases_last), std::move(scalars_first),
-        std::move(scalars_last));
-  }
-
-  template <typename BaseContainer, typename ScalarContainer>
-  static auto MSM(BaseContainer&& bases, ScalarContainer&& scalars) {
-    return MSM(std::begin(std::forward<BaseContainer>(bases)),
-               std::end(std::forward<BaseContainer>(bases)),
-               std::begin(std::forward<ScalarContainer>(scalars)),
-               std::end(std::forward<ScalarContainer>(scalars)));
   }
 };
 

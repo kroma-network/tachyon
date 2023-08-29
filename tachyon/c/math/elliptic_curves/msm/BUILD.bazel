@@ -48,6 +48,7 @@ tachyon_cuda_library(
     deps = [
         ":msm_input_provider",
         "//tachyon/base/console",
+        "//tachyon/base/containers:container_util",
         "//tachyon/cc/math/elliptic_curves:point_conversions",
         "//tachyon/device/gpu:gpu_logging",
         "//tachyon/device/gpu:scoped_mem_pool",

@@ -11,7 +11,6 @@
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
-#include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_cuda.cu.h"
 
 namespace tachyon {

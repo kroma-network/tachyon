@@ -1,0 +1,35 @@
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cc_test",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "pippenger",
+    hdrs = ["pippenger.h"],
+    deps = [
+        ":pippenger_util",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/math/elliptic_curves/msm:msm_util",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
+    name = "pippenger_util",
+    hdrs = ["pippenger_util.h"],
+)
+
+tachyon_cc_test(
+    name = "algorithms_unittests",
+    srcs = [
+        "pippenger_unittest.cc",
+    ],
+    deps = [
+        ":pippenger",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+    ],
+)
