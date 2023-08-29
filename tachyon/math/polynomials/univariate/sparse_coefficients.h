@@ -1,20 +1,20 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_SPARSE_COEFFICIENTS_H_
-#define TACHYON_MATH_POLYNOMIALS_SPARSE_COEFFICIENTS_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_SPARSE_COEFFICIENTS_H_
+#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_SPARSE_COEFFICIENTS_H_
 
 #include <stddef.h>
 
 #include <algorithm>
-#include <numeric>
 #include <sstream>
 #include <utility>
 #include <vector>
 
 #include "absl/numeric/internal/bits.h"
 
+#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/math/polynomials/univariate_polynomial_ops_forward.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial_ops_forward.h"
 
 namespace tachyon::math {
 
@@ -28,32 +28,32 @@ class SparseCoefficients {
 
   using Field = F;
 
-  struct Element {
+  struct Term {
     size_t degree;
     F coefficient;
 
-    Element operator-() const { return {degree, -coefficient}; }
+    Term operator-() const { return {degree, -coefficient}; }
 
-    bool operator<(const Element& other) const { return degree < other.degree; }
-    bool operator==(const Element& other) const {
+    bool operator<(const Term& other) const { return degree < other.degree; }
+    bool operator==(const Term& other) const {
       return degree == other.degree && coefficient == other.coefficient;
     }
-    bool operator!=(const Element& other) const {
+    bool operator!=(const Term& other) const {
       return degree != other.degree || coefficient != other.coefficient;
     }
   };
 
   constexpr SparseCoefficients() = default;
-  constexpr explicit SparseCoefficients(const std::vector<Element>& elements)
-      : elements_(elements) {
+  constexpr explicit SparseCoefficients(const std::vector<Term>& terms)
+      : terms_(terms) {
     CHECK_LE(Degree(), kMaxDegree);
-    DCHECK(base::ranges::is_sorted(elements_.begin(), elements_.end()));
+    DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
     RemoveHighDegreeZeros();
   }
-  constexpr explicit SparseCoefficients(std::vector<Element>&& elements)
-      : elements_(std::move(elements)) {
+  constexpr explicit SparseCoefficients(std::vector<Term>&& terms)
+      : terms_(std::move(terms)) {
     CHECK_LE(Degree(), kMaxDegree);
-    DCHECK(base::ranges::is_sorted(elements_.begin(), elements_.end()));
+    DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
     RemoveHighDegreeZeros();
   }
 
@@ -65,13 +65,13 @@ class SparseCoefficients {
 
   constexpr static SparseCoefficients Random(size_t degree) {
     // TODO(chokobole): Better idea?
-    std::vector<Element> elements;
+    std::vector<Term> terms;
     for (size_t i = 0; i < degree + 1; ++i) {
       F f = F::Random();
       if (f.IsZero()) continue;
-      elements.push_back({i, std::move(f)});
+      terms.push_back({i, std::move(f)});
     }
-    return SparseCoefficients(std::move(elements));
+    return SparseCoefficients(std::move(terms));
   }
 
   constexpr bool operator==(const SparseCoefficients& other) const {
@@ -81,7 +81,7 @@ class SparseCoefficients {
     if (other.IsZero()) {
       return false;
     }
-    return elements_ == other.elements_;
+    return terms_ == other.terms_;
   }
 
   constexpr bool operator!=(const SparseCoefficients& other) const {
@@ -93,36 +93,32 @@ class SparseCoefficients {
   }
 
   constexpr const Field* Get(size_t i) const {
-    auto it = std::lower_bound(elements_.begin(), elements_.end(), i,
-                               [](const Element& element, size_t degree) {
-                                 return element.degree < degree;
-                               });
-    if (it == elements_.end()) return nullptr;
+    auto it = std::lower_bound(
+        terms_.begin(), terms_.end(), i,
+        [](const Term& term, size_t degree) { return term.degree < degree; });
+    if (it == terms_.end()) return nullptr;
     if (it->degree != i) return nullptr;
     return &it->coefficient;
   }
 
   constexpr const Field* GetLeadingCoefficient() const {
-    if (elements_.empty()) return nullptr;
-    return &elements_.back().coefficient;
+    if (IsZero()) return nullptr;
+    return &terms_.back().coefficient;
   }
 
-  constexpr bool IsZero() const {
-    return elements_.empty() ||
-           (elements_.size() == 1 && elements_[0].coefficient.IsZero());
-  }
+  constexpr bool IsZero() const { return terms_.empty(); }
 
   constexpr bool IsOne() const {
-    return elements_.size() == 1 && elements_[0].coefficient.IsOne();
+    return terms_.size() == 1 && terms_[0].coefficient.IsOne();
   }
 
   constexpr size_t Degree() const {
-    if (elements_.empty()) return 0;
-    return elements_.back().degree;
+    if (IsZero()) return 0;
+    return terms_.back().degree;
   }
 
   constexpr Field Evaluate(const Field& point) const {
-    if (elements_.empty()) return Field::Zero();
+    if (IsZero()) return Field::Zero();
 
     static_assert(sizeof(size_t) == sizeof(uint64_t));
     size_t num_powers = absl::numeric_internal::CountLeadingZeroes64(0) -
@@ -138,33 +134,29 @@ class SparseCoefficients {
     }
 
     Field sum = Field::Zero();
-    for (const Element& element : elements_) {
+    for (const Term& term : terms_) {
       sum += Field::PowWithTable(absl::MakeConstSpan(powers_of_2),
-                                 Field(element.degree).ToBigInt()) *
-             element.coefficient;
+                                 Field(term.degree).ToBigInt()) *
+             term.coefficient;
     }
     return sum;
   }
 
   std::string ToString() const {
-    if (elements_.empty()) return base::EmptyString();
-    size_t len = elements_.size() - 1;
+    if (IsZero()) return base::EmptyString();
     std::stringstream ss;
-    bool has_elem = false;
-    while (len >= 0) {
-      size_t i = len--;
-      const Element& elem = elements_[i];
-      if (has_elem) ss << " + ";
-      has_elem = true;
-      ss << elem.coefficient.ToString();
-      if (elem.degree == 0) {
+    bool has_term = false;
+    for (const Term& term : base::Reversed(terms_)) {
+      if (has_term) ss << " + ";
+      has_term = true;
+      ss << term.coefficient.ToString();
+      if (term.degree == 0) {
         // do nothing
-      } else if (elem.degree == 1) {
+      } else if (term.degree == 1) {
         ss << " * x";
       } else {
-        ss << " * x^" << elem.degree;
+        ss << " * x^" << term.degree;
       }
-      if (i == 0) break;
     }
     return ss.str();
   }
@@ -175,17 +167,17 @@ class SparseCoefficients {
   friend class internal::UnivariatePolynomialOp<
       SparseCoefficients<F, MaxDegree>>;
 
-  void RemoveHighDegreeZeros() {
-    while (!elements_.empty()) {
-      if (elements_.back().coefficient.IsZero()) {
-        elements_.pop_back();
+  void RemoveHighDegreeZeros() {  // Fix to RemoveZeros
+    while (!IsZero()) {
+      if (terms_.back().coefficient.IsZero()) {
+        terms_.pop_back();
       } else {
         break;
       }
     }
   }
 
-  std::vector<Element> elements_;
+  std::vector<Term> terms_;
 };
 
 template <typename F, size_t MaxDegree>
@@ -196,4 +188,4 @@ std::ostream& operator<<(std::ostream& os,
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_POLYNOMIALS_SPARSE_COEFFICIENTS_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_SPARSE_COEFFICIENTS_H_

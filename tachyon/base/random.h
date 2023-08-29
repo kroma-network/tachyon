@@ -19,6 +19,8 @@ auto Uniform(TagType tag, L min, R max) {
   return absl::Uniform(tag, GetAbslBitGen(), min, max);
 }
 
+TACHYON_EXPORT bool Bernoulli(double probability);
+
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_RANDOM_H_

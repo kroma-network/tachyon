@@ -1,14 +1,14 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_POLYNOMIAL_H_
-#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_POLYNOMIAL_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_POLYNOMIAL_H_
+#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_POLYNOMIAL_H_
 
 #include <stddef.h>
 
 #include <type_traits>
 
 #include "tachyon/base/logging.h"
-#include "tachyon/math/polynomials/dense_coefficients.h"
 #include "tachyon/math/polynomials/polynomial.h"
-#include "tachyon/math/polynomials/sparse_coefficients.h"
+#include "tachyon/math/polynomials/univariate/dense_coefficients.h"
+#include "tachyon/math/polynomials/univariate/sparse_coefficients.h"
 
 namespace tachyon::math {
 
@@ -184,6 +184,6 @@ using SparseUnivariatePolynomial =
 
 }  // namespace tachyon::math
 
-#include "tachyon/math/polynomials/univariate_polynomial_ops.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial_ops.h"
 
-#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_POLYNOMIAL_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_POLYNOMIAL_H_

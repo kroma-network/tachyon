@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_DENSE_COEFFICIENTS_H_
-#define TACHYON_MATH_POLYNOMIALS_DENSE_COEFFICIENTS_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_DENSE_COEFFICIENTS_H_
+#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_DENSE_COEFFICIENTS_H_
 
 #include <stddef.h>
 
@@ -8,9 +8,10 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/math/polynomials/univariate_polynomial_ops_forward.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial_ops_forward.h"
 
 namespace tachyon::math {
 
@@ -73,38 +74,34 @@ class DenseCoefficients {
   }
 
   constexpr const Field* GetLeadingCoefficient() const {
-    if (coefficients_.empty()) return nullptr;
+    if (IsZero()) return nullptr;
     return &coefficients_.back();
   }
 
-  constexpr bool IsZero() const {
-    return coefficients_.empty() ||
-           (coefficients_.size() == 1 && coefficients_[0].IsZero());
-  }
+  constexpr bool IsZero() const { return coefficients_.empty(); }
 
   constexpr bool IsOne() const {
     return coefficients_.size() == 1 && coefficients_[0].IsOne();
   }
 
   constexpr size_t Degree() const {
-    if (coefficients_.empty()) return 0;
+    if (IsZero()) return 0;
     return coefficients_.size() - 1;
   }
 
   constexpr Field Evaluate(const Field& point) const {
-    if (coefficients_.empty()) return Field::Zero();
+    if (IsZero()) return Field::Zero();
     if (point.IsZero()) return coefficients_[0];
     return DoEvaluate(point);
   }
 
   std::string ToString() const {
-    if (coefficients_.empty()) return base::EmptyString();
+    if (IsZero()) return base::EmptyString();
     size_t len = coefficients_.size() - 1;
     std::stringstream ss;
     bool has_coeff = false;
-    while (len >= 0) {
+    for (const Field& coeff : base::Reversed(coefficients_)) {
       size_t i = len--;
-      const Field& coeff = coefficients_[i];
       if (!coeff.IsZero()) {
         if (has_coeff) ss << " + ";
         has_coeff = true;
@@ -117,7 +114,6 @@ class DenseCoefficients {
           ss << " * x^" << i;
         }
       }
-      if (i == 0) break;
     }
     return ss.str();
   }
@@ -141,7 +137,7 @@ class DenseCoefficients {
   }
 
   void RemoveHighDegreeZeros() {
-    while (!coefficients_.empty()) {
+    while (!IsZero()) {
       if (coefficients_.back().IsZero()) {
         coefficients_.pop_back();
       } else {
@@ -161,4 +157,4 @@ std::ostream& operator<<(std::ostream& os,
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_POLYNOMIALS_DENSE_COEFFICIENTS_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_DENSE_COEFFICIENTS_H_

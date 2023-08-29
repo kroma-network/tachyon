@@ -7,4 +7,8 @@ absl::BitGen& GetAbslBitGen() {
   return bitgen;
 }
 
+bool Bernoulli(double probability) {
+  return absl::Bernoulli(GetAbslBitGen(), probability);
+}
+
 }  // namespace tachyon::base
