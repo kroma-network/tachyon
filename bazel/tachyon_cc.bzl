@@ -4,6 +4,7 @@ load(
     "//bazel:tachyon.bzl",
     "if_has_exception",
     "if_has_matplotlib",
+    "if_has_openmp",
     "if_has_rtti",
     "if_linux_x86_64",
     "if_static",
@@ -30,11 +31,17 @@ def tachyon_rtti(force_rtti):
 def tachyon_simd_copts():
     return if_linux_x86_64(["-msse3"])
 
+def tachyon_openmp():
+    return if_has_openmp(["-fopenmp"])
+
 def tachyon_copts(safe_code = True):
-    return tachyon_warnings(safe_code) + tachyon_hide_symbols()
+    return tachyon_warnings(safe_code) + tachyon_hide_symbols() + tachyon_simd_copts() + tachyon_openmp()
 
 def tachyon_cxxopts(safe_code = True, force_exceptions = False, force_rtti = False):
     return tachyon_copts(safe_code) + tachyon_exceptions(force_exceptions) + tachyon_rtti(force_rtti)
+
+def tachyon_openmp_defines():
+    return if_has_openmp(["TACHYON_HAS_OPENMP"])
 
 def tachyon_cuda_defines():
     return if_cuda(["TACHYON_CUDA"])
@@ -43,7 +50,7 @@ def tachyon_matplotlib_defines():
     return if_has_matplotlib(["TACHYON_HAS_MATPLOTLIB"])
 
 def tachyon_defines(use_cuda = False):
-    defines = tachyon_defines_c_shared_lib_build()
+    defines = tachyon_defines_c_shared_lib_build() + tachyon_openmp_defines()
     if use_cuda:
         defines += tachyon_cuda_defines()
     return defines
@@ -57,11 +64,18 @@ def tachyon_local_defines():
 def tachyon_local_defines_compile_library():
     return if_static([], ["TACHYON_COMPILE_LIBRARY"])
 
+def tachyon_openmp_linkopts():
+    return if_has_openmp(["-fopenmp"])
+
+def tachyon_linkopts():
+    return tachyon_openmp_linkopts()
+
 def tachyon_cc_library(
         name,
         copts = [],
         defines = [],
         local_defines = [],
+        linkopts = [],
         alwayslink = True,
         safe_code = True,
         force_exceptions = False,
@@ -72,6 +86,7 @@ def tachyon_cc_library(
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
         defines = defines + tachyon_defines(),
         local_defines = local_defines + tachyon_local_defines(),
+        linkopts = linkopts + tachyon_linkopts(),
         alwayslink = alwayslink,
         **kwargs
     )
@@ -81,6 +96,7 @@ def tachyon_cc_binary(
         copts = [],
         defines = [],
         local_defines = [],
+        linkopts = [],
         safe_code = True,
         force_exceptions = False,
         force_rtti = False,
@@ -90,6 +106,7 @@ def tachyon_cc_binary(
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
         defines = defines + tachyon_defines(),
         local_defines = local_defines + tachyon_local_defines(),
+        linkopts = linkopts + tachyon_linkopts(),
         **kwargs
     )
 
@@ -98,6 +115,7 @@ def tachyon_cc_test(
         copts = [],
         defines = [],
         local_defines = [],
+        linkopts = [],
         linkstatic = True,
         deps = [],
         safe_code = True,
@@ -109,6 +127,7 @@ def tachyon_cc_test(
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
         defines = defines + tachyon_defines(),
         local_defines = local_defines + tachyon_local_defines(),
+        linkopts = linkopts + tachyon_linkopts(),
         linkstatic = linkstatic,
         deps = deps + ["@com_google_googletest//:gtest_main"],
         **kwargs
@@ -119,6 +138,7 @@ def tachyon_cc_benchmark(
         copts = [],
         defines = [],
         local_defines = [],
+        linkopts = [],
         tags = [],
         linkstatic = True,
         deps = [],
@@ -131,6 +151,7 @@ def tachyon_cc_benchmark(
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
         defines = defines + tachyon_defines(),
         local_defines = local_defines + tachyon_local_defines(),
+        linkopts = linkopts + tachyon_linkopts(),
         tags = tags + ["benchmark"],
         deps = deps + ["@com_github_google_benchmark//:benchmark_main"],
         linkstatic = linkstatic,
@@ -226,6 +247,7 @@ def tachyon_cuda_library(
         copts = [],
         defines = [],
         local_defines = [],
+        linkopts = [],
         alwayslink = True,
         safe_code = True,
         force_exceptions = False,
@@ -236,6 +258,7 @@ def tachyon_cuda_library(
         copts = copts + tachyon_cxxopts(safe_code = safe_code, force_exceptions = force_exceptions, force_rtti = force_rtti),
         defines = defines + tachyon_defines(use_cuda = True),
         local_defines = local_defines + tachyon_local_defines(),
+        linkopts = linkopts + tachyon_linkopts(),
         alwayslink = alwayslink,
         **kwargs
     )

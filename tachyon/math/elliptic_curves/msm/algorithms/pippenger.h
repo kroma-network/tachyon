@@ -6,6 +6,10 @@
 #include <type_traits>
 #include <vector>
 
+#if defined(TACHYON_HAS_OPENMP)
+#include <omp.h>
+#endif  // defined(TACHYON_HAS_OPENMP)
+
 #include "absl/types/span.h"
 
 #include "tachyon/base/containers/adapters.h"
@@ -142,10 +146,15 @@ class Pippenger {
     for (std::vector<int64_t>& scalar_digit : scalar_digits) {
       scalar_digit.resize(window_count_);
     }
+#if defined(TACHYON_HAS_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < scalars.size(); ++i) {
       FillDigits(scalars[i], window_bits_, &scalar_digits[i]);
     }
-    // TODO(chokobole): Optimize with openmp.
+#if defined(TACHYON_HAS_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < window_count_; ++i) {
       std::vector<ReturnTy> buckets =
           base::CreateVector(1 << (window_bits_ - 1), ReturnTy::Zero());
@@ -167,8 +176,10 @@ class Pippenger {
   void AccumulateWindowSums(BaseInputIterator bases_first,
                             absl::Span<const BigInt<N>> scalars,
                             std::vector<ReturnTy>* window_sums) {
-    // TODO(chokobole): Optimize with openmp.
     size_t window_offset = 0;
+#if defined(TACHYON_HAS_OPENMP)
+#pragma omp parallel for
+#endif
     for (size_t i = 0; i < window_count_; ++i) {
       ReturnTy window_sum = ReturnTy::Zero();
       // We don't need the "zero" bucket, so we only have 2^{window_bits_} - 1

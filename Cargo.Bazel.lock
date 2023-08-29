@@ -1,5 +1,5 @@
 {
-  "checksum": "575213232addf54717d5c7ea2a4605ed3661c79ef4804bfd2fd6440cb6b37387",
+  "checksum": "3a9a5dbae999c339f0f82244ccf51bcbab9be3d954ef89b2726716d2f8ea268b",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -156,7 +156,10 @@
         ],
         "crate_features": {
           "common": [
-            "default"
+            "default",
+            "parallel",
+            "rayon",
+            "std"
           ],
           "selects": {}
         },
@@ -189,6 +192,10 @@
             {
               "id": "num-traits 0.2.16",
               "target": "num_traits"
+            },
+            {
+              "id": "rayon 1.7.0",
+              "target": "rayon"
             },
             {
               "id": "zeroize 1.6.0",
@@ -236,6 +243,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -481,7 +494,8 @@
         "crate_features": {
           "common": [
             "ark-serialize-derive",
-            "derive"
+            "derive",
+            "std"
           ],
           "selects": {}
         },
@@ -641,6 +655,8 @@
         "crate_features": {
           "common": [
             "default",
+            "parallel",
+            "rayon",
             "std"
           ],
           "selects": {}
@@ -654,6 +670,10 @@
             {
               "id": "rand 0.8.5",
               "target": "rand"
+            },
+            {
+              "id": "rayon 1.7.0",
+              "target": "rayon"
             }
           ],
           "selects": {}
@@ -1951,6 +1971,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "use_std"
+          ],
+          "selects": {}
+        },
         "edition": "2018",
         "version": "1.9.0"
       },
@@ -2549,6 +2575,13 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "use_alloc",
+            "use_std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {

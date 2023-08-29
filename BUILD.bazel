@@ -19,6 +19,11 @@ bool_flag(
     build_setting_default = False,
 )
 
+bool_flag(
+    name = "has_openmp",
+    build_setting_default = False,
+)
+
 # prime field backend
 bool_flag(
     name = "gmp_backend",
@@ -106,6 +111,11 @@ config_setting(
 config_setting(
     name = "tachyon_has_rtti",
     flag_values = {":has_rtti": "true"},
+)
+
+config_setting(
+    name = "tachyon_has_openmp",
+    flag_values = {":has_openmp": "true"},
 )
 
 config_setting(

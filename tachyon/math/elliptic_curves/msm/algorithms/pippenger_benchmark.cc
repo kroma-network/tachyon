@@ -56,19 +56,19 @@ BENCHMARK_TEMPLATE(BM_PippengerNonUniform, bn254::G1AffinePoint)
 //   L2 Unified 2048 KiB (x16)
 //   L3 Unified 36864 KiB (x1)
 // Load Average: 2.71, 2.64, 1.87
-// --------------------------------------------------------------------------------------------------------
-// Benchmark                                                              Time             CPU   Iterations
-// --------------------------------------------------------------------------------------------------------
-// BM_PippengerRandom<bn254::G1AffinePoint>/32768                 285647273 ns    285638670 ns            2
-// BM_PippengerRandom<bn254::G1AffinePoint>/65536                 526158810 ns    526138471 ns            1
-// BM_PippengerRandom<bn254::G1AffinePoint>/131072               1010507822 ns   1009032618 ns            1
-// BM_PippengerRandom<bn254::G1AffinePoint>/262144               1928324699 ns   1928262578 ns            1
-// BM_PippengerRandom<bn254::G1AffinePoint>/524288               3531723976 ns   3528962397 ns            1
-// BM_PippengerRandom<bn254::G1AffinePoint>/1048576              6836301804 ns   6835938130 ns            1
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/32768             277929703 ns    277919829 ns            3
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/65536             505287886 ns    505261371 ns            1
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/131072            987757206 ns    987699281 ns            1
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/262144           1875749111 ns   1875631566 ns            1
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/524288           3408781767 ns   3408557514 ns            1
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/1048576          6684160471 ns   6683772112 ns            1
+// -----------------------------------------------------------------------------------------------
+// Benchmark                                                     Time             CPU   Iterations
+// -----------------------------------------------------------------------------------------------
+// BM_PippengerRandom<bn254::G1AffinePoint>/32768         34908874 ns     33396236 ns           21
+// BM_PippengerRandom<bn254::G1AffinePoint>/65536         61684394 ns     55921674 ns           10
+// BM_PippengerRandom<bn254::G1AffinePoint>/131072       109082434 ns     86647108 ns            9
+// BM_PippengerRandom<bn254::G1AffinePoint>/262144       215575314 ns    148382267 ns            5
+// BM_PippengerRandom<bn254::G1AffinePoint>/524288       410419226 ns    279332868 ns            3
+// BM_PippengerRandom<bn254::G1AffinePoint>/1048576      755907536 ns    512204693 ns            1
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/32768     39093761 ns     36180793 ns           25
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/65536     57416010 ns     51653336 ns           10
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/131072   108107143 ns     90550465 ns            9
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/262144   205311680 ns    162177059 ns            5
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/524288   396333456 ns    260226808 ns            3
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/1048576  745496988 ns    504996463 ns            1
 // clang-format on
