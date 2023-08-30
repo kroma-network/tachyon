@@ -6,9 +6,14 @@
 #include <type_traits>
 #include <vector>
 
+#if defined(TACHYON_HAS_OPENMP)
+#include <omp.h>
+#endif  // defined(TACHYON_HAS_OPENMP)
+
 #include "absl/types/span.h"
 
 #include "tachyon/base/containers/adapters.h"
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_util.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
@@ -71,22 +76,28 @@ class Pippenger {
       LOG(ERROR) << "bases_size and scalars_size don't match";
       return false;
     }
-    Prepare(bases_size);
+    window_bits_ = ComputeWindowsBits(scalars_size);
+    window_count_ = ComputeWindowsCount<ScalarField>(window_bits_);
 
+    std::vector<BigInt<N>> scalars;
+    scalars.resize(scalars_size);
     auto scalars_it = scalars_first;
     for (size_t i = 0; i < scalars_size; ++i, ++scalars_it) {
-      scalars_[i] = scalars_it->ToBigInt();
+      scalars[i] = scalars_it->ToBigInt();
     }
 
+    std::vector<ReturnTy> window_sums =
+        base::CreateVector(window_count_, ReturnTy::Zero());
+
     if (use_msm_window_naf_) {
-      AccumulateWindowNAFSums(std::move(bases_first));
+      AccumulateWindowNAFSums(std::move(bases_first), scalars, &window_sums);
     } else {
-      AccumulateWindowSums(std::move(bases_first));
+      AccumulateWindowSums(std::move(bases_first), scalars, &window_sums);
     }
 
     // We store the sum for the lowest window.
-    ReturnTy lowest = std::move(*window_sums_.begin());
-    auto view = absl::MakeConstSpan(window_sums_);
+    ReturnTy lowest = std::move(window_sums.front());
+    auto view = absl::MakeConstSpan(window_sums);
     view.remove_prefix(1);
 
     // We're traversing windows from high to low.
@@ -103,40 +114,15 @@ class Pippenger {
   }
 
  private:
-  void Prepare(size_t size) {
-    if (cached_size_ == size) return;
-    window_bits_ = ComputeWindowsBits(size);
-    window_count_ = ComputeWindowsCount<ScalarField>(window_bits_);
-    if (use_msm_window_naf_) {
-      scalar_digits_.resize(size);
-      for (std::vector<int64_t>& scalar_digit : scalar_digits_) {
-        scalar_digit.resize(window_count_);
-      }
-      buckets_.resize(1 << (window_bits_ - 1));
-    } else {
-      // We don't need the "zero" bucket, so we only have 2^{window_bits_} - 1
-      // buckets.
-      buckets_.resize((1 << window_bits_) - 1);
-    }
-    window_sums_.resize(window_count_);
-    scalars_.resize(size);
-    cached_size_ = size;
-  }
-
-  void InitBuckets() {
-    for (ReturnTy& bucket : buckets_) {
-      bucket = ReturnTy::Zero();
-    }
-  }
-
   ReturnTy AccumulateBuckets(
+      const std::vector<ReturnTy>& buckets,
       const ReturnTy& initial_value = ReturnTy::Zero()) const {
     ReturnTy running_sum = ReturnTy::Zero();
     ReturnTy window_sum = initial_value;
 
     // This is computed below for b buckets, using 2b curve additions.
     //
-    // We could first normalize |buckets_| and then use mixed-addition
+    // We could first normalize |buckets| and then use mixed-addition
     // here, but that's slower for the kinds of groups we care about
     // (Short Weierstrass curves and Twisted Edwards curves).
     // In the case of Short Weierstrass curves,
@@ -144,7 +130,7 @@ class Pippenger {
     // However normalization (with the inversion batched) takes ~6
     // field multiplications per element,
     // hence batch normalization is a slowdown.
-    for (const auto& bucket : base::Reversed(buckets_)) {
+    for (const auto& bucket : base::Reversed(buckets)) {
       running_sum += bucket;
       window_sum += running_sum;
     }
@@ -152,37 +138,57 @@ class Pippenger {
   }
 
   template <typename BaseInputIterator>
-  void AccumulateWindowNAFSums(BaseInputIterator bases_first) {
-    for (size_t i = 0; i < cached_size_; ++i) {
-      FillDigits(scalars_[i], window_bits_, &scalar_digits_[i]);
+  void AccumulateWindowNAFSums(BaseInputIterator bases_first,
+                               absl::Span<const BigInt<N>> scalars,
+                               std::vector<ReturnTy>* window_sums) {
+    std::vector<std::vector<int64_t>> scalar_digits;
+    scalar_digits.resize(scalars.size());
+    for (std::vector<int64_t>& scalar_digit : scalar_digits) {
+      scalar_digit.resize(window_count_);
     }
-    // TODO(chokobole): Optimize with openmp.
-    for (size_t i = 0; i < window_sums_.size(); ++i) {
-      InitBuckets();
+#if defined(TACHYON_HAS_OPENMP)
+#pragma omp parallel for
+#endif
+    for (size_t i = 0; i < scalars.size(); ++i) {
+      FillDigits(scalars[i], window_bits_, &scalar_digits[i]);
+    }
+#if defined(TACHYON_HAS_OPENMP)
+#pragma omp parallel for
+#endif
+    for (size_t i = 0; i < window_count_; ++i) {
+      std::vector<ReturnTy> buckets =
+          base::CreateVector(1 << (window_bits_ - 1), ReturnTy::Zero());
       auto bases_it = bases_first;
-      for (size_t j = 0; j < scalar_digits_.size(); ++j, ++bases_it) {
+      for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
         const PointTy& base = *bases_it;
-        int64_t scalar = scalar_digits_[j][i];
+        int64_t scalar = scalar_digits[j][i];
         if (0 < scalar) {
-          buckets_[static_cast<uint64_t>(scalar - 1)] += base;
+          buckets[static_cast<uint64_t>(scalar - 1)] += base;
         } else if (0 > scalar) {
-          buckets_[static_cast<uint64_t>(-scalar - 1)] -= base;
+          buckets[static_cast<uint64_t>(-scalar - 1)] -= base;
         }
       }
-      window_sums_[i] = AccumulateBuckets();
+      (*window_sums)[i] = AccumulateBuckets(buckets);
     }
   }
 
   template <typename BaseInputIterator>
-  void AccumulateWindowSums(BaseInputIterator bases_first) {
-    // TODO(chokobole): Optimize with openmp.
+  void AccumulateWindowSums(BaseInputIterator bases_first,
+                            absl::Span<const BigInt<N>> scalars,
+                            std::vector<ReturnTy>* window_sums) {
     size_t window_offset = 0;
-    for (size_t i = 0; i < window_sums_.size(); ++i) {
+#if defined(TACHYON_HAS_OPENMP)
+#pragma omp parallel for
+#endif
+    for (size_t i = 0; i < window_count_; ++i) {
       ReturnTy window_sum = ReturnTy::Zero();
-      InitBuckets();
+      // We don't need the "zero" bucket, so we only have 2^{window_bits_} - 1
+      // buckets.
+      std::vector<ReturnTy> buckets =
+          base::CreateVector((1 << window_bits_) - 1, ReturnTy::Zero());
       auto bases_it = bases_first;
-      for (size_t j = 0; j < cached_size_; ++j, ++bases_it) {
-        const BigInt<N>& scalar = scalars_[j];
+      for (size_t j = 0; j < scalars.size(); ++j, ++bases_it) {
+        const BigInt<N>& scalar = scalars[j];
         if (scalar.IsZero()) continue;
 
         const PointTy& base = *bases_it;
@@ -203,25 +209,20 @@ class Pippenger {
 
           // If the scalar is non-zero, we update the corresponding
           // bucket.
-          // (Recall that |buckets_| doesn't have a zero bucket.)
+          // (Recall that |buckets| doesn't have a zero bucket.)
           if (idx != 0) {
-            buckets_[idx - 1] += base;
+            buckets[idx - 1] += base;
           }
         }
       }
-      window_sums_[i] = AccumulateBuckets(window_sum);
+      (*window_sums)[i] = AccumulateBuckets(buckets, window_sum);
       window_offset += window_bits_;
     };
   }
 
   bool use_msm_window_naf_ = false;
-  size_t cached_size_ = 0;
   size_t window_bits_ = 0;
   size_t window_count_ = 0;
-  std::vector<std::vector<int64_t>> scalar_digits_;
-  std::vector<ReturnTy> window_sums_;
-  std::vector<ReturnTy> buckets_;
-  std::vector<BigInt<N>> scalars_;
 };
 
 }  // namespace tachyon::math

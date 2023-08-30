@@ -23,8 +23,7 @@ class MSMTest : public testing::Test {
   MSMTest() {
     for (size_t n : kNums) {
       test_sets.push_back(
-          MSMTestSet<bn254::G1AffinePoint>::Random(n,
-                                                   /*use_msm=*/false));
+          MSMTestSet<bn254::G1AffinePoint>::Random(n, MSMMethod::kNaive));
     }
   }
 

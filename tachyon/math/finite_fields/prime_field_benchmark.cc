@@ -1,26 +1,19 @@
-#include "absl/base/call_once.h"
 #include "benchmark/benchmark.h"
 
-#include "tachyon/base/no_destructor.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 #include "tachyon/math/finite_fields/goldilocks_prime/goldilocks.h"
-
-constexpr const size_t kTestNum = 1000;
 
 namespace tachyon::math {
 namespace {
 
 template <typename PrimeFieldTy>
-static std::vector<PrimeFieldTy>& PrepareTestSet() {
-  static base::NoDestructor<std::vector<PrimeFieldTy>> test_set;
-  static absl::once_flag once;
-  absl::call_once(once, []() {
-    test_set->reserve(kTestNum);
-    for (size_t i = 0; i < kTestNum; ++i) {
-      test_set->push_back(PrimeFieldTy::Random());
-    }
-  });
-  return *test_set;
+std::vector<PrimeFieldTy> PrepareTestSet(size_t size) {
+  std::vector<PrimeFieldTy> test_set;
+  test_set.reserve(size);
+  for (size_t i = 0; i < size; ++i) {
+    test_set.push_back(PrimeFieldTy::Random());
+  }
+  return test_set;
 }
 
 }  // namespace
@@ -28,18 +21,19 @@ static std::vector<PrimeFieldTy>& PrepareTestSet() {
 #define ADD_BENCHMARK(method, operator)                                       \
   template <typename PrimeFieldType>                                          \
   void BM_##method(benchmark::State& state) {                                 \
-    using Config = typename PrimeFieldType::Config;                           \
     PrimeFieldType::Init();                                                   \
-    auto& test_set = PrepareTestSet<PrimeField<Config>>();                    \
+    size_t size = state.range(0);                                             \
+    std::vector<PrimeFieldType> test_set =                                    \
+        PrepareTestSet<PrimeFieldType>(size);                                 \
     std::vector<PrimeFieldType> converted_test_set;                           \
-    converted_test_set.reserve(kTestNum);                                     \
+    converted_test_set.reserve(size);                                         \
     for (const auto& f : test_set) {                                          \
       converted_test_set.push_back(PrimeFieldType::FromBigInt(f.ToBigInt())); \
     }                                                                         \
     PrimeFieldType ret = PrimeFieldType::One();                               \
     size_t i = 0;                                                             \
     for (auto _ : state) {                                                    \
-      ret operator##= converted_test_set[(i++) % kTestNum];                   \
+      ret operator##= converted_test_set[(i++) % size];                       \
     }                                                                         \
     benchmark::DoNotOptimize(ret);                                            \
   }
@@ -49,18 +43,18 @@ ADD_BENCHMARK(Mul, *)
 
 #undef ADD_BENCHMARK
 
-BENCHMARK_TEMPLATE(BM_Add, bn254::Fq)->Arg(kTestNum);
-BENCHMARK_TEMPLATE(BM_Mul, bn254::Fq)->Arg(kTestNum);
+BENCHMARK_TEMPLATE(BM_Add, bn254::Fq)->Arg(1000);
+BENCHMARK_TEMPLATE(BM_Mul, bn254::Fq)->Arg(1000);
 #if defined(TACHYON_GMP_BACKEND)
-BENCHMARK_TEMPLATE(BM_Add, bn254::FqGmp)->Arg(kTestNum);
-BENCHMARK_TEMPLATE(BM_Mul, bn254::FqGmp)->Arg(kTestNum);
+BENCHMARK_TEMPLATE(BM_Add, bn254::FqGmp)->Arg(1000);
+BENCHMARK_TEMPLATE(BM_Mul, bn254::FqGmp)->Arg(1000);
 #endif  // defined(TACHYON_GMP_BACKEND)
 
-BENCHMARK_TEMPLATE(BM_Add, Goldilocks)->Arg(kTestNum);
-BENCHMARK_TEMPLATE(BM_Mul, Goldilocks)->Arg(kTestNum);
+BENCHMARK_TEMPLATE(BM_Add, Goldilocks)->Arg(1000);
+BENCHMARK_TEMPLATE(BM_Mul, Goldilocks)->Arg(1000);
 #if defined(TACHYON_GMP_BACKEND)
-BENCHMARK_TEMPLATE(BM_Add, GoldilocksGmp)->Arg(kTestNum);
-BENCHMARK_TEMPLATE(BM_Mul, GoldilocksGmp)->Arg(kTestNum);
+BENCHMARK_TEMPLATE(BM_Add, GoldilocksGmp)->Arg(1000);
+BENCHMARK_TEMPLATE(BM_Mul, GoldilocksGmp)->Arg(1000);
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace tachyon::math

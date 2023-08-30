@@ -40,7 +40,7 @@ def if_linux(a, b = []):
 
 def if_linux_x86_64(a, b = []):
     return select({
-        "@kroma_network_tachyon//linux_x86_64": a,
+        "@kroma_network_tachyon//:linux_x86_64": a,
         "//conditions:default": b,
     })
 
@@ -83,6 +83,12 @@ def if_has_exception(a, b = []):
 def if_has_rtti(a, b = []):
     return select({
         "@kroma_network_tachyon//:tachyon_has_rtti": a,
+        "//conditions:default": b,
+    })
+
+def if_has_openmp(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:tachyon_has_openmp": a,
         "//conditions:default": b,
     })
 

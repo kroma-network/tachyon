@@ -13,7 +13,7 @@ Please follow the instructions [here](https://bazel.build/install).
 ### Ubuntu
 
 ```shell
-> sudo apt install libgmp-dev
+> sudo apt install libgmp-dev libomp-dev
 ```
 
 ### Macos
