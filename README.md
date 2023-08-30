@@ -68,19 +68,21 @@ Please follow the instructions [here](https://bazel.build/install).
 
 ### GMP backend prime field
 
-- `--config gmp_backend`: Enable [gmp](https://gmplib.org/) prime field backend.
+- `--//:gmp_backend`: Enable [gmp](https://gmplib.org/) prime field backend.
 
-   ```shell
-   > bazel build --config ${os} --config gmp_backend //...
-   ```
+  ```shell
+  > bazel build --//:${os} --//:gmp_backend //...
+  ```
 
 ### Polygon zkEVM backend prime field
 
-- `--config polygon_zkevm_backend`: Enable [goldilocks](https://github.com/0xPolygonHermez/goldilocks) and [zkevm-prover](https://github.com/0xPolygonHermez/zkevm-prover) prime field backend.
+_NOTE:_: Only x86_64 is supported.
 
-   ```shell
-   > bazel build --config ${os} --config polygon_zkevm_backend //...
-   ```
+- `--//:polygon_zkevm_backend`: Enable [goldilocks](https://github.com/0xPolygonHermez/goldilocks) and [zkevm-prover](https://github.com/0xPolygonHermez/zkevm-prover) prime field backend.
+
+  ```shell
+  > bazel build --config ${os} --config avx512_${os} --//:polygon_zkevm_backend //...
+  ```
 
 ### Hardware acceleration
 
@@ -88,17 +90,17 @@ Please follow the instructions [here](https://bazel.build/install).
 
 - `--config cuda`: Enable [cuda] backend.
 
-   ```shell
-   > bazel build --config ${os} --config cuda //...
-   ```
+  ```shell
+  > bazel build --config ${os} --config cuda //...
+  ```
 
 #### ROCm backend
 
 - `--config rocm`: Enable [rocm] backend.
 
-   ```shell
-   > bazel build --config ${os} --config rocm //...
-   ```
+  ```shell
+  > bazel build --config ${os} --config rocm //...
+  ```
 
 [cuda]: https://developer.nvidia.com/cuda-toolkit
 [rocm]: https://www.amd.com/en/graphics/servers-solutions-rocm

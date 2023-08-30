@@ -1,4 +1,3 @@
-load("@polygon_zkevm_goldilocks//:build_defs.bzl", "goldilocks_copts")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load(
     "//bazel:tachyon.bzl",
@@ -137,7 +136,6 @@ tachyon_cc_benchmark(
     name = "prime_field_benchmark",
     size = "small",
     srcs = ["prime_field_benchmark.cc"],
-    copts = goldilocks_copts(),
     deps = [
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
