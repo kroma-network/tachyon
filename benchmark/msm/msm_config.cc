@@ -13,6 +13,8 @@ class FlagValueTraits<MSMConfig::Vendor> {
                          std::string* reason) {
     if (input == "arkworks") {
       *value = MSMConfig::Vendor::kArkworks;
+    } else if (input == "bellman") {
+      *value = MSMConfig::Vendor::kBellman;
     } else {
       *reason = absl::Substitute("Unknown vendor: $0", input);
       return false;
@@ -28,6 +30,8 @@ std::string MSMConfig::VendorToString(MSMConfig::Vendor vendor) {
   switch (vendor) {
     case MSMConfig::Vendor::kArkworks:
       return "arkworks";
+    case MSMConfig::Vendor::kBellman:
+      return "bellman";
   }
   NOTREACHED();
   return "";
@@ -48,7 +52,8 @@ bool MSMConfig::Parse(int argc, char** argv, bool include_vendors) {
     parser.AddFlag<base::Flag<std::vector<Vendor>>>(&vendors_)
         .set_long_name("--vendor")
         .set_help(
-            "Vendors to be benchmarked with. (supported vendors: arkworks)");
+            "Vendors to be benchmarked with. (supported vendors: arkworks, "
+            "bellman)");
   }
   {
     std::string error;

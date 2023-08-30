@@ -17,6 +17,11 @@ extern "C" tachyon_bn254_g1_jacobian* run_msm_arkworks(
     const tachyon_bn254_fr* scalars, size_t scalars_len,
     uint64_t* duration_in_us);
 
+extern "C" tachyon_bn254_g1_jacobian* run_msm_bellman(
+    const tachyon_bn254_g1_affine* bases, size_t bases_len,
+    const tachyon_bn254_fr* scalars, size_t scalars_len,
+    uint64_t* duration_in_us);
+
 int RealMain(int argc, char** argv) {
   MSMConfig config;
   if (!config.Parse(argc, argv, true)) {
@@ -47,6 +52,8 @@ int RealMain(int argc, char** argv) {
     std::vector<bn254::G1JacobianPoint> results_vendor;
     if (vendor == MSMConfig::Vendor::kArkworks) {
       runner.RunExternal(run_msm_arkworks, point_nums, &results_vendor);
+    } else if (vendor == MSMConfig::Vendor::kBellman) {
+      runner.RunExternal(run_msm_bellman, point_nums, &results_vendor);
     }
 
     if (config.check_results()) {

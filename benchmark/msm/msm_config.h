@@ -12,6 +12,7 @@ class MSMConfig {
  public:
   enum class Vendor {
     kArkworks,
+    kBellman,
   };
 
   static std::string VendorToString(Vendor vendor);
