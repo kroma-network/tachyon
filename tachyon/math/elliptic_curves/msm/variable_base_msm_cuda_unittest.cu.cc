@@ -27,8 +27,7 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
     VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Setup();
 
     MSMTestSet<bn254::G1AffinePoint> test_set =
-        MSMTestSet<bn254::G1AffinePoint>::Random(kCount,
-                                                 /*use_msm=*/true);
+        MSMTestSet<bn254::G1AffinePoint>::Random(kCount, MSMMethod::kMSM);
 
     d_bases_ = gpu::GpuMemory<bn254::G1AffinePointCuda>::Malloc(kCount);
     d_scalars_ = gpu::GpuMemory<bn254::FrCuda>::Malloc(kCount);

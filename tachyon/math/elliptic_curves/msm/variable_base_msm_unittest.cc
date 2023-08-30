@@ -23,7 +23,7 @@ class VariableBaseMSMTest : public testing::Test {
   static void SetUpTestSuite() { PointTy::Curve::Init(); }
 
   VariableBaseMSMTest()
-      : test_set_(MSMTestSet<PointTy>::Random(kSize, /*use_msm=*/false)) {}
+      : test_set_(MSMTestSet<PointTy>::Random(kSize, MSMMethod::kNaive)) {}
   VariableBaseMSMTest(const VariableBaseMSMTest&) = delete;
   VariableBaseMSMTest& operator=(const VariableBaseMSMTest&) = delete;
   ~VariableBaseMSMTest() override = default;

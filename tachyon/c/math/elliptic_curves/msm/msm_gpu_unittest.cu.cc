@@ -25,8 +25,7 @@ class MSMGpuTest : public testing::Test {
   MSMGpuTest() {
     for (size_t n : kNums) {
       test_sets.push_back(
-          MSMTestSet<bn254::G1AffinePoint>::Random(n,
-                                                   /*use_msm=*/true));
+          MSMTestSet<bn254::G1AffinePoint>::Random(n, MSMMethod::kMSM));
     }
   }
 

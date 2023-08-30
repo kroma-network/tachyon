@@ -59,6 +59,8 @@ class Pippenger {
     use_msm_window_naf_ = use_msm_window_naf;
   }
 
+  void SetClearCacheForTesting(bool clear_cache) { clear_cache_ = clear_cache; }
+
   template <typename BaseInputIterator, typename ScalarInputIterator,
             std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
                                          PointTy, ScalarField>>* = nullptr>
@@ -99,6 +101,10 @@ class Pippenger {
                                    }
                                    return total;
                                  });
+
+    if (clear_cache_) {
+      ClearCache();
+    }
     return true;
   }
 
@@ -121,6 +127,15 @@ class Pippenger {
     window_sums_.resize(window_count_);
     scalars_.resize(size);
     cached_size_ = size;
+  }
+
+  void ClearCache() {
+    cached_size_ = 0;
+    if (use_msm_window_naf_) {
+      scalar_digits_.clear();
+    }
+    buckets_.clear();
+    window_sums_.clear();
   }
 
   void InitBuckets() {
@@ -215,6 +230,7 @@ class Pippenger {
   }
 
   bool use_msm_window_naf_ = false;
+  bool clear_cache_ = false;
   size_t cached_size_ = 0;
   size_t window_bits_ = 0;
   size_t window_count_ = 0;

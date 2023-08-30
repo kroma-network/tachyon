@@ -9,6 +9,12 @@
 
 namespace tachyon::math {
 
+enum class MSMMethod {
+  kNone,
+  kMSM,
+  kNaive,
+};
+
 template <typename PointTy>
 struct MSMTestSet {
   using ScalarField = typename PointTy::ScalarField;
@@ -19,25 +25,45 @@ struct MSMTestSet {
   std::vector<ScalarField> scalars;
   ReturnTy answer;
 
-  static MSMTestSet Random(size_t size, bool use_msm) {
+  static MSMTestSet Random(size_t size, MSMMethod method) {
     MSMTestSet test_set;
     test_set.bases =
         base::CreateVector(size, []() { return PointTy::Random(); });
     test_set.scalars =
         base::CreateVector(size, []() { return ScalarField::Random(); });
-    test_set.ComputeAnswer(use_msm);
+    test_set.ComputeAnswer(method);
+    return test_set;
+  }
+
+  static MSMTestSet NonUniform(size_t size, size_t scalar_size,
+                               MSMMethod method) {
+    MSMTestSet test_set;
+    test_set.bases =
+        base::CreateVector(size, []() { return PointTy::Random(); });
+    std::vector<ScalarField> scalar_sets =
+        base::CreateVector(scalar_size, []() { return ScalarField::Random(); });
+    test_set.scalars = base::CreateVector(
+        size, [&scalar_sets]() { return base::Uniform(scalar_sets); });
+    test_set.ComputeAnswer(method);
     return test_set;
   }
 
  private:
-  void ComputeAnswer(bool use_msm) {
+  void ComputeAnswer(MSMMethod method) {
     answer = ReturnTy::Zero();
-    if (use_msm) {
-      VariableBaseMSM<PointTy> msm;
-      msm.Run(bases, scalars, &answer);
-    } else {
-      for (size_t i = 0; i < bases.size(); ++i) {
-        answer += bases[i].ScalarMul(scalars[i].ToBigInt());
+    switch (method) {
+      case MSMMethod::kNone:
+        break;
+      case MSMMethod::kMSM: {
+        VariableBaseMSM<PointTy> msm;
+        msm.Run(bases, scalars, &answer);
+        break;
+      }
+      case MSMMethod::kNaive: {
+        for (size_t i = 0; i < bases.size(); ++i) {
+          answer += bases[i].ScalarMul(scalars[i].ToBigInt());
+        }
+        break;
       }
     }
   }

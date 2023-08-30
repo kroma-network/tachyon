@@ -22,7 +22,7 @@ class PippengerTest : public testing::Test {
   static void SetUpTestSuite() { PointTy::Curve::Init(); }
 
   PippengerTest()
-      : test_set_(MSMTestSet<PointTy>::Random(kSize, /*use_msm=*/false)) {}
+      : test_set_(MSMTestSet<PointTy>::Random(kSize, MSMMethod::kNaive)) {}
   PippengerTest(const PippengerTest&) = delete;
   PippengerTest& operator=(const PippengerTest&) = delete;
   ~PippengerTest() override = default;
