@@ -4,7 +4,8 @@
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/console/console_stream.h"
-#include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/environment.h"
+#include "tachyon/base/files/file_util.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/device/gpu/gpu_memory.h"
@@ -29,6 +30,12 @@ gpu::GpuMemory<bn254::G1JacobianPointCuda> g_d_results;
 std::unique_ptr<bn254::G1JacobianPoint[]> g_u_results;
 std::unique_ptr<MSMInputProvider> g_provider;
 
+// TODO(chokobole): Remove this when MSM gpu is stabilized.
+std::string g_save_location;
+bool g_log_msm = false;
+
+size_t g_idx = 0;
+
 void DoInitMSMGpu(uint8_t degree) {
   {
     // NOTE(chokobole): This should be replaced with VLOG().
@@ -38,6 +45,15 @@ void DoInitMSMGpu(uint8_t degree) {
     std::cout << "DoInitMSMGpu()" << std::endl;
   }
   GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
+
+  std::string_view save_location_str;
+  if (base::Environment::Get("TACHYON_SAVE_LOCATION", &save_location_str)) {
+    g_save_location = std::string(save_location_str);
+  }
+  std::string_view log_msm_str;
+  if (base::Environment::Get("TACHYON_LOG_MSM", &log_msm_str)) {
+    if (log_msm_str == "1") g_log_msm = true;
+  }
 
   bn254::G1AffinePointCuda::Curve::Init();
   VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Setup();
@@ -100,6 +116,36 @@ bn254::G1JacobianPoint DoMSMGpuInternal(
       VariableBaseMSMCuda<bn254::G1AffinePointCuda::Curve>::Execute(
           config, g_u_results.get(), &ret),
       "Failed to Execute()");
+  if (g_log_msm) {
+    // NOTE(chokobole): This should be replaced with VLOG().
+    // Currently, there's no way to delegate VLOG flags from rust side.
+    base::ConsoleStream cs;
+    cs.Yellow();
+    std::cout << "DoMSMGpuInternal()" << g_idx++ << std::endl;
+    std::cout << ret.ToHexString() << std::endl;
+  }
+  if (!g_save_location.empty()) {
+    {
+      std::vector<std::string> results;
+      for (const bn254::G1AffinePoint& base : bases) {
+        results.push_back(base.ToMontgomery().ToString());
+      }
+      results.push_back("");
+      base::WriteFile(base::FilePath(absl::Substitute(
+                          "$0/bases$1.txt", g_save_location, g_idx - 1)),
+                      absl::StrJoin(results, "\n"));
+    }
+    {
+      std::vector<std::string> results;
+      for (const bn254::Fr& scalar : scalars) {
+        results.push_back(scalar.ToMontgomery().ToString());
+      }
+      results.push_back("");
+      base::WriteFile(base::FilePath(absl::Substitute(
+                          "$0/scalars$1.txt", g_save_location, g_idx - 1)),
+                      absl::StrJoin(results, "\n"));
+    }
+  }
   return ret;
 }
 
