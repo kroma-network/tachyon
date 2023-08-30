@@ -11,18 +11,8 @@ namespace tachyon::math {
 template <typename BaseInputIterator, typename ScalarInputIterator,
           typename PointTy, typename ScalarField>
 inline constexpr bool IsAbleToMSM =
-    std::is_same_v<PointTy, base::iter_value_t<BaseInputIterator>>&&
-        std::is_same_v<ScalarField, base::iter_value_t<ScalarInputIterator>>;
-
-/// The result of this function is only approximately `ln(a)`
-/// [`Explanation of usage`]
-///
-/// [`Explanation of usage`]:
-/// https://github.com/scipr-lab/zexe/issues/79#issue-556220473
-constexpr size_t LnWithoutFloats(size_t a) {
-  // log2(a) * ln(2)
-  return log2(a) * 69 / 100;
-}
+    std::is_same_v<PointTy, base::iter_value_t<BaseInputIterator>> &&
+    std::is_same_v<ScalarField, base::iter_value_t<ScalarInputIterator>>;
 
 }  // namespace tachyon::math
 

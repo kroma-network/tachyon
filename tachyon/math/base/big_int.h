@@ -72,7 +72,15 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
 
   constexpr static BigInt One() { return BigInt(1); }
 
-  constexpr static BigInt Random(const BigInt& max) {
+  constexpr static BigInt Max() {
+    BigInt ret;
+    for (uint64_t& limb : ret.limbs) {
+      limb = std::numeric_limits<uint64_t>::max();
+    }
+    return ret;
+  }
+
+  constexpr static BigInt Random(const BigInt& max = Max()) {
     BigInt ret;
     for (size_t i = 0; i < N; ++i) {
       ret[i] = base::Uniform<uint64_t, uint64_t>(
@@ -181,6 +189,14 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   constexpr uint64_t& smallest_limb() { return limbs[kSmallestLimbIdx]; }
   constexpr const uint64_t& smallest_limb() const {
     return limbs[kSmallestLimbIdx];
+  }
+
+  constexpr uint64_t ExtractBits64(size_t bit_offset, size_t bit_count) const {
+    return ExtractBits<uint64_t>(bit_offset, bit_count);
+  }
+
+  constexpr uint32_t ExtractBits32(size_t bit_offset, size_t bit_count) const {
+    return ExtractBits<uint32_t>(bit_offset, bit_count);
   }
 
   constexpr uint64_t& operator[](size_t i) {
@@ -584,6 +600,33 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
  private:
+  template <typename T>
+  constexpr T ExtractBits(size_t bit_offset, size_t bit_count) const {
+    size_t nums = 0;
+    size_t bits = 0;
+    if constexpr (std::is_same_v<T, uint32_t>) {
+      nums = 2 * N;
+      bits = 32;
+    } else {
+      nums = N;
+      bits = 64;
+    }
+
+    const T* limbs_ptr = reinterpret_cast<const T*>(limbs);
+    size_t limb_idx = bit_offset / bits;
+    size_t bit_idx = bit_offset % bits;
+
+    T ret;
+    if (bit_idx < bits - bit_count || limb_idx == nums - 1) {
+      ret = limbs_ptr[limb_idx] >> bit_idx;
+    } else {
+      ret = (limbs_ptr[limb_idx] >> bit_idx) |
+            (limbs_ptr[1 + limb_idx] << (bits - bit_idx));
+    }
+    T mask = (static_cast<T>(1) << bit_count) - static_cast<T>(1);
+    return ret & mask;
+  }
+
   template <typename T>
   constexpr static BigInt FromMontgomery(const BigInt<N>& value,
                                          const BigInt<N>& modulus, T inverse) {

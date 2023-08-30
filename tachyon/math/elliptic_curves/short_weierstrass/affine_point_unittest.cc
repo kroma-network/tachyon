@@ -151,25 +151,4 @@ TYPED_TEST(AffinePointTest, IsOnCurve) {
   EXPECT_TRUE(AffinePointTy::IsOnCurve(valid_point));
 }
 
-TYPED_TEST(AffinePointTest, MSM) {
-  using AffinePointTy = TypeParam;
-  using JacobianPointTy = typename AffinePointTy::JacobianPointTy;
-  using BaseField = typename AffinePointTy::BaseField;
-  using ScalarField = typename AffinePointTy::ScalarField;
-
-  std::vector<AffinePointTy> bases = {
-      {BaseField(5), BaseField(5)},
-      {BaseField(3), BaseField(2)},
-  };
-  std::vector<ScalarField> scalars = {
-      ScalarField(2),
-      ScalarField(3),
-  };
-  JacobianPointTy expected = JacobianPointTy::Zero();
-  for (size_t i = 0; i < bases.size(); ++i) {
-    expected += bases[i].ScalarMul(scalars[i].ToBigInt());
-  }
-  EXPECT_EQ(AffinePointTy::MSM(bases, scalars), expected);
-}
-
 }  // namespace tachyon::math

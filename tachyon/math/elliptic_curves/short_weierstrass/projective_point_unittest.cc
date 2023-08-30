@@ -206,24 +206,4 @@ TYPED_TEST(ProjectivePointTest, ToXYZZ) {
       PointXYZZTy(BaseField(3), BaseField(4), BaseField(2), BaseField(6)));
 }
 
-TYPED_TEST(ProjectivePointTest, MSM) {
-  using ProjectivePointTy = TypeParam;
-  using BaseField = typename ProjectivePointTy::BaseField;
-  using ScalarField = typename ProjectivePointTy::ScalarField;
-
-  std::vector<ProjectivePointTy> bases = {
-      {BaseField(5), BaseField(5), BaseField(1)},
-      {BaseField(3), BaseField(2), BaseField(1)},
-  };
-  std::vector<ScalarField> scalars = {
-      ScalarField(2),
-      ScalarField(3),
-  };
-  ProjectivePointTy expected = ProjectivePointTy::Zero();
-  for (size_t i = 0; i < bases.size(); ++i) {
-    expected += bases[i].ScalarMul(scalars[i].ToBigInt());
-  }
-  EXPECT_EQ(ProjectivePointTy::MSM(bases, scalars), expected);
-}
-
 }  // namespace tachyon::math

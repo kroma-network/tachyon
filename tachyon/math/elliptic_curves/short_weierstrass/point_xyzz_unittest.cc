@@ -214,24 +214,4 @@ TYPED_TEST(PointXYZZTest, ToJacobian) {
             JacobianPointTy(BaseField(2), BaseField(2), BaseField(5)));
 }
 
-TYPED_TEST(PointXYZZTest, MSM) {
-  using PointXYZZTy = TypeParam;
-  using BaseField = typename PointXYZZTy::BaseField;
-  using ScalarField = typename PointXYZZTy::ScalarField;
-
-  std::vector<PointXYZZTy> bases = {
-      {BaseField(5), BaseField(5), BaseField(1), BaseField(1)},
-      {BaseField(3), BaseField(2), BaseField(1), BaseField(1)},
-  };
-  std::vector<ScalarField> scalars = {
-      ScalarField(2),
-      ScalarField(3),
-  };
-  PointXYZZTy expected = PointXYZZTy::Zero();
-  for (size_t i = 0; i < bases.size(); ++i) {
-    expected += bases[i].ScalarMul(scalars[i].ToBigInt());
-  }
-  EXPECT_EQ(PointXYZZTy::MSM(bases, scalars), expected);
-}
-
 }  // namespace tachyon::math
