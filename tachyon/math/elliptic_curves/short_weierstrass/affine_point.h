@@ -85,30 +85,6 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     return Curve::IsOnCurve(p);
   }
 
-  template <
-      typename BaseInputIterator, typename ScalarInputIterator,
-      std::enable_if_t<
-          std::is_same_v<AffinePoint, base::iter_value_t<BaseInputIterator>> &&
-          std::is_same_v<ScalarField,
-                         base::iter_value_t<ScalarInputIterator>>>* = nullptr>
-  static JacobianPoint<Curve> MSM(BaseInputIterator bases_first,
-                                  BaseInputIterator bases_last,
-                                  ScalarInputIterator scalars_first,
-                                  ScalarInputIterator scalars_last) {
-    return Curve::template MSM<AffinePoint>(
-        std::move(bases_first), std::move(bases_last), std::move(scalars_first),
-        std::move(scalars_last));
-  }
-
-  template <typename BaseContainer, typename ScalarContainer>
-  static JacobianPoint<Curve> MSM(BaseContainer&& bases,
-                                  ScalarContainer&& scalars) {
-    return MSM(std::begin(std::forward<BaseContainer>(bases)),
-               std::end(std::forward<BaseContainer>(bases)),
-               std::begin(std::forward<ScalarContainer>(scalars)),
-               std::end(std::forward<ScalarContainer>(scalars)));
-  }
-
   constexpr static AffinePoint Endomorphism(const AffinePoint& point) {
     return AffinePoint(point.x_ * GLV<AffinePoint>::EndomorphismCoefficient(),
                        point.y_);
