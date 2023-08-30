@@ -43,7 +43,7 @@ tachyon_cuda_library(
     ],
     deps = [
         "//tachyon/base:bits",
-        "//tachyon/device/gpu:scoped_async_memory",
+        "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_event",
         "//tachyon/device/gpu:scoped_stream",
         "//tachyon/math/elliptic_curves/msm/kernels",
@@ -72,8 +72,8 @@ tachyon_cuda_test(
     deps = [
         ":variable_base_msm",
         ":variable_base_msm_cuda",
+        "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",
-        "//tachyon/device/gpu:scoped_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],

@@ -6,10 +6,7 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cuda_library(
     name = "cub_helper",
     hdrs = ["cub_helper.h"],
-    deps = [
-        "//tachyon/device/gpu:scoped_async_memory",
-        "//tachyon/device/gpu:scoped_memory",
-    ],
+    deps = ["//tachyon/device/gpu:gpu_memory"],
 )
 
 tachyon_cuda_library(
@@ -30,12 +27,6 @@ tachyon_cuda_library(
     name = "cuda_memory",
     hdrs = ["cuda_memory.h"],
     deps = ["//tachyon/base:compiler_specific"],
-)
-
-tachyon_cuda_library(
-    name = "scoped_memory",
-    hdrs = ["scoped_memory.h"],
-    deps = ["//tachyon/device/gpu:scoped_memory"],
 )
 
 tachyon_cuda_test(

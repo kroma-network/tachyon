@@ -66,7 +66,7 @@ tachyon_cuda_test(
         "non_affine_point_correctness_cuda_test.cu.cc",
     ]),
     deps = [
-        "//tachyon/device/gpu/cuda:scoped_memory",
+        "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
         "//tachyon/math/elliptic_curves/short_weierstrass/kernels:elliptic_curve_ops",
         "//tachyon/math/test:launch_op_macros",

@@ -12,7 +12,7 @@
 #include "tachyon/device/gpu/cuda/cub_helper.h"
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/device/gpu/gpu_enums.h"
-#include "tachyon/device/gpu/scoped_async_memory.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_event.h"
 #include "tachyon/device/gpu/scoped_stream.h"
 #include "tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_kernels.cu.h"
@@ -145,14 +145,13 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
                                                  windows_count_pass_one - 1 +
                                                  (1 << top_window_unused_bits);
   bool copy_scalars =
-      config.scalars_attributes.type == cudaMemoryTypeUnregistered ||
-      config.scalars_attributes.type == cudaMemoryTypeHost;
-  bool copy_bases =
-      config.bases_attributes.type == cudaMemoryTypeUnregistered ||
-      config.bases_attributes.type == cudaMemoryTypeHost;
+      config.scalars_attributes.type == gpuMemoryTypeUnregistered ||
+      config.scalars_attributes.type == gpuMemoryTypeHost;
+  bool copy_bases = config.bases_attributes.type == gpuMemoryTypeUnregistered ||
+                    config.bases_attributes.type == gpuMemoryTypeHost;
   bool copy_results =
-      config.results_attributes.type == cudaMemoryTypeUnregistered ||
-      config.results_attributes.type == cudaMemoryTypeHost;
+      config.results_attributes.type == gpuMemoryTypeUnregistered ||
+      config.results_attributes.type == gpuMemoryTypeHost;
 
   ScopedStream stream_copy_scalars;
   ScopedStream stream_copy_bases;
@@ -198,25 +197,25 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
         "Failed to gpuStreamWaitEvent()");
   }
 
-  ScopedAsyncMemory<PointXYZZ<Curve>> buckets_pass_one =
-      MallocFromPoolAsync<PointXYZZ<Curve>>(buckets_count_pass_one, pool,
-                                            stream);
+  GpuMemory<PointXYZZ<Curve>> buckets_pass_one =
+      GpuMemory<PointXYZZ<Curve>>::MallocFromPoolAsync(buckets_count_pass_one,
+                                                       pool, stream);
 
-  ScopedAsyncMemory<ScalarField> inputs_scalars;
+  GpuMemory<ScalarField> inputs_scalars;
   ScopedEvent event_scalars_free;
   ScopedEvent event_scalars_loaded;
   if (copy_scalars) {
-    inputs_scalars = MallocFromPoolAsync<ScalarField>(
+    inputs_scalars = GpuMemory<ScalarField>::MallocFromPoolAsync(
         1 << config.log_max_inputs_count, pool, stream);
     event_scalars_free = CreateEventWithFlags(gpuEventDisableTiming);
     event_scalars_loaded = CreateEventWithFlags(gpuEventDisableTiming);
   }
 
-  ScopedAsyncMemory<AffinePoint<Curve>> inputs_bases;
+  GpuMemory<AffinePoint<Curve>> inputs_bases;
   ScopedEvent event_bases_free;
   ScopedEvent event_bases_loaded;
   if (copy_bases) {
-    inputs_bases = MallocFromPoolAsync<AffinePoint<Curve>>(
+    inputs_bases = GpuMemory<AffinePoint<Curve>>::MallocFromPoolAsync(
         1 << config.log_max_inputs_count, pool, stream);
     event_bases_free = CreateEventWithFlags(gpuEventDisableTiming);
     event_bases_loaded = CreateEventWithFlags(gpuEventDisableTiming);
@@ -232,8 +231,8 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
 
     if (!dry_run) {
       if (is_first_loop &&
-          (config.scalars_attributes.type == cudaMemoryTypeUnregistered ||
-           config.bases_attributes.type == cudaMemoryTypeUnregistered)) {
+          (config.scalars_attributes.type == gpuMemoryTypeUnregistered ||
+           config.bases_attributes.type == gpuMemoryTypeUnregistered)) {
         error = kernels::InitializeBuckets(buckets_pass_one.get(),
                                            buckets_count_pass_one, stream);
         if (UNLIKELY(error != gpuSuccess)) return error;
@@ -244,11 +243,9 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
                                event_scalars_free.get()),
             "Failed to gpuStreamWaitEvent()");
         const size_t inputs_size = sizeof(ScalarField) << log_inputs_count;
-        RETURN_AND_LOG_IF_GPU_ERROR(
-            cudaMemcpyAsync(inputs_scalars.get(), &ec.scalars[inputs_offset],
-                            inputs_size, gpuMemcpyHostToDevice,
-                            stream_copy_scalars.get()),
-            "Failed to cudaMemcpyAsync()");
+        CHECK(inputs_scalars.CopyFromAsync(
+            &ec.scalars[inputs_offset], GpuMemoryType::kHost,
+            stream_copy_scalars.get(), 0, inputs_size));
         RETURN_AND_LOG_IF_GPU_ERROR(gpuEventRecord(event_scalars_loaded.get(),
                                                    stream_copy_scalars.get()),
                                     "Failed to gpuEventRecord()");
@@ -264,11 +261,9 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             gpuStreamWaitEvent(stream_copy_bases.get(), event_bases_free.get()),
             "Failed to gpuStreamWaitEvent()");
         size_t bases_size = sizeof(AffinePoint<Curve>) << log_inputs_count;
-        RETURN_AND_LOG_IF_GPU_ERROR(
-            cudaMemcpyAsync(inputs_bases.get(), &ec.bases[inputs_offset],
-                            bases_size, gpuMemcpyHostToDevice,
-                            stream_copy_bases.get()),
-            "Failed to cudaMemcpyAsync()");
+        CHECK(inputs_bases.CopyFromAsync(
+            &ec.bases[inputs_offset], GpuMemoryType::kHost,
+            stream_copy_bases.get(), 0, bases_size));
         RETURN_AND_LOG_IF_GPU_ERROR(
             gpuEventRecord(event_bases_loaded.get(), stream_copy_bases.get()),
             "Failed to gpuEventRecord()");
@@ -300,8 +295,8 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
         }
       }
       if (is_first_loop &&
-          config.scalars_attributes.type != cudaMemoryTypeUnregistered &&
-          config.bases_attributes.type != cudaMemoryTypeUnregistered) {
+          config.scalars_attributes.type != gpuMemoryTypeUnregistered &&
+          config.bases_attributes.type != gpuMemoryTypeUnregistered) {
         error = kernels::InitializeBuckets(buckets_pass_one.get(),
                                            buckets_count_pass_one, stream);
         if (UNLIKELY(error != gpuSuccess)) return error;
@@ -309,12 +304,12 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     }
 
     // compute bucket indexes
-    ScopedAsyncMemory<unsigned int> bucket_indexes =
-        MallocFromPoolAsync<unsigned int>(input_indexes_count + inputs_count,
-                                          pool, stream);
-    ScopedAsyncMemory<unsigned int> base_indexes =
-        MallocFromPoolAsync<unsigned int>(input_indexes_count + inputs_count,
-                                          pool, stream);
+    GpuMemory<unsigned int> bucket_indexes =
+        GpuMemory<unsigned int>::MallocFromPoolAsync(
+            input_indexes_count + inputs_count, pool, stream);
+    GpuMemory<unsigned int> base_indexes =
+        GpuMemory<unsigned int>::MallocFromPoolAsync(
+            input_indexes_count + inputs_count, pool, stream);
     if (!dry_run) {
       if (copy_scalars) {
         RETURN_AND_LOG_IF_GPU_ERROR(
@@ -324,8 +319,8 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       error = kernels::ComputeBucketIndexes(
           copy_scalars ? inputs_scalars.get() : &ec.scalars[inputs_offset],
           windows_count_pass_one, bits_count_pass_one,
-          &(bucket_indexes.get())[inputs_count],
-          &(base_indexes.get())[inputs_count], inputs_count, stream);
+          &bucket_indexes[inputs_count], &base_indexes[inputs_count],
+          inputs_count, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
       if (copy_scalars) {
         RETURN_AND_LOG_IF_GPU_ERROR(
@@ -340,17 +335,17 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
 
     // sort base indexes by bucket indexes
     {
-      ScopedAsyncMemory<uint8_t> input_indexes_sort_temp_storage;
+      GpuMemory<uint8_t> input_indexes_sort_temp_storage;
       size_t input_indexes_sort_temp_storage_bytes = 0;
       RETURN_AND_LOG_IF_GPU_ERROR(
           cub::DeviceRadixSort::SortPairs(
               input_indexes_sort_temp_storage.get(),
               input_indexes_sort_temp_storage_bytes,
-              &(bucket_indexes.get())[inputs_count], bucket_indexes.get(),
-              &(base_indexes.get())[inputs_count], base_indexes.get(),
-              inputs_count, 0, bits_count_pass_one),
+              &bucket_indexes[inputs_count], bucket_indexes.get(),
+              &base_indexes[inputs_count], base_indexes.get(), inputs_count, 0,
+              bits_count_pass_one),
           "Failed to cub::DeviceRadixSort::SortPairs()");
-      input_indexes_sort_temp_storage = MallocFromPoolAsync<uint8_t>(
+      input_indexes_sort_temp_storage = GpuMemory<uint8_t>::MallocFromPoolAsync(
           input_indexes_sort_temp_storage_bytes, pool, stream);
       if (!dry_run) {
         for (unsigned int i = 0; i < windows_count_pass_one; ++i) {
@@ -360,25 +355,23 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
               cub::DeviceRadixSort::SortPairs(
                   input_indexes_sort_temp_storage.get(),
                   input_indexes_sort_temp_storage_bytes,
-                  &(bucket_indexes.get())[offset_in],
-                  &(bucket_indexes.get())[offset_out],
-                  &(base_indexes.get())[offset_in],
-                  &(base_indexes.get())[offset_out], inputs_count, 0,
-                  bits_count_pass_one, stream),
+                  &bucket_indexes[offset_in], &bucket_indexes[offset_out],
+                  &base_indexes[offset_in], &base_indexes[offset_out],
+                  inputs_count, 0, bits_count_pass_one, stream),
               "Failed to cub::DeviceRadixSort::SortPairs()");
         }
       }
     }
 
     // run length encode bucket runs
-    ScopedAsyncMemory<unsigned int> unique_bucket_indexes =
-        MallocFromPoolAsync<unsigned int>(extended_buckets_count_pass_one, pool,
-                                          stream);
-    ScopedAsyncMemory<unsigned int> bucket_run_lengths =
-        MallocFromPoolAsync<unsigned int>(extended_buckets_count_pass_one, pool,
-                                          stream);
-    ScopedAsyncMemory<unsigned int> bucket_runs_count =
-        MallocFromPoolAsync<unsigned int>(1, pool, stream);
+    GpuMemory<unsigned int> unique_bucket_indexes =
+        GpuMemory<unsigned int>::MallocFromPoolAsync(
+            extended_buckets_count_pass_one, pool, stream);
+    GpuMemory<unsigned int> bucket_run_lengths =
+        GpuMemory<unsigned int>::MallocFromPoolAsync(
+            extended_buckets_count_pass_one, pool, stream);
+    GpuMemory<unsigned int> bucket_runs_count =
+        GpuMemory<unsigned int>::MallocFromPoolAsync(1, pool, stream);
     if (dry_run) {
       error = CUB_TRY_ALLOCATE_WITH_POOL(
           pool, stream, cub::DeviceRunLengthEncode::Encode,
@@ -396,9 +389,9 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     bucket_indexes.reset();
 
     // compute bucket run offsets
-    ScopedAsyncMemory<unsigned int> bucket_run_offsets =
-        MallocFromPoolAsync<unsigned int>(extended_buckets_count_pass_one, pool,
-                                          stream);
+    GpuMemory<unsigned int> bucket_run_offsets =
+        GpuMemory<unsigned int>::MallocFromPoolAsync(
+            extended_buckets_count_pass_one, pool, stream);
     if (dry_run) {
       error = CUB_TRY_ALLOCATE_WITH_POOL(
           pool, stream, cub::DeviceScan::ExclusiveSum, bucket_run_lengths.get(),
@@ -420,15 +413,15 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
 
     // sort run offsets by run lengths
     // sort run indexes by run lengths
-    ScopedAsyncMemory<unsigned int> sorted_bucket_run_lengths =
-        MallocFromPoolAsync<unsigned int>(extended_buckets_count_pass_one, pool,
-                                          stream);
-    ScopedAsyncMemory<unsigned int> sorted_bucket_run_offsets =
-        MallocFromPoolAsync<unsigned int>(extended_buckets_count_pass_one, pool,
-                                          stream);
-    ScopedAsyncMemory<unsigned int> sorted_unique_bucket_indexes =
-        MallocFromPoolAsync<unsigned int>(extended_buckets_count_pass_one, pool,
-                                          stream);
+    GpuMemory<unsigned int> sorted_bucket_run_lengths =
+        GpuMemory<unsigned int>::MallocFromPoolAsync(
+            extended_buckets_count_pass_one, pool, stream);
+    GpuMemory<unsigned int> sorted_bucket_run_offsets =
+        GpuMemory<unsigned int>::MallocFromPoolAsync(
+            extended_buckets_count_pass_one, pool, stream);
+    GpuMemory<unsigned int> sorted_unique_bucket_indexes =
+        GpuMemory<unsigned int>::MallocFromPoolAsync(
+            extended_buckets_count_pass_one, pool, stream);
 
     if (dry_run) {
       error = CUB_TRY_ALLOCATE_WITH_POOL(
@@ -521,9 +514,9 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       log_inputs_count++;
   }
 
-  ScopedAsyncMemory<PointXYZZ<Curve>> top_buckets =
-      MallocFromPoolAsync<PointXYZZ<Curve>>(windows_count_pass_one, pool,
-                                            stream);
+  GpuMemory<PointXYZZ<Curve>> top_buckets =
+      GpuMemory<PointXYZZ<Curve>>::MallocFromPoolAsync(windows_count_pass_one,
+                                                       pool, stream);
 
   if (!dry_run) {
     if (copy_scalars) {
@@ -553,12 +546,12 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
           top_window_offset + top_window_used_buckets_count;
       for (unsigned int i = 0; i < top_window_unused_bits; ++i) {
         error = kernels::ReduceBuckets(
-            &(buckets_pass_one.get())[top_window_offset],
+            &buckets_pass_one[top_window_offset],
             1 << (signed_bits_count_pass_one - i - 1), stream);
         if (UNLIKELY(error != gpuSuccess)) return error;
       }
       error = kernels::InitializeBuckets(
-          &(buckets_pass_one.get())[top_window_unused_buckets_offset],
+          &buckets_pass_one[top_window_unused_buckets_offset],
           top_window_unused_buckets_count, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
     }
@@ -570,9 +563,8 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
 
   unsigned int source_bits_count = signed_bits_count_pass_one;
   unsigned int source_windows_count = windows_count_pass_one;
-  ScopedAsyncMemory<PointXYZZ<Curve>> source_buckets =
-      std::move(buckets_pass_one);
-  ScopedAsyncMemory<PointXYZZ<Curve>> target_buckets;
+  GpuMemory<PointXYZZ<Curve>> source_buckets = std::move(buckets_pass_one);
+  GpuMemory<PointXYZZ<Curve>> target_buckets;
   for (unsigned int i = 0;; ++i) {
     unsigned int target_bits_count = (source_bits_count + 1) >> 1;
     unsigned int target_windows_count = source_windows_count << 1;
@@ -582,8 +574,8 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
         config.device_props.multiProcessorCount, source_bits_count,
         target_bits_count, target_windows_count);
     unsigned int total_buckets_count = target_buckets_count << log_data_split;
-    target_buckets = MallocFromPoolAsync<PointXYZZ<Curve>>(total_buckets_count,
-                                                           pool, stream);
+    target_buckets = GpuMemory<PointXYZZ<Curve>>::MallocFromPoolAsync(
+        total_buckets_count, pool, stream);
     if (!dry_run) {
       error = kernels::SplitWindows(source_bits_count, source_windows_count,
                                     source_buckets.get(), target_buckets.get(),
@@ -600,10 +592,10 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       }
     }
     if (target_bits_count == 1) {
-      ScopedAsyncMemory<JacobianPoint<Curve>> results;
+      GpuMemory<JacobianPoint<Curve>> results;
       unsigned int result_windows_count = ScalarField::Config::kModulusBits;
       if (copy_results) {
-        results = MallocFromPoolAsync<JacobianPoint<Curve>>(
+        results = GpuMemory<JacobianPoint<Curve>>::MallocFromPoolAsync(
             result_windows_count, pool, stream);
       }
       if (!dry_run) {
@@ -667,8 +659,8 @@ gpuError_t ExecuteAsync(const ExecutionConfig<Curve>& config) {
   RETURN_AND_LOG_IF_GPU_ERROR(
       cudaPointerGetAttributes(&results_attributes, config.results),
       "Failed to cudaPointerGetAttributes()");
-  bool copy_scalars = scalars_attributes.type == cudaMemoryTypeUnregistered ||
-                      scalars_attributes.type == cudaMemoryTypeHost;
+  bool copy_scalars = scalars_attributes.type == gpuMemoryTypeUnregistered ||
+                      scalars_attributes.type == gpuMemoryTypeHost;
   unsigned int log_min_inputs_count =
       config.force_min_chunk_size ? config.log_min_chunk_size
       : copy_scalars              ? GetLogMinInputsCount(log_scalars_count)

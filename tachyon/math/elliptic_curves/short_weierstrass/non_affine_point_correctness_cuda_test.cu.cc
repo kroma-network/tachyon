@@ -1,7 +1,7 @@
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/device/gpu/cuda/scoped_memory.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 #include "tachyon/math/test/launch_op_macros.cu.h"
@@ -62,10 +62,10 @@ class PointCorrectnessCudaTest : public testing::Test {
 
   static void SetUpTestSuite() {
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
-    xs_ = gpu::MallocManaged<Actual>(N);
-    ys_ = gpu::MallocManaged<Actual>(N);
-    results_ = gpu::MallocManaged<Actual>(N);
-    bool_results_ = gpu::MallocManaged<bool>(N);
+    xs_ = gpu::GpuMemory<Actual>::MallocManaged(N);
+    ys_ = gpu::GpuMemory<Actual>::MallocManaged(N);
+    results_ = gpu::GpuMemory<Actual>::MallocManaged(N);
+    bool_results_ = gpu::GpuMemory<bool>::MallocManaged(N);
 
     Expected::Curve::Init();
     Actual::Curve::Init();
@@ -77,8 +77,8 @@ class PointCorrectnessCudaTest : public testing::Test {
       Expected x_gmp = Expected::Random();
       Expected y_gmp = Expected::Random();
 
-      (xs_.get())[i] = Actual::FromMontgomery(x_gmp.ToMontgomery());
-      (ys_.get())[i] = Actual::FromMontgomery(y_gmp.ToMontgomery());
+      xs_[i] = Actual::FromMontgomery(x_gmp.ToMontgomery());
+      ys_[i] = Actual::FromMontgomery(y_gmp.ToMontgomery());
 
       x_gmps_.push_back(std::move(x_gmp));
       y_gmps_.push_back(std::move(y_gmp));
@@ -98,35 +98,34 @@ class PointCorrectnessCudaTest : public testing::Test {
   }
 
   void SetUp() override {
-    GPU_MUST_SUCCESS(gpuMemset(results_.get(), 0, N * sizeof(Actual)), "");
-    GPU_MUST_SUCCESS(gpuMemset(bool_results_.get(), 0, N * sizeof(bool)), "");
+    CHECK(results_.Memset());
+    CHECK(bool_results_.Memset());
   }
 
  protected:
-  static gpu::ScopedUnifiedMemory<Actual> xs_;
-  static gpu::ScopedUnifiedMemory<Actual> ys_;
-  static gpu::ScopedUnifiedMemory<Actual> results_;
-  static gpu::ScopedUnifiedMemory<bool> bool_results_;
+  static gpu::GpuMemory<Actual> xs_;
+  static gpu::GpuMemory<Actual> ys_;
+  static gpu::GpuMemory<Actual> results_;
+  static gpu::GpuMemory<bool> bool_results_;
 
   static std::vector<Expected> x_gmps_;
   static std::vector<Expected> y_gmps_;
 };
 
 template <typename PointType>
-gpu::ScopedUnifiedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
+gpu::GpuMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
     PointCorrectnessCudaTest<PointType>::xs_;
 
 template <typename PointType>
-gpu::ScopedUnifiedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
+gpu::GpuMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
     PointCorrectnessCudaTest<PointType>::ys_;
 
 template <typename PointType>
-gpu::ScopedUnifiedMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
+gpu::GpuMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
     PointCorrectnessCudaTest<PointType>::results_;
 
 template <typename PointType>
-gpu::ScopedUnifiedMemory<bool>
-    PointCorrectnessCudaTest<PointType>::bool_results_;
+gpu::GpuMemory<bool> PointCorrectnessCudaTest<PointType>::bool_results_;
 
 template <typename PointType>
 std::vector<typename PointCorrectnessCudaTest<PointType>::Expected>
@@ -164,11 +163,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Add) {
   GPU_MUST_SUCCESS(
       LaunchAdd(this->xs_.get(), this->ys_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
-                                  (this->xs_.get())[i].ToString(),
-                                  (this->ys_.get())[i].ToString()));
-    auto result =
-        Expected::FromMontgomery((this->results_.get())[i].ToMontgomery());
+    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
+                                  this->ys_[i].ToString()));
+    auto result = Expected::FromMontgomery(this->results_[i].ToMontgomery());
     ASSERT_EQ(result, this->x_gmps_[i] + this->y_gmps_[i]);
   }
 }
@@ -179,9 +176,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Double) {
 
   GPU_MUST_SUCCESS(LaunchDouble(this->xs_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0", (this->xs_.get())[i].ToString()));
-    auto result =
-        Expected::FromMontgomery((this->results_.get())[i].ToMontgomery());
+    SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
+    auto result = Expected::FromMontgomery(this->results_[i].ToMontgomery());
     ASSERT_EQ(result, this->x_gmps_[i].Double());
   }
 }
@@ -193,9 +189,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Negative) {
   GPU_MUST_SUCCESS(LaunchNegative(this->xs_.get(), this->results_.get(), N),
                    "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0", (this->xs_.get())[i].ToString()));
-    auto result =
-        Expected::FromMontgomery((this->results_.get())[i].ToMontgomery());
+    SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
+    auto result = Expected::FromMontgomery(this->results_[i].ToMontgomery());
     ASSERT_EQ(result, this->x_gmps_[i].Negative());
   }
 }
@@ -207,10 +202,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Eq) {
       LaunchEq(this->xs_.get(), this->xs_.get(), this->bool_results_.get(), N),
       "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
-                                  (this->xs_.get())[i].ToString(),
-                                  (this->xs_.get())[i].ToString()));
-    ASSERT_TRUE((this->bool_results_.get())[i]);
+    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
+                                  this->xs_[i].ToString()));
+    ASSERT_TRUE(this->bool_results_[i]);
   }
 }
 
@@ -221,10 +215,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Ne) {
       LaunchNe(this->xs_.get(), this->ys_.get(), this->bool_results_.get(), N),
       "");
   for (size_t i = 0; i < N; ++i) {
-    SCOPED_TRACE(absl::Substitute("a: $0, b: $1",
-                                  (this->xs_.get())[i].ToString(),
-                                  (this->ys_.get())[i].ToString()));
-    ASSERT_TRUE((this->bool_results_.get())[i]);
+    SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
+                                  this->ys_[i].ToString()));
+    ASSERT_TRUE(this->bool_results_[i]);
   }
 }
 

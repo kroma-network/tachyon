@@ -7,8 +7,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
-#include "tachyon/device/gpu/cuda/scoped_memory.h"
-#include "tachyon/device/gpu/gpu_logging.h"
+#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_cuda.cu.h"
@@ -24,9 +23,9 @@ namespace {
 
 gpu::ScopedMemPool g_mem_pool;
 gpu::ScopedStream g_stream;
-gpu::ScopedDeviceMemory<bn254::G1AffinePointCuda> g_d_bases;
-gpu::ScopedDeviceMemory<bn254::FrCuda> g_d_scalars;
-gpu::ScopedDeviceMemory<bn254::G1JacobianPointCuda> g_d_results;
+gpu::GpuMemory<bn254::G1AffinePointCuda> g_d_bases;
+gpu::GpuMemory<bn254::FrCuda> g_d_scalars;
+gpu::GpuMemory<bn254::G1JacobianPointCuda> g_d_results;
 std::unique_ptr<bn254::G1JacobianPoint[]> g_u_results;
 std::unique_ptr<MSMInputProvider> g_provider;
 
@@ -54,10 +53,10 @@ void DoInitMSMGpu(uint8_t degree) {
       "Failed to gpuMemPoolSetAttribute()");
 
   uint64_t size = static_cast<uint64_t>(1) << degree;
-  g_d_bases = gpu::Malloc<bn254::G1AffinePointCuda>(size);
-  g_d_scalars = gpu::Malloc<bn254::FrCuda>(size);
+  g_d_bases = gpu::GpuMemory<bn254::G1AffinePointCuda>::Malloc(size);
+  g_d_scalars = gpu::GpuMemory<bn254::FrCuda>::Malloc(size);
   size_t bit_size = bn254::FrCuda::kModulusBits;
-  g_d_results = gpu::Malloc<bn254::G1JacobianPointCuda>(bit_size);
+  g_d_results = gpu::GpuMemory<bn254::G1JacobianPointCuda>::Malloc(bit_size);
   g_u_results.reset(new bn254::G1JacobianPoint[bit_size]);
 
   g_stream = gpu::CreateStream();
@@ -85,11 +84,8 @@ void DoReleaseMSMGpu() {
 bn254::G1JacobianPoint DoMSMGpuInternal(
     absl::Span<const bn254::G1AffinePoint> bases,
     absl::Span<const bn254::Fr> scalars) {
-  gpuMemcpy(g_d_bases.get(), bases.data(),
-            sizeof(bn254::G1AffinePointCuda) * bases.size(),
-            gpuMemcpyHostToDevice);
-  gpuMemcpy(g_d_scalars.get(), scalars.data(),
-            sizeof(bn254::FrCuda) * scalars.size(), gpuMemcpyHostToDevice);
+  CHECK(g_d_bases.CopyFrom(bases.data(), gpu::GpuMemoryType::kHost));
+  CHECK(g_d_scalars.CopyFrom(scalars.data(), gpu::GpuMemoryType::kHost));
 
   msm::ExecutionConfig<bn254::G1AffinePointCuda::Curve> config;
   config.mem_pool = g_mem_pool.get();

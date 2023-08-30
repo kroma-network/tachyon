@@ -4,6 +4,7 @@ load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
     "tachyon_cuda_defines",
+    "tachyon_cuda_test",
 )
 
 package(default_visibility = ["//visibility:public"])
@@ -98,6 +99,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "gpu_memory",
+    srcs = if_gpu_is_configured(["gpu_memory.cc"]),
+    hdrs = ["gpu_memory.h"],
+    deps = [
+        ":gpu_logging",
+        "//tachyon:export",
+        "//tachyon/base/numerics:checked_math",
+    ],
+)
+
+tachyon_cc_library(
     name = "gpu_types",
     hdrs = ["gpu_types.h"],
     defines = tachyon_cuda_defines(),
@@ -109,15 +121,6 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "platform_device_id",
     hdrs = ["platform_device_id.h"],
-)
-
-tachyon_cc_library(
-    name = "scoped_async_memory",
-    hdrs = ["scoped_async_memory.h"],
-    deps = [
-        ":gpu_logging",
-        "//tachyon:export",
-    ],
 )
 
 tachyon_cc_library(
@@ -141,21 +144,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "scoped_memory",
-    srcs = if_gpu_is_configured(["scoped_memory.cc"]),
-    hdrs = ["scoped_memory.h"],
-    deps = [
-        ":gpu_logging",
-        "//tachyon:export",
-    ],
-)
-
-tachyon_cc_library(
     name = "scoped_stream",
     srcs = if_gpu_is_configured(["scoped_stream.cc"]),
     hdrs = ["scoped_stream.h"],
     deps = [
         ":gpu_logging",
         "//tachyon:export",
+    ],
+)
+
+tachyon_cuda_test(
+    name = "gpu_unittests",
+    srcs = if_gpu_is_configured(["gpu_memory_unittest.cc"]),
+    deps = [
+        ":gpu_memory",
+        ":scoped_mem_pool",
+        "//tachyon/base:random",
+        "//tachyon/base/containers:container_util",
     ],
 )
