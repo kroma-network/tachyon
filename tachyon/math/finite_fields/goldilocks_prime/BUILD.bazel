@@ -1,4 +1,3 @@
-load("@polygon_zkevm_goldilocks//:build_defs.bzl", "goldilocks_copts")
 load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
@@ -12,7 +11,6 @@ GOLDILOCKS_MODULUS = "18446744069414584321"
 generate_prime_fields(
     name = "goldilocks",
     class_name = "Goldilocks",
-    copts = goldilocks_copts(),
     hdr_include_override = """#include "tachyon/export.h"
 #if defined(TACHYON_GMP_BACKEND)
 #include "tachyon/math/finite_fields/prime_field_gmp.h"
@@ -58,6 +56,5 @@ tachyon_cc_library(
 tachyon_cc_test(
     name = "goldilocks_prime_unittests",
     srcs = if_polygon_zkevm_backend(["prime_field_goldilocks_unittest.cc"]),
-    copts = goldilocks_copts(),
     deps = [":goldilocks"],
 )

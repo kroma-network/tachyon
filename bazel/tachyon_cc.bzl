@@ -5,6 +5,7 @@ load(
     "if_has_exception",
     "if_has_matplotlib",
     "if_has_rtti",
+    "if_linux_x86_64",
     "if_static",
 )
 
@@ -25,6 +26,9 @@ def tachyon_exceptions(force_exceptions):
 
 def tachyon_rtti(force_rtti):
     return if_has_rtti(["-frtti"], (["-frtti"] if force_rtti else ["-fno-rtti"]))
+
+def tachyon_simd_copts():
+    return if_linux_x86_64(["-msse3"])
 
 def tachyon_copts(safe_code = True):
     return tachyon_warnings(safe_code) + tachyon_hide_symbols()

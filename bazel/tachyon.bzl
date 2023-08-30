@@ -38,6 +38,12 @@ def if_linux(a, b = []):
         "//conditions:default": b,
     })
 
+def if_linux_x86_64(a, b = []):
+    return select({
+        "@kroma_network_tachyon//linux_x86_64": a,
+        "//conditions:default": b,
+    })
+
 def if_macos(a, b = []):
     return select({
         "@platforms//os:macos": a,

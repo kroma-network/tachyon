@@ -68,18 +68,20 @@ Please follow the instructions [here](https://bazel.build/install).
 
 ### GMP backend prime field
 
-- `--config gmp_backend`: Enable [gmp](https://gmplib.org/) prime field backend.
+- `--//:gmp_backend`: Enable [gmp](https://gmplib.org/) prime field backend.
 
   ```shell
-  > bazel build --config ${os} --config gmp_backend //...
+  > bazel build --//:${os} --//:gmp_backend //...
   ```
 
 ### Polygon zkEVM backend prime field
 
-- `--config polygon_zkevm_backend`: Enable [goldilocks](https://github.com/0xPolygonHermez/goldilocks) and [zkevm-prover](https://github.com/0xPolygonHermez/zkevm-prover) prime field backend.
+_NOTE:_: Only x86_64 is supported.
+
+- `--//:polygon_zkevm_backend`: Enable [goldilocks](https://github.com/0xPolygonHermez/goldilocks) and [zkevm-prover](https://github.com/0xPolygonHermez/zkevm-prover) prime field backend.
 
   ```shell
-  > bazel build --config ${os} --config polygon_zkevm_backend //...
+  > bazel build --config ${os} --config avx512_${os} --//:polygon_zkevm_backend //...
   ```
 
 ### Hardware acceleration

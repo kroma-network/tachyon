@@ -6,10 +6,6 @@
 # Other build options:
 #     dbg:       Build with debug info
 #
-# Prime field implementation options:
-#     gmp_backend:        Support a prime field with gmp backend.
-#     polygon_zkevm_backend: Support a prime field with polygon zkevm prover backend.
-#
 # Hardware support options:
 #     cuda: Build with NVIDIA GPU support (cuda).
 #     rocm: Build with AMD GPU support (rocm).
@@ -67,6 +63,17 @@ build:macos --host_cxxopt=-std=c++17
 build:macos --objccopt=-std=c++17
 build:windows --cxxopt=/std:c++17
 build:windows --host_cxxopt=/std:c++17
+
+# Instruction set optimizations
+# TODO(chokobole): Create a feature in toolchains for avx/avx2 to
+# avoid having to define linux/win separately.
+build:avx_linux --copt=-mavx
+build:avx2_linux --copt=-mavx2
+build:avx512_linux --copt=-mavx512f
+build:native_arch_linux --copt=-march=native
+build:avx_windows --copt=/arch=AVX
+build:avx2_windows --copt=/arch=AVX2
+build:avx512_windows --copt=/arch=AVX512
 
 # Enable googletest build with absl.
 # See https://github.com/google/googletest/blob/v1.13.0/BUILD.bazel#L67C1-L70
