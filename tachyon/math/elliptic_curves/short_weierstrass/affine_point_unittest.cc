@@ -36,6 +36,13 @@ TYPED_TEST(AffinePointTest, Zero) {
   EXPECT_FALSE(AffinePointTy(BaseField(1), BaseField(2)).IsZero());
 }
 
+TYPED_TEST(AffinePointTest, Generator) {
+  using AffinePointTy = TypeParam;
+
+  EXPECT_EQ(AffinePointTy::Generator(),
+            AffinePointTy::Curve::Generator().ToAffine());
+}
+
 TYPED_TEST(AffinePointTest, Montgomery) {
   using AffinePointTy = TypeParam;
 

@@ -48,6 +48,20 @@ struct MSMTestSet {
     return test_set;
   }
 
+  static MSMTestSet Easy(size_t size, MSMMethod method) {
+    MSMTestSet test_set;
+    test_set.bases =
+        base::CreateVector(size, []() { return PointTy::Generator(); });
+    ScalarField s = ScalarField::One();
+    test_set.scalars = base::CreateVector(size, [&s]() {
+      ScalarField ret = s;
+      s += ScalarField::One();
+      return ret;
+    });
+    test_set.ComputeAnswer(method);
+    return test_set;
+  }
+
  private:
   void ComputeAnswer(MSMMethod method) {
     answer = ReturnTy::Zero();

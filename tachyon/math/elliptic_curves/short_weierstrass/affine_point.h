@@ -58,6 +58,10 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static AffinePoint Zero() { return AffinePoint(); }
 
+  constexpr static AffinePoint Generator() {
+    return Curve::Generator().ToAffine();
+  }
+
   constexpr static AffinePoint FromProjective(
       const ProjectivePoint<Curve>& point) {
     return point.ToAffine();
