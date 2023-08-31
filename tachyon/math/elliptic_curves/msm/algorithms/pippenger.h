@@ -173,18 +173,15 @@ class Pippenger {
     for (std::vector<int64_t>& scalar_digit : scalar_digits) {
       scalar_digit.resize(window_count_);
     }
+    for (size_t i = 0; i < scalars.size(); ++i) {
+      FillDigits(scalars[i], window_bits_, &scalar_digits[i]);
+    }
     if (parallel_windows_) {
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < scalars.size(); ++i) {
-        FillDigits(scalars[i], window_bits_, &scalar_digits[i]);
-      }
       OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count_; ++i) {
         AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
                                      &(*window_sums)[i]);
       }
     } else {
-      for (size_t i = 0; i < scalars.size(); ++i) {
-        FillDigits(scalars[i], window_bits_, &scalar_digits[i]);
-      }
       for (size_t i = 0; i < window_count_; ++i) {
         AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
                                      &(*window_sums)[i]);
