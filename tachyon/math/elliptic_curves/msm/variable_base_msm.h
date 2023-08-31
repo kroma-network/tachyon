@@ -1,7 +1,7 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_H_
 
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_adapter.h"
 
 namespace tachyon::math {
 template <typename PointTy>
@@ -15,9 +15,10 @@ class VariableBaseMSM {
   bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
            ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,
            ReturnTy* ret) {
-    return pippenger_.Run(std::move(bases_first), std::move(bases_last),
-                          std::move(scalars_first), std::move(scalars_last),
-                          ret);
+    PippengerAdapter<PointTy> pippenger;
+    return pippenger.Run(std::move(bases_first), std::move(bases_last),
+                         std::move(scalars_first), std::move(scalars_last),
+                         ret);
   }
 
   template <typename BaseContainer, typename ScalarContainer>
@@ -27,9 +28,6 @@ class VariableBaseMSM {
                std::begin(std::forward<ScalarContainer>(scalars)),
                std::end(std::forward<ScalarContainer>(scalars)), ret);
   }
-
- private:
-  Pippenger<PointTy> pippenger_;
 };
 
 }  // namespace tachyon::math

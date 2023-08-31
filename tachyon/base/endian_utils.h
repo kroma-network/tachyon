@@ -1,5 +1,5 @@
-#ifndef TACHYON_BASE_MACRO_UTILS_H_
-#define TACHYON_BASE_MACRO_UTILS_H_
+#ifndef TACHYON_BASE_ENDIAN_UTILS_H_
+#define TACHYON_BASE_ENDIAN_UTILS_H_
 
 #include "tachyon/build/build_config.h"
 
@@ -45,4 +45,4 @@
 #define BIGGEST_INDEX(end) end - 1
 #endif
 
-#endif  // TACHYON_BASE_MACRO_UTILS_H_
+#endif  // TACHYON_BASE_ENDIAN_UTILS_H_
