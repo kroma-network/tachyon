@@ -6,6 +6,9 @@ namespace tachyon::math {
 template <typename Config, typename SFINAE = void>
 class PrimeField;
 
+template <typename Config>
+class PrimeFieldGmp;
+
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_FORWARD_H_

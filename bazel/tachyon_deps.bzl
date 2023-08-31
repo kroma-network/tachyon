@@ -1,4 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//third_party/eigen3:workspace.bzl", eigen3 = "repo")
 load("//third_party/env:env_configure.bzl", "env_configure")
 load("//third_party/gmp:gmp_configure.bzl", "gmp_configure")
 load("//third_party/gpus:cuda_configure.bzl", "cuda_configure")
@@ -16,6 +17,7 @@ def tachyon_deps():
     rocm_configure(name = "local_config_rocm")
     python_configure(name = "local_config_python")
 
+    eigen3()
     goldilocks()
     hwloc()
     nasm()

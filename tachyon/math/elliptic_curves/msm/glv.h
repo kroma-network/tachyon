@@ -11,7 +11,7 @@
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/semigroups.h"
-#include "tachyon/math/matrix/matrix.h"
+#include "tachyon/math/matrix/gmp_num_traits.h"
 
 namespace tachyon::math {
 
@@ -23,7 +23,7 @@ class GLV {
   using ReturnTy =
       typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
-  using Coefficients = Matrix<mpz_class, 2, 2>;
+  using Coefficients = Eigen::Matrix<mpz_class, 2, 2>;
 
   struct CoefficientDecompositionResult {
     SignedValue<mpz_class> k1;
@@ -41,11 +41,11 @@ class GLV {
     EndomorphismCoefficient() =
         BaseField::FromMontgomery(Config::kEndomorphismCoefficient);
     Lambda() = ScalarField::FromMontgomery(Config::kLambda);
-    Coefficients() = Matrix<mpz_class, 2, 2>(
-        ScalarField::FromMontgomery(Config::kGLVCoeff00).ToMpzClass(),
-        ScalarField::FromMontgomery(Config::kGLVCoeff01).ToMpzClass(),
-        ScalarField::FromMontgomery(Config::kGLVCoeff10).ToMpzClass(),
-        ScalarField::FromMontgomery(Config::kGLVCoeff11).ToMpzClass());
+    Coefficients() = Eigen::Matrix<mpz_class, 2, 2>{
+        {ScalarField::FromMontgomery(Config::kGLVCoeff00).ToMpzClass(),
+         ScalarField::FromMontgomery(Config::kGLVCoeff01).ToMpzClass()},
+        {ScalarField::FromMontgomery(Config::kGLVCoeff10).ToMpzClass(),
+         ScalarField::FromMontgomery(Config::kGLVCoeff11).ToMpzClass()}};
   }
 
   static PointTy Endomorphism(const PointTy& point) {
@@ -56,24 +56,27 @@ class GLV {
     const Coefficients& coefficients = ScalarDecompositionCoefficients();
 
     decltype(auto) scalar = k.ToMpzClass();
-    const mpz_class& n12 = coefficients[1];
-    const mpz_class& n22 = coefficients[3];
+    const mpz_class& n12 = coefficients(0, 1);
+    const mpz_class& n22 = coefficients(1, 1);
     mpz_class r;
     gmp::WriteLimbs(ScalarField::Config::kModulus.limbs, ScalarField::kLimbNums,
                     &r);
+
+    // clang-format off
     // NOTE(chokobole): We can't calculate using below directly.
     //
-    // Matrix<mpz_class, 1, 2>(scalar, mpz_class(0)) * coefficients.Inverse()
+    // Eigen::Matrix<mpz_class, 1, 2>(scalar, mpz_class(0)) * coefficients.inverse()
     //
+    // Eigen matrix emits an error like below:
     //
-    // This is because the result of |coefficients.Inverse()| is a zero matrix.
-    // Therefore, we need to perform a similar operation to overcome the integer
-    // issue.
+    // external/eigen_archive/Eigen/src/LU/InverseImpl.h:352:3: error: static assertion failed: THIS_FUNCTION_IS_NOT_FOR_INTEGER_NUMERIC_TYPES
+    // 352 |   EIGEN_STATIC_ASSERT(!NumTraits<Scalar>::IsInteger,THIS_FUNCTION_IS_NOT_FOR_INTEGER_NUMERIC_TYPES)
+    // clang-format on
     mpz_class beta_1 = scalar * n22 / r;
     mpz_class beta_2 = scalar * (-n12) / r;
 
-    Matrix<mpz_class, 1, 2> b =
-        Matrix<mpz_class, 1, 2>(beta_1, beta_2) * coefficients;
+    Eigen::Matrix<mpz_class, 1, 2> b =
+        Eigen::Matrix<mpz_class, 1, 2>{beta_1, beta_2} * coefficients;
 
     // k1
     mpz_class k1 = scalar - b[0];

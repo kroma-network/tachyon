@@ -1,37 +1,21 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "matrix_view",
-    hdrs = [
-        "matrix_to_string_operator.h",
-        "matrix_traits.h",
-        "matrix_view.h",
-    ],
+    name = "gmp_num_traits",
+    hdrs = ["gmp_num_traits.h"],
     deps = [
-        "//tachyon/base:logging",
-        "//tachyon/math/base:identities",
+        "@eigen_archive//:eigen3",
+        "@local_config_gmp//:gmp",
     ],
 )
 
 tachyon_cc_library(
-    name = "matrix",
-    hdrs = [
-        "matrix.h",
-        "matrix_inverse_operator.h",
-    ],
+    name = "prime_field_num_traits",
+    hdrs = ["prime_field_num_traits.h"],
     deps = [
-        ":matrix_view",
-        "//tachyon/math/base:rings",
-    ],
-)
-
-tachyon_cc_test(
-    name = "matrix_unittests",
-    srcs = ["matrix_unittest.cc"],
-    deps = [
-        ":matrix",
-        "//tachyon/math/finite_fields/test:gf7",
+        "//tachyon/math/finite_fields:prime_field_forward",
+        "@eigen_archive//:eigen3",
     ],
 )
