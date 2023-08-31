@@ -36,13 +36,11 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install clang-format
-        run: sudo apt-get install clang-format
-
-      - name: Check code formatting
-        run: |
-          find . -name '*.cc' -or -name '*.h' | xargs clang-format -style=file -i
-          git diff --exit-code
+      - uses: actions/checkout@v3
+      - uses: DoozyX/clang-format-lint-action@v0.15
+        with:
+          source: '.'
+          exclude: './lib'
+          extensions: 'h,cc'
+          clangFormatVersion: 15
+          inplace: True

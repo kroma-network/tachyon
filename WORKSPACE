@@ -49,6 +49,7 @@ crates_repository(
     manifests = [
         "//:Cargo.toml",
         "//:benchmark/msm/arkworks/Cargo.toml",
+        "//:benchmark/msm/bellman/Cargo.toml",
         "//:vendors/halo2/Cargo.toml",
     ],
     packages = {

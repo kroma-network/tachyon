@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "benchmark/msm/arkworks",
+    "benchmark/msm/bellman",
     "vendors/halo2",
 ]

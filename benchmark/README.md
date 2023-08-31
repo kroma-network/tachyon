@@ -17,10 +17,14 @@ Tachyon offers a suite of benchmarking tools and scripts designed to evaluate th
 > bazel run -c opt //benchmark/path/to/target:target_name -- -n <test_set_size>
 ```
 
-The `-n` flag designates the test set size. A test set size of n translates to n for the EC benchmark and 2^n for the MSM benchmark. Benchmarks can be executed for individual or multiple test set sizes. For example, to benchmark Arkworks MSM for test set sizes of 2^10, 2^11, and 2^12:
+- The `-n` flag designates the test set size. A test set size of n translates to n for the EC benchmark and 2^n for the MSM benchmark. Benchmarks can be executed for individual or multiple test set sizes.
+
+- Use the --vendor flag to designate the benchmark target (only for MSM). Available vendors include: arkworks, bellman.
+
+For example, to benchmark Arkworks MSM for test set sizes of 2^10, 2^11, and 2^12:
 
 ```shell
-> bazel run -c opt //benchmark/msm/arkworks:arkworks_msm_benchmark -- -n 10 -n 11 -n 12
+> bazel run -c opt //benchmark/msm:msm_benchmark -- -n 10 -n 11 -n 12 --vendor arkworks
 ```
 
 ### Additional Options
@@ -43,4 +47,12 @@ For executing GPU benchmarks, make sure to configure [GPU config](https://github
 
 ```shell
 > bazel run -c opt --config cuda //benchmark/path/to/target:target_name -- -n <test_set_size>
+```
+
+While ensuring computation accuracy is paramount, verifying results should ideally be reserved for testing phases due to potential time constraints. In some cases, checking for the equality of results can be time-consuming. Therefore, by default, this verification is disabled.
+
+However, if you wish to validate the consistency of MSM computation results across different targets, you can enable this verification using the --check_results option:
+
+```shell
+> bazel run -c opt //benchmark/msm:msm_benchmark -- -n <test_set_size> --vendor <benchmark_target> --check_results
 ```
