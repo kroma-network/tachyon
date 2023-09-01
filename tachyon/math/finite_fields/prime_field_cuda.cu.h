@@ -60,11 +60,9 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
   constexpr PrimeFieldCuda(PrimeFieldCuda&& other) = default;
   constexpr PrimeFieldCuda& operator=(PrimeFieldCuda&& other) = default;
 
-  __host__ __device__ constexpr static PrimeFieldCuda Zero() {
-    return PrimeFieldCuda();
-  }
+  constexpr static PrimeFieldCuda Zero() { return PrimeFieldCuda(); }
 
-  __host__ __device__ constexpr static PrimeFieldCuda One() {
+  constexpr static PrimeFieldCuda One() {
     PrimeFieldCuda ret;
     ret.value_ = GetOne();
     return ret;
@@ -85,8 +83,7 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     return PrimeFieldCuda(big_int);
   }
 
-  __host__ __device__ constexpr static PrimeFieldCuda FromMontgomery(
-      const BigInt<N>& big_int) {
+  constexpr static PrimeFieldCuda FromMontgomery(const BigInt<N>& big_int) {
     PrimeFieldCuda ret;
     ret.value_ = big_int;
     return ret;
@@ -102,13 +99,9 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     // Do nothing.
   }
 
-  __host__ __device__ constexpr static BigInt<N> GetModulus() {
-    return Config::kModulus;
-  }
+  constexpr static BigInt<N> GetModulus() { return Config::kModulus; }
 
-  __host__ __device__ constexpr static BigInt<N> GetOne() {
-    return Config::kOne;
-  }
+  constexpr static BigInt<N> GetOne() { return Config::kOne; }
 
   __host__ __device__ const value_type& value() const { return value_; }
   __host__ __device__ size_t GetLimbSize() const { return N; }
@@ -132,9 +125,9 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
 
   constexpr bool IsOneHost() const { return ToBigIntHost().IsOne(); }
 
-  __host__ __device__ constexpr bool IsEven() const { return value_.IsEven(); }
+  constexpr bool IsEven() const { return value_.IsEven(); }
 
-  __host__ __device__ constexpr bool IsOdd() const { return value_.IsOdd(); }
+  constexpr bool IsOdd() const { return value_.IsOdd(); }
 
   std::string ToString() const { return ToBigIntHost().ToString(); }
   std::string ToHexString() const { return ToBigIntHost().ToHexString(); }
@@ -169,15 +162,10 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     return result;
   }
 
-  __host__ __device__ constexpr uint64_t& operator[](size_t i) {
-    return value_[i];
-  }
-  __host__ __device__ constexpr const uint64_t& operator[](size_t i) const {
-    return value_[i];
-  }
+  constexpr uint64_t& operator[](size_t i) { return value_[i]; }
+  constexpr const uint64_t& operator[](size_t i) const { return value_[i]; }
 
-  __host__ __device__ constexpr bool operator==(
-      const PrimeFieldCuda& other) const {
+  constexpr bool operator==(const PrimeFieldCuda& other) const {
     const uint64_t* x = value_.limbs;
     const uint64_t* y = other.value_.limbs;
     uint64_t limbs_or = x[0] ^ y[0];
@@ -185,8 +173,7 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     return limbs_or == 0;
   }
 
-  __host__ __device__ constexpr bool operator!=(
-      const PrimeFieldCuda& other) const {
+  constexpr bool operator!=(const PrimeFieldCuda& other) const {
     return !operator==(other);
   }
 
