@@ -19,7 +19,7 @@ tachyon_cc_library(
         "//tachyon/math/base/gmp:gmp_identities",
         "//tachyon/math/base/gmp:signed_value",
         "//tachyon/math/elliptic_curves:points",
-        "//tachyon/math/matrix",
+        "//tachyon/math/matrix:gmp_num_traits",
     ],
 )
 
