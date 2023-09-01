@@ -215,7 +215,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
       mul_result = internal::u64::MulAddWithCarry(r[2 * i], value_[i],
                                                   value_[i], mul_result.hi);
       r[2 * i] = mul_result.lo;
-      add_result = internal::u64::AddWithCarry(r[2 * i + 1], 0, mul_result.hi);
+      add_result = internal::u64::AddWithCarry(r[2 * i + 1], mul_result.hi);
       r[2 * i + 1] = add_result.result;
       mul_result.hi = add_result.carry;
     }

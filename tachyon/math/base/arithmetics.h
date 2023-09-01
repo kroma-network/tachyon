@@ -11,30 +11,48 @@
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics_results.h"
 
+#if defined(__clang__) && HAS_BUILTIN(__builtin_addc)
+// See https://clang.llvm.org/docs/LanguageExtensions.html#multiprecision-arithmetic-builtins
+#elif ARCH_CPU_X86_64
+// See https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/2021-8/intrinsics-for-multi-precision-arithmetic.html
+#include <x86gprintrin.h>
+#endif
+
 namespace tachyon::math::internal {
 namespace u32 {
 
 // Calculates a + b + carry.
-ALWAYS_INLINE constexpr AddResult<uint32_t> AddWithCarry(uint32_t a, uint32_t b,
-                                                         uint32_t carry = 0) {
+ALWAYS_INLINE AddResult<uint32_t> AddWithCarry(uint32_t a, uint32_t b,
+                                               uint32_t carry = 0) {
+  AddResult<uint32_t> result;
+#if defined(__clang__) && HAS_BUILTIN(__builtin_addc)
+  result.result = __builtin_addc(a, b, carry, &result.carry);
+#elif ARCH_CPU_X86_64
+  result.carry = _addcarry_u32(carry, a, b, &result.result);
+#else
   uint64_t tmp = static_cast<uint64_t>(a) + static_cast<uint64_t>(b) +
                  static_cast<uint64_t>(carry);
-  AddResult<uint32_t> result;
   result.result = static_cast<uint32_t>(tmp);
   result.carry = static_cast<uint32_t>(tmp >> 32);
+#endif
   return result;
 }
 
 // Calculates a - b - borrow.
-ALWAYS_INLINE constexpr SubResult<uint32_t> SubWithBorrow(uint32_t a,
-                                                          uint32_t b,
-                                                          uint32_t borrow = 0) {
+ALWAYS_INLINE SubResult<uint32_t> SubWithBorrow(uint32_t a, uint32_t b,
+                                                uint32_t borrow = 0) {
+  SubResult<uint32_t> result;
+#if defined(__clang__) && HAS_BUILTIN(__builtin_subc)
+  result.result = __builtin_subc(a, b, borrow, &result.borrow);
+#elif ARCH_CPU_X86_64
+  result.borrow = _subborrow_u32(borrow, a, b, &result.result);
+#else
   uint64_t tmp = (static_cast<uint64_t>(1) << 32) + static_cast<uint64_t>(a) -
                  static_cast<uint64_t>(b) - static_cast<uint64_t>(borrow);
-  SubResult<uint32_t> result;
   result.result = static_cast<uint32_t>(tmp);
   result.borrow =
       static_cast<uint32_t>(static_cast<uint32_t>((tmp >> 32) == 0 ? 1 : 0));
+#endif
   return result;
 }
 
@@ -55,32 +73,47 @@ ALWAYS_INLINE constexpr MulResult<uint32_t> MulAddWithCarry(
 namespace u64 {
 
 // Calculates a + b + carry.
-ALWAYS_INLINE constexpr AddResult<uint64_t> AddWithCarry(uint64_t a, uint64_t b,
-                                                         uint64_t carry = 0) {
+ALWAYS_INLINE AddResult<uint64_t> AddWithCarry(uint64_t a, uint64_t b,
+                                               uint64_t carry = 0) {
+  AddResult<uint64_t> result;
+#if defined(__clang__) && HAS_BUILTIN(__builtin_addcl)
+  static_assert(sizeof(uint64_t) == sizeof(unsigned long));
+  result.result = __builtin_addcl(a, b, carry, reinterpret_cast<unsigned long*>(&result.carry));
+#elif ARCH_CPU_X86_64
+  static_assert(sizeof(uint64_t) == sizeof(unsigned long long));
+  result.carry = _addcarry_u64(
+      carry, a, b, reinterpret_cast<unsigned long long*>(&result.result));
+#else
   absl::uint128 tmp =
       absl::uint128(a) + absl::uint128(b) + absl::uint128(carry);
-  AddResult<uint64_t> result;
   result.result = static_cast<uint64_t>(tmp);
   result.carry = static_cast<uint64_t>(tmp >> 64);
+#endif
   return result;
 }
 
 // Calculates a - b - borrow.
-ALWAYS_INLINE constexpr SubResult<uint64_t> SubWithBorrow(uint64_t& a,
-                                                          uint64_t b,
-                                                          uint64_t borrow = 0) {
+ALWAYS_INLINE SubResult<uint64_t> SubWithBorrow(uint64_t& a, uint64_t b,
+                                                uint64_t borrow = 0) {
+  SubResult<uint64_t> result;
+#if defined(__clang__) && HAS_BUILTIN(__builtin_subcl)
+  static_assert(sizeof(uint64_t) == sizeof(unsigned long));
+  result.result = __builtin_subcl(a, b, borrow, reinterpret_cast<unsigned long*>(&result.borrow));
+#elif ARCH_CPU_X86_64
+  static_assert(sizeof(uint64_t) == sizeof(unsigned long long));
+  result.borrow = _subborrow_u64(
+      borrow, a, b, reinterpret_cast<unsigned long long*>(&result.result));
+#else
   absl::uint128 tmp = (absl::uint128(1) << 64) + absl::uint128(a) -
                       absl::uint128(b) - absl::uint128(borrow);
-  SubResult<uint64_t> result;
   result.result = static_cast<uint64_t>(tmp);
   result.borrow =
       static_cast<uint64_t>(static_cast<uint64_t>((tmp >> 64) == 0 ? 1 : 0));
+#endif
   return result;
 }
 
 // Calculates a + b * c.
-// NOTE(chokobole): cannot be marked with constexpr because of absl::uint128
-// multiplication.
 ALWAYS_INLINE MulResult<uint64_t> MulAddWithCarry(uint64_t a, uint64_t b,
                                                   uint64_t c,
                                                   uint64_t carry = 0) {
