@@ -31,17 +31,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
 
-  constexpr static bool kModulusHasSpareBit =
-      Modulus<N>::HasSpareBit(Config::kModulus);
-  constexpr static bool kCanUseNoCarryMulOptimization =
-      Modulus<N>::CanUseNoCarryMulOptimization(Config::kModulus);
-  constexpr static BigInt<N> kMontgomeryR =
-      Modulus<N>::MontgomeryR(Config::kModulus);
-  constexpr static BigInt<N> kMontgomeryR2 =
-      Modulus<N>::MontgomeryR2(Config::kModulus);
-  constexpr static uint64_t kInverse =
-      Modulus<N>::template Inverse<uint64_t>(Config::kModulus);
-
   constexpr PrimeField() = default;
   template <typename T,
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
@@ -49,7 +38,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
   constexpr explicit PrimeField(const BigInt<N>& value) : value_(value) {
     DCHECK_LT(value_, Config::kModulus);
     PrimeField p;
-    p.value_ = kMontgomeryR2;
+    p.value_ = Config::kMontgomeryR2;
     MulInPlace(p);
   }
   constexpr PrimeField(const PrimeField& other) = default;
@@ -114,7 +103,8 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
 
   // TODO(chokobole): Support bigendian.
   constexpr BigInt<N> ToBigInt() const {
-    return BigInt<N>::FromMontgomery64(value_, Config::kModulus, kInverse);
+    return BigInt<N>::FromMontgomery64(value_, Config::kModulus,
+                                       Config::kInverse64);
   }
 
   constexpr const BigInt<N>& ToMontgomery() const { return value_; }
@@ -156,16 +146,16 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
   constexpr PrimeField& AddInPlace(const PrimeField& other) {
     uint64_t carry = 0;
     value_.AddInPlace(other.value_, carry);
-    BigInt<N>::template Clamp<kModulusHasSpareBit>(Config::kModulus, &value_,
-                                                   carry);
+    BigInt<N>::template Clamp<Config::kModulusHasSpareBit>(Config::kModulus,
+                                                           &value_, carry);
     return *this;
   }
 
   constexpr PrimeField& DoubleInPlace() {
     uint64_t carry = 0;
     value_.MulBy2InPlace(carry);
-    BigInt<N>::template Clamp<kModulusHasSpareBit>(Config::kModulus, &value_,
-                                                   carry);
+    BigInt<N>::template Clamp<Config::kModulusHasSpareBit>(Config::kModulus,
+                                                           &value_, carry);
     return *this;
   }
 
@@ -190,7 +180,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
   // TODO(chokobole): Support bigendian.
   // MultiplicativeSemigroup methods
   constexpr PrimeField& MulInPlace(const PrimeField& other) {
-    if constexpr (kCanUseNoCarryMulOptimization) {
+    if constexpr (Config::kCanUseNoCarryMulOptimization) {
       return FastMulInPlace(other);
     } else {
       return SlowMulInPlace(other);
@@ -225,19 +215,19 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
       mul_result = internal::u64::MulAddWithCarry(r[2 * i], value_[i],
                                                   value_[i], mul_result.hi);
       r[2 * i] = mul_result.lo;
-      add_result = internal::u64::AddWithCarry(r[2 * i + 1], 0, mul_result.hi);
+      add_result = internal::u64::AddWithCarry(r[2 * i + 1], mul_result.hi);
       r[2 * i + 1] = add_result.result;
       mul_result.hi = add_result.carry;
     }
-    BigInt<N>::template MontgomeryReduce64<kModulusHasSpareBit>(
-        r, Config::kModulus, kInverse, &value_);
+    BigInt<N>::template MontgomeryReduce64<Config::kModulusHasSpareBit>(
+        r, Config::kModulus, Config::kInverse64, &value_);
     return *this;
   }
 
   // MultiplicativeGroup methods
   constexpr PrimeField& InverseInPlace() {
-    value_ = value_.template MontgomeryInverse<kModulusHasSpareBit>(
-        Config::kModulus, kMontgomeryR2);
+    value_ = value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
+        Config::kModulus, Config::kMontgomeryR2);
     return *this;
   }
 
@@ -252,7 +242,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
       result = internal::u64::MulAddWithCarry(r[0], value_[0], other.value_[i]);
       r[0] = result.lo;
 
-      uint64_t k = r[0] * kInverse;
+      uint64_t k = r[0] * Config::kInverse64;
       MulResult<uint64_t> result2;
       result2 = internal::u64::MulAddWithCarry(r[0], k, Config::kModulus[0]);
 
@@ -267,8 +257,8 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
       r[N - 1] = result.hi + result2.hi;
     }
     value_ = r;
-    BigInt<N>::template Clamp<kModulusHasSpareBit>(Config::kModulus, &value_,
-                                                   0);
+    BigInt<N>::template Clamp<Config::kModulusHasSpareBit>(Config::kModulus,
+                                                           &value_, 0);
     return *this;
   }
 
@@ -284,8 +274,8 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
       r[i + N] = mul_result.hi;
       mul_result.hi = 0;
     }
-    BigInt<N>::template MontgomeryReduce64<kModulusHasSpareBit>(
-        r, Config::kModulus, kInverse, &value_);
+    BigInt<N>::template MontgomeryReduce64<Config::kModulusHasSpareBit>(
+        r, Config::kModulus, Config::kInverse64, &value_);
     return *this;
   }
 

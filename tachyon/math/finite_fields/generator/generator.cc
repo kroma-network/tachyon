@@ -4,11 +4,65 @@
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/flag/flag_parser.h"
+#include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
 #include "tachyon/math/finite_fields/prime_field.h"
 
 namespace tachyon {
+
+struct ModulusInfo {
+  bool modulus_has_spare_bit;
+  bool can_use_no_carry_mul_optimization;
+  mpz_class r;
+  mpz_class r2;
+  uint64_t inverse64;
+  uint32_t inverse32;
+
+  template <size_t N>
+  static ModulusInfo From(const mpz_class& m_in) {
+    math::BigInt<N> m;
+    math::gmp::CopyLimbs(m_in, m.limbs);
+
+    ModulusInfo ret;
+    ret.modulus_has_spare_bit = math::Modulus<N>::HasSpareBit(m);
+    ret.can_use_no_carry_mul_optimization =
+        math::Modulus<N>::CanUseNoCarryMulOptimization(m);
+    math::BigInt<N> r = math::Modulus<N>::MontgomeryR(m);
+    math::gmp::WriteLimbs(r.limbs, N, &ret.r);
+    math::BigInt<N> r2 = math::Modulus<N>::MontgomeryR2(m);
+    math::gmp::WriteLimbs(r2.limbs, N, &ret.r2);
+    ret.inverse64 = math::Modulus<N>::template Inverse<uint64_t>(m);
+    ret.inverse32 = math::Modulus<N>::template Inverse<uint32_t>(m);
+    return ret;
+  }
+
+  static ModulusInfo From(const mpz_class& m) {
+    size_t limb_size = math::gmp::GetLimbSize(m);
+    switch (limb_size) {
+      case 1:
+        return From<1>(m);
+      case 2:
+        return From<2>(m);
+      case 3:
+        return From<3>(m);
+      case 4:
+        return From<4>(m);
+      case 5:
+        return From<5>(m);
+      case 6:
+        return From<6>(m);
+      case 7:
+        return From<7>(m);
+      case 8:
+        return From<8>(m);
+      case 9:
+        return From<9>(m);
+    }
+    NOTREACHED();
+    return {};
+  }
+};
 
 struct GenerationConfig {
   base::FilePath out;
@@ -52,6 +106,18 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  constexpr static BigInt<%{n}> kModulus = BigInt<%{n}>({",
       "    %{modulus}",
       "  });",
+      "  constexpr static bool kModulusHasSpareBit = %{modulus_has_spare_bit};",
+      "  constexpr static bool kCanUseNoCarryMulOptimization = "
+      "%{can_use_no_carry_mul_optimization};",
+      "  constexpr static BigInt<%{n}> kMontgomeryR = BigInt<%{n}>({",
+      "    %{r}",
+      "  });",
+      "  constexpr static BigInt<%{n}> kMontgomeryR2 = BigInt<%{n}>({",
+      "    %{r2}",
+      "  });",
+      "  constexpr static uint64_t kInverse64 = UINT64_C(%{inverse64});",
+      "  constexpr static uint32_t kInverse32 = %{inverse32};",
+      "",
       "  constexpr static BigInt<%{n}> kOne = BigInt<%{n}>({",
       "    %{one_mont_form}",
       "  });",
@@ -107,6 +173,8 @@ int GenerationConfig::GenerateConfigHdr() const {
   }
   size_t n = math::gmp::GetLimbSize(m);
 
+  ModulusInfo modulus_info = ModulusInfo::From(m);
+
   std::string content = absl::StrReplaceAll(
       tpl_content,
       {
@@ -116,6 +184,14 @@ int GenerationConfig::GenerateConfigHdr() const {
           {"%{modulus_bits}", absl::StrCat(num_bits)},
           {"%{n}", absl::StrCat(n)},
           {"%{modulus}", math::MpzClassToString(m)},
+          {"%{modulus_has_spare_bit}",
+           base::BoolToString(modulus_info.modulus_has_spare_bit)},
+          {"%{can_use_no_carry_mul_optimization}",
+           base::BoolToString(modulus_info.can_use_no_carry_mul_optimization)},
+          {"%{r}", math::MpzClassToString(modulus_info.r)},
+          {"%{r2}", math::MpzClassToString(modulus_info.r2)},
+          {"%{inverse64}", absl::StrCat(modulus_info.inverse64)},
+          {"%{inverse32}", absl::StrCat(modulus_info.inverse32)},
           {"%{one_mont_form}", math::MpzClassToMontString(mpz_class(1), m)},
       });
   return Write(content);

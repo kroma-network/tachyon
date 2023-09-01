@@ -41,13 +41,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsSecp256k1Fr>>
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
 
-  constexpr static bool kModulusHasSpareBit =
-      Modulus<N>::HasSpareBit(Config::kModulus);
-  constexpr static BigInt<N> kMontgomeryR =
-      Modulus<N>::MontgomeryR(Config::kModulus);
-  constexpr static BigInt<N> kMontgomeryR2 =
-      Modulus<N>::MontgomeryR2(Config::kModulus);
-
   constexpr PrimeField() = default;
   template <typename T,
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
@@ -200,8 +193,8 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsSecp256k1Fr>>
 
   // MultiplicativeGroup methods
   constexpr PrimeField& InverseInPlace() {
-    value_ = value_.template MontgomeryInverse<kModulusHasSpareBit>(
-        Config::kModulus, kMontgomeryR2);
+    value_ = value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
+        Config::kModulus, Config::kMontgomeryR2);
     return *this;
   }
 

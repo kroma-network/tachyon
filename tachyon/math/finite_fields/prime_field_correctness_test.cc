@@ -25,7 +25,7 @@ class PrimeFieldCorrectnessTest : public testing::Test {
   static void SetUpTestSuite() {
     PrimeFieldGmpType::Init();
     kMontgomeryRGmp =
-        PrimeFieldGmpType::FromBigInt(PrimeFieldType::kMontgomeryR);
+        PrimeFieldGmpType::FromBigInt(PrimeFieldType::Config::kMontgomeryR);
 
     a_gmps_.reserve(kTestNum);
     b_gmps_.reserve(kTestNum);

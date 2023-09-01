@@ -3,6 +3,7 @@
 
 #include "third_party/gmp/include/gmpxx.h"
 
+#include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/files/file_path.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/modulus.h"
@@ -30,7 +31,7 @@ std::string MpzClassToMontString(const mpz_class& v_in, const mpz_class& m_in) {
     gmp::CopyLimbs(v_in, v.limbs);
   }
 
-  BigInt<N* 2> mul_result = v.Mul(r2);
+  BigInt<N * 2> mul_result = v.Mul(r2);
   BigInt<N>::template MontgomeryReduce64<false>(mul_result, m, inv, &v);
 
   mpz_class v_mont;

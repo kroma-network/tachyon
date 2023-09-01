@@ -31,9 +31,6 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   using BigIntTy = BigInt<N>;
   using value_type = mpz_class;
 
-  constexpr static uint64_t kInverse =
-      math::Modulus<N>::template Inverse<uint64_t>(Config::kModulus);
-
   PrimeFieldGmp() = default;
   explicit PrimeFieldGmp(const mpz_class& value) : value_(value) {
     DCHECK(!gmp::IsNegative(value_));
@@ -77,8 +74,8 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   }
 
   static PrimeFieldGmp FromMontgomery(const BigInt<N>& big_int) {
-    return FromBigInt(
-        BigInt<N>::FromMontgomery64(big_int, Config::kModulus, kInverse));
+    return FromBigInt(BigInt<N>::FromMontgomery64(big_int, Config::kModulus,
+                                                  Config::kInverse64));
   }
 
   static void Init() {

@@ -34,6 +34,7 @@ tachyon_cc_library(
         "string_util_internal.h",
     ],
     deps = [
+        "//tachyon/base:compiler_specific",
         "//tachyon/base:logging",
         "//tachyon/base:no_destructor",
         "//tachyon/base/ranges:algorithm",

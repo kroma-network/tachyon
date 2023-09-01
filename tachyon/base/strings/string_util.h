@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 
+#include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/strings/string_util_internal.h"
 #include "tachyon/export.h"
 
@@ -103,6 +104,10 @@ TACHYON_EXPORT bool ConsumePrefix0x(std::string_view* str);
 TACHYON_EXPORT std::string MaybePrepend0x(std::string_view str);
 TACHYON_EXPORT std::string MaybePrepend0x(std::string&& str);
 TACHYON_EXPORT std::string MaybePrepend0x(const std::string& str);
+
+ALWAYS_INLINE const char* const BoolToString(bool b) {
+  return b ? "true" : "false";
+}
 
 }  // namespace tachyon::base
 
