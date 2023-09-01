@@ -1,8 +1,10 @@
 #ifndef TACHYON_BASE_STRINGS_STRING_UTIL_H_
 #define TACHYON_BASE_STRINGS_STRING_UTIL_H_
 
+#include <sstream>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/strings/string_util_internal.h"
@@ -107,6 +109,34 @@ TACHYON_EXPORT std::string MaybePrepend0x(const std::string& str);
 
 ALWAYS_INLINE const char* const BoolToString(bool b) {
   return b ? "true" : "false";
+}
+
+template <typename T>
+std::string VectorToString(const std::vector<T>& data) {
+  std::stringstream ss;
+  ss << "[";
+  for (size_t i = 0; i < data.size(); ++i) {
+    ss << data[i];
+    if (i != data.size() - 1) {
+      ss << ", ";
+    }
+  }
+  ss << "]";
+  return ss.str();
+}
+
+template <typename T>
+std::string Vector2DToString(const std::vector<std::vector<T>>& data) {
+  std::stringstream ss;
+  ss << "[";
+  for (size_t i = 0; i < data.size(); ++i) {
+    ss << VectorToString(data[i]);
+    if (i != data.size() - 1) {
+      ss << ",";
+    }
+  }
+  ss << "]";
+  return ss.str();
 }
 
 }  // namespace tachyon::base
