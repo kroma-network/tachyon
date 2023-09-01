@@ -32,19 +32,6 @@ class PrimeFieldCudaDebug
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
 
-  constexpr static bool kModulusHasSpareBit =
-      Modulus<N>::HasSpareBit(Config::kModulus);
-  constexpr static bool kCanUseNoCarryMulOptimization =
-      Modulus<N>::CanUseNoCarryMulOptimization(Config::kModulus);
-  constexpr static BigInt<N> kMontgomeryR =
-      Modulus<N>::MontgomeryR(Config::kModulus);
-  constexpr static BigInt<N> kMontgomeryR2 =
-      Modulus<N>::MontgomeryR2(Config::kModulus);
-  constexpr static uint64_t kInverse64 =
-      Modulus<N>::template Inverse<uint64_t>(Config::kModulus);
-  constexpr static uint32_t kInverse32 =
-      Modulus<N>::template Inverse<uint32_t>(Config::kModulus);
-
   constexpr PrimeFieldCudaDebug() = default;
   template <typename T,
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
@@ -125,7 +112,8 @@ class PrimeFieldCudaDebug
   }
 
   constexpr BigInt<N> ToBigInt() const {
-    return BigInt<N>::FromMontgomery64(value_, Config::kModulus, kInverse64);
+    return BigInt<N>::FromMontgomery64(value_, Config::kModulus,
+                                       Config::kInverse64);
   }
 
   constexpr const BigInt<N>& ToMontgomery() const { return value_; }
@@ -203,7 +191,7 @@ class PrimeFieldCudaDebug
     BigInt<N> u = value_;
     BigInt<N> v = Config::kModulus;
     PrimeFieldCudaDebug b;
-    b.value_ = kMontgomeryR2;
+    b.value_ = Config::kMontgomeryR2;
     PrimeFieldCudaDebug c = PrimeFieldCudaDebug::Zero();
 
     while (!u.IsOne() && !v.IsOne()) {
@@ -361,7 +349,7 @@ class PrimeFieldCudaDebug
       odd[n - 1] = result.result;
       CHECK_EQ(result.carry, static_cast<uint32_t>(0));
     }
-    uint32_t mi = even[0] * kInverse32;
+    uint32_t mi = even[0] * Config::kInverse32;
     uint32_t carry = CMadN(odd, modulus + 1, mi);
     CHECK_EQ(carry, static_cast<uint32_t>(0));
     carry = CMadN(even, modulus, mi);
