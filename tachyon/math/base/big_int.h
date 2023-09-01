@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 #include "tachyon/base/compiler_specific.h"
+#include "tachyon/base/endian_utils.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/base/macro_utils.h"
 #include "tachyon/base/random.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics.h"

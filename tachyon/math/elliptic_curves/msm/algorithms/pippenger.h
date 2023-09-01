@@ -6,14 +6,11 @@
 #include <type_traits>
 #include <vector>
 
-#if defined(TACHYON_HAS_OPENMP)
-#include <omp.h>
-#endif  // defined(TACHYON_HAS_OPENMP)
-
 #include "absl/types/span.h"
 
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_util.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
@@ -58,7 +55,18 @@ class Pippenger {
 
   constexpr static size_t N = ScalarField::N;
 
-  Pippenger() : use_msm_window_naf_(PointTy::kNegationIsCheap) {}
+  Pippenger() : use_msm_window_naf_(PointTy::kNegationIsCheap) {
+#if defined(TACHYON_HAS_OPENMP)
+    parallel_windows_ = true;
+#endif  // defined(TACHYON_HAS_OPENMP)
+  }
+
+  void SetParallelWindows(bool parallel_windows) {
+    parallel_windows_ = parallel_windows;
+#if !defined(TACHYON_HAS_OPENMP)
+    LOG_IF(WARNING, parallel_windows) << "Set parallel windows without openmp";
+#endif  // !defined(TACHYON_HAS_OPENMP)
+  }
 
   void SetUseMSMWindowNAForTesting(bool use_msm_window_naf) {
     use_msm_window_naf_ = use_msm_window_naf;
@@ -138,6 +146,25 @@ class Pippenger {
   }
 
   template <typename BaseInputIterator>
+  void AccumulateSingleWindowNAFSum(
+      BaseInputIterator bases_it,
+      const std::vector<std::vector<int64_t>>& scalar_digits, size_t i,
+      ReturnTy* window_sum) {
+    std::vector<ReturnTy> buckets =
+        base::CreateVector(1 << (window_bits_ - 1), ReturnTy::Zero());
+    for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
+      const PointTy& base = *bases_it;
+      int64_t scalar = scalar_digits[j][i];
+      if (0 < scalar) {
+        buckets[static_cast<uint64_t>(scalar - 1)] += base;
+      } else if (0 > scalar) {
+        buckets[static_cast<uint64_t>(-scalar - 1)] -= base;
+      }
+    }
+    *window_sum = AccumulateBuckets(buckets);
+  }
+
+  template <typename BaseInputIterator>
   void AccumulateWindowNAFSums(BaseInputIterator bases_first,
                                absl::Span<const BigInt<N>> scalars,
                                std::vector<ReturnTy>* window_sums) {
@@ -146,81 +173,85 @@ class Pippenger {
     for (std::vector<int64_t>& scalar_digit : scalar_digits) {
       scalar_digit.resize(window_count_);
     }
-#if defined(TACHYON_HAS_OPENMP)
-#pragma omp parallel for
-#endif
-    for (size_t i = 0; i < scalars.size(); ++i) {
-      FillDigits(scalars[i], window_bits_, &scalar_digits[i]);
+    if (parallel_windows_) {
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < scalars.size(); ++i) {
+        FillDigits(scalars[i], window_bits_, &scalar_digits[i]);
+      }
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count_; ++i) {
+        AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
+                                     &(*window_sums)[i]);
+      }
+    } else {
+      for (size_t i = 0; i < scalars.size(); ++i) {
+        FillDigits(scalars[i], window_bits_, &scalar_digits[i]);
+      }
+      for (size_t i = 0; i < window_count_; ++i) {
+        AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
+                                     &(*window_sums)[i]);
+      }
     }
-#if defined(TACHYON_HAS_OPENMP)
-#pragma omp parallel for
-#endif
-    for (size_t i = 0; i < window_count_; ++i) {
-      std::vector<ReturnTy> buckets =
-          base::CreateVector(1 << (window_bits_ - 1), ReturnTy::Zero());
-      auto bases_it = bases_first;
-      for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
-        const PointTy& base = *bases_it;
-        int64_t scalar = scalar_digits[j][i];
-        if (0 < scalar) {
-          buckets[static_cast<uint64_t>(scalar - 1)] += base;
-        } else if (0 > scalar) {
-          buckets[static_cast<uint64_t>(-scalar - 1)] -= base;
+  }
+
+  template <typename BaseInputIterator>
+  void AccumulateSingleWindowSum(BaseInputIterator bases_first,
+                                 absl::Span<const BigInt<N>> scalars,
+                                 size_t window_offset, ReturnTy* out) {
+    ReturnTy window_sum = ReturnTy::Zero();
+    // We don't need the "zero" bucket, so we only have 2^{window_bits_} - 1
+    // buckets.
+    std::vector<ReturnTy> buckets =
+        base::CreateVector((1 << window_bits_) - 1, ReturnTy::Zero());
+    auto bases_it = bases_first;
+    for (size_t j = 0; j < scalars.size(); ++j, ++bases_it) {
+      const BigInt<N>& scalar = scalars[j];
+      if (scalar.IsZero()) continue;
+
+      const PointTy& base = *bases_it;
+      if (scalar.IsOne()) {
+        // We only process unit scalars once in the first window.
+        if (window_offset == 0) {
+          window_sum += base;
+        }
+      } else {
+        BigInt<N> scalar_tmp = scalar;
+        // We right-shift by |window_offset|, thus getting rid of the lower
+        // bits.
+        scalar_tmp.DivBy2ExpInPlace(window_offset);
+
+        // We mod the remaining bits by 2^{window_bits_}, thus taking
+        // |window_bits_|.
+        uint64_t idx = scalar_tmp[0] % (1 << window_bits_);
+
+        // If the scalar is non-zero, we update the corresponding
+        // bucket.
+        // (Recall that |buckets| doesn't have a zero bucket.)
+        if (idx != 0) {
+          buckets[idx - 1] += base;
         }
       }
-      (*window_sums)[i] = AccumulateBuckets(buckets);
     }
+    *out = AccumulateBuckets(buckets, window_sum);
   }
 
   template <typename BaseInputIterator>
   void AccumulateWindowSums(BaseInputIterator bases_first,
                             absl::Span<const BigInt<N>> scalars,
                             std::vector<ReturnTy>* window_sums) {
-    size_t window_offset = 0;
-#if defined(TACHYON_HAS_OPENMP)
-#pragma omp parallel for
-#endif
-    for (size_t i = 0; i < window_count_; ++i) {
-      ReturnTy window_sum = ReturnTy::Zero();
-      // We don't need the "zero" bucket, so we only have 2^{window_bits_} - 1
-      // buckets.
-      std::vector<ReturnTy> buckets =
-          base::CreateVector((1 << window_bits_) - 1, ReturnTy::Zero());
-      auto bases_it = bases_first;
-      for (size_t j = 0; j < scalars.size(); ++j, ++bases_it) {
-        const BigInt<N>& scalar = scalars[j];
-        if (scalar.IsZero()) continue;
-
-        const PointTy& base = *bases_it;
-        if (scalar.IsOne()) {
-          // We only process unit scalars once in the first window.
-          if (window_offset == 0) {
-            window_sum += base;
-          }
-        } else {
-          BigInt<N> scalar_tmp = scalar;
-          // We right-shift by |window_offset|, thus getting rid of the lower
-          // bits.
-          scalar_tmp.DivBy2ExpInPlace(window_offset);
-
-          // We mod the remaining bits by 2^{window_bits_}, thus taking
-          // |window_bits_|.
-          uint64_t idx = scalar_tmp[0] % (1 << window_bits_);
-
-          // If the scalar is non-zero, we update the corresponding
-          // bucket.
-          // (Recall that |buckets| doesn't have a zero bucket.)
-          if (idx != 0) {
-            buckets[idx - 1] += base;
-          }
-        }
+    if (parallel_windows_) {
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count_; ++i) {
+        AccumulateSingleWindowSum(bases_first, scalars, window_bits_ * i,
+                                  &(*window_sums)[i]);
       }
-      (*window_sums)[i] = AccumulateBuckets(buckets, window_sum);
-      window_offset += window_bits_;
-    };
+    } else {
+      for (size_t i = 0; i < window_count_; ++i) {
+        AccumulateSingleWindowSum(bases_first, scalars, window_bits_ * i,
+                                  &(*window_sums)[i]);
+      }
+    }
   }
 
   bool use_msm_window_naf_ = false;
+  bool parallel_windows_ = false;
   size_t window_bits_ = 0;
   size_t window_count_ = 0;
 };

@@ -1,8 +1,9 @@
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger.h"
+
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
-#include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
@@ -44,11 +45,24 @@ TYPED_TEST(PippengerTest, Run) {
 
   const MSMTestSet<PointTy>& test_set = this->test_set_;
 
-  for (int i = 0; i < 2; ++i) {
-    bool use_window_naf = i == 0;
+  struct {
+    bool use_window_naf;
+    bool parallel_windows;
+  } tests[] = {
+    {false, false},
+    {true, false},
+#if defined(TACHYON_HAS_OPENMP)
+    {false, true},
+    {true, true},
+#endif  // defined(TACHYON_HAS_OPENMP)
+  };
+
+  for (const auto& test : tests) {
     Pippenger<PointTy> pippenger;
-    SCOPED_TRACE(absl::Substitute("use_window_naf: $0", use_window_naf));
-    pippenger.SetUseMSMWindowNAForTesting(use_window_naf);
+    SCOPED_TRACE(absl::Substitute("use_window_naf: $0 parallel_windows: $1",
+                                  test.use_window_naf, test.parallel_windows));
+    pippenger.SetUseMSMWindowNAForTesting(test.use_window_naf);
+    pippenger.SetParallelWindows(test.parallel_windows);
     ReturnTy ret;
     EXPECT_TRUE(pippenger.Run(test_set.bases.begin(), test_set.bases.end(),
                               test_set.scalars.begin(), test_set.scalars.end(),

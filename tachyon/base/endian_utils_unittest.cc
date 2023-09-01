@@ -1,4 +1,4 @@
-#include "tachyon/base/macro_utils.h"
+#include "tachyon/base/endian_utils.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -10,7 +10,7 @@ struct Range {
   size_t end;
 };
 
-TEST(MacroUtils, ForFromBiggest) {
+TEST(EndianUtils, ForFromBiggest) {
   struct {
     size_t start;
     size_t end;
@@ -28,7 +28,7 @@ TEST(MacroUtils, ForFromBiggest) {
   }
 }
 
-TEST(MacroUtils, ForFromSmallest) {
+TEST(EndianUtils, ForFromSmallest) {
   struct {
     size_t start;
     size_t end;
@@ -46,7 +46,7 @@ TEST(MacroUtils, ForFromSmallest) {
   }
 }
 
-TEST(MacroUtils, ForBugSmallest) {
+TEST(EndianUtils, ForBugSmallest) {
   std::vector<size_t> idxs;
   FOR_BUT_SMALLEST(i, 5) { idxs.push_back(i); }
 
@@ -55,7 +55,7 @@ TEST(MacroUtils, ForBugSmallest) {
   EXPECT_THAT(idxs, testing::ContainerEq(answers));
 }
 
-TEST(MacroUtils, SmallestIndex) {
+TEST(EndianUtils, SmallestIndex) {
 #if ARCH_CPU_BIG_ENDIAN
   int answer = 4;
 #else  // ARCH_CPU_LITTLE_ENDIAN
@@ -64,7 +64,7 @@ TEST(MacroUtils, SmallestIndex) {
   EXPECT_EQ(SMALLEST_INDEX(5), answer);
 }
 
-TEST(MacroUtils, BiggestIndex) {
+TEST(EndianUtils, BiggestIndex) {
 #if ARCH_CPU_BIG_ENDIAN
   int answer = 0;
 #else  // ARCH_CPU_LITTLE_ENDIAN
