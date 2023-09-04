@@ -97,7 +97,7 @@ def generate_prime_fields(
         hdrs = [":{}_gen_gpu_hdr".format(name)],
         deps = [
             ":{}".format(name),
-            "//tachyon/math/finite_fields:prime_field_cuda",
+            "//tachyon/math/finite_fields:prime_field_gpu",
         ],
         **kwargs
     )

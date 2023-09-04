@@ -7,7 +7,9 @@
 #include <ostream>
 #include <string>
 
+#if TACHYON_CUDA
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
+#endif
 
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
@@ -21,7 +23,7 @@
 namespace tachyon::math {
 
 template <typename _Config>
-class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
+class PrimeFieldGpu : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;
@@ -32,51 +34,50 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
 
-  constexpr PrimeFieldCuda() = default;
+  constexpr PrimeFieldGpu() = default;
   template <typename T,
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
-  constexpr explicit PrimeFieldCuda(T value)
-      : PrimeFieldCuda(BigInt<N>(value)) {}
-  constexpr explicit PrimeFieldCuda(const BigInt<N>& value) {
+  constexpr explicit PrimeFieldGpu(T value) : PrimeFieldGpu(BigInt<N>(value)) {}
+  constexpr explicit PrimeFieldGpu(const BigInt<N>& value) {
     DCHECK_LT(value, GetModulus());
     PrimeField<Config> p(value);
     value_ = p.value();
   }
-  constexpr PrimeFieldCuda(const PrimeFieldCuda& other) = default;
-  constexpr PrimeFieldCuda& operator=(const PrimeFieldCuda& other) = default;
-  constexpr PrimeFieldCuda(PrimeFieldCuda&& other) = default;
-  constexpr PrimeFieldCuda& operator=(PrimeFieldCuda&& other) = default;
+  constexpr PrimeFieldGpu(const PrimeFieldGpu& other) = default;
+  constexpr PrimeFieldGpu& operator=(const PrimeFieldGpu& other) = default;
+  constexpr PrimeFieldGpu(PrimeFieldGpu&& other) = default;
+  constexpr PrimeFieldGpu& operator=(PrimeFieldGpu&& other) = default;
 
-  constexpr static PrimeFieldCuda Zero() { return PrimeFieldCuda(); }
+  constexpr static PrimeFieldGpu Zero() { return PrimeFieldGpu(); }
 
-  constexpr static PrimeFieldCuda One() {
-    PrimeFieldCuda ret;
+  constexpr static PrimeFieldGpu One() {
+    PrimeFieldGpu ret;
     ret.value_ = GetOne();
     return ret;
   }
 
-  static PrimeFieldCuda Random() {
-    return PrimeFieldCuda(BigInt<N>::Random(Config::kModulus));
+  static PrimeFieldGpu Random() {
+    return PrimeFieldGpu(BigInt<N>::Random(Config::kModulus));
   }
 
-  constexpr static PrimeFieldCuda FromDecString(std::string_view str) {
-    return PrimeFieldCuda(BigInt<N>::FromDecString(str));
+  constexpr static PrimeFieldGpu FromDecString(std::string_view str) {
+    return PrimeFieldGpu(BigInt<N>::FromDecString(str));
   }
-  constexpr static PrimeFieldCuda FromHexString(std::string_view str) {
-    return PrimeFieldCuda(BigInt<N>::FromHexString(str));
-  }
-
-  constexpr static PrimeFieldCuda FromBigInt(const BigInt<N>& big_int) {
-    return PrimeFieldCuda(big_int);
+  constexpr static PrimeFieldGpu FromHexString(std::string_view str) {
+    return PrimeFieldGpu(BigInt<N>::FromHexString(str));
   }
 
-  constexpr static PrimeFieldCuda FromMontgomery(const BigInt<N>& big_int) {
-    PrimeFieldCuda ret;
+  constexpr static PrimeFieldGpu FromBigInt(const BigInt<N>& big_int) {
+    return PrimeFieldGpu(big_int);
+  }
+
+  constexpr static PrimeFieldGpu FromMontgomery(const BigInt<N>& big_int) {
+    PrimeFieldGpu ret;
     ret.value_ = big_int;
     return ret;
   }
 
-  static PrimeFieldCuda FromMpzClass(const mpz_class& value) {
+  static PrimeFieldGpu FromMpzClass(const mpz_class& value) {
     BigInt<N> big_int;
     gmp::CopyLimbs(value, big_int.limbs);
     return FromBigInt(big_int);
@@ -153,7 +154,7 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
   constexpr uint64_t& operator[](size_t i) { return value_[i]; }
   constexpr const uint64_t& operator[](size_t i) const { return value_[i]; }
 
-  constexpr bool operator==(const PrimeFieldCuda& other) const {
+  constexpr bool operator==(const PrimeFieldGpu& other) const {
     const uint64_t* x = value_.limbs;
     const uint64_t* y = other.value_.limbs;
     uint64_t limbs_or = x[0] ^ y[0];
@@ -161,50 +162,50 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     return limbs_or == 0;
   }
 
-  constexpr bool operator!=(const PrimeFieldCuda& other) const {
+  constexpr bool operator!=(const PrimeFieldGpu& other) const {
     return !operator==(other);
   }
 
-  __device__ constexpr bool operator<(const PrimeFieldCuda& other) const {
-    PrimeFieldCuda results;
+  __device__ constexpr bool operator<(const PrimeFieldGpu& other) const {
+    PrimeFieldGpu results;
     uint64_t carry = SubLimbs<true>(value_, other.value_, results.value_);
     return carry;
   }
 
-  __device__ constexpr bool operator>(const PrimeFieldCuda& other) const {
-    PrimeFieldCuda results;
+  __device__ constexpr bool operator>(const PrimeFieldGpu& other) const {
+    PrimeFieldGpu results;
     uint64_t carry = SubLimbs<true>(other.value_, value_, results.value_);
     return carry;
   }
 
-  __device__ constexpr bool operator<=(const PrimeFieldCuda& other) const {
+  __device__ constexpr bool operator<=(const PrimeFieldGpu& other) const {
     return !operator>(other);
   }
 
-  __device__ constexpr bool operator>=(const PrimeFieldCuda& other) const {
+  __device__ constexpr bool operator>=(const PrimeFieldGpu& other) const {
     return !operator<(other);
   }
 
   // AdditiveSemigroup methods
-  __device__ constexpr PrimeFieldCuda& AddInPlace(const PrimeFieldCuda& other) {
+  __device__ constexpr PrimeFieldGpu& AddInPlace(const PrimeFieldGpu& other) {
     AddLimbs<false>(value_, other.value_, value_);
     *this = Clamp(*this);
     return *this;
   }
 
-  __device__ constexpr PrimeFieldCuda& DoubleInPlace() {
+  __device__ constexpr PrimeFieldGpu& DoubleInPlace() {
     return AddInPlace(*this);
   }
 
   // AdditiveGroup methods
-  __device__ constexpr PrimeFieldCuda& SubInPlace(const PrimeFieldCuda& other) {
+  __device__ constexpr PrimeFieldGpu& SubInPlace(const PrimeFieldGpu& other) {
     uint64_t carry = SubLimbs<true>(value_, other.value_, value_);
     if (carry == 0) return *this;
     AddLimbs<false>(value_, GetModulus(), value_);
     return *this;
   }
 
-  __device__ constexpr PrimeFieldCuda& NegInPlace() {
+  __device__ constexpr PrimeFieldGpu& NegInPlace() {
     BigInt<N> result;
     SubLimbs<false>(GetModulus(), value_, result);
     value_ = result;
@@ -212,7 +213,7 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
   }
 
   // MultiplicativeSemigroup methods
-  __device__ constexpr PrimeFieldCuda& MulInPlace(const PrimeFieldCuda& other) {
+  __device__ constexpr PrimeFieldGpu& MulInPlace(const PrimeFieldGpu& other) {
     // Forces us to think more carefully about the last carry bit if we use a
     // modulus with fewer than 2 leading zeroes of slack.
     static_assert(!(Config::kModulus[N - 1] >> 62));
@@ -223,21 +224,21 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     return *this;
   }
 
-  __device__ constexpr PrimeFieldCuda& SquareInPlace() {
+  __device__ constexpr PrimeFieldGpu& SquareInPlace() {
     return MulInPlace(*this);
   }
 
   // MultiplicativeGroup methods
-  __device__ constexpr PrimeFieldCuda& InverseInPlace() {
+  __device__ constexpr PrimeFieldGpu& InverseInPlace() {
     if (IsZero()) return *this;
 
     BigInt<N> u = value_;
     BigInt<N> v = GetModulus();
-    PrimeFieldCuda b;
+    PrimeFieldGpu b;
     b.value_ = Config::kMontgomeryR2;
     // NOTE(chokobole): Do not use this.
-    // PrimeFieldCuda c = PrimeFieldCuda::Zero();
-    PrimeFieldCuda c;
+    // PrimeFieldGpu c = PrimeFieldGpu::Zero();
+    PrimeFieldGpu c;
 
     while (!u.IsOne() && !v.IsOne()) {
       while (u.IsEven()) {
@@ -398,8 +399,8 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
     odd[n - 1] = ptx::u32::Addc(odd[n - 1], 0);
   }
 
-  __device__ constexpr static PrimeFieldCuda Clamp(PrimeFieldCuda& xs) {
-    PrimeFieldCuda results;
+  __device__ constexpr static PrimeFieldGpu Clamp(PrimeFieldGpu& xs) {
+    PrimeFieldGpu results;
     return SubLimbs<true>(xs.value_, GetModulus(), results.value_) ? xs
                                                                    : results;
   }
@@ -408,14 +409,14 @@ class PrimeFieldCuda : public PrimeFieldBase<PrimeFieldCuda<_Config>> {
 };
 
 template <typename Config>
-std::ostream& operator<<(std::ostream& os, const PrimeFieldCuda<Config>& f) {
+std::ostream& operator<<(std::ostream& os, const PrimeFieldGpu<Config>& f) {
   return os << f.ToString();
 }
 
 template <typename Config>
-class MultiplicativeIdentity<PrimeFieldCuda<Config>> {
+class MultiplicativeIdentity<PrimeFieldGpu<Config>> {
  public:
-  using F = PrimeFieldCuda<Config>;
+  using F = PrimeFieldGpu<Config>;
 
   static const F& One() {
     static F one(F::One());
@@ -426,9 +427,9 @@ class MultiplicativeIdentity<PrimeFieldCuda<Config>> {
 };
 
 template <typename Config>
-class AdditiveIdentity<PrimeFieldCuda<Config>> {
+class AdditiveIdentity<PrimeFieldGpu<Config>> {
  public:
-  using F = PrimeFieldCuda<Config>;
+  using F = PrimeFieldGpu<Config>;
 
   static const F& Zero() {
     static F zero(F::Zero());

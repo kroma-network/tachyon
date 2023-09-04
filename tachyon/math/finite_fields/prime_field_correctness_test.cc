@@ -7,7 +7,7 @@
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fq.h"
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fr.h"
 #endif
-#include "tachyon/math/finite_fields/prime_field_cuda_debug.h"
+#include "tachyon/math/finite_fields/prime_field_gpu_debug.h"
 
 namespace tachyon::math {
 
@@ -15,7 +15,7 @@ namespace {
 
 constexpr size_t kTestNum = 1000;
 
-using FrGpuDebug = PrimeFieldCudaDebug<bn254::FrConfig>;
+using FrGpuDebug = PrimeFieldGpuDebug<bn254::FrConfig>;
 
 template <typename PrimeFieldType>
 class PrimeFieldCorrectnessTest : public testing::Test {

@@ -32,7 +32,7 @@ DEFINE_LAUNCH_COMPARISON_OP(Ge)
 
 using namespace device;
 
-class PrimeFieldCudaTest : public testing::Test {
+class PrimeFieldGpuTest : public testing::Test {
  public:
   // Runs tests with |N| data.
   constexpr static size_t N = kThreadNum * 2;
@@ -70,10 +70,10 @@ class PrimeFieldCudaTest : public testing::Test {
   static gpu::GpuMemory<bool> bool_results_;
 };
 
-gpu::GpuMemory<GF7Gpu> PrimeFieldCudaTest::xs_;
-gpu::GpuMemory<GF7Gpu> PrimeFieldCudaTest::ys_;
-gpu::GpuMemory<GF7Gpu> PrimeFieldCudaTest::results_;
-gpu::GpuMemory<bool> PrimeFieldCudaTest::bool_results_;
+gpu::GpuMemory<GF7Gpu> PrimeFieldGpuTest::xs_;
+gpu::GpuMemory<GF7Gpu> PrimeFieldGpuTest::ys_;
+gpu::GpuMemory<GF7Gpu> PrimeFieldGpuTest::results_;
+gpu::GpuMemory<bool> PrimeFieldGpuTest::bool_results_;
 
 }  // namespace
 
@@ -96,29 +96,29 @@ gpu::GpuMemory<bool> PrimeFieldCudaTest::bool_results_;
   RUN_OPERATION_TESTS(method, bool_results_)   \
   ASSERT_EQ(bool_results_[i], tests[i].result)
 
-TEST_F(PrimeFieldCudaTest, FromString) {
+TEST_F(PrimeFieldGpuTest, FromString) {
   EXPECT_EQ(GF7Gpu::FromDecString("3"), GF7Gpu(3));
   EXPECT_EQ(GF7Gpu::FromHexString("0x3"), GF7Gpu(3));
 }
 
-TEST_F(PrimeFieldCudaTest, ToString) {
+TEST_F(PrimeFieldGpuTest, ToString) {
   GF7Gpu f(3);
 
   EXPECT_EQ(f.ToString(), "3");
   EXPECT_EQ(f.ToHexString(), "0x3");
 }
 
-TEST_F(PrimeFieldCudaTest, Zero) {
+TEST_F(PrimeFieldGpuTest, Zero) {
   EXPECT_TRUE(GF7Gpu::Zero().IsZero());
   EXPECT_FALSE(GF7Gpu::One().IsZero());
 }
 
-TEST_F(PrimeFieldCudaTest, One) {
+TEST_F(PrimeFieldGpuTest, One) {
   EXPECT_TRUE(GF7Gpu::One().IsOneHost());
   EXPECT_FALSE(GF7Gpu::Zero().IsOneHost());
 }
 
-TEST_F(PrimeFieldCudaTest, Add) {
+TEST_F(PrimeFieldGpuTest, Add) {
   struct {
     GF7 x;
     GF7 y;
@@ -133,7 +133,7 @@ TEST_F(PrimeFieldCudaTest, Add) {
   RUN_FIELD_OPERATION_TESTS(Add);
 }
 
-TEST_F(PrimeFieldCudaTest, Sub) {
+TEST_F(PrimeFieldGpuTest, Sub) {
   struct {
     GF7 x;
     GF7 y;
@@ -148,7 +148,7 @@ TEST_F(PrimeFieldCudaTest, Sub) {
   RUN_FIELD_OPERATION_TESTS(Sub);
 }
 
-TEST_F(PrimeFieldCudaTest, Mul) {
+TEST_F(PrimeFieldGpuTest, Mul) {
   struct {
     GF7 x;
     GF7 y;
@@ -163,7 +163,7 @@ TEST_F(PrimeFieldCudaTest, Mul) {
   RUN_FIELD_OPERATION_TESTS(Mul);
 }
 
-TEST_F(PrimeFieldCudaTest, Eq) {
+TEST_F(PrimeFieldGpuTest, Eq) {
   struct {
     GF7 x;
     GF7 y;
@@ -189,7 +189,7 @@ TEST_F(PrimeFieldCudaTest, Eq) {
   }
 }
 
-TEST_F(PrimeFieldCudaTest, Ne) {
+TEST_F(PrimeFieldGpuTest, Ne) {
   struct {
     GF7 x;
     GF7 y;
@@ -215,7 +215,7 @@ TEST_F(PrimeFieldCudaTest, Ne) {
   }
 }
 
-TEST_F(PrimeFieldCudaTest, Lt) {
+TEST_F(PrimeFieldGpuTest, Lt) {
   struct {
     GF7 x;
     GF7 y;
@@ -229,7 +229,7 @@ TEST_F(PrimeFieldCudaTest, Lt) {
   RUN_COMPARISON_OPERATION_TESTS(Lt);
 }
 
-TEST_F(PrimeFieldCudaTest, Le) {
+TEST_F(PrimeFieldGpuTest, Le) {
   struct {
     GF7 x;
     GF7 y;
@@ -243,7 +243,7 @@ TEST_F(PrimeFieldCudaTest, Le) {
   RUN_COMPARISON_OPERATION_TESTS(Le);
 }
 
-TEST_F(PrimeFieldCudaTest, Gt) {
+TEST_F(PrimeFieldGpuTest, Gt) {
   struct {
     GF7 x;
     GF7 y;
@@ -257,7 +257,7 @@ TEST_F(PrimeFieldCudaTest, Gt) {
   RUN_COMPARISON_OPERATION_TESTS(Gt);
 }
 
-TEST_F(PrimeFieldCudaTest, Ge) {
+TEST_F(PrimeFieldGpuTest, Ge) {
   struct {
     GF7 x;
     GF7 y;

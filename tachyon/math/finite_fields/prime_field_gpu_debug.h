@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CUDA_DEBUG_H_
-#define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CUDA_DEBUG_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_GPU_DEBUG_H_
+#define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_GPU_DEBUG_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -20,8 +20,7 @@
 namespace tachyon::math {
 
 template <typename _Config>
-class PrimeFieldCudaDebug
-    : public PrimeFieldBase<PrimeFieldCudaDebug<_Config>> {
+class PrimeFieldGpuDebug : public PrimeFieldBase<PrimeFieldGpuDebug<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;
@@ -32,56 +31,54 @@ class PrimeFieldCudaDebug
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
 
-  constexpr PrimeFieldCudaDebug() = default;
+  constexpr PrimeFieldGpuDebug() = default;
   template <typename T,
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
-  constexpr explicit PrimeFieldCudaDebug(T value)
-      : PrimeFieldCudaDebug(BigInt<N>(value)) {}
-  constexpr explicit PrimeFieldCudaDebug(const BigInt<N>& value) {
+  constexpr explicit PrimeFieldGpuDebug(T value)
+      : PrimeFieldGpuDebug(BigInt<N>(value)) {}
+  constexpr explicit PrimeFieldGpuDebug(const BigInt<N>& value) {
     DCHECK_LT(value, Config::kModulus);
     PrimeField<Config> p(value);
     value_ = p.value();
   }
-  constexpr PrimeFieldCudaDebug(const PrimeFieldCudaDebug& other) = default;
-  constexpr PrimeFieldCudaDebug& operator=(const PrimeFieldCudaDebug& other) =
+  constexpr PrimeFieldGpuDebug(const PrimeFieldGpuDebug& other) = default;
+  constexpr PrimeFieldGpuDebug& operator=(const PrimeFieldGpuDebug& other) =
       default;
-  constexpr PrimeFieldCudaDebug(PrimeFieldCudaDebug&& other) = default;
-  constexpr PrimeFieldCudaDebug& operator=(PrimeFieldCudaDebug&& other) =
-      default;
+  constexpr PrimeFieldGpuDebug(PrimeFieldGpuDebug&& other) = default;
+  constexpr PrimeFieldGpuDebug& operator=(PrimeFieldGpuDebug&& other) = default;
 
-  constexpr static PrimeFieldCudaDebug Zero() { return PrimeFieldCudaDebug(); }
+  constexpr static PrimeFieldGpuDebug Zero() { return PrimeFieldGpuDebug(); }
 
-  constexpr static PrimeFieldCudaDebug One() {
-    PrimeFieldCudaDebug ret;
+  constexpr static PrimeFieldGpuDebug One() {
+    PrimeFieldGpuDebug ret;
     ret.value_ = Config::kOne;
     return ret;
   }
 
-  static PrimeFieldCudaDebug Random() {
-    PrimeFieldCudaDebug ret;
+  static PrimeFieldGpuDebug Random() {
+    PrimeFieldGpuDebug ret;
     ret.value_ = PrimeField<Config>::Random().value();
     return ret;
   }
 
-  constexpr static PrimeFieldCudaDebug FromDecString(std::string_view str) {
-    return PrimeFieldCudaDebug(BigInt<N>::FromDecString(str));
+  constexpr static PrimeFieldGpuDebug FromDecString(std::string_view str) {
+    return PrimeFieldGpuDebug(BigInt<N>::FromDecString(str));
   }
-  constexpr static PrimeFieldCudaDebug FromHexString(std::string_view str) {
-    return PrimeFieldCudaDebug(BigInt<N>::FromHexString(str));
-  }
-
-  constexpr static PrimeFieldCudaDebug FromBigInt(const BigInt<N>& big_int) {
-    return PrimeFieldCudaDebug(big_int);
+  constexpr static PrimeFieldGpuDebug FromHexString(std::string_view str) {
+    return PrimeFieldGpuDebug(BigInt<N>::FromHexString(str));
   }
 
-  constexpr static PrimeFieldCudaDebug FromMontgomery(
-      const BigInt<N>& big_int) {
-    PrimeFieldCudaDebug ret;
+  constexpr static PrimeFieldGpuDebug FromBigInt(const BigInt<N>& big_int) {
+    return PrimeFieldGpuDebug(big_int);
+  }
+
+  constexpr static PrimeFieldGpuDebug FromMontgomery(const BigInt<N>& big_int) {
+    PrimeFieldGpuDebug ret;
     ret.value_ = big_int;
     return ret;
   }
 
-  static PrimeFieldCudaDebug FromMpzClass(const mpz_class& value) {
+  static PrimeFieldGpuDebug FromMpzClass(const mpz_class& value) {
     BigInt<N> big_int;
     gmp::CopyLimbs(value, big_int.limbs);
     return FromBigInt(big_int);
@@ -121,48 +118,48 @@ class PrimeFieldCudaDebug
   constexpr uint64_t& operator[](size_t i) { return value_[i]; }
   constexpr const uint64_t& operator[](size_t i) const { return value_[i]; }
 
-  constexpr bool operator==(const PrimeFieldCudaDebug& other) const {
+  constexpr bool operator==(const PrimeFieldGpuDebug& other) const {
     return ToBigInt() == other.ToBigInt();
   }
 
-  constexpr bool operator!=(const PrimeFieldCudaDebug& other) const {
+  constexpr bool operator!=(const PrimeFieldGpuDebug& other) const {
     return ToBigInt() != other.ToBigInt();
   }
 
-  constexpr bool operator<(const PrimeFieldCudaDebug& other) const {
+  constexpr bool operator<(const PrimeFieldGpuDebug& other) const {
     return ToBigInt() < other.ToBigInt();
   }
 
-  constexpr bool operator>(const PrimeFieldCudaDebug& other) const {
+  constexpr bool operator>(const PrimeFieldGpuDebug& other) const {
     return ToBigInt() > other.ToBigInt();
   }
 
-  constexpr bool operator<=(const PrimeFieldCudaDebug& other) const {
+  constexpr bool operator<=(const PrimeFieldGpuDebug& other) const {
     return ToBigInt() <= other.ToBigInt();
   }
 
-  constexpr bool operator>=(const PrimeFieldCudaDebug& other) const {
+  constexpr bool operator>=(const PrimeFieldGpuDebug& other) const {
     return ToBigInt() >= other.ToBigInt();
   }
 
   // AdditiveSemigroup methods
-  constexpr PrimeFieldCudaDebug& AddInPlace(const PrimeFieldCudaDebug& other) {
+  constexpr PrimeFieldGpuDebug& AddInPlace(const PrimeFieldGpuDebug& other) {
     AddLimbs<false>(value_, other.value_, value_);
     *this = Clamp(*this);
     return *this;
   }
 
-  constexpr PrimeFieldCudaDebug& DoubleInPlace() { return AddInPlace(*this); }
+  constexpr PrimeFieldGpuDebug& DoubleInPlace() { return AddInPlace(*this); }
 
   // AdditiveGroup methods
-  constexpr PrimeFieldCudaDebug& SubInPlace(const PrimeFieldCudaDebug& other) {
+  constexpr PrimeFieldGpuDebug& SubInPlace(const PrimeFieldGpuDebug& other) {
     uint64_t carry = SubLimbs<true>(value_, other.value_, value_);
     if (carry == 0) return *this;
     AddLimbs<false>(value_, Config::kModulus, value_);
     return *this;
   }
 
-  constexpr PrimeFieldCudaDebug& NegInPlace() {
+  constexpr PrimeFieldGpuDebug& NegInPlace() {
     BigInt<N> result;
     SubLimbs<false>(Config::kModulus, value_, result);
     value_ = result;
@@ -170,7 +167,7 @@ class PrimeFieldCudaDebug
   }
 
   // MultiplicativeSemigroup methods
-  constexpr PrimeFieldCudaDebug& MulInPlace(const PrimeFieldCudaDebug& other) {
+  constexpr PrimeFieldGpuDebug& MulInPlace(const PrimeFieldGpuDebug& other) {
     // Forces us to think more carefully about the last carry bit if we use a
     // modulus with fewer than 2 leading zeroes of slack.
     static_assert(!(Config::kModulus[N - 1] >> 62));
@@ -181,18 +178,18 @@ class PrimeFieldCudaDebug
     return *this;
   }
 
-  constexpr PrimeFieldCudaDebug& SquareInPlace() { return MulInPlace(*this); }
+  constexpr PrimeFieldGpuDebug& SquareInPlace() { return MulInPlace(*this); }
 
   // MultiplicativeGroup methods
-  // TODO(chokobole): Share codes with PrimeField and PrimeFieldCuda.
-  constexpr PrimeFieldCudaDebug& InverseInPlace() {
+  // TODO(chokobole): Share codes with PrimeField and PrimeFieldGpu.
+  constexpr PrimeFieldGpuDebug& InverseInPlace() {
     CHECK(!IsZero());
 
     BigInt<N> u = value_;
     BigInt<N> v = Config::kModulus;
-    PrimeFieldCudaDebug b;
+    PrimeFieldGpuDebug b;
     b.value_ = Config::kMontgomeryR2;
-    PrimeFieldCudaDebug c = PrimeFieldCudaDebug::Zero();
+    PrimeFieldGpuDebug c = PrimeFieldGpuDebug::Zero();
 
     while (!u.IsOne() && !v.IsOne()) {
       while (u.IsEven()) {
@@ -358,8 +355,8 @@ class PrimeFieldCudaDebug
     CHECK_EQ(result.carry, static_cast<uint32_t>(0));
   }
 
-  constexpr static PrimeFieldCudaDebug Clamp(PrimeFieldCudaDebug& xs) {
-    PrimeFieldCudaDebug results;
+  constexpr static PrimeFieldGpuDebug Clamp(PrimeFieldGpuDebug& xs) {
+    PrimeFieldGpuDebug results;
     return SubLimbs<true>(xs.value_, Config::kModulus, results.value_)
                ? xs
                : results;
@@ -370,14 +367,14 @@ class PrimeFieldCudaDebug
 
 template <typename Config>
 std::ostream& operator<<(std::ostream& os,
-                         const PrimeFieldCudaDebug<Config>& f) {
+                         const PrimeFieldGpuDebug<Config>& f) {
   return os << f.ToString();
 }
 
 template <typename Config>
-class MultiplicativeIdentity<PrimeFieldCudaDebug<Config>> {
+class MultiplicativeIdentity<PrimeFieldGpuDebug<Config>> {
  public:
-  using F = PrimeFieldCudaDebug<Config>;
+  using F = PrimeFieldGpuDebug<Config>;
 
   static const F& One() {
     static F one(F::One());
@@ -388,9 +385,9 @@ class MultiplicativeIdentity<PrimeFieldCudaDebug<Config>> {
 };
 
 template <typename Config>
-class AdditiveIdentity<PrimeFieldCudaDebug<Config>> {
+class AdditiveIdentity<PrimeFieldGpuDebug<Config>> {
  public:
-  using F = PrimeFieldCudaDebug<Config>;
+  using F = PrimeFieldGpuDebug<Config>;
 
   static const F& Zero() {
     static F zero(F::Zero());
@@ -402,4 +399,4 @@ class AdditiveIdentity<PrimeFieldCudaDebug<Config>> {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CUDA_DEBUG_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_GPU_DEBUG_H_
