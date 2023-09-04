@@ -11,7 +11,7 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
-#include "tachyon/math/elliptic_curves/msm/variable_base_msm_cuda.cu.h"
+#include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
 
 namespace tachyon {
 
@@ -56,7 +56,7 @@ void DoInitMSMGpu(uint8_t degree) {
   }
 
   bn254::G1AffinePointGpu::Curve::Init();
-  VariableBaseMSMCuda<bn254::G1AffinePointGpu::Curve>::Setup();
+  VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve>::Setup();
 
   gpuMemPoolProps props = {gpuMemAllocationTypePinned,
                            gpuMemHandleTypeNone,
@@ -112,7 +112,7 @@ bn254::G1JacobianPoint DoMSMGpuInternal(
   config.log_scalars_count = base::bits::Log2Ceiling(scalars.size());
 
   bn254::G1JacobianPoint ret;
-  GPU_MUST_SUCCESS(VariableBaseMSMCuda<bn254::G1AffinePointGpu::Curve>::Execute(
+  GPU_MUST_SUCCESS(VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve>::Execute(
                        config, g_u_results.get(), &ret),
                    "Failed to Execute()");
   if (g_log_msm) {

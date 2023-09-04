@@ -1,3 +1,5 @@
+#include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
+
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
@@ -7,7 +9,6 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
-#include "tachyon/math/elliptic_curves/msm/variable_base_msm_cuda.cu.h"
 
 namespace tachyon::math {
 
@@ -17,14 +18,14 @@ constexpr size_t kThreadNum = 32;
 
 using namespace device;
 
-class VariableMSMCorrectnessCudaTest : public testing::Test {
+class VariableMSMCorrectnessGpuTest : public testing::Test {
  public:
   constexpr static size_t kLogCount = 10;
   constexpr static size_t kCount = 1 << kLogCount;
 
   static void SetUpTestSuite() {
     bn254::G1AffinePoint::Curve::Init();
-    VariableBaseMSMCuda<bn254::G1AffinePointGpu::Curve>::Setup();
+    VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve>::Setup();
 
     MSMTestSet<bn254::G1AffinePoint> test_set =
         MSMTestSet<bn254::G1AffinePoint>::Random(kCount, MSMMethod::kMSM);
@@ -57,18 +58,17 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
   static bn254::G1JacobianPoint expected_;
 };
 
-gpu::GpuMemory<bn254::G1AffinePointGpu>
-    VariableMSMCorrectnessCudaTest::d_bases_;
-gpu::GpuMemory<bn254::FrGpu> VariableMSMCorrectnessCudaTest::d_scalars_;
+gpu::GpuMemory<bn254::G1AffinePointGpu> VariableMSMCorrectnessGpuTest::d_bases_;
+gpu::GpuMemory<bn254::FrGpu> VariableMSMCorrectnessGpuTest::d_scalars_;
 gpu::GpuMemory<bn254::G1JacobianPointGpu>
-    VariableMSMCorrectnessCudaTest::d_results_;
+    VariableMSMCorrectnessGpuTest::d_results_;
 std::unique_ptr<bn254::G1JacobianPoint[]>
-    VariableMSMCorrectnessCudaTest::u_results_;
-bn254::G1JacobianPoint VariableMSMCorrectnessCudaTest::expected_;
+    VariableMSMCorrectnessGpuTest::u_results_;
+bn254::G1JacobianPoint VariableMSMCorrectnessGpuTest::expected_;
 
 }  // namespace
 
-TEST_F(VariableMSMCorrectnessCudaTest, MSM) {
+TEST_F(VariableMSMCorrectnessGpuTest, MSM) {
   gpuMemPoolProps props = {gpuMemAllocationTypePinned,
                            gpuMemHandleTypeNone,
                            {gpuMemLocationTypeDevice, 0}};
@@ -88,7 +88,7 @@ TEST_F(VariableMSMCorrectnessCudaTest, MSM) {
   config.log_scalars_count = kLogCount;
 
   bn254::G1JacobianPoint actual;
-  error = VariableBaseMSMCuda<bn254::G1AffinePointGpu::Curve>::Execute(
+  error = VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve>::Execute(
       config, u_results_.get(), &actual);
   ASSERT_EQ(error, gpuSuccess);
   EXPECT_EQ(actual, expected_);
