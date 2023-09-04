@@ -118,8 +118,8 @@ def generate_ec_points(
         hdrs = [":{}_gen_gpu_hdr".format(name)],
         deps = [
             ":{}".format(name),
-            ":fq_cuda",
-            ":fr_cuda",
+            ":fq_gpu",
+            ":fr_gpu",
             "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve_gpu",
         ],
         **kwargs

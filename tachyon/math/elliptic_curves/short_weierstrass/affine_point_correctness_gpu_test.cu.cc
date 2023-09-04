@@ -12,7 +12,7 @@ namespace {
 
 constexpr size_t kThreadNum = 32;
 
-#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                           \
+#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                          \
   DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1AffinePointGpu, \
                           bn254::G1JacobianPointGpu)
 
@@ -35,7 +35,7 @@ DEFINE_LAUNCH_COMPARISON_OP(Ne)
 
 using namespace device;
 
-class AffinePointCorrectnessCudaTest : public testing::Test {
+class AffinePointCorrectnessGpuTest : public testing::Test {
  public:
   // Runs tests with |N| data.
   constexpr static size_t N = kThreadNum * 2;
@@ -44,8 +44,7 @@ class AffinePointCorrectnessCudaTest : public testing::Test {
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
     xs_ = gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(N);
     ys_ = gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(N);
-    affine_results_ =
-        gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(N);
+    affine_results_ = gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(N);
     jacobian_results_ =
         gpu::GpuMemory<bn254::G1JacobianPointGpu>::MallocManaged(N);
     bool_results_ = gpu::GpuMemory<bool>::MallocManaged(N);
@@ -98,20 +97,20 @@ class AffinePointCorrectnessCudaTest : public testing::Test {
   static std::vector<bn254::G1AffinePointGmp> y_gmps_;
 };
 
-gpu::GpuMemory<bn254::G1AffinePointGpu> AffinePointCorrectnessCudaTest::xs_;
-gpu::GpuMemory<bn254::G1AffinePointGpu> AffinePointCorrectnessCudaTest::ys_;
+gpu::GpuMemory<bn254::G1AffinePointGpu> AffinePointCorrectnessGpuTest::xs_;
+gpu::GpuMemory<bn254::G1AffinePointGpu> AffinePointCorrectnessGpuTest::ys_;
 gpu::GpuMemory<bn254::G1AffinePointGpu>
-    AffinePointCorrectnessCudaTest::affine_results_;
+    AffinePointCorrectnessGpuTest::affine_results_;
 gpu::GpuMemory<bn254::G1JacobianPointGpu>
-    AffinePointCorrectnessCudaTest::jacobian_results_;
-gpu::GpuMemory<bool> AffinePointCorrectnessCudaTest::bool_results_;
+    AffinePointCorrectnessGpuTest::jacobian_results_;
+gpu::GpuMemory<bool> AffinePointCorrectnessGpuTest::bool_results_;
 
-std::vector<bn254::G1AffinePointGmp> AffinePointCorrectnessCudaTest::x_gmps_;
-std::vector<bn254::G1AffinePointGmp> AffinePointCorrectnessCudaTest::y_gmps_;
+std::vector<bn254::G1AffinePointGmp> AffinePointCorrectnessGpuTest::x_gmps_;
+std::vector<bn254::G1AffinePointGmp> AffinePointCorrectnessGpuTest::y_gmps_;
 
 }  // namespace
 
-TEST_F(AffinePointCorrectnessCudaTest, Add) {
+TEST_F(AffinePointCorrectnessGpuTest, Add) {
   GPU_MUST_SUCCESS(LaunchAdd(xs_.get(), ys_.get(), jacobian_results_.get(), N),
                    "");
   for (size_t i = 0; i < N; ++i) {
@@ -123,7 +122,7 @@ TEST_F(AffinePointCorrectnessCudaTest, Add) {
   }
 }
 
-TEST_F(AffinePointCorrectnessCudaTest, Double) {
+TEST_F(AffinePointCorrectnessGpuTest, Double) {
   GPU_MUST_SUCCESS(LaunchDouble(xs_.get(), jacobian_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
@@ -133,7 +132,7 @@ TEST_F(AffinePointCorrectnessCudaTest, Double) {
   }
 }
 
-TEST_F(AffinePointCorrectnessCudaTest, Negative) {
+TEST_F(AffinePointCorrectnessGpuTest, Negative) {
   GPU_MUST_SUCCESS(LaunchNegative(xs_.get(), affine_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
@@ -143,7 +142,7 @@ TEST_F(AffinePointCorrectnessCudaTest, Negative) {
   }
 }
 
-TEST_F(AffinePointCorrectnessCudaTest, Eq) {
+TEST_F(AffinePointCorrectnessGpuTest, Eq) {
   GPU_MUST_SUCCESS(LaunchEq(xs_.get(), xs_.get(), bool_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(
@@ -152,7 +151,7 @@ TEST_F(AffinePointCorrectnessCudaTest, Eq) {
   }
 }
 
-TEST_F(AffinePointCorrectnessCudaTest, Ne) {
+TEST_F(AffinePointCorrectnessGpuTest, Ne) {
   GPU_MUST_SUCCESS(LaunchNe(xs_.get(), ys_.get(), bool_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(

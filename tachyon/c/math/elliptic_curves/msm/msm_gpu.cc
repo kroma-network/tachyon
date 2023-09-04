@@ -25,7 +25,7 @@ namespace {
 gpu::ScopedMemPool g_mem_pool;
 gpu::ScopedStream g_stream;
 gpu::GpuMemory<bn254::G1AffinePointGpu> g_d_bases;
-gpu::GpuMemory<bn254::FrCuda> g_d_scalars;
+gpu::GpuMemory<bn254::FrGpu> g_d_scalars;
 gpu::GpuMemory<bn254::G1JacobianPointGpu> g_d_results;
 std::unique_ptr<bn254::G1JacobianPoint[]> g_u_results;
 std::unique_ptr<MSMInputProvider> g_provider;
@@ -70,8 +70,8 @@ void DoInitMSMGpu(uint8_t degree) {
 
   uint64_t size = static_cast<uint64_t>(1) << degree;
   g_d_bases = gpu::GpuMemory<bn254::G1AffinePointGpu>::Malloc(size);
-  g_d_scalars = gpu::GpuMemory<bn254::FrCuda>::Malloc(size);
-  size_t bit_size = bn254::FrCuda::kModulusBits;
+  g_d_scalars = gpu::GpuMemory<bn254::FrGpu>::Malloc(size);
+  size_t bit_size = bn254::FrGpu::kModulusBits;
   g_d_results = gpu::GpuMemory<bn254::G1JacobianPointGpu>::Malloc(bit_size);
   g_u_results.reset(new bn254::G1JacobianPoint[bit_size]);
 

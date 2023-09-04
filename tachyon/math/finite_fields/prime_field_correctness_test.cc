@@ -15,7 +15,7 @@ namespace {
 
 constexpr size_t kTestNum = 1000;
 
-using FrCudaDebug = PrimeFieldCudaDebug<bn254::FrConfig>;
+using FrGpuDebug = PrimeFieldCudaDebug<bn254::FrConfig>;
 
 template <typename PrimeFieldType>
 class PrimeFieldCorrectnessTest : public testing::Test {
@@ -79,9 +79,9 @@ std::vector<PrimeFieldType> PrimeFieldCorrectnessTest<PrimeFieldType>::bs_;
 
 #if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 using PrimeFiledTypes = testing::Types<bn254::Fr, bn254::Fq, secp256k1::Fq,
-                                       secp256k1::Fr, FrCudaDebug>;
+                                       secp256k1::Fr, FrGpuDebug>;
 #else
-using PrimeFiledTypes = testing::Types<bn254::Fr, FrCudaDebug>;
+using PrimeFiledTypes = testing::Types<bn254::Fr, FrGpuDebug>;
 #endif
 TYPED_TEST_SUITE(PrimeFieldCorrectnessTest, PrimeFiledTypes);
 
@@ -158,7 +158,7 @@ TYPED_TEST(PrimeFieldCorrectnessTest, MultiplicativeOperators) {
 
     ASSERT_EQ((a * b).ToBigInt(), (a_gmp * b_gmp).ToBigInt());
     if constexpr (!F::Config::kIsSpecialPrime &&
-                  !std::is_same_v<F, FrCudaDebug>) {
+                  !std::is_same_v<F, FrGpuDebug>) {
       a.FastMulInPlace(b);
       a_gmp *= b_gmp;
       ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());

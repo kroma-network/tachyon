@@ -101,7 +101,7 @@ tachyon_cuda_test(
     deps = [
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
-        "//tachyon/math/finite_fields/test:gf7_cuda",
+        "//tachyon/math/finite_fields/test:gf7_gpu",
         "//tachyon/math/test:launch_op_macros",
     ],
 )
@@ -121,12 +121,12 @@ tachyon_cc_test(
 )
 
 tachyon_cuda_test(
-    name = "finite_field_correctness_cuda_tests",
-    srcs = if_cuda_and_gmp_backend(["prime_field_correctness_cuda_test.cu.cc"]),
+    name = "finite_field_correctness_gpu_tests",
+    srcs = if_cuda_and_gmp_backend(["prime_field_correctness_gpu_test.cu.cc"]),
     deps = [
         ":prime_field_cuda",
         "//tachyon/device/gpu:gpu_memory",
-        "//tachyon/math/elliptic_curves/bn/bn254:fq_cuda",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq_gpu",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
         "//tachyon/math/test:launch_op_macros",
     ],

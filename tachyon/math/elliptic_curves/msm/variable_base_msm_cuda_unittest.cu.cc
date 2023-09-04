@@ -30,8 +30,8 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
         MSMTestSet<bn254::G1AffinePoint>::Random(kCount, MSMMethod::kMSM);
 
     d_bases_ = gpu::GpuMemory<bn254::G1AffinePointGpu>::Malloc(kCount);
-    d_scalars_ = gpu::GpuMemory<bn254::FrCuda>::Malloc(kCount);
-    size_t bit_size = bn254::FrCuda::kModulusBits;
+    d_scalars_ = gpu::GpuMemory<bn254::FrGpu>::Malloc(kCount);
+    size_t bit_size = bn254::FrGpu::kModulusBits;
     d_results_ = gpu::GpuMemory<bn254::G1JacobianPointGpu>::Malloc(bit_size);
     u_results_.reset(new bn254::G1JacobianPoint[bit_size]);
 
@@ -51,7 +51,7 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
 
  protected:
   static gpu::GpuMemory<bn254::G1AffinePointGpu> d_bases_;
-  static gpu::GpuMemory<bn254::FrCuda> d_scalars_;
+  static gpu::GpuMemory<bn254::FrGpu> d_scalars_;
   static gpu::GpuMemory<bn254::G1JacobianPointGpu> d_results_;
   static std::unique_ptr<bn254::G1JacobianPoint[]> u_results_;
   static bn254::G1JacobianPoint expected_;
@@ -59,7 +59,7 @@ class VariableMSMCorrectnessCudaTest : public testing::Test {
 
 gpu::GpuMemory<bn254::G1AffinePointGpu>
     VariableMSMCorrectnessCudaTest::d_bases_;
-gpu::GpuMemory<bn254::FrCuda> VariableMSMCorrectnessCudaTest::d_scalars_;
+gpu::GpuMemory<bn254::FrGpu> VariableMSMCorrectnessCudaTest::d_scalars_;
 gpu::GpuMemory<bn254::G1JacobianPointGpu>
     VariableMSMCorrectnessCudaTest::d_results_;
 std::unique_ptr<bn254::G1JacobianPoint[]>

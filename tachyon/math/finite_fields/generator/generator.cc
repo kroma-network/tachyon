@@ -233,15 +233,11 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
       "",
       "#include \"%{header_path}\"",
       "",
-      "#if TACHYON_CUDA",
       "#include \"tachyon/math/finite_fields/prime_field_cuda.cu.h\"",
-      "#endif  // TACHYON_CUDA",
       "",
       "namespace %{namespace} {",
       "",
-      "#if TACHYON_CUDA",
-      "using %{class}Cuda = PrimeFieldCuda<%{class}Config>;",
-      "#endif  // TACHYON_CUDA",
+      "using %{class}Gpu = PrimeFieldCuda<%{class}Config>;",
       "",
       "}  // namespace %{namespace}",
       "",
@@ -252,7 +248,7 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
   std::string header_guard_macro = math::BazelOutToHdrGuardMacro(out);
   base::FilePath hdr_path = math::BazelOutToHdrPath(out);
   std::string basename = hdr_path.BaseName().value();
-  basename = basename.substr(0, basename.find("_cuda"));
+  basename = basename.substr(0, basename.find("_gpu"));
   std::string header_path = hdr_path.DirName().Append(basename + ".h").value();
   std::string content = absl::StrReplaceAll(
       tpl_content, {
@@ -289,7 +285,7 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  if (base::EndsWith(config.out.value(), ".cu.h")) {
+  if (base::EndsWith(config.out.value(), "_gpu.h")) {
     return config.GenerateConfigGpuHdr();
   } else if (base::EndsWith(config.out.value(), ".h")) {
     return config.GenerateConfigHdr();
