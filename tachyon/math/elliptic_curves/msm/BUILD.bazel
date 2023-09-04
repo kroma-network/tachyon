@@ -74,7 +74,7 @@ tachyon_cuda_test(
         ":variable_base_msm_cuda",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )

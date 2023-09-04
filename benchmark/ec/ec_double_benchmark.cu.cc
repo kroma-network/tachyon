@@ -8,7 +8,7 @@
 // clang-format on
 #include "tachyon/base/time/time_interval.h"
 #include "tachyon/device/gpu/gpu_memory.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 
 namespace tachyon {
@@ -38,8 +38,8 @@ void TestDoubleOnCPU(const std::vector<math::bn254::G1AffinePoint>& bases,
   }
 }
 
-gpuError_t LaunchDouble(const math::bn254::G1AffinePointCuda* x,
-                        math::bn254::G1JacobianPointCuda* y, uint64_t count) {
+gpuError_t LaunchDouble(const math::bn254::G1AffinePointGpu* x,
+                        math::bn254::G1JacobianPointGpu* y, uint64_t count) {
   math::kernels::Double<<<(count - 1) / 32 + 1, 32>>>(x, y, count);
   gpuError_t error = LOG_IF_GPU_LAST_ERROR("Failed to Double()");
   return error == gpuSuccess
@@ -48,13 +48,13 @@ gpuError_t LaunchDouble(const math::bn254::G1AffinePointCuda* x,
              : error;
 }
 
-void TestDoubleOnGPU(math::bn254::G1AffinePointCuda* bases_cuda,
-                     math::bn254::G1JacobianPointCuda* results_cuda,
+void TestDoubleOnGPU(math::bn254::G1AffinePointGpu* bases_cuda,
+                     math::bn254::G1JacobianPointGpu* results_cuda,
                      const std::vector<math::bn254::G1AffinePoint>& bases,
                      uint64_t nums) {
   for (uint64_t i = 0; i < nums; ++i) {
     bases_cuda[i] =
-        math::bn254::G1AffinePointCuda::FromMontgomery(bases[i].ToMontgomery());
+        math::bn254::G1AffinePointGpu::FromMontgomery(bases[i].ToMontgomery());
   }
 
   LaunchDouble(bases_cuda, results_cuda, nums);
@@ -68,7 +68,7 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  math::bn254::G1AffinePointCuda::Curve::Init();
+  math::bn254::G1AffinePointGpu::Curve::Init();
   math::bn254::G1AffinePoint::Curve::Init();
 
   SimpleECBenchmarkReporter reporter(config.point_nums());
@@ -90,10 +90,10 @@ int RealMain(int argc, char** argv) {
 
   GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
   auto bases_cuda =
-      gpu::GpuMemory<math::bn254::G1AffinePointCuda>::MallocManaged(
+      gpu::GpuMemory<math::bn254::G1AffinePointGpu>::MallocManaged(
           max_point_num);
   auto results_cuda =
-      gpu::GpuMemory<math::bn254::G1JacobianPointCuda>::MallocManaged(
+      gpu::GpuMemory<math::bn254::G1JacobianPointGpu>::MallocManaged(
           max_point_num);
 
   interval.Reset();

@@ -53,7 +53,7 @@ tachyon_cuda_library(
         "//tachyon/cc/math/elliptic_curves:point_conversions",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm_cuda",
     ],
 )

@@ -35,7 +35,7 @@ tachyon_cuda_binary(
         ":simple_ec_benchmark_reporter",
         "//tachyon/base/time:time_interval",
         "//tachyon/device/gpu:gpu_memory",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
         "//tachyon/math/elliptic_curves/short_weierstrass/kernels:elliptic_curve_ops",
     ],
 )
