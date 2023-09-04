@@ -3,7 +3,6 @@ load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
     "tachyon_cc_test",
-    "tachyon_cuda_library",
     "tachyon_cuda_test",
 )
 
@@ -33,9 +32,9 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cuda_library(
-    name = "sw_curve_cuda",
-    srcs = ["sw_curve_cuda.cu.h"],
+tachyon_cc_library(
+    name = "sw_curve_gpu",
+    srcs = ["sw_curve_gpu.h"],
     deps = [":points"],
 )
 
