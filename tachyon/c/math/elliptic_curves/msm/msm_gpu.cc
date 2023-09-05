@@ -174,7 +174,7 @@ tachyon_bn254_g1_jacobian* tachyon_bn254_g1_point2_msm_gpu(
   return tachyon::c::math::DoMSMGpu(bases, bases_len, scalars, scalars_len);
 }
 
-tachyon_bn254_g1_jacobian* tachyon_msm_g1_affine_gpu(
+tachyon_bn254_g1_jacobian* tachyon_bn254_g1_affine_msm_gpu(
     const tachyon_bn254_g1_affine* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
   return tachyon::c::math::DoMSMGpu(bases, bases_len, scalars, scalars_len);

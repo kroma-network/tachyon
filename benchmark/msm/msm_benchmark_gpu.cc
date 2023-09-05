@@ -43,7 +43,7 @@ int RealMain(int argc, char** argv) {
 
   tachyon_init_msm_gpu(config.degrees().back());
   std::vector<bn254::G1JacobianPoint> results_gpu;
-  runner.Run(tachyon_msm_g1_affine_gpu, point_nums, &results_gpu);
+  runner.Run(tachyon_bn254_g1_affine_msm_gpu, point_nums, &results_gpu);
   tachyon_release_msm_gpu();
 
   CHECK(results_cpu == results_gpu) << "Result not matched";
