@@ -10,7 +10,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "callback",
     hdrs = ["callback.h"],
-    deps = [":callback_forward"],
+    deps = [
+        ":callback_forward",
+        "@com_google_absl//absl/functional:function_ref",
+    ],
 )
 
 tachyon_cc_library(
