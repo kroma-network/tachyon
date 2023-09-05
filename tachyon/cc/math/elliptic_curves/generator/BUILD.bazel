@@ -1,0 +1,15 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_binary(
+    name = "generator",
+    srcs = ["generator.cc"],
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/files:file_path_flag",
+        "//tachyon/base/files:file_util",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/build:generator_util",
+    ],
+)

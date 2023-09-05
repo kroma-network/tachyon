@@ -9,7 +9,8 @@
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/time/time.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_gpu.h"
-#include "tachyon/cc/math/elliptic_curves/bn/bn254/bn254_util_internal.h"
+#include "tachyon/cc/math/elliptic_curves/bn/bn254/point_traits.h"
+#include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
 namespace tachyon {

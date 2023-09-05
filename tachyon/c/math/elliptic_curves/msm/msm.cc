@@ -56,7 +56,7 @@ tachyon_bn254_g1_jacobian* DoMSM(const T* bases, size_t bases_len,
   g_provider->Inject(bases, bases_len, scalars, scalars_len);
   bn254::G1JacobianPoint ret;
   CHECK(g_msm->Run(g_provider->bases(), g_provider->scalars(), &ret));
-  return CreateCPoint3Ptr<tachyon_bn254_g1_jacobian>(ret);
+  return cc::math::CreateCPoint3Ptr<tachyon_bn254_g1_jacobian>(ret);
 }
 
 }  // namespace
