@@ -7,13 +7,9 @@ tachyon_cc_binary(
     srcs = ["generator.cc"],
     deps = [
         "//tachyon/base/console",
-        "//tachyon/base/containers:cxx20_erase",
         "//tachyon/base/files:file_path_flag",
         "//tachyon/base/files:file_util",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/build:generator_util",
-        "//tachyon/math/base/gmp:bit_traits",
-        "//tachyon/math/finite_fields:prime_field",
-        "//tachyon/math/finite_fields/generator:generator_util",
     ],
 )

@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//tachyon/c/math/elliptic_curves/generator:build_defs.bzl", "generate_ec_points")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -11,20 +11,8 @@ filegroup(
     ],
 )
 
-tachyon_cc_library(
-    name = "fq",
-    hdrs = ["fq.h"],
-    deps = ["//tachyon/c:export"],
-)
-
-tachyon_cc_library(
-    name = "fr",
-    hdrs = ["fr.h"],
-    deps = ["//tachyon/c:export"],
-)
-
-tachyon_cc_library(
-    name = "g1",
-    hdrs = ["g1.h"],
-    deps = [":fq"],
+generate_ec_points(
+    name = "bn254",
+    fq_limb_nums = 4,
+    fr_limb_nums = 4,
 )

@@ -5,6 +5,7 @@
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/build/generator_util.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
 #include "tachyon/math/finite_fields/prime_field.h"
@@ -178,7 +179,7 @@ int GenerationConfig::GenerateConfigHdr() const {
   std::string content = absl::StrReplaceAll(
       tpl_content,
       {
-          {"%{header_guard_macro}", math::BazelOutToHdrGuardMacro(out)},
+          {"%{header_guard_macro}", build::BazelOutToHdrGuardMacro(out)},
           {"%{namespace}", ns_name},
           {"%{class}", class_name},
           {"%{modulus_bits}", absl::StrCat(num_bits)},
@@ -215,7 +216,7 @@ int GenerationConfig::GenerateConfigCpp() const {
   };
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  std::string header_path = math::BazelOutToHdrPath(out).value();
+  std::string header_path = build::BazelOutToHdrPath(out).value();
   std::string content =
       absl::StrReplaceAll(tpl_content, {
                                            {"%{header_path}", header_path},
@@ -245,8 +246,8 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
   };
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  std::string header_guard_macro = math::BazelOutToHdrGuardMacro(out);
-  base::FilePath hdr_path = math::BazelOutToHdrPath(out);
+  std::string header_guard_macro = build::BazelOutToHdrGuardMacro(out);
+  base::FilePath hdr_path = build::BazelOutToHdrPath(out);
   std::string basename = hdr_path.BaseName().value();
   basename = basename.substr(0, basename.find("_gpu"));
   std::string header_path = hdr_path.DirName().Append(basename + ".h").value();

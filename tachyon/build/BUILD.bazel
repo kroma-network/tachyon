@@ -27,3 +27,13 @@ tachyon_cc_library(
     name = "buildflag",
     hdrs = ["buildflag.h"],
 )
+
+tachyon_cc_library(
+    name = "generator_util",
+    srcs = ["generator_util.cc"],
+    hdrs = ["generator_util.h"],
+    deps = [
+        "//tachyon/base/files:file_path",
+        "//tachyon/base/strings:string_util",
+    ],
+)
