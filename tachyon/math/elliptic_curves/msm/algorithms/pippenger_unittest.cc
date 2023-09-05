@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/math/elliptic_curves/bls/bls12_381/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
@@ -36,7 +37,9 @@ class PippengerTest : public testing::Test {
 
 using PointTypes =
     testing::Types<bn254::G1AffinePoint, bn254::G1ProjectivePoint,
-                   bn254::G1JacobianPoint, bn254::G1PointXYZZ>;
+                   bn254::G1JacobianPoint, bn254::G1PointXYZZ,
+                   // See https://github.com/kroma-network/tachyon/pull/31
+                   bls12_381::G1AffinePoint>;
 TYPED_TEST_SUITE(PippengerTest, PointTypes);
 
 TYPED_TEST(PippengerTest, Run) {

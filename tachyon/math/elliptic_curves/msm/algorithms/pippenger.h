@@ -149,9 +149,15 @@ class Pippenger {
   void AccumulateSingleWindowNAFSum(
       BaseInputIterator bases_it,
       const std::vector<std::vector<int64_t>>& scalar_digits, size_t i,
-      ReturnTy* window_sum) {
+      ReturnTy* window_sum, bool is_last_window) {
+    size_t bucket_size;
+    if (is_last_window) {
+      bucket_size = 1 << window_bits_;
+    } else {
+      bucket_size = 1 << (window_bits_ - 1);
+    }
     std::vector<ReturnTy> buckets =
-        base::CreateVector(1 << (window_bits_ - 1), ReturnTy::Zero());
+        base::CreateVector(bucket_size, ReturnTy::Zero());
     for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
       const PointTy& base = *bases_it;
       int64_t scalar = scalar_digits[j][i];
@@ -179,12 +185,14 @@ class Pippenger {
     if (parallel_windows_) {
       OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count_; ++i) {
         AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
-                                     &(*window_sums)[i]);
+                                     &(*window_sums)[i],
+                                     i == window_count_ - 1);
       }
     } else {
       for (size_t i = 0; i < window_count_; ++i) {
         AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
-                                     &(*window_sums)[i]);
+                                     &(*window_sums)[i],
+                                     i == window_count_ - 1);
       }
     }
   }
