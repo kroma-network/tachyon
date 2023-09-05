@@ -39,29 +39,14 @@ def generate_ec_points(
         fq_limb_nums,
         fr_limb_nums,
         **kwargs):
-    generate_ec_point(
-        type = name,
-        fq_limb_nums = fq_limb_nums,
-        fr_limb_nums = fr_limb_nums,
-        name = "gen_fq",
-        out = "fq.h",
-    )
-
-    generate_ec_point(
-        type = name,
-        fq_limb_nums = fq_limb_nums,
-        fr_limb_nums = fr_limb_nums,
-        name = "gen_fr",
-        out = "fr.h",
-    )
-
-    generate_ec_point(
-        type = name,
-        fq_limb_nums = fq_limb_nums,
-        fr_limb_nums = fr_limb_nums,
-        name = "gen_g1",
-        out = "g1.h",
-    )
+    for n in [("gen_fq", "fq.h"), ("gen_fr", "fr.h"), ("gen_g1", "g1.h")]:
+        generate_ec_point(
+            type = name,
+            fq_limb_nums = fq_limb_nums,
+            fr_limb_nums = fr_limb_nums,
+            name = n[0],
+            out = n[1],
+        )
 
     tachyon_cc_library(
         name = "fq",
