@@ -7,6 +7,7 @@
 #include "tachyon/base/environment.h"
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
+#include "tachyon/cc/math/elliptic_curves/bn/bn254/point_traits.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
@@ -28,7 +29,7 @@ gpu::GpuMemory<bn254::G1AffinePointGpu> g_d_bases;
 gpu::GpuMemory<bn254::FrGpu> g_d_scalars;
 gpu::GpuMemory<bn254::G1JacobianPointGpu> g_d_results;
 std::unique_ptr<bn254::G1JacobianPoint[]> g_u_results;
-std::unique_ptr<MSMInputProvider> g_provider;
+std::unique_ptr<MSMInputProvider<bn254::G1AffinePoint>> g_provider;
 
 // TODO(chokobole): Remove this when MSM gpu is stabilized.
 std::string g_save_location;
@@ -76,7 +77,7 @@ void DoInitMSMGpu(uint8_t degree) {
   g_u_results.reset(new bn254::G1JacobianPoint[bit_size]);
 
   g_stream = gpu::CreateStream();
-  g_provider.reset(new MSMInputProvider());
+  g_provider.reset(new MSMInputProvider<bn254::G1AffinePoint>());
   g_provider->set_needs_align(true);
 }
 

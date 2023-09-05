@@ -1,0 +1,21 @@
+load("//tachyon/cc/math/elliptic_curves/generator:build_defs.bzl", "generate_ec_points")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "bls12_381_hdrs",
+    srcs = [
+        "bls12_381_util.h",
+    ],
+)
+
+generate_ec_points(
+    name = "bls12_381",
+    fq_limb_nums = 6,
+    fr_limb_nums = 4,
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bls/bls12_381:fr",
+        "//tachyon/c/math/elliptic_curves/bls/bls12_381:g1",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
+    ],
+)

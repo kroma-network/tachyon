@@ -19,15 +19,27 @@ filegroup(
 
 tachyon_cc_library(
     name = "msm_input_provider",
-    srcs = ["msm_input_provider.cc"],
     hdrs = ["msm_input_provider.h"],
     deps = [
-        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/cc/math/elliptic_curves:point_traits",
+        "//tachyon/math/geometry:point2",
         "@com_google_absl//absl/numeric:bits",
+        "@com_google_absl//absl/types:span",
     ],
 )
+
+TPLS = [
+    "//tachyon/c/math/elliptic_curves/{}:fr",
+    "//tachyon/c/math/elliptic_curves/{}:g1",
+    "//tachyon/cc/math/elliptic_curves/{}:point_traits",
+]
+
+CURVES = [
+    "bn/bn254",
+    "bls/bls12_381",
+]
+
+COMMON_DEPS = [tpl.format(curve) for tpl in TPLS for curve in CURVES]
 
 tachyon_cc_library(
     name = "msm",
@@ -35,11 +47,14 @@ tachyon_cc_library(
     hdrs = ["msm.h"],
     deps = [
         ":msm_input_provider",
+        "//tachyon/base:no_destructor",
         "//tachyon/base/console",
         "//tachyon/base/containers:container_util",
         "//tachyon/cc/math/elliptic_curves:point_conversions",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
-    ],
+        "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+    ] + COMMON_DEPS,
 )
 
 tachyon_cuda_library(
@@ -53,9 +68,10 @@ tachyon_cuda_library(
         "//tachyon/cc/math/elliptic_curves:point_conversions",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:g1_gpu",
         "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm_gpu",
-    ],
+    ] + COMMON_DEPS,
 )
 
 tachyon_cc_test(

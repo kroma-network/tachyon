@@ -115,6 +115,13 @@ int GenerationConfig::GenerateG1Hdr() const {
       "  tachyon_%{type}_fq z;",
       "};",
       "",
+      "struct TACHYON_C_EXPORT tachyon_%{type}_g1_point4 {",
+      "  tachyon_%{type}_fq x;",
+      "  tachyon_%{type}_fq y;",
+      "  tachyon_%{type}_fq z;",
+      "  tachyon_%{type}_fq w;",
+      "};",
+      "",
       "#endif  // %{header_guard_macro}",
   };
   // clang-format on

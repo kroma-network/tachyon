@@ -26,6 +26,8 @@ int kPointDimensions[] = {2, 3, 3, 4, 2, 3};
 std::string GetLocation(std::string_view type) {
   if (type == "bn254") {
     return "bn/bn254";
+  } else if (type == "bls12_381") {
+    return "bls/bls12_381";
   }
   NOTREACHED() << "Unsupported type: " << type;
   return "";
@@ -65,25 +67,29 @@ int GenerationConfig::GeneratePointTraitsHdr() const {
       "",
       "template <>",
       "struct PointTraits<tachyon::math::%{type}::G1AffinePoint> {",
-      "  using CPointTy = tachyon_%{type}_g1_affine;",
+      "  using CPointTy = tachyon_%{type}_g1_point2;",
+      "  using CCurvePointTy = tachyon_%{type}_g1_affine;",
       "  using CScalarField = tachyon_%{type}_fr;",
       "};",
       "",
       "template <>",
       "struct PointTraits<tachyon::math::%{type}::G1ProjectivePoint> {",
-      "  using CPointTy = tachyon_%{type}_g1_projective;",
+      "  using CPointTy = tachyon_%{type}_g1_point3;",
+      "  using CCurvePointTy = tachyon_%{type}_g1_projective;",
       "  using CScalarField = tachyon_%{type}_fr;",
       "};",
       "",
       "template <>",
       "struct PointTraits<tachyon::math::%{type}::G1JacobianPoint> {",
-      "  using CPointTy = tachyon_%{type}_g1_jacobian;",
+      "  using CPointTy = tachyon_%{type}_g1_point3;",
+      "  using CCurvePointTy = tachyon_%{type}_g1_jacobian;",
       "  using CScalarField = tachyon_%{type}_fr;",
       "};",
       "",
       "template <>",
       "struct PointTraits<tachyon::math::%{type}::G1PointXYZZ> {",
-      "  using CPointTy = tachyon_%{type}_g1_xyzz;",
+      "  using CPointTy = tachyon_%{type}_g1_point4;",
+      "  using CCurvePointTy = tachyon_%{type}_g1_xyzz;",
       "  using CScalarField = tachyon_%{type}_fr;",
       "};",
       "",
@@ -119,6 +125,11 @@ int GenerationConfig::GeneratePointTraitsHdr() const {
       "template <>",
       "struct PointTraits<tachyon_%{type}_g1_point3> {",
       "  using PointTy = tachyon::math::Point3<tachyon::math::%{type}::Fq>;",
+      "};",
+      "",
+      "template <>",
+      "struct PointTraits<tachyon_%{type}_g1_point4> {",
+      "  using PointTy = tachyon::math::Point4<tachyon::math::%{type}::Fq>;",
       "};",
       "",
       "template <>"
