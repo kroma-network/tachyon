@@ -2,9 +2,9 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/device/gpu/gpu_memory.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g1_cuda.cu.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
-#include "tachyon/math/test/launch_op_macros.cu.h"
+#include "tachyon/math/test/launch_op_macros.h"
 
 namespace tachyon::math {
 
@@ -12,37 +12,36 @@ namespace {
 
 constexpr size_t kThreadNum = 32;
 
-#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                               \
-  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1ProjectivePointCuda, \
-                          bn254::G1ProjectivePointCuda)                     \
-  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1JacobianPointCuda,   \
-                          bn254::G1JacobianPointCuda)                       \
-  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1PointXYZZCuda,       \
-                          bn254::G1PointXYZZCuda)
+#define DEFINE_LAUNCH_FIELD_BINARY_OP(method)                              \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1ProjectivePointGpu, \
+                          bn254::G1ProjectivePointGpu)                     \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1JacobianPointGpu,   \
+                          bn254::G1JacobianPointGpu)                       \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1PointXYZZGpu,       \
+                          bn254::G1PointXYZZGpu)
 
 DEFINE_LAUNCH_FIELD_BINARY_OP(Add)
 
 #undef DEFINE_LAUNCH_FIELD_BINARY_OP
 
-#define DEFINE_LAUNCH_FIELD_UNARY_OP(method)                               \
-  DEFINE_LAUNCH_UNARY_OP(kThreadNum, method, bn254::G1ProjectivePointCuda, \
-                         bn254::G1ProjectivePointCuda)                     \
-  DEFINE_LAUNCH_UNARY_OP(kThreadNum, method, bn254::G1JacobianPointCuda,   \
-                         bn254::G1JacobianPointCuda)                       \
-  DEFINE_LAUNCH_UNARY_OP(kThreadNum, method, bn254::G1PointXYZZCuda,       \
-                         bn254::G1PointXYZZCuda)
+#define DEFINE_LAUNCH_FIELD_UNARY_OP(method)                              \
+  DEFINE_LAUNCH_UNARY_OP(kThreadNum, method, bn254::G1ProjectivePointGpu, \
+                         bn254::G1ProjectivePointGpu)                     \
+  DEFINE_LAUNCH_UNARY_OP(kThreadNum, method, bn254::G1JacobianPointGpu,   \
+                         bn254::G1JacobianPointGpu)                       \
+  DEFINE_LAUNCH_UNARY_OP(kThreadNum, method, bn254::G1PointXYZZGpu,       \
+                         bn254::G1PointXYZZGpu)
 
 DEFINE_LAUNCH_FIELD_UNARY_OP(Double)
 DEFINE_LAUNCH_FIELD_UNARY_OP(Negative)
 
 #undef DEFINE_LAUNCH_FIELD_UNARY_OP
 
-#define DEFINE_LAUNCH_COMPARISON_OP(method)                                 \
-  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1ProjectivePointCuda, \
-                          bool)                                             \
-  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1JacobianPointCuda,   \
-                          bool)                                             \
-  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1PointXYZZCuda, bool)
+#define DEFINE_LAUNCH_COMPARISON_OP(method)                                    \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1ProjectivePointGpu,     \
+                          bool)                                                \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1JacobianPointGpu, bool) \
+  DEFINE_LAUNCH_BINARY_OP(kThreadNum, method, bn254::G1PointXYZZGpu, bool)
 
 DEFINE_LAUNCH_COMPARISON_OP(Eq)
 DEFINE_LAUNCH_COMPARISON_OP(Ne)
@@ -52,7 +51,7 @@ DEFINE_LAUNCH_COMPARISON_OP(Ne)
 using namespace device;
 
 template <typename PointType>
-class PointCorrectnessCudaTest : public testing::Test {
+class PointCorrectnessGpuTest : public testing::Test {
  public:
   using Actual = typename PointType::Actual;
   using Expected = typename PointType::Expected;
@@ -113,52 +112,52 @@ class PointCorrectnessCudaTest : public testing::Test {
 };
 
 template <typename PointType>
-gpu::GpuMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
-    PointCorrectnessCudaTest<PointType>::xs_;
+gpu::GpuMemory<typename PointCorrectnessGpuTest<PointType>::Actual>
+    PointCorrectnessGpuTest<PointType>::xs_;
 
 template <typename PointType>
-gpu::GpuMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
-    PointCorrectnessCudaTest<PointType>::ys_;
+gpu::GpuMemory<typename PointCorrectnessGpuTest<PointType>::Actual>
+    PointCorrectnessGpuTest<PointType>::ys_;
 
 template <typename PointType>
-gpu::GpuMemory<typename PointCorrectnessCudaTest<PointType>::Actual>
-    PointCorrectnessCudaTest<PointType>::results_;
+gpu::GpuMemory<typename PointCorrectnessGpuTest<PointType>::Actual>
+    PointCorrectnessGpuTest<PointType>::results_;
 
 template <typename PointType>
-gpu::GpuMemory<bool> PointCorrectnessCudaTest<PointType>::bool_results_;
+gpu::GpuMemory<bool> PointCorrectnessGpuTest<PointType>::bool_results_;
 
 template <typename PointType>
-std::vector<typename PointCorrectnessCudaTest<PointType>::Expected>
-    PointCorrectnessCudaTest<PointType>::x_gmps_;
+std::vector<typename PointCorrectnessGpuTest<PointType>::Expected>
+    PointCorrectnessGpuTest<PointType>::x_gmps_;
 
 template <typename PointType>
-std::vector<typename PointCorrectnessCudaTest<PointType>::Expected>
-    PointCorrectnessCudaTest<PointType>::y_gmps_;
+std::vector<typename PointCorrectnessGpuTest<PointType>::Expected>
+    PointCorrectnessGpuTest<PointType>::y_gmps_;
 
 }  // namespace
 
 struct ProjectivePointTypes {
-  using Actual = bn254::G1ProjectivePointCuda;
+  using Actual = bn254::G1ProjectivePointGpu;
   using Expected = bn254::G1ProjectivePointGmp;
 };
 
 struct JacobianPointTypes {
-  using Actual = bn254::G1JacobianPointCuda;
+  using Actual = bn254::G1JacobianPointGpu;
   using Expected = bn254::G1JacobianPointGmp;
 };
 
 struct PointXYZZTypes {
-  using Actual = bn254::G1PointXYZZCuda;
+  using Actual = bn254::G1PointXYZZGpu;
   using Expected = bn254::G1PointXYZZGmp;
 };
 
 using PointTypes =
     testing::Types<ProjectivePointTypes, JacobianPointTypes, PointXYZZTypes>;
-TYPED_TEST_SUITE(PointCorrectnessCudaTest, PointTypes);
+TYPED_TEST_SUITE(PointCorrectnessGpuTest, PointTypes);
 
-TYPED_TEST(PointCorrectnessCudaTest, Add) {
+TYPED_TEST(PointCorrectnessGpuTest, Add) {
   using Expected = typename TypeParam::Expected;
-  size_t N = PointCorrectnessCudaTest<TypeParam>::N;
+  size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
   GPU_MUST_SUCCESS(
       LaunchAdd(this->xs_.get(), this->ys_.get(), this->results_.get(), N), "");
@@ -170,9 +169,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Add) {
   }
 }
 
-TYPED_TEST(PointCorrectnessCudaTest, Double) {
+TYPED_TEST(PointCorrectnessGpuTest, Double) {
   using Expected = typename TypeParam::Expected;
-  size_t N = PointCorrectnessCudaTest<TypeParam>::N;
+  size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
   GPU_MUST_SUCCESS(LaunchDouble(this->xs_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
@@ -182,9 +181,9 @@ TYPED_TEST(PointCorrectnessCudaTest, Double) {
   }
 }
 
-TYPED_TEST(PointCorrectnessCudaTest, Negative) {
+TYPED_TEST(PointCorrectnessGpuTest, Negative) {
   using Expected = typename TypeParam::Expected;
-  size_t N = PointCorrectnessCudaTest<TypeParam>::N;
+  size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
   GPU_MUST_SUCCESS(LaunchNegative(this->xs_.get(), this->results_.get(), N),
                    "");
@@ -195,8 +194,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Negative) {
   }
 }
 
-TYPED_TEST(PointCorrectnessCudaTest, Eq) {
-  size_t N = PointCorrectnessCudaTest<TypeParam>::N;
+TYPED_TEST(PointCorrectnessGpuTest, Eq) {
+  size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
   GPU_MUST_SUCCESS(
       LaunchEq(this->xs_.get(), this->xs_.get(), this->bool_results_.get(), N),
@@ -208,8 +207,8 @@ TYPED_TEST(PointCorrectnessCudaTest, Eq) {
   }
 }
 
-TYPED_TEST(PointCorrectnessCudaTest, Ne) {
-  size_t N = PointCorrectnessCudaTest<TypeParam>::N;
+TYPED_TEST(PointCorrectnessGpuTest, Ne) {
+  size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
   GPU_MUST_SUCCESS(
       LaunchNe(this->xs_.get(), this->ys_.get(), this->bool_results_.get(), N),

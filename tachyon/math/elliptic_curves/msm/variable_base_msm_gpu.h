@@ -1,15 +1,15 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_CUDA_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_CUDA_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_GPU_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_GPU_H_
 
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_kernels.cu.h"
-#include "tachyon/math/elliptic_curves/msm/variable_base_msm_cuda_impl.cu.h"
+#include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu_impl.h"
 
 namespace tachyon::math {
 
 template <typename Curve>
-class VariableBaseMSMCuda {
+class VariableBaseMSMGpu {
  public:
   using Config = typename Curve::Config;
   using ScalarField = typename JacobianPoint<Curve>::ScalarField;
@@ -57,4 +57,4 @@ class VariableBaseMSMCuda {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_CUDA_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_GPU_H_

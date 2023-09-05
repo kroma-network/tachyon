@@ -60,8 +60,8 @@ tachyon_cc_library(
 )
 
 tachyon_cuda_library(
-    name = "prime_field_cuda",
-    hdrs = ["prime_field_cuda.cu.h"],
+    name = "prime_field_gpu",
+    hdrs = ["prime_field_gpu.h"],
     deps = [
         ":prime_field",
         "//tachyon/math/finite_fields/kernels:carry_chain",
@@ -69,10 +69,10 @@ tachyon_cuda_library(
 )
 
 tachyon_cc_library(
-    name = "prime_field_cuda_debug",
+    name = "prime_field_gpu_debug",
     hdrs = [
         "carry_chain.h",
-        "prime_field_cuda_debug.h",
+        "prime_field_gpu_debug.h",
         "prime_field_ops_internal.h",
     ],
     deps = [":prime_field"],
@@ -96,12 +96,12 @@ tachyon_cc_test(
 )
 
 tachyon_cuda_test(
-    name = "finite_fields_cuda_unittests",
-    srcs = if_cuda(["prime_field_cuda_unittest.cu.cc"]),
+    name = "finite_fields_gpu_unittests",
+    srcs = if_cuda(["prime_field_gpu_unittest.cc"]),
     deps = [
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
-        "//tachyon/math/finite_fields/test:gf7_cuda",
+        "//tachyon/math/finite_fields/test:gf7_gpu",
         "//tachyon/math/test:launch_op_macros",
     ],
 )
@@ -110,8 +110,8 @@ tachyon_cc_test(
     name = "finite_field_correctness_tests",
     srcs = if_gmp_backend(["prime_field_correctness_test.cc"]),
     deps = [
-        ":prime_field_cuda",
-        ":prime_field_cuda_debug",
+        ":prime_field_gpu",
+        ":prime_field_gpu_debug",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
     ] + if_polygon_zkevm_backend([
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
@@ -121,12 +121,12 @@ tachyon_cc_test(
 )
 
 tachyon_cuda_test(
-    name = "finite_field_correctness_cuda_tests",
-    srcs = if_cuda_and_gmp_backend(["prime_field_correctness_cuda_test.cu.cc"]),
+    name = "finite_field_correctness_gpu_tests",
+    srcs = if_cuda_and_gmp_backend(["prime_field_correctness_gpu_test.cc"]),
     deps = [
-        ":prime_field_cuda",
+        ":prime_field_gpu",
         "//tachyon/device/gpu:gpu_memory",
-        "//tachyon/math/elliptic_curves/bn/bn254:fq_cuda",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq_gpu",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
         "//tachyon/math/test:launch_op_macros",
     ],

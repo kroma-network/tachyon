@@ -76,8 +76,8 @@ def generate_prime_fields(
         namespace = namespace,
         class_name = class_name,
         modulus = modulus,
-        name = "{}_gen_cuda_hdr".format(name),
-        out = "{}_cuda.cu.h".format(name),
+        name = "{}_gen_gpu_hdr".format(name),
+        out = "{}_gpu.h".format(name),
     )
 
     tachyon_cc_library(
@@ -93,11 +93,11 @@ def generate_prime_fields(
     )
 
     tachyon_cc_library(
-        name = "{}_cuda".format(name),
-        hdrs = [":{}_gen_cuda_hdr".format(name)],
+        name = "{}_gpu".format(name),
+        hdrs = [":{}_gen_gpu_hdr".format(name)],
         deps = [
             ":{}".format(name),
-            "//tachyon/math/finite_fields:prime_field_cuda",
+            "//tachyon/math/finite_fields:prime_field_gpu",
         ],
         **kwargs
     )

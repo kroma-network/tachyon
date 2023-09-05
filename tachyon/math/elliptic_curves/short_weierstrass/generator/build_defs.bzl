@@ -98,8 +98,8 @@ def generate_ec_points(
         endomorphism_coefficient = endomorphism_coefficient,
         lambda_ = lambda_,
         glv_coeffs = glv_coeffs,
-        name = "{}_gen_cuda_hdr".format(name),
-        out = "{}_cuda.cu.h".format(name),
+        name = "{}_gen_gpu_hdr".format(name),
+        out = "{}_gpu.h".format(name),
     )
 
     tachyon_cc_library(
@@ -114,13 +114,13 @@ def generate_ec_points(
     )
 
     tachyon_cc_library(
-        name = "{}_cuda".format(name),
-        hdrs = [":{}_gen_cuda_hdr".format(name)],
+        name = "{}_gpu".format(name),
+        hdrs = [":{}_gen_gpu_hdr".format(name)],
         deps = [
             ":{}".format(name),
-            ":fq_cuda",
-            ":fr_cuda",
-            "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve_cuda",
+            ":fq_gpu",
+            ":fr_gpu",
+            "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve_gpu",
         ],
         **kwargs
     )

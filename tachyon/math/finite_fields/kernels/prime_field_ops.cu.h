@@ -5,18 +5,18 @@
 
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
 
-#include "tachyon/math/finite_fields/prime_field_cuda.cu.h"
+#include "tachyon/math/finite_fields/prime_field_gpu.h"
 
 namespace tachyon::math::kernels {
 
-#define DEFINE_FIELD_OP(method, operator)                                      \
-  template <typename Config>                                                   \
-  __global__ void method(const PrimeFieldCuda<Config>* x,                      \
-                         const PrimeFieldCuda<Config>* y,                      \
-                         PrimeFieldCuda<Config>* result, unsigned int count) { \
-    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;                  \
-    if (gid >= count) return;                                                  \
-    result[gid] = x[gid] operator y[gid];                                      \
+#define DEFINE_FIELD_OP(method, operator)                                     \
+  template <typename Config>                                                  \
+  __global__ void method(const PrimeFieldGpu<Config>* x,                      \
+                         const PrimeFieldGpu<Config>* y,                      \
+                         PrimeFieldGpu<Config>* result, unsigned int count) { \
+    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;                 \
+    if (gid >= count) return;                                                 \
+    result[gid] = x[gid] operator y[gid];                                     \
   }
 
 DEFINE_FIELD_OP(Add, +)
@@ -26,14 +26,14 @@ DEFINE_FIELD_OP(Div, /)
 
 #undef DEFINE_FIELD_OP
 
-#define DEFINE_COMPARISON_OP(method, operator)                          \
-  template <typename Config>                                            \
-  __global__ void method(const PrimeFieldCuda<Config>* x,               \
-                         const PrimeFieldCuda<Config>* y, bool* result, \
-                         unsigned int count) {                          \
-    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;           \
-    if (gid >= count) return;                                           \
-    result[gid] = x[gid] operator y[gid];                               \
+#define DEFINE_COMPARISON_OP(method, operator)                         \
+  template <typename Config>                                           \
+  __global__ void method(const PrimeFieldGpu<Config>* x,               \
+                         const PrimeFieldGpu<Config>* y, bool* result, \
+                         unsigned int count) {                         \
+    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;          \
+    if (gid >= count) return;                                          \
+    result[gid] = x[gid] operator y[gid];                              \
   }
 
 DEFINE_COMPARISON_OP(Eq, ==)

@@ -5,14 +5,14 @@ package(default_visibility = ["//visibility:public"])
 
 tachyon_cuda_library(
     name = "carry_chain",
-    hdrs = ["carry_chain.cu.h"],
+    hdrs = ["carry_chain.h"],
     deps = [":prime_field_ops_internal"],
 )
 
 tachyon_cuda_library(
     name = "prime_field_ops",
     hdrs = ["prime_field_ops.cu.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field_cuda"],
+    deps = ["//tachyon/math/finite_fields:prime_field_gpu"],
 )
 
 tachyon_cuda_library(

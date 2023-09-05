@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CUDA_CU_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CUDA_CU_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_GPU_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_GPU_H_
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_base.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config_traits.h"
@@ -8,15 +8,15 @@
 namespace tachyon::math {
 
 template <typename _Config>
-class SWCurveCuda : public SWCurveBase<SWCurveCuda<_Config>> {
+class SWCurveGpu : public SWCurveBase<SWCurveGpu<_Config>> {
  public:
   using Config = _Config;
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
-  using AffinePointTy = AffinePoint<SWCurveCuda<Config>>;
-  using ProjectivePointTy = ProjectivePoint<SWCurveCuda<Config>>;
-  using JacobianPointTy = JacobianPoint<SWCurveCuda<Config>>;
-  using PointXYZZTy = PointXYZZ<SWCurveCuda<Config>>;
+  using AffinePointTy = AffinePoint<SWCurveGpu<Config>>;
+  using ProjectivePointTy = ProjectivePoint<SWCurveGpu<Config>>;
+  using JacobianPointTy = JacobianPoint<SWCurveGpu<Config>>;
+  using PointXYZZTy = PointXYZZ<SWCurveGpu<Config>>;
 
   constexpr static bool kIsSWCurve = true;
 
@@ -43,15 +43,15 @@ class SWCurveCuda : public SWCurveBase<SWCurveCuda<_Config>> {
 };
 
 template <typename Config>
-struct SWCurveConfigTraits<SWCurveCuda<Config>> {
+struct SWCurveConfigTraits<SWCurveGpu<Config>> {
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
-  using AffinePointTy = AffinePoint<SWCurveCuda<Config>>;
-  using ProjectivePointTy = ProjectivePoint<SWCurveCuda<Config>>;
-  using JacobianPointTy = JacobianPoint<SWCurveCuda<Config>>;
-  using PointXYZZTy = PointXYZZ<SWCurveCuda<Config>>;
+  using AffinePointTy = AffinePoint<SWCurveGpu<Config>>;
+  using ProjectivePointTy = ProjectivePoint<SWCurveGpu<Config>>;
+  using JacobianPointTy = JacobianPoint<SWCurveGpu<Config>>;
+  using PointXYZZTy = PointXYZZ<SWCurveGpu<Config>>;
 };
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_CUDA_CU_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_GPU_H_

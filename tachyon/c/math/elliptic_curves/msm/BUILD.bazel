@@ -53,8 +53,8 @@ tachyon_cuda_library(
         "//tachyon/cc/math/elliptic_curves:point_conversions",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/device/gpu:scoped_mem_pool",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
-        "//tachyon/math/elliptic_curves/msm:variable_base_msm_cuda",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm_gpu",
     ],
 )
 
@@ -70,7 +70,7 @@ tachyon_cc_test(
 )
 
 tachyon_cuda_test(
-    name = "msm_cuda_unittest",
+    name = "msm_gpu_unittest",
     srcs = if_gpu_is_configured(["msm_gpu_unittest.cu.cc"]),
     deps = [
         ":msm_gpu",

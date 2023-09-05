@@ -3,7 +3,6 @@ load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
     "tachyon_cc_test",
-    "tachyon_cuda_library",
     "tachyon_cuda_test",
 )
 
@@ -33,9 +32,9 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cuda_library(
-    name = "sw_curve_cuda",
-    srcs = ["sw_curve_cuda.cu.h"],
+tachyon_cc_library(
+    name = "sw_curve_gpu",
+    srcs = ["sw_curve_gpu.h"],
     deps = [":points"],
 )
 
@@ -60,14 +59,14 @@ tachyon_cc_test(
 )
 
 tachyon_cuda_test(
-    name = "short_weierstrass_correctness_cuda_tests",
+    name = "short_weierstrass_correctness_gpu_tests",
     srcs = if_cuda_and_gmp_backend([
-        "affine_point_correctness_cuda_test.cu.cc",
-        "non_affine_point_correctness_cuda_test.cu.cc",
+        "affine_point_correctness_gpu_test.cc",
+        "non_affine_point_correctness_gpu_test.cc",
     ]),
     deps = [
         "//tachyon/device/gpu:gpu_memory",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1_cuda",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
         "//tachyon/math/elliptic_curves/short_weierstrass/kernels:elliptic_curve_ops",
         "//tachyon/math/test:launch_op_macros",
     ],
