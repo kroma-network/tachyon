@@ -39,7 +39,7 @@ tachyon_cuda_library(
     name = "variable_base_msm_gpu",
     hdrs = [
         "variable_base_msm_gpu.h",
-        "variable_base_msm_gpu_impl.cu.h",
+        "variable_base_msm_gpu_impl.h",
     ],
     deps = [
         "//tachyon/base:bits",
@@ -68,7 +68,7 @@ tachyon_cc_test(
 
 tachyon_cuda_test(
     name = "msm_gpu_unittests",
-    srcs = if_gpu_is_configured(["variable_base_msm_gpu_unittest.cu.cc"]),
+    srcs = if_gpu_is_configured(["variable_base_msm_gpu_unittest.cc"]),
     deps = [
         ":variable_base_msm",
         ":variable_base_msm_gpu",

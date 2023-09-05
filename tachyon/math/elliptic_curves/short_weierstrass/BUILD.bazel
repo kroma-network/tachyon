@@ -61,8 +61,8 @@ tachyon_cc_test(
 tachyon_cuda_test(
     name = "short_weierstrass_correctness_gpu_tests",
     srcs = if_cuda_and_gmp_backend([
-        "affine_point_correctness_gpu_test.cu.cc",
-        "non_affine_point_correctness_gpu_test.cu.cc",
+        "affine_point_correctness_gpu_test.cc",
+        "non_affine_point_correctness_gpu_test.cc",
     ]),
     deps = [
         "//tachyon/device/gpu:gpu_memory",

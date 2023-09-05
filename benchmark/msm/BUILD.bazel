@@ -48,7 +48,7 @@ tachyon_cc_binary(
 
 tachyon_cuda_binary(
     name = "msm_benchmark_gpu",
-    srcs = ["msm_benchmark.cu.cc"],
+    srcs = ["msm_benchmark_gpu.cc"],
     deps = [
         ":msm_config",
         ":msm_runner",

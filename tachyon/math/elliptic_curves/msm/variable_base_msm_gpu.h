@@ -4,7 +4,7 @@
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_kernels.cu.h"
-#include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu_impl.cu.h"
+#include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu_impl.h"
 
 namespace tachyon::math {
 

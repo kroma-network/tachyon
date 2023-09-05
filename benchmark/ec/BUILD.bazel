@@ -27,8 +27,8 @@ tachyon_cc_library(
 )
 
 tachyon_cuda_binary(
-    name = "ec_double_benchmark",
-    srcs = ["ec_double_benchmark.cu.cc"],
+    name = "ec_double_benchmark_gpu",
+    srcs = ["ec_double_benchmark_gpu.cc"],
     deps = [
         ":ec_config",
         ":ec_util",

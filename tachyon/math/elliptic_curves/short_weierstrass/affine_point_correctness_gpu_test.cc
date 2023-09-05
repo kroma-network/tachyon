@@ -4,7 +4,7 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
-#include "tachyon/math/test/launch_op_macros.cu.h"
+#include "tachyon/math/test/launch_op_macros.h"
 
 namespace tachyon::math {
 

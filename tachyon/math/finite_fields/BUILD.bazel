@@ -61,7 +61,7 @@ tachyon_cc_library(
 
 tachyon_cuda_library(
     name = "prime_field_gpu",
-    hdrs = ["prime_field_gpu.cu.h"],
+    hdrs = ["prime_field_gpu.h"],
     deps = [
         ":prime_field",
         "//tachyon/math/finite_fields/kernels:carry_chain",
@@ -97,7 +97,7 @@ tachyon_cc_test(
 
 tachyon_cuda_test(
     name = "finite_fields_gpu_unittests",
-    srcs = if_cuda(["prime_field_gpu_unittest.cu.cc"]),
+    srcs = if_cuda(["prime_field_gpu_unittest.cc"]),
     deps = [
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
@@ -122,7 +122,7 @@ tachyon_cc_test(
 
 tachyon_cuda_test(
     name = "finite_field_correctness_gpu_tests",
-    srcs = if_cuda_and_gmp_backend(["prime_field_correctness_gpu_test.cu.cc"]),
+    srcs = if_cuda_and_gmp_backend(["prime_field_correctness_gpu_test.cc"]),
     deps = [
         ":prime_field_gpu",
         "//tachyon/device/gpu:gpu_memory",

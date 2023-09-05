@@ -5,7 +5,7 @@
 
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
 
-#include "tachyon/math/finite_fields/prime_field_gpu.cu.h"
+#include "tachyon/math/finite_fields/prime_field_gpu.h"
 
 namespace tachyon::math::kernels {
 

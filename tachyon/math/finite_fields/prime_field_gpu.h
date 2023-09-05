@@ -15,7 +15,7 @@
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/base/identities.h"
-#include "tachyon/math/finite_fields/kernels/carry_chain.cu.h"
+#include "tachyon/math/finite_fields/kernels/carry_chain.h"
 #include "tachyon/math/finite_fields/modulus.h"
 #include "tachyon/math/finite_fields/prime_field.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"

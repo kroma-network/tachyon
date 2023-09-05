@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 
 tachyon_cuda_library(
     name = "carry_chain",
-    hdrs = ["carry_chain.cu.h"],
+    hdrs = ["carry_chain.h"],
     deps = [":prime_field_ops_internal"],
 )
 

@@ -233,7 +233,7 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
       "",
       "#include \"%{header_path}\"",
       "",
-      "#include \"tachyon/math/finite_fields/prime_field_gpu.cu.h\"",
+      "#include \"tachyon/math/finite_fields/prime_field_gpu.h\"",
       "",
       "namespace %{namespace} {",
       "",
