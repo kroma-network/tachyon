@@ -3,7 +3,8 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/bits.h"
-#include "tachyon/cc/math/elliptic_curves/bn/bn254/bn254_util_internal.h"
+#include "tachyon/cc/math/elliptic_curves/bn/bn254/point_traits.h"
+#include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 
@@ -50,7 +51,7 @@ TEST_F(MSMGpuTest, MSMPoint2) {
 TEST_F(MSMGpuTest, MSMG1Affine) {
   for (const MSMTestSet<bn254::G1AffinePoint>& t : test_sets) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
-    ret.reset(tachyon_msm_g1_affine_gpu(
+    ret.reset(tachyon_bn254_g1_affine_msm_gpu(
         reinterpret_cast<const tachyon_bn254_g1_affine*>(t.bases.data()),
         t.bases.size(),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),

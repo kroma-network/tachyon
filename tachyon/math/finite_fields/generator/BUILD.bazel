@@ -8,7 +8,6 @@ tachyon_cc_library(
     hdrs = ["generator_util.h"],
     deps = [
         "//tachyon/base/files:file_path",
-        "//tachyon/base/strings:string_util",
         "//tachyon/math/base/gmp:gmp_util",
         "//tachyon/math/finite_fields:modulus",
     ],
@@ -21,8 +20,8 @@ tachyon_cc_binary(
         ":generator_util",
         "//tachyon/base/console",
         "//tachyon/base/files:file_path_flag",
-        "//tachyon/base/files:file_util",
         "//tachyon/base/flag:flag_parser",
+        "//tachyon/build:cc_writer",
         "//tachyon/math/base/gmp:bit_traits",
         "//tachyon/math/finite_fields:prime_field",
     ],

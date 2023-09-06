@@ -54,31 +54,20 @@ def generate_prime_fields(
         special_prime_override = "",
         deps = [],
         **kwargs):
-    generate_prime_field(
-        namespace = namespace,
-        class_name = class_name,
-        modulus = modulus,
-        name = "{}_gen_cc".format(name),
-        out = "{}.cc".format(name),
-    )
-
-    generate_prime_field(
-        namespace = namespace,
-        class_name = class_name,
-        modulus = modulus,
-        hdr_include_override = hdr_include_override,
-        special_prime_override = special_prime_override,
-        name = "{}_gen_hdr".format(name),
-        out = "{}.h".format(name),
-    )
-
-    generate_prime_field(
-        namespace = namespace,
-        class_name = class_name,
-        modulus = modulus,
-        name = "{}_gen_gpu_hdr".format(name),
-        out = "{}_gpu.h".format(name),
-    )
+    for n in [
+        ("{}_gen_cc".format(name), "{}.cc".format(name)),
+        ("{}_gen_hdr".format(name), "{}.h".format(name)),
+        ("{}_gen_gpu_hdr".format(name), "{}_gpu.h".format(name)),
+    ]:
+        generate_prime_field(
+            namespace = namespace,
+            class_name = class_name,
+            modulus = modulus,
+            hdr_include_override = hdr_include_override,
+            special_prime_override = special_prime_override,
+            name = n[0],
+            out = n[1],
+        )
 
     tachyon_cc_library(
         name = name,

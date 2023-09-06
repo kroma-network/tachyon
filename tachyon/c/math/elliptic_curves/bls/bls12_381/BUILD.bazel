@@ -3,7 +3,7 @@ load("//tachyon/c/math/elliptic_curves/generator:build_defs.bzl", "generate_ec_p
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
-    name = "bn254_hdrs",
+    name = "bls12_381_hdrs",
     srcs = [
         "fq.h",
         "fr.h",
@@ -12,7 +12,7 @@ filegroup(
 )
 
 generate_ec_points(
-    name = "bn254",
-    fq_limb_nums = 4,
+    name = "bls12_381",
+    fq_limb_nums = 6,
     fr_limb_nums = 4,
 )

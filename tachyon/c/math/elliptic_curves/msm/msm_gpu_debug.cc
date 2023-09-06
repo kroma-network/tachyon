@@ -9,7 +9,8 @@
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/time/time.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_gpu.h"
-#include "tachyon/cc/math/elliptic_curves/bn/bn254/bn254_util_internal.h"
+#include "tachyon/cc/math/elliptic_curves/bn/bn254/point_traits.h"
+#include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
 namespace tachyon {
@@ -86,10 +87,12 @@ int RealMain(int argc, char** argv) {
     CHECK_EQ(bases.size(), scalars.size());
 
     base::TimeTicks now = base::TimeTicks::Now();
-    std::unique_ptr<tachyon_bn254_g1_jacobian> ret(tachyon_msm_g1_affine_gpu(
-        reinterpret_cast<const tachyon_bn254_g1_affine*>(bases.data()),
-        bases.size(), reinterpret_cast<const tachyon_bn254_fr*>(scalars.data()),
-        scalars.size()));
+    std::unique_ptr<tachyon_bn254_g1_jacobian> ret(
+        tachyon_bn254_g1_affine_msm_gpu(
+            reinterpret_cast<const tachyon_bn254_g1_affine*>(bases.data()),
+            bases.size(),
+            reinterpret_cast<const tachyon_bn254_fr*>(scalars.data()),
+            scalars.size()));
     std::cout << (base::TimeTicks::Now() - now) << std::endl;
     std::cout << cc::math::ToJacobianPoint(*ret).ToAffine().ToHexString()
               << std::endl;

@@ -3,6 +3,7 @@ package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "math_hdrs",
     srcs = [
+        "//tachyon/c/math/elliptic_curves/bls/bls12_381:bls12_381_hdrs",
         "//tachyon/c/math/elliptic_curves/bn/bn254:bn254_hdrs",
         "//tachyon/c/math/elliptic_curves/msm:msm_hdrs",
     ],

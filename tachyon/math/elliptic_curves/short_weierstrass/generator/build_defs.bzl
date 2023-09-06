@@ -70,37 +70,25 @@ def generate_ec_points(
         lambda_ = "",
         glv_coeffs = [],
         **kwargs):
-    generate_ec_point(
-        namespace = namespace,
-        class_name = class_name,
-        a = a,
-        b = b,
-        x = x,
-        y = y,
-        fq_modulus = fq_modulus,
-        fr_modulus = fr_modulus,
-        endomorphism_coefficient = endomorphism_coefficient,
-        lambda_ = lambda_,
-        glv_coeffs = glv_coeffs,
-        name = "{}_gen_hdr".format(name),
-        out = "{}.h".format(name),
-    )
-
-    generate_ec_point(
-        namespace = namespace,
-        class_name = class_name,
-        a = a,
-        b = b,
-        x = x,
-        y = y,
-        fq_modulus = fq_modulus,
-        fr_modulus = fr_modulus,
-        endomorphism_coefficient = endomorphism_coefficient,
-        lambda_ = lambda_,
-        glv_coeffs = glv_coeffs,
-        name = "{}_gen_gpu_hdr".format(name),
-        out = "{}_gpu.h".format(name),
-    )
+    for n in [
+        ("{}_gen_hdr".format(name), "{}.h".format(name)),
+        ("{}_gen_gpu_hdr".format(name), "{}_gpu.h".format(name)),
+    ]:
+        generate_ec_point(
+            namespace = namespace,
+            class_name = class_name,
+            a = a,
+            b = b,
+            x = x,
+            y = y,
+            fq_modulus = fq_modulus,
+            fr_modulus = fr_modulus,
+            endomorphism_coefficient = endomorphism_coefficient,
+            lambda_ = lambda_,
+            glv_coeffs = glv_coeffs,
+            name = n[0],
+            out = n[1],
+        )
 
     tachyon_cc_library(
         name = name,

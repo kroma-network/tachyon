@@ -4,15 +4,10 @@
 #include "third_party/gmp/include/gmpxx.h"
 
 #include "tachyon/base/compiler_specific.h"
-#include "tachyon/base/files/file_path.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/modulus.h"
 
 namespace tachyon::math {
-
-base::FilePath BazelOutToHdrPath(const base::FilePath& out);
-
-std::string BazelOutToHdrGuardMacro(const base::FilePath& out);
 
 // TODO(chokobole): Consider bigendian.
 std::string MpzClassToString(const mpz_class& m);

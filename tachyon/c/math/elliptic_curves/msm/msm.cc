@@ -6,8 +6,12 @@
 
 #include "tachyon/base/console/console_stream.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/no_destructor.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
+#include "tachyon/cc/math/elliptic_curves/bls/bls12_381/point_traits.h"
+#include "tachyon/cc/math/elliptic_curves/bn/bn254/point_traits.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
+#include "tachyon/math/elliptic_curves/bls/bls12_381/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 
@@ -19,8 +23,24 @@ namespace c::math {
 
 namespace {
 
-std::unique_ptr<MSMInputProvider> g_provider;
-std::unique_ptr<VariableBaseMSM<bn254::G1AffinePoint>> g_msm;
+template <typename PointTy>
+struct MSMApi {
+  MSMApi() = default;
+  MSMApi(const MSMApi& other) = delete;
+  MSMApi& operator=(const MSMApi& other) = delete;
+
+  static MSMApi& Get() {
+    static base::NoDestructor<MSMApi> api;
+    return *api;
+  }
+
+  void Init() { PointTy::Curve::Init(); }
+
+  void Release() { provider.Clear(); }
+
+  MSMInputProvider<PointTy> provider;
+  VariableBaseMSM<PointTy> msm;
+};
 
 void DoInitMSM(uint8_t degree) {
   {
@@ -30,11 +50,10 @@ void DoInitMSM(uint8_t degree) {
     cs.Green();
     std::cout << "DoInitMSM()" << std::endl;
   }
-  bn254::G1AffinePoint::Curve::Init();
+  MSMApi<bn254::G1AffinePoint>::Get().Init();
+  MSMApi<bls12_381::G1AffinePoint>::Get().Init();
 
   std::ignore = degree;
-  g_provider.reset(new MSMInputProvider());
-  g_msm.reset(new VariableBaseMSM<bn254::G1AffinePoint>());
 }
 
 void DoReleaseMSM() {
@@ -45,18 +64,25 @@ void DoReleaseMSM() {
     cs.Green();
     std::cout << "DoReleaseMSM()" << std::endl;
   }
-  g_provider.reset();
-  g_msm.reset();
+  MSMApi<bn254::G1AffinePoint>::Get().Release();
+  MSMApi<bls12_381::G1AffinePoint>::Get().Release();
 }
 
-template <typename T>
-tachyon_bn254_g1_jacobian* DoMSM(const T* bases, size_t bases_len,
-                                 const tachyon_bn254_fr* scalars,
-                                 size_t scalars_len) {
-  g_provider->Inject(bases, bases_len, scalars, scalars_len);
-  bn254::G1JacobianPoint ret;
-  CHECK(g_msm->Run(g_provider->bases(), g_provider->scalars(), &ret));
-  return CreateCPoint3Ptr<tachyon_bn254_g1_jacobian>(ret);
+template <typename PointTy,
+          typename CPointTy = typename cc::math::PointTraits<PointTy>::CPointTy,
+          typename CScalarField =
+              typename cc::math::PointTraits<PointTy>::CScalarField,
+          typename ReturnTy = typename VariableBaseMSM<PointTy>::ReturnTy,
+          typename CReturnTy =
+              typename cc::math::PointTraits<ReturnTy>::CCurvePointTy>
+CReturnTy* DoMSM(const CPointTy* bases, size_t bases_len,
+                 const CScalarField* scalars, size_t scalars_len) {
+  MSMApi<PointTy>& msm_api = MSMApi<PointTy>::Get();
+  msm_api.provider.Inject(bases, bases_len, scalars, scalars_len);
+  ReturnTy ret;
+  CHECK(msm_api.msm.Run(msm_api.provider.bases(), msm_api.provider.scalars(),
+                        &ret));
+  return cc::math::CreateCPoint3Ptr<CReturnTy>(ret);
 }
 
 }  // namespace
@@ -71,11 +97,27 @@ void tachyon_release_msm() { tachyon::c::math::DoReleaseMSM(); }
 tachyon_bn254_g1_jacobian* tachyon_bn254_g1_point2_msm(
     const tachyon_bn254_g1_point2* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
-  return tachyon::c::math::DoMSM(bases, bases_len, scalars, scalars_len);
+  return tachyon::c::math::DoMSM<tachyon::math::bn254::G1AffinePoint>(
+      bases, bases_len, scalars, scalars_len);
 }
 
 tachyon_bn254_g1_jacobian* tachyon_bn254_g1_affine_msm(
     const tachyon_bn254_g1_affine* bases, size_t bases_len,
     const tachyon_bn254_fr* scalars, size_t scalars_len) {
-  return tachyon::c::math::DoMSM(bases, bases_len, scalars, scalars_len);
+  return tachyon::c::math::DoMSM<tachyon::math::bn254::G1AffinePoint>(
+      bases, bases_len, scalars, scalars_len);
+}
+
+tachyon_bls12_381_g1_jacobian* tachyon_bls12_381_g1_point2_msm(
+    const tachyon_bls12_381_g1_point2* bases, size_t bases_len,
+    const tachyon_bls12_381_fr* scalars, size_t scalars_len) {
+  return tachyon::c::math::DoMSM<tachyon::math::bls12_381::G1AffinePoint>(
+      bases, bases_len, scalars, scalars_len);
+}
+
+tachyon_bls12_381_g1_jacobian* tachyon_bls12_381_g1_affine_msm(
+    const tachyon_bls12_381_g1_affine* bases, size_t bases_len,
+    const tachyon_bls12_381_fr* scalars, size_t scalars_len) {
+  return tachyon::c::math::DoMSM<tachyon::math::bls12_381::G1AffinePoint>(
+      bases, bases_len, scalars, scalars_len);
 }

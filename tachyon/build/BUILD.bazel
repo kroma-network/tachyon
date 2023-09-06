@@ -27,3 +27,33 @@ tachyon_cc_library(
     name = "buildflag",
     hdrs = ["buildflag.h"],
 )
+
+tachyon_cc_library(
+    name = "cc_writer",
+    srcs = ["cc_writer.cc"],
+    hdrs = ["cc_writer.h"],
+    deps = [
+        ":generator_util",
+        ":writer",
+        "//tachyon/base/files:file_path",
+        "//tachyon/base/strings:string_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "generator_util",
+    srcs = ["generator_util.cc"],
+    hdrs = ["generator_util.h"],
+    deps = [
+        "//tachyon/base/functional:callback",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
+    name = "writer",
+    srcs = ["writer.cc"],
+    hdrs = ["writer.h"],
+    deps = ["//tachyon/base/files:file_util"],
+)

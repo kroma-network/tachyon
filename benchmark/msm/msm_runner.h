@@ -21,8 +21,8 @@ class MSMRunner {
   using ReturnTy =
       typename math::internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
-  using CPointTy = typename cc::math::PointTraits<PointTy>::CPointTy;
-  using CReturnTy = typename cc::math::PointTraits<ReturnTy>::CPointTy;
+  using CPointTy = typename cc::math::PointTraits<PointTy>::CCurvePointTy;
+  using CReturnTy = typename cc::math::PointTraits<ReturnTy>::CCurvePointTy;
   using CScalarField = typename cc::math::PointTraits<PointTy>::CScalarField;
 
   typedef CReturnTy* (*MSMAffineExternalFn)(const CPointTy* bases,
