@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include "absl/types/span.h"
+
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/export.h"
@@ -307,6 +309,12 @@ class GpuMemory {
     COMPUTE_LEN(from, len);
     ret->resize(len);
     return CopyToAsync(ret->data(), GpuMemoryType::kHost, stream, from, len);
+  }
+
+  template <typename R = T>
+  absl::Span<R> ToSpan(size_t from = 0, size_t len = 0) const {
+    COMPUTE_FROM_AND_LEN(from, len);
+    return absl::Span(reinterpret_cast<R*>(ptr_ + from), len);
   }
 
  private:
