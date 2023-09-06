@@ -309,17 +309,17 @@ class GpuMemory {
                          from, len);
   }
 
-  template <typename R>
-  bool ToStdVector(std::vector<R>* ret) const {
-    ret->resize(size_);
-    return CopyTo(ret->data(), GpuMemoryType::kHost);
+  template <typename R = T>
+  bool ToStdVector(std::vector<R>* ret, size_t from = 0, size_t len = 0) const {
+    ret->resize(len);
+    return CopyTo(ret->data(), GpuMemoryType::kHost, from, len);
   }
 
-  template <typename R>
-  bool ToStdVectorAsync(std::vector<R>* ret,
-                        gpuStream_t stream = nullptr) const {
-    ret->resize(size_);
-    return CopyToAsync(ret->data(), GpuMemoryType::kHost, stream);
+  template <typename R = T>
+  bool ToStdVectorAsync(std::vector<R>* ret, gpuStream_t stream = nullptr,
+                        size_t from = 0, size_t len = 0) const {
+    ret->resize(len);
+    return CopyToAsync(ret->data(), GpuMemoryType::kHost, stream, from, len);
   }
 
  private:
