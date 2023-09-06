@@ -15,15 +15,15 @@ enum class MSMMethod {
   kNaive,
 };
 
-template <typename PointTy>
+template <typename PointTy,
+          typename Bucket =
+              typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy>
 struct MSMTestSet {
   using ScalarField = typename PointTy::ScalarField;
-  using ReturnTy =
-      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
   std::vector<PointTy> bases;
   std::vector<ScalarField> scalars;
-  ReturnTy answer;
+  Bucket answer;
 
   static MSMTestSet Random(size_t size, MSMMethod method) {
     MSMTestSet test_set;
@@ -64,7 +64,7 @@ struct MSMTestSet {
 
  private:
   void ComputeAnswer(MSMMethod method) {
-    answer = ReturnTy::Zero();
+    answer = Bucket::Zero();
     switch (method) {
       case MSMMethod::kNone:
         break;

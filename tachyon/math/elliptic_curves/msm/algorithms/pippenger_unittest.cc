@@ -19,8 +19,6 @@ const size_t kSize = 40;
 template <typename PointTy>
 class PippengerTest : public testing::Test {
  public:
-  using ReturnTy = typename Pippenger<PointTy>::ReturnTy;
-
   static void SetUpTestSuite() { PointTy::Curve::Init(); }
 
   PippengerTest()
@@ -44,7 +42,7 @@ TYPED_TEST_SUITE(PippengerTest, PointTypes);
 
 TYPED_TEST(PippengerTest, Run) {
   using PointTy = TypeParam;
-  using ReturnTy = typename Pippenger<PointTy>::ReturnTy;
+  using Bucket = typename Pippenger<PointTy>::Bucket;
 
   const MSMTestSet<PointTy>& test_set = this->test_set_;
 
@@ -66,7 +64,7 @@ TYPED_TEST(PippengerTest, Run) {
                                   test.use_window_naf, test.parallel_windows));
     pippenger.SetUseMSMWindowNAForTesting(test.use_window_naf);
     pippenger.SetParallelWindows(test.parallel_windows);
-    ReturnTy ret;
+    Bucket ret;
     EXPECT_TRUE(pippenger.Run(test_set.bases.begin(), test_set.bases.end(),
                               test_set.scalars.begin(), test_set.scalars.end(),
                               &ret));
