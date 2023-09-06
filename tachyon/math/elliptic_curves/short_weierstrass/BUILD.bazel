@@ -20,7 +20,7 @@ tachyon_cc_library(
         "projective_point.h",
         "projective_point_impl.h",
         "sw_curve.h",
-        "sw_curve_config_traits.h",
+        "sw_curve_traits.h",
     ],
     deps = [
         ":sw_curve_base",

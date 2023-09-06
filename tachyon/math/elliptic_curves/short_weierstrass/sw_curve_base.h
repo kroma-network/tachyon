@@ -6,7 +6,7 @@
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config_traits.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits.h"
 
 namespace tachyon::math {
 
@@ -17,15 +17,14 @@ namespace tachyon::math {
 template <typename SWCurveConfig>
 class SWCurveBase {
  public:
-  using BaseField = typename SWCurveConfigTraits<SWCurveConfig>::BaseField;
-  using ScalarField = typename SWCurveConfigTraits<SWCurveConfig>::ScalarField;
-  using AffinePointTy =
-      typename SWCurveConfigTraits<SWCurveConfig>::AffinePointTy;
+  using BaseField = typename SWCurveTraits<SWCurveConfig>::BaseField;
+  using ScalarField = typename SWCurveTraits<SWCurveConfig>::ScalarField;
+  using AffinePointTy = typename SWCurveTraits<SWCurveConfig>::AffinePointTy;
   using ProjectivePointTy =
-      typename SWCurveConfigTraits<SWCurveConfig>::ProjectivePointTy;
+      typename SWCurveTraits<SWCurveConfig>::ProjectivePointTy;
   using JacobianPointTy =
-      typename SWCurveConfigTraits<SWCurveConfig>::JacobianPointTy;
-  using PointXYZZTy = typename SWCurveConfigTraits<SWCurveConfig>::PointXYZZTy;
+      typename SWCurveTraits<SWCurveConfig>::JacobianPointTy;
+  using PointXYZZTy = typename SWCurveTraits<SWCurveConfig>::PointXYZZTy;
 
   constexpr static bool IsOnCurve(const AffinePointTy& point) {
     if (point.infinity()) return false;

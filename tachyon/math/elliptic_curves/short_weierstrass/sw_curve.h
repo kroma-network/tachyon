@@ -3,9 +3,12 @@
 
 #include "tachyon/base/static_storage.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_base.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_config_traits.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits.h"
 
 namespace tachyon::math {
+
+template <typename Config>
+class SWCurveGpu;
 
 template <typename _Config>
 class SWCurve : public SWCurveBase<SWCurve<_Config>> {
@@ -36,13 +39,16 @@ class SWCurve : public SWCurveBase<SWCurve<_Config>> {
 };
 
 template <typename Config>
-struct SWCurveConfigTraits<SWCurve<Config>> {
+struct SWCurveTraits<SWCurve<Config>> {
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
   using AffinePointTy = AffinePoint<SWCurve<Config>>;
   using ProjectivePointTy = ProjectivePoint<SWCurve<Config>>;
   using JacobianPointTy = JacobianPoint<SWCurve<Config>>;
   using PointXYZZTy = PointXYZZ<SWCurve<Config>>;
+
+  using CpuCurve = SWCurve<typename Config::CpuCurveConfig>;
+  using GpuCurve = SWCurveGpu<typename Config::GpuCurveConfig>;
 };
 
 }  // namespace tachyon::math
