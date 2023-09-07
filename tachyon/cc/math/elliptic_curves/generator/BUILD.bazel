@@ -11,5 +11,6 @@ tachyon_cc_binary(
         "//tachyon/base/flag:flag_parser",
         "//tachyon/build:cc_writer",
         "//tachyon/build:generator_util",
+        "//tachyon/c/math/elliptic_curves/generator:generator_util",
     ],
 )

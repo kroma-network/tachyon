@@ -15,4 +15,5 @@ generate_ec_points(
     name = "bls12_381",
     fq_limb_nums = 6,
     fr_limb_nums = 4,
+    g1_deps = ["//tachyon/math/elliptic_curves/bls/bls12_381:g1"],
 )

@@ -3,9 +3,10 @@
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/flag/flag_parser.h"
-#include "tachyon/build/generator_util.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
+#include "tachyon/build/generator_util.h"
+#include "tachyon/c/math/elliptic_curves/generator/generator_util.h"
 
 namespace tachyon {
 
@@ -22,16 +23,6 @@ std::string_view kInternalTypes[] = {
 };
 
 int kPointDimensions[] = {2, 3, 3, 4, 2, 3};
-
-std::string GetLocation(std::string_view type) {
-  if (type == "bn254") {
-    return "bn/bn254";
-  } else if (type == "bls12_381") {
-    return "bls/bls12_381";
-  }
-  NOTREACHED() << "Unsupported type: " << type;
-  return "";
-}
 
 struct GenerationConfig : public build::CcWriter {
   std::string type;
@@ -137,7 +128,7 @@ int GenerationConfig::GeneratePointTraitsHdr() const {
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {
-                       {"%{header_dir_name}", GetLocation(type)},
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{fq_limb_nums}", absl::StrCat(fq_limb_nums)},
                        {"%{fr_limb_nums}", absl::StrCat(fr_limb_nums)},
                        {"%{type}", type},
@@ -230,7 +221,7 @@ int GenerationConfig::GenerateUtilHdr() const {
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {
-                       {"%{header_dir_name}", GetLocation(type)},
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{type}", type},
                    });
   return WriteHdr(content);
@@ -331,7 +322,7 @@ int GenerationConfig::GenerateUtilSrc() const {
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {
-                       {"%{header_dir_name}", GetLocation(type)},
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{type}", type},
                    });
   return WriteSrc(content);

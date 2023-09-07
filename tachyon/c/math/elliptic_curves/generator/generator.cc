@@ -5,6 +5,7 @@
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
+#include "tachyon/c/math/elliptic_curves/generator/generator_util.h"
 
 namespace tachyon {
 
@@ -17,6 +18,7 @@ struct GenerationConfig : public build::CcWriter {
   int GenerateFqHdr() const;
   int GenerateFrHdr() const;
   int GenerateG1Hdr() const;
+  int GenerateG1Src() const;
 };
 
 int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
@@ -101,6 +103,8 @@ int GenerationConfig::GenerateG1Hdr() const {
       "  tachyon_%{type}_fq z;",
       "  tachyon_%{type}_fq w;",
       "};",
+      "",
+      "TACHYON_C_EXPORT void tachyon_%{type}_g1_init();",
   };
   // clang-format on
   std::string tpl_content = absl::StrJoin(tpl, "\n");
@@ -114,6 +118,25 @@ int GenerationConfig::GenerateG1Hdr() const {
                                            {"%{type}", type},
                                        });
   return WriteHdr(content);
+}
+
+int GenerationConfig::GenerateG1Src() const {
+  std::vector<std::string_view> tpl = {
+      "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
+      "",
+      "void tachyon_%{type}_init() {",
+      "  tachyon::math::%{type}::G1AffinePoint::Curve::Init();",
+      "}",
+  };
+
+  std::string tpl_content = absl::StrJoin(tpl, "\n");
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
+                       {"%{type}", type},
+                   });
+  return WriteSrc(content);
 }
 
 int RealMain(int argc, char** argv) {
@@ -146,6 +169,8 @@ int RealMain(int argc, char** argv) {
     return config.GenerateFrHdr();
   } else if (base::EndsWith(config.out.value(), "g1.h")) {
     return config.GenerateG1Hdr();
+  } else if (base::EndsWith(config.out.value(), "g1.cc")) {
+    return config.GenerateG1Src();
   } else {
     tachyon_cerr << "not supported suffix:" << config.out << std::endl;
     return 1;
