@@ -12,7 +12,7 @@ tachyon_cc_library(
     hdrs = ["pippenger.h"],
     deps = [
         ":pippenger_base",
-        ":pippenger_util",
+        ":pippenger_ctx",
         "//tachyon/base:openmp_util",
         "//tachyon/base/containers:adapters",
         "//tachyon/math/elliptic_curves/msm:msm_util",
@@ -33,8 +33,9 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "pippenger_util",
-    hdrs = ["pippenger_util.h"],
+    name = "pippenger_ctx",
+    hdrs = ["pippenger_ctx.h"],
+    deps = ["//tachyon:export"],
 )
 
 tachyon_cc_test(
