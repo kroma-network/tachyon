@@ -10,7 +10,6 @@ load(
     "tachyon_cc_benchmark",
     "tachyon_cc_library",
     "tachyon_cc_test",
-    "tachyon_cuda_library",
     "tachyon_cuda_test",
 )
 
@@ -59,7 +58,7 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cuda_library(
+tachyon_cc_library(
     name = "prime_field_gpu",
     hdrs = ["prime_field_gpu.h"],
     deps = [

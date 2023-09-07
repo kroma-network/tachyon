@@ -3,7 +3,6 @@ load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
     "tachyon_cc_test",
-    "tachyon_cuda_library",
     "tachyon_cuda_test",
 )
 
@@ -35,7 +34,7 @@ tachyon_cc_library(
     deps = ["//tachyon/math/elliptic_curves/msm/algorithms:pippenger_adapter"],
 )
 
-tachyon_cuda_library(
+tachyon_cc_library(
     name = "variable_base_msm_gpu",
     hdrs = [
         "variable_base_msm_gpu.h",

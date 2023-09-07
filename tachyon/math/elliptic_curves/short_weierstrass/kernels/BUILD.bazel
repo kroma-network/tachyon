@@ -1,8 +1,8 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
-tachyon_cuda_library(
+tachyon_cc_library(
     name = "elliptic_curve_ops",
     hdrs = ["elliptic_curve_ops.cu.h"],
     deps = ["//tachyon/math/elliptic_curves/short_weierstrass:points"],
