@@ -66,6 +66,8 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static PointXYZZ Zero() { return PointXYZZ(); }
 
+  constexpr static PointXYZZ Generator() { return Curve::Generator().ToXYZZ(); }
+
   constexpr static PointXYZZ FromAffine(const AffinePoint<Curve>& point) {
     return point.ToXYZZ();
   }

@@ -1,8 +1,8 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
-tachyon_cuda_library(
+tachyon_cc_library(
     name = "launch_op_macros",
     testonly = True,
     hdrs = ["launch_op_macros.h"],

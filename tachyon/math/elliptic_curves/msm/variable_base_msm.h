@@ -8,13 +8,12 @@ template <typename PointTy>
 class VariableBaseMSM {
  public:
   using ScalarField = typename PointTy::ScalarField;
-  using ReturnTy =
-      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
+  using Bucket = typename Pippenger<PointTy>::Bucket;
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
   bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
            ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,
-           ReturnTy* ret) {
+           Bucket* ret) {
     PippengerAdapter<PointTy> pippenger;
     return pippenger.Run(std::move(bases_first), std::move(bases_last),
                          std::move(scalars_first), std::move(scalars_last),
@@ -22,7 +21,7 @@ class VariableBaseMSM {
   }
 
   template <typename BaseContainer, typename ScalarContainer>
-  bool Run(BaseContainer&& bases, ScalarContainer&& scalars, ReturnTy* ret) {
+  bool Run(BaseContainer&& bases, ScalarContainer&& scalars, Bucket* ret) {
     return Run(std::begin(std::forward<BaseContainer>(bases)),
                std::end(std::forward<BaseContainer>(bases)),
                std::begin(std::forward<ScalarContainer>(scalars)),

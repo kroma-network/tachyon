@@ -68,21 +68,21 @@ void DoReleaseMSM() {
   MSMApi<bls12_381::G1AffinePoint>::Get().Release();
 }
 
-template <typename PointTy,
-          typename CPointTy = typename cc::math::PointTraits<PointTy>::CPointTy,
-          typename CScalarField =
-              typename cc::math::PointTraits<PointTy>::CScalarField,
-          typename ReturnTy = typename VariableBaseMSM<PointTy>::ReturnTy,
-          typename CReturnTy =
-              typename cc::math::PointTraits<ReturnTy>::CCurvePointTy>
-CReturnTy* DoMSM(const CPointTy* bases, size_t bases_len,
-                 const CScalarField* scalars, size_t scalars_len) {
+template <
+    typename PointTy,
+    typename CPointTy = typename cc::math::PointTraits<PointTy>::CPointTy,
+    typename CScalarField =
+        typename cc::math::PointTraits<PointTy>::CScalarField,
+    typename Bucket = typename VariableBaseMSM<PointTy>::Bucket,
+    typename CBucket = typename cc::math::PointTraits<Bucket>::CCurvePointTy>
+CBucket* DoMSM(const CPointTy* bases, size_t bases_len,
+               const CScalarField* scalars, size_t scalars_len) {
   MSMApi<PointTy>& msm_api = MSMApi<PointTy>::Get();
   msm_api.provider.Inject(bases, bases_len, scalars, scalars_len);
-  ReturnTy ret;
+  Bucket ret;
   CHECK(msm_api.msm.Run(msm_api.provider.bases(), msm_api.provider.scalars(),
                         &ret));
-  return cc::math::CreateCPoint3Ptr<CReturnTy>(ret);
+  return cc::math::CreateCPoint3Ptr<CBucket>(ret);
 }
 
 }  // namespace

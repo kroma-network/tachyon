@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include "absl/types/span.h"
+
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/export.h"
@@ -86,7 +88,16 @@ GpuPointerGetAttributes(gpuPointerAttributes* attributes, const void* ptr);
 
 TACHYON_EXPORT gpuError_t GpuMemGetInfo(size_t* free, size_t* total);
 
-TACHYON_EXPORT
+#define COMPUTE_LEN(from, len)                                         \
+  do {                                                                 \
+    if (len == 0) {                                                    \
+      len = (base::CheckedNumeric<size_t>(size_) - from).ValueOrDie(); \
+    }                                                                  \
+  } while (false)
+
+#define COMPUTE_FROM_AND_LEN(from, len) \
+  COMPUTE_LEN(from, len);               \
+  CHECK((base::CheckedNumeric<size_t>(from) + len).IsValid())
 
 template <typename T>
 class GpuMemory {
@@ -184,11 +195,7 @@ class GpuMemory {
   }
 
   bool Memset(int value = 0, size_t from = 0, size_t len = 0) {
-    if (len == 0) {
-      len = size_;
-    }
-    base::CheckedNumeric<size_t> checked_from = from;
-    CHECK((checked_from + len).IsValid());
+    COMPUTE_FROM_AND_LEN(from, len);
     gpuError_t error = GpuMemset(ptr_ + from, value, sizeof(T) * len);
     if (error != gpuSuccess) {
       GPU_LOG(ERROR, error) << "Failed to GpuMemset()";
@@ -199,11 +206,7 @@ class GpuMemory {
 
   bool MemsetAsync(int value, gpuStream_t stream = nullptr, size_t from = 0,
                    size_t len = 0) {
-    if (len == 0) {
-      len = size_;
-    }
-    base::CheckedNumeric<size_t> checked_from = from;
-    CHECK((checked_from + len).IsValid());
+    COMPUTE_FROM_AND_LEN(from, len);
     gpuError_t error =
         GpuMemsetAsync(ptr_ + from, value, sizeof(T) * len, stream);
     if (error != gpuSuccess) {
@@ -215,11 +218,7 @@ class GpuMemory {
 
   bool CopyTo(void* dst, GpuMemoryType dst_memory_type, size_t from = 0,
               size_t len = 0) const {
-    if (len == 0) {
-      len = size_;
-    }
-    base::CheckedNumeric<size_t> checked_from = from;
-    CHECK((checked_from + len).IsValid());
+    COMPUTE_FROM_AND_LEN(from, len);
     gpuError_t error =
         GpuMemcpy(dst, ptr_ + from, sizeof(T) * len,
                   ComputeGpuMemcpyKind(memory_type_, dst_memory_type));
@@ -238,11 +237,7 @@ class GpuMemory {
   bool CopyToAsync(void* dst, GpuMemoryType dst_memory_type,
                    gpuStream_t stream = nullptr, size_t from = 0,
                    size_t len = 0) const {
-    if (len == 0) {
-      len = size_;
-    }
-    base::CheckedNumeric<size_t> checked_from = from;
-    CHECK((checked_from + len).IsValid());
+    COMPUTE_FROM_AND_LEN(from, len);
     gpuError_t error = GpuMemcpyAsync(
         dst, ptr_ + from, sizeof(T) * len,
         ComputeGpuMemcpyKind(memory_type_, dst_memory_type), stream);
@@ -262,11 +257,7 @@ class GpuMemory {
 
   bool CopyFrom(const void* src, GpuMemoryType src_memory_type, size_t from = 0,
                 size_t len = 0) {
-    if (len == 0) {
-      len = size_;
-    }
-    base::CheckedNumeric<size_t> checked_from = from;
-    CHECK((checked_from + len).IsValid());
+    COMPUTE_FROM_AND_LEN(from, len);
     gpuError_t error =
         GpuMemcpy(ptr_ + from, src, sizeof(T) * len,
                   ComputeGpuMemcpyKind(src_memory_type, memory_type_));
@@ -286,11 +277,7 @@ class GpuMemory {
   bool CopyFromAsync(const void* src, GpuMemoryType src_memory_type,
                      gpuStream_t stream = nullptr, size_t from = 0,
                      size_t len = 0) {
-    if (len == 0) {
-      len = size_;
-    }
-    base::CheckedNumeric<size_t> checked_from = from;
-    CHECK((checked_from + len).IsValid());
+    COMPUTE_FROM_AND_LEN(from, len);
     gpuError_t error = GpuMemcpyAsync(
         ptr_ + from, src, sizeof(T) * len,
         ComputeGpuMemcpyKind(src_memory_type, memory_type_), stream);
@@ -309,17 +296,25 @@ class GpuMemory {
                          from, len);
   }
 
-  template <typename R>
-  bool ToStdVector(std::vector<R>* ret) const {
-    ret->resize(size_);
-    return CopyTo(ret->data(), GpuMemoryType::kHost);
+  template <typename R = T>
+  bool ToStdVector(std::vector<R>* ret, size_t from = 0, size_t len = 0) const {
+    COMPUTE_LEN(from, len);
+    ret->resize(len);
+    return CopyTo(ret->data(), GpuMemoryType::kHost, from, len);
   }
 
-  template <typename R>
-  bool ToStdVectorAsync(std::vector<R>* ret,
-                        gpuStream_t stream = nullptr) const {
-    ret->resize(size_);
-    return CopyToAsync(ret->data(), GpuMemoryType::kHost, stream);
+  template <typename R = T>
+  bool ToStdVectorAsync(std::vector<R>* ret, gpuStream_t stream = nullptr,
+                        size_t from = 0, size_t len = 0) const {
+    COMPUTE_LEN(from, len);
+    ret->resize(len);
+    return CopyToAsync(ret->data(), GpuMemoryType::kHost, stream, from, len);
+  }
+
+  template <typename R = T>
+  absl::Span<R> ToSpan(size_t from = 0, size_t len = 0) const {
+    COMPUTE_FROM_AND_LEN(from, len);
+    return absl::Span(reinterpret_cast<R*>(ptr_ + from), len);
   }
 
  private:
@@ -332,6 +327,9 @@ class GpuMemory {
   GpuMemoryType memory_type_ = GpuMemoryType::kUnregistered;
   gpuStream_t stream_ = nullptr;
 };
+
+#undef COMPUTE_FROM_AND_LEN
+#undef COMPUTE_LEN
 
 }  // namespace tachyon::device::gpu
 

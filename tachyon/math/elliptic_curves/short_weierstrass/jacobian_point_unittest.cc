@@ -37,6 +37,12 @@ TYPED_TEST(JacobianPointTest, IsZero) {
       JacobianPointTy(BaseField(1), BaseField(2), BaseField(1)).IsZero());
 }
 
+TYPED_TEST(JacobianPointTest, Generator) {
+  using JacobianPointTy = TypeParam;
+
+  EXPECT_EQ(JacobianPointTy::Generator(), JacobianPointTy::Curve::Generator());
+}
+
 TYPED_TEST(JacobianPointTest, Montgomery) {
   using JacobianPointTy = TypeParam;
 

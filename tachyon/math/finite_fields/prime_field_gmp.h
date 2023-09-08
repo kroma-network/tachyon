@@ -19,6 +19,9 @@
 
 namespace tachyon::math {
 
+template <typename Config>
+class PrimeFieldGpu;
+
 template <typename _Config>
 class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
  public:
@@ -30,6 +33,9 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   using Config = _Config;
   using BigIntTy = BigInt<N>;
   using value_type = mpz_class;
+
+  using CpuField = PrimeFieldGmp<Config>;
+  using GpuField = PrimeFieldGpu<Config>;
 
   PrimeFieldGmp() = default;
   explicit PrimeFieldGmp(const mpz_class& value) : value_(value) {

@@ -106,6 +106,7 @@ tachyon_cc_library(
         ":gpu_logging",
         "//tachyon:export",
         "//tachyon/base/numerics:checked_math",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

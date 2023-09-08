@@ -42,6 +42,12 @@ TYPED_TEST(PointXYZZTest, IsZero) {
           .IsZero());
 }
 
+TYPED_TEST(PointXYZZTest, Generator) {
+  using PointXYZZTy = TypeParam;
+
+  EXPECT_EQ(PointXYZZTy::Generator(), PointXYZZTy::Curve::Generator().ToXYZZ());
+}
+
 TYPED_TEST(PointXYZZTest, Montgomery) {
   using PointXYZZTy = TypeParam;
 

@@ -12,6 +12,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/big_int.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_base.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_util.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
 #include "tachyon/math/elliptic_curves/semigroups.h"
@@ -47,11 +48,10 @@ void FillDigits(const BigInt<N>& scalar, size_t window_bits,
 }
 
 template <typename PointTy>
-class Pippenger {
+class Pippenger : public PippengerBase<PointTy> {
  public:
   using ScalarField = typename PointTy::ScalarField;
-  using ReturnTy =
-      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
+  using Bucket = typename PippengerBase<PointTy>::Bucket;
 
   constexpr static size_t N = ScalarField::N;
 
@@ -77,7 +77,7 @@ class Pippenger {
                                          PointTy, ScalarField>>* = nullptr>
   bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
            ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,
-           ReturnTy* ret) {
+           Bucket* ret) {
     size_t bases_size = std::distance(bases_first, bases_last);
     size_t scalars_size = std::distance(scalars_first, scalars_last);
     if (bases_size != scalars_size) {
@@ -94,8 +94,8 @@ class Pippenger {
       scalars[i] = scalars_it->ToBigInt();
     }
 
-    std::vector<ReturnTy> window_sums =
-        base::CreateVector(window_count_, ReturnTy::Zero());
+    std::vector<Bucket> window_sums =
+        base::CreateVector(window_count_, Bucket::Zero());
 
     if (use_msm_window_naf_) {
       AccumulateWindowNAFSums(std::move(bases_first), scalars, &window_sums);
@@ -104,14 +104,14 @@ class Pippenger {
     }
 
     // We store the sum for the lowest window.
-    ReturnTy lowest = std::move(window_sums.front());
+    Bucket lowest = std::move(window_sums.front());
     auto view = absl::MakeConstSpan(window_sums);
     view.remove_prefix(1);
 
     // We're traversing windows from high to low.
     *ret =
-        lowest + std::accumulate(view.rbegin(), view.rend(), ReturnTy::Zero(),
-                                 [this](ReturnTy& total, const ReturnTy& sum) {
+        lowest + std::accumulate(view.rbegin(), view.rend(), Bucket::Zero(),
+                                 [this](Bucket& total, const Bucket& sum) {
                                    total += sum;
                                    for (size_t i = 0; i < window_bits_; ++i) {
                                      total.DoubleInPlace();
@@ -122,11 +122,10 @@ class Pippenger {
   }
 
  private:
-  ReturnTy AccumulateBuckets(
-      const std::vector<ReturnTy>& buckets,
-      const ReturnTy& initial_value = ReturnTy::Zero()) const {
-    ReturnTy running_sum = ReturnTy::Zero();
-    ReturnTy window_sum = initial_value;
+  Bucket AccumulateBuckets(const std::vector<Bucket>& buckets,
+                           const Bucket& initial_value = Bucket::Zero()) const {
+    Bucket running_sum = Bucket::Zero();
+    Bucket window_sum = initial_value;
 
     // This is computed below for b buckets, using 2b curve additions.
     //
@@ -149,15 +148,15 @@ class Pippenger {
   void AccumulateSingleWindowNAFSum(
       BaseInputIterator bases_it,
       const std::vector<std::vector<int64_t>>& scalar_digits, size_t i,
-      ReturnTy* window_sum, bool is_last_window) {
+      Bucket* window_sum, bool is_last_window) {
     size_t bucket_size;
     if (is_last_window) {
       bucket_size = 1 << window_bits_;
     } else {
       bucket_size = 1 << (window_bits_ - 1);
     }
-    std::vector<ReturnTy> buckets =
-        base::CreateVector(bucket_size, ReturnTy::Zero());
+    std::vector<Bucket> buckets =
+        base::CreateVector(bucket_size, Bucket::Zero());
     for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
       const PointTy& base = *bases_it;
       int64_t scalar = scalar_digits[j][i];
@@ -173,7 +172,7 @@ class Pippenger {
   template <typename BaseInputIterator>
   void AccumulateWindowNAFSums(BaseInputIterator bases_first,
                                absl::Span<const BigInt<N>> scalars,
-                               std::vector<ReturnTy>* window_sums) {
+                               std::vector<Bucket>* window_sums) {
     std::vector<std::vector<int64_t>> scalar_digits;
     scalar_digits.resize(scalars.size());
     for (std::vector<int64_t>& scalar_digit : scalar_digits) {
@@ -200,12 +199,12 @@ class Pippenger {
   template <typename BaseInputIterator>
   void AccumulateSingleWindowSum(BaseInputIterator bases_first,
                                  absl::Span<const BigInt<N>> scalars,
-                                 size_t window_offset, ReturnTy* out) {
-    ReturnTy window_sum = ReturnTy::Zero();
+                                 size_t window_offset, Bucket* out) {
+    Bucket window_sum = Bucket::Zero();
     // We don't need the "zero" bucket, so we only have 2^{window_bits_} - 1
     // buckets.
-    std::vector<ReturnTy> buckets =
-        base::CreateVector((1 << window_bits_) - 1, ReturnTy::Zero());
+    std::vector<Bucket> buckets =
+        base::CreateVector((1 << window_bits_) - 1, Bucket::Zero());
     auto bases_it = bases_first;
     for (size_t j = 0; j < scalars.size(); ++j, ++bases_it) {
       const BigInt<N>& scalar = scalars[j];
@@ -241,7 +240,7 @@ class Pippenger {
   template <typename BaseInputIterator>
   void AccumulateWindowSums(BaseInputIterator bases_first,
                             absl::Span<const BigInt<N>> scalars,
-                            std::vector<ReturnTy>* window_sums) {
+                            std::vector<Bucket>* window_sums) {
     if (parallel_windows_) {
       OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count_; ++i) {
         AccumulateSingleWindowSum(bases_first, scalars, window_bits_ * i,

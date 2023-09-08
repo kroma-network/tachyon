@@ -11,6 +11,7 @@ tachyon_cc_library(
     name = "pippenger",
     hdrs = ["pippenger.h"],
     deps = [
+        ":pippenger_base",
         ":pippenger_util",
         "//tachyon/base:openmp_util",
         "//tachyon/base/containers:adapters",
@@ -23,6 +24,21 @@ tachyon_cc_library(
     name = "pippenger_adapter",
     hdrs = ["pippenger_adapter.h"],
     deps = [":pippenger"],
+)
+
+tachyon_cc_library(
+    name = "pippenger_base",
+    hdrs = ["pippenger_base.h"],
+    deps = ["//tachyon/math/base:semigroups"],
+)
+
+tachyon_cc_library(
+    name = "pippenger_gpu",
+    hdrs = ["pippenger_gpu.h"],
+    deps = [
+        ":pippenger_base",
+        "//tachyon/math/elliptic_curves:points",
+    ],
 )
 
 tachyon_cc_library(

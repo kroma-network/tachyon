@@ -19,6 +19,9 @@
 
 namespace tachyon::math {
 
+template <typename Config>
+class PrimeFieldGpu;
+
 template <typename _Config>
 class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
     : public PrimeFieldBase<PrimeField<_Config>> {
@@ -30,6 +33,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
   using Config = _Config;
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
+
+  using CpuField = PrimeField<Config>;
+  using GpuField = PrimeFieldGpu<Config>;
 
   constexpr PrimeField() = default;
   template <typename T,

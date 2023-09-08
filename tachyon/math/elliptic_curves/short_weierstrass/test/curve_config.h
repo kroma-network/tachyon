@@ -19,6 +19,13 @@ class CurveConfig {
   using BaseField = _BaseField;
   using ScalarField = _ScalarField;
 
+  using CpuBaseField = typename BaseField::CpuField;
+  using CpuScalarField = typename ScalarField::CpuField;
+  using GpuBaseField = typename BaseField::GpuField;
+  using GpuScalarField = typename ScalarField::GpuField;
+  using CpuCurveConfig = CurveConfig<CpuBaseField, CpuScalarField>;
+  using GpuCurveConfig = CurveConfig<GpuBaseField, GpuScalarField>;
+
   // A: Mont(0)
   constexpr static BigInt<1> kA = BigInt<1>(0);
   // B: Mont(5)

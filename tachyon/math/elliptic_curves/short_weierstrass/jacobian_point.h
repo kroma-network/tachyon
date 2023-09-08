@@ -61,6 +61,8 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static JacobianPoint Zero() { return JacobianPoint(); }
 
+  constexpr static JacobianPoint Generator() { return Curve::Generator(); }
+
   constexpr static JacobianPoint FromAffine(const AffinePoint<Curve>& point) {
     return point.ToJacobian();
   }

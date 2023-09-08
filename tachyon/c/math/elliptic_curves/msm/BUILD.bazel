@@ -87,7 +87,7 @@ tachyon_cc_test(
 
 tachyon_cuda_test(
     name = "msm_gpu_unittest",
-    srcs = if_gpu_is_configured(["msm_gpu_unittest.cu.cc"]),
+    srcs = if_gpu_is_configured(["msm_gpu_unittest.cc"]),
     deps = [
         ":msm_gpu",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:bn254_util",

@@ -37,6 +37,13 @@ TYPED_TEST(ProjectivePointTest, IsZero) {
       ProjectivePointTy(BaseField(1), BaseField(2), BaseField(1)).IsZero());
 }
 
+TYPED_TEST(ProjectivePointTest, Generator) {
+  using ProjectivePointTy = TypeParam;
+
+  EXPECT_EQ(ProjectivePointTy::Generator(),
+            ProjectivePointTy::Curve::Generator().ToProjective());
+}
+
 TYPED_TEST(ProjectivePointTest, Montgomery) {
   using ProjectivePointTy = TypeParam;
 

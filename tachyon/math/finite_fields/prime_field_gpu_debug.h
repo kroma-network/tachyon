@@ -19,6 +19,9 @@
 
 namespace tachyon::math {
 
+template <typename Config>
+class PrimeFieldGpu;
+
 template <typename _Config>
 class PrimeFieldGpuDebug : public PrimeFieldBase<PrimeFieldGpuDebug<_Config>> {
  public:
@@ -30,6 +33,9 @@ class PrimeFieldGpuDebug : public PrimeFieldBase<PrimeFieldGpuDebug<_Config>> {
   using Config = _Config;
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
+
+  using CpuField = PrimeFieldGpuDebug<Config>;
+  using GpuField = PrimeFieldGpu<Config>;
 
   constexpr PrimeFieldGpuDebug() = default;
   template <typename T,

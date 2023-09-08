@@ -34,6 +34,9 @@ class PrimeFieldGpu : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
 
+  using CpuField = PrimeField<Config>;
+  using GpuField = PrimeFieldGpu<Config>;
+
   constexpr PrimeFieldGpu() = default;
   template <typename T,
             std::enable_if_t<std::is_constructible_v<BigInt<N>, T>>* = nullptr>
