@@ -38,8 +38,7 @@ def generate_ec_points(
         name,
         fq_limb_nums,
         fr_limb_nums,
-        g1_deps,
-        **kwargs):
+        g1_deps):
     for n in [
         ("gen_fq_hdr", "fq.h"),
         ("gen_fq_src", "fq.cc"),
