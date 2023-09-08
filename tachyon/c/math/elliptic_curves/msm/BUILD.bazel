@@ -31,7 +31,6 @@ tachyon_cc_library(
 TPLS = [
     "//tachyon/c/math/elliptic_curves/{}:fr",
     "//tachyon/c/math/elliptic_curves/{}:g1",
-    "//tachyon/cc/math/elliptic_curves/{}:point_traits",
 ]
 
 CURVES = [

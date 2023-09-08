@@ -9,7 +9,7 @@
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
 // clang-format on
 #include "tachyon/base/time/time.h"
-#include "tachyon/cc/math/elliptic_curves/bn/bn254/point_traits.h"
+#include "tachyon/cc/math/elliptic_curves/point_traits.h"
 #include "tachyon/math/base/semigroups.h"
 
 namespace tachyon {
@@ -62,13 +62,11 @@ class MSMRunner {
                    const std::vector<uint64_t>& point_nums,
                    std::vector<ReturnTy>* results) const {
     for (uint64_t point_num : point_nums) {
-      std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
+      std::unique_ptr<CReturnTy> ret;
       uint64_t duration_in_us;
-      ret.reset(
-          fn(reinterpret_cast<const tachyon_bn254_g1_affine*>(bases_->data()),
-             point_num,
-             reinterpret_cast<const tachyon_bn254_fr*>(scalars_->data()),
-             point_num, &duration_in_us));
+      ret.reset(fn(reinterpret_cast<const CPointTy*>(bases_->data()), point_num,
+                   reinterpret_cast<const CScalarField*>(scalars_->data()),
+                   point_num, &duration_in_us));
       results->push_back(*reinterpret_cast<ReturnTy*>(ret.get()));
       reporter_->AddResult(base::Microseconds(duration_in_us).InSecondsF());
     }

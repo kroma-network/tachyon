@@ -8,8 +8,9 @@
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/time/time.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fq_prime_field_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_gpu.h"
-#include "tachyon/cc/math/elliptic_curves/bn/bn254/point_traits.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
