@@ -78,15 +78,77 @@ PointTy ToPoint3(const CPointTy& point_in) {
   return point;
 }
 
-template <typename CPointTy, typename PointTy,
+template <typename PointTy,
+          typename CPointTy = typename PointTraits<PointTy>::CCurvePointTy,
           typename BaseField = typename PointTy::BaseField,
-          size_t LimbNums = BaseField::kLimbNums>
-CPointTy* CreateCPoint3Ptr(const PointTy& point) {
-  CPointTy* ret = new CPointTy;
-  memcpy(&ret->x, point.x().value().limbs, sizeof(uint64_t) * LimbNums);
-  memcpy(&ret->y, point.y().value().limbs, sizeof(uint64_t) * LimbNums);
-  memcpy(&ret->z, point.z().value().limbs, sizeof(uint64_t) * LimbNums);
+          size_t LimbNumbs = BaseField::kLimbNums>
+CPointTy ToCAffinePoint(const PointTy& point_in) {
+  CPointTy ret;
+  memcpy(ret.x.limbs, point_in.x().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  memcpy(ret.y.limbs, point_in.y().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  ret.infinity = point_in.x().IsZero() && point_in.y().IsZero();
   return ret;
+}
+
+template <typename PointTy,
+          typename CPointTy = typename PointTraits<PointTy>::CCurvePointTy,
+          typename BaseField = typename PointTy::BaseField,
+          size_t LimbNumbs = BaseField::kLimbNums>
+CPointTy ToCProjectivePoint(const PointTy& point_in) {
+  CPointTy ret;
+  memcpy(ret.x.limbs, point_in.x().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  memcpy(ret.y.limbs, point_in.y().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  memcpy(ret.z.limbs, point_in.z().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  return ret;
+}
+
+template <typename PointTy,
+          typename CPointTy = typename PointTraits<PointTy>::CCurvePointTy,
+          typename BaseField = typename PointTy::BaseField,
+          size_t LimbNumbs = BaseField::kLimbNums>
+CPointTy ToCJacobianPoint(const PointTy& point_in) {
+  CPointTy ret;
+  memcpy(ret.x.limbs, point_in.x().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  memcpy(ret.y.limbs, point_in.y().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  memcpy(ret.z.limbs, point_in.z().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  return ret;
+}
+
+template <typename PointTy,
+          typename CPointTy = typename PointTraits<PointTy>::CCurvePointTy,
+          typename BaseField = typename PointTy::BaseField,
+          size_t LimbNumbs = BaseField::kLimbNums>
+CPointTy ToCPointXYZZ(const PointTy& point_in) {
+  CPointTy ret;
+  memcpy(ret.x.limbs, point_in.x().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  memcpy(ret.y.limbs, point_in.y().value().limbs, sizeof(uint64_t) * LimbNumbs);
+  memcpy(ret.zz.limbs, point_in.zz().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+  memcpy(ret.zzz.limbs, point_in.zzz().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+  return ret;
+}
+
+template <typename PointTy, typename CPointTy,
+          typename BaseField = typename PointTy::BaseField,
+          size_t LimbNumbs = BaseField::kLimbNums>
+void ToCPoint2(const PointTy& point_in, CPointTy* point_out) {
+  memcpy(point_out->x.limbs, point_in.x().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+  memcpy(point_out->y.limbs, point_in.y().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+}
+
+template <typename PointTy, typename CPointTy,
+          typename BaseField = typename PointTy::BaseField,
+          size_t LimbNumbs = BaseField::kLimbNums>
+void ToCPoint3(const PointTy& point_in, CPointTy* point_out) {
+  memcpy(point_out->x.limbs, point_in.x().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+  memcpy(point_out->y.limbs, point_in.y().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+  memcpy(point_out->z.limbs, point_in.z().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
 }
 
 }  // namespace tachyon::cc::math
