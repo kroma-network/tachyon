@@ -11,6 +11,7 @@
 namespace tachyon {
 
 const char* kBinaryArithmeticOps[] = {"add", "sub", "mul", "div"};
+const char* kUnaryArithmeticOps[] = {"neg", "dbl", "sqr", "inv"};
 const char* kBinaryComparisonOps[] = {"eq", "ne", "gt", "ge", "lt", "le"};
 
 struct GenerationConfig : public build::CcWriter {
@@ -45,6 +46,8 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "",
       "%{binary_arithmetic_ops}",
       "",
+      "%{unary_arithmetic_ops}",
+      "",
       "%{binary_comparison_ops}",
   };
   // clang-format on
@@ -65,6 +68,20 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   }
   binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
 
+  std::string unary_arithmetic_ops;
+  std::vector<std::string> unary_arithmetic_ops_components;
+  for (size_t i = 0; i < std::size(kUnaryArithmeticOps); ++i) {
+    unary_arithmetic_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "TACHYON_C_EXPORT %{field} %{field}_$0(const %{field}* a);",
+        // clang-format on
+        kUnaryArithmeticOps[i]));
+    if (i != std::size(kUnaryArithmeticOps) - 1) {
+      unary_arithmetic_ops_components.push_back("");
+    }
+  }
+  unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
+
   std::string binary_comparison_ops;
   std::vector<std::string> binary_comparison_ops_components;
   for (size_t i = 0; i < std::size(kBinaryComparisonOps); ++i) {
@@ -82,6 +99,7 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
                        {"%{binary_comparison_ops}", binary_comparison_ops},
                    });
 
@@ -112,6 +130,8 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
       "",
       "%{binary_arithmetic_ops}",
       "",
+      "%{unary_arithmetic_ops}",
+      "",
       "%{binary_comparison_ops}",
   };
   // clang-format on
@@ -136,6 +156,25 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   }
   binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
 
+  std::string unary_arithmetic_ops;
+  std::vector<std::string> unary_arithmetic_ops_components;
+  const char* kUpperUnaryArithmeticOps[] = {"Neg", "Double", "Square",
+                                            "Inverse"};
+  for (size_t i = 0; i < std::size(kUnaryArithmeticOps); ++i) {
+    unary_arithmetic_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "%{field} %{field}_$0(const %{field}* a) {\n"
+          "  using namespace tachyon::cc::math;\n"
+          "  return ToCPrimeField(ToPrimeField(*a).$1InPlace());\n"
+          "}",
+        // clang-format on
+        kUnaryArithmeticOps[i], kUpperUnaryArithmeticOps[i]));
+    if (i != std::size(kUnaryArithmeticOps) - 1) {
+      unary_arithmetic_ops_components.push_back("");
+    }
+  }
+  unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
+
   std::string binary_comparison_ops;
   std::vector<std::string> binary_comparison_ops_components;
   const char* kBinaryComparisonSymbols[] = {"==", "!=", ">", ">=", "<", "<="};
@@ -157,6 +196,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
                        {"%{binary_comparison_ops}", binary_comparison_ops},
                    });
 

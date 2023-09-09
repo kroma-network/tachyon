@@ -48,6 +48,26 @@ TEST_F(PrimeFieldTest, Div) {
   EXPECT_EQ(cc::math::ToPrimeField(c_ret), a_ / b_);
 }
 
+TEST_F(PrimeFieldTest, Neg) {
+  tachyon_bn254_fr c_ret = tachyon_bn254_fr_neg(&c_a_);
+  EXPECT_EQ(cc::math::ToPrimeField(c_ret), -a_);
+}
+
+TEST_F(PrimeFieldTest, Dbl) {
+  tachyon_bn254_fr c_ret = tachyon_bn254_fr_dbl(&c_a_);
+  EXPECT_EQ(cc::math::ToPrimeField(c_ret), a_.Double());
+}
+
+TEST_F(PrimeFieldTest, Sqr) {
+  tachyon_bn254_fr c_ret = tachyon_bn254_fr_sqr(&c_a_);
+  EXPECT_EQ(cc::math::ToPrimeField(c_ret), a_.Square());
+}
+
+TEST_F(PrimeFieldTest, Inv) {
+  tachyon_bn254_fr c_ret = tachyon_bn254_fr_inv(&c_a_);
+  EXPECT_EQ(cc::math::ToPrimeField(c_ret), a_.Inverse());
+}
+
 TEST_F(PrimeFieldTest, Eq) {
   EXPECT_EQ(tachyon_bn254_fr_eq(&c_a_, &c_b_), a_ == b_);
 }
