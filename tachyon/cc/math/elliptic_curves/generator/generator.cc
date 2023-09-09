@@ -119,7 +119,7 @@ int GenerationConfig::GenerateUtilHdr() const {
                        {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{type}", type},
                    });
-  return WriteHdr(content);
+  return WriteHdr(content, false);
 }
 
 int GenerationConfig::GenerateUtilSrc() const {

@@ -50,6 +50,8 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "",
       "#include \"tachyon/c/export.h\"",
       "",
+      "%{extern_c_front}",
+      "",
       "struct TACHYON_C_EXPORT %{field} {",
       "  uint64_t limbs[%{limb_nums}];",
       "};",
@@ -137,7 +139,7 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
           {"%{limb_nums}",
            absl::StrCat(suffix == "fq" ? fq_limb_nums : fr_limb_nums)},
       });
-  return WriteHdr(content);
+  return WriteHdr(content, true);
 }
 
 int GenerationConfig::GenerateFqHdr() const {
@@ -300,7 +302,7 @@ int GenerationConfig::GeneratePrimeFieldTraitsHdr(
                        {"%{suffix}", std::string(suffix)},
                        {"%{Suffix}", suffix == "fq" ? "Fq" : "Fr"},
                    });
-  return WriteHdr(content);
+  return WriteHdr(content, false);
 }
 
 int GenerationConfig::GenerateFqTraitsHdr() const {
@@ -316,6 +318,8 @@ int GenerationConfig::GenerateG1Hdr() const {
   std::string_view tpl[] = {
       "#include \"tachyon/c/export.h\"",
       "#include \"%{header_path}\"",
+      "",
+      "%{extern_c_front}",
       "",
       "struct TACHYON_C_EXPORT __attribute__((aligned(32))) %{g1}_affine {",
       "  tachyon_%{type}_fq x;",
@@ -471,7 +475,7 @@ int GenerationConfig::GenerateG1Hdr() const {
                        {"%{type}", type},
                        {"%{g1}", absl::Substitute("tachyon_$0_g1", type)},
                    });
-  return WriteHdr(content);
+  return WriteHdr(content, true);
 }
 
 int GenerationConfig::GenerateG1Src() const {
@@ -717,7 +721,7 @@ int GenerationConfig::GenerateG1TraitsHdr() const {
                        {"%{fr_limb_nums}", absl::StrCat(fr_limb_nums)},
                        {"%{type}", type},
                    });
-  return WriteHdr(content);
+  return WriteHdr(content, false);
 }
 
 int RealMain(int argc, char** argv) {

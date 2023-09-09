@@ -179,7 +179,7 @@ int GenerationConfig::GenerateConfigHdr() const {
           {"%{inverse32}", absl::StrCat(modulus_info.inverse32)},
           {"%{one_mont_form}", math::MpzClassToMontString(mpz_class(1), m)},
       });
-  return WriteHdr(content);
+  return WriteHdr(content, false);
 }
 
 int GenerationConfig::GenerateConfigCpp() const {
@@ -229,7 +229,7 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
                                            {"%{namespace}", ns_name},
                                            {"%{class}", class_name},
                                        });
-  return WriteHdr(content);
+  return WriteHdr(content, false);
 }
 
 int RealMain(int argc, char** argv) {
