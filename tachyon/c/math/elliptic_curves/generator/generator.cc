@@ -11,6 +11,7 @@
 namespace tachyon {
 
 const char* kBinaryArithmeticOps[] = {"add", "sub", "mul", "div"};
+const char* kBinaryComparisonOps[] = {"eq", "ne", "gt", "ge", "lt", "le"};
 
 struct GenerationConfig : public build::CcWriter {
   std::string type;
@@ -43,28 +44,45 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "};",
       "",
       "%{binary_arithmetic_ops}",
+      "",
+      "%{binary_comparison_ops}",
   };
   // clang-format on
 
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
   std::string binary_arithmetic_ops;
-  std::vector<std::string> components;
+  std::vector<std::string> binary_arithmetic_ops_components;
   for (size_t i = 0; i < std::size(kBinaryArithmeticOps); ++i) {
-    components.push_back(absl::Substitute(
+    binary_arithmetic_ops_components.push_back(absl::Substitute(
         // clang-format off
           "TACHYON_C_EXPORT %{field} %{field}_$0(const %{field}* a, const %{field}* b);",
         // clang-format on
         kBinaryArithmeticOps[i]));
     if (i != std::size(kBinaryArithmeticOps) - 1) {
-      components.push_back("");
+      binary_arithmetic_ops_components.push_back("");
     }
   }
-  binary_arithmetic_ops = absl::StrJoin(components, "\n");
+  binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
+
+  std::string binary_comparison_ops;
+  std::vector<std::string> binary_comparison_ops_components;
+  for (size_t i = 0; i < std::size(kBinaryComparisonOps); ++i) {
+    binary_comparison_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "TACHYON_C_EXPORT bool %{field}_$0(const %{field}* a, const %{field}* b);",
+        // clang-format on
+        kBinaryComparisonOps[i]));
+    if (i != std::size(kBinaryComparisonOps) - 1) {
+      binary_comparison_ops_components.push_back("");
+    }
+  }
+  binary_comparison_ops = absl::StrJoin(binary_comparison_ops_components, "\n");
 
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{binary_comparison_ops}", binary_comparison_ops},
                    });
 
   std::string content = absl::StrReplaceAll(
@@ -93,16 +111,18 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/%{suffix}.h\"",
       "",
       "%{binary_arithmetic_ops}",
+      "",
+      "%{binary_comparison_ops}",
   };
   // clang-format on
 
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
   std::string binary_arithmetic_ops;
-  std::vector<std::string> components;
+  std::vector<std::string> binary_arithmetic_ops_components;
   const char* kUpperBinaryArithmeticOps[] = {"Add", "Sub", "Mul", "Div"};
   for (size_t i = 0; i < std::size(kBinaryArithmeticOps); ++i) {
-    components.push_back(absl::Substitute(
+    binary_arithmetic_ops_components.push_back(absl::Substitute(
         // clang-format off
           "%{field} %{field}_$0(const %{field}* a, const %{field}* b) {\n"
           "  using namespace tachyon::cc::math;\n"
@@ -111,14 +131,33 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
         // clang-format on
         kBinaryArithmeticOps[i], kUpperBinaryArithmeticOps[i]));
     if (i != std::size(kBinaryArithmeticOps) - 1) {
-      components.push_back("");
+      binary_arithmetic_ops_components.push_back("");
     }
   }
-  binary_arithmetic_ops = absl::StrJoin(components, "\n");
+  binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
+
+  std::string binary_comparison_ops;
+  std::vector<std::string> binary_comparison_ops_components;
+  const char* kBinaryComparisonSymbols[] = {"==", "!=", ">", ">=", "<", "<="};
+  for (size_t i = 0; i < std::size(kBinaryComparisonOps); ++i) {
+    binary_comparison_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "bool %{field}_$0(const %{field}* a, const %{field}* b) {\n"
+          "  using namespace tachyon::cc::math;\n"
+          "  return ToPrimeField(*a) $1 ToPrimeField(*b);\n"
+          "}",
+        // clang-format on
+        kBinaryComparisonOps[i], kBinaryComparisonSymbols[i]));
+    if (i != std::size(kBinaryComparisonOps) - 1) {
+      binary_comparison_ops_components.push_back("");
+    }
+  }
+  binary_comparison_ops = absl::StrJoin(binary_comparison_ops_components, "\n");
 
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{binary_comparison_ops}", binary_comparison_ops},
                    });
 
   std::string content = absl::StrReplaceAll(

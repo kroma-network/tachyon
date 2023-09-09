@@ -48,4 +48,28 @@ TEST_F(PrimeFieldTest, Div) {
   EXPECT_EQ(cc::math::ToPrimeField(c_ret), a_ / b_);
 }
 
+TEST_F(PrimeFieldTest, Eq) {
+  EXPECT_EQ(tachyon_bn254_fr_eq(&c_a_, &c_b_), a_ == b_);
+}
+
+TEST_F(PrimeFieldTest, Ne) {
+  EXPECT_EQ(tachyon_bn254_fr_ne(&c_a_, &c_b_), a_ != b_);
+}
+
+TEST_F(PrimeFieldTest, Gt) {
+  EXPECT_EQ(tachyon_bn254_fr_gt(&c_a_, &c_b_), a_ > b_);
+}
+
+TEST_F(PrimeFieldTest, Ge) {
+  EXPECT_EQ(tachyon_bn254_fr_ge(&c_a_, &c_b_), a_ >= b_);
+}
+
+TEST_F(PrimeFieldTest, Lt) {
+  EXPECT_EQ(tachyon_bn254_fr_lt(&c_a_, &c_b_), a_ < b_);
+}
+
+TEST_F(PrimeFieldTest, Le) {
+  EXPECT_EQ(tachyon_bn254_fr_le(&c_a_, &c_b_), a_ <= b_);
+}
+
 }  // namespace tachyon::c::math
