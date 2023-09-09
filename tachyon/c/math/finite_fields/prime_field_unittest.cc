@@ -28,6 +28,21 @@ class PrimeFieldTest : public testing::Test {
 
 }  // namespace
 
+TEST_F(PrimeFieldTest, Zero) {
+  tachyon_bn254_fr c_ret = tachyon_bn254_fr_zero();
+  EXPECT_TRUE(cc::math::ToPrimeField(c_ret).IsZero());
+}
+
+TEST_F(PrimeFieldTest, One) {
+  tachyon_bn254_fr c_ret = tachyon_bn254_fr_one();
+  EXPECT_TRUE(cc::math::ToPrimeField(c_ret).IsOne());
+}
+
+TEST_F(PrimeFieldTest, Random) {
+  tachyon_bn254_fr c_ret = tachyon_bn254_fr_random();
+  EXPECT_NE(cc::math::ToPrimeField(c_ret), a_);
+}
+
 TEST_F(PrimeFieldTest, Add) {
   tachyon_bn254_fr c_ret = tachyon_bn254_fr_add(&c_a_, &c_b_);
   EXPECT_EQ(cc::math::ToPrimeField(c_ret), a_ + b_);

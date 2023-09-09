@@ -13,6 +13,7 @@ namespace tachyon {
 const char* kBinaryArithmeticOps[] = {"add", "sub", "mul", "div"};
 const char* kUnaryArithmeticOps[] = {"neg", "dbl", "sqr", "inv"};
 const char* kBinaryComparisonOps[] = {"eq", "ne", "gt", "ge", "lt", "le"};
+const char* kCreationOps[] = {"zero", "one", "random"};
 
 struct GenerationConfig : public build::CcWriter {
   std::string type;
@@ -44,6 +45,8 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "  uint64_t limbs[%{limb_nums}];",
       "};",
       "",
+      "%{creation_ops}",
+      "",
       "%{binary_arithmetic_ops}",
       "",
       "%{unary_arithmetic_ops}",
@@ -53,6 +56,20 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   // clang-format on
 
   std::string tpl_content = absl::StrJoin(tpl, "\n");
+
+  std::string creation_ops;
+  std::vector<std::string> creation_ops_components;
+  for (size_t i = 0; i < std::size(kCreationOps); ++i) {
+    creation_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "TACHYON_C_EXPORT %{field} %{field}_$0();",
+        // clang-format on
+        kCreationOps[i]));
+    if (i != std::size(kCreationOps) - 1) {
+      creation_ops_components.push_back("");
+    }
+  }
+  creation_ops = absl::StrJoin(creation_ops_components, "\n");
 
   std::string binary_arithmetic_ops;
   std::vector<std::string> binary_arithmetic_ops_components;
@@ -98,6 +115,7 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
 
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
+                       {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
                        {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
                        {"%{binary_comparison_ops}", binary_comparison_ops},
@@ -128,6 +146,8 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
       "#include \"tachyon/cc/math/finite_fields/prime_field_conversions.h\"",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/%{suffix}.h\"",
       "",
+      "%{creation_ops}",
+      "",
       "%{binary_arithmetic_ops}",
       "",
       "%{unary_arithmetic_ops}",
@@ -137,6 +157,25 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   // clang-format on
 
   std::string tpl_content = absl::StrJoin(tpl, "\n");
+
+  std::string creation_ops;
+  std::vector<std::string> creation_ops_components;
+  const char* kUpperCreationOps[] = {"Zero", "One", "Random"};
+  for (size_t i = 0; i < std::size(kCreationOps); ++i) {
+    creation_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "%{field} %{field}_$0() {\n"
+          "  using namespace tachyon::cc::math;\n"
+          "  using PrimeFieldTy = typename PrimeFieldTraits<%{field}>::PrimeFieldTy;\n"
+          "  return ToCPrimeField(PrimeFieldTy::$1());\n"
+          "}",
+        // clang-format on
+        kCreationOps[i], kUpperCreationOps[i]));
+    if (i != std::size(kCreationOps) - 1) {
+      creation_ops_components.push_back("");
+    }
+  }
+  creation_ops = absl::StrJoin(creation_ops_components, "\n");
 
   std::string binary_arithmetic_ops;
   std::vector<std::string> binary_arithmetic_ops_components;
@@ -195,6 +234,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
 
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
+                       {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
                        {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
                        {"%{binary_comparison_ops}", binary_comparison_ops},
