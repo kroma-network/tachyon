@@ -79,4 +79,14 @@ TEST_F(JacobianPointTest, Sub) {
   EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), a_ - d);
 }
 
+TEST_F(JacobianPointTest, Neg) {
+  tachyon_bn254_g1_jacobian c_ret = tachyon_bn254_g1_jacobian_neg(&c_a_);
+  EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), -a_);
+}
+
+TEST_F(JacobianPointTest, Dbl) {
+  tachyon_bn254_g1_jacobian c_ret = tachyon_bn254_g1_jacobian_dbl(&c_a_);
+  EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), a_.Double());
+}
+
 }  // namespace tachyon::c::math

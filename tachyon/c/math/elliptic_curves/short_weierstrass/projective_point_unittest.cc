@@ -81,4 +81,14 @@ TEST_F(ProjectivePointTest, Sub) {
   EXPECT_EQ(cc::math::ToProjectivePoint(c_ret), a_ - d);
 }
 
+TEST_F(ProjectivePointTest, Neg) {
+  tachyon_bn254_g1_projective c_ret = tachyon_bn254_g1_projective_neg(&c_a_);
+  EXPECT_EQ(cc::math::ToProjectivePoint(c_ret), -a_);
+}
+
+TEST_F(ProjectivePointTest, Dbl) {
+  tachyon_bn254_g1_projective c_ret = tachyon_bn254_g1_projective_dbl(&c_a_);
+  EXPECT_EQ(cc::math::ToProjectivePoint(c_ret), a_.Double());
+}
+
 }  // namespace tachyon::c::math

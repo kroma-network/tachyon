@@ -79,4 +79,14 @@ TEST_F(PointXYZZTest, Sub) {
   EXPECT_EQ(cc::math::ToPointXYZZ(c_ret), a_ - d);
 }
 
+TEST_F(PointXYZZTest, Neg) {
+  tachyon_bn254_g1_xyzz c_ret = tachyon_bn254_g1_xyzz_neg(&c_a_);
+  EXPECT_EQ(cc::math::ToPointXYZZ(c_ret), -a_);
+}
+
+TEST_F(PointXYZZTest, Dbl) {
+  tachyon_bn254_g1_xyzz c_ret = tachyon_bn254_g1_xyzz_dbl(&c_a_);
+  EXPECT_EQ(cc::math::ToPointXYZZ(c_ret), a_.Double());
+}
+
 }  // namespace tachyon::c::math

@@ -18,6 +18,7 @@ const char* kFieldUnaryArithmeticOps[] = {"neg", "dbl", "sqr", "inv"};
 const char* kFieldCreationOps[] = {"zero", "one", "random"};
 
 const char* kGroupBinaryArithmeticOps[] = {"add", "sub"};
+const char* kGroupUnaryArithmeticOps[] = {"neg", "dbl"};
 const char* kPointCreationOps[] = {"zero", "generator", "random"};
 
 const char* kG1PointKinds[] = {"%{g1}_affine", "%{g1}_projective",
@@ -367,6 +368,8 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{binary_arithmetic_ops}",
       "",
+      "%{unary_arithmetic_ops}",
+      "",
       "%{equality_ops}",
   };
   // clang-format on
@@ -416,6 +419,24 @@ int GenerationConfig::GenerateG1Hdr() const {
   }
   binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
 
+  std::string unary_arithmetic_ops;
+  std::vector<std::string> unary_arithmetic_ops_components;
+  for (size_t i = 0; i < std::size(kGroupUnaryArithmeticOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      unary_arithmetic_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "TACHYON_C_EXPORT $2 $0_$1(const $0* a);",
+          // clang-format on
+          kG1PointKinds[j], kGroupUnaryArithmeticOps[i],
+          (j == 0 && i == 1) ? "%{g1}_jacobian" : kG1PointKinds[j]));
+      unary_arithmetic_ops_components.push_back("");
+    }
+    if (i == std::size(kGroupUnaryArithmeticOps) - 1) {
+      unary_arithmetic_ops_components.pop_back();
+    }
+  }
+  unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
+
   std::string equality_ops;
   std::vector<std::string> equality_ops_components;
   for (size_t i = 0; i < std::size(kEqualityOps); ++i) {
@@ -437,6 +458,7 @@ int GenerationConfig::GenerateG1Hdr() const {
       tpl_content, {
                        {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
                        {"%{equality_ops}", equality_ops},
                    });
 
@@ -467,6 +489,8 @@ int GenerationConfig::GenerateG1Src() const {
       "%{creation_ops}",
       "",
       "%{binary_arithmetic_ops}",
+      "",
+      "%{unary_arithmetic_ops}",
       "",
       "%{equality_ops}",
   };
@@ -541,6 +565,31 @@ int GenerationConfig::GenerateG1Src() const {
   }
   binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
 
+  std::string unary_arithmetic_ops;
+  std::vector<std::string> unary_arithmetic_ops_components;
+  const char* kUpperUnaryArithmeticOps[] = {"Neg", "Double"};
+  for (size_t i = 0; i < std::size(kGroupUnaryArithmeticOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      unary_arithmetic_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "$2 $0_$1(const $0* a) {\n"
+            "  using namespace tachyon::cc::math;\n"
+            "  return ToC$3(To$4(*a).$5$6());\n"
+            "}",
+          // clang-format on
+          kG1PointKinds[j], kGroupUnaryArithmeticOps[i],
+          (j == 0 && i == 1) ? "%{g1}_jacobian" : kG1PointKinds[j],
+          (j == 0 && i == 1) ? "JacobianPoint" : kUpperPointKinds[j],
+          kUpperPointKinds[j], kUpperUnaryArithmeticOps[i],
+          (j == 0 && i == 1) ? "" : "InPlace"));
+      unary_arithmetic_ops_components.push_back("");
+    }
+    if (i == std::size(kGroupUnaryArithmeticOps) - 1) {
+      unary_arithmetic_ops_components.pop_back();
+    }
+  }
+  unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
+
   std::string equality_ops;
   std::vector<std::string> equality_ops_components;
   const char* kEqualitySymbols[] = {"==", "!="};
@@ -567,6 +616,7 @@ int GenerationConfig::GenerateG1Src() const {
       tpl_content, {
                        {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
                        {"%{equality_ops}", equality_ops},
                    });
 
