@@ -20,7 +20,7 @@ CurvePointTy ToAffinePoint(const CPointTy& point_in) {
   tachyon::math::Point2<BaseField> point;
   point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
   point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
-  return CurvePointTy(point, point.x.IsZero() && point.y.IsZero());
+  return CurvePointTy(point, point_in.infinity);
 }
 
 template <typename CPointTy,
