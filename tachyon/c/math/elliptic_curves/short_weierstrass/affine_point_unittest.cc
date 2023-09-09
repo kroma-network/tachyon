@@ -57,4 +57,14 @@ TEST_F(AffinePointTest, Ne) {
   EXPECT_EQ(tachyon_bn254_g1_affine_ne(&c_a_, &c_b_), a_ != b_);
 }
 
+TEST_F(AffinePointTest, Add) {
+  tachyon_bn254_g1_jacobian c_ret = tachyon_bn254_g1_affine_add(&c_a_, &c_b_);
+  EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), a_ + b_);
+}
+
+TEST_F(AffinePointTest, Sub) {
+  tachyon_bn254_g1_jacobian c_ret = tachyon_bn254_g1_affine_sub(&c_a_, &c_b_);
+  EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), a_ - b_);
+}
+
 }  // namespace tachyon::c::math

@@ -17,6 +17,7 @@ const char* kFieldBinaryArithmeticOps[] = {"add", "sub", "mul", "div"};
 const char* kFieldUnaryArithmeticOps[] = {"neg", "dbl", "sqr", "inv"};
 const char* kFieldCreationOps[] = {"zero", "one", "random"};
 
+const char* kGroupBinaryArithmeticOps[] = {"add", "sub"};
 const char* kPointCreationOps[] = {"zero", "generator", "random"};
 
 const char* kG1PointKinds[] = {"%{g1}_affine", "%{g1}_projective",
@@ -364,6 +365,8 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{creation_ops}",
       "",
+      "%{binary_arithmetic_ops}",
+      "",
       "%{equality_ops}",
   };
   // clang-format on
@@ -386,6 +389,33 @@ int GenerationConfig::GenerateG1Hdr() const {
   }
   creation_ops = absl::StrJoin(creation_ops_components, "\n");
 
+  std::string binary_arithmetic_ops;
+  std::vector<std::string> binary_arithmetic_ops_components;
+  for (size_t i = 0; i < std::size(kGroupBinaryArithmeticOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      binary_arithmetic_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "TACHYON_C_EXPORT $2 $0_$1(const $0* a, const $0* b);",
+          // clang-format on
+          kG1PointKinds[j], kGroupBinaryArithmeticOps[i],
+          j == 0 ? "%{g1}_jacobian" : kG1PointKinds[j]));
+      binary_arithmetic_ops_components.push_back("");
+      if (j != 0) {
+        // affine point
+        binary_arithmetic_ops_components.push_back(absl::Substitute(
+            // clang-format off
+              "TACHYON_C_EXPORT $0 $0_$1_mixed(const $0* a, const %{g1}_affine* b);",
+            // clang-format on
+            kG1PointKinds[j], kGroupBinaryArithmeticOps[i]));
+        binary_arithmetic_ops_components.push_back("");
+      }
+    }
+    if (i == std::size(kGroupBinaryArithmeticOps) - 1) {
+      binary_arithmetic_ops_components.pop_back();
+    }
+  }
+  binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
+
   std::string equality_ops;
   std::vector<std::string> equality_ops_components;
   for (size_t i = 0; i < std::size(kEqualityOps); ++i) {
@@ -403,11 +433,12 @@ int GenerationConfig::GenerateG1Hdr() const {
   }
   equality_ops = absl::StrJoin(equality_ops_components, "\n");
 
-  tpl_content =
-      absl::StrReplaceAll(tpl_content, {
-                                           {"%{creation_ops}", creation_ops},
-                                           {"%{equality_ops}", equality_ops},
-                                       });
+  tpl_content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{creation_ops}", creation_ops},
+                       {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{equality_ops}", equality_ops},
+                   });
 
   base::FilePath hdr_path = GetHdrPath();
   std::string basename = hdr_path.BaseName().value();
@@ -434,6 +465,8 @@ int GenerationConfig::GenerateG1Src() const {
       "}",
       "",
       "%{creation_ops}",
+      "",
+      "%{binary_arithmetic_ops}",
       "",
       "%{equality_ops}",
   };
@@ -466,6 +499,48 @@ int GenerationConfig::GenerateG1Src() const {
   }
   creation_ops = absl::StrJoin(creation_ops_components, "\n");
 
+  std::string binary_arithmetic_ops;
+  std::vector<std::string> binary_arithmetic_ops_components;
+  for (size_t i = 0; i < std::size(kGroupBinaryArithmeticOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      for (size_t k = 0; k < 2; ++k) {
+        if (k == 0) {
+          binary_arithmetic_ops_components.push_back(absl::Substitute(
+              // clang-format off
+                "$2 $0_$1(const $0* a, const $0* b) {",
+              // clang-format on
+              kG1PointKinds[j], kGroupBinaryArithmeticOps[i],
+              j == 0 ? "%{g1}_jacobian" : kG1PointKinds[j]));
+        } else {
+          if (j == 0) {
+            // affine point
+            continue;
+          }
+          binary_arithmetic_ops_components.push_back(absl::Substitute(
+              // clang-format off
+                "$0 $0_$1_mixed(const $0* a, const %{g1}_affine* b) {",
+              // clang-format on
+              kG1PointKinds[j], kGroupBinaryArithmeticOps[i]));
+        }
+        binary_arithmetic_ops_components.push_back(absl::Substitute(
+            // clang-format off
+              "  using namespace tachyon::cc::math;\n"
+              "  return ToC$0(To$1(*a).$2(To$3(*b)$4));\n"
+              "}",
+            // clang-format on
+            j == 0 ? "JacobianPoint" : kUpperPointKinds[j], kUpperPointKinds[j],
+            j == 0 ? "Add" : "AddInPlace",
+            k == 0 ? kUpperPointKinds[j] : "AffinePoint",
+            i == 0 ? "" : ".Negative()"));
+        binary_arithmetic_ops_components.push_back("");
+      }
+    }
+    if (i == std::size(kGroupBinaryArithmeticOps) - 1) {
+      binary_arithmetic_ops_components.pop_back();
+    }
+  }
+  binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
+
   std::string equality_ops;
   std::vector<std::string> equality_ops_components;
   const char* kEqualitySymbols[] = {"==", "!="};
@@ -488,11 +563,12 @@ int GenerationConfig::GenerateG1Src() const {
   }
   equality_ops = absl::StrJoin(equality_ops_components, "\n");
 
-  tpl_content =
-      absl::StrReplaceAll(tpl_content, {
-                                           {"%{creation_ops}", creation_ops},
-                                           {"%{equality_ops}", equality_ops},
-                                       });
+  tpl_content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{creation_ops}", creation_ops},
+                       {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{equality_ops}", equality_ops},
+                   });
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {

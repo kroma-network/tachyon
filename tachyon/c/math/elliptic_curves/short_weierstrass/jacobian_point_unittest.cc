@@ -57,4 +57,26 @@ TEST_F(JacobianPointTest, Ne) {
   EXPECT_EQ(tachyon_bn254_g1_jacobian_ne(&c_a_, &c_b_), a_ != b_);
 }
 
+TEST_F(JacobianPointTest, Add) {
+  tachyon_bn254_g1_jacobian c_ret = tachyon_bn254_g1_jacobian_add(&c_a_, &c_b_);
+  EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), a_ + b_);
+
+  tachyon::math::bn254::G1AffinePoint d =
+      tachyon::math::bn254::G1AffinePoint::Random();
+  tachyon_bn254_g1_affine c_d = cc::math::ToCAffinePoint(d);
+  c_ret = tachyon_bn254_g1_jacobian_add_mixed(&c_a_, &c_d);
+  EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), a_ + d);
+}
+
+TEST_F(JacobianPointTest, Sub) {
+  tachyon_bn254_g1_jacobian c_ret = tachyon_bn254_g1_jacobian_sub(&c_a_, &c_b_);
+  EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), a_ - b_);
+
+  tachyon::math::bn254::G1AffinePoint d =
+      tachyon::math::bn254::G1AffinePoint::Random();
+  tachyon_bn254_g1_affine c_d = cc::math::ToCAffinePoint(d);
+  c_ret = tachyon_bn254_g1_jacobian_sub_mixed(&c_a_, &c_d);
+  EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), a_ - d);
+}
+
 }  // namespace tachyon::c::math
