@@ -363,6 +363,8 @@ int GenerationConfig::GenerateG1Hdr() const {
       "TACHYON_C_EXPORT void %{g1}_init();",
       "",
       "%{creation_ops}",
+      "",
+      "%{equality_ops}",
   };
   // clang-format on
   std::string tpl_content = absl::StrJoin(tpl, "\n");
@@ -384,9 +386,27 @@ int GenerationConfig::GenerateG1Hdr() const {
   }
   creation_ops = absl::StrJoin(creation_ops_components, "\n");
 
+  std::string equality_ops;
+  std::vector<std::string> equality_ops_components;
+  for (size_t i = 0; i < std::size(kEqualityOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      equality_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "bool TACHYON_C_EXPORT $0_$1(const $0* a, const $0* b);",
+          // clang-format on
+          kG1PointKinds[j], kEqualityOps[i]));
+      equality_ops_components.push_back("");
+    }
+    if (i == std::size(kEqualityOps) - 1) {
+      equality_ops_components.pop_back();
+    }
+  }
+  equality_ops = absl::StrJoin(equality_ops_components, "\n");
+
   tpl_content =
       absl::StrReplaceAll(tpl_content, {
                                            {"%{creation_ops}", creation_ops},
+                                           {"%{equality_ops}", equality_ops},
                                        });
 
   base::FilePath hdr_path = GetHdrPath();
@@ -404,6 +424,7 @@ int GenerationConfig::GenerateG1Hdr() const {
 int GenerationConfig::GenerateG1Src() const {
   // clang-format off
   std::vector<std::string_view> tpl = {
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fq_prime_field_traits.h\"",
       "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_traits.h\"",
       "#include \"tachyon/cc/math/elliptic_curves/point_conversions.h\"",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
@@ -413,6 +434,8 @@ int GenerationConfig::GenerateG1Src() const {
       "}",
       "",
       "%{creation_ops}",
+      "",
+      "%{equality_ops}",
   };
   // clang-format on
 
@@ -443,9 +466,32 @@ int GenerationConfig::GenerateG1Src() const {
   }
   creation_ops = absl::StrJoin(creation_ops_components, "\n");
 
+  std::string equality_ops;
+  std::vector<std::string> equality_ops_components;
+  const char* kEqualitySymbols[] = {"==", "!="};
+  for (size_t i = 0; i < std::size(kEqualityOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      equality_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "bool $0_$1(const $0* a, const $0* b) {\n"
+            "  using namespace tachyon::cc::math;\n"
+            "  return To$2(*a) $3 To$2(*b);\n"
+            "}",
+          // clang-format on
+          kG1PointKinds[j], kEqualityOps[i], kUpperPointKinds[j],
+          kEqualitySymbols[i]));
+      equality_ops_components.push_back("");
+    }
+    if (i == std::size(kEqualityOps) - 1) {
+      equality_ops_components.pop_back();
+    }
+  }
+  equality_ops = absl::StrJoin(equality_ops_components, "\n");
+
   tpl_content =
       absl::StrReplaceAll(tpl_content, {
                                            {"%{creation_ops}", creation_ops},
+                                           {"%{equality_ops}", equality_ops},
                                        });
 
   std::string content = absl::StrReplaceAll(

@@ -49,4 +49,12 @@ TEST_F(AffinePointTest, Random) {
   EXPECT_NE(cc::math::ToAffinePoint(c_ret), a_);
 }
 
+TEST_F(AffinePointTest, Eq) {
+  EXPECT_EQ(tachyon_bn254_g1_affine_eq(&c_a_, &c_b_), a_ == b_);
+}
+
+TEST_F(AffinePointTest, Ne) {
+  EXPECT_EQ(tachyon_bn254_g1_affine_ne(&c_a_, &c_b_), a_ != b_);
+}
+
 }  // namespace tachyon::c::math

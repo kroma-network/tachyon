@@ -49,4 +49,12 @@ TEST_F(JacobianPointTest, Random) {
   EXPECT_NE(cc::math::ToJacobianPoint(c_ret), a_);
 }
 
+TEST_F(JacobianPointTest, Eq) {
+  EXPECT_EQ(tachyon_bn254_g1_jacobian_eq(&c_a_, &c_b_), a_ == b_);
+}
+
+TEST_F(JacobianPointTest, Ne) {
+  EXPECT_EQ(tachyon_bn254_g1_jacobian_ne(&c_a_, &c_b_), a_ != b_);
+}
+
 }  // namespace tachyon::c::math

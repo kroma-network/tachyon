@@ -49,4 +49,12 @@ TEST_F(PointXYZZTest, Random) {
   EXPECT_NE(cc::math::ToPointXYZZ(c_ret), a_);
 }
 
+TEST_F(PointXYZZTest, Eq) {
+  EXPECT_EQ(tachyon_bn254_g1_xyzz_eq(&c_a_, &c_b_), a_ == b_);
+}
+
+TEST_F(PointXYZZTest, Ne) {
+  EXPECT_EQ(tachyon_bn254_g1_xyzz_ne(&c_a_, &c_b_), a_ != b_);
+}
+
 }  // namespace tachyon::c::math

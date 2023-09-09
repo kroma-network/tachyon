@@ -49,4 +49,12 @@ TEST_F(ProjectivePointTest, Random) {
   EXPECT_NE(cc::math::ToProjectivePoint(c_ret), a_);
 }
 
+TEST_F(ProjectivePointTest, Eq) {
+  EXPECT_EQ(tachyon_bn254_g1_projective_eq(&c_a_, &c_b_), a_ == b_);
+}
+
+TEST_F(ProjectivePointTest, Ne) {
+  EXPECT_EQ(tachyon_bn254_g1_projective_ne(&c_a_, &c_b_), a_ != b_);
+}
+
 }  // namespace tachyon::c::math
