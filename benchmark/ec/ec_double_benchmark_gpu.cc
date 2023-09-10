@@ -9,6 +9,7 @@
 #include "tachyon/base/time/time_interval.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
+#include "tachyon/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 
 namespace tachyon {
@@ -53,8 +54,7 @@ void TestDoubleOnGPU(math::bn254::G1AffinePointGpu* bases_cuda,
                      const std::vector<math::bn254::G1AffinePoint>& bases,
                      uint64_t nums) {
   for (uint64_t i = 0; i < nums; ++i) {
-    bases_cuda[i] =
-        math::bn254::G1AffinePointGpu::FromMontgomery(bases[i].ToMontgomery());
+    bases_cuda[i] = ConvertPoint<math::bn254::G1AffinePointGpu>(bases[i]);
   }
 
   LaunchDouble(bases_cuda, results_cuda, nums);
