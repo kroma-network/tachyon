@@ -2,6 +2,7 @@
 
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
+#include "tachyon/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/finite_fields/test/gf7_gpu.h"
 #include "tachyon/math/test/launch_op_macros.h"
 
@@ -90,7 +91,7 @@ gpu::GpuMemory<bool> PrimeFieldGpuTest::bool_results_;
 
 #define RUN_FIELD_OPERATION_TESTS(method) \
   RUN_OPERATION_TESTS(method, results_)   \
-  ASSERT_EQ(GF7::FromBigInt(results_[i].ToBigIntHost()), tests[i].result)
+  ASSERT_EQ(ConvertPrimeField<GF7>(results_[i]), tests[i].result)
 
 #define RUN_COMPARISON_OPERATION_TESTS(method) \
   RUN_OPERATION_TESTS(method, bool_results_)   \
