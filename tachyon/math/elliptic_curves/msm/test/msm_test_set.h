@@ -16,8 +16,7 @@ enum class MSMMethod {
 };
 
 template <typename PointTy,
-          typename Bucket =
-              typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy>
+          typename Bucket = typename VariableBaseMSM<PointTy>::Bucket>
 struct MSMTestSet {
   using ScalarField = typename PointTy::ScalarField;
 

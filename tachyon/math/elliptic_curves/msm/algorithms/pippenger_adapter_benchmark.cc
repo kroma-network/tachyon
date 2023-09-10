@@ -17,8 +17,8 @@ void BM_PippengerAdapter(benchmark::State& state) {
         MSMTestSet<PointTy>::NonUniform(state.range(0), 10, MSMMethod::kNone);
   }
   PippengerAdapter<PointTy> pippenger;
-  using ReturnTy = typename PippengerAdapter<PointTy>::ReturnTy;
-  ReturnTy ret;
+  using Bucket = typename PippengerAdapter<PointTy>::Bucket;
+  Bucket ret;
   for (auto _ : state) {
     pippenger.RunWithStrategy(test_set.bases.begin(), test_set.bases.end(),
                               test_set.scalars.begin(), test_set.scalars.end(),
