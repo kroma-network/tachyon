@@ -5,6 +5,7 @@
 
 #include "tachyon/base/no_destructor.h"
 #include "tachyon/math/base/identities.h"
+#include "tachyon/math/elliptic_curves/point_conversions_forward.h"
 
 namespace tachyon::math {
 
@@ -46,6 +47,23 @@ class AdditiveIdentity<PointXYZZ<Curve>> {
   }
 
   constexpr static bool IsZero(const P& value) { return value.IsZero(); }
+};
+
+template <typename Curve>
+struct PointConversions<PointXYZZ<Curve>, PointXYZZ<Curve>> {
+  constexpr static const PointXYZZ<Curve>& Convert(
+      const PointXYZZ<Curve>& src_point) {
+    return src_point;
+  }
+};
+
+template <typename SrcCurve, typename DstCurve>
+struct PointConversions<PointXYZZ<SrcCurve>, PointXYZZ<DstCurve>,
+                        std::enable_if_t<!std::is_same_v<SrcCurve, DstCurve>>> {
+  static PointXYZZ<DstCurve> Convert(const PointXYZZ<SrcCurve>& src_point) {
+    static_assert(SrcCurve::kIsSWCurve && DstCurve::kIsSWCurve);
+    return PointXYZZ<DstCurve>::FromMontgomery(src_point.ToMontgomery());
+  }
 };
 
 }  // namespace tachyon::math

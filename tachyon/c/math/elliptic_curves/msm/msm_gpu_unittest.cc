@@ -45,7 +45,7 @@ TEST_F(MSMGpuTest, MSMPoint2) {
         bases.size(),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
         t.scalars.size()));
-    EXPECT_EQ(cc::math::ToJacobianPoint(*ret), t.answer);
+    EXPECT_EQ(cc::math::ToJacobianPoint(*ret), t.answer.ToJacobian());
   }
 }
 
@@ -57,7 +57,7 @@ TEST_F(MSMGpuTest, MSMG1Affine) {
         t.bases.size(),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
         t.scalars.size()));
-    EXPECT_EQ(cc::math::ToJacobianPoint(*ret), t.answer);
+    EXPECT_EQ(cc::math::ToJacobianPoint(*ret), t.answer.ToJacobian());
   }
 }
 
