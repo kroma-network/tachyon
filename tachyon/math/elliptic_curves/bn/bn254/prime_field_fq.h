@@ -29,6 +29,9 @@ extern "C" int Fq_rawIsZero(const uint64_t v[4]);
 
 namespace tachyon::math {
 
+template <typename Config>
+class PrimeFieldGpu;
+
 template <typename _Config>
 class PrimeField<_Config, std::enable_if_t<_Config::kIsBn254Fq>>
     : public PrimeFieldBase<PrimeField<_Config>> {
@@ -40,6 +43,9 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsBn254Fq>>
   using Config = _Config;
   using BigIntTy = BigInt<N>;
   using value_type = BigInt<N>;
+
+  using CpuField = PrimeField<Config>;
+  using GpuField = PrimeFieldGpu<Config>;
 
   constexpr PrimeField() = default;
   template <typename T,
