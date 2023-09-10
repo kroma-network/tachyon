@@ -51,6 +51,8 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "",
       "%{creation_ops}",
       "",
+      "%{binary_arithmetic_ops}",
+      "",
       "  std::string ToString() const;",
       "",
       " private:",
@@ -83,10 +85,38 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   }
   creation_ops = absl::StrJoin(creation_ops_components, "\n");
 
-  tpl_content =
-      absl::StrReplaceAll(tpl_content, {
-                                           {"%{creation_ops}", creation_ops},
-                                       });
+  std::string binary_arithmetic_ops;
+  std::vector<std::string> binary_arithmetic_ops_components;
+  const char* kFieldBinaryArithmeticOps[] = {"+", "-", "*", "/"};
+  const char* kCFieldBinaryArithmeticOps[] = {"add", "sub", "mul", "div"};
+  for (size_t i = 0; i < std::size(kFieldBinaryArithmeticOps); ++i) {
+    binary_arithmetic_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "  %{cc_field} operator$0(const %{cc_field}& other) const {\n"
+          "    return %{cc_field}(%{c_field}_$1(&value_, &other.value_));\n"
+          "  }",
+        // clang-format on
+        kFieldBinaryArithmeticOps[i], kCFieldBinaryArithmeticOps[i]));
+    binary_arithmetic_ops_components.push_back("");
+    binary_arithmetic_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "  %{cc_field}& operator$0=(const %{cc_field}& other) {\n"
+          "    value_ = %{c_field}_$1(&value_, &other.value_);\n"
+          "    return *this;\n"
+          "  }",
+        // clang-format on
+        kFieldBinaryArithmeticOps[i], kCFieldBinaryArithmeticOps[i]));
+    if (i != std::size(kFieldBinaryArithmeticOps) - 1) {
+      binary_arithmetic_ops_components.push_back("");
+    }
+  }
+  binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
+
+  tpl_content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{creation_ops}", creation_ops},
+                       {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                   });
 
   std::string content = absl::StrReplaceAll(
       tpl_content,

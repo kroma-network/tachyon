@@ -43,4 +43,24 @@ TEST_F(PrimeFieldTest, Random) {
   EXPECT_NE(cc::math::ToPrimeField(random.value()), a_);
 }
 
+TEST_F(PrimeFieldTest, Add) {
+  EXPECT_EQ(cc::math::ToPrimeField((cc_a_ + cc_b_).value()), a_ + b_);
+  EXPECT_EQ(cc::math::ToPrimeField((cc_a_ += cc_b_).value()), a_ += b_);
+}
+
+TEST_F(PrimeFieldTest, Sub) {
+  EXPECT_EQ(cc::math::ToPrimeField((cc_a_ - cc_b_).value()), a_ - b_);
+  EXPECT_EQ(cc::math::ToPrimeField((cc_a_ -= cc_b_).value()), a_ -= b_);
+}
+
+TEST_F(PrimeFieldTest, Mul) {
+  EXPECT_EQ(cc::math::ToPrimeField((cc_a_ * cc_b_).value()), a_ * b_);
+  EXPECT_EQ(cc::math::ToPrimeField((cc_a_ *= cc_b_).value()), a_ *= b_);
+}
+
+TEST_F(PrimeFieldTest, Div) {
+  EXPECT_EQ(cc::math::ToPrimeField((cc_a_ / cc_b_).value()), a_ / b_);
+  EXPECT_EQ(cc::math::ToPrimeField((cc_a_ /= cc_b_).value()), a_ /= b_);
+}
+
 }  // namespace tachyon::cc::math
