@@ -59,6 +59,8 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "",
       "%{unary_arithmetic_ops}",
       "",
+      "%{comparison_ops}",
+      "",
       "  std::string ToString() const;",
       "",
       " private:",
@@ -136,11 +138,30 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   }
   unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
 
+  std::string comparison_ops;
+  std::vector<std::string> comparison_ops_components;
+  const char* kFieldComparisonOps[] = {"==", "!=", ">", ">=", "<", "<="};
+  const char* kCFieldComparisonOps[] = {"eq", "ne", "gt", "ge", "lt", "le"};
+  for (size_t i = 0; i < std::size(kFieldComparisonOps); ++i) {
+    comparison_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "  bool operator$0(const %{cc_field}& other) const {\n"
+          "    return %{c_field}_$1(&value_, &other.value_);\n"
+          "  }",
+        // clang-format on
+        kFieldComparisonOps[i], kCFieldComparisonOps[i]));
+    if (i != std::size(kFieldComparisonOps) - 1) {
+      comparison_ops_components.push_back("");
+    }
+  }
+  comparison_ops = absl::StrJoin(comparison_ops_components, "\n");
+
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
                        {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
+                       {"%{comparison_ops}", comparison_ops},
                    });
 
   std::string content = absl::StrReplaceAll(
