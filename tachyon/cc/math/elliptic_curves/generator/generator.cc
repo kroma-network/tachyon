@@ -53,6 +53,12 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "",
       "%{binary_arithmetic_ops}",
       "",
+      "  %{cc_field} operator-() const {",
+      "    return %{cc_field}(%{c_field}_neg(&value_));",
+      "  }",
+      "",
+      "%{unary_arithmetic_ops}",
+      "",
       "  std::string ToString() const;",
       "",
       " private:",
@@ -112,10 +118,29 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   }
   binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
 
+  std::string unary_arithmetic_ops;
+  std::vector<std::string> unary_arithmetic_ops_components;
+  const char* kFieldUnaryArithmeticOps[] = {"Double", "Square", "Inverse"};
+  const char* kCFieldUnaryArithmeticOps[] = {"dbl", "sqr", "inv"};
+  for (size_t i = 0; i < std::size(kFieldUnaryArithmeticOps); ++i) {
+    unary_arithmetic_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "  %{cc_field} $0() const {\n"
+          "    return %{cc_field}(%{c_field}_$1(&value_));\n"
+          "  }",
+        // clang-format on
+        kFieldUnaryArithmeticOps[i], kCFieldUnaryArithmeticOps[i]));
+    if (i != std::size(kFieldUnaryArithmeticOps) - 1) {
+      unary_arithmetic_ops_components.push_back("");
+    }
+  }
+  unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
+
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
                    });
 
   std::string content = absl::StrReplaceAll(

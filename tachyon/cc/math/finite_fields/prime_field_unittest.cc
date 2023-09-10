@@ -63,4 +63,20 @@ TEST_F(PrimeFieldTest, Div) {
   EXPECT_EQ(cc::math::ToPrimeField((cc_a_ /= cc_b_).value()), a_ /= b_);
 }
 
+TEST_F(PrimeFieldTest, Negative) {
+  EXPECT_EQ(cc::math::ToPrimeField((-cc_a_).value()), -a_);
+}
+
+TEST_F(PrimeFieldTest, Double) {
+  EXPECT_EQ(cc::math::ToPrimeField(cc_a_.Double().value()), a_.Double());
+}
+
+TEST_F(PrimeFieldTest, Square) {
+  EXPECT_EQ(cc::math::ToPrimeField(cc_a_.Square().value()), a_.Square());
+}
+
+TEST_F(PrimeFieldTest, Inverse) {
+  EXPECT_EQ(cc::math::ToPrimeField(cc_a_.Inverse().value()), a_.Inverse());
+}
+
 }  // namespace tachyon::cc::math
