@@ -80,7 +80,6 @@ tachyon_cc_test(
     deps = [
         ":msm",
         "//tachyon/base:bits",
-        "//tachyon/cc/math/elliptic_curves/bn/bn254:bn254_util",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )
@@ -91,7 +90,6 @@ tachyon_cuda_test(
     srcs = if_gpu_is_configured(["msm_gpu_unittest.cc"]),
     deps = [
         ":msm_gpu",
-        "//tachyon/cc/math/elliptic_curves/bn/bn254:bn254_util",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )
@@ -105,6 +103,5 @@ tachyon_cuda_binary(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/files:file_util",
         "//tachyon/base/flag:flag_parser",
-        "//tachyon/cc/math/elliptic_curves/bn/bn254:bn254_util",
     ],
 )

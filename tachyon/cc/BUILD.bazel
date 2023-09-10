@@ -1,5 +1,6 @@
 load(
     ":version.bzl",
+    "VERSION",
     "VERSION_MAJOR",
     "VERSION_MINOR",
     "VERSION_PATCH",
@@ -7,7 +8,9 @@ load(
 )
 load(
     "//bazel:tachyon_cc.bzl",
+    "collect_hdrs",
     "tachyon_cc_library",
+    "tachyon_cc_shared_library",
     "tachyon_cc_test",
 )
 load("//tachyon/build:version.bzl", "write_version_header")
@@ -48,5 +51,27 @@ tachyon_cc_test(
     deps = [
         ":version",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_shared_library(
+    name = "tachyon",
+    linkstatic = True,
+    soversion = VERSION,
+    tags = ["manual"],
+    deps = [
+        "//tachyon/cc/math/elliptic_curves/bls/bls12_381:g1",
+        "//tachyon/cc/math/elliptic_curves/bn/bn254:g1",
+    ],
+)
+
+collect_hdrs(
+    name = "tachyon_hdrs",
+    hdrs = [
+        "api.h",
+        "export.h",
+    ],
+    deps = [
+        "//tachyon/cc/math:math_hdrs",
     ],
 )

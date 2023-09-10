@@ -5,225 +5,154 @@
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
-#include "tachyon/build/generator_util.h"
 #include "tachyon/c/math/elliptic_curves/generator/generator_util.h"
 
 namespace tachyon {
 
-std::string_view kPrimeFieldSuffices[] = {"fq", "fr"};
-
-std::string_view kPointSuffices[] = {
-    "g1_affine", "g1_projective", "g1_jacobian",
-    "g1_xyzz",   "g1_point2",     "g1_point3",
-};
-
-std::string_view kInternalTypes[] = {
-    "AffinePoint", "ProjectivePoint", "JacobianPoint",
-    "PointXYZZ",   "Point2",          "Point3",
-};
-
-int kPointDimensions[] = {2, 3, 3, 4, 2, 3};
-
 struct GenerationConfig : public build::CcWriter {
   std::string type;
+  int fq_limb_nums;
+  int fr_limb_nums;
 
-  int GenerateUtilHdr() const;
-  int GenerateUtilSrc() const;
+  int GeneratePrimeFieldHdr(std::string_view suffix) const;
+  int GenerateFqHdr() const;
+  int GenerateFrHdr() const;
+  int GeneratePrimeFieldSrc(std::string_view suffix) const;
+  int GenerateFqSrc() const;
+  int GenerateFrSrc() const;
+  int GenerateG1Hdr() const;
+  int GenerateG1Src() const;
 };
 
-int GenerationConfig::GenerateUtilHdr() const {
+int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   // clang-format off
   std::vector<std::string_view> tpl = {
+      "#include <string.h>",
+      "",
       "#include <ostream>",
       "",
-      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fr.h\"",
-      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/%{suffix}.h\"",
+      "#include \"tachyon/cc/export.h\"",
       "",
-      "%{insertion_ops}",
+      "namespace tachyon::cc::math::%{type} {",
       "",
-      "%{fq_comparison_ops}",
+      "class TACHYON_CC_EXPORT %{cc_field} {",
+      " public:",
+      "  %{cc_field}() = default;",
+      "  explicit %{cc_field}(%{c_field} value) {",
+      "    memcpy(value_.limbs, value.limbs, sizeof(uint64_t) * %{limb_nums});",
+      "  }",
       "",
-      "%{fr_comparison_ops}",
+      "  const %{c_field}& value() const { return value_; }",
+      "  %{c_field}& value() { return value_; }",
       "",
-      "%{g1_affine_equality_ops}",
+      "  const %{c_field}* value_ptr() const { return &value_; }",
+      "  %{c_field}* value_ptr() { return &value_; }",
       "",
-      "%{g1_projective_equality_ops}",
+      "%{creation_ops}",
       "",
-      "%{g1_jacobian_equality_ops}",
+      "  std::string ToString() const;",
       "",
-      "%{g1_xyzz_equality_ops}",
+      " private:",
+      "  %{c_field} value_;",
+      "};",
       "",
-      "%{g1_point2_equality_ops}",
+      "TACHYON_CC_EXPORT std::ostream& operator<<(std::ostream& os, const %{cc_field}& value);",
       "",
-      "%{g1_point3_equality_ops}",
+      "} // namespace tachyon::cc::math::%{type}",
   };
   // clang-format on
 
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  std::vector<std::string> insertion_ops_components;
-  for (size_t i = 0; i < std::size(kPrimeFieldSuffices); ++i) {
-    insertion_ops_components.push_back(
-        build::GenerateInsertionOperatorDeclaration(
-            absl::Substitute("tachyon_%{type}_$0", kPrimeFieldSuffices[i]),
-            kPrimeFieldSuffices[i]));
-    insertion_ops_components.push_back("");
-  }
-  for (size_t i = 0; i < std::size(kPointSuffices); ++i) {
-    insertion_ops_components.push_back(
-        build::GenerateInsertionOperatorDeclaration(
-            absl::Substitute("tachyon_%{type}_$0", kPointSuffices[i]),
-            "point"));
-    if (i != std::size(kPointSuffices) - 1) {
-      insertion_ops_components.push_back("");
+  std::string creation_ops;
+  std::vector<std::string> creation_ops_components;
+  const char* kFieldCreationOps[] = {"Zero", "One", "Random"};
+  const char* kCFieldCreationOps[] = {"zero", "one", "random"};
+  for (size_t i = 0; i < std::size(kFieldCreationOps); ++i) {
+    creation_ops_components.push_back(absl::Substitute(
+        // clang-format off
+          "  static %{cc_field} $0() {\n"
+          "    return %{cc_field}(%{c_field}_$1());\n"
+          "  }",
+        // clang-format on
+        kFieldCreationOps[i], kCFieldCreationOps[i]));
+    if (i != std::size(kFieldCreationOps) - 1) {
+      creation_ops_components.push_back("");
     }
   }
-  std::string insertion_ops = absl::StrJoin(insertion_ops_components, "\n");
+  creation_ops = absl::StrJoin(creation_ops_components, "\n");
 
-#define DECLARE_COMPARISON_OPS(t)  \
-  std::string t##_comparison_ops = \
-      build::GenerateComparisonOpDeclarations("tachyon_%{type}_" #t)
-
-  DECLARE_COMPARISON_OPS(fq);
-  DECLARE_COMPARISON_OPS(fr);
-#undef DECLARE_COMPARISON_OPS
-
-#define DECLARE_EQUALITY_OPS(t)       \
-  std::string g1_##t##_equality_ops = \
-      build::GenerateEqualityOpDeclarations("tachyon_%{type}_g1_" #t)
-
-  DECLARE_EQUALITY_OPS(affine);
-  DECLARE_EQUALITY_OPS(projective);
-  DECLARE_EQUALITY_OPS(jacobian);
-  DECLARE_EQUALITY_OPS(xyzz);
-  DECLARE_EQUALITY_OPS(point2);
-  DECLARE_EQUALITY_OPS(point3);
-#undef DECLARE_EQUALITY_OPS
-
-  tpl_content = absl::StrReplaceAll(
-      tpl_content,
-      {
-          {"%{insertion_ops}", insertion_ops},
-          {"%{fq_comparison_ops}", fq_comparison_ops},
-          {"%{fr_comparison_ops}", fr_comparison_ops},
-          {"%{g1_affine_equality_ops}", g1_affine_equality_ops},
-          {"%{g1_projective_equality_ops}", g1_projective_equality_ops},
-          {"%{g1_jacobian_equality_ops}", g1_jacobian_equality_ops},
-          {"%{g1_xyzz_equality_ops}", g1_xyzz_equality_ops},
-          {"%{g1_point2_equality_ops}", g1_point2_equality_ops},
-          {"%{g1_point3_equality_ops}", g1_point3_equality_ops},
-      });
+  tpl_content =
+      absl::StrReplaceAll(tpl_content, {
+                                           {"%{creation_ops}", creation_ops},
+                                       });
 
   std::string content = absl::StrReplaceAll(
-      tpl_content, {
-                       {"%{header_dir_name}", c::math::GetLocation(type)},
-                       {"%{type}", type},
-                   });
+      tpl_content,
+      {
+          {"%{header_dir_name}", c::math::GetLocation(type)},
+          {"%{type}", type},
+          {"%{suffix}", suffix},
+          {"%{c_field}", absl::Substitute("tachyon_$0_$1", type, suffix)},
+          {"%{cc_field}", suffix == "fq" ? "Fq" : "Fr"},
+          {"%{limb_nums}",
+           absl::StrCat(suffix == "fq" ? fq_limb_nums : fr_limb_nums)},
+      });
   return WriteHdr(content, false);
 }
 
-int GenerationConfig::GenerateUtilSrc() const {
+int GenerationConfig::GenerateFqHdr() const {
+  return GeneratePrimeFieldHdr("fq");
+}
+
+int GenerationConfig::GenerateFrHdr() const {
+  return GeneratePrimeFieldHdr("fr");
+}
+
+int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   // clang-format off
   std::vector<std::string_view> tpl = {
-      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fq_prime_field_traits.h\"",
-      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fr_prime_field_traits.h\"",
-      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_traits.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/%{suffix}_prime_field_traits.h\"",
       "#include \"tachyon/cc/math/finite_fields/prime_field_conversions.h\"",
-      "#include \"tachyon/cc/math/elliptic_curves/point_conversions.h\"",
-      "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
       "",
-      "using namespace tachyon::cc::math;",
+      "namespace tachyon::cc::math::%{type} {",
       "",
-      "%{insertion_ops}",
+      "std::string %{cc_field}::ToString() const {",
+      "  return ToBigInt(value_).ToString();",
+      "}",
       "",
-      "%{fq_comparison_ops}",
+      "std::ostream& operator<<(std::ostream& os, const %{cc_field}& value) {",
+      "  return os << value.ToString();",
+      "}",
       "",
-      "%{fr_comparison_ops}",
-      "",
-      "%{g1_affine_equality_ops}",
-      "",
-      "%{g1_projective_equality_ops}",
-      "",
-      "%{g1_jacobian_equality_ops}",
-      "",
-      "%{g1_xyzz_equality_ops}",
-      "",
-      "%{g1_point2_equality_ops}",
-      "",
-      "%{g1_point3_equality_ops}",
+      "} // namespace tachyon::cc::math::%{type}",
   };
   // clang-format on
 
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  std::vector<std::string> insertion_ops_components;
-  for (size_t i = 0; i < std::size(kPrimeFieldSuffices); ++i) {
-    insertion_ops_components.push_back(
-        build::GenerateInsertionOperatorDefinition(
-            absl::Substitute("tachyon_%{type}_$0", kPrimeFieldSuffices[i]),
-            kPrimeFieldSuffices[i],
-            absl::Substitute("  return os << ToBigInt($0);",
-                             kPrimeFieldSuffices[i])));
-    insertion_ops_components.push_back("");
-  }
-  for (size_t i = 0; i < std::size(kPointSuffices); ++i) {
-    insertion_ops_components.push_back(
-        build::GenerateInsertionOperatorDefinition(
-            absl::Substitute("tachyon_%{type}_$0", kPointSuffices[i]), "point",
-            absl::Substitute("  return os << To$0(point);",
-                             kInternalTypes[i])));
-    if (i != std::size(kPointSuffices) - 1) {
-      insertion_ops_components.push_back("");
-    }
-  }
-  std::string insertion_ops = absl::StrJoin(insertion_ops_components, "\n");
-
-#define DECLARE_COMPARISON_OPS(t)                                            \
-  std::string t##_comparison_ops = build::GenerateComparisonOpDefinitions(   \
-      "tachyon_%{type}_" #t, [](std::string_view op) {                       \
-        return absl::Substitute("  return ToBigInt(a) $0 ToBigInt(b);", op); \
-      })
-
-  DECLARE_COMPARISON_OPS(fq);
-  DECLARE_COMPARISON_OPS(fr);
-#undef DECLARE_COMPARISON_OPS
-
-#define DECLARE_EQUALITY_OPS(t, idx)                                        \
-  std::string g1_##t##_equality_ops = build::GenerateEqualityOpDefinitions( \
-      "tachyon_%{type}_g1_" #t, [](std::string_view op) {                   \
-        return absl::Substitute("  return To$0(a) $1 To$0(b);",             \
-                                kInternalTypes[idx], op);                   \
-      })
-
-  DECLARE_EQUALITY_OPS(affine, 0);
-  DECLARE_EQUALITY_OPS(projective, 1);
-  DECLARE_EQUALITY_OPS(jacobian, 2);
-  DECLARE_EQUALITY_OPS(xyzz, 3);
-  DECLARE_EQUALITY_OPS(point2, 4);
-  DECLARE_EQUALITY_OPS(point3, 5);
-#undef DECLARE_EQUALITY_OPS
-
-  tpl_content = absl::StrReplaceAll(
-      tpl_content,
-      {
-          {"%{insertion_ops}", insertion_ops},
-          {"%{fq_comparison_ops}", fq_comparison_ops},
-          {"%{fr_comparison_ops}", fr_comparison_ops},
-          {"%{g1_affine_equality_ops}", g1_affine_equality_ops},
-          {"%{g1_projective_equality_ops}", g1_projective_equality_ops},
-          {"%{g1_jacobian_equality_ops}", g1_jacobian_equality_ops},
-          {"%{g1_xyzz_equality_ops}", g1_xyzz_equality_ops},
-          {"%{g1_point2_equality_ops}", g1_point2_equality_ops},
-          {"%{g1_point3_equality_ops}", g1_point3_equality_ops},
-      });
-
   std::string content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{type}", type},
+                       {"%{suffix}", suffix},
+                       {"%{cc_field}", suffix == "fq" ? "Fq" : "Fr"},
                    });
   return WriteSrc(content);
 }
+
+int GenerationConfig::GenerateFqSrc() const {
+  return GeneratePrimeFieldSrc("fq");
+}
+
+int GenerationConfig::GenerateFrSrc() const {
+  return GeneratePrimeFieldSrc("fr");
+}
+
+int GenerationConfig::GenerateG1Hdr() const { return WriteHdr("", false); }
+
+int GenerationConfig::GenerateG1Src() const { return WriteSrc(""); }
 
 int RealMain(int argc, char** argv) {
   GenerationConfig config;
@@ -235,6 +164,12 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.type)
       .set_long_name("--type")
       .set_required();
+  parser.AddFlag<base::IntFlag>(&config.fq_limb_nums)
+      .set_long_name("--fq_limb_nums")
+      .set_required();
+  parser.AddFlag<base::IntFlag>(&config.fr_limb_nums)
+      .set_long_name("--fr_limb_nums")
+      .set_required();
 
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {
@@ -242,10 +177,18 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  if (base::EndsWith(config.out.value(), "util.h")) {
-    return config.GenerateUtilHdr();
-  } else if (base::EndsWith(config.out.value(), "util.cc")) {
-    return config.GenerateUtilSrc();
+  if (base::EndsWith(config.out.value(), "fq.h")) {
+    return config.GenerateFqHdr();
+  } else if (base::EndsWith(config.out.value(), "fq.cc")) {
+    return config.GenerateFqSrc();
+  } else if (base::EndsWith(config.out.value(), "fr.h")) {
+    return config.GenerateFrHdr();
+  } else if (base::EndsWith(config.out.value(), "fr.cc")) {
+    return config.GenerateFrSrc();
+  } else if (base::EndsWith(config.out.value(), "g1.h")) {
+    return config.GenerateG1Hdr();
+  } else if (base::EndsWith(config.out.value(), "g1.cc")) {
+    return config.GenerateG1Src();
   } else {
     tachyon_cerr << "not supported suffix:" << config.out << std::endl;
     return 1;

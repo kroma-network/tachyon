@@ -11,7 +11,6 @@ tachyon_cc_binary(
         "//tachyon/base/files:file_path_flag",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/build:cc_writer",
-        "//tachyon/build:generator_util",
         "//tachyon/math/base/gmp:bit_traits",
         "//tachyon/math/finite_fields:prime_field",
         "//tachyon/math/finite_fields/generator:generator_util",

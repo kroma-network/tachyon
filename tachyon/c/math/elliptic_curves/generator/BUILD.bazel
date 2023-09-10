@@ -18,6 +18,5 @@ tachyon_cc_binary(
         "//tachyon/base/files:file_path_flag",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/build:cc_writer",
-        "//tachyon/build:generator_util",
     ],
 )

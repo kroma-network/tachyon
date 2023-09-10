@@ -5,13 +5,17 @@ package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "bn254_hdrs",
     srcs = [
-        "bn254_util.h",
+        "fq.h",
+        "fr.h",
+        "g1.h",
     ],
 )
 
 generate_ec_points(
     name = "bn254",
-    deps = [
+    fq_limb_nums = 4,
+    fr_limb_nums = 4,
+    g1_deps = [
         "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
     ],
