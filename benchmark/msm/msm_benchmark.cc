@@ -6,6 +6,7 @@
 #include "benchmark/msm/msm_runner.h"
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
 // clang-format on
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm.h"
 
 namespace tachyon {

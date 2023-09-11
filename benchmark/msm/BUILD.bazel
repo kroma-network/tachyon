@@ -22,7 +22,7 @@ tachyon_cc_library(
     deps = [
         ":simple_msm_benchmark_reporter",
         "//tachyon/base/time",
-        "//tachyon/cc/math/elliptic_curves/bn/bn254:point_traits",
+        "//tachyon/cc/math/elliptic_curves:point_traits",
     ],
 )
 

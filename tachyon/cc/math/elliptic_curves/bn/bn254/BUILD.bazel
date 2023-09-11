@@ -11,10 +11,7 @@ filegroup(
 
 generate_ec_points(
     name = "bn254",
-    fq_limb_nums = 4,
-    fr_limb_nums = 4,
     deps = [
-        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
     ],

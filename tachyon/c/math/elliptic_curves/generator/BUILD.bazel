@@ -1,11 +1,19 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "generator_util",
+    srcs = ["generator_util.cc"],
+    hdrs = ["generator_util.h"],
+    deps = ["//tachyon/base:logging"],
+)
 
 tachyon_cc_binary(
     name = "generator",
     srcs = ["generator.cc"],
     deps = [
+        ":generator_util",
         "//tachyon/base/console",
         "//tachyon/base/files:file_path_flag",
         "//tachyon/base/flag:flag_parser",

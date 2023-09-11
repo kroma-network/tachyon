@@ -3,9 +3,10 @@
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/flag/flag_parser.h"
-#include "tachyon/build/generator_util.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
+#include "tachyon/build/generator_util.h"
+#include "tachyon/c/math/elliptic_curves/generator/generator_util.h"
 
 namespace tachyon {
 
@@ -23,127 +24,12 @@ std::string_view kInternalTypes[] = {
 
 int kPointDimensions[] = {2, 3, 3, 4, 2, 3};
 
-std::string GetLocation(std::string_view type) {
-  if (type == "bn254") {
-    return "bn/bn254";
-  } else if (type == "bls12_381") {
-    return "bls/bls12_381";
-  }
-  NOTREACHED() << "Unsupported type: " << type;
-  return "";
-}
-
 struct GenerationConfig : public build::CcWriter {
   std::string type;
-  int fq_limb_nums;
-  int fr_limb_nums;
 
-  int GeneratePointTraitsHdr() const;
   int GenerateUtilHdr() const;
   int GenerateUtilSrc() const;
 };
-
-int GenerationConfig::GeneratePointTraitsHdr() const {
-  std::vector<std::string_view> tpl = {
-      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fr.h\"",
-      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1.h\"",
-      "#include \"tachyon/cc/math/elliptic_curves/point_traits.h\"",
-      "#include \"tachyon/cc/math/finite_fields/prime_field_traits.h\"",
-      "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
-      "",
-      "namespace tachyon::cc::math {",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon::math::%{type}::G1AffinePoint> {",
-      "  using CPointTy = tachyon_%{type}_g1_point2;",
-      "  using CCurvePointTy = tachyon_%{type}_g1_affine;",
-      "  using CScalarField = tachyon_%{type}_fr;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon::math::%{type}::G1ProjectivePoint> {",
-      "  using CPointTy = tachyon_%{type}_g1_point3;",
-      "  using CCurvePointTy = tachyon_%{type}_g1_projective;",
-      "  using CScalarField = tachyon_%{type}_fr;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon::math::%{type}::G1JacobianPoint> {",
-      "  using CPointTy = tachyon_%{type}_g1_point3;",
-      "  using CCurvePointTy = tachyon_%{type}_g1_jacobian;",
-      "  using CScalarField = tachyon_%{type}_fr;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon::math::%{type}::G1PointXYZZ> {",
-      "  using CPointTy = tachyon_%{type}_g1_point4;",
-      "  using CCurvePointTy = tachyon_%{type}_g1_xyzz;",
-      "  using CScalarField = tachyon_%{type}_fr;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon_%{type}_g1_affine> {",
-      "  using PointTy = tachyon::math::Point2<tachyon::math::%{type}::Fq>;",
-      "  using CurvePointTy = tachyon::math::%{type}::G1AffinePoint;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon_%{type}_g1_projective> {",
-      "  using PointTy = tachyon::math::Point3<tachyon::math::%{type}::Fq>;",
-      "  using CurvePointTy = tachyon::math::%{type}::G1ProjectivePoint;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon_%{type}_g1_jacobian> {",
-      "  using PointTy = tachyon::math::Point3<tachyon::math::%{type}::Fq>;",
-      "  using CurvePointTy = tachyon::math::%{type}::G1JacobianPoint;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon_%{type}_g1_xyzz> {",
-      "  using PointTy = tachyon::math::Point3<tachyon::math::%{type}::Fq>;",
-      "  using CurvePointTy = tachyon::math::%{type}::G1PointXYZZ;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon_%{type}_g1_point2> {",
-      "  using PointTy = tachyon::math::Point2<tachyon::math::%{type}::Fq>;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon_%{type}_g1_point3> {",
-      "  using PointTy = tachyon::math::Point3<tachyon::math::%{type}::Fq>;",
-      "};",
-      "",
-      "template <>",
-      "struct PointTraits<tachyon_%{type}_g1_point4> {",
-      "  using PointTy = tachyon::math::Point4<tachyon::math::%{type}::Fq>;",
-      "};",
-      "",
-      "template <>"
-      "struct PrimeFieldTraits<tachyon_%{type}_fq> {",
-      "  using PrimeFieldTy = tachyon::math::%{type}::Fq;",
-      "};",
-      "",
-      "template <>"
-      "struct PrimeFieldTraits<tachyon_%{type}_fr> {",
-      "  using PrimeFieldTy = tachyon::math::%{type}::Fr;",
-      "};",
-      "",
-      "}  // namespace tachyon::cc::math",
-  };
-
-  std::string tpl_content = absl::StrJoin(tpl, "\n");
-
-  std::string content = absl::StrReplaceAll(
-      tpl_content, {
-                       {"%{header_dir_name}", GetLocation(type)},
-                       {"%{fq_limb_nums}", absl::StrCat(fq_limb_nums)},
-                       {"%{fr_limb_nums}", absl::StrCat(fr_limb_nums)},
-                       {"%{type}", type},
-                   });
-  return WriteHdr(content);
-}
 
 int GenerationConfig::GenerateUtilHdr() const {
   // clang-format off
@@ -230,7 +116,7 @@ int GenerationConfig::GenerateUtilHdr() const {
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {
-                       {"%{header_dir_name}", GetLocation(type)},
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{type}", type},
                    });
   return WriteHdr(content);
@@ -239,9 +125,11 @@ int GenerationConfig::GenerateUtilHdr() const {
 int GenerationConfig::GenerateUtilSrc() const {
   // clang-format off
   std::vector<std::string_view> tpl = {
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fq_prime_field_traits.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fr_prime_field_traits.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_traits.h\"",
       "#include \"tachyon/cc/math/finite_fields/prime_field_conversions.h\"",
       "#include \"tachyon/cc/math/elliptic_curves/point_conversions.h\"",
-      "#include \"tachyon/cc/math/elliptic_curves/%{header_dir_name}/point_traits.h\"",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
       "",
       "using namespace tachyon::cc::math;",
@@ -331,7 +219,7 @@ int GenerationConfig::GenerateUtilSrc() const {
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {
-                       {"%{header_dir_name}", GetLocation(type)},
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{type}", type},
                    });
   return WriteSrc(content);
@@ -347,12 +235,6 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.type)
       .set_long_name("--type")
       .set_required();
-  parser.AddFlag<base::IntFlag>(&config.fq_limb_nums)
-      .set_long_name("--fq_limb_nums")
-      .set_required();
-  parser.AddFlag<base::IntFlag>(&config.fr_limb_nums)
-      .set_long_name("--fr_limb_nums")
-      .set_required();
 
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {
@@ -360,9 +242,7 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  if (base::EndsWith(config.out.value(), "point_traits.h")) {
-    return config.GeneratePointTraitsHdr();
-  } else if (base::EndsWith(config.out.value(), "util.h")) {
+  if (base::EndsWith(config.out.value(), "util.h")) {
     return config.GenerateUtilHdr();
   } else if (base::EndsWith(config.out.value(), "util.cc")) {
     return config.GenerateUtilSrc();

@@ -38,8 +38,18 @@ def generate_ec_points(
         name,
         fq_limb_nums,
         fr_limb_nums,
-        **kwargs):
-    for n in [("gen_fq", "fq.h"), ("gen_fr", "fr.h"), ("gen_g1", "g1.h")]:
+        g1_deps):
+    for n in [
+        ("gen_fq_hdr", "fq.h"),
+        ("gen_fq_src", "fq.cc"),
+        ("gen_fr_hdr", "fr.h"),
+        ("gen_fr_src", "fr.cc"),
+        ("gen_g1_hdr", "g1.h"),
+        ("gen_g1_src", "g1.cc"),
+        ("gen_fq_prime_field_traits", "fq_prime_field_traits.h"),
+        ("gen_fr_prime_field_traits", "fr_prime_field_traits.h"),
+        ("gen_g1_point_traits", "g1_point_traits.h"),
+    ]:
         generate_ec_point(
             type = name,
             fq_limb_nums = fq_limb_nums,
@@ -50,18 +60,40 @@ def generate_ec_points(
 
     tachyon_cc_library(
         name = "fq",
-        hdrs = ["fq.h"],
-        deps = ["//tachyon/c:export"],
+        hdrs = [
+            "fq.h",
+            "fq_prime_field_traits.h",
+        ],
+        srcs = ["fq.cc"],
+        deps = g1_deps + [
+            "//tachyon/c:export",
+            "//tachyon/cc/math/finite_fields:prime_field_conversions",
+        ],
     )
 
     tachyon_cc_library(
         name = "fr",
-        hdrs = ["fr.h"],
-        deps = ["//tachyon/c:export"],
+        hdrs = [
+            "fr.h",
+            "fr_prime_field_traits.h",
+        ],
+        srcs = ["fr.cc"],
+        deps = g1_deps + [
+            "//tachyon/c:export",
+            "//tachyon/cc/math/finite_fields:prime_field_conversions",
+        ],
     )
 
     tachyon_cc_library(
         name = "g1",
-        hdrs = ["g1.h"],
-        deps = [":fq"],
+        hdrs = [
+            "g1.h",
+            "g1_point_traits.h",
+        ],
+        srcs = ["g1.cc"],
+        deps = [
+            ":fq",
+            ":fr",
+            "//tachyon/cc/math/elliptic_curves:point_traits",
+        ],
     )
