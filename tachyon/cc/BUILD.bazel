@@ -1,7 +1,5 @@
-load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load(
     ":version.bzl",
-    "VERSION",
     "VERSION_MAJOR",
     "VERSION_MINOR",
     "VERSION_PATCH",
@@ -9,9 +7,7 @@ load(
 )
 load(
     "//bazel:tachyon_cc.bzl",
-    "collect_hdrs",
     "tachyon_cc_library",
-    "tachyon_cc_shared_library",
     "tachyon_cc_test",
 )
 load("//tachyon/build:version.bzl", "write_version_header")
@@ -26,7 +22,7 @@ write_version_header(
     output = "version_generated.h",
     patch = VERSION_PATCH,
     prerelease = VERSION_PRERELEASE,
-    project = "TACHYON_C",
+    project = "TACHYON_CC",
 )
 
 tachyon_cc_library(
@@ -44,34 +40,8 @@ tachyon_cc_library(
     deps = [":export"],
 )
 
-tachyon_cc_shared_library(
-    name = "tachyon",
-    linkstatic = True,
-    soversion = VERSION,
-    tags = ["manual"],
-    deps = [
-        ":version",
-        "//tachyon/c/math/elliptic_curves/msm",
-        "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
-    ] + if_cuda([
-        "@local_config_cuda//cuda:cudart_static",
-    ]),
-)
-
-collect_hdrs(
-    name = "tachyon_hdrs",
-    hdrs = [
-        "api.h",
-        "export.h",
-        "version.h",
-    ],
-    deps = [
-        "//tachyon/c/math:math_hdrs",
-    ],
-)
-
 tachyon_cc_test(
-    name = "c_unittests",
+    name = "cc_unittests",
     srcs = [
         "version_unittest.cc",
     ],
