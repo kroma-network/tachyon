@@ -156,6 +156,7 @@ tachyon_cc_library(
 
 tachyon_cuda_test(
     name = "gpu_unittests",
+    size = "small",
     srcs = if_gpu_is_configured(["gpu_memory_unittest.cc"]),
     deps = [
         ":gpu_memory",

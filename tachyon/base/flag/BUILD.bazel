@@ -34,6 +34,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "flag_unittests",
+    size = "small",
     srcs = [
         "flag_parser_unittest.cc",
         "flag_unittest.cc",

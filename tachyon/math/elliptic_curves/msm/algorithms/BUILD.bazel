@@ -48,6 +48,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "algorithms_unittests",
+    size = "small",
     srcs = [
         "pippenger_adapter_unittest.cc",
         "pippenger_unittest.cc",

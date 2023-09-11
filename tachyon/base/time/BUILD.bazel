@@ -91,6 +91,7 @@ tachyon_objc_library(
 
 tachyon_cc_test(
     name = "time_unittests",
+    size = "small",
     srcs = [
         "time_delta_flag_unittest.cc",
         "time_interval_unittest.cc",

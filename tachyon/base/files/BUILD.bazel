@@ -129,6 +129,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "files_unittests",
+    size = "small",
     srcs = [
         "file_unittest.cc",
         "file_enumerator_unittest.cc",

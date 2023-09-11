@@ -47,6 +47,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "functional_unittests",
+    size = "small",
     srcs = [
         "function_ref_unittest.cc",
         "identity_unittest.cc",

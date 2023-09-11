@@ -55,6 +55,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "goldilocks_prime_unittests",
+    size = "small",
     srcs = if_polygon_zkevm_backend(["prime_field_goldilocks_unittest.cc"]),
     deps = [":goldilocks"],
 )

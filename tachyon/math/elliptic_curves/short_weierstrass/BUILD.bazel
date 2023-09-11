@@ -46,6 +46,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "short_weierstrass_unittests",
+    size = "small",
     srcs = [
         "affine_point_unittest.cc",
         "jacobian_point_unittest.cc",
@@ -60,6 +61,7 @@ tachyon_cc_test(
 
 tachyon_cuda_test(
     name = "short_weierstrass_correctness_gpu_tests",
+    size = "small",
     srcs = if_cuda_and_gmp_backend([
         "affine_point_correctness_gpu_test.cc",
         "non_affine_point_correctness_gpu_test.cc",

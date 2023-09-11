@@ -84,6 +84,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "finite_fields_unittests",
+    size = "small",
     srcs = [
         "modulus_unittest.cc",
         "prime_field_unittest.cc",
@@ -96,6 +97,7 @@ tachyon_cc_test(
 
 tachyon_cuda_test(
     name = "finite_fields_gpu_unittests",
+    size = "small",
     srcs = if_gpu_is_configured(["prime_field_gpu_unittest.cc"]),
     deps = [
         "//tachyon/device/gpu:gpu_memory",
@@ -107,6 +109,7 @@ tachyon_cuda_test(
 
 tachyon_cc_test(
     name = "finite_field_correctness_tests",
+    size = "small",
     srcs = if_gmp_backend(["prime_field_correctness_test.cc"]),
     deps = [
         ":prime_field_gpu",
@@ -121,6 +124,7 @@ tachyon_cc_test(
 
 tachyon_cuda_test(
     name = "finite_field_correctness_gpu_tests",
+    size = "small",
     srcs = if_cuda_and_gmp_backend(["prime_field_correctness_gpu_test.cc"]),
     deps = [
         ":prime_field_gpu",

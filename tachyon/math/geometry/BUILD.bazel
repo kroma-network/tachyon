@@ -22,6 +22,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "geometry_unittests",
+    size = "small",
     srcs = [
         "point2_unittest.cc",
         "point3_unittest.cc",
