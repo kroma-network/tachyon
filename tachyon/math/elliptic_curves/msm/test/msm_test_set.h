@@ -7,6 +7,7 @@
 #include "tachyon/math/base/semigroups.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
+#include "tachyon/math/elliptic_curves/test/random.h"
 
 namespace tachyon::math {
 
@@ -27,8 +28,7 @@ struct MSMTestSet {
 
   static MSMTestSet Random(size_t size, MSMMethod method) {
     MSMTestSet test_set;
-    test_set.bases =
-        base::CreateVector(size, []() { return PointTy::Random(); });
+    test_set.bases = CreatePseudoRandomPoints<PointTy>(size);
     test_set.scalars =
         base::CreateVector(size, []() { return ScalarField::Random(); });
     test_set.ComputeAnswer(method);
@@ -38,8 +38,7 @@ struct MSMTestSet {
   static MSMTestSet NonUniform(size_t size, size_t scalar_size,
                                MSMMethod method) {
     MSMTestSet test_set;
-    test_set.bases =
-        base::CreateVector(size, []() { return PointTy::Random(); });
+    test_set.bases = CreatePseudoRandomPoints<PointTy>(size);
     std::vector<ScalarField> scalar_sets =
         base::CreateVector(scalar_size, []() { return ScalarField::Random(); });
     test_set.scalars = base::CreateVector(

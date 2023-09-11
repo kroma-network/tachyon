@@ -1,9 +1,11 @@
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_benchmark",
     "tachyon_cc_library",
     "tachyon_cc_test",
     "tachyon_cuda_library",
+    "tachyon_cuda_test",
 )
 
 package(default_visibility = ["//visibility:public"])
@@ -44,9 +46,7 @@ tachyon_cc_library(
         ":pippenger_base",
         ":pippenger_ctx",
         "//tachyon/base:openmp_util",
-        "//tachyon/base/containers:adapters",
         "//tachyon/math/elliptic_curves/msm:msm_util",
-        "@com_google_absl//absl/types:span",
     ],
 )
 
@@ -59,7 +59,12 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "pippenger_base",
     hdrs = ["pippenger_base.h"],
-    deps = ["//tachyon/math/elliptic_curves:points"],
+    deps = [
+        "//tachyon/base/containers:adapters",
+        "//tachyon/math/base:semigroups",
+        "//tachyon/math/elliptic_curves:points",
+        "@com_google_absl//absl/types:span",
+    ],
 )
 
 tachyon_cc_library(
@@ -79,6 +84,17 @@ tachyon_cc_test(
         ":pippenger_adapter",
         "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+    ],
+)
+
+tachyon_cuda_test(
+    name = "algorithms_gpu_unittests",
+    size = "small",
+    srcs = if_gpu_is_configured(["cuzk_unittest.cc"]),
+    deps = [
+        ":cuzk",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )

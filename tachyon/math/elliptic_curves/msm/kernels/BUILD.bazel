@@ -9,6 +9,7 @@ tachyon_cuda_library(
     hdrs = ["cuzk_kernels.cu.h"],
     deps = [
         "//tachyon/device/gpu/cuda:cuda_memory",
+        "//tachyon/math/base:big_int",
         "//tachyon/math/elliptic_curves/msm/algorithms:cuzk_csr_sparse_matrix",
         "//tachyon/math/elliptic_curves/msm/algorithms:cuzk_ell_sparse_matrix",
         "//tachyon/math/elliptic_curves/msm/algorithms:pippenger_ctx",

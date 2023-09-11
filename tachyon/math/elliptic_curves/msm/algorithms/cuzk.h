@@ -1,6 +1,8 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_H_
 
+#include "gtest/gtest_prod.h"
+
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_csr_sparse_matrix.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_ell_sparse_matrix.h"
@@ -39,6 +41,11 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
     end_group_ = end_group;
   }
 
+  void SetSizesForTesting(unsigned int grid_size, unsigned int block_size) {
+    grid_size_ = grid_size;
+    block_size_ = block_size;
+  }
+
   bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
            const device::gpu::GpuMemory<ScalarField>& scalars,
            PointXYZZ<CpuCurve>* cpu_result) {
@@ -74,6 +81,8 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
   }
 
  private:
+  FRIEND_TEST(CUZKTest, ReduceBuckets);
+
   bool CreateBuckets(
       const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
       const device::gpu::GpuMemory<ScalarField>& scalars,
@@ -183,6 +192,57 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
     }
     gpuStreamSynchronize(0);
 
+    return true;
+  }
+
+  bool ReduceBuckets(
+      device::gpu::GpuMemory<PointXYZZ<GpuCurve>> buckets,
+      device::gpu::GpuMemory<PointXYZZ<GpuCurve>>& result) const {
+    unsigned int group_grid = 1;
+    while (group_grid * 2 < grid_size_ / (end_group_ - start_group_)) {
+      group_grid *= 2;
+    }
+
+    unsigned int gnum = group_grid * block_size_;
+    auto intermediate_results =
+        device::gpu::GpuMemory<PointXYZZ<GpuCurve>>::MallocManaged(
+            (end_group_ - start_group_) * gnum);
+
+    kernels::ReduceBucketsStep1<<<group_grid*(end_group_ - start_group_),
+                                  block_size_>>>(
+        ctx_, buckets.get(), intermediate_results.get(), group_grid);
+    gpuError_t error = gpuGetLastError();
+    if (error != gpuSuccess) {
+      LOG(ERROR) << "Failed to kernels::ReduceBucketsStep1()";
+      return false;
+    }
+    gpuStreamSynchronize(0);
+
+    unsigned int t_count = gnum;
+    unsigned int count = 1;
+    while (t_count != 1) {
+      kernels::ReduceBucketsStep2<<<group_grid*(end_group_ - start_group_),
+                                    block_size_>>>(intermediate_results.get(),
+                                                   group_grid, count);
+      gpuError_t error = gpuGetLastError();
+      if (error != gpuSuccess) {
+        LOG(ERROR) << "Failed to kernels::ReduceBucketsStep2()";
+        return false;
+      }
+      gpuStreamSynchronize(0);
+
+      t_count = (t_count + 1) / 2;
+      count *= 2;
+    }
+
+    kernels::ReduceBucketsStep3<<<1, 1>>>(ctx_, intermediate_results.get(),
+                                          start_group_, end_group_, gnum,
+                                          result.get());
+    error = gpuGetLastError();
+    if (error != gpuSuccess) {
+      LOG(ERROR) << "Failed to kernels::ReduceBucketsStep3()";
+      return false;
+    }
     return true;
   }
 

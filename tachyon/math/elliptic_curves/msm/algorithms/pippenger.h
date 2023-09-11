@@ -6,9 +6,6 @@
 #include <type_traits>
 #include <vector>
 
-#include "absl/types/span.h"
-
-#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/big_int.h"
@@ -102,47 +99,12 @@ class Pippenger : public PippengerBase<PointTy> {
       AccumulateWindowSums(std::move(bases_first), scalars, &window_sums);
     }
 
-    // We store the sum for the lowest window.
-    Bucket lowest = std::move(window_sums.front());
-    auto view = absl::MakeConstSpan(window_sums);
-    view.remove_prefix(1);
-
-    // We're traversing windows from high to low.
-    *ret = lowest +
-           std::accumulate(view.rbegin(), view.rend(), Bucket::Zero(),
-                           [this](Bucket& total, const Bucket& sum) {
-                             total += sum;
-                             for (size_t i = 0; i < ctx_.window_bits; ++i) {
-                               total.DoubleInPlace();
-                             }
-                             return total;
-                           });
+    *ret = PippengerBase<PointTy>::AccumulateWindowSums(
+        absl::MakeConstSpan(window_sums), ctx_.window_bits);
     return true;
   }
 
  private:
-  Bucket AccumulateBuckets(const std::vector<Bucket>& buckets,
-                           const Bucket& initial_value = Bucket::Zero()) const {
-    Bucket running_sum = Bucket::Zero();
-    Bucket window_sum = initial_value;
-
-    // This is computed below for b buckets, using 2b curve additions.
-    //
-    // We could first normalize |buckets| and then use mixed-addition
-    // here, but that's slower for the kinds of groups we care about
-    // (Short Weierstrass curves and Twisted Edwards curves).
-    // In the case of Short Weierstrass curves,
-    // mixed addition saves ~4 field multiplications per addition.
-    // However normalization (with the inversion batched) takes ~6
-    // field multiplications per element,
-    // hence batch normalization is a slowdown.
-    for (const auto& bucket : base::Reversed(buckets)) {
-      running_sum += bucket;
-      window_sum += running_sum;
-    }
-    return window_sum;
-  }
-
   template <typename BaseInputIterator>
   void AccumulateSingleWindowNAFSum(
       BaseInputIterator bases_it,
@@ -165,7 +127,8 @@ class Pippenger : public PippengerBase<PointTy> {
         buckets[static_cast<uint64_t>(-scalar - 1)] -= base;
       }
     }
-    *window_sum = AccumulateBuckets(buckets);
+    *window_sum =
+        PippengerBase<PointTy>::AccumulateBuckets(absl::MakeConstSpan(buckets));
   }
 
   template <typename BaseInputIterator>
@@ -233,7 +196,8 @@ class Pippenger : public PippengerBase<PointTy> {
         }
       }
     }
-    *out = AccumulateBuckets(buckets, window_sum);
+    *out = PippengerBase<PointTy>::AccumulateBuckets(
+        absl::MakeConstSpan(buckets), window_sum);
   }
 
   template <typename BaseInputIterator>
