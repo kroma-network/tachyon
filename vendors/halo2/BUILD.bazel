@@ -59,6 +59,7 @@ tachyon_cc_library(
 
 tachyon_rust_test(
     name = "halo2_test",
+    size = "small",
     aliases = aliases(),
     crate = ":halo2",
     crate_features = FEATUERS,

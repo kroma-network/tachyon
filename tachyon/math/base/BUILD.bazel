@@ -100,6 +100,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "base_unittests",
+    size = "small",
     srcs = [
         "arithmetics_unittest.cc",
         "big_int_unittest.cc",

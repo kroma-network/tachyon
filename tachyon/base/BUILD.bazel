@@ -105,6 +105,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "base_unittests",
+    size = "small",
     srcs = [
         "bit_cast_unittest.cc",
         "bits_unittest.cc",

@@ -26,6 +26,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "color_unittests",
+    size = "small",
     srcs = [
         "color_conversions_unittest.cc",
         "color_unittest.cc",

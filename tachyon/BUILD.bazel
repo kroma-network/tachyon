@@ -42,6 +42,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "tachyon_unittests",
+    size = "small",
     srcs = [
         "version_unittest.cc",
     ],

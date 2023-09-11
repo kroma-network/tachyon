@@ -285,6 +285,7 @@ def tachyon_cuda_test(
         name,
         deps = [],
         tags = [],
+        size = "medium",
         **kwargs):
     lib_name = "{}_lib".format(name)
     tachyon_cuda_library(
@@ -301,6 +302,7 @@ def tachyon_cuda_test(
     tachyon_cc_test(
         name = name,
         tags = tags + ["cuda"],
+        size = size,
         deps = [":" + lib_name],
     )
 

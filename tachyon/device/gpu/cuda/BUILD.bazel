@@ -31,6 +31,7 @@ tachyon_cuda_library(
 
 tachyon_cuda_test(
     name = "cuda_unittests",
+    size = "small",
     srcs = [
         "cuda_driver_unittest.cc",
     ],

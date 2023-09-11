@@ -75,6 +75,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "containers_unittests",
+    size = "small",
     srcs = [
         "adapters_unittest.cc",
         "circular_deque_unittest.cc",
