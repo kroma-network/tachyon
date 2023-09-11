@@ -14,6 +14,8 @@ struct TACHYON_EXPORT PippengerCtx {
   unsigned int window_bits = 0;
   unsigned int size = 0;
 
+  constexpr unsigned int GetWindowLength() const { return 1 << window_bits; }
+
   template <typename ScalarField>
   constexpr static PippengerCtx CreateDefault(size_t size) {
     PippengerCtx ctx;

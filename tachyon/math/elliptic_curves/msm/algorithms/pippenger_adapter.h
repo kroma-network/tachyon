@@ -54,8 +54,9 @@ class PippengerAdapter {
 #if defined(TACHYON_HAS_OPENMP)
       int thread_nums = absl::base_internal::NumCPUs();
       if (strategy == PippengerParallelStrategy::kParallelWindowAndTerm) {
-        size_t window_bits = ComputeWindowsBits(scalars_size);
-        size_t window_size = ComputeWindowsCount<ScalarField>(window_bits);
+        size_t window_bits = PippengerCtx::ComputeWindowsBits(scalars_size);
+        size_t window_size =
+            PippengerCtx::ComputeWindowsCount<ScalarField>(window_bits);
         thread_nums = std::max(thread_nums / static_cast<int>(window_size), 2);
       }
 #else
