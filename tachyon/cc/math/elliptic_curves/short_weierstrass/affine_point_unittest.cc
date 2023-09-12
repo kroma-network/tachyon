@@ -49,6 +49,10 @@ TEST_F(AffinePointTest, Random) {
   EXPECT_NE(ToAffinePoint(cc_ret.ToCPoint()), a_);
 }
 
+TEST_F(AffinePointTest, Eq) { EXPECT_EQ(cc_a_ == cc_b_, a_ == b_); }
+
+TEST_F(AffinePointTest, Ne) { EXPECT_EQ(cc_a_ != cc_b_, a_ != b_); }
+
 TEST_F(AffinePointTest, Add) {
   bn254::G1JacobianPoint cc_ret = cc_a_ + cc_b_;
   EXPECT_EQ(ToJacobianPoint(cc_ret.ToCPoint()), a_ + b_);

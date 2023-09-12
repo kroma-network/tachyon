@@ -49,6 +49,10 @@ TEST_F(ProjectivePointTest, Random) {
   EXPECT_NE(ToProjectivePoint(c_ret.ToCPoint()), a_);
 }
 
+TEST_F(ProjectivePointTest, Eq) { EXPECT_EQ(cc_a_ == cc_b_, a_ == b_); }
+
+TEST_F(ProjectivePointTest, Ne) { EXPECT_EQ(cc_a_ != cc_b_, a_ != b_); }
+
 TEST_F(ProjectivePointTest, Add) {
   bn254::G1ProjectivePoint cc_ret = cc_a_ + cc_b_;
   EXPECT_EQ(ToProjectivePoint(cc_ret.ToCPoint()), a_ + b_);
