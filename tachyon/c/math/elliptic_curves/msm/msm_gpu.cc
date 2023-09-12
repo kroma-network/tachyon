@@ -101,8 +101,10 @@ void DoReleaseMSMGpu() {
 bn254::G1JacobianPoint DoMSMGpuInternal(
     absl::Span<const bn254::G1AffinePoint> bases,
     absl::Span<const bn254::Fr> scalars) {
-  CHECK(g_d_bases.CopyFrom(bases.data(), gpu::GpuMemoryType::kHost));
-  CHECK(g_d_scalars.CopyFrom(scalars.data(), gpu::GpuMemoryType::kHost));
+  CHECK(g_d_bases.CopyFrom(bases.data(), gpu::GpuMemoryType::kHost, 0,
+                           bases.size()));
+  CHECK(g_d_scalars.CopyFrom(scalars.data(), gpu::GpuMemoryType::kHost, 0,
+                             scalars.size()));
 
   msm::ExecutionConfig<bn254::G1AffinePointGpu::Curve> config;
   config.mem_pool = g_mem_pool.get();
