@@ -61,4 +61,14 @@ TEST_F(ProjectivePointTest, Sub) {
   EXPECT_EQ(ToProjectivePoint((cc_a_ -= cc_b_).ToCPoint()), a_ -= b_);
 }
 
+TEST_F(ProjectivePointTest, Neg) {
+  bn254::G1ProjectivePoint cc_ret = -cc_a_;
+  EXPECT_EQ(ToProjectivePoint(cc_ret.ToCPoint()), -a_);
+}
+
+TEST_F(ProjectivePointTest, Dbl) {
+  bn254::G1ProjectivePoint cc_ret = cc_a_.Double();
+  EXPECT_EQ(ToProjectivePoint(cc_ret.ToCPoint()), a_.Double());
+}
+
 }  // namespace tachyon::cc::math

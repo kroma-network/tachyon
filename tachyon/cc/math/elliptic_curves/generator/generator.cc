@@ -265,6 +265,12 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{projective_binary_arithmetic_ops}",
       "",
+      "  G1ProjectivePoint operator-() const {",
+      "    return {x_, -y_, z_};",
+      "  }",
+      "",
+      "%{projective_unary_arithmetic_ops}",
+      "",
       "  %{c_g1}_projective ToCPoint() const {"
       "    %{c_g1}_projective ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
@@ -309,6 +315,12 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{jacobian_binary_arithmetic_ops}",
       "",
+      "  G1JacobianPoint operator-() const {",
+      "    return {x_, -y_, z_};",
+      "  }",
+      "",
+      "%{jacobian_unary_arithmetic_ops}",
+      "",
       "  %{c_g1}_jacobian ToCPoint() const {"
       "    %{c_g1}_jacobian ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
@@ -352,6 +364,12 @@ int GenerationConfig::GenerateG1Hdr() const {
       "%{affine_creation_ops}",
       "",
       "%{affine_binary_arithmetic_ops}",
+      "",
+      "  G1AffinePoint operator-() const {",
+      "    return {x_, -y_, infinity_};",
+      "  }",
+      "",
+      "%{affine_unary_arithmetic_ops}",
       "",
       "  %{c_g1}_affine ToCPoint() const {"
       "    %{c_g1}_affine ret;",
@@ -400,6 +418,12 @@ int GenerationConfig::GenerateG1Hdr() const {
       "%{xyzz_creation_ops}",
       "",
       "%{xyzz_binary_arithmetic_ops}",
+      "",
+      "  G1PointXYZZ operator-() const {",
+      "    return {x_, -y_, zz_, zzz_};",
+      "  }",
+      "",
+      "%{xyzz_unary_arithmetic_ops}",
       "",
       "  %{c_g1}_xyzz ToCPoint() const {"
       "    %{c_g1}_xyzz ret;",
@@ -611,6 +635,29 @@ int GenerationConfig::GenerateG1Hdr() const {
         absl::StrJoin(binary_arithmetic_ops_components, "\n"));
   }
 
+  std::vector<std::string> unary_arithmetic_ops;
+  const char* kUnaryArithmeticOps[] = {"Double"};
+  const char* kCUnaryArithmeticOps[] = {"dbl"};
+  for (size_t i = 0; i < std::size(kG1PointKinds); ++i) {
+    std::vector<std::string> unary_arithmetic_ops_components;
+    for (size_t j = 0; j < std::size(kUnaryArithmeticOps); ++j) {
+      unary_arithmetic_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "  $0 $1() const {\n"
+            "    auto a = ToCPoint();\n"
+            "    return $0($2_$3(&a));\n"
+            "  }",
+          // clang-format on
+          i == 0 ? "G1JacobianPoint" : kG1PointKinds[i], kUnaryArithmeticOps[j],
+          kCG1PointKinds[i], kCUnaryArithmeticOps[j]));
+      if (j != std::size(kUnaryArithmeticOps) - 1) {
+        unary_arithmetic_ops_components.push_back("");
+      }
+    }
+    unary_arithmetic_ops.push_back(
+        absl::StrJoin(unary_arithmetic_ops_components, "\n"));
+  }
+
   tpl_content = absl::StrReplaceAll(
       tpl_content,
       {
@@ -622,6 +669,10 @@ int GenerationConfig::GenerateG1Hdr() const {
           {"%{projective_binary_arithmetic_ops}", binary_arithmetic_ops[1]},
           {"%{jacobian_binary_arithmetic_ops}", binary_arithmetic_ops[2]},
           {"%{xyzz_binary_arithmetic_ops}", binary_arithmetic_ops[3]},
+          {"%{affine_unary_arithmetic_ops}", unary_arithmetic_ops[0]},
+          {"%{projective_unary_arithmetic_ops}", unary_arithmetic_ops[1]},
+          {"%{jacobian_unary_arithmetic_ops}", unary_arithmetic_ops[2]},
+          {"%{xyzz_unary_arithmetic_ops}", unary_arithmetic_ops[3]},
       });
 
   std::string content = absl::StrReplaceAll(

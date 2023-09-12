@@ -61,4 +61,14 @@ TEST_F(JacobianPointTest, Sub) {
   EXPECT_EQ(ToJacobianPoint((cc_a_ -= cc_b_).ToCPoint()), a_ -= b_);
 }
 
+TEST_F(JacobianPointTest, Neg) {
+  bn254::G1JacobianPoint cc_ret = -cc_a_;
+  EXPECT_EQ(ToJacobianPoint(cc_ret.ToCPoint()), -a_);
+}
+
+TEST_F(JacobianPointTest, Dbl) {
+  bn254::G1JacobianPoint cc_ret = cc_a_.Double();
+  EXPECT_EQ(ToJacobianPoint(cc_ret.ToCPoint()), a_.Double());
+}
+
 }  // namespace tachyon::cc::math
