@@ -58,7 +58,7 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "",
       "%{unary_arithmetic_ops}",
       "",
-      "%{binary_comparison_ops}",
+      "%{comparison_ops}",
   };
   // clang-format on
 
@@ -106,26 +106,26 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   }
   unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
 
-  std::string binary_comparison_ops;
-  std::vector<std::string> binary_comparison_ops_components;
+  std::string comparison_ops;
+  std::vector<std::string> comparison_ops_components;
   for (size_t i = 0; i < std::size(kComparisonOps); ++i) {
-    binary_comparison_ops_components.push_back(absl::Substitute(
+    comparison_ops_components.push_back(absl::Substitute(
         // clang-format off
           "TACHYON_C_EXPORT bool %{field}_$0(const %{field}* a, const %{field}* b);",
         // clang-format on
         kComparisonOps[i]));
     if (i != std::size(kComparisonOps) - 1) {
-      binary_comparison_ops_components.push_back("");
+      comparison_ops_components.push_back("");
     }
   }
-  binary_comparison_ops = absl::StrJoin(binary_comparison_ops_components, "\n");
+  comparison_ops = absl::StrJoin(comparison_ops_components, "\n");
 
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
                        {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
-                       {"%{binary_comparison_ops}", binary_comparison_ops},
+                       {"%{comparison_ops}", comparison_ops},
                    });
 
   std::string content = absl::StrReplaceAll(
@@ -159,7 +159,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
       "",
       "%{unary_arithmetic_ops}",
       "",
-      "%{binary_comparison_ops}",
+      "%{comparison_ops}",
   };
   // clang-format on
 
@@ -221,11 +221,11 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   }
   unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
 
-  std::string binary_comparison_ops;
-  std::vector<std::string> binary_comparison_ops_components;
+  std::string comparison_ops;
+  std::vector<std::string> comparison_ops_components;
   const char* kBinaryComparisonSymbols[] = {"==", "!=", ">", ">=", "<", "<="};
   for (size_t i = 0; i < std::size(kComparisonOps); ++i) {
-    binary_comparison_ops_components.push_back(absl::Substitute(
+    comparison_ops_components.push_back(absl::Substitute(
         // clang-format off
           "bool %{field}_$0(const %{field}* a, const %{field}* b) {\n"
           "  using namespace tachyon::cc::math;\n"
@@ -234,17 +234,17 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
         // clang-format on
         kComparisonOps[i], kBinaryComparisonSymbols[i]));
     if (i != std::size(kComparisonOps) - 1) {
-      binary_comparison_ops_components.push_back("");
+      comparison_ops_components.push_back("");
     }
   }
-  binary_comparison_ops = absl::StrJoin(binary_comparison_ops_components, "\n");
+  comparison_ops = absl::StrJoin(comparison_ops_components, "\n");
 
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
                        {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
-                       {"%{binary_comparison_ops}", binary_comparison_ops},
+                       {"%{comparison_ops}", comparison_ops},
                    });
 
   std::string content = absl::StrReplaceAll(
