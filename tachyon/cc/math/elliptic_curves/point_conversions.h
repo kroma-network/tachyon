@@ -78,6 +78,18 @@ PointTy ToPoint3(const CPointTy& point_in) {
   return point;
 }
 
+template <typename CPointTy,
+          typename PointTy = typename PointTraits<CPointTy>::PointTy,
+          typename BaseField = typename PointTy::value_type>
+PointTy ToPoint4(const CPointTy& point_in) {
+  PointTy point;
+  point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
+  point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
+  point.z = BaseField::FromMontgomery(ToBigInt(point_in.z));
+  point.w = BaseField::FromMontgomery(ToBigInt(point_in.w));
+  return point;
+}
+
 template <typename PointTy,
           typename CPointTy = typename PointTraits<PointTy>::CCurvePointTy,
           typename BaseField = typename PointTy::BaseField,
@@ -148,6 +160,20 @@ void ToCPoint3(const PointTy& point_in, CPointTy* point_out) {
   memcpy(point_out->y.limbs, point_in.y().value().limbs,
          sizeof(uint64_t) * LimbNumbs);
   memcpy(point_out->z.limbs, point_in.z().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+}
+
+template <typename PointTy, typename CPointTy,
+          typename BaseField = typename PointTy::BaseField,
+          size_t LimbNumbs = BaseField::kLimbNums>
+void ToCPoint4(const PointTy& point_in, CPointTy* point_out) {
+  memcpy(point_out->x.limbs, point_in.x().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+  memcpy(point_out->y.limbs, point_in.y().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+  memcpy(point_out->z.limbs, point_in.z().value().limbs,
+         sizeof(uint64_t) * LimbNumbs);
+  memcpy(point_out->w.limbs, point_in.w().value().limbs,
          sizeof(uint64_t) * LimbNumbs);
 }
 
