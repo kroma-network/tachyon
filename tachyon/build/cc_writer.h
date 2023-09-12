@@ -8,7 +8,9 @@ namespace tachyon::build {
 struct CcWriter : public Writer {
   base::FilePath GetHdrPath() const;
 
-  int WriteHdr(const std::string& content) const;
+  // NOTE: You should mark %{extern_c_front} after header inclusion when |c_api|
+  // is true.
+  int WriteHdr(const std::string& content, bool c_api) const;
   int WriteSrc(const std::string& content) const;
 };
 

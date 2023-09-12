@@ -10,10 +10,19 @@
 
 namespace tachyon {
 
-const char* kBinaryArithmeticOps[] = {"add", "sub", "mul", "div"};
-const char* kUnaryArithmeticOps[] = {"neg", "dbl", "sqr", "inv"};
-const char* kBinaryComparisonOps[] = {"eq", "ne", "gt", "ge", "lt", "le"};
-const char* kCreationOps[] = {"zero", "one", "random"};
+const char* kComparisonOps[] = {"eq", "ne", "gt", "ge", "lt", "le"};
+const char* kEqualityOps[] = {"eq", "ne"};
+
+const char* kFieldBinaryArithmeticOps[] = {"add", "sub", "mul", "div"};
+const char* kFieldUnaryArithmeticOps[] = {"neg", "dbl", "sqr", "inv"};
+const char* kFieldCreationOps[] = {"zero", "one", "random"};
+
+const char* kGroupBinaryArithmeticOps[] = {"add", "sub"};
+const char* kGroupUnaryArithmeticOps[] = {"neg", "dbl"};
+const char* kPointCreationOps[] = {"zero", "generator", "random"};
+
+const char* kG1PointKinds[] = {"%{g1}_affine", "%{g1}_projective",
+                               "%{g1}_jacobian", "%{g1}_xyzz"};
 
 struct GenerationConfig : public build::CcWriter {
   std::string type;
@@ -41,6 +50,8 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "",
       "#include \"tachyon/c/export.h\"",
       "",
+      "%{extern_c_front}",
+      "",
       "struct TACHYON_C_EXPORT %{field} {",
       "  uint64_t limbs[%{limb_nums}];",
       "};",
@@ -51,7 +62,7 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "",
       "%{unary_arithmetic_ops}",
       "",
-      "%{binary_comparison_ops}",
+      "%{comparison_ops}",
   };
   // clang-format on
 
@@ -59,13 +70,13 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
 
   std::string creation_ops;
   std::vector<std::string> creation_ops_components;
-  for (size_t i = 0; i < std::size(kCreationOps); ++i) {
+  for (size_t i = 0; i < std::size(kFieldCreationOps); ++i) {
     creation_ops_components.push_back(absl::Substitute(
         // clang-format off
           "TACHYON_C_EXPORT %{field} %{field}_$0();",
         // clang-format on
-        kCreationOps[i]));
-    if (i != std::size(kCreationOps) - 1) {
+        kFieldCreationOps[i]));
+    if (i != std::size(kFieldCreationOps) - 1) {
       creation_ops_components.push_back("");
     }
   }
@@ -73,13 +84,13 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
 
   std::string binary_arithmetic_ops;
   std::vector<std::string> binary_arithmetic_ops_components;
-  for (size_t i = 0; i < std::size(kBinaryArithmeticOps); ++i) {
+  for (size_t i = 0; i < std::size(kFieldBinaryArithmeticOps); ++i) {
     binary_arithmetic_ops_components.push_back(absl::Substitute(
         // clang-format off
           "TACHYON_C_EXPORT %{field} %{field}_$0(const %{field}* a, const %{field}* b);",
         // clang-format on
-        kBinaryArithmeticOps[i]));
-    if (i != std::size(kBinaryArithmeticOps) - 1) {
+        kFieldBinaryArithmeticOps[i]));
+    if (i != std::size(kFieldBinaryArithmeticOps) - 1) {
       binary_arithmetic_ops_components.push_back("");
     }
   }
@@ -87,38 +98,38 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
 
   std::string unary_arithmetic_ops;
   std::vector<std::string> unary_arithmetic_ops_components;
-  for (size_t i = 0; i < std::size(kUnaryArithmeticOps); ++i) {
+  for (size_t i = 0; i < std::size(kFieldUnaryArithmeticOps); ++i) {
     unary_arithmetic_ops_components.push_back(absl::Substitute(
         // clang-format off
           "TACHYON_C_EXPORT %{field} %{field}_$0(const %{field}* a);",
         // clang-format on
-        kUnaryArithmeticOps[i]));
-    if (i != std::size(kUnaryArithmeticOps) - 1) {
+        kFieldUnaryArithmeticOps[i]));
+    if (i != std::size(kFieldUnaryArithmeticOps) - 1) {
       unary_arithmetic_ops_components.push_back("");
     }
   }
   unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
 
-  std::string binary_comparison_ops;
-  std::vector<std::string> binary_comparison_ops_components;
-  for (size_t i = 0; i < std::size(kBinaryComparisonOps); ++i) {
-    binary_comparison_ops_components.push_back(absl::Substitute(
+  std::string comparison_ops;
+  std::vector<std::string> comparison_ops_components;
+  for (size_t i = 0; i < std::size(kComparisonOps); ++i) {
+    comparison_ops_components.push_back(absl::Substitute(
         // clang-format off
           "TACHYON_C_EXPORT bool %{field}_$0(const %{field}* a, const %{field}* b);",
         // clang-format on
-        kBinaryComparisonOps[i]));
-    if (i != std::size(kBinaryComparisonOps) - 1) {
-      binary_comparison_ops_components.push_back("");
+        kComparisonOps[i]));
+    if (i != std::size(kComparisonOps) - 1) {
+      comparison_ops_components.push_back("");
     }
   }
-  binary_comparison_ops = absl::StrJoin(binary_comparison_ops_components, "\n");
+  comparison_ops = absl::StrJoin(comparison_ops_components, "\n");
 
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
                        {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
-                       {"%{binary_comparison_ops}", binary_comparison_ops},
+                       {"%{comparison_ops}", comparison_ops},
                    });
 
   std::string content = absl::StrReplaceAll(
@@ -128,7 +139,7 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
           {"%{limb_nums}",
            absl::StrCat(suffix == "fq" ? fq_limb_nums : fr_limb_nums)},
       });
-  return WriteHdr(content);
+  return WriteHdr(content, true);
 }
 
 int GenerationConfig::GenerateFqHdr() const {
@@ -152,7 +163,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
       "",
       "%{unary_arithmetic_ops}",
       "",
-      "%{binary_comparison_ops}",
+      "%{comparison_ops}",
   };
   // clang-format on
 
@@ -161,7 +172,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   std::string creation_ops;
   std::vector<std::string> creation_ops_components;
   const char* kUpperCreationOps[] = {"Zero", "One", "Random"};
-  for (size_t i = 0; i < std::size(kCreationOps); ++i) {
+  for (size_t i = 0; i < std::size(kFieldCreationOps); ++i) {
     creation_ops_components.push_back(absl::Substitute(
         // clang-format off
           "%{field} %{field}_$0() {\n"
@@ -170,8 +181,8 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
           "  return ToCPrimeField(PrimeFieldTy::$1());\n"
           "}",
         // clang-format on
-        kCreationOps[i], kUpperCreationOps[i]));
-    if (i != std::size(kCreationOps) - 1) {
+        kFieldCreationOps[i], kUpperCreationOps[i]));
+    if (i != std::size(kFieldCreationOps) - 1) {
       creation_ops_components.push_back("");
     }
   }
@@ -180,7 +191,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   std::string binary_arithmetic_ops;
   std::vector<std::string> binary_arithmetic_ops_components;
   const char* kUpperBinaryArithmeticOps[] = {"Add", "Sub", "Mul", "Div"};
-  for (size_t i = 0; i < std::size(kBinaryArithmeticOps); ++i) {
+  for (size_t i = 0; i < std::size(kFieldBinaryArithmeticOps); ++i) {
     binary_arithmetic_ops_components.push_back(absl::Substitute(
         // clang-format off
           "%{field} %{field}_$0(const %{field}* a, const %{field}* b) {\n"
@@ -188,8 +199,8 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
           "  return ToCPrimeField(ToPrimeField(*a).$1InPlace(ToPrimeField(*b)));\n"
           "}",
         // clang-format on
-        kBinaryArithmeticOps[i], kUpperBinaryArithmeticOps[i]));
-    if (i != std::size(kBinaryArithmeticOps) - 1) {
+        kFieldBinaryArithmeticOps[i], kUpperBinaryArithmeticOps[i]));
+    if (i != std::size(kFieldBinaryArithmeticOps) - 1) {
       binary_arithmetic_ops_components.push_back("");
     }
   }
@@ -199,7 +210,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   std::vector<std::string> unary_arithmetic_ops_components;
   const char* kUpperUnaryArithmeticOps[] = {"Neg", "Double", "Square",
                                             "Inverse"};
-  for (size_t i = 0; i < std::size(kUnaryArithmeticOps); ++i) {
+  for (size_t i = 0; i < std::size(kFieldUnaryArithmeticOps); ++i) {
     unary_arithmetic_ops_components.push_back(absl::Substitute(
         // clang-format off
           "%{field} %{field}_$0(const %{field}* a) {\n"
@@ -207,37 +218,37 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
           "  return ToCPrimeField(ToPrimeField(*a).$1InPlace());\n"
           "}",
         // clang-format on
-        kUnaryArithmeticOps[i], kUpperUnaryArithmeticOps[i]));
-    if (i != std::size(kUnaryArithmeticOps) - 1) {
+        kFieldUnaryArithmeticOps[i], kUpperUnaryArithmeticOps[i]));
+    if (i != std::size(kFieldUnaryArithmeticOps) - 1) {
       unary_arithmetic_ops_components.push_back("");
     }
   }
   unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
 
-  std::string binary_comparison_ops;
-  std::vector<std::string> binary_comparison_ops_components;
+  std::string comparison_ops;
+  std::vector<std::string> comparison_ops_components;
   const char* kBinaryComparisonSymbols[] = {"==", "!=", ">", ">=", "<", "<="};
-  for (size_t i = 0; i < std::size(kBinaryComparisonOps); ++i) {
-    binary_comparison_ops_components.push_back(absl::Substitute(
+  for (size_t i = 0; i < std::size(kComparisonOps); ++i) {
+    comparison_ops_components.push_back(absl::Substitute(
         // clang-format off
           "bool %{field}_$0(const %{field}* a, const %{field}* b) {\n"
           "  using namespace tachyon::cc::math;\n"
           "  return ToPrimeField(*a) $1 ToPrimeField(*b);\n"
           "}",
         // clang-format on
-        kBinaryComparisonOps[i], kBinaryComparisonSymbols[i]));
-    if (i != std::size(kBinaryComparisonOps) - 1) {
-      binary_comparison_ops_components.push_back("");
+        kComparisonOps[i], kBinaryComparisonSymbols[i]));
+    if (i != std::size(kComparisonOps) - 1) {
+      comparison_ops_components.push_back("");
     }
   }
-  binary_comparison_ops = absl::StrJoin(binary_comparison_ops_components, "\n");
+  comparison_ops = absl::StrJoin(comparison_ops_components, "\n");
 
   tpl_content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{creation_ops}", creation_ops},
                        {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
                        {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
-                       {"%{binary_comparison_ops}", binary_comparison_ops},
+                       {"%{comparison_ops}", comparison_ops},
                    });
 
   std::string content = absl::StrReplaceAll(
@@ -291,7 +302,7 @@ int GenerationConfig::GeneratePrimeFieldTraitsHdr(
                        {"%{suffix}", std::string(suffix)},
                        {"%{Suffix}", suffix == "fq" ? "Fq" : "Fr"},
                    });
-  return WriteHdr(content);
+  return WriteHdr(content, false);
 }
 
 int GenerationConfig::GenerateFqTraitsHdr() const {
@@ -308,82 +319,316 @@ int GenerationConfig::GenerateG1Hdr() const {
       "#include \"tachyon/c/export.h\"",
       "#include \"%{header_path}\"",
       "",
-      "struct TACHYON_C_EXPORT __attribute__((aligned(32))) tachyon_%{type}_g1_affine {",
+      "%{extern_c_front}",
+      "",
+      "struct TACHYON_C_EXPORT __attribute__((aligned(32))) %{g1}_affine {",
       "  tachyon_%{type}_fq x;",
       "  tachyon_%{type}_fq y;",
       "  // needs to occupy 32 byte",
       "  // NOTE(chokobole): See LimbsAlignment() in tachyon/math/base/big_int.h",
-      "  bool infinity = false;",
+      "  bool infinity;",
       "};",
       "",
-      "struct TACHYON_C_EXPORT tachyon_%{type}_g1_projective {",
+      "struct TACHYON_C_EXPORT %{g1}_projective {",
       "  tachyon_%{type}_fq x;",
       "  tachyon_%{type}_fq y;",
       "  tachyon_%{type}_fq z;",
       "};",
       "",
-      "struct TACHYON_C_EXPORT tachyon_%{type}_g1_jacobian {",
+      "struct TACHYON_C_EXPORT %{g1}_jacobian {",
       "  tachyon_%{type}_fq x;",
       "  tachyon_%{type}_fq y;",
       "  tachyon_%{type}_fq z;",
       "};",
       "",
-      "struct TACHYON_C_EXPORT tachyon_%{type}_g1_xyzz {",
+      "struct TACHYON_C_EXPORT %{g1}_xyzz {",
       "  tachyon_%{type}_fq x;",
       "  tachyon_%{type}_fq y;",
       "  tachyon_%{type}_fq zz;",
       "  tachyon_%{type}_fq zzz;",
       "};",
       "",
-      "struct TACHYON_C_EXPORT tachyon_%{type}_g1_point2 {",
+      "struct TACHYON_C_EXPORT %{g1}_point2 {",
       "  tachyon_%{type}_fq x;",
       "  tachyon_%{type}_fq y;",
       "};",
       "",
-      "struct TACHYON_C_EXPORT tachyon_%{type}_g1_point3 {",
+      "struct TACHYON_C_EXPORT %{g1}_point3 {",
       "  tachyon_%{type}_fq x;",
       "  tachyon_%{type}_fq y;",
       "  tachyon_%{type}_fq z;",
       "};",
       "",
-      "struct TACHYON_C_EXPORT tachyon_%{type}_g1_point4 {",
+      "struct TACHYON_C_EXPORT %{g1}_point4 {",
       "  tachyon_%{type}_fq x;",
       "  tachyon_%{type}_fq y;",
       "  tachyon_%{type}_fq z;",
       "  tachyon_%{type}_fq w;",
       "};",
       "",
-      "TACHYON_C_EXPORT void tachyon_%{type}_g1_init();",
+      "TACHYON_C_EXPORT void %{g1}_init();",
+      "",
+      "%{creation_ops}",
+      "",
+      "%{binary_arithmetic_ops}",
+      "",
+      "%{unary_arithmetic_ops}",
+      "",
+      "%{equality_ops}",
   };
   // clang-format on
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
+  std::string creation_ops;
+  std::vector<std::string> creation_ops_components;
+  for (size_t i = 0; i < std::size(kPointCreationOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      creation_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "TACHYON_C_EXPORT $0 $0_$1();",
+          // clang-format on
+          kG1PointKinds[j], kPointCreationOps[i]));
+      creation_ops_components.push_back("");
+    }
+    if (i == std::size(kPointCreationOps) - 1) {
+      creation_ops_components.pop_back();
+    }
+  }
+  creation_ops = absl::StrJoin(creation_ops_components, "\n");
+
+  std::string binary_arithmetic_ops;
+  std::vector<std::string> binary_arithmetic_ops_components;
+  for (size_t i = 0; i < std::size(kGroupBinaryArithmeticOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      binary_arithmetic_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "TACHYON_C_EXPORT $2 $0_$1(const $0* a, const $0* b);",
+          // clang-format on
+          kG1PointKinds[j], kGroupBinaryArithmeticOps[i],
+          j == 0 ? "%{g1}_jacobian" : kG1PointKinds[j]));
+      binary_arithmetic_ops_components.push_back("");
+      if (j != 0) {
+        // affine point
+        binary_arithmetic_ops_components.push_back(absl::Substitute(
+            // clang-format off
+              "TACHYON_C_EXPORT $0 $0_$1_mixed(const $0* a, const %{g1}_affine* b);",
+            // clang-format on
+            kG1PointKinds[j], kGroupBinaryArithmeticOps[i]));
+        binary_arithmetic_ops_components.push_back("");
+      }
+    }
+    if (i == std::size(kGroupBinaryArithmeticOps) - 1) {
+      binary_arithmetic_ops_components.pop_back();
+    }
+  }
+  binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
+
+  std::string unary_arithmetic_ops;
+  std::vector<std::string> unary_arithmetic_ops_components;
+  for (size_t i = 0; i < std::size(kGroupUnaryArithmeticOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      unary_arithmetic_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "TACHYON_C_EXPORT $2 $0_$1(const $0* a);",
+          // clang-format on
+          kG1PointKinds[j], kGroupUnaryArithmeticOps[i],
+          (j == 0 && i == 1) ? "%{g1}_jacobian" : kG1PointKinds[j]));
+      unary_arithmetic_ops_components.push_back("");
+    }
+    if (i == std::size(kGroupUnaryArithmeticOps) - 1) {
+      unary_arithmetic_ops_components.pop_back();
+    }
+  }
+  unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
+
+  std::string equality_ops;
+  std::vector<std::string> equality_ops_components;
+  for (size_t i = 0; i < std::size(kEqualityOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      equality_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "bool TACHYON_C_EXPORT $0_$1(const $0* a, const $0* b);",
+          // clang-format on
+          kG1PointKinds[j], kEqualityOps[i]));
+      equality_ops_components.push_back("");
+    }
+    if (i == std::size(kEqualityOps) - 1) {
+      equality_ops_components.pop_back();
+    }
+  }
+  equality_ops = absl::StrJoin(equality_ops_components, "\n");
+
+  tpl_content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{creation_ops}", creation_ops},
+                       {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
+                       {"%{equality_ops}", equality_ops},
+                   });
+
   base::FilePath hdr_path = GetHdrPath();
   std::string basename = hdr_path.BaseName().value();
   std::string header_path = hdr_path.DirName().Append("fq.h").value();
-  std::string content =
-      absl::StrReplaceAll(tpl_content, {
-                                           {"%{header_path}", header_path},
-                                           {"%{type}", type},
-                                       });
-  return WriteHdr(content);
+  std::string content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{header_path}", header_path},
+                       {"%{type}", type},
+                       {"%{g1}", absl::Substitute("tachyon_$0_g1", type)},
+                   });
+  return WriteHdr(content, true);
 }
 
 int GenerationConfig::GenerateG1Src() const {
+  // clang-format off
   std::vector<std::string_view> tpl = {
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fq_prime_field_traits.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_traits.h\"",
+      "#include \"tachyon/cc/math/elliptic_curves/point_conversions.h\"",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
       "",
       "void tachyon_%{type}_init() {",
       "  tachyon::math::%{type}::G1AffinePoint::Curve::Init();",
       "}",
+      "",
+      "%{creation_ops}",
+      "",
+      "%{binary_arithmetic_ops}",
+      "",
+      "%{unary_arithmetic_ops}",
+      "",
+      "%{equality_ops}",
   };
+  // clang-format on
 
   std::string tpl_content = absl::StrJoin(tpl, "\n");
+
+  std::string creation_ops;
+  std::vector<std::string> creation_ops_components;
+  const char* kUpperCreationOps[] = {"Zero", "Generator", "Random"};
+  const char* kUpperPointKinds[] = {"AffinePoint", "ProjectivePoint",
+                                    "JacobianPoint", "PointXYZZ"};
+  for (size_t i = 0; i < std::size(kPointCreationOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      creation_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "$0 $0_$1() {\n"
+            "  using namespace tachyon::cc::math;\n"
+            "  using CurvePointTy = typename PointTraits<$0>::CurvePointTy;\n"
+            "  return ToC$2(CurvePointTy::$3());\n"
+            "}",
+          // clang-format on
+          kG1PointKinds[j], kPointCreationOps[i], kUpperPointKinds[j],
+          kUpperCreationOps[i]));
+      creation_ops_components.push_back("");
+    }
+    if (i == std::size(kPointCreationOps) - 1) {
+      creation_ops_components.pop_back();
+    }
+  }
+  creation_ops = absl::StrJoin(creation_ops_components, "\n");
+
+  std::string binary_arithmetic_ops;
+  std::vector<std::string> binary_arithmetic_ops_components;
+  for (size_t i = 0; i < std::size(kGroupBinaryArithmeticOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      for (size_t k = 0; k < 2; ++k) {
+        if (k == 0) {
+          binary_arithmetic_ops_components.push_back(absl::Substitute(
+              // clang-format off
+                "$2 $0_$1(const $0* a, const $0* b) {",
+              // clang-format on
+              kG1PointKinds[j], kGroupBinaryArithmeticOps[i],
+              j == 0 ? "%{g1}_jacobian" : kG1PointKinds[j]));
+        } else {
+          if (j == 0) {
+            // affine point
+            continue;
+          }
+          binary_arithmetic_ops_components.push_back(absl::Substitute(
+              // clang-format off
+                "$0 $0_$1_mixed(const $0* a, const %{g1}_affine* b) {",
+              // clang-format on
+              kG1PointKinds[j], kGroupBinaryArithmeticOps[i]));
+        }
+        binary_arithmetic_ops_components.push_back(absl::Substitute(
+            // clang-format off
+              "  using namespace tachyon::cc::math;\n"
+              "  return ToC$0(To$1(*a).$2(To$3(*b)$4));\n"
+              "}",
+            // clang-format on
+            j == 0 ? "JacobianPoint" : kUpperPointKinds[j], kUpperPointKinds[j],
+            j == 0 ? "Add" : "AddInPlace",
+            k == 0 ? kUpperPointKinds[j] : "AffinePoint",
+            i == 0 ? "" : ".Negative()"));
+        binary_arithmetic_ops_components.push_back("");
+      }
+    }
+    if (i == std::size(kGroupBinaryArithmeticOps) - 1) {
+      binary_arithmetic_ops_components.pop_back();
+    }
+  }
+  binary_arithmetic_ops = absl::StrJoin(binary_arithmetic_ops_components, "\n");
+
+  std::string unary_arithmetic_ops;
+  std::vector<std::string> unary_arithmetic_ops_components;
+  const char* kUpperUnaryArithmeticOps[] = {"Neg", "Double"};
+  for (size_t i = 0; i < std::size(kGroupUnaryArithmeticOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      unary_arithmetic_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "$2 $0_$1(const $0* a) {\n"
+            "  using namespace tachyon::cc::math;\n"
+            "  return ToC$3(To$4(*a).$5$6());\n"
+            "}",
+          // clang-format on
+          kG1PointKinds[j], kGroupUnaryArithmeticOps[i],
+          (j == 0 && i == 1) ? "%{g1}_jacobian" : kG1PointKinds[j],
+          (j == 0 && i == 1) ? "JacobianPoint" : kUpperPointKinds[j],
+          kUpperPointKinds[j], kUpperUnaryArithmeticOps[i],
+          (j == 0 && i == 1) ? "" : "InPlace"));
+      unary_arithmetic_ops_components.push_back("");
+    }
+    if (i == std::size(kGroupUnaryArithmeticOps) - 1) {
+      unary_arithmetic_ops_components.pop_back();
+    }
+  }
+  unary_arithmetic_ops = absl::StrJoin(unary_arithmetic_ops_components, "\n");
+
+  std::string equality_ops;
+  std::vector<std::string> equality_ops_components;
+  const char* kEqualitySymbols[] = {"==", "!="};
+  for (size_t i = 0; i < std::size(kEqualityOps); ++i) {
+    for (size_t j = 0; j < std::size(kG1PointKinds); ++j) {
+      equality_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "bool $0_$1(const $0* a, const $0* b) {\n"
+            "  using namespace tachyon::cc::math;\n"
+            "  return To$2(*a) $3 To$2(*b);\n"
+            "}",
+          // clang-format on
+          kG1PointKinds[j], kEqualityOps[i], kUpperPointKinds[j],
+          kEqualitySymbols[i]));
+      equality_ops_components.push_back("");
+    }
+    if (i == std::size(kEqualityOps) - 1) {
+      equality_ops_components.pop_back();
+    }
+  }
+  equality_ops = absl::StrJoin(equality_ops_components, "\n");
+
+  tpl_content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{creation_ops}", creation_ops},
+                       {"%{binary_arithmetic_ops}", binary_arithmetic_ops},
+                       {"%{unary_arithmetic_ops}", unary_arithmetic_ops},
+                       {"%{equality_ops}", equality_ops},
+                   });
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{header_dir_name}", c::math::GetLocation(type)},
                        {"%{type}", type},
+                       {"%{g1}", absl::Substitute("tachyon_$0_g1", type)},
                    });
   return WriteSrc(content);
 }
@@ -476,7 +721,7 @@ int GenerationConfig::GenerateG1TraitsHdr() const {
                        {"%{fr_limb_nums}", absl::StrCat(fr_limb_nums)},
                        {"%{type}", type},
                    });
-  return WriteHdr(content);
+  return WriteHdr(content, false);
 }
 
 int RealMain(int argc, char** argv) {

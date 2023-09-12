@@ -1,0 +1,14 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_test")
+
+tachyon_cc_test(
+    name = "short_weierstrass_unittests",
+    srcs = [
+        "affine_point_unittest.cc",
+        "jacobian_point_unittest.cc",
+        "point_xyzz_unittest.cc",
+        "projective_point_unittest.cc",
+    ],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+    ],
+)

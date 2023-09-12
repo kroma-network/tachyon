@@ -156,8 +156,10 @@ tachyon_bn254_g1_jacobian* DoMSMGpu(const T* bases, size_t bases_len,
                                     const tachyon_bn254_fr* scalars,
                                     size_t scalars_len) {
   g_provider->Inject(bases, bases_len, scalars, scalars_len);
-  return cc::math::CreateCPoint3Ptr<tachyon_bn254_g1_jacobian>(
-      DoMSMGpuInternal(g_provider->bases(), g_provider->scalars()));
+  tachyon_bn254_g1_jacobian* ret = new tachyon_bn254_g1_jacobian();
+  cc::math::ToCPoint3(
+      DoMSMGpuInternal(g_provider->bases(), g_provider->scalars()), ret);
+  return ret;
 }
 
 }  // namespace

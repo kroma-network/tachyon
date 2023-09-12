@@ -82,7 +82,9 @@ CBucket* DoMSM(const CPointTy* bases, size_t bases_len,
   Bucket ret;
   CHECK(msm_api.msm.Run(msm_api.provider.bases(), msm_api.provider.scalars(),
                         &ret));
-  return cc::math::CreateCPoint3Ptr<CBucket>(ret);
+  CBucket* cret = new CBucket();
+  cc::math::ToCPoint3(ret, cret);
+  return cret;
 }
 
 }  // namespace

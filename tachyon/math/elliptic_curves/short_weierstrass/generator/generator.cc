@@ -165,7 +165,7 @@ int GenerationConfig::GenerateConfigHdr() const {
     replacements["%{fr_n}"] = absl::StrCat(fr_n);
   }
   std::string content = absl::StrReplaceAll(tpl_content, replacements);
-  return WriteHdr(content);
+  return WriteHdr(content, false);
 }
 
 int GenerationConfig::GenerateConfigGpuHdr() const {
@@ -199,7 +199,7 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
                        {"%{namespace}", ns_name},
                        {"%{class}", class_name},
                    });
-  return WriteHdr(content);
+  return WriteHdr(content, false);
 }
 
 int RealMain(int argc, char** argv) {
