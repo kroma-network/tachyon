@@ -263,6 +263,8 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{projective_creation_ops}",
       "",
+      "%{projective_binary_arithmetic_ops}",
+      "",
       "  %{c_g1}_projective ToCPoint() const {"
       "    %{c_g1}_projective ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
@@ -305,6 +307,8 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{jacobian_creation_ops}",
       "",
+      "%{jacobian_binary_arithmetic_ops}",
+      "",
       "  %{c_g1}_jacobian ToCPoint() const {"
       "    %{c_g1}_jacobian ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
@@ -346,6 +350,8 @@ int GenerationConfig::GenerateG1Hdr() const {
       "  bool infinity() { return infinity_; }",
       "",
       "%{affine_creation_ops}",
+      "",
+      "%{affine_binary_arithmetic_ops}",
       "",
       "  %{c_g1}_affine ToCPoint() const {"
       "    %{c_g1}_affine ret;",
@@ -392,6 +398,8 @@ int GenerationConfig::GenerateG1Hdr() const {
       "  Fq& zzz() { return zzz_; }",
       "",
       "%{xyzz_creation_ops}",
+      "",
+      "%{xyzz_binary_arithmetic_ops}",
       "",
       "  %{c_g1}_xyzz ToCPoint() const {"
       "    %{c_g1}_xyzz ret;",
@@ -564,13 +572,57 @@ int GenerationConfig::GenerateG1Hdr() const {
     creation_ops.push_back(absl::StrJoin(creation_ops_components, "\n"));
   }
 
+  std::vector<std::string> binary_arithmetic_ops;
+  const char* kBinaryArithmeticOps[] = {"+", "-"};
+  const char* kCBinaryArithmeticOps[] = {"add", "sub"};
+  for (size_t i = 0; i < std::size(kG1PointKinds); ++i) {
+    std::vector<std::string> binary_arithmetic_ops_components;
+    for (size_t j = 0; j < std::size(kBinaryArithmeticOps); ++j) {
+      binary_arithmetic_ops_components.push_back(absl::Substitute(
+          // clang-format off
+            "  $2 operator$1(const $0& other) const {\n"
+            "    auto a = ToCPoint();\n"
+            "    auto b = other.ToCPoint();\n"
+            "    return $2($3_$4(&a, &b));\n"
+            "  }",
+          // clang-format on
+          kG1PointKinds[i], kBinaryArithmeticOps[j],
+          i == 0 ? "G1JacobianPoint" : kG1PointKinds[i], kCG1PointKinds[i],
+          kCBinaryArithmeticOps[j]));
+      if (i != 0) {
+        binary_arithmetic_ops_components.push_back("");
+        binary_arithmetic_ops_components.push_back(absl::Substitute(
+            // clang-format off
+              "  $0& operator$1=(const $0& other) {\n"
+              "    auto a = ToCPoint();\n"
+              "    auto b = other.ToCPoint();\n"
+              "    *this = $0($2_$3(&a, &b));\n"
+              "    return *this;\n"
+              "  }",
+            // clang-format on
+            kG1PointKinds[i], kBinaryArithmeticOps[j], kCG1PointKinds[i],
+            kCBinaryArithmeticOps[j]));
+      }
+      if (j != std::size(kBinaryArithmeticOps) - 1) {
+        binary_arithmetic_ops_components.push_back("");
+      }
+    }
+    binary_arithmetic_ops.push_back(
+        absl::StrJoin(binary_arithmetic_ops_components, "\n"));
+  }
+
   tpl_content = absl::StrReplaceAll(
-      tpl_content, {
-                       {"%{affine_creation_ops}", creation_ops[0]},
-                       {"%{projective_creation_ops}", creation_ops[1]},
-                       {"%{jacobian_creation_ops}", creation_ops[2]},
-                       {"%{xyzz_creation_ops}", creation_ops[3]},
-                   });
+      tpl_content,
+      {
+          {"%{affine_creation_ops}", creation_ops[0]},
+          {"%{projective_creation_ops}", creation_ops[1]},
+          {"%{jacobian_creation_ops}", creation_ops[2]},
+          {"%{xyzz_creation_ops}", creation_ops[3]},
+          {"%{affine_binary_arithmetic_ops}", binary_arithmetic_ops[0]},
+          {"%{projective_binary_arithmetic_ops}", binary_arithmetic_ops[1]},
+          {"%{jacobian_binary_arithmetic_ops}", binary_arithmetic_ops[2]},
+          {"%{xyzz_binary_arithmetic_ops}", binary_arithmetic_ops[3]},
+      });
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {

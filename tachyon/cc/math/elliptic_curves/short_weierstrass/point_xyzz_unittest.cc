@@ -49,4 +49,16 @@ TEST_F(PointXYZZTest, Random) {
   EXPECT_NE(ToPointXYZZ(c_ret.ToCPoint()), a_);
 }
 
+TEST_F(PointXYZZTest, Add) {
+  bn254::G1PointXYZZ cc_ret = cc_a_ + cc_b_;
+  EXPECT_EQ(ToPointXYZZ(cc_ret.ToCPoint()), a_ + b_);
+  EXPECT_EQ(ToPointXYZZ((cc_a_ += cc_b_).ToCPoint()), a_ += b_);
+}
+
+TEST_F(PointXYZZTest, Sub) {
+  bn254::G1PointXYZZ cc_ret = cc_a_ - cc_b_;
+  EXPECT_EQ(ToPointXYZZ(cc_ret.ToCPoint()), a_ - b_);
+  EXPECT_EQ(ToPointXYZZ((cc_a_ -= cc_b_).ToCPoint()), a_ -= b_);
+}
+
 }  // namespace tachyon::cc::math
