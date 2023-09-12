@@ -86,7 +86,7 @@ CPointTy ToCAffinePoint(const PointTy& point_in) {
   CPointTy ret;
   memcpy(ret.x.limbs, point_in.x().value().limbs, sizeof(uint64_t) * LimbNumbs);
   memcpy(ret.y.limbs, point_in.y().value().limbs, sizeof(uint64_t) * LimbNumbs);
-  ret.infinity = point_in.x().IsZero() && point_in.y().IsZero();
+  ret.infinity = point_in.infinity();
   return ret;
 }
 
