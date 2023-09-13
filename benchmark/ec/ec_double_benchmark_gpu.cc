@@ -4,13 +4,13 @@
 // clang-format off
 #include "benchmark/ec/simple_ec_benchmark_reporter.h"
 #include "benchmark/ec/ec_config.h"
-#include "benchmark/ec/ec_util.h"
 // clang-format on
 #include "tachyon/base/time/time_interval.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
+#include "tachyon/math/elliptic_curves/test/random.h"
 
 namespace tachyon {
 
@@ -18,17 +18,6 @@ using namespace device;
 using namespace math;
 
 namespace {
-
-std::vector<math::bn254::G1JacobianPoint> CreateRandomPoints(size_t nums) {
-  std::vector<math::bn254::G1JacobianPoint> ret;
-  ret.reserve(nums);
-  math::bn254::G1JacobianPoint p =
-      math::bn254::G1JacobianPoint::Curve::Generator();
-  for (size_t i = 0; i < nums; ++i) {
-    ret.push_back(p.DoubleInPlace());
-  }
-  return ret;
-}
 
 // TODO(chokobole): Use openmp.
 void TestDoubleOnCPU(const std::vector<math::bn254::G1AffinePoint>& bases,
@@ -76,8 +65,9 @@ int RealMain(int argc, char** argv) {
   std::cout << "Generating random points..." << std::endl;
   uint64_t max_point_num = config.point_nums().back();
   std::vector<bn254::G1AffinePoint> bases =
-      CreateRandomBn254Points(max_point_num);
-  std::vector<bn254::Fr> scalars = CreateRandomBn254Scalars(max_point_num);
+      CreatePseudoRandomPoints<bn254::G1AffinePoint>(max_point_num);
+  std::vector<bn254::Fr> scalars =
+      base::CreateVector(max_point_num, []() { return bn254::Fr::Random(); });
   std::cout << "Generation completed" << std::endl;
 
   std::vector<math::bn254::G1JacobianPoint> results_cpu;

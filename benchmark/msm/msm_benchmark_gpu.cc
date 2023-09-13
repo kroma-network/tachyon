@@ -2,7 +2,6 @@
 #include <iostream>
 
 // clang-format off
-#include "benchmark/ec/ec_util.h"
 #include "benchmark/msm/msm_config.h"
 #include "benchmark/msm/msm_runner.h"
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
@@ -10,6 +9,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_gpu.h"
+#include "tachyon/math/elliptic_curves/test/random.h"
 
 namespace tachyon {
 
@@ -31,8 +31,9 @@ int RealMain(int argc, char** argv) {
   std::cout << "Generating random points..." << std::endl;
   uint64_t max_point_num = point_nums.back();
   std::vector<bn254::G1AffinePoint> bases =
-      CreateRandomBn254Points(max_point_num);
-  std::vector<bn254::Fr> scalars = CreateRandomBn254Scalars(max_point_num);
+      CreatePseudoRandomPoints<bn254::G1AffinePoint>(max_point_num);
+  std::vector<bn254::Fr> scalars =
+      base::CreateVector(max_point_num, []() { return bn254::Fr::Random(); });
   std::cout << "Generation completed" << std::endl;
 
   MSMRunner<bn254::G1AffinePoint> runner(&reporter);

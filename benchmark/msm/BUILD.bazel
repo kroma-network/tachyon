@@ -35,25 +35,27 @@ tachyon_cc_library(
 
 tachyon_cc_binary(
     name = "msm_benchmark",
+    testonly = True,
     srcs = ["msm_benchmark.cc"],
     deps = [
         ":msm_config",
         ":msm_runner",
-        "//benchmark/ec:ec_util",
         "//benchmark/msm/arkworks",
         "//benchmark/msm/bellman",
         "//tachyon/c/math/elliptic_curves/msm",
+        "//tachyon/math/elliptic_curves/test:random",
     ],
 )
 
 tachyon_cuda_binary(
     name = "msm_benchmark_gpu",
+    testonly = True,
     srcs = ["msm_benchmark_gpu.cc"],
     deps = [
         ":msm_config",
         ":msm_runner",
-        "//benchmark/ec:ec_util",
         "//tachyon/c/math/elliptic_curves/msm",
         "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
+        "//tachyon/math/elliptic_curves/test:random",
     ],
 )
