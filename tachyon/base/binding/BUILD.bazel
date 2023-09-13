@@ -1,0 +1,34 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "binding_util",
+    srcs = [
+        "cpp_constructor.cc",
+        "cpp_constructor_matcher.cc",
+        "cpp_type_names.cc",
+        "cpp_value.cc",
+    ],
+    hdrs = [
+        "callable_util.h",
+        "cpp_constructor.h",
+        "cpp_constructor_matcher.h",
+        "cpp_raw_ptr.h",
+        "cpp_shared_ptr.h",
+        "cpp_stack_value.h",
+        "cpp_type.h",
+        "cpp_type_names.h",
+        "cpp_unique_ptr.h",
+        "cpp_value.h",
+        "cpp_value_factory.h",
+        "holder_util.h",
+        "property_util.h",
+    ],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base:template_util",
+        "//tachyon/base:type_list",
+        "//tachyon/base/strings:string_util",
+    ],
+)
