@@ -20,7 +20,7 @@ std::ostream& operator<<(std::ostream& os, const JacobianPoint<Curve>& point) {
 template <typename Curve, typename ScalarField = typename Curve::ScalarField>
 JacobianPoint<Curve> operator*(const ScalarField& v,
                                const JacobianPoint<Curve>& point) {
-  return point.ScalarMul(v.ToBigInt());
+  return point * v;
 }
 
 template <typename Curve>

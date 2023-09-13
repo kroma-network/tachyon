@@ -97,6 +97,7 @@ TYPED_TEST(JacobianPointTest, AdditiveGroupOperators) {
   using JacobianPointTy = TypeParam;
   using AffinePointTy = typename JacobianPointTy::AffinePointTy;
   using BaseField = typename JacobianPointTy::BaseField;
+  using ScalarField = typename AffinePointTy::ScalarField;
 
   JacobianPointTy jp =
       JacobianPointTy::CreateChecked(BaseField(5), BaseField(5), BaseField(1));
@@ -142,6 +143,9 @@ TYPED_TEST(JacobianPointTest, AdditiveGroupOperators) {
     EXPECT_EQ(jp_tmp,
               JacobianPointTy(BaseField(5), BaseField(2), BaseField(1)));
   }
+
+  EXPECT_EQ(jp * ScalarField(2), jp4);
+  EXPECT_EQ(jp *= ScalarField(2), jp4);
 }
 
 TYPED_TEST(JacobianPointTest, ScalarMulOperator) {

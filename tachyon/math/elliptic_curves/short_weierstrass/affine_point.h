@@ -166,6 +166,10 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   constexpr ProjectivePoint<Curve> DoubleProjective() const;
   constexpr PointXYZZ<Curve> DoubleXYZZ() const;
 
+  constexpr JacobianPoint<Curve> operator*(const ScalarField& v) const {
+    return this->ScalarMul(v.ToBigInt());
+  }
+
  private:
   BaseField x_;
   BaseField y_;

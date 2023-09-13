@@ -81,6 +81,7 @@ TYPED_TEST(AffinePointTest, AdditiveGroupOperators) {
   using AffinePointTy = TypeParam;
   using JacobianPointTy = typename AffinePointTy::JacobianPointTy;
   using BaseField = typename AffinePointTy::BaseField;
+  using ScalarField = typename AffinePointTy::ScalarField;
 
   AffinePointTy ap = AffinePointTy::CreateChecked(BaseField(5), BaseField(5));
   AffinePointTy ap2 = AffinePointTy::CreateChecked(BaseField(3), BaseField(2));
@@ -111,6 +112,8 @@ TYPED_TEST(AffinePointTest, AdditiveGroupOperators) {
     ap_tmp.NegInPlace();
     EXPECT_EQ(ap_tmp, AffinePointTy(BaseField(5), BaseField(2)));
   }
+
+  EXPECT_EQ(ap * ScalarField(2), jp4);
 }
 
 TYPED_TEST(AffinePointTest, ToProjective) {

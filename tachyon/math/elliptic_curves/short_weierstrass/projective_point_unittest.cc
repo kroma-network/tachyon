@@ -98,6 +98,7 @@ TYPED_TEST(ProjectivePointTest, AdditiveGroupOperators) {
   using ProjectivePointTy = TypeParam;
   using AffinePointTy = typename ProjectivePointTy::AffinePointTy;
   using BaseField = typename ProjectivePointTy::BaseField;
+  using ScalarField = typename AffinePointTy::ScalarField;
 
   ProjectivePointTy pp = ProjectivePointTy::CreateChecked(
       BaseField(5), BaseField(5), BaseField(1));
@@ -143,6 +144,9 @@ TYPED_TEST(ProjectivePointTest, AdditiveGroupOperators) {
     EXPECT_EQ(pp_tmp,
               ProjectivePointTy(BaseField(5), BaseField(2), BaseField(1)));
   }
+
+  EXPECT_EQ(pp * ScalarField(2), pp4);
+  EXPECT_EQ(pp *= ScalarField(2), pp4);
 }
 
 TYPED_TEST(ProjectivePointTest, ScalarMulOperator) {

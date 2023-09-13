@@ -182,6 +182,13 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     return *this;
   }
 
+  constexpr JacobianPoint operator*(const ScalarField& v) const {
+    return this->ScalarMul(v.ToBigInt());
+  }
+  constexpr JacobianPoint& operator*=(const ScalarField& v) {
+    return *this = operator*(v);
+  }
+
  private:
   BaseField x_;
   BaseField y_;
