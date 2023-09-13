@@ -1,6 +1,20 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
 
 package(default_visibility = ["//visibility:public"])
+
+tachyon_cuda_library(
+    name = "cuzk_kernels",
+    srcs = if_gpu_is_configured(["cuzk_kernels.cu.cc"]),
+    hdrs = ["cuzk_kernels.cu.h"],
+    deps = [
+        "//tachyon/device/gpu/cuda:cuda_memory",
+        "//tachyon/math/elliptic_curves/msm/algorithms:cuzk_csr_sparse_matrix",
+        "//tachyon/math/elliptic_curves/msm/algorithms:cuzk_ell_sparse_matrix",
+        "//tachyon/math/elliptic_curves/msm/algorithms:pippenger_ctx",
+        "//tachyon/math/elliptic_curves/short_weierstrass:points",
+    ],
+)
 
 tachyon_cc_library(
     name = "kernels",

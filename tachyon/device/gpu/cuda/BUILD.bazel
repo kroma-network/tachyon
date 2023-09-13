@@ -26,7 +26,9 @@ tachyon_cuda_library(
 tachyon_cuda_library(
     name = "cuda_memory",
     hdrs = ["cuda_memory.h"],
-    deps = ["//tachyon/base:compiler_specific"],
+    deps = ["//tachyon/base:compiler_specific"] + if_cuda([
+        "@local_config_cuda//cuda:cuda_headers",
+    ]),
 )
 
 tachyon_cuda_test(

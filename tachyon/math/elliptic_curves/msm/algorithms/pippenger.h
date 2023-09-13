@@ -13,7 +13,7 @@
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_base.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_util.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_ctx.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
 #include "tachyon/math/elliptic_curves/semigroups.h"
 
@@ -84,8 +84,7 @@ class Pippenger : public PippengerBase<PointTy> {
       LOG(ERROR) << "bases_size and scalars_size don't match";
       return false;
     }
-    window_bits_ = ComputeWindowsBits(scalars_size);
-    window_count_ = ComputeWindowsCount<ScalarField>(window_bits_);
+    ctx_ = PippengerCtx::CreateDefault<ScalarField>(scalars_size);
 
     std::vector<BigInt<N>> scalars;
     scalars.resize(scalars_size);
@@ -95,7 +94,7 @@ class Pippenger : public PippengerBase<PointTy> {
     }
 
     std::vector<Bucket> window_sums =
-        base::CreateVector(window_count_, Bucket::Zero());
+        base::CreateVector(ctx_.window_count, Bucket::Zero());
 
     if (use_msm_window_naf_) {
       AccumulateWindowNAFSums(std::move(bases_first), scalars, &window_sums);
@@ -109,15 +108,15 @@ class Pippenger : public PippengerBase<PointTy> {
     view.remove_prefix(1);
 
     // We're traversing windows from high to low.
-    *ret =
-        lowest + std::accumulate(view.rbegin(), view.rend(), Bucket::Zero(),
-                                 [this](Bucket& total, const Bucket& sum) {
-                                   total += sum;
-                                   for (size_t i = 0; i < window_bits_; ++i) {
-                                     total.DoubleInPlace();
-                                   }
-                                   return total;
-                                 });
+    *ret = lowest +
+           std::accumulate(view.rbegin(), view.rend(), Bucket::Zero(),
+                           [this](Bucket& total, const Bucket& sum) {
+                             total += sum;
+                             for (size_t i = 0; i < ctx_.window_bits; ++i) {
+                               total.DoubleInPlace();
+                             }
+                             return total;
+                           });
     return true;
   }
 
@@ -151,9 +150,9 @@ class Pippenger : public PippengerBase<PointTy> {
       Bucket* window_sum, bool is_last_window) {
     size_t bucket_size;
     if (is_last_window) {
-      bucket_size = 1 << window_bits_;
+      bucket_size = 1 << ctx_.window_bits;
     } else {
-      bucket_size = 1 << (window_bits_ - 1);
+      bucket_size = 1 << (ctx_.window_bits - 1);
     }
     std::vector<Bucket> buckets =
         base::CreateVector(bucket_size, Bucket::Zero());
@@ -176,22 +175,22 @@ class Pippenger : public PippengerBase<PointTy> {
     std::vector<std::vector<int64_t>> scalar_digits;
     scalar_digits.resize(scalars.size());
     for (std::vector<int64_t>& scalar_digit : scalar_digits) {
-      scalar_digit.resize(window_count_);
+      scalar_digit.resize(ctx_.window_count);
     }
     for (size_t i = 0; i < scalars.size(); ++i) {
-      FillDigits(scalars[i], window_bits_, &scalar_digits[i]);
+      FillDigits(scalars[i], ctx_.window_bits, &scalar_digits[i]);
     }
     if (parallel_windows_) {
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count_; ++i) {
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < ctx_.window_count; ++i) {
         AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
                                      &(*window_sums)[i],
-                                     i == window_count_ - 1);
+                                     i == ctx_.window_count - 1);
       }
     } else {
-      for (size_t i = 0; i < window_count_; ++i) {
+      for (size_t i = 0; i < ctx_.window_count; ++i) {
         AccumulateSingleWindowNAFSum(bases_first, scalar_digits, i,
                                      &(*window_sums)[i],
-                                     i == window_count_ - 1);
+                                     i == ctx_.window_count - 1);
       }
     }
   }
@@ -201,10 +200,10 @@ class Pippenger : public PippengerBase<PointTy> {
                                  absl::Span<const BigInt<N>> scalars,
                                  size_t window_offset, Bucket* out) {
     Bucket window_sum = Bucket::Zero();
-    // We don't need the "zero" bucket, so we only have 2^{window_bits_} - 1
+    // We don't need the "zero" bucket, so we only have 2^{window_bits} - 1
     // buckets.
     std::vector<Bucket> buckets =
-        base::CreateVector((1 << window_bits_) - 1, Bucket::Zero());
+        base::CreateVector((1 << ctx_.window_bits) - 1, Bucket::Zero());
     auto bases_it = bases_first;
     for (size_t j = 0; j < scalars.size(); ++j, ++bases_it) {
       const BigInt<N>& scalar = scalars[j];
@@ -222,9 +221,9 @@ class Pippenger : public PippengerBase<PointTy> {
         // bits.
         scalar_tmp.DivBy2ExpInPlace(window_offset);
 
-        // We mod the remaining bits by 2^{window_bits_}, thus taking
-        // |window_bits_|.
-        uint64_t idx = scalar_tmp[0] % (1 << window_bits_);
+        // We mod the remaining bits by 2^{window_bits}, thus taking
+        // |window_bits|.
+        uint64_t idx = scalar_tmp[0] % (1 << ctx_.window_bits);
 
         // If the scalar is non-zero, we update the corresponding
         // bucket.
@@ -242,13 +241,13 @@ class Pippenger : public PippengerBase<PointTy> {
                             absl::Span<const BigInt<N>> scalars,
                             std::vector<Bucket>* window_sums) {
     if (parallel_windows_) {
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count_; ++i) {
-        AccumulateSingleWindowSum(bases_first, scalars, window_bits_ * i,
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < ctx_.window_count; ++i) {
+        AccumulateSingleWindowSum(bases_first, scalars, ctx_.window_bits * i,
                                   &(*window_sums)[i]);
       }
     } else {
-      for (size_t i = 0; i < window_count_; ++i) {
-        AccumulateSingleWindowSum(bases_first, scalars, window_bits_ * i,
+      for (size_t i = 0; i < ctx_.window_count; ++i) {
+        AccumulateSingleWindowSum(bases_first, scalars, ctx_.window_bits * i,
                                   &(*window_sums)[i]);
       }
     }
@@ -256,8 +255,7 @@ class Pippenger : public PippengerBase<PointTy> {
 
   bool use_msm_window_naf_ = false;
   bool parallel_windows_ = false;
-  size_t window_bits_ = 0;
-  size_t window_count_ = 0;
+  PippengerCtx ctx_;
 };
 
 }  // namespace tachyon::math
