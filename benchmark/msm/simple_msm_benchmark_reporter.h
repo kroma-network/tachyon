@@ -7,7 +7,8 @@ namespace tachyon {
 
 class SimpleMSMBenchmarkReporter : public SimpleBenchmarkReporter {
  public:
-  explicit SimpleMSMBenchmarkReporter(const std::vector<uint64_t>& nums);
+  SimpleMSMBenchmarkReporter(std::string_view title,
+                             const std::vector<uint64_t>& nums);
   SimpleMSMBenchmarkReporter(const SimpleMSMBenchmarkReporter& other) = delete;
   SimpleMSMBenchmarkReporter& operator=(
       const SimpleMSMBenchmarkReporter& other) = delete;

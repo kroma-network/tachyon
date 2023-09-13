@@ -5,17 +5,18 @@
 namespace tachyon {
 
 SimpleMSMBenchmarkReporter::SimpleMSMBenchmarkReporter(
-    const std::vector<uint64_t>& nums)
+    std::string_view title, const std::vector<uint64_t>& nums)
     : nums_(nums) {
+  title_ = std::string(title);
+  for (uint64_t num : nums) {
+    targets_.push_back(absl::StrCat(num));
+  }
+  results_.resize(nums.size());
   AddVendor("tachyon");
 }
 
 void SimpleMSMBenchmarkReporter::AddVendor(std::string_view name) {
-  names_.reserve(names_.size() + nums_.size());
-  results_.reserve(results_.size() + nums_.size());
-  for (uint64_t num : nums_) {
-    names_.push_back(absl::Substitute("$0/$1", name, num));
-  }
+  column_headers_.push_back(std::string(name));
 }
 
 }  // namespace tachyon

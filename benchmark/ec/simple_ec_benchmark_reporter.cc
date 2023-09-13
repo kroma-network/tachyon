@@ -5,15 +5,14 @@
 namespace tachyon {
 
 SimpleECBenchmarkReporter::SimpleECBenchmarkReporter(
-    const std::vector<uint64_t>& nums) {
-  names_.reserve(nums.size() * 2);
-  results_.reserve(nums.size() * 2);
+    std::string_view title, const std::vector<uint64_t>& nums) {
+  title_ = std::string(title);
+  column_headers_.push_back("CPU");
+  column_headers_.push_back("GPU");
   for (uint64_t num : nums) {
-    names_.push_back(absl::Substitute("CPU/$0", num));
+    targets_.push_back(absl::StrCat(num));
   }
-  for (uint64_t num : nums) {
-    names_.push_back(absl::Substitute("CUDA/$0", num));
-  }
+  results_.resize(nums.size());
 }
 
 }  // namespace tachyon

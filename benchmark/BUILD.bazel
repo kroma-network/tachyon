@@ -9,6 +9,7 @@ tachyon_cc_library(
     visibility = ["//benchmark:__subpackages__"],
     deps = [
         "//tachyon/base/console:table_writer",
+        "//tachyon/base/containers:container_util",
     ] + if_has_matplotlib([
         "@com_github_soblin_matplotlibcpp17//:matplotlibcpp17",
     ]),

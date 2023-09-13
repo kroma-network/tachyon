@@ -29,7 +29,7 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  SimpleMSMBenchmarkReporter reporter(config.degrees());
+  SimpleMSMBenchmarkReporter reporter("MSM Benchmark", config.degrees());
   for (const MSMConfig::Vendor vendor : config.vendors()) {
     reporter.AddVendor(MSMConfig::VendorToString(vendor));
   }

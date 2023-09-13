@@ -7,23 +7,30 @@ using namespace matplotlibcpp17;
 #endif  // defined(TACHYON_HAS_MATPLOTLIB)
 
 #include "absl/strings/str_cat.h"
+#include "absl/strings/substitute.h"
 
 #include "tachyon/base/console/table_writer.h"
+#include "tachyon/base/containers/container_util.h"
 
 namespace tachyon {
 
 void SimpleBenchmarkReporter::Show() {
   base::TableWriterBuilder builder;
-  base::TableWriter writer = builder.AlignHeaderLeft()
-                                 .AddSpace(1)
-                                 .FitToTerminalWidth()
-                                 .StripTrailingAsciiWhitespace()
-                                 .AddColumn("NAME")
-                                 .AddColumn("TIME(sec)")
-                                 .Build();
-  for (size_t i = 0; i < results_.size(); ++i) {
-    writer.SetElement(i, 0, names_[i]);
-    writer.SetElement(i, 1, absl::StrCat(results_[i]));
+  builder.AlignHeaderLeft()
+      .AddSpace(1)
+      .FitToTerminalWidth()
+      .StripTrailingAsciiWhitespace()
+      .AddColumn("");
+  for (size_t i = 0; i < column_headers_.size(); ++i) {
+    builder.AddColumn(column_headers_[i]);
+  }
+  base::TableWriter writer = builder.Build();
+
+  for (size_t i = 0; i < targets_.size(); ++i) {
+    writer.SetElement(i, 0, targets_[i]);
+    for (size_t j = 0; j < column_headers_.size(); ++j) {
+      writer.SetElement(i, j + 1, absl::StrCat(results_[i][j]));
+    }
   }
   writer.Print(true);
 
@@ -31,12 +38,33 @@ void SimpleBenchmarkReporter::Show() {
   py::scoped_interpreter guard{};
   auto plt = pyplot::import();
 
-  auto [fig, ax] = plt.subplots(
-      Kwargs("layout"_a = "constrained", "figsize"_a = py::make_tuple(12, 6)));
+  constexpr double kBarWidth = 0.25;
 
-  ax.set_title(Args("Benchmark results"));
+  std::vector<size_t> x_positions =
+      base::CreateRangedVector(static_cast<size_t>(0), targets_.size());
 
-  ax.bar(Args(names_, results_));
+  auto [fig, ax] = plt.subplots(Kwargs("layout"_a = "constrained"));
+
+  for (size_t i = 0; i < column_headers_.size(); ++i) {
+    double offset = kBarWidth * i;
+    std::vector<double> values;
+    for (size_t j = 0; j < targets_.size(); ++j) {
+      values.push_back(results_[j][i]);
+    }
+    auto rects = ax.bar(
+        Args(py::reinterpret_borrow<py::tuple>(py::cast(base::Map(
+                 x_positions,
+                 [offset](size_t x_position) { return x_position + offset; }))),
+             py::reinterpret_borrow<py::tuple>(py::cast(values)), kBarWidth),
+        Kwargs("label"_a = column_headers_[i]));
+  }
+
+  ax.set_title(Args(title_));
+  ax.set_xticks(Args(py::reinterpret_borrow<py::tuple>(py::cast(x_positions)),
+                     py::reinterpret_borrow<py::tuple>(py::cast(targets_))));
+  ax.set_ylabel(Args("Time (sec)"));
+  ax.legend();
+
   plt.show();
 #endif  // defined(TACHYON_HAS_MATPLOTLIB)
 }

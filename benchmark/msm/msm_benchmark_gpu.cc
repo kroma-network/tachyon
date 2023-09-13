@@ -21,7 +21,7 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  SimpleMSMBenchmarkReporter reporter(config.degrees());
+  SimpleMSMBenchmarkReporter reporter("MSM Benchmark GPU", config.degrees());
   reporter.AddVendor("tachyon_gpu");
 
   std::vector<uint64_t> point_nums = config.GetPointNums();
