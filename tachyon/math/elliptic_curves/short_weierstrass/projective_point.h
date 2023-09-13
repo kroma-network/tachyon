@@ -49,14 +49,14 @@ class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
                                                  const BaseField& y,
                                                  const BaseField& z) {
     ProjectivePoint ret = {x, y, z};
-    CHECK(IsOnCurve(ret));
+    CHECK(ret.IsOnCurve());
     return ret;
   }
 
   constexpr static ProjectivePoint CreateChecked(BaseField&& x, BaseField&& y,
                                                  BaseField&& z) {
     ProjectivePoint ret = {std::move(x), std::move(y), std::move(z)};
-    CHECK(IsOnCurve(ret));
+    CHECK(ret.IsOnCurve());
     return ret;
   }
 
@@ -88,10 +88,6 @@ class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static ProjectivePoint Random() {
     return FromJacobian(ScalarField::Random() * Curve::Generator());
-  }
-
-  constexpr static bool IsOnCurve(const ProjectivePoint& p) {
-    return Curve::IsOnCurve(p);
   }
 
   constexpr static ProjectivePoint Endomorphism(const ProjectivePoint& point) {
@@ -128,6 +124,8 @@ class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr bool IsZero() const { return z_.IsZero(); }
+
+  constexpr bool IsOnCurve() { return Curve::IsOnCurve(*this); }
 
   // The jacobian point X, Y, Z is represented in the affine
   // coordinates as X/Z, Y/Z.

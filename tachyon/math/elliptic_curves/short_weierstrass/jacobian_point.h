@@ -48,14 +48,14 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
                                                const BaseField& y,
                                                const BaseField& z) {
     JacobianPoint ret = {x, y, z};
-    CHECK(IsOnCurve(ret));
+    CHECK(ret.IsOnCurve());
     return ret;
   }
 
   constexpr static JacobianPoint CreateChecked(BaseField&& x, BaseField&& y,
                                                BaseField&& z) {
     JacobianPoint ret = {std::move(x), std::move(y), std::move(z)};
-    CHECK(IsOnCurve(ret));
+    CHECK(ret.IsOnCurve());
     return ret;
   }
 
@@ -85,10 +85,6 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static JacobianPoint Random() {
     return ScalarField::Random() * Curve::Generator();
-  }
-
-  constexpr static bool IsOnCurve(const JacobianPoint& p) {
-    return Curve::IsOnCurve(p);
   }
 
   constexpr static JacobianPoint Endomorphism(const JacobianPoint& point) {
@@ -128,6 +124,8 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr bool IsZero() const { return z_.IsZero(); }
+
+  constexpr bool IsOnCurve() { return Curve::IsOnCurve(*this); }
 
   // The jacobian point X, Y, Z is represented in the affine
   // coordinates as X/Z², Y/Z³.

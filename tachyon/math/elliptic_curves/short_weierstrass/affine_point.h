@@ -46,13 +46,13 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   constexpr static AffinePoint CreateChecked(const BaseField& x,
                                              const BaseField& y) {
     AffinePoint ret = {x, y};
-    CHECK(IsOnCurve(ret));
+    CHECK(ret.IsOnCurve());
     return ret;
   }
 
   constexpr static AffinePoint CreateChecked(BaseField&& x, BaseField&& y) {
     AffinePoint ret = {std::move(x), std::move(y)};
-    CHECK(IsOnCurve(ret));
+    CHECK(ret.IsOnCurve());
     return ret;
   }
 
@@ -85,10 +85,6 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     return FromJacobian(JacobianPoint<Curve>::Random());
   }
 
-  constexpr static bool IsOnCurve(const AffinePoint& p) {
-    return Curve::IsOnCurve(p);
-  }
-
   constexpr static AffinePoint Endomorphism(const AffinePoint& point) {
     return AffinePoint(point.x_ * GLV<AffinePoint>::EndomorphismCoefficient(),
                        point.y_);
@@ -115,6 +111,8 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr bool IsZero() const { return infinity_; }
+
+  constexpr bool IsOnCurve() { return Curve::IsOnCurve(*this); }
 
   constexpr ProjectivePoint<Curve> ToProjective() const {
     if (infinity_) return ProjectivePoint<Curve>::Zero();

@@ -154,11 +154,11 @@ TYPED_TEST(AffinePointTest, IsOnCurve) {
   using BaseField = typename AffinePointTy::BaseField;
 
   AffinePointTy invalid_point(BaseField(1), BaseField(2));
-  EXPECT_FALSE(AffinePointTy::IsOnCurve(invalid_point));
+  EXPECT_FALSE(invalid_point.IsOnCurve());
   AffinePointTy valid_point(BaseField(3), BaseField(2));
-  EXPECT_TRUE(AffinePointTy::IsOnCurve(valid_point));
+  EXPECT_TRUE(valid_point.IsOnCurve());
   valid_point = AffinePointTy(BaseField(3), BaseField(5));
-  EXPECT_TRUE(AffinePointTy::IsOnCurve(valid_point));
+  EXPECT_TRUE(valid_point.IsOnCurve());
 }
 
 }  // namespace tachyon::math
