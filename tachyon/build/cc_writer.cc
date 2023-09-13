@@ -5,7 +5,6 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/build/generator_util.h"
 
 namespace tachyon::build {
 
