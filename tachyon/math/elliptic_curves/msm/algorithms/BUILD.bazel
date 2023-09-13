@@ -29,16 +29,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "pippenger_base",
     hdrs = ["pippenger_base.h"],
-    deps = ["//tachyon/math/base:semigroups"],
-)
-
-tachyon_cc_library(
-    name = "pippenger_gpu",
-    hdrs = ["pippenger_gpu.h"],
-    deps = [
-        ":pippenger_base",
-        "//tachyon/math/elliptic_curves:points",
-    ],
+    deps = ["//tachyon/math/elliptic_curves:points"],
 )
 
 tachyon_cc_library(

@@ -3,6 +3,7 @@
 
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
+#include "tachyon/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
 #include "tachyon/math/test/launch_op_macros.h"
 
@@ -59,8 +60,8 @@ class AffinePointCorrectnessGpuTest : public testing::Test {
       bn254::G1AffinePointGmp x_gmp = bn254::G1AffinePointGmp::Random();
       bn254::G1AffinePointGmp y_gmp = bn254::G1AffinePointGmp::Random();
 
-      xs_[i] = bn254::G1AffinePointGpu::FromMontgomery(x_gmp.ToMontgomery());
-      ys_[i] = bn254::G1AffinePointGpu::FromMontgomery(y_gmp.ToMontgomery());
+      xs_[i] = ConvertPoint<bn254::G1AffinePointGpu>(x_gmp);
+      ys_[i] = ConvertPoint<bn254::G1AffinePointGpu>(y_gmp);
 
       x_gmps_.push_back(std::move(x_gmp));
       y_gmps_.push_back(std::move(y_gmp));
@@ -116,8 +117,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Add) {
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
-    auto result = bn254::G1JacobianPointGmp::FromMontgomery(
-        jacobian_results_[i].ToMontgomery());
+    auto result = ConvertPoint<bn254::G1JacobianPointGmp>(jacobian_results_[i]);
     ASSERT_EQ(result, x_gmps_[i] + y_gmps_[i]);
   }
 }
@@ -126,8 +126,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Double) {
   GPU_MUST_SUCCESS(LaunchDouble(xs_.get(), jacobian_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
-    auto result = bn254::G1JacobianPointGmp::FromMontgomery(
-        jacobian_results_[i].ToMontgomery());
+    auto result = ConvertPoint<bn254::G1JacobianPointGmp>(jacobian_results_[i]);
     ASSERT_EQ(result, x_gmps_[i].Double());
   }
 }
@@ -136,8 +135,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Negative) {
   GPU_MUST_SUCCESS(LaunchNegative(xs_.get(), affine_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
-    auto result = bn254::G1AffinePointGmp::FromMontgomery(
-        affine_results_[i].ToMontgomery());
+    auto result = ConvertPoint<bn254::G1AffinePointGmp>(affine_results_[i]);
     ASSERT_EQ(result, x_gmps_[i].Negative());
   }
 }

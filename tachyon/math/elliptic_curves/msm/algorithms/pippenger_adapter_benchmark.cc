@@ -17,8 +17,8 @@ void BM_PippengerAdapter(benchmark::State& state) {
         MSMTestSet<PointTy>::NonUniform(state.range(0), 10, MSMMethod::kNone);
   }
   PippengerAdapter<PointTy> pippenger;
-  using ReturnTy = typename PippengerAdapter<PointTy>::ReturnTy;
-  ReturnTy ret;
+  using Bucket = typename PippengerAdapter<PointTy>::Bucket;
+  Bucket ret;
   for (auto _ : state) {
     pippenger.RunWithStrategy(test_set.bases.begin(), test_set.bases.end(),
                               test_set.scalars.begin(), test_set.scalars.end(),
@@ -95,7 +95,7 @@ BENCHMARK_TEMPLATE(BM_PippengerAdapterNonUniformWithParallelWindowAndTerm,
 // clang-format off
 // Executing tests from //tachyon/math/elliptic_curves/msm/algorithms:pippenger_adapter_benchmark
 // -----------------------------------------------------------------------------
-// 2023-08-31T01:41:00+00:00
+// 2023-09-13T01:54:29+00:00
 // Running /home/ryan/.cache/bazel/_bazel_ryan/2e01f4ccafa60589f9bbdbefc5d15e2a/execroot/kroma_network_tachyon/bazel-out/k8-opt/bin/tachyon/math/elliptic_curves/msm/algorithms/pippenger_adapter_benchmark.runfiles/kroma_network_tachyon/tachyon/math/elliptic_curves/msm/algorithms/pippenger_adapter_benchmark
 // Run on (32 X 5500 MHz CPU s)
 // CPU Caches:
@@ -103,44 +103,44 @@ BENCHMARK_TEMPLATE(BM_PippengerAdapterNonUniformWithParallelWindowAndTerm,
 //   L1 Instruction 32 KiB (x16)
 //   L2 Unified 2048 KiB (x16)
 //   L3 Unified 36864 KiB (x1)
-// Load Average: 5.07, 3.03, 2.55
+// Load Average: 0.58, 0.51, 0.53
 // -------------------------------------------------------------------------------------------------------------------------------
 // Benchmark                                                                                     Time             CPU   Iterations
 // -------------------------------------------------------------------------------------------------------------------------------
-// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/32768                36152965 ns     34685080 ns           21
-// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/65536                63747905 ns     59473935 ns           11
-// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/131072              118090590 ns     97648608 ns            6
-// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/262144              219497681 ns    153230226 ns            5
-// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/524288              413156907 ns    323098991 ns            3
-// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/1048576             779128075 ns    527287631 ns            1
-// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/32768            33103685 ns     32278959 ns           24
-// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/65536            59113836 ns     53515227 ns           10
-// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/131072          105071200 ns     88573100 ns            9
-// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/262144          211070061 ns    154581471 ns            5
-// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/524288          430753072 ns    355536668 ns            3
-// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/1048576         758098364 ns    500099233 ns            1
-// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/32768                  37594805 ns     32610251 ns           24
-// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/65536                  71606259 ns     55258869 ns           12
-// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/131072                107148111 ns     96393369 ns            8
-// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/262144                212497592 ns    174183040 ns            4
-// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/524288                394236803 ns    317781782 ns            2
-// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/1048576               643808842 ns    525789672 ns            1
-// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/32768              40219138 ns     32314687 ns           24
-// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/65536              56364516 ns     53881628 ns           12
-// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/131072            100064516 ns     89066432 ns            8
-// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/262144            186987877 ns    167513476 ns            4
-// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/524288            339649677 ns    306251663 ns            2
-// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/1048576           618226528 ns    548263127 ns            1
-// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/32768        159804106 ns    159796485 ns            4
-// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/65536        293185234 ns    293157717 ns            2
-// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/131072       541335583 ns    534124399 ns            1
-// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/262144      1050300837 ns   1029148338 ns            1
-// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/524288      1970518589 ns   1928973412 ns            1
-// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/1048576     3633013487 ns   3545470719 ns            1
-// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/32768    153255129 ns    153244278 ns            5
-// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/65536    286615849 ns    286605001 ns            2
-// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/131072   530231476 ns    525174415 ns            1
-// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/262144  1019241333 ns   1005476065 ns            1
-// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/524288  1995004177 ns   1959156505 ns            1
-// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/1048576 3475970268 ns   3417240024 ns            1
+// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/32768                23141976 ns     23140942 ns           27
+// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/65536                45281116 ns     44897489 ns           17
+// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/131072               79303765 ns     67719233 ns           10
+// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/262144              163616037 ns    125332664 ns            5
+// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/524288              321303527 ns    222457503 ns            3
+// BM_PippengerAdapterRandomWithParallelWindow<bn254::G1AffinePoint>/1048576             628253341 ns    454716086 ns            2
+// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/32768            22177564 ns     22176387 ns           27
+// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/65536            43015189 ns     40323960 ns           18
+// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/131072           76032487 ns     64443376 ns           11
+// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/262144          161086917 ns    121884608 ns            6
+// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/524288          304606597 ns    222545666 ns            3
+// BM_PippengerAdapterNonUniformWithParallelWindow<bn254::G1AffinePoint>/1048576         588236094 ns    438750185 ns            2
+// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/32768                  23018500 ns     22043368 ns           34
+// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/65536                  39519111 ns     38539498 ns           18
+// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/131072                 74930620 ns     67770503 ns           10
+// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/262144                137890458 ns    130253880 ns            6
+// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/524288                246021986 ns    230435266 ns            3
+// BM_PippengerAdapterRandomWithParallelTerm<bn254::G1AffinePoint>/1048576               472836614 ns    416560205 ns            2
+// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/32768              19471671 ns     19470170 ns           37
+// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/65536              37021720 ns     36100273 ns           20
+// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/131072             71205117 ns     68483757 ns           11
+// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/262144            136134505 ns    115398568 ns            6
+// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/524288            241173903 ns    225617420 ns            3
+// BM_PippengerAdapterNonUniformWithParallelTerm<bn254::G1AffinePoint>/1048576           439469576 ns    403132290 ns            2
+// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/32768        127219359 ns    127210795 ns            6
+// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/65536        231521209 ns    231510773 ns            3
+// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/131072       426907539 ns    426884276 ns            2
+// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/262144       830853224 ns    830388088 ns            1
+// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/524288      1585369587 ns   1580798267 ns            1
+// BM_PippengerAdapterRandomWithParallelWindowAndTerm<bn254::G1AffinePoint>/1048576     2858370543 ns   2855271982 ns            1
+// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/32768    123564482 ns    123560265 ns            6
+// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/65536    229732513 ns    229726383 ns            3
+// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/131072   417522907 ns    417503583 ns            2
+// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/262144   818992138 ns    818960598 ns            1
+// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/524288  1545445681 ns   1545361484 ns            1
+// BM_PippengerAdapterNonUniformWithParallelWindowAndTerm<bn254::G1AffinePoint>/1048576 2759630680 ns   2759482455 ns            1
 // clang-format on

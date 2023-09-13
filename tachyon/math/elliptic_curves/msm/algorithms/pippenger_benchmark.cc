@@ -47,28 +47,28 @@ BENCHMARK_TEMPLATE(BM_PippengerNonUniform, bn254::G1AffinePoint)
 // clang-format off
 // Executing tests from //tachyon/math/elliptic_curves/msm/algorithms:pippenger_benchmark
 // -----------------------------------------------------------------------------
-// 2023-08-31T23:50:45+00:00
-// Running /home/ryan/.cache/bazel/_bazel_ryan/d6800124b8b6155cc6ab653ae18dfdd6/execroot/kroma_network_tachyon/bazel-out/k8-opt/bin/tachyon/math/elliptic_curves/msm/algorithms/pippenger_benchmark.runfiles/kroma_network_tachyon/tachyon/math/elliptic_curves/msm/algorithms/pippenger_benchmark
-// Run on (32 X 5489.54 MHz CPU s)
+// 2023-09-13T00:54:30+00:00
+// Running /home/ryan/.cache/bazel/_bazel_ryan/2e01f4ccafa60589f9bbdbefc5d15e2a/execroot/kroma_network_tachyon/bazel-out/k8-opt/bin/tachyon/math/elliptic_curves/msm/algorithms/pippenger_benchmark.runfiles/kroma_network_tachyon/tachyon/math/elliptic_curves/msm/algorithms/pippenger_benchmark
+// Run on (32 X 5500 MHz CPU s)
 // CPU Caches:
 //   L1 Data 48 KiB (x16)
 //   L1 Instruction 32 KiB (x16)
 //   L2 Unified 2048 KiB (x16)
 //   L3 Unified 36864 KiB (x1)
-// Load Average: 4.14, 3.58, 2.97
+// Load Average: 3.01, 1.86, 1.28
 // -----------------------------------------------------------------------------------------------
 // Benchmark                                                     Time             CPU   Iterations
 // -----------------------------------------------------------------------------------------------
-// BM_PippengerRandom<bn254::G1AffinePoint>/32768         34569606 ns     32515164 ns           23
-// BM_PippengerRandom<bn254::G1AffinePoint>/65536         59088051 ns     49972215 ns           12
-// BM_PippengerRandom<bn254::G1AffinePoint>/131072       104039362 ns     84752183 ns            7
-// BM_PippengerRandom<bn254::G1AffinePoint>/262144       220377350 ns    158326024 ns            5
-// BM_PippengerRandom<bn254::G1AffinePoint>/524288       405006965 ns    266241591 ns            3
-// BM_PippengerRandom<bn254::G1AffinePoint>/1048576      793197632 ns    544881375 ns            1
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/32768     31510353 ns     29713886 ns           26
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/65536     55103302 ns     52560911 ns           10
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/131072   102975157 ns     89503428 ns            9
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/262144   208537149 ns    150291432 ns            5
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/524288   407595555 ns    267039153 ns            3
-// BM_PippengerNonUniform<bn254::G1AffinePoint>/1048576  775470257 ns    513212445 ns            1
+// BM_PippengerRandom<bn254::G1AffinePoint>/32768         22116457 ns     22115633 ns           28
+// BM_PippengerRandom<bn254::G1AffinePoint>/65536         43687728 ns     40820899 ns           18
+// BM_PippengerRandom<bn254::G1AffinePoint>/131072        78677741 ns     67452254 ns           11
+// BM_PippengerRandom<bn254::G1AffinePoint>/262144       166095297 ns    128153516 ns            6
+// BM_PippengerRandom<bn254::G1AffinePoint>/524288       321956635 ns    230632976 ns            3
+// BM_PippengerRandom<bn254::G1AffinePoint>/1048576      621665239 ns    435303495 ns            2
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/32768     23061827 ns     23060417 ns           35
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/65536     43744180 ns     42149318 ns           18
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/131072    77002460 ns     67416707 ns           11
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/262144   161179503 ns    125391620 ns            6
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/524288   304928462 ns    212309880 ns            3
+// BM_PippengerNonUniform<bn254::G1AffinePoint>/1048576  589349508 ns    424155770 ns            2
 // clang-format on

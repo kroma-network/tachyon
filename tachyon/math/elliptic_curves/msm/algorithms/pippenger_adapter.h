@@ -18,13 +18,12 @@ template <typename PointTy>
 class PippengerAdapter {
  public:
   using ScalarField = typename PointTy::ScalarField;
-  using ReturnTy =
-      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
+  using Bucket = typename Pippenger<PointTy>::Bucket;
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
   bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
            ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,
-           ReturnTy* ret) {
+           Bucket* ret) {
     return RunWithStrategy(std::move(bases_first), std::move(bases_last),
                            std::move(scalars_first), std::move(scalars_last),
                            PippengerParallelStrategy::kParallelWindow, ret);
@@ -35,7 +34,7 @@ class PippengerAdapter {
                        BaseInputIterator bases_last,
                        ScalarInputIterator scalars_first,
                        ScalarInputIterator scalars_last,
-                       PippengerParallelStrategy strategy, ReturnTy* ret) {
+                       PippengerParallelStrategy strategy, Bucket* ret) {
     if (strategy == PippengerParallelStrategy::kNone ||
         strategy == PippengerParallelStrategy::kParallelWindow) {
       Pippenger<PointTy> pippenger;
@@ -63,7 +62,7 @@ class PippengerAdapter {
       int thread_nums = 1;
 #endif  // defined(TACHYON_HAS_OPENMP)
       struct Result {
-        ReturnTy value;
+        Bucket value;
         bool valid;
       };
 
@@ -93,8 +92,8 @@ class PippengerAdapter {
                       [](const Result& result) { return result.valid; });
       if (!all_good) return false;
 
-      *ret = std::accumulate(results.begin(), results.end(), ReturnTy::Zero(),
-                             [](const ReturnTy& total, const Result& result) {
+      *ret = std::accumulate(results.begin(), results.end(), Bucket::Zero(),
+                             [](const Bucket& total, const Result& result) {
                                return total + result.value;
                              });
       return true;

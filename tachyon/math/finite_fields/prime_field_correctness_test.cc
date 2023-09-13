@@ -7,6 +7,7 @@
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fq.h"
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fr.h"
 #endif
+#include "tachyon/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/finite_fields/prime_field_gpu_debug.h"
 
 namespace tachyon::math {
@@ -35,8 +36,8 @@ class PrimeFieldCorrectnessTest : public testing::Test {
     for (size_t i = 0; i < kTestNum; ++i) {
       PrimeFieldGmpType a_gmp = PrimeFieldGmpType::Random();
       PrimeFieldGmpType b_gmp = PrimeFieldGmpType::Random();
-      PrimeFieldType a = PrimeFieldType::FromMontgomery(a_gmp.ToMontgomery());
-      PrimeFieldType b = PrimeFieldType::FromMontgomery(b_gmp.ToMontgomery());
+      PrimeFieldType a = ConvertPrimeField<PrimeFieldType>(a_gmp);
+      PrimeFieldType b = ConvertPrimeField<PrimeFieldType>(b_gmp);
 
       a_gmps_.push_back(std::move(a_gmp));
       b_gmps_.push_back(std::move(b_gmp));
@@ -111,15 +112,15 @@ TYPED_TEST(PrimeFieldCorrectnessTest, AdditiveOperators) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", a_gmp.ToString(), b_gmp.ToString()));
 
-    ASSERT_EQ((a + b).ToBigInt(), (a_gmp + b_gmp).ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a + b), a_gmp + b_gmp);
     a += b;
     a_gmp += b_gmp;
-    ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
 
-    ASSERT_EQ((a - b).ToBigInt(), (a_gmp - b_gmp).ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a - b), a_gmp - b_gmp);
     a -= b;
     a_gmp -= b_gmp;
-    ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
   }
 }
 
@@ -132,15 +133,15 @@ TYPED_TEST(PrimeFieldCorrectnessTest, AdditiveGroupOperators) {
     F a = PrimeFieldCorrectnessTest<F>::as_[i];
     SCOPED_TRACE(absl::Substitute("a: $0", a_gmp.ToString()));
 
-    ASSERT_EQ(a.Negative().ToBigInt(), a_gmp.Negative().ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a.Negative()), a_gmp.Negative());
     a.NegInPlace();
     a_gmp.NegInPlace();
-    ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
 
-    ASSERT_EQ(a.Double().ToBigInt(), a_gmp.Double().ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a.Double()), a_gmp.Double());
     a.DoubleInPlace();
     a_gmp.DoubleInPlace();
-    ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
   }
 }
 
@@ -156,25 +157,25 @@ TYPED_TEST(PrimeFieldCorrectnessTest, MultiplicativeOperators) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", a_gmp.ToString(), b_gmp.ToString()));
 
-    ASSERT_EQ((a * b).ToBigInt(), (a_gmp * b_gmp).ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a * b), a_gmp * b_gmp);
     if constexpr (!F::Config::kIsSpecialPrime &&
                   !std::is_same_v<F, FrGpuDebug>) {
       a.FastMulInPlace(b);
       a_gmp *= b_gmp;
-      ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+      ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
       a.SlowMulInPlace(b);
       a_gmp *= b_gmp;
-      ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+      ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
     } else {
       a *= b;
       a_gmp *= b_gmp;
-      ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+      ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
     }
 
-    ASSERT_EQ((a / b).ToBigInt(), (a_gmp / b_gmp).ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a / b), a_gmp / b_gmp);
     a /= b;
     a_gmp /= b_gmp;
-    ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
   }
 }
 
@@ -187,15 +188,15 @@ TYPED_TEST(PrimeFieldCorrectnessTest, MultiplicativeGroupOperators) {
     F a = PrimeFieldCorrectnessTest<F>::as_[i];
     SCOPED_TRACE(absl::Substitute("a: $0", a_gmp.ToString()));
 
-    ASSERT_EQ(a.Inverse().ToBigInt(), a_gmp.Inverse().ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a.Inverse()), a_gmp.Inverse());
     a.InverseInPlace();
     a_gmp.InverseInPlace();
-    ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
 
-    ASSERT_EQ(a.Square().ToBigInt(), a_gmp.Square().ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a.Square()), a_gmp.Square());
     a.SquareInPlace();
     a_gmp.SquareInPlace();
-    ASSERT_EQ(a.ToBigInt(), a_gmp.ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
   }
 }
 
@@ -207,8 +208,8 @@ TYPED_TEST(PrimeFieldCorrectnessTest, SumOfProducts) {
   const auto& bs = PrimeFieldCorrectnessTest<F>::bs_;
   const auto& a_gmps = PrimeFieldCorrectnessTest<F>::a_gmps_;
   const auto& b_gmps = PrimeFieldCorrectnessTest<F>::b_gmps_;
-  ASSERT_EQ(F::SumOfProducts(as, bs).ToBigInt(),
-            GmpF::SumOfProducts(a_gmps, b_gmps).ToBigInt());
+  ASSERT_EQ(ConvertPrimeField<GmpF>(F::SumOfProducts(as, bs)),
+            GmpF::SumOfProducts(a_gmps, b_gmps));
 }
 
 }  // namespace tachyon::math

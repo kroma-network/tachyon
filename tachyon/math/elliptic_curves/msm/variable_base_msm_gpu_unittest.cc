@@ -39,7 +39,7 @@ class VariableMSMCorrectnessGpuTest : public testing::Test {
     CHECK(d_bases_.CopyFrom(test_set.bases.data(), gpu::GpuMemoryType::kHost));
     CHECK(d_scalars_.CopyFrom(test_set.scalars.data(),
                               gpu::GpuMemoryType::kHost));
-    expected_ = std::move(test_set.answer);
+    expected_ = test_set.answer.ToJacobian();
   }
 
   static void TearDownTestSuite() {

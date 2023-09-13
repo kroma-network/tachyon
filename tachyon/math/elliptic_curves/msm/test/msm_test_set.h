@@ -6,6 +6,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/base/semigroups.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
+#include "tachyon/math/elliptic_curves/point_conversions.h"
 
 namespace tachyon::math {
 
@@ -16,8 +17,7 @@ enum class MSMMethod {
 };
 
 template <typename PointTy,
-          typename Bucket =
-              typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy>
+          typename Bucket = typename VariableBaseMSM<PointTy>::Bucket>
 struct MSMTestSet {
   using ScalarField = typename PointTy::ScalarField;
 
@@ -74,9 +74,13 @@ struct MSMTestSet {
         break;
       }
       case MSMMethod::kNaive: {
+        using AddResultTy =
+            typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
+        AddResultTy sum = AddResultTy::Zero();
         for (size_t i = 0; i < bases.size(); ++i) {
-          answer += bases[i].ScalarMul(scalars[i].ToBigInt());
+          sum += bases[i].ScalarMul(scalars[i].ToBigInt());
         }
+        answer = ConvertPoint<Bucket>(sum);
         break;
       }
     }

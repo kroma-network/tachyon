@@ -4,6 +4,7 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fq_gpu.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
+#include "tachyon/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/test/launch_op_macros.h"
 
 namespace tachyon::math {
@@ -44,8 +45,8 @@ class PrimeFieldCorrectnessGpuTest : public testing::Test {
       bn254::FqGmp x_gmp = bn254::FqGmp::Random();
       bn254::FqGmp y_gmp = bn254::FqGmp::Random();
 
-      xs_[i] = bn254::FqGpu::FromMontgomery(x_gmp.ToMontgomery());
-      ys_[i] = bn254::FqGpu::FromMontgomery(y_gmp.ToMontgomery());
+      xs_[i] = ConvertPrimeField<bn254::FqGpu>(x_gmp);
+      ys_[i] = ConvertPrimeField<bn254::FqGpu>(y_gmp);
 
       x_gmps_.push_back(std::move(x_gmp));
       y_gmps_.push_back(std::move(y_gmp));
@@ -92,7 +93,8 @@ TEST_F(PrimeFieldCorrectnessGpuTest, Add) {
   RUN_OPERATION_TESTS(Add) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
-    ASSERT_EQ(results_[i].ToBigIntHost(), (x_gmps_[i] + y_gmps_[i]).ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<bn254::FqGmp>(results_[i]),
+              x_gmps_[i] + y_gmps_[i]);
   }
 }
 
@@ -100,7 +102,8 @@ TEST_F(PrimeFieldCorrectnessGpuTest, Sub) {
   RUN_OPERATION_TESTS(Sub) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
-    ASSERT_EQ(results_[i].ToBigIntHost(), (x_gmps_[i] - y_gmps_[i]).ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<bn254::FqGmp>(results_[i]),
+              x_gmps_[i] - y_gmps_[i]);
   }
 }
 
@@ -108,7 +111,8 @@ TEST_F(PrimeFieldCorrectnessGpuTest, Mul) {
   RUN_OPERATION_TESTS(Mul) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
-    ASSERT_EQ(results_[i].ToBigIntHost(), (x_gmps_[i] * y_gmps_[i]).ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<bn254::FqGmp>(results_[i]),
+              x_gmps_[i] * y_gmps_[i]);
   }
 }
 
@@ -116,7 +120,8 @@ TEST_F(PrimeFieldCorrectnessGpuTest, Div) {
   RUN_OPERATION_TESTS(Div) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
-    ASSERT_EQ(results_[i].ToBigIntHost(), (x_gmps_[i] / y_gmps_[i]).ToBigInt());
+    ASSERT_EQ(ConvertPrimeField<bn254::FqGmp>(results_[i]),
+              x_gmps_[i] / y_gmps_[i]);
   }
 }
 

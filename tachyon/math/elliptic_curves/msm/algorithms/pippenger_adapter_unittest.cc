@@ -42,7 +42,7 @@ TEST_F(PippengerAdapterTest, RunWithStrategy) {
         PippengerParallelStrategy::kParallelWindowAndTerm}) {
     PippengerAdapter<bn254::G1AffinePoint> pippenger;
     SCOPED_TRACE(absl::Substitute("strategy: $0", static_cast<int>(strategy)));
-    bn254::G1JacobianPoint ret;
+    bn254::G1PointXYZZ ret;
     EXPECT_TRUE(pippenger.RunWithStrategy(
         test_set.bases.begin(), test_set.bases.end(), test_set.scalars.begin(),
         test_set.scalars.end(), strategy, &ret));
