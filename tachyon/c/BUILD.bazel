@@ -72,6 +72,7 @@ collect_hdrs(
 
 tachyon_cc_test(
     name = "c_unittests",
+    size = "small",
     srcs = [
         "version_unittest.cc",
     ],

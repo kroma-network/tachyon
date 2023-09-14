@@ -18,6 +18,7 @@ tachyon_cc_library(
 
 tachyon_cc_test(
     name = "finite_fields_unittests",
+    size = "small",
     srcs = ["prime_field_unittest.cc"],
     deps = [
         "//tachyon/cc/math/elliptic_curves/bn/bn254:fr",

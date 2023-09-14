@@ -81,6 +81,7 @@ TYPED_TEST(AffinePointTest, AdditiveGroupOperators) {
   using AffinePointTy = TypeParam;
   using JacobianPointTy = typename AffinePointTy::JacobianPointTy;
   using BaseField = typename AffinePointTy::BaseField;
+  using ScalarField = typename AffinePointTy::ScalarField;
 
   AffinePointTy ap = AffinePointTy::CreateChecked(BaseField(5), BaseField(5));
   AffinePointTy ap2 = AffinePointTy::CreateChecked(BaseField(3), BaseField(2));
@@ -111,6 +112,8 @@ TYPED_TEST(AffinePointTest, AdditiveGroupOperators) {
     ap_tmp.NegInPlace();
     EXPECT_EQ(ap_tmp, AffinePointTy(BaseField(5), BaseField(2)));
   }
+
+  EXPECT_EQ(ap * ScalarField(2), jp4);
 }
 
 TYPED_TEST(AffinePointTest, ToProjective) {
@@ -151,11 +154,11 @@ TYPED_TEST(AffinePointTest, IsOnCurve) {
   using BaseField = typename AffinePointTy::BaseField;
 
   AffinePointTy invalid_point(BaseField(1), BaseField(2));
-  EXPECT_FALSE(AffinePointTy::IsOnCurve(invalid_point));
+  EXPECT_FALSE(invalid_point.IsOnCurve());
   AffinePointTy valid_point(BaseField(3), BaseField(2));
-  EXPECT_TRUE(AffinePointTy::IsOnCurve(valid_point));
+  EXPECT_TRUE(valid_point.IsOnCurve());
   valid_point = AffinePointTy(BaseField(3), BaseField(5));
-  EXPECT_TRUE(AffinePointTy::IsOnCurve(valid_point));
+  EXPECT_TRUE(valid_point.IsOnCurve());
 }
 
 }  // namespace tachyon::math

@@ -102,6 +102,7 @@ TYPED_TEST(PointXYZZTest, AdditiveGroupOperators) {
   using PointXYZZTy = TypeParam;
   using AffinePointTy = typename PointXYZZTy::AffinePointTy;
   using BaseField = typename PointXYZZTy::BaseField;
+  using ScalarField = typename AffinePointTy::ScalarField;
 
   PointXYZZTy p = PointXYZZTy::CreateChecked(BaseField(5), BaseField(5),
                                              BaseField(1), BaseField(1));
@@ -147,6 +148,9 @@ TYPED_TEST(PointXYZZTest, AdditiveGroupOperators) {
     EXPECT_EQ(p_tmp, PointXYZZTy(BaseField(5), BaseField(2), BaseField(1),
                                  BaseField(1)));
   }
+
+  EXPECT_EQ(p * ScalarField(2), p4);
+  EXPECT_EQ(p *= ScalarField(2), p4);
 }
 
 TYPED_TEST(PointXYZZTest, ScalarMulOperator) {

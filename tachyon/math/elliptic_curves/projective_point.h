@@ -21,7 +21,7 @@ std::ostream& operator<<(std::ostream& os,
 template <typename Curve, typename ScalarField = typename Curve::ScalarField>
 ProjectivePoint<Curve> operator*(const ScalarField& v,
                                  const ProjectivePoint<Curve>& point) {
-  return point.ScalarMul(v.ToBigInt());
+  return point * v;
 }
 
 template <typename Curve>

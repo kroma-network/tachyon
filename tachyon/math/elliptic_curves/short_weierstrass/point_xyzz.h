@@ -53,14 +53,14 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
                                            const BaseField& zz,
                                            const BaseField& zzz) {
     PointXYZZ ret = {x, y, zz, zzz};
-    CHECK(Curve::IsOnCurve(ret));
+    CHECK(ret.IsOnCurve());
     return ret;
   }
 
   constexpr static PointXYZZ CreateChecked(BaseField&& x, BaseField&& y,
                                            BaseField&& zz, BaseField&& zzz) {
     PointXYZZ ret = {std::move(x), std::move(y), std::move(zz), std::move(zzz)};
-    CHECK(Curve::IsOnCurve(ret));
+    CHECK(ret.IsOnCurve());
     return ret;
   }
 
@@ -90,10 +90,6 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static PointXYZZ Random() {
     return FromJacobian(JacobianPoint<Curve>::Random());
-  }
-
-  constexpr static bool IsOnCurve(const PointXYZZ& p) {
-    return Curve::IsOnCurve(p);
   }
 
   constexpr static PointXYZZ Endomorphism(const PointXYZZ& point) {
@@ -130,6 +126,8 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr bool IsZero() const { return zz_.IsZero(); }
+
+  constexpr bool IsOnCurve() { return Curve::IsOnCurve(*this); }
 
   // The xyzz point X, Y, ZZ, ZZZ is represented in the affine
   // coordinates as X/ZZ, Y/ZZZ.
@@ -196,6 +194,13 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   constexpr PointXYZZ& NegInPlace() {
     y_.NegInPlace();
     return *this;
+  }
+
+  constexpr PointXYZZ operator*(const ScalarField& v) const {
+    return this->ScalarMul(v.ToBigInt());
+  }
+  constexpr PointXYZZ& operator*=(const ScalarField& v) {
+    return *this = operator*(v);
   }
 
  private:
