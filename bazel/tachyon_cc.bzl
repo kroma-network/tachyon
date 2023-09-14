@@ -266,6 +266,7 @@ def tachyon_cuda_library(
 def tachyon_cuda_binary(
         name,
         deps = [],
+        testonly = False,
         **kwargs):
     lib_name = "{}_lib".format(name)
     tachyon_cuda_library(
@@ -273,12 +274,14 @@ def tachyon_cuda_binary(
         deps = deps + if_cuda([
             "@local_config_cuda//cuda:cudart_static",
         ]),
+        testonly = testonly,
         **kwargs
     )
 
     tachyon_cc_binary(
         name = name,
         deps = [":" + lib_name],
+        testonly = testonly,
     )
 
 def tachyon_cuda_test(

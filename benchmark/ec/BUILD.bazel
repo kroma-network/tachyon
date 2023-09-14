@@ -11,14 +11,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "ec_util",
-    srcs = ["ec_util.cc"],
-    hdrs = ["ec_util.h"],
-    visibility = ["//benchmark:__subpackages__"],
-    deps = ["//tachyon/math/elliptic_curves/bn/bn254:g1"],
-)
-
-tachyon_cc_library(
     name = "simple_ec_benchmark_reporter",
     srcs = ["simple_ec_benchmark_reporter.cc"],
     hdrs = ["simple_ec_benchmark_reporter.h"],
@@ -28,14 +20,15 @@ tachyon_cc_library(
 
 tachyon_cuda_binary(
     name = "ec_double_benchmark_gpu",
+    testonly = True,
     srcs = ["ec_double_benchmark_gpu.cc"],
     deps = [
         ":ec_config",
-        ":ec_util",
         ":simple_ec_benchmark_reporter",
         "//tachyon/base/time:time_interval",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
         "//tachyon/math/elliptic_curves/short_weierstrass/kernels:elliptic_curve_ops",
+        "//tachyon/math/elliptic_curves/test:random",
     ],
 )

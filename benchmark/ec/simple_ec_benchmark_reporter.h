@@ -7,7 +7,8 @@ namespace tachyon {
 
 class SimpleECBenchmarkReporter : public SimpleBenchmarkReporter {
  public:
-  explicit SimpleECBenchmarkReporter(const std::vector<uint64_t>& nums);
+  SimpleECBenchmarkReporter(std::string_view title,
+                            const std::vector<uint64_t>& nums);
   SimpleECBenchmarkReporter(const SimpleECBenchmarkReporter& other) = delete;
   SimpleECBenchmarkReporter& operator=(const SimpleECBenchmarkReporter& other) =
       delete;

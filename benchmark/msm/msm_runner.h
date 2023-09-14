@@ -47,13 +47,14 @@ class MSMRunner {
   void Run(MSMAffineFn fn, const std::vector<uint64_t>& point_nums,
            std::vector<ReturnTy>* results) {
     results->clear();
-    for (uint64_t point_num : point_nums) {
+    for (size_t i = 0; i < point_nums.size(); ++i) {
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CReturnTy> ret;
-      ret.reset(fn(reinterpret_cast<const CPointTy*>(bases_->data()), point_num,
+      ret.reset(fn(reinterpret_cast<const CPointTy*>(bases_->data()),
+                   point_nums[i],
                    reinterpret_cast<const CScalarField*>(scalars_->data()),
-                   point_num));
-      reporter_->AddResult((base::TimeTicks::Now() - now).InSecondsF());
+                   point_nums[i]));
+      reporter_->AddResult(i, (base::TimeTicks::Now() - now).InSecondsF());
       results->push_back(*reinterpret_cast<ReturnTy*>(ret.get()));
     }
   }
@@ -61,14 +62,15 @@ class MSMRunner {
   void RunExternal(MSMAffineExternalFn fn,
                    const std::vector<uint64_t>& point_nums,
                    std::vector<ReturnTy>* results) const {
-    for (uint64_t point_num : point_nums) {
+    for (size_t i = 0; i < point_nums.size(); ++i) {
       std::unique_ptr<CReturnTy> ret;
       uint64_t duration_in_us;
-      ret.reset(fn(reinterpret_cast<const CPointTy*>(bases_->data()), point_num,
+      ret.reset(fn(reinterpret_cast<const CPointTy*>(bases_->data()),
+                   point_nums[i],
                    reinterpret_cast<const CScalarField*>(scalars_->data()),
-                   point_num, &duration_in_us));
+                   point_nums[i], &duration_in_us));
       results->push_back(*reinterpret_cast<ReturnTy*>(ret.get()));
-      reporter_->AddResult(base::Microseconds(duration_in_us).InSecondsF());
+      reporter_->AddResult(i, base::Microseconds(duration_in_us).InSecondsF());
     }
   }
 

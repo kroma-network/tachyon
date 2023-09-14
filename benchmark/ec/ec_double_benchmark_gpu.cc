@@ -4,13 +4,13 @@
 // clang-format off
 #include "benchmark/ec/simple_ec_benchmark_reporter.h"
 #include "benchmark/ec/ec_config.h"
-#include "benchmark/ec/ec_util.h"
 // clang-format on
 #include "tachyon/base/time/time_interval.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/kernels/elliptic_curve_ops.cu.h"
+#include "tachyon/math/elliptic_curves/test/random.h"
 
 namespace tachyon {
 
@@ -18,17 +18,6 @@ using namespace device;
 using namespace math;
 
 namespace {
-
-std::vector<math::bn254::G1JacobianPoint> CreateRandomPoints(size_t nums) {
-  std::vector<math::bn254::G1JacobianPoint> ret;
-  ret.reserve(nums);
-  math::bn254::G1JacobianPoint p =
-      math::bn254::G1JacobianPoint::Curve::Generator();
-  for (size_t i = 0; i < nums; ++i) {
-    ret.push_back(p.DoubleInPlace());
-  }
-  return ret;
-}
 
 // TODO(chokobole): Use openmp.
 void TestDoubleOnCPU(const std::vector<math::bn254::G1AffinePoint>& bases,
@@ -71,21 +60,23 @@ int RealMain(int argc, char** argv) {
   math::bn254::G1AffinePointGpu::Curve::Init();
   math::bn254::G1AffinePoint::Curve::Init();
 
-  SimpleECBenchmarkReporter reporter(config.point_nums());
+  const std::vector<uint64_t>& point_nums = config.point_nums();
+  SimpleECBenchmarkReporter reporter("EC double benchmark", point_nums);
 
   std::cout << "Generating random points..." << std::endl;
-  uint64_t max_point_num = config.point_nums().back();
+  uint64_t max_point_num = point_nums.back();
   std::vector<bn254::G1AffinePoint> bases =
-      CreateRandomBn254Points(max_point_num);
-  std::vector<bn254::Fr> scalars = CreateRandomBn254Scalars(max_point_num);
+      CreatePseudoRandomPoints<bn254::G1AffinePoint>(max_point_num);
+  std::vector<bn254::Fr> scalars =
+      base::CreateVector(max_point_num, []() { return bn254::Fr::Random(); });
   std::cout << "Generation completed" << std::endl;
 
   std::vector<math::bn254::G1JacobianPoint> results_cpu;
   results_cpu.resize(max_point_num);
   base::TimeInterval interval(base::TimeTicks::Now());
-  for (uint64_t point_num : config.point_nums()) {
-    TestDoubleOnCPU(bases, results_cpu, point_num);
-    reporter.AddResult(interval.GetTimeDelta().InSecondsF());
+  for (size_t i = 0; i < point_nums.size(); ++i) {
+    TestDoubleOnCPU(bases, results_cpu, point_nums[i]);
+    reporter.AddResult(i, interval.GetTimeDelta().InSecondsF());
   }
 
   GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
@@ -97,9 +88,9 @@ int RealMain(int argc, char** argv) {
           max_point_num);
 
   interval.Reset();
-  for (uint64_t point_num : config.point_nums()) {
-    TestDoubleOnGPU(bases_cuda.get(), results_cuda.get(), bases, point_num);
-    reporter.AddResult(interval.GetTimeDelta().InSecondsF());
+  for (size_t i = 0; i < point_nums.size(); ++i) {
+    TestDoubleOnGPU(bases_cuda.get(), results_cuda.get(), bases, point_nums[i]);
+    reporter.AddResult(i, interval.GetTimeDelta().InSecondsF());
   }
 
   reporter.Show();
