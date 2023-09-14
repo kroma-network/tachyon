@@ -24,5 +24,6 @@ tachyon_cc_binary(
         "//tachyon/build:cc_writer",
         "//tachyon/math/base/gmp:bit_traits",
         "//tachyon/math/finite_fields:prime_field",
+        "//tachyon/math/finite_fields:prime_field_util",
     ],
 )

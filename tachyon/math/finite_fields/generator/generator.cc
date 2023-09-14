@@ -1,3 +1,4 @@
+#include "absl/strings/str_format.h"
 #include "absl/strings/str_replace.h"
 
 #include "tachyon/base/console/iostream.h"
@@ -5,9 +6,11 @@
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
+#include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
 #include "tachyon/math/finite_fields/prime_field.h"
+#include "tachyon/math/finite_fields/prime_field_util.h"
 
 namespace tachyon {
 
@@ -68,6 +71,9 @@ struct GenerationConfig : public build::CcWriter {
   std::string ns_name;
   std::string class_name;
   std::string modulus;
+  std::string subgroup_generator;
+  std::string small_subgroup_base;
+  std::string small_subgroup_adicity;
   std::string hdr_include_override;
   std::string special_prime_override;
 
@@ -77,10 +83,8 @@ struct GenerationConfig : public build::CcWriter {
 };
 
 int GenerationConfig::GenerateConfigHdr() const {
-  std::vector<std::string_view> tpl = {
-      "#include <stddef.h>",
-      "#include <stdint.h>",
-      "",
+  // clang-format off
+  std::vector<std::string> tpl = {
       "#include \"tachyon/export.h\"",
       "#include \"tachyon/math/finite_fields/prime_field.h\"",
       "#if defined(TACHYON_GMP_BACKEND)",
@@ -113,6 +117,10 @@ int GenerationConfig::GenerateConfigHdr() const {
       "    %{one_mont_form}",
       "  });",
       "",
+      "  constexpr static bool kHasTwoAdicRootOfUnity = false;",
+      "",
+      "  constexpr static bool kHasLargeSubgroupRootOfUnity = false;",
+      "",
       "  constexpr static uint64_t ExtensionDegree() { return 1; }",
       "",
       "  static void Init();",
@@ -125,10 +133,11 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "}  // namespace %{namespace}",
   };
+  // clang-format on
 
   if (!hdr_include_override.empty()) {
-    for (std::size_t i = 0; i < tpl.size(); ++i) {
-      size_t idx = tpl[i].find("#include \"tachyon/math/finite_fields/prime_field.h\"");
+    for (size_t i = 0; i < tpl.size(); ++i) {
+      size_t idx = tpl[i].find("#include");
       if (idx != std::string::npos) {
         auto it = tpl.begin() + i;
         tpl.erase(it);
@@ -139,7 +148,7 @@ int GenerationConfig::GenerateConfigHdr() const {
   }
 
   if (!special_prime_override.empty()) {
-    for (std::size_t i = 0; i < tpl.size(); ++i) {
+    for (size_t i = 0; i < tpl.size(); ++i) {
       size_t idx = tpl[i].find("kIsSpecialPrime");
       if (idx != std::string::npos) {
         auto it = tpl.begin() + i;
@@ -149,8 +158,6 @@ int GenerationConfig::GenerateConfigHdr() const {
       }
     }
   }
-
-  std::string tpl_content = absl::StrJoin(tpl, "\n");
 
   mpz_class m = math::gmp::FromDecString(modulus);
   auto it = math::BitIteratorBE<mpz_class>::begin(&m, true);
@@ -163,6 +170,84 @@ int GenerationConfig::GenerateConfigHdr() const {
   size_t n = math::gmp::GetLimbSize(m);
 
   ModulusInfo modulus_info = ModulusInfo::From(m);
+
+  mpz_class trace = math::ComputeTrace(2, m - mpz_class(1));
+  if (!subgroup_generator.empty()) {
+    uint32_t two_adicity = math::ComputeAdicity(2, m - mpz_class(1));
+    mpz_class two_adic_root_of_unity;
+    mpz_powm(two_adic_root_of_unity.get_mpz_t(),
+             math::gmp::FromDecString(subgroup_generator).get_mpz_t(),
+             trace.get_mpz_t(), m.get_mpz_t());
+
+    std::vector<std::string> lines;
+    // clang-format off
+    lines.push_back("  constexpr static bool kHasTwoAdicRootOfUnity = true;");
+    lines.push_back("  constexpr static BigInt<1> kSubgroupGenerator = BigInt<1>({");
+    lines.push_back(absl::Substitute("      UINT64_C($0)", subgroup_generator));
+    lines.push_back("  });");
+    lines.push_back(absl::Substitute("  constexpr static uint32_t kTwoAdicity = $0;", two_adicity));
+    lines.push_back("  constexpr static BigInt<%{n}> kTwoAdicRootOfUnity = BigInt<%{n}>({");
+    lines.push_back(absl::Substitute("    $0", math::MpzClassToMontString(two_adic_root_of_unity, m)));
+    lines.push_back("  });");
+    // clang-format on
+
+    for (size_t i = 0; i < tpl.size(); ++i) {
+      size_t idx =
+          tpl[i].find("constexpr static bool kHasTwoAdicRootOfUnity = false;");
+      if (idx != std::string::npos) {
+        auto it = tpl.begin() + i;
+        tpl.erase(it);
+        tpl.insert(it, lines.begin(), lines.end());
+        break;
+      }
+    }
+  }
+
+  if (!small_subgroup_base.empty()) {
+    CHECK(!small_subgroup_adicity.empty());
+
+    mpz_class small_subgroup_base_pow_adicity;
+    mpz_powm(small_subgroup_base_pow_adicity.get_mpz_t(),
+             math::gmp::FromDecString(small_subgroup_base).get_mpz_t(),
+             math::gmp::FromDecString(small_subgroup_adicity).get_mpz_t(),
+             m.get_mpz_t());
+    mpz_class inverse_small_subgroup_base_adicity;
+    mpz_invert(inverse_small_subgroup_base_adicity.get_mpz_t(),
+               small_subgroup_base_pow_adicity.get_mpz_t(), m.get_mpz_t());
+    mpz_class trace_mul_inverse_small_subgroup_base_adicity;
+    mpz_mul(trace_mul_inverse_small_subgroup_base_adicity.get_mpz_t(),
+            trace.get_mpz_t(), inverse_small_subgroup_base_adicity.get_mpz_t());
+    mpz_class large_subgroup_root_of_unity;
+    mpz_powm(large_subgroup_root_of_unity.get_mpz_t(),
+             math::gmp::FromDecString(subgroup_generator).get_mpz_t(),
+             trace_mul_inverse_small_subgroup_base_adicity.get_mpz_t(),
+             m.get_mpz_t());
+
+    std::vector<std::string> lines;
+    // clang-format off
+    lines.push_back("  constexpr static bool kHasLargeSubgroupRootOfUnity = true;");
+    lines.push_back(absl::Substitute("  constexpr static uint32_t kSmallSubgroupBase = $0;", small_subgroup_base));
+    lines.push_back(absl::Substitute("  constexpr static uint32_t kSmallSubgroupAdicity = $0;", small_subgroup_adicity));
+    lines.push_back("  constexpr static BigInt<%{n}> kLargeSubgroupRootOfUnity = BigInt<%{n}>({");
+    lines.push_back(absl::Substitute("    $0", math::MpzClassToMontString(large_subgroup_root_of_unity, m)));
+    lines.push_back("  });");
+    // clang-format on
+
+    for (size_t i = 0; i < tpl.size(); ++i) {
+      size_t idx = tpl[i].find(
+          "constexpr static bool kHasLargeSubgroupRootOfUnity = false;");
+      if (idx != std::string::npos) {
+        auto it = tpl.begin() + i;
+        tpl.erase(it);
+        tpl.insert(it, lines.begin(), lines.end());
+        break;
+      }
+    }
+  } else {
+    CHECK(small_subgroup_adicity.empty());
+  }
+
+  std::string tpl_content = absl::StrJoin(tpl, "\n");
 
   std::string content = absl::StrReplaceAll(
       tpl_content,
@@ -250,6 +335,12 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.modulus)
       .set_long_name("--modulus")
       .set_required();
+  parser.AddFlag<base::StringFlag>(&config.subgroup_generator)
+      .set_long_name("--subgroup_generator");
+  parser.AddFlag<base::StringFlag>(&config.small_subgroup_base)
+      .set_long_name("--small_subgroup_base");
+  parser.AddFlag<base::StringFlag>(&config.small_subgroup_adicity)
+      .set_long_name("--small_subgroup_adicity");
   parser.AddFlag<base::StringFlag>(&config.hdr_include_override)
       .set_long_name("--hdr_include_override");
   parser.AddFlag<base::StringFlag>(&config.special_prime_override)

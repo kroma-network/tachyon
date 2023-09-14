@@ -3,18 +3,33 @@ load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fi
 
 package(default_visibility = ["//visibility:public"])
 
-# Parameters are from https://zips.z.cash/protocol/protocol.pdf#page=98
+# Parameters are from https://zips.z.cash/protocol/protocol.pdf#page=98 and https://github.com/arkworks-rs/curves/tree/master/bls12_381/src/fields
 # Hex: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
 FQ_MODULUS = "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787"
 
+FQ_SUBGROUP_GENERATOR = "2"
+
+FQ_SMALL_SUBGROUP_BASE = "3"
+
+FQ_SMALL_SUBGROUP_ADICITY = "2"
+
 # Hex: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
 FR_MODULUS = "52435875175126190479447740508185965837690552500527637822603658699938581184513"
+
+FR_SUBGROUP_GENERATOR = "7"
+
+FR_SMALL_SUBGROUP_BASE = "3"
+
+FR_SMALL_SUBGROUP_ADICITY = "1"
 
 generate_prime_fields(
     name = "fq",
     class_name = "Fq",
     modulus = FQ_MODULUS,
     namespace = "tachyon::math::bls12_381",
+    small_subgroup_adicity = FQ_SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = FQ_SMALL_SUBGROUP_BASE,
+    subgroup_generator = FQ_SUBGROUP_GENERATOR,
 )
 
 generate_prime_fields(
@@ -22,6 +37,9 @@ generate_prime_fields(
     class_name = "Fr",
     modulus = FR_MODULUS,
     namespace = "tachyon::math::bls12_381",
+    small_subgroup_adicity = FR_SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = FR_SMALL_SUBGROUP_BASE,
+    subgroup_generator = FR_SUBGROUP_GENERATOR,
 )
 
 generate_ec_points(

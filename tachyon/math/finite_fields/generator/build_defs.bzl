@@ -11,6 +11,15 @@ def _generate_prime_field_impl(ctx):
     if len(ctx.attr.class_name) > 0:
         arguments.append("--class=%s" % (ctx.attr.class_name))
 
+    if len(ctx.attr.subgroup_generator):
+        arguments.append("--subgroup_generator=%s" % (ctx.attr.subgroup_generator))
+
+    if len(ctx.attr.small_subgroup_base):
+        arguments.append("--small_subgroup_base=%s" % (ctx.attr.small_subgroup_base))
+
+    if len(ctx.attr.small_subgroup_adicity):
+        arguments.append("--small_subgroup_adicity=%s" % (ctx.attr.small_subgroup_adicity))
+
     if len(ctx.attr.hdr_include_override):
         arguments.append("--hdr_include_override=%s" % (ctx.attr.hdr_include_override))
 
@@ -33,6 +42,9 @@ generate_prime_field = rule(
         "namespace": attr.string(mandatory = True),
         "class_name": attr.string(mandatory = True),
         "modulus": attr.string(mandatory = True),
+        "subgroup_generator": attr.string(),
+        "small_subgroup_base": attr.string(),
+        "small_subgroup_adicity": attr.string(),
         "hdr_include_override": attr.string(),
         "special_prime_override": attr.string(),
         "_tool": attr.label(
@@ -50,6 +62,9 @@ def generate_prime_fields(
         namespace,
         class_name,
         modulus,
+        subgroup_generator = "",
+        small_subgroup_base = "",
+        small_subgroup_adicity = "",
         hdr_include_override = "",
         special_prime_override = "",
         deps = [],
@@ -63,6 +78,9 @@ def generate_prime_fields(
             namespace = namespace,
             class_name = class_name,
             modulus = modulus,
+            subgroup_generator = subgroup_generator,
+            small_subgroup_base = small_subgroup_base,
+            small_subgroup_adicity = small_subgroup_adicity,
             hdr_include_override = hdr_include_override,
             special_prime_override = special_prime_override,
             name = n[0],
