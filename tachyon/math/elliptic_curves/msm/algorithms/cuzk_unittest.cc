@@ -61,4 +61,31 @@ TEST_F(CUZKTest, ReduceBuckets) {
   EXPECT_EQ(ConvertPoint<bn254::G1PointXYZZ>(*gpu_result.get()), expected);
 }
 
+TEST_F(CUZKTest, RunWithRandom) {
+  size_t size = 1 << 10;
+  auto test_set =
+      MSMTestSet<bn254::G1AffinePoint>::Random(size, MSMMethod::kMSM);
+
+  auto bases = gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(size);
+  for (size_t i = 0; i < bases.size(); ++i) {
+    bases[i] = bn254::G1AffinePointGpu::FromMontgomery(
+        test_set.bases[i].ToMontgomery());
+  }
+  auto scalars = gpu::GpuMemory<bn254::FrGpu>::MallocManaged(size);
+  for (size_t i = 0; i < scalars.size(); ++i) {
+    scalars[i] =
+        bn254::FrGpu::FromMontgomery(test_set.scalars[i].ToMontgomery());
+  }
+  CUZK<bn254::G1AffinePointGpu::Curve> cuzk;
+  bn254::G1PointXYZZ ret;
+  EXPECT_TRUE(cuzk.Run(bases, scalars, &ret));
+  if (ret != test_set.answer) {
+    base::FilePath cwd;
+    if (base::GetCurrentDirectory(&cwd)) {
+      test_set.WriteToFile(cwd);
+    }
+    FAIL();
+  }
+}
+
 }  // namespace tachyon::math

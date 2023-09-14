@@ -3,7 +3,9 @@
 
 #include "gtest/gtest_prod.h"
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/device/gpu/gpu_memory.h"
+#include "tachyon/device/gpu/scoped_stream.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_csr_sparse_matrix.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_ell_sparse_matrix.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_base.h"
@@ -74,10 +76,18 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
       return false;
     }
 
-    NOTIMPLEMENTED();
+    auto gpu_result =
+        device::gpu::GpuMemory<PointXYZZ<GpuCurve>>::MallocManaged(1);
+    if (!ReduceBuckets(std::move(buckets), gpu_result)) {
+      return false;
+    }
 
     gpuError_t error = gpuDeviceSynchronize();
-    return error == gpuSuccess;
+    if (error != gpuSuccess) return false;
+
+    *cpu_result =
+        PointXYZZ<CpuCurve>::FromMontgomery(gpu_result->ToMontgomery());
+    return true;
   }
 
  private:
@@ -132,7 +142,10 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
         return false;
       }
 
-      NOTIMPLEMENTED();
+      if (!MultiplyCSRMatrixWithOneVector(csr_matrix_transposed, row_ptrs,
+                                          bases, buckets, i - start_group_)) {
+        return false;
+      }
     }
     return true;
   }
@@ -188,6 +201,158 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
     error = gpuGetLastError();
     if (error != gpuSuccess) {
       LOG(ERROR) << "Failed to kernels::ConvertELLToCSRTransposedStep5()";
+      return false;
+    }
+    gpuStreamSynchronize(0);
+
+    return true;
+  }
+
+  bool MultiplyCSRMatrixWithOneVector(
+      CUZKCSRSparseMatrix& csr_matrix,
+      device::gpu::GpuMemory<unsigned int>& device_row_ptrs,
+      const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
+      device::gpu::GpuMemory<PointXYZZ<GpuCurve>>& results,
+      unsigned int bucket_index) const {
+    device::gpu::ScopedStream stream =
+        device::gpu::CreateStreamWithFlags(cudaStreamNonBlocking);
+    std::vector<unsigned int> row_ptrs;
+    if (!device_row_ptrs.ToStdVectorAsync(&row_ptrs, stream.get())) {
+      return false;
+    }
+
+    unsigned int tnum = grid_size_ * block_size_;
+    // TODO(chokobole): Why it is multiplied by 10?
+    unsigned int z = tnum * 10;
+
+    kernels::MultiplyCSRMatrixWithOneVectorStep1<<<grid_size_, block_size_>>>(
+        ctx_, z, csr_matrix, bases.get(), results.get(), bucket_index);
+    gpuError_t error = gpuGetLastError();
+    if (error != gpuSuccess) {
+      LOG(ERROR) << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep1()";
+      return false;
+    }
+
+    gpuStreamSynchronize(0);
+    gpuStreamSynchronize(stream.get());
+
+    unsigned int gz = grid_size_ * z;
+    for (unsigned int i = 0; i < csr_matrix.rows; ++i) {
+      unsigned int start = row_ptrs[i];
+      unsigned int end = row_ptrs[i + 1];
+      if (end - start < gz) continue;
+
+      auto max_intermediate_results =
+          device::gpu::GpuMemory<PointXYZZ<GpuCurve>>::MallocManaged(tnum);
+
+      kernels::MultiplyCSRMatrixWithOneVectorStep2<<<grid_size_, block_size_>>>(
+          start, end, csr_matrix, bases.get(), max_intermediate_results.get());
+      gpuError_t error = gpuGetLastError();
+      if (error != gpuSuccess) {
+        LOG(ERROR)
+            << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep2()";
+        return false;
+      }
+
+      gpuStreamSynchronize(0);
+
+      unsigned int tid = tnum;
+      unsigned int count = 1;
+      while (tid != 1) {
+        kernels::
+            MultiplyCSRMatrixWithOneVectorStep3<<<grid_size_, block_size_>>>(
+                ctx_, i, count, csr_matrix, bases.get(),
+                max_intermediate_results.get(), results.get(), bucket_index);
+        gpuError_t error = gpuGetLastError();
+        if (error != gpuSuccess) {
+          LOG(ERROR)
+              << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep3()";
+          return false;
+        }
+        gpuStreamSynchronize(0);
+        tid = (tid + 1) / 2;
+        count *= 2;
+      }
+    }
+
+    unsigned int n_other_total = 0;
+    for (unsigned int i = 0; i < csr_matrix.rows; ++i) {
+      unsigned int start = row_ptrs[i];
+      unsigned int end = row_ptrs[i + 1];
+      if ((end - start > gz) || (end - start < z)) continue;
+      n_other_total += 1;
+    }
+    if (n_other_total == 0) {
+      return true;
+    }
+
+    std::vector<device::gpu::ScopedStream> streams = base::CreateVector(
+        grid_size_, []() { return device::gpu::CreateStream(); });
+
+    std::vector<unsigned int> row_ptrs2;
+    row_ptrs2.resize(n_other_total + 1);
+    row_ptrs2[0] = 0;
+
+    unsigned int n_other_total_idx = 0;
+    for (unsigned int i = 0; i < csr_matrix.rows; ++i) {
+      unsigned int start = row_ptrs[i];
+      unsigned int end = row_ptrs[i + 1];
+      if ((end - start >= gz) || (end - start < z)) continue;
+
+      unsigned int n = (end - start) / z;
+      row_ptrs2[n_other_total_idx + 1] = row_ptrs2[n_other_total_idx] + n;
+
+      n_other_total_idx += 1;
+    }
+
+    auto intermediate_datas =
+        device::gpu::GpuMemory<PointXYZZ<GpuCurve>>::MallocManaged(
+            row_ptrs2[n_other_total]);
+    auto intermediate_rows =
+        device::gpu::GpuMemory<unsigned int>::MallocManaged(n_other_total + 1);
+    auto intermediate_indices =
+        device::gpu::GpuMemory<unsigned int>::MallocManaged(n_other_total);
+
+    intermediate_rows.CopyFromAsync(
+        row_ptrs2.data(), device::gpu::GpuMemoryType::kHost, stream.get());
+
+    unsigned int stream_id = 0;
+    n_other_total_idx = 0;
+    for (unsigned int i = 0; i < csr_matrix.rows; ++i) {
+      unsigned int start = row_ptrs[i];
+      unsigned int end = row_ptrs[i + 1];
+      if ((end - start > gz) || (end - start < z)) continue;
+
+      unsigned int stream_g = (end - start) / z;
+      unsigned int ptr = row_ptrs2[n_other_total_idx];
+
+      kernels::MultiplyCSRMatrixWithOneVectorStep4<<<
+          stream_g, block_size_, block_size_ * sizeof(PointXYZZ<GpuCurve>),
+          streams[stream_id].get()>>>(
+          start, end, n_other_total_idx, i, ptr, csr_matrix, bases.get(),
+          intermediate_indices.get(), intermediate_datas.get());
+      gpuError_t error = gpuGetLastError();
+      if (error != gpuSuccess) {
+        LOG(ERROR)
+            << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep4()";
+        return false;
+      }
+
+      stream_id = (stream_id + 1) % grid_size_;
+      n_other_total_idx += 1;
+    }
+
+    for (unsigned int i = 0; i < grid_size_; ++i) {
+      gpuStreamSynchronize(streams[i].get());
+    }
+    gpuStreamSynchronize(stream.get());
+
+    kernels::MultiplyCSRMatrixWithOneVectorStep5<<<grid_size_, block_size_>>>(
+        intermediate_rows.get(), intermediate_indices.get(),
+        intermediate_datas.get(), results.get(), n_other_total);
+    error = gpuGetLastError();
+    if (error != gpuSuccess) {
+      LOG(ERROR) << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep5()";
       return false;
     }
     gpuStreamSynchronize(0);

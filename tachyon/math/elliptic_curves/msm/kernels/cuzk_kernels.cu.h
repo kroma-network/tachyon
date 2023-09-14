@@ -3,6 +3,7 @@
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/math/base/big_int.h"
+#include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_csr_sparse_matrix.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_ell_sparse_matrix.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_ctx.h"
@@ -50,6 +51,126 @@ __global__ void ConvertELLToCSRTransposedStep4(CUZKCSRSparseMatrix csr_matrix);
 __global__ void ConvertELLToCSRTransposedStep5(CUZKELLSparseMatrix ell_matrix,
                                                CUZKCSRSparseMatrix csr_matrix,
                                                unsigned int* row_ptr_offsets);
+
+template <typename Curve>
+__global__ void MultiplyCSRMatrixWithOneVectorStep1(
+    PippengerCtx ctx, unsigned int z, CUZKCSRSparseMatrix csr_matrix,
+    const AffinePoint<Curve>* bases, PointXYZZ<Curve>* results,
+    unsigned int bucket_index) {
+  unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
+  unsigned int tnum = gridDim.x * blockDim.x;
+
+  while (tid < csr_matrix.rows) {
+    unsigned int start = csr_matrix.row_ptrs[tid];
+    unsigned int end = csr_matrix.row_ptrs[tid + 1];
+    if (end - start < z) {
+      for (unsigned int i = start; i < end; ++i) {
+        results[bucket_index * ctx.GetWindowLength() + tid] +=
+            bases[csr_matrix.col_datas[i].data_addr];
+      }
+    }
+    tid += tnum;
+  }
+}
+
+template <typename Curve>
+__global__ void MultiplyCSRMatrixWithOneVectorStep2(
+    unsigned int start, unsigned int end, CUZKCSRSparseMatrix csr_matrix,
+    const AffinePoint<Curve>* bases,
+    PointXYZZ<Curve>* max_intermediate_results) {
+  unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
+  unsigned int idx = start + tid;
+  unsigned int tnum = gridDim.x * blockDim.x;
+
+  while (idx < end) {
+    max_intermediate_results[tid] += bases[csr_matrix.col_datas[idx].data_addr];
+    idx += tnum;
+  }
+}
+
+template <typename Curve>
+__global__ void MultiplyCSRMatrixWithOneVectorStep3(
+    PippengerCtx ctx, unsigned int index, unsigned int count,
+    CUZKCSRSparseMatrix csr_matrix,
+    const AffinePoint<Curve>* __restrict__ bases,
+    PointXYZZ<Curve>* __restrict__ max_intermediate_results,
+    PointXYZZ<Curve>* __restrict__ results, unsigned int bucket_index) {
+  unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
+  unsigned int tnum = gridDim.x * blockDim.x;
+
+  if ((tid % (count * 2)) == 0) {
+    if (tid + count < tnum) {
+      max_intermediate_results[tid] += max_intermediate_results[tid + count];
+    }
+  }
+  if (tid == 0) {
+    results[bucket_index * ctx.GetWindowLength() + index] =
+        max_intermediate_results[0];
+  }
+}
+
+template <typename Curve>
+__global__ void MultiplyCSRMatrixWithOneVectorStep4(
+    unsigned int start, unsigned int end, unsigned int total, unsigned int i,
+    unsigned int ptr, CUZKCSRSparseMatrix csr_matrix,
+    const AffinePoint<Curve>* __restrict__ bases,
+    unsigned int* __restrict__ intermediate_indices,
+    PointXYZZ<Curve>* __restrict__ intermediate_datas) {
+  extern __shared__ PointXYZZ<Curve> s_intermediate_results[];
+
+  unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
+  unsigned int tnum = blockDim.x * gridDim.x;
+  unsigned int idx = start + tid;
+  unsigned int bid = threadIdx.x;
+  unsigned int gid = blockIdx.x;
+  s_intermediate_results[bid] = PointXYZZ<Curve>::Zero();
+
+  while (idx < end) {
+    s_intermediate_results[bid] += bases[csr_matrix.col_datas[idx].data_addr];
+    idx += tnum;
+  }
+  __syncthreads();
+
+  // reduce block
+  unsigned int b_count = blockDim.x;
+  unsigned int count = 1;
+  while (b_count != 1) {
+    if (bid % (count * 2) == 0) {
+      if (bid + count < blockDim.x) {
+        s_intermediate_results[bid] += s_intermediate_results[bid + count];
+      }
+    }
+    __syncthreads();
+    b_count = (b_count + 1) / 2;
+    count *= 2;
+  }
+  if (bid == 0) {
+    intermediate_datas[ptr + gid] = s_intermediate_results[0];
+  }
+  if (tid == 0) {
+    intermediate_indices[total] = i;
+  }
+}
+
+template <typename Curve>
+__global__ void MultiplyCSRMatrixWithOneVectorStep5(
+    const unsigned int* __restrict__ intermediate_rows,
+    const unsigned int* __restrict__ intermediate_indices,
+    const PointXYZZ<Curve>* __restrict__ intermediate_datas,
+    PointXYZZ<Curve>* __restrict__ results, unsigned int total) {
+  unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
+  unsigned int tnum = gridDim.x * blockDim.x;
+
+  while (tid < total) {
+    unsigned int start = intermediate_rows[tid];
+    unsigned int end = intermediate_rows[tid + 1];
+    unsigned int addr = intermediate_indices[tid];
+    for (unsigned int i = start; i < end; ++i) {
+      results[addr] += intermediate_datas[i];
+    }
+    tid += tnum;
+  }
+}
 
 // This is pBucketPointsReduction in the Algorithm 3 and the Algorithm 4 section
 // from https://eprint.iacr.org/2022/1321.pdf

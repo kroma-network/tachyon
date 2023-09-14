@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/files/file_util.h"
 #include "tachyon/math/base/semigroups.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
@@ -25,6 +26,8 @@ struct MSMTestSet {
   std::vector<PointTy> bases;
   std::vector<ScalarField> scalars;
   Bucket answer;
+
+  constexpr size_t size() const { return bases.size(); }
 
   static MSMTestSet Random(size_t size, MSMMethod method) {
     MSMTestSet test_set;
@@ -59,6 +62,21 @@ struct MSMTestSet {
     });
     test_set.ComputeAnswer(method);
     return test_set;
+  }
+
+  bool WriteToFile(const base::FilePath& dir) const {
+    {
+      std::stringstream ss;
+      for (size_t i = 0; i < bases.size(); ++i) {
+        ss << bases[i] << std::endl;
+      }
+      if (!base::WriteFile(dir.Append("bases.txt"), ss.str())) return false;
+    }
+    std::stringstream ss;
+    for (size_t i = 0; i < scalars.size(); ++i) {
+      ss << scalars[i] << std::endl;
+    }
+    return base::WriteFile(dir.Append("scalars.txt"), ss.str());
   }
 
  private:
