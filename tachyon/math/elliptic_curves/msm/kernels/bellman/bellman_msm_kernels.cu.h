@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_KERNELS_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_KERNELS_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_BELLMAN_BELLMAN_MSM_KERNELS_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_BELLMAN_BELLMAN_MSM_KERNELS_H_
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/device/gpu/gpu_logging.h"
@@ -7,9 +7,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 
-namespace tachyon::math::msm {
-namespace kernels {
-using namespace device::gpu;
+namespace tachyon::math::bellman {
 
 #define MAX_THREADS 128
 
@@ -17,6 +15,7 @@ template <typename Curve,
           typename BaseField = typename PointXYZZ<Curve>::BaseField>
 __global__ void InitializeBucketsKernel(PointXYZZ<Curve>* buckets,
                                         unsigned int count) {
+  using namespace device::gpu;
   unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid >= count) return;
   constexpr size_t kUint4Count = sizeof(BaseField) / sizeof(uint4);
@@ -57,6 +56,7 @@ __global__ void ComputeBucketIndexesKernel(
     const ScalarField* __restrict__ scalars, unsigned int windows_count,
     unsigned int window_bits, unsigned int* __restrict__ bucket_indexes,
     unsigned int* __restrict__ base_indexes, unsigned int count) {
+  using namespace device::gpu;
   constexpr unsigned int kHighestBitMask = 0x80000000;
   unsigned int scalar_index = blockIdx.x * blockDim.x + threadIdx.x;
   if (scalar_index >= count) return;
@@ -205,6 +205,7 @@ __global__ void AggregateBucketsKernel(
     const unsigned int* __restrict__ bucket_indexes,
     const AffinePoint<Curve>* __restrict__ bases,
     PointXYZZ<Curve>* __restrict__ buckets, unsigned int count) {
+  using namespace device::gpu;
   constexpr unsigned int kNegativeSign = 0x80000000;
   unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid >= count) return;
@@ -316,6 +317,7 @@ __global__ void SplitWindowsKernel(
     unsigned int source_window_bits_count, unsigned int source_windows_count,
     const PointXYZZ<Curve>* __restrict__ source_buckets,
     PointXYZZ<Curve>* __restrict__ target_buckets, unsigned int count) {
+  using namespace device::gpu;
   unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid >= count) return;
   unsigned int target_window_bits_count = (source_window_bits_count + 1) >> 1;
@@ -382,6 +384,7 @@ gpuError_t SplitWindows(unsigned int source_window_bits_count,
 template <typename Curve>
 __global__ void ReduceBucketsKernel(PointXYZZ<Curve>* buckets,
                                     unsigned int count) {
+  using namespace device::gpu;
   unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid >= count) return;
   buckets += gid;
@@ -408,6 +411,7 @@ __global__ void LastPassGatherKernel(
     const PointXYZZ<Curve>* __restrict__ source,
     const PointXYZZ<Curve>* top_buckets,
     JacobianPoint<Curve>* __restrict__ target, unsigned int count) {
+  using namespace device::gpu;
   unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
   if (gid >= count) return;
   unsigned int signed_bits_count_pass_one = bits_count_pass_one - 1;
@@ -471,7 +475,6 @@ void SetupKernels() {
   SetKernelAttributes(LastPassGatherKernel<Curve>);
 }
 
-}  // namespace kernels
-}  // namespace tachyon::math::msm
+}  // namespace tachyon::math::bellman
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_VARIABLE_BASE_MSM_KERNELS_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_BELLMAN_BELLMAN_MSM_KERNELS_H_

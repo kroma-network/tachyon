@@ -1,0 +1,62 @@
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_library",
+    "tachyon_cuda_library",
+    "tachyon_cuda_test",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cuda_library(
+    name = "cuzk",
+    hdrs = ["cuzk.h"],
+    deps = [
+        ":cuzk_csr_sparse_matrix",
+        ":cuzk_ell_sparse_matrix",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/device/gpu:scoped_stream",
+        "//tachyon/math/elliptic_curves/msm/algorithms:msm_algorithm",
+        "//tachyon/math/elliptic_curves/msm/algorithms/pippenger:pippenger_base",
+        "//tachyon/math/elliptic_curves/msm/kernels/cuzk:cuzk_kernels",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cuzk_csr_sparse_matrix",
+    srcs = ["cuzk_csr_sparse_matrix.cc"],
+    hdrs = ["cuzk_csr_sparse_matrix.h"],
+    deps = [
+        "//tachyon:export",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cuzk_ell_sparse_matrix",
+    srcs = ["cuzk_ell_sparse_matrix.cc"],
+    hdrs = ["cuzk_ell_sparse_matrix.h"],
+    deps = ["//tachyon/base/console:table_writer"],
+)
+
+tachyon_cc_library(
+    name = "pippenger_base",
+    hdrs = ["pippenger_base.h"],
+    deps = [
+        "//tachyon/base/containers:adapters",
+        "//tachyon/math/base:semigroups",
+        "//tachyon/math/elliptic_curves:points",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cuda_test(
+    name = "algorithms_gpu_unittests",
+    size = "small",
+    srcs = if_gpu_is_configured(["cuzk_unittest.cc"]),
+    deps = [
+        ":cuzk",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
+        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+    ],
+)

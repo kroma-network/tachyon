@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_H_
 
 #include <algorithm>
 #include <numeric>
@@ -9,8 +9,8 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/big_int.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_base.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_ctx.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_ctx.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
 #include "tachyon/math/elliptic_curves/semigroups.h"
 
@@ -224,4 +224,4 @@ class Pippenger : public PippengerBase<PointTy> {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_H_

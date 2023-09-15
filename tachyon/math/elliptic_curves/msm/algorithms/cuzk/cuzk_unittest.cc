@@ -1,4 +1,4 @@
-#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk.h"
 
 #include "gtest/gtest.h"
 
@@ -78,7 +78,7 @@ TEST_F(CUZKTest, RunWithRandom) {
   }
   CUZK<bn254::G1AffinePointGpu::Curve> cuzk;
   bn254::G1PointXYZZ ret;
-  EXPECT_TRUE(cuzk.Run(bases, scalars, &ret));
+  EXPECT_TRUE(cuzk.Run(bases, scalars, size, &ret));
   if (ret != test_set.answer) {
     base::FilePath cwd;
     if (base::GetCurrentDirectory(&cwd)) {

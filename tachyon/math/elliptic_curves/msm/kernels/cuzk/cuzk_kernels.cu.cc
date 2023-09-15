@@ -1,6 +1,6 @@
-#include "tachyon/math/elliptic_curves/msm/kernels/cuzk_kernels.cu.h"
+#include "tachyon/math/elliptic_curves/msm/kernels/cuzk/cuzk_kernels.cu.h"
 
-namespace tachyon::math::kernels {
+namespace tachyon::math::cuzk {
 
 __global__ void ConvertELLToCSRTransposedStep1(CUZKELLSparseMatrix ell_matrix,
                                                CUZKCSRSparseMatrix csr_matrix,
@@ -72,4 +72,4 @@ __global__ void ConvertELLToCSRTransposedStep5(CUZKELLSparseMatrix ell_matrix,
   }
 }
 
-}  // namespace tachyon::math::kernels
+}  // namespace tachyon::math::cuzk
