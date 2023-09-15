@@ -1,0 +1,16 @@
+# TODO(chokobole): Remove when `cc_shared_library` is enabled by default
+build --experimental_cc_shared_library
+
+build:linux --cxxopt=-std=c++17
+build:linux --host_cxxopt=-std=c++17
+build:macos --cxxopt=-std=c++17
+build:macos --host_cxxopt=-std=c++17
+build:macos --objccopt=-std=c++17
+build:windows --cxxopt=/std:c++17
+build:windows --host_cxxopt=/std:c++17
+
+build --@kroma_network_tachyon//:node_binding
+# See https://www.typescriptlang.org/tsconfig#skipLibCheck
+build --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+fetch --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
+query --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig

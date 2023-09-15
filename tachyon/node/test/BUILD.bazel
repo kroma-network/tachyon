@@ -1,0 +1,20 @@
+load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config")
+load("@npm_deps//:defs.bzl", "npm_link_all_packages")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files([".swcrc"])
+
+npm_link_all_packages()
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+)
+
+copy_to_bin(
+    name = "jest.config",
+    srcs = ["jest.config.js"],
+    visibility = ["//src:__subpackages__"],
+)
