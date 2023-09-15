@@ -1,0 +1,46 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "buffer",
+    srcs = ["buffer.cc"],
+    hdrs = ["buffer.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base/numerics:checked_math",
+    ],
+)
+
+tachyon_cc_library(
+    name = "growable_buffer",
+    hdrs = ["growable_buffer.h"],
+    deps = [":buffer"],
+)
+
+tachyon_cc_library(
+    name = "bytes_serializable",
+    hdrs = ["bytes_serializable.h"],
+    deps = [":buffer"],
+)
+
+tachyon_cc_library(
+    name = "prime_field_serializable",
+    hdrs = ["prime_field_serializable.h"],
+    deps = [
+        ":buffer",
+        "//tachyon/math/base:big_int",
+        "//tachyon/math/finite_fields:prime_field_forward",
+    ],
+)
+
+tachyon_cc_test(
+    name = "serializable_unittest",
+    srcs = ["serializable_unittest.cc"],
+    deps = [
+        ":bytes_serializable",
+        ":prime_field_serializable",
+        "//tachyon/crypto/hashes:growable_buffer",
+        "//tachyon/math/finite_fields/test:gf7",
+    ],
+)
