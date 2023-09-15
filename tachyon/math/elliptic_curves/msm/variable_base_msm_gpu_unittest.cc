@@ -1,6 +1,5 @@
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
 
-#include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/device/gpu/gpu_enums.h"
@@ -8,7 +7,6 @@
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
-#include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 
 namespace tachyon::math {
 
