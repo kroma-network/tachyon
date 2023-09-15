@@ -1,11 +1,6 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_BASE_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_BASE_H_
 
-#include <type_traits>
-
-#include "tachyon/math/elliptic_curves/jacobian_point.h"
-#include "tachyon/math/elliptic_curves/point_xyzz.h"
-#include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits.h"
 
 namespace tachyon::math {

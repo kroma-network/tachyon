@@ -1,9 +1,12 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_GPU_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_SW_CURVE_GPU_H_
 
+#include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/elliptic_curves/jacobian_point.h"
+#include "tachyon/math/elliptic_curves/point_xyzz.h"
+#include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_base.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits.h"
-#include "tachyon/math/geometry/point2.h"
 
 namespace tachyon::math {
 

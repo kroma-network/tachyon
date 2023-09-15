@@ -13,7 +13,6 @@
 #include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h"
 #include "tachyon/math/geometry/point2.h"
 
 namespace tachyon::math {

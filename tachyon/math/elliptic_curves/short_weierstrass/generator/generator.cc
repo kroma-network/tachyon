@@ -39,6 +39,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "#include \"tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h\"",
       "#include \"tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h\"",
       "#include \"tachyon/math/elliptic_curves/short_weierstrass/projective_point.h\"",
+      "#include \"tachyon/math/elliptic_curves/short_weierstrass/sw_curve.h\"",
       "",
       "namespace %{namespace} {",
       "",
