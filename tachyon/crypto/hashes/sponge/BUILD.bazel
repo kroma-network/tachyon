@@ -1,0 +1,13 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "sponge",
+    hdrs = ["sponge.h"],
+    deps = [
+        "//tachyon/crypto/hashes:bytes_serializable",
+        "//tachyon/crypto/hashes:prime_field_serializable",
+        "//tachyon/math/finite_fields:prime_field_forward",
+    ],
+)

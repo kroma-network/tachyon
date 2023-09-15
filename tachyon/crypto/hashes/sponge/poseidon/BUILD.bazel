@@ -1,0 +1,28 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "poseidon",
+    hdrs = ["poseidon.h"],
+)
+
+tachyon_cc_library(
+    name = "grain_lfsr",
+    hdrs = ["grain_lfsr.h"],
+    deps = [
+        "//tachyon/math/base:big_int",
+        "//tachyon/math/finite_fields:prime_field_forward",
+    ],
+)
+
+tachyon_cc_test(
+    name = "grain_lfsr_unittest",
+    srcs = ["grain_lfsr_unittest.cc"],
+    deps = [
+        ":grain_lfsr",
+        "//tachyon/math/base:big_int",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:fr",
+        "//tachyon/math/finite_fields:prime_field_forward",
+    ],
+)
