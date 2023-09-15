@@ -98,6 +98,138 @@ struct projected {
   IndirectResultT operator*() const;  // not defined
 };
 
+// Taken from
+// https://github.com/pybind/pybind11/blob/master/include/pybind11/detail/common.h
+// -------------------------------------------------------------------------------
+/// Like is_base_of, but requires a strict base (i.e. `is_strict_base_of<T,
+/// T>::value == false`, unlike `std::is_base_of`)
+template <typename Base, typename Derived>
+using is_strict_base_of = std::bool_constant<std::is_base_of<Base, Derived>::value &&
+                                        !std::is_same<Base, Derived>::value>;
+
+/// Compile-time all/any/none of that check the boolean value of all template
+/// types
+#if defined(__cpp_fold_expressions) && !(defined(_MSC_VER) && (_MSC_VER < 1916))
+template <class... Ts>
+using all_of = std::bool_constant<(Ts::value && ...)>;
+template <class... Ts>
+using any_of = std::bool_constant<(Ts::value || ...)>;
+#elif !defined(_MSC_VER)
+template <bool...>
+struct bools {};
+template <class... Ts>
+using all_of =
+    std::is_same<bools<Ts::value..., true>, bools<true, Ts::value...>>;
+template <class... Ts>
+using any_of = std::negation<all_of<std::negation<Ts>...>>;
+#else
+// MSVC has trouble with the above, but supports std::conjunction, which we can
+// use instead (albeit at a slight loss of compilation efficiency).
+template <class... Ts>
+using all_of = std::conjunction<Ts...>;
+template <class... Ts>
+using any_of = std::disjunction<Ts...>;
+#endif
+template <class... Ts>
+using none_of = std::negation<any_of<Ts...>>;
+
+/// Compile-time integer sum
+#ifdef __cpp_fold_expressions
+template <typename... Ts>
+constexpr size_t constexpr_sum(Ts... ns) {
+  return (0 + ... + size_t{ns});
+}
+#else
+constexpr size_t constexpr_sum() { return 0; }
+template <typename T, typename... Ts>
+constexpr size_t constexpr_sum(T n, Ts... ns) {
+  return size_t{n} + constexpr_sum(ns...);
+}
+#endif
+
+/// Implementation details for constexpr functions
+constexpr int first(int i) { return i; }
+template <typename T, typename... Ts>
+constexpr int first(int i, T v, Ts... vs) {
+  return v ? i : first(i + 1, vs...);
+}
+
+constexpr int last(int /*i*/, int result) { return result; }
+template <typename T, typename... Ts>
+constexpr int last(int i, int result, T v, Ts... vs) {
+  return last(i + 1, v ? i : result, vs...);
+}
+
+/// Return the index of the first type in Ts which satisfies Predicate<T>.
+/// Returns sizeof...(Ts) if none match.
+template <template <typename> class Predicate, typename... Ts>
+constexpr int constexpr_first() {
+  return first(0, Predicate<Ts>::value...);
+}
+
+/// Return the index of the last type in Ts which satisfies Predicate<T>, or -1
+/// if none match.
+template <template <typename> class Predicate, typename... Ts>
+constexpr int constexpr_last() {
+  return last(0, -1, Predicate<Ts>::value...);
+}
+
+/// Return the Nth element from the parameter pack
+template <size_t N, typename T, typename... Ts>
+struct pack_element {
+  using type = typename pack_element<N - 1, Ts...>::type;
+};
+template <typename T, typename... Ts>
+struct pack_element<0, T, Ts...> {
+  using type = T;
+};
+
+/// Return the one and only type which matches the predicate, or Default if none
+/// match. If more than one type matches the predicate, fail at compile-time.
+template <template <typename> class Predicate, typename Default, typename... Ts>
+struct exactly_one {
+  static constexpr auto found = constexpr_sum(Predicate<Ts>::value...);
+  static_assert(found <= 1, "Found more than one type matching the predicate");
+
+  static constexpr auto index = found ? constexpr_first<Predicate, Ts...>() : 0;
+  using type =
+      std::conditional_t<found, typename pack_element<index, Ts...>::type,
+                         Default>;
+};
+template <template <typename> class P, typename Default>
+struct exactly_one<P, Default> {
+  using type = Default;
+};
+
+template <template <typename> class Predicate, typename Default, typename... Ts>
+using exactly_one_t = typename exactly_one<Predicate, Default, Ts...>::type;
+
+/// Apply a function over each element of a parameter pack
+#ifdef __cpp_fold_expressions
+#define TACHYON_EXPAND_SIDE_EFFECTS(PATTERN) (((PATTERN), void()), ...)
+#else
+using expand_side_effects = bool[];
+#define TACHYON_EXPAND_SIDE_EFFECTS(PATTERN)       \
+  (void)::tachyon::base::expand_side_effects { \
+    ((PATTERN), void(), false)..., false         \
+  }
+#endif
+
+// -------------------------------------------------------------------------------
+
+template <typename T>
+struct reference_to_pointer {
+  using Type = T;
+};
+
+template <typename T>
+struct reference_to_pointer<T&> {
+  using Type = std::remove_reference_t<T>*;
+};
+
+template <typename T>
+using reference_to_pointer_t = typename reference_to_pointer<T>::Type;
+
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_TEMPLATE_UTIL_H_

@@ -1,0 +1,8 @@
+{
+  "name": "node-binding",
+  "gypfile": false,
+  "dependencies": {
+    "node-addon-api": "^7.0.0",
+    "node-gyp": "^7.0.0"
+  }
+}

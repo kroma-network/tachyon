@@ -165,12 +165,14 @@ def tachyon_cc_shared_library(
         deps = [],
         linkstatic = False,
         soversion = None,
+        testonly = False,
         visibility = ["//visibility:public"],
         **kwargs):
     cc_library_name = name + "_cclib"
     cc_library(
         name = cc_library_name,
         linkstatic = linkstatic,
+        testonly = testonly,
         deps = deps,
     )
 
@@ -212,6 +214,7 @@ def tachyon_cc_shared_library(
             }),
             visibility = visibility,
             deps = [":" + cc_library_name],
+            testonly = testonly,
             **kwargs
         )
     else:
@@ -220,6 +223,7 @@ def tachyon_cc_shared_library(
             user_link_flags = user_link_flags,
             visibility = visibility,
             deps = [":" + cc_library_name],
+            testonly = testonly,
             **kwargs
         )
 

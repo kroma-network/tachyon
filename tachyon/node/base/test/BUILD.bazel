@@ -1,0 +1,55 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_node.bzl", "tachyon_node_library")
+
+tachyon_cc_library(
+    name = "color",
+    testonly = True,
+    srcs = ["color.cc"],
+    hdrs = ["color.h"],
+    deps = [
+        "//tachyon/base/binding/test:enum",
+        "//tachyon/node/base:node_base",
+    ],
+)
+
+tachyon_cc_library(
+    name = "point",
+    testonly = True,
+    srcs = ["point.cc"],
+    hdrs = ["point.h"],
+    deps = [
+        "//tachyon/base/binding/test:class",
+        "//tachyon/node/base:node_base",
+    ],
+)
+
+tachyon_node_library(
+    name = "class",
+    testonly = True,
+    srcs = ["class.cc"],
+    deps = [
+        ":color",
+        ":point",
+        "//tachyon/node/base:node_base",
+    ],
+)
+
+tachyon_node_library(
+    name = "enum",
+    testonly = True,
+    srcs = ["enum.cc"],
+    deps = [
+        ":color",
+        "//tachyon/node/base:node_base",
+    ],
+)
+
+tachyon_node_library(
+    name = "function",
+    testonly = True,
+    srcs = ["function.cc"],
+    deps = [
+        "//tachyon/base/binding/test:functions",
+        "//tachyon/node/base:node_base",
+    ],
+)
