@@ -4,15 +4,33 @@
 #include "absl/strings/str_replace.h"
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 
 namespace tachyon::build {
 
 namespace {
 
+// clang-format off
+// Case 1. If your build target tries to generate //tachyon/math/elliptic_curves/bn/bn254/g1.h,
+// then |components| will be ["bazel-out", "k8-fastbuild", "bin", "tachyon", "math", "elliptic_curves", "bn", "bn254", "g1.h"]
+// Case 2. If your build target tries to generate @kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254/g1.h,
+// then |components| will be ["bazel-out", "k8-fastbuild", "bin", "external", "kroma_network_tachyon", "tachyon", "math", "elliptic_curves", "bn", "bn254", "g1.h"]
+// This functions returns 3 for Case 1 and 5 for Case 5.
+// clang-format on
+size_t CountBazelParts(const std::vector<std::string>& components) {
+  CHECK_EQ(components[0], "bazel-out");
+  CHECK_EQ(components[2], "bin");
+  if (components[3] == "external") {
+    return 5;
+  }
+  return 3;
+}
+
 base::FilePath BazelOutToHdrPath(const base::FilePath& out) {
   std::vector<std::string> components = out.GetComponents();
-  base::FilePath header_path(absl::StrJoin(components.begin() + 3,
+  size_t non_bazel_part = CountBazelParts(components);
+  base::FilePath header_path(absl::StrJoin(components.begin() + non_bazel_part,
                                            components.end() - 1,
                                            base::FilePath::kSeparators));
   header_path = header_path.Append(
@@ -22,14 +40,16 @@ base::FilePath BazelOutToHdrPath(const base::FilePath& out) {
 
 std::string BazelOutToHdrGuardMacro(const base::FilePath& out) {
   std::vector<std::string> components = out.GetComponents();
-  base::FilePath header_path(absl::StrJoin(components.begin() + 3,
+  size_t non_bazel_part = CountBazelParts(components);
+  base::FilePath header_path(absl::StrJoin(components.begin() + non_bazel_part,
                                            components.end() - 1,
                                            base::FilePath::kSeparators));
   // In case of .cu.h, it removes extension twice.
   base::FilePath basename = out.BaseName().RemoveExtension().RemoveExtension();
-  return base::ToUpperASCII(absl::StrCat(
-      absl::StrJoin(components.begin() + 3, components.end() - 1, "_"),
-      absl::Substitute("_$0_H_", basename.value())));
+  return base::ToUpperASCII(
+      absl::StrCat(absl::StrJoin(components.begin() + non_bazel_part,
+                                 components.end() - 1, "_"),
+                   absl::Substitute("_$0_H_", basename.value())));
 }
 
 }  // namespace
