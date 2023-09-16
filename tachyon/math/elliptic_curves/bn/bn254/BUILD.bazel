@@ -15,11 +15,7 @@ FR_MODULUS = "218882428718392752222464057452572750885483644004160343436982041865
 generate_prime_fields(
     name = "fq",
     class_name = "Fq",
-    hdr_include_override = """#include "tachyon/export.h"
-#if defined(TACHYON_GMP_BACKEND)
-#include "tachyon/math/finite_fields/prime_field_gmp.h"
-#endif  // defined(TACHYON_GMP_BACKEND)
-#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+    hdr_include_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #include "tachyon/math/elliptic_curves/bn/bn254/prime_field_fq.h"
 #include "tachyon/build/build_config.h"
 #endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
@@ -44,11 +40,7 @@ generate_prime_fields(
 generate_prime_fields(
     name = "fr",
     class_name = "Fr",
-    hdr_include_override = """#include "tachyon/export.h"
-#if defined(TACHYON_GMP_BACKEND)
-#include "tachyon/math/finite_fields/prime_field_gmp.h"
-#endif  // defined(TACHYON_GMP_BACKEND)
-#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+    hdr_include_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #include "tachyon/math/elliptic_curves/bn/bn254/prime_field_fr.h"
 #include "tachyon/build/build_config.h"
 #endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
