@@ -18,6 +18,8 @@ generate_prime_fields(
     hdr_include_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #include "tachyon/math/elliptic_curves/secp/secp256k1/prime_field_fq.h"
 #include "tachyon/build/build_config.h"
+#else
+#include "tachyon/math/finite_fields/prime_field.h"
 #endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = FQ_MODULUS,
     namespace = "tachyon::math::secp256k1",
@@ -43,6 +45,8 @@ generate_prime_fields(
     hdr_include_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #include "tachyon/math/elliptic_curves/secp/secp256k1/prime_field_fr.h"
 #include "tachyon/build/build_config.h"
+#else
+#include "tachyon/math/finite_fields/prime_field.h"
 #endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = FR_MODULUS,
     namespace = "tachyon::math::secp256k1",

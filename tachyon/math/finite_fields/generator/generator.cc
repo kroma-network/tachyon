@@ -78,6 +78,9 @@ struct GenerationConfig : public build::CcWriter {
 
 int GenerationConfig::GenerateConfigHdr() const {
   std::vector<std::string_view> tpl = {
+      "#include <stddef.h>",
+      "#include <stdint.h>",
+      "",
       "#include \"tachyon/export.h\"",
       "#include \"tachyon/math/finite_fields/prime_field.h\"",
       "#if defined(TACHYON_GMP_BACKEND)",
