@@ -1,0 +1,14 @@
+load("//bazel:tachyon_ts.bzl", "tachyon_ts_project")
+load("//bazel:tachyon_jest.bzl", "tachyon_jest_test")
+
+tachyon_ts_project(
+    name = "finite_fields_ts",
+    testonly = True,
+    srcs = ["prime_field.spec.ts"],
+    data = ["@kroma_network_tachyon//tachyon/node:tachyon"],
+)
+
+tachyon_jest_test(
+    name = "finite_fields",
+    data = [":finite_fields_ts"],
+)

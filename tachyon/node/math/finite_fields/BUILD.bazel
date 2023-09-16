@@ -1,0 +1,12 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//tachyon/node/math/elliptic_curves:__subpackages__"])
+
+tachyon_cc_library(
+    name = "prime_field",
+    hdrs = ["prime_field.h"],
+    deps = [
+        "//tachyon/node/base:node_base",
+        "//tachyon/node/math/base:big_int",
+    ],
+)

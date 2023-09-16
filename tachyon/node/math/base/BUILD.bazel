@@ -1,0 +1,12 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//tachyon/node/math:__subpackages__"])
+
+tachyon_cc_library(
+    name = "big_int",
+    hdrs = ["big_int.h"],
+    deps = [
+        "//tachyon/math/base:big_int",
+        "//tachyon/node/base:node_base",
+    ],
+)

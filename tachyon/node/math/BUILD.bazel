@@ -1,0 +1,23 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//tachyon/node:__pkg__"])
+
+TPLS = [
+    "//tachyon/node/math/elliptic_curves/{}:fq",
+    "//tachyon/node/math/elliptic_curves/{}:fr",
+    "//tachyon/node/math/elliptic_curves/{}:g1",
+]
+
+CURVES = [
+    "bls/bls12_381",
+    "bn/bn254",
+]
+
+CURVE_DEPS = [tpl.format(curve) for tpl in TPLS for curve in CURVES]
+
+tachyon_cc_library(
+    name = "math",
+    srcs = ["math.cc"],
+    hdrs = ["math.h"],
+    deps = CURVE_DEPS,
+)
