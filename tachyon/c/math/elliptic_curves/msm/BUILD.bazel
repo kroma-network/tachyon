@@ -50,9 +50,9 @@ tachyon_cc_library(
         "//tachyon/base/console",
         "//tachyon/base/containers:container_util",
         "//tachyon/cc/math/elliptic_curves:point_conversions",
-        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
     ] + COMMON_DEPS,
 )
 

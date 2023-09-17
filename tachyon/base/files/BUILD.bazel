@@ -65,8 +65,8 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "file_util",
     srcs = [
-        "file_util.cc",
         "file_enumerator.cc",
+        "file_util.cc",
     ] + if_posix([
         "file_enumerator_posix.cc",
         "file_util_posix.cc",
@@ -131,9 +131,9 @@ tachyon_cc_test(
     name = "files_unittests",
     size = "small",
     srcs = [
-        "file_unittest.cc",
         "file_enumerator_unittest.cc",
         "file_path_unittest.cc",
+        "file_unittest.cc",
         "scoped_temp_dir_unittest.cc",
     ] + if_linux([
         "scoped_file_linux_unittest.cc",
