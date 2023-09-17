@@ -4,6 +4,7 @@
 #include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/flag/flag_parser.h"
+#include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/build/cc_writer.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
@@ -130,7 +131,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       {"%{header_dir_name}", GetHdrPath().DirName().value()},
       {"%{namespace}", ns_name},
       {"%{class}", class_name},
-      {"%{fq_n}", absl::StrCat(fq_n)},
+      {"%{fq_n}", base::NumberToString(fq_n)},
       {"%{a_mont_form}", math::MpzClassToMontString(a, fq_modulus)},
       {"%{b_mont_form}", math::MpzClassToMontString(b, fq_modulus)},
       {"%{x_mont_form}", math::MpzClassToMontString(x, fq_modulus)},
@@ -163,7 +164,7 @@ int GenerationConfig::GenerateConfigHdr() const {
         math::MpzClassToMontString(glv_coefficients[2], fr_modulus);
     replacements["%{glv_coeff_11_mont_form}"] =
         math::MpzClassToMontString(glv_coefficients[3], fr_modulus);
-    replacements["%{fr_n}"] = absl::StrCat(fr_n);
+    replacements["%{fr_n}"] = base::NumberToString(fr_n);
   }
   std::string content = absl::StrReplaceAll(tpl_content, replacements);
   return WriteHdr(content, false);

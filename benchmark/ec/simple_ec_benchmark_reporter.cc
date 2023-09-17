@@ -2,6 +2,8 @@
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/strings/string_number_conversions.h"
+
 namespace tachyon {
 
 SimpleECBenchmarkReporter::SimpleECBenchmarkReporter(
@@ -10,7 +12,7 @@ SimpleECBenchmarkReporter::SimpleECBenchmarkReporter(
   column_headers_.push_back("CPU");
   column_headers_.push_back("GPU");
   for (uint64_t num : nums) {
-    targets_.push_back(absl::StrCat(num));
+    targets_.push_back(base::NumberToString(num));
   }
   results_.resize(nums.size());
 }

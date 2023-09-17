@@ -30,7 +30,10 @@ tachyon_cc_library(
     name = "simple_msm_benchmark_reporter",
     srcs = ["simple_msm_benchmark_reporter.cc"],
     hdrs = ["simple_msm_benchmark_reporter.h"],
-    deps = ["//benchmark:simple_benchmark_reporter"],
+    deps = [
+        "//benchmark:simple_benchmark_reporter",
+        "//tachyon/base/strings:string_number_conversions",
+    ],
 )
 
 tachyon_cc_binary(

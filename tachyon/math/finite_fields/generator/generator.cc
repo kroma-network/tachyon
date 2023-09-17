@@ -254,8 +254,8 @@ int GenerationConfig::GenerateConfigHdr() const {
       {
           {"%{namespace}", ns_name},
           {"%{class}", class_name},
-          {"%{modulus_bits}", absl::StrCat(num_bits)},
-          {"%{n}", absl::StrCat(n)},
+          {"%{modulus_bits}", base::NumberToString(num_bits)},
+          {"%{n}", base::NumberToString(n)},
           {"%{modulus}", math::MpzClassToString(m)},
           {"%{modulus_has_spare_bit}",
            base::BoolToString(modulus_info.modulus_has_spare_bit)},
@@ -263,8 +263,8 @@ int GenerationConfig::GenerateConfigHdr() const {
            base::BoolToString(modulus_info.can_use_no_carry_mul_optimization)},
           {"%{r}", math::MpzClassToString(modulus_info.r)},
           {"%{r2}", math::MpzClassToString(modulus_info.r2)},
-          {"%{inverse64}", absl::StrCat(modulus_info.inverse64)},
-          {"%{inverse32}", absl::StrCat(modulus_info.inverse32)},
+          {"%{inverse64}", base::NumberToString(modulus_info.inverse64)},
+          {"%{inverse32}", base::NumberToString(modulus_info.inverse32)},
           {"%{one_mont_form}", math::MpzClassToMontString(mpz_class(1), m)},
       });
   return WriteHdr(content, false);
