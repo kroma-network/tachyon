@@ -14,6 +14,7 @@ tachyon_cc_library(
         ":pippenger_base",
         ":pippenger_ctx",
         "//tachyon/base:openmp_util",
+        "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves/msm:msm_util",
     ],
 )
