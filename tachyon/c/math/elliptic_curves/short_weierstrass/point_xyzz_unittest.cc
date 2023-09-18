@@ -12,9 +12,7 @@ namespace {
 
 class PointXYZZTest : public testing::Test {
  public:
-  static void SetUpTestSuite() {
-    tachyon::math::bn254::G1PointXYZZ::Curve::Init();
-  }
+  static void SetUpTestSuite() { tachyon_bn254_g1_init(); }
 
   void SetUp() override {
     a_ = tachyon::math::bn254::G1PointXYZZ::Random();
