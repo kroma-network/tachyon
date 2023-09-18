@@ -17,3 +17,5 @@ query --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
 
 # gmp needs exception.
 build --@kroma_network_tachyon//:has_exception
+
+build --@kroma_network_tachyon//:shared_object

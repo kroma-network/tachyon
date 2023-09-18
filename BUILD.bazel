@@ -10,6 +10,16 @@ bool_flag(
 )
 
 bool_flag(
+    name = "c_shared_object",
+    build_setting_default = False,
+)
+
+bool_flag(
+    name = "cc_shared_object",
+    build_setting_default = False,
+)
+
+bool_flag(
     name = "has_exception",
     build_setting_default = False,
 )
@@ -106,6 +116,16 @@ config_setting(
 config_setting(
     name = "tachyon_shared_object",
     flag_values = {":shared_object": "true"},
+)
+
+config_setting(
+    name = "tachyon_c_shared_object",
+    flag_values = {":c_shared_object": "true"},
+)
+
+config_setting(
+    name = "tachyon_cc_shared_object",
+    flag_values = {":cc_shared_object": "true"},
 )
 
 config_setting(
