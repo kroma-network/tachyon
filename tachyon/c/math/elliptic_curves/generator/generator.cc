@@ -486,7 +486,7 @@ int GenerationConfig::GenerateG1Src() const {
       "#include \"tachyon/cc/math/elliptic_curves/point_conversions.h\"",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
       "",
-      "void tachyon_%{type}_init() {",
+      "void %{g1}_init() {",
       "  tachyon::math::%{type}::G1AffinePoint::Curve::Init();",
       "}",
       "",
