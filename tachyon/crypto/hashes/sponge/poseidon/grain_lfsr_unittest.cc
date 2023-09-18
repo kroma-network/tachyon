@@ -3,6 +3,7 @@
 //clang-format off
 #include "tachyon/crypto/hashes/sponge/poseidon/grain_lfsr.h"
 #include "tachyon/math/elliptic_curves/bls/bls12_381/fr.h"
+#include "tachyon/math/finite_fields/prime_field_forward.h"
 // clang-format on
 
 namespace tachyon::crypto {
@@ -25,24 +26,24 @@ using PrimeFieldTypes = testing::Types<math::bls12_381::FrConfig>;
 TYPED_TEST_SUITE(PoseidonGrainLFSRTest, PrimeFieldTypes);
 
 TYPED_TEST(PoseidonGrainLFSRTest, TestGetBits) {
-  using PrimeFieldTy = TypeParam;
-  PoseidonGrainLFSR<math::PrimeField<PrimeFieldTy>> lfsr(true, 255, 3, 8, 31);
+  using Config = TypeParam;
+  PoseidonGrainLFSR<math::PrimeField<Config>> lfsr(true, 255, 3, 8, 31);
 
   auto bits = lfsr.GetBits(16);
   EXPECT_EQ(bits.size(), 16);
 }
 
 TYPED_TEST(PoseidonGrainLFSRTest, TestGetFieldElementsModP) {
-  using PrimeFieldTy = TypeParam;
-  PoseidonGrainLFSR<math::PrimeField<PrimeFieldTy>> lfsr(true, 255, 3, 8, 31);
+  using Config = TypeParam;
+  PoseidonGrainLFSR<math::PrimeField<Config>> lfsr(true, 255, 3, 8, 31);
 
   auto elements = lfsr.GetFieldElementsModP(10);
   ASSERT_EQ(elements.size(), 10);
 }
 
 TYPED_TEST(PoseidonGrainLFSRTest, TestGetFieldElementsRejectionSampling) {
-  using PrimeFieldTy = TypeParam;
-  PoseidonGrainLFSR<math::PrimeField<PrimeFieldTy>> lfsr(false, 255, 3, 8, 31);
+  using Config = TypeParam;
+  PoseidonGrainLFSR<math::PrimeField<Config>> lfsr(false, 255, 3, 8, 31);
 
   // clang-format off
   EXPECT_EQ(lfsr.GetFieldElementsRejectionSampling(1)[0],

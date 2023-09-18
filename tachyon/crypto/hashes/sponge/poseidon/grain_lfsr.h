@@ -132,35 +132,31 @@ PoseidonGrainLFSR<math::PrimeField<Config>>::GetFieldElementsRejectionSampling(
   std::vector<PrimeFieldTy> ret;
   ret.reserve(num_elems);
 
+  // Perform rejection sampling
   for (size_t i = 0; i < num_elems; ++i) {
-    // Perform rejection sampling
-    while (true) {
-      // Obtain n bits and make it most-significant-bit first
-      auto bits = GetBits(prime_num_bits);
+    // Obtain n bits and make it most-significant-bit first
+    std::vector<bool> bits = GetBits(PrimeFieldTy::kModulusBits);
 
-      std::vector<uint8_t> bytes;
+    std::vector<uint8_t> bytes;
 
-      // Convert bits to hex string
-      while (bits.size() % 4 != 0) {
-        bits.insert(bits.begin(), false);
-      }
-      std::stringstream ss;
-      for (size_t i = 0; i < bits.size(); i += 4) {
-        std::vector<bool> chunk(bits.begin() + i, bits.begin() + i + 4);
-        ss << ConvertToHex(chunk);
-      }
-      std::string hex_str = ss.str();
-
-      // TODO(insun35): Implement FromBits() for BigInt
-      // auto bigint = math::BigInt::FromBits(bits);
-      auto bigint = math::BigInt<PrimeFieldTy::N>::FromHexString(hex_str);
-
-      auto optField = PrimeFieldTy::FromBigInt(bigint);
-      if (!optField.IsZero()) {
-        ret.push_back(optField);
-        break;
-      }
+    // Convert bits to hex string
+    while (bits.size() % 4 != 0) {
+      bits.insert(bits.begin(), false);
     }
+    std::stringstream ss;
+    for (size_t i = 0; i < bits.size(); i += 4) {
+      std::vector<bool> chunk(bits.begin() + i, bits.begin() + i + 4);
+      ss << ConvertToHex(chunk);
+    }
+    std::string hex_str = ss.str();
+
+    // TODO(insun35): Implement FromBits() for BigInt
+    // auto bigint = math::BigInt::FromBits(bits);
+    auto bigint = math::BigInt<PrimeFieldTy::N>::FromHexString(hex_str);
+    bigint %= Config::kModulus;
+
+    auto optField = PrimeFieldTy::FromBigInt(bigint);
+    ret.push_back(optField);
   }
 
   return ret;
@@ -176,7 +172,7 @@ PoseidonGrainLFSR<math::PrimeField<Config>>::GetFieldElementsModP(
 
   for (size_t i = 0; i < num_elems; ++i) {
     // Obtain n bits and make it most-significant-bit first
-    auto bits = GetBits(prime_num_bits);
+    std::vector<bool> bits = GetBits(PrimeFieldTy::kModulusBits);
 
     // Convert bits to hex string
     while (bits.size() % 4 != 0) {
@@ -189,10 +185,9 @@ PoseidonGrainLFSR<math::PrimeField<Config>>::GetFieldElementsModP(
     }
     std::string hex_str = ss.str();
 
-    auto field_element_big_int =
-        math::BigInt<PrimeFieldTy::N>::FromHexString(hex_str);
-    field_element_big_int %= Config::kModulus;
-    auto field_element = PrimeFieldTy::FromBigInt(field_element_big_int);
+    auto big_int = math::BigInt<PrimeFieldTy::N>::FromHexString(hex_str);
+    big_int %= Config::kModulus;
+    auto field_element = PrimeFieldTy::FromBigInt(big_int);
 
     ret.push_back(field_element);
   }

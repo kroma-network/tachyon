@@ -5,6 +5,20 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "poseidon",
     hdrs = ["poseidon.h"],
+    deps = [
+        "//tachyon/math/finite_fields:prime_field_forward",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon_util",
+    hdrs = ["poseidon_util.h"],
+    deps = [
+        ":grain_lfsr",
+        ":poseidon",
+        "//tachyon:export",
+        "//tachyon/math/finite_fields:prime_field_forward",
+    ],
 )
 
 tachyon_cc_library(
@@ -22,6 +36,17 @@ tachyon_cc_test(
     deps = [
         ":grain_lfsr",
         "//tachyon/math/base:big_int",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:fr",
+        "//tachyon/math/finite_fields:prime_field_forward",
+    ],
+)
+
+tachyon_cc_test(
+    name = "poseidon_unittest",
+    srcs = ["poseidon_unittest.cc"],
+    deps = [
+        ":poseidon",
+        ":poseidon_util",
         "//tachyon/math/elliptic_curves/bls/bls12_381:fr",
         "//tachyon/math/finite_fields:prime_field_forward",
     ],
