@@ -8,6 +8,7 @@ tachyon_cc_library(
     hdrs = ["msm_test_set.h"],
     deps = [
         "//tachyon/base/containers:container_util",
+        "//tachyon/base/files:file_util",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "//tachyon/math/elliptic_curves/test:random",
     ],

@@ -17,7 +17,9 @@ tachyon_cuda_library(
         ":cuzk_csr_sparse_matrix",
         ":cuzk_ell_sparse_matrix",
         ":pippenger_base",
+        "//tachyon/base/containers:container_util",
         "//tachyon/device/gpu:gpu_memory",
+        "//tachyon/device/gpu:scoped_stream",
         "//tachyon/math/elliptic_curves/msm/kernels:cuzk_kernels",
     ],
 )
