@@ -1,6 +1,6 @@
-use ark_bn254::{ Fr , G1Affine, G1Projective };
+use ark_bn254::{Fr, G1Affine, G1Projective};
 use ark_ec::VariableBaseMSM;
-use std::{ mem, slice, time::Instant };
+use std::{mem, slice, time::Instant};
 
 #[repr(C, align(32))]
 pub struct CppG1Affine {
@@ -42,10 +42,7 @@ pub extern "C" fn run_msm_arkworks(bases: *const CppG1Affine, bases_len: usize, 
 
         let scalars: &[Fr] = mem::transmute(scalars);
         let start = Instant::now();
-        let ret = G1Projective::msm(
-            bases_vec.as_slice(),
-            &scalars,
-        ).unwrap();
+        let ret = G1Projective::msm(bases_vec.as_slice(), &scalars).unwrap();
         duration.write(start.elapsed().as_micros() as u64);
         ret
     };

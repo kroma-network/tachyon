@@ -1,10 +1,13 @@
 use bellman_ce::{
     multiexp,
     pairing::CurveAffine,
-    pairing::{ bn256::{ G1Affine, FrRepr, Fr }, ff::PrimeField },
+    pairing::{
+        bn256::{Fr, FrRepr, G1Affine},
+        ff::PrimeField,
+    },
     worker::Worker,
 };
-use std::{ mem, slice, time::Instant };
+use std::{mem, slice, time::Instant};
 
 #[repr(C, align(32))]
 pub struct CppG1Affine {
@@ -49,10 +52,7 @@ pub extern "C" fn run_msm_bellman(
         }
         let pool = Worker::new();
         let scalars: &[Fr] = mem::transmute(scalars);
-        let scalars_repr: Vec<FrRepr> = scalars
-            .iter()
-            .map(|&fr| fr.into_repr())
-            .collect();
+        let scalars_repr: Vec<FrRepr> = scalars.iter().map(|&fr| fr.into_repr()).collect();
         let start = Instant::now();
         let result = multiexp::dense_multiexp(&pool, &bases_vec, scalars_repr.as_slice());
         duration.write(start.elapsed().as_micros() as u64);
