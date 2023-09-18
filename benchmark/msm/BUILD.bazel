@@ -12,7 +12,6 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/console",
         "//tachyon/base/flag:flag_parser",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
     ],
 )
 
