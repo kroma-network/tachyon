@@ -1,64 +1,72 @@
-#include "tachyon/c/math/elliptic_curves/msm/msm_gpu.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/msm_gpu.h"
 
 #include "gtest/gtest.h"
 
 #include "tachyon/base/bits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_prime_field_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/msm/algorithm.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 
 namespace tachyon::math {
 
 constexpr size_t kNums[] = {32, 2, 5};
 
-class MSMGpuTest : public testing::Test {
+class MSMGpuTest : public testing::TestWithParam<int> {
  public:
   static void SetUpTestSuite() {
-    bn254::G1AffinePoint::Curve::Init();
+    tachyon_bn254_g1_init();
 
-    size_t max_num = *std::max_element(std::begin(kNums), std::end(kNums));
-    tachyon_init_msm_gpu(base::bits::Log2Ceiling(max_num));
-  }
-
-  static void TearDownTestSuite() { tachyon_release_msm_gpu(); }
-
-  MSMGpuTest() {
     for (size_t n : kNums) {
-      test_sets.push_back(
-          MSMTestSet<bn254::G1AffinePoint>::Random(n, MSMMethod::kMSM));
+      test_sets_.push_back(
+          MSMTestSet<bn254::G1AffinePoint>::Random(n, MSMMethod::kNaive));
     }
   }
 
  protected:
-  std::vector<MSMTestSet<bn254::G1AffinePoint>> test_sets;
+  static std::vector<MSMTestSet<bn254::G1AffinePoint>> test_sets_;
 };
 
-TEST_F(MSMGpuTest, MSMPoint2) {
-  for (const MSMTestSet<bn254::G1AffinePoint>& t : test_sets) {
+std::vector<MSMTestSet<bn254::G1AffinePoint>> MSMGpuTest::test_sets_;
+
+INSTANTIATE_TEST_SUITE_P(BellmanMSM, MSMGpuTest,
+                         testing::Values(TACHYON_MSM_ALGO_BELLMAN_MSM));
+INSTANTIATE_TEST_SUITE_P(CUZK, MSMGpuTest,
+                         testing::Values(TACHYON_MSM_ALGO_CUZK));
+
+TEST_P(MSMGpuTest, MSMPoint2) {
+  size_t max_num = *std::max_element(std::begin(kNums), std::end(kNums));
+  tachyon_bn254_g1_msm_gpu_ptr msm = tachyon_bn254_g1_create_msm_gpu(
+      base::bits::Log2Ceiling(max_num), GetParam());
+
+  for (const MSMTestSet<bn254::G1AffinePoint>& t : this->test_sets_) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
     std::vector<Point2<BigInt<4>>> bases = base::CreateVector(
         t.bases.size(), [&t](size_t i) { return t.bases[i].ToMontgomery(); });
     ret.reset(tachyon_bn254_g1_point2_msm_gpu(
-        reinterpret_cast<const tachyon_bn254_g1_point2*>(bases.data()),
-        bases.size(),
+        msm, reinterpret_cast<const tachyon_bn254_g1_point2*>(bases.data()),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
         t.scalars.size()));
     EXPECT_EQ(cc::math::ToJacobianPoint(*ret), t.answer.ToJacobian());
   }
+  tachyon_bn254_g1_destroy_msm_gpu(msm);
 }
 
-TEST_F(MSMGpuTest, MSMG1Affine) {
-  for (const MSMTestSet<bn254::G1AffinePoint>& t : test_sets) {
+TEST_P(MSMGpuTest, MSMG1Affine) {
+  size_t max_num = *std::max_element(std::begin(kNums), std::end(kNums));
+  tachyon_bn254_g1_msm_gpu_ptr msm = tachyon_bn254_g1_create_msm_gpu(
+      base::bits::Log2Ceiling(max_num), GetParam());
+
+  for (const MSMTestSet<bn254::G1AffinePoint>& t : this->test_sets_) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
     ret.reset(tachyon_bn254_g1_affine_msm_gpu(
-        reinterpret_cast<const tachyon_bn254_g1_affine*>(t.bases.data()),
-        t.bases.size(),
+        msm, reinterpret_cast<const tachyon_bn254_g1_affine*>(t.bases.data()),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
         t.scalars.size()));
     EXPECT_EQ(cc::math::ToJacobianPoint(*ret), t.answer.ToJacobian());
   }
+  tachyon_bn254_g1_destroy_msm_gpu(msm);
 }
 
 }  // namespace tachyon::math

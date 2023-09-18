@@ -44,7 +44,7 @@ tachyon_cc_binary(
         ":msm_runner",
         "//benchmark/msm/arkworks",
         "//benchmark/msm/bellman",
-        "//tachyon/c/math/elliptic_curves/msm",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
         "//tachyon/math/elliptic_curves/test:random",
     ],
 )
@@ -56,8 +56,8 @@ tachyon_cuda_binary(
     deps = [
         ":msm_config",
         ":msm_runner",
-        "//tachyon/c/math/elliptic_curves/msm",
-        "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
         "//tachyon/math/elliptic_curves/test:random",
     ],
 )

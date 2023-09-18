@@ -8,6 +8,8 @@ filegroup(
         "fq.h",
         "fr.h",
         "g1.h",
+        "msm.h",
+        "msm_gpu.h",
     ],
 )
 
@@ -16,4 +18,5 @@ generate_ec_points(
     fq_limb_nums = 4,
     fr_limb_nums = 4,
     g1_deps = ["//tachyon/math/elliptic_curves/bn/bn254:g1"],
+    g1_gpu_deps = ["//tachyon/math/elliptic_curves/bn/bn254:g1_gpu"],
 )

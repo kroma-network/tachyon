@@ -26,14 +26,9 @@ class MSMRunner {
   using CScalarField = typename cc::math::PointTraits<PointTy>::CScalarField;
 
   typedef CReturnTy* (*MSMAffineExternalFn)(const CPointTy* bases,
-                                            size_t bases_len,
                                             const CScalarField* scalars,
-                                            size_t scalars_len,
+                                            size_t size,
                                             uint64_t* duration_in_us);
-
-  typedef CReturnTy* (*MSMAffineFn)(const CPointTy* bases, size_t bases_len,
-                                    const CScalarField* scalars,
-                                    size_t scalars_len);
 
   explicit MSMRunner(SimpleMSMBenchmarkReporter* reporter)
       : reporter_(reporter) {}
@@ -44,14 +39,14 @@ class MSMRunner {
     scalars_ = scalars;
   }
 
-  void Run(MSMAffineFn fn, const std::vector<uint64_t>& point_nums,
+  template <typename Fn, typename MSMPtr>
+  void Run(Fn fn, MSMPtr msm, const std::vector<uint64_t>& point_nums,
            std::vector<ReturnTy>* results) {
     results->clear();
     for (size_t i = 0; i < point_nums.size(); ++i) {
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CReturnTy> ret;
-      ret.reset(fn(reinterpret_cast<const CPointTy*>(bases_->data()),
-                   point_nums[i],
+      ret.reset(fn(msm, reinterpret_cast<const CPointTy*>(bases_->data()),
                    reinterpret_cast<const CScalarField*>(scalars_->data()),
                    point_nums[i]));
       reporter_->AddResult(i, (base::TimeTicks::Now() - now).InSecondsF());
@@ -66,7 +61,6 @@ class MSMRunner {
       std::unique_ptr<CReturnTy> ret;
       uint64_t duration_in_us;
       ret.reset(fn(reinterpret_cast<const CPointTy*>(bases_->data()),
-                   point_nums[i],
                    reinterpret_cast<const CScalarField*>(scalars_->data()),
                    point_nums[i], &duration_in_us));
       results->push_back(*reinterpret_cast<ReturnTy*>(ret.get()));

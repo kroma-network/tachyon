@@ -2,6 +2,8 @@
 mod ffi {
     // Rust types and signatures exposed to C++.
     extern "Rust" {
+        type CppMSM;
+        type CppMSMGpu;
         type CppG1Affine;
         type CppG1Jacobian;
         type CppFq;
@@ -12,17 +14,28 @@ mod ffi {
     unsafe extern "C++" {
         include!("tachyon_halo2/include/msm.h");
 
-        fn init_msm(degree: u8);
-        fn release_msm();
-        fn msm(bases: &[CppG1Affine], scalars: &[CppFr]) -> Box<CppG1Jacobian>;
+        fn create_msm(degree: u8) -> Box<CppMSM>;
+        fn destroy_msm(msm: Box<CppMSM>);
+        unsafe fn msm(
+            msm: *mut CppMSM,
+            bases: &[CppG1Affine],
+            scalars: &[CppFr],
+        ) -> Box<CppG1Jacobian>;
         #[cfg(feature = "gpu")]
-        fn init_msm_gpu(degree: u8);
+        fn create_msm_gpu(degree: u8, algorithm: i32) -> Box<CppMSMGpu>;
         #[cfg(feature = "gpu")]
-        fn release_msm_gpu();
+        fn destroy_msm_gpu(msm: Box<CppMSMGpu>);
         #[cfg(feature = "gpu")]
-        fn msm_gpu(bases: &[CppG1Affine], scalars: &[CppFr]) -> Box<CppG1Jacobian>;
+        unsafe fn msm_gpu(
+            msm: *mut CppMSMGpu,
+            bases: &[CppG1Affine],
+            scalars: &[CppFr],
+        ) -> Box<CppG1Jacobian>;
     }
 }
+
+pub struct CppMSM;
+pub struct CppMSMGpu;
 
 #[repr(C)]
 pub struct CppG1Affine {
@@ -94,14 +107,14 @@ mod test {
             let bases: Vec<CppG1Affine> = mem::transmute(bases);
             let scalars: Vec<CppFr> = mem::transmute(scalars);
 
-            ffi::init_msm(degree);
+            let mut msm = ffi::create_msm(degree);
 
-            let actual = ffi::msm(&bases, &scalars);
+            let actual = ffi::msm(&mut *msm, &bases, &scalars);
             let actual: Box<G1> = mem::transmute(actual);
             timer.end("msm");
             assert_eq!(*actual, expected);
 
-            ffi::release_msm();
+            ffi::destroy_msm(msm);
         }
     }
 
@@ -117,7 +130,7 @@ mod test {
         let scalars: Vec<Fr> = (0..n).map(|_| Fr::random(OsRng)).collect();
 
         let mut timer = Timer::new();
-        ffi::init_msm_gpu(degree);
+        let mut msm = ffi::create_msm_gpu(degree, 0);
         timer.end("init_msm_gpu");
 
         let expected = {
@@ -132,12 +145,12 @@ mod test {
             let bases: Vec<CppG1Affine> = mem::transmute(bases);
             let scalars: Vec<CppFr> = mem::transmute(scalars);
 
-            let actual = ffi::msm_gpu(&bases, &scalars);
+            let actual = ffi::msm_gpu(&mut *msm, &bases, &scalars);
             let actual: Box<G1> = mem::transmute(actual);
             timer.end("msm_gpu");
             assert_eq!(*actual, expected);
         }
 
-        ffi::release_msm_gpu();
+        ffi::destroy_msm_gpu(msm);
     }
 }

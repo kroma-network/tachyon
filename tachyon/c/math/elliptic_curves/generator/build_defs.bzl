@@ -1,4 +1,5 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cuda_library")
 
 def _generate_ec_point_impl(ctx):
     arguments = [
@@ -38,7 +39,8 @@ def generate_ec_points(
         name,
         fq_limb_nums,
         fr_limb_nums,
-        g1_deps):
+        g1_deps,
+        g1_gpu_deps):
     for n in [
         ("gen_fq_hdr", "fq.h"),
         ("gen_fq_src", "fq.cc"),
@@ -49,6 +51,10 @@ def generate_ec_points(
         ("gen_fq_prime_field_traits", "fq_prime_field_traits.h"),
         ("gen_fr_prime_field_traits", "fr_prime_field_traits.h"),
         ("gen_g1_point_traits", "g1_point_traits.h"),
+        ("gen_msm_hdr", "msm.h"),
+        ("gen_msm_src", "msm.cc"),
+        ("gen_msm_gpu_hdr", "msm_gpu.h"),
+        ("gen_msm_gpu_src", "msm_gpu.cc"),
     ]:
         generate_ec_point(
             type = name,
@@ -97,3 +103,25 @@ def generate_ec_points(
             "//tachyon/cc/math/elliptic_curves:point_conversions",
         ],
     )
+
+    tachyon_cc_library(
+        name = "msm",
+        hdrs = ["msm.h"],
+        srcs = ["msm.cc"],
+        deps = [
+            ":g1",
+            "//tachyon/c/math/elliptic_curves/msm",
+        ],
+    )
+
+    if name != "bls12_381":
+        # NOTE(chokobole): bls12_381 scalar field causes a compliation error at PrimeFieldGpu::MulInPlace().
+        tachyon_cuda_library(
+            name = "msm_gpu",
+            hdrs = ["msm_gpu.h"],
+            srcs = if_gpu_is_configured(["msm_gpu.cc"]),
+            deps = g1_gpu_deps + [
+                ":g1",
+                "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
+            ],
+        )

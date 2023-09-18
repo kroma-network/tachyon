@@ -34,18 +34,17 @@ pub struct CppFr(pub [u64; 4]);
 #[no_mangle]
 pub extern "C" fn run_msm_bellman(
     bases: *const CppG1Affine,
-    bases_len: usize,
     scalars: *const CppFr,
-    scalars_len: usize,
-    duration: *mut u64
+    size: usize,
+    duration: *mut u64,
 ) -> *mut CppG1Jacobian {
     let ret = unsafe {
-        let bases: &[CppG1Affine] = slice::from_raw_parts(bases, bases_len);
-        let scalars: &[CppFr] = slice::from_raw_parts(scalars, scalars_len);
+        let bases: &[CppG1Affine] = slice::from_raw_parts(bases, size);
+        let scalars: &[CppFr] = slice::from_raw_parts(scalars, size);
 
         let mut bases_vec = Vec::<G1Affine>::new();
         bases_vec.reserve_exact(bases.len());
-        for i in 0..bases_len {
+        for i in 0..size {
             let x = mem::transmute(bases[i].x);
             let y = mem::transmute(bases[i].y);
             bases_vec.push(G1Affine::from_xy_checked(x, y).unwrap());

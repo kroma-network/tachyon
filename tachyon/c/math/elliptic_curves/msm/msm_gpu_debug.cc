@@ -10,7 +10,7 @@
 #include "tachyon/base/time/time.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_prime_field_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
-#include "tachyon/c/math/elliptic_curves/msm/msm_gpu.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/msm_gpu.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
@@ -59,12 +59,30 @@ int RealMain(int argc, char** argv) {
   base::FlagParser parser;
   std::vector<int> idxes;
   int degree;
+  int algorithm = 0;
   parser.AddFlag<base::Flag<std::vector<int>>>(&idxes)
       .set_long_name("--idx")
       .set_required();
   parser.AddFlag<base::IntFlag>(&degree)
       .set_long_name("--degree")
       .set_required();
+  parser
+      .AddFlag<base::IntFlag>(
+          [&algorithm](std::string_view arg, std::string* reason) {
+            if (arg == "bellman_msm") {
+              algorithm = 0;
+              return true;
+            } else if (arg == "cuzk") {
+              algorithm = 1;
+              return true;
+            }
+            *reason = absl::Substitute("Not supported algorithm: $0", arg);
+            return false;
+          })
+      .set_long_name("--algo")
+      .set_help(
+          "Algorithms to be benchmarked with. (supported algorithms: "
+          "bellman_msm, cuzk)");
   {
     std::string error;
     if (!parser.Parse(argc, argv, &error)) {
@@ -73,8 +91,9 @@ int RealMain(int argc, char** argv) {
     }
   }
 
-  tachyon_init_msm_gpu(degree);
-  bn254::G1JacobianPoint::Curve::Init();
+  tachyon_bn254_g1_init();
+  tachyon_bn254_g1_msm_gpu_ptr msm =
+      tachyon_bn254_g1_create_msm_gpu(degree, algorithm);
 
   std::string_view save_location_str;
   CHECK(base::Environment::Get("TACHYON_SAVE_LOCATION", &save_location_str));
@@ -90,8 +109,7 @@ int RealMain(int argc, char** argv) {
     base::TimeTicks now = base::TimeTicks::Now();
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret(
         tachyon_bn254_g1_affine_msm_gpu(
-            reinterpret_cast<const tachyon_bn254_g1_affine*>(bases.data()),
-            bases.size(),
+            msm, reinterpret_cast<const tachyon_bn254_g1_affine*>(bases.data()),
             reinterpret_cast<const tachyon_bn254_fr*>(scalars.data()),
             scalars.size()));
     std::cout << (base::TimeTicks::Now() - now) << std::endl;
@@ -99,7 +117,7 @@ int RealMain(int argc, char** argv) {
               << std::endl;
   }
 
-  tachyon_release_msm_gpu();
+  tachyon_bn254_g1_destroy_msm_gpu(msm);
 
   return 0;
 }
