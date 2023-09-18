@@ -97,6 +97,7 @@ def generate_ec_points(
             ":fq",
             ":fr",
             "//tachyon/math/elliptic_curves/short_weierstrass:points",
+            "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve",
         ],
         **kwargs
     )

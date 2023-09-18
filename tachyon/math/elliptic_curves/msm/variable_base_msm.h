@@ -1,7 +1,7 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_H_
 
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_adapter.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_adapter.h"
 
 namespace tachyon::math {
 template <typename PointTy>

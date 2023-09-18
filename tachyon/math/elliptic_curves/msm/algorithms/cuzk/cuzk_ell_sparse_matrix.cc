@@ -1,4 +1,4 @@
-#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_ell_sparse_matrix.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk_ell_sparse_matrix.h"
 
 #include <sstream>
 

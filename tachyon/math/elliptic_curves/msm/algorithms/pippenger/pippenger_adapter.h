@@ -1,9 +1,9 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_ADAPTER_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_ADAPTER_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_ADAPTER_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_ADAPTER_H_
 
 #include "absl/base/internal/sysinfo.h"
 
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger.h"
 
 namespace tachyon::math {
 
@@ -104,4 +104,4 @@ class PippengerAdapter {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_ADAPTER_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_ADAPTER_H_

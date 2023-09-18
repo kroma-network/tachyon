@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_EXECUTION_CUDA_IMPL_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_EXECUTION_CUDA_IMPL_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_BELLMAN_BELLMAN_MSM_IMPL_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_BELLMAN_BELLMAN_MSM_IMPL_H_
 
 #include <cmath>
 
@@ -15,11 +15,9 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_event.h"
 #include "tachyon/device/gpu/scoped_stream.h"
-#include "tachyon/math/elliptic_curves/msm/kernels/variable_base_msm_kernels.cu.h"
+#include "tachyon/math/elliptic_curves/msm/kernels/bellman/bellman_msm_kernels.cu.h"
 
-namespace tachyon::math::msm {
-
-using namespace device::gpu;
+namespace tachyon::math::bellman {
 
 template <typename Curve>
 struct ExecutionConfig {
@@ -125,6 +123,7 @@ template <typename Curve,
           typename ScalarField = typename PointXYZZ<Curve>::ScalarField>
 gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
                              bool dry_run) {
+  using namespace device::gpu;
   ExecutionConfig<Curve> ec = config.execution_config;
   gpuMemPool_t pool = ec.mem_pool;
   gpuStream_t stream = ec.stream;
@@ -233,7 +232,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       if (is_first_loop &&
           (config.scalars_attributes.type == gpuMemoryTypeUnregistered ||
            config.bases_attributes.type == gpuMemoryTypeUnregistered)) {
-        error = kernels::InitializeBuckets(buckets_pass_one.get(),
+        error = bellman::InitializeBuckets(buckets_pass_one.get(),
                                            buckets_count_pass_one, stream);
         if (UNLIKELY(error != gpuSuccess)) return error;
       }
@@ -297,7 +296,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       if (is_first_loop &&
           config.scalars_attributes.type != gpuMemoryTypeUnregistered &&
           config.bases_attributes.type != gpuMemoryTypeUnregistered) {
-        error = kernels::InitializeBuckets(buckets_pass_one.get(),
+        error = bellman::InitializeBuckets(buckets_pass_one.get(),
                                            buckets_count_pass_one, stream);
         if (UNLIKELY(error != gpuSuccess)) return error;
       }
@@ -316,7 +315,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             gpuStreamWaitEvent(stream, event_scalars_loaded.get()),
             "Failed to gpuStreamWaitEvent()");
       }
-      error = kernels::ComputeBucketIndexes(
+      error = bellman::ComputeBucketIndexes(
           copy_scalars ? inputs_scalars.get() : &ec.scalars[inputs_offset],
           windows_count_pass_one, bits_count_pass_one,
           &bucket_indexes[inputs_count], &base_indexes[inputs_count],
@@ -404,7 +403,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     if (error != gpuSuccess) return error;
 
     if (!dry_run) {
-      error = kernels::RemoveZeroBuckets(
+      error = bellman::RemoveZeroBuckets(
           unique_bucket_indexes.get(), bucket_run_lengths.get(),
           bucket_runs_count.get(), extended_buckets_count_pass_one, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
@@ -490,7 +489,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             gpuStreamWaitEvent(stream, event_bases_loaded.get()),
             "Failed to gpuStreamWaitEvent()");
       }
-      error = kernels::AggregateBuckets(
+      error = bellman::AggregateBuckets(
           is_first_loop, base_indexes.get(), sorted_bucket_run_offsets.get(),
           sorted_bucket_run_lengths.get(), sorted_unique_bucket_indexes.get(),
           copy_bases ? inputs_bases.get() : &ec.bases[inputs_offset],
@@ -545,17 +544,17 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
       unsigned int top_window_unused_buckets_offset =
           top_window_offset + top_window_used_buckets_count;
       for (unsigned int i = 0; i < top_window_unused_bits; ++i) {
-        error = kernels::ReduceBuckets(
+        error = bellman::ReduceBuckets(
             &buckets_pass_one[top_window_offset],
             1 << (signed_bits_count_pass_one - i - 1), stream);
         if (UNLIKELY(error != gpuSuccess)) return error;
       }
-      error = kernels::InitializeBuckets(
+      error = bellman::InitializeBuckets(
           &buckets_pass_one[top_window_unused_buckets_offset],
           top_window_unused_buckets_count, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
     }
-    error = kernels::ExtractTopBuckets(
+    error = bellman::ExtractTopBuckets(
         buckets_pass_one.get(), top_buckets.get(), signed_bits_count_pass_one,
         windows_count_pass_one, stream);
     if (UNLIKELY(error != gpuSuccess)) return error;
@@ -577,7 +576,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
     target_buckets = GpuMemory<PointXYZZ<Curve>>::MallocFromPoolAsync(
         total_buckets_count, pool, stream);
     if (!dry_run) {
-      error = kernels::SplitWindows(source_bits_count, source_windows_count,
+      error = bellman::SplitWindows(source_bits_count, source_windows_count,
                                     source_buckets.get(), target_buckets.get(),
                                     total_buckets_count, stream);
       if (UNLIKELY(error != gpuSuccess)) return error;
@@ -586,7 +585,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
 
     if (!dry_run) {
       for (unsigned int j = 0; j < log_data_split; ++j) {
-        error = kernels::ReduceBuckets(target_buckets.get(),
+        error = bellman::ReduceBuckets(target_buckets.get(),
                                        total_buckets_count >> (j + 1), stream);
         if (UNLIKELY(error != gpuSuccess)) return error;
       }
@@ -599,7 +598,7 @@ gpuError_t ScheduleExecution(const ExtendedConfig<Curve>& config,
             result_windows_count, pool, stream);
       }
       if (!dry_run) {
-        error = kernels::LastPassGather(
+        error = bellman::LastPassGather(
             bits_count_pass_one, target_buckets.get(), top_buckets.get(),
             copy_results ? results.get() : ec.results, result_windows_count,
             stream);
@@ -703,6 +702,6 @@ gpuError_t ExecuteAsync(const ExecutionConfig<Curve>& config) {
   }
 }
 
-}  // namespace tachyon::math::msm
+}  // namespace tachyon::math::bellman
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_EXECUTION_CUDA_IMPL_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_BELLMAN_BELLMAN_MSM_IMPL_H_

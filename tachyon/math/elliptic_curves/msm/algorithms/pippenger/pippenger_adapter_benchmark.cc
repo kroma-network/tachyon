@@ -93,10 +93,10 @@ BENCHMARK_TEMPLATE(BM_PippengerAdapterNonUniformWithParallelWindowAndTerm,
 }  // namespace tachyon::math
 
 // clang-format off
-// Executing tests from //tachyon/math/elliptic_curves/msm/algorithms:pippenger_adapter_benchmark
+// Executing tests from //tachyon/math/elliptic_curves/msm/algorithms/pippenger:pippenger_adapter_benchmark
 // -----------------------------------------------------------------------------
 // 2023-09-13T01:54:29+00:00
-// Running /home/ryan/.cache/bazel/_bazel_ryan/2e01f4ccafa60589f9bbdbefc5d15e2a/execroot/kroma_network_tachyon/bazel-out/k8-opt/bin/tachyon/math/elliptic_curves/msm/algorithms/pippenger_adapter_benchmark.runfiles/kroma_network_tachyon/tachyon/math/elliptic_curves/msm/algorithms/pippenger_adapter_benchmark
+// Running /home/ryan/.cache/bazel/_bazel_ryan/2e01f4ccafa60589f9bbdbefc5d15e2a/execroot/kroma_network_tachyon/bazel-out/k8-opt/bin/tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_adapter_benchmark.runfiles/kroma_network_tachyon/tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_adapter_benchmark
 // Run on (32 X 5500 MHz CPU s)
 // CPU Caches:
 //   L1 Data 48 KiB (x16)

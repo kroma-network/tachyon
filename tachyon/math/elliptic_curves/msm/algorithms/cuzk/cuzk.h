@@ -1,27 +1,27 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_CUZK_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_CUZK_H_
 
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_stream.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_csr_sparse_matrix.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_ell_sparse_matrix.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_base.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_ctx.h"
-#include "tachyon/math/elliptic_curves/msm/kernels/cuzk_kernels.cu.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk_csr_sparse_matrix.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk_ell_sparse_matrix.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/msm_algorithm.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_ctx.h"
+#include "tachyon/math/elliptic_curves/msm/kernels/cuzk/cuzk_kernels.cu.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits.h"
 
 namespace tachyon::math {
 
 template <typename GpuCurve>
-class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
+class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
+             public MSMGpuAlgorithm<GpuCurve> {
  public:
   using BaseField = typename AffinePoint<GpuCurve>::BaseField;
   using ScalarField = typename AffinePoint<GpuCurve>::ScalarField;
   using Bucket = typename PippengerBase<GpuCurve>::Bucket;
-
   using CpuCurve = typename SWCurveTraits<GpuCurve>::CpuCurve;
 
   CUZK() : CUZK(nullptr, nullptr) {}
@@ -48,11 +48,25 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
     block_size_ = block_size;
   }
 
+  // MSMGpuAlgorithm methods
   bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
-           const device::gpu::GpuMemory<ScalarField>& scalars,
+           const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
+           JacobianPoint<CpuCurve>* cpu_result) override {
+    PointXYZZ<CpuCurve> out;
+    if (!Run(bases, scalars, size, &out)) return false;
+    *cpu_result = out.ToJacobian();
+    return true;
+  }
+
+  bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
+           const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
            PointXYZZ<CpuCurve>* cpu_result) {
-    if (bases.size() != scalars.size()) {
-      LOG(ERROR) << "bases.size() and scalars.size() don't match";
+    if (bases.size() < size) {
+      LOG(ERROR) << "bases.size() is smaller than size";
+      return false;
+    }
+    if (scalars.size() < size) {
+      LOG(ERROR) << "bases.size() is smaller than size";
       return false;
     }
 
@@ -62,7 +76,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
       error = LOG_IF_GPU_ERROR(cudaGetDevice(&device_id_),
                                "Failed to cudaGetDevice()");
     }
-    ctx_ = PippengerCtx::CreateDefault<ScalarField>(scalars.size());
+    ctx_ = PippengerCtx::CreateDefault<ScalarField>(size);
     start_group_ =
         (ctx_.window_count + device_count_ - 1) / device_count_ * device_id_;
     end_group_ = (ctx_.window_count + device_count_ - 1) / device_count_ *
@@ -72,7 +86,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
 
     auto buckets = device::gpu::GpuMemory<PointXYZZ<GpuCurve>>::MallocManaged(
         ctx_.GetWindowLength() * (end_group_ - start_group_));
-    if (!CreateBuckets(bases, scalars, buckets)) {
+    if (!CreateBuckets(bases, scalars, size, buckets)) {
       return false;
     }
 
@@ -95,13 +109,13 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
 
   bool CreateBuckets(
       const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
-      const device::gpu::GpuMemory<ScalarField>& scalars,
+      const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
       device::gpu::GpuMemory<PointXYZZ<GpuCurve>>& buckets) const {
     unsigned int thread_num = grid_size_ * block_size_;
 
     CUZKELLSparseMatrix ell_matrix;
     ell_matrix.rows = thread_num;
-    ell_matrix.cols = (scalars.size() + thread_num - 1) / thread_num;
+    ell_matrix.cols = (size + thread_num - 1) / thread_num;
     auto row_lengths =
         device::gpu::GpuMemory<unsigned int>::MallocManaged(ell_matrix.rows);
     auto col_indicies = device::gpu::GpuMemory<unsigned int>::MallocManaged(
@@ -116,7 +130,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
         csr_matrix_transposed.rows + 1);
     auto col_datas =
         device::gpu::GpuMemory<CUZKCSRSparseMatrix::Element>::MallocManaged(
-            scalars.size());
+            size);
     csr_matrix_transposed.row_ptrs = row_ptrs.get();
     csr_matrix_transposed.col_datas = col_datas.get();
     csr_matrix_transposed.col_datas_size = col_datas.size();
@@ -125,11 +139,11 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
         col_indicies.size() + 1);
     for (unsigned int i = start_group_; i < end_group_; ++i) {
       row_lengths.Memset();
-      kernels::WriteBucketIndexesToELLMatrix<<<grid_size_, block_size_>>>(
+      cuzk::WriteBucketIndexesToELLMatrix<<<grid_size_, block_size_>>>(
           ctx_, i, scalars.get(), ell_matrix);
       gpuError_t error = gpuGetLastError();
       if (error != gpuSuccess) {
-        LOG(ERROR) << "Failed to kernels::WriteBucketIndexesToELLMatrix()";
+        LOG(ERROR) << "Failed to cuzk::WriteBucketIndexesToELLMatrix()";
         return false;
       }
 
@@ -154,20 +168,20 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
                                  CUZKCSRSparseMatrix& csr_matrix,
                                  unsigned int idx,
                                  unsigned int* row_ptr_offsets) const {
-    kernels::ConvertELLToCSRTransposedStep1<<<grid_size_, block_size_>>>(
+    cuzk::ConvertELLToCSRTransposedStep1<<<grid_size_, block_size_>>>(
         ell_matrix, csr_matrix, row_ptr_offsets);
     gpuError_t error = gpuGetLastError();
     if (error != gpuSuccess) {
-      LOG(ERROR) << "Failed to kernels::ConvertELLToCSRTransposedStep1()";
+      LOG(ERROR) << "Failed to cuzk::ConvertELLToCSRTransposedStep1()";
       return false;
     }
     gpuStreamSynchronize(0);
 
-    kernels::ConvertELLToCSRTransposedStep2<<<grid_size_, block_size_>>>(
+    cuzk::ConvertELLToCSRTransposedStep2<<<grid_size_, block_size_>>>(
         csr_matrix);
     error = gpuGetLastError();
     if (error != gpuSuccess) {
-      LOG(ERROR) << "Failed to kernels::ConvertELLToCSRTransposedStep2()";
+      LOG(ERROR) << "Failed to cuzk::ConvertELLToCSRTransposedStep2()";
       return false;
     }
     gpuStreamSynchronize(0);
@@ -177,30 +191,30 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
     unsigned int stride = (row_ptrs_size + thread_num - 1) / thread_num;
 
     for (unsigned int i = 0; i < log2(thread_num); ++i) {
-      kernels::ConvertELLToCSRTransposedStep3<<<grid_size_ / 2, block_size_>>>(
+      cuzk::ConvertELLToCSRTransposedStep3<<<grid_size_ / 2, block_size_>>>(
           csr_matrix, i, stride);
       error = gpuGetLastError();
       if (error != gpuSuccess) {
-        LOG(ERROR) << "Failed to kernels::ConvertELLToCSRTransposedStep3()";
+        LOG(ERROR) << "Failed to cuzk::ConvertELLToCSRTransposedStep3()";
         return false;
       }
       gpuStreamSynchronize(0);
     }
 
-    kernels::ConvertELLToCSRTransposedStep4<<<grid_size_, block_size_>>>(
+    cuzk::ConvertELLToCSRTransposedStep4<<<grid_size_, block_size_>>>(
         csr_matrix);
     error = gpuGetLastError();
     if (error != gpuSuccess) {
-      LOG(ERROR) << "Failed to kernels::ConvertELLToCSRTransposedStep4()";
+      LOG(ERROR) << "Failed to cuzk::ConvertELLToCSRTransposedStep4()";
       return false;
     }
     gpuStreamSynchronize(0);
 
-    kernels::ConvertELLToCSRTransposedStep5<<<grid_size_, block_size_>>>(
+    cuzk::ConvertELLToCSRTransposedStep5<<<grid_size_, block_size_>>>(
         ell_matrix, csr_matrix, row_ptr_offsets);
     error = gpuGetLastError();
     if (error != gpuSuccess) {
-      LOG(ERROR) << "Failed to kernels::ConvertELLToCSRTransposedStep5()";
+      LOG(ERROR) << "Failed to cuzk::ConvertELLToCSRTransposedStep5()";
       return false;
     }
     gpuStreamSynchronize(0);
@@ -225,11 +239,11 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
     // TODO(chokobole): Why it is multiplied by 10?
     unsigned int z = tnum * 10;
 
-    kernels::MultiplyCSRMatrixWithOneVectorStep1<<<grid_size_, block_size_>>>(
+    cuzk::MultiplyCSRMatrixWithOneVectorStep1<<<grid_size_, block_size_>>>(
         ctx_, z, csr_matrix, bases.get(), results.get(), bucket_index);
     gpuError_t error = gpuGetLastError();
     if (error != gpuSuccess) {
-      LOG(ERROR) << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep1()";
+      LOG(ERROR) << "Failed to cuzk::MultiplyCSRMatrixWithOneVectorStep1()";
       return false;
     }
 
@@ -245,12 +259,11 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
       auto max_intermediate_results =
           device::gpu::GpuMemory<PointXYZZ<GpuCurve>>::MallocManaged(tnum);
 
-      kernels::MultiplyCSRMatrixWithOneVectorStep2<<<grid_size_, block_size_>>>(
+      cuzk::MultiplyCSRMatrixWithOneVectorStep2<<<grid_size_, block_size_>>>(
           start, end, csr_matrix, bases.get(), max_intermediate_results.get());
       gpuError_t error = gpuGetLastError();
       if (error != gpuSuccess) {
-        LOG(ERROR)
-            << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep2()";
+        LOG(ERROR) << "Failed to cuzk::MultiplyCSRMatrixWithOneVectorStep2()";
         return false;
       }
 
@@ -259,14 +272,12 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
       unsigned int tid = tnum;
       unsigned int count = 1;
       while (tid != 1) {
-        kernels::
-            MultiplyCSRMatrixWithOneVectorStep3<<<grid_size_, block_size_>>>(
-                ctx_, i, count, csr_matrix, bases.get(),
-                max_intermediate_results.get(), results.get(), bucket_index);
+        cuzk::MultiplyCSRMatrixWithOneVectorStep3<<<grid_size_, block_size_>>>(
+            ctx_, i, count, csr_matrix, bases.get(),
+            max_intermediate_results.get(), results.get(), bucket_index);
         gpuError_t error = gpuGetLastError();
         if (error != gpuSuccess) {
-          LOG(ERROR)
-              << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep3()";
+          LOG(ERROR) << "Failed to cuzk::MultiplyCSRMatrixWithOneVectorStep3()";
           return false;
         }
         gpuStreamSynchronize(0);
@@ -326,15 +337,14 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
       unsigned int stream_g = (end - start) / z;
       unsigned int ptr = row_ptrs2[n_other_total_idx];
 
-      kernels::MultiplyCSRMatrixWithOneVectorStep4<<<
+      cuzk::MultiplyCSRMatrixWithOneVectorStep4<<<
           stream_g, block_size_, block_size_ * sizeof(PointXYZZ<GpuCurve>),
           streams[stream_id].get()>>>(
           start, end, n_other_total_idx, i, ptr, csr_matrix, bases.get(),
           intermediate_indices.get(), intermediate_datas.get());
       gpuError_t error = gpuGetLastError();
       if (error != gpuSuccess) {
-        LOG(ERROR)
-            << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep4()";
+        LOG(ERROR) << "Failed to cuzk::MultiplyCSRMatrixWithOneVectorStep4()";
         return false;
       }
 
@@ -347,12 +357,12 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
     }
     gpuStreamSynchronize(stream.get());
 
-    kernels::MultiplyCSRMatrixWithOneVectorStep5<<<grid_size_, block_size_>>>(
+    cuzk::MultiplyCSRMatrixWithOneVectorStep5<<<grid_size_, block_size_>>>(
         intermediate_rows.get(), intermediate_indices.get(),
         intermediate_datas.get(), results.get(), n_other_total);
     error = gpuGetLastError();
     if (error != gpuSuccess) {
-      LOG(ERROR) << "Failed to kernels::MultiplyCSRMatrixWithOneVectorStep5()";
+      LOG(ERROR) << "Failed to cuzk::MultiplyCSRMatrixWithOneVectorStep5()";
       return false;
     }
     gpuStreamSynchronize(0);
@@ -373,12 +383,12 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
         device::gpu::GpuMemory<PointXYZZ<GpuCurve>>::MallocManaged(
             (end_group_ - start_group_) * gnum);
 
-    kernels::ReduceBucketsStep1<<<group_grid*(end_group_ - start_group_),
-                                  block_size_>>>(
+    cuzk::ReduceBucketsStep1<<<group_grid*(end_group_ - start_group_),
+                               block_size_>>>(
         ctx_, buckets.get(), intermediate_results.get(), group_grid);
     gpuError_t error = gpuGetLastError();
     if (error != gpuSuccess) {
-      LOG(ERROR) << "Failed to kernels::ReduceBucketsStep1()";
+      LOG(ERROR) << "Failed to cuzk::ReduceBucketsStep1()";
       return false;
     }
     gpuStreamSynchronize(0);
@@ -386,12 +396,12 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
     unsigned int t_count = gnum;
     unsigned int count = 1;
     while (t_count != 1) {
-      kernels::ReduceBucketsStep2<<<group_grid*(end_group_ - start_group_),
-                                    block_size_>>>(intermediate_results.get(),
-                                                   group_grid, count);
+      cuzk::ReduceBucketsStep2<<<group_grid*(end_group_ - start_group_),
+                                 block_size_>>>(intermediate_results.get(),
+                                                group_grid, count);
       gpuError_t error = gpuGetLastError();
       if (error != gpuSuccess) {
-        LOG(ERROR) << "Failed to kernels::ReduceBucketsStep2()";
+        LOG(ERROR) << "Failed to cuzk::ReduceBucketsStep2()";
         return false;
       }
       gpuStreamSynchronize(0);
@@ -400,12 +410,12 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
       count *= 2;
     }
 
-    kernels::ReduceBucketsStep3<<<1, 1>>>(ctx_, intermediate_results.get(),
-                                          start_group_, end_group_, gnum,
-                                          result.get());
+    cuzk::ReduceBucketsStep3<<<1, 1>>>(ctx_, intermediate_results.get(),
+                                       start_group_, end_group_, gnum,
+                                       result.get());
     error = gpuGetLastError();
     if (error != gpuSuccess) {
-      LOG(ERROR) << "Failed to kernels::ReduceBucketsStep3()";
+      LOG(ERROR) << "Failed to cuzk::ReduceBucketsStep3()";
       return false;
     }
     return true;
@@ -425,4 +435,4 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>> {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_CUZK_H_

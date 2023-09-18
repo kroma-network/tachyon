@@ -4,12 +4,12 @@
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_csr_sparse_matrix.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk_ell_sparse_matrix.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger_ctx.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk_csr_sparse_matrix.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk_ell_sparse_matrix.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_ctx.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 
-namespace tachyon::math::kernels {
+namespace tachyon::math::cuzk {
 
 // This is a pStoreECPoints in the Algorithm3 section from
 // https://eprint.iacr.org/2022/1321.pdf
@@ -237,6 +237,6 @@ __global__ void ReduceBucketsStep3(
   }
 }
 
-}  // namespace tachyon::math::kernels
+}  // namespace tachyon::math::cuzk
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_CUZK_KERNELS_CU_H_

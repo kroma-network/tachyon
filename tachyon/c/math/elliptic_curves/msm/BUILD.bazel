@@ -85,7 +85,7 @@ tachyon_cc_test(
 )
 
 tachyon_cuda_test(
-    name = "msm_gpu_unittest",
+    name = "msm_gpu_unittests",
     size = "small",
     srcs = if_gpu_is_configured(["msm_gpu_unittest.cc"]),
     deps = [

@@ -2,7 +2,6 @@
 
 #include "absl/types/span.h"
 
-#include "tachyon/base/bits.h"
 #include "tachyon/base/console/console_stream.h"
 #include "tachyon/base/environment.h"
 #include "tachyon/base/files/file_util.h"
@@ -27,9 +26,8 @@ gpu::ScopedMemPool g_mem_pool;
 gpu::ScopedStream g_stream;
 gpu::GpuMemory<bn254::G1AffinePointGpu> g_d_bases;
 gpu::GpuMemory<bn254::FrGpu> g_d_scalars;
-gpu::GpuMemory<bn254::G1JacobianPointGpu> g_d_results;
-std::unique_ptr<bn254::G1JacobianPoint[]> g_u_results;
 std::unique_ptr<MSMInputProvider<bn254::G1AffinePoint>> g_provider;
+std::unique_ptr<VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve>> g_msm;
 
 // TODO(chokobole): Remove this when MSM gpu is stabilized.
 std::string g_save_location;
@@ -57,7 +55,6 @@ void DoInitMSMGpu(uint8_t degree) {
   }
 
   bn254::G1AffinePointGpu::Curve::Init();
-  VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve>::Setup();
 
   gpuMemPoolProps props = {gpuMemAllocationTypePinned,
                            gpuMemHandleTypeNone,
@@ -72,13 +69,13 @@ void DoInitMSMGpu(uint8_t degree) {
   uint64_t size = static_cast<uint64_t>(1) << degree;
   g_d_bases = gpu::GpuMemory<bn254::G1AffinePointGpu>::Malloc(size);
   g_d_scalars = gpu::GpuMemory<bn254::FrGpu>::Malloc(size);
-  size_t bit_size = bn254::FrGpu::kModulusBits;
-  g_d_results = gpu::GpuMemory<bn254::G1JacobianPointGpu>::Malloc(bit_size);
-  g_u_results.reset(new bn254::G1JacobianPoint[bit_size]);
 
   g_stream = gpu::CreateStream();
   g_provider.reset(new MSMInputProvider<bn254::G1AffinePoint>());
   g_provider->set_needs_align(true);
+  g_msm.reset(new VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve>(
+      tachyon::math::MSMAlgorithmKind::kBellmanMSM, g_mem_pool.get(),
+      g_stream.get()));
 }
 
 void DoReleaseMSMGpu() {
@@ -91,11 +88,10 @@ void DoReleaseMSMGpu() {
   }
   g_d_bases.reset();
   g_d_scalars.reset();
-  g_d_results.reset();
-  g_u_results.reset();
   g_stream.reset();
   g_mem_pool.reset();
   g_provider.reset();
+  g_msm.reset();
 }
 
 bn254::G1JacobianPoint DoMSMGpuInternal(
@@ -106,18 +102,8 @@ bn254::G1JacobianPoint DoMSMGpuInternal(
   CHECK(g_d_scalars.CopyFrom(scalars.data(), gpu::GpuMemoryType::kHost, 0,
                              scalars.size()));
 
-  msm::ExecutionConfig<bn254::G1AffinePointGpu::Curve> config;
-  config.mem_pool = g_mem_pool.get();
-  config.stream = g_stream.get();
-  config.bases = g_d_bases.get();
-  config.scalars = g_d_scalars.get();
-  config.results = g_d_results.get();
-  config.log_scalars_count = base::bits::Log2Ceiling(scalars.size());
-
   bn254::G1JacobianPoint ret;
-  GPU_MUST_SUCCESS(VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve>::Execute(
-                       config, g_u_results.get(), &ret),
-                   "Failed to Execute()");
+  CHECK(g_msm->Run(g_d_bases, g_d_scalars, bases.size(), &ret));
   if (g_log_msm) {
     // NOTE(chokobole): This should be replaced with VLOG().
     // Currently, there's no way to delegate VLOG flags from rust side.
