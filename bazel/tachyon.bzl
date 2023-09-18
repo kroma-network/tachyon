@@ -128,5 +128,11 @@ def if_has_numa(a, b = []):
         "//conditions:default": b,
     })
 
+def if_node_binding(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:tachyon_node_binding": a,
+        "//conditions:default": b,
+    })
+
 def if_gpu_is_configured(x):
     return if_cuda_is_configured(x) + if_rocm_is_configured(x)

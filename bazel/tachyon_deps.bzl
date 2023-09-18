@@ -6,6 +6,7 @@ load("//third_party/gpus:cuda_configure.bzl", "cuda_configure")
 load("//third_party/gpus:rocm_configure.bzl", "rocm_configure")
 load("//third_party/hwloc:workspace.bzl", hwloc = "repo")
 load("//third_party/nasm:workspace.bzl", nasm = "repo")
+load("//third_party/node_addon_api:install_node_addon_api.bzl", "install_node_addon_api")
 load("//third_party/py:python_configure.bzl", "python_configure")
 load("//third_party/polygon_zkevm/goldilocks:workspace.bzl", goldilocks = "repo")
 load("//third_party/polygon_zkevm/zkevm_prover:workspace.bzl", zkevm_prover = "repo")
@@ -22,6 +23,8 @@ def tachyon_deps():
     hwloc()
     nasm()
     zkevm_prover()
+
+    install_node_addon_api(name = "node_addon_api")
 
     if not native.existing_rule("bazel_skylib"):
         http_archive(

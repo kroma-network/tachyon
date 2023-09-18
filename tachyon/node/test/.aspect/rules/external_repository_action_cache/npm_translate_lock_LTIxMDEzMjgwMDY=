@@ -1,0 +1,6 @@
+# @generated
+# Input hashes for repository rule npm_translate_lock(name = "npm_deps", pnpm_lock = "//:pnpm-lock.yaml").
+# This file should be checked into version control along with the pnpm-lock.yaml file.
+pnpm-lock.yaml=-1086213679
+yarn.lock=-1603899843
+package.json=-1653773938

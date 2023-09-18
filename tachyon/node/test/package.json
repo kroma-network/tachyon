@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "@ssen/prettier-config": "^2.0.1",
+    "@types/jest": "^29.5.4",
+    "@types/node": "^20.6.0",
+    "jest-cli": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "5.1.6"
+  }
+}
