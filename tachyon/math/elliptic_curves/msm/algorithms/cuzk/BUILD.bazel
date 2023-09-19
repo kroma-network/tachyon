@@ -59,7 +59,7 @@ tachyon_cuda_test(
     srcs = if_gpu_is_configured(["cuzk_unittest.cc"]),
     deps = [
         ":cuzk",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
+        "//tachyon/math/elliptic_curves/msm/kernels/cuzk:bn254_cuzk_kernels",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )

@@ -6,6 +6,8 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
+#include "tachyon/math/elliptic_curves/msm/kernels/bellman/bn254_bellman_msm_kernels.cu.h"
+#include "tachyon/math/elliptic_curves/msm/kernels/cuzk/bn254_cuzk_kernels.cu.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 
 namespace tachyon::math {
@@ -60,6 +62,7 @@ TEST_F(VariableMSMCorrectnessGpuTest, MSM) {
                            gpuMemHandleTypeNone,
                            {gpuMemLocationTypeDevice, 0}};
   gpu::ScopedMemPool mem_pool = gpu::CreateMemPool(&props);
+
   uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
   gpuError_t error = gpuMemPoolSetAttribute(
       mem_pool.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);

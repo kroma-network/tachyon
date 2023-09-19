@@ -29,6 +29,7 @@ struct GenerationConfig : public build::CcWriter {
   std::string type;
   int fq_limb_nums;
   int fr_limb_nums;
+  bool has_specialized_g1_msm_kernels;
 
   int GeneratePrimeFieldHdr(std::string_view suffix) const;
   int GenerateFqHdr() const;
@@ -849,12 +850,14 @@ int GenerationConfig::GenerateMSMGpuHdr() const {
 
 int GenerationConfig::GenerateMSMGpuSrc() const {
   // clang-format off
-  std::string_view tpl[] = {
+  std::vector<std::string_view> tpl = {
       "#include <tuple>",
       "",
       "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_traits.h\"",
       "#include \"tachyon/c/math/elliptic_curves/msm/msm_gpu.h\"",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1_gpu.h\"",
+      "#include \"tachyon/math/elliptic_curves/msm/kernels/bellman/%{type}_bellman_msm_kernels.cu.h\"",
+      "#include \"tachyon/math/elliptic_curves/msm/kernels/cuzk/%{type}_cuzk_kernels.cu.h\"",
       "",
       "struct tachyon_%{type}_g1_msm_gpu : public tachyon::c::math::MSMGpuApi<tachyon::math::%{type}::G1CurveGpu> {",
       "  using tachyon::c::math::MSMGpuApi<tachyon::math::%{type}::G1CurveGpu>::MSMGpuApi;",
@@ -885,6 +888,19 @@ int GenerationConfig::GenerateMSMGpuSrc() const {
   // clang-format on
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
+  if (!has_specialized_g1_msm_kernels) {
+    for (size_t i = 0; i < tpl.size(); ++i) {
+      // clang-format off
+      size_t idx = tpl[i].find("#include \"tachyon/math/elliptic_curves/msm/kernels/bellman/%{type}_bellman_msm_kernels.cu.h\"");
+      // clang-format on
+      if (idx != std::string::npos) {
+        auto it = tpl.begin() + i;
+        tpl.erase(it, it + 2);
+        break;
+      }
+    }
+  }
+
   std::string content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{header_dir_name}", c::math::GetLocation(type)},
@@ -909,6 +925,9 @@ int RealMain(int argc, char** argv) {
       .set_required();
   parser.AddFlag<base::IntFlag>(&config.fr_limb_nums)
       .set_long_name("--fr_limb_nums")
+      .set_required();
+  parser.AddFlag<base::BoolFlag>(&config.has_specialized_g1_msm_kernels)
+      .set_long_name("--has_specialized_g1_msm_kernels")
       .set_required();
 
   std::string error;

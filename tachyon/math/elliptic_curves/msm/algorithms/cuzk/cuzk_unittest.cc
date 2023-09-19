@@ -6,6 +6,7 @@
 #include "tachyon/device/gpu/gpu_logging.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
+#include "tachyon/math/elliptic_curves/msm/kernels/cuzk/bn254_cuzk_kernels.cu.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
