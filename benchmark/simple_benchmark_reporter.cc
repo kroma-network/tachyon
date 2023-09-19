@@ -11,6 +11,7 @@ using namespace matplotlibcpp17;
 
 #include "tachyon/base/console/table_writer.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/strings/string_number_conversions.h"
 
 namespace tachyon {
 
@@ -29,7 +30,7 @@ void SimpleBenchmarkReporter::Show() {
   for (size_t i = 0; i < targets_.size(); ++i) {
     writer.SetElement(i, 0, targets_[i]);
     for (size_t j = 0; j < column_headers_.size(); ++j) {
-      writer.SetElement(i, j + 1, absl::StrCat(results_[i][j]));
+      writer.SetElement(i, j + 1, base::NumberToString(results_[i][j]));
     }
   }
   writer.Print(true);

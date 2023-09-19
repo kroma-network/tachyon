@@ -2,6 +2,8 @@
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/strings/string_number_conversions.h"
+
 namespace tachyon {
 
 SimpleMSMBenchmarkReporter::SimpleMSMBenchmarkReporter(
@@ -9,7 +11,7 @@ SimpleMSMBenchmarkReporter::SimpleMSMBenchmarkReporter(
     : nums_(nums) {
   title_ = std::string(title);
   for (uint64_t num : nums) {
-    targets_.push_back(absl::StrCat(num));
+    targets_.push_back(base::NumberToString(num));
   }
   results_.resize(nums.size());
   AddVendor("tachyon");

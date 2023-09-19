@@ -32,8 +32,8 @@ tachyon_cc_library(
     hdrs = ["numa.h"],
     deps = [
         "//tachyon/base:logging",
-        "//tachyon/build:build_config",
         "//tachyon/base/memory:aligned_memory",
+        "//tachyon/build:build_config",
     ] + if_has_numa(["@hwloc"]),
 )
 

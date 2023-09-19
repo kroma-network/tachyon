@@ -10,6 +10,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/console:table_writer",
         "//tachyon/base/containers:container_util",
+        "//tachyon/base/strings:string_number_conversions",
     ] + if_has_matplotlib([
         "@com_github_soblin_matplotlibcpp17//:matplotlibcpp17",
     ]),

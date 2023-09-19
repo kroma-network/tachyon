@@ -5,12 +5,24 @@ load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fi
 
 package(default_visibility = ["//visibility:public"])
 
-# Parameters are from https://www.secg.org/sec2-v2.pdf#page=13
+# Parameters are from https://www.secg.org/sec2-v2.pdf#page=13 and https://github.com/arkworks-rs/curves/tree/master/secp256k1/src/fields
 # Hex: 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f
 FQ_MODULUS = "115792089237316195423570985008687907853269984665640564039457584007908834671663"
 
+FQ_SUBGROUP_GENERATOR = "3"
+
+FQ_SMALL_SUBGROUP_BASE = "3"
+
+FQ_SMALL_SUBGROUP_ADICITY = "1"
+
 # Hex: 0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141
 FR_MODULUS = "115792089237316195423570985008687907852837564279074904382605163141518161494337"
+
+FR_SUBGROUP_GENERATOR = "7"
+
+FR_SMALL_SUBGROUP_BASE = "3"
+
+FR_SMALL_SUBGROUP_ADICITY = "1"
 
 generate_prime_fields(
     name = "fq",
@@ -23,6 +35,8 @@ generate_prime_fields(
 #endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = FQ_MODULUS,
     namespace = "tachyon::math::secp256k1",
+    small_subgroup_adicity = FQ_SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = FQ_SMALL_SUBGROUP_BASE,
     special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #if ARCH_CPU_X86_64
   constexpr static bool kIsSpecialPrime = true;
@@ -33,6 +47,7 @@ generate_prime_fields(
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif""",
+    subgroup_generator = FQ_SUBGROUP_GENERATOR,
     deps = if_polygon_zkevm_backend([
         ":prime_field_fq",
         "//tachyon/build:build_config",
@@ -50,6 +65,8 @@ generate_prime_fields(
 #endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = FR_MODULUS,
     namespace = "tachyon::math::secp256k1",
+    small_subgroup_adicity = FR_SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = FR_SMALL_SUBGROUP_BASE,
     special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #if ARCH_CPU_X86_64
   constexpr static bool kIsSpecialPrime = true;
@@ -60,6 +77,7 @@ generate_prime_fields(
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif""",
+    subgroup_generator = FR_SUBGROUP_GENERATOR,
     deps = if_polygon_zkevm_backend([
         ":prime_field_fr",
         "//tachyon/build:build_config",

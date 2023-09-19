@@ -36,7 +36,10 @@ tachyon_cc_library(
     name = "cuzk_ell_sparse_matrix",
     srcs = ["cuzk_ell_sparse_matrix.cc"],
     hdrs = ["cuzk_ell_sparse_matrix.h"],
-    deps = ["//tachyon/base/console:table_writer"],
+    deps = [
+        "//tachyon/base/console:table_writer",
+        "//tachyon/base/strings:string_number_conversions",
+    ],
 )
 
 tachyon_cc_library(

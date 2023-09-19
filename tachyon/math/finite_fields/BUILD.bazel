@@ -24,7 +24,14 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "prime_field_base",
     hdrs = ["prime_field_base.h"],
-    deps = ["//tachyon/math/base:field"],
+    deps = [
+        ":prime_field_forward",
+        ":prime_field_util",
+        "//tachyon/base:bits",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/math/base:field",
+        "//tachyon/math/base/gmp:gmp_util",
+    ],
 )
 
 tachyon_cc_library(
@@ -95,15 +102,28 @@ tachyon_cc_library(
     hdrs = ["prime_field_forward.h"],
 )
 
+tachyon_cc_library(
+    name = "prime_field_util",
+    srcs = ["prime_field_util.cc"],
+    hdrs = ["prime_field_util.h"],
+    deps = [
+        "//tachyon:export",
+        "@local_config_gmp//:gmp",
+    ],
+)
+
 tachyon_cc_test(
     name = "finite_fields_unittests",
     size = "small",
     srcs = [
         "modulus_unittest.cc",
+        "prime_field_base_unittest.cc",
         "prime_field_unittest.cc",
     ],
     deps = [
+        "//tachyon/base:bits",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/test:gf7",
     ],
 )

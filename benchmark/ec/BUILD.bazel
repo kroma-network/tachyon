@@ -15,7 +15,10 @@ tachyon_cc_library(
     srcs = ["simple_ec_benchmark_reporter.cc"],
     hdrs = ["simple_ec_benchmark_reporter.h"],
     visibility = ["//benchmark:__subpackages__"],
-    deps = ["//benchmark:simple_benchmark_reporter"],
+    deps = [
+        "//benchmark:simple_benchmark_reporter",
+        "//tachyon/base/strings:string_number_conversions",
+    ],
 )
 
 tachyon_cuda_binary(

@@ -5,6 +5,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/console/table_writer.h"
+#include "tachyon/base/strings/string_number_conversions.h"
 
 namespace tachyon::math {
 
@@ -27,7 +28,7 @@ std::string CUZKELLSparseMatrix::ToString() const {
   base::TableWriter writer = builder.Build();
   for (size_t i = 0; i < rows; ++i) {
     for (size_t j = 0; j < row_lengths[i]; ++j) {
-      writer.SetElement(i, j, absl::StrCat(col_indices[i * cols + j]));
+      writer.SetElement(i, j, base::NumberToString(col_indices[i * cols + j]));
     }
   }
 

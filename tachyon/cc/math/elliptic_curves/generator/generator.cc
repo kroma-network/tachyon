@@ -3,6 +3,7 @@
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/flag/flag_parser.h"
+#include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
 #include "tachyon/c/math/elliptic_curves/generator/generator_util.h"
@@ -173,7 +174,7 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
           {"%{c_field}", absl::Substitute("tachyon_$0_$1", type, suffix)},
           {"%{cc_field}", suffix == "fq" ? "Fq" : "Fr"},
           {"%{limb_nums}",
-           absl::StrCat(suffix == "fq" ? fq_limb_nums : fr_limb_nums)},
+           base::NumberToString(suffix == "fq" ? fq_limb_nums : fr_limb_nums)},
       });
   return WriteHdr(content, false);
 }
@@ -716,7 +717,7 @@ int GenerationConfig::GenerateG1Hdr() const {
                        {"%{type}", type},
                        {"%{c_fq}", absl::Substitute("tachyon_$0_fq", type)},
                        {"%{c_g1}", absl::Substitute("tachyon_$0_g1", type)},
-                       {"%{fq_limb_nums}", absl::StrCat(fq_limb_nums)},
+                       {"%{fq_limb_nums}", base::NumberToString(fq_limb_nums)},
                    });
   return WriteHdr(content, false);
 }
