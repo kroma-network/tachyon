@@ -1,0 +1,25 @@
+[package]
+name = "tachyon_rs"
+version = "0.0.1"
+authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
+edition = "2021"
+rust-version = "1.56.1"
+description = """
+Tachyon is a blazing fast Zero-Knowledge Proof (ZKP) library developed in C++.
+"""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/kroma-network/tachyon"
+readme = "README.md"
+categories = ["cryptography"]
+keywords = ["tachyon", "proofs", "zkp", "zkSNARKs"]
+publish = false
+
+[dependencies]
+cxx = "1.0"
+zeroize = { version = "1", default-features = false, features = [
+  "zeroize_derive",
+] }
+
+[features]
+default = []
+gpu = []

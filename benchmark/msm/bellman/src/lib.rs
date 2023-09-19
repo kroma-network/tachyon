@@ -8,38 +8,19 @@ use bellman_ce::{
     worker::Worker,
 };
 use std::{mem, slice, time::Instant};
-
-#[repr(C, align(32))]
-pub struct CppG1Affine {
-    pub x: CppFq,
-    pub y: CppFq,
-    pub infinity: bool,
-}
-
-#[repr(C)]
-pub struct CppG1Jacobian {
-    pub x: CppFq,
-    pub y: CppFq,
-    pub z: CppFq,
-}
-
-#[repr(transparent)]
-#[derive(Clone, Copy)]
-pub struct CppFq(pub [u64; 4]);
-
-#[repr(transparent)]
-#[derive(Clone, Copy)]
-pub struct CppFr(pub [u64; 4]);
+use tachyon_rs::math::elliptic_curves::bn::bn254::{
+    Fr as CppFr, G1AffinePoint as CppG1AffinePoint, G1JacobianPoint as CppG1JacobianPoint,
+};
 
 #[no_mangle]
 pub extern "C" fn run_msm_bellman(
-    bases: *const CppG1Affine,
+    bases: *const CppG1AffinePoint,
     scalars: *const CppFr,
     size: usize,
     duration: *mut u64,
-) -> *mut CppG1Jacobian {
+) -> *mut CppG1JacobianPoint {
     let ret = unsafe {
-        let bases: &[CppG1Affine] = slice::from_raw_parts(bases, size);
+        let bases: &[CppG1AffinePoint] = slice::from_raw_parts(bases, size);
         let scalars: &[CppFr] = slice::from_raw_parts(scalars, size);
 
         let mut bases_vec = Vec::<G1Affine>::new();
@@ -61,5 +42,5 @@ pub extern "C" fn run_msm_bellman(
         };
         ret
     };
-    Box::into_raw(Box::new(ret)) as *mut CppG1Jacobian
+    Box::into_raw(Box::new(ret)) as *mut CppG1JacobianPoint
 }
