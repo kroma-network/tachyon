@@ -31,6 +31,13 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "endian",
+    srcs = ["endian.cc"],
+    hdrs = ["endian.h"],
+    deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
     name = "endian_utils",
     hdrs = ["endian_utils.h"],
     deps = ["//tachyon/build:build_config"],
