@@ -1,0 +1,19 @@
+load("//bazel:tachyon_ts.bzl", "tachyon_ts_project")
+load("//bazel:tachyon_jest.bzl", "tachyon_jest_test")
+
+tachyon_ts_project(
+    name = "short_weierstrass_ts",
+    testonly = True,
+    srcs = [
+        "affine_point.spec.ts",
+        "jacobian_point.spec.ts",
+        "point_xyzz.spec.ts",
+        "projective_point.spec.ts",
+    ],
+    data = ["@kroma_network_tachyon//tachyon/node:tachyon"],
+)
+
+tachyon_jest_test(
+    name = "short_weierstrass",
+    data = [":short_weierstrass_ts"],
+)

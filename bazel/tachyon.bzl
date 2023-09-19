@@ -71,6 +71,8 @@ def if_optimized(a, b = []):
 def if_static(a, b = []):
     return select({
         "@kroma_network_tachyon//:tachyon_shared_object": b,
+        "@kroma_network_tachyon//:tachyon_c_shared_object": b,
+        "@kroma_network_tachyon//:tachyon_cc_shared_object": b,
         "//conditions:default": a,
     })
 

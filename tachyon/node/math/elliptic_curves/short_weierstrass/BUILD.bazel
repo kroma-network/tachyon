@@ -1,0 +1,17 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//tachyon/node/math/elliptic_curves:__subpackages__"])
+
+tachyon_cc_library(
+    name = "points",
+    hdrs = [
+        "affine_point.h",
+        "jacobian_point.h",
+        "point_xyzz.h",
+        "projective_point.h",
+    ],
+    deps = [
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/node/base:node_base",
+    ],
+)

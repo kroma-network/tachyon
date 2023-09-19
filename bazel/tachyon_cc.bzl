@@ -50,13 +50,18 @@ def tachyon_matplotlib_defines():
     return if_has_matplotlib(["TACHYON_HAS_MATPLOTLIB"])
 
 def tachyon_defines(use_cuda = False):
-    defines = tachyon_defines_c_shared_lib_build() + tachyon_openmp_defines()
+    defines = tachyon_defines_shared_lib_build() + tachyon_openmp_defines()
     if use_cuda:
         defines += tachyon_cuda_defines()
     return defines
 
-def tachyon_defines_c_shared_lib_build():
-    return if_static([], ["TACHYON_C_SHARED_LIB_BUILD"])
+def tachyon_defines_shared_lib_build():
+    return select({
+        "@kroma_network_tachyon//:tachyon_shared_object": ["TACHYON_COMPONENT_BUILD"],
+        "@kroma_network_tachyon//:tachyon_c_shared_object": ["TACHYON_C_SHARED_LIB_BUILD"],
+        "@kroma_network_tachyon//:tachyon_cc_shared_object": ["TACHYON_CC_SHARED_LIB_BUILD"],
+        "//conditions:default": [],
+    })
 
 def tachyon_local_defines():
     return tachyon_local_defines_compile_library()
