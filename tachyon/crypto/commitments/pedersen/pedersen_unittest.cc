@@ -10,7 +10,7 @@ namespace {
 
 class PedersenTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { bn254::G1JacobianPoint::Curve::Init(); }
+  static void SetUpTestSuite() { bn254::G1Curve::Init(); }
 };
 
 }  // namespace

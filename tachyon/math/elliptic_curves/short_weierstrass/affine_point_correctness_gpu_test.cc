@@ -50,8 +50,8 @@ class AffinePointCorrectnessGpuTest : public testing::Test {
         gpu::GpuMemory<bn254::G1JacobianPointGpu>::MallocManaged(N);
     bool_results_ = gpu::GpuMemory<bool>::MallocManaged(N);
 
-    bn254::G1AffinePointGmp::Curve::Init();
-    bn254::G1AffinePointGpu::Curve::Init();
+    bn254::G1CurveGmp::Init();
+    bn254::G1CurveGpu::Init();
 
     x_gmps_.reserve(N);
     y_gmps_.reserve(N);

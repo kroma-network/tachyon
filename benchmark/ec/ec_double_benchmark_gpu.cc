@@ -57,8 +57,8 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  math::bn254::G1AffinePointGpu::Curve::Init();
-  math::bn254::G1AffinePoint::Curve::Init();
+  math::bn254::G1Curve::Init();
+  math::bn254::G1CurveGpu::Init();
 
   const std::vector<uint64_t>& point_nums = config.point_nums();
   SimpleECBenchmarkReporter reporter("EC double benchmark", point_nums);

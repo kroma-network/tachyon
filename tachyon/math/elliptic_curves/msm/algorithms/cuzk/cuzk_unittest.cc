@@ -20,7 +20,7 @@ class CUZKTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
-    bn254::G1PointXYZZ::Curve::Init();
+    bn254::G1Curve::Init();
   }
 };
 
@@ -42,7 +42,7 @@ TEST_F(CUZKTest, ReduceBuckets) {
   for (size_t i = 0; i < gpu_buckets.size(); ++i) {
     gpu_buckets[i] = ConvertPoint<bn254::G1PointXYZZGpu>(cpu_buckets[i]);
   }
-  CUZK<bn254::G1AffinePointGpu::Curve> cuzk;
+  CUZK<bn254::G1CurveGpu> cuzk;
   cuzk.SetContextForTesting(ctx);
   cuzk.SetGroupsForTesting(start_group, end_group);
   cuzk.SetSizesForTesting(2, 2);
@@ -76,7 +76,7 @@ TEST_F(CUZKTest, RunWithRandom) {
     scalars[i] =
         bn254::FrGpu::FromMontgomery(test_set.scalars[i].ToMontgomery());
   }
-  CUZK<bn254::G1AffinePointGpu::Curve> cuzk;
+  CUZK<bn254::G1CurveGpu> cuzk;
   bn254::G1PointXYZZ ret;
   EXPECT_TRUE(cuzk.Run(bases, scalars, size, &ret));
   if (ret != test_set.answer) {

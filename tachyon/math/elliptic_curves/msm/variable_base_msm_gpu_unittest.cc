@@ -22,7 +22,7 @@ class VariableMSMCorrectnessGpuTest : public testing::Test {
   constexpr static size_t kCount = 1 << kLogCount;
 
   static void SetUpTestSuite() {
-    bn254::G1AffinePoint::Curve::Init();
+    bn254::G1Curve::Init();
 
     MSMTestSet<bn254::G1AffinePoint> test_set =
         MSMTestSet<bn254::G1AffinePoint>::Random(kCount, MSMMethod::kMSM);
@@ -69,8 +69,8 @@ TEST_F(VariableMSMCorrectnessGpuTest, MSM) {
 
   for (MSMAlgorithmKind algorithm :
        {MSMAlgorithmKind::kBellmanMSM, MSMAlgorithmKind::kCUZK}) {
-    VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve> msm_gpu(
-        algorithm, mem_pool.get(), stream.get());
+    VariableBaseMSMGpu<bn254::G1CurveGpu> msm_gpu(algorithm, mem_pool.get(),
+                                                  stream.get());
     bn254::G1JacobianPoint actual;
     ASSERT_TRUE(msm_gpu.Run(d_bases_, d_scalars_, kCount, &actual));
     EXPECT_EQ(actual, expected_);
