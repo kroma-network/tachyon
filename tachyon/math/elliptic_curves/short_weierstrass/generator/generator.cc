@@ -109,7 +109,7 @@ int GenerationConfig::GenerateConfigHdr() const {
   };
 
   if (glv_coefficients.empty()) {
-    for (std::size_t i = 0; i < tpl.size(); ++i) {
+    for (size_t i = 0; i < tpl.size(); ++i) {
       size_t idx = tpl[i].find("kEndomorphismCoefficient");
       if (idx != std::string::npos) {
         auto it = tpl.begin() + i;
