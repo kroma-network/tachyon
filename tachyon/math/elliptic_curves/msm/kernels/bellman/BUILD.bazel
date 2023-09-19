@@ -1,9 +1,11 @@
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
 load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library")
 
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cuda_library(
     name = "bellman_msm_kernels",
+    srcs = if_gpu_is_configured(["bellman_msm_kernels.cu.cc"]),
     hdrs = ["bellman_msm_kernels.cu.h"],
     deps = [
         "//tachyon/device/gpu:gpu_logging",
