@@ -1,10 +1,13 @@
 use bellman_ce::{
     multiexp,
     pairing::CurveAffine,
-    pairing::{ bn256::{ G1Affine, FrRepr, Fr }, ff::PrimeField },
+    pairing::{
+        bn256::{Fr, FrRepr, G1Affine},
+        ff::PrimeField,
+    },
     worker::Worker,
 };
-use std::{ mem, slice, time::Instant };
+use std::{mem, slice, time::Instant};
 
 #[repr(C, align(32))]
 pub struct CppG1Affine {
@@ -31,28 +34,24 @@ pub struct CppFr(pub [u64; 4]);
 #[no_mangle]
 pub extern "C" fn run_msm_bellman(
     bases: *const CppG1Affine,
-    bases_len: usize,
     scalars: *const CppFr,
-    scalars_len: usize,
-    duration: *mut u64
+    size: usize,
+    duration: *mut u64,
 ) -> *mut CppG1Jacobian {
     let ret = unsafe {
-        let bases: &[CppG1Affine] = slice::from_raw_parts(bases, bases_len);
-        let scalars: &[CppFr] = slice::from_raw_parts(scalars, scalars_len);
+        let bases: &[CppG1Affine] = slice::from_raw_parts(bases, size);
+        let scalars: &[CppFr] = slice::from_raw_parts(scalars, size);
 
         let mut bases_vec = Vec::<G1Affine>::new();
         bases_vec.reserve_exact(bases.len());
-        for i in 0..bases_len {
+        for i in 0..size {
             let x = mem::transmute(bases[i].x);
             let y = mem::transmute(bases[i].y);
             bases_vec.push(G1Affine::from_xy_checked(x, y).unwrap());
         }
         let pool = Worker::new();
         let scalars: &[Fr] = mem::transmute(scalars);
-        let scalars_repr: Vec<FrRepr> = scalars
-            .iter()
-            .map(|&fr| fr.into_repr())
-            .collect();
+        let scalars_repr: Vec<FrRepr> = scalars.iter().map(|&fr| fr.into_repr()).collect();
         let start = Instant::now();
         let result = multiexp::dense_multiexp(&pool, &bases_vec, scalars_repr.as_slice());
         duration.write(start.elapsed().as_micros() as u64);

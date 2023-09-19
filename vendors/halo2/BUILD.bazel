@@ -36,7 +36,7 @@ tachyon_cc_library(
     deps = [
         ":bridge/include",
         ":msm_include",
-        "//tachyon/c/math/elliptic_curves/msm",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
     ],
 )
 
@@ -46,7 +46,7 @@ tachyon_cc_library(
     deps = [
         ":bridge/include",
         ":msm_include",
-        "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
     ],
 )
 

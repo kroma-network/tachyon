@@ -6,7 +6,7 @@
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
 // clang-format on
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
-#include "tachyon/c/math/elliptic_curves/msm/msm.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/msm.h"
 #include "tachyon/math/elliptic_curves/test/random.h"
 
 namespace tachyon {
@@ -14,18 +14,18 @@ namespace tachyon {
 using namespace math;
 
 extern "C" tachyon_bn254_g1_jacobian* run_msm_arkworks(
-    const tachyon_bn254_g1_affine* bases, size_t bases_len,
-    const tachyon_bn254_fr* scalars, size_t scalars_len,
-    uint64_t* duration_in_us);
+    const tachyon_bn254_g1_affine* bases, const tachyon_bn254_fr* scalars,
+    size_t size, uint64_t* duration_in_us);
 
 extern "C" tachyon_bn254_g1_jacobian* run_msm_bellman(
-    const tachyon_bn254_g1_affine* bases, size_t bases_len,
-    const tachyon_bn254_fr* scalars, size_t scalars_len,
-    uint64_t* duration_in_us);
+    const tachyon_bn254_g1_affine* bases, const tachyon_bn254_fr* scalars,
+    size_t size, uint64_t* duration_in_us);
 
 int RealMain(int argc, char** argv) {
   MSMConfig config;
-  if (!config.Parse(argc, argv, true)) {
+  MSMConfig::Options options;
+  options.include_vendors = true;
+  if (!config.Parse(argc, argv, options)) {
     return 1;
   }
 
@@ -36,7 +36,9 @@ int RealMain(int argc, char** argv) {
 
   std::vector<uint64_t> point_nums = config.GetPointNums();
 
-  tachyon_init_msm(config.degrees().back());
+  tachyon_bn254_g1_init();
+  tachyon_bn254_g1_msm_ptr msm =
+      tachyon_bn254_g1_create_msm(config.degrees().back());
 
   std::cout << "Generating random points..." << std::endl;
   uint64_t max_point_num = point_nums.back();
@@ -49,7 +51,7 @@ int RealMain(int argc, char** argv) {
   MSMRunner<bn254::G1AffinePoint> runner(&reporter);
   runner.SetInputs(&bases, &scalars);
   std::vector<bn254::G1JacobianPoint> results;
-  runner.Run(tachyon_bn254_g1_affine_msm, point_nums, &results);
+  runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, &results);
   for (const MSMConfig::Vendor vendor : config.vendors()) {
     std::vector<bn254::G1JacobianPoint> results_vendor;
     if (vendor == MSMConfig::Vendor::kArkworks) {
@@ -65,7 +67,7 @@ int RealMain(int argc, char** argv) {
 
   reporter.Show();
 
-  tachyon_release_msm();
+  tachyon_bn254_g1_destroy_msm(msm);
 
   return 0;
 }

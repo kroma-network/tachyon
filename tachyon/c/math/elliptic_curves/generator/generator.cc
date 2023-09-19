@@ -42,6 +42,10 @@ struct GenerationConfig : public build::CcWriter {
   int GenerateG1TraitsHdr() const;
   int GenerateG1Hdr() const;
   int GenerateG1Src() const;
+  int GenerateMSMHdr() const;
+  int GenerateMSMSrc() const;
+  int GenerateMSMGpuHdr() const;
+  int GenerateMSMGpuSrc() const;
 };
 
 int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
@@ -725,6 +729,170 @@ int GenerationConfig::GenerateG1TraitsHdr() const {
   return WriteHdr(content, false);
 }
 
+int GenerationConfig::GenerateMSMHdr() const {
+  // clang-format off
+  std::string_view tpl[] = {
+      "#include <stddef.h>",
+      "#include <stdint.h>",
+      "",
+      "#include \"tachyon/c/export.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fr.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1.h\"",
+      "",
+      "%{extern_c_front}",
+      "",
+      "typedef struct tachyon_%{type}_g1_msm* tachyon_%{type}_g1_msm_ptr;",
+      "",
+      "TACHYON_C_EXPORT tachyon_%{type}_g1_msm_ptr tachyon_%{type}_g1_create_msm(uint8_t degree);",
+      "",
+      "TACHYON_C_EXPORT void tachyon_%{type}_g1_destroy_msm(tachyon_%{type}_g1_msm_ptr ptr);",
+      "",
+      "TACHYON_C_EXPORT tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_point2_msm(",
+      "    tachyon_%{type}_g1_msm_ptr ptr, const tachyon_%{type}_g1_point2* bases,",
+      "    const tachyon_%{type}_fr* scalars, size_t size);",
+      "",
+      "TACHYON_C_EXPORT tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_affine_msm(",
+      "    tachyon_%{type}_g1_msm_ptr ptr, const tachyon_%{type}_g1_affine* bases,",
+      "    const tachyon_%{type}_fr* scalars, size_t size);",
+  };
+  // clang-format on
+  std::string tpl_content = absl::StrJoin(tpl, "\n");
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
+                       {"%{type}", type},
+                   });
+  return WriteHdr(content, true);
+}
+
+int GenerationConfig::GenerateMSMSrc() const {
+  // clang-format off
+  std::string_view tpl[] = {
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_traits.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/msm/msm.h\"",
+      "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
+      "",
+      "struct tachyon_%{type}_g1_msm : public tachyon::c::math::MSMApi<tachyon::math::%{type}::G1AffinePoint> {",
+      "  using tachyon::c::math::MSMApi<tachyon::math::%{type}::G1AffinePoint>::MSMApi;",
+      "};",
+      "",
+      "tachyon_%{type}_g1_msm_ptr tachyon_%{type}_g1_create_msm(uint8_t degree) {",
+      "  return new tachyon_%{type}_g1_msm(degree);",
+      "}",
+      "",
+      "void tachyon_%{type}_g1_destroy_msm(tachyon_%{type}_g1_msm_ptr ptr) {",
+      "  delete ptr;",
+      "}",
+      "",
+      "tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_point2_msm(",
+      "    tachyon_%{type}_g1_msm_ptr ptr, const tachyon_%{type}_g1_point2* bases,",
+      "    const tachyon_%{type}_fr* scalars, size_t size) {",
+      "  return tachyon::c::math::DoMSM<tachyon::math::%{type}::G1JacobianPoint>(",
+      "      *ptr, bases, scalars, size);",
+      "}",
+      "",
+      "tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_affine_msm(",
+      "    tachyon_%{type}_g1_msm_ptr ptr, const tachyon_%{type}_g1_affine* bases,",
+      "    const tachyon_%{type}_fr* scalars, size_t size) {",
+      "  return tachyon::c::math::DoMSM<tachyon::math::%{type}::G1JacobianPoint>(",
+      "      *ptr, bases, scalars, size);",
+      "}",
+  };
+  // clang-format on
+  std::string tpl_content = absl::StrJoin(tpl, "\n");
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
+                       {"%{type}", type},
+                   });
+  return WriteSrc(content);
+}
+
+int GenerationConfig::GenerateMSMGpuHdr() const {
+  // clang-format off
+  std::string_view tpl[] = {
+      "#include <stddef.h>",
+      "#include <stdint.h>",
+      "",
+      "#include \"tachyon/c/export.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fr.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1.h\"",
+      "",
+      "%{extern_c_front}",
+      "",
+      "typedef struct tachyon_%{type}_g1_msm_gpu* tachyon_%{type}_g1_msm_gpu_ptr;",
+      "",
+      "TACHYON_C_EXPORT tachyon_%{type}_g1_msm_gpu_ptr tachyon_%{type}_g1_create_msm_gpu(uint8_t degree, int algorithm);",
+      "",
+      "TACHYON_C_EXPORT void tachyon_%{type}_g1_destroy_msm_gpu(tachyon_%{type}_g1_msm_gpu_ptr ptr);",
+      "",
+      "TACHYON_C_EXPORT tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_point2_msm_gpu(",
+      "    tachyon_%{type}_g1_msm_gpu_ptr ptr, const tachyon_%{type}_g1_point2* bases,",
+      "    const tachyon_%{type}_fr* scalars, size_t size);",
+      "",
+      "TACHYON_C_EXPORT tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_affine_msm_gpu(",
+      "    tachyon_%{type}_g1_msm_gpu_ptr ptr, const tachyon_%{type}_g1_affine* bases,",
+      "    const tachyon_%{type}_fr* scalars, size_t size);",
+  };
+  // clang-format on
+  std::string tpl_content = absl::StrJoin(tpl, "\n");
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
+                       {"%{type}", type},
+                   });
+  return WriteHdr(content, true);
+}
+
+int GenerationConfig::GenerateMSMGpuSrc() const {
+  // clang-format off
+  std::string_view tpl[] = {
+      "#include <tuple>",
+      "",
+      "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_traits.h\"",
+      "#include \"tachyon/c/math/elliptic_curves/msm/msm_gpu.h\"",
+      "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1_gpu.h\"",
+      "",
+      "struct tachyon_%{type}_g1_msm_gpu : public tachyon::c::math::MSMGpuApi<tachyon::math::%{type}::G1AffinePointGpu::Curve> {",
+      "  using tachyon::c::math::MSMGpuApi<tachyon::math::%{type}::G1AffinePointGpu::Curve>::MSMGpuApi;",
+      "};",
+      "",
+      "tachyon_%{type}_g1_msm_gpu_ptr tachyon_%{type}_g1_create_msm_gpu(uint8_t degree, int algorithm) {",
+      "  return new tachyon_%{type}_g1_msm_gpu(degree, algorithm);",
+      "}",
+      "",
+      "void tachyon_%{type}_g1_destroy_msm_gpu(tachyon_%{type}_g1_msm_gpu_ptr ptr) {",
+      "  delete ptr;",
+      "}",
+      "",
+      "tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_point2_msm_gpu(",
+      "    tachyon_%{type}_g1_msm_gpu_ptr ptr, const tachyon_%{type}_g1_point2* bases,",
+      "    const tachyon_%{type}_fr* scalars, size_t size) {",
+      "  return tachyon::c::math::DoMSMGpu<tachyon::math::%{type}::G1JacobianPoint>(",
+      "      *ptr, bases, scalars, size);",
+      "}",
+      "",
+      "tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_affine_msm_gpu(",
+      "    tachyon_%{type}_g1_msm_gpu_ptr ptr, const tachyon_%{type}_g1_affine* bases,",
+      "    const tachyon_%{type}_fr* scalars, size_t size) {",
+      "  return tachyon::c::math::DoMSMGpu<tachyon::math::%{type}::G1JacobianPoint>(",
+      "      *ptr, bases, scalars, size);",
+      "}",
+  };
+  // clang-format on
+  std::string tpl_content = absl::StrJoin(tpl, "\n");
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
+                       {"%{type}", type},
+                   });
+  return WriteSrc(content);
+}
+
 int RealMain(int argc, char** argv) {
   GenerationConfig config;
   config.generator = "//tachyon/c/math/elliptic_curves/generator";
@@ -767,6 +935,14 @@ int RealMain(int argc, char** argv) {
     return config.GenerateG1Src();
   } else if (base::EndsWith(config.out.value(), "g1_point_traits.h")) {
     return config.GenerateG1TraitsHdr();
+  } else if (base::EndsWith(config.out.value(), "msm.h")) {
+    return config.GenerateMSMHdr();
+  } else if (base::EndsWith(config.out.value(), "msm.cc")) {
+    return config.GenerateMSMSrc();
+  } else if (base::EndsWith(config.out.value(), "msm_gpu.h")) {
+    return config.GenerateMSMGpuHdr();
+  } else if (base::EndsWith(config.out.value(), "msm_gpu.cc")) {
+    return config.GenerateMSMGpuSrc();
   } else {
     tachyon_cerr << "not supported suffix:" << config.out << std::endl;
     return 1;

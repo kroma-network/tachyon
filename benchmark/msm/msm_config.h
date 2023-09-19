@@ -15,6 +15,11 @@ class MSMConfig {
     kBellman,
   };
 
+  struct Options {
+    bool include_vendors = false;
+    bool include_algos = false;
+  };
+
   static std::string VendorToString(Vendor vendor);
 
   MSMConfig() = default;
@@ -23,15 +28,17 @@ class MSMConfig {
 
   const std::vector<uint64_t>& degrees() const { return degrees_; }
   const std::vector<Vendor>& vendors() const { return vendors_; };
+  int algorithm() const { return algorithm_; }
   bool check_results() const { return check_results_; }
 
-  bool Parse(int argc, char** argv, bool include_vendors);
+  bool Parse(int argc, char** argv, const Options& options);
 
   std::vector<uint64_t> GetPointNums() const;
 
  private:
   std::vector<uint64_t> degrees_;
   std::vector<Vendor> vendors_;
+  int algorithm_ = 0;
   bool check_results_ = false;
 };
 
