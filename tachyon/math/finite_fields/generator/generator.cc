@@ -137,7 +137,8 @@ int GenerationConfig::GenerateConfigHdr() const {
 
   if (!hdr_include_override.empty()) {
     for (size_t i = 0; i < tpl.size(); ++i) {
-      size_t idx = tpl[i].find("#include");
+      size_t idx =
+          tpl[i].find("#include \"tachyon/math/finite_fields/prime_field.h\"");
       if (idx != std::string::npos) {
         auto it = tpl.begin() + i;
         tpl.erase(it);
