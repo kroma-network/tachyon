@@ -3,7 +3,7 @@ mod test {
     use halo2_proofs::arithmetic::best_multiexp;
     use halo2curves::{
         bn256::{Fr, G1Affine, G1},
-        group::ff::Field,
+        group::{ff::Field, Curve, Group},
     };
     use std::{mem, time::Instant};
     use tachyon_rs::math::elliptic_curves::bn::bn254::{ffi, Fr as CppFr, G1Point2 as CppG1Point2};
@@ -28,27 +28,47 @@ mod test {
         }
     }
 
+    struct TestSet {
+        bases: Vec<G1Affine>,
+        scalars: Vec<Fr>,
+    }
+
+    impl TestSet {
+        fn create(n: usize) -> TestSet {
+            use rand_core::OsRng;
+
+            let mut base = G1::random(OsRng);
+            TestSet {
+                bases: (0..n)
+                    .map(|_| {
+                        let ret = base.to_affine();
+                        base = base.double();
+                        ret
+                    })
+                    .collect(),
+                scalars: (0..n).map(|_| Fr::random(OsRng)).collect(),
+            }
+        }
+    }
+
     #[test]
     fn test_msm() {
-        use rand_core::OsRng;
-
         let degree = 10;
-        let n = 1u64 << degree;
+        let n = 1usize << degree;
 
-        let bases: Vec<G1Affine> = (0..n).map(|_| G1Affine::random(OsRng)).collect();
-        let scalars: Vec<Fr> = (0..n).map(|_| Fr::random(OsRng)).collect();
+        let test_set = TestSet::create(n);
 
         let mut timer = Timer::new();
         let expected = {
-            let ret = best_multiexp(&scalars, &bases);
+            let ret = best_multiexp(&test_set.scalars, &test_set.bases);
             timer.end("best_multiexp");
             ret
         };
 
         unsafe {
             timer.reset();
-            let bases: Vec<CppG1Point2> = mem::transmute(bases);
-            let scalars: Vec<CppFr> = mem::transmute(scalars);
+            let bases: Vec<CppG1Point2> = mem::transmute(test_set.bases);
+            let scalars: Vec<CppFr> = mem::transmute(test_set.scalars);
 
             let mut msm = ffi::create_g1_msm(degree);
 
@@ -64,13 +84,10 @@ mod test {
     #[cfg(feature = "gpu")]
     #[test]
     fn test_msm_gpu() {
-        use rand_core::OsRng;
-
         let degree = 10;
-        let n = 1u64 << degree;
+        let n = 1usize << degree;
 
-        let bases: Vec<G1Affine> = (0..n).map(|_| G1Affine::random(OsRng)).collect();
-        let scalars: Vec<Fr> = (0..n).map(|_| Fr::random(OsRng)).collect();
+        let test_set = TestSet::create(n);
 
         let mut timer = Timer::new();
         let mut msm = ffi::create_g1_msm_gpu(degree, 0);
@@ -78,15 +95,15 @@ mod test {
 
         let expected = {
             timer.reset();
-            let ret = best_multiexp(&scalars, &bases);
+            let ret = best_multiexp(&test_set.scalars, &test_set.bases);
             timer.end("best_multiexp");
             ret
         };
 
         unsafe {
             timer.reset();
-            let bases: Vec<CppG1Point2> = mem::transmute(bases);
-            let scalars: Vec<CppFr> = mem::transmute(scalars);
+            let bases: Vec<CppG1Point2> = mem::transmute(test_set.bases);
+            let scalars: Vec<CppFr> = mem::transmute(test_set.scalars);
 
             let actual = ffi::g1_point2_msm_gpu(&mut *msm, &bases, &scalars);
             let actual: Box<G1> = mem::transmute(actual);
