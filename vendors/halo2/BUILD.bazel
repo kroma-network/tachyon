@@ -1,6 +1,6 @@
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
-load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load("//bazel:tachyon.bzl", "if_gpu_is_configured", "if_has_openmp")
 load("//bazel:tachyon_rust.bzl", "tachyon_rust_library", "tachyon_rust_test")
 
 FEATUERS = if_gpu_is_configured(["gpu"])
@@ -16,6 +16,14 @@ tachyon_rust_library(
     ],
 )
 
+# NOTE(chokobole): Maybe we can add this attribute to `halo2_test`.
+# But this approach doesn't work when compiling with nvcc.
+# rustc_flags = if_has_openmp(["-lgomp"]),
+cc_library(
+    name = "openmp",
+    linkopts = if_has_openmp(["-fopenmp"]),
+)
+
 tachyon_rust_test(
     name = "halo2_test",
     size = "small",
@@ -24,6 +32,7 @@ tachyon_rust_test(
     crate_features = FEATUERS,
     proc_macro_deps = all_crate_deps(proc_macro_dev = True),
     deps = all_crate_deps(normal_dev = True) + [
+        ":openmp",
         "@local_config_gmp//:gmp",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
