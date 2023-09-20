@@ -24,32 +24,12 @@ tachyon_cc_library(
 )
 
 tachyon_node_library(
-    name = "class",
+    name = "test",
     testonly = True,
-    srcs = ["class.cc"],
+    srcs = ["test.cc"],
     deps = [
         ":color",
         ":point",
-        "//tachyon/node/base:node_base",
-    ],
-)
-
-tachyon_node_library(
-    name = "enum",
-    testonly = True,
-    srcs = ["enum.cc"],
-    deps = [
-        ":color",
-        "//tachyon/node/base:node_base",
-    ],
-)
-
-tachyon_node_library(
-    name = "function",
-    testonly = True,
-    srcs = ["function.cc"],
-    deps = [
         "//tachyon/base/binding/test:functions",
-        "//tachyon/node/base:node_base",
     ],
 )

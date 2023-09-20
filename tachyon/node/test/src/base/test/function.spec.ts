@@ -1,6 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 
-const functionTest = require('../../../external/kroma_network_tachyon/tachyon/node/base/test/function.node');
+const functionTest = require(
+    '../../../external/kroma_network_tachyon/tachyon/node/base/test/test.node');
 
 const wrongNumberOfArguments = TypeError('Wrong number of arguments');
 
