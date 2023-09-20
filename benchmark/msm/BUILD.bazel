@@ -7,11 +7,13 @@ load(
 
 tachyon_cc_library(
     name = "msm_config",
+    testonly = True,
     srcs = ["msm_config.cc"],
     hdrs = ["msm_config.h"],
     deps = [
         "//tachyon/base/console",
         "//tachyon/base/flag:flag_parser",
+        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )
 
@@ -45,7 +47,6 @@ tachyon_cc_binary(
         "//benchmark/msm/arkworks",
         "//benchmark/msm/bellman",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
-        "//tachyon/math/elliptic_curves/test:random",
     ],
 )
 
@@ -58,6 +59,5 @@ tachyon_cuda_binary(
         ":msm_runner",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
-        "//tachyon/math/elliptic_curves/test:random",
     ],
 )
