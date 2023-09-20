@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_MODULE_H_
 #define TACHYON_NODE_BASE_NODE_MODULE_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include "tachyon/export.h"
 #include "tachyon/node/base/node_cpp_bindable.h"
 #include "tachyon/node/base/node_cpp_callable.h"
@@ -55,7 +53,5 @@ class TACHYON_EXPORT NodeModule : public NodeCppBindable {
 };
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_MODULE_H_

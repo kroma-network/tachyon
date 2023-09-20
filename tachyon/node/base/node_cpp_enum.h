@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_ENUM_H_
 #define TACHYON_NODE_BASE_NODE_CPP_ENUM_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include <string_view>
 #include <type_traits>
 
@@ -46,7 +44,5 @@ class NodeCppEnum : public NodeCppBindable {
 };
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_CPP_ENUM_H_

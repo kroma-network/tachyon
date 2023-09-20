@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #include "tachyon/node/base/node_errors.h"
 
 #include "absl/strings/substitute.h"
@@ -27,5 +25,3 @@ Napi::Error NoSuchConstructor(Napi::Env env) {
 }
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)

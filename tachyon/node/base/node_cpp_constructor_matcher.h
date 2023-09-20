@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_CONSTRUCTOR_MATCHER_H_
 #define TACHYON_NODE_BASE_NODE_CPP_CONSTRUCTOR_MATCHER_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include "third_party/node_addon_api/napi.h"
 
 #include "tachyon/base/binding/cpp_constructor_matcher.h"
@@ -43,7 +41,5 @@ class NodeCppConstructorMatcher : public base::CppConstructorMatcher {
 };
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_CPP_CONSTRUCTOR_MATCHER_H_

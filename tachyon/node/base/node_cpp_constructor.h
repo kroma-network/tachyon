@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_CONSTRUCTOR_H_
 #define TACHYON_NODE_BASE_NODE_CPP_CONSTRUCTOR_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include <string>
 #include <vector>
 
@@ -62,7 +60,5 @@ class TACHYON_EXPORT NodeCppConstructor : public base::CppConstructor {
 };
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_CPP_CONSTRUCTOR_H_

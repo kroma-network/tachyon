@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_CONSTRUCTORS_H_
 #define TACHYON_NODE_BASE_NODE_CONSTRUCTORS_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include <string>
 #include <string_view>
 
@@ -37,7 +35,5 @@ class TACHYON_EXPORT NodeConstructors {
 };
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_CONSTRUCTORS_H_

@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_BINDABLE_H_
 #define TACHYON_NODE_BASE_NODE_CPP_BINDABLE_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include <string>
 #include <string_view>
 
@@ -31,7 +29,5 @@ class TACHYON_EXPORT NodeCppBindable {
 };
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_CPP_BINDABLE_H_

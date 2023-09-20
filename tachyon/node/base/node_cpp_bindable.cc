@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #include "tachyon/node/base/node_cpp_bindable.h"
 
 #include "absl/strings/substitute.h"
@@ -27,5 +25,3 @@ NodeCppBindable& NodeCppBindable::operator=(NodeCppBindable&& other) noexcept =
 NodeCppBindable::~NodeCppBindable() = default;
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)

@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_CLASS_H_
 #define TACHYON_NODE_BASE_NODE_CPP_CLASS_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include <string_view>
 
 #include "absl/strings/substitute.h"
@@ -367,7 +365,5 @@ class NodeCppClass : public NodeCppBindable {
 };
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_CPP_CLASS_H_

@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_INTERNALS_FORWARDS_H_
 #define TACHYON_NODE_BASE_NODE_INTERNALS_FORWARDS_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include "absl/meta/type_traits.h"
 #include "third_party/node_addon_api/napi.h"
 
@@ -50,7 +48,5 @@ struct HasToJSValue<
 
 }  // namespace internal
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_INTERNALS_FORWARDS_H_

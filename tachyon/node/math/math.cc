@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #include "tachyon/node/math/math.h"
 
 #include "tachyon/math/elliptic_curves/bls/bls12_381/g1.h"
@@ -28,5 +26,3 @@ void AddMath(NodeModule& m) {
 }
 
 }  // namespace tachyon::node::math
-
-#endif  // defined(TACHYON_NODE_BINDING)

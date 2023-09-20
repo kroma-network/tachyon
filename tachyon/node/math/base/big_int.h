@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #ifndef TACHYON_NODE_MATH_BASE_BIG_INT_H_
 #define TACHYON_NODE_MATH_BASE_BIG_INT_H_
 
@@ -71,5 +69,3 @@ class CppValueTraits<tachyon::math::BigInt<1>> {
 }  // namespace tachyon::node
 
 #endif  // TACHYON_NODE_MATH_FINITE_FIELDS_PRIME_FIELD_H_
-
-#endif  // defined(TACHYON_NODE_MATH_BASE_BIG_INT_H_

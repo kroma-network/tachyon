@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #include <string_view>
 
 #include "tachyon/base/binding/test/point.h"
@@ -40,5 +38,3 @@ void DoubleWithReference(tachyon::base::test::Point& p);
 void DoubleWithSharedPtr(std::shared_ptr<tachyon::base::test::Point> p);
 
 void DoubleWithUniquePtr(std::unique_ptr<tachyon::base::test::Point> p);
-
-#endif  // defined(TACHYON_NODE_BINDING)
