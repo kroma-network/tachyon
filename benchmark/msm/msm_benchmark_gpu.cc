@@ -45,8 +45,8 @@ int RealMain(int argc, char** argv) {
   runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, &results_cpu);
   tachyon_bn254_g1_destroy_msm(msm);
 
-  tachyon_bn254_g1_msm_gpu_ptr msm_gpu =
-      tachyon_bn254_g1_create_msm_gpu(config.degrees().back(), 0);
+  tachyon_bn254_g1_msm_gpu_ptr msm_gpu = tachyon_bn254_g1_create_msm_gpu(
+      config.degrees().back(), config.algorithm());
   std::vector<bn254::G1JacobianPoint> results_gpu;
   runner.Run(tachyon_bn254_g1_affine_msm_gpu, msm_gpu, point_nums,
              &results_gpu);
