@@ -1,0 +1,8 @@
+load("//tachyon/py/math/elliptic_curves/generator:build_defs.bzl", "generate_ec_points")
+
+package(default_visibility = ["//tachyon/py/math:__pkg__"])
+
+generate_ec_points(
+    name = "bn254",
+    g1_deps = ["//tachyon/math/elliptic_curves/bn/bn254:g1"],
+)

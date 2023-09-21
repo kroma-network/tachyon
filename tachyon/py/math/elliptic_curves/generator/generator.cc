@@ -25,17 +25,13 @@ struct GenerationConfig : public build::CcWriter {
 int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   // clang-format off
   std::vector<std::string_view> tpl = {
-      "#if defined(TACHYON_NODE_BINDING)",
+      "#include \"tachyon/py/base/pybind11.h\"",
       "",
-      "#include \"tachyon/node/base/node_module.h\"",
+      "namespace tachyon::py::math::%{type} {",
       "",
-      "namespace tachyon::node::math::%{type} {",
+      "void Add%{cc_field}(py11::module& m);",
       "",
-      "void Add%{cc_field}(NodeModule& m);",
-      "",
-      "} // namespace tachyon::node::math::%{type}",
-      "",
-      "#endif  // defined(TACHYON_NODE_BINDING)",
+      "} // namespace tachyon::py::math::%{type}",
   };
   // clang-format on
 
@@ -60,20 +56,16 @@ int GenerationConfig::GenerateFrHdr() const {
 int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   // clang-format off
   std::vector<std::string_view> tpl = {
-      "#if defined(TACHYON_NODE_BINDING)",
-      "",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/%{suffix}.h\"",
-      "#include \"tachyon/node/math/finite_fields/prime_field.h\"",
+      "#include \"tachyon/py/math/finite_fields/prime_field.h\"",
       "",
-      "namespace tachyon::node::math::%{type} {",
+      "namespace tachyon::py::math::%{type} {",
       "",
-      "void Add%{cc_field}(NodeModule& m) {",
+      "void Add%{cc_field}(py11::module& m) {",
       "  AddPrimeField<tachyon::math::%{type}::%{cc_field}>(m, \"%{cc_field}\");",
       "}",
       "",
-      "} // namespace tachyon::node::math::%{type}",
-      "",
-      "#endif  // defined(TACHYON_NODE_BINDING)",
+      "} // namespace tachyon::py::math::%{type}",
   };
   // clang-format on
 
@@ -100,17 +92,13 @@ int GenerationConfig::GenerateFrSrc() const {
 int GenerationConfig::GenerateG1Hdr() const {
   // clang-format off
   std::vector<std::string_view> tpl = {
-      "#if defined(TACHYON_NODE_BINDING)",
+      "#include \"tachyon/py/base/pybind11.h\"",
       "",
-      "#include \"tachyon/node/base/node_module.h\"",
+      "namespace tachyon::py::math::%{type} {",
       "",
-      "namespace tachyon::node::math::%{type} {",
+      "void AddG1(py11::module& m);",
       "",
-      "void AddG1(NodeModule& m);",
-      "",
-      "} // namespace tachyon::node::math::%{type}",
-      "",
-      "#endif  // defined(TACHYON_NODE_BINDING)",
+      "} // namespace tachyon::py::math::%{type}",
   };
   // clang-format on
 
@@ -125,26 +113,22 @@ int GenerationConfig::GenerateG1Hdr() const {
 int GenerationConfig::GenerateG1Src() const {
   // clang-format off
   std::vector<std::string_view> tpl = {
-      "#if defined(TACHYON_NODE_BINDING)",
-      "",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
-      "#include \"tachyon/node/math/elliptic_curves/short_weierstrass/affine_point.h\"",
-      "#include \"tachyon/node/math/elliptic_curves/short_weierstrass/projective_point.h\"",
-      "#include \"tachyon/node/math/elliptic_curves/short_weierstrass/jacobian_point.h\"",
-      "#include \"tachyon/node/math/elliptic_curves/short_weierstrass/point_xyzz.h\"",
+      "#include \"tachyon/py/math/elliptic_curves/short_weierstrass/affine_point.h\"",
+      "#include \"tachyon/py/math/elliptic_curves/short_weierstrass/projective_point.h\"",
+      "#include \"tachyon/py/math/elliptic_curves/short_weierstrass/jacobian_point.h\"",
+      "#include \"tachyon/py/math/elliptic_curves/short_weierstrass/point_xyzz.h\"",
       "",
-      "namespace tachyon::node::math::%{type} {",
+      "namespace tachyon::py::math::%{type} {",
       "",
-      "void AddG1(NodeModule& m) {",
+      "void AddG1(py11::module& m) {",
       "  AddJacobianPoint<tachyon::math::%{type}::G1JacobianPoint>(m, \"G1JacobianPoint\");",
       "  AddAffinePoint<tachyon::math::%{type}::G1AffinePoint>(m, \"G1AffinePoint\");",
       "  AddProjectivePoint<tachyon::math::%{type}::G1ProjectivePoint>(m, \"G1ProjectivePoint\");",
       "  AddPointXYZZ<tachyon::math::%{type}::G1PointXYZZ>(m, \"G1PointXYZZ\");",
       "}",
       "",
-      "} // namespace tachyon::node::math::%{type}",
-      "",
-      "#endif  // defined(TACHYON_NODE_BINDING)",
+      "} // namespace tachyon::py::math::%{type}",
   };
   // clang-format on
 
@@ -160,7 +144,7 @@ int GenerationConfig::GenerateG1Src() const {
 
 int RealMain(int argc, char** argv) {
   GenerationConfig config;
-  config.generator = "//tachyon/node/math/elliptic_curves/generator";
+  config.generator = "//tachyon/py/math/elliptic_curves/generator";
 
   base::FlagParser parser;
   parser.AddFlag<base::FilePathFlag>(&config.out)

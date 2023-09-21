@@ -1,0 +1,8 @@
+load("//bazel:tachyon_py.bzl", "tachyon_pybind_library")
+
+package(default_visibility = ["//tachyon/py:__subpackages__"])
+
+tachyon_pybind_library(
+    name = "pybind11",
+    hdrs = ["pybind11.h"],
+)

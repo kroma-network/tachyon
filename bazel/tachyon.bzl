@@ -130,6 +130,12 @@ def if_has_numa(a, b = []):
         "//conditions:default": b,
     })
 
+def if_py_binding(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:tachyon_py_binding": a,
+        "//conditions:default": b,
+    })
+
 def if_node_binding(a, b = []):
     return select({
         "@kroma_network_tachyon//:tachyon_node_binding": a,

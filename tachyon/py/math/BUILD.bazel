@@ -1,0 +1,24 @@
+load("//bazel:tachyon.bzl", "if_py_binding")
+load("//bazel:tachyon_py.bzl", "tachyon_pybind_library")
+
+package(default_visibility = ["//tachyon/py:__pkg__"])
+
+TPLS = [
+    "//tachyon/py/math/elliptic_curves/{}:fq",
+    "//tachyon/py/math/elliptic_curves/{}:fr",
+    "//tachyon/py/math/elliptic_curves/{}:g1",
+]
+
+CURVES = [
+    "bls/bls12_381",
+    "bn/bn254",
+]
+
+CURVE_DEPS = [tpl.format(curve) for tpl in TPLS for curve in CURVES]
+
+tachyon_pybind_library(
+    name = "math",
+    srcs = if_py_binding(["math.cc"]),
+    hdrs = ["math.h"],
+    deps = CURVE_DEPS,
+)

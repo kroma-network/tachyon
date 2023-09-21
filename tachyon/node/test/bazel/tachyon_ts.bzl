@@ -24,5 +24,5 @@ def tachyon_ts_project(
             "//:node_modules/@types/jest",
             "//:node_modules/@types/node",
         ] + deps,
-        **kwargs,
+        **kwargs
     )

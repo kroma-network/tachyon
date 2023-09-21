@@ -56,6 +56,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "py_binding",
+    build_setting_default = False,
+)
+
+bool_flag(
     name = "node_binding",
     build_setting_default = False,
 )
@@ -161,6 +166,11 @@ config_setting(
 config_setting(
     name = "tachyon_has_numa",
     flag_values = {"has_numa": "true"},
+)
+
+config_setting(
+    name = "tachyon_py_binding",
+    flag_values = {"py_binding": "true"},
 )
 
 config_setting(

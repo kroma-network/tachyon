@@ -1,0 +1,15 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+load("//bazel:tachyon_py.bzl", "tachyon_py_test")
+
+tachyon_py_test(
+    name = "finite_fields_unittests",
+    srcs = [
+        "finite_fields_unittests.py",
+        "prime_field_unittest.py",
+    ],
+    data = ["@kroma_network_tachyon//tachyon/py:tachyon.so"],
+    main = "finite_fields_unittests.py",
+    deps = [
+        requirement("absl-py"),
+    ],
+)

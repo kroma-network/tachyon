@@ -1,0 +1,18 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+load("//bazel:tachyon_py.bzl", "tachyon_py_test")
+
+tachyon_py_test(
+    name = "short_weierstrass_unittests",
+    srcs = [
+        "affine_point_unittest.py",
+        "jacobian_point_unittest.py",
+        "point_xyzz_unittest.py",
+        "projective_point_unittest.py",
+        "short_weierstrass_unittests.py",
+    ],
+    data = ["@kroma_network_tachyon//tachyon/py:tachyon.so"],
+    main = "short_weierstrass_unittests.py",
+    deps = [
+        requirement("absl-py"),
+    ],
+)

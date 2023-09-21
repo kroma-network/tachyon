@@ -1,0 +1,9 @@
+load("//bazel:tachyon_py.bzl", "tachyon_pybind_library")
+
+package(default_visibility = ["//tachyon/py/math:__subpackages__"])
+
+tachyon_pybind_library(
+    name = "big_int",
+    hdrs = ["big_int.h"],
+    deps = ["//tachyon/math/base:big_int"],
+)

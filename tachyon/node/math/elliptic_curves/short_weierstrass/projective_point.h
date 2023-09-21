@@ -29,14 +29,14 @@ void AddProjectivePoint(NodeModule& m, std::string_view name) {
       .AddMethod("toHexString", &ProjectivePointTy::ToHexString)
       .AddMethod("eq", &ProjectivePointTy::operator==)
       .AddMethod("ne", &ProjectivePointTy::operator!=)
-      .AddMethod("add",
-                 &ProjectivePointTy::template operator+<const ProjectivePointTy&>)
+      .AddMethod("add", &ProjectivePointTy::template operator+
+                        <const ProjectivePointTy&>)
       .AddMethod("addMixed",
-                 &ProjectivePointTy::template operator+<const AffinePointTy&>)
-      .AddMethod("sub",
-                 &ProjectivePointTy::template operator-<const ProjectivePointTy&>)
-                 .AddMethod("subMixed",
-                 &ProjectivePointTy::template operator-<const AffinePointTy&>)
+                 &ProjectivePointTy::template operator+ <const AffinePointTy&>)
+      .AddMethod("sub", &ProjectivePointTy::template operator-
+                        <const ProjectivePointTy&>)
+      .AddMethod("subMixed",
+                 &ProjectivePointTy::template operator- <const AffinePointTy&>)
       .AddMethod("negative", &ProjectivePointTy::Negative)
       .AddMethod("double", &ProjectivePointTy::Double);
 }
