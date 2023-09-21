@@ -6,10 +6,17 @@
 #include <string>
 #include <vector>
 
+#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+
 namespace tachyon {
 
 class MSMConfig {
  public:
+  enum class TestSet {
+    kRandom,
+    kNonUniform,
+  };
+
   enum class Vendor {
     kArkworks,
     kBellman,
@@ -35,10 +42,27 @@ class MSMConfig {
 
   std::vector<uint64_t> GetPointNums() const;
 
+  template <typename PointTy, typename Bucket>
+  bool GenerateTestSet(uint64_t size,
+                       math::MSMTestSet<PointTy, Bucket>* out) const {
+    switch (test_set_) {
+      case TestSet::kRandom:
+        *out = math::MSMTestSet<PointTy, Bucket>::Random(
+            size, math::MSMMethod::kNone);
+        return true;
+      case TestSet::kNonUniform:
+        *out = math::MSMTestSet<PointTy, Bucket>::NonUniform(
+            size, 1, math::MSMMethod::kNone);
+        return true;
+    }
+    return false;
+  }
+
  private:
   std::vector<uint64_t> degrees_;
   std::vector<Vendor> vendors_;
   int algorithm_ = 0;
+  TestSet test_set_ = TestSet::kRandom;
   bool check_results_ = false;
 };
 
