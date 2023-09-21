@@ -5,11 +5,11 @@ Tachyon offers a suite of benchmarking tools and scripts designed to evaluate th
 ## Benchmarks Included
 
 1. EC Benchmark
-    - This benchmark gauges the efficiency of elliptic curve operations on both CPU and GPU.
-    - Delve into detailed insights about point multiplications, additions, and other fundamental elliptic curve operations.
+   - This benchmark gauges the efficiency of elliptic curve operations on both CPU and GPU.
+   - Delve into detailed insights about point multiplications, additions, and other fundamental elliptic curve operations.
 2. MSM Benchmark
-    - Multi-scalar multiplication (MSM) plays a pivotal role in cryptographic protocols. This benchmark allows you to gauge its performance on both CPU and GPU platforms.
-    - Additionally, you can compare Tachyon's MSM performance against a range of other external libraries.
+   - Multi-scalar multiplication (MSM) plays a pivotal role in cryptographic protocols. This benchmark allows you to gauge its performance on both CPU and GPU platforms.
+   - Additionally, you can compare Tachyon's MSM performance against a range of other external libraries.
 
 ### Running the Benchmark
 
