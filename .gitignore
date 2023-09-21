@@ -451,3 +451,4 @@ tags
 !/third_party/env
 /.bazelrc.user
 /tachyon/node/test/bazel-*
+/tachyon/py/test/bazel-*

@@ -1,0 +1,12 @@
+load("//bazel:tachyon.bzl", "if_py_binding")
+load("//bazel:tachyon_py.bzl", "tachyon_pybind_extension")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_pybind_extension(
+    name = "tachyon",
+    srcs = if_py_binding(["tachyon.cc"]),
+    deps = [
+        "//tachyon/py/math",
+    ],
+)

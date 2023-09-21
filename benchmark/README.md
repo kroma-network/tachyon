@@ -37,10 +37,10 @@ build --build_tag_filters -rust //enables cuda targets
 build --build_tag_filters="" //enables all targets
 ```
 
-To harness the plot chart feature, first ensure that matplotlib is installed (refer to the [installation guide](https://github.com/kroma-network/tachyon#matplotlib)). Then, append the `--config pybind` and `--//:has_matplotlib` flags to your command:
+To harness the plot chart feature, first ensure that matplotlib is installed (refer to the [installation guide](https://github.com/kroma-network/tachyon#matplotlib)). Then, append the `--//:has_rtti` and `--//:has_matplotlib` flags to your command:
 
 ```shell
-> bazel run -c opt --config pybind --//:has_matplotlib //benchmark/path/to/target:target_name -- -n <test_set_size>
+> bazel run -c opt --//:has_rtti --//:has_matplotlib //benchmark/path/to/target:target_name -- -n <test_set_size>
 ```
 
 For executing GPU benchmarks, make sure to configure [GPU config](https://github.com/kroma-network/tachyon#hardware-acceleration) for your environment. For instance, in CUDA:
