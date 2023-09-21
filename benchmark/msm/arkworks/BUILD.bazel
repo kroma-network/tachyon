@@ -7,5 +7,7 @@ tachyon_rust_static_library(
     aliases = aliases(),
     proc_macro_deps = all_crate_deps(proc_macro = True),
     visibility = ["//benchmark/msm:__pkg__"],
-    deps = all_crate_deps(normal = True),
+    deps = all_crate_deps(normal = True) + [
+        "//tachyon/rs:tachyon_rs",
+    ],
 )

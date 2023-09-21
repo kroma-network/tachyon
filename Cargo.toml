@@ -2,5 +2,6 @@
 members = [
     "benchmark/msm/arkworks",
     "benchmark/msm/bellman",
+    "tachyon/rs",
     "vendors/halo2",
 ]

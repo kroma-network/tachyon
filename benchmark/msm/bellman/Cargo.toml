@@ -19,3 +19,4 @@ publish = false
 
 [dependencies]
 bellman_ce = { git = "https://github.com/kroma-network/bellman.git", rev = "279a4bd" }
+tachyon_rs = { path = "../../../tachyon/rs" }

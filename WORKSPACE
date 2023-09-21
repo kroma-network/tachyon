@@ -48,9 +48,10 @@ crates_repository(
     lockfile = "//:Cargo.Bazel.lock",
     manifests = [
         "//:Cargo.toml",
-        "//:benchmark/msm/arkworks/Cargo.toml",
-        "//:benchmark/msm/bellman/Cargo.toml",
-        "//:vendors/halo2/Cargo.toml",
+        "//benchmark/msm/arkworks:Cargo.toml",
+        "//benchmark/msm/bellman:Cargo.toml",
+        "//tachyon/rs:Cargo.toml",
+        "//vendors/halo2:Cargo.toml",
     ],
     packages = {
         # See https://github.com/bazelbuild/rules_rust/issues/2071#issuecomment-1656204269

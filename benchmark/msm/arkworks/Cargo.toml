@@ -21,3 +21,4 @@ publish = false
 ark-bn254 = "0.4.0"
 ark-ec = { version = "0.4.2", features = ["parallel"] }
 ark-std = "0.4.0"
+tachyon_rs = { path = "../../../tachyon/rs" }

@@ -1,5 +1,5 @@
 {
-  "checksum": "226825fbcf4bb318580c081a9a4d3e42d1bb26815b1c3c37e9c59386c4844aed",
+  "checksum": "ea7f2e4b98d8ecd9be3441e0a4f89e30e6cb4709690a45bbf17f48abda33bb18",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -1285,49 +1285,6 @@
       },
       "license": "MIT/Apache-2.0"
     },
-    "codespan-reporting 0.11.1": {
-      "name": "codespan-reporting",
-      "version": "0.11.1",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/codespan-reporting/0.11.1/download",
-          "sha256": "3538270d33cc669650c4b093848450d380def10c331d38c768e34cac80576e6e"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "codespan_reporting",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "codespan_reporting",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "termcolor 1.2.0",
-              "target": "termcolor"
-            },
-            {
-              "id": "unicode-width 0.1.10",
-              "target": "unicode_width"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2018",
-        "version": "0.11.1"
-      },
-      "license": "Apache-2.0"
-    },
     "constant_time_eq 0.2.6": {
       "name": "constant_time_eq",
       "version": "0.2.6",
@@ -2189,69 +2146,6 @@
           "selects": {}
         },
         "links": "cxxbridge1"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
-    "cxx-build 1.0.105": {
-      "name": "cxx-build",
-      "version": "1.0.105",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/cxx-build/1.0.105/download",
-          "sha256": "162bec16c4cc28b19e26db0197b60ba5480fdb9a4cbf0f4c6c104a937741b78e"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "cxx_build",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "cxx_build",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "cc 1.0.82",
-              "target": "cc"
-            },
-            {
-              "id": "codespan-reporting 0.11.1",
-              "target": "codespan_reporting"
-            },
-            {
-              "id": "once_cell 1.18.0",
-              "target": "once_cell"
-            },
-            {
-              "id": "proc-macro2 1.0.66",
-              "target": "proc_macro2"
-            },
-            {
-              "id": "quote 1.0.32",
-              "target": "quote"
-            },
-            {
-              "id": "scratch 1.0.7",
-              "target": "scratch"
-            },
-            {
-              "id": "syn 2.0.28",
-              "target": "syn"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "1.0.105"
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -4563,8 +4457,7 @@
         "crate_features": {
           "common": [
             "default",
-            "proc-macro",
-            "span-locations"
+            "proc-macro"
           ],
           "selects": {}
         },
@@ -5209,59 +5102,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "scratch 1.0.7": {
-      "name": "scratch",
-      "version": "1.0.7",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/scratch/1.0.7/download",
-          "sha256": "a3cf7c11c38cb994f3d40e8a8cde3bbd1f72a435e4c49e85d6553d8312306152"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "scratch",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        },
-        {
-          "BuildScript": {
-            "crate_name": "build_script_build",
-            "crate_root": "build.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "scratch",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "scratch 1.0.7",
-              "target": "build_script_build"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2015",
-        "version": "1.0.7"
-      },
-      "build_script_attrs": {
-        "data_glob": [
-          "**"
-        ]
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "semver 1.0.18": {
       "name": "semver",
       "version": "1.0.18",
@@ -5728,18 +5568,56 @@
               "**/*.rs"
             ]
           }
+        }
+      ],
+      "library_target_name": "tachyon_halo2",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "halo2_proofs 0.2.0",
+              "target": "halo2_proofs"
+            },
+            {
+              "id": "halo2curves 0.3.1",
+              "target": "halo2curves"
+            }
+          ],
+          "selects": {}
         },
+        "deps_dev": {
+          "common": [
+            {
+              "id": "rand_core 0.6.4",
+              "target": "rand_core"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "tachyon_rs 0.0.1": {
+      "name": "tachyon_rs",
+      "version": "0.0.1",
+      "repository": null,
+      "targets": [
         {
-          "BuildScript": {
-            "crate_name": "build_script_build",
-            "crate_root": "build.rs",
+          "Library": {
+            "crate_name": "tachyon_rs",
+            "crate_root": "src/lib.rs",
             "srcs": [
               "**/*.rs"
             ]
           }
         }
       ],
-      "library_target_name": "tachyon_halo2",
+      "library_target_name": "tachyon_rs",
       "common_attrs": {
         "compile_data_glob": [
           "**"
@@ -5757,54 +5635,14 @@
               "target": "cxx"
             },
             {
-              "id": "halo2_proofs 0.2.0",
-              "target": "halo2_proofs"
-            },
-            {
-              "id": "halo2curves 0.3.1",
-              "target": "halo2curves"
-            },
-            {
-              "id": "tachyon_halo2 0.0.1",
-              "target": "build_script_build"
-            }
-          ],
-          "selects": {}
-        },
-        "deps_dev": {
-          "common": [
-            {
-              "id": "rand_core 0.6.4",
-              "target": "rand_core"
+              "id": "zeroize 1.6.0",
+              "target": "zeroize"
             }
           ],
           "selects": {}
         },
         "edition": "2021",
         "version": "0.0.1"
-      },
-      "build_script_attrs": {
-        "data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "cxx-build 1.0.105",
-              "target": "cxx_build"
-            }
-          ],
-          "selects": {}
-        },
-        "link_deps": {
-          "common": [
-            {
-              "id": "cxx 1.0.105",
-              "target": "cxx"
-            }
-          ],
-          "selects": {}
-        }
       },
       "license": "MIT OR Apache-2.0"
     },
@@ -5837,47 +5675,6 @@
         "version": "1.0.1"
       },
       "license": "MIT"
-    },
-    "termcolor 1.2.0": {
-      "name": "termcolor",
-      "version": "1.2.0",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/termcolor/1.2.0/download",
-          "sha256": "be55cf8942feac5c765c2c993422806843c9a9a45d4d5c407ad6dd2ea95eb9b6"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "termcolor",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "termcolor",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [],
-          "selects": {
-            "cfg(windows)": [
-              {
-                "id": "winapi-util 0.1.5",
-                "target": "winapi_util"
-              }
-            ]
-          }
-        },
-        "edition": "2018",
-        "version": "1.2.0"
-      },
-      "license": "Unlicense OR MIT"
     },
     "tracing 0.1.37": {
       "name": "tracing",
@@ -6120,42 +5917,6 @@
       },
       "license": "(MIT OR Apache-2.0) AND Unicode-DFS-2016"
     },
-    "unicode-width 0.1.10": {
-      "name": "unicode-width",
-      "version": "0.1.10",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/unicode-width/0.1.10/download",
-          "sha256": "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "unicode_width",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "unicode_width",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "crate_features": {
-          "common": [
-            "default"
-          ],
-          "selects": {}
-        },
-        "edition": "2015",
-        "version": "0.1.10"
-      },
-      "license": "MIT/Apache-2.0"
-    },
     "version_check 0.9.4": {
       "name": "version_check",
       "version": "0.9.4",
@@ -6252,17 +6013,9 @@
         ],
         "crate_features": {
           "common": [
-            "consoleapi",
-            "errhandlingapi",
-            "fileapi",
             "minwindef",
             "ntsecapi",
-            "processenv",
             "profileapi",
-            "std",
-            "winbase",
-            "wincon",
-            "winerror",
             "winnt"
           ],
           "selects": {}
@@ -6351,47 +6104,6 @@
         ]
       },
       "license": "MIT/Apache-2.0"
-    },
-    "winapi-util 0.1.5": {
-      "name": "winapi-util",
-      "version": "0.1.5",
-      "repository": {
-        "Http": {
-          "url": "https://crates.io/api/v1/crates/winapi-util/0.1.5/download",
-          "sha256": "70ec6ce85bb158151cae5e5c87f95a8e97d2c0c4b001223f33a334e3ce5de178"
-        }
-      },
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "winapi_util",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "winapi_util",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [],
-          "selects": {
-            "cfg(windows)": [
-              {
-                "id": "winapi 0.3.9",
-                "target": "winapi"
-              }
-            ]
-          }
-        },
-        "edition": "2018",
-        "version": "0.1.5"
-      },
-      "license": "Unlicense/MIT"
     },
     "winapi-x86_64-pc-windows-gnu 0.4.0": {
       "name": "winapi-x86_64-pc-windows-gnu",
@@ -6583,7 +6295,8 @@
     "arkworks_benchmark 0.0.1": "benchmark/msm/arkworks",
     "bellman_benchmark 0.0.1": "benchmark/msm/bellman",
     "direct-cargo-bazel-deps 0.0.1": "",
-    "tachyon_halo2 0.0.1": "vendors/halo2"
+    "tachyon_halo2 0.0.1": "vendors/halo2",
+    "tachyon_rs 0.0.1": "tachyon/rs"
   },
   "conditions": {
     "aarch64-linux-android": [
