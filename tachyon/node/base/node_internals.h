@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_INTERNALS_H_
 #define TACHYON_NODE_BASE_NODE_INTERNALS_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include <string>
 #include <string_view>
 #include <vector>
@@ -496,7 +494,5 @@ Napi::Value ToJSValue(const Napi::CallbackInfo& info, T&& value) {
 
 }  // namespace internal
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_INTERNALS_H_

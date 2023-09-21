@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #include "tachyon/base/binding/test/adder.h"
 #include "tachyon/base/binding/test/colored_point.h"
 #include "tachyon/base/binding/test/functions.h"
@@ -77,5 +75,3 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
 }
 
 NODE_API_MODULE(test, Init)
-
-#endif  // defined(TACHYON_NODE_BINDING)

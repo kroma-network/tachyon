@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #ifndef TACHYON_NODE_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_JACOBIAN_POINT_H_
 #define TACHYON_NODE_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_JACOBIAN_POINT_H_
 
@@ -44,5 +42,3 @@ void AddJacobianPoint(NodeModule& m, std::string_view name) {
 }  // namespace tachyon::node::math
 
 #endif  // TACHYON_NODE_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_JACOBIAN_POINT_H_
-
-#endif  // defined(TACHYON_NODE_BINDING)

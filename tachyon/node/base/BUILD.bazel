@@ -3,7 +3,7 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 tachyon_cc_library(
     name = "node_base",
-    srcs = [
+    srcs = if_node_binding([
         "node_constructors.cc",
         "node_constructors.h",
         "node_cpp_bindable.cc",
@@ -18,7 +18,7 @@ tachyon_cc_library(
         "node_internals.h",
         "node_internals_forwards.h",
         "node_module.cc",
-    ],
+    ]),
     hdrs = [
         "node_cpp_class.h",
         "node_cpp_enum.h",

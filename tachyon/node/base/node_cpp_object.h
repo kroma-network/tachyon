@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_OBJECT_H_
 #define TACHYON_NODE_BASE_NODE_CPP_OBJECT_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include <string_view>
 
 #include "tachyon/base/binding/cpp_stack_value.h"
@@ -153,7 +151,5 @@ template <typename T>
 Napi::FunctionReference NodeCppObject<T>::s_constructor_;
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_CPP_OBJECT_H_

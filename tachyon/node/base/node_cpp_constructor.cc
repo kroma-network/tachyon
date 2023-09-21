@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #include "tachyon/node/base/node_cpp_constructor.h"
 
 #include "tachyon/base/strings/string_util.h"
@@ -75,5 +73,3 @@ bool NodeCppConstructor::Match(const Napi::CallbackInfo& info) const {
 }
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)

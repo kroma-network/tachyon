@@ -8,8 +8,6 @@ cc_library(
         "node_modules/node-addon-api/napi-inl.h",
     ],
     defines = [
-        "TACHYON_NODE_BINDING",
-    ] + [
         "NODE_GYP_MODULE_NAME",
         "USING_UV_SHARED=1",
         "USING_V8_SHARED=1",

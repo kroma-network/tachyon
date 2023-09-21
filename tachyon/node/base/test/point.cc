@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #include "tachyon/node/base/test/point.h"
 
 void AddPoint(tachyon::node::NodeModule& m) {
@@ -29,5 +27,3 @@ void DoubleWithSharedPtr(std::shared_ptr<tachyon::base::test::Point> p) {
 }
 
 void DoubleWithUniquePtr(std::unique_ptr<tachyon::base::test::Point> p) {}
-
-#endif  // defined(TACHYON_NODE_BINDING)

@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_CALLABLE_H_
 #define TACHYON_NODE_BASE_NODE_CPP_CALLABLE_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include <tuple>
 
 #include "absl/strings/substitute.h"
@@ -345,7 +343,5 @@ class NodeCppCallable {
 };
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_CPP_CALLABLE_H_

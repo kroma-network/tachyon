@@ -25,8 +25,6 @@ struct GenerationConfig : public build::CcWriter {
 int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   // clang-format off
   std::vector<std::string_view> tpl = {
-      "#if defined(TACHYON_NODE_BINDING)",
-      "",
       "#include \"tachyon/node/base/node_module.h\"",
       "",
       "namespace tachyon::node::math::%{type} {",
@@ -34,8 +32,6 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
       "void Add%{cc_field}(NodeModule& m);",
       "",
       "} // namespace tachyon::node::math::%{type}",
-      "",
-      "#endif  // defined(TACHYON_NODE_BINDING)",
   };
   // clang-format on
 
@@ -60,8 +56,6 @@ int GenerationConfig::GenerateFrHdr() const {
 int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   // clang-format off
   std::vector<std::string_view> tpl = {
-      "#if defined(TACHYON_NODE_BINDING)",
-      "",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/%{suffix}.h\"",
       "#include \"tachyon/node/math/finite_fields/prime_field.h\"",
       "",
@@ -72,8 +66,6 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
       "}",
       "",
       "} // namespace tachyon::node::math::%{type}",
-      "",
-      "#endif  // defined(TACHYON_NODE_BINDING)",
   };
   // clang-format on
 
@@ -100,8 +92,6 @@ int GenerationConfig::GenerateFrSrc() const {
 int GenerationConfig::GenerateG1Hdr() const {
   // clang-format off
   std::vector<std::string_view> tpl = {
-      "#if defined(TACHYON_NODE_BINDING)",
-      "",
       "#include \"tachyon/node/base/node_module.h\"",
       "",
       "namespace tachyon::node::math::%{type} {",
@@ -109,8 +99,6 @@ int GenerationConfig::GenerateG1Hdr() const {
       "void AddG1(NodeModule& m);",
       "",
       "} // namespace tachyon::node::math::%{type}",
-      "",
-      "#endif  // defined(TACHYON_NODE_BINDING)",
   };
   // clang-format on
 
@@ -125,8 +113,6 @@ int GenerationConfig::GenerateG1Hdr() const {
 int GenerationConfig::GenerateG1Src() const {
   // clang-format off
   std::vector<std::string_view> tpl = {
-      "#if defined(TACHYON_NODE_BINDING)",
-      "",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
       "#include \"tachyon/node/math/elliptic_curves/short_weierstrass/affine_point.h\"",
       "#include \"tachyon/node/math/elliptic_curves/short_weierstrass/projective_point.h\"",
@@ -143,8 +129,6 @@ int GenerationConfig::GenerateG1Src() const {
       "}",
       "",
       "} // namespace tachyon::node::math::%{type}",
-      "",
-      "#endif  // defined(TACHYON_NODE_BINDING)",
   };
   // clang-format on
 

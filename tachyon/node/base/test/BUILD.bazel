@@ -1,10 +1,11 @@
+load("//bazel:tachyon.bzl", "if_node_binding")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//bazel:tachyon_node.bzl", "tachyon_node_library")
 
 tachyon_cc_library(
     name = "color",
     testonly = True,
-    srcs = ["color.cc"],
+    srcs = if_node_binding(["color.cc"]),
     hdrs = ["color.h"],
     deps = [
         "//tachyon/base/binding/test:enum",
@@ -15,7 +16,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "point",
     testonly = True,
-    srcs = ["point.cc"],
+    srcs = if_node_binding(["point.cc"]),
     hdrs = ["point.h"],
     deps = [
         "//tachyon/base/binding/test:class",
@@ -26,7 +27,7 @@ tachyon_cc_library(
 tachyon_node_library(
     name = "test",
     testonly = True,
-    srcs = ["test.cc"],
+    srcs = if_node_binding(["test.cc"]),
     deps = [
         ":color",
         ":point",

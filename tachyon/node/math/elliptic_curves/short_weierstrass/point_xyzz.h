@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #ifndef TACHYON_NODE_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 #define TACHYON_NODE_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 
@@ -43,5 +41,3 @@ void AddPointXYZZ(NodeModule& m, std::string_view name) {
 }  // namespace tachyon::node::math
 
 #endif  // TACHYON_NODE_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
-
-#endif  // defined(TACHYON_NODE_BINDING)

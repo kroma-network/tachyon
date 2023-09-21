@@ -1,8 +1,6 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_CALLABLE_DATA_H_
 #define TACHYON_NODE_BASE_NODE_CPP_CALLABLE_DATA_H_
 
-#if defined(TACHYON_NODE_BINDING)
-
 #include <type_traits>
 #include <vector>
 
@@ -62,7 +60,5 @@ struct TACHYON_EXPORT NodeCppStaticPropertyAccessorData
 };
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)
 
 #endif  // TACHYON_NODE_BASE_NODE_CPP_CALLABLE_DATA_H_

@@ -1,5 +1,3 @@
-#if defined(TACHYON_NODE_BINDING)
-
 #include "tachyon/node/base/node_constructors.h"
 
 namespace tachyon::node {
@@ -35,5 +33,3 @@ bool NodeConstructors::InstanceOf(Napi::Object object, std::string_view name) {
 }
 
 }  // namespace tachyon::node
-
-#endif  // defined(TACHYON_NODE_BINDING)

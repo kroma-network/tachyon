@@ -1,3 +1,4 @@
+load("//bazel:tachyon.bzl", "if_node_binding")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 def _generate_ec_point_impl(ctx):
@@ -50,7 +51,7 @@ def generate_ec_points(
     tachyon_cc_library(
         name = "fq",
         hdrs = ["fq.h"],
-        srcs = ["fq.cc"],
+        srcs = if_node_binding(["fq.cc"]),
         deps = g1_deps + [
             "//tachyon/node/math/finite_fields:prime_field",
         ],
@@ -59,7 +60,7 @@ def generate_ec_points(
     tachyon_cc_library(
         name = "fr",
         hdrs = ["fr.h"],
-        srcs = ["fr.cc"],
+        srcs = if_node_binding(["fr.cc"]),
         deps = g1_deps + [
             "//tachyon/node/math/finite_fields:prime_field",
         ],
@@ -68,7 +69,7 @@ def generate_ec_points(
     tachyon_cc_library(
         name = "g1",
         hdrs = ["g1.h"],
-        srcs = ["g1.cc"],
+        srcs = if_node_binding(["g1.cc"]),
         deps = g1_deps + [
             "//tachyon/node/math/elliptic_curves/short_weierstrass:points",
         ],
