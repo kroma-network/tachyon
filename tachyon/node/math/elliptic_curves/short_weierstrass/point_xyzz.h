@@ -30,14 +30,12 @@ void AddPointXYZZ(NodeModule& m, std::string_view name) {
       .AddMethod("toHexString", &PointXYZZTy::ToHexString)
       .AddMethod("eq", &PointXYZZTy::operator==)
       .AddMethod("ne", &PointXYZZTy::operator!=)
-      .AddMethod("add",
-                 &PointXYZZTy::template operator+<const PointXYZZTy&>)
+      .AddMethod("add", &PointXYZZTy::template operator+ <const PointXYZZTy&>)
       .AddMethod("addMixed",
-                 &PointXYZZTy::template operator+<const AffinePointTy&>)
-      .AddMethod("sub",
-                 &PointXYZZTy::template operator-<const PointXYZZTy&>)
+                 &PointXYZZTy::template operator+ <const AffinePointTy&>)
+      .AddMethod("sub", &PointXYZZTy::template operator- <const PointXYZZTy&>)
       .AddMethod("subMixed",
-                 &PointXYZZTy::template operator-<const AffinePointTy&>)
+                 &PointXYZZTy::template operator- <const AffinePointTy&>)
       .AddMethod("negative", &PointXYZZTy::Negative)
       .AddMethod("double", &PointXYZZTy::Double);
 }
