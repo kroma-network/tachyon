@@ -144,6 +144,7 @@ int GenerationConfig::GenerateG1Src() const {
 
 int RealMain(int argc, char** argv) {
   GenerationConfig config;
+  config.generator = "//tachyon/py/math/elliptic_curves/generator";
 
   base::FlagParser parser;
   parser.AddFlag<base::FilePathFlag>(&config.out)
