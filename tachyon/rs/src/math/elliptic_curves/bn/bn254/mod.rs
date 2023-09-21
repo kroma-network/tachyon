@@ -58,6 +58,7 @@ pub mod ffi {
             bases: &[G1AffinePoint],
             scalars: &[Fr],
         ) -> Box<G1JacobianPoint>;
+        #[cfg(feature = "gpu")]
         unsafe fn g1_point2_msm_gpu(
             msm: *mut G1MSMGpu,
             bases: &[G1Point2],
