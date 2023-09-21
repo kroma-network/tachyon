@@ -1,6 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 
-const class_test = require('../../../external/kroma_network_tachyon/tachyon/node/base/test/class.node');
+const class_test = require(
+    '../../../external/kroma_network_tachyon/tachyon/node/base/test/test.node');
 
 const callNonConstMethod = TypeError('Call non-const method');
 const noSuchConstructor = TypeError('No such constructor');

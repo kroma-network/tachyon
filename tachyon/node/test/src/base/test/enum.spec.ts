@@ -1,6 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 
-const enum_test = require('../../../external/kroma_network_tachyon/tachyon/node/base/test/enum.node');
+const enum_test = require(
+    '../../../external/kroma_network_tachyon/tachyon/node/base/test/test.node');
 
 describe('enum', () => {
   test('enum values', () => {

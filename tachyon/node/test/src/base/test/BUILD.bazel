@@ -9,11 +9,7 @@ tachyon_ts_project(
         "enum.spec.ts",
         "function.spec.ts",
     ],
-    data = [
-        "@kroma_network_tachyon//tachyon/node/base/test:class",
-        "@kroma_network_tachyon//tachyon/node/base/test:enum",
-        "@kroma_network_tachyon//tachyon/node/base/test:function",
-    ],
+    data = ["@kroma_network_tachyon//tachyon/node/base/test"],
 )
 
 tachyon_jest_test(
