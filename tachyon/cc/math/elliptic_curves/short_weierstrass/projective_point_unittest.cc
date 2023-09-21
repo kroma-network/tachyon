@@ -12,9 +12,7 @@ namespace {
 
 class ProjectivePointTest : public testing::Test {
  public:
-  static void SetUpTestSuite() {
-    tachyon::math::bn254::G1ProjectivePoint::Curve::Init();
-  }
+  static void SetUpTestSuite() { tachyon::math::bn254::G1Curve::Init(); }
 
   void SetUp() override {
     a_ = tachyon::math::bn254::G1ProjectivePoint::Random();

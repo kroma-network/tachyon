@@ -7,6 +7,7 @@ def _generate_ec_point_impl(ctx):
         "--type=%s" % (ctx.attr.type),
         "--fq_limb_nums=%s" % (ctx.attr.fq_limb_nums),
         "--fr_limb_nums=%s" % (ctx.attr.fr_limb_nums),
+        "--has_specialized_g1_msm_kernels=%s" % (ctx.attr.has_specialized_g1_msm_kernels),
     ]
 
     ctx.actions.run(
@@ -25,6 +26,7 @@ generate_ec_point = rule(
         "type": attr.string(mandatory = True),
         "fq_limb_nums": attr.int(mandatory = True),
         "fr_limb_nums": attr.int(mandatory = True),
+        "has_specialized_g1_msm_kernels": attr.bool(mandatory = True),
         "_tool": attr.label(
             # TODO(chokobole): Change it to "exec" we can build it on macos.
             cfg = "target",
@@ -40,7 +42,8 @@ def generate_ec_points(
         fq_limb_nums,
         fr_limb_nums,
         g1_deps,
-        g1_gpu_deps):
+        g1_gpu_deps,
+        g1_msm_kernels_deps = []):
     for n in [
         ("gen_fq_hdr", "fq.h"),
         ("gen_fq_src", "fq.cc"),
@@ -62,6 +65,7 @@ def generate_ec_points(
             fr_limb_nums = fr_limb_nums,
             name = n[0],
             out = n[1],
+            has_specialized_g1_msm_kernels = len(g1_msm_kernels_deps) > 0,
         )
 
     tachyon_cc_library(
@@ -120,7 +124,7 @@ def generate_ec_points(
             name = "msm_gpu",
             hdrs = ["msm_gpu.h"],
             srcs = if_gpu_is_configured(["msm_gpu.cc"]),
-            deps = g1_gpu_deps + [
+            deps = g1_gpu_deps + g1_msm_kernels_deps + [
                 ":g1",
                 "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
             ],

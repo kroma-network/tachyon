@@ -16,3 +16,13 @@ tachyon_cuda_library(
         "//tachyon/math/elliptic_curves/short_weierstrass:points",
     ],
 )
+
+tachyon_cuda_library(
+    name = "bn254_cuzk_kernels",
+    srcs = if_gpu_is_configured(["bn254_cuzk_kernels.cu.cc"]),
+    hdrs = ["bn254_cuzk_kernels.cu.h"],
+    deps = [
+        ":cuzk_kernels",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1_gpu",
+    ],
+)

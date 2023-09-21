@@ -12,9 +12,7 @@ namespace {
 
 class JacobianPointTest : public testing::Test {
  public:
-  static void SetUpTestSuite() {
-    tachyon::math::bn254::G1JacobianPoint::Curve::Init();
-  }
+  static void SetUpTestSuite() { tachyon::math::bn254::G1Curve::Init(); }
 
   void SetUp() override {
     a_ = tachyon::math::bn254::G1JacobianPoint::Random();

@@ -6,6 +6,8 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
+#include "tachyon/math/elliptic_curves/msm/kernels/bellman/bn254_bellman_msm_kernels.cu.h"
+#include "tachyon/math/elliptic_curves/msm/kernels/cuzk/bn254_cuzk_kernels.cu.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 
 namespace tachyon::math {
@@ -22,7 +24,7 @@ class VariableMSMCorrectnessGpuTest : public testing::Test {
   constexpr static size_t kCount = 1 << kLogCount;
 
   static void SetUpTestSuite() {
-    bn254::G1AffinePoint::Curve::Init();
+    bn254::G1Curve::Init();
 
     MSMTestSet<bn254::G1AffinePoint> test_set =
         MSMTestSet<bn254::G1AffinePoint>::Random(kCount, MSMMethod::kMSM);
@@ -60,6 +62,7 @@ TEST_F(VariableMSMCorrectnessGpuTest, MSM) {
                            gpuMemHandleTypeNone,
                            {gpuMemLocationTypeDevice, 0}};
   gpu::ScopedMemPool mem_pool = gpu::CreateMemPool(&props);
+
   uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
   gpuError_t error = gpuMemPoolSetAttribute(
       mem_pool.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
@@ -69,8 +72,8 @@ TEST_F(VariableMSMCorrectnessGpuTest, MSM) {
 
   for (MSMAlgorithmKind algorithm :
        {MSMAlgorithmKind::kBellmanMSM, MSMAlgorithmKind::kCUZK}) {
-    VariableBaseMSMGpu<bn254::G1AffinePointGpu::Curve> msm_gpu(
-        algorithm, mem_pool.get(), stream.get());
+    VariableBaseMSMGpu<bn254::G1CurveGpu> msm_gpu(algorithm, mem_pool.get(),
+                                                  stream.get());
     bn254::G1JacobianPoint actual;
     ASSERT_TRUE(msm_gpu.Run(d_bases_, d_scalars_, kCount, &actual));
     EXPECT_EQ(actual, expected_);

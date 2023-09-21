@@ -12,9 +12,7 @@ namespace {
 
 class AffinePointTest : public testing::Test {
  public:
-  static void SetUpTestSuite() {
-    tachyon::math::bn254::G1AffinePoint::Curve::Init();
-  }
+  static void SetUpTestSuite() { tachyon::math::bn254::G1Curve::Init(); }
 
   void SetUp() override {
     a_ = tachyon::math::bn254::G1AffinePoint::Random();

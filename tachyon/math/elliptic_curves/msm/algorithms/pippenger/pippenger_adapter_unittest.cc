@@ -13,7 +13,7 @@ const size_t kSize = 1024;
 
 class PippengerAdapterTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { bn254::G1AffinePoint::Curve::Init(); }
+  static void SetUpTestSuite() { bn254::G1Curve::Init(); }
 
   PippengerAdapterTest()
       : test_set_(

@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_BELLMAN_BELLMAN_MSM_KERNELS_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_BELLMAN_BELLMAN_MSM_KERNELS_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_BELLMAN_BELLMAN_MSM_KERNELS_CU_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_BELLMAN_BELLMAN_MSM_KERNELS_CU_H_
 
 #include "tachyon/device/gpu/cuda/cuda_memory.h"
 #include "tachyon/device/gpu/gpu_logging.h"
@@ -170,29 +170,14 @@ gpuError_t ComputeBucketIndexes(const ScalarField* scalars,
 }
 #undef MAX_THREADS
 
-#define MAX_THREADS 128
 __global__ void RemoveZeroBucketsKernel(
     const unsigned int* unique_bucket_indexes, unsigned int* bucket_run_lengths,
-    const unsigned int* bucket_runs_count, unsigned int count) {
-  constexpr unsigned int kHighestBitMask = 0x80000000;
-  unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
-  if (gid >= count) return;
-  unsigned int runs_count = *bucket_runs_count;
-  unsigned int bucket_index = unique_bucket_indexes[gid];
-  bool is_zero = bucket_index & kHighestBitMask;
-  if (gid >= runs_count || is_zero) bucket_run_lengths[gid] = 0;
-}
+    const unsigned int* bucket_runs_count, unsigned int count);
 
 gpuError_t RemoveZeroBuckets(const unsigned int* unique_bucket_indexes,
                              unsigned int* bucket_run_lengths,
                              const unsigned int* bucket_runs_count,
-                             unsigned int count, gpuStream_t stream) {
-  dim3 block_dim = count < MAX_THREADS ? count : MAX_THREADS;
-  dim3 grid_dim = (count - 1) / block_dim.x + 1;
-  RemoveZeroBucketsKernel<<<grid_dim, block_dim, 0, stream>>>(
-      unique_bucket_indexes, bucket_run_lengths, bucket_runs_count, count);
-  return LOG_IF_GPU_LAST_ERROR("Failed to RemoveZeroBucketsKernel()");
-}
+                             unsigned int count, gpuStream_t stream);
 #undef MAX_THREADS
 
 #define MAX_THREADS 32
@@ -477,4 +462,4 @@ void SetupKernels() {
 
 }  // namespace tachyon::math::bellman
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_BELLMAN_BELLMAN_MSM_KERNELS_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_BELLMAN_BELLMAN_MSM_KERNELS_CU_H_
