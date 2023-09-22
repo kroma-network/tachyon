@@ -1,0 +1,13 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "sponge",
+    hdrs = ["sponge.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/finite_fields:prime_field_traits",
+    ],
+)

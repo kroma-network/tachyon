@@ -15,7 +15,12 @@ SUPPORTS_BINARY_OPERATOR(Mod);
 template <typename G>
 class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
  public:
-  template <typename G2>
+  template <
+      typename G2,
+      std::enable_if_t<internal::SupportsMul<G, G2>::value ||
+                       internal::SupportsMulInPlace<G, G2>::value ||
+                       internal::SupportsDiv<G, G2>::value ||
+                       internal::SupportsDivInPlace<G, G2>::value>* = nullptr>
   constexpr auto operator/(const G2& other) const {
     if constexpr (internal::SupportsDiv<G, G2>::value) {
       const G* g = static_cast<const G*>(this);
@@ -54,7 +59,12 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
 template <typename G>
 class AdditiveGroup : public AdditiveSemigroup<G> {
  public:
-  template <typename G2>
+  template <
+      typename G2,
+      std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
+                       internal::SupportsAddInPlace<G, G2>::value ||
+                       internal::SupportsSub<G, G2>::value ||
+                       internal::SupportsSubInPlace<G, G2>::value>* = nullptr>
   constexpr auto operator-(const G2& other) const {
     if constexpr (internal::SupportsSub<G, G2>::value) {
       const G* g = static_cast<const G*>(this);

@@ -57,7 +57,10 @@ struct AdditiveSemigroupTraits {
 template <typename G>
 class MultiplicativeSemigroup {
  public:
-  template <typename G2>
+  template <
+      typename G2,
+      std::enable_if_t<internal::SupportsMul<G, G2>::value ||
+                       internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
   constexpr auto operator*(const G2& other) const {
     if constexpr (internal::SupportsMul<G, G2>::value) {
       const G* g = static_cast<const G*>(this);
@@ -134,7 +137,10 @@ class MultiplicativeSemigroup {
 template <typename G>
 class AdditiveSemigroup {
  public:
-  template <typename G2>
+  template <
+      typename G2,
+      std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
+                       internal::SupportsAddInPlace<G, G2>::value>* = nullptr>
   constexpr auto operator+(const G2& other) const {
     if constexpr (internal::SupportsAdd<G, G2>::value) {
       const G* g = static_cast<const G*>(this);

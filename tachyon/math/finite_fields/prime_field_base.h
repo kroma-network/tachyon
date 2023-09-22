@@ -18,6 +18,8 @@ class PrimeFieldBase : public Field<F> {
  public:
   using Config = typename PrimeFieldTraits<F>::Config;
 
+  static F Characteristic() { return F::FromBigint(Config::kModulus); }
+
   // Returns false for either of the following cases:
   //
   // When there exists |Config::kLargeSubgroupRootOfUnity|:
