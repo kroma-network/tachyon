@@ -3,6 +3,16 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "poseidon_config",
+    hdrs = ["poseidon_config.h"],
+    deps = [
+        ":grain_lfsr",
+        "//tachyon/base/ranges:algorithm",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
     name = "grain_lfsr",
     hdrs = ["grain_lfsr.h"],
     deps = [
@@ -17,9 +27,10 @@ tachyon_cc_test(
     size = "small",
     srcs = [
         "grain_lfsr_unittest.cc",
+        "poseidon_config_unittest.cc",
     ],
     deps = [
-        ":grain_lfsr",
+        ":poseidon_config",
         "//tachyon/math/elliptic_curves/bls/bls12_381:fr",
     ],
 )
