@@ -121,7 +121,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "  constexpr static bool kHasLargeSubgroupRootOfUnity = false;",
       "",
-      "  constexpr static uint64_t ExtensionDegree() { return 1; }",
+      "  constexpr static uint64_t kExtensionDegree = 1;",
       "",
       "  static void Init();",
       "};",
