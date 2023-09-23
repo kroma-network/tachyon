@@ -65,15 +65,9 @@ constexpr CLASS& CLASS::AddInPlace(const PointXYZZ& other) {
   x_ -= q.Double();
 
   // Y3 = R * (Q - X3) - S1 * PPP
-  std::array<BaseField, 2> a;
-  a[0] = std::move(r);
-  a[1] = std::move(s1);
-  a[1].NegInPlace();
-  std::array<BaseField, 2> b;
-  b[0] = std::move(q);
-  b[0] -= x_;
-  b[1] = ppp;
-  y_ = BaseField::SumOfProducts(a, b);
+  BaseField lefts[] = {std::move(r), -s1};
+  BaseField rights[] = {q - x_, ppp};
+  y_ = BaseField::SumOfProducts(lefts, rights);
 
   // ZZ3 = ZZ1 * ZZ2 * PP
   zz_ *= other.zz_;
@@ -136,15 +130,9 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
   x_ -= q.Double();
 
   // Y3 = R * (Q - X3) - Y1 * PPP
-  std::array<BaseField, 2> a;
-  a[0] = std::move(r);
-  a[1] = std::move(y_);
-  a[1].NegInPlace();
-  std::array<BaseField, 2> b;
-  b[0] = std::move(q);
-  b[0] -= x_;
-  b[1] = ppp;
-  y_ = BaseField::SumOfProducts(a, b);
+  BaseField lefts[] = {std::move(r), -y_};
+  BaseField rights[] = {q - x_, ppp};
+  y_ = BaseField::SumOfProducts(lefts, rights);
 
   // ZZ3 = ZZ1 * PP
   zz_ *= pp;
@@ -190,15 +178,9 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   x_ -= s.Double();
 
   // Y3 = M * (S - X3) - W * Y1
-  std::array<BaseField, 2> a;
-  a[0] = std::move(m);
-  a[1] = w;
-  a[1].NegInPlace();
-  std::array<BaseField, 2> b;
-  b[0] = std::move(s);
-  b[0] -= x_;
-  b[1] = y_;
-  y_ = BaseField::SumOfProducts(a, b);
+  BaseField lefts[] = {std::move(m), -w};
+  BaseField rights[] = {s - x_, y_};
+  y_ = BaseField::SumOfProducts(lefts, rights);
 
   // ZZ3 = V * ZZ1
   zz_ *= v;
