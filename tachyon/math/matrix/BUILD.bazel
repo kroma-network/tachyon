@@ -12,6 +12,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "matrix_types",
+    hdrs = ["matrix_types.h"],
+    deps = ["@eigen_archive//:eigen3"],
+)
+
+tachyon_cc_library(
     name = "prime_field_num_traits",
     hdrs = ["prime_field_num_traits.h"],
     deps = [
