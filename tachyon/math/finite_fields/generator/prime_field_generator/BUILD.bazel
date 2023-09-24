@@ -1,0 +1,18 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_binary(
+    name = "prime_field_generator",
+    srcs = ["prime_field_generator.cc"],
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/files:file_path_flag",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/build:cc_writer",
+        "//tachyon/math/base:bit_iterator",
+        "//tachyon/math/base/gmp:bit_traits",
+        "//tachyon/math/finite_fields:prime_field_util",
+        "//tachyon/math/finite_fields/generator:generator_util",
+    ],
+)

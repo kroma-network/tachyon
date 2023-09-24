@@ -1,4 +1,5 @@
-load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp2s")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -9,4 +10,15 @@ generate_prime_fields(
     modulus = "7",
     namespace = "tachyon::math",
     subgroup_generator = "3",
+)
+
+generate_fp2s(
+    name = "gf7_2",
+    testonly = True,
+    base_field = "GF7",
+    base_field_hdr = "tachyon/math/finite_fields/test/gf7.h",
+    class_name = "GF7_2",
+    namespace = "tachyon::math",
+    non_residue = -1,
+    deps = [":gf7"],
 )

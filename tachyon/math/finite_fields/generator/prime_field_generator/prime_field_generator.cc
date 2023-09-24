@@ -120,8 +120,6 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "  constexpr static bool kHasLargeSubgroupRootOfUnity = false;",
       "",
-      "  constexpr static uint64_t kExtensionDegree = 1;",
-      "",
       "  static void Init();",
       "};",
       "",
@@ -322,7 +320,7 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
 
 int RealMain(int argc, char** argv) {
   GenerationConfig config;
-  config.generator = "//tachyon/math/finite_fields/generator";
+  config.generator = "//tachyon/math/finite_fields/prime_field_field_generator";
 
   base::FlagParser parser;
   parser.AddFlag<base::FilePathFlag>(&config.out)
@@ -331,9 +329,7 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.ns_name)
       .set_long_name("--namespace")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.class_name)
-      .set_long_name("--class")
-      .set_required();
+  parser.AddFlag<base::StringFlag>(&config.class_name).set_long_name("--class");
   parser.AddFlag<base::StringFlag>(&config.modulus)
       .set_long_name("--modulus")
       .set_required();

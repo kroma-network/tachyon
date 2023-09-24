@@ -50,7 +50,7 @@ generate_prime_field = rule(
             cfg = "target",
             executable = True,
             allow_single_file = True,
-            default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator"),
+            default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator"),
         ),
     },
 )

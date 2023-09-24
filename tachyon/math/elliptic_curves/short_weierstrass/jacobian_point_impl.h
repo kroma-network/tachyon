@@ -190,8 +190,8 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     //   = 2 * ((X1 + Y1²)² - A - C)
     //   = 2 * 2 * X1 * Y1²
     BaseField d;
-    if constexpr (BaseField::Config::kExtensionDegree == 1 ||
-                  BaseField::Config::kExtensionDegree == 2) {
+    if constexpr (BaseField::ExtensionDegree() == 1 ||
+                  BaseField::ExtensionDegree() == 2) {
       d = x_;
       d *= b;
       d.DoubleInPlace().DoubleInPlace();

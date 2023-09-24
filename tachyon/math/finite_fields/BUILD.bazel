@@ -16,6 +16,17 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "fp2",
+    hdrs = ["fp2.h"],
+    deps = [":quadratic_extension_field"],
+)
+
+tachyon_cc_library(
+    name = "fp2_forward",
+    hdrs = ["fp2_forward.h"],
+)
+
+tachyon_cc_library(
     name = "modulus",
     hdrs = ["modulus.h"],
     deps = ["//tachyon/math/base:big_int"],
@@ -125,12 +136,14 @@ tachyon_cc_test(
         "modulus_unittest.cc",
         "prime_field_base_unittest.cc",
         "prime_field_unittest.cc",
+        "quadratic_extension_field_unittest.cc",
     ],
     deps = [
         "//tachyon/base:bits",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/test:gf7",
+        "//tachyon/math/finite_fields/test:gf7_2",
     ],
 )
 
@@ -183,4 +196,20 @@ tachyon_cc_benchmark(
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/goldilocks_prime:goldilocks",
     ],
+)
+
+tachyon_cc_library(
+    name = "quadratic_extension_field",
+    hdrs = ["quadratic_extension_field.h"],
+    deps = [
+        ":quadratic_extension_field_traits",
+        "//tachyon/math/base:field",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "quadratic_extension_field_traits",
+    hdrs = ["quadratic_extension_field_traits.h"],
+    deps = [":fp2_forward"],
 )
