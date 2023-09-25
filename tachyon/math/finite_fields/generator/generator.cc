@@ -331,7 +331,9 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.ns_name)
       .set_long_name("--namespace")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.class_name).set_long_name("--class");
+  parser.AddFlag<base::StringFlag>(&config.class_name)
+      .set_long_name("--class")
+      .set_required();
   parser.AddFlag<base::StringFlag>(&config.modulus)
       .set_long_name("--modulus")
       .set_required();
