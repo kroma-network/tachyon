@@ -79,12 +79,12 @@ std::vector<PrimeFieldType> PrimeFieldCorrectnessTest<PrimeFieldType>::bs_;
 }  // namespace
 
 #if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
-using PrimeFiledTypes = testing::Types<bn254::Fr, bn254::Fq, secp256k1::Fq,
+using PrimeFieldTypes = testing::Types<bn254::Fr, bn254::Fq, secp256k1::Fq,
                                        secp256k1::Fr, FrGpuDebug>;
 #else
-using PrimeFiledTypes = testing::Types<bn254::Fr, FrGpuDebug>;
+using PrimeFieldTypes = testing::Types<bn254::Fr, FrGpuDebug>;
 #endif
-TYPED_TEST_SUITE(PrimeFieldCorrectnessTest, PrimeFiledTypes);
+TYPED_TEST_SUITE(PrimeFieldCorrectnessTest, PrimeFieldTypes);
 
 TYPED_TEST(PrimeFieldCorrectnessTest, MontgomeryForm) {
   using F = TypeParam;

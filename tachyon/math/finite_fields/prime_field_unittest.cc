@@ -21,11 +21,11 @@ class PrimeFieldTest : public testing::Test {
 }  // namespace
 
 #if defined(TACHYON_GMP_BACKEND)
-using PrimeFiledTypes = testing::Types<GF7, GF7Gmp>;
+using PrimeFieldTypes = testing::Types<GF7, GF7Gmp>;
 #else
-using PrimeFiledTypes = testing::Types<GF7>;
+using PrimeFieldTypes = testing::Types<GF7>;
 #endif
-TYPED_TEST_SUITE(PrimeFieldTest, PrimeFiledTypes);
+TYPED_TEST_SUITE(PrimeFieldTest, PrimeFieldTypes);
 
 TYPED_TEST(PrimeFieldTest, FromString) {
   using F = TypeParam;
