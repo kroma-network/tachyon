@@ -81,3 +81,13 @@ def generate_fp2s(
         ext_prime_field_deps = ["//tachyon/math/finite_fields:fp2"],
         **kwargs
     )
+
+def generate_fp3s(
+        name,
+        **kwargs):
+    _generate_ext_prime_fields(
+        name = name,
+        degree = 3,
+        ext_prime_field_deps = ["//tachyon/math/finite_fields:fp3"],
+        **kwargs
+    )

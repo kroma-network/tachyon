@@ -38,6 +38,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  static BaseField kNonResidue;",
       "",
       "  constexpr static bool kNonResidueIsMinusOne = %{non_residue_is_minus_one};",
+      "  constexpr static size_t kDegreeOverBaseField = %{degree_over_base_field};",
       "",
       "  static BaseField MulByNonResidue(const BaseField& v) {",
       "    BaseField ret = v;",
@@ -99,18 +100,20 @@ int GenerationConfig::GenerateConfigHdr() const {
   init = absl::StrJoin(init_components, "\n");
 
   std::string content = absl::StrReplaceAll(
-      tpl_content, {
+      tpl_content,
+      {
 
-                       {"%{namespace}", ns_name},
-                       {"%{class}", class_name},
-                       {"%{degree}", base::NumberToString(degree)},
-                       {"%{base_field_hdr}", base_field_hdr},
-                       {"%{base_field}", base_field},
-                       {"%{non_residue_is_minus_one}",
-                        base::BoolToString(non_residue == -1)},
-                       {"%{mul_by_non_residue}", mul_by_non_residue},
-                       {"%{init}", init},
-                   });
+          {"%{namespace}", ns_name},
+          {"%{class}", class_name},
+          {"%{degree}", base::NumberToString(degree)},
+          {"%{degree_over_base_field}", base::NumberToString(degree)},
+          {"%{base_field_hdr}", base_field_hdr},
+          {"%{base_field}", base_field},
+          {"%{non_residue_is_minus_one}",
+           base::BoolToString(non_residue == -1)},
+          {"%{mul_by_non_residue}", mul_by_non_residue},
+          {"%{init}", init},
+      });
   return WriteHdr(content, false);
 }
 

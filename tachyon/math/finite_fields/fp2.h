@@ -17,6 +17,7 @@ class Fp2 : public QuadraticExtensionField<Fp2<Config>> {
 
   using QuadraticExtensionField<Fp2<Config>>::QuadraticExtensionField;
 
+  static_assert(Config::kDegreeOverBaseField == 2);
   static_assert(BaseField::ExtensionDegree() == 1);
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 2;
