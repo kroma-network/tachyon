@@ -44,15 +44,28 @@ tachyon_cc_library(
     deps = [":export"],
 )
 
+TPLS = [
+    "//tachyon/c/math/elliptic_curves/{}:msm",
+    # Uncomment the following line.
+    # See //tachyon/c/math/elliptic_curves/generator:build_defs.bzl
+    # "//tachyon/c/math/elliptic_curves/{}:msm_gpu",
+]
+
+CURVES = [
+    "bls/bls12_381",
+    "bn/bn254",
+]
+
+CURVE_DEPS = [tpl.format(curve) for tpl in TPLS for curve in CURVES]
+
 tachyon_cc_shared_library(
     name = "tachyon",
     linkstatic = True,
     soversion = VERSION,
     tags = ["manual"],
-    deps = [
+    deps = CURVE_DEPS + [
         ":version",
-        "//tachyon/c/math/elliptic_curves/msm",
-        "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
