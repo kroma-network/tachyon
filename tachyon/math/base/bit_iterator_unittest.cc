@@ -16,7 +16,9 @@ TEST(GmpUtilTest, BitIteratorLE) {
     std::vector<bool> answers;
   } tests[] = {
       {BigInt<1>(0), std::vector<bool>{}},
+      {BigInt<1>(1), std::vector<bool>{1}},
       {BigInt<1>(2), std::vector<bool>{0, 1}},
+      {BigInt<1>(3), std::vector<bool>{1, 1}},
       {BigInt<1>(4), std::vector<bool>{0, 0, 1}},
       {BigInt<1>(5), std::vector<bool>{1, 0, 1}},
   };
@@ -54,7 +56,9 @@ TEST(GmpUtilTest, BitIteratorBE) {
     std::vector<bool> answers;
   } tests[] = {
       {BigInt<1>(0), std::vector<bool>{}},
+      {BigInt<1>(1), std::vector<bool>{1}},
       {BigInt<1>(2), std::vector<bool>{1, 0}},
+      {BigInt<1>(3), std::vector<bool>{1, 1}},
       {BigInt<1>(4), std::vector<bool>{1, 0, 0}},
       {BigInt<1>(5), std::vector<bool>{1, 0, 1}},
   };

@@ -23,6 +23,8 @@ class SparseUnivariatePolynomialTest : public testing::Test {
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}})));
     polys_.push_back(Poly(Coeffs({{3, GF7(5)}})));
     polys_.push_back(Poly(Coeffs({{4, GF7(5)}})));
+    polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {1, GF7(4)}})));
+    polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {1, GF7(4)}, {2, GF7(1)}})));
     polys_.push_back(Poly::Zero());
   }
   SparseUnivariatePolynomialTest(const SparseUnivariatePolynomialTest&) =
@@ -75,7 +77,9 @@ TEST_F(SparseUnivariatePolynomialTest, IndexingOperator) {
       {polys_[1], {3}},
       {polys_[2], {std::nullopt, std::nullopt, std::nullopt, 5}},
       {polys_[3], {std::nullopt, std::nullopt, std::nullopt, std::nullopt, 5}},
-      {polys_[4], {}},
+      {polys_[4], {3, 4}},
+      {polys_[5], {3, 4, 1}},
+      {polys_[6], {}},
   };
 
   for (const auto& test : tests) {
@@ -98,8 +102,8 @@ TEST_F(SparseUnivariatePolynomialTest, Degree) {
     const Poly& poly;
     size_t degree;
   } tests[] = {
-      {polys_[0], 4}, {polys_[1], 0}, {polys_[2], 3},
-      {polys_[3], 4}, {polys_[4], 0},
+      {polys_[0], 4}, {polys_[1], 0}, {polys_[2], 3}, {polys_[3], 4},
+      {polys_[4], 1}, {polys_[5], 2}, {polys_[6], 0},
   };
 
   for (const auto& test : tests) {
@@ -113,7 +117,8 @@ TEST_F(SparseUnivariatePolynomialTest, Evaluate) {
     GF7 expected;
   } tests[] = {
       {polys_[0], GF7(6)}, {polys_[1], GF7(3)}, {polys_[2], GF7(2)},
-      {polys_[3], GF7(6)}, {polys_[4], GF7(0)},
+      {polys_[3], GF7(6)}, {polys_[4], GF7(1)}, {polys_[5], GF7(3)},
+      {polys_[6], GF7(0)},
   };
 
   for (const auto& test : tests) {
@@ -130,7 +135,9 @@ TEST_F(SparseUnivariatePolynomialTest, ToString) {
       {polys_[1], "3"},
       {polys_[2], "5 * x^3"},
       {polys_[3], "5 * x^4"},
-      {polys_[4], ""},
+      {polys_[4], "4 * x + 3"},
+      {polys_[5], "1 * x^2 + 4 * x + 3"},
+      {polys_[6], ""},
   };
 
   for (const auto& test : tests) {
@@ -170,6 +177,20 @@ TEST_F(SparseUnivariatePolynomialTest, AdditiveOperators) {
       {
           polys_[0],
           polys_[4],
+          Poly(Coeffs({{0, GF7(6)}, {1, GF7(4)}, {2, GF7(1)}, {4, GF7(2)}})),
+          Poly(Coeffs({{1, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})),
+          Poly(Coeffs({{1, GF7(4)}, {2, GF7(6)}, {4, GF7(5)}})),
+      },
+      {
+          polys_[0],
+          polys_[5],
+          Poly(Coeffs({{0, GF7(6)}, {1, GF7(4)}, {2, GF7(2)}, {4, GF7(2)}})),
+          Poly(Coeffs({{1, GF7(3)}, {4, GF7(2)}})),
+          Poly(Coeffs({{1, GF7(4)}, {4, GF7(5)}})),
+      },
+      {
+          polys_[0],
+          polys_[6],
           Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})),
           Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})),
           Poly(Coeffs({{0, GF7(4)}, {2, GF7(6)}, {4, GF7(5)}})),
