@@ -1,4 +1,3 @@
-#include "absl/strings/str_format.h"
 #include "absl/strings/str_replace.h"
 
 #include "tachyon/base/console/iostream.h"
@@ -7,9 +6,9 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
 #include "tachyon/math/base/big_int.h"
+#include "tachyon/math/base/bit_iterator.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
-#include "tachyon/math/finite_fields/prime_field.h"
 #include "tachyon/math/finite_fields/prime_field_util.h"
 
 namespace tachyon {
