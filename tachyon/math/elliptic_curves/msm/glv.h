@@ -4,7 +4,6 @@
 #include "tachyon/base/static_storage.h"
 #include "tachyon/math/base/bit_iterator.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
-#include "tachyon/math/base/gmp/gmp_identities.h"
 #include "tachyon/math/base/gmp/signed_value.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"

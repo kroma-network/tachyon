@@ -21,32 +21,6 @@ JacobianPoint<Curve> operator*(const ScalarField& v,
 }
 
 template <typename Curve>
-class MultiplicativeIdentity<AffinePoint<Curve>> {
- public:
-  using P = AffinePoint<Curve>;
-
-  static const P& One() {
-    static base::NoDestructor<P> one(P::One());
-    return *one;
-  }
-
-  constexpr static bool IsOne(const P& value) { return value.IsOne(); }
-};
-
-template <typename Curve>
-class AdditiveIdentity<AffinePoint<Curve>> {
- public:
-  using P = AffinePoint<Curve>;
-
-  static const P& Zero() {
-    static base::NoDestructor<P> zero(P::Zero());
-    return *zero;
-  }
-
-  constexpr static bool IsZero(const P& value) { return value.IsZero(); }
-};
-
-template <typename Curve>
 struct PointConversions<AffinePoint<Curve>, AffinePoint<Curve>> {
   constexpr static const AffinePoint<Curve>& Convert(
       const AffinePoint<Curve>& src_point) {

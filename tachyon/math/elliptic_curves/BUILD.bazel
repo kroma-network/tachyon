@@ -14,8 +14,5 @@ tachyon_cc_library(
         "projective_point.h",
         "semigroups.h",
     ],
-    deps = [
-        "//tachyon/base:no_destructor",
-        "//tachyon/math/base:identities",
-    ],
+    deps = ["//tachyon/base:no_destructor"],
 )
