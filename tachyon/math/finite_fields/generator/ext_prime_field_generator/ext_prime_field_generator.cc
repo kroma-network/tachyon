@@ -14,9 +14,11 @@ struct GenerationConfig : public build::CcWriter {
   std::string ns_name;
   std::string class_name;
   int degree;
-  int non_residue;
+  int base_field_degree;
+  std::vector<int> non_residue;
   std::string base_field_hdr;
   std::string base_field;
+  std::string mul_by_non_residue_override;
 
   int GenerateConfigHdr() const;
 };
@@ -41,8 +43,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  constexpr static size_t kDegreeOverBaseField = %{degree_over_base_field};",
       "",
       "  static BaseField MulByNonResidue(const BaseField& v) {",
-      "    BaseField ret = v;",
-      "    return ret%{mul_by_non_residue};",
+      "%{mul_by_non_residue}",
       "  }",
       "",
       "  static void Init() {",
@@ -63,57 +64,103 @@ int GenerationConfig::GenerateConfigHdr() const {
   // clang-format on
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  bool is_negative = non_residue < 0;
-  uint64_t abs_non_residue = is_negative ? -non_residue : non_residue;
-  math::BigInt<1> scalar(abs_non_residue);
+  int degree_over_base_field = degree / base_field_degree;
+
+  bool non_residue_is_minus_one = false;
   std::string mul_by_non_residue;
-  auto it = math::BitIteratorBE<math::BigInt<1>>::begin(&scalar, true);
-  ++it;
-  auto end = math::BitIteratorBE<math::BigInt<1>>::end(&scalar);
-  {
-    std::stringstream ss;
-    while (it != end) {
-      ss << ".DoubleInPlace()";
-      if (*it) {
-        ss << ".AddInPlace(v)";
+  std::string init;
+  if (non_residue.size() == 1) {
+    bool is_negative = non_residue[0] < 0;
+    uint64_t abs_non_residue = is_negative ? -non_residue[0] : non_residue[0];
+    non_residue_is_minus_one = is_negative && abs_non_residue == 1;
+    math::BigInt<1> scalar(abs_non_residue);
+    auto it = math::BitIteratorBE<math::BigInt<1>>::begin(&scalar, true);
+    ++it;
+    auto end = math::BitIteratorBE<math::BigInt<1>>::end(&scalar);
+    {
+      std::stringstream ss;
+      ss << "    BaseField ret = v;";
+      ss << std::endl;
+      ss << "    return ret";
+      while (it != end) {
+        ss << ".DoubleInPlace()";
+        if (*it) {
+          ss << ".AddInPlace(v)";
+        }
+        ++it;
       }
-      ++it;
+      if (is_negative) ss << ".NegInPlace()";
+      ss << ";";
+      mul_by_non_residue = ss.str();
     }
-    if (is_negative) ss << ".NegInPlace()";
-    mul_by_non_residue = ss.str();
+    std::vector<std::string> init_components;
+    init_components.push_back(
+        "    using BigIntTy = typename BaseField::BigIntTy;");
+    if (is_negative) {
+      init_components.push_back(absl::Substitute(
+          "    kNonResidue = BaseField::FromBigInt(BaseField::Config::kModulus "
+          "- BigIntTy($0));",
+          abs_non_residue));
+    } else {
+      init_components.push_back(absl::Substitute(
+          "    kNonResidue = BaseField::FromBigInt(BigIntTy($0));",
+          abs_non_residue));
+    }
+    init = absl::StrJoin(init_components, "\n");
+  } else {
+    non_residue_is_minus_one =
+        non_residue[0] == -1 &&
+        std::all_of(non_residue.begin() + 1, non_residue.end(),
+                    [](int e) { return e == 0; });
+
+    std::vector<std::string> init_components;
+    init_components.push_back("    using F = typename BaseField::BaseField;");
+    std::stringstream ss;
+    ss << "    kNonResidue = BaseField(";
+    for (size_t i = 0; i < non_residue.size(); ++i) {
+      uint64_t abs_non_residue;
+      if (non_residue[i] < 0) {
+        ss << "-";
+        abs_non_residue = -non_residue[i];
+      } else {
+        abs_non_residue = non_residue[i];
+      }
+      if (abs_non_residue == 0) {
+        ss << "F::Zero()";
+      } else if (abs_non_residue == 1) {
+        ss << "F::One()";
+      } else {
+        ss << "F(" << abs_non_residue << ")";
+      }
+      if (i != non_residue.size() - 1) {
+        ss << ", ";
+      }
+    }
+    ss << ");";
+    mul_by_non_residue = "    return v * kNonResidue;";
+    init_components.push_back(ss.str());
+    init = absl::StrJoin(init_components, "\n");
   }
 
-  std::string init;
-  std::vector<std::string> init_components;
-  init_components.push_back(
-      "    using BigIntTy = typename BaseField::BigIntTy;");
-  if (is_negative) {
-    init_components.push_back(absl::Substitute(
-        "    kNonResidue = BaseField::FromBigInt(BaseField::Config::kModulus "
-        "- BigIntTy($0));",
-        abs_non_residue));
-  } else {
-    init_components.push_back(absl::Substitute(
-        "    kNonResidue = BaseField::FromBigInt(BigIntTy($0));",
-        abs_non_residue));
+  if (!mul_by_non_residue_override.empty()) {
+    mul_by_non_residue = mul_by_non_residue_override;
   }
-  init = absl::StrJoin(init_components, "\n");
 
   std::string content = absl::StrReplaceAll(
-      tpl_content,
-      {
+      tpl_content, {
 
-          {"%{namespace}", ns_name},
-          {"%{class}", class_name},
-          {"%{degree}", base::NumberToString(degree)},
-          {"%{degree_over_base_field}", base::NumberToString(degree)},
-          {"%{base_field_hdr}", base_field_hdr},
-          {"%{base_field}", base_field},
-          {"%{non_residue_is_minus_one}",
-           base::BoolToString(non_residue == -1)},
-          {"%{mul_by_non_residue}", mul_by_non_residue},
-          {"%{init}", init},
-      });
+                       {"%{namespace}", ns_name},
+                       {"%{class}", class_name},
+                       {"%{degree}", base::NumberToString(degree)},
+                       {"%{degree_over_base_field}",
+                        base::NumberToString(degree_over_base_field)},
+                       {"%{base_field_hdr}", base_field_hdr},
+                       {"%{base_field}", base_field},
+                       {"%{non_residue_is_minus_one}",
+                        base::BoolToString(non_residue_is_minus_one)},
+                       {"%{mul_by_non_residue}", mul_by_non_residue},
+                       {"%{init}", init},
+                   });
   return WriteHdr(content, false);
 }
 
@@ -134,7 +181,10 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::IntFlag>(&config.degree)
       .set_long_name("--degree")
       .set_required();
-  parser.AddFlag<base::IntFlag>(&config.non_residue)
+  parser.AddFlag<base::IntFlag>(&config.base_field_degree)
+      .set_long_name("--base_field_degree")
+      .set_required();
+  parser.AddFlag<base::Flag<std::vector<int>>>(&config.non_residue)
       .set_long_name("--non_residue")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.base_field_hdr)
@@ -143,6 +193,8 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.base_field)
       .set_long_name("--base_field")
       .set_required();
+  parser.AddFlag<base::StringFlag>(&config.mul_by_non_residue_override)
+      .set_long_name("--mul_by_non_residue_override");
 
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {

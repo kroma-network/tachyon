@@ -6,10 +6,16 @@ def _generate_ext_prime_field_impl(ctx):
         "--namespace=%s" % (ctx.attr.namespace),
         "--class=%s" % (ctx.attr.class_name),
         "--degree=%s" % (ctx.attr.degree),
-        "--non_residue=%s" % (ctx.attr.non_residue),
+        "--base_field_degree=%s" % (ctx.attr.base_field_degree),
         "--base_field_hdr=%s" % (ctx.attr.base_field_hdr),
         "--base_field=%s" % (ctx.attr.base_field),
     ]
+
+    for non_residue in ctx.attr.non_residue:
+        arguments.append("--non_residue=%s" % (non_residue))
+
+    if len(ctx.attr.mul_by_non_residue_override) > 0:
+        arguments.append("--mul_by_non_residue_override=%s" % (ctx.attr.mul_by_non_residue_override))
 
     ctx.actions.run(
         tools = [ctx.executable._tool],
@@ -27,9 +33,11 @@ generate_ext_prime_field = rule(
         "namespace": attr.string(mandatory = True),
         "class_name": attr.string(mandatory = True),
         "degree": attr.int(mandatory = True),
-        "non_residue": attr.int(mandatory = True),
+        "non_residue": attr.int_list(mandatory = True),
+        "base_field_degree": attr.int(mandatory = True),
         "base_field_hdr": attr.string(mandatory = True),
         "base_field": attr.string(mandatory = True),
+        "mul_by_non_residue_override": attr.string(),
         "_tool": attr.label(
             # TODO(chokobole): Change it to "exec" we can build it on macos.
             cfg = "target",
@@ -46,8 +54,10 @@ def _generate_ext_prime_fields(
         class_name,
         degree,
         non_residue,
+        base_field_degree,
         base_field_hdr = "",
         base_field = "",
+        mul_by_non_residue_override = "",
         ext_prime_field_deps = [],
         deps = [],
         **kwargs):
@@ -59,8 +69,10 @@ def _generate_ext_prime_fields(
             class_name = class_name,
             degree = degree,
             non_residue = non_residue,
+            base_field_degree = base_field_degree,
             base_field_hdr = base_field_hdr,
             base_field = base_field,
+            mul_by_non_residue_override = mul_by_non_residue_override,
             name = n[0],
             out = n[1],
         )
@@ -78,6 +90,7 @@ def generate_fp2s(
     _generate_ext_prime_fields(
         name = name,
         degree = 2,
+        base_field_degree = 1,
         ext_prime_field_deps = ["//tachyon/math/finite_fields:fp2"],
         **kwargs
     )
@@ -88,6 +101,39 @@ def generate_fp3s(
     _generate_ext_prime_fields(
         name = name,
         degree = 3,
+        base_field_degree = 1,
         ext_prime_field_deps = ["//tachyon/math/finite_fields:fp3"],
+        **kwargs
+    )
+
+def generate_fp4s(
+        name,
+        **kwargs):
+    _generate_ext_prime_fields(
+        name = name,
+        degree = 4,
+        base_field_degree = 2,
+        ext_prime_field_deps = ["//tachyon/math/finite_fields:fp4"],
+        **kwargs
+    )
+
+def generate_fp6s(
+        name,
+        **kwargs):
+    _generate_ext_prime_fields(
+        name = name,
+        degree = 6,
+        ext_prime_field_deps = ["//tachyon/math/finite_fields:fp6"],
+        **kwargs
+    )
+
+def generate_fp12s(
+        name,
+        **kwargs):
+    _generate_ext_prime_fields(
+        name = name,
+        degree = 12,
+        base_field_degree = 6,
+        ext_prime_field_deps = ["//tachyon/math/finite_fields:fp12"],
         **kwargs
     )

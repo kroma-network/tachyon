@@ -28,7 +28,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "cubic_extension_field_traits",
     hdrs = ["cubic_extension_field_traits.h"],
-    deps = [":fp3_forward"],
+    deps = [
+        ":fp3_forward",
+        ":fp6_forward",
+    ],
 )
 
 tachyon_cc_library(
@@ -51,6 +54,43 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "fp3_forward",
     hdrs = ["fp3_forward.h"],
+)
+
+tachyon_cc_library(
+    name = "fp4",
+    hdrs = ["fp4.h"],
+    deps = [":quadratic_extension_field"],
+)
+
+tachyon_cc_library(
+    name = "fp4_forward",
+    hdrs = ["fp4_forward.h"],
+)
+
+tachyon_cc_library(
+    name = "fp6",
+    hdrs = ["fp6.h"],
+    deps = [
+        ":cubic_extension_field",
+        ":fp6_forward",
+        ":quadratic_extension_field",
+    ],
+)
+
+tachyon_cc_library(
+    name = "fp6_forward",
+    hdrs = ["fp6_forward.h"],
+)
+
+tachyon_cc_library(
+    name = "fp12",
+    hdrs = ["fp12.h"],
+    deps = [":quadratic_extension_field"],
+)
+
+tachyon_cc_library(
+    name = "fp12_forward",
+    hdrs = ["fp12_forward.h"],
 )
 
 tachyon_cc_library(
@@ -238,5 +278,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "quadratic_extension_field_traits",
     hdrs = ["quadratic_extension_field_traits.h"],
-    deps = [":fp2_forward"],
+    deps = [
+        ":fp12_forward",
+        ":fp2_forward",
+        ":fp4_forward",
+        ":fp6_forward",
+    ],
 )

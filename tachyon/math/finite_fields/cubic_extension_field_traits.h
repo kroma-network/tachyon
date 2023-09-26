@@ -7,6 +7,7 @@
 #define TACHYON_MATH_FINITE_FIELDS_CUBIC_EXTENSION_FIELD_TRAITS_H_
 
 #include "tachyon/math/finite_fields/fp3_forward.h"
+#include "tachyon/math/finite_fields/fp6_forward.h"
 
 namespace tachyon::math {
 
@@ -15,6 +16,11 @@ struct CubicExtensionFieldTraits;
 
 template <typename _Config>
 struct CubicExtensionFieldTraits<Fp3<_Config>> {
+  using Config = _Config;
+};
+
+template <typename _Config>
+struct CubicExtensionFieldTraits<Fp6<_Config>> {
   using Config = _Config;
 };
 

@@ -2,7 +2,12 @@ load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
-load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp2s")
+load(
+    "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
+    "generate_fp12s",
+    "generate_fp2s",
+    "generate_fp6s",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -139,6 +144,50 @@ generate_fp2s(
     base_field_hdr = "tachyon/math/elliptic_curves/bn/bn254/fq.h",
     class_name = "Fq2",
     namespace = "tachyon::math::bn254",
-    non_residue = -1,
+    non_residue = [-1],
     deps = [":fq"],
+)
+
+generate_fp6s(
+    name = "fq6",
+    base_field = "Fq2",
+    base_field_degree = 2,
+    base_field_hdr = "tachyon/math/elliptic_curves/bn/bn254/fq2.h",
+    class_name = "Fq6",
+    mul_by_non_residue_override =
+        """    // (c0 + c1 * u) * (9 + u) = (9 * c0 - c1) + (9 * c1 + c0) * u
+    BaseField f = v;
+    // f = 8 * c0 + 8 * c1 * u
+    f.DoubleInPlace().DoubleInPlace().DoubleInPlace();
+    // c0 = -c1
+    BaseField c0 = BaseField::Config::MulByNonResidue(v.c1());
+    // c0 = 8 * c0 - c1
+    c0 += f.c0();
+    // c0 = 8 * c0 - c1 + c0
+    //    = 9 * c0 - c1
+    c0 += v.c0();
+    // c1 = 8 * c1 + c1 + c0
+    //    = 8 * c1 + c0
+    BaseField c1 = f.c1() + v.c1() + v.c0();
+    return BaseField(std::move(c0), std::move(c1));""",
+    namespace = "tachyon::math::bn254",
+    non_residue = [
+        9,
+        1,
+    ],
+    deps = [":fq2"],
+)
+
+generate_fp12s(
+    name = "fq12",
+    base_field = "Fq6",
+    base_field_hdr = "tachyon/math/elliptic_curves/bn/bn254/fq6.h",
+    class_name = "Fq12",
+    namespace = "tachyon::math::bn254",
+    non_residue = [
+        0,
+        1,
+        0,
+    ],
+    deps = [":fq6"],
 )

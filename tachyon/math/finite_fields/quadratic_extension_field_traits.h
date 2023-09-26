@@ -6,7 +6,10 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_TRAITS_H_
 #define TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_TRAITS_H_
 
+#include "tachyon/math/finite_fields/fp12_forward.h"
 #include "tachyon/math/finite_fields/fp2_forward.h"
+#include "tachyon/math/finite_fields/fp4_forward.h"
+#include "tachyon/math/finite_fields/fp6_forward.h"
 
 namespace tachyon::math {
 
@@ -15,6 +18,21 @@ struct QuadraticExtensionFieldTraits;
 
 template <typename _Config>
 struct QuadraticExtensionFieldTraits<Fp2<_Config>> {
+  using Config = _Config;
+};
+
+template <typename _Config>
+struct QuadraticExtensionFieldTraits<Fp4<_Config>> {
+  using Config = _Config;
+};
+
+template <typename _Config>
+struct QuadraticExtensionFieldTraits<Fp6<_Config>> {
+  using Config = _Config;
+};
+
+template <typename _Config>
+struct QuadraticExtensionFieldTraits<Fp12<_Config>> {
   using Config = _Config;
 };
 
