@@ -170,7 +170,9 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   BaseField m = std::move(x_);
   m.SquareInPlace();
   m += m.Double();
-  m += Curve::A() * zz_.Square();
+  if constexpr (!Curve::Config::kAIsZero) {
+    m += Curve::Config::MulByA(zz_.Square());
+  }
 
   // X3 = M² - 2 * S
   x_ = m;

@@ -4,7 +4,6 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits.h"
 
 namespace tachyon::math {
 
@@ -18,7 +17,7 @@ template <typename GpuCurve>
 class MSMGpuAlgorithm {
  public:
   using ScalarField = typename JacobianPoint<GpuCurve>::ScalarField;
-  using CpuCurve = typename SWCurveTraits<GpuCurve>::CpuCurve;
+  using CpuCurve = typename GpuCurve::CpuCurve;
 
   virtual bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
                    const device::gpu::GpuMemory<ScalarField>& scalars,

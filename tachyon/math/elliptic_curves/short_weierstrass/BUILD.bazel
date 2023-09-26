@@ -33,30 +33,14 @@ tachyon_cc_library(
     name = "sw_curve",
     srcs = ["sw_curve.h"],
     deps = [
-        ":sw_curve_base",
-        "//tachyon/base:static_storage",
-        "//tachyon/math/elliptic_curves:points",
-    ],
-)
-
-tachyon_cc_library(
-    name = "sw_curve_base",
-    hdrs = ["sw_curve_base.h"],
-    deps = [":sw_curve_traits"],
-)
-
-tachyon_cc_library(
-    name = "sw_curve_gpu",
-    srcs = ["sw_curve_gpu.h"],
-    deps = [
-        ":sw_curve_base",
+        ":sw_curve_traits",
         "//tachyon/math/elliptic_curves:points",
     ],
 )
 
 tachyon_cc_library(
     name = "sw_curve_traits",
-    hdrs = ["sw_curve_traits.h"],
+    srcs = ["sw_curve_traits.h"],
 )
 
 tachyon_cc_test(

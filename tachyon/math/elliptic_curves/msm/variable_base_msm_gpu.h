@@ -10,7 +10,7 @@ template <typename GpuCurve>
 class VariableBaseMSMGpu {
  public:
   using ScalarField = typename JacobianPoint<GpuCurve>::ScalarField;
-  using CpuCurve = typename SWCurveTraits<GpuCurve>::CpuCurve;
+  using CpuCurve = typename GpuCurve::CpuCurve;
 
   VariableBaseMSMGpu(MSMAlgorithmKind kind, gpuMemPool_t mem_pool,
                      gpuStream_t stream) {
