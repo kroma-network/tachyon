@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <bitset>
+
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/endian_utils.h"
 #include "tachyon/base/logging.h"
@@ -39,6 +41,10 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   constexpr static size_t kLimbNums = N;
   constexpr static size_t kSmallestLimbIdx = SMALLEST_INDEX(N);
   constexpr static size_t kBiggestLimbIdx = BIGGEST_INDEX(N);
+  constexpr static size_t kLimbByteNums = sizeof(uint64_t);
+  constexpr static size_t kByteNums = N * sizeof(uint64_t);
+  constexpr static size_t kLimbBitNums = kLimbByteNums * 8;
+  constexpr static size_t kBitNums = kByteNums * 8;
 
   constexpr BigInt() = default;
   constexpr explicit BigInt(int value) : BigInt(static_cast<uint64_t>(value)) {
@@ -101,6 +107,102 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   constexpr static BigInt FromHexString(std::string_view str) {
     BigInt ret;
     CHECK(internal::HexStringToLimbs(str, ret.limbs, N));
+    return ret;
+  }
+
+  template <size_t BitNums = kBitNums>
+  constexpr static BigInt FromBitsLE(const std::bitset<BitNums>& bits) {
+    static_assert(BitNums <= kBitNums);
+    BigInt ret;
+    size_t bit_idx = 0;
+    size_t limb_idx = 0;
+    std::bitset<kLimbBitNums> limb_bits;
+    FOR_FROM_SMALLEST(i, 0, BitNums) {
+      limb_bits.set(bit_idx++, bits[i]);
+      bool set = bit_idx == kLimbBitNums;
+#if ARCH_CPU_BIG_ENDIAN
+      set |= (i == 0);
+#else
+      set |= (i == BitNums - 1);
+#endif
+      if (set) {
+        static_assert(sizeof(unsigned long long) == sizeof(uint64_t));
+        uint64_t limb = limb_bits.to_ullong();
+        ret.limbs[limb_idx++] = limb;
+        limb_bits.reset();
+        bit_idx = 0;
+      }
+    }
+    return ret;
+  }
+
+  template <size_t BitNums = kBitNums>
+  constexpr static BigInt FromBitsBE(const std::bitset<BitNums>& bits) {
+    static_assert(BitNums <= kBitNums);
+    BigInt ret;
+    std::bitset<kLimbBitNums> limb_bits;
+    size_t bit_idx = 0;
+    size_t limb_idx = 0;
+    FOR_FROM_BIGGEST(i, 0, BitNums) {
+      limb_bits.set(bit_idx++, bits[i]);
+      bool set = bit_idx == kLimbBitNums;
+#if ARCH_CPU_BIG_ENDIAN
+      set |= (i == BitNums - 1);
+#else
+      set |= (i == 0);
+#endif
+      if (set) {
+        static_assert(sizeof(unsigned long long) == sizeof(uint64_t));
+        uint64_t limb = limb_bits.to_ullong();
+        ret.limbs[limb_idx++] = limb;
+        limb_bits.reset();
+        bit_idx = 0;
+      }
+    }
+    return ret;
+  }
+
+  constexpr static BigInt FromBytesLE(const std::vector<uint8_t>& bytes) {
+    BigInt ret;
+    size_t byte_idx = 0;
+    size_t limb_idx = 0;
+    uint64_t limb = 0;
+    FOR_FROM_SMALLEST(i, 0, bytes.size()) {
+      reinterpret_cast<uint8_t*>(&limb)[byte_idx++] = bytes[i];
+      bool set = byte_idx == kLimbByteNums;
+#if ARCH_CPU_BIG_ENDIAN
+      set |= (i == 0);
+#else
+      set |= (i == bytes.size() - 1);
+#endif
+      if (set) {
+        ret.limbs[limb_idx++] = limb;
+        limb = 0;
+        byte_idx = 0;
+      }
+    }
+    return ret;
+  }
+
+  constexpr static BigInt FromBytesBE(const std::vector<uint8_t>& bytes) {
+    BigInt ret;
+    size_t byte_idx = 0;
+    size_t limb_idx = 0;
+    uint64_t limb = 0;
+    FOR_FROM_BIGGEST(i, 0, bytes.size()) {
+      reinterpret_cast<uint8_t*>(&limb)[byte_idx++] = bytes[i];
+      bool set = byte_idx == kLimbByteNums;
+#if ARCH_CPU_BIG_ENDIAN
+      set |= (i == bytes.size() - 1);
+#else
+      set |= (i == 0);
+#endif
+      if (set) {
+        ret.limbs[limb_idx++] = limb;
+        limb = 0;
+        byte_idx = 0;
+      }
+    }
     return ret;
   }
 
@@ -523,6 +625,58 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   std::string ToString() const { return internal::LimbsToString(limbs, N); }
   std::string ToHexString() const {
     return internal::LimbsToHexString(limbs, N);
+  }
+
+  template <size_t BitNums = kBitNums>
+  std::bitset<BitNums> ToBitsLE() const {
+    std::bitset<BitNums> ret;
+    size_t bit_w_idx = 0;
+    FOR_FROM_SMALLEST(i, 0, BitNums) {
+      size_t limb_idx = i / kLimbBitNums;
+      size_t bit_r_idx = i % kLimbBitNums;
+      bool bit = (limbs[limb_idx] & (static_cast<uint64_t>(1) << bit_r_idx)) >>
+                 bit_r_idx;
+      ret.set(bit_w_idx++, bit);
+    }
+    return ret;
+  }
+
+  template <size_t BitNums = kBitNums>
+  std::bitset<BitNums> ToBitsBE() const {
+    std::bitset<BitNums> ret;
+    size_t bit_w_idx = 0;
+    FOR_FROM_BIGGEST(i, 0, BitNums) {
+      size_t limb_idx = i / kLimbBitNums;
+      size_t bit_r_idx = i % kLimbBitNums;
+      bool bit = (limbs[limb_idx] & (static_cast<uint64_t>(1) << bit_r_idx)) >>
+                 bit_r_idx;
+      ret.set(bit_w_idx++, bit);
+    }
+    return ret;
+  }
+
+  std::vector<uint8_t> ToBytesLE() const {
+    std::vector<uint8_t> ret;
+    ret.reserve(kByteNums);
+    FOR_FROM_SMALLEST(i, 0, kByteNums) {
+      size_t limb_idx = i / kLimbByteNums;
+      uint64_t limb = limbs[limb_idx];
+      size_t byte_r_idx = i % kLimbByteNums;
+      ret.push_back(reinterpret_cast<uint8_t*>(&limb)[byte_r_idx]);
+    }
+    return ret;
+  }
+
+  std::vector<uint8_t> ToBytesBE() const {
+    std::vector<uint8_t> ret;
+    ret.reserve(kByteNums);
+    FOR_FROM_BIGGEST(i, 0, kByteNums) {
+      size_t limb_idx = i / kLimbByteNums;
+      uint64_t limb = limbs[limb_idx];
+      size_t byte_r_idx = i % kLimbByteNums;
+      ret.push_back(reinterpret_cast<uint8_t*>(&limb)[byte_r_idx]);
+    }
+    return ret;
   }
 
   template <bool ModulusHasSpareBit>

@@ -1,0 +1,52 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "buffer",
+    srcs = ["buffer.cc"],
+    hdrs = ["buffer.h"],
+    deps = [
+        ":copyable_forward",
+        "//tachyon/base:endian",
+        "//tachyon/base/numerics:checked_math",
+        "@com_google_absl//absl/base:endian",
+    ],
+)
+
+tachyon_cc_library(
+    name = "copyable",
+    hdrs = ["copyable.h"],
+    deps = [
+        ":buffer",
+        ":copyable_forward",
+        "//tachyon/base:logging",
+    ],
+)
+
+tachyon_cc_library(
+    name = "copyable_forward",
+    hdrs = ["copyable_forward.h"],
+)
+
+tachyon_cc_library(
+    name = "string_buffer",
+    hdrs = ["string_buffer.h"],
+    deps = [":buffer"],
+)
+
+tachyon_cc_library(
+    name = "vector_buffer",
+    hdrs = ["vector_buffer.h"],
+    deps = [":buffer"],
+)
+
+tachyon_cc_test(
+    name = "buffer_unittests",
+    size = "small",
+    srcs = ["buffer_unittest.cc"],
+    deps = [
+        ":copyable",
+        ":vector_buffer",
+    ],
+)

@@ -199,9 +199,9 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     // D = 2 * ((X1 + B)² - A - C)
     //   = 2 * ((X1 + Y1²)² - A - C)
     //   = 2 * 2 * X1 * Y1²
-    uint64_t ext_deg = BaseField::Config::ExtensionDegree();
     BaseField d;
-    if (ext_deg == 1 || ext_deg == 2) {
+    if constexpr (BaseField::Config::kExtensionDegree == 1 ||
+                  BaseField::Config::kExtensionDegree == 2) {
       d = x_;
       d *= b;
       d.DoubleInPlace().DoubleInPlace();

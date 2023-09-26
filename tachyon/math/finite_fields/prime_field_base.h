@@ -8,6 +8,7 @@
 #include "tachyon/math/base/field.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_forward.h"
+#include "tachyon/math/finite_fields/prime_field_traits.h"
 #include "tachyon/math/finite_fields/prime_field_util.h"
 
 namespace tachyon::math {
@@ -16,6 +17,8 @@ template <typename F>
 class PrimeFieldBase : public Field<F> {
  public:
   using Config = typename PrimeFieldTraits<F>::Config;
+
+  static F Characteristic() { return F::FromBigint(Config::kModulus); }
 
   // Returns false for either of the following cases:
   //

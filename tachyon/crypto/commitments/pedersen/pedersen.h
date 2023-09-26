@@ -37,8 +37,8 @@ class PedersenParams {
   }
 
   static PedersenParams Random(size_t max_size) {
-    // NOTE(leegwangwoon): For security, `Random` is used instead of
-    // `CreatePseudoRandomPoints`.
+    // NOTE(leegwangwoon): For security, |Random| is used instead of
+    // |CreatePseudoRandomPoints|.
     // See
     // https://research.nccgroup.com/2023/03/22/breaking-pedersen-hashes-in-practice/
 

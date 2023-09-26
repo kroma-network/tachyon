@@ -1,0 +1,48 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "poseidon",
+    hdrs = ["poseidon.h"],
+    deps = [
+        ":poseidon_config",
+        "//tachyon/crypto/hashes:prime_field_serializable",
+        "//tachyon/crypto/hashes/sponge",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon_config",
+    hdrs = ["poseidon_config.h"],
+    deps = [
+        ":grain_lfsr",
+        "//tachyon/base/ranges:algorithm",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
+    name = "grain_lfsr",
+    hdrs = ["grain_lfsr.h"],
+    deps = [
+        "//tachyon/math/base:big_int",
+        "//tachyon/math/matrix:matrix_types",
+        "//tachyon/math/matrix:prime_field_num_traits",
+    ],
+)
+
+tachyon_cc_test(
+    name = "poseidon_unittests",
+    size = "small",
+    srcs = [
+        "grain_lfsr_unittest.cc",
+        "poseidon_config_unittest.cc",
+        "poseidon_unittest.cc",
+    ],
+    deps = [
+        ":poseidon",
+        ":poseidon_config",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:fr",
+    ],
+)

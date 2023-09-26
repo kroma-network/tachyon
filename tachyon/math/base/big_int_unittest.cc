@@ -39,6 +39,57 @@ TEST(BigIntTest, HexString) {
   }
 }
 
+TEST(BigIntTest, BitsLEConversion) {
+  std::bitset<255> input(
+      "011101111110011110110101010100110010011011110111011101000111010111110011"
+      "000100011000011100111011011100111101100101100111001101011010000011111110"
+      "000010011110011110001011111101111001100001100000111010000101111101010010"
+      "101011110101110101011101011001100110000");
+  BigInt<4> big_int = BigInt<4>::FromBitsLE(input);
+  ASSERT_EQ(big_int,
+            BigInt<4>::FromDecString("27117311055620256798560880810000042840428"
+                                     "971800021819916023577129547249660720"));
+  EXPECT_EQ(big_int.ToBitsLE<255>(), input);
+}
+
+TEST(BigIntTest, BitsBEConversion) {
+  std::bitset<255> input(
+      "000011001100110101110101011101011110101010010101111101000010111000001100"
+      "001100111101111110100011110011110010000011111110000010110101100111001101"
+      "001101111001110110111001110000110001000110011111010111000101110111011110"
+      "1100100110010101010110111100111111011100110000");
+  BigInt<4> big_int = BigInt<4>::FromBitsBE(input);
+  ASSERT_EQ(big_int,
+            BigInt<4>::FromDecString("27117311055620256798560880810000042840428"
+                                     "971800021819916023577129547249660720"));
+  EXPECT_EQ(big_int.ToBitsBE<255>(), input);
+}
+
+TEST(BigIntTest, BytesLEConversion) {
+  std::vector<uint8_t> input{48,  179, 174, 174, 87,  169, 47,  116,
+                             48,  204, 251, 197, 243, 4,   127, 208,
+                             154, 179, 236, 185, 157, 195, 136, 249,
+                             58,  186, 123, 147, 169, 218, 243, 59};
+
+  BigInt<4> big_int = BigInt<4>::FromBytesLE(input);
+  ASSERT_EQ(big_int,
+            BigInt<4>::FromDecString("27117311055620256798560880810000042840428"
+                                     "971800021819916023577129547249660720"));
+  EXPECT_EQ(big_int.ToBytesLE(), input);
+}
+
+TEST(BigIntTest, BytesBEConversion) {
+  std::vector<uint8_t> input{59,  243, 218, 169, 147, 123, 186, 58,
+                             249, 136, 195, 157, 185, 236, 179, 154,
+                             208, 127, 4,   243, 197, 251, 204, 48,
+                             116, 47,  169, 87,  174, 174, 179, 48};
+  BigInt<4> big_int = BigInt<4>::FromBytesBE(input);
+  ASSERT_EQ(big_int,
+            BigInt<4>::FromDecString("27117311055620256798560880810000042840428"
+                                     "971800021819916023577129547249660720"));
+  EXPECT_EQ(big_int.ToBytesBE(), input);
+}
+
 TEST(BigIntTest, Comparison) {
   // 1 << 65
   BigInt<2> big_int = BigInt<2>::FromHexString("20000000000000000");
