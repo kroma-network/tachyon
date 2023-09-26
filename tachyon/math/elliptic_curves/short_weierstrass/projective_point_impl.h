@@ -71,14 +71,8 @@ constexpr CLASS& CLASS::AddInPlace(const ProjectivePoint& other) {
   x_ *= a;
 
   // Y3 = u * (R - A) - vvv * Y1Z2
-  std::array<BaseField, 2> lefts;
-  lefts[0] = std::move(u);
-  lefts[1] = vvv;
-  lefts[1].NegInPlace();
-  std::array<BaseField, 2> rights;
-  rights[0] = std::move(r);
-  rights[0] -= a;
-  rights[1] = std::move(y1z2);
+  BaseField lefts[] = {std::move(u), -vvv};
+  BaseField rights[] = {r - a, std::move(y1z2)};
   y_ = BaseField::SumOfProducts(lefts, rights);
 
   // Z3 = vvv * Z1Z2
@@ -140,14 +134,8 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
   x_ *= a;
 
   // Y3 = u * (R - A) - vvv * Y1
-  std::array<BaseField, 2> lefts;
-  lefts[0] = std::move(u);
-  lefts[1] = vvv;
-  lefts[1].NegInPlace();
-  std::array<BaseField, 2> rights;
-  rights[0] = std::move(r);
-  rights[0] -= a;
-  rights[1] = std::move(y_);
+  BaseField lefts[] = {std::move(u), -vvv};
+  BaseField rights[] = {r - a, std::move(y_)};
   y_ = BaseField::SumOfProducts(lefts, rights);
 
   // Z3 = vvv * Z1

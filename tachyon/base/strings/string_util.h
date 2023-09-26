@@ -107,9 +107,7 @@ TACHYON_EXPORT std::string MaybePrepend0x(std::string_view str);
 TACHYON_EXPORT std::string MaybePrepend0x(std::string&& str);
 TACHYON_EXPORT std::string MaybePrepend0x(const std::string& str);
 
-ALWAYS_INLINE const char* const BoolToString(bool b) {
-  return b ? "true" : "false";
-}
+ALWAYS_INLINE const char* BoolToString(bool b) { return b ? "true" : "false"; }
 
 template <typename T>
 std::string VectorToString(const std::vector<T>& data) {

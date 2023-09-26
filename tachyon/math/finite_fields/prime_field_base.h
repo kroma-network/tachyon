@@ -18,7 +18,11 @@ class PrimeFieldBase : public Field<F> {
  public:
   using Config = typename PrimeFieldTraits<F>::Config;
 
-  static F Characteristic() { return F::FromBigint(Config::kModulus); }
+  constexpr static F Characteristic() {
+    return F::FromBigint(Config::kModulus);
+  }
+
+  constexpr static uint64_t ExtensionDegree() { return 1; }
 
   // Returns false for either of the following cases:
   //

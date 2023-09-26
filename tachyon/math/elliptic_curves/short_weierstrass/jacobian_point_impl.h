@@ -80,13 +80,9 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
     v -= x_;
     y_ = s1;
     y_.DoubleInPlace();
-    std::array<BaseField, 2> a;
-    a[0] = std::move(r);
-    a[1] = y_;
-    std::array<BaseField, 2> b;
-    b[0] = std::move(v);
-    b[1] = std::move(j);
-    y_ = BaseField::SumOfProducts(a, b);
+    BaseField lefts[] = {std::move(r), y_};
+    BaseField rights[] = {std::move(v), std::move(j)};
+    y_ = BaseField::SumOfProducts(lefts, rights);
 
     // Z3 = ((Z1 + Z2)² - Z1Z1 - Z2Z2) * H
     // This is equal to Z3 = 2 * Z1 * Z2 * H, and computing it this way is
@@ -157,15 +153,9 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
     x_ -= v.Double();
 
     // Y3 = r * (V - X3) + 2 * Y1 * J
-    std::array<BaseField, 2> a;
-    a[0] = std::move(r);
-    a[1] = y_;
-    a[1].DoubleInPlace();
-    std::array<BaseField, 2> b;
-    b[0] = std::move(v);
-    b[0] -= x_;
-    b[1] = std::move(j);
-    y_ = BaseField::SumOfProducts(a, b);
+    BaseField lefts[] = {std::move(r), y_.Double()};
+    BaseField rights[] = {v - x_, std::move(j)};
+    y_ = BaseField::SumOfProducts(lefts, rights);
 
     // Z3 = 2 * Z1 * H;
     // Can alternatively be computed as (Z1 + H)² - Z1Z1 - HH, but the latter is
@@ -200,8 +190,8 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     //   = 2 * ((X1 + Y1²)² - A - C)
     //   = 2 * 2 * X1 * Y1²
     BaseField d;
-    if constexpr (BaseField::Config::kExtensionDegree == 1 ||
-                  BaseField::Config::kExtensionDegree == 2) {
+    if constexpr (BaseField::ExtensionDegree() == 1 ||
+                  BaseField::ExtensionDegree() == 2) {
       d = x_;
       d *= b;
       d.DoubleInPlace().DoubleInPlace();

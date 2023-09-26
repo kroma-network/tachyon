@@ -1,0 +1,16 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_binary(
+    name = "ext_prime_field_generator",
+    srcs = ["ext_prime_field_generator.cc"],
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/files:file_path_flag",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/build:cc_writer",
+        "//tachyon/math/base:big_int",
+        "//tachyon/math/base:bit_iterator",
+    ],
+)

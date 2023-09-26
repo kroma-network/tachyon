@@ -5,11 +5,9 @@ def _generate_prime_field_impl(ctx):
     arguments = [
         "--out=%s" % (ctx.outputs.out.path),
         "--namespace=%s" % (ctx.attr.namespace),
+        "--class=%s" % (ctx.attr.class_name),
         "--modulus=%s" % (ctx.attr.modulus),
     ]
-
-    if len(ctx.attr.class_name) > 0:
-        arguments.append("--class=%s" % (ctx.attr.class_name))
 
     if len(ctx.attr.subgroup_generator):
         arguments.append("--subgroup_generator=%s" % (ctx.attr.subgroup_generator))
@@ -52,7 +50,7 @@ generate_prime_field = rule(
             cfg = "target",
             executable = True,
             allow_single_file = True,
-            default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator"),
+            default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator"),
         ),
     },
 )

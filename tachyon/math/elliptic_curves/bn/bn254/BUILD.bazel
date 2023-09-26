@@ -1,7 +1,8 @@
 load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
-load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp2s")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -130,4 +131,14 @@ generate_ec_points(
     namespace = "tachyon::math::bn254",
     x = "1",
     y = "2",
+)
+
+generate_fp2s(
+    name = "fq2",
+    base_field = "Fq",
+    base_field_hdr = "tachyon/math/elliptic_curves/bn/bn254/fq.h",
+    class_name = "Fq2",
+    namespace = "tachyon::math::bn254",
+    non_residue = -1,
+    deps = [":fq"],
 )

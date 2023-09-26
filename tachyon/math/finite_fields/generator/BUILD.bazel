@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -10,20 +10,5 @@ tachyon_cc_library(
         "//tachyon/base/files:file_path",
         "//tachyon/math/base/gmp:gmp_util",
         "//tachyon/math/finite_fields:modulus",
-    ],
-)
-
-tachyon_cc_binary(
-    name = "generator",
-    srcs = ["generator.cc"],
-    deps = [
-        ":generator_util",
-        "//tachyon/base/console",
-        "//tachyon/base/files:file_path_flag",
-        "//tachyon/base/flag:flag_parser",
-        "//tachyon/build:cc_writer",
-        "//tachyon/math/base/gmp:bit_traits",
-        "//tachyon/math/finite_fields:prime_field",
-        "//tachyon/math/finite_fields:prime_field_util",
     ],
 )

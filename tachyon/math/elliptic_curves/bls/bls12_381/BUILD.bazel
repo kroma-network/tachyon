@@ -1,5 +1,6 @@
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
-load("//tachyon/math/finite_fields/generator:build_defs.bzl", "generate_prime_fields")
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+load("//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl", "generate_fp2s")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -70,4 +71,14 @@ generate_ec_points(
     x = "3685416753713387016781088315183077757961620795782546409894578378688607592378376318836054947676345821548104185464507",
     # Hex: 0x8b3f481e3aaa0f1a09e30ed741d8ae4fcf5e095d5d00af600db18cb2c04b3edd03cc744a2888ae40caa232946c5e7e1
     y = "1339506544944476473020471379941921221584933875938349620426543736416511423956333506472724655353366534992391756441569",
+)
+
+generate_fp2s(
+    name = "fq2",
+    base_field = "Fq",
+    base_field_hdr = "tachyon/math/elliptic_curves/bls/bls12_381/fq.h",
+    class_name = "Fq2",
+    namespace = "tachyon::math::bls12_381",
+    non_residue = -1,
+    deps = [":fq"],
 )
