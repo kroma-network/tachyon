@@ -62,6 +62,12 @@ class UnivariatePolynomial
     return coefficients_.GetLeadingCoefficient();
   }
 
+  constexpr size_t Degree() const { return coefficients_.Degree(); }
+
+  constexpr Field Evaluate(const Field& point) const {
+    return coefficients_.Evaluate(point);
+  }
+
   auto ToSparse() const {
     return internal::UnivariatePolynomialOp<Coefficients>::ToSparsePolynomial(
         *this);
@@ -149,15 +155,7 @@ class UnivariatePolynomial
   }
 
  private:
-  friend class Polynomial<UnivariatePolynomial<Coefficients>>;
   friend class internal::UnivariatePolynomialOp<Coefficients>;
-
-  // Polynomial methods
-  constexpr size_t DoDegree() const { return coefficients_.Degree(); }
-
-  constexpr Field DoEvaluate(const Field& point) const {
-    return coefficients_.Evaluate(point);
-  }
 
   Coefficients coefficients_;
 };
@@ -167,12 +165,6 @@ std::ostream& operator<<(std::ostream& os,
                          const UnivariatePolynomial<Coefficients>& p) {
   return os << p.ToString();
 }
-
-template <typename Coefficients>
-class CoefficientsTraits<UnivariatePolynomial<Coefficients>> {
- public:
-  using Field = typename Coefficients::Field;
-};
 
 template <typename F, size_t MaxDegree>
 using DenseUnivariatePolynomial =
