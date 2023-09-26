@@ -74,7 +74,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>>
     return PrimeField(big_int);
   }
 
-  static PrimeField FromMontgomery(const BigInt<N>& big_int) {
+  constexpr static PrimeField FromMontgomery(const BigInt<N>& big_int) {
     PrimeField ret;
     ret.value_ = big_int;
     return ret;
