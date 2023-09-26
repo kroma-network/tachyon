@@ -4,7 +4,6 @@
 #include <ostream>
 
 #include "tachyon/base/no_destructor.h"
-#include "tachyon/math/base/identities.h"
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
 
 namespace tachyon::math {
@@ -23,32 +22,6 @@ ProjectivePoint<Curve> operator*(const ScalarField& v,
                                  const ProjectivePoint<Curve>& point) {
   return point * v;
 }
-
-template <typename Curve>
-class MultiplicativeIdentity<ProjectivePoint<Curve>> {
- public:
-  using P = ProjectivePoint<Curve>;
-
-  static const P& One() {
-    static base::NoDestructor<P> one(P::One());
-    return *one;
-  }
-
-  constexpr static bool IsOne(const P& value) { return value.IsOne(); }
-};
-
-template <typename Curve>
-class AdditiveIdentity<ProjectivePoint<Curve>> {
- public:
-  using P = ProjectivePoint<Curve>;
-
-  static const P& Zero() {
-    static base::NoDestructor<P> zero(P::Zero());
-    return *zero;
-  }
-
-  constexpr static bool IsZero(const P& value) { return value.IsZero(); }
-};
 
 template <typename Curve>
 struct PointConversions<ProjectivePoint<Curve>, ProjectivePoint<Curve>> {

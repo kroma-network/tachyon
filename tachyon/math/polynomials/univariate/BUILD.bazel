@@ -17,7 +17,6 @@ tachyon_cc_library(
         "//tachyon/base/ranges:algorithm",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:arithmetics_results",
-        "//tachyon/math/base:identities",
         "//tachyon/math/polynomials:polynomial",
         "@com_google_absl//absl/numeric:bits",
         "@com_google_absl//absl/types:span",

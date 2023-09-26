@@ -241,32 +241,6 @@ std::ostream& operator<<(std::ostream& os, const PrimeFieldGmp<Config>& f) {
   return os << f.ToString();
 }
 
-template <typename Config>
-class MultiplicativeIdentity<PrimeFieldGmp<Config>> {
- public:
-  using F = PrimeFieldGmp<Config>;
-
-  static const F& One() {
-    static base::NoDestructor<F> one(F::One());
-    return *one;
-  }
-
-  constexpr static bool IsOne(const F& value) { return value.IsOne(); }
-};
-
-template <typename Config>
-class AdditiveIdentity<PrimeFieldGmp<Config>> {
- public:
-  using F = PrimeFieldGmp<Config>;
-
-  static const F& Zero() {
-    static base::NoDestructor<F> zero(F::Zero());
-    return *zero;
-  }
-
-  constexpr static bool IsZero(const F& value) { return value.IsZero(); }
-};
-
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_GMP_H_
