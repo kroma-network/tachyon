@@ -14,7 +14,6 @@
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
-#include "tachyon/math/base/identities.h"
 #include "tachyon/math/finite_fields/kernels/carry_chain.h"
 #include "tachyon/math/finite_fields/modulus.h"
 #include "tachyon/math/finite_fields/prime_field.h"
@@ -415,32 +414,6 @@ template <typename Config>
 std::ostream& operator<<(std::ostream& os, const PrimeFieldGpu<Config>& f) {
   return os << f.ToString();
 }
-
-template <typename Config>
-class MultiplicativeIdentity<PrimeFieldGpu<Config>> {
- public:
-  using F = PrimeFieldGpu<Config>;
-
-  static const F& One() {
-    static F one(F::One());
-    return one;
-  }
-
-  constexpr static bool IsOne(const F& value) { return value.IsOne(); }
-};
-
-template <typename Config>
-class AdditiveIdentity<PrimeFieldGpu<Config>> {
- public:
-  using F = PrimeFieldGpu<Config>;
-
-  static const F& Zero() {
-    static F zero(F::Zero());
-    return zero;
-  }
-
-  constexpr static bool IsZero(const F& value) { return value.IsZero(); }
-};
 
 }  // namespace tachyon::math
 

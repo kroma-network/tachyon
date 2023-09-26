@@ -25,10 +25,6 @@ class MultivariatePolynomial
   constexpr MultivariatePolynomial(Coefficients&& coefficients)
       : coefficients_(std::move(coefficients)) {}
 
-  constexpr Field Evaluate(const std::vector<Field>& points) const {
-    return DoEvaluate(points);
-  }
-
   constexpr static MultivariatePolynomial Zero() {
     return MultivariatePolynomial(Coefficients::Zero());
   }
@@ -67,6 +63,12 @@ class MultivariatePolynomial
     return coefficients_.GetLeadingCoefficient();
   }
 
+  constexpr size_t Degree() const { return coefficients_.Degree(); }
+
+  constexpr Field Evaluate(const std::vector<Field>& points) const {
+    return coefficients_.Evaluate(points);
+  }
+
   std::string ToString() const { return coefficients_.ToString(); }
 
 #define OPERATION_METHOD(Name)                                              \
@@ -102,15 +104,7 @@ class MultivariatePolynomial
 #undef OPERATION_METHOD
 
  private:
-  friend class Polynomial<MultivariatePolynomial<Coefficients>>;
   friend class internal::MultivariatePolynomialOp<Coefficients>;
-
-  // Polynomial methods
-  constexpr size_t DoDegree() const { return coefficients_.Degree(); }
-
-  constexpr Field DoEvaluate(const std::vector<Field>& points) const {
-    return coefficients_.Evaluate(points);
-  }
 
   Coefficients coefficients_;
 };
@@ -120,12 +114,6 @@ std::ostream& operator<<(std::ostream& os,
                          const MultivariatePolynomial<Coefficients>& p) {
   return os << p.ToString();
 }
-
-template <typename Coefficients>
-class CoefficientsTraits<MultivariatePolynomial<Coefficients>> {
- public:
-  using Field = typename Coefficients::Field;
-};
 
 template <typename F, size_t MaxDegree>
 using SparseMultivariatePolynomial =
