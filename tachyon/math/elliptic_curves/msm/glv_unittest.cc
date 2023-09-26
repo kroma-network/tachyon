@@ -3,6 +3,8 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bls/bls12_381/g1.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/elliptic_curves/point_conversions.h"
 
 namespace tachyon::math {
 
@@ -19,35 +21,34 @@ class GLVTest : public testing::Test {
 
 }  // namespace
 
+// This iterates all the points in bls12_381 to test whether GLV works on
+// various points.
 using PointTypes =
     testing::Types<bls12_381::G1AffinePoint, bls12_381::G1ProjectivePoint,
-                   bls12_381::G1JacobianPoint, bls12_381::G1PointXYZZ>;
+                   bls12_381::G1JacobianPoint, bls12_381::G1PointXYZZ,
+                   bn254::G1JacobianPoint>;
 TYPED_TEST_SUITE(GLVTest, PointTypes);
 
 TYPED_TEST(GLVTest, Endomorphism) {
   using PointTy = TypeParam;
+  using ReturnTy =
+      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
   EXPECT_TRUE(
       GLV<PointTy>::EndomorphismCoefficient().Pow(BigInt<1>(3)).IsOne());
   PointTy base = PointTy::Random();
-
-  PointTy expected;
-  auto lambda = GLV<PointTy>::Lambda().ToBigInt();
-  if constexpr (std::is_same_v<PointTy, bls12_381::G1AffinePoint>) {
-    expected = base.ScalarMul(lambda).ToAffine();
-  } else {
-    expected = base.ScalarMul(lambda);
-  }
-  EXPECT_EQ(expected, PointTy::Endomorphism(base));
+  EXPECT_EQ(base * GLV<PointTy>::Lambda(),
+            ConvertPoint<ReturnTy>(PointTy::Endomorphism(base)));
 }
 
 TYPED_TEST(GLVTest, Decompose) {
   using PointTy = TypeParam;
+  using ScalarField = typename PointTy::ScalarField;
 
-  bls12_381::Fr scalar = bls12_381::Fr::Random();
+  ScalarField scalar = ScalarField::Random();
   auto result = GLV<PointTy>::Decompose(scalar);
-  bls12_381::Fr k1 = bls12_381::Fr::FromMpzClass(result.k1.abs_value);
-  bls12_381::Fr k2 = bls12_381::Fr::FromMpzClass(result.k2.abs_value);
+  ScalarField k1 = ScalarField::FromMpzClass(result.k1.abs_value);
+  ScalarField k2 = ScalarField::FromMpzClass(result.k2.abs_value);
   if (result.k1.sign == Sign::kNegative) {
     k1.NegInPlace();
   }
@@ -59,18 +60,11 @@ TYPED_TEST(GLVTest, Decompose) {
 
 TYPED_TEST(GLVTest, Mul) {
   using PointTy = TypeParam;
-  using ReturnTy =
-      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
+  using ScalarField = typename PointTy::ScalarField;
 
   PointTy base = PointTy::Random();
-  bls12_381::Fr scalar = bls12_381::Fr::Random();
-  ReturnTy expected;
-  if constexpr (std::is_same_v<PointTy, bls12_381::G1AffinePoint>) {
-    expected = base.ScalarMul(scalar.ToBigInt());
-  } else {
-    expected = base.ScalarMul(scalar.ToBigInt());
-  }
-  EXPECT_EQ(GLV<PointTy>::Mul(base, scalar), expected);
+  ScalarField scalar = ScalarField::Random();
+  EXPECT_EQ(GLV<PointTy>::Mul(base, scalar), base * scalar);
 }
 
 }  // namespace tachyon::math
