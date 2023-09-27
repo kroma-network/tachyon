@@ -252,6 +252,15 @@ std::ostream& operator<<(std::ostream& os,
   return os << f.ToString();
 }
 
+template <
+    typename BaseField, typename Derived,
+    std::enable_if_t<std::is_same_v<BaseField, typename Derived::BaseField>>* =
+        nullptr>
+Derived operator*(const BaseField& element,
+                  const QuadraticExtensionField<Derived>& f) {
+  return static_cast<const Derived&>(f) * element;
+}
+
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
