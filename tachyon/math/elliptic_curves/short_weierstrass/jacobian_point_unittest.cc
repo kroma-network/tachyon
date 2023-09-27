@@ -39,8 +39,12 @@ TYPED_TEST(JacobianPointTest, IsZero) {
 
 TYPED_TEST(JacobianPointTest, Generator) {
   using JacobianPointTy = TypeParam;
+  using BaseField = typename JacobianPointTy::BaseField;
 
-  EXPECT_EQ(JacobianPointTy::Generator(), JacobianPointTy::Curve::Generator());
+  EXPECT_EQ(JacobianPointTy::Generator(),
+            JacobianPointTy(JacobianPointTy::Curve::Config::kGenerator.x,
+                            JacobianPointTy::Curve::Config::kGenerator.y,
+                            BaseField::One()));
 }
 
 TYPED_TEST(JacobianPointTest, Montgomery) {
@@ -158,7 +162,7 @@ TYPED_TEST(JacobianPointTest, ScalarMulOperator) {
   std::vector<AffinePointTy> points;
   for (size_t i = 0; i < 7; ++i) {
     points.push_back(
-        (ScalarField(i) * JacobianPointTy::Curve::Generator()).ToAffine());
+        (ScalarField(i) * JacobianPointTy::Generator()).ToAffine());
   }
 
   EXPECT_THAT(points,

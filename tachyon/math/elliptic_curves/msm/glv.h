@@ -1,7 +1,6 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_GLV_H_
 
-#include "tachyon/base/static_storage.h"
 #include "tachyon/math/base/bit_iterator.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/base/gmp/signed_value.h"
@@ -22,37 +21,21 @@ class GLV {
   using ReturnTy =
       typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
-  using Coefficients = Eigen::Matrix<mpz_class, 2, 2>;
-
   struct CoefficientDecompositionResult {
     SignedValue<mpz_class> k1;
     SignedValue<mpz_class> k2;
   };
-
-  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(BaseField, EndomorphismCoefficient);
-  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(ScalarField, Lambda);
-  DEFINE_STATIC_STORAGE_TEMPLATE_METHOD(Coefficients,
-                                        ScalarDecompositionCoefficients);
-
-  static void Init() {
-    using Config = typename PointTy::Curve::Config;
-
-    EndomorphismCoefficient() =
-        BaseField::FromMontgomery(Config::kEndomorphismCoefficient);
-    Lambda() = ScalarField::FromMontgomery(Config::kLambda);
-    Coefficients() = Eigen::Matrix<mpz_class, 2, 2>{
-        {ScalarField::FromMontgomery(Config::kGLVCoeff00).ToMpzClass(),
-         ScalarField::FromMontgomery(Config::kGLVCoeff01).ToMpzClass()},
-        {ScalarField::FromMontgomery(Config::kGLVCoeff10).ToMpzClass(),
-         ScalarField::FromMontgomery(Config::kGLVCoeff11).ToMpzClass()}};
-  }
 
   static PointTy Endomorphism(const PointTy& point) {
     return PointTy::Endomorphism(point);
   }
   // Decomposes a scalar |k| into k1, k2, s.t. k = k1 + lambda k2,
   static CoefficientDecompositionResult Decompose(const ScalarField& k) {
-    const Coefficients& coefficients = ScalarDecompositionCoefficients();
+    using Config = typename PointTy::Curve::Config;
+
+    Eigen::Matrix<mpz_class, 2, 2> coefficients(
+        {{Config::kGLVCoeffs[0], Config::kGLVCoeffs[1]},
+         {Config::kGLVCoeffs[2], Config::kGLVCoeffs[3]}});
 
     decltype(auto) scalar = k.ToMpzClass();
     const mpz_class& n12 = coefficients(0, 1);

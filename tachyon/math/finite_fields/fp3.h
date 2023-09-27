@@ -15,6 +15,10 @@ class Fp3 : public CubicExtensionField<Fp3<Config>> {
  public:
   using BaseField = typename Config::BaseField;
 
+  using CpuField = Fp3<Config>;
+  // TODO(chokobole): Implements Fp3Gpu
+  using GpuField = Fp3<Config>;
+
   using CubicExtensionField<Fp3<Config>>::CubicExtensionField;
 
   static_assert(Config::kDegreeOverBaseField == 3);

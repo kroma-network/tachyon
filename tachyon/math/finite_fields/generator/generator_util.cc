@@ -71,6 +71,36 @@ std::string GenerateFastMultiplication(int value) {
   return ss.str();
 }
 
+base::FilePath ConvertToCpuHdr(const base::FilePath& path) {
+  std::string basename = path.BaseName().value();
+  basename = basename.substr(0, basename.find("_gpu"));
+  return path.DirName().Append(basename + ".h");
+}
+
+base::FilePath ConvertToGpuHdr(const base::FilePath& path) {
+  std::string basename = path.BaseName().RemoveExtension().value();
+  return path.DirName().Append(basename + "_gpu.h");
+}
+
+std::string GenerateInitMpzClass(std::string_view name, int value) {
+  if (value < 0) {
+    return absl::Substitute("    $0 = -gmp::FromDecString($1);", name, -value);
+  } else {
+    return absl::Substitute("    $0 = gmp::FromDecString($1);", name, value);
+  }
+}
+
+std::string GenerateInitMpzClass(std::string_view name,
+                                 std::string_view value) {
+  if (base::ConsumePrefix(&value, "-")) {
+    return absl::Substitute("    $0 = -gmp::FromDecString(\"$1\");", name,
+                            value);
+  } else {
+    return absl::Substitute("    $0 = gmp::FromDecString(\"$1\");", name,
+                            value);
+  }
+}
+
 std::string GenerateInitField(std::string_view name, int value,
                               bool is_base_field) {
   std::string_view type = is_base_field ? "BaseField" : "ScalarField";

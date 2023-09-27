@@ -15,6 +15,10 @@ class Fp4 : public QuadraticExtensionField<Fp4<Config>> {
  public:
   using BaseField = typename Config::BaseField;
 
+  using CpuField = Fp4<Config>;
+  // TODO(chokobole): Implements Fp4Gpu
+  using GpuField = Fp4<Config>;
+
   using QuadraticExtensionField<Fp4<Config>>::QuadraticExtensionField;
 
   static_assert(Config::kDegreeOverBaseField == 2);

@@ -18,6 +18,10 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>>
  public:
   using BaseField = typename Config::BaseField;
 
+  using CpuField = Fp6<Config>;
+  // TODO(chokobole): Implements Fp6Gpu
+  using GpuField = Fp6<Config>;
+
   using QuadraticExtensionField<Fp6<Config>>::QuadraticExtensionField;
 
   static_assert(BaseField::ExtensionDegree() == 3);
@@ -32,6 +36,10 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>>
     : public CubicExtensionField<Fp6<Config>> {
  public:
   using BaseField = typename Config::BaseField;
+
+  using CpuField = Fp6<Config>;
+  // TODO(chokobole): Implements Fp6Gpu
+  using GpuField = Fp6<Config>;
 
   using CubicExtensionField<Fp6<Config>>::CubicExtensionField;
 

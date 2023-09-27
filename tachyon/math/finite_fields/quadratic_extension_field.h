@@ -13,6 +13,7 @@
 
 #include "tachyon/math/base/field.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field_traits.h"
+#include "tachyon/math/geometry/point2.h"
 
 namespace tachyon::math {
 
@@ -21,6 +22,7 @@ class QuadraticExtensionField : public Field<Derived> {
  public:
   using Config = typename QuadraticExtensionFieldTraits<Derived>::Config;
   using BaseField = typename Config::BaseField;
+  using MontgomeryTy = Point2<typename BaseField::MontgomeryTy>;
 
   constexpr QuadraticExtensionField() = default;
   constexpr QuadraticExtensionField(const BaseField& c0, const BaseField& c1)
@@ -38,6 +40,11 @@ class QuadraticExtensionField : public Field<Derived> {
 
   static Derived Random() { return {BaseField::Random(), BaseField::Random()}; }
 
+  constexpr static Derived FromMontgomery(const MontgomeryTy& mont) {
+    return {BaseField::FromMontgomery(mont.x),
+            BaseField::FromMontgomery(mont.y)};
+  }
+
   constexpr bool IsZero() const { return c0_.IsZero() && c1_.IsZero(); }
 
   constexpr bool IsOne() const { return c0_.IsOne() && c1_.IsZero(); }
@@ -49,6 +56,10 @@ class QuadraticExtensionField : public Field<Derived> {
   constexpr Derived& ConjugateInPlace() {
     c1_.NegInPlace();
     return *static_cast<Derived*>(this);
+  }
+
+  constexpr MontgomeryTy ToMontgomery() const {
+    return {c0_.ToMontgomery(), c1_.ToMontgomery()};
   }
 
   std::string ToString() const {

@@ -126,31 +126,6 @@ tachyon_cc_library(
     ]),
 )
 
-generate_ec_points(
-    name = "g1",
-    a = "0",
-    b = "3",
-    class_name = "G1",
-    # Hex: 0x30644e72e131a0295e6dd9e7e0acccb0c28f069fbb966e3de4bd44e5607cfd48
-    endomorphism_coefficient = "21888242871839275220042445260109153167277707414472061641714758635765020556616",
-    fq_modulus = FQ_MODULUS,
-    fr_modulus = FR_MODULUS,
-    glv_coeffs = [
-        # Hex: 0x6f4d8248eeb859fc8211bbeb7d4f1128
-        "147946756881789319000765030803803410728",
-        # Hex: 0x89d3256894d213e3
-        "9931322734385697763",
-        "-9931322734385697763",
-        # Hex: 0x6f4d8248eeb859fd0be4e1541221250b
-        "147946756881789319010696353538189108491",
-    ],
-    # Hex: 0x30644e72e131a029048b6e193fd84104cc37a73fec2bc5e9b8ca0b2d36636f23
-    lambda_ = "21888242871839275217838484774961031246154997185409878258781734729429964517155",
-    namespace = "tachyon::math::bn254",
-    x = "1",
-    y = "2",
-)
-
 generate_fp2s(
     name = "fq2",
     base_field = "Fq",
@@ -203,4 +178,85 @@ generate_fp12s(
         0,
     ],
     deps = [":fq6"],
+)
+
+generate_ec_points(
+    name = "g1",
+    a = ["0"],
+    b = ["3"],
+    base_field = "Fq",
+    base_field_dep = ":fq",
+    base_field_hdr = "tachyon/math/elliptic_curves/bn/bn254/fq.h",
+    class_name = "G1",
+    # Hex: 0x30644e72e131a0295e6dd9e7e0acccb0c28f069fbb966e3de4bd44e5607cfd48
+    endomorphism_coefficient = ["21888242871839275220042445260109153167277707414472061641714758635765020556616"],
+    gen_gpu = True,
+    glv_coeffs = [
+        # Hex: 0x6f4d8248eeb859fc8211bbeb7d4f1128
+        "-147946756881789319000765030803803410728",
+        # Hex: 0x89d3256894d213e3
+        "9931322734385697763",
+        "-9931322734385697763",
+        # Hex: 0x6f4d8248eeb859fd0be4e1541221250b
+        "-147946756881789319010696353538189108491",
+    ],
+    # Hex: 0x30644e72e131a029048b6e193fd84104cc37a73fec2bc5e9b8ca0b2d36636f23
+    lambda_ = "21888242871839275217838484774961031246154997185409878258781734729429964517155",
+    namespace = "tachyon::math::bn254",
+    scalar_field = "Fr",
+    scalar_field_dep = ":fr",
+    scalar_field_hdr = "tachyon/math/elliptic_curves/bn/bn254/fr.h",
+    x = ["1"],
+    y = ["2"],
+)
+
+generate_ec_points(
+    name = "g2",
+    a = [
+        "0",
+        "0",
+    ],
+    # 3 / (u + 9)
+    b = [
+        # Hex: 0x2b149d40ceb8aaae81be18991be06ac3b5b4c5e559dbefa33267e6dc24a138e5
+        "19485874751759354771024239261021720505790618469301721065564631296452457478373",
+        # Hex: 0x9713b03af0fed4cd2cafadeed8fdf4a74fa084e52d1852e4a2bd0685c315d2
+        "266929791119991161246907387137283842545076965332900288569378510910307636690",
+    ],
+    base_field = "Fq2",
+    base_field_dep = ":fq2",
+    base_field_hdr = "tachyon/math/elliptic_curves/bn/bn254/fq2.h",
+    class_name = "G2",
+    endomorphism_coefficient = [
+        # Hex: 0x30644e72e131a0295e6dd9e7e0acccb0c28f069fbb966e3de4bd44e5607cfd48
+        "21888242871839275220042445260109153167277707414472061641714758635765020556616",
+        "0",
+    ],
+    glv_coeffs = [
+        # Hex: 0x6f4d8248eeb859fd0be4e1541221250b
+        "-147946756881789319010696353538189108491",
+        # Hex: 0x89d3256894d213e3
+        "-9931322734385697763",
+        "9931322734385697763",
+        # Hex: 0x6f4d8248eeb859fc8211bbeb7d4f1128
+        "-147946756881789319000765030803803410728",
+    ],
+    # Hex: 0xb3c4d79d41a917585bfc41088d8daaa78b17ea66b99c90dd
+    lambda_ = "4407920970296243842393367215006156084916469457145843978461",
+    namespace = "tachyon::math::bn254",
+    scalar_field = "Fr",
+    scalar_field_dep = ":fr",
+    scalar_field_hdr = "tachyon/math/elliptic_curves/bn/bn254/fr.h",
+    x = [
+        # Hex: 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed
+        "10857046999023057135944570762232829481370756359578518086990519993285655852781",
+        # Hex: 0x198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c2
+        "11559732032986387107991004021392285783925812861821192530917403151452391805634",
+    ],
+    y = [
+        # Hex: 0x12c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa
+        "8495653923123431417604973247489272438418190587263600148770280649306958101930",
+        # Hex: 0x90689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b
+        "4082367875863433681332203403145435568316851327593401208105741076214120093531",
+    ],
 )

@@ -10,7 +10,6 @@
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/curve_config.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
-#include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/geometry/point3.h"
@@ -60,7 +59,10 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static JacobianPoint Zero() { return JacobianPoint(); }
 
-  constexpr static JacobianPoint Generator() { return Curve::Generator(); }
+  constexpr static JacobianPoint Generator() {
+    return {Curve::Config::kGenerator.x, Curve::Config::kGenerator.y,
+            BaseField::One()};
+  }
 
   constexpr static JacobianPoint FromAffine(const AffinePoint<Curve>& point) {
     return point.ToJacobian();
@@ -76,20 +78,19 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static JacobianPoint FromMontgomery(
-      const Point3<typename BaseField::BigIntTy>& point) {
+      const Point3<typename BaseField::MontgomeryTy>& point) {
     return {BaseField::FromMontgomery(point.x),
             BaseField::FromMontgomery(point.y),
             BaseField::FromMontgomery(point.z)};
   }
 
   constexpr static JacobianPoint Random() {
-    return ScalarField::Random() * Curve::Generator();
+    return ScalarField::Random() * Generator();
   }
 
   constexpr static JacobianPoint Endomorphism(const JacobianPoint& point) {
-    return JacobianPoint(
-        point.x_ * GLV<JacobianPoint>::EndomorphismCoefficient(), point.y_,
-        point.z_);
+    return JacobianPoint(point.x_ * Curve::Config::kEndomorphismCoefficient,
+                         point.y_, point.z_);
   }
 
   constexpr const BaseField& x() const { return x_; }
@@ -154,7 +155,7 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     return {x_, y_, zz, zz * z_};
   }
 
-  constexpr Point3<typename BaseField::BigIntTy> ToMontgomery() const {
+  constexpr Point3<typename BaseField::MontgomeryTy> ToMontgomery() const {
     return {x_.ToMontgomery(), y_.ToMontgomery(), z_.ToMontgomery()};
   }
 

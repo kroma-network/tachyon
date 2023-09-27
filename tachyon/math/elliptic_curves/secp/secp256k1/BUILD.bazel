@@ -128,12 +128,18 @@ tachyon_cc_library(
 
 generate_ec_points(
     name = "curve",
-    a = "0",
-    b = "7",
-    fq_modulus = FQ_MODULUS,
+    a = ["0"],
+    b = ["7"],
+    base_field = "Fq",
+    base_field_dep = ":fq",
+    base_field_hdr = "tachyon/math/elliptic_curves/secp/secp256k1/fq.h",
+    gen_gpu = True,
     namespace = "tachyon::math::secp256k1",
+    scalar_field = "Fr",
+    scalar_field_dep = ":fr",
+    scalar_field_hdr = "tachyon/math/elliptic_curves/secp/secp256k1/fr.h",
     # Hex: 0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
-    x = "55066263022277343669578718895168534326250603453777594175500187360389116729240",
+    x = ["55066263022277343669578718895168534326250603453777594175500187360389116729240"],
     # Hex: 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8
-    y = "32670510020758816978083085130507043184471273380659243275938904335757337482424",
+    y = ["32670510020758816978083085130507043184471273380659243275938904335757337482424"],
 )

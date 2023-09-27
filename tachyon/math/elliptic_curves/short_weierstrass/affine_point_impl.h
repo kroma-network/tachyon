@@ -22,7 +22,9 @@ constexpr ProjectivePoint<Curve> CLASS::DoubleProjective() const {
   BaseField w = xx;
   w += w.Double();
   if constexpr (!Curve::Config::kAIsZero) {
-    w += Curve::A();
+    // TODO(chokobole): Implement constexpr version of Curve::Config::AddByA()
+    // for GPU.
+    w += Curve::Config::kA;
   }
 
   // Y1Y1 = Y1²
@@ -99,7 +101,9 @@ constexpr PointXYZZ<Curve> CLASS::DoubleXYZZ() const {
   m.SquareInPlace();
   m += m.Double();
   if constexpr (!Curve::Config::kAIsZero) {
-    m += Curve::A();
+    // TODO(chokobole): Implement constexpr version of Curve::Config::AddByA()
+    // for GPU.
+    m += Curve::Config::kA;
   }
 
   // X3 = M² - 2 * S

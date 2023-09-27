@@ -10,9 +10,9 @@
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/curve_config.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
-#include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
+#include "tachyon/math/elliptic_curves/semigroups.h"
 #include "tachyon/math/geometry/point2.h"
 
 namespace tachyon::math {
@@ -58,7 +58,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   constexpr static AffinePoint Zero() { return AffinePoint(); }
 
   constexpr static AffinePoint Generator() {
-    return Curve::Generator().ToAffine();
+    return {Curve::Config::kGenerator.x, Curve::Config::kGenerator.y};
   }
 
   constexpr static AffinePoint FromProjective(
@@ -75,7 +75,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static AffinePoint FromMontgomery(
-      const Point2<typename BaseField::BigIntTy>& point) {
+      const Point2<typename BaseField::MontgomeryTy>& point) {
     return {BaseField::FromMontgomery(point.x),
             BaseField::FromMontgomery(point.y)};
   }
@@ -85,7 +85,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static AffinePoint Endomorphism(const AffinePoint& point) {
-    return AffinePoint(point.x_ * GLV<AffinePoint>::EndomorphismCoefficient(),
+    return AffinePoint(point.x_ * Curve::Config::kEndomorphismCoefficient,
                        point.y_);
   }
 
@@ -128,7 +128,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     return {x_, y_, BaseField::One(), BaseField::One()};
   }
 
-  constexpr Point2<typename BaseField::BigIntTy> ToMontgomery() const {
+  constexpr Point2<typename BaseField::MontgomeryTy> ToMontgomery() const {
     return {x_.ToMontgomery(), y_.ToMontgomery()};
   }
 

@@ -305,16 +305,13 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
   };
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  base::FilePath hdr_path = GetHdrPath();
-  std::string basename = hdr_path.BaseName().value();
-  basename = basename.substr(0, basename.find("_gpu"));
-  std::string header_path = hdr_path.DirName().Append(basename + ".h").value();
-  std::string content =
-      absl::StrReplaceAll(tpl_content, {
-                                           {"%{header_path}", header_path},
-                                           {"%{namespace}", ns_name},
-                                           {"%{class}", class_name},
-                                       });
+  std::string content = absl::StrReplaceAll(
+      tpl_content,
+      {
+          {"%{header_path}", math::ConvertToCpuHdr(GetHdrPath()).value()},
+          {"%{namespace}", ns_name},
+          {"%{class}", class_name},
+      });
   return WriteHdr(content, false);
 }
 

@@ -1,6 +1,7 @@
 #include "absl/strings/str_replace.h"
 
 #include "tachyon/base/console/iostream.h"
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/strings/string_number_conversions.h"
@@ -14,17 +15,20 @@ namespace tachyon {
 struct GenerationConfig : public build::CcWriter {
   std::string ns_name;
   std::string class_name;
-  std::string a;
-  std::string b;
-  std::string x;
-  std::string y;
-  std::string fq_modulus;
+  std::string base_field;
+  base::FilePath base_field_hdr;
+  std::string scalar_field;
+  base::FilePath scalar_field_hdr;
+  std::vector<std::string> a;
+  std::vector<std::string> b;
+  std::vector<std::string> x;
+  std::vector<std::string> y;
+  std::string mul_by_a_override;
 
   // For GLV
-  std::string endomorphism_coefficient;
+  std::vector<std::string> endomorphism_coefficient;
   std::string lambda;
   std::vector<std::string> glv_coefficients;
-  std::string fr_modulus;
 
   int GenerateConfigHdr() const;
   int GenerateConfigGpuHdr() const;
@@ -33,8 +37,9 @@ struct GenerationConfig : public build::CcWriter {
 int GenerationConfig::GenerateConfigHdr() const {
   std::vector<std::string_view> tpl = {
       // clang-format off
-      "#include \"%{header_dir_name}/fq.h\"",
-      "#include \"%{header_dir_name}/fr.h\"",
+      "#include \"%{base_field_hdr}\"",
+      "#include \"%{scalar_field_hdr}\"",
+      "#include \"tachyon/math/base/gmp/gmp_util.h\"",
       "#include \"tachyon/math/elliptic_curves/short_weierstrass/affine_point.h\"",
       "#include \"tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h\"",
       "#include \"tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h\"",
@@ -43,66 +48,64 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "namespace %{namespace} {",
       "",
-      "template <typename Fq, typename Fr>",
+      "template <typename _BaseField, typename _ScalarField>",
       "class %{class}CurveConfig {",
       " public:",
-      "  using BaseField = Fq;",
-      "  using ScalarField = Fr;",
+      "  using BaseField = _BaseField;",
+      "  using ScalarField = _ScalarField;",
       "",
-      "  using CpuBaseField = typename Fq::CpuField;",
-      "  using CpuScalarField = typename Fr::CpuField;",
-      "  using GpuBaseField = typename Fq::GpuField;",
-      "  using GpuScalarField = typename Fr::GpuField;",
+      "  using CpuBaseField = typename BaseField::CpuField;",
+      "  using CpuScalarField = typename ScalarField::CpuField;",
+      "  using GpuBaseField = typename BaseField::GpuField;",
+      "  using GpuScalarField = typename ScalarField::GpuField;",
       "  using CpuCurveConfig = %{class}CurveConfig<CpuBaseField, CpuScalarField>;",
       "  using GpuCurveConfig = %{class}CurveConfig<GpuBaseField, GpuScalarField>;",
       "",
       "  constexpr static bool kAIsZero = %{a_is_zero};",
       "",
-      "  constexpr static BigInt<%{fq_n}> kA = BigInt<%{fq_n}>({",
-      "    %{a_mont_form}",
-      "  });",
-      "  constexpr static BigInt<%{fq_n}> kB = BigInt<%{fq_n}>({",
-      "    %{b_mont_form}",
-      "  });",
-      "  constexpr static Point2<BigInt<%{fq_n}>> kGenerator = Point2<BigInt<%{fq_n}>>(",
-      "    BigInt<%{fq_n}>({",
-      "      %{x_mont_form}",
-      "    }),",
-      "    BigInt<%{fq_n}>({",
-      "      %{y_mont_form}",
-      "    })",
-      "  );",
-      "  constexpr static BigInt<%{fq_n}> kEndomorphismCoefficient = BigInt<%{fq_n}>({",
-      "    %{endomorphism_coeff_mont_form}",
-      "  });",
-      "  constexpr static BigInt<%{fr_n}> kLambda = BigInt<%{fr_n}>({",
-      "    %{lambda_mont_form}",
-      "  });",
-      "  constexpr static BigInt<%{fr_n}> kGLVCoeff00 = BigInt<%{fr_n}>({",
-      "    %{glv_coeff_00_mont_form}",
-      "  });",
-      "  constexpr static BigInt<%{fr_n}> kGLVCoeff01 = BigInt<%{fr_n}>({",
-      "    %{glv_coeff_01_mont_form}",
-      "  });",
-      "  constexpr static BigInt<%{fr_n}> kGLVCoeff10 = BigInt<%{fr_n}>({",
-      "    %{glv_coeff_10_mont_form}",
-      "  });",
-      "  constexpr static BigInt<%{fr_n}> kGLVCoeff11 = BigInt<%{fr_n}>({",
-      "    %{glv_coeff_11_mont_form}",
-      "  });",
+      "  // NOTE(chokobole): This can't be constexpr because of PrimeFieldGmp support.",
+      "  static BaseField kA;",
+      "  static BaseField kB;",
+      "  static Point2<BaseField> kGenerator;",
+      "  static BaseField kEndomorphismCoefficient;",
+      "  static ScalarField kLambda;",
+      "  static mpz_class kGLVCoeffs[4];",
+      "",
+      "  static void Init() {",
+      "%{a_init}",
+      "%{b_init}",
+      "%{x_init}",
+      "%{y_init}",
+      "%{endomorphism_coefficient_init}",
+      "%{lambda_init}",
+      "%{glv_coeffs_init}",
+      "  }",
       "",
       "  constexpr static BaseField MulByA(const BaseField& v) {",
-      "    return %{mul_by_a};",
+      "%{mul_by_a}",
       "  }",
       "};",
       "",
-      "using %{class}Curve = SWCurve<%{class}CurveConfig<Fq, Fr>>;",
+      "template <typename BaseField, typename ScalarField>",
+      "BaseField %{class}CurveConfig<BaseField, ScalarField>::kA;",
+      "template <typename BaseField, typename ScalarField>",
+      "BaseField %{class}CurveConfig<BaseField, ScalarField>::kB;",
+      "template <typename BaseField, typename ScalarField>",
+      "Point2<BaseField> %{class}CurveConfig<BaseField, ScalarField>::kGenerator;",
+      "template <typename BaseField, typename ScalarField>",
+      "BaseField %{class}CurveConfig<BaseField, ScalarField>::kEndomorphismCoefficient;",
+      "template <typename BaseField, typename ScalarField>",
+      "ScalarField %{class}CurveConfig<BaseField, ScalarField>::kLambda;",
+      "template <typename BaseField, typename ScalarField>",
+      "mpz_class %{class}CurveConfig<BaseField, ScalarField>::kGLVCoeffs[4];",
+      "",
+      "using %{class}Curve = SWCurve<%{class}CurveConfig<%{base_field}, %{scalar_field}>>;",
       "using %{class}AffinePoint = AffinePoint<%{class}Curve>;",
       "using %{class}ProjectivePoint = ProjectivePoint<%{class}Curve>;",
       "using %{class}JacobianPoint = JacobianPoint<%{class}Curve>;",
       "using %{class}PointXYZZ = PointXYZZ<%{class}Curve>;",
       "#if defined(TACHYON_GMP_BACKEND)",
-      "using %{class}CurveGmp = SWCurve<%{class}CurveConfig<Fq, Fr>>;",
+      "using %{class}CurveGmp = SWCurve<%{class}CurveConfig<%{base_field}, %{scalar_field}>>;",
       "using %{class}AffinePointGmp = AffinePoint<%{class}CurveGmp>;",
       "using %{class}ProjectivePointGmp = ProjectivePoint<%{class}CurveGmp>;",
       "using %{class}JacobianPointGmp = JacobianPoint<%{class}CurveGmp>;",
@@ -114,11 +117,35 @@ int GenerationConfig::GenerateConfigHdr() const {
   };
 
   if (glv_coefficients.empty()) {
-    for (size_t i = 0; i < tpl.size(); ++i) {
-      size_t idx = tpl[i].find("kEndomorphismCoefficient");
+    for (size_t j = 0; j < tpl.size(); ++j) {
+      size_t idx = tpl[j].find("gmp_util.h");
       if (idx != std::string::npos) {
-        auto it = tpl.begin() + i;
-        tpl.erase(it, it + 3 * 6);
+        auto it = tpl.begin() + j;
+        tpl.erase(it);
+        break;
+      }
+    }
+    for (size_t j = 0; j < tpl.size(); ++j) {
+      size_t idx = tpl[j].find("kEndomorphismCoefficient");
+      if (idx != std::string::npos) {
+        auto it = tpl.begin() + j;
+        tpl.erase(it, it + 3);
+        break;
+      }
+    }
+    for (size_t j = 0; j < tpl.size(); ++j) {
+      size_t idx = tpl[j].find("endomorphism_coefficient_init");
+      if (idx != std::string::npos) {
+        auto it = tpl.begin() + j;
+        tpl.erase(it, it + 3);
+        break;
+      }
+    }
+    for (size_t j = 0; j < tpl.size(); ++j) {
+      size_t idx = tpl[j].find("kEndomorphismCoefficient");
+      if (idx != std::string::npos) {
+        auto it = tpl.begin() + j - 1;
+        tpl.erase(it, it + 3 * 2);
         break;
       }
     }
@@ -126,61 +153,104 @@ int GenerationConfig::GenerateConfigHdr() const {
 
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  mpz_class fq_modulus = math::gmp::FromDecString(this->fq_modulus);
-  mpz_class a = math::gmp::FromDecString(this->a);
-  mpz_class b = math::gmp::FromDecString(this->b);
-  mpz_class x = math::gmp::FromDecString(this->x);
-  mpz_class y = math::gmp::FromDecString(this->y);
-
+  bool a_is_zero = false;
+  bool mul_by_a_fast = false;
   std::string mul_by_a;
-  if (a == mpz_class(0)) {
-    mul_by_a = "BaseField::Zero()";
+  std::string a_init;
+  std::string b_init;
+  std::string x_init;
+  std::string y_init;
+  CHECK_EQ(b.size(), a.size());
+  CHECK_EQ(x.size(), a.size());
+  CHECK_EQ(y.size(), a.size());
+  if (a.size() == 1) {
+    mul_by_a_fast = true;
+
+    a_init = math::GenerateInitField("kA", a[0], /*is_base_field=*/true);
+    b_init = math::GenerateInitField("kB", b[0], /*is_base_field=*/true);
+    x_init =
+        math::GenerateInitField("kGenerator.x", x[0], /*is_base_field=*/true);
+    y_init =
+        math::GenerateInitField("kGenerator.y", y[0], /*is_base_field=*/true);
   } else {
-    mul_by_a = math::GenerateFastMultiplication(a.get_si());
+    mul_by_a_fast =
+        std::all_of(a.begin() + 1, a.end(), [](const std::string& a) {
+          return math::gmp::FromDecString(a) == mpz_class(0);
+        });
+
+    a_init = math::GenerateInitExtField("kA", absl::MakeConstSpan(a),
+                                        /*gen_f_type_alias=*/true);
+    b_init = math::GenerateInitExtField("kB", absl::MakeConstSpan(b),
+                                        /*gen_f_type_alias=*/false);
+    x_init = math::GenerateInitExtField("kGenerator.x", absl::MakeConstSpan(x),
+                                        /*gen_f_type_alias=*/false);
+    y_init = math::GenerateInitExtField("kGenerator.y", absl::MakeConstSpan(y),
+                                        /*gen_f_type_alias=*/false);
   }
 
-  size_t fq_n = math::gmp::GetLimbSize(fq_modulus);
+  if (!mul_by_a_override.empty()) {
+    mul_by_a = mul_by_a_override;
+  } else if (mul_by_a_fast) {
+    mpz_class a_value = math::gmp::FromDecString(a[0]);
+    std::stringstream ss;
+    ss << "    return ";
+    if (a_value == mpz_class(0)) {
+      a_is_zero = true;
+      ss << "BaseField::Zero()";
+    } else {
+      ss << math::GenerateFastMultiplication(a_value.get_si());
+    }
+    ss << ";";
+    mul_by_a = ss.str();
+  } else {
+    mul_by_a = "    return kA * v;";
+  }
 
   std::map<std::string, std::string> replacements = {
-      {{"%{header_dir_name}", GetHdrPath().DirName().value()},
+      {{"%{base_field_hdr}", base_field_hdr.value()},
+       {"%{scalar_field_hdr}", scalar_field_hdr.value()},
        {"%{namespace}", ns_name},
        {"%{class}", class_name},
-       {"%{fq_n}", base::NumberToString(fq_n)},
-       {"%{a_is_zero}", base::BoolToString(a == mpz_class(0))},
-       {"%{a_mont_form}", math::MpzClassToMontString(a, fq_modulus)},
-       {"%{b_mont_form}", math::MpzClassToMontString(b, fq_modulus)},
-       {"%{x_mont_form}", math::MpzClassToMontString(x, fq_modulus)},
-       {"%{y_mont_form}", math::MpzClassToMontString(y, fq_modulus)},
+       {"%{base_field}", base_field},
+       {"%{scalar_field}", scalar_field},
+       {"%{a_is_zero}", base::BoolToString(a_is_zero)},
+       {"%{a_init}", a_init},
+       {"%{b_init}", b_init},
+       {"%{x_init}", x_init},
+       {"%{y_init}", y_init},
        {"%{mul_by_a}", mul_by_a}}};
 
   if (!glv_coefficients.empty()) {
-    mpz_class fr_modulus = math::gmp::FromDecString(this->fr_modulus);
-    mpz_class endomorphism_coefficient =
-        math::gmp::FromDecString(this->endomorphism_coefficient);
-    mpz_class lambda = math::gmp::FromDecString(this->lambda);
-    std::vector<mpz_class> glv_coefficients = {
-        math::gmp::FromDecString(this->glv_coefficients[0]),
-        math::gmp::FromDecString(this->glv_coefficients[1]),
-        math::gmp::FromDecString(this->glv_coefficients[2]),
-        math::gmp::FromDecString(this->glv_coefficients[3]),
-    };
+    std::string endomorphism_coefficient_init;
+    std::string lambda_init;
+    std::string glv_coeffs_init;
+    if (endomorphism_coefficient.size() == 1) {
+      endomorphism_coefficient_init = math::GenerateInitField(
+          "kEndomorphismCoefficient", endomorphism_coefficient[0],
+          /*is_base_field=*/true);
+    } else {
+      endomorphism_coefficient_init = math::GenerateInitExtField(
+          "kEndomorphismCoefficient",
+          absl::MakeConstSpan(endomorphism_coefficient),
+          /*gen_f_type_alias=*/true);
+    }
+    lambda_init =
+        math::GenerateInitField("kLambda", lambda, /*is_base_field=*/false);
+    glv_coeffs_init = absl::StrJoin(
+        base::CreateVector(4,
+                           [this](size_t i) {
+                             return math::GenerateInitMpzClass(
+                                 absl::Substitute("kGLVCoeffs[$0]", i),
+                                 glv_coefficients[i]);
+                           }),
+        "\n");
 
-    size_t fr_n = math::gmp::GetLimbSize(fr_modulus);
-
-    replacements["%{endomorphism_coeff_mont_form}"] =
-        math::MpzClassToMontString(endomorphism_coefficient, fq_modulus);
-    replacements["%{lambda_mont_form}"] =
-        math::MpzClassToMontString(lambda, fr_modulus);
-    replacements["%{glv_coeff_00_mont_form}"] =
-        math::MpzClassToMontString(glv_coefficients[0], fr_modulus);
-    replacements["%{glv_coeff_01_mont_form}"] =
-        math::MpzClassToMontString(glv_coefficients[1], fr_modulus);
-    replacements["%{glv_coeff_10_mont_form}"] =
-        math::MpzClassToMontString(glv_coefficients[2], fr_modulus);
-    replacements["%{glv_coeff_11_mont_form}"] =
-        math::MpzClassToMontString(glv_coefficients[3], fr_modulus);
-    replacements["%{fr_n}"] = base::NumberToString(fr_n);
+    replacements["%{endomorphism_coefficient_init}"] =
+        endomorphism_coefficient_init;
+    replacements["%{lambda_init}"] = lambda_init;
+    replacements["%{glv_coeffs_init}"] = glv_coeffs_init;
   }
+
   std::string content = absl::StrReplaceAll(tpl_content, replacements);
   return WriteHdr(content, false);
 }
@@ -188,13 +258,13 @@ int GenerationConfig::GenerateConfigHdr() const {
 int GenerationConfig::GenerateConfigGpuHdr() const {
   std::string_view tpl[] = {
       // clang-format off
-      "#include \"%{header_dir_name}/fq_gpu.h\"",
-      "#include \"%{header_dir_name}/fr_gpu.h\"",
+      "#include \"%{base_field_header}\"",
+      "#include \"%{scalar_field_header}\"",
       "#include \"%{header_path}\"",
       "",
       "namespace %{namespace} {",
       "",
-      "using %{class}CurveGpu = SWCurve<%{class}CurveConfig<FqGpu, FrGpu>>;",
+      "using %{class}CurveGpu = SWCurve<%{class}CurveConfig<%{base_field}Gpu, %{scalar_field}Gpu>>;",
       "using %{class}AffinePointGpu = AffinePoint<%{class}CurveGpu>;",
       "using %{class}ProjectivePointGpu = ProjectivePoint<%{class}CurveGpu>;",
       "using %{class}JacobianPointGpu = JacobianPoint<%{class}CurveGpu>;",
@@ -205,17 +275,19 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
   };
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
-  base::FilePath hdr_path = GetHdrPath();
-  std::string basename = hdr_path.BaseName().value();
-  basename = basename.substr(0, basename.find("_gpu"));
-  std::string header_path = hdr_path.DirName().Append(basename + ".h").value();
   std::string content = absl::StrReplaceAll(
-      tpl_content, {
-                       {"%{header_dir_name}", hdr_path.DirName().value()},
-                       {"%{header_path}", header_path},
-                       {"%{namespace}", ns_name},
-                       {"%{class}", class_name},
-                   });
+      tpl_content,
+      {
+          {"%{base_field_header}",
+           math::ConvertToGpuHdr(base_field_hdr).value()},
+          {"%{scalar_field_header}",
+           math::ConvertToGpuHdr(scalar_field_hdr).value()},
+          {"%{header_path}", math::ConvertToCpuHdr(GetHdrPath()).value()},
+          {"%{namespace}", ns_name},
+          {"%{class}", class_name},
+          {"%{base_field}", base_field},
+          {"%{scalar_field}", scalar_field},
+      });
   return WriteHdr(content, false);
 }
 
@@ -232,28 +304,39 @@ int RealMain(int argc, char** argv) {
       .set_long_name("--namespace")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.class_name).set_long_name("--class");
-  parser.AddFlag<base::StringFlag>(&config.a)
+  parser.AddFlag<base::StringFlag>(&config.base_field)
+      .set_long_name("--base_field")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.base_field_hdr)
+      .set_long_name("--base_field_hdr")
+      .set_required();
+  parser.AddFlag<base::StringFlag>(&config.scalar_field)
+      .set_long_name("--scalar_field")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.scalar_field_hdr)
+      .set_long_name("--scalar_field_hdr")
+      .set_required();
+  parser.AddFlag<base::Flag<std::vector<std::string>>>(&config.a)
       .set_short_name("-a")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.b)
+  parser.AddFlag<base::Flag<std::vector<std::string>>>(&config.b)
       .set_short_name("-b")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.x)
+  parser.AddFlag<base::Flag<std::vector<std::string>>>(&config.x)
       .set_short_name("-x")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.y)
+  parser.AddFlag<base::Flag<std::vector<std::string>>>(&config.y)
       .set_short_name("-y")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.fq_modulus)
-      .set_long_name("--fq_modulus")
-      .set_required();
-  parser.AddFlag<base::StringFlag>(&config.endomorphism_coefficient)
+  parser
+      .AddFlag<base::Flag<std::vector<std::string>>>(
+          &config.endomorphism_coefficient)
       .set_long_name("--endomorphism_coefficient");
   parser.AddFlag<base::StringFlag>(&config.lambda).set_long_name("--lambda");
   parser.AddFlag<base::Flag<std::vector<std::string>>>(&config.glv_coefficients)
       .set_long_name("--glv_coefficients");
-  parser.AddFlag<base::StringFlag>(&config.fr_modulus)
-      .set_long_name("--fr_modulus");
+  parser.AddFlag<base::StringFlag>(&config.mul_by_a_override)
+      .set_long_name("--mul_by_a_override");
 
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {

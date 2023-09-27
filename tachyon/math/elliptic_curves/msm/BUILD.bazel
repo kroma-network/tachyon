@@ -12,7 +12,6 @@ tachyon_cc_library(
     name = "glv",
     hdrs = ["glv.h"],
     deps = [
-        "//tachyon/base:static_storage",
         "//tachyon/math/base:bit_iterator",
         "//tachyon/math/base/gmp:bit_traits",
         "//tachyon/math/base/gmp:signed_value",
@@ -53,7 +52,9 @@ tachyon_cc_test(
     deps = [
         ":glv",
         "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:g2",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],
 )
