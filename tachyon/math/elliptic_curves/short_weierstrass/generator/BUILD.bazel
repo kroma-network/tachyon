@@ -7,7 +7,6 @@ tachyon_cc_binary(
     srcs = ["generator.cc"],
     deps = [
         "//tachyon/base/console",
-        "//tachyon/base/containers:cxx20_erase",
         "//tachyon/base/files:file_path_flag",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/base/strings:string_number_conversions",

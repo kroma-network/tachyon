@@ -1,7 +1,6 @@
 #include "absl/strings/str_replace.h"
 
 #include "tachyon/base/console/iostream.h"
-#include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/strings/string_number_conversions.h"
