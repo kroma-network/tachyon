@@ -150,6 +150,7 @@ TYPED_TEST(PointXYZZTest, AdditiveGroupOperators) {
   }
 
   EXPECT_EQ(p * ScalarField(2), p4);
+  EXPECT_EQ(ScalarField(2) * p, p4);
   EXPECT_EQ(p *= ScalarField(2), p4);
 }
 

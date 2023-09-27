@@ -146,6 +146,7 @@ TYPED_TEST(ProjectivePointTest, AdditiveGroupOperators) {
   }
 
   EXPECT_EQ(pp * ScalarField(2), pp4);
+  EXPECT_EQ(ScalarField(2) * pp, pp4);
   EXPECT_EQ(pp *= ScalarField(2), pp4);
 }
 
