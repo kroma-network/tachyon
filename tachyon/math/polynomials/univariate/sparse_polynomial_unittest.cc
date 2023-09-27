@@ -51,6 +51,7 @@ TEST_F(SparseUnivariatePolynomialTest, IsZero) {
 TEST_F(SparseUnivariatePolynomialTest, IsOne) {
   EXPECT_TRUE(Poly::One().IsOne());
   EXPECT_TRUE(Poly(Coeffs({{0, GF7(1)}})).IsOne());
+  EXPECT_FALSE(Poly(Coeffs({{1, GF7(1)}})).IsOne());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
     EXPECT_FALSE(polys_[i].IsOne());
   }
