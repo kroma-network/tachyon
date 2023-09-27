@@ -130,9 +130,7 @@ generate_ec_points(
     name = "curve",
     a = "0",
     b = "7",
-    class_name = "",
     fq_modulus = FQ_MODULUS,
-    fr_modulus = FR_MODULUS,
     namespace = "tachyon::math::secp256k1",
     # Hex: 0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798
     x = "55066263022277343669578718895168534326250603453777594175500187360389116729240",
