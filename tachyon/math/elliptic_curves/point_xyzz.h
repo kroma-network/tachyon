@@ -16,7 +16,9 @@ std::ostream& operator<<(std::ostream& os, const PointXYZZ<Curve>& point) {
   return os << point.ToString();
 }
 
-template <typename Curve, typename ScalarField = typename Curve::ScalarField>
+template <typename ScalarField, typename Curve,
+          std::enable_if_t<std::is_same_v<
+              ScalarField, typename Curve::ScalarField>>* = nullptr>
 PointXYZZ<Curve> operator*(const ScalarField& v,
                            const PointXYZZ<Curve>& point) {
   return point * v;

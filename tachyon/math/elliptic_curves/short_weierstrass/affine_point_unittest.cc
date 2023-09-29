@@ -114,6 +114,7 @@ TYPED_TEST(AffinePointTest, AdditiveGroupOperators) {
   }
 
   EXPECT_EQ(ap * ScalarField(2), jp4);
+  EXPECT_EQ(ScalarField(2) * ap, jp4);
 }
 
 TYPED_TEST(AffinePointTest, ToProjective) {

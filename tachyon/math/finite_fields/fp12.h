@@ -3,26 +3,26 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_MATH_FINITE_FIELDS_FP2_H_
-#define TACHYON_MATH_FINITE_FIELDS_FP2_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_FP12_H_
+#define TACHYON_MATH_FINITE_FIELDS_FP12_H_
 
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
 
 namespace tachyon::math {
 
 template <typename Config>
-class Fp2 : public QuadraticExtensionField<Fp2<Config>> {
+class Fp12 : public QuadraticExtensionField<Fp12<Config>> {
  public:
   using BaseField = typename Config::BaseField;
 
-  using QuadraticExtensionField<Fp2<Config>>::QuadraticExtensionField;
+  using QuadraticExtensionField<Fp12<Config>>::QuadraticExtensionField;
 
   static_assert(Config::kDegreeOverBaseField == 2);
-  static_assert(BaseField::ExtensionDegree() == 1);
+  static_assert(BaseField::ExtensionDegree() == 6);
 
-  constexpr static uint64_t kDegreeOverBasePrimeField = 2;
+  constexpr static uint64_t kDegreeOverBasePrimeField = 12;
 };
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_FP2_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_FP12_H_

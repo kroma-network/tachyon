@@ -145,6 +145,7 @@ TYPED_TEST(JacobianPointTest, AdditiveGroupOperators) {
   }
 
   EXPECT_EQ(jp * ScalarField(2), jp4);
+  EXPECT_EQ(ScalarField(2) * jp, jp4);
   EXPECT_EQ(jp *= ScalarField(2), jp4);
 }
 
