@@ -21,7 +21,9 @@ constexpr ProjectivePoint<Curve> CLASS::DoubleProjective() const {
   // w = a + 3 * XX
   BaseField w = xx;
   w += w.Double();
-  w += Curve::A();
+  if constexpr (!Curve::Config::kAIsZero) {
+    w += Curve::A();
+  }
 
   // Y1Y1 = Y1²
   BaseField y1y1 = y_;
@@ -96,7 +98,9 @@ constexpr PointXYZZ<Curve> CLASS::DoubleXYZZ() const {
   BaseField m = x_;
   m.SquareInPlace();
   m += m.Double();
-  m += Curve::A();
+  if constexpr (!Curve::Config::kAIsZero) {
+    m += Curve::A();
+  }
 
   // X3 = M² - 2 * S
   BaseField x = m;

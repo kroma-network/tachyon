@@ -1,6 +1,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_GENERATOR_GENERATOR_UTIL_H_
 #define TACHYON_MATH_FINITE_FIELDS_GENERATOR_GENERATOR_UTIL_H_
 
+#include "absl/types/span.h"
 #include "third_party/gmp/include/gmpxx.h"
 
 #include "tachyon/base/compiler_specific.h"
@@ -26,7 +27,7 @@ std::string MpzClassToMontString(const mpz_class& v_in, const mpz_class& m_in) {
     gmp::CopyLimbs(v_in, v.limbs);
   }
 
-  BigInt<N * 2> mul_result = v.Mul(r2);
+  BigInt<N* 2> mul_result = v.Mul(r2);
   BigInt<N>::template MontgomeryReduce64<false>(mul_result, m, inv, &v);
 
   mpz_class v_mont;
@@ -35,6 +36,22 @@ std::string MpzClassToMontString(const mpz_class& v_in, const mpz_class& m_in) {
 }
 
 std::string MpzClassToMontString(const mpz_class& v, const mpz_class& m);
+
+std::string GenerateFastMultiplication(int value);
+
+std::string GenerateInitField(std::string_view name, int value,
+                              bool is_base_field);
+
+std::string GenerateInitField(std::string_view name, std::string_view value,
+                              bool is_base_field);
+
+std::string GenerateInitExtField(std::string_view name,
+                                 absl::Span<const int> values,
+                                 bool gen_f_type_alias);
+
+std::string GenerateInitExtField(std::string_view name,
+                                 absl::Span<const std::string> values,
+                                 bool gen_f_type_alias);
 
 }  // namespace tachyon::math
 

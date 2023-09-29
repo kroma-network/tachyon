@@ -172,7 +172,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     return *this;
   }
 
-  if (Curve::A().IsZero()) {
+  if constexpr (Curve::Config::kAIsZero) {
     // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
     // A = X1²
     BaseField a = x_;
@@ -245,7 +245,9 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     BaseField m = xx;
     m.DoubleInPlace();
     m += xx;
-    m += Curve::A() * zz.Square();
+    if constexpr (!Curve::Config::kAIsZero) {
+      m += Curve::Config::MulByA(zz.Square());
+    }
 
     // T = M² - 2 * S
     // X3 = T

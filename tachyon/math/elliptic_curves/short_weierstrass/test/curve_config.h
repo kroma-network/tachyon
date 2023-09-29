@@ -26,6 +26,8 @@ class CurveConfig {
   using CpuCurveConfig = CurveConfig<CpuBaseField, CpuScalarField>;
   using GpuCurveConfig = CurveConfig<GpuBaseField, GpuScalarField>;
 
+  constexpr static bool kAIsZero = true;
+
   // A: Mont(0)
   constexpr static BigInt<1> kA = BigInt<1>(0);
   // B: Mont(5)

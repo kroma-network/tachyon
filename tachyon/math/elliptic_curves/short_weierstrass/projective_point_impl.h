@@ -162,7 +162,9 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   // w = a * ZZ + 3 * XX
   BaseField w = xx;
   w += w.Double();
-  w += Curve::A() * zz;
+  if constexpr (!Curve::Config::kAIsZero) {
+    w += Curve::Config::MulByA(zz);
+  }
 
   // s = 2 * Y1 * Z1
   BaseField s = y_;

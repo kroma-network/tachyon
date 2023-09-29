@@ -11,7 +11,6 @@
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_ctx.h"
 #include "tachyon/math/elliptic_curves/msm/kernels/cuzk/cuzk_kernels.cu.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits.h"
 
 namespace tachyon::math {
 
@@ -22,7 +21,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
   using BaseField = typename AffinePoint<GpuCurve>::BaseField;
   using ScalarField = typename AffinePoint<GpuCurve>::ScalarField;
   using Bucket = typename PippengerBase<GpuCurve>::Bucket;
-  using CpuCurve = typename SWCurveTraits<GpuCurve>::CpuCurve;
+  using CpuCurve = typename GpuCurve::CpuCurve;
 
   CUZK() : CUZK(nullptr, nullptr) {}
   CUZK(gpuMemPool_t mem_pool, gpuStream_t stream)

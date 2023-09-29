@@ -57,6 +57,8 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  using CpuCurveConfig = %{class}CurveConfig<CpuBaseField, CpuScalarField>;",
       "  using GpuCurveConfig = %{class}CurveConfig<GpuBaseField, GpuScalarField>;",
       "",
+      "  constexpr static bool kAIsZero = %{a_is_zero};",
+      "",
       "  constexpr static BigInt<%{fq_n}> kA = BigInt<%{fq_n}>({",
       "    %{a_mont_form}",
       "  });",
@@ -89,6 +91,10 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  constexpr static BigInt<%{fr_n}> kGLVCoeff11 = BigInt<%{fr_n}>({",
       "    %{glv_coeff_11_mont_form}",
       "  });",
+      "",
+      "  constexpr static BaseField MulByA(const BaseField& v) {",
+      "    return %{mul_by_a};",
+      "  }",
       "};",
       "",
       "using %{class}Curve = SWCurve<%{class}CurveConfig<Fq, Fr>>;",
@@ -127,18 +133,26 @@ int GenerationConfig::GenerateConfigHdr() const {
   mpz_class x = math::gmp::FromDecString(this->x);
   mpz_class y = math::gmp::FromDecString(this->y);
 
+  std::string mul_by_a;
+  if (a == mpz_class(0)) {
+    mul_by_a = "BaseField::Zero()";
+  } else {
+    mul_by_a = math::GenerateFastMultiplication(a.get_si());
+  }
+
   size_t fq_n = math::gmp::GetLimbSize(fq_modulus);
 
-  std::map<std::string, std::string> replacements = {{
-      {"%{header_dir_name}", GetHdrPath().DirName().value()},
-      {"%{namespace}", ns_name},
-      {"%{class}", class_name},
-      {"%{fq_n}", base::NumberToString(fq_n)},
-      {"%{a_mont_form}", math::MpzClassToMontString(a, fq_modulus)},
-      {"%{b_mont_form}", math::MpzClassToMontString(b, fq_modulus)},
-      {"%{x_mont_form}", math::MpzClassToMontString(x, fq_modulus)},
-      {"%{y_mont_form}", math::MpzClassToMontString(y, fq_modulus)},
-  }};
+  std::map<std::string, std::string> replacements = {
+      {{"%{header_dir_name}", GetHdrPath().DirName().value()},
+       {"%{namespace}", ns_name},
+       {"%{class}", class_name},
+       {"%{fq_n}", base::NumberToString(fq_n)},
+       {"%{a_is_zero}", base::BoolToString(a == mpz_class(0))},
+       {"%{a_mont_form}", math::MpzClassToMontString(a, fq_modulus)},
+       {"%{b_mont_form}", math::MpzClassToMontString(b, fq_modulus)},
+       {"%{x_mont_form}", math::MpzClassToMontString(x, fq_modulus)},
+       {"%{y_mont_form}", math::MpzClassToMontString(y, fq_modulus)},
+       {"%{mul_by_a}", mul_by_a}}};
 
   if (!glv_coefficients.empty()) {
     mpz_class fr_modulus = math::gmp::FromDecString(this->fr_modulus);
@@ -178,11 +192,10 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
       "#include \"%{header_dir_name}/fq_gpu.h\"",
       "#include \"%{header_dir_name}/fr_gpu.h\"",
       "#include \"%{header_path}\"",
-      "#include \"tachyon/math/elliptic_curves/short_weierstrass/sw_curve_gpu.h\"",
       "",
       "namespace %{namespace} {",
       "",
-      "using %{class}CurveGpu = SWCurveGpu<%{class}CurveConfig<FqGpu, FrGpu>>;",
+      "using %{class}CurveGpu = SWCurve<%{class}CurveConfig<FqGpu, FrGpu>>;",
       "using %{class}AffinePointGpu = AffinePoint<%{class}CurveGpu>;",
       "using %{class}ProjectivePointGpu = ProjectivePoint<%{class}CurveGpu>;",
       "using %{class}JacobianPointGpu = JacobianPoint<%{class}CurveGpu>;",

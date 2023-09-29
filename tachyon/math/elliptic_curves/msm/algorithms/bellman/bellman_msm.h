@@ -4,7 +4,6 @@
 #include "tachyon/math/elliptic_curves/msm/algorithms/bellman/bellman_msm_impl.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/msm_algorithm.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits.h"
 
 namespace tachyon::math {
 
@@ -15,7 +14,7 @@ class BellmanMSM : public PippengerBase<AffinePoint<GpuCurve>>,
   using BaseField = typename AffinePoint<GpuCurve>::BaseField;
   using ScalarField = typename AffinePoint<GpuCurve>::ScalarField;
   using Bucket = typename PippengerBase<GpuCurve>::Bucket;
-  using CpuCurve = typename SWCurveTraits<GpuCurve>::CpuCurve;
+  using CpuCurve = typename GpuCurve::CpuCurve;
 
   BellmanMSM() : BellmanMSM(nullptr, nullptr) {}
   BellmanMSM(gpuMemPool_t mem_pool, gpuStream_t stream)

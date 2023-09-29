@@ -12,7 +12,6 @@
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/sw_curve_traits.h"
 
 namespace tachyon::c::math {
 
@@ -20,7 +19,7 @@ template <typename GpuCurve>
 struct MSMGpuApi {
   using GpuAffinePointTy = tachyon::math::AffinePoint<GpuCurve>;
   using GpuScalarField = typename GpuAffinePointTy::ScalarField;
-  using CpuCurve = typename tachyon::math::SWCurveTraits<GpuCurve>::CpuCurve;
+  using CpuCurve = typename GpuCurve::CpuCurve;
   using CpuAffinePointTy = tachyon::math::AffinePoint<CpuCurve>;
 
   tachyon::device::gpu::ScopedMemPool mem_pool;
@@ -91,8 +90,7 @@ template <typename RetPointTy, typename GpuCurve, typename CPointTy,
           typename CScalarField,
           typename CRetPointTy =
               typename cc::math::PointTraits<RetPointTy>::CCurvePointTy,
-          typename CpuCurve =
-              typename tachyon::math::SWCurveTraits<GpuCurve>::CpuCurve>
+          typename CpuCurve = typename GpuCurve::CpuCurve>
 CRetPointTy* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPointTy* bases,
                       const CScalarField* scalars, size_t size) {
   msm_api.provider.Inject(bases, scalars, size);

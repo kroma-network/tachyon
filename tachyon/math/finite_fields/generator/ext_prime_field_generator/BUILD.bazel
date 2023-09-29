@@ -10,7 +10,6 @@ tachyon_cc_binary(
         "//tachyon/base/files:file_path_flag",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/build:cc_writer",
-        "//tachyon/math/base:big_int",
-        "//tachyon/math/base:bit_iterator",
+        "//tachyon/math/finite_fields/generator:generator_util",
     ],
 )

@@ -8,6 +8,5 @@ tachyon_cc_library(
     deps = [
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/elliptic_curves:points",
-        "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve_traits",
     ],
 )

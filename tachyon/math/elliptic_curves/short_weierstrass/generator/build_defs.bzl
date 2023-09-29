@@ -109,7 +109,6 @@ def generate_ec_points(
             ":{}".format(name),
             ":fq_gpu",
             ":fr_gpu",
-            "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve_gpu",
         ],
         **kwargs
     )
