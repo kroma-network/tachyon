@@ -109,7 +109,8 @@ class SparseCoefficients {
   constexpr bool IsZero() const { return terms_.empty(); }
 
   constexpr bool IsOne() const {
-    return terms_.size() == 1 && terms_[0].coefficient.IsOne();
+    return terms_.size() == 1 && terms_[0].degree == 0 &&
+           terms_[0].coefficient.IsOne();
   }
 
   constexpr size_t Degree() const {
