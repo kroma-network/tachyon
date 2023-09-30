@@ -234,6 +234,7 @@ class QuadraticExtensionField : public FiniteField<Derived> {
 
   constexpr Derived& InverseInPlace() {
     // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
+    // See https://github.com/kroma-network/tachyon/issues/76
     if (IsZero()) return *static_cast<Derived*>(this);
     // See https://www.math.u-bordeaux.fr/~damienrobert/csi/book/book.pdf
     // Guide to Pairing-based Cryptography, Algorithm 5.19.

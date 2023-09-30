@@ -240,6 +240,7 @@ class CubicExtensionField : public FiniteField<Derived> {
 
   constexpr Derived& InverseInPlace() {
     // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
+    // See https://github.com/kroma-network/tachyon/issues/76
     if (IsZero()) return *static_cast<Derived*>(this);
     // clang-format off
     // See https://eprint.iacr.org/2010/354.pdf

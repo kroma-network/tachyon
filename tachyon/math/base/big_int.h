@@ -717,6 +717,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   template <bool ModulusHasSpareBit>
   constexpr BigInt MontgomeryInverse(const BigInt& modulus,
                                      const BigInt& r2) const {
+    // See https://github.com/kroma-network/tachyon/issues/76
     CHECK(!IsZero());
 
     // Guajardo Kumar Paar Pelzl
