@@ -132,7 +132,7 @@ generate_fp2s(
     base_field_hdr = "tachyon/math/elliptic_curves/bn/bn254/fq.h",
     class_name = "Fq2",
     namespace = "tachyon::math::bn254",
-    non_residue = [-1],
+    non_residue = ["-1"],
     deps = [":fq"],
 )
 
@@ -160,8 +160,8 @@ generate_fp6s(
     return BaseField(std::move(c0), std::move(c1));""",
     namespace = "tachyon::math::bn254",
     non_residue = [
-        9,
-        1,
+        "9",
+        "1",
     ],
     deps = [":fq2"],
 )
@@ -173,9 +173,9 @@ generate_fp12s(
     class_name = "Fq12",
     namespace = "tachyon::math::bn254",
     non_residue = [
-        0,
-        1,
-        0,
+        "0",
+        "1",
+        "0",
     ],
     deps = [":fq6"],
 )

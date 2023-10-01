@@ -38,29 +38,20 @@ std::string MpzClassToMontString(const mpz_class& v_in, const mpz_class& m_in) {
 
 std::string MpzClassToMontString(const mpz_class& v, const mpz_class& m);
 
-std::string GenerateFastMultiplication(int value);
+std::string GenerateFastMultiplication(int64_t value);
 
 base::FilePath ConvertToCpuHdr(const base::FilePath& path);
 
 base::FilePath ConvertToGpuHdr(const base::FilePath& path);
 
-std::string GenerateInitMpzClass(std::string_view name, int value);
-
 std::string GenerateInitMpzClass(std::string_view name, std::string_view value);
-
-std::string GenerateInitField(std::string_view name, int value,
-                              bool is_base_field);
 
 std::string GenerateInitField(std::string_view name, std::string_view value,
                               bool is_base_field);
 
 std::string GenerateInitExtField(std::string_view name,
-                                 absl::Span<const int> values,
-                                 bool gen_f_type_alias);
-
-std::string GenerateInitExtField(std::string_view name,
                                  absl::Span<const std::string> values,
-                                 bool gen_f_type_alias);
+                                 bool gen_f_type_alias, bool is_prime_field);
 
 }  // namespace tachyon::math
 

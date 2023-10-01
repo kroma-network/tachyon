@@ -3,6 +3,7 @@
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/flag/flag_parser.h"
+#include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
@@ -14,7 +15,7 @@ struct GenerationConfig : public build::CcWriter {
   std::string class_name;
   int degree;
   int base_field_degree;
-  std::vector<int> non_residue;
+  std::vector<std::string> non_residue;
   std::string base_field_hdr;
   std::string base_field;
   std::string mul_by_non_residue_override;
@@ -77,23 +78,26 @@ int GenerationConfig::GenerateConfigHdr() const {
   } else {
     mul_by_non_residue_fast =
         std::all_of(non_residue.begin() + 1, non_residue.end(),
-                    [](int e) { return e == 0; });
+                    [](const std::string& e) { return e == "0"; });
 
     init = math::GenerateInitExtField("kNonResidue",
                                       absl::MakeConstSpan(non_residue),
-                                      /*gen_f_type_alias=*/true);
+                                      /*gen_f_type_alias=*/true,
+                                      /*is_prime_field=*/degree != 12);
   }
 
   std::string mul_by_non_residue;
   if (!mul_by_non_residue_override.empty()) {
     mul_by_non_residue = mul_by_non_residue_override;
   } else if (mul_by_non_residue_fast) {
-    non_residue_is_minus_one = non_residue[0] == -1;
+    int64_t a_value;
+    CHECK(base::StringToInt64(non_residue[0], &a_value));
+    non_residue_is_minus_one = a_value == -1;
     std::stringstream ss;
     ss << "    BaseField ret = v;";
     ss << std::endl;
     ss << "    return ret";
-    ss << math::GenerateFastMultiplication(non_residue[0]);
+    ss << math::GenerateFastMultiplication(a_value);
     ss << ";";
     mul_by_non_residue = ss.str();
   } else {
@@ -138,7 +142,7 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::IntFlag>(&config.base_field_degree)
       .set_long_name("--base_field_degree")
       .set_required();
-  parser.AddFlag<base::Flag<std::vector<int>>>(&config.non_residue)
+  parser.AddFlag<base::Flag<std::vector<std::string>>>(&config.non_residue)
       .set_long_name("--non_residue")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.base_field_hdr)

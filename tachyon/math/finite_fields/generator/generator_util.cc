@@ -4,6 +4,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/bit_iterator.h"
@@ -52,7 +53,7 @@ std::string MpzClassToMontString(const mpz_class& v, const mpz_class& m) {
   return "";
 }
 
-std::string GenerateFastMultiplication(int value) {
+std::string GenerateFastMultiplication(int64_t value) {
   CHECK_NE(value, 0);
   bool is_negative = value < 0;
   math::BigInt<1> scalar(is_negative ? -value : value);
@@ -82,86 +83,32 @@ base::FilePath ConvertToGpuHdr(const base::FilePath& path) {
   return path.DirName().Append(basename + "_gpu.h");
 }
 
-std::string GenerateInitMpzClass(std::string_view name, int value) {
-  if (value < 0) {
-    return absl::Substitute("    $0 = -gmp::FromDecString($1);", name, -value);
-  } else {
-    return absl::Substitute("    $0 = gmp::FromDecString($1);", name, value);
-  }
-}
-
 std::string GenerateInitMpzClass(std::string_view name,
                                  std::string_view value) {
+  std::stringstream ss;
+  ss << "    " << name << " = ";
   if (base::ConsumePrefix(&value, "-")) {
-    return absl::Substitute("    $0 = -gmp::FromDecString(\"$1\");", name,
-                            value);
-  } else {
-    return absl::Substitute("    $0 = gmp::FromDecString(\"$1\");", name,
-                            value);
+    ss << "-";
   }
-}
-
-std::string GenerateInitField(std::string_view name, int value,
-                              bool is_base_field) {
-  std::string_view type = is_base_field ? "BaseField" : "ScalarField";
-  if (value < 0) {
-    return absl::Substitute("    $0 = -$1($2);", name, type, -value);
-  } else {
-    return absl::Substitute("    $0 = $1($2);", name, type, value);
-  }
+  ss << "gmp::FromDecString(\"" << value << "\");";
+  return ss.str();
 }
 
 std::string GenerateInitField(std::string_view name, std::string_view value,
                               bool is_base_field) {
-  std::string_view type = is_base_field ? "BaseField" : "ScalarField";
-  if (base::ConsumePrefix(&value, "-")) {
-    return absl::Substitute("    $0 = -$1::FromDecString(\"$2\");", name, type,
-                            value);
-  } else {
-    return absl::Substitute("    $0 = $1::FromDecString(\"$2\");", name, type,
-                            value);
-  }
-}
-
-std::string GenerateInitExtField(std::string_view name,
-                                 absl::Span<const int> values,
-                                 bool gen_f_type_alias) {
-  std::vector<std::string> init_components;
-  if (gen_f_type_alias) {
-    init_components.push_back("    using F = typename BaseField::BaseField;");
-  }
   std::stringstream ss;
-  ss << "    ";
-  ss << name;
-  ss << " = BaseField(";
-  for (size_t i = 0; i < values.size(); ++i) {
-    unsigned int abs_value;
-    if (values[i] < 0) {
-      ss << "-";
-      abs_value = -values[i];
-    } else {
-      abs_value = values[i];
-    }
-    if (abs_value == 0) {
-      ss << "F::Zero()";
-    } else if (abs_value == 1) {
-      ss << "F::One()";
-    } else {
-      ss << "F(" << abs_value << ")";
-    }
-
-    if (i != values.size() - 1) {
-      ss << ", ";
-    }
+  ss << "    " << name << " = ";
+  if (base::ConsumePrefix(&value, "-")) {
+    ss << "-";
   }
-  ss << ");";
-  init_components.push_back(ss.str());
-  return absl::StrJoin(init_components, "\n");
+  std::string_view type = is_base_field ? "BaseField" : "ScalarField";
+  ss << type << "::FromDecString(\"" << value << "\");";
+  return ss.str();
 }
 
 std::string GenerateInitExtField(std::string_view name,
                                  absl::Span<const std::string> values,
-                                 bool gen_f_type_alias) {
+                                 bool gen_f_type_alias, bool is_prime_field) {
   std::vector<std::string> init_components;
   if (gen_f_type_alias) {
     init_components.push_back("    using F = typename BaseField::BaseField;");
@@ -173,9 +120,20 @@ std::string GenerateInitExtField(std::string_view name,
   for (size_t i = 0; i < values.size(); ++i) {
     std::string_view value = values[i];
     if (base::ConsumePrefix(&value, "-")) {
-      ss << "-F::FromDecString(\"" << value << "\")";
-    } else {
+      ss << "-";
+    }
+    if (is_prime_field) {
       ss << "F::FromDecString(\"" << value << "\")";
+    } else {
+      uint64_t abs_value;
+      CHECK(base::StringToUint64(value, &abs_value));
+      if (abs_value == 0) {
+        ss << "F::Zero()";
+      } else if (abs_value == 1) {
+        ss << "F::One()";
+      } else {
+        ss << "F(" << abs_value << ")";
+      }
     }
     if (i != values.size() - 1) {
       ss << ", ";

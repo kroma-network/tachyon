@@ -8,6 +8,7 @@ tachyon_cc_library(
     hdrs = ["generator_util.h"],
     deps = [
         "//tachyon/base/files:file_path",
+        "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:big_int",
         "//tachyon/math/base:bit_iterator",

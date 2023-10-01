@@ -179,26 +179,31 @@ int GenerationConfig::GenerateConfigHdr() const {
         });
 
     a_init = math::GenerateInitExtField("kA", absl::MakeConstSpan(a),
-                                        /*gen_f_type_alias=*/true);
+                                        /*gen_f_type_alias=*/true,
+                                        /*is_prime_field=*/true);
     b_init = math::GenerateInitExtField("kB", absl::MakeConstSpan(b),
-                                        /*gen_f_type_alias=*/false);
+                                        /*gen_f_type_alias=*/false,
+                                        /*is_prime_field=*/true);
     x_init = math::GenerateInitExtField("kGenerator.x", absl::MakeConstSpan(x),
-                                        /*gen_f_type_alias=*/false);
+                                        /*gen_f_type_alias=*/false,
+                                        /*is_prime_field=*/true);
     y_init = math::GenerateInitExtField("kGenerator.y", absl::MakeConstSpan(y),
-                                        /*gen_f_type_alias=*/false);
+                                        /*gen_f_type_alias=*/false,
+                                        /*is_prime_field=*/true);
   }
 
   if (!mul_by_a_override.empty()) {
     mul_by_a = mul_by_a_override;
   } else if (mul_by_a_fast) {
-    mpz_class a_value = math::gmp::FromDecString(a[0]);
+    int64_t a_value;
+    CHECK(base::StringToInt64(a[0], &a_value));
     std::stringstream ss;
     ss << "    return ";
-    if (a_value == mpz_class(0)) {
+    if (a_value == 0) {
       a_is_zero = true;
       ss << "BaseField::Zero()";
     } else {
-      ss << math::GenerateFastMultiplication(a_value.get_si());
+      ss << math::GenerateFastMultiplication(a_value);
     }
     ss << ";";
     mul_by_a = ss.str();
@@ -232,7 +237,8 @@ int GenerationConfig::GenerateConfigHdr() const {
       endomorphism_coefficient_init = math::GenerateInitExtField(
           "kEndomorphismCoefficient",
           absl::MakeConstSpan(endomorphism_coefficient),
-          /*gen_f_type_alias=*/true);
+          /*gen_f_type_alias=*/true,
+          /*is_prime_field=*/true);
     }
     lambda_init =
         math::GenerateInitField("kLambda", lambda, /*is_base_field=*/false);

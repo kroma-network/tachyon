@@ -23,7 +23,7 @@ generate_fp2s(
     base_field_hdr = "tachyon/math/finite_fields/test/gf7.h",
     class_name = "GF7_2",
     namespace = "tachyon::math",
-    non_residue = [-1],
+    non_residue = ["-1"],
     deps = [":gf7"],
 )
 
@@ -34,6 +34,6 @@ generate_fp3s(
     base_field_hdr = "tachyon/math/finite_fields/test/gf7.h",
     class_name = "GF7_3",
     namespace = "tachyon::math",
-    non_residue = [2],
+    non_residue = ["2"],
     deps = [":gf7"],
 )
