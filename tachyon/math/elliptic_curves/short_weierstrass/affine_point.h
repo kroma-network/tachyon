@@ -18,7 +18,7 @@
 namespace tachyon::math {
 
 template <typename _Curve>
-class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
+class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
     : public AdditiveGroup<AffinePoint<_Curve>> {
  public:
   constexpr static const bool kNegationIsCheap = true;

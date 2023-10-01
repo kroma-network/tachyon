@@ -13,7 +13,7 @@
 namespace tachyon::math {
 
 template <typename Config>
-class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>>
+class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     : public QuadraticExtensionField<Fp6<Config>> {
  public:
   using BaseField = typename Config::BaseField;
@@ -32,7 +32,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>>
 };
 
 template <typename Config>
-class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>>
+class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     : public CubicExtensionField<Fp6<Config>> {
  public:
   using BaseField = typename Config::BaseField;

@@ -16,7 +16,7 @@
 namespace tachyon::math {
 
 template <typename _Curve>
-class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
+class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
     : public AdditiveGroup<PointXYZZ<_Curve>> {
  public:
   constexpr static const bool kNegationIsCheap = true;

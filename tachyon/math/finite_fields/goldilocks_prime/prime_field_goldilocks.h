@@ -19,7 +19,7 @@
 namespace tachyon::math {
 
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>>
+class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
     : public PrimeFieldBase<PrimeField<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;

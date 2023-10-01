@@ -11,7 +11,7 @@
 namespace tachyon::math {
 
 template <typename Coefficients>
-class MultivariatePolynomial
+class MultivariatePolynomial final
     : public Polynomial<MultivariatePolynomial<Coefficients>> {
  public:
   constexpr static const size_t kMaxDegree = Coefficients::kMaxDegree;

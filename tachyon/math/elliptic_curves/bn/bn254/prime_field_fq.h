@@ -33,7 +33,7 @@ template <typename Config>
 class PrimeFieldGpu;
 
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<_Config::kIsBn254Fq>>
+class PrimeField<_Config, std::enable_if_t<_Config::kIsBn254Fq>> final
     : public PrimeFieldBase<PrimeField<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;

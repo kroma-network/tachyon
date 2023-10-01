@@ -22,7 +22,8 @@ template <typename Config>
 class PrimeFieldGpu;
 
 template <typename _Config>
-class PrimeFieldGpuDebug : public PrimeFieldBase<PrimeFieldGpuDebug<_Config>> {
+class PrimeFieldGpuDebug final
+    : public PrimeFieldBase<PrimeFieldGpuDebug<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;

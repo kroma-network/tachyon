@@ -11,7 +11,7 @@
 namespace tachyon::math {
 
 template <typename Config>
-class Fp12 : public QuadraticExtensionField<Fp12<Config>> {
+class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
  public:
   using BaseField = typename Config::BaseField;
 
