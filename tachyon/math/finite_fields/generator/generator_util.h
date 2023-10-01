@@ -46,12 +46,12 @@ base::FilePath ConvertToGpuHdr(const base::FilePath& path);
 
 std::string GenerateInitMpzClass(std::string_view name, std::string_view value);
 
-std::string GenerateInitField(std::string_view name, std::string_view value,
-                              bool is_base_field);
+std::string GenerateInitField(std::string_view name, std::string_view type,
+                              std::string_view value);
 
-std::string GenerateInitExtField(std::string_view name,
+std::string GenerateInitExtField(std::string_view name, std::string_view type,
                                  absl::Span<const std::string> values,
-                                 bool gen_f_type_alias, bool is_prime_field);
+                                 bool is_prime_field);
 
 }  // namespace tachyon::math
 

@@ -74,16 +74,14 @@ int GenerationConfig::GenerateConfigHdr() const {
   if (non_residue.size() == 1) {
     mul_by_non_residue_fast = true;
 
-    init = math::GenerateInitField("kNonResidue", non_residue[0],
-                                   /*is_base_field=*/true);
+    init = math::GenerateInitField("kNonResidue", "BaseField", non_residue[0]);
   } else {
     mul_by_non_residue_fast =
         std::all_of(non_residue.begin() + 1, non_residue.end(),
                     [](const std::string& e) { return e == "0"; });
 
-    init = math::GenerateInitExtField("kNonResidue",
+    init = math::GenerateInitExtField("kNonResidue", "BaseField",
                                       absl::MakeConstSpan(non_residue),
-                                      /*gen_f_type_alias=*/true,
                                       /*is_prime_field=*/degree != 12);
   }
 

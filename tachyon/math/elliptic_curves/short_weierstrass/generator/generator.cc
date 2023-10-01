@@ -167,29 +167,25 @@ int GenerationConfig::GenerateConfigHdr() const {
   if (a.size() == 1) {
     mul_by_a_fast = true;
 
-    a_init = math::GenerateInitField("kA", a[0], /*is_base_field=*/true);
-    b_init = math::GenerateInitField("kB", b[0], /*is_base_field=*/true);
-    x_init =
-        math::GenerateInitField("kGenerator.x", x[0], /*is_base_field=*/true);
-    y_init =
-        math::GenerateInitField("kGenerator.y", y[0], /*is_base_field=*/true);
+    a_init = math::GenerateInitField("kA", "BaseField", a[0]);
+    b_init = math::GenerateInitField("kB", "BaseField", b[0]);
+    x_init = math::GenerateInitField("kGenerator.x", "BaseField", x[0]);
+    y_init = math::GenerateInitField("kGenerator.y", "BaseField", y[0]);
   } else {
     mul_by_a_fast =
         std::all_of(a.begin() + 1, a.end(), [](const std::string& a) {
           return math::gmp::FromDecString(a) == mpz_class(0);
         });
 
-    a_init = math::GenerateInitExtField("kA", absl::MakeConstSpan(a),
-                                        /*gen_f_type_alias=*/true,
+    a_init = math::GenerateInitExtField(
+        "kA", "BaseField", absl::MakeConstSpan(a), /*is_prime_field=*/true);
+    b_init = math::GenerateInitExtField(
+        "kB", "BaseField", absl::MakeConstSpan(b), /*is_prime_field=*/true);
+    x_init = math::GenerateInitExtField("kGenerator.x", "BaseField",
+                                        absl::MakeConstSpan(x),
                                         /*is_prime_field=*/true);
-    b_init = math::GenerateInitExtField("kB", absl::MakeConstSpan(b),
-                                        /*gen_f_type_alias=*/false,
-                                        /*is_prime_field=*/true);
-    x_init = math::GenerateInitExtField("kGenerator.x", absl::MakeConstSpan(x),
-                                        /*gen_f_type_alias=*/false,
-                                        /*is_prime_field=*/true);
-    y_init = math::GenerateInitExtField("kGenerator.y", absl::MakeConstSpan(y),
-                                        /*gen_f_type_alias=*/false,
+    y_init = math::GenerateInitExtField("kGenerator.y", "BaseField",
+                                        absl::MakeConstSpan(y),
                                         /*is_prime_field=*/true);
   }
 
@@ -234,17 +230,14 @@ int GenerationConfig::GenerateConfigHdr() const {
     std::string glv_coeffs_init;
     if (endomorphism_coefficient.size() == 1) {
       endomorphism_coefficient_init = math::GenerateInitField(
-          "kEndomorphismCoefficient", endomorphism_coefficient[0],
-          /*is_base_field=*/true);
+          "kEndomorphismCoefficient", "BaseField", endomorphism_coefficient[0]);
     } else {
       endomorphism_coefficient_init = math::GenerateInitExtField(
-          "kEndomorphismCoefficient",
+          "kEndomorphismCoefficient", "BaseField",
           absl::MakeConstSpan(endomorphism_coefficient),
-          /*gen_f_type_alias=*/true,
           /*is_prime_field=*/true);
     }
-    lambda_init =
-        math::GenerateInitField("kLambda", lambda, /*is_base_field=*/false);
+    lambda_init = math::GenerateInitField("kLambda", "ScalarField", lambda);
     glv_coeffs_init = absl::StrJoin(
         base::CreateVector(4,
                            [this](size_t i) {

@@ -94,45 +94,42 @@ std::string GenerateInitMpzClass(std::string_view name,
   return ss.str();
 }
 
-std::string GenerateInitField(std::string_view name, std::string_view value,
-                              bool is_base_field) {
+std::string GenerateInitField(std::string_view name, std::string_view type,
+                              std::string_view value) {
   std::stringstream ss;
   ss << "    " << name << " = ";
   if (base::ConsumePrefix(&value, "-")) {
     ss << "-";
   }
-  std::string_view type = is_base_field ? "BaseField" : "ScalarField";
   ss << type << "::FromDecString(\"" << value << "\");";
   return ss.str();
 }
 
-std::string GenerateInitExtField(std::string_view name,
+std::string GenerateInitExtField(std::string_view name, std::string_view type,
                                  absl::Span<const std::string> values,
-                                 bool gen_f_type_alias, bool is_prime_field) {
-  std::vector<std::string> init_components;
-  if (gen_f_type_alias) {
-    init_components.push_back("    using F = typename BaseField::BaseField;");
-  }
+                                 bool is_prime_field) {
   std::stringstream ss;
   ss << "    ";
   ss << name;
-  ss << " = BaseField(";
+  ss << " = ";
+  ss << type;
+  ss << "(";
   for (size_t i = 0; i < values.size(); ++i) {
     std::string_view value = values[i];
     if (base::ConsumePrefix(&value, "-")) {
       ss << "-";
     }
     if (is_prime_field) {
-      ss << "F::FromDecString(\"" << value << "\")";
+      ss << "BasePrimeField::FromDecString(\"" << value << "\")";
     } else {
       uint64_t abs_value;
       CHECK(base::StringToUint64(value, &abs_value));
       if (abs_value == 0) {
-        ss << "F::Zero()";
+        ss << "BaseField::BaseField::Zero()";
       } else if (abs_value == 1) {
-        ss << "F::One()";
+        ss << "BaseField::BaseField::One()";
       } else {
-        ss << "F(" << abs_value << ")";
+        ss << "BaseField::BaseField(" << abs_value << ")";
       }
     }
     if (i != values.size() - 1) {
@@ -140,8 +137,7 @@ std::string GenerateInitExtField(std::string_view name,
     }
   }
   ss << ");";
-  init_components.push_back(ss.str());
-  return absl::StrJoin(init_components, "\n");
+  return ss.str();
 }
 
 }  // namespace tachyon::math
