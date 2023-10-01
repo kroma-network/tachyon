@@ -209,17 +209,13 @@ int GenerationConfig::GenerateConfigHdr() const {
              math::gmp::FromDecString(small_subgroup_base).get_mpz_t(),
              math::gmp::FromDecString(small_subgroup_adicity).get_mpz_t(),
              m.get_mpz_t());
-    mpz_class inverse_small_subgroup_base_adicity;
-    mpz_invert(inverse_small_subgroup_base_adicity.get_mpz_t(),
-               small_subgroup_base_pow_adicity.get_mpz_t(), m.get_mpz_t());
-    mpz_class trace_mul_inverse_small_subgroup_base_adicity;
-    mpz_mul(trace_mul_inverse_small_subgroup_base_adicity.get_mpz_t(),
-            trace.get_mpz_t(), inverse_small_subgroup_base_adicity.get_mpz_t());
+    mpz_class remaining_subgroup_size;
+    mpz_div(remaining_subgroup_size.get_mpz_t(), trace.get_mpz_t(),
+            small_subgroup_base_pow_adicity.get_mpz_t());
     mpz_class large_subgroup_root_of_unity;
     mpz_powm(large_subgroup_root_of_unity.get_mpz_t(),
              math::gmp::FromDecString(subgroup_generator).get_mpz_t(),
-             trace_mul_inverse_small_subgroup_base_adicity.get_mpz_t(),
-             m.get_mpz_t());
+             remaining_subgroup_size.get_mpz_t(), m.get_mpz_t());
 
     std::vector<std::string> lines;
     // clang-format off
