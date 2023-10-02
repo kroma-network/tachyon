@@ -39,7 +39,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  static BaseField kNonResidue;",
       "",
       "  constexpr static bool kNonResidueIsMinusOne = %{non_residue_is_minus_one};",
-      "  constexpr static size_t kDegreeOverBaseField = %{degree_over_base_field};",
+      "  constexpr static uint64_t kDegreeOverBaseField = %{degree_over_base_field};",
       "",
       "  static BaseField MulByNonResidue(const BaseField& v) {",
       "%{mul_by_non_residue}",
