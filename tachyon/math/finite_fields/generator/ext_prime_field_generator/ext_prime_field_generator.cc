@@ -35,6 +35,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "class %{class}Config {",
       " public:",
       "  using BaseField = _BaseField;",
+      "  using BasePrimeField = %{base_prime_field};",
       "",
       "  // NOTE(chokobole): This can't be constexpr because of PrimeFieldGmp support.",
       "  static BaseField kNonResidue;",
@@ -105,20 +106,24 @@ int GenerationConfig::GenerateConfigHdr() const {
   }
 
   std::string content = absl::StrReplaceAll(
-      tpl_content, {
+      tpl_content,
+      {
 
-                       {"%{namespace}", ns_name},
-                       {"%{class}", class_name},
-                       {"%{degree}", base::NumberToString(degree)},
-                       {"%{degree_over_base_field}",
-                        base::NumberToString(degree_over_base_field)},
-                       {"%{base_field_hdr}", base_field_hdr},
-                       {"%{base_field}", base_field},
-                       {"%{non_residue_is_minus_one}",
-                        base::BoolToString(non_residue_is_minus_one)},
-                       {"%{mul_by_non_residue}", mul_by_non_residue},
-                       {"%{init}", init},
-                   });
+          {"%{namespace}", ns_name},
+          {"%{class}", class_name},
+          {"%{degree}", base::NumberToString(degree)},
+          {"%{degree_over_base_field}",
+           base::NumberToString(degree_over_base_field)},
+          {"%{base_field_hdr}", base_field_hdr},
+          {"%{base_field}", base_field},
+          {"%{base_prime_field}", degree == degree_over_base_field
+                                      ? "BaseField"
+                                      : "typename BaseField::BasePrimeField"},
+          {"%{non_residue_is_minus_one}",
+           base::BoolToString(non_residue_is_minus_one)},
+          {"%{mul_by_non_residue}", mul_by_non_residue},
+          {"%{init}", init},
+      });
   return WriteHdr(content, false);
 }
 

@@ -14,6 +14,7 @@ template <typename Config>
 class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
  public:
   using BaseField = typename Config::BaseField;
+  using BasePrimeField = typename Config::BasePrimeField;
 
   using CpuField = Fp12<Config>;
   // TODO(chokobole): Implements Fp12Gpu
