@@ -8,7 +8,7 @@ namespace {
 
 class CubicExtensionFieldTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7_3::Config::Init(); }
+  static void SetUpTestSuite() { GF7_3::Init(); }
 };
 
 }  // namespace

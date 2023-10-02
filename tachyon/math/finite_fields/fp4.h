@@ -21,6 +21,8 @@ class Fp4 : public QuadraticExtensionField<Fp4<Config>> {
   static_assert(BaseField::ExtensionDegree() == 2);
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 4;
+
+  static void Init() { Config::Init(); }
 };
 
 }  // namespace tachyon::math

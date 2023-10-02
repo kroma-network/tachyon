@@ -21,6 +21,8 @@ class Fp3 : public CubicExtensionField<Fp3<Config>> {
   static_assert(BaseField::ExtensionDegree() == 1);
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 3;
+
+  static void Init() { Config::Init(); }
 };
 
 }  // namespace tachyon::math

@@ -23,6 +23,8 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>>
   static_assert(BaseField::ExtensionDegree() == 3);
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 6;
+
+  static void Init() { Config::Init(); }
 };
 
 template <typename Config>
@@ -36,6 +38,8 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>>
   static_assert(BaseField::ExtensionDegree() == 2);
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 6;
+
+  static void Init() { Config::Init(); }
 };
 
 }  // namespace tachyon::math
