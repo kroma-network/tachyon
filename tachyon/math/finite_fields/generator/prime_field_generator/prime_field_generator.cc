@@ -173,15 +173,17 @@ int GenerationConfig::GenerateConfigHdr() const {
   if (!subgroup_generator.empty()) {
     uint32_t two_adicity = math::ComputeAdicity(2, m - mpz_class(1));
     mpz_class two_adic_root_of_unity;
+    mpz_class subgroup_generator_mpz =
+        math::gmp::FromDecString(subgroup_generator);
     mpz_powm(two_adic_root_of_unity.get_mpz_t(),
-             math::gmp::FromDecString(subgroup_generator).get_mpz_t(),
-             trace.get_mpz_t(), m.get_mpz_t());
+             subgroup_generator_mpz.get_mpz_t(), trace.get_mpz_t(),
+             m.get_mpz_t());
 
     std::vector<std::string> lines;
     // clang-format off
     lines.push_back("  constexpr static bool kHasTwoAdicRootOfUnity = true;");
-    lines.push_back("  constexpr static BigInt<1> kSubgroupGenerator = BigInt<1>({");
-    lines.push_back(absl::Substitute("      UINT64_C($0)", subgroup_generator));
+    lines.push_back("  constexpr static BigInt<%{n}> kSubgroupGenerator = BigInt<%{n}>({");
+    lines.push_back(absl::Substitute("    $0", math::MpzClassToMontString(subgroup_generator_mpz, m)));
     lines.push_back("  });");
     lines.push_back(absl::Substitute("  constexpr static uint32_t kTwoAdicity = $0;", two_adicity));
     lines.push_back("  constexpr static BigInt<%{n}> kTwoAdicRootOfUnity = BigInt<%{n}>({");
