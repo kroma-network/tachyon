@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "absl/numeric/internal/bits.h"
+#include "absl/types/span.h"
 
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/logging.h"
