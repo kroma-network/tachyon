@@ -1,0 +1,43 @@
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+
+package(default_visibility = ["//visibility:public"])
+
+# Parameters are from https://github.com/arkworks-rs/algebra/blob/master/test-curves/src/bn384_small_two_adicity/fq.rs
+# Hex: 0x26a192ce09033aefd13bdbf17786104ad304fe31dc79b326e86a281d61074bec649bdd411682c645207c4e269a431001
+FQ_MODULUS = "5945877603251831796258517492029536515488649313567122628447476625319762940580461319088175968449723373773214087057409"
+
+FQ_SUBGROUP_GENERATOR = "7"
+
+FQ_SMALL_SUBGROUP_BASE = "3"
+
+FQ_SMALL_SUBGROUP_ADICITY = "2"
+
+# Parameters are from https://github.com/arkworks-rs/algebra/blob/master/test-curves/src/bn384_small_two_adicity/fr.rs
+# Hex: 0x26a192ce09033aefd13bdbf17786104ad304fe31dc79b32684f7e52225e599a5b91f07ba93282245f13a3723b4c31001
+FR_MODULUS = "5945877603251831796258517492029536515488649313567122628445038208291596545947608789992834434053176523624102324539393"
+
+FR_SUBGROUP_GENERATOR = "5"
+
+FR_SMALL_SUBGROUP_BASE = "3"
+
+FR_SMALL_SUBGROUP_ADICITY = "2"
+
+generate_prime_fields(
+    name = "fq",
+    class_name = "Fq",
+    modulus = FQ_MODULUS,
+    namespace = "tachyon::math::bn384_small_two_adicity",
+    small_subgroup_adicity = FQ_SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = FQ_SMALL_SUBGROUP_BASE,
+    subgroup_generator = FQ_SUBGROUP_GENERATOR,
+)
+
+generate_prime_fields(
+    name = "fr",
+    class_name = "Fr",
+    modulus = FR_MODULUS,
+    namespace = "tachyon::math::bn384_small_two_adicity",
+    small_subgroup_adicity = FR_SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = FR_SMALL_SUBGROUP_BASE,
+    subgroup_generator = FR_SUBGROUP_GENERATOR,
+)
