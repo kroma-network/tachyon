@@ -7,7 +7,7 @@ load(
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
-    "tachyon_cc_test",
+    "tachyon_cc_unittest",
     "tachyon_objc_library",
 )
 
@@ -127,9 +127,8 @@ tachyon_cc_library(
     deps = [":file_util"],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "files_unittests",
-    size = "small",
     srcs = [
         "file_enumerator_unittest.cc",
         "file_path_unittest.cc",

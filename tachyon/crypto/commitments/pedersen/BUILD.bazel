@@ -1,7 +1,7 @@
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
-    "tachyon_cc_test",
+    "tachyon_cc_unittest",
 )
 
 tachyon_cc_library(
@@ -13,9 +13,8 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "pedersen_unittests",
-    size = "small",
     srcs = ["pedersen_unittest.cc"],
     deps = [
         ":pedersen",

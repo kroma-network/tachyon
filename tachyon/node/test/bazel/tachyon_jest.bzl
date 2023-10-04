@@ -11,3 +11,13 @@ def tachyon_jest_test(
         node_modules = node_modules,
         **kwargs
     )
+
+def tachyon_jest_unittest(
+        name,
+        size = "small",
+        **kwargs):
+    tachyon_jest_test(
+        name = name,
+        size = size,
+        **kwargs
+    )

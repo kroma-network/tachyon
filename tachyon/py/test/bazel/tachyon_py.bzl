@@ -35,3 +35,11 @@ def tachyon_py_test(
         srcs_version = srcs_version,
         **kwargs
     )
+
+def tachyon_py_unittest(
+        name,
+        **kwargs):
+    py_test(
+        name = name + "_unittests",
+        **kwargs
+    )

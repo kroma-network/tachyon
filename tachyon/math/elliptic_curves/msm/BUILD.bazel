@@ -2,8 +2,8 @@ load("//bazel:tachyon.bzl", "if_gmp_backend", "if_gpu_is_configured")
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
-    "tachyon_cc_test",
-    "tachyon_cuda_test",
+    "tachyon_cc_unittest",
+    "tachyon_cuda_unittest",
 )
 
 package(default_visibility = ["//visibility:public"])
@@ -42,9 +42,8 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "msm_unittests",
-    size = "small",
     srcs = [
         "variable_base_msm_unittest.cc",
     ] + if_gmp_backend([
@@ -58,9 +57,8 @@ tachyon_cc_test(
     ],
 )
 
-tachyon_cuda_test(
+tachyon_cuda_unittest(
     name = "msm_gpu_unittests",
-    size = "small",
     srcs = if_gpu_is_configured(["variable_base_msm_gpu_unittest.cc"]),
     deps = [
         ":variable_base_msm_gpu",

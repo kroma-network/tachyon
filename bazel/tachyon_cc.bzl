@@ -138,6 +138,16 @@ def tachyon_cc_test(
         **kwargs
     )
 
+def tachyon_cc_unittest(
+        name,
+        size = "small",
+        **kwargs):
+    tachyon_cc_test(
+        name = name,
+        size = size,
+        **kwargs
+    )
+
 def tachyon_cc_benchmark(
         name,
         copts = [],
@@ -316,6 +326,16 @@ def tachyon_cuda_test(
         tags = tags + ["cuda"],
         size = size,
         deps = [":" + lib_name],
+    )
+
+def tachyon_cuda_unittest(
+        name,
+        size = "small",
+        **kwargs):
+    tachyon_cuda_test(
+        name = name,
+        size = size,
+        **kwargs
     )
 
 def _get_hdrs(hdrs, deps):

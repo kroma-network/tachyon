@@ -2,7 +2,7 @@ load("//bazel:tachyon.bzl", "if_macos")
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
-    "tachyon_cc_test",
+    "tachyon_cc_unittest",
     "tachyon_objc_library",
 )
 
@@ -89,9 +89,8 @@ tachyon_objc_library(
     alwayslink = True,
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "strings_unittests",
-    size = "small",
     srcs = [
         "string_number_conversions_unittest.cc",
         "string_util_unittest.cc",

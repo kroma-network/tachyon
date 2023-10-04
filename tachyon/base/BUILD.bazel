@@ -1,5 +1,5 @@
 load("//bazel:tachyon.bzl", "if_posix")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -110,9 +110,8 @@ tachyon_cc_library(
     hdrs = ["type_list.h"],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "base_unittests",
-    size = "small",
     srcs = [
         "bit_cast_unittest.cc",
         "bits_unittest.cc",

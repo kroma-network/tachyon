@@ -1,5 +1,5 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
-load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library", "tachyon_cuda_test")
+load("//bazel:tachyon_cc.bzl", "tachyon_cuda_library", "tachyon_cuda_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -31,9 +31,8 @@ tachyon_cuda_library(
     ]),
 )
 
-tachyon_cuda_test(
+tachyon_cuda_unittest(
     name = "cuda_unittests",
-    size = "small",
     srcs = [
         "cuda_driver_unittest.cc",
     ],

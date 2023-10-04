@@ -1,7 +1,7 @@
 load("@pip_deps//:requirements.bzl", "requirement")
-load("//bazel:tachyon_py.bzl", "tachyon_py_test")
+load("//bazel:tachyon_py.bzl", "tachyon_py_unittest")
 
-tachyon_py_test(
+tachyon_py_unittest(
     name = "finite_fields_unittests",
     srcs = [
         "finite_fields_unittests.py",

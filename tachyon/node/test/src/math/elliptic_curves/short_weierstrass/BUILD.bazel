@@ -1,8 +1,8 @@
 load("//bazel:tachyon_ts.bzl", "tachyon_ts_project")
-load("//bazel:tachyon_jest.bzl", "tachyon_jest_test")
+load("//bazel:tachyon_jest.bzl", "tachyon_jest_unittest")
 
 tachyon_ts_project(
-    name = "short_weierstrass_ts",
+    name = "short_weierstrass",
     testonly = True,
     srcs = [
         "affine_point.spec.ts",
@@ -13,7 +13,7 @@ tachyon_ts_project(
     data = ["@kroma_network_tachyon//tachyon/node:tachyon"],
 )
 
-tachyon_jest_test(
-    name = "short_weierstrass",
-    data = [":short_weierstrass_ts"],
+tachyon_jest_unittest(
+    name = "short_weierstrass_unittests",
+    data = [":short_weierstrass"],
 )
