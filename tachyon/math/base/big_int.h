@@ -33,6 +33,8 @@ constexpr size_t LimbsAlignment(size_t x) {
 
 }  // namespace internal
 
+// BigInt is a fixed size array of uint64_t, capable of holding up to |N| limbs,
+// designed to support a wide range of big integer arithmetic operations.
 template <size_t N>
 struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   uint64_t limbs[N] = {
@@ -78,6 +80,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
 
   constexpr static BigInt One() { return BigInt(1); }
 
+  // Returns the maximum representable value for BigInt.
   constexpr static BigInt Max() {
     BigInt ret;
     for (uint64_t& limb : ret.limbs) {
@@ -86,6 +89,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Generate a random BigInt between [0, |max|).
   constexpr static BigInt Random(const BigInt& max = Max()) {
     BigInt ret;
     for (size_t i = 0; i < N; ++i) {
@@ -98,18 +102,22 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Convert a decimal string to a BigInt.
   constexpr static BigInt FromDecString(std::string_view str) {
     BigInt ret;
     CHECK(internal::StringToLimbs(str, ret.limbs, N));
     return ret;
   }
 
+  // Convert a hexadecimal string to a BigInt.
   constexpr static BigInt FromHexString(std::string_view str) {
     BigInt ret;
     CHECK(internal::HexStringToLimbs(str, ret.limbs, N));
     return ret;
   }
 
+  // Constructs a BigInt value from a given array of bits in little-endian
+  // order.
   template <size_t BitNums = kBitNums>
   constexpr static BigInt FromBitsLE(const std::bitset<BitNums>& bits) {
     static_assert(BitNums <= kBitNums);
@@ -136,6 +144,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Constructs a BigInt value from a given array of bits in big-endian order.
   template <size_t BitNums = kBitNums>
   constexpr static BigInt FromBitsBE(const std::bitset<BitNums>& bits) {
     static_assert(BitNums <= kBitNums);
@@ -162,6 +171,8 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Constructs a BigInt value from a given array of bytes in little-endian
+  // order.
   constexpr static BigInt FromBytesLE(const std::vector<uint8_t>& bytes) {
     BigInt ret;
     size_t byte_idx = 0;
@@ -184,6 +195,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Constructs a BigInt value from a given array of bytes in big-endian order.
   constexpr static BigInt FromBytesBE(const std::vector<uint8_t>& bytes) {
     BigInt ret;
     size_t byte_idx = 0;
@@ -218,6 +230,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return FromMontgomery(value, modulus, inverse);
   }
 
+  // Extend the current |N| size BigInt to a larger |N2| size.
   template <size_t N2>
   constexpr BigInt<N2> Extend() const {
     static_assert(N2 > N);
@@ -228,6 +241,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Shrink the current |N| size BigInt to a smaller |N2| size.
   template <size_t N2>
   constexpr BigInt<N2> Shrink() const {
     static_assert(N2 < N);
@@ -238,6 +252,10 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Clamp the BigInt value with respect to a modulus.
+  // If the value is larger than or equal to the modulus, then the modulus is
+  // subtracted from the value. The function considers a spare bit in the
+  // modulus based on the template parameter.
   template <bool ModulusHasSpareBit>
   constexpr static void Clamp(const BigInt& modulus, BigInt* value,
                               [[maybe_unused]] bool carry = false) {
@@ -283,20 +301,26 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   constexpr bool IsEven() const { return limbs[kSmallestLimbIdx] % 2 == 0; }
   constexpr bool IsOdd() const { return limbs[kSmallestLimbIdx] % 2 == 1; }
 
+  // Return the largest (most significant) limb of the BigInt.
   constexpr uint64_t& biggest_limb() { return limbs[kBiggestLimbIdx]; }
   constexpr const uint64_t& biggest_limb() const {
     return limbs[kBiggestLimbIdx];
   }
 
+  // Return the smallest (least significant) limb of the BigInt.
   constexpr uint64_t& smallest_limb() { return limbs[kSmallestLimbIdx]; }
   constexpr const uint64_t& smallest_limb() const {
     return limbs[kSmallestLimbIdx];
   }
 
+  // Extracts a specified number of bits starting from a given bit offset and
+  // returns them as a uint64_t.
   constexpr uint64_t ExtractBits64(size_t bit_offset, size_t bit_count) const {
     return ExtractBits<uint64_t>(bit_offset, bit_count);
   }
 
+  // Extracts a specified number of bits starting from a given bit offset and
+  // returns them as a uint32_t.
   constexpr uint32_t ExtractBits32(size_t bit_offset, size_t bit_count) const {
     return ExtractBits<uint32_t>(bit_offset, bit_count);
   }
@@ -627,6 +651,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return internal::LimbsToHexString(limbs, N);
   }
 
+  // Converts the BigInt to a bit array in little-endian.
   template <size_t BitNums = kBitNums>
   std::bitset<BitNums> ToBitsLE() const {
     std::bitset<BitNums> ret;
@@ -641,6 +666,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Converts the BigInt to a bit array in big-endian.
   template <size_t BitNums = kBitNums>
   std::bitset<BitNums> ToBitsBE() const {
     std::bitset<BitNums> ret;
@@ -655,6 +681,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Converts the BigInt to a byte array in little-endian.
   std::vector<uint8_t> ToBytesLE() const {
     std::vector<uint8_t> ret;
     ret.reserve(kByteNums);
@@ -667,6 +694,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
+  // Converts the BigInt to a byte array in big-endian.
   std::vector<uint8_t> ToBytesBE() const {
     std::vector<uint8_t> ret;
     ret.reserve(kByteNums);
@@ -781,6 +809,14 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret & mask;
   }
 
+  // Montgomery arithmetic is a technique that allows modular arithmetic to be
+  // done more efficiently, by avoiding the need for explicit divisions.
+  // See https://en.wikipedia.org/wiki/Montgomery_modular_multiplication
+
+  // Converts a BigInt value from the Montgomery domain back to the standard
+  // domain. |FromMontgomery()| performs the Montgomery reduction algorithm to
+  // transform a value from the Montgomery domain back to its standard
+  // representation.
   template <typename T>
   constexpr static BigInt FromMontgomery(const BigInt<N>& value,
                                          const BigInt<N>& modulus, T inverse) {
@@ -810,6 +846,28 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return r;
   }
 
+  // Performs Montgomery reduction on a doubled-sized BigInt, and populates
+  // |out| with the result.
+
+  // Inputs:
+  // - r: A BigInt representing a value (typically A x B) in Montgomery form.
+  // - modulus: The modulus M against which we're performing arithmetic.
+  // - inverse: The multiplicative inverse of the radix w.r.t. the modulus.
+
+  // Operation:
+  // 1. For each limb of r:
+  //    - Compute a tmp = r(current limb) * inverse.
+  //      This value aids in eliminating the lowest limb of r when multiplied by
+  //      the modulus.
+  //    - Incrementally add tmp * (modulus to r), effectively canceling out its
+  //      current lowest limb.
+  //
+  // 2. After iterating over all limbs, the higher half of r is the
+  //    Montgomery-reduced result of the original operation (like A x B). This
+  //    result remains in the Montgomery domain.
+  //
+  // 3. Apply a final correction (if necessary) to ensure the result is less
+  //    than |modulus|.
   template <bool ModulusHasSpareBit, typename T>
   constexpr static void MontgomeryReduce(BigInt<2 * N>& r,
                                          const BigInt& modulus, T inverse,

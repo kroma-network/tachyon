@@ -8,9 +8,21 @@
 
 namespace tachyon::math {
 
+// Ring is a set S with operations + and * that satisfies the followings:
+// 1. Additive associativity: (a + b) + c = a + (b + c)
+// 2. Additive commutativity: a + b = b + a
+// 3. Additive identity: a + 0 = 0 + a = a
+// 4. Additive inverse: a + (-a) = (-a) + a = 0
+// 5. Distributivity: a * (b + c) = (a * b) + (a * c)
+// 6. Multiplicative associativity: (a * b) * c = a * (b * c)
+// See https://mathworld.wolfram.com/Ring.html
+
+// The Ring supports SumOfProducts, inheriting the properties of both
+// AdditiveGroup and MultiplicativeSemigroup.
 template <typename F>
 class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
  public:
+  // Sum of products: a₁ * b₁ + a₂ * b₂ + ... + aₙ * bₙ
   template <
       typename InputIterator,
       std::enable_if_t<std::is_same_v<F, base::iter_value_t<InputIterator>>>* =
