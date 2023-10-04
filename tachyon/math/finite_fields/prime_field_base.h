@@ -42,13 +42,11 @@ class PrimeFieldBase : public Field<F> {
     F omega;
     if constexpr (Config::kHasLargeSubgroupRootOfUnity) {
       uint32_t q_adicity =
-          ComputeAdicity(Config::kSmallSubgroupBase,
-                         gmp::FromDecString(base::NumberToString(n)));
+          ComputeAdicity(Config::kSmallSubgroupBase, gmp::FromUnsignedInt(n));
       uint64_t q_part = static_cast<uint64_t>(
           std::pow(Config::kSmallSubgroupBase, q_adicity));
 
-      uint32_t two_adicity =
-          ComputeAdicity(2, gmp::FromDecString(base::NumberToString(n)));
+      uint32_t two_adicity = ComputeAdicity(2, gmp::FromUnsignedInt(n));
       uint64_t two_part = static_cast<uint64_t>(std::pow(2, two_adicity));
 
       if (n != two_part * q_part || two_adicity > Config::kTwoAdicity ||
