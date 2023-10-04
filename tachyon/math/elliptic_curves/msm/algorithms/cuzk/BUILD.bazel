@@ -3,7 +3,7 @@ load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
     "tachyon_cuda_library",
-    "tachyon_cuda_test",
+    "tachyon_cuda_unittest",
 )
 
 package(default_visibility = ["//visibility:public"])
@@ -53,9 +53,8 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cuda_test(
+tachyon_cuda_unittest(
     name = "algorithms_gpu_unittests",
-    size = "small",
     srcs = if_gpu_is_configured(["cuzk_unittest.cc"]),
     deps = [
         ":cuzk",

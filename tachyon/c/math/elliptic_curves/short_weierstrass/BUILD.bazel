@@ -1,8 +1,7 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_test")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_unittest")
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "short_weierstrass_unittests",
-    size = "small",
     srcs = [
         "affine_point_unittest.cc",
         "jacobian_point_unittest.cc",

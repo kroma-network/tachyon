@@ -11,7 +11,7 @@ load(
     "collect_hdrs",
     "tachyon_cc_library",
     "tachyon_cc_shared_library",
-    "tachyon_cc_test",
+    "tachyon_cc_unittest",
 )
 load("//tachyon/build:version.bzl", "write_version_header")
 
@@ -43,9 +43,8 @@ tachyon_cc_library(
     deps = [":export"],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "cc_unittests",
-    size = "small",
     srcs = [
         "version_unittest.cc",
     ],

@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -24,9 +24,8 @@ tachyon_cc_library(
     deps = [":color"],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "color_unittests",
-    size = "small",
     srcs = [
         "color_conversions_unittest.cc",
         "color_unittest.cc",
