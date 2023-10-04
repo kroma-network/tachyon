@@ -2,7 +2,7 @@
 
 namespace tachyon::math {
 
-// The integer s such that |n| = |k|^s * t for some odd integer t.
+// The integer s such that |n| = |k|ˢ * t for some odd integer t.
 uint32_t ComputeAdicity(uint32_t k, mpz_class n) {
   uint32_t adicity = 0;
   while (n > 1) {
@@ -16,7 +16,7 @@ uint32_t ComputeAdicity(uint32_t k, mpz_class n) {
   return adicity;
 }
 
-// The integer t such that |n| = |k|^s * t for some odd integer t.
+// The integer t such that |n| = |k|ˢ * t for some odd integer t.
 mpz_class ComputeTrace(size_t k, mpz_class n) {
   mpz_class trace = 0;
   while (n > 1) {

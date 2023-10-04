@@ -370,7 +370,7 @@ TEST(TimeDelta, MaxConversions) {
 
   static_assert(
       Microseconds(max_d).is_max(),
-      "Make sure that 2^63 correctly gets clamped to `max` (crbug.com/612601)");
+      "Make sure that 2⁶³ correctly gets clamped to `max` (crbug.com/612601)");
 
   static_assert(Milliseconds(std::numeric_limits<double>::infinity()).is_max());
 

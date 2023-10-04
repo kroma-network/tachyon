@@ -49,18 +49,18 @@ class Modulus {
         .template Shrink<N>();
   }
 
-  // Compute -M^{-1} mod 2^B.
+  // Compute -M⁻¹ mod 2ᴮ.
   template <typename T, size_t B = 8 * sizeof(T),
             std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>
   constexpr static T Inverse(const BigInt<N>& modulus) {
     // We compute this as follows.
-    // First, modulus mod 2^B is just the lower B bits of modulus.
-    // Hence modulus mod 2^B = modulus[0] mod 2^B.
+    // First, modulus mod 2ᴮ is just the lower B bits of modulus.
+    // Hence modulus mod 2ᴮ = modulus[0] mod 2ᴮ.
     //
-    // Next, computing the inverse mod 2^B involves exponentiating by
-    // the multiplicative group order, which is euler_totient(2^B) - 1.
-    // Now, euler_totient(2^B) = 1 << (B - 1), and so
-    // euler_totient(2^B) - 1 = (1 << (B - 1)) - 1 = 1111111... ((B - 1)
+    // Next, computing the inverse mod 2ᴮ involves exponentiating by
+    // the multiplicative group order, which is euler_totient(2ᴮ) - 1.
+    // Now, euler_totient(2ᴮ) = 1 << (B - 1), and so
+    // euler_totient(2ᴮ) - 1 = (1 << (B - 1)) - 1 = 1111111... ((B - 1)
     // digits). We compute this powering via standard square and multiply.
     T inv = 1;
     for (size_t i = 0; i < (B - 1); ++i) {

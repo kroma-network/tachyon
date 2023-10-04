@@ -61,7 +61,7 @@ bool MSMConfig::Parse(int argc, char** argv,
   parser.AddFlag<base::Flag<std::vector<uint64_t>>>(&degrees_)
       .set_short_name("-n")
       .set_required()
-      .set_help("Specify the exponent 'n' where the number of points to test is 2^n.");
+      .set_help("Specify the exponent 'n' where the number of points to test is 2ⁿ.");
   // clang-format on
   parser.AddFlag<base::BoolFlag>(&check_results_)
       .set_long_name("--check_results")
