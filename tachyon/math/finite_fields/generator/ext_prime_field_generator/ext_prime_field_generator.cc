@@ -46,6 +46,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  }",
       "",
       "  static void Init() {",
+      "    BaseField::Init();",
       "%{init}",
       "  }",
       "};",

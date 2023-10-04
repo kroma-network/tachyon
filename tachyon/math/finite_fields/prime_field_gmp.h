@@ -32,6 +32,7 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
+  using MontgomeryTy = BigInt<N>;
   using value_type = mpz_class;
 
   using CpuField = PrimeFieldGmp<Config>;
@@ -79,8 +80,8 @@ class PrimeFieldGmp : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
     return PrimeFieldGmp(std::move(out));
   }
 
-  static PrimeFieldGmp FromMontgomery(const BigInt<N>& big_int) {
-    return FromBigInt(BigInt<N>::FromMontgomery64(big_int, Config::kModulus,
+  static PrimeFieldGmp FromMontgomery(const MontgomeryTy& mont) {
+    return FromBigInt(BigInt<N>::FromMontgomery64(mont, Config::kModulus,
                                                   Config::kInverse64));
   }
 

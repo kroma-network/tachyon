@@ -14,28 +14,40 @@ namespace tachyon::math {
 
 template <typename Config>
 class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>>
-    : public CubicExtensionField<Fp6<Config>> {
- public:
-  using BaseField = typename Config::BaseField;
-
-  using CubicExtensionField<Fp6<Config>>::CubicExtensionField;
-
-  static_assert(BaseField::ExtensionDegree() == 3);
-
-  constexpr static uint64_t kDegreeOverBasePrimeField = 6;
-};
-
-template <typename Config>
-class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>>
     : public QuadraticExtensionField<Fp6<Config>> {
  public:
   using BaseField = typename Config::BaseField;
 
+  using CpuField = Fp6<Config>;
+  // TODO(chokobole): Implements Fp6Gpu
+  using GpuField = Fp6<Config>;
+
   using QuadraticExtensionField<Fp6<Config>>::QuadraticExtensionField;
+
+  static_assert(BaseField::ExtensionDegree() == 3);
+
+  constexpr static uint64_t kDegreeOverBasePrimeField = 6;
+
+  static void Init() { Config::Init(); }
+};
+
+template <typename Config>
+class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>>
+    : public CubicExtensionField<Fp6<Config>> {
+ public:
+  using BaseField = typename Config::BaseField;
+
+  using CpuField = Fp6<Config>;
+  // TODO(chokobole): Implements Fp6Gpu
+  using GpuField = Fp6<Config>;
+
+  using CubicExtensionField<Fp6<Config>>::CubicExtensionField;
 
   static_assert(BaseField::ExtensionDegree() == 2);
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 6;
+
+  static void Init() { Config::Init(); }
 };
 
 }  // namespace tachyon::math

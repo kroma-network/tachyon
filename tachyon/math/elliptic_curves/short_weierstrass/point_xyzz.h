@@ -9,7 +9,6 @@
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/curve_config.h"
-#include "tachyon/math/elliptic_curves/msm/glv.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/geometry/point4.h"
@@ -65,7 +64,10 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
 
   constexpr static PointXYZZ Zero() { return PointXYZZ(); }
 
-  constexpr static PointXYZZ Generator() { return Curve::Generator().ToXYZZ(); }
+  constexpr static PointXYZZ Generator() {
+    return {Curve::Config::kGenerator.x, Curve::Config::kGenerator.y,
+            BaseField::One(), BaseField::One()};
+  }
 
   constexpr static PointXYZZ FromAffine(const AffinePoint<Curve>& point) {
     return point.ToXYZZ();
@@ -81,7 +83,7 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static PointXYZZ FromMontgomery(
-      const Point4<typename BaseField::BigIntTy>& point) {
+      const Point4<typename BaseField::MontgomeryTy>& point) {
     return {
         BaseField::FromMontgomery(point.x), BaseField::FromMontgomery(point.y),
         BaseField::FromMontgomery(point.z), BaseField::FromMontgomery(point.w)};
@@ -92,7 +94,7 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
   }
 
   constexpr static PointXYZZ Endomorphism(const PointXYZZ& point) {
-    return PointXYZZ(point.x_ * GLV<PointXYZZ>::EndomorphismCoefficient(),
+    return PointXYZZ(point.x_ * Curve::Config::kEndomorphismCoefficient,
                      point.y_, point.zz_, point.zzz_);
   }
 
@@ -168,7 +170,7 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
     }
   }
 
-  constexpr Point4<typename BaseField::BigIntTy> ToMontgomery() const {
+  constexpr Point4<typename BaseField::MontgomeryTy> ToMontgomery() const {
     return {x_.ToMontgomery(), y_.ToMontgomery(), zz_.ToMontgomery(),
             zzz_.ToMontgomery()};
   }

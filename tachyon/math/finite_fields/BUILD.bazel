@@ -21,6 +21,7 @@ tachyon_cc_library(
     deps = [
         ":cubic_extension_field_traits",
         "//tachyon/math/base:field",
+        "//tachyon/math/geometry:point3",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -271,6 +272,7 @@ tachyon_cc_library(
     deps = [
         ":quadratic_extension_field_traits",
         "//tachyon/math/base:field",
+        "//tachyon/math/geometry:point2",
         "@com_google_absl//absl/strings",
     ],
 )

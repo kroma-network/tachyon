@@ -8,7 +8,7 @@ namespace {
 
 class QuadraticExtensionFieldTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7_2::Config::Init(); }
+  static void SetUpTestSuite() { GF7_2::Init(); }
 };
 
 }  // namespace

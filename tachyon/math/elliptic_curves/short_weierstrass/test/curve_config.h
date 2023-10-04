@@ -28,14 +28,24 @@ class CurveConfig {
 
   constexpr static bool kAIsZero = true;
 
-  // A: Mont(0)
-  constexpr static BigInt<1> kA = BigInt<1>(0);
-  // B: Mont(5)
-  constexpr static BigInt<1> kB = BigInt<1>(3);
-  // Generator: (Mont(5), Mont(5))
-  constexpr static Point2<BigInt<1>> kGenerator =
-      Point2<BigInt<1>>(BigInt<1>(3), BigInt<1>(3));
+  static BaseField kA;
+  static BaseField kB;
+  static Point2<BaseField> kGenerator;
+
+  static void Init() {
+    kA = BaseField::Zero();
+    kB = BaseField(5);
+    kGenerator.x = BaseField(5);
+    kGenerator.y = BaseField(5);
+  }
 };
+
+template <typename BaseField, typename ScalarField>
+BaseField CurveConfig<BaseField, ScalarField>::kA;
+template <typename BaseField, typename ScalarField>
+BaseField CurveConfig<BaseField, ScalarField>::kB;
+template <typename BaseField, typename ScalarField>
+Point2<BaseField> CurveConfig<BaseField, ScalarField>::kGenerator;
 
 using AffinePoint = math::AffinePoint<SWCurve<CurveConfig<GF7, GF7>>>;
 using ProjectivePoint = math::ProjectivePoint<SWCurve<CurveConfig<GF7, GF7>>>;

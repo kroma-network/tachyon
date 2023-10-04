@@ -30,30 +30,18 @@ class SWCurve {
 
   constexpr static bool kIsSWCurve = true;
 
-  constexpr static BaseField A() {
-    return BaseField::FromMontgomery(Config::kA);
-  }
-
-  constexpr static BaseField B() {
-    return BaseField::FromMontgomery(Config::kB);
-  }
-
-  constexpr static JacobianPointTy Generator() {
-    return JacobianPointTy(BaseField::FromMontgomery(Config::kGenerator.x),
-                           BaseField::FromMontgomery(Config::kGenerator.y),
-                           BaseField::One());
-  }
-
   static void Init() {
     BaseField::Init();
     ScalarField::Init();
+
+    Config::Init();
   }
 
   constexpr static bool IsOnCurve(const AffinePointTy& point) {
     if (point.infinity()) return false;
-    BaseField right = point.x().Square() * point.x() + B();
+    BaseField right = point.x().Square() * point.x() + Config::kB;
     if constexpr (!Config::kAIsZero) {
-      right += A() * point.x();
+      right += Config::kA * point.x();
     }
     return point.y().Square() == right;
   }
@@ -62,9 +50,9 @@ class SWCurve {
     if (point.z().IsZero()) return false;
     BaseField z2 = point.z().Square();
     BaseField z3 = z2 * point.z();
-    BaseField right = point.x().Square() * point.x() + B() * z3;
+    BaseField right = point.x().Square() * point.x() + Config::kB * z3;
     if constexpr (!Config::kAIsZero) {
-      right += A() * point.x() * z2;
+      right += Config::kA * point.x() * z2;
     }
     return point.y().Square() * point.z() == right;
   }
@@ -72,9 +60,9 @@ class SWCurve {
   constexpr static bool IsOnCurve(const JacobianPointTy& point) {
     if (point.z().IsZero()) return false;
     BaseField z3 = point.z().Square() * point.z();
-    BaseField right = point.x().Square() * point.x() + B() * z3.Square();
+    BaseField right = point.x().Square() * point.x() + Config::kB * z3.Square();
     if constexpr (!Config::kAIsZero) {
-      right += A() * point.x() * z3 * point.z();
+      right += Config::kA * point.x() * z3 * point.z();
     }
     return point.y().Square() == right;
   }
@@ -82,9 +70,9 @@ class SWCurve {
   constexpr static bool IsOnCurve(const PointXYZZTy& point) {
     if (point.zzz().IsZero()) return false;
     BaseField right =
-        point.x().Square() * point.x() + B() * point.zzz().Square();
+        point.x().Square() * point.x() + Config::kB * point.zzz().Square();
     if constexpr (!Config::kAIsZero) {
-      right += A() * point.x() * point.zz().Square();
+      right += Config::kA * point.x() * point.zz().Square();
     }
     return point.y().Square() == right;
   }

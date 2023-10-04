@@ -31,6 +31,7 @@ class PrimeFieldGpuDebug : public PrimeFieldBase<PrimeFieldGpuDebug<_Config>> {
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
+  using MontgomeryTy = BigInt<N>;
   using value_type = BigInt<N>;
 
   using CpuField = PrimeFieldGpuDebug<Config>;
@@ -77,9 +78,9 @@ class PrimeFieldGpuDebug : public PrimeFieldBase<PrimeFieldGpuDebug<_Config>> {
     return PrimeFieldGpuDebug(big_int);
   }
 
-  constexpr static PrimeFieldGpuDebug FromMontgomery(const BigInt<N>& big_int) {
+  constexpr static PrimeFieldGpuDebug FromMontgomery(const MontgomeryTy& mont) {
     PrimeFieldGpuDebug ret;
-    ret.value_ = big_int;
+    ret.value_ = mont;
     return ret;
   }
 

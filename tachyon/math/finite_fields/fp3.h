@@ -15,12 +15,18 @@ class Fp3 : public CubicExtensionField<Fp3<Config>> {
  public:
   using BaseField = typename Config::BaseField;
 
+  using CpuField = Fp3<Config>;
+  // TODO(chokobole): Implements Fp3Gpu
+  using GpuField = Fp3<Config>;
+
   using CubicExtensionField<Fp3<Config>>::CubicExtensionField;
 
   static_assert(Config::kDegreeOverBaseField == 3);
   static_assert(BaseField::ExtensionDegree() == 1);
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 3;
+
+  static void Init() { Config::Init(); }
 };
 
 }  // namespace tachyon::math

@@ -10,6 +10,7 @@
 
 #include "tachyon/math/base/field.h"
 #include "tachyon/math/finite_fields/cubic_extension_field_traits.h"
+#include "tachyon/math/geometry/point3.h"
 
 namespace tachyon::math {
 
@@ -18,6 +19,7 @@ class CubicExtensionField : public Field<CubicExtensionField<Derived>> {
  public:
   using Config = typename CubicExtensionFieldTraits<Derived>::Config;
   using BaseField = typename Config::BaseField;
+  using MontgomeryTy = Point3<typename BaseField::MontgomeryTy>;
 
   constexpr CubicExtensionField() = default;
   constexpr CubicExtensionField(const BaseField& c0, const BaseField& c1,
@@ -38,6 +40,12 @@ class CubicExtensionField : public Field<CubicExtensionField<Derived>> {
     return {BaseField::Random(), BaseField::Random(), BaseField::Random()};
   }
 
+  constexpr static Derived FromMontgomery(const MontgomeryTy& mont) {
+    return {BaseField::FromMontgomery(mont.x),
+            BaseField::FromMontgomery(mont.y),
+            BaseField::FromMontgomery(mont.z)};
+  }
+
   constexpr bool IsZero() const {
     return c0_.IsZero() && c1_.IsZero() && c2_.IsZero();
   }
@@ -48,6 +56,10 @@ class CubicExtensionField : public Field<CubicExtensionField<Derived>> {
 
   constexpr static uint64_t ExtensionDegree() {
     return 3 * BaseField::ExtensionDegree();
+  }
+
+  constexpr MontgomeryTy ToMontgomery() const {
+    return {c0_.ToMontgomery(), c1_.ToMontgomery(), c2_.ToMontgomery()};
   }
 
   std::string ToString() const {

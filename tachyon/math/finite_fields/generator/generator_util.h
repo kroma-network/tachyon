@@ -5,6 +5,7 @@
 #include "third_party/gmp/include/gmpxx.h"
 
 #include "tachyon/base/compiler_specific.h"
+#include "tachyon/base/files/file_path.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/modulus.h"
 
@@ -38,6 +39,14 @@ std::string MpzClassToMontString(const mpz_class& v_in, const mpz_class& m_in) {
 std::string MpzClassToMontString(const mpz_class& v, const mpz_class& m);
 
 std::string GenerateFastMultiplication(int value);
+
+base::FilePath ConvertToCpuHdr(const base::FilePath& path);
+
+base::FilePath ConvertToGpuHdr(const base::FilePath& path);
+
+std::string GenerateInitMpzClass(std::string_view name, int value);
+
+std::string GenerateInitMpzClass(std::string_view name, std::string_view value);
 
 std::string GenerateInitField(std::string_view name, int value,
                               bool is_base_field);

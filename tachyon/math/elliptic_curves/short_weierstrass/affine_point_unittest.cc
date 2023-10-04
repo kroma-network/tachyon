@@ -40,7 +40,8 @@ TYPED_TEST(AffinePointTest, Generator) {
   using AffinePointTy = TypeParam;
 
   EXPECT_EQ(AffinePointTy::Generator(),
-            AffinePointTy::Curve::Generator().ToAffine());
+            AffinePointTy(AffinePointTy::Curve::Config::kGenerator.x,
+                          AffinePointTy::Curve::Config::kGenerator.y));
 }
 
 TYPED_TEST(AffinePointTest, Montgomery) {

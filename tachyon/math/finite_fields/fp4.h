@@ -15,12 +15,18 @@ class Fp4 : public QuadraticExtensionField<Fp4<Config>> {
  public:
   using BaseField = typename Config::BaseField;
 
+  using CpuField = Fp4<Config>;
+  // TODO(chokobole): Implements Fp4Gpu
+  using GpuField = Fp4<Config>;
+
   using QuadraticExtensionField<Fp4<Config>>::QuadraticExtensionField;
 
   static_assert(Config::kDegreeOverBaseField == 2);
   static_assert(BaseField::ExtensionDegree() == 2);
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 4;
+
+  static void Init() { Config::Init(); }
 };
 
 }  // namespace tachyon::math

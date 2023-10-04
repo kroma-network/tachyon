@@ -44,8 +44,12 @@ TYPED_TEST(PointXYZZTest, IsZero) {
 
 TYPED_TEST(PointXYZZTest, Generator) {
   using PointXYZZTy = TypeParam;
+  using BaseField = typename PointXYZZTy::BaseField;
 
-  EXPECT_EQ(PointXYZZTy::Generator(), PointXYZZTy::Curve::Generator().ToXYZZ());
+  EXPECT_EQ(PointXYZZTy::Generator(),
+            PointXYZZTy(PointXYZZTy::Curve::Config::kGenerator.x,
+                        PointXYZZTy::Curve::Config::kGenerator.y,
+                        BaseField::One(), BaseField::One()));
 }
 
 TYPED_TEST(PointXYZZTest, Montgomery) {
@@ -162,8 +166,7 @@ TYPED_TEST(PointXYZZTest, ScalarMulOperator) {
 
   std::vector<AffinePointTy> points;
   for (size_t i = 0; i < 7; ++i) {
-    points.push_back(
-        (ScalarField(i) * PointXYZZTy::Curve::Generator()).ToAffine());
+    points.push_back((ScalarField(i) * PointXYZZTy::Generator()).ToAffine());
   }
 
   EXPECT_THAT(points,

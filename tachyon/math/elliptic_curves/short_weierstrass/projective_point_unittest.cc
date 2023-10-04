@@ -39,9 +39,12 @@ TYPED_TEST(ProjectivePointTest, IsZero) {
 
 TYPED_TEST(ProjectivePointTest, Generator) {
   using ProjectivePointTy = TypeParam;
+  using BaseField = typename ProjectivePointTy::BaseField;
 
   EXPECT_EQ(ProjectivePointTy::Generator(),
-            ProjectivePointTy::Curve::Generator().ToProjective());
+            ProjectivePointTy(ProjectivePointTy::Curve::Config::kGenerator.x,
+                              ProjectivePointTy::Curve::Config::kGenerator.y,
+                              BaseField::One()));
 }
 
 TYPED_TEST(ProjectivePointTest, Montgomery) {
@@ -159,7 +162,7 @@ TYPED_TEST(ProjectivePointTest, ScalarMulOperator) {
   std::vector<AffinePointTy> points;
   for (size_t i = 0; i < 7; ++i) {
     points.push_back(
-        (ScalarField(i) * ProjectivePointTy::Curve::Generator()).ToAffine());
+        (ScalarField(i) * ProjectivePointTy::Generator()).ToAffine());
   }
 
   EXPECT_THAT(points,
