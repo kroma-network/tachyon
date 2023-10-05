@@ -170,11 +170,18 @@ int GenerationConfig::GenerateConfigHdr() const {
   ModulusInfo modulus_info = ModulusInfo::From(m);
 
   mpz_class trace = math::ComputeTrace(2, m - mpz_class(1));
+  mpz_class subgroup_generator_mpz;
   if (!subgroup_generator.empty()) {
+    // 1) 2ˢ * t = m - 1,
+    // According to Fermat's Little Theorem, the following equations hold:
+    // 2) g^(m - 1) = 1 (mod m)
+    // 3) g^(2ˢ * t) = 1 (mod m)
+    // 4) gᵗ^(2ˢ) = 1 (mod m)
+    // Where subgroup_generator = g, two_adicity = s, trace = t and
+    // two_adic_root_of_unity = gᵗ.
     uint32_t two_adicity = math::ComputeAdicity(2, m - mpz_class(1));
     mpz_class two_adic_root_of_unity;
-    mpz_class subgroup_generator_mpz =
-        math::gmp::FromDecString(subgroup_generator);
+    subgroup_generator_mpz = math::gmp::FromDecString(subgroup_generator);
     mpz_powm(two_adic_root_of_unity.get_mpz_t(),
              subgroup_generator_mpz.get_mpz_t(), trace.get_mpz_t(),
              m.get_mpz_t());
@@ -201,45 +208,52 @@ int GenerationConfig::GenerateConfigHdr() const {
         break;
       }
     }
-  }
 
-  if (!small_subgroup_base.empty()) {
-    CHECK(!small_subgroup_adicity.empty());
+    if (!small_subgroup_base.empty()) {
+      CHECK(!small_subgroup_adicity.empty());
+      // 5) gᵗ^(2ˢ) = 1 (mod m)
+      // 6) g^(t / bᵃ)^(2ˢ * bᵃ) = 1 (mod m)
+      // Where small_subgroup_base = b, small_subgroup_adicity = a,
+      // remaining_subgroup_size = t / bᵃ
+      // and large_subgroup_root_of_unity = g^(t / bᵃ).
+      mpz_class small_subgroup_base_pow_adicity;
+      mpz_powm(small_subgroup_base_pow_adicity.get_mpz_t(),
+               math::gmp::FromDecString(small_subgroup_base).get_mpz_t(),
+               math::gmp::FromDecString(small_subgroup_adicity).get_mpz_t(),
+               m.get_mpz_t());
+      mpz_class remaining_subgroup_size;
+      mpz_div(remaining_subgroup_size.get_mpz_t(), trace.get_mpz_t(),
+              small_subgroup_base_pow_adicity.get_mpz_t());
+      mpz_class large_subgroup_root_of_unity;
+      mpz_powm(large_subgroup_root_of_unity.get_mpz_t(),
+               subgroup_generator_mpz.get_mpz_t(),
+               remaining_subgroup_size.get_mpz_t(), m.get_mpz_t());
 
-    mpz_class small_subgroup_base_pow_adicity;
-    mpz_powm(small_subgroup_base_pow_adicity.get_mpz_t(),
-             math::gmp::FromDecString(small_subgroup_base).get_mpz_t(),
-             math::gmp::FromDecString(small_subgroup_adicity).get_mpz_t(),
-             m.get_mpz_t());
-    mpz_class remaining_subgroup_size;
-    mpz_div(remaining_subgroup_size.get_mpz_t(), trace.get_mpz_t(),
-            small_subgroup_base_pow_adicity.get_mpz_t());
-    mpz_class large_subgroup_root_of_unity;
-    mpz_powm(large_subgroup_root_of_unity.get_mpz_t(),
-             math::gmp::FromDecString(subgroup_generator).get_mpz_t(),
-             remaining_subgroup_size.get_mpz_t(), m.get_mpz_t());
+      std::vector<std::string> lines;
+      // clang-format off
+      lines.push_back("  constexpr static bool kHasLargeSubgroupRootOfUnity = true;");
+      lines.push_back(absl::Substitute("  constexpr static uint32_t kSmallSubgroupBase = $0;", small_subgroup_base));
+      lines.push_back(absl::Substitute("  constexpr static uint32_t kSmallSubgroupAdicity = $0;", small_subgroup_adicity));
+      lines.push_back("  constexpr static BigInt<%{n}> kLargeSubgroupRootOfUnity = BigInt<%{n}>({");
+      lines.push_back(absl::Substitute("    $0", math::MpzClassToMontString(large_subgroup_root_of_unity, m)));
+      lines.push_back("  });");
+      // clang-format on
 
-    std::vector<std::string> lines;
-    // clang-format off
-    lines.push_back("  constexpr static bool kHasLargeSubgroupRootOfUnity = true;");
-    lines.push_back(absl::Substitute("  constexpr static uint32_t kSmallSubgroupBase = $0;", small_subgroup_base));
-    lines.push_back(absl::Substitute("  constexpr static uint32_t kSmallSubgroupAdicity = $0;", small_subgroup_adicity));
-    lines.push_back("  constexpr static BigInt<%{n}> kLargeSubgroupRootOfUnity = BigInt<%{n}>({");
-    lines.push_back(absl::Substitute("    $0", math::MpzClassToMontString(large_subgroup_root_of_unity, m)));
-    lines.push_back("  });");
-    // clang-format on
-
-    for (size_t i = 0; i < tpl.size(); ++i) {
-      size_t idx = tpl[i].find(
-          "constexpr static bool kHasLargeSubgroupRootOfUnity = false;");
-      if (idx != std::string::npos) {
-        auto it = tpl.begin() + i;
-        tpl.erase(it);
-        tpl.insert(it, lines.begin(), lines.end());
-        break;
+      for (size_t i = 0; i < tpl.size(); ++i) {
+        size_t idx = tpl[i].find(
+            "constexpr static bool kHasLargeSubgroupRootOfUnity = false;");
+        if (idx != std::string::npos) {
+          auto it = tpl.begin() + i;
+          tpl.erase(it);
+          tpl.insert(it, lines.begin(), lines.end());
+          break;
+        }
       }
+    } else {
+      CHECK(small_subgroup_adicity.empty());
     }
   } else {
+    CHECK(small_subgroup_base.empty());
     CHECK(small_subgroup_adicity.empty());
   }
 
