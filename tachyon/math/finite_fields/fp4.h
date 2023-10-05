@@ -11,9 +11,10 @@
 namespace tachyon::math {
 
 template <typename Config>
-class Fp4 : public QuadraticExtensionField<Fp4<Config>> {
+class Fp4 final : public QuadraticExtensionField<Fp4<Config>> {
  public:
   using BaseField = typename Config::BaseField;
+  using BasePrimeField = typename Config::BasePrimeField;
 
   using CpuField = Fp4<Config>;
   // TODO(chokobole): Implements Fp4Gpu

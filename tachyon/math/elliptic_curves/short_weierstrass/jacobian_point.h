@@ -17,7 +17,7 @@
 namespace tachyon::math {
 
 template <typename _Curve>
-class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
+class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
     : public AdditiveGroup<JacobianPoint<_Curve>> {
  public:
   constexpr static const bool kNegationIsCheap = true;

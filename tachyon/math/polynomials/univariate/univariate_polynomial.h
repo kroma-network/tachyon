@@ -13,7 +13,7 @@
 namespace tachyon::math {
 
 template <typename Coefficients>
-class UnivariatePolynomial
+class UnivariatePolynomial final
     : public Polynomial<UnivariatePolynomial<Coefficients>> {
  public:
   constexpr static const size_t kMaxDegree = Coefficients::kMaxDegree;

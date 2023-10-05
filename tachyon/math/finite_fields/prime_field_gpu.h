@@ -22,7 +22,7 @@
 namespace tachyon::math {
 
 template <typename _Config>
-class PrimeFieldGpu : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
+class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;

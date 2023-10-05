@@ -3,6 +3,7 @@
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/flag/flag_parser.h"
+#include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
@@ -14,7 +15,7 @@ struct GenerationConfig : public build::CcWriter {
   std::string class_name;
   int degree;
   int base_field_degree;
-  std::vector<int> non_residue;
+  std::vector<std::string> non_residue;
   std::string base_field_hdr;
   std::string base_field;
   std::string mul_by_non_residue_override;
@@ -34,12 +35,13 @@ int GenerationConfig::GenerateConfigHdr() const {
       "class %{class}Config {",
       " public:",
       "  using BaseField = _BaseField;",
+      "  using BasePrimeField = %{base_prime_field};",
       "",
       "  // NOTE(chokobole): This can't be constexpr because of PrimeFieldGmp support.",
       "  static BaseField kNonResidue;",
       "",
       "  constexpr static bool kNonResidueIsMinusOne = %{non_residue_is_minus_one};",
-      "  constexpr static size_t kDegreeOverBaseField = %{degree_over_base_field};",
+      "  constexpr static uint64_t kDegreeOverBaseField = %{degree_over_base_field};",
       "",
       "  static BaseField MulByNonResidue(const BaseField& v) {",
       "%{mul_by_non_residue}",
@@ -72,28 +74,29 @@ int GenerationConfig::GenerateConfigHdr() const {
   if (non_residue.size() == 1) {
     mul_by_non_residue_fast = true;
 
-    init = math::GenerateInitField("kNonResidue", non_residue[0],
-                                   /*is_base_field=*/true);
+    init = math::GenerateInitField("kNonResidue", "BaseField", non_residue[0]);
   } else {
     mul_by_non_residue_fast =
         std::all_of(non_residue.begin() + 1, non_residue.end(),
-                    [](int e) { return e == 0; });
+                    [](const std::string& e) { return e == "0"; });
 
-    init = math::GenerateInitExtField("kNonResidue",
+    init = math::GenerateInitExtField("kNonResidue", "BaseField",
                                       absl::MakeConstSpan(non_residue),
-                                      /*gen_f_type_alias=*/true);
+                                      /*is_prime_field=*/degree != 12);
   }
 
   std::string mul_by_non_residue;
   if (!mul_by_non_residue_override.empty()) {
     mul_by_non_residue = mul_by_non_residue_override;
   } else if (mul_by_non_residue_fast) {
-    non_residue_is_minus_one = non_residue[0] == -1;
+    int64_t a_value;
+    CHECK(base::StringToInt64(non_residue[0], &a_value));
+    non_residue_is_minus_one = a_value == -1;
     std::stringstream ss;
     ss << "    BaseField ret = v;";
     ss << std::endl;
     ss << "    return ret";
-    ss << math::GenerateFastMultiplication(non_residue[0]);
+    ss << math::GenerateFastMultiplication(a_value);
     ss << ";";
     mul_by_non_residue = ss.str();
   } else {
@@ -101,20 +104,24 @@ int GenerationConfig::GenerateConfigHdr() const {
   }
 
   std::string content = absl::StrReplaceAll(
-      tpl_content, {
+      tpl_content,
+      {
 
-                       {"%{namespace}", ns_name},
-                       {"%{class}", class_name},
-                       {"%{degree}", base::NumberToString(degree)},
-                       {"%{degree_over_base_field}",
-                        base::NumberToString(degree_over_base_field)},
-                       {"%{base_field_hdr}", base_field_hdr},
-                       {"%{base_field}", base_field},
-                       {"%{non_residue_is_minus_one}",
-                        base::BoolToString(non_residue_is_minus_one)},
-                       {"%{mul_by_non_residue}", mul_by_non_residue},
-                       {"%{init}", init},
-                   });
+          {"%{namespace}", ns_name},
+          {"%{class}", class_name},
+          {"%{degree}", base::NumberToString(degree)},
+          {"%{degree_over_base_field}",
+           base::NumberToString(degree_over_base_field)},
+          {"%{base_field_hdr}", base_field_hdr},
+          {"%{base_field}", base_field},
+          {"%{base_prime_field}", degree == degree_over_base_field
+                                      ? "BaseField"
+                                      : "typename BaseField::BasePrimeField"},
+          {"%{non_residue_is_minus_one}",
+           base::BoolToString(non_residue_is_minus_one)},
+          {"%{mul_by_non_residue}", mul_by_non_residue},
+          {"%{init}", init},
+      });
   return WriteHdr(content, false);
 }
 
@@ -138,7 +145,7 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::IntFlag>(&config.base_field_degree)
       .set_long_name("--base_field_degree")
       .set_required();
-  parser.AddFlag<base::Flag<std::vector<int>>>(&config.non_residue)
+  parser.AddFlag<base::Flag<std::vector<std::string>>>(&config.non_residue)
       .set_long_name("--non_residue")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.base_field_hdr)

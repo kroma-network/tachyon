@@ -17,6 +17,7 @@ template <typename _BaseField, typename _ScalarField>
 class CurveConfig {
  public:
   using BaseField = _BaseField;
+  using BasePrimeField = BaseField;
   using ScalarField = _ScalarField;
 
   using CpuBaseField = typename BaseField::CpuField;

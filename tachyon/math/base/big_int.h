@@ -568,7 +568,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
-  constexpr BigInt<2 * N> Mul(const BigInt& other) {
+  constexpr BigInt<2 * N> Mul(const BigInt& other) const {
     BigInt<2 * N> ret;
     BigInt lo = *this;
     BigInt hi;

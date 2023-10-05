@@ -17,7 +17,7 @@
 namespace tachyon::math {
 
 template <typename _Curve>
-class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>>
+class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
     : public AdditiveGroup<ProjectivePoint<_Curve>> {
  public:
   constexpr static const bool kNegationIsCheap = true;
