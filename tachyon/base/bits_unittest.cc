@@ -8,9 +8,12 @@
 
 #include <stddef.h>
 
+#include <bitset>
 #include <limits>
 
 #include "gtest/gtest.h"
+
+#include "tachyon/base/random.h"
 
 namespace tachyon::base {
 namespace bits {
@@ -273,6 +276,18 @@ TEST(BitsTest, LeftMostBit) {
   uint8_t unsigned_byte_value = 0x80u;
   EXPECT_EQ(LeftmostBit<uint8_t>(), unsigned_byte_value);
   EXPECT_EQ(LeftmostBit<int8_t>(), int8_t(unsigned_byte_value));
+}
+
+TEST(BitsTest, BitRev) {
+  std::bitset<64> value;
+  for (size_t i = 0; i < 20; ++i) {
+    value.flip(Uniform(0, 64));
+  }
+  std::bitset<64> expected;
+  for (size_t i = 0; i < 64; ++i) {
+    expected[i] = value[64 - i - 1];
+  }
+  EXPECT_EQ(BitRev(value.to_ullong()), expected.to_ullong());
 }
 
 }  // namespace bits
