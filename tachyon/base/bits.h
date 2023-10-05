@@ -107,7 +107,7 @@ ALWAYS_INLINE constexpr
                        : bits;
 }
 
-// Returns the integer i such as 2^i <= n < 2^(i+1).
+// Returns the integer i such as 2ⁱ <= n < 2ⁱ⁺¹.
 //
 // There is a common `BitLength` function, which returns the number of bits
 // required to represent a value. Rather than implement that function,
@@ -116,7 +116,7 @@ ALWAYS_INLINE constexpr
 // TODO(pkasting): When C++20 is available, replace with std::bit_xxx().
 constexpr int Log2Floor(uint32_t n) { return 31 - CountLeadingZeroBits(n); }
 
-// Returns the integer i such as 2^(i-1) < n <= 2^i.
+// Returns the integer i such as 2ⁱ⁻¹ < n <= 2ⁱ.
 constexpr int Log2Ceiling(uint32_t n) {
   // When n == 0, we want the function to return -1.
   // When n == 0, (n - 1) will underflow to 0xFFFFFFFF, which is

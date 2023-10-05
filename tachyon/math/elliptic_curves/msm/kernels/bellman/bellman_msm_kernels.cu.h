@@ -90,11 +90,11 @@ __global__ void ComputeBucketIndexesKernel(
     // degree is 20.
     // Consequently, scalar decomposition appears as follows:
     //
-    // S = S_0 + S_1 * 2^16 + S_2 * 2^32 + ... + S_15 * 2^240
+    // S = S₀ + S₁ * 2¹⁶ + S₂ * 2³² + ... + S₁₅ * 2²⁴⁰
     //
-    // Even with the addition of a borrow to S_15, the resulting value remains
-    // below 2^14 - 1. This ensures that it remains within the bounds of
-    // |top_bucket_index|, which is 2^15.
+    // Even with the addition of a borrow to S₁₅, the resulting value remains
+    // below 2¹⁴ - 1. This ensures that it remains within the bounds of
+    // |top_bucket_index|, which is 2¹⁵.
     if (bucket_index > top_bucket_index) {
       // When |window_bits| is 4 bits, the value of |top_bucket_index| is 8. In
       // a scenario where |bucket_index| surpasses 8(let's assume it's 10), the
@@ -110,7 +110,7 @@ __global__ void ComputeBucketIndexesKernel(
     bool is_top_window = window_index == windows_count - 1;
     // Ultimately, a dot product is required between the scalar and the base:
     //
-    // (S_0, S_1 * 2^16, S_2 * 2^32, ..., S_15 * 2^240) * (B, B, B, ..., B)
+    // (S₀, S₁ * 2¹⁶, S₂ * 2³², ..., S₁₅ * 2²⁴⁰) * (B, B, B, ..., B)
     //
     // When |bucket_index| is zero, it indicates the potential to optimize the
     // computation of the dot product by subsequently reducing the required
@@ -218,21 +218,20 @@ __global__ void AggregateBucketsKernel(
   }
   // What we need to compute is as follows:
   //
-  // B_0 * S_0 + B_1 * S_1 + B_2 * S_2 + ... + B_{N - 1} * S_{N - 1}
+  // B₀ * S₀ + B₁ * S₁ + B₂ * S₂ + ... + Bₙ₋₁ * Sₙ₋₁
   //
   // For each scalar, it's decomposed based on the window bits.
   // Let's take the example of the bn254 curve again:
   //
-  // S_0 = S_0_0 + S_0_1 * 2^16 + S_0_2 * 2^32 + ... + S_0_15 * 2^240
-  // S_1 = S_1_0 + S_1_1 * 2^16 + S_1_2 * 2^32 + ... + S_1_15 * 2^240
+  // S_0 = S₀,₀ + S₀,₁ * 2¹⁶ + S₀,₂ * 2³² + ... + S₀,₁₅ * 2²⁴⁰
+  // S_1 = S₁,₀ + S₁,₁ * 2¹⁶ + S₁,₂ * 2³² + ... + S₁,₁₅ * 2²⁴⁰
   // ...
-  // S_{N - 1} = S_{N - 1}_0 + S_{N - 1}_1 * 2^16 + S_{N - 1}_2 * 2^32 + ... +
-  // S_{N - 1}_15 * 2^240
+  // Sₙ₋₁, = Sₙ₋₁,₀ + Sₙ₋₁,₁ * 2¹⁶ + Sₙ₋₁,₂ * 2³² + ... + Sₙ₋₁,₁₅ * 2²⁴⁰
   //
-  // S_{i}_{j} ranges from 0 to 2^15. (Be cautious, it's not 2^16.)
+  // Sᵢ,ⱼ ranges from 0 to 2¹⁵. (Be cautious, it's not 2¹⁶.)
   // The bucket index can be calculated as follows:
   //
-  // bucket_index = j * 2^16 + S_{i}_{j}.
+  // bucket_index = j * 2¹⁶ + Sᵢ,ⱼ.
   //
   // This accumulates the base belonging to the same |bucket_index|.
   for (unsigned int i = IsFirst ? 1 : 0; i < length; i++) {

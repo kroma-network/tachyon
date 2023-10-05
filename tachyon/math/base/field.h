@@ -5,9 +5,18 @@
 
 namespace tachyon::math {
 
+// Field is any set of elements that satisfies the field axioms for both
+// addition and multiplication and is commutative division algebra
+// Simply put, a field is a ring in which multiplicative commutativity exists,
+// and every non-zero element has a multiplicative inverse.
+// See https://mathworld.wolfram.com/Field.html
+
+// The Field supports SumOfProducts, inheriting the properties of both
+// AdditiveGroup and MultiplicativeGroup.
 template <typename F>
 class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
  public:
+  // Sum of products: a₁ * b₁ + a₂ * b₂ + ... + aₙ * bₙ
   template <
       typename InputIterator,
       std::enable_if_t<std::is_same_v<F, base::iter_value_t<InputIterator>>>* =

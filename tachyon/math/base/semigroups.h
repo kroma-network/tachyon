@@ -54,6 +54,12 @@ struct AdditiveSemigroupTraits {
 
 }  // namespace internal
 
+// Semigroup <S, ○> is a mathematical object defined for a set 'S' and a binary
+// operator '○' in which the operation is associative.
+// Associativity: (a ○ b) ○ c = a ○ (b ○ c)
+// See https://mathworld.wolfram.com/Semigroup.html
+
+// MultiplicativeSemigroup is a semigroup with a multiplicative operator.
 template <typename G>
 class MultiplicativeSemigroup {
  public:
@@ -61,6 +67,8 @@ class MultiplicativeSemigroup {
       typename G2,
       std::enable_if_t<internal::SupportsMul<G, G2>::value ||
                        internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
+
+  // Multiplication: a * b
   constexpr auto operator*(const G2& other) const {
     if constexpr (internal::SupportsMul<G, G2>::value) {
       const G* g = static_cast<const G*>(this);
@@ -71,6 +79,7 @@ class MultiplicativeSemigroup {
     }
   }
 
+  // Multiplication in place: a *= b
   template <
       typename G2,
       std::enable_if_t<internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
@@ -79,6 +88,7 @@ class MultiplicativeSemigroup {
     return g->MulInPlace(other);
   }
 
+  // a.Square(): a²
   [[nodiscard]] constexpr auto Square() const {
     if constexpr (internal::SupportsSquareInPlace<G>::value) {
       G g = *static_cast<const G*>(this);
@@ -88,6 +98,9 @@ class MultiplicativeSemigroup {
     }
   }
 
+  // a.Pow(e): aᵉ
+  // Square it as much as possible and multiply the remainder.
+  // ex) a¹³ = (((a)² * a)²)² * a
   template <size_t N,
             typename ReturnTy =
                 typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
@@ -114,6 +127,8 @@ class MultiplicativeSemigroup {
     return ret;
   }
 
+  // Computes the power of a base element using a pre-computed table of powers
+  // of two, instead of performing repeated multiplications.
   template <size_t N,
             typename ReturnTy =
                 typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
@@ -134,9 +149,11 @@ class MultiplicativeSemigroup {
   }
 };
 
+// AdditiveSemigroup is a semigroup with an additive operator.
 template <typename G>
 class AdditiveSemigroup {
  public:
+  // Addition: a + b
   template <
       typename G2,
       std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
@@ -151,6 +168,7 @@ class AdditiveSemigroup {
     }
   }
 
+  // Addition in place: a += b
   template <
       typename G2,
       std::enable_if_t<internal::SupportsAddInPlace<G, G2>::value>* = nullptr>
@@ -159,6 +177,7 @@ class AdditiveSemigroup {
     return g->AddInPlace(other);
   }
 
+  // a.Double(): 2a
   [[nodiscard]] constexpr auto Double() const {
     if constexpr (internal::SupportsDoubleInPlace<G>::value) {
       G g = *static_cast<const G*>(this);

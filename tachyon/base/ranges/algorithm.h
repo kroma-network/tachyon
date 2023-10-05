@@ -999,7 +999,7 @@ constexpr bool equal(Range1&& range1,
 // `last1 - first1` applications of the corresponding predicate and projections
 // if `ranges::equal(first1, last1, first2, last2, pred, proj, proj)` would
 // return true;
-// otherwise, at worst `O(N^2)`, where `N` has the value `last1 - first1`.
+// otherwise, at worst `O(N²)`, where `N` has the value `last1 - first1`.
 //
 // Reference:
 // https://wg21.link/alg.is.permutation#:~:text=ranges::is_permutation(I1
@@ -1038,7 +1038,7 @@ constexpr bool is_permutation(ForwardIterator1 first1,
 // `size(range1) != size(range2)`. Otherwise, exactly `size(range1)`
 // applications of the corresponding predicate and projections if
 // `ranges::equal(range1, range2, pred, proj, proj)` would return true;
-// otherwise, at worst `O(N^2)`, where `N` has the value `size(range1)`.
+// otherwise, at worst `O(N²)`, where `N` has the value `size(range1)`.
 //
 // Reference:
 // https://wg21.link/alg.is.permutation#:~:text=ranges::is_permutation(R1
@@ -2726,7 +2726,7 @@ constexpr auto sort(Range&& range, Comp comp = {}, Proj proj = {}) {
 // Returns: `last`.
 //
 // Complexity: Let `N` be `last - first`. If enough extra memory is available,
-// `N log (N)` comparisons. Otherwise, at most `N log^2 (N)` comparisons. In
+// `N log (N)` comparisons. Otherwise, at most `N log² (N)` comparisons. In
 // either case, twice as many projections as the number of comparisons.
 //
 // Remarks: Stable.
@@ -2753,7 +2753,7 @@ constexpr auto stable_sort(RandomAccessIterator first,
 // Returns: `end(rang)`.
 //
 // Complexity: Let `N` be `size(range)`. If enough extra memory is available,
-// `N log (N)` comparisons. Otherwise, at most `N log^2 (N)` comparisons. In
+// `N log (N)` comparisons. Otherwise, at most `N log² (N)` comparisons. In
 // either case, twice as many projections as the number of comparisons.
 //
 // Remarks: Stable.
@@ -3097,7 +3097,7 @@ constexpr auto nth_element(Range&& range,
 // for every iterator `j` in the range `[first, i)`,
 // `bool(invoke(comp, invoke(proj, *j), value))` is true.
 //
-// Complexity: At most `log_2(last - first) + O(1)` comparisons and projections.
+// Complexity: At most `log₂(last - first) + O(1)` comparisons and projections.
 //
 // Reference: https://wg21.link/lower.bound#:~:text=ranges::lower_bound(I
 template <typename ForwardIterator,
@@ -3125,7 +3125,7 @@ constexpr auto lower_bound(ForwardIterator first,
 // `[begin(range), end(range)]` such that for every iterator `j` in the range
 // `[begin(range), i)`, `bool(invoke(comp, invoke(proj, *j), value))` is true.
 //
-// Complexity: At most `log_2(size(range)) + O(1)` comparisons and projections.
+// Complexity: At most `log₂(size(range)) + O(1)` comparisons and projections.
 //
 // Reference: https://wg21.link/lower.bound#:~:text=ranges::lower_bound(R
 template <typename Range,
@@ -3151,7 +3151,7 @@ constexpr auto lower_bound(Range&& range,
 // for every iterator `j` in the range `[first, i)`,
 // `!bool(invoke(comp, value, invoke(proj, *j)))` is true.
 //
-// Complexity: At most `log_2(last - first) + O(1)` comparisons and projections.
+// Complexity: At most `log₂(last - first) + O(1)` comparisons and projections.
 //
 // Reference: https://wg21.link/upper.bound#:~:text=ranges::upper_bound(I
 template <typename ForwardIterator,
@@ -3179,7 +3179,7 @@ constexpr auto upper_bound(ForwardIterator first,
 // `[begin(range), end(range)]` such that for every iterator `j` in the range
 // `[begin(range), i)`, `!bool(invoke(comp, value, invoke(proj, *j)))` is true.
 //
-// Complexity: At most `log_2(size(range)) + O(1)` comparisons and projections.
+// Complexity: At most `log₂(size(range)) + O(1)` comparisons and projections.
 //
 // Reference: https://wg21.link/upper.bound#:~:text=ranges::upper_bound(R
 template <typename Range,
@@ -3205,7 +3205,7 @@ constexpr auto upper_bound(Range&& range,
 // Returns: `{ranges::lower_bound(first, last, value, comp, proj),
 //            ranges::upper_bound(first, last, value, comp, proj)}`.
 //
-// Complexity: At most 2 ∗ log_2(last - first) + O(1) comparisons and
+// Complexity: At most 2 ∗ log₂(last - first) + O(1) comparisons and
 // projections.
 //
 // Reference: https://wg21.link/equal.range#:~:text=ranges::equal_range(I
@@ -3233,7 +3233,7 @@ constexpr auto equal_range(ForwardIterator first,
 // Returns: `{ranges::lower_bound(range, value, comp, proj),
 //            ranges::upper_bound(range, value, comp, proj)}`.
 //
-// Complexity: At most 2 ∗ log_2(size(range)) + O(1) comparisons and
+// Complexity: At most 2 ∗ log₂(size(range)) + O(1) comparisons and
 // projections.
 //
 // Reference: https://wg21.link/equal.range#:~:text=ranges::equal_range(R
@@ -3261,7 +3261,7 @@ constexpr auto equal_range(Range&& range,
 // `[first, last)`, `!bool(invoke(comp, invoke(proj, *i), value)) &&
 //                   !bool(invoke(comp, value, invoke(proj, *i)))` is true.
 //
-// Complexity: At most `log_2(last - first) + O(1)` comparisons and projections.
+// Complexity: At most `log₂(last - first) + O(1)` comparisons and projections.
 //
 // Reference: https://wg21.link/binary.search#:~:text=ranges::binary_search(I
 template <typename ForwardIterator,
@@ -3287,7 +3287,7 @@ constexpr auto binary_search(ForwardIterator first,
 // `!bool(invoke(comp, invoke(proj, *i), value)) &&
 //  !bool(invoke(comp, value, invoke(proj, *i)))` is true.
 //
-// Complexity: At most `log_2(size(range)) + O(1)` comparisons and projections.
+// Complexity: At most `log₂(size(range)) + O(1)` comparisons and projections.
 //
 // Reference: https://wg21.link/binary.search#:~:text=ranges::binary_search(R
 template <typename Range,

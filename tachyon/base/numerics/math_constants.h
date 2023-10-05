@@ -22,7 +22,7 @@ constexpr float kRadToDegFloat = 57.295779513082320876798f;
 constexpr double kSqrtHalfDouble = 0.70710678118654752440;
 constexpr float kSqrtHalfFloat = 0.70710678118654752440f;
 
-// The mean acceleration due to gravity on Earth in m/s^2.
+// The mean acceleration due to gravity on Earth in m/s².
 constexpr double kMeanGravityDouble = 9.80665;
 constexpr float kMeanGravityFloat = 9.80665f;
 

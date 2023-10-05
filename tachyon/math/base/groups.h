@@ -12,9 +12,20 @@ SUPPORTS_BINARY_OPERATOR(Mod);
 
 }  // namespace internal
 
+// Group 'G' is a set of elements together with a binary operation (called the
+// group operation) that together satisfy the four fundamental properties of
+// closure, associative, the identity property, and the inverse property.
+// See https://mathworld.wolfram.com/Group.html
+
+// MultiplicativeGroup is a group with the group operation '*'.
+// MultiplicativeGroup supports division and inversion, inheriting the
+// properties of MultiplicativeSemigroup.
 template <typename G>
 class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
  public:
+  // Division:
+  //   1) a / b if division is supported.
+  //   2) a * b⁻¹ otherwise
   template <
       typename G2,
       std::enable_if_t<internal::SupportsMul<G, G2>::value ||
@@ -33,6 +44,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     }
   }
 
+  // Division in place: a /= b
   template <
       typename G2,
       std::enable_if_t<internal::SupportsDivInPlace<G, G2>::value>* = nullptr>
@@ -41,6 +53,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     return g->DivInPlace(other);
   }
 
+  // Division in place: a *= b⁻¹
   template <
       typename G2,
       std::enable_if_t<!internal::SupportsDivInPlace<G, G2>::value &&
@@ -50,15 +63,21 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     return g->MulInPlace(other.Inverse());
   }
 
+  // Inverse: a⁻¹
   [[nodiscard]] constexpr auto Inverse() const {
     G ret = *static_cast<const G*>(this);
     return ret.InverseInPlace();
   }
 };
-
+// AdditiveGroup is a group with the group operation '+'.
+// AdditiveGroup supports subtraction and negation, inheriting the
+// properties of AdditiveSemigroup.
 template <typename G>
 class AdditiveGroup : public AdditiveSemigroup<G> {
  public:
+  // Subtraction:
+  //   1) a - b if subtraction is supported.
+  //   2) a + (-b) otherwise
   template <
       typename G2,
       std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
@@ -77,6 +96,7 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
     }
   }
 
+  // Subtraction in place: a -= b
   template <
       typename G2,
       std::enable_if_t<internal::SupportsSubInPlace<G, G2>::value>* = nullptr>
@@ -85,6 +105,7 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
     return g->SubInPlace(other);
   }
 
+  // Subtraction in place: a += (-b)
   template <
       typename G2,
       std::enable_if_t<!internal::SupportsSubInPlace<G, G2>::value &&
@@ -94,6 +115,7 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
     return g->AddInPlace(other.Negative());
   }
 
+  // Negation: -a
   constexpr auto operator-() const { return Negative(); }
 
   [[nodiscard]] constexpr auto Negative() const {

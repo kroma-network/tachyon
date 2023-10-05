@@ -32,7 +32,7 @@ class MultivariatePolynomialTest : public testing::Test {
                                      }                   // Term
                                  }                       // vector<Term>
                                  )));
-    // poly1: 1 * x_0
+    // poly1: 1 * x₀
     polys_.push_back(Poly(Coeffs(1,
                                  {
                                      {
@@ -45,7 +45,7 @@ class MultivariatePolynomialTest : public testing::Test {
                                      }                   // Term
                                  }                       // vector<Term>
                                  )));
-    // poly2: 1 * x_0 (num_vars = 2)
+    // poly2: 1 * x₀ (num_vars = 2)
     polys_.push_back(Poly(Coeffs(2,
                                  {
                                      {
@@ -58,28 +58,7 @@ class MultivariatePolynomialTest : public testing::Test {
                                      }                   // Term
                                  }                       // vector<Term>
                                  )));
-    // poly3: 1 * x_0 + 1 * x_1
-    polys_.push_back(Poly(Coeffs(2,
-                                 {
-                                     {
-                                         {
-                                             {
-                                                 {0, 1}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     },                  // Term
-                                     {
-                                         {
-                                             {
-                                                 {1, 1}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     }                   // Term
-                                 }                       // vector<Term>
-                                 )));
-    // poly4: 1 * x_1 + 1 * x_0
+    // poly3: 1 * x₀ + 1 * x₁
     polys_.push_back(Poly(Coeffs(2,
                                  {
                                      {
@@ -100,7 +79,28 @@ class MultivariatePolynomialTest : public testing::Test {
                                      }                   // Term
                                  }                       // vector<Term>
                                  )));
-    // poly5: 1 * x_0 ^ 2 + 2 * x_0x_1 + 3 * x_1^2 + 4
+    // poly4: 1 * x₁ + 1 * x₀
+    polys_.push_back(Poly(Coeffs(2,
+                                 {
+                                     {
+                                         {
+                                             {
+                                                 {0, 1}  // Element
+                                             }           // vector<Element>
+                                         },              // Literal
+                                         GF7(1)          // coefficient
+                                     },                  // Term
+                                     {
+                                         {
+                                             {
+                                                 {1, 1}  // Element
+                                             }           // vector<Element>
+                                         },              // Literal
+                                         GF7(1)          // coefficient
+                                     }                   // Term
+                                 }                       // vector<Term>
+                                 )));
+    // poly5: 1 * x₀² + 2 * x₀x₁ + 3 * x₁² + 4
     polys_.push_back(Poly(Coeffs(2,
                                  {
                                      {
@@ -138,7 +138,7 @@ class MultivariatePolynomialTest : public testing::Test {
                                      }                   // Term
                                  }                       // vector<Term>
                                  )));
-    // poly6: 1 * x_0^3 + 2 * x_0x_1^2 + 3 * x_1^3 + 4
+    // poly6: 1 * x₀³ + 2 * x₀x₁² + 3 * x₁³ + 4
     polys_.push_back(Poly(Coeffs(2,
                                  {
                                      {

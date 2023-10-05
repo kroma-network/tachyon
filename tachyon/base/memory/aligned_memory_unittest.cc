@@ -50,7 +50,7 @@ TEST(AlignedMemoryTest, IsAligned) {
 
     // Walk back down all lower powers of two checking alignment.
     for (int j = i - 1; j >= 0; --j) {
-      // n is aligned on all powers of two less than or equal to 2^i.
+      // n is aligned on all powers of two less than or equal to 2ⁱ.
       EXPECT_TRUE(IsAligned(n, n >> j))
           << "Expected " << n << " to be " << (n >> j) << " aligned";
 
