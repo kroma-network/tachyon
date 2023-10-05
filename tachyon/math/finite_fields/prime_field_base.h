@@ -67,7 +67,7 @@ class PrimeFieldBase : public Field<F> {
     } else {
       uint64_t log_size_of_group =
           static_cast<uint64_t>(base::bits::Log2Ceiling(n));
-      uint64_t size = 1 << log_size_of_group;
+      uint64_t size = uint64_t{1} << log_size_of_group;
 
       if (n != size || log_size_of_group > Config::kTwoAdicity) {
         return false;

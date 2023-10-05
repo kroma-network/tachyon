@@ -12,6 +12,7 @@ tachyon_cc_library(
     hdrs = ["arithmetics.h"],
     deps = [
         ":arithmetics_results",
+        "//tachyon/base:bit_cast",
         "//tachyon/base:compiler_specific",
         "//tachyon/build:build_config",
         "@com_google_absl//absl/numeric:int128",
@@ -31,6 +32,7 @@ tachyon_cc_library(
     deps = [
         ":arithmetics",
         ":bit_traits",
+        "//tachyon/base:bit_cast",
         "//tachyon/base:compiler_specific",
         "//tachyon/base:endian_utils",
         "//tachyon/base:random",

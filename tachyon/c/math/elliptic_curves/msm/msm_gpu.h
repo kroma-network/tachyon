@@ -80,7 +80,7 @@ struct MSMGpuApi {
                                &mem_pool_threshold),
         "Failed to gpuMemPoolSetAttribute()");
 
-    uint64_t size = static_cast<uint64_t>(1) << degree;
+    uint64_t size = uint64_t{1} << degree;
     d_bases = tachyon::device::gpu::GpuMemory<GpuAffinePointTy>::Malloc(size);
     d_scalars = tachyon::device::gpu::GpuMemory<GpuScalarField>::Malloc(size);
 

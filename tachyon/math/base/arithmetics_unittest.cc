@@ -11,8 +11,7 @@ namespace tachyon::math::internal {
 namespace {
 
 uint32_t GetRandomLo32() {
-  return base::Uniform(static_cast<uint32_t>(0),
-                       std::numeric_limits<uint32_t>::max() / 2);
+  return base::Uniform(uint32_t{0}, std::numeric_limits<uint32_t>::max() / 2);
 }
 
 uint32_t GetRandomHi32() {
@@ -22,13 +21,12 @@ uint32_t GetRandomHi32() {
 
 uint32_t GetRandomSqrt32() {
   return base::Uniform(
-      static_cast<uint32_t>(0),
+      uint32_t{0},
       static_cast<uint32_t>(std::sqrt(std::numeric_limits<uint32_t>::max())));
 }
 
 uint64_t GetRandomLo64() {
-  return base::Uniform(static_cast<uint64_t>(0),
-                       std::numeric_limits<uint64_t>::max() / 2);
+  return base::Uniform(uint64_t{0}, std::numeric_limits<uint64_t>::max() / 2);
 }
 
 uint64_t GetRandomHi64() {
@@ -38,7 +36,7 @@ uint64_t GetRandomHi64() {
 
 uint64_t GetRandomSqrt64() {
   return base::Uniform(
-      static_cast<uint64_t>(0),
+      uint64_t{0},
       static_cast<uint64_t>(std::sqrt(std::numeric_limits<uint64_t>::max())));
 }
 
@@ -118,15 +116,14 @@ TEST(Arithmetics, MulAddWithCarry32) {
   uint32_t c = GetRandomSqrt32();
   SCOPED_TRACE(absl::Substitute("a: $0, b: $1, c: $2", a, b, c));
 
-  uint64_t bc = static_cast<uint64_t>(b) * static_cast<uint64_t>(c);
+  uint64_t bc = uint64_t{b} * uint64_t{c};
   auto result = u32::MulAddWithCarry(a, b, c);
-  EXPECT_EQ(result.lo, static_cast<uint32_t>(static_cast<uint64_t>(a) + bc));
+  EXPECT_EQ(result.lo, static_cast<uint32_t>(uint64_t{a} + bc));
   EXPECT_EQ(result.hi, 0);
 
   a = static_cast<uint32_t>(std::numeric_limits<uint64_t>::max() - bc);
   auto result2 = u32::MulAddWithCarry(a, b, c, 1);
-  EXPECT_EQ(result2.lo, static_cast<uint32_t>(static_cast<uint64_t>(a) + bc +
-                                              static_cast<uint64_t>(1)));
+  EXPECT_EQ(result2.lo, static_cast<uint32_t>(uint64_t{a} + bc + uint64_t{1}));
   EXPECT_EQ(result2.hi, 1);
 }
 

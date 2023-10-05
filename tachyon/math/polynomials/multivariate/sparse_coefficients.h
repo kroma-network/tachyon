@@ -167,8 +167,7 @@ class SparseCoefficients {
         if (base::Bernoulli(0.5) > 0.5) {
           terms.insert(
               terms.begin(),
-              {{{{j, base::Uniform(static_cast<size_t>(0), exponent)}}},
-               Field::Random()});
+              {{{{j, base::Uniform(size_t{0}, exponent)}}}, Field::Random()});
         }
       }
     }

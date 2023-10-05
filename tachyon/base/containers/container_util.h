@@ -13,7 +13,7 @@ namespace tachyon::base {
 template <typename T>
 std::vector<T> CreateRangedVector(T start, T end, T step = 1) {
   CHECK_LT(start, end);
-  CHECK_GT(step, static_cast<T>(0));
+  CHECK_GT(step, T{0});
   std::vector<T> ret;
   size_t size = static_cast<size_t>((end - start + step - 1) / step);
   ret.reserve(size);

@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/bit_cast.h"
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/endian_utils.h"
 #include "tachyon/base/logging.h"
@@ -138,9 +139,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       set |= (i == BitNums - 1);
 #endif
       if (set) {
-        // NOLINTNEXTLINE(runtime/int)
-        static_assert(sizeof(unsigned long long) == sizeof(uint64_t));
-        uint64_t limb = limb_bits.to_ullong();
+        uint64_t limb = base::bit_cast<uint64_t>(limb_bits.to_ullong());
         ret.limbs[limb_idx++] = limb;
         limb_bits.reset();
         bit_idx = 0;
@@ -166,9 +165,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       set |= (i == 0);
 #endif
       if (set) {
-        // NOLINTNEXTLINE(runtime/int)
-        static_assert(sizeof(unsigned long long) == sizeof(uint64_t));
-        uint64_t limb = limb_bits.to_ullong();
+        uint64_t limb = base::bit_cast<uint64_t>(limb_bits.to_ullong());
         ret.limbs[limb_idx++] = limb;
         limb_bits.reset();
         bit_idx = 0;
@@ -540,7 +537,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       n -= 64;
     }
 
-    if (n > static_cast<uint32_t>(0)) {
+    if (n > uint32_t{0}) {
       uint64_t t = 0;
       FOR_FROM_SMALLEST(i, 0, N) {
         uint64_t t2 = limbs[i] >> (64 - n);
@@ -609,7 +606,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       }
     }
 
-    if (n > static_cast<uint32_t>(0)) {
+    if (n > uint32_t{0}) {
       uint64_t t = 0;
       FOR_FROM_BIGGEST(i, 0, N) {
         uint64_t t2 = limbs[i] << (64 - n);
@@ -665,8 +662,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     FOR_FROM_SMALLEST(i, 0, BitNums) {
       size_t limb_idx = i / kLimbBitNums;
       size_t bit_r_idx = i % kLimbBitNums;
-      bool bit = (limbs[limb_idx] & (static_cast<uint64_t>(1) << bit_r_idx)) >>
-                 bit_r_idx;
+      bool bit = (limbs[limb_idx] & (uint64_t{1} << bit_r_idx)) >> bit_r_idx;
       ret.set(bit_w_idx++, bit);
     }
     return ret;
@@ -680,8 +676,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     FOR_FROM_BIGGEST(i, 0, BitNums) {
       size_t limb_idx = i / kLimbBitNums;
       size_t bit_r_idx = i % kLimbBitNums;
-      bool bit = (limbs[limb_idx] & (static_cast<uint64_t>(1) << bit_r_idx)) >>
-                 bit_r_idx;
+      bool bit = (limbs[limb_idx] & (uint64_t{1} << bit_r_idx)) >> bit_r_idx;
       ret.set(bit_w_idx++, bit);
     }
     return ret;
@@ -740,7 +735,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
           b.DivBy2InPlace();
           if constexpr (!ModulusHasSpareBit) {
             if (carry) {
-              b[N - 1] |= static_cast<uint64_t>(1) << 63;
+              b[N - 1] |= uint64_t{1} << 63;
             }
           }
         }
@@ -757,7 +752,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
           c.DivBy2InPlace();
           if constexpr (!ModulusHasSpareBit) {
             if (carry) {
-              c[N - 1] |= static_cast<uint64_t>(1) << 63;
+              c[N - 1] |= uint64_t{1} << 63;
             }
           }
         }
@@ -811,7 +806,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       ret = (limbs_ptr[limb_idx] >> bit_idx) |
             (limbs_ptr[1 + limb_idx] << (bits - bit_idx));
     }
-    T mask = (static_cast<T>(1) << bit_count) - static_cast<T>(1);
+    T mask = (T{1} << bit_count) - T{1};
     return ret & mask;
   }
 
@@ -927,7 +922,7 @@ class BitTraits<BigInt<N>> {
     size_t limb_index = index >> 6;
     if (limb_index >= N) return false;
     size_t bit_index = index & 63;
-    uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
+    uint64_t bit_index_value = uint64_t{1} << bit_index;
     return (bigint[limb_index] & bit_index_value) == bit_index_value;
   }
   constexpr static void SetBit(BigInt<N>& bigint, size_t index,
@@ -935,7 +930,7 @@ class BitTraits<BigInt<N>> {
     size_t limb_index = index >> 6;
     if (limb_index >= N) return;
     size_t bit_index = index & 63;
-    uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
+    uint64_t bit_index_value = uint64_t{1} << bit_index;
     if (bit_value) {
       bigint[limb_index] |= bit_index_value;
     } else {

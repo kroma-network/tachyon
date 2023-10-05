@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "absl/base/call_once.h"
+#include "absl/base/casts.h"
 #include "absl/base/internal/endian.h"
 
 #include "tachyon/base/logging.h"
@@ -177,7 +178,7 @@ class PrimeFieldGmp final : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   }
 
   PrimeFieldGmp& DoubleInPlace() {
-    return AddInPlace(static_cast<const PrimeFieldGmp&>(*this));
+    return AddInPlace(absl::implicit_cast<const PrimeFieldGmp&>(*this));
   }
 
   // AdditiveGroup methods
@@ -214,7 +215,7 @@ class PrimeFieldGmp final : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
   }
 
   PrimeFieldGmp& SquareInPlace() {
-    return MulInPlace(static_cast<PrimeFieldGmp&>(*this));
+    return MulInPlace(absl::implicit_cast<const PrimeFieldGmp&>(*this));
   }
 
   // MultiplicativeGroup methods

@@ -331,7 +331,7 @@ class PrimeFieldGpuDebug final
     odd[n - 2] = result.result;
     result = internal::u32::MadcHi(a[n - 2], bi, 0, result.carry);
     odd[n - 1] = result.result;
-    CHECK_EQ(result.carry, static_cast<uint32_t>(0));
+    CHECK_EQ(result.carry, uint32_t{0});
   }
 
   constexpr static void MadNRedc(uint32_t* even, uint32_t* odd,
@@ -351,15 +351,15 @@ class PrimeFieldGpuDebug final
       uint32_t carry = CMadN(even, a, bi);
       result = internal::u32::Addc(odd[n - 1], 0, carry);
       odd[n - 1] = result.result;
-      CHECK_EQ(result.carry, static_cast<uint32_t>(0));
+      CHECK_EQ(result.carry, uint32_t{0});
     }
     uint32_t mi = even[0] * Config::kInverse32;
     uint32_t carry = CMadN(odd, modulus + 1, mi);
-    CHECK_EQ(carry, static_cast<uint32_t>(0));
+    CHECK_EQ(carry, uint32_t{0});
     carry = CMadN(even, modulus, mi);
     AddResult<uint32_t> result = internal::u32::Addc(odd[n - 1], 0, carry);
     odd[n - 1] = result.result;
-    CHECK_EQ(result.carry, static_cast<uint32_t>(0));
+    CHECK_EQ(result.carry, uint32_t{0});
   }
 
   constexpr static PrimeFieldGpuDebug Clamp(PrimeFieldGpuDebug& xs) {

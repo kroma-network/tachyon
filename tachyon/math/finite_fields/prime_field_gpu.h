@@ -338,7 +338,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     const uint32_t* x = reinterpret_cast<const uint32_t*>(xs.limbs);
     uint32_t* r = reinterpret_cast<uint32_t*>(results.limbs);
     for (size_t i = 0; i < N32 - 1; ++i) {
-      r[i] = static_cast<uint32_t>(__funnelshift_rc(x[i], x[i + 1], 1));
+      r[i] = uint32_t{__funnelshift_rc(x[i], x[i + 1], 1)};
     }
     r[N32 - 1] = x[N32 - 1] >> 1;
     return results;
