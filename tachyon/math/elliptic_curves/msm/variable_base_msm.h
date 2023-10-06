@@ -1,6 +1,8 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_H_
 
+#include <utility>
+
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_adapter.h"
 
 namespace tachyon::math {

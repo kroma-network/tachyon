@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_BASE_GMP_GMP_SIGN_H_
-#define TACHYON_MATH_BASE_GMP_GMP_SIGN_H_
+#ifndef TACHYON_MATH_BASE_GMP_SIGNED_VALUE_H_
+#define TACHYON_MATH_BASE_GMP_SIGNED_VALUE_H_
 
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/base/sign.h"
@@ -34,4 +34,4 @@ class SignedValue<mpz_class> {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_BASE_GMP_GMP_SIGN_H_
+#endif  // TACHYON_MATH_BASE_GMP_SIGNED_VALUE_H_

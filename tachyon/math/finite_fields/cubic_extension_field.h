@@ -6,6 +6,9 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_CUBIC_EXTENSION_FIELD_H_
 #define TACHYON_MATH_FINITE_FIELDS_CUBIC_EXTENSION_FIELD_H_
 
+#include <string>
+#include <utility>
+
 #include "absl/strings/substitute.h"
 
 #include "tachyon/math/base/field.h"

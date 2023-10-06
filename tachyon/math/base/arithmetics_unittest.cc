@@ -1,5 +1,7 @@
 #include "tachyon/math/base/arithmetics.h"
 
+#include <limits>
+
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 

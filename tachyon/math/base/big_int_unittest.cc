@@ -1,5 +1,7 @@
 #include "tachyon/math/base/big_int.h"
 
+#include <vector>
+
 #include "gtest/gtest.h"
 
 namespace tachyon::math {

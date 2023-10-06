@@ -1,6 +1,8 @@
 #ifndef TACHYON_PY_MATH_FINITE_FIELDS_PRIME_FIELD_H_
 #define TACHYON_PY_MATH_FINITE_FIELDS_PRIME_FIELD_H_
 
+#include <string>
+
 #include "pybind11/operators.h"
 
 #include "tachyon/py/base/pybind11.h"

@@ -1,5 +1,7 @@
 #include "tachyon/math/matrix/sparse/sparse_matrix.h"
 
+#include <vector>
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -128,8 +130,7 @@ TEST_F(SparseMatrixTest, CSRSparseMatrixSort) {
   // clang-format off
   CSRSparseMatrix<GF7> test_data(
     {{3, GF7(1)}, {5, GF7(3)}, {4, GF7(2)}, {0, GF7(4)}, {1, GF7(5)}, {2, GF7(6)}},
-    {0, 1, 3, 5, 6}
-  );
+    {0, 1, 3, 5, 6});
   // clang-format on
   EXPECT_FALSE(test_data.IsSorted());
 

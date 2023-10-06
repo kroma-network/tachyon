@@ -1,6 +1,8 @@
 #ifndef TACHYON_BUILD_CC_WRITER_H_
 #define TACHYON_BUILD_CC_WRITER_H_
 
+#include <string>
+
 #include "tachyon/build/writer.h"
 
 namespace tachyon::build {

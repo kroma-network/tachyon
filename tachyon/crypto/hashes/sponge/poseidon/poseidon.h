@@ -6,6 +6,9 @@
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 
+#include <utility>
+#include <vector>
+
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/hashes/prime_field_serializable.h"

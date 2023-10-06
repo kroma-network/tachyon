@@ -1,6 +1,8 @@
 #ifndef TACHYON_NODE_MATH_FINITE_FIELDS_PRIME_FIELD_H_
 #define TACHYON_NODE_MATH_FINITE_FIELDS_PRIME_FIELD_H_
 
+#include <string>
+
 #include "tachyon/node/base/node_module.h"
 #include "tachyon/node/math/base/big_int.h"
 
@@ -36,14 +38,16 @@ void AddPrimeField(NodeModule& m, std::string_view name) {
       .AddMethod("toHexString", &PrimeFieldTy::ToHexString)
       .AddMethod("eq", &PrimeFieldTy::operator==)
       .AddMethod("ne", &PrimeFieldTy::operator!=)
+      // NOLINTNEXTLINE(whitespace/operators)
       .AddMethod("lt", &PrimeFieldTy::operator<)
       .AddMethod("le", &PrimeFieldTy::operator<=)
+      // NOLINTNEXTLINE(whitespace/operators)
       .AddMethod("gt", &PrimeFieldTy::operator>)
       .AddMethod("ge", &PrimeFieldTy::operator>=)
-      .AddMethod("add", &PrimeFieldTy::template operator+ <const PrimeFieldTy&>)
-      .AddMethod("sub", &PrimeFieldTy::template operator- <const PrimeFieldTy&>)
-      .AddMethod("mul", &PrimeFieldTy::template operator* <const PrimeFieldTy&>)
-      .AddMethod("div", &PrimeFieldTy::template operator/ <const PrimeFieldTy&>)
+      .AddMethod("add", &PrimeFieldTy::template operator+<const PrimeFieldTy&>)
+      .AddMethod("sub", &PrimeFieldTy::template operator-<const PrimeFieldTy&>)
+      .AddMethod("mul", &PrimeFieldTy::template operator*<const PrimeFieldTy&>)
+      .AddMethod("div", &PrimeFieldTy::template operator/<const PrimeFieldTy&>)
       .AddMethod("negative", &PrimeFieldTy::Negative)
       .AddMethod("double", &PrimeFieldTy::Double)
       .AddMethod("square", &PrimeFieldTy::Square);

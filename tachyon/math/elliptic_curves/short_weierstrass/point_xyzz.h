@@ -1,7 +1,9 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 
+#include <string>
 #include <type_traits>
+#include <utility>
 
 #include "absl/strings/substitute.h"
 
@@ -31,9 +33,9 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
   constexpr PointXYZZ()
       : PointXYZZ(BaseField::One(), BaseField::One(), BaseField::Zero(),
                   BaseField::Zero()) {}
-  constexpr PointXYZZ(const Point4<BaseField>& point)
+  explicit constexpr PointXYZZ(const Point4<BaseField>& point)
       : PointXYZZ(point.x, point.y, point.z, point.w) {}
-  constexpr PointXYZZ(Point4<BaseField>&& point)
+  explicit constexpr PointXYZZ(Point4<BaseField>&& point)
       : PointXYZZ(std::move(point.x), std::move(point.y), std::move(point.z),
                   std::move(point.w)) {}
   constexpr PointXYZZ(const BaseField& x, const BaseField& y,

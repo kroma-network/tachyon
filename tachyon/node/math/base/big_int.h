@@ -1,6 +1,8 @@
 #ifndef TACHYON_NODE_MATH_BASE_BIG_INT_H_
 #define TACHYON_NODE_MATH_BASE_BIG_INT_H_
 
+#include <string>
+
 #include "absl/strings/substitute.h"
 
 #include "tachyon/math/base/big_int.h"
@@ -68,4 +70,4 @@ class CppValueTraits<tachyon::math::BigInt<1>> {
 }  // namespace internal
 }  // namespace tachyon::node
 
-#endif  // TACHYON_NODE_MATH_FINITE_FIELDS_PRIME_FIELD_H_
+#endif  // TACHYON_NODE_MATH_BASE_BIG_INT_H_

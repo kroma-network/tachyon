@@ -1,7 +1,9 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_JACOBIAN_POINT_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_JACOBIAN_POINT_H_
 
+#include <string>
 #include <type_traits>
+#include <utility>
 
 #include "absl/strings/substitute.h"
 
@@ -31,9 +33,9 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
 
   constexpr JacobianPoint()
       : JacobianPoint(BaseField::One(), BaseField::One(), BaseField::Zero()) {}
-  constexpr JacobianPoint(const Point3<BaseField>& point)
+  explicit constexpr JacobianPoint(const Point3<BaseField>& point)
       : JacobianPoint(point.x, point.y, point.z) {}
-  constexpr JacobianPoint(Point3<BaseField>&& point)
+  explicit constexpr JacobianPoint(Point3<BaseField>&& point)
       : JacobianPoint(std::move(point.x), std::move(point.y),
                       std::move(point.z)) {}
   constexpr JacobianPoint(const BaseField& x, const BaseField& y,
@@ -197,4 +199,4 @@ class JacobianPoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point_impl.h"
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_JACOBIAN_POINT_H_

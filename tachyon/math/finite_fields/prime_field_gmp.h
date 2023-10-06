@@ -7,6 +7,7 @@
 
 #include <ostream>
 #include <string>
+#include <utility>
 
 #include "absl/base/call_once.h"
 #include "absl/base/internal/endian.h"
@@ -246,4 +247,4 @@ std::ostream& operator<<(std::ostream& os, const PrimeFieldGmp<Config>& f) {
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_GMP_H_
 
-#endif  // defined(TACHYON_GMP_BACKEND)
+#endif  // defined(TACHYON_GMP_BACKEND) // NOLINT(build/header_guard)

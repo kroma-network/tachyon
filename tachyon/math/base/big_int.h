@@ -5,6 +5,10 @@
 #include <stdint.h>
 
 #include <bitset>
+#include <limits>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/endian_utils.h"
@@ -134,6 +138,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       set |= (i == BitNums - 1);
 #endif
       if (set) {
+        // NOLINTNEXTLINE(runtime/int)
         static_assert(sizeof(unsigned long long) == sizeof(uint64_t));
         uint64_t limb = limb_bits.to_ullong();
         ret.limbs[limb_idx++] = limb;
@@ -161,6 +166,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       set |= (i == 0);
 #endif
       if (set) {
+        // NOLINTNEXTLINE(runtime/int)
         static_assert(sizeof(unsigned long long) == sizeof(uint64_t));
         uint64_t limb = limb_bits.to_ullong();
         ret.limbs[limb_idx++] = limb;
@@ -924,7 +930,6 @@ class BitTraits<BigInt<N>> {
     uint64_t bit_index_value = static_cast<uint64_t>(1) << bit_index;
     return (bigint[limb_index] & bit_index_value) == bit_index_value;
   }
-
   constexpr static void SetBit(BigInt<N>& bigint, size_t index,
                                bool bit_value) {
     size_t limb_index = index >> 6;

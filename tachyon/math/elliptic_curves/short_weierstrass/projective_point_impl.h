@@ -1,8 +1,9 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_IMPL_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_IMPL_H_
 
-#include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
+#include <utility>
 
+#include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 namespace tachyon::math {
 
 #define CLASS ProjectivePoint<Curve, std::enable_if_t<Curve::kIsSWCurve>>

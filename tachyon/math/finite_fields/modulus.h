@@ -1,6 +1,8 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_MODULUS_H_
 #define TACHYON_MATH_FINITE_FIELDS_MODULUS_H_
 
+#include <limits>
+
 #include "tachyon/math/base/big_int.h"
 
 namespace tachyon::math {
@@ -68,7 +70,7 @@ class Modulus {
       inv *= inv;
       // Multiply
       inv *= static_cast<T>(modulus[0]);
-    };
+    }
     return -inv;
   }
 };

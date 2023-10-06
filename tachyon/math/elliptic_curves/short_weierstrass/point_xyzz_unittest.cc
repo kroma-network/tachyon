@@ -1,5 +1,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 
+#include <vector>
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

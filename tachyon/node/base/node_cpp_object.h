@@ -1,7 +1,9 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_OBJECT_H_
 #define TACHYON_NODE_BASE_NODE_CPP_OBJECT_H_
 
+#include <memory>
 #include <string_view>
+#include <vector>
 
 #include "tachyon/base/binding/cpp_stack_value.h"
 #include "tachyon/base/binding/cpp_value.h"

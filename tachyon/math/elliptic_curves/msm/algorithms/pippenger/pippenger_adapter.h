@@ -1,6 +1,10 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_ADAPTER_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_ADAPTER_H_
 
+#include <algorithm>
+#include <utility>
+#include <vector>
+
 #include "absl/base/internal/sysinfo.h"
 
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger.h"

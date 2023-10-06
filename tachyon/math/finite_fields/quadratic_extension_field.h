@@ -7,6 +7,7 @@
 #define TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 
 #include <ostream>
+#include <string>
 #include <utility>
 
 #include "absl/strings/substitute.h"
@@ -146,7 +147,7 @@ class QuadraticExtensionField : public Field<Derived> {
         BaseField lefts[] = {c0_, c1_};
         BaseField rights[] = {other.c1_, other.c0_};
         c1 = BaseField::SumOfProducts(lefts, rights);
-      };
+      }
       c0_ = std::move(c0);
       c1_ = std::move(c1);
     } else {

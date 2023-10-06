@@ -1,6 +1,8 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_BELLMAN_BELLMAN_MSM_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_BELLMAN_BELLMAN_MSM_H_
 
+#include <memory>
+
 #include "tachyon/math/elliptic_curves/msm/algorithms/bellman/bellman_msm_impl.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/msm_algorithm.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"

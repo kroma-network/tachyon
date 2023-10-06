@@ -1,5 +1,8 @@
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk.h"
 
+#include <utility>
+#include <vector>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"

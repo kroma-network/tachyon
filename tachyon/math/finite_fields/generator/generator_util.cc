@@ -1,5 +1,8 @@
 #include "tachyon/math/finite_fields/generator/generator_util.h"
 
+#include <string>
+#include <vector>
+
 #include "absl/strings/str_join.h"
 #include "absl/strings/substitute.h"
 

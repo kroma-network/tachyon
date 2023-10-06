@@ -1,7 +1,11 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_CLASS_H_
 #define TACHYON_NODE_BASE_NODE_CPP_CLASS_H_
 
+#include <memory>
+#include <string>
 #include <string_view>
+#include <utility>
+#include <vector>
 
 #include "absl/strings/substitute.h"
 

@@ -20,162 +20,150 @@ class MultivariatePolynomialTest : public testing::Test {
 
   MultivariatePolynomialTest() {
     // poly0: 2
-    polys_.push_back(Poly(Coeffs(1,
-                                 {
-                                     {
-                                         {
-                                             {
-                                                 {0, 0}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(2)          // coefficient
-                                     }                   // Term
-                                 }                       // vector<Term>
-                                 )));
+    polys_.push_back(Poly(Coeffs(1, {
+                                        {
+                                            {
+                                                {
+                                                    {0, 0}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(2)          // coefficient
+                                        }                   // Term
+                                    })));                   // vector<Term>
     // poly1: 1 * x₀
-    polys_.push_back(Poly(Coeffs(1,
-                                 {
-                                     {
-                                         {
-                                             {
-                                                 {0, 1}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     }                   // Term
-                                 }                       // vector<Term>
-                                 )));
+    polys_.push_back(Poly(Coeffs(1, {
+                                        {
+                                            {
+                                                {
+                                                    {0, 1}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(1)          // coefficient
+                                        }                   // Term
+                                    })));                   // vector<Term>
     // poly2: 1 * x₀ (num_vars = 2)
-    polys_.push_back(Poly(Coeffs(2,
-                                 {
-                                     {
-                                         {
-                                             {
-                                                 {0, 1}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     }                   // Term
-                                 }                       // vector<Term>
-                                 )));
+    polys_.push_back(Poly(Coeffs(2, {
+                                        {
+                                            {
+                                                {
+                                                    {0, 1}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(1)          // coefficient
+                                        }                   // Term
+                                    })));                   // vector<Term>
     // poly3: 1 * x₀ + 1 * x₁
-    polys_.push_back(Poly(Coeffs(2,
-                                 {
-                                     {
-                                         {
-                                             {
-                                                 {0, 1}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     },                  // Term
-                                     {
-                                         {
-                                             {
-                                                 {1, 1}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     }                   // Term
-                                 }                       // vector<Term>
-                                 )));
+    polys_.push_back(Poly(Coeffs(2, {
+                                        {
+                                            {
+                                                {
+                                                    {0, 1}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(1)          // coefficient
+                                        },                  // Term
+                                        {
+                                            {
+                                                {
+                                                    {1, 1}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(1)          // coefficient
+                                        }                   // Term
+                                    })));                   // vector<Term>
+
     // poly4: 1 * x₁ + 1 * x₀
-    polys_.push_back(Poly(Coeffs(2,
-                                 {
-                                     {
-                                         {
-                                             {
-                                                 {0, 1}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     },                  // Term
-                                     {
-                                         {
-                                             {
-                                                 {1, 1}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     }                   // Term
-                                 }                       // vector<Term>
-                                 )));
+    polys_.push_back(Poly(Coeffs(2, {
+                                        {
+                                            {
+                                                {
+                                                    {0, 1}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(1)          // coefficient
+                                        },                  // Term
+                                        {
+                                            {
+                                                {
+                                                    {1, 1}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(1)          // coefficient
+                                        }                   // Term
+                                    })));                   // vector<Term>
+
     // poly5: 1 * x₀² + 2 * x₀x₁ + 3 * x₁² + 4
-    polys_.push_back(Poly(Coeffs(2,
-                                 {
-                                     {
-                                         {
-                                             {
-                                                 {}  // Element
-                                             }       // vector<Element>
-                                         },          // Literal
-                                         GF7(4)      // coefficient
-                                     },              // Term
-                                     {
-                                         {
-                                             {
-                                                 {0, 2}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     },                  // Term
-                                     {
-                                         {
-                                             {
-                                                 {0, 1},  // Element
-                                                 {1, 1}   // Element
-                                             }            // vector<Element>
-                                         },               // Literal
-                                         GF7(2)           // coefficient
-                                     },                   // Term
-                                     {
-                                         {
-                                             {
-                                                 {1, 2}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(3)          // coefficient
-                                     }                   // Term
-                                 }                       // vector<Term>
-                                 )));
+    polys_.push_back(Poly(Coeffs(2, {
+                                        {
+                                            {
+                                                {
+                                                    {}  // Element
+                                                }       // vector<Element>
+                                            },          // Literal
+                                            GF7(4)      // coefficient
+                                        },              // Term
+                                        {
+                                            {
+                                                {
+                                                    {0, 2}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(1)          // coefficient
+                                        },                  // Term
+                                        {
+                                            {
+                                                {
+                                                    {0, 1},  // Element
+                                                    {1, 1}   // Element
+                                                }            // vector<Element>
+                                            },               // Literal
+                                            GF7(2)           // coefficient
+                                        },                   // Term
+                                        {
+                                            {
+                                                {
+                                                    {1, 2}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(3)          // coefficient
+                                        }                   // Term
+                                    })));                   // vector<Term>
     // poly6: 1 * x₀³ + 2 * x₀x₁² + 3 * x₁³ + 4
-    polys_.push_back(Poly(Coeffs(2,
-                                 {
-                                     {
-                                         {
-                                             {
-                                                 {1, 0}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(4)          // coefficient
-                                     },                  // Term
-                                     {
-                                         {
-                                             {
-                                                 {0, 3}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(1)          // coefficient
-                                     },                  // Term
-                                     {
-                                         {
-                                             {
-                                                 {0, 1},  // Element
-                                                 {1, 2}   // Element
-                                             }            // vector<Element>
-                                         },               // Literal
-                                         GF7(2)           // coefficient
-                                     },                   // Term
-                                     {
-                                         {
-                                             {
-                                                 {1, 3}  // Element
-                                             }           // vector<Element>
-                                         },              // Literal
-                                         GF7(3)          // coefficient
-                                     },                  // Term
-                                 }                       // vector<Term>
-                                 )));
+    polys_.push_back(Poly(Coeffs(2, {
+                                        {
+                                            {
+                                                {
+                                                    {1, 0}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(4)          // coefficient
+                                        },                  // Term
+                                        {
+                                            {
+                                                {
+                                                    {0, 3}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(1)          // coefficient
+                                        },                  // Term
+                                        {
+                                            {
+                                                {
+                                                    {0, 1},  // Element
+                                                    {1, 2}   // Element
+                                                }            // vector<Element>
+                                            },               // Literal
+                                            GF7(2)           // coefficient
+                                        },                   // Term
+                                        {
+                                            {
+                                                {
+                                                    {1, 3}  // Element
+                                                }           // vector<Element>
+                                            },              // Literal
+                                            GF7(3)          // coefficient
+                                        },                  // Term
+                                    })));                   // vector<Term>
   }
   MultivariatePolynomialTest(const MultivariatePolynomialTest&) = delete;
   MultivariatePolynomialTest& operator=(const MultivariatePolynomialTest&) =
@@ -191,18 +179,16 @@ class MultivariatePolynomialTest : public testing::Test {
 TEST_F(MultivariatePolynomialTest, IsZero) {
   EXPECT_TRUE(Poly().IsZero());
   EXPECT_TRUE(Poly::Zero().IsZero());
-  Coeffs a = Coeffs(1,
-                    {
-                        {
-                            {
-                                {
-                                    {0, 0}  // Element
-                                }           // vector<Element>
-                            },              // Literal
-                            GF7(0)          // coefficient
-                        }                   // Term
-                    }                       // vector<Term>
-  );
+  Coeffs a = Coeffs(1, {
+                           {
+                               {
+                                   {
+                                       {0, 0}  // Element
+                                   }           // vector<Element>
+                               },              // Literal
+                               GF7(0)          // coefficient
+                           }                   // Term
+                       });                     // vector<Term>
   a.Compact();
   EXPECT_TRUE(Poly(a).IsZero());
   for (size_t i = 0; i < polys_.size(); ++i) {
@@ -222,8 +208,7 @@ TEST_F(MultivariatePolynomialTest, IsOne) {
                                   },              // Literal
                                   GF7(1)          // coefficient
                               }                   // Term
-                          }                       // vector<Term>
-                          ))
+                          }))                     // vector<Term>
                   .IsOne());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
     EXPECT_FALSE(polys_[i].IsOne());
@@ -332,8 +317,7 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
     Poly bma;
   } tests[] = {
       {
-          polys_[0],
-          polys_[1],
+          polys_[0], polys_[1],
           Poly(Coeffs(1,
                       {
                           {
@@ -352,8 +336,7 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
                               },              // Literal
                               GF7(1)          // coefficient
                           }                   // Term
-                      }                       // vector<Term>
-                      )),
+                      })),                    // vector<Term>
           Poly(Coeffs(1,
                       {
                           {
@@ -372,8 +355,7 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
                               },              // Literal
                               GF7(6)          // coefficient
                           }                   // Term
-                      }                       // vector<Term>
-                      )),
+                      })),                    // vector<Term>
           Poly(Coeffs(1,
                       {
                           {
@@ -392,12 +374,10 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
                               },              // Literal
                               GF7(1)          // coefficient
                           }                   // Term
-                      }                       // vector<Term>
-                      )),
+                      })),                    // vector<Term>
       },
       {
-          polys_[0],
-          polys_[3],
+          polys_[0], polys_[3],
           Poly(Coeffs(2,
                       {
                           {
@@ -424,8 +404,7 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
                               },              // Literal
                               GF7(1)          // coefficient
                           }                   // Term
-                      }                       // vector<Term>
-                      )),
+                      })),                    // vector<Term>
           Poly(Coeffs(2,
                       {
                           {
@@ -452,8 +431,8 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
                               },              // Literal
                               GF7(6)          // coefficient
                           }                   // Term
-                      }                       // vector<Term>
-                      )),
+                      })),                    // vector<Term>
+
           Poly(Coeffs(2,
                       {
                           {
@@ -480,8 +459,7 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
                               },              // Literal
                               GF7(1)          // coefficient
                           }                   // Term
-                      }                       // vector<Term>
-                      )),
+                      })),                    // vector<Term>
       },
       {polys_[5], polys_[6],
        Poly(Coeffs(2,
@@ -544,8 +522,7 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
                            },              // Literal
                            GF7(3)          // coefficient
                        },                  // Term
-                   }                       // vector<Term>
-                   )),
+                   })),                    // vector<Term>
        Poly(Coeffs(2,
                    {
                        {
@@ -598,8 +575,8 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
                            },              // Literal
                            GF7(4)          // coefficient
                        },                  // Term
-                   }                       // vector<Term>
-                   )),
+                   })),                    // vector<Term>
+
        Poly(Coeffs(2,
                    {
                        {
@@ -652,8 +629,7 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
                            },              // Literal
                            GF7(3)          // coefficient
                        },                  // Term
-                   }                       // vector<Term>
-                   ))},
+                   }))},                   // vector<Term>
   };
 
   for (const auto& test : tests) {

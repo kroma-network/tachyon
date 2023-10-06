@@ -1,8 +1,10 @@
 #ifndef TACHYON_NODE_BASE_NODE_INTERNALS_H_
 #define TACHYON_NODE_BASE_NODE_INTERNALS_H_
 
+#include <memory>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "absl/container/inlined_vector.h"

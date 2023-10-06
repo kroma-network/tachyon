@@ -1,7 +1,10 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_CALLABLE_H_
 #define TACHYON_NODE_BASE_NODE_CPP_CALLABLE_H_
 
+#include <memory>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 #include "absl/strings/substitute.h"
 #include "third_party/node_addon_api/napi.h"

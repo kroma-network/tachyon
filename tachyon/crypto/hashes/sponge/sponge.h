@@ -18,7 +18,7 @@ namespace tachyon::crypto {
 // Specifying the output field element size.
 class TACHYON_EXPORT FieldElementSize {
  public:
-  static FieldElementSize Full() { return {false}; }
+  static FieldElementSize Full() { return FieldElementSize(false); }
   static FieldElementSize Truncated(size_t num_bits) {
     return {true, num_bits};
   }
@@ -47,7 +47,9 @@ class TACHYON_EXPORT FieldElementSize {
   bool IsTruncated() const { return is_truncated_; }
 
  private:
-  FieldElementSize(bool is_truncated, size_t num_bits = 0)
+  explicit FieldElementSize(bool is_truncated)
+      : FieldElementSize(is_truncated, 0) {}
+  FieldElementSize(bool is_truncated, size_t num_bits)
       : is_truncated_(is_truncated), num_bits_(num_bits) {}
 
   // If |is_truncated_| is false, sample field elements from the entire field.

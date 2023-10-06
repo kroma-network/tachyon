@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CUDA_H_
-#define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CUDA_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_GPU_H_
+#define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_GPU_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -418,4 +418,4 @@ std::ostream& operator<<(std::ostream& os, const PrimeFieldGpu<Config>& f) {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CUDA_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_GPU_H_

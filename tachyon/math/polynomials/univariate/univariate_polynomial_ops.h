@@ -3,6 +3,8 @@
 
 #include <algorithm>
 #include <iterator>
+#include <utility>
+#include <vector>
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/base/arithmetics_results.h"

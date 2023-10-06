@@ -70,13 +70,13 @@ int RealMain(int argc, char **argv) {
   printf("[Vector addition of %d elements]\n", numElements);
 
   // Allocate the host input vector A
-  float *h_A = (float *)malloc(size);
+  float *h_A = (float *)malloc(size);  // NOLINT(readability/casting)
 
   // Allocate the host input vector B
-  float *h_B = (float *)malloc(size);
+  float *h_B = (float *)malloc(size);  // NOLINT(readability/casting)
 
   // Allocate the host output vector C
-  float *h_C = (float *)malloc(size);
+  float *h_C = (float *)malloc(size);  // NOLINT(readability/casting)
 
   // Verify that allocations succeeded
   if (h_A == NULL || h_B == NULL || h_C == NULL) {
@@ -86,13 +86,13 @@ int RealMain(int argc, char **argv) {
 
   // Initialize the host input vectors
   for (int i = 0; i < numElements; ++i) {
-    h_A[i] = rand() / (float)RAND_MAX;
-    h_B[i] = rand() / (float)RAND_MAX;
+    h_A[i] = rand() / (float)RAND_MAX;  // NOLINT
+    h_B[i] = rand() / (float)RAND_MAX;  // NOLINT
   }
 
   // Allocate the device input vector A
   float *d_A = NULL;
-  err = cudaMalloc((void **)&d_A, size);
+  err = cudaMalloc((void **)&d_A, size);  // NOLINT(readability/casting)
 
   if (err != cudaSuccess) {
     fprintf(stderr, "Failed to allocate device vector A (error code %s)!\n",
@@ -102,7 +102,7 @@ int RealMain(int argc, char **argv) {
 
   // Allocate the device input vector B
   float *d_B = NULL;
-  err = cudaMalloc((void **)&d_B, size);
+  err = cudaMalloc((void **)&d_B, size);  // NOLINT(readability/casting)
 
   if (err != cudaSuccess) {
     fprintf(stderr, "Failed to allocate device vector B (error code %s)!\n",
@@ -111,8 +111,8 @@ int RealMain(int argc, char **argv) {
   }
 
   // Allocate the device output vector C
-  float *d_C = NULL;
-  err = cudaMalloc((void **)&d_C, size);
+  float *d_C = NULL;                      // NOLINT(readability/casting)
+  err = cudaMalloc((void **)&d_C, size);  // NOLINT(readability/casting)
 
   if (err != cudaSuccess) {
     fprintf(stderr, "Failed to allocate device vector C (error code %s)!\n",

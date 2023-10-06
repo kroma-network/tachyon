@@ -1,12 +1,14 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_BELLMAN_BELLMAN_MSM_IMPL_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_BELLMAN_BELLMAN_MSM_IMPL_H_
 
+#include <algorithm>
 #include <cmath>
+#include <utility>
 
 // It is guided to use "umbrella" header instead of
 // "third_party/gpus/cuda/include/cub/cub.cuh".
 // See https://nvlabs.github.io/cub/#sec6
-#include <cub/cub.cuh>
+#include <cub/cub.cuh>  // NOLINT(build/include_order)
 
 #include "tachyon/base/bits.h"
 #include "tachyon/device/gpu/cuda/cub_helper.h"

@@ -106,7 +106,6 @@ int GenerationConfig::GenerateConfigHdr() const {
   std::string content = absl::StrReplaceAll(
       tpl_content,
       {
-
           {"%{namespace}", ns_name},
           {"%{class}", class_name},
           {"%{degree}", base::NumberToString(degree)},

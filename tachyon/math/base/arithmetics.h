@@ -12,9 +12,11 @@
 #include "tachyon/math/base/arithmetics_results.h"
 
 #if defined(__clang__) && HAS_BUILTIN(__builtin_addc)
-// See https://clang.llvm.org/docs/LanguageExtensions.html#multiprecision-arithmetic-builtins
+// See
+// https://clang.llvm.org/docs/LanguageExtensions.html#multiprecision-arithmetic-builtins
 #elif ARCH_CPU_X86_64
-// See https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/2021-8/intrinsics-for-multi-precision-arithmetic.html
+// See
+// https://www.intel.com/content/www/us/en/docs/cpp-compiler/developer-guide-reference/2021-8/intrinsics-for-multi-precision-arithmetic.html
 #include <x86gprintrin.h>
 #endif
 
@@ -77,12 +79,18 @@ ALWAYS_INLINE AddResult<uint64_t> AddWithCarry(uint64_t a, uint64_t b,
                                                uint64_t carry = 0) {
   AddResult<uint64_t> result;
 #if defined(__clang__) && HAS_BUILTIN(__builtin_addcl)
-  static_assert(sizeof(uint64_t) == sizeof(unsigned long));
-  result.result = __builtin_addcl(a, b, carry, reinterpret_cast<unsigned long*>(&result.carry));
+  static_assert(sizeof(uint64_t) ==
+                sizeof(unsigned long));  // NOLINT(runtime/int)
+  result.result = __builtin_addcl(
+      a, b, carry,
+      reinterpret_cast<unsigned long*>(&result.carry));  // NOLINT(runtime/int)
 #elif ARCH_CPU_X86_64
-  static_assert(sizeof(uint64_t) == sizeof(unsigned long long));
+  static_assert(sizeof(uint64_t) ==
+                sizeof(unsigned long long));  // NOLINT(runtime/int)
   result.carry = _addcarry_u64(
-      carry, a, b, reinterpret_cast<unsigned long long*>(&result.result));
+      carry, a, b,
+      reinterpret_cast<unsigned long long*>(  // NOLINT(runtime/int)
+          &result.result));
 #else
   absl::uint128 tmp =
       absl::uint128(a) + absl::uint128(b) + absl::uint128(carry);
@@ -97,12 +105,18 @@ ALWAYS_INLINE SubResult<uint64_t> SubWithBorrow(uint64_t& a, uint64_t b,
                                                 uint64_t borrow = 0) {
   SubResult<uint64_t> result;
 #if defined(__clang__) && HAS_BUILTIN(__builtin_subcl)
-  static_assert(sizeof(uint64_t) == sizeof(unsigned long));
-  result.result = __builtin_subcl(a, b, borrow, reinterpret_cast<unsigned long*>(&result.borrow));
+  static_assert(sizeof(uint64_t) ==
+                sizeof(unsigned long));  // NOLINT(runtime/int)
+  result.result = __builtin_subcl(
+      a, b, borrow,
+      reinterpret_cast<unsigned long*>(&result.borrow));  // NOLINT(runtime/int)
 #elif ARCH_CPU_X86_64
-  static_assert(sizeof(uint64_t) == sizeof(unsigned long long));
+  static_assert(sizeof(uint64_t) ==
+                sizeof(unsigned long long));  // NOLINT(runtime/int)
   result.borrow = _subborrow_u64(
-      borrow, a, b, reinterpret_cast<unsigned long long*>(&result.result));
+      borrow, a, b,
+      reinterpret_cast<unsigned long long*>(  // NOLINT(runtime/int)
+          &result.result));
 #else
   absl::uint128 tmp = (absl::uint128(1) << 64) + absl::uint128(a) -
                       absl::uint128(b) - absl::uint128(borrow);
