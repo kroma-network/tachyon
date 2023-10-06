@@ -1,6 +1,9 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_CUZK_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_CUZK_CUZK_H_
 
+#include <utility>
+#include <vector>
+
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"

@@ -1,5 +1,7 @@
 #include "benchmark/msm/msm_config.h"
 
+#include <algorithm>
+
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/flag/flag_parser.h"
 

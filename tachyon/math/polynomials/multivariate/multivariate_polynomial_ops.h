@@ -1,6 +1,9 @@
 #ifndef TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTIVARIATE_POLYNOMIAL_OPS_H_
 #define TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTIVARIATE_POLYNOMIAL_OPS_H_
 
+#include <utility>
+#include <vector>
+
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/polynomials/multivariate/multivariate_polynomial.h"
 
@@ -43,7 +46,7 @@ class MultivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
   static MultivariatePolynomial<S>& NegInPlace(
       MultivariatePolynomial<S>& self) {
     Terms& terms = self.terms_;
-    // TODO (TomTaehoonKim): optimize this part by multithreading.
+    // TODO(TomTaehoonKim): optimize this part by multithreading.
     for (Term& term : terms) {
       term.coefficient.NegInPlace();
     }

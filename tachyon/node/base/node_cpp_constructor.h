@@ -1,7 +1,9 @@
 #ifndef TACHYON_NODE_BASE_NODE_CPP_CONSTRUCTOR_H_
 #define TACHYON_NODE_BASE_NODE_CPP_CONSTRUCTOR_H_
 
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "third_party/node_addon_api/napi.h"
@@ -17,10 +19,9 @@ namespace tachyon::node {
 namespace internal {
 
 template <typename T>
-constexpr bool should_override_to_number_v = std::is_enum<T>::value ||
-                                             (std::is_integral<T>::value &&
-                                              sizeof(T) <= 4 &&
-                                              !std::is_same<T, bool>::value);
+constexpr bool should_override_to_number_v =
+    std::is_enum<T>::value || (std::is_integral<T>::value && sizeof(T) <= 4 &&
+                               !std::is_same<T, bool>::value);
 
 }  // namespace internal
 

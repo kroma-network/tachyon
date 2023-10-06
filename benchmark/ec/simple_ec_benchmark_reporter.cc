@@ -1,5 +1,8 @@
 #include "benchmark/ec/simple_ec_benchmark_reporter.h"
 
+#include <string>
+#include <vector>
+
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/strings/string_number_conversions.h"

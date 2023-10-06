@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+#include <memory>
 #include <vector>
 
 // clang-format off

@@ -1,6 +1,8 @@
 #ifndef TACHYON_BUILD_WRITER_H_
 #define TACHYON_BUILD_WRITER_H_
 
+#include <string>
+
 #include "tachyon/base/files/file_path.h"
 
 namespace tachyon::build {

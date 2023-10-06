@@ -1,6 +1,8 @@
 #ifndef TACHYON_NODE_BASE_NODE_MODULE_H_
 #define TACHYON_NODE_BASE_NODE_MODULE_H_
 
+#include <utility>
+
 #include "tachyon/export.h"
 #include "tachyon/node/base/node_cpp_bindable.h"
 #include "tachyon/node/base/node_cpp_callable.h"

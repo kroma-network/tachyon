@@ -2,6 +2,8 @@
 #define TACHYON_CRYPTO_COMMITMENTS_PEDERSEN_PEDERSEN_H_
 
 #include <sstream>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"

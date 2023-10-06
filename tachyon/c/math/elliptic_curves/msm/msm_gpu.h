@@ -1,6 +1,11 @@
 #ifndef TACHYON_C_MATH_ELLIPTIC_CURVES_MSM_MSM_GPU_H_
 #define TACHYON_C_MATH_ELLIPTIC_CURVES_MSM_MSM_GPU_H_
 
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "tachyon/base/console/console_stream.h"
 #include "tachyon/base/environment.h"
 #include "tachyon/base/files/file_util.h"

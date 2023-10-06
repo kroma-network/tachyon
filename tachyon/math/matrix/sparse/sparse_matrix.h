@@ -1,6 +1,11 @@
 #ifndef TACHYON_MATH_MATRIX_SPARSE_SPARSE_MATRIX_H_
 #define TACHYON_MATH_MATRIX_SPARSE_SPARSE_MATRIX_H_
 
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "absl/types/span.h"
 #include "third_party/eigen3/Eigen/SparseCore"
 
@@ -30,9 +35,9 @@ class ELLSparseMatrix {
   using Elements = std::vector<Element>;
 
   ELLSparseMatrix() = default;
-  ELLSparseMatrix(const std::vector<Elements>& elements_list)
+  explicit ELLSparseMatrix(const std::vector<Elements>& elements_list)
       : elements_list_(elements_list) {}
-  ELLSparseMatrix(std::vector<Elements>&& elements_list)
+  explicit ELLSparseMatrix(std::vector<Elements>&& elements_list)
       : elements_list_(std::move(elements_list)) {}
   ELLSparseMatrix(const ELLSparseMatrix& other) = default;
   ELLSparseMatrix& operator=(const ELLSparseMatrix& other) = default;

@@ -1,6 +1,8 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_GPU_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_VARIABLE_BASE_MSM_GPU_H_
 
+#include <memory>
+
 #include "tachyon/math/elliptic_curves/msm/algorithms/bellman/bellman_msm.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk.h"
 

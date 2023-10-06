@@ -1,6 +1,8 @@
 #ifndef TACHYON_PY_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_H_
 #define TACHYON_PY_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_H_
 
+#include <string>
+
 #include "pybind11/operators.h"
 
 #include "tachyon/math/elliptic_curves/affine_point.h"

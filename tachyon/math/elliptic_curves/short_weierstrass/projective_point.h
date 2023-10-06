@@ -1,7 +1,9 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_PROJECTIVE_POINT_H_
 
+#include <string>
 #include <type_traits>
+#include <utility>
 
 #include "absl/strings/substitute.h"
 
@@ -32,9 +34,9 @@ class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
   constexpr ProjectivePoint()
       : ProjectivePoint(BaseField::One(), BaseField::One(), BaseField::Zero()) {
   }
-  constexpr ProjectivePoint(const Point3<BaseField>& point)
+  explicit constexpr ProjectivePoint(const Point3<BaseField>& point)
       : ProjectivePoint(point.x, point.y, point.z) {}
-  constexpr ProjectivePoint(Point3<BaseField>&& point)
+  explicit constexpr ProjectivePoint(Point3<BaseField>&& point)
       : ProjectivePoint(std::move(point.x), std::move(point.y),
                         std::move(point.z)) {}
   constexpr ProjectivePoint(const BaseField& x, const BaseField& y,

@@ -1,6 +1,9 @@
 #ifndef TACHYON_MATH_GEOMETRY_POINT2_H_
 #define TACHYON_MATH_GEOMETRY_POINT2_H_
 
+#include <string>
+#include <utility>
+
 #include "absl/strings/substitute.h"
 
 namespace tachyon::math {

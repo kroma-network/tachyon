@@ -1,3 +1,7 @@
+#ifndef TACHYON_NODE_BASE_TEST_POINT_H_
+#define TACHYON_NODE_BASE_TEST_POINT_H_
+
+#include <memory>
 #include <string_view>
 
 #include "tachyon/base/binding/test/point.h"
@@ -38,3 +42,5 @@ void DoubleWithReference(tachyon::base::test::Point& p);
 void DoubleWithSharedPtr(std::shared_ptr<tachyon::base::test::Point> p);
 
 void DoubleWithUniquePtr(std::unique_ptr<tachyon::base::test::Point> p);
+
+#endif  // TACHYON_NODE_BASE_TEST_POINT_H_

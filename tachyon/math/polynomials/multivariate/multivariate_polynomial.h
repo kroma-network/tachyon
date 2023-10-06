@@ -3,7 +3,10 @@
 
 #include <stddef.h>
 
+#include <string>
 #include <type_traits>
+#include <utility>
+#include <vector>
 
 #include "tachyon/math/polynomials/multivariate/sparse_coefficients.h"
 #include "tachyon/math/polynomials/polynomial.h"
@@ -20,9 +23,9 @@ class MultivariatePolynomial final
   using Literal = typename Coefficients::Literal;
 
   constexpr MultivariatePolynomial() = default;
-  constexpr MultivariatePolynomial(const Coefficients& coefficients)
+  explicit constexpr MultivariatePolynomial(const Coefficients& coefficients)
       : coefficients_(coefficients) {}
-  constexpr MultivariatePolynomial(Coefficients&& coefficients)
+  explicit constexpr MultivariatePolynomial(Coefficients&& coefficients)
       : coefficients_(std::move(coefficients)) {}
 
   constexpr static MultivariatePolynomial Zero() {

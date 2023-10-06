@@ -1,5 +1,7 @@
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
 
+#include <limits>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/device/gpu/gpu_enums.h"

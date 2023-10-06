@@ -43,4 +43,4 @@ struct PointConversions<PointXYZZ<SrcCurve>, PointXYZZ<DstCurve>,
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_JACOBIAN_POINT_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_POINT_XYZZ_H_

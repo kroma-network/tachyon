@@ -3,7 +3,9 @@
 
 #include <stddef.h>
 
+#include <string>
 #include <type_traits>
+#include <utility>
 
 #include "tachyon/base/logging.h"
 #include "tachyon/math/polynomials/polynomial.h"

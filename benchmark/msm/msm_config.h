@@ -34,7 +34,7 @@ class MSMConfig {
   MSMConfig& operator=(const MSMConfig& other) = delete;
 
   const std::vector<uint64_t>& degrees() const { return degrees_; }
-  const std::vector<Vendor>& vendors() const { return vendors_; };
+  const std::vector<Vendor>& vendors() const { return vendors_; }
   int algorithm() const { return algorithm_; }
   bool check_results() const { return check_results_; }
 

@@ -5,6 +5,8 @@
 
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon.h"
 
+#include <vector>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bls/bls12_381/fr.h"

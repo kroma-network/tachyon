@@ -1,6 +1,8 @@
 #ifndef TACHYON_PY_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 #define TACHYON_PY_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 
+#include <string>
+
 #include "pybind11/operators.h"
 
 #include "tachyon/math/elliptic_curves/affine_point.h"

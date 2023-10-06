@@ -1,6 +1,8 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_GENERATOR_GENERATOR_UTIL_H_
 #define TACHYON_MATH_FINITE_FIELDS_GENERATOR_GENERATOR_UTIL_H_
 
+#include <string>
+
 #include "absl/types/span.h"
 #include "third_party/gmp/include/gmpxx.h"
 

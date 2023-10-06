@@ -1,7 +1,9 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_AFFINE_POINT_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_AFFINE_POINT_H_
 
+#include <string>
 #include <type_traits>
+#include <utility>
 
 #include "absl/strings/substitute.h"
 
@@ -32,9 +34,13 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
 
   constexpr AffinePoint()
       : AffinePoint(BaseField::Zero(), BaseField::Zero(), true) {}
-  constexpr AffinePoint(const Point2<BaseField>& point, bool infinity = false)
+  explicit constexpr AffinePoint(const Point2<BaseField>& point)
+      : AffinePoint(point.x, point.y, false) {}
+  constexpr AffinePoint(const Point2<BaseField>& point, bool infinity)
       : AffinePoint(point.x, point.y, infinity) {}
-  constexpr AffinePoint(Point2<BaseField>&& point, bool infinity = false)
+  explicit constexpr AffinePoint(Point2<BaseField>&& point)
+      : AffinePoint(std::move(point.x), std::move(point.y), false) {}
+  constexpr AffinePoint(Point2<BaseField>&& point, bool infinity)
       : AffinePoint(std::move(point.x), std::move(point.y), infinity) {}
   constexpr AffinePoint(const BaseField& x, const BaseField& y,
                         bool infinity = false)

@@ -2,6 +2,7 @@
 #define TACHYON_MATH_BASE_ARITHMETICS_RESULTS_H_
 
 #include <ostream>
+#include <string>
 
 #include "absl/strings/substitute.h"
 

@@ -1,6 +1,8 @@
 #ifndef TACHYON_C_MATH_ELLIPTIC_CURVES_MSM_MSM_INPUT_PROVIDER_H_
 #define TACHYON_C_MATH_ELLIPTIC_CURVES_MSM_MSM_INPUT_PROVIDER_H_
 
+#include <vector>
+
 #include "absl/numeric/bits.h"
 #include "absl/types/span.h"
 

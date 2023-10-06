@@ -1,4 +1,5 @@
 #if TACHYON_CUDA || TACHYON_USE_ROCM
+
 #include <iostream>
 
 // clang-format off

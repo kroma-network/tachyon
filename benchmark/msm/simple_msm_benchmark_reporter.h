@@ -1,6 +1,8 @@
 #ifndef BENCHMARK_MSM_SIMPLE_MSM_BENCHMARK_REPORTER_H_
 #define BENCHMARK_MSM_SIMPLE_MSM_BENCHMARK_REPORTER_H_
 
+#include <vector>
+
 #include "benchmark/simple_benchmark_reporter.h"
 
 namespace tachyon {

@@ -1,4 +1,4 @@
-/* config/config.h.  Generated from config.h.in by configure.  */
+/* config/config.h.  Generated from config.h.in by configure.  */  // NOLINT(build/header_guard)
 /* config/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 to call abort() on panics (internal errors), for debugging. */

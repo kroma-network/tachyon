@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -57,10 +58,12 @@ class SparseCoefficients {
 
     Literal() = default;
 
+    // NOLINTNEXTLINE(runtime/explicit)
     Literal(const std::vector<Element>& elems) : elements(elems) {
       DCHECK(base::ranges::is_sorted(elements.begin(), elements.end()));
     }
 
+    // NOLINTNEXTLINE(runtime/explicit)
     Literal(std::vector<Element>&& elems) : elements(std::move(elems)) {
       DCHECK(base::ranges::is_sorted(elements.begin(), elements.end()));
     }

@@ -1,5 +1,7 @@
 #include "tachyon/math/base/sign.h"
 
+#include <limits>
+
 #include "gtest/gtest.h"
 
 namespace tachyon::math {

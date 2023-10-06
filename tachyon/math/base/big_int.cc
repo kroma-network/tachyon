@@ -1,5 +1,7 @@
 #include "tachyon/math/base/big_int.h"
 
+#include <string>
+
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 

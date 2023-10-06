@@ -1,6 +1,8 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_IMPL_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_IMPL_H_
 
+#include <utility>
+
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 
 namespace tachyon::math {

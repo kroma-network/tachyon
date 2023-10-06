@@ -1,5 +1,7 @@
 #include "tachyon/node/base/test/point.h"
 
+#include <memory>
+
 void AddPoint(tachyon::node::NodeModule& m) {
   AddPointImpl<tachyon::base::test::Point>(m, "Point");
 }

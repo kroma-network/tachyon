@@ -78,4 +78,4 @@ constexpr bool SerializeBatchToFieldElements(
 
 }  // namespace tachyon::crypto
 
-#endif  // TACHYON_CRYPTO_HASHES_BYTES_SERIALIZABLE_H_
+#endif  // TACHYON_CRYPTO_HASHES_PRIME_FIELD_SERIALIZABLE_H_

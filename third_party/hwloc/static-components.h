@@ -13,10 +13,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef TACHYON_THIRD_PARTY_HWLOC_STATIC_COMPONENTS_H_
-#define TACHYON_THIRD_PARTY_HWLOC_STATIC_COMPONENTS_H_
+#ifndef THIRD_PARTY_HWLOC_STATIC_COMPONENTS_H_
+#define THIRD_PARTY_HWLOC_STATIC_COMPONENTS_H_
 
 #include <private/internal-components.h>
+
 static const struct hwloc_component* hwloc_static_components[] = {
     &hwloc_noos_component,
     &hwloc_xml_component,
@@ -35,4 +36,4 @@ static const struct hwloc_component* hwloc_static_components[] = {
 #endif
     NULL};
 
-#endif  // TACHYON_THIRD_PARTY_HWLOC_STATIC_COMPONENTS_H_
+#endif  // THIRD_PARTY_HWLOC_STATIC_COMPONENTS_H_

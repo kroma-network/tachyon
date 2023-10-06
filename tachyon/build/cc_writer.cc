@@ -1,5 +1,8 @@
 #include "tachyon/build/cc_writer.h"
 
+#include <string>
+#include <vector>
+
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_replace.h"
 #include "absl/strings/substitute.h"

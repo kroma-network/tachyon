@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_FINITE_FIELDS_KERNELS_TEST_LAUNCH_OP_MACROS_H_
-#define TACHYON_MATH_FINITE_FIELDS_KERNELS_TEST_LAUNCH_OP_MACROS_H_
+#ifndef TACHYON_MATH_TEST_LAUNCH_OP_MACROS_H_
+#define TACHYON_MATH_TEST_LAUNCH_OP_MACROS_H_
 
 #include "tachyon/device/gpu/gpu_device_functions.h"
 #include "tachyon/device/gpu/gpu_logging.h"
@@ -30,4 +30,4 @@
                : error;                                                        \
   }
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_KERNELS_TEST_LAUNCH_OP_MACROS_H_
+#endif  // TACHYON_MATH_TEST_LAUNCH_OP_MACROS_H_
