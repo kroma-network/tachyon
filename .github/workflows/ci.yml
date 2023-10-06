@@ -40,11 +40,25 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: DoozyX/clang-format-lint-action@v0.15
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python for cpplint
+        uses: actions/setup-python@v4
         with:
-          source: '.'
-          exclude: './lib'
-          extensions: 'h,cc'
+          python-version: "3.x"
+
+      - name: Install cpplint
+        run: pip install cpplint
+
+      - name: Run cpplint
+        run: find . -iname "*.h" -o -iname "*.cc" | grep -v -e "^./tachyon/base/" -e "^./tachyon/device/" | xargs cpplint --filter=-legal/copyright,-whitespace/line_length,-build/namespaces,-runtime/references
+
+      - name: Run clang-format lint
+        uses: DoozyX/clang-format-lint-action@v0.15
+        with:
+          source: "."
+          exclude: "./lib"
+          extensions: "h,cc"
           clangFormatVersion: 15
           inplace: True
