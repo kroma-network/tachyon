@@ -10,12 +10,12 @@
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 
-namespace tachyon::math {
+namespace tachyon::crypto {
 
 template <typename PointTy>
 class PedersenParams {
  public:
-  using Bucket = typename Pippenger<PointTy>::Bucket;
+  using Bucket = typename math::Pippenger<PointTy>::Bucket;
   using ScalarField = typename PointTy::ScalarField;
 
   PedersenParams() = default;
@@ -54,11 +54,11 @@ class PedersenParams {
   template <typename R>
   bool Commit(const std::vector<ScalarField>& v, const ScalarField& r,
               R* out) const {
-    VariableBaseMSM<PointTy> msm;
+    math::VariableBaseMSM<PointTy> msm;
     Bucket generator_msm_v;
     if (!msm.Run(generators_, v, &generator_msm_v)) return false;
 
-    *out = r * h_ + ConvertPoint<R>(generator_msm_v);
+    *out = r * h_ + math::ConvertPoint<R>(generator_msm_v);
     return true;
   }
 
@@ -85,6 +85,6 @@ std::ostream& operator<<(std::ostream& os, const PedersenParams<PointTy>& p) {
   return os << p.ToString();
 }
 
-};  // namespace tachyon::math
+};  // namespace tachyon::crypto
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_PEDERSEN_PEDERSEN_H_
