@@ -13,6 +13,7 @@ tachyon_cc_library(
     ],
     deps = [
         "//tachyon/base:logging",
+        "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/ranges:algorithm",
         "//tachyon/base/strings:string_util",
