@@ -17,7 +17,13 @@
 
 namespace tachyon::crypto {
 
-// A duplex sponge based using the Poseidon permutation.
+// Poseidon Sponge Hash: Absorb → Permute → Squeeze
+// Absorb: Absorb elements into the sponge.
+// Permute: Transform the |state| using a series of operations.
+//   1. Apply ARK (addition of round constants) to |state|.
+//   2. Apply S-Box (xᵅ) to |state|.
+//   3. Apply MDS matrix to |state|.
+// Squeeze: Squeeze elements out of the sponge.
 // This implementation of Poseidon is entirely Fractal's implementation in
 // [COS20][cos] with small syntax changes. See https://eprint.iacr.org/2019/1076
 template <typename PrimeFieldTy>
