@@ -14,6 +14,11 @@
 
 namespace tachyon::math {
 
+// UnivariatePolynomial represents a polynomial with a single variable.
+// For example, 3x² + 2x + 1 is a univariate polynomial, while 3x²y + 2yz + 1 is
+// not a univariate polynomial. The polynomial is represented as a vector of its
+// coefficients. These coefficients are stored in an object which can be
+// DenseCoefficients or SparseCoefficients.
 template <typename Coefficients>
 class UnivariatePolynomial final
     : public Polynomial<UnivariatePolynomial<Coefficients>> {

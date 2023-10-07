@@ -8,6 +8,8 @@
 
 namespace tachyon::math {
 
+// |Point2| represents points expanded into 2-element vectors.
+// It can represent elliptic curve points in Affine form.
 template <typename T>
 struct Point2 {
   using value_type = T;

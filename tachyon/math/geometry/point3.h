@@ -8,6 +8,8 @@
 
 namespace tachyon::math {
 
+// |Point3| represents points expanded into 3-element vectors.
+// It can represent elliptic curve points in either Projective or Jacobian form.
 template <typename T>
 struct Point3 {
   using value_type = T;

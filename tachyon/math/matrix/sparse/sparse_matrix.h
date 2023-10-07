@@ -15,9 +15,23 @@
 
 namespace tachyon::math {
 
+// A sparse matrix primarily consists of zero values.
+// Specific algorithms are optimized for sparse matrices as compared to general
+// matrices.
 template <typename T>
 class CSRSparseMatrix;
 
+// The ELL format utilizes two arrays for storing sparse matrix data.
+// One array contains the matrix elements while the other has the
+// column indices from the original matrix.
+// For example, the following matrix:
+//   1 0 4 0
+//   0 0 0 0
+//   0 5 2 2
+//   3 0 0 1
+// is stored as:
+//   values: [[1, 4], [], [5, 2, 2], [3, 1]]
+//   indices: [[0, 2], [], [1, 2, 3], [0, 3]]
 template <typename T>
 class ELLSparseMatrix {
  public:
@@ -169,6 +183,18 @@ std::ostream& operator<<(std::ostream& os, const ELLSparseMatrix<T>& matrix) {
   return os << matrix.ToString();
 }
 
+// CSR(Compresed Sparse Row) format is a sparse matrix format that stores only
+// non-zero values in a vector. The |row_ptrs| vector stores the index of the
+// first element of each row in the |elements| vector.
+// For example, the following matrix:
+//   1 0 4 0
+//   0 0 0 0
+//   0 5 2 2
+//   3 0 0 1
+// is stored as:
+//   |elements|: [1, 4, 5, 2, 2, 3, 1]
+//   |col_indices|: [0, 2, 1, 2, 3, 0, 3]
+//   |row_ptrs|: [0, 2, 2, 5, 7]
 template <typename T>
 class CSRSparseMatrix {
  public:
