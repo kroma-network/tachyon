@@ -23,6 +23,8 @@ struct TACHYON_EXPORT PoseidonGrainLFSRConfig {
   uint64_t num_partial_rounds = 0;
 };
 
+// GrainLFSR is a pseudo-random generator using a stream cipher.
+// It is used to generate ARK and MDS for Poseidon.
 template <typename _PrimeFieldTy>
 struct PoseidonGrainLFSR {
   using PrimeFieldTy = _PrimeFieldTy;
@@ -124,6 +126,7 @@ PoseidonGrainLFSR<PrimeFieldTy>::GetBits(size_t num_bits) {
   return ret;
 }
 
+// Rejects elements greater than the modulus and resamples.
 template <typename PrimeFieldTy>
 math::Vector<PrimeFieldTy>
 PoseidonGrainLFSR<PrimeFieldTy>::GetFieldElementsRejectionSampling(
@@ -151,6 +154,7 @@ PoseidonGrainLFSR<PrimeFieldTy>::GetFieldElementsRejectionSampling(
   return ret;
 }
 
+// Samples n bits and computes the remainder modulo P.
 template <typename PrimeFieldTy>
 math::Vector<PrimeFieldTy>
 PoseidonGrainLFSR<PrimeFieldTy>::GetFieldElementsModP(size_t num_elems) {

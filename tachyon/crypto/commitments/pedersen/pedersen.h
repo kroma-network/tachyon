@@ -12,6 +12,8 @@
 
 namespace tachyon::crypto {
 
+// A Pedersen commitment is a point on an elliptic curve that is
+// cryptographically binding to data but hides it.
 template <typename PointTy>
 class PedersenParams {
  public:
@@ -24,6 +26,8 @@ class PedersenParams {
   PedersenParams(PointTy&& h, std::vector<PointTy>&& generators)
       : h_(h), generators_(std::move(generators)) {}
 
+  // Setup: |generators|, |h|
+  // |generators| and |h| are randomly generated base points.
   const PointTy& h() const { return h_; }
 
   void set_h(const PointTy& h) { h_ = h; }
@@ -50,7 +54,12 @@ class PedersenParams {
     return {PointTy::Random(), std::move(generators)};
   }
 
-  // h⋅r + <g, v>
+  // Pedersen Commitment:
+  // |h|⋅|r| + <|g|, |v|> = |h|⋅|r| + |g₀|⋅|v₀| + |g₁|⋅|v₁| + ... + |gₙ|⋅|vₙ|
+  // - |h| is a randomly generated base point from Setup.
+  // - |r| is a random value called the blinding factor.
+  // - |g| denotes random |generators| in Setup params.
+  // - |v| is a vector of values to be committed.
   template <typename R>
   bool Commit(const std::vector<ScalarField>& v, const ScalarField& r,
               R* out) const {

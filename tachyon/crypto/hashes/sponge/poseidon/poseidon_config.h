@@ -91,6 +91,10 @@ constexpr const PoseidonDefaultConfigEntry kOptimizedWeightsParams[] = {
     PoseidonDefaultConfigEntry(8, 257, 8, 13, 0),
 };
 
+// ARK(AddRoundKey) is a matrix that contains an ARC(AddRoundConstant) array in each row.
+// Each constant is added to the |state| of each round of Poseidon.
+// MDS(Maximum Distance Separable) is a matrix that is applied to the |state| for each round.
+// It ensures that the sum of the vector's weight before and after the MDS is at least |state| + 1.
 template <typename PrimeFieldTy>
 void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
                            size_t skip_matrices,
