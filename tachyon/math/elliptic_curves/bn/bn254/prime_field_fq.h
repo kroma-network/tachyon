@@ -42,6 +42,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsBn254Fq>> final
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
+  using MontgomeryTy = BigInt<N>;
   using value_type = BigInt<N>;
 
   using CpuField = PrimeField<Config>;
