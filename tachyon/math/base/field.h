@@ -31,9 +31,8 @@ class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
   }
 
   template <typename Container>
-  constexpr static F SumOfProducts(Container&& a, Container&& b) {
-    return Ring<F>::SumOfProducts(std::forward<Container>(a),
-                                  std::forward<Container>(b));
+  constexpr static F SumOfProducts(const Container& a, const Container& b) {
+    return Ring<F>::SumOfProducts(a, b);
   }
 };
 
