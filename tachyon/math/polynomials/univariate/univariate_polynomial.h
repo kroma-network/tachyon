@@ -33,6 +33,10 @@ class UnivariatePolynomial final
   constexpr explicit UnivariatePolynomial(Coefficients&& coefficients)
       : coefficients_(std::move(coefficients)) {}
 
+  constexpr static bool IsCoefficientForm() { return true; }
+
+  constexpr static bool IsEvaluationForm() { return false; }
+
   constexpr static UnivariatePolynomial Zero() {
     return UnivariatePolynomial(Coefficients::Zero());
   }
@@ -186,6 +190,12 @@ using UnivariateDensePolynomial =
 template <typename F, size_t MaxDegree>
 using UnivariateSparsePolynomial =
     UnivariatePolynomial<UnivariateSparseCoefficients<F, MaxDegree>>;
+
+template <typename Coefficients>
+class PolynomialTraits<UnivariatePolynomial<Coefficients>> {
+ public:
+  constexpr static bool kIsCoefficientForm = true;
+};
 
 }  // namespace tachyon::math
 

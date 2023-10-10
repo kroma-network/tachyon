@@ -42,6 +42,10 @@ class MultivariatePolynomial final
     return MultivariatePolynomial(Coefficients::Random(arity, degree));
   }
 
+  constexpr static bool IsCoefficientForm() { return true; }
+
+  constexpr static bool IsEvaluationForm() { return false; }
+
   constexpr bool IsZero() const { return coefficients_.IsZero(); }
 
   constexpr bool IsOne() const { return coefficients_.IsOne(); }
@@ -123,6 +127,12 @@ std::ostream& operator<<(std::ostream& os,
 template <typename F, size_t MaxDegree>
 using MultivariateSparsePolynomial =
     MultivariatePolynomial<MultivariateSparseCoefficients<F, MaxDegree>>;
+
+template <typename Coefficients>
+class PolynomialTraits<MultivariatePolynomial<Coefficients>> {
+ public:
+  constexpr static bool kIsCoefficientForm = true;
+};
 
 }  // namespace tachyon::math
 

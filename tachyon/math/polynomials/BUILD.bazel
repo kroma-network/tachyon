@@ -5,5 +5,13 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "polynomial",
     hdrs = ["polynomial.h"],
-    deps = ["//tachyon/math/base:rings"],
+    deps = [
+        ":polynomial_traits",
+        "//tachyon/math/base:rings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "polynomial_traits",
+    hdrs = ["polynomial_traits.h"],
 )
