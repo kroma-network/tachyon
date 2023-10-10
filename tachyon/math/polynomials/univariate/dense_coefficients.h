@@ -44,7 +44,7 @@ class DenseCoefficients {
   constexpr static DenseCoefficients Zero() { return DenseCoefficients(); }
 
   constexpr static DenseCoefficients One() {
-    return DenseCoefficients({Field::One()});
+    return DenseCoefficients({F::One()});
   }
 
   constexpr static DenseCoefficients Random(size_t degree) {
@@ -66,18 +66,18 @@ class DenseCoefficients {
     return !operator==(other);
   }
 
-  constexpr Field* Get(size_t i) {
-    return const_cast<Field*>(std::as_const(*this).Get(i));
+  constexpr F* Get(size_t i) {
+    return const_cast<F*>(std::as_const(*this).Get(i));
   }
 
-  constexpr const Field* Get(size_t i) const {
+  constexpr const F* Get(size_t i) const {
     if (i < coefficients_.size()) {
       return &coefficients_[i];
     }
     return nullptr;
   }
 
-  constexpr const Field* GetLeadingCoefficient() const {
+  constexpr const F* GetLeadingCoefficient() const {
     if (IsZero()) return nullptr;
     return &coefficients_.back();
   }
@@ -93,8 +93,8 @@ class DenseCoefficients {
     return coefficients_.size() - 1;
   }
 
-  constexpr Field Evaluate(const Field& point) const {
-    if (IsZero()) return Field::Zero();
+  constexpr F Evaluate(const F& point) const {
+    if (IsZero()) return F::Zero();
     if (point.IsZero()) return coefficients_[0];
     return DoEvaluate(point);
   }
@@ -104,7 +104,7 @@ class DenseCoefficients {
     size_t len = coefficients_.size() - 1;
     std::stringstream ss;
     bool has_coeff = false;
-    for (const Field& coeff : base::Reversed(coefficients_)) {
+    for (const F& coeff : base::Reversed(coefficients_)) {
       size_t i = len--;
       if (!coeff.IsZero()) {
         if (has_coeff) ss << " + ";
@@ -128,16 +128,12 @@ class DenseCoefficients {
   friend class internal::UnivariatePolynomialOp<
       SparseCoefficients<F, MaxDegree>>;
 
-  constexpr Field DoEvaluate(const Field& point) const {
-    return HornerEvaluate(point);
-  }
+  constexpr F DoEvaluate(const F& point) const { return HornerEvaluate(point); }
 
-  constexpr Field HornerEvaluate(const Field& point) const {
-    return std::accumulate(coefficients_.rbegin(), coefficients_.rend(),
-                           Field::Zero(),
-                           [&point](Field result, const Field& coeff) {
-                             return result * point + coeff;
-                           });
+  constexpr F HornerEvaluate(const F& point) const {
+    return std::accumulate(
+        coefficients_.rbegin(), coefficients_.rend(), F::Zero(),
+        [&point](F result, const F& coeff) { return result * point + coeff; });
   }
 
   void RemoveHighDegreeZeros() {
@@ -150,7 +146,7 @@ class DenseCoefficients {
     }
   }
 
-  std::vector<Field> coefficients_;
+  std::vector<F> coefficients_;
 };
 
 template <typename F, size_t MaxDegree>

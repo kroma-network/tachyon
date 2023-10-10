@@ -65,7 +65,7 @@ class SparseCoefficients {
   constexpr static SparseCoefficients Zero() { return SparseCoefficients(); }
 
   constexpr static SparseCoefficients One() {
-    return SparseCoefficients({{0, Field::One()}});
+    return SparseCoefficients({{0, F::One()}});
   }
 
   constexpr static SparseCoefficients Random(size_t degree) {
@@ -93,11 +93,11 @@ class SparseCoefficients {
     return !operator==(other);
   }
 
-  constexpr Field* Get(size_t i) {
-    return const_cast<Field*>(std::as_const(*this).Get(i));
+  constexpr F* Get(size_t i) {
+    return const_cast<F*>(std::as_const(*this).Get(i));
   }
 
-  constexpr const Field* Get(size_t i) const {
+  constexpr const F* Get(size_t i) const {
     auto it = std::lower_bound(
         terms_.begin(), terms_.end(), i,
         [](const Term& term, size_t degree) { return term.degree < degree; });
@@ -106,7 +106,7 @@ class SparseCoefficients {
     return &it->coefficient;
   }
 
-  constexpr const Field* GetLeadingCoefficient() const {
+  constexpr const F* GetLeadingCoefficient() const {
     if (IsZero()) return nullptr;
     return &terms_.back().coefficient;
   }
@@ -123,26 +123,26 @@ class SparseCoefficients {
     return terms_.back().degree;
   }
 
-  constexpr Field Evaluate(const Field& point) const {
-    if (IsZero()) return Field::Zero();
+  constexpr F Evaluate(const F& point) const {
+    if (IsZero()) return F::Zero();
 
     static_assert(sizeof(size_t) == sizeof(uint64_t));
     size_t num_powers = absl::numeric_internal::CountLeadingZeroes64(0) -
                         absl::numeric_internal::CountLeadingZeroes64(Degree());
-    std::vector<Field> powers_of_2;
+    std::vector<F> powers_of_2;
     powers_of_2.reserve(num_powers);
 
-    Field p = point;
+    F p = point;
     powers_of_2.push_back(p);
     for (size_t i = 1; i < num_powers; ++i) {
       p.SquareInPlace();
       powers_of_2.push_back(p);
     }
 
-    Field sum = Field::Zero();
+    F sum = F::Zero();
     for (const Term& term : terms_) {
-      sum += Field::PowWithTable(absl::MakeConstSpan(powers_of_2),
-                                 Field(term.degree).ToBigInt()) *
+      sum += F::PowWithTable(absl::MakeConstSpan(powers_of_2),
+                             F(term.degree).ToBigInt()) *
              term.coefficient;
     }
     return sum;
