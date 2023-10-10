@@ -41,6 +41,15 @@ class UnivariateEvaluations final
     return UnivariateEvaluations();
   }
 
+  // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
+  // So when the returned evaluations is called with `IsZero()`, it returns
+  // false. This is only used at |EvaluationDomain|.
+  constexpr static UnivariateEvaluations UnsafeZero(size_t degree) {
+    UnivariateEvaluations ret;
+    ret.evaluations_ = base::CreateVector(degree + 1, F::Zero());
+    return ret;
+  }
+
   constexpr static UnivariateEvaluations One() {
     return UnivariateEvaluations({F::One()});
   }
@@ -84,6 +93,7 @@ class UnivariateEvaluations final
 
  private:
   friend class Radix2EvaluationDomain<F, MaxDegree>;
+  friend class MixedRadixEvaluationDomain<F, kMaxDegree>;
 
   void RemoveHighDegreeZeros() {
     while (!IsZero()) {

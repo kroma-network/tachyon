@@ -47,6 +47,15 @@ class UnivariateDenseCoefficients {
     return UnivariateDenseCoefficients();
   }
 
+  // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
+  // So when the returned evaluations is called with `IsZero()`, it returns
+  // false. This is only used at |EvaluationDomain|.
+  constexpr static UnivariateDenseCoefficients UnsafeZero(size_t degree) {
+    UnivariateDenseCoefficients ret;
+    ret.coefficients_ = base::CreateVector(degree + 1, F::Zero());
+    return ret;
+  }
+
   constexpr static UnivariateDenseCoefficients One() {
     return UnivariateDenseCoefficients({F::One()});
   }
@@ -126,6 +135,7 @@ class UnivariateDenseCoefficients {
   friend class internal::UnivariatePolynomialOp<
       UnivariateSparseCoefficients<F, MaxDegree>>;
   friend class Radix2EvaluationDomain<F, MaxDegree>;
+  friend class MixedRadixEvaluationDomain<F, MaxDegree>;
 
   constexpr F DoEvaluate(const F& point) const { return HornerEvaluate(point); }
 

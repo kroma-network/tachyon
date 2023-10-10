@@ -16,6 +16,9 @@ class UnivariateEvaluationDomain;
 template <typename F, size_t MaxDegree>
 class Radix2EvaluationDomain;
 
+template <typename F, size_t MaxDegree>
+class MixedRadixEvaluationDomain;
+
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_EVALUATION_DOMAIN_FORWARDS_H_

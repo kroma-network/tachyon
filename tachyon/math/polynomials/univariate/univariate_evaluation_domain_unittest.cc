@@ -9,6 +9,8 @@
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/function_ref.h"
 #include "tachyon/math/elliptic_curves/bls/bls12_381/fr.h"
+#include "tachyon/math/elliptic_curves/bn/bn384_small_two_adicity/fq.h"
+#include "tachyon/math/polynomials/univariate/mixed_radix_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/radix2_evaluation_domain.h"
 
 namespace tachyon::math {
@@ -46,7 +48,8 @@ class UnivariateEvaluationDomainTest : public testing::Test {
 }  // namespace
 
 using UnivariateEvaluationDomainTypes =
-    testing::Types<Radix2EvaluationDomain<bls12_381::Fr>>;
+    testing::Types<Radix2EvaluationDomain<bls12_381::Fr>,
+                   MixedRadixEvaluationDomain<bn384_small_two_adicity::Fq>>;
 TYPED_TEST_SUITE(UnivariateEvaluationDomainTest,
                  UnivariateEvaluationDomainTypes);
 
@@ -93,47 +96,52 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FilterPolynomial) {
       UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
   using DensePoly = typename UnivariateEvaluationDomainType::DensePoly;
 
-  for (size_t log_domain_size = 1; log_domain_size < 4; ++log_domain_size) {
-    size_t domain_size = size_t{1} << log_domain_size;
-    std::unique_ptr<UnivariateEvaluationDomainType> domain =
-        UnivariateEvaluationDomainType::Create(domain_size);
-    for (size_t log_subdomain_size = 1; log_subdomain_size <= log_domain_size;
-         ++log_subdomain_size) {
-      size_t subdomain_size = size_t{1} << log_subdomain_size;
-      std::unique_ptr<UnivariateEvaluationDomainType> subdomain =
-          UnivariateEvaluationDomainType::Create(subdomain_size);
+  if constexpr (std::is_same_v<F, bls12_381::Fr>) {
+    for (size_t log_domain_size = 1; log_domain_size < 4; ++log_domain_size) {
+      size_t domain_size = size_t{1} << log_domain_size;
+      std::unique_ptr<UnivariateEvaluationDomainType> domain =
+          UnivariateEvaluationDomainType::Create(domain_size);
+      for (size_t log_subdomain_size = 1; log_subdomain_size <= log_domain_size;
+           ++log_subdomain_size) {
+        size_t subdomain_size = size_t{1} << log_subdomain_size;
+        std::unique_ptr<UnivariateEvaluationDomainType> subdomain =
+            UnivariateEvaluationDomainType::Create(subdomain_size);
 
-      // Obtain all possible offsets of |subdomain| within |domain|.
-      std::vector<bls12_381::Fr> possible_offsets = {bls12_381::Fr::One()};
-      const bls12_381::Fr& domain_generator = domain->group_gen();
+        // Obtain all possible offsets of |subdomain| within |domain|.
+        std::vector<bls12_381::Fr> possible_offsets = {bls12_381::Fr::One()};
+        const bls12_381::Fr& domain_generator = domain->group_gen();
 
-      bls12_381::Fr offset = domain_generator;
-      const bls12_381::Fr& subdomain_generator = subdomain->group_gen();
-      while (offset != subdomain_generator) {
-        possible_offsets.push_back(offset);
-        offset *= domain_generator;
-      }
-      EXPECT_EQ(possible_offsets.size(), domain_size / subdomain_size);
+        bls12_381::Fr offset = domain_generator;
+        const bls12_381::Fr& subdomain_generator = subdomain->group_gen();
+        while (offset != subdomain_generator) {
+          possible_offsets.push_back(offset);
+          offset *= domain_generator;
+        }
+        EXPECT_EQ(possible_offsets.size(), domain_size / subdomain_size);
 
-      // Get all possible cosets of |subdomain| within |domain|.
-      for (const bls12_381::Fr& offset : possible_offsets) {
-        std::unique_ptr<BaseUnivariateEvaluationDomainType> coset =
-            subdomain->GetCoset(offset);
-        std::vector<bls12_381::Fr> coset_elements = coset->GetElements();
-        DensePoly filter_poly = domain->GetFilterPolynomial(*coset);
-        EXPECT_EQ(filter_poly.Degree(), domain_size - subdomain_size);
-        for (const bls12_381::Fr& element : domain->GetElements()) {
-          bls12_381::Fr evaluation =
-              domain->EvaluateFilterPolynomial(*coset, element);
-          EXPECT_EQ(evaluation, filter_poly.Evaluate(element));
-          if (base::Contains(coset_elements, element)) {
-            EXPECT_TRUE(evaluation.IsOne());
-          } else {
-            EXPECT_TRUE(evaluation.IsZero());
+        // Get all possible cosets of |subdomain| within |domain|.
+        for (const bls12_381::Fr& offset : possible_offsets) {
+          std::unique_ptr<BaseUnivariateEvaluationDomainType> coset =
+              subdomain->GetCoset(offset);
+          std::vector<bls12_381::Fr> coset_elements = coset->GetElements();
+          DensePoly filter_poly = domain->GetFilterPolynomial(*coset);
+          EXPECT_EQ(filter_poly.Degree(), domain_size - subdomain_size);
+          for (const bls12_381::Fr& element : domain->GetElements()) {
+            bls12_381::Fr evaluation =
+                domain->EvaluateFilterPolynomial(*coset, element);
+            EXPECT_EQ(evaluation, filter_poly.Evaluate(element));
+            if (base::Contains(coset_elements, element)) {
+              EXPECT_TRUE(evaluation.IsOne());
+            } else {
+              EXPECT_TRUE(evaluation.IsZero());
+            }
           }
         }
       }
     }
+  } else {
+    GTEST_SKIP()
+        << "Skip testing FilterPolynomial on MixedRadixEvaluationDomain";
   }
 }
 
@@ -274,38 +282,49 @@ TYPED_TEST(UnivariateEvaluationDomainTest, DegreeAwareFFTCorrectness) {
   using DensePoly = typename UnivariateEvaluationDomainType::DensePoly;
   using Evals = typename UnivariateEvaluationDomainType::Evals;
 
-  const size_t log_degree = 5;
-  const size_t degree = (size_t{1} << log_degree) - 1;
-  DensePoly rand_poly = DensePoly::Random(degree);
-  size_t domain_size =
-      (degree + 1) *
-      UnivariateEvaluationDomainType::kDegreeAwareFFTThresholdFactor;
-  this->TestDomains(
-      domain_size,
-      [domain_size, &rand_poly](const BaseUnivariateEvaluationDomainType& d) {
-        Evals deg_aware_fft_evals = d.FFT(rand_poly);
-        for (size_t i = 0; i < domain_size; ++i) {
-          EXPECT_EQ(*deg_aware_fft_evals[i],
-                    rand_poly.Evaluate(d.GetElement(i)));
-        }
-      });
+  if constexpr (std::is_same_v<F, bls12_381::Fr>) {
+    const size_t log_degree = 5;
+    const size_t degree = (size_t{1} << log_degree) - 1;
+    DensePoly rand_poly = DensePoly::Random(degree);
+    size_t domain_size =
+        (degree + 1) *
+        UnivariateEvaluationDomainType::kDegreeAwareFFTThresholdFactor;
+    this->TestDomains(
+        domain_size,
+        [domain_size, &rand_poly](const BaseUnivariateEvaluationDomainType& d) {
+          Evals deg_aware_fft_evals = d.FFT(rand_poly);
+          for (size_t i = 0; i < domain_size; ++i) {
+            EXPECT_EQ(*deg_aware_fft_evals[i],
+                      rand_poly.Evaluate(d.GetElement(i)));
+          }
+        });
+  } else {
+    GTEST_SKIP() << "Skip testing DegreeAwareFFTCorrectness on "
+                    "MixedRadixEvaluationDomain";
+  }
 }
 
 TYPED_TEST(UnivariateEvaluationDomainTest, RootsOfUnity) {
   using UnivariateEvaluationDomainType = TypeParam;
+  using F = typename UnivariateEvaluationDomainType::Field;
 
-  for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
-    std::unique_ptr<UnivariateEvaluationDomainType> domain =
-        UnivariateEvaluationDomainType::Create(coeffs);
-    std::vector<bls12_381::Fr> actual_roots =
-        domain->GetRootsOfUnity(domain->group_gen());
-    for (const bls12_381::Fr& value : actual_roots) {
-      EXPECT_TRUE(domain->EvaluateVanishingPolynomial(value).IsZero());
+  if constexpr (std::is_same_v<F, bls12_381::Fr>) {
+    for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
+      std::unique_ptr<UnivariateEvaluationDomainType> domain =
+          UnivariateEvaluationDomainType::Create(coeffs);
+      std::vector<bls12_381::Fr> actual_roots =
+          domain->GetRootsOfUnity(domain->group_gen());
+      for (const bls12_381::Fr& value : actual_roots) {
+        EXPECT_TRUE(domain->EvaluateVanishingPolynomial(value).IsZero());
+      }
+      EXPECT_EQ(actual_roots.size(), domain->size() / 2);
+      std::vector<bls12_381::Fr> expected_roots = domain->GetElements();
+      EXPECT_EQ(absl::MakeConstSpan(actual_roots),
+                absl::Span(expected_roots.data(), actual_roots.size()));
     }
-    EXPECT_EQ(actual_roots.size(), domain->size() / 2);
-    std::vector<bls12_381::Fr> expected_roots = domain->GetElements();
-    EXPECT_EQ(absl::MakeConstSpan(actual_roots),
-              absl::Span(expected_roots.data(), actual_roots.size()));
+  } else {
+    GTEST_SKIP() << "Skip testing RootsOfUnity on "
+                    "MixedRadixEvaluationDomain";
   }
 }
 
