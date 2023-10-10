@@ -65,8 +65,7 @@ template <typename T,
           std::enable_if_t<!internal::IsCallableObject<T>::value>* = nullptr>
 std::vector<T> CreateVector(size_t size, const T& initial_value) {
   std::vector<T> ret;
-  ret.reserve(size);
-  std::fill_n(std::back_inserter(ret), size, initial_value);
+  ret.resize(size, initial_value);
   return ret;
 }
 
