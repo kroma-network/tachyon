@@ -3,6 +3,53 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "radix2_evaluation_domain",
+    hdrs = ["radix2_evaluation_domain.h"],
+    deps = [
+        ":univariate_evaluation_domain",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:container_util",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
+    name = "univariate_evaluation_domain",
+    hdrs = ["univariate_evaluation_domain.h"],
+    deps = [
+        ":univariate_evaluation_domain_forwards",
+        ":univariate_evaluations",
+        ":univariate_polynomial",
+        "//tachyon/base:bits",
+        "//tachyon/base:openmp_util",
+        "//tachyon/math/polynomials:evaluation_domain",
+    ],
+)
+
+tachyon_cc_library(
+    name = "univariate_evaluation_domain_forwards",
+    hdrs = ["univariate_evaluation_domain_forwards.h"],
+)
+
+tachyon_cc_library(
+    name = "univariate_evaluation_domain_factory",
+    hdrs = ["univariate_evaluation_domain_factory.h"],
+    deps = [":radix2_evaluation_domain"],
+)
+
+tachyon_cc_library(
+    name = "univariate_evaluations",
+    hdrs = ["univariate_evaluations.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/polynomials:polynomial",
+    ],
+)
+
+tachyon_cc_library(
     name = "univariate_polynomial",
     hdrs = [
         "univariate_dense_coefficients.h",
@@ -12,6 +59,7 @@ tachyon_cc_library(
         "univariate_sparse_coefficients.h",
     ],
     deps = [
+        ":univariate_evaluation_domain_forwards",
         "//tachyon/base:logging",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
@@ -28,10 +76,15 @@ tachyon_cc_unittest(
     name = "univariate_polynomials_unittests",
     srcs = [
         "univariate_dense_polynomial_unittest.cc",
+        "univariate_evaluation_domain_unittest.cc",
         "univariate_sparse_polynomial_unittest.cc",
     ],
     deps = [
+        ":radix2_evaluation_domain",
         ":univariate_polynomial",
+        "//tachyon/base/containers:contains",
+        "//tachyon/base/functional:function_ref",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:fr",
         "//tachyon/math/finite_fields/test:gf7",
     ],
 )

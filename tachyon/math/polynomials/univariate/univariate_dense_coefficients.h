@@ -12,6 +12,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial_ops_forward.h"
 
 namespace tachyon::math {
@@ -124,6 +125,7 @@ class UnivariateDenseCoefficients {
       UnivariateDenseCoefficients<F, MaxDegree>>;
   friend class internal::UnivariatePolynomialOp<
       UnivariateSparseCoefficients<F, MaxDegree>>;
+  friend class Radix2EvaluationDomain<F, MaxDegree>;
 
   constexpr F DoEvaluate(const F& point) const { return HornerEvaluate(point); }
 

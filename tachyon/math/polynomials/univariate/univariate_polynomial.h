@@ -10,6 +10,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/math/polynomials/polynomial.h"
 #include "tachyon/math/polynomials/univariate/univariate_dense_coefficients.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_sparse_coefficients.h"
 
 namespace tachyon::math {
@@ -173,6 +174,7 @@ class UnivariatePolynomial final
 
  private:
   friend class internal::UnivariatePolynomialOp<Coefficients>;
+  friend class Radix2EvaluationDomain<Field, kMaxDegree>;
 
   Coefficients coefficients_;
 };
