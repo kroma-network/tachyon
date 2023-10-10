@@ -56,12 +56,6 @@ class UnivariateDenseCoefficients {
   }
 
   constexpr bool operator==(const UnivariateDenseCoefficients& other) const {
-    if (IsZero()) {
-      return other.IsZero();
-    }
-    if (other.IsZero()) {
-      return false;
-    }
     return coefficients_ == other.coefficients_;
   }
 

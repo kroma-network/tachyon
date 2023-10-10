@@ -83,12 +83,6 @@ class UnivariateSparseCoefficients {
   }
 
   constexpr bool operator==(const UnivariateSparseCoefficients& other) const {
-    if (IsZero()) {
-      return other.IsZero();
-    }
-    if (other.IsZero()) {
-      return false;
-    }
     return terms_ == other.terms_;
   }
 
