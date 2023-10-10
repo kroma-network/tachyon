@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_SPARSE_COEFFICIENTS_H_
-#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_SPARSE_COEFFICIENTS_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_SPARSE_COEFFICIENTS_H_
+#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_SPARSE_COEFFICIENTS_H_
 
 #include <stddef.h>
 
@@ -21,13 +21,13 @@
 namespace tachyon::math {
 
 template <typename F, size_t MaxDegree>
-class DenseCoefficients;
+class UnivariateDenseCoefficients;
 
 // SparseCoefficients class provides a representation for polynomials where
 // only non-zero coefficients are stored. This is efficient for polynomials
 // where most of the degrees have zero coefficients.
 template <typename F, size_t MaxDegree>
-class SparseCoefficients {
+class UnivariateSparseCoefficients {
  public:
   constexpr static const size_t kMaxDegree = MaxDegree;
 
@@ -48,27 +48,30 @@ class SparseCoefficients {
     }
   };
 
-  constexpr SparseCoefficients() = default;
-  constexpr explicit SparseCoefficients(const std::vector<Term>& terms)
+  constexpr UnivariateSparseCoefficients() = default;
+  constexpr explicit UnivariateSparseCoefficients(
+      const std::vector<Term>& terms)
       : terms_(terms) {
     CHECK_LE(Degree(), kMaxDegree);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
     RemoveHighDegreeZeros();
   }
-  constexpr explicit SparseCoefficients(std::vector<Term>&& terms)
+  constexpr explicit UnivariateSparseCoefficients(std::vector<Term>&& terms)
       : terms_(std::move(terms)) {
     CHECK_LE(Degree(), kMaxDegree);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
     RemoveHighDegreeZeros();
   }
 
-  constexpr static SparseCoefficients Zero() { return SparseCoefficients(); }
-
-  constexpr static SparseCoefficients One() {
-    return SparseCoefficients({{0, F::One()}});
+  constexpr static UnivariateSparseCoefficients Zero() {
+    return UnivariateSparseCoefficients();
   }
 
-  constexpr static SparseCoefficients Random(size_t degree) {
+  constexpr static UnivariateSparseCoefficients One() {
+    return UnivariateSparseCoefficients({{0, F::One()}});
+  }
+
+  constexpr static UnivariateSparseCoefficients Random(size_t degree) {
     // TODO(chokobole): Better idea?
     std::vector<Term> terms;
     for (size_t i = 0; i < degree + 1; ++i) {
@@ -76,10 +79,10 @@ class SparseCoefficients {
       if (f.IsZero()) continue;
       terms.push_back({i, std::move(f)});
     }
-    return SparseCoefficients(std::move(terms));
+    return UnivariateSparseCoefficients(std::move(terms));
   }
 
-  constexpr bool operator==(const SparseCoefficients& other) const {
+  constexpr bool operator==(const UnivariateSparseCoefficients& other) const {
     if (IsZero()) {
       return other.IsZero();
     }
@@ -89,7 +92,7 @@ class SparseCoefficients {
     return terms_ == other.terms_;
   }
 
-  constexpr bool operator!=(const SparseCoefficients& other) const {
+  constexpr bool operator!=(const UnivariateSparseCoefficients& other) const {
     return !operator==(other);
   }
 
@@ -169,9 +172,9 @@ class SparseCoefficients {
 
  private:
   friend class internal::UnivariatePolynomialOp<
-      DenseCoefficients<F, MaxDegree>>;
+      UnivariateDenseCoefficients<F, MaxDegree>>;
   friend class internal::UnivariatePolynomialOp<
-      SparseCoefficients<F, MaxDegree>>;
+      UnivariateSparseCoefficients<F, MaxDegree>>;
 
   void RemoveHighDegreeZeros() {  // Fix to RemoveZeros
     while (!IsZero()) {
@@ -188,10 +191,10 @@ class SparseCoefficients {
 
 template <typename F, size_t MaxDegree>
 std::ostream& operator<<(std::ostream& os,
-                         const SparseCoefficients<F, MaxDegree>& p) {
+                         const UnivariateSparseCoefficients<F, MaxDegree>& p) {
   return os << p.ToString();
 }
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_SPARSE_COEFFICIENTS_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_SPARSE_COEFFICIENTS_H_

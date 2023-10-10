@@ -9,8 +9,8 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/math/polynomials/polynomial.h"
-#include "tachyon/math/polynomials/univariate/dense_coefficients.h"
-#include "tachyon/math/polynomials/univariate/sparse_coefficients.h"
+#include "tachyon/math/polynomials/univariate/univariate_dense_coefficients.h"
+#include "tachyon/math/polynomials/univariate/univariate_sparse_coefficients.h"
 
 namespace tachyon::math {
 
@@ -174,12 +174,12 @@ std::ostream& operator<<(std::ostream& os,
 }
 
 template <typename F, size_t MaxDegree>
-using DenseUnivariatePolynomial =
-    UnivariatePolynomial<DenseCoefficients<F, MaxDegree>>;
+using UnivariateDensePolynomial =
+    UnivariatePolynomial<UnivariateDenseCoefficients<F, MaxDegree>>;
 
 template <typename F, size_t MaxDegree>
-using SparseUnivariatePolynomial =
-    UnivariatePolynomial<SparseCoefficients<F, MaxDegree>>;
+using UnivariateSparsePolynomial =
+    UnivariatePolynomial<UnivariateSparseCoefficients<F, MaxDegree>>;
 
 }  // namespace tachyon::math
 

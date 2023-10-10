@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/math/polynomials/multivariate/sparse_coefficients.h"
+#include "tachyon/math/polynomials/multivariate/multivariate_sparse_coefficients.h"
 #include "tachyon/math/polynomials/polynomial.h"
 
 namespace tachyon::math {
@@ -121,8 +121,8 @@ std::ostream& operator<<(std::ostream& os,
 }
 
 template <typename F, size_t MaxDegree>
-using SparseMultivariatePolynomial =
-    MultivariatePolynomial<SparseCoefficients<F, MaxDegree>>;
+using MultivariateSparsePolynomial =
+    MultivariatePolynomial<MultivariateSparseCoefficients<F, MaxDegree>>;
 
 }  // namespace tachyon::math
 

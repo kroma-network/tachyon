@@ -11,9 +11,9 @@ namespace tachyon::math {
 namespace internal {
 
 template <typename F, size_t MaxDegree>
-class MultivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
+class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
  public:
-  using S = SparseCoefficients<F, MaxDegree>;
+  using S = MultivariateSparseCoefficients<F, MaxDegree>;
   using Term = typename S::Term;
   using Terms = std::vector<Term>;
 

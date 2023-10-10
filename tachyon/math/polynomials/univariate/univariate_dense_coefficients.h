@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_DENSE_COEFFICIENTS_H_
-#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_DENSE_COEFFICIENTS_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_DENSE_COEFFICIENTS_H_
+#define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_DENSE_COEFFICIENTS_H_
 
 #include <stddef.h>
 
@@ -17,42 +17,45 @@
 namespace tachyon::math {
 
 template <typename F, size_t MaxDegree>
-class SparseCoefficients;
+class UnivariateSparseCoefficients;
 
 // DenseCoefficients class provides a representation for polynomials where
 // coefficients are stored contiguously for each degree. This is efficient for
 // polynomials where most of the degrees have non-zero coefficients.
 template <typename F, size_t MaxDegree>
-class DenseCoefficients {
+class UnivariateDenseCoefficients {
  public:
   constexpr static const size_t kMaxDegree = MaxDegree;
 
   using Field = F;
 
-  constexpr DenseCoefficients() = default;
-  constexpr explicit DenseCoefficients(const std::vector<F>& coefficients)
+  constexpr UnivariateDenseCoefficients() = default;
+  constexpr explicit UnivariateDenseCoefficients(
+      const std::vector<F>& coefficients)
       : coefficients_(coefficients) {
     CHECK_LE(Degree(), kMaxDegree);
     RemoveHighDegreeZeros();
   }
-  constexpr explicit DenseCoefficients(std::vector<F>&& coefficients)
+  constexpr explicit UnivariateDenseCoefficients(std::vector<F>&& coefficients)
       : coefficients_(std::move(coefficients)) {
     CHECK_LE(Degree(), kMaxDegree);
     RemoveHighDegreeZeros();
   }
 
-  constexpr static DenseCoefficients Zero() { return DenseCoefficients(); }
-
-  constexpr static DenseCoefficients One() {
-    return DenseCoefficients({F::One()});
+  constexpr static UnivariateDenseCoefficients Zero() {
+    return UnivariateDenseCoefficients();
   }
 
-  constexpr static DenseCoefficients Random(size_t degree) {
-    return DenseCoefficients(
+  constexpr static UnivariateDenseCoefficients One() {
+    return UnivariateDenseCoefficients({F::One()});
+  }
+
+  constexpr static UnivariateDenseCoefficients Random(size_t degree) {
+    return UnivariateDenseCoefficients(
         base::CreateVector(degree + 1, []() { return F::Random(); }));
   }
 
-  constexpr bool operator==(const DenseCoefficients& other) const {
+  constexpr bool operator==(const UnivariateDenseCoefficients& other) const {
     if (IsZero()) {
       return other.IsZero();
     }
@@ -62,7 +65,7 @@ class DenseCoefficients {
     return coefficients_ == other.coefficients_;
   }
 
-  constexpr bool operator!=(const DenseCoefficients& other) const {
+  constexpr bool operator!=(const UnivariateDenseCoefficients& other) const {
     return !operator==(other);
   }
 
@@ -124,9 +127,9 @@ class DenseCoefficients {
 
  private:
   friend class internal::UnivariatePolynomialOp<
-      DenseCoefficients<F, MaxDegree>>;
+      UnivariateDenseCoefficients<F, MaxDegree>>;
   friend class internal::UnivariatePolynomialOp<
-      SparseCoefficients<F, MaxDegree>>;
+      UnivariateSparseCoefficients<F, MaxDegree>>;
 
   constexpr F DoEvaluate(const F& point) const { return HornerEvaluate(point); }
 
@@ -151,10 +154,10 @@ class DenseCoefficients {
 
 template <typename F, size_t MaxDegree>
 std::ostream& operator<<(std::ostream& os,
-                         const DenseCoefficients<F, MaxDegree>& p) {
+                         const UnivariateDenseCoefficients<F, MaxDegree>& p) {
   return os << p.ToString();
 }
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_DENSE_COEFFICIENTS_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_DENSE_COEFFICIENTS_H_

@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
-#define TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
+#define TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
 
 #include <stddef.h>
 
@@ -22,7 +22,7 @@
 
 namespace tachyon::math {
 template <typename F, size_t MaxDegree>
-class SparseCoefficients {
+class MultivariateSparseCoefficients {
  public:
   constexpr static const size_t kMaxDegree = MaxDegree;
 
@@ -139,26 +139,29 @@ class SparseCoefficients {
 
   using Terms = std::vector<Term>;
 
-  constexpr SparseCoefficients() = default;
-  constexpr SparseCoefficients(size_t num_vars, const Terms& terms)
+  constexpr MultivariateSparseCoefficients() = default;
+  constexpr MultivariateSparseCoefficients(size_t num_vars, const Terms& terms)
       : num_vars_(num_vars), terms_(terms) {
     CHECK_LE(Degree(), kMaxDegree);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
   }
-  constexpr SparseCoefficients(size_t num_vars, Terms&& terms)
+  constexpr MultivariateSparseCoefficients(size_t num_vars, Terms&& terms)
       : num_vars_(num_vars), terms_(std::move(terms)) {
     CHECK_LE(Degree(), kMaxDegree);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
   }
 
-  constexpr static SparseCoefficients Zero() { return SparseCoefficients(); }
-
-  constexpr static SparseCoefficients One() {
-    return SparseCoefficients(1, {{{{{0, 0}}}, F::One()}});
+  constexpr static MultivariateSparseCoefficients Zero() {
+    return MultivariateSparseCoefficients();
   }
 
-  static SparseCoefficients Random(size_t arity, size_t exponent,
-                                   size_t min_term = 1, size_t max_term = 999) {
+  constexpr static MultivariateSparseCoefficients One() {
+    return MultivariateSparseCoefficients(1, {{{{{0, 0}}}, F::One()}});
+  }
+
+  static MultivariateSparseCoefficients Random(size_t arity, size_t exponent,
+                                               size_t min_term = 1,
+                                               size_t max_term = 999) {
     Terms terms;
     size_t num_terms = base::Uniform(min_term, max_term);
     terms.push_back(Term::Constant(F::Random()));
@@ -172,14 +175,14 @@ class SparseCoefficients {
       }
     }
     base::ranges::sort(terms.begin(), terms.end());
-    return SparseCoefficients(arity, std::move(terms));
+    return MultivariateSparseCoefficients(arity, std::move(terms));
   }
 
   constexpr bool IsConstant() const {
     return terms_.size() == 1 && terms_[0].Degree() == 0;
   }
 
-  constexpr bool operator==(const SparseCoefficients& other) const {
+  constexpr bool operator==(const MultivariateSparseCoefficients& other) const {
     if (IsZero()) {
       return other.IsZero();
     }
@@ -189,7 +192,7 @@ class SparseCoefficients {
     return terms_ == other.terms_;
   }
 
-  constexpr bool operator!=(const SparseCoefficients& other) const {
+  constexpr bool operator!=(const MultivariateSparseCoefficients& other) const {
     return !operator==(other);
   }
 
@@ -282,18 +285,18 @@ class SparseCoefficients {
 
  private:
   friend class internal::MultivariatePolynomialOp<
-      SparseCoefficients<F, MaxDegree>>;
+      MultivariateSparseCoefficients<F, MaxDegree>>;
 
   size_t num_vars_;
   std::vector<Term> terms_;
 };
 
 template <typename F, size_t MaxDegree>
-std::ostream& operator<<(std::ostream& os,
-                         const SparseCoefficients<F, MaxDegree>& p) {
+std::ostream& operator<<(
+    std::ostream& os, const MultivariateSparseCoefficients<F, MaxDegree>& p) {
   return os << p.ToString();
 }
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTIVARIATE_SPARSE_COEFFICIENTS_H_

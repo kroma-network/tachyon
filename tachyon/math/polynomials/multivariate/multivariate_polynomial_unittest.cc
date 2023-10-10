@@ -11,8 +11,8 @@ namespace {
 const size_t k_num_vars = 2;
 const size_t kMaxDegree = 5;
 
-using Poly = SparseMultivariatePolynomial<GF7, kMaxDegree>;
-using Coeffs = SparseCoefficients<GF7, kMaxDegree>;
+using Poly = MultivariateSparsePolynomial<GF7, kMaxDegree>;
+using Coeffs = MultivariateSparseCoefficients<GF7, kMaxDegree>;
 
 class MultivariatePolynomialTest : public testing::Test {
  public:
