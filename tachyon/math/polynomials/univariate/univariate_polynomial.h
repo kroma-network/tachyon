@@ -161,6 +161,12 @@ class UnivariatePolynomial final
     return ModInPlace(other);
   }
 
+  template <typename Coefficients2>
+  constexpr auto DivMod(
+      const UnivariatePolynomial<Coefficients2>& other) const {
+    return internal::UnivariatePolynomialOp<Coefficients>::DivMod(*this, other);
+  }
+
  private:
   friend class internal::UnivariatePolynomialOp<Coefficients>;
 

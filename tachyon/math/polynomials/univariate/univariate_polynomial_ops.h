@@ -235,6 +235,13 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
+  template <typename DOrS>
+  static DivResult<UnivariatePolynomial<D>> DivMod(
+      const UnivariatePolynomial<D>& self,
+      const UnivariatePolynomial<DOrS>& other) {
+    return Divide(self, other);
+  }
+
   static UnivariatePolynomial<D> ToDensePolynomial(
       const UnivariatePolynomial<D>& self) {
     return self;
@@ -276,7 +283,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
   template <typename DOrS>
   static DivResult<UnivariatePolynomial<D>> Divide(
-      UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
+      const UnivariatePolynomial<D>& self,
+      const UnivariatePolynomial<DOrS>& other) {
     if (self.IsZero()) {
       return {UnivariatePolynomial<D>::Zero(), UnivariatePolynomial<D>::Zero()};
     } else if (other.IsZero()) {
@@ -425,6 +433,13 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   static UnivariatePolynomial<D> Mod(const UnivariatePolynomial<S>& self,
                                      const UnivariatePolynomial<DOrS>& other) {
     return self.ToDense() % other;
+  }
+
+  template <typename DOrS>
+  static DivResult<UnivariatePolynomial<D>> DivMod(
+      const UnivariatePolynomial<S>& self,
+      const UnivariatePolynomial<DOrS>& other) {
+    return self.ToDense().DivMod(other);
   }
 
   static UnivariatePolynomial<D> ToDensePolynomial(
