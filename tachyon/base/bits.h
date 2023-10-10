@@ -114,14 +114,22 @@ ALWAYS_INLINE constexpr
 // use `Log2Floor` and add 1 to the result.
 //
 // TODO(pkasting): When C++20 is available, replace with std::bit_xxx().
-constexpr int Log2Floor(uint32_t n) { return 31 - CountLeadingZeroBits(n); }
+template <typename T, int bits = sizeof(T) * 8>
+constexpr typename std::enable_if<std::is_unsigned<T>::value && sizeof(T) <= 8,
+                                  int>::type
+Log2Floor(T n) {
+  return bits - 1 - CountLeadingZeroBits(n);
+}
 
 // Returns the integer i such as 2ⁱ⁻¹ < n <= 2ⁱ.
-constexpr int Log2Ceiling(uint32_t n) {
+template <typename T, int bits = sizeof(T) * 8>
+constexpr typename std::enable_if<std::is_unsigned<T>::value && sizeof(T) <= 8,
+                                  int>::type
+Log2Ceiling(T n) {
   // When n == 0, we want the function to return -1.
   // When n == 0, (n - 1) will underflow to 0xFFFFFFFF, which is
   // why the statement below starts with (n ? 32 : -1).
-  return (n ? 32 : -1) - CountLeadingZeroBits(n - 1);
+  return (n ? bits : -1) - CountLeadingZeroBits(n - 1);
 }
 
 // Returns a value of type T with a single bit set in the left-most position.
