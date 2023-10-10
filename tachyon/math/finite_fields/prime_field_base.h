@@ -18,6 +18,11 @@ class PrimeFieldBase : public Field<F> {
  public:
   using Config = typename PrimeFieldTraits<F>::Config;
 
+  constexpr static bool HasRootOfUnity() {
+    return Config::kHasTwoAdicRootOfUnity ||
+           Config::kHasLargeSubgroupRootOfUnity;
+  }
+
   // An invariant of a field which is prime number N
   // such that N * e(unit element) = 0.
   // It is uniquely determined for a given field.
@@ -39,6 +44,7 @@ class PrimeFieldBase : public Field<F> {
   //   2. two-adicity of next power of 2 of n is greater than
   //   |Config::kTwoAdicity|.
   static bool GetRootOfUnity(uint64_t n, F* ret) {
+    static_assert(HasRootOfUnity());
     F omega;
     if constexpr (Config::kHasLargeSubgroupRootOfUnity) {
       uint32_t q_adicity =
