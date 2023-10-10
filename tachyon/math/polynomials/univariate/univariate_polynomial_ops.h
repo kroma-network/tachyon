@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/arithmetics_results.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -142,7 +143,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<D>& NegInPlace(UnivariatePolynomial<D>& self) {
     std::vector<F>& coefficients = self.coefficients_.coefficients_;
-    for (F& coefficient : coefficients) {
+    // clang-format off
+    OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
+      // clang-format on
       coefficient.NegInPlace();
     }
     return self;

@@ -73,6 +73,7 @@ tachyon_cc_library(
     deps = [
         ":univariate_evaluation_domain_forwards",
         "//tachyon/base:logging",
+        "//tachyon/base:openmp_util",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/ranges:algorithm",

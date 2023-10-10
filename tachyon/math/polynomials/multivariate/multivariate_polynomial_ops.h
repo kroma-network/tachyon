@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/math/polynomials/multivariate/multivariate_polynomial.h"
 
 namespace tachyon::math {
@@ -46,10 +47,9 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
   static MultivariatePolynomial<S>& NegInPlace(
       MultivariatePolynomial<S>& self) {
     Terms& terms = self.terms_;
-    // TODO(TomTaehoonKim): optimize this part by multithreading.
-    for (Term& term : terms) {
-      term.coefficient.NegInPlace();
-    }
+    // clang-format off
+    OPENMP_PARALLEL_FOR(Term& term : terms) { term.coefficient.NegInPlace(); }
+    // clang-format on
     return self;
   }
 
