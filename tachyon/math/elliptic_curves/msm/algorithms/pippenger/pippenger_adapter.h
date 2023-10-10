@@ -5,8 +5,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/base/internal/sysinfo.h"
-
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger.h"
 
 namespace tachyon::math {
@@ -56,7 +54,7 @@ class PippengerAdapter {
       }
 
 #if defined(TACHYON_HAS_OPENMP)
-      int thread_nums = absl::base_internal::NumCPUs();
+      int thread_nums = omp_get_max_threads();
       if (strategy == PippengerParallelStrategy::kParallelWindowAndTerm) {
         size_t window_bits = PippengerCtx::ComputeWindowsBits(scalars_size);
         size_t window_size =
