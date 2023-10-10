@@ -42,6 +42,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git fetch --all
 
       - name: Setup Python for cpplint
         uses: actions/setup-python@v4
@@ -52,7 +61,7 @@ jobs:
         run: pip install cpplint
 
       - name: Run cpplint
-        run: find . -iname "*.h" -o -iname "*.cc" | grep -v -e "^./tachyon/base/" -e "^./tachyon/device/" | xargs cpplint --filter=-legal/copyright,-whitespace/line_length,-build/namespaces,-runtime/references
+        run: git diff --name-only HEAD origin/${{ github.base_ref }} | xargs cpplint --filter=-legal/copyright,-whitespace/line_length,-build/namespaces,-runtime/references
 
       - name: Run clang-format lint
         uses: DoozyX/clang-format-lint-action@v0.15
