@@ -79,28 +79,16 @@ TEST_F(PrimeFieldTest, Inverse) {
   EXPECT_EQ(cc::math::ToPrimeField(cc_a_.Inverse().value()), a_.Inverse());
 }
 
-TEST_F(PrimeFieldTest, Eq) {
-  EXPECT_EQ(cc_a_ == cc_b_, a_ == b_);
-}
+TEST_F(PrimeFieldTest, Eq) { EXPECT_EQ(cc_a_ == cc_b_, a_ == b_); }
 
-TEST_F(PrimeFieldTest, Ne) {
-  EXPECT_EQ(cc_a_ != cc_b_, a_ != b_);
-}
+TEST_F(PrimeFieldTest, Ne) { EXPECT_EQ(cc_a_ != cc_b_, a_ != b_); }
 
-TEST_F(PrimeFieldTest, Gt) {
-  EXPECT_EQ(cc_a_ > cc_b_, a_ > b_);
-}
+TEST_F(PrimeFieldTest, Gt) { EXPECT_EQ(cc_a_ > cc_b_, a_ > b_); }
 
-TEST_F(PrimeFieldTest, Ge) {
-  EXPECT_EQ(cc_a_ >= cc_b_, a_ >= b_);
-}
+TEST_F(PrimeFieldTest, Ge) { EXPECT_EQ(cc_a_ >= cc_b_, a_ >= b_); }
 
-TEST_F(PrimeFieldTest, Lt) {
-  EXPECT_EQ(cc_a_ < cc_b_, a_ < b_);
-}
+TEST_F(PrimeFieldTest, Lt) { EXPECT_EQ(cc_a_ < cc_b_, a_ < b_); }
 
-TEST_F(PrimeFieldTest, Le) {
-  EXPECT_EQ(cc_a_ <= cc_b_, a_ <= b_);
-}
+TEST_F(PrimeFieldTest, Le) { EXPECT_EQ(cc_a_ <= cc_b_, a_ <= b_); }
 
 }  // namespace tachyon::cc::math

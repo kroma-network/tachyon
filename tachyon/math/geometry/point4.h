@@ -8,6 +8,8 @@
 
 namespace tachyon::math {
 
+// |Point4| represents points expanded into 4-element vectors.
+// |Point4| is used to represent elliptic curve points in the XYZZ form.
 template <typename T>
 struct Point4 {
   using value_type = T;

@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <iostream>
 #include <type_traits>
 #include <utility>
 
@@ -12,8 +13,6 @@
 #include "tachyon/base/buffer/copyable_forward.h"
 #include "tachyon/base/endian.h"
 #include "tachyon/base/logging.h"
-
-#include <iostream>
 
 namespace tachyon::base {
 namespace internal {

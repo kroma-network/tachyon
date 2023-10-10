@@ -18,6 +18,10 @@ class PrimeFieldBase : public Field<F> {
  public:
   using Config = typename PrimeFieldTraits<F>::Config;
 
+  // An invariant of a field which is prime number N
+  // such that N * e(unit element) = 0.
+  // It is uniquely determined for a given field.
+  // See https://encyclopediaofmath.org/wiki/Characteristic_of_a_field
   constexpr static F Characteristic() {
     return F::FromBigint(Config::kModulus);
   }

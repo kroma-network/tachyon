@@ -12,6 +12,11 @@ class VariableBaseMSM {
   using ScalarField = typename PointTy::ScalarField;
   using Bucket = typename Pippenger<PointTy>::Bucket;
 
+  // MSM(Multi-Scalar Multiplication): s₀ * g₀ + s₁ * g₁ + ... + sₙ * gₙ
+  // Variable-base MSM is an operation that multiplies different base points
+  // with respective scalars, unlike the Fixed-base MSM, which uses the same
+  // base point for all multiplications.
+  // This implementation uses Pippenger's algorithm to compute the MSM.
   template <typename BaseInputIterator, typename ScalarInputIterator>
   bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
            ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,

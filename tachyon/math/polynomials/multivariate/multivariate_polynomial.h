@@ -13,6 +13,8 @@
 
 namespace tachyon::math {
 
+// MultivariatePolynomial represents a polynomial with multiple variables.
+// For example, 3x²y + 2yz + 1 is a multivariate polynomial with 3 variables.
 template <typename Coefficients>
 class MultivariatePolynomial final
     : public Polynomial<MultivariatePolynomial<Coefficients>> {

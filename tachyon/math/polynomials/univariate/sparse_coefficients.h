@@ -22,6 +22,9 @@ namespace tachyon::math {
 template <typename F, size_t MaxDegree>
 class DenseCoefficients;
 
+// SparseCoefficients class provides a representation for polynomials where
+// only non-zero coefficients are stored. This is efficient for polynomials
+// where most of the degrees have zero coefficients.
 template <typename F, size_t MaxDegree>
 class SparseCoefficients {
  public:
