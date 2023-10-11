@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+#include <functional>
 #include <numeric>
 #include <sstream>
 #include <string>
@@ -11,6 +12,7 @@
 
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial_ops_forward.h"
@@ -137,12 +139,47 @@ class UnivariateDenseCoefficients {
   friend class Radix2EvaluationDomain<F, MaxDegree>;
   friend class MixedRadixEvaluationDomain<F, MaxDegree>;
 
-  constexpr F DoEvaluate(const F& point) const { return HornerEvaluate(point); }
+  constexpr F DoEvaluate(const F& point) const {
+#if defined(TACHYON_HAS_OPENMP)
+    // Horner's method - parallel method
+    // compute the number of threads we will be using.
+    size_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
+    size_t num_coeffs = coefficients_.size();
+    size_t num_coeffs_per_thread = (num_coeffs + thread_nums - 1) / thread_nums;
 
-  constexpr F HornerEvaluate(const F& point) const {
-    return std::accumulate(
-        coefficients_.rbegin(), coefficients_.rend(), F::Zero(),
-        [&point](F result, const F& coeff) { return result * point + coeff; });
+    // run Horner's method on each thread as follows:
+    // 1) Split up the coefficients across each thread evenly.
+    // 2) Do polynomial evaluation via Horner's method for the thread's
+    // coefficients
+    // 3) Scale the result point^{thread coefficient start index}
+    // Then obtain the final polynomial evaluation by summing each threads
+    // result.
+    auto chunks = base::Chunked(coefficients_, num_coeffs_per_thread);
+    std::vector<absl::Span<const F>> chunks_vector =
+        base::Map(chunks.begin(), chunks.end(),
+                  [](const absl::Span<const F>& chunk) { return chunk; });
+    std::vector<F> results =
+        base::CreateVector(chunks_vector.size(), F::Zero());
+#pragma omp parallel for
+    for (size_t i = 0; i < chunks_vector.size(); ++i) {
+      F result = HornerEvaluate(chunks_vector[i], point);
+      result *= point.Pow(BigInt<1>(i * num_coeffs_per_thread));
+      results[i] = std::move(result);
+    }
+    return std::accumulate(results.begin(), results.end(), F::Zero(),
+                           std::plus<>());
+#else
+    return HornerEvaluate(absl::MakeConstSpan(coefficients_), point);
+#endif
+  }
+
+  constexpr static F HornerEvaluate(const absl::Span<const F>& coefficients,
+                                    const F& point) {
+    return std::accumulate(coefficients.rbegin(), coefficients.rend(),
+                           F::Zero(),
+                           [&point](const F& result, const F& coeff) {
+                             return result * point + coeff;
+                           });
   }
 
   void RemoveHighDegreeZeros() {
