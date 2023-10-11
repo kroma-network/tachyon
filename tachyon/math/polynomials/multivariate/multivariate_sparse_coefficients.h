@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include <algorithm>
+#include <functional>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -12,8 +13,10 @@
 #include "absl/numeric/internal/bits.h"
 
 #include "tachyon/base/containers/adapters.h"
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/random.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
@@ -93,11 +96,27 @@ class MultivariateSparseCoefficients {
     }
 
     F Evaluate(const std::vector<F>& points) const {
-      return std::accumulate(
-          elements.begin(), elements.end(), F::One(),
-          [&points](const F& acc, const Element& elem) {
-            return acc * points[elem.variable].Pow(BigInt<1>(elem.exponent));
-          });
+#if defined(TACHYON_HAS_OPENMP)
+      size_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
+      size_t num_elems = elements.size();
+      size_t num_elems_per_thread = (num_elems + thread_nums - 1) / thread_nums;
+
+      auto chunks = base::Chunked(elements, num_elems_per_thread);
+      std::vector<absl::Span<const Element>> chunks_vector = base::Map(
+          chunks.begin(), chunks.end(),
+          [](const absl::Span<const Element>& chunk) { return chunk; });
+      std::vector<F> results =
+          base::CreateVector(chunks_vector.size(), F::Zero());
+
+#pragma omp parallel for
+      for (size_t i = 0; i < chunks_vector.size(); ++i) {
+        results[i] = EvaluateSerial(chunks_vector[i], points);
+      }
+      return std::accumulate(results.begin(), results.end(), F::One(),
+                             std::multiplies<>());
+#else
+      return EvaluateSerial(elements, points);
+#endif
     }
 
     std::string ToString() const {
@@ -109,6 +128,16 @@ class MultivariateSparseCoefficients {
         }
       }
       return ss.str();
+    }
+
+   private:
+    static F EvaluateSerial(const absl::Span<const Element>& elements,
+                            const std::vector<F>& points) {
+      return std::accumulate(
+          elements.begin(), elements.end(), F::One(),
+          [&points](const F& acc, const Element& elem) {
+            return acc * points[elem.variable].Pow(BigInt<1>(elem.exponent));
+          });
     }
   };
 
@@ -233,11 +262,27 @@ class MultivariateSparseCoefficients {
     if (IsZero()) {
       return F::Zero();
     }
-    return std::accumulate(terms_.begin(), terms_.end(), F::Zero(),
-                           [&points](const F& acc, const Term& term) {
-                             return acc + term.coefficient *
-                                              term.literal.Evaluate(points);
-                           });
+#if defined(TACHYON_HAS_OPENMP)
+    size_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
+    size_t num_terms = terms_.size();
+    size_t num_terms_per_thread = (num_terms + thread_nums - 1) / thread_nums;
+
+    auto chunks = base::Chunked(terms_, num_terms_per_thread);
+    std::vector<absl::Span<const Term>> chunks_vector =
+        base::Map(chunks.begin(), chunks.end(),
+                  [](const absl::Span<const Term>& chunk) { return chunk; });
+    std::vector<F> results =
+        base::CreateVector(chunks_vector.size(), F::Zero());
+
+#pragma omp parallel for
+    for (size_t i = 0; i < chunks_vector.size(); ++i) {
+      results[i] = EvaluateSerial(chunks_vector[i], points);
+    }
+    return std::accumulate(results.begin(), results.end(), F::Zero(),
+                           std::plus<>());
+#else
+    return EvaluateSerial(terms_, points);
+#endif
   }
 
   std::string ToString() const {
@@ -286,6 +331,15 @@ class MultivariateSparseCoefficients {
  private:
   friend class internal::MultivariatePolynomialOp<
       MultivariateSparseCoefficients<F, MaxDegree>>;
+
+  static F EvaluateSerial(const absl::Span<const Term>& terms,
+                          const std::vector<F>& points) {
+    return std::accumulate(terms.begin(), terms.end(), F::Zero(),
+                           [&points](const F& acc, const Term& term) {
+                             return acc + term.coefficient *
+                                              term.literal.Evaluate(points);
+                           });
+  }
 
   size_t num_vars_;
   std::vector<Term> terms_;
