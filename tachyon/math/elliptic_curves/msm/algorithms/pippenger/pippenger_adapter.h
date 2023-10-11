@@ -73,7 +73,7 @@ class PippengerAdapter {
 
       std::vector<Result> results;
       results.resize(thread_nums);
-      size_t size = scalars_size / thread_nums;
+      size_t size = (scalars_size + thread_nums - 1) / thread_nums;
 #if defined(TACHYON_HAS_OPENMP)
       omp_set_num_threads(thread_nums);
 #endif
