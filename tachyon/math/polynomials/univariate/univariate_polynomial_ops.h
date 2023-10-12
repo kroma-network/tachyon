@@ -250,13 +250,11 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return Divide(self, other);
   }
 
-  static UnivariatePolynomial<D> ToDensePolynomial(
-      const UnivariatePolynomial<D>& self) {
+  static UnivariatePolynomial<D> ToDense(const UnivariatePolynomial<D>& self) {
     return self;
   }
 
-  static UnivariatePolynomial<S> ToSparsePolynomial(
-      const UnivariatePolynomial<D>& self) {
+  static UnivariatePolynomial<S> ToSparse(const UnivariatePolynomial<D>& self) {
     std::vector<Term> terms;
     size_t size = self.Degree() + 1;
     // TODO(chokobole): What if this dense polynomial is really sparse..?
@@ -450,8 +448,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return self.ToDense().DivMod(other);
   }
 
-  static UnivariatePolynomial<D> ToDensePolynomial(
-      const UnivariatePolynomial<S>& self) {
+  static UnivariatePolynomial<D> ToDense(const UnivariatePolynomial<S>& self) {
     std::vector<F> coefficients;
     size_t size = self.Degree() + 1;
     coefficients.reserve(size);
@@ -461,8 +458,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return UnivariatePolynomial<D>(D(std::move(coefficients)));
   }
 
-  static UnivariatePolynomial<S> ToSparsePolynomial(
-      const UnivariatePolynomial<S>& self) {
+  static UnivariatePolynomial<S> ToSparse(const UnivariatePolynomial<S>& self) {
     return self;
   }
 

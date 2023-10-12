@@ -84,13 +84,11 @@ class UnivariatePolynomial final
   }
 
   auto ToSparse() const {
-    return internal::UnivariatePolynomialOp<Coefficients>::ToSparsePolynomial(
-        *this);
+    return internal::UnivariatePolynomialOp<Coefficients>::ToSparse(*this);
   }
 
   auto ToDense() const {
-    return internal::UnivariatePolynomialOp<Coefficients>::ToDensePolynomial(
-        *this);
+    return internal::UnivariatePolynomialOp<Coefficients>::ToDense(*this);
   }
 
   std::string ToString() const { return coefficients_.ToString(); }
