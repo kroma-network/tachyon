@@ -7,8 +7,8 @@ tachyon_cc_library(
     hdrs = [
         "multivariate_polynomial.h",
         "multivariate_polynomial_ops.h",
-        "multivariate_polynomial_ops_forward.h",
         "multivariate_sparse_coefficients.h",
+        "support_poly_operators.h",
     ],
     deps = [
         "//tachyon/base:logging",

@@ -9,7 +9,10 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "polynomial",
-    hdrs = ["polynomial.h"],
+    hdrs = [
+        "polynomial.h",
+        "support_poly_operators.h",
+    ],
     deps = [
         ":polynomial_traits",
         "//tachyon/math/base:rings",

@@ -64,10 +64,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "univariate_polynomial",
     hdrs = [
+        "support_poly_operators.h",
         "univariate_dense_coefficients.h",
         "univariate_polynomial.h",
         "univariate_polynomial_ops.h",
-        "univariate_polynomial_ops_forward.h",
         "univariate_sparse_coefficients.h",
     ],
     deps = [
