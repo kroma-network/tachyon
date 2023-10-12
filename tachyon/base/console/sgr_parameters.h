@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef TACHYON_CONSOLE_SGR_PARAMETERS_H_
-#define TACHYON_CONSOLE_SGR_PARAMETERS_H_
+#ifndef TACHYON_BASE_CONSOLE_SGR_PARAMETERS_H_
+#define TACHYON_BASE_CONSOLE_SGR_PARAMETERS_H_
 
 #include <stdint.h>
 
@@ -37,4 +37,4 @@ TACHYON_EXPORT uint8_t Ansi8BitColor(uint8_t r, uint8_t g, uint8_t b);
 
 }  // namespace tachyon::base
 
-#endif  // TACHYON_CONSOLE_SGR_PARAMETERS_H_
+#endif  // TACHYON_BASE_CONSOLE_SGR_PARAMETERS_H_

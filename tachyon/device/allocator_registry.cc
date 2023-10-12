@@ -16,6 +16,7 @@ limitations under the License.
 #include "tachyon/device/allocator_registry.h"
 
 #include <string>
+#include <utility>
 
 #include "tachyon/base/logging.h"
 #include "tachyon/base/no_destructor.h"

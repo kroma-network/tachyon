@@ -1,6 +1,8 @@
 #ifndef TACHYON_BASE_BINDING_TEST_COLORED_POINT_H_
 #define TACHYON_BASE_BINDING_TEST_COLORED_POINT_H_
 
+#include <string>
+
 #include "tachyon/base/binding/test/color.h"
 #include "tachyon/base/binding/test/point.h"
 

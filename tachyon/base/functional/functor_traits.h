@@ -8,6 +8,7 @@
 #define TACHYON_BASE_FUNCTIONAL_FUNCTOR_TRAITS_H_
 
 #include <functional>
+#include <utility>
 
 #include "absl/meta/type_traits.h"
 

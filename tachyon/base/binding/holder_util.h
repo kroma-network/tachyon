@@ -2,6 +2,7 @@
 #define TACHYON_BASE_BINDING_HOLDER_UTIL_H_
 
 #include <memory>
+#include <utility>
 
 namespace tachyon::base {
 namespace internal {

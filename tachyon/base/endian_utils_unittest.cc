@@ -1,5 +1,7 @@
 #include "tachyon/base/endian_utils.h"
 
+#include <vector>
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

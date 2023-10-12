@@ -1,10 +1,13 @@
 #include "tachyon/device/numa.h"
 
+#include <algorithm>
+
 #include "tachyon/base/logging.h"
 #include "tachyon/base/memory/aligned_memory.h"
 #include "tachyon/build/build_config.h"
 
 #if defined(TACHYON_USE_NUMA)
+// NOLINTNEXTLINE(build/include_subdir)
 #include "hwloc.h"  // from @hwloc
 #endif
 

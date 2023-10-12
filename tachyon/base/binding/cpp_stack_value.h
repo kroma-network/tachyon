@@ -2,6 +2,7 @@
 #define TACHYON_BASE_BINDING_CPP_STACK_VALUE_H_
 
 #include <type_traits>
+#include <utility>
 
 #include "tachyon/base/binding/cpp_value.h"
 

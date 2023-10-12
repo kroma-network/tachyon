@@ -81,7 +81,7 @@
     DCHECK(!cf_val || TypeCF##GetTypeID() == CFGetTypeID(cf_val));          \
     return cf_val;                                                          \
   }                                                                         \
-  }
+  }  // namespace tachyon::base::apple
 
 #define CF_TO_NS_MUTABLE_CAST_IMPL(name)                                 \
   CF_TO_NS_CAST_IMPL(CF##name, NS##name)                                 \
@@ -110,7 +110,7 @@
     DCHECK(!cf_val || CF##name##GetTypeID() == CFGetTypeID(cf_val));     \
     return cf_val;                                                       \
   }                                                                      \
-  }
+  }  // namespace tachyon::base::apple
 
 // List of toll-free bridged types taken from:
 // https://web.archive.org/web/20111124025525/http://www.cocoadev.com/index.pl?TollFreeBridged
@@ -158,4 +158,4 @@ id _Nullable CFToNSOwnershipCast(base::ScopedCFTypeRef<CFT>) {
 
 }  // namespace tachyon::base::apple
 
-#endif  // BASE_APPLE_BRIDGING_H_
+#endif  // TACHYON_BASE_APPLE_BRIDGING_H_

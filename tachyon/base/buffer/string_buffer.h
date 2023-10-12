@@ -2,6 +2,7 @@
 #define TACHYON_BASE_BUFFER_STRING_BUFFER_H_
 
 #include <string>
+#include <utility>
 
 #include "tachyon/base/buffer/buffer.h"
 

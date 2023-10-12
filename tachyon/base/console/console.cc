@@ -48,7 +48,7 @@ void Console::Info::Init() {
 Console::Info& Console::GetInfo() {
   static Console::Info info;
   return info;
-};
+}
 
 // This was taken and modified from
 // LICENSE: undefined

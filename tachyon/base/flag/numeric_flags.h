@@ -1,6 +1,8 @@
 #ifndef TACHYON_BASE_FLAG_NUMERIC_FLAGS_H_
 #define TACHYON_BASE_FLAG_NUMERIC_FLAGS_H_
 
+#include <string>
+
 #include "tachyon/base/flag/flag.h"
 
 namespace tachyon::base {

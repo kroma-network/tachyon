@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#include <vector>
+#include <string>
+
 #include "tachyon/base/binding/test/point.h"
 
 namespace tachyon::base::test {

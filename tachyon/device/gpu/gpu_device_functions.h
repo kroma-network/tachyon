@@ -1,6 +1,8 @@
 #ifndef TACHYON_DEVICE_GPU_GPU_DEVICE_FUNCTIONS_H_
 #define TACHYON_DEVICE_GPU_GPU_DEVICE_FUNCTIONS_H_
 
+#include <string>
+
 #if TACHYON_CUDA
 #include "third_party/gpus/cuda/include/cuda.h"
 #include "third_party/gpus/cuda/include/cuda_runtime_api.h"

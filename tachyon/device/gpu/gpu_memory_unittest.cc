@@ -1,5 +1,8 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 
+#include <limits>
+#include <vector>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"

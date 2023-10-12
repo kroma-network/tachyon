@@ -2,6 +2,7 @@
 #define TACHYON_BASE_BINDING_CPP_VALUE_FACTORY_H_
 
 #include <memory>
+#include <utility>
 
 #include "tachyon/base/binding/cpp_raw_ptr.h"
 #include "tachyon/base/binding/cpp_shared_ptr.h"

@@ -1,9 +1,10 @@
-#ifndef TACHYON_STRINGS_STRING_NUMBER_CONVERSIONS_H_
-#define TACHYON_STRINGS_STRING_NUMBER_CONVERSIONS_H_
+#ifndef TACHYON_BASE_STRINGS_STRING_NUMBER_CONVERSIONS_H_
+#define TACHYON_BASE_STRINGS_STRING_NUMBER_CONVERSIONS_H_
 
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 #include "absl/strings/numbers.h"
 #include "absl/strings/str_cat.h"
@@ -63,4 +64,4 @@ TACHYON_EXPORT bool HexStringToSpan(std::string_view input,
 
 }  // namespace tachyon::base
 
-#endif  // TACHYON_STRINGS_STRING_NUMBER_CONVERSIONS_H_
+#endif  // TACHYON_BASE_STRINGS_STRING_NUMBER_CONVERSIONS_H_

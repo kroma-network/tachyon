@@ -15,6 +15,9 @@ limitations under the License.
 
 #include "tachyon/device/tracking_allocator.h"
 
+#include <algorithm>
+#include <utility>
+
 #include "tachyon/base/logging.h"
 
 namespace tachyon::device {

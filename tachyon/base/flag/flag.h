@@ -5,7 +5,9 @@
 #ifndef TACHYON_BASE_FLAG_FLAG_H_
 #define TACHYON_BASE_FLAG_FLAG_H_
 
+#include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "absl/strings/substitute.h"

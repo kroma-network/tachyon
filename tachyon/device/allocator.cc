@@ -35,13 +35,21 @@ std::string AllocatorStats::DebugString() const {
       "Reserved:         %20lld\n"
       "PeakReserved:     %20lld\n"
       "LargestFreeBlock: %20lld\n",
+      // NOLINTNEXTLINE(runtime/int)
       static_cast<long long>(this->bytes_limit ? *this->bytes_limit : 0),
+      // NOLINTNEXTLINE(runtime/int)
       static_cast<long long>(this->bytes_in_use),
+      // NOLINTNEXTLINE(runtime/int)
       static_cast<long long>(this->peak_bytes_in_use),
+      // NOLINTNEXTLINE(runtime/int)
       static_cast<long long>(this->num_allocs),
+      // NOLINTNEXTLINE(runtime/int)
       static_cast<long long>(this->largest_alloc_size),
+      // NOLINTNEXTLINE(runtime/int)
       static_cast<long long>(this->bytes_reserved),
+      // NOLINTNEXTLINE(runtime/int)
       static_cast<long long>(this->peak_bytes_reserved),
+      // NOLINTNEXTLINE(runtime/int)
       static_cast<long long>(this->largest_free_block_bytes));
 }
 
