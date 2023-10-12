@@ -3,7 +3,6 @@
 
 #include <ostream>
 
-#include "tachyon/base/no_destructor.h"
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
 
 namespace tachyon::math {
