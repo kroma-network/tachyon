@@ -7,7 +7,7 @@ tachyon_cc_library(
     testonly = True,
     hdrs = ["curve_config.h"],
     deps = [
-        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/elliptic_curves/short_weierstrass:points",
         "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve",
         "//tachyon/math/finite_fields/test:gf7",
     ],
