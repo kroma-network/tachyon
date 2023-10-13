@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <ostream>
 #include <string>
 
 #include "tachyon/base/random.h"
@@ -371,12 +370,6 @@ class PrimeFieldGpuDebug final
 
   BigInt<N> value_;
 };
-
-template <typename Config>
-std::ostream& operator<<(std::ostream& os,
-                         const PrimeFieldGpuDebug<Config>& f) {
-  return os << f.ToString();
-}
 
 }  // namespace tachyon::math
 

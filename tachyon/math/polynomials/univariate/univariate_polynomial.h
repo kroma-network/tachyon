@@ -189,12 +189,6 @@ class UnivariatePolynomial final
   Coefficients coefficients_;
 };
 
-template <typename Coefficients>
-std::ostream& operator<<(std::ostream& os,
-                         const UnivariatePolynomial<Coefficients>& p) {
-  return os << p.ToString();
-}
-
 template <typename F, size_t MaxDegree>
 using UnivariateDensePolynomial =
     UnivariatePolynomial<UnivariateDenseCoefficients<F, MaxDegree>>;

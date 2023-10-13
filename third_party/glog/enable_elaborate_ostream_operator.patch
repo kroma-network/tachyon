@@ -1,0 +1,91 @@
+diff --git a/src/glog/logging.h.in b/src/glog/logging.h.in
+index 04cdf3b..d378aac 100644
+--- a/src/glog/logging.h.in
++++ b/src/glog/logging.h.in
+@@ -44,6 +44,7 @@
+ #include <ostream>
+ #include <sstream>
+ #include <string>
++#include <type_traits>
+ #if @ac_cv_have_unistd_h@
+ # include <unistd.h>
+ #endif
+@@ -716,13 +717,75 @@ inline std::ostream& operator<<(
+ 
+ @ac_google_start_namespace@
+ 
+-// This formats a value for a failing CHECK_XX statement.  Ordinarily,
+-// it uses the definition for operator<<, with a few special cases below.
++// Uses expression SFINAE to detect whether using operator<< would work.
++template <typename T, typename = void>
++struct SupportsOstreamOperator : std::false_type {};
+ template <typename T>
+-inline void MakeCheckOpValueString(std::ostream* os, const T& v) {
++struct SupportsOstreamOperator<T, decltype(void(std::declval<std::ostream&>()
++                                                << std::declval<T>()))>
++    : std::true_type {};
++
++template <typename T, typename = void>
++struct SupportsToString : std::false_type {};
++template <typename T>
++struct SupportsToString<T, decltype(void(std::declval<T>().ToString()))>
++    : std::true_type {};
++
++// I/O manipulators are function pointers, but should be sent directly to the
++// `ostream` instead of being cast to `const void*` like other function
++// pointers.
++template <typename T, typename = void>
++constexpr bool IsIomanip = false;
++template <typename T>
++constexpr bool
++    IsIomanip<T&(T&), std::enable_if_t<std::is_base_of_v<std::ios_base, T>>> =
++        true;
++
++// Function pointers implicitly convert to `bool`, so use this to avoid printing
++// function pointers as 1 or 0.
++template <typename T, typename = void>
++constexpr bool WillBeIncorrectlyStreamedAsBool = false;
++template <typename T>
++constexpr bool WillBeIncorrectlyStreamedAsBool<
++    T, std::enable_if_t<std::is_function_v<std::remove_pointer_t<T>> &&
++                        !IsIomanip<std::remove_pointer_t<T>>>> = true;
++
++template <typename T>
++inline std::enable_if_t<
++    SupportsOstreamOperator<const T&>::value &&
++    !WillBeIncorrectlyStreamedAsBool<T>>
++MakeCheckOpValueString(std::ostream* os, const T& v) {
+   (*os) << v;
+ }
+ 
++// Functions and function pointers.
++template <typename T>
++inline std::enable_if_t<
++    SupportsOstreamOperator<const T&>::value &&
++   WillBeIncorrectlyStreamedAsBool<T>>
++MakeCheckOpValueString(std::ostream* os, const T& v) {
++  const void* vp = reinterpret_cast<const void*>(v);
++  (*os) << std::addressof(vp);
++}
++
++// Non-streamables that have a `ToString` member.
++template <typename T>
++inline std::enable_if_t<!SupportsOstreamOperator<const T&>::value &&
++                        SupportsToString<const T&>::value>
++MakeCheckOpValueString(std::ostream* os, const T& v) {
++  MakeCheckOpValueString(os, v.ToString());
++}
++
++// Non-streamable enums (i.e. scoped enums where no `operator<<` overload was
++// declared).
++template <typename T>
++inline std::enable_if_t<!SupportsOstreamOperator<const T&>::value &&
++                        std::is_enum_v<T>>
++MakeCheckOpValueString(std::ostream* os, T v) {
++  MakeCheckOpValueString(
++      os, static_cast<std::underlying_type_t<T>>(v));
++}
++
+ // Overrides for char types provide readable values for unprintable
+ // characters.
+ template <> GOOGLE_GLOG_DLL_DECL

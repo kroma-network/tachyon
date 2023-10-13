@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <ostream>
 #include <string>
 
 #if TACHYON_CUDA
@@ -410,11 +409,6 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
 
   BigInt<N> value_;
 };
-
-template <typename Config>
-std::ostream& operator<<(std::ostream& os, const PrimeFieldGpu<Config>& f) {
-  return os << f.ToString();
-}
 
 }  // namespace tachyon::math
 

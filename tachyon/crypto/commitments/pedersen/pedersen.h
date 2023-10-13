@@ -89,11 +89,6 @@ class PedersenParams {
   std::vector<PointTy> generators_;
 };
 
-template <typename PointTy>
-std::ostream& operator<<(std::ostream& os, const PedersenParams<PointTy>& p) {
-  return os << p.ToString();
-}
-
 };  // namespace tachyon::crypto
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_PEDERSEN_PEDERSEN_H_

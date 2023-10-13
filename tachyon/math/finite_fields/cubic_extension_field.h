@@ -308,12 +308,6 @@ class CubicExtensionField : public Field<CubicExtensionField<Derived>> {
   BaseField c2_;
 };
 
-template <typename Derived>
-std::ostream& operator<<(std::ostream& os,
-                         const CubicExtensionField<Derived>& f) {
-  return os << f.ToString();
-}
-
 template <
     typename BaseField, typename Derived,
     std::enable_if_t<std::is_same_v<BaseField, typename Derived::BaseField>>* =

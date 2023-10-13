@@ -64,7 +64,10 @@ def tachyon_deps():
             strip_prefix = "glog-0.5.0",
             urls = ["https://github.com/google/glog/archive/v0.5.0.zip"],
             patch_args = ["-p1"],
-            patches = ["@kroma_network_tachyon//third_party/glog:enable_constexpr_check_op.patch"],
+            patches = [
+                "@kroma_network_tachyon//third_party/glog:enable_constexpr_check_op.patch",
+                "@kroma_network_tachyon//third_party/glog:enable_elaborate_ostream_operator.patch",
+            ],
         )
 
     if not native.existing_rule("com_github_soblin_matplotlibcpp17"):

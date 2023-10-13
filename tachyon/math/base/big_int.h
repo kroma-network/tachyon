@@ -907,11 +907,6 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
 };
 
 template <size_t N>
-std::ostream& operator<<(std::ostream& os, const BigInt<N>& bigint) {
-  return os << bigint.ToString();
-}
-
-template <size_t N>
 class BitTraits<BigInt<N>> {
  public:
   constexpr static bool kIsDynamic = false;

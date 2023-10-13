@@ -44,11 +44,6 @@ struct Point4 {
   }
 };
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const Point4<T>& point) {
-  return os << point.ToString();
-}
-
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_GEOMETRY_POINT4_H_

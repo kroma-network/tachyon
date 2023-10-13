@@ -5,7 +5,6 @@
 
 #include <stddef.h>
 
-#include <ostream>
 #include <string>
 #include <utility>
 
@@ -238,11 +237,6 @@ class PrimeFieldGmp final : public PrimeFieldBase<PrimeFieldGmp<_Config>> {
 
   mpz_class value_;
 };
-
-template <typename Config>
-std::ostream& operator<<(std::ostream& os, const PrimeFieldGmp<Config>& f) {
-  return os << f.ToString();
-}
 
 }  // namespace tachyon::math
 

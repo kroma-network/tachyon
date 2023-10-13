@@ -95,9 +95,6 @@ class TACHYON_EXPORT TableWriterBuilder {
   TableWriter writer_;
 };
 
-TACHYON_EXPORT std::ostream& operator<<(std::ostream& os,
-                                        const TableWriter& table_writer);
-
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONSOLE_TABLE_WRITER_H_

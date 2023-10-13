@@ -1,19 +1,12 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_POINT_XYZZ_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_POINT_XYZZ_H_
 
-#include <ostream>
-
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
 
 namespace tachyon::math {
 
 template <typename Curve, typename SFINAE = void>
 class PointXYZZ;
-
-template <typename Curve>
-std::ostream& operator<<(std::ostream& os, const PointXYZZ<Curve>& point) {
-  return os << point.ToString();
-}
 
 template <typename ScalarField, typename Curve,
           std::enable_if_t<std::is_same_v<
