@@ -6,7 +6,10 @@
 
 #include "absl/strings/substitute.h"
 
-namespace tachyon::math {
+#include "tachyon/base/buffer/copyable.h"
+
+namespace tachyon {
+namespace math {
 
 // |Point2| represents points expanded into 2-element vectors.
 // It can represent elliptic curve points in Affine form.
@@ -38,6 +41,27 @@ struct Point2 {
   }
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename T>
+class Copyable<math::Point2<T>> {
+ public:
+  static bool WriteTo(const math::Point2<T>& point, Buffer* buffer) {
+    return buffer->WriteMany(point.x, point.y);
+  }
+
+  static bool ReadFrom(const Buffer& buffer, math::Point2<T>* point) {
+    return buffer.ReadMany(&point->x, &point->y);
+  }
+
+  static size_t EstimateSize(const math::Point2<T>& point) {
+    return base::EstimateSize(point.x) + base::EstimateSize(point.y);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_GEOMETRY_POINT2_H_

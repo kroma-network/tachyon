@@ -6,7 +6,10 @@
 
 #include "absl/strings/substitute.h"
 
-namespace tachyon::math {
+#include "tachyon/base/buffer/copyable.h"
+
+namespace tachyon {
+namespace math {
 
 // |Point4| represents points expanded into 4-element vectors.
 // |Point4| is used to represent elliptic curve points in the XYZZ form.
@@ -44,6 +47,28 @@ struct Point4 {
   }
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename T>
+class Copyable<math::Point4<T>> {
+ public:
+  static bool WriteTo(const math::Point4<T>& point, Buffer* buffer) {
+    return buffer->WriteMany(point.x, point.y, point.z, point.w);
+  }
+
+  static bool ReadFrom(const Buffer& buffer, math::Point4<T>* point) {
+    return buffer.ReadMany(&point->x, &point->y, &point->z, &point->w);
+  }
+
+  static size_t EstimateSize(const math::Point4<T>& point) {
+    return base::EstimateSize(point.x) + base::EstimateSize(point.y) +
+           base::EstimateSize(point.z) + base::EstimateSize(point.w);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_GEOMETRY_POINT4_H_
