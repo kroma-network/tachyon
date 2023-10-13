@@ -83,7 +83,7 @@ class MultiplicativeSemigroup {
   template <
       typename G2,
       std::enable_if_t<internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
-  constexpr auto& operator*=(const G2& other) {
+  constexpr G& operator*=(const G2& other) {
     G* g = static_cast<G*>(this);
     return g->MulInPlace(other);
   }
@@ -172,7 +172,7 @@ class AdditiveSemigroup {
   template <
       typename G2,
       std::enable_if_t<internal::SupportsAddInPlace<G, G2>::value>* = nullptr>
-  constexpr auto& operator+=(const G2& other) {
+  constexpr G& operator+=(const G2& other) {
     G* g = static_cast<G*>(this);
     return g->AddInPlace(other);
   }

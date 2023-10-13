@@ -48,7 +48,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   template <
       typename G2,
       std::enable_if_t<internal::SupportsDivInPlace<G, G2>::value>* = nullptr>
-  constexpr auto& operator/=(const G2& other) {
+  constexpr G& operator/=(const G2& other) {
     G* g = static_cast<G*>(this);
     return g->DivInPlace(other);
   }
@@ -58,7 +58,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
       typename G2,
       std::enable_if_t<!internal::SupportsDivInPlace<G, G2>::value &&
                        internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
-  constexpr auto& operator/=(const G2& other) {
+  constexpr G& operator/=(const G2& other) {
     G* g = static_cast<G*>(this);
     return g->MulInPlace(other.Inverse());
   }
@@ -100,7 +100,7 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
   template <
       typename G2,
       std::enable_if_t<internal::SupportsSubInPlace<G, G2>::value>* = nullptr>
-  constexpr auto& operator-=(const G2& other) {
+  constexpr G& operator-=(const G2& other) {
     G* g = static_cast<G*>(this);
     return g->SubInPlace(other);
   }
@@ -110,7 +110,7 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
       typename G2,
       std::enable_if_t<!internal::SupportsSubInPlace<G, G2>::value &&
                        internal::SupportsAddInPlace<G, G2>::value>* = nullptr>
-  constexpr auto& operator-=(const G2& other) {
+  constexpr G& operator-=(const G2& other) {
     G* g = static_cast<G*>(this);
     return g->AddInPlace(other.Negative());
   }
