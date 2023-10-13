@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/arithmetics_results.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -14,10 +15,10 @@ namespace tachyon::math {
 namespace internal {
 
 template <typename F, size_t MaxDegree>
-class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
+class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
  public:
-  using D = DenseCoefficients<F, MaxDegree>;
-  using S = SparseCoefficients<F, MaxDegree>;
+  using D = UnivariateDenseCoefficients<F, MaxDegree>;
+  using S = UnivariateSparseCoefficients<F, MaxDegree>;
   using Term = typename S::Term;
 
   static UnivariatePolynomial<D>& AddInPlace(
@@ -142,7 +143,9 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<D>& NegInPlace(UnivariatePolynomial<D>& self) {
     std::vector<F>& coefficients = self.coefficients_.coefficients_;
-    for (F& coefficient : coefficients) {
+    // clang-format off
+    OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
+      // clang-format on
       coefficient.NegInPlace();
     }
     return self;
@@ -235,6 +238,13 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
+  template <typename DOrS>
+  static DivResult<UnivariatePolynomial<D>> DivMod(
+      const UnivariatePolynomial<D>& self,
+      const UnivariatePolynomial<DOrS>& other) {
+    return Divide(self, other);
+  }
+
   static UnivariatePolynomial<D> ToDensePolynomial(
       const UnivariatePolynomial<D>& self) {
     return self;
@@ -276,7 +286,8 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
 
   template <typename DOrS>
   static DivResult<UnivariatePolynomial<D>> Divide(
-      UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
+      const UnivariatePolynomial<D>& self,
+      const UnivariatePolynomial<DOrS>& other) {
     if (self.IsZero()) {
       return {UnivariatePolynomial<D>::Zero(), UnivariatePolynomial<D>::Zero()};
     } else if (other.IsZero()) {
@@ -318,10 +329,10 @@ class UnivariatePolynomialOp<DenseCoefficients<F, MaxDegree>> {
 };
 
 template <typename F, size_t MaxDegree>
-class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
+class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
  public:
-  using D = DenseCoefficients<F, MaxDegree>;
-  using S = SparseCoefficients<F, MaxDegree>;
+  using D = UnivariateDenseCoefficients<F, MaxDegree>;
+  using S = UnivariateSparseCoefficients<F, MaxDegree>;
   using Term = typename S::Term;
 
   static UnivariatePolynomial<D> Add(const UnivariatePolynomial<S>& self,
@@ -425,6 +436,13 @@ class UnivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
   static UnivariatePolynomial<D> Mod(const UnivariatePolynomial<S>& self,
                                      const UnivariatePolynomial<DOrS>& other) {
     return self.ToDense() % other;
+  }
+
+  template <typename DOrS>
+  static DivResult<UnivariatePolynomial<D>> DivMod(
+      const UnivariatePolynomial<S>& self,
+      const UnivariatePolynomial<DOrS>& other) {
+    return self.ToDense().DivMod(other);
   }
 
   static UnivariatePolynomial<D> ToDensePolynomial(

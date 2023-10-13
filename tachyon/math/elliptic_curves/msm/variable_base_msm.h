@@ -28,11 +28,10 @@ class VariableBaseMSM {
   }
 
   template <typename BaseContainer, typename ScalarContainer>
-  bool Run(BaseContainer&& bases, ScalarContainer&& scalars, Bucket* ret) {
-    return Run(std::begin(std::forward<BaseContainer>(bases)),
-               std::end(std::forward<BaseContainer>(bases)),
-               std::begin(std::forward<ScalarContainer>(scalars)),
-               std::end(std::forward<ScalarContainer>(scalars)), ret);
+  bool Run(const BaseContainer& bases, const ScalarContainer& scalars,
+           Bucket* ret) {
+    return Run(std::begin(bases), std::end(bases), std::begin(scalars),
+               std::end(scalars), ret);
   }
 };
 

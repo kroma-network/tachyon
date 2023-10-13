@@ -9,8 +9,9 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/math/polynomials/polynomial.h"
-#include "tachyon/math/polynomials/univariate/dense_coefficients.h"
-#include "tachyon/math/polynomials/univariate/sparse_coefficients.h"
+#include "tachyon/math/polynomials/univariate/univariate_dense_coefficients.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
+#include "tachyon/math/polynomials/univariate/univariate_sparse_coefficients.h"
 
 namespace tachyon::math {
 
@@ -23,7 +24,7 @@ template <typename Coefficients>
 class UnivariatePolynomial final
     : public Polynomial<UnivariatePolynomial<Coefficients>> {
  public:
-  constexpr static const size_t kMaxDegree = Coefficients::kMaxDegree;
+  constexpr static size_t kMaxDegree = Coefficients::kMaxDegree;
 
   using Field = typename Coefficients::Field;
 
@@ -32,6 +33,10 @@ class UnivariatePolynomial final
       : coefficients_(coefficients) {}
   constexpr explicit UnivariatePolynomial(Coefficients&& coefficients)
       : coefficients_(std::move(coefficients)) {}
+
+  constexpr static bool IsCoefficientForm() { return true; }
+
+  constexpr static bool IsEvaluationForm() { return false; }
 
   constexpr static UnivariatePolynomial Zero() {
     return UnivariatePolynomial(Coefficients::Zero());
@@ -161,8 +166,25 @@ class UnivariatePolynomial final
     return ModInPlace(other);
   }
 
+  template <typename Coefficients2>
+  constexpr auto DivMod(
+      const UnivariatePolynomial<Coefficients2>& other) const {
+    return internal::UnivariatePolynomialOp<Coefficients>::DivMod(*this, other);
+  }
+
  private:
   friend class internal::UnivariatePolynomialOp<Coefficients>;
+  friend class Radix2EvaluationDomain<Field, kMaxDegree>;
+  friend class MixedRadixEvaluationDomain<Field, kMaxDegree>;
+
+  // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
+  // So when the returned evaluations is called with `IsZero()`, it returns
+  // false. This is only used at |EvaluationDomain|.
+  constexpr static UnivariatePolynomial UnsafeZero(size_t degree) {
+    UnivariatePolynomial ret;
+    ret.coefficients_ = Coefficients::UnsafeZero(degree);
+    return ret;
+  }
 
   Coefficients coefficients_;
 };
@@ -174,12 +196,18 @@ std::ostream& operator<<(std::ostream& os,
 }
 
 template <typename F, size_t MaxDegree>
-using DenseUnivariatePolynomial =
-    UnivariatePolynomial<DenseCoefficients<F, MaxDegree>>;
+using UnivariateDensePolynomial =
+    UnivariatePolynomial<UnivariateDenseCoefficients<F, MaxDegree>>;
 
 template <typename F, size_t MaxDegree>
-using SparseUnivariatePolynomial =
-    UnivariatePolynomial<SparseCoefficients<F, MaxDegree>>;
+using UnivariateSparsePolynomial =
+    UnivariatePolynomial<UnivariateSparseCoefficients<F, MaxDegree>>;
+
+template <typename Coefficients>
+class PolynomialTraits<UnivariatePolynomial<Coefficients>> {
+ public:
+  constexpr static bool kIsCoefficientForm = true;
+};
 
 }  // namespace tachyon::math
 

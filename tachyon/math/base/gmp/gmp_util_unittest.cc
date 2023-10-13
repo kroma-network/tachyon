@@ -21,7 +21,7 @@ TEST(GmpUtilTest, FromHexString) {
 }
 
 TEST(GmpUtilTest, FromUnsignedInt) {
-  EXPECT_EQ(FromUnsignedInt(static_cast<unsigned int>(1234)), mpz_class(1234));
+  EXPECT_EQ(FromUnsignedInt(uint64_t{1234}), mpz_class(1234));
 }
 
 TEST(GmpUtilTest, FromSignedInt) {
@@ -85,7 +85,7 @@ TEST(GmpUtilTest, Bits) {
 
 TEST(GmpUtilTest, Limbs) {
   mpz_class value(1234);
-  EXPECT_EQ(GetLimbSize(value), static_cast<size_t>(1));
+  EXPECT_EQ(GetLimbSize(value), size_t{1});
   EXPECT_EQ(GetLimbConstRef(value, 0), 1234);
 }
 

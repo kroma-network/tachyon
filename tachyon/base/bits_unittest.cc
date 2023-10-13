@@ -8,19 +8,22 @@
 
 #include <stddef.h>
 
+#include <bitset>
 #include <limits>
 
 #include "gtest/gtest.h"
+
+#include "tachyon/base/random.h"
 
 namespace tachyon::base {
 namespace bits {
 
 TEST(BitsTest, Log2Floor) {
-  EXPECT_EQ(-1, Log2Floor(0));
-  EXPECT_EQ(0, Log2Floor(1));
-  EXPECT_EQ(1, Log2Floor(2));
-  EXPECT_EQ(1, Log2Floor(3));
-  EXPECT_EQ(2, Log2Floor(4));
+  EXPECT_EQ(-1, Log2Floor(uint32_t{0}));
+  EXPECT_EQ(0, Log2Floor(uint32_t{1}));
+  EXPECT_EQ(1, Log2Floor(uint32_t{2}));
+  EXPECT_EQ(1, Log2Floor(uint32_t{3}));
+  EXPECT_EQ(2, Log2Floor(uint32_t{4}));
   for (int i = 3; i < 31; ++i) {
     unsigned int value = 1U << i;
     EXPECT_EQ(i, Log2Floor(value));
@@ -33,11 +36,11 @@ TEST(BitsTest, Log2Floor) {
 }
 
 TEST(BitsTest, Log2Ceiling) {
-  EXPECT_EQ(-1, Log2Ceiling(0));
-  EXPECT_EQ(0, Log2Ceiling(1));
-  EXPECT_EQ(1, Log2Ceiling(2));
-  EXPECT_EQ(2, Log2Ceiling(3));
-  EXPECT_EQ(2, Log2Ceiling(4));
+  EXPECT_EQ(-1, Log2Ceiling(uint32_t{0}));
+  EXPECT_EQ(0, Log2Ceiling(uint32_t{1}));
+  EXPECT_EQ(1, Log2Ceiling(uint32_t{2}));
+  EXPECT_EQ(2, Log2Ceiling(uint32_t{3}));
+  EXPECT_EQ(2, Log2Ceiling(uint32_t{4}));
   for (int i = 3; i < 31; ++i) {
     unsigned int value = 1U << i;
     EXPECT_EQ(i, Log2Ceiling(value));
@@ -273,6 +276,18 @@ TEST(BitsTest, LeftMostBit) {
   uint8_t unsigned_byte_value = 0x80u;
   EXPECT_EQ(LeftmostBit<uint8_t>(), unsigned_byte_value);
   EXPECT_EQ(LeftmostBit<int8_t>(), int8_t(unsigned_byte_value));
+}
+
+TEST(BitsTest, BitRev) {
+  std::bitset<64> value;
+  for (size_t i = 0; i < 20; ++i) {
+    value.flip(Uniform(0, 64));
+  }
+  std::bitset<64> expected;
+  for (size_t i = 0; i < 64; ++i) {
+    expected[i] = value[64 - i - 1];
+  }
+  EXPECT_EQ(BitRev(value.to_ullong()), expected.to_ullong());
 }
 
 }  // namespace bits

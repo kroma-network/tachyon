@@ -8,10 +8,12 @@ tachyon_cc_library(
         "multivariate_polynomial.h",
         "multivariate_polynomial_ops.h",
         "multivariate_polynomial_ops_forward.h",
-        "sparse_coefficients.h",
+        "multivariate_sparse_coefficients.h",
     ],
     deps = [
         "//tachyon/base:logging",
+        "//tachyon/base:openmp_util",
+        "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/containers:cxx20_erase",
         "//tachyon/base/ranges:algorithm",

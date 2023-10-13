@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <utility>
 #include <vector>
 
 #include "tachyon/base/functional/functor_traits.h"
@@ -13,7 +14,7 @@ namespace tachyon::base {
 template <typename T>
 std::vector<T> CreateRangedVector(T start, T end, T step = 1) {
   CHECK_LT(start, end);
-  CHECK_GT(step, static_cast<T>(0));
+  CHECK_GT(step, T{0});
   std::vector<T> ret;
   size_t size = static_cast<size_t>((end - start + step - 1) / step);
   ret.reserve(size);
@@ -64,8 +65,7 @@ template <typename T,
           std::enable_if_t<!internal::IsCallableObject<T>::value>* = nullptr>
 std::vector<T> CreateVector(size_t size, const T& initial_value) {
   std::vector<T> ret;
-  ret.reserve(size);
-  std::fill_n(std::back_inserter(ret), size, initial_value);
+  ret.resize(size, initial_value);
   return ret;
 }
 

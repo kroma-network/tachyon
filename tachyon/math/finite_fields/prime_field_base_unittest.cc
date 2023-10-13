@@ -20,6 +20,24 @@ using PrimeFieldTypes = testing::Types<bn254::Fq, bn254::Fr>;
 
 TYPED_TEST_SUITE(PrimeFieldBaseTest, PrimeFieldTypes);
 
+TYPED_TEST(PrimeFieldBaseTest, Decompose) {
+  using F = TypeParam;
+
+  if constexpr (F::Config::kHasLargeSubgroupRootOfUnity) {
+    for (size_t i = 0; i <= F::Config::kTwoAdicity; ++i) {
+      for (size_t j = 0; j <= F::Config::kSmallSubgroupAdicity; ++j) {
+        size_t n = (size_t{1} << i) *
+                   std::pow(size_t{F::Config::kSmallSubgroupBase}, j);
+
+        PrimeFieldFactors unused;
+        EXPECT_TRUE(F::Decompose(n, &unused));
+      }
+    }
+  } else {
+    GTEST_SKIP() << "No LargeSubgroupRootOfUnity";
+  }
+}
+
 TYPED_TEST(PrimeFieldBaseTest, TwoAdicRootOfUnity) {
   using F = TypeParam;
 
@@ -46,21 +64,20 @@ TYPED_TEST(PrimeFieldBaseTest, LargeSubgroupOfUnity) {
 TYPED_TEST(PrimeFieldBaseTest, GetRootOfUnity) {
   using F = TypeParam;
 
-  F root;
-  size_t n;
   if constexpr (F::Config::kHasLargeSubgroupRootOfUnity) {
     for (size_t i = 0; i <= F::Config::kTwoAdicity; ++i) {
       for (size_t j = 0; j <= F::Config::kSmallSubgroupAdicity; ++j) {
-        n = (static_cast<size_t>(1) << i) *
-            std::pow(static_cast<size_t>(F::Config::kSmallSubgroupBase), j);
-
+        size_t n = (size_t{1} << i) *
+                   std::pow(size_t{F::Config::kSmallSubgroupBase}, j);
+        F root;
         ASSERT_TRUE(F::GetRootOfUnity(n, &root));
         ASSERT_EQ(root.Pow(BigInt<1>(n)), F::One());
       }
     }
   } else {
     for (size_t i = 0; i <= F::Config::kTwoAdicity; ++i) {
-      n = static_cast<size_t>(1) << i;
+      size_t n = size_t{1} << i;
+      F root;
       ASSERT_TRUE(F::GetRootOfUnity(n, &root));
       ASSERT_EQ(root.Pow(BigInt<1>(n)), F::One());
     }

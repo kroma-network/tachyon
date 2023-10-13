@@ -39,14 +39,14 @@ class Modulus {
 
   constexpr static BigInt<N> MontgomeryR(const BigInt<N>& modulus) {
     BigInt<N + 1> two_pow_n_times_64;
-    two_pow_n_times_64.biggest_limb() = static_cast<uint64_t>(1);
+    two_pow_n_times_64.biggest_limb() = uint64_t{1};
     return (two_pow_n_times_64 % modulus.template Extend<N + 1>())
         .template Shrink<N>();
   }
 
   constexpr static BigInt<N> MontgomeryR2(const BigInt<N>& modulus) {
     BigInt<2 * N + 1> two_pow_n_times_64_square;
-    two_pow_n_times_64_square.biggest_limb() = static_cast<uint64_t>(1);
+    two_pow_n_times_64_square.biggest_limb() = uint64_t{1};
     return (two_pow_n_times_64_square % modulus.template Extend<2 * N + 1>())
         .template Shrink<N>();
   }

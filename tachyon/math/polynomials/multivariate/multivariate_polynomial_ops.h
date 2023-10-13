@@ -5,15 +5,16 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/math/polynomials/multivariate/multivariate_polynomial.h"
 
 namespace tachyon::math {
 namespace internal {
 
 template <typename F, size_t MaxDegree>
-class MultivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
+class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
  public:
-  using S = SparseCoefficients<F, MaxDegree>;
+  using S = MultivariateSparseCoefficients<F, MaxDegree>;
   using Term = typename S::Term;
   using Terms = std::vector<Term>;
 
@@ -46,10 +47,9 @@ class MultivariatePolynomialOp<SparseCoefficients<F, MaxDegree>> {
   static MultivariatePolynomial<S>& NegInPlace(
       MultivariatePolynomial<S>& self) {
     Terms& terms = self.terms_;
-    // TODO(TomTaehoonKim): optimize this part by multithreading.
-    for (Term& term : terms) {
-      term.coefficient.NegInPlace();
-    }
+    // clang-format off
+    OPENMP_PARALLEL_FOR(Term& term : terms) { term.coefficient.NegInPlace(); }
+    // clang-format on
     return self;
   }
 

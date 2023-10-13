@@ -13,10 +13,22 @@
 
 namespace tachyon::math {
 
+struct TACHYON_EXPORT PrimeFieldFactors {
+  uint32_t q_adicity;
+  uint64_t q_part;
+  uint32_t two_adicity;
+  uint64_t two_part;
+};
+
 template <typename F>
 class PrimeFieldBase : public Field<F> {
  public:
   using Config = typename PrimeFieldTraits<F>::Config;
+
+  constexpr static bool HasRootOfUnity() {
+    return Config::kHasTwoAdicRootOfUnity ||
+           Config::kHasLargeSubgroupRootOfUnity;
+  }
 
   // An invariant of a field which is prime number N
   // such that N * e(unit element) = 0.
@@ -27,6 +39,25 @@ class PrimeFieldBase : public Field<F> {
   }
 
   constexpr static uint64_t ExtensionDegree() { return 1; }
+
+  constexpr static bool Decompose(uint64_t n, PrimeFieldFactors* factors) {
+    static_assert(Config::kHasLargeSubgroupRootOfUnity);
+
+    // Compute the size of our evaluation domain
+    uint64_t q = uint64_t{F::Config::kSmallSubgroupBase};
+    uint32_t q_adicity = ComputeAdicity(q, gmp::FromUnsignedInt(n));
+    uint64_t q_part = static_cast<uint64_t>(std::pow(q, q_adicity));
+
+    uint32_t two_adicity = ComputeAdicity(2, gmp::FromUnsignedInt(n));
+    uint64_t two_part = static_cast<uint64_t>(std::pow(2, two_adicity));
+    if (n != q_part * two_part) return false;
+
+    factors->q_adicity = q_adicity;
+    factors->q_part = q_part;
+    factors->two_adicity = two_adicity;
+    factors->two_part = two_part;
+    return true;
+  }
 
   // Returns false for either of the following cases:
   //
@@ -39,35 +70,29 @@ class PrimeFieldBase : public Field<F> {
   //   2. two-adicity of next power of 2 of n is greater than
   //   |Config::kTwoAdicity|.
   static bool GetRootOfUnity(uint64_t n, F* ret) {
+    static_assert(HasRootOfUnity());
     F omega;
     if constexpr (Config::kHasLargeSubgroupRootOfUnity) {
-      uint32_t q_adicity =
-          ComputeAdicity(Config::kSmallSubgroupBase,
-                         gmp::FromDecString(base::NumberToString(n)));
-      uint64_t q_part = static_cast<uint64_t>(
-          std::pow(Config::kSmallSubgroupBase, q_adicity));
-
-      uint32_t two_adicity =
-          ComputeAdicity(2, gmp::FromDecString(base::NumberToString(n)));
-      uint64_t two_part = static_cast<uint64_t>(std::pow(2, two_adicity));
-
-      if (n != two_part * q_part || two_adicity > Config::kTwoAdicity ||
-          q_adicity > Config::kSmallSubgroupAdicity) {
+      PrimeFieldFactors factors;
+      if (!Decompose(n, &factors)) return false;
+      if (factors.two_adicity > Config::kTwoAdicity ||
+          factors.q_adicity > Config::kSmallSubgroupAdicity) {
         return false;
       }
 
       omega = F::FromMontgomery(Config::kLargeSubgroupRootOfUnity);
-      for (size_t i = q_adicity; i < Config::kSmallSubgroupAdicity; ++i) {
+      for (size_t i = factors.q_adicity; i < Config::kSmallSubgroupAdicity;
+           ++i) {
         omega = omega.Pow(BigInt<1>(Config::kSmallSubgroupBase));
       }
 
-      for (size_t i = two_adicity; i < Config::kTwoAdicity; ++i) {
+      for (size_t i = factors.two_adicity; i < Config::kTwoAdicity; ++i) {
         omega.SquareInPlace();
       }
     } else {
       uint64_t log_size_of_group =
           static_cast<uint64_t>(base::bits::Log2Ceiling(n));
-      uint64_t size = 1 << log_size_of_group;
+      uint64_t size = uint64_t{1} << log_size_of_group;
 
       if (n != size || log_size_of_group > Config::kTwoAdicity) {
         return false;

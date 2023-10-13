@@ -1,9 +1,10 @@
-#ifndef TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
-#define TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
+#ifndef TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
+#define TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
 
 #include <stddef.h>
 
 #include <algorithm>
+#include <functional>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -12,8 +13,10 @@
 #include "absl/numeric/internal/bits.h"
 
 #include "tachyon/base/containers/adapters.h"
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/random.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
@@ -22,9 +25,9 @@
 
 namespace tachyon::math {
 template <typename F, size_t MaxDegree>
-class SparseCoefficients {
+class MultivariateSparseCoefficients {
  public:
-  constexpr static const size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
 
@@ -92,12 +95,28 @@ class SparseCoefficients {
                              });
     }
 
-    Field Evaluate(const std::vector<Field>& points) const {
-      return std::accumulate(
-          elements.begin(), elements.end(), Field::One(),
-          [&points](const Field& acc, const Element& elem) {
-            return acc * points[elem.variable].Pow(BigInt<1>(elem.exponent));
-          });
+    F Evaluate(const std::vector<F>& points) const {
+#if defined(TACHYON_HAS_OPENMP)
+      size_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
+      size_t num_elems = elements.size();
+      size_t num_elems_per_thread = (num_elems + thread_nums - 1) / thread_nums;
+
+      auto chunks = base::Chunked(elements, num_elems_per_thread);
+      std::vector<absl::Span<const Element>> chunks_vector = base::Map(
+          chunks.begin(), chunks.end(),
+          [](const absl::Span<const Element>& chunk) { return chunk; });
+      std::vector<F> results =
+          base::CreateVector(chunks_vector.size(), F::Zero());
+
+#pragma omp parallel for
+      for (size_t i = 0; i < chunks_vector.size(); ++i) {
+        results[i] = EvaluateSerial(chunks_vector[i], points);
+      }
+      return std::accumulate(results.begin(), results.end(), F::One(),
+                             std::multiplies<>());
+#else
+      return EvaluateSerial(elements, points);
+#endif
     }
 
     std::string ToString() const {
@@ -110,11 +129,21 @@ class SparseCoefficients {
       }
       return ss.str();
     }
+
+   private:
+    static F EvaluateSerial(const absl::Span<const Element>& elements,
+                            const std::vector<F>& points) {
+      return std::accumulate(
+          elements.begin(), elements.end(), F::One(),
+          [&points](const F& acc, const Element& elem) {
+            return acc * points[elem.variable].Pow(BigInt<1>(elem.exponent));
+          });
+    }
   };
 
   struct Term {
     Literal literal;
-    Field coefficient;
+    F coefficient;
 
     Term operator-() const { return {literal, -coefficient}; }
 
@@ -134,53 +163,55 @@ class SparseCoefficients {
 
     size_t Degree() const { return literal.Degree(); }
 
-    static Term Constant(Field field) { return {{{{}}}, field}; }
+    static Term Constant(F field) { return {{{{}}}, field}; }
   };
 
   using Terms = std::vector<Term>;
 
-  constexpr SparseCoefficients() = default;
-  constexpr SparseCoefficients(size_t num_vars, const Terms& terms)
+  constexpr MultivariateSparseCoefficients() = default;
+  constexpr MultivariateSparseCoefficients(size_t num_vars, const Terms& terms)
       : num_vars_(num_vars), terms_(terms) {
     CHECK_LE(Degree(), kMaxDegree);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
   }
-  constexpr SparseCoefficients(size_t num_vars, Terms&& terms)
+  constexpr MultivariateSparseCoefficients(size_t num_vars, Terms&& terms)
       : num_vars_(num_vars), terms_(std::move(terms)) {
     CHECK_LE(Degree(), kMaxDegree);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
   }
 
-  constexpr static SparseCoefficients Zero() { return SparseCoefficients(); }
-
-  constexpr static SparseCoefficients One() {
-    return SparseCoefficients(1, {{{{{0, 0}}}, Field::One()}});
+  constexpr static MultivariateSparseCoefficients Zero() {
+    return MultivariateSparseCoefficients();
   }
 
-  static SparseCoefficients Random(size_t arity, size_t exponent,
-                                   size_t min_term = 1, size_t max_term = 999) {
+  constexpr static MultivariateSparseCoefficients One() {
+    return MultivariateSparseCoefficients(1, {{{{{0, 0}}}, F::One()}});
+  }
+
+  static MultivariateSparseCoefficients Random(size_t arity, size_t exponent,
+                                               size_t min_term = 1,
+                                               size_t max_term = 999) {
     Terms terms;
     size_t num_terms = base::Uniform(min_term, max_term);
-    terms.push_back(Term::Constant(Field::Random()));
+    terms.push_back(Term::Constant(F::Random()));
     for (size_t i = 1; i < num_terms; ++i) {
       for (size_t j = 0; j < arity; ++j) {
         if (base::Bernoulli(0.5) > 0.5) {
           terms.insert(
               terms.begin(),
-              {{{{j, base::Uniform(static_cast<size_t>(0), exponent)}}},
-               Field::Random()});
+              {{{{j, base::Uniform(size_t{0}, exponent)}}}, F::Random()});
         }
       }
     }
     base::ranges::sort(terms.begin(), terms.end());
-    return SparseCoefficients(arity, std::move(terms));
+    return MultivariateSparseCoefficients(arity, std::move(terms));
   }
 
   constexpr bool IsConstant() const {
     return terms_.size() == 1 && terms_[0].Degree() == 0;
   }
 
-  constexpr bool operator==(const SparseCoefficients& other) const {
+  constexpr bool operator==(const MultivariateSparseCoefficients& other) const {
     if (IsZero()) {
       return other.IsZero();
     }
@@ -190,15 +221,15 @@ class SparseCoefficients {
     return terms_ == other.terms_;
   }
 
-  constexpr bool operator!=(const SparseCoefficients& other) const {
+  constexpr bool operator!=(const MultivariateSparseCoefficients& other) const {
     return !operator==(other);
   }
 
-  constexpr Field* Get(const Literal& literal) {
-    return const_cast<Field*>(std::as_const(*this).Get(literal));
+  constexpr F* Get(const Literal& literal) {
+    return const_cast<F*>(std::as_const(*this).Get(literal));
   }
 
-  constexpr const Field* Get(const Literal& literal) const {
+  constexpr const F* Get(const Literal& literal) const {
     auto it = std::lower_bound(terms_.begin(), terms_.end(), literal,
                                [](const Term& term, const Literal& literal) {
                                  return term.literal < literal;
@@ -209,7 +240,7 @@ class SparseCoefficients {
     return nullptr;
   }
 
-  constexpr const Field* GetLeadingCoefficient() const {
+  constexpr const F* GetLeadingCoefficient() const {
     if (IsZero()) return nullptr;
     return &terms_.begin().coefficient;
   }
@@ -226,16 +257,32 @@ class SparseCoefficients {
     return terms_.back().Degree();
   }
 
-  constexpr Field Evaluate(const std::vector<Field>& points) const {
+  constexpr F Evaluate(const std::vector<F>& points) const {
     CHECK_LE(points.size(), num_vars_) << "Invalid evaluation domain";
     if (IsZero()) {
-      return Field::Zero();
+      return F::Zero();
     }
-    return std::accumulate(terms_.begin(), terms_.end(), Field::Zero(),
-                           [&points](const Field& acc, const Term& term) {
-                             return acc + term.coefficient *
-                                              term.literal.Evaluate(points);
-                           });
+#if defined(TACHYON_HAS_OPENMP)
+    size_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
+    size_t num_terms = terms_.size();
+    size_t num_terms_per_thread = (num_terms + thread_nums - 1) / thread_nums;
+
+    auto chunks = base::Chunked(terms_, num_terms_per_thread);
+    std::vector<absl::Span<const Term>> chunks_vector =
+        base::Map(chunks.begin(), chunks.end(),
+                  [](const absl::Span<const Term>& chunk) { return chunk; });
+    std::vector<F> results =
+        base::CreateVector(chunks_vector.size(), F::Zero());
+
+#pragma omp parallel for
+    for (size_t i = 0; i < chunks_vector.size(); ++i) {
+      results[i] = EvaluateSerial(chunks_vector[i], points);
+    }
+    return std::accumulate(results.begin(), results.end(), F::Zero(),
+                           std::plus<>());
+#else
+    return EvaluateSerial(terms_, points);
+#endif
   }
 
   std::string ToString() const {
@@ -271,7 +318,7 @@ class SparseCoefficients {
     }
     terms_.erase(write_itr + 1, terms_.end());
     // Compact the constant term.
-    Field constant = Field::Zero();
+    F constant = F::Zero();
     while (terms_.size() > 0 && terms_.front().Degree() == 0) {
       constant += terms_.front().coefficient;
       terms_.erase(terms_.begin());
@@ -283,18 +330,27 @@ class SparseCoefficients {
 
  private:
   friend class internal::MultivariatePolynomialOp<
-      SparseCoefficients<F, MaxDegree>>;
+      MultivariateSparseCoefficients<F, MaxDegree>>;
+
+  static F EvaluateSerial(const absl::Span<const Term>& terms,
+                          const std::vector<F>& points) {
+    return std::accumulate(terms.begin(), terms.end(), F::Zero(),
+                           [&points](const F& acc, const Term& term) {
+                             return acc + term.coefficient *
+                                              term.literal.Evaluate(points);
+                           });
+  }
 
   size_t num_vars_;
   std::vector<Term> terms_;
 };
 
 template <typename F, size_t MaxDegree>
-std::ostream& operator<<(std::ostream& os,
-                         const SparseCoefficients<F, MaxDegree>& p) {
+std::ostream& operator<<(
+    std::ostream& os, const MultivariateSparseCoefficients<F, MaxDegree>& p) {
   return os << p.ToString();
 }
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_SPARSE_COEFFICIENTS_H_
+#endif  // TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTIVARIATE_SPARSE_COEFFICIENTS_H_

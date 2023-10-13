@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/math/polynomials/multivariate/sparse_coefficients.h"
+#include "tachyon/math/polynomials/multivariate/multivariate_sparse_coefficients.h"
 #include "tachyon/math/polynomials/polynomial.h"
 
 namespace tachyon::math {
@@ -19,7 +19,7 @@ template <typename Coefficients>
 class MultivariatePolynomial final
     : public Polynomial<MultivariatePolynomial<Coefficients>> {
  public:
-  constexpr static const size_t kMaxDegree = Coefficients::kMaxDegree;
+  constexpr static size_t kMaxDegree = Coefficients::kMaxDegree;
 
   using Field = typename Coefficients::Field;
   using Literal = typename Coefficients::Literal;
@@ -41,6 +41,10 @@ class MultivariatePolynomial final
   constexpr static MultivariatePolynomial Random(size_t arity, size_t degree) {
     return MultivariatePolynomial(Coefficients::Random(arity, degree));
   }
+
+  constexpr static bool IsCoefficientForm() { return true; }
+
+  constexpr static bool IsEvaluationForm() { return false; }
 
   constexpr bool IsZero() const { return coefficients_.IsZero(); }
 
@@ -121,8 +125,14 @@ std::ostream& operator<<(std::ostream& os,
 }
 
 template <typename F, size_t MaxDegree>
-using SparseMultivariatePolynomial =
-    MultivariatePolynomial<SparseCoefficients<F, MaxDegree>>;
+using MultivariateSparsePolynomial =
+    MultivariatePolynomial<MultivariateSparseCoefficients<F, MaxDegree>>;
+
+template <typename Coefficients>
+class PolynomialTraits<MultivariatePolynomial<Coefficients>> {
+ public:
+  constexpr static bool kIsCoefficientForm = true;
+};
 
 }  // namespace tachyon::math
 

@@ -12,8 +12,8 @@ NodeCppConstructor::~NodeCppConstructor() = default;
 
 bool NodeCppConstructor::Match(const Napi::CallbackInfo& info) const {
   size_t nargs = info.Length();
-  if (arg_type_names_.size() - default_args_num_ > static_cast<size_t>(nargs) ||
-      static_cast<size_t>(nargs) > arg_type_names_.size())
+  if (arg_type_names_.size() - default_args_num_ > nargs ||
+      nargs > arg_type_names_.size())
     return false;
 
   for (size_t i = 0; i < nargs; ++i) {

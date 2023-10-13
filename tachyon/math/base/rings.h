@@ -40,7 +40,7 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
   }
 
   template <typename Container>
-  constexpr static F SumOfProducts(Container&& a, Container&& b) {
+  constexpr static F SumOfProducts(const Container& a, const Container& b) {
     return SumOfProducts(std::begin(a), std::end(a), std::begin(b),
                          std::end(b));
   }

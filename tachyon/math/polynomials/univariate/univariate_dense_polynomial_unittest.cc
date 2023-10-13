@@ -9,24 +9,24 @@ namespace {
 
 const size_t kMaxDegree = 5;
 
-using Poly = DenseUnivariatePolynomial<GF7, kMaxDegree>;
-using Coeffs = DenseCoefficients<GF7, kMaxDegree>;
+using Poly = UnivariateDensePolynomial<GF7, kMaxDegree>;
+using Coeffs = UnivariateDenseCoefficients<GF7, kMaxDegree>;
 
-class DenseUnivariatePolynomialTest : public testing::Test {
+class UnivariateDensePolynomialTest : public testing::Test {
  public:
   static void SetUpTestSuite() { GF7Config::Init(); }
 
-  DenseUnivariatePolynomialTest() {
+  UnivariateDensePolynomialTest() {
     polys_.push_back(Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));
     polys_.push_back(Poly(Coeffs({GF7(3)})));
     polys_.push_back(Poly(Coeffs({GF7(0), GF7(0), GF7(0), GF7(5)})));
     polys_.push_back(Poly(Coeffs({GF7(0), GF7(0), GF7(0), GF7(0), GF7(5)})));
     polys_.push_back(Poly::Zero());
   }
-  DenseUnivariatePolynomialTest(const DenseUnivariatePolynomialTest&) = delete;
-  DenseUnivariatePolynomialTest& operator=(
-      const DenseUnivariatePolynomialTest&) = delete;
-  ~DenseUnivariatePolynomialTest() override = default;
+  UnivariateDensePolynomialTest(const UnivariateDensePolynomialTest&) = delete;
+  UnivariateDensePolynomialTest& operator=(
+      const UnivariateDensePolynomialTest&) = delete;
+  ~UnivariateDensePolynomialTest() override = default;
 
  protected:
   std::vector<Poly> polys_;
@@ -34,7 +34,7 @@ class DenseUnivariatePolynomialTest : public testing::Test {
 
 }  // namespace
 
-TEST_F(DenseUnivariatePolynomialTest, IsZero) {
+TEST_F(UnivariateDensePolynomialTest, IsZero) {
   EXPECT_TRUE(Poly::Zero().IsZero());
   EXPECT_TRUE(Poly(Coeffs({GF7(0)})).IsZero());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
@@ -43,7 +43,7 @@ TEST_F(DenseUnivariatePolynomialTest, IsZero) {
   EXPECT_TRUE(polys_[polys_.size() - 1].IsZero());
 }
 
-TEST_F(DenseUnivariatePolynomialTest, IsOne) {
+TEST_F(UnivariateDensePolynomialTest, IsOne) {
   EXPECT_TRUE(Poly::One().IsOne());
   EXPECT_TRUE(Poly(Coeffs({GF7(1)})).IsOne());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
@@ -51,7 +51,7 @@ TEST_F(DenseUnivariatePolynomialTest, IsOne) {
   }
 }
 
-TEST_F(DenseUnivariatePolynomialTest, Random) {
+TEST_F(UnivariateDensePolynomialTest, Random) {
   bool success = false;
   Poly r = Poly::Random(kMaxDegree);
   for (size_t i = 0; i < 100; ++i) {
@@ -63,7 +63,7 @@ TEST_F(DenseUnivariatePolynomialTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TEST_F(DenseUnivariatePolynomialTest, IndexingOperator) {
+TEST_F(UnivariateDensePolynomialTest, IndexingOperator) {
   struct {
     const Poly& poly;
     std::vector<int> coefficients;
@@ -83,7 +83,7 @@ TEST_F(DenseUnivariatePolynomialTest, IndexingOperator) {
   }
 }
 
-TEST_F(DenseUnivariatePolynomialTest, Degree) {
+TEST_F(UnivariateDensePolynomialTest, Degree) {
   struct {
     const Poly& poly;
     size_t degree;
@@ -97,7 +97,7 @@ TEST_F(DenseUnivariatePolynomialTest, Degree) {
   }
 }
 
-TEST_F(DenseUnivariatePolynomialTest, Evaluate) {
+TEST_F(UnivariateDensePolynomialTest, Evaluate) {
   struct {
     const Poly& poly;
     GF7 expected;
@@ -111,7 +111,7 @@ TEST_F(DenseUnivariatePolynomialTest, Evaluate) {
   }
 }
 
-TEST_F(DenseUnivariatePolynomialTest, ToString) {
+TEST_F(UnivariateDensePolynomialTest, ToString) {
   struct {
     const Poly& poly;
     std::string_view expected;
@@ -128,7 +128,7 @@ TEST_F(DenseUnivariatePolynomialTest, ToString) {
   }
 }
 
-TEST_F(DenseUnivariatePolynomialTest, AdditiveOperators) {
+TEST_F(UnivariateDensePolynomialTest, AdditiveOperators) {
   struct {
     const Poly& a;
     const Poly& b;
@@ -195,7 +195,7 @@ TEST_F(DenseUnivariatePolynomialTest, AdditiveOperators) {
   }
 }
 
-TEST_F(DenseUnivariatePolynomialTest, MultiplicativeOperators) {
+TEST_F(UnivariateDensePolynomialTest, MultiplicativeOperators) {
   Poly a(Coeffs({GF7(3), GF7(1)}));
   Poly b(Coeffs({GF7(5), GF7(2), GF7(5)}));
   Poly one = Poly::One();

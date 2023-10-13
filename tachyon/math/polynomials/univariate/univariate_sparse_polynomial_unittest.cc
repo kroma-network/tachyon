@@ -11,14 +11,14 @@ namespace {
 
 const size_t kMaxDegree = 5;
 
-using Poly = SparseUnivariatePolynomial<GF7, kMaxDegree>;
-using Coeffs = SparseCoefficients<GF7, kMaxDegree>;
+using Poly = UnivariateSparsePolynomial<GF7, kMaxDegree>;
+using Coeffs = UnivariateSparseCoefficients<GF7, kMaxDegree>;
 
-class SparseUnivariatePolynomialTest : public testing::Test {
+class UnivariateSparsePolynomialTest : public testing::Test {
  public:
   static void SetUpTestSuite() { GF7Config::Init(); }
 
-  SparseUnivariatePolynomialTest() {
+  UnivariateSparsePolynomialTest() {
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})));
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}})));
     polys_.push_back(Poly(Coeffs({{3, GF7(5)}})));
@@ -27,11 +27,11 @@ class SparseUnivariatePolynomialTest : public testing::Test {
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {1, GF7(4)}, {2, GF7(1)}})));
     polys_.push_back(Poly::Zero());
   }
-  SparseUnivariatePolynomialTest(const SparseUnivariatePolynomialTest&) =
+  UnivariateSparsePolynomialTest(const UnivariateSparsePolynomialTest&) =
       delete;
-  SparseUnivariatePolynomialTest& operator=(
-      const SparseUnivariatePolynomialTest&) = delete;
-  ~SparseUnivariatePolynomialTest() override = default;
+  UnivariateSparsePolynomialTest& operator=(
+      const UnivariateSparsePolynomialTest&) = delete;
+  ~UnivariateSparsePolynomialTest() override = default;
 
  protected:
   std::vector<Poly> polys_;
@@ -39,7 +39,7 @@ class SparseUnivariatePolynomialTest : public testing::Test {
 
 }  // namespace
 
-TEST_F(SparseUnivariatePolynomialTest, IsZero) {
+TEST_F(UnivariateSparsePolynomialTest, IsZero) {
   EXPECT_TRUE(Poly::Zero().IsZero());
   EXPECT_TRUE(Poly(Coeffs({{0, GF7(0)}})).IsZero());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
@@ -48,7 +48,7 @@ TEST_F(SparseUnivariatePolynomialTest, IsZero) {
   EXPECT_TRUE(polys_[polys_.size() - 1].IsZero());
 }
 
-TEST_F(SparseUnivariatePolynomialTest, IsOne) {
+TEST_F(UnivariateSparsePolynomialTest, IsOne) {
   EXPECT_TRUE(Poly::One().IsOne());
   EXPECT_TRUE(Poly(Coeffs({{0, GF7(1)}})).IsOne());
   EXPECT_FALSE(Poly(Coeffs({{1, GF7(1)}})).IsOne());
@@ -57,7 +57,7 @@ TEST_F(SparseUnivariatePolynomialTest, IsOne) {
   }
 }
 
-TEST_F(SparseUnivariatePolynomialTest, Random) {
+TEST_F(UnivariateSparsePolynomialTest, Random) {
   bool success = false;
   Poly r = Poly::Random(kMaxDegree);
   for (size_t i = 0; i < 100; ++i) {
@@ -69,7 +69,7 @@ TEST_F(SparseUnivariatePolynomialTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TEST_F(SparseUnivariatePolynomialTest, IndexingOperator) {
+TEST_F(UnivariateSparsePolynomialTest, IndexingOperator) {
   struct {
     const Poly& poly;
     std::vector<std::optional<int>> coefficients;
@@ -98,7 +98,7 @@ TEST_F(SparseUnivariatePolynomialTest, IndexingOperator) {
   }
 }
 
-TEST_F(SparseUnivariatePolynomialTest, Degree) {
+TEST_F(UnivariateSparsePolynomialTest, Degree) {
   struct {
     const Poly& poly;
     size_t degree;
@@ -112,7 +112,7 @@ TEST_F(SparseUnivariatePolynomialTest, Degree) {
   }
 }
 
-TEST_F(SparseUnivariatePolynomialTest, Evaluate) {
+TEST_F(UnivariateSparsePolynomialTest, Evaluate) {
   struct {
     const Poly& poly;
     GF7 expected;
@@ -127,7 +127,7 @@ TEST_F(SparseUnivariatePolynomialTest, Evaluate) {
   }
 }
 
-TEST_F(SparseUnivariatePolynomialTest, ToString) {
+TEST_F(UnivariateSparsePolynomialTest, ToString) {
   struct {
     const Poly& poly;
     std::string_view expected;
@@ -146,7 +146,7 @@ TEST_F(SparseUnivariatePolynomialTest, ToString) {
   }
 }
 
-TEST_F(SparseUnivariatePolynomialTest, AdditiveOperators) {
+TEST_F(UnivariateSparsePolynomialTest, AdditiveOperators) {
   struct {
     const Poly& a;
     const Poly& b;
@@ -219,14 +219,14 @@ TEST_F(SparseUnivariatePolynomialTest, AdditiveOperators) {
   }
 }
 
-TEST_F(SparseUnivariatePolynomialTest, MultiplicativeOperators) {
+TEST_F(UnivariateSparsePolynomialTest, MultiplicativeOperators) {
   Poly a(Coeffs({{0, GF7(3)}, {1, GF7(1)}}));
   Poly b(Coeffs({{0, GF7(5)}, {1, GF7(2)}, {2, GF7(5)}}));
   Poly one = Poly::One();
   Poly zero = Poly::Zero();
 
-  using DensePoly = DenseUnivariatePolynomial<GF7, kMaxDegree>;
-  using DenseCoeffs = DenseCoefficients<GF7, kMaxDegree>;
+  using DensePoly = UnivariateDensePolynomial<GF7, kMaxDegree>;
+  using DenseCoeffs = UnivariateDenseCoefficients<GF7, kMaxDegree>;
 
   struct {
     const Poly& a;
