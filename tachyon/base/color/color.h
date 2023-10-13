@@ -112,13 +112,12 @@ inline bool operator==(Rgba rgb, Rgba rgb2) { return rgb.rgba == rgb2.rgba; }
 
 inline bool operator!=(Rgba rgb, Rgba rgb2) { return !operator==(rgb, rgb2); }
 
-TACHYON_EXPORT std::ostream& operator<<(std::ostream& os, Rgba rgb);
-
 struct TACHYON_EXPORT Hsv {
   constexpr Hsv() : Hsv(0, 0, 0, 1) {}
   constexpr Hsv(float h, float s, float v, float a = 1)
       : h(h), s(s), v(v), a(a) {}
-  constexpr Hsv(const float* data) : Hsv(data[0], data[1], data[2], data[3]) {}
+  constexpr explicit Hsv(const float* data)
+      : Hsv(data[0], data[1], data[2], data[3]) {}
 
   Hsv(const Hsv& other) = default;
   Hsv& operator=(const Hsv& other) = default;
@@ -162,8 +161,6 @@ inline bool operator==(const Hsv& hsv, const Hsv& hsv2) {
 inline bool operator!=(const Hsv& hsv, const Hsv& hsv2) {
   return !operator==(hsv, hsv2);
 }
-
-TACHYON_EXPORT std::ostream& operator<<(std::ostream& os, const Hsv& hsv);
 
 }  // namespace tachyon::base
 

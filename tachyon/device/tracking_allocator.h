@@ -17,6 +17,8 @@ limitations under the License.
 #define TACHYON_DEVICE_TRACKING_ALLOCATOR_H_
 
 #include <optional>
+#include <string>
+#include <tuple>
 #include <unordered_map>
 
 #include "absl/base/thread_annotations.h"

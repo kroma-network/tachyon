@@ -195,12 +195,6 @@ class UnivariateDenseCoefficients {
   std::vector<F> coefficients_;
 };
 
-template <typename F, size_t MaxDegree>
-std::ostream& operator<<(std::ostream& os,
-                         const UnivariateDenseCoefficients<F, MaxDegree>& p) {
-  return os << p.ToString();
-}
-
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_DENSE_COEFFICIENTS_H_

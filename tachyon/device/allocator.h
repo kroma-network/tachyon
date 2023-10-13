@@ -23,7 +23,9 @@ limitations under the License.
 #include <functional>
 #include <limits>
 #include <optional>
+#include <string>
 #include <string_view>
+#include <vector>
 
 #include "tachyon/base/logging.h"
 #include "tachyon/device/numa.h"

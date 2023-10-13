@@ -30,4 +30,4 @@ GetIntelGpuGeneration(const GPUInfo& gpu_info);
 
 }  // namespace tachyon::device::gpu
 
-#endif  // GPU_CONFIG_GPU_UTIL_H_
+#endif  // TACHYON_DEVICE_GPU_GPU_UTIL_H_

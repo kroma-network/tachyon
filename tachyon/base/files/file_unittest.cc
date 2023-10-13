@@ -547,9 +547,9 @@ TEST(FileTest, Duplicate) {
   base::ScopedTempDir temp_dir;
   ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
   FilePath file_path = temp_dir.GetPath().Append("file");
-  File file(file_path,(base::File::FLAG_CREATE |
-                       base::File::FLAG_READ |
-                       base::File::FLAG_WRITE));
+  File file(file_path, (base::File::FLAG_CREATE |
+                        base::File::FLAG_READ |
+                        base::File::FLAG_WRITE));
   ASSERT_TRUE(file.IsValid());
 
   File file2(file.Duplicate());
@@ -574,10 +574,10 @@ TEST(FileTest, DuplicateDeleteOnClose) {
   base::ScopedTempDir temp_dir;
   ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
   FilePath file_path = temp_dir.GetPath().Append("file");
-  File file(file_path,(base::File::FLAG_CREATE |
-                       base::File::FLAG_READ |
-                       base::File::FLAG_WRITE |
-                       base::File::FLAG_DELETE_ON_CLOSE));
+  File file(file_path, (base::File::FLAG_CREATE |
+                        base::File::FLAG_READ |
+                        base::File::FLAG_WRITE |
+                        base::File::FLAG_DELETE_ON_CLOSE));
   ASSERT_TRUE(file.IsValid());
   File file2(file.Duplicate());
   ASSERT_TRUE(file2.IsValid());

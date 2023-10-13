@@ -4,6 +4,8 @@
 
 #include "tachyon/device/gpu/gpu_util.h"
 
+#include <vector>
+
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/device/gpu/device_perf_info.h"
 #include "tachyon/device/gpu/gpu_info.h"

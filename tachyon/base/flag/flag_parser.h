@@ -6,6 +6,8 @@
 #define TACHYON_BASE_FLAG_FLAG_PARSER_H_
 
 #include <memory>
+#include <utility>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -146,8 +148,8 @@ class TACHYON_EXPORT SubParser : public FlagBase,
  public:
   SubParser();
   ~SubParser();
-  SubParser(const FlagBase& other) = delete;
-  SubParser& operator=(const FlagBase& other) = delete;
+  SubParser(const SubParser& other) = delete;
+  SubParser& operator=(const SubParser& other) = delete;
 
   // FlagBase methods
   bool IsSubParser() const override;

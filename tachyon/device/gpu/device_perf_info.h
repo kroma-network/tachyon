@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef TACHYON_GPU_DEVICE_PERF_INFO_H_
-#define TACHYON_GPU_DEVICE_PERF_INFO_H_
+#ifndef TACHYON_DEVICE_GPU_DEVICE_PERF_INFO_H_
+#define TACHYON_DEVICE_GPU_DEVICE_PERF_INFO_H_
 
 #include <cstdint>
 #include <optional>
@@ -45,4 +45,4 @@ TACHYON_EXPORT void SetDevicePerfInfo(const DevicePerfInfo& device_perf_info);
 
 }  // namespace tachyon::device::gpu
 
-#endif  // TACHYON_GPU_DEVICE_PERF_INFO_H_
+#endif  // TACHYON_DEVICE_GPU_DEVICE_PERF_INFO_H_

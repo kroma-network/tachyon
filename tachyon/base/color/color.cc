@@ -4,6 +4,8 @@
 
 #include "tachyon/base/color/color.h"
 
+#include <vector>
+
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_split.h"
 
@@ -165,10 +167,6 @@ Rgba Rgba::Swap(const RgbaIndexes& rgba_indexes) const {
   return swapped;
 }
 
-std::ostream& operator<<(std::ostream& os, Rgba rgba) {
-  return os << rgba.ToString();
-}
-
 std::string Hsv::ToString() const { return ToHsvaString(); }
 
 std::string Hsv::ToHsvString() const {
@@ -193,10 +191,6 @@ bool Hsv::FromString(const std::string& text) {
   }
 
   return false;
-}
-
-std::ostream& operator<<(std::ostream& os, const Hsv& hsv) {
-  return os << hsv.ToString();
 }
 
 }  // namespace tachyon::base

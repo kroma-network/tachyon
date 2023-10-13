@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <ostream>
 #include <string>
 
 #include "gtest/gtest_prod.h"
@@ -292,11 +291,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
 
   BigInt<N> value_;
 };
-
-template <typename Config>
-std::ostream& operator<<(std::ostream& os, const PrimeField<Config>& f) {
-  return os << f.ToString();
-}
 
 }  // namespace tachyon::math
 

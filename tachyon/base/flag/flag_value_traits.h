@@ -7,9 +7,11 @@
 
 #include <stdint.h>
 
+#include <limits>
 #include <numeric>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "absl/strings/substitute.h"

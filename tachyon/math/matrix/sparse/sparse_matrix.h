@@ -178,12 +178,7 @@ class ELLSparseMatrix {
   std::vector<Elements> elements_list_;
 };
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const ELLSparseMatrix<T>& matrix) {
-  return os << matrix.ToString();
-}
-
-// CSR(Compresed Sparse Row) format is a sparse matrix format that stores only
+// CSR(Compressed Sparse Row) format is a sparse matrix format that stores only
 // non-zero values in a vector. The |row_ptrs| vector stores the index of the
 // first element of each row in the |elements| vector.
 // For example, the following matrix:
@@ -343,11 +338,6 @@ class CSRSparseMatrix {
   Elements elements_;
   std::vector<size_t> row_ptrs_;
 };
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const CSRSparseMatrix<T>& matrix) {
-  return os << matrix.ToString();
-}
 
 }  // namespace tachyon::math
 

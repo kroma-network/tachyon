@@ -13,7 +13,8 @@ bool Buffer::ReadAt(size_t buffer_offset, uint8_t* ptr, size_t size) const {
   if (size_needed > buffer_len_) {
     return false;
   }
-  memcpy(ptr, reinterpret_cast<const char*>(buffer_) + buffer_offset, size);
+  const char* buffer = reinterpret_cast<const char*>(buffer_);
+  memcpy(ptr, &buffer[buffer_offset], size);
   buffer_offset_ = buffer_offset + size;
   return true;
 }
@@ -26,8 +27,8 @@ bool Buffer::ReadAt(size_t buffer_offset, uint8_t* ptr, size_t size) const {
     if (size_needed > buffer_len_) {                                     \
       return false;                                                      \
     }                                                                    \
-    type value = absl::big_endian::Load##bits(                           \
-        &reinterpret_cast<char*>(buffer_)[buffer_offset]);               \
+    const char* buffer = reinterpret_cast<char*>(buffer_);               \
+    type value = absl::big_endian::Load##bits(&buffer[buffer_offset]);   \
     memcpy(ptr, &value, bytes);                                          \
     buffer_offset_ = buffer_offset + bytes;                              \
     return true;                                                         \
@@ -39,19 +40,19 @@ READ_BE_AT(8, 64, uint64_t)
 
 #undef READ_BE_AT
 
-#define READ_LE_AT(bytes, bits, type)                                    \
-  bool Buffer::Read##bits##LEAt(size_t buffer_offset, type* ptr) const { \
-    base::CheckedNumeric<size_t> len = buffer_offset;                    \
-    size_t size_needed;                                                  \
-    if (!(len + bytes).AssignIfValid(&size_needed)) return false;        \
-    if (size_needed > buffer_len_) {                                     \
-      return false;                                                      \
-    }                                                                    \
-    type value = absl::little_endian::Load##bits(                        \
-        &reinterpret_cast<char*>(buffer_)[buffer_offset]);               \
-    memcpy(ptr, &value, bytes);                                          \
-    buffer_offset_ = buffer_offset + bytes;                              \
-    return true;                                                         \
+#define READ_LE_AT(bytes, bits, type)                                     \
+  bool Buffer::Read##bits##LEAt(size_t buffer_offset, type* ptr) const {  \
+    base::CheckedNumeric<size_t> len = buffer_offset;                     \
+    size_t size_needed;                                                   \
+    if (!(len + bytes).AssignIfValid(&size_needed)) return false;         \
+    if (size_needed > buffer_len_) {                                      \
+      return false;                                                       \
+    }                                                                     \
+    const char* buffer = reinterpret_cast<const char*>(buffer_);          \
+    type value = absl::little_endian::Load##bits(&buffer[buffer_offset]); \
+    memcpy(ptr, &value, bytes);                                           \
+    buffer_offset_ = buffer_offset + bytes;                               \
+    return true;                                                          \
   }
 
 READ_LE_AT(2, 16, uint16_t)
@@ -80,8 +81,8 @@ bool Buffer::WriteAt(size_t buffer_offset, const uint8_t* ptr, size_t size) {
     if (size_needed > buffer_len_) {                                 \
       if (!Grow(size_needed)) return false;                          \
     }                                                                \
-    absl::big_endian::Store##bits(                                   \
-        &reinterpret_cast<char*>(buffer_)[buffer_offset], value);    \
+    char* buffer = reinterpret_cast<char*>(buffer_);                 \
+    absl::big_endian::Store##bits(&buffer[buffer_offset], value);    \
     buffer_offset_ = buffer_offset + bytes;                          \
     return true;                                                     \
   }
@@ -100,8 +101,8 @@ WRITE_BE_AT(8, 64, uint64_t)
     if (size_needed > buffer_len_) {                                 \
       if (!Grow(size_needed)) return false;                          \
     }                                                                \
-    absl::little_endian::Store##bits(                                \
-        &reinterpret_cast<char*>(buffer_)[buffer_offset], value);    \
+    char* buffer = reinterpret_cast<char*>(buffer_);                 \
+    absl::little_endian::Store##bits(&buffer[buffer_offset], value); \
     buffer_offset_ = buffer_offset + bytes;                          \
     return true;                                                     \
   }

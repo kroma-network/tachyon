@@ -1,21 +1,12 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_PROJECTIVE_POINT_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_PROJECTIVE_POINT_H_
 
-#include <ostream>
-
-#include "tachyon/base/no_destructor.h"
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
 
 namespace tachyon::math {
 
 template <typename Curve, typename SFINAE = void>
 class ProjectivePoint;
-
-template <typename Curve>
-std::ostream& operator<<(std::ostream& os,
-                         const ProjectivePoint<Curve>& point) {
-  return os << point.ToString();
-}
 
 template <typename ScalarField, typename Curve,
           std::enable_if_t<std::is_same_v<

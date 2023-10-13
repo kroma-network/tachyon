@@ -18,6 +18,11 @@ limitations under the License.
 #ifndef TACHYON_DEVICE_GPU_CUDA_CUDA_DRIVER_H_
 #define TACHYON_DEVICE_GPU_CUDA_CUDA_DRIVER_H_
 
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "absl/container/node_hash_map.h"
 #include "absl/strings/str_cat.h"
 #include "absl/synchronization/mutex.h"

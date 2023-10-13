@@ -2,6 +2,7 @@
 #define TACHYON_BASE_BUFFER_VECTOR_BUFFER_H_
 
 #include <vector>
+#include <utility>
 
 #include "tachyon/base/buffer/buffer.h"
 

@@ -2,6 +2,7 @@
 #define TACHYON_BASE_TIME_TIME_DELTA_FLAG_H_
 
 #include <functional>
+#include <string>
 
 #include "tachyon/base/flag/flag.h"
 #include "tachyon/base/numerics/safe_conversions.h"

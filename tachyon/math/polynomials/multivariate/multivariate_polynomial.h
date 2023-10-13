@@ -118,12 +118,6 @@ class MultivariatePolynomial final
   Coefficients coefficients_;
 };
 
-template <typename Coefficients>
-std::ostream& operator<<(std::ostream& os,
-                         const MultivariatePolynomial<Coefficients>& p) {
-  return os << p.ToString();
-}
-
 template <typename F, size_t MaxDegree>
 using MultivariateSparsePolynomial =
     MultivariatePolynomial<MultivariateSparseCoefficients<F, MaxDegree>>;

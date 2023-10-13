@@ -1,7 +1,6 @@
 #ifndef TACHYON_MATH_BASE_ARITHMETICS_RESULTS_H_
 #define TACHYON_MATH_BASE_ARITHMETICS_RESULTS_H_
 
-#include <ostream>
 #include <string>
 
 #include "absl/strings/substitute.h"
@@ -26,11 +25,6 @@ struct AddResult {
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const AddResult<T>& result) {
-  return os << result.ToString();
-}
-
-template <typename T>
 struct SubResult {
   T result = 0;
   T borrow = 0;
@@ -46,11 +40,6 @@ struct SubResult {
     return absl::Substitute("($0, $1)", result.ToString(), borrow.ToString());
   }
 };
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const SubResult<T>& result) {
-  return os << result.ToString();
-}
 
 template <typename T>
 struct MulResult {
@@ -70,11 +59,6 @@ struct MulResult {
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const MulResult<T>& result) {
-  return os << result.ToString();
-}
-
-template <typename T>
 struct DivResult {
   T quotient = 0;
   T remainder = 0;
@@ -91,11 +75,6 @@ struct DivResult {
                             remainder.ToString());
   }
 };
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const DivResult<T>& result) {
-  return os << result.ToString();
-}
 
 }  // namespace tachyon::math
 

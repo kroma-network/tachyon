@@ -9,11 +9,6 @@ namespace tachyon::math {
 template <typename Curve, typename SFINAE = void>
 class AffinePoint;
 
-template <typename Curve>
-std::ostream& operator<<(std::ostream& os, const AffinePoint<Curve>& point) {
-  return os << point.ToString();
-}
-
 template <typename ScalarField, typename Curve,
           std::enable_if_t<std::is_same_v<
               ScalarField, typename Curve::ScalarField>>* = nullptr>

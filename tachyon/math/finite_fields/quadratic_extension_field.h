@@ -6,7 +6,6 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 #define TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 
-#include <ostream>
 #include <string>
 #include <utility>
 
@@ -257,12 +256,6 @@ class QuadraticExtensionField : public Field<Derived> {
   BaseField c0_;
   BaseField c1_;
 };
-
-template <typename Derived>
-std::ostream& operator<<(std::ostream& os,
-                         const QuadraticExtensionField<Derived>& f) {
-  return os << f.ToString();
-}
 
 template <
     typename BaseField, typename Derived,

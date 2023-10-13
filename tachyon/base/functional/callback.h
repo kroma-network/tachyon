@@ -6,6 +6,7 @@
 #define TACHYON_BASE_FUNCTIONAL_CALLBACK_H_
 
 #include <functional>
+#include <utility>
 #include <type_traits>
 
 #include "absl/functional/function_ref.h"

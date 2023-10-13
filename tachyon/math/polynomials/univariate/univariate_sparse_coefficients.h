@@ -183,12 +183,6 @@ class UnivariateSparseCoefficients {
   std::vector<Term> terms_;
 };
 
-template <typename F, size_t MaxDegree>
-std::ostream& operator<<(std::ostream& os,
-                         const UnivariateSparseCoefficients<F, MaxDegree>& p) {
-  return os << p.ToString();
-}
-
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_SPARSE_COEFFICIENTS_H_

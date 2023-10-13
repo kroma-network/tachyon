@@ -1,8 +1,9 @@
-#ifndef TACHYON_DEVICE_GPU_MEMORY_H_
-#define TACHYON_DEVICE_GPU_MEMORY_H_
+#ifndef TACHYON_DEVICE_GPU_GPU_MEMORY_H_
+#define TACHYON_DEVICE_GPU_GPU_MEMORY_H_
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "absl/types/span.h"
 
@@ -333,4 +334,4 @@ class GpuMemory {
 
 }  // namespace tachyon::device::gpu
 
-#endif  // TACHYON_DEVICE_GPU_MEMORY_H_
+#endif  // TACHYON_DEVICE_GPU_GPU_MEMORY_H_

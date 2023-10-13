@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef TACHYON_DEVICE_GPU_CUDAMALLOCASYNC_ALLOCATOR_H_
-#define TACHYON_DEVICE_GPU_CUDAMALLOCASYNC_ALLOCATOR_H_
+#ifndef TACHYON_DEVICE_GPU_GPU_CUDAMALLOCASYNC_ALLOCATOR_H_
+#define TACHYON_DEVICE_GPU_GPU_CUDAMALLOCASYNC_ALLOCATOR_H_
 
 #include <memory>
 #include <optional>
@@ -139,4 +139,4 @@ class GpuCudaMallocAsyncAllocator : public Allocator {
 
 }  // namespace tachyon::device::gpu
 
-#endif  // TACHYON_DEVICE_GPU_CUDAMALLOCASYNC_ALLOCATOR_H_
+#endif  // TACHYON_DEVICE_GPU_GPU_CUDAMALLOCASYNC_ALLOCATOR_H_

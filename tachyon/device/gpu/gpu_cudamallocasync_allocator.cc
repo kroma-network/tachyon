@@ -15,9 +15,10 @@ limitations under the License.
 
 #include "tachyon/device/gpu/gpu_cudamallocasync_allocator.h"
 
+#include <algorithm>
 #include <map>
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 #include <optional>
 #include <string>
 #include <vector>
@@ -352,7 +353,7 @@ void GpuCudaMallocAsyncAllocator::DeallocateRaw(void* ptr) {
     if (result == CUDA_ERROR_DEINITIALIZED) {
       // It happens with multi-GPU that Tachyon free the GPU allocation after
       // the driver is unloaded. It is safe to ignore this error here.
-      // TODO: Find how to fix the shutdown steps in Tachyon.
+      // TODO(chokobole): Find how to fix the shutdown steps in Tachyon.
       VLOG(1) << "Ignoring CUDA error: " << GetCudaErrorMessage(result);
     } else {
       size_t free, total;

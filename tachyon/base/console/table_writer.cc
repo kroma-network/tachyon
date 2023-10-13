@@ -1,14 +1,16 @@
 #include "tachyon/base/console/table_writer.h"
 
+#include <sys/ioctl.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <numeric>
 #include <sstream>
 
 #include "absl/strings/strip.h"
-#include <sys/ioctl.h>
 
 namespace tachyon::base {
 
@@ -207,9 +209,5 @@ TableWriterBuilder& TableWriterBuilder::StripLeadingAsciiWhitespace() {
 }
 
 TableWriter TableWriterBuilder::Build() const { return writer_; }
-
-std::ostream& operator<<(std::ostream& os, const TableWriter& table_writer) {
-  return os << table_writer.ToString();
-}
 
 }  // namespace tachyon::base

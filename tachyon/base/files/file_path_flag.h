@@ -1,6 +1,8 @@
 #ifndef TACHYON_BASE_FILES_FILE_PATH_FLAG_H_
 #define TACHYON_BASE_FILES_FILE_PATH_FLAG_H_
 
+#include <string>
+
 #include "tachyon/base/files/file_path.h"
 #include "tachyon/base/flag/flag.h"
 

@@ -269,7 +269,7 @@ FilePath& FilePath::operator/=(const FilePath& component) {
 }
 
 bool FilePath::IsAbsolute() const {
- return path_.length() > 0 && FilePath::IsSeparator(path_[0]);
+  return path_.length() > 0 && FilePath::IsSeparator(path_[0]);
 }
 
 bool FilePath::EndsWithSeparator() const {
