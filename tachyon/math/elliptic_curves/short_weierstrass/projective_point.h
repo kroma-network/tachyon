@@ -22,7 +22,7 @@ template <typename _Curve>
 class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
     : public AdditiveGroup<ProjectivePoint<_Curve>> {
  public:
-  constexpr static const bool kNegationIsCheap = true;
+  constexpr static bool kNegationIsCheap = true;
 
   using Curve = _Curve;
   using BaseField = typename Curve::BaseField;

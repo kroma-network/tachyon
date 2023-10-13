@@ -5,9 +5,9 @@
 
 namespace tachyon::base {
 
-constexpr const int kMin = 0;
-constexpr const int kMax = 1000;
-constexpr const size_t kCount = 1000;
+constexpr int kMin = 0;
+constexpr int kMax = 1000;
+constexpr size_t kCount = 1000;
 
 TEST(Random, BasicTest) {
   int r = Uniform(kMin, kMax);

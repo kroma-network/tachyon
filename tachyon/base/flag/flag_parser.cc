@@ -2,12 +2,15 @@
 
 #include <iostream>
 #include <tuple>
+#include <utility>
+#include <limits>
+#include <string>
 
 namespace tachyon::base {
 
 namespace {
 
-constexpr const int kDefaultHelpStart = 20;
+constexpr int kDefaultHelpStart = 20;
 
 bool ContainsOnlyAlpha(std::string_view text) {
   return std::all_of(text.begin(), text.end(),
@@ -40,7 +43,7 @@ void AppendActiveSubParser(
 }
 
 struct Costs {
-  Costs(size_t size) : size(size) {
+  explicit Costs(size_t size) : size(size) {
     if (size > 256) {
       costs = new size_t[size];
     } else {
@@ -267,9 +270,9 @@ bool FlagParserBase::Parse(Context& ctx, std::string* error) {
     if (!has_subparser && positional_parsed < positional_argument) {
       int positional_idx = 0;
       for (auto& flag : flags_) {
-        if (flag->is_optional())
+        if (flag->is_optional()) {
           continue;
-        else {
+        } else {
           if (positional_idx == positional_parsed) {
             target_flag = flag.get();
             break;

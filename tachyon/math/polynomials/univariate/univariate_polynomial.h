@@ -24,7 +24,7 @@ template <typename Coefficients>
 class UnivariatePolynomial final
     : public Polynomial<UnivariatePolynomial<Coefficients>> {
  public:
-  constexpr static const size_t kMaxDegree = Coefficients::kMaxDegree;
+  constexpr static size_t kMaxDegree = Coefficients::kMaxDegree;
 
   using Field = typename Coefficients::Field;
 

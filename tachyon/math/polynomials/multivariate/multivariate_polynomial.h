@@ -19,7 +19,7 @@ template <typename Coefficients>
 class MultivariatePolynomial final
     : public Polynomial<MultivariatePolynomial<Coefficients>> {
  public:
-  constexpr static const size_t kMaxDegree = Coefficients::kMaxDegree;
+  constexpr static size_t kMaxDegree = Coefficients::kMaxDegree;
 
   using Field = typename Coefficients::Field;
   using Literal = typename Coefficients::Literal;

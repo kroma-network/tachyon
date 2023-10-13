@@ -28,7 +28,7 @@ class UnivariateSparseCoefficients;
 template <typename F, size_t MaxDegree>
 class UnivariateDenseCoefficients {
  public:
-  constexpr static const size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
 
