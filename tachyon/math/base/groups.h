@@ -8,8 +8,10 @@ namespace tachyon::math {
 namespace internal {
 
 SUPPORTS_BINARY_OPERATOR(Div);
-SUPPORTS_BINARY_OPERATOR(Sub);
 SUPPORTS_BINARY_OPERATOR(Mod);
+SUPPORTS_UNARY_IN_PLACE_OPERATOR(Inverse);
+SUPPORTS_BINARY_OPERATOR(Sub);
+SUPPORTS_UNARY_IN_PLACE_OPERATOR(Neg);
 
 }  // namespace internal
 
@@ -65,11 +67,15 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   }
 
   // Inverse: a⁻¹
+  template <
+      typename G2 = G,
+      std::enable_if_t<internal::SupportsInverseInPlace<G2>::value>* = nullptr>
   [[nodiscard]] constexpr auto Inverse() const {
     G ret = *static_cast<const G*>(this);
     return ret.InverseInPlace();
   }
 };
+
 // AdditiveGroup is a group with the group operation '+'.
 // AdditiveGroup supports subtraction and negation, inheriting the
 // properties of AdditiveSemigroup.
@@ -117,8 +123,19 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
   }
 
   // Negation: -a
-  constexpr auto operator-() const { return Negative(); }
+  constexpr auto operator-() const {
+    if constexpr (internal::SupportsNegInPlace<G>::value) {
+      G g = *static_cast<const G*>(this);
+      return g.NegInPlace();
+    } else {
+      const G* g = static_cast<const G*>(this);
+      return g->Negative();
+    }
+  }
 
+  template <
+      typename G2 = G,
+      std::enable_if_t<internal::SupportsNegInPlace<G2>::value>* = nullptr>
   [[nodiscard]] constexpr auto Negative() const {
     G ret = *static_cast<const G*>(this);
     return ret.NegInPlace();
