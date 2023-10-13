@@ -1,6 +1,7 @@
 #ifndef TACHYON_MATH_BASE_GROUPS_H_
 #define TACHYON_MATH_BASE_GROUPS_H_
 
+#include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/semigroups.h"
 
 namespace tachyon::math {
@@ -45,22 +46,22 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   }
 
   // Division in place: a /= b
+  //   1) a /= b if division is supported.
+  //   2) a *= b⁻¹ otherwise
   template <
       typename G2,
-      std::enable_if_t<internal::SupportsDivInPlace<G, G2>::value>* = nullptr>
-  constexpr G& operator/=(const G2& other) {
-    G* g = static_cast<G*>(this);
-    return g->DivInPlace(other);
-  }
-
-  // Division in place: a *= b⁻¹
-  template <
-      typename G2,
-      std::enable_if_t<!internal::SupportsDivInPlace<G, G2>::value &&
+      std::enable_if_t<internal::SupportsDivInPlace<G, G2>::value ||
                        internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
   constexpr G& operator/=(const G2& other) {
-    G* g = static_cast<G*>(this);
-    return g->MulInPlace(other.Inverse());
+    if constexpr (internal::SupportsDivInPlace<G, G2>::value) {
+      G* g = static_cast<G*>(this);
+      return g->DivInPlace(other);
+    } else if constexpr (internal::SupportsMulInPlace<G, G2>::value) {
+      G* g = static_cast<G*>(this);
+      return g->MulInPlace(other.Inverse());
+    } else {
+      static_assert(base::AlwaysFalse<G>);
+    }
   }
 
   // Inverse: a⁻¹
@@ -96,23 +97,23 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
     }
   }
 
-  // Subtraction in place: a -= b
+  // Subtraction in place:
+  //   1) a -= b if subtraction is supported.
+  //   2) a += (-b) otherwise
   template <
       typename G2,
-      std::enable_if_t<internal::SupportsSubInPlace<G, G2>::value>* = nullptr>
-  constexpr G& operator-=(const G2& other) {
-    G* g = static_cast<G*>(this);
-    return g->SubInPlace(other);
-  }
-
-  // Subtraction in place: a += (-b)
-  template <
-      typename G2,
-      std::enable_if_t<!internal::SupportsSubInPlace<G, G2>::value &&
+      std::enable_if_t<internal::SupportsSubInPlace<G, G2>::value ||
                        internal::SupportsAddInPlace<G, G2>::value>* = nullptr>
   constexpr G& operator-=(const G2& other) {
-    G* g = static_cast<G*>(this);
-    return g->AddInPlace(other.Negative());
+    if constexpr (internal::SupportsSubInPlace<G, G2>::value) {
+      G* g = static_cast<G*>(this);
+      return g->SubInPlace(other);
+    } else if constexpr (internal::SupportsAddInPlace<G, G2>::value) {
+      G* g = static_cast<G*>(this);
+      return g->AddInPlace(other.Negative());
+    } else {
+      static_assert(base::AlwaysFalse<G>);
+    }
   }
 
   // Negation: -a

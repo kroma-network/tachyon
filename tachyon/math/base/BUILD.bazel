@@ -75,7 +75,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "groups",
     hdrs = ["groups.h"],
-    deps = [":semigroups"],
+    deps = [
+        ":semigroups",
+        "//tachyon/base/types:always_false",
+    ],
 )
 
 tachyon_cc_library(
