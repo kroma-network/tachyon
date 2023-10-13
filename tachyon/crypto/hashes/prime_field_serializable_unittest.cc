@@ -23,6 +23,36 @@ TEST_F(PrimeFieldSerializableTest, SerializeSingleValueToField) {
   EXPECT_EQ(fields, expected);
 }
 
+TEST_F(PrimeFieldSerializableTest, SerializeVectorToField) {
+  std::vector<int64_t> values = {1, 2, 3, 4, 5};
+  std::vector<math::GF7> fields;
+  ASSERT_TRUE(SerializeToFieldElements(values, &fields));
+  std::vector<math::GF7> expected = {
+      math::GF7(1), math::GF7(2), math::GF7(3), math::GF7(4), math::GF7(5),
+  };
+  EXPECT_EQ(fields, expected);
+}
+
+TEST_F(PrimeFieldSerializableTest, SerializeArrayToField) {
+  std::array<int64_t, 5> values = {1, 2, 3, 4, 5};
+  std::vector<math::GF7> fields;
+  ASSERT_TRUE(SerializeToFieldElements(values, &fields));
+  std::vector<math::GF7> expected = {
+      math::GF7(1), math::GF7(2), math::GF7(3), math::GF7(4), math::GF7(5),
+  };
+  EXPECT_EQ(fields, expected);
+}
+
+TEST_F(PrimeFieldSerializableTest, SerializeInlinedVectorToField) {
+  absl::InlinedVector<int64_t, 5> values = {1, 2, 3, 4, 5};
+  std::vector<math::GF7> fields;
+  ASSERT_TRUE(SerializeToFieldElements(values, &fields));
+  std::vector<math::GF7> expected = {
+      math::GF7(1), math::GF7(2), math::GF7(3), math::GF7(4), math::GF7(5),
+  };
+  EXPECT_EQ(fields, expected);
+}
+
 TEST_F(PrimeFieldSerializableTest, SerializeBatchToField) {
   std::vector<int64_t> values = {1, 2, 3, 4, 5};
   std::vector<math::GF7> fields;

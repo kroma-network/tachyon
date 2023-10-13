@@ -6,9 +6,11 @@
 #ifndef TACHYON_CRYPTO_HASHES_PRIME_FIELD_SERIALIZABLE_H_
 #define TACHYON_CRYPTO_HASHES_PRIME_FIELD_SERIALIZABLE_H_
 
+#include <array>
 #include <type_traits>
 #include <vector>
 
+#include "absl/container/inlined_vector.h"
 #include "absl/types/span.h"
 
 #include "tachyon/math/base/big_int.h"
@@ -63,6 +65,28 @@ class PrimeFieldSerializable<std::vector<T>> {
  public:
   template <typename PrimeFieldTy>
   constexpr static bool ToPrimeField(const std::vector<T>& values,
+                                     std::vector<PrimeFieldTy>* fields) {
+    return PrimeFieldSerializable<T>::BatchToPrimeField(
+        absl::MakeConstSpan(values), fields);
+  }
+};
+
+template <typename T, size_t N>
+class PrimeFieldSerializable<absl::InlinedVector<T, N>> {
+ public:
+  template <typename PrimeFieldTy>
+  constexpr static bool ToPrimeField(const absl::InlinedVector<T, N>& values,
+                                     std::vector<PrimeFieldTy>* fields) {
+    return PrimeFieldSerializable<T>::BatchToPrimeField(
+        absl::MakeConstSpan(values), fields);
+  }
+};
+
+template <typename T, size_t N>
+class PrimeFieldSerializable<std::array<T, N>> {
+ public:
+  template <typename PrimeFieldTy>
+  constexpr static bool ToPrimeField(const std::array<T, N>& values,
                                      std::vector<PrimeFieldTy>* fields) {
     return PrimeFieldSerializable<T>::BatchToPrimeField(
         absl::MakeConstSpan(values), fields);
