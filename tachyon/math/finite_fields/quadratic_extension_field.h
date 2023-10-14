@@ -11,16 +11,15 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/math/base/field.h"
-#include "tachyon/math/finite_fields/quadratic_extension_field_traits.h"
+#include "tachyon/math/finite_fields/finite_field.h"
 #include "tachyon/math/geometry/point2.h"
 
 namespace tachyon::math {
 
 template <typename Derived>
-class QuadraticExtensionField : public Field<Derived> {
+class QuadraticExtensionField : public FiniteField<Derived> {
  public:
-  using Config = typename QuadraticExtensionFieldTraits<Derived>::Config;
+  using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
   using MontgomeryTy = Point2<typename BaseField::MontgomeryTy>;
 

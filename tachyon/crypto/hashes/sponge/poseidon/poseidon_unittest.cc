@@ -10,7 +10,6 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bls/bls12_381/fr.h"
-#include "tachyon/math/finite_fields/prime_field_forward.h"
 
 namespace tachyon::crypto {
 

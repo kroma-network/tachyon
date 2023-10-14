@@ -13,7 +13,6 @@
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/modulus.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
-#include "tachyon/math/finite_fields/prime_field_forward.h"
 
 namespace tachyon::math {
 

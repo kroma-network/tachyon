@@ -98,7 +98,6 @@ tachyon_cc_library(
     deps = [
         "//tachyon/math/base/gmp:gmp_util",
         "//tachyon/math/finite_fields:prime_field_base",
-        "//tachyon/math/finite_fields:prime_field_forward",
     ] + if_polygon_zkevm_backend([
         ":fec_fail",
         "@polygon_zkevm_zkevm_prover//:fec",
@@ -119,7 +118,6 @@ tachyon_cc_library(
     deps = [
         "//tachyon/math/base/gmp:gmp_util",
         "//tachyon/math/finite_fields:prime_field_base",
-        "//tachyon/math/finite_fields:prime_field_forward",
     ] + if_polygon_zkevm_backend([
         ":fnec_fail",
         "@polygon_zkevm_zkevm_prover//:fnec",

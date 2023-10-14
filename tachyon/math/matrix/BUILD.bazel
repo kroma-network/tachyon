@@ -21,7 +21,7 @@ tachyon_cc_library(
     name = "prime_field_num_traits",
     hdrs = ["prime_field_num_traits.h"],
     deps = [
-        "//tachyon/math/finite_fields:prime_field_forward",
+        "//tachyon/math/finite_fields:finite_field_forwards",
         "@eigen_archive//:eigen3",
     ],
 )

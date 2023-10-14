@@ -11,16 +11,15 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/math/base/field.h"
-#include "tachyon/math/finite_fields/cubic_extension_field_traits.h"
+#include "tachyon/math/finite_fields/finite_field.h"
 #include "tachyon/math/geometry/point3.h"
 
 namespace tachyon::math {
 
 template <typename Derived>
-class CubicExtensionField : public Field<CubicExtensionField<Derived>> {
+class CubicExtensionField : public FiniteField<Derived> {
  public:
-  using Config = typename CubicExtensionFieldTraits<Derived>::Config;
+  using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
   using MontgomeryTy = Point3<typename BaseField::MontgomeryTy>;
 

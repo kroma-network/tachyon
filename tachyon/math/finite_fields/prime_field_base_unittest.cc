@@ -89,8 +89,19 @@ TYPED_TEST(PrimeFieldBaseTest, LegendreSymbol) {
 
   F f = F::Random();
   LegendreSymbol symbol = f.Legendre();
-  EXPECT_EQ(F(static_cast<int>(symbol)),
-            f.Pow(F::Config::kModulusMinusOneDivTwo));
+  F expected;
+  switch (symbol) {
+    case LegendreSymbol::kOne:
+      expected = F::One();
+      break;
+    case LegendreSymbol::kMinusOne:
+      expected = F(F::Config::kModulus - typename F::BigIntTy(1));
+      break;
+    case LegendreSymbol::kZero:
+      expected = F::Zero();
+      break;
+  }
+  EXPECT_EQ(f.Pow(F::Config::kModulusMinusOneDivTwo), expected);
 }
 
 }  // namespace tachyon::math
