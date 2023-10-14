@@ -100,6 +100,9 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  constexpr static BigInt<%{n}> kModulus = BigInt<%{n}>({",
       "    %{modulus}",
       "  });",
+      "  constexpr static BigInt<%{n}> kModulusMinusOneDivTwo = BigInt<%{n}>({",
+      "    %{modulus_minus_one_div_two}",
+      "  });",
       "  constexpr static bool kModulusHasSpareBit = %{modulus_has_spare_bit};",
       "  constexpr static bool kCanUseNoCarryMulOptimization = "
       "%{can_use_no_carry_mul_optimization};",
@@ -267,6 +270,8 @@ int GenerationConfig::GenerateConfigHdr() const {
           {"%{modulus_bits}", base::NumberToString(num_bits)},
           {"%{n}", base::NumberToString(n)},
           {"%{modulus}", math::MpzClassToString(m)},
+          {"%{modulus_minus_one_div_two}",
+           math::MpzClassToString((m - mpz_class(1)) / mpz_class(2))},
           {"%{modulus_has_spare_bit}",
            base::BoolToString(modulus_info.modulus_has_spare_bit)},
           {"%{can_use_no_carry_mul_optimization}",

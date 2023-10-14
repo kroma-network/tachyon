@@ -84,4 +84,13 @@ TYPED_TEST(PrimeFieldBaseTest, GetRootOfUnity) {
   }
 }
 
+TYPED_TEST(PrimeFieldBaseTest, LegendreSymbol) {
+  using F = TypeParam;
+
+  F f = F::Random();
+  LegendreSymbol symbol = f.Legendre();
+  EXPECT_EQ(F(static_cast<int>(symbol)),
+            f.Pow(F::Config::kModulusMinusOneDivTwo));
+}
+
 }  // namespace tachyon::math

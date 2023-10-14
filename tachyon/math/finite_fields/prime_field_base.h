@@ -7,6 +7,7 @@
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/math/base/field.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
+#include "tachyon/math/finite_fields/legendre_symbol.h"
 #include "tachyon/math/finite_fields/prime_field_forward.h"
 #include "tachyon/math/finite_fields/prime_field_traits.h"
 #include "tachyon/math/finite_fields/prime_field_util.h"
@@ -105,6 +106,17 @@ class PrimeFieldBase : public Field<F> {
     }
     *ret = omega;
     return true;
+  }
+
+  constexpr LegendreSymbol Legendre() const {
+    const F* f = static_cast<const F*>(this);
+    // s = a^((p - 1) / 2)
+    F s = f->Pow(Config::kModulusMinusOneDivTwo);
+    if (s.IsZero())
+      return LegendreSymbol::kZero;
+    else if (s.IsOne())
+      return LegendreSymbol::kOne;
+    return LegendreSymbol::kMinusOne;
   }
 };
 
