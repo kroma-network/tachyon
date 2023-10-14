@@ -8,7 +8,7 @@ namespace tachyon::math {
 TEST(GroupsTest, Div) {
   class Int : public MultiplicativeGroup<Int> {
    public:
-    Int() : value_(0) {}
+    Int() = default;
     explicit Int(int value) : value_(value) {}
     Int(const Int& other) : value_(other.value_) {}
 
@@ -18,7 +18,7 @@ TEST(GroupsTest, Div) {
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
    private:
-    int value_;
+    int value_ = 0;
   };
 
   Int a(3);
@@ -33,7 +33,7 @@ TEST(GroupsTest, Div) {
 TEST(GroupsTest, DivOverMul) {
   class Int : public MultiplicativeGroup<Int> {
    public:
-    Int() : value_(0) {}
+    Int() = default;
     explicit Int(int value) : value_(value) {}
     Int(const Int& other) : value_(other.value_) {}
 
@@ -44,7 +44,7 @@ TEST(GroupsTest, DivOverMul) {
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
    private:
-    int value_;
+    int value_ = 0;
   };
 
   Int a(3);
@@ -93,7 +93,7 @@ TEST(GroupsTest, InverseOverride) {
 TEST(GroupsTest, Sub) {
   class Int : public AdditiveGroup<Int> {
    public:
-    Int() : value_(0) {}
+    Int() = default;
     explicit Int(int value) : value_(value) {}
     Int(const Int& other) : value_(other.value_) {}
 
@@ -103,7 +103,7 @@ TEST(GroupsTest, Sub) {
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
    private:
-    int value_;
+    int value_ = 0;
   };
 
   Int a(3);
@@ -118,7 +118,7 @@ TEST(GroupsTest, Sub) {
 TEST(GroupsTest, SubOverAdd) {
   class Int : public AdditiveGroup<Int> {
    public:
-    Int() : value_(0) {}
+    Int() = default;
     explicit Int(int value) : value_(value) {}
     Int(const Int& other) : value_(other.value_) {}
 
@@ -129,7 +129,7 @@ TEST(GroupsTest, SubOverAdd) {
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
    private:
-    int value_;
+    int value_ = 0;
   };
 
   Int a(3);

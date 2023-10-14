@@ -8,7 +8,7 @@ namespace tachyon::math {
 TEST(SemigroupsTest, Mul) {
   class Int : public MultiplicativeSemigroup<Int> {
    public:
-    Int() : value_(0) {}
+    Int() = default;
     explicit Int(int value) : value_(value) {}
     Int(const Int& other) : value_(other.value_) {}
 
@@ -17,7 +17,7 @@ TEST(SemigroupsTest, Mul) {
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
    private:
-    int value_;
+    int value_ = 0;
   };
 
   Int a(3);
@@ -31,7 +31,7 @@ TEST(SemigroupsTest, Mul) {
 TEST(SemigroupsTest, MulOverMulInPlace) {
   class Int : public MultiplicativeSemigroup<Int> {
    public:
-    Int() : value_(0) {}
+    Int() = default;
     explicit Int(int value) : value_(value) {}
     Int(const Int& other) : value_(other.value_) {}
 
@@ -41,7 +41,7 @@ TEST(SemigroupsTest, MulOverMulInPlace) {
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
    private:
-    int value_;
+    int value_ = 0;
   };
 
   Int a(3);
@@ -60,7 +60,7 @@ TEST(SemigroupsTest, MulOverMulInPlace) {
 TEST(SemigroupsTest, Add) {
   class Int : public AdditiveSemigroup<Int> {
    public:
-    Int() : value_(0) {}
+    Int() = default;
     explicit Int(int value) : value_(value) {}
     Int(const Int& other) : value_(other.value_) {}
 
@@ -69,7 +69,7 @@ TEST(SemigroupsTest, Add) {
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
    private:
-    int value_;
+    int value_ = 0;
   };
 
   Int a(3);
@@ -83,7 +83,7 @@ TEST(SemigroupsTest, Add) {
 TEST(SemigroupsTest, AddOverAddInPlace) {
   class Int : public AdditiveSemigroup<Int> {
    public:
-    Int() : value_(0) {}
+    Int() = default;
     explicit Int(int value) : value_(value) {}
     Int(const Int& other) : value_(other.value_) {}
 
@@ -93,7 +93,7 @@ TEST(SemigroupsTest, AddOverAddInPlace) {
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
    private:
-    int value_;
+    int value_ = 0;
   };
 
   Int a(3);
