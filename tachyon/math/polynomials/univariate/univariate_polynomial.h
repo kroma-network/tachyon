@@ -69,11 +69,9 @@ class UnivariatePolynomial final
     return !operator==(other);
   }
 
-  constexpr Field* operator[](size_t i) { return coefficients_.Get(i); }
+  constexpr Field* operator[](size_t i) { return coefficients_[i]; }
 
-  constexpr const Field* operator[](size_t i) const {
-    return coefficients_.Get(i);
-  }
+  constexpr const Field* operator[](size_t i) const { return coefficients_[i]; }
 
   constexpr const Field* GetLeadingCoefficient() const {
     return coefficients_.GetLeadingCoefficient();
