@@ -3,7 +3,7 @@
 
 #include "third_party/eigen3/Eigen/Core"
 
-#include "tachyon/math/finite_fields/prime_field_forward.h"
+#include "tachyon/math/finite_fields/finite_field_forwards.h"
 
 namespace Eigen {
 

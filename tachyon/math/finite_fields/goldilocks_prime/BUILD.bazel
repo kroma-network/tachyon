@@ -47,7 +47,6 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base/gmp:gmp_util",
         "//tachyon/math/finite_fields:prime_field_base",
-        "//tachyon/math/finite_fields:prime_field_forward",
     ] + if_polygon_zkevm_backend([
         "@polygon_zkevm_goldilocks//:base_field",
     ]),

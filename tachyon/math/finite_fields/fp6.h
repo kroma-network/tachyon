@@ -7,7 +7,6 @@
 #define TACHYON_MATH_FINITE_FIELDS_FP6_H_
 
 #include "tachyon/math/finite_fields/cubic_extension_field.h"
-#include "tachyon/math/finite_fields/fp6_forward.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
 
 namespace tachyon::math {

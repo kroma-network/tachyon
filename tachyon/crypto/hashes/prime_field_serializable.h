@@ -7,7 +7,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/math/base/big_int.h"
-#include "tachyon/math/finite_fields/prime_field_traits.h"
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::crypto {
 
@@ -37,7 +37,7 @@ class PrimeFieldSerializable<T, std::enable_if_t<std::is_integral_v<T>>> {
 
 template <typename T>
 class PrimeFieldSerializable<
-    T, std::enable_if_t<math::PrimeFieldTraits<T>::kIsPrimeField>> {
+    T, std::enable_if_t<math::FiniteFieldTraits<T>::kIsPrimeField>> {
  public:
   constexpr static bool ToPrimeField(const T& value, std::vector<T>* fields) {
     fields->push_back(value);

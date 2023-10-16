@@ -11,7 +11,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/math/finite_fields/prime_field_traits.h"
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::crypto {
 
@@ -25,7 +25,7 @@ class TACHYON_EXPORT FieldElementSize {
 
   template <typename PrimeFieldTy>
   size_t NumBits() {
-    static_assert(math::PrimeFieldTraits<PrimeFieldTy>::kIsPrimeField,
+    static_assert(math::FiniteFieldTraits<PrimeFieldTy>::kIsPrimeField,
                   "NumBits() is only supported for PrimeField");
     if (is_truncated_) {
       CHECK_LE(num_bits_, PrimeFieldTy::kModulusBits)
@@ -38,7 +38,7 @@ class TACHYON_EXPORT FieldElementSize {
   // Calculate the sum of prime field element sizes in |elements|.
   template <typename PrimeFieldTy>
   static size_t Sum(const std::vector<FieldElementSize>& elements) {
-    static_assert(math::PrimeFieldTraits<PrimeFieldTy>::kIsPrimeField,
+    static_assert(math::FiniteFieldTraits<PrimeFieldTy>::kIsPrimeField,
                   "Sum() is only supported for PrimeField");
     return (PrimeFieldTy::kModulusBits - 1) * elements.size();
   }
@@ -87,7 +87,7 @@ class CryptographicSponge {
  protected:
   std::vector<F> SqueezeFieldElementsWithSizesDefaultImpl(
       const std::vector<FieldElementSize>& sizes) {
-    if constexpr (math::PrimeFieldTraits<F>::kIsPrimeField) {
+    if constexpr (math::FiniteFieldTraits<F>::kIsPrimeField) {
       if (sizes.empty()) {
         return {};
       }

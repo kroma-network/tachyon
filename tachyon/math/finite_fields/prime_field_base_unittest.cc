@@ -84,4 +84,24 @@ TYPED_TEST(PrimeFieldBaseTest, GetRootOfUnity) {
   }
 }
 
+TYPED_TEST(PrimeFieldBaseTest, LegendreSymbol) {
+  using F = TypeParam;
+
+  F f = F::Random();
+  LegendreSymbol symbol = f.Legendre();
+  F expected;
+  switch (symbol) {
+    case LegendreSymbol::kOne:
+      expected = F::One();
+      break;
+    case LegendreSymbol::kMinusOne:
+      expected = F(F::Config::kModulus - typename F::BigIntTy(1));
+      break;
+    case LegendreSymbol::kZero:
+      expected = F::Zero();
+      break;
+  }
+  EXPECT_EQ(f.Pow(F::Config::kModulusMinusOneDivTwo), expected);
+}
+
 }  // namespace tachyon::math

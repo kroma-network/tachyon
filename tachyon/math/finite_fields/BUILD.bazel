@@ -21,20 +21,31 @@ tachyon_cc_library(
     name = "cubic_extension_field",
     hdrs = ["cubic_extension_field.h"],
     deps = [
-        ":cubic_extension_field_traits",
-        "//tachyon/math/base:field",
+        ":finite_field",
         "//tachyon/math/geometry:point3",
         "@com_google_absl//absl/strings",
     ],
 )
 
 tachyon_cc_library(
-    name = "cubic_extension_field_traits",
-    hdrs = ["cubic_extension_field_traits.h"],
+    name = "finite_field",
+    hdrs = ["finite_field.h"],
     deps = [
-        ":fp3_forward",
-        ":fp6_forward",
+        ":finite_field_traits",
+        "//tachyon/math/base:field",
+        "//tachyon/math/finite_fields/square_root_algorithms",
     ],
+)
+
+tachyon_cc_library(
+    name = "finite_field_forwards",
+    hdrs = ["finite_field_forwards.h"],
+)
+
+tachyon_cc_library(
+    name = "finite_field_traits",
+    hdrs = ["finite_field_traits.h"],
+    deps = [":finite_field_forwards"],
 )
 
 tachyon_cc_library(
@@ -44,19 +55,9 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "fp2_forward",
-    hdrs = ["fp2_forward.h"],
-)
-
-tachyon_cc_library(
     name = "fp3",
     hdrs = ["fp3.h"],
     deps = [":cubic_extension_field"],
-)
-
-tachyon_cc_library(
-    name = "fp3_forward",
-    hdrs = ["fp3_forward.h"],
 )
 
 tachyon_cc_library(
@@ -66,23 +67,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "fp4_forward",
-    hdrs = ["fp4_forward.h"],
-)
-
-tachyon_cc_library(
     name = "fp6",
     hdrs = ["fp6.h"],
     deps = [
         ":cubic_extension_field",
-        ":fp6_forward",
         ":quadratic_extension_field",
     ],
-)
-
-tachyon_cc_library(
-    name = "fp6_forward",
-    hdrs = ["fp6_forward.h"],
 )
 
 tachyon_cc_library(
@@ -92,8 +82,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "fp12_forward",
-    hdrs = ["fp12_forward.h"],
+    name = "legendre_symbol",
+    hdrs = ["legendre_symbol.h"],
 )
 
 tachyon_cc_library(
@@ -106,11 +96,11 @@ tachyon_cc_library(
     name = "prime_field_base",
     hdrs = ["prime_field_base.h"],
     deps = [
-        ":prime_field_traits",
+        ":finite_field",
+        ":legendre_symbol",
         ":prime_field_util",
         "//tachyon/base:bits",
         "//tachyon/base/strings:string_number_conversions",
-        "//tachyon/math/base:field",
         "//tachyon/math/base/gmp:gmp_util",
     ],
 )
@@ -136,7 +126,6 @@ tachyon_cc_library(
         ":prime_field_base",
         "//tachyon/base:no_destructor",
         "//tachyon/base/strings:string_util",
-        "//tachyon/math/base:field",
         "//tachyon/math/base/gmp:gmp_util",
     ],
 )
@@ -147,7 +136,6 @@ tachyon_cc_library(
     deps = [
         ":modulus",
         ":prime_field_base",
-        ":prime_field_forward",
         "//tachyon/base:compiler_specific",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/strings:string_util",
@@ -177,17 +165,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "prime_field_forward",
-    hdrs = ["prime_field_forward.h"],
-)
-
-tachyon_cc_library(
-    name = "prime_field_traits",
-    hdrs = ["prime_field_traits.h"],
-    deps = [":prime_field_forward"],
-)
-
-tachyon_cc_library(
     name = "prime_field_util",
     srcs = ["prime_field_util.cc"],
     hdrs = ["prime_field_util.h"],
@@ -197,10 +174,21 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "quadratic_extension_field",
+    hdrs = ["quadratic_extension_field.h"],
+    deps = [
+        ":finite_field",
+        "//tachyon/math/geometry:point2",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "finite_fields_unittests",
     srcs = [
         "cubic_extension_field_unittest.cc",
+        "finite_field_unittest.cc",
         "modulus_unittest.cc",
         "prime_field_base_unittest.cc",
         "prime_field_unittest.cc",
@@ -263,27 +251,5 @@ tachyon_cc_benchmark(
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/goldilocks_prime:goldilocks",
-    ],
-)
-
-tachyon_cc_library(
-    name = "quadratic_extension_field",
-    hdrs = ["quadratic_extension_field.h"],
-    deps = [
-        ":quadratic_extension_field_traits",
-        "//tachyon/math/base:field",
-        "//tachyon/math/geometry:point2",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-tachyon_cc_library(
-    name = "quadratic_extension_field_traits",
-    hdrs = ["quadratic_extension_field_traits.h"],
-    deps = [
-        ":fp12_forward",
-        ":fp2_forward",
-        ":fp4_forward",
-        ":fp6_forward",
     ],
 )
