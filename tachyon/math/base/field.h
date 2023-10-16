@@ -57,16 +57,16 @@ class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
   constexpr static bool BatchInverse(const InputContainer& fields,
                                      OutputContainer& inverses,
                                      const F& coeff = F::One()) {
-    if (fields.size() != inverses.size()) return false;
+    if (std::size(fields) != std::size(inverses)) return false;
 
 #if defined(TACHYON_HAS_OPENMP)
     using R = decltype(std::declval<F>().Inverse());
 
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-    if (fields.size() >=
+    if (std::size(fields) >=
         size_t{1} << (thread_nums / kParallelBatchInverseDivisorThreshold)) {
       size_t num_elem_per_thread =
-          (fields.size() + thread_nums - 1) / thread_nums;
+          (std::size(fields) + thread_nums - 1) / thread_nums;
 
       auto fields_chunks = base::Chunked(fields, num_elem_per_thread);
       auto inverses_chunks = base::Chunked(inverses, num_elem_per_thread);
