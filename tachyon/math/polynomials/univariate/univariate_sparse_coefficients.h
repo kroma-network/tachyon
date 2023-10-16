@@ -95,11 +95,11 @@ class UnivariateSparseCoefficients {
     return !operator==(other);
   }
 
-  constexpr F* Get(size_t i) {
-    return const_cast<F*>(std::as_const(*this).Get(i));
+  constexpr F* operator[](size_t i) {
+    return const_cast<F*>(std::as_const(*this).operator[](i));
   }
 
-  constexpr const F* Get(size_t i) const {
+  constexpr const F* operator[](size_t i) const {
     auto it = std::lower_bound(
         terms_.begin(), terms_.end(), i,
         [](const Term& term, size_t degree) { return term.degree < degree; });

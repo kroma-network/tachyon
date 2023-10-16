@@ -80,11 +80,11 @@ class UnivariateDenseCoefficients {
     return !operator==(other);
   }
 
-  constexpr F* Get(size_t i) {
-    return const_cast<F*>(std::as_const(*this).Get(i));
+  constexpr F* operator[](size_t i) {
+    return const_cast<F*>(std::as_const(*this).operator[](i));
   }
 
-  constexpr const F* Get(size_t i) const {
+  constexpr const F* operator[](size_t i) const {
     if (i < coefficients_.size()) {
       return &coefficients_[i];
     }
