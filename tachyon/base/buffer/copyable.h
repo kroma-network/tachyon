@@ -12,6 +12,15 @@
 
 namespace tachyon::base {
 
+// NOTE(chokobole): I omitted |WriteTo()| and |ReadFrom()| on purpose.
+// The reason why |EstimateSize()| is implemented here is to enable other
+// |Copyable<T>| to use this. (e.g, Copyable<int>::EstimateSize(1))
+template <typename T>
+class Copyable<T, std::enable_if_t<internal::IsBuiltinSerializable<T>::value>> {
+ public:
+  static size_t EstimateSize(const T& value) { return sizeof(T); }
+};
+
 template <typename CharTy>
 class Copyable<std::basic_string_view<CharTy>> {
  public:
@@ -79,6 +88,31 @@ class Copyable<
   }
 };
 
+template <typename T, size_t N>
+class Copyable<T[N]> {
+ public:
+  static bool WriteTo(const T* values, Buffer* buffer) {
+    for (size_t i = 0; i < N; ++i) {
+      if (!buffer->Write(values[i])) return false;
+    }
+    return true;
+  }
+
+  static bool ReadFrom(const Buffer& buffer, T* values) {
+    for (size_t i = 0; i < N; ++i) {
+      if (!buffer.Read(&values[i])) return false;
+    }
+    return true;
+  }
+
+  static size_t EstimateSize(const T* values) {
+    return std::accumulate(values, &values[N], size_t{0},
+                           [](size_t total, const T& value) {
+                             return total + base::EstimateSize(value);
+                           });
+  }
+};
+
 template <typename T>
 class Copyable<std::vector<T>> {
  public:
@@ -103,7 +137,7 @@ class Copyable<std::vector<T>> {
   static size_t EstimateSize(const std::vector<T>& values) {
     return std::accumulate(values.begin(), values.end(), sizeof(size_t),
                            [](size_t total, const T& value) {
-                             return total + Copyable<T>::EstimateSize(value);
+                             return total + base::EstimateSize(value);
                            });
   }
 };
@@ -126,9 +160,9 @@ class Copyable<std::array<T, N>> {
   }
 
   static size_t EstimateSize(const std::array<T, N>& values) {
-    return std::accumulate(values.begin(), values.end(), 0,
+    return std::accumulate(values.begin(), values.end(), size_t{0},
                            [](size_t total, const T& value) {
-                             return total + Copyable<T>::EstimateSize(value);
+                             return total + base::EstimateSize(value);
                            });
   }
 };
