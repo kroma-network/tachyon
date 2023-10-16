@@ -57,7 +57,10 @@ class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
   constexpr static bool BatchInverse(const InputContainer& fields,
                                      OutputContainer& inverses,
                                      const F& coeff = F::One()) {
-    if (std::size(fields) != std::size(inverses)) return false;
+    if (std::size(fields) != std::size(inverses)) {
+      LOG(ERROR) << "Size of |fields| and |inverses| do not match";
+      return false;
+    }
 
 #if defined(TACHYON_HAS_OPENMP)
     using R = decltype(std::declval<F>().Inverse());
