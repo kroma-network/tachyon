@@ -27,6 +27,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "copyable_forward",
     hdrs = ["copyable_forward.h"],
+    deps = ["//tachyon/base/types:cxx20_is_bounded_array"],
 )
 
 tachyon_cc_library(

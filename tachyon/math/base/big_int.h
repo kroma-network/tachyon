@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/bit_cast.h"
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/endian_utils.h"
 #include "tachyon/base/logging.h"
@@ -19,7 +20,8 @@
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/bit_traits.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 namespace internal {
 
 TACHYON_EXPORT bool StringToLimbs(std::string_view str, uint64_t* limbs,
@@ -934,6 +936,27 @@ class BitTraits<BigInt<N>> {
   }
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <size_t N>
+class Copyable<math::BigInt<N>> {
+ public:
+  static bool WriteTo(const math::BigInt<N>& bigint, Buffer* buffer) {
+    return buffer->Write(bigint.limbs);
+  }
+
+  static bool ReadFrom(const Buffer& buffer, math::BigInt<N>* bigint) {
+    return buffer.Read(bigint->limbs);
+  }
+
+  static size_t EstimateSize(const math::BigInt<N>& bigint) {
+    return base::EstimateSize(bigint.limbs);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_BASE_BIG_INT_H_

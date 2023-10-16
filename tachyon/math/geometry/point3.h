@@ -6,7 +6,11 @@
 
 #include "absl/strings/substitute.h"
 
-namespace tachyon::math {
+#include "tachyon/base/buffer/copyable.h"
+
+namespace tachyon {
+
+namespace math {
 
 // |Point3| represents points expanded into 3-element vectors.
 // It can represent elliptic curve points in either Projective or Jacobian form.
@@ -42,6 +46,28 @@ struct Point3 {
   }
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename T>
+class Copyable<math::Point3<T>> {
+ public:
+  static bool WriteTo(const math::Point3<T>& point, Buffer* buffer) {
+    return buffer->WriteMany(point.x, point.y, point.z);
+  }
+
+  static bool ReadFrom(const Buffer& buffer, math::Point3<T>* point) {
+    return buffer.ReadMany(&point->x, &point->y, &point->z);
+  }
+
+  static size_t EstimateSize(const math::Point3<T>& point) {
+    return base::EstimateSize(point.x) + base::EstimateSize(point.y) +
+           base::EstimateSize(point.z);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_GEOMETRY_POINT3_H_

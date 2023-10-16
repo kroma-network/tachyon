@@ -4,6 +4,8 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/base/buffer/vector_buffer.h"
+
 namespace tachyon::math {
 
 TEST(BigIntTest, Zero) {
@@ -200,6 +202,19 @@ TEST(BigIntTest, Operations) {
     };
     EXPECT_EQ(b.Divide(a), bda);
   }
+}
+
+TEST(BigIntTest, Copyable) {
+  BigInt<2> expected = BigInt<2>::Random();
+  BigInt<2> value;
+
+  base::VectorBuffer write_buf;
+  write_buf.Write(expected);
+
+  write_buf.set_buffer_offset(0);
+
+  write_buf.Read(&value);
+  EXPECT_EQ(value, expected);
 }
 
 }  // namespace tachyon::math

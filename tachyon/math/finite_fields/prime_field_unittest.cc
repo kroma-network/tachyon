@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
@@ -228,6 +229,20 @@ TYPED_TEST(PrimeFieldTest, DivBy2Exp) {
       EXPECT_EQ(q, BigInt<1>(test.v / (1 << i)));
     }
   }
+}
+
+TYPED_TEST(PrimeFieldTest, Copyable) {
+  using F = TypeParam;
+
+  const F expected = F::Random();
+  F value;
+
+  base::VectorBuffer write_buf;
+  EXPECT_TRUE(write_buf.Write(expected));
+
+  write_buf.set_buffer_offset(0);
+  write_buf.Read(&value);
+  EXPECT_EQ(expected, value);
 }
 
 }  // namespace tachyon::math

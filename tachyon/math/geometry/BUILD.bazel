@@ -5,19 +5,28 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "point2",
     hdrs = ["point2.h"],
-    deps = ["@com_google_absl//absl/strings"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "@com_google_absl//absl/strings",
+    ],
 )
 
 tachyon_cc_library(
     name = "point3",
     hdrs = ["point3.h"],
-    deps = ["@com_google_absl//absl/strings"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "@com_google_absl//absl/strings",
+    ],
 )
 
 tachyon_cc_library(
     name = "point4",
     hdrs = ["point4.h"],
-    deps = ["@com_google_absl//absl/strings"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "@com_google_absl//absl/strings",
+    ],
 )
 
 tachyon_cc_unittest(
@@ -31,6 +40,7 @@ tachyon_cc_unittest(
         ":point2",
         ":point3",
         ":point4",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/finite_fields/test:gf7",
     ],
 )

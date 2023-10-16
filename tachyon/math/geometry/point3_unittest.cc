@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/test/gf7.h"
+#include "tachyon/base/buffer/vector_buffer.h"
 
 namespace tachyon::math {
 
@@ -37,6 +38,19 @@ TEST(Point3Test, ToString) {
 
 TEST(Point3Test, ToHexString) {
   EXPECT_EQ(Point3GF7(GF7(1), GF7(2), GF7(3)).ToHexString(), "(0x1, 0x2, 0x3)");
+}
+
+TEST(Point3Test, Copyable) {
+  Point3GF7 expected(GF7(1), GF7(2), GF7(3));
+  Point3GF7 value;
+
+  base::VectorBuffer write_buf;
+  write_buf.Write(expected);
+
+  write_buf.set_buffer_offset(0);
+  write_buf.Read(&value);
+
+  EXPECT_EQ(expected, value);
 }
 
 }  // namespace tachyon::math

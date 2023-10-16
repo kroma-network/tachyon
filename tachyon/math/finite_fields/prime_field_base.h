@@ -4,13 +4,15 @@
 #include <cmath>
 
 #include "tachyon/base/bits.h"
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/finite_field.h"
 #include "tachyon/math/finite_fields/legendre_symbol.h"
 #include "tachyon/math/finite_fields/prime_field_util.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 struct TACHYON_EXPORT PrimeFieldFactors {
   uint32_t q_adicity;
@@ -120,6 +122,33 @@ class PrimeFieldBase : public FiniteField<F> {
   }
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename T>
+class Copyable<
+    T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
+ public:
+  static bool WriteTo(const T& prime_field, Buffer* buffer) {
+    return buffer->Write(prime_field.ToBigInt());
+  }
+
+  static bool ReadFrom(const Buffer& buffer, T* prime_field) {
+    using BigIntTy = typename T::BigIntTy;
+    BigIntTy v;
+    if (!buffer.Read(&v)) return false;
+    *prime_field = T::FromBigInt(v);
+    return true;
+  }
+
+  static size_t EstimateSize(const T& prime_field) {
+    using BigIntTy = typename T::BigIntTy;
+    return BigIntTy::kLimbNums * sizeof(uint64_t);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_BASE_H_
