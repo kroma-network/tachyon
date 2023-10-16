@@ -1,3 +1,8 @@
+// Copyright (c) 2022 Matter Labs
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.era-bellman-cuda and the
+// LICENCE-APACHE.era-bellman-cuda file.
+
 #include "tachyon/math/elliptic_curves/msm/kernels/bellman/bellman_msm_kernels.cu.h"
 
 namespace tachyon::math::bellman {

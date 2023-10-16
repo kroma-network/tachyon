@@ -1,3 +1,8 @@
+// Copyright 2022 arkworks contributors
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
+// file.
+
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_BASE_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_BASE_H_
 
