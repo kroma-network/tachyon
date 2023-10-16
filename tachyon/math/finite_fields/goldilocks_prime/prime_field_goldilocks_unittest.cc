@@ -137,7 +137,7 @@ TEST(PrimeFieldGoldilocksTest, MultiplicativeGroupOperators) {
   f.SquareInPlace();
   EXPECT_EQ(f, f_sqr);
 
-  Goldilocks f_pow = f.Pow(Goldilocks(5).ToBigInt());
+  Goldilocks f_pow = f.Pow(BigInt<1>(5));
   EXPECT_EQ(f * f * f * f * f, f_pow);
 }
 
