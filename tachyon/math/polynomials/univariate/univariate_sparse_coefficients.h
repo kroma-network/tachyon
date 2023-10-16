@@ -1,3 +1,8 @@
+// Copyright 2022 arkworks contributors
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
+// file.
+
 #ifndef TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_SPARSE_COEFFICIENTS_H_
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_SPARSE_COEFFICIENTS_H_
 

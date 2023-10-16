@@ -22,6 +22,8 @@ namespace tachyon::math {
 template <typename F>
 class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
  public:
+  // This is taken and modified from
+  // https://github.com/arkworks-rs/algebra/blob/5dfeedf560da6937a5de0a2163b7958bd32cd551/ff/src/fields/mod.rs#L298C1-L305
   // Sum of products: a₁ * b₁ + a₂ * b₂ + ... + aₙ * bₙ
   template <
       typename InputIterator,

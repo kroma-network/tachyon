@@ -1,3 +1,8 @@
+// Copyright cuZK authors.
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.cuzk and the LICENCE-APACHE.cuzk
+// file.
+
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk_csr_sparse_matrix.h"
 
 #include <sstream>

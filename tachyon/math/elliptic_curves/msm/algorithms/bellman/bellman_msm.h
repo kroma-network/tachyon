@@ -1,3 +1,8 @@
+// Copyright (c) 2022 Matter Labs
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.era-bellman-cuda and the
+// LICENCE-APACHE.era-bellman-cuda file.
+
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_BELLMAN_BELLMAN_MSM_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_BELLMAN_BELLMAN_MSM_H_
 

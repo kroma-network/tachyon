@@ -1,3 +1,8 @@
+// Copyright cuZK authors.
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.cuzk and the LICENCE-APACHE.cuzk
+// file.
+
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_CUZK_CUZK_KERNELS_CU_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_MSM_KERNELS_CUZK_CUZK_KERNELS_CU_H_
 
