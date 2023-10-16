@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "tachyon/base/compiler_specific.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util_internal.h"
 #include "tachyon/export.h"
 
@@ -114,7 +115,8 @@ std::string VectorToString(const std::vector<T>& data) {
   std::stringstream ss;
   ss << "[";
   for (size_t i = 0; i < data.size(); ++i) {
-    ss << data[i];
+    // NOTE(chokobole): This is a trick to call |operator<<()| or |ToString()|.
+    google::MakeCheckOpValueString(&ss, data[i]);
     if (i != data.size() - 1) {
       ss << ", ";
     }

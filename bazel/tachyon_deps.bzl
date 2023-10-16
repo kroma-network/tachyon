@@ -96,7 +96,10 @@ def tachyon_deps():
             strip_prefix = "googletest-1.13.0",
             urls = ["https://github.com/google/googletest/archive/v1.13.0.zip"],
             patch_args = ["-p1"],
-            patches = ["@kroma_network_tachyon//third_party/gtest:add_missing_linkopts.patch"],
+            patches = [
+                "@kroma_network_tachyon//third_party/gtest:add_missing_linkopts.patch",
+                "@kroma_network_tachyon//third_party/gtest:print_with_to_string.patch",
+            ],
         )
 
     # Needed by com_google_googletest

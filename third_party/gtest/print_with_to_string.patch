@@ -1,0 +1,67 @@
+diff --git a/googletest/include/gtest/gtest-printers.h b/googletest/include/gtest/gtest-printers.h
+index 0055e37f..de805706 100644
+--- a/googletest/include/gtest/gtest-printers.h
++++ b/googletest/include/gtest/gtest-printers.h
+@@ -220,6 +220,14 @@ struct StreamPrinter {
+ 
+ }  // namespace internal_stream_operator_without_lexical_name_lookup
+ 
++struct ToStringPrinter {
++  template <typename T, typename = typename std::enable_if<
++                            internal::HasToString<T>::value>::type>
++  static void PrintValue(const T& value, ::std::ostream* os) {
++    *os << value.ToString();
++  }
++};
++
+ struct ProtobufPrinter {
+   // We print a protobuf using its ShortDebugString() when the string
+   // doesn't exceed this many characters; otherwise we print it using
+@@ -298,6 +306,7 @@ struct FindFirstPrinter<
+ //  - Print function pointers.
+ //  - Print object pointers.
+ //  - Use the stream operator, if available.
++//  - Use ToString(), if available.
+ //  - Print protocol buffers.
+ //  - Print types convertible to BiggestInt.
+ //  - Print types convertible to StringView, if available.
+@@ -307,7 +316,7 @@ void PrintWithFallback(const T& value, ::std::ostream* os) {
+   using Printer = typename FindFirstPrinter<
+       T, void, ContainerPrinter, FunctionPointerPrinter, PointerPrinter,
+       internal_stream_operator_without_lexical_name_lookup::StreamPrinter,
+-      ProtobufPrinter, ConvertibleToIntegerPrinter,
++      ToStringPrinter, ProtobufPrinter, ConvertibleToIntegerPrinter,
+       ConvertibleToStringViewPrinter, RawBytesPrinter, FallbackPrinter>::type;
+   Printer::PrintValue(value, os);
+ }
+diff --git a/googletest/include/gtest/internal/gtest-internal.h b/googletest/include/gtest/internal/gtest-internal.h
+index 3121d428..2e1b428d 100644
+--- a/googletest/include/gtest/internal/gtest-internal.h
++++ b/googletest/include/gtest/internal/gtest-internal.h
+@@ -888,6 +888,26 @@ class GTEST_API_ Random {
+ #define GTEST_REMOVE_REFERENCE_AND_CONST_(T) \
+   typename std::remove_const<typename std::remove_reference<T>::type>::type
+ 
++// HasToString<T>::value is a compile-time bool constant
++// that's true if and only if T has methods ToString() return std::string.
++template <typename T>
++class HasToString {
++ private:
++  template <typename C>
++  static auto CheckToString(C*) -> typename std::is_same<
++      std::string, decltype(std::declval<const C&>().ToString())>::type;
++  template <typename>
++  static std::false_type CheckToString(...);
++
++  using HasToStringType = decltype(CheckToString<T>(nullptr));
++
++ public:
++  static constexpr bool value = HasToStringType::value;
++};
++
++template <typename T>
++constexpr bool HasToString<T>::value;
++
+ // HasDebugStringAndShortDebugString<T>::value is a compile-time bool constant
+ // that's true if and only if T has methods DebugString() and ShortDebugString()
+ // that return std::string.
