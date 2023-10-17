@@ -281,7 +281,7 @@ TEST(BitsTest, LeftMostBit) {
 TEST(BitsTest, BitRev) {
   std::bitset<64> value;
   for (size_t i = 0; i < 20; ++i) {
-    value.flip(Uniform(0, 64));
+    value.flip(UniformElement(value));
   }
   std::bitset<64> expected;
   for (size_t i = 0; i < 64; ++i) {

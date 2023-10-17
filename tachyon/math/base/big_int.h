@@ -105,8 +105,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   constexpr static BigInt Random(const BigInt& max = Max()) {
     BigInt ret;
     for (size_t i = 0; i < N; ++i) {
-      ret[i] = base::Uniform<uint64_t, uint64_t>(
-          0, std::numeric_limits<uint64_t>::max());
+      ret[i] = base::Uniform(base::Range<uint64_t>::All());
     }
     while (ret >= max) {
       ret.DivBy2InPlace();

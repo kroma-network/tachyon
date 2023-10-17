@@ -84,9 +84,15 @@ tachyon_cc_library(
     srcs = ["random.cc"],
     hdrs = ["random.h"],
     deps = [
+        ":range",
         "//tachyon:export",
         "@com_google_absl//absl/random",
     ],
+)
+
+tachyon_cc_library(
+    name = "range",
+    hdrs = ["range.h"],
 )
 
 tachyon_cc_library(
@@ -120,6 +126,7 @@ tachyon_cc_unittest(
         "endian_utils_unittest.cc",
         "environment_unittest.cc",
         "random_unittest.cc",
+        "range_unittest.cc",
         "scoped_generic_unittest.cc",
     ],
     deps = [
@@ -129,6 +136,7 @@ tachyon_cc_unittest(
         ":endian_utils",
         ":environment",
         ":random",
+        ":range",
         ":scoped_generic",
         "//tachyon/base/containers:contains",
         "//tachyon/base/containers:cxx20_erase",

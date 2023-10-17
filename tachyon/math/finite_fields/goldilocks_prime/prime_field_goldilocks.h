@@ -50,7 +50,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   static PrimeField Random() { return PrimeField(RandomForTesting()); }
 
   static uint64_t RandomForTesting() {
-    return base::Uniform<uint64_t, uint64_t>(0, Config::kModulus[0]);
+    return base::Uniform(base::Range<uint64_t>::Until(Config::kModulus[0]));
   }
 
   constexpr static PrimeField FromDecString(std::string_view str) {
