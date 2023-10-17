@@ -1,5 +1,5 @@
 {
-  "checksum": "ea7f2e4b98d8ecd9be3441e0a4f89e30e6cb4709690a45bbf17f48abda33bb18",
+  "checksum": "c2143636823e6b6c7b65fb9f92f5cd51c2766735c2cbbc60bc0d947c2d86ea1f",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -2971,6 +2971,40 @@
         "version": "0.12.1"
       },
       "license": "MIT/Apache-2.0"
+    },
+    "halo2_benchmark 0.0.1": {
+      "name": "halo2_benchmark",
+      "version": "0.0.1",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "halo2_benchmark",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "halo2_benchmark",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "halo2_proofs 0.2.0",
+              "target": "halo2_proofs"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.1"
+      },
+      "license": "MIT OR Apache-2.0"
     },
     "halo2_proofs 0.2.0": {
       "name": "halo2_proofs",
@@ -6295,6 +6329,7 @@
     "arkworks_benchmark 0.0.1": "benchmark/msm/arkworks",
     "bellman_benchmark 0.0.1": "benchmark/msm/bellman",
     "direct-cargo-bazel-deps 0.0.1": "",
+    "halo2_benchmark 0.0.1": "benchmark/msm/halo2",
     "tachyon_halo2 0.0.1": "vendors/halo2",
     "tachyon_rs 0.0.1": "tachyon/rs"
   },

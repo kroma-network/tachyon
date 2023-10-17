@@ -46,6 +46,7 @@ tachyon_cc_binary(
         ":msm_runner",
         "//benchmark/msm/arkworks",
         "//benchmark/msm/bellman",
+        "//benchmark/msm/halo2",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
     ],
 )

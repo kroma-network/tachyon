@@ -465,13 +465,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "direct-cargo-bazel-deps"
-version = "0.0.1"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "either"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -574,6 +567,14 @@ dependencies = [
  "ff",
  "rand_core 0.6.4",
  "subtle",
+]
+
+[[package]]
+name = "halo2_benchmark"
+version = "0.0.1"
+dependencies = [
+ "halo2_proofs",
+ "tachyon_rs",
 ]
 
 [[package]]
