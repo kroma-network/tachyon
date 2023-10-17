@@ -68,13 +68,13 @@ struct MSMTestSet {
     {
       std::stringstream ss;
       for (size_t i = 0; i < bases.size(); ++i) {
-        ss << bases[i] << std::endl;
+        ss << bases[i].ToString() << std::endl;
       }
       if (!base::WriteFile(dir.Append("bases.txt"), ss.str())) return false;
     }
     std::stringstream ss;
     for (size_t i = 0; i < scalars.size(); ++i) {
-      ss << scalars[i] << std::endl;
+      ss << scalars[i].ToString() << std::endl;
     }
     return base::WriteFile(dir.Append("scalars.txt"), ss.str());
   }
