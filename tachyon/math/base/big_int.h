@@ -789,6 +789,46 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     }
   }
 
+  // TODO(chokobole): This can be optimized since the element of vector occupies
+  // fixed 2 bits, we can save much space. e.g, in a worst case for 4 limbs(254
+  // bits), 254 * 2 / 8 = 63.4 < 8 * sizeof(uint64_t).
+  //
+  // This converts bigint to NAF(Non-Adjacent-Form).
+  // e.g, 7 = (1 1 1)₂ = (1 0 0 -1)₂
+  // See https://en.wikipedia.org/wiki/Non-adjacent_form
+  // See cyclotomic_multiplicative_subgroup.h for use case.
+  std::vector<int8_t> ToNAF() const {
+    BigInt v(*this);
+    std::vector<int8_t> ret;
+    ret.reserve(8 * sizeof(uint64_t) * N);
+    while (!v.IsZero()) {
+      int8_t z;
+      // v = v₀ * 2⁰ + v₁ * 2¹ + v₂ * 2² + ... + vₙ₋₁ * 2ⁿ⁻¹
+      // if v₀ == 0:
+      //   z = 0
+      //   v = z * 2⁰ + v₁ * 2¹ + v₂ * 2² + ... + vₙ₋₁ * 2ⁿ⁻¹
+      // else if v₀ == 1 && v₁ == 0:
+      //   z = 2 - 1 = 1
+      //   v = z * 2⁰ + v₂ * 2² + ... + vₙ₋₁ * 2ⁿ⁻¹
+      // else if v₀ == 1 && v₁ == 1:
+      //   z = 2 - 3 = -1
+      //   v = z * 2⁰ + (v₂ + 1) * 2² + ... + vₙ₋₁ * 2ⁿ⁻¹
+      if (v.IsOdd()) {
+        z = 2 - (v[kSmallestLimbIdx] % 4);
+        if (z >= 0) {
+          v -= BigInt(z);
+        } else {
+          v += BigInt(-z);
+        }
+      } else {
+        z = 0;
+      }
+      ret.push_back(z);
+      v.DivBy2InPlace();
+    }
+    return ret;
+  }
+
  private:
   template <typename T>
   constexpr T ExtractBits(size_t bit_offset, size_t bit_count) const {

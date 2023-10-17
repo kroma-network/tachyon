@@ -21,9 +21,18 @@ tachyon_cc_library(
     name = "cubic_extension_field",
     hdrs = ["cubic_extension_field.h"],
     deps = [
-        ":finite_field",
+        ":cyclotomic_multiplicative_subgroup",
         "//tachyon/math/geometry:point3",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cyclotomic_multiplicative_subgroup",
+    hdrs = ["cyclotomic_multiplicative_subgroup.h"],
+    deps = [
+        ":finite_field",
+        "//tachyon/base/containers:adapters",
     ],
 )
 
@@ -178,7 +187,7 @@ tachyon_cc_library(
     name = "quadratic_extension_field",
     hdrs = ["quadratic_extension_field.h"],
     deps = [
-        ":finite_field",
+        ":cyclotomic_multiplicative_subgroup",
         "//tachyon/math/geometry:point2",
         "@com_google_absl//absl/strings",
     ],

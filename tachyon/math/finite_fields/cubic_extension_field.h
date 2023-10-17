@@ -11,13 +11,13 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/math/finite_fields/finite_field.h"
+#include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
 #include "tachyon/math/geometry/point3.h"
 
 namespace tachyon::math {
 
 template <typename Derived>
-class CubicExtensionField : public FiniteField<Derived> {
+class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
  public:
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
@@ -301,7 +301,10 @@ class CubicExtensionField : public FiniteField<Derived> {
     return *static_cast<Derived*>(this);
   }
 
- private:
+ protected:
+  template <typename Config>
+  friend class Fp12;
+
   // c = c0_ + c1_ * X + c2_ * X²
   BaseField c0_;
   BaseField c1_;
