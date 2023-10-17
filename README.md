@@ -46,6 +46,12 @@ Please follow the instructions [here](https://bazel.build/install).
 > bazel build --config macos_x86_64 //...
 ```
 
+**_NOTE:_: MacOS v14.0.0 or later is recommended.**
+
+In certain versions of MacOS (prior to v13.5.1), a bug related to incorrect Bigint divide operations has been detected in the field generator when using the optimized build (`-c opt`).
+
+The [issue](https://github.com/kroma-network/tachyon/issues/98) will be fixed as soon as possible.
+
 ### Test
 
 #### Test on Linux
