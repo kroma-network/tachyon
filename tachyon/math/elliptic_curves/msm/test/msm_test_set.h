@@ -45,7 +45,7 @@ struct MSMTestSet {
     std::vector<ScalarField> scalar_sets =
         base::CreateVector(scalar_size, []() { return ScalarField::Random(); });
     test_set.scalars = base::CreateVector(
-        size, [&scalar_sets]() { return base::Uniform(scalar_sets); });
+        size, [&scalar_sets]() { return base::UniformElement(scalar_sets); });
     test_set.ComputeAnswer(method);
     return test_set;
   }

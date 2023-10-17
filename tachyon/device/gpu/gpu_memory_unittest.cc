@@ -1,6 +1,5 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 
-#include <limits>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -66,10 +65,8 @@ TEST(GpuMemoryTest, CopyFrom) {
 #endif  // TACHYON_CUDA
 
   {
-    std::vector<int> host_memory = base::CreateVector(512, []() {
-      return base::Uniform(static_cast<int>(0),
-                           std::numeric_limits<int>::max());
-    });
+    std::vector<int> host_memory = base::CreateVector(
+        512, []() { return base::Uniform(base::Range<int>::From(0)); });
     std::vector<std::vector<int>> results;
     results.resize(memories.size());
     for (size_t i = 0; i < memories.size(); ++i) {
@@ -89,7 +86,7 @@ TEST(GpuMemoryTest, CopyFrom) {
     auto unified_memory = GpuMemory<int>::MallocManaged(512);
     absl::Span<int> unified_memory_view(unified_memory.get(), 512);
     for (int& v : unified_memory_view) {
-      v = base::Uniform(static_cast<int>(0), std::numeric_limits<int>::max());
+      v = base::Uniform(base::Range<int>::From(0));
     }
     std::vector<std::vector<int>> results;
     results.resize(memories.size());

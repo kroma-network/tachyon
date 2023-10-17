@@ -192,14 +192,15 @@ class MultivariateSparseCoefficients {
                                                size_t min_term = 1,
                                                size_t max_term = 999) {
     Terms terms;
-    size_t num_terms = base::Uniform(min_term, max_term);
+    size_t num_terms = base::Uniform(base::Range<size_t>(min_term, max_term));
     terms.push_back(Term::Constant(F::Random()));
     for (size_t i = 1; i < num_terms; ++i) {
       for (size_t j = 0; j < arity; ++j) {
         if (base::Bernoulli(0.5) > 0.5) {
           terms.insert(
               terms.begin(),
-              {{{{j, base::Uniform(size_t{0}, exponent)}}}, F::Random()});
+              {{{{j, base::Uniform(base::Range<size_t>(size_t{0}, exponent))}}},
+               F::Random()});
         }
       }
     }

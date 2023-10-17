@@ -11,33 +11,33 @@ namespace tachyon::math::internal {
 namespace {
 
 uint32_t GetRandomLo32() {
-  return base::Uniform(uint32_t{0}, std::numeric_limits<uint32_t>::max() / 2);
+  return base::Uniform(
+      base::Range<uint32_t>::Until(std::numeric_limits<uint32_t>::max() / 2));
 }
 
 uint32_t GetRandomHi32() {
-  return base::Uniform(std::numeric_limits<uint32_t>::max() / 2,
-                       std::numeric_limits<uint32_t>::max());
+  return base::Uniform(
+      base::Range<uint32_t>::From(std::numeric_limits<uint32_t>::max() / 2));
 }
 
 uint32_t GetRandomSqrt32() {
-  return base::Uniform(
-      uint32_t{0},
-      static_cast<uint32_t>(std::sqrt(std::numeric_limits<uint32_t>::max())));
+  return base::Uniform(base::Range<uint32_t>::Until(
+      static_cast<uint32_t>(std::sqrt(std::numeric_limits<uint32_t>::max()))));
 }
 
 uint64_t GetRandomLo64() {
-  return base::Uniform(uint64_t{0}, std::numeric_limits<uint64_t>::max() / 2);
+  return base::Uniform(
+      base::Range<uint64_t>::Until(std::numeric_limits<uint64_t>::max() / 2));
 }
 
 uint64_t GetRandomHi64() {
-  return base::Uniform(std::numeric_limits<uint64_t>::max() / 2,
-                       std::numeric_limits<uint64_t>::max());
+  return base::Uniform(
+      base::Range<uint64_t>::From(std::numeric_limits<uint64_t>::max() / 2));
 }
 
 uint64_t GetRandomSqrt64() {
-  return base::Uniform(
-      uint64_t{0},
-      static_cast<uint64_t>(std::sqrt(std::numeric_limits<uint64_t>::max())));
+  return base::Uniform(base::Range<uint64_t>::Until(
+      static_cast<uint64_t>(std::sqrt(std::numeric_limits<uint64_t>::max()))));
 }
 
 }  // namespace
