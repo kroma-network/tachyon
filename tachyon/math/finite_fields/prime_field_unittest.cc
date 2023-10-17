@@ -187,7 +187,7 @@ TYPED_TEST(PrimeFieldTest, MultiplicativeGroupOperators) {
   EXPECT_EQ(f, F(2));
 
   f = F(3);
-  EXPECT_EQ(f.Pow(F(5).ToBigInt()), F(5));
+  EXPECT_EQ(f.Pow(BigInt<1>(5)), F(5));
 }
 
 TYPED_TEST(PrimeFieldTest, SumOfProducts) {

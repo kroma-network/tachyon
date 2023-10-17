@@ -17,7 +17,7 @@ TEST(FieldTest, BatchInverse) {
       base::CreateVector(size, []() { return GF7::Random(); });
   std::vector<GF7> inverses;
   inverses.resize(fields.size());
-  ASSERT_TRUE(GF7::BatchInverse(fields, inverses));
+  ASSERT_TRUE(GF7::BatchInverse(fields, &inverses));
   for (size_t i = 0; i < fields.size(); ++i) {
     if (fields[i].IsZero()) {
       EXPECT_TRUE(inverses[i].IsZero());

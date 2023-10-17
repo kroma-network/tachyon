@@ -47,7 +47,7 @@ class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
   template <typename Container>
   constexpr static bool BatchInverseInPlace(Container& fields,
                                             const F& coeff = F::One()) {
-    return BatchInverse(fields, fields, coeff);
+    return BatchInverse(fields, &fields, coeff);
   }
 
   // This is taken and modified from
@@ -55,21 +55,24 @@ class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
   // Batch inverse: [b₁, b₂, ..., bₙ] = [a₁⁻¹, a₂⁻¹, ... , aₙ⁻¹]
   template <typename InputContainer, typename OutputContainer>
   constexpr static bool BatchInverse(const InputContainer& fields,
-                                     OutputContainer& inverses,
+                                     OutputContainer* inverses,
                                      const F& coeff = F::One()) {
-    if (fields.size() != inverses.size()) return false;
+    if (std::size(fields) != std::size(*inverses)) {
+      LOG(ERROR) << "Size of |fields| and |inverses| do not match";
+      return false;
+    }
 
 #if defined(TACHYON_HAS_OPENMP)
     using R = decltype(std::declval<F>().Inverse());
 
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-    if (fields.size() >=
+    if (std::size(fields) >=
         size_t{1} << (thread_nums / kParallelBatchInverseDivisorThreshold)) {
       size_t num_elem_per_thread =
-          (fields.size() + thread_nums - 1) / thread_nums;
+          (std::size(fields) + thread_nums - 1) / thread_nums;
 
       auto fields_chunks = base::Chunked(fields, num_elem_per_thread);
-      auto inverses_chunks = base::Chunked(inverses, num_elem_per_thread);
+      auto inverses_chunks = base::Chunked(*inverses, num_elem_per_thread);
       auto zipped = base::Zipped(fields_chunks, inverses_chunks);
       auto zipped_vector = base::Map(
           zipped.begin(), zipped.end(),
@@ -85,7 +88,7 @@ class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
       return true;
     }
 #endif
-    DoBatchInverse(absl::MakeConstSpan(fields), absl::MakeSpan(inverses),
+    DoBatchInverse(absl::MakeConstSpan(fields), absl::MakeSpan(*inverses),
                    coeff);
     return true;
   }
