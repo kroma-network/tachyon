@@ -189,6 +189,9 @@ tachyon_cc_unittest(
     srcs = [
         "cubic_extension_field_unittest.cc",
         "finite_field_unittest.cc",
+        "fp12_unittest.cc",
+        "fp2_unittest.cc",
+        "fp6_unittest.cc",
         "modulus_unittest.cc",
         "prime_field_base_unittest.cc",
         "prime_field_unittest.cc",
@@ -197,7 +200,7 @@ tachyon_cc_unittest(
     deps = [
         "//tachyon/base:bits",
         "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq12",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/finite_fields/test:gf7_2",
