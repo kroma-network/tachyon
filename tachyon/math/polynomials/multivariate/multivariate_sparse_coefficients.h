@@ -199,7 +199,7 @@ class MultivariateSparseCoefficients {
         if (base::Bernoulli(0.5) > 0.5) {
           terms.insert(
               terms.begin(),
-              {{{{j, base::Uniform(base::Range<size_t>(size_t{0}, exponent))}}},
+              {{{{j, base::Uniform(base::Range<size_t>(0, exponent))}}},
                F::Random()});
         }
       }
