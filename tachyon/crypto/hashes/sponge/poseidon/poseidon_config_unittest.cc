@@ -3,11 +3,18 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
+// Copyright 2020-2022 The Electric Coin Company
+// Copyright 2022 The Halo2 developers
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
+// file.
+
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config.h"
 
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bls/bls12_381/fr.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 
 namespace tachyon::crypto {
 
@@ -15,7 +22,10 @@ namespace {
 
 class PoseidonConfigTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { math::bls12_381::Fr::Init(); }
+  static void SetUpTestSuite() {
+    math::bls12_381::Fr::Init();
+    math::bn254::Fr::Init();
+  }
 };
 
 }  // namespace
@@ -52,6 +62,37 @@ TEST_F(PoseidonConfigTest, CreateDefault) {
         PoseidonConfig<F>::CreateDefault(test.rate, test.optimized_for_weights);
     ASSERT_TRUE(config.IsValid());
     EXPECT_EQ(config.ark(0, 0), F::FromDecString(test.ark00_str));
+    EXPECT_EQ(config.mds(0, 0), F::FromDecString(test.mds00_str));
+  }
+}
+
+TEST_F(PoseidonConfigTest, CreateCustom) {
+  using F = math::bn254::Fr;
+
+  // clang-format off
+  struct {
+    size_t rate;
+    uint64_t alpha;
+    size_t full_rounds;
+    size_t partial_rounds;
+    size_t skip_matrices;
+    const char* mds00_str;
+  } tests[] = {
+      {2, 5, 8, 57, 0, "7511745149465107256748700652201246547602992235352608707588321460060273774987"},
+      {3, 5, 8, 31, 0, "4843064272860702558353681805605581092414485968533095609154162537440763859608"},
+      {4, 5, 8, 57, 0, "9390358363320792447057897590391227342305356869000968376798315031785873376651"},
+      {5, 5, 4, 31, 0, "10942845101262402626166273431356787436787991939175819278065571096963239049995"},
+      {6, 5, 2, 12, 0, "9837954178279989965317992196165220609182866932765981962230951853077616895744"},
+      {7, 5, 6, 57, 0, "20096031343166107597256293287487285680099080393005092613845214101013675429510"},
+      {8, 5, 8, 63, 0, "708458300293891745856425423607721463509413916954480913172999113933455141974"},
+  };
+  // clang-format on
+
+  for (const auto& test : tests) {
+    PoseidonConfig<F> config = PoseidonConfig<F>::CreateCustom(
+        test.rate, test.alpha, test.full_rounds, test.partial_rounds,
+        test.skip_matrices);
+    ASSERT_TRUE(config.IsValid());
     EXPECT_EQ(config.mds(0, 0), F::FromDecString(test.mds00_str));
   }
 }

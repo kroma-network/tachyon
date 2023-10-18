@@ -43,5 +43,6 @@ tachyon_cc_unittest(
         ":poseidon",
         ":poseidon_config",
         "//tachyon/math/elliptic_curves/bls/bls12_381:fr",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
     ],
 )

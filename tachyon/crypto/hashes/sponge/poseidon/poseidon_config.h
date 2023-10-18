@@ -168,6 +168,19 @@ struct PoseidonConfig {
     return ret;
   }
 
+  constexpr static PoseidonConfig CreateCustom(size_t rate, uint64_t alpha,
+                                               size_t full_rounds,
+                                               size_t partial_rounds,
+                                               size_t skip_matrices) {
+    PoseidonConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds,
+                                     skip_matrices);
+    PoseidonConfig ret = config_entry.ToPoseidonConfig<PrimeFieldTy>();
+    FindPoseidonArkAndMds<PrimeFieldTy>(
+        config_entry.ToPoseidonGrainLFSRConfig<PrimeFieldTy>(), skip_matrices,
+        &ret.ark, &ret.mds);
+    return ret;
+  }
+
   bool IsValid() const {
     return static_cast<size_t>(ark.rows()) == full_rounds + partial_rounds &&
            static_cast<size_t>(ark.cols()) == rate + capacity &&
