@@ -20,6 +20,10 @@ extern "C" tachyon_bn254_g1_jacobian* run_msm_bellman(
     const tachyon_bn254_g1_affine* bases, const tachyon_bn254_fr* scalars,
     size_t size, uint64_t* duration_in_us);
 
+extern "C" tachyon_bn254_g1_jacobian* run_msm_halo2(
+    const tachyon_bn254_g1_affine* bases, const tachyon_bn254_fr* scalars,
+    size_t size, uint64_t* duration_in_us);
+
 int RealMain(int argc, char** argv) {
   MSMConfig config;
   MSMConfig::Options options;
@@ -55,6 +59,8 @@ int RealMain(int argc, char** argv) {
       runner.RunExternal(run_msm_arkworks, point_nums, &results_vendor);
     } else if (vendor == MSMConfig::Vendor::kBellman) {
       runner.RunExternal(run_msm_bellman, point_nums, &results_vendor);
+    } else if (vendor == MSMConfig::Vendor::kHalo2) {
+      runner.RunExternal(run_msm_halo2, point_nums, &results_vendor);
     }
 
     if (config.check_results()) {

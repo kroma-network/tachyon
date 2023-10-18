@@ -19,7 +19,7 @@ Tachyon offers a suite of benchmarking tools and scripts designed to evaluate th
 
 - The `-n` flag designates the test set size. A test set size of n translates to n for the EC benchmark and 2^n for the MSM benchmark. Benchmarks can be executed for individual or multiple test set sizes.
 
-- Use the --vendor flag to designate the benchmark target (only for MSM). Available vendors include: arkworks, bellman.
+- Use the --vendor flag to designate the benchmark target (only for MSM). Available vendors include: arkworks, bellman and halo2.
 
 For example, to benchmark Arkworks MSM for test set sizes of 2^10, 2^11, and 2^12:
 

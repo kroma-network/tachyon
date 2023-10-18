@@ -39,7 +39,7 @@ void SimpleBenchmarkReporter::Show() {
   py::scoped_interpreter guard{};
   auto plt = pyplot::import();
 
-  constexpr double kBarWidth = 0.25;
+  const double kBarWidth = 1.0 / (results_[0].size() + 1);
 
   std::vector<size_t> x_positions =
       base::CreateRangedVector(static_cast<size_t>(0), targets_.size());

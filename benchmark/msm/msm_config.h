@@ -20,6 +20,7 @@ class MSMConfig {
   enum class Vendor {
     kArkworks,
     kBellman,
+    kHalo2,
   };
 
   struct Options {
