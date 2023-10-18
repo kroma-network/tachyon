@@ -17,8 +17,8 @@ namespace tachyon::crypto {
 template <typename PrimeFieldTy>
 struct PoseidonConfig;
 
-// An entry in the default Poseidon config
-struct TACHYON_EXPORT PoseidonDefaultConfigEntry {
+// An entry in the Poseidon config
+struct TACHYON_EXPORT PoseidonConfigEntry {
   // The rate (in terms of number of field elements).
   size_t rate;
 
@@ -37,12 +37,9 @@ struct TACHYON_EXPORT PoseidonDefaultConfigEntry {
   // https://extgit.iaik.tugraz.at/krypto/hadeshash/-/blob/master/code/generate_parameters_grain.sage
   size_t skip_matrices;
 
-  constexpr PoseidonDefaultConfigEntry()
-      : PoseidonDefaultConfigEntry(0, 0, 0, 0, 0) {}
-  constexpr PoseidonDefaultConfigEntry(size_t rate, uint64_t alpha,
-                                       size_t full_rounds,
-                                       size_t partial_rounds,
-                                       size_t skip_matrices)
+  constexpr PoseidonConfigEntry() : PoseidonConfigEntry(0, 0, 0, 0, 0) {}
+  constexpr PoseidonConfigEntry(size_t rate, uint64_t alpha, size_t full_rounds,
+                                size_t partial_rounds, size_t skip_matrices)
       : rate(rate),
         alpha(alpha),
         full_rounds(full_rounds),
@@ -63,32 +60,29 @@ struct TACHYON_EXPORT PoseidonDefaultConfigEntry {
   PoseidonConfig<PrimeFieldTy> ToPoseidonConfig() const;
 };
 
-// An array of the config optimized for constraints
+// An array of the default config optimized for constraints
 // (rate, alpha, full_rounds, partial_rounds, skip_matrices)
 // for rate = 2, 3, 4, 5, 6, 7, 8
 // Here, |skip_matrices| denotes how many matrices to skip before finding one
 // that satisfy all the requirements.
-constexpr const PoseidonDefaultConfigEntry kOptimizedConstraintsParams[] = {
-    PoseidonDefaultConfigEntry(2, 17, 8, 31, 0),
-    PoseidonDefaultConfigEntry(3, 5, 8, 56, 0),
-    PoseidonDefaultConfigEntry(4, 5, 8, 56, 0),
-    PoseidonDefaultConfigEntry(5, 5, 8, 57, 0),
-    PoseidonDefaultConfigEntry(6, 5, 8, 57, 0),
-    PoseidonDefaultConfigEntry(7, 5, 8, 57, 0),
-    PoseidonDefaultConfigEntry(8, 5, 8, 57, 0),
+constexpr const PoseidonConfigEntry kOptimizedConstraintsDefaultParams[] = {
+    PoseidonConfigEntry(2, 17, 8, 31, 0), PoseidonConfigEntry(3, 5, 8, 56, 0),
+    PoseidonConfigEntry(4, 5, 8, 56, 0),  PoseidonConfigEntry(5, 5, 8, 57, 0),
+    PoseidonConfigEntry(6, 5, 8, 57, 0),  PoseidonConfigEntry(7, 5, 8, 57, 0),
+    PoseidonConfigEntry(8, 5, 8, 57, 0),
 };
 
-// An array of the config optimized for weights
+// An array of the default config optimized for weights
 // (rate, alpha, full_rounds, partial_rounds, skip_matrices)
 // for rate = 2, 3, 4, 5, 6, 7, 8
-constexpr const PoseidonDefaultConfigEntry kOptimizedWeightsParams[] = {
-    PoseidonDefaultConfigEntry(2, 257, 8, 13, 0),
-    PoseidonDefaultConfigEntry(3, 257, 8, 13, 0),
-    PoseidonDefaultConfigEntry(4, 257, 8, 13, 0),
-    PoseidonDefaultConfigEntry(5, 257, 8, 13, 0),
-    PoseidonDefaultConfigEntry(6, 257, 8, 13, 0),
-    PoseidonDefaultConfigEntry(7, 257, 8, 13, 0),
-    PoseidonDefaultConfigEntry(8, 257, 8, 13, 0),
+constexpr const PoseidonConfigEntry kOptimizedWeightsDefaultParams[] = {
+    PoseidonConfigEntry(2, 257, 8, 13, 0),
+    PoseidonConfigEntry(3, 257, 8, 13, 0),
+    PoseidonConfigEntry(4, 257, 8, 13, 0),
+    PoseidonConfigEntry(5, 257, 8, 13, 0),
+    PoseidonConfigEntry(6, 257, 8, 13, 0),
+    PoseidonConfigEntry(7, 257, 8, 13, 0),
+    PoseidonConfigEntry(8, 257, 8, 13, 0),
 };
 
 // ARK(AddRoundKey) is a matrix that contains an ARC(AddRoundConstant) array in
@@ -157,16 +151,15 @@ struct PoseidonConfig {
   size_t capacity = 0;
 
   static PoseidonConfig CreateDefault(size_t rate, bool optimized_for_weights) {
-    absl::Span<const PoseidonDefaultConfigEntry> param_set =
+    absl::Span<const PoseidonConfigEntry> param_set =
         optimized_for_weights
-            ? absl::MakeConstSpan(kOptimizedWeightsParams)
-            : absl::MakeConstSpan(kOptimizedConstraintsParams);
+            ? absl::MakeConstSpan(kOptimizedWeightsDefaultParams)
+            : absl::MakeConstSpan(kOptimizedConstraintsDefaultParams);
 
-    auto it =
-        base::ranges::find_if(param_set.begin(), param_set.end(),
-                              [rate](const PoseidonDefaultConfigEntry& param) {
-                                return param.rate == rate;
-                              });
+    auto it = base::ranges::find_if(param_set.begin(), param_set.end(),
+                                    [rate](const PoseidonConfigEntry& param) {
+                                      return param.rate == rate;
+                                    });
     CHECK_NE(it, param_set.end());
     PoseidonConfig ret = it->template ToPoseidonConfig<PrimeFieldTy>();
     FindPoseidonArkAndMds<PrimeFieldTy>(
@@ -184,8 +177,7 @@ struct PoseidonConfig {
 };
 
 template <typename PrimeFieldTy>
-PoseidonConfig<PrimeFieldTy> PoseidonDefaultConfigEntry::ToPoseidonConfig()
-    const {
+PoseidonConfig<PrimeFieldTy> PoseidonConfigEntry::ToPoseidonConfig() const {
   PoseidonConfig<PrimeFieldTy> config;
   config.full_rounds = full_rounds;
   config.partial_rounds = partial_rounds;
