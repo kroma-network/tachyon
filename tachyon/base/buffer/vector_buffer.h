@@ -1,8 +1,8 @@
 #ifndef TACHYON_BASE_BUFFER_VECTOR_BUFFER_H_
 #define TACHYON_BASE_BUFFER_VECTOR_BUFFER_H_
 
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "tachyon/base/buffer/buffer.h"
 
@@ -17,6 +17,7 @@ class TACHYON_EXPORT VectorBuffer : public Buffer {
       : Buffer(std::move(other)),
         owned_buffer_(std::move(other.owned_buffer_)) {}
   VectorBuffer& operator=(VectorBuffer&& other) {
+    Buffer::operator=(std::move(other));
     owned_buffer_ = std::move(other.owned_buffer_);
     return *this;
   }

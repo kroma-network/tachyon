@@ -17,6 +17,7 @@ class TACHYON_EXPORT StringBuffer : public Buffer {
       : Buffer(std::move(other)),
         owned_buffer_(std::move(other.owned_buffer_)) {}
   StringBuffer& operator=(StringBuffer&& other) {
+    Buffer::operator=(std::move(other));
     owned_buffer_ = std::move(other.owned_buffer_);
     return *this;
   }
