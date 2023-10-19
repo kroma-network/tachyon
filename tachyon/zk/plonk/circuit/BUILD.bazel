@@ -1,0 +1,75 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "challenge",
+    hdrs = ["challenge.h"],
+    deps = [
+        ":phase",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "column",
+    hdrs = ["column.h"],
+    deps = [
+        ":column_type",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "column_type",
+    srcs = ["column_type.cc"],
+    hdrs = ["column_type.h"],
+    deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
+    name = "phase",
+    hdrs = ["phase.h"],
+    deps = ["//tachyon/base/strings:string_number_conversions"],
+)
+
+tachyon_cc_library(
+    name = "query",
+    hdrs = ["query.h"],
+    deps = [
+        ":column_type",
+        ":phase",
+        ":rotation",
+    ],
+)
+
+tachyon_cc_library(
+    name = "rotation",
+    hdrs = ["rotation.h"],
+    deps = [
+        "//tachyon/base:bit_cast",
+        "//tachyon/base:logging",
+        "//tachyon/base/strings:string_number_conversions",
+    ],
+)
+
+tachyon_cc_library(
+    name = "selector",
+    hdrs = ["selector.h"],
+    deps = [
+        "//tachyon:export",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "circuit_unittests",
+    srcs = [
+        "column_unittest.cc",
+        "rotation_unittest.cc",
+    ],
+    deps = [
+        ":column",
+        ":rotation",
+    ],
+)

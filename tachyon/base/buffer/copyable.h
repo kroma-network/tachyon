@@ -106,7 +106,7 @@ class Copyable<T[N]> {
   }
 
   static size_t EstimateSize(const T* values) {
-    return std::accumulate(values, &values[N], size_t{0},
+    return std::accumulate(values, &values[N], 0,
                            [](size_t total, const T& value) {
                              return total + base::EstimateSize(value);
                            });
@@ -160,7 +160,7 @@ class Copyable<std::array<T, N>> {
   }
 
   static size_t EstimateSize(const std::array<T, N>& values) {
-    return std::accumulate(values.begin(), values.end(), size_t{0},
+    return std::accumulate(values.begin(), values.end(), 0,
                            [](size_t total, const T& value) {
                              return total + base::EstimateSize(value);
                            });
