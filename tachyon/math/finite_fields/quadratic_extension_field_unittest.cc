@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "tachyon/math/elliptic_curves/bn/bn254/fq6.h"
 #include "tachyon/math/finite_fields/test/gf7_2.h"
 
 namespace tachyon::math {
@@ -8,7 +9,10 @@ namespace {
 
 class QuadraticExtensionFieldTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7_2::Init(); }
+  static void SetUpTestSuite() {
+    GF7_2::Init();
+    bn254::Fq6::Init();
+  }
 };
 
 }  // namespace
@@ -170,6 +174,14 @@ TEST_F(QuadraticExtensionFieldTest, MultiplicativeGroupOperators) {
   EXPECT_EQ(f.Square(), f_sqr);
   f.SquareInPlace();
   EXPECT_EQ(f, f_sqr);
+}
+
+TEST_F(QuadraticExtensionFieldTest, FastCyclotomicInverse) {
+  bn254::Fq6 f = bn254::Fq6::Random();
+  bn254::Fq6 f_tmp = f;
+  f.InverseInPlace();
+  f_tmp.CyclotomicInverseInPlace();
+  EXPECT_EQ(f, f_tmp);
 }
 
 }  // namespace tachyon::math

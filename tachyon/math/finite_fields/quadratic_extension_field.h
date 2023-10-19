@@ -11,13 +11,14 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/math/finite_fields/finite_field.h"
+#include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
 #include "tachyon/math/geometry/point2.h"
 
 namespace tachyon::math {
 
 template <typename Derived>
-class QuadraticExtensionField : public FiniteField<Derived> {
+class QuadraticExtensionField
+    : public CyclotomicMultiplicativeSubgroup<Derived> {
  public:
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
@@ -234,6 +235,7 @@ class QuadraticExtensionField : public FiniteField<Derived> {
 
   constexpr Derived& InverseInPlace() {
     // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
+    // See https://github.com/kroma-network/tachyon/issues/76
     if (IsZero()) return *static_cast<Derived*>(this);
     // See https://www.math.u-bordeaux.fr/~damienrobert/csi/book/book.pdf
     // Guide to Pairing-based Cryptography, Algorithm 5.19.
@@ -250,7 +252,24 @@ class QuadraticExtensionField : public FiniteField<Derived> {
     return *static_cast<Derived*>(this);
   }
 
- private:
+  // CyclotomicMultiplicativeSubgroup methods
+  constexpr Derived& FastCyclotomicInverseInPlace() {
+    // As the multiplicative subgroup is of order p² - 1, the
+    // only non-trivial cyclotomic subgroup is of order p + 1
+    // Therefore, for any element in the cyclotomic subgroup, we have that
+    // |xᵖ⁺¹ = 1|. Recall that |xᵖ⁺¹| in a quadratic extension
+    // field is equal to the norm in the base field, so we have that
+    // |x * x.Conjugate() = 1|. By uniqueness of inverses, for this subgroup,
+    // |x.Inverse() = x.Conjugate()|.
+
+    // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
+    // See https://github.com/kroma-network/tachyon/issues/76
+    if (IsZero()) return *static_cast<Derived*>(this);
+
+    return ConjugateInPlace();
+  }
+
+ protected:
   // c = c0_ + c1_ * X
   BaseField c0_;
   BaseField c1_;

@@ -113,6 +113,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "    %{trace_minus_one_div_two}",
       "  });",
       "  constexpr static bool kModulusModFourIsThree = %{modulus_mod_four_is_three};",
+      "  constexpr static bool kModulusModSixIsOne = %{modulus_mod_six_is_one};",
       "  constexpr static bool kModulusHasSpareBit = %{modulus_has_spare_bit};",
       "  constexpr static bool kCanUseNoCarryMulOptimization = "
       "%{can_use_no_carry_mul_optimization};",
@@ -289,6 +290,8 @@ int GenerationConfig::GenerateConfigHdr() const {
            math::MpzClassToString((trace - mpz_class(1)) / mpz_class(2))},
           {"%{modulus_mod_four_is_three}",
            base::BoolToString(m % mpz_class(4) == mpz_class(3))},
+          {"%{modulus_mod_six_is_one}",
+           base::BoolToString(m % mpz_class(6) == mpz_class(1))},
           {"%{modulus_has_spare_bit}",
            base::BoolToString(modulus_info.modulus_has_spare_bit)},
           {"%{can_use_no_carry_mul_optimization}",

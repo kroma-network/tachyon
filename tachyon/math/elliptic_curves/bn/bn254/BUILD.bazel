@@ -146,7 +146,7 @@ generate_fp6s(
     // f = 8 * c0 + 8 * c1 * u
     f.DoubleInPlace().DoubleInPlace().DoubleInPlace();
     // c0 = -c1
-    BaseField c0 = BaseField::Config::MulByNonResidue(v.c1());
+    BasePrimeField c0 = BaseField::Config::MulByNonResidue(v.c1());
     // c0 = 8 * c0 - c1
     c0 += f.c0();
     // c0 = 8 * c0 - c1 + c0
@@ -154,7 +154,7 @@ generate_fp6s(
     c0 += v.c0();
     // c1 = 8 * c1 + c1 + c0
     //    = 8 * c1 + c0
-    BaseField c1 = f.c1() + v.c1() + v.c0();
+    BasePrimeField c1 = f.c1() + v.c1() + v.c0();
     return BaseField(std::move(c0), std::move(c1));""",
     namespace = "tachyon::math::bn254",
     non_residue = [

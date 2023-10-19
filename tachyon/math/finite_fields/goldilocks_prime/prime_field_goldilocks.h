@@ -187,6 +187,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   // MultiplicativeGroup methods
   constexpr PrimeField& InverseInPlace() {
+    // See https://github.com/kroma-network/tachyon/issues/76
     CHECK(!IsZero());
     Goldilocks::inv(value_, value_);
     return *this;
