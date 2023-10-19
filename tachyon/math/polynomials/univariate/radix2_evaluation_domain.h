@@ -101,7 +101,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
     Evals evals;
     evals.evaluations_ = poly.coefficients_.coefficients_;
-    if (evals.evaluations_.size() * kDegreeAwareFFTThresholdFactor <= this->size_) {
+    if (evals.evaluations_.size() * kDegreeAwareFFTThresholdFactor <=
+        this->size_) {
       DegreeAwareFFTInPlace(evals);
     } else {
       evals.evaluations_.resize(this->size_, F::Zero());
@@ -192,8 +193,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   }
 
   constexpr void FFTHelperInPlace(Evals& evals) const {
-    uint32_t log_len = static_cast<uint32_t>(
-        base::bits::Log2Ceiling(static_cast<uint32_t>(evals.evaluations_.size())));
+    uint32_t log_len = static_cast<uint32_t>(base::bits::Log2Ceiling(
+        static_cast<uint32_t>(evals.evaluations_.size())));
     UnivariateEvaluationDomain<F, MaxDegree>::SwapElements(
         evals, evals.evaluations_.size() - 1, log_len);
     OutInHelper(evals, this->group_gen_, 1);
@@ -242,20 +243,21 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     }
   }
 
-  // Computes the first |size_ / 2| roots of unity for the entire domain.
-  // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}], it computes
+  // Computes the first |size| roots of unity for the entire domain.
+  // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it computes
   // [1, g, g², ..., g^{(n / 2) - 1}]
-  constexpr std::vector<F> GetRootsOfUnity(const F& root) const {
+  constexpr std::vector<F> GetRootsOfUnity(size_t size, const F& root) const {
 #if defined(TACHYON_HAS_OPENMP)
     uint32_t log_size = SafeLog2Ceiling(this->size_);
     if (log_size <= kMinLogRootsOfUnitySizeForParallelization)
 #endif
-      return ComputePowersSerial(this->size_ / 2, root);
+      return ComputePowersSerial(size, root);
 #if defined(TACHYON_HAS_OPENMP)
+    size_t required_log_size = size_t{SafeLog2Ceiling(size)};
     F power = root;
-    // [g, g², g⁴, g⁸, ..., g^(2^(|log_size| - 1))]
+    // [g, g², g⁴, g⁸, ..., g^(2^(|required_log_size|))]
     std::vector<F> log_powers =
-        base::CreateVector(size_t{log_size} - 1, [&power]() {
+        base::CreateVector(required_log_size, [&power]() {
           F old_value = power;
           power.SquareInPlace();
           return old_value;
@@ -263,7 +265,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
     // allocate the return array and start the recursion
     std::vector<F> powers =
-        base::CreateVector(size_t{1} << (log_size - 1), F::Zero());
+        base::CreateVector(size_t{1} << required_log_size, F::Zero());
     GetRootsOfUnityRecursive(powers, absl::MakeConstSpan(log_powers));
     return powers;
 #endif
@@ -329,7 +331,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 #endif
 
   constexpr void InOutHelper(DensePoly& poly, const F& root) const {
-    std::vector<F> roots = GetRootsOfUnity(root);
+    std::vector<F> roots = GetRootsOfUnity(this->size_ / 2, root);
     size_t step = 1;
     bool first = true;
 
@@ -371,7 +373,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
   constexpr void OutInHelper(Evals& evals, const F& root,
                              size_t start_gap) const {
-    std::vector<F> roots_cache = GetRootsOfUnity(root);
+    std::vector<F> roots_cache = GetRootsOfUnity(this->size_ / 2, root);
     // The |std::min| is only necessary for the case where
     // |min_num_chunks_for_compaction_ = 1|. Else, notice that we compact the
     // |roots_cache| by a |step| of at least |min_num_chunks_for_compaction_|.

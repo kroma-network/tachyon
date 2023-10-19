@@ -315,7 +315,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, RootsOfUnity) {
       std::unique_ptr<UnivariateEvaluationDomainType> domain =
           UnivariateEvaluationDomainType::Create(coeffs);
       std::vector<bls12_381::Fr> actual_roots =
-          domain->GetRootsOfUnity(domain->group_gen());
+          domain->GetRootsOfUnity(domain->size() / 2, domain->group_gen());
       for (const bls12_381::Fr& value : actual_roots) {
         EXPECT_TRUE(domain->EvaluateVanishingPolynomial(value).IsZero());
       }
