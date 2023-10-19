@@ -57,6 +57,7 @@ struct PoseidonSponge
   // Sponge State
   State state;
 
+  PoseidonSponge() = default;
   explicit PoseidonSponge(const PoseidonConfig<F>& config)
       : config(config), state(config.rate + config.capacity) {}
   PoseidonSponge(const PoseidonConfig<F>& config, const State& state)
