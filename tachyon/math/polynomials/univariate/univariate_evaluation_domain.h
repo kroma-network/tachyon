@@ -101,17 +101,40 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   //        Z_H(x) = Π{i in m} (x - h * gⁱ) = xᵐ - hᵐ
   // - vᵢ: A sequence of values, where v₀ = 1 / (m * hᵐ⁻¹), and
   //       vᵢ₊₁ = g * vᵢ
-  // - L_{i, H}: The value of i-th lagrange coefficient for H
+  //
+  // clang-format off
+  //       Proof)
+  //
+  //       vᵢ = 1 / (h * gⁱ - h * g⁰) * ... * (h * gⁱ - h * gⁱ⁻¹) * (h * gⁱ - h * gⁱ⁺¹) * ... * (h * gⁱ - h * gᵐ⁻²) * (h * gⁱ - h * gᵐ⁻¹)
+  //          = gᵐ⁻¹ / (h * gⁱ⁺¹ - h * g¹) * ... * (h * gⁱ⁺¹ - h * gⁱ) * (h * gⁱ⁺¹ - h * gⁱ⁺²) * ... * (h * gⁱ⁺¹ - h * gᵐ⁻¹) * (h * gⁱ⁺¹ - h * gᵐ)
+  //          = gᵐ⁻¹ / (h * gⁱ⁺¹ - h * g⁰) * (h * gⁱ⁺¹ - h * g¹) * ... * (h * gⁱ⁺¹ - h * gⁱ) * (h * gⁱ⁺¹ - h * gⁱ⁺²) * ... * (h * gⁱ⁺¹ - h * gᵐ⁻¹)
+  //          = gᵐ⁻¹ * vᵢ₊₁
+  //          = 1 / g * vᵢ₊₁
+  //
+  //       v₀ = 1 / ((h - h * g¹) * (h - h * g²) * .... * (h - h * g^((m / 2) - 2)) * (h - h * g^((m / 2) - 1)) * (h - h * g^(m / 2)) * (h - h * g^((m / 2) + 1)) * (h - h * g^((m / 2) + 2))... * (h - h * gᵐ⁻²) * (h - h * gᵐ⁻¹))
+  //          = 1 / (hᵐ⁻¹ * (1 - g¹) * (1 - g²) * .... * (1 - g^((m / 2) - 2)) * (1 - g^((m / 2) - 1)) * (1 - g^(m / 2)) * (1 - g^((m / 2) + 1)) * (1 - g^((m / 2) + 2))... * (1 - gᵐ⁻²) * (1 - gᵐ⁻¹))
+  //          = 1 / (hᵐ⁻¹ * (1 - g¹) * (1 - g²) * .... * (1 - g^((m / 2) - 2)) * (1 - g^((m / 2) - 1)) * (1 + 1) * ... * (1 + g¹) * (1 + g²) * ... * (1 + g^((m / 2) - 2)) * (1 + g^((m / 2) - 1))) <- g^(m / 2) = -1
+  //          = 1 / (2 * hᵐ⁻¹ * (1 - g¹) * (1 + g¹) * (1 - g²) * (1 + g²) * .... * (1 - g^((m / 2) - 1)) * (1 + g^((m / 2) - 1)))
+  //          = 1 / (2 * hᵐ⁻¹ * (1 - g²) * (1 - g⁴) * .... * (1 - gᵐ⁻²))
+  //          = 1 / (4 * hᵐ⁻¹ * (1 - g⁴) * (1 - g⁸) * .... * (1 - gᵐ⁻³))
+  //          = 1 / (8 * hᵐ⁻¹ * (1 - g⁸) * (1 - g¹⁶) * .... * (1 - gᵐ⁻⁴))
+  //          ...
+  //          = 1 / (m * hᵐ⁻¹)
+  //
+  // clang-format on
+  //       See Barycentric Weight for more details.
+  //       https://people.maths.ox.ac.uk/trefethen/barycentric.pdf
+  // - Lᵢ_H: The value of i-th lagrange coefficient for H
   //
   // Evaluate all the lagrange polynomials defined by H at the point 𝜏. This
   // is computed in time O(m). Then given the evaluations of a degree d
   // polynomial P over H, where d < m, P(𝜏) can be computed as P(𝜏) =
-  // Σ{i in m} L_{i, H}(𝜏) * |P(gⁱ)|.
+  // Σ{i in m} Lᵢ_H(𝜏) * P(gⁱ).
   constexpr DenseCoeffs EvaluateAllLagrangeCoefficients(const F& tau) const {
     // Evaluate all Lagrange polynomials at 𝜏 to get the lagrange
     // coefficients.
     //
-    // We then compute L_{i, H}(𝜏) as L_{i, H}(𝜏) = Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
+    // We then compute Lᵢ_H(𝜏) as Lᵢ_H(𝜏) = Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
     //
     // However, if 𝜏 is in H, both the numerator and denominator equal 0
     // when i corresponds to the value 𝜏 equals, and the coefficient is 0
