@@ -170,7 +170,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       // https://github.com/arkworks-rs/algebra/blob/4152c41769ae0178fc110bfd15cc699673a2ce4b/poly/src/domain/mod.rs#L198)
 
       // v₀⁻¹ = m * hᵐ⁻¹
-      F v_0_inv = size_as_field_element_ * offset_.Pow(BigInt<1>(size_ - 1));
+      F v_0_inv = size_as_field_element_ * offset_pow_size_ * offset_inv_;
       // lᵢ = Z_H(𝜏)⁻¹ * v₀⁻¹ = (Z_H(𝜏) * vᵢ)⁻¹
       F l_i = z_h_at_tau.Inverse() * v_0_inv;
       F negative_cur_elem = -offset_;
@@ -221,9 +221,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       const UnivariateEvaluationDomain& subdomain) const {
     SparsePoly domain_vanishing_poly =
         GetVanishingPolynomial() *
-        SparsePoly(SparseCoeffs(
-            {{0, subdomain.size_as_field_element_ *
-                     subdomain.offset_.Pow(BigInt<1>(subdomain.size_))}}));
+        SparsePoly(SparseCoeffs({{0, subdomain.size_as_field_element_ *
+                                         subdomain.offset_pow_size_}}));
     SparsePoly subdomain_vanishing_poly =
         subdomain.GetVanishingPolynomial() *
         SparsePoly(SparseCoeffs({{0, size_as_field_element_}}));
