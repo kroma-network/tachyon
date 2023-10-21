@@ -25,7 +25,7 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
-    name = "multivariate_polynomials_unittests",
+    name = "multivariate_unittests",
     srcs = [
         "multivariate_polynomial_unittest.cc",
     ],

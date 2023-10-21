@@ -86,7 +86,7 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
-    name = "univariate_polynomials_unittests",
+    name = "univariate_unittests",
     srcs = [
         "univariate_dense_polynomial_unittest.cc",
         "univariate_evaluation_domain_unittest.cc",
