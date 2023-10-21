@@ -290,7 +290,6 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
         base::CreateVector(self.Degree() - other.Degree() + 1, F::Zero());
     UnivariatePolynomial<D> remainder = self.ToDense();
     std::vector<F>& r_coefficients = remainder.coefficients_.coefficients_;
-    // Can unwrap here because we know self is not zero.
     F divisor_leading_inv = other.GetLeadingCoefficient()->Inverse();
 
     while (!remainder.IsZero() && remainder.Degree() >= other.Degree()) {
