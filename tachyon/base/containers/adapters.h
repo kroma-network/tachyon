@@ -70,7 +70,7 @@ class ChunkedAdapter {
     Iterator& operator++() {
       it_ += len_;
       offset_ += len_;
-      base::CheckedNumeric<size_t> len = len_;
+      base::CheckedNumeric<size_t> len = offset_;
       len += chunk_size_;
       size_t new_len = len.ValueOrDie();
       if (new_len > size_) {
