@@ -59,7 +59,7 @@ class UnivariateEvaluations final
   }
 
   constexpr static UnivariateEvaluations Random(size_t degree) {
-    return UnivariateDenseCoefficients(
+    return UnivariateEvaluations(
         base::CreateVector(degree + 1, []() { return F::Random(); }));
   }
 
