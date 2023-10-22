@@ -53,9 +53,13 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "univariate_evaluations",
-    hdrs = ["univariate_evaluations.h"],
+    hdrs = [
+        "univariate_evaluations.h",
+        "univariate_evaluations_ops.h",
+    ],
     deps = [
         "//tachyon/base:logging",
+        "//tachyon/base:openmp_util",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/polynomials:polynomial",
     ],
@@ -90,6 +94,7 @@ tachyon_cc_unittest(
     srcs = [
         "univariate_dense_polynomial_unittest.cc",
         "univariate_evaluation_domain_unittest.cc",
+        "univariate_evaluations_unittest.cc",
         "univariate_sparse_polynomial_unittest.cc",
     ],
     deps = [
