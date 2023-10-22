@@ -179,7 +179,7 @@ class UnivariatePolynomial final
   friend class MixedRadixEvaluationDomain<Field, kMaxDegree>;
 
   // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
-  // So when the returned evaluations is called with `IsZero()`, it returns
+  // So when the returned evaluations is called with |IsZero()|, it returns
   // false. This is only used at |EvaluationDomain|.
   constexpr static UnivariatePolynomial UnsafeZero(size_t degree) {
     UnivariatePolynomial ret;
