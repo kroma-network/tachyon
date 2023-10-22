@@ -93,11 +93,12 @@ class MixedRadixEvaluationDomain
     }
     evals.evaluations_.resize(this->size_, F::Zero());
     BestFFT(evals, this->group_gen_);
-    evals.RemoveHighDegreeZeros();
     return evals;
   }
 
   [[nodiscard]] constexpr DensePoly IFFT(const Evals& evals) const override {
+    // NOTE(chokobole): This is not a faster check any more since
+    // https://github.com/kroma-network/tachyon/pull/104.
     if (evals.IsZero()) return {};
 
     DensePoly poly;

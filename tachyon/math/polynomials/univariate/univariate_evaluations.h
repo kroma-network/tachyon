@@ -26,37 +26,36 @@ class UnivariateEvaluations final
 
   using Field = F;
 
-  constexpr UnivariateEvaluations() = default;
+  constexpr UnivariateEvaluations() : UnivariateEvaluations({F::Zero()}) {}
   constexpr explicit UnivariateEvaluations(const std::vector<F>& evaluations)
       : evaluations_(evaluations) {
     CHECK_LE(Degree(), MaxDegree);
-    RemoveHighDegreeZeros();
   }
   constexpr explicit UnivariateEvaluations(std::vector<F>&& evaluations)
       : evaluations_(std::move(evaluations)) {
     CHECK_LE(Degree(), MaxDegree);
-    RemoveHighDegreeZeros();
   }
 
   constexpr static bool IsCoefficientForm() { return false; }
 
   constexpr static bool IsEvaluationForm() { return true; }
 
-  constexpr static UnivariateEvaluations Zero() {
-    return UnivariateEvaluations();
-  }
-
-  // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
-  // So when the returned evaluations is called with `IsZero()`, it returns
-  // false. This is only used at |EvaluationDomain|.
-  constexpr static UnivariateEvaluations UnsafeZero(size_t degree) {
+  constexpr static UnivariateEvaluations Zero(size_t degree) {
     UnivariateEvaluations ret;
     ret.evaluations_ = base::CreateVector(degree + 1, F::Zero());
     return ret;
   }
 
-  constexpr static UnivariateEvaluations One() {
-    return UnivariateEvaluations({F::One()});
+  // NOTE(chokobole): This is only used at |EvaluationDomain|.
+  // See also univariate_polynomial.h.
+  constexpr static UnivariateEvaluations UnsafeZero(size_t degree) {
+    return Zero(degree);
+  }
+
+  constexpr static UnivariateEvaluations One(size_t degree) {
+    UnivariateEvaluations ret;
+    ret.evaluations_ = base::CreateVector(degree + 1, F::One());
+    return ret;
   }
 
   constexpr static UnivariateEvaluations Random(size_t degree) {
@@ -66,16 +65,17 @@ class UnivariateEvaluations final
 
   const std::vector<F>& evaluations() const { return evaluations_; }
 
-  constexpr bool IsZero() const { return evaluations_.empty(); }
+  constexpr bool IsZero() const {
+    return std::all_of(evaluations_.begin(), evaluations_.end(),
+                       [](const F& value) { return value.IsZero(); });
+  }
 
   constexpr bool IsOne() const {
-    return evaluations_.size() == 1 && evaluations_[0].IsOne();
+    return std::all_of(evaluations_.begin(), evaluations_.end(),
+                       [](const F& value) { return value.IsOne(); });
   }
 
-  constexpr size_t Degree() const {
-    if (IsZero()) return 0;
-    return evaluations_.size() - 1;
-  }
+  constexpr size_t Degree() const { return evaluations_.size() - 1; }
 
   constexpr bool operator==(const UnivariateEvaluations& other) const {
     return evaluations_ == other.evaluations_;
@@ -99,16 +99,6 @@ class UnivariateEvaluations final
  private:
   friend class Radix2EvaluationDomain<F, MaxDegree>;
   friend class MixedRadixEvaluationDomain<F, kMaxDegree>;
-
-  void RemoveHighDegreeZeros() {
-    while (!IsZero()) {
-      if (evaluations_.back().IsZero()) {
-        evaluations_.pop_back();
-      } else {
-        break;
-      }
-    }
-  }
 
   std::vector<F> evaluations_;
 };
