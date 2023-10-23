@@ -63,6 +63,19 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "region",
+    hdrs = ["region.h"],
+    deps = [
+        ":assigned_cell",
+        ":column",
+        ":selector",
+        "//tachyon/base/functional:callback",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
     name = "rotation",
     hdrs = ["rotation.h"],
     deps = [
