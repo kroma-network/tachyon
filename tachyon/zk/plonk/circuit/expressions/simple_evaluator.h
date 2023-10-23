@@ -42,11 +42,11 @@ class SimpleEvaluator
         instances_(instances),
         challenges_(challenges) {}
 
-  int32_t idx() { return idx_; }
-  int32_t size() { return size_; }
-  int32_t rot_scale() { return rot_scale_; }
+  int32_t idx() const { return idx_; }
+  int32_t size() const { return size_; }
+  int32_t rot_scale() const { return rot_scale_; }
 
-  // SimpleEvaluator methods
+  // Evaluator methods
   Field Evaluate(const Expression<Field>* input) const override {
     switch (input->type()) {
       case ExpressionType::kConstant:
