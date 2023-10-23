@@ -26,6 +26,8 @@ class SelectorExpression : public Expression<F> {
     return absl::WrapUnique(new SelectorExpression(selector));
   }
 
+  const Selector& selector() const { return selector_; }
+
   size_t Degree() const override { return 1; }
 
   uint64_t Complexity() const override { return 1; }
