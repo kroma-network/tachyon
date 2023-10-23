@@ -1,0 +1,9 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "lookup_argument",
+    hdrs = ["lookup_argument.h"],
+    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
+)
