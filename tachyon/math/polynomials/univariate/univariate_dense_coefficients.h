@@ -19,8 +19,8 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/strings/string_util.h"
+#include "tachyon/math/polynomials/univariate/support_poly_operators.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
-#include "tachyon/math/polynomials/univariate/univariate_polynomial_ops_forward.h"
 
 namespace tachyon::math {
 
@@ -55,7 +55,7 @@ class UnivariateDenseCoefficients {
   }
 
   // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
-  // So when the returned evaluations is called with `IsZero()`, it returns
+  // So when the returned evaluations is called with |IsZero()|, it returns
   // false. This is only used at |EvaluationDomain|.
   constexpr static UnivariateDenseCoefficients UnsafeZero(size_t degree) {
     UnivariateDenseCoefficients ret;

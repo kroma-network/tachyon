@@ -35,6 +35,7 @@ class UnivariateDensePolynomialTest : public testing::Test {
 }  // namespace
 
 TEST_F(UnivariateDensePolynomialTest, IsZero) {
+  EXPECT_TRUE(Poly().IsZero());
   EXPECT_TRUE(Poly::Zero().IsZero());
   EXPECT_TRUE(Poly(Coeffs({GF7(0)})).IsZero());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
@@ -46,7 +47,7 @@ TEST_F(UnivariateDensePolynomialTest, IsZero) {
 TEST_F(UnivariateDensePolynomialTest, IsOne) {
   EXPECT_TRUE(Poly::One().IsOne());
   EXPECT_TRUE(Poly(Coeffs({GF7(1)})).IsOne());
-  for (size_t i = 0; i < polys_.size() - 1; ++i) {
+  for (size_t i = 0; i < polys_.size(); ++i) {
     EXPECT_FALSE(polys_[i].IsOne());
   }
 }
@@ -263,14 +264,12 @@ TEST_F(UnivariateDensePolynomialTest, MultiplicativeOperators) {
       EXPECT_EQ(test.b % a_sparse, test.bma);
     }
 
-    {
-      Poly tmp = test.a;
-      tmp *= test.b;
-      EXPECT_EQ(tmp, test.mul);
-      if (!test.b.IsZero()) {
-        tmp /= test.b;
-        EXPECT_EQ(tmp, test.a);
-      }
+    Poly tmp = test.a;
+    tmp *= test.b;
+    EXPECT_EQ(tmp, test.mul);
+    if (!test.b.IsZero()) {
+      tmp /= test.b;
+      EXPECT_EQ(tmp, test.a);
     }
   }
 }

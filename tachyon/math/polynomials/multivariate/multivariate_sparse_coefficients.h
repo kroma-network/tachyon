@@ -21,7 +21,7 @@
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/big_int.h"
-#include "tachyon/math/polynomials/multivariate/multivariate_polynomial_ops_forward.h"
+#include "tachyon/math/polynomials/multivariate/support_poly_operators.h"
 
 namespace tachyon::math {
 template <typename F, size_t MaxDegree>

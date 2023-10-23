@@ -108,11 +108,12 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       evals.evaluations_.resize(this->size_, F::Zero());
       InOrderFFTInPlace(evals);
     }
-    evals.RemoveHighDegreeZeros();
     return evals;
   }
 
   [[nodiscard]] constexpr DensePoly IFFT(const Evals& evals) const override {
+    // NOTE(chokobole): This is not a faster check any more since
+    // https://github.com/kroma-network/tachyon/pull/104.
     if (evals.IsZero()) return {};
 
     DensePoly poly;
@@ -168,7 +169,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     }
     size_t start_gap = duplicity_of_initials;
     OutInHelper(evals, this->group_gen_, start_gap);
-    evals.RemoveHighDegreeZeros();
   }
 
   constexpr void InOrderFFTInPlace(Evals& evals) const {

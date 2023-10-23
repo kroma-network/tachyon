@@ -21,7 +21,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/math/polynomials/univariate/univariate_polynomial_ops_forward.h"
+#include "tachyon/math/polynomials/univariate/support_poly_operators.h"
 
 namespace tachyon::math {
 
