@@ -58,7 +58,7 @@ class SimpleEvaluator
       case ExpressionType::kFixed: {
         const FixedExpression<Field>* fixed_expr = input->ToFixed();
         const FixedQuery& query = fixed_expr->query();
-        const Poly& poly = (*fixeds_)[query.column_index()];
+        const Poly& poly = (*fixeds_)[query.column().index()];
         const Field* ret =
             poly[query.rotation().GetIndex(idx_, rot_scale_, size_)];
         if (ret == nullptr) {
@@ -70,7 +70,7 @@ class SimpleEvaluator
       case ExpressionType::kAdvice: {
         const AdviceExpression<Field>* advice_expr = input->ToAdvice();
         const AdviceQuery& query = advice_expr->query();
-        const Poly& poly = (*advices_)[query.column_index()];
+        const Poly& poly = (*advices_)[query.column().index()];
         const Field* ret =
             poly[query.rotation().GetIndex(idx_, rot_scale_, size_)];
         if (ret == nullptr) {
@@ -82,7 +82,7 @@ class SimpleEvaluator
       case ExpressionType::kInstance: {
         const InstanceExpression<Field>* instance_expr = input->ToInstance();
         const InstanceQuery& query = instance_expr->query();
-        const Poly& poly = (*instances_)[query.column_index()];
+        const Poly& poly = (*instances_)[query.column().index()];
         const Field* ret =
             poly[query.rotation().GetIndex(idx_, rot_scale_, size_)];
         if (ret == nullptr) {

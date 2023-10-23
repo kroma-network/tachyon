@@ -90,8 +90,7 @@ tachyon_cc_library(
     name = "query",
     hdrs = ["query.h"],
     deps = [
-        ":column_type",
-        ":phase",
+        ":column",
         ":rotation",
     ],
 )

@@ -84,7 +84,8 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
     int32_t idx = simple_evaluator_->idx();
     int32_t rot_scale = simple_evaluator_->rot_scale();
     int32_t size = simple_evaluator_->size();
-    FixedQuery query(1, test.column_index, Rotation(test.rotation));
+    FixedQuery query(1, Rotation(test.rotation),
+                     FixedColumn(test.column_index));
     size_t coeff_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7* expected = fixed_polys_[test.column_index][coeff_index];
@@ -109,7 +110,8 @@ TEST_F(SimpleEvaluatorTest, Advice) {
     int32_t idx = simple_evaluator_->idx();
     int32_t rot_scale = simple_evaluator_->rot_scale();
     int32_t size = simple_evaluator_->size();
-    AdviceQuery query(1, test.column_index, Rotation(test.rotation), Phase(0));
+    AdviceQuery query(1, Rotation(test.rotation),
+                      AdviceColumn(test.column_index, Phase(0)));
     size_t coeff_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7* expected = advice_polys_[test.column_index][coeff_index];
@@ -134,7 +136,8 @@ TEST_F(SimpleEvaluatorTest, Instance) {
     int32_t idx = simple_evaluator_->idx();
     int32_t rot_scale = simple_evaluator_->rot_scale();
     int32_t size = simple_evaluator_->size();
-    InstanceQuery query(1, test.column_index, Rotation(test.rotation));
+    InstanceQuery query(1, Rotation(test.rotation),
+                        InstanceColumn(test.column_index));
     size_t coeff_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7* expected = instance_polys_[test.column_index][coeff_index];
