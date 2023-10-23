@@ -265,6 +265,7 @@ TEST_F(MultivariatePolynomialTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
+  EXPECT_LE(Poly::Random(kNumVars, kMaxDegree).Degree(), kMaxDegree);
 }
 
 TEST_F(MultivariatePolynomialTest, Evaluate) {
