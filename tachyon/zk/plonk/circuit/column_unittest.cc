@@ -28,6 +28,12 @@ TYPED_TEST(ColumnTest, NonAnyColumnConstruction) {
   EXPECT_EQ(c.type(), ColumnTy::kDefaultType);
   c = ColumnTy(1);
   EXPECT_EQ(c.type(), ColumnTy::kDefaultType);
+  ColumnTy c2(AnyColumn(1));
+  EXPECT_EQ(c2.type(), ColumnTy::kDefaultType);
+  ColumnTy c3;
+  EXPECT_EQ(c3.type(), ColumnTy::kDefaultType);
+  c3 = AnyColumn(1);
+  EXPECT_EQ(c3.type(), ColumnTy::kDefaultType);
 }
 
 }  // namespace tachyon::zk

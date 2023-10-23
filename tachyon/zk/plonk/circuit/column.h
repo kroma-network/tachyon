@@ -21,7 +21,7 @@ namespace tachyon::zk {
 // AnyColumn c = AnyColumn(1); -> ok
 // FixedColumn c = FixedColumn(1); -> ok
 // FixedColumn c = InstanceColumn(1); -> no
-// FixedColumn c = AnyColumn(1); -> no
+// FixedColumn c = AnyColumn(1); -> yes
 // See column_unittest.cc
 template <ColumnType C>
 class Column {
@@ -31,10 +31,30 @@ class Column {
   Column() = default;
   explicit Column(size_t index) : index_(index) {}
 
+  // NOTE(chokobole): in this case, |type_| is changed!
+  //
+  //   AnyColumn c(FixedColumn(1));
+  //   CHECK_EQ(c.type(), ColumnType::kFixed);
   template <ColumnType C2,
             std::enable_if_t<C == ColumnType::kAny && C != C2>* = nullptr>
   Column(const Column<C2>& other) : type_(other.type_), index_(other.index_) {}
+
+  // NOTE(chokobole): in this case, |type_| is not changed!
+  //
+  //   FixedColumn c(AnyColumn(1));
+  //   CHECK_EQ(c.type(), ColumnType::kFixed);
+  template <ColumnType C2, std::enable_if_t<C != ColumnType::kAny &&
+                                            C2 == ColumnType::kAny>* = nullptr>
+  Column(const Column<C2>& other) : index_(other.index_) {}
+
+  // FixedColumn c(FixedColumn(1));
   Column(const Column& other) = default;
+
+  // NOTE(chokobole): in this case, |type_| is changed!
+  //
+  //   AnyColumn c;
+  //   c = FixedColumn(1);
+  //   CHECK_EQ(c.type(), ColumnType::kFixed);
   template <ColumnType C2,
             std::enable_if_t<C == ColumnType::kAny && C != C2>* = nullptr>
   Column& operator=(const Column<C2>& other) {
@@ -42,6 +62,21 @@ class Column {
     index_ = other.index_;
     return *this;
   }
+
+  // NOTE(chokobole): in this case, |type_| is not changed!
+  //
+  //   FixedColumn c;
+  //   c = AnyColumn(1);
+  //   CHECK_EQ(c.type(), ColumnType::kFixed);
+  template <ColumnType C2, std::enable_if_t<C != ColumnType::kAny &&
+                                            C2 == ColumnType::kAny>* = nullptr>
+  Column& operator=(const Column<C2>& other) {
+    index_ = other.index_;
+    return *this;
+  }
+
+  // FixedColumn c;
+  // c = FixedColumn(1);
   Column& operator=(const Column& other) = default;
 
   ColumnType type() const { return type_; }
