@@ -10,7 +10,9 @@
 #include <stddef.h>
 
 #include <string>
+#include <utility>
 
+#include "absl/hash/hash.h"
 #include "absl/strings/substitute.h"
 
 #include "tachyon/zk/plonk/circuit/column_type.h"
@@ -93,6 +95,9 @@ class Column {
   }
 
  private:
+  template <typename H>
+  friend H AbslHashValue(H h, const Column<C>& column);
+
   template <ColumnType C2>
   friend class Column;
 
@@ -104,6 +109,11 @@ using AnyColumn = Column<ColumnType::kAny>;
 using FixedColumn = Column<ColumnType::kFixed>;
 using AdviceColumn = Column<ColumnType::kAdvice>;
 using InstanceColumn = Column<ColumnType::kInstance>;
+
+template <typename H, ColumnType C>
+H AbslHashValue(H h, const Column<C>& column) {
+  return H::combine(std::move(h), column.type_, column.index_);
+}
 
 }  // namespace tachyon::zk
 

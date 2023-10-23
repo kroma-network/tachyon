@@ -10,7 +10,9 @@
 #include <stddef.h>
 
 #include <string>
+#include <utility>
 
+#include "absl/hash/hash.h"
 #include "absl/strings/substitute.h"
 
 #include "tachyon/export.h"
@@ -30,12 +32,20 @@ class TACHYON_EXPORT Selector {
   }
 
  private:
+  template <typename H>
+  friend H AbslHashValue(H h, const Selector& selector);
+
   Selector(size_t index, bool is_simple)
       : index_(index), is_simple_(is_simple) {}
 
   size_t index_ = 0;
   bool is_simple_ = false;
 };
+
+template <typename H>
+H AbslHashValue(H h, const Selector& selector) {
+  return H::combine(std::move(h), selector.index_, selector.is_simple_);
+}
 
 }  // namespace tachyon::zk
 
