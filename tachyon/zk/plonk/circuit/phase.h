@@ -20,8 +20,8 @@ namespace tachyon::zk {
 // bits per instance. Prefer to pass them by value.
 class TACHYON_EXPORT Phase {
  public:
-  Phase() = default;
-  explicit Phase(uint8_t value) : value_(value) {}
+  constexpr Phase() = default;
+  constexpr explicit Phase(uint8_t value) : value_(value) {}
 
   bool Prev(Phase* prev) const {
     if (value_ == 0) return false;
@@ -36,6 +36,9 @@ class TACHYON_EXPORT Phase {
  private:
   uint8_t value_ = 0;
 };
+
+constexpr static Phase kFirstPhase = Phase(0);
+constexpr static Phase kSecondPhase = Phase(1);
 
 }  // namespace tachyon::zk
 
