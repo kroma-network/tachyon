@@ -3,6 +3,25 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "assigned_cell",
+    hdrs = ["assigned_cell.h"],
+    deps = [
+        ":cell",
+        "//tachyon/zk:value",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cell",
+    hdrs = ["cell.h"],
+    deps = [
+        ":column",
+        "//tachyon:export",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
     name = "challenge",
     hdrs = ["challenge.h"],
     deps = [
