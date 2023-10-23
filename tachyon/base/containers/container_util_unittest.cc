@@ -45,4 +45,16 @@ TEST(ContainerUtilTest, Map) {
               testing::ContainerEq(std::vector<double>{2.0, 4.0, 6.0}));
 }
 
+TEST(ContainerUtilTest, FlatMap) {
+  std::vector<int> arr({1, 2});
+  arr = base::FlatMap(arr, [](int value) {
+    return std::vector<int>({
+        value,
+        value + 1,
+        value + 2,
+    });
+  });
+  EXPECT_THAT(arr, testing::ContainerEq(std::vector<int>{1, 2, 3, 2, 3, 4}));
+}
+
 }  // namespace tachyon::base
