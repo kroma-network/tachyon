@@ -148,6 +148,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "table_column",
+    hdrs = ["table_column.h"],
+    deps = [
+        ":column",
+        "//tachyon:export",
+    ],
+)
+
+tachyon_cc_library(
     name = "virtual_cell",
     hdrs = ["virtual_cell.h"],
     deps = [
