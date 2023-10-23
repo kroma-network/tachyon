@@ -12,6 +12,19 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "assignment",
+    hdrs = ["assignment.h"],
+    deps = [
+        ":challenge",
+        ":column",
+        ":selector",
+        "//tachyon/base/functional:callback",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
     name = "cell",
     hdrs = ["cell.h"],
     deps = [
