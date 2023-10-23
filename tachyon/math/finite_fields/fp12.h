@@ -6,6 +6,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_FP12_H_
 #define TACHYON_MATH_FINITE_FIELDS_FP12_H_
 
+#include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
 
 namespace tachyon::math {
@@ -15,6 +16,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
  public:
   using BaseField = typename Config::BaseField;
   using BasePrimeField = typename Config::BasePrimeField;
+  using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
   using CpuField = Fp12<Config>;
   // TODO(chokobole): Implements Fp12Gpu
@@ -27,7 +29,106 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 12;
 
-  static void Init() { Config::Init(); }
+  static void Init() {
+    using BaseFieldConfig = typename BaseField::Config;
+    // x⁶ = q = BaseFieldConfig::kNonResidue
+
+    Config::Init();
+
+    // αᴾ = (α₀ + α₁x)ᴾ
+    //    = α₀ᴾ + α₁ᴾxᴾ
+    //    = α₀ᴾ + α₁ᴾxᴾ⁻¹x
+    //    = α₀ᴾ + α₁ᴾ(x⁶)^((P - 1) / 6) * x
+    //    = α₀ᴾ + α₁ᴾωx, where ω is a sextic root of unity.
+
+    constexpr uint64_t N = BasePrimeField::kLimbNums;
+    // m₁ = P
+    mpz_class m1;
+    gmp::WriteLimbs(BasePrimeField::Config::kModulus.limbs, N, &m1);
+
+#define SET_M(d, d_prev) mpz_class m##d = m##d_prev * m1
+
+    // m₂ = m₁ * P = P²
+    SET_M(2, 1);
+    // m₃ = m₂ * P = P³
+    SET_M(3, 2);
+    // m₄ = m₃ * P = P⁴
+    SET_M(4, 3);
+    // m₅ = m₄ * P = P⁵
+    SET_M(5, 4);
+    // m₆ = m₅ * P = P⁶
+    SET_M(6, 5);
+    // m₇ = m₆ * P = P⁷
+    SET_M(7, 6);
+    // m₈ = m₇ * P = P⁸
+    SET_M(8, 7);
+    // m₉ = m₈ * P = P⁹
+    SET_M(9, 8);
+    // m₁₀ = m₉ * P = P¹⁰
+    SET_M(10, 9);
+    // m₁₁ = m₁₀ * P = P¹¹
+    SET_M(11, 10);
+
+#undef SET_M
+
+#define SET_EXP_GMP(d) mpz_class exp##d##_gmp = (m##d - 1) / mpz_class(6)
+
+    // exp₁ = (m₁ - 1) / 6 = (P¹ - 1) / 6
+    SET_EXP_GMP(1);
+    // exp₂ = (m₂ - 1) / 6 = (P² - 1) / 6
+    SET_EXP_GMP(2);
+    // exp₃ = (m₃ - 1) / 6 = (P³ - 1) / 6
+    SET_EXP_GMP(3);
+    // exp₄ = (m₄ - 1) / 6 = (P⁴ - 1) / 6
+    SET_EXP_GMP(4);
+    // exp₅ = (m₅ - 1) / 6 = (P⁵ - 1) / 6
+    SET_EXP_GMP(5);
+    // exp₆ = (m₅ - 1) / 6 = (P⁶ - 1) / 6
+    SET_EXP_GMP(6);
+    // exp₇ = (m₆ - 1) / 6 = (P⁷ - 1) / 6
+    SET_EXP_GMP(7);
+    // exp₈ = (m₇ - 1) / 6 = (P⁸ - 1) / 6
+    SET_EXP_GMP(8);
+    // exp₉ = (m₈ - 1) / 6 = (P⁹ - 1) / 6
+    SET_EXP_GMP(9);
+    // exp₁₀ = (m₉ - 1) / 6 = (P¹⁰ - 1) / 6
+    SET_EXP_GMP(10);
+    // exp₁₁ = (m₁₀ - 1) / 6 = (P¹¹ - 1) / 6
+    SET_EXP_GMP(11);
+
+#undef SET_EXP_GMP
+
+    // kFrobeniusCoeffs[0] = q^((P⁰ - 1) / 6)
+    Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
+#define SET_FROBENIUS_COEFF(d)                \
+  BigInt<d * N> exp##d;                       \
+  gmp::CopyLimbs(exp##d##_gmp, exp##d.limbs); \
+  Config::kFrobeniusCoeffs[d] = BaseFieldConfig::kNonResidue.Pow(exp##d)
+    // kFrobeniusCoeffs[1] = q^(exp₁) = q^((P¹ - 1) / 6)
+    SET_FROBENIUS_COEFF(1);
+    // kFrobeniusCoeffs[2] = q^(exp₂) = q^((P² - 1) / 6)
+    SET_FROBENIUS_COEFF(2);
+    // kFrobeniusCoeffs[3] = q^(exp₃) = q^((P³ - 1) / 6)
+    SET_FROBENIUS_COEFF(3);
+    // kFrobeniusCoeffs[4] = q^(exp₄) = q^((P⁴ - 1) / 6)
+    SET_FROBENIUS_COEFF(4);
+    // kFrobeniusCoeffs[5] = q^(exp₅) = q^((P⁵ - 1) / 6)
+    SET_FROBENIUS_COEFF(5);
+    // kFrobeniusCoeffs[6] = q^(exp₆) = q^((P⁶ - 1) / 6)
+    SET_FROBENIUS_COEFF(6);
+    // kFrobeniusCoeffs[7] = q^(exp₇) = q^((P⁷ - 1) / 6)
+    SET_FROBENIUS_COEFF(7);
+    // kFrobeniusCoeffs[8] = q^(exp₈) = q^((P⁸ - 1) / 6)
+    SET_FROBENIUS_COEFF(8);
+    // kFrobeniusCoeffs[9] = q^(exp₉) = q^((P⁹ - 1) / 6)
+    SET_FROBENIUS_COEFF(9);
+    // kFrobeniusCoeffs[10] = q^(exp₁₀) = q^((P¹⁰ - 1) / 6)
+    SET_FROBENIUS_COEFF(10);
+    // kFrobeniusCoeffs[11] = q^(exp₁₁) = q^((P¹¹ - 1) / 6)
+    SET_FROBENIUS_COEFF(11);
+
+#undef SET_FROBENIUS_COEFF
+  }
 
   // CyclotomicMultiplicativeSubgroup methods
   Fp12& FastCyclotomicSquareInPlace() {

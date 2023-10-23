@@ -15,6 +15,7 @@ class Fp2 final : public QuadraticExtensionField<Fp2<Config>> {
  public:
   using BaseField = typename Config::BaseField;
   using BasePrimeField = typename Config::BasePrimeField;
+  using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
   using CpuField = Fp2<Config>;
   // TODO(chokobole): Implements Fp2Gpu
@@ -27,7 +28,19 @@ class Fp2 final : public QuadraticExtensionField<Fp2<Config>> {
 
   constexpr static uint64_t kDegreeOverBasePrimeField = 2;
 
-  static void Init() { Config::Init(); }
+  static void Init() {
+    Config::Init();
+
+    // αᴾ = (α₀ + α₁x)ᴾ
+    //    = α₀ᴾ + α₁ᴾxᴾ
+    //    = α₀ + α₁xᴾ <- Fermat's little theorem
+    //    = α₀ + α₁xᴾ⁻¹x
+    //    = α₀ + α₁(x²)^((P - 1) / 2) * x
+    //    = α₀ - α₁x <- Euler's Criterion
+
+    Config::kFrobeniusCoeffs[0] = FrobeniusCoefficient::One();
+    Config::kFrobeniusCoeffs[1] = -FrobeniusCoefficient::One();
+  }
 };
 
 }  // namespace tachyon::math

@@ -58,6 +58,22 @@ class QuadraticExtensionField
     return *static_cast<Derived*>(this);
   }
 
+  // Norm of QuadraticExtensionField over |BaseField|:
+  // |a.Norm() = a * a.Conjugate()|.
+  // This simplifies to: |a.Norm() = a.c0² - Config::kNonResidue * a.c1²|.
+  // This is alternatively expressed as |a.Norm() = aᵖ⁺¹|.
+  constexpr BaseField Norm() const {
+    return c0_.Square() - Config::MulByNonResidue(c1_.Square());
+  }
+
+  constexpr Derived& FrobeniusMapInPlace(uint64_t exponent) {
+    c0_.FrobeniusMapInPlace(exponent);
+    c1_.FrobeniusMapInPlace(exponent);
+    c1_ *=
+        Config::kFrobeniusCoeffs[exponent % Config::kDegreeOverBasePrimeField];
+    return *static_cast<Derived*>(this);
+  }
+
   constexpr MontgomeryTy ToMontgomery() const {
     return {c0_.ToMontgomery(), c1_.ToMontgomery()};
   }

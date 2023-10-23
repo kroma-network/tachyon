@@ -60,6 +60,40 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return 3 * BaseField::ExtensionDegree();
   }
 
+  // Calculate the norm of an element with respect to the base field
+  // |BaseField|. The norm maps an element |a| in the extension field
+  // Fqᵐ to an element in the |BaseField| Fq.
+  // |a.Norm() = a * a^q * a^q²|
+  constexpr BaseField Norm() const {
+    // w.r.t to |BaseField|, we need the 0th, 1st & 2nd powers of q
+    // Since Frobenius coefficients on the towered extensions are
+    // indexed w.r.t. to |BasePrimeField|, we need to calculate the correct
+    // index.
+    //  NOTE(chokobole): This assumes that |BaseField::ExtensionDegree()|
+    // never overflows even on 32 bit machine.
+    size_t index_multiplier = size_t{BaseField::ExtensionDegree()};
+    CubicExtensionField self_to_p = *this;
+    self_to_p.FrobeniusMapInPlace(index_multiplier);
+    CubicExtensionField self_to_p2 = *this;
+    self_to_p2.FrobeniusMapInPlace(2 * index_multiplier);
+    self_to_p *= (self_to_p2 * (*this));
+    // NOTE(chokobole): below CHECK() is not a device code.
+    // See https://github.com/kroma-network/tachyon/issues/76
+    CHECK(!(self_to_p.c1().IsZero() && self_to_p.c2().IsZero()));
+    return self_to_p.c0();
+  }
+
+  constexpr Derived& FrobeniusMapInPlace(uint64_t exponent) {
+    c0_.FrobeniusMapInPlace(exponent);
+    c1_.FrobeniusMapInPlace(exponent);
+    c2_.FrobeniusMapInPlace(exponent);
+    c1_ *=
+        Config::kFrobeniusCoeffs[exponent % Config::kDegreeOverBasePrimeField];
+    c2_ *=
+        Config::kFrobeniusCoeffs2[exponent % Config::kDegreeOverBasePrimeField];
+    return *static_cast<Derived*>(this);
+  }
+
   constexpr MontgomeryTy ToMontgomery() const {
     return {c0_.ToMontgomery(), c1_.ToMontgomery(), c2_.ToMontgomery()};
   }

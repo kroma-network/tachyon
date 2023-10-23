@@ -125,6 +125,11 @@ class PrimeFieldBase : public FiniteField<F> {
       return LegendreSymbol::kOne;
     return LegendreSymbol::kMinusOne;
   }
+
+  constexpr F& FrobeniusMapInPlace(uint64_t exponent) {
+    // Do nothing.
+    return static_cast<F&>(*this);
+  }
 };
 
 }  // namespace math

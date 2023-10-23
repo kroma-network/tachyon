@@ -66,13 +66,19 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "fp3",
     hdrs = ["fp3.h"],
-    deps = [":cubic_extension_field"],
+    deps = [
+        ":cubic_extension_field",
+        "//tachyon/math/base/gmp:gmp_util",
+    ],
 )
 
 tachyon_cc_library(
     name = "fp4",
     hdrs = ["fp4.h"],
-    deps = [":quadratic_extension_field"],
+    deps = [
+        ":quadratic_extension_field",
+        "//tachyon/math/base/gmp:gmp_util",
+    ],
 )
 
 tachyon_cc_library(
@@ -81,13 +87,17 @@ tachyon_cc_library(
     deps = [
         ":cubic_extension_field",
         ":quadratic_extension_field",
+        "//tachyon/math/base/gmp:gmp_util",
     ],
 )
 
 tachyon_cc_library(
     name = "fp12",
     hdrs = ["fp12.h"],
-    deps = [":quadratic_extension_field"],
+    deps = [
+        ":quadratic_extension_field",
+        "//tachyon/math/base/gmp:gmp_util",
+    ],
 )
 
 tachyon_cc_library(

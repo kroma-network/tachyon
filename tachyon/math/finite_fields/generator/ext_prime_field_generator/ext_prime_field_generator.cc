@@ -36,9 +36,12 @@ int GenerationConfig::GenerateConfigHdr() const {
       " public:",
       "  using BaseField = _BaseField;",
       "  using BasePrimeField = %{base_prime_field};",
+      "  using FrobeniusCoefficient = %{frobenius_coefficient};",
       "",
       "  // NOTE(chokobole): This can't be constexpr because of PrimeFieldGmp support.",
       "  static BaseField kNonResidue;",
+      "  static FrobeniusCoefficient kFrobeniusCoeffs[%{frob_coeffs_size}];",
+      "  static FrobeniusCoefficient kFrobeniusCoeffs2[%{frob_coeffs_size}];",
       "",
       "  constexpr static bool kNonResidueIsMinusOne = %{non_residue_is_minus_one};",
       "  constexpr static uint64_t kDegreeOverBaseField = %{degree_over_base_field};",
@@ -55,6 +58,10 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "template <typename BaseField>",
       "BaseField %{class}Config<BaseField>::kNonResidue;",
+      "template <typename BaseField>",
+      "typename %{class}Config<BaseField>::FrobeniusCoefficient %{class}Config<BaseField>::kFrobeniusCoeffs[%{frob_coeffs_size}];",
+      "template <typename BaseField>",
+      "typename %{class}Config<BaseField>::FrobeniusCoefficient %{class}Config<BaseField>::kFrobeniusCoeffs2[%{frob_coeffs_size}];",
       "",
       "using %{class} = Fp%{degree}<%{class}Config<%{base_field}>>;",
       "#if defined(TACHYON_GMP_BACKEND)",
@@ -63,10 +70,30 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "}  // namespace %{namespace}",
   };
-  // clang-format on
-  std::string tpl_content = absl::StrJoin(tpl, "\n");
 
   int degree_over_base_field = degree / base_field_degree;
+
+  if (degree_over_base_field != 3) {
+    for (size_t j = 0; j < tpl.size(); ++j) {
+      size_t idx = tpl[j].find("kFrobeniusCoeffs2");
+      if (idx != std::string::npos) {
+        auto it = tpl.begin() + j;
+        tpl.erase(it);
+        break;
+      }
+    }
+    for (size_t j = 0; j < tpl.size(); ++j) {
+      size_t idx = tpl[j].find("kFrobeniusCoeffs2");
+      if (idx != std::string::npos) {
+        auto it = tpl.begin() + j - 1;
+        tpl.erase(it, it + 2);
+        break;
+      }
+    }
+  }
+
+  // clang-format on
+  std::string tpl_content = absl::StrJoin(tpl, "\n");
 
   bool non_residue_is_minus_one = false;
   bool mul_by_non_residue_fast = false;
@@ -103,24 +130,39 @@ int GenerationConfig::GenerateConfigHdr() const {
     mul_by_non_residue = "    return v * kNonResidue;";
   }
 
-  std::string content = absl::StrReplaceAll(
-      tpl_content,
-      {
-          {"%{namespace}", ns_name},
-          {"%{class}", class_name},
-          {"%{degree}", base::NumberToString(degree)},
-          {"%{degree_over_base_field}",
-           base::NumberToString(degree_over_base_field)},
-          {"%{base_field_hdr}", base_field_hdr},
-          {"%{base_field}", base_field},
-          {"%{base_prime_field}", degree == degree_over_base_field
-                                      ? "BaseField"
-                                      : "typename BaseField::BasePrimeField"},
-          {"%{non_residue_is_minus_one}",
-           base::BoolToString(non_residue_is_minus_one)},
-          {"%{mul_by_non_residue}", mul_by_non_residue},
-          {"%{init}", init},
-      });
+  std::string frobenius_coefficient;
+  if (degree == 4 || (degree == 6 && base_field_degree == 3) || degree == 12) {
+    // See fp4.h, fp6.h and fp12.h for details.
+    frobenius_coefficient = "typename BaseField::BaseField";
+  } else {
+    // See fp2.h, fp3.h and fp6.h for details.
+    frobenius_coefficient = "BaseField";
+  }
+
+  std::map<std::string, std::string> replacements = {{
+      {"%{namespace}", ns_name},
+      {"%{class}", class_name},
+      {"%{degree}", base::NumberToString(degree)},
+      {"%{degree_over_base_field}",
+       base::NumberToString(degree_over_base_field)},
+      {"%{base_field_hdr}", base_field_hdr},
+      {"%{base_field}", base_field},
+      {"%{base_prime_field}", degree == degree_over_base_field
+                                  ? "BaseField"
+                                  : "typename BaseField::BasePrimeField"},
+      {"%{non_residue_is_minus_one}",
+       base::BoolToString(non_residue_is_minus_one)},
+      {"%{mul_by_non_residue}", mul_by_non_residue},
+      {"%{init}", init},
+      {"%{frobenius_coefficient}", frobenius_coefficient},
+      {"%{frob_coeffs_size}", base::NumberToString(degree)},
+  }};
+
+  if (degree_over_base_field == 3) {
+    replacements["%{frob_coeffs2_size}"] = base::NumberToString(degree);
+  }
+
+  std::string content = absl::StrReplaceAll(tpl_content, replacements);
   return WriteHdr(content, false);
 }
 
