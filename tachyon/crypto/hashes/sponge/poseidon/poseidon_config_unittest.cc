@@ -12,18 +12,16 @@
 namespace tachyon::crypto {
 
 namespace {
-template <typename PrimeFieldType>
-class PoseidonUtilTest : public testing::Test {
+
+class PoseidonConfigTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { PrimeFieldType::Init(); }
+  static void SetUpTestSuite() { math::bls12_381::Fr::Init(); }
 };
+
 }  // namespace
 
-using PrimeFieldTypes = testing::Types<math::bls12_381::Fr>;
-TYPED_TEST_SUITE(PoseidonUtilTest, PrimeFieldTypes);
-
-TYPED_TEST(PoseidonUtilTest, PoseidonConfig_CreateDefault) {
-  using F = TypeParam;
+TEST_F(PoseidonConfigTest, CreateDefault) {
+  using F = math::bls12_381::Fr;
 
   // clang-format off
   struct {
@@ -53,10 +51,8 @@ TYPED_TEST(PoseidonUtilTest, PoseidonConfig_CreateDefault) {
     PoseidonConfig<F> config =
         PoseidonConfig<F>::CreateDefault(test.rate, test.optimized_for_weights);
     ASSERT_TRUE(config.IsValid());
-    EXPECT_EQ(config.ark(0, 0),
-              math::bls12_381::Fr::FromDecString(test.ark00_str));
-    EXPECT_EQ(config.mds(0, 0),
-              math::bls12_381::Fr::FromDecString(test.mds00_str));
+    EXPECT_EQ(config.ark(0, 0), F::FromDecString(test.ark00_str));
+    EXPECT_EQ(config.mds(0, 0), F::FromDecString(test.mds00_str));
   }
 }
 
