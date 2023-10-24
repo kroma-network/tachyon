@@ -72,7 +72,7 @@ class Expression {
   virtual std::string ToString() const = 0;
 
   template <typename EvaluatedTy>
-  EvaluatedTy Evaluate(const Evaluator<F, EvaluatedTy>* evaluator) {
+  EvaluatedTy Evaluate(const Evaluator<F, EvaluatedTy>* evaluator) const {
     return evaluator->Evaluate(this);
   }
 
