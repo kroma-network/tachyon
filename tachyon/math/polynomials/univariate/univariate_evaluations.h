@@ -12,13 +12,15 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/polynomial.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 namespace internal {
 
 template <typename F, size_t MaxDegree>
@@ -166,7 +168,34 @@ class PolynomialTraits<UnivariateEvaluations<F, MaxDegree>> {
   constexpr static bool kIsEvaluationForm = true;
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename F, size_t MaxDegree>
+class Copyable<math::UnivariateEvaluations<F, MaxDegree>> {
+ public:
+  static bool WriteTo(const math::UnivariateEvaluations<F, MaxDegree>& evals,
+                      Buffer* buffer) {
+    return buffer->Write(evals.evaluations());
+  }
+
+  static bool ReadFrom(const Buffer& buffer,
+                       math::UnivariateEvaluations<F, MaxDegree>* evals) {
+    std::vector<F> evals_vec;
+    if (!buffer.Read(&evals_vec)) return false;
+    *evals = math::UnivariateEvaluations<F, MaxDegree>(evals_vec);
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const math::UnivariateEvaluations<F, MaxDegree>& evals) {
+    return base::EstimateSize(evals.evaluations());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #include "tachyon/math/polynomials/univariate/univariate_evaluations_ops.h"
 

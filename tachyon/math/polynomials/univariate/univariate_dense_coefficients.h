@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
@@ -22,7 +23,8 @@
 #include "tachyon/math/polynomials/univariate/support_poly_operators.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 template <typename F, size_t MaxDegree>
 class UnivariateSparseCoefficients;
@@ -143,6 +145,7 @@ class UnivariateDenseCoefficients {
       UnivariateSparseCoefficients<F, MaxDegree>>;
   friend class Radix2EvaluationDomain<F, MaxDegree>;
   friend class MixedRadixEvaluationDomain<F, MaxDegree>;
+  friend class base::Copyable<UnivariateDenseCoefficients<F, MaxDegree>>;
 
   constexpr F DoEvaluate(const F& point) const {
 #if defined(TACHYON_HAS_OPENMP)
@@ -200,6 +203,36 @@ class UnivariateDenseCoefficients {
   std::vector<F> coefficients_;
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename F, size_t MaxDegree>
+class Copyable<math::UnivariateDenseCoefficients<F, MaxDegree>> {
+ public:
+  static bool WriteTo(
+      const math::UnivariateDenseCoefficients<F, MaxDegree>& coeffs,
+      Buffer* buffer) {
+    return buffer->Write(coeffs.coefficients_);
+  }
+
+  static bool ReadFrom(
+      const Buffer& buffer,
+      math::UnivariateDenseCoefficients<F, MaxDegree>* coeffs) {
+    std::vector<F> raw_coeff;
+    if (!buffer.Read(&raw_coeff)) return false;
+    *coeffs =
+        math::UnivariateDenseCoefficients<F, MaxDegree>(std::move(raw_coeff));
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const math::UnivariateDenseCoefficients<F, MaxDegree>& coeffs) {
+    return base::EstimateSize(coeffs.coefficients_);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_DENSE_COEFFICIENTS_H_
