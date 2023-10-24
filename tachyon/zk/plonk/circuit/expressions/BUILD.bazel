@@ -124,6 +124,7 @@ tachyon_cc_library(
         ":scaled_expression",
         ":selector_expression",
         ":sum_expression",
+        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_selector_finder",
     ],
 )
 

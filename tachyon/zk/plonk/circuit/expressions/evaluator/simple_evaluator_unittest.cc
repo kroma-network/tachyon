@@ -2,59 +2,26 @@
 
 #include <memory>
 
-#include "gtest/gtest.h"
-
-#include "tachyon/math/finite_fields/test/gf7.h"
-#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
+#include "tachyon/zk/plonk/circuit/expressions/evaluator/test/evaluator_test.h"
 #include "tachyon/zk/plonk/circuit/expressions/expression_factory.h"
 
 namespace tachyon::zk {
 
 namespace {
 
-const size_t kMaxDegree = 5;
-
-using GF7 = math::GF7;
 using Expr = std::unique_ptr<Expression<GF7>>;
-using Poly = math::UnivariateDensePolynomial<GF7, kMaxDegree>;
-using Coeffs = math::UnivariateDenseCoefficients<GF7, kMaxDegree>;
 
-class SimpleEvaluatorTest : public testing::Test {
+class SimpleEvaluatorTest : public EvaluatorTest {
  public:
-  static void SetUpTestSuite() { math::GF7Config::Init(); }
-
   SimpleEvaluatorTest() {
-    fixed_polys_.push_back(Poly(Coeffs({GF7(3)})));
-    fixed_polys_.push_back(Poly(Coeffs({GF7(2), GF7(4)})));
-
-    advice_polys_.push_back(Poly(Coeffs({GF7(1)})));
-    advice_polys_.push_back(Poly(Coeffs({GF7(2), GF7(3)})));
-    advice_polys_.push_back(Poly(Coeffs({GF7(4), GF7(5)})));
-    advice_polys_.push_back(Poly(Coeffs({GF7(6), GF7(1), GF7(2)})));
-
-    instance_polys_.push_back(Poly(Coeffs({GF7(1)})));
-    instance_polys_.push_back(Poly(Coeffs({GF7(4), GF7(1)})));
-    instance_polys_.push_back(Poly(Coeffs({GF7(2), GF7(3)})));
-    instance_polys_.push_back(Poly(Coeffs({GF7(5), GF7(6)})));
-
-    challenges_.push_back(GF7(1));
-    challenges_.push_back(GF7(3));
-    challenges_.push_back(GF7(4));
-    challenges_.push_back(GF7(5));
-
-    simple_evaluator_ = std::unique_ptr<SimpleEvaluator<Poly>>(
-        new SimpleEvaluator<Poly>(3, 4, 1, &fixed_polys_, &advice_polys_,
-                                  &instance_polys_, &challenges_));
+    simple_evaluator_ = std::make_unique<SimpleEvaluator<Poly>>(
+        3, 4, 1, &fixed_polys_, &advice_polys_, &instance_polys_, &challenges_);
   }
   SimpleEvaluatorTest(const SimpleEvaluatorTest&) = delete;
   SimpleEvaluatorTest& operator=(const SimpleEvaluatorTest&) = delete;
   ~SimpleEvaluatorTest() override = default;
 
  protected:
-  std::vector<Poly> fixed_polys_;
-  std::vector<Poly> advice_polys_;
-  std::vector<Poly> instance_polys_;
-  std::vector<GF7> challenges_;
   std::unique_ptr<SimpleEvaluator<Poly>> simple_evaluator_;
 };
 
@@ -62,10 +29,14 @@ class SimpleEvaluatorTest : public testing::Test {
 
 TEST_F(SimpleEvaluatorTest, Constant) {
   GF7 value = GF7::Random();
-  std::unique_ptr<Expression<GF7>> constant_expr =
-      ExpressionFactory<GF7>::Constant(value);
-  GF7 evaluated = simple_evaluator_->Evaluate(constant_expr.get());
+  Expr expr = ExpressionFactory<GF7>::Constant(value);
+  GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(value, evaluated);
+}
+
+TEST_F(SimpleEvaluatorTest, Selector) {
+  Expr expr = ExpressionFactory<GF7>::Selector(Selector::Simple(1));
+  EXPECT_DEATH(simple_evaluator_->Evaluate(expr.get()), "");
 }
 
 TEST_F(SimpleEvaluatorTest, Fixed) {
@@ -157,38 +128,38 @@ TEST_F(SimpleEvaluatorTest, Challenges) {
 
 TEST_F(SimpleEvaluatorTest, Negated) {
   GF7 value = GF7::Random();
-  Expr negated_expression =
+  Expr expr =
       ExpressionFactory<GF7>::Negated(ExpressionFactory<GF7>::Constant(value));
-  GF7 negated = simple_evaluator_->Evaluate(negated_expression.get());
+  GF7 negated = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(negated, -value);
 }
 
 TEST_F(SimpleEvaluatorTest, Sum) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
-  Expr sum_expression =
+  Expr expr =
       ExpressionFactory<GF7>::Sum({ExpressionFactory<GF7>::Constant(a),
                                    ExpressionFactory<GF7>::Constant(b)});
-  GF7 evaluated = simple_evaluator_->Evaluate(sum_expression.get());
+  GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(a + b, evaluated);
 }
 
 TEST_F(SimpleEvaluatorTest, Product) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
-  Expr product_expression =
+  Expr expr =
       ExpressionFactory<GF7>::Product({ExpressionFactory<GF7>::Constant(a),
                                        ExpressionFactory<GF7>::Constant(b)});
-  GF7 evaluated = simple_evaluator_->Evaluate(product_expression.get());
+  GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(a * b, evaluated);
 }
 
 TEST_F(SimpleEvaluatorTest, Scaled) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
-  Expr scaled_expression =
+  Expr expr =
       ExpressionFactory<GF7>::Scaled({ExpressionFactory<GF7>::Constant(a), b});
-  GF7 scaled_expr = simple_evaluator_->Evaluate(scaled_expression.get());
+  GF7 scaled_expr = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(scaled_expr, a * b);
 }
 

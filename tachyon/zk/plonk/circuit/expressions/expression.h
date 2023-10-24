@@ -71,6 +71,9 @@ class Expression {
   virtual uint64_t Complexity() const = 0;
   virtual std::string ToString() const = 0;
 
+  // Returns whether or not this expression contains a simple |Selector|.
+  bool ContainsSimpleSelector() const;
+
   template <typename EvaluatedTy>
   EvaluatedTy Evaluate(const Evaluator<F, EvaluatedTy>* evaluator) const {
     return evaluator->Evaluate(this);
