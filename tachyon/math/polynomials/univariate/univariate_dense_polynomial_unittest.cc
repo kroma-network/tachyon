@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -272,6 +273,19 @@ TEST_F(UnivariateDensePolynomialTest, MultiplicativeOperators) {
       EXPECT_EQ(tmp, test.a);
     }
   }
+}
+
+TEST_F(UnivariateDensePolynomialTest, Copyable) {
+  Poly expected(Coeffs({GF7(1), GF7(4), GF7(3), GF7(5)}));
+  Poly value;
+
+  base::VectorBuffer buf;
+  buf.Write(expected);
+
+  buf.set_buffer_offset(0);
+  buf.Read(&value);
+
+  EXPECT_EQ(expected, value);
 }
 
 }  // namespace tachyon::math

@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
@@ -180,6 +181,19 @@ TEST_F(UnivariateEvaluationsTest, MultiplicativeOperators) {
       EXPECT_EQ(tmp, test.adb);
     }
   }
+}
+
+TEST_F(UnivariateEvaluationsTest, Copyable) {
+  Poly expected({GF7(4), GF7(4), GF7(0), GF7(5), GF7(5)});
+  Poly value;
+
+  base::VectorBuffer buf;
+  buf.Write(expected);
+
+  buf.set_buffer_offset(0);
+  buf.Read(&value);
+
+  EXPECT_EQ(expected, value);
 }
 
 }  // namespace tachyon::math

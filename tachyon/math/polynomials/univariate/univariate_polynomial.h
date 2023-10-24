@@ -12,13 +12,15 @@
 #include <type_traits>
 #include <utility>
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/polynomials/polynomial.h"
 #include "tachyon/math/polynomials/univariate/univariate_dense_coefficients.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_sparse_coefficients.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 // UnivariatePolynomial represents a polynomial with a single variable.
 // For example, 3x² + 2x + 1 is a univariate polynomial, while 3x²y + 2yz + 1 is
@@ -204,7 +206,34 @@ class PolynomialTraits<UnivariatePolynomial<Coefficients>> {
   constexpr static bool kIsCoefficientForm = true;
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename Coefficients>
+class Copyable<math::UnivariatePolynomial<Coefficients>> {
+ public:
+  static bool WriteTo(const math::UnivariatePolynomial<Coefficients>& poly,
+                      Buffer* buffer) {
+    return buffer->Write(poly.coefficients());
+  }
+
+  static bool ReadFrom(const Buffer& buffer,
+                       math::UnivariatePolynomial<Coefficients>* poly) {
+    Coefficients coeff;
+    if (!buffer.Read(&coeff)) return false;
+    *poly = math::UnivariatePolynomial<Coefficients>(coeff);
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const math::UnivariatePolynomial<Coefficients>& poly) {
+    return base::EstimateSize(poly.coefficients());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #include "tachyon/math/polynomials/univariate/univariate_polynomial_ops.h"
 

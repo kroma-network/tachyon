@@ -17,41 +17,47 @@
 #include "absl/numeric/internal/bits.h"
 #include "absl/types/span.h"
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/univariate/support_poly_operators.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 template <typename F, size_t MaxDegree>
 class UnivariateDenseCoefficients;
 
-// SparseCoefficients class provides a representation for polynomials where
-// only non-zero coefficients are stored. This is efficient for polynomials
-// where most of the degrees have zero coefficients.
+template <typename F>
+struct UnivariateTerm {
+  size_t degree;
+  F coefficient;
+
+  UnivariateTerm operator-() const { return {degree, -coefficient}; }
+
+  bool operator<(const UnivariateTerm& other) const {
+    return degree < other.degree;
+  }
+  bool operator==(const UnivariateTerm& other) const {
+    return degree == other.degree && coefficient == other.coefficient;
+  }
+  bool operator!=(const UnivariateTerm& other) const {
+    return degree != other.degree || coefficient != other.coefficient;
+  }
+};
+
+// UnivariateSparseCoefficients class provides a representation for polynomials
+// where only non-zero coefficients are stored. This is efficient for
+// polynomials where most of the degrees have zero coefficients.
 template <typename F, size_t MaxDegree>
 class UnivariateSparseCoefficients {
  public:
   constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
-
-  struct Term {
-    size_t degree;
-    F coefficient;
-
-    Term operator-() const { return {degree, -coefficient}; }
-
-    bool operator<(const Term& other) const { return degree < other.degree; }
-    bool operator==(const Term& other) const {
-      return degree == other.degree && coefficient == other.coefficient;
-    }
-    bool operator!=(const Term& other) const {
-      return degree != other.degree || coefficient != other.coefficient;
-    }
-  };
+  using Term = UnivariateTerm<F>;
 
   constexpr UnivariateSparseCoefficients() = default;
   constexpr explicit UnivariateSparseCoefficients(
@@ -174,6 +180,7 @@ class UnivariateSparseCoefficients {
       UnivariateDenseCoefficients<F, MaxDegree>>;
   friend class internal::UnivariatePolynomialOp<
       UnivariateSparseCoefficients<F, MaxDegree>>;
+  friend class base::Copyable<UnivariateSparseCoefficients<F, MaxDegree>>;
 
   void RemoveHighDegreeZeros() {  // Fix to RemoveZeros
     while (!IsZero()) {
@@ -188,6 +195,57 @@ class UnivariateSparseCoefficients {
   std::vector<Term> terms_;
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename F>
+class Copyable<typename math::UnivariateTerm<F>> {
+ public:
+  using Term = math::UnivariateTerm<F>;
+  static bool WriteTo(const Term& term, Buffer* buffer) {
+    return buffer->WriteMany(term.degree, term.coefficient);
+  }
+
+  static bool ReadFrom(const Buffer& buffer, Term* term) {
+    size_t degree;
+    F coefficient;
+    if (!buffer.ReadMany(&degree, &coefficient)) return false;
+    *term = {degree, std::move(coefficient)};
+    return true;
+  }
+
+  static size_t EstimateSize(const Term& term) {
+    return base::EstimateSize(term.degree) +
+           base::EstimateSize(term.coefficient);
+  }
+};
+
+template <typename F, size_t MaxDegree>
+class Copyable<math::UnivariateSparseCoefficients<F, MaxDegree>> {
+ public:
+  static bool WriteTo(
+      const math::UnivariateSparseCoefficients<F, MaxDegree>& coeffs,
+      Buffer* buffer) {
+    return buffer->Write(coeffs.terms_);
+  }
+
+  static bool ReadFrom(
+      const Buffer& buffer,
+      math::UnivariateSparseCoefficients<F, MaxDegree>* coeffs) {
+    std::vector<math::UnivariateTerm<F>> terms;
+    if (!buffer.Read(&terms)) return false;
+    *coeffs = math::UnivariateSparseCoefficients<F, MaxDegree>(terms);
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const math::UnivariateSparseCoefficients<F, MaxDegree>& coeffs) {
+    return base::EstimateSize(coeffs.terms_);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_SPARSE_COEFFICIENTS_H_
