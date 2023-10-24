@@ -18,6 +18,7 @@ tachyon_cc_library(
     deps = [
         ":expression",
         "//tachyon/zk/plonk/circuit:challenge",
+        "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -27,6 +28,7 @@ tachyon_cc_library(
     hdrs = ["constant_expression.h"],
     deps = [
         ":expression",
+        "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -93,6 +95,7 @@ tachyon_cc_library(
     hdrs = ["negated_expression.h"],
     deps = [
         ":expression",
+        "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -102,6 +105,7 @@ tachyon_cc_library(
     hdrs = ["product_expression.h"],
     deps = [
         ":expression",
+        "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -111,6 +115,7 @@ tachyon_cc_library(
     hdrs = ["scaled_expression.h"],
     deps = [
         ":expression",
+        "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -121,6 +126,7 @@ tachyon_cc_library(
     deps = [
         ":expression",
         "//tachyon/zk/plonk/circuit:selector",
+        "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -130,6 +136,7 @@ tachyon_cc_library(
     hdrs = ["sum_expression.h"],
     deps = [
         ":expression",
+        "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
     ],
 )
