@@ -84,6 +84,34 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     return min_num_chunks_for_compaction_;
   }
 
+  // Computes the first |size| roots of unity for the entire domain.
+  // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it computes
+  // [1, g, g², ..., g^{(n / 2) - 1}]
+  constexpr std::vector<F> GetRootsOfUnity(size_t size, const F& root) const {
+#if defined(TACHYON_HAS_OPENMP)
+    uint32_t log_size = SafeLog2Ceiling(this->size_);
+    if (log_size <= kMinLogRootsOfUnitySizeForParallelization)
+#endif
+      return ComputePowersSerial(size, root);
+#if defined(TACHYON_HAS_OPENMP)
+    size_t required_log_size = size_t{SafeLog2Ceiling(size)};
+    F power = root;
+    // [g, g², g⁴, g⁸, ..., g^(2^(|required_log_size|))]
+    std::vector<F> log_powers =
+        base::CreateVector(required_log_size, [&power]() {
+          F old_value = power;
+          power.SquareInPlace();
+          return old_value;
+        });
+
+    // allocate the return array and start the recursion
+    std::vector<F> powers =
+        base::CreateVector(size_t{1} << required_log_size, F::Zero());
+    GetRootsOfUnityRecursive(powers, absl::MakeConstSpan(log_powers));
+    return powers;
+#endif
+  }
+
  private:
   template <typename T>
   FRIEND_TEST(UnivariateEvaluationDomainTest, RootsOfUnity);
@@ -241,34 +269,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
         }
       }
     }
-  }
-
-  // Computes the first |size| roots of unity for the entire domain.
-  // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it computes
-  // [1, g, g², ..., g^{(n / 2) - 1}]
-  constexpr std::vector<F> GetRootsOfUnity(size_t size, const F& root) const {
-#if defined(TACHYON_HAS_OPENMP)
-    uint32_t log_size = SafeLog2Ceiling(this->size_);
-    if (log_size <= kMinLogRootsOfUnitySizeForParallelization)
-#endif
-      return ComputePowersSerial(size, root);
-#if defined(TACHYON_HAS_OPENMP)
-    size_t required_log_size = size_t{SafeLog2Ceiling(size)};
-    F power = root;
-    // [g, g², g⁴, g⁸, ..., g^(2^(|required_log_size|))]
-    std::vector<F> log_powers =
-        base::CreateVector(required_log_size, [&power]() {
-          F old_value = power;
-          power.SquareInPlace();
-          return old_value;
-        });
-
-    // allocate the return array and start the recursion
-    std::vector<F> powers =
-        base::CreateVector(size_t{1} << required_log_size, F::Zero());
-    GetRootsOfUnityRecursive(powers, absl::MakeConstSpan(log_powers));
-    return powers;
-#endif
   }
 
 #if defined(TACHYON_HAS_OPENMP)
