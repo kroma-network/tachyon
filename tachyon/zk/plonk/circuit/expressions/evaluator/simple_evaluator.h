@@ -91,7 +91,7 @@ class SimpleEvaluator
         return *ret;
       }
       case ExpressionType::kChallenge:
-        return (*challenges_)[input->ToChallenge()->index()];
+        return (*challenges_)[input->ToChallenge()->challenge().index()];
 
       case ExpressionType::kNegated: {
         return -Evaluate(input->ToNegated()->expr());

@@ -27,8 +27,7 @@ class ChallengeExpression : public Expression<F> {
     return absl::WrapUnique(new ChallengeExpression(challenge));
   }
 
-  size_t index() const { return challenge_.index(); }
-  Phase phase() const { return challenge_.phase(); }
+  const Challenge& challenge() const { return challenge_; }
 
   // Expression methods
   size_t Degree() const override { return 0; }
