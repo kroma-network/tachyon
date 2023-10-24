@@ -112,6 +112,7 @@ TEST_F(UnivariateSparsePolynomialTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
+  EXPECT_LE(Poly::Random(kMaxDegree).Degree(), kMaxDegree);
 }
 
 TEST_F(UnivariateSparsePolynomialTest, Evaluate) {

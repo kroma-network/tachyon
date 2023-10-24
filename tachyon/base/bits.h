@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <algorithm>
 #include <type_traits>
 
 #include "tachyon/base/compiler_specific.h"
@@ -130,6 +131,15 @@ Log2Ceiling(T n) {
   // When n == 0, (n - 1) will underflow to 0xFFFFFFFF, which is
   // why the statement below starts with (n ? 32 : -1).
   return (n ? bits : -1) - CountLeadingZeroBits(n - 1);
+}
+
+// NOTE(TomTaehoonKim): |base::bits::Log2Ceiling(n)| returns -1 on |n|
+// is 0. This ensures that it returns non negative value even in that case.
+template <typename T, int bits = sizeof(T) * 8>
+constexpr typename std::enable_if<std::is_unsigned<T>::value && sizeof(T) <= 8,
+                                  uint32_t>::type
+SafeLog2Ceiling(T n) {
+  return static_cast<uint32_t>(std::max(base::bits::Log2Ceiling(n), 0));
 }
 
 // Returns a value of type T with a single bit set in the left-most position.

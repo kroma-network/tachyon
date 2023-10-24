@@ -65,7 +65,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
   static std::unique_ptr<Radix2EvaluationDomain> Create(size_t num_coeffs) {
     return absl::WrapUnique(new Radix2EvaluationDomain(
-        absl::bit_ceil(num_coeffs), SafeLog2Ceiling(num_coeffs)));
+        absl::bit_ceil(num_coeffs), base::bits::SafeLog2Ceiling(num_coeffs)));
   }
 
   // libfqfft uses >
@@ -73,7 +73,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   // (See
   // https://github.com/arkworks-rs/algebra/blob/master/poly/src/domain/radix2/mod.rs#L62)
   constexpr static bool IsValidNumCoeffs(size_t num_coeffs) {
-    return SafeLog2Ceiling(num_coeffs) <= F::Config::kTwoAdicity;
+    return base::bits::SafeLog2Ceiling(num_coeffs) <= F::Config::kTwoAdicity;
   }
 
   void set_min_num_chunks_for_compaction(size_t min_num_chunks_for_compaction) {
@@ -89,12 +89,12 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   // [1, g, g², ..., g^{(n / 2) - 1}]
   constexpr std::vector<F> GetRootsOfUnity(size_t size, const F& root) const {
 #if defined(TACHYON_HAS_OPENMP)
-    uint32_t log_size = SafeLog2Ceiling(this->size_);
+    uint32_t log_size = base::bits::SafeLog2Ceiling(this->size_);
     if (log_size <= kMinLogRootsOfUnitySizeForParallelization)
 #endif
       return ComputePowersSerial(size, root);
 #if defined(TACHYON_HAS_OPENMP)
-    size_t required_log_size = size_t{SafeLog2Ceiling(size)};
+    size_t required_log_size = size_t{base::bits::SafeLog2Ceiling(size)};
     F power = root;
     // [g, g², g⁴, g⁸, ..., g^(2^(|required_log_size|))]
     std::vector<F> log_powers =
@@ -152,12 +152,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     return poly;
   }
 
-  // NOTE(TomTaehoonKim): |base::bits::Log2Ceiling(size)| returns -1 on |size|
-  // is 0. This ensures that it returns non negative value even in that case.
-  constexpr static uint32_t SafeLog2Ceiling(size_t size) {
-    return static_cast<uint32_t>(std::max(base::bits::Log2Ceiling(size), 0));
-  }
-
   // Degree aware FFT that runs in O(n log d) instead of O(n log n).
   // Implementation copied from libiop. (See
   // https://github.com/arkworks-rs/algebra/blob/master/poly/src/domain/radix2/fft.rs#L28)
@@ -168,7 +162,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     size_t n = this->size_;
     uint32_t log_n = this->log_size_of_group_;
     size_t num_coeffs = absl::bit_ceil(evals.evaluations_.size());
-    uint32_t log_d = SafeLog2Ceiling(num_coeffs);
+    uint32_t log_d = base::bits::SafeLog2Ceiling(num_coeffs);
     // When the polynomial is of size k * |coset|, for k < 2ⁱ, the first i
     // iterations of Cooley-Tukey are easily predictable. This is because they
     // will be combining g(w²) + wh(w²), but g or h will always refer to a

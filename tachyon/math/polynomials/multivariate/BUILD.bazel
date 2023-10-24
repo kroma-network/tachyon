@@ -3,6 +3,24 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "multilinear_extension",
+    hdrs = [
+        "multilinear_dense_evaluations.h",
+        "multilinear_extension.h",
+        "multilinear_extension_ops.h",
+        "support_poly_operators.h",
+    ],
+    deps = [
+        "//tachyon/base:bits",
+        "//tachyon/base:logging",
+        "//tachyon/base:openmp_util",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/polynomials:polynomial",
+    ],
+)
+
+tachyon_cc_library(
     name = "multivariate_polynomial",
     hdrs = [
         "multivariate_polynomial.h",
@@ -27,9 +45,11 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "multivariate_unittests",
     srcs = [
+        "multilinear_dense_evaluations_unittest.cc",
         "multivariate_polynomial_unittest.cc",
     ],
     deps = [
+        ":multilinear_extension",
         ":multivariate_polynomial",
         "//tachyon/math/finite_fields/test:gf7",
     ],

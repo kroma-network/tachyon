@@ -8,7 +8,7 @@ namespace tachyon::math {
 
 namespace {
 
-const size_t k_num_vars = 2;
+const size_t kNumVars = 2;
 const size_t kMaxDegree = 5;
 
 using Poly = MultivariateSparsePolynomial<GF7, kMaxDegree>;
@@ -217,9 +217,9 @@ TEST_F(MultivariatePolynomialTest, IsOne) {
 
 TEST_F(MultivariatePolynomialTest, Random) {
   bool success = false;
-  Poly r = Poly::Random(k_num_vars, kMaxDegree);
+  Poly r = Poly::Random(kNumVars, kMaxDegree);
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random(k_num_vars, kMaxDegree)) {
+    if (r != Poly::Random(kNumVars, kMaxDegree)) {
       success = true;
       break;
     }
@@ -265,6 +265,7 @@ TEST_F(MultivariatePolynomialTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
+  EXPECT_LE(Poly::Random(kNumVars, kMaxDegree).Degree(), kMaxDegree);
 }
 
 TEST_F(MultivariatePolynomialTest, Evaluate) {

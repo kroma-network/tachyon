@@ -52,6 +52,23 @@ TEST(BitsTest, Log2Ceiling) {
   EXPECT_EQ(32, Log2Ceiling(0xffffffffU));
 }
 
+TEST(BitsTest, SafeLog2Ceiling) {
+  EXPECT_EQ(0, SafeLog2Ceiling(uint32_t{0}));
+  EXPECT_EQ(Log2Ceiling(uint32_t{1}), SafeLog2Ceiling(uint32_t{1}));
+  EXPECT_EQ(Log2Ceiling(uint32_t{2}), SafeLog2Ceiling(uint32_t{2}));
+  EXPECT_EQ(Log2Ceiling(uint32_t{3}), SafeLog2Ceiling(uint32_t{3}));
+  EXPECT_EQ(Log2Ceiling(uint32_t{4}), SafeLog2Ceiling(uint32_t{4}));
+  for (int i = 3; i < 31; ++i) {
+    unsigned int value = 1U << i;
+    EXPECT_EQ(Log2Ceiling(value), SafeLog2Ceiling(value));
+    EXPECT_EQ(Log2Ceiling(value + 1), SafeLog2Ceiling(value + 1));
+    EXPECT_EQ(Log2Ceiling(value + 2), SafeLog2Ceiling(value + 2));
+    EXPECT_EQ(Log2Ceiling(value - 1), SafeLog2Ceiling(value - 1));
+    EXPECT_EQ(Log2Ceiling(value - 2), SafeLog2Ceiling(value - 2));
+  }
+  EXPECT_EQ(Log2Ceiling(0xffffffffU), SafeLog2Ceiling(0xffffffffU));
+}
+
 TEST(BitsTest, AlignUp) {
   static constexpr size_t kSizeTMax = std::numeric_limits<size_t>::max();
   EXPECT_EQ(0, AlignUp(0, 4));
