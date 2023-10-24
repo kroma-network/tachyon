@@ -29,6 +29,15 @@ class ChallengeExpression : public Expression<F> {
 
   const Challenge& challenge() const { return challenge_; }
 
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const ChallengeExpression* challenge = other.ToChallenge();
+    return challenge_ == challenge->challenge_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
+
   // Expression methods
   size_t Degree() const override { return 0; }
 

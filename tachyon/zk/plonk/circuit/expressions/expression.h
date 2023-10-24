@@ -65,6 +65,13 @@ class Expression {
   virtual uint64_t Complexity() const = 0;
   virtual std::string ToString() const = 0;
 
+  bool operator==(const Expression& other) const {
+    return type_ == other.type_;
+  }
+  bool operator!=(const Expression& other) const {
+    return type_ != other.type_;
+  }
+
   // Returns whether or not this expression contains a simple |Selector|.
   bool ContainsSimpleSelector() const;
 

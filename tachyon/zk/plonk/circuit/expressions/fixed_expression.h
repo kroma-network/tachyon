@@ -27,6 +27,15 @@ class FixedExpression : public Expression<F> {
 
   const FixedQuery& query() const { return query_; }
 
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const FixedExpression* fixed = other.ToFixed();
+    return query_ == fixed->query_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
+
   // Expression methods
   size_t Degree() const override { return 1; }
 

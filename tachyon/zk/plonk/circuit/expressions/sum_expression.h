@@ -36,6 +36,15 @@ class SumExpression : public Expression<F> {
   const Expression<F>* left() const { return left_.get(); }
   const Expression<F>* right() const { return right_.get(); }
 
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const SumExpression* sum = other.ToSum();
+    return *left_ == *sum->left_ && *right_ == *sum->right_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
+
   // Expression methods
   size_t Degree() const override {
     return std::max(left_->Degree(), right_->Degree());

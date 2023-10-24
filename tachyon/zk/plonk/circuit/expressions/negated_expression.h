@@ -30,6 +30,15 @@ class NegatedExpression : public Expression<F> {
 
   Expression<F>* expr() const { return expr_.get(); }
 
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const NegatedExpression* negated = other.ToNegated();
+    return *expr_ == *negated->expr_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
+
   // Expression methods
   size_t Degree() const override { return expr_->Degree(); }
 

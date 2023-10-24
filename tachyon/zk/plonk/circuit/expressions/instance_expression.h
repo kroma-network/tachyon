@@ -27,6 +27,15 @@ class InstanceExpression : public Expression<F> {
 
   const InstanceQuery& query() const { return query_; }
 
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const InstanceExpression* instance = other.ToInstance();
+    return query_ == instance->query_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
+
   // Expression methods
   size_t Degree() const override { return 1; }
 

@@ -33,6 +33,15 @@ class ProductExpression : public Expression<F> {
   const Expression<F>* left() const { return left_.get(); }
   const Expression<F>* right() const { return right_.get(); }
 
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const ProductExpression* product = other.ToProduct();
+    return *left_ == *product->left_ && *right_ == *product->right_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
+
   // Expression methods
   size_t Degree() const override { return left_->Degree() + right_->Degree(); }
 
