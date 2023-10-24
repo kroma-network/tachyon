@@ -3,60 +3,8 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "expression",
-    hdrs = ["expression.h"],
-    deps = [":expression_type"],
-)
-
-tachyon_cc_library(
-    name = "expression_type",
-    srcs = ["expression_type.cc"],
-    hdrs = ["expression_type.h"],
-    deps = ["//tachyon/base:logging"],
-)
-
-tachyon_cc_library(
-    name = "constant_expression",
-    hdrs = ["constant_expression.h"],
-    deps = [
-        ":expression",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-tachyon_cc_library(
-    name = "selector_expression",
-    hdrs = ["selector_expression.h"],
-    deps = [
-        ":expression",
-        "//tachyon/zk/plonk/circuit:selector",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-tachyon_cc_library(
-    name = "fixed_expression",
-    hdrs = ["fixed_expression.h"],
-    deps = [
-        ":expression",
-        "//tachyon/zk/plonk/circuit:query",
-        "@com_google_absl//absl/memory",
-    ],
-)
-
-tachyon_cc_library(
     name = "advice_expression",
     hdrs = ["advice_expression.h"],
-    deps = [
-        ":expression",
-        "//tachyon/zk/plonk/circuit:query",
-        "@com_google_absl//absl/memory",
-    ],
-)
-
-tachyon_cc_library(
-    name = "instance_expression",
-    hdrs = ["instance_expression.h"],
     deps = [
         ":expression",
         "//tachyon/zk/plonk/circuit:query",
@@ -75,8 +23,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "negated_expression",
-    hdrs = ["negated_expression.h"],
+    name = "constant_expression",
+    hdrs = ["constant_expression.h"],
     deps = [
         ":expression",
         "@com_google_absl//absl/strings",
@@ -84,8 +32,65 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "sum_expression",
-    hdrs = ["sum_expression.h"],
+    name = "evaluator",
+    hdrs = ["evaluator.h"],
+    deps = [":expression"],
+)
+
+tachyon_cc_library(
+    name = "expression",
+    hdrs = ["expression.h"],
+    deps = [":expression_type"],
+)
+
+tachyon_cc_library(
+    name = "expression_factory",
+    hdrs = ["expression_factory.h"],
+    deps = [
+        ":advice_expression",
+        ":challenge_expression",
+        ":constant_expression",
+        ":fixed_expression",
+        ":instance_expression",
+        ":negated_expression",
+        ":product_expression",
+        ":scaled_expression",
+        ":selector_expression",
+        ":sum_expression",
+        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_selector_finder",
+    ],
+)
+
+tachyon_cc_library(
+    name = "expression_type",
+    srcs = ["expression_type.cc"],
+    hdrs = ["expression_type.h"],
+    deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
+    name = "fixed_expression",
+    hdrs = ["fixed_expression.h"],
+    deps = [
+        ":expression",
+        "//tachyon/zk/plonk/circuit:query",
+        "@com_google_absl//absl/memory",
+    ],
+)
+
+tachyon_cc_library(
+    name = "instance_expression",
+    hdrs = ["instance_expression.h"],
+    deps = [
+        ":expression",
+        "//tachyon/zk/plonk/circuit:query",
+        "@com_google_absl//absl/memory",
+    ],
+)
+
+tachyon_cc_library(
+    name = "negated_expression",
+    hdrs = ["negated_expression.h"],
     deps = [
         ":expression",
         "@com_google_absl//absl/strings",
@@ -111,27 +116,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "expression_factory",
-    hdrs = ["expression_factory.h"],
+    name = "selector_expression",
+    hdrs = ["selector_expression.h"],
     deps = [
-        ":advice_expression",
-        ":challenge_expression",
-        ":constant_expression",
-        ":fixed_expression",
-        ":instance_expression",
-        ":negated_expression",
-        ":product_expression",
-        ":scaled_expression",
-        ":selector_expression",
-        ":sum_expression",
-        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_selector_finder",
+        ":expression",
+        "//tachyon/zk/plonk/circuit:selector",
+        "@com_google_absl//absl/strings",
     ],
 )
 
 tachyon_cc_library(
-    name = "evaluator",
-    hdrs = ["evaluator.h"],
-    deps = [":expression"],
+    name = "sum_expression",
+    hdrs = ["sum_expression.h"],
+    deps = [
+        ":expression",
+        "@com_google_absl//absl/strings",
+    ],
 )
 
 tachyon_cc_unittest(
