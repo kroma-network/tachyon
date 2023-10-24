@@ -27,16 +27,16 @@ class FixedExpression : public Expression<F> {
 
   const FixedQuery& query() const { return query_; }
 
+  // Expression methods
+  size_t Degree() const override { return 1; }
+
+  uint64_t Complexity() const override { return 1; }
+
   std::string ToString() const override {
     return absl::Substitute("{type: $0, column: $1}",
                             ExpressionTypeToString(this->type_),
                             query_.ToString());
   }
-
-  // Expression methods
-  size_t Degree() const override { return 1; }
-
-  uint64_t Complexity() const override { return 1; }
 
  private:
   friend class ExpressionFactory<F>;
