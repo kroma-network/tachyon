@@ -41,6 +41,10 @@ class ConstantExpression : public Expression<F> {
 
   uint64_t Complexity() const override { return 0; }
 
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(new ConstantExpression(value_));
+  }
+
   std::string ToString() const override {
     return absl::Substitute("{type: $0, value: $1}",
                             ExpressionTypeToString(this->type_),

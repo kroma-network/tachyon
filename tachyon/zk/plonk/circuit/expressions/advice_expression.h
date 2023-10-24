@@ -41,6 +41,10 @@ class AdviceExpression : public Expression<F> {
 
   uint64_t Complexity() const override { return 1; }
 
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(new AdviceExpression(query_));
+  }
+
   std::string ToString() const override {
     return absl::Substitute("{type: $0, column: $1}",
                             ExpressionTypeToString(this->type_),

@@ -78,6 +78,75 @@ class ExpressionFactory {
   }
 };
 
+template <typename F>
+std::unique_ptr<Expression<F>> operator+(
+    const std::unique_ptr<Expression<F>>& lhs,
+    const std::unique_ptr<Expression<F>>& rhs) {
+  return operator+(lhs->Clone(), rhs->Clone());
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator+(std::unique_ptr<Expression<F>>&& lhs,
+                                         std::unique_ptr<Expression<F>>&& rhs) {
+  CHECK(!(lhs->ContainsSimpleSelector() || rhs->ContainsSimpleSelector()))
+      << "attempted to use a simple selector in an addition";
+  return ExpressionFactory<F>::Sum(std::move(lhs), std::move(rhs));
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator-(
+    const std::unique_ptr<Expression<F>>& lhs,
+    const std::unique_ptr<Expression<F>>& rhs) {
+  return operator-(lhs->Clone(), rhs->Clone());
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator-(std::unique_ptr<Expression<F>>&& lhs,
+                                         std::unique_ptr<Expression<F>>&& rhs) {
+  CHECK(!(lhs->ContainsSimpleSelector() || rhs->ContainsSimpleSelector()))
+      << "attempted to use a simple selector in a subtraction";
+  return ExpressionFactory<F>::Sum(std::move(lhs), operator-(std::move(rhs)));
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator*(
+    const std::unique_ptr<Expression<F>>& lhs,
+    const std::unique_ptr<Expression<F>>& rhs) {
+  return operator*(lhs->Clone(), rhs->Clone());
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator*(std::unique_ptr<Expression<F>>&& lhs,
+                                         std::unique_ptr<Expression<F>>&& rhs) {
+  CHECK(!(lhs->ContainsSimpleSelector() || rhs->ContainsSimpleSelector()))
+      << "attempted to use a simple selector in a production";
+  return ExpressionFactory<F>::Product(std::move(lhs), std::move(rhs));
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator*(
+    const std::unique_ptr<Expression<F>>& expr, const F& scale) {
+  return operator*(expr->Clone(), scale);
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator*(std::unique_ptr<Expression<F>>&& expr,
+                                         const F& scale) {
+  return ExpressionFactory<F>::Scaled(std::move(expr), scale);
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator-(
+    const std::unique_ptr<Expression<F>>& expr) {
+  return operator-(expr->Clone());
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator-(
+    std::unique_ptr<Expression<F>>&& expr) {
+  return ExpressionFactory<F>::Negated(std::move(expr));
+}
+
 }  // namespace tachyon::zk
 
 #endif  // TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EXPRESSION_FACTORY_H_

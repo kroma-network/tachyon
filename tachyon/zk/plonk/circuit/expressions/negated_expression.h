@@ -46,6 +46,10 @@ class NegatedExpression : public Expression<F> {
     return expr_->Complexity() + kOverhead;
   }
 
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(new NegatedExpression(expr_->Clone()));
+  }
+
   std::string ToString() const override {
     return absl::Substitute("{type: $0, expr: $1}",
                             ExpressionTypeToString(this->type_),

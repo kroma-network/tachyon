@@ -47,6 +47,10 @@ class ScaledExpression : public Expression<F> {
     return expr_->Complexity() + kOverhead;
   }
 
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(new ScaledExpression(expr_->Clone(), scale_));
+  }
+
   std::string ToString() const override {
     return absl::Substitute("{type: $0, expr: $1, scale: $2}",
                             ExpressionTypeToString(this->type_),

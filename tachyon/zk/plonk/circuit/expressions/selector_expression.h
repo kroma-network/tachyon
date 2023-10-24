@@ -42,6 +42,10 @@ class SelectorExpression : public Expression<F> {
 
   uint64_t Complexity() const override { return 1; }
 
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(new SelectorExpression(selector_));
+  }
+
   std::string ToString() const override {
     return absl::Substitute("{type: $0, selector: $1}",
                             ExpressionTypeToString(this->type_),
