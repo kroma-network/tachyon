@@ -1,10 +1,9 @@
-#include "tachyon/zk/plonk/circuit/expressions/simple_evaluator.h"
+#include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_evaluator.h"
 
 #include <memory>
 
 #include "gtest/gtest.h"
 
-#include "tachyon/base/logging.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 #include "tachyon/zk/plonk/circuit/expressions/expression_factory.h"

@@ -1,0 +1,34 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "simple_evaluator",
+    hdrs = ["simple_evaluator.h"],
+    deps = [
+        "//tachyon/zk/plonk/circuit/expressions:advice_expression",
+        "//tachyon/zk/plonk/circuit/expressions:challenge_expression",
+        "//tachyon/zk/plonk/circuit/expressions:constant_expression",
+        "//tachyon/zk/plonk/circuit/expressions:evaluator",
+        "//tachyon/zk/plonk/circuit/expressions:fixed_expression",
+        "//tachyon/zk/plonk/circuit/expressions:instance_expression",
+        "//tachyon/zk/plonk/circuit/expressions:negated_expression",
+        "//tachyon/zk/plonk/circuit/expressions:product_expression",
+        "//tachyon/zk/plonk/circuit/expressions:scaled_expression",
+        "//tachyon/zk/plonk/circuit/expressions:selector_expression",
+        "//tachyon/zk/plonk/circuit/expressions:sum_expression",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "expression_unittests",
+    srcs = [
+        "simple_evaluator_unittest.cc",
+    ],
+    deps = [
+        ":simple_evaluator",
+        "//tachyon/math/finite_fields/test:gf7",
+        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+        "//tachyon/zk/plonk/circuit/expressions:expression_factory",
+    ],
+)
