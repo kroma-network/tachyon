@@ -24,35 +24,40 @@ class ScaledExpression : public Expression<F> {
   constexpr static uint64_t kOverhead = 30;
 
   static std::unique_ptr<ScaledExpression> CreateForTesting(
-      Operands<std::unique_ptr<Expression<F>>, F> operands) {
-    return absl::WrapUnique(new ScaledExpression(std::move(operands)));
+      std::unique_ptr<Expression<F>> expr, const F& scale) {
+    return absl::WrapUnique(new ScaledExpression(std::move(expr), scale));
   }
 
-  const Expression<F>* left() const { return operands_.left.get(); }
-  const F& right() const { return operands_.right; }
+  const Expression<F>* expr() const { return expr_.get(); }
+  const F& scale() const { return scale_; }
 
   // Expression methods
-  size_t Degree() const override { return operands_.left->Degree(); }
+  size_t Degree() const override { return expr_->Degree(); }
 
   uint64_t Complexity() const override {
-    return operands_.left->Complexity() + kOverhead;
+    return expr_->Complexity() + kOverhead;
   }
 
   std::string ToString() const override {
-    return absl::Substitute(
-        "{type: $0, poly: $1, scalar: $2}", ExpressionTypeToString(this->type_),
-        operands_.left->ToString(), operands_.right.ToString());
+    return absl::Substitute("{type: $0, expr: $1, scale: $2}",
+                            ExpressionTypeToString(this->type_),
+                            expr_->ToString(), scale_.ToString());
   }
 
  private:
   friend class ExpressionFactory<F>;
 
-  explicit ScaledExpression(
-      Operands<std::unique_ptr<Expression<F>>, F> operands)
+  ScaledExpression(std::unique_ptr<Expression<F>> expr, const F& scale)
       : Expression<F>(ExpressionType::kScaled),
-        operands_(std::move(operands)) {}
+        expr_(std::move(expr)),
+        scale_(scale) {}
+  ScaledExpression(std::unique_ptr<Expression<F>> expr, F&& scale)
+      : Expression<F>(ExpressionType::kScaled),
+        expr_(std::move(expr)),
+        scale_(std::move(scale)) {}
 
-  Operands<std::unique_ptr<Expression<F>>, F> operands_;
+  std::unique_ptr<Expression<F>> expr_;
+  F scale_;
 };
 
 }  // namespace tachyon::zk

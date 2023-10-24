@@ -91,26 +91,24 @@ TEST_F(EvaluatorTest, Negated) {
 TEST_F(EvaluatorTest, Sum) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
-  Expr expr =
-      ExpressionFactory<GF7>::Sum({ExpressionFactory<GF7>::Constant(a),
-                                   ExpressionFactory<GF7>::Constant(b)});
+  Expr expr = ExpressionFactory<GF7>::Sum(ExpressionFactory<GF7>::Constant(a),
+                                          ExpressionFactory<GF7>::Constant(b));
   EXPECT_FALSE(expr->ContainsSimpleSelector());
   expr = ExpressionFactory<GF7>::Sum(
-      {ExpressionFactory<GF7>::Constant(a),
-       ExpressionFactory<GF7>::Selector(Selector::Simple(1))});
+      ExpressionFactory<GF7>::Constant(a),
+      ExpressionFactory<GF7>::Selector(Selector::Simple(1)));
   EXPECT_TRUE(expr->ContainsSimpleSelector());
 }
 
 TEST_F(EvaluatorTest, Product) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
-  Expr expr =
-      ExpressionFactory<GF7>::Product({ExpressionFactory<GF7>::Constant(a),
-                                       ExpressionFactory<GF7>::Constant(b)});
+  Expr expr = ExpressionFactory<GF7>::Product(
+      ExpressionFactory<GF7>::Constant(a), ExpressionFactory<GF7>::Constant(b));
   EXPECT_FALSE(expr->ContainsSimpleSelector());
   expr = ExpressionFactory<GF7>::Product(
-      {ExpressionFactory<GF7>::Constant(a),
-       ExpressionFactory<GF7>::Selector(Selector::Simple(1))});
+      ExpressionFactory<GF7>::Constant(a),
+      ExpressionFactory<GF7>::Selector(Selector::Simple(1)));
   EXPECT_TRUE(expr->ContainsSimpleSelector());
 }
 
@@ -118,10 +116,10 @@ TEST_F(EvaluatorTest, Scaled) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
   Expr expr =
-      ExpressionFactory<GF7>::Scaled({ExpressionFactory<GF7>::Constant(a), b});
+      ExpressionFactory<GF7>::Scaled(ExpressionFactory<GF7>::Constant(a), b);
   EXPECT_FALSE(expr->ContainsSimpleSelector());
   expr = ExpressionFactory<GF7>::Scaled(
-      {ExpressionFactory<GF7>::Selector(Selector::Simple(1)), GF7(3)});
+      ExpressionFactory<GF7>::Selector(Selector::Simple(1)), GF7(3));
   EXPECT_TRUE(expr->ContainsSimpleSelector());
 }
 

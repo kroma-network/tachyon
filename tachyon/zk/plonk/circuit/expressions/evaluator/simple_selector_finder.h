@@ -47,7 +47,7 @@ class SimpleSelectorFinder : public Evaluator<F, bool> {
       }
       case ExpressionType::kScaled: {
         const ScaledExpression<F>* scaled = input->ToScaled();
-        return Evaluate(scaled->left());
+        return Evaluate(scaled->expr());
       }
     }
     NOTREACHED();

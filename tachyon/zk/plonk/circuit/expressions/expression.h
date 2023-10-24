@@ -14,12 +14,6 @@
 
 namespace tachyon::zk {
 
-template <typename L, typename R>
-struct Operands {
-  L left;
-  R right;
-};
-
 template <typename F>
 class ExpressionFactory;
 

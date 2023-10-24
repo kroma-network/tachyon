@@ -109,7 +109,7 @@ class SimpleEvaluator
 
       case ExpressionType::kScaled: {
         const ScaledExpression<Field>* scaled = input->ToScaled();
-        return Evaluate(scaled->left()) * scaled->right();
+        return Evaluate(scaled->expr()) * scaled->scale();
       }
     }
     NOTREACHED();

@@ -60,19 +60,21 @@ class ExpressionFactory {
     return absl::WrapUnique(new NegatedExpression<F>(std::move(value)));
   }
 
-  static std::unique_ptr<Expr> Sum(
-      Operands<std::unique_ptr<Expr>, std::unique_ptr<Expr>> operands) {
-    return absl::WrapUnique(new SumExpression<F>(std::move(operands)));
+  static std::unique_ptr<Expr> Sum(std::unique_ptr<Expr> left,
+                                   std::unique_ptr<Expr> right) {
+    return absl::WrapUnique(
+        new SumExpression<F>(std::move(left), std::move(right)));
   }
 
-  static std::unique_ptr<Expr> Product(
-      Operands<std::unique_ptr<Expr>, std::unique_ptr<Expr>> operands) {
-    return absl::WrapUnique(new ProductExpression<F>(std::move(operands)));
+  static std::unique_ptr<Expr> Product(std::unique_ptr<Expr> left,
+                                       std::unique_ptr<Expr> right) {
+    return absl::WrapUnique(
+        new ProductExpression<F>(std::move(left), std::move(right)));
   }
 
-  static std::unique_ptr<Expr> Scaled(
-      Operands<std::unique_ptr<Expr>, F> operands) {
-    return absl::WrapUnique(new ScaledExpression<F>(std::move(operands)));
+  static std::unique_ptr<Expr> Scaled(std::unique_ptr<Expr> left,
+                                      const F& scale) {
+    return absl::WrapUnique(new ScaledExpression<F>(std::move(left), scale));
   }
 };
 

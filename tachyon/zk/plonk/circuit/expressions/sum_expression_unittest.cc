@@ -22,7 +22,7 @@ TEST(SumExpressionTest, DegreeComplexity) {
   uint64_t right_complexity = right->Complexity();
 
   std::unique_ptr<SumExpression<Fr>> sum_expression =
-      SumExpression<Fr>::CreateForTesting({std::move(left), std::move(right)});
+      SumExpression<Fr>::CreateForTesting(std::move(left), std::move(right));
 
   EXPECT_EQ(sum_expression->Degree(), std::max(left_degree, right_degree));
   EXPECT_EQ(sum_expression->Complexity(),

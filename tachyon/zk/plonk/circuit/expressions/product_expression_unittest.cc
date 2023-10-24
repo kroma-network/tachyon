@@ -24,8 +24,8 @@ TEST(ProductExpressionTest, DegreeComplexity) {
   uint64_t right_complexity = right->Complexity();
 
   std::unique_ptr<ProductExpression<Fr>> prod_expression =
-      ProductExpression<Fr>::CreateForTesting(
-          {std::move(left), std::move(right)});
+      ProductExpression<Fr>::CreateForTesting(std::move(left),
+                                              std::move(right));
 
   EXPECT_EQ(prod_expression->Degree(), std::max(left_degree, right_degree));
   EXPECT_EQ(
