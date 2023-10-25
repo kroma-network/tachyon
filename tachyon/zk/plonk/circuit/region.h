@@ -26,6 +26,7 @@ class Region {
   using AssignCallback = base::OnceCallback<Value<math::RationalField<F>>()>;
 
   class Layouter {
+   public:
     virtual ~Layouter() = default;
 
     // Enables a |selector| at the given |offset|.
