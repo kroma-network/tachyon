@@ -160,6 +160,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "table",
+    hdrs = ["table.h"],
+    deps = [
+        ":table_column",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk:value",
+        "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
     name = "table_column",
     hdrs = ["table_column.h"],
     deps = [
