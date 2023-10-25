@@ -53,6 +53,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "circuit",
+    hdrs = ["circuit.h"],
+    deps = [":layouter"],
+)
+
+tachyon_cc_library(
     name = "column",
     hdrs = ["column.h"],
     deps = [
