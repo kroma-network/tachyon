@@ -58,11 +58,9 @@ class Region {
     //
     // Returns |Error::kNone| and populates |cell| that has been
     // equality-constrained to the constant.
-    virtual Error AssignAdviceFromConstant(AnnotateCallback annotate,
-                                           const AdviceColumn& column,
-                                           size_t offset,
-                                           math::RationalField<F> constant,
-                                           Cell* cell) {
+    virtual Error AssignAdviceFromConstant(
+        AnnotateCallback annotate, const AdviceColumn& column, size_t offset,
+        const math::RationalField<F>& constant, Cell* cell) {
       return Error::kNone;
     }
 
