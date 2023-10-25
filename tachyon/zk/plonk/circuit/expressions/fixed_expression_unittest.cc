@@ -10,7 +10,8 @@ using Fr = math::bn254::Fr;
 
 TEST(FixedExpressionTest, DegreeComplexity) {
   std::unique_ptr<FixedExpression<Fr>> expr =
-      FixedExpression<Fr>::CreateForTesting(FixedQuery(1, 1, Rotation(1)));
+      FixedExpression<Fr>::CreateForTesting(
+          FixedQuery(1, Rotation(1), FixedColumn(1)));
   EXPECT_EQ(expr->Degree(), size_t{1});
   EXPECT_EQ(expr->Complexity(), uint64_t{1});
 }

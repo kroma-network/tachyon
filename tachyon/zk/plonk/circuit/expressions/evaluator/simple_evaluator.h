@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_SIMPLE_EVALUATOR_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_SIMPLE_EVALUATOR_H_
+#ifndef TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_SIMPLE_EVALUATOR_H_
+#define TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_SIMPLE_EVALUATOR_H_
 
 #include <vector>
 
@@ -42,11 +42,11 @@ class SimpleEvaluator
         instances_(instances),
         challenges_(challenges) {}
 
-  int32_t idx() { return idx_; }
-  int32_t size() { return size_; }
-  int32_t rot_scale() { return rot_scale_; }
+  int32_t idx() const { return idx_; }
+  int32_t size() const { return size_; }
+  int32_t rot_scale() const { return rot_scale_; }
 
-  // SimpleEvaluator methods
+  // Evaluator methods
   Field Evaluate(const Expression<Field>* input) const override {
     switch (input->type()) {
       case ExpressionType::kConstant:
@@ -58,7 +58,7 @@ class SimpleEvaluator
       case ExpressionType::kFixed: {
         const FixedExpression<Field>* fixed_expr = input->ToFixed();
         const FixedQuery& query = fixed_expr->query();
-        const Poly& poly = (*fixeds_)[query.column_index()];
+        const Poly& poly = (*fixeds_)[query.column().index()];
         const Field* ret =
             poly[query.rotation().GetIndex(idx_, rot_scale_, size_)];
         if (ret == nullptr) {
@@ -70,7 +70,7 @@ class SimpleEvaluator
       case ExpressionType::kAdvice: {
         const AdviceExpression<Field>* advice_expr = input->ToAdvice();
         const AdviceQuery& query = advice_expr->query();
-        const Poly& poly = (*advices_)[query.column_index()];
+        const Poly& poly = (*advices_)[query.column().index()];
         const Field* ret =
             poly[query.rotation().GetIndex(idx_, rot_scale_, size_)];
         if (ret == nullptr) {
@@ -82,7 +82,7 @@ class SimpleEvaluator
       case ExpressionType::kInstance: {
         const InstanceExpression<Field>* instance_expr = input->ToInstance();
         const InstanceQuery& query = instance_expr->query();
-        const Poly& poly = (*instances_)[query.column_index()];
+        const Poly& poly = (*instances_)[query.column().index()];
         const Field* ret =
             poly[query.rotation().GetIndex(idx_, rot_scale_, size_)];
         if (ret == nullptr) {
@@ -132,4 +132,4 @@ class SimpleEvaluator
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_SIMPLE_EVALUATOR_H_
+#endif  // TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_SIMPLE_EVALUATOR_H_

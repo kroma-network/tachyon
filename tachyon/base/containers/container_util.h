@@ -8,6 +8,7 @@
 
 #include "tachyon/base/functional/functor_traits.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/numerics/checked_math.h"
 
 namespace tachyon::base {
 
@@ -85,6 +86,36 @@ template <typename Container, typename UnaryOp>
 auto Map(Container&& container, UnaryOp&& op) {
   return Map(std::begin(container), std::end(container),
              std::forward<UnaryOp>(op));
+}
+
+template <typename InputIterator, typename UnaryOp,
+          typename FunctorTraits = internal::MakeFunctorTraits<UnaryOp>,
+          typename ReturnType = typename FunctorTraits::ReturnType::value_type>
+std::vector<ReturnType> FlatMap(InputIterator begin, InputIterator end,
+                                UnaryOp&& op) {
+  std::vector<std::vector<ReturnType>> tmp;
+  tmp.reserve(std::distance(begin, end));
+  std::transform(begin, end, std::back_inserter(tmp),
+                 std::forward<UnaryOp>(op));
+
+  base::CheckedNumeric<size_t> size = 0;
+  for (size_t i = 0; i < tmp.size(); ++i) {
+    size += tmp[i].size();
+  }
+
+  std::vector<ReturnType> ret;
+  ret.reserve(size.ValueOrDie());
+  std::for_each(tmp.begin(), tmp.end(), [&ret](std::vector<ReturnType>& vec) {
+    ret.insert(ret.end(), std::make_move_iterator(vec.begin()),
+               std::make_move_iterator(vec.end()));
+  });
+  return ret;
+}
+
+template <typename Container, typename UnaryOp>
+auto FlatMap(Container&& container, UnaryOp&& op) {
+  return FlatMap(std::begin(container), std::end(container),
+                 std::forward<UnaryOp>(op));
 }
 
 }  // namespace tachyon::base

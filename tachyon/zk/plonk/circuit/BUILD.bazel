@@ -3,6 +3,47 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "assembly",
+    hdrs = ["assembly.h"],
+    deps = [
+        ":assignment",
+        "//tachyon/base:range",
+    ],
+)
+
+tachyon_cc_library(
+    name = "assigned_cell",
+    hdrs = ["assigned_cell.h"],
+    deps = [
+        ":cell",
+        "//tachyon/zk:value",
+    ],
+)
+
+tachyon_cc_library(
+    name = "assignment",
+    hdrs = ["assignment.h"],
+    deps = [
+        ":challenge",
+        ":column",
+        ":selector",
+        "//tachyon/base/functional:callback",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cell",
+    hdrs = ["cell.h"],
+    deps = [
+        ":column",
+        "//tachyon:export",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
     name = "challenge",
     hdrs = ["challenge.h"],
     deps = [
@@ -16,6 +57,8 @@ tachyon_cc_library(
     hdrs = ["column.h"],
     deps = [
         ":column_type",
+        ":phase",
+        "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -28,6 +71,28 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "constraint",
+    hdrs = ["constraint.h"],
+    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
+)
+
+tachyon_cc_library(
+    name = "constraints",
+    hdrs = ["constraints.h"],
+    deps = [":constraint"],
+)
+
+tachyon_cc_library(
+    name = "gate",
+    hdrs = ["gate.h"],
+    deps = [
+        ":selector",
+        ":virtual_cell",
+        "//tachyon/zk/plonk/circuit/expressions:expression",
+    ],
+)
+
+tachyon_cc_library(
     name = "phase",
     hdrs = ["phase.h"],
     deps = ["//tachyon/base/strings:string_number_conversions"],
@@ -37,9 +102,40 @@ tachyon_cc_library(
     name = "query",
     hdrs = ["query.h"],
     deps = [
-        ":column_type",
-        ":phase",
+        ":column",
         ":rotation",
+    ],
+)
+
+tachyon_cc_library(
+    name = "region",
+    hdrs = ["region.h"],
+    deps = [
+        ":assigned_cell",
+        ":column",
+        ":selector",
+        "//tachyon/base/functional:callback",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
+    name = "region_column",
+    hdrs = ["region_column.h"],
+    deps = [
+        ":column",
+        ":selector",
+    ],
+)
+
+tachyon_cc_library(
+    name = "region_shape",
+    hdrs = ["region_shape.h"],
+    deps = [
+        ":region",
+        ":region_column",
+        "@com_google_absl//absl/container:flat_hash_set",
     ],
 )
 
@@ -58,7 +154,37 @@ tachyon_cc_library(
     hdrs = ["selector.h"],
     deps = [
         "//tachyon:export",
+        "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "table_column",
+    hdrs = ["table_column.h"],
+    deps = [
+        ":column",
+        "//tachyon:export",
+    ],
+)
+
+tachyon_cc_library(
+    name = "virtual_cell",
+    hdrs = ["virtual_cell.h"],
+    deps = [
+        ":column",
+        ":rotation",
+        "//tachyon:export",
+    ],
+)
+
+tachyon_cc_library(
+    name = "virtual_cells",
+    hdrs = ["virtual_cells.h"],
+    deps = [
+        ":selector",
+        ":virtual_cell",
+        "//tachyon/zk/plonk/circuit/expressions:expression_factory",
     ],
 )
 

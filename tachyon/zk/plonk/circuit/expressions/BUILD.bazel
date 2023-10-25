@@ -124,6 +124,7 @@ tachyon_cc_library(
         ":scaled_expression",
         ":selector_expression",
         ":sum_expression",
+        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_selector_finder",
     ],
 )
 
@@ -131,24 +132,6 @@ tachyon_cc_library(
     name = "evaluator",
     hdrs = ["evaluator.h"],
     deps = [":expression"],
-)
-
-tachyon_cc_library(
-    name = "simple_evaluator",
-    hdrs = ["simple_evaluator.h"],
-    deps = [
-        ":advice_expression",
-        ":challenge_expression",
-        ":constant_expression",
-        ":evaluator",
-        ":fixed_expression",
-        ":instance_expression",
-        ":negated_expression",
-        ":product_expression",
-        ":scaled_expression",
-        ":selector_expression",
-        ":sum_expression",
-    ],
 )
 
 tachyon_cc_unittest(
@@ -163,12 +146,10 @@ tachyon_cc_unittest(
         "product_expression_unittest.cc",
         "scaled_expression_unittest.cc",
         "selector_expression_unittest.cc",
-        "simple_evaluator_unittest.cc",
         "sum_expression_unittest.cc",
     ],
     deps = [
         ":expression_factory",
-        ":simple_evaluator",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",

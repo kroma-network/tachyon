@@ -1,0 +1,24 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "constraint_system",
+    hdrs = ["constraint_system.h"],
+    deps = [
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/containers:contains",
+        "//tachyon/zk/plonk/circuit:constraint",
+        "//tachyon/zk/plonk/circuit:gate",
+        "//tachyon/zk/plonk/circuit:query",
+        "//tachyon/zk/plonk/circuit:table_column",
+        "//tachyon/zk/plonk/circuit:virtual_cells",
+        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_selector_finder",
+        "//tachyon/zk/plonk/lookup:lookup_argument",
+    ],
+)
+
+tachyon_cc_library(
+    name = "error",
+    hdrs = ["error.h"],
+)

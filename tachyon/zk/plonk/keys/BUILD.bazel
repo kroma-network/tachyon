@@ -1,0 +1,22 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "proving_key",
+    hdrs = ["proving_key.h"],
+    deps = [
+        ":verifying_key",
+        "//tachyon/math/polynomials:polynomial",
+    ],
+)
+
+tachyon_cc_library(
+    name = "verifying_key",
+    hdrs = ["verifying_key.h"],
+    deps = [
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
+        "//tachyon/zk/plonk:constraint_system",
+    ],
+)

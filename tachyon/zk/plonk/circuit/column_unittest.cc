@@ -19,6 +19,15 @@ TYPED_TEST(ColumnTest, AnyColumnConstruction) {
   EXPECT_EQ(any2.type(), ColumnType::kAny);
   any2 = ColumnTy(1);
   EXPECT_EQ(any2.type(), ColumnTy::kDefaultType);
+
+  if constexpr (std::is_same_v<ColumnTy, AdviceColumn>) {
+    AnyColumn any(ColumnTy(1, kSecondPhase));
+    EXPECT_EQ(any.phase(), kSecondPhase);
+    AnyColumn any2;
+    EXPECT_EQ(any2.phase(), kFirstPhase);
+    any2 = ColumnTy(1, kSecondPhase);
+    EXPECT_EQ(any2.phase(), kSecondPhase);
+  }
 }
 
 TYPED_TEST(ColumnTest, NonAnyColumnConstruction) {
@@ -28,6 +37,12 @@ TYPED_TEST(ColumnTest, NonAnyColumnConstruction) {
   EXPECT_EQ(c.type(), ColumnTy::kDefaultType);
   c = ColumnTy(1);
   EXPECT_EQ(c.type(), ColumnTy::kDefaultType);
+  ColumnTy c2(AnyColumn(1));
+  EXPECT_EQ(c2.type(), ColumnTy::kDefaultType);
+  ColumnTy c3;
+  EXPECT_EQ(c3.type(), ColumnTy::kDefaultType);
+  c3 = AnyColumn(1);
+  EXPECT_EQ(c3.type(), ColumnTy::kDefaultType);
 }
 
 }  // namespace tachyon::zk

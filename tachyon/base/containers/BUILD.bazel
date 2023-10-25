@@ -28,6 +28,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:logging",
         "//tachyon/base/functional:functor_traits",
+        "//tachyon/base/numerics:checked_math",
     ],
 )
 
