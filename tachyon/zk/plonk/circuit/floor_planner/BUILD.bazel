@@ -1,0 +1,16 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "simple_table_layouter",
+    hdrs = ["simple_table_layouter.h"],
+    deps = [
+        "//tachyon/base/containers:contains",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk:value",
+        "//tachyon/zk/plonk/circuit:assignment",
+        "//tachyon/zk/plonk/circuit:table_column",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
