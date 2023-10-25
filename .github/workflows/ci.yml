@@ -31,11 +31,19 @@ jobs:
       - name: Install numpy
         run: python -m pip install numpy
 
+      - name: Install OpenMP
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y libomp-dev
+
       - name: Build
         run: bazel build -c fastbuild --config ${{ matrix.bazel_config }} --config gmp_backend //...
 
       - name: Test
-        run: bazel test -c fastbuild --config ${{ matrix.bazel_config }} --config gmp_backend --test_tag_filters -benchmark,-manual,-cuda,-rust //...
+        run: bazel test -c fastbuild --config ${{ matrix.bazel_config }} --config gmp_backend --test_output=errors --test_tag_filters -benchmark,-manual,-cuda,-rust //...
+
+      - name: Test OpenMP
+        if: matrix.os == 'ubuntu-latest'
+        run: bazel test -c fastbuild --config linux --config gmp_backend --//:has_openmp --test_output=errors --test_tag_filters -benchmark,-manual,-cuda,-rust //...
 
   lint:
     runs-on: ubuntu-latest
