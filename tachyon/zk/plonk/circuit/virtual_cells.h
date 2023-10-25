@@ -40,41 +40,31 @@ class VirtualCells {
   // Query a selector at the current position.
   std::unique_ptr<Expression<F>> QuerySelector(const Selector& selector) {
     queried_selectors_.push_back(selector);
-    return ExpressionFactory::Selector(selector);
+    return ExpressionFactory<F>::Selector(selector);
   }
 
   // Query a fixed column at a relative position
   std::unique_ptr<Expression<F>> QueryFixed(const FixedColumn& column,
                                             Rotation at) {
     queried_cells_.push_back({column, at});
-    return ExpressionFactory::Fixed({
-        meta_->QueryFixedIndex(column, at),
-        column.index,
-        at,
-    });
+    return ExpressionFactory<F>::Fixed(
+        {meta_->QueryFixedIndex(column, at), at, column});
   }
 
   // Query an advice column at a relative position
   std::unique_ptr<Expression<F>> QueryAdvice(const AdviceColumn& column,
                                              Rotation at) {
     queried_cells_.push_back({column, at});
-    return ExpressionFactory::Advice({
-        meta_->QueryAdviceIndex(column, at),
-        column.index,
-        at,
-        column.type().phase,
-    });
+    return ExpressionFactory<F>::Advice(
+        {meta_->QueryAdviceIndex(column, at), at, column});
   }
 
   // Query an instance column at a relative position
   std::unique_ptr<Expression<F>> QueryInstance(const InstanceColumn& column,
                                                Rotation at) {
-    .queried_cells_.push_back({column, at});
-    return ExpressionFactory::Instance({
-        meta_->QueryInstanceIndex(column, at),
-        column.index,
-        at,
-    });
+    queried_cells_.push_back({column, at});
+    return ExpressionFactory<F>::Instance(
+        {meta_->QueryInstanceIndex(column, at), at, column});
   }
 
   // Query an Any column at a relative position
@@ -96,7 +86,7 @@ class VirtualCells {
 
   // Query a challenge
   std::unique_ptr<Expression<F>> QueryChallenge(const Challenge& challenge) {
-    return ExpressionFactory::Challenge(challenge);
+    return ExpressionFactory<F>::Challenge(challenge);
   }
 
  private:
