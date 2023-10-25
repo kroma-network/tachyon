@@ -14,10 +14,11 @@
 #include <utility>
 #include <vector>
 
-#include "absl/container/flat_hash_set.h"
+#include "absl/container/flat_hash_map.h"
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/contains.h"
+#include "tachyon/base/functional/callback.h"
 #include "tachyon/zk/plonk/circuit/constraint.h"
 #include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/plonk/circuit/gate.h"
@@ -42,11 +43,12 @@ class ConstraintSystem {
 
   using TableMap = std::vector<TableMapElem>;
   using AnnotateCallback = base::OnceCallback<std::string()>;
-  using LookupCallback = base::OnceCallback<TableMap(VirtualCells&)>;
+  using LookupCallback = base::OnceCallback<TableMap(VirtualCells<F>&)>;
   using LookupAnyCallback =
-      base::OnceCallback<LookupArgument::TableMap(VirtualCells&)>;
+      base::OnceCallback<typename LookupArgument<F>::TableMap(
+          VirtualCells<F>&)>;
   using ConstrainCallback =
-      base::OnceCallback<std::vector<Constraint>(VirtualCells&)>;
+      base::OnceCallback<std::vector<Constraint<F>>(VirtualCells<F>&)>;
 
   size_t num_fixed_columns() const { return num_fixed_columns_; }
 
@@ -86,10 +88,10 @@ class ConstraintSystem {
     return fixed_queries_;
   }
 
-  const std::vector<LookupArgument>& lookups() const { return lookups_; }
+  const std::vector<LookupArgument<F>>& lookups() const { return lookups_; }
 
-  const absl::flat_hash_set<Column, std::string>& general_column_annotations()
-      const {
+  const absl::flat_hash_map<ColumnData, std::string>&
+  general_column_annotations() const {
     return general_column_annotations_;
   }
 
@@ -129,19 +131,18 @@ class ConstraintSystem {
   // they need to match.
   size_t Lookup(const std::string_view& name, LookupCallback callback) {
     VirtualCells cells(this);
-    LookupArgument<F>::TableMap table_map =
-        base::Map(std::move(callback).Run(cells),
-                  [&cells](const TableMapElement& element) {
-                    CHECK(!element.input->ContainsSimpleSelector())
-                        << "expression containing simple selector "
-                           "supplied to lookup argument";
+    typename LookupArgument<F>::TableMap table_map = base::Map(
+        std::move(callback).Run(cells), [&cells](TableMapElem& element) {
+          CHECK(!element.input->ContainsSimpleSelector())
+              << "expression containing simple selector "
+                 "supplied to lookup argument";
 
-                    std::unique_ptr<Expression<F>> table = cells.QueryFixed(
-                        element.table.column(), Rotation::cur());
+          std::unique_ptr<Expression<F>> table =
+              cells.QueryFixed(element.table.column(), Rotation::Cur());
 
-                    return LookupArgument<F>::TableElement(std::move(input),
-                                                           std::move(table));
-                  });
+          return LookupArgument<F>::TableElement(std::move(element.input),
+                                                 std::move(table));
+        });
 
     lookups_.push_back({name, std::move(table_map)});
     return lookups_.size() - 1;
@@ -153,7 +154,8 @@ class ConstraintSystem {
   // expressions they need to match.
   size_t LookupAny(const std::string_view& name, LookupAnyCallback callback) {
     VirtualCells cells(this);
-    LookupArgument<F>::TableMap table_map = std::move(callback).Run(cells);
+    typename LookupArgument<F>::TableMap table_map =
+        std::move(callback).Run(cells);
 
     lookups_.push_back({name, std::move(table_map)});
     return lookups_.size() - 1;
@@ -165,7 +167,7 @@ class ConstraintSystem {
     if (QueryIndex(fixed_queries_, column, at, &index)) return index;
 
     // Make a new query
-    fixed_queries_.push_back({column, at});
+    fixed_queries_.push_back({at, column});
     return fixed_queries_.size() - 1;
   }
 
@@ -175,7 +177,7 @@ class ConstraintSystem {
     if (QueryIndex(advice_queries_, column, at, &index)) return index;
 
     // Make a new query
-    advice_queries_.push_back({column, at});
+    advice_queries_.push_back({at, column});
     num_advice_queries_[column.index()] += 1;
     return advice_queries_.size() - 1;
   }
@@ -186,7 +188,7 @@ class ConstraintSystem {
     if (QueryIndex(instance_queries_, column, at, &index)) return index;
 
     // Make a new query
-    instance_queries_.push_back({column, at});
+    instance_queries_.push_back({at, column});
     return instance_queries_.size() - 1;
   }
 
@@ -245,14 +247,14 @@ class ConstraintSystem {
   // panic if |constrain| returns an empty iterator.
   void CreateGate(const std::string_view& name, ConstrainCallback constrain) {
     VirtualCells cells(this);
-    std::vector<Constraint> constraints = std::move(constraints).Run(cells);
+    std::vector<Constraint<F>> constraints = std::move(constraints).Run(cells);
     std::vector<Selector> queried_selectors =
         std::move(cells).queried_selectors();
     std::vector<VirtualCell> queried_cells = std::move(cells).queried_cells();
 
     std::vector<std::string> constraint_names;
     std::vector<std::unique_ptr<Expression<F>>> polys;
-    for (Constraint& constraint : constraints) {
+    for (Constraint<F>& constraint : constraints) {
       constraint_names.push_back(std::move(constraint).name());
       polys.push_back(std::move(constraint).expression());
     }
@@ -287,9 +289,9 @@ class ConstraintSystem {
                             AnnotateCallback annotate) {
     // We don't care if the table has already an annotation. If it's the case we
     // keep the new one.
-    general_column_annotations_.insert(
-        ColumnData(ColumnType::kFixed, column.column().index()),
-        std::move(annotate).Run());
+    general_column_annotations_[ColumnData(ColumnType::kFixed,
+                                           column.column().index())] =
+        std::move(annotate).Run();
   }
 
   // Annotate an Any column.
@@ -297,17 +299,15 @@ class ConstraintSystem {
                                AnnotateCallback annotate) {
     // We don't care if the table has already an annotation. If it's the case we
     // keep the new one.
-    general_column_annotations_.insert(
-        ColumnData(column.type(), column.index()), std::move(annotate).Run());
+    general_column_annotations_[ColumnData(column.type(), column.index())] =
+        std::move(annotate).Run();
   }
 
   // Allocate a new fixed column
   FixedColumn CreateFixedColumn() { return FixedColumn(num_fixed_columns_++); }
 
   // Allocate a new advice column at |kFirstPhase|.
-  AdviceColumn CreateAdviceColumn(Phase phase) {
-    return CreateAdviceColumn(kFirstPhase);
-  }
+  AdviceColumn CreateAdviceColumn() { return CreateAdviceColumn(kFirstPhase); }
 
   // Allocate a new advice column in given phase
   AdviceColumn CreateAdviceColumn(Phase phase) {
@@ -332,20 +332,20 @@ class ConstraintSystem {
     CHECK(base::Contains(advice_column_phases_, phase))
         << "Phase " << phase.ToString() << "is not used";
     Challenge challenge(num_challenges_++, phase);
-    challenge_phases_.push(phase);
+    challenge_phases_.push_back(phase);
     return challenge;
   }
 
   Phase ComputeMaxPhase() const {
     auto max_phase_it = std::max_element(advice_column_phases_.begin(),
                                          advice_column_phases_.end());
-    if (max_phase_it == advice_column_phases_.end()) return 0;
+    if (max_phase_it == advice_column_phases_.end()) return Phase(0);
     return *max_phase_it;
   }
 
   std::vector<Phase> GetPhases() const {
     Phase max_phase = ComputeMaxPhase();
-    return base::CreateVector(size_t{max_phase}, [](size_t i) {
+    return base::CreateVector(size_t{max_phase.value()}, [](size_t i) {
       return Phase(static_cast<uint8_t>(i));
     });
   }
@@ -384,7 +384,7 @@ class ConstraintSystem {
     //   times.
     // - Each lookup argument has independent witness polynomials, and they are
     //   evaluated at most 2 times.
-    size_t factors = std::max(3, factors);
+    factors = std::max(size_t{3}, factors);
 
     // Each polynomial is evaluated at most an additional time during
     // multiopen (at x₃ to produce qₑᵥₐₗₛ):
@@ -412,13 +412,13 @@ class ConstraintSystem {
                 // argument, to essentially force a separation in the
            // permutation polynomial between the roles of lₗₐₛₜ, l₀
            // and the interstitial values.)
-           + 1  // for at least one row
+           + 1;  // for at least one row
   }
 
  private:
   template <typename QueryDataTy, typename ColumnTy>
   static bool QueryIndex(const std::vector<QueryDataTy>& queries,
-                         const ColumnTy& column, Rotation at, size_t index) {
+                         const ColumnTy& column, Rotation at, size_t* index) {
     // Return existing query, if it exists
     auto it = std::find_if(queries.begin(), queries.end(),
                            [&column, at](const QueryDataTy& query) {
@@ -432,7 +432,7 @@ class ConstraintSystem {
 
   size_t ComputeLookupRequiredDegree() const {
     std::vector<size_t> required_degrees =
-        base::Map(lookups_, [](const LookupArgument& argument) {
+        base::Map(lookups_, [](const LookupArgument<F>& argument) {
           return argument.RequiredDegree();
         });
     auto max_required_degree =
@@ -446,7 +446,7 @@ class ConstraintSystem {
         base::FlatMap(gates_, [](const Gate<F>& gate) {
           return base::Map(gate.polys,
                            [](const std::unique_ptr<Expression<F>>& poly) {
-                             return poly->Degree()
+                             return poly->Degree();
                            });
         });
     auto max_required_degree =
@@ -488,11 +488,11 @@ class ConstraintSystem {
   // Vector of lookup arguments, where each corresponds
   // to a sequence of input expressions and a sequence
   // of table expressions involved in the lookup.
-  std::vector<LookupArgument> lookups_;
+  std::vector<LookupArgument<F>> lookups_;
 
   // List of indexes of Fixed columns which are associated to a
   // circuit-general Column tied to their annotation.
-  absl::flat_hash_set<Column, std::string> general_column_annotations_;
+  absl::flat_hash_map<ColumnData, std::string> general_column_annotations_;
 
   // Vector of fixed columns, which can be used to store constant values
   // that are copied into advice columns.
