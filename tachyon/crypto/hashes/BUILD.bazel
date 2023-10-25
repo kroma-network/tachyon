@@ -9,6 +9,7 @@ tachyon_cc_library(
         "//tachyon/base/buffer",
         "//tachyon/math/base:big_int",
         "//tachyon/math/finite_fields:finite_field_traits",
+        "@com_google_absl//absl/container:inlined_vector",
     ],
 )
 
