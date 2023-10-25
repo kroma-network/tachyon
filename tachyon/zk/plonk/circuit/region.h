@@ -22,7 +22,7 @@ namespace tachyon::zk {
 template <typename F>
 class Region {
  public:
-  using AnnotationCallback = base::OnceCallback<std::string()>;
+  using AnnotateCallback = base::OnceCallback<std::string()>;
   using AssignCallback = base::OnceCallback<Value<math::RationalField<F>>()>;
 
   class Layouter {
@@ -30,7 +30,7 @@ class Region {
     virtual ~Layouter() = default;
 
     // Enables a |selector| at the given |offset|.
-    virtual Error EnableSelector(AnnotationCallback annotation,
+    virtual Error EnableSelector(AnnotateCallback annotate,
                                  const Selector& selector, size_t offset) {
       return Error::kNone;
     }
@@ -40,11 +40,11 @@ class Region {
     //
     // This is useful in order to improve the amount of information that
     // |prover.Verify()| and |prover.AssertSatisfied()| can provide.
-    virtual void NameColumn(AnnotationCallback annotation,
+    virtual void NameColumn(AnnotateCallback annotate,
                             const AnyColumn& column) {}
 
     // Assign an advice column value (witness)
-    virtual Error AssignAdvice(AnnotationCallback annotation,
+    virtual Error AssignAdvice(AnnotateCallback annotate,
                                const AdviceColumn& column, size_t offset,
                                AssignCallback to, Cell* cell) {
       return Error::kNone;
@@ -58,7 +58,7 @@ class Region {
     //
     // Returns |Error::kNone| and populates |cell| that has been
     // equality-constrained to the constant.
-    virtual Error AssignAdviceFromConstant(AnnotationCallback annotation,
+    virtual Error AssignAdviceFromConstant(AnnotateCallback annotate,
                                            const AdviceColumn& column,
                                            size_t offset,
                                            math::RationalField<F> constant,
@@ -70,17 +70,14 @@ class Region {
     // |row| to the column |advice| at |offset| within this region.
     //
     // Returns |Error::kNone| and populates |cell| if known.
-    virtual Error AssignAdviceFromInstance(AnnotationCallback annotation,
-                                           const InstanceColumn& instance,
-                                           size_t row,
-                                           const InstanceColumn& advice,
-                                           size_t offset,
-                                           AssignedCell<F>* cell) {
+    virtual Error AssignAdviceFromInstance(
+        AnnotateCallback annotate, const InstanceColumn& instance, size_t row,
+        const InstanceColumn& advice, size_t offset, AssignedCell<F>* cell) {
       return Error::kNone;
     }
 
     // Assign a fixed value
-    virtual Error AssignFixed(AnnotationCallback annotation,
+    virtual Error AssignFixed(AnnotateCallback annotate,
                               const FixedColumn& column, size_t offset,
                               AssignCallback to, Cell* cell) {
       return Error::kNone;
