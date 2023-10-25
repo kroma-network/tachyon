@@ -36,9 +36,9 @@ class TACHYON_EXPORT Cell {
 
  private:
   // Identifies the region in which this cell resides.
-  size_t region_index_;
+  size_t region_index_ = 0;
   // The relative offset of this cell within its region.
-  size_t row_offset_;
+  size_t row_offset_ = 0;
   // The column of this cell.
   AnyColumn column_;
 };
