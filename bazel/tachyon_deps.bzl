@@ -89,6 +89,14 @@ def tachyon_deps():
             patches = ["@kroma_network_tachyon//third_party/absl:add_missing_linkopts.patch"],
         )
 
+    if not native.existing_rule("com_google_boringssl"):
+        http_archive(
+            name = "com_google_boringssl",
+            sha256 = "c17af0c3ddd72613a6cacf3761cebaa583806fc49fb53ac021ae479aa8265c93",
+            strip_prefix = "boringssl-b69f4d27a75dcf4b94138790883b44274fab56c2",
+            urls = ["https://github.com/google/boringssl/archive/b69f4d27a75dcf4b94138790883b44274fab56c2.tar.gz"],
+        )
+
     if not native.existing_rule("com_google_googletest"):
         http_archive(
             name = "com_google_googletest",

@@ -18,13 +18,26 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "sha256_transcript",
+    hdrs = ["sha256_transcript.h"],
+    deps = [
+        ":transcript",
+        "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/base/ranges:algorithm",
+        "@com_google_boringssl//:crypto",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "transcript_unittests",
     srcs = [
         "poseidon_transcript_unittest.cc",
+        "sha256_transcript_unittest.cc",
     ],
     deps = [
         ":poseidon_transcript",
+        ":sha256_transcript",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
     ],
 )
