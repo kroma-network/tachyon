@@ -16,7 +16,7 @@ namespace tachyon::math {
 template <typename F>
 constexpr size_t MaxDegreeForEvaluationDomainFactory() {
   size_t i = 1;
-  if constexpr (Config::kHasLargeSubgroupRootOfUnity) {
+  if constexpr (F::Config::kHasLargeSubgroupRootOfUnity) {
     for (size_t i = 0; i <= F::Config::kSmallSubgroupAdicity; ++i) {
       i *= F::Config::kSmallSubgroupBase;
     }

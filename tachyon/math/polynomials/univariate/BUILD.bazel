@@ -48,7 +48,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "univariate_evaluation_domain_factory",
     hdrs = ["univariate_evaluation_domain_factory.h"],
-    deps = [":radix2_evaluation_domain"],
+    deps = [
+        ":mixed_radix_evaluation_domain",
+        ":radix2_evaluation_domain",
+    ],
 )
 
 tachyon_cc_library(

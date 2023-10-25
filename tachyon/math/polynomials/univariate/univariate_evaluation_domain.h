@@ -75,7 +75,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     std::unique_ptr<UnivariateEvaluationDomain> coset = Clone();
     coset->offset_ = offset;
     coset->offset_inv_ = offset.Inverse();
-    coset->offset_pow_size_ = offset.Pow(BigInt<1>(this->size_));
+    coset->offset_pow_size_ = offset.Pow(BigInt<1>(size_));
     return coset;
   }
 
@@ -93,6 +93,105 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Compute an IFFT.
   [[nodiscard]] constexpr virtual DensePoly IFFT(const Evals& evals) const = 0;
+
+  // Computes the first |size| roots of unity for the entire domain.
+  // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it computes
+  // [1, g, g², ..., g^{(n / 2) - 1}]
+  constexpr std::vector<F> GetRootsOfUnity(size_t size, const F& root) const {
+#if defined(TACHYON_HAS_OPENMP)
+    uint32_t log_size = SafeLog2Ceiling(size_);
+    if (log_size <= kMinLogRootsOfUnitySizeForParallelization)
+#endif
+      return ComputePowersSerial(size, root);
+#if defined(TACHYON_HAS_OPENMP)
+    size_t required_log_size = size_t{SafeLog2Ceiling(size)};
+    F power = root;
+    // [g, g², g⁴, g⁸, ..., g^(2^(|required_log_size|))]
+    std::vector<F> log_powers =
+        base::CreateVector(required_log_size, [&power]() {
+          F old_value = power;
+          power.SquareInPlace();
+          return old_value;
+        });
+
+    // allocate the return array and start the recursion
+    std::vector<F> powers =
+        base::CreateVector(size_t{1} << required_log_size, F::Zero());
+    GetRootsOfUnityRecursive(powers, absl::MakeConstSpan(log_powers));
+    return powers;
+#endif
+  }
+
+  constexpr static std::vector<F> ComputePowersSerial(size_t size,
+                                                      const F& root) {
+    return ComputePowersAndMulByConstSerial(size, root, F::One());
+  }
+
+  constexpr static std::vector<F> ComputePowersAndMulByConstSerial(
+      size_t size, const F& root, const F& c) {
+    F value = c;
+    return base::CreateVector(
+        size, [&value, root]() { return std::exchange(value, value * root); });
+  }
+
+#if defined(TACHYON_HAS_OPENMP)
+  constexpr static void GetRootsOfUnityRecursive(
+      std::vector<F>& out, const absl::Span<const F>& log_powers) {
+    CHECK_EQ(out.size(), size_t{1} << log_powers.size());
+    // base case: just compute the powers sequentially,
+    // g = log_powers[0], |out| = [1, g, g², ..., g^(|log_powers.size() - 1|)]
+    if (log_powers.size() <=
+        size_t{kMinLogRootsOfUnitySizeForParallelization}) {
+      out[0] = F::One();
+      for (size_t i = 1; i < out.size(); ++i) {
+        out[i] = out[i - 1] * log_powers[0];
+      }
+      return;
+    }
+
+    // recursive case:
+    // 1. split |log_powers| in half
+    // |log_powers| =[g, g², g⁴, g⁸]
+    size_t half_size = (1 + log_powers.size()) / 2;
+    // |log_powers_lo| = [g, g²]
+    absl::Span<const F> log_powers_lo = log_powers.subspan(0, half_size);
+    // |log_powers_lo| = [g⁴, g⁸]
+    absl::Span<const F> log_powers_hi = log_powers.subspan(half_size);
+    std::vector<F> src_lo =
+        base::CreateVector(1 << log_powers_lo.size(), F::Zero());
+    std::vector<F> src_hi =
+        base::CreateVector(1 << log_powers_hi.size(), F::Zero());
+
+    // clang-format off
+    // 2. compute each half individually
+    // |src_lo| = [1, g, g², g³]
+    // |src_hi| = [1, g⁴, g⁸, g¹²]
+    // clang-format on
+#pragma omp parallel for
+    for (size_t i = 0; i < 2; ++i) {
+      GetRootsOfUnityRecursive(i == 0 ? src_lo : src_hi,
+                               i == 0 ? log_powers_lo : log_powers_hi);
+    }
+
+    // clang-format off
+    // 3. recombine halves
+    // At this point, out is a blank slice.
+    // |out| = [1, g, g², g³, g⁴, g⁵, g⁶, g⁷, g⁸, ... g¹², g¹³, g¹⁴, g¹⁵]
+    // clang-format on
+    auto out_chunks = base::Chunked(out, src_lo.size());
+    std::vector<absl::Span<F>> out_chunks_vector =
+        base::Map(out_chunks.begin(), out_chunks.end(),
+                  [](const absl::Span<F>& chunk) { return chunk; });
+#pragma omp parallel for
+    for (size_t i = 0; i < out_chunks_vector.size(); ++i) {
+      const F& hi = src_hi[i];
+      absl::Span<F> out_chunks = out_chunks_vector[i];
+      for (size_t j = 0; j < out_chunks.size(); ++j) {
+        out_chunks[j] = hi * src_lo[j];
+      }
+    }
+  }
+#endif
 
   // Define the following as
   // - H: The coset we are in, with generator g and offset h
