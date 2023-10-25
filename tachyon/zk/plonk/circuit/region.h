@@ -70,7 +70,7 @@ class Region {
     // Returns |Error::kNone| and populates |cell| if known.
     virtual Error AssignAdviceFromInstance(
         AnnotateCallback annotate, const InstanceColumn& instance, size_t row,
-        const InstanceColumn& advice, size_t offset, AssignedCell<F>* cell) {
+        const AdviceColumn& advice, size_t offset, AssignedCell<F>* cell) {
       return Error::kNone;
     }
 
