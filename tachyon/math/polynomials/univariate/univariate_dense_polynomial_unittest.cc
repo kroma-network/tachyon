@@ -15,7 +15,7 @@ using Coeffs = UnivariateDenseCoefficients<GF7, kMaxDegree>;
 
 class UnivariateDensePolynomialTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7Config::Init(); }
+  static void SetUpTestSuite() { GF7::Init(); }
 
   void SetUp() override {
     polys_.push_back(Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));

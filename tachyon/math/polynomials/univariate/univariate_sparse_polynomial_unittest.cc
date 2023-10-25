@@ -17,7 +17,7 @@ using Coeffs = UnivariateSparseCoefficients<GF7, kMaxDegree>;
 
 class UnivariateSparsePolynomialTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7Config::Init(); }
+  static void SetUpTestSuite() { GF7::Init(); }
 
   void SetUp() override {
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})));

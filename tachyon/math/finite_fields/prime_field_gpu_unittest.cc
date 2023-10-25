@@ -45,7 +45,7 @@ class PrimeFieldGpuTest : public testing::Test {
     results_ = gpu::GpuMemory<GF7Gpu>::MallocManaged(N);
     bool_results_ = gpu::GpuMemory<bool>::MallocManaged(N);
 
-    GF7Config::Init();
+    GF7::Init();
   }
 
   static void TearDownTestSuite() {

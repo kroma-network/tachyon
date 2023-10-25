@@ -15,7 +15,7 @@ using Poly = UnivariateEvaluations<GF7, kMaxDegree>;
 
 class UnivariateEvaluationsTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7Config::Init(); }
+  static void SetUpTestSuite() { GF7::Init(); }
 
   void SetUp() override {
     polys_.push_back(Poly({GF7(3), GF7(6), GF7(4), GF7(6), GF7(6)}));

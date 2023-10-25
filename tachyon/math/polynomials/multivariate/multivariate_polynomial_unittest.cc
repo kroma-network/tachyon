@@ -16,7 +16,7 @@ using Coeffs = MultivariateSparseCoefficients<GF7, kMaxDegree>;
 
 class MultivariatePolynomialTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7Config::Init(); }
+  static void SetUpTestSuite() { GF7::Init(); }
 
   void SetUp() override {
     // poly0: 2

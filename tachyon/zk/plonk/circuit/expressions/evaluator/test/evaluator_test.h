@@ -24,7 +24,7 @@ using Coeffs = math::UnivariateDenseCoefficients<GF7, kMaxDegree>;
 
 class EvaluatorTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { math::GF7Config::Init(); }
+  static void SetUpTestSuite() { math::GF7::Init(); }
 
   void SetUp() override {
     fixed_polys_.push_back(Poly(Coeffs({GF7(3)})));

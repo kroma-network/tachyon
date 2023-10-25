@@ -15,7 +15,7 @@ using Evals = MultilinearDenseEvaluations<GF7, kMaxDegree>;
 
 class MultilinearDenseEvaluationsTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7Config::Init(); }
+  static void SetUpTestSuite() { GF7::Init(); }
 
   void SetUp() override {
     polys_.push_back(Poly(Evals({GF7(2), GF7(3)})));
