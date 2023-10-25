@@ -93,6 +93,19 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "layouter",
+    hdrs = ["layouter.h"],
+    deps = [
+        ":challenge",
+        ":region",
+        ":table",
+        "//tachyon/base/functional:callback",
+        "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
     name = "phase",
     hdrs = ["phase.h"],
     deps = ["//tachyon/base/strings:string_number_conversions"],
