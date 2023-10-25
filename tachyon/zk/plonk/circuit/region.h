@@ -46,7 +46,7 @@ class Region {
     // Assign an advice column value (witness)
     virtual Error AssignAdvice(AnnotateCallback annotate,
                                const AdviceColumn& column, size_t offset,
-                               AssignCallback to, Cell* cell) {
+                               AssignCallback assign, Cell* cell) {
       return Error::kNone;
     }
 
@@ -79,7 +79,7 @@ class Region {
     // Assign a fixed value
     virtual Error AssignFixed(AnnotateCallback annotate,
                               const FixedColumn& column, size_t offset,
-                              AssignCallback to, Cell* cell) {
+                              AssignCallback assign, Cell* cell) {
       return Error::kNone;
     }
 
