@@ -8,7 +8,12 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-TEST(ChallengeExpressionTest, DegreeComplexity) {
+class ChallengeExpressionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() { Fr::Init(); }
+};
+
+TEST_F(ChallengeExpressionTest, DegreeComplexity) {
   std::unique_ptr<ChallengeExpression<Fr>> expr =
       ChallengeExpression<Fr>::CreateForTesting(Challenge(1, Phase(1)));
   EXPECT_EQ(expr->Degree(), size_t{0});

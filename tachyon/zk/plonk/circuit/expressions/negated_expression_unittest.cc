@@ -9,7 +9,12 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-TEST(NegatedExpressionTest, DegreeComplexity) {
+class NegatedExpressionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() { Fr::Init(); }
+};
+
+TEST_F(NegatedExpressionTest, DegreeComplexity) {
   std::unique_ptr<ConstantExpression<Fr>> expr =
       ConstantExpression<Fr>::CreateForTesting(Fr::One());
 

@@ -8,7 +8,12 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-TEST(FixedExpressionTest, DegreeComplexity) {
+class FixedExpressionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() { Fr::Init(); }
+};
+
+TEST_F(FixedExpressionTest, DegreeComplexity) {
   std::unique_ptr<FixedExpression<Fr>> expr =
       FixedExpression<Fr>::CreateForTesting(
           FixedQuery(1, Rotation(1), FixedColumn(1)));

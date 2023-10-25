@@ -10,7 +10,12 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-TEST(SumExpressionTest, DegreeComplexity) {
+class SumExpressionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() { Fr::Init(); }
+};
+
+TEST_F(SumExpressionTest, DegreeComplexity) {
   std::unique_ptr<ConstantExpression<Fr>> left =
       ConstantExpression<Fr>::CreateForTesting(Fr::One());
   std::unique_ptr<SelectorExpression<Fr>> right =

@@ -12,6 +12,8 @@ namespace {
 
 class ExpressionTest : public testing::Test {
  public:
+  static void SetUpTestSuite() { Fr::Init(); }
+
   void SetUp() override {
     expressions_.push_back(ExpressionFactory<Fr>::Constant(Fr(1)));
     expressions_.push_back(
