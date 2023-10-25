@@ -18,7 +18,7 @@ class MultivariatePolynomialTest : public testing::Test {
  public:
   static void SetUpTestSuite() { GF7Config::Init(); }
 
-  MultivariatePolynomialTest() {
+  void SetUp() override {
     // poly0: 2
     polys_.push_back(Poly(Coeffs(1, {
                                         {
@@ -165,10 +165,6 @@ class MultivariatePolynomialTest : public testing::Test {
                                         },                  // Term
                                     })));                   // vector<Term>
   }
-  MultivariatePolynomialTest(const MultivariatePolynomialTest&) = delete;
-  MultivariatePolynomialTest& operator=(const MultivariatePolynomialTest&) =
-      delete;
-  ~MultivariatePolynomialTest() override = default;
 
  protected:
   std::vector<Poly> polys_;

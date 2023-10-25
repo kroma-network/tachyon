@@ -17,17 +17,13 @@ class UnivariateDensePolynomialTest : public testing::Test {
  public:
   static void SetUpTestSuite() { GF7Config::Init(); }
 
-  UnivariateDensePolynomialTest() {
+  void SetUp() override {
     polys_.push_back(Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));
     polys_.push_back(Poly(Coeffs({GF7(3)})));
     polys_.push_back(Poly(Coeffs({GF7(0), GF7(0), GF7(0), GF7(5)})));
     polys_.push_back(Poly(Coeffs({GF7(0), GF7(0), GF7(0), GF7(0), GF7(5)})));
     polys_.push_back(Poly::Zero());
   }
-  UnivariateDensePolynomialTest(const UnivariateDensePolynomialTest&) = delete;
-  UnivariateDensePolynomialTest& operator=(
-      const UnivariateDensePolynomialTest&) = delete;
-  ~UnivariateDensePolynomialTest() override = default;
 
  protected:
   std::vector<Poly> polys_;

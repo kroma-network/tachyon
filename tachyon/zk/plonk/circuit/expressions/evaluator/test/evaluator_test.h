@@ -26,7 +26,7 @@ class EvaluatorTest : public testing::Test {
  public:
   static void SetUpTestSuite() { math::GF7Config::Init(); }
 
-  EvaluatorTest() {
+  void SetUp() override {
     fixed_polys_.push_back(Poly(Coeffs({GF7(3)})));
     fixed_polys_.push_back(Poly(Coeffs({GF7(2), GF7(4)})));
 
@@ -45,9 +45,6 @@ class EvaluatorTest : public testing::Test {
     challenges_.push_back(GF7(4));
     challenges_.push_back(GF7(5));
   }
-  EvaluatorTest(const EvaluatorTest&) = delete;
-  EvaluatorTest& operator=(const EvaluatorTest&) = delete;
-  ~EvaluatorTest() override = default;
 
  protected:
   std::vector<Poly> fixed_polys_;

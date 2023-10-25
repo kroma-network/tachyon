@@ -17,17 +17,13 @@ class UnivariateEvaluationsTest : public testing::Test {
  public:
   static void SetUpTestSuite() { GF7Config::Init(); }
 
-  UnivariateEvaluationsTest() {
+  void SetUp() override {
     polys_.push_back(Poly({GF7(3), GF7(6), GF7(4), GF7(6), GF7(6)}));
     polys_.push_back(Poly({GF7(3)}));
     polys_.push_back(Poly({GF7(2), GF7(5), GF7(5), GF7(2)}));
     polys_.push_back(Poly({GF7(1), GF7(5), GF7(3), GF7(6), GF7(6)}));
     polys_.push_back(Poly::Zero(0));
   }
-  UnivariateEvaluationsTest(const UnivariateEvaluationsTest&) = delete;
-  UnivariateEvaluationsTest& operator=(const UnivariateEvaluationsTest&) =
-      delete;
-  ~UnivariateEvaluationsTest() override = default;
 
  protected:
   std::vector<Poly> polys_;
