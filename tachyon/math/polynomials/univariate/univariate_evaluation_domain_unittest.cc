@@ -310,23 +310,18 @@ TYPED_TEST(UnivariateEvaluationDomainTest, RootsOfUnity) {
   using UnivariateEvaluationDomainType = TypeParam;
   using F = typename UnivariateEvaluationDomainType::Field;
 
-  if constexpr (std::is_same_v<F, bls12_381::Fr>) {
-    for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
-      std::unique_ptr<UnivariateEvaluationDomainType> domain =
-          UnivariateEvaluationDomainType::Create(coeffs);
-      std::vector<bls12_381::Fr> actual_roots =
-          domain->GetRootsOfUnity(domain->size() / 2, domain->group_gen());
-      for (const bls12_381::Fr& value : actual_roots) {
-        EXPECT_TRUE(domain->EvaluateVanishingPolynomial(value).IsZero());
-      }
-      EXPECT_EQ(actual_roots.size(), domain->size() / 2);
-      std::vector<bls12_381::Fr> expected_roots = domain->GetElements();
-      EXPECT_EQ(absl::MakeConstSpan(actual_roots),
-                absl::Span(expected_roots.data(), actual_roots.size()));
+  for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
+    std::unique_ptr<UnivariateEvaluationDomainType> domain =
+        UnivariateEvaluationDomainType::Create(coeffs);
+    std::vector<F> actual_roots =
+        domain->GetRootsOfUnity(domain->size(), domain->group_gen());
+    for (const F& value : actual_roots) {
+      EXPECT_TRUE(domain->EvaluateVanishingPolynomial(value).IsZero());
     }
-  } else {
-    GTEST_SKIP() << "Skip testing RootsOfUnity on "
-                    "MixedRadixEvaluationDomain";
+    EXPECT_EQ(actual_roots.size(), domain->size());
+    std::vector<F> expected_roots = domain->GetElements();
+    EXPECT_EQ(absl::MakeConstSpan(actual_roots),
+              absl::Span(expected_roots.data(), actual_roots.size()));
   }
 }
 
