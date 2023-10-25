@@ -15,19 +15,14 @@ using Evals = MultilinearDenseEvaluations<GF7, kMaxDegree>;
 
 class MultilinearDenseEvaluationsTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7Config::Init(); }
+  static void SetUpTestSuite() { GF7::Init(); }
 
-  MultilinearDenseEvaluationsTest() {
+  void SetUp() override {
     polys_.push_back(Poly(Evals({GF7(2), GF7(3)})));
     polys_.push_back(Poly(Evals({GF7(4), GF7(2)})));
     polys_.push_back(Poly(Evals({GF7(2), GF7(3), GF7(2), GF7(6), GF7(5)})));
     polys_.push_back(Poly(Evals({GF7(3), GF7(1), GF7(1), GF7(4), GF7(2)})));
   }
-  MultilinearDenseEvaluationsTest(const MultilinearDenseEvaluationsTest&) =
-      delete;
-  MultilinearDenseEvaluationsTest& operator=(
-      const MultilinearDenseEvaluationsTest&) = delete;
-  ~MultilinearDenseEvaluationsTest() override = default;
 
  protected:
   std::vector<Poly> polys_;

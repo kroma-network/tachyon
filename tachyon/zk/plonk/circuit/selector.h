@@ -27,6 +27,11 @@ class TACHYON_EXPORT Selector {
 
   bool is_simple() const { return is_simple_; }
 
+  bool operator==(const Selector& other) const {
+    return index_ == other.index_ && is_simple_ == other.is_simple_;
+  }
+  bool operator!=(const Selector& other) const { return !operator==(other); }
+
   std::string ToString() const {
     return absl::Substitute("{index: $0, is_simple: $1}", index_, is_simple_);
   }

@@ -8,7 +8,12 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-TEST(AdviceExpressionTest, DegreeComplexity) {
+class AdviceExpressionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() { Fr::Init(); }
+};
+
+TEST_F(AdviceExpressionTest, DegreeComplexity) {
   std::unique_ptr<AdviceExpression<Fr>> expr =
       AdviceExpression<Fr>::CreateForTesting(
           AdviceQuery(1, Rotation(1), AdviceColumn(1, Phase(0))));

@@ -30,11 +30,24 @@ class NegatedExpression : public Expression<F> {
 
   Expression<F>* expr() const { return expr_.get(); }
 
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const NegatedExpression* negated = other.ToNegated();
+    return *expr_ == *negated->expr_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
+
   // Expression methods
   size_t Degree() const override { return expr_->Degree(); }
 
   uint64_t Complexity() const override {
     return expr_->Complexity() + kOverhead;
+  }
+
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(new NegatedExpression(expr_->Clone()));
   }
 
   std::string ToString() const override {

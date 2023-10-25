@@ -8,6 +8,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/containers:container_util",
         "//tachyon/base/containers:contains",
+        "//tachyon/base/functional:callback",
         "//tachyon/zk/plonk/circuit:constraint",
         "//tachyon/zk/plonk/circuit:gate",
         "//tachyon/zk/plonk/circuit:query",

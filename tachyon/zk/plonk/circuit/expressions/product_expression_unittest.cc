@@ -12,7 +12,12 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-TEST(ProductExpressionTest, DegreeComplexity) {
+class ProductExpressionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() { Fr::Init(); }
+};
+
+TEST_F(ProductExpressionTest, DegreeComplexity) {
   std::unique_ptr<ConstantExpression<Fr>> left =
       ConstantExpression<Fr>::CreateForTesting(Fr::One());
   std::unique_ptr<SelectorExpression<Fr>> right =
@@ -24,8 +29,8 @@ TEST(ProductExpressionTest, DegreeComplexity) {
   uint64_t right_complexity = right->Complexity();
 
   std::unique_ptr<ProductExpression<Fr>> prod_expression =
-      ProductExpression<Fr>::CreateForTesting(
-          {std::move(left), std::move(right)});
+      ProductExpression<Fr>::CreateForTesting(std::move(left),
+                                              std::move(right));
 
   EXPECT_EQ(prod_expression->Degree(), std::max(left_degree, right_degree));
   EXPECT_EQ(

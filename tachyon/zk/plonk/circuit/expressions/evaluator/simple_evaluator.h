@@ -91,7 +91,7 @@ class SimpleEvaluator
         return *ret;
       }
       case ExpressionType::kChallenge:
-        return (*challenges_)[input->ToChallenge()->index()];
+        return (*challenges_)[input->ToChallenge()->challenge().index()];
 
       case ExpressionType::kNegated: {
         return -Evaluate(input->ToNegated()->expr());
@@ -109,7 +109,7 @@ class SimpleEvaluator
 
       case ExpressionType::kScaled: {
         const ScaledExpression<Field>* scaled = input->ToScaled();
-        return Evaluate(scaled->left()) * scaled->right();
+        return Evaluate(scaled->expr()) * scaled->scale();
       }
     }
     NOTREACHED();

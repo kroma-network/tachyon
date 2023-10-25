@@ -133,8 +133,6 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  constexpr static bool kHasTwoAdicRootOfUnity = false;",
       "",
       "  constexpr static bool kHasLargeSubgroupRootOfUnity = false;",
-      "",
-      "  static void Init();",
       "};",
       "",
       "using %{class} = PrimeField<%{class}Config>;",
@@ -305,29 +303,6 @@ int GenerationConfig::GenerateConfigHdr() const {
   return WriteHdr(content, false);
 }
 
-int GenerationConfig::GenerateConfigCpp() const {
-  std::string_view tpl[] = {
-      "namespace %{namespace} {",
-      "",
-      "// static",
-      "void %{class}Config::Init() {",
-      "#if defined(TACHYON_GMP_BACKEND)",
-      "  %{class}Gmp::Init();",
-      "#endif  // defined(TACHYON_GMP_BACKEND)",
-      "}",
-      "",
-      "}  // namespace %{namespace}",
-  };
-  std::string tpl_content = absl::StrJoin(tpl, "\n");
-
-  std::string content =
-      absl::StrReplaceAll(tpl_content, {
-                                           {"%{namespace}", ns_name},
-                                           {"%{class}", class_name},
-                                       });
-  return WriteSrc(content);
-}
-
 int GenerationConfig::GenerateConfigGpuHdr() const {
   std::string_view tpl[] = {
       "#include \"%{header_path}\"",
@@ -388,8 +363,6 @@ int RealMain(int argc, char** argv) {
     return config.GenerateConfigGpuHdr();
   } else if (base::EndsWith(config.out.value(), ".h")) {
     return config.GenerateConfigHdr();
-  } else if (base::EndsWith(config.out.value(), ".cc")) {
-    return config.GenerateConfigCpp();
   } else {
     tachyon_cerr << "not supported suffix:" << config.out << std::endl;
     return 1;

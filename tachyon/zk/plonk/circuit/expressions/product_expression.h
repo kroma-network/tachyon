@@ -24,41 +24,53 @@ class ProductExpression : public Expression<F> {
   constexpr static uint64_t kOverhead = 30;
 
   static std::unique_ptr<ProductExpression> CreateForTesting(
-      Operands<std::unique_ptr<Expression<F>>, std::unique_ptr<Expression<F>>>
-          operands) {
-    return absl::WrapUnique(new ProductExpression(std::move(operands)));
+      std::unique_ptr<Expression<F>> left,
+      std::unique_ptr<Expression<F>> right) {
+    return absl::WrapUnique(
+        new ProductExpression(std::move(left), std::move(right)));
   }
 
-  const Expression<F>* left() const { return operands_.left.get(); }
-  const Expression<F>* right() const { return operands_.right.get(); }
+  const Expression<F>* left() const { return left_.get(); }
+  const Expression<F>* right() const { return right_.get(); }
+
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const ProductExpression* product = other.ToProduct();
+    return *left_ == *product->left_ && *right_ == *product->right_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
 
   // Expression methods
-  size_t Degree() const override {
-    return operands_.left->Degree() + operands_.right->Degree();
-  }
+  size_t Degree() const override { return left_->Degree() + right_->Degree(); }
 
   uint64_t Complexity() const override {
-    return operands_.left->Complexity() + operands_.right->Complexity() +
-           kOverhead;
+    return left_->Complexity() + right_->Complexity() + kOverhead;
+  }
+
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(
+        new ProductExpression(left_->Clone(), right_->Clone()));
   }
 
   std::string ToString() const override {
-    return absl::Substitute(
-        "{type: $0, left: $1, right: $2}", ExpressionTypeToString(this->type_),
-        operands_.left->ToString(), operands_.right->ToString());
+    return absl::Substitute("{type: $0, left: $1, right: $2}",
+                            ExpressionTypeToString(this->type_),
+                            left_->ToString(), right_->ToString());
   }
 
  private:
   friend class ExpressionFactory<F>;
 
-  explicit ProductExpression(
-      Operands<std::unique_ptr<Expression<F>>, std::unique_ptr<Expression<F>>>
-          operands)
+  ProductExpression(std::unique_ptr<Expression<F>> left,
+                    std::unique_ptr<Expression<F>> right)
       : Expression<F>(ExpressionType::kProduct),
-        operands_(std::move(operands)) {}
+        left_(std::move(left)),
+        right_(std::move(right)) {}
 
-  Operands<std::unique_ptr<Expression<F>>, std::unique_ptr<Expression<F>>>
-      operands_;
+  std::unique_ptr<Expression<F>> left_;
+  std::unique_ptr<Expression<F>> right_;
 };
 
 }  // namespace tachyon::zk

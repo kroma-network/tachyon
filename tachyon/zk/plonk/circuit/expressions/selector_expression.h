@@ -28,11 +28,24 @@ class SelectorExpression : public Expression<F> {
 
   const Selector& selector() const { return selector_; }
 
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const SelectorExpression* selector = other.ToSelector();
+    return selector_ == selector->selector_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
+
+  // Expression methods
   size_t Degree() const override { return 1; }
 
   uint64_t Complexity() const override { return 1; }
 
-  // Expression methods
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(new SelectorExpression(selector_));
+  }
+
   std::string ToString() const override {
     return absl::Substitute("{type: $0, selector: $1}",
                             ExpressionTypeToString(this->type_),

@@ -27,10 +27,23 @@ class ConstantExpression : public Expression<F> {
 
   const F& value() const { return value_; }
 
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const ConstantExpression* constant = other.ToConstant();
+    return value_ == constant->value_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
+
   // Expression methods
   size_t Degree() const override { return 0; }
 
   uint64_t Complexity() const override { return 0; }
+
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(new ConstantExpression(value_));
+  }
 
   std::string ToString() const override {
     return absl::Substitute("{type: $0, value: $1}",

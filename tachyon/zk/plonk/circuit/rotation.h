@@ -32,6 +32,13 @@ class TACHYON_EXPORT Rotation {
 
   int32_t value() const { return value_; }
 
+  bool operator==(const Rotation& other) const {
+    return value_ == other.value_;
+  }
+  bool operator!=(const Rotation& other) const {
+    return value_ != other.value_;
+  }
+
   std::string ToString() const { return base::NumberToString(value_); }
 
   // Returns ((|idx| + |value_| * |scale|) % |size|).

@@ -10,7 +10,12 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-TEST(SumExpressionTest, DegreeComplexity) {
+class SumExpressionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() { Fr::Init(); }
+};
+
+TEST_F(SumExpressionTest, DegreeComplexity) {
   std::unique_ptr<ConstantExpression<Fr>> left =
       ConstantExpression<Fr>::CreateForTesting(Fr::One());
   std::unique_ptr<SelectorExpression<Fr>> right =
@@ -22,7 +27,7 @@ TEST(SumExpressionTest, DegreeComplexity) {
   uint64_t right_complexity = right->Complexity();
 
   std::unique_ptr<SumExpression<Fr>> sum_expression =
-      SumExpression<Fr>::CreateForTesting({std::move(left), std::move(right)});
+      SumExpression<Fr>::CreateForTesting(std::move(left), std::move(right));
 
   EXPECT_EQ(sum_expression->Degree(), std::max(left_degree, right_degree));
   EXPECT_EQ(sum_expression->Complexity(),

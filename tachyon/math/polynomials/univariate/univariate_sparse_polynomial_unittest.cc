@@ -17,9 +17,9 @@ using Coeffs = UnivariateSparseCoefficients<GF7, kMaxDegree>;
 
 class UnivariateSparsePolynomialTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7Config::Init(); }
+  static void SetUpTestSuite() { GF7::Init(); }
 
-  UnivariateSparsePolynomialTest() {
+  void SetUp() override {
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})));
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}})));
     polys_.push_back(Poly(Coeffs({{3, GF7(5)}})));
@@ -28,11 +28,6 @@ class UnivariateSparsePolynomialTest : public testing::Test {
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {1, GF7(4)}, {2, GF7(1)}})));
     polys_.push_back(Poly::Zero());
   }
-  UnivariateSparsePolynomialTest(const UnivariateSparsePolynomialTest&) =
-      delete;
-  UnivariateSparsePolynomialTest& operator=(
-      const UnivariateSparsePolynomialTest&) = delete;
-  ~UnivariateSparsePolynomialTest() override = default;
 
  protected:
   std::vector<Poly> polys_;

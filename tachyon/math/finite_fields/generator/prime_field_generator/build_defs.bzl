@@ -68,7 +68,6 @@ def generate_prime_fields(
         deps = [],
         **kwargs):
     for n in [
-        ("{}_gen_cc".format(name), "{}.cc".format(name)),
         ("{}_gen_hdr".format(name), "{}.h".format(name)),
         ("{}_gen_gpu_hdr".format(name), "{}_gpu.h".format(name)),
     ]:
@@ -87,7 +86,6 @@ def generate_prime_fields(
 
     tachyon_cc_library(
         name = name,
-        srcs = [":{}_gen_cc".format(name)],
         hdrs = [":{}_gen_hdr".format(name)],
         deps = deps + [
             "//tachyon/math/finite_fields:prime_field",

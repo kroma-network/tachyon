@@ -8,7 +8,12 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-TEST(InstanceExpressionTest, DegreeComplexity) {
+class InstanceExpressionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() { Fr::Init(); }
+};
+
+TEST_F(InstanceExpressionTest, DegreeComplexity) {
   std::unique_ptr<InstanceExpression<Fr>> expr =
       InstanceExpression<Fr>::CreateForTesting(
           InstanceQuery(1, Rotation(1), InstanceColumn(1)));

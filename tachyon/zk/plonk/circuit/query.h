@@ -26,6 +26,11 @@ class QueryData {
   Rotation rotation() const { return rotation_; }
   const Column<C>& column() const { return column_; }
 
+  bool operator==(const QueryData& other) const {
+    return rotation_ == other.rotation_ && column_ == other.column_;
+  }
+  bool operator!=(const QueryData& other) const { return !operator==(other); }
+
   std::string ToString() const {
     return absl::Substitute("{rotation: $0, column: $1}", rotation_.ToString(),
                             column_.ToString());
@@ -48,6 +53,11 @@ class Query : public QueryData<C> {
       : QueryData<C>(rotation, column), index_(index) {}
 
   size_t index() const { return index_; }
+
+  bool operator==(const Query& other) const {
+    return QueryData<C>::operator==(other) && index_ == other.index_;
+  }
+  bool operator!=(const Query& other) const { return !operator==(other); }
 
   std::string ToString() const {
     return absl::Substitute("{index: $0, rotation: $1, column: $2}", index_,

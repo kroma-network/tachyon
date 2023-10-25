@@ -22,6 +22,11 @@ class TACHYON_EXPORT Challenge {
   size_t index() const { return index_; }
   Phase phase() const { return phase_; }
 
+  bool operator==(const Challenge& other) const {
+    return index_ == other.index_ && phase_ == other.phase_;
+  }
+  bool operator!=(const Challenge& other) const { return !operator==(other); }
+
   std::string ToString() const {
     return absl::Substitute("{index: $0, phase: $1}", index_,
                             phase_.ToString());

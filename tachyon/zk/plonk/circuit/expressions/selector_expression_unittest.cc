@@ -8,7 +8,12 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-TEST(SelectorExpressionTest, Degree_Complexity) {
+class SelectorExpressionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() { Fr::Init(); }
+};
+
+TEST_F(SelectorExpressionTest, Degree_Complexity) {
   std::unique_ptr<SelectorExpression<Fr>> expr =
       SelectorExpression<Fr>::CreateForTesting(Selector::Simple(1));
   EXPECT_EQ(expr->Degree(), size_t{1});

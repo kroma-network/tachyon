@@ -137,9 +137,8 @@ TEST_F(SimpleEvaluatorTest, Negated) {
 TEST_F(SimpleEvaluatorTest, Sum) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
-  Expr expr =
-      ExpressionFactory<GF7>::Sum({ExpressionFactory<GF7>::Constant(a),
-                                   ExpressionFactory<GF7>::Constant(b)});
+  Expr expr = ExpressionFactory<GF7>::Sum(ExpressionFactory<GF7>::Constant(a),
+                                          ExpressionFactory<GF7>::Constant(b));
   GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(a + b, evaluated);
 }
@@ -147,9 +146,8 @@ TEST_F(SimpleEvaluatorTest, Sum) {
 TEST_F(SimpleEvaluatorTest, Product) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
-  Expr expr =
-      ExpressionFactory<GF7>::Product({ExpressionFactory<GF7>::Constant(a),
-                                       ExpressionFactory<GF7>::Constant(b)});
+  Expr expr = ExpressionFactory<GF7>::Product(
+      ExpressionFactory<GF7>::Constant(a), ExpressionFactory<GF7>::Constant(b));
   GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(a * b, evaluated);
 }
@@ -158,7 +156,7 @@ TEST_F(SimpleEvaluatorTest, Scaled) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
   Expr expr =
-      ExpressionFactory<GF7>::Scaled({ExpressionFactory<GF7>::Constant(a), b});
+      ExpressionFactory<GF7>::Scaled(ExpressionFactory<GF7>::Constant(a), b);
   GF7 scaled_expr = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(scaled_expr, a * b);
 }

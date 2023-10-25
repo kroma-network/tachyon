@@ -7,18 +7,13 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EXPRESSION_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EXPRESSION_H_
 
+#include <memory>
 #include <string>
 
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/circuit/expressions/expression_type.h"
 
 namespace tachyon::zk {
-
-template <typename L, typename R>
-struct Operands {
-  L left;
-  R right;
-};
 
 template <typename F>
 class ExpressionFactory;
@@ -70,6 +65,19 @@ class Expression {
   // Returns the approximated computational complexity of this expression.
   virtual uint64_t Complexity() const = 0;
   virtual std::string ToString() const = 0;
+
+  virtual std::unique_ptr<Expression> Clone() const = 0;
+
+  std::unique_ptr<Expression> operator-() const {
+    return ExpressionFactory<F>::Negated(Clone());
+  }
+
+  bool operator==(const Expression& other) const {
+    return type_ == other.type_;
+  }
+  bool operator!=(const Expression& other) const {
+    return type_ != other.type_;
+  }
 
   // Returns whether or not this expression contains a simple |Selector|.
   bool ContainsSimpleSelector() const;

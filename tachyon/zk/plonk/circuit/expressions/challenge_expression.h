@@ -27,13 +27,25 @@ class ChallengeExpression : public Expression<F> {
     return absl::WrapUnique(new ChallengeExpression(challenge));
   }
 
-  size_t index() const { return challenge_.index(); }
-  Phase phase() const { return challenge_.phase(); }
+  const Challenge& challenge() const { return challenge_; }
+
+  bool operator==(const Expression<F>& other) const {
+    if (!Expression<F>::operator==(other)) return false;
+    const ChallengeExpression* challenge = other.ToChallenge();
+    return challenge_ == challenge->challenge_;
+  }
+  bool operator!=(const Expression<F>& other) const {
+    return !operator==(other);
+  }
 
   // Expression methods
   size_t Degree() const override { return 0; }
 
   uint64_t Complexity() const override { return 0; }
+
+  std::unique_ptr<Expression<F>> Clone() const override {
+    return absl::WrapUnique(new ChallengeExpression(challenge_));
+  }
 
   std::string ToString() const override {
     return absl::Substitute("{type: $0, challenge: $1}",

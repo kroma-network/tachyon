@@ -60,21 +60,92 @@ class ExpressionFactory {
     return absl::WrapUnique(new NegatedExpression<F>(std::move(value)));
   }
 
-  static std::unique_ptr<Expr> Sum(
-      Operands<std::unique_ptr<Expr>, std::unique_ptr<Expr>> operands) {
-    return absl::WrapUnique(new SumExpression<F>(std::move(operands)));
+  static std::unique_ptr<Expr> Sum(std::unique_ptr<Expr> left,
+                                   std::unique_ptr<Expr> right) {
+    return absl::WrapUnique(
+        new SumExpression<F>(std::move(left), std::move(right)));
   }
 
-  static std::unique_ptr<Expr> Product(
-      Operands<std::unique_ptr<Expr>, std::unique_ptr<Expr>> operands) {
-    return absl::WrapUnique(new ProductExpression<F>(std::move(operands)));
+  static std::unique_ptr<Expr> Product(std::unique_ptr<Expr> left,
+                                       std::unique_ptr<Expr> right) {
+    return absl::WrapUnique(
+        new ProductExpression<F>(std::move(left), std::move(right)));
   }
 
-  static std::unique_ptr<Expr> Scaled(
-      Operands<std::unique_ptr<Expr>, F> operands) {
-    return absl::WrapUnique(new ScaledExpression<F>(std::move(operands)));
+  static std::unique_ptr<Expr> Scaled(std::unique_ptr<Expr> left,
+                                      const F& scale) {
+    return absl::WrapUnique(new ScaledExpression<F>(std::move(left), scale));
   }
 };
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator+(
+    const std::unique_ptr<Expression<F>>& lhs,
+    const std::unique_ptr<Expression<F>>& rhs) {
+  return operator+(lhs->Clone(), rhs->Clone());
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator+(std::unique_ptr<Expression<F>>&& lhs,
+                                         std::unique_ptr<Expression<F>>&& rhs) {
+  CHECK(!(lhs->ContainsSimpleSelector() || rhs->ContainsSimpleSelector()))
+      << "attempted to use a simple selector in an addition";
+  return ExpressionFactory<F>::Sum(std::move(lhs), std::move(rhs));
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator-(
+    const std::unique_ptr<Expression<F>>& lhs,
+    const std::unique_ptr<Expression<F>>& rhs) {
+  return operator-(lhs->Clone(), rhs->Clone());
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator-(std::unique_ptr<Expression<F>>&& lhs,
+                                         std::unique_ptr<Expression<F>>&& rhs) {
+  CHECK(!(lhs->ContainsSimpleSelector() || rhs->ContainsSimpleSelector()))
+      << "attempted to use a simple selector in a subtraction";
+  return ExpressionFactory<F>::Sum(std::move(lhs), operator-(std::move(rhs)));
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator*(
+    const std::unique_ptr<Expression<F>>& lhs,
+    const std::unique_ptr<Expression<F>>& rhs) {
+  return operator*(lhs->Clone(), rhs->Clone());
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator*(std::unique_ptr<Expression<F>>&& lhs,
+                                         std::unique_ptr<Expression<F>>&& rhs) {
+  CHECK(!(lhs->ContainsSimpleSelector() || rhs->ContainsSimpleSelector()))
+      << "attempted to use a simple selector in a production";
+  return ExpressionFactory<F>::Product(std::move(lhs), std::move(rhs));
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator*(
+    const std::unique_ptr<Expression<F>>& expr, const F& scale) {
+  return operator*(expr->Clone(), scale);
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator*(std::unique_ptr<Expression<F>>&& expr,
+                                         const F& scale) {
+  return ExpressionFactory<F>::Scaled(std::move(expr), scale);
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator-(
+    const std::unique_ptr<Expression<F>>& expr) {
+  return operator-(expr->Clone());
+}
+
+template <typename F>
+std::unique_ptr<Expression<F>> operator-(
+    std::unique_ptr<Expression<F>>&& expr) {
+  return ExpressionFactory<F>::Negated(std::move(expr));
+}
 
 }  // namespace tachyon::zk
 
