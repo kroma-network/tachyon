@@ -48,9 +48,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   // The minimum size of a chunk at which parallelization of |Butterfly()| is
   // beneficial. This value was chosen empirically.
   constexpr static size_t kMinGapSizeForParallelization = 1 << 10;
-  // The minimum size of roots of unity at which parallelization of
-  // |GetRootsOfUnity()| is beneficial. This value was chosen empirically.
-  constexpr static uint32_t kMinLogRootsOfUnitySizeForParallelization = 7;
   // The minimum number of chunks at which root compaction is beneficial.
   constexpr static size_t kDefaultMinNumChunksForCompaction = 1 << 7;
 

@@ -27,6 +27,10 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   static_assert(F::HasRootOfUnity(),
                 "UnivariateEvaluationDomain should have root of unity");
 
+  // The minimum size of roots of unity at which parallelization of
+  // |GetRootsOfUnity()| is beneficial. This value was chosen empirically.
+  constexpr static uint32_t kMinLogRootsOfUnitySizeForParallelization = 7;
+
   using Evals = UnivariateEvaluations<F, MaxDegree>;
   using DensePoly = UnivariateDensePolynomial<F, MaxDegree>;
   using DenseCoeffs = UnivariateDenseCoefficients<F, MaxDegree>;
@@ -99,12 +103,12 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // [1, g, g², ..., g^{(n / 2) - 1}]
   constexpr std::vector<F> GetRootsOfUnity(size_t size, const F& root) const {
 #if defined(TACHYON_HAS_OPENMP)
-    uint32_t log_size = SafeLog2Ceiling(size_);
+    uint32_t log_size = base::bits::SafeLog2Ceiling(size_);
     if (log_size <= kMinLogRootsOfUnitySizeForParallelization)
 #endif
       return ComputePowersSerial(size, root);
 #if defined(TACHYON_HAS_OPENMP)
-    size_t required_log_size = size_t{SafeLog2Ceiling(size)};
+    size_t required_log_size = size_t{base::bits::SafeLog2Ceiling(size)};
     F power = root;
     // [g, g², g⁴, g⁸, ..., g^(2^(|required_log_size|))]
     std::vector<F> log_powers =
