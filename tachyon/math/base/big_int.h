@@ -9,11 +9,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <array>
 #include <bitset>
 #include <limits>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include "absl/container/inlined_vector.h"
+#include "absl/types/span.h"
 
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/base/buffer/copyable.h"
@@ -180,20 +184,24 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
-  // Constructs a BigInt value from a given array of bytes in little-endian
-  // order.
-  constexpr static BigInt FromBytesLE(const std::vector<uint8_t>& bytes) {
+  // Constructs a BigInt value from a given byte container interpreted in
+  // little-endian order. The method processes each byte of the input, packs
+  // them into 64-bit limbs, and then sets these limbs in the resulting BigInt.
+  // If the system is big-endian, adjustments are made to ensure correct byte
+  // ordering.
+  template <typename ByteContainer>
+  constexpr static BigInt FromBytesLE(const ByteContainer& bytes) {
     BigInt ret;
     size_t byte_idx = 0;
     size_t limb_idx = 0;
     uint64_t limb = 0;
-    FOR_FROM_SMALLEST(i, 0, bytes.size()) {
+    FOR_FROM_SMALLEST(i, 0, std::size(bytes)) {
       reinterpret_cast<uint8_t*>(&limb)[byte_idx++] = bytes[i];
       bool set = byte_idx == kLimbByteNums;
 #if ARCH_CPU_BIG_ENDIAN
       set |= (i == 0);
 #else
-      set |= (i == bytes.size() - 1);
+      set |= (i == std::size(bytes) - 1);
 #endif
       if (set) {
         ret.limbs[limb_idx++] = limb;
@@ -204,17 +212,22 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
-  // Constructs a BigInt value from a given array of bytes in big-endian order.
-  constexpr static BigInt FromBytesBE(const std::vector<uint8_t>& bytes) {
+  // Constructs a BigInt value from a given byte container interpreted in
+  // big-endian order. The method processes each byte of the input, packs them
+  // into 64-bit limbs, and then sets these limbs in the resulting BigInt. If
+  // the system is little-endian, adjustments are made to ensure correct byte
+  // ordering.
+  template <typename ByteContainer>
+  constexpr static BigInt FromBytesBE(const ByteContainer& bytes) {
     BigInt ret;
     size_t byte_idx = 0;
     size_t limb_idx = 0;
     uint64_t limb = 0;
-    FOR_FROM_BIGGEST(i, 0, bytes.size()) {
+    FOR_FROM_BIGGEST(i, 0, std::size(bytes)) {
       reinterpret_cast<uint8_t*>(&limb)[byte_idx++] = bytes[i];
       bool set = byte_idx == kLimbByteNums;
 #if ARCH_CPU_BIG_ENDIAN
-      set |= (i == bytes.size() - 1);
+      set |= (i == std::size(bytes) - 1);
 #else
       set |= (i == 0);
 #endif
@@ -688,7 +701,9 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
-  // Converts the BigInt to a byte array in little-endian.
+  // Converts the BigInt to a byte array in little-endian order. This method
+  // processes the limbs of the BigInt, extracts individual bytes, and sets them
+  // in the resulting array.
   std::vector<uint8_t> ToBytesLE() const {
     std::vector<uint8_t> ret;
     ret.reserve(kByteNums);
@@ -701,7 +716,9 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
-  // Converts the BigInt to a byte array in big-endian.
+  // Converts the BigInt to a byte array in big-endian order. This method
+  // processes the limbs of the BigInt, extracts individual bytes, and sets them
+  // in the resulting array.
   std::vector<uint8_t> ToBytesBE() const {
     std::vector<uint8_t> ret;
     ret.reserve(kByteNums);

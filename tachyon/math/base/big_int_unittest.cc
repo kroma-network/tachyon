@@ -1,5 +1,6 @@
 #include "tachyon/math/base/big_int.h"
 
+#include <algorithm>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -69,29 +70,91 @@ TEST(BigIntTest, BitsBEConversion) {
   EXPECT_EQ(big_int.ToBitsBE<255>(), input);
 }
 
-TEST(BigIntTest, BytesLEConversion) {
-  std::vector<uint8_t> input{48,  179, 174, 174, 87,  169, 47,  116,
-                             48,  204, 251, 197, 243, 4,   127, 208,
-                             154, 179, 236, 185, 157, 195, 136, 249,
-                             58,  186, 123, 147, 169, 218, 243, 59};
+namespace {
 
-  BigInt<4> big_int = BigInt<4>::FromBytesLE(input);
-  ASSERT_EQ(big_int,
-            BigInt<4>::FromDecString("27117311055620256798560880810000042840428"
-                                     "971800021819916023577129547249660720"));
-  EXPECT_EQ(big_int.ToBytesLE(), input);
+template <typename ContainerType>
+class BigIntConversionTest : public testing::Test {
+ public:
+  static void SetUpTestSuite() {
+    expected_ = BigInt<4>::FromDecString(
+        "271173110556202567985608808100000428404289718000"
+        "21819916023577129547249660720");
+  }
+
+ protected:
+  static BigInt<4> expected_;
+
+  static constexpr uint8_t kInputLE[32] = {
+      48,  179, 174, 174, 87,  169, 47,  116, 48,  204, 251,
+      197, 243, 4,   127, 208, 154, 179, 236, 185, 157, 195,
+      136, 249, 58,  186, 123, 147, 169, 218, 243, 59};
+
+  static constexpr uint8_t kInputBE[32] = {
+      59,  243, 218, 169, 147, 123, 186, 58,  249, 136, 195,
+      157, 185, 236, 179, 154, 208, 127, 4,   243, 197, 251,
+      204, 48,  116, 47,  169, 87,  174, 174, 179, 48};
+};
+
+template <typename ContainerType>
+math::BigInt<4> BigIntConversionTest<ContainerType>::expected_;
+template <typename ContainerType>
+constexpr uint8_t BigIntConversionTest<ContainerType>::kInputLE[32];
+template <typename ContainerType>
+constexpr uint8_t BigIntConversionTest<ContainerType>::kInputBE[32];
+
+}  // namespace
+
+using ContainerTypes =
+    testing::Types<std::vector<uint8_t>, std::array<uint8_t, 32>,
+                   absl::InlinedVector<uint8_t, 32>, absl::Span<const uint8_t>>;
+TYPED_TEST_SUITE(BigIntConversionTest, ContainerTypes);
+
+TYPED_TEST(BigIntConversionTest, BytesLEConversion) {
+  using ContainerTy = TypeParam;
+
+  ContainerTy expected_input;
+
+  if constexpr (std::is_same_v<ContainerTy, std::vector<uint8_t>> ||
+                std::is_same_v<ContainerTy, absl::InlinedVector<uint8_t, 32>>) {
+    expected_input =
+        ContainerTy(std::begin(this->kInputLE), std::end(this->kInputLE));
+  } else if constexpr (std::is_same_v<ContainerTy, std::array<uint8_t, 32>>) {
+    std::copy(std::begin(this->kInputLE), std::end(this->kInputLE),
+              expected_input.begin());
+  } else if constexpr (std::is_same_v<ContainerTy, absl::Span<const uint8_t>>) {
+    expected_input = ContainerTy(this->kInputLE, sizeof(this->kInputLE));
+  }
+
+  BigInt<4> actual = BigInt<4>::FromBytesLE(expected_input);
+  ASSERT_EQ(actual, this->expected_);
+
+  std::vector<uint8_t> actual_input = actual.ToBytesLE();
+  EXPECT_TRUE(std::equal(actual_input.begin(), actual_input.end(),
+                         expected_input.begin()));
 }
 
-TEST(BigIntTest, BytesBEConversion) {
-  std::vector<uint8_t> input{59,  243, 218, 169, 147, 123, 186, 58,
-                             249, 136, 195, 157, 185, 236, 179, 154,
-                             208, 127, 4,   243, 197, 251, 204, 48,
-                             116, 47,  169, 87,  174, 174, 179, 48};
-  BigInt<4> big_int = BigInt<4>::FromBytesBE(input);
-  ASSERT_EQ(big_int,
-            BigInt<4>::FromDecString("27117311055620256798560880810000042840428"
-                                     "971800021819916023577129547249660720"));
-  EXPECT_EQ(big_int.ToBytesBE(), input);
+TYPED_TEST(BigIntConversionTest, BytesBEConversion) {
+  using ContainerTy = TypeParam;
+
+  ContainerTy expected_input;
+
+  if constexpr (std::is_same_v<ContainerTy, std::vector<uint8_t>> ||
+                std::is_same_v<ContainerTy, absl::InlinedVector<uint8_t, 32>>) {
+    expected_input =
+        ContainerTy(std::begin(this->kInputBE), std::end(this->kInputBE));
+  } else if constexpr (std::is_same_v<ContainerTy, std::array<uint8_t, 32>>) {
+    std::copy(std::begin(this->kInputBE), std::end(this->kInputBE),
+              expected_input.begin());
+  } else if constexpr (std::is_same_v<ContainerTy, absl::Span<const uint8_t>>) {
+    expected_input = ContainerTy(this->kInputBE, sizeof(this->kInputBE));
+  }
+
+  BigInt<4> actual = BigInt<4>::FromBytesBE(expected_input);
+  ASSERT_EQ(actual, this->expected_);
+
+  std::vector<uint8_t> actual_input = actual.ToBytesBE();
+  EXPECT_TRUE(std::equal(actual_input.begin(), actual_input.end(),
+                         expected_input.begin()));
 }
 
 TEST(BigIntTest, Comparison) {
