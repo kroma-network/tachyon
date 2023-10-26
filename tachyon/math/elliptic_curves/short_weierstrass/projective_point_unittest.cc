@@ -223,4 +223,16 @@ TYPED_TEST(ProjectivePointTest, ToXYZZ) {
       PointXYZZTy(BaseField(3), BaseField(4), BaseField(2), BaseField(6)));
 }
 
+TYPED_TEST(ProjectivePointTest, IsOnCurve) {
+  using ProjectivePointTy = TypeParam;
+  using BaseField = typename ProjectivePointTy::BaseField;
+
+  ProjectivePointTy invalid_point(BaseField(1), BaseField(2), BaseField(1));
+  EXPECT_FALSE(invalid_point.IsOnCurve());
+  ProjectivePointTy valid_point(BaseField(3), BaseField(2), BaseField(1));
+  EXPECT_TRUE(valid_point.IsOnCurve());
+  valid_point = ProjectivePointTy(BaseField(3), BaseField(5), BaseField(1));
+  EXPECT_TRUE(valid_point.IsOnCurve());
+}
+
 }  // namespace tachyon::math

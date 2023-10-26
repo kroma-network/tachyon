@@ -230,4 +230,19 @@ TYPED_TEST(PointXYZZTest, ToJacobian) {
             JacobianPointTy(BaseField(2), BaseField(2), BaseField(5)));
 }
 
+TYPED_TEST(PointXYZZTest, IsOnCurve) {
+  using PointXYZZTy = TypeParam;
+  using BaseField = typename PointXYZZTy::BaseField;
+
+  PointXYZZTy invalid_point(BaseField(1), BaseField(2), BaseField(1),
+                            BaseField(1));
+  EXPECT_FALSE(invalid_point.IsOnCurve());
+  PointXYZZTy valid_point(BaseField(3), BaseField(2), BaseField(1),
+                          BaseField(1));
+  EXPECT_TRUE(valid_point.IsOnCurve());
+  valid_point =
+      PointXYZZTy(BaseField(3), BaseField(5), BaseField(1), BaseField(1));
+  EXPECT_TRUE(valid_point.IsOnCurve());
+}
+
 }  // namespace tachyon::math
