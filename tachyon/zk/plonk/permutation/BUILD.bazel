@@ -20,6 +20,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "permutation_argument",
+    hdrs = ["permutation_argument.h"],
+    deps = [
+        "//tachyon/base/containers:contains",
+        "//tachyon/zk/plonk/circuit:column",
+    ],
+)
+
+tachyon_cc_library(
     name = "permutation_proving_key",
     hdrs = ["permutation_proving_key.h"],
     deps = [
@@ -42,11 +51,13 @@ tachyon_cc_unittest(
     name = "permutation_unittests",
     srcs = [
         "lookup_table_unittest.cc",
+        "permutation_argument_unittest.cc",
         "permutation_proving_key_unittest.cc",
         "permutation_verifying_key_unittest.cc",
     ],
     deps = [
         ":lookup_table",
+        ":permutation_argument",
         ":permutation_proving_key",
         ":permutation_verifying_key",
         "//tachyon/base/buffer:vector_buffer",
