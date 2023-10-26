@@ -24,6 +24,9 @@ class RegionShape : public Region<F>::Layouter {
   using AnnotateCallback = typename Region<F>::Layouter::AnnotateCallback;
   using AssignCallback = typename Region<F>::Layouter::AssignCallback;
 
+  RegionShape() = default;
+  explicit RegionShape(size_t region_index) : region_index_(region_index) {}
+
   size_t region_index() const { return region_index_; }
   const absl::flat_hash_set<RegionColumn>& columns() const { return columns_; }
   size_t row_count() const { return row_count_; }
