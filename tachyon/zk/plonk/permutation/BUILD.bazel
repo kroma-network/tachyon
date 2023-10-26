@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -6,4 +6,27 @@ tachyon_cc_library(
     name = "label",
     hdrs = ["label.h"],
     deps = ["//tachyon:export"],
+)
+
+tachyon_cc_library(
+    name = "lookup_table",
+    hdrs = ["lookup_table.h"],
+    deps = [
+        ":label",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "permutation_unittests",
+    srcs = [
+        "lookup_table_unittest.cc",
+    ],
+    deps = [
+        ":lookup_table",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+    ],
 )
