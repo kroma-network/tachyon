@@ -1,6 +1,7 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_AFFINE_POINT_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_AFFINE_POINT_H_
 
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -59,6 +60,13 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
     AffinePoint ret = {std::move(x), std::move(y)};
     CHECK(ret.IsOnCurve());
     return ret;
+  }
+
+  constexpr static std::optional<AffinePoint> CreateFromX(const BaseField& x,
+                                                          bool pick_odd) {
+    AffinePoint point;
+    if (!Curve::GetPointFromX(x, pick_odd, &point)) return std::nullopt;
+    return point;
   }
 
   constexpr static AffinePoint Zero() { return AffinePoint(); }

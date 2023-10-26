@@ -60,6 +60,13 @@ class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
     return ret;
   }
 
+  constexpr static std::optional<ProjectivePoint> CreateFromX(
+      const BaseField& x, bool pick_odd) {
+    ProjectivePoint point;
+    if (!Curve::GetPointFromX(x, pick_odd, &point)) return std::nullopt;
+    return point;
+  }
+
   constexpr static ProjectivePoint Zero() { return ProjectivePoint(); }
 
   constexpr static ProjectivePoint Generator() {

@@ -245,4 +245,27 @@ TYPED_TEST(PointXYZZTest, IsOnCurve) {
   EXPECT_TRUE(valid_point.IsOnCurve());
 }
 
+TYPED_TEST(PointXYZZTest, CreateFromX) {
+  using PointXYZZTy = TypeParam;
+  using BaseField = typename PointXYZZTy::BaseField;
+
+  {
+    std::optional<PointXYZZTy> p =
+        PointXYZZTy::CreateFromX(BaseField(3), /*pick_odd=*/true);
+    ASSERT_TRUE(p.has_value());
+    EXPECT_EQ(p->y(), BaseField(5));
+  }
+  {
+    std::optional<PointXYZZTy> p =
+        PointXYZZTy::CreateFromX(BaseField(3), /*pick_odd=*/false);
+    ASSERT_TRUE(p.has_value());
+    EXPECT_EQ(p->y(), BaseField(2));
+  }
+  {
+    std::optional<PointXYZZTy> p =
+        PointXYZZTy::CreateFromX(BaseField(1), /*pick_odd=*/false);
+    ASSERT_FALSE(p.has_value());
+  }
+}
+
 }  // namespace tachyon::math
