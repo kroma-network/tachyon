@@ -19,14 +19,39 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "permutation_proving_key",
+    hdrs = ["permutation_proving_key.h"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/zk/plonk:commitment",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permutation_verifying_key",
+    hdrs = ["permutation_verifying_key.h"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "permutation_unittests",
     srcs = [
         "lookup_table_unittest.cc",
+        "permutation_proving_key_unittest.cc",
+        "permutation_verifying_key_unittest.cc",
     ],
     deps = [
         ":lookup_table",
+        ":permutation_proving_key",
+        ":permutation_verifying_key",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
 )
