@@ -95,12 +95,10 @@ class Assignment {
 
   // Queries the value of the given challenge.
   //
-  // Returns |Error::kChallengeUnavailable| if the current synthesis phase is
-  // before the challenge can be queried. Otherwise, it populates |value| with
-  // the challenge.
-  virtual Error GetChallenge(const Challenge& challenge, Value<F>* value) {
-    *value = Value<F>::Unknown();
-    return Error::kNone;
+  // Returns |Value<F>::Unknown()| if the current synthesis phase
+  // is before the challenge can be queried.
+  virtual Value<F> GetChallenge(const Challenge& challenge) {
+    return Value<F>::Unknown();
   }
 
   // Creates a new (sub)namespace and enters into it.

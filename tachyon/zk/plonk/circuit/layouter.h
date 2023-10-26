@@ -56,7 +56,7 @@ class Layouter {
 
   // Queries the value of the given challenge.
   //
-  // Returns |Value::Unknown()| if the current synthesis phase is before the
+  // Returns |Value<F>::Unknown()| if the current synthesis phase is before the
   // challenge can be queried.
   virtual Value<F> GetChallenge(const Challenge& challenge) const {
     return Value<F>::Unknown();
