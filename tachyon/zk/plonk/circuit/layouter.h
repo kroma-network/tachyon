@@ -20,6 +20,9 @@
 
 namespace tachyon::zk {
 
+template <typename F>
+class NamespacedLayouter;
+
 // A layout strategy within a circuit. The layouter is chip-agnostic and applies
 // its strategy to the context and config it is given.
 //
@@ -65,26 +68,28 @@ class Layouter {
 
   // Gets the "root" of this assignment, bypassing the namespacing.
   //
-  // TODO(chokobole): Update comment when NamespacedLayouter comes in.
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
   virtual Layouter<F>* GetRoot() { return nullptr; }
 
   // Creates a new (sub)namespace and enters into it.
   //
-  // TODO(chokobole): Update comment when NamespacedLayouter comes in.
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
   virtual void PushNamespace(std::string_view name) {}
 
   // Exits out of the existing namespace.
   //
-  // TODO(chokobole): Update comment when NamespacedLayouter comes in.
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
   virtual void PopNamespace(const std::optional<std::string>& gadget_name) {}
+
+  // Enters into a namespace
+  std::unique_ptr<NamespacedLayouter<F>> Namespace(std::string_view name);
 };
 
 }  // namespace tachyon::zk
+
+#include "tachyon/zk/plonk/circuit/namespaced_layouter.h"
 
 #endif  // TACHYON_ZK_PLONK_CIRCUIT_LAYOUTER_H_

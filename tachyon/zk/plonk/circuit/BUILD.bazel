@@ -100,7 +100,10 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "layouter",
-    hdrs = ["layouter.h"],
+    hdrs = [
+        "layouter.h",
+        "namespaced_layouter.h",
+    ],
     deps = [
         ":challenge",
         ":region",

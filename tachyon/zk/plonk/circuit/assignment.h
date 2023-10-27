@@ -100,14 +100,12 @@ class Assignment {
 
   // Creates a new (sub)namespace and enters into it.
   //
-  // TODO(chokobole): Update comment when NamespacedLayouter comes in.
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
   virtual void PushNamespace(std::string_view name) {}
 
   // Exits out of the existing namespace.
   //
-  // TODO(chokobole): Update comment when NamespacedLayouter comes in.
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
   virtual void PopNamespace(const std::optional<std::string>& gadget_name) {}
