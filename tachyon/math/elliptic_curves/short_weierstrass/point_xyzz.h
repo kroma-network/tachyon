@@ -1,6 +1,7 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_POINT_XYZZ_H_
 
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -62,6 +63,13 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
     PointXYZZ ret = {std::move(x), std::move(y), std::move(zz), std::move(zzz)};
     CHECK(ret.IsOnCurve());
     return ret;
+  }
+
+  constexpr static std::optional<PointXYZZ> CreateFromX(const BaseField& x,
+                                                        bool pick_odd) {
+    PointXYZZ point;
+    if (!Curve::GetPointFromX(x, pick_odd, &point)) return std::nullopt;
+    return point;
   }
 
   constexpr static PointXYZZ Zero() { return PointXYZZ(); }

@@ -163,4 +163,27 @@ TYPED_TEST(AffinePointTest, IsOnCurve) {
   EXPECT_TRUE(valid_point.IsOnCurve());
 }
 
+TYPED_TEST(AffinePointTest, CreateFromX) {
+  using AffinePointTy = TypeParam;
+  using BaseField = typename AffinePointTy::BaseField;
+
+  {
+    std::optional<AffinePointTy> p =
+        AffinePointTy::CreateFromX(BaseField(3), /*pick_odd=*/true);
+    ASSERT_TRUE(p.has_value());
+    EXPECT_EQ(p->y(), BaseField(5));
+  }
+  {
+    std::optional<AffinePointTy> p =
+        AffinePointTy::CreateFromX(BaseField(3), /*pick_odd=*/false);
+    ASSERT_TRUE(p.has_value());
+    EXPECT_EQ(p->y(), BaseField(2));
+  }
+  {
+    std::optional<AffinePointTy> p =
+        AffinePointTy::CreateFromX(BaseField(1), /*pick_odd=*/false);
+    ASSERT_FALSE(p.has_value());
+  }
+}
+
 }  // namespace tachyon::math

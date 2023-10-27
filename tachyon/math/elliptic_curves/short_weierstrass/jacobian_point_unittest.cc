@@ -219,4 +219,39 @@ TYPED_TEST(JacobianPointTest, ToXYZZ) {
       PointXYZZTy(BaseField(1), BaseField(2), BaseField(2), BaseField(6)));
 }
 
+TYPED_TEST(JacobianPointTest, IsOnCurve) {
+  using JacobianPointTy = TypeParam;
+  using BaseField = typename JacobianPointTy::BaseField;
+
+  JacobianPointTy invalid_point(BaseField(1), BaseField(2), BaseField(1));
+  EXPECT_FALSE(invalid_point.IsOnCurve());
+  JacobianPointTy valid_point(BaseField(3), BaseField(2), BaseField(1));
+  EXPECT_TRUE(valid_point.IsOnCurve());
+  valid_point = JacobianPointTy(BaseField(3), BaseField(5), BaseField(1));
+  EXPECT_TRUE(valid_point.IsOnCurve());
+}
+
+TYPED_TEST(JacobianPointTest, CreateFromX) {
+  using JacobianPointTy = TypeParam;
+  using BaseField = typename JacobianPointTy::BaseField;
+
+  {
+    std::optional<JacobianPointTy> p =
+        JacobianPointTy::CreateFromX(BaseField(3), /*pick_odd=*/true);
+    ASSERT_TRUE(p.has_value());
+    EXPECT_EQ(p->y(), BaseField(5));
+  }
+  {
+    std::optional<JacobianPointTy> p =
+        JacobianPointTy::CreateFromX(BaseField(3), /*pick_odd=*/false);
+    ASSERT_TRUE(p.has_value());
+    EXPECT_EQ(p->y(), BaseField(2));
+  }
+  {
+    std::optional<JacobianPointTy> p =
+        JacobianPointTy::CreateFromX(BaseField(1), /*pick_odd=*/false);
+    ASSERT_FALSE(p.has_value());
+  }
+}
+
 }  // namespace tachyon::math
