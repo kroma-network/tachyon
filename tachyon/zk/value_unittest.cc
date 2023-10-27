@@ -203,4 +203,15 @@ TEST(ValueTest, MultiplicativeGroupOperators) {
   }
 }
 
+TEST(ValueTest, ToRationalFieldValue) {
+  math::GF7 a = math::GF7::Random();
+  Value<math::GF7> v = Value<math::GF7>::Known(a);
+  EXPECT_EQ(v.ToRationalFieldValue(),
+            Value<math::RationalField<math::GF7>>::Known(
+                math::RationalField<math::GF7>(a)));
+
+  EXPECT_EQ(Value<math::GF7>::Unknown().ToRationalFieldValue(),
+            Value<math::RationalField<math::GF7>>::Unknown());
+}
+
 }  // namespace tachyon::zk
