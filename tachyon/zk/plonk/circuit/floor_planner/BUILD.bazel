@@ -14,3 +14,15 @@ tachyon_cc_library(
         "@com_google_absl//absl/container:flat_hash_map",
     ],
 )
+
+tachyon_cc_library(
+    name = "single_chip_layouter",
+    hdrs = ["single_chip_layouter.h"],
+    deps = [
+        ":simple_table_layouter",
+        "//tachyon/base:logging",
+        "//tachyon/base/functional:identity",
+        "//tachyon/zk/plonk/circuit:layouter",
+        "//tachyon/zk/plonk/circuit:region_column",
+    ],
+)
