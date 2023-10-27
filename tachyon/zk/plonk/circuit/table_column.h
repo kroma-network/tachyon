@@ -21,6 +21,7 @@ namespace tachyon::zk {
 // Lookup table columns are always "encumbered" by the lookup arguments they are
 // used in; they cannot simultaneously be used as general fixed columns.
 class TACHYON_EXPORT TableColumn {
+ public:
   TableColumn() = default;
   explicit TableColumn(const FixedColumn& column) : column_(column) {}
 
