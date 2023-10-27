@@ -28,6 +28,8 @@ class Assignment {
   using AssignCallback = base::OnceCallback<math::RationalField<F>()>;
   using NameCallback = base::OnceCallback<std::string()>;
 
+  virtual ~Assignment() = default;
+
   // Creates a new region and enters into it.
   //
   // Panics if we are currently in a region (if |ExitRegion()| was not called).

@@ -32,6 +32,8 @@ class Layouter {
   using AssignTableCallback = base::OnceCallback<Error(Table<F>&)>;
   using NameCallback = base::RepeatingCallback<std::string()>;
 
+  virtual ~Layouter() = default;
+
   // Assign a region of gates to an absolute row number.
   //
   // Inside the closure, the chip may freely use relative offsets; the
