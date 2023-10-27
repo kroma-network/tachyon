@@ -102,9 +102,9 @@ class MultivariateSparseCoefficients {
       size_t num_elems_per_thread = (num_elems + thread_nums - 1) / thread_nums;
 
       auto chunks = base::Chunked(elements, num_elems_per_thread);
-      std::vector<absl::Span<const Element>> chunks_vector = base::Map(
-          chunks.begin(), chunks.end(),
-          [](const absl::Span<const Element>& chunk) { return chunk; });
+      std::vector<absl::Span<const Element>> chunks_vector =
+          base::Map(chunks.begin(), chunks.end(),
+                    [](absl::Span<const Element> chunk) { return chunk; });
       std::vector<F> results =
           base::CreateVector(chunks_vector.size(), F::Zero());
 
@@ -131,7 +131,7 @@ class MultivariateSparseCoefficients {
     }
 
    private:
-    static F EvaluateSerial(const absl::Span<const Element>& elements,
+    static F EvaluateSerial(absl::Span<const Element> elements,
                             const std::vector<F>& points) {
       return std::accumulate(
           elements.begin(), elements.end(), F::One(),
@@ -271,7 +271,7 @@ class MultivariateSparseCoefficients {
     auto chunks = base::Chunked(terms_, num_terms_per_thread);
     std::vector<absl::Span<const Term>> chunks_vector =
         base::Map(chunks.begin(), chunks.end(),
-                  [](const absl::Span<const Term>& chunk) { return chunk; });
+                  [](absl::Span<const Term> chunk) { return chunk; });
     std::vector<F> results =
         base::CreateVector(chunks_vector.size(), F::Zero());
 
@@ -333,7 +333,7 @@ class MultivariateSparseCoefficients {
   friend class internal::MultivariatePolynomialOp<
       MultivariateSparseCoefficients<F, MaxDegree>>;
 
-  static F EvaluateSerial(const absl::Span<const Term>& terms,
+  static F EvaluateSerial(absl::Span<const Term> terms,
                           const std::vector<F>& points) {
     return std::accumulate(terms.begin(), terms.end(), F::Zero(),
                            [&points](const F& acc, const Term& term) {

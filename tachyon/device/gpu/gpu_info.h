@@ -206,7 +206,7 @@ struct TACHYON_EXPORT GPUInfo {
     virtual void AddTimeDeltaInSecondsF(const char* name,
                                         const base::TimeDelta& value) = 0;
     virtual void AddBinary(const char* name,
-                           const absl::Span<const uint8_t>& blob) = 0;
+                           absl::Span<const uint8_t> blob) = 0;
 
     // Markers indicating that a GPUDevice is being described.
     virtual void BeginGPUDevice() = 0;

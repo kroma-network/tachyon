@@ -78,7 +78,7 @@ class CryptographicSponge {
   }
 
   // Creates a new sponge with applied domain separation.
-  Derived Fork(const absl::Span<const uint8_t>& domain) const {
+  Derived Fork(absl::Span<const uint8_t> domain) const {
     const Derived* derived = static_cast<const Derived*>(this);
     CHECK(derived->Absorb(domain));
     return *derived;

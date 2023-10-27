@@ -148,9 +148,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       auto chunks = base::Chunked(evals.evaluations_, duplicity_of_initials);
       std::vector<absl::Span<F>> chunks_vector =
           base::Map(chunks.begin(), chunks.end(),
-                    [](const absl::Span<F>& chunk) { return chunk; });
+                    [](absl::Span<F> chunk) { return chunk; });
       OPENMP_PARALLEL_FOR(size_t i = 0; i < chunks_vector.size(); ++i) {
-        const absl::Span<F>& chunks = chunks_vector[i];
+        absl::Span<F> chunks = chunks_vector[i];
         const F& v = chunks[0];
         for (size_t j = 1; j < chunks.size(); ++j) {
           chunks[j] = v;

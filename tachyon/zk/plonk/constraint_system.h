@@ -129,7 +129,7 @@ class ConstraintSystem {
   //
   // |callback| returns a map between input expressions and the table columns
   // they need to match.
-  size_t Lookup(const std::string_view& name, LookupCallback callback) {
+  size_t Lookup(std::string_view name, LookupCallback callback) {
     VirtualCells cells(this);
     typename LookupArgument<F>::TableMap table_map = base::Map(
         std::move(callback).Run(cells), [&cells](TableMapElem& element) {
@@ -152,7 +152,7 @@ class ConstraintSystem {
   //
   // |table_map| returns a map between input expressions and the table
   // expressions they need to match.
-  size_t LookupAny(const std::string_view& name, LookupAnyCallback callback) {
+  size_t LookupAny(std::string_view name, LookupAnyCallback callback) {
     VirtualCells cells(this);
     typename LookupArgument<F>::TableMap table_map =
         std::move(callback).Run(cells);
@@ -245,7 +245,7 @@ class ConstraintSystem {
   //
   // A gate is required to contain polynomial constraints. This method will
   // panic if |constrain| returns an empty iterator.
-  void CreateGate(const std::string_view& name, ConstrainCallback constrain) {
+  void CreateGate(std::string_view name, ConstrainCallback constrain) {
     VirtualCells cells(this);
     std::vector<Constraint<F>> constraints = std::move(constraints).Run(cells);
     std::vector<Selector> queried_selectors =

@@ -122,10 +122,10 @@ class PermutationAssembly {
     auto chunks = base::Chunked(permutations, chunk_size);
     std::vector<absl::Span<Evals>> chunks_vector =
         base::Map(chunks.begin(), chunks.end(),
-                  [](const absl::Span<Evals>& chunk) { return chunk; });
+                  [](absl::Span<Evals> chunk) { return chunk; });
 
     OPENMP_PARALLEL_FOR(size_t c = 0; c < chunks_vector.size(); ++c) {
-      const absl::Span<Evals>& chunk = chunks_vector[c];
+      absl::Span<Evals> chunk = chunks_vector[c];
 
       size_t i = c * chunk_size;
       for (Evals& evals : chunk) {
