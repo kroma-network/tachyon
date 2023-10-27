@@ -3,6 +3,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
+
 namespace tachyon::math {
 
 TEST(SemigroupsTest, Mul) {
@@ -107,6 +109,64 @@ TEST(SemigroupsTest, AddOverAddInPlace) {
 
   Int d = c.Double();
   static_cast<void>(d);
+}
+
+namespace {
+
+class BatchScalarTest : public testing::Test {
+ public:
+  using BaseTy = test::AffinePoint;
+  using BaseField = typename BaseTy::BaseField;
+  using ReturnTy = typename internal::AdditiveSemigroupTraits<BaseTy>::ReturnTy;
+
+  static void SetUpTestSuite() { test::AffinePoint::Curve::Init(); }
+};
+
+}  // namespace
+
+// scalar: s
+// bases: [G₀, G₁, ..., Gₙ₋₁]
+// return: [sG₀, sG₁, ..., sGₙ₋₁]
+TEST_F(BatchScalarTest, BatchScalarMulSSMB) {
+  BaseField s = BaseField(3);
+  std::vector<BaseTy> bases = {BaseTy::Random(), BaseTy::Random(),
+                               BaseTy::Random()};
+  std::vector<ReturnTy> expected;
+  for (const BaseTy& base : bases) {
+    expected.push_back(base.ScalarMul(s.ToBigInt()));
+  }
+  std::vector<ReturnTy> batched_bases = BaseTy::BatchScalarMul(s, bases);
+
+  EXPECT_EQ(batched_bases, expected);
+}
+
+// scalars: [s₀, s₁, ..., sₙ₋₁]
+// base: G
+// return: [s₀G, s₁G, ..., sₙ₋₁G]
+TEST_F(BatchScalarTest, BatchScalarMulMSSB) {
+  std::vector<BaseField> scalars = {BaseField(3), BaseField(4), BaseField(5)};
+  BaseTy base = BaseTy::Random();
+  std::vector<ReturnTy> expected;
+  for (const BaseField& scalar : scalars) {
+    expected.push_back(base.ScalarMul(scalar.ToBigInt()));
+  }
+  std::vector<ReturnTy> batched_bases = BaseTy::BatchScalarMul(scalars, base);
+  EXPECT_EQ(batched_bases, expected);
+}
+
+// scalars: [s₀, s₁, ..., sₙ₋₁]
+// bases: [G₀, G₁, ..., Gₙ₋₁]
+// return: [s₀G₀, s₁G₁, ..., sₙ₋₁Gₙ₋₁]
+TEST_F(BatchScalarTest, BatchScalarMulMSMB) {
+  std::vector<BaseField> scalars = {BaseField(3), BaseField(4), BaseField(5)};
+  std::vector<BaseTy> bases = {BaseTy::Random(), BaseTy::Random(),
+                               BaseTy::Random()};
+  std::vector<ReturnTy> expected;
+  for (size_t i = 0; i < scalars.size(); ++i) {
+    expected.push_back(bases[i].ScalarMul(scalars[i].ToBigInt()));
+  }
+  std::vector<ReturnTy> batched_bases = BaseTy::BatchScalarMul(scalars, bases);
+  EXPECT_EQ(batched_bases, expected);
 }
 
 }  // namespace tachyon::math
