@@ -120,6 +120,7 @@ tachyon_cc_unittest(
         "arithmetics_unittest.cc",
         "big_int_unittest.cc",
         "bit_iterator_unittest.cc",
+        "field_unittest.cc",
         "groups_unittest.cc",
         "rational_field_unittest.cc",
         "semigroups_unittest.cc",
