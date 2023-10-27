@@ -162,7 +162,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     size_t other_degree = other.Degree();
     std::vector<F> coefficients =
         base::CreateVector(degree + other_degree + 1, F::Zero());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
+    for (size_t i = 0; i < r_coefficients.size(); ++i) {
       const F& r = r_coefficients[i];
       if (r.IsZero()) {
         continue;
@@ -196,7 +196,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
         base::CreateVector(degree + other_degree + 1, F::Zero());
 
     const std::vector<Term>& r_terms = other.coefficients().terms_;
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_terms.size(); ++i) {
+    for (size_t i = 0; i < r_terms.size(); ++i) {
       const F& r = r_terms[i].coefficient;
       if (r.IsZero()) {
         continue;
