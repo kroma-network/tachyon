@@ -63,14 +63,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "field",
     hdrs = ["field.h"],
-    deps = [
-        ":rings",
-        "//tachyon/base:openmp_util",
-        "//tachyon/base/containers:adapters",
-        "//tachyon/base/containers:container_util",
-        "@com_google_absl//absl/base",
-        "@com_google_googletest//:gtest_prod",
-    ],
+    deps = [":rings"],
 )
 
 tachyon_cc_library(
@@ -78,7 +71,11 @@ tachyon_cc_library(
     hdrs = ["groups.h"],
     deps = [
         ":semigroups",
+        "//tachyon/base:openmp_util",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:container_util",
         "//tachyon/base/types:always_false",
+        "@com_google_googletest//:gtest_prod",
     ],
 )
 
@@ -123,7 +120,6 @@ tachyon_cc_unittest(
         "arithmetics_unittest.cc",
         "big_int_unittest.cc",
         "bit_iterator_unittest.cc",
-        "field_unittest.cc",
         "groups_unittest.cc",
         "rational_field_unittest.cc",
         "semigroups_unittest.cc",

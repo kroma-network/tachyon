@@ -1,6 +1,16 @@
 #ifndef TACHYON_MATH_BASE_GROUPS_H_
 #define TACHYON_MATH_BASE_GROUPS_H_
 
+#include <limits>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+#include "gtest/gtest_prod.h"
+
+#include "tachyon/base/containers/adapters.h"
+#include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/semigroups.h"
 
@@ -73,6 +83,110 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   [[nodiscard]] constexpr auto Inverse() const {
     G ret = *static_cast<const G*>(this);
     return ret.InverseInPlace();
+  }
+
+  template <typename Container>
+  constexpr static bool BatchInverseInPlace(Container& groups,
+                                            const G& coeff = G::One()) {
+    return BatchInverse(groups, &groups, coeff);
+  }
+
+  // This is taken and modified from
+  // https://github.com/arkworks-rs/algebra/blob/5dfeedf560da6937a5de0a2163b7958bd32cd551/ff/src/fields/mod.rs#L355-L418.
+  // Batch inverse: [a₁, a₂, ..., aₙ] -> [a₁⁻¹, a₂⁻¹, ... , aₙ⁻¹]
+  template <typename InputContainer, typename OutputContainer>
+  constexpr static bool BatchInverse(const InputContainer& groups,
+                                     OutputContainer* inverses,
+                                     const G& coeff = G::One()) {
+    if (std::size(groups) != std::size(*inverses)) {
+      LOG(ERROR) << "Size of |groups| and |inverses| do not match";
+      return false;
+    }
+
+#if defined(TACHYON_HAS_OPENMP)
+    using G2 = decltype(std::declval<G>().Inverse());
+    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
+    if (std::size(groups) >=
+        size_t{1} << (thread_nums / kParallelBatchInverseDivisorThreshold)) {
+      size_t num_elem_per_thread =
+          (std::size(groups) + thread_nums - 1) / thread_nums;
+
+      auto groups_chunks = base::Chunked(groups, num_elem_per_thread);
+      auto inverses_chunks = base::Chunked(*inverses, num_elem_per_thread);
+      auto zipped = base::Zipped(groups_chunks, inverses_chunks);
+      auto zipped_vector = base::Map(
+          zipped.begin(), zipped.end(),
+          [](const std::tuple<absl::Span<const G2>, absl::Span<G2>>& v) {
+            return v;
+          });
+
+#pragma omp parallel for
+      for (size_t i = 0; i < zipped_vector.size(); ++i) {
+        const auto& [fields_chunk, inverses_chunk] = zipped_vector[i];
+        DoBatchInverse(fields_chunk, inverses_chunk, coeff);
+      }
+      return true;
+    }
+#endif
+    DoBatchInverse(absl::MakeConstSpan(groups), absl::MakeSpan(*inverses),
+                   coeff);
+    return true;
+  }
+
+ private:
+  // NOTE(chokobole): This value was chosen empirically that
+  // |batch_inverse_benchmark| performs better at fewer input compared to the
+  // number of cpu cores.
+  constexpr static size_t kParallelBatchInverseDivisorThreshold = 4;
+
+  FRIEND_TEST(GroupsTest, BatchInverse);
+
+  constexpr static void DoBatchInverse(const absl::Span<const G>& groups,
+                                       absl::Span<G> inverses, const G& coeff) {
+    // Montgomery’s Trick and Fast Implementation of Masked AES
+    // Genelle, Prouff and Quisquater
+    // Section 3.2
+    // but with an optimization to multiply every element in the returned
+    // vector by |coeff|.
+
+    // First pass: compute [a₁, a₁ * a₂, ..., a₁ * a₂ * ... * aₙ]
+    std::vector<G> productions;
+    productions.reserve(groups.size() + 1);
+    productions.push_back(G::One());
+    G product = G::One();
+    for (const G& g : groups) {
+      if (!g.IsZero()) {
+        product *= g;
+        productions.push_back(product);
+      }
+    }
+
+    // Invert |product|.
+    // (a₁ * a₂ * ... *  aₙ)⁻¹
+    G product_inv = product.Inverse();
+
+    // Multiply |product_inv| by |coeff|, so all inverses will be scaled by
+    // |coeff|.
+    // c * (a₁ * a₂ * ... *  aₙ)⁻¹
+    product_inv *= coeff;
+
+    // Second pass: iterate backwards to compute inverses.
+    //              [c * a₁⁻¹, c * a₂,⁻¹ ..., c * aₙ⁻¹]
+    auto prod_it = productions.rbegin();
+    ++prod_it;
+    for (size_t i = groups.size() - 1; i != std::numeric_limits<size_t>::max();
+         --i) {
+      const G& g = groups[i];
+      if (!g.IsZero()) {
+        // c * (a₁ * a₂ * ... *  aᵢ)⁻¹ * aᵢ = c * (a₁ * a₂ * ... *  aᵢ₋₁)⁻¹
+        G new_product_inv = product_inv * g;
+        // v = c * (a₁ * a₂ * ... *  aᵢ)⁻¹ * (a₁ * a₂ * ... aᵢ₋₁) = c * aᵢ⁻¹
+        inverses[i] = product_inv * (*(prod_it++));
+        product_inv = std::move(new_product_inv);
+      } else {
+        inverses[i] = G::Zero();
+      }
+    }
   }
 };
 
