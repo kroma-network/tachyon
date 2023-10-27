@@ -22,7 +22,6 @@ namespace tachyon::zk {
 template <typename F>
 class Region {
  public:
-  using AnnotateCallback = base::OnceCallback<std::string()>;
   using AssignCallback = base::OnceCallback<Value<F>()>;
 
   class Layouter {
@@ -30,21 +29,20 @@ class Region {
     virtual ~Layouter() = default;
 
     // Enables a |selector| at the given |offset|.
-    virtual Error EnableSelector(AnnotateCallback annotate,
+    virtual Error EnableSelector(std::string_view name,
                                  const Selector& selector, size_t offset) {
       return Error::kNone;
     }
 
-    // Allows the circuit implementer to name/annotate a Column within a Region
+    // Allows the circuit implementer to name a Column within a Region
     // context.
     //
     // This is useful in order to improve the amount of information that
     // |prover.Verify()| and |prover.AssertSatisfied()| can provide.
-    virtual void NameColumn(AnnotateCallback annotate,
-                            const AnyColumn& column) {}
+    virtual void NameColumn(std::string_view name, const AnyColumn& column) {}
 
     // Assign an advice column value (witness)
-    virtual Error AssignAdvice(AnnotateCallback annotate,
+    virtual Error AssignAdvice(std::string_view name,
                                const AdviceColumn& column, size_t offset,
                                AssignCallback assign, Cell* cell) {
       return Error::kNone;
@@ -59,7 +57,7 @@ class Region {
     // Returns |Error::kNone| and populates |cell| that has been
     // equality-constrained to the constant.
     virtual Error AssignAdviceFromConstant(
-        AnnotateCallback annotate, const AdviceColumn& column, size_t offset,
+        std::string_view name, const AdviceColumn& column, size_t offset,
         const math::RationalField<F>& constant, Cell* cell) {
       return Error::kNone;
     }
@@ -69,15 +67,15 @@ class Region {
     //
     // Returns |Error::kNone| and populates |cell| if known.
     virtual Error AssignAdviceFromInstance(
-        AnnotateCallback annotate, const InstanceColumn& instance, size_t row,
+        std::string_view name, const InstanceColumn& instance, size_t row,
         const AdviceColumn& advice, size_t offset, AssignedCell<F>* cell) {
       return Error::kNone;
     }
 
     // Assign a fixed value
-    virtual Error AssignFixed(AnnotateCallback annotate,
-                              const FixedColumn& column, size_t offset,
-                              AssignCallback assign, Cell* cell) {
+    virtual Error AssignFixed(std::string_view name, const FixedColumn& column,
+                              size_t offset, AssignCallback assign,
+                              Cell* cell) {
       return Error::kNone;
     }
 
@@ -102,24 +100,24 @@ class Region {
   explicit Region(Layouter* layouter) : layouter_(layouter) {}
 
   // See the comment above.
-  Error EnableSelector(AnnotateCallback annotate, const Selector& selector,
+  Error EnableSelector(std::string_view name, const Selector& selector,
                        size_t offset) {
-    return layouter_->EnableSelector(std::move(annotate), selector, offset);
+    return layouter_->EnableSelector(name, selector, offset);
   }
 
   // See the comment above.
-  void NameColumn(AnnotateCallback annotate, const AnyColumn& column) {
-    layouter_->NameColumn(std::move(annotate), column);
+  void NameColumn(std::string_view name, const AnyColumn& column) {
+    layouter_->NameColumn(name, column);
   }
 
   // See the comment above.
-  Error AssignAdvice(AnnotateCallback annotate, const AdviceColumn& column,
+  Error AssignAdvice(std::string_view name, const AdviceColumn& column,
                      size_t offset, AssignCallback assign,
                      AssignedCell<F>* assigned_cell) {
     Cell cell;
     Value<F> value = Value<F>::Unknown();
     Error error = layouter_->AssignAdvice(
-        std::move(annotate), column, offset,
+        name, column, offset,
         [&value, assign = std::move(assign)]() {
           value = std::move(assign).Run();
           return value.ToRationalFieldValue();
@@ -131,35 +129,35 @@ class Region {
   }
 
   // See the comment above.
-  Error AssignAdviceFromConstant(AnnotateCallback annotate,
+  Error AssignAdviceFromConstant(std::string_view name,
                                  const AdviceColumn& column, size_t offset,
                                  const F& constant,
                                  AssignedCell<F>* assigned_cell) {
     Cell cell;
-    Error error = layouter_->AssignAdviceFromConstant(
-        std::move(annotate), column, offset, constant, &cell);
+    Error error = layouter_->AssignAdviceFromConstant(name, column, offset,
+                                                      constant, &cell);
     if (error != Error::kNone) return error;
     *assigned_cell = {cell, Value<F>::Known(constant)};
     return Error::kNone;
   }
 
   // See the comment above.
-  Error AssignAdviceFromInstance(AnnotateCallback annotate,
+  Error AssignAdviceFromInstance(std::string_view name,
                                  const InstanceColumn& instance, size_t row,
                                  const AdviceColumn& advice, size_t offset,
                                  AssignedCell<F>* cell) {
-    return layouter_->AssignAdviceFromInstance(std::move(annotate), instance,
-                                               row, advice, offset, cell);
+    return layouter_->AssignAdviceFromInstance(name, instance, row, advice,
+                                               offset, cell);
   }
 
   // See the comment above.
-  Error AssignFixed(AnnotateCallback annotate, const FixedColumn& column,
+  Error AssignFixed(std::string_view name, const FixedColumn& column,
                     size_t offset, AssignCallback assign,
                     AssignedCell<F>* assigned_cell) {
     Cell cell;
     Value<F> value = Value<F>::Unknown();
     Error error = layouter_->AssignFixed(
-        std::move(annotate), column, offset,
+        name, column, offset,
         [&value, assign = std::move(assign)]() {
           value = std::move(assign).Run();
           return value.ToRationalFieldValue();

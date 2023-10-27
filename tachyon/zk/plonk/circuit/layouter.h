@@ -27,10 +27,8 @@ namespace tachyon::zk {
 template <typename F>
 class Layouter {
  public:
-  using AnnotateCallback = base::OnceCallback<std::string()>;
   using AssignRegionCallback = base::RepeatingCallback<Error(Region<F>&)>;
   using AssignTableCallback = base::OnceCallback<Error(Table<F>&)>;
-  using NameCallback = base::RepeatingCallback<std::string()>;
 
   virtual ~Layouter() = default;
 
@@ -40,12 +38,13 @@ class Layouter {
   // |Layouter| will treat these assignments as a single "region" within the
   // circuit. Outside this closure, the |Layouter| is allowed to optimize as it
   // sees fit.
-  virtual Error AssignRegion(NameCallback name, AssignRegionCallback assign) {
+  virtual Error AssignRegion(std::string_view name,
+                             AssignRegionCallback assign) {
     return Error::kNone;
   }
 
   // Assign a table region to an absolute row number.
-  virtual Error AssignTable(NameCallback name, AssignTableCallback assign) {
+  virtual Error AssignTable(std::string_view name, AssignTableCallback assign) {
     return Error::kNone;
   }
 
@@ -76,7 +75,7 @@ class Layouter {
   // TODO(chokobole): Update comment when NamespacedLayouter comes in.
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
-  virtual void PushNamespace(NameCallback name) {}
+  virtual void PushNamespace(std::string_view name) {}
 
   // Exits out of the existing namespace.
   //
