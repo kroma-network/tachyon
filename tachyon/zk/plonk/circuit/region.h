@@ -26,6 +26,8 @@ class Region {
 
   class Layouter {
    public:
+    using AssignCallback = base::OnceCallback<Value<math::RationalField<F>>()>;
+
     virtual ~Layouter() = default;
 
     // Enables a |selector| at the given |offset|.
@@ -118,7 +120,7 @@ class Region {
     Value<F> value = Value<F>::Unknown();
     Error error = layouter_->AssignAdvice(
         name, column, offset,
-        [&value, assign = std::move(assign)]() {
+        [&value, &assign]() {
           value = std::move(assign).Run();
           return value.ToRationalFieldValue();
         },
@@ -134,8 +136,8 @@ class Region {
                                  const F& constant,
                                  AssignedCell<F>* assigned_cell) {
     Cell cell;
-    Error error = layouter_->AssignAdviceFromConstant(name, column, offset,
-                                                      constant, &cell);
+    Error error = layouter_->AssignAdviceFromConstant(
+        name, column, offset, math::RationalField<F>(constant), &cell);
     if (error != Error::kNone) return error;
     *assigned_cell = {cell, Value<F>::Known(constant)};
     return Error::kNone;
@@ -158,7 +160,7 @@ class Region {
     Value<F> value = Value<F>::Unknown();
     Error error = layouter_->AssignFixed(
         name, column, offset,
-        [&value, assign = std::move(assign)]() {
+        [&value, &assign]() {
           value = std::move(assign).Run();
           return value.ToRationalFieldValue();
         },
