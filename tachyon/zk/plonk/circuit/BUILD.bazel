@@ -134,7 +134,6 @@ tachyon_cc_library(
         ":column",
         ":selector",
         "//tachyon/base/functional:callback",
-        "//tachyon/math/base:rational_field",
         "//tachyon/zk/plonk:error",
     ],
 )

@@ -28,6 +28,8 @@ class Assignment {
   using AssignCallback = base::OnceCallback<math::RationalField<F>()>;
   using NameCallback = base::OnceCallback<std::string()>;
 
+  virtual ~Assignment() = default;
+
   // Creates a new region and enters into it.
   //
   // Panics if we are currently in a region (if |ExitRegion()| was not called).
@@ -95,12 +97,10 @@ class Assignment {
 
   // Queries the value of the given challenge.
   //
-  // Returns |Error::kChallengeUnavailable| if the current synthesis phase is
-  // before the challenge can be queried. Otherwise, it populates |value| with
-  // the challenge.
-  virtual Error GetChallenge(const Challenge& challenge, Value<F>* value) {
-    *value = Value<F>::Unknown();
-    return Error::kNone;
+  // Returns |Value<F>::Unknown()| if the current synthesis phase
+  // is before the challenge can be queried.
+  virtual Value<F> GetChallenge(const Challenge& challenge) {
+    return Value<F>::Unknown();
   }
 
   // Creates a new (sub)namespace and enters into it.

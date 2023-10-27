@@ -9,9 +9,9 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "tachyon/base/functional/callback.h"
-#include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/plonk/circuit/assigned_cell.h"
 #include "tachyon/zk/plonk/circuit/column.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
@@ -23,7 +23,7 @@ template <typename F>
 class Region {
  public:
   using AnnotateCallback = base::OnceCallback<std::string()>;
-  using AssignCallback = base::OnceCallback<Value<math::RationalField<F>>()>;
+  using AssignCallback = base::OnceCallback<Value<F>()>;
 
   class Layouter {
    public:
@@ -46,7 +46,7 @@ class Region {
     // Assign an advice column value (witness)
     virtual Error AssignAdvice(AnnotateCallback annotate,
                                const AdviceColumn& column, size_t offset,
-                               AssignCallback to, Cell* cell) {
+                               AssignCallback assign, Cell* cell) {
       return Error::kNone;
     }
 
@@ -58,11 +58,9 @@ class Region {
     //
     // Returns |Error::kNone| and populates |cell| that has been
     // equality-constrained to the constant.
-    virtual Error AssignAdviceFromConstant(AnnotateCallback annotate,
-                                           const AdviceColumn& column,
-                                           size_t offset,
-                                           math::RationalField<F> constant,
-                                           Cell* cell) {
+    virtual Error AssignAdviceFromConstant(
+        AnnotateCallback annotate, const AdviceColumn& column, size_t offset,
+        const math::RationalField<F>& constant, Cell* cell) {
       return Error::kNone;
     }
 
@@ -72,14 +70,14 @@ class Region {
     // Returns |Error::kNone| and populates |cell| if known.
     virtual Error AssignAdviceFromInstance(
         AnnotateCallback annotate, const InstanceColumn& instance, size_t row,
-        const InstanceColumn& advice, size_t offset, AssignedCell<F>* cell) {
+        const AdviceColumn& advice, size_t offset, AssignedCell<F>* cell) {
       return Error::kNone;
     }
 
     // Assign a fixed value
     virtual Error AssignFixed(AnnotateCallback annotate,
                               const FixedColumn& column, size_t offset,
-                              AssignCallback to, Cell* cell) {
+                              AssignCallback assign, Cell* cell) {
       return Error::kNone;
     }
 
@@ -100,6 +98,91 @@ class Region {
       return Error::kNone;
     }
   };
+
+  explicit Region(Layouter* layouter) : layouter_(layouter) {}
+
+  // See the comment above.
+  Error EnableSelector(AnnotateCallback annotate, const Selector& selector,
+                       size_t offset) {
+    return layouter_->EnableSelector(std::move(annotate), selector, offset);
+  }
+
+  // See the comment above.
+  void NameColumn(AnnotateCallback annotate, const AnyColumn& column) {
+    layouter_->NameColumn(std::move(annotate), column);
+  }
+
+  // See the comment above.
+  Error AssignAdvice(AnnotateCallback annotate, const AdviceColumn& column,
+                     size_t offset, AssignCallback assign,
+                     AssignedCell<F>* assigned_cell) {
+    Cell cell;
+    Value<F> value = Value<F>::Unknown();
+    Error error = layouter_->AssignAdvice(
+        std::move(annotate), column, offset,
+        [&value, assign = std::move(assign)]() {
+          value = std::move(assign).Run();
+          return value.ToRationalFieldValue();
+        },
+        &cell);
+    if (error != Error::kNone) return error;
+    *assigned_cell = {cell, value};
+    return Error::kNone;
+  }
+
+  // See the comment above.
+  Error AssignAdviceFromConstant(AnnotateCallback annotate,
+                                 const AdviceColumn& column, size_t offset,
+                                 const F& constant,
+                                 AssignedCell<F>* assigned_cell) {
+    Cell cell;
+    Error error = layouter_->AssignAdviceFromConstant(
+        std::move(annotate), column, offset, constant, &cell);
+    if (error != Error::kNone) return error;
+    *assigned_cell = {cell, Value<F>::Known(constant)};
+    return Error::kNone;
+  }
+
+  // See the comment above.
+  Error AssignAdviceFromInstance(AnnotateCallback annotate,
+                                 const InstanceColumn& instance, size_t row,
+                                 const AdviceColumn& advice, size_t offset,
+                                 AssignedCell<F>* cell) {
+    return layouter_->AssignAdviceFromInstance(std::move(annotate), instance,
+                                               row, advice, offset, cell);
+  }
+
+  // See the comment above.
+  Error AssignFixed(AnnotateCallback annotate, const FixedColumn& column,
+                    size_t offset, AssignCallback assign,
+                    AssignedCell<F>* assigned_cell) {
+    Cell cell;
+    Value<F> value = Value<F>::Unknown();
+    Error error = layouter_->AssignFixed(
+        std::move(annotate), column, offset,
+        [&value, assign = std::move(assign)]() {
+          value = std::move(assign).Run();
+          return value.ToRationalFieldValue();
+        },
+        &cell);
+    if (error != Error::kNone) return error;
+    *assigned_cell = {cell, value};
+    return Error::kNone;
+  }
+
+  // See the comment above.
+  Error ConstrainConstant(const Cell& cell,
+                          const math::RationalField<F>& constant) {
+    return layouter_->ConstrainConstant(cell, constant);
+  }
+
+  // See the comment above.
+  Error ConstrainEqual(const Cell& left, const Cell& right) {
+    return layouter_->ConstrainEqual(left, right);
+  }
+
+ private:
+  Layouter* const layouter_;
 };
 
 }  // namespace tachyon::zk
