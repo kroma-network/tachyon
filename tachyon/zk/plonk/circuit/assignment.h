@@ -24,8 +24,9 @@ namespace tachyon::zk {
 template <typename F>
 class Assignment {
  public:
-  using AnnotationCallback = base::OnceCallback<std::string()>;
+  using AnnotateCallback = base::OnceCallback<std::string()>;
   using AssignCallback = base::OnceCallback<math::RationalField<F>()>;
+  using NameCallback = base::OnceCallback<std::string()>;
 
   // Creates a new region and enters into it.
   //
@@ -33,13 +34,13 @@ class Assignment {
   //
   // Not intended for downstream consumption; use |Layouter::AssignRegion()|
   // instead.
-  virtual void EnterRegion(AnnotationCallback annotation) {}
+  virtual void EnterRegion(NameCallback name) {}
 
   // Allows the developer to include an annotation for a specific column
   // within a |Region|.
   //
   // This is usually useful for debugging circuit failures.
-  virtual void AnnotateColumn(AnnotationCallback annotation,
+  virtual void AnnotateColumn(AnnotateCallback annotate,
                               const AnyColumn& column) {}
 
   // Exits the current region.
@@ -52,7 +53,7 @@ class Assignment {
   virtual void ExitRegion() {}
 
   // Enables a selector at the given row.
-  virtual Error EnableSelector(AnnotationCallback annotation,
+  virtual Error EnableSelector(AnnotateCallback annotate,
                                const Selector& selector, size_t row) {
     return Error::kNone;
   }
@@ -67,14 +68,14 @@ class Assignment {
   }
 
   // Assign an advice column value (witness).
-  virtual Error AssignAdvice(AnnotationCallback annotation,
+  virtual Error AssignAdvice(AnnotateCallback annotate,
                              const AdviceColumn& column, size_t row,
                              AssignCallback assign) {
     return Error::kNone;
   }
 
   // Assign a fixed value.
-  virtual Error AssignFixed(AnnotationCallback annotation,
+  virtual Error AssignFixed(AnnotateCallback annotate,
                             const FixedColumn& column, size_t row,
                             AssignCallback assign) {
     return Error::kNone;
@@ -104,13 +105,15 @@ class Assignment {
 
   // Creates a new (sub)namespace and enters into it.
   //
-  // Not intended for downstream consumption; use |Layouter::namespace()|
+  // TODO(chokobole): Update comment when NamespacedLayouter comes in.
+  // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
-  virtual void PushNamespace(AnnotationCallback annotation) {}
+  virtual void PushNamespace(NameCallback name) {}
 
   // Exits out of the existing namespace.
   //
-  // Not intended for downstream consumption; use |Layouter::namespace()|
+  // TODO(chokobole): Update comment when NamespacedLayouter comes in.
+  // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
   virtual void PopNamespace(const std::optional<std::string>& gadget_name) {}
 };

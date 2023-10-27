@@ -18,6 +18,8 @@ namespace tachyon::zk {
 template <typename T>
 class Value : public math::Field<Value<T>> {
  public:
+  constexpr Value() = default;
+
   constexpr static Value Unknown() { return Value(); }
 
   constexpr static Value Known(const T& value) { return Value(value); }
@@ -172,7 +174,6 @@ class Value : public math::Field<Value<T>> {
   }
 
  private:
-  constexpr Value() = default;
   constexpr explicit Value(const T& value) : value_(value) {}
   constexpr explicit Value(T&& value) : value_(std::move(value)) {}
 

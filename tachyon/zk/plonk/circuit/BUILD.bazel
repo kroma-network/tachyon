@@ -53,6 +53,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "circuit",
+    hdrs = ["circuit.h"],
+    deps = [":layouter"],
+)
+
+tachyon_cc_library(
     name = "column",
     hdrs = ["column.h"],
     deps = [
@@ -89,6 +95,19 @@ tachyon_cc_library(
         ":selector",
         ":virtual_cell",
         "//tachyon/zk/plonk/circuit/expressions:expression",
+    ],
+)
+
+tachyon_cc_library(
+    name = "layouter",
+    hdrs = ["layouter.h"],
+    deps = [
+        ":challenge",
+        ":region",
+        ":table",
+        "//tachyon/base/functional:callback",
+        "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk:error",
     ],
 )
 
@@ -156,6 +175,17 @@ tachyon_cc_library(
         "//tachyon:export",
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "table",
+    hdrs = ["table.h"],
+    deps = [
+        ":table_column",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk:value",
+        "//tachyon/zk/plonk:error",
     ],
 )
 
