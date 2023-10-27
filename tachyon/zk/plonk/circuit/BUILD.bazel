@@ -175,6 +175,7 @@ tachyon_cc_library(
     hdrs = ["selector.h"],
     deps = [
         "//tachyon:export",
+        "//tachyon/zk/plonk:error",
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
     ],

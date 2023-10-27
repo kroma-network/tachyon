@@ -183,6 +183,11 @@ class Region {
   Layouter* const layouter_;
 };
 
+template <typename F>
+Error Selector::Enable(Region<F>& region, size_t offset) const {
+  return region.EnableSelector("", *this, offset);
+}
+
 }  // namespace tachyon::zk
 
 #endif  // TACHYON_ZK_PLONK_CIRCUIT_REGION_H_
