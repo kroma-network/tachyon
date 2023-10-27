@@ -188,6 +188,17 @@ Error Selector::Enable(Region<F>& region, size_t offset) const {
   return region.EnableSelector("", *this, offset);
 }
 
+template <typename F>
+Error AssignedCell<F>::CopyAdvice(std::string_view name, Region<F>& region,
+                                  const AdviceColumn& column, size_t offset,
+                                  AssignedCell<F>* assigned_cell) const {
+  Error error = region.AssignAdvice(
+      name, column, offset, [this]() { return value_; }, assigned_cell);
+  if (error != Error::kNone) return error;
+  region.ConstrainEqual(assigned_cell->cell_, cell_);
+  return Error::kNone;
+}
+
 }  // namespace tachyon::zk
 
 #endif  // TACHYON_ZK_PLONK_CIRCUIT_REGION_H_
