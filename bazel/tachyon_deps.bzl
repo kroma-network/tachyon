@@ -7,9 +7,9 @@ load("//third_party/gpus:rocm_configure.bzl", "rocm_configure")
 load("//third_party/hwloc:workspace.bzl", hwloc = "repo")
 load("//third_party/nasm:workspace.bzl", nasm = "repo")
 load("//third_party/node_addon_api:install_node_addon_api.bzl", "install_node_addon_api")
-load("//third_party/py:python_configure.bzl", "python_configure")
 load("//third_party/polygon_zkevm/goldilocks:workspace.bzl", goldilocks = "repo")
 load("//third_party/polygon_zkevm/zkevm_prover:workspace.bzl", zkevm_prover = "repo")
+load("//third_party/py:python_configure.bzl", "python_configure")
 
 def tachyon_deps():
     cuda_configure(name = "local_config_cuda")
@@ -87,6 +87,14 @@ def tachyon_deps():
             urls = ["https://github.com/abseil/abseil-cpp/archive/20230125.3.zip"],
             patch_args = ["-p1"],
             patches = ["@kroma_network_tachyon//third_party/absl:add_missing_linkopts.patch"],
+        )
+
+    if not native.existing_rule("com_google_boringssl"):
+        http_archive(
+            name = "com_google_boringssl",
+            sha256 = "c17af0c3ddd72613a6cacf3761cebaa583806fc49fb53ac021ae479aa8265c93",
+            strip_prefix = "boringssl-b69f4d27a75dcf4b94138790883b44274fab56c2",
+            urls = ["https://github.com/google/boringssl/archive/b69f4d27a75dcf4b94138790883b44274fab56c2.tar.gz"],
         )
 
     if not native.existing_rule("com_google_googletest"):
