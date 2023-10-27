@@ -189,7 +189,7 @@ class MultiplicativeSemigroup {
  private:
 #if defined(TACHYON_HAS_OPENMP)
   constexpr static void GetSuccessivePowersRecursive(
-      std::vector<G>& out, const absl::Span<const G>& log_powers) {
+      std::vector<G>& out, absl::Span<const G> log_powers) {
     CHECK_EQ(out.size(), size_t{1} << log_powers.size());
 
     // base case: just compute the powers sequentially,
@@ -234,7 +234,7 @@ class MultiplicativeSemigroup {
     auto out_chunks = base::Chunked(out, src_lo.size());
     std::vector<absl::Span<G>> out_chunks_vector =
         base::Map(out_chunks.begin(), out_chunks.end(),
-                  [](const absl::Span<G>& chunk) { return chunk; });
+                  [](absl::Span<G> chunk) { return chunk; });
 #pragma omp parallel for
     for (size_t i = 0; i < out_chunks_vector.size(); ++i) {
       const G& hi = src_hi[i];

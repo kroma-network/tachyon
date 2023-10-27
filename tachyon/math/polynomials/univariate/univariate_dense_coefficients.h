@@ -165,7 +165,7 @@ class UnivariateDenseCoefficients {
     auto chunks = base::Chunked(coefficients_, num_coeffs_per_thread);
     std::vector<absl::Span<const F>> chunks_vector =
         base::Map(chunks.begin(), chunks.end(),
-                  [](const absl::Span<const F>& chunk) { return chunk; });
+                  [](absl::Span<const F> chunk) { return chunk; });
     std::vector<F> results =
         base::CreateVector(chunks_vector.size(), F::Zero());
 #pragma omp parallel for
@@ -181,7 +181,7 @@ class UnivariateDenseCoefficients {
 #endif
   }
 
-  constexpr static F HornerEvaluate(const absl::Span<const F>& coefficients,
+  constexpr static F HornerEvaluate(absl::Span<const F> coefficients,
                                     const F& point) {
     return std::accumulate(coefficients.rbegin(), coefficients.rend(),
                            F::Zero(),

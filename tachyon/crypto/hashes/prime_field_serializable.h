@@ -33,7 +33,7 @@ class PrimeFieldSerializable<T, std::enable_if_t<std::is_integral_v<T>>> {
   }
 
   template <typename PrimeFieldTy>
-  constexpr static bool BatchToPrimeField(const absl::Span<const T>& values,
+  constexpr static bool BatchToPrimeField(absl::Span<const T> values,
                                           std::vector<PrimeFieldTy>* fields) {
     for (const T& value : values) {
       if (!PrimeFieldSerializable<T>::ToPrimeField(value, fields)) return false;
@@ -51,7 +51,7 @@ class PrimeFieldSerializable<
     return true;
   }
 
-  constexpr static bool BatchToPrimeField(const absl::Span<const T>& values,
+  constexpr static bool BatchToPrimeField(absl::Span<const T> values,
                                           std::vector<T>* fields) {
     for (const T& value : values) {
       if (!PrimeFieldSerializable<T>::ToPrimeField(value, fields)) return false;
@@ -101,7 +101,7 @@ constexpr bool SerializeToFieldElements(const T& value,
 
 template <typename T, typename PrimeFieldTy>
 constexpr bool SerializeBatchToFieldElements(
-    const absl::Span<const T>& values, std::vector<PrimeFieldTy>* fields) {
+    absl::Span<const T> values, std::vector<PrimeFieldTy>* fields) {
   return PrimeFieldSerializable<T>::BatchToPrimeField(values, fields);
 }
 

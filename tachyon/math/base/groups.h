@@ -141,7 +141,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
 
   FRIEND_TEST(GroupsTest, BatchInverse);
 
-  constexpr static void DoBatchInverse(const absl::Span<const G>& groups,
+  constexpr static void DoBatchInverse(absl::Span<const G> groups,
                                        absl::Span<G> inverses, const G& coeff) {
     // Montgomery’s Trick and Fast Implementation of Masked AES
     // Genelle, Prouff and Quisquater
