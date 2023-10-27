@@ -124,7 +124,7 @@ class Region {
         },
         &cell);
     if (error != Error::kNone) return error;
-    *assigned_cell = {cell, value};
+    *assigned_cell = {cell, std::move(value)};
     return Error::kNone;
   }
 
@@ -164,7 +164,7 @@ class Region {
         },
         &cell);
     if (error != Error::kNone) return error;
-    *assigned_cell = {cell, value};
+    *assigned_cell = {cell, std::move(value)};
     return Error::kNone;
   }
 
