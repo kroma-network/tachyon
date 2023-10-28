@@ -14,6 +14,7 @@
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_number_conversions.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 
 namespace tachyon::zk {
 
@@ -47,6 +48,16 @@ class TACHYON_EXPORT Rotation {
     int32_t value = idx + value_ * scale;
     CHECK_GE(value, int32_t{0});
     return size_t{base::bit_cast<uint32_t>(value % size)};
+  }
+
+  template <typename F, size_t MaxDegree>
+  F RotateOmega(const math::UnivariateEvaluationDomain<F, MaxDegree>* domain,
+                const F& point) const {
+    if (value_ >= 0) {
+      return point * domain->group_gen().Pow(math::BigInt<1>(value_));
+    } else {
+      return point * domain->group_gen_inv().Pow(math::BigInt<1>(-1 * value_));
+    }
   }
 
  private:

@@ -164,6 +164,7 @@ tachyon_cc_library(
         "//tachyon/base:bit_cast",
         "//tachyon/base:logging",
         "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
     ],
 )
 
