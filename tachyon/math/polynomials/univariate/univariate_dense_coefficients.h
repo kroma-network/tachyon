@@ -138,6 +138,8 @@ class UnivariateDenseCoefficients {
     return ss.str();
   }
 
+  const std::vector<F>& coefficients() const { return coefficients_; }
+
  private:
   friend class internal::UnivariatePolynomialOp<
       UnivariateDenseCoefficients<F, MaxDegree>>;
