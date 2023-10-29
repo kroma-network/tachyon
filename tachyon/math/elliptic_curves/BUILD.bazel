@@ -31,6 +31,6 @@ tachyon_cc_unittest(
     ],
     deps = [
         "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/math/elliptic_curves/short_weierstrass/test:curve_config",
+        "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
     ],
 )

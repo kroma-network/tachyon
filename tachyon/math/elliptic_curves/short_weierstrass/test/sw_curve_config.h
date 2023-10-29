@@ -13,7 +13,7 @@ namespace tachyon::math {
 namespace test {
 
 template <typename _BaseField, typename _ScalarField>
-class CurveConfig {
+class SWCurveConfig {
  public:
   using BaseField = _BaseField;
   using BasePrimeField = BaseField;
@@ -23,8 +23,8 @@ class CurveConfig {
   using CpuScalarField = typename ScalarField::CpuField;
   using GpuBaseField = typename BaseField::GpuField;
   using GpuScalarField = typename ScalarField::GpuField;
-  using CpuCurveConfig = CurveConfig<CpuBaseField, CpuScalarField>;
-  using GpuCurveConfig = CurveConfig<GpuBaseField, GpuScalarField>;
+  using CpuCurveConfig = SWCurveConfig<CpuBaseField, CpuScalarField>;
+  using GpuCurveConfig = SWCurveConfig<GpuBaseField, GpuScalarField>;
 
   constexpr static bool kAIsZero = true;
 
@@ -41,19 +41,19 @@ class CurveConfig {
 };
 
 template <typename BaseField, typename ScalarField>
-BaseField CurveConfig<BaseField, ScalarField>::kA;
+BaseField SWCurveConfig<BaseField, ScalarField>::kA;
 template <typename BaseField, typename ScalarField>
-BaseField CurveConfig<BaseField, ScalarField>::kB;
+BaseField SWCurveConfig<BaseField, ScalarField>::kB;
 template <typename BaseField, typename ScalarField>
-Point2<BaseField> CurveConfig<BaseField, ScalarField>::kGenerator;
+Point2<BaseField> SWCurveConfig<BaseField, ScalarField>::kGenerator;
 
-using G1Curve = SWCurve<CurveConfig<GF7, GF7>>;
+using G1Curve = SWCurve<SWCurveConfig<GF7, GF7>>;
 using AffinePoint = math::AffinePoint<G1Curve>;
 using ProjectivePoint = math::ProjectivePoint<G1Curve>;
 using JacobianPoint = math::JacobianPoint<G1Curve>;
 using PointXYZZ = math::PointXYZZ<G1Curve>;
 #if defined(TACHYON_GMP_BACKEND)
-using G1CurveGmp = SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>;
+using G1CurveGmp = SWCurve<SWCurveConfig<GF7Gmp, GF7Gmp>>;
 using AffinePointGmp = math::AffinePoint<G1CurveGmp>;
 using ProjectivePointGmp = math::ProjectivePoint<G1CurveGmp>;
 using JacobianPointGmp = math::JacobianPoint<G1CurveGmp>;
