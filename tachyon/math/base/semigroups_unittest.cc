@@ -3,6 +3,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/base/containers/adapters.h"
+#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
 
 namespace tachyon::math {
@@ -115,12 +117,23 @@ namespace {
 
 class MultiScalarMulTest : public testing::Test {
  public:
-  using BaseTy = test::AffinePoint;
-  using BaseField = typename BaseTy::BaseField;
-  using ReturnTy = typename internal::AdditiveSemigroupTraits<BaseTy>::ReturnTy;
+  static void SetUpTestSuite() {
+    test::G1Curve::Init();
 
-  static void SetUpTestSuite() { test::AffinePoint::Curve::Init(); }
+#if defined(TACHYON_HAS_OPENMP)
+    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
+#else
+    size_t thread_nums = 1;
+#endif
+    test_set_ = MSMTestSet<test::AffinePoint>::Random(thread_nums * 5,
+                                                      MSMMethod::kNone);
+  }
+
+ protected:
+  static MSMTestSet<test::AffinePoint> test_set_;
 };
+
+MSMTestSet<test::AffinePoint> MultiScalarMulTest::test_set_;
 
 }  // namespace
 
@@ -128,15 +141,13 @@ class MultiScalarMulTest : public testing::Test {
 // bases: [G₀, G₁, ..., Gₙ₋₁]
 // return: [sG₀, sG₁, ..., sGₙ₋₁]
 TEST_F(MultiScalarMulTest, SingleScalarMultiBases) {
-  BaseField s = BaseField(3);
-  std::vector<BaseTy> bases = {BaseTy::Random(), BaseTy::Random(),
-                               BaseTy::Random()};
-  std::vector<ReturnTy> expected;
-  for (const BaseTy& base : bases) {
-    expected.push_back(base.ScalarMul(s.ToBigInt()));
+  std::vector<test::JacobianPoint> expected;
+  const BigInt<1> scalar = test_set_.scalars[0].ToBigInt();
+  for (const test::AffinePoint& base : test_set_.bases) {
+    expected.push_back(base.ScalarMul(scalar));
   }
-  std::vector<ReturnTy> actual = BaseTy::MultiScalarMul(s, bases);
-
+  std::vector<test::JacobianPoint> actual =
+      test::AffinePoint::MultiScalarMul(test_set_.scalars[0], test_set_.bases);
   EXPECT_EQ(actual, expected);
 }
 
@@ -144,13 +155,12 @@ TEST_F(MultiScalarMulTest, SingleScalarMultiBases) {
 // base: G
 // return: [s₀G, s₁G, ..., sₙ₋₁G]
 TEST_F(MultiScalarMulTest, MultiScalarsSingleBase) {
-  std::vector<BaseField> scalars = {BaseField(3), BaseField(4), BaseField(5)};
-  BaseTy base = BaseTy::Random();
-  std::vector<ReturnTy> expected;
-  for (const BaseField& scalar : scalars) {
-    expected.push_back(base.ScalarMul(scalar.ToBigInt()));
+  std::vector<test::JacobianPoint> expected;
+  for (const GF7& scalar : test_set_.scalars) {
+    expected.push_back(test_set_.bases[0].ScalarMul(scalar.ToBigInt()));
   }
-  std::vector<ReturnTy> actual = BaseTy::MultiScalarMul(scalars, base);
+  std::vector<test::JacobianPoint> actual =
+      test::AffinePoint::MultiScalarMul(test_set_.scalars, test_set_.bases[0]);
   EXPECT_EQ(actual, expected);
 }
 
@@ -158,14 +168,13 @@ TEST_F(MultiScalarMulTest, MultiScalarsSingleBase) {
 // bases: [G₀, G₁, ..., Gₙ₋₁]
 // return: [s₀G₀, s₁G₁, ..., sₙ₋₁Gₙ₋₁]
 TEST_F(MultiScalarMulTest, MultiScalarsMultiBases) {
-  std::vector<BaseField> scalars = {BaseField(3), BaseField(4), BaseField(5)};
-  std::vector<BaseTy> bases = {BaseTy::Random(), BaseTy::Random(),
-                               BaseTy::Random()};
-  std::vector<ReturnTy> expected;
-  for (size_t i = 0; i < scalars.size(); ++i) {
-    expected.push_back(bases[i].ScalarMul(scalars[i].ToBigInt()));
+  std::vector<test::JacobianPoint> expected;
+  for (auto& [scalar, base] :
+       base::Zipped(test_set_.scalars, test_set_.bases)) {
+    expected.push_back(base.ScalarMul(scalar.ToBigInt()));
   }
-  std::vector<ReturnTy> actual = BaseTy::MultiScalarMul(scalars, bases);
+  std::vector<test::JacobianPoint> actual =
+      test::AffinePoint::MultiScalarMul(test_set_.scalars, test_set_.bases);
   EXPECT_EQ(actual, expected);
 }
 
