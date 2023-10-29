@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/elliptic_curves/curve_type.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
@@ -31,7 +32,7 @@ class SWCurve {
   using CpuCurve = SWCurve<typename Config::CpuCurveConfig>;
   using GpuCurve = SWCurve<typename Config::GpuCurveConfig>;
 
-  constexpr static bool kIsSWCurve = true;
+  constexpr static CurveType kType = CurveType::kShortWeierstrass;
 
   static void Init() {
     BaseField::Init();

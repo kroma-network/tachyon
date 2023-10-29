@@ -6,6 +6,7 @@ tachyon_cc_library(
     name = "points",
     hdrs = [
         "affine_point.h",
+        "curve_type.h",
         "jacobian_point.h",
         "point_conversions.h",
         "point_conversions_forward.h",

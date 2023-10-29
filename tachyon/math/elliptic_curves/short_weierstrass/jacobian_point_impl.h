@@ -7,7 +7,9 @@
 
 namespace tachyon::math {
 
-#define CLASS JacobianPoint<Curve, std::enable_if_t<Curve::kIsSWCurve>>
+#define CLASS    \
+  JacobianPoint< \
+      Curve, std::enable_if_t<Curve::kType == CurveType::kShortWeierstrass>>
 
 template <typename Curve>
 constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
