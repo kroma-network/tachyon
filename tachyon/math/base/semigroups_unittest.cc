@@ -113,7 +113,7 @@ TEST(SemigroupsTest, AddOverAddInPlace) {
 
 namespace {
 
-class BatchScalarTest : public testing::Test {
+class MultiScalarMulTest : public testing::Test {
  public:
   using BaseTy = test::AffinePoint;
   using BaseField = typename BaseTy::BaseField;
@@ -127,7 +127,7 @@ class BatchScalarTest : public testing::Test {
 // scalar: s
 // bases: [G₀, G₁, ..., Gₙ₋₁]
 // return: [sG₀, sG₁, ..., sGₙ₋₁]
-TEST_F(BatchScalarTest, BatchScalarMulSSMB) {
+TEST_F(MultiScalarMulTest, SingleScalarMultiBases) {
   BaseField s = BaseField(3);
   std::vector<BaseTy> bases = {BaseTy::Random(), BaseTy::Random(),
                                BaseTy::Random()};
@@ -135,29 +135,29 @@ TEST_F(BatchScalarTest, BatchScalarMulSSMB) {
   for (const BaseTy& base : bases) {
     expected.push_back(base.ScalarMul(s.ToBigInt()));
   }
-  std::vector<ReturnTy> batched_bases = BaseTy::BatchScalarMul(s, bases);
+  std::vector<ReturnTy> actual = BaseTy::MultiScalarMul(s, bases);
 
-  EXPECT_EQ(batched_bases, expected);
+  EXPECT_EQ(actual, expected);
 }
 
 // scalars: [s₀, s₁, ..., sₙ₋₁]
 // base: G
 // return: [s₀G, s₁G, ..., sₙ₋₁G]
-TEST_F(BatchScalarTest, BatchScalarMulMSSB) {
+TEST_F(MultiScalarMulTest, MultiScalarsSingleBase) {
   std::vector<BaseField> scalars = {BaseField(3), BaseField(4), BaseField(5)};
   BaseTy base = BaseTy::Random();
   std::vector<ReturnTy> expected;
   for (const BaseField& scalar : scalars) {
     expected.push_back(base.ScalarMul(scalar.ToBigInt()));
   }
-  std::vector<ReturnTy> batched_bases = BaseTy::BatchScalarMul(scalars, base);
-  EXPECT_EQ(batched_bases, expected);
+  std::vector<ReturnTy> actual = BaseTy::MultiScalarMul(scalars, base);
+  EXPECT_EQ(actual, expected);
 }
 
 // scalars: [s₀, s₁, ..., sₙ₋₁]
 // bases: [G₀, G₁, ..., Gₙ₋₁]
 // return: [s₀G₀, s₁G₁, ..., sₙ₋₁Gₙ₋₁]
-TEST_F(BatchScalarTest, BatchScalarMulMSMB) {
+TEST_F(MultiScalarMulTest, MultiScalarsMultiBases) {
   std::vector<BaseField> scalars = {BaseField(3), BaseField(4), BaseField(5)};
   std::vector<BaseTy> bases = {BaseTy::Random(), BaseTy::Random(),
                                BaseTy::Random()};
@@ -165,8 +165,8 @@ TEST_F(BatchScalarTest, BatchScalarMulMSMB) {
   for (size_t i = 0; i < scalars.size(); ++i) {
     expected.push_back(bases[i].ScalarMul(scalars[i].ToBigInt()));
   }
-  std::vector<ReturnTy> batched_bases = BaseTy::BatchScalarMul(scalars, bases);
-  EXPECT_EQ(batched_bases, expected);
+  std::vector<ReturnTy> actual = BaseTy::MultiScalarMul(scalars, bases);
+  EXPECT_EQ(actual, expected);
 }
 
 }  // namespace tachyon::math

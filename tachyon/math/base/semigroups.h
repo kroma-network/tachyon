@@ -334,7 +334,7 @@ class AdditiveSemigroup {
   template <typename F,
             typename ReturnTy =
                 typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
-  static std::vector<ReturnTy> BatchScalarMul(const F& scalar,
+  static std::vector<ReturnTy> MultiScalarMul(const F& scalar,
                                               const std::vector<G>& bases) {
     size_t size = bases.size();
     std::vector<ReturnTy> ret(size);
@@ -353,7 +353,7 @@ class AdditiveSemigroup {
   template <typename F,
             typename ReturnTy =
                 typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
-  static std::vector<ReturnTy> BatchScalarMul(const std::vector<F>& scalars,
+  static std::vector<ReturnTy> MultiScalarMul(const std::vector<F>& scalars,
                                               const G& base) {
     size_t size = scalars.size();
     std::vector<ReturnTy> ret(size);
@@ -372,7 +372,7 @@ class AdditiveSemigroup {
   template <typename F,
             typename ReturnTy =
                 typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
-  static std::vector<ReturnTy> BatchScalarMul(const std::vector<F>& scalars,
+  static std::vector<ReturnTy> MultiScalarMul(const std::vector<F>& scalars,
                                               std::vector<G>& bases) {
     CHECK_EQ(scalars.size(), bases.size());
     size_t size = scalars.size();
