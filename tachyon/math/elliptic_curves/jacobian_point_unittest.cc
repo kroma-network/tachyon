@@ -11,7 +11,7 @@ namespace {
 
 class JacobianPointTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { test::JacobianPoint::Curve::Init(); }
+  static void SetUpTestSuite() { test::G1Curve::Init(); }
 };
 
 }  // namespace

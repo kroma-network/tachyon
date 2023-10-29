@@ -48,17 +48,17 @@ BaseField CurveConfig<BaseField, ScalarField>::kB;
 template <typename BaseField, typename ScalarField>
 Point2<BaseField> CurveConfig<BaseField, ScalarField>::kGenerator;
 
-using AffinePoint = math::AffinePoint<SWCurve<CurveConfig<GF7, GF7>>>;
-using ProjectivePoint = math::ProjectivePoint<SWCurve<CurveConfig<GF7, GF7>>>;
-using JacobianPoint = math::JacobianPoint<SWCurve<CurveConfig<GF7, GF7>>>;
-using PointXYZZ = math::PointXYZZ<SWCurve<CurveConfig<GF7, GF7>>>;
+using G1Curve = SWCurve<CurveConfig<GF7, GF7>>;
+using AffinePoint = math::AffinePoint<G1Curve>;
+using ProjectivePoint = math::ProjectivePoint<G1Curve>;
+using JacobianPoint = math::JacobianPoint<G1Curve>;
+using PointXYZZ = math::PointXYZZ<G1Curve>;
 #if defined(TACHYON_GMP_BACKEND)
-using AffinePointGmp = math::AffinePoint<SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>>;
-using ProjectivePointGmp =
-    math::ProjectivePoint<SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>>;
-using JacobianPointGmp =
-    math::JacobianPoint<SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>>;
-using PointXYZZGmp = math::PointXYZZ<SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>>;
+using G1CurveGmp = SWCurve<CurveConfig<GF7Gmp, GF7Gmp>>;
+using AffinePointGmp = math::AffinePoint<G1CurveGmp>;
+using ProjectivePointGmp = math::ProjectivePoint<G1CurveGmp>;
+using JacobianPointGmp = math::JacobianPoint<G1CurveGmp>;
+using PointXYZZGmp = math::PointXYZZ<G1CurveGmp>;
 #endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace test

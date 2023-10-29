@@ -11,7 +11,7 @@ namespace {
 
 class AffinePointTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { test::AffinePoint::Curve::Init(); }
+  static void SetUpTestSuite() { test::G1Curve::Init(); }
 };
 
 }  // namespace
