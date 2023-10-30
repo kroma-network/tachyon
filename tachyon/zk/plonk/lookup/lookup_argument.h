@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <numeric>
 #include <string>
 #include <string_view>
 #include <utility>
