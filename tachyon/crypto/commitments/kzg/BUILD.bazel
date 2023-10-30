@@ -5,19 +5,22 @@ load(
 )
 
 tachyon_cc_library(
-    name = "pedersen",
-    hdrs = ["pedersen.h"],
+    name = "kzg",
+    hdrs = ["kzg.h"],
     deps = [
         "//tachyon/base/containers:container_util",
+        "//tachyon/base/numerics:checked_math",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
 )
 
 tachyon_cc_unittest(
-    name = "pedersen_unittests",
-    srcs = ["pedersen_unittest.cc"],
+    name = "kzg_unittests",
+    srcs = ["kzg_unittest.cc"],
     deps = [
-        ":pedersen",
+        ":kzg",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/bn/bn254:g2",
     ],
 )

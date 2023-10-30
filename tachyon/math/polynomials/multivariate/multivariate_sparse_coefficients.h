@@ -329,6 +329,10 @@ class MultivariateSparseCoefficients {
                   [](const Term& term) { return term.coefficient.IsZero(); });
   }
 
+  size_t num_vars() const { return num_vars_; }
+
+  const std::vector<Term>& terms() const { return terms_; }
+
  private:
   friend class internal::MultivariatePolynomialOp<
       MultivariateSparseCoefficients<F, MaxDegree>>;
