@@ -97,6 +97,7 @@ tachyon_cc_library(
     deps = [
         ":range",
         "//tachyon:export",
+        "@com_google_absl//absl/algorithm:container",
         "@com_google_absl//absl/random",
     ],
 )

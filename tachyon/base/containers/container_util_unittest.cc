@@ -7,6 +7,8 @@
 
 namespace tachyon::base {
 
+constexpr size_t kCount = 1000;
+
 TEST(ContainerUtilTest, CreateRangedVector) {
   struct {
     int start;
@@ -72,6 +74,19 @@ TEST(ContainerUtilTest, FindIndexIf) {
   EXPECT_EQ(index.value(), 0);
   index = base::FindIndexIf(arr, [](size_t v) { return v == 3; });
   EXPECT_FALSE(index.has_value());
+}
+
+TEST(ContainerUtilTest, Shuffle) {
+  std::vector<int> vec = {1, 2, 3};
+  std::vector<int> vec2 = vec;
+  for (size_t i = 0; i < kCount; ++i) {
+    Shuffle(vec2);
+    if (vec != vec2) {
+      SUCCEED();
+      return;
+    }
+  }
+  FAIL() << "shuffle seems not working";
 }
 
 }  // namespace tachyon::base

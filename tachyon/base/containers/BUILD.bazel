@@ -27,6 +27,7 @@ tachyon_cc_library(
     hdrs = ["container_util.h"],
     deps = [
         "//tachyon/base:logging",
+        "//tachyon/base:random",
         "//tachyon/base/functional:functor_traits",
         "//tachyon/base/numerics:checked_math",
     ],

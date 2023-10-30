@@ -7,9 +7,12 @@
 #include <utility>
 #include <vector>
 
+#include "absl/algorithm/container.h"
+
 #include "tachyon/base/functional/functor_traits.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/numerics/checked_math.h"
+#include "tachyon/base/random.h"
 
 namespace tachyon::base {
 
@@ -140,6 +143,11 @@ template <typename Container, typename UnaryOp>
 std::optional<size_t> FindIndexIf(Container&& container, UnaryOp&& op) {
   return FindIndexIf(std::begin(container), std::end(container),
                      std::forward<UnaryOp>(op));
+}
+
+template <typename Container>
+void Shuffle(Container& container) {
+  absl::c_shuffle(container, GetAbslBitGen());
 }
 
 }  // namespace tachyon::base
