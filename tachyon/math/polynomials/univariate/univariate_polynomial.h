@@ -132,10 +132,26 @@ class UnivariatePolynomial final
   // MultiplicativeSemigroup methods
   OPERATION_METHOD(Mul)
 
+  UnivariatePolynomial& MulInPlace(const Field& scalar) {
+    return internal::UnivariatePolynomialOp<Coefficients>::MulInPlace(*this,
+                                                                      scalar);
+  }
+
   OPERATION_METHOD(Div)
   OPERATION_METHOD(Mod)
 
 #undef OPERATION_METHOD
+
+  UnivariatePolynomial operator/(const Field& scalar) const {
+    UnivariatePolynomial poly = *this;
+    poly /= scalar;
+    return poly;
+  }
+
+  UnivariatePolynomial& operator/=(const Field& scalar) {
+    return internal::UnivariatePolynomialOp<Coefficients>::DivInPlace(*this,
+                                                                      scalar);
+  }
 
   template <typename Coefficients2>
   constexpr auto operator/(

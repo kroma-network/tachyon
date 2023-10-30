@@ -144,6 +144,17 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
+  static UnivariatePolynomial<D>& MulInPlace(UnivariatePolynomial<D>& self,
+                                             const F& scalar) {
+    std::vector<F>& coefficients = self.coefficients_.coefficients_;
+    // clang-format off
+    OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
+      // clang-format on
+      coefficient *= scalar;
+    }
+    return self;
+  }
+
   static UnivariatePolynomial<D>& MulInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<D>& other) {
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
@@ -210,6 +221,17 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     l_coefficients = std::move(coefficients);
     self.coefficients_.RemoveHighDegreeZeros();
+    return self;
+  }
+
+  static UnivariatePolynomial<D>& DivInPlace(UnivariatePolynomial<D>& self,
+                                             const F& scalar) {
+    std::vector<F>& coefficients = self.coefficients_.coefficients_;
+    // clang-format off
+    OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
+      // clang-format on
+      coefficient /= scalar;
+    }
     return self;
   }
 
@@ -377,6 +399,15 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return other * self;
   }
 
+  static UnivariatePolynomial<S>& MulInPlace(UnivariatePolynomial<S>& self,
+                                             const F& scalar) {
+    std::vector<Term>& terms = self.coefficients_.terms_;
+    for (Term& term : terms) {
+      term.coefficient *= scalar;
+    }
+    return self;
+  }
+
   static UnivariatePolynomial<S>& MulInPlace(
       UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
     std::vector<Term>& l_terms = self.coefficients_.terms_;
@@ -413,6 +444,15 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     l_terms = std::move(records);
     base::ranges::sort(l_terms);
     self.coefficients_.RemoveHighDegreeZeros();
+    return self;
+  }
+
+  static UnivariatePolynomial<S>& DivInPlace(UnivariatePolynomial<S>& self,
+                                             const F& scalar) {
+    std::vector<Term>& terms = self.coefficients_.terms_;
+    for (Term& term : terms) {
+      term.coefficient /= scalar;
+    }
     return self;
   }
 

@@ -295,6 +295,45 @@ TEST_F(UnivariateSparsePolynomialTest, MultiplicativeOperators) {
   }
 }
 
+TEST_F(UnivariateSparsePolynomialTest, MulScalar) {
+  Poly poly = Poly::Random(kMaxDegree);
+  GF7 scalar = GF7::Random();
+
+  std::vector<UnivariateTerm<GF7>> expected_terms;
+  const std::vector<UnivariateTerm<GF7>>& terms = poly.coefficients().terms();
+  expected_terms.reserve(terms.size());
+  for (size_t i = 0; i < terms.size(); ++i) {
+    expected_terms.push_back(terms[i] * scalar);
+  }
+
+  Poly actual = poly * scalar;
+  Poly expected(Coeffs(std::move(expected_terms)));
+  EXPECT_EQ(actual, expected);
+  poly *= scalar;
+  EXPECT_EQ(poly, expected);
+}
+
+TEST_F(UnivariateSparsePolynomialTest, DivScalar) {
+  Poly poly = Poly::Random(kMaxDegree);
+  GF7 scalar = GF7::Random();
+  while (scalar.IsZero()) {
+    scalar = GF7::Random();
+  }
+
+  std::vector<UnivariateTerm<GF7>> expected_terms;
+  const std::vector<UnivariateTerm<GF7>>& terms = poly.coefficients().terms();
+  expected_terms.reserve(terms.size());
+  for (size_t i = 0; i < terms.size(); ++i) {
+    expected_terms.push_back(terms[i] / scalar);
+  }
+
+  Poly actual = poly / scalar;
+  Poly expected(Coeffs(std::move(expected_terms)));
+  EXPECT_EQ(actual, expected);
+  poly /= scalar;
+  EXPECT_EQ(poly, expected);
+}
+
 TEST_F(UnivariateSparsePolynomialTest, Copyable) {
   Poly expected(Coeffs({{0, GF7(3)}, {1, GF7(1)}}));
   Poly value;
