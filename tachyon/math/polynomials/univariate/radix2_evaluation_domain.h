@@ -26,6 +26,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -145,17 +146,13 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     evals.evaluations_.resize(n, F::Zero());
     this->SwapElements(evals, num_coeffs, log_n);
     if (duplicity_of_initials > 1) {
-      auto chunks = base::Chunked(evals.evaluations_, duplicity_of_initials);
-      std::vector<absl::Span<F>> chunks_vector =
-          base::Map(chunks.begin(), chunks.end(),
-                    [](absl::Span<F> chunk) { return chunk; });
-      OPENMP_PARALLEL_FOR(size_t i = 0; i < chunks_vector.size(); ++i) {
-        absl::Span<F> chunks = chunks_vector[i];
-        const F& v = chunks[0];
-        for (size_t j = 1; j < chunks.size(); ++j) {
-          chunks[j] = v;
-        }
-      }
+      base::ParallelizeByChunkSize(evals.evaluations_, duplicity_of_initials,
+                                   [](absl::Span<F> chunk) {
+                                     const F& v = chunk[0];
+                                     for (size_t j = 1; j < chunk.size(); ++j) {
+                                       chunk[j] = v;
+                                     }
+                                   });
     }
     size_t start_gap = duplicity_of_initials;
     OutInHelper(evals, this->group_gen_, start_gap);

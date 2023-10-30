@@ -73,7 +73,6 @@ tachyon_cc_library(
     hdrs = ["groups.h"],
     deps = [
         ":semigroups",
-        "//tachyon/base:openmp_util",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/types:always_false",
@@ -103,7 +102,7 @@ tachyon_cc_library(
         ":big_int",
         ":bit_iterator",
         "//tachyon/base:bits",
-        "//tachyon/base:openmp_util",
+        "//tachyon/base:parallelize",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/types:always_false",
