@@ -203,7 +203,7 @@ __global__ void ReduceBucketsStep1(
 
   if (start != 0) {
     result -= running_sum;
-    result += running_sum.ScalarMul(BigInt<1>(start));
+    result += running_sum.ScalarMul(start);
   }
 
   intermediate_results[gid * gnum + gtid] = result;

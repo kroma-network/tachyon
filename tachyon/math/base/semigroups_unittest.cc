@@ -142,9 +142,9 @@ MSMTestSet<test::AffinePoint> MultiScalarMulTest::test_set_;
 // return: [sG₀, sG₁, ..., sGₙ₋₁]
 TEST_F(MultiScalarMulTest, SingleScalarMultiBases) {
   std::vector<test::JacobianPoint> expected;
-  const BigInt<1> scalar = test_set_.scalars[0].ToBigInt();
+  const GF7& scalar = test_set_.scalars[0];
   for (const test::AffinePoint& base : test_set_.bases) {
-    expected.push_back(base.ScalarMul(scalar));
+    expected.push_back(base * scalar);
   }
   std::vector<test::JacobianPoint> actual =
       test::AffinePoint::MultiScalarMul(test_set_.scalars[0], test_set_.bases);
@@ -157,7 +157,7 @@ TEST_F(MultiScalarMulTest, SingleScalarMultiBases) {
 TEST_F(MultiScalarMulTest, MultiScalarsSingleBase) {
   std::vector<test::JacobianPoint> expected;
   for (const GF7& scalar : test_set_.scalars) {
-    expected.push_back(test_set_.bases[0].ScalarMul(scalar.ToBigInt()));
+    expected.push_back(test_set_.bases[0] * scalar);
   }
   std::vector<test::JacobianPoint> actual =
       test::AffinePoint::MultiScalarMul(test_set_.scalars, test_set_.bases[0]);
@@ -171,7 +171,7 @@ TEST_F(MultiScalarMulTest, MultiScalarsMultiBases) {
   std::vector<test::JacobianPoint> expected;
   for (auto& [scalar, base] :
        base::Zipped(test_set_.scalars, test_set_.bases)) {
-    expected.push_back(base.ScalarMul(scalar.ToBigInt()));
+    expected.push_back(base * scalar);
   }
   std::vector<test::JacobianPoint> actual =
       test::AffinePoint::MultiScalarMul(test_set_.scalars, test_set_.bases);

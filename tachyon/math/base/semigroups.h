@@ -10,6 +10,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/bit_iterator.h"
 
@@ -48,6 +49,13 @@ SUPPORTS_BINARY_OPERATOR(Mul);
 SUPPORTS_UNARY_IN_PLACE_OPERATOR(Square);
 SUPPORTS_BINARY_OPERATOR(Add);
 SUPPORTS_UNARY_IN_PLACE_OPERATOR(Double);
+
+template <typename T, typename = void>
+struct SupportsToBigInt : std::false_type {};
+
+template <typename T>
+struct SupportsToBigInt<T, decltype(void(std::declval<T>().ToBigInt()))>
+    : std::true_type {};
 
 template <typename G>
 struct MultiplicativeSemigroupTraits {
@@ -302,30 +310,26 @@ class AdditiveSemigroup {
   // the function below, then it gives me an error "error: request for member
   // 'operator*' is ambiguous".
   // constexpr auto operator*(const BigInt<N>& scalar) const {
-  template <size_t N,
-            typename ReturnTy =
-                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
-  [[nodiscard]] constexpr ReturnTy ScalarMul(const BigInt<N>& scalar) const {
-    const G* g = static_cast<const G*>(this);
-    ReturnTy ret = ReturnTy::Zero();
-    auto it = BitIteratorBE<BigInt<N>>::begin(&scalar, true);
-    auto end = BitIteratorBE<BigInt<N>>::end(&scalar);
-    while (it != end) {
-      if constexpr (internal::SupportsDoubleInPlace<G>::value) {
-        ret.DoubleInPlace();
+  template <size_t N>
+  [[nodiscard]] constexpr auto ScalarMul(const BigInt<N>& scalar) const {
+    return DoScalarMul(scalar);
+  }
+
+  template <typename ScalarTy>
+  [[nodiscard]] constexpr auto ScalarMul(const ScalarTy& scalar) const {
+    if constexpr (std::is_integral_v<ScalarTy> && sizeof(ScalarTy) <= 8) {
+      // TODO(chokobole): Remove this branch if |BigInt| supports sign.
+      if constexpr (std::is_signed_v<ScalarTy>) {
+        return scalar > 0 ? DoScalarMul(BigInt<1>(scalar))
+                          : -DoScalarMul(BigInt<1>(-scalar));
       } else {
-        ret = ret.Double();
+        return DoScalarMul(BigInt<1>(scalar));
       }
-      if (*it) {
-        if constexpr (internal::SupportsAddInPlace<ReturnTy, G>::value) {
-          ret.AddInPlace(*g);
-        } else {
-          ret = ret.Add(*g);
-        }
-      }
-      ++it;
+    } else if constexpr (internal::SupportsToBigInt<ScalarTy>::value) {
+      return DoScalarMul(scalar.ToBigInt());
+    } else {
+      static_assert(base::AlwaysFalse<G>);
     }
-    return ret;
   }
 
   // scalar: s
@@ -341,7 +345,7 @@ class AdditiveSemigroup {
     size_t num_elems_per_thread = base::GetNumElementsPerThread(bases);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        ret[j] = bases[j].ScalarMul(scalar.ToBigInt());
+        ret[j] = bases[j].ScalarMul(scalar);
       }
     }
     return ret;
@@ -360,7 +364,7 @@ class AdditiveSemigroup {
     size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        ret[j] = base.ScalarMul(scalars[j].ToBigInt());
+        ret[j] = base.ScalarMul(scalars[j]);
       }
     }
     return ret;
@@ -380,8 +384,35 @@ class AdditiveSemigroup {
     size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        ret[j] = bases[j].ScalarMul(scalars[j].ToBigInt());
+        ret[j] = bases[j].ScalarMul(scalars[j]);
       }
+    }
+    return ret;
+  }
+
+ private:
+  template <size_t N,
+            typename ReturnTy =
+                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
+  [[nodiscard]] constexpr ReturnTy DoScalarMul(const BigInt<N>& scalar) const {
+    const G* g = static_cast<const G*>(this);
+    ReturnTy ret = ReturnTy::Zero();
+    auto it = BitIteratorBE<BigInt<N>>::begin(&scalar, true);
+    auto end = BitIteratorBE<BigInt<N>>::end(&scalar);
+    while (it != end) {
+      if constexpr (internal::SupportsDoubleInPlace<G>::value) {
+        ret.DoubleInPlace();
+      } else {
+        ret = ret.Double();
+      }
+      if (*it) {
+        if constexpr (internal::SupportsAddInPlace<ReturnTy, G>::value) {
+          ret.AddInPlace(*g);
+        } else {
+          ret = ret.Add(*g);
+        }
+      }
+      ++it;
     }
     return ret;
   }

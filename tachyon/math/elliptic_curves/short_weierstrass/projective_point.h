@@ -187,7 +187,7 @@ class ProjectivePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
   }
 
   constexpr ProjectivePoint operator*(const ScalarField& v) const {
-    return this->ScalarMul(v.ToBigInt());
+    return this->ScalarMul(v);
   }
   constexpr ProjectivePoint& operator*=(const ScalarField& v) {
     return *this = operator*(v);

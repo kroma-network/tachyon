@@ -208,7 +208,7 @@ class PointXYZZ<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
   }
 
   constexpr PointXYZZ operator*(const ScalarField& v) const {
-    return this->ScalarMul(v.ToBigInt());
+    return this->ScalarMul(v);
   }
   constexpr PointXYZZ& operator*=(const ScalarField& v) {
     return *this = operator*(v);

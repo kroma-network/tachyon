@@ -95,7 +95,7 @@ struct MSMTestSet {
             typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
         AddResultTy sum = AddResultTy::Zero();
         for (size_t i = 0; i < bases.size(); ++i) {
-          sum += bases[i].ScalarMul(scalars[i].ToBigInt());
+          sum += bases[i] * scalars[i];
         }
         answer = ConvertPoint<Bucket>(sum);
         break;
