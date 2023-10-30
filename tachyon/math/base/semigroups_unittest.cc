@@ -146,9 +146,20 @@ TEST_F(MultiScalarMulTest, SingleScalarMultiBases) {
   for (const test::AffinePoint& base : test_set_.bases) {
     expected.push_back(base * scalar);
   }
-  std::vector<test::JacobianPoint> actual =
-      test::AffinePoint::MultiScalarMul(test_set_.scalars[0], test_set_.bases);
-  EXPECT_EQ(actual, expected);
+  {
+    std::vector<test::JacobianPoint> actual;
+    actual.resize(test_set_.bases.size());
+    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(test_set_.scalars[0],
+                                                  test_set_.bases, &actual));
+    EXPECT_EQ(actual, expected);
+  }
+  {
+    std::vector<test::JacobianPoint> actual;
+    actual.resize(test_set_.bases.size());
+    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(
+        test_set_.scalars[0], absl::MakeConstSpan(test_set_.bases), &actual));
+    EXPECT_EQ(actual, expected);
+  }
 }
 
 // scalars: [s₀, s₁, ..., sₙ₋₁]
@@ -159,9 +170,20 @@ TEST_F(MultiScalarMulTest, MultiScalarsSingleBase) {
   for (const GF7& scalar : test_set_.scalars) {
     expected.push_back(test_set_.bases[0] * scalar);
   }
-  std::vector<test::JacobianPoint> actual =
-      test::AffinePoint::MultiScalarMul(test_set_.scalars, test_set_.bases[0]);
-  EXPECT_EQ(actual, expected);
+  {
+    std::vector<test::JacobianPoint> actual;
+    actual.resize(test_set_.scalars.size());
+    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(test_set_.scalars,
+                                                  test_set_.bases[0], &actual));
+    EXPECT_EQ(actual, expected);
+  }
+  {
+    std::vector<test::JacobianPoint> actual;
+    actual.resize(test_set_.bases.size());
+    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(
+        absl::MakeConstSpan(test_set_.scalars), test_set_.bases[0], &actual));
+    EXPECT_EQ(actual, expected);
+  }
 }
 
 // scalars: [s₀, s₁, ..., sₙ₋₁]
@@ -173,9 +195,21 @@ TEST_F(MultiScalarMulTest, MultiScalarsMultiBases) {
        base::Zipped(test_set_.scalars, test_set_.bases)) {
     expected.push_back(base * scalar);
   }
-  std::vector<test::JacobianPoint> actual =
-      test::AffinePoint::MultiScalarMul(test_set_.scalars, test_set_.bases);
-  EXPECT_EQ(actual, expected);
+  {
+    std::vector<test::JacobianPoint> actual;
+    actual.resize(test_set_.scalars.size());
+    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(test_set_.scalars,
+                                                  test_set_.bases, &actual));
+    EXPECT_EQ(actual, expected);
+  }
+  {
+    std::vector<test::JacobianPoint> actual;
+    actual.resize(test_set_.bases.size());
+    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(
+        absl::MakeConstSpan(test_set_.scalars),
+        absl::MakeConstSpan(test_set_.bases), &actual));
+    EXPECT_EQ(actual, expected);
+  }
 }
 
 }  // namespace tachyon::math
