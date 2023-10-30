@@ -42,7 +42,7 @@ class SimpleTableLayouter : public Table<F>::Layouter {
   }
 
   // Table<F>::Layouter methods
-  Error AssignCell(AnnotateCallback annotate, const TableColumn& column,
+  Error AssignCell(std::string_view name, const TableColumn& column,
                    size_t offset, AssignCallback assign) override {
     if (base::Contains(*used_columns_, column)) {
       return Error::kSynthesis;
@@ -52,13 +52,12 @@ class SimpleTableLayouter : public Table<F>::Layouter {
 
     zk::Value<math::RationalField<F>> value =
         zk::Value<math::RationalField<F>>::Unknown();
-    assignment_->AssignFixed(std::move(annotate), column.column(), offset,
-                             [&value, assign = std::move(assign)]() {
-                               zk::Value<math::RationalField<F>> ret =
-                                   std::move(assign).Run();
-                               value = ret;
-                               return ret;
-                             });
+    assignment_->AssignFixed(
+        name, column.column(), offset, [&value, assign = std::move(assign)]() {
+          zk::Value<math::RationalField<F>> ret = std::move(assign).Run();
+          value = ret;
+          return ret;
+        });
 
     if (offset == 0) {
       if (value.default_value.has_value()) {

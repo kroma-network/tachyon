@@ -17,6 +17,7 @@ tachyon_cc_library(
     deps = [
         ":cell",
         "//tachyon/zk:value",
+        "//tachyon/zk/plonk:error",
     ],
 )
 
@@ -100,7 +101,10 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "layouter",
-    hdrs = ["layouter.h"],
+    hdrs = [
+        "layouter.h",
+        "namespaced_layouter.h",
+    ],
     deps = [
         ":challenge",
         ":region",
@@ -172,6 +176,7 @@ tachyon_cc_library(
     hdrs = ["selector.h"],
     deps = [
         "//tachyon:export",
+        "//tachyon/zk/plonk:error",
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
     ],

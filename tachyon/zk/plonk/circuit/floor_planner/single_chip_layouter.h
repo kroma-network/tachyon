@@ -32,42 +32,39 @@ class SingleChipLayouter : public Layouter<F> {
         : layouter_(layouter), region_index_(region_index) {}
 
     // zk::Region<F>::Layouter methods
-    Error EnableSelector(AnnotateCallback annotate, const Selector& selector,
+    Error EnableSelector(std::string_view name, const Selector& selector,
                          size_t offset) override {
       return layouter_->assignment_->EnableSelector(
-          std::move(annotate), selector,
-          layouter_->regions_[region_index_] + offset);
+          name, selector, layouter_->regions_[region_index_] + offset);
     }
 
-    void NameColumn(AnnotateCallback annotate,
-                    const AnyColumn& column) override {
-      return layouter_->assignment_->AnnotateColumn(std::move(annotate),
-                                                    column);
+    void NameColumn(std::string_view name, const AnyColumn& column) override {
+      return layouter_->assignment_->NameColumn(name, column);
     }
 
-    Error AssignAdvice(AnnotateCallback annotate, const AdviceColumn& column,
+    Error AssignAdvice(std::string_view name, const AdviceColumn& column,
                        size_t offset, AssignCallback to, Cell* cell) override {
       Error error = layouter_->assignment_->AssignAdvice(
-          std::move(annotate), column,
-          layouter_->regions_[region_index_] + offset, std::move(assign));
+          name, column, layouter_->regions_[region_index_] + offset,
+          std::move(assign));
       if (error != Error::kNone) return error;
       *cell = {region_index_, offset, column};
       return Error::kNone;
     }
 
-    Error AssignAdviceFromConstant(AnnotateCallback annotate,
+    Error AssignAdviceFromConstant(std::string_view name,
                                    const AdviceColumn& column, size_t offset,
                                    const math::RationalField<F>& constant,
                                    Cell* cell) override {
       Error error = layouter_->assignment_->AssignAdvice(
-          std::move(annotate), column, offset,
+          name, column, offset,
           []() { return Value<math::RationalField<F>>::Known(constant); },
           cell);
       if (error != Error::kNone) return error;
       return ConstrainConstant(*cell, constant);
     }
 
-    Error AssignAdviceFromInstance(AnnotateCallback annotate,
+    Error AssignAdviceFromInstance(std::string_view name,
                                    const InstanceColumn& instance, size_t row,
                                    const AdviceColumn& advice, size_t offset,
                                    AssignedCell<F>* assigned_cell) {
@@ -78,7 +75,7 @@ class SingleChipLayouter : public Layouter<F> {
 
       Cell cell;
       error = AssignAdvice(
-          std::move(annotate), advice, offset,
+          name, advice, offset,
           [&value]() { return math::RationalField<F>(value); }, &cell);
       if (error != Error::kNone) return error;
 
@@ -92,12 +89,12 @@ class SingleChipLayouter : public Layouter<F> {
       return Error::kNone;
     }
 
-    Error AssignFixed(AnnotateCallback annotate, const FixedColumn& column,
+    Error AssignFixed(std::string_view name, const FixedColumn& column,
                       size_t offset, AssignCallback assign,
                       Cell* cell) override {
-      Error error = AssignFixed(std::move(annotate), column,
-                                layouter_->regions_[region_index_] + offset,
-                                std::move(assign));
+      Error error =
+          AssignFixed(name, column, layouter_->regions_[region_index_] + offset,
+                      std::move(assign));
       if (error != Error::kNone) return error;
       *cell = {region_index_, offset, column};
       return Error::kNone;
@@ -125,10 +122,8 @@ class SingleChipLayouter : public Layouter<F> {
     Constants constants_;
   };
 
-  using AnnotateCallback = typename Layouter<F>::AnnotateCallback;
   using AssignRegionCallback = typename Layouter<F>::AssignRegionCallback;
   using AssignTableCallback = typename Layouter<F>::AssignTableCallback;
-  using NameCallback = typename Layouter<F>::NameCallback;
 
   const std::unique_ptr<Assignment<F>>& assignment() const {
     return assignment_;
@@ -143,8 +138,8 @@ class SingleChipLayouter : public Layouter<F> {
   }
 
   // Layouter<F> methods
-  Error AssignRegion(NameCallback name, AssignRegionCallback assign) override {
-    std::string region_name = name.Run();
+  Error AssignRegion(std::string_view name,
+                     AssignRegionCallback assign) override {
     size_t region_index = regions_.size();
 
     // Get shape of the region.
@@ -152,7 +147,7 @@ class SingleChipLayouter : public Layouter<F> {
     {
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
-      VLOG(1) << "Assign region 1st pass: " << region_name;
+      VLOG(1) << "Assign region 1st pass: " << name;
       Region region(&shape);
       Error error = assign.Run(region);
       if (error != Error::kNone) return error;
@@ -160,7 +155,7 @@ class SingleChipLayouter : public Layouter<F> {
     size_t row_count = shape.row_count();
     bool log_region_info = row_count >= 40;
     DLOG_IF(INFO, log_region_info)
-        << "Region row count \"" << region_name << "\": " << row_count;
+        << "Region row count \"" << name << "\": " << row_count;
 
     // Layout this region. We implement the simplest approach here: position
     // the region starting at the earliest row for which none of the columns are
@@ -171,12 +166,12 @@ class SingleChipLayouter : public Layouter<F> {
       if (column_start != 0 && log_region_info) {
         VLOG(3) << "columns " << column.ToString()
                 << " reused between multi regions. start: " << column_start
-                << " region: \"" << region_name << "\"";
+                << " region: \"" << name << "\"";
       }
       region_start = std::max(region_start, column_start);
     }
     DLOG_IF(INFO, log_region_info)
-        << "region \"" << region_name << "\", idx: " << regions_.size()
+        << "region \"" << name << "\", idx: " << regions_.size()
         << " start: " << region_start;
     regions_.push_back(region_start);
 
@@ -191,7 +186,7 @@ class SingleChipLayouter : public Layouter<F> {
     {
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
-      VLOG(1) << "Assign region 2nd pass: " << region_name;
+      VLOG(1) << "Assign region 2nd pass: " << name;
       Error error = assign.Run(&region);
       if (error != Error::kNone) return error;
     }
@@ -226,10 +221,11 @@ class SingleChipLayouter : public Layouter<F> {
     return Error::kNone;
   }
 
-  Error AssignTable(NameCallback name, AssignTableCallback assign) override {
+  Error AssignTable(std::string_view name,
+                    AssignTableCallback assign) override {
     // Maintenance hazard: there is near-duplicate code in
     // |v1::AssignmentPass::AssignTable|. Assign table cells.
-    assignment_->EnterRegion(std::move(name));
+    assignment_->EnterRegion(name);
     SimpleTableLayouter table_layouter(&assignment_, &table_columns_);
     Error error = std::move(assign).Run(table);
     if (error != Error::kNone) return error;
@@ -290,8 +286,8 @@ class SingleChipLayouter : public Layouter<F> {
 
   Layouter<F>* GetRoot() override { return this; }
 
-  void PushNamespace(NameCallback name) override {
-    assignment_->PushNamespace(std::move(name));
+  void PushNamespace(std::string_view name) override {
+    assignment_->PushNamespace(name);
   }
 
   void PopNamespace(const std::optional<std::string>& gadget_name) override {

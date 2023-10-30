@@ -24,9 +24,7 @@ namespace tachyon::zk {
 template <typename F>
 class Assignment {
  public:
-  using AnnotateCallback = base::OnceCallback<std::string()>;
   using AssignCallback = base::OnceCallback<math::RationalField<F>()>;
-  using NameCallback = base::OnceCallback<std::string()>;
 
   virtual ~Assignment() = default;
 
@@ -36,14 +34,13 @@ class Assignment {
   //
   // Not intended for downstream consumption; use |Layouter::AssignRegion()|
   // instead.
-  virtual void EnterRegion(NameCallback name) {}
+  virtual void EnterRegion(std::string_view name) {}
 
-  // Allows the developer to include an annotation for a specific column
+  // Allows the developer to include a |name| for a specific column
   // within a |Region|.
   //
   // This is usually useful for debugging circuit failures.
-  virtual void AnnotateColumn(AnnotateCallback annotate,
-                              const AnyColumn& column) {}
+  virtual void NameColumn(std::string_view name, const AnyColumn& column) {}
 
   // Exits the current region.
   //
@@ -55,8 +52,8 @@ class Assignment {
   virtual void ExitRegion() {}
 
   // Enables a selector at the given row.
-  virtual Error EnableSelector(AnnotateCallback annotate,
-                               const Selector& selector, size_t row) {
+  virtual Error EnableSelector(std::string_view name, const Selector& selector,
+                               size_t row) {
     return Error::kNone;
   }
 
@@ -70,16 +67,14 @@ class Assignment {
   }
 
   // Assign an advice column value (witness).
-  virtual Error AssignAdvice(AnnotateCallback annotate,
-                             const AdviceColumn& column, size_t row,
-                             AssignCallback assign) {
+  virtual Error AssignAdvice(std::string_view name, const AdviceColumn& column,
+                             size_t row, AssignCallback assign) {
     return Error::kNone;
   }
 
   // Assign a fixed value.
-  virtual Error AssignFixed(AnnotateCallback annotate,
-                            const FixedColumn& column, size_t row,
-                            AssignCallback assign) {
+  virtual Error AssignFixed(std::string_view name, const FixedColumn& column,
+                            size_t row, AssignCallback assign) {
     return Error::kNone;
   }
 
@@ -105,14 +100,12 @@ class Assignment {
 
   // Creates a new (sub)namespace and enters into it.
   //
-  // TODO(chokobole): Update comment when NamespacedLayouter comes in.
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
-  virtual void PushNamespace(NameCallback name) {}
+  virtual void PushNamespace(std::string_view name) {}
 
   // Exits out of the existing namespace.
   //
-  // TODO(chokobole): Update comment when NamespacedLayouter comes in.
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
   virtual void PopNamespace(const std::optional<std::string>& gadget_name) {}

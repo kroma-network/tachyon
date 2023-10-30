@@ -11,7 +11,7 @@
 #include <string>
 #include <utility>
 
-#include "tachyon/math/base/field.h"
+#include "tachyon/math/base/rational_field.h"
 
 namespace tachyon::zk {
 
@@ -171,6 +171,12 @@ class Value : public math::Field<Value<T>> {
     CHECK(!IsNone());
     value_->InverseInPlace();
     return *this;
+  }
+
+  Value<math::RationalField<T>> ToRationalFieldValue() const {
+    if (IsNone()) return Value<math::RationalField<T>>::Unknown();
+    return Value<math::RationalField<T>>::Known(
+        math::RationalField<T>(value_.value()));
   }
 
  private:

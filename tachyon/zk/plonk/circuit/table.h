@@ -22,7 +22,6 @@ class Table {
  public:
   class Layouter {
    public:
-    using AnnotateCallback = base::OnceCallback<std::string()>;
     using AssignCallback = base::OnceCallback<Value<math::RationalField<F>>()>;
 
     virtual ~Layouter() = default;
@@ -30,9 +29,8 @@ class Table {
     // Assign a fixed value to a table cell.
     //
     // Return an error if the table cell has already been assigned.
-    virtual Error AssignCell(AnnotateCallback annotate,
-                             const TableColumn& column, size_t offset,
-                             AssignCallback assign) {
+    virtual Error AssignCell(std::string_view name, const TableColumn& column,
+                             size_t offset, AssignCallback assign) {
       return Error::kNone;
     }
   };

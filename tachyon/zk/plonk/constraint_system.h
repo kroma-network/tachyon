@@ -42,7 +42,6 @@ class ConstraintSystem {
   };
 
   using TableMap = std::vector<TableMapElem>;
-  using AnnotateCallback = base::OnceCallback<std::string()>;
   using LookupCallback = base::OnceCallback<TableMap(VirtualCells<F>&)>;
   using LookupAnyCallback =
       base::OnceCallback<typename LookupArgument<F>::TableMap(
@@ -285,22 +284,19 @@ class ConstraintSystem {
   TableColumn LookupTableColumn() { return TableColumn(CreateFixedColumn()); }
 
   // Annotate a Lookup column.
-  void AnnotateLookupColumn(const TableColumn& column,
-                            AnnotateCallback annotate) {
+  void AnnotateLookupColumn(const TableColumn& column, std::string_view name) {
     // We don't care if the table has already an annotation. If it's the case we
     // keep the new one.
-    general_column_annotations_[ColumnData(ColumnType::kFixed,
-                                           column.column().index())] =
-        std::move(annotate).Run();
+    general_column_annotations_[ColumnData(
+        ColumnType::kFixed, column.column().index())] = std::string(name);
   }
 
   // Annotate an Any column.
-  void AnnotateLookupAnyColumn(const AnyColumn& column,
-                               AnnotateCallback annotate) {
+  void AnnotateLookupAnyColumn(const AnyColumn& column, std::string_view name) {
     // We don't care if the table has already an annotation. If it's the case we
     // keep the new one.
     general_column_annotations_[ColumnData(column.type(), column.index())] =
-        std::move(annotate).Run();
+        std::string(name);
   }
 
   // Allocate a new fixed column

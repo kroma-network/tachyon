@@ -10,9 +10,13 @@
 #include <string>
 
 #include "tachyon/zk/plonk/circuit/cell.h"
+#include "tachyon/zk/plonk/error.h"
 #include "tachyon/zk/value.h"
 
 namespace tachyon::zk {
+
+template <typename F>
+class Region;
 
 // An assigned cell.
 template <typename F>
@@ -24,6 +28,14 @@ class AssignedCell {
 
   const Cell& cell() const { return cell_; }
   const Value<F>& value() const { return value_; }
+
+  // Copies the value to a given advice cell and constrains them to be equal.
+  //
+  // Returns an error if either this cell or the given cell are in columns
+  // where equality has not been enabled.
+  Error CopyAdvice(std::string_view name, Region<F>& region,
+                   const AdviceColumn& column, size_t offset,
+                   AssignedCell<F>* assigned_cell) const;
 
   std::string ToString() const {
     return absl::Substitute("{cell: $0, value: $1}", cell_.ToString(),

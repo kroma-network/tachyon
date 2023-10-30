@@ -21,7 +21,6 @@ namespace tachyon::zk {
 template <typename F>
 class RegionShape : public Region<F>::Layouter {
  public:
-  using AnnotateCallback = typename Region<F>::Layouter::AnnotateCallback;
   using AssignCallback = typename Region<F>::Layouter::AssignCallback;
 
   RegionShape() = default;
@@ -32,14 +31,14 @@ class RegionShape : public Region<F>::Layouter {
   size_t row_count() const { return row_count_; }
 
   // Layouter methods
-  Error EnableSelector(AnnotateCallback annotate, const Selector& selector,
+  Error EnableSelector(std::string_view, const Selector& selector,
                        size_t offset) override {
     columns_.insert(RegionColumn(selector));
     row_count_ = std::max(row_count_, offset + 1);
     return Error::kNone;
   }
 
-  Error AssignAdvice(AnnotateCallback annotate, const AdviceColumn& column,
+  Error AssignAdvice(std::string_view, const AdviceColumn& column,
                      size_t offset, AssignCallback to, Cell* cell) override {
     columns_.insert(RegionColumn(column));
     row_count_ = std::max(row_count_, offset + 1);
@@ -47,19 +46,18 @@ class RegionShape : public Region<F>::Layouter {
     return Error::kNone;
   }
 
-  Error AssignAdviceFromConstant(AnnotateCallback annotate,
-                                 const AdviceColumn& column, size_t offset,
-                                 math::RationalField<F> constant,
+  Error AssignAdviceFromConstant(std::string_view name, const AdviceColumn& column,
+                                 size_t offset, math::RationalField<F> constant,
                                  Cell* cell) override {
     return AssignAdvice(
-        std::move(annotate), column, offset,
+        name, column, offset,
         [constant = std::move(constant)]() {
           return Value<F>::Known(std::move(constant));
         },
         cell);
   }
 
-  Error AssignAdviceFromInstance(AnnotateCallback annotate,
+  Error AssignAdviceFromInstance(std::string_view,
                                  const InstanceColumn& instance, size_t row,
                                  const InstanceColumn& advice, size_t offset,
                                  AssignedCell<F>* cell) override {
@@ -69,8 +67,8 @@ class RegionShape : public Region<F>::Layouter {
     return Error::kNone;
   }
 
-  Error AssignFixed(AnnotateCallback annotate, const FixedColumn& column,
-                    size_t offset, AssignCallback to, Cell* cell) override {
+  Error AssignFixed(std::string_view, const FixedColumn& column, size_t offset,
+                    AssignCallback to, Cell* cell) override {
     columns_.insert(RegionColumn(column));
     row_count_ = std::max(row_count_, offset + 1);
     *cell = Cell(region_index_, offset, column);

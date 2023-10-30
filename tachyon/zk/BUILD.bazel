@@ -5,6 +5,7 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "value",
     hdrs = ["value.h"],
+    deps = ["//tachyon/math/base:rational_field"],
 )
 
 tachyon_cc_unittest(
