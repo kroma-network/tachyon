@@ -6,7 +6,9 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 namespace tachyon::math {
 
-#define CLASS ProjectivePoint<Curve, std::enable_if_t<Curve::kIsSWCurve>>
+#define CLASS      \
+  ProjectivePoint< \
+      Curve, std::enable_if_t<Curve::kType == CurveType::kShortWeierstrass>>
 
 template <typename Curve>
 constexpr CLASS& CLASS::AddInPlace(const ProjectivePoint& other) {

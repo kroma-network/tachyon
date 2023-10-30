@@ -34,7 +34,7 @@ struct PointConversions<JacobianPoint<SrcCurve>, JacobianPoint<DstCurve>,
                         std::enable_if_t<!std::is_same_v<SrcCurve, DstCurve>>> {
   static JacobianPoint<DstCurve> Convert(
       const JacobianPoint<SrcCurve>& src_point) {
-    static_assert(SrcCurve::kIsSWCurve && DstCurve::kIsSWCurve);
+    static_assert(SrcCurve::kType == DstCurve::kType);
     return JacobianPoint<DstCurve>::FromMontgomery(src_point.ToMontgomery());
   }
 };

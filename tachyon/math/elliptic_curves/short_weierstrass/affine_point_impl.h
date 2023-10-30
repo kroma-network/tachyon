@@ -7,7 +7,9 @@
 
 namespace tachyon::math {
 
-#define CLASS AffinePoint<Curve, std::enable_if_t<Curve::kIsSWCurve>>
+#define CLASS        \
+  AffinePoint<Curve, \
+              std::enable_if_t<Curve::kType == CurveType::kShortWeierstrass>>
 
 template <typename Curve>
 constexpr ProjectivePoint<Curve> CLASS::DoubleProjective() const {

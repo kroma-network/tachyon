@@ -3,9 +3,9 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "curve_config",
+    name = "sw_curve_config",
     testonly = True,
-    hdrs = ["curve_config.h"],
+    hdrs = ["sw_curve_config.h"],
     deps = [
         "//tachyon/math/elliptic_curves/short_weierstrass:points",
         "//tachyon/math/elliptic_curves/short_weierstrass:sw_curve",

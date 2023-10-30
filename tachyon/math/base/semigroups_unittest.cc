@@ -5,7 +5,7 @@
 
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
-#include "tachyon/math/elliptic_curves/short_weierstrass/test/curve_config.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/test/sw_curve_config.h"
 
 namespace tachyon::math {
 

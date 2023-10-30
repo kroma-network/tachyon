@@ -6,7 +6,7 @@ tachyon_cc_library(
     name = "points",
     hdrs = [
         "affine_point.h",
-        "curve_config.h",
+        "curve_type.h",
         "jacobian_point.h",
         "point_conversions.h",
         "point_conversions_forward.h",
@@ -31,6 +31,6 @@ tachyon_cc_unittest(
     ],
     deps = [
         "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/math/elliptic_curves/short_weierstrass/test:curve_config",
+        "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
     ],
 )
