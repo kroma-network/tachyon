@@ -106,6 +106,7 @@ tachyon_cc_library(
         "//tachyon/base:openmp_util",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
+        "//tachyon/base/types:always_false",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -140,6 +141,7 @@ tachyon_cc_unittest(
         ":sign",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/containers:container_util",
+        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
         "//tachyon/math/elliptic_curves/short_weierstrass/test:curve_config",
         "//tachyon/math/finite_fields/test:gf7",
     ],

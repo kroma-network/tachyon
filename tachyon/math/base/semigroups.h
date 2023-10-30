@@ -10,6 +10,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/bit_iterator.h"
 
@@ -48,6 +49,20 @@ SUPPORTS_BINARY_OPERATOR(Mul);
 SUPPORTS_UNARY_IN_PLACE_OPERATOR(Square);
 SUPPORTS_BINARY_OPERATOR(Add);
 SUPPORTS_UNARY_IN_PLACE_OPERATOR(Double);
+
+template <typename T, typename = void>
+struct SupportsToBigInt : std::false_type {};
+
+template <typename T>
+struct SupportsToBigInt<T, decltype(void(std::declval<T>().ToBigInt()))>
+    : std::true_type {};
+
+template <typename T, typename = void>
+struct SupportsSize : std::false_type {};
+
+template <typename T>
+struct SupportsSize<T, decltype(void(std::size(std::declval<T>())))>
+    : std::true_type {};
 
 template <typename G>
 struct MultiplicativeSemigroupTraits {
@@ -302,10 +317,69 @@ class AdditiveSemigroup {
   // the function below, then it gives me an error "error: request for member
   // 'operator*' is ambiguous".
   // constexpr auto operator*(const BigInt<N>& scalar) const {
+  template <size_t N>
+  [[nodiscard]] constexpr auto ScalarMul(const BigInt<N>& scalar) const {
+    return DoScalarMul(scalar);
+  }
+
+  template <typename ScalarTy>
+  [[nodiscard]] constexpr auto ScalarMul(const ScalarTy& scalar) const {
+    if constexpr (std::is_integral_v<ScalarTy> && sizeof(ScalarTy) <= 8) {
+      // TODO(chokobole): Remove this branch if |BigInt| supports sign.
+      if constexpr (std::is_signed_v<ScalarTy>) {
+        return scalar > 0 ? DoScalarMul(BigInt<1>(scalar))
+                          : -DoScalarMul(BigInt<1>(-scalar));
+      } else {
+        return DoScalarMul(BigInt<1>(scalar));
+      }
+    } else if constexpr (internal::SupportsToBigInt<ScalarTy>::value) {
+      return DoScalarMul(scalar.ToBigInt());
+    } else {
+      static_assert(base::AlwaysFalse<G>);
+    }
+  }
+
+  // Return false if the size of function arguments are not matched.
+  // This supports 3 cases.
+  //
+  //   - Multi Scalar Multi Base
+  //     scalars: [s₀, s₁, ..., sₙ₋₁]
+  //     bases: [G₀, G₁, ..., Gₙ₋₁]
+  //     outputs: [s₀G₀, s₁G₁, ..., sₙ₋₁Gₙ₋₁]
+  //
+  //   - Multi Scalar Single Base
+  //     scalars: [s₀, s₁, ..., sₙ₋₁]
+  //     base: G
+  //     outputs: [s₀G, s₁G, ..., sₙ₋₁G]
+  //
+  //   - Single Scalar Multi Base
+  //     scalar: s
+  //     bases: [G₀, G₁, ..., Gₙ₋₁]
+  //     outputs: [sG₀, sG₁, ..., sGₙ₋₁]
+  template <typename ScalarOrScalars, typename BaseOrBases,
+            typename OutputContainer,
+            typename OutputTy =
+                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
+  [[nodiscard]] constexpr static bool MultiScalarMul(
+      const ScalarOrScalars& scalar_or_scalars,
+      const BaseOrBases& base_or_bases, OutputContainer* outputs) {
+    if constexpr (internal::SupportsSize<ScalarOrScalars>::value &&
+                  internal::SupportsSize<BaseOrBases>::value) {
+      return MultiScalarMulMSMB(scalar_or_scalars, base_or_bases, outputs);
+    } else if constexpr (internal::SupportsSize<ScalarOrScalars>::value) {
+      return MultiScalarMulMSSB(scalar_or_scalars, base_or_bases, outputs);
+    } else if constexpr (internal::SupportsSize<BaseOrBases>::value) {
+      return MultiScalarMulSSMB(scalar_or_scalars, base_or_bases, outputs);
+    } else {
+      static_assert(base::AlwaysFalse<G>);
+    }
+  }
+
+ private:
   template <size_t N,
             typename ReturnTy =
                 typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
-  [[nodiscard]] constexpr ReturnTy ScalarMul(const BigInt<N>& scalar) const {
+  [[nodiscard]] constexpr ReturnTy DoScalarMul(const BigInt<N>& scalar) const {
     const G* g = static_cast<const G*>(this);
     ReturnTy ret = ReturnTy::Zero();
     auto it = BitIteratorBE<BigInt<N>>::begin(&scalar, true);
@@ -328,62 +402,54 @@ class AdditiveSemigroup {
     return ret;
   }
 
-  // scalar: s
-  // bases: [G₀, G₁, ..., Gₙ₋₁]
-  // return: [sG₀, sG₁, ..., sGₙ₋₁]
-  template <typename F,
-            typename ReturnTy =
-                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
-  static std::vector<ReturnTy> BatchScalarMul(const F& scalar,
-                                              const std::vector<G>& bases) {
-    size_t size = bases.size();
-    std::vector<ReturnTy> ret(size);
+  // Multi Scalar Multi Base
+  template <typename ScalarContainer, typename BaseContainer,
+            typename OutputContainer>
+  constexpr static bool MultiScalarMulMSMB(const ScalarContainer& scalars,
+                                           const BaseContainer& bases,
+                                           OutputContainer* outputs) {
+    size_t size = scalars.size();
+    if (size != std::size(bases)) return false;
+    if (size != std::size(*outputs)) return false;
+    size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
+      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
+        (*outputs)[j] = bases[j].ScalarMul(scalars[j]);
+      }
+    }
+    return true;
+  }
+
+  // Multi Scalar Single Base
+  template <typename ScalarContainer, typename OutputContainer>
+  constexpr static bool MultiScalarMulMSSB(const ScalarContainer& scalars,
+                                           const G& base,
+                                           OutputContainer* outputs) {
+    size_t size = std::size(scalars);
+    if (size != std::size(*outputs)) return false;
+    size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
+      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
+        (*outputs)[j] = base.ScalarMul(scalars[j]);
+      }
+    }
+    return true;
+  }
+
+  // Single Scalar Multi Base
+  template <typename ScalarTy, typename BaseContainer, typename OutputContainer>
+  constexpr static bool MultiScalarMulSSMB(const ScalarTy& scalar,
+                                           const BaseContainer& bases,
+                                           OutputContainer* outputs) {
+    size_t size = std::size(bases);
+    if (size != std::size(*outputs)) return false;
     size_t num_elems_per_thread = base::GetNumElementsPerThread(bases);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        ret[j] = bases[j].ScalarMul(scalar.ToBigInt());
+        (*outputs)[j] = bases[j].ScalarMul(scalar);
       }
     }
-    return ret;
-  }
-
-  // scalars: [s₀, s₁, ..., sₙ₋₁]
-  // base: G
-  // return: [s₀G, s₁G, ..., sₙ₋₁G]
-  template <typename F,
-            typename ReturnTy =
-                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
-  static std::vector<ReturnTy> BatchScalarMul(const std::vector<F>& scalars,
-                                              const G& base) {
-    size_t size = scalars.size();
-    std::vector<ReturnTy> ret(size);
-    size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        ret[j] = base.ScalarMul(scalars[j].ToBigInt());
-      }
-    }
-    return ret;
-  }
-
-  // scalars: [s₀, s₁, ..., sₙ₋₁]
-  // bases: [G₀, G₁, ..., Gₙ₋₁]
-  // return: [s₀G₀, s₁G₁, ..., sₙ₋₁Gₙ₋₁]
-  template <typename F,
-            typename ReturnTy =
-                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
-  static std::vector<ReturnTy> BatchScalarMul(const std::vector<F>& scalars,
-                                              std::vector<G>& bases) {
-    CHECK_EQ(scalars.size(), bases.size());
-    size_t size = scalars.size();
-    std::vector<ReturnTy> ret(size);
-    size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        ret[j] = bases[j].ScalarMul(scalars[j].ToBigInt());
-      }
-    }
-    return ret;
+    return true;
   }
 };
 

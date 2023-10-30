@@ -178,7 +178,7 @@ class AffinePoint<_Curve, std::enable_if_t<_Curve::kIsSWCurve>> final
   constexpr PointXYZZ<Curve> DoubleXYZZ() const;
 
   constexpr JacobianPoint<Curve> operator*(const ScalarField& v) const {
-    return this->ScalarMul(v.ToBigInt());
+    return this->ScalarMul(v);
   }
 
  private:

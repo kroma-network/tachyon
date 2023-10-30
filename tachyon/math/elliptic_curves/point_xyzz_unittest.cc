@@ -11,7 +11,7 @@ namespace {
 
 class PointXYZZTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { test::PointXYZZ::Curve::Init(); }
+  static void SetUpTestSuite() { test::G1Curve::Init(); }
 };
 
 }  // namespace

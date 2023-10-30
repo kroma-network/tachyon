@@ -11,7 +11,7 @@ namespace {
 
 class ProjectivePointTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { test::ProjectivePoint::Curve::Init(); }
+  static void SetUpTestSuite() { test::G1Curve::Init(); }
 };
 
 }  // namespace
