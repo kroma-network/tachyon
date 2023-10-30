@@ -1,6 +1,7 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
@@ -12,6 +13,19 @@ namespace tachyon::math {
 template <typename DstPointTy, typename SrcPointTy>
 constexpr DstPointTy ConvertPoint(const SrcPointTy& src_point) {
   return PointConversions<SrcPointTy, DstPointTy>::Convert(src_point);
+}
+
+// TODO(insun35): Parallelize ConvertPoints using OpenMP.
+template <typename DstContainer, typename SrcContainer>
+[[nodiscard]] constexpr bool ConvertPoints(const SrcContainer& src_points,
+                                           DstContainer* dst_points) {
+  using DstPointTy = typename DstContainer::value_type;
+
+  if (std::size(src_points) != std::size(*dst_points)) return false;
+  for (size_t i = 0; i < std::size(src_points); ++i) {
+    (*dst_points)[i] = ConvertPoint<DstPointTy>(src_points[i]);
+  }
+  return true;
 }
 
 template <typename Curve>
