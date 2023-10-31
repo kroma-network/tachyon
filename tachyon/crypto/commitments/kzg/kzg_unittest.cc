@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
@@ -60,6 +61,27 @@ TEST_F(KZGTest, Downsize) {
 
   kzg.Downsize(5);
   EXPECT_EQ(kzg.n(), size_t{32});
+}
+
+TEST_F(KZGTest, Copyable) {
+  KZGParamsTy expected;
+  ASSERT_TRUE(expected.UnsafeSetup(5));
+
+  KZGParamsTy value;
+
+  base::VectorBuffer write_buf;
+  EXPECT_TRUE(write_buf.Write(expected));
+
+  write_buf.set_buffer_offset(0);
+
+  EXPECT_TRUE(write_buf.Read(&value));
+
+  EXPECT_EQ(expected.k(), value.k());
+  EXPECT_EQ(expected.n(), value.n());
+  EXPECT_EQ(expected.g1_powers_of_tau(), value.g1_powers_of_tau());
+  EXPECT_EQ(expected.g1_powers_of_tau_lagrange(),
+            value.g1_powers_of_tau_lagrange());
+  EXPECT_EQ(expected.tau_g2(), value.tau_g2());
 }
 
 }  // namespace tachyon::crypto

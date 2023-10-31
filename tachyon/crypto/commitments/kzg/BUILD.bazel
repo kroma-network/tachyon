@@ -8,6 +8,7 @@ tachyon_cc_library(
     name = "kzg",
     hdrs = ["kzg.h"],
     deps = [
+        "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/numerics:checked_math",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
@@ -20,6 +21,7 @@ tachyon_cc_unittest(
     srcs = ["kzg_unittest.cc"],
     deps = [
         ":kzg",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
     ],

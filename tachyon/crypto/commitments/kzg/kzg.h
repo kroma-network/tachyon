@@ -11,12 +11,14 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
-namespace tachyon::crypto {
+namespace tachyon {
+namespace crypto {
 
 template <typename G1PointTy, typename G2PointTy>
 class KZGParams {
@@ -147,6 +149,49 @@ class KZGParams {
   G2PointTy tau_g2_ = G2PointTy::Generator();
 };
 
-}  // namespace tachyon::crypto
+}  // namespace crypto
+
+namespace base {
+
+template <typename G1PointTy, typename G2PointTy>
+class Copyable<crypto::KZGParams<G1PointTy, G2PointTy>> {
+ public:
+  static bool WriteTo(const crypto::KZGParams<G1PointTy, G2PointTy>& params,
+                      Buffer* buffer) {
+    return buffer->WriteMany(params.k(), params.n(), params.g1_powers_of_tau(),
+                             params.g1_powers_of_tau_lagrange(),
+                             params.tau_g2());
+  }
+
+  static bool ReadFrom(const Buffer& buffer,
+                       crypto::KZGParams<G1PointTy, G2PointTy>* params) {
+    size_t k;
+    size_t n;
+    std::vector<G1PointTy> g1_powers_of_tau;
+    std::vector<G1PointTy> g1_powers_of_tau_lagrange;
+    G2PointTy tau_g2;
+
+    if (!buffer.ReadMany(&k, &n, &g1_powers_of_tau, &g1_powers_of_tau_lagrange,
+                         &tau_g2)) {
+      return false;
+    }
+
+    *params = crypto::KZGParams<G1PointTy, G2PointTy>(
+        k, std::move(g1_powers_of_tau), std::move(g1_powers_of_tau_lagrange),
+        std::move(tau_g2));
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const crypto::KZGParams<G1PointTy, G2PointTy>& params) {
+    return base::EstimateSize(params.k()) + base::EstimateSize(params.n()) +
+           base::EstimateSize(params.g1_powers_of_tau()) +
+           base::EstimateSize(params.g1_powers_of_tau_lagrange()) +
+           base::EstimateSize(params.tau_g2());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_H_
