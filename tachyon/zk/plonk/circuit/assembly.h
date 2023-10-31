@@ -25,6 +25,17 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   using DensePoly =
       math::UnivariateDensePolynomial<math::RationalField<F>, PCSTy::kMaxSize>;
 
+  Assembly() = default;
+  Assembly(uint32_t k, std::vector<DensePoly> fixeds,
+           PermutationAssembly<PCSTy> permutation,
+           std::vector<std::vector<bool>> selectors,
+           base::Range<size_t> usable_rows)
+      : k_(k),
+        fixeds_(std::move(fixeds)),
+        permutation_(std::move(permutation)),
+        selectors_(std::move(selectors)),
+        usable_rows_(usable_rows) {}
+
   // Assignment methods
   Error EnableSelector(const Selector& selector, size_t row) override {
     if (!usable_rows_.Contains(row)) {
@@ -76,7 +87,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   }
 
  private:
-  uint32_t k_;
+  uint32_t k_ = 0;
   std::vector<DensePoly> fixeds_;
   PermutationAssembly<PCSTy> permutation_;
   std::vector<std::vector<bool>> selectors_;
