@@ -16,6 +16,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/circuit:virtual_cells",
         "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_selector_finder",
         "//tachyon/zk/plonk/lookup:lookup_argument",
+        "//tachyon/zk/plonk/permutation:permutation_argument",
     ],
 )
 
