@@ -9,7 +9,9 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/crypto/commitments/kzg/kzg_commitment_scheme.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 
 namespace tachyon::zk {
 
@@ -17,15 +19,18 @@ namespace {
 
 class PermutationVerifyingKeyTest : public testing::Test {
  public:
+  using PCS = crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
+                                          math::bn254::G2AffinePoint,
+                                          math::bn254::G1AffinePoint>;
+  using VerifyingKey = PermutationVerifyingKey<PCS>;
+
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
 
 }  // namespace
 
 TEST_F(PermutationVerifyingKeyTest, Copyable) {
-  using VerifyingKey = PermutationVerifyingKey<math::bn254::G1Curve>;
-
-  VerifyingKey expected({Commitment<math::bn254::G1Curve>::Random()});
+  VerifyingKey expected({math::bn254::G1AffinePoint::Random()});
   VerifyingKey value;
 
   base::VectorBuffer write_buf;

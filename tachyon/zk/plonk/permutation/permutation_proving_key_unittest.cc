@@ -9,7 +9,9 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
-#include "tachyon/math/finite_fields/test/gf7.h"
+#include "tachyon/crypto/commitments/kzg/kzg_commitment_scheme.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 
 namespace tachyon::zk {
 
@@ -17,20 +19,21 @@ namespace {
 
 class PermutationProvingKeyTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { math::GF7::Init(); }
+  using PCS = crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
+                                          math::bn254::G2AffinePoint,
+                                          math::bn254::G1AffinePoint>;
+  using ProvingKey = PermutationProvingKey<PCS>;
+  using DensePoly = ProvingKey::DensePoly;
+  using Evals = ProvingKey::Evals;
+
+  static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
 
 }  // namespace
 
 TEST_F(PermutationProvingKeyTest, Copyable) {
-  constexpr size_t kMaxDegree = 7;
-
-  using ProvingKey = PermutationProvingKey<math::GF7, kMaxDegree>;
-  using DensePoly = ProvingKey::DensePoly;
-  using Evals = ProvingKey::Evals;
-
-  ProvingKey expected({Evals::Random(kMaxDegree)},
-                      {DensePoly::Random(kMaxDegree)});
+  constexpr size_t kDegree = 5;
+  ProvingKey expected({Evals::Random(kDegree)}, {DensePoly::Random(kDegree)});
   ProvingKey value;
 
   base::VectorBuffer write_buf;

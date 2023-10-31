@@ -11,22 +11,24 @@
 #include <vector>
 
 #include "tachyon/base/buffer/copyable.h"
-#include "tachyon/zk/plonk/commitment.h"
 
 namespace tachyon {
 namespace zk {
 
-template <typename Curve>
+template <typename PCSTy>
 class PermutationVerifyingKey {
  public:
+  using Commitment = typename PCSTy::ResultTy;
+  using Commitments = std::vector<Commitment>;
+
   PermutationVerifyingKey() = default;
 
-  explicit PermutationVerifyingKey(const Commitments<Curve>& commitments)
+  explicit PermutationVerifyingKey(const Commitments& commitments)
       : commitments_(commitments) {}
-  explicit PermutationVerifyingKey(Commitments<Curve>&& commitments)
+  explicit PermutationVerifyingKey(Commitments&& commitments)
       : commitments_(std::move(commitments)) {}
 
-  const Commitments<Curve>& commitments() const { return commitments_; }
+  const Commitments& commitments() const { return commitments_; }
 
   size_t BytesLength() const { return base::EstimateSize(this); }
 
@@ -38,30 +40,30 @@ class PermutationVerifyingKey {
   }
 
  private:
-  Commitments<Curve> commitments_;
+  Commitments commitments_;
 };
 
 }  // namespace zk
 
 namespace base {
 
-template <typename Curve>
-class Copyable<zk::PermutationVerifyingKey<Curve>> {
+template <typename PCSTy>
+class Copyable<zk::PermutationVerifyingKey<PCSTy>> {
  public:
-  static bool WriteTo(const zk::PermutationVerifyingKey<Curve>& vk,
+  static bool WriteTo(const zk::PermutationVerifyingKey<PCSTy>& vk,
                       Buffer* buffer) {
     return buffer->Write(vk.commitments());
   }
 
   static bool ReadFrom(const Buffer& buffer,
-                       zk::PermutationVerifyingKey<Curve>* vk) {
-    zk::Commitments<Curve> commitments;
+                       zk::PermutationVerifyingKey<PCSTy>* vk) {
+    typename zk::PermutationVerifyingKey<PCSTy>::Commitments commitments;
     if (!buffer.Read(&commitments)) return false;
-    *vk = zk::PermutationVerifyingKey<Curve>(std::move(commitments));
+    *vk = zk::PermutationVerifyingKey<PCSTy>(std::move(commitments));
     return true;
   }
 
-  static size_t EstimateSize(const zk::PermutationVerifyingKey<Curve>& vk) {
+  static size_t EstimateSize(const zk::PermutationVerifyingKey<PCSTy>& vk) {
     return base::EstimateSize(vk.commitments());
   }
 };

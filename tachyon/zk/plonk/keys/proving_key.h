@@ -11,17 +11,18 @@
 
 namespace tachyon::zk {
 
-template <typename Curve, size_t MaxDegree>
+template <typename PCSTy>
 class ProvingKey {
  public:
-  using F = typename math::AffinePoint<Curve>::ScalarField;
-  using DensePoly = math::UnivariateDensePolynomial<F, MaxDegree>;
-  using Evals = math::UnivariateEvaluations<F, MaxDegree>;
+  static constexpr size_t kMaxDegree = PCSTy::kMaxDegree;
 
-  ProvingKey(VerifyingKey<Curve, MaxDegree> verifying_key, DensePoly l0,
-             DensePoly l_last, DensePoly l_active_row, Evals fixed_values,
-             Evals fixed_polys,
-             PermutationProvingKey<F, MaxDegree> permutation_proving_key)
+  using F = typename PCSTy::Field;
+  using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
+  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
+
+  ProvingKey(VerifyingKey<PCSTy> verifying_key, DensePoly l0, DensePoly l_last,
+             DensePoly l_active_row, Evals fixed_values, Evals fixed_polys,
+             PermutationProvingKey<PCSTy> permutation_proving_key)
       : verifying_key_(std::move(verifying_key)),
         l0_(std::move(l0)),
         l_last_(std::move(l_last)),
@@ -30,26 +31,24 @@ class ProvingKey {
         fixed_polys_(std::move(fixed_polys)),
         permutation_proving_key_(std::move(permutation_proving_key)) {}
 
-  const VerifyingKey<Curve, MaxDegree>& verifying_key() const {
-    return verifying_key_;
-  }
+  const VerifyingKey<PCSTy>& verifying_key() const { return verifying_key_; }
   const DensePoly& l0() const { return l0_; }
   const DensePoly& l_last() const { return l_last_; }
   const DensePoly& l_active_row() const { return l_active_row_; }
   const std::vector<Evals>& fixed_values() const { return fixed_values_; }
   const std::vector<Evals>& fixed_polys() const { return fixed_polys_; }
-  const PermutationProvingKey<F, MaxDegree>& permutation_proving_key() const {
+  const PermutationProvingKey<PCSTy>& permutation_proving_key() const {
     return permutation_proving_key_;
   }
 
  private:
-  VerifyingKey<Curve, MaxDegree> verifying_key_;
+  VerifyingKey<PCSTy> verifying_key_;
   DensePoly l0_;
   DensePoly l_last_;
   DensePoly l_active_row_;
   std::vector<Evals> fixed_values_;
   std::vector<Evals> fixed_polys_;
-  PermutationProvingKey<F, MaxDegree> permutation_proving_key_;
+  PermutationProvingKey<PCSTy> permutation_proving_key_;
 
   // TODO(chokobole): Evaluator ev.
   // See

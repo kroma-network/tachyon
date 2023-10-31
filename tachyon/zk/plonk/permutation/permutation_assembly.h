@@ -25,18 +25,17 @@ namespace tachyon::zk {
 
 // Struct that accumulates all the necessary data in order to construct the
 // permutation argument.
-template <typename Curve, size_t MaxDegree>
+template <typename PCSTy>
 class PermutationAssembly {
  public:
-  constexpr static size_t kRows = MaxDegree + 1;
+  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
+  constexpr static size_t kRows = kMaxDegree + 1;
 
-  using ScalarField = typename Curve::ScalarField;
-  using Evals = math::UnivariateEvaluations<ScalarField, MaxDegree>;
-  using DensePoly = math::UnivariateDensePolynomial<ScalarField, MaxDegree>;
-
-  // It has parameters for commitment and provide commit function.
-  // TODO(dongchangYoo): substitute it to KZGParams, but not implemented yet.
-  using ParamsTy = std::vector<math::AffinePoint<Curve>>;
+  using F = typename PCSTy::Field;
+  using Commitment = typename PCSTy::ResultTy;
+  using Commitments = std::vector<Commitment>;
+  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
+  using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
 
   PermutationAssembly() = default;
 
@@ -51,6 +50,14 @@ class PermutationAssembly {
   explicit PermutationAssembly(std::vector<AnyColumn>&& columns)
       : columns_(std::move(columns)),
         cycle_store_(CycleStore(columns_.size(), kRows)) {}
+
+  static PermutationAssembly CreateForTesting(std::vector<AnyColumn> columns,
+                                              CycleStore cycle_store) {
+    PermutationAssembly ret;
+    ret.columns_ = std::move(columns);
+    ret.cycle_store_ = std::move(cycle_store);
+    return ret;
+  }
 
   const std::vector<AnyColumn>& columns() const { return columns_; }
   const CycleStore& cycle_store() const { return cycle_store_; }
@@ -70,21 +77,21 @@ class PermutationAssembly {
   }
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
-  constexpr PermutationVerifyingKey<Curve> BuildVerifyingKey(
-      math::UnivariateEvaluationDomain<ScalarField, MaxDegree>* domain) const {
+  constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
+      math::UnivariateEvaluationDomain<F, kMaxDegree>* domain) const {
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
     // TODO(dongchangYoo): calculate commitments after complete Params. See
     // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/permutation/keygen.rs#L153-L162.
-    Commitments<Curve> commitments;
+    Commitments commitments;
 
-    return PermutationVerifyingKey<Curve>(commitments);
+    return PermutationVerifyingKey<PCSTy>(std::move(commitments));
   }
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
-  constexpr PermutationProvingKey<ScalarField, MaxDegree> BuildProvingKey(
-      math::UnivariateEvaluationDomain<ScalarField, MaxDegree>* domain) const {
+  constexpr PermutationProvingKey<PCSTy> BuildProvingKey(
+      math::UnivariateEvaluationDomain<F, kMaxDegree>* domain) const {
     // The polynomials of permutations in evaluation form.
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
@@ -96,17 +103,21 @@ class PermutationAssembly {
       polys.push_back(std::move(poly));
     }
 
-    return PermutationProvingKey<ScalarField, MaxDegree>(
-        std::move(permutations), std::move(polys));
+    return PermutationProvingKey<PCSTy>(std::move(permutations),
+                                        std::move(polys));
   }
 
   // Generate the permutation polynomials based on the accumulated copy
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
+  // NOTE(chokobole): Templatized with |MaxDegree| and |Evals| for faster
+  // testing.
+  template <size_t MaxDegree,
+            typename Evals = math::UnivariateEvaluations<F, MaxDegree>>
   std::vector<Evals> GeneratePermutations(
-      math::UnivariateEvaluationDomain<ScalarField, MaxDegree>* domain) const {
-    LookupTable<ScalarField, MaxDegree> lookup_table =
-        LookupTable<ScalarField, MaxDegree>::Construct(columns_.size(), domain);
+      math::UnivariateEvaluationDomain<F, MaxDegree>* domain) const {
+    LookupTable<F, MaxDegree> lookup_table =
+        LookupTable<F, MaxDegree>::Construct(columns_.size(), domain);
 
     // Init evaluation formed polynomials with all-zero coefficients
     std::vector<Evals> permutations =
