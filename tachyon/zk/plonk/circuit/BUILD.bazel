@@ -187,6 +187,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "selector_assignment",
+    hdrs = ["selector_assignment.h"],
+    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
+)
+
+tachyon_cc_library(
     name = "table",
     hdrs = ["table.h"],
     deps = [
