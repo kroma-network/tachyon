@@ -29,6 +29,7 @@ class TACHYON_EXPORT Selector {
 
   static Selector Complex(size_t index) { return {index, false}; }
 
+  size_t index() const { return index_; }
   bool is_simple() const { return is_simple_; }
 
   bool operator==(const Selector& other) const {
