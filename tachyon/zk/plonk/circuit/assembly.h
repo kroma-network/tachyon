@@ -25,6 +25,8 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   using DensePoly =
       math::UnivariateDensePolynomial<math::RationalField<F>, PCSTy::kMaxSize>;
 
+  using AssignCallback = typename Assignment<F>::AssignCallback;
+
   Assembly() = default;
   Assembly(uint32_t k, std::vector<DensePoly> fixeds,
            PermutationAssembly<PCSTy> permutation,
@@ -61,12 +63,11 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   }
 
   Error AssignFixed(const FixedColumn& column, size_t row,
-                    base::OnceCallback<math::RationalField<F>>() >
-                        to) override {
+                    AssignCallback assign) override {
     if (!usable_rows_.Contains(row)) {
       return Error::kNotEnoughRowsAvailable;
     }
-    fixeds_[column.index()] = std::move(to).Run();
+    fixeds_[column.index()] = std::move(assign).Run();
     return Error::kNone;
   }
 
@@ -80,12 +81,11 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   }
 
   Error FillFromRow(const FixedColumn& column, size_t from_row,
-                    base::OnceCallback<math::RationalField<F>>() >
-                        to) override {
+                    AssignCallback assign) override {
     if (!usable_rows_.Contains(from_row)) {
       return Error::kNotEnoughRowsAvailable;
     }
-    math::RationalField<F> value = std::move(to).Run();
+    math::RationalField<F> value = std::move(assign).Run();
     for (size_t i = usable_rows_.start + from_row; i < usable_rows_.end; ++i) {
       fixeds_[column.index()] = value;
     }
