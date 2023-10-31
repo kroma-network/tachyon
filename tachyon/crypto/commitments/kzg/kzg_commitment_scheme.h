@@ -139,10 +139,10 @@ class KZGCommitmentScheme
       return msm.Run(bases, scalars, out);
     } else {
       Bucket result;
-      return msm.Run(bases, scalars, &result);
+      if (!msm.Run(bases, scalars, &result)) return false;
       *out = math::ConvertPoint<ResultTy>(result);
+      return true;
     }
-    return true;
   }
 
   std::vector<G1PointTy> g1_powers_of_tau_;
