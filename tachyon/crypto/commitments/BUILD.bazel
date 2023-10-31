@@ -1,0 +1,27 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "univariate_polynomial_commitment_scheme",
+    hdrs = ["univariate_polynomial_commitment_scheme.h"],
+    deps = [
+        ":vector_commitment_scheme",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+    ],
+)
+
+tachyon_cc_library(
+    name = "vector_commitment_scheme",
+    hdrs = ["vector_commitment_scheme.h"],
+    deps = [
+        ":vector_commitment_scheme_traits",
+        "//tachyon/base:bits",
+    ],
+)
+
+tachyon_cc_library(
+    name = "vector_commitment_scheme_traits",
+    hdrs = ["vector_commitment_scheme_traits.h"],
+)

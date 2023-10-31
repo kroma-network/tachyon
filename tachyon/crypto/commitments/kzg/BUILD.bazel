@@ -7,12 +7,12 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "kzg",
-    hdrs = ["kzg.h"],
+    name = "kzg_commitment_scheme",
+    hdrs = ["kzg_commitment_scheme.h"],
     deps = [
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
-        "//tachyon/base/numerics:checked_math",
+        "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
@@ -20,9 +20,9 @@ tachyon_cc_library(
 
 tachyon_cc_unittest(
     name = "kzg_unittests",
-    srcs = ["kzg_unittest.cc"],
+    srcs = ["kzg_commitment_scheme_unittest.cc"],
     deps = [
-        ":kzg",
+        ":kzg_commitment_scheme",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
