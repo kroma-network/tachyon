@@ -33,6 +33,7 @@ tachyon_cc_library(
         ":selector",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
+        "//tachyon/zk:value",
         "//tachyon/zk/plonk:error",
     ],
 )

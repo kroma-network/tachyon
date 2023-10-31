@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -15,10 +15,20 @@ tachyon_cc_library(
     name = "verifying_key",
     hdrs = ["verifying_key.h"],
     deps = [
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
-        "//tachyon/math/polynomials/univariate:univariate_evaluations",
-        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk/circuit:assembly",
         "//tachyon/zk/plonk/permutation:permutation_verifying_key",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "keys_unittests",
+    srcs = ["verifying_key_unittest.cc"],
+    deps = [
+        ":verifying_key",
+        "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/bn/bn254:g2",
     ],
 )
