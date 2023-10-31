@@ -57,6 +57,7 @@ class Transcript {
 // input stream of data from the prover to the verifier.
 template <typename AffinePointTy>
 class TranscriptRead : public Transcript<AffinePointTy> {
+ public:
   using ScalarField = typename AffinePointTy::ScalarField;
 
   // Read a curve |point| from the prover. Note that it also writes the
@@ -72,6 +73,7 @@ class TranscriptRead : public Transcript<AffinePointTy> {
 // stream of messages from the prover to the verifier.
 template <typename AffinePointTy>
 class TranscriptWrite : public Transcript<AffinePointTy> {
+ public:
   using ScalarField = typename AffinePointTy::ScalarField;
 
   // Write a curve |point| to the proof. Note that it also writes the
