@@ -18,7 +18,7 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class VerifyingKey {
  public:
-  constexpr static kMaxDegree = PCSTy::kMaxDegree;
+  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
 
   using F = typename PCSTy::Field;
   using Commitment = typename PCSTy::ResultTy;
