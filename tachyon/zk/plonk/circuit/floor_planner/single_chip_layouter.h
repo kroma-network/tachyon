@@ -129,7 +129,7 @@ class SingleChipLayouter : public Layouter<F> {
     return assignment_;
   }
   const std::vector<FixedColumn>& constants() const { return constants_; }
-  const std::vector<size_t>& region() const { return regions; }
+  const std::vector<size_t>& regions() const { return regions_; }
   const absl::flat_hash_map<RegionColumn, size_t>& columns() const {
     return columns_;
   }
