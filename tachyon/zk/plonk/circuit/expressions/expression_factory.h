@@ -15,6 +15,7 @@
 #include "tachyon/zk/plonk/circuit/expressions/advice_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/challenge_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/constant_expression.h"
+#include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_selector_extractor.h"
 #include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/plonk/circuit/expressions/expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/fixed_expression.h"

@@ -34,9 +34,8 @@ class SimpleSelectorFinder : public Evaluator<F, bool> {
         return false;
       case ExpressionType::kChallenge:
         return false;
-      case ExpressionType::kNegated: {
+      case ExpressionType::kNegated:
         return Evaluate(input->ToNegated()->expr());
-      }
       case ExpressionType::kSum: {
         const SumExpression<F>* sum = input->ToSum();
         return Evaluate(sum->left()) || Evaluate(sum->right());
