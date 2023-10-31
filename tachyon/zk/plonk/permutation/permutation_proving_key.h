@@ -17,11 +17,14 @@
 namespace tachyon {
 namespace zk {
 
-template <typename F, size_t MaxDegree>
+template <typename PCSTy>
 class PermutationProvingKey {
  public:
-  using DensePoly = math::UnivariateDensePolynomial<F, MaxDegree>;
-  using Evals = math::UnivariateEvaluations<F, MaxDegree>;
+  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
+
+  using F = typename PCSTy::Field;
+  using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
+  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
 
   PermutationProvingKey() = default;
   PermutationProvingKey(const std::vector<Evals>& permutations,
@@ -52,27 +55,25 @@ class PermutationProvingKey {
 
 namespace base {
 
-template <typename F, size_t MaxDegree>
-class Copyable<zk::PermutationProvingKey<F, MaxDegree>> {
+template <typename PCSTy>
+class Copyable<zk::PermutationProvingKey<PCSTy>> {
  public:
-  static bool WriteTo(const zk::PermutationProvingKey<F, MaxDegree>& pk,
+  static bool WriteTo(const zk::PermutationProvingKey<PCSTy>& pk,
                       Buffer* buffer) {
     return buffer->WriteMany(pk.permutations(), pk.polys());
   }
 
   static bool ReadFrom(const Buffer& buffer,
-                       zk::PermutationProvingKey<F, MaxDegree>* pk) {
-    std::vector<math::UnivariateEvaluations<F, MaxDegree>> perms;
-    std::vector<math::UnivariateDensePolynomial<F, MaxDegree>> poly;
+                       zk::PermutationProvingKey<PCSTy>* pk) {
+    std::vector<typename zk::PermutationProvingKey<PCSTy>::Evals> perms;
+    std::vector<typename zk::PermutationProvingKey<PCSTy>::DensePoly> poly;
     if (!buffer.ReadMany(&perms, &poly)) return false;
 
-    *pk = zk::PermutationProvingKey<F, MaxDegree>(std::move(perms),
-                                                  std::move(poly));
+    *pk = zk::PermutationProvingKey<PCSTy>(std::move(perms), std::move(poly));
     return true;
   }
 
-  static size_t EstimateSize(
-      const zk::PermutationProvingKey<F, MaxDegree>& pk) {
+  static size_t EstimateSize(const zk::PermutationProvingKey<PCSTy>& pk) {
     return base::EstimateSize(pk.permutations()) +
            base::EstimateSize(pk.polys());
   }

@@ -3,12 +3,6 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "commitment",
-    hdrs = ["commitment.h"],
-    deps = ["//tachyon/math/elliptic_curves:points"],
-)
-
-tachyon_cc_library(
     name = "constraint_system",
     hdrs = ["constraint_system.h"],
     deps = [

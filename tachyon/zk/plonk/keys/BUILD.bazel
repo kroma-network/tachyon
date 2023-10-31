@@ -18,7 +18,6 @@ tachyon_cc_library(
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
         "//tachyon/math/polynomials/univariate:univariate_evaluations",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
-        "//tachyon/zk/plonk:commitment",
         "//tachyon/zk/plonk:constraint_system",
         "//tachyon/zk/plonk/permutation:permutation_verifying_key",
     ],
