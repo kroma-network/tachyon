@@ -4,20 +4,26 @@ load(
     "tachyon_cc_unittest",
 )
 
+package(default_visibility = ["//visibility:public"])
+
 tachyon_cc_library(
-    name = "pedersen",
-    hdrs = ["pedersen.h"],
+    name = "pedersen_commitment_scheme",
+    hdrs = ["pedersen_commitment_scheme.h"],
     deps = [
+        "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/crypto/commitments:vector_commitment_scheme",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
     ],
 )
 
 tachyon_cc_unittest(
     name = "pedersen_unittests",
-    srcs = ["pedersen_unittest.cc"],
+    srcs = ["pedersen_commitment_scheme_unittest.cc"],
     deps = [
-        ":pedersen",
+        ":pedersen_commitment_scheme",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
     ],
 )
