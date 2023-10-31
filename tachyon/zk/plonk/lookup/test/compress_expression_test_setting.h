@@ -24,6 +24,7 @@ class CompressExpressionTestSetting : public testing::Test {
                                   math::bls12_381::G2AffinePoint, kMaxDegree>;
 
   using F = PCS::Field;
+  using Poly = PCS::Poly;
   using Evals = PCS::Evals;
   using Domain = PCS::Domain;
 
