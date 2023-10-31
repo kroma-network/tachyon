@@ -9,6 +9,8 @@
 
 #include <utility>
 
+#include "tachyon/zk/base/blinded_polynomial.h"
+
 namespace tachyon::zk {
 
 template <typename PCSTy>
@@ -30,6 +32,13 @@ class BlindedPolynomialCommitment {
   const Poly& poly() const { return poly_; }
   const F& blind() const { return blind_; }
   const Commitment& commitment() const { return commitment_; }
+
+  BlindedPolynomial<Poly> ToBlindedPolynomial() const& {
+    return {poly_, blind_};
+  }
+  BlindedPolynomial<Poly> ToBlindedPolynomial() && {
+    return {std::move(poly_), std::move(blind_)};
+  }
 
  private:
   Poly poly_;

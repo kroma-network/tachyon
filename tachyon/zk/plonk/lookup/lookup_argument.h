@@ -15,7 +15,10 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/expressions/expression.h"
+#include "tachyon/zk/base/blinded_polynomial_commitment.h"
+#include "tachyon/zk/plonk/lookup/compress_expression.h"
+#include "tachyon/zk/plonk/lookup/lookup_permuted.h"
+#include "tachyon/zk/transcript/transcript.h"
 
 namespace tachyon::zk {
 
@@ -23,6 +26,11 @@ template <typename F>
 class LookupArgument {
  public:
   struct TableMapElem {
+    TableMapElem() = default;
+    TableMapElem(std::unique_ptr<Expression<F>> input,
+                 std::unique_ptr<Expression<F>> table)
+        : input(std::move(input)), table(std::move(table)) {}
+
     std::unique_ptr<Expression<F>> input;
     std::unique_ptr<Expression<F>> table;
   };
@@ -67,6 +75,55 @@ class LookupArgument {
         });
 
     return 2 + max_input_degree + max_table_degree;
+  }
+
+  template <typename Domain, typename Evals, typename Commitment,
+            typename PCSTy>
+  LookupPermuted<PCSTy> CommitPermuted(
+      const Domain* domain, size_t blinding_factors, const F& theta,
+      const SimpleEvaluator<Evals>& evaluator_tpl,
+      TranscriptWriter<Commitment>* transcript_writer, const PCSTy& pcs) {
+    // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
+    Evals compressed_input_expression;
+    CHECK(CompressExpressions(input_expressions_, domain->size(), theta,
+                              evaluator_tpl, &compressed_input_expression));
+
+    // S_compressed(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
+    Evals compressed_table_expression;
+    CHECK(CompressExpressions(table_expressions_, domain->size(), theta,
+                              evaluator_tpl, &compressed_table_expression));
+
+    // Permute compressed (InputExpression, TableExpression) pair.
+    EvalsPair<Evals> compressed_evals_pair(
+        std::move(compressed_input_expression),
+        std::move(compressed_table_expression));
+
+    // A'(X), S'(X)
+    EvalsPair<Evals> permuted_evals_pair;
+    Error err =
+        PermuteExpressionPair(domain->size(), blinding_factors,
+                              compressed_evals_pair, &permuted_evals_pair);
+    CHECK_EQ(err, Error::kNone);
+
+    // Commit(A'(X))
+    BlindedPolynomialCommitment<PCSTy> permuted_input_poly;
+    CHECK(CommitEvalsWithBlind(domain, permuted_evals_pair.input(), pcs,
+                               &permuted_input_poly));
+
+    // Commit(S'(X))
+    BlindedPolynomialCommitment<PCSTy> permuted_table_poly;
+    CHECK(CommitEvalsWithBlind(domain, permuted_evals_pair.table(), pcs,
+                               &permuted_table_poly));
+
+    // Hash permuted input commitment.
+    transcript_writer->WriteToProof(permuted_input_poly.commitment());
+
+    // Hash permuted table commitment.
+    transcript_writer->WriteToProof(permuted_table_poly.commitment());
+
+    return {std::move(compressed_evals_pair), std::move(permuted_evals_pair),
+            std::move(permuted_input_poly).ToBlindedPolynomial(),
+            std::move(permuted_table_poly).ToBlindedPolynomial()};
   }
 
  private:

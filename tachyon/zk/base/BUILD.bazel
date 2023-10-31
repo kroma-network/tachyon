@@ -16,6 +16,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "blinded_polynomial_commitment",
     hdrs = ["blinded_polynomial_commitment.h"],
+    deps = [":blinded_polynomial"],
 )
 
 tachyon_cc_library(
