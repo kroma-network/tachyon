@@ -8,6 +8,9 @@ tachyon_cc_library(
     deps = [
         ":assignment",
         "//tachyon/base:range",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+        "//tachyon/zk/plonk/permutation:permutation_assembly",
     ],
 )
 

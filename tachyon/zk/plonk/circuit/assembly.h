@@ -11,14 +11,19 @@
 #include <vector>
 
 #include "tachyon/base/range.h"
+#include "tachyon/math/base/rational_field.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
+#include "tachyon/zk/plonk/permutation/permutation_assembly.h"
 
 namespace tachyon::zk {
 
-template <typename Poly>
-class Assembly : public Assignment<typename Poly::Field> {
+template <typename PCSTy>
+class Assembly : public Assignment<typename PCSTy::Field> {
  public:
-  using Field = typename Poly::Field;
+  using F = typename PCSTy::Field;
+  using DensePoly =
+      math::UnivariateDensePolynomial<math::RationalField<F>, PCSTy::kMaxSize>;
 
   // Assignment methods
   Error EnableSelector(const Selector& selector, size_t row) override {
@@ -30,11 +35,11 @@ class Assembly : public Assignment<typename Poly::Field> {
   }
 
   Error QueryInstance(const InstanceColumn& column, size_t row,
-                      Value<Field>* instance) override {
+                      Value<F>* instance) override {
     if (!usable_rows_.Contains(row)) {
       return Error::kNotEnoughRowsAvailable;
     }
-    *instance = Value<Field>::Unknown();
+    *instance = Value<F>::Unknown();
     return Error::kNone;
   }
 
@@ -54,9 +59,7 @@ class Assembly : public Assignment<typename Poly::Field> {
           usable_rows_.Contains(right_row))) {
       return Error::kNotEnoughRowsAvailable;
     }
-    // TODO(chokobole): Permutation Copy See
-    // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/keygen.rs#L150-L151.
-    return Error::kNone;
+    return permutation_.Copy(left_column, left_row, right_column, right_row);
   }
 
   Error FillFromRow(const FixedColumn& column, size_t from_row,
@@ -74,9 +77,8 @@ class Assembly : public Assignment<typename Poly::Field> {
 
  private:
   uint32_t k_;
-  std::vector<Poly> fixeds_;
-  // TODO(chokobole): add permutation assembly See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/keygen.rs#L53.
+  std::vector<DensePoly> fixeds_;
+  PermutationAssembly<PCSTy> permutation_;
   std::vector<std::vector<bool>> selectors_;
   // A range of available rows for assignment and copies.
   base::Range<size_t> usable_rows_;
