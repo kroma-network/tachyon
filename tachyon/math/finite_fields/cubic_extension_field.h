@@ -11,10 +11,12 @@
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
 #include "tachyon/math/geometry/point3.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 template <typename Derived>
 class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
@@ -354,6 +356,44 @@ Derived operator*(const BaseField& element,
   return static_cast<const Derived&>(f) * element;
 }
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename Derived>
+class Copyable<Derived, std::enable_if_t<std::is_base_of_v<
+                            math::CubicExtensionField<Derived>, Derived>>> {
+ public:
+  static bool WriteTo(
+      const math::CubicExtensionField<Derived>& cubic_extension_field,
+      Buffer* buffer) {
+    return buffer->WriteMany(cubic_extension_field.c0(),
+                             cubic_extension_field.c1(),
+                             cubic_extension_field.c2());
+  }
+
+  static bool ReadFrom(
+      const Buffer& buffer,
+      math::CubicExtensionField<Derived>* cubic_extension_field) {
+    typename Derived::BaseField c0;
+    typename Derived::BaseField c1;
+    typename Derived::BaseField c2;
+    if (!buffer.ReadMany(&c0, &c1, &c2)) return false;
+
+    *cubic_extension_field = math::CubicExtensionField<Derived>(
+        std::move(c0), std::move(c1), std::move(c2));
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const math::CubicExtensionField<Derived>& cubic_extension_field) {
+    return EstimateSize(cubic_extension_field.c0()) +
+           EstimateSize(cubic_extension_field.c1()) +
+           EstimateSize(cubic_extension_field.c2());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_CUBIC_EXTENSION_FIELD_H_

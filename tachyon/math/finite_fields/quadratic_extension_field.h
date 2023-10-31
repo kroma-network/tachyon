@@ -11,10 +11,12 @@
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
 #include "tachyon/math/geometry/point2.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 template <typename Derived>
 class QuadraticExtensionField
@@ -300,6 +302,41 @@ Derived operator*(const BaseField& element,
   return static_cast<const Derived&>(f) * element;
 }
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename Derived>
+class Copyable<Derived, std::enable_if_t<std::is_base_of_v<
+                            math::QuadraticExtensionField<Derived>, Derived>>> {
+ public:
+  static bool WriteTo(
+      const math::QuadraticExtensionField<Derived>& quadratic_extension_field,
+      Buffer* buffer) {
+    return buffer->WriteMany(quadratic_extension_field.c0(),
+                             quadratic_extension_field.c1());
+  }
+
+  static bool ReadFrom(
+      const Buffer& buffer,
+      math::QuadraticExtensionField<Derived>* quadratic_extension_field) {
+    typename Derived::BaseField c0;
+    typename Derived::BaseField c1;
+    if (!buffer.ReadMany(&c0, &c1)) return false;
+
+    *quadratic_extension_field =
+        math::QuadraticExtensionField<Derived>(std::move(c0), std::move(c1));
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const math::QuadraticExtensionField<Derived>& quadratic_extension_field) {
+    return EstimateSize(quadratic_extension_field.c0()) +
+           EstimateSize(quadratic_extension_field.c1());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
