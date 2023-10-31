@@ -8,10 +8,10 @@ namespace tachyon::math {
 
 namespace {
 
-const size_t kMaxDegree = 5;
+const size_t kMaxSize = 6;
 
-using Poly = UnivariateDensePolynomial<GF7, kMaxDegree>;
-using Coeffs = UnivariateDenseCoefficients<GF7, kMaxDegree>;
+using Poly = UnivariateDensePolynomial<GF7, kMaxSize>;
+using Coeffs = UnivariateDenseCoefficients<GF7, kMaxSize>;
 
 class UnivariateDensePolynomialTest : public testing::Test {
  public:
@@ -51,9 +51,9 @@ TEST_F(UnivariateDensePolynomialTest, IsOne) {
 
 TEST_F(UnivariateDensePolynomialTest, Random) {
   bool success = false;
-  Poly r = Poly::Random(kMaxDegree);
+  Poly r = Poly::Random(kMaxSize);
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random(kMaxDegree)) {
+    if (r != Poly::Random(kMaxSize)) {
       success = true;
       break;
     }
@@ -71,7 +71,7 @@ TEST_F(UnivariateDensePolynomialTest, IndexingOperator) {
   };
 
   for (const auto& test : tests) {
-    for (size_t i = 0; i < kMaxDegree; ++i) {
+    for (size_t i = 0; i < kMaxSize; ++i) {
       if (i < test.coefficients.size()) {
         EXPECT_EQ(*test.poly[i], GF7(test.coefficients[i]));
       } else {
@@ -93,7 +93,7 @@ TEST_F(UnivariateDensePolynomialTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
-  EXPECT_LE(Poly::Random(kMaxDegree).Degree(), kMaxDegree);
+  EXPECT_LE(Poly::Random(kMaxSize).Degree(), kMaxSize - 1);
 }
 
 TEST_F(UnivariateDensePolynomialTest, Evaluate) {

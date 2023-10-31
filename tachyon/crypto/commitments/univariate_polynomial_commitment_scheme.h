@@ -12,24 +12,24 @@ namespace tachyon::crypto {
 template <typename C>
 class UnivariatePolynomialCommitmentScheme : public VectorCommitmentScheme<C> {
  public:
-  constexpr static size_t kMaxDegree = VectorCommitmentScheme<C>::kMaxSize - 1;
+  constexpr static size_t kMaxSize = VectorCommitmentScheme<C>::kMaxSize;
 
   using Field = typename VectorCommitmentScheme<C>::Field;
   using ResultTy = typename VectorCommitmentScheme<C>::ResultTy;
 
   // Commit to |poly| and populates |result| with the commitment.
-  // Return false if the degree of |poly| exceeds |kMaxDegree|.
+  // Return false if the size of |poly| exceeds |kMaxSize|.
   [[nodiscard]] bool Commit(
-      const math::UnivariateDensePolynomial<Field, kMaxDegree>& poly,
+      const math::UnivariateDensePolynomial<Field, kMaxSize>& poly,
       ResultTy* result) const {
     const C* c = static_cast<const C*>(this);
     return c->DoCommit(poly.coefficients().coefficients(), result);
   }
 
   // Commit to |poly| and populates |result| with the commitment.
-  // Return false if the degree of |poly| exceeds |kMaxDegree|.
+  // Return false if the size of |poly| exceeds |kMaxSize|.
   [[nodiscard]] bool CommitLagrange(
-      const math::UnivariateEvaluations<Field, kMaxDegree>& evals,
+      const math::UnivariateEvaluations<Field, kMaxSize>& evals,
       ResultTy* result) const {
     const C* c = static_cast<const C*>(this);
     return c->DoCommitLagrange(evals.evaluations(), result);

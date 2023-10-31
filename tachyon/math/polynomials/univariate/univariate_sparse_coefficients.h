@@ -27,7 +27,7 @@
 namespace tachyon {
 namespace math {
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class UnivariateDenseCoefficients;
 
 template <typename F>
@@ -51,10 +51,10 @@ struct UnivariateTerm {
 // UnivariateSparseCoefficients class provides a representation for polynomials
 // where only non-zero coefficients are stored. This is efficient for
 // polynomials where most of the degrees have zero coefficients.
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class UnivariateSparseCoefficients {
  public:
-  constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxSize = N;
 
   using Field = F;
   using Term = UnivariateTerm<F>;
@@ -63,13 +63,13 @@ class UnivariateSparseCoefficients {
   constexpr explicit UnivariateSparseCoefficients(
       const std::vector<Term>& terms)
       : terms_(terms) {
-    CHECK_LE(Degree(), kMaxDegree);
+    CHECK_LE(terms_.size(), kMaxSize);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
     RemoveHighDegreeZeros();
   }
   constexpr explicit UnivariateSparseCoefficients(std::vector<Term>&& terms)
       : terms_(std::move(terms)) {
-    CHECK_LE(Degree(), kMaxDegree);
+    CHECK_LE(terms_.size(), kMaxSize);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
     RemoveHighDegreeZeros();
   }
@@ -82,10 +82,10 @@ class UnivariateSparseCoefficients {
     return UnivariateSparseCoefficients({{0, F::One()}});
   }
 
-  constexpr static UnivariateSparseCoefficients Random(size_t degree) {
+  constexpr static UnivariateSparseCoefficients Random(size_t size) {
     // TODO(chokobole): Better idea?
     std::vector<Term> terms;
-    for (size_t i = 0; i < degree + 1; ++i) {
+    for (size_t i = 0; i < size; ++i) {
       F f = F::Random();
       if (f.IsZero()) continue;
       terms.push_back({i, std::move(f)});
@@ -177,10 +177,10 @@ class UnivariateSparseCoefficients {
 
  private:
   friend class internal::UnivariatePolynomialOp<
-      UnivariateDenseCoefficients<F, MaxDegree>>;
+      UnivariateDenseCoefficients<F, N>>;
   friend class internal::UnivariatePolynomialOp<
-      UnivariateSparseCoefficients<F, MaxDegree>>;
-  friend class base::Copyable<UnivariateSparseCoefficients<F, MaxDegree>>;
+      UnivariateSparseCoefficients<F, N>>;
+  friend class base::Copyable<UnivariateSparseCoefficients<F, N>>;
 
   void RemoveHighDegreeZeros() {  // Fix to RemoveZeros
     while (!IsZero()) {
@@ -221,26 +221,24 @@ class Copyable<typename math::UnivariateTerm<F>> {
   }
 };
 
-template <typename F, size_t MaxDegree>
-class Copyable<math::UnivariateSparseCoefficients<F, MaxDegree>> {
+template <typename F, size_t N>
+class Copyable<math::UnivariateSparseCoefficients<F, N>> {
  public:
-  static bool WriteTo(
-      const math::UnivariateSparseCoefficients<F, MaxDegree>& coeffs,
-      Buffer* buffer) {
+  static bool WriteTo(const math::UnivariateSparseCoefficients<F, N>& coeffs,
+                      Buffer* buffer) {
     return buffer->Write(coeffs.terms_);
   }
 
-  static bool ReadFrom(
-      const Buffer& buffer,
-      math::UnivariateSparseCoefficients<F, MaxDegree>* coeffs) {
+  static bool ReadFrom(const Buffer& buffer,
+                       math::UnivariateSparseCoefficients<F, N>* coeffs) {
     std::vector<math::UnivariateTerm<F>> terms;
     if (!buffer.Read(&terms)) return false;
-    *coeffs = math::UnivariateSparseCoefficients<F, MaxDegree>(terms);
+    *coeffs = math::UnivariateSparseCoefficients<F, N>(terms);
     return true;
   }
 
   static size_t EstimateSize(
-      const math::UnivariateSparseCoefficients<F, MaxDegree>& coeffs) {
+      const math::UnivariateSparseCoefficients<F, N>& coeffs) {
     return base::EstimateSize(coeffs.terms_);
   }
 };

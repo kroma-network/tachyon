@@ -31,7 +31,7 @@ template <typename Coefficients>
 class UnivariatePolynomial final
     : public Polynomial<UnivariatePolynomial<Coefficients>> {
  public:
-  constexpr static size_t kMaxDegree = Coefficients::kMaxDegree;
+  constexpr static size_t kMaxSize = Coefficients::kMaxSize;
 
   using Field = typename Coefficients::Field;
 
@@ -53,8 +53,8 @@ class UnivariatePolynomial final
     return UnivariatePolynomial(Coefficients::One());
   }
 
-  constexpr static UnivariatePolynomial Random(size_t degree) {
-    return UnivariatePolynomial(Coefficients::Random(degree));
+  constexpr static UnivariatePolynomial Random(size_t size) {
+    return UnivariatePolynomial(Coefficients::Random(size));
   }
 
   constexpr bool IsZero() const { return coefficients_.IsZero(); }
@@ -177,8 +177,8 @@ class UnivariatePolynomial final
 
  private:
   friend class internal::UnivariatePolynomialOp<Coefficients>;
-  friend class Radix2EvaluationDomain<Field, kMaxDegree>;
-  friend class MixedRadixEvaluationDomain<Field, kMaxDegree>;
+  friend class Radix2EvaluationDomain<Field, kMaxSize>;
+  friend class MixedRadixEvaluationDomain<Field, kMaxSize>;
 
   // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
   // So when the returned evaluations is called with |IsZero()|, it returns
@@ -192,13 +192,13 @@ class UnivariatePolynomial final
   Coefficients coefficients_;
 };
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 using UnivariateDensePolynomial =
-    UnivariatePolynomial<UnivariateDenseCoefficients<F, MaxDegree>>;
+    UnivariatePolynomial<UnivariateDenseCoefficients<F, N>>;
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 using UnivariateSparsePolynomial =
-    UnivariatePolynomial<UnivariateSparseCoefficients<F, MaxDegree>>;
+    UnivariatePolynomial<UnivariateSparseCoefficients<F, N>>;
 
 template <typename Coefficients>
 class PolynomialTraits<UnivariatePolynomial<Coefficients>> {

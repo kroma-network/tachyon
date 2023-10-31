@@ -10,10 +10,10 @@ namespace tachyon::math {
 
 namespace {
 
-const size_t kMaxDegree = 5;
+constexpr size_t kMaxSize = 6;
 
-using Poly = UnivariateSparsePolynomial<GF7, kMaxDegree>;
-using Coeffs = UnivariateSparseCoefficients<GF7, kMaxDegree>;
+using Poly = UnivariateSparsePolynomial<GF7, kMaxSize>;
+using Coeffs = UnivariateSparseCoefficients<GF7, kMaxSize>;
 
 class UnivariateSparsePolynomialTest : public testing::Test {
  public:
@@ -56,9 +56,9 @@ TEST_F(UnivariateSparsePolynomialTest, IsOne) {
 
 TEST_F(UnivariateSparsePolynomialTest, Random) {
   bool success = false;
-  Poly r = Poly::Random(kMaxDegree);
+  Poly r = Poly::Random(kMaxSize);
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random(kMaxDegree)) {
+    if (r != Poly::Random(kMaxSize)) {
       success = true;
       break;
     }
@@ -81,7 +81,7 @@ TEST_F(UnivariateSparsePolynomialTest, IndexingOperator) {
   };
 
   for (const auto& test : tests) {
-    for (size_t i = 0; i < kMaxDegree; ++i) {
+    for (size_t i = 0; i < kMaxSize; ++i) {
       if (i < test.coefficients.size()) {
         if (test.coefficients[i].has_value()) {
           EXPECT_EQ(*test.poly[i], GF7(test.coefficients[i].value()));
@@ -107,7 +107,7 @@ TEST_F(UnivariateSparsePolynomialTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
-  EXPECT_LE(Poly::Random(kMaxDegree).Degree(), kMaxDegree);
+  EXPECT_LE(Poly::Random(kMaxSize).Degree(), kMaxSize - 1);
 }
 
 TEST_F(UnivariateSparsePolynomialTest, Evaluate) {
@@ -223,8 +223,8 @@ TEST_F(UnivariateSparsePolynomialTest, MultiplicativeOperators) {
   Poly one = Poly::One();
   Poly zero = Poly::Zero();
 
-  using DensePoly = UnivariateDensePolynomial<GF7, kMaxDegree>;
-  using DenseCoeffs = UnivariateDenseCoefficients<GF7, kMaxDegree>;
+  using DensePoly = UnivariateDensePolynomial<GF7, kMaxSize>;
+  using DenseCoeffs = UnivariateDenseCoefficients<GF7, kMaxSize>;
 
   struct {
     const Poly& a;

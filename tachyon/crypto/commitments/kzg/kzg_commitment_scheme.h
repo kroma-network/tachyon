@@ -30,7 +30,7 @@ class KZGCommitmentScheme
       KZGCommitmentScheme<G1PointTy, G2PointTy, ResultTy>>;
   using Field = typename G1PointTy::ScalarField;
 
-  static constexpr size_t kMaxDegree = Base::kMaxSize - 1;
+  static constexpr size_t kMaxSize = Base::kMaxSize;
 
   KZGCommitmentScheme() = default;
 
@@ -41,7 +41,7 @@ class KZGCommitmentScheme
         g1_powers_of_tau_lagrange_(std::move(g1_powers_of_tau_lagrange)),
         tau_g2_(std::move(tau_g2)) {
     CHECK_EQ(g1_powers_of_tau_.size(), g1_powers_of_tau_lagrange_.size());
-    CHECK_LE(g1_powers_of_tau_.size(), Base::kMaxSize);
+    CHECK_LE(g1_powers_of_tau_.size(), kMaxSize);
   }
 
   const std::vector<G1PointTy>& g1_powers_of_tau() const {
@@ -59,7 +59,7 @@ class KZGCommitmentScheme
 
   [[nodiscard]] bool UnsafeSetupWithTau(size_t size, Field tau) {
     using G1JacobianPointTy = typename G1PointTy::JacobianPointTy;
-    using DomainTy = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
+    using DomainTy = math::UnivariateEvaluationDomain<Field, kMaxSize>;
 
     // |g1_powers_of_tau_| = [𝜏⁰g₁, 𝜏¹g₁, ... , 𝜏ⁿ⁻¹g₁]
     G1PointTy g1 = G1PointTy::Generator();
@@ -78,8 +78,7 @@ class KZGCommitmentScheme
 
     // Get |g1_powers_of_tau_lagrange_| from 𝜏 and g₁.
     std::unique_ptr<DomainTy> domain =
-        math::UnivariateEvaluationDomainFactory<Field, kMaxDegree>::Create(
-            size);
+        math::UnivariateEvaluationDomainFactory<Field, kMaxSize>::Create(size);
     typename DomainTy::DenseCoeffs lagrange_coeffs =
         domain->EvaluateAllLagrangeCoefficients(tau);
     std::vector<G1JacobianPointTy> g1_powers_of_tau_lagrange_jacobian;

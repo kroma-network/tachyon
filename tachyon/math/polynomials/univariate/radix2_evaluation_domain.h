@@ -35,15 +35,15 @@ namespace tachyon::math {
 // Defines a domain over which finite field (I)FFTs can be performed. Works
 // only for fields that have a large multiplicative subgroup of size that is a
 // power-of-2.
-template <typename F, size_t MaxDegree = size_t{1} << F::Config::kTwoAdicity>
-class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
+template <typename F, size_t N = size_t{1} << F::Config::kTwoAdicity>
+class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, N> {
  public:
   using Field = F;
-  using Evals = UnivariateEvaluations<F, MaxDegree>;
-  using DensePoly = UnivariateDensePolynomial<F, MaxDegree>;
-  using SparsePoly = UnivariateSparsePolynomial<F, MaxDegree>;
+  using Evals = UnivariateEvaluations<F, N>;
+  using DensePoly = UnivariateDensePolynomial<F, N>;
+  using SparsePoly = UnivariateSparsePolynomial<F, N>;
 
-  constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxSize = N;
   // Factor that determines if a the degree aware FFT should be called.
   constexpr static size_t kDegreeAwareFFTThresholdFactor = 1 << 2;
   // The minimum size of a chunk at which parallelization of |Butterfly()| is
@@ -86,10 +86,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   template <typename T>
   FRIEND_TEST(UnivariateEvaluationDomainTest, RootsOfUnity);
 
-  using UnivariateEvaluationDomain<F, MaxDegree>::UnivariateEvaluationDomain;
+  using UnivariateEvaluationDomain<F, N>::UnivariateEvaluationDomain;
 
   // UnivariateEvaluationDomain methods
-  constexpr std::unique_ptr<UnivariateEvaluationDomain<F, MaxDegree>> Clone()
+  constexpr std::unique_ptr<UnivariateEvaluationDomain<F, N>> Clone()
       const override {
     return absl::WrapUnique(new Radix2EvaluationDomain(*this));
   }
@@ -205,10 +205,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     void (*fn)(F&, F&, const F&);
 
     if constexpr (Order == FFTOrder::kInOut) {
-      fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnInOut;
+      fn = UnivariateEvaluationDomain<F, N>::ButterflyFnInOut;
     } else {
       static_assert(Order == FFTOrder::kOutIn);
-      fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn;
+      fn = UnivariateEvaluationDomain<F, N>::ButterflyFnOutIn;
     }
     OPENMP_PARALLEL_FOR(size_t i = 0; i <= poly_or_evals.Degree();
                         i += chunk_size) {

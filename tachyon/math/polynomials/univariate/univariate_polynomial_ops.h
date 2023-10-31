@@ -19,11 +19,11 @@
 namespace tachyon::math {
 namespace internal {
 
-template <typename F, size_t MaxDegree>
-class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
+template <typename F, size_t N>
+class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, N>> {
  public:
-  using D = UnivariateDenseCoefficients<F, MaxDegree>;
-  using S = UnivariateSparseCoefficients<F, MaxDegree>;
+  using D = UnivariateDenseCoefficients<F, N>;
+  using S = UnivariateSparseCoefficients<F, N>;
   using Term = typename S::Term;
 
   static UnivariatePolynomial<D>& AddInPlace(
@@ -318,11 +318,11 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   }
 };
 
-template <typename F, size_t MaxDegree>
-class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
+template <typename F, size_t N>
+class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, N>> {
  public:
-  using D = UnivariateDenseCoefficients<F, MaxDegree>;
-  using S = UnivariateSparseCoefficients<F, MaxDegree>;
+  using D = UnivariateDenseCoefficients<F, N>;
+  using S = UnivariateSparseCoefficients<F, N>;
   using Term = typename S::Term;
 
   static UnivariatePolynomial<D> Add(const UnivariatePolynomial<S>& self,

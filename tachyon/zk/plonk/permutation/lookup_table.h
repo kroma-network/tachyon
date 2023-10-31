@@ -25,7 +25,7 @@ namespace tachyon::zk {
 // Let modulus = 2ˢ * T + 1, then
 // |LookupTable|
 // = [[𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] for i in range(0..T-1)]
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class LookupTable {
  public:
   using Rows = std::vector<F>;
@@ -39,11 +39,10 @@ class LookupTable {
   F& operator[](const Label& label) { return table_[label.col][label.row]; }
 
   static LookupTable Construct(
-      size_t size,
-      const math::UnivariateEvaluationDomain<F, MaxDegree>* domain) {
+      size_t size, const math::UnivariateEvaluationDomain<F, N>* domain) {
     // The w is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
     std::vector<F> omega_powers =
-        domain->GetRootsOfUnity(MaxDegree + 1, domain->group_gen());
+        domain->GetRootsOfUnity(N, domain->group_gen());
 
     // The 𝛿 is g^2ˢ with order T where modulus = 2ˢ * T + 1.
     F delta = GetDelta();
@@ -55,10 +54,10 @@ class LookupTable {
 
     // Assign [𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] to each row.
     for (size_t i = 1; i < size; ++i) {
-      Rows rows = base::CreateVector(MaxDegree + 1, F::Zero());
+      Rows rows = base::CreateVector(N, F::Zero());
       // TODO(dongchangYoo): Optimize this with
       // https://github.com/kroma-network/tachyon/pull/115.
-      for (size_t j = 0; j <= MaxDegree; ++j) {
+      for (size_t j = 0; j < N; ++j) {
         rows[j] = lookup_table[i - 1][j] * delta;
       }
       lookup_table.push_back(std::move(rows));

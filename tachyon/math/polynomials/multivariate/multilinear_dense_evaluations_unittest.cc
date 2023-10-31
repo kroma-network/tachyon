@@ -8,10 +8,11 @@
 namespace tachyon::math {
 
 namespace {
-const size_t kMaxDegree = 4;
 
-using Poly = MultilinearExtension<MultilinearDenseEvaluations<GF7, kMaxDegree>>;
-using Evals = MultilinearDenseEvaluations<GF7, kMaxDegree>;
+constexpr size_t kMaxSize = 5;
+
+using Poly = MultilinearExtension<MultilinearDenseEvaluations<GF7, kMaxSize>>;
+using Evals = MultilinearDenseEvaluations<GF7, kMaxSize>;
 
 class MultilinearDenseEvaluationsTest : public testing::Test {
  public:
@@ -32,7 +33,7 @@ class MultilinearDenseEvaluationsTest : public testing::Test {
 
 TEST_F(MultilinearDenseEvaluationsTest, IsZero) {
   EXPECT_TRUE(Poly().IsZero());
-  EXPECT_TRUE(Poly::Zero(kMaxDegree).IsZero());
+  EXPECT_TRUE(Poly::Zero(kMaxSize).IsZero());
   EXPECT_TRUE(Poly(Evals({GF7(0)})).IsZero());
   for (size_t i = 0; i < polys_.size(); ++i) {
     EXPECT_FALSE(Poly(polys_[i]).IsZero());
@@ -40,7 +41,7 @@ TEST_F(MultilinearDenseEvaluationsTest, IsZero) {
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, IsOne) {
-  EXPECT_TRUE(Poly::One(kMaxDegree).IsOne());
+  EXPECT_TRUE(Poly::One(kMaxSize).IsOne());
   EXPECT_TRUE(Poly(Evals({GF7(1)})).IsOne());
   for (size_t i = 0; i < polys_.size(); ++i) {
     EXPECT_FALSE(polys_[i].IsOne());
@@ -49,9 +50,9 @@ TEST_F(MultilinearDenseEvaluationsTest, IsOne) {
 
 TEST_F(MultilinearDenseEvaluationsTest, Random) {
   bool success = false;
-  Poly r = Poly::Random(kMaxDegree);
+  Poly r = Poly::Random(kMaxSize);
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random(kMaxDegree)) {
+    if (r != Poly::Random(kMaxSize)) {
       success = true;
       break;
     }
@@ -71,7 +72,7 @@ TEST_F(MultilinearDenseEvaluationsTest, IndexingOperator) {
   };
 
   for (const auto& test : tests) {
-    for (size_t i = 0; i < kMaxDegree; ++i) {
+    for (size_t i = 0; i < kMaxSize; ++i) {
       if (i < test.evaluations.size()) {
         EXPECT_EQ(*test.poly[i], GF7(test.evaluations[i]));
       } else {
@@ -90,7 +91,7 @@ TEST_F(MultilinearDenseEvaluationsTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
-  EXPECT_LE(Poly::Random(kMaxDegree).Degree(), kMaxDegree);
+  EXPECT_LE(Poly::Random(kMaxSize).Degree(), kMaxSize - 1);
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, Evaluate) {

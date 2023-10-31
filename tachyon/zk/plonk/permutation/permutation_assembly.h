@@ -28,14 +28,14 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class PermutationAssembly {
  public:
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
-  constexpr static size_t kRows = kMaxDegree + 1;
+  constexpr static size_t kMaxSize = PCSTy::kMaxSize;
+  constexpr static size_t kRows = kMaxSize;
 
   using F = typename PCSTy::Field;
   using Commitment = typename PCSTy::ResultTy;
   using Commitments = std::vector<Commitment>;
-  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
-  using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
+  using Evals = math::UnivariateEvaluations<F, kMaxSize>;
+  using DensePoly = math::UnivariateDensePolynomial<F, kMaxSize>;
 
   PermutationAssembly() = default;
 
@@ -78,7 +78,7 @@ class PermutationAssembly {
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
   constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
-      math::UnivariateEvaluationDomain<F, kMaxDegree>* domain) const {
+      math::UnivariateEvaluationDomain<F, kMaxSize>* domain) const {
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
     // TODO(dongchangYoo): calculate commitments after complete Params. See
@@ -91,7 +91,7 @@ class PermutationAssembly {
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
   constexpr PermutationProvingKey<PCSTy> BuildProvingKey(
-      math::UnivariateEvaluationDomain<F, kMaxDegree>* domain) const {
+      math::UnivariateEvaluationDomain<F, kMaxSize>* domain) const {
     // The polynomials of permutations in evaluation form.
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
@@ -110,18 +110,18 @@ class PermutationAssembly {
   // Generate the permutation polynomials based on the accumulated copy
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
-  // NOTE(chokobole): Templatized with |MaxDegree| and |Evals| for faster
+  // NOTE(chokobole): Templatized with |MaxSize| and |Evals| for faster
   // testing.
-  template <size_t MaxDegree,
-            typename Evals = math::UnivariateEvaluations<F, MaxDegree>>
+  template <size_t MaxSize,
+            typename Evals = math::UnivariateEvaluations<F, MaxSize>>
   std::vector<Evals> GeneratePermutations(
-      math::UnivariateEvaluationDomain<F, MaxDegree>* domain) const {
-    LookupTable<F, MaxDegree> lookup_table =
-        LookupTable<F, MaxDegree>::Construct(columns_.size(), domain);
+      math::UnivariateEvaluationDomain<F, MaxSize>* domain) const {
+    LookupTable<F, MaxSize> lookup_table =
+        LookupTable<F, MaxSize>::Construct(columns_.size(), domain);
 
     // Init evaluation formed polynomials with all-zero coefficients
     std::vector<Evals> permutations =
-        base::CreateVector(columns_.size(), Evals::Zero(MaxDegree));
+        base::CreateVector(columns_.size(), Evals::Zero(MaxSize));
 
     // Assign lookup_table to permutations
     base::Parallelize(
@@ -129,7 +129,7 @@ class PermutationAssembly {
                                             size_t chunk_size) {
           size_t i = c * chunk_size;
           for (Evals& evals : chunk) {
-            for (size_t j = 0; j <= MaxDegree; ++j) {
+            for (size_t j = 0; j < MaxSize; ++j) {
               *evals[j] = lookup_table[cycle_store_.GetNextLabel(Label(i, j))];
             }
             ++i;

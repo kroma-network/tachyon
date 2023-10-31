@@ -23,7 +23,7 @@ namespace tachyon {
 namespace math {
 namespace internal {
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class UnivariateEvaluationsOp;
 
 }  // namespace internal
@@ -36,49 +36,49 @@ class UnivariateEvaluationsOp;
 // evaluation domain, the univariate polynomial can vary.
 // For more information, refer to
 // https://en.wikipedia.org/wiki/Lagrange_polynomial
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class UnivariateEvaluations final
-    : public Polynomial<UnivariateEvaluations<F, MaxDegree>> {
+    : public Polynomial<UnivariateEvaluations<F, N>> {
  public:
-  constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxSize = N;
 
   using Field = F;
 
   constexpr UnivariateEvaluations() : UnivariateEvaluations({F::Zero()}) {}
   constexpr explicit UnivariateEvaluations(const std::vector<F>& evaluations)
       : evaluations_(evaluations) {
-    CHECK_LE(Degree(), MaxDegree);
+    CHECK_LE(evaluations_.size(), kMaxSize);
   }
   constexpr explicit UnivariateEvaluations(std::vector<F>&& evaluations)
       : evaluations_(std::move(evaluations)) {
-    CHECK_LE(Degree(), MaxDegree);
+    CHECK_LE(evaluations_.size(), kMaxSize);
   }
 
   constexpr static bool IsCoefficientForm() { return false; }
 
   constexpr static bool IsEvaluationForm() { return true; }
 
-  constexpr static UnivariateEvaluations Zero(size_t degree) {
+  constexpr static UnivariateEvaluations Zero(size_t size) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = base::CreateVector(degree + 1, F::Zero());
+    ret.evaluations_ = base::CreateVector(size, F::Zero());
     return ret;
   }
 
   // NOTE(chokobole): This is only used at |EvaluationDomain|.
   // See also univariate_polynomial.h.
-  constexpr static UnivariateEvaluations UnsafeZero(size_t degree) {
-    return Zero(degree);
+  constexpr static UnivariateEvaluations UnsafeZero(size_t size) {
+    return Zero(size);
   }
 
-  constexpr static UnivariateEvaluations One(size_t degree) {
+  constexpr static UnivariateEvaluations One(size_t size) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = base::CreateVector(degree + 1, F::One());
+    ret.evaluations_ = base::CreateVector(size, F::One());
     return ret;
   }
 
-  constexpr static UnivariateEvaluations Random(size_t degree) {
+  constexpr static UnivariateEvaluations Random(size_t size) {
     return UnivariateEvaluations(
-        base::CreateVector(degree + 1, []() { return F::Random(); }));
+        base::CreateVector(size, []() { return F::Random(); }));
   }
 
   const std::vector<F>& evaluations() const { return evaluations_; }
@@ -89,6 +89,7 @@ class UnivariateEvaluations final
   }
 
   constexpr bool IsOne() const {
+    if (evaluations_.empty()) return false;
     return std::all_of(evaluations_.begin(), evaluations_.end(),
                        [](const F& value) { return value.IsOne(); });
   }
@@ -118,29 +119,25 @@ class UnivariateEvaluations final
 
   // AdditiveSemigroup methods
   UnivariateEvaluations& AddInPlace(const UnivariateEvaluations& other) {
-    return internal::UnivariateEvaluationsOp<F, MaxDegree>::AddInPlace(*this,
-                                                                       other);
+    return internal::UnivariateEvaluationsOp<F, N>::AddInPlace(*this, other);
   }
 
   // AdditiveGroup methods
   UnivariateEvaluations& SubInPlace(const UnivariateEvaluations& other) {
-    return internal::UnivariateEvaluationsOp<F, MaxDegree>::SubInPlace(*this,
-                                                                       other);
+    return internal::UnivariateEvaluationsOp<F, N>::SubInPlace(*this, other);
   }
 
   UnivariateEvaluations& NegInPlace() {
-    return internal::UnivariateEvaluationsOp<F, MaxDegree>::NegInPlace(*this);
+    return internal::UnivariateEvaluationsOp<F, N>::NegInPlace(*this);
   }
 
   // MultiplicativeSemigroup methods
   UnivariateEvaluations& MulInPlace(const UnivariateEvaluations& other) {
-    return internal::UnivariateEvaluationsOp<F, MaxDegree>::MulInPlace(*this,
-                                                                       other);
+    return internal::UnivariateEvaluationsOp<F, N>::MulInPlace(*this, other);
   }
 
   UnivariateEvaluations& DivInPlace(const UnivariateEvaluations& other) {
-    return internal::UnivariateEvaluationsOp<F, MaxDegree>::DivInPlace(*this,
-                                                                       other);
+    return internal::UnivariateEvaluationsOp<F, N>::DivInPlace(*this, other);
   }
 
   constexpr UnivariateEvaluations operator/(
@@ -155,15 +152,15 @@ class UnivariateEvaluations final
   }
 
  private:
-  friend class internal::UnivariateEvaluationsOp<F, MaxDegree>;
-  friend class Radix2EvaluationDomain<F, MaxDegree>;
-  friend class MixedRadixEvaluationDomain<F, kMaxDegree>;
+  friend class internal::UnivariateEvaluationsOp<F, N>;
+  friend class Radix2EvaluationDomain<F, N>;
+  friend class MixedRadixEvaluationDomain<F, N>;
 
   std::vector<F> evaluations_;
 };
 
-template <typename F, size_t MaxDegree>
-class PolynomialTraits<UnivariateEvaluations<F, MaxDegree>> {
+template <typename F, size_t N>
+class PolynomialTraits<UnivariateEvaluations<F, N>> {
  public:
   constexpr static bool kIsEvaluationForm = true;
 };
@@ -172,24 +169,23 @@ class PolynomialTraits<UnivariateEvaluations<F, MaxDegree>> {
 
 namespace base {
 
-template <typename F, size_t MaxDegree>
-class Copyable<math::UnivariateEvaluations<F, MaxDegree>> {
+template <typename F, size_t N>
+class Copyable<math::UnivariateEvaluations<F, N>> {
  public:
-  static bool WriteTo(const math::UnivariateEvaluations<F, MaxDegree>& evals,
+  static bool WriteTo(const math::UnivariateEvaluations<F, N>& evals,
                       Buffer* buffer) {
     return buffer->Write(evals.evaluations());
   }
 
   static bool ReadFrom(const Buffer& buffer,
-                       math::UnivariateEvaluations<F, MaxDegree>* evals) {
+                       math::UnivariateEvaluations<F, N>* evals) {
     std::vector<F> evals_vec;
     if (!buffer.Read(&evals_vec)) return false;
-    *evals = math::UnivariateEvaluations<F, MaxDegree>(evals_vec);
+    *evals = math::UnivariateEvaluations<F, N>(evals_vec);
     return true;
   }
 
-  static size_t EstimateSize(
-      const math::UnivariateEvaluations<F, MaxDegree>& evals) {
+  static size_t EstimateSize(const math::UnivariateEvaluations<F, N>& evals) {
     return base::EstimateSize(evals.evaluations());
   }
 };

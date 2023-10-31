@@ -24,7 +24,7 @@ class UnivariateEvaluationDomainTest : public testing::Test {
  public:
   using F = typename UnivariateEvaluationDomainType::Field;
   using BaseUnivariateEvaluationDomainType =
-      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
+      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxSize>;
 
   static void SetUpTestSuite() { F::Init(); }
 
@@ -57,7 +57,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, VanishingPolynomialEvaluation) {
   using UnivariateEvaluationDomainType = TypeParam;
   using F = typename UnivariateEvaluationDomainType::Field;
   using BaseUnivariateEvaluationDomainType =
-      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
+      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxSize>;
   using SparsePoly = typename UnivariateEvaluationDomainType::SparsePoly;
 
   for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
@@ -76,7 +76,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest,
   using UnivariateEvaluationDomainType = TypeParam;
   using F = typename UnivariateEvaluationDomainType::Field;
   using BaseUnivariateEvaluationDomainType =
-      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
+      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxSize>;
   using SparsePoly = typename UnivariateEvaluationDomainType::SparsePoly;
 
   for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
@@ -93,7 +93,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FilterPolynomial) {
   using UnivariateEvaluationDomainType = TypeParam;
   using F = typename UnivariateEvaluationDomainType::Field;
   using BaseUnivariateEvaluationDomainType =
-      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
+      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxSize>;
   using DensePoly = typename UnivariateEvaluationDomainType::DensePoly;
 
   if constexpr (std::is_same_v<F, bls12_381::Fr>) {
@@ -160,7 +160,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, ContentsOfElements) {
   using UnivariateEvaluationDomainType = TypeParam;
   using F = typename UnivariateEvaluationDomainType::Field;
   using BaseUnivariateEvaluationDomainType =
-      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
+      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxSize>;
 
   for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
     size_t size = size_t{1} << coeffs;
@@ -181,7 +181,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, NonSystematicLagrangeCoefficients) {
   using UnivariateEvaluationDomainType = TypeParam;
   using F = typename UnivariateEvaluationDomainType::Field;
   using BaseUnivariateEvaluationDomainType =
-      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
+      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxSize>;
   using DenseCoeffs = typename UnivariateEvaluationDomainType::DenseCoeffs;
   using DensePoly = typename UnivariateEvaluationDomainType::DensePoly;
   using Evals = typename UnivariateEvaluationDomainType::Evals;
@@ -218,7 +218,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, SystematicLagrangeCoefficients) {
   using F = typename UnivariateEvaluationDomainType::Field;
   using DenseCoeffs = typename UnivariateEvaluationDomainType::DenseCoeffs;
   using BaseUnivariateEvaluationDomainType =
-      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
+      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxSize>;
 
   for (size_t domain_dim = 1; domain_dim < 5; ++domain_dim) {
     size_t domain_size = size_t{1} << domain_dim;
@@ -252,7 +252,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FFTCorrectness) {
   using UnivariateEvaluationDomainType = TypeParam;
   using F = typename UnivariateEvaluationDomainType::Field;
   using BaseUnivariateEvaluationDomainType =
-      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
+      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxSize>;
   using DensePoly = typename UnivariateEvaluationDomainType::DensePoly;
   using Evals = typename UnivariateEvaluationDomainType::Evals;
 
@@ -280,7 +280,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, DegreeAwareFFTCorrectness) {
   using UnivariateEvaluationDomainType = TypeParam;
   using F = typename UnivariateEvaluationDomainType::Field;
   using BaseUnivariateEvaluationDomainType =
-      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
+      UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxSize>;
   using DensePoly = typename UnivariateEvaluationDomainType::DensePoly;
   using Evals = typename UnivariateEvaluationDomainType::Evals;
 

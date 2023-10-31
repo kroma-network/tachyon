@@ -14,11 +14,11 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class ProvingKey {
  public:
-  static constexpr size_t kMaxDegree = PCSTy::kMaxDegree;
+  static constexpr size_t kMaxSize = PCSTy::kMaxSize;
 
   using F = typename PCSTy::Field;
-  using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
-  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
+  using DensePoly = math::UnivariateDensePolynomial<F, kMaxSize>;
+  using Evals = math::UnivariateEvaluations<F, kMaxSize>;
 
   ProvingKey(VerifyingKey<PCSTy> verifying_key, DensePoly l0, DensePoly l_last,
              DensePoly l_active_row, Evals fixed_values, Evals fixed_polys,

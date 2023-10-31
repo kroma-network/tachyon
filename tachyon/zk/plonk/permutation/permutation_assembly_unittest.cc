@@ -15,14 +15,13 @@ namespace {
 
 class PermutationAssemblyTest : public testing::Test {
  public:
-  constexpr static size_t kSmallDegree = 7;
-  constexpr static size_t kRows = kSmallDegree + 1;
+  constexpr static size_t kSize = 7;
 
   using PCS = crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
                                           math::bn254::G2AffinePoint,
                                           math::bn254::G1AffinePoint>;
   using F = PCS::Field;
-  using Evals = math::UnivariateEvaluations<F, kSmallDegree>;
+  using Evals = math::UnivariateEvaluations<F, kSize>;
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 
@@ -31,16 +30,15 @@ class PermutationAssemblyTest : public testing::Test {
                 InstanceColumn(3)};
     argment_ = PermutationArgument(columns_);
     assembly_ = PermutationAssembly<PCS>::CreateForTesting(
-        columns_, CycleStore(columns_.size(), kRows));
-    domain_ =
-        math::UnivariateEvaluationDomainFactory<F, kSmallDegree>::Create(kRows);
+        columns_, CycleStore(columns_.size(), kSize));
+    domain_ = math::UnivariateEvaluationDomainFactory<F, kSize>::Create(kSize);
   }
 
  protected:
   std::vector<AnyColumn> columns_;
   PermutationArgument argment_;
   PermutationAssembly<PCS> assembly_;
-  std::unique_ptr<math::UnivariateEvaluationDomain<F, kSmallDegree>> domain_;
+  std::unique_ptr<math::UnivariateEvaluationDomain<F, kSize>> domain_;
 };
 
 }  // namespace
@@ -50,11 +48,11 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
   std::vector<Evals> permutations =
       assembly_.GeneratePermutations(domain_.get());
 
-  LookupTable<F, kSmallDegree> lookup_table =
-      LookupTable<F, kSmallDegree>::Construct(columns_.size(), domain_.get());
+  LookupTable<F, kSize> lookup_table =
+      LookupTable<F, kSize>::Construct(columns_.size(), domain_.get());
 
   for (size_t i = 0; i < columns_.size(); ++i) {
-    for (size_t j = 0; j <= kSmallDegree; ++j) {
+    for (size_t j = 0; j < kSize; ++j) {
       EXPECT_EQ(*permutations[i][j], lookup_table[Label(i, j)]);
     }
   }

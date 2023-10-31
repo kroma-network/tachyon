@@ -50,8 +50,8 @@ class TACHYON_EXPORT Rotation {
     return size_t{base::bit_cast<uint32_t>(value % size)};
   }
 
-  template <typename F, size_t MaxDegree>
-  F RotateOmega(const math::UnivariateEvaluationDomain<F, MaxDegree>* domain,
+  template <typename F, size_t N>
+  F RotateOmega(const math::UnivariateEvaluationDomain<F, N>* domain,
                 const F& point) const {
     if (value_ >= 0) {
       return point * domain->group_gen().Pow(math::BigInt<1>(value_));

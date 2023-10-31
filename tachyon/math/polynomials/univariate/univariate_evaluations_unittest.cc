@@ -9,9 +9,9 @@ namespace tachyon::math {
 
 namespace {
 
-const size_t kMaxDegree = 5;
+const size_t kMaxSize = 6;
 
-using Poly = UnivariateEvaluations<GF7, kMaxDegree>;
+using Poly = UnivariateEvaluations<GF7, kMaxSize>;
 
 class UnivariateEvaluationsTest : public testing::Test {
  public:
@@ -22,7 +22,7 @@ class UnivariateEvaluationsTest : public testing::Test {
     polys_.push_back(Poly({GF7(3)}));
     polys_.push_back(Poly({GF7(2), GF7(5), GF7(5), GF7(2)}));
     polys_.push_back(Poly({GF7(1), GF7(5), GF7(3), GF7(6), GF7(6)}));
-    polys_.push_back(Poly::Zero(0));
+    polys_.push_back(Poly::Zero(1));
   }
 
  protected:
@@ -33,7 +33,7 @@ class UnivariateEvaluationsTest : public testing::Test {
 
 TEST_F(UnivariateEvaluationsTest, IsZero) {
   EXPECT_TRUE(Poly().IsZero());
-  EXPECT_TRUE(Poly::Zero(kMaxDegree).IsZero());
+  EXPECT_TRUE(Poly::Zero(kMaxSize).IsZero());
   EXPECT_TRUE(Poly({GF7(0)}).IsZero());
   EXPECT_FALSE(Poly({GF7(0), GF7(1)}).IsZero());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
@@ -43,7 +43,7 @@ TEST_F(UnivariateEvaluationsTest, IsZero) {
 }
 
 TEST_F(UnivariateEvaluationsTest, IsOne) {
-  EXPECT_TRUE(Poly::One(kMaxDegree).IsOne());
+  EXPECT_TRUE(Poly::One(kMaxSize).IsOne());
   EXPECT_TRUE(Poly({GF7(1)}).IsOne());
   EXPECT_FALSE(Poly({GF7(0), GF7(1)}).IsZero());
   for (size_t i = 0; i < polys_.size(); ++i) {
@@ -53,9 +53,9 @@ TEST_F(UnivariateEvaluationsTest, IsOne) {
 
 TEST_F(UnivariateEvaluationsTest, Random) {
   bool success = false;
-  Poly r = Poly::Random(kMaxDegree);
+  Poly r = Poly::Random(kMaxSize);
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random(kMaxDegree)) {
+    if (r != Poly::Random(kMaxSize)) {
       success = true;
       break;
     }
@@ -73,7 +73,7 @@ TEST_F(UnivariateEvaluationsTest, IndexingOperator) {
   };
 
   for (const auto& test : tests) {
-    for (size_t i = 0; i < kMaxDegree; ++i) {
+    for (size_t i = 0; i < kMaxSize; ++i) {
       if (i < test.evaluations.size()) {
         EXPECT_EQ(*test.poly[i], GF7(test.evaluations[i]));
       } else {

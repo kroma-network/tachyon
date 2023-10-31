@@ -20,10 +20,10 @@
 
 namespace tachyon::math {
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class MultilinearDenseEvaluations {
  public:
-  constexpr static const size_t kMaxDegree = MaxDegree;
+  constexpr static const size_t kMaxSize = N;
 
   using Field = F;
 
@@ -32,26 +32,24 @@ class MultilinearDenseEvaluations {
   constexpr explicit MultilinearDenseEvaluations(
       const std::vector<F>& evaluations)
       : evaluations_(evaluations) {
-    CHECK_LE(Degree(), MaxDegree);
+    CHECK_LE(evaluations_.size(), N);
   }
   constexpr explicit MultilinearDenseEvaluations(std::vector<F>&& evaluations)
       : evaluations_(std::move(evaluations)) {
-    CHECK_LE(Degree(), MaxDegree);
+    CHECK_LE(evaluations_.size(), N);
   }
 
-  constexpr static MultilinearDenseEvaluations Zero(size_t degree) {
-    return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << degree, F::Zero()));
+  constexpr static MultilinearDenseEvaluations Zero(size_t size) {
+    return MultilinearDenseEvaluations(base::CreateVector(size, F::Zero()));
   }
 
-  constexpr static MultilinearDenseEvaluations One(size_t degree) {
-    return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << degree, F::One()));
+  constexpr static MultilinearDenseEvaluations One(size_t size) {
+    return MultilinearDenseEvaluations(base::CreateVector(size, F::One()));
   }
 
-  constexpr static MultilinearDenseEvaluations Random(size_t degree) {
+  constexpr static MultilinearDenseEvaluations Random(size_t size) {
     return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << degree, []() { return F::Random(); }));
+        base::CreateVector(size, []() { return F::Random(); }));
   }
 
   constexpr bool operator==(const MultilinearDenseEvaluations& other) const {
@@ -120,8 +118,8 @@ class MultilinearDenseEvaluations {
         poly[b] = left + r * (right - left);
       }
     }
-    return MultilinearDenseEvaluations(std::vector<F>(
-        poly.begin(), poly.begin() + (size_t{1} << (n - k))));
+    return MultilinearDenseEvaluations(
+        std::vector<F>(poly.begin(), poly.begin() + (size_t{1} << (n - k))));
   }
 
   // Evaluate polynomial at |point|. It uses |FixVariables()| internally. The
@@ -149,7 +147,7 @@ class MultilinearDenseEvaluations {
 
  private:
   friend class internal::MultilinearExtensionOp<
-      MultilinearDenseEvaluations<F, MaxDegree>>;
+      MultilinearDenseEvaluations<F, N>>;
 
   std::vector<F> evaluations_;
 };

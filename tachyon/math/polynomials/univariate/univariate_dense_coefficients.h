@@ -26,16 +26,16 @@
 namespace tachyon {
 namespace math {
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class UnivariateSparseCoefficients;
 
 // DenseCoefficients class provides a representation for polynomials where
 // coefficients are stored contiguously for each degree. This is efficient for
 // polynomials where most of the degrees have non-zero coefficients.
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class UnivariateDenseCoefficients {
  public:
-  constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxSize = N;
 
   using Field = F;
 
@@ -43,12 +43,12 @@ class UnivariateDenseCoefficients {
   constexpr explicit UnivariateDenseCoefficients(
       const std::vector<F>& coefficients)
       : coefficients_(coefficients) {
-    CHECK_LE(Degree(), kMaxDegree);
+    CHECK_LE(coefficients_.size(), N);
     RemoveHighDegreeZeros();
   }
   constexpr explicit UnivariateDenseCoefficients(std::vector<F>&& coefficients)
       : coefficients_(std::move(coefficients)) {
-    CHECK_LE(Degree(), kMaxDegree);
+    CHECK_LE(coefficients_.size(), N);
     RemoveHighDegreeZeros();
   }
 
@@ -59,9 +59,9 @@ class UnivariateDenseCoefficients {
   // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
   // So when the returned evaluations is called with |IsZero()|, it returns
   // false. This is only used at |EvaluationDomain|.
-  constexpr static UnivariateDenseCoefficients UnsafeZero(size_t degree) {
+  constexpr static UnivariateDenseCoefficients UnsafeZero(size_t size) {
     UnivariateDenseCoefficients ret;
-    ret.coefficients_ = base::CreateVector(degree + 1, F::Zero());
+    ret.coefficients_ = base::CreateVector(size, F::Zero());
     return ret;
   }
 
@@ -69,9 +69,9 @@ class UnivariateDenseCoefficients {
     return UnivariateDenseCoefficients({F::One()});
   }
 
-  constexpr static UnivariateDenseCoefficients Random(size_t degree) {
+  constexpr static UnivariateDenseCoefficients Random(size_t size) {
     return UnivariateDenseCoefficients(
-        base::CreateVector(degree + 1, []() { return F::Random(); }));
+        base::CreateVector(size, []() { return F::Random(); }));
   }
 
   constexpr bool operator==(const UnivariateDenseCoefficients& other) const {
@@ -142,12 +142,12 @@ class UnivariateDenseCoefficients {
 
  private:
   friend class internal::UnivariatePolynomialOp<
-      UnivariateDenseCoefficients<F, MaxDegree>>;
+      UnivariateDenseCoefficients<F, N>>;
   friend class internal::UnivariatePolynomialOp<
-      UnivariateSparseCoefficients<F, MaxDegree>>;
-  friend class Radix2EvaluationDomain<F, MaxDegree>;
-  friend class MixedRadixEvaluationDomain<F, MaxDegree>;
-  friend class base::Copyable<UnivariateDenseCoefficients<F, MaxDegree>>;
+      UnivariateSparseCoefficients<F, N>>;
+  friend class Radix2EvaluationDomain<F, N>;
+  friend class MixedRadixEvaluationDomain<F, N>;
+  friend class base::Copyable<UnivariateDenseCoefficients<F, N>>;
 
   constexpr F DoEvaluate(const F& point) const {
 #if defined(TACHYON_HAS_OPENMP)
@@ -209,27 +209,24 @@ class UnivariateDenseCoefficients {
 
 namespace base {
 
-template <typename F, size_t MaxDegree>
-class Copyable<math::UnivariateDenseCoefficients<F, MaxDegree>> {
+template <typename F, size_t N>
+class Copyable<math::UnivariateDenseCoefficients<F, N>> {
  public:
-  static bool WriteTo(
-      const math::UnivariateDenseCoefficients<F, MaxDegree>& coeffs,
-      Buffer* buffer) {
+  static bool WriteTo(const math::UnivariateDenseCoefficients<F, N>& coeffs,
+                      Buffer* buffer) {
     return buffer->Write(coeffs.coefficients_);
   }
 
-  static bool ReadFrom(
-      const Buffer& buffer,
-      math::UnivariateDenseCoefficients<F, MaxDegree>* coeffs) {
+  static bool ReadFrom(const Buffer& buffer,
+                       math::UnivariateDenseCoefficients<F, N>* coeffs) {
     std::vector<F> raw_coeff;
     if (!buffer.Read(&raw_coeff)) return false;
-    *coeffs =
-        math::UnivariateDenseCoefficients<F, MaxDegree>(std::move(raw_coeff));
+    *coeffs = math::UnivariateDenseCoefficients<F, N>(std::move(raw_coeff));
     return true;
   }
 
   static size_t EstimateSize(
-      const math::UnivariateDenseCoefficients<F, MaxDegree>& coeffs) {
+      const math::UnivariateDenseCoefficients<F, N>& coeffs) {
     return base::EstimateSize(coeffs.coefficients_);
   }
 };

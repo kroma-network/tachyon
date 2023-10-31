@@ -16,10 +16,10 @@
 namespace tachyon::math {
 namespace internal {
 
-template <typename F, size_t MaxDegree>
-class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
+template <typename F, size_t N>
+class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, N>> {
  public:
-  using S = MultivariateSparseCoefficients<F, MaxDegree>;
+  using S = MultivariateSparseCoefficients<F, N>;
   using Term = typename S::Term;
   using Terms = std::vector<Term>;
 

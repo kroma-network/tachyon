@@ -21,17 +21,17 @@
 
 namespace tachyon::math {
 
-template <typename F, size_t MaxDegree>
-class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
+template <typename F, size_t N>
+class UnivariateEvaluationDomain : public EvaluationDomain<F, N> {
  public:
   static_assert(F::HasRootOfUnity(),
                 "UnivariateEvaluationDomain should have root of unity");
 
-  using Evals = UnivariateEvaluations<F, MaxDegree>;
-  using DensePoly = UnivariateDensePolynomial<F, MaxDegree>;
-  using DenseCoeffs = UnivariateDenseCoefficients<F, MaxDegree>;
-  using SparseCoeffs = UnivariateSparseCoefficients<F, MaxDegree>;
-  using SparsePoly = UnivariateSparsePolynomial<F, MaxDegree>;
+  using Evals = UnivariateEvaluations<F, N>;
+  using DensePoly = UnivariateDensePolynomial<F, N>;
+  using DenseCoeffs = UnivariateDenseCoefficients<F, N>;
+  using SparseCoeffs = UnivariateSparseCoefficients<F, N>;
+  using SparsePoly = UnivariateSparsePolynomial<F, N>;
 
   constexpr UnivariateEvaluationDomain() = default;
 

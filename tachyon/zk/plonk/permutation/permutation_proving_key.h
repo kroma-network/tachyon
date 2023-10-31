@@ -20,11 +20,11 @@ namespace zk {
 template <typename PCSTy>
 class PermutationProvingKey {
  public:
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
+  constexpr static size_t kMaxSize = PCSTy::kMaxSize;
 
   using F = typename PCSTy::Field;
-  using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
-  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
+  using DensePoly = math::UnivariateDensePolynomial<F, kMaxSize>;
+  using Evals = math::UnivariateEvaluations<F, kMaxSize>;
 
   PermutationProvingKey() = default;
   PermutationProvingKey(const std::vector<Evals>& permutations,

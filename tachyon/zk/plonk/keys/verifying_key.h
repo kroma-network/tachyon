@@ -18,14 +18,14 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class VerifyingKey {
  public:
-  constexpr static kMaxDegree = PCSTy::kMaxDegree;
+  constexpr static kMaxSize = PCSTy::kMaxSize;
 
   using F = typename PCSTy::Field;
   using Commitment = typename PCSTy::ResultTy;
   using Commitments = std::vector<Commitment>;
 
   VerifyingKey(
-      std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain,
+      std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxSize>> domain,
       Commitments fixed_commitments,
       PermutationVerifyingKey<PCSTy> permutation_verifying_key,
       ConstraintSystem<F> constraint_system)
@@ -34,7 +34,7 @@ class VerifyingKey {
         permutation_verifying_Key_(std::move(permutation_verifying_key)),
         constraint_system_(std::move(constraint_system)) {}
 
-  const math::UnivariateEvaluationDomain<F, kMaxDegree>* domain() const {
+  const math::UnivariateEvaluationDomain<F, kMaxSize>* domain() const {
     return domain_.get();
   }
 
@@ -51,7 +51,7 @@ class VerifyingKey {
   const F& transcript_repr() const { return transcript_repr_; }
 
  private:
-  std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain_;
+  std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxSize>> domain_;
   Commitments fixed_commitments_;
   PermutationVerifyingKey<PCSTy> permutation_verifying_Key_;
   ConstraintSystem<F> constraint_system_;

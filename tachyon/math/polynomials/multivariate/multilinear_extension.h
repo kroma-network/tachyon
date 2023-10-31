@@ -34,16 +34,16 @@ class MultilinearExtension final
 
   constexpr static bool IsEvaluationForm() { return true; }
 
-  constexpr static MultilinearExtension Zero(size_t degree) {
-    return MultilinearExtension(Evaluations::Zero(degree));
+  constexpr static MultilinearExtension Zero(size_t size) {
+    return MultilinearExtension(Evaluations::Zero(size));
   }
 
-  constexpr static MultilinearExtension One(size_t degree) {
-    return MultilinearExtension(Evaluations::One(degree));
+  constexpr static MultilinearExtension One(size_t size) {
+    return MultilinearExtension(Evaluations::One(size));
   }
 
-  constexpr static MultilinearExtension Random(size_t degree) {
-    return MultilinearExtension(Evaluations::Random(degree));
+  constexpr static MultilinearExtension Random(size_t size) {
+    return MultilinearExtension(Evaluations::Random(size));
   }
 
   constexpr bool IsZero() const { return evaluations_.IsZero(); }
@@ -137,14 +137,14 @@ class MultilinearExtension final
 
  private:
   friend class internal::MultilinearExtensionOp<
-      MultilinearDenseEvaluations<Field, Evaluations::kMaxDegree>>;
+      MultilinearDenseEvaluations<Field, Evaluations::kMaxSize>>;
 
   Evaluations evaluations_;
 };
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 using MultilinearDenseExtension =
-    MultilinearExtension<MultilinearDenseEvaluations<F, MaxDegree>>;
+    MultilinearExtension<MultilinearDenseEvaluations<F, N>>;
 
 template <typename Evaluations>
 class PolynomialTraits<MultilinearExtension<Evaluations>> {

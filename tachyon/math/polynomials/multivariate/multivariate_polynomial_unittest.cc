@@ -9,10 +9,10 @@ namespace tachyon::math {
 namespace {
 
 const size_t kNumVars = 2;
-const size_t kMaxDegree = 5;
+const size_t kMaxSize = 10;
 
-using Poly = MultivariateSparsePolynomial<GF7, kMaxDegree>;
-using Coeffs = MultivariateSparseCoefficients<GF7, kMaxDegree>;
+using Poly = MultivariateSparsePolynomial<GF7, kMaxSize>;
+using Coeffs = MultivariateSparseCoefficients<GF7, kMaxSize>;
 
 class MultivariatePolynomialTest : public testing::Test {
  public:
@@ -213,9 +213,9 @@ TEST_F(MultivariatePolynomialTest, IsOne) {
 
 TEST_F(MultivariatePolynomialTest, Random) {
   bool success = false;
-  Poly r = Poly::Random(kNumVars, kMaxDegree);
+  Poly r = Poly::Random(kNumVars, kMaxSize);
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random(kNumVars, kMaxDegree)) {
+    if (r != Poly::Random(kNumVars, kMaxSize)) {
       success = true;
       break;
     }
@@ -261,7 +261,8 @@ TEST_F(MultivariatePolynomialTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
-  EXPECT_LE(Poly::Random(kNumVars, kMaxDegree).Degree(), kMaxDegree);
+  // TODO(chokobole): How do we check against max degree?
+  // EXPECT_LE(Poly::Random(kNumVars, kMaxSize).Degree(), ???);
 }
 
 TEST_F(MultivariatePolynomialTest, Evaluate) {

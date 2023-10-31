@@ -19,7 +19,7 @@ template <typename Coefficients>
 class MultivariatePolynomial final
     : public Polynomial<MultivariatePolynomial<Coefficients>> {
  public:
-  constexpr static size_t kMaxDegree = Coefficients::kMaxDegree;
+  constexpr static size_t kMaxSize = Coefficients::kMaxSize;
 
   using Field = typename Coefficients::Field;
   using Literal = typename Coefficients::Literal;
@@ -38,8 +38,9 @@ class MultivariatePolynomial final
     return MultivariatePolynomial(Coefficients::One());
   }
 
-  constexpr static MultivariatePolynomial Random(size_t arity, size_t degree) {
-    return MultivariatePolynomial(Coefficients::Random(arity, degree));
+  constexpr static MultivariatePolynomial Random(size_t arity,
+                                                 size_t exponent) {
+    return MultivariatePolynomial(Coefficients::Random(arity, exponent));
   }
 
   constexpr static bool IsCoefficientForm() { return true; }
@@ -118,9 +119,9 @@ class MultivariatePolynomial final
   Coefficients coefficients_;
 };
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 using MultivariateSparsePolynomial =
-    MultivariatePolynomial<MultivariateSparseCoefficients<F, MaxDegree>>;
+    MultivariatePolynomial<MultivariateSparseCoefficients<F, N>>;
 
 template <typename Coefficients>
 class PolynomialTraits<MultivariatePolynomial<Coefficients>> {

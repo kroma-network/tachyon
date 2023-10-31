@@ -24,10 +24,10 @@
 #include "tachyon/math/polynomials/multivariate/support_poly_operators.h"
 
 namespace tachyon::math {
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class MultivariateSparseCoefficients {
  public:
-  constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxSize = N;
 
   using Field = F;
 
@@ -171,12 +171,12 @@ class MultivariateSparseCoefficients {
   constexpr MultivariateSparseCoefficients() = default;
   constexpr MultivariateSparseCoefficients(size_t num_vars, const Terms& terms)
       : num_vars_(num_vars), terms_(terms) {
-    CHECK_LE(Degree(), kMaxDegree);
+    CHECK_LE(terms_.size(), N);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
   }
   constexpr MultivariateSparseCoefficients(size_t num_vars, Terms&& terms)
       : num_vars_(num_vars), terms_(std::move(terms)) {
-    CHECK_LE(Degree(), kMaxDegree);
+    CHECK_LE(terms_.size(), N);
     DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
   }
 
@@ -190,7 +190,7 @@ class MultivariateSparseCoefficients {
 
   static MultivariateSparseCoefficients Random(size_t arity, size_t exponent,
                                                size_t min_term = 1,
-                                               size_t max_term = 999) {
+                                               size_t max_term = N) {
     Terms terms;
     size_t num_terms = base::Uniform(base::Range<size_t>(min_term, max_term));
     terms.push_back(Term::Constant(F::Random()));
@@ -335,7 +335,7 @@ class MultivariateSparseCoefficients {
 
  private:
   friend class internal::MultivariatePolynomialOp<
-      MultivariateSparseCoefficients<F, MaxDegree>>;
+      MultivariateSparseCoefficients<F, N>>;
 
   static F EvaluateSerial(absl::Span<const Term> terms,
                           const std::vector<F>& points) {
@@ -346,6 +346,7 @@ class MultivariateSparseCoefficients {
                            });
   }
 
+  // TODO(chokobole): Do we need to maintain |num_vars_|?
   size_t num_vars_;
   std::vector<Term> terms_;
 };

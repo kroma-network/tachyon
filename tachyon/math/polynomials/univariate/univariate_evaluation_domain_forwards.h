@@ -10,13 +10,13 @@
 
 namespace tachyon::math {
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class UnivariateEvaluationDomain;
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class Radix2EvaluationDomain;
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class MixedRadixEvaluationDomain;
 
 }  // namespace tachyon::math

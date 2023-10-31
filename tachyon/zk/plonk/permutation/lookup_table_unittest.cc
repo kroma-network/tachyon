@@ -25,24 +25,23 @@ class LookupTableTest : public testing::Test {
 }  // namespace
 
 TEST_F(LookupTableTest, Construct) {
-  constexpr size_t kMaxDegree = 7;
+  constexpr size_t kMaxSize = 8;
   constexpr size_t kCols = 4;
 
   using F = math::bn254::G1Curve::ScalarField;
 
-  std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain =
-      math::UnivariateEvaluationDomainFactory<F, kMaxDegree>::Create(
-          kMaxDegree + 1);
-  LookupTable<F, kMaxDegree> lookup_table =
-      LookupTable<F, kMaxDegree>::Construct(kCols, domain.get());
+  std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxSize>> domain =
+      math::UnivariateEvaluationDomainFactory<F, kMaxSize>::Create(kMaxSize);
+  LookupTable<F, kMaxSize> lookup_table =
+      LookupTable<F, kMaxSize>::Construct(kCols, domain.get());
   F omega = domain->group_gen();
-  std::vector<F> omega_powers = domain->GetRootsOfUnity(kMaxDegree + 1, omega);
+  std::vector<F> omega_powers = domain->GetRootsOfUnity(kMaxSize, omega);
 
   F delta = lookup_table.GetDelta();
   EXPECT_NE(delta, F::One());
   EXPECT_EQ(delta.Pow(F::Config::kTrace), F::One());
   for (size_t i = 1; i < kCols; ++i) {
-    for (size_t j = 0; j < kMaxDegree + 1; ++j) {
+    for (size_t j = 0; j < kMaxSize; ++j) {
       omega_powers[j] *= delta;
       EXPECT_EQ(omega_powers[j], lookup_table[Label(i, j)]);
     }

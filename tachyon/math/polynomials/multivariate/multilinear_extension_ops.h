@@ -10,10 +10,10 @@
 namespace tachyon::math {
 namespace internal {
 
-template <typename F, size_t MaxDegree>
-class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
+template <typename F, size_t N>
+class MultilinearExtensionOp<MultilinearDenseEvaluations<F, N>> {
  public:
-  using D = MultilinearDenseEvaluations<F, MaxDegree>;
+  using D = MultilinearDenseEvaluations<F, N>;
 
   static MultilinearExtension<D>& AddInPlace(
       MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {

@@ -16,11 +16,11 @@
 
 namespace tachyon::zk {
 
-constexpr size_t kMaxDegree = 5;
+constexpr size_t kMaxSize = 6;
 
 using GF7 = math::GF7;
-using Poly = math::UnivariateDensePolynomial<GF7, kMaxDegree>;
-using Coeffs = math::UnivariateDenseCoefficients<GF7, kMaxDegree>;
+using Poly = math::UnivariateDensePolynomial<GF7, kMaxSize>;
+using Coeffs = math::UnivariateDenseCoefficients<GF7, kMaxSize>;
 
 class EvaluatorTest : public testing::Test {
  public:

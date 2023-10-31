@@ -5,7 +5,7 @@
 
 namespace tachyon::math {
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class EvaluationDomain {};
 
 }  // namespace tachyon::math

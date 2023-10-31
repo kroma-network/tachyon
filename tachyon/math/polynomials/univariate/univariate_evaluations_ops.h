@@ -17,10 +17,10 @@
 namespace tachyon::math {
 namespace internal {
 
-template <typename F, size_t MaxDegree>
+template <typename F, size_t N>
 class UnivariateEvaluationsOp {
  public:
-  using Poly = UnivariateEvaluations<F, MaxDegree>;
+  using Poly = UnivariateEvaluations<F, N>;
 
   static Poly& AddInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;

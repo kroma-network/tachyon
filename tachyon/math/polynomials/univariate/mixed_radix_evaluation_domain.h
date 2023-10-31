@@ -35,7 +35,7 @@
 namespace tachyon::math {
 
 template <typename F>
-constexpr size_t MaxDegreeForMixedRadixEvaluationDomain() {
+constexpr size_t MaxSizeForMixedRadixEvaluationDomain() {
   size_t i = 1;
   for (size_t i = 0; i <= F::Config::kSmallSubgroupAdicity; ++i) {
     i *= F::Config::kSmallSubgroupBase;
@@ -46,17 +46,15 @@ constexpr size_t MaxDegreeForMixedRadixEvaluationDomain() {
 // Defines a domain over which finite field (I)FFTs can be performed. Works only
 // for fields that have a multiplicative subgroup of size that is a power-of-2
 // and another small subgroup over a different base defined.
-template <typename F,
-          size_t MaxDegree = MaxDegreeForMixedRadixEvaluationDomain<F>()>
-class MixedRadixEvaluationDomain
-    : public UnivariateEvaluationDomain<F, MaxDegree> {
+template <typename F, size_t N = MaxSizeForMixedRadixEvaluationDomain<F>()>
+class MixedRadixEvaluationDomain : public UnivariateEvaluationDomain<F, N> {
  public:
   using Field = F;
-  using Evals = UnivariateEvaluations<F, MaxDegree>;
-  using DensePoly = UnivariateDensePolynomial<F, MaxDegree>;
-  using SparsePoly = UnivariateSparsePolynomial<F, MaxDegree>;
+  using Evals = UnivariateEvaluations<F, N>;
+  using DensePoly = UnivariateDensePolynomial<F, N>;
+  using SparsePoly = UnivariateSparsePolynomial<F, N>;
 
-  constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxSize = N;
 
   constexpr static std::unique_ptr<MixedRadixEvaluationDomain> Create(
       size_t num_coeffs) {
@@ -75,10 +73,10 @@ class MixedRadixEvaluationDomain
   }
 
  private:
-  using UnivariateEvaluationDomain<F, MaxDegree>::UnivariateEvaluationDomain;
+  using UnivariateEvaluationDomain<F, N>::UnivariateEvaluationDomain;
 
   // UnivariateEvaluationDomain methods
-  constexpr std::unique_ptr<UnivariateEvaluationDomain<F, MaxDegree>> Clone()
+  constexpr std::unique_ptr<UnivariateEvaluationDomain<F, N>> Clone()
       const override {
     return absl::WrapUnique(new MixedRadixEvaluationDomain(*this));
   }
@@ -124,7 +122,7 @@ class MixedRadixEvaluationDomain
                                               PrimeFieldFactors* factors) {
     base::CheckedNumeric<size_t> checked_size = BestMixedDomainSize(num_coeffs);
     size_t size = checked_size.ValueOrDie();
-    if (size > MaxDegree) return false;
+    if (size > N) return false;
     *size_out = size;
     return F::Decompose(size, factors);
   }
@@ -271,7 +269,7 @@ class MixedRadixEvaluationDomain
       }
     } else {
       // Swapping in place (from Storer's book)
-      UnivariateEvaluationDomain<F, MaxDegree>::SwapElements(a, n, two_adicity);
+      UnivariateEvaluationDomain<F, N>::SwapElements(a, n, two_adicity);
     }
 
     for (size_t i = 0; i < two_adicity; ++i) {
@@ -280,7 +278,7 @@ class MixedRadixEvaluationDomain
       for (size_t k = 0; k < n; k += 2 * m) {
         F w = F::One();
         for (size_t j = 0; j < m; ++j) {
-          UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn(
+          UnivariateEvaluationDomain<F, N>::ButterflyFnOutIn(
               *a[k + j], *a[(k + m) + j], w);
           w *= w_m;
         }
