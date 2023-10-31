@@ -36,6 +36,12 @@ class Assembly : public Assignment<typename PCSTy::Field> {
         selectors_(std::move(selectors)),
         usable_rows_(usable_rows) {}
 
+  uint32_t k() const { return k_; }
+  const std::vector<DensePoly>& fixeds() const { return fixeds_; }
+  const PermutationAssembly<PCSTy>& permutation() const { return permutation_; }
+  const std::vector<std::vector<bool>>& selectors() const { return selectors_; }
+  const base::Range<size_t>& usable_rows() const { return usable_rows_; }
+
   // Assignment methods
   Error EnableSelector(const Selector& selector, size_t row) override {
     if (!usable_rows_.Contains(row)) {
