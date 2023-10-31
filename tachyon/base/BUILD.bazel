@@ -80,6 +80,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "parallelize",
+    hdrs = ["parallelize.h"],
+    deps = [
+        ":openmp_util",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/functional:functor_traits",
+    ],
+)
+
+tachyon_cc_library(
     name = "random",
     srcs = ["random.cc"],
     hdrs = ["random.h"],
@@ -125,6 +136,7 @@ tachyon_cc_unittest(
         "cxx20_is_constant_evaluated_unittest.cc",
         "endian_utils_unittest.cc",
         "environment_unittest.cc",
+        "parallelize_unittest.cc",
         "random_unittest.cc",
         "range_unittest.cc",
         "scoped_generic_unittest.cc",
@@ -135,6 +147,7 @@ tachyon_cc_unittest(
         ":cxx20_is_constant_evaluated",
         ":endian_utils",
         ":environment",
+        ":parallelize",
         ":random",
         ":range",
         ":scoped_generic",

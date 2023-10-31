@@ -12,6 +12,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
 #include "tachyon/zk/plonk/permutation/label.h"
@@ -112,29 +113,17 @@ class PermutationAssembly {
         base::CreateVector(columns_.size(), Evals::Zero(MaxDegree));
 
     // Assign lookup_table to permutations
-#if defined(TACHYON_HAS_OPENMP)
-    size_t thread_num = omp_get_max_threads();
-#else
-    size_t thread_num = 1;
-#endif  // defined(TACHYON_HAS_OPENMP)
-    size_t chunk_size = (columns_.size() + thread_num - 1) / thread_num;
-
-    auto chunks = base::Chunked(permutations, chunk_size);
-    std::vector<absl::Span<Evals>> chunks_vector =
-        base::Map(chunks.begin(), chunks.end(),
-                  [](absl::Span<Evals> chunk) { return chunk; });
-
-    OPENMP_PARALLEL_FOR(size_t c = 0; c < chunks_vector.size(); ++c) {
-      absl::Span<Evals> chunk = chunks_vector[c];
-
-      size_t i = c * chunk_size;
-      for (Evals& evals : chunk) {
-        for (size_t j = 0; j <= MaxDegree; ++j) {
-          *evals[j] = lookup_table[cycle_store_.GetNextLabel(Label(i, j))];
-        }
-        ++i;
-      }
-    }
+    base::Parallelize(
+        permutations, [&lookup_table, this](absl::Span<Evals> chunk, size_t c,
+                                            size_t chunk_size) {
+          size_t i = c * chunk_size;
+          for (Evals& evals : chunk) {
+            for (size_t j = 0; j <= MaxDegree; ++j) {
+              *evals[j] = lookup_table[cycle_store_.GetNextLabel(Label(i, j))];
+            }
+            ++i;
+          }
+        });
     return permutations;
   }
 

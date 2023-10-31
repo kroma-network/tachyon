@@ -19,6 +19,7 @@ tachyon_cc_library(
     hdrs = ["radix2_evaluation_domain.h"],
     deps = [
         ":univariate_evaluation_domain",
+        "//tachyon/base:parallelize",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
         "@com_google_absl//absl/memory",

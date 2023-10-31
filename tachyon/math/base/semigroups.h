@@ -9,7 +9,7 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/base/openmp_util.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/bit_iterator.h"
@@ -246,18 +246,13 @@ class MultiplicativeSemigroup {
     // At this point, out is a blank slice.
     // |out| = [1, g, g², g³, g⁴, g⁵, g⁶, g⁷, g⁸, ... g¹², g¹³, g¹⁴, g¹⁵]
     // clang-format on
-    auto out_chunks = base::Chunked(out, src_lo.size());
-    std::vector<absl::Span<G>> out_chunks_vector =
-        base::Map(out_chunks.begin(), out_chunks.end(),
-                  [](absl::Span<G> chunk) { return chunk; });
-#pragma omp parallel for
-    for (size_t i = 0; i < out_chunks_vector.size(); ++i) {
-      const G& hi = src_hi[i];
-      absl::Span<G> out_chunks = out_chunks_vector[i];
-      for (size_t j = 0; j < out_chunks.size(); ++j) {
-        out_chunks[j] = hi * src_lo[j];
-      }
-    }
+    base::ParallelizeByChunkSize(
+        out, src_lo.size(), [&src_lo, &src_hi](absl::Span<G> chunk, size_t i) {
+          const G& hi = src_hi[i];
+          for (size_t j = 0; j < chunk.size(); ++j) {
+            chunk[j] = hi * src_lo[j];
+          }
+        });
   }
 #endif
 

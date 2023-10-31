@@ -2,6 +2,7 @@
 #define TACHYON_BASE_OPENMP_UTIL_H_
 
 #include <algorithm>
+#include <optional>
 
 #if defined(TACHYON_HAS_OPENMP)
 #include <omp.h>
@@ -15,17 +16,18 @@
 
 namespace tachyon::base {
 
-constexpr static size_t kDefaultNumElements = 1024;
-
 template <typename ContainerType>
-static inline size_t GetNumElementsPerThread(const ContainerType& container) {
+size_t GetNumElementsPerThread(const ContainerType& container,
+                               std::optional<size_t> threshold = std::nullopt) {
 #if defined(TACHYON_HAS_OPENMP)
   size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
 #else
   size_t thread_nums = 1;
 #endif
-  size_t size = container.size();
-  return std::max(size / thread_nums, kDefaultNumElements);
+  size_t size = std::size(container);
+  return (threshold.has_value() && size > threshold.value())
+             ? (size + thread_nums - 1) / thread_nums
+             : size;
 }
 
 }  // namespace tachyon::base
