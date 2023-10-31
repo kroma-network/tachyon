@@ -22,6 +22,7 @@ tachyon_cc_library(
     hdrs = ["cubic_extension_field.h"],
     deps = [
         ":cyclotomic_multiplicative_subgroup",
+        "//tachyon/base/buffer:copyable",
         "//tachyon/math/geometry:point3",
         "@com_google_absl//absl/strings",
     ],
@@ -198,6 +199,7 @@ tachyon_cc_library(
     hdrs = ["quadratic_extension_field.h"],
     deps = [
         ":cyclotomic_multiplicative_subgroup",
+        "//tachyon/base/buffer:copyable",
         "//tachyon/math/geometry:point2",
         "@com_google_absl//absl/strings",
     ],
