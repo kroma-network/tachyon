@@ -14,8 +14,10 @@ using Expr = std::unique_ptr<Expression<GF7>>;
 class SimpleEvaluatorTest : public EvaluatorTest {
  public:
   SimpleEvaluatorTest() {
-    simple_evaluator_ = std::make_unique<SimpleEvaluator<Poly>>(
-        3, 4, 1, &fixed_polys_, &advice_polys_, &instance_polys_, &challenges_);
+    SimpleEvaluator<Poly>::Arguments arguments(&fixed_polys_, &advice_polys_,
+                                               &instance_polys_, &challenges_);
+    simple_evaluator_ =
+        std::make_unique<SimpleEvaluator<Poly>>(3, 4, 1, arguments);
   }
   SimpleEvaluatorTest(const SimpleEvaluatorTest&) = delete;
   SimpleEvaluatorTest& operator=(const SimpleEvaluatorTest&) = delete;
