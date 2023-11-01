@@ -20,6 +20,16 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "lookup_committed",
     hdrs = ["lookup_committed.h"],
+    deps = [
+        ":lookup_evaluated",
+        "//tachyon/zk/plonk/circuit:rotation",
+        "//tachyon/zk/transcript",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_evaluated",
+    hdrs = ["lookup_evaluated.h"],
     deps = ["//tachyon/zk/base:blinded_polynomial"],
 )
 

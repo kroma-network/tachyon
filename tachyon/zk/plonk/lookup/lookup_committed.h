@@ -10,13 +10,20 @@
 #include <utility>
 
 #include "tachyon/zk/base/blinded_polynomial.h"
+#include "tachyon/zk/plonk/circuit/rotation.h"
+#include "tachyon/zk/plonk/lookup/lookup_evaluated.h"
+#include "tachyon/zk/transcript/transcript.h"
 
 namespace tachyon::zk {
 
 template <typename PCSTy>
 class LookupCommitted {
  public:
+  using F = typename PCSTy::Field;
   using Poly = typename PCSTy::Poly;
+  using MaxDegree = typename PCSTy::kMaxDegree;
+  using Commitment = typename PCSTy::Commitment;
+  using Domain = typename PCSTy::Domain;
 
   LookupCommitted() = default;
   LookupCommitted(BlindedPolynomial<Poly> permuted_input_poly,
@@ -33,6 +40,31 @@ class LookupCommitted {
     return permuted_table_poly_;
   }
   const BlindedPolynomial<Poly>& product_poly() const { return product_poly_; }
+
+  LookupEvaluated<PCSTy> Evaluate(
+      const Domain* domain, const F& x,
+      TranscriptWriter<Commitment>* transcript_writer) && {
+    F x_inv = Rotation::Prev().RotateOmega(domain, x);
+    F x_next = Rotation::Next().RotateOmega(domain, x);
+
+    F product_eval = product_poly_.Evaluate(x);
+    F product_next_eval = product_poly_.Evaluate(x_next);
+    F permuted_input_eval = permuted_input_poly_.Evaluate(x);
+    F permuted_input_inv_eval = permuted_input_poly_.Evaluate(x_inv);
+    F permuted_table_eval = permuted_table_poly_.Evaluate(x);
+
+    transcript_writer->WriteToProof(product_eval);
+    transcript_writer->WriteToProof(product_next_eval);
+    transcript_writer->WriteToProof(permuted_input_eval);
+    transcript_writer->WriteToProof(permuted_input_inv_eval);
+    transcript_writer->WriteToProof(permuted_table_eval);
+
+    return {
+        std::move(permuted_input_poly_),
+        std::move(permuted_table_poly_),
+        std::move(product_poly_),
+    };
+  }
 
  private:
   BlindedPolynomial<Poly> permuted_input_poly_;
