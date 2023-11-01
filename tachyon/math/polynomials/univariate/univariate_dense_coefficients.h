@@ -58,7 +58,7 @@ class UnivariateDenseCoefficients {
 
   // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
   // So when the returned evaluations is called with |IsZero()|, it returns
-  // false. This is only used at |EvaluationDomain|.
+  // false. So please use it carefully!
   constexpr static UnivariateDenseCoefficients UnsafeZero(size_t degree) {
     UnivariateDenseCoefficients ret;
     ret.coefficients_ = base::CreateVector(degree + 1, F::Zero());
@@ -108,6 +108,8 @@ class UnivariateDenseCoefficients {
     if (IsZero()) return 0;
     return coefficients_.size() - 1;
   }
+
+  constexpr size_t NumElements() const { return coefficients_.size(); }
 
   constexpr F Evaluate(const F& point) const {
     if (IsZero()) return F::Zero();

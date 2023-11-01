@@ -197,7 +197,7 @@ class MixedRadixEvaluationDomain
     // Conceptually, this FFT first splits into 2 sub-arrays |two_adicity| many
     // times, and then splits into q sub-arrays |q_adicity| many times.
 
-    size_t n = a.Degree() + 1;
+    size_t n = a.NumElements();
     uint64_t q = uint64_t{F::Config::kSmallSubgroupBase};
     uint64_t n_u64 = n;
 
@@ -299,7 +299,7 @@ class MixedRadixEvaluationDomain
 
     // Partition |a| equally into the number of threads.
     // each partition is then of size m / num_threads.
-    size_t m = a.Degree() + 1;
+    size_t m = a.NumElements();
     size_t num_threads = size_t{1} << (log_num_threads);
     size_t num_cosets = num_threads;
     CHECK_EQ(m % num_threads, size_t{0});
@@ -375,7 +375,7 @@ class MixedRadixEvaluationDomain
 
     // shuffle the values computed above into a
     // The evaluations of a should be ordered as (1, g, g², ...)
-    for (size_t i = 0; i < a.Degree() + 1; ++i) {
+    for (size_t i = 0; i < a.NumElements(); ++i) {
       *a[i] = *tmp[i % num_cosets][i / num_cosets];
     }
   }

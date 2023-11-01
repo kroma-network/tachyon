@@ -35,8 +35,10 @@ class PermutationProvingKeyTest : public testing::Test {
 }  // namespace
 
 TEST_F(PermutationProvingKeyTest, Copyable) {
-  constexpr size_t kDegree = 5;
-  ProvingKey expected({Evals::Random(kDegree)}, {Poly::Random(kDegree)});
+  // NOTE(chokobole): Since https://github.com/kroma-network/tachyon/pull/139,
+  // I intentionally use |Evals::Zero()| instead of |Evals::Random()| due to
+  // performance issues.
+  ProvingKey expected({Evals::Zero()}, {Poly::Random(5)});
   ProvingKey value;
 
   base::VectorBuffer write_buf;

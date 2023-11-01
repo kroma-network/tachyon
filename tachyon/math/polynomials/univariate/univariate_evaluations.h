@@ -44,58 +44,76 @@ class UnivariateEvaluations final
 
   using Field = F;
 
-  constexpr UnivariateEvaluations() : UnivariateEvaluations({F::Zero()}) {}
+  constexpr UnivariateEvaluations() = default;
   constexpr explicit UnivariateEvaluations(const std::vector<F>& evaluations)
       : evaluations_(evaluations) {
-    CHECK_LE(Degree(), MaxDegree);
+    if (!evaluations_.empty()) {
+      CHECK_EQ(evaluations_.size() - 1, MaxDegree);
+    }
   }
   constexpr explicit UnivariateEvaluations(std::vector<F>&& evaluations)
       : evaluations_(std::move(evaluations)) {
-    CHECK_LE(Degree(), MaxDegree);
+    if (!evaluations_.empty()) {
+      CHECK_EQ(evaluations_.size() - 1, MaxDegree);
+    }
   }
 
   constexpr static bool IsCoefficientForm() { return false; }
 
   constexpr static bool IsEvaluationForm() { return true; }
 
-  constexpr static UnivariateEvaluations Zero(size_t degree) {
+  // NOTE(chokobole): The zero polynomial can be represented in two forms:
+  // 1. An empty vector
+  // 2. A vector filled with |F::Zero()| up to the |MaxDegree| + 1.
+  constexpr static UnivariateEvaluations Zero() {
+    return UnivariateEvaluations();
+  }
+
+  // NOTE(chokobole): This creates polynomial that contains elements up to
+  // |degree| + 1. This breaks assumption of |UnivariateEvaluations| that it
+  // contains exact degree sized elements except for zero polynomial. So when
+  // you compare polynomial with the returned polynomial, you can get unexpected
+  // result. So please use it carefully!
+  constexpr static UnivariateEvaluations UnsafeZero(size_t degree) {
     UnivariateEvaluations ret;
     ret.evaluations_ = base::CreateVector(degree + 1, F::Zero());
     return ret;
   }
 
-  // NOTE(chokobole): This is only used at |EvaluationDomain|.
-  // See also univariate_polynomial.h.
-  constexpr static UnivariateEvaluations UnsafeZero(size_t degree) {
-    return Zero(degree);
-  }
-
-  constexpr static UnivariateEvaluations One(size_t degree) {
+  constexpr static UnivariateEvaluations One() {
     UnivariateEvaluations ret;
-    ret.evaluations_ = base::CreateVector(degree + 1, F::One());
+    ret.evaluations_ = base::CreateVector(MaxDegree + 1, F::One());
     return ret;
   }
 
-  constexpr static UnivariateEvaluations Random(size_t degree) {
+  constexpr static UnivariateEvaluations Random() {
     return UnivariateEvaluations(
-        base::CreateVector(degree + 1, []() { return F::Random(); }));
+        base::CreateVector(MaxDegree + 1, []() { return F::Random(); }));
   }
 
-  const std::vector<F>& evaluations() const { return evaluations_; }
+  constexpr const std::vector<F>& evaluations() const { return evaluations_; }
+
+  constexpr const size_t NumElements() const { return evaluations_.size(); }
 
   constexpr bool IsZero() const {
+    if (evaluations_.empty()) return true;
     return std::all_of(evaluations_.begin(), evaluations_.end(),
                        [](const F& value) { return value.IsZero(); });
   }
 
   constexpr bool IsOne() const {
+    if (evaluations_.empty()) return false;
     return std::all_of(evaluations_.begin(), evaluations_.end(),
                        [](const F& value) { return value.IsOne(); });
   }
 
-  constexpr size_t Degree() const { return evaluations_.size() - 1; }
-
   constexpr bool operator==(const UnivariateEvaluations& other) const {
+    if (evaluations_.empty()) {
+      return other.IsZero();
+    }
+    if (other.evaluations_.empty()) {
+      return IsZero();
+    }
     return evaluations_ == other.evaluations_;
   }
 

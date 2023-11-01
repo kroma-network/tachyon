@@ -211,7 +211,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       static_assert(Order == FFTOrder::kOutIn);
       fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn;
     }
-    OPENMP_PARALLEL_FOR(size_t i = 0; i <= poly_or_evals.Degree();
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < poly_or_evals.NumElements();
                         i += chunk_size) {
       // If the chunk is sufficiently big that parallelism helps,
       // we parallelize the butterfly operation within the chunk.
