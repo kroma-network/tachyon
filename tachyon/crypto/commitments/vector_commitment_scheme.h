@@ -6,47 +6,52 @@
 
 namespace tachyon::crypto {
 
-template <typename C>
+template <typename Derived>
 class VectorCommitmentScheme {
  public:
-  constexpr static size_t kMaxSize = VectorCommitmentSchemeTraits<C>::kMaxSize;
+  constexpr static size_t kMaxSize =
+      VectorCommitmentSchemeTraits<Derived>::kMaxSize;
   constexpr static bool kIsTransparent =
-      VectorCommitmentSchemeTraits<C>::kIsTransparent;
+      VectorCommitmentSchemeTraits<Derived>::kIsTransparent;
 
-  using Field = typename VectorCommitmentSchemeTraits<C>::Field;
-  using Commitment = typename VectorCommitmentSchemeTraits<C>::Commitment;
+  using Field = typename VectorCommitmentSchemeTraits<Derived>::Field;
+  using Commitment = typename VectorCommitmentSchemeTraits<Derived>::Commitment;
 
   size_t K() const {
-    const C* c = static_cast<const C*>(this);
-    return base::bits::SafeLog2Ceiling(c->N());
+    const Derived* derived = static_cast<const Derived*>(this);
+    return base::bits::SafeLog2Ceiling(derived->N());
   }
 
   // Initialize parameters.
-  template <typename C2 = C, std::enable_if_t<VectorCommitmentSchemeTraits<
-                                 C2>::kIsTransparent>* = nullptr>
+  template <typename T = Derived,
+            std::enable_if_t<VectorCommitmentSchemeTraits<T>::kIsTransparent>* =
+                nullptr>
   [[nodiscard]] bool Setup() {
     return Setup(kMaxSize);
   }
 
-  template <typename C2 = C, std::enable_if_t<VectorCommitmentSchemeTraits<
-                                 C2>::kIsTransparent>* = nullptr>
+  template <typename T = Derived,
+            std::enable_if_t<VectorCommitmentSchemeTraits<T>::kIsTransparent>* =
+                nullptr>
   [[nodiscard]] bool Setup(size_t size) {
-    C* c = static_cast<C*>(this);
-    return c->DoSetup(size);
+    Derived* derived = static_cast<Derived*>(this);
+    return derived->DoSetup(size);
   }
 
   // Initialize parameters.
-  template <typename C2 = C, std::enable_if_t<!VectorCommitmentSchemeTraits<
-                                 C2>::kIsTransparent>* = nullptr>
+  template <typename T = Derived,
+            std::enable_if_t<
+                !VectorCommitmentSchemeTraits<T>::kIsTransparent>* = nullptr>
   [[nodiscard]] bool UnsafeSetup() {
     return UnsafeSetup(kMaxSize);
   }
 
-  template <typename C2 = C, std::enable_if_t<!VectorCommitmentSchemeTraits<
-                                 C2>::kIsTransparent>* = nullptr>
+  template <typename T = Derived,
+            std::enable_if_t<
+                !VectorCommitmentSchemeTraits<T>::kIsTransparent>* = nullptr>
   [[nodiscard]] bool UnsafeSetup(size_t size) {
-    C* c = static_cast<C*>(this);
-    return c->DoUnsafeSetup(size);
+    Derived* derived = static_cast<Derived*>(this);
+    return derived->DoUnsafeSetup(size);
   }
 
   // Commit to |container| and populates |result| with the commitment.
@@ -55,8 +60,8 @@ class VectorCommitmentScheme {
   template <typename ContainerTy>
   [[nodiscard]] bool Commit(const ContainerTy& container,
                             Commitment* result) const {
-    const C* c = static_cast<const C*>(this);
-    return c->DoCommit(container, result);
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCommit(container, result);
   }
 
   // Commit to |container| with a |random_value| and populates |result| with the
@@ -65,8 +70,8 @@ class VectorCommitmentScheme {
   template <typename ContainerTy>
   [[nodiscard]] bool Commit(const ContainerTy& container,
                             const Field& random_value, Commitment* result) const {
-    const C* c = static_cast<const C*>(this);
-    return c->DoCommit(container, random_value, result);
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCommit(container, random_value, result);
   }
 };
 

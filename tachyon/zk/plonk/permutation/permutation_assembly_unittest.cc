@@ -15,15 +15,15 @@ namespace {
 
 class PermutationAssemblyTest : public testing::Test {
  public:
-  constexpr static size_t kSmallDegree = 7;
-  constexpr static size_t kRows = kSmallDegree + 1;
+  constexpr static size_t kMaxDegree = 7;
+  constexpr static size_t kRows = kMaxDegree + 1;
 
   using PCS =
       crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
-                                  math::bn254::G2AffinePoint, kSmallDegree,
+                                  math::bn254::G2AffinePoint, kMaxDegree,
                                   math::bn254::G1AffinePoint>;
   using F = PCS::Field;
-  using Evals = math::UnivariateEvaluations<F, kSmallDegree>;
+  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 
@@ -34,14 +34,14 @@ class PermutationAssemblyTest : public testing::Test {
     assembly_ = PermutationAssembly<PCS>::CreateForTesting(
         columns_, CycleStore(columns_.size(), kRows));
     domain_ =
-        math::UnivariateEvaluationDomainFactory<F, kSmallDegree>::Create(kRows);
+        math::UnivariateEvaluationDomainFactory<F, kMaxDegree>::Create(kRows);
   }
 
  protected:
   std::vector<AnyColumn> columns_;
   PermutationArgument argment_;
   PermutationAssembly<PCS> assembly_;
-  std::unique_ptr<math::UnivariateEvaluationDomain<F, kSmallDegree>> domain_;
+  std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain_;
 };
 
 }  // namespace
@@ -51,11 +51,11 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
   std::vector<Evals> permutations =
       assembly_.GeneratePermutations(domain_.get());
 
-  LookupTable<F, kSmallDegree> lookup_table =
-      LookupTable<F, kSmallDegree>::Construct(columns_.size(), domain_.get());
+  LookupTable<F, kMaxDegree> lookup_table =
+      LookupTable<F, kMaxDegree>::Construct(columns_.size(), domain_.get());
 
   for (size_t i = 0; i < columns_.size(); ++i) {
-    for (size_t j = 0; j <= kSmallDegree; ++j) {
+    for (size_t j = 0; j <= kMaxDegree; ++j) {
       EXPECT_EQ(*permutations[i][j], lookup_table[Label(i, j)]);
     }
   }
