@@ -35,7 +35,8 @@ namespace tachyon::math {
 // Defines a domain over which finite field (I)FFTs can be performed. Works
 // only for fields that have a large multiplicative subgroup of size that is a
 // power-of-2.
-template <typename F, size_t MaxDegree = size_t{1} << F::Config::kTwoAdicity>
+template <typename F,
+          size_t MaxDegree = (size_t{1} << F::Config::kTwoAdicity) - 1>
 class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
  public:
   using Field = F;

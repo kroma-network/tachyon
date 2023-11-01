@@ -21,7 +21,7 @@ constexpr size_t MaxDegreeForEvaluationDomainFactory() {
       i *= F::Config::kSmallSubgroupBase;
     }
   }
-  return i * (size_t{1} << F::Config::kTwoAdicity);
+  return i * (size_t{1} << F::Config::kTwoAdicity) - 1;
 }
 
 template <typename F,

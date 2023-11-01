@@ -40,7 +40,7 @@ constexpr size_t MaxDegreeForMixedRadixEvaluationDomain() {
   for (size_t i = 0; i <= F::Config::kSmallSubgroupAdicity; ++i) {
     i *= F::Config::kSmallSubgroupBase;
   }
-  return i * (size_t{1} << F::Config::kTwoAdicity);
+  return i * (size_t{1} << F::Config::kTwoAdicity) - 1;
 }
 
 // Defines a domain over which finite field (I)FFTs can be performed. Works only
@@ -124,7 +124,7 @@ class MixedRadixEvaluationDomain
                                               PrimeFieldFactors* factors) {
     base::CheckedNumeric<size_t> checked_size = BestMixedDomainSize(num_coeffs);
     size_t size = checked_size.ValueOrDie();
-    if (size > MaxDegree) return false;
+    if (size > MaxDegree + 1) return false;
     *size_out = size;
     return F::Decompose(size, factors);
   }
