@@ -1,0 +1,153 @@
+diff --git a/src/crypto/blake2/blake2.c b/src/crypto/blake2/blake2.c
+index 14bbe5b23..bb5cb4107 100644
+--- a/src/crypto/blake2/blake2.c
++++ b/src/crypto/blake2/blake2.c
+@@ -115,6 +115,50 @@ void BLAKE2B256_Init(BLAKE2B_CTX *b2b) {
+   b2b->h[0] ^= 0x01010000 | BLAKE2B256_DIGEST_LENGTH;
+ }
+
++void BLAKE2B256_InitWithPersonal(BLAKE2B_CTX *b2b, const char personal[BLAKE2B_PERSONAL_LENGTH]) {
++  OPENSSL_memset(b2b, 0, sizeof(BLAKE2B_CTX));
++
++  static_assert(sizeof(kIV) == sizeof(b2b->h), "");
++  OPENSSL_memcpy(&b2b->h, kIV, sizeof(kIV));
++
++  // https://tools.ietf.org/html/rfc7693#section-2.5
++  b2b->h[0] ^= 0x01010000 | BLAKE2B256_DIGEST_LENGTH;
++
++  if (personal != NULL) {
++    uint64_t personal_left = *((uint64_t *)personal);
++    uint64_t personal_right = *((uint64_t *)(personal + 8));
++    b2b->h[6] ^= personal_left;
++    b2b->h[7] ^= personal_right;
++  }
++}
++
++void BLAKE2B512_Init(BLAKE2B_CTX *b2b) {
++  OPENSSL_memset(b2b, 0, sizeof(BLAKE2B_CTX));
++
++  static_assert(sizeof(kIV) == sizeof(b2b->h), "");
++  OPENSSL_memcpy(&b2b->h, kIV, sizeof(kIV));
++
++  // https://tools.ietf.org/html/rfc7693#section-2.5
++  b2b->h[0] ^= 0x01010000 | BLAKE2B512_DIGEST_LENGTH;
++}
++
++void BLAKE2B512_InitWithPersonal(BLAKE2B_CTX *b2b, const char personal[BLAKE2B_PERSONAL_LENGTH]) {
++  OPENSSL_memset(b2b, 0, sizeof(BLAKE2B_CTX));
++
++  static_assert(sizeof(kIV) == sizeof(b2b->h), "");
++  OPENSSL_memcpy(&b2b->h, kIV, sizeof(kIV));
++
++  // https://tools.ietf.org/html/rfc7693#section-2.5
++  b2b->h[0] ^= 0x01010000 | BLAKE2B512_DIGEST_LENGTH;
++
++  if (personal != NULL) {
++    uint64_t personal_left = *((uint64_t *)personal);
++    uint64_t personal_right = *((uint64_t *)(personal + 8));
++    b2b->h[6] ^= personal_left;
++    b2b->h[7] ^= personal_right;
++  }
++}
++
+ void BLAKE2B256_Update(BLAKE2B_CTX *b2b, const void *in_data, size_t len) {
+   if (len == 0) {
+     // Work around a C language bug. See https://crbug.com/1019588.
+@@ -151,6 +195,10 @@ void BLAKE2B256_Update(BLAKE2B_CTX *b2b, const void *in_data, size_t len) {
+   b2b->block_used = len;
+ }
+
++void BLAKE2B512_Update(BLAKE2B_CTX *b2b, const void *in_data, size_t len) {
++  BLAKE2B256_Update(b2b, in_data, len);
++}
++
+ void BLAKE2B256_Final(uint8_t out[BLAKE2B256_DIGEST_LENGTH], BLAKE2B_CTX *b2b) {
+   OPENSSL_memset(&b2b->block[b2b->block_used], 0,
+                  sizeof(b2b->block) - b2b->block_used);
+@@ -160,6 +208,15 @@ void BLAKE2B256_Final(uint8_t out[BLAKE2B256_DIGEST_LENGTH], BLAKE2B_CTX *b2b) {
+   memcpy(out, b2b->h, BLAKE2B256_DIGEST_LENGTH);
+ }
+
++void BLAKE2B512_Final(uint8_t out[BLAKE2B512_DIGEST_LENGTH], BLAKE2B_CTX *b2b) {
++  OPENSSL_memset(&b2b->block[b2b->block_used], 0,
++                 sizeof(b2b->block) - b2b->block_used);
++  blake2b_transform(b2b, b2b->block, b2b->block_used,
++                    /*is_final_block=*/1);
++  static_assert(BLAKE2B512_DIGEST_LENGTH <= sizeof(b2b->h), "");
++  memcpy(out, b2b->h, BLAKE2B512_DIGEST_LENGTH);
++}
++
+ void BLAKE2B256(const uint8_t *data, size_t len,
+                 uint8_t out[BLAKE2B256_DIGEST_LENGTH]) {
+   BLAKE2B_CTX ctx;
+@@ -167,3 +224,11 @@ void BLAKE2B256(const uint8_t *data, size_t len,
+   BLAKE2B256_Update(&ctx, data, len);
+   BLAKE2B256_Final(out, &ctx);
+ }
++
++void BLAKE2B512(const uint8_t *data, size_t len,
++                uint8_t out[BLAKE2B512_DIGEST_LENGTH]) {
++  BLAKE2B_CTX ctx;
++  BLAKE2B512_Init(&ctx);
++  BLAKE2B512_Update(&ctx, data, len);
++  BLAKE2B512_Final(out, &ctx);
++}
+diff --git a/src/include/openssl/blake2.h b/src/include/openssl/blake2.h
+index 03e3a465c..b3cd7d5f0 100644
+--- a/src/include/openssl/blake2.h
++++ b/src/include/openssl/blake2.h
+@@ -21,9 +21,10 @@
+ extern "C" {
+ #endif
+
+-
+ #define BLAKE2B256_DIGEST_LENGTH (256 / 8)
++#define BLAKE2B512_DIGEST_LENGTH (512 / 8)
+ #define BLAKE2B_CBLOCK 128
++#define BLAKE2B_PERSONAL_LENGTH 16
+
+ struct blake2b_state_st {
+   uint64_t h[8];
+@@ -36,6 +37,11 @@ struct blake2b_state_st {
+ // pointers inside |b2b| thus release of |b2b| is purely managed by the caller.
+ OPENSSL_EXPORT void BLAKE2B256_Init(BLAKE2B_CTX *b2b);
+
++// If |personal| is non-NULL, must point to |BLAKE2B_PERSONAL_LENGTH| bytes of
++// personalization data. |personal| may be NULL in which case no personalization
++// is used.
++OPENSSL_EXPORT void BLAKE2B256_InitWithPersonal(BLAKE2B_CTX *b2b, const char personal[BLAKE2B_PERSONAL_LENGTH]);
++
+ // BLAKE2B256_Update appends |len| bytes from |data| to the digest being
+ // calculated by |b2b|.
+ OPENSSL_EXPORT void BLAKE2B256_Update(BLAKE2B_CTX *b2b, const void *data,
+@@ -51,6 +57,30 @@ OPENSSL_EXPORT void BLAKE2B256_Final(uint8_t out[BLAKE2B256_DIGEST_LENGTH],
+ OPENSSL_EXPORT void BLAKE2B256(const uint8_t *data, size_t len,
+                                uint8_t out[BLAKE2B256_DIGEST_LENGTH]);
+
++// BLAKE2B512_Init initialises |b2b| to perform a BLAKE2b-512 hash. There are no
++// pointers inside |b2b| thus release of |b2b| is purely managed by the caller.
++OPENSSL_EXPORT void BLAKE2B512_Init(BLAKE2B_CTX *b2b);
++
++// If |personal| is non-NULL, must point to |BLAKE2B_PERSONAL_LENGTH| bytes of
++// personalization data. |personal| may be NULL in which case no personalization
++// is used.
++OPENSSL_EXPORT void BLAKE2B512_InitWithPersonal(BLAKE2B_CTX *b2b, const char personal[BLAKE2B_PERSONAL_LENGTH]);
++
++// BLAKE2B512_Update appends |len| bytes from |data| to the digest being
++// calculated by |b2b|.
++OPENSSL_EXPORT void BLAKE2B512_Update(BLAKE2B_CTX *b2b, const void *data,
++                                      size_t len);
++
++// BLAKE2B512_Final completes the digest calculated by |b2b| and writes
++// |BLAKE2B512_DIGEST_LENGTH| bytes to |out|.
++OPENSSL_EXPORT void BLAKE2B512_Final(uint8_t out[BLAKE2B512_DIGEST_LENGTH],
++                                     BLAKE2B_CTX *b2b);
++
++// BLAKE2B512 writes the BLAKE2b-512 digest of |len| bytes from |data| to
++// |out|.
++OPENSSL_EXPORT void BLAKE2B512(const uint8_t *data, size_t len,
++                               uint8_t out[BLAKE2B512_DIGEST_LENGTH]);
++
+
+ #if defined(__cplusplus)
+ }  // extern C
