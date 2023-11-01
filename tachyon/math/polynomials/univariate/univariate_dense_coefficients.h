@@ -18,7 +18,7 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/base/openmp_util.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/univariate/support_poly_operators.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
@@ -152,11 +152,6 @@ class UnivariateDenseCoefficients {
   constexpr F DoEvaluate(const F& point) const {
 #if defined(TACHYON_HAS_OPENMP)
     // Horner's method - parallel method
-    // compute the number of threads we will be using.
-    size_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
-    size_t num_coeffs = coefficients_.size();
-    size_t num_coeffs_per_thread = (num_coeffs + thread_nums - 1) / thread_nums;
-
     // run Horner's method on each thread as follows:
     // 1) Split up the coefficients across each thread evenly.
     // 2) Do polynomial evaluation via Horner's method for the thread's
@@ -164,18 +159,13 @@ class UnivariateDenseCoefficients {
     // 3) Scale the result point^{thread coefficient start index}
     // Then obtain the final polynomial evaluation by summing each threads
     // result.
-    auto chunks = base::Chunked(coefficients_, num_coeffs_per_thread);
-    std::vector<absl::Span<const F>> chunks_vector =
-        base::Map(chunks.begin(), chunks.end(),
-                  [](absl::Span<const F> chunk) { return chunk; });
-    std::vector<F> results =
-        base::CreateVector(chunks_vector.size(), F::Zero());
-#pragma omp parallel for
-    for (size_t i = 0; i < chunks_vector.size(); ++i) {
-      F result = HornerEvaluate(chunks_vector[i], point);
-      result *= point.Pow(BigInt<1>(i * num_coeffs_per_thread));
-      results[i] = std::move(result);
-    }
+    std::vector<F> results = base::ParallelizeMap(
+        coefficients_, [&point](absl::Span<const F> chunk, size_t chunk_offset,
+                                size_t chunk_size) {
+          F result = HornerEvaluate(chunk, point);
+          result *= point.Pow(BigInt<1>(chunk_offset * chunk_size));
+          return result;
+        });
     return std::accumulate(results.begin(), results.end(), F::Zero(),
                            std::plus<>());
 #else
