@@ -23,7 +23,8 @@ class PermutationAssemblyTest : public testing::Test {
                                   math::bn254::G2AffinePoint, kMaxDegree,
                                   math::bn254::G1AffinePoint>;
   using F = PCS::Field;
-  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
+  using Evals = PCS::Evals;
+  using Domain = PCS::Domain;
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 
@@ -41,7 +42,7 @@ class PermutationAssemblyTest : public testing::Test {
   std::vector<AnyColumn> columns_;
   PermutationArgument argment_;
   PermutationAssembly<PCS> assembly_;
-  std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain_;
+  std::unique_ptr<Domain> domain_;
 };
 
 }  // namespace
@@ -51,8 +52,8 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
   std::vector<Evals> permutations =
       assembly_.GeneratePermutations(domain_.get());
 
-  LookupTable<F, kMaxDegree> lookup_table =
-      LookupTable<F, kMaxDegree>::Construct(columns_.size(), domain_.get());
+  LookupTable<PCS> lookup_table =
+      LookupTable<PCS>::Construct(columns_.size(), domain_.get());
 
   for (size_t i = 0; i < columns_.size(); ++i) {
     for (size_t j = 0; j <= kMaxDegree; ++j) {

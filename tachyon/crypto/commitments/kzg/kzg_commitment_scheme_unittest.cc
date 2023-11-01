@@ -37,20 +37,19 @@ TEST_F(KZGCommitmentSchemeTest, UnsafeSetup) {
 }
 
 TEST_F(KZGCommitmentSchemeTest, CommitLagrange) {
-  using Field = math::bn254::G1AffinePoint::ScalarField;
-  using DomainTy = math::UnivariateEvaluationDomain<Field, PCS::kMaxDegree>;
-  using DensePoly = DomainTy::DensePoly;
-  using Evals = DomainTy::Evals;
+  using Domain = typename PCS::Domain;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
 
   PCS kzg;
   ASSERT_TRUE(kzg.UnsafeSetup(N));
 
-  DensePoly poly = DensePoly::Random(N - 1);
+  Poly poly = Poly::Random(N - 1);
 
   math::bn254::G1AffinePoint commit;
   ASSERT_TRUE(kzg.Commit(poly, &commit));
 
-  std::unique_ptr<DomainTy> domain = DomainTy::Create(N);
+  std::unique_ptr<Domain> domain = Domain::Create(N);
   Evals poly_evals = domain->FFT(poly);
 
   math::bn254::G1AffinePoint commit_lagrange;

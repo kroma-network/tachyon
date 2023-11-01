@@ -30,6 +30,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   static_assert(F::HasRootOfUnity(),
                 "UnivariateEvaluationDomain should have root of unity");
 
+  using Field = F;
   using Evals = UnivariateEvaluations<F, MaxDegree>;
   using DensePoly = UnivariateDensePolynomial<F, MaxDegree>;
   using DenseCoeffs = UnivariateDenseCoefficients<F, MaxDegree>;

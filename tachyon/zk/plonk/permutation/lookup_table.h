@@ -13,7 +13,6 @@
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 
 namespace tachyon::zk {
@@ -25,11 +24,15 @@ namespace tachyon::zk {
 // Let modulus = 2ˢ * T + 1, then
 // |LookupTable|
 // = [[𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] for i in range(0..T-1)]
-template <typename F, size_t MaxDegree>
+template <typename PCSTy>
 class LookupTable {
  public:
+  using F = typename PCSTy::Field;
+  using Domain = typename PCSTy::Domain;
   using Rows = std::vector<F>;
   using Table = std::vector<Rows>;
+
+  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
 
   LookupTable() = default;
 
@@ -38,12 +41,10 @@ class LookupTable {
   }
   F& operator[](const Label& label) { return table_[label.col][label.row]; }
 
-  static LookupTable Construct(
-      size_t size,
-      const math::UnivariateEvaluationDomain<F, MaxDegree>* domain) {
+  static LookupTable Construct(size_t size, const Domain* domain) {
     // The w is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
     std::vector<F> omega_powers =
-        domain->GetRootsOfUnity(MaxDegree + 1, domain->group_gen());
+        domain->GetRootsOfUnity(kMaxDegree + 1, domain->group_gen());
 
     // The 𝛿 is g^2ˢ with order T where modulus = 2ˢ * T + 1.
     F delta = GetDelta();
@@ -55,10 +56,10 @@ class LookupTable {
 
     // Assign [𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] to each row.
     for (size_t i = 1; i < size; ++i) {
-      Rows rows = base::CreateVector(MaxDegree + 1, F::Zero());
+      Rows rows = base::CreateVector(kMaxDegree + 1, F::Zero());
       // TODO(dongchangYoo): Optimize this with
       // https://github.com/kroma-network/tachyon/pull/115.
-      for (size_t j = 0; j <= MaxDegree; ++j) {
+      for (size_t j = 0; j <= kMaxDegree; ++j) {
         rows[j] = lookup_table[i - 1][j] * delta;
       }
       lookup_table.push_back(std::move(rows));

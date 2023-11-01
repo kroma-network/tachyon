@@ -4,8 +4,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
-#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 
@@ -17,11 +15,11 @@ class ProvingKey {
   static constexpr size_t kMaxDegree = PCSTy::kMaxDegree;
 
   using F = typename PCSTy::Field;
-  using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
-  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
+  using Poly = typename PCSTy::Poly;
+  using Evals = typename PCSTy::Evals;
 
-  ProvingKey(VerifyingKey<PCSTy> verifying_key, DensePoly l0, DensePoly l_last,
-             DensePoly l_active_row, Evals fixed_values, Evals fixed_polys,
+  ProvingKey(VerifyingKey<PCSTy> verifying_key, Poly l0, Poly l_last,
+             Poly l_active_row, Evals fixed_values, Evals fixed_polys,
              PermutationProvingKey<PCSTy> permutation_proving_key)
       : verifying_key_(std::move(verifying_key)),
         l0_(std::move(l0)),
@@ -32,9 +30,9 @@ class ProvingKey {
         permutation_proving_key_(std::move(permutation_proving_key)) {}
 
   const VerifyingKey<PCSTy>& verifying_key() const { return verifying_key_; }
-  const DensePoly& l0() const { return l0_; }
-  const DensePoly& l_last() const { return l_last_; }
-  const DensePoly& l_active_row() const { return l_active_row_; }
+  const Poly& l0() const { return l0_; }
+  const Poly& l_last() const { return l_last_; }
+  const Poly& l_active_row() const { return l_active_row_; }
   const std::vector<Evals>& fixed_values() const { return fixed_values_; }
   const std::vector<Evals>& fixed_polys() const { return fixed_polys_; }
   const PermutationProvingKey<PCSTy>& permutation_proving_key() const {
@@ -43,9 +41,9 @@ class ProvingKey {
 
  private:
   VerifyingKey<PCSTy> verifying_key_;
-  DensePoly l0_;
-  DensePoly l_last_;
-  DensePoly l_active_row_;
+  Poly l0_;
+  Poly l_last_;
+  Poly l_active_row_;
   std::vector<Evals> fixed_values_;
   std::vector<Evals> fixed_polys_;
   PermutationProvingKey<PCSTy> permutation_proving_key_;

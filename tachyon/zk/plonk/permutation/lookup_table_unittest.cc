@@ -10,7 +10,9 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/crypto/commitments/kzg/kzg_commitment_scheme.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
 namespace tachyon::zk {
@@ -19,6 +21,13 @@ namespace {
 
 class LookupTableTest : public testing::Test {
  public:
+  constexpr static size_t kMaxDegree = 7;
+
+  using PCS =
+      crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
+                                  math::bn254::G2AffinePoint, kMaxDegree,
+                                  math::bn254::G1AffinePoint>;
+
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
 
@@ -32,8 +41,8 @@ TEST_F(LookupTableTest, Construct) {
 
   std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain =
       math::UnivariateEvaluationDomain<F, kMaxDegree>::Create(kMaxDegree + 1);
-  LookupTable<F, kMaxDegree> lookup_table =
-      LookupTable<F, kMaxDegree>::Construct(kCols, domain.get());
+  LookupTable<PCS> lookup_table =
+      LookupTable<PCS>::Construct(kCols, domain.get());
   F omega = domain->group_gen();
   std::vector<F> omega_powers = domain->GetRootsOfUnity(kMaxDegree + 1, omega);
 

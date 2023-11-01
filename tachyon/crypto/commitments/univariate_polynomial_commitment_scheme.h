@@ -18,21 +18,21 @@ class UnivariatePolynomialCommitmentScheme
 
   using Field = typename VectorCommitmentScheme<Derived>::Field;
   using Commitment = typename VectorCommitmentScheme<Derived>::Commitment;
+  using Poly = math::UnivariateDensePolynomial<Field, kMaxDegree>;
+  using Evals = math::UnivariateEvaluations<Field, kMaxDegree>;
+  using Domain = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
 
   // Commit to |poly| and populates |result| with the commitment.
   // Return false if the degree of |poly| exceeds |kMaxDegree|.
-  [[nodiscard]] bool Commit(
-      const math::UnivariateDensePolynomial<Field, kMaxDegree>& poly,
-      Commitment* result) const {
+  [[nodiscard]] bool Commit(const Poly& poly, Commitment* result) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoCommit(poly.coefficients().coefficients(), result);
   }
 
   // Commit to |poly| and populates |result| with the commitment.
   // Return false if the degree of |poly| exceeds |kMaxDegree|.
-  [[nodiscard]] bool CommitLagrange(
-      const math::UnivariateEvaluations<Field, kMaxDegree>& evals,
-      Commitment* result) const {
+  [[nodiscard]] bool CommitLagrange(const Evals& evals,
+                                    Commitment* result) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoCommitLagrange(evals.evaluations(), result);
   }

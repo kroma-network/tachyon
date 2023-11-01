@@ -13,7 +13,6 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/parallelize.h"
-#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 #include "tachyon/zk/plonk/permutation/lookup_table.h"
@@ -32,10 +31,11 @@ class PermutationAssembly {
   constexpr static size_t kRows = kMaxDegree + 1;
 
   using F = typename PCSTy::Field;
+  using Evals = typename PCSTy::Evals;
+  using Poly = typename PCSTy::Poly;
+  using Domain = typename PCSTy::Domain;
   using Commitment = typename PCSTy::Commitment;
   using Commitments = std::vector<Commitment>;
-  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
-  using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
 
   PermutationAssembly() = default;
 
@@ -78,7 +78,7 @@ class PermutationAssembly {
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
   constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
-      math::UnivariateEvaluationDomain<F, kMaxDegree>* domain) const {
+      Domain* domain) const {
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
     // TODO(dongchangYoo): calculate commitments after complete Params. See
@@ -90,16 +90,15 @@ class PermutationAssembly {
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
-  constexpr PermutationProvingKey<PCSTy> BuildProvingKey(
-      math::UnivariateEvaluationDomain<F, kMaxDegree>* domain) const {
+  constexpr PermutationProvingKey<PCSTy> BuildProvingKey(Domain* domain) const {
     // The polynomials of permutations in evaluation form.
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
     // The polynomials of permutations with coefficients.
-    std::vector<DensePoly> polys;
+    std::vector<Poly> polys;
     polys.reserve(columns_.size());
     for (size_t i = 0; i < columns_.size(); ++i) {
-      DensePoly poly = domain->IFFT(permutations[i]);
+      Poly poly = domain->IFFT(permutations[i]);
       polys.push_back(std::move(poly));
     }
 
@@ -110,18 +109,13 @@ class PermutationAssembly {
   // Generate the permutation polynomials based on the accumulated copy
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
-  // NOTE(chokobole): Templatized with |MaxDegree| and |Evals| for faster
-  // testing.
-  template <size_t MaxDegree,
-            typename Evals = math::UnivariateEvaluations<F, MaxDegree>>
-  std::vector<Evals> GeneratePermutations(
-      math::UnivariateEvaluationDomain<F, MaxDegree>* domain) const {
-    LookupTable<F, MaxDegree> lookup_table =
-        LookupTable<F, MaxDegree>::Construct(columns_.size(), domain);
+  std::vector<Evals> GeneratePermutations(Domain* domain) const {
+    LookupTable<PCSTy> lookup_table =
+        LookupTable<PCSTy>::Construct(columns_.size(), domain);
 
     // Init evaluation formed polynomials with all-zero coefficients
     std::vector<Evals> permutations =
-        base::CreateVector(columns_.size(), Evals::Zero(MaxDegree));
+        base::CreateVector(columns_.size(), Evals::Zero(kMaxDegree));
 
     // Assign lookup_table to permutations
     base::Parallelize(
@@ -129,7 +123,7 @@ class PermutationAssembly {
                                             size_t chunk_size) {
           size_t i = c * chunk_size;
           for (Evals& evals : chunk) {
-            for (size_t j = 0; j <= MaxDegree; ++j) {
+            for (size_t j = 0; j <= kMaxDegree; ++j) {
               *evals[j] = lookup_table[cycle_store_.GetNextLabel(Label(i, j))];
             }
             ++i;
