@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -70,11 +71,10 @@ std::vector<T> CreateVector(size_t size, const T& initial_value) {
   return ret;
 }
 
-template <typename InputIterator, typename UnaryOp,
+template <typename Iterator, typename UnaryOp,
           typename FunctorTraits = internal::MakeFunctorTraits<UnaryOp>,
           typename ReturnType = typename FunctorTraits::ReturnType>
-std::vector<ReturnType> Map(InputIterator begin, InputIterator end,
-                            UnaryOp&& op) {
+std::vector<ReturnType> Map(Iterator begin, Iterator end, UnaryOp&& op) {
   std::vector<ReturnType> ret;
   ret.reserve(std::distance(begin, end));
   std::transform(begin, end, std::back_inserter(ret),
@@ -88,11 +88,10 @@ auto Map(Container&& container, UnaryOp&& op) {
              std::forward<UnaryOp>(op));
 }
 
-template <typename InputIterator, typename UnaryOp,
+template <typename Iterator, typename UnaryOp,
           typename FunctorTraits = internal::MakeFunctorTraits<UnaryOp>,
           typename ReturnType = typename FunctorTraits::ReturnType::value_type>
-std::vector<ReturnType> FlatMap(InputIterator begin, InputIterator end,
-                                UnaryOp&& op) {
+std::vector<ReturnType> FlatMap(Iterator begin, Iterator end, UnaryOp&& op) {
   std::vector<std::vector<ReturnType>> tmp;
   tmp.reserve(std::distance(begin, end));
   std::transform(begin, end, std::back_inserter(tmp),
@@ -116,6 +115,31 @@ template <typename Container, typename UnaryOp>
 auto FlatMap(Container&& container, UnaryOp&& op) {
   return FlatMap(std::begin(container), std::end(container),
                  std::forward<UnaryOp>(op));
+}
+
+template <typename Iterator, typename T>
+std::optional<size_t> FindIndex(Iterator begin, Iterator end, const T& value) {
+  auto it = std::find(begin, end, value);
+  if (it == end) return std::nullopt;
+  return std::distance(begin, it);
+}
+
+template <typename Container, typename T>
+std::optional<size_t> FindIndex(Container&& container, const T& value) {
+  return FindIndex(std::begin(container), std::end(container), value);
+}
+
+template <typename Iterator, typename UnaryOp>
+std::optional<size_t> FindIndexIf(Iterator begin, Iterator end, UnaryOp&& op) {
+  auto it = std::find_if(begin, end, std::forward<UnaryOp>(op));
+  if (it == end) return std::nullopt;
+  return std::distance(begin, it);
+}
+
+template <typename Container, typename UnaryOp>
+std::optional<size_t> FindIndexIf(Container&& container, UnaryOp&& op) {
+  return FindIndexIf(std::begin(container), std::end(container),
+                     std::forward<UnaryOp>(op));
 }
 
 }  // namespace tachyon::base

@@ -490,15 +490,14 @@ class ConstraintSystem {
  private:
   template <typename QueryDataTy, typename ColumnTy>
   static bool QueryIndex(const std::vector<QueryDataTy>& queries,
-                         const ColumnTy& column, Rotation at, size_t* index) {
-    // Return existing query, if it exists
-    auto it = std::find_if(queries.begin(), queries.end(),
-                           [&column, at](const QueryDataTy& query) {
-                             return query.column() == column &&
-                                    query.rotation() == at;
-                           });
-    if (it == queries.end()) return false;
-    *index = std::distance(queries.begin(), it);
+                         const ColumnTy& column, Rotation at,
+                         size_t* index_out) {
+    std::optional<size_t> index =
+        base::FindIndexIf(queries, [&column, at](const QueryDataTy& query) {
+          return query.column() == column && query.rotation() == at;
+        });
+    if (!index.has_value()) return false;
+    *index = index.value();
     return true;
   }
 
