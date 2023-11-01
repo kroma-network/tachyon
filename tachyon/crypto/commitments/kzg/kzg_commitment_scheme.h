@@ -20,18 +20,18 @@
 namespace tachyon {
 namespace crypto {
 
-template <typename G1PointTy, typename G2PointTy,
+template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
           typename _Commitment = typename math::Pippenger<G1PointTy>::Bucket>
 class KZGCommitmentScheme
     : public UnivariatePolynomialCommitmentScheme<
-          KZGCommitmentScheme<G1PointTy, G2PointTy, _Commitment>> {
+          KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, _Commitment>> {
  public:
   using Base = UnivariatePolynomialCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, _Commitment>>;
+      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, _Commitment>>;
   using Field = typename G1PointTy::ScalarField;
   using Commitment = _Commitment;
 
-  static constexpr size_t kMaxDegree = Base::kMaxSize - 1;
+  static constexpr size_t kMaxDegree = MaxDegree;
 
   KZGCommitmentScheme() = default;
 
@@ -113,9 +113,9 @@ class KZGCommitmentScheme
 
  private:
   friend class VectorCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, Commitment>>;
+      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
   friend class UnivariatePolynomialCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, Commitment>>;
+      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
 
   bool DoUnsafeSetup(size_t size) {
     return UnsafeSetupWithTau(size, Field::Random());
@@ -151,14 +151,15 @@ class KZGCommitmentScheme
   G2PointTy tau_g2_;
 };
 
-template <typename G1PointTy, typename G2PointTy, typename _Commitment>
+template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
+          typename _Commitment>
 struct VectorCommitmentSchemeTraits<
-    KZGCommitmentScheme<G1PointTy, G2PointTy, _Commitment>> {
+    KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, _Commitment>> {
  public:
   using Field = typename G1PointTy::ScalarField;
   using Commitment = _Commitment;
 
-  constexpr static size_t kMaxSize = size_t{1} << Field::Config::kTwoAdicity;
+  constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = false;
 };
 
@@ -166,10 +167,13 @@ struct VectorCommitmentSchemeTraits<
 
 namespace base {
 
-template <typename G1PointTy, typename G2PointTy, typename Commitment>
-class Copyable<crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, Commitment>> {
+template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
+          typename Commitment>
+class Copyable<
+    crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>> {
  public:
-  using PCS = crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, Commitment>;
+  using PCS =
+      crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>;
 
   static bool WriteTo(const PCS& pcs, Buffer* buffer) {
     return buffer->WriteMany(pcs.g1_powers_of_tau(),

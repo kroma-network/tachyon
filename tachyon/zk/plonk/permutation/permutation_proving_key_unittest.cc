@@ -19,9 +19,12 @@ namespace {
 
 class PermutationProvingKeyTest : public testing::Test {
  public:
-  using PCS = crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
-                                          math::bn254::G2AffinePoint,
-                                          math::bn254::G1AffinePoint>;
+  constexpr static size_t kMaxDegree = 7;
+
+  using PCS =
+      crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
+                                  math::bn254::G2AffinePoint, kMaxDegree,
+                                  math::bn254::G1AffinePoint>;
   using ProvingKey = PermutationProvingKey<PCS>;
   using DensePoly = ProvingKey::DensePoly;
   using Evals = ProvingKey::Evals;

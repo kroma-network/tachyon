@@ -18,9 +18,10 @@ class PermutationAssemblyTest : public testing::Test {
   constexpr static size_t kSmallDegree = 7;
   constexpr static size_t kRows = kSmallDegree + 1;
 
-  using PCS = crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
-                                          math::bn254::G2AffinePoint,
-                                          math::bn254::G1AffinePoint>;
+  using PCS =
+      crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
+                                  math::bn254::G2AffinePoint, kSmallDegree,
+                                  math::bn254::G1AffinePoint>;
   using F = PCS::Field;
   using Evals = math::UnivariateEvaluations<F, kSmallDegree>;
 
