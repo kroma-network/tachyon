@@ -335,14 +335,8 @@ class AdditiveSemigroup {
 
   template <typename ScalarTy>
   [[nodiscard]] constexpr auto ScalarMul(const ScalarTy& scalar) const {
-    if constexpr (std::is_integral_v<ScalarTy> && sizeof(ScalarTy) <= 8) {
-      // TODO(chokobole): Remove this branch if |BigInt| supports sign.
-      if constexpr (std::is_signed_v<ScalarTy>) {
-        return scalar > 0 ? DoScalarMul(BigInt<1>(scalar))
-                          : -DoScalarMul(BigInt<1>(-scalar));
-      } else {
-        return DoScalarMul(BigInt<1>(scalar));
-      }
+    if constexpr (std::is_constructible_v<BigInt<1>, ScalarTy>) {
+      return DoScalarMul(BigInt<1>(scalar));
     } else if constexpr (internal::SupportsToBigInt<ScalarTy>::value) {
       return DoScalarMul(scalar.ToBigInt());
     } else {
