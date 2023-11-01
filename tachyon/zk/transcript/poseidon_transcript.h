@@ -36,8 +36,8 @@ class PoseidonReader : public TranscriptReader<math::AffinePoint<Curve>> {
   const base::Buffer& buffer() const { return buffer_; }
 
   // Transcript methods
-  Challenge255<AffinePointTy> SqueezeChallenge() override {
-    return Challenge255<AffinePointTy>(state_.SqueezeNativeFieldElements(1)[0]);
+  Challenge255<ScalarField> SqueezeChallenge() override {
+    return Challenge255<ScalarField>(state_.SqueezeNativeFieldElements(1)[0]);
   }
 
   bool WriteToTranscript(const AffinePointTy& point) override {
@@ -82,8 +82,8 @@ class PoseidonWriter : public TranscriptWriter<math::AffinePoint<Curve>> {
   const base::VectorBuffer& buffer() const { return buffer_; }
 
   // Transcript methods
-  Challenge255<AffinePointTy> SqueezeChallenge() override {
-    return Challenge255<AffinePointTy>(state_.SqueezeNativeFieldElements(1)[0]);
+  Challenge255<ScalarField> SqueezeChallenge() override {
+    return Challenge255<ScalarField>(state_.SqueezeNativeFieldElements(1)[0]);
   }
 
   bool WriteToTranscript(const AffinePointTy& point) override {

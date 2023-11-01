@@ -12,22 +12,19 @@
 namespace tachyon::zk {
 
 // A 255-bit challenge.
-template <typename AffinePointTy>
+template <typename F>
 class Challenge255 {
  public:
-  using ScalarField = typename AffinePointTy::ScalarField;
-  static_assert(ScalarField::N <= 4);
+  static_assert(F::kLimbNums <= 4);
 
   constexpr Challenge255() = default;
-  constexpr explicit Challenge255(const ScalarField& challenge_input)
+  constexpr explicit Challenge255(const F& challenge_input)
       : challenge_(math::BigInt<4>::FromBytesLE(
             challenge_input.ToBigInt().ToBytesLE())) {}
 
   constexpr const math::BigInt<4>& challenge() const { return challenge_; }
 
-  constexpr ScalarField ChallengeAsScalar() const {
-    return ScalarField::FromBigInt(challenge_);
-  }
+  constexpr F ChallengeAsScalar() const { return F::FromBigInt(challenge_); }
 
  private:
   math::BigInt<4> challenge_;
@@ -42,7 +39,7 @@ class Transcript {
   virtual ~Transcript() = default;
 
   // Squeeze an encoded verifier challenge from the transcript.
-  virtual Challenge255<AffinePointTy> SqueezeChallenge() = 0;
+  virtual Challenge255<ScalarField> SqueezeChallenge() = 0;
 
   // Write a curve |point| to the transcript without writing it to the proof,
   // treating it as a common input.

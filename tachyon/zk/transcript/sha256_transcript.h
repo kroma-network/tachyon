@@ -50,7 +50,7 @@ class Sha256Reader : public TranscriptReader<math::AffinePoint<Curve>> {
   const base::Buffer& buffer() const { return buffer_; }
 
   // Transcript methods
-  Challenge255<AffinePointTy> SqueezeChallenge() override {
+  Challenge255<ScalarField> SqueezeChallenge() override {
     SHA256_Update(&state_, kShaPrefixChallenge, 1);
     SHA256_CTX hasher = state_;
     uint8_t result[32] = {0};
@@ -60,7 +60,7 @@ class Sha256Reader : public TranscriptReader<math::AffinePoint<Curve>> {
     SHA256_Update(&state_, result, 32);
 
     if constexpr (ScalarField::N <= 4) {
-      return Challenge255<AffinePointTy>(ScalarField::FromAnySizedBigInt(
+      return Challenge255<ScalarField>(ScalarField::FromAnySizedBigInt(
           math::BigInt<4>::FromBytesLE(result)));
     } else {
       base::AlwaysFalse<Curve>();
@@ -117,7 +117,7 @@ class Sha256Writer : public TranscriptWriter<math::AffinePoint<Curve>> {
   const base::VectorBuffer& buffer() const { return buffer_; }
 
   // Transcript methods
-  Challenge255<AffinePointTy> SqueezeChallenge() override {
+  Challenge255<ScalarField> SqueezeChallenge() override {
     SHA256_Update(&state_, kShaPrefixChallenge, 1);
     SHA256_CTX hasher = state_;
     uint8_t result[32] = {0};
@@ -127,7 +127,7 @@ class Sha256Writer : public TranscriptWriter<math::AffinePoint<Curve>> {
     SHA256_Update(&state_, result, 32);
 
     if constexpr (ScalarField::N <= 4) {
-      return Challenge255<AffinePointTy>(ScalarField::FromAnySizedBigInt(
+      return Challenge255<ScalarField>(ScalarField::FromAnySizedBigInt(
           math::BigInt<4>::FromBytesLE(result)));
     } else {
       base::AlwaysFalse<Curve>();
