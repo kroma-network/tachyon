@@ -3,6 +3,16 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "calculation",
+    srcs = ["calculation.cc"],
+    hdrs = ["calculation.h"],
+    deps = [
+        ":value_source",
+        "//tachyon/base/strings:string_util",
+    ],
+)
+
+tachyon_cc_library(
     name = "selector_replacer",
     hdrs = ["selector_replacer.h"],
     deps = [
