@@ -10,7 +10,6 @@
 #include <array>
 #include <utility>
 
-#include "openssl/digest.h"
 #include "openssl/sha.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
