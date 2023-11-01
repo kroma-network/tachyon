@@ -25,6 +25,7 @@ tachyon_cc_library(
         ":transcript",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/ranges:algorithm",
+        "//tachyon/base/types:always_false",
         "@com_google_boringssl//:crypto",
     ],
 )

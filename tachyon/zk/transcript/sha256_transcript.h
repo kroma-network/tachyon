@@ -14,6 +14,7 @@
 
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/base/ranges/algorithm.h"
+#include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/zk/transcript/transcript.h"
 
@@ -34,6 +35,7 @@ constexpr uint8_t kShaPrefixScalar[1] = {2};
 template <typename AffinePointTy>
 class Sha256Reader : public TranscriptReader<AffinePointTy> {
  public:
+  using BaseField = typename AffinePointTy::BaseField;
   using ScalarField = typename AffinePointTy::ScalarField;
 
   Sha256Reader() = default;
@@ -55,22 +57,29 @@ class Sha256Reader : public TranscriptReader<AffinePointTy> {
     SHA256_Init(&state_);
     SHA256_Update(&state_, result, 32);
 
-    return Challenge255<AffinePointTy>(
-        ScalarField::FromBigInt(math::BigInt<4>::FromBytesLE(result)));
+    if constexpr (ScalarField::N <= 4) {
+      return Challenge255<AffinePointTy>(ScalarField::FromAnySizedBigInt(
+          math::BigInt<4>::FromBytesLE(result)));
+    } else {
+      base::AlwaysFalse<AffinePointTy>();
+    }
   }
 
   bool WriteToTranscript(const AffinePointTy& point) override {
     SHA256_Update(&state_, kShaPrefixZeros, 31);
     SHA256_Update(&state_, kShaPrefixPoint, 1);
-    SHA256_Update(&state_, point.x().ToBigInt().ToBytesBE().data(), 32);
-    SHA256_Update(&state_, point.y().ToBigInt().ToBytesBE().data(), 32);
+    SHA256_Update(&state_, point.x().ToBigInt().ToBytesBE().data(),
+                  BaseField::BigIntTy::kByteNums);
+    SHA256_Update(&state_, point.y().ToBigInt().ToBytesBE().data(),
+                  BaseField::BigIntTy::kByteNums);
     return true;
   }
 
   bool WriteToTranscript(const ScalarField& scalar) override {
     SHA256_Update(&state_, kShaPrefixZeros, 31);
     SHA256_Update(&state_, kShaPrefixScalar, 1);
-    SHA256_Update(&state_, scalar.ToBigInt().ToBytesBE().data(), 32);
+    SHA256_Update(&state_, scalar.ToBigInt().ToBytesBE().data(),
+                  ScalarField::BigIntTy::kByteNums);
     return true;
   }
 
@@ -91,6 +100,7 @@ class Sha256Reader : public TranscriptReader<AffinePointTy> {
 template <typename AffinePointTy>
 class Sha256Writer : public TranscriptWriter<AffinePointTy> {
  public:
+  using BaseField = typename AffinePointTy::BaseField;
   using ScalarField = typename AffinePointTy::ScalarField;
 
   Sha256Writer() = default;
@@ -113,22 +123,29 @@ class Sha256Writer : public TranscriptWriter<AffinePointTy> {
     SHA256_Init(&state_);
     SHA256_Update(&state_, result, 32);
 
-    return Challenge255<AffinePointTy>(
-        ScalarField::FromBigInt(math::BigInt<4>::FromBytesLE(result)));
+    if constexpr (ScalarField::N <= 4) {
+      return Challenge255<AffinePointTy>(ScalarField::FromAnySizedBigInt(
+          math::BigInt<4>::FromBytesLE(result)));
+    } else {
+      base::AlwaysFalse<AffinePointTy>();
+    }
   }
 
   bool WriteToTranscript(const AffinePointTy& point) override {
     SHA256_Update(&state_, kShaPrefixZeros, 31);
     SHA256_Update(&state_, kShaPrefixPoint, 1);
-    SHA256_Update(&state_, point.x().ToBigInt().ToBytesBE().data(), 32);
-    SHA256_Update(&state_, point.y().ToBigInt().ToBytesBE().data(), 32);
+    SHA256_Update(&state_, point.x().ToBigInt().ToBytesBE().data(),
+                  BaseField::BigIntTy::kByteNums);
+    SHA256_Update(&state_, point.y().ToBigInt().ToBytesBE().data(),
+                  BaseField::BigIntTy::kByteNums);
     return true;
   }
 
   bool WriteToTranscript(const ScalarField& scalar) override {
     SHA256_Update(&state_, kShaPrefixZeros, 31);
     SHA256_Update(&state_, kShaPrefixScalar, 1);
-    SHA256_Update(&state_, scalar.ToBigInt().ToBytesBE().data(), 32);
+    SHA256_Update(&state_, scalar.ToBigInt().ToBytesBE().data(),
+                  ScalarField::BigIntTy::kByteNums);
     return true;
   }
 
