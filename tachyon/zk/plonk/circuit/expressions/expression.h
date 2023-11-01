@@ -10,6 +10,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/circuit/expressions/expression_type.h"
@@ -86,6 +87,10 @@ class Expression {
 
   // Extracts a simple selector from this gate, if present.
   std::optional<Selector> ExtractSimpleSelector() const;
+
+  std::unique_ptr<Expression<F>> ReplaceSelectors(
+      const std::vector<std::unique_ptr<Expression<F>>>& replacements,
+      bool must_be_non_simple) const;
 
   template <typename EvaluatedTy>
   EvaluatedTy Evaluate(const Evaluator<F, EvaluatedTy>* evaluator) const {
