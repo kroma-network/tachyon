@@ -126,30 +126,20 @@ class MultiplicativeSemigroup {
   // a.Pow(e): aᵉ
   // Square it as much as possible and multiply the remainder.
   // ex) a¹³ = (((a)² * a)²)² * a
-  template <size_t N,
-            typename ReturnTy =
-                typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
-  [[nodiscard]] constexpr ReturnTy Pow(const BigInt<N>& exponent) const {
-    const G* g = static_cast<const G*>(this);
-    ReturnTy ret = ReturnTy::One();
-    auto it = BitIteratorBE<BigInt<N>>::begin(&exponent, true);
-    auto end = BitIteratorBE<BigInt<N>>::end(&exponent);
-    while (it != end) {
-      if constexpr (internal::SupportsSquareInPlace<G>::value) {
-        ret.SquareInPlace();
-      } else {
-        ret = ret.Square();
-      }
-      if (*it) {
-        if constexpr (internal::SupportsMulInPlace<ReturnTy, G>::value) {
-          ret.MulInPlace(*g);
-        } else {
-          ret = ret.Mul(*g);
-        }
-      }
-      ++it;
+  template <size_t N>
+  [[nodiscard]] constexpr auto Pow(const BigInt<N>& exponent) const {
+    return DoPow(exponent);
+  }
+
+  template <typename ScalarTy>
+  [[nodiscard]] constexpr auto Pow(const ScalarTy& scalar) const {
+    if constexpr (std::is_constructible_v<BigInt<1>, ScalarTy>) {
+      return DoPow(BigInt<1>(scalar));
+    } else if constexpr (internal::SupportsToBigInt<ScalarTy>::value) {
+      return DoPow(scalar.ToBigInt());
+    } else {
+      static_assert(base::AlwaysFalse<G>);
     }
-    return ret;
   }
 
   // Computes the power of a base element using a pre-computed table of powers
@@ -202,6 +192,32 @@ class MultiplicativeSemigroup {
   }
 
  private:
+  template <size_t N,
+            typename ReturnTy =
+                typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
+  [[nodiscard]] constexpr ReturnTy DoPow(const BigInt<N>& exponent) const {
+    const G* g = static_cast<const G*>(this);
+    ReturnTy ret = ReturnTy::One();
+    auto it = BitIteratorBE<BigInt<N>>::begin(&exponent, true);
+    auto end = BitIteratorBE<BigInt<N>>::end(&exponent);
+    while (it != end) {
+      if constexpr (internal::SupportsSquareInPlace<G>::value) {
+        ret.SquareInPlace();
+      } else {
+        ret = ret.Square();
+      }
+      if (*it) {
+        if constexpr (internal::SupportsMulInPlace<ReturnTy, G>::value) {
+          ret.MulInPlace(*g);
+        } else {
+          ret = ret.Mul(*g);
+        }
+      }
+      ++it;
+    }
+    return ret;
+  }
+
 #if defined(TACHYON_HAS_OPENMP)
   constexpr static void GetSuccessivePowersRecursive(
       std::vector<G>& out, absl::Span<const G> log_powers) {

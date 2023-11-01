@@ -41,7 +41,7 @@ TYPED_TEST(PrimeFieldBaseTest, Decompose) {
 TYPED_TEST(PrimeFieldBaseTest, TwoAdicRootOfUnity) {
   using F = TypeParam;
 
-  F n = F(2).Pow(BigInt<1>(F::Config::kTwoAdicity));
+  F n = F(2).Pow(F::Config::kTwoAdicity);
   EXPECT_EQ(F::FromMontgomery(F::Config::kTwoAdicRootOfUnity).Pow(n.ToBigInt()),
             F::One());
 }
@@ -50,9 +50,9 @@ TYPED_TEST(PrimeFieldBaseTest, LargeSubgroupOfUnity) {
   using F = TypeParam;
 
   if constexpr (F::Config::kHasLargeSubgroupRootOfUnity) {
-    F n = F(2).Pow(BigInt<1>(F::Config::kTwoAdicity)) *
-          F(F::Config::kSmallSubgroupBase)
-              .Pow(BigInt<1>(F::Config::kSmallSubgroupAdicity));
+    F n =
+        F(2).Pow(F::Config::kTwoAdicity) *
+        F(F::Config::kSmallSubgroupBase).Pow(F::Config::kSmallSubgroupAdicity);
     EXPECT_EQ(F::FromMontgomery(F::Config::kLargeSubgroupRootOfUnity)
                   .Pow(n.ToBigInt()),
               F::One());
@@ -71,7 +71,7 @@ TYPED_TEST(PrimeFieldBaseTest, GetRootOfUnity) {
                    std::pow(size_t{F::Config::kSmallSubgroupBase}, j);
         F root;
         ASSERT_TRUE(F::GetRootOfUnity(n, &root));
-        ASSERT_EQ(root.Pow(BigInt<1>(n)), F::One());
+        ASSERT_EQ(root.Pow(n), F::One());
       }
     }
   } else {
@@ -79,7 +79,7 @@ TYPED_TEST(PrimeFieldBaseTest, GetRootOfUnity) {
       size_t n = size_t{1} << i;
       F root;
       ASSERT_TRUE(F::GetRootOfUnity(n, &root));
-      ASSERT_EQ(root.Pow(BigInt<1>(n)), F::One());
+      ASSERT_EQ(root.Pow(n), F::One());
     }
   }
 }

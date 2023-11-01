@@ -91,7 +91,7 @@ class PrimeFieldBase : public FiniteField<F> {
       omega = F::FromMontgomery(Config::kLargeSubgroupRootOfUnity);
       for (size_t i = factors.q_adicity; i < Config::kSmallSubgroupAdicity;
            ++i) {
-        omega = omega.Pow(BigInt<1>(Config::kSmallSubgroupBase));
+        omega = omega.Pow(Config::kSmallSubgroupBase);
       }
 
       for (size_t i = factors.two_adicity; i < Config::kTwoAdicity; ++i) {

@@ -170,7 +170,7 @@ TEST(ValueTest, MultiplicativeGroupOperators) {
           Value<math::GF7>::Known(a),
           Value<math::GF7>::Known(a.Inverse()),
           Value<math::GF7>::Known(a.Square()),
-          Value<math::GF7>::Known(a.Pow(math::BigInt<1>(5))),
+          Value<math::GF7>::Known(a.Pow(5)),
       },
       {
           Value<math::GF7>::Unknown(),
@@ -186,7 +186,7 @@ TEST(ValueTest, MultiplicativeGroupOperators) {
       EXPECT_DEATH(test.a.InverseInPlace(), "");
       EXPECT_DEATH(std::ignore = test.a.Square(), "");
       EXPECT_DEATH(test.a.SquareInPlace(), "");
-      EXPECT_DEATH(std::ignore = test.a.Pow(math::BigInt<1>(5)), "");
+      EXPECT_DEATH(std::ignore = test.a.Pow(5), "");
     } else {
       EXPECT_EQ(test.a.Inverse(), test.inverse);
       Value<math::GF7> a_tmp = test.a;
@@ -198,7 +198,7 @@ TEST(ValueTest, MultiplicativeGroupOperators) {
       a_tmp.SquareInPlace();
       EXPECT_EQ(a_tmp, test.sqr);
 
-      EXPECT_EQ(test.a.Pow(math::BigInt<1>(5)), test.pow);
+      EXPECT_EQ(test.a.Pow(5), test.pow);
     }
   }
 }

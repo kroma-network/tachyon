@@ -46,7 +46,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     // It should be the 2^|log_size_of_group_| root of unity.
     CHECK(F::GetRootOfUnity(size_, &group_gen_));
     // Check that it is indeed the 2^(log_size_of_group) root of unity.
-    DCHECK_EQ(group_gen_.Pow(BigInt<1>(size_)), F::One());
+    DCHECK_EQ(group_gen_.Pow(size_), F::One());
     group_gen_inv_ = group_gen_.Inverse();
   }
 
@@ -75,7 +75,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     std::unique_ptr<UnivariateEvaluationDomain> coset = Clone();
     coset->offset_ = offset;
     coset->offset_inv_ = offset.Inverse();
-    coset->offset_pow_size_ = offset.Pow(BigInt<1>(size_));
+    coset->offset_pow_size_ = offset.Pow(size_);
     return coset;
   }
 
@@ -217,7 +217,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   constexpr F EvaluateVanishingPolynomial(const F& tau) const {
     // Z_H(𝜏) = Π{i in m} (𝜏 - h * gⁱ) = 𝜏ᵐ - hᵐ,
     // where m = |size_| and hᵐ = |offset_pow_size_|.
-    return tau.Pow(BigInt<1>(size_)) - offset_pow_size_;
+    return tau.Pow(size_) - offset_pow_size_;
   }
 
   // Return the filter polynomial of |*this| with respect to |subdomain|.
@@ -255,7 +255,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Returns the |i|-th element of the domain.
   constexpr F GetElement(size_t i) const {
-    F result = group_gen_.Pow(BigInt<1>(i));
+    F result = group_gen_.Pow(i);
     if (!offset_.IsOne()) {
       result *= offset_;
     }
@@ -265,12 +265,11 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // Returns all the elements of the domain.
   constexpr std::vector<F> GetElements() const {
     if (offset_.IsOne()) {
-      return base::CreateVector(
-          size_, [this](size_t i) { return group_gen_.Pow(BigInt<1>(i)); });
+      return base::CreateVector(size_,
+                                [this](size_t i) { return group_gen_.Pow(i); });
     } else {
-      return base::CreateVector(size_, [this](size_t i) {
-        return group_gen_.Pow(BigInt<1>(i)) * offset_;
-      });
+      return base::CreateVector(
+          size_, [this](size_t i) { return group_gen_.Pow(i) * offset_; });
     }
   }
 
@@ -295,7 +294,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     size_t size = poly_or_evals.Degree() + 1;
     size_t num_elems_per_thread = std::max(size / thread_nums, size_t{1024});
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      F pow = c * g.Pow(BigInt<1>(i));
+      F pow = c * g.Pow(i);
       for (size_t j = 0; j < num_elems_per_thread; ++j) {
         if (i + j >= size) break;
         (*poly_or_evals[i + j]) *= pow;

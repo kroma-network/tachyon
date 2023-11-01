@@ -69,12 +69,12 @@ struct PoseidonSponge
     if (is_full_round) {
       // Full rounds apply the S-Box (xᵅ) to every element of |state|.
       for (F& elem : state.elements) {
-        elem = elem.Pow(math::BigInt<1>(config.alpha));
+        elem = elem.Pow(config.alpha);
       }
     } else {
       // Partial rounds apply the S-Box (xᵅ) to just the first element of
       // |state|.
-      state[0] = state[0].Pow(math::BigInt<1>(config.alpha));
+      state[0] = state[0].Pow(config.alpha);
     }
   }
 
