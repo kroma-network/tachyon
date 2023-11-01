@@ -50,9 +50,7 @@ TEST_F(KZGCommitmentSchemeTest, CommitLagrange) {
   math::bn254::G1AffinePoint commit;
   ASSERT_TRUE(kzg.Commit(poly, &commit));
 
-  std::unique_ptr<DomainTy> domain =
-      math::UnivariateEvaluationDomainFactory<Field, PCS::kMaxDegree>::Create(
-          N);
+  std::unique_ptr<DomainTy> domain = DomainTy::Create(N);
   Evals poly_evals = domain->FFT(poly);
 
   math::bn254::G1AffinePoint commit_lagrange;

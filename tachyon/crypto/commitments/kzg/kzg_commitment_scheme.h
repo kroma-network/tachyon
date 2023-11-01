@@ -78,9 +78,7 @@ class KZGCommitmentScheme
     }
 
     // Get |g1_powers_of_tau_lagrange_| from 𝜏 and g₁.
-    std::unique_ptr<DomainTy> domain =
-        math::UnivariateEvaluationDomainFactory<Field, kMaxDegree>::Create(
-            size);
+    std::unique_ptr<DomainTy> domain = DomainTy::Create(size);
     typename DomainTy::DenseCoeffs lagrange_coeffs =
         domain->EvaluateAllLagrangeCoefficients(tau);
     std::vector<G1JacobianPointTy> g1_powers_of_tau_lagrange_jacobian;

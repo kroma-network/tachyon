@@ -31,8 +31,7 @@ TEST_F(LookupTableTest, Construct) {
   using F = math::bn254::G1Curve::ScalarField;
 
   std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain =
-      math::UnivariateEvaluationDomainFactory<F, kMaxDegree>::Create(
-          kMaxDegree + 1);
+      math::UnivariateEvaluationDomain<F, kMaxDegree>::Create(kMaxDegree + 1);
   LookupTable<F, kMaxDegree> lookup_table =
       LookupTable<F, kMaxDegree>::Construct(kCols, domain.get());
   F omega = domain->group_gen();
