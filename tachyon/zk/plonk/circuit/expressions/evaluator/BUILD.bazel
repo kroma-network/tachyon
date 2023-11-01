@@ -51,6 +51,23 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "value_source",
+    srcs = ["value_source.cc"],
+    hdrs = ["value_source.h"],
+    deps = [
+        ":value_source_data",
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "value_source_data",
+    hdrs = ["value_source_data.h"],
+)
+
 tachyon_cc_unittest(
     name = "expression_unittests",
     srcs = [
@@ -58,12 +75,14 @@ tachyon_cc_unittest(
         "simple_evaluator_unittest.cc",
         "simple_selector_extractor_unittest.cc",
         "simple_selector_finder_unittest.cc",
+        "value_source_unittest.cc",
     ],
     deps = [
         ":selector_replacer",
         ":simple_evaluator",
         ":simple_selector_extractor",
         ":simple_selector_finder",
+        ":value_source",
         "//tachyon/zk/plonk/circuit/expressions:expression_factory",
         "//tachyon/zk/plonk/circuit/expressions/evaluator/test:evaluator_test",
     ],
