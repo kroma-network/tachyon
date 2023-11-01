@@ -15,13 +15,13 @@ class UnivariatePolynomialCommitmentScheme : public VectorCommitmentScheme<C> {
   constexpr static size_t kMaxDegree = VectorCommitmentScheme<C>::kMaxSize - 1;
 
   using Field = typename VectorCommitmentScheme<C>::Field;
-  using ResultTy = typename VectorCommitmentScheme<C>::ResultTy;
+  using Commitment = typename VectorCommitmentScheme<C>::Commitment;
 
   // Commit to |poly| and populates |result| with the commitment.
   // Return false if the degree of |poly| exceeds |kMaxDegree|.
   [[nodiscard]] bool Commit(
       const math::UnivariateDensePolynomial<Field, kMaxDegree>& poly,
-      ResultTy* result) const {
+      Commitment* result) const {
     const C* c = static_cast<const C*>(this);
     return c->DoCommit(poly.coefficients().coefficients(), result);
   }
@@ -30,7 +30,7 @@ class UnivariatePolynomialCommitmentScheme : public VectorCommitmentScheme<C> {
   // Return false if the degree of |poly| exceeds |kMaxDegree|.
   [[nodiscard]] bool CommitLagrange(
       const math::UnivariateEvaluations<Field, kMaxDegree>& evals,
-      ResultTy* result) const {
+      Commitment* result) const {
     const C* c = static_cast<const C*>(this);
     return c->DoCommitLagrange(evals.evaluations(), result);
   }

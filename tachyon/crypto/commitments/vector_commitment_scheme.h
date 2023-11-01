@@ -14,7 +14,7 @@ class VectorCommitmentScheme {
       VectorCommitmentSchemeTraits<C>::kIsTransparent;
 
   using Field = typename VectorCommitmentSchemeTraits<C>::Field;
-  using ResultTy = typename VectorCommitmentSchemeTraits<C>::ResultTy;
+  using Commitment = typename VectorCommitmentSchemeTraits<C>::Commitment;
 
   size_t K() const {
     const C* c = static_cast<const C*>(this);
@@ -54,7 +54,7 @@ class VectorCommitmentScheme {
   // parameters.
   template <typename ContainerTy>
   [[nodiscard]] bool Commit(const ContainerTy& container,
-                            ResultTy* result) const {
+                            Commitment* result) const {
     const C* c = static_cast<const C*>(this);
     return c->DoCommit(container, result);
   }
@@ -64,7 +64,7 @@ class VectorCommitmentScheme {
   // size of parameters.
   template <typename ContainerTy>
   [[nodiscard]] bool Commit(const ContainerTy& container,
-                            const Field& random_value, ResultTy* result) const {
+                            const Field& random_value, Commitment* result) const {
     const C* c = static_cast<const C*>(this);
     return c->DoCommit(container, random_value, result);
   }

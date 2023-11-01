@@ -24,10 +24,10 @@ namespace crypto {
 // A Pedersen commitment is a point on an elliptic curve that is
 // cryptographically binding to data but hides it.
 template <typename PointTy, size_t MaxSize,
-          typename ResultTy = typename math::Pippenger<PointTy>::Bucket>
+          typename Commitment = typename math::Pippenger<PointTy>::Bucket>
 class PedersenCommitmentScheme
     : public VectorCommitmentScheme<
-          PedersenCommitmentScheme<PointTy, MaxSize, ResultTy>> {
+          PedersenCommitmentScheme<PointTy, MaxSize, Commitment>> {
  public:
   using Field = typename PointTy::ScalarField;
 
@@ -56,7 +56,7 @@ class PedersenCommitmentScheme
 
  private:
   friend class VectorCommitmentScheme<
-      PedersenCommitmentScheme<PointTy, MaxSize, ResultTy>>;
+      PedersenCommitmentScheme<PointTy, MaxSize, Commitment>>;
 
   bool DoSetup(size_t size) {
     // NOTE(leegwangwoon): For security, |Random| is used instead of
@@ -78,16 +78,16 @@ class PedersenCommitmentScheme
   // - |v| is a vector of values to be committed.
   // clang-format on
   bool DoCommit(const std::vector<Field>& v, const Field& r,
-                ResultTy* out) const {
+                Commitment* out) const {
     using Bucket = typename math::Pippenger<PointTy>::Bucket;
 
     math::VariableBaseMSM<PointTy> msm;
     Bucket result;
     if (!msm.Run(generators_, v, &result)) return false;
-    if constexpr (std::is_same_v<ResultTy, Bucket>) {
+    if constexpr (std::is_same_v<Commitment, Bucket>) {
       *out = r * h_ + result;
     } else {
-      *out = r * h_ + math::ConvertPoint<ResultTy>(result);
+      *out = r * h_ + math::ConvertPoint<Commitment>(result);
     }
     return true;
   }
@@ -96,25 +96,25 @@ class PedersenCommitmentScheme
   std::vector<PointTy> generators_;
 };
 
-template <typename PointTy, size_t MaxSize, typename CommitmentTy>
+template <typename PointTy, size_t MaxSize, typename _Commitment>
 struct VectorCommitmentSchemeTraits<
-    PedersenCommitmentScheme<PointTy, MaxSize, CommitmentTy>> {
+    PedersenCommitmentScheme<PointTy, MaxSize, _Commitment>> {
  public:
   constexpr static size_t kMaxSize = MaxSize;
   constexpr static bool kIsTransparent = true;
 
   using Field = typename PointTy::ScalarField;
-  using ResultTy = CommitmentTy;
+  using Commitment = _Commitment;
 };
 
 }  // namespace crypto
 
 namespace base {
 
-template <typename PointTy, size_t MaxSize, typename ResultTy>
-class Copyable<crypto::PedersenCommitmentScheme<PointTy, MaxSize, ResultTy>> {
+template <typename PointTy, size_t MaxSize, typename Commitment>
+class Copyable<crypto::PedersenCommitmentScheme<PointTy, MaxSize, Commitment>> {
  public:
-  using PCS = crypto::PedersenCommitmentScheme<PointTy, MaxSize, ResultTy>;
+  using PCS = crypto::PedersenCommitmentScheme<PointTy, MaxSize, Commitment>;
 
   static bool WriteTo(const PCS& pcs, Buffer* buffer) {
     return buffer->WriteMany(pcs.h(), pcs.generators());

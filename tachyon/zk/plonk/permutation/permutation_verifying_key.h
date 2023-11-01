@@ -18,7 +18,7 @@ namespace zk {
 template <typename PCSTy>
 class PermutationVerifyingKey {
  public:
-  using Commitment = typename PCSTy::ResultTy;
+  using Commitment = typename PCSTy::Commitment;
   using Commitments = std::vector<Commitment>;
 
   PermutationVerifyingKey() = default;

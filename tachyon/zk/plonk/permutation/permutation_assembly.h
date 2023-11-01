@@ -32,7 +32,7 @@ class PermutationAssembly {
   constexpr static size_t kRows = kMaxDegree + 1;
 
   using F = typename PCSTy::Field;
-  using Commitment = typename PCSTy::ResultTy;
+  using Commitment = typename PCSTy::Commitment;
   using Commitments = std::vector<Commitment>;
   using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
   using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
