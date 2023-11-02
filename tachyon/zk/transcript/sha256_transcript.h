@@ -12,7 +12,6 @@
 
 #include "openssl/sha.h"
 
-#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/big_int.h"
@@ -42,12 +41,10 @@ class Sha256Reader : public TranscriptReader<math::AffinePoint<Curve>> {
 
   Sha256Reader() = default;
   // Initialize a transcript given an input buffer.
-  explicit Sha256Reader(base::Buffer read_buf) : buffer_(std::move(read_buf)) {
+  explicit Sha256Reader(base::Buffer read_buf)
+      : TranscriptReader<AffinePointTy>(std::move(read_buf)) {
     SHA256_Init(&state_);
   }
-
-  base::Buffer& buffer() { return buffer_; }
-  const base::Buffer& buffer() const { return buffer_; }
 
   // Transcript methods
   Challenge255<ScalarField> SqueezeChallenge() override {
@@ -85,18 +82,8 @@ class Sha256Reader : public TranscriptReader<math::AffinePoint<Curve>> {
     return true;
   }
 
-  // TranscriptRead methods
-  bool ReadPoint(AffinePointTy* point) override {
-    return buffer_.Read(point) && WriteToTranscript(*point);
-  }
-
-  bool ReadScalar(ScalarField* scalar) override {
-    return buffer_.Read(scalar) && WriteToTranscript(*scalar);
-  }
-
  private:
   SHA256_CTX state_;
-  base::Buffer buffer_;
 };
 
 template <typename Curve>
@@ -109,12 +96,9 @@ class Sha256Writer : public TranscriptWriter<math::AffinePoint<Curve>> {
   Sha256Writer() = default;
   // Initialize a transcript given an output buffer.
   explicit Sha256Writer(base::VectorBuffer write_buf)
-      : buffer_(std::move(write_buf)) {
+      : TranscriptWriter<AffinePointTy>(std::move(write_buf)) {
     SHA256_Init(&state_);
   }
-
-  base::VectorBuffer& buffer() { return buffer_; }
-  const base::VectorBuffer& buffer() const { return buffer_; }
 
   // Transcript methods
   Challenge255<ScalarField> SqueezeChallenge() override {
@@ -152,18 +136,8 @@ class Sha256Writer : public TranscriptWriter<math::AffinePoint<Curve>> {
     return true;
   }
 
-  // TranscriptWrite methods
-  bool WriteToProof(const AffinePointTy& point) override {
-    return WriteToTranscript(point) && buffer_.Write(point);
-  }
-
-  bool WriteToProof(const ScalarField& scalar) override {
-    return WriteToTranscript(scalar) && buffer_.Write(scalar);
-  }
-
  private:
   SHA256_CTX state_;
-  base::VectorBuffer buffer_;
 };
 
 }  // namespace tachyon::zk

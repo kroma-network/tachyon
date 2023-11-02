@@ -10,8 +10,6 @@
 #include <array>
 #include <utility>
 
-#include "tachyon/base/buffer/buffer.h"
-#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/halo2_poseidon.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/zk/transcript/transcript.h"
@@ -28,12 +26,9 @@ class PoseidonReader : public TranscriptReader<math::AffinePoint<Curve>> {
   PoseidonReader() = default;
   // Initialize a transcript given an input buffer.
   explicit PoseidonReader(base::Buffer buffer)
-      : state_(
-            crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63, 0)),
-        buffer_(std::move(buffer)) {}
-
-  base::Buffer& buffer() { return buffer_; }
-  const base::Buffer& buffer() const { return buffer_; }
+      : TranscriptReader<AffinePointTy>(std::move(buffer)),
+        state_(crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63,
+                                                                 0)) {}
 
   // Transcript methods
   Challenge255<ScalarField> SqueezeChallenge() override {
@@ -50,18 +45,8 @@ class PoseidonReader : public TranscriptReader<math::AffinePoint<Curve>> {
     return state_.Absorb(scalar);
   }
 
-  // TranscriptRead methods
-  bool ReadPoint(AffinePointTy* point) override {
-    return buffer_.Read(point) && WriteToTranscript(*point);
-  }
-
-  bool ReadScalar(ScalarField* scalar) override {
-    return buffer_.Read(scalar) && WriteToTranscript(*scalar);
-  }
-
  private:
   crypto::Halo2PoseidonSponge<ScalarField> state_;
-  base::Buffer buffer_;
 };
 
 template <typename Curve>
@@ -74,12 +59,9 @@ class PoseidonWriter : public TranscriptWriter<math::AffinePoint<Curve>> {
   PoseidonWriter() = default;
   // Initialize a transcript given an output buffer.
   explicit PoseidonWriter(base::VectorBuffer buffer)
-      : state_(
-            crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63, 0)),
-        buffer_(std::move(buffer)) {}
-
-  base::VectorBuffer& buffer() { return buffer_; }
-  const base::VectorBuffer& buffer() const { return buffer_; }
+      : TranscriptWriter<AffinePointTy>(std::move(buffer)),
+        state_(crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63,
+                                                                 0)) {}
 
   // Transcript methods
   Challenge255<ScalarField> SqueezeChallenge() override {
@@ -96,18 +78,8 @@ class PoseidonWriter : public TranscriptWriter<math::AffinePoint<Curve>> {
     return state_.Absorb(scalar);
   }
 
-  // TranscriptWrite methods
-  bool WriteToProof(const AffinePointTy& point) override {
-    return WriteToTranscript(point) && buffer_.Write(point);
-  }
-
-  bool WriteToProof(const ScalarField& scalar) override {
-    return WriteToTranscript(scalar) && buffer_.Write(scalar);
-  }
-
  private:
   crypto::Halo2PoseidonSponge<ScalarField> state_;
-  base::VectorBuffer buffer_;
 };
 
 }  // namespace tachyon::zk

@@ -7,6 +7,9 @@
 #ifndef TACHYON_ZK_TRANSCRIPT_TRANSCRIPT_H_
 #define TACHYON_ZK_TRANSCRIPT_TRANSCRIPT_H_
 
+#include <utility>
+
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/base/big_int.h"
 
 namespace tachyon::zk {
@@ -57,13 +60,28 @@ class TranscriptReader : public Transcript<AffinePointTy> {
  public:
   using ScalarField = typename AffinePointTy::ScalarField;
 
+  TranscriptReader() = default;
+  // Initialize a transcript given an input buffer.
+  explicit TranscriptReader(base::Buffer read_buf)
+      : buffer_(std::move(read_buf)) {}
+
+  base::Buffer& buffer() { return buffer_; }
+  const base::Buffer& buffer() const { return buffer_; }
+
   // Read a curve |point| from the prover. Note that it also writes the
   // |point| to the transcript by calling |WriteToTranscript()| internally.
-  virtual bool ReadPoint(AffinePointTy* point) = 0;
+  bool ReadPoint(AffinePointTy* point) {
+    return buffer_.Read(point) && this->WriteToTranscript(*point);
+  }
 
   // Read a curve |scalar| from the prover. Note that it also writes the
   // |scalar| to the transcript by calling |WriteToTranscript()| internally.
-  virtual bool ReadScalar(ScalarField* scalar) = 0;
+  bool ReadScalar(ScalarField* scalar) {
+    return buffer_.Read(scalar) && this->WriteToTranscript(*scalar);
+  }
+
+ private:
+  base::Buffer buffer_;
 };
 
 // Transcript view from the perspective of a prover that has access to an output
@@ -73,13 +91,27 @@ class TranscriptWriter : public Transcript<AffinePointTy> {
  public:
   using ScalarField = typename AffinePointTy::ScalarField;
 
+  TranscriptWriter() = default;
+  // Initialize a transcript given an output buffer.
+  explicit TranscriptWriter(base::VectorBuffer buf) : buffer_(std::move(buf)) {}
+
+  base::VectorBuffer& buffer() { return buffer_; }
+  const base::VectorBuffer& buffer() const { return buffer_; }
+
   // Write a curve |point| to the proof. Note that it also writes the
   // |point| to the transcript by calling |WriteToTranscript()| internally.
-  virtual bool WriteToProof(const AffinePointTy& point) = 0;
+  bool WriteToProof(const AffinePointTy& point) {
+    return this->WriteToTranscript(point) && buffer_.Write(point);
+  }
 
   // Write a curve |scalar| to the proof. Note that it also writes the
   // |scalar| to the transcript by calling |WriteToTranscript()| internally.
-  virtual bool WriteToProof(const ScalarField& scalar) = 0;
+  bool WriteToProof(const ScalarField& scalar) {
+    return this->WriteToTranscript(scalar) && buffer_.Write(scalar);
+  }
+
+ private:
+  base::VectorBuffer buffer_;
 };
 
 }  // namespace tachyon::zk
