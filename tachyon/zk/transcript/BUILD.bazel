@@ -15,6 +15,7 @@ tachyon_cc_library(
         ":transcript",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/crypto/hashes/sponge/poseidon:halo2_poseidon",
+        "//tachyon/math/elliptic_curves:points",
     ],
 )
 
@@ -26,6 +27,7 @@ tachyon_cc_library(
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/ranges:algorithm",
         "//tachyon/base/types:always_false",
+        "//tachyon/math/elliptic_curves:points",
         "@com_google_boringssl//:crypto",
     ],
 )

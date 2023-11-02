@@ -13,15 +13,17 @@
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/halo2_poseidon.h"
+#include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/zk/transcript/transcript.h"
 
 namespace tachyon::zk {
 
-template <typename AffinePointTy>
-class PoseidonReader : public TranscriptReader<AffinePointTy> {
+template <typename Curve>
+class PoseidonReader : public TranscriptReader<math::AffinePoint<Curve>> {
  public:
-  using ScalarField = typename AffinePointTy::ScalarField;
-  using CurveConfig = typename AffinePointTy::Curve::Config;
+  using AffinePointTy = typename Curve::AffinePointTy;
+  using ScalarField = typename Curve::ScalarField;
+  using CurveConfig = typename Curve::Config;
 
   PoseidonReader() = default;
   // Initialize a transcript given an input buffer.
@@ -62,11 +64,12 @@ class PoseidonReader : public TranscriptReader<AffinePointTy> {
   base::Buffer buffer_;
 };
 
-template <typename AffinePointTy>
-class PoseidonWriter : public TranscriptWriter<AffinePointTy> {
+template <typename Curve>
+class PoseidonWriter : public TranscriptWriter<math::AffinePoint<Curve>> {
  public:
-  using ScalarField = typename AffinePointTy::ScalarField;
-  using CurveConfig = typename AffinePointTy::Curve::Config;
+  using AffinePointTy = typename Curve::AffinePointTy;
+  using ScalarField = typename Curve::ScalarField;
+  using CurveConfig = typename Curve::Config;
 
   PoseidonWriter() = default;
   // Initialize a transcript given an output buffer.

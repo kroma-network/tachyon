@@ -16,6 +16,7 @@
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/big_int.h"
+#include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/zk/transcript/transcript.h"
 
 namespace tachyon::zk {
@@ -32,11 +33,12 @@ constexpr uint8_t kShaPrefixPoint[1] = {1};
 // Prefix to a prover's message containing a scalar
 constexpr uint8_t kShaPrefixScalar[1] = {2};
 
-template <typename AffinePointTy>
-class Sha256Reader : public TranscriptReader<AffinePointTy> {
+template <typename Curve>
+class Sha256Reader : public TranscriptReader<math::AffinePoint<Curve>> {
  public:
-  using BaseField = typename AffinePointTy::BaseField;
-  using ScalarField = typename AffinePointTy::ScalarField;
+  using AffinePointTy = typename Curve::AffinePointTy;
+  using BaseField = typename Curve::BaseField;
+  using ScalarField = typename Curve::ScalarField;
 
   Sha256Reader() = default;
   // Initialize a transcript given an input buffer.
@@ -61,7 +63,7 @@ class Sha256Reader : public TranscriptReader<AffinePointTy> {
       return Challenge255<AffinePointTy>(ScalarField::FromAnySizedBigInt(
           math::BigInt<4>::FromBytesLE(result)));
     } else {
-      base::AlwaysFalse<AffinePointTy>();
+      base::AlwaysFalse<Curve>();
     }
   }
 
@@ -97,11 +99,12 @@ class Sha256Reader : public TranscriptReader<AffinePointTy> {
   base::Buffer buffer_;
 };
 
-template <typename AffinePointTy>
-class Sha256Writer : public TranscriptWriter<AffinePointTy> {
+template <typename Curve>
+class Sha256Writer : public TranscriptWriter<math::AffinePoint<Curve>> {
  public:
-  using BaseField = typename AffinePointTy::BaseField;
-  using ScalarField = typename AffinePointTy::ScalarField;
+  using AffinePointTy = typename Curve::AffinePointTy;
+  using BaseField = typename Curve::BaseField;
+  using ScalarField = typename Curve::ScalarField;
 
   Sha256Writer() = default;
   // Initialize a transcript given an output buffer.
@@ -127,7 +130,7 @@ class Sha256Writer : public TranscriptWriter<AffinePointTy> {
       return Challenge255<AffinePointTy>(ScalarField::FromAnySizedBigInt(
           math::BigInt<4>::FromBytesLE(result)));
     } else {
-      base::AlwaysFalse<AffinePointTy>();
+      base::AlwaysFalse<Curve>();
     }
   }
 
