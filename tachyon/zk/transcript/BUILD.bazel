@@ -5,7 +5,10 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "transcript",
     hdrs = ["transcript.h"],
-    deps = ["//tachyon/math/base:big_int"],
+    deps = [
+        "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/math/base:big_int",
+    ],
 )
 
 tachyon_cc_library(
@@ -13,8 +16,8 @@ tachyon_cc_library(
     hdrs = ["poseidon_transcript.h"],
     deps = [
         ":transcript",
-        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/crypto/hashes/sponge/poseidon:halo2_poseidon",
+        "//tachyon/math/elliptic_curves:points",
     ],
 )
 
@@ -23,8 +26,19 @@ tachyon_cc_library(
     hdrs = ["sha256_transcript.h"],
     deps = [
         ":transcript",
-        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/ranges:algorithm",
+        "//tachyon/base/types:always_false",
+        "//tachyon/math/elliptic_curves:points",
+        "@com_google_boringssl//:crypto",
+    ],
+)
+
+tachyon_cc_library(
+    name = "blake2b_transcript",
+    hdrs = ["blake2b_transcript.h"],
+    deps = [
+        ":transcript",
+        "//tachyon/math/elliptic_curves:points",
         "@com_google_boringssl//:crypto",
     ],
 )
@@ -32,10 +46,12 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "transcript_unittests",
     srcs = [
+        "blake2b_transcript_unittest.cc",
         "poseidon_transcript_unittest.cc",
         "sha256_transcript_unittest.cc",
     ],
     deps = [
+        ":blake2b_transcript",
         ":poseidon_transcript",
         ":sha256_transcript",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",

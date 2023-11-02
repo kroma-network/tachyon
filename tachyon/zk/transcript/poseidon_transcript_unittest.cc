@@ -25,55 +25,53 @@ class PoseidonTranscriptTest : public testing::Test {
 }  // namespace
 
 TEST_F(PoseidonTranscriptTest, WritePoint) {
-  using AffinePoint = math::bn254::G1AffinePoint;
+  using Curve = math::bn254::G1Curve;
 
   base::VectorBuffer write_buf;
-  PoseidonWrite<AffinePoint> writer(std::move(write_buf));
-  AffinePoint expected = AffinePoint::Random();
+  PoseidonWriter<Curve> writer(std::move(write_buf));
+  Curve::AffinePointTy expected = Curve::AffinePointTy::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  PoseidonRead<AffinePoint> reader(std::move(read_buf));
-  AffinePoint actual;
+  PoseidonReader<Curve> reader(std::move(read_buf));
+  Curve::AffinePointTy actual;
   ASSERT_TRUE(reader.ReadPoint(&actual));
 
   EXPECT_EQ(expected, actual);
 }
 
 TEST_F(PoseidonTranscriptTest, WriteScalar) {
-  using AffinePoint = math::bn254::G1AffinePoint;
-  using ScalarField = AffinePoint::ScalarField;
+  using Curve = math::bn254::G1Curve;
 
   base::VectorBuffer write_buf;
-  PoseidonWrite<AffinePoint> writer(std::move(write_buf));
-  ScalarField expected = ScalarField::Random();
+  PoseidonWriter<Curve> writer(std::move(write_buf));
+  Curve::ScalarField expected = Curve::ScalarField::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  PoseidonRead<AffinePoint> reader(std::move(read_buf));
-  ScalarField actual;
+  PoseidonReader<Curve> reader(std::move(read_buf));
+  Curve::ScalarField actual;
   ASSERT_TRUE(reader.ReadScalar(&actual));
 
   EXPECT_EQ(expected, actual);
 }
 
 TEST_F(PoseidonTranscriptTest, SqueezeChallenge) {
-  using AffinePoint = math::bn254::G1AffinePoint;
-  using ScalarField = AffinePoint::ScalarField;
+  using Curve = math::bn254::G1Curve;
 
   base::VectorBuffer write_buf;
-  PoseidonWrite<AffinePoint> writer(std::move(write_buf));
-  AffinePoint generator = AffinePoint::Generator();
+  PoseidonWriter<Curve> writer(std::move(write_buf));
+  Curve::AffinePointTy generator = Curve::AffinePointTy::Generator();
   ASSERT_TRUE(writer.WriteToProof(generator));
 
   std::vector<uint8_t> expected_bytes = {25,  86,  205, 219, 59,  135, 187, 231,
                                          192, 54,  23,  138, 114, 176, 9,   157,
                                          1,   97,  110, 174, 67,  9,   89,  85,
                                          126, 129, 216, 121, 53,  99,  227, 26};
-  ScalarField expected =
-      ScalarField::FromBigInt(math::BigInt<4>::FromBytesLE(expected_bytes));
+  Curve::ScalarField expected = Curve::ScalarField::FromBigInt(
+      math::BigInt<4>::FromBytesLE(expected_bytes));
 
-  ScalarField actual = writer.SqueezeChallenge().ChallengeAsScalar();
+  Curve::ScalarField actual = writer.SqueezeChallenge().ChallengeAsScalar();
 
   EXPECT_EQ(expected, actual);
 }

@@ -33,6 +33,20 @@ class PrimeFieldBase : public FiniteField<F> {
  public:
   using Config = typename FiniteFieldTraits<F>::Config;
 
+  // Returns a prime field element from a given big integer of any size.
+  template <size_t N>
+  constexpr static F FromAnySizedBigInt(const BigInt<N>& big_int) {
+    if constexpr (F::kLimbNums < N) {
+      return F::FromBigInt((big_int % Config::kModulus.template Extend<N>())
+                               .template Shrink<F::kLimbNums>());
+    } else if constexpr (F::kLimbNums > N) {
+      return F::FromBigInt(big_int.template Extend<F::kLimbNums>() %
+                           Config::kModulus);
+    } else {
+      return F::FromBigInt(big_int);
+    }
+  }
+
   constexpr static bool HasRootOfUnity() {
     return Config::kHasTwoAdicRootOfUnity ||
            Config::kHasLargeSubgroupRootOfUnity;
