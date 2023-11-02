@@ -63,7 +63,7 @@ jobs:
       - name: Setup Python for cpplint
         uses: actions/setup-python@v4
         with:
-          python-version: "3.x"
+          python-version: "3.11.6"
 
       - name: Install cpplint
         run: pip install cpplint
@@ -73,10 +73,7 @@ jobs:
         run: git diff --name-only HEAD origin/${{ github.base_ref }} | xargs cpplint --filter=-legal/copyright,-whitespace/line_length,-build/namespaces,-runtime/references
 
       - name: Run clang-format lint
-        uses: DoozyX/clang-format-lint-action@v0.15
+        uses: jidicula/clang-format-action@v4.11.0
         with:
-          source: "."
-          exclude: "./lib"
-          extensions: "h,cc"
-          clangFormatVersion: 15
-          inplace: True
+          clang-format-version: '17'
+          check-path: '.'

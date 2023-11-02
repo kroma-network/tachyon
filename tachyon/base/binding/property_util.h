@@ -2,8 +2,8 @@
 #define TACHYON_BASE_BINDING_PROPERTY_UTIL_H_
 
 #include <functional>
-#include <utility>
 #include <type_traits>
+#include <utility>
 
 namespace tachyon::base {
 namespace internal {

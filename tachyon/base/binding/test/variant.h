@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "tachyon/base/binding/test/point.h"
 

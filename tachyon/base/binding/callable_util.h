@@ -1,8 +1,8 @@
 #ifndef TACHYON_BASE_BINDING_CALLABLE_UTIL_H_
 #define TACHYON_BASE_BINDING_CALLABLE_UTIL_H_
 
-#include <type_traits>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 
 #include "tachyon/base/template_util.h"

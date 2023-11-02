@@ -46,8 +46,9 @@ class RegionShape : public Region<F>::Layouter {
     return Error::kNone;
   }
 
-  Error AssignAdviceFromConstant(std::string_view name, const AdviceColumn& column,
-                                 size_t offset, math::RationalField<F> constant,
+  Error AssignAdviceFromConstant(std::string_view name,
+                                 const AdviceColumn& column, size_t offset,
+                                 math::RationalField<F> constant,
                                  Cell* cell) override {
     return AssignAdvice(
         name, column, offset,
