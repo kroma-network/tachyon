@@ -18,14 +18,14 @@
 namespace tachyon::zk {
 
 template <typename AffinePointTy>
-class PoseidonRead : public TranscriptRead<AffinePointTy> {
+class PoseidonReader : public TranscriptReader<AffinePointTy> {
  public:
   using ScalarField = typename AffinePointTy::ScalarField;
   using CurveConfig = typename AffinePointTy::Curve::Config;
 
-  PoseidonRead() = default;
+  PoseidonReader() = default;
   // Initialize a transcript given an input buffer.
-  explicit PoseidonRead(base::Buffer buffer)
+  explicit PoseidonReader(base::Buffer buffer)
       : state_(
             crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63, 0)),
         buffer_(std::move(buffer)) {}
@@ -63,14 +63,14 @@ class PoseidonRead : public TranscriptRead<AffinePointTy> {
 };
 
 template <typename AffinePointTy>
-class PoseidonWrite : public TranscriptWrite<AffinePointTy> {
+class PoseidonWriter : public TranscriptWriter<AffinePointTy> {
  public:
   using ScalarField = typename AffinePointTy::ScalarField;
   using CurveConfig = typename AffinePointTy::Curve::Config;
 
-  PoseidonWrite() = default;
+  PoseidonWriter() = default;
   // Initialize a transcript given an output buffer.
-  explicit PoseidonWrite(base::VectorBuffer buffer)
+  explicit PoseidonWriter(base::VectorBuffer buffer)
       : state_(
             crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63, 0)),
         buffer_(std::move(buffer)) {}

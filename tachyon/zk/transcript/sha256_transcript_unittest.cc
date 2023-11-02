@@ -28,12 +28,12 @@ TEST_F(Sha256TranscriptTest, WritePoint) {
   using AffinePoint = math::bn254::G1AffinePoint;
 
   base::VectorBuffer write_buf;
-  Sha256Write<AffinePoint> writer(std::move(write_buf));
+  Sha256Writer<AffinePoint> writer(std::move(write_buf));
   AffinePoint expected = AffinePoint::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  Sha256Read<AffinePoint> reader(std::move(read_buf));
+  Sha256Reader<AffinePoint> reader(std::move(read_buf));
   AffinePoint actual;
   ASSERT_TRUE(reader.ReadPoint(&actual));
 
@@ -45,12 +45,12 @@ TEST_F(Sha256TranscriptTest, WriteScalar) {
   using ScalarField = AffinePoint::ScalarField;
 
   base::VectorBuffer write_buf;
-  Sha256Write<AffinePoint> writer(std::move(write_buf));
+  Sha256Writer<AffinePoint> writer(std::move(write_buf));
   ScalarField expected = ScalarField::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  Sha256Read<AffinePoint> reader(std::move(read_buf));
+  Sha256Reader<AffinePoint> reader(std::move(read_buf));
   ScalarField actual;
   ASSERT_TRUE(reader.ReadScalar(&actual));
 
@@ -62,7 +62,7 @@ TEST_F(Sha256TranscriptTest, SqueezeChallenge) {
   using ScalarField = AffinePoint::ScalarField;
 
   base::VectorBuffer write_buf;
-  Sha256Write<AffinePoint> writer(std::move(write_buf));
+  Sha256Writer<AffinePoint> writer(std::move(write_buf));
   AffinePoint generator = AffinePoint::Generator();
   ASSERT_TRUE(writer.WriteToProof(generator));
 

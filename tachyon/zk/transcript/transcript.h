@@ -56,7 +56,7 @@ class Transcript {
 // Transcript view from the perspective of a verifier that has access to an
 // input stream of data from the prover to the verifier.
 template <typename AffinePointTy>
-class TranscriptRead : public Transcript<AffinePointTy> {
+class TranscriptReader : public Transcript<AffinePointTy> {
  public:
   using ScalarField = typename AffinePointTy::ScalarField;
 
@@ -72,7 +72,7 @@ class TranscriptRead : public Transcript<AffinePointTy> {
 // Transcript view from the perspective of a prover that has access to an output
 // stream of messages from the prover to the verifier.
 template <typename AffinePointTy>
-class TranscriptWrite : public Transcript<AffinePointTy> {
+class TranscriptWriter : public Transcript<AffinePointTy> {
  public:
   using ScalarField = typename AffinePointTy::ScalarField;
 

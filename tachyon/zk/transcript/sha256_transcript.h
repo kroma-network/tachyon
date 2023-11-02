@@ -32,13 +32,13 @@ constexpr uint8_t kShaPrefixPoint[1] = {1};
 constexpr uint8_t kShaPrefixScalar[1] = {2};
 
 template <typename AffinePointTy>
-class Sha256Read : public TranscriptRead<AffinePointTy> {
+class Sha256Reader : public TranscriptReader<AffinePointTy> {
  public:
   using ScalarField = typename AffinePointTy::ScalarField;
 
-  Sha256Read() = default;
+  Sha256Reader() = default;
   // Initialize a transcript given an input buffer.
-  explicit Sha256Read(base::Buffer read_buf) : buffer_(std::move(read_buf)) {
+  explicit Sha256Reader(base::Buffer read_buf) : buffer_(std::move(read_buf)) {
     SHA256_Init(&state_);
   }
 
@@ -89,13 +89,13 @@ class Sha256Read : public TranscriptRead<AffinePointTy> {
 };
 
 template <typename AffinePointTy>
-class Sha256Write : public TranscriptWrite<AffinePointTy> {
+class Sha256Writer : public TranscriptWriter<AffinePointTy> {
  public:
   using ScalarField = typename AffinePointTy::ScalarField;
 
-  Sha256Write() = default;
+  Sha256Writer() = default;
   // Initialize a transcript given an output buffer.
-  explicit Sha256Write(base::VectorBuffer write_buf)
+  explicit Sha256Writer(base::VectorBuffer write_buf)
       : buffer_(std::move(write_buf)) {
     SHA256_Init(&state_);
   }
