@@ -26,6 +26,7 @@
 #include "tachyon/zk/plonk/circuit/table_column.h"
 #include "tachyon/zk/plonk/circuit/virtual_cells.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument.h"
+#include "tachyon/zk/plonk/permutation/permutation_argument.h"
 
 namespace tachyon::zk {
 
@@ -87,6 +88,8 @@ class ConstraintSystem {
     return fixed_queries_;
   }
 
+  const PermutationArgument& permutation() const { return permutation_; }
+
   const std::vector<LookupArgument<F>>& lookups() const { return lookups_; }
 
   const absl::flat_hash_map<ColumnData, std::string>&
@@ -120,8 +123,7 @@ class ConstraintSystem {
     // TODO(chokobole): should it be std::set<FixedColumn>?
     constants_.push_back(column);
     EnableEquality(column);
-    // TODO(chokobole): enable this
-    // permutation_.AddColumn(column);
+    permutation_.AddColumn(column);
   }
 
   // Add a lookup argument for some input expressions and table columns.
@@ -351,12 +353,11 @@ class ConstraintSystem {
   size_t ComputeDegree() const {
     // The permutation argument will serve alongside the gates, so must be
     // accounted for.
-    // TODO(chokobole): enable this.
-    // size_t degree = permutation_.RequiredDegree();
+    size_t degree = permutation_.RequiredDegree();
 
     // The lookup argument also serves alongside the gates and must be accounted
     // for.
-    size_t degree = std::max(degree, ComputeLookupRequiredDegree());
+    degree = std::max(degree, ComputeLookupRequiredDegree());
 
     // Account for each gate to ensure our quotient polynomial is the
     // correct degree and that our extended domain is the right size.
@@ -478,8 +479,7 @@ class ConstraintSystem {
   std::vector<FixedQueryData> fixed_queries_;
 
   // Permutation argument for performing equality constraints.
-  // TODO(chokobole): enable this.
-  // std::vector<PermutationArgument> permutations_;
+  PermutationArgument permutation_;
 
   // Vector of lookup arguments, where each corresponds
   // to a sequence of input expressions and a sequence

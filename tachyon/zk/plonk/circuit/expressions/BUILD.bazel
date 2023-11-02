@@ -42,7 +42,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "expression",
     hdrs = ["expression.h"],
-    deps = [":expression_type"],
+    deps = [
+        ":expression_type",
+        "//tachyon/zk/plonk/circuit:selector",
+    ],
 )
 
 tachyon_cc_library(
@@ -59,6 +62,7 @@ tachyon_cc_library(
         ":scaled_expression",
         ":selector_expression",
         ":sum_expression",
+        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_selector_extractor",
         "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_selector_finder",
     ],
 )
@@ -125,7 +129,6 @@ tachyon_cc_library(
     hdrs = ["selector_expression.h"],
     deps = [
         ":expression",
-        "//tachyon/zk/plonk/circuit:selector",
         "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
     ],

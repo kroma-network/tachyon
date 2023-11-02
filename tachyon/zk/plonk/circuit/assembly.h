@@ -11,14 +11,38 @@
 #include <vector>
 
 #include "tachyon/base/range.h"
+#include "tachyon/math/base/rational_field.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
+#include "tachyon/zk/plonk/permutation/permutation_assembly.h"
 
 namespace tachyon::zk {
 
-template <typename Poly>
-class Assembly : public Assignment<typename Poly::Field> {
+template <typename PCSTy>
+class Assembly : public Assignment<typename PCSTy::Field> {
  public:
-  using Field = typename Poly::Field;
+  using F = typename PCSTy::Field;
+  using DensePoly =
+      math::UnivariateDensePolynomial<math::RationalField<F>, PCSTy::kMaxSize>;
+
+  using AssignCallback = typename Assignment<F>::AssignCallback;
+
+  Assembly() = default;
+  Assembly(uint32_t k, std::vector<DensePoly> fixeds,
+           PermutationAssembly<PCSTy> permutation,
+           std::vector<std::vector<bool>> selectors,
+           base::Range<size_t> usable_rows)
+      : k_(k),
+        fixeds_(std::move(fixeds)),
+        permutation_(std::move(permutation)),
+        selectors_(std::move(selectors)),
+        usable_rows_(usable_rows) {}
+
+  uint32_t k() const { return k_; }
+  const std::vector<DensePoly>& fixeds() const { return fixeds_; }
+  const PermutationAssembly<PCSTy>& permutation() const { return permutation_; }
+  const std::vector<std::vector<bool>>& selectors() const { return selectors_; }
+  const base::Range<size_t>& usable_rows() const { return usable_rows_; }
 
   // Assignment methods
   Error EnableSelector(const Selector& selector, size_t row) override {
@@ -30,21 +54,20 @@ class Assembly : public Assignment<typename Poly::Field> {
   }
 
   Error QueryInstance(const InstanceColumn& column, size_t row,
-                      Value<Field>* instance) override {
+                      Value<F>* instance) override {
     if (!usable_rows_.Contains(row)) {
       return Error::kNotEnoughRowsAvailable;
     }
-    *instance = Value<Field>::Unknown();
+    *instance = Value<F>::Unknown();
     return Error::kNone;
   }
 
   Error AssignFixed(const FixedColumn& column, size_t row,
-                    base::OnceCallback<math::RationalField<F>>() >
-                        to) override {
+                    AssignCallback assign) override {
     if (!usable_rows_.Contains(row)) {
       return Error::kNotEnoughRowsAvailable;
     }
-    fixeds_[column.index()] = std::move(to).Run();
+    fixeds_[column.index()] = std::move(assign).Run();
     return Error::kNone;
   }
 
@@ -54,18 +77,15 @@ class Assembly : public Assignment<typename Poly::Field> {
           usable_rows_.Contains(right_row))) {
       return Error::kNotEnoughRowsAvailable;
     }
-    // TODO(chokobole): Permutation Copy See
-    // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/keygen.rs#L150-L151.
-    return Error::kNone;
+    return permutation_.Copy(left_column, left_row, right_column, right_row);
   }
 
   Error FillFromRow(const FixedColumn& column, size_t from_row,
-                    base::OnceCallback<math::RationalField<F>>() >
-                        to) override {
+                    AssignCallback assign) override {
     if (!usable_rows_.Contains(from_row)) {
       return Error::kNotEnoughRowsAvailable;
     }
-    math::RationalField<F> value = std::move(to).Run();
+    math::RationalField<F> value = std::move(assign).Run();
     for (size_t i = usable_rows_.start + from_row; i < usable_rows_.end; ++i) {
       fixeds_[column.index()] = value;
     }
@@ -73,10 +93,9 @@ class Assembly : public Assignment<typename Poly::Field> {
   }
 
  private:
-  uint32_t k_;
-  std::vector<Poly> fixeds_;
-  // TODO(chokobole): add permutation assembly See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/keygen.rs#L53.
+  uint32_t k_ = 0;
+  std::vector<DensePoly> fixeds_;
+  PermutationAssembly<PCSTy> permutation_;
   std::vector<std::vector<bool>> selectors_;
   // A range of available rows for assignment and copies.
   base::Range<size_t> usable_rows_;

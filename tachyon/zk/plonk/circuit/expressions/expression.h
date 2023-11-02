@@ -8,10 +8,12 @@
 #define TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EXPRESSION_H_
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/circuit/expressions/expression_type.h"
+#include "tachyon/zk/plonk/circuit/selector.h"
 
 namespace tachyon::zk {
 
@@ -79,8 +81,11 @@ class Expression {
     return type_ != other.type_;
   }
 
-  // Returns whether or not this expression contains a simple |Selector|.
+  // Returns whether or not this expression contains a simple selector.
   bool ContainsSimpleSelector() const;
+
+  // Extracts a simple selector from this gate, if present.
+  std::optional<Selector> ExtractSimpleSelector() const;
 
   template <typename EvaluatedTy>
   EvaluatedTy Evaluate(const Evaluator<F, EvaluatedTy>* evaluator) const {

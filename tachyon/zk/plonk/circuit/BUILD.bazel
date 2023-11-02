@@ -8,6 +8,9 @@ tachyon_cc_library(
     deps = [
         ":assignment",
         "//tachyon/base:range",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+        "//tachyon/zk/plonk/permutation:permutation_assembly",
     ],
 )
 
@@ -30,6 +33,7 @@ tachyon_cc_library(
         ":selector",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
+        "//tachyon/zk:value",
         "//tachyon/zk/plonk:error",
     ],
 )
@@ -181,6 +185,18 @@ tachyon_cc_library(
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
     ],
+)
+
+tachyon_cc_library(
+    name = "selector_assignment",
+    hdrs = ["selector_assignment.h"],
+    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
+)
+
+tachyon_cc_library(
+    name = "selector_description",
+    hdrs = ["selector_description.h"],
+    deps = ["//tachyon:export"],
 )
 
 tachyon_cc_library(

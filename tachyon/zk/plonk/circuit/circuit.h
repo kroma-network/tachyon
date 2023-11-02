@@ -22,7 +22,7 @@ class Circuit {
 
   virtual std::unique_ptr<Circuit> WithoutWitness() const = 0;
 
-  virtual Error Synthesize(const Config& config, Layouter<Field>* layouter) {
+  virtual Error Synthesize(Config config, Layouter<Field>* layouter) {
     return Error::kNone;
   }
 };

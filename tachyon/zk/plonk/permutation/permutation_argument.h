@@ -24,12 +24,49 @@ class PermutationArgument {
   explicit PermutationArgument(std::vector<AnyColumn>&& columns)
       : columns_(std::move(columns)) {}
 
+  const std::vector<AnyColumn>& columns() const { return columns_; }
+
   void AddColumn(const AnyColumn& column) {
     if (base::Contains(columns_, column)) return;
     columns_.push_back(column);
   }
 
-  const std::vector<AnyColumn>& columns() const { return columns_; }
+  // Returns the minimum circuit degree required by the permutation argument.
+  // The argument may use larger degree gates depending on the actual
+  // circuit's degree and how many columns are involved in the permutation.
+  size_t RequiredDegree() const {
+    // degree 2:
+    // l₀(X) * (1 - z(X)) = 0
+    //
+    // We will fit as many polynomials pᵢ(X) as possible
+    // into the required degree of the circuit, so the
+    // following will not affect the required degree of
+    // this middleware.
+    //
+    // clang-format off
+    // (1 - (l_last(X) + l_blind(X))) * (z(ω * X) Π (p(X) + β * sᵢ(X) + γ) - z(X) Π (p(X) + \delta^i β * X + γ))
+    // clang-format on
+    //
+    // On the first sets of columns, except the first
+    // set, we will do
+    //
+    // l₀(X) * (z(X) - z'(ω^(last) X)) = 0
+    //
+    // where z'(X) is the permutation for the previous set
+    // of columns.
+    //
+    // On the final set of columns, we will do
+    //
+    // degree 3:
+    // l_last(X) * (z'(X)² - z'(X)) = 0
+    //
+    // which will allow the last value to be zero to
+    // ensure the argument is perfectly complete.
+
+    // There are constraints of degree 3 regardless of the
+    // number of columns involved.
+    return 3;
+  }
 
  private:
   std::vector<AnyColumn> columns_;

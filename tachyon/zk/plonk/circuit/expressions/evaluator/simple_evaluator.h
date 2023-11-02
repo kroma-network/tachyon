@@ -93,9 +93,8 @@ class SimpleEvaluator
       case ExpressionType::kChallenge:
         return (*challenges_)[input->ToChallenge()->challenge().index()];
 
-      case ExpressionType::kNegated: {
+      case ExpressionType::kNegated:
         return -Evaluate(input->ToNegated()->expr());
-      }
 
       case ExpressionType::kSum: {
         const SumExpression<Field>* sum = input->ToSum();

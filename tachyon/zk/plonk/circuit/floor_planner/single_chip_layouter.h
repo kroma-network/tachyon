@@ -125,16 +125,21 @@ class SingleChipLayouter : public Layouter<F> {
   using AssignRegionCallback = typename Layouter<F>::AssignRegionCallback;
   using AssignTableCallback = typename Layouter<F>::AssignTableCallback;
 
-  const std::unique_ptr<Assignment<F>>& assignment() const {
-    return assignment_;
-  }
+  const Assignment<F>* assignment() const { return assignment_; }
   const std::vector<FixedColumn>& constants() const { return constants_; }
-  const std::vector<size_t>& region() const { return regions; }
+  const std::vector<size_t>& regions() const { return regions_; }
   const absl::flat_hash_map<RegionColumn, size_t>& columns() const {
     return columns_;
   }
   const std::vector<TableColumn>& table_columns() const {
     return table_columns_;
+  }
+
+  template <typename CircuitTy, typename Config = typename CircuitTy::Config>
+  static Error Synthesize(Assignment<F>* assignment, CircuitTy& circuit,
+                          Config config, std::vector<FixedColumn> constants) {
+    SingleChipLayouter layouter(assignment, std::move(constants));
+    return circuit.Synthesize(std::move(config));
   }
 
   // Layouter<F> methods
@@ -297,7 +302,11 @@ class SingleChipLayouter : public Layouter<F> {
  private:
   friend class Region;
 
-  std::unique_ptr<Assignment<F>> assignment_;
+  SingleChipLayouter(Assignment<F>* assignment,
+                     std::vector<FixedColumn> constants)
+      : assignment_(assignment), constants_(std::move(constants)) {}
+
+  Assignment<F>* const assignment_;
   std::vector<FixedColumn> constants_;
   // Stores the starting row for each region.
   std::vector<size_t> regions_;
