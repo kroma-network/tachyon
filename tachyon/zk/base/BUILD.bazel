@@ -13,13 +13,21 @@ tachyon_cc_library(
     hdrs = ["random_field_generator.h"],
 )
 
+tachyon_cc_library(
+    name = "value",
+    hdrs = ["value.h"],
+    deps = ["//tachyon/math/base:rational_field"],
+)
+
 tachyon_cc_unittest(
     name = "base_unittests",
     srcs = [
         "blinder_unittest.cc",
+        "value_unittest.cc",
     ],
     deps = [
         ":blinder",
+        ":value",
         "//tachyon/base:random",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/finite_fields/test:gf7",

@@ -12,9 +12,9 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/circuit.h"
 #include "tachyon/zk/plonk/constraint_system.h"
-#include "tachyon/zk/value.h"
 
 namespace tachyon::zk {
 

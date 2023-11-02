@@ -9,9 +9,9 @@
 
 #include <string>
 
+#include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/cell.h"
 #include "tachyon/zk/plonk/error.h"
-#include "tachyon/zk/value.h"
 
 namespace tachyon::zk {
 
