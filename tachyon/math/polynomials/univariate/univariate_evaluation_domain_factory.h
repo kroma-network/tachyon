@@ -30,8 +30,8 @@ class UnivariateEvaluationDomainFactory {
  public:
   // Construct a domain that is large enough for evaluations of a polynomial
   // having |num_coeffs| coefficients.
-  static std::unique_ptr<UnivariateEvaluationDomain<F, MaxDegree>> Create(
-      size_t num_coeffs) {
+  constexpr static std::unique_ptr<UnivariateEvaluationDomain<F, MaxDegree>>
+  Create(size_t num_coeffs) {
     if (Radix2EvaluationDomain<F, MaxDegree>::IsValidNumCoeffs(num_coeffs)) {
       return Radix2EvaluationDomain<F, MaxDegree>::Create(num_coeffs);
     } else if (MixedRadixEvaluationDomain<F, MaxDegree>::IsValidNumCoeffs(

@@ -13,8 +13,12 @@ namespace {
 
 class KZGCommitmentSchemeTest : public testing::Test {
  public:
+  constexpr static size_t K = 3;
+  constexpr static size_t N = size_t{1} << K;
+  constexpr static size_t kMaxDegree = N - 1;
+
   using PCS = KZGCommitmentScheme<math::bn254::G1AffinePoint,
-                                  math::bn254::G2AffinePoint,
+                                  math::bn254::G2AffinePoint, kMaxDegree,
                                   math::bn254::G1AffinePoint>;
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
@@ -24,31 +28,28 @@ class KZGCommitmentSchemeTest : public testing::Test {
 
 TEST_F(KZGCommitmentSchemeTest, UnsafeSetup) {
   PCS kzg;
-  ASSERT_TRUE(kzg.UnsafeSetup(32));
+  ASSERT_TRUE(kzg.UnsafeSetup(N));
 
-  EXPECT_EQ(kzg.K(), size_t{5});
-  EXPECT_EQ(kzg.N(), size_t{32});
-  EXPECT_EQ(kzg.g1_powers_of_tau().size(), size_t{32});
-  EXPECT_EQ(kzg.g1_powers_of_tau_lagrange().size(), size_t{32});
+  EXPECT_EQ(kzg.K(), K);
+  EXPECT_EQ(kzg.N(), N);
+  EXPECT_EQ(kzg.g1_powers_of_tau().size(), size_t{N});
+  EXPECT_EQ(kzg.g1_powers_of_tau_lagrange().size(), size_t{N});
 }
 
 TEST_F(KZGCommitmentSchemeTest, CommitLagrange) {
-  using Field = math::bn254::G1AffinePoint::ScalarField;
-  using DomainTy = math::UnivariateEvaluationDomain<Field, PCS::kMaxDegree>;
-  using DensePoly = DomainTy::DensePoly;
-  using Evals = DomainTy::Evals;
+  using Domain = typename PCS::Domain;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
 
   PCS kzg;
-  ASSERT_TRUE(kzg.UnsafeSetup(32));
+  ASSERT_TRUE(kzg.UnsafeSetup(N));
 
-  DensePoly poly = DensePoly::Random(31);
+  Poly poly = Poly::Random(N - 1);
 
   math::bn254::G1AffinePoint commit;
   ASSERT_TRUE(kzg.Commit(poly, &commit));
 
-  std::unique_ptr<DomainTy> domain =
-      math::UnivariateEvaluationDomainFactory<Field, PCS::kMaxDegree>::Create(
-          32);
+  std::unique_ptr<Domain> domain = Domain::Create(N);
   Evals poly_evals = domain->FFT(poly);
 
   math::bn254::G1AffinePoint commit_lagrange;
@@ -59,15 +60,15 @@ TEST_F(KZGCommitmentSchemeTest, CommitLagrange) {
 
 TEST_F(KZGCommitmentSchemeTest, Downsize) {
   PCS kzg;
-  ASSERT_TRUE(kzg.UnsafeSetup(64));
-  ASSERT_FALSE(kzg.Downsize(kzg.N()));
-  ASSERT_TRUE(kzg.Downsize(32));
-  EXPECT_EQ(kzg.N(), size_t{32});
+  ASSERT_TRUE(kzg.UnsafeSetup(N));
+  ASSERT_FALSE(kzg.Downsize(N));
+  ASSERT_TRUE(kzg.Downsize(N / 2));
+  EXPECT_EQ(kzg.N(), N / 2);
 }
 
 TEST_F(KZGCommitmentSchemeTest, Copyable) {
   PCS expected;
-  ASSERT_TRUE(expected.UnsafeSetup(32));
+  ASSERT_TRUE(expected.UnsafeSetup(N));
 
   base::VectorBuffer write_buf;
   EXPECT_TRUE(write_buf.Write(expected));

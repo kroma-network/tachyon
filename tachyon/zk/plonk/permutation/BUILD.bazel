@@ -24,7 +24,6 @@ tachyon_cc_library(
     deps = [
         ":label",
         "//tachyon/base/containers:container_util",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
         "@com_google_googletest//:gtest_prod",
     ],
 )
@@ -49,8 +48,6 @@ tachyon_cc_library(
     hdrs = ["permutation_verifying_key.h"],
     deps = [
         "//tachyon/base/buffer:copyable",
-        "//tachyon/math/polynomials/univariate:univariate_evaluations",
-        "//tachyon/math/polynomials/univariate:univariate_polynomial",
     ],
 )
 
@@ -67,7 +64,6 @@ tachyon_cc_library(
         "//tachyon/base:openmp_util",
         "//tachyon/base:parallelize",
         "//tachyon/base/containers:container_util",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
     ],
 )
 

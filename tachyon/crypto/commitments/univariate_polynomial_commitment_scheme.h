@@ -9,30 +9,32 @@
 
 namespace tachyon::crypto {
 
-template <typename C>
-class UnivariatePolynomialCommitmentScheme : public VectorCommitmentScheme<C> {
+template <typename Derived>
+class UnivariatePolynomialCommitmentScheme
+    : public VectorCommitmentScheme<Derived> {
  public:
-  constexpr static size_t kMaxDegree = VectorCommitmentScheme<C>::kMaxSize - 1;
+  constexpr static size_t kMaxDegree =
+      VectorCommitmentScheme<Derived>::kMaxSize - 1;
 
-  using Field = typename VectorCommitmentScheme<C>::Field;
-  using ResultTy = typename VectorCommitmentScheme<C>::ResultTy;
+  using Field = typename VectorCommitmentScheme<Derived>::Field;
+  using Commitment = typename VectorCommitmentScheme<Derived>::Commitment;
+  using Poly = math::UnivariateDensePolynomial<Field, kMaxDegree>;
+  using Evals = math::UnivariateEvaluations<Field, kMaxDegree>;
+  using Domain = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
 
   // Commit to |poly| and populates |result| with the commitment.
   // Return false if the degree of |poly| exceeds |kMaxDegree|.
-  [[nodiscard]] bool Commit(
-      const math::UnivariateDensePolynomial<Field, kMaxDegree>& poly,
-      ResultTy* result) const {
-    const C* c = static_cast<const C*>(this);
-    return c->DoCommit(poly.coefficients().coefficients(), result);
+  [[nodiscard]] bool Commit(const Poly& poly, Commitment* result) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCommit(poly.coefficients().coefficients(), result);
   }
 
   // Commit to |poly| and populates |result| with the commitment.
   // Return false if the degree of |poly| exceeds |kMaxDegree|.
-  [[nodiscard]] bool CommitLagrange(
-      const math::UnivariateEvaluations<Field, kMaxDegree>& evals,
-      ResultTy* result) const {
-    const C* c = static_cast<const C*>(this);
-    return c->DoCommitLagrange(evals.evaluations(), result);
+  [[nodiscard]] bool CommitLagrange(const Evals& evals,
+                                    Commitment* result) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCommitLagrange(evals.evaluations(), result);
   }
 };
 

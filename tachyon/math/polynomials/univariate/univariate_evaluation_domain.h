@@ -22,11 +22,15 @@
 namespace tachyon::math {
 
 template <typename F, size_t MaxDegree>
+class UnivariateEvaluationDomainFactory;
+
+template <typename F, size_t MaxDegree>
 class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
  public:
   static_assert(F::HasRootOfUnity(),
                 "UnivariateEvaluationDomain should have root of unity");
 
+  using Field = F;
   using Evals = UnivariateEvaluations<F, MaxDegree>;
   using DensePoly = UnivariateDensePolynomial<F, MaxDegree>;
   using DenseCoeffs = UnivariateDenseCoefficients<F, MaxDegree>;
@@ -34,8 +38,6 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   using SparsePoly = UnivariateSparsePolynomial<F, MaxDegree>;
 
   constexpr UnivariateEvaluationDomain() = default;
-
-  virtual ~UnivariateEvaluationDomain() = default;
 
   constexpr UnivariateEvaluationDomain(size_t size, uint32_t log_size_of_group)
       : size_(size), log_size_of_group_(log_size_of_group) {
@@ -48,6 +50,13 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     // Check that it is indeed the 2^(log_size_of_group) root of unity.
     DCHECK_EQ(group_gen_.Pow(BigInt<1>(size_)), F::One());
     group_gen_inv_ = group_gen_.Inverse();
+  }
+
+  virtual ~UnivariateEvaluationDomain() = default;
+
+  constexpr static std::unique_ptr<UnivariateEvaluationDomain> Create(
+      size_t num_coeffs) {
+    return UnivariateEvaluationDomainFactory<F, MaxDegree>::Create(num_coeffs);
   }
 
   constexpr size_t size() const { return size_; }

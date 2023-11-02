@@ -20,7 +20,8 @@ class VerifyingKey {
   constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
 
   using F = typename PCSTy::Field;
-  using Commitment = typename PCSTy::ResultTy;
+  using Domain = typename PCSTy::Domain;
+  using Commitment = typename PCSTy::Commitment;
   using Commitments = std::vector<Commitment>;
 
   VerifyingKey() = default;
@@ -69,7 +70,7 @@ class VerifyingKey {
   const F& transcript_repr() const { return transcript_repr_; }
 
  private:
-  std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain_;
+  std::unique_ptr<Domain> domain_;
   Commitments fixed_commitments_;
   PermutationVerifyingKey<PCSTy> permutation_verifying_Key_;
   ConstraintSystem<F> constraint_system_;

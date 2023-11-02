@@ -20,17 +20,18 @@
 namespace tachyon {
 namespace crypto {
 
-template <typename G1PointTy, typename G2PointTy,
-          typename ResultTy = typename math::Pippenger<G1PointTy>::Bucket>
+template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
+          typename _Commitment = typename math::Pippenger<G1PointTy>::Bucket>
 class KZGCommitmentScheme
     : public UnivariatePolynomialCommitmentScheme<
-          KZGCommitmentScheme<G1PointTy, G2PointTy, ResultTy>> {
+          KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, _Commitment>> {
  public:
   using Base = UnivariatePolynomialCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, ResultTy>>;
+      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, _Commitment>>;
   using Field = typename G1PointTy::ScalarField;
+  using Commitment = _Commitment;
 
-  static constexpr size_t kMaxDegree = Base::kMaxSize - 1;
+  static constexpr size_t kMaxDegree = MaxDegree;
 
   KZGCommitmentScheme() = default;
 
@@ -77,9 +78,7 @@ class KZGCommitmentScheme
     }
 
     // Get |g1_powers_of_tau_lagrange_| from 𝜏 and g₁.
-    std::unique_ptr<DomainTy> domain =
-        math::UnivariateEvaluationDomainFactory<Field, kMaxDegree>::Create(
-            size);
+    std::unique_ptr<DomainTy> domain = DomainTy::Create(size);
     typename DomainTy::DenseCoeffs lagrange_coeffs =
         domain->EvaluateAllLagrangeCoefficients(tau);
     std::vector<G1JacobianPointTy> g1_powers_of_tau_lagrange_jacobian;
@@ -112,35 +111,35 @@ class KZGCommitmentScheme
 
  private:
   friend class VectorCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, ResultTy>>;
+      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
   friend class UnivariatePolynomialCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, ResultTy>>;
+      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
 
   bool DoUnsafeSetup(size_t size) {
     return UnsafeSetupWithTau(size, Field::Random());
   }
 
   [[nodiscard]] bool DoCommit(const std::vector<Field>& v,
-                              ResultTy* out) const {
+                              Commitment* out) const {
     return DoMSM(g1_powers_of_tau_, v, out);
   }
 
   [[nodiscard]] bool DoCommitLagrange(const std::vector<Field>& v,
-                                      ResultTy* out) const {
+                                      Commitment* out) const {
     return DoMSM(g1_powers_of_tau_lagrange_, v, out);
   }
 
   static bool DoMSM(const std::vector<G1PointTy>& bases,
-                    const std::vector<Field>& scalars, ResultTy* out) {
+                    const std::vector<Field>& scalars, Commitment* out) {
     using Bucket = typename math::Pippenger<G1PointTy>::Bucket;
 
     math::VariableBaseMSM<G1PointTy> msm;
-    if constexpr (std::is_same_v<ResultTy, Bucket>) {
+    if constexpr (std::is_same_v<Commitment, Bucket>) {
       return msm.Run(bases, scalars, out);
     } else {
       Bucket result;
       if (!msm.Run(bases, scalars, &result)) return false;
-      *out = math::ConvertPoint<ResultTy>(result);
+      *out = math::ConvertPoint<Commitment>(result);
       return true;
     }
   }
@@ -150,14 +149,15 @@ class KZGCommitmentScheme
   G2PointTy tau_g2_;
 };
 
-template <typename G1PointTy, typename G2PointTy, typename CommitmentTy>
+template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
+          typename _Commitment>
 struct VectorCommitmentSchemeTraits<
-    KZGCommitmentScheme<G1PointTy, G2PointTy, CommitmentTy>> {
+    KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, _Commitment>> {
  public:
   using Field = typename G1PointTy::ScalarField;
-  using ResultTy = CommitmentTy;
+  using Commitment = _Commitment;
 
-  constexpr static size_t kMaxSize = size_t{1} << Field::Config::kTwoAdicity;
+  constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = false;
 };
 
@@ -165,10 +165,13 @@ struct VectorCommitmentSchemeTraits<
 
 namespace base {
 
-template <typename G1PointTy, typename G2PointTy, typename ResultTy>
-class Copyable<crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, ResultTy>> {
+template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
+          typename Commitment>
+class Copyable<
+    crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>> {
  public:
-  using PCS = crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, ResultTy>;
+  using PCS =
+      crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>;
 
   static bool WriteTo(const PCS& pcs, Buffer* buffer) {
     return buffer->WriteMany(pcs.g1_powers_of_tau(),

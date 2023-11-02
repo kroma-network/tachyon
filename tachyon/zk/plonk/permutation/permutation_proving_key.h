@@ -11,8 +11,6 @@
 #include <vector>
 
 #include "tachyon/base/buffer/copyable.h"
-#include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
-#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon {
 namespace zk {
@@ -23,19 +21,19 @@ class PermutationProvingKey {
   constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
 
   using F = typename PCSTy::Field;
-  using DensePoly = math::UnivariateDensePolynomial<F, kMaxDegree>;
-  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
+  using Poly = typename PCSTy::Poly;
+  using Evals = typename PCSTy::Evals;
 
   PermutationProvingKey() = default;
   PermutationProvingKey(const std::vector<Evals>& permutations,
-                        const std::vector<DensePoly>& polys)
+                        const std::vector<Poly>& polys)
       : permutations_(permutations), polys_(polys) {}
   PermutationProvingKey(std::vector<Evals>&& permutations,
-                        std::vector<DensePoly>&& polys)
+                        std::vector<Poly>&& polys)
       : permutations_(std::move(permutations)), polys_(std::move(polys)) {}
 
   const std::vector<Evals>& permutations() const { return permutations_; }
-  const std::vector<DensePoly>& polys() const { return polys_; }
+  const std::vector<Poly>& polys() const { return polys_; }
 
   size_t BytesLength() const { return base::EstimateSize(this); }
 
@@ -48,7 +46,7 @@ class PermutationProvingKey {
 
  private:
   std::vector<Evals> permutations_;
-  std::vector<DensePoly> polys_;
+  std::vector<Poly> polys_;
 };
 
 }  // namespace zk
@@ -58,6 +56,9 @@ namespace base {
 template <typename PCSTy>
 class Copyable<zk::PermutationProvingKey<PCSTy>> {
  public:
+  using Poly = typename PCSTy::Poly;
+  using Evals = typename PCSTy::Evals;
+
   static bool WriteTo(const zk::PermutationProvingKey<PCSTy>& pk,
                       Buffer* buffer) {
     return buffer->WriteMany(pk.permutations(), pk.polys());
@@ -65,8 +66,8 @@ class Copyable<zk::PermutationProvingKey<PCSTy>> {
 
   static bool ReadFrom(const Buffer& buffer,
                        zk::PermutationProvingKey<PCSTy>* pk) {
-    std::vector<typename zk::PermutationProvingKey<PCSTy>::Evals> perms;
-    std::vector<typename zk::PermutationProvingKey<PCSTy>::DensePoly> poly;
+    std::vector<Evals> perms;
+    std::vector<Poly> poly;
     if (!buffer.ReadMany(&perms, &poly)) return false;
 
     *pk = zk::PermutationProvingKey<PCSTy>(std::move(perms), std::move(poly));

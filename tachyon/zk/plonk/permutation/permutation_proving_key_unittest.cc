@@ -19,12 +19,15 @@ namespace {
 
 class PermutationProvingKeyTest : public testing::Test {
  public:
-  using PCS = crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
-                                          math::bn254::G2AffinePoint,
-                                          math::bn254::G1AffinePoint>;
+  constexpr static size_t kMaxDegree = 7;
+
+  using PCS =
+      crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
+                                  math::bn254::G2AffinePoint, kMaxDegree,
+                                  math::bn254::G1AffinePoint>;
   using ProvingKey = PermutationProvingKey<PCS>;
-  using DensePoly = ProvingKey::DensePoly;
-  using Evals = ProvingKey::Evals;
+  using Poly = ProvingKey::Poly;
+  using Evals = PCS::Evals;
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
@@ -33,7 +36,7 @@ class PermutationProvingKeyTest : public testing::Test {
 
 TEST_F(PermutationProvingKeyTest, Copyable) {
   constexpr size_t kDegree = 5;
-  ProvingKey expected({Evals::Random(kDegree)}, {DensePoly::Random(kDegree)});
+  ProvingKey expected({Evals::Random(kDegree)}, {Poly::Random(kDegree)});
   ProvingKey value;
 
   base::VectorBuffer write_buf;
