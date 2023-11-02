@@ -36,8 +36,8 @@ class LookupArgument {
     table_expressions_.reserve(table_map.size());
 
     for (TableMapElem& elem : table_map) {
-      input_expressions_->push_back(std::move(elem.input));
-      table_expressions_->push_back(std::move(elem.table));
+      input_expressions_.push_back(std::move(elem.input));
+      table_expressions_.push_back(std::move(elem.table));
     }
 
     table_map.clear();
