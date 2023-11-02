@@ -176,7 +176,7 @@ TEST_F(RationalFieldTest, MultiplicativeGroupOperators) {
   EXPECT_EQ(r, expected);
 
   r = R(GF7(3), GF7(2));
-  EXPECT_EQ(r.Pow(BigInt<1>(5)), R(GF7(5), GF7(4)));
+  EXPECT_EQ(r.Pow(5), R(GF7(5), GF7(4)));
 }
 
 TEST_F(RationalFieldTest, BatchEvaluate) {

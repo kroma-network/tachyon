@@ -34,8 +34,7 @@ TYPED_TEST(GLVTest, Endomorphism) {
   using ReturnTy =
       typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
 
-  EXPECT_TRUE(PointTy::Curve::Config::kEndomorphismCoefficient.Pow(BigInt<1>(3))
-                  .IsOne());
+  EXPECT_TRUE(PointTy::Curve::Config::kEndomorphismCoefficient.Pow(3).IsOne());
   PointTy base = PointTy::Random();
   EXPECT_EQ(base * PointTy::Curve::Config::kLambda,
             ConvertPoint<ReturnTy>(PointTy::Endomorphism(base)));

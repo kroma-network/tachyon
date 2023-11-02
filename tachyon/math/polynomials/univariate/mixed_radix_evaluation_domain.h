@@ -233,7 +233,7 @@ class MixedRadixEvaluationDomain
         }
       }
 
-      F omega_q = omega.Pow(BigInt<1>(n / q));
+      F omega_q = omega.Pow(n / q);
       std::vector<F> qth_roots(q, F::One());
       for (size_t i = 1; i < q; ++i) {
         qth_roots[i] = qth_roots[i - 1] * omega_q;
@@ -243,7 +243,7 @@ class MixedRadixEvaluationDomain
 
       // Doing the q_adicity passes.
       for (size_t i = 0; i < q_adicity; ++i) {
-        F w_m = omega.Pow(BigInt<1>(n / (q * m)));
+        F w_m = omega.Pow(n / (q * m));
         for (size_t k = 0; k < n; k += q * m) {
           F w_j = F::One();  // ωⱼ is ωₘʲ
           for (size_t j = 0; j < m; ++j) {
@@ -276,7 +276,7 @@ class MixedRadixEvaluationDomain
 
     for (size_t i = 0; i < two_adicity; ++i) {
       // ωₘ is 2ˢ-th root of unity now
-      F w_m = omega.Pow(BigInt<1>(n / (2 * m)));
+      F w_m = omega.Pow(n / (2 * m));
       for (size_t k = 0; k < n; k += 2 * m) {
         F w = F::One();
         for (size_t j = 0; j < m; ++j) {
@@ -314,7 +314,7 @@ class MixedRadixEvaluationDomain
     // g^{|num_cosets|}, and varying shifts.
     std::vector<PolyOrEvals> tmp =
         base::CreateVector(num_cosets, PolyOrEvals::UnsafeZero(coset_size - 1));
-    F new_omega = omega.Pow(BigInt<1>(num_cosets));
+    F new_omega = omega.Pow(num_cosets);
     uint32_t new_two_adicity =
         ComputeAdicity(2, gmp::FromUnsignedInt(coset_size));
 
@@ -325,8 +325,8 @@ class MixedRadixEvaluationDomain
     for (size_t k = 0; k < tmp.size(); ++k) {
       PolyOrEvals& kth_poly_coeffs = tmp[k];
       // Shuffle into a sub-FFT
-      F omega_k = omega.Pow(BigInt<1>(uint64_t{k}));
-      F omega_step = omega.Pow(BigInt<1>(uint64_t{k} * coset_size));
+      F omega_k = omega.Pow(k);
+      F omega_step = omega.Pow(k * coset_size);
 
       F elt = F::One();
       // Construct |kth_poly_coeffs|, which is a polynomial whose evaluations on

@@ -53,9 +53,9 @@ class TACHYON_EXPORT Rotation {
   template <typename Domain, typename F = typename Domain::F>
   F RotateOmega(const Domain* domain, const F& point) const {
     if (value_ >= 0) {
-      return point * domain->group_gen().Pow(math::BigInt<1>(value_));
+      return point * domain->group_gen().Pow(value_);
     } else {
-      return point * domain->group_gen_inv().Pow(math::BigInt<1>(-1 * value_));
+      return point * domain->group_gen_inv().Pow(-1 * value_);
     }
   }
 

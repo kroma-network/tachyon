@@ -122,11 +122,11 @@ class MultivariateSparseCoefficients {
    private:
     static F EvaluateSerial(absl::Span<const Element> elements,
                             const std::vector<F>& points) {
-      return std::accumulate(
-          elements.begin(), elements.end(), F::One(),
-          [&points](const F& acc, const Element& elem) {
-            return acc * points[elem.variable].Pow(BigInt<1>(elem.exponent));
-          });
+      return std::accumulate(elements.begin(), elements.end(), F::One(),
+                             [&points](const F& acc, const Element& elem) {
+                               return acc *
+                                      points[elem.variable].Pow(elem.exponent);
+                             });
     }
   };
 

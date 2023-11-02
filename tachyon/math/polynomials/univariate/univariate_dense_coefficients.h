@@ -165,7 +165,7 @@ class UnivariateDenseCoefficients {
         coefficients_, [&point](absl::Span<const F> chunk, size_t chunk_offset,
                                 size_t chunk_size) {
           F result = HornerEvaluate(chunk, point);
-          result *= point.Pow(BigInt<1>(chunk_offset * chunk_size));
+          result *= point.Pow(chunk_offset * chunk_size);
           return result;
         });
     return std::accumulate(results.begin(), results.end(), F::Zero(),

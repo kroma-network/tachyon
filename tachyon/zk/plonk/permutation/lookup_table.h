@@ -76,8 +76,7 @@ class LookupTable {
   // where T = F::Config::kTrace.
   constexpr static F GetDelta() {
     F g = F::FromMontgomery(F::Config::kSubgroupGenerator);
-    typename F::BigIntTy s(F::Config::kTwoAdicity);
-    F adicity = F(2).Pow(s);
+    F adicity = F(2).Pow(F::Config::kTwoAdicity);
     return g.Pow(adicity.ToBigInt());
   }
 

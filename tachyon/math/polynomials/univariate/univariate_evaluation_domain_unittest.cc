@@ -164,14 +164,14 @@ TYPED_TEST(UnivariateEvaluationDomainTest, ContentsOfElements) {
 
   for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
     size_t size = size_t{1} << coeffs;
-    this->TestDomains(size, [size](
-                                const BaseUnivariateEvaluationDomainType& d) {
-      std::vector<F> elements = d.GetElements();
-      for (size_t i = 0; i < size; ++i) {
-        EXPECT_EQ(elements[i], d.offset() * d.group_gen().Pow(BigInt<1>(i)));
-        EXPECT_EQ(elements[i], d.GetElement(i));
-      }
-    });
+    this->TestDomains(
+        size, [size](const BaseUnivariateEvaluationDomainType& d) {
+          std::vector<F> elements = d.GetElements();
+          for (size_t i = 0; i < size; ++i) {
+            EXPECT_EQ(elements[i], d.offset() * d.group_gen().Pow(i));
+            EXPECT_EQ(elements[i], d.GetElement(i));
+          }
+        });
   }
 }
 
