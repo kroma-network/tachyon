@@ -29,11 +29,11 @@ TEST_F(SimpleSelectorExtractorTest, Selector) {
 
 TEST_F(SimpleSelectorExtractorTest, Fixed) {
   struct {
-    size_t column_index;
     int32_t rotation;
+    size_t column_index;
   } tests[] = {
-      {0, 1},
-      {1, 2},
+      {1, 0},
+      {2, 1},
   };
 
   for (const auto& test : tests) {
@@ -46,11 +46,11 @@ TEST_F(SimpleSelectorExtractorTest, Fixed) {
 
 TEST_F(SimpleSelectorExtractorTest, Advice) {
   struct {
-    size_t column_index;
     int32_t rotation;
+    size_t column_index;
   } tests[] = {
-      {2, 6},
-      {3, 7},
+      {6, 2},
+      {7, 3},
   };
 
   for (const auto& test : tests) {
@@ -63,8 +63,8 @@ TEST_F(SimpleSelectorExtractorTest, Advice) {
 
 TEST_F(SimpleSelectorExtractorTest, Instance) {
   struct {
-    size_t column_index;
     int32_t rotation;
+    size_t column_index;
   } tests[] = {
       {1, 1},
       {2, 2},

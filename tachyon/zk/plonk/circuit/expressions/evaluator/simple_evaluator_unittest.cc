@@ -41,13 +41,13 @@ TEST_F(SimpleEvaluatorTest, Selector) {
 
 TEST_F(SimpleEvaluatorTest, Fixed) {
   struct {
-    size_t column_index;
     int32_t rotation;
+    size_t column_index;
   } tests[] = {
       // fixed_polys_[0], (3 + 1 * 1) % 4 = 0, coefficient[0]
-      {0, 1},
+      {1, 0},
       // fixed_polys_[1], (3 + 2 * 1) % 4 = 1, coefficient[1]
-      {1, 2},
+      {2, 1},
   };
 
   for (const auto& test : tests) {
@@ -67,13 +67,13 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
 
 TEST_F(SimpleEvaluatorTest, Advice) {
   struct {
-    size_t column_index;
     int32_t rotation;
+    size_t column_index;
   } tests[] = {
       // advice_polys_[2], (3 + 6 * 1) % 4 = 1 coefficient[1]
-      {2, 6},
+      {6, 2},
       // advice_polys_[3], (3 + 7 * 1) % 4 = 2 coefficient[2]
-      {3, 7},
+      {7, 3},
   };
 
   for (const auto& test : tests) {
@@ -93,8 +93,8 @@ TEST_F(SimpleEvaluatorTest, Advice) {
 
 TEST_F(SimpleEvaluatorTest, Instance) {
   struct {
-    size_t column_index;
     int32_t rotation;
+    size_t column_index;
   } tests[] = {
       // instance_polys_[1], (3 + 1 * 1) % 4 = 0 coefficient[0]
       {1, 1},
