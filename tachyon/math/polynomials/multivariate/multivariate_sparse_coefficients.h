@@ -16,7 +16,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/base/openmp_util.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/base/random.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
@@ -97,21 +97,10 @@ class MultivariateSparseCoefficients {
 
     F Evaluate(const std::vector<F>& points) const {
 #if defined(TACHYON_HAS_OPENMP)
-      size_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
-      size_t num_elems = elements.size();
-      size_t num_elems_per_thread = (num_elems + thread_nums - 1) / thread_nums;
-
-      auto chunks = base::Chunked(elements, num_elems_per_thread);
-      std::vector<absl::Span<const Element>> chunks_vector =
-          base::Map(chunks.begin(), chunks.end(),
-                    [](absl::Span<const Element> chunk) { return chunk; });
-      std::vector<F> results =
-          base::CreateVector(chunks_vector.size(), F::Zero());
-
-#pragma omp parallel for
-      for (size_t i = 0; i < chunks_vector.size(); ++i) {
-        results[i] = EvaluateSerial(chunks_vector[i], points);
-      }
+      std::vector<F> results = base::ParallelizeMap(
+          elements, [&points](absl::Span<const Element> chunk) {
+            return EvaluateSerial(chunk, points);
+          });
       return std::accumulate(results.begin(), results.end(), F::One(),
                              std::multiplies<>());
 #else
@@ -264,21 +253,10 @@ class MultivariateSparseCoefficients {
       return F::Zero();
     }
 #if defined(TACHYON_HAS_OPENMP)
-    size_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
-    size_t num_terms = terms_.size();
-    size_t num_terms_per_thread = (num_terms + thread_nums - 1) / thread_nums;
-
-    auto chunks = base::Chunked(terms_, num_terms_per_thread);
-    std::vector<absl::Span<const Term>> chunks_vector =
-        base::Map(chunks.begin(), chunks.end(),
-                  [](absl::Span<const Term> chunk) { return chunk; });
     std::vector<F> results =
-        base::CreateVector(chunks_vector.size(), F::Zero());
-
-#pragma omp parallel for
-    for (size_t i = 0; i < chunks_vector.size(); ++i) {
-      results[i] = EvaluateSerial(chunks_vector[i], points);
-    }
+        base::ParallelizeMap(terms_, [&points](absl::Span<const Term> chunk) {
+          return EvaluateSerial(chunk, points);
+        });
     return std::accumulate(results.begin(), results.end(), F::Zero(),
                            std::plus<>());
 #else
