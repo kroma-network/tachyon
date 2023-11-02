@@ -45,6 +45,7 @@ class SimpleEvaluator
           challenges(challenges) {}
   };
 
+  SimpleEvaluator() = default;
   SimpleEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
                   const Arguments& arguments)
       : idx_(idx),
