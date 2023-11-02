@@ -120,8 +120,8 @@ class MultilinearDenseEvaluations {
         poly[b] = left + r * (right - left);
       }
     }
-    return MultilinearDenseEvaluations(std::vector<F>(
-        poly.begin(), poly.begin() + (size_t{1} << (n - k))));
+    return MultilinearDenseEvaluations(
+        std::vector<F>(poly.begin(), poly.begin() + (size_t{1} << (n - k))));
   }
 
   // Evaluate polynomial at |point|. It uses |FixVariables()| internally. The

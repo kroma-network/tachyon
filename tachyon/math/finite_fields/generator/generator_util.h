@@ -30,7 +30,7 @@ std::string MpzClassToMontString(const mpz_class& v_in, const mpz_class& m_in) {
     gmp::CopyLimbs(v_in, v.limbs);
   }
 
-  BigInt<N* 2> mul_result = v.Mul(r2);
+  BigInt<N * 2> mul_result = v.Mul(r2);
   BigInt<N>::template MontgomeryReduce64<false>(mul_result, m, inv, &v);
 
   mpz_class v_mont;

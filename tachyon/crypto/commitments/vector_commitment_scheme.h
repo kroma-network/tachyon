@@ -69,7 +69,8 @@ class VectorCommitmentScheme {
   // size of parameters.
   template <typename ContainerTy>
   [[nodiscard]] bool Commit(const ContainerTy& container,
-                            const Field& random_value, Commitment* result) const {
+                            const Field& random_value,
+                            Commitment* result) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoCommit(container, random_value, result);
   }

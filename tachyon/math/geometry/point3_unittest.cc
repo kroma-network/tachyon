@@ -2,8 +2,8 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
 

@@ -28,13 +28,13 @@ void AddJacobianPoint(NodeModule& m, std::string_view name) {
       .AddMethod("eq", &JacobianPointTy::operator==)
       .AddMethod("ne", &JacobianPointTy::operator!=)
       .AddMethod("add",
-                 &JacobianPointTy::template operator+<const JacobianPointTy&>)
+                 &JacobianPointTy::template operator+ <const JacobianPointTy&>)
       .AddMethod("addMixed",
-                 &JacobianPointTy::template operator+<const AffinePointTy&>)
+                 &JacobianPointTy::template operator+ <const AffinePointTy&>)
       .AddMethod("sub",
-                 &JacobianPointTy::template operator-<const JacobianPointTy&>)
+                 &JacobianPointTy::template operator- <const JacobianPointTy&>)
       .AddMethod("subMixed",
-                 &JacobianPointTy::template operator-<const AffinePointTy&>)
+                 &JacobianPointTy::template operator- <const AffinePointTy&>)
       .AddMethod("negative", &JacobianPointTy::Negative)
       .AddMethod("double", &JacobianPointTy::Double);
 }
