@@ -51,7 +51,9 @@ void Parallelize(ContainerTy& container, Callable callback,
                          std::move(callback));
 }
 
-// Splits the |container| by |chunk_size| and executes |callback| in parallel.
+// Splits the |container| by |chunk_size| and maps each chunk using the provided
+// |callback| in parallel. Each callback's return value is collected into a
+// vector which is then returned.
 // See parallelize_unittest.cc for more details.
 template <typename ContainerTy, typename Callable,
           typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
@@ -84,7 +86,9 @@ std::vector<ReturnType> ParallelizeMapByChunkSize(ContainerTy& container,
   return values;
 }
 
-// Splits the |container| into threads and executes |callback| in parallel.
+// Splits the |container| into threads and maps each chunk using the provided
+// |callback| in parallel. The results from each callback are collected into a
+// vector and returned.
 // See parallelize_unittest.cc for more details.
 template <typename ContainerTy, typename Callable>
 auto ParallelizeMap(ContainerTy& container, Callable callback,
