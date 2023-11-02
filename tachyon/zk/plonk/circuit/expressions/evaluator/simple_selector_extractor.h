@@ -18,7 +18,7 @@ template <typename F>
 class SimpleSelectorExtractor : public Evaluator<F, std::optional<Selector>> {
  public:
   // Evaluator methods
-  std::optional<Selector> Evaluate(const Expression<F>* input) const override {
+  std::optional<Selector> Evaluate(const Expression<F>* input) override {
     auto op =
         [](const std::optional<Selector>& left,
            const std::optional<Selector>& right) -> std::optional<Selector> {

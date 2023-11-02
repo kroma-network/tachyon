@@ -47,7 +47,7 @@ class SimpleEvaluator
   int32_t rot_scale() const { return rot_scale_; }
 
   // Evaluator methods
-  Field Evaluate(const Expression<Field>* input) const override {
+  Field Evaluate(const Expression<Field>* input) override {
     switch (input->type()) {
       case ExpressionType::kConstant:
         return input->ToConstant()->value();

@@ -20,7 +20,7 @@ template <typename F>
 class SimpleSelectorFinder : public Evaluator<F, bool> {
  public:
   // Evaluator methods
-  bool Evaluate(const Expression<F>* input) const override {
+  bool Evaluate(const Expression<F>* input) override {
     switch (input->type()) {
       case ExpressionType::kConstant:
         return false;

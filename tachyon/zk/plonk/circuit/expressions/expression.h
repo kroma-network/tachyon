@@ -93,7 +93,7 @@ class Expression {
       bool must_be_non_simple) const;
 
   template <typename EvaluatedTy>
-  EvaluatedTy Evaluate(const Evaluator<F, EvaluatedTy>* evaluator) const {
+  EvaluatedTy Evaluate(Evaluator<F, EvaluatedTy>* evaluator) const {
     return evaluator->Evaluate(this);
   }
 
