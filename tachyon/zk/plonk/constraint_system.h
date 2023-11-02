@@ -23,6 +23,7 @@
 #include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/plonk/circuit/gate.h"
 #include "tachyon/zk/plonk/circuit/query.h"
+#include "tachyon/zk/plonk/circuit/selector_compressor.h"
 #include "tachyon/zk/plonk/circuit/table_column.h"
 #include "tachyon/zk/plonk/circuit/virtual_cells.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument.h"
@@ -268,6 +269,80 @@ class ConstraintSystem {
         std::move(queried_selectors),
         std::move(queried_cells),
     });
+  }
+
+  // This will compress selectors together depending on their provided
+  // assignments. This |ConstraintSystem| will then be modified to add new
+  // fixed columns (representing the actual selectors) and will return the
+  // polynomials for those columns. Finally, an internal map is updated to
+  // find which fixed column corresponds with a given |Selector|.
+  //
+  // Do not call this twice. Yes, this should be a builder pattern instead.
+  std::vector<std::vector<F>> CompressSelectors(
+      const std::vector<std::vector<bool>>& selectors) {
+    // The number of provided selector assignments must be the number we
+    // counted for this constraint system.
+    CHECK_EQ(selectors.size(), num_selectors_);
+
+    // Compute the maximal degree of every selector. We only consider the
+    // expressions in gates, as lookup arguments cannot support simple
+    // selectors. Selectors that are complex or do not appear in any gates
+    // will have degree zero.
+    std::vector<size_t> degrees =
+        base::CreateVector(selectors.size(), size_t{0});
+    for (const Gate<F>& gate : gates_) {
+      for (const std::unique_ptr<Expression<F>>& expression : gate.polys()) {
+        std::optional<Selector> selector = expression->ExtractSimpleSelector();
+        if (selector.has_value()) {
+          degrees[selector->index()] =
+              std::max(degrees[selector->index()], expression->Degree());
+        }
+      }
+    }
+
+    // We will not increase the degree of the constraint system, so we limit
+    // ourselves to the largest existing degree constraint.
+    std::vector<FixedColumn> new_columns;
+    typename SelectorCompressor<F>::Result result =
+        SelectorCompressor<F>::Process(
+            selectors, degrees, ComputeDegree(), [this, &new_columns]() {
+              FixedColumn column = CreateFixedColumn();
+              new_columns.push_back(column);
+              return ExpressionFactory<F>::Fixed(
+                  FixedQuery(QueryFixedIndex(column, Rotation::Cur()),
+                             column.index(), Rotation::Cur()));
+            });
+
+    std::vector<FixedColumn> selector_map;
+    selector_map.resize(result.assignments.size());
+    std::vector<Expression<F>*> selector_replacements =
+        base::CreateVector(result.assignments.size(), nullptr);
+    for (const SelectorAssignment<F>& assignment : result.assignments) {
+      selector_replacements[assignment.selector_index()] =
+          assignment.expression();
+      selector_map[assignment.selector_index()] =
+          new_columns[assignment.combination_index]();
+    }
+
+    selector_map_ = std::move(selector_map);
+
+    for (Gate<F>& gate : gates_) {
+      for (std::unique_ptr<Expression<F>>& expression : gate.polys()) {
+        expression = expression->ReplaceSelectors(selector_replacements, false);
+      }
+    }
+    for (LookupArgument<F>& lookup : lookups_) {
+      for (std::unique_ptr<Expression<F>>& expression :
+           lookup.input_expressions()) {
+        expression = expression->ReplaceSelectors(selector_replacements, true);
+      }
+      for (std::unique_ptr<Expression<F>>& expression :
+           lookup.table_expressions()) {
+        expression = expression->ReplaceSelectors(selector_replacements, true);
+      }
+    }
+
+    return result.polys;
   }
 
   // Allocate a new simple selector. Simple selectors cannot be added to

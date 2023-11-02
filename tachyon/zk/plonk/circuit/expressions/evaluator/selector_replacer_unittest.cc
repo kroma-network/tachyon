@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_selector_finder.h"
+#include "tachyon/zk/plonk/circuit/expressions/evaluator/selector_replacer.h"
 
 #include <memory>
 
@@ -9,23 +9,30 @@ namespace tachyon::zk {
 
 using Expr = std::unique_ptr<Expression<GF7>>;
 
-class SimpleSelectorFinderTest : public EvaluatorTest {};
+class SelectorReplacerTest : public EvaluatorTest {};
 
-TEST_F(SimpleSelectorFinderTest, Constant) {
+TEST_F(SelectorReplacerTest, Constant) {
   GF7 value = GF7::Random();
   std::unique_ptr<Expression<GF7>> expr =
       ExpressionFactory<GF7>::Constant(value);
-  EXPECT_FALSE(expr->ContainsSimpleSelector());
+  EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
 }
 
-TEST_F(SimpleSelectorFinderTest, Selector) {
+TEST_F(SelectorReplacerTest, Selector) {
   Expr expr = ExpressionFactory<GF7>::Selector(Selector::Simple(1));
-  EXPECT_TRUE(expr->ContainsSimpleSelector());
+  std::vector<std::unique_ptr<Expression<GF7>>> replacements;
+  replacements.push_back(ExpressionFactory<GF7>::Selector(Selector::Simple(2)));
+  replacements.push_back(
+      ExpressionFactory<GF7>::Selector(Selector::Complex(3)));
+
+  EXPECT_DEATH(expr->ReplaceSelectors(replacements, true), "");
+  EXPECT_EQ(*expr->ReplaceSelectors(replacements, false), *replacements[1]);
+
   expr = ExpressionFactory<GF7>::Selector(Selector::Complex(1));
-  EXPECT_FALSE(expr->ContainsSimpleSelector());
+  EXPECT_EQ(*expr->ReplaceSelectors(replacements, false), *replacements[1]);
 }
 
-TEST_F(SimpleSelectorFinderTest, Fixed) {
+TEST_F(SelectorReplacerTest, Fixed) {
   struct {
     int32_t rotation;
     size_t column_index;
@@ -38,11 +45,11 @@ TEST_F(SimpleSelectorFinderTest, Fixed) {
     FixedQuery query(1, Rotation(test.rotation),
                      FixedColumn(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
-    EXPECT_FALSE(expr->ContainsSimpleSelector());
+    EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
   }
 }
 
-TEST_F(SimpleSelectorFinderTest, Advice) {
+TEST_F(SelectorReplacerTest, Advice) {
   struct {
     int32_t rotation;
     size_t column_index;
@@ -55,11 +62,11 @@ TEST_F(SimpleSelectorFinderTest, Advice) {
     AdviceQuery query(1, Rotation(test.rotation),
                       AdviceColumn(test.column_index, Phase(0)));
     Expr expr = ExpressionFactory<GF7>::Advice(query);
-    EXPECT_FALSE(expr->ContainsSimpleSelector());
+    EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
   }
 }
 
-TEST_F(SimpleSelectorFinderTest, Instance) {
+TEST_F(SelectorReplacerTest, Instance) {
   struct {
     int32_t rotation;
     size_t column_index;
@@ -72,57 +79,46 @@ TEST_F(SimpleSelectorFinderTest, Instance) {
     InstanceQuery query(1, Rotation(test.rotation),
                         InstanceColumn(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Instance(query);
-    EXPECT_FALSE(expr->ContainsSimpleSelector());
+    EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
   }
 }
 
-TEST_F(SimpleSelectorFinderTest, Challenges) {
+TEST_F(SelectorReplacerTest, Challenges) {
   for (size_t i = 0; i < challenges_.size(); ++i) {
     Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(i, Phase(0)));
-    EXPECT_FALSE(expr->ContainsSimpleSelector());
+    EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
   }
 }
 
-TEST_F(SimpleSelectorFinderTest, Negated) {
+TEST_F(SelectorReplacerTest, Negated) {
   GF7 value = GF7::Random();
   Expr expr =
       ExpressionFactory<GF7>::Negated(ExpressionFactory<GF7>::Constant(value));
-  EXPECT_FALSE(expr->ContainsSimpleSelector());
+  EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
 }
 
-TEST_F(SimpleSelectorFinderTest, Sum) {
+TEST_F(SelectorReplacerTest, Sum) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
   Expr expr = ExpressionFactory<GF7>::Sum(ExpressionFactory<GF7>::Constant(a),
                                           ExpressionFactory<GF7>::Constant(b));
   EXPECT_FALSE(expr->ContainsSimpleSelector());
-  expr = ExpressionFactory<GF7>::Sum(
-      ExpressionFactory<GF7>::Constant(a),
-      ExpressionFactory<GF7>::Selector(Selector::Simple(1)));
-  EXPECT_TRUE(expr->ContainsSimpleSelector());
 }
 
-TEST_F(SimpleSelectorFinderTest, Product) {
+TEST_F(SelectorReplacerTest, Product) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
   Expr expr = ExpressionFactory<GF7>::Product(
       ExpressionFactory<GF7>::Constant(a), ExpressionFactory<GF7>::Constant(b));
-  EXPECT_FALSE(expr->ContainsSimpleSelector());
-  expr = ExpressionFactory<GF7>::Product(
-      ExpressionFactory<GF7>::Constant(a),
-      ExpressionFactory<GF7>::Selector(Selector::Simple(1)));
-  EXPECT_TRUE(expr->ContainsSimpleSelector());
+  EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
 }
 
-TEST_F(SimpleSelectorFinderTest, Scaled) {
+TEST_F(SelectorReplacerTest, Scaled) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
   Expr expr =
       ExpressionFactory<GF7>::Scaled(ExpressionFactory<GF7>::Constant(a), b);
-  EXPECT_FALSE(expr->ContainsSimpleSelector());
-  expr = ExpressionFactory<GF7>::Scaled(
-      ExpressionFactory<GF7>::Selector(Selector::Simple(1)), GF7(3));
-  EXPECT_TRUE(expr->ContainsSimpleSelector());
+  EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
 }
 
 }  // namespace tachyon::zk

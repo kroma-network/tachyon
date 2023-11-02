@@ -121,9 +121,14 @@ Error VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
         return Evals(std::move(result));
       });
 
-  // TODO(chokobole): Implement selector compression.
-  // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/keygen.rs#L236-L241.
+  std::vector<std::vector<F>> selector_polys_tmp =
+      constraint_system.CompressSelectors(assembly.selectors());
+  std::vector<Evals> selector_polys =
+      base::Map(std::make_move_iterator(selector_polys_tmp.begin()),
+                std::make_move_iterator(selector_polys_tmp.end()),
+                [](std::vector<F>&& vec) { return Evals(std::move(vec)); });
+  fixeds.insert(fixeds.end(), std::make_move_iterator(selector_polys.begin()),
+                std::make_move_iterator(selector_polys.end()));
 
   PermutationVerifyingKey<PCSTy> permutation_vk =
       assembly.permutation().BuildVerifyingKey(domain.get());
