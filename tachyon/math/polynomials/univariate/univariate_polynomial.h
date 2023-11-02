@@ -81,6 +81,10 @@ class UnivariatePolynomial final
 
   constexpr size_t Degree() const { return coefficients_.Degree(); }
 
+  constexpr const size_t NumElements() const {
+    return coefficients_.NumElements();
+  }
+
   constexpr Field Evaluate(const Field& point) const {
     return coefficients_.Evaluate(point);
   }
@@ -182,7 +186,7 @@ class UnivariatePolynomial final
 
   // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
   // So when the returned evaluations is called with |IsZero()|, it returns
-  // false. This is only used at |EvaluationDomain|.
+  // false. So please use it carefully!
   constexpr static UnivariatePolynomial UnsafeZero(size_t degree) {
     UnivariatePolynomial ret;
     ret.coefficients_ = Coefficients::UnsafeZero(degree);

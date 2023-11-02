@@ -301,7 +301,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     size_t thread_nums = 1;
 #endif
     // Invariant: |pow| = |c|*|g|ⁱ at the i-th iteration of the loop
-    size_t size = poly_or_evals.Degree() + 1;
+    size_t size = poly_or_evals.NumElements();
     size_t num_elems_per_thread = std::max(size / thread_nums, size_t{1024});
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       F pow = c * g.Pow(BigInt<1>(i));

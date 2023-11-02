@@ -68,7 +68,7 @@ TYPED_TEST(AffinePointTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TYPED_TEST(AffinePointTest, EqualityOperator) {
+TYPED_TEST(AffinePointTest, EqualityOperators) {
   using AffinePointTy = TypeParam;
   using BaseField = typename AffinePointTy::BaseField;
 

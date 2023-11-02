@@ -115,7 +115,7 @@ class PermutationAssembly {
 
     // Init evaluation formed polynomials with all-zero coefficients
     std::vector<Evals> permutations =
-        base::CreateVector(columns_.size(), Evals::Zero(kMaxDegree));
+        base::CreateVector(columns_.size(), Evals::UnsafeZero(kMaxDegree));
 
     // Assign lookup_table to permutations
     base::Parallelize(

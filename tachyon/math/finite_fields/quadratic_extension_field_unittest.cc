@@ -47,7 +47,7 @@ TEST_F(QuadraticExtensionFieldTest, ConjugateInPlace) {
   EXPECT_EQ(f.c1(), -f2.c1());
 }
 
-TEST_F(QuadraticExtensionFieldTest, EqualityOperator) {
+TEST_F(QuadraticExtensionFieldTest, EqualityOperators) {
   GF7_2 f(GF7(3), GF7(4));
   GF7_2 f2(GF7(4), GF7(4));
   EXPECT_FALSE(f == f2);

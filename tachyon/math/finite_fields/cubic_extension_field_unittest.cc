@@ -35,7 +35,7 @@ TEST_F(CubicExtensionFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TEST_F(CubicExtensionFieldTest, EqualityOperator) {
+TEST_F(CubicExtensionFieldTest, EqualityOperators) {
   GF7_3 f(GF7(3), GF7(4), GF7(5));
   GF7_3 f2(GF7(4), GF7(4), GF7(5));
   EXPECT_FALSE(f == f2);

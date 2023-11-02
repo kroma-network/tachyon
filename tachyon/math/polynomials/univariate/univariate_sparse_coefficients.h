@@ -131,6 +131,8 @@ class UnivariateSparseCoefficients {
     return terms_.back().degree;
   }
 
+  constexpr size_t NumElements() const { return terms_.size(); }
+
   constexpr F Evaluate(const F& point) const {
     if (IsZero()) return F::Zero();
 

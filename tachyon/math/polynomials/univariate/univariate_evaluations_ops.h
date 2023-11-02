@@ -25,7 +25,12 @@ class UnivariateEvaluationsOp {
   static Poly& AddInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
-    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    if (l_evaluations.empty()) {
+      // 0 + g(x)
+      l_evaluations = r_evaluations;
+      return self;
+    }
+    // f(x) + 0 skips this for loop.
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] += r_evaluations[i];
     }
@@ -35,7 +40,11 @@ class UnivariateEvaluationsOp {
   static Poly& SubInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
-    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    if (l_evaluations.empty()) {
+      // 0 - g(x)
+      l_evaluations.resize(r_evaluations.size());
+    }
+    // f(x) - 0 skips this for loop.
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] -= r_evaluations[i];
     }
@@ -55,8 +64,16 @@ class UnivariateEvaluationsOp {
   static Poly& MulInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
-    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+    if (l_evaluations.empty()) {
+      // 0 * g(x)
+      return self;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) * 0
+      l_evaluations.clear();
+      return self;
+    }
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] *= r_evaluations[i];
     }
     return self;
@@ -65,8 +82,13 @@ class UnivariateEvaluationsOp {
   static Poly& DivInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
-    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+    if (l_evaluations.empty()) {
+      // 0 / g(x)
+      return self;
+    }
+    // TODO(chokobole): Check division by zero polynomial.
+    // f(x) / 0 skips this for loop.
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] /= r_evaluations[i];
     }
     return self;
