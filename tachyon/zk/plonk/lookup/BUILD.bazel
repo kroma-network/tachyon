@@ -1,9 +1,75 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "compress_expression",
+    hdrs = ["compress_expression.h"],
+    deps = ["//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator"],
+)
+
+tachyon_cc_library(
     name = "lookup_argument",
     hdrs = ["lookup_argument.h"],
-    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
+    deps = [
+        ":compress_expression",
+        ":lookup_permuted",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_committed",
+    hdrs = ["lookup_committed.h"],
+    deps = [
+        ":lookup_evaluated",
+        "//tachyon/zk/plonk/circuit:rotation",
+        "//tachyon/zk/transcript",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_evaluated",
+    hdrs = ["lookup_evaluated.h"],
+    deps = ["//tachyon/zk/base:blinded_polynomial"],
+)
+
+tachyon_cc_library(
+    name = "lookup_permuted",
+    hdrs = ["lookup_permuted.h"],
+    deps = [
+        ":lookup_committed",
+        ":permute_expression_pair",
+        "//tachyon/base:parallelize",
+        "//tachyon/zk/base:blinded_polynomial_commitment",
+        "//tachyon/zk/base:evals_pair",
+        "//tachyon/zk/transcript",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permute_expression_pair",
+    hdrs = ["permute_expression_pair.h"],
+    deps = [
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/base:evals_pair",
+        "//tachyon/zk/plonk:error",
+        "@com_google_absl//absl/container:btree",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "lookup_argument_unittests",
+    srcs = [
+        "compress_expression_unittest.cc",
+        "lookup_permuted_unittest.cc",
+        "permute_expression_pair_unittest.cc",
+    ],
+    deps = [
+        ":compress_expression",
+        ":lookup_permuted",
+        ":permute_expression_pair",
+        "//tachyon/base:random",
+        "//tachyon/zk/plonk/circuit/expressions:expression_factory",
+        "//tachyon/zk/plonk/lookup/test:compress_expression_test_setting",
+    ],
 )

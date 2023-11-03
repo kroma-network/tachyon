@@ -216,6 +216,45 @@ TEST_F(UnivariateEvaluationsTest, MultiplicativeOperators) {
   }
 }
 
+TEST_F(UnivariateEvaluationsTest, MulScalar) {
+  Poly poly = Poly::Random();
+  GF7 scalar = GF7::Random();
+
+  std::vector<GF7> expected_evals;
+  const std::vector<GF7>& evals = poly.evaluations();
+  expected_evals.reserve(evals.size());
+  for (size_t i = 0; i < evals.size(); ++i) {
+    expected_evals.push_back(evals[i] * scalar);
+  }
+
+  Poly actual = poly * scalar;
+  Poly expected(std::move(expected_evals));
+  EXPECT_EQ(actual, expected);
+  poly *= scalar;
+  EXPECT_EQ(poly, expected);
+}
+
+TEST_F(UnivariateEvaluationsTest, DivScalar) {
+  Poly poly = Poly::Random();
+  GF7 scalar = GF7::Random();
+  while (scalar.IsZero()) {
+    scalar = GF7::Random();
+  }
+
+  std::vector<GF7> expected_evals;
+  const std::vector<GF7>& evals = poly.evaluations();
+  expected_evals.reserve(evals.size());
+  for (size_t i = 0; i < evals.size(); ++i) {
+    expected_evals.push_back(evals[i] / scalar);
+  }
+
+  Poly actual = poly / scalar;
+  Poly expected(std::move(expected_evals));
+  EXPECT_EQ(actual, expected);
+  poly /= scalar;
+  EXPECT_EQ(poly, expected);
+}
+
 TEST_F(UnivariateEvaluationsTest, Copyable) {
   base::VectorBuffer buf;
   buf.Write(polys_[0]);

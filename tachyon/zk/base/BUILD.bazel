@@ -9,6 +9,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "blinded_polynomial",
+    hdrs = ["blinded_polynomial.h"],
+)
+
+tachyon_cc_library(
+    name = "blinded_polynomial_commitment",
+    hdrs = ["blinded_polynomial_commitment.h"],
+    deps = [":blinded_polynomial"],
+)
+
+tachyon_cc_library(
+    name = "evals_pair",
+    hdrs = ["evals_pair.h"],
+)
+
+tachyon_cc_library(
     name = "random_field_generator",
     hdrs = ["random_field_generator.h"],
 )
@@ -38,19 +54,24 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "base_unittests",
     srcs = [
+        "blinded_polynomial_commitment_unittest.cc",
         "blinder_unittest.cc",
         "polynomial_pointer_unittest.cc",
         "value_unittest.cc",
     ],
     deps = [
+        ":blinded_polynomial_commitment",
         ":blinder",
         ":polynomial_pointer",
         ":value",
         "//tachyon/base:random",
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
+        "//tachyon/math/elliptic_curves/bls/bls12_381:g2",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/finite_fields/test:gf7",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
 )

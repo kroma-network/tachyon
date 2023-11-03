@@ -79,6 +79,14 @@ class UnivariateEvaluationsOp {
     return self;
   }
 
+  static Poly& MulInPlace(Poly& self, const F& scalar) {
+    std::vector<F>& l_evaluations = self.evaluations_;
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+      l_evaluations[i] *= scalar;
+    }
+    return self;
+  }
+
   static Poly& DivInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
@@ -90,6 +98,14 @@ class UnivariateEvaluationsOp {
     // f(x) / 0 skips this for loop.
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] /= r_evaluations[i];
+    }
+    return self;
+  }
+
+  static Poly& DivInPlace(Poly& self, const F& scalar) {
+    std::vector<F>& l_evaluations = self.evaluations_;
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+      l_evaluations[i] /= scalar;
     }
     return self;
   }

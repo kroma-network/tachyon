@@ -157,9 +157,19 @@ class UnivariateEvaluations final
                                                                        other);
   }
 
+  UnivariateEvaluations& MulInPlace(const F& scalar) {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::MulInPlace(*this,
+                                                                       scalar);
+  }
+
   UnivariateEvaluations& DivInPlace(const UnivariateEvaluations& other) {
     return internal::UnivariateEvaluationsOp<F, MaxDegree>::DivInPlace(*this,
                                                                        other);
+  }
+
+  UnivariateEvaluations& DivInPlace(const F& scalar) {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::DivInPlace(*this,
+                                                                       scalar);
   }
 
   constexpr UnivariateEvaluations operator/(
@@ -171,6 +181,15 @@ class UnivariateEvaluations final
   constexpr UnivariateEvaluations& operator/=(
       const UnivariateEvaluations& other) {
     return DivInPlace(other);
+  }
+
+  constexpr UnivariateEvaluations operator/(const F& scalar) const {
+    UnivariateEvaluations poly = *this;
+    return poly.DivInPlace(scalar);
+  }
+
+  constexpr UnivariateEvaluations& operator/=(const F& scalar) {
+    return DivInPlace(scalar);
   }
 
  private:

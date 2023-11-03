@@ -272,6 +272,45 @@ TEST_F(UnivariateDensePolynomialTest, MultiplicativeOperators) {
   }
 }
 
+TEST_F(UnivariateDensePolynomialTest, MulScalar) {
+  Poly poly = Poly::Random(kMaxDegree);
+  GF7 scalar = GF7::Random();
+
+  std::vector<GF7> expected_coeffs;
+  const std::vector<GF7>& coeffs = poly.coefficients().coefficients();
+  expected_coeffs.reserve(coeffs.size());
+  for (size_t i = 0; i < coeffs.size(); ++i) {
+    expected_coeffs.push_back(coeffs[i] * scalar);
+  }
+
+  Poly actual = poly * scalar;
+  Poly expected(Coeffs(std::move(expected_coeffs)));
+  EXPECT_EQ(actual, expected);
+  poly *= scalar;
+  EXPECT_EQ(poly, expected);
+}
+
+TEST_F(UnivariateDensePolynomialTest, DivScalar) {
+  Poly poly = Poly::Random(kMaxDegree);
+  GF7 scalar = GF7::Random();
+  while (scalar.IsZero()) {
+    scalar = GF7::Random();
+  }
+
+  std::vector<GF7> expected_coeffs;
+  const std::vector<GF7>& coeffs = poly.coefficients().coefficients();
+  expected_coeffs.reserve(coeffs.size());
+  for (size_t i = 0; i < coeffs.size(); ++i) {
+    expected_coeffs.push_back(coeffs[i] / scalar);
+  }
+
+  Poly actual = poly / scalar;
+  Poly expected(Coeffs(std::move(expected_coeffs)));
+  EXPECT_EQ(actual, expected);
+  poly /= scalar;
+  EXPECT_EQ(poly, expected);
+}
+
 TEST_F(UnivariateDensePolynomialTest, Copyable) {
   Poly expected(Coeffs({GF7(1), GF7(4), GF7(3), GF7(5)}));
   Poly value;

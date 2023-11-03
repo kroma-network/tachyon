@@ -29,25 +29,51 @@ class SimpleEvaluator
  public:
   using Field = typename Poly::Field;
 
+  struct Arguments {
+    const std::vector<Poly>* fixeds = nullptr;
+    const std::vector<Poly>* advices = nullptr;
+    const std::vector<Poly>* instances = nullptr;
+    const std::vector<Field>* challenges = nullptr;
+
+    Arguments() = default;
+    Arguments(const std::vector<Poly>* fixeds, const std::vector<Poly>* advices,
+              const std::vector<Poly>* instances,
+              const std::vector<Field>* challenges)
+        : fixeds(fixeds),
+          advices(advices),
+          instances(instances),
+          challenges(challenges) {}
+  };
+
+  SimpleEvaluator() = default;
   SimpleEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
-                  const std::vector<Poly>* fixeds,
-                  const std::vector<Poly>* advices,
-                  const std::vector<Poly>* instances,
-                  const std::vector<Field>* challenges)
+                  const Arguments& arguments)
       : idx_(idx),
         size_(size),
         rot_scale_(rot_scale),
-        fixeds_(fixeds),
-        advices_(advices),
-        instances_(instances),
-        challenges_(challenges) {}
+        fixeds_(arguments.fixeds),
+        advices_(arguments.advices),
+        instances_(arguments.instances),
+        challenges_(arguments.challenges) {}
 
   int32_t idx() const { return idx_; }
+  void set_idx(int32_t idx) { idx_ = idx; }
   int32_t size() const { return size_; }
   int32_t rot_scale() const { return rot_scale_; }
 
   // Evaluator methods
   Field Evaluate(const Expression<Field>* input) override {
+    class ScopedIdxIncrement {
+     public:
+      explicit ScopedIdxIncrement(SimpleEvaluator* evaluator)
+          : evaluator(evaluator) {}
+      ~ScopedIdxIncrement() { ++evaluator->idx_; }
+
+     private:
+      SimpleEvaluator* const evaluator;
+    };
+    ScopedIdxIncrement scoped_idx_increment(this);
+
     switch (input->type()) {
       case ExpressionType::kConstant:
         return input->ToConstant()->value();

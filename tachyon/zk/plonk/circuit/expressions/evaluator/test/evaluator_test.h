@@ -28,16 +28,16 @@ class EvaluatorTest : public testing::Test {
 
   void SetUp() override {
     fixed_polys_.push_back(Poly(Coeffs({GF7(3)})));
-    fixed_polys_.push_back(Poly(Coeffs({GF7(2), GF7(4)})));
+    fixed_polys_.push_back(Poly(Coeffs({GF7(2), GF7(4), GF7(1)})));
 
     advice_polys_.push_back(Poly(Coeffs({GF7(1)})));
     advice_polys_.push_back(Poly(Coeffs({GF7(2), GF7(3)})));
     advice_polys_.push_back(Poly(Coeffs({GF7(4), GF7(5)})));
-    advice_polys_.push_back(Poly(Coeffs({GF7(6), GF7(1), GF7(2)})));
+    advice_polys_.push_back(Poly(Coeffs({GF7(6), GF7(1), GF7(2), GF7(4)})));
 
     instance_polys_.push_back(Poly(Coeffs({GF7(1)})));
     instance_polys_.push_back(Poly(Coeffs({GF7(4), GF7(1)})));
-    instance_polys_.push_back(Poly(Coeffs({GF7(2), GF7(3)})));
+    instance_polys_.push_back(Poly(Coeffs({GF7(2), GF7(3), GF7(5)})));
     instance_polys_.push_back(Poly(Coeffs({GF7(5), GF7(6)})));
 
     challenges_.push_back(GF7(1));

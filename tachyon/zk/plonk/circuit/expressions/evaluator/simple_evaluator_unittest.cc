@@ -14,8 +14,10 @@ using Expr = std::unique_ptr<Expression<GF7>>;
 class SimpleEvaluatorTest : public EvaluatorTest {
  public:
   SimpleEvaluatorTest() {
-    simple_evaluator_ = std::make_unique<SimpleEvaluator<Poly>>(
-        3, 4, 1, &fixed_polys_, &advice_polys_, &instance_polys_, &challenges_);
+    SimpleEvaluator<Poly>::Arguments arguments(&fixed_polys_, &advice_polys_,
+                                               &instance_polys_, &challenges_);
+    simple_evaluator_ =
+        std::make_unique<SimpleEvaluator<Poly>>(3, 4, 1, arguments);
   }
   SimpleEvaluatorTest(const SimpleEvaluatorTest&) = delete;
   SimpleEvaluatorTest& operator=(const SimpleEvaluatorTest&) = delete;
@@ -30,8 +32,10 @@ class SimpleEvaluatorTest : public EvaluatorTest {
 TEST_F(SimpleEvaluatorTest, Constant) {
   GF7 value = GF7::Random();
   Expr expr = ExpressionFactory<GF7>::Constant(value);
+  int32_t last_idx = simple_evaluator_->idx();
   GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(value, evaluated);
+  EXPECT_EQ(simple_evaluator_->idx(), last_idx + 1);
 }
 
 TEST_F(SimpleEvaluatorTest, Selector) {
@@ -46,7 +50,7 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
   } tests[] = {
       // fixed_polys_[0], (3 + 1 * 1) % 4 = 0, coefficient[0]
       {1, 0},
-      // fixed_polys_[1], (3 + 2 * 1) % 4 = 1, coefficient[1]
+      // fixed_polys_[1], (4 + 2 * 1) % 4 = 2, coefficient[2]
       {2, 1},
   };
 
@@ -70,9 +74,9 @@ TEST_F(SimpleEvaluatorTest, Advice) {
     int32_t rotation;
     size_t column_index;
   } tests[] = {
-      // advice_polys_[2], (3 + 6 * 1) % 4 = 1 coefficient[1]
+      // advice_polys_[2], (3 + 6 * 1) % 4 = 1, coefficient[1]
       {6, 2},
-      // advice_polys_[3], (3 + 7 * 1) % 4 = 2 coefficient[2]
+      // advice_polys_[3], (4 + 7 * 1) % 4 = 3, coefficient[3]
       {7, 3},
   };
 
@@ -96,9 +100,9 @@ TEST_F(SimpleEvaluatorTest, Instance) {
     int32_t rotation;
     size_t column_index;
   } tests[] = {
-      // instance_polys_[1], (3 + 1 * 1) % 4 = 0 coefficient[0]
+      // instance_polys_[1], (3 + 1 * 1) % 4 = 0, coefficient[0]
       {1, 1},
-      // instance_polys_[2], (3 + 2 * 1) % 4 = 1 coefficient[1]
+      // instance_polys_[2], (4 + 2 * 1) % 4 = 2, coefficient[2]
       {2, 2},
   };
 

@@ -37,6 +37,24 @@ struct UnivariateTerm {
 
   UnivariateTerm operator-() const { return {degree, -coefficient}; }
 
+  UnivariateTerm operator*(const F& scalar) const {
+    return {degree, coefficient * scalar};
+  }
+
+  UnivariateTerm& operator*=(const F& scalar) {
+    coefficient *= scalar;
+    return *this;
+  }
+
+  UnivariateTerm operator/(const F& scalar) const {
+    return {degree, coefficient / scalar};
+  }
+
+  UnivariateTerm& operator/=(const F& scalar) {
+    coefficient /= scalar;
+    return *this;
+  }
+
   bool operator<(const UnivariateTerm& other) const {
     return degree < other.degree;
   }
