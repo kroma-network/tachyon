@@ -27,18 +27,18 @@ TEST_F(CompressExpressionTest, CompressExpressions) {
       });
 
   SimpleEvaluator<Evals> evaluator = evaluator_;
-  std::vector<F> expected = base::CreateVector(domain_->size(), F::Zero());
+  std::vector<F> expected = base::CreateVector(kDomainSize, F::Zero());
   for (size_t i = 0; i < expressions.size(); ++i) {
     F value = evaluator.Evaluate(expressions[i].get());
-    for (size_t j = 0; j < domain_->size(); ++j) {
+    for (size_t j = 0; j < kDomainSize; ++j) {
       expected[j] *= theta_;
       expected[j] += value;
     }
   }
 
   Evals out;
-  ASSERT_TRUE(CompressExpressions(expressions, domain_->size(), theta_,
-                                  evaluator_, &out));
+  ASSERT_TRUE(
+      CompressExpressions(expressions, kDomainSize, theta_, evaluator_, &out));
   EXPECT_EQ(out, Evals(std::move(expected)));
 }
 

@@ -14,14 +14,33 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "blinded_polynomial_commitment",
-    hdrs = ["blinded_polynomial_commitment.h"],
-    deps = [":blinded_polynomial"],
+    name = "evals_pair",
+    hdrs = ["evals_pair.h"],
 )
 
 tachyon_cc_library(
-    name = "evals_pair",
-    hdrs = ["evals_pair.h"],
+    name = "halo2_prover",
+    hdrs = ["halo2_prover.h"],
+    deps = [
+        ":halo2_random_field_generator",
+        ":prover",
+    ],
+)
+
+tachyon_cc_library(
+    name = "halo2_prover_test",
+    testonly = True,
+    hdrs = ["halo2_prover_test.h"],
+    deps = [
+        ":blinder",
+        ":halo2_prover",
+        "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/bn/bn254:g2",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "//tachyon/zk/transcript:poseidon_transcript",
+        "@com_google_absl//absl/memory",
+    ],
 )
 
 tachyon_cc_library(
@@ -31,6 +50,16 @@ tachyon_cc_library(
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
         "//tachyon/math/base:big_int",
         "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prover",
+    hdrs = ["prover.h"],
+    deps = [
+        ":blinded_polynomial",
+        ":blinder",
+        "//tachyon/zk/transcript",
     ],
 )
 
@@ -64,27 +93,18 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "base_unittests",
     srcs = [
-        "blinded_polynomial_commitment_unittest.cc",
         "blinder_unittest.cc",
         "halo2_random_field_generator_unittest.cc",
         "polynomial_pointer_unittest.cc",
+        "prover_unittest.cc",
         "value_unittest.cc",
     ],
     deps = [
-        ":blinded_polynomial_commitment",
-        ":blinder",
-        ":halo2_random_field_generator",
+        ":halo2_prover_test",
         ":polynomial_pointer",
         ":value",
         "//tachyon/base:random",
         "//tachyon/base/containers:container_util",
-        "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
-        "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
-        "//tachyon/math/elliptic_curves/bls/bls12_381:g2",
-        "//tachyon/math/elliptic_curves/bn/bn254:fq",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/finite_fields/test:gf7",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
 )
