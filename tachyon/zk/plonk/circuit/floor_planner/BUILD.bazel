@@ -8,7 +8,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/containers:contains",
         "//tachyon/math/base:rational_field",
-        "//tachyon/zk:value",
+        "//tachyon/zk/base:value",
         "//tachyon/zk/plonk/circuit:assignment",
         "//tachyon/zk/plonk/circuit:table_column",
         "@com_google_absl//absl/container:flat_hash_map",

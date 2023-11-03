@@ -14,11 +14,11 @@
 
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/math/base/rational_field.h"
+#include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/challenge.h"
 #include "tachyon/zk/plonk/circuit/column.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
 #include "tachyon/zk/plonk/error.h"
-#include "tachyon/zk/value.h"
 
 namespace tachyon::zk {
 

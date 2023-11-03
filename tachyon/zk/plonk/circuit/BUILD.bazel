@@ -19,7 +19,7 @@ tachyon_cc_library(
     hdrs = ["assigned_cell.h"],
     deps = [
         ":cell",
-        "//tachyon/zk:value",
+        "//tachyon/zk/base:value",
         "//tachyon/zk/plonk:error",
     ],
 )
@@ -33,7 +33,7 @@ tachyon_cc_library(
         ":selector",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
-        "//tachyon/zk:value",
+        "//tachyon/zk/base:value",
         "//tachyon/zk/plonk:error",
     ],
 )
@@ -218,7 +218,7 @@ tachyon_cc_library(
     deps = [
         ":table_column",
         "//tachyon/math/base:rational_field",
-        "//tachyon/zk:value",
+        "//tachyon/zk/base:value",
         "//tachyon/zk/plonk:error",
     ],
 )

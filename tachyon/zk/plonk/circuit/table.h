@@ -10,9 +10,9 @@
 #include <string>
 
 #include "tachyon/math/base/rational_field.h"
+#include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/table_column.h"
 #include "tachyon/zk/plonk/error.h"
-#include "tachyon/zk/value.h"
 
 namespace tachyon::zk {
 
