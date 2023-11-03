@@ -9,6 +9,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "evals_pair",
+    hdrs = ["evals_pair.h"],
+)
+
+tachyon_cc_library(
     name = "random_field_generator",
     hdrs = ["random_field_generator.h"],
 )
