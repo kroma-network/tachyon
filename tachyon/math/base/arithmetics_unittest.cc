@@ -135,13 +135,13 @@ TEST(Arithmetics, MulAddWithCarry64) {
 
   absl::uint128 bc = absl::uint128(b) * absl::uint128(c);
   auto result = u64::MulAddWithCarry(a, b, c);
-  EXPECT_EQ(result.lo, static_cast<uint64_t>(absl::uint128(a) + bc));
+  EXPECT_EQ(result.lo, absl::Uint128Low64(absl::uint128(a) + bc));
   EXPECT_EQ(result.hi, 0);
 
-  a = static_cast<uint64_t>(std::numeric_limits<absl::uint128>::max() - bc);
+  a = absl::Uint128Low64(std::numeric_limits<absl::uint128>::max() - bc);
   auto result2 = u64::MulAddWithCarry(a, b, c, 1);
   EXPECT_EQ(result2.lo,
-            static_cast<uint64_t>(absl::uint128(a) + bc + absl::uint128(1)));
+            absl::Uint128Low64(absl::uint128(a) + bc + absl::uint128(1)));
   EXPECT_EQ(result2.hi, 1);
 }
 

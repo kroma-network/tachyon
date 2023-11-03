@@ -1,0 +1,18 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "xor_shift_rng",
+    hdrs = ["xor_shift_rng.h"],
+    deps = [
+        "//tachyon/base:random",
+        "//tachyon/crypto/random:rng",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "xor_shift_unittests",
+    srcs = ["xor_shift_rng_unittest.cc"],
+    deps = [":xor_shift_rng"],
+)
