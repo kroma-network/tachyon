@@ -50,7 +50,7 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
   } tests[] = {
       // fixed_polys_[0], (3 + 1 * 1) % 4 = 0, coefficient[0]
       {1, 0},
-      // fixed_polys_[1], (3 + 2 * 1) % 4 = 1, coefficient[1]
+      // fixed_polys_[1], (4 + 2 * 1) % 4 = 2, coefficient[2]
       {2, 1},
   };
 
@@ -74,9 +74,9 @@ TEST_F(SimpleEvaluatorTest, Advice) {
     int32_t rotation;
     size_t column_index;
   } tests[] = {
-      // advice_polys_[2], (3 + 6 * 1) % 4 = 1 coefficient[1]
+      // advice_polys_[2], (3 + 6 * 1) % 4 = 1, coefficient[1]
       {6, 2},
-      // advice_polys_[3], (3 + 7 * 1) % 4 = 2 coefficient[2]
+      // advice_polys_[3], (4 + 7 * 1) % 4 = 3, coefficient[3]
       {7, 3},
   };
 
@@ -100,9 +100,9 @@ TEST_F(SimpleEvaluatorTest, Instance) {
     int32_t rotation;
     size_t column_index;
   } tests[] = {
-      // instance_polys_[1], (3 + 1 * 1) % 4 = 0 coefficient[0]
+      // instance_polys_[1], (3 + 1 * 1) % 4 = 0, coefficient[0]
       {1, 1},
-      // instance_polys_[2], (3 + 2 * 1) % 4 = 1 coefficient[1]
+      // instance_polys_[2], (4 + 2 * 1) % 4 = 2, coefficient[2]
       {2, 2},
   };
 
