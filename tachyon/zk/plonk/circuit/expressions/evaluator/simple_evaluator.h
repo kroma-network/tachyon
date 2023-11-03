@@ -56,11 +56,23 @@ class SimpleEvaluator
         challenges_(arguments.challenges) {}
 
   int32_t idx() const { return idx_; }
+  void set_idx(int32_t idx) { idx_ = idx; }
   int32_t size() const { return size_; }
   int32_t rot_scale() const { return rot_scale_; }
 
   // Evaluator methods
   Field Evaluate(const Expression<Field>* input) override {
+    class ScopedIdxIncrement {
+     public:
+      explicit ScopedIdxIncrement(SimpleEvaluator* evaluator)
+          : evaluator(evaluator) {}
+      ~ScopedIdxIncrement() { ++evaluator->idx_; }
+
+     private:
+      SimpleEvaluator* const evaluator;
+    };
+    ScopedIdxIncrement scoped_idx_increment(this);
+
     switch (input->type()) {
       case ExpressionType::kConstant:
         return input->ToConstant()->value();

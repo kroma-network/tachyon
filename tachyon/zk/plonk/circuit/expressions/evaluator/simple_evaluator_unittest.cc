@@ -32,8 +32,10 @@ class SimpleEvaluatorTest : public EvaluatorTest {
 TEST_F(SimpleEvaluatorTest, Constant) {
   GF7 value = GF7::Random();
   Expr expr = ExpressionFactory<GF7>::Constant(value);
+  int32_t last_idx = simple_evaluator_->idx();
   GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(value, evaluated);
+  EXPECT_EQ(simple_evaluator_->idx(), last_idx + 1);
 }
 
 TEST_F(SimpleEvaluatorTest, Selector) {
