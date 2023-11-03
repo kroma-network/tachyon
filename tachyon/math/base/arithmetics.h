@@ -87,8 +87,8 @@ ALWAYS_INLINE AddResult<uint64_t> AddWithCarry(uint64_t a, uint64_t b,
 #else
   absl::uint128 tmp =
       absl::uint128(a) + absl::uint128(b) + absl::uint128(carry);
-  result.result = static_cast<uint64_t>(tmp);
-  result.carry = static_cast<uint64_t>(tmp >> 64);
+  result.result = absl::Uint128Low64(tmp);
+  result.carry = absl::Uint128High64(tmp);
 #endif
   return result;
 }
@@ -108,9 +108,8 @@ ALWAYS_INLINE SubResult<uint64_t> SubWithBorrow(uint64_t& a, uint64_t b,
 #else
   absl::uint128 tmp = (absl::uint128(1) << 64) + absl::uint128(a) -
                       absl::uint128(b) - absl::uint128(borrow);
-  result.result = static_cast<uint64_t>(tmp);
-  result.borrow =
-      static_cast<uint64_t>(static_cast<uint64_t>((tmp >> 64) == 0 ? 1 : 0));
+  result.result = absl::Uint128Low64(tmp);
+  result.borrow = absl::Uint128High64(tmp);
 #endif
   return result;
 }
@@ -122,8 +121,8 @@ ALWAYS_INLINE MulResult<uint64_t> MulAddWithCarry(uint64_t a, uint64_t b,
   absl::uint128 tmp = absl::uint128(a) + absl::uint128(b) * absl::uint128(c) +
                       absl::uint128(carry);
   MulResult<uint64_t> result;
-  result.lo = static_cast<uint64_t>(tmp);
-  result.hi = static_cast<uint64_t>(tmp >> 64);
+  result.lo = absl::Uint128Low64(tmp);
+  result.hi = absl::Uint128High64(tmp);
   return result;
 }
 
