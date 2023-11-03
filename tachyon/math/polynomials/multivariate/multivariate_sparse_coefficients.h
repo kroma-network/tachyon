@@ -197,6 +197,11 @@ class MultivariateSparseCoefficients {
     return MultivariateSparseCoefficients(arity, std::move(terms));
   }
 
+  constexpr size_t num_vars() const { return num_vars_; }
+
+  constexpr const std::vector<Term>& terms() const { return terms_; }
+  constexpr std::vector<Term>& terms() { return terms_; }
+
   constexpr bool IsConstant() const {
     return terms_.size() == 1 && terms_[0].Degree() == 0;
   }
@@ -306,10 +311,6 @@ class MultivariateSparseCoefficients {
     base::EraseIf(terms_,
                   [](const Term& term) { return term.coefficient.IsZero(); });
   }
-
-  size_t num_vars() const { return num_vars_; }
-
-  const std::vector<Term>& terms() const { return terms_; }
 
  private:
   friend class internal::MultivariatePolynomialOp<
