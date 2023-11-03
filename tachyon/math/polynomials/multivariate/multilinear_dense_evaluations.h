@@ -54,6 +54,9 @@ class MultilinearDenseEvaluations {
         base::CreateVector(size_t{1} << degree, []() { return F::Random(); }));
   }
 
+  constexpr const std::vector<F>& evaluations() const { return evaluations_; }
+  constexpr std::vector<F>& evaluations() { return evaluations_; }
+
   constexpr bool operator==(const MultilinearDenseEvaluations& other) const {
     return evaluations_ == other.evaluations_;
   }

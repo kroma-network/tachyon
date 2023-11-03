@@ -74,6 +74,9 @@ class UnivariateDenseCoefficients {
         base::CreateVector(degree + 1, []() { return F::Random(); }));
   }
 
+  constexpr const std::vector<F>& coefficients() const { return coefficients_; }
+  constexpr std::vector<F>& coefficients() { return coefficients_; }
+
   constexpr bool operator==(const UnivariateDenseCoefficients& other) const {
     return coefficients_ == other.coefficients_;
   }
@@ -139,8 +142,6 @@ class UnivariateDenseCoefficients {
     }
     return ss.str();
   }
-
-  const std::vector<F>& coefficients() const { return coefficients_; }
 
  private:
   friend class internal::UnivariatePolynomialOp<
