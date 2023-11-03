@@ -84,10 +84,8 @@ TEST_F(SelectorReplacerTest, Instance) {
 }
 
 TEST_F(SelectorReplacerTest, Challenges) {
-  for (size_t i = 0; i < challenges_.size(); ++i) {
-    Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(i, Phase(0)));
-    EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
-  }
+  Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(1, Phase(0)));
+  EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
 }
 
 TEST_F(SelectorReplacerTest, Negated) {

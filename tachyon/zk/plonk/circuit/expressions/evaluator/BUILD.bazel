@@ -3,6 +3,44 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "calculation",
+    srcs = ["calculation.cc"],
+    hdrs = ["calculation.h"],
+    deps = [
+        ":value_source",
+        "//tachyon/base/strings:string_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cl_evaluator",
+    hdrs = ["cl_evaluator.h"],
+    deps = [
+        ":graph_evaluator",
+        "//tachyon/zk/plonk:constraint_system",
+    ],
+)
+
+tachyon_cc_library(
+    name = "graph_evaluator",
+    hdrs = ["graph_evaluator.h"],
+    deps = [
+        ":calculation",
+        "//tachyon/zk/plonk/circuit/expressions:advice_expression",
+        "//tachyon/zk/plonk/circuit/expressions:challenge_expression",
+        "//tachyon/zk/plonk/circuit/expressions:constant_expression",
+        "//tachyon/zk/plonk/circuit/expressions:evaluator",
+        "//tachyon/zk/plonk/circuit/expressions:fixed_expression",
+        "//tachyon/zk/plonk/circuit/expressions:instance_expression",
+        "//tachyon/zk/plonk/circuit/expressions:negated_expression",
+        "//tachyon/zk/plonk/circuit/expressions:product_expression",
+        "//tachyon/zk/plonk/circuit/expressions:scaled_expression",
+        "//tachyon/zk/plonk/circuit/expressions:selector_expression",
+        "//tachyon/zk/plonk/circuit/expressions:sum_expression",
+    ],
+)
+
+tachyon_cc_library(
     name = "selector_replacer",
     hdrs = ["selector_replacer.h"],
     deps = [
@@ -51,19 +89,40 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "value_source",
+    srcs = ["value_source.cc"],
+    hdrs = ["value_source.h"],
+    deps = [
+        ":value_source_data",
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "value_source_data",
+    hdrs = ["value_source_data.h"],
+)
+
 tachyon_cc_unittest(
     name = "expression_unittests",
     srcs = [
+        "graph_evaluator_unittest.cc",
         "selector_replacer_unittest.cc",
         "simple_evaluator_unittest.cc",
         "simple_selector_extractor_unittest.cc",
         "simple_selector_finder_unittest.cc",
+        "value_source_unittest.cc",
     ],
     deps = [
+        ":graph_evaluator",
         ":selector_replacer",
         ":simple_evaluator",
         ":simple_selector_extractor",
         ":simple_selector_finder",
+        ":value_source",
         "//tachyon/zk/plonk/circuit/expressions:expression_factory",
         "//tachyon/zk/plonk/circuit/expressions/evaluator/test:evaluator_test",
     ],

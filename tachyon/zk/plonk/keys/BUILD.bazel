@@ -7,6 +7,7 @@ tachyon_cc_library(
     hdrs = ["proving_key.h"],
     deps = [
         ":verifying_key",
+        "//tachyon/zk/plonk/circuit/expressions/evaluator:cl_evaluator",
         "//tachyon/zk/plonk/permutation:permutation_proving_key",
     ],
 )
@@ -24,9 +25,12 @@ tachyon_cc_library(
 
 tachyon_cc_unittest(
     name = "keys_unittests",
-    srcs = ["verifying_key_unittest.cc"],
+    srcs = [
+        "proving_key_unittest.cc",
+        "verifying_key_unittest.cc",
+    ],
     deps = [
-        ":verifying_key",
+        ":proving_key",
         "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",

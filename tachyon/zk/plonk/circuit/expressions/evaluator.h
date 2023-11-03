@@ -16,7 +16,7 @@ class Evaluator {
  public:
   virtual ~Evaluator() = default;
 
-  virtual T Evaluate(const Expression<F>* input) const = 0;
+  virtual T Evaluate(const Expression<F>* input) = 0;
 };
 
 }  // namespace tachyon::zk

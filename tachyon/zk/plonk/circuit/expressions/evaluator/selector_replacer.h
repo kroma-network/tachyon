@@ -24,8 +24,7 @@ class SelectorsReplacer : public Evaluator<F, std::unique_ptr<Expression<F>>> {
       : replacements_(replacements), must_be_non_simple_(must_be_non_simple) {}
 
   // Evaluator methods
-  std::unique_ptr<Expression<F>> Evaluate(
-      const Expression<F>* input) const override {
+  std::unique_ptr<Expression<F>> Evaluate(const Expression<F>* input) override {
     if (input->type() == ExpressionType::kSelector) {
       const Selector& selector = input->ToSelector()->selector();
       if (must_be_non_simple_) {

@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/zk/plonk/circuit/expressions/evaluator/cl_evaluator.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 
@@ -18,6 +19,7 @@ class ProvingKey {
   using Poly = typename PCSTy::Poly;
   using Evals = typename PCSTy::Evals;
 
+  ProvingKey() = default;
   ProvingKey(VerifyingKey<PCSTy> verifying_key, Poly l0, Poly l_last,
              Poly l_active_row, Evals fixed_values, Evals fixed_polys,
              PermutationProvingKey<PCSTy> permutation_proving_key)
@@ -47,10 +49,7 @@ class ProvingKey {
   std::vector<Evals> fixed_values_;
   std::vector<Evals> fixed_polys_;
   PermutationProvingKey<PCSTy> permutation_proving_key_;
-
-  // TODO(chokobole): Evaluator ev.
-  // See
-  // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk.rs#L275
+  CLEvaluator<PCSTy> evaluator_;
 };
 
 }  // namespace tachyon::zk

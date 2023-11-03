@@ -57,4 +57,21 @@ TEST(ContainerUtilTest, FlatMap) {
   EXPECT_THAT(arr, testing::ContainerEq(std::vector<int>{1, 2, 3, 2, 3, 4}));
 }
 
+TEST(ContainerUtilTest, FindIndex) {
+  std::vector<int> arr({1, 2});
+  std::optional<size_t> index = base::FindIndex(arr, 1);
+  EXPECT_EQ(index.value(), 0);
+  index = base::FindIndex(arr, 3);
+  EXPECT_FALSE(index.has_value());
+}
+
+TEST(ContainerUtilTest, FindIndexIf) {
+  std::vector<int> arr({1, 2});
+  std::optional<size_t> index =
+      base::FindIndexIf(arr, [](size_t v) { return v == 1; });
+  EXPECT_EQ(index.value(), 0);
+  index = base::FindIndexIf(arr, [](size_t v) { return v == 3; });
+  EXPECT_FALSE(index.has_value());
+}
+
 }  // namespace tachyon::base

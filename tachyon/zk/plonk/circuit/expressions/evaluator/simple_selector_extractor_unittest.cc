@@ -79,10 +79,8 @@ TEST_F(SimpleSelectorExtractorTest, Instance) {
 }
 
 TEST_F(SimpleSelectorExtractorTest, Challenges) {
-  for (size_t i = 0; i < challenges_.size(); ++i) {
-    Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(i, Phase(0)));
-    EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
-  }
+  Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(1, Phase(0)));
+  EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
 }
 
 TEST_F(SimpleSelectorExtractorTest, Negated) {

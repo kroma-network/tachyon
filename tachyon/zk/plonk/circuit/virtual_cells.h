@@ -46,7 +46,7 @@ class VirtualCells {
   // Query a fixed column at a relative position
   std::unique_ptr<Expression<F>> QueryFixed(const FixedColumn& column,
                                             Rotation at) {
-    queried_cells_.push_back({column, at});
+    queried_cells_.emplace_back(column, at);
     return ExpressionFactory<F>::Fixed(
         {meta_->QueryFixedIndex(column, at), at, column});
   }
@@ -54,7 +54,7 @@ class VirtualCells {
   // Query an advice column at a relative position
   std::unique_ptr<Expression<F>> QueryAdvice(const AdviceColumn& column,
                                              Rotation at) {
-    queried_cells_.push_back({column, at});
+    queried_cells_.emplace_back(column, at);
     return ExpressionFactory<F>::Advice(
         {meta_->QueryAdviceIndex(column, at), at, column});
   }
@@ -62,7 +62,7 @@ class VirtualCells {
   // Query an instance column at a relative position
   std::unique_ptr<Expression<F>> QueryInstance(const InstanceColumn& column,
                                                Rotation at) {
-    queried_cells_.push_back({column, at});
+    queried_cells_.emplace_back(column, at);
     return ExpressionFactory<F>::Instance(
         {meta_->QueryInstanceIndex(column, at), at, column});
   }

@@ -146,7 +146,7 @@ class ConstraintSystem {
                                                  std::move(table));
         });
 
-    lookups_.push_back({name, std::move(table_map)});
+    lookups_.emplace_back(name, std::move(table_map));
     return lookups_.size() - 1;
   }
 
@@ -159,7 +159,7 @@ class ConstraintSystem {
     typename LookupArgument<F>::TableMap table_map =
         std::move(callback).Run(cells);
 
-    lookups_.push_back({name, std::move(table_map)});
+    lookups_.emplace_back(name, std::move(table_map));
     return lookups_.size() - 1;
   }
 
@@ -169,7 +169,7 @@ class ConstraintSystem {
     if (QueryIndex(fixed_queries_, column, at, &index)) return index;
 
     // Make a new query
-    fixed_queries_.push_back({at, column});
+    fixed_queries_.emplace_back(at, column);
     return fixed_queries_.size() - 1;
   }
 
@@ -179,7 +179,7 @@ class ConstraintSystem {
     if (QueryIndex(advice_queries_, column, at, &index)) return index;
 
     // Make a new query
-    advice_queries_.push_back({at, column});
+    advice_queries_.emplace_back(at, column);
     num_advice_queries_[column.index()] += 1;
     return advice_queries_.size() - 1;
   }
@@ -190,7 +190,7 @@ class ConstraintSystem {
     if (QueryIndex(instance_queries_, column, at, &index)) return index;
 
     // Make a new query
-    instance_queries_.push_back({at, column});
+    instance_queries_.emplace_back(at, column);
     return instance_queries_.size() - 1;
   }
 
@@ -262,13 +262,9 @@ class ConstraintSystem {
     }
     CHECK(!polys.empty()) << "Gates must contain at least one constraint.";
 
-    gates_.push_back({
-        std::string(name),
-        std::move(constraint_names),
-        std::move(polys),
-        std::move(queried_selectors),
-        std::move(queried_cells),
-    });
+    gates_.emplace_back(std::string(name), std::move(constraint_names),
+                        std::move(polys), std::move(queried_selectors),
+                        std::move(queried_cells));
   }
 
   // This will compress selectors together depending on their provided
@@ -490,15 +486,14 @@ class ConstraintSystem {
  private:
   template <typename QueryDataTy, typename ColumnTy>
   static bool QueryIndex(const std::vector<QueryDataTy>& queries,
-                         const ColumnTy& column, Rotation at, size_t* index) {
-    // Return existing query, if it exists
-    auto it = std::find_if(queries.begin(), queries.end(),
-                           [&column, at](const QueryDataTy& query) {
-                             return query.column() == column &&
-                                    query.rotation() == at;
-                           });
-    if (it == queries.end()) return false;
-    *index = std::distance(queries.begin(), it);
+                         const ColumnTy& column, Rotation at,
+                         size_t* index_out) {
+    std::optional<size_t> index =
+        base::FindIndexIf(queries, [&column, at](const QueryDataTy& query) {
+          return query.column() == column && query.rotation() == at;
+        });
+    if (!index.has_value()) return false;
+    *index = index.value();
     return true;
   }
 

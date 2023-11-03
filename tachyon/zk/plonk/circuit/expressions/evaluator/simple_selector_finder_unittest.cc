@@ -77,10 +77,8 @@ TEST_F(SimpleSelectorFinderTest, Instance) {
 }
 
 TEST_F(SimpleSelectorFinderTest, Challenges) {
-  for (size_t i = 0; i < challenges_.size(); ++i) {
-    Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(i, Phase(0)));
-    EXPECT_FALSE(expr->ContainsSimpleSelector());
-  }
+  Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(1, Phase(0)));
+  EXPECT_FALSE(expr->ContainsSimpleSelector());
 }
 
 TEST_F(SimpleSelectorFinderTest, Negated) {

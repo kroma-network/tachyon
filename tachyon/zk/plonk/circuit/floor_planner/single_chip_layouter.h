@@ -102,7 +102,7 @@ class SingleChipLayouter : public Layouter<F> {
 
     Error ConstrainConstant(const Cell& cell,
                             const math::RationalField<F>& constant) override {
-      constants_.push_back({constant, cell});
+      constants_.emplace_back(constant, cell);
       return Error::kNone;
     }
 

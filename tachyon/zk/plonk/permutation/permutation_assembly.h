@@ -134,9 +134,7 @@ class PermutationAssembly {
 
  private:
   size_t GetColumnIndex(const AnyColumn& column) const {
-    auto it = std::find(columns_.begin(), columns_.end(), column);
-    CHECK_NE(it, columns_.end());
-    return std::distance(columns_.begin(), it);
+    return base::FindIndex(columns_, column).value();
   }
 
   // Columns that participate on the copy permutation argument.
