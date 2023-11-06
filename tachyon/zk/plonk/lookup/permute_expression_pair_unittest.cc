@@ -15,28 +15,11 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/random.h"
-#include "tachyon/crypto/commitments/kzg/kzg_commitment_scheme.h"
-#include "tachyon/math/elliptic_curves/bls/bls12_381/g1.h"
-#include "tachyon/math/elliptic_curves/bls/bls12_381/g2.h"
+#include "tachyon/zk/base/halo2_prover_test.h"
 
 namespace tachyon::zk {
 
-constexpr size_t kMaxDegree = (size_t{1} << 5) - 1;
-constexpr size_t kDomainSize = kMaxDegree + 1;
-constexpr size_t kBlindingFactors = 5;
-constexpr size_t kUsableRows = kDomainSize - (kBlindingFactors + 1);
-
-using PCS =
-    crypto::KZGCommitmentScheme<math::bls12_381::G1AffinePoint,
-                                math::bls12_381::G2AffinePoint, kMaxDegree>;
-
-using F = PCS::Field;
-using Evals = PCS::Evals;
-
-class PermuteExpressionPairTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { math::bls12_381::G1Curve::Init(); }
-};
+class PermuteExpressionPairTest : public Halo2ProverTest {};
 
 TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
   std::vector<F> table_evals =
@@ -51,8 +34,8 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
   EvalsPair<Evals> input(Evals(std::move(input_evals)),
                          Evals(std::move(table_evals)));
   EvalsPair<Evals> output;
-  Error err =
-      PermuteExpressionPair<PCS>(kDomainSize, kBlindingFactors, input, &output);
+
+  Error err = PermuteExpressionPair(*prover_, input, &output);
   ASSERT_EQ(err, Error::kNone);
 
   // sanity check brought from halo2
@@ -79,8 +62,7 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTestWrong) {
   EvalsPair<Evals> input = {Evals(std::move(input_evals)),
                             Evals(std::move(table_evals))};
   EvalsPair<Evals> output;
-  Error err =
-      PermuteExpressionPair<PCS>(kDomainSize, kBlindingFactors, input, &output);
+  Error err = PermuteExpressionPair(*prover_, input, &output);
   ASSERT_EQ(err, Error::kConstraintSystemFailure);
 }
 

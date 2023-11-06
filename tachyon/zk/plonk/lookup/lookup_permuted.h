@@ -13,11 +13,10 @@
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/parallelize.h"
-#include "tachyon/zk/base/blinded_polynomial_commitment.h"
+#include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/evals_pair.h"
 #include "tachyon/zk/plonk/lookup/lookup_committed.h"
 #include "tachyon/zk/plonk/lookup/permute_expression_pair.h"
-#include "tachyon/zk/transcript/transcript.h"
 
 namespace tachyon::zk {
 
@@ -51,18 +50,20 @@ class LookupPermuted {
     return permuted_table_poly_;
   }
 
-  LookupCommitted<PCSTy> CommitProduct(
-      const Domain* domain, size_t blinding_factors, const F& beta,
-      const F& gamma, TranscriptWriter<Commitment>* transcript_writer,
-      const PCSTy& pcs) && {
-    BlindedPolynomialCommitment<PCSTy> out;
-    Evals z = ComputePermutationProduct(blinding_factors, beta, gamma, pcs.N());
-    CHECK(CommitEvalsWithBlind(domain, z, pcs, &out));
-    transcript_writer->WriteToProof(out.commitment());
+  template <typename ProverTy>
+  LookupCommitted<PCSTy> CommitProduct(ProverTy& prover, const F& beta,
+                                       const F& gamma) && {
+    size_t blinding_factors = prover.blinder().blinded_factors();
+    Evals z = ComputePermutationProduct(blinding_factors, beta, gamma,
+                                        prover.pcs().N());
+    prover.blinder().Blind(z);
+
+    BlindedPolynomial<PCSTy> product_poly;
+    CHECK(prover.CommitEvalsWithBlind(z, &product_poly));
 
     return LookupCommitted<PCSTy>(std::move(permuted_input_poly_),
                                   std::move(permuted_table_poly_),
-                                  std::move(out).ToBlindedPolynomial());
+                                  std::move(product_poly));
   }
 
  private:
@@ -107,14 +108,10 @@ class LookupPermuted {
     });
 
     std::vector<F> z;
-    z.reserve(params_size);
-    z.push_back(F::One());
+    z.resize(params_size);
+    z[0] = F::One();
     for (size_t i = 0; i < params_size - blinding_factors - 1; ++i) {
-      z.push_back(z[i] * lookup_product[i]);
-    }
-    // TODO(lightscale-luke): Should fill blind from |Blinder|.
-    for (size_t i = 0; i < blinding_factors; ++i) {
-      z.push_back(F::Random());
+      z[i + 1] = z[i] * lookup_product[i];
     }
     return Evals(std::move(z));
   }

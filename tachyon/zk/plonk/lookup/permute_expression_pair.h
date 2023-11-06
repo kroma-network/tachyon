@@ -19,36 +19,27 @@
 
 namespace tachyon::zk {
 
-template <typename F>
-void FillWithBlind(size_t params_size, size_t blinding_factors,
-                   std::vector<F>& values) {
-  values.reserve(values.size() + blinding_factors + 1);
-  for (size_t i = 0; i < blinding_factors + 1; ++i) {
-    values.push_back(F::Random());
-  }
-}
-
 // Given a vector of input values A and a vector of table values S,
 // this method permutes A and S to produce A' and S', such that:
 // - like values in A' are vertically adjacent to each other; and
 // - the first row in a sequence of like values in A' is the row
 //   that has the corresponding value in S'.
 // This method returns (A', S') if no errors are encountered.
-template <typename PCSTy, typename Evals>
-Error PermuteExpressionPair(size_t params_size, size_t blinding_factors,
-                            const EvalsPair<Evals>& in, EvalsPair<Evals>* out) {
-  using F = typename Evals::Field;
-  if (params_size == 0) return Error::kConstraintSystemFailure;
-  if (params_size - 1 < blinding_factors)
+template <typename ProverTy, typename Evals, typename F = typename Evals::Field>
+Error PermuteExpressionPair(ProverTy& prover, const EvalsPair<Evals>& in,
+                            EvalsPair<Evals>* out) {
+  size_t domain_size = prover.domain()->size();
+  size_t blinding_factors = prover.blinder().blinding_factors();
+  if (domain_size == 0) return Error::kConstraintSystemFailure;
+  if (domain_size - 1 < blinding_factors)
     return Error::kConstraintSystemFailure;
-  size_t usable_rows = params_size - (blinding_factors + 1);
+  size_t usable_rows = domain_size - (blinding_factors + 1);
 
   std::vector<F> permuted_input_expressions = in.input().evaluations();
-  permuted_input_expressions.resize(usable_rows);
 
   // sort input lookup expression values
   std::sort(permuted_input_expressions.begin(),
-            permuted_input_expressions.end());
+            permuted_input_expressions.begin() + usable_rows);
 
   // a map of each unique element in the table expression and its count
   absl::btree_map<F, uint32_t> leftover_table_map;
@@ -65,7 +56,7 @@ Error PermuteExpressionPair(size_t params_size, size_t blinding_factors,
   }
 
   std::vector<F> permuted_table_expressions =
-      base::CreateVector(usable_rows, F::Zero());
+      base::CreateVector(domain_size, F::Zero());
 
   std::vector<size_t> repeated_input_rows;
   for (size_t row = 0; row < usable_rows; ++row) {
@@ -140,11 +131,13 @@ Error PermuteExpressionPair(size_t params_size, size_t blinding_factors,
 
   CHECK(repeated_input_rows.empty());
 
-  FillWithBlind(params_size, blinding_factors, permuted_input_expressions);
-  FillWithBlind(params_size, blinding_factors, permuted_table_expressions);
+  Evals input(std::move(permuted_input_expressions));
+  Evals table(std::move(permuted_table_expressions));
 
-  *out = {Evals(std::move(permuted_input_expressions)),
-          Evals(std::move(permuted_table_expressions))};
+  prover.blinder().Blind(input);
+  prover.blinder().Blind(table);
+
+  *out = {std::move(input), std::move(table)};
 
   return Error::kNone;
 }

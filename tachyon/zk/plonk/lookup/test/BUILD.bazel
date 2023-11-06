@@ -6,10 +6,7 @@ tachyon_cc_library(
     hdrs = ["compress_expression_test_setting.h"],
     visibility = ["//tachyon/zk/plonk/lookup:__pkg__"],
     deps = [
-        "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
-        "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
-        "//tachyon/math/elliptic_curves/bls/bls12_381:g2",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "//tachyon/zk/base:halo2_prover_test",
         "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
     ],
 )

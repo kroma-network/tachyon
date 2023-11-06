@@ -38,6 +38,8 @@ class Blinder {
     return true;
   }
 
+  F Generate() { return random_field_generator_->Generate(); }
+
  private:
   // not owned
   RandomFieldGenerator<F>* const random_field_generator_;
