@@ -38,12 +38,22 @@ jobs:
       - name: Build
         run: bazel build -c fastbuild --config ${{ matrix.bazel_config }} --config gmp_backend //...
 
-      - name: Test
+      - name: Test Tachyon
         run: bazel test -c fastbuild --config ${{ matrix.bazel_config }} --config gmp_backend --test_output=errors --test_tag_filters -benchmark,-manual,-cuda,-rust //...
 
       - name: Test OpenMP
         if: matrix.os == 'ubuntu-latest'
         run: bazel test -c fastbuild --config linux --config gmp_backend --//:has_openmp --test_output=errors --test_tag_filters -benchmark,-manual,-cuda,-rust //...
+
+      - name: Test Node Binding
+        run: |
+          cd tachyon/node/test
+          bazel test --config ${{ matrix.bazel_config }} //...
+
+      - name: Test Py Binding
+        run: |
+          cd tachyon/py/test
+          bazel test --config ${{ matrix.bazel_config }} //...
 
   lint:
     runs-on: ubuntu-latest
