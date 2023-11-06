@@ -90,7 +90,7 @@ TEST(PrimeFieldGoldilocksTest, AdditiveOperators) {
 TEST(PrimeFieldGoldilocksTest, AdditiveGroupOperators) {
   Goldilocks f = Goldilocks::Random();
   SCOPED_TRACE(absl::Substitute("f: $0", f.ToString()));
-  Goldilocks f_neg = f.Negative();
+  Goldilocks f_neg = -f;
   EXPECT_TRUE((f_neg + f).IsZero());
   f.NegInPlace();
   EXPECT_EQ(f, f_neg);

@@ -136,7 +136,7 @@ TEST_F(AffinePointCorrectnessGpuTest, Negative) {
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
     auto result = ConvertPoint<bn254::G1AffinePointGmp>(affine_results_[i]);
-    ASSERT_EQ(result, x_gmps_[i].Negative());
+    ASSERT_EQ(result, -x_gmps_[i]);
   }
 }
 

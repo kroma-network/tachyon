@@ -191,7 +191,7 @@ TYPED_TEST(PointCorrectnessGpuTest, Negative) {
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
     auto result = ConvertPoint<Expected>(this->results_[i]);
-    ASSERT_EQ(result, this->x_gmps_[i].Negative());
+    ASSERT_EQ(result, -this->x_gmps_[i]);
   }
 }
 

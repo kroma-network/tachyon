@@ -146,8 +146,8 @@ TYPED_TEST(PointXYZZTest, AdditiveGroupOperators) {
     EXPECT_EQ(p_tmp, p4);
   }
 
-  EXPECT_EQ(p.Negative(), PointXYZZTy(BaseField(5), BaseField(2), BaseField(1),
-                                      BaseField(1)));
+  EXPECT_EQ(
+      -p, PointXYZZTy(BaseField(5), BaseField(2), BaseField(1), BaseField(1)));
   {
     PointXYZZTy p_tmp = p;
     p_tmp.NegInPlace();

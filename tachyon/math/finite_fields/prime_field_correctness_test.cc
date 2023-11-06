@@ -133,7 +133,7 @@ TYPED_TEST(PrimeFieldCorrectnessTest, AdditiveGroupOperators) {
     F a = PrimeFieldCorrectnessTest<F>::as_[i];
     SCOPED_TRACE(absl::Substitute("a: $0", a_gmp.ToString()));
 
-    ASSERT_EQ(ConvertPrimeField<GmpF>(a.Negative()), a_gmp.Negative());
+    ASSERT_EQ(ConvertPrimeField<GmpF>(-a), -a_gmp);
     a.NegInPlace();
     a_gmp.NegInPlace();
     ASSERT_EQ(ConvertPrimeField<GmpF>(a), a_gmp);
