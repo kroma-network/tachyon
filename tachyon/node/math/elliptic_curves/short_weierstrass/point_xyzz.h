@@ -34,7 +34,8 @@ void AddPointXYZZ(NodeModule& m, std::string_view name) {
       .AddMethod("sub", &PointXYZZTy::template operator- <const PointXYZZTy&>)
       .AddMethod("subMixed",
                  &PointXYZZTy::template operator- <const AffinePointTy&>)
-      .AddMethod("negative", &PointXYZZTy::Negative)
+      .AddMethod("negative", static_cast<PointXYZZTy (PointXYZZTy::*)() const>(
+                                 &PointXYZZTy::operator-))
       .AddMethod("double", &PointXYZZTy::Double);
 }
 
