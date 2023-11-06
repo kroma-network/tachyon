@@ -56,6 +56,13 @@ class Modulus {
         .template Shrink<N>();
   }
 
+  constexpr static BigInt<N> MontgomeryR3(const BigInt<N>& modulus) {
+    BigInt<3 * N + 1> two_pow_n_times_64_cubic;
+    two_pow_n_times_64_cubic.biggest_limb() = uint64_t{1};
+    return (two_pow_n_times_64_cubic % modulus.template Extend<3 * N + 1>())
+        .template Shrink<N>();
+  }
+
   // Compute -M⁻¹ mod 2ᴮ.
   template <typename T, size_t B = 8 * sizeof(T),
             std::enable_if_t<std::is_unsigned_v<T>>* = nullptr>

@@ -18,6 +18,7 @@ struct ModulusInfo {
   bool can_use_no_carry_mul_optimization;
   mpz_class r;
   mpz_class r2;
+  mpz_class r3;
   uint64_t inverse64;
   uint32_t inverse32;
 
@@ -34,6 +35,8 @@ struct ModulusInfo {
     math::gmp::WriteLimbs(r.limbs, N, &ret.r);
     math::BigInt<N> r2 = math::Modulus<N>::MontgomeryR2(m);
     math::gmp::WriteLimbs(r2.limbs, N, &ret.r2);
+    math::BigInt<N> r3 = math::Modulus<N>::MontgomeryR3(m);
+    math::gmp::WriteLimbs(r3.limbs, N, &ret.r3);
     ret.inverse64 = math::Modulus<N>::template Inverse<uint64_t>(m);
     ret.inverse32 = math::Modulus<N>::template Inverse<uint32_t>(m);
     return ret;
@@ -122,6 +125,9 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  });",
       "  constexpr static BigInt<%{n}> kMontgomeryR2 = BigInt<%{n}>({",
       "    %{r2}",
+      "  });",
+      "  constexpr static BigInt<%{n}> kMontgomeryR3 = BigInt<%{n}>({",
+      "    %{r3}",
       "  });",
       "  constexpr static uint64_t kInverse64 = UINT64_C(%{inverse64});",
       "  constexpr static uint32_t kInverse32 = %{inverse32};",
@@ -296,6 +302,7 @@ int GenerationConfig::GenerateConfigHdr() const {
            base::BoolToString(modulus_info.can_use_no_carry_mul_optimization)},
           {"%{r}", math::MpzClassToString(modulus_info.r)},
           {"%{r2}", math::MpzClassToString(modulus_info.r2)},
+          {"%{r3}", math::MpzClassToString(modulus_info.r3)},
           {"%{inverse64}", base::NumberToString(modulus_info.inverse64)},
           {"%{inverse32}", base::NumberToString(modulus_info.inverse32)},
           {"%{one_mont_form}", math::MpzClassToMontString(mpz_class(1), m)},

@@ -25,6 +25,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "halo2_random_field_generator",
+    hdrs = ["halo2_random_field_generator.h"],
+    deps = [
+        "//tachyon/crypto/random/xor_shift:xor_shift_rng",
+        "//tachyon/math/base:big_int",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
     name = "random_field_generator",
     hdrs = ["random_field_generator.h"],
 )
@@ -56,12 +66,14 @@ tachyon_cc_unittest(
     srcs = [
         "blinded_polynomial_commitment_unittest.cc",
         "blinder_unittest.cc",
+        "halo2_random_field_generator_unittest.cc",
         "polynomial_pointer_unittest.cc",
         "value_unittest.cc",
     ],
     deps = [
         ":blinded_polynomial_commitment",
         ":blinder",
+        ":halo2_random_field_generator",
         ":polynomial_pointer",
         ":value",
         "//tachyon/base:random",
@@ -69,6 +81,7 @@ tachyon_cc_unittest(
         "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
         "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
         "//tachyon/math/elliptic_curves/bls/bls12_381:g2",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/finite_fields/test:gf7",
