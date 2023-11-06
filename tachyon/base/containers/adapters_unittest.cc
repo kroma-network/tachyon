@@ -140,4 +140,51 @@ TEST(AdaptersTest, ZippedConst) {
   EXPECT_EQ(offset, std::size(v));
 }
 
+TEST(AdaptersTest, Chained) {
+  std::vector<int> v;
+  v.push_back(1);
+  v.push_back(2);
+  v.push_back(3);
+  std::vector<int> w;
+  w.push_back(4);
+  w.push_back(5);
+  w.push_back(6);
+  size_t offset = 0;
+  for (const int& j : Chained(v, w)) {
+    EXPECT_EQ(j, offset < std::size(v) ? v[offset] : w[offset - std::size(v)]);
+    ++offset;
+  }
+  EXPECT_EQ(offset, std::size(v) + std::size(w));
+}
+
+TEST(AdaptersTest, ChainedArray) {
+  int v[3] = {1, 2, 3};
+  int w[3] = {4, 5, 6};
+  size_t offset = 0;
+  for (const int& j : Chained(v, w)) {
+    EXPECT_EQ(j, offset < std::size(v) ? v[offset] : w[offset - std::size(v)]);
+    ++offset;
+  }
+  EXPECT_EQ(offset, std::size(v) + std::size(w));
+}
+
+TEST(AdaptersTest, ChainedConst) {
+  std::vector<int> v;
+  v.push_back(1);
+  v.push_back(2);
+  v.push_back(3);
+  std::vector<int> w;
+  w.push_back(4);
+  w.push_back(5);
+  w.push_back(6);
+  const std::vector<int>& cv = v;
+  const std::vector<int>& cw = w;
+  size_t offset = 0;
+  for (const int& j : Chained(cv, cw)) {
+    EXPECT_EQ(j, offset < std::size(v) ? v[offset] : w[offset - std::size(v)]);
+    ++offset;
+  }
+  EXPECT_EQ(offset, std::size(v) + std::size(w));
+}
+
 }  // namespace tachyon::base

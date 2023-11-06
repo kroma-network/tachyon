@@ -206,6 +206,92 @@ class ZippedAdapter {
   U& u_;
 };
 
+// Internal adapter class for implementing tachyon::base::Chained.
+template <typename T>
+class ChainedAdapter {
+ public:
+  class Iterator {
+   public:
+    using ItType = decltype(std::begin(std::declval<T&>()));
+
+    using difference_type = std::ptrdiff_t;
+    using value_type =
+        std::conditional_t<std::is_const_v<T>, const iter_value_t<ItType>,
+                           iter_value_t<ItType>>;
+    using pointer = value_type*;
+    using reference = value_type&;
+    using iterator_category = std::forward_iterator_tag;
+
+    static Iterator begin(T& first, T& second) {
+      return Iterator(std::begin(first), std::end(first), std::begin(second),
+                      std::end(second), true);
+    }
+    static Iterator end(T& first, T& second) {
+      return Iterator(std::end(second), std::end(first), std::begin(second),
+                      std::end(second), false);
+    }
+
+    Iterator(const Iterator& other) = default;
+    Iterator& operator=(const Iterator& other) = default;
+
+    bool operator==(const Iterator& other) const { return it_ == other.it_; }
+    bool operator!=(const Iterator& other) const { return !(*this == other); }
+
+    Iterator& operator++() {
+      if (is_first_) {
+        it_++;
+        if (it_ == end_first_) {
+          it_ = begin_second_;
+          is_first_ = false;
+        }
+      } else {
+        if (it_ != end_second_) {
+          ++it_;
+        }
+      }
+      return *this;
+    }
+
+    Iterator operator++(int) {
+      Iterator it(*this);
+      ++(*this);
+      return it;
+    }
+
+    pointer operator->() { return &*it_; }
+
+    reference operator*() { return *it_; }
+
+   private:
+    Iterator(ItType it, ItType end_first, ItType begin_second,
+             ItType end_second, bool is_first)
+        : it_(it),
+          end_first_(end_first),
+          begin_second_(begin_second),
+          end_second_(end_second),
+          is_first_(is_first) {}
+
+    ItType it_;
+    const ItType end_first_;
+    const ItType begin_second_;
+    const ItType end_second_;
+    bool is_first_;
+  };
+
+  ChainedAdapter(T& first, T& second) : first_(first), second_(second) {}
+  ChainedAdapter(const ChainedAdapter& ca)
+      : first_(ca.first_), second_(ca.second_) {}
+
+  ChainedAdapter& operator=(const ChainedAdapter& ca) = delete;
+
+  Iterator begin() const { return Iterator::begin(first_, second_); }
+  Iterator end() const { return Iterator::end(first_, second_); }
+
+ private:
+  T& first_;
+  T& second_;
+};
+
 }  // namespace internal
 
 // Reversed returns a container adapter usable in a range-based "for" statement
@@ -254,6 +340,23 @@ internal::ChunkedAdapter<T> Chunked(T& t, size_t chunk_size) {
 template <typename T, typename U>
 internal::ZippedAdapter<T, U> Zipped(T& t, U& u) {
   return internal::ZippedAdapter<T, U>(t, u);
+}
+
+// Chained returns a container adapter that can be used in a range-based "for"
+// loop to iterate over two containers of the same type as if they were a single
+// container.
+//
+// Example:
+//
+//   std::vector<int> v = {1, 2, 3};
+//   std::vector<int> w = {4, 5, 6};
+//   for (int i : tachyon::base::Chained(v, w)) {
+//     // iterates through v and w consecutively
+//     // 1, 2, 3, 4, 5, 6
+//   }
+template <typename T>
+internal::ChainedAdapter<T> Chained(T& first, T& second) {
+  return internal::ChainedAdapter<T>(first, second);
 }
 
 }  // namespace tachyon::base
