@@ -1,7 +1,7 @@
 #ifndef TACHYON_ZK_BASE_PROVER_QUERY_H_
 #define TACHYON_ZK_BASE_PROVER_QUERY_H_
 
-#include "tachyon/zk/base/polynomial_pointer.h"
+#include "tachyon/zk/base/ref_aliases.h"
 
 namespace tachyon::zk {
 
@@ -11,23 +11,17 @@ class ProverQuery {
   using F = typename PCSTy::Field;
   using Poly = typename PCSTy::Poly;
 
-  ProverQuery(const F& point, const Poly& poly, const F& blind)
-      : point_(point), poly_(poly), blind_(blind) {}
+  ProverQuery(PointRef<const F> point, BlindedPolyRef<const Poly> poly)
+      : point_(point), poly_(poly) {}
 
-  const F& point() const { return point_; }
-  const Poly& poly() const { return poly_; }
-  const F& blind() const { return blind_; }
+  PointRef<const F> point() const { return point_; }
+  BlindedPolyRef<const Poly>& poly() const { return poly_; }
 
-  F Evaluate() const { return poly_.Evaluate(point_); }
-
-  PolynomialPointer<PCSTy> GetCommitment() const {
-    return PolynomialPointer<PCSTy>(poly_, blind_);
-  }
+  F Evaluate() const { return poly_->poly().Evaluate(*point_); }
 
  private:
-  const F& point_;
-  const Poly& poly_;
-  const F& blind_;
+  PointRef<const F> point_;
+  BlindedPolyRef<const Poly> poly_;
 };
 
 }  // namespace tachyon::zk
