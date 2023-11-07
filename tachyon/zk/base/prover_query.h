@@ -2,7 +2,6 @@
 #define TACHYON_ZK_BASE_PROVER_QUERY_H_
 
 #include "tachyon/zk/base/blinded_polynomial.h"
-#include "tachyon/zk/base/ref.h"
 
 namespace tachyon::zk {
 

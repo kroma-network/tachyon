@@ -11,6 +11,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "blinded_polynomial",
     hdrs = ["blinded_polynomial.h"],
+    deps = [":ref"],
 )
 
 tachyon_cc_library(
@@ -81,10 +82,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "prover_query",
     hdrs = ["prover_query.h"],
-    deps = [
-        ":blinded_polynomial",
-        ":ref",
-    ],
+    deps = [":blinded_polynomial"],
 )
 
 tachyon_cc_library(
