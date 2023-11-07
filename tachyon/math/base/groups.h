@@ -213,7 +213,7 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
       G g = *static_cast<const G*>(this);
       return g.SubInPlace(other);
     } else {
-      return this->operator+(other.Negative());
+      return this->operator+(-other);
     }
   }
 
@@ -230,7 +230,7 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
       return g->SubInPlace(other);
     } else if constexpr (internal::SupportsAddInPlace<G, G2>::value) {
       G* g = static_cast<G*>(this);
-      return g->AddInPlace(other.Negative());
+      return g->AddInPlace(-other);
     } else {
       static_assert(base::AlwaysFalse<G>);
     }
@@ -245,14 +245,6 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
       const G* g = static_cast<const G*>(this);
       return g->Negative();
     }
-  }
-
-  template <
-      typename G2 = G,
-      std::enable_if_t<internal::SupportsNegInPlace<G2>::value>* = nullptr>
-  [[nodiscard]] constexpr auto Negative() const {
-    G ret = *static_cast<const G*>(this);
-    return ret.NegInPlace();
   }
 };
 

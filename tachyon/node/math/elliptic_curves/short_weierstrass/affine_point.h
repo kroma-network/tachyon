@@ -27,7 +27,9 @@ void AddAffinePoint(NodeModule& m, std::string_view name) {
                  &AffinePointTy::template operator+ <const AffinePointTy&>)
       .AddMethod("sub",
                  &AffinePointTy::template operator- <const AffinePointTy&>)
-      .AddMethod("negative", &AffinePointTy::Negative)
+      .AddMethod("negative",
+                 static_cast<AffinePointTy (AffinePointTy::*)() const>(
+                     &AffinePointTy::operator-))
       .AddMethod("double", &AffinePointTy::Double);
 }
 

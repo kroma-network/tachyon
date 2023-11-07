@@ -107,7 +107,7 @@ TYPED_TEST(AffinePointTest, AdditiveGroupOperators) {
   EXPECT_EQ(ap.DoubleProjective(), ap4.ToProjective());
   EXPECT_EQ(ap.DoubleXYZZ(), ap4.ToXYZZ());
 
-  EXPECT_EQ(ap.Negative(), AffinePointTy(BaseField(5), BaseField(2)));
+  EXPECT_EQ(-ap, AffinePointTy(BaseField(5), BaseField(2)));
   {
     AffinePointTy ap_tmp = ap;
     ap_tmp.NegInPlace();

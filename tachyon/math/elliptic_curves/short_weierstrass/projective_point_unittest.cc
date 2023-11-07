@@ -141,8 +141,7 @@ TYPED_TEST(ProjectivePointTest, AdditiveGroupOperators) {
     EXPECT_EQ(pp_tmp, pp4);
   }
 
-  EXPECT_EQ(pp.Negative(),
-            ProjectivePointTy(BaseField(5), BaseField(2), BaseField(1)));
+  EXPECT_EQ(-pp, ProjectivePointTy(BaseField(5), BaseField(2), BaseField(1)));
   {
     ProjectivePointTy pp_tmp = pp;
     pp_tmp.NegInPlace();

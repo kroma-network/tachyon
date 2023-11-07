@@ -35,7 +35,9 @@ void AddJacobianPoint(NodeModule& m, std::string_view name) {
                  &JacobianPointTy::template operator- <const JacobianPointTy&>)
       .AddMethod("subMixed",
                  &JacobianPointTy::template operator- <const AffinePointTy&>)
-      .AddMethod("negative", &JacobianPointTy::Negative)
+      .AddMethod("negative",
+                 static_cast<JacobianPointTy (JacobianPointTy::*)() const>(
+                     &JacobianPointTy::operator-))
       .AddMethod("double", &JacobianPointTy::Double);
 }
 

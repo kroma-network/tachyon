@@ -77,7 +77,7 @@ TEST(ValueTest, AdditiveGroupOperators) {
   } tests[] = {
       {
           Value<math::GF7>::Known(a),
-          Value<math::GF7>::Known(a.Negative()),
+          Value<math::GF7>::Known(-a),
           Value<math::GF7>::Known(a.Double()),
       },
       {
@@ -89,12 +89,12 @@ TEST(ValueTest, AdditiveGroupOperators) {
 
   for (auto& test : tests) {
     if (test.a.IsNone()) {
-      EXPECT_DEATH(std::ignore = test.a.Negative(), "");
+      EXPECT_DEATH(std::ignore = -test.a, "");
       EXPECT_DEATH(test.a.NegInPlace(), "");
       EXPECT_DEATH(std::ignore = test.a.Double(), "");
       EXPECT_DEATH(test.a.DoubleInPlace(), "");
     } else {
-      EXPECT_EQ(test.a.Negative(), test.neg);
+      EXPECT_EQ(-test.a, test.neg);
       Value<math::GF7> a_tmp = test.a;
       a_tmp.NegInPlace();
       EXPECT_EQ(a_tmp, test.neg);

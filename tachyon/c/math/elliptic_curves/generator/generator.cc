@@ -559,13 +559,12 @@ int GenerationConfig::GenerateG1Src() const {
         binary_arithmetic_ops_components.push_back(absl::Substitute(
             // clang-format off
               "  using namespace tachyon::cc::math;\n"
-              "  return ToC$0(To$1(*a).$2(To$3(*b)$4));\n"
+              "  return ToC$0(To$1(*a).$2($3To$4(*b)));\n"
               "}",
             // clang-format on
             j == 0 ? "JacobianPoint" : kUpperPointKinds[j], kUpperPointKinds[j],
-            j == 0 ? "Add" : "AddInPlace",
-            k == 0 ? kUpperPointKinds[j] : "AffinePoint",
-            i == 0 ? "" : ".Negative()"));
+            j == 0 ? "Add" : "AddInPlace", i == 0 ? "" : "-",
+            k == 0 ? kUpperPointKinds[j] : "AffinePoint"));
         binary_arithmetic_ops_components.push_back("");
       }
     }

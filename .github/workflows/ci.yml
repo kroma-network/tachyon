@@ -26,7 +26,7 @@ jobs:
       - name: Setup Python and Install numpy
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11.6"
+          python-version: "3.10.12"
 
       - name: Install numpy
         run: python -m pip install numpy
@@ -48,12 +48,12 @@ jobs:
       - name: Test Node Binding
         run: |
           cd tachyon/node/test
-          bazel test --config ${{ matrix.bazel_config }} //...
+          bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
 
       - name: Test Py Binding
         run: |
           cd tachyon/py/test
-          bazel test --config ${{ matrix.bazel_config }} //...
+          bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
 
   lint:
     runs-on: ubuntu-latest
@@ -73,7 +73,7 @@ jobs:
       - name: Setup Python for cpplint
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11.6"
+          python-version: "3.10.12"
 
       - name: Install cpplint
         run: pip install cpplint
@@ -85,5 +85,5 @@ jobs:
       - name: Run clang-format lint
         uses: jidicula/clang-format-action@v4.11.0
         with:
-          clang-format-version: '17'
-          check-path: '.'
+          clang-format-version: "17"
+          check-path: "."

@@ -132,7 +132,7 @@ TYPED_TEST(PrimeFieldTest, AdditiveGroupOperators) {
   using F = TypeParam;
 
   F f(3);
-  EXPECT_EQ(f.Negative(), F(4));
+  EXPECT_EQ(-f, F(4));
   f.NegInPlace();
   EXPECT_EQ(f, F(4));
 

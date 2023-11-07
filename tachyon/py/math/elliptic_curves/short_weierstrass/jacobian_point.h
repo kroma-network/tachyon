@@ -37,7 +37,14 @@ void AddJacobianPoint(py11::module& m, const std::string& name) {
       .def(py11::self + AffinePointTy())
       .def(py11::self += AffinePointTy())
       .def(py11::self - py11::self)
-      .def(py11::self -= py11::self)
+      // NOTE(chokobole): See https://github.com/pybind/pybind11/issues/1893
+      // .def(py11::self -= py11::self)
+      .def(
+          "__isub__",
+          [](JacobianPointTy& lhs, const JacobianPointTy& rhs) {
+            return lhs -= rhs;
+          },
+          py11::is_operator())
       .def(py11::self - AffinePointTy())
       .def(py11::self -= AffinePointTy())
       .def(py11::self * ScalarField())

@@ -141,8 +141,7 @@ TYPED_TEST(JacobianPointTest, AdditiveGroupOperators) {
     EXPECT_EQ(jp_tmp, jp4);
   }
 
-  EXPECT_EQ(jp.Negative(),
-            JacobianPointTy(BaseField(5), BaseField(2), BaseField(1)));
+  EXPECT_EQ(-jp, JacobianPointTy(BaseField(5), BaseField(2), BaseField(1)));
   {
     JacobianPointTy jp_tmp = jp;
     jp_tmp.NegInPlace();

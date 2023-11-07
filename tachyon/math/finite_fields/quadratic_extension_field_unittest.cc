@@ -111,7 +111,7 @@ TEST_F(QuadraticExtensionFieldTest, AdditiveOperators) {
 TEST_F(QuadraticExtensionFieldTest, AdditiveGroupOperators) {
   GF7_2 f(GF7(3), GF7(4));
   GF7_2 f_neg(GF7(4), GF7(3));
-  EXPECT_EQ(f.Negative(), f_neg);
+  EXPECT_EQ(-f, f_neg);
   f.NegInPlace();
   EXPECT_EQ(f, f_neg);
 

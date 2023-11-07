@@ -48,25 +48,37 @@ DEFINE_COMPARISON_OP(Ne, !=, PointXYZZ)
 
 #undef DEFINE_COMPARISON_OP
 
-#define DEFINE_UNARY_OP(method, src_type, dst_type)                           \
+#define DEFINE_DOUBLE_OP(src_type, dst_type)                                  \
   template <typename Config>                                                  \
-  __global__ void method(const src_type<Config>* x, dst_type<Config>* result, \
+  __global__ void Double(const src_type<Config>* x, dst_type<Config>* result, \
                          unsigned int count) {                                \
     unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;                 \
     if (gid >= count) return;                                                 \
-    result[gid] = x[gid].method();                                            \
+    result[gid] = x[gid].Double();                                            \
   }
 
-DEFINE_UNARY_OP(Double, AffinePoint, JacobianPoint)
-DEFINE_UNARY_OP(Double, JacobianPoint, JacobianPoint)
-DEFINE_UNARY_OP(Double, ProjectivePoint, ProjectivePoint)
-DEFINE_UNARY_OP(Double, PointXYZZ, PointXYZZ)
-DEFINE_UNARY_OP(Negative, AffinePoint, AffinePoint)
-DEFINE_UNARY_OP(Negative, JacobianPoint, JacobianPoint)
-DEFINE_UNARY_OP(Negative, ProjectivePoint, ProjectivePoint)
-DEFINE_UNARY_OP(Negative, PointXYZZ, PointXYZZ)
+DEFINE_DOUBLE_OP(AffinePoint, JacobianPoint)
+DEFINE_DOUBLE_OP(JacobianPoint, JacobianPoint)
+DEFINE_DOUBLE_OP(ProjectivePoint, ProjectivePoint)
+DEFINE_DOUBLE_OP(PointXYZZ, PointXYZZ)
 
-#undef DEFINE_UNARY_OP
+#undef DEFINE_DOUBLE_OP
+
+#define DEFINE_NEGATIVE_OP(src_type, dst_type)                             \
+  template <typename Config>                                               \
+  __global__ void Negative(const src_type<Config>* x,                      \
+                           dst_type<Config>* result, unsigned int count) { \
+    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;              \
+    if (gid >= count) return;                                              \
+    result[gid] = -x[gid];                                                 \
+  }
+
+DEFINE_NEGATIVE_OP(AffinePoint, AffinePoint)
+DEFINE_NEGATIVE_OP(JacobianPoint, JacobianPoint)
+DEFINE_NEGATIVE_OP(ProjectivePoint, ProjectivePoint)
+DEFINE_NEGATIVE_OP(PointXYZZ, PointXYZZ)
+
+#undef DEFINE_NEGATIVE_OP
 
 }  // namespace tachyon::math::kernels
 
