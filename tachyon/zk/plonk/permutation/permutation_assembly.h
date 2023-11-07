@@ -78,7 +78,7 @@ class PermutationAssembly {
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
   constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
-      Domain* domain) const {
+      const PCSTy& kzg_params, const Domain* domain) const {
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
     // TODO(dongchangYoo): calculate commitments after complete Params. See
@@ -90,7 +90,8 @@ class PermutationAssembly {
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
-  constexpr PermutationProvingKey<PCSTy> BuildProvingKey(Domain* domain) const {
+  constexpr PermutationProvingKey<PCSTy> BuildProvingKey(
+      const Domain* domain) const {
     // The polynomials of permutations in evaluation form.
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
@@ -109,7 +110,7 @@ class PermutationAssembly {
   // Generate the permutation polynomials based on the accumulated copy
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
-  std::vector<Evals> GeneratePermutations(Domain* domain) const {
+  std::vector<Evals> GeneratePermutations(const Domain* domain) const {
     LookupTable<PCSTy> lookup_table =
         LookupTable<PCSTy>::Construct(columns_.size(), domain);
 
