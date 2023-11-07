@@ -7,7 +7,7 @@ tachyon_cc_library(
     visibility = ["//tachyon/zk/plonk/circuit/expressions/evaluator:__pkg__"],
     deps = [
         "//tachyon/math/finite_fields/test:gf7",
-        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
         "//tachyon/zk/plonk/circuit/expressions:expression",
     ],
 )

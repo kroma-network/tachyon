@@ -69,6 +69,20 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "ref",
+    hdrs = ["ref.h"],
+)
+
+tachyon_cc_library(
+    name = "ref_aliases",
+    hdrs = ["ref_aliases.h"],
+    deps = [
+        ":blinded_polynomial",
+        ":ref",
+    ],
+)
+
+tachyon_cc_library(
     name = "polynomial_pointer",
     hdrs = ["polynomial_pointer.h"],
 )
@@ -76,7 +90,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "prover_query",
     hdrs = ["prover_query.h"],
-    deps = [":polynomial_pointer"],
+    deps = [":ref_aliases"],
 )
 
 tachyon_cc_library(
@@ -88,6 +102,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "verifier_query",
     hdrs = ["verifier_query.h"],
+    deps = [":ref_aliases"],
 )
 
 tachyon_cc_unittest(
@@ -95,13 +110,13 @@ tachyon_cc_unittest(
     srcs = [
         "blinder_unittest.cc",
         "halo2_random_field_generator_unittest.cc",
-        "polynomial_pointer_unittest.cc",
         "prover_unittest.cc",
+        "ref_unittest.cc",
         "value_unittest.cc",
     ],
     deps = [
         ":halo2_prover_test",
-        ":polynomial_pointer",
+        ":ref",
         ":value",
         "//tachyon/base:random",
         "//tachyon/base/containers:container_util",

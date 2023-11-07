@@ -13,18 +13,28 @@ using Expr = std::unique_ptr<Expression<GF7>>;
 
 class SimpleEvaluatorTest : public EvaluatorTest {
  public:
-  SimpleEvaluatorTest() {
-    SimpleEvaluator<Poly>::Arguments arguments(&fixed_polys_, &advice_polys_,
-                                               &instance_polys_, &challenges_);
-    simple_evaluator_ =
-        std::make_unique<SimpleEvaluator<Poly>>(3, 4, 1, arguments);
+  void SetUp() override {
+    std::vector<GF7> evaluations;
+
+    for (size_t i = 0; i < 5; ++i) {
+      evaluations =
+          base::CreateVector(kMaxDegree + 1, []() { return GF7::Random(); });
+      fixed_columns_.push_back(Evals(evaluations));
+      advice_columns_.push_back(Evals(evaluations));
+      instance_columns_.push_back(Evals(evaluations));
+
+      challenges_.push_back(GF7::Random());
+    }
+
+    Columns<Evals> columns(absl::MakeConstSpan(fixed_columns_),
+                           absl::MakeConstSpan(advice_columns_),
+                           absl::MakeConstSpan(instance_columns_));
+    simple_evaluator_ = std::make_unique<SimpleEvaluator<Evals>>(
+        3, 4, 1, columns, absl::MakeConstSpan(challenges_));
   }
-  SimpleEvaluatorTest(const SimpleEvaluatorTest&) = delete;
-  SimpleEvaluatorTest& operator=(const SimpleEvaluatorTest&) = delete;
-  ~SimpleEvaluatorTest() override = default;
 
  protected:
-  std::unique_ptr<SimpleEvaluator<Poly>> simple_evaluator_;
+  std::unique_ptr<SimpleEvaluator<Evals>> simple_evaluator_;
 };
 
 }  // namespace
@@ -48,9 +58,9 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
     int32_t rotation;
     size_t column_index;
   } tests[] = {
-      // fixed_polys_[0], (3 + 1 * 1) % 4 = 0, coefficient[0]
+      // fixed_columns_[0], (3 + 1 * 1) % 4 = 0, evaluations[0]
       {1, 0},
-      // fixed_polys_[1], (4 + 2 * 1) % 4 = 2, coefficient[2]
+      // fixed_columns_[1], (4 + 2 * 1) % 4 = 2, evaluations[2]
       {2, 1},
   };
 
@@ -60,9 +70,9 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
     int32_t size = simple_evaluator_->size();
     FixedQuery query(1, Rotation(test.rotation),
                      FixedColumn(test.column_index));
-    size_t coeff_index = query.rotation().GetIndex(idx, rot_scale, size);
+    size_t evals_index = query.rotation().GetIndex(idx, rot_scale, size);
 
-    const GF7* expected = fixed_polys_[test.column_index][coeff_index];
+    const GF7* expected = fixed_columns_[test.column_index][evals_index];
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, *expected);
@@ -74,9 +84,9 @@ TEST_F(SimpleEvaluatorTest, Advice) {
     int32_t rotation;
     size_t column_index;
   } tests[] = {
-      // advice_polys_[2], (3 + 6 * 1) % 4 = 1, coefficient[1]
+      // advice_columns_[2], (3 + 6 * 1) % 4 = 1, evaluations[1]
       {6, 2},
-      // advice_polys_[3], (4 + 7 * 1) % 4 = 3, coefficient[3]
+      // advice_columns_[3], (4 + 7 * 1) % 4 = 3, evaluations[3]
       {7, 3},
   };
 
@@ -86,9 +96,9 @@ TEST_F(SimpleEvaluatorTest, Advice) {
     int32_t size = simple_evaluator_->size();
     AdviceQuery query(1, Rotation(test.rotation),
                       AdviceColumn(test.column_index, Phase(0)));
-    size_t coeff_index = query.rotation().GetIndex(idx, rot_scale, size);
+    size_t evals_index = query.rotation().GetIndex(idx, rot_scale, size);
 
-    const GF7* expected = advice_polys_[test.column_index][coeff_index];
+    const GF7* expected = advice_columns_[test.column_index][evals_index];
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, *expected);
@@ -100,9 +110,9 @@ TEST_F(SimpleEvaluatorTest, Instance) {
     int32_t rotation;
     size_t column_index;
   } tests[] = {
-      // instance_polys_[1], (3 + 1 * 1) % 4 = 0, coefficient[0]
+      // instance_columns_[1], (3 + 1 * 1) % 4 = 0, evaluations[0]
       {1, 1},
-      // instance_polys_[2], (4 + 2 * 1) % 4 = 2, coefficient[2]
+      // instance_columns_[2], (4 + 2 * 1) % 4 = 2, evaluations[2]
       {2, 2},
   };
 
@@ -112,9 +122,9 @@ TEST_F(SimpleEvaluatorTest, Instance) {
     int32_t size = simple_evaluator_->size();
     InstanceQuery query(1, Rotation(test.rotation),
                         InstanceColumn(test.column_index));
-    size_t coeff_index = query.rotation().GetIndex(idx, rot_scale, size);
+    size_t evals_index = query.rotation().GetIndex(idx, rot_scale, size);
 
-    const GF7* expected = instance_polys_[test.column_index][coeff_index];
+    const GF7* expected = instance_columns_[test.column_index][evals_index];
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, *expected);

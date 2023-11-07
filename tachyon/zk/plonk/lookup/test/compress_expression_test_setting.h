@@ -14,18 +14,19 @@ class CompressExpressionTestSetting : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
 
-    SimpleEvaluator<Evals>::Arguments arguments(
-        &advice_values_, &fixed_values_, &instance_values_, &challenges_);
+    Columns<Evals> columns(absl::MakeConstSpan(fixed_columns_),
+                           absl::MakeConstSpan(advice_columns_),
+                           absl::MakeConstSpan(instance_columns_));
     evaluator_ = {0, static_cast<int32_t>(prover_->domain()->size()), 1,
-                  arguments};
+                  columns, absl::MakeConstSpan(challenges_)};
     theta_ = F(2);
   }
 
  protected:
   SimpleEvaluator<Evals> evaluator_;
-  std::vector<Evals> advice_values_;
-  std::vector<Evals> fixed_values_;
-  std::vector<Evals> instance_values_;
+  std::vector<Evals> fixed_columns_;
+  std::vector<Evals> advice_columns_;
+  std::vector<Evals> instance_columns_;
   std::vector<F> challenges_;
   F theta_;
 };

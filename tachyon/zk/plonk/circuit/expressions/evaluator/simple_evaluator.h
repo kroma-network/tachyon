@@ -9,6 +9,9 @@
 
 #include <vector>
 
+#include "absl/types/span.h"
+
+#include "tachyon/zk/plonk/circuit/columns.h"
 #include "tachyon/zk/plonk/circuit/expressions/advice_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/challenge_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/constant_expression.h"
@@ -23,38 +26,23 @@
 
 namespace tachyon::zk {
 
-template <typename Poly>
+template <typename Evals>
 class SimpleEvaluator
-    : public Evaluator<typename Poly::Field, typename Poly::Field> {
+    : public Evaluator<typename Evals::Field, typename Evals::Field> {
  public:
-  using Field = typename Poly::Field;
-
-  struct Arguments {
-    const std::vector<Poly>* fixeds = nullptr;
-    const std::vector<Poly>* advices = nullptr;
-    const std::vector<Poly>* instances = nullptr;
-    const std::vector<Field>* challenges = nullptr;
-
-    Arguments() = default;
-    Arguments(const std::vector<Poly>* fixeds, const std::vector<Poly>* advices,
-              const std::vector<Poly>* instances,
-              const std::vector<Field>* challenges)
-        : fixeds(fixeds),
-          advices(advices),
-          instances(instances),
-          challenges(challenges) {}
-  };
+  using Field = typename Evals::Field;
 
   SimpleEvaluator() = default;
   SimpleEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
-                  const Arguments& arguments)
+                  const Columns<Evals>& columns,
+                  absl::Span<const Field> challenges)
       : idx_(idx),
         size_(size),
         rot_scale_(rot_scale),
-        fixeds_(arguments.fixeds),
-        advices_(arguments.advices),
-        instances_(arguments.instances),
-        challenges_(arguments.challenges) {}
+        fixed_columns_(columns.fixed_columns()),
+        advice_columns_(columns.advice_columns()),
+        instance_columns_(columns.instance_columns()),
+        challenges_(challenges) {}
 
   int32_t idx() const { return idx_; }
   void set_idx(int32_t idx) { idx_ = idx; }
@@ -84,9 +72,9 @@ class SimpleEvaluator
       case ExpressionType::kFixed: {
         const FixedExpression<Field>* fixed_expr = input->ToFixed();
         const FixedQuery& query = fixed_expr->query();
-        const Poly& poly = (*fixeds_)[query.column().index()];
+        const Evals& evals = fixed_columns_[query.column().index()];
         const Field* ret =
-            poly[query.rotation().GetIndex(idx_, rot_scale_, size_)];
+            evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
         if (ret == nullptr) {
           return Field::Zero();
         }
@@ -96,9 +84,9 @@ class SimpleEvaluator
       case ExpressionType::kAdvice: {
         const AdviceExpression<Field>* advice_expr = input->ToAdvice();
         const AdviceQuery& query = advice_expr->query();
-        const Poly& poly = (*advices_)[query.column().index()];
+        const Evals& evals = advice_columns_[query.column().index()];
         const Field* ret =
-            poly[query.rotation().GetIndex(idx_, rot_scale_, size_)];
+            evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
         if (ret == nullptr) {
           return Field::Zero();
         }
@@ -108,16 +96,16 @@ class SimpleEvaluator
       case ExpressionType::kInstance: {
         const InstanceExpression<Field>* instance_expr = input->ToInstance();
         const InstanceQuery& query = instance_expr->query();
-        const Poly& poly = (*instances_)[query.column().index()];
+        const Evals& evals = instance_columns_[query.column().index()];
         const Field* ret =
-            poly[query.rotation().GetIndex(idx_, rot_scale_, size_)];
+            evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
         if (ret == nullptr) {
           return Field::Zero();
         }
         return *ret;
       }
       case ExpressionType::kChallenge:
-        return (*challenges_)[input->ToChallenge()->challenge().index()];
+        return challenges_[input->ToChallenge()->challenge().index()];
 
       case ExpressionType::kNegated:
         return -Evaluate(input->ToNegated()->expr());
@@ -145,14 +133,10 @@ class SimpleEvaluator
   int32_t idx_ = 0;
   int32_t size_ = 0;
   int32_t rot_scale_ = 0;
-  // not owned
-  const std::vector<Poly>* fixeds_ = nullptr;
-  // not owned
-  const std::vector<Poly>* advices_ = nullptr;
-  // not owned
-  const std::vector<Poly>* instances_ = nullptr;
-  // not owned
-  const std::vector<Field>* challenges_ = nullptr;
+  absl::Span<const Evals> fixed_columns_;
+  absl::Span<const Evals> advice_columns_;
+  absl::Span<const Evals> instance_columns_;
+  absl::Span<const Field> challenges_;
 };
 
 }  // namespace tachyon::zk
