@@ -30,7 +30,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "lookup_evaluated",
     hdrs = ["lookup_evaluated.h"],
-    deps = ["//tachyon/zk/base:blinded_polynomial"],
+    deps = [
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base:prover_query",
+    ],
 )
 
 tachyon_cc_library(
