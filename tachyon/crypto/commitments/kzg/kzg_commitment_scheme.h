@@ -7,6 +7,7 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_COMMITMENT_SCHEME_H_
 #define TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_COMMITMENT_SCHEME_H_
 
+#include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -134,11 +135,13 @@ class KZGCommitmentScheme
     using Bucket = typename math::Pippenger<G1PointTy>::Bucket;
 
     math::VariableBaseMSM<G1PointTy> msm;
+    absl::Span<const G1PointTy> bases_span = absl::Span<const G1PointTy>(
+        bases.data(), std::min(bases.size(), scalars.size()));
     if constexpr (std::is_same_v<Commitment, Bucket>) {
-      return msm.Run(bases, scalars, out);
+      return msm.Run(bases_span, scalars, out);
     } else {
       Bucket result;
-      if (!msm.Run(bases, scalars, &result)) return false;
+      if (!msm.Run(bases_span, scalars, &result)) return false;
       *out = math::ConvertPoint<Commitment>(result);
       return true;
     }
