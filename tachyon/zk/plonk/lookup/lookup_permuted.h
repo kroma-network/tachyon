@@ -13,7 +13,6 @@
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/parallelize.h"
-#include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/evals_pair.h"
 #include "tachyon/zk/plonk/lookup/lookup_committed.h"
 #include "tachyon/zk/plonk/lookup/permute_expression_pair.h"

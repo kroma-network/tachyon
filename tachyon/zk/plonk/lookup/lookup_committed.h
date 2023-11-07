@@ -9,7 +9,7 @@
 
 #include <utility>
 
-#include "tachyon/zk/base/blinded_polynomial.h"
+#include "tachyon/zk/base/prover.h"
 #include "tachyon/zk/plonk/circuit/rotation.h"
 #include "tachyon/zk/plonk/lookup/lookup_evaluated.h"
 
