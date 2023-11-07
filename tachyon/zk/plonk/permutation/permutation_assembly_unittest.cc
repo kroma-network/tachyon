@@ -44,10 +44,31 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
   }
 }
 
-// TODO(dongchangYoo): check if it produces the same value as zcash-halo2
-TEST_F(PermutationAssemblyTest, BuildVerifyingKey) {}
+TEST_F(PermutationAssemblyTest, BuildKeys) {
+  const Domain* domain = prover_->domain();
+  const PCS& pcs = prover_->pcs();
 
-// TODO(dongchangYoo): check if it produces the same value as zcash-halo2
-TEST_F(PermutationAssemblyTest, BuildProvingKey) {}
+  PermutationProvingKey<PCS> pk = assembly_.BuildProvingKey(domain);
+  EXPECT_EQ(pk.permutations().size(), pk.polys().size());
+
+  PermutationVerifyingKey<PCS> vk = assembly_.BuildVerifyingKey(pcs, domain);
+  EXPECT_EQ(pk.permutations().size(), vk.commitments().size());
+
+  for (size_t i = 0; i < columns_.size(); ++i) {
+    Commitment commitment_evals;
+    ASSERT_TRUE(pcs.CommitLagrange(pk.permutations()[i], &commitment_evals));
+
+    Commitment commitment_poly;
+    ASSERT_TRUE(pcs.Commit(pk.polys()[i], &commitment_poly));
+
+    // |polys| and |permutations| in the |PermutationProvingKey| represent
+    // the same polynomial. so the commitments must be equal to each other.
+    EXPECT_EQ(commitment_evals, commitment_poly);
+
+    // |commitments| of |PermutationVerifyingKey| are commitments of
+    // |permutations| of |PermutationProvingKey|.
+    EXPECT_EQ(commitment_evals, vk.commitments()[i]);
+  }
+}
 
 }  // namespace tachyon::zk

@@ -78,12 +78,16 @@ class PermutationAssembly {
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
   constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
-      const PCSTy& kzg_params, const Domain* domain) const {
+      const PCSTy& params, const Domain* domain) const {
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
-    // TODO(dongchangYoo): calculate commitments after complete Params. See
-    // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/permutation/keygen.rs#L153-L162.
     Commitments commitments;
+    commitments.reserve(columns_.size());
+    for (size_t i = 0; i < columns_.size(); ++i) {
+      Commitment commitment;
+      CHECK(params.CommitLagrange(permutations[i], &commitment));
+      commitments.push_back(commitment);
+    }
 
     return PermutationVerifyingKey<PCSTy>(std::move(commitments));
   }

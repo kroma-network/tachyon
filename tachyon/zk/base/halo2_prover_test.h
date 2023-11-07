@@ -28,6 +28,7 @@ class Halo2ProverTest : public testing::Test {
                                   math::bn254::G2AffinePoint, kMaxDegree,
                                   math::bn254::G1AffinePoint>;
   using F = PCS::Field;
+  using Commitment = PCS::Commitment;
   using Poly = PCS::Poly;
   using Evals = PCS::Evals;
   using Domain = PCS::Domain;
