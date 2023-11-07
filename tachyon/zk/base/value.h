@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_VALUE_H_
-#define TACHYON_ZK_VALUE_H_
+#ifndef TACHYON_ZK_BASE_VALUE_H_
+#define TACHYON_ZK_BASE_VALUE_H_
 
 #include <optional>
 #include <string>
@@ -188,4 +188,4 @@ class Value : public math::Field<Value<T>> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_VALUE_H_
+#endif  // TACHYON_ZK_BASE_VALUE_H_
