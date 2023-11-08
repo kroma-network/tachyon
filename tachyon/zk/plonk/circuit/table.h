@@ -47,11 +47,11 @@ class Table {
     return Ref<const Evals>();
   }
 
-  std::vector<Ref<const Evals>> GetColumns(
-      const std::vector<ColumnKeyBase>& column_keys) const {
+  template <typename Container>
+  std::vector<Ref<const Evals>> GetColumns(const Container& column_keys) const {
     std::vector<Ref<const Evals>> ret;
-    ret.reserve(column_keys.size());
-    for (const ColumnKeyBase& column_key : column_keys) {
+    ret.reserve(std::size(column_keys));
+    for (const auto& column_key : column_keys) {
       ret.push_back(GetColumn(column_key));
     }
     return ret;
