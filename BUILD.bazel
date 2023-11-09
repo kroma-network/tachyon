@@ -36,11 +36,6 @@ bool_flag(
 
 # prime field backend
 bool_flag(
-    name = "gmp_backend",
-    build_setting_default = False,
-)
-
-bool_flag(
     name = "polygon_zkevm_backend",
     build_setting_default = False,
 )
@@ -149,11 +144,6 @@ config_setting(
 )
 
 config_setting(
-    name = "tachyon_gmp_backend",
-    flag_values = {":gmp_backend": "true"},
-)
-
-config_setting(
     name = "tachyon_polygon_zkevm_backend",
     flag_values = {":polygon_zkevm_backend": "true"},
 )
@@ -176,14 +166,6 @@ config_setting(
 config_setting(
     name = "tachyon_node_binding",
     flag_values = {"node_binding": "true"},
-)
-
-selects.config_setting_group(
-    name = "cuda_and_gmp",
-    match_all = [
-        "@local_config_cuda//:is_cuda_enabled",
-        "@kroma_network_tachyon//:tachyon_gmp_backend",
-    ],
 )
 
 selects.config_setting_group(

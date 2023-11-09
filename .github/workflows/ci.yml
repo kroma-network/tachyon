@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  test_gmp:
+  test:
     strategy:
       matrix:
         include:
@@ -36,14 +36,14 @@ jobs:
         run: sudo apt-get install -y libomp-dev
 
       - name: Build
-        run: bazel build -c fastbuild --config ${{ matrix.bazel_config }} --config gmp_backend //...
+        run: bazel build -c fastbuild --config ${{ matrix.bazel_config }} //...
 
       - name: Test Tachyon
-        run: bazel test -c fastbuild --config ${{ matrix.bazel_config }} --config gmp_backend --test_output=errors --test_tag_filters -benchmark,-manual,-cuda,-rust //...
+        run: bazel test -c fastbuild --config ${{ matrix.bazel_config }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda,-rust //...
 
       - name: Test OpenMP
         if: matrix.os == 'ubuntu-latest'
-        run: bazel test -c fastbuild --config linux --config gmp_backend --//:has_openmp --test_output=errors --test_tag_filters -benchmark,-manual,-cuda,-rust //...
+        run: bazel test -c fastbuild --config linux --//:has_openmp --test_output=errors --test_tag_filters -benchmark,-manual,-cuda,-rust //...
 
       - name: Test Node Binding
         run: |

@@ -89,9 +89,6 @@ int GenerationConfig::GenerateConfigHdr() const {
   std::vector<std::string> tpl = {
       "#include \"tachyon/export.h\"",
       "#include \"tachyon/math/finite_fields/prime_field.h\"",
-      "#if defined(TACHYON_GMP_BACKEND)",
-      "#include \"tachyon/math/finite_fields/prime_field_gmp.h\"",
-      "#endif  // defined(TACHYON_GMP_BACKEND)",
       "",
       "namespace %{namespace} {",
       "",
@@ -142,9 +139,6 @@ int GenerationConfig::GenerateConfigHdr() const {
       "};",
       "",
       "using %{class} = PrimeField<%{class}Config>;",
-      "#if defined(TACHYON_GMP_BACKEND)",
-      "using %{class}Gmp = PrimeFieldGmp<%{class}Config>;",
-      "#endif  // defined(TACHYON_GMP_BACKEND)",
       "",
       "}  // namespace %{namespace}",
   };
