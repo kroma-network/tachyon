@@ -49,8 +49,8 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":glv",
-        "//tachyon/math/elliptic_curves/bls/bls12_381:g1",
-        "//tachyon/math/elliptic_curves/bls/bls12_381:g2",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:g1",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:g2",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",

@@ -4,5 +4,5 @@ package(default_visibility = ["//tachyon/node/math:__pkg__"])
 
 generate_ec_points(
     name = "bls12_381",
-    g1_deps = ["//tachyon/math/elliptic_curves/bls/bls12_381:g1"],
+    g1_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:g1"],
 )

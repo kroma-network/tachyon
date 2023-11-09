@@ -8,7 +8,7 @@
 
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/function_ref.h"
-#include "tachyon/math/elliptic_curves/bls/bls12_381/fr.h"
+#include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
 #include "tachyon/math/elliptic_curves/bn/bn384_small_two_adicity/fq.h"
 #include "tachyon/math/polynomials/univariate/mixed_radix_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/radix2_evaluation_domain.h"
