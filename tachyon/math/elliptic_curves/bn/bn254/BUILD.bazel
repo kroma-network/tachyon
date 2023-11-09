@@ -1,5 +1,6 @@
 load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//tachyon/math/elliptic_curves/bn/generator:build_defs.bzl", "generate_bn_curves")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
 load(
@@ -257,4 +258,30 @@ generate_ec_points(
         # Hex: 0x90689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b
         "4082367875863433681332203403145435568316851327593401208105741076214120093531",
     ],
+)
+
+generate_bn_curves(
+    name = "bn254",
+    class_name = "BN254",
+    fq12_dep = ":fq12",
+    fq12_hdr = "tachyon/math/elliptic_curves/bn/bn254/fq12.h",
+    g1_dep = ":g1",
+    g1_hdr = "tachyon/math/elliptic_curves/bn/bn254/g1.h",
+    g2_dep = ":g2",
+    g2_hdr = "tachyon/math/elliptic_curves/bn/bn254/g2.h",
+    namespace = "tachyon::math::bn254",
+    twist_mul_by_q_x = [
+        # Hex: 0x2fb347984f7911f74c0bec3cf559b143b78cc310c2c3330c99e39557176f553d
+        "21575463638280843010398324269430826099269044274347216827212613867836435027261",
+        # Hex: 0x16c9e55061ebae204ba4cc8bd75a079432ae2a1d0b7c9dce1665d51c640fcba2
+        "10307601595873709700152284273816112264069230130616436755625194854815875713954",
+    ],
+    twist_mul_by_q_y = [
+        # Hex: 0x63cf305489af5dcdc5ec698b6e2f9b9dbaae0eda9c95998dc54014671a0135a
+        "2821565182194536844548159561693502659359617185244120367078079554186484126554",
+        # Hex: 0x7c03cbcac41049a0704b5a7ec796f2b21807dc98fa25bd282d37f632623b0e3
+        "3505843767911556378687030309984248845540243509899259641013678093033130930403",
+    ],
+    twist_type = "D",
+    x = "4965661367192848881",
 )

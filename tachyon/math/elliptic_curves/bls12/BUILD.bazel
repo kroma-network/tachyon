@@ -1,0 +1,8 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "bls12_curve",
+    hdrs = ["bls12_curve.h"],
+)

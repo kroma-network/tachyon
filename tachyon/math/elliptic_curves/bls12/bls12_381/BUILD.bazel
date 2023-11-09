@@ -1,4 +1,5 @@
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
+load("//tachyon/math/elliptic_curves/bls12/generator:build_defs.bzl", "generate_bls12_curves")
 load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
 load(
     "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
@@ -169,4 +170,19 @@ generate_ec_points(
         # Hex: 0x606c4a02ea734cc32acd2b02bc28b99cb3e287e85a763af267492ab572e99ab3f370d275cec1da1aaa9075ff05f79be
         "927553665492332455747201965776037880757740193453592970025027978793976877002675564980949289727957565575433344219582",
     ],
+)
+
+generate_bls12_curves(
+    name = "bls12_381",
+    class_name = "BLS12_381",
+    fq12_dep = ":fq12",
+    fq12_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq12.h",
+    g1_dep = ":g1",
+    g1_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/g1.h",
+    g2_dep = ":g2",
+    g2_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/g2.h",
+    namespace = "tachyon::math::bls12_381",
+    twist_type = "M",
+    # Hex: 0xd201000000010000
+    x = "-15132376222941642752",
 )
