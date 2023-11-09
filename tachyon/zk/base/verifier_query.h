@@ -1,7 +1,15 @@
+// Copyright 2020-2022 The Electric Coin Company
+// Copyright 2022 The Halo2 developers
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
+// file.
+
 #ifndef TACHYON_ZK_BASE_VERIFIER_QUERY_H_
 #define TACHYON_ZK_BASE_VERIFIER_QUERY_H_
 
-#include "tachyon/zk/base/ref_aliases.h"
+#include <utility>
+
+#include "tachyon/zk/base/ref.h"
 
 namespace tachyon::zk {
 
@@ -11,19 +19,23 @@ class VerifierQuery {
   using F = typename PCSTy::Field;
   using Commitment = typename PCSTy::Commitment;
 
-  VerifierQuery(PointRef<const F> point,
-                CommitmentRef<const Commitment> commitment,
-                FieldRef<const F> evaluated)
+  VerifierQuery(const F& point, Ref<const Commitment> commitment,
+                const F& evaluated)
       : point_(point), commitment_(commitment), evaluated_(evaluated) {}
 
-  PointRef<const F> point() const { return point_; }
-  CommitmentRef<const Commitment> commitment() const { return commitment_; }
-  FieldRef<const F> evaluated() const { return evaluated_; }
+  VerifierQuery(F&& point, Ref<const Commitment> commitment, F&& evaluated)
+      : point_(std::move(point)),
+        commitment_(commitment),
+        evaluated_(std::move(evaluated)) {}
+
+  const F& point() const { return point_; }
+  Ref<const Commitment> commitment() const { return commitment_; }
+  const F& evaluated() const { return evaluated_; }
 
  private:
-  PointRef<const F> point_;
-  CommitmentRef<const Commitment> commitment_;
-  FieldRef<const F> evaluated_;
+  F point_;
+  Ref<const Commitment> commitment_;
+  F evaluated_;
 };
 
 }  // namespace tachyon::zk

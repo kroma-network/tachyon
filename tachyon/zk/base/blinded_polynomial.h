@@ -9,7 +9,12 @@
 
 #include <utility>
 
+#include "tachyon/zk/base/ref.h"
+
 namespace tachyon::zk {
+
+template <typename T>
+class Ref;
 
 template <typename Poly>
 class BlindedPolynomial {
@@ -24,6 +29,10 @@ class BlindedPolynomial {
 
   const Poly& poly() const { return poly_; }
   const F& blind() const { return blind_; }
+
+  Ref<const BlindedPolynomial<Poly>> ToRef() const {
+    return Ref<const BlindedPolynomial<Poly>>(this);
+  }
 
  private:
   Poly poly_;

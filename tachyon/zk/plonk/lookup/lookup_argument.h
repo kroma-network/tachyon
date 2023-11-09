@@ -15,8 +15,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/base/blinded_polynomial.h"
-#include "tachyon/zk/base/prover.h"
 #include "tachyon/zk/plonk/lookup/compress_expression.h"
 #include "tachyon/zk/plonk/lookup/lookup_permuted.h"
 

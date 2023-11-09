@@ -14,7 +14,6 @@ tachyon_cc_library(
     deps = [
         ":compress_expression",
         ":lookup_permuted",
-        "//tachyon/zk/base:prover",
     ],
 )
 
@@ -23,6 +22,7 @@ tachyon_cc_library(
     hdrs = ["lookup_committed.h"],
     deps = [
         ":lookup_evaluated",
+        "//tachyon/zk/base:prover",
         "//tachyon/zk/plonk/circuit:rotation",
     ],
 )
@@ -30,7 +30,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "lookup_evaluated",
     hdrs = ["lookup_evaluated.h"],
-    deps = ["//tachyon/zk/base:blinded_polynomial"],
+    deps = [
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base:prover_query",
+    ],
 )
 
 tachyon_cc_library(
@@ -40,9 +43,7 @@ tachyon_cc_library(
         ":lookup_committed",
         ":permute_expression_pair",
         "//tachyon/base:parallelize",
-        "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:evals_pair",
-        "//tachyon/zk/transcript",
     ],
 )
 
