@@ -38,7 +38,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  using BasePrimeField = %{base_prime_field};",
       "  using FrobeniusCoefficient = %{frobenius_coefficient};",
       "",
-      "  // NOTE(chokobole): This can't be constexpr because of PrimeFieldGmp support.",
+      "  // TODO(chokobole): Make them constexpr.",
       "  static BaseField kNonResidue;",
       "  static FrobeniusCoefficient kFrobeniusCoeffs[%{frob_coeffs_size}];",
       "  static FrobeniusCoefficient kFrobeniusCoeffs2[%{frob_coeffs_size}];",
@@ -64,9 +64,6 @@ int GenerationConfig::GenerateConfigHdr() const {
       "typename %{class}Config<BaseField>::FrobeniusCoefficient %{class}Config<BaseField>::kFrobeniusCoeffs2[%{frob_coeffs_size}];",
       "",
       "using %{class} = Fp%{degree}<%{class}Config<%{base_field}>>;",
-      "#if defined(TACHYON_GMP_BACKEND)",
-      "using %{class}Gmp = Fp%{degree}<%{class}Config<%{base_field}Gmp>>;",
-      "#endif  // defined(TACHYON_GMP_BACKEND)",
       "",
       "}  // namespace %{namespace}",
   };

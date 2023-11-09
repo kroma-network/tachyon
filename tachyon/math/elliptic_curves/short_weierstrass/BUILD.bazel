@@ -1,4 +1,4 @@
-load("//bazel:tachyon.bzl", "if_cuda_and_gmp_backend")
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
 load(
     "//bazel:tachyon_cc.bzl",
     "tachyon_cc_library",
@@ -60,7 +60,7 @@ tachyon_cc_unittest(
 tachyon_cuda_test(
     name = "short_weierstrass_correctness_gpu_tests",
     size = "small",
-    srcs = if_cuda_and_gmp_backend([
+    srcs = if_gpu_is_configured([
         "affine_point_correctness_gpu_test.cc",
         "non_affine_point_correctness_gpu_test.cc",
     ]),

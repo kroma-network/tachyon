@@ -14,55 +14,35 @@ namespace tachyon::math {
 
 namespace {
 
-template <typename JacobianPointType>
 class JacobianPointTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { JacobianPointType::Curve::Init(); }
+  static void SetUpTestSuite() { test::G1Curve::Init(); }
 };
 
 }  // namespace
 
-#if defined(TACHYON_GMP_BACKEND)
-using JacobianPointTypes =
-    testing::Types<test::JacobianPoint, test::JacobianPointGmp>;
-#else
-using JacobianPointTypes = testing::Types<test::JacobianPoint>;
-#endif
-TYPED_TEST_SUITE(JacobianPointTest, JacobianPointTypes);
-
-TYPED_TEST(JacobianPointTest, IsZero) {
-  using JacobianPointTy = TypeParam;
-  using BaseField = typename JacobianPointTy::BaseField;
-
-  EXPECT_TRUE(JacobianPointTy::Zero().IsZero());
-  EXPECT_FALSE(
-      JacobianPointTy(BaseField(1), BaseField(2), BaseField(1)).IsZero());
+TEST_F(JacobianPointTest, IsZero) {
+  EXPECT_TRUE(test::JacobianPoint::Zero().IsZero());
+  EXPECT_FALSE(test::JacobianPoint(GF7(1), GF7(2), GF7(1)).IsZero());
 }
 
-TYPED_TEST(JacobianPointTest, Generator) {
-  using JacobianPointTy = TypeParam;
-  using BaseField = typename JacobianPointTy::BaseField;
-
-  EXPECT_EQ(JacobianPointTy::Generator(),
-            JacobianPointTy(JacobianPointTy::Curve::Config::kGenerator.x,
-                            JacobianPointTy::Curve::Config::kGenerator.y,
-                            BaseField::One()));
+TEST_F(JacobianPointTest, Generator) {
+  EXPECT_EQ(test::JacobianPoint::Generator(),
+            test::JacobianPoint(
+                test::JacobianPoint::Curve::Config::kGenerator.x,
+                test::JacobianPoint::Curve::Config::kGenerator.y, GF7::One()));
 }
 
-TYPED_TEST(JacobianPointTest, Montgomery) {
-  using JacobianPointTy = TypeParam;
-
-  JacobianPointTy r = JacobianPointTy::Random();
-  EXPECT_EQ(r, JacobianPointTy::FromMontgomery(r.ToMontgomery()));
+TEST_F(JacobianPointTest, Montgomery) {
+  test::JacobianPoint r = test::JacobianPoint::Random();
+  EXPECT_EQ(r, test::JacobianPoint::FromMontgomery(r.ToMontgomery()));
 }
 
-TYPED_TEST(JacobianPointTest, Random) {
-  using JacobianPointTy = TypeParam;
-
+TEST_F(JacobianPointTest, Random) {
   bool success = false;
-  JacobianPointTy r = JacobianPointTy::Random();
+  test::JacobianPoint r = test::JacobianPoint::Random();
   for (size_t i = 0; i < 100; ++i) {
-    if (r != JacobianPointTy::Random()) {
+    if (r != test::JacobianPoint::Random()) {
       success = true;
       break;
     }
@@ -70,51 +50,43 @@ TYPED_TEST(JacobianPointTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TYPED_TEST(JacobianPointTest, EqualityOperators) {
-  using JacobianPointTy = TypeParam;
-  using BaseField = typename JacobianPointTy::BaseField;
-
+TEST_F(JacobianPointTest, EqualityOperators) {
   {
     SCOPED_TRACE("p.IsZero() && p2.IsZero()");
-    JacobianPointTy p(BaseField(1), BaseField(2), BaseField(0));
-    JacobianPointTy p2(BaseField(3), BaseField(4), BaseField(0));
+    test::JacobianPoint p(GF7(1), GF7(2), GF7(0));
+    test::JacobianPoint p2(GF7(3), GF7(4), GF7(0));
     EXPECT_TRUE(p == p2);
     EXPECT_TRUE(p2 == p);
   }
 
   {
     SCOPED_TRACE("!p.IsZero() && p2.IsZero()");
-    JacobianPointTy p(BaseField(1), BaseField(2), BaseField(1));
-    JacobianPointTy p2(BaseField(3), BaseField(4), BaseField(0));
+    test::JacobianPoint p(GF7(1), GF7(2), GF7(1));
+    test::JacobianPoint p2(GF7(3), GF7(4), GF7(0));
     EXPECT_TRUE(p != p2);
     EXPECT_TRUE(p2 != p);
   }
 
   {
     SCOPED_TRACE("other");
-    JacobianPointTy p(BaseField(1), BaseField(2), BaseField(3));
-    JacobianPointTy p2(BaseField(1), BaseField(2), BaseField(3));
+    test::JacobianPoint p(GF7(1), GF7(2), GF7(3));
+    test::JacobianPoint p2(GF7(1), GF7(2), GF7(3));
     EXPECT_TRUE(p == p2);
     EXPECT_TRUE(p2 == p);
   }
 }
 
-TYPED_TEST(JacobianPointTest, AdditiveGroupOperators) {
-  using JacobianPointTy = TypeParam;
-  using AffinePointTy = typename JacobianPointTy::AffinePointTy;
-  using BaseField = typename JacobianPointTy::BaseField;
-  using ScalarField = typename AffinePointTy::ScalarField;
-
-  JacobianPointTy jp =
-      JacobianPointTy::CreateChecked(BaseField(5), BaseField(5), BaseField(1));
-  JacobianPointTy jp2 =
-      JacobianPointTy::CreateChecked(BaseField(3), BaseField(2), BaseField(1));
-  JacobianPointTy jp3 =
-      JacobianPointTy::CreateChecked(BaseField(3), BaseField(5), BaseField(1));
-  JacobianPointTy jp4 =
-      JacobianPointTy::CreateChecked(BaseField(6), BaseField(5), BaseField(1));
-  AffinePointTy ap = jp.ToAffine();
-  AffinePointTy ap2 = jp2.ToAffine();
+TEST_F(JacobianPointTest, AdditiveGroupOperators) {
+  test::JacobianPoint jp =
+      test::JacobianPoint::CreateChecked(GF7(5), GF7(5), GF7(1));
+  test::JacobianPoint jp2 =
+      test::JacobianPoint::CreateChecked(GF7(3), GF7(2), GF7(1));
+  test::JacobianPoint jp3 =
+      test::JacobianPoint::CreateChecked(GF7(3), GF7(5), GF7(1));
+  test::JacobianPoint jp4 =
+      test::JacobianPoint::CreateChecked(GF7(6), GF7(5), GF7(1));
+  test::AffinePoint ap = jp.ToAffine();
+  test::AffinePoint ap2 = jp2.ToAffine();
 
   EXPECT_EQ(jp + jp2, jp3);
   EXPECT_EQ(jp - jp3, -jp2);
@@ -122,7 +94,7 @@ TYPED_TEST(JacobianPointTest, AdditiveGroupOperators) {
   EXPECT_EQ(jp - jp4, -jp);
 
   {
-    JacobianPointTy jp_tmp = jp;
+    test::JacobianPoint jp_tmp = jp;
     jp_tmp += jp2;
     EXPECT_EQ(jp_tmp, jp3);
     jp_tmp -= jp2;
@@ -136,119 +108,87 @@ TYPED_TEST(JacobianPointTest, AdditiveGroupOperators) {
 
   EXPECT_EQ(jp.Double(), jp4);
   {
-    JacobianPointTy jp_tmp = jp;
+    test::JacobianPoint jp_tmp = jp;
     jp_tmp.DoubleInPlace();
     EXPECT_EQ(jp_tmp, jp4);
   }
 
-  EXPECT_EQ(-jp, JacobianPointTy(BaseField(5), BaseField(2), BaseField(1)));
+  EXPECT_EQ(-jp, test::JacobianPoint(GF7(5), GF7(2), GF7(1)));
   {
-    JacobianPointTy jp_tmp = jp;
+    test::JacobianPoint jp_tmp = jp;
     jp_tmp.NegInPlace();
-    EXPECT_EQ(jp_tmp,
-              JacobianPointTy(BaseField(5), BaseField(2), BaseField(1)));
+    EXPECT_EQ(jp_tmp, test::JacobianPoint(GF7(5), GF7(2), GF7(1)));
   }
 
-  EXPECT_EQ(jp * ScalarField(2), jp4);
-  EXPECT_EQ(ScalarField(2) * jp, jp4);
-  EXPECT_EQ(jp *= ScalarField(2), jp4);
+  EXPECT_EQ(jp * GF7(2), jp4);
+  EXPECT_EQ(GF7(2) * jp, jp4);
+  EXPECT_EQ(jp *= GF7(2), jp4);
 }
 
-TYPED_TEST(JacobianPointTest, ScalarMulOperator) {
-  using JacobianPointTy = TypeParam;
-  using AffinePointTy = typename JacobianPointTy::AffinePointTy;
-  using BaseField = typename JacobianPointTy::BaseField;
-  using ScalarField = typename JacobianPointTy::ScalarField;
-
-  std::vector<AffinePointTy> points;
+TEST_F(JacobianPointTest, ScalarMulOperator) {
+  std::vector<test::AffinePoint> points;
   for (size_t i = 0; i < 7; ++i) {
-    points.push_back(
-        (ScalarField(i) * JacobianPointTy::Generator()).ToAffine());
+    points.push_back((GF7(i) * test::JacobianPoint::Generator()).ToAffine());
   }
 
-  EXPECT_THAT(points,
-              testing::UnorderedElementsAreArray(std::vector<AffinePointTy>{
-                  AffinePointTy(BaseField(0), BaseField(0), true),
-                  AffinePointTy(BaseField(3), BaseField(2)),
-                  AffinePointTy(BaseField(5), BaseField(2)),
-                  AffinePointTy(BaseField(6), BaseField(2)),
-                  AffinePointTy(BaseField(3), BaseField(5)),
-                  AffinePointTy(BaseField(5), BaseField(5)),
-                  AffinePointTy(BaseField(6), BaseField(5))}));
+  EXPECT_THAT(
+      points,
+      testing::UnorderedElementsAreArray(std::vector<test::AffinePoint>{
+          test::AffinePoint(GF7(0), GF7(0), true),
+          test::AffinePoint(GF7(3), GF7(2)), test::AffinePoint(GF7(5), GF7(2)),
+          test::AffinePoint(GF7(6), GF7(2)), test::AffinePoint(GF7(3), GF7(5)),
+          test::AffinePoint(GF7(5), GF7(5)),
+          test::AffinePoint(GF7(6), GF7(5))}));
 }
 
-TYPED_TEST(JacobianPointTest, ToAffine) {
-  using JacobianPointTy = TypeParam;
-  using AffinePointTy = typename JacobianPointTy::AffinePointTy;
-  using BaseField = typename JacobianPointTy::BaseField;
-
-  EXPECT_EQ(
-      JacobianPointTy(BaseField(1), BaseField(2), BaseField(0)).ToAffine(),
-      AffinePointTy::Zero());
-  EXPECT_EQ(
-      JacobianPointTy(BaseField(1), BaseField(2), BaseField(1)).ToAffine(),
-      AffinePointTy(BaseField(1), BaseField(2)));
-  EXPECT_EQ(
-      JacobianPointTy(BaseField(1), BaseField(2), BaseField(3)).ToAffine(),
-      AffinePointTy(BaseField(4), BaseField(5)));
+TEST_F(JacobianPointTest, ToAffine) {
+  EXPECT_EQ(test::JacobianPoint(GF7(1), GF7(2), GF7(0)).ToAffine(),
+            test::AffinePoint::Zero());
+  EXPECT_EQ(test::JacobianPoint(GF7(1), GF7(2), GF7(1)).ToAffine(),
+            test::AffinePoint(GF7(1), GF7(2)));
+  EXPECT_EQ(test::JacobianPoint(GF7(1), GF7(2), GF7(3)).ToAffine(),
+            test::AffinePoint(GF7(4), GF7(5)));
 }
 
-TYPED_TEST(JacobianPointTest, ToProjective) {
-  using JacobianPointTy = TypeParam;
-  using ProjectivePointTy = typename JacobianPointTy::ProjectivePointTy;
-  using BaseField = typename JacobianPointTy::BaseField;
-
-  EXPECT_EQ(
-      JacobianPointTy(BaseField(1), BaseField(2), BaseField(0)).ToProjective(),
-      ProjectivePointTy::Zero());
-  EXPECT_EQ(
-      JacobianPointTy(BaseField(1), BaseField(2), BaseField(3)).ToProjective(),
-      ProjectivePointTy(BaseField(3), BaseField(2), BaseField(6)));
+TEST_F(JacobianPointTest, ToProjective) {
+  EXPECT_EQ(test::JacobianPoint(GF7(1), GF7(2), GF7(0)).ToProjective(),
+            test::ProjectivePoint::Zero());
+  EXPECT_EQ(test::JacobianPoint(GF7(1), GF7(2), GF7(3)).ToProjective(),
+            test::ProjectivePoint(GF7(3), GF7(2), GF7(6)));
 }
 
-TYPED_TEST(JacobianPointTest, ToXYZZ) {
-  using JacobianPointTy = TypeParam;
-  using PointXYZZTy = typename JacobianPointTy::PointXYZZTy;
-  using BaseField = typename JacobianPointTy::BaseField;
-
-  EXPECT_EQ(JacobianPointTy(BaseField(1), BaseField(2), BaseField(0)).ToXYZZ(),
-            PointXYZZTy::Zero());
-  EXPECT_EQ(
-      JacobianPointTy(BaseField(1), BaseField(2), BaseField(3)).ToXYZZ(),
-      PointXYZZTy(BaseField(1), BaseField(2), BaseField(2), BaseField(6)));
+TEST_F(JacobianPointTest, ToXYZZ) {
+  EXPECT_EQ(test::JacobianPoint(GF7(1), GF7(2), GF7(0)).ToXYZZ(),
+            test::PointXYZZ::Zero());
+  EXPECT_EQ(test::JacobianPoint(GF7(1), GF7(2), GF7(3)).ToXYZZ(),
+            test::PointXYZZ(GF7(1), GF7(2), GF7(2), GF7(6)));
 }
 
-TYPED_TEST(JacobianPointTest, IsOnCurve) {
-  using JacobianPointTy = TypeParam;
-  using BaseField = typename JacobianPointTy::BaseField;
-
-  JacobianPointTy invalid_point(BaseField(1), BaseField(2), BaseField(1));
+TEST_F(JacobianPointTest, IsOnCurve) {
+  test::JacobianPoint invalid_point(GF7(1), GF7(2), GF7(1));
   EXPECT_FALSE(invalid_point.IsOnCurve());
-  JacobianPointTy valid_point(BaseField(3), BaseField(2), BaseField(1));
+  test::JacobianPoint valid_point(GF7(3), GF7(2), GF7(1));
   EXPECT_TRUE(valid_point.IsOnCurve());
-  valid_point = JacobianPointTy(BaseField(3), BaseField(5), BaseField(1));
+  valid_point = test::JacobianPoint(GF7(3), GF7(5), GF7(1));
   EXPECT_TRUE(valid_point.IsOnCurve());
 }
 
-TYPED_TEST(JacobianPointTest, CreateFromX) {
-  using JacobianPointTy = TypeParam;
-  using BaseField = typename JacobianPointTy::BaseField;
-
+TEST_F(JacobianPointTest, CreateFromX) {
   {
-    std::optional<JacobianPointTy> p =
-        JacobianPointTy::CreateFromX(BaseField(3), /*pick_odd=*/true);
+    std::optional<test::JacobianPoint> p =
+        test::JacobianPoint::CreateFromX(GF7(3), /*pick_odd=*/true);
     ASSERT_TRUE(p.has_value());
-    EXPECT_EQ(p->y(), BaseField(5));
+    EXPECT_EQ(p->y(), GF7(5));
   }
   {
-    std::optional<JacobianPointTy> p =
-        JacobianPointTy::CreateFromX(BaseField(3), /*pick_odd=*/false);
+    std::optional<test::JacobianPoint> p =
+        test::JacobianPoint::CreateFromX(GF7(3), /*pick_odd=*/false);
     ASSERT_TRUE(p.has_value());
-    EXPECT_EQ(p->y(), BaseField(2));
+    EXPECT_EQ(p->y(), GF7(2));
   }
   {
-    std::optional<JacobianPointTy> p =
-        JacobianPointTy::CreateFromX(BaseField(1), /*pick_odd=*/false);
+    std::optional<test::JacobianPoint> p =
+        test::JacobianPoint::CreateFromX(GF7(1), /*pick_odd=*/false);
     ASSERT_FALSE(p.has_value());
   }
 }

@@ -45,17 +45,9 @@ ADD_BENCHMARK(Mul, *)
 
 BENCHMARK_TEMPLATE(BM_Add, bn254::Fq)->Arg(1000);
 BENCHMARK_TEMPLATE(BM_Mul, bn254::Fq)->Arg(1000);
-#if defined(TACHYON_GMP_BACKEND)
-BENCHMARK_TEMPLATE(BM_Add, bn254::FqGmp)->Arg(1000);
-BENCHMARK_TEMPLATE(BM_Mul, bn254::FqGmp)->Arg(1000);
-#endif  // defined(TACHYON_GMP_BACKEND)
 
 BENCHMARK_TEMPLATE(BM_Add, Goldilocks)->Arg(1000);
 BENCHMARK_TEMPLATE(BM_Mul, Goldilocks)->Arg(1000);
-#if defined(TACHYON_GMP_BACKEND)
-BENCHMARK_TEMPLATE(BM_Add, GoldilocksGmp)->Arg(1000);
-BENCHMARK_TEMPLATE(BM_Mul, GoldilocksGmp)->Arg(1000);
-#endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace tachyon::math
 
@@ -76,10 +68,6 @@ BENCHMARK_TEMPLATE(BM_Mul, GoldilocksGmp)->Arg(1000);
 // ---------------------------------------------------------------------
 // BM_Add<bn254::Fq>/1000           6.11 ns         6.11 ns    114402345
 // BM_Mul<bn254::Fq>/1000           22.4 ns         22.4 ns     31335557
-// BM_Add<bn254::FqGmp>/1000        37.3 ns         37.3 ns     18789515
-// BM_Mul<bn254::FqGmp>/1000        58.9 ns         58.9 ns     11830293
 // BM_Add<Goldilocks>/1000         0.684 ns        0.684 ns   1000000000
 // BM_Mul<Goldilocks>/1000          2.09 ns         2.09 ns    336274472
-// BM_Add<GoldilocksGmp>/1000       28.2 ns         28.2 ns     24716406
-// BM_Mul<GoldilocksGmp>/1000       26.7 ns         26.7 ns     26150948
 // clang-format on

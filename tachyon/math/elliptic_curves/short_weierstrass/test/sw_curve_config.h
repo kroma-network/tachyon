@@ -52,13 +52,6 @@ using AffinePoint = math::AffinePoint<G1Curve>;
 using ProjectivePoint = math::ProjectivePoint<G1Curve>;
 using JacobianPoint = math::JacobianPoint<G1Curve>;
 using PointXYZZ = math::PointXYZZ<G1Curve>;
-#if defined(TACHYON_GMP_BACKEND)
-using G1CurveGmp = SWCurve<SWCurveConfig<GF7Gmp, GF7Gmp>>;
-using AffinePointGmp = math::AffinePoint<G1CurveGmp>;
-using ProjectivePointGmp = math::ProjectivePoint<G1CurveGmp>;
-using JacobianPointGmp = math::JacobianPoint<G1CurveGmp>;
-using PointXYZZGmp = math::PointXYZZ<G1CurveGmp>;
-#endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace test
 }  // namespace tachyon::math

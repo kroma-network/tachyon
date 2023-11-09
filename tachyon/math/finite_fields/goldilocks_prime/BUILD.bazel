@@ -12,9 +12,6 @@ generate_prime_fields(
     name = "goldilocks",
     class_name = "Goldilocks",
     hdr_include_override = """#include "tachyon/export.h"
-#if defined(TACHYON_GMP_BACKEND)
-#include "tachyon/math/finite_fields/prime_field_gmp.h"
-#endif  // defined(TACHYON_GMP_BACKEND)
 #if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #include "tachyon/math/finite_fields/goldilocks_prime/prime_field_goldilocks.h"
 #include "tachyon/build/build_config.h"
