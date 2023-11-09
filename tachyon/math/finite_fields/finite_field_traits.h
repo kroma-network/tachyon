@@ -20,14 +20,6 @@ struct FiniteFieldTraits<PrimeField<_Config>> {
 };
 
 template <typename _Config>
-struct FiniteFieldTraits<PrimeFieldGmp<_Config>> {
-  static constexpr bool kIsPrimeField = true;
-  static constexpr bool kIsExtensionField = false;
-
-  using Config = _Config;
-};
-
-template <typename _Config>
 struct FiniteFieldTraits<PrimeFieldGpu<_Config>> {
   static constexpr bool kIsPrimeField = true;
   static constexpr bool kIsExtensionField = false;

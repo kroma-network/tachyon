@@ -36,20 +36,20 @@ class PrimeFieldCorrectnessGpuTest : public testing::Test {
     ys_ = gpu::GpuMemory<bn254::FqGpu>::MallocManaged(N);
     results_ = gpu::GpuMemory<bn254::FqGpu>::MallocManaged(N);
 
-    bn254::FqGmp::Init();
+    bn254::Fq::Init();
 
-    x_gmps_.reserve(N);
-    y_gmps_.reserve(N);
+    x_cpus_.reserve(N);
+    y_cpus_.reserve(N);
 
     for (size_t i = 0; i < N; ++i) {
-      bn254::FqGmp x_gmp = bn254::FqGmp::Random();
-      bn254::FqGmp y_gmp = bn254::FqGmp::Random();
+      bn254::Fq x_cpu = bn254::Fq::Random();
+      bn254::Fq y_cpu = bn254::Fq::Random();
 
-      xs_[i] = ConvertPrimeField<bn254::FqGpu>(x_gmp);
-      ys_[i] = ConvertPrimeField<bn254::FqGpu>(y_gmp);
+      xs_[i] = ConvertPrimeField<bn254::FqGpu>(x_cpu);
+      ys_[i] = ConvertPrimeField<bn254::FqGpu>(y_cpu);
 
-      x_gmps_.push_back(std::move(x_gmp));
-      y_gmps_.push_back(std::move(y_gmp));
+      x_cpus_.push_back(std::move(x_cpu));
+      y_cpus_.push_back(std::move(y_cpu));
     }
   }
 
@@ -60,8 +60,8 @@ class PrimeFieldCorrectnessGpuTest : public testing::Test {
 
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
 
-    x_gmps_.clear();
-    y_gmps_.clear();
+    x_cpus_.clear();
+    y_cpus_.clear();
   }
 
   void SetUp() override { CHECK(results_.Memset()); }
@@ -71,16 +71,16 @@ class PrimeFieldCorrectnessGpuTest : public testing::Test {
   static gpu::GpuMemory<bn254::FqGpu> ys_;
   static gpu::GpuMemory<bn254::FqGpu> results_;
 
-  static std::vector<bn254::FqGmp> x_gmps_;
-  static std::vector<bn254::FqGmp> y_gmps_;
+  static std::vector<bn254::Fq> x_cpus_;
+  static std::vector<bn254::Fq> y_cpus_;
 };
 
 gpu::GpuMemory<bn254::FqGpu> PrimeFieldCorrectnessGpuTest::xs_;
 gpu::GpuMemory<bn254::FqGpu> PrimeFieldCorrectnessGpuTest::ys_;
 gpu::GpuMemory<bn254::FqGpu> PrimeFieldCorrectnessGpuTest::results_;
 
-std::vector<bn254::FqGmp> PrimeFieldCorrectnessGpuTest::x_gmps_;
-std::vector<bn254::FqGmp> PrimeFieldCorrectnessGpuTest::y_gmps_;
+std::vector<bn254::Fq> PrimeFieldCorrectnessGpuTest::x_cpus_;
+std::vector<bn254::Fq> PrimeFieldCorrectnessGpuTest::y_cpus_;
 
 }  // namespace
 
@@ -93,8 +93,8 @@ TEST_F(PrimeFieldCorrectnessGpuTest, Add) {
   RUN_OPERATION_TESTS(Add) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
-    ASSERT_EQ(ConvertPrimeField<bn254::FqGmp>(results_[i]),
-              x_gmps_[i] + y_gmps_[i]);
+    ASSERT_EQ(ConvertPrimeField<bn254::Fq>(results_[i]),
+              x_cpus_[i] + y_cpus_[i]);
   }
 }
 
@@ -102,8 +102,8 @@ TEST_F(PrimeFieldCorrectnessGpuTest, Sub) {
   RUN_OPERATION_TESTS(Sub) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
-    ASSERT_EQ(ConvertPrimeField<bn254::FqGmp>(results_[i]),
-              x_gmps_[i] - y_gmps_[i]);
+    ASSERT_EQ(ConvertPrimeField<bn254::Fq>(results_[i]),
+              x_cpus_[i] - y_cpus_[i]);
   }
 }
 
@@ -111,8 +111,8 @@ TEST_F(PrimeFieldCorrectnessGpuTest, Mul) {
   RUN_OPERATION_TESTS(Mul) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
-    ASSERT_EQ(ConvertPrimeField<bn254::FqGmp>(results_[i]),
-              x_gmps_[i] * y_gmps_[i]);
+    ASSERT_EQ(ConvertPrimeField<bn254::Fq>(results_[i]),
+              x_cpus_[i] * y_cpus_[i]);
   }
 }
 
@@ -120,8 +120,8 @@ TEST_F(PrimeFieldCorrectnessGpuTest, Div) {
   RUN_OPERATION_TESTS(Div) {
     SCOPED_TRACE(
         absl::Substitute("a: $0, b: $1", xs_[i].ToString(), ys_[i].ToString()));
-    ASSERT_EQ(ConvertPrimeField<bn254::FqGmp>(results_[i]),
-              x_gmps_[i] / y_gmps_[i]);
+    ASSERT_EQ(ConvertPrimeField<bn254::Fq>(results_[i]),
+              x_cpus_[i] / y_cpus_[i]);
   }
 }
 

@@ -14,60 +14,36 @@ namespace tachyon::math {
 
 namespace {
 
-template <typename PointXYZZType>
 class PointXYZZTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { PointXYZZType::Curve::Init(); }
+  static void SetUpTestSuite() { test::G1Curve::Init(); }
 };
 
 }  // namespace
 
-#if defined(TACHYON_GMP_BACKEND)
-using PointXYZZTypes = testing::Types<test::PointXYZZ, test::PointXYZZGmp>;
-#else
-using PointXYZZTypes = testing::Types<test::PointXYZZ>;
-#endif
-TYPED_TEST_SUITE(PointXYZZTest, PointXYZZTypes);
-
-TYPED_TEST(PointXYZZTest, IsZero) {
-  using PointXYZZTy = TypeParam;
-  using BaseField = typename PointXYZZTy::BaseField;
-
-  EXPECT_TRUE(
-      PointXYZZTy(BaseField(1), BaseField(2), BaseField(0), BaseField(0))
-          .IsZero());
-  EXPECT_FALSE(
-      PointXYZZTy(BaseField(1), BaseField(2), BaseField(1), BaseField(0))
-          .IsZero());
-  EXPECT_TRUE(
-      PointXYZZTy(BaseField(1), BaseField(2), BaseField(0), BaseField(1))
-          .IsZero());
+TEST_F(PointXYZZTest, IsZero) {
+  EXPECT_TRUE(test::PointXYZZ(GF7(1), GF7(2), GF7(0), GF7(0)).IsZero());
+  EXPECT_FALSE(test::PointXYZZ(GF7(1), GF7(2), GF7(1), GF7(0)).IsZero());
+  EXPECT_TRUE(test::PointXYZZ(GF7(1), GF7(2), GF7(0), GF7(1)).IsZero());
 }
 
-TYPED_TEST(PointXYZZTest, Generator) {
-  using PointXYZZTy = TypeParam;
-  using BaseField = typename PointXYZZTy::BaseField;
-
-  EXPECT_EQ(PointXYZZTy::Generator(),
-            PointXYZZTy(PointXYZZTy::Curve::Config::kGenerator.x,
-                        PointXYZZTy::Curve::Config::kGenerator.y,
-                        BaseField::One(), BaseField::One()));
+TEST_F(PointXYZZTest, Generator) {
+  EXPECT_EQ(test::PointXYZZ::Generator(),
+            test::PointXYZZ(test::PointXYZZ::Curve::Config::kGenerator.x,
+                            test::PointXYZZ::Curve::Config::kGenerator.y,
+                            GF7::One(), GF7::One()));
 }
 
-TYPED_TEST(PointXYZZTest, Montgomery) {
-  using PointXYZZTy = TypeParam;
-
-  PointXYZZTy r = PointXYZZTy::Random();
-  EXPECT_EQ(r, PointXYZZTy::FromMontgomery(r.ToMontgomery()));
+TEST_F(PointXYZZTest, Montgomery) {
+  test::PointXYZZ r = test::PointXYZZ::Random();
+  EXPECT_EQ(r, test::PointXYZZ::FromMontgomery(r.ToMontgomery()));
 }
 
-TYPED_TEST(PointXYZZTest, Random) {
-  using PointXYZZTy = TypeParam;
-
+TEST_F(PointXYZZTest, Random) {
   bool success = false;
-  PointXYZZTy r = PointXYZZTy::Random();
+  test::PointXYZZ r = test::PointXYZZ::Random();
   for (size_t i = 0; i < 100; ++i) {
-    if (r != PointXYZZTy::Random()) {
+    if (r != test::PointXYZZ::Random()) {
       success = true;
       break;
     }
@@ -75,51 +51,43 @@ TYPED_TEST(PointXYZZTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TYPED_TEST(PointXYZZTest, EqualityOperators) {
-  using PointXYZZTy = TypeParam;
-  using BaseField = typename PointXYZZTy::BaseField;
-
+TEST_F(PointXYZZTest, EqualityOperators) {
   {
     SCOPED_TRACE("p.IsZero() && p2.IsZero()");
-    PointXYZZTy p(BaseField(1), BaseField(2), BaseField(0), BaseField(0));
-    PointXYZZTy p2(BaseField(3), BaseField(4), BaseField(0), BaseField(0));
+    test::PointXYZZ p(GF7(1), GF7(2), GF7(0), GF7(0));
+    test::PointXYZZ p2(GF7(3), GF7(4), GF7(0), GF7(0));
     EXPECT_TRUE(p == p2);
     EXPECT_TRUE(p2 == p);
   }
 
   {
     SCOPED_TRACE("!p.IsZero() && p2.IsZero()");
-    PointXYZZTy p(BaseField(1), BaseField(2), BaseField(1), BaseField(0));
-    PointXYZZTy p2(BaseField(3), BaseField(4), BaseField(0), BaseField(0));
+    test::PointXYZZ p(GF7(1), GF7(2), GF7(1), GF7(0));
+    test::PointXYZZ p2(GF7(3), GF7(4), GF7(0), GF7(0));
     EXPECT_TRUE(p != p2);
     EXPECT_TRUE(p2 != p);
   }
 
   {
     SCOPED_TRACE("other");
-    PointXYZZTy p(BaseField(1), BaseField(2), BaseField(2), BaseField(6));
-    PointXYZZTy p2(BaseField(1), BaseField(2), BaseField(2), BaseField(6));
+    test::PointXYZZ p(GF7(1), GF7(2), GF7(2), GF7(6));
+    test::PointXYZZ p2(GF7(1), GF7(2), GF7(2), GF7(6));
     EXPECT_TRUE(p == p2);
     EXPECT_TRUE(p2 == p);
   }
 }
 
-TYPED_TEST(PointXYZZTest, AdditiveGroupOperators) {
-  using PointXYZZTy = TypeParam;
-  using AffinePointTy = typename PointXYZZTy::AffinePointTy;
-  using BaseField = typename PointXYZZTy::BaseField;
-  using ScalarField = typename AffinePointTy::ScalarField;
-
-  PointXYZZTy p = PointXYZZTy::CreateChecked(BaseField(5), BaseField(5),
-                                             BaseField(1), BaseField(1));
-  PointXYZZTy p2 = PointXYZZTy::CreateChecked(BaseField(3), BaseField(2),
-                                              BaseField(1), BaseField(1));
-  PointXYZZTy p3 = PointXYZZTy::CreateChecked(BaseField(3), BaseField(5),
-                                              BaseField(1), BaseField(1));
-  PointXYZZTy p4 = PointXYZZTy::CreateChecked(BaseField(6), BaseField(5),
-                                              BaseField(1), BaseField(1));
-  AffinePointTy ap = p.ToAffine();
-  AffinePointTy ap2 = p2.ToAffine();
+TEST_F(PointXYZZTest, AdditiveGroupOperators) {
+  test::PointXYZZ p =
+      test::PointXYZZ::CreateChecked(GF7(5), GF7(5), GF7(1), GF7(1));
+  test::PointXYZZ p2 =
+      test::PointXYZZ::CreateChecked(GF7(3), GF7(2), GF7(1), GF7(1));
+  test::PointXYZZ p3 =
+      test::PointXYZZ::CreateChecked(GF7(3), GF7(5), GF7(1), GF7(1));
+  test::PointXYZZ p4 =
+      test::PointXYZZ::CreateChecked(GF7(6), GF7(5), GF7(1), GF7(1));
+  test::AffinePoint ap = p.ToAffine();
+  test::AffinePoint ap2 = p2.ToAffine();
 
   EXPECT_EQ(p + p2, p3);
   EXPECT_EQ(p - p3, -p2);
@@ -127,7 +95,7 @@ TYPED_TEST(PointXYZZTest, AdditiveGroupOperators) {
   EXPECT_EQ(p - p4, -p);
 
   {
-    PointXYZZTy p_tmp = p;
+    test::PointXYZZ p_tmp = p;
     p_tmp += p2;
     EXPECT_EQ(p_tmp, p3);
     p_tmp -= p2;
@@ -141,129 +109,91 @@ TYPED_TEST(PointXYZZTest, AdditiveGroupOperators) {
 
   EXPECT_EQ(p.Double(), p4);
   {
-    PointXYZZTy p_tmp = p;
+    test::PointXYZZ p_tmp = p;
     p_tmp.DoubleInPlace();
     EXPECT_EQ(p_tmp, p4);
   }
 
-  EXPECT_EQ(
-      -p, PointXYZZTy(BaseField(5), BaseField(2), BaseField(1), BaseField(1)));
+  EXPECT_EQ(-p, test::PointXYZZ(GF7(5), GF7(2), GF7(1), GF7(1)));
   {
-    PointXYZZTy p_tmp = p;
+    test::PointXYZZ p_tmp = p;
     p_tmp.NegInPlace();
-    EXPECT_EQ(p_tmp, PointXYZZTy(BaseField(5), BaseField(2), BaseField(1),
-                                 BaseField(1)));
+    EXPECT_EQ(p_tmp, test::PointXYZZ(GF7(5), GF7(2), GF7(1), GF7(1)));
   }
 
-  EXPECT_EQ(p * ScalarField(2), p4);
-  EXPECT_EQ(ScalarField(2) * p, p4);
-  EXPECT_EQ(p *= ScalarField(2), p4);
+  EXPECT_EQ(p * GF7(2), p4);
+  EXPECT_EQ(GF7(2) * p, p4);
+  EXPECT_EQ(p *= GF7(2), p4);
 }
 
-TYPED_TEST(PointXYZZTest, ScalarMulOperator) {
-  using PointXYZZTy = TypeParam;
-  using AffinePointTy = typename PointXYZZTy::AffinePointTy;
-  using BaseField = typename PointXYZZTy::BaseField;
-  using ScalarField = typename PointXYZZTy::ScalarField;
-
-  std::vector<AffinePointTy> points;
+TEST_F(PointXYZZTest, ScalarMulOperator) {
+  std::vector<test::AffinePoint> points;
   for (size_t i = 0; i < 7; ++i) {
-    points.push_back((ScalarField(i) * PointXYZZTy::Generator()).ToAffine());
+    points.push_back((GF7(i) * test::PointXYZZ::Generator()).ToAffine());
   }
 
-  EXPECT_THAT(points,
-              testing::UnorderedElementsAreArray(std::vector<AffinePointTy>{
-                  AffinePointTy(BaseField(0), BaseField(0), true),
-                  AffinePointTy(BaseField(3), BaseField(2)),
-                  AffinePointTy(BaseField(5), BaseField(2)),
-                  AffinePointTy(BaseField(6), BaseField(2)),
-                  AffinePointTy(BaseField(3), BaseField(5)),
-                  AffinePointTy(BaseField(5), BaseField(5)),
-                  AffinePointTy(BaseField(6), BaseField(5))}));
+  EXPECT_THAT(
+      points,
+      testing::UnorderedElementsAreArray(std::vector<test::AffinePoint>{
+          test::AffinePoint(GF7(0), GF7(0), true),
+          test::AffinePoint(GF7(3), GF7(2)), test::AffinePoint(GF7(5), GF7(2)),
+          test::AffinePoint(GF7(6), GF7(2)), test::AffinePoint(GF7(3), GF7(5)),
+          test::AffinePoint(GF7(5), GF7(5)),
+          test::AffinePoint(GF7(6), GF7(5))}));
 }
 
-TYPED_TEST(PointXYZZTest, ToAffine) {
-  using PointXYZZTy = TypeParam;
-  using AffinePointTy = typename PointXYZZTy::AffinePointTy;
-  using BaseField = typename PointXYZZTy::BaseField;
-
-  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(0), BaseField(0))
-                .ToAffine(),
-            AffinePointTy::Zero());
-  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(1), BaseField(1))
-                .ToAffine(),
-            AffinePointTy(BaseField(1), BaseField(2)));
-  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(2), BaseField(6))
-                .ToAffine(),
-            AffinePointTy(BaseField(4), BaseField(5)));
+TEST_F(PointXYZZTest, ToAffine) {
+  EXPECT_EQ(test::PointXYZZ(GF7(1), GF7(2), GF7(0), GF7(0)).ToAffine(),
+            test::AffinePoint::Zero());
+  EXPECT_EQ(test::PointXYZZ(GF7(1), GF7(2), GF7(1), GF7(1)).ToAffine(),
+            test::AffinePoint(GF7(1), GF7(2)));
+  EXPECT_EQ(test::PointXYZZ(GF7(1), GF7(2), GF7(2), GF7(6)).ToAffine(),
+            test::AffinePoint(GF7(4), GF7(5)));
 }
 
-TYPED_TEST(PointXYZZTest, ToProjective) {
-  using PointXYZZTy = TypeParam;
-  using ProjectivePointTy = typename PointXYZZTy::ProjectivePointTy;
-  using BaseField = typename PointXYZZTy::BaseField;
-
-  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(0), BaseField(0))
-                .ToProjective(),
-            ProjectivePointTy::Zero());
-  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(1), BaseField(1))
-                .ToProjective(),
-            ProjectivePointTy(BaseField(1), BaseField(2), BaseField(1)));
-  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(2), BaseField(6))
-                .ToProjective(),
-            ProjectivePointTy(BaseField(6), BaseField(4), BaseField(5)));
+TEST_F(PointXYZZTest, ToProjective) {
+  EXPECT_EQ(test::PointXYZZ(GF7(1), GF7(2), GF7(0), GF7(0)).ToProjective(),
+            test::ProjectivePoint::Zero());
+  EXPECT_EQ(test::PointXYZZ(GF7(1), GF7(2), GF7(1), GF7(1)).ToProjective(),
+            test::ProjectivePoint(GF7(1), GF7(2), GF7(1)));
+  EXPECT_EQ(test::PointXYZZ(GF7(1), GF7(2), GF7(2), GF7(6)).ToProjective(),
+            test::ProjectivePoint(GF7(6), GF7(4), GF7(5)));
 }
 
-TYPED_TEST(PointXYZZTest, ToJacobian) {
-  using PointXYZZTy = TypeParam;
-  using JacobianPointTy = typename PointXYZZTy::JacobianPointTy;
-  using BaseField = typename PointXYZZTy::BaseField;
-
-  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(0), BaseField(0))
-                .ToJacobian(),
-            JacobianPointTy::Zero());
-  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(1), BaseField(1))
-                .ToJacobian(),
-            JacobianPointTy(BaseField(1), BaseField(2), BaseField(1)));
-  EXPECT_EQ(PointXYZZTy(BaseField(1), BaseField(2), BaseField(2), BaseField(6))
-                .ToJacobian(),
-            JacobianPointTy(BaseField(2), BaseField(2), BaseField(5)));
+TEST_F(PointXYZZTest, ToJacobian) {
+  EXPECT_EQ(test::PointXYZZ(GF7(1), GF7(2), GF7(0), GF7(0)).ToJacobian(),
+            test::JacobianPoint::Zero());
+  EXPECT_EQ(test::PointXYZZ(GF7(1), GF7(2), GF7(1), GF7(1)).ToJacobian(),
+            test::JacobianPoint(GF7(1), GF7(2), GF7(1)));
+  EXPECT_EQ(test::PointXYZZ(GF7(1), GF7(2), GF7(2), GF7(6)).ToJacobian(),
+            test::JacobianPoint(GF7(2), GF7(2), GF7(5)));
 }
 
-TYPED_TEST(PointXYZZTest, IsOnCurve) {
-  using PointXYZZTy = TypeParam;
-  using BaseField = typename PointXYZZTy::BaseField;
-
-  PointXYZZTy invalid_point(BaseField(1), BaseField(2), BaseField(1),
-                            BaseField(1));
+TEST_F(PointXYZZTest, IsOnCurve) {
+  test::PointXYZZ invalid_point(GF7(1), GF7(2), GF7(1), GF7(1));
   EXPECT_FALSE(invalid_point.IsOnCurve());
-  PointXYZZTy valid_point(BaseField(3), BaseField(2), BaseField(1),
-                          BaseField(1));
+  test::PointXYZZ valid_point(GF7(3), GF7(2), GF7(1), GF7(1));
   EXPECT_TRUE(valid_point.IsOnCurve());
-  valid_point =
-      PointXYZZTy(BaseField(3), BaseField(5), BaseField(1), BaseField(1));
+  valid_point = test::PointXYZZ(GF7(3), GF7(5), GF7(1), GF7(1));
   EXPECT_TRUE(valid_point.IsOnCurve());
 }
 
-TYPED_TEST(PointXYZZTest, CreateFromX) {
-  using PointXYZZTy = TypeParam;
-  using BaseField = typename PointXYZZTy::BaseField;
-
+TEST_F(PointXYZZTest, CreateFromX) {
   {
-    std::optional<PointXYZZTy> p =
-        PointXYZZTy::CreateFromX(BaseField(3), /*pick_odd=*/true);
+    std::optional<test::PointXYZZ> p =
+        test::PointXYZZ::CreateFromX(GF7(3), /*pick_odd=*/true);
     ASSERT_TRUE(p.has_value());
-    EXPECT_EQ(p->y(), BaseField(5));
+    EXPECT_EQ(p->y(), GF7(5));
   }
   {
-    std::optional<PointXYZZTy> p =
-        PointXYZZTy::CreateFromX(BaseField(3), /*pick_odd=*/false);
+    std::optional<test::PointXYZZ> p =
+        test::PointXYZZ::CreateFromX(GF7(3), /*pick_odd=*/false);
     ASSERT_TRUE(p.has_value());
-    EXPECT_EQ(p->y(), BaseField(2));
+    EXPECT_EQ(p->y(), GF7(2));
   }
   {
-    std::optional<PointXYZZTy> p =
-        PointXYZZTy::CreateFromX(BaseField(1), /*pick_odd=*/false);
+    std::optional<test::PointXYZZ> p =
+        test::PointXYZZ::CreateFromX(GF7(1), /*pick_odd=*/false);
     ASSERT_FALSE(p.has_value());
   }
 }

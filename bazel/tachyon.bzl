@@ -94,21 +94,9 @@ def if_has_openmp(a, b = []):
         "//conditions:default": b,
     })
 
-def if_gmp_backend(a, b = []):
-    return select({
-        "@kroma_network_tachyon//:tachyon_gmp_backend": a,
-        "//conditions:default": b,
-    })
-
 def if_polygon_zkevm_backend(a, b = []):
     return select({
         "@kroma_network_tachyon//:tachyon_polygon_zkevm_backend": a,
-        "//conditions:default": b,
-    })
-
-def if_cuda_and_gmp_backend(a, b = []):
-    return select({
-        "@kroma_network_tachyon//:cuda_and_gmp": a,
         "//conditions:default": b,
     })
 

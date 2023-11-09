@@ -7,9 +7,6 @@ template <typename Config, typename SFINAE = void>
 class PrimeField;
 
 template <typename Config>
-class PrimeFieldGmp;
-
-template <typename Config>
 class PrimeFieldGpu;
 
 template <typename Config>

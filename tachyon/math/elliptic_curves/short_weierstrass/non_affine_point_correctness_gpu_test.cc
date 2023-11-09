@@ -70,18 +70,18 @@ class PointCorrectnessGpuTest : public testing::Test {
     Expected::Curve::Init();
     Actual::Curve::Init();
 
-    x_gmps_.reserve(N);
-    y_gmps_.reserve(N);
+    x_cpus_.reserve(N);
+    y_cpus_.reserve(N);
 
     for (size_t i = 0; i < N; ++i) {
-      Expected x_gmp = Expected::Random();
-      Expected y_gmp = Expected::Random();
+      Expected x_cpu = Expected::Random();
+      Expected y_cpu = Expected::Random();
 
-      xs_[i] = ConvertPoint<Actual>(x_gmp);
-      ys_[i] = ConvertPoint<Actual>(y_gmp);
+      xs_[i] = ConvertPoint<Actual>(x_cpu);
+      ys_[i] = ConvertPoint<Actual>(y_cpu);
 
-      x_gmps_.push_back(std::move(x_gmp));
-      y_gmps_.push_back(std::move(y_gmp));
+      x_cpus_.push_back(std::move(x_cpu));
+      y_cpus_.push_back(std::move(y_cpu));
     }
   }
 
@@ -93,8 +93,8 @@ class PointCorrectnessGpuTest : public testing::Test {
 
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
 
-    x_gmps_.clear();
-    y_gmps_.clear();
+    x_cpus_.clear();
+    y_cpus_.clear();
   }
 
   void SetUp() override {
@@ -108,8 +108,8 @@ class PointCorrectnessGpuTest : public testing::Test {
   static gpu::GpuMemory<Actual> results_;
   static gpu::GpuMemory<bool> bool_results_;
 
-  static std::vector<Expected> x_gmps_;
-  static std::vector<Expected> y_gmps_;
+  static std::vector<Expected> x_cpus_;
+  static std::vector<Expected> y_cpus_;
 };
 
 template <typename PointType>
@@ -129,27 +129,27 @@ gpu::GpuMemory<bool> PointCorrectnessGpuTest<PointType>::bool_results_;
 
 template <typename PointType>
 std::vector<typename PointCorrectnessGpuTest<PointType>::Expected>
-    PointCorrectnessGpuTest<PointType>::x_gmps_;
+    PointCorrectnessGpuTest<PointType>::x_cpus_;
 
 template <typename PointType>
 std::vector<typename PointCorrectnessGpuTest<PointType>::Expected>
-    PointCorrectnessGpuTest<PointType>::y_gmps_;
+    PointCorrectnessGpuTest<PointType>::y_cpus_;
 
 }  // namespace
 
 struct ProjectivePointTypes {
   using Actual = bn254::G1ProjectivePointGpu;
-  using Expected = bn254::G1ProjectivePointGmp;
+  using Expected = bn254::G1ProjectivePoint;
 };
 
 struct JacobianPointTypes {
   using Actual = bn254::G1JacobianPointGpu;
-  using Expected = bn254::G1JacobianPointGmp;
+  using Expected = bn254::G1JacobianPoint;
 };
 
 struct PointXYZZTypes {
   using Actual = bn254::G1PointXYZZGpu;
-  using Expected = bn254::G1PointXYZZGmp;
+  using Expected = bn254::G1PointXYZZ;
 };
 
 using PointTypes =
@@ -166,7 +166,7 @@ TYPED_TEST(PointCorrectnessGpuTest, Add) {
     SCOPED_TRACE(absl::Substitute("a: $0, b: $1", this->xs_[i].ToString(),
                                   this->ys_[i].ToString()));
     auto result = ConvertPoint<Expected>(this->results_[i]);
-    ASSERT_EQ(result, this->x_gmps_[i] + this->y_gmps_[i]);
+    ASSERT_EQ(result, this->x_cpus_[i] + this->y_cpus_[i]);
   }
 }
 
@@ -178,7 +178,7 @@ TYPED_TEST(PointCorrectnessGpuTest, Double) {
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
     auto result = ConvertPoint<Expected>(this->results_[i]);
-    ASSERT_EQ(result, this->x_gmps_[i].Double());
+    ASSERT_EQ(result, this->x_cpus_[i].Double());
   }
 }
 
@@ -191,7 +191,7 @@ TYPED_TEST(PointCorrectnessGpuTest, Negative) {
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
     auto result = ConvertPoint<Expected>(this->results_[i]);
-    ASSERT_EQ(result, -this->x_gmps_[i]);
+    ASSERT_EQ(result, -this->x_cpus_[i]);
   }
 }
 

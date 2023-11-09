@@ -1,4 +1,3 @@
-load("//bazel:tachyon.bzl", "if_gmp_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 def _generate_prime_field_impl(ctx):
@@ -89,9 +88,7 @@ def generate_prime_fields(
         hdrs = [":{}_gen_hdr".format(name)],
         deps = deps + [
             "//tachyon/math/finite_fields:prime_field",
-        ] + if_gmp_backend([
-            "//tachyon/math/finite_fields:prime_field_gmp",
-        ]),
+        ],
         **kwargs
     )
 

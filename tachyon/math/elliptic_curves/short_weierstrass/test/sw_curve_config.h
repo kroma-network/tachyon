@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_TEST_CURVE_CONFIG_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_TEST_CURVE_CONFIG_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_TEST_SW_CURVE_CONFIG_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_TEST_SW_CURVE_CONFIG_H_
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
@@ -52,15 +52,8 @@ using AffinePoint = math::AffinePoint<G1Curve>;
 using ProjectivePoint = math::ProjectivePoint<G1Curve>;
 using JacobianPoint = math::JacobianPoint<G1Curve>;
 using PointXYZZ = math::PointXYZZ<G1Curve>;
-#if defined(TACHYON_GMP_BACKEND)
-using G1CurveGmp = SWCurve<SWCurveConfig<GF7Gmp, GF7Gmp>>;
-using AffinePointGmp = math::AffinePoint<G1CurveGmp>;
-using ProjectivePointGmp = math::ProjectivePoint<G1CurveGmp>;
-using JacobianPointGmp = math::JacobianPoint<G1CurveGmp>;
-using PointXYZZGmp = math::PointXYZZ<G1CurveGmp>;
-#endif  // defined(TACHYON_GMP_BACKEND)
 
 }  // namespace test
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_TEST_CURVE_CONFIG_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_SHORT_WEIERSTRASS_TEST_SW_CURVE_CONFIG_H_

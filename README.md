@@ -74,14 +74,6 @@ The [issue](https://github.com/kroma-network/tachyon/issues/98) will be fixed as
 
 ## Configuration
 
-### GMP backend prime field
-
-- `--//:gmp_backend`: Enable [gmp](https://gmplib.org/) prime field backend.
-
-  ```shell
-  > bazel build --//:${os} --//:gmp_backend //...
-  ```
-
 ### Polygon zkEVM backend prime field
 
 _NOTE:_: Only x86_64 is supported.

@@ -2,9 +2,6 @@
 #define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CONVERSIONS_H_
 
 #include "tachyon/math/finite_fields/prime_field.h"
-#if defined(TACHYON_GMP_BACKEND)
-#include "tachyon/math/finite_fields/prime_field_gmp.h"
-#endif  // defined(TACHYON_GMP_BACKEND)
 #if TACHYON_CUDA
 #include "tachyon/math/finite_fields/prime_field_gpu.h"
 #endif  // TACHYON_CUDA
@@ -21,17 +18,6 @@ constexpr DstPrimeFieldTy ConvertPrimeField(
   return PrimeFieldConversions<SrcPrimeFieldTy, DstPrimeFieldTy>::Convert(
       src_prime_field);
 }
-
-#if defined(TACHYON_GMP_BACKEND)
-template <typename Config>
-struct PrimeFieldConversions<PrimeField<Config>, PrimeFieldGmp<Config>> {
-  constexpr static PrimeFieldGmp<Config> Convert(
-      const PrimeField<Config>& src_prime_field) {
-    return PrimeFieldGmp<Config>::FromMontgomery(
-        src_prime_field.ToMontgomery());
-  }
-};
-#endif  // defined(TACHYON_GMP_BACKEND)
 
 #if TACHYON_CUDA
 template <typename Config>
@@ -53,37 +39,6 @@ struct PrimeFieldConversions<PrimeField<Config>, PrimeFieldGpuDebug<Config>> {
   }
 };
 
-#if defined(TACHYON_GMP_BACKEND)
-template <typename Config>
-struct PrimeFieldConversions<PrimeFieldGmp<Config>, PrimeField<Config>> {
-  constexpr static PrimeField<Config> Convert(
-      const PrimeFieldGmp<Config>& src_prime_field) {
-    return PrimeField<Config>::FromMontgomery(src_prime_field.ToMontgomery());
-  }
-};
-
-#if TACHYON_CUDA
-template <typename Config>
-struct PrimeFieldConversions<PrimeFieldGmp<Config>, PrimeFieldGpu<Config>> {
-  constexpr static PrimeFieldGpu<Config> Convert(
-      const PrimeFieldGmp<Config>& src_prime_field) {
-    return PrimeFieldGpu<Config>::FromMontgomery(
-        src_prime_field.ToMontgomery());
-  }
-};
-#endif  // TACHYON_CUDA
-
-template <typename Config>
-struct PrimeFieldConversions<PrimeFieldGmp<Config>,
-                             PrimeFieldGpuDebug<Config>> {
-  constexpr static PrimeFieldGpuDebug<Config> Convert(
-      const PrimeFieldGmp<Config>& src_prime_field) {
-    return PrimeFieldGpuDebug<Config>::FromMontgomery(
-        src_prime_field.ToMontgomery());
-  }
-};
-#endif  // defined(TACHYON_GMP_BACKEND)
-
 #if TACHYON_CUDA
 template <typename Config>
 struct PrimeFieldConversions<PrimeFieldGpu<Config>, PrimeField<Config>> {
@@ -92,17 +47,6 @@ struct PrimeFieldConversions<PrimeFieldGpu<Config>, PrimeField<Config>> {
     return PrimeField<Config>::FromMontgomery(src_prime_field.ToMontgomery());
   }
 };
-
-#if defined(TACHYON_GMP_BACKEND)
-template <typename Config>
-struct PrimeFieldConversions<PrimeFieldGpu<Config>, PrimeFieldGmp<Config>> {
-  constexpr static PrimeFieldGmp<Config> Convert(
-      const PrimeFieldGpu<Config>& src_prime_field) {
-    return PrimeFieldGmp<Config>::FromMontgomery(
-        src_prime_field.ToMontgomery());
-  }
-};
-#endif  // defined(TACHYON_GMP_BACKEND)
 
 template <typename Config>
 struct PrimeFieldConversions<PrimeFieldGpu<Config>,
@@ -122,18 +66,6 @@ struct PrimeFieldConversions<PrimeFieldGpuDebug<Config>, PrimeField<Config>> {
     return PrimeField<Config>::FromMontgomery(src_prime_field.ToMontgomery());
   }
 };
-
-#if defined(TACHYON_GMP_BACKEND)
-template <typename Config>
-struct PrimeFieldConversions<PrimeFieldGpuDebug<Config>,
-                             PrimeFieldGmp<Config>> {
-  constexpr static PrimeFieldGmp<Config> Convert(
-      const PrimeFieldGpuDebug<Config>& src_prime_field) {
-    return PrimeFieldGmp<Config>::FromMontgomery(
-        src_prime_field.ToMontgomery());
-  }
-};
-#endif  // defined(TACHYON_GMP_BACKEND)
 
 #if TACHYON_CUDA
 template <typename Config>
