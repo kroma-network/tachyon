@@ -1,5 +1,5 @@
 load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 load("//tachyon/math/elliptic_curves/bn/generator:build_defs.bzl", "generate_bn_curves")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
@@ -284,4 +284,10 @@ generate_bn_curves(
     ],
     twist_type = "D",
     x = "4965661367192848881",
+)
+
+tachyon_cc_unittest(
+    name = "bn254_unittests",
+    srcs = ["bn254_unittest.cc"],
+    deps = [":bn254"],
 )
