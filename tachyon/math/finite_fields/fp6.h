@@ -6,6 +6,8 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_FP6_H_
 #define TACHYON_MATH_FINITE_FIELDS_FP6_H_
 
+#include <utility>
+
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/cubic_extension_field.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
@@ -105,6 +107,8 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
   using BasePrimeField = typename Config::BasePrimeField;
   using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
+  using Fp2Ty = BaseField;
+
   using CpuField = Fp6<Config>;
   // TODO(chokobole): Implements Fp6Gpu
   using GpuField = Fp6<Config>;
@@ -197,6 +201,111 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     SET_FROBENIUS_COEFF2(5);
 
 #undef SET_FROBENIUS_COEFF2
+  }
+
+  // Return α = {α₀', α₁', α₂'}, such that α = (α₀ + α₁x + α₂x²) * β₁x
+  Fp6& MulInPlaceBy1(const Fp2Ty& beta1) {
+    // α = (α₀ + α₁x + α₂x²) * β₁x
+    //   = α₂β₁q + α₀β₁x + α₁β₁x², where q is a cubic non residue.
+
+    // t0 = α₂
+    Fp2Ty t0 = this->c2_;
+    // t0 = α₂β₁
+    t0 *= beta1;
+    // t0 = α₂β₁q
+    t0 = Config::MulByNonResidue(t0);
+
+    // t1 = α₀
+    Fp2Ty t1 = this->c0_;
+    // t1 = α₀β₁
+    t1 *= beta1;
+
+    // t2 = α₁
+    Fp2Ty t2 = this->c1_;
+    // t2 = α₁β₁
+    t2 *= beta1;
+
+    // c0 = α₂β₁q
+    this->c0_ = std::move(t0);
+    // c1 = α₀β₁
+    this->c1_ = std::move(t1);
+    // c2 = α₁β₁
+    this->c2_ = std::move(t2);
+    return *this;
+  }
+
+  // Return α = {α₀', α₁', α₂'}, such that α = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
+  Fp6& MulInPlaceBy01(const Fp2Ty& beta0, const Fp2Ty& beta1) {
+    // α = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
+    //   = α₀β₀ + α₂β₁q + (α₀β₁ + α₁β₀)x + (α₂β₀ + α₁β₁)x²,
+    //     where q is a cubic non residue.
+
+    // The naive approach you need to multiply 6 times, but this code is
+    // optimized to multiply 5 times.
+
+    // a_a = α₀β₀
+    Fp2Ty a_a = this->c0_;
+    a_a *= beta0;
+    // b_b = α₁β₁
+    Fp2Ty b_b = this->c1_;
+    b_b *= beta1;
+
+    // t0 = β₁
+    Fp2Ty t0 = beta1;
+    {
+      // tmp = α₁ + α₂
+      Fp2Ty tmp = this->c1_;
+      tmp += this->c2_;
+
+      // t0 = (α₁ + α₂)β₁ = α₁β₁ + α₂β₁
+      t0 *= tmp;
+      // t0 = α₂β₁
+      t0 -= b_b;
+      // t0 = α₂β₁q
+      t0 = Config::MulByNonResidue(t0);
+      // t0 = α₀β₀ + α₂β₁q
+      t0 += a_a;
+    }
+
+    // t1 = β₀
+    Fp2Ty t1 = beta0;
+    // t1 = β₀ + β₁
+    t1 += beta1;
+    {
+      // tmp = α₀ + α₁
+      Fp2Ty tmp = this->c0_;
+      tmp += this->c1_;
+
+      // t1 = (α₀ + α₁)(β₀ + β₁) = α₀β₀ + α₀β₁ + α₁β₀ + α₁β₁
+      t1 *= tmp;
+      // t1 = α₀β₁ + α₁β₀ + α₁β₁
+      t1 -= a_a;
+      // t1 = α₀β₁ + α₁β₀
+      t1 -= b_b;
+    }
+
+    // t2 = β₀
+    Fp2Ty t2 = beta0;
+    {
+      // tmp = α₀ + α₂
+      Fp2Ty tmp = this->c0_;
+      tmp += this->c2_;
+
+      // t2 = (α₀ + α₂)β₀ = α₀β₀ + α₂β₀
+      t2 *= tmp;
+      // t2 = α₂β₀
+      t2 -= a_a;
+      // t2 = α₂β₀ + α₁β₁
+      t2 += b_b;
+    }
+
+    // c0 = α₀β₀ + α₂β₁q
+    this->c0_ = std::move(t0);
+    // c1 = α₀β₁ + α₁β₀
+    this->c1_ = std::move(t1);
+    // c2 = α₂β₀ + α₁β₁
+    this->c2_ = std::move(t2);
+    return *this;
   }
 };
 
