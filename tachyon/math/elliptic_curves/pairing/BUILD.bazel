@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -24,6 +24,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "pairing",
+    hdrs = ["pairing.h"],
+)
+
+tachyon_cc_library(
     name = "pairing_friendly_curve",
     hdrs = ["pairing_friendly_curve.h"],
     deps = [
@@ -39,5 +44,15 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base/flag",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "pairing_unittests",
+    srcs = ["pairing_unittest.cc"],
+    deps = [
+        ":pairing",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381",
+        "//tachyon/math/elliptic_curves/bn/bn254",
     ],
 )
