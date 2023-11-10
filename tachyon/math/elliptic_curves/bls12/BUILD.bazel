@@ -6,3 +6,14 @@ tachyon_cc_library(
     name = "bls12_curve",
     hdrs = ["bls12_curve.h"],
 )
+
+tachyon_cc_library(
+    name = "g2_prepared",
+    hdrs = ["g2_prepared.h"],
+    deps = [
+        "//tachyon/math/base:big_int",
+        "//tachyon/math/base:bit_iterator",
+        "//tachyon/math/elliptic_curves/pairing:g2_prepared_base",
+        "//tachyon/math/elliptic_curves/pairing:g2_projective",
+    ],
+)
