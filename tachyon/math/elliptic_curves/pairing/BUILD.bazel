@@ -24,6 +24,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "pairing_friendly_curve",
+    hdrs = ["pairing_friendly_curve.h"],
+    deps = [
+        ":ell_coeff",
+        ":twist_type",
+    ],
+)
+
+tachyon_cc_library(
     name = "twist_type",
     hdrs = ["twist_type.h"],
     deps = [

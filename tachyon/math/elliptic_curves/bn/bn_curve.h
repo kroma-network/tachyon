@@ -6,19 +6,68 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_BN_BN_CURVE_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_BN_BN_CURVE_H_
 
+#include <functional>
+#include <vector>
+
+#include "tachyon/base/parallelize.h"
+#include "tachyon/math/elliptic_curves/bn/g2_prepared.h"
+#include "tachyon/math/elliptic_curves/pairing/pairing_friendly_curve.h"
+
 namespace tachyon::math {
 
-template <typename BNCurveConfig>
-class BNCurve {
+template <typename Config>
+class BNCurve : public PairingFriendlyCurve<Config> {
  public:
-  using Config = BNCurveConfig;
+  using Base = PairingFriendlyCurve<Config>;
   using Fp12Ty = typename Config::Fp12Ty;
+  using G2Prepared = bn::G2Prepared<Config>;
 
-  static Fp12Ty PowByNegX(const Fp12Ty& f_in) {
-    Fp12Ty f = f_in.CyclotomicPow(Config::kX);
-    if constexpr (!Config::kXIsNegative) {
+  // TODO(chokobole): Leave a comment to help understand readers.
+  template <typename G1AffinePointContainer, typename G2PreparedContainer>
+  static Fp12Ty MultiMillerLoop(const G1AffinePointContainer& a,
+                                const G2PreparedContainer& b) {
+    using Pair = typename Base::Pair;
+
+    std::vector<Pair> pairs = Base::CreatePairs(a, b);
+
+    auto callback = [](absl::Span<const Pair> pairs) {
+      Fp12Ty f = Fp12Ty::One();
+      for (size_t i = std::size(Config::kAteLoopCount) - 1; i >= 1; --i) {
+        if (i != std::size(Config::kAteLoopCount) - 1) {
+          f.SquareInPlace();
+        }
+
+        for (const Pair& pair : pairs) {
+          Base::Ell(f, pair.NextEllCoeff(), pair.g1());
+        }
+
+        int8_t bit = Config::kAteLoopCount[i - 1];
+        if (bit == 1 || bit == -1) {
+          for (const Pair& pair : pairs) {
+            Base::Ell(f, pair.NextEllCoeff(), pair.g1());
+          }
+        }
+      }
+      return f;
+    };
+
+    std::vector<Fp12Ty> results =
+        base::ParallelizeMapByChunkSize(pairs, 4, callback);
+    Fp12Ty f = std::accumulate(results.begin(), results.end(), Fp12Ty::One(),
+                               std::multiplies<>());
+
+    if constexpr (Config::kXIsNegative) {
       f.CyclotomicInverseInPlace();
     }
+
+    for (const Pair& pair : pairs) {
+      Base::Ell(f, pair.NextEllCoeff(), pair.g1());
+    }
+
+    for (const Pair& pair : pairs) {
+      Base::Ell(f, pair.NextEllCoeff(), pair.g1());
+    }
+
     return f;
   }
 
@@ -66,7 +115,7 @@ class BNCurve {
     // result = f^(2x * (6x² + 3x + 1) * ((q⁴ - q² + 1) / r))
 
     // y0 = (r)⁻ˣ
-    Fp12Ty y0 = PowByNegX(r);
+    Fp12Ty y0 = Base::PowByNegX(r);
     // y1 = (y0)² = r^(-2x)
     Fp12Ty y1 = y0.CyclotomicSquare();
     // y2 = (y1)² = r^(-4x)
@@ -74,11 +123,11 @@ class BNCurve {
     // y3 = y2 * y1 = r^(-6x)
     Fp12Ty y3 = y2 * y1;
     // y4 = (y3)⁻ˣ = r^(6x²)
-    Fp12Ty y4 = PowByNegX(y3);
+    Fp12Ty y4 = Base::PowByNegX(y3);
     // y5 = (y4)² = r^(12x²)
     Fp12Ty y5 = y4.CyclotomicSquare();
     // y6 = (y5)⁻ˣ = r^(-12x³)
-    Fp12Ty y6 = PowByNegX(y5);
+    Fp12Ty y6 = Base::PowByNegX(y5);
     // y3 = (y3)⁻¹ = r^(6x)
     y3.CyclotomicInverseInPlace();
     // y6 = (y6)⁻¹ = r^(12x³)
