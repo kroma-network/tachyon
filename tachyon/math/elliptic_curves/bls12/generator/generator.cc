@@ -37,6 +37,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "template <typename FqTy, typename Fq2Ty, typename Fq6Ty, typename Fq12Ty, typename _G1Curve, typename _G2Curve>",
       "class %{class}Config {",
       " public:",
+      "  constexpr static size_t kXLimbNums = %{x_size};",
       "  constexpr static BigInt<%{x_size}> kX = BigInt<%{x_size}>({",
       "    %{x}",
       "  });",
