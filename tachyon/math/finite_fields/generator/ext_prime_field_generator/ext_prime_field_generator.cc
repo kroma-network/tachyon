@@ -45,6 +45,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "  constexpr static bool kNonResidueIsMinusOne = %{non_residue_is_minus_one};",
       "  constexpr static uint64_t kDegreeOverBaseField = %{degree_over_base_field};",
+      "  constexpr static uint64_t kDegreeOverBasePrimeField = %{degree_over_base_prime_field};",
       "",
       "  static BaseField MulByNonResidue(const BaseField& v) {",
       "%{mul_by_non_residue}",
@@ -142,6 +143,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       {"%{degree}", base::NumberToString(degree)},
       {"%{degree_over_base_field}",
        base::NumberToString(degree_over_base_field)},
+      {"%{degree_over_base_prime_field}", base::NumberToString(degree)},
       {"%{base_field_hdr}", base_field_hdr},
       {"%{base_field}", base_field},
       {"%{base_prime_field}", degree == degree_over_base_field
