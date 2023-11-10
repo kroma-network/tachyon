@@ -118,9 +118,8 @@ class CyclotomicMultiplicativeSubgroup : public FiniteField<F> {
           ret *= inverse;
         }
       }
-      *f = ret;
-      return *f;
     }
+    return *f = ret;
   }
 };
 
