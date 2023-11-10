@@ -3,6 +3,12 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "ell_coeff",
+    hdrs = ["ell_coeff.h"],
+    deps = ["@com_google_absl//absl/strings"],
+)
+
+tachyon_cc_library(
     name = "twist_type",
     hdrs = ["twist_type.h"],
     deps = [
