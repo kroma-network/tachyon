@@ -4,16 +4,16 @@
   <br /><br /><br />
 </div>
 
-# Overview
+## Overview
 
 **Tachyon** is a Modular ZK Backend, powered by GPU.
 
 ## Design Goals
 
-1. General Purpose: We want a code that enables switch different proving scheme.
-2. Easy to use: Switching code should be easy.
-3. Blazing Fast: Of course, it should be fast.
-4. GPU Interoperability: We want to write a code once and have it run on both CPU and GPU as many as possible.
+1. General Purpose: A versatile ZK library empowers developers to implement any proving scheme with minimal effort, often enhancing developer productivity. To create a general-purpose backend, aligning the code structure as closely as possible with the algebraic structure is paramount.
+2. Easy to Use: Achieving widespread adoption is essential for the success of any product. Consequently, one of the key focal points of the Tachyon project is to include offering packages for various programming languages and runtimes.
+3. Blazing Fast: Tachyon's foremost requirement is speed, and not just any speed, but blazing speed! This entails Tachyon delivering exceptional performance on both CPU and GPU platforms.
+4. GPU Interoperability: Tachyon's code is designed to be compatible with both CPU and GPU in the majority of scenarios.
 
 ## Prerequisites
 
