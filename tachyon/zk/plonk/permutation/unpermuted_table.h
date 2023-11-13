@@ -13,6 +13,8 @@
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/range.h"
+#include "tachyon/zk/base/ref.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 
 namespace tachyon::zk {
@@ -40,6 +42,21 @@ class UnpermutedTable {
     return table_[label.col][label.row];
   }
   F& operator[](const Label& label) { return table_[label.col][label.row]; }
+
+  Ref<const Col> GetColumn(size_t i) const {
+    return Ref<const Col>(&table_[i]);
+  }
+
+  std::vector<Ref<const Col>> GetColumns(base::Range<size_t> range) const {
+    CHECK_EQ(range.Intersect(base::Range<size_t>::Until(table_.size())), range);
+
+    std::vector<Ref<const Col>> ret;
+    ret.reserve(range.GetSize());
+    for (size_t i : range) {
+      ret.push_back(GetColumn(i));
+    }
+    return ret;
+  }
 
   static UnpermutedTable Construct(size_t size, const Domain* domain) {
     // The w is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
@@ -69,6 +86,7 @@ class UnpermutedTable {
 
  private:
   FRIEND_TEST(UnpermutedTableTest, Construct);
+  FRIEND_TEST(UnpermutedTableTest, GetColumns);
 
   explicit UnpermutedTable(Table table) : table_(std::move(table)) {}
 

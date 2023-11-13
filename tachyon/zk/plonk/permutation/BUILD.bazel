@@ -93,7 +93,9 @@ tachyon_cc_library(
     hdrs = ["unpermuted_table.h"],
     deps = [
         ":label",
+        "//tachyon/base:range",
         "//tachyon/base/containers:container_util",
+        "//tachyon/zk/base:ref",
         "@com_google_googletest//:gtest_prod",
     ],
 )
