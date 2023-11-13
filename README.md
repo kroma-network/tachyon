@@ -4,7 +4,16 @@
   <br /><br /><br />
 </div>
 
-Tachyon is a ZKP accelerator using CUDA.
+# Overview
+
+**Tachyon** is a Modular ZK Backend, powered by GPU.
+
+## Design Goals
+
+1. General Purpose: We want a code that enables switch different proving scheme.
+2. Easy to use: Switching code should be easy.
+3. Blazing Fast: Of course, it should be fast.
+4. GPU Interoperability: We want to write a code once and have it run on both CPU and GPU as many as possible.
 
 ## Prerequisites
 
