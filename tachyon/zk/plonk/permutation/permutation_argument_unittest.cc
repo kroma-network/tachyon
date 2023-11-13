@@ -9,10 +9,13 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/random.h"
+#include "tachyon/zk/base/halo2_prover_test.h"
 
 namespace tachyon::zk {
 
-TEST(PermutationArgumentTest, AddColumn) {
+class PermutationArgumentTest : public Halo2ProverTest {};
+
+TEST_F(PermutationArgumentTest, AddColumn) {
   std::vector<AnyColumnKey> columns = {FixedColumnKey(0),
                                        AdviceColumnKey(1, kSecondPhase),
                                        InstanceColumnKey(2)};
