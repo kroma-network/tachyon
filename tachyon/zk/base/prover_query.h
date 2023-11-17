@@ -28,7 +28,7 @@ class ProverQuery {
   const F& point() const { return point_; }
   Ref<const BlindedPolynomial<Poly>> poly() const { return poly_; }
 
-  F Evaluate() const { return poly_->poly().Evaluate(*point_); }
+  F Evaluate() const { return poly_->poly().Evaluate(point_); }
 
  private:
   F point_;
