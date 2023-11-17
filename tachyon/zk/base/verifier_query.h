@@ -28,9 +28,11 @@ class VerifierQuery {
         commitment_(commitment),
         evaluated_(std::move(evaluated)) {}
 
-  const F& point() const { return point_; }
-  Ref<const Commitment> commitment() const { return commitment_; }
-  const F& evaluated() const { return evaluated_; }
+  const F& GetPoint() const { return point_; }
+
+  Ref<const Commitment> GetCommitment() const { return commitment_; }
+
+  const F& GetEval() const { return evaluated_; }
 
  private:
   F point_;
