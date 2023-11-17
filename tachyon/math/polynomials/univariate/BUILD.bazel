@@ -3,6 +3,16 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "lagrange_interpolation",
+    hdrs = ["lagrange_interpolation.h"],
+    deps = [
+        ":univariate_polynomial",
+        "//tachyon/base:parallelize",
+        "//tachyon/base/containers:container_util",
+    ],
+)
+
+tachyon_cc_library(
     name = "mixed_radix_evaluation_domain",
     hdrs = ["mixed_radix_evaluation_domain.h"],
     deps = [
@@ -98,12 +108,14 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "univariate_unittests",
     srcs = [
+        "lagrange_interpolation_unittest.cc",
         "univariate_dense_polynomial_unittest.cc",
         "univariate_evaluation_domain_unittest.cc",
         "univariate_evaluations_unittest.cc",
         "univariate_sparse_polynomial_unittest.cc",
     ],
     deps = [
+        ":lagrange_interpolation",
         ":mixed_radix_evaluation_domain",
         ":radix2_evaluation_domain",
         ":univariate_polynomial",
