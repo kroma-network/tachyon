@@ -66,6 +66,16 @@ template <typename Iter>
 using iter_value_t =
     typename std::iterator_traits<remove_cvref_t<Iter>>::value_type;
 
+// Simplified implementation of C++20's std::iter_difference_t.
+// As opposed to std::iter_difference_t, this implementation does not restrict
+// the type of `Iter` and does not consider specializations of
+// `indirectly_readable_traits`.
+//
+// Reference: https://wg21.link/readable.traits#2
+template <typename Iter>
+using iter_difference_t =
+    typename std::iterator_traits<remove_cvref_t<Iter>>::difference_type;
+
 // Simplified implementation of C++20's std::iter_reference_t.
 // As opposed to std::iter_reference_t, this implementation does not restrict
 // the type of `Iter`.
