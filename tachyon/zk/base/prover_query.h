@@ -18,6 +18,7 @@ class ProverQuery {
  public:
   using F = typename PCSTy::Field;
   using Poly = typename PCSTy::Poly;
+  using Commitment = Ref<const BlindedPolynomial<Poly>>;
 
   ProverQuery(const F& point, Ref<const BlindedPolynomial<Poly>> poly)
       : point_(point), poly_(poly) {}
@@ -25,10 +26,11 @@ class ProverQuery {
   ProverQuery(F&& point, Ref<const BlindedPolynomial<Poly>> poly)
       : point_(std::move(point)), poly_(poly) {}
 
-  const F& point() const { return point_; }
-  Ref<const BlindedPolynomial<Poly>> poly() const { return poly_; }
+  const F& GetPoint() const { return point_; }
 
-  F Evaluate() const { return poly_->poly().Evaluate(*point_); }
+  Ref<const BlindedPolynomial<Poly>> GetCommitment() const { return poly_; }
+
+  F GetEval() const { return poly_->poly().Evaluate(point_); }
 
  private:
   F point_;
