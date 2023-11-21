@@ -25,22 +25,19 @@ class VerifyingKey {
   using Commitments = std::vector<Commitment>;
 
   VerifyingKey() = default;
-  VerifyingKey(
-      std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain,
-      Commitments fixed_commitments,
-      PermutationVerifyingKey<PCSTy> permutation_verifying_key,
-      ConstraintSystem<F> constraint_system)
-      : domain_(std::move(domain)),
+  VerifyingKey(const Domain* domain, Commitments fixed_commitments,
+               PermutationVerifyingKey<PCSTy> permutation_verifying_key,
+               ConstraintSystem<F> constraint_system)
+      : domain_(domain),
         fixed_commitments_(std::move(fixed_commitments)),
         permutation_verifying_Key_(std::move(permutation_verifying_key)),
         constraint_system_(std::move(constraint_system)) {}
 
   static VerifyingKey FromParts(
-      std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain,
-      Commitments fixed_commitments,
+      const Domain* domain, Commitments fixed_commitments,
       PermutationVerifyingKey<PCSTy> permutation_verifying_key,
       ConstraintSystem<F> constraint_system) {
-    VerifyingKey ret(std::move(domain), std::move(fixed_commitments),
+    VerifyingKey ret(domain, std::move(fixed_commitments),
                      std::move(permutation_verifying_key),
                      std::move(constraint_system));
     // TODO(chokobole): Implement blake transcript.
@@ -53,9 +50,7 @@ class VerifyingKey {
   static Error Generate(const PCSTy& pcs, const CircuitTy& circuit,
                         VerifyingKey* verifying_key);
 
-  const math::UnivariateEvaluationDomain<F, kMaxDegree>* domain() const {
-    return domain_.get();
-  }
+  const Domain* domain() const { return domain_; }
 
   const Commitments& fixed_commitments() const { return fixed_commitments_; }
 
@@ -70,7 +65,8 @@ class VerifyingKey {
   const F& transcript_repr() const { return transcript_repr_; }
 
  private:
-  std::unique_ptr<Domain> domain_;
+  // not owned
+  const Domain* domain_ = nullptr;
   Commitments fixed_commitments_;
   PermutationVerifyingKey<PCSTy> permutation_verifying_Key_;
   ConstraintSystem<F> constraint_system_;
