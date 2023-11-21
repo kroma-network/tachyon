@@ -16,10 +16,12 @@ tachyon_cc_library(
     name = "verifying_key",
     hdrs = ["verifying_key.h"],
     deps = [
+        "//tachyon/base/strings:rust_stringifier",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/zk/plonk:constraint_system",
         "//tachyon/zk/plonk/circuit:assembly",
         "//tachyon/zk/plonk/permutation:permutation_verifying_key",
+        "@com_google_boringssl//:crypto",
     ],
 )
 
@@ -32,5 +34,6 @@ tachyon_cc_unittest(
     deps = [
         ":proving_key",
         "//tachyon/zk/base:halo2_prover_test",
+        "//tachyon/zk/plonk/keys/halo2:pinned_verifying_key",
     ],
 )
