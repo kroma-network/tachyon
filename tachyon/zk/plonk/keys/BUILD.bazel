@@ -31,8 +31,6 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":proving_key",
-        "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/bn/bn254:g2",
+        "//tachyon/zk/base:halo2_prover_test",
     ],
 )
