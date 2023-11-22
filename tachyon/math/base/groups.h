@@ -91,6 +91,12 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     return BatchInverse(groups, &groups, coeff);
   }
 
+  template <typename Container>
+  constexpr static bool BatchInverseInPlaceSerial(Container& groups,
+                                                  const G& coeff = G::One()) {
+    return BatchInverseSerial(groups, &groups, coeff);
+  }
+
   // This is taken and modified from
   // https://github.com/arkworks-rs/algebra/blob/5dfeedf560da6937a5de0a2163b7958bd32cd551/ff/src/fields/mod.rs#L355-L418.
   // Batch inverse: [a₁, a₂, ..., aₙ] -> [a₁⁻¹, a₂⁻¹, ... , aₙ⁻¹]
@@ -128,6 +134,19 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
       return true;
     }
 #endif
+    DoBatchInverse(absl::MakeConstSpan(groups), absl::MakeSpan(*inverses),
+                   coeff);
+    return true;
+  }
+
+  template <typename InputContainer, typename OutputContainer>
+  constexpr static bool BatchInverseSerial(const InputContainer& groups,
+                                           OutputContainer* inverses,
+                                           const G& coeff = G::One()) {
+    if (std::size(groups) != std::size(*inverses)) {
+      LOG(ERROR) << "Size of |groups| and |inverses| do not match";
+      return false;
+    }
     DoBatchInverse(absl::MakeConstSpan(groups), absl::MakeSpan(*inverses),
                    coeff);
     return true;
