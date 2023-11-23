@@ -38,6 +38,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "permutation_argument_stringifier",
+    hdrs = ["permutation_argument_stringifier.h"],
+    deps = [
+        ":permutation_argument",
+        "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/zk/plonk/circuit:column_stringifier",
+    ],
+)
+
+tachyon_cc_library(
     name = "permutation_proving_key",
     hdrs = ["permutation_proving_key.h"],
     deps = ["//tachyon/base/buffer:copyable"],

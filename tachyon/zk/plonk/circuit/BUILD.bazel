@@ -84,10 +84,28 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "column_stringifier",
+    hdrs = ["column_stringifier.h"],
+    deps = [
+        ":column",
+        ":column_type_stringifier",
+    ],
+)
+
+tachyon_cc_library(
     name = "column_type",
     srcs = ["column_type.cc"],
     hdrs = ["column_type.h"],
     deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
+    name = "column_type_stringifier",
+    hdrs = ["column_type_stringifier.h"],
+    deps = [
+        ":column_type",
+        "//tachyon/base/strings:rust_stringifier",
+    ],
 )
 
 tachyon_cc_library(
@@ -159,6 +177,16 @@ tachyon_cc_library(
     deps = [
         ":column",
         ":rotation",
+    ],
+)
+
+tachyon_cc_library(
+    name = "query_stringifier",
+    hdrs = ["query_stringifier.h"],
+    deps = [
+        ":column_stringifier",
+        ":query",
+        ":rotation_stringifier",
     ],
 )
 
