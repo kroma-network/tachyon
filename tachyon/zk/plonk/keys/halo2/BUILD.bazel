@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -28,4 +28,24 @@ tachyon_cc_library(
     name = "pinned_gates",
     hdrs = ["pinned_gates.h"],
     deps = ["//tachyon/base/strings:rust_stringifier"],
+)
+
+tachyon_cc_library(
+    name = "pinned_verifying_key",
+    hdrs = ["pinned_verifying_key.h"],
+    deps = [
+        ":pinned_constraint_system",
+        ":pinned_evaluation_domain",
+        "//tachyon/zk/plonk/keys:verifying_key",
+        "//tachyon/zk/plonk/permutation:permutation_verifying_key_stringifier",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "halo2_unittests",
+    srcs = ["pinned_verifying_key_unittest.cc"],
+    deps = [
+        ":pinned_verifying_key",
+        "//tachyon/zk/base:halo2_prover_test",
+    ],
 )

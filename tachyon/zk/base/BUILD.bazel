@@ -64,6 +64,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "point_stringifier",
+    hdrs = ["point_stringifier.h"],
+    deps = [
+        ":field_stringifier",
+        "//tachyon/math/elliptic_curves:points",
+    ],
+)
+
+tachyon_cc_library(
     name = "prover",
     hdrs = ["prover.h"],
     deps = [
