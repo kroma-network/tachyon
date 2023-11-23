@@ -9,6 +9,12 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "rust_stringifier",
+    hdrs = ["rust_stringifier.h"],
+    deps = ["//tachyon:export"],
+)
+
+tachyon_cc_library(
     name = "string_number_conversions",
     srcs = [
         "string_number_conversions.cc",
