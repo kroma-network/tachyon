@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 #include "tachyon/export.h"
 
@@ -45,6 +46,58 @@ class TACHYON_EXPORT DebugStruct {
   bool has_field_ = false;
 };
 
+class TACHYON_EXPORT DebugTuple {
+ public:
+  DebugTuple(RustFormatter* fmt, std::string_view name) : fmt_(fmt) {
+    ss_ << name << "(";
+  }
+
+  template <typename T>
+  DebugTuple& Field(const T& value) {
+    if (has_field_) {
+      ss_ << ", ";
+    }
+    RustDebugStringifier<T>::AppendToStream(ss_, *fmt_, value);
+    has_field_ = true;
+    return *this;
+  }
+
+  std::string Finish() {
+    ss_ << ")";
+    return ss_.str();
+  }
+
+ private:
+  RustFormatter* fmt_ = nullptr;
+  std::stringstream ss_;
+  bool has_field_ = false;
+};
+
+class TACHYON_EXPORT DebugList {
+ public:
+  explicit DebugList(RustFormatter* fmt) : fmt_(fmt) { ss_ << "["; }
+
+  template <typename T>
+  DebugList& Entry(const T& value) {
+    if (has_entry_) {
+      ss_ << ", ";
+    }
+    RustDebugStringifier<T>::AppendToStream(ss_, *fmt_, value);
+    has_entry_ = true;
+    return *this;
+  }
+
+  std::string Finish() {
+    ss_ << "]";
+    return ss_.str();
+  }
+
+ private:
+  RustFormatter* fmt_ = nullptr;
+  std::stringstream ss_;
+  bool has_entry_ = false;
+};
+
 }  // namespace internal
 
 class TACHYON_EXPORT RustFormatter {
@@ -54,6 +107,12 @@ class TACHYON_EXPORT RustFormatter {
   internal::DebugStruct DebugStruct(std::string_view name) {
     return internal::DebugStruct(this, name);
   }
+
+  internal::DebugTuple DebugTuple(std::string_view name) {
+    return internal::DebugTuple(this, name);
+  }
+
+  internal::DebugList DebugList() { return internal::DebugList(this); }
 };
 
 namespace internal {
@@ -123,6 +182,19 @@ class RustDebugStringifier<std::optional<T>> {
     } else {
       return os << "None";
     }
+  }
+};
+
+template <typename T>
+class RustDebugStringifier<std::vector<T>> {
+ public:
+  static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
+                                      const std::vector<T>& values) {
+    DebugList debug_list = fmt.DebugList();
+    for (const T& value : values) {
+      debug_list.Entry(value);
+    }
+    return os << debug_list.Finish();
   }
 };
 
