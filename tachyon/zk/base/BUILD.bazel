@@ -20,6 +20,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "field_stringifier",
+    hdrs = ["field_stringifier.h"],
+    deps = [
+        "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/math/finite_fields:prime_field_base",
+    ],
+)
+
+tachyon_cc_library(
     name = "halo2_prover",
     hdrs = ["halo2_prover.h"],
     deps = [
@@ -51,6 +60,15 @@ tachyon_cc_library(
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
         "//tachyon/math/base:big_int",
         "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
+    name = "point_stringifier",
+    hdrs = ["point_stringifier.h"],
+    deps = [
+        ":field_stringifier",
+        "//tachyon/math/elliptic_curves:points",
     ],
 )
 

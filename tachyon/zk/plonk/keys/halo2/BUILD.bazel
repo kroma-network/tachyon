@@ -1,0 +1,51 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "pinned_constraint_system",
+    hdrs = ["pinned_constraint_system.h"],
+    deps = [
+        ":pinned_gates",
+        "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk/circuit:phase_stringifier",
+        "//tachyon/zk/plonk/circuit:query_stringifier",
+        "//tachyon/zk/plonk/lookup:lookup_argument_stringifier",
+        "//tachyon/zk/plonk/permutation:permutation_argument_stringifier",
+    ],
+)
+
+tachyon_cc_library(
+    name = "pinned_evaluation_domain",
+    hdrs = ["pinned_evaluation_domain.h"],
+    deps = [
+        "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/zk/base:field_stringifier",
+    ],
+)
+
+tachyon_cc_library(
+    name = "pinned_gates",
+    hdrs = ["pinned_gates.h"],
+    deps = ["//tachyon/base/strings:rust_stringifier"],
+)
+
+tachyon_cc_library(
+    name = "pinned_verifying_key",
+    hdrs = ["pinned_verifying_key.h"],
+    deps = [
+        ":pinned_constraint_system",
+        ":pinned_evaluation_domain",
+        "//tachyon/zk/plonk/keys:verifying_key",
+        "//tachyon/zk/plonk/permutation:permutation_verifying_key_stringifier",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "halo2_unittests",
+    srcs = ["pinned_verifying_key_unittest.cc"],
+    deps = [
+        ":pinned_verifying_key",
+        "//tachyon/zk/base:halo2_prover_test",
+    ],
+)
