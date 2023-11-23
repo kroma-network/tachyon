@@ -8,6 +8,7 @@ tachyon_cc_library(
         "multilinear_dense_evaluations.h",
         "multilinear_extension.h",
         "multilinear_extension_ops.h",
+        "multilinear_sparse_evaluations.h",
         "support_poly_operators.h",
     ],
     deps = [
@@ -17,6 +18,11 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/polynomials:polynomial",
+        "@com_google_absl//absl/base",
+        "@com_google_absl//absl/container:btree",
+        "@com_google_absl//absl/numeric:bits",
+        "@com_google_absl//absl/random",
+        "@com_google_absl//absl/types:span",
     ],
 )
 
@@ -46,6 +52,7 @@ tachyon_cc_unittest(
     name = "multivariate_unittests",
     srcs = [
         "multilinear_dense_evaluations_unittest.cc",
+        "multilinear_sparse_evaluations_unittest.cc",
         "multivariate_polynomial_unittest.cc",
     ],
     deps = [

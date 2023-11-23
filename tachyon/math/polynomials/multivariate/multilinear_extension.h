@@ -11,13 +11,15 @@
 #include <vector>
 
 #include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
+#include "tachyon/math/polynomials/multivariate/multilinear_sparse_evaluations.h"
+// #include "tachyon/math/polynomials/multivariate/multilinear_extension.h"
 #include "tachyon/math/polynomials/polynomial.h"
 
 namespace tachyon::math {
 
-// MultilinearExtension represents a multilinear polynomial in evaluation form.
-// Unlike UnivariateEvaluations, its evaluation domain is fixed to {0, 1}ᵏ (i.e.
-// Boolean hypercube).
+// MultilinearExtension represents a multilinear polynomial in evaluation
+// form. Unlike UnivariateEvaluations, its evaluation domain is fixed to {0,
+// 1}ᵏ (i.e. Boolean hypercube).
 template <typename Evaluations>
 class MultilinearExtension final
     : public Polynomial<MultilinearExtension<Evaluations>> {
@@ -68,8 +70,8 @@ class MultilinearExtension final
 
   constexpr size_t Degree() const { return evaluations_.Degree(); }
 
-  // Evaluate a polynomial at the specified |point|. The |point| is a vector in
-  // {0, 1}ᵏ in little-endian form. If the size of |point| is less than the
+  // Evaluate a polynomial at the specified |point|. The |point| is a vector
+  // in {0, 1}ᵏ in little-endian form. If the size of |point| is less than the
   // degree of the polynomial, the remaining components of |point| are assumed
   // to be zeros. For example:
 
@@ -86,6 +88,10 @@ class MultilinearExtension final
 
   auto ToDense() const {
     return internal::MultilinearExtensionOp<Evaluations>::ToDense(*this);
+  }
+
+  auto ToSparse() const {
+    return internal::MultilinearExtensionOp<Evaluations>::ToSparse(*this);
   }
 
   std::string ToString() const { return evaluations_.ToString(); }
@@ -136,8 +142,7 @@ class MultilinearExtension final
   }
 
  private:
-  friend class internal::MultilinearExtensionOp<
-      MultilinearDenseEvaluations<Field, Evaluations::kMaxDegree>>;
+  friend class internal::MultilinearExtensionOp<Evaluations>;
 
   Evaluations evaluations_;
 };

@@ -130,6 +130,21 @@ TEST_F(MultilinearDenseEvaluationsTest, ToString) {
   }
 }
 
+TEST_F(MultilinearDenseEvaluationsTest, ToSparse) {
+  struct {
+    const Poly& poly;
+    std::string_view expected;
+  } tests[] = {
+      {polys_[0], "[(0, 2), (1, 3)]"},
+      {polys_[1], "[(0, 4), (1, 2)]"},
+      {polys_[2], "[(0, 2), (1, 3), (2, 2), (3, 6), (4, 5)]"},
+  };
+
+  for (const auto& test : tests) {
+    EXPECT_EQ(test.poly.ToSparse().ToString(), test.expected);
+  }
+}
+
 TEST_F(MultilinearDenseEvaluationsTest, AdditiveOperators) {
   struct {
     const Poly& a;
