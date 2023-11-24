@@ -152,6 +152,7 @@ tachyon_cc_unittest(
         ":random",
         ":range",
         ":scoped_generic",
+        "//tachyon/base/containers:container_util",
         "//tachyon/base/containers:contains",
         "//tachyon/base/containers:cxx20_erase",
     ],

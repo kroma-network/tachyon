@@ -16,16 +16,16 @@ template <typename T, bool IsStartInclusive, bool IsEndInclusive>
 T Uniform(const Range<T, IsStartInclusive, IsEndInclusive>& range) {
   if constexpr (IsStartInclusive && IsEndInclusive) {
     return absl::Uniform(absl::IntervalClosedClosed, GetAbslBitGen(),
-                         range.start, range.end);
+                         range.from, range.to);
   } else if constexpr (IsStartInclusive && !IsEndInclusive) {
-    return absl::Uniform(absl::IntervalClosedOpen, GetAbslBitGen(), range.start,
-                         range.end);
+    return absl::Uniform(absl::IntervalClosedOpen, GetAbslBitGen(), range.from,
+                         range.to);
   } else if constexpr (!IsStartInclusive && IsEndInclusive) {
-    return absl::Uniform(absl::IntervalOpenClosed, GetAbslBitGen(), range.start,
-                         range.end);
+    return absl::Uniform(absl::IntervalOpenClosed, GetAbslBitGen(), range.from,
+                         range.to);
   } else {
-    return absl::Uniform(absl::IntervalOpenOpen, GetAbslBitGen(), range.start,
-                         range.end);
+    return absl::Uniform(absl::IntervalOpenOpen, GetAbslBitGen(), range.from,
+                         range.to);
   }
 }
 
