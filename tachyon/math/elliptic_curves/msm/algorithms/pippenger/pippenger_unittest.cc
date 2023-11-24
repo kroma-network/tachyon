@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/elliptic_curves/bls/bls12_381/g1.h"
+#include "tachyon/math/elliptic_curves/bls12/bls12_381/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 

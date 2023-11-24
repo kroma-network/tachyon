@@ -122,7 +122,7 @@ tachyon_cc_unittest(
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/containers:contains",
         "//tachyon/base/functional:function_ref",
-        "//tachyon/math/elliptic_curves/bls/bls12_381:fr",
+        "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
         "//tachyon/math/elliptic_curves/bn/bn384_small_two_adicity:fq",
         "//tachyon/math/finite_fields/test:gf7",
     ],

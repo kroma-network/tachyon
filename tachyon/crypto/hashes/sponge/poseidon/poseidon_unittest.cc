@@ -9,7 +9,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/elliptic_curves/bls/bls12_381/fr.h"
+#include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
 
 namespace tachyon::crypto {
 

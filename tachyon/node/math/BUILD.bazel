@@ -10,7 +10,7 @@ TPLS = [
 ]
 
 CURVES = [
-    "bls/bls12_381",
+    "bls12/bls12_381",
     "bn/bn254",
 ]
 

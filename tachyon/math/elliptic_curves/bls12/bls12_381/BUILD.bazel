@@ -1,4 +1,6 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_unittest")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
+load("//tachyon/math/elliptic_curves/bls12/generator:build_defs.bzl", "generate_bls12_curves")
 load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
 load(
     "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
@@ -51,7 +53,7 @@ generate_prime_fields(
 generate_fp2s(
     name = "fq2",
     base_field = "Fq",
-    base_field_hdr = "tachyon/math/elliptic_curves/bls/bls12_381/fq.h",
+    base_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq.h",
     class_name = "Fq2",
     namespace = "tachyon::math::bls12_381",
     non_residue = ["-1"],
@@ -62,7 +64,7 @@ generate_fp6s(
     name = "fq6",
     base_field = "Fq2",
     base_field_degree = 2,
-    base_field_hdr = "tachyon/math/elliptic_curves/bls/bls12_381/fq2.h",
+    base_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq2.h",
     class_name = "Fq6",
     mul_by_non_residue_override =
         """    // (c0 + c1 * u) * (1 + u) = (c0 - c1) + (c1 + c0) * u
@@ -78,7 +80,7 @@ generate_fp6s(
 generate_fp12s(
     name = "fq12",
     base_field = "Fq6",
-    base_field_hdr = "tachyon/math/elliptic_curves/bls/bls12_381/fq6.h",
+    base_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq6.h",
     class_name = "Fq12",
     namespace = "tachyon::math::bls12_381",
     non_residue = [
@@ -95,7 +97,7 @@ generate_ec_points(
     b = ["4"],
     base_field = "Fq",
     base_field_dep = ":fq",
-    base_field_hdr = "tachyon/math/elliptic_curves/bls/bls12_381/fq.h",
+    base_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq.h",
     class_name = "G1",
     # Hex: 0x5f19672fdf76ce51ba69c6076a0f77eaddb3a93be6f89688de17d813620a00022e01fffffffefffe
     endomorphism_coefficient = ["793479390729215512621379701633421447060886740281060493010456487427281649075476305620758731620350"],
@@ -117,7 +119,7 @@ generate_ec_points(
     namespace = "tachyon::math::bls12_381",
     scalar_field = "Fr",
     scalar_field_dep = ":fr",
-    scalar_field_hdr = "tachyon/math/elliptic_curves/bls/bls12_381/fr.h",
+    scalar_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h",
     # Hex: 0x17f1d3a73197d7942695638c4fa9ac0fc3688c4f9774b905a14e3a3f171bac586c55e83ff97a1aeffb3af00adb22c6bb
     x = ["3685416753713387016781088315183077757961620795782546409894578378688607592378376318836054947676345821548104185464507"],
     # Hex: 0x8b3f481e3aaa0f1a09e30ed741d8ae4fcf5e095d5d00af600db18cb2c04b3edd03cc744a2888ae40caa232946c5e7e1
@@ -136,7 +138,7 @@ generate_ec_points(
     ],
     base_field = "Fq2",
     base_field_dep = ":fq2",
-    base_field_hdr = "tachyon/math/elliptic_curves/bls/bls12_381/fq2.h",
+    base_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq2.h",
     class_name = "G2",
     endomorphism_coefficient = [
         # Hex: 0x5f19672fdf76ce51ba69c6076a0f77eaddb3a93be6f89688de17d813620a00022e01fffffffefffe
@@ -156,7 +158,7 @@ generate_ec_points(
     namespace = "tachyon::math::bls12_381",
     scalar_field = "Fr",
     scalar_field_dep = ":fr",
-    scalar_field_hdr = "tachyon/math/elliptic_curves/bls/bls12_381/fr.h",
+    scalar_field_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h",
     x = [
         # Hex: 0x24aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8
         "352701069587466618187139116011060144890029952792775240219908644239793785735715026873347600343865175952761926303160",
@@ -169,4 +171,25 @@ generate_ec_points(
         # Hex: 0x606c4a02ea734cc32acd2b02bc28b99cb3e287e85a763af267492ab572e99ab3f370d275cec1da1aaa9075ff05f79be
         "927553665492332455747201965776037880757740193453592970025027978793976877002675564980949289727957565575433344219582",
     ],
+)
+
+generate_bls12_curves(
+    name = "bls12_381",
+    class_name = "BLS12_381",
+    fq12_dep = ":fq12",
+    fq12_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/fq12.h",
+    g1_dep = ":g1",
+    g1_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/g1.h",
+    g2_dep = ":g2",
+    g2_hdr = "tachyon/math/elliptic_curves/bls12/bls12_381/g2.h",
+    namespace = "tachyon::math::bls12_381",
+    twist_type = "M",
+    # Hex: 0xd201000000010000
+    x = "-15132376222941642752",
+)
+
+tachyon_cc_unittest(
+    name = "bls12_381_unittests",
+    srcs = ["bls12_381_unittest.cc"],
+    deps = [":bls12_381"],
 )
