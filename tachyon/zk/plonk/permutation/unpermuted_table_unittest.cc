@@ -23,11 +23,11 @@ class UnpermutedTableTest : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
     unpermuted_table_ =
-        UnpermutedTable<PCS>::Construct(kCols, prover_->domain());
+        UnpermutedTable<Evals>::Construct(kCols, prover_->domain());
   }
 
  protected:
-  UnpermutedTable<PCS> unpermuted_table_;
+  UnpermutedTable<Evals> unpermuted_table_;
 };
 
 }  // namespace
@@ -50,8 +50,6 @@ TEST_F(UnpermutedTableTest, Construct) {
 }
 
 TEST_F(UnpermutedTableTest, GetColumns) {
-  using Col = UnpermutedTable<PCS>::Col;
-
   const Domain* domain = prover_->domain();
 
   const F& omega = domain->group_gen();
@@ -61,17 +59,17 @@ TEST_F(UnpermutedTableTest, GetColumns) {
     omega_power *= delta;
   }
 
-  Ref<const Col> column = unpermuted_table_.GetColumn(1);
+  Ref<const Evals> column = unpermuted_table_.GetColumn(1);
   for (size_t i = 0; i < kMaxDegree + 1; ++i) {
-    EXPECT_EQ(omega_powers[i], column[i]);
+    EXPECT_EQ(omega_powers[i], *(*column)[i]);
   }
 
-  std::vector<Ref<const Col>> columns =
+  std::vector<Ref<const Evals>> columns =
       unpermuted_table_.GetColumns(base::Range<size_t>(2, 4));
   for (size_t i = 0; i < 2; ++i) {
     for (size_t j = 0; j < kMaxDegree + 1; ++j) {
       omega_powers[j] *= delta;
-      EXPECT_EQ(omega_powers[j], columns[i][j]);
+      EXPECT_EQ(omega_powers[j], *(*columns[i])[j]);
     }
   }
 }

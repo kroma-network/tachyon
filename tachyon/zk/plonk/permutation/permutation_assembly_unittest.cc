@@ -34,8 +34,8 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
   const Domain* domain = prover_->domain();
   std::vector<Evals> permutations = assembly_.GeneratePermutations(domain);
 
-  UnpermutedTable<PCS> unpermuted_table =
-      UnpermutedTable<PCS>::Construct(columns_.size(), domain);
+  UnpermutedTable<Evals> unpermuted_table =
+      UnpermutedTable<Evals>::Construct(columns_.size(), domain);
 
   for (size_t i = 0; i < columns_.size(); ++i) {
     for (size_t j = 0; j <= kMaxDegree; ++j) {

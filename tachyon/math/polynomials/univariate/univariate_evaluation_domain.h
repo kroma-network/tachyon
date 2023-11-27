@@ -37,6 +37,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   using SparseCoeffs = UnivariateSparseCoefficients<F, MaxDegree>;
   using SparsePoly = UnivariateSparsePolynomial<F, MaxDegree>;
 
+  constexpr static size_t kMaxDegree = MaxDegree;
+
   constexpr UnivariateEvaluationDomain() = default;
 
   constexpr UnivariateEvaluationDomain(size_t size, uint32_t log_size_of_group)

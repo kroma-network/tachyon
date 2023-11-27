@@ -26,31 +26,27 @@ namespace tachyon::zk {
 // Let modulus = 2ˢ * T + 1, then
 // |UnpermutedTable|
 // = [[𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] for i in range(0..T-1)]
-template <typename PCSTy>
+template <typename Evals>
 class UnpermutedTable {
  public:
-  using F = typename PCSTy::Field;
-  using Domain = typename PCSTy::Domain;
-  using Col = std::vector<F>;
-  using Table = std::vector<Col>;
-
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
+  using F = typename Evals::Field;
+  using Table = std::vector<Evals>;
 
   UnpermutedTable() = default;
 
   const F& operator[](const Label& label) const {
-    return table_[label.col][label.row];
+    return *table_[label.col][label.row];
   }
-  F& operator[](const Label& label) { return table_[label.col][label.row]; }
+  F& operator[](const Label& label) { return *table_[label.col][label.row]; }
 
-  Ref<const Col> GetColumn(size_t i) const {
-    return Ref<const Col>(&table_[i]);
+  Ref<const Evals> GetColumn(size_t i) const {
+    return Ref<const Evals>(&table_[i]);
   }
 
-  std::vector<Ref<const Col>> GetColumns(base::Range<size_t> range) const {
+  std::vector<Ref<const Evals>> GetColumns(base::Range<size_t> range) const {
     CHECK_EQ(range.Intersect(base::Range<size_t>::Until(table_.size())), range);
 
-    std::vector<Ref<const Col>> ret;
+    std::vector<Ref<const Evals>> ret;
     ret.reserve(range.GetSize());
     for (size_t i : range) {
       ret.push_back(GetColumn(i));
@@ -58,7 +54,10 @@ class UnpermutedTable {
     return ret;
   }
 
+  template <typename Domain>
   static UnpermutedTable Construct(size_t size, const Domain* domain) {
+    constexpr static size_t kMaxDegree = Domain::kMaxDegree;
+
     // The w is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
     std::vector<F> omega_powers =
         domain->GetRootsOfUnity(kMaxDegree + 1, domain->group_gen());
@@ -69,17 +68,17 @@ class UnpermutedTable {
     Table unpermuted_table;
     unpermuted_table.reserve(size);
     // Assign [𝛿⁰w⁰, 𝛿⁰w¹, 𝛿⁰w², ..., 𝛿⁰wⁿ⁻¹] to the first col.
-    unpermuted_table.push_back(std::move(omega_powers));
+    unpermuted_table.push_back(Evals(std::move(omega_powers)));
 
     // Assign [𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] to each col.
     for (size_t i = 1; i < size; ++i) {
-      Col col = base::CreateVector(kMaxDegree + 1, F::Zero());
+      std::vector<F> col = base::CreateVector(kMaxDegree + 1, F::Zero());
       // TODO(dongchangYoo): Optimize this with
       // https://github.com/kroma-network/tachyon/pull/115.
       for (size_t j = 0; j <= kMaxDegree; ++j) {
-        col[j] = unpermuted_table[i - 1][j] * delta;
+        col[j] = *unpermuted_table[i - 1][j] * delta;
       }
-      unpermuted_table.push_back(std::move(col));
+      unpermuted_table.push_back(Evals(std::move(col)));
     }
     return UnpermutedTable(std::move(unpermuted_table));
   }
