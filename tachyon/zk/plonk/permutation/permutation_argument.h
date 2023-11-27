@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/contains.h"
-#include "tachyon/zk/plonk/circuit/column.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 
 namespace tachyon::zk {
 
@@ -19,14 +19,14 @@ namespace tachyon::zk {
 class PermutationArgument {
  public:
   PermutationArgument() = default;
-  explicit PermutationArgument(const std::vector<AnyColumn>& columns)
+  explicit PermutationArgument(const std::vector<AnyColumnKey>& columns)
       : columns_(columns) {}
-  explicit PermutationArgument(std::vector<AnyColumn>&& columns)
+  explicit PermutationArgument(std::vector<AnyColumnKey>&& columns)
       : columns_(std::move(columns)) {}
 
-  const std::vector<AnyColumn>& columns() const { return columns_; }
+  const std::vector<AnyColumnKey>& columns() const { return columns_; }
 
-  void AddColumn(const AnyColumn& column) {
+  void AddColumn(const AnyColumnKey& column) {
     if (base::Contains(columns_, column)) return;
     columns_.push_back(column);
   }
@@ -69,7 +69,7 @@ class PermutationArgument {
   }
 
  private:
-  std::vector<AnyColumn> columns_;
+  std::vector<AnyColumnKey> columns_;
 };
 
 }  // namespace tachyon::zk

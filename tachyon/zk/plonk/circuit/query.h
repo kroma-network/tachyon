@@ -11,7 +11,7 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/zk/plonk/circuit/column.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/rotation.h"
 
 namespace tachyon::zk {
@@ -20,11 +20,11 @@ template <ColumnType C>
 class QueryData {
  public:
   QueryData() = default;
-  QueryData(Rotation rotation, const Column<C>& column)
+  QueryData(Rotation rotation, const ColumnKey<C>& column)
       : rotation_(rotation), column_(column) {}
 
   Rotation rotation() const { return rotation_; }
-  const Column<C>& column() const { return column_; }
+  const ColumnKey<C>& column() const { return column_; }
 
   bool operator==(const QueryData& other) const {
     return rotation_ == other.rotation_ && column_ == other.column_;
@@ -38,7 +38,7 @@ class QueryData {
 
  protected:
   Rotation rotation_;
-  Column<C> column_;
+  ColumnKey<C> column_;
 };
 
 using FixedQueryData = QueryData<ColumnType::kFixed>;
@@ -49,7 +49,7 @@ template <ColumnType C>
 class Query : public QueryData<C> {
  public:
   Query() = default;
-  Query(size_t index, Rotation rotation, const Column<C>& column)
+  Query(size_t index, Rotation rotation, const ColumnKey<C>& column)
       : QueryData<C>(rotation, column), index_(index) {}
 
   size_t index() const { return index_; }

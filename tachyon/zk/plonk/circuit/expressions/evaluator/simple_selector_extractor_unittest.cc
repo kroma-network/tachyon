@@ -38,7 +38,7 @@ TEST_F(SimpleSelectorExtractorTest, Fixed) {
 
   for (const auto& test : tests) {
     FixedQuery query(1, Rotation(test.rotation),
-                     FixedColumn(test.column_index));
+                     FixedColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
   }
@@ -55,7 +55,7 @@ TEST_F(SimpleSelectorExtractorTest, Advice) {
 
   for (const auto& test : tests) {
     AdviceQuery query(1, Rotation(test.rotation),
-                      AdviceColumn(test.column_index, Phase(0)));
+                      AdviceColumnKey(test.column_index, Phase(0)));
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
   }
@@ -72,7 +72,7 @@ TEST_F(SimpleSelectorExtractorTest, Instance) {
 
   for (const auto& test : tests) {
     InstanceQuery query(1, Rotation(test.rotation),
-                        InstanceColumn(test.column_index));
+                        InstanceColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
   }

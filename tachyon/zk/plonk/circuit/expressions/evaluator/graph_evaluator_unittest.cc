@@ -53,7 +53,7 @@ TEST_F(GraphEvaluatorTest, Fixed) {
   GraphEvaluator<GF7> graph_evaluator;
   for (const auto& test : tests) {
     FixedQuery query(1, Rotation(test.rotation),
-                     FixedColumn(test.column_index));
+                     FixedColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     ValueSource source = graph_evaluator.Evaluate(expr.get());
     EXPECT_EQ(source, ValueSource::Intermediate(test.calculation_index));
@@ -81,7 +81,7 @@ TEST_F(GraphEvaluatorTest, Advice) {
   GraphEvaluator<GF7> graph_evaluator;
   for (const auto& test : tests) {
     AdviceQuery query(1, Rotation(test.rotation),
-                      AdviceColumn(test.column_index));
+                      AdviceColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     ValueSource source = graph_evaluator.Evaluate(expr.get());
     EXPECT_EQ(source, ValueSource::Intermediate(test.calculation_index));
@@ -109,7 +109,7 @@ TEST_F(GraphEvaluatorTest, Instance) {
   GraphEvaluator<GF7> graph_evaluator;
   for (const auto& test : tests) {
     InstanceQuery query(1, Rotation(test.rotation),
-                        InstanceColumn(test.column_index));
+                        InstanceColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     ValueSource source = graph_evaluator.Evaluate(expr.get());
     EXPECT_EQ(source, ValueSource::Intermediate(test.calculation_index));

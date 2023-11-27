@@ -43,7 +43,7 @@ TEST_F(SelectorReplacerTest, Fixed) {
 
   for (const auto& test : tests) {
     FixedQuery query(1, Rotation(test.rotation),
-                     FixedColumn(test.column_index));
+                     FixedColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
   }
@@ -60,7 +60,7 @@ TEST_F(SelectorReplacerTest, Advice) {
 
   for (const auto& test : tests) {
     AdviceQuery query(1, Rotation(test.rotation),
-                      AdviceColumn(test.column_index, Phase(0)));
+                      AdviceColumnKey(test.column_index, Phase(0)));
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
   }
@@ -77,7 +77,7 @@ TEST_F(SelectorReplacerTest, Instance) {
 
   for (const auto& test : tests) {
     InstanceQuery query(1, Rotation(test.rotation),
-                        InstanceColumn(test.column_index));
+                        InstanceColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     EXPECT_EQ(*expr, *expr->ReplaceSelectors({}, false));
   }

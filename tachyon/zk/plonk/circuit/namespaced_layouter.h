@@ -21,7 +21,8 @@ template <typename F>
 class NamespacedLayouter : public Layouter<F> {
  public:
   using AssignRegionCallback = typename Layouter<F>::AssignRegionCallback;
-  using AssignTableCallback = typename Layouter<F>::AssignTableCallback;
+  using AssignLookupTableCallback =
+      typename Layouter<F>::AssignLookupTableCallback;
 
   explicit NamespacedLayouter(Layouter<F>* layouter) : layouter_(layouter) {}
 
@@ -38,12 +39,12 @@ class NamespacedLayouter : public Layouter<F> {
     return layouter_->AssignRegion(name, std::move(assign));
   }
 
-  Error AssignTable(std::string_view name,
-                    AssignTableCallback assign) override {
-    return layouter_->AssignTable(name, std::move(assign));
+  Error AssignLookupTable(std::string_view name,
+                          AssignLookupTableCallback assign) override {
+    return layouter_->AssignLookupTable(name, std::move(assign));
   }
 
-  Error ConstrainInstance(const Cell& cell, const InstanceColumn& column,
+  Error ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
                           size_t row) override {
     return layouter_->ConstrainInstance(cell, column, row);
   }

@@ -26,9 +26,9 @@ class SimpleEvaluatorTest : public EvaluatorTest {
       challenges_.push_back(GF7::Random());
     }
 
-    Columns<Evals> columns(absl::MakeConstSpan(fixed_columns_),
-                           absl::MakeConstSpan(advice_columns_),
-                           absl::MakeConstSpan(instance_columns_));
+    Table<Evals> columns(absl::MakeConstSpan(fixed_columns_),
+                         absl::MakeConstSpan(advice_columns_),
+                         absl::MakeConstSpan(instance_columns_));
     simple_evaluator_ = std::make_unique<SimpleEvaluator<Evals>>(
         3, 4, 1, columns, absl::MakeConstSpan(challenges_));
   }
@@ -69,7 +69,7 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
     int32_t rot_scale = simple_evaluator_->rot_scale();
     int32_t size = simple_evaluator_->size();
     FixedQuery query(1, Rotation(test.rotation),
-                     FixedColumn(test.column_index));
+                     FixedColumnKey(test.column_index));
     size_t evals_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7* expected = fixed_columns_[test.column_index][evals_index];
@@ -95,7 +95,7 @@ TEST_F(SimpleEvaluatorTest, Advice) {
     int32_t rot_scale = simple_evaluator_->rot_scale();
     int32_t size = simple_evaluator_->size();
     AdviceQuery query(1, Rotation(test.rotation),
-                      AdviceColumn(test.column_index, Phase(0)));
+                      AdviceColumnKey(test.column_index, Phase(0)));
     size_t evals_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7* expected = advice_columns_[test.column_index][evals_index];
@@ -121,7 +121,7 @@ TEST_F(SimpleEvaluatorTest, Instance) {
     int32_t rot_scale = simple_evaluator_->rot_scale();
     int32_t size = simple_evaluator_->size();
     InstanceQuery query(1, Rotation(test.rotation),
-                        InstanceColumn(test.column_index));
+                        InstanceColumnKey(test.column_index));
     size_t evals_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7* expected = instance_columns_[test.column_index][evals_index];

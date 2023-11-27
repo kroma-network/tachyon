@@ -15,10 +15,10 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
 #include "tachyon/zk/plonk/permutation/label.h"
-#include "tachyon/zk/plonk/permutation/lookup_table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
+#include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 
 namespace tachyon::zk {
 
@@ -44,14 +44,14 @@ class PermutationAssembly {
       : PermutationAssembly(p.columns()) {}
 
   // Constructor with permutation columns.
-  explicit PermutationAssembly(const std::vector<AnyColumn>& columns)
+  explicit PermutationAssembly(const std::vector<AnyColumnKey>& columns)
       : columns_(columns), cycle_store_(CycleStore(columns_.size(), kRows)) {}
 
-  explicit PermutationAssembly(std::vector<AnyColumn>&& columns)
+  explicit PermutationAssembly(std::vector<AnyColumnKey>&& columns)
       : columns_(std::move(columns)),
         cycle_store_(CycleStore(columns_.size(), kRows)) {}
 
-  static PermutationAssembly CreateForTesting(std::vector<AnyColumn> columns,
+  static PermutationAssembly CreateForTesting(std::vector<AnyColumnKey> columns,
                                               CycleStore cycle_store) {
     PermutationAssembly ret;
     ret.columns_ = std::move(columns);
@@ -59,11 +59,11 @@ class PermutationAssembly {
     return ret;
   }
 
-  const std::vector<AnyColumn>& columns() const { return columns_; }
+  const std::vector<AnyColumnKey>& columns() const { return columns_; }
   const CycleStore& cycle_store() const { return cycle_store_; }
 
-  bool Copy(const AnyColumn& left_column, size_t left_row,
-            const AnyColumn& right_column, size_t right_row) {
+  bool Copy(const AnyColumnKey& left_column, size_t left_row,
+            const AnyColumnKey& right_column, size_t right_row) {
     CHECK_LE(left_row, kRows);
     CHECK_LE(right_row, kRows);
 
@@ -115,35 +115,35 @@ class PermutationAssembly {
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
   std::vector<Evals> GeneratePermutations(const Domain* domain) const {
-    LookupTable<PCSTy> lookup_table =
-        LookupTable<PCSTy>::Construct(columns_.size(), domain);
+    UnpermutedTable<PCSTy> unpermuted_table =
+        UnpermutedTable<PCSTy>::Construct(columns_.size(), domain);
 
-    // Init evaluation formed polynomials with all-zero coefficients
+    // Init evaluation formed polynomials with all-zero coefficients.
     std::vector<Evals> permutations =
         base::CreateVector(columns_.size(), Evals::UnsafeZero(kMaxDegree));
 
-    // Assign lookup_table to permutations
-    base::Parallelize(
-        permutations, [&lookup_table, this](absl::Span<Evals> chunk, size_t c,
-                                            size_t chunk_size) {
-          size_t i = c * chunk_size;
-          for (Evals& evals : chunk) {
-            for (size_t j = 0; j <= kMaxDegree; ++j) {
-              *evals[j] = lookup_table[cycle_store_.GetNextLabel(Label(i, j))];
-            }
-            ++i;
-          }
-        });
+    // Assign |unpermuted_table| to |permutations|.
+    base::Parallelize(permutations, [&unpermuted_table, this](
+                                        absl::Span<Evals> chunk, size_t c,
+                                        size_t chunk_size) {
+      size_t i = c * chunk_size;
+      for (Evals& evals : chunk) {
+        for (size_t j = 0; j <= kMaxDegree; ++j) {
+          *evals[j] = unpermuted_table[cycle_store_.GetNextLabel(Label(i, j))];
+        }
+        ++i;
+      }
+    });
     return permutations;
   }
 
  private:
-  size_t GetColumnIndex(const AnyColumn& column) const {
+  size_t GetColumnIndex(const AnyColumnKey& column) const {
     return base::FindIndex(columns_, column).value();
   }
 
   // Columns that participate on the copy permutation argument.
-  std::vector<AnyColumn> columns_;
+  std::vector<AnyColumnKey> columns_;
   CycleStore cycle_store_;
 };
 

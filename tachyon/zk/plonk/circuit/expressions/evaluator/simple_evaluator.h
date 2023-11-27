@@ -11,7 +11,6 @@
 
 #include "absl/types/span.h"
 
-#include "tachyon/zk/plonk/circuit/columns.h"
 #include "tachyon/zk/plonk/circuit/expressions/advice_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/challenge_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/constant_expression.h"
@@ -23,6 +22,7 @@
 #include "tachyon/zk/plonk/circuit/expressions/scaled_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/selector_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/sum_expression.h"
+#include "tachyon/zk/plonk/circuit/table.h"
 
 namespace tachyon::zk {
 
@@ -34,14 +34,13 @@ class SimpleEvaluator
 
   SimpleEvaluator() = default;
   SimpleEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
-                  const Columns<Evals>& columns,
-                  absl::Span<const Field> challenges)
+                  const Table<Evals>& table, absl::Span<const Field> challenges)
       : idx_(idx),
         size_(size),
         rot_scale_(rot_scale),
-        fixed_columns_(columns.fixed_columns()),
-        advice_columns_(columns.advice_columns()),
-        instance_columns_(columns.instance_columns()),
+        fixed_columns_(table.fixed_columns()),
+        advice_columns_(table.advice_columns()),
+        instance_columns_(table.instance_columns()),
         challenges_(challenges) {}
 
   int32_t idx() const { return idx_; }

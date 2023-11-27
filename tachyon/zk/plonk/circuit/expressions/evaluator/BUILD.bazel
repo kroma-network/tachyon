@@ -53,7 +53,7 @@ tachyon_cc_library(
     name = "simple_evaluator",
     hdrs = ["simple_evaluator.h"],
     deps = [
-        "//tachyon/zk/plonk/circuit:columns",
+        "//tachyon/zk/plonk/circuit:table",
         "//tachyon/zk/plonk/circuit/expressions:advice_expression",
         "//tachyon/zk/plonk/circuit/expressions:challenge_expression",
         "//tachyon/zk/plonk/circuit/expressions:constant_expression",

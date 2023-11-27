@@ -11,7 +11,7 @@
 
 #include "tachyon/base/functional/identity.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/zk/plonk/circuit/floor_planner/simple_table_layouter.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 #include "tachyon/zk/plonk/circuit/region_column.h"
 
@@ -38,11 +38,12 @@ class SingleChipLayouter : public Layouter<F> {
           name, selector, layouter_->regions_[region_index_] + offset);
     }
 
-    void NameColumn(std::string_view name, const AnyColumn& column) override {
+    void NameColumn(std::string_view name,
+                    const AnyColumnKey& column) override {
       return layouter_->assignment_->NameColumn(name, column);
     }
 
-    Error AssignAdvice(std::string_view name, const AdviceColumn& column,
+    Error AssignAdvice(std::string_view name, const AdviceColumnKey& column,
                        size_t offset, AssignCallback to, Cell* cell) override {
       Error error = layouter_->assignment_->AssignAdvice(
           name, column, layouter_->regions_[region_index_] + offset,
@@ -53,7 +54,7 @@ class SingleChipLayouter : public Layouter<F> {
     }
 
     Error AssignAdviceFromConstant(std::string_view name,
-                                   const AdviceColumn& column, size_t offset,
+                                   const AdviceColumnKey& column, size_t offset,
                                    const math::RationalField<F>& constant,
                                    Cell* cell) override {
       Error error = layouter_->assignment_->AssignAdvice(
@@ -65,8 +66,9 @@ class SingleChipLayouter : public Layouter<F> {
     }
 
     Error AssignAdviceFromInstance(std::string_view name,
-                                   const InstanceColumn& instance, size_t row,
-                                   const AdviceColumn& advice, size_t offset,
+                                   const InstanceColumnKey& instance,
+                                   size_t row, const AdviceColumnKey& advice,
+                                   size_t offset,
                                    AssignedCell<F>* assigned_cell) {
       Value<F> value;
       Error error =
@@ -89,7 +91,7 @@ class SingleChipLayouter : public Layouter<F> {
       return Error::kNone;
     }
 
-    Error AssignFixed(std::string_view name, const FixedColumn& column,
+    Error AssignFixed(std::string_view name, const FixedColumnKey& column,
                       size_t offset, AssignCallback assign,
                       Cell* cell) override {
       Error error =
@@ -123,21 +125,23 @@ class SingleChipLayouter : public Layouter<F> {
   };
 
   using AssignRegionCallback = typename Layouter<F>::AssignRegionCallback;
-  using AssignTableCallback = typename Layouter<F>::AssignTableCallback;
+  using AssignLookupTableCallback =
+      typename Layouter<F>::AssignLookupTableCallback;
 
   const Assignment<F>* assignment() const { return assignment_; }
-  const std::vector<FixedColumn>& constants() const { return constants_; }
+  const std::vector<FixedColumnKey>& constants() const { return constants_; }
   const std::vector<size_t>& regions() const { return regions_; }
   const absl::flat_hash_map<RegionColumn, size_t>& columns() const {
     return columns_;
   }
-  const std::vector<TableColumn>& table_columns() const {
-    return table_columns_;
+  const std::vector<LookupTableColumn>& lookup_table_columns() const {
+    return lookup_table_columns_;
   }
 
   template <typename CircuitTy, typename Config = typename CircuitTy::Config>
   static Error Synthesize(Assignment<F>* assignment, CircuitTy& circuit,
-                          Config config, std::vector<FixedColumn> constants) {
+                          Config config,
+                          std::vector<FixedColumnKey> constants) {
     SingleChipLayouter layouter(assignment, std::move(constants));
     return circuit.Synthesize(std::move(config));
   }
@@ -203,7 +207,7 @@ class SingleChipLayouter : public Layouter<F> {
       if (!region.constants.empty())
         return Error::kNotEnoughColumnsForConstants;
     } else {
-      const FixedColumn& constants_column = constants_[0];
+      const FixedColumnKey& constants_column = constants_[0];
       size_t& next_constant_row = columns_[RegionColumn(constants_column)];
       for (const Constant& constant : region.constants) {
         const math::RationalField<F>& value = constant.value;
@@ -226,15 +230,16 @@ class SingleChipLayouter : public Layouter<F> {
     return Error::kNone;
   }
 
-  Error AssignTable(std::string_view name,
-                    AssignTableCallback assign) override {
+  Error AssignLookupTable(std::string_view name,
+                          AssignLookupTableCallback assign) override {
     // Maintenance hazard: there is near-duplicate code in
-    // |v1::AssignmentPass::AssignTable|. Assign table cells.
+    // |v1::AssignmentPass::AssignLookupTable|. Assign table cells.
     assignment_->EnterRegion(name);
-    SimpleTableLayouter table_layouter(&assignment_, &table_columns_);
+    SimpleLookupTableLayouter lookup_table_layouter(&assignment_,
+                                                    &lookup_table_columns_);
     Error error = std::move(assign).Run(table);
     if (error != Error::kNone) return error;
-    const absl::flat_hash_map<TableColumn, SimpleTableLayouter<F>::Value>&
+    const absl::flat_hash_map<LookupTableColumn, SimpleTableLayouter<F>::Value>&
         values = table.values();
     assignment_->ExitRegion();
 
@@ -266,7 +271,7 @@ class SingleChipLayouter : public Layouter<F> {
 
     // Record these columns so that we can prevent them from being used again.
     for (auto it = values.begin(); it != values.end(); ++it) {
-      table_columns_.push_back(it->first);
+      lookup_table_columns_.push_back(it->first);
       // |it->second.default| must have value because we must have assigned
       // at least one cell in each column, and in that case we checked
       // that all cells up to |first_unused| were assigned.
@@ -278,7 +283,7 @@ class SingleChipLayouter : public Layouter<F> {
     return Error::kNone;
   }
 
-  Error ConstrainInstance(const Cell& cell, const InstanceColumn& column,
+  Error ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
                           size_t row) override {
     return assignment_->Copy(cell.column(),
                              regions_[cell.region_index()] + cell.row_offset(),
@@ -303,17 +308,17 @@ class SingleChipLayouter : public Layouter<F> {
   friend class Region;
 
   SingleChipLayouter(Assignment<F>* assignment,
-                     std::vector<FixedColumn> constants)
+                     std::vector<FixedColumnKey> constants)
       : assignment_(assignment), constants_(std::move(constants)) {}
 
   Assignment<F>* const assignment_;
-  std::vector<FixedColumn> constants_;
+  std::vector<FixedColumnKey> constants_;
   // Stores the starting row for each region.
   std::vector<size_t> regions_;
   // Stores the first empty row for each column.
   absl::flat_hash_map<RegionColumn, size_t> columns_;
   // Stores the table fixed columns.
-  std::vector<TableColumn> table_columns_;
+  std::vector<LookupTableColumn> lookup_table_columns_;
 };
 
 }  // namespace tachyon::zk

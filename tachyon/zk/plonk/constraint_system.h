@@ -22,9 +22,9 @@
 #include "tachyon/zk/plonk/circuit/constraint.h"
 #include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/plonk/circuit/gate.h"
+#include "tachyon/zk/plonk/circuit/lookup_table_column.h"
 #include "tachyon/zk/plonk/circuit/query.h"
 #include "tachyon/zk/plonk/circuit/selector_compressor.h"
-#include "tachyon/zk/plonk/circuit/table_column.h"
 #include "tachyon/zk/plonk/circuit/virtual_cells.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
@@ -40,7 +40,7 @@ class ConstraintSystem {
   // |LookupArgument<F>::TableMapElem|.
   struct TableMapElem {
     std::unique_ptr<Expression<F>> input;
-    TableColumn table;
+    LookupTableColumn table;
   };
 
   using TableMap = std::vector<TableMapElem>;
@@ -69,7 +69,9 @@ class ConstraintSystem {
     return challenge_phases_;
   }
 
-  const std::vector<FixedColumn>& selector_map() const { return selector_map_; }
+  const std::vector<FixedColumnKey>& selector_map() const {
+    return selector_map_;
+  }
 
   const std::vector<Gate<F>>& gates() const { return gates_; }
 
@@ -93,12 +95,12 @@ class ConstraintSystem {
 
   const std::vector<LookupArgument<F>>& lookups() const { return lookups_; }
 
-  const absl::flat_hash_map<ColumnData, std::string>&
+  const absl::flat_hash_map<ColumnKeyBase, std::string>&
   general_column_annotations() const {
     return general_column_annotations_;
   }
 
-  const std::vector<FixedColumn>& constants() const { return constants_; }
+  const std::vector<FixedColumnKey>& constants() const { return constants_; }
 
   const std::optional<size_t>& minimum_degree() const {
     return minimum_degree_;
@@ -111,17 +113,17 @@ class ConstraintSystem {
 
   // Enables this fixed |column| to be used for global constant assignments.
   // The |column| will be equality-enabled, too.
-  void EnableConstant(const FixedColumn& column) {
-    // TODO(chokobole): should it be std::set<FixedColumn>?
+  void EnableConstant(const FixedColumnKey& column) {
+    // TODO(chokobole): should it be std::set<FixedColumnKey>?
     if (!base::Contains(constants_, column)) {
       constants_.push_back(column);
-      EnableEquality(AnyColumn(column));
+      EnableEquality(AnyColumnKey(column));
     }
   }
 
   // Enable the ability to enforce equality over cells in this column
-  void EnableEquality(const AnyColumn& column) {
-    // TODO(chokobole): should it be std::set<FixedColumn>?
+  void EnableEquality(const AnyColumnKey& column) {
+    // TODO(chokobole): should it be std::set<FixedColumnKey>?
     constants_.push_back(column);
     EnableEquality(column);
     permutation_.AddColumn(column);
@@ -163,7 +165,7 @@ class ConstraintSystem {
     return lookups_.size() - 1;
   }
 
-  size_t QueryFixedIndex(const FixedColumn& column, Rotation at) {
+  size_t QueryFixedIndex(const FixedColumnKey& column, Rotation at) {
     // Return existing query, if it exists
     size_t index;
     if (QueryIndex(fixed_queries_, column, at, &index)) return index;
@@ -173,7 +175,7 @@ class ConstraintSystem {
     return fixed_queries_.size() - 1;
   }
 
-  size_t QueryAdviceIndex(const AdviceColumn& column, Rotation at) {
+  size_t QueryAdviceIndex(const AdviceColumnKey& column, Rotation at) {
     // Return existing query, if it exists
     size_t index;
     if (QueryIndex(advice_queries_, column, at, &index)) return index;
@@ -184,7 +186,7 @@ class ConstraintSystem {
     return advice_queries_.size() - 1;
   }
 
-  size_t QueryInstanceIndex(const InstanceColumn& column, Rotation at) {
+  size_t QueryInstanceIndex(const InstanceColumnKey& column, Rotation at) {
     // Return existing query, if it exists
     size_t index;
     if (QueryIndex(instance_queries_, column, at, &index)) return index;
@@ -194,14 +196,14 @@ class ConstraintSystem {
     return instance_queries_.size() - 1;
   }
 
-  size_t QueryAnyIndex(const AnyColumn& column, Rotation at) {
+  size_t QueryAnyIndex(const AnyColumnKey& column, Rotation at) {
     switch (column.type()) {
       case ColumnType::kFixed:
-        return QueryFixedIndex(FixedColumn(column), at);
+        return QueryFixedIndex(FixedColumnKey(column), at);
       case ColumnType::kAdvice:
-        return QueryAdviceIndex(AdviceColumn(column), at);
+        return QueryAdviceIndex(AdviceColumnKey(column), at);
       case ColumnType::kInstance:
-        return QueryInstanceIndex(InstanceColumn(column), at);
+        return QueryInstanceIndex(InstanceColumnKey(column), at);
       case ColumnType::kAny:
         break;
     }
@@ -209,33 +211,33 @@ class ConstraintSystem {
     return 0;
   }
 
-  size_t GetFixedQueryIndex(const FixedColumn& column, Rotation at) const {
+  size_t GetFixedQueryIndex(const FixedColumnKey& column, Rotation at) const {
     size_t index;
     CHECK(QueryIndex(fixed_queries_, column, at, &index));
     return index;
   }
 
-  size_t GetAdviceQueryIndex(const AdviceColumn& column, Rotation at) const {
+  size_t GetAdviceQueryIndex(const AdviceColumnKey& column, Rotation at) const {
     size_t index;
     CHECK(QueryIndex(advice_queries_, column, at, &index));
     return index;
   }
 
-  size_t GetInstanceQueryIndex(const InstanceColumn& column,
+  size_t GetInstanceQueryIndex(const InstanceColumnKey& column,
                                Rotation at) const {
     size_t index;
     CHECK(QueryIndex(instance_queries_, column, at, &index));
     return index;
   }
 
-  size_t GetAnyQueryIndex(const AnyColumn& column, Rotation at) const {
+  size_t GetAnyQueryIndex(const AnyColumnKey& column, Rotation at) const {
     switch (column.type()) {
       case ColumnType::kFixed:
-        return GetFixedQueryIndex(FixedColumn(column), at);
+        return GetFixedQueryIndex(FixedColumnKey(column), at);
       case ColumnType::kAdvice:
-        return GetAdviceQueryIndex(AdviceColumn(column), at);
+        return GetAdviceQueryIndex(AdviceColumnKey(column), at);
       case ColumnType::kInstance:
-        return GetInstanceQueryIndex(InstanceColumn(column), at);
+        return GetInstanceQueryIndex(InstanceColumnKey(column), at);
       case ColumnType::kAny:
         break;
     }
@@ -298,18 +300,18 @@ class ConstraintSystem {
 
     // We will not increase the degree of the constraint system, so we limit
     // ourselves to the largest existing degree constraint.
-    std::vector<FixedColumn> new_columns;
+    std::vector<FixedColumnKey> new_columns;
     typename SelectorCompressor<F>::Result result =
         SelectorCompressor<F>::Process(
             selectors, degrees, ComputeDegree(), [this, &new_columns]() {
-              FixedColumn column = CreateFixedColumn();
+              FixedColumnKey column = CreateFixedColumn();
               new_columns.push_back(column);
               return ExpressionFactory<F>::Fixed(
                   FixedQuery(QueryFixedIndex(column, Rotation::Cur()),
                              column.index(), Rotation::Cur()));
             });
 
-    std::vector<FixedColumn> selector_map;
+    std::vector<FixedColumnKey> selector_map;
     selector_map.resize(result.assignments.size());
     std::vector<Expression<F>*> selector_replacements =
         base::CreateVector(result.assignments.size(), nullptr);
@@ -354,47 +356,55 @@ class ConstraintSystem {
   }
 
   // Allocate a new fixed column that can be used in a lookup table.
-  TableColumn LookupTableColumn() { return TableColumn(CreateFixedColumn()); }
+  LookupTableColumn CreateLookupTableColumn() {
+    return LookupTableColumn(CreateFixedColumn());
+  }
 
   // Annotate a Lookup column.
-  void AnnotateLookupColumn(const TableColumn& column, std::string_view name) {
+  void AnnotateLookupColumn(const LookupTableColumn& column,
+                            std::string_view name) {
     // We don't care if the table has already an annotation. If it's the case we
     // keep the new one.
-    general_column_annotations_[ColumnData(
+    general_column_annotations_[ColumnKeyBase(
         ColumnType::kFixed, column.column().index())] = std::string(name);
   }
 
   // Annotate an Any column.
-  void AnnotateLookupAnyColumn(const AnyColumn& column, std::string_view name) {
+  void AnnotateLookupAnyColumn(const AnyColumnKey& column,
+                               std::string_view name) {
     // We don't care if the table has already an annotation. If it's the case we
     // keep the new one.
-    general_column_annotations_[ColumnData(column.type(), column.index())] =
+    general_column_annotations_[ColumnKeyBase(column.type(), column.index())] =
         std::string(name);
   }
 
   // Allocate a new fixed column
-  FixedColumn CreateFixedColumn() { return FixedColumn(num_fixed_columns_++); }
+  FixedColumnKey CreateFixedColumn() {
+    return FixedColumnKey(num_fixed_columns_++);
+  }
 
   // Allocate a new advice column at |kFirstPhase|.
-  AdviceColumn CreateAdviceColumn() { return CreateAdviceColumn(kFirstPhase); }
+  AdviceColumnKey CreateAdviceColumn() {
+    return CreateAdviceColumn(kFirstPhase);
+  }
 
   // Allocate a new advice column in given phase
-  AdviceColumn CreateAdviceColumn(Phase phase) {
+  AdviceColumnKey CreateAdviceColumn(Phase phase) {
     Phase previous_phase;
     if (phase.Prev(&previous_phase)) {
       CHECK(base::Contains(advice_column_phases_, previous_phase))
           << "Phase " << previous_phase.ToString() << "is not used";
     }
 
-    AdviceColumn column(num_advice_columns_++, phase);
+    AdviceColumnKey column(num_advice_columns_++, phase);
     num_advice_queries_.push_back(0);
     advice_column_phases_.push_back(phase);
     return column;
   }
 
   // Allocate a new instance column
-  InstanceColumn CreateInstanceColumn() {
-    return InstanceColumn(num_instance_columns_++);
+  InstanceColumnKey CreateInstanceColumn() {
+    return InstanceColumnKey(num_instance_columns_++);
   }
 
   Challenge CreateChallengeUsableAfter(Phase phase) {
@@ -538,7 +548,7 @@ class ConstraintSystem {
   // This is a cached vector that maps virtual selectors to the concrete
   // fixed column that they were compressed into. This is just used by dev
   // tooling right now.
-  std::vector<FixedColumn> selector_map_;
+  std::vector<FixedColumnKey> selector_map_;
   std::vector<Gate<F>> gates_;
   std::vector<AdviceQueryData> advice_queries_;
   // Contains an integer for each advice column
@@ -558,11 +568,11 @@ class ConstraintSystem {
 
   // List of indexes of Fixed columns which are associated to a
   // circuit-general Column tied to their annotation.
-  absl::flat_hash_map<ColumnData, std::string> general_column_annotations_;
+  absl::flat_hash_map<ColumnKeyBase, std::string> general_column_annotations_;
 
   // Vector of fixed columns, which can be used to store constant values
   // that are copied into advice columns.
-  std::vector<FixedColumn> constants_;
+  std::vector<FixedColumnKey> constants_;
 
   std::optional<size_t> minimum_degree_;
 };

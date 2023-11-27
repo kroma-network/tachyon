@@ -7,38 +7,60 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_TABLE_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_TABLE_H_
 
-#include <string>
+#include <vector>
 
-#include "tachyon/math/base/rational_field.h"
-#include "tachyon/zk/base/value.h"
-#include "tachyon/zk/plonk/circuit/table_column.h"
-#include "tachyon/zk/plonk/error.h"
+#include "absl/types/span.h"
+
+#include "tachyon/base/logging.h"
+#include "tachyon/zk/base/ref.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 
 namespace tachyon::zk {
 
-// A lookup table in the circuit.
-template <typename F>
+template <typename Evals>
 class Table {
  public:
-  class Layouter {
-   public:
-    using AssignCallback = base::OnceCallback<Value<math::RationalField<F>>()>;
+  Table() = default;
+  Table(absl::Span<const Evals> fixed_columns,
+        absl::Span<const Evals> advice_columns,
+        absl::Span<const Evals> instance_columns)
+      : fixed_columns_(fixed_columns),
+        advice_columns_(advice_columns),
+        instance_columns_(instance_columns) {}
 
-    virtual ~Layouter() = default;
+  absl::Span<const Evals> fixed_columns() const { return fixed_columns_; }
+  absl::Span<const Evals> advice_columns() const { return advice_columns_; }
+  absl::Span<const Evals> instance_columns() const { return instance_columns_; }
 
-    // Assign a fixed value to a table cell.
-    //
-    // Return an error if the table cell has already been assigned.
-    virtual Error AssignCell(std::string_view name, const TableColumn& column,
-                             size_t offset, AssignCallback assign) {
-      return Error::kNone;
+  Ref<const Evals> GetColumn(const ColumnKeyBase& column_key) const {
+    switch (column_key.type()) {
+      case ColumnType::kFixed:
+        return Ref<const Evals>(&fixed_columns_[column_key.index()]);
+      case ColumnType::kAdvice:
+        return Ref<const Evals>(&advice_columns_[column_key.index()]);
+      case ColumnType::kInstance:
+        return Ref<const Evals>(&instance_columns_[column_key.index()]);
+      case ColumnType::kAny:
+        break;
     }
-  };
+    NOTREACHED();
+    return Ref<const Evals>();
+  }
 
-  explicit Table(Layouter* layouter) : layouter_(layouter) {}
+  std::vector<Ref<const Evals>> GetColumns(
+      const std::vector<ColumnKeyBase>& column_keys) const {
+    std::vector<Ref<const Evals>> ret;
+    ret.reserve(column_keys.size());
+    for (const ColumnKeyBase& column_key : column_keys) {
+      ret.push_back(GetColumn(column_key));
+    }
+    return ret;
+  }
 
- private:
-  Layouter* const layouter_;
+ protected:
+  absl::Span<const Evals> fixed_columns_;
+  absl::Span<const Evals> advice_columns_;
+  absl::Span<const Evals> instance_columns_;
 };
 
 }  // namespace tachyon::zk

@@ -19,21 +19,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "lookup_table",
-    hdrs = ["lookup_table.h"],
-    deps = [
-        ":label",
-        "//tachyon/base/containers:container_util",
-        "@com_google_googletest//:gtest_prod",
-    ],
-)
-
-tachyon_cc_library(
     name = "permutation_argument",
     hdrs = ["permutation_argument.h"],
     deps = [
         "//tachyon/base/containers:contains",
-        "//tachyon/zk/plonk/circuit:column",
+        "//tachyon/zk/plonk/circuit:column_key",
     ],
 )
 
@@ -43,7 +33,7 @@ tachyon_cc_library(
     deps = [
         ":permutation_argument",
         "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/plonk/circuit:column_stringifier",
+        "//tachyon/zk/plonk/circuit:column_key_stringifier",
     ],
 )
 
@@ -77,13 +67,23 @@ tachyon_cc_library(
     deps = [
         ":cycle_store",
         ":label",
-        ":lookup_table",
         ":permutation_argument",
         ":permutation_proving_key",
         ":permutation_verifying_key",
+        ":unpermuted_table",
         "//tachyon/base:openmp_util",
         "//tachyon/base:parallelize",
         "//tachyon/base/containers:container_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "unpermuted_table",
+    hdrs = ["unpermuted_table.h"],
+    deps = [
+        ":label",
+        "//tachyon/base/containers:container_util",
+        "@com_google_googletest//:gtest_prod",
     ],
 )
 
@@ -91,11 +91,11 @@ tachyon_cc_unittest(
     name = "permutation_unittests",
     srcs = [
         "cycle_store_unittest.cc",
-        "lookup_table_unittest.cc",
         "permutation_argument_unittest.cc",
         "permutation_assembly_unittest.cc",
         "permutation_proving_key_unittest.cc",
         "permutation_verifying_key_unittest.cc",
+        "unpermuted_table_unittest.cc",
     ],
     deps = [
         ":permutation_assembly",

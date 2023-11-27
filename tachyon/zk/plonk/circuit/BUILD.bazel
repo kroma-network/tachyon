@@ -29,7 +29,7 @@ tachyon_cc_library(
     hdrs = ["assignment.h"],
     deps = [
         ":challenge",
-        ":column",
+        ":column_key",
         ":selector",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
@@ -42,7 +42,7 @@ tachyon_cc_library(
     name = "cell",
     hdrs = ["cell.h"],
     deps = [
-        ":column",
+        ":column_key",
         "//tachyon:export",
         "@com_google_absl//absl/strings",
     ],
@@ -73,8 +73,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "column",
-    hdrs = ["column.h"],
+    name = "column_key",
+    hdrs = ["column_key.h"],
     deps = [
         ":column_type",
         ":phase",
@@ -84,10 +84,10 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "column_stringifier",
-    hdrs = ["column_stringifier.h"],
+    name = "column_key_stringifier",
+    hdrs = ["column_key_stringifier.h"],
     deps = [
-        ":column",
+        ":column_key",
         ":column_type_stringifier",
     ],
 )
@@ -105,16 +105,6 @@ tachyon_cc_library(
     deps = [
         ":column_type",
         "//tachyon/base/strings:rust_stringifier",
-    ],
-)
-
-tachyon_cc_library(
-    name = "columns",
-    hdrs = ["columns.h"],
-    deps = [
-        ":column",
-        "//tachyon/base:logging",
-        "//tachyon/zk/base:ref",
     ],
 )
 
@@ -148,11 +138,31 @@ tachyon_cc_library(
     ],
     deps = [
         ":challenge",
+        ":lookup_table",
         ":region",
-        ":table",
         "//tachyon/base/functional:callback",
         "//tachyon/zk/plonk:constraint_system",
         "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_table",
+    hdrs = ["lookup_table.h"],
+    deps = [
+        ":lookup_table_column",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_table_column",
+    hdrs = ["lookup_table_column.h"],
+    deps = [
+        ":column_key",
+        "//tachyon:export",
     ],
 )
 
@@ -175,7 +185,7 @@ tachyon_cc_library(
     name = "query",
     hdrs = ["query.h"],
     deps = [
-        ":column",
+        ":column_key",
         ":rotation",
     ],
 )
@@ -184,7 +194,7 @@ tachyon_cc_library(
     name = "query_stringifier",
     hdrs = ["query_stringifier.h"],
     deps = [
-        ":column_stringifier",
+        ":column_key_stringifier",
         ":query",
         ":rotation_stringifier",
     ],
@@ -195,7 +205,7 @@ tachyon_cc_library(
     hdrs = ["region.h"],
     deps = [
         ":assigned_cell",
-        ":column",
+        ":column_key",
         ":selector",
         "//tachyon/base/functional:callback",
         "//tachyon/zk/plonk:error",
@@ -206,7 +216,7 @@ tachyon_cc_library(
     name = "region_column",
     hdrs = ["region_column.h"],
     deps = [
-        ":column",
+        ":column_key",
         ":selector",
     ],
 )
@@ -281,19 +291,9 @@ tachyon_cc_library(
     name = "table",
     hdrs = ["table.h"],
     deps = [
-        ":table_column",
-        "//tachyon/math/base:rational_field",
-        "//tachyon/zk/base:value",
-        "//tachyon/zk/plonk:error",
-    ],
-)
-
-tachyon_cc_library(
-    name = "table_column",
-    hdrs = ["table_column.h"],
-    deps = [
-        ":column",
-        "//tachyon:export",
+        ":column_key",
+        "//tachyon/base:logging",
+        "//tachyon/zk/base:ref",
     ],
 )
 
@@ -301,7 +301,7 @@ tachyon_cc_library(
     name = "virtual_cell",
     hdrs = ["virtual_cell.h"],
     deps = [
-        ":column",
+        ":column_key",
         ":rotation",
         "//tachyon:export",
     ],
@@ -320,14 +320,14 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "circuit_unittests",
     srcs = [
-        "column_unittest.cc",
-        "columns_unittest.cc",
+        "column_key_unittest.cc",
         "rotation_unittest.cc",
+        "table_unittest.cc",
     ],
     deps = [
-        ":column",
-        ":columns",
+        ":column_key",
         ":rotation",
+        ":table",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",

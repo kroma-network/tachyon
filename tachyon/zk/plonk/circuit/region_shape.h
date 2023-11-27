@@ -38,7 +38,7 @@ class RegionShape : public Region<F>::Layouter {
     return Error::kNone;
   }
 
-  Error AssignAdvice(std::string_view, const AdviceColumn& column,
+  Error AssignAdvice(std::string_view, const AdviceColumnKey& column,
                      size_t offset, AssignCallback to, Cell* cell) override {
     columns_.insert(RegionColumn(column));
     row_count_ = std::max(row_count_, offset + 1);
@@ -47,7 +47,7 @@ class RegionShape : public Region<F>::Layouter {
   }
 
   Error AssignAdviceFromConstant(std::string_view name,
-                                 const AdviceColumn& column, size_t offset,
+                                 const AdviceColumnKey& column, size_t offset,
                                  math::RationalField<F> constant,
                                  Cell* cell) override {
     return AssignAdvice(
@@ -59,8 +59,8 @@ class RegionShape : public Region<F>::Layouter {
   }
 
   Error AssignAdviceFromInstance(std::string_view,
-                                 const InstanceColumn& instance, size_t row,
-                                 const InstanceColumn& advice, size_t offset,
+                                 const InstanceColumnKey& instance, size_t row,
+                                 const InstanceColumnKey& advice, size_t offset,
                                  AssignedCell<F>* cell) override {
     columns_.insert(RegionColumn(advice));
     row_count_ = std::max(row_count_, offset + 1);
@@ -68,8 +68,8 @@ class RegionShape : public Region<F>::Layouter {
     return Error::kNone;
   }
 
-  Error AssignFixed(std::string_view, const FixedColumn& column, size_t offset,
-                    AssignCallback to, Cell* cell) override {
+  Error AssignFixed(std::string_view, const FixedColumnKey& column,
+                    size_t offset, AssignCallback to, Cell* cell) override {
     columns_.insert(RegionColumn(column));
     row_count_ = std::max(row_count_, offset + 1);
     *cell = Cell(region_index_, offset, column);

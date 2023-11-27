@@ -16,7 +16,7 @@
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/challenge.h"
-#include "tachyon/zk/plonk/circuit/column.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
 #include "tachyon/zk/plonk/error.h"
 
@@ -41,7 +41,7 @@ class Assignment {
   // within a |Region|.
   //
   // This is usually useful for debugging circuit failures.
-  virtual void NameColumn(std::string_view name, const AnyColumn& column) {}
+  virtual void NameColumn(std::string_view name, const AnyColumnKey& column) {}
 
   // Exits the current region.
   //
@@ -62,31 +62,32 @@ class Assignment {
   //
   // Returns |Error::kNone| and populates |instance| with the cell's value, if
   // known.
-  virtual Error QueryInstance(const InstanceColumn& column, size_t row,
+  virtual Error QueryInstance(const InstanceColumnKey& column, size_t row,
                               Value<F>* instance) {
     return Error::kNone;
   }
 
   // Assign an advice column value (witness).
-  virtual Error AssignAdvice(std::string_view name, const AdviceColumn& column,
-                             size_t row, AssignCallback assign) {
+  virtual Error AssignAdvice(std::string_view name,
+                             const AdviceColumnKey& column, size_t row,
+                             AssignCallback assign) {
     return Error::kNone;
   }
 
   // Assign a fixed value.
-  virtual Error AssignFixed(std::string_view name, const FixedColumn& column,
+  virtual Error AssignFixed(std::string_view name, const FixedColumnKey& column,
                             size_t row, AssignCallback assign) {
     return Error::kNone;
   }
 
   // Assign two cells to have the same value
-  virtual Error Copy(const AnyColumn& left_column, size_t left_row,
-                     const AnyColumn& right_column, size_t right_row) {
+  virtual Error Copy(const AnyColumnKey& left_column, size_t left_row,
+                     const AnyColumnKey& right_column, size_t right_row) {
     return Error::kNone;
   }
 
   // Fills a fixed |column| starting from the given |row| with value |assign|.
-  virtual Error FillFromRow(const FixedColumn& column, size_t row,
+  virtual Error FillFromRow(const FixedColumnKey& column, size_t row,
                             AssignCallback assign) {
     return Error::kNone;
   }

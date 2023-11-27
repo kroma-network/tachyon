@@ -44,7 +44,7 @@ class VirtualCells {
   }
 
   // Query a fixed column at a relative position
-  std::unique_ptr<Expression<F>> QueryFixed(const FixedColumn& column,
+  std::unique_ptr<Expression<F>> QueryFixed(const FixedColumnKey& column,
                                             Rotation at) {
     queried_cells_.emplace_back(column, at);
     return ExpressionFactory<F>::Fixed(
@@ -52,7 +52,7 @@ class VirtualCells {
   }
 
   // Query an advice column at a relative position
-  std::unique_ptr<Expression<F>> QueryAdvice(const AdviceColumn& column,
+  std::unique_ptr<Expression<F>> QueryAdvice(const AdviceColumnKey& column,
                                              Rotation at) {
     queried_cells_.emplace_back(column, at);
     return ExpressionFactory<F>::Advice(
@@ -60,7 +60,7 @@ class VirtualCells {
   }
 
   // Query an instance column at a relative position
-  std::unique_ptr<Expression<F>> QueryInstance(const InstanceColumn& column,
+  std::unique_ptr<Expression<F>> QueryInstance(const InstanceColumnKey& column,
                                                Rotation at) {
     queried_cells_.emplace_back(column, at);
     return ExpressionFactory<F>::Instance(
@@ -68,7 +68,7 @@ class VirtualCells {
   }
 
   // Query an Any column at a relative position
-  std::unique_ptr<Expression<F>> QueryAny(const AnyColumn& column,
+  std::unique_ptr<Expression<F>> QueryAny(const AnyColumnKey& column,
                                           Rotation at) {
     switch (column.type()) {
       case ColumnType::kAdvice:

@@ -13,7 +13,7 @@
 
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/zk/plonk/circuit/assigned_cell.h"
-#include "tachyon/zk/plonk/circuit/column.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
 #include "tachyon/zk/plonk/error.h"
 
@@ -41,11 +41,12 @@ class Region {
     //
     // This is useful in order to improve the amount of information that
     // |prover.Verify()| and |prover.AssertSatisfied()| can provide.
-    virtual void NameColumn(std::string_view name, const AnyColumn& column) {}
+    virtual void NameColumn(std::string_view name, const AnyColumnKey& column) {
+    }
 
     // Assign an advice column value (witness)
     virtual Error AssignAdvice(std::string_view name,
-                               const AdviceColumn& column, size_t offset,
+                               const AdviceColumnKey& column, size_t offset,
                                AssignCallback assign, Cell* cell) {
       return Error::kNone;
     }
@@ -59,7 +60,7 @@ class Region {
     // Returns |Error::kNone| and populates |cell| that has been
     // equality-constrained to the constant.
     virtual Error AssignAdviceFromConstant(
-        std::string_view name, const AdviceColumn& column, size_t offset,
+        std::string_view name, const AdviceColumnKey& column, size_t offset,
         const math::RationalField<F>& constant, Cell* cell) {
       return Error::kNone;
     }
@@ -69,15 +70,15 @@ class Region {
     //
     // Returns |Error::kNone| and populates |cell| if known.
     virtual Error AssignAdviceFromInstance(
-        std::string_view name, const InstanceColumn& instance, size_t row,
-        const AdviceColumn& advice, size_t offset, AssignedCell<F>* cell) {
+        std::string_view name, const InstanceColumnKey& instance, size_t row,
+        const AdviceColumnKey& advice, size_t offset, AssignedCell<F>* cell) {
       return Error::kNone;
     }
 
     // Assign a fixed value
-    virtual Error AssignFixed(std::string_view name, const FixedColumn& column,
-                              size_t offset, AssignCallback assign,
-                              Cell* cell) {
+    virtual Error AssignFixed(std::string_view name,
+                              const FixedColumnKey& column, size_t offset,
+                              AssignCallback assign, Cell* cell) {
       return Error::kNone;
     }
 
@@ -108,12 +109,12 @@ class Region {
   }
 
   // See the comment above.
-  void NameColumn(std::string_view name, const AnyColumn& column) {
+  void NameColumn(std::string_view name, const AnyColumnKey& column) {
     layouter_->NameColumn(name, column);
   }
 
   // See the comment above.
-  Error AssignAdvice(std::string_view name, const AdviceColumn& column,
+  Error AssignAdvice(std::string_view name, const AdviceColumnKey& column,
                      size_t offset, AssignCallback assign,
                      AssignedCell<F>* assigned_cell) {
     Cell cell;
@@ -132,7 +133,7 @@ class Region {
 
   // See the comment above.
   Error AssignAdviceFromConstant(std::string_view name,
-                                 const AdviceColumn& column, size_t offset,
+                                 const AdviceColumnKey& column, size_t offset,
                                  const F& constant,
                                  AssignedCell<F>* assigned_cell) {
     Cell cell;
@@ -145,15 +146,15 @@ class Region {
 
   // See the comment above.
   Error AssignAdviceFromInstance(std::string_view name,
-                                 const InstanceColumn& instance, size_t row,
-                                 const AdviceColumn& advice, size_t offset,
+                                 const InstanceColumnKey& instance, size_t row,
+                                 const AdviceColumnKey& advice, size_t offset,
                                  AssignedCell<F>* cell) {
     return layouter_->AssignAdviceFromInstance(name, instance, row, advice,
                                                offset, cell);
   }
 
   // See the comment above.
-  Error AssignFixed(std::string_view name, const FixedColumn& column,
+  Error AssignFixed(std::string_view name, const FixedColumnKey& column,
                     size_t offset, AssignCallback assign,
                     AssignedCell<F>* assigned_cell) {
     Cell cell;
@@ -192,7 +193,7 @@ Error Selector::Enable(Region<F>& region, size_t offset) const {
 
 template <typename F>
 Error AssignedCell<F>::CopyAdvice(std::string_view name, Region<F>& region,
-                                  const AdviceColumn& column, size_t offset,
+                                  const AdviceColumnKey& column, size_t offset,
                                   AssignedCell<F>* assigned_cell) const {
   Error error = region.AssignAdvice(
       name, column, offset, [this]() { return value_; }, assigned_cell);
