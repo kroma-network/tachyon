@@ -7,6 +7,7 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_ASSEMBLY_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_ASSEMBLY_H_
 
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -86,7 +87,9 @@ class Assembly : public Assignment<typename PCSTy::Field> {
       return Error::kNotEnoughRowsAvailable;
     }
     math::RationalField<F> value = std::move(assign).Run();
-    for (size_t i = usable_rows_.start + from_row; i < usable_rows_.end; ++i) {
+    base::Range<size_t> range(usable_rows_.from + from_row, usable_rows_.to);
+    for (size_t i : range) {
+      std::ignore = i;
       fixeds_[column.index()] = value;
     }
     return Error::kNone;
