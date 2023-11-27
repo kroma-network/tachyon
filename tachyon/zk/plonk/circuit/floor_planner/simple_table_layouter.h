@@ -10,14 +10,14 @@
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
-#include "tachyon/zk/plonk/circuit/table.h"
-#include "tachyon/zk/plonk/circuit/table_column.h"
+#include "tachyon/zk/plonk/circuit/lookup_table.h"
+#include "tachyon/zk/plonk/circuit/lookup_table_column.h"
 #include "tachyon/zk/value.h"
 
 namespace tachyon::zk {
 
 template <typename F>
-class SimpleTableLayouter : public Table<F>::Layouter {
+class SimpleTableLayouter : public LookupTable<F>::Layouter {
  public:
   struct Value {
     // The default value to fill a table column with.
@@ -34,15 +34,15 @@ class SimpleTableLayouter : public Table<F>::Layouter {
   };
 
   SimpleTableLayouter(Assignment<F>* assignment,
-                      const std::vector<TableColumn>* used_columns)
+                      const std::vector<LookupTableColumn>* used_columns)
       : assignment_(assignment), used_columns_(used_columns) {}
 
-  const absl::flat_hash_map<TableColumn, Value>& values() const {
+  const absl::flat_hash_map<LookupTableColumn, Value>& values() const {
     return values_;
   }
 
   // Table<F>::Layouter methods
-  Error AssignCell(std::string_view name, const TableColumn& column,
+  Error AssignCell(std::string_view name, const LookupTableColumn& column,
                    size_t offset, AssignCallback assign) override {
     if (base::Contains(*used_columns_, column)) {
       return Error::kSynthesis;
@@ -79,8 +79,8 @@ class SimpleTableLayouter : public Table<F>::Layouter {
 
  private:
   Assignment<F>* const assignment_;
-  const std::vector<TableColumn>* const used_columns_;
-  absl::flat_hash_map<TableColumn, Value> values_;
+  const std::vector<LookupTableColumn>* const used_columns_;
+  absl::flat_hash_map<LookupTableColumn, Value> values_;
 };
 
 }  // namespace tachyon::zk

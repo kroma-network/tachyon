@@ -22,9 +22,9 @@
 #include "tachyon/zk/plonk/circuit/constraint.h"
 #include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/plonk/circuit/gate.h"
+#include "tachyon/zk/plonk/circuit/lookup_table_column.h"
 #include "tachyon/zk/plonk/circuit/query.h"
 #include "tachyon/zk/plonk/circuit/selector_compressor.h"
-#include "tachyon/zk/plonk/circuit/table_column.h"
 #include "tachyon/zk/plonk/circuit/virtual_cells.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
@@ -40,7 +40,7 @@ class ConstraintSystem {
   // |LookupArgument<F>::TableMapElem|.
   struct TableMapElem {
     std::unique_ptr<Expression<F>> input;
-    TableColumn table;
+    LookupTableColumn table;
   };
 
   using TableMap = std::vector<TableMapElem>;
@@ -356,10 +356,13 @@ class ConstraintSystem {
   }
 
   // Allocate a new fixed column that can be used in a lookup table.
-  TableColumn LookupTableColumn() { return TableColumn(CreateFixedColumn()); }
+  LookupTableColumn CreateLookupTableColumn() {
+    return LookupTableColumn(CreateFixedColumn());
+  }
 
   // Annotate a Lookup column.
-  void AnnotateLookupColumn(const TableColumn& column, std::string_view name) {
+  void AnnotateLookupColumn(const LookupTableColumn& column,
+                            std::string_view name) {
     // We don't care if the table has already an annotation. If it's the case we
     // keep the new one.
     general_column_annotations_[ColumnKeyBase(

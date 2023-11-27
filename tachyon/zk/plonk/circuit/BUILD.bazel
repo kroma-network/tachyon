@@ -148,11 +148,31 @@ tachyon_cc_library(
     ],
     deps = [
         ":challenge",
+        ":lookup_table",
         ":region",
-        ":table",
         "//tachyon/base/functional:callback",
         "//tachyon/zk/plonk:constraint_system",
         "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_table",
+    hdrs = ["lookup_table.h"],
+    deps = [
+        ":lookup_table_column",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk:error",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_table_column",
+    hdrs = ["lookup_table_column.h"],
+    deps = [
+        ":column_key",
+        "//tachyon:export",
     ],
 )
 
@@ -275,26 +295,6 @@ tachyon_cc_library(
     name = "selector_description",
     hdrs = ["selector_description.h"],
     deps = ["//tachyon:export"],
-)
-
-tachyon_cc_library(
-    name = "table",
-    hdrs = ["table.h"],
-    deps = [
-        ":table_column",
-        "//tachyon/math/base:rational_field",
-        "//tachyon/zk/base:value",
-        "//tachyon/zk/plonk:error",
-    ],
-)
-
-tachyon_cc_library(
-    name = "table_column",
-    hdrs = ["table_column.h"],
-    deps = [
-        ":column_key",
-        "//tachyon:export",
-    ],
 )
 
 tachyon_cc_library(

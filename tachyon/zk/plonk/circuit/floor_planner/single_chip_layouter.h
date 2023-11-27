@@ -11,7 +11,7 @@
 
 #include "tachyon/base/functional/identity.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/zk/plonk/circuit/floor_planner/simple_table_layouter.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 #include "tachyon/zk/plonk/circuit/region_column.h"
 
@@ -125,7 +125,8 @@ class SingleChipLayouter : public Layouter<F> {
   };
 
   using AssignRegionCallback = typename Layouter<F>::AssignRegionCallback;
-  using AssignTableCallback = typename Layouter<F>::AssignTableCallback;
+  using AssignLookupTableCallback =
+      typename Layouter<F>::AssignLookupTableCallback;
 
   const Assignment<F>* assignment() const { return assignment_; }
   const std::vector<FixedColumnKey>& constants() const { return constants_; }
@@ -133,8 +134,8 @@ class SingleChipLayouter : public Layouter<F> {
   const absl::flat_hash_map<RegionColumn, size_t>& columns() const {
     return columns_;
   }
-  const std::vector<TableColumn>& table_columns() const {
-    return table_columns_;
+  const std::vector<LookupTableColumn>& lookup_table_columns() const {
+    return lookup_table_columns_;
   }
 
   template <typename CircuitTy, typename Config = typename CircuitTy::Config>
@@ -229,15 +230,16 @@ class SingleChipLayouter : public Layouter<F> {
     return Error::kNone;
   }
 
-  Error AssignTable(std::string_view name,
-                    AssignTableCallback assign) override {
+  Error AssignLookupTable(std::string_view name,
+                          AssignLookupTableCallback assign) override {
     // Maintenance hazard: there is near-duplicate code in
-    // |v1::AssignmentPass::AssignTable|. Assign table cells.
+    // |v1::AssignmentPass::AssignLookupTable|. Assign table cells.
     assignment_->EnterRegion(name);
-    SimpleTableLayouter table_layouter(&assignment_, &table_columns_);
+    SimpleLookupTableLayouter lookup_table_layouter(&assignment_,
+                                                    &lookup_table_columns_);
     Error error = std::move(assign).Run(table);
     if (error != Error::kNone) return error;
-    const absl::flat_hash_map<TableColumn, SimpleTableLayouter<F>::Value>&
+    const absl::flat_hash_map<LookupTableColumn, SimpleTableLayouter<F>::Value>&
         values = table.values();
     assignment_->ExitRegion();
 
@@ -269,7 +271,7 @@ class SingleChipLayouter : public Layouter<F> {
 
     // Record these columns so that we can prevent them from being used again.
     for (auto it = values.begin(); it != values.end(); ++it) {
-      table_columns_.push_back(it->first);
+      lookup_table_columns_.push_back(it->first);
       // |it->second.default| must have value because we must have assigned
       // at least one cell in each column, and in that case we checked
       // that all cells up to |first_unused| were assigned.
@@ -316,7 +318,7 @@ class SingleChipLayouter : public Layouter<F> {
   // Stores the first empty row for each column.
   absl::flat_hash_map<RegionColumn, size_t> columns_;
   // Stores the table fixed columns.
-  std::vector<TableColumn> table_columns_;
+  std::vector<LookupTableColumn> lookup_table_columns_;
 };
 
 }  // namespace tachyon::zk

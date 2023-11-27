@@ -13,8 +13,8 @@
 
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/zk/plonk/circuit/challenge.h"
+#include "tachyon/zk/plonk/circuit/lookup_table.h"
 #include "tachyon/zk/plonk/circuit/region.h"
-#include "tachyon/zk/plonk/circuit/table.h"
 #include "tachyon/zk/plonk/constraint_system.h"
 #include "tachyon/zk/plonk/error.h"
 
@@ -31,7 +31,7 @@ template <typename F>
 class Layouter {
  public:
   using AssignRegionCallback = base::RepeatingCallback<Error(Region<F>&)>;
-  using AssignTableCallback = base::OnceCallback<Error(Table<F>&)>;
+  using AssignLookupTableCallback = base::OnceCallback<Error(LookupTable<F>&)>;
 
   virtual ~Layouter() = default;
 
@@ -47,7 +47,8 @@ class Layouter {
   }
 
   // Assign a table region to an absolute row number.
-  virtual Error AssignTable(std::string_view name, AssignTableCallback assign) {
+  virtual Error AssignLookupTable(std::string_view name,
+                                  AssignLookupTableCallback assign) {
     return Error::kNone;
   }
 

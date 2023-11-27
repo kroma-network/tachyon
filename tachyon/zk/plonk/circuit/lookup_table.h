@@ -4,21 +4,21 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_TABLE_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_TABLE_H_
+#ifndef TACHYON_ZK_PLONK_CIRCUIT_LOOKUP_TABLE_H_
+#define TACHYON_ZK_PLONK_CIRCUIT_LOOKUP_TABLE_H_
 
 #include <string>
 
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/base/value.h"
-#include "tachyon/zk/plonk/circuit/table_column.h"
+#include "tachyon/zk/plonk/circuit/lookup_table_column.h"
 #include "tachyon/zk/plonk/error.h"
 
 namespace tachyon::zk {
 
 // A lookup table in the circuit.
 template <typename F>
-class Table {
+class LookupTable {
  public:
   class Layouter {
    public:
@@ -29,13 +29,14 @@ class Table {
     // Assign a fixed value to a table cell.
     //
     // Return an error if the table cell has already been assigned.
-    virtual Error AssignCell(std::string_view name, const TableColumn& column,
-                             size_t offset, AssignCallback assign) {
+    virtual Error AssignCell(std::string_view name,
+                             const LookupTableColumn& column, size_t offset,
+                             AssignCallback assign) {
       return Error::kNone;
     }
   };
 
-  explicit Table(Layouter* layouter) : layouter_(layouter) {}
+  explicit LookupTable(Layouter* layouter) : layouter_(layouter) {}
 
  private:
   Layouter* const layouter_;
@@ -43,4 +44,4 @@ class Table {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_TABLE_H_
+#endif  // TACHYON_ZK_PLONK_CIRCUIT_LOOKUP_TABLE_H_
