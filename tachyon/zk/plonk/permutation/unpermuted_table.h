@@ -29,8 +29,8 @@ class UnpermutedTable {
  public:
   using F = typename PCSTy::Field;
   using Domain = typename PCSTy::Domain;
-  using Rows = std::vector<F>;
-  using Table = std::vector<Rows>;
+  using Col = std::vector<F>;
+  using Table = std::vector<Col>;
 
   constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
 
@@ -51,18 +51,18 @@ class UnpermutedTable {
 
     Table unpermuted_table;
     unpermuted_table.reserve(size);
-    // Assign [𝛿⁰w⁰, 𝛿⁰w¹, 𝛿⁰w², ..., 𝛿⁰wⁿ⁻¹] to the first row.
+    // Assign [𝛿⁰w⁰, 𝛿⁰w¹, 𝛿⁰w², ..., 𝛿⁰wⁿ⁻¹] to the first col.
     unpermuted_table.push_back(std::move(omega_powers));
 
-    // Assign [𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] to each row.
+    // Assign [𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] to each col.
     for (size_t i = 1; i < size; ++i) {
-      Rows rows = base::CreateVector(kMaxDegree + 1, F::Zero());
+      Col col = base::CreateVector(kMaxDegree + 1, F::Zero());
       // TODO(dongchangYoo): Optimize this with
       // https://github.com/kroma-network/tachyon/pull/115.
       for (size_t j = 0; j <= kMaxDegree; ++j) {
-        rows[j] = unpermuted_table[i - 1][j] * delta;
+        col[j] = unpermuted_table[i - 1][j] * delta;
       }
-      unpermuted_table.push_back(std::move(rows));
+      unpermuted_table.push_back(std::move(col));
     }
     return UnpermutedTable(std::move(unpermuted_table));
   }
