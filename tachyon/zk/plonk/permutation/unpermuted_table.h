@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_PERMUTATION_LOOKUP_TABLE_H_
-#define TACHYON_ZK_PLONK_PERMUTATION_LOOKUP_TABLE_H_
+#ifndef TACHYON_ZK_PLONK_PERMUTATION_UNPERMUTED_TABLE_H_
+#define TACHYON_ZK_PLONK_PERMUTATION_UNPERMUTED_TABLE_H_
 
 #include <utility>
 #include <vector>
@@ -17,15 +17,15 @@
 
 namespace tachyon::zk {
 
-// The |LookupTable| contains elements that are the product-of-powers
+// The |UnpermutedTable| contains elements that are the product-of-powers
 // of 𝛿 and w (called "label"). And each permutation polynomial (in evaluation
-// form) is constructed by assigning elements in the |LookupTable|.
+// form) is constructed by assigning elements in the |UnpermutedTable|.
 //
 // Let modulus = 2ˢ * T + 1, then
-// |LookupTable|
+// |UnpermutedTable|
 // = [[𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] for i in range(0..T-1)]
 template <typename PCSTy>
-class LookupTable {
+class UnpermutedTable {
  public:
   using F = typename PCSTy::Field;
   using Domain = typename PCSTy::Domain;
@@ -34,14 +34,14 @@ class LookupTable {
 
   constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
 
-  LookupTable() = default;
+  UnpermutedTable() = default;
 
   const F& operator[](const Label& label) const {
     return table_[label.col][label.row];
   }
   F& operator[](const Label& label) { return table_[label.col][label.row]; }
 
-  static LookupTable Construct(size_t size, const Domain* domain) {
+  static UnpermutedTable Construct(size_t size, const Domain* domain) {
     // The w is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
     std::vector<F> omega_powers =
         domain->GetRootsOfUnity(kMaxDegree + 1, domain->group_gen());
@@ -49,10 +49,10 @@ class LookupTable {
     // The 𝛿 is g^2ˢ with order T where modulus = 2ˢ * T + 1.
     F delta = GetDelta();
 
-    Table lookup_table;
-    lookup_table.reserve(size);
+    Table unpermuted_table;
+    unpermuted_table.reserve(size);
     // Assign [𝛿⁰w⁰, 𝛿⁰w¹, 𝛿⁰w², ..., 𝛿⁰wⁿ⁻¹] to the first row.
-    lookup_table.push_back(std::move(omega_powers));
+    unpermuted_table.push_back(std::move(omega_powers));
 
     // Assign [𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] to each row.
     for (size_t i = 1; i < size; ++i) {
@@ -60,17 +60,17 @@ class LookupTable {
       // TODO(dongchangYoo): Optimize this with
       // https://github.com/kroma-network/tachyon/pull/115.
       for (size_t j = 0; j <= kMaxDegree; ++j) {
-        rows[j] = lookup_table[i - 1][j] * delta;
+        rows[j] = unpermuted_table[i - 1][j] * delta;
       }
-      lookup_table.push_back(std::move(rows));
+      unpermuted_table.push_back(std::move(rows));
     }
-    return LookupTable(std::move(lookup_table));
+    return UnpermutedTable(std::move(unpermuted_table));
   }
 
  private:
-  FRIEND_TEST(LookupTableTest, Construct);
+  FRIEND_TEST(UnpermutedTableTest, Construct);
 
-  explicit LookupTable(Table table) : table_(std::move(table)) {}
+  explicit UnpermutedTable(Table table) : table_(std::move(table)) {}
 
   // Calculate 𝛿 = g^2ˢ with order T (i.e., T-th root of unity),
   // where T = F::Config::kTrace.
@@ -85,4 +85,4 @@ class LookupTable {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_PERMUTATION_LOOKUP_TABLE_H_
+#endif  // TACHYON_ZK_PLONK_PERMUTATION_UNPERMUTED_TABLE_H_

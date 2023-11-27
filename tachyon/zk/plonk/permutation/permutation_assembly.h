@@ -15,10 +15,10 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
 #include "tachyon/zk/plonk/permutation/label.h"
-#include "tachyon/zk/plonk/permutation/lookup_table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
+#include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 
 namespace tachyon::zk {
 
@@ -115,25 +115,25 @@ class PermutationAssembly {
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
   std::vector<Evals> GeneratePermutations(const Domain* domain) const {
-    LookupTable<PCSTy> lookup_table =
-        LookupTable<PCSTy>::Construct(columns_.size(), domain);
+    UnpermutedTable<PCSTy> unpermuted_table =
+        UnpermutedTable<PCSTy>::Construct(columns_.size(), domain);
 
-    // Init evaluation formed polynomials with all-zero coefficients
+    // Init evaluation formed polynomials with all-zero coefficients.
     std::vector<Evals> permutations =
         base::CreateVector(columns_.size(), Evals::UnsafeZero(kMaxDegree));
 
-    // Assign lookup_table to permutations
-    base::Parallelize(
-        permutations, [&lookup_table, this](absl::Span<Evals> chunk, size_t c,
-                                            size_t chunk_size) {
-          size_t i = c * chunk_size;
-          for (Evals& evals : chunk) {
-            for (size_t j = 0; j <= kMaxDegree; ++j) {
-              *evals[j] = lookup_table[cycle_store_.GetNextLabel(Label(i, j))];
-            }
-            ++i;
-          }
-        });
+    // Assign |unpermuted_table| to |permutations|.
+    base::Parallelize(permutations, [&unpermuted_table, this](
+                                        absl::Span<Evals> chunk, size_t c,
+                                        size_t chunk_size) {
+      size_t i = c * chunk_size;
+      for (Evals& evals : chunk) {
+        for (size_t j = 0; j <= kMaxDegree; ++j) {
+          *evals[j] = unpermuted_table[cycle_store_.GetNextLabel(Label(i, j))];
+        }
+        ++i;
+      }
+    });
     return permutations;
   }
 

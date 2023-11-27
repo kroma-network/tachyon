@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/plonk/permutation/lookup_table.h"
+#include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 
 #include <memory>
 
@@ -19,7 +19,7 @@ namespace tachyon::zk {
 
 namespace {
 
-class LookupTableTest : public testing::Test {
+class UnpermutedTableTest : public testing::Test {
  public:
   constexpr static size_t kMaxDegree = 7;
 
@@ -33,7 +33,7 @@ class LookupTableTest : public testing::Test {
 
 }  // namespace
 
-TEST_F(LookupTableTest, Construct) {
+TEST_F(UnpermutedTableTest, Construct) {
   constexpr size_t kMaxDegree = 7;
   constexpr size_t kCols = 4;
 
@@ -41,18 +41,18 @@ TEST_F(LookupTableTest, Construct) {
 
   std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain =
       math::UnivariateEvaluationDomain<F, kMaxDegree>::Create(kMaxDegree + 1);
-  LookupTable<PCS> lookup_table =
-      LookupTable<PCS>::Construct(kCols, domain.get());
+  UnpermutedTable<PCS> unpermuted_table =
+      UnpermutedTable<PCS>::Construct(kCols, domain.get());
   F omega = domain->group_gen();
   std::vector<F> omega_powers = domain->GetRootsOfUnity(kMaxDegree + 1, omega);
 
-  F delta = lookup_table.GetDelta();
+  F delta = unpermuted_table.GetDelta();
   EXPECT_NE(delta, F::One());
   EXPECT_EQ(delta.Pow(F::Config::kTrace), F::One());
   for (size_t i = 1; i < kCols; ++i) {
     for (size_t j = 0; j < kMaxDegree + 1; ++j) {
       omega_powers[j] *= delta;
-      EXPECT_EQ(omega_powers[j], lookup_table[Label(i, j)]);
+      EXPECT_EQ(omega_powers[j], unpermuted_table[Label(i, j)]);
     }
   }
 }

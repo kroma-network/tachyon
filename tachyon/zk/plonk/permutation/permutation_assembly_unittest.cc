@@ -34,12 +34,12 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
   const Domain* domain = prover_->domain();
   std::vector<Evals> permutations = assembly_.GeneratePermutations(domain);
 
-  LookupTable<PCS> lookup_table =
-      LookupTable<PCS>::Construct(columns_.size(), domain);
+  UnpermutedTable<PCS> unpermuted_table =
+      UnpermutedTable<PCS>::Construct(columns_.size(), domain);
 
   for (size_t i = 0; i < columns_.size(); ++i) {
     for (size_t j = 0; j <= kMaxDegree; ++j) {
-      EXPECT_EQ(*permutations[i][j], lookup_table[Label(i, j)]);
+      EXPECT_EQ(*permutations[i][j], unpermuted_table[Label(i, j)]);
     }
   }
 }
