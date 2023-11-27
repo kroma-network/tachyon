@@ -10,7 +10,7 @@
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/zk/plonk/circuit/column_stringifier.h"
+#include "tachyon/zk/plonk/circuit/column_key_stringifier.h"
 #include "tachyon/zk/plonk/circuit/query.h"
 #include "tachyon/zk/plonk/circuit/rotation_stringifier.h"
 

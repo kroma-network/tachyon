@@ -14,15 +14,15 @@ class PermutationAssemblyTest : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
 
-    columns_ = {AnyColumn(0), AdviceColumn(1), FixedColumn(2),
-                InstanceColumn(3)};
+    columns_ = {AnyColumnKey(0), AdviceColumnKey(1), FixedColumnKey(2),
+                InstanceColumnKey(3)};
     argment_ = PermutationArgument(columns_);
     assembly_ = PermutationAssembly<PCS>::CreateForTesting(
         columns_, CycleStore(columns_.size(), kDomainSize));
   }
 
  protected:
-  std::vector<AnyColumn> columns_;
+  std::vector<AnyColumnKey> columns_;
   PermutationArgument argment_;
   PermutationAssembly<PCS> assembly_;
 };

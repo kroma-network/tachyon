@@ -54,7 +54,7 @@ class Layouter {
   // Constrains a |cell| to equal an instance |column|'s row value at an
   // absolute position.
   virtual Error ConstrainInstance(const Cell& cell,
-                                  const InstanceColumn& column, size_t row) {
+                                  const InstanceColumnKey& column, size_t row) {
     return Error::kNone;
   }
 

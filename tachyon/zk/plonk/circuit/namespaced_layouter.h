@@ -43,7 +43,7 @@ class NamespacedLayouter : public Layouter<F> {
     return layouter_->AssignTable(name, std::move(assign));
   }
 
-  Error ConstrainInstance(const Cell& cell, const InstanceColumn& column,
+  Error ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
                           size_t row) override {
     return layouter_->ConstrainInstance(cell, column, row);
   }

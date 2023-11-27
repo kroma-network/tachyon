@@ -16,7 +16,7 @@ class AdviceExpressionTest : public testing::Test {
 TEST_F(AdviceExpressionTest, DegreeComplexity) {
   std::unique_ptr<AdviceExpression<Fr>> expr =
       AdviceExpression<Fr>::CreateForTesting(
-          AdviceQuery(1, Rotation(1), AdviceColumn(1, Phase(0))));
+          AdviceQuery(1, Rotation(1), AdviceColumnKey(1, Phase(0))));
   EXPECT_EQ(expr->Degree(), size_t{1});
   EXPECT_EQ(expr->Complexity(), uint64_t{1});
 }

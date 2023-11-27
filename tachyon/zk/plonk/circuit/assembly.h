@@ -53,7 +53,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
     return Error::kNone;
   }
 
-  Error QueryInstance(const InstanceColumn& column, size_t row,
+  Error QueryInstance(const InstanceColumnKey& column, size_t row,
                       Value<F>* instance) override {
     if (!usable_rows_.Contains(row)) {
       return Error::kNotEnoughRowsAvailable;
@@ -62,7 +62,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
     return Error::kNone;
   }
 
-  Error AssignFixed(const FixedColumn& column, size_t row,
+  Error AssignFixed(const FixedColumnKey& column, size_t row,
                     AssignCallback assign) override {
     if (!usable_rows_.Contains(row)) {
       return Error::kNotEnoughRowsAvailable;
@@ -71,8 +71,8 @@ class Assembly : public Assignment<typename PCSTy::Field> {
     return Error::kNone;
   }
 
-  Error Copy(const AnyColumn& left_column, size_t left_row,
-             const AnyColumn& right_column, size_t right_row) override {
+  Error Copy(const AnyColumnKey& left_column, size_t left_row,
+             const AnyColumnKey& right_column, size_t right_row) override {
     if (!(usable_rows_.Contains(left_row) &&
           usable_rows_.Contains(right_row))) {
       return Error::kNotEnoughRowsAvailable;
@@ -80,7 +80,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
     return permutation_.Copy(left_column, left_row, right_column, right_row);
   }
 
-  Error FillFromRow(const FixedColumn& column, size_t from_row,
+  Error FillFromRow(const FixedColumnKey& column, size_t from_row,
                     AssignCallback assign) override {
     if (!usable_rows_.Contains(from_row)) {
       return Error::kNotEnoughRowsAvailable;

@@ -64,7 +64,7 @@ class PinnedConstraintSystem {
   }
   const PermutationArgument& permutation() const { return permutation_; }
   const std::vector<LookupArgument<F>>& lookups() const { return lookups_; }
-  const std::vector<FixedColumn>& constants() const { return constants_; }
+  const std::vector<FixedColumnKey>& constants() const { return constants_; }
   const std::optional<size_t>& minimum_degree() const {
     return minimum_degree_;
   }
@@ -83,7 +83,7 @@ class PinnedConstraintSystem {
   const std::vector<FixedQueryData>& fixed_queries_;
   PermutationArgument permutation_;
   const std::vector<LookupArgument<F>>& lookups_;
-  const std::vector<FixedColumn>& constants_;
+  const std::vector<FixedColumnKey>& constants_;
   const std::optional<size_t>& minimum_degree_;
 };
 

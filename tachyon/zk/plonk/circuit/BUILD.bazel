@@ -29,7 +29,7 @@ tachyon_cc_library(
     hdrs = ["assignment.h"],
     deps = [
         ":challenge",
-        ":column",
+        ":column_key",
         ":selector",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
@@ -42,7 +42,7 @@ tachyon_cc_library(
     name = "cell",
     hdrs = ["cell.h"],
     deps = [
-        ":column",
+        ":column_key",
         "//tachyon:export",
         "@com_google_absl//absl/strings",
     ],
@@ -73,8 +73,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "column",
-    hdrs = ["column.h"],
+    name = "column_key",
+    hdrs = ["column_key.h"],
     deps = [
         ":column_type",
         ":phase",
@@ -84,10 +84,10 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "column_stringifier",
-    hdrs = ["column_stringifier.h"],
+    name = "column_key_stringifier",
+    hdrs = ["column_key_stringifier.h"],
     deps = [
-        ":column",
+        ":column_key",
         ":column_type_stringifier",
     ],
 )
@@ -112,7 +112,7 @@ tachyon_cc_library(
     name = "columns",
     hdrs = ["columns.h"],
     deps = [
-        ":column",
+        ":column_key",
         "//tachyon/base:logging",
         "//tachyon/zk/base:ref",
     ],
@@ -175,7 +175,7 @@ tachyon_cc_library(
     name = "query",
     hdrs = ["query.h"],
     deps = [
-        ":column",
+        ":column_key",
         ":rotation",
     ],
 )
@@ -184,7 +184,7 @@ tachyon_cc_library(
     name = "query_stringifier",
     hdrs = ["query_stringifier.h"],
     deps = [
-        ":column_stringifier",
+        ":column_key_stringifier",
         ":query",
         ":rotation_stringifier",
     ],
@@ -195,7 +195,7 @@ tachyon_cc_library(
     hdrs = ["region.h"],
     deps = [
         ":assigned_cell",
-        ":column",
+        ":column_key",
         ":selector",
         "//tachyon/base/functional:callback",
         "//tachyon/zk/plonk:error",
@@ -206,7 +206,7 @@ tachyon_cc_library(
     name = "region_column",
     hdrs = ["region_column.h"],
     deps = [
-        ":column",
+        ":column_key",
         ":selector",
     ],
 )
@@ -292,7 +292,7 @@ tachyon_cc_library(
     name = "table_column",
     hdrs = ["table_column.h"],
     deps = [
-        ":column",
+        ":column_key",
         "//tachyon:export",
     ],
 )
@@ -301,7 +301,7 @@ tachyon_cc_library(
     name = "virtual_cell",
     hdrs = ["virtual_cell.h"],
     deps = [
-        ":column",
+        ":column_key",
         ":rotation",
         "//tachyon:export",
     ],
@@ -320,12 +320,12 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "circuit_unittests",
     srcs = [
-        "column_unittest.cc",
+        "column_key_unittest.cc",
         "columns_unittest.cc",
         "rotation_unittest.cc",
     ],
     deps = [
-        ":column",
+        ":column_key",
         ":columns",
         ":rotation",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",

@@ -13,7 +13,7 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/base/ref.h"
-#include "tachyon/zk/plonk/circuit/column.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 
 namespace tachyon::zk {
 
@@ -32,14 +32,14 @@ class Columns {
   absl::Span<const Evals> advice_columns() const { return advice_columns_; }
   absl::Span<const Evals> instance_columns() const { return instance_columns_; }
 
-  Ref<const Evals> GetColumn(const ColumnData& column_data) const {
-    switch (column_data.type()) {
+  Ref<const Evals> GetColumn(const ColumnKeyBase& column_key) const {
+    switch (column_key.type()) {
       case ColumnType::kFixed:
-        return Ref<const Evals>(&fixed_columns_[column_data.index()]);
+        return Ref<const Evals>(&fixed_columns_[column_key.index()]);
       case ColumnType::kAdvice:
-        return Ref<const Evals>(&advice_columns_[column_data.index()]);
+        return Ref<const Evals>(&advice_columns_[column_key.index()]);
       case ColumnType::kInstance:
-        return Ref<const Evals>(&instance_columns_[column_data.index()]);
+        return Ref<const Evals>(&instance_columns_[column_key.index()]);
       case ColumnType::kAny:
         break;
     }
@@ -48,11 +48,11 @@ class Columns {
   }
 
   std::vector<Ref<const Evals>> GetColumns(
-      const std::vector<ColumnData>& column_datas) const {
+      const std::vector<ColumnKeyBase>& column_keys) const {
     std::vector<Ref<const Evals>> ret;
-    ret.reserve(column_datas.size());
-    for (const ColumnData& column_data : column_datas) {
-      ret.push_back(GetColumn(column_data));
+    ret.reserve(column_keys.size());
+    for (const ColumnKeyBase& column_key : column_keys) {
+      ret.push_back(GetColumn(column_key));
     }
     return ret;
   }

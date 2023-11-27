@@ -4,7 +4,7 @@
 #include <string>
 
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/column.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/rotation.h"
 
 namespace tachyon::zk {
@@ -12,10 +12,10 @@ namespace tachyon::zk {
 class TACHYON_EXPORT VirtualCell {
  public:
   VirtualCell() = default;
-  VirtualCell(const AnyColumn& column, Rotation rotation)
+  VirtualCell(const AnyColumnKey& column, Rotation rotation)
       : column_(column), rotation_(rotation) {}
 
-  const AnyColumn& column() const { return column_; }
+  const AnyColumnKey& column() const { return column_; }
   Rotation rotation() const { return rotation_; }
 
   std::string ToString() const {
@@ -24,7 +24,7 @@ class TACHYON_EXPORT VirtualCell {
   }
 
  private:
-  AnyColumn column_;
+  AnyColumnKey column_;
   Rotation rotation_;
 };
 

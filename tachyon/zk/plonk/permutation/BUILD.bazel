@@ -33,7 +33,7 @@ tachyon_cc_library(
     hdrs = ["permutation_argument.h"],
     deps = [
         "//tachyon/base/containers:contains",
-        "//tachyon/zk/plonk/circuit:column",
+        "//tachyon/zk/plonk/circuit:column_key",
     ],
 )
 
@@ -43,7 +43,7 @@ tachyon_cc_library(
     deps = [
         ":permutation_argument",
         "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/plonk/circuit:column_stringifier",
+        "//tachyon/zk/plonk/circuit:column_key_stringifier",
     ],
 )
 

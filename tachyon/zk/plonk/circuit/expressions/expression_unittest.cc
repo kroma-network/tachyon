@@ -21,11 +21,11 @@ class ExpressionTest : public testing::Test {
     expressions_.push_back(
         ExpressionFactory<Fr>::Selector(Selector::Complex(2)));
     expressions_.push_back(ExpressionFactory<Fr>::Fixed(
-        FixedQuery(1, Rotation(1), FixedColumn(1))));
+        FixedQuery(1, Rotation(1), FixedColumnKey(1))));
     expressions_.push_back(ExpressionFactory<Fr>::Advice(
-        AdviceQuery(1, Rotation(1), AdviceColumn(1, Phase(0)))));
+        AdviceQuery(1, Rotation(1), AdviceColumnKey(1, Phase(0)))));
     expressions_.push_back(ExpressionFactory<Fr>::Instance(
-        InstanceQuery(1, Rotation(1), InstanceColumn(1))));
+        InstanceQuery(1, Rotation(1), InstanceColumnKey(1))));
     expressions_.push_back(
         ExpressionFactory<Fr>::Challenge(Challenge(1, Phase(0))));
     expressions_.push_back(

@@ -34,7 +34,7 @@ class AssignedCell {
   // Returns an error if either this cell or the given cell are in columns
   // where equality has not been enabled.
   Error CopyAdvice(std::string_view name, Region<F>& region,
-                   const AdviceColumn& column, size_t offset,
+                   const AdviceColumnKey& column, size_t offset,
                    AssignedCell<F>* assigned_cell) const;
 
   std::string ToString() const {

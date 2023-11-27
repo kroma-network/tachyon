@@ -30,12 +30,12 @@ class FieldConfig {
 
   FieldConfig() = default;
 
-  const std::array<AdviceColumn, 2>& advice() const { return advice_; }
-  const InstanceColumn& instance() const { return instance_; }
+  const std::array<AdviceColumnKey, 2>& advice() const { return advice_; }
+  const InstanceColumnKey& instance() const { return instance_; }
   const Selector& s_mul() const { return s_mul_; }
 
  private:
-  FieldConfig(std::array<AdviceColumn, 2> advice, InstanceColumn instance,
+  FieldConfig(std::array<AdviceColumnKey, 2> advice, InstanceColumnKey instance,
               Selector s_mul)
       : advice_(std::move(advice)),
         instance_(std::move(instance)),
@@ -44,9 +44,9 @@ class FieldConfig {
   // For this chip, we will use two advice columns to implement our
   // instructions. These are also the columns through which we communicate with
   // other parts of the circuit.
-  std::array<AdviceColumn, 2> advice_;
+  std::array<AdviceColumnKey, 2> advice_;
   // This is the public input (instance) column.
-  InstanceColumn instance_;
+  InstanceColumnKey instance_;
   // We need a selector to enable the multiplication gate, so that we aren't
   // placing any constraints on cells where |NumericInstructions::Mul| is not
   // being used. This is important when building larger circuits, where columns
@@ -60,12 +60,12 @@ class FieldChip {
   FieldChip() = default;
 
   static FieldConfig<F> Configure(ConstraintSystem<F>& meta,
-                                  std::array<AdviceColumn, 2> advice,
-                                  InstanceColumn instance,
-                                  FixedColumn constant) {
+                                  std::array<AdviceColumnKey, 2> advice,
+                                  InstanceColumnKey instance,
+                                  FixedColumnKey constant) {
     meta.EnableEquality(instance);
     meta.EnableConstant(constant);
-    for (const AdviceColumn& column : advice) {
+    for (const AdviceColumnKey& column : advice) {
       meta.EnableEquality(column);
     }
     Selector sel = meta.CreateSimpleSelector();
@@ -185,14 +185,14 @@ class SimpleCircuit : public Circuit<FieldConfig<F>> {
 
   static FieldConfig<F> Configure(ConstraintSystem<F>& meta) {
     // We create the two advice columns that FieldChip uses for I/O.
-    std::array<AdviceColumn, 2> advice(
+    std::array<AdviceColumnKey, 2> advice(
         {meta.CreateAdviceColumn(), meta.CreateAdviceColumn()});
 
     // We also need an instance column to store public inputs.
-    InstanceColumn instance = meta.CreateInstanceColumn();
+    InstanceColumnKey instance = meta.CreateInstanceColumn();
 
     // Create a fixed column to load constants.
-    FixedColumn constant = meta.CreateFixedColumn();
+    FixedColumnKey constant = meta.CreateFixedColumn();
 
     return FieldChip<F>::Configure(meta, std::move(advice), std::move(instance),
                                    std::move(constant));

@@ -8,7 +8,7 @@
 #define TACHYON_ZK_PLONK_CIRCUIT_TABLE_COLUMN_H_
 
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/column.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 
 namespace tachyon::zk {
 
@@ -23,7 +23,7 @@ namespace tachyon::zk {
 class TACHYON_EXPORT TableColumn {
  public:
   TableColumn() = default;
-  explicit TableColumn(const FixedColumn& column) : column_(column) {}
+  explicit TableColumn(const FixedColumnKey& column) : column_(column) {}
 
   // The fixed column that this table column is stored in.
   //
@@ -32,10 +32,10 @@ class TACHYON_EXPORT TableColumn {
   // This inner column MUST NOT be exposed in the public API, or else chip
   // developers can load lookup tables into their circuits without
   // default-value-filling the columns, which can cause soundness bugs.
-  const FixedColumn& column() const { return column_; }
+  const FixedColumnKey& column() const { return column_; }
 
  private:
-  FixedColumn column_;
+  FixedColumnKey column_;
 };
 
 }  // namespace tachyon::zk

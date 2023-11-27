@@ -12,7 +12,7 @@
 #include "absl/hash/hash.h"
 
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/column.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
 
 namespace tachyon::zk {
@@ -24,7 +24,7 @@ class TACHYON_EXPORT RegionColumn {
   };
 
   RegionColumn() = default;
-  explicit RegionColumn(const AnyColumn& column)
+  explicit RegionColumn(const AnyColumnKey& column)
       : type_(Type::kColumn), column_(column) {}
   explicit RegionColumn(const Selector& selector)
       : type_(Type::kSelector), selector_(selector) {}
@@ -34,7 +34,7 @@ class TACHYON_EXPORT RegionColumn {
  private:
   Type type_;
   union {
-    AnyColumn column_;
+    AnyColumnKey column_;
     Selector selector_;
   };
 };

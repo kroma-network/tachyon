@@ -37,9 +37,9 @@ class ColumnsTest : public testing::Test {
 };
 
 TEST_F(ColumnsTest, FindColumns) {
-  std::vector<ColumnData> targets = {
-      FixedColumn(1), AdviceColumn(1, kFirstPhase), InstanceColumn(1),
-      FixedColumn(2), AdviceColumn(2, kFirstPhase), InstanceColumn(2),
+  std::vector<ColumnKeyBase> targets = {
+      FixedColumnKey(1), AdviceColumnKey(1, kFirstPhase), InstanceColumnKey(1),
+      FixedColumnKey(2), AdviceColumnKey(2, kFirstPhase), InstanceColumnKey(2),
   };
 
   Columns<Evals> columns(absl::MakeConstSpan(fixed_columns_),

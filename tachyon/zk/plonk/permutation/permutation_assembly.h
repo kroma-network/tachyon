@@ -44,14 +44,14 @@ class PermutationAssembly {
       : PermutationAssembly(p.columns()) {}
 
   // Constructor with permutation columns.
-  explicit PermutationAssembly(const std::vector<AnyColumn>& columns)
+  explicit PermutationAssembly(const std::vector<AnyColumnKey>& columns)
       : columns_(columns), cycle_store_(CycleStore(columns_.size(), kRows)) {}
 
-  explicit PermutationAssembly(std::vector<AnyColumn>&& columns)
+  explicit PermutationAssembly(std::vector<AnyColumnKey>&& columns)
       : columns_(std::move(columns)),
         cycle_store_(CycleStore(columns_.size(), kRows)) {}
 
-  static PermutationAssembly CreateForTesting(std::vector<AnyColumn> columns,
+  static PermutationAssembly CreateForTesting(std::vector<AnyColumnKey> columns,
                                               CycleStore cycle_store) {
     PermutationAssembly ret;
     ret.columns_ = std::move(columns);
@@ -59,11 +59,11 @@ class PermutationAssembly {
     return ret;
   }
 
-  const std::vector<AnyColumn>& columns() const { return columns_; }
+  const std::vector<AnyColumnKey>& columns() const { return columns_; }
   const CycleStore& cycle_store() const { return cycle_store_; }
 
-  bool Copy(const AnyColumn& left_column, size_t left_row,
-            const AnyColumn& right_column, size_t right_row) {
+  bool Copy(const AnyColumnKey& left_column, size_t left_row,
+            const AnyColumnKey& right_column, size_t right_row) {
     CHECK_LE(left_row, kRows);
     CHECK_LE(right_row, kRows);
 
@@ -138,12 +138,12 @@ class PermutationAssembly {
   }
 
  private:
-  size_t GetColumnIndex(const AnyColumn& column) const {
+  size_t GetColumnIndex(const AnyColumnKey& column) const {
     return base::FindIndex(columns_, column).value();
   }
 
   // Columns that participate on the copy permutation argument.
-  std::vector<AnyColumn> columns_;
+  std::vector<AnyColumnKey> columns_;
   CycleStore cycle_store_;
 };
 

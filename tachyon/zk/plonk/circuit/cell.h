@@ -14,7 +14,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/column.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
 
 namespace tachyon::zk {
 
@@ -22,12 +22,12 @@ namespace tachyon::zk {
 class TACHYON_EXPORT Cell {
  public:
   Cell() = default;
-  Cell(size_t region_index, size_t row_offset, const AnyColumn& column)
+  Cell(size_t region_index, size_t row_offset, const AnyColumnKey& column)
       : region_index_(region_index), row_offset_(row_offset), column_(column) {}
 
   size_t region_index() const { return region_index_; }
   size_t row_offset() const { return row_offset_; }
-  const AnyColumn& column() const { return column_; }
+  const AnyColumnKey& column() const { return column_; }
 
   std::string ToString() const {
     return absl::Substitute("{region_index: $0, row_offset: $1, column: $2}",
@@ -40,7 +40,7 @@ class TACHYON_EXPORT Cell {
   // The relative offset of this cell within its region.
   size_t row_offset_ = 0;
   // The column of this cell.
-  AnyColumn column_;
+  AnyColumnKey column_;
 };
 
 }  // namespace tachyon::zk
