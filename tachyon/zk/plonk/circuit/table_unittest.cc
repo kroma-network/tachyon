@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/columns.h"
+#include "tachyon/zk/plonk/circuit/table.h"
 
 #include <vector>
 
@@ -9,7 +9,7 @@
 
 namespace tachyon::zk {
 
-class ColumnsTest : public testing::Test {
+class TableTest : public testing::Test {
  public:
   constexpr static size_t kMaxDegree = (size_t{1} << 3) - 1;
   constexpr static Phase kFirstPhase = Phase(0);
@@ -36,17 +36,17 @@ class ColumnsTest : public testing::Test {
   std::vector<Evals> instance_columns_;
 };
 
-TEST_F(ColumnsTest, FindColumns) {
+TEST_F(TableTest, FindColumns) {
   std::vector<ColumnKeyBase> targets = {
       FixedColumnKey(1), AdviceColumnKey(1, kFirstPhase), InstanceColumnKey(1),
       FixedColumnKey(2), AdviceColumnKey(2, kFirstPhase), InstanceColumnKey(2),
   };
 
-  Columns<Evals> columns(absl::MakeConstSpan(fixed_columns_),
-                         absl::MakeConstSpan(advice_columns_),
-                         absl::MakeConstSpan(instance_columns_));
+  Table<Evals> table(absl::MakeConstSpan(fixed_columns_),
+                     absl::MakeConstSpan(advice_columns_),
+                     absl::MakeConstSpan(instance_columns_));
 
-  std::vector<Ref<const Evals>> evals_refs = columns.GetColumns(targets);
+  std::vector<Ref<const Evals>> evals_refs = table.GetColumns(targets);
 
   EXPECT_EQ(*evals_refs[0], fixed_columns_[1]);
   EXPECT_EQ(*evals_refs[1], advice_columns_[1]);

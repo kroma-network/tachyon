@@ -14,9 +14,9 @@ class CompressExpressionTestSetting : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
 
-    Columns<Evals> columns(absl::MakeConstSpan(fixed_columns_),
-                           absl::MakeConstSpan(advice_columns_),
-                           absl::MakeConstSpan(instance_columns_));
+    Table<Evals> columns(absl::MakeConstSpan(fixed_columns_),
+                         absl::MakeConstSpan(advice_columns_),
+                         absl::MakeConstSpan(instance_columns_));
     evaluator_ = {0, static_cast<int32_t>(prover_->domain()->size()), 1,
                   columns, absl::MakeConstSpan(challenges_)};
     theta_ = F(2);
