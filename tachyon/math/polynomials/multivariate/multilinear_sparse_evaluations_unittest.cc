@@ -19,7 +19,7 @@ using Evals = MultilinearSparseEvaluations<GF7, kMaxDegree, kNumVars>;
 
 class MultilinearSparseEvaluationsTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { GF7Config::Init(); }
+  static void SetUpTestSuite() { GF7::Init(); }
 
   MultilinearSparseEvaluationsTest() {
     polys_.push_back(Poly(Evals({{1, GF7(2)}, {0, GF7(3)}})));

@@ -24,11 +24,11 @@
 
 namespace tachyon::math {
 
-template <typename F, std::size_t MaxDegree, std::size_t NumVars>
+template <typename F, size_t MaxDegree, size_t NumVars>
 class MultilinearSparseEvaluations {
  public:
-  static constexpr std::size_t kMaxDegree = MaxDegree;
-  static constexpr std::size_t kNumVars = NumVars;
+  static constexpr size_t kMaxDegree = MaxDegree;
+  static constexpr size_t kNumVars = NumVars;
 
   using Field = F;
 
@@ -36,7 +36,7 @@ class MultilinearSparseEvaluations {
       : evaluations_(), num_vars_(0), zero_(F::Zero()) {}
 
   constexpr explicit MultilinearSparseEvaluations(
-      const std::vector<std::pair<std::size_t, F>>& evaluations)
+      const std::vector<std::pair<size_t, F>>& evaluations)
       : evaluations_(evaluations.begin(), evaluations.end()),
         num_vars_(evaluations.size()),
         zero_(F::Zero()) {
@@ -44,7 +44,7 @@ class MultilinearSparseEvaluations {
   }
 
   constexpr explicit MultilinearSparseEvaluations(
-      const std::vector<std::pair<std::size_t, F>>&& evaluations)
+      const std::vector<std::pair<size_t, F>>&& evaluations)
       : evaluations_(std::move(evaluations.begin()),
                      std::move(evaluations.end())),
         num_vars_(evaluations.size()),
@@ -52,23 +52,22 @@ class MultilinearSparseEvaluations {
     CHECK_LE(NumVars, MaxDegree);
   }
 
-  constexpr static MultilinearSparseEvaluations Zero(std::size_t degree) {
-    return MultilinearSparseEvaluations(
-        std::vector<std::pair<std::size_t, F>>());
+  constexpr static MultilinearSparseEvaluations Zero(size_t degree) {
+    return MultilinearSparseEvaluations(std::vector<std::pair<size_t, F>>());
   }
 
-  constexpr static MultilinearSparseEvaluations One(std::size_t degree) {
-    std::vector<std::pair<std::size_t, F>> evaluations;
-    for (std::size_t i = 0; i < (static_cast<std::size_t>(1) << degree); ++i) {
+  constexpr static MultilinearSparseEvaluations One(size_t degree) {
+    std::vector<std::pair<size_t, F>> evaluations;
+    for (size_t i = 0; i < (static_cast<size_t>(1) << degree); ++i) {
       evaluations.push_back({i, F::One()});
     }
     return MultilinearSparseEvaluations(evaluations);
   }
 
-  constexpr static MultilinearSparseEvaluations Random(std::size_t num_vars,
+  constexpr static MultilinearSparseEvaluations Random(size_t num_vars,
                                                        absl::BitGen& bitgen) {
-    return RandWithConfig(
-        num_vars, static_cast<std::size_t>(1) << (num_vars / 2), bitgen);
+    return RandWithConfig(num_vars, static_cast<size_t>(1) << (num_vars / 2),
+                          bitgen);
   }
 
   constexpr bool operator==(const MultilinearSparseEvaluations& other) const {
@@ -79,7 +78,7 @@ class MultilinearSparseEvaluations {
     return !operator==(other);
   }
 
-  constexpr const F* Get(std::size_t i) const {
+  constexpr const F* Get(size_t i) const {
     auto it = evaluations_.find(i);
     if (it != evaluations_.end()) {
       return &(it->second);
@@ -88,17 +87,15 @@ class MultilinearSparseEvaluations {
   }
 
   constexpr bool IsZero() const {
-    return std::all_of(evaluations_.begin(), evaluations_.end(),
-                       [](const std::pair<std::size_t, F>& pair) {
-                         return pair.second.IsZero();
-                       });
+    return std::all_of(
+        evaluations_.begin(), evaluations_.end(),
+        [](const std::pair<size_t, F>& pair) { return pair.second.IsZero(); });
   }
 
   constexpr bool IsOne() const {
-    return std::all_of(evaluations_.begin(), evaluations_.end(),
-                       [](const std::pair<std::size_t, F>& pair) {
-                         return pair.second.IsOne();
-                       });
+    return std::all_of(
+        evaluations_.begin(), evaluations_.end(),
+        [](const std::pair<size_t, F>& pair) { return pair.second.IsOne(); });
   }
 
   constexpr size_t Degree() const {
@@ -123,7 +120,7 @@ class MultilinearSparseEvaluations {
 
     int window = base::bits::Log2Floor(evaluations_.size());
     std::vector<F> point = partial_point;
-    absl::flat_hash_map<std::size_t, F> last = treemap_to_hashmap(evaluations_);
+    absl::flat_hash_map<size_t, F> last = treemap_to_hashmap(evaluations_);
 
     while (!point.empty()) {
       int focus_length =
@@ -132,7 +129,7 @@ class MultilinearSparseEvaluations {
       point.erase(point.begin(), point.begin() + focus_length);
       std::vector<F> pre = PrecomputeEq(focus);
       int dim = focus.size();
-      absl::flat_hash_map<std::size_t, F> result;
+      absl::flat_hash_map<size_t, F> result;
 
       for (const auto& src_entry : last) {
         int old_idx = src_entry.first;
@@ -145,8 +142,7 @@ class MultilinearSparseEvaluations {
 
     MultilinearSparseEvaluations<F, MaxDegree, NumVars> result;
     result.num_vars_ = num_vars_ - dim;
-    result.evaluations_ =
-        absl::btree_map<std::size_t, F>(hashmap_to_treemap(last));
+    result.evaluations_ = absl::btree_map<size_t, F>(hashmap_to_treemap(last));
     result.zero_ = F::Zero();
 
     return result;
@@ -161,27 +157,27 @@ class MultilinearSparseEvaluations {
     return fixed.evaluations_.at(0);
   }
 
-  const absl::btree_map<std::size_t, F> tuples_to_treemap(
-      const std::vector<std::pair<std::size_t, F>>& tuples) const {
-    absl::btree_map<std::size_t, F> result;
+  const absl::btree_map<size_t, F> tuples_to_treemap(
+      const std::vector<std::pair<size_t, F>>& tuples) const {
+    absl::btree_map<size_t, F> result;
     for (const auto& entry : tuples) {
       result[entry.first] = entry.second;
     }
     return result;
   }
 
-  const absl::flat_hash_map<std::size_t, F> treemap_to_hashmap(
-      const absl::btree_map<std::size_t, F>& treemap) const {
-    absl::flat_hash_map<std::size_t, F> hashmap;
+  const absl::flat_hash_map<size_t, F> treemap_to_hashmap(
+      const absl::btree_map<size_t, F>& treemap) const {
+    absl::flat_hash_map<size_t, F> hashmap;
     for (const auto& entry : treemap) {
       hashmap[entry.first] = entry.second;
     }
     return hashmap;
   }
 
-  const absl::btree_map<std::size_t, F> hashmap_to_treemap(
-      const absl::flat_hash_map<std::size_t, F>& map) const {
-    absl::btree_map<std::size_t, F> tree_map;
+  const absl::btree_map<size_t, F> hashmap_to_treemap(
+      const absl::flat_hash_map<size_t, F>& map) const {
+    absl::btree_map<size_t, F> tree_map;
 
     for (const auto& entry : map) {
       tree_map.insert({entry.first, entry.second});
@@ -190,24 +186,24 @@ class MultilinearSparseEvaluations {
     return tree_map;
   }
 
-  static MultilinearSparseEvaluations RandWithConfig(
-      std::size_t num_vars, std::size_t num_nonzero_entries,
-      absl::BitGen& bitgen) {
-    assert(num_nonzero_entries <= (static_cast<std::size_t>(1) << num_vars));
+  static MultilinearSparseEvaluations RandWithConfig(size_t num_vars,
+                                                     size_t num_nonzero_entries,
+                                                     absl::BitGen& bitgen) {
+    assert(num_nonzero_entries <= (static_cast<size_t>(1) << num_vars));
 
-    absl::flat_hash_map<std::size_t, F> map;
+    absl::flat_hash_map<size_t, F> map;
 
-    for (std::size_t i = 0; i < num_nonzero_entries; ++i) {
-      std::size_t index;
+      for (size_t i = 0; i < num_nonzero_entries; ++i) {
+      size_t index;
       do {
-        index = absl::Uniform(bitgen, static_cast<std::size_t>(0),
-                              static_cast<std::size_t>(1) << num_vars);
+        index = absl::Uniform(bitgen, static_cast<size_t>(0),
+                              static_cast<size_t>(1) << num_vars);
       } while (map.find(index) != map.end());
       map[index] = F::Random();
     }
 
     MultilinearSparseEvaluations result(
-        std::vector<std::pair<std::size_t, F>>(map.begin(), map.end()));
+        std::vector<std::pair<size_t, F>>(map.begin(), map.end()));
 
     return result;
   }
@@ -248,8 +244,8 @@ class MultilinearSparseEvaluations {
   friend class internal::MultilinearExtensionOp<
       MultilinearSparseEvaluations<F, MaxDegree, NumVars>>;
 
-  absl::btree_map<std::size_t, F> evaluations_;
-  std::size_t num_vars_;
+  absl::btree_map<size_t, F> evaluations_;
+  size_t num_vars_;
   F zero_ = F::Zero();
 };
 

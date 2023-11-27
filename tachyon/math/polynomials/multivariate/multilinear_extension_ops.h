@@ -1,3 +1,8 @@
+// Copyright 2022 arkworks contributors
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
+// file.
+
 #ifndef TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTILINEAR_EXTENSION_OPS_H_
 #define TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTILINEAR_EXTENSION_OPS_H_
 
@@ -72,17 +77,15 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
 
   static MultilinearExtension<S> ToSparse(const MultilinearExtension<D>& self) {
     const std::vector<F>& dense_evaluations = self.evaluations_.evaluations_;
-    // std::size_t num_vars =
-    // MultilinearDenseEvaluations<F, MaxDegree>::kMaxDegree;
 
-    absl::btree_map<std::size_t, F> sparse_evaluations;
+    absl::btree_map<size_t, F> sparse_evaluations;
 
-    for (std::size_t index = 0; index < dense_evaluations.size(); ++index) {
+    for (size_t index = 0; index < dense_evaluations.size(); ++index) {
       if (dense_evaluations[index] != F::Zero()) {
         sparse_evaluations[index] = dense_evaluations[index];
       }
     }
-    std::vector<std::pair<std::size_t, F>> sparse_evaluations_vector;
+    std::vector<std::pair<size_t, F>> sparse_evaluations_vector;
 
     for (const auto& pair : sparse_evaluations) {
       sparse_evaluations_vector.push_back(pair);
@@ -109,11 +112,9 @@ class MultilinearExtensionOp<
       return self;
     }
 
-    assert(
-        self.evaluations_.num_vars_ == rhs.evaluations_.num_vars_ &&
-        "trying to add non-zero polynomial with different number of variables");
+    CHECK_EQ(self.evaluations_.num_vars_, rhs.evaluations_.num_vars_);
 
-    absl::btree_map<std::size_t, F> evaluations;
+    absl::btree_map<size_t, F> evaluations;
     for (const auto& pair : self.evaluations_.evaluations_) {
       evaluations[pair.first] += pair.second;
     }
@@ -121,14 +122,14 @@ class MultilinearExtensionOp<
       evaluations[pair.first] += pair.second;
     }
 
-    std::vector<std::pair<int, F>> non_zero_evaluations;
+    std::vector<std::pair<size_t, F>> non_zero_evaluations;
     for (const auto& pair : evaluations) {
       if (pair.second != F::Zero()) {
         non_zero_evaluations.emplace_back(pair.first, pair.second);
       }
     }
 
-    self.evaluations_.evaluations_ = absl::btree_map<std::size_t, F>(
+    self.evaluations_.evaluations_ = absl::btree_map<size_t, F>(
         non_zero_evaluations.begin(), non_zero_evaluations.end());
     self.evaluations_.num_vars_ = self.evaluations_.num_vars_;
     self.evaluations_.zero_ = F::Zero();
@@ -146,11 +147,9 @@ class MultilinearExtensionOp<
       return self;
     }
 
-    assert(
-        self.evaluations_.num_vars_ == rhs.evaluations_.num_vars_ &&
-        "trying to add non-zero polynomial with different number of variables");
+    CHECK_EQ(self.evaluations_.num_vars_, rhs.evaluations_.num_vars_);
 
-    absl::btree_map<std::size_t, F> evaluations;
+    absl::btree_map<size_t, F> evaluations;
     for (const auto& pair : self.evaluations_.evaluations_) {
       evaluations[pair.first] += pair.second;
     }
@@ -158,7 +157,7 @@ class MultilinearExtensionOp<
       evaluations[pair.first] -= pair.second;
     }
 
-    std::vector<std::pair<int, F>> non_zero_evaluations;
+    std::vector<std::pair<size_t, F>> non_zero_evaluations;
     for (const auto& pair : evaluations) {
       if (pair.second != F::Zero()) {
         non_zero_evaluations.emplace_back(pair.first, pair.second);
@@ -174,13 +173,11 @@ class MultilinearExtensionOp<
   }
 
   static MultilinearExtension<S>& NegInPlace(MultilinearExtension<S>& self) {
-    absl::btree_map<std::size_t, F>& evaluations =
-        self.evaluations_.evaluations_;
+    absl::btree_map<size_t, F>& evaluations = self.evaluations_.evaluations_;
     // clang-format off
-   #pragma omp parallel for
-  for (auto& pair : evaluations) {
-    pair.second.NegInPlace();
-  }
+    OPENMP_PARALLEL_FOR(auto& pair : evaluations) {
+        pair.second.NegInPlace();
+    }
     // clang-format on
     return self;
   }
@@ -192,11 +189,9 @@ class MultilinearExtensionOp<
       return self;
     }
 
-    assert(
-        self.evaluations_.num_vars_ == rhs.evaluations_.num_vars_ &&
-        "trying to add non-zero polynomial with different number of variables");
+    CHECK_EQ(self.evaluations_.num_vars_, rhs.evaluations_.num_vars_);
 
-    absl::btree_map<std::size_t, F> evaluations;
+    absl::btree_map<size_t, F> evaluations;
     for (const auto& self_pair : self.evaluations_.evaluations_) {
       for (const auto& rhs_pair : rhs.evaluations_.evaluations_) {
         if (self_pair.first == rhs_pair.first) {
@@ -213,23 +208,20 @@ class MultilinearExtensionOp<
       }
     }
 
-    self.evaluations_.evaluations_ = absl::btree_map<std::size_t, F>(
+    self.evaluations_.evaluations_ = absl::btree_map<size_t, F>(
         non_zero_evaluations.begin(), non_zero_evaluations.end());
     self.evaluations_.num_vars_ = self.evaluations_.num_vars_;
     self.evaluations_.zero_ = F::Zero();
 
     return self;
   }
-
   static MultilinearExtension<S>& DivInPlace(
       MultilinearExtension<S>& self, const MultilinearExtension<S>& rhs) {
-    if (rhs.IsZero()) {
-      throw std::runtime_error("Division by zero encountered");
+    if (rhs.IsZero() ||
+        self.evaluations_.num_vars_ != rhs.evaluations_.num_vars_) {
+      return std::nullopt;
     }
 
-    assert(
-        self.evaluations_.num_vars_ == rhs.evaluations_.num_vars_ &&
-        "trying to add non-zero polynomial with different number of variables");
     absl::btree_map<std::size_t, F> evaluations;
     for (const auto& self_pair : self.evaluations_.evaluations_) {
       auto rhs_it = rhs.evaluations_.evaluations_.find(self_pair.first);
@@ -238,7 +230,7 @@ class MultilinearExtensionOp<
         F div = self_pair.second / rhs_it->second;
         evaluations[self_pair.first] += div;
       } else {
-        throw std::runtime_error("Division by zero encountered");
+        return std::nullopt;
       }
     }
 
@@ -249,24 +241,25 @@ class MultilinearExtensionOp<
       }
     }
 
-    self.evaluations_.evaluations_ = absl::btree_map<std::size_t, F>(
+    MultilinearExtension<S> result;
+    result.evaluations_.evaluations_ = absl::btree_map<std::size_t, F>(
         non_zero_evaluations.begin(), non_zero_evaluations.end());
-    self.evaluations_.num_vars_ = self.evaluations_.num_vars_;
-    self.evaluations_.zero_ = F::Zero();
+    result.evaluations_.num_vars_ = self.evaluations_.num_vars_;
+    result.evaluations_.zero_ = F::Zero();
 
-    return self;
+    return result;
   }
 
   static MultilinearExtension<D> ToDense(const MultilinearExtension<S>& self) {
-    const absl::btree_map<std::size_t, F>& sparse_evaluations =
+    const absl::btree_map<size_t, F>& sparse_evaluations =
         self.evaluations_.evaluations_;
-    std::size_t num_vars =
+    size_t num_vars =
         MultilinearSparseEvaluations<F, MaxDegree, NumVars>::kNumVars;
 
     std::vector<F> dense_evaluations(1 << num_vars, F::Zero());
 
     for (const auto& entry : sparse_evaluations) {
-      std::size_t index = entry.first;
+      size_t index = entry.first;
       if (index < (1 << num_vars)) {
         dense_evaluations[index] = entry.second;
       }

@@ -12,7 +12,6 @@
 
 #include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 #include "tachyon/math/polynomials/multivariate/multilinear_sparse_evaluations.h"
-// #include "tachyon/math/polynomials/multivariate/multilinear_extension.h"
 #include "tachyon/math/polynomials/polynomial.h"
 
 namespace tachyon::math {
