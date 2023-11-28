@@ -55,6 +55,18 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "permutation_table_store",
+    hdrs = ["permutation_table_store.h"],
+    deps = [
+        ":permuted_table",
+        ":unpermuted_table",
+        "//tachyon/zk/plonk/circuit:table",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
     name = "permutation_verifying_key",
     hdrs = ["permutation_verifying_key.h"],
     deps = [
@@ -69,6 +81,16 @@ tachyon_cc_library(
         ":permutation_verifying_key",
         "//tachyon/base/strings:rust_stringifier",
         "//tachyon/zk/base:point_stringifier",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permuted_table",
+    hdrs = ["permuted_table.h"],
+    deps = [
+        ":label",
+        "//tachyon/base:range",
+        "//tachyon/zk/base:ref",
     ],
 )
 
@@ -107,11 +129,13 @@ tachyon_cc_unittest(
         "permutation_argument_unittest.cc",
         "permutation_assembly_unittest.cc",
         "permutation_proving_key_unittest.cc",
+        "permutation_table_store_unittest.cc",
         "permutation_verifying_key_unittest.cc",
         "unpermuted_table_unittest.cc",
     ],
     deps = [
         ":permutation_assembly",
+        ":permutation_table_store",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/zk/base:halo2_prover_test",
     ],

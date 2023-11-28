@@ -34,6 +34,8 @@ class UnpermutedTable {
 
   UnpermutedTable() = default;
 
+  const Table& table() const& { return table_; }
+
   const F& operator[](const Label& label) const {
     return *table_[label.col][label.row];
   }
