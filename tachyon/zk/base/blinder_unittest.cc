@@ -19,6 +19,9 @@ class FakeEvals {
   const std::vector<math::GF7>& evaluations() const { return evaluations_; }
   std::vector<math::GF7>& evaluations() { return evaluations_; }
 
+  math::GF7* operator[](size_t i) { return &evaluations_[i]; }
+  const math::GF7* operator[](size_t i) const { return &evaluations_[i]; }
+
   size_t NumElements() const { return evaluations_.size(); }
 
  private:
