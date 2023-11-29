@@ -9,6 +9,7 @@
 
 #include <utility>
 
+#include "tachyon/zk/plonk/circuit/rotation.h"
 #include "tachyon/zk/plonk/lookup/compress_expression.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
@@ -69,6 +70,33 @@ LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
   return LookupCommitted<Poly>(std::move(permuted).permuted_input_poly(),
                                std::move(permuted).permuted_table_poly(),
                                std::move(grand_product_poly));
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename ExtendedDomain, typename F>
+LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
+    Prover<PCSTy, ExtendedDomain>* prover, LookupCommitted<Poly>&& committed,
+    const F& x) {
+  F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
+  F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
+
+  BlindedPolynomial<Poly> product_poly = std::move(committed).product_poly();
+  BlindedPolynomial<Poly> permuted_input_poly =
+      std::move(committed).permuted_input_poly();
+  BlindedPolynomial<Poly> permuted_table_poly =
+      std::move(committed).permuted_table_poly();
+
+  prover->Evaluate(product_poly.poly(), x);
+  prover->Evaluate(product_poly.poly(), x_next);
+  prover->Evaluate(permuted_input_poly.poly(), x);
+  prover->Evaluate(permuted_input_poly.poly(), x_inv);
+  prover->Evaluate(permuted_table_poly.poly(), x);
+
+  return {
+      std::move(permuted_input_poly),
+      std::move(permuted_table_poly),
+      std::move(product_poly),
+  };
 }
 
 template <typename Poly, typename Evals>

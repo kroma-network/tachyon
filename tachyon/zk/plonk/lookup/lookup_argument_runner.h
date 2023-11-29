@@ -13,6 +13,7 @@
 #include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_evaluator.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/lookup/lookup_committed.h"
+#include "tachyon/zk/plonk/lookup/lookup_evaluated.h"
 #include "tachyon/zk/plonk/lookup/lookup_permuted.h"
 
 namespace tachyon::zk {
@@ -31,6 +32,11 @@ class LookupArgumentRunner {
   static LookupCommitted<Poly> CommitPermuted(
       Prover<PCSTy, ExtendedDomain>* prover,
       LookupPermuted<Poly, Evals>&& permuted, const F& beta, const F& gamma);
+
+  template <typename PCSTy, typename ExtendedDomain, typename F>
+  static LookupEvaluated<Poly> EvaluateCommitted(
+      Prover<PCSTy, ExtendedDomain>* prover, LookupCommitted<Poly>&& committed,
+      const F& x);
 
  private:
   FRIEND_TEST(LookupArgumentRunnerTest, ComputePermutationProduct);
