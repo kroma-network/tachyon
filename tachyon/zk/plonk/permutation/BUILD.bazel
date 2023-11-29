@@ -33,7 +33,13 @@ tachyon_cc_library(
     name = "permutation_argument",
     hdrs = ["permutation_argument.h"],
     deps = [
+        ":grand_product_argument",
+        ":permutation_committed",
+        ":permutation_proving_key",
+        ":permutation_table_store",
         "//tachyon/base/containers:contains",
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base:prover",
         "//tachyon/zk/plonk/circuit:column_key",
     ],
 )
@@ -46,6 +52,12 @@ tachyon_cc_library(
         "//tachyon/base/strings:rust_stringifier",
         "//tachyon/zk/plonk/circuit:column_key_stringifier",
     ],
+)
+
+tachyon_cc_library(
+    name = "permutation_committed",
+    hdrs = ["permutation_committed.h"],
+    deps = ["//tachyon/zk/base:blinded_polynomial"],
 )
 
 tachyon_cc_library(
