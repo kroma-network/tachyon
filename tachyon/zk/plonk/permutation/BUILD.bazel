@@ -13,6 +13,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "grand_product_argument",
+    hdrs = ["grand_product_argument.h"],
+    deps = [
+        "//tachyon/base:parallelize",
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base:prover",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
     name = "label",
     hdrs = ["label.h"],
     deps = ["//tachyon:export"],

@@ -8,14 +8,13 @@
 #define TACHYON_ZK_PLONK_LOOKUP_LOOKUP_PERMUTED_H_
 
 #include <utility>
-#include <vector>
 
 #include "gtest/gtest_prod.h"
 
-#include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/evals_pair.h"
 #include "tachyon/zk/plonk/lookup/lookup_committed.h"
 #include "tachyon/zk/plonk/lookup/permute_expression_pair.h"
+#include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 
 namespace tachyon::zk {
 
@@ -45,70 +44,49 @@ class LookupPermuted {
     return permuted_table_poly_;
   }
 
-  template <typename ProverTy>
-  LookupCommitted<Poly> CommitProduct(ProverTy& prover, const F& beta,
-                                      const F& gamma) && {
-    size_t blinding_factors = prover.blinder().blinded_factors();
-    Evals z = ComputePermutationProduct(blinding_factors, beta, gamma,
-                                        prover.pcs().N());
-    prover.blinder().Blind(z);
-
-    BlindedPolynomial<Poly> product_poly;
-    CHECK(prover.CommitEvalsWithBlind(z, &product_poly));
+  template <typename PCSTy>
+  LookupCommitted<Poly> CommitGrandProduct(Prover<PCSTy>* prover, const F& beta,
+                                           const F& gamma) && {
+    BlindedPolynomial<Poly> grand_product_poly = GrandProductArgument::Commit(
+        prover, CreateNumeratorCallback<F>(beta, gamma),
+        CreateDenominatorCallback<F>(beta, gamma));
 
     return LookupCommitted<Poly>(std::move(permuted_input_poly_),
                                  std::move(permuted_table_poly_),
-                                 std::move(product_poly));
+                                 std::move(grand_product_poly));
   }
 
  private:
   FRIEND_TEST(LookupPermutedTest, ComputePermutationProduct);
 
-  Evals ComputePermutationProduct(size_t blinding_factors, const F& beta,
-                                  const F& gamma, size_t params_size) const {
-    std::vector<F> lookup_product(params_size, F::Zero());
-
-    // 1. lookup_product[i] =
-    // (A'(xᵢ) + β) * (S'(xᵢ) + γ)
-    base::Parallelize(lookup_product, [&beta, &gamma, this](absl::Span<F> chunk,
-                                                            size_t chunk_index,
-                                                            size_t chunk_size) {
-      size_t i = chunk_index * chunk_size;
-      for (F& value : chunk) {
-        value = (*permuted_evals_pair_.input()[i] + beta) *
-                (*permuted_evals_pair_.table()[i] + gamma);
-        ++i;
-      }
-    });
-
-    // 2. lookup_product[i] =
-    //               1
-    //   ─────────────────────────
-    //   (A'(xᵢ) + β) * (S'(xᵢ) + γ)
-    F::BatchInverseInPlace(lookup_product);
-
-    // 3. lookup_product[i] =
-    //  (A_compressed(xᵢ) + β) * (S_compressed(xᵢ) + γ)
-    //  ─────────────────────────────────────────────
-    //            (A'(xᵢ) + β) * (S'(xᵢ) + γ)
-    base::Parallelize(lookup_product, [&beta, &gamma, this](absl::Span<F> chunk,
-                                                            size_t chunk_index,
-                                                            size_t chunk_size) {
+  template <typename F>
+  base::ParallelizeCallback3<F> CreateNumeratorCallback(const F& beta,
+                                                        const F& gamma) const {
+    // (A_compressed(xᵢ) + β) * (S_compressed(xᵢ) + γ)
+    return [&beta, &gamma, this](absl::Span<F> chunk, size_t chunk_index,
+                                 size_t chunk_size) {
       size_t i = chunk_index * chunk_size;
       for (F& value : chunk) {
         value *= (*compressed_evals_pair_.input()[i] + beta);
         value *= (*compressed_evals_pair_.table()[i] + gamma);
         ++i;
       }
-    });
+    };
+  }
 
-    std::vector<F> z;
-    z.resize(params_size);
-    z[0] = F::One();
-    for (size_t i = 0; i < params_size - blinding_factors - 1; ++i) {
-      z[i + 1] = z[i] * lookup_product[i];
-    }
-    return Evals(std::move(z));
+  template <typename F>
+  base::ParallelizeCallback3<F> CreateDenominatorCallback(
+      const F& beta, const F& gamma) const {
+    // (A'(xᵢ) + β) * (S'(xᵢ) + γ)
+    return [&beta, &gamma, this](absl::Span<F> chunk, size_t chunk_index,
+                                 size_t chunk_size) {
+      size_t i = chunk_index * chunk_size;
+      for (F& value : chunk) {
+        value = (*permuted_evals_pair_.input()[i] + beta) *
+                (*permuted_evals_pair_.table()[i] + gamma);
+        ++i;
+      }
+    };
   }
 
   EvalsPair<Evals> compressed_evals_pair_;
