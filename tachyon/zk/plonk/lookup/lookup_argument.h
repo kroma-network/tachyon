@@ -76,8 +76,8 @@ class LookupArgument {
   }
 
   template <typename ProverTy, typename Evals,
-            typename PCSTy = typename ProverTy::PCSTy>
-  LookupPermuted<PCSTy> CommitPermuted(
+            typename Poly = typename ProverTy::Poly>
+  LookupPermuted<Poly, Evals> CommitPermuted(
       ProverTy& prover, const F& theta,
       const SimpleEvaluator<Evals>& evaluator_tpl) {
     // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
@@ -104,12 +104,12 @@ class LookupArgument {
     CHECK_EQ(err, Error::kNone);
 
     // Commit(A'(X))
-    BlindedPolynomial<PCSTy> permuted_input_poly;
+    BlindedPolynomial<Poly> permuted_input_poly;
     CHECK(prover.CommitEvalsWithBlind(permuted_evals_pair.input(),
                                       &permuted_input_poly));
 
     // Commit(S'(X))
-    BlindedPolynomial<PCSTy> permuted_table_poly;
+    BlindedPolynomial<Poly> permuted_table_poly;
     CHECK(prover.CommitEvalsWithBlind(permuted_evals_pair.table(),
                                       &permuted_table_poly));
 

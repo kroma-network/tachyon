@@ -15,14 +15,10 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename Poly>
 class LookupCommitted {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
-  using MaxDegree = typename PCSTy::kMaxDegree;
-  using Commitment = typename PCSTy::Commitment;
-  using Domain = typename PCSTy::Domain;
+  using F = typename Poly::Field;
 
   LookupCommitted() = default;
   LookupCommitted(BlindedPolynomial<Poly> permuted_input_poly,
@@ -41,7 +37,7 @@ class LookupCommitted {
   const BlindedPolynomial<Poly>& product_poly() const { return product_poly_; }
 
   template <typename ProverTy>
-  LookupEvaluated<PCSTy> Evaluate(ProverTy& prover, const F& x) && {
+  LookupEvaluated<Poly> Evaluate(ProverTy& prover, const F& x) && {
     F x_inv = Rotation::Prev().RotateOmega(prover.domain(), x);
     F x_next = Rotation::Next().RotateOmega(prover.domain(), x);
 

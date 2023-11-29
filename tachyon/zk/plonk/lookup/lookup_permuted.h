@@ -19,14 +19,10 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename Poly, typename Evals>
 class LookupPermuted {
  public:
-  using F = typename PCSTy::Field;
-  using Evals = typename PCSTy::Evals;
-  using Poly = typename PCSTy::Poly;
-  using Commitment = typename PCSTy::Commitment;
-  using Domain = typename PCSTy::Domain;
+  using F = typename Poly::Field;
 
   LookupPermuted() = default;
   LookupPermuted(EvalsPair<Evals> compressed_evals_pair,
@@ -50,19 +46,19 @@ class LookupPermuted {
   }
 
   template <typename ProverTy>
-  LookupCommitted<PCSTy> CommitProduct(ProverTy& prover, const F& beta,
-                                       const F& gamma) && {
+  LookupCommitted<Poly> CommitProduct(ProverTy& prover, const F& beta,
+                                      const F& gamma) && {
     size_t blinding_factors = prover.blinder().blinded_factors();
     Evals z = ComputePermutationProduct(blinding_factors, beta, gamma,
                                         prover.pcs().N());
     prover.blinder().Blind(z);
 
-    BlindedPolynomial<PCSTy> product_poly;
+    BlindedPolynomial<Poly> product_poly;
     CHECK(prover.CommitEvalsWithBlind(z, &product_poly));
 
-    return LookupCommitted<PCSTy>(std::move(permuted_input_poly_),
-                                  std::move(permuted_table_poly_),
-                                  std::move(product_poly));
+    return LookupCommitted<Poly>(std::move(permuted_input_poly_),
+                                 std::move(permuted_table_poly_),
+                                 std::move(product_poly));
   }
 
  private:
