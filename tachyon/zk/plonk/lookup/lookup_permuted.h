@@ -57,7 +57,7 @@ class LookupPermuted {
                                         prover.pcs().N());
     prover.blinder().Blind(z);
 
-    BlindedPolynomial<PCSTy> product_poly;
+    BlindedPolynomial<Poly> product_poly;
     CHECK(prover.CommitEvalsWithBlind(z, &product_poly));
 
     return LookupCommitted<PCSTy>(std::move(permuted_input_poly_),
