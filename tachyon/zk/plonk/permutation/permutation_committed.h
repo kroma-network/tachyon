@@ -11,6 +11,8 @@
 #include <vector>
 
 #include "tachyon/zk/base/blinded_polynomial.h"
+#include "tachyon/zk/base/prover.h"
+#include "tachyon/zk/plonk/permutation/permutation_evaluated.h"
 
 namespace tachyon::zk {
 
@@ -24,6 +26,32 @@ class PermutationCommitted {
 
   const std::vector<BlindedPolynomial<Poly>>& product_polys() const {
     return product_polys_;
+  }
+
+  template <typename PCSTy, typename F>
+  PermutationEvaluated<Poly> Evaluate(Prover<PCSTy>* prover, const F& x) && {
+    int32_t blinding_factors =
+        static_cast<int32_t>(prover->blinder().blinding_factors());
+
+    for (size_t i = 0; i < product_polys_.size(); ++i) {
+      const Poly& poly = product_polys_[i].poly();
+
+      prover->Evaluate(poly, x);
+
+      F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
+      prover->Evaluate(poly, x_next);
+
+      // If we have any remaining sets to process, evaluate this set at ωᵘ
+      // so we can constrain the last value of its running product to equal the
+      // first value of the next set's running product, chaining them together.
+      if (i != product_polys_.size() - 1) {
+        F x_last =
+            Rotation(-(blinding_factors + 1)).RotateOmega(prover->domain(), x);
+        prover->Evaluate(poly, x_last);
+      }
+    }
+
+    return PermutationEvaluated<Poly>(std::move(product_polys_));
   }
 
  private:
