@@ -11,10 +11,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "lookup_argument",
     hdrs = ["lookup_argument.h"],
-    deps = [
-        ":compress_expression",
-        ":lookup_permuted",
-    ],
+    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
 )
 
 tachyon_cc_library(
@@ -54,6 +51,21 @@ tachyon_cc_library(
         ":permute_expression_pair",
         "//tachyon/zk/base:evals_pair",
         "//tachyon/zk/plonk/permutation:grand_product_argument",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_argument_runner",
+    hdrs = [
+        "lookup_argument_runner.h",
+        "lookup_argument_runner_impl.h",
+    ],
+    deps = [
+        ":compress_expression",
+        ":lookup_argument",
+        ":lookup_permuted",
+        "//tachyon/zk/base:prover",
+        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
     ],
 )
 
