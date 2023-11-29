@@ -38,7 +38,7 @@ class LookupEvaluated {
   const BlindedPolynomial<Poly>& product_poly() const { return product_poly_; }
 
   template <typename PCSTy>
-  std::vector<ProverQuery<PCSTy>> Open(Prover<PCSTy>* prover,
+  std::vector<ProverQuery<PCSTy>> Open(const Prover<PCSTy>* prover,
                                        const F& x) const {
     F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
     F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
