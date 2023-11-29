@@ -75,7 +75,7 @@ TEST_F(PermutationArgumentTest, Commit) {
       PermutationAssembly<PCS>::CreateForTesting(
           column_keys_, CycleStore(column_keys_.size(), kDomainSize));
 
-  PermutationProvingKey<PCS> pk = assembly.BuildProvingKey(prover_->domain());
+  PermutationProvingKey<PCS> pk = assembly.BuildProvingKey(prover_.get());
 
   F beta = F::Random();
   F gamma = F::Random();
