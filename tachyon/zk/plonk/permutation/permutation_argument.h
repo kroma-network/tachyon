@@ -44,7 +44,7 @@ class PermutationArgument {
     // this middleware.
     //
     // clang-format off
-    // (1 - (l_last(X) + l_blind(X))) * (z(ω * X) Π (p(X) + β * sᵢ(X) + γ) - z(X) Π (p(X) + \delta^i β * X + γ))
+    // (1 - (l_last(X) + l_blind(X))) * (z(ω * X) Π (p(X) + β * sᵢ(X) + γ) - z(X) Π (p(X) + β * δⁱ * X + γ))
     // clang-format on
     //
     // On the first sets of columns, except the first
