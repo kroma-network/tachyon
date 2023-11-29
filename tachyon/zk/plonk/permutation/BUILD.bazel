@@ -57,16 +57,18 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "permutation_committed",
     hdrs = ["permutation_committed.h"],
-    deps = [
-        ":permutation_evaluated",
-        "//tachyon/zk/base:prover",
-    ],
+    deps = [":permutation_evaluated"],
 )
 
 tachyon_cc_library(
     name = "permutation_evaluated",
     hdrs = ["permutation_evaluated.h"],
-    deps = ["//tachyon/zk/base:blinded_polynomial"],
+    deps = [
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base:prover",
+        "//tachyon/zk/base:prover_query",
+        "//tachyon/zk/plonk/circuit:rotation",
+    ],
 )
 
 tachyon_cc_library(
