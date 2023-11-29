@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/plonk/lookup/lookup_permuted.h"
+#include "tachyon/zk/plonk/lookup/lookup_argument_runner.h"
 
 #include <memory>
 #include <vector>
@@ -18,9 +18,9 @@
 
 namespace tachyon::zk {
 
-class LookupPermutedTest : public CompressExpressionTestSetting {};
+class LookupArgumentRunnerTest : public CompressExpressionTestSetting {};
 
-TEST_F(LookupPermutedTest, ComputePermutationProduct) {
+TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
   constexpr size_t kBlindingFactors = 5;
 
   const F beta = F::Random();
@@ -58,8 +58,10 @@ TEST_F(LookupPermutedTest, ComputePermutationProduct) {
 
   Evals z_evals = GrandProductArgument::CreatePolynomial<Evals>(
       kDomainSize, kBlindingFactors,
-      lookup_permuted.CreateNumeratorCallback<F>(beta, gamma),
-      lookup_permuted.CreateDenominatorCallback<F>(beta, gamma));
+      LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback<F>(
+          lookup_permuted, beta, gamma),
+      LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback<F>(
+          lookup_permuted, beta, gamma));
   const std::vector<F>& z = z_evals.evaluations();
 
   // sanity check brought from halo2

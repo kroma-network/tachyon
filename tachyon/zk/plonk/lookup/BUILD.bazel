@@ -47,10 +47,8 @@ tachyon_cc_library(
     name = "lookup_permuted",
     hdrs = ["lookup_permuted.h"],
     deps = [
-        ":lookup_committed",
-        ":permute_expression_pair",
+        "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:evals_pair",
-        "//tachyon/zk/plonk/permutation:grand_product_argument",
     ],
 )
 
@@ -63,9 +61,11 @@ tachyon_cc_library(
     deps = [
         ":compress_expression",
         ":lookup_argument",
+        ":lookup_committed",
         ":lookup_permuted",
         "//tachyon/zk/base:prover",
         "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
+        "//tachyon/zk/plonk/permutation:grand_product_argument",
     ],
 )
 
@@ -85,12 +85,12 @@ tachyon_cc_unittest(
     name = "lookup_argument_unittests",
     srcs = [
         "compress_expression_unittest.cc",
-        "lookup_permuted_unittest.cc",
+        "lookup_argument_runner_unittest.cc",
         "permute_expression_pair_unittest.cc",
     ],
     deps = [
         ":compress_expression",
-        ":lookup_permuted",
+        ":lookup_argument_runner",
         ":permute_expression_pair",
         "//tachyon/base:random",
         "//tachyon/zk/plonk/circuit/expressions:expression_factory",

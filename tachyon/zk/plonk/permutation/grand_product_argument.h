@@ -61,7 +61,7 @@ class GrandProductArgument {
   }
 
  private:
-  FRIEND_TEST(LookupPermutedTest, ComputePermutationProduct);
+  FRIEND_TEST(LookupArgumentRunnerTest, ComputePermutationProduct);
 
   template <typename Evals, typename Callable>
   static Evals CreatePolynomial(size_t size, size_t blinding_factors,

@@ -11,6 +11,7 @@
 
 #include "tachyon/zk/plonk/lookup/compress_expression.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument_runner.h"
+#include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 
 namespace tachyon::zk {
 
@@ -54,6 +55,56 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
 
   return {std::move(compressed_evals_pair), std::move(permuted_evals_pair),
           std::move(permuted_input_poly), std::move(permuted_table_poly)};
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename ExtendedDomain, typename F>
+LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
+    Prover<PCSTy, ExtendedDomain>* prover,
+    LookupPermuted<Poly, Evals>&& permuted, const F& beta, const F& gamma) {
+  BlindedPolynomial<Poly> grand_product_poly = GrandProductArgument::Commit(
+      prover, CreateNumeratorCallback<F>(permuted, beta, gamma),
+      CreateDenominatorCallback<F>(permuted, beta, gamma));
+
+  return LookupCommitted<Poly>(std::move(permuted).permuted_input_poly(),
+                               std::move(permuted).permuted_table_poly(),
+                               std::move(grand_product_poly));
+}
+
+template <typename Poly, typename Evals>
+template <typename F>
+base::ParallelizeCallback3<F>
+LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
+    const LookupPermuted<Poly, Evals>& permuted, const F& beta,
+    const F& gamma) {
+  // (A_compressed(xᵢ) + β) * (S_compressed(xᵢ) + γ)
+  return [&beta, &gamma, &permuted](absl::Span<F> chunk, size_t chunk_index,
+                                    size_t chunk_size) {
+    size_t i = chunk_index * chunk_size;
+    for (F& value : chunk) {
+      value *= (*permuted.compressed_evals_pair().input()[i] + beta);
+      value *= (*permuted.compressed_evals_pair().table()[i] + gamma);
+      ++i;
+    }
+  };
+}
+
+template <typename Poly, typename Evals>
+template <typename F>
+base::ParallelizeCallback3<F>
+LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
+    const LookupPermuted<Poly, Evals>& permuted, const F& beta,
+    const F& gamma) {
+  // (A'(xᵢ) + β) * (S'(xᵢ) + γ)
+  return [&beta, &gamma, &permuted](absl::Span<F> chunk, size_t chunk_index,
+                                    size_t chunk_size) {
+    size_t i = chunk_index * chunk_size;
+    for (F& value : chunk) {
+      value = (*permuted.permuted_evals_pair().input()[i] + beta) *
+              (*permuted.permuted_evals_pair().table()[i] + gamma);
+      ++i;
+    }
+  };
 }
 
 }  // namespace tachyon::zk
