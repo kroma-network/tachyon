@@ -22,7 +22,7 @@ class GrandProductArgument {
     using Evals = typename PCSTy::Evals;
 
     size_t size = prover->pcs().N();
-    size_t blinding_factors = prover->blinder().blinded_factors();
+    size_t blinding_factors = prover->blinder().blinding_factors();
     Evals z = CreatePolynomial<Evals>(size, blinding_factors,
                                       std::move(numerator_callback),
                                       std::move(denominator_callback));
