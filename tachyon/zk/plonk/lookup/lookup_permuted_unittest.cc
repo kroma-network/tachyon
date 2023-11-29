@@ -56,8 +56,10 @@ TEST_F(LookupPermutedTest, ComputePermutationProduct) {
       std::move(compressed_evals_pair), std::move(permuted_evals_pair),
       BlindedPolynomial<Poly>(), BlindedPolynomial<Poly>());
 
-  Evals z_evals = lookup_permuted.ComputePermutationProduct(
-      kBlindingFactors, beta, gamma, kDomainSize);
+  Evals z_evals = GrandProductArgument::CreatePolynomial<Evals>(
+      kDomainSize, kBlindingFactors,
+      lookup_permuted.CreateNumeratorCallback<F>(beta, gamma),
+      lookup_permuted.CreateDenominatorCallback<F>(beta, gamma));
   const std::vector<F>& z = z_evals.evaluations();
 
   // sanity check brought from halo2

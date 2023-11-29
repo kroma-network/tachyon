@@ -12,6 +12,13 @@
 
 namespace tachyon::base {
 
+template <typename T>
+using ParallelizeCallback1 = std::function<void(absl::Span<T>)>;
+template <typename T>
+using ParallelizeCallback2 = std::function<void(absl::Span<T>, size_t)>;
+template <typename T>
+using ParallelizeCallback3 = std::function<void(absl::Span<T>, size_t, size_t)>;
+
 // Splits the |container| by |chunk_size| and executes |callback| in parallel.
 // See parallelize_unittest.cc for more details.
 template <typename ContainerTy, typename Callable,
