@@ -52,7 +52,7 @@ TEST_F(LookupPermutedTest, ComputePermutationProduct) {
                                     &permuted_evals_pair);
   ASSERT_EQ(err, Error::kNone);
 
-  LookupPermuted<PCS> lookup_permuted(
+  LookupPermuted<Poly, Evals> lookup_permuted(
       std::move(compressed_evals_pair), std::move(permuted_evals_pair),
       BlindedPolynomial<Poly>(), BlindedPolynomial<Poly>());
 

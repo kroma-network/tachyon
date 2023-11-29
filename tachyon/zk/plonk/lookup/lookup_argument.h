@@ -76,9 +76,8 @@ class LookupArgument {
   }
 
   template <typename ProverTy, typename Evals,
-            typename Poly = typename ProverTy::Poly,
-            typename PCSTy = typename ProverTy::PCSTy>
-  LookupPermuted<PCSTy> CommitPermuted(
+            typename Poly = typename ProverTy::Poly>
+  LookupPermuted<Poly, Evals> CommitPermuted(
       ProverTy& prover, const F& theta,
       const SimpleEvaluator<Evals>& evaluator_tpl) {
     // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)

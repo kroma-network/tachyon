@@ -15,11 +15,10 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename Poly>
 class LookupEvaluated {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
+  using F = typename Poly::Field;
 
   LookupEvaluated() = default;
   LookupEvaluated(BlindedPolynomial<Poly> permuted_input_poly,
@@ -37,7 +36,7 @@ class LookupEvaluated {
   }
   const BlindedPolynomial<Poly>& product_poly() const { return product_poly_; }
 
-  template <typename ProverTy>
+  template <typename ProverTy, typename PCSTy = typename ProverTy::PCSTy>
   std::vector<ProverQuery<PCSTy>> Open(const ProverTy& prover,
                                        const F& x) const {
     F x_inv = Rotation::Prev().RotateOmega(prover.domain(), x);
