@@ -35,7 +35,7 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
                          Evals(std::move(table_evals)));
   EvalsPair<Evals> output;
 
-  Error err = PermuteExpressionPair(*prover_, input, &output);
+  Error err = PermuteExpressionPair(prover_.get(), input, &output);
   ASSERT_EQ(err, Error::kNone);
 
   // sanity check brought from halo2
@@ -62,7 +62,7 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTestWrong) {
   EvalsPair<Evals> input = {Evals(std::move(input_evals)),
                             Evals(std::move(table_evals))};
   EvalsPair<Evals> output;
-  Error err = PermuteExpressionPair(*prover_, input, &output);
+  Error err = PermuteExpressionPair(prover_.get(), input, &output);
   ASSERT_EQ(err, Error::kConstraintSystemFailure);
 }
 

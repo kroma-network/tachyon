@@ -48,7 +48,7 @@ TEST_F(LookupPermutedTest, ComputePermutationProduct) {
       std::move(compressed_table_expression));
 
   EvalsPair<Evals> permuted_evals_pair;
-  Error err = PermuteExpressionPair(*prover_, compressed_evals_pair,
+  Error err = PermuteExpressionPair(prover_.get(), compressed_evals_pair,
                                     &permuted_evals_pair);
   ASSERT_EQ(err, Error::kNone);
 

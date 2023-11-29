@@ -32,7 +32,6 @@ tachyon_cc_library(
     hdrs = ["lookup_committed.h"],
     deps = [
         ":lookup_evaluated",
-        "//tachyon/zk/base:prover",
         "//tachyon/zk/plonk/circuit:rotation",
     ],
 )
@@ -42,6 +41,7 @@ tachyon_cc_library(
     hdrs = ["lookup_evaluated.h"],
     deps = [
         "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base:prover",
         "//tachyon/zk/base:prover_query",
     ],
 )
@@ -63,6 +63,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base:evals_pair",
+        "//tachyon/zk/base:prover",
         "//tachyon/zk/plonk:error",
         "@com_google_absl//absl/container:btree",
     ],

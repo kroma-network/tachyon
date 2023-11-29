@@ -36,16 +36,16 @@ class LookupCommitted {
   }
   const BlindedPolynomial<Poly>& product_poly() const { return product_poly_; }
 
-  template <typename ProverTy>
-  LookupEvaluated<Poly> Evaluate(ProverTy& prover, const F& x) && {
-    F x_inv = Rotation::Prev().RotateOmega(prover.domain(), x);
-    F x_next = Rotation::Next().RotateOmega(prover.domain(), x);
+  template <typename PCSTy>
+  LookupEvaluated<Poly> Evaluate(Prover<PCSTy>* prover, const F& x) && {
+    F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
+    F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 
-    prover.Evaluate(product_poly_.poly(), x);
-    prover.Evaluate(product_poly_.poly(), x_next);
-    prover.Evaluate(permuted_input_poly_.poly(), x);
-    prover.Evaluate(permuted_input_poly_.poly(), x_inv);
-    prover.Evaluate(permuted_table_poly_.poly(), x);
+    prover->Evaluate(product_poly_.poly(), x);
+    prover->Evaluate(product_poly_.poly(), x_next);
+    prover->Evaluate(permuted_input_poly_.poly(), x);
+    prover->Evaluate(permuted_input_poly_.poly(), x_inv);
+    prover->Evaluate(permuted_table_poly_.poly(), x);
 
     return {
         std::move(permuted_input_poly_),

@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/zk/base/prover.h"
 #include "tachyon/zk/plonk/lookup/compress_expression.h"
 #include "tachyon/zk/plonk/lookup/lookup_permuted.h"
 
@@ -75,20 +76,20 @@ class LookupArgument {
     return 2 + max_input_degree + max_table_degree;
   }
 
-  template <typename ProverTy, typename Evals,
-            typename Poly = typename ProverTy::Poly>
+  template <typename PCSTy, typename Evals,
+            typename Poly = typename PCSTy::Poly>
   LookupPermuted<Poly, Evals> CommitPermuted(
-      ProverTy& prover, const F& theta,
+      Prover<PCSTy>* prover, const F& theta,
       const SimpleEvaluator<Evals>& evaluator_tpl) {
     // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
     Evals compressed_input_expression;
-    CHECK(CompressExpressions(input_expressions_, prover.domain()->size(),
+    CHECK(CompressExpressions(input_expressions_, prover->domain()->size(),
                               theta, evaluator_tpl,
                               &compressed_input_expression));
 
     // S_compressed(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
     Evals compressed_table_expression;
-    CHECK(CompressExpressions(table_expressions_, prover.domain()->size(),
+    CHECK(CompressExpressions(table_expressions_, prover->domain()->size(),
                               theta, evaluator_tpl,
                               &compressed_table_expression));
 
@@ -105,13 +106,13 @@ class LookupArgument {
 
     // Commit(A'(X))
     BlindedPolynomial<Poly> permuted_input_poly;
-    CHECK(prover.CommitEvalsWithBlind(permuted_evals_pair.input(),
-                                      &permuted_input_poly));
+    CHECK(prover->CommitEvalsWithBlind(permuted_evals_pair.input(),
+                                       &permuted_input_poly));
 
     // Commit(S'(X))
     BlindedPolynomial<Poly> permuted_table_poly;
-    CHECK(prover.CommitEvalsWithBlind(permuted_evals_pair.table(),
-                                      &permuted_table_poly));
+    CHECK(prover->CommitEvalsWithBlind(permuted_evals_pair.table(),
+                                       &permuted_table_poly));
 
     return {std::move(compressed_evals_pair), std::move(permuted_evals_pair),
             std::move(permuted_input_poly), std::move(permuted_table_poly)};
