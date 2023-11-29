@@ -37,7 +37,6 @@ class UnpermutedTable {
   const F& operator[](const Label& label) const {
     return *table_[label.col][label.row];
   }
-  F& operator[](const Label& label) { return *table_[label.col][label.row]; }
 
   Ref<const Evals> GetColumn(size_t i) const {
     return Ref<const Evals>(&table_[i]);
