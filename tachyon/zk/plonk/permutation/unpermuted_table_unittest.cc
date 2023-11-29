@@ -26,10 +26,10 @@ TEST_F(UnpermutedTableTest, Construct) {
 
   UnpermutedTable<PCS> unpermuted_table =
       UnpermutedTable<PCS>::Construct(kCols, domain);
-  F omega = domain->group_gen();
+  const F& omega = domain->group_gen();
   std::vector<F> omega_powers = domain->GetRootsOfUnity(kMaxDegree + 1, omega);
 
-  F delta = unpermuted_table.GetDelta();
+  const F delta = unpermuted_table.GetDelta();
   EXPECT_NE(delta, F::One());
   EXPECT_EQ(delta.Pow(F::Config::kTrace), F::One());
   for (size_t i = 1; i < kCols; ++i) {
