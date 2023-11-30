@@ -9,6 +9,7 @@ tachyon_cc_library(
         "//tachyon/zk/base:value",
         "//tachyon/zk/plonk:constraint_system",
         "//tachyon/zk/plonk/circuit",
+        "//tachyon/zk/plonk/circuit/floor_planner:simple_floor_planner",
     ],
 )
 

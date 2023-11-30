@@ -138,14 +138,6 @@ class SingleChipLayouter : public Layouter<F> {
     return lookup_table_columns_;
   }
 
-  template <typename CircuitTy, typename Config = typename CircuitTy::Config>
-  static Error Synthesize(Assignment<F>* assignment, CircuitTy& circuit,
-                          Config config,
-                          std::vector<FixedColumnKey> constants) {
-    SingleChipLayouter layouter(assignment, std::move(constants));
-    return circuit.Synthesize(std::move(config));
-  }
-
   // Layouter<F> methods
   Error AssignRegion(std::string_view name,
                      AssignRegionCallback assign) override {

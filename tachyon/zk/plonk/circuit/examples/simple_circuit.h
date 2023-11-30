@@ -14,6 +14,7 @@
 
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/circuit.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
 #include "tachyon/zk/plonk/constraint_system.h"
 
 namespace tachyon::zk {
@@ -177,6 +178,8 @@ class FieldChip {
 template <typename F>
 class SimpleCircuit : public Circuit<FieldConfig<F>> {
  public:
+  using FloorPlanner = SimpleFloorPlanner;
+
   SimpleCircuit() = default;
 
   std::unique_ptr<Circuit<FieldConfig<F>>> WithoutWitness() const override {
