@@ -239,8 +239,9 @@ class SingleChipLayouter : public Layouter<F> {
                                                     &lookup_table_columns_);
     Error error = std::move(assign).Run(table);
     if (error != Error::kNone) return error;
-    const absl::flat_hash_map<LookupTableColumn, SimpleTableLayouter<F>::Value>&
-        values = table.values();
+    const absl::flat_hash_map<LookupTableColumn,
+                              SimpleLookupTableLayouter<F>::Value>& values =
+        table.values();
     assignment_->ExitRegion();
 
     // Check that all table columns have the same length |first_unused|,
@@ -248,7 +249,7 @@ class SingleChipLayouter : public Layouter<F> {
     std::optional<size_t> first_unused = 0;
     std::vector<std::optional<size_t>> assigned_sizes = base::Map(
         values.begin(), values.end(),
-        [](const SimpleTableLayouter<F>::Value& value) {
+        [](const SimpleLookupTableLayouter<F>::Value& value) {
           if (std::all_of(value.assigned.begin(), value.assigned.end(),
                           base::identity<bool>())) {
             return std::optional<size_t>(value.assigned.size());
