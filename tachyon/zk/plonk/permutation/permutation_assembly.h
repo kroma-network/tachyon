@@ -91,7 +91,7 @@ class PermutationAssembly {
     for (size_t i = 0; i < columns_.size(); ++i) {
       Commitment commitment;
       CHECK(pcs.CommitLagrange(permutations[i], &commitment));
-      commitments.push_back(commitment);
+      commitments.push_back(std::move(commitment));
     }
 
     return PermutationVerifyingKey<PCSTy>(std::move(commitments));
