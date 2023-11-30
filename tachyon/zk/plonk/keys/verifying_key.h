@@ -124,7 +124,7 @@ Error VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
   ConstraintSystem<F> constraint_system;
   Config config = CircuitTy::Configure(constraint_system);
   std::unique_ptr<DomainTy> domain =
-      math::UnivariateEvaluationDomainFactory<F, kMaxDegree>::Create(pcs.n());
+      math::UnivariateEvaluationDomainFactory<F, kMaxDegree>::Create(pcs.N());
 
   if (pcs.N() < constraint_system.ComputeMinimumRows()) {
     return Error::kNotEnoughRowsAvailable;

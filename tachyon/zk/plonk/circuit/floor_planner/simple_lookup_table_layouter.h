@@ -9,10 +9,10 @@
 
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/math/base/rational_field.h"
+#include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
 #include "tachyon/zk/plonk/circuit/lookup_table.h"
 #include "tachyon/zk/plonk/circuit/lookup_table_column.h"
-#include "tachyon/zk/value.h"
 
 namespace tachyon::zk {
 

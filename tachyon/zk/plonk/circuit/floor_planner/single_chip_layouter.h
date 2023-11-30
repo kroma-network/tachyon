@@ -44,7 +44,8 @@ class SingleChipLayouter : public Layouter<F> {
     }
 
     Error AssignAdvice(std::string_view name, const AdviceColumnKey& column,
-                       size_t offset, AssignCallback to, Cell* cell) override {
+                       size_t offset, AssignCallback assign,
+                       Cell* cell) override {
       Error error = layouter_->assignment_->AssignAdvice(
           name, column, layouter_->regions_[region_index_] + offset,
           std::move(assign));
@@ -165,7 +166,7 @@ class SingleChipLayouter : public Layouter<F> {
     for (auto it = shape.columns().begin(); it != shape.columns().end(); ++it) {
       size_t column_start = columns_[it->first];
       if (column_start != 0 && log_region_info) {
-        VLOG(3) << "columns " << column.ToString()
+        VLOG(3) << "columns " << it->ToString()
                 << " reused between multi regions. start: " << column_start
                 << " region: \"" << name << "\"";
       }
@@ -229,11 +230,11 @@ class SingleChipLayouter : public Layouter<F> {
     assignment_->EnterRegion(name);
     SimpleLookupTableLayouter lookup_table_layouter(&assignment_,
                                                     &lookup_table_columns_);
-    Error error = std::move(assign).Run(table);
+    Error error = std::move(assign).Run(lookup_table_layouter);
     if (error != Error::kNone) return error;
     const absl::flat_hash_map<LookupTableColumn,
                               SimpleLookupTableLayouter<F>::Value>& values =
-        table.values();
+        lookup_table_layouter.values();
     assignment_->ExitRegion();
 
     // Check that all table columns have the same length |first_unused|,
