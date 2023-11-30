@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/plonk/constraint_system.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 

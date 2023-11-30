@@ -53,6 +53,7 @@ tachyon_cc_library(
     hdrs = ["vanishing_argument.h"],
     deps = [
         ":graph_evaluator",
+        "//tachyon/base/containers:container_util",
         "//tachyon/zk/plonk:constraint_system",
     ],
 )
