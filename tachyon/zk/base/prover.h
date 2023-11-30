@@ -16,7 +16,7 @@
 
 namespace tachyon::zk {
 
-template <typename _PCSTy>
+template <typename _PCSTy, typename ExtendedDomain>
 class Prover {
  public:
   using PCSTy = _PCSTy;
@@ -26,15 +26,21 @@ class Prover {
   using Poly = typename PCSTy::Poly;
   using Commitment = typename PCSTy::Commitment;
 
-  Prover(PCSTy pcs, std::unique_ptr<Domain> domain, Blinder<PCSTy> blinder,
+  Prover(PCSTy pcs, std::unique_ptr<Domain> domain,
+         std::unique_ptr<ExtendedDomain> extended_domain,
+         Blinder<PCSTy> blinder,
          std::unique_ptr<TranscriptWriter<Commitment>> writer)
       : pcs_(std::move(pcs)),
         domain_(std::move(domain)),
+        extended_domain_(std::move(extended_domain)),
         blinder_(std::move(blinder)),
         writer_(std::move(writer)) {}
 
   const PCSTy& pcs() const { return pcs_; }
   const Domain* domain() const { return domain_.get(); }
+  const ExtendedDomain* extended_domain() const {
+    return extended_domain_.get();
+  }
   Blinder<PCSTy>& blinder() { return blinder_; }
   TranscriptWriter<Commitment>* writer() { return writer_.get(); }
 
@@ -57,6 +63,7 @@ class Prover {
  protected:
   PCSTy pcs_;
   std::unique_ptr<Domain> domain_;
+  std::unique_ptr<ExtendedDomain> extended_domain_;
   Blinder<PCSTy> blinder_;
   std::unique_ptr<TranscriptWriter<Commitment>> writer_;
 };
