@@ -13,15 +13,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "cl_evaluator",
-    hdrs = ["cl_evaluator.h"],
-    deps = [
-        ":graph_evaluator",
-        "//tachyon/zk/plonk:constraint_system",
-    ],
-)
-
-tachyon_cc_library(
     name = "graph_evaluator",
     hdrs = ["graph_evaluator.h"],
     deps = [
@@ -55,6 +46,15 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "value_source_data",
     hdrs = ["value_source_data.h"],
+)
+
+tachyon_cc_library(
+    name = "vanishing_argument",
+    hdrs = ["vanishing_argument.h"],
+    deps = [
+        ":graph_evaluator",
+        "//tachyon/zk/plonk:constraint_system",
+    ],
 )
 
 tachyon_cc_unittest(

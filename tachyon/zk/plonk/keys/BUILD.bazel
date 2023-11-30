@@ -8,7 +8,7 @@ tachyon_cc_library(
     deps = [
         ":verifying_key",
         "//tachyon/zk/plonk/permutation:permutation_proving_key",
-        "//tachyon/zk/plonk/vanishing:cl_evaluator",
+        "//tachyon/zk/plonk/vanishing:vanishing_argument",
     ],
 )
 
