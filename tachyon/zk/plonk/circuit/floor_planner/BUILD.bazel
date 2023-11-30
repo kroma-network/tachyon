@@ -30,5 +30,6 @@ tachyon_cc_library(
         "//tachyon/base/functional:identity",
         "//tachyon/zk/plonk/circuit:layouter",
         "//tachyon/zk/plonk/circuit:region_column",
+        "//tachyon/zk/plonk/circuit:region_shape",
     ],
 )

@@ -14,6 +14,7 @@
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 #include "tachyon/zk/plonk/circuit/region_column.h"
+#include "tachyon/zk/plonk/circuit/region_shape.h"
 
 namespace tachyon::zk {
 
