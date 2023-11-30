@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_GRAPH_EVALUATOR_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_GRAPH_EVALUATOR_H_
+#ifndef TACHYON_ZK_PLONK_VANISHING_GRAPH_EVALUATOR_H_
+#define TACHYON_ZK_PLONK_VANISHING_GRAPH_EVALUATOR_H_
 
 #include <string>
 #include <vector>
@@ -17,7 +17,6 @@
 #include "tachyon/zk/plonk/circuit/expressions/challenge_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/constant_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/evaluator.h"
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/calculation.h"
 #include "tachyon/zk/plonk/circuit/expressions/fixed_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/instance_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/negated_expression.h"
@@ -25,6 +24,7 @@
 #include "tachyon/zk/plonk/circuit/expressions/scaled_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/selector_expression.h"
 #include "tachyon/zk/plonk/circuit/expressions/sum_expression.h"
+#include "tachyon/zk/plonk/vanishing/calculation.h"
 
 namespace tachyon::zk {
 
@@ -268,4 +268,4 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_GRAPH_EVALUATOR_H_
+#endif  // TACHYON_ZK_PLONK_VANISHING_GRAPH_EVALUATOR_H_

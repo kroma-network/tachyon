@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/graph_evaluator.h"
+#include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 
 #include <memory>
 

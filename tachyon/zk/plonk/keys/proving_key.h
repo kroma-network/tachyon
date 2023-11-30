@@ -10,9 +10,9 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/cl_evaluator.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
+#include "tachyon/zk/plonk/vanishing/cl_evaluator.h"
 
 namespace tachyon::zk {
 

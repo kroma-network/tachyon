@@ -4,15 +4,15 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_CL_EVALUATOR_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_CL_EVALUATOR_H_
+#ifndef TACHYON_ZK_PLONK_VANISHING_CL_EVALUATOR_H_
+#define TACHYON_ZK_PLONK_VANISHING_CL_EVALUATOR_H_
 
 #include <memory>
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/graph_evaluator.h"
 #include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 
 namespace tachyon::zk {
 
@@ -87,4 +87,4 @@ class CLEvaluator {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_CL_EVALUATOR_H_
+#endif  // TACHYON_ZK_PLONK_VANISHING_CL_EVALUATOR_H_

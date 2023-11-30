@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/value_source.h"
+#include "tachyon/zk/plonk/vanishing/value_source.h"
 
 #include "gtest/gtest.h"
 
