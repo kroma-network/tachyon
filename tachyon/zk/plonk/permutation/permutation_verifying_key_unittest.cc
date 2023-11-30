@@ -9,25 +9,15 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
-#include "tachyon/crypto/commitments/kzg/kzg_commitment_scheme.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
+#include "tachyon/zk/base/halo2_prover_test.h"
 
 namespace tachyon::zk {
 
 namespace {
 
-class PermutationVerifyingKeyTest : public testing::Test {
+class PermutationVerifyingKeyTest : public Halo2ProverTest {
  public:
-  constexpr static size_t kMaxDegree = 7;
-
-  using PCS =
-      crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
-                                  math::bn254::G2AffinePoint, kMaxDegree,
-                                  math::bn254::G1AffinePoint>;
   using VerifyingKey = PermutationVerifyingKey<PCS>;
-
-  static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
 
 }  // namespace

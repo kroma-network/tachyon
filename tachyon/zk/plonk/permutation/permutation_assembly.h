@@ -115,8 +115,8 @@ class PermutationAssembly {
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
   std::vector<Evals> GeneratePermutations(const Domain* domain) const {
-    UnpermutedTable<PCSTy> unpermuted_table =
-        UnpermutedTable<PCSTy>::Construct(columns_.size(), domain);
+    UnpermutedTable<Evals> unpermuted_table =
+        UnpermutedTable<Evals>::Construct(columns_.size(), domain);
 
     // Init evaluation formed polynomials with all-zero coefficients.
     std::vector<Evals> permutations =

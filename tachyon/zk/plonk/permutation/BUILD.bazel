@@ -33,7 +33,13 @@ tachyon_cc_library(
     name = "permutation_argument",
     hdrs = ["permutation_argument.h"],
     deps = [
+        ":grand_product_argument",
+        ":permutation_committed",
+        ":permutation_proving_key",
+        ":permutation_table_store",
         "//tachyon/base/containers:contains",
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base:prover",
         "//tachyon/zk/plonk/circuit:column_key",
     ],
 )
@@ -49,9 +55,27 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "permutation_committed",
+    hdrs = ["permutation_committed.h"],
+    deps = ["//tachyon/zk/base:blinded_polynomial"],
+)
+
+tachyon_cc_library(
     name = "permutation_proving_key",
     hdrs = ["permutation_proving_key.h"],
     deps = ["//tachyon/base/buffer:copyable"],
+)
+
+tachyon_cc_library(
+    name = "permutation_table_store",
+    hdrs = ["permutation_table_store.h"],
+    deps = [
+        ":permuted_table",
+        ":unpermuted_table",
+        "//tachyon/zk/plonk/circuit:table",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_prod",
+    ],
 )
 
 tachyon_cc_library(
@@ -69,6 +93,16 @@ tachyon_cc_library(
         ":permutation_verifying_key",
         "//tachyon/base/strings:rust_stringifier",
         "//tachyon/zk/base:point_stringifier",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permuted_table",
+    hdrs = ["permuted_table.h"],
+    deps = [
+        ":label",
+        "//tachyon/base:range",
+        "//tachyon/zk/base:ref",
     ],
 )
 
@@ -93,7 +127,9 @@ tachyon_cc_library(
     hdrs = ["unpermuted_table.h"],
     deps = [
         ":label",
+        "//tachyon/base:range",
         "//tachyon/base/containers:container_util",
+        "//tachyon/zk/base:ref",
         "@com_google_googletest//:gtest_prod",
     ],
 )
@@ -105,11 +141,13 @@ tachyon_cc_unittest(
         "permutation_argument_unittest.cc",
         "permutation_assembly_unittest.cc",
         "permutation_proving_key_unittest.cc",
+        "permutation_table_store_unittest.cc",
         "permutation_verifying_key_unittest.cc",
         "unpermuted_table_unittest.cc",
     ],
     deps = [
         ":permutation_assembly",
+        ":permutation_table_store",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/zk/base:halo2_prover_test",
     ],

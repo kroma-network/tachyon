@@ -31,9 +31,8 @@ class Blinder {
     size_t size = evals.NumElements();
     if (size < blinding_factors_) return false;
     size_t start = size - blinding_factors_;
-    std::vector<F>& values = evals.evaluations();
     for (size_t i = start; i < size; ++i) {
-      values[i] = random_field_generator_->Generate();
+      *evals[i] = random_field_generator_->Generate();
     }
     return true;
   }

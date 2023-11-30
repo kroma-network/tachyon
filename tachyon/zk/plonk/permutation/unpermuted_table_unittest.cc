@@ -10,50 +10,68 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/crypto/commitments/kzg/kzg_commitment_scheme.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
-#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
+#include "tachyon/zk/base/halo2_prover_test.h"
 
 namespace tachyon::zk {
 
 namespace {
 
-class UnpermutedTableTest : public testing::Test {
+class UnpermutedTableTest : public Halo2ProverTest {
  public:
-  constexpr static size_t kMaxDegree = 7;
+  constexpr static size_t kCols = 4;
 
-  using PCS =
-      crypto::KZGCommitmentScheme<math::bn254::G1AffinePoint,
-                                  math::bn254::G2AffinePoint, kMaxDegree,
-                                  math::bn254::G1AffinePoint>;
+  void SetUp() override {
+    Halo2ProverTest::SetUp();
+    unpermuted_table_ =
+        UnpermutedTable<Evals>::Construct(kCols, prover_->domain());
+  }
 
-  static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
+ protected:
+  UnpermutedTable<Evals> unpermuted_table_;
 };
 
 }  // namespace
 
 TEST_F(UnpermutedTableTest, Construct) {
-  constexpr size_t kMaxDegree = 7;
-  constexpr size_t kCols = 4;
+  const Domain* domain = prover_->domain();
 
-  using F = math::bn254::G1Curve::ScalarField;
-
-  std::unique_ptr<math::UnivariateEvaluationDomain<F, kMaxDegree>> domain =
-      math::UnivariateEvaluationDomain<F, kMaxDegree>::Create(kMaxDegree + 1);
-  UnpermutedTable<PCS> unpermuted_table =
-      UnpermutedTable<PCS>::Construct(kCols, domain.get());
-  F omega = domain->group_gen();
+  const F& omega = domain->group_gen();
   std::vector<F> omega_powers = domain->GetRootsOfUnity(kMaxDegree + 1, omega);
 
-  F delta = unpermuted_table.GetDelta();
+  const F delta = unpermuted_table_.GetDelta();
   EXPECT_NE(delta, F::One());
   EXPECT_EQ(delta.Pow(F::Config::kTrace), F::One());
   for (size_t i = 1; i < kCols; ++i) {
     for (size_t j = 0; j < kMaxDegree + 1; ++j) {
       omega_powers[j] *= delta;
-      EXPECT_EQ(omega_powers[j], unpermuted_table[Label(i, j)]);
+      EXPECT_EQ(omega_powers[j], unpermuted_table_[Label(i, j)]);
     }
   }
 }
+
+TEST_F(UnpermutedTableTest, GetColumns) {
+  const Domain* domain = prover_->domain();
+
+  const F& omega = domain->group_gen();
+  const F delta = unpermuted_table_.GetDelta();
+  std::vector<F> omega_powers = domain->GetRootsOfUnity(kMaxDegree + 1, omega);
+  for (F& omega_power : omega_powers) {
+    omega_power *= delta;
+  }
+
+  Ref<const Evals> column = unpermuted_table_.GetColumn(1);
+  for (size_t i = 0; i < kMaxDegree + 1; ++i) {
+    EXPECT_EQ(omega_powers[i], *(*column)[i]);
+  }
+
+  std::vector<Ref<const Evals>> columns =
+      unpermuted_table_.GetColumns(base::Range<size_t>(2, 4));
+  for (size_t i = 0; i < 2; ++i) {
+    for (size_t j = 0; j < kMaxDegree + 1; ++j) {
+      omega_powers[j] *= delta;
+      EXPECT_EQ(omega_powers[j], *(*columns[i])[j]);
+    }
+  }
+}
+
 }  // namespace tachyon::zk
