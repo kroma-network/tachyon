@@ -11,13 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/contains.h"
-#include "tachyon/zk/base/blinded_polynomial.h"
-#include "tachyon/zk/base/prover.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
-#include "tachyon/zk/plonk/permutation/grand_product_argument.h"
-#include "tachyon/zk/plonk/permutation/permutation_committed.h"
-#include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
-#include "tachyon/zk/plonk/permutation/permutation_table_store.h"
 
 namespace tachyon::zk {
 
@@ -74,110 +68,7 @@ class PermutationArgument {
     return 3;
   }
 
-  // Returns commitments of Zₚ,ᵢ for chunk index i.
-  //
-  // See Halo2 book to figure out logic in detail.
-  // https://zcash.github.io/halo2/design/proving-system/permutation.html
-  template <typename PCSTy, typename Evals = typename PCSTy::Evals,
-            typename Poly = typename PCSTy::Poly,
-            typename F = typename PCSTy::Field>
-  PermutationCommitted<Poly> Commit(
-      Prover<PCSTy>* prover, Table<Evals>& table,
-      size_t constraint_system_degree,
-      const PermutationProvingKey<PCSTy>& permutation_proving_key,
-      const F& beta, const F& gamma) {
-    // How many columns can be included in a single permutation polynomial?
-    // We need to multiply by z(X) and (1 - (l_last(X) + l_blind(X))). This
-    // will never underflow because of the requirement of at least a degree
-    // 3 circuit for the permutation argument.
-    CHECK_GE(constraint_system_degree, RequiredDegree());
-
-    size_t chunk_size = constraint_system_degree - 2;
-    size_t chunk_num = (columns_.size() + chunk_size - 1) / chunk_size;
-
-    UnpermutedTable<Evals> unpermuted_table =
-        UnpermutedTable<Evals>::Construct(columns_.size(), prover->domain());
-    PermutedTable<Evals> permuted_table(
-        &permutation_proving_key.permutations());
-    PermutationTableStore<Evals> table_store(columns_, table, permuted_table,
-                                             unpermuted_table, chunk_size);
-
-    std::vector<BlindedPolynomial<Poly>> grand_product_polys;
-    grand_product_polys.reserve(chunk_num);
-
-    // Track the "last" value from the previous column set.
-    F last_z = F::One();
-
-    for (size_t i = 0; i < chunk_num; ++i) {
-      std::vector<Ref<const Evals>> permuted_columns =
-          table_store.GetPermutedColumns(i);
-      std::vector<Ref<const Evals>> unpermuted_columns =
-          table_store.GetUnpermutedColumns(i);
-      std::vector<Ref<const Evals>> value_columns =
-          table_store.GetValueColumns(i);
-
-      size_t chunk_size = table_store.GetChunkSize(i);
-      BlindedPolynomial<Poly> grand_product_poly =
-          GrandProductArgument::CommitExcessive(
-              prover,
-              CreateNumeratorCallback<Evals>(unpermuted_columns, value_columns,
-                                             beta, gamma),
-              CreateDenominatorCallback<Evals>(permuted_columns, value_columns,
-                                               beta, gamma),
-              chunk_size, last_z);
-
-      grand_product_polys.push_back(std::move(grand_product_poly));
-    }
-
-    return PermutationCommitted<Poly>(std::move(grand_product_polys));
-  }
-
  private:
-  template <typename Evals, typename F = typename Evals::Field>
-  std::function<base::ParallelizeCallback3<F>(size_t)> CreateNumeratorCallback(
-      const std::vector<Ref<const Evals>>& unpermuted_columns,
-      const std::vector<Ref<const Evals>>& value_columns, const F& beta,
-      const F& gamma) {
-    // vᵢ(ωʲ) + β * δⁱ * ωʲ + γ
-    return [&unpermuted_columns, &value_columns, &beta,
-            &gamma](size_t column_index) {
-      const Evals& unpermuted_values = *unpermuted_columns[column_index];
-      const Evals& values = *value_columns[column_index];
-      return
-          [&unpermuted_values, &values, &beta, &gamma](
-              absl::Span<F> chunk, size_t chunk_index, size_t chunk_size_in) {
-            size_t i = chunk_index * chunk_size_in;
-            for (F& result : chunk) {
-              result *= *values[i] + beta * *unpermuted_values[i] + gamma;
-              ++i;
-            }
-          };
-    };
-  }
-
-  template <typename Evals, typename F = typename Evals::Field>
-  std::function<base::ParallelizeCallback3<F>(size_t)>
-  CreateDenominatorCallback(
-      const std::vector<Ref<const Evals>>& permuted_columns,
-      const std::vector<Ref<const Evals>>& value_columns, const F& beta,
-      const F& gamma) {
-    // vᵢ(ωʲ) + β * sᵢ(ωʲ) + γ
-    return [&permuted_columns, &value_columns, &beta,
-            &gamma](size_t column_index) {
-      const Evals& permuted_values = *permuted_columns[column_index];
-      const Evals& values = *value_columns[column_index];
-      return
-          [&permuted_values, &values, &beta, &gamma](
-              absl::Span<F> chunk, size_t chunk_index, size_t chunk_size_in) {
-            size_t i = chunk_index * chunk_size_in;
-            for (F& result : chunk) {
-              result *= *values[i] + beta * *permuted_values[i] + gamma;
-              ++i;
-            }
-          };
-    };
-  }
-
   std::vector<AnyColumnKey> columns_;
 };
 

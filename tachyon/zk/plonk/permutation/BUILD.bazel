@@ -33,14 +33,25 @@ tachyon_cc_library(
     name = "permutation_argument",
     hdrs = ["permutation_argument.h"],
     deps = [
+        "//tachyon/base/containers:contains",
+        "//tachyon/zk/plonk/circuit:column_key",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permutation_argument_runner",
+    hdrs = [
+        "permutation_argument_runner.h",
+        "permutation_argument_runner_impl.h",
+    ],
+    deps = [
         ":grand_product_argument",
+        ":permutation_argument",
         ":permutation_committed",
         ":permutation_proving_key",
         ":permutation_table_store",
-        "//tachyon/base/containers:contains",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:prover",
-        "//tachyon/zk/plonk/circuit:column_key",
     ],
 )
 
@@ -158,6 +169,7 @@ tachyon_cc_unittest(
         "unpermuted_table_unittest.cc",
     ],
     deps = [
+        ":permutation_argument_runner",
         ":permutation_assembly",
         ":permutation_table_store",
         "//tachyon/base/buffer:vector_buffer",

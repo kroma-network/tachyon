@@ -10,6 +10,8 @@
 
 #include "tachyon/base/random.h"
 #include "tachyon/zk/base/halo2_prover_test.h"
+#include "tachyon/zk/plonk/circuit/table.h"
+#include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/permutation_assembly.h"
 
 namespace tachyon::zk {
@@ -83,7 +85,8 @@ TEST_F(PermutationArgumentTest, Commit) {
   F beta = F::Random();
   F gamma = F::Random();
 
-  argument_.Commit(prover_.get(), table_, prover_->pcs().N(), pk, beta, gamma);
+  PermutationArgumentRunner<Poly, Evals>::CommitArgument(
+      prover_.get(), argument_, table_, prover_->pcs().N(), pk, beta, gamma);
 }
 
 }  // namespace tachyon::zk
