@@ -13,9 +13,10 @@
 
 namespace tachyon::zk {
 
-template <typename Config>
+template <typename _Config>
 class Circuit {
  public:
+  using Config = _Config;
   using Field = typename Config::Field;
 
   virtual ~Circuit() = default;
