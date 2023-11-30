@@ -4,6 +4,8 @@
 
 #include "tachyon/base/containers/adapters.h"
 
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "gmock/gmock.h"
