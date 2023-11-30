@@ -46,7 +46,8 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   const base::Range<size_t>& usable_rows() const { return usable_rows_; }
 
   // Assignment methods
-  Error EnableSelector(const Selector& selector, size_t row) override {
+  Error EnableSelector(std::string_view name, const Selector& selector,
+                       size_t row) override {
     if (!usable_rows_.Contains(row)) {
       return Error::kNotEnoughRowsAvailable;
     }
@@ -63,8 +64,8 @@ class Assembly : public Assignment<typename PCSTy::Field> {
     return Error::kNone;
   }
 
-  Error AssignFixed(const FixedColumnKey& column, size_t row,
-                    AssignCallback assign) override {
+  Error AssignFixed(std::string_view name, const FixedColumnKey& column,
+                    size_t row, AssignCallback assign) override {
     if (!usable_rows_.Contains(row)) {
       return Error::kNotEnoughRowsAvailable;
     }
