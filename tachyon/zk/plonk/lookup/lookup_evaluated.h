@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "tachyon/zk/base/blinded_polynomial.h"
+#include "tachyon/zk/base/prover.h"
 #include "tachyon/zk/base/prover_query.h"
 
 namespace tachyon::zk {
@@ -36,11 +37,11 @@ class LookupEvaluated {
   }
   const BlindedPolynomial<Poly>& product_poly() const { return product_poly_; }
 
-  template <typename ProverTy, typename PCSTy = typename ProverTy::PCSTy>
-  std::vector<ProverQuery<PCSTy>> Open(const ProverTy& prover,
+  template <typename PCSTy>
+  std::vector<ProverQuery<PCSTy>> Open(const Prover<PCSTy>* prover,
                                        const F& x) const {
-    F x_inv = Rotation::Prev().RotateOmega(prover.domain(), x);
-    F x_next = Rotation::Next().RotateOmega(prover.domain(), x);
+    F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
+    F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 
     return {ProverQuery<PCSTy>(x, product_poly_.ToRef()),
             ProverQuery<PCSTy>(x, permuted_input_poly_.ToRef()),

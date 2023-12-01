@@ -13,6 +13,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/zk/base/prover.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
@@ -78,14 +79,17 @@ class PermutationAssembly {
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
   constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
-      const PCSTy& params, const Domain* domain) const {
+      const Prover<PCSTy>* prover) const {
+    const PCSTy& pcs = prover->pcs();
+    const Domain* domain = prover->domain();
+
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
     Commitments commitments;
     commitments.reserve(columns_.size());
     for (size_t i = 0; i < columns_.size(); ++i) {
       Commitment commitment;
-      CHECK(params.CommitLagrange(permutations[i], &commitment));
+      CHECK(pcs.CommitLagrange(permutations[i], &commitment));
       commitments.push_back(commitment);
     }
 
@@ -95,7 +99,9 @@ class PermutationAssembly {
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
   constexpr PermutationProvingKey<PCSTy> BuildProvingKey(
-      const Domain* domain) const {
+      const Prover<PCSTy>* prover) const {
+    const Domain* domain = prover->domain();
+
     // The polynomials of permutations in evaluation form.
     std::vector<Evals> permutations = GeneratePermutations(domain);
 
