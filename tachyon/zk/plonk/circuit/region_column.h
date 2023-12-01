@@ -18,6 +18,7 @@
 namespace tachyon::zk {
 
 class TACHYON_EXPORT RegionColumn {
+ public:
   enum class Type {
     kColumn,
     kSelector,
