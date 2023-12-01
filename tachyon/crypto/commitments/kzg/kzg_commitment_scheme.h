@@ -120,18 +120,20 @@ class KZGCommitmentScheme
     return UnsafeSetupWithTau(size, Field::Random());
   }
 
-  [[nodiscard]] bool DoCommit(const std::vector<Field>& v,
-                              Commitment* out) const {
+  template <typename BaseContainerTy>
+  [[nodiscard]] bool DoCommit(const BaseContainerTy& v, Commitment* out) const {
     return DoMSM(g1_powers_of_tau_, v, out);
   }
 
-  [[nodiscard]] bool DoCommitLagrange(const std::vector<Field>& v,
+  template <typename BaseContainerTy>
+  [[nodiscard]] bool DoCommitLagrange(const BaseContainerTy& v,
                                       Commitment* out) const {
     return DoMSM(g1_powers_of_tau_lagrange_, v, out);
   }
 
-  static bool DoMSM(const std::vector<G1PointTy>& bases,
-                    const std::vector<Field>& scalars, Commitment* out) {
+  template <typename BaseContainerTy, typename ScalarContainerTy>
+  static bool DoMSM(const BaseContainerTy& bases,
+                    const ScalarContainerTy& scalars, Commitment* out) {
     using Bucket = typename math::Pippenger<G1PointTy>::Bucket;
 
     math::VariableBaseMSM<G1PointTy> msm;
