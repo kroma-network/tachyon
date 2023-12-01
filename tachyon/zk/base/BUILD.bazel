@@ -15,6 +15,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "entity",
+    hdrs = ["entity.h"],
+    deps = ["//tachyon/zk/transcript"],
+)
+
+tachyon_cc_library(
     name = "evals_pair",
     hdrs = ["evals_pair.h"],
 )
@@ -78,7 +84,7 @@ tachyon_cc_library(
     deps = [
         ":blinded_polynomial",
         ":blinder",
-        "//tachyon/zk/transcript",
+        ":verifier",
     ],
 )
 
@@ -107,6 +113,12 @@ tachyon_cc_library(
     name = "value",
     hdrs = ["value.h"],
     deps = ["//tachyon/math/base:rational_field"],
+)
+
+tachyon_cc_library(
+    name = "verifier",
+    hdrs = ["verifier.h"],
+    deps = [":entity"],
 )
 
 tachyon_cc_library(

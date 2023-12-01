@@ -47,10 +47,14 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
 TEST_F(PermutationAssemblyTest, BuildKeys) {
   const PCS& pcs = prover_->pcs();
 
-  PermutationProvingKey<PCS> pk = assembly_.BuildProvingKey(prover_.get());
+  std::vector<Evals> permutations =
+      assembly_.GeneratePermutations(prover_->domain());
+  PermutationProvingKey<PCS> pk =
+      assembly_.BuildProvingKey(prover_.get(), permutations);
   EXPECT_EQ(pk.permutations().size(), pk.polys().size());
 
-  PermutationVerifyingKey<PCS> vk = assembly_.BuildVerifyingKey(prover_.get());
+  PermutationVerifyingKey<PCS> vk =
+      assembly_.BuildVerifyingKey(prover_.get(), permutations);
   EXPECT_EQ(pk.permutations().size(), vk.commitments().size());
 
   for (size_t i = 0; i < columns_.size(); ++i) {

@@ -78,19 +78,18 @@ class PermutationAssembly {
   }
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
+  template <typename ExtendedDomain>
   constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
-      const Prover<PCSTy>* prover) const {
-    const PCSTy& pcs = prover->pcs();
-    const Domain* domain = prover->domain();
-
-    std::vector<Evals> permutations = GeneratePermutations(domain);
+      const Entity<PCSTy, ExtendedDomain>* entity,
+      const std::vector<Evals>& permutations) const {
+    const PCSTy& pcs = entity->pcs();
 
     Commitments commitments;
     commitments.reserve(columns_.size());
     for (size_t i = 0; i < columns_.size(); ++i) {
       Commitment commitment;
       CHECK(pcs.CommitLagrange(permutations[i], &commitment));
-      commitments.push_back(commitment);
+      commitments.push_back(std::move(commitment));
     }
 
     return PermutationVerifyingKey<PCSTy>(std::move(commitments));
@@ -98,12 +97,11 @@ class PermutationAssembly {
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
+  template <typename ExtendedDomain>
   constexpr PermutationProvingKey<PCSTy> BuildProvingKey(
-      const Prover<PCSTy>* prover) const {
+      const Prover<PCSTy, ExtendedDomain>* prover,
+      const std::vector<Evals>& permutations) const {
     const Domain* domain = prover->domain();
-
-    // The polynomials of permutations in evaluation form.
-    std::vector<Evals> permutations = GeneratePermutations(domain);
 
     // The polynomials of permutations with coefficients.
     std::vector<Poly> polys;

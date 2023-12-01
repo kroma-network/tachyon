@@ -76,10 +76,10 @@ class LookupArgument {
     return 2 + max_input_degree + max_table_degree;
   }
 
-  template <typename PCSTy, typename Evals,
+  template <typename PCSTy, typename ExtendedDomain, typename Evals,
             typename Poly = typename PCSTy::Poly>
   LookupPermuted<Poly, Evals> CommitPermuted(
-      Prover<PCSTy>* prover, const F& theta,
+      Prover<PCSTy, ExtendedDomain>* prover, const F& theta,
       const SimpleEvaluator<Evals>& evaluator_tpl) {
     // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
     Evals compressed_input_expression;
