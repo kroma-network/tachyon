@@ -7,6 +7,7 @@
 #include "tachyon/zk/plonk/lookup/lookup_argument_runner.h"
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
