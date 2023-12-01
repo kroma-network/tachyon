@@ -12,14 +12,13 @@
 
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/blinder.h"
-#include "tachyon/zk/transcript/transcript.h"
+#include "tachyon/zk/base/entity.h"
 
 namespace tachyon::zk {
 
-template <typename _PCSTy, typename ExtendedDomain>
-class Prover {
+template <typename PCSTy, typename ExtendedDomain>
+class Prover : public Entity<PCSTy, ExtendedDomain> {
  public:
-  using PCSTy = _PCSTy;
   using F = typename PCSTy::Field;
   using Domain = typename PCSTy::Domain;
   using Evals = typename PCSTy::Evals;
@@ -28,44 +27,37 @@ class Prover {
 
   Prover(PCSTy pcs, std::unique_ptr<Domain> domain,
          std::unique_ptr<ExtendedDomain> extended_domain,
-         Blinder<PCSTy> blinder,
-         std::unique_ptr<TranscriptWriter<Commitment>> writer)
-      : pcs_(std::move(pcs)),
-        domain_(std::move(domain)),
-        extended_domain_(std::move(extended_domain)),
-        blinder_(std::move(blinder)),
-        writer_(std::move(writer)) {}
+         std::unique_ptr<TranscriptWriter<Commitment>> writer,
+         Blinder<PCSTy> blinder)
+      : Entity<PCSTy, ExtendedDomain>(std::move(pcs), std::move(domain),
+                                      std::move(extended_domain),
+                                      std::move(writer)),
+        blinder_(std::move(blinder)) {}
 
-  const PCSTy& pcs() const { return pcs_; }
-  const Domain* domain() const { return domain_.get(); }
-  const ExtendedDomain* extended_domain() const {
-    return extended_domain_.get();
-  }
   Blinder<PCSTy>& blinder() { return blinder_; }
-  TranscriptWriter<Commitment>* writer() { return writer_.get(); }
+
+  TranscriptWriter<Commitment>* GetWriter() {
+    return static_cast<TranscriptWriter<Commitment>*>(this->transcript());
+  }
 
   bool CommitEvalsWithBlind(const Evals& evals, BlindedPolynomial<Poly>* out) {
-    if (evals.NumElements() != domain_->size()) return false;
+    if (evals.NumElements() != this->domain_->size()) return false;
 
     Commitment commitment;
-    if (!pcs_.CommitLagrange(evals, &commitment)) return false;
-    writer_->WriteToProof(commitment);
+    if (!this->pcs_.CommitLagrange(evals, &commitment)) return false;
+    GetWriter()->WriteToProof(commitment);
 
-    *out = {domain_->IFFT(evals), blinder_.Generate()};
+    *out = {this->domain_->IFFT(evals), blinder_.Generate()};
     return true;
   }
 
   void Evaluate(const Poly& poly, const F& x) {
     F result = poly.Evaluate(x);
-    writer_->WriteToProof(result);
+    GetWriter()->WriteToProof(result);
   }
 
  protected:
-  PCSTy pcs_;
-  std::unique_ptr<Domain> domain_;
-  std::unique_ptr<ExtendedDomain> extended_domain_;
   Blinder<PCSTy> blinder_;
-  std::unique_ptr<TranscriptWriter<Commitment>> writer_;
 };
 
 }  // namespace tachyon::zk
