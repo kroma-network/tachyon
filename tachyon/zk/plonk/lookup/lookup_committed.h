@@ -36,8 +36,9 @@ class LookupCommitted {
   }
   const BlindedPolynomial<Poly>& product_poly() const { return product_poly_; }
 
-  template <typename PCSTy>
-  LookupEvaluated<Poly> Evaluate(const Prover<PCSTy>* prover, const F& x) && {
+  template <typename PCSTy, typename ExtendedDomain>
+  LookupEvaluated<Poly> Evaluate(const Prover<PCSTy, ExtendedDomain>* prover,
+                                 const F& x) && {
     F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
     F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 

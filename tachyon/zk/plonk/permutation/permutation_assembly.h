@@ -78,8 +78,9 @@ class PermutationAssembly {
   }
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
+  template <typename ExtendedDomain>
   constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
-      const Prover<PCSTy>* prover) const {
+      const Prover<PCSTy, ExtendedDomain>* prover) const {
     const PCSTy& pcs = prover->pcs();
     const Domain* domain = prover->domain();
 
@@ -98,8 +99,9 @@ class PermutationAssembly {
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
+  template <typename ExtendedDomain>
   constexpr PermutationProvingKey<PCSTy> BuildProvingKey(
-      const Prover<PCSTy>* prover) const {
+      const Prover<PCSTy, ExtendedDomain>* prover) const {
     const Domain* domain = prover->domain();
 
     // The polynomials of permutations in evaluation form.
