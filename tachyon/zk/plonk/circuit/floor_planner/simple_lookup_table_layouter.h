@@ -50,8 +50,6 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
       return Error::kSynthesis;
     }
 
-    Value& value = values_[column];
-
     zk::Value<math::RationalField<F>> value =
         zk::Value<math::RationalField<F>>::Unknown();
     assignment_->AssignFixed(
