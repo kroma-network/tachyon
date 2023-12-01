@@ -13,7 +13,6 @@
 
 #include "tachyon/base/range.h"
 #include "tachyon/math/base/rational_field.h"
-#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
 #include "tachyon/zk/plonk/permutation/permutation_assembly.h"
 
@@ -23,13 +22,11 @@ template <typename PCSTy>
 class Assembly : public Assignment<typename PCSTy::Field> {
  public:
   using F = typename PCSTy::Field;
-  using DensePoly = math::UnivariateDensePolynomial<math::RationalField<F>,
-                                                    PCSTy::kMaxDegree>;
-
+  using RationalEvals = typename PCSTy::RationalEvals;
   using AssignCallback = typename Assignment<F>::AssignCallback;
 
   Assembly() = default;
-  Assembly(uint32_t k, std::vector<DensePoly> fixeds,
+  Assembly(uint32_t k, std::vector<RationalEvals> fixeds,
            PermutationAssembly<PCSTy> permutation,
            std::vector<std::vector<bool>> selectors,
            base::Range<size_t> usable_rows)
@@ -40,7 +37,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
         usable_rows_(usable_rows) {}
 
   uint32_t k() const { return k_; }
-  const std::vector<DensePoly>& fixeds() const { return fixeds_; }
+  const std::vector<RationalEvals>& fixeds() const { return fixeds_; }
   const PermutationAssembly<PCSTy>& permutation() const { return permutation_; }
   const std::vector<std::vector<bool>>& selectors() const { return selectors_; }
   const base::Range<size_t>& usable_rows() const { return usable_rows_; }
@@ -98,7 +95,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
 
  private:
   uint32_t k_ = 0;
-  std::vector<DensePoly> fixeds_;
+  std::vector<RationalEvals> fixeds_;
   PermutationAssembly<PCSTy> permutation_;
   std::vector<std::vector<bool>> selectors_;
   // A range of available rows for assignment and copies.
