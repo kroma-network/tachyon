@@ -29,9 +29,9 @@ class PermutationEvaluated {
     return product_polys_;
   }
 
-  template <typename PCSTy, typename ExtendedDomain, typename F>
-  std::vector<ProverQuery<PCSTy>> Open(
-      const Prover<PCSTy, ExtendedDomain>* prover, const F& x) const {
+  template <typename PCSTy, typename F>
+  std::vector<ProverQuery<PCSTy>> Open(const Prover<PCSTy>* prover,
+                                       const F& x) const {
     std::vector<ProverQuery<PCSTy>> ret;
     ret.reserve(product_polys_.size() * 3 - 1);
 

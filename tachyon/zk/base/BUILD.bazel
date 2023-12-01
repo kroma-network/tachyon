@@ -50,10 +50,10 @@ tachyon_cc_library(
     deps = [
         ":blinder",
         ":halo2_prover",
-        "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "//tachyon/zk/base/commitments:kzg_commitment_scheme_extension",
         "//tachyon/zk/transcript:poseidon_transcript",
         "@com_google_absl//absl/memory",
     ],
@@ -107,6 +107,15 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "ref",
     hdrs = ["ref.h"],
+)
+
+tachyon_cc_library(
+    name = "univarate_polynomial_commitment_scheme_extension",
+    hdrs = ["univarate_polynomial_commitment_scheme_extension.h"],
+    deps = [
+        "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
+        "//tachyon/math/base:rational_field",
+    ],
 )
 
 tachyon_cc_library(

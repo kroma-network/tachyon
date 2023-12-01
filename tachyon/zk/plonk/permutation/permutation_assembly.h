@@ -78,9 +78,8 @@ class PermutationAssembly {
   }
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
-  template <typename ExtendedDomain>
   constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
-      const Entity<PCSTy, ExtendedDomain>* entity,
+      const Entity<PCSTy>* entity,
       const std::vector<Evals>& permutations) const {
     const PCSTy& pcs = entity->pcs();
 
@@ -97,9 +96,8 @@ class PermutationAssembly {
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
-  template <typename ExtendedDomain>
   constexpr PermutationProvingKey<PCSTy> BuildProvingKey(
-      const Prover<PCSTy, ExtendedDomain>* prover,
+      const Prover<PCSTy>* prover,
       const std::vector<Evals>& permutations) const {
     const Domain* domain = prover->domain();
 

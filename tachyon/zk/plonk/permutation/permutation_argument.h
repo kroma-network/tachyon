@@ -78,12 +78,11 @@ class PermutationArgument {
   //
   // See Halo2 book to figure out logic in detail.
   // https://zcash.github.io/halo2/design/proving-system/permutation.html
-  template <typename PCSTy, typename ExtendedDomain,
-            typename Evals = typename PCSTy::Evals,
+  template <typename PCSTy, typename Evals = typename PCSTy::Evals,
             typename Poly = typename PCSTy::Poly,
             typename F = typename PCSTy::Field>
   PermutationCommitted<Poly> Commit(
-      Prover<PCSTy, ExtendedDomain>* prover, Table<Evals>& table,
+      Prover<PCSTy>* prover, Table<Evals>& table,
       size_t constraint_system_degree,
       const PermutationProvingKey<PCSTy>& permutation_proving_key,
       const F& beta, const F& gamma) {

@@ -18,10 +18,10 @@
 namespace tachyon::zk {
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename ExtendedDomain, typename F>
+template <typename PCSTy, typename F>
 LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
-    Prover<PCSTy, ExtendedDomain>* prover, const LookupArgument<F>& argument,
-    const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl) {
+    Prover<PCSTy>* prover, const LookupArgument<F>& argument, const F& theta,
+    const SimpleEvaluator<Evals>& evaluator_tpl) {
   // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
   Evals compressed_input_expression;
   CHECK(CompressExpressions(argument.input_expressions(),
@@ -60,10 +60,10 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename ExtendedDomain, typename F>
+template <typename PCSTy, typename F>
 LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
-    Prover<PCSTy, ExtendedDomain>* prover,
-    LookupPermuted<Poly, Evals>&& permuted, const F& beta, const F& gamma) {
+    Prover<PCSTy>* prover, LookupPermuted<Poly, Evals>&& permuted,
+    const F& beta, const F& gamma) {
   BlindedPolynomial<Poly> grand_product_poly = GrandProductArgument::Commit(
       prover, CreateNumeratorCallback<F>(permuted, beta, gamma),
       CreateDenominatorCallback<F>(permuted, beta, gamma));
@@ -74,10 +74,9 @@ LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename ExtendedDomain, typename F>
+template <typename PCSTy, typename F>
 LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
-    Prover<PCSTy, ExtendedDomain>* prover, LookupCommitted<Poly>&& committed,
-    const F& x) {
+    Prover<PCSTy>* prover, LookupCommitted<Poly>&& committed, const F& x) {
   F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 
@@ -101,11 +100,11 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename ExtendedDomain, typename F>
+template <typename PCSTy, typename F>
 std::vector<ProverQuery<PCSTy>>
 LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
-    const Prover<PCSTy, ExtendedDomain>* prover,
-    const LookupEvaluated<Poly>& evaluated, const F& x) {
+    const Prover<PCSTy>* prover, const LookupEvaluated<Poly>& evaluated,
+    const F& x) {
   F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 

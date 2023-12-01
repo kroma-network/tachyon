@@ -19,6 +19,15 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
 namespace tachyon {
+namespace zk {
+
+template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
+          size_t MaxExtensionDegree,
+          typename _Commitment = typename math::Pippenger<G1PointTy>::Bucket>
+class KZGCommitmentSchemeExtension;
+
+}  // namespace zk
+
 namespace crypto {
 
 template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
@@ -115,6 +124,8 @@ class KZGCommitmentScheme
       KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
   friend class UnivariatePolynomialCommitmentScheme<
       KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
+  template <typename, typename, size_t, size_t, typename>
+  friend class zk::KZGCommitmentSchemeExtension;
 
   bool DoUnsafeSetup(size_t size) {
     return UnsafeSetupWithTau(size, Field::Random());

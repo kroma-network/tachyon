@@ -1,0 +1,27 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "kzg_commitment_scheme_extension",
+    hdrs = ["kzg_commitment_scheme_extension.h"],
+    deps = [
+        ":univariate_polynomial_commitment_scheme_extension",
+        "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
+    ],
+)
+
+tachyon_cc_library(
+    name = "univariate_polynomial_commitment_scheme_extension",
+    hdrs = ["univariate_polynomial_commitment_scheme_extension.h"],
+    deps = [
+        ":univariate_polynomial_commitment_scheme_extension_traits",
+        "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
+        "//tachyon/math/base:rational_field",
+    ],
+)
+
+tachyon_cc_library(
+    name = "univariate_polynomial_commitment_scheme_extension_traits",
+    hdrs = ["univariate_polynomial_commitment_scheme_extension_traits.h"],
+)

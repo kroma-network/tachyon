@@ -26,10 +26,9 @@ namespace tachyon::zk {
 // - the first row in a sequence of like values in A' is the row
 //   that has the corresponding value in S'.
 // This method returns (A', S') if no errors are encountered.
-template <typename PCSTy, typename ExtendedDomain, typename Evals,
-          typename F = typename Evals::Field>
-Error PermuteExpressionPair(Prover<PCSTy, ExtendedDomain>* prover,
-                            const EvalsPair<Evals>& in, EvalsPair<Evals>* out) {
+template <typename PCSTy, typename Evals, typename F = typename Evals::Field>
+Error PermuteExpressionPair(Prover<PCSTy>* prover, const EvalsPair<Evals>& in,
+                            EvalsPair<Evals>* out) {
   size_t domain_size = prover->domain()->size();
   size_t blinding_factors = prover->blinder().blinding_factors();
   if (domain_size == 0) return Error::kConstraintSystemFailure;
