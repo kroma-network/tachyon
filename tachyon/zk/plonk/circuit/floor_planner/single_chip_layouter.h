@@ -233,13 +233,13 @@ class SingleChipLayouter : public Layouter<F> {
     // Maintenance hazard: there is near-duplicate code in
     // |v1::AssignmentPass::AssignLookupTable|. Assign table cells.
     assignment_->EnterRegion(name);
-    SimpleLookupTableLayouter lookup_table_layouter(&assignment_,
-                                                    &lookup_table_columns_);
+    SimpleLookupTableLayouter<F> lookup_table_layouter(&assignment_,
+                                                       &lookup_table_columns_);
     Error error = std::move(assign).Run(lookup_table_layouter);
     if (error != Error::kNone) return error;
     const absl::flat_hash_map<LookupTableColumn,
-                              SimpleLookupTableLayouter<F>::Value>& values =
-        lookup_table_layouter.values();
+                              typename SimpleLookupTableLayouter<F>::Value>&
+        values = lookup_table_layouter.values();
     assignment_->ExitRegion();
 
     // Check that all table columns have the same length |first_unused|,
@@ -247,9 +247,9 @@ class SingleChipLayouter : public Layouter<F> {
     std::optional<size_t> first_unused = 0;
     std::vector<std::optional<size_t>> assigned_sizes = base::Map(
         values.begin(), values.end(),
-        [](const SimpleLookupTableLayouter<F>::Value& value) {
+        [](const typename SimpleLookupTableLayouter<F>::Value& value) {
           if (std::all_of(value.assigned.begin(), value.assigned.end(),
-                          base::identity<bool>())) {
+                          base::identity())) {
             return std::optional<size_t>(value.assigned.size());
           } else {
             return std::nullopt;
