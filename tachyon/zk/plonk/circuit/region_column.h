@@ -32,6 +32,9 @@ class TACHYON_EXPORT RegionColumn {
   Type type() const { return type_; }
 
  private:
+  template <typename H>
+  friend H AbslHashValue(H h, const RegionColumn& m);
+
   Type type_;
   union {
     AnyColumnKey column_;
