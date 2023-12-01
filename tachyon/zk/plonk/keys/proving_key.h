@@ -10,9 +10,9 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/cl_evaluator.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
 
 namespace tachyon::zk {
 
@@ -55,7 +55,7 @@ class ProvingKey {
   std::vector<Evals> fixed_values_;
   std::vector<Evals> fixed_polys_;
   PermutationProvingKey<PCSTy> permutation_proving_key_;
-  CLEvaluator<PCSTy> evaluator_;
+  VanishingArgument<PCSTy> vanishing_argument_;
 };
 
 }  // namespace tachyon::zk

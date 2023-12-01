@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/calculation.h"
+#include "tachyon/zk/plonk/vanishing/calculation.h"
 
 #include "absl/strings/substitute.h"
 

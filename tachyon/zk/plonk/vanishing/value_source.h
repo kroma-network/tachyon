@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_VALUE_SOURCE_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_VALUE_SOURCE_H_
+#ifndef TACHYON_ZK_PLONK_VANISHING_VALUE_SOURCE_H_
+#define TACHYON_ZK_PLONK_VANISHING_VALUE_SOURCE_H_
 
 #include <stddef.h>
 
@@ -13,7 +13,7 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/value_source_data.h"
+#include "tachyon/zk/plonk/vanishing/value_source_data.h"
 
 namespace tachyon::zk {
 
@@ -183,4 +183,4 @@ class TACHYON_EXPORT ValueSource {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_EXPRESSIONS_EVALUATOR_VALUE_SOURCE_H_
+#endif  // TACHYON_ZK_PLONK_VANISHING_VALUE_SOURCE_H_
