@@ -23,8 +23,8 @@ template <typename PCSTy>
 class Assembly : public Assignment<typename PCSTy::Field> {
  public:
   using F = typename PCSTy::Field;
-  using DensePoly =
-      math::UnivariateDensePolynomial<math::RationalField<F>, PCSTy::kMaxSize>;
+  using DensePoly = math::UnivariateDensePolynomial<math::RationalField<F>,
+                                                    PCSTy::kMaxDegree>;
 
   using AssignCallback = typename Assignment<F>::AssignCallback;
 
