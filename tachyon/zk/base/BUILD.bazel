@@ -21,11 +21,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "evals_pair",
-    hdrs = ["evals_pair.h"],
-)
-
-tachyon_cc_library(
     name = "field_stringifier",
     hdrs = ["field_stringifier.h"],
     deps = [

@@ -35,12 +35,12 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
                             &compressed_table_expression));
 
   // Permute compressed (InputExpression, TableExpression) pair.
-  EvalsPair<Evals> compressed_evals_pair(
+  LookupPair<Evals> compressed_evals_pair(
       std::move(compressed_input_expression),
       std::move(compressed_table_expression));
 
   // A'(X), S'(X)
-  EvalsPair<Evals> permuted_evals_pair;
+  LookupPair<Evals> permuted_evals_pair;
   Error err = PermuteExpressionPair(prover, compressed_evals_pair,
                                     &permuted_evals_pair);
   CHECK_EQ(err, Error::kNone);

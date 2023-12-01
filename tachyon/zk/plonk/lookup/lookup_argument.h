@@ -14,36 +14,26 @@
 #include <vector>
 
 #include "tachyon/zk/plonk/circuit/expressions/expression.h"
+#include "tachyon/zk/plonk/lookup/lookup_pair.h"
 
 namespace tachyon::zk {
 
 template <typename F>
 class LookupArgument {
  public:
-  struct TableMapElem {
-    TableMapElem() = default;
-    TableMapElem(std::unique_ptr<Expression<F>> input,
-                 std::unique_ptr<Expression<F>> table)
-        : input(std::move(input)), table(std::move(table)) {}
-
-    std::unique_ptr<Expression<F>> input;
-    std::unique_ptr<Expression<F>> table;
-  };
-
-  using TableMap = std::vector<TableMapElem>;
-
   LookupArgument() = default;
-  LookupArgument(const std::string_view& name, TableMap table_map)
+  LookupArgument(const std::string_view& name,
+                 LookupPairs<std::unique_ptr<Expression<F>>> pairs)
       : name_(std::string(name)) {
-    input_expressions_.reserve(table_map.size());
-    table_expressions_.reserve(table_map.size());
+    input_expressions_.reserve(pairs.size());
+    table_expressions_.reserve(pairs.size());
 
-    for (TableMapElem& elem : table_map) {
-      input_expressions_.push_back(std::move(elem.input));
-      table_expressions_.push_back(std::move(elem.table));
+    for (LookupPair<std::unique_ptr<Expression<F>>>& pair : pairs) {
+      input_expressions_.push_back(std::move(pair).input());
+      table_expressions_.push_back(std::move(pair).table());
     }
 
-    table_map.clear();
+    pairs.clear();
   }
 
   const std::vector<std::unique_ptr<Expression<F>>>& input_expressions() const {

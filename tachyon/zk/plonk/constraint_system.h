@@ -36,17 +36,11 @@ namespace tachyon::zk {
 template <typename F>
 class ConstraintSystem {
  public:
-  // NOTE(chokobole): This is different from the
-  // |LookupArgument<F>::TableMapElem|.
-  struct TableMapElem {
-    std::unique_ptr<Expression<F>> input;
-    LookupTableColumn table;
-  };
-
-  using TableMap = std::vector<TableMapElem>;
-  using LookupCallback = base::OnceCallback<TableMap(VirtualCells<F>&)>;
+  using LookupCallback =
+      base::OnceCallback<LookupPairs<std::unique_ptr<Expression<F>>,
+                                     LookupTableColumn>(VirtualCells<F>&)>;
   using LookupAnyCallback =
-      base::OnceCallback<typename LookupArgument<F>::TableMap(
+      base::OnceCallback<LookupPairs<std::unique_ptr<Expression<F>>>(
           VirtualCells<F>&)>;
   using ConstrainCallback =
       base::OnceCallback<std::vector<Constraint<F>>(VirtualCells<F>&)>;
@@ -131,37 +125,39 @@ class ConstraintSystem {
 
   // Add a lookup argument for some input expressions and table columns.
   //
-  // |callback| returns a map between input expressions and the table columns
-  // they need to match.
+  // |callback| returns a map between the input expressions and the table
+  // columns they need to match.
   size_t Lookup(std::string_view name, LookupCallback callback) {
     VirtualCells cells(this);
-    typename LookupArgument<F>::TableMap table_map = base::Map(
-        std::move(callback).Run(cells), [&cells](TableMapElem& element) {
-          CHECK(!element.input->ContainsSimpleSelector())
+    LookupPairs<std::unique_ptr<Expression<F>>> pairs = base::Map(
+        std::move(callback).Run(cells),
+        [&cells](LookupPair<std::unique_ptr<Expression<F>>, LookupTableColumn>&
+                     pair) {
+          CHECK(!pair.input()->ContainsSimpleSelector())
               << "expression containing simple selector "
                  "supplied to lookup argument";
 
           std::unique_ptr<Expression<F>> table =
-              cells.QueryFixed(element.table.column(), Rotation::Cur());
+              cells.QueryFixed(pair.table().column(), Rotation::Cur());
 
-          return LookupArgument<F>::TableElement(std::move(element.input),
-                                                 std::move(table));
+          return LookupPair<std::unique_ptr<Expression<F>>>(
+              std::move(pair).input(), std::move(table));
         });
 
-    lookups_.emplace_back(name, std::move(table_map));
+    lookups_.emplace_back(name, std::move(pairs));
     return lookups_.size() - 1;
   }
 
   // Add a lookup argument for some input expressions and table expressions.
   //
-  // |table_map| returns a map between input expressions and the table
+  // |callback| returns a map between the input expressions and the table
   // expressions they need to match.
   size_t LookupAny(std::string_view name, LookupAnyCallback callback) {
     VirtualCells cells(this);
-    typename LookupArgument<F>::TableMap table_map =
+    LookupPairs<std::unique_ptr<Expression<F>>> pairs =
         std::move(callback).Run(cells);
 
-    lookups_.emplace_back(name, std::move(table_map));
+    lookups_.emplace_back(name, std::move(pairs));
     return lookups_.size() - 1;
   }
 
