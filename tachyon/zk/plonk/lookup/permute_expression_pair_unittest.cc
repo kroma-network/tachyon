@@ -15,7 +15,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/random.h"
-#include "tachyon/zk/base/halo2_prover_test.h"
+#include "tachyon/zk/base/halo2/halo2_prover_test.h"
 
 namespace tachyon::zk {
 

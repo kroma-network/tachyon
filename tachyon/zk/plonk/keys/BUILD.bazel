@@ -33,7 +33,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":proving_key",
-        "//tachyon/zk/base:halo2_prover_test",
+        "//tachyon/zk/base/halo2:halo2_prover_test",
         "//tachyon/zk/plonk/keys/halo2:pinned_verifying_key",
     ],
 )

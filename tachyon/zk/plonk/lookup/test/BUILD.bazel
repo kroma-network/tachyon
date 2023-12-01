@@ -6,7 +6,7 @@ tachyon_cc_library(
     hdrs = ["compress_expression_test_setting.h"],
     visibility = ["//tachyon/zk/plonk/lookup:__pkg__"],
     deps = [
-        "//tachyon/zk/base:halo2_prover_test",
+        "//tachyon/zk/base/halo2:halo2_prover_test",
         "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
     ],
 )
