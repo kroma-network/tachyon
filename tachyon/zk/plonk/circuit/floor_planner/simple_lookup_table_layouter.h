@@ -19,6 +19,8 @@ namespace tachyon::zk {
 template <typename F>
 class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
  public:
+  using AssignCallback = typename LookupTable<F>::Layouter::AssignCallback;
+
   struct Value {
     // The default value to fill a table column with.
     //

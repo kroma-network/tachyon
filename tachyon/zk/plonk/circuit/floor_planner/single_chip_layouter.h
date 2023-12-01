@@ -29,6 +29,8 @@ class SingleChipLayouter : public Layouter<F> {
 
   class Region : public zk::Region<F>::Layouter {
    public:
+    using AssignCallback = typename zk::Region<F>::Layouter::AssignCallback;
+
     Region(SingleChipLayouter* layouter, size_t region_index)
         : layouter_(layouter), region_index_(region_index) {}
 
