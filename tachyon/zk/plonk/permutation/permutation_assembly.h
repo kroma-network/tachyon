@@ -13,7 +13,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/parallelize.h"
-#include "tachyon/zk/base/prover.h"
+#include "tachyon/zk/base/entities/prover.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"

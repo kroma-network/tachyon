@@ -10,8 +10,8 @@
 #include <memory>
 #include <utility>
 
+#include "tachyon/zk/base/entities/prover.h"
 #include "tachyon/zk/base/halo2_random_field_generator.h"
-#include "tachyon/zk/base/prover.h"
 
 namespace tachyon::zk {
 

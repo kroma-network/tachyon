@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/parallelize.h"
-#include "tachyon/zk/base/prover.h"
+#include "tachyon/zk/base/entities/prover.h"
 #include "tachyon/zk/base/prover_query.h"
 #include "tachyon/zk/plonk/circuit/table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"

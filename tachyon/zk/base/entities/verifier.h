@@ -4,13 +4,13 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_VERIFIER_H_
-#define TACHYON_ZK_BASE_VERIFIER_H_
+#ifndef TACHYON_ZK_BASE_ENTITIES_VERIFIER_H_
+#define TACHYON_ZK_BASE_ENTITIES_VERIFIER_H_
 
 #include <memory>
 #include <utility>
 
-#include "tachyon/zk/base/entity.h"
+#include "tachyon/zk/base/entities/entity.h"
 
 namespace tachyon::zk {
 
@@ -34,4 +34,4 @@ class Verifier : public Entity<PCSTy> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_BASE_VERIFIER_H_
+#endif  // TACHYON_ZK_BASE_ENTITIES_VERIFIER_H_

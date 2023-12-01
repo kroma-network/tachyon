@@ -14,7 +14,7 @@
 #include "absl/container/btree_map.h"
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/zk/base/prover.h"
+#include "tachyon/zk/base/entities/prover.h"
 #include "tachyon/zk/plonk/error.h"
 #include "tachyon/zk/plonk/lookup/lookup_pair.h"
 

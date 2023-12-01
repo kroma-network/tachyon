@@ -29,8 +29,8 @@ tachyon_cc_library(
         ":lookup_committed",
         ":lookup_evaluated",
         ":lookup_permuted",
-        "//tachyon/zk/base:prover",
         "//tachyon/zk/base:prover_query",
+        "//tachyon/zk/base/entities:prover",
         "//tachyon/zk/plonk/circuit:rotation",
         "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
         "//tachyon/zk/plonk/permutation:grand_product_argument",
@@ -79,7 +79,7 @@ tachyon_cc_library(
     deps = [
         ":lookup_pair",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base:prover",
+        "//tachyon/zk/base/entities:prover",
         "//tachyon/zk/plonk:error",
         "@com_google_absl//absl/container:btree",
     ],
