@@ -135,6 +135,44 @@ PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
 }
 
 template <typename Poly, typename Evals>
+template <typename PCSTy, typename F>
+std::vector<BlindedPolynomial<Poly>>
+PermutationArgumentRunner<Poly, Evals>::BlindProvingKey(
+    Prover<PCSTy>* prover,
+    const PermutationProvingKey<Poly, Evals>& proving_key) {
+  std::vector<BlindedPolynomial<Poly>> ret;
+  ret.reserve(proving_key.polys().size());
+  for (Poly& poly : proving_key.polys()) {
+    F blind = prover->blinder().Generate();
+    ret.emplace_back(std::move(poly), std::move(blind));
+  }
+  return ret;
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename F>
+std::vector<ProverQuery<PCSTy>>
+PermutationArgumentRunner<Poly, Evals>::OpenBlindedPolynomials(
+    const std::vector<BlindedPolynomial<Poly>>& blinded_polys, const F& x) {
+  std::vector<ProverQuery<PCSTy>> ret;
+  ret.reserve(blinded_polys.size());
+  for (const BlindedPolynomial<Poly>& blind_poly : blinded_polys) {
+    ret.emplace_back(x, blind_poly.ToRef());
+  }
+  return ret;
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename F>
+void PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
+    Prover<PCSTy>* prover,
+    const PermutationProvingKey<Poly, Evals>& proving_key, const F& x) {
+  for (const Poly& poly : proving_key.polys()) {
+    prover->Evaluate(poly, x);
+  }
+}
+
+template <typename Poly, typename Evals>
 template <typename F>
 std::function<base::ParallelizeCallback3<F>(size_t)>
 PermutationArgumentRunner<Poly, Evals>::CreateNumeratorCallback(

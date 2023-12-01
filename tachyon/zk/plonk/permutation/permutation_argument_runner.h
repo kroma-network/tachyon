@@ -47,6 +47,22 @@ class PermutationArgumentRunner {
       const Prover<PCSTy>* prover, const PermutationEvaluated<Poly>& evaluated,
       const F& x);
 
+  template <typename PCSTy, typename F>
+  static std::vector<BlindedPolynomial<Poly>> BlindProvingKey(
+      Prover<PCSTy>* prover,
+      const PermutationProvingKey<Poly, Evals>& proving_key);
+
+  template <typename PCSTy, typename F>
+  static std::vector<ProverQuery<PCSTy>> OpenBlindedPolynomials(
+      const std::vector<BlindedPolynomial<Poly>>& blinded_polys, const F& x);
+
+  // TODO(dongchangYoo): Check if this func can be merged with the
+  // |OpenBlindedPolynomials| when refactoring |CreateProof()|
+  template <typename PCSTy, typename F>
+  static void EvaluateProvingKey(
+      Prover<PCSTy>* prover,
+      const PermutationProvingKey<Poly, Evals>& proving_key, const F& x);
+
  private:
   template <typename F>
   static std::function<base::ParallelizeCallback3<F>(size_t)>

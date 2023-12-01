@@ -28,6 +28,7 @@ class PermutationProvingKey {
 
   const std::vector<Evals>& permutations() const { return permutations_; }
   const std::vector<Poly>& polys() const { return polys_; }
+  std::vector<Poly>& polys() { return polys_; }
 
   size_t BytesLength() const { return base::EstimateSize(this); }
 
