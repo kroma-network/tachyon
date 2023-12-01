@@ -183,7 +183,7 @@ class SingleChipLayouter : public Layouter<F> {
     regions_.push_back(region_start);
 
     // Update column usage information.
-    for (auto it = shape.columns().begin(); it != shape.columns().end(); ++it) {
+    for (const RegionColumn& column : shape.columns()) {
       columns_[column] = region_start + shape.row_count();
     }
 
@@ -269,13 +269,13 @@ class SingleChipLayouter : public Layouter<F> {
     if (!first_unused.has_value()) return Error::kSynthesis;
 
     // Record these columns so that we can prevent them from being used again.
-    for (auto it = values.begin(); it != values.end(); ++it) {
-      lookup_table_columns_.push_back(it->first);
+    for (const auto& [column, default_value] : values) {
+      lookup_table_columns_.push_back(column);
       // |it->second.default| must have value because we must have assigned
       // at least one cell in each column, and in that case we checked
       // that all cells up to |first_unused| were assigned.
-      Error error = assignment_->FillFromRow(it->first, first_unused.value(),
-                                             it->second.default);
+      Error error =
+          assignment_->FillFromRow(column, first_unused.value(), default_value);
       if (error != Error::kNone) return error;
     }
 
