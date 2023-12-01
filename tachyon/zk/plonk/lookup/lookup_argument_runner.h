@@ -7,9 +7,12 @@
 #ifndef TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_H_
 #define TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_H_
 
+#include <vector>
+
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/zk/base/prover.h"
+#include "tachyon/zk/base/prover_query.h"
 #include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_evaluator.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/lookup/lookup_committed.h"
@@ -37,6 +40,11 @@ class LookupArgumentRunner {
   static LookupEvaluated<Poly> EvaluateCommitted(
       Prover<PCSTy, ExtendedDomain>* prover, LookupCommitted<Poly>&& committed,
       const F& x);
+
+  template <typename PCSTy, typename ExtendedDomain, typename F>
+  static std::vector<ProverQuery<PCSTy>> OpenEvaluated(
+      const Prover<PCSTy, ExtendedDomain>* prover,
+      const LookupEvaluated<Poly>& evaluated, const F& x);
 
  private:
   FRIEND_TEST(LookupArgumentRunnerTest, ComputePermutationProduct);

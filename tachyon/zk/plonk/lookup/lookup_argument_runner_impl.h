@@ -8,6 +8,7 @@
 #define TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
 
 #include <utility>
+#include <vector>
 
 #include "tachyon/zk/plonk/circuit/rotation.h"
 #include "tachyon/zk/plonk/lookup/compress_expression.h"
@@ -97,6 +98,24 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
       std::move(permuted_table_poly),
       std::move(product_poly),
   };
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename ExtendedDomain, typename F>
+std::vector<ProverQuery<PCSTy>>
+LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
+    const Prover<PCSTy, ExtendedDomain>* prover,
+    const LookupEvaluated<Poly>& evaluated, const F& x) {
+  F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
+  F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
+
+  return {
+      ProverQuery<PCSTy>(x, evaluated.product_poly().ToRef()),
+      ProverQuery<PCSTy>(x, evaluated.permuted_input_poly().ToRef()),
+      ProverQuery<PCSTy>(std::move(x), evaluated.permuted_table_poly().ToRef()),
+      ProverQuery<PCSTy>(std::move(x_inv),
+                         evaluated.permuted_input_poly().ToRef()),
+      ProverQuery<PCSTy>(std::move(x_next), evaluated.product_poly().ToRef())};
 }
 
 template <typename Poly, typename Evals>
