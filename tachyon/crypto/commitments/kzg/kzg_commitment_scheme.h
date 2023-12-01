@@ -59,7 +59,7 @@ class KZGCommitmentScheme
   // VectorCommitmentScheme methods
   size_t N() const { return g1_powers_of_tau_.size(); }
 
-  [[nodiscard]] bool UnsafeSetupWithTau(size_t size, Field tau) {
+  [[nodiscard]] bool UnsafeSetupWithTau(size_t size, const Field& tau) {
     using G1JacobianPointTy = typename G1PointTy::JacobianPointTy;
     using DomainTy = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
 
