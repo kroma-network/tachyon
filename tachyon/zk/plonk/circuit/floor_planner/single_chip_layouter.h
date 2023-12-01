@@ -63,7 +63,9 @@ class SingleChipLayouter : public Layouter<F> {
                                    Cell* cell) override {
       Error error = layouter_->assignment_->AssignAdvice(
           name, column, offset,
-          []() { return Value<math::RationalField<F>>::Known(constant); },
+          [&constant]() {
+            return Value<math::RationalField<F>>::Known(constant);
+          },
           cell);
       if (error != Error::kNone) return error;
       return ConstrainConstant(*cell, constant);
