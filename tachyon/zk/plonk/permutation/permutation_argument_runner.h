@@ -34,7 +34,7 @@ class PermutationArgumentRunner {
   static PermutationCommitted<Poly> CommitArgument(
       Prover<PCSTy>* prover, const PermutationArgument& argument,
       Table<Evals>& table, size_t constraint_system_degree,
-      const PermutationProvingKey<PCSTy>& permutation_proving_key,
+      const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
       const F& beta, const F& gamma);
 
   template <typename PCSTy, typename F>

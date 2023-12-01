@@ -28,8 +28,8 @@ PermutationCommitted<Poly>
 PermutationArgumentRunner<Poly, Evals>::CommitArgument(
     Prover<PCSTy>* prover, const PermutationArgument& argument,
     Table<Evals>& table, size_t constraint_system_degree,
-    const PermutationProvingKey<PCSTy>& permutation_proving_key, const F& beta,
-    const F& gamma) {
+    const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
+    const F& beta, const F& gamma) {
   // How many columns can be included in a single permutation polynomial?
   // We need to multiply by z(X) and (1 - (l_last(X) + l_blind(X))). This
   // will never underflow because of the requirement of at least a degree

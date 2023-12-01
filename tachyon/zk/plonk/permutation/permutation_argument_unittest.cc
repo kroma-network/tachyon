@@ -79,7 +79,7 @@ TEST_F(PermutationArgumentTest, Commit) {
 
   std::vector<Evals> permutations =
       assembly.GeneratePermutations(prover_->domain());
-  PermutationProvingKey<PCS> pk =
+  PermutationProvingKey<Poly, Evals> pk =
       assembly.BuildProvingKey(prover_.get(), permutations);
 
   F beta = F::Random();
