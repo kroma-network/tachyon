@@ -44,9 +44,9 @@ class LookupPermuted {
     return permuted_table_poly_;
   }
 
-  template <typename PCSTy>
-  LookupCommitted<Poly> CommitGrandProduct(Prover<PCSTy>* prover, const F& beta,
-                                           const F& gamma) && {
+  template <typename PCSTy, typename ExtendedDomain>
+  LookupCommitted<Poly> CommitGrandProduct(
+      Prover<PCSTy, ExtendedDomain>* prover, const F& beta, const F& gamma) && {
     BlindedPolynomial<Poly> grand_product_poly = GrandProductArgument::Commit(
         prover, CreateNumeratorCallback<F>(beta, gamma),
         CreateDenominatorCallback<F>(beta, gamma));
