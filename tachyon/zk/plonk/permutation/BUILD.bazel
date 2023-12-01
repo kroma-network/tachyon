@@ -48,6 +48,7 @@ tachyon_cc_library(
         ":grand_product_argument",
         ":permutation_argument",
         ":permutation_committed",
+        ":permutation_evaluated",
         ":permutation_proving_key",
         ":permutation_table_store",
         "//tachyon/zk/base:blinded_polynomial",
@@ -68,7 +69,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "permutation_committed",
     hdrs = ["permutation_committed.h"],
-    deps = [":permutation_evaluated"],
+    deps = ["//tachyon/zk/base:blinded_polynomial"],
 )
 
 tachyon_cc_library(

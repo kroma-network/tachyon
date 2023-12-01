@@ -15,6 +15,7 @@
 #include "tachyon/zk/plonk/circuit/table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_committed.h"
+#include "tachyon/zk/plonk/permutation/permutation_evaluated.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 
 namespace tachyon::zk {
@@ -34,6 +35,11 @@ class PermutationArgumentRunner {
       Table<Evals>& table, size_t constraint_system_degree,
       const PermutationProvingKey<PCSTy>& permutation_proving_key,
       const F& beta, const F& gamma);
+
+  template <typename PCSTy, typename F>
+  static PermutationEvaluated<Poly> EvaluateCommitted(
+      Prover<PCSTy>* prover, PermutationCommitted<Poly>&& committed,
+      const F& x);
 
  private:
   template <typename F>

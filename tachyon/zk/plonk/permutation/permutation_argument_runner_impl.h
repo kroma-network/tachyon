@@ -75,6 +75,38 @@ PermutationArgumentRunner<Poly, Evals>::CommitArgument(
 }
 
 template <typename Poly, typename Evals>
+template <typename PCSTy, typename F>
+PermutationEvaluated<Poly>
+PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
+    Prover<PCSTy>* prover, PermutationCommitted<Poly>&& committed, const F& x) {
+  int32_t blinding_factors =
+      static_cast<int32_t>(prover->blinder().blinding_factors());
+
+  std::vector<BlindedPolynomial<Poly>> product_polys =
+      std::move(committed).product_polys();
+
+  for (size_t i = 0; i < product_polys.size(); ++i) {
+    const Poly& poly = product_polys[i].poly();
+
+    prover->Evaluate(poly, x);
+
+    F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
+    prover->Evaluate(poly, x_next);
+
+    // If we have any remaining sets to process, evaluate this set at ωᵘ
+    // so we can constrain the last value of its running product to equal the
+    // first value of the next set's running product, chaining them together.
+    if (i != product_polys.size() - 1) {
+      F x_last =
+          Rotation(-(blinding_factors + 1)).RotateOmega(prover->domain(), x);
+      prover->Evaluate(poly, x_last);
+    }
+  }
+
+  return PermutationEvaluated<Poly>(std::move(product_polys));
+}
+
+template <typename Poly, typename Evals>
 template <typename F>
 std::function<base::ParallelizeCallback3<F>(size_t)>
 PermutationArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
