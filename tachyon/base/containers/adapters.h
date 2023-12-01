@@ -5,17 +5,8 @@
 #ifndef TACHYON_BASE_CONTAINERS_ADAPTERS_H_
 #define TACHYON_BASE_CONTAINERS_ADAPTERS_H_
 
-#include <stddef.h>
-
-#include <algorithm>
-#include <iterator>
-#include <tuple>
-#include <utility>
-
-#include "absl/types/span.h"
-
-#include "tachyon/base/numerics/checked_math.h"
-#include "tachyon/base/template_util.h"
+#include "tachyon/base/containers/chunked_iterator.h"
+#include "tachyon/base/containers/zipped_iterator.h"
 
 namespace tachyon::base {
 namespace internal {
@@ -24,15 +15,25 @@ namespace internal {
 template <typename T>
 class ReversedAdapter {
  public:
-  using Iterator = decltype(std::rbegin(std::declval<T&>()));
-
   explicit ReversedAdapter(T& t) : t_(t) {}
   ReversedAdapter(const ReversedAdapter& ra) : t_(ra.t_) {}
 
   ReversedAdapter& operator=(const ReversedAdapter& ra) = delete;
 
-  Iterator begin() const { return std::rbegin(t_); }
-  Iterator end() const { return std::rend(t_); }
+  auto begin() const {
+    if constexpr (std::is_const_v<T>) {
+      return std::crbegin(t_);
+    } else {
+      return std::rbegin(t_);
+    }
+  }
+  auto end() const {
+    if constexpr (std::is_const_v<T>) {
+      return std::crend(t_);
+    } else {
+      return std::rend(t_);
+    }
+  }
 
  private:
   T& t_;
@@ -41,87 +42,25 @@ class ReversedAdapter {
 template <typename T>
 class ChunkedAdapter {
  public:
-  class Iterator {
-   public:
-    using ItType = decltype(std::begin(std::declval<T&>()));
-
-    using underlying_value_type =
-        std::conditional_t<std::is_const_v<T>, const iter_value_t<ItType>,
-                           iter_value_t<ItType>>;
-
-    using difference_type = std::ptrdiff_t;
-    using value_type = absl::Span<underlying_value_type>;
-    using pointer = value_type*;
-    using reference = value_type&;
-    using iterator_category = std::forward_iterator_tag;
-
-    static Iterator begin(T& t, size_t chunk_size) {
-      return Iterator(std::begin(t), chunk_size,
-                      std::distance(std::begin(t), std::end(t)));
-    }
-    static Iterator end(T& t) { return Iterator(std::end(t)); }
-
-    Iterator(const Iterator& other) = default;
-    Iterator& operator=(const Iterator& other) = default;
-
-    bool operator==(const Iterator& other) const { return it_ == other.it_; }
-    bool operator!=(const Iterator& other) const { return !(*this == other); }
-
-    Iterator& operator++() {
-      it_ += len_;
-      offset_ += len_;
-      base::CheckedNumeric<size_t> len = offset_;
-      len += chunk_size_;
-      size_t new_len = len.ValueOrDie();
-      if (new_len > size_) {
-        len_ = size_ - offset_;
-      } else {
-        len_ = chunk_size_;
-      }
-      value_ = value_type(&*it_, len_);
-      return *this;
-    }
-
-    Iterator operator++(int) {
-      Iterator it(*this);
-      ++(*this);
-      return it;
-    }
-
-    // NOTE(chokobole): To suppress -Werror,-Wignored-reference-qualifiers on
-    // mac
-    const std::remove_const_t<pointer> operator->() const { return &value_; }
-    pointer operator->() { return &value_; }
-
-    // NOTE(chokobole): To suppress -Werror,-Wignored-reference-qualifiers on
-    // mac
-    const std::remove_const_t<reference> operator*() const { return value_; }
-    reference operator*() { return value_; }
-
-   private:
-    explicit Iterator(ItType it) : it_(it), chunk_size_(0), size_(0), len_(0) {}
-    Iterator(ItType it, size_t chunk_size, size_t size)
-        : it_(it),
-          chunk_size_(chunk_size),
-          size_(size),
-          len_(std::min(chunk_size, size)),
-          value_(value_type(&*it, len_)) {}
-
-    ItType it_;
-    size_t offset_ = 0;
-    size_t chunk_size_;
-    size_t size_;
-    size_t len_;
-    value_type value_;
-  };
-
   ChunkedAdapter(T& t, size_t chunk_size) : t_(t), chunk_size_(chunk_size) {}
   ChunkedAdapter(const ChunkedAdapter& ca) : t_(ca.t_) {}
 
   ChunkedAdapter& operator=(const ChunkedAdapter& ca) = delete;
 
-  Iterator begin() const { return Iterator::begin(t_, chunk_size_); }
-  Iterator end() const { return Iterator::end(t_); }
+  auto begin() const {
+    if constexpr (std::is_const_v<T>) {
+      return ChunkedConstBegin(t_, chunk_size_);
+    } else {
+      return ChunkedBegin(t_, chunk_size_);
+    }
+  }
+  auto end() const {
+    if constexpr (std::is_const_v<T>) {
+      return ChunkedConstEnd(t_, chunk_size_);
+    } else {
+      return ChunkedEnd(t_, chunk_size_);
+    }
+  }
 
  private:
   T& t_;
@@ -131,75 +70,13 @@ class ChunkedAdapter {
 template <typename T, typename U>
 class ZippedAdapter {
  public:
-  class Iterator {
-   public:
-    using ItType = decltype(std::begin(std::declval<T&>()));
-    using ItType2 = decltype(std::begin(std::declval<U&>()));
-
-    using underlying_value_type = iter_value_t<ItType>;
-    using underlying_value_type2 = iter_value_t<ItType2>;
-
-    using difference_type = std::ptrdiff_t;
-    using value_type =
-        std::tuple<underlying_value_type, underlying_value_type2>;
-    using pointer = value_type*;
-    using reference = value_type&;
-    using iterator_category = std::forward_iterator_tag;
-
-    static Iterator begin(T& t, U& u) {
-      return Iterator(std::begin(t), std::begin(u));
-    }
-    static Iterator end(T& t, U& u) {
-      return Iterator(std::end(t), std::end(u));
-    }
-
-    Iterator(const Iterator& other) = default;
-    Iterator& operator=(const Iterator& other) = default;
-
-    bool operator==(const Iterator& other) const {
-      return it_ == other.it_ && it2_ == other.it2_;
-    }
-    bool operator!=(const Iterator& other) const { return !(*this == other); }
-
-    Iterator& operator++() {
-      ++it_;
-      ++it2_;
-      value_ = value_type(*it_, *it2_);
-      return *this;
-    }
-
-    Iterator operator++(int) {
-      Iterator it(*this);
-      ++(*this);
-      return it;
-    }
-
-    // NOTE(chokobole): To suppress -Werror,-Wignored-reference-qualifiers on
-    // mac
-    const std::remove_const_t<pointer> operator->() const { return &value_; }
-    pointer operator->() { return &value_; }
-
-    // NOTE(chokobole): To suppress -Werror,-Wignored-reference-qualifiers on
-    // mac
-    const std::remove_const_t<reference> operator*() const { return value_; }
-    reference operator*() { return value_; }
-
-   private:
-    Iterator(ItType it, ItType2 it2)
-        : it_(it), it2_(it2), value_(value_type(*it, *it2)) {}
-
-    ItType it_;
-    ItType2 it2_;
-    value_type value_;
-  };
-
   ZippedAdapter(T& t, U& u) : t_(t), u_(u) {}
   ZippedAdapter(const ZippedAdapter& za) : t_(za.t_), u_(za.u_) {}
 
   ZippedAdapter& operator=(const ZippedAdapter& za) = delete;
 
-  Iterator begin() const { return Iterator::begin(t_, u_); }
-  Iterator end() const { return Iterator::end(t_, u_); }
+  auto begin() const { return ZippedBegin(t_, u_); }
+  auto end() const { return ZippedEnd(t_, u_); }
 
  private:
   T& t_;

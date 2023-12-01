@@ -6,6 +6,15 @@ tachyon_cc_library(
     name = "adapters",
     hdrs = ["adapters.h"],
     deps = [
+        ":chunked_iterator",
+        ":zipped_iterator",
+    ],
+)
+
+tachyon_cc_library(
+    name = "chunked_iterator",
+    hdrs = ["chunked_iterator.h"],
+    deps = [
         "//tachyon/base:template_util",
         "//tachyon/base/numerics:checked_math",
         "@com_google_absl//absl/types:span",
@@ -78,6 +87,12 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base/numerics:checked_math",
     ],
+)
+
+tachyon_cc_library(
+    name = "zipped_iterator",
+    hdrs = ["zipped_iterator.h"],
+    deps = ["//tachyon/base:template_util"],
 )
 
 tachyon_cc_unittest(
