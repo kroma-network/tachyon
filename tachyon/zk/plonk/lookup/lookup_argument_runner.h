@@ -26,25 +26,24 @@ class LookupArgumentRunner {
  public:
   LookupArgumentRunner() = delete;
 
-  template <typename PCSTy, typename ExtendedDomain, typename F>
+  template <typename PCSTy, typename F>
   static LookupPermuted<Poly, Evals> PermuteArgument(
-      Prover<PCSTy, ExtendedDomain>* prover, const LookupArgument<F>& argument,
-      const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl);
+      Prover<PCSTy>* prover, const LookupArgument<F>& argument, const F& theta,
+      const SimpleEvaluator<Evals>& evaluator_tpl);
 
-  template <typename PCSTy, typename ExtendedDomain, typename F>
+  template <typename PCSTy, typename F>
   static LookupCommitted<Poly> CommitPermuted(
-      Prover<PCSTy, ExtendedDomain>* prover,
-      LookupPermuted<Poly, Evals>&& permuted, const F& beta, const F& gamma);
+      Prover<PCSTy>* prover, LookupPermuted<Poly, Evals>&& permuted,
+      const F& beta, const F& gamma);
 
-  template <typename PCSTy, typename ExtendedDomain, typename F>
+  template <typename PCSTy, typename F>
   static LookupEvaluated<Poly> EvaluateCommitted(
-      Prover<PCSTy, ExtendedDomain>* prover, LookupCommitted<Poly>&& committed,
-      const F& x);
+      Prover<PCSTy>* prover, LookupCommitted<Poly>&& committed, const F& x);
 
-  template <typename PCSTy, typename ExtendedDomain, typename F>
+  template <typename PCSTy, typename F>
   static std::vector<ProverQuery<PCSTy>> OpenEvaluated(
-      const Prover<PCSTy, ExtendedDomain>* prover,
-      const LookupEvaluated<Poly>& evaluated, const F& x);
+      const Prover<PCSTy>* prover, const LookupEvaluated<Poly>& evaluated,
+      const F& x);
 
  private:
   FRIEND_TEST(LookupArgumentRunnerTest, ComputePermutationProduct);

@@ -1,5 +1,5 @@
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_SIMPLE_TABLE_LAYOUTER_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_SIMPLE_TABLE_LAYOUTER_H_
+#ifndef TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_SIMPLE_LOOKUP_TABLE_LAYOUTER_H_
+#define TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_SIMPLE_LOOKUP_TABLE_LAYOUTER_H_
 
 #include <optional>
 #include <utility>
@@ -9,16 +9,18 @@
 
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/math/base/rational_field.h"
+#include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
 #include "tachyon/zk/plonk/circuit/lookup_table.h"
 #include "tachyon/zk/plonk/circuit/lookup_table_column.h"
-#include "tachyon/zk/value.h"
 
 namespace tachyon::zk {
 
 template <typename F>
-class SimpleTableLayouter : public LookupTable<F>::Layouter {
+class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
  public:
+  using AssignCallback = typename LookupTable<F>::Layouter::AssignCallback;
+
   struct Value {
     // The default value to fill a table column with.
     //
@@ -33,8 +35,8 @@ class SimpleTableLayouter : public LookupTable<F>::Layouter {
     std::vector<bool> assigned;
   };
 
-  SimpleTableLayouter(Assignment<F>* assignment,
-                      const std::vector<LookupTableColumn>* used_columns)
+  SimpleLookupTableLayouter(Assignment<F>* assignment,
+                            const std::vector<LookupTableColumn>* used_columns)
       : assignment_(assignment), used_columns_(used_columns) {}
 
   const absl::flat_hash_map<LookupTableColumn, Value>& values() const {
@@ -47,8 +49,6 @@ class SimpleTableLayouter : public LookupTable<F>::Layouter {
     if (base::Contains(*used_columns_, column)) {
       return Error::kSynthesis;
     }
-
-    Value& value = values_[column];
 
     zk::Value<math::RationalField<F>> value =
         zk::Value<math::RationalField<F>>::Unknown();
@@ -85,4 +85,4 @@ class SimpleTableLayouter : public LookupTable<F>::Layouter {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_SIMPLE_TABLE_LAYOUTER_H_
+#endif  // TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_SIMPLE_LOOKUP_TABLE_LAYOUTER_H_

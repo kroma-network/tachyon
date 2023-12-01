@@ -35,6 +35,13 @@ class TACHYON_EXPORT LookupTableColumn {
   // default-value-filling the columns, which can cause soundness bugs.
   const FixedColumnKey& column() const { return column_; }
 
+  bool operator==(const LookupTableColumn& column) const {
+    return column_ == column.column_;
+  }
+  bool operator!=(const LookupTableColumn& column) const {
+    return column_ != column.column_;
+  }
+
  private:
   FixedColumnKey column_;
 };

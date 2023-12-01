@@ -18,12 +18,13 @@
 namespace tachyon::zk {
 
 class TACHYON_EXPORT RegionColumn {
+ public:
   enum class Type {
     kColumn,
     kSelector,
   };
 
-  RegionColumn() = default;
+  RegionColumn() {}
   explicit RegionColumn(const AnyColumnKey& column)
       : type_(Type::kColumn), column_(column) {}
   explicit RegionColumn(const Selector& selector)
@@ -32,6 +33,9 @@ class TACHYON_EXPORT RegionColumn {
   Type type() const { return type_; }
 
  private:
+  template <typename H>
+  friend H AbslHashValue(H h, const RegionColumn& m);
+
   Type type_;
   union {
     AnyColumnKey column_;

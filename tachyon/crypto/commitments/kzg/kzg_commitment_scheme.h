@@ -19,6 +19,15 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
 namespace tachyon {
+namespace zk {
+
+template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
+          size_t MaxExtensionDegree,
+          typename _Commitment = typename math::Pippenger<G1PointTy>::Bucket>
+class KZGCommitmentSchemeExtension;
+
+}  // namespace zk
+
 namespace crypto {
 
 template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
@@ -59,7 +68,7 @@ class KZGCommitmentScheme
   // VectorCommitmentScheme methods
   size_t N() const { return g1_powers_of_tau_.size(); }
 
-  [[nodiscard]] bool UnsafeSetupWithTau(size_t size, Field tau) {
+  [[nodiscard]] bool UnsafeSetupWithTau(size_t size, const Field& tau) {
     using G1JacobianPointTy = typename G1PointTy::JacobianPointTy;
     using DomainTy = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
 
@@ -115,23 +124,27 @@ class KZGCommitmentScheme
       KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
   friend class UnivariatePolynomialCommitmentScheme<
       KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
+  template <typename, typename, size_t, size_t, typename>
+  friend class zk::KZGCommitmentSchemeExtension;
 
   bool DoUnsafeSetup(size_t size) {
     return UnsafeSetupWithTau(size, Field::Random());
   }
 
-  [[nodiscard]] bool DoCommit(const std::vector<Field>& v,
-                              Commitment* out) const {
+  template <typename BaseContainerTy>
+  [[nodiscard]] bool DoCommit(const BaseContainerTy& v, Commitment* out) const {
     return DoMSM(g1_powers_of_tau_, v, out);
   }
 
-  [[nodiscard]] bool DoCommitLagrange(const std::vector<Field>& v,
+  template <typename BaseContainerTy>
+  [[nodiscard]] bool DoCommitLagrange(const BaseContainerTy& v,
                                       Commitment* out) const {
     return DoMSM(g1_powers_of_tau_lagrange_, v, out);
   }
 
-  static bool DoMSM(const std::vector<G1PointTy>& bases,
-                    const std::vector<Field>& scalars, Commitment* out) {
+  template <typename BaseContainerTy, typename ScalarContainerTy>
+  static bool DoMSM(const BaseContainerTy& bases,
+                    const ScalarContainerTy& scalars, Commitment* out) {
     using Bucket = typename math::Pippenger<G1PointTy>::Bucket;
 
     math::VariableBaseMSM<G1PointTy> msm;

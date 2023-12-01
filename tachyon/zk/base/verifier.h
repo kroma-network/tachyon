@@ -14,18 +14,18 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy, typename ExtendedDomain>
-class Verifier : public Entity<PCSTy, ExtendedDomain> {
+template <typename PCSTy>
+class Verifier : public Entity<PCSTy> {
  public:
   using Domain = typename PCSTy::Domain;
+  using ExtendedDomain = typename PCSTy::ExtendedDomain;
   using Commitment = typename PCSTy::Commitment;
 
   Verifier(PCSTy pcs, std::unique_ptr<Domain> domain,
            std::unique_ptr<ExtendedDomain> extended_domain,
            std::unique_ptr<TranscriptReader<Commitment>> transcript)
-      : Entity<PCSTy, ExtendedDomain>(std::move(pcs), std::move(domain),
-                                      std::move(extended_domain),
-                                      std::move(transcript)) {}
+      : Entity<PCSTy>(std::move(pcs), std::move(domain),
+                      std::move(extended_domain), std::move(transcript)) {}
 
   TranscriptReader<Commitment>* GetReader() {
     return static_cast<TranscriptReader<Commitment>*>(this->transcript());

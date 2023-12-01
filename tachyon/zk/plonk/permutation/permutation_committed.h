@@ -28,9 +28,8 @@ class PermutationCommitted {
     return product_polys_;
   }
 
-  template <typename PCSTy, typename ExtendedDomain, typename F>
-  PermutationEvaluated<Poly> Evaluate(Prover<PCSTy, ExtendedDomain>* prover,
-                                      const F& x) && {
+  template <typename PCSTy, typename F>
+  PermutationEvaluated<Poly> Evaluate(Prover<PCSTy>* prover, const F& x) && {
     int32_t blinding_factors =
         static_cast<int32_t>(prover->blinder().blinding_factors());
 

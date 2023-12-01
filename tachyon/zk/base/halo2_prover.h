@@ -15,11 +15,12 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy, typename ExtendedDomain>
-class Halo2Prover : public Prover<PCSTy, ExtendedDomain> {
+template <typename PCSTy>
+class Halo2Prover : public Prover<PCSTy> {
  public:
   using F = typename PCSTy::Field;
   using Domain = typename PCSTy::Domain;
+  using ExtendedDomain = typename PCSTy::ExtendedDomain;
   using Evals = typename PCSTy::Evals;
   using Commitment = typename PCSTy::Commitment;
 
@@ -68,9 +69,9 @@ class Halo2Prover : public Prover<PCSTy, ExtendedDomain> {
               std::unique_ptr<TranscriptWriter<Commitment>> writer,
               Blinder<PCSTy> blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
               std::unique_ptr<Halo2RandomFieldGenerator<F>> generator)
-      : Prover<PCSTy, ExtendedDomain>(std::move(pcs), std::move(domain),
-                                      std::move(extended_domain),
-                                      std::move(writer), std::move(blinder)),
+      : Prover<PCSTy>(std::move(pcs), std::move(domain),
+                      std::move(extended_domain), std::move(writer),
+                      std::move(blinder)),
         rng_(std::move(rng)),
         generator_(std::move(generator)) {}
 

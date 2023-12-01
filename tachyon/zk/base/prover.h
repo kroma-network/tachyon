@@ -16,11 +16,12 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy, typename ExtendedDomain>
-class Prover : public Entity<PCSTy, ExtendedDomain> {
+template <typename PCSTy>
+class Prover : public Entity<PCSTy> {
  public:
   using F = typename PCSTy::Field;
   using Domain = typename PCSTy::Domain;
+  using ExtendedDomain = typename PCSTy::ExtendedDomain;
   using Evals = typename PCSTy::Evals;
   using Poly = typename PCSTy::Poly;
   using Commitment = typename PCSTy::Commitment;
@@ -29,9 +30,8 @@ class Prover : public Entity<PCSTy, ExtendedDomain> {
          std::unique_ptr<ExtendedDomain> extended_domain,
          std::unique_ptr<TranscriptWriter<Commitment>> writer,
          Blinder<PCSTy> blinder)
-      : Entity<PCSTy, ExtendedDomain>(std::move(pcs), std::move(domain),
-                                      std::move(extended_domain),
-                                      std::move(writer)),
+      : Entity<PCSTy>(std::move(pcs), std::move(domain),
+                      std::move(extended_domain), std::move(writer)),
         blinder_(std::move(blinder)) {}
 
   Blinder<PCSTy>& blinder() { return blinder_; }

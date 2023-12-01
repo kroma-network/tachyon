@@ -20,16 +20,16 @@ namespace tachyon::zk {
 // - If you write codes only for verifier, you should use |Verifier| class.
 // - If you write codes for both prover and verifier, you should use
 //  |Entity| class.
-template <typename _PCSTy, typename _ExtendedDomain>
+template <typename _PCSTy>
 class Entity {
  public:
   using PCSTy = _PCSTy;
   using F = typename PCSTy::Field;
   using Domain = typename PCSTy::Domain;
+  using ExtendedDomain = typename PCSTy::ExtendedDomain;
   using Evals = typename PCSTy::Evals;
   using Poly = typename PCSTy::Poly;
   using Commitment = typename PCSTy::Commitment;
-  using ExtendedDomain = _ExtendedDomain;
 
   Entity(PCSTy pcs, std::unique_ptr<Domain> domain,
          std::unique_ptr<ExtendedDomain> extended_domain,
