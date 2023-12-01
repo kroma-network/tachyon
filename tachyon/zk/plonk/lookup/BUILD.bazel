@@ -11,10 +11,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "lookup_argument",
     hdrs = ["lookup_argument.h"],
-    deps = [
-        ":compress_expression",
-        ":lookup_permuted",
-    ],
+    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
 )
 
 tachyon_cc_library(
@@ -30,29 +27,40 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "lookup_committed",
     hdrs = ["lookup_committed.h"],
-    deps = [
-        ":lookup_evaluated",
-        "//tachyon/zk/plonk/circuit:rotation",
-    ],
+    deps = ["//tachyon/zk/base:blinded_polynomial"],
 )
 
 tachyon_cc_library(
     name = "lookup_evaluated",
     hdrs = ["lookup_evaluated.h"],
-    deps = [
-        "//tachyon/zk/base:blinded_polynomial",
-        "//tachyon/zk/base:prover",
-        "//tachyon/zk/base:prover_query",
-    ],
+    deps = ["//tachyon/zk/base:blinded_polynomial"],
 )
 
 tachyon_cc_library(
     name = "lookup_permuted",
     hdrs = ["lookup_permuted.h"],
     deps = [
-        ":lookup_committed",
-        ":permute_expression_pair",
+        "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:evals_pair",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_argument_runner",
+    hdrs = [
+        "lookup_argument_runner.h",
+        "lookup_argument_runner_impl.h",
+    ],
+    deps = [
+        ":compress_expression",
+        ":lookup_argument",
+        ":lookup_committed",
+        ":lookup_evaluated",
+        ":lookup_permuted",
+        "//tachyon/zk/base:prover",
+        "//tachyon/zk/base:prover_query",
+        "//tachyon/zk/plonk/circuit:rotation",
+        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
         "//tachyon/zk/plonk/permutation:grand_product_argument",
     ],
 )
@@ -73,12 +81,12 @@ tachyon_cc_unittest(
     name = "lookup_argument_unittests",
     srcs = [
         "compress_expression_unittest.cc",
-        "lookup_permuted_unittest.cc",
+        "lookup_argument_runner_unittest.cc",
         "permute_expression_pair_unittest.cc",
     ],
     deps = [
         ":compress_expression",
-        ":lookup_permuted",
+        ":lookup_argument_runner",
         ":permute_expression_pair",
         "//tachyon/base:random",
         "//tachyon/zk/plonk/circuit/expressions:expression_factory",
