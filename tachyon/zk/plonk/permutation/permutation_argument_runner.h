@@ -12,6 +12,7 @@
 
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/prover.h"
+#include "tachyon/zk/base/prover_query.h"
 #include "tachyon/zk/plonk/circuit/table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_committed.h"
@@ -39,6 +40,11 @@ class PermutationArgumentRunner {
   template <typename PCSTy, typename F>
   static PermutationEvaluated<Poly> EvaluateCommitted(
       Prover<PCSTy>* prover, PermutationCommitted<Poly>&& committed,
+      const F& x);
+
+  template <typename PCSTy, typename F>
+  static std::vector<ProverQuery<PCSTy>> OpenEvaluated(
+      const Prover<PCSTy>* prover, const PermutationEvaluated<Poly>& evaluated,
       const F& x);
 
  private:

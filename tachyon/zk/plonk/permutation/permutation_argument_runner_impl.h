@@ -13,6 +13,7 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
+#include "tachyon/zk/plonk/circuit/rotation.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/permutation_table_store.h"
@@ -104,6 +105,33 @@ PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
   }
 
   return PermutationEvaluated<Poly>(std::move(product_polys));
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename F>
+std::vector<ProverQuery<PCSTy>>
+PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
+    const Prover<PCSTy>* prover, const PermutationEvaluated<Poly>& evaluated,
+    const F& x) {
+  const std::vector<BlindedPolynomial<Poly>>& product_polys =
+      evaluated.product_polys();
+
+  std::vector<ProverQuery<PCSTy>> ret;
+  ret.reserve(product_polys.size() * 3 - 1);
+
+  F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
+  for (const BlindedPolynomial<Poly>& blinded_poly : product_polys) {
+    ret.emplace_back(x, blinded_poly.ToRef());
+    ret.emplace_back(x_next, blinded_poly.ToRef());
+  }
+
+  int32_t blinding_factors =
+      static_cast<int32_t>(prover->blinder().blinding_factors());
+  F x_last = Rotation(-(blinding_factors + 1)).RotateOmega(prover->domain(), x);
+  for (auto it = product_polys.rbegin() + 1; it != product_polys.rend(); ++it) {
+    ret.emplace_back(x_last, it->ToRef());
+  }
+  return ret;
 }
 
 template <typename Poly, typename Evals>
