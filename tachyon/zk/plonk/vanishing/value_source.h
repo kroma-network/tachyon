@@ -141,11 +141,14 @@ class TACHYON_EXPORT ValueSource {
       case Type::kChallenge:
         return data.challenges[index_];
       case Type::kFixed:
-        return data.fixeds[column_index_][data.rotations[rotation_index_]];
+        return data
+            .fixed_columns[column_index_][data.rotations[rotation_index_]];
       case Type::kAdvice:
-        return data.advices[column_index_][data.rotations[rotation_index_]];
+        return data
+            .advice_columns[column_index_][data.rotations[rotation_index_]];
       case Type::kInstance:
-        return data.instances[column_index_][data.rotations[rotation_index_]];
+        return data
+            .instance_columns[column_index_][data.rotations[rotation_index_]];
       case Type::kBeta:
         return data.beta;
       case Type::kGamma:

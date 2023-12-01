@@ -26,18 +26,20 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   using AssignCallback = typename Assignment<F>::AssignCallback;
 
   Assembly() = default;
-  Assembly(uint32_t k, std::vector<RationalEvals> fixeds,
+  Assembly(uint32_t k, std::vector<RationalEvals> fixed_columns,
            PermutationAssembly<PCSTy> permutation,
            std::vector<std::vector<bool>> selectors,
            base::Range<size_t> usable_rows)
       : k_(k),
-        fixeds_(std::move(fixeds)),
+        fixed_columns_(std::move(fixed_columns)),
         permutation_(std::move(permutation)),
         selectors_(std::move(selectors)),
         usable_rows_(usable_rows) {}
 
   uint32_t k() const { return k_; }
-  const std::vector<RationalEvals>& fixeds() const { return fixeds_; }
+  const std::vector<RationalEvals>& fixed_columns() const {
+    return fixed_columns_;
+  }
   const PermutationAssembly<PCSTy>& permutation() const { return permutation_; }
   const std::vector<std::vector<bool>>& selectors() const { return selectors_; }
   const base::Range<size_t>& usable_rows() const { return usable_rows_; }
@@ -66,7 +68,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
     if (!usable_rows_.Contains(row)) {
       return Error::kNotEnoughRowsAvailable;
     }
-    fixeds_[column.index()] = std::move(assign).Run();
+    fixed_columns_[column.index()] = std::move(assign).Run();
     return Error::kNone;
   }
 
@@ -88,14 +90,14 @@ class Assembly : public Assignment<typename PCSTy::Field> {
     base::Range<size_t> range(usable_rows_.from + from_row, usable_rows_.to);
     for (size_t i : range) {
       std::ignore = i;
-      fixeds_[column.index()] = value;
+      fixed_columns_[column.index()] = value;
     }
     return Error::kNone;
   }
 
  private:
   uint32_t k_ = 0;
-  std::vector<RationalEvals> fixeds_;
+  std::vector<RationalEvals> fixed_columns_;
   PermutationAssembly<PCSTy> permutation_;
   std::vector<std::vector<bool>> selectors_;
   // A range of available rows for assignment and copies.
