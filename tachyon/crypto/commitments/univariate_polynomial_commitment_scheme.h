@@ -39,4 +39,5 @@ class UnivariatePolynomialCommitmentScheme
 };
 
 }  // namespace tachyon::crypto
+
 #endif  // TACHYON_CRYPTO_COMMITMENTS_UNIVARIATE_POLYNOMIAL_COMMITMENT_SCHEME_H_
