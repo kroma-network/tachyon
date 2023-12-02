@@ -23,7 +23,7 @@ namespace tachyon::math {
 template <typename F, size_t MaxDegree>
 class MultilinearDenseEvaluations {
  public:
-  constexpr static const size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
 
