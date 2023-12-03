@@ -20,13 +20,13 @@
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
+#include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/circuit/constraint.h"
 #include "tachyon/zk/plonk/circuit/gate.h"
 #include "tachyon/zk/plonk/circuit/lookup_table_column.h"
 #include "tachyon/zk/plonk/circuit/query.h"
 #include "tachyon/zk/plonk/circuit/selector_compressor.h"
 #include "tachyon/zk/plonk/circuit/virtual_cells.h"
-#include "tachyon/zk/plonk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 
 namespace tachyon::zk {

@@ -4,14 +4,14 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_STRINGIFIER_H_
-#define TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_STRINGIFIER_H_
+#ifndef TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_STRINGIFIER_H_
+#define TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_STRINGIFIER_H_
 
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/expressions/expression_stringifier.h"
-#include "tachyon/zk/plonk/lookup/lookup_argument.h"
+#include "tachyon/zk/lookup/lookup_argument.h"
 
 namespace tachyon::base::internal {
 
@@ -29,4 +29,4 @@ class RustDebugStringifier<zk::LookupArgument<F>> {
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_STRINGIFIER_H_
+#endif  // TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_STRINGIFIER_H_

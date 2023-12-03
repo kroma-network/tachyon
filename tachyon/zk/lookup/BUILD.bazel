@@ -97,6 +97,6 @@ tachyon_cc_unittest(
         ":permute_expression_pair",
         "//tachyon/base:random",
         "//tachyon/zk/expressions:expression_factory",
-        "//tachyon/zk/plonk/lookup/test:compress_expression_test_setting",
+        "//tachyon/zk/lookup/test:compress_expression_test_setting",
     ],
 )

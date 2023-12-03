@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/plonk/lookup/lookup_argument_runner.h"
+#include "tachyon/zk/lookup/lookup_argument_runner.h"
 
 #include <memory>
 #include <utility>
@@ -13,9 +13,9 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/expressions/expression_factory.h"
-#include "tachyon/zk/plonk/lookup/compress_expression.h"
-#include "tachyon/zk/plonk/lookup/permute_expression_pair.h"
-#include "tachyon/zk/plonk/lookup/test/compress_expression_test_setting.h"
+#include "tachyon/zk/lookup/compress_expression.h"
+#include "tachyon/zk/lookup/permute_expression_pair.h"
+#include "tachyon/zk/lookup/test/compress_expression_test_setting.h"
 
 namespace tachyon::zk {
 

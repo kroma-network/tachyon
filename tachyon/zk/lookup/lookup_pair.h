@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_LOOKUP_LOOKUP_PAIR_H_
-#define TACHYON_ZK_PLONK_LOOKUP_LOOKUP_PAIR_H_
+#ifndef TACHYON_ZK_LOOKUP_LOOKUP_PAIR_H_
+#define TACHYON_ZK_LOOKUP_LOOKUP_PAIR_H_
 
 #include <utility>
 #include <vector>
@@ -35,4 +35,4 @@ using LookupPairs = std::vector<LookupPair<T, U>>;
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_LOOKUP_LOOKUP_PAIR_H_
+#endif  // TACHYON_ZK_LOOKUP_LOOKUP_PAIR_H_

@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_LOOKUP_COMPRESS_EXPRESSION_H_
-#define TACHYON_ZK_PLONK_LOOKUP_COMPRESS_EXPRESSION_H_
+#ifndef TACHYON_ZK_LOOKUP_COMPRESS_EXPRESSION_H_
+#define TACHYON_ZK_LOOKUP_COMPRESS_EXPRESSION_H_
 
 #include <memory>
 #include <utility>
@@ -45,4 +45,4 @@ bool CompressExpressions(
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_LOOKUP_COMPRESS_EXPRESSION_H_
+#endif  // TACHYON_ZK_LOOKUP_COMPRESS_EXPRESSION_H_

@@ -4,13 +4,13 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_LOOKUP_LOOKUP_PERMUTED_H_
-#define TACHYON_ZK_PLONK_LOOKUP_LOOKUP_PERMUTED_H_
+#ifndef TACHYON_ZK_LOOKUP_LOOKUP_PERMUTED_H_
+#define TACHYON_ZK_LOOKUP_LOOKUP_PERMUTED_H_
 
 #include <utility>
 
 #include "tachyon/zk/base/blinded_polynomial.h"
-#include "tachyon/zk/plonk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/lookup_pair.h"
 
 namespace tachyon::zk {
 
@@ -51,4 +51,4 @@ class LookupPermuted {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_LOOKUP_LOOKUP_PERMUTED_H_
+#endif  // TACHYON_ZK_LOOKUP_LOOKUP_PERMUTED_H_

@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_LOOKUP_PERMUTE_EXPRESSION_PAIR_H_
-#define TACHYON_ZK_PLONK_LOOKUP_PERMUTE_EXPRESSION_PAIR_H_
+#ifndef TACHYON_ZK_LOOKUP_PERMUTE_EXPRESSION_PAIR_H_
+#define TACHYON_ZK_LOOKUP_PERMUTE_EXPRESSION_PAIR_H_
 
 #include <algorithm>
 #include <utility>
@@ -15,7 +15,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover.h"
-#include "tachyon/zk/plonk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/lookup_pair.h"
 
 namespace tachyon::zk {
 
@@ -143,4 +143,4 @@ template <typename PCSTy, typename Evals, typename F = typename Evals::Field>
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_LOOKUP_PERMUTE_EXPRESSION_PAIR_H_
+#endif  // TACHYON_ZK_LOOKUP_PERMUTE_EXPRESSION_PAIR_H_

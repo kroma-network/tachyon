@@ -4,15 +4,15 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
-#define TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
+#ifndef TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
+#define TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
 
 #include <utility>
 #include <vector>
 
+#include "tachyon/zk/lookup/compress_expression.h"
+#include "tachyon/zk/lookup/lookup_argument_runner.h"
 #include "tachyon/zk/plonk/circuit/rotation.h"
-#include "tachyon/zk/plonk/lookup/compress_expression.h"
-#include "tachyon/zk/plonk/lookup/lookup_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 
 namespace tachyon::zk {
@@ -154,4 +154,4 @@ LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
+#endif  // TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_

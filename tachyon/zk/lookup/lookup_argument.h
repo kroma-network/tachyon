@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_H_
-#define TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_H_
+#ifndef TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_H_
+#define TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_H_
 
 #include <algorithm>
 #include <memory>
@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "tachyon/zk/expressions/expression.h"
-#include "tachyon/zk/plonk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/lookup_pair.h"
 
 namespace tachyon::zk {
 
@@ -70,4 +70,4 @@ class LookupArgument {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_LOOKUP_LOOKUP_ARGUMENT_H_
+#endif  // TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_H_

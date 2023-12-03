@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_LOOKUP_LOOKUP_COMMITTED_H_
-#define TACHYON_ZK_PLONK_LOOKUP_LOOKUP_COMMITTED_H_
+#ifndef TACHYON_ZK_LOOKUP_LOOKUP_EVALUATED_H_
+#define TACHYON_ZK_LOOKUP_LOOKUP_EVALUATED_H_
 
 #include <utility>
 
@@ -14,27 +14,25 @@
 namespace tachyon::zk {
 
 template <typename Poly>
-class LookupCommitted {
+class LookupEvaluated {
  public:
   using F = typename Poly::Field;
 
-  LookupCommitted() = default;
-  LookupCommitted(BlindedPolynomial<Poly> permuted_input_poly,
+  LookupEvaluated() = default;
+  LookupEvaluated(BlindedPolynomial<Poly> permuted_input_poly,
                   BlindedPolynomial<Poly> permuted_table_poly,
                   BlindedPolynomial<Poly> product_poly)
       : permuted_input_poly_(std::move(permuted_input_poly)),
         permuted_table_poly_(std::move(permuted_table_poly)),
         product_poly_(std::move(product_poly)) {}
 
-  BlindedPolynomial<Poly>&& permuted_input_poly() && {
-    return std::move(permuted_input_poly_);
+  const BlindedPolynomial<Poly>& permuted_input_poly() const {
+    return permuted_input_poly_;
   }
-  BlindedPolynomial<Poly>&& permuted_table_poly() && {
-    return std::move(permuted_table_poly_);
+  const BlindedPolynomial<Poly>& permuted_table_poly() const {
+    return permuted_table_poly_;
   }
-  BlindedPolynomial<Poly>&& product_poly() && {
-    return std::move(product_poly_);
-  }
+  const BlindedPolynomial<Poly>& product_poly() const { return product_poly_; }
 
  private:
   BlindedPolynomial<Poly> permuted_input_poly_;
@@ -44,4 +42,4 @@ class LookupCommitted {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_LOOKUP_LOOKUP_COMMITTED_H_
+#endif  // TACHYON_ZK_LOOKUP_LOOKUP_EVALUATED_H_

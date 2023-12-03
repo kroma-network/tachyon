@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/plonk/lookup/permute_expression_pair.h"
+#include "tachyon/zk/lookup/permute_expression_pair.h"
 
 #include <algorithm>
 #include <optional>
