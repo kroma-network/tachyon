@@ -61,7 +61,7 @@ class SingleChipLayouter : public Layouter<F> {
                                    const AdviceColumnKey& column, size_t offset,
                                    const math::RationalField<F>& constant,
                                    Cell* cell) override {
-      Error error = layouter_->assignment_->AssignAdvice(
+      Error error = AssignAdvice(
           name, column, offset,
           [&constant]() {
             return Value<math::RationalField<F>>::Known(constant);
