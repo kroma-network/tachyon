@@ -13,6 +13,7 @@ tachyon_cc_library(
     hdrs = ["prover.h"],
     deps = [
         ":verifier",
+        "//tachyon/base:logging",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:blinder",
     ],

@@ -30,11 +30,7 @@ template <typename PCSTy, typename Evals, typename F = typename Evals::Field>
 Error PermuteExpressionPair(Prover<PCSTy>* prover, const LookupPair<Evals>& in,
                             LookupPair<Evals>* out) {
   size_t domain_size = prover->domain()->size();
-  size_t blinding_factors = prover->blinder().blinding_factors();
-  if (domain_size == 0) return Error::kConstraintSystemFailure;
-  if (domain_size - 1 < blinding_factors)
-    return Error::kConstraintSystemFailure;
-  size_t usable_rows = domain_size - (blinding_factors + 1);
+  size_t usable_rows = prover->GetUsableRows();
 
   std::vector<F> permuted_input_expressions = in.input().evaluations();
 
