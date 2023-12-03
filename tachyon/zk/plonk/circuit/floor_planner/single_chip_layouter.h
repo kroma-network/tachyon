@@ -194,7 +194,7 @@ class SingleChipLayouter : public Layouter<F> {
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 2nd pass: " << name;
-      Error error = assign.Run(&region);
+      Error error = assign.Run(region);
       if (error != Error::kNone) return error;
     }
     assignment_->ExitRegion();
