@@ -100,9 +100,9 @@ class SingleChipLayouter : public Layouter<F> {
     Error AssignFixed(std::string_view name, const FixedColumnKey& column,
                       size_t offset, AssignCallback assign,
                       Cell* cell) override {
-      Error error =
-          AssignFixed(name, column, layouter_->regions_[region_index_] + offset,
-                      std::move(assign));
+      Error error = layouter_->assignment_->AssignFixed(
+          name, column, layouter_->regions_[region_index_] + offset,
+          std::move(assign));
       if (error != Error::kNone) return error;
       *cell = {region_index_, offset, column};
       return Error::kNone;
