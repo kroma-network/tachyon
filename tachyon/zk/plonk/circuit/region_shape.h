@@ -60,7 +60,7 @@ class RegionShape : public Region<F>::Layouter {
 
   Error AssignAdviceFromInstance(std::string_view,
                                  const InstanceColumnKey& instance, size_t row,
-                                 const InstanceColumnKey& advice, size_t offset,
+                                 const AdviceColumnKey& advice, size_t offset,
                                  AssignedCell<F>* cell) override {
     columns_.insert(RegionColumn(advice));
     row_count_ = std::max(row_count_, offset + 1);
