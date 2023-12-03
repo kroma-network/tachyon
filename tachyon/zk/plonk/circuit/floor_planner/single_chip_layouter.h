@@ -75,7 +75,7 @@ class SingleChipLayouter : public Layouter<F> {
                                    const InstanceColumnKey& instance,
                                    size_t row, const AdviceColumnKey& advice,
                                    size_t offset,
-                                   AssignedCell<F>* assigned_cell) {
+                                   AssignedCell<F>* assigned_cell) override {
       Value<F> value;
       Error error =
           layouter_->assignment_->QueryInstance(instance, row, &value);
