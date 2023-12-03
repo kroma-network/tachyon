@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_evaluator.h"
+#include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
 
 namespace tachyon::zk {
 

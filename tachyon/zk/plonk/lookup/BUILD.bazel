@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "compress_expression",
     hdrs = ["compress_expression.h"],
-    deps = ["//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator"],
+    deps = ["//tachyon/zk/expressions/evaluator:simple_evaluator"],
 )
 
 tachyon_cc_library(
@@ -13,7 +13,7 @@ tachyon_cc_library(
     hdrs = ["lookup_argument.h"],
     deps = [
         ":lookup_pair",
-        "//tachyon/zk/plonk/circuit/expressions:expression",
+        "//tachyon/zk/expressions:expression",
     ],
 )
 
@@ -31,8 +31,8 @@ tachyon_cc_library(
         ":lookup_permuted",
         "//tachyon/zk/base:prover_query",
         "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/expressions/evaluator:simple_evaluator",
         "//tachyon/zk/plonk/circuit:rotation",
-        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
         "//tachyon/zk/plonk/permutation:grand_product_argument",
     ],
 )
@@ -43,7 +43,7 @@ tachyon_cc_library(
     deps = [
         ":lookup_argument",
         "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/plonk/circuit/expressions:expression_stringifier",
+        "//tachyon/zk/expressions:expression_stringifier",
     ],
 )
 
@@ -96,7 +96,7 @@ tachyon_cc_unittest(
         ":lookup_argument_runner",
         ":permute_expression_pair",
         "//tachyon/base:random",
-        "//tachyon/zk/plonk/circuit/expressions:expression_factory",
+        "//tachyon/zk/expressions:expression_factory",
         "//tachyon/zk/plonk/lookup/test:compress_expression_test_setting",
     ],
 )

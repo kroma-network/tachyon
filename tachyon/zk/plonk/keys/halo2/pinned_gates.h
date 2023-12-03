@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/expressions/expression_stringifier.h"
+#include "tachyon/zk/expressions/expression_stringifier.h"
 #include "tachyon/zk/plonk/circuit/gate.h"
 
 namespace tachyon {

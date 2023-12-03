@@ -109,7 +109,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "constraint",
     hdrs = ["constraint.h"],
-    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
+    deps = ["//tachyon/zk/expressions:expression"],
 )
 
 tachyon_cc_library(
@@ -124,7 +124,7 @@ tachyon_cc_library(
     deps = [
         ":selector",
         ":virtual_cell",
-        "//tachyon/zk/plonk/circuit/expressions:expression",
+        "//tachyon/zk/expressions:expression",
     ],
 )
 
@@ -259,7 +259,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "selector_assignment",
     hdrs = ["selector_assignment.h"],
-    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
+    deps = ["//tachyon/zk/expressions:expression"],
 )
 
 tachyon_cc_library(
@@ -271,7 +271,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:cxx20_erase",
         "//tachyon/base/functional:callback",
-        "//tachyon/zk/plonk/circuit/expressions:expression_factory",
+        "//tachyon/zk/expressions:expression_factory",
     ],
 )
 
@@ -307,7 +307,7 @@ tachyon_cc_library(
     deps = [
         ":selector",
         ":virtual_cell",
-        "//tachyon/zk/plonk/circuit/expressions:expression_factory",
+        "//tachyon/zk/expressions:expression_factory",
     ],
 )
 

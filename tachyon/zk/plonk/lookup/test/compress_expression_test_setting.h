@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "tachyon/zk/base/halo2/halo2_prover_test.h"
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_evaluator.h"
+#include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
 
 namespace tachyon::zk {
 

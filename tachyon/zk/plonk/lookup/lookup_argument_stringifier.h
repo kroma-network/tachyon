@@ -10,7 +10,7 @@
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/zk/plonk/circuit/expressions/expression_stringifier.h"
+#include "tachyon/zk/expressions/expression_stringifier.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument.h"
 
 namespace tachyon::base::internal {

@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/zk/expressions/expression.h"
 #include "tachyon/zk/plonk/circuit/constraint.h"
-#include "tachyon/zk/plonk/circuit/expressions/expression.h"
 
 namespace tachyon::zk {
 

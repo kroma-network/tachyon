@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/expressions/expression.h"
+#include "tachyon/zk/expressions/expression.h"
 #include "tachyon/zk/plonk/lookup/lookup_pair.h"
 
 namespace tachyon::zk {

@@ -7,6 +7,6 @@ tachyon_cc_library(
     visibility = ["//tachyon/zk/plonk/lookup:__pkg__"],
     deps = [
         "//tachyon/zk/base/halo2:halo2_prover_test",
-        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
+        "//tachyon/zk/expressions/evaluator:simple_evaluator",
     ],
 )

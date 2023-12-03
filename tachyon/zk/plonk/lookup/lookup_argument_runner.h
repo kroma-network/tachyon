@@ -13,7 +13,7 @@
 
 #include "tachyon/zk/base/entities/prover.h"
 #include "tachyon/zk/base/prover_query.h"
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_evaluator.h"
+#include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
 #include "tachyon/zk/plonk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/lookup/lookup_committed.h"
 #include "tachyon/zk/plonk/lookup/lookup_evaluated.h"

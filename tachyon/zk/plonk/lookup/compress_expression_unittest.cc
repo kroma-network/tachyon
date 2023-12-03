@@ -8,7 +8,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/plonk/circuit/expressions/expression_factory.h"
+#include "tachyon/zk/expressions/expression_factory.h"
 #include "tachyon/zk/plonk/lookup/test/compress_expression_test_setting.h"
 
 namespace tachyon::zk {

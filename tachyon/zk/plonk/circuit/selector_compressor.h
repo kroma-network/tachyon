@@ -17,7 +17,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/base/functional/callback.h"
-#include "tachyon/zk/plonk/circuit/expressions/expression_factory.h"
+#include "tachyon/zk/expressions/expression_factory.h"
 #include "tachyon/zk/plonk/circuit/selector_assignment.h"
 #include "tachyon/zk/plonk/circuit/selector_description.h"
 
