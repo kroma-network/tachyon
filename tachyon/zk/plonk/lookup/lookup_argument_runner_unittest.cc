@@ -49,9 +49,8 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
       std::move(compressed_table_expression));
 
   LookupPair<Evals> permuted_evals_pair;
-  Error err = PermuteExpressionPair(prover_.get(), compressed_evals_pair,
-                                    &permuted_evals_pair);
-  ASSERT_EQ(err, Error::kNone);
+  ASSERT_TRUE(PermuteExpressionPair(prover_.get(), compressed_evals_pair,
+                                    &permuted_evals_pair));
 
   LookupPermuted<Poly, Evals> lookup_permuted(
       std::move(compressed_evals_pair), std::move(permuted_evals_pair),

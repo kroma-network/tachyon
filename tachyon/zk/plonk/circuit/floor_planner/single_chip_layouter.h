@@ -35,87 +35,69 @@ class SingleChipLayouter : public Layouter<F> {
         : layouter_(layouter), region_index_(region_index) {}
 
     // zk::Region<F>::Layouter methods
-    Error EnableSelector(std::string_view name, const Selector& selector,
-                         size_t offset) override {
-      return layouter_->assignment_->EnableSelector(
+    void EnableSelector(std::string_view name, const Selector& selector,
+                        size_t offset) override {
+      layouter_->assignment_->EnableSelector(
           name, selector, layouter_->regions_[region_index_] + offset);
     }
 
     void NameColumn(std::string_view name,
                     const AnyColumnKey& column) override {
-      return layouter_->assignment_->NameColumn(name, column);
+      layouter_->assignment_->NameColumn(name, column);
     }
 
-    Error AssignAdvice(std::string_view name, const AdviceColumnKey& column,
-                       size_t offset, AssignCallback assign,
-                       Cell* cell) override {
-      Error error = layouter_->assignment_->AssignAdvice(
+    Cell AssignAdvice(std::string_view name, const AdviceColumnKey& column,
+                      size_t offset, AssignCallback assign) override {
+      layouter_->assignment_->AssignAdvice(
           name, column, layouter_->regions_[region_index_] + offset,
           std::move(assign));
-      if (error != Error::kNone) return error;
-      *cell = {region_index_, offset, column};
-      return Error::kNone;
+      return {region_index_, offset, column};
     }
 
-    Error AssignAdviceFromConstant(std::string_view name,
-                                   const AdviceColumnKey& column, size_t offset,
-                                   const math::RationalField<F>& constant,
-                                   Cell* cell) override {
-      Error error = AssignAdvice(
-          name, column, offset,
-          [&constant]() {
-            return Value<math::RationalField<F>>::Known(constant);
-          },
-          cell);
-      if (error != Error::kNone) return error;
-      return ConstrainConstant(*cell, constant);
+    Cell AssignAdviceFromConstant(
+        std::string_view name, const AdviceColumnKey& column, size_t offset,
+        const math::RationalField<F>& constant) override {
+      Cell cell = AssignAdvice(name, column, offset, [&constant]() {
+        return Value<math::RationalField<F>>::Known(constant);
+      });
+      ConstrainConstant(cell, constant);
+      return cell;
     }
 
-    Error AssignAdviceFromInstance(std::string_view name,
-                                   const InstanceColumnKey& instance,
-                                   size_t row, const AdviceColumnKey& advice,
-                                   size_t offset,
-                                   AssignedCell<F>* assigned_cell) override {
-      Value<F> value;
-      Error error =
-          layouter_->assignment_->QueryInstance(instance, row, &value);
-      if (error != Error::kNone) return error;
+    AssignedCell<F> AssignAdviceFromInstance(std::string_view name,
+                                             const InstanceColumnKey& instance,
+                                             size_t row,
+                                             const AdviceColumnKey& advice,
+                                             size_t offset) override {
+      Value<F> value = layouter_->assignment_->QueryInstance(instance, row);
 
-      Cell cell;
-      error = AssignAdvice(
-          name, advice, offset,
-          [&value]() { return math::RationalField<F>(value); }, &cell);
-      if (error != Error::kNone) return error;
+      Cell cell = AssignAdvice(name, advice, offset, [&value]() {
+        return math::RationalField<F>(value);
+      });
 
-      error = layouter_->assignment_->Copy(
+      layouter_->assignment_->Copy(
           cell.column(),
           layouter_->regions_[cell.region_index()] + cell.row_offset(),
           instance, row);
-      if (error != Error::kNone) return error;
 
-      *assigned_cell = {cell, value};
-      return Error::kNone;
+      return {std::move(cell), std::move(value)};
     }
 
-    Error AssignFixed(std::string_view name, const FixedColumnKey& column,
-                      size_t offset, AssignCallback assign,
-                      Cell* cell) override {
-      Error error = layouter_->assignment_->AssignFixed(
+    Cell AssignFixed(std::string_view name, const FixedColumnKey& column,
+                     size_t offset, AssignCallback assign) override {
+      layouter_->assignment_->AssignFixed(
           name, column, layouter_->regions_[region_index_] + offset,
           std::move(assign));
-      if (error != Error::kNone) return error;
-      *cell = {region_index_, offset, column};
-      return Error::kNone;
+      return {region_index_, offset, column};
     }
 
-    Error ConstrainConstant(const Cell& cell,
-                            const math::RationalField<F>& constant) override {
+    void ConstrainConstant(const Cell& cell,
+                           const math::RationalField<F>& constant) override {
       constants_.emplace_back(constant, cell);
-      return Error::kNone;
     }
 
-    Error ConstrainEqual(const Cell& left, const Cell& right) override {
-      return layouter_->assignment_->Copy(
+    void ConstrainEqual(const Cell& left, const Cell& right) override {
+      layouter_->assignment_->Copy(
           left.column(),
           layouter_->regions_[left.region_index()] + left.row_offset(),
           right.column(),
@@ -145,8 +127,8 @@ class SingleChipLayouter : public Layouter<F> {
   }
 
   // Layouter<F> methods
-  Error AssignRegion(std::string_view name,
-                     AssignRegionCallback assign) override {
+  void AssignRegion(std::string_view name,
+                    AssignRegionCallback assign) override {
     size_t region_index = regions_.size();
 
     // Get shape of the region.
@@ -156,8 +138,7 @@ class SingleChipLayouter : public Layouter<F> {
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 1st pass: " << name;
       Region region(&shape);
-      Error error = assign.Run(region);
-      if (error != Error::kNone) return error;
+      assign.Run(region);
     }
     size_t row_count = shape.row_count();
     bool log_region_info = row_count >= 40;
@@ -194,49 +175,43 @@ class SingleChipLayouter : public Layouter<F> {
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 2nd pass: " << name;
-      Error error = assign.Run(region);
-      if (error != Error::kNone) return error;
+      assign.Run(region);
     }
     assignment_->ExitRegion();
 
     // Assign constants. For the simple floor planner, we assign constants in
     // order in the first `constants` column.
     if (constants_.empty()) {
-      if (!region.constants.empty())
-        return Error::kNotEnoughColumnsForConstants;
+      CHECK(region.constants.empty()) << "Not enough columns for constants";
     } else {
       const FixedColumnKey& constants_column = constants_[0];
       size_t& next_constant_row = columns_[RegionColumn(constants_column)];
       for (const Constant& constant : region.constants) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
-        Error error = assignment_->AssignFixed(
+        assignment_->AssignFixed(
             [&value]() {
               return absl::Substitute("Constant($0)",
                                       value.Evaluate().ToString());
             },
             constants_column, next_constant_row,
             [&value]() { return Value<F>::Known(value); });
-        if (error != Error::kNone) return error;
-        error = assignment_->Copy(
+        assignment_->Copy(
             constants_column, next_constant_row, advice.column(),
             regions_[advice.region_index()] + advice.row_offset());
-        if (error != Error::kNone) return error;
         ++next_constant_row;
       }
     }
-    return Error::kNone;
   }
 
-  Error AssignLookupTable(std::string_view name,
-                          AssignLookupTableCallback assign) override {
+  void AssignLookupTable(std::string_view name,
+                         AssignLookupTableCallback assign) override {
     // Maintenance hazard: there is near-duplicate code in
     // |v1::AssignmentPass::AssignLookupTable|. Assign table cells.
     assignment_->EnterRegion(name);
     SimpleLookupTableLayouter<F> lookup_table_layouter(&assignment_,
                                                        &lookup_table_columns_);
-    Error error = std::move(assign).Run(lookup_table_layouter);
-    if (error != Error::kNone) return error;
+    std::move(assign).Run(lookup_table_layouter);
     const absl::flat_hash_map<LookupTableColumn,
                               typename SimpleLookupTableLayouter<F>::Value>&
         values = lookup_table_layouter.values();
@@ -256,17 +231,18 @@ class SingleChipLayouter : public Layouter<F> {
           }
         });
     for (const std::optional<size_t>& assigned_size : assigned_sizes) {
-      if (!assigned_size.has_value()) return Error::kSynthesis;
+      CHECK(assigned_size.has_value()) << "length is missing";
 
       if (first_unused.has_value()) {
-        if (first_unused.value() != assigned_size.value())
-          return Error::kSynthesis;
+        CHECK_EQ(first_unused.value(), assigned_size.value())
+            << "all table columns must have the same length";
       } else {
         first_unused = assigned_size;
       }
     }
 
-    if (!first_unused.has_value()) return Error::kSynthesis;
+    CHECK(first_unused.has_value())
+        << "length is missing, maybe there are no table columns";
 
     // Record these columns so that we can prevent them from being used again.
     for (const auto& [column, default_value] : values) {
@@ -274,19 +250,15 @@ class SingleChipLayouter : public Layouter<F> {
       // |it->second.default| must have value because we must have assigned
       // at least one cell in each column, and in that case we checked
       // that all cells up to |first_unused| were assigned.
-      Error error =
-          assignment_->FillFromRow(column, first_unused.value(), default_value);
-      if (error != Error::kNone) return error;
+      assignment_->FillFromRow(column, first_unused.value(), default_value);
     }
-
-    return Error::kNone;
   }
 
-  Error ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
-                          size_t row) override {
-    return assignment_->Copy(cell.column(),
-                             regions_[cell.region_index()] + cell.row_offset(),
-                             column, row);
+  void ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
+                         size_t row) override {
+    assignment_->Copy(cell.column(),
+                      regions_[cell.region_index()] + cell.row_offset(), column,
+                      row);
   }
 
   Value<F> GetChallenge(const Challenge& challenge) const override {

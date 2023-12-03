@@ -16,7 +16,6 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/error.h"
 
 namespace tachyon::zk {
 
@@ -39,7 +38,7 @@ class TACHYON_EXPORT Selector {
 
   // Defined in region.h
   template <typename F>
-  Error Enable(Region<F>& region, size_t offset) const;
+  void Enable(Region<F>& region, size_t offset) const;
 
   std::string ToString() const {
     return absl::Substitute("{index: $0, is_simple: $1}", index_, is_simple_);

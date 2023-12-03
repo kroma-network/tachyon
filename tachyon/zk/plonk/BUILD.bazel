@@ -20,8 +20,3 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/permutation:permutation_argument",
     ],
 )
-
-tachyon_cc_library(
-    name = "error",
-    hdrs = ["error.h"],
-)

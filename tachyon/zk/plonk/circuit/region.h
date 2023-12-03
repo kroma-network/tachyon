@@ -15,7 +15,6 @@
 #include "tachyon/zk/plonk/circuit/assigned_cell.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
-#include "tachyon/zk/plonk/error.h"
 
 namespace tachyon::zk {
 
@@ -31,10 +30,8 @@ class Region {
     virtual ~Layouter() = default;
 
     // Enables a |selector| at the given |offset|.
-    virtual Error EnableSelector(std::string_view name,
-                                 const Selector& selector, size_t offset) {
-      return Error::kNone;
-    }
+    virtual void EnableSelector(std::string_view name, const Selector& selector,
+                                size_t offset) {}
 
     // Allows the circuit implementer to name a Column within a Region
     // context.
@@ -45,67 +42,44 @@ class Region {
     }
 
     // Assign an advice column value (witness)
-    virtual Error AssignAdvice(std::string_view name,
-                               const AdviceColumnKey& column, size_t offset,
-                               AssignCallback assign, Cell* cell) {
-      return Error::kNone;
-    }
+    virtual Cell AssignAdvice(std::string_view name,
+                              const AdviceColumnKey& column, size_t offset,
+                              AssignCallback assign) = 0;
 
     // Assigns a constant value to the column |advice| at |offset| within this
     // region.
     //
     // The constant value will be assigned to a cell within one of the fixed
     // columns configured via |ConstraintSystem::EnableConstant|.
-    //
-    // Returns |Error::kNone| and populates |cell| that has been
-    // equality-constrained to the constant.
-    virtual Error AssignAdviceFromConstant(
+    virtual Cell AssignAdviceFromConstant(
         std::string_view name, const AdviceColumnKey& column, size_t offset,
-        const math::RationalField<F>& constant, Cell* cell) {
-      return Error::kNone;
-    }
+        const math::RationalField<F>& constant) = 0;
 
     // Assign the value of the instance column's cell at absolute location
     // |row| to the column |advice| at |offset| within this region.
-    //
-    // Returns |Error::kNone| and populates |cell| if known.
-    virtual Error AssignAdviceFromInstance(
+    virtual AssignedCell<F> AssignAdviceFromInstance(
         std::string_view name, const InstanceColumnKey& instance, size_t row,
-        const AdviceColumnKey& advice, size_t offset, AssignedCell<F>* cell) {
-      return Error::kNone;
-    }
+        const AdviceColumnKey& advice, size_t offset) = 0;
 
     // Assign a fixed value
-    virtual Error AssignFixed(std::string_view name,
-                              const FixedColumnKey& column, size_t offset,
-                              AssignCallback assign, Cell* cell) {
-      return Error::kNone;
-    }
+    virtual Cell AssignFixed(std::string_view name,
+                             const FixedColumnKey& column, size_t offset,
+                             AssignCallback assign) = 0;
 
     // Constrain a cell to have a constant value.
-    //
-    // Returns an error if the cell is in a column where equality has not been
-    // enabled.
-    virtual Error ConstrainConstant(const Cell& cell,
-                                    const math::RationalField<F>& constant) {
-      return Error::kNone;
-    }
+    virtual void ConstrainConstant(const Cell& cell,
+                                   const math::RationalField<F>& constant) {}
 
     // Constrain two cells to have the same value.
-    //
-    // Returns an error if either of the cells is not within the given
-    // permutation.
-    virtual Error ConstrainEqual(const Cell& left, const Cell& right) {
-      return Error::kNone;
-    }
+    virtual void ConstrainEqual(const Cell& left, const Cell& right) {}
   };
 
   explicit Region(Layouter* layouter) : layouter_(layouter) {}
 
   // See the comment above.
-  Error EnableSelector(std::string_view name, const Selector& selector,
-                       size_t offset) {
-    return layouter_->EnableSelector(name, selector, offset);
+  void EnableSelector(std::string_view name, const Selector& selector,
+                      size_t offset) {
+    layouter_->EnableSelector(name, selector, offset);
   }
 
   // See the comment above.
@@ -114,72 +88,59 @@ class Region {
   }
 
   // See the comment above.
-  Error AssignAdvice(std::string_view name, const AdviceColumnKey& column,
-                     size_t offset, AssignCallback assign,
-                     AssignedCell<F>* assigned_cell) {
-    Cell cell;
+  AssignedCell<F> AssignAdvice(std::string_view name,
+                               const AdviceColumnKey& column, size_t offset,
+                               AssignCallback assign) {
     Value<F> value = Value<F>::Unknown();
-    Error error = layouter_->AssignAdvice(
-        name, column, offset,
-        [&value, &assign]() {
+    Cell cell =
+        layouter_->AssignAdvice(name, column, offset, [&value, &assign]() {
           value = std::move(assign).Run();
           return value.ToRationalFieldValue();
-        },
-        &cell);
-    if (error != Error::kNone) return error;
-    *assigned_cell = {cell, std::move(value)};
-    return Error::kNone;
+        });
+    return {std::move(cell), std::move(value)};
   }
 
   // See the comment above.
-  Error AssignAdviceFromConstant(std::string_view name,
-                                 const AdviceColumnKey& column, size_t offset,
-                                 const F& constant,
-                                 AssignedCell<F>* assigned_cell) {
-    Cell cell;
-    Error error = layouter_->AssignAdviceFromConstant(
-        name, column, offset, math::RationalField<F>(constant), &cell);
-    if (error != Error::kNone) return error;
-    *assigned_cell = {cell, Value<F>::Known(constant)};
-    return Error::kNone;
+  AssignedCell<F> AssignAdviceFromConstant(std::string_view name,
+                                           const AdviceColumnKey& column,
+                                           size_t offset, const F& constant) {
+    Cell cell = layouter_->AssignAdviceFromConstant(
+        name, column, offset, math::RationalField<F>(constant));
+    return {std::move(cell), Value<F>::Known(constant)};
   }
 
   // See the comment above.
-  Error AssignAdviceFromInstance(std::string_view name,
-                                 const InstanceColumnKey& instance, size_t row,
-                                 const AdviceColumnKey& advice, size_t offset,
-                                 AssignedCell<F>* cell) {
+  AssignedCell<F> AssignAdviceFromInstance(std::string_view name,
+                                           const InstanceColumnKey& instance,
+                                           size_t row,
+                                           const AdviceColumnKey& advice,
+                                           size_t offset) {
     return layouter_->AssignAdviceFromInstance(name, instance, row, advice,
-                                               offset, cell);
+                                               offset);
   }
 
   // See the comment above.
-  Error AssignFixed(std::string_view name, const FixedColumnKey& column,
-                    size_t offset, AssignCallback assign,
-                    AssignedCell<F>* assigned_cell) {
-    Cell cell;
+  AssignedCell<F> AssignFixed(std::string_view name,
+                              const FixedColumnKey& column, size_t offset,
+                              AssignCallback assign) {
     Value<F> value = Value<F>::Unknown();
-    Error error = layouter_->AssignFixed(
-        name, column, offset,
-        [&value, &assign]() {
+    Cell cell =
+        layouter_->AssignFixed(name, column, offset, [&value, &assign]() {
           value = std::move(assign).Run();
           return value.ToRationalFieldValue();
-        },
-        &cell);
-    if (error != Error::kNone) return error;
-    *assigned_cell = {cell, std::move(value)};
-    return Error::kNone;
+        });
+    return {std::move(cell), std::move(value)};
   }
 
   // See the comment above.
-  Error ConstrainConstant(const Cell& cell,
-                          const math::RationalField<F>& constant) {
-    return layouter_->ConstrainConstant(cell, constant);
+  void ConstrainConstant(const Cell& cell,
+                         const math::RationalField<F>& constant) {
+    layouter_->ConstrainConstant(cell, constant);
   }
 
   // See the comment above.
-  Error ConstrainEqual(const Cell& left, const Cell& right) {
-    return layouter_->ConstrainEqual(left, right);
+  void ConstrainEqual(const Cell& left, const Cell& right) {
+    layouter_->ConstrainEqual(left, right);
   }
 
  private:
@@ -187,19 +148,19 @@ class Region {
 };
 
 template <typename F>
-Error Selector::Enable(Region<F>& region, size_t offset) const {
-  return region.EnableSelector("", *this, offset);
+void Selector::Enable(Region<F>& region, size_t offset) const {
+  region.EnableSelector("", *this, offset);
 }
 
 template <typename F>
-Error AssignedCell<F>::CopyAdvice(std::string_view name, Region<F>& region,
-                                  const AdviceColumnKey& column, size_t offset,
-                                  AssignedCell<F>* assigned_cell) const {
-  Error error = region.AssignAdvice(
-      name, column, offset, [this]() { return value_; }, assigned_cell);
-  if (error != Error::kNone) return error;
-  region.ConstrainEqual(assigned_cell->cell_, cell_);
-  return Error::kNone;
+AssignedCell<F> AssignedCell<F>::CopyAdvice(std::string_view name,
+                                            Region<F>& region,
+                                            const AdviceColumnKey& column,
+                                            size_t offset) const {
+  AssignedCell<F> ret =
+      region.AssignAdvice(name, column, offset, [this]() { return value_; });
+  region.ConstrainEqual(ret.cell_, cell_);
+  return ret;
 }
 
 }  // namespace tachyon::zk

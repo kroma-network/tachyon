@@ -18,7 +18,6 @@
 #include "tachyon/zk/plonk/circuit/challenge.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
-#include "tachyon/zk/plonk/error.h"
 
 namespace tachyon::zk {
 
@@ -53,44 +52,30 @@ class Assignment {
   virtual void ExitRegion() {}
 
   // Enables a selector at the given row.
-  virtual Error EnableSelector(std::string_view name, const Selector& selector,
-                               size_t row) {
-    return Error::kNone;
-  }
+  virtual void EnableSelector(std::string_view name, const Selector& selector,
+                              size_t row) {}
 
   // Queries the cell of an instance column at a particular absolute row.
-  //
-  // Returns |Error::kNone| and populates |instance| with the cell's value, if
-  // known.
-  virtual Error QueryInstance(const InstanceColumnKey& column, size_t row,
-                              Value<F>* instance) {
-    return Error::kNone;
+  virtual Value<F> QueryInstance(const InstanceColumnKey& column, size_t row) {
+    return Value<F>();
   }
 
   // Assign an advice column value (witness).
-  virtual Error AssignAdvice(std::string_view name,
-                             const AdviceColumnKey& column, size_t row,
-                             AssignCallback assign) {
-    return Error::kNone;
-  }
+  virtual void AssignAdvice(std::string_view name,
+                            const AdviceColumnKey& column, size_t row,
+                            AssignCallback assign) {}
 
   // Assign a fixed value.
-  virtual Error AssignFixed(std::string_view name, const FixedColumnKey& column,
-                            size_t row, AssignCallback assign) {
-    return Error::kNone;
-  }
+  virtual void AssignFixed(std::string_view name, const FixedColumnKey& column,
+                           size_t row, AssignCallback assign) {}
 
   // Assign two cells to have the same value
-  virtual Error Copy(const AnyColumnKey& left_column, size_t left_row,
-                     const AnyColumnKey& right_column, size_t right_row) {
-    return Error::kNone;
-  }
+  virtual void Copy(const AnyColumnKey& left_column, size_t left_row,
+                    const AnyColumnKey& right_column, size_t right_row) {}
 
   // Fills a fixed |column| starting from the given |row| with value |assign|.
-  virtual Error FillFromRow(const FixedColumnKey& column, size_t row,
-                            AssignCallback assign) {
-    return Error::kNone;
-  }
+  virtual void FillFromRow(const FixedColumnKey& column, size_t row,
+                           AssignCallback assign) {}
 
   // Queries the value of the given challenge.
   //

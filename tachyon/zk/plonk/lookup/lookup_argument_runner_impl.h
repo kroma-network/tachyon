@@ -41,9 +41,8 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
 
   // A'(X), S'(X)
   LookupPair<Evals> permuted_evals_pair;
-  Error err = PermuteExpressionPair(prover, compressed_evals_pair,
-                                    &permuted_evals_pair);
-  CHECK_EQ(err, Error::kNone);
+  CHECK(PermuteExpressionPair(prover, compressed_evals_pair,
+                              &permuted_evals_pair));
 
   // Commit(A'(X))
   BlindedPolynomial<Poly> permuted_input_poly;

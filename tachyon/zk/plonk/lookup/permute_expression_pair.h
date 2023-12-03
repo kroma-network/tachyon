@@ -15,7 +15,6 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover.h"
-#include "tachyon/zk/plonk/error.h"
 #include "tachyon/zk/plonk/lookup/lookup_pair.h"
 
 namespace tachyon::zk {
@@ -27,8 +26,9 @@ namespace tachyon::zk {
 //   that has the corresponding value in S'.
 // This method returns (A', S') if no errors are encountered.
 template <typename PCSTy, typename Evals, typename F = typename Evals::Field>
-Error PermuteExpressionPair(Prover<PCSTy>* prover, const LookupPair<Evals>& in,
-                            LookupPair<Evals>* out) {
+[[nodiscard]] bool PermuteExpressionPair(Prover<PCSTy>* prover,
+                                         const LookupPair<Evals>& in,
+                                         LookupPair<Evals>* out) {
   size_t domain_size = prover->domain()->size();
   size_t usable_rows = prover->GetUsableRows();
 
@@ -101,8 +101,11 @@ Error PermuteExpressionPair(Prover<PCSTy>* prover, const LookupPair<Evals>& in,
       // remove one instance of input_value from |leftover_table_map|.
       auto it = leftover_table_map.find(input_value);
       // if input value is not found, return error
-      if (it == leftover_table_map.end())
-        return Error::kConstraintSystemFailure;
+      if (it == leftover_table_map.end()) {
+        LOG(ERROR) << "input(" << input_value.ToString()
+                   << ") is not found in table";
+        return false;
+      }
 
       // input value found, check if the value > 0.
       // then decrement the value by 1
@@ -135,8 +138,7 @@ Error PermuteExpressionPair(Prover<PCSTy>* prover, const LookupPair<Evals>& in,
   prover->blinder().Blind(table);
 
   *out = {std::move(input), std::move(table)};
-
-  return Error::kNone;
+  return true;
 }
 
 }  // namespace tachyon::zk

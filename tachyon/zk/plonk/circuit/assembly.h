@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/logging.h"
 #include "tachyon/base/range.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
@@ -45,54 +46,39 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   const base::Range<size_t>& usable_rows() const { return usable_rows_; }
 
   // Assignment methods
-  Error EnableSelector(std::string_view name, const Selector& selector,
-                       size_t row) override {
-    if (!usable_rows_.Contains(row)) {
-      return Error::kNotEnoughRowsAvailable;
-    }
+  void EnableSelector(std::string_view name, const Selector& selector,
+                      size_t row) override {
+    CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
     selectors_[selector.index()][row] = true;
-    return Error::kNone;
   }
 
-  Error QueryInstance(const InstanceColumnKey& column, size_t row,
-                      Value<F>* instance) override {
-    if (!usable_rows_.Contains(row)) {
-      return Error::kNotEnoughRowsAvailable;
-    }
-    *instance = Value<F>::Unknown();
-    return Error::kNone;
+  Value<F> QueryInstance(const InstanceColumnKey& column, size_t row) override {
+    CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
+    return Value<F>::Unknown();
   }
 
-  Error AssignFixed(std::string_view name, const FixedColumnKey& column,
-                    size_t row, AssignCallback assign) override {
-    if (!usable_rows_.Contains(row)) {
-      return Error::kNotEnoughRowsAvailable;
-    }
+  void AssignFixed(std::string_view name, const FixedColumnKey& column,
+                   size_t row, AssignCallback assign) override {
+    CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
     fixed_columns_[column.index()] = std::move(assign).Run();
-    return Error::kNone;
   }
 
-  Error Copy(const AnyColumnKey& left_column, size_t left_row,
-             const AnyColumnKey& right_column, size_t right_row) override {
-    if (!(usable_rows_.Contains(left_row) &&
-          usable_rows_.Contains(right_row))) {
-      return Error::kNotEnoughRowsAvailable;
-    }
-    return permutation_.Copy(left_column, left_row, right_column, right_row);
+  void Copy(const AnyColumnKey& left_column, size_t left_row,
+            const AnyColumnKey& right_column, size_t right_row) override {
+    CHECK(usable_rows_.Contains(left_row) && usable_rows_.Contains(right_row))
+        << "Not enough rows available";
+    permutation_.Copy(left_column, left_row, right_column, right_row);
   }
 
-  Error FillFromRow(const FixedColumnKey& column, size_t from_row,
-                    AssignCallback assign) override {
-    if (!usable_rows_.Contains(from_row)) {
-      return Error::kNotEnoughRowsAvailable;
-    }
+  void FillFromRow(const FixedColumnKey& column, size_t from_row,
+                   AssignCallback assign) override {
+    CHECK(usable_rows_.Contains(from_row)) << "Not enough rows available";
     math::RationalField<F> value = std::move(assign).Run();
     base::Range<size_t> range(usable_rows_.from + from_row, usable_rows_.to);
     for (size_t i : range) {
       std::ignore = i;
       fixed_columns_[column.index()] = value;
     }
-    return Error::kNone;
   }
 
  private:

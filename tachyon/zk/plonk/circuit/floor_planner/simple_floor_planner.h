@@ -11,11 +11,10 @@ namespace tachyon::zk {
 class SimpleFloorPlanner {
  public:
   template <typename F, typename CircuitTy, typename Config>
-  static Error Synthesize(Assignment<F>* assignment, CircuitTy& circuit,
-                          Config config,
-                          std::vector<FixedColumnKey> constants) {
+  static void Synthesize(Assignment<F>* assignment, CircuitTy& circuit,
+                         Config config, std::vector<FixedColumnKey> constants) {
     SingleChipLayouter layouter(assignment, std::move(constants));
-    return circuit.Synthesize(std::move(config));
+    circuit.Synthesize(std::move(config));
   }
 };
 

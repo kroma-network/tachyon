@@ -7,6 +7,7 @@ tachyon_cc_library(
     hdrs = ["assembly.h"],
     deps = [
         ":assignment",
+        "//tachyon/base:logging",
         "//tachyon/base:range",
         "//tachyon/math/base:rational_field",
         "//tachyon/zk/plonk/permutation:permutation_assembly",
@@ -19,7 +20,6 @@ tachyon_cc_library(
     deps = [
         ":cell",
         "//tachyon/zk/base:value",
-        "//tachyon/zk/plonk:error",
     ],
 )
 
@@ -33,7 +33,6 @@ tachyon_cc_library(
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
         "//tachyon/zk/base:value",
-        "//tachyon/zk/plonk:error",
     ],
 )
 
@@ -141,7 +140,6 @@ tachyon_cc_library(
         ":region",
         "//tachyon/base/functional:callback",
         "//tachyon/zk/plonk:constraint_system",
-        "//tachyon/zk/plonk:error",
     ],
 )
 
@@ -152,7 +150,6 @@ tachyon_cc_library(
         ":lookup_table_column",
         "//tachyon/math/base:rational_field",
         "//tachyon/zk/base:value",
-        "//tachyon/zk/plonk:error",
     ],
 )
 
@@ -207,7 +204,6 @@ tachyon_cc_library(
         ":column_key",
         ":selector",
         "//tachyon/base/functional:callback",
-        "//tachyon/zk/plonk:error",
     ],
 )
 
@@ -255,7 +251,6 @@ tachyon_cc_library(
     hdrs = ["selector.h"],
     deps = [
         "//tachyon:export",
-        "//tachyon/zk/plonk:error",
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
     ],

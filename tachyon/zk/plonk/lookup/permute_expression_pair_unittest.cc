@@ -34,9 +34,7 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
   LookupPair<Evals> input(Evals(std::move(input_evals)),
                           Evals(std::move(table_evals)));
   LookupPair<Evals> output;
-
-  Error err = PermuteExpressionPair(prover_.get(), input, &output);
-  ASSERT_EQ(err, Error::kNone);
+  ASSERT_TRUE(PermuteExpressionPair(prover_.get(), input, &output));
 
   // sanity check brought from halo2
   std::optional<F> last;
@@ -62,8 +60,7 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTestWrong) {
   LookupPair<Evals> input = {Evals(std::move(input_evals)),
                              Evals(std::move(table_evals))};
   LookupPair<Evals> output;
-  Error err = PermuteExpressionPair(prover_.get(), input, &output);
-  ASSERT_EQ(err, Error::kConstraintSystemFailure);
+  ASSERT_FALSE(PermuteExpressionPair(prover_.get(), input, &output));
 }
 
 }  // namespace tachyon::zk
