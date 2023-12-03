@@ -96,7 +96,7 @@ class PermutationAssembly {
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
-  constexpr PermutationProvingKey<PCSTy> BuildProvingKey(
+  constexpr PermutationProvingKey<Poly, Evals> BuildProvingKey(
       const Prover<PCSTy>* prover,
       const std::vector<Evals>& permutations) const {
     const Domain* domain = prover->domain();
@@ -109,8 +109,8 @@ class PermutationAssembly {
       polys.push_back(std::move(poly));
     }
 
-    return PermutationProvingKey<PCSTy>(std::move(permutations),
-                                        std::move(polys));
+    return PermutationProvingKey<Poly, Evals>(std::move(permutations),
+                                              std::move(polys));
   }
 
   // Generate the permutation polynomials based on the accumulated copy

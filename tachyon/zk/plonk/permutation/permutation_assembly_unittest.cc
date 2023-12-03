@@ -49,7 +49,7 @@ TEST_F(PermutationAssemblyTest, BuildKeys) {
 
   std::vector<Evals> permutations =
       assembly_.GeneratePermutations(prover_->domain());
-  PermutationProvingKey<PCS> pk =
+  PermutationProvingKey<Poly, Evals> pk =
       assembly_.BuildProvingKey(prover_.get(), permutations);
   EXPECT_EQ(pk.permutations().size(), pk.polys().size());
 

@@ -17,7 +17,7 @@ namespace {
 
 class PermutationProvingKeyTest : public Halo2ProverTest {
  public:
-  using ProvingKey = PermutationProvingKey<PCS>;
+  using ProvingKey = PermutationProvingKey<Poly, Evals>;
 };
 
 }  // namespace

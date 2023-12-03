@@ -15,15 +15,9 @@
 namespace tachyon {
 namespace zk {
 
-template <typename PCSTy>
+template <typename Poly, typename Evals>
 class PermutationProvingKey {
  public:
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
-
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
-  using Evals = typename PCSTy::Evals;
-
   PermutationProvingKey() = default;
   PermutationProvingKey(const std::vector<Evals>& permutations,
                         const std::vector<Poly>& polys)
@@ -34,6 +28,7 @@ class PermutationProvingKey {
 
   const std::vector<Evals>& permutations() const { return permutations_; }
   const std::vector<Poly>& polys() const { return polys_; }
+  std::vector<Poly>& polys() { return polys_; }
 
   size_t BytesLength() const { return base::EstimateSize(this); }
 
@@ -53,28 +48,26 @@ class PermutationProvingKey {
 
 namespace base {
 
-template <typename PCSTy>
-class Copyable<zk::PermutationProvingKey<PCSTy>> {
+template <typename Poly, typename Evals>
+class Copyable<zk::PermutationProvingKey<Poly, Evals>> {
  public:
-  using Poly = typename PCSTy::Poly;
-  using Evals = typename PCSTy::Evals;
-
-  static bool WriteTo(const zk::PermutationProvingKey<PCSTy>& pk,
+  static bool WriteTo(const zk::PermutationProvingKey<Poly, Evals>& pk,
                       Buffer* buffer) {
     return buffer->WriteMany(pk.permutations(), pk.polys());
   }
 
   static bool ReadFrom(const Buffer& buffer,
-                       zk::PermutationProvingKey<PCSTy>* pk) {
+                       zk::PermutationProvingKey<Poly, Evals>* pk) {
     std::vector<Evals> perms;
     std::vector<Poly> poly;
     if (!buffer.ReadMany(&perms, &poly)) return false;
 
-    *pk = zk::PermutationProvingKey<PCSTy>(std::move(perms), std::move(poly));
+    *pk = zk::PermutationProvingKey<Poly, Evals>(std::move(perms),
+                                                 std::move(poly));
     return true;
   }
 
-  static size_t EstimateSize(const zk::PermutationProvingKey<PCSTy>& pk) {
+  static size_t EstimateSize(const zk::PermutationProvingKey<Poly, Evals>& pk) {
     return base::EstimateSize(pk.permutations()) +
            base::EstimateSize(pk.polys());
   }
