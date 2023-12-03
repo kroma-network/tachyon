@@ -60,7 +60,7 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
         });
 
     if (offset == 0) {
-      if (value.default_value.has_value()) {
+      if (!value.default_value.has_value()) {
         // Use the value at offset 0 as the default value for this table column.
         value.default_value = value;
       } else {
