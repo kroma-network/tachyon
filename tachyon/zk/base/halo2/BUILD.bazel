@@ -22,7 +22,7 @@ tachyon_cc_library(
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/zk/base:blinder",
         "//tachyon/zk/base/commitments:kzg_commitment_scheme_extension",
-        "//tachyon/zk/transcript:poseidon_transcript",
+        "//tachyon/zk/base/transcripts:poseidon_transcript",
         "@com_google_absl//absl/memory",
     ],
 )

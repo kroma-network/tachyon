@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_TRANSCRIPT_TRANSCRIPT_H_
-#define TACHYON_ZK_TRANSCRIPT_TRANSCRIPT_H_
+#ifndef TACHYON_ZK_BASE_TRANSCRIPTS_TRANSCRIPT_H_
+#define TACHYON_ZK_BASE_TRANSCRIPTS_TRANSCRIPT_H_
 
 #include <utility>
 
@@ -116,4 +116,4 @@ class TranscriptWriter : public Transcript<AffinePointTy> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_TRANSCRIPT_TRANSCRIPT_H_
+#endif  // TACHYON_ZK_BASE_TRANSCRIPTS_TRANSCRIPT_H_

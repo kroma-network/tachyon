@@ -10,7 +10,7 @@
 #include <memory>
 #include <utility>
 
-#include "tachyon/zk/transcript/transcript.h"
+#include "tachyon/zk/base/transcripts/transcript.h"
 
 namespace tachyon::zk {
 

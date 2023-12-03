@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/transcript/sha256_transcript.h"
+#include "tachyon/zk/base/transcripts/blake2b_transcript.h"
 
 #include <utility>
 #include <vector>
@@ -17,57 +17,57 @@ namespace tachyon::zk {
 
 namespace {
 
-class Sha256TranscriptTest : public testing::Test {
+class Blake2bTranscriptTest : public testing::Test {
  public:
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
 
 }  // namespace
 
-TEST_F(Sha256TranscriptTest, WritePoint) {
+TEST_F(Blake2bTranscriptTest, WritePoint) {
   using Curve = math::bn254::G1Curve;
 
   base::VectorBuffer write_buf;
-  Sha256Writer<Curve> writer(std::move(write_buf));
+  Blake2bWriter<Curve> writer(std::move(write_buf));
   Curve::AffinePointTy expected = Curve::AffinePointTy::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  Sha256Reader<Curve> reader(std::move(read_buf));
+  Blake2bReader<Curve> reader(std::move(read_buf));
   Curve::AffinePointTy actual;
   ASSERT_TRUE(reader.ReadPoint(&actual));
 
   EXPECT_EQ(expected, actual);
 }
 
-TEST_F(Sha256TranscriptTest, WriteScalar) {
+TEST_F(Blake2bTranscriptTest, WriteScalar) {
   using Curve = math::bn254::G1Curve;
 
   base::VectorBuffer write_buf;
-  Sha256Writer<Curve> writer(std::move(write_buf));
+  Blake2bWriter<Curve> writer(std::move(write_buf));
   Curve::ScalarField expected = Curve::ScalarField::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  Sha256Reader<Curve> reader(std::move(read_buf));
+  Blake2bReader<Curve> reader(std::move(read_buf));
   Curve::ScalarField actual;
   ASSERT_TRUE(reader.ReadScalar(&actual));
 
   EXPECT_EQ(expected, actual);
 }
 
-TEST_F(Sha256TranscriptTest, SqueezeChallenge) {
+TEST_F(Blake2bTranscriptTest, SqueezeChallenge) {
   using Curve = math::bn254::G1Curve;
 
   base::VectorBuffer write_buf;
-  Sha256Writer<Curve> writer(std::move(write_buf));
+  Blake2bWriter<Curve> writer(std::move(write_buf));
   Curve::AffinePointTy generator = Curve::AffinePointTy::Generator();
   ASSERT_TRUE(writer.WriteToProof(generator));
 
-  std::vector<uint8_t> expected_bytes = {144, 70,  170, 43,  125, 191, 116, 100,
-                                         115, 242, 37,  247, 43,  227, 23,  192,
-                                         153, 176, 105, 131, 142, 165, 91,  3,
-                                         218, 85,  31,  89,  176, 94,  171, 5};
+  std::vector<uint8_t> expected_bytes = {57, 2,   118, 182, 16,  184, 59,  179,
+                                         70, 176, 223, 71,  62,  168, 222, 171,
+                                         85, 224, 83,  43,  148, 194, 132, 184,
+                                         65, 25,  1,   208, 123, 166, 11,  12};
   Curve::ScalarField expected = Curve::ScalarField::FromBigInt(
       math::BigInt<4>::FromBytesLE(expected_bytes));
 

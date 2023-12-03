@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_TRANSCRIPT_SHA256_TRANSCRIPT_H_
-#define TACHYON_ZK_TRANSCRIPT_SHA256_TRANSCRIPT_H_
+#ifndef TACHYON_ZK_BASE_TRANSCRIPTS_SHA256_TRANSCRIPT_H_
+#define TACHYON_ZK_BASE_TRANSCRIPTS_SHA256_TRANSCRIPT_H_
 
 #include <array>
 #include <utility>
@@ -16,7 +16,7 @@
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
-#include "tachyon/zk/transcript/transcript.h"
+#include "tachyon/zk/base/transcripts/transcript.h"
 
 namespace tachyon::zk {
 
@@ -142,4 +142,4 @@ class Sha256Writer : public TranscriptWriter<math::AffinePoint<Curve>> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_TRANSCRIPT_SHA256_TRANSCRIPT_H_
+#endif  // TACHYON_ZK_BASE_TRANSCRIPTS_SHA256_TRANSCRIPT_H_

@@ -12,7 +12,7 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/base/commitments/kzg_commitment_scheme_extension.h"
 #include "tachyon/zk/base/halo2/halo2_prover.h"
-#include "tachyon/zk/transcript/poseidon_transcript.h"
+#include "tachyon/zk/base/transcripts/poseidon_transcript.h"
 
 namespace tachyon::zk {
 
