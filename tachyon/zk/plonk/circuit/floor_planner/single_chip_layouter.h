@@ -34,6 +34,8 @@ class SingleChipLayouter : public Layouter<F> {
     Region(SingleChipLayouter* layouter, size_t region_index)
         : layouter_(layouter), region_index_(region_index) {}
 
+    const Constants& constants() const { return constants_; }
+
     // zk::Region<F>::Layouter methods
     void EnableSelector(std::string_view name, const Selector& selector,
                         size_t offset) override {
@@ -188,11 +190,11 @@ class SingleChipLayouter : public Layouter<F> {
     // Assign constants. For the simple floor planner, we assign constants in
     // order in the first `constants` column.
     if (constants_.empty()) {
-      CHECK(region.constants.empty()) << "Not enough columns for constants";
+      CHECK(region.constants().empty()) << "Not enough columns for constants";
     } else {
       const FixedColumnKey& constants_column = constants_[0];
       size_t& next_constant_row = columns_[RegionColumn(constants_column)];
-      for (const Constant& constant : region.constants) {
+      for (const Constant& constant : region.constants()) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
         assignment_->AssignFixed(
