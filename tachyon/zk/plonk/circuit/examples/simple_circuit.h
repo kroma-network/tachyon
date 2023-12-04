@@ -193,7 +193,8 @@ class SimpleCircuit : public Circuit<FieldConfig<F>> {
     return FieldChip<F>::Configure(meta, std::move(advice), instance, constant);
   }
 
-  void Synthesize(FieldConfig<F>&& config, Layouter<F>* layouter) override {
+  void Synthesize(FieldConfig<F>&& config,
+                  Layouter<F>* layouter) const override {
     FieldChip<F> field_chip(std::move(config));
 
     // Load our private values into the circuit.
