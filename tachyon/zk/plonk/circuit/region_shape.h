@@ -44,9 +44,9 @@ class RegionShape : public Region<F>::Layouter {
     return {region_index_, offset, column};
   }
 
-  Cell AssignAdviceFromConstant(std::string_view name,
-                                const AdviceColumnKey& column, size_t offset,
-                                math::RationalField<F> constant) override {
+  Cell AssignAdviceFromConstant(
+      std::string_view name, const AdviceColumnKey& column, size_t offset,
+      const math::RationalField<F>& constant) override {
     return AssignAdvice(name, column, offset,
                         [constant = std::move(constant)]() {
                           return Value<F>::Known(std::move(constant));
