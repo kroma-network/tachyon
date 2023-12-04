@@ -48,13 +48,17 @@ class Prover : public Entity<PCSTy> {
     return this->domain_->size() - (blinder_.blinding_factors() + 1);
   }
 
-  bool CommitEvalsWithBlind(const Evals& evals, BlindedPolynomial<Poly>* out) {
+  bool CommitEvals(const Evals& evals) {
     if (evals.NumElements() != this->domain_->size()) return false;
 
     Commitment commitment;
     if (!this->pcs_.CommitLagrange(evals, &commitment)) return false;
     GetWriter()->WriteToProof(commitment);
+    return true;
+  }
 
+  bool CommitEvalsWithBlind(const Evals& evals, BlindedPolynomial<Poly>* out) {
+    if (!CommitEvals(evals)) return false;
     *out = {this->domain_->IFFT(evals), blinder_.Generate()};
     return true;
   }
