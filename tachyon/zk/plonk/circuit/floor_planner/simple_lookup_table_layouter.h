@@ -57,7 +57,7 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
     zk::Value<math::RationalField<F>> value =
         zk::Value<math::RationalField<F>>::Unknown();
     assignment_->AssignFixed(
-        name, column.column(), offset, [&value, assign = std::move(assign)]() {
+        name, column.column(), offset, [&value, &assign]() {
           zk::Value<math::RationalField<F>> ret = std::move(assign).Run();
           value = ret;
           return ret;
