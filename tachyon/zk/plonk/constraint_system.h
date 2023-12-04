@@ -298,8 +298,7 @@ class ConstraintSystem {
     std::vector<FixedColumnKey> new_columns;
     typename SelectorCompressor<F>::Result result =
         SelectorCompressor<F>::Process(
-            std::move(selectors), degrees, ComputeDegree(),
-            [this, &new_columns]() {
+            selectors, degrees, ComputeDegree(), [this, &new_columns]() {
               FixedColumnKey column = CreateFixedColumn();
               new_columns.push_back(column);
               return ExpressionFactory<F>::Fixed(

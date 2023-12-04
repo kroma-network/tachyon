@@ -55,7 +55,7 @@ class SelectorCompressor {
   // substitutions to the constraint system.
   //
   // This function is completely deterministic.
-  static Result Process(std::vector<std::vector<bool>>&& selectors_in,
+  static Result Process(const std::vector<std::vector<bool>>& selectors_in,
                         const std::vector<size_t>& degrees, size_t max_degree,
                         AllocateFixedColumnCallback callback) {
     if (selectors_in.empty()) return {};
@@ -70,10 +70,10 @@ class SelectorCompressor {
     auto zipped = base::Zipped(selectors_in, degrees);
     std::vector<SelectorDescription> selectors = base::Map(
         zipped.begin(), zipped.end(),
-        [](size_t selector_index, std::tuple<std::vector<bool>, size_t>& e) {
-          auto& [activations, max_degree] = e;
-          return SelectorDescription(selector_index, std::move(activations),
-                                     max_degree);
+        [](size_t selector_index,
+           const std::tuple<std::vector<bool>, size_t>& e) {
+          const auto& [activations, max_degree] = e;
+          return SelectorDescription(selector_index, activations, max_degree);
         });
 
     std::vector<std::vector<F>> combination_assignments;
