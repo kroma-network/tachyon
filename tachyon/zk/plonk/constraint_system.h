@@ -117,9 +117,7 @@ class ConstraintSystem {
 
   // Enable the ability to enforce equality over cells in this column
   void EnableEquality(const AnyColumnKey& column) {
-    // TODO(chokobole): should it be std::set<FixedColumnKey>?
-    constants_.push_back(column);
-    EnableEquality(column);
+    QueryAnyIndex(column, Rotation::Cur());
     permutation_.AddColumn(column);
   }
 
