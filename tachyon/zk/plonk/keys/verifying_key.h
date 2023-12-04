@@ -82,7 +82,8 @@ class VerifyingKey {
   }
 
   template <typename CircuitTy>
-  [[nodiscard]] static bool Generate(const PCSTy& pcs, const CircuitTy& circuit,
+  [[nodiscard]] static bool Generate(const Entity<PCSTy>* entity,
+                                     const CircuitTy& circuit,
                                      VerifyingKey* verifying_key);
 
   const Domain* domain() const { return domain_; }
@@ -112,20 +113,18 @@ class VerifyingKey {
 // static
 template <typename PCSTy>
 template <typename CircuitTy>
-bool VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
+bool VerifyingKey<PCSTy>::Generate(const Entity<PCSTy>* entity,
+                                   const CircuitTy& circuit,
                                    VerifyingKey* verifying_key) {
   using Config = typename CircuitTy::Config;
   using FloorPlanner = typename CircuitTy::FloorPlanner;
-  using DomainTy = math::UnivariateEvaluationDomain<F, kMaxDegree>;
-  using DensePoly =
-      math::UnivariateDensePolynomial<math::RationalField<F>, kMaxDegree>;
-  using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
+  using RationalEvals = typename Assembly<PCSTy>::RationalEvals;
+  using Evals = typename PCSTy::Evals;
 
   ConstraintSystem<F> constraint_system;
   Config config = CircuitTy::Configure(constraint_system);
-  std::unique_ptr<DomainTy> domain =
-      math::UnivariateEvaluationDomainFactory<F, kMaxDegree>::Create(pcs.N());
 
+  const PCSTy& pcs = entity->pcs();
   if (pcs.N() < constraint_system.ComputeMinimumRows()) {
     LOG(ERROR) << "Not enough rows available " << pcs.N() << " vs "
                << constraint_system.ComputeMinimumRows();
@@ -133,21 +132,22 @@ bool VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
   }
 
   Assembly<PCSTy> assembly(
-      pcs.K(),
+      static_cast<uint32_t>(pcs.K()),
       base::CreateVector(constraint_system.num_fixed_columns(),
-                         DensePoly::Zero()),
+                         RationalEvals::Zero()),
       PermutationAssembly<PCSTy>(constraint_system.permutation()),
       base::CreateVector(constraint_system.num_selectors(),
                          base::CreateVector(pcs.N(), false)),
       base::Range<size_t>::Until(
           pcs.N() - (constraint_system.ComputeBlindingFactors() + 1)));
 
-  FloorPlanner::Synthesize(&assembly, constraint_system.constants());
+  FloorPlanner::Synthesize(&assembly, circuit, std::move(config),
+                           constraint_system.constants());
 
   std::vector<Evals> fixed_columns =
-      base::Map(assembly.fixed_columns(), [](const DensePoly& poly) {
+      base::Map(assembly.fixed_columns(), [](const RationalEvals& evals) {
         std::vector<F> result;
-        CHECK(math::RationalField<F>::BatchEvaluate(poly.coefficients(),
+        CHECK(math::RationalField<F>::BatchEvaluate(evals.evaluations(),
                                                     &result));
         return Evals(std::move(result));
       });
@@ -162,8 +162,10 @@ bool VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
                        std::make_move_iterator(selector_polys.begin()),
                        std::make_move_iterator(selector_polys.end()));
 
+  std::vector<Evals> permutations =
+      assembly.permutation().GeneratePermutations(entity->domain());
   PermutationVerifyingKey<PCSTy> permutation_vk =
-      assembly.permutation().BuildVerifyingKey(domain.get());
+      assembly.permutation().BuildVerifyingKey(entity, permutations);
 
   // TODO(chokobole): Parallelize this.
   Commitments fixed_commitments =
