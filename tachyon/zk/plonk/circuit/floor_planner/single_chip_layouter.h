@@ -197,13 +197,10 @@ class SingleChipLayouter : public Layouter<F> {
       for (const Constant& constant : region.constants()) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
-        assignment_->AssignFixed(
-            [&value]() {
-              return absl::Substitute("Constant($0)",
-                                      value.Evaluate().ToString());
-            },
-            constants_column, next_constant_row,
-            [&value]() { return Value<F>::Known(value); });
+        std::string name =
+            absl::Substitute("Constant($0)", value.Evaluate().ToString());
+        assignment_->AssignFixed(name, constants_column, next_constant_row,
+                                 [&value]() { return Value<F>::Known(value); });
         assignment_->Copy(
             constants_column, next_constant_row, advice.column(),
             regions_[advice.region_index()] + advice.row_offset());
