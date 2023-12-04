@@ -20,10 +20,14 @@ TEST_F(SelectorReplacerTest, Constant) {
 
 TEST_F(SelectorReplacerTest, Selector) {
   Expr expr = ExpressionFactory<GF7>::Selector(Selector::Simple(1));
-  std::vector<std::unique_ptr<Expression<GF7>>> replacements;
-  replacements.push_back(ExpressionFactory<GF7>::Selector(Selector::Simple(2)));
-  replacements.push_back(
+  std::vector<std::unique_ptr<Expression<GF7>>> owned_replacements;
+  owned_replacements.push_back(
+      ExpressionFactory<GF7>::Selector(Selector::Simple(2)));
+  owned_replacements.push_back(
       ExpressionFactory<GF7>::Selector(Selector::Complex(3)));
+  std::vector<Ref<const Expression<GF7>>> replacements;
+  replacements.emplace_back(owned_replacements[0].get());
+  replacements.emplace_back(owned_replacements[1].get());
 
   EXPECT_DEATH(expr->ReplaceSelectors(replacements, true), "");
   EXPECT_EQ(*expr->ReplaceSelectors(replacements, false), *replacements[1]);
