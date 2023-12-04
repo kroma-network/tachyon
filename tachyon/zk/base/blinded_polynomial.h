@@ -22,8 +22,8 @@ class BlindedPolynomial {
   using F = typename Poly::Field;
 
   BlindedPolynomial() = default;
-  BlindedPolynomial(const Poly& poly, const F& blind)
-      : poly_(poly), blind_(blind) {}
+  BlindedPolynomial(Poly&& poly, const F& blind)
+      : poly_(std::move(poly)), blind_(blind) {}
   BlindedPolynomial(Poly&& poly, F&& blind)
       : poly_(std::move(poly)), blind_(std::move(blind)) {}
 

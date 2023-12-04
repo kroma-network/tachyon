@@ -69,7 +69,7 @@ class TACHYON_EXPORT CycleStore {
   class Table {
    public:
     Table() = default;
-    explicit Table(std::vector<std::vector<T>> values)
+    explicit Table(std::vector<std::vector<T>>&& values)
         : values_(std::move(values)) {}
 
     T& operator[](const Label& l) { return values_[l.col][l.row]; }

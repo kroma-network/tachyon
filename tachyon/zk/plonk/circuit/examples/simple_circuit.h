@@ -36,11 +36,9 @@ class FieldConfig {
   const Selector& s_mul() const { return s_mul_; }
 
  private:
-  FieldConfig(std::array<AdviceColumnKey, 2> advice, InstanceColumnKey instance,
-              Selector s_mul)
-      : advice_(std::move(advice)),
-        instance_(std::move(instance)),
-        s_mul_(std::move(s_mul)) {}
+  FieldConfig(std::array<AdviceColumnKey, 2>&& advice,
+              const InstanceColumnKey& instance, const Selector& s_mul)
+      : advice_(std::move(advice)), instance_(instance), s_mul_(s_mul) {}
 
   // For this chip, we will use two advice columns to implement our
   // instructions. These are also the columns through which we communicate with
@@ -58,12 +56,10 @@ class FieldConfig {
 template <typename F>
 class FieldChip {
  public:
-  FieldChip() = default;
-
   static FieldConfig<F> Configure(ConstraintSystem<F>& meta,
-                                  std::array<AdviceColumnKey, 2> advice,
-                                  InstanceColumnKey instance,
-                                  FixedColumnKey constant) {
+                                  std::array<AdviceColumnKey, 2>&& advice,
+                                  const InstanceColumnKey& instance,
+                                  const FixedColumnKey& constant) {
     meta.EnableEquality(instance);
     meta.EnableConstant(constant);
     for (const AdviceColumnKey& column : advice) {
@@ -107,8 +103,7 @@ class FieldChip {
            (std::move(lhs) * std::move(rhs) - std::move(out))});
     });
 
-    return FieldConfig<F>(std::move(advice), std::move(instance),
-                          std::move(sel));
+    return FieldConfig<F>(std::move(advice), instance, sel);
   }
 
   AssignedCell<F> LoadPrivate(Layouter<F>* layouter,
@@ -168,7 +163,7 @@ class FieldChip {
  private:
   friend class SimpleCircuit<F>;
 
-  explicit FieldChip(FieldConfig<F> config) : config_(std::move(config)) {}
+  explicit FieldChip(FieldConfig<F>&& config) : config_(std::move(config)) {}
 
   FieldConfig<F> config_;
 };
@@ -195,11 +190,10 @@ class SimpleCircuit : public Circuit<FieldConfig<F>> {
     // Create a fixed column to load constants.
     FixedColumnKey constant = meta.CreateFixedColumn();
 
-    return FieldChip<F>::Configure(meta, std::move(advice), std::move(instance),
-                                   std::move(constant));
+    return FieldChip<F>::Configure(meta, std::move(advice), instance, constant);
   }
 
-  void Synthesize(FieldConfig<F> config, Layouter<F>* layouter) override {
+  void Synthesize(FieldConfig<F>&& config, Layouter<F>* layouter) override {
     FieldChip<F> field_chip(std::move(config));
 
     // Load our private values into the circuit.

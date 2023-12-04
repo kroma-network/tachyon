@@ -19,11 +19,10 @@ class LookupPermuted {
  public:
   using F = typename Poly::Field;
 
-  LookupPermuted() = default;
-  LookupPermuted(LookupPair<Evals> compressed_evals_pair,
-                 LookupPair<Evals> permuted_evals_pair,
-                 BlindedPolynomial<Poly> permuted_input_poly,
-                 BlindedPolynomial<Poly> permuted_table_poly)
+  LookupPermuted(LookupPair<Evals>&& compressed_evals_pair,
+                 LookupPair<Evals>&& permuted_evals_pair,
+                 BlindedPolynomial<Poly>&& permuted_input_poly,
+                 BlindedPolynomial<Poly>&& permuted_table_poly)
       : compressed_evals_pair_(std::move(compressed_evals_pair)),
         permuted_evals_pair_(std::move(permuted_evals_pair)),
         permuted_input_poly_(std::move(permuted_input_poly)),

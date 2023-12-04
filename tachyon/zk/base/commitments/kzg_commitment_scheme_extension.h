@@ -26,7 +26,7 @@ class KZGCommitmentSchemeExtension
 
   KZGCommitmentSchemeExtension() = default;
   explicit KZGCommitmentSchemeExtension(
-      crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>
+      crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>&&
           kzg)
       : kzg_(std::move(kzg)) {}
 

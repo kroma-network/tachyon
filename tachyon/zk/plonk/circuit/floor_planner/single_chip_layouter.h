@@ -280,8 +280,8 @@ class SingleChipLayouter : public Layouter<F> {
   friend class Region;
 
   SingleChipLayouter(Assignment<F>* assignment,
-                     std::vector<FixedColumnKey> constants)
-      : assignment_(assignment), constants_(std::move(constants)) {}
+                     const std::vector<FixedColumnKey>& constants)
+      : assignment_(assignment), constants_(constants) {}
 
   // not owned
   Assignment<F>* const assignment_;

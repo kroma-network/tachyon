@@ -23,7 +23,7 @@ class Circuit {
 
   virtual std::unique_ptr<Circuit> WithoutWitness() const = 0;
 
-  virtual void Synthesize(Config config, Layouter<Field>* layouter) = 0;
+  virtual void Synthesize(Config&& config, Layouter<Field>* layouter) = 0;
 };
 
 }  // namespace tachyon::zk

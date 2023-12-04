@@ -43,9 +43,9 @@ class VerifyingKey {
   using Commitments = std::vector<Commitment>;
 
   VerifyingKey() = default;
-  VerifyingKey(const Domain* domain, Commitments fixed_commitments,
-               PermutationVerifyingKey<PCSTy> permutation_verifying_key,
-               ConstraintSystem<F> constraint_system)
+  VerifyingKey(const Domain* domain, Commitments&& fixed_commitments,
+               PermutationVerifyingKey<PCSTy>&& permutation_verifying_key,
+               ConstraintSystem<F>&& constraint_system)
       : domain_(domain),
         fixed_commitments_(std::move(fixed_commitments)),
         permutation_verifying_Key_(std::move(permutation_verifying_key)),

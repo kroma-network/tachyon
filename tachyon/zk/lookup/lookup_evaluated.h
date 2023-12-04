@@ -18,10 +18,9 @@ class LookupEvaluated {
  public:
   using F = typename Poly::Field;
 
-  LookupEvaluated() = default;
-  LookupEvaluated(BlindedPolynomial<Poly> permuted_input_poly,
-                  BlindedPolynomial<Poly> permuted_table_poly,
-                  BlindedPolynomial<Poly> product_poly)
+  LookupEvaluated(BlindedPolynomial<Poly>&& permuted_input_poly,
+                  BlindedPolynomial<Poly>&& permuted_table_poly,
+                  BlindedPolynomial<Poly>&& product_poly)
       : permuted_input_poly_(std::move(permuted_input_poly)),
         permuted_table_poly_(std::move(permuted_table_poly)),
         product_poly_(std::move(product_poly)) {}

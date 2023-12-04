@@ -27,9 +27,9 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   using AssignCallback = typename Assignment<F>::AssignCallback;
 
   Assembly() = default;
-  Assembly(uint32_t k, std::vector<RationalEvals> fixed_columns,
-           PermutationAssembly<PCSTy> permutation,
-           std::vector<std::vector<bool>> selectors,
+  Assembly(uint32_t k, std::vector<RationalEvals>&& fixed_columns,
+           PermutationAssembly<PCSTy>&& permutation,
+           std::vector<std::vector<bool>>&& selectors,
            base::Range<size_t> usable_rows)
       : k_(k),
         fixed_columns_(std::move(fixed_columns)),

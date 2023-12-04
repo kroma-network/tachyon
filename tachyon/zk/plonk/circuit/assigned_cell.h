@@ -8,6 +8,7 @@
 #define TACHYON_ZK_PLONK_CIRCUIT_ASSIGNED_CELL_H_
 
 #include <string>
+#include <utility>
 
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/cell.h"
@@ -24,6 +25,8 @@ class AssignedCell {
   AssignedCell() = default;
   AssignedCell(const Cell& cell, const Value<F>& value)
       : cell_(cell), value_(value) {}
+  AssignedCell(const Cell& cell, Value<F>&& value)
+      : cell_(cell), value_(std::move(value)) {}
 
   const Cell& cell() const { return cell_; }
   const Value<F>& value() const { return value_; }

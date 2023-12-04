@@ -27,10 +27,10 @@ class Prover : public Entity<PCSTy> {
   using Poly = typename PCSTy::Poly;
   using Commitment = typename PCSTy::Commitment;
 
-  Prover(PCSTy pcs, std::unique_ptr<Domain> domain,
+  Prover(PCSTy&& pcs, std::unique_ptr<Domain> domain,
          std::unique_ptr<ExtendedDomain> extended_domain,
          std::unique_ptr<TranscriptWriter<Commitment>> writer,
-         Blinder<PCSTy> blinder)
+         Blinder<PCSTy>&& blinder)
       : Entity<PCSTy>(std::move(pcs), std::move(domain),
                       std::move(extended_domain), std::move(writer)),
         blinder_(std::move(blinder)) {
