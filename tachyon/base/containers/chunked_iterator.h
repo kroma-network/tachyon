@@ -34,8 +34,7 @@ class ChunkedIterator {
       : current_(std::move(current)),
         chunk_size_(chunk_size),
         size_(size),
-        len_(std::min(chunk_size, size)),
-        value_(value_type(&*current, len_)) {}
+        len_(std::min(chunk_size, size)) {}
 
   ChunkedIterator(const ChunkedIterator& other) = default;
   ChunkedIterator& operator=(const ChunkedIterator& other) = default;
@@ -60,7 +59,6 @@ class ChunkedIterator {
     } else {
       len_ = chunk_size_;
     }
-    value_ = value_type(&*current_, len_);
     return *this;
   }
 
@@ -76,13 +74,23 @@ class ChunkedIterator {
 
   // NOTE(chokobole): To suppress -Werror,-Wignored-reference-qualifiers on
   // mac
-  const std::remove_const_t<pointer> operator->() const { return &value_; }
-  pointer operator->() { return &value_; }
+  const std::remove_const_t<pointer> operator->() const {
+    value_ = value_type(&*current_, len_);
+    return &value_;
+  }
+  pointer operator->() {
+    return const_cast<pointer>(std::as_const(*this).operator->());
+  }
 
   // NOTE(chokobole): To suppress -Werror,-Wignored-reference-qualifiers on
   // mac
-  const std::remove_const_t<reference> operator*() const { return value_; }
-  reference operator*() { return value_; }
+  const std::remove_const_t<reference> operator*() const {
+    value_ = value_type(&*current_, len_);
+    return value_;
+  }
+  reference operator*() {
+    return const_cast<reference>(std::as_const(*this).operator*());
+  }
 
  private:
   Iter current_;
@@ -90,7 +98,7 @@ class ChunkedIterator {
   size_t chunk_size_;
   size_t size_;
   size_t len_;
-  value_type value_;
+  mutable value_type value_;
 };
 
 template <typename T>

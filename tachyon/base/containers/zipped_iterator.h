@@ -23,9 +23,7 @@ class ZippedIterator {
       typename std::iterator_traits<Iter>::iterator_category;
 
   ZippedIterator(Iter current, Iter2 current2)
-      : current_(std::move(current)),
-        current2_(std::move(current2)),
-        value_(value_type(*current, *current2)) {}
+      : current_(std::move(current)), current2_(std::move(current2)) {}
 
   ZippedIterator(const ZippedIterator& other) = default;
   ZippedIterator& operator=(const ZippedIterator& other) = default;
@@ -42,7 +40,6 @@ class ZippedIterator {
   ZippedIterator& operator++() {
     ++current_;
     ++current2_;
-    value_ = value_type(*current_, *current2_);
     return *this;
   }
 
@@ -58,18 +55,28 @@ class ZippedIterator {
 
   // NOTE(chokobole): To suppress -Werror,-Wignored-reference-qualifiers on
   // mac
-  const std::remove_const_t<pointer> operator->() const { return &value_; }
-  pointer operator->() { return &value_; }
+  const std::remove_const_t<pointer> operator->() const {
+    value_ = value_type(*current_, *current2_);
+    return &value_;
+  }
+  pointer operator->() {
+    return const_cast<pointer>(std::as_const(*this).operator->());
+  }
 
   // NOTE(chokobole): To suppress -Werror,-Wignored-reference-qualifiers on
   // mac
-  const std::remove_const_t<reference> operator*() const { return value_; }
-  reference operator*() { return value_; }
+  const std::remove_const_t<reference> operator*() const {
+    value_ = value_type(*current_, *current2_);
+    return value_;
+  }
+  reference operator*() {
+    return const_cast<reference>(std::as_const(*this).operator*());
+  }
 
  private:
   Iter current_;
   Iter2 current2_;
-  value_type value_;
+  mutable value_type value_;
 };
 
 template <typename T, typename U>
