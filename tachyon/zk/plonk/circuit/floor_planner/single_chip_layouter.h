@@ -200,7 +200,7 @@ class SingleChipLayouter : public Layouter<F> {
         std::string name =
             absl::Substitute("Constant($0)", value.Evaluate().ToString());
         assignment_->AssignFixed(name, constants_column, next_constant_row,
-                                 [&value]() { return Value<F>::Known(value); });
+                                 [&value]() { return value; });
         assignment_->Copy(
             constants_column, next_constant_row, advice.column(),
             regions_[advice.region_index()] + advice.row_offset());
