@@ -81,25 +81,22 @@ class SelectorCompressor {
 
     // All provided selectors of degree 0 are assumed to be either concrete
     // selectors or do not appear in a gate. Let's address these first.
-    base::EraseIf(
-        selectors.begin(), selectors.end(),
-        [&combination_assignments, &selector_assignments,
-         callback](const SelectorDescription& selector) {
-          if (selector.max_degree() != 0) return false;
-          // This is a complex selector, or a selector that does not
-          // appear in any gate constraint.
-          std::unique_ptr<Expression<F>> expression = callback.Run();
+    base::EraseIf(selectors, [&combination_assignments, &selector_assignments,
+                              callback](const SelectorDescription& selector) {
+      if (selector.max_degree() != 0) return false;
+      // This is a complex selector, or a selector that does not
+      // appear in any gate constraint.
+      std::unique_ptr<Expression<F>> expression = callback.Run();
 
-          std::vector<F> combination_assignment =
-              base::Map(selector.activations(),
-                        [](bool b) { return b ? F::One() : F::Zero(); });
-          size_t combination_index = combination_assignments.size();
-          combination_assignments.push_back(std::move(combination_assignment));
-          selector_assignments.push_back(
-              SelectorAssignment<F>(selector.selector_index(),
-                                    combination_index, std::move(expression)));
-          return true;
-        });
+      std::vector<F> combination_assignment =
+          base::Map(selector.activations(),
+                    [](bool b) { return b ? F::One() : F::Zero(); });
+      size_t combination_index = combination_assignments.size();
+      combination_assignments.push_back(std::move(combination_assignment));
+      selector_assignments.push_back(SelectorAssignment<F>(
+          selector.selector_index(), combination_index, std::move(expression)));
+      return true;
+    });
 
     // All of the remaining |selectors| are simple. Let's try to combine them.
     // First, we compute the exclusion matrix that has (j, k) = true if selector
