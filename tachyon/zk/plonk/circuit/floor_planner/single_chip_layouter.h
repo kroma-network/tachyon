@@ -96,7 +96,7 @@ class SingleChipLayouter : public Layouter<F> {
 
     void ConstrainConstant(const Cell& cell,
                            const math::RationalField<F>& constant) override {
-      constants_.emplace_back(constant, cell);
+      constants_.push_back({constant, cell});
     }
 
     void ConstrainEqual(const Cell& left, const Cell& right) override {
