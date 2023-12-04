@@ -23,7 +23,6 @@ class RegionShape : public Region<F>::Layouter {
  public:
   using AssignCallback = typename Region<F>::Layouter::AssignCallback;
 
-  RegionShape() = default;
   explicit RegionShape(size_t region_index) : region_index_(region_index) {}
 
   size_t region_index() const { return region_index_; }
