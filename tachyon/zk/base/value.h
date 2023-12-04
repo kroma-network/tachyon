@@ -58,6 +58,9 @@ class Value : public math::Field<Value<T>> {
     return operator!=(other);
   }
 
+  const T& value() const { return *value_; }
+  T& value() { return *value_; }
+
   const T* operator->() const { return value_.operator->(); }
   T* operator->() { return value_.operator->(); }
 

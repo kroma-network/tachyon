@@ -253,12 +253,13 @@ class SingleChipLayouter : public Layouter<F> {
         << "length is missing, maybe there are no table columns";
 
     // Record these columns so that we can prevent them from being used again.
-    for (const auto& [column, default_value] : values) {
+    for (const auto& [column, value] : values) {
       lookup_table_columns_.push_back(column);
-      // |it->second.default| must have value because we must have assigned
+      // |value.default_value| must have value because we must have assigned
       // at least one cell in each column, and in that case we checked
       // that all cells up to |first_unused| were assigned.
-      assignment_->FillFromRow(column, first_unused.value(), default_value);
+      assignment_->FillFromRow(column.column(), first_unused.value(),
+                               value.default_value.value().value());
     }
   }
 
