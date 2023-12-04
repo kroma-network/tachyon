@@ -214,7 +214,7 @@ class SingleChipLayouter : public Layouter<F> {
     // Maintenance hazard: there is near-duplicate code in
     // |v1::AssignmentPass::AssignLookupTable|. Assign table cells.
     assignment_->EnterRegion(name);
-    SimpleLookupTableLayouter<F> lookup_table_layouter(&assignment_,
+    SimpleLookupTableLayouter<F> lookup_table_layouter(assignment_,
                                                        &lookup_table_columns_);
     {
       LookupTable<F> table(&lookup_table_layouter);
