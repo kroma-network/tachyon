@@ -37,7 +37,7 @@ class RegionShape : public Region<F>::Layouter {
   }
 
   Cell AssignAdvice(std::string_view, const AdviceColumnKey& column,
-                    size_t offset, AssignCallback to) override {
+                    size_t offset, AssignCallback) override {
     columns_.insert(RegionColumn(column));
     row_count_ = std::max(row_count_, offset + 1);
     return {region_index_, offset, column};
@@ -52,8 +52,7 @@ class RegionShape : public Region<F>::Layouter {
   }
 
   AssignedCell<F> AssignAdviceFromInstance(std::string_view,
-                                           const InstanceColumnKey& instance,
-                                           size_t row,
+                                           const InstanceColumnKey&, size_t,
                                            const AdviceColumnKey& advice,
                                            size_t offset) override {
     columns_.insert(RegionColumn(advice));
@@ -63,7 +62,7 @@ class RegionShape : public Region<F>::Layouter {
   }
 
   Cell AssignFixed(std::string_view, const FixedColumnKey& column,
-                   size_t offset, AssignCallback to) override {
+                   size_t offset, AssignCallback) override {
     columns_.insert(RegionColumn(column));
     row_count_ = std::max(row_count_, offset + 1);
     return {region_index_, offset, column};
