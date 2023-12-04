@@ -4,14 +4,14 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_HALO2_PROVER_H_
-#define TACHYON_ZK_BASE_HALO2_PROVER_H_
+#ifndef TACHYON_ZK_BASE_HALO2_HALO2_PROVER_H_
+#define TACHYON_ZK_BASE_HALO2_HALO2_PROVER_H_
 
 #include <memory>
 #include <utility>
 
-#include "tachyon/zk/base/halo2_random_field_generator.h"
-#include "tachyon/zk/base/prover.h"
+#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/halo2/halo2_random_field_generator.h"
 
 namespace tachyon::zk {
 
@@ -81,4 +81,4 @@ class Halo2Prover : public Prover<PCSTy> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_BASE_HALO2_PROVER_H_
+#endif  // TACHYON_ZK_BASE_HALO2_HALO2_PROVER_H_

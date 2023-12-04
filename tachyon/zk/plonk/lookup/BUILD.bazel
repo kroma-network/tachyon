@@ -11,7 +11,30 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "lookup_argument",
     hdrs = ["lookup_argument.h"],
-    deps = ["//tachyon/zk/plonk/circuit/expressions:expression"],
+    deps = [
+        ":lookup_pair",
+        "//tachyon/zk/plonk/circuit/expressions:expression",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_argument_runner",
+    hdrs = [
+        "lookup_argument_runner.h",
+        "lookup_argument_runner_impl.h",
+    ],
+    deps = [
+        ":compress_expression",
+        ":lookup_argument",
+        ":lookup_committed",
+        ":lookup_evaluated",
+        ":lookup_permuted",
+        "//tachyon/zk/base:prover_query",
+        "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/plonk/circuit:rotation",
+        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
+        "//tachyon/zk/plonk/permutation:grand_product_argument",
+    ],
 )
 
 tachyon_cc_library(
@@ -37,31 +60,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "lookup_permuted",
-    hdrs = ["lookup_permuted.h"],
-    deps = [
-        "//tachyon/zk/base:blinded_polynomial",
-        "//tachyon/zk/base:evals_pair",
-    ],
+    name = "lookup_pair",
+    hdrs = ["lookup_pair.h"],
 )
 
 tachyon_cc_library(
-    name = "lookup_argument_runner",
-    hdrs = [
-        "lookup_argument_runner.h",
-        "lookup_argument_runner_impl.h",
-    ],
+    name = "lookup_permuted",
+    hdrs = ["lookup_permuted.h"],
     deps = [
-        ":compress_expression",
-        ":lookup_argument",
-        ":lookup_committed",
-        ":lookup_evaluated",
-        ":lookup_permuted",
-        "//tachyon/zk/base:prover",
-        "//tachyon/zk/base:prover_query",
-        "//tachyon/zk/plonk/circuit:rotation",
-        "//tachyon/zk/plonk/circuit/expressions/evaluator:simple_evaluator",
-        "//tachyon/zk/plonk/permutation:grand_product_argument",
+        ":lookup_pair",
+        "//tachyon/zk/base:blinded_polynomial",
     ],
 )
 
@@ -69,9 +77,9 @@ tachyon_cc_library(
     name = "permute_expression_pair",
     hdrs = ["permute_expression_pair.h"],
     deps = [
+        ":lookup_pair",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base:evals_pair",
-        "//tachyon/zk/base:prover",
+        "//tachyon/zk/base/entities:prover",
         "//tachyon/zk/plonk:error",
         "@com_google_absl//absl/container:btree",
     ],

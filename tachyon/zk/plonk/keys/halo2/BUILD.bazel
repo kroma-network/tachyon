@@ -46,6 +46,6 @@ tachyon_cc_unittest(
     srcs = ["pinned_verifying_key_unittest.cc"],
     deps = [
         ":pinned_verifying_key",
-        "//tachyon/zk/base:halo2_prover_test",
+        "//tachyon/zk/base/halo2:halo2_prover_test",
     ],
 )

@@ -15,7 +15,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/random.h"
-#include "tachyon/zk/base/halo2_prover_test.h"
+#include "tachyon/zk/base/halo2/halo2_prover_test.h"
 
 namespace tachyon::zk {
 
@@ -31,9 +31,9 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
             base::Range<size_t>::Until(kUsableRows))];
       });
 
-  EvalsPair<Evals> input(Evals(std::move(input_evals)),
-                         Evals(std::move(table_evals)));
-  EvalsPair<Evals> output;
+  LookupPair<Evals> input(Evals(std::move(input_evals)),
+                          Evals(std::move(table_evals)));
+  LookupPair<Evals> output;
 
   Error err = PermuteExpressionPair(prover_.get(), input, &output);
   ASSERT_EQ(err, Error::kNone);
@@ -59,9 +59,9 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTestWrong) {
   std::vector<F> table_evals =
       base::CreateVector(kDomainSize, [](size_t i) { return F(i * 3); });
 
-  EvalsPair<Evals> input = {Evals(std::move(input_evals)),
-                            Evals(std::move(table_evals))};
-  EvalsPair<Evals> output;
+  LookupPair<Evals> input = {Evals(std::move(input_evals)),
+                             Evals(std::move(table_evals))};
+  LookupPair<Evals> output;
   Error err = PermuteExpressionPair(prover_.get(), input, &output);
   ASSERT_EQ(err, Error::kConstraintSystemFailure);
 }

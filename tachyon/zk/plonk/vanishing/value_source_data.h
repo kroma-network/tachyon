@@ -20,9 +20,9 @@ struct ValueSourceData {
   std::vector<size_t> rotations;
   std::vector<F> constants;
   std::vector<F> intermediates;
-  std::vector<Poly> fixeds;
-  std::vector<Poly> advices;
-  std::vector<Poly> instances;
+  std::vector<Poly> fixed_columns;
+  std::vector<Poly> advice_columns;
+  std::vector<Poly> instance_columns;
   std::vector<F> challenges;
   F beta;
   F gamma;

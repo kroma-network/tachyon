@@ -144,8 +144,8 @@ Error VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
       FloorPlanner::Synthesize(&assembly, constraint_system.constants());
   if (error != Error::kNone) return error;
 
-  std::vector<Evals> fixeds =
-      base::Map(assembly.fixeds(), [](const DensePoly& poly) {
+  std::vector<Evals> fixed_columns =
+      base::Map(assembly.fixed_columns(), [](const DensePoly& poly) {
         std::vector<F> result;
         CHECK(math::RationalField<F>::BatchEvaluate(poly.coefficients(),
                                                     &result));
@@ -158,18 +158,20 @@ Error VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
       base::Map(std::make_move_iterator(selector_polys_tmp.begin()),
                 std::make_move_iterator(selector_polys_tmp.end()),
                 [](std::vector<F>&& vec) { return Evals(std::move(vec)); });
-  fixeds.insert(fixeds.end(), std::make_move_iterator(selector_polys.begin()),
-                std::make_move_iterator(selector_polys.end()));
+  fixed_columns.insert(fixed_columns.end(),
+                       std::make_move_iterator(selector_polys.begin()),
+                       std::make_move_iterator(selector_polys.end()));
 
   PermutationVerifyingKey<PCSTy> permutation_vk =
       assembly.permutation().BuildVerifyingKey(domain.get());
 
   // TODO(chokobole): Parallelize this.
-  Commitments fixed_commitments = base::Map(fixeds, [&pcs](const Evals& evals) {
-    Commitment commitment;
-    CHECK(pcs.CommitLagrange(evals, &commitment));
-    return commitment;
-  });
+  Commitments fixed_commitments =
+      base::Map(fixed_columns, [&pcs](const Evals& evals) {
+        Commitment commitment;
+        CHECK(pcs.CommitLagrange(evals, &commitment));
+        return commitment;
+      });
 
   *verifying_key = VerifyingKey::FromParts(
       std::move(domain), std::move(fixed_commitments),

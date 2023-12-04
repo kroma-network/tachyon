@@ -7,6 +7,7 @@
 #include "tachyon/zk/plonk/lookup/lookup_argument_runner.h"
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -43,11 +44,11 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
                                   theta_, evaluator_,
                                   &compressed_table_expression));
 
-  EvalsPair<Evals> compressed_evals_pair(
+  LookupPair<Evals> compressed_evals_pair(
       std::move(compressed_input_expression),
       std::move(compressed_table_expression));
 
-  EvalsPair<Evals> permuted_evals_pair;
+  LookupPair<Evals> permuted_evals_pair;
   Error err = PermuteExpressionPair(prover_.get(), compressed_evals_pair,
                                     &permuted_evals_pair);
   ASSERT_EQ(err, Error::kNone);

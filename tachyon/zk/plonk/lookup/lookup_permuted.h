@@ -10,7 +10,7 @@
 #include <utility>
 
 #include "tachyon/zk/base/blinded_polynomial.h"
-#include "tachyon/zk/base/evals_pair.h"
+#include "tachyon/zk/plonk/lookup/lookup_pair.h"
 
 namespace tachyon::zk {
 
@@ -20,8 +20,8 @@ class LookupPermuted {
   using F = typename Poly::Field;
 
   LookupPermuted() = default;
-  LookupPermuted(EvalsPair<Evals> compressed_evals_pair,
-                 EvalsPair<Evals> permuted_evals_pair,
+  LookupPermuted(LookupPair<Evals> compressed_evals_pair,
+                 LookupPair<Evals> permuted_evals_pair,
                  BlindedPolynomial<Poly> permuted_input_poly,
                  BlindedPolynomial<Poly> permuted_table_poly)
       : compressed_evals_pair_(std::move(compressed_evals_pair)),
@@ -29,10 +29,10 @@ class LookupPermuted {
         permuted_input_poly_(std::move(permuted_input_poly)),
         permuted_table_poly_(std::move(permuted_table_poly)) {}
 
-  const EvalsPair<Evals>& compressed_evals_pair() const {
+  const LookupPair<Evals>& compressed_evals_pair() const {
     return compressed_evals_pair_;
   }
-  const EvalsPair<Evals>& permuted_evals_pair() const {
+  const LookupPair<Evals>& permuted_evals_pair() const {
     return permuted_evals_pair_;
   }
   BlindedPolynomial<Poly>&& permuted_input_poly() && {
@@ -43,8 +43,8 @@ class LookupPermuted {
   }
 
  private:
-  EvalsPair<Evals> compressed_evals_pair_;
-  EvalsPair<Evals> permuted_evals_pair_;
+  LookupPair<Evals> compressed_evals_pair_;
+  LookupPair<Evals> permuted_evals_pair_;
   BlindedPolynomial<Poly> permuted_input_poly_;
   BlindedPolynomial<Poly> permuted_table_poly_;
 };

@@ -4,15 +4,15 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_PROVER_H_
-#define TACHYON_ZK_BASE_PROVER_H_
+#ifndef TACHYON_ZK_BASE_ENTITIES_PROVER_H_
+#define TACHYON_ZK_BASE_ENTITIES_PROVER_H_
 
 #include <memory>
 #include <utility>
 
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/blinder.h"
-#include "tachyon/zk/base/entity.h"
+#include "tachyon/zk/base/entities/entity.h"
 
 namespace tachyon::zk {
 
@@ -62,4 +62,4 @@ class Prover : public Entity<PCSTy> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_BASE_PROVER_H_
+#endif  // TACHYON_ZK_BASE_ENTITIES_PROVER_H_

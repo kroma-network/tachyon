@@ -14,9 +14,9 @@
 #include "absl/container/btree_map.h"
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/zk/base/evals_pair.h"
-#include "tachyon/zk/base/prover.h"
+#include "tachyon/zk/base/entities/prover.h"
 #include "tachyon/zk/plonk/error.h"
+#include "tachyon/zk/plonk/lookup/lookup_pair.h"
 
 namespace tachyon::zk {
 
@@ -27,8 +27,8 @@ namespace tachyon::zk {
 //   that has the corresponding value in S'.
 // This method returns (A', S') if no errors are encountered.
 template <typename PCSTy, typename Evals, typename F = typename Evals::Field>
-Error PermuteExpressionPair(Prover<PCSTy>* prover, const EvalsPair<Evals>& in,
-                            EvalsPair<Evals>* out) {
+Error PermuteExpressionPair(Prover<PCSTy>* prover, const LookupPair<Evals>& in,
+                            LookupPair<Evals>* out) {
   size_t domain_size = prover->domain()->size();
   size_t blinding_factors = prover->blinder().blinding_factors();
   if (domain_size == 0) return Error::kConstraintSystemFailure;
