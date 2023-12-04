@@ -117,6 +117,10 @@ class SingleChipLayouter : public Layouter<F> {
   using AssignLookupTableCallback =
       typename Layouter<F>::AssignLookupTableCallback;
 
+  SingleChipLayouter(Assignment<F>* assignment,
+                     const std::vector<FixedColumnKey>& constants)
+      : assignment_(assignment), constants_(constants) {}
+
   const Assignment<F>* assignment() const { return assignment_; }
   const std::vector<FixedColumnKey>& constants() const { return constants_; }
   const std::vector<size_t>& regions() const { return regions_; }
@@ -278,10 +282,6 @@ class SingleChipLayouter : public Layouter<F> {
 
  private:
   friend class Region;
-
-  SingleChipLayouter(Assignment<F>* assignment,
-                     const std::vector<FixedColumnKey>& constants)
-      : assignment_(assignment), constants_(constants) {}
 
   // not owned
   Assignment<F>* const assignment_;
