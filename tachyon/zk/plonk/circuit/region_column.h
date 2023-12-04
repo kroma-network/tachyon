@@ -7,6 +7,7 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_REGION_COLUMN_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_REGION_COLUMN_H_
 
+#include <string>
 #include <utility>
 
 #include "absl/hash/hash.h"
@@ -31,6 +32,14 @@ class TACHYON_EXPORT RegionColumn {
       : type_(Type::kSelector), selector_(selector) {}
 
   Type type() const { return type_; }
+
+  std::string ToString() const {
+    if (type_ == Type::kColumn) {
+      return column_.ToString();
+    } else {
+      return selector_.ToString();
+    }
+  }
 
  private:
   template <typename H>
