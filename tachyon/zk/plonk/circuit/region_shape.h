@@ -32,14 +32,12 @@ class RegionShape : public Region<F>::Layouter {
   // Region<F>::Layouter methods
   void EnableSelector(std::string_view, const Selector& selector,
                       size_t offset) override {
-    columns_.insert(RegionColumn(selector));
-    row_count_ = std::max(row_count_, offset + 1);
+    UpdateColumnsAndRowCount(selector, offset);
   }
 
   Cell AssignAdvice(std::string_view, const AdviceColumnKey& column,
                     size_t offset, AssignCallback) override {
-    columns_.insert(RegionColumn(column));
-    row_count_ = std::max(row_count_, offset + 1);
+    UpdateColumnsAndRowCount(column, offset);
     return {region_index_, offset, column};
   }
 
@@ -53,21 +51,25 @@ class RegionShape : public Region<F>::Layouter {
                                            const InstanceColumnKey&, size_t,
                                            const AdviceColumnKey& advice,
                                            size_t offset) override {
-    columns_.insert(RegionColumn(advice));
-    row_count_ = std::max(row_count_, offset + 1);
+    UpdateColumnsAndRowCount(advice, offset);
     Cell cell(region_index_, offset, advice);
     return {std::move(cell), Value<F>::Unknown()};
   }
 
   Cell AssignFixed(std::string_view, const FixedColumnKey& column,
                    size_t offset, AssignCallback) override {
-    columns_.insert(RegionColumn(column));
-    row_count_ = std::max(row_count_, offset + 1);
+    UpdateColumnsAndRowCount(column, offset);
     return {region_index_, offset, column};
   }
 
  private:
-  size_t region_index_ = 0;
+  template <typename T>
+  void UpdateColumnsAndRowCount(const T& arg, size_t offset) {
+    columns_.insert(RegionColumn(arg));
+    row_count_ = std::max(row_count_, offset + 1);
+  }
+
+  const size_t region_index_ = 0;
   absl::flat_hash_set<RegionColumn> columns_;
   size_t row_count_ = 0;
 };
