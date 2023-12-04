@@ -247,7 +247,7 @@ class ConstraintSystem {
   // panic if |constrain| returns an empty iterator.
   void CreateGate(std::string_view name, ConstrainCallback constrain) {
     VirtualCells cells(this);
-    std::vector<Constraint<F>> constraints = std::move(constraints).Run(cells);
+    std::vector<Constraint<F>> constraints = std::move(constrain).Run(cells);
     std::vector<Selector> queried_selectors =
         std::move(cells).queried_selectors();
     std::vector<VirtualCell> queried_cells = std::move(cells).queried_cells();
@@ -304,7 +304,7 @@ class ConstraintSystem {
               new_columns.push_back(column);
               return ExpressionFactory<F>::Fixed(
                   FixedQuery(QueryFixedIndex(column, Rotation::Cur()),
-                             column.index(), Rotation::Cur()));
+                             Rotation::Cur(), FixedColumnKey(column.index())));
             });
 
     std::vector<FixedColumnKey> selector_map;
@@ -316,7 +316,7 @@ class ConstraintSystem {
       selector_replacements[assignment.selector_index()] =
           Ref<const Expression<F>>(assignment.expression());
       selector_map[assignment.selector_index()] =
-          new_columns[assignment.combination_index]();
+          new_columns[assignment.combination_index()];
     }
 
     selector_map_ = std::move(selector_map);
@@ -518,7 +518,7 @@ class ConstraintSystem {
   size_t ComputeGateRequiredDegree() const {
     std::vector<size_t> required_degrees =
         base::FlatMap(gates_, [](const Gate<F>& gate) {
-          return base::Map(gate.polys,
+          return base::Map(gate.polys(),
                            [](const std::unique_ptr<Expression<F>>& poly) {
                              return poly->Degree();
                            });
