@@ -146,7 +146,8 @@ bool VerifyingKey<PCSTy>::Generate(const Entity<PCSTy>* entity,
 
   std::vector<Evals> fixed_columns =
       base::Map(assembly.fixed_columns(), [](const RationalEvals& evals) {
-        std::vector<F> result;
+        std::vector<F> result =
+            base::CreateVector(evals.evaluations().size(), F::Zero());
         CHECK(math::RationalField<F>::BatchEvaluate(evals.evaluations(),
                                                     &result));
         return Evals(std::move(result));
