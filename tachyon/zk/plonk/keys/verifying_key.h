@@ -176,8 +176,8 @@ bool VerifyingKey<PCSTy>::Generate(const Entity<PCSTy>* entity,
       });
 
   *verifying_key = VerifyingKey::FromParts(
-      std::move(domain), std::move(fixed_commitments),
-      std::move(permutation_vk), std::move(constraint_system));
+      entity->domain(), std::move(fixed_commitments), std::move(permutation_vk),
+      std::move(constraint_system));
   return true;
 }
 
