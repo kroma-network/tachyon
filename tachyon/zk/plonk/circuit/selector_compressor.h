@@ -76,7 +76,7 @@ class SelectorCompressor {
                                      max_degree);
         });
 
-    std::vector<F> combination_assignments;
+    std::vector<std::vector<F>> combination_assignments;
     std::vector<SelectorAssignment<F>> selector_assignments;
 
     // All provided selectors of degree 0 are assumed to be either concrete
