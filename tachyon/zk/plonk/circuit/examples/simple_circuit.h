@@ -68,7 +68,7 @@ class FieldChip {
     Selector sel = meta.CreateSimpleSelector();
 
     // Define our multiplication gate!
-    meta.CreateGate("mul", [&meta, &advice, &sel]() {
+    meta.CreateGate("mul", [&advice, &sel](VirtualCells<F>& meta) {
       // To implement multiplication, we need three advice cells and a selector
       // cell. We arrange them like so:
       //
