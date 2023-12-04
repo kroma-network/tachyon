@@ -74,7 +74,8 @@ class SingleChipLayouter : public Layouter<F> {
       Value<F> value = layouter_->assignment_->QueryInstance(instance, row);
 
       Cell cell = AssignAdvice(name, advice, offset, [&value]() {
-        return math::RationalField<F>(value);
+        return Value<math::RationalField<F>>::Known(
+            math::RationalField<F>(value.value()));
       });
 
       layouter_->assignment_->Copy(
@@ -199,8 +200,9 @@ class SingleChipLayouter : public Layouter<F> {
         const Cell& advice = constant.cell;
         std::string name =
             absl::Substitute("Constant($0)", value.Evaluate().ToString());
-        assignment_->AssignFixed(name, constants_column, next_constant_row,
-                                 [&value]() { return value; });
+        assignment_->AssignFixed(
+            name, constants_column, next_constant_row,
+            [&value]() { return Value<math::RationalField<F>>::Known(value); });
         assignment_->Copy(
             constants_column, next_constant_row, advice.column(),
             regions_[advice.region_index()] + advice.row_offset());

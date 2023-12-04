@@ -24,7 +24,7 @@ namespace tachyon::zk {
 template <typename F>
 class Assignment {
  public:
-  using AssignCallback = base::OnceCallback<math::RationalField<F>()>;
+  using AssignCallback = base::OnceCallback<Value<math::RationalField<F>>()>;
 
   virtual ~Assignment() = default;
 

@@ -59,7 +59,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   void AssignFixed(std::string_view name, const FixedColumnKey& column,
                    size_t row, AssignCallback assign) override {
     CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
-    *fixed_columns_[column.index()][row] = std::move(assign).Run();
+    *fixed_columns_[column.index()][row] = std::move(assign).Run().value();
   }
 
   void Copy(const AnyColumnKey& left_column, size_t left_row,
