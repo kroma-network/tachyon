@@ -70,9 +70,8 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   }
 
   void FillFromRow(const FixedColumnKey& column, size_t from_row,
-                   AssignCallback assign) override {
+                   const math::RationalField<F>& value) override {
     CHECK(usable_rows_.Contains(from_row)) << "Not enough rows available";
-    math::RationalField<F> value = std::move(assign).Run();
     base::Range<size_t> range(usable_rows_.from + from_row, usable_rows_.to);
     RationalEvals& fixed_column = fixed_columns_[column.index()];
     for (size_t row : range) {
