@@ -45,7 +45,7 @@ class LookupArgument {
   }
 
   size_t RequiredDegree() const {
-    CHECK_EQ(input_expressions_->size(), table_expressions_->size());
+    CHECK_EQ(input_expressions_.size(), table_expressions_.size());
 
     size_t max_input_degree = std::accumulate(
         input_expressions_.begin(), input_expressions_.end(), 1,
