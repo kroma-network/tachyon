@@ -94,7 +94,7 @@ class UnivariateEvaluations final
   constexpr const std::vector<F>& evaluations() const { return evaluations_; }
   constexpr std::vector<F>& evaluations() { return evaluations_; }
 
-  constexpr const size_t NumElements() const { return evaluations_.size(); }
+  constexpr size_t NumElements() const { return evaluations_.size(); }
 
   constexpr bool IsZero() const {
     if (evaluations_.empty()) return true;

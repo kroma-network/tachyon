@@ -23,12 +23,11 @@ namespace tachyon::math {
 template <typename F, size_t MaxDegree>
 class MultilinearDenseEvaluations {
  public:
-  constexpr static const size_t kMaxDegree = MaxDegree;
+  constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
 
-  constexpr MultilinearDenseEvaluations()
-      : MultilinearDenseEvaluations({F::Zero()}) {}
+  constexpr MultilinearDenseEvaluations() = default;
   constexpr explicit MultilinearDenseEvaluations(
       const std::vector<F>& evaluations)
       : evaluations_(evaluations) {
@@ -39,9 +38,22 @@ class MultilinearDenseEvaluations {
     CHECK_LE(Degree(), MaxDegree);
   }
 
+  // NOTE(chokobole): The zero polynomial can be represented in two forms:
+  // 1. An empty vector
+  // 2. A vector filled with |F::Zero()| up to the |MaxDegree| + 1.
   constexpr static MultilinearDenseEvaluations Zero(size_t degree) {
-    return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << degree, F::Zero()));
+    return MultilinearDenseEvaluations();
+  }
+
+  // NOTE(chokobole): This creates polynomial that contains elements up to
+  // |degree| + 1. This breaks assumption of |MultilinearDenseEvaluations| that
+  // it contains exact degree sized elements except for zero polynomial. So when
+  // you compare polynomial with the returned polynomial, you can get unexpected
+  // result. So please use it carefully!
+  constexpr static MultilinearDenseEvaluations UnsafeZero(size_t degree) {
+    MultilinearDenseEvaluations ret;
+    ret.evaluations_ = base::CreateVector(size_t{1} << degree, F::Zero());
+    return ret;
   }
 
   constexpr static MultilinearDenseEvaluations One(size_t degree) {
@@ -58,6 +70,12 @@ class MultilinearDenseEvaluations {
   constexpr std::vector<F>& evaluations() { return evaluations_; }
 
   constexpr bool operator==(const MultilinearDenseEvaluations& other) const {
+    if (evaluations_.empty()) {
+      return other.IsZero();
+    }
+    if (other.evaluations_.empty()) {
+      return IsZero();
+    }
     return evaluations_ == other.evaluations_;
   }
 
@@ -77,11 +95,13 @@ class MultilinearDenseEvaluations {
   }
 
   constexpr bool IsZero() const {
+    if (evaluations_.empty()) return true;
     return std::all_of(evaluations_.begin(), evaluations_.end(),
                        [](const F& value) { return value.IsZero(); });
   }
 
   constexpr bool IsOne() const {
+    if (evaluations_.empty()) return false;
     return std::all_of(evaluations_.begin(), evaluations_.end(),
                        [](const F& value) { return value.IsOne(); });
   }
