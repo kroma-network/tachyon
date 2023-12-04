@@ -76,7 +76,6 @@ tachyon_cc_library(
     deps = [
         ":column_type",
         ":phase",
-        "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -165,7 +164,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "phase",
     hdrs = ["phase.h"],
-    deps = ["//tachyon/base/strings:string_number_conversions"],
+    deps = [
+        "//tachyon/base/strings:string_number_conversions",
+        "@com_google_absl//absl/hash",
+    ],
 )
 
 tachyon_cc_library(

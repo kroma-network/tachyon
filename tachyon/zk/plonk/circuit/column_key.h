@@ -181,7 +181,8 @@ using InstanceColumnKey = ColumnKey<ColumnType::kInstance>;
 
 template <typename H, ColumnType C>
 H AbslHashValue(H h, const ColumnKey<C>& column) {
-  return H::combine(std::move(h), column.type(), column.index());
+  return H::combine(std::move(h), column.type(), column.index(),
+                    column.phase());
 }
 
 }  // namespace tachyon::zk

@@ -10,6 +10,9 @@
 #include <stdint.h>
 
 #include <string>
+#include <utility>
+
+#include "absl/hash/hash.h"
 
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/export.h"
@@ -42,6 +45,11 @@ class TACHYON_EXPORT Phase {
 
 constexpr static Phase kFirstPhase = Phase(0);
 constexpr static Phase kSecondPhase = Phase(1);
+
+template <typename H>
+H AbslHashValue(H h, const Phase& phase) {
+  return H::combine(std::move(h), phase.value());
+}
 
 }  // namespace tachyon::zk
 
