@@ -96,8 +96,8 @@ class PippengerAdapter {
       if (!all_good) return false;
 
       *ret = std::accumulate(results.begin(), results.end(), Bucket::Zero(),
-                             [](const Bucket& total, const Result& result) {
-                               return total + result.value;
+                             [](Bucket& total, const Result& result) {
+                               return total += result.value;
                              });
       return true;
     }

@@ -89,10 +89,9 @@ class MultivariateSparseCoefficients {
 
     size_t Degree() const {
       if (elements.empty()) return 0;
-      return std::accumulate(elements.begin(), elements.end(), 0,
-                             [](const size_t acc, const Element& elem) {
-                               return acc + elem.exponent;
-                             });
+      return std::accumulate(
+          elements.begin(), elements.end(), 0,
+          [](size_t acc, const Element& elem) { return acc + elem.exponent; });
     }
 
     F Evaluate(const std::vector<F>& points) const {
@@ -123,8 +122,8 @@ class MultivariateSparseCoefficients {
     static F EvaluateSerial(absl::Span<const Element> elements,
                             const std::vector<F>& points) {
       return std::accumulate(elements.begin(), elements.end(), F::One(),
-                             [&points](const F& acc, const Element& elem) {
-                               return acc *
+                             [&points](F& acc, const Element& elem) {
+                               return acc *=
                                       points[elem.variable].Pow(elem.exponent);
                              });
     }
@@ -318,11 +317,11 @@ class MultivariateSparseCoefficients {
 
   static F EvaluateSerial(absl::Span<const Term> terms,
                           const std::vector<F>& points) {
-    return std::accumulate(terms.begin(), terms.end(), F::Zero(),
-                           [&points](const F& acc, const Term& term) {
-                             return acc + term.coefficient *
-                                              term.literal.Evaluate(points);
-                           });
+    return std::accumulate(
+        terms.begin(), terms.end(), F::Zero(),
+        [&points](F& acc, const Term& term) {
+          return acc += (term.coefficient * term.literal.Evaluate(points));
+        });
   }
 
   size_t num_vars_;
