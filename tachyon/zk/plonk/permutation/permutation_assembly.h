@@ -63,7 +63,7 @@ class PermutationAssembly {
   const std::vector<AnyColumnKey>& columns() const { return columns_; }
   const CycleStore& cycle_store() const { return cycle_store_; }
 
-  bool Copy(const AnyColumnKey& left_column, size_t left_row,
+  void Copy(const AnyColumnKey& left_column, size_t left_row,
             const AnyColumnKey& right_column, size_t right_row) {
     CHECK_LE(left_row, kRows);
     CHECK_LE(right_row, kRows);
@@ -74,7 +74,6 @@ class PermutationAssembly {
 
     cycle_store_.MergeCycle(Label(left_col_idx, left_row),
                             Label(right_col_idx, right_row));
-    return true;
   }
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.

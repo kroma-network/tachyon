@@ -43,9 +43,9 @@ class VerifyingKey {
   using Commitments = std::vector<Commitment>;
 
   VerifyingKey() = default;
-  VerifyingKey(const Domain* domain, Commitments fixed_commitments,
-               PermutationVerifyingKey<PCSTy> permutation_verifying_key,
-               ConstraintSystem<F> constraint_system)
+  VerifyingKey(const Domain* domain, Commitments&& fixed_commitments,
+               PermutationVerifyingKey<PCSTy>&& permutation_verifying_key,
+               ConstraintSystem<F>&& constraint_system)
       : domain_(domain),
         fixed_commitments_(std::move(fixed_commitments)),
         permutation_verifying_Key_(std::move(permutation_verifying_key)),
@@ -82,8 +82,8 @@ class VerifyingKey {
   }
 
   template <typename CircuitTy>
-  static Error Generate(const PCSTy& pcs, const CircuitTy& circuit,
-                        VerifyingKey* verifying_key);
+  [[nodiscard]] static bool Generate(const PCSTy& pcs, const CircuitTy& circuit,
+                                     VerifyingKey* verifying_key);
 
   const Domain* domain() const { return domain_; }
 
@@ -112,8 +112,8 @@ class VerifyingKey {
 // static
 template <typename PCSTy>
 template <typename CircuitTy>
-Error VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
-                                    VerifyingKey* verifying_key) {
+bool VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
+                                   VerifyingKey* verifying_key) {
   using Config = typename CircuitTy::Config;
   using FloorPlanner = typename CircuitTy::FloorPlanner;
   using DomainTy = math::UnivariateEvaluationDomain<F, kMaxDegree>;
@@ -127,7 +127,9 @@ Error VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
       math::UnivariateEvaluationDomainFactory<F, kMaxDegree>::Create(pcs.N());
 
   if (pcs.N() < constraint_system.ComputeMinimumRows()) {
-    return Error::kNotEnoughRowsAvailable;
+    LOG(ERROR) << "Not enough rows available " << pcs.N() << " vs "
+               << constraint_system.ComputeMinimumRows();
+    return false;
   }
 
   Assembly<PCSTy> assembly(
@@ -140,9 +142,7 @@ Error VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
       base::Range<size_t>::Until(
           pcs.N() - (constraint_system.ComputeBlindingFactors() + 1)));
 
-  Error error =
-      FloorPlanner::Synthesize(&assembly, constraint_system.constants());
-  if (error != Error::kNone) return error;
+  FloorPlanner::Synthesize(&assembly, constraint_system.constants());
 
   std::vector<Evals> fixed_columns =
       base::Map(assembly.fixed_columns(), [](const DensePoly& poly) {
@@ -176,7 +176,7 @@ Error VerifyingKey<PCSTy>::Generate(const PCSTy& pcs, const CircuitTy& circuit,
   *verifying_key = VerifyingKey::FromParts(
       std::move(domain), std::move(fixed_commitments),
       std::move(permutation_vk), std::move(constraint_system));
-  return Error::kNone;
+  return true;
 }
 
 }  // namespace tachyon::zk

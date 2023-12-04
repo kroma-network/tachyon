@@ -7,10 +7,10 @@ tachyon_cc_library(
     hdrs = ["pinned_constraint_system.h"],
     deps = [
         ":pinned_gates",
+        "//tachyon/zk/lookup:lookup_argument_stringifier",
         "//tachyon/zk/plonk:constraint_system",
         "//tachyon/zk/plonk/circuit:phase_stringifier",
         "//tachyon/zk/plonk/circuit:query_stringifier",
-        "//tachyon/zk/plonk/lookup:lookup_argument_stringifier",
         "//tachyon/zk/plonk/permutation:permutation_argument_stringifier",
     ],
 )

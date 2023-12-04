@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/expressions/expression.h"
+#include "tachyon/zk/expressions/expression.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
 #include "tachyon/zk/plonk/circuit/virtual_cell.h"
 
@@ -16,11 +16,11 @@ template <typename F>
 class Gate {
  public:
   Gate() = default;
-  Gate(std::string name, std::vector<std::string> constraint_names,
-       std::vector<std::unique_ptr<Expression<F>>> polys,
-       std::vector<Selector> queried_selectors,
-       std::vector<VirtualCell> queried_cells)
-      : name_(std::move(name)),
+  Gate(std::string_view name, std::vector<std::string>&& constraint_names,
+       std::vector<std::unique_ptr<Expression<F>>>&& polys,
+       std::vector<Selector>&& queried_selectors,
+       std::vector<VirtualCell>&& queried_cells)
+      : name_(std::string(name)),
         constraint_names_(std::move(constraint_names)),
         polys_(std::move(polys)),
         queried_selectors_(std::move(queried_selectors)),

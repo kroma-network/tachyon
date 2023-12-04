@@ -19,7 +19,7 @@ template <typename Poly>
 class PermutationCommitted {
  public:
   explicit PermutationCommitted(
-      std::vector<BlindedPolynomial<Poly>> product_polys)
+      std::vector<BlindedPolynomial<Poly>>&& product_polys)
       : product_polys_(std::move(product_polys)) {}
 
   std::vector<BlindedPolynomial<Poly>>&& product_polys() && {

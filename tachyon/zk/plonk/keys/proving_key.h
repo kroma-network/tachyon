@@ -26,9 +26,9 @@ class ProvingKey {
   using Evals = typename PCSTy::Evals;
 
   ProvingKey() = default;
-  ProvingKey(VerifyingKey<PCSTy> verifying_key, Poly l0, Poly l_last,
-             Poly l_active_row, Evals fixed_values, Evals fixed_polys,
-             PermutationProvingKey<Poly, Evals> permutation_proving_key)
+  ProvingKey(VerifyingKey<PCSTy>&& verifying_key, Poly&& l0, Poly&& l_last,
+             Poly&& l_active_row, Evals&& fixed_values, Evals&& fixed_polys,
+             PermutationProvingKey<Poly, Evals>&& permutation_proving_key)
       : verifying_key_(std::move(verifying_key)),
         l0_(std::move(l0)),
         l_last_(std::move(l_last)),

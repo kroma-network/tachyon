@@ -19,14 +19,14 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
+#include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/circuit/constraint.h"
-#include "tachyon/zk/plonk/circuit/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/plonk/circuit/gate.h"
 #include "tachyon/zk/plonk/circuit/lookup_table_column.h"
 #include "tachyon/zk/plonk/circuit/query.h"
 #include "tachyon/zk/plonk/circuit/selector_compressor.h"
 #include "tachyon/zk/plonk/circuit/virtual_cells.h"
-#include "tachyon/zk/plonk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 
 namespace tachyon::zk {
@@ -260,9 +260,8 @@ class ConstraintSystem {
     }
     CHECK(!polys.empty()) << "Gates must contain at least one constraint.";
 
-    gates_.emplace_back(std::string(name), std::move(constraint_names),
-                        std::move(polys), std::move(queried_selectors),
-                        std::move(queried_cells));
+    gates_.emplace_back(name, std::move(constraint_names), std::move(polys),
+                        std::move(queried_selectors), std::move(queried_cells));
   }
 
   // This will compress selectors together depending on their provided
@@ -299,7 +298,8 @@ class ConstraintSystem {
     std::vector<FixedColumnKey> new_columns;
     typename SelectorCompressor<F>::Result result =
         SelectorCompressor<F>::Process(
-            selectors, degrees, ComputeDegree(), [this, &new_columns]() {
+            std::move(selectors), degrees, ComputeDegree(),
+            [this, &new_columns]() {
               FixedColumnKey column = CreateFixedColumn();
               new_columns.push_back(column);
               return ExpressionFactory<F>::Fixed(

@@ -8,6 +8,7 @@
 #include "absl/container/flat_hash_map.h"
 
 #include "tachyon/base/containers/contains.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
@@ -43,11 +44,12 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
     return values_;
   }
 
-  // Table<F>::Layouter methods
-  Error AssignCell(std::string_view name, const LookupTableColumn& column,
-                   size_t offset, AssignCallback assign) override {
+  // LookupTable<F>::Layouter methods
+  bool AssignCell(std::string_view name, const LookupTableColumn& column,
+                  size_t offset, AssignCallback assign) override {
     if (base::Contains(*used_columns_, column)) {
-      return Error::kSynthesis;
+      LOG(ERROR) << "column already has been assigned";
+      return false;
     }
 
     zk::Value<math::RationalField<F>> value =
@@ -60,25 +62,28 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
         });
 
     if (offset == 0) {
-      if (value.default_value.has_value()) {
+      if (!value.default_value.has_value()) {
         // Use the value at offset 0 as the default value for this table column.
         value.default_value = value;
       } else {
         // Since there is already an existing default value for this table
         // column, the caller should not be attempting to assign another
         // value at offset 0.
-        return Error::kSynthesis;
+        LOG(ERROR) << "default value has been assigned";
+        return false;
       }
     }
     if (value.assigned.size() <= offset) {
       value.assigned.resize(offset + 1, false);
     }
     value.assigned[offset] = true;
-    return Error::kNone;
+    return true;
   }
 
  private:
+  // not owned
   Assignment<F>* const assignment_;
+  // not owned
   const std::vector<LookupTableColumn>* const used_columns_;
   absl::flat_hash_map<LookupTableColumn, Value> values_;
 };

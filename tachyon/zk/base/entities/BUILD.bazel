@@ -5,7 +5,7 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "entity",
     hdrs = ["entity.h"],
-    deps = ["//tachyon/zk/transcript"],
+    deps = ["//tachyon/zk/base/transcripts:transcript"],
 )
 
 tachyon_cc_library(
@@ -13,6 +13,7 @@ tachyon_cc_library(
     hdrs = ["prover.h"],
     deps = [
         ":verifier",
+        "//tachyon/base:logging",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:blinder",
     ],

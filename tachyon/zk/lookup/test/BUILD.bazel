@@ -1,0 +1,12 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+tachyon_cc_library(
+    name = "compress_expression_test_setting",
+    testonly = True,
+    hdrs = ["compress_expression_test_setting.h"],
+    visibility = ["//tachyon/zk/lookup:__pkg__"],
+    deps = [
+        "//tachyon/zk/base/halo2:halo2_prover_test",
+        "//tachyon/zk/expressions/evaluator:simple_evaluator",
+    ],
+)

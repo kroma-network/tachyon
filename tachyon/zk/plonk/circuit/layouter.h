@@ -16,7 +16,6 @@
 #include "tachyon/zk/plonk/circuit/lookup_table.h"
 #include "tachyon/zk/plonk/circuit/region.h"
 #include "tachyon/zk/plonk/constraint_system.h"
-#include "tachyon/zk/plonk/error.h"
 
 namespace tachyon::zk {
 
@@ -30,8 +29,8 @@ class NamespacedLayouter;
 template <typename F>
 class Layouter {
  public:
-  using AssignRegionCallback = base::RepeatingCallback<Error(Region<F>&)>;
-  using AssignLookupTableCallback = base::OnceCallback<Error(LookupTable<F>&)>;
+  using AssignRegionCallback = base::RepeatingCallback<void(Region<F>&)>;
+  using AssignLookupTableCallback = base::OnceCallback<void(LookupTable<F>&)>;
 
   virtual ~Layouter() = default;
 
@@ -41,49 +40,42 @@ class Layouter {
   // |Layouter| will treat these assignments as a single "region" within the
   // circuit. Outside this closure, the |Layouter| is allowed to optimize as it
   // sees fit.
-  virtual Error AssignRegion(std::string_view name,
-                             AssignRegionCallback assign) {
-    return Error::kNone;
-  }
+  virtual void AssignRegion(std::string_view name,
+                            AssignRegionCallback assign) = 0;
 
   // Assign a table region to an absolute row number.
-  virtual Error AssignLookupTable(std::string_view name,
-                                  AssignLookupTableCallback assign) {
-    return Error::kNone;
-  }
+  virtual void AssignLookupTable(std::string_view name,
+                                 AssignLookupTableCallback assign) = 0;
 
   // Constrains a |cell| to equal an instance |column|'s row value at an
   // absolute position.
-  virtual Error ConstrainInstance(const Cell& cell,
-                                  const InstanceColumnKey& column, size_t row) {
-    return Error::kNone;
-  }
+  virtual void ConstrainInstance(const Cell& cell,
+                                 const InstanceColumnKey& column,
+                                 size_t row) = 0;
 
   // Queries the value of the given challenge.
   //
   // Returns |Value<F>::Unknown()| if the current synthesis phase is before the
   // challenge can be queried.
-  virtual Value<F> GetChallenge(const Challenge& challenge) const {
-    return Value<F>::Unknown();
-  }
+  virtual Value<F> GetChallenge(const Challenge& challenge) const = 0;
 
   // Gets the "root" of this assignment, bypassing the namespacing.
   //
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
-  virtual Layouter<F>* GetRoot() { return nullptr; }
+  virtual Layouter<F>* GetRoot() = 0;
 
   // Creates a new (sub)namespace and enters into it.
   //
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
-  virtual void PushNamespace(std::string_view name) {}
+  virtual void PushNamespace(std::string_view name) = 0;
 
   // Exits out of the existing namespace.
   //
   // Not intended for downstream consumption; use |Layouter::Namespace()|
   // instead.
-  virtual void PopNamespace(const std::optional<std::string>& gadget_name) {}
+  virtual void PopNamespace(const std::optional<std::string>& gadget_name) = 0;
 
   // Enters into a namespace
   std::unique_ptr<NamespacedLayouter<F>> Namespace(std::string_view name);

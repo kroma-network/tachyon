@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/expressions/expression_factory.h"
+#include "tachyon/zk/expressions/expression_factory.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
 #include "tachyon/zk/plonk/circuit/virtual_cell.h"
 
@@ -90,6 +90,7 @@ class VirtualCells {
   }
 
  private:
+  // not owned
   ConstraintSystem<F>* const meta_;
   std::vector<Selector> queried_selectors_;
   std::vector<VirtualCell> queried_cells_;

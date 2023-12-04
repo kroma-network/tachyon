@@ -34,19 +34,19 @@ class NamespacedLayouter : public Layouter<F> {
   }
 
   // Layouter<F> methods
-  Error AssignRegion(std::string_view name,
-                     AssignRegionCallback assign) override {
-    return layouter_->AssignRegion(name, std::move(assign));
+  void AssignRegion(std::string_view name,
+                    AssignRegionCallback assign) override {
+    layouter_->AssignRegion(name, std::move(assign));
   }
 
-  Error AssignLookupTable(std::string_view name,
-                          AssignLookupTableCallback assign) override {
-    return layouter_->AssignLookupTable(name, std::move(assign));
+  void AssignLookupTable(std::string_view name,
+                         AssignLookupTableCallback assign) override {
+    layouter_->AssignLookupTable(name, std::move(assign));
   }
 
-  Error ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
-                          size_t row) override {
-    return layouter_->ConstrainInstance(cell, column, row);
+  void ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
+                         size_t row) override {
+    layouter_->ConstrainInstance(cell, column, row);
   }
 
   Value<F> GetChallenge(const Challenge& challenge) const override {
@@ -64,6 +64,7 @@ class NamespacedLayouter : public Layouter<F> {
   }
 
  private:
+  // not owned
   Layouter<F>* const layouter_;
 };
 

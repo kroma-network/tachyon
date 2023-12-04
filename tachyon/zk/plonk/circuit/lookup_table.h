@@ -12,7 +12,6 @@
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/lookup_table_column.h"
-#include "tachyon/zk/plonk/error.h"
 
 namespace tachyon::zk {
 
@@ -28,17 +27,19 @@ class LookupTable {
 
     // Assign a fixed value to a table cell.
     //
-    // Return an error if the table cell has already been assigned.
-    virtual Error AssignCell(std::string_view name,
-                             const LookupTableColumn& column, size_t offset,
-                             AssignCallback assign) {
-      return Error::kNone;
+    // Return false if the table cell has already been assigned.
+    [[nodiscard]] virtual bool AssignCell(std::string_view name,
+                                          const LookupTableColumn& column,
+                                          size_t offset,
+                                          AssignCallback assign) {
+      return true;
     }
   };
 
   explicit LookupTable(Layouter* layouter) : layouter_(layouter) {}
 
  private:
+  // not owned
   Layouter* const layouter_;
 };
 

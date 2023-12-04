@@ -10,7 +10,7 @@
 #include <memory>
 #include <utility>
 
-#include "tachyon/zk/transcript/transcript.h"
+#include "tachyon/zk/base/transcripts/transcript.h"
 
 namespace tachyon::zk {
 
@@ -31,7 +31,7 @@ class Entity {
   using Poly = typename PCSTy::Poly;
   using Commitment = typename PCSTy::Commitment;
 
-  Entity(PCSTy pcs, std::unique_ptr<Domain> domain,
+  Entity(PCSTy&& pcs, std::unique_ptr<Domain> domain,
          std::unique_ptr<ExtendedDomain> extended_domain,
          std::unique_ptr<Transcript<Commitment>> transcript)
       : pcs_(std::move(pcs)),

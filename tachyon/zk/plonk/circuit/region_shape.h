@@ -30,50 +30,45 @@ class RegionShape : public Region<F>::Layouter {
   const absl::flat_hash_set<RegionColumn>& columns() const { return columns_; }
   size_t row_count() const { return row_count_; }
 
-  // Layouter methods
-  Error EnableSelector(std::string_view, const Selector& selector,
-                       size_t offset) override {
+  // Region<F>::Layouter methods
+  void EnableSelector(std::string_view, const Selector& selector,
+                      size_t offset) override {
     columns_.insert(RegionColumn(selector));
     row_count_ = std::max(row_count_, offset + 1);
-    return Error::kNone;
   }
 
-  Error AssignAdvice(std::string_view, const AdviceColumnKey& column,
-                     size_t offset, AssignCallback to, Cell* cell) override {
+  Cell AssignAdvice(std::string_view, const AdviceColumnKey& column,
+                    size_t offset, AssignCallback to) override {
     columns_.insert(RegionColumn(column));
     row_count_ = std::max(row_count_, offset + 1);
-    *cell = Cell(region_index_, offset, column);
-    return Error::kNone;
+    return {region_index_, offset, column};
   }
 
-  Error AssignAdviceFromConstant(std::string_view name,
-                                 const AdviceColumnKey& column, size_t offset,
-                                 math::RationalField<F> constant,
-                                 Cell* cell) override {
-    return AssignAdvice(
-        name, column, offset,
-        [constant = std::move(constant)]() {
-          return Value<F>::Known(std::move(constant));
-        },
-        cell);
+  Cell AssignAdviceFromConstant(std::string_view name,
+                                const AdviceColumnKey& column, size_t offset,
+                                math::RationalField<F> constant) override {
+    return AssignAdvice(name, column, offset,
+                        [constant = std::move(constant)]() {
+                          return Value<F>::Known(std::move(constant));
+                        });
   }
 
-  Error AssignAdviceFromInstance(std::string_view,
-                                 const InstanceColumnKey& instance, size_t row,
-                                 const InstanceColumnKey& advice, size_t offset,
-                                 AssignedCell<F>* cell) override {
+  AssignedCell<F> AssignAdviceFromInstance(std::string_view,
+                                           const InstanceColumnKey& instance,
+                                           size_t row,
+                                           const AdviceColumnKey& advice,
+                                           size_t offset) override {
     columns_.insert(RegionColumn(advice));
     row_count_ = std::max(row_count_, offset + 1);
-    *cell = Cell(region_index_, offset, advice);
-    return Error::kNone;
+    Cell cell(region_index_, offset, advice);
+    return {std::move(cell), Value<F>::Unknown()};
   }
 
-  Error AssignFixed(std::string_view, const FixedColumnKey& column,
-                    size_t offset, AssignCallback to, Cell* cell) override {
+  Cell AssignFixed(std::string_view, const FixedColumnKey& column,
+                   size_t offset, AssignCallback to) override {
     columns_.insert(RegionColumn(column));
     row_count_ = std::max(row_count_, offset + 1);
-    *cell = Cell(region_index_, offset, column);
-    return Error::kNone;
+    return {region_index_, offset, column};
   }
 
  private:

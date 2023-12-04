@@ -57,6 +57,7 @@ class Halo2RandomFieldGenerator : public RandomFieldGenerator<F> {
     return F::FromMontgomery(d2) + F::FromMontgomery(d3);
   }
 
+  // not owned
   crypto::XORShiftRNG* const generator_;
 };
 

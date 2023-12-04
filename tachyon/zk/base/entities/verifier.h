@@ -21,7 +21,7 @@ class Verifier : public Entity<PCSTy> {
   using ExtendedDomain = typename PCSTy::ExtendedDomain;
   using Commitment = typename PCSTy::Commitment;
 
-  Verifier(PCSTy pcs, std::unique_ptr<Domain> domain,
+  Verifier(PCSTy&& pcs, std::unique_ptr<Domain> domain,
            std::unique_ptr<ExtendedDomain> extended_domain,
            std::unique_ptr<TranscriptReader<Commitment>> transcript)
       : Entity<PCSTy>(std::move(pcs), std::move(domain),

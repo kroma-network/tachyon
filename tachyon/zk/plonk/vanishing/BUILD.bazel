@@ -17,17 +17,17 @@ tachyon_cc_library(
     hdrs = ["graph_evaluator.h"],
     deps = [
         ":calculation",
-        "//tachyon/zk/plonk/circuit/expressions:advice_expression",
-        "//tachyon/zk/plonk/circuit/expressions:challenge_expression",
-        "//tachyon/zk/plonk/circuit/expressions:constant_expression",
-        "//tachyon/zk/plonk/circuit/expressions:evaluator",
-        "//tachyon/zk/plonk/circuit/expressions:fixed_expression",
-        "//tachyon/zk/plonk/circuit/expressions:instance_expression",
-        "//tachyon/zk/plonk/circuit/expressions:negated_expression",
-        "//tachyon/zk/plonk/circuit/expressions:product_expression",
-        "//tachyon/zk/plonk/circuit/expressions:scaled_expression",
-        "//tachyon/zk/plonk/circuit/expressions:selector_expression",
-        "//tachyon/zk/plonk/circuit/expressions:sum_expression",
+        "//tachyon/zk/expressions:advice_expression",
+        "//tachyon/zk/expressions:challenge_expression",
+        "//tachyon/zk/expressions:constant_expression",
+        "//tachyon/zk/expressions:evaluator",
+        "//tachyon/zk/expressions:fixed_expression",
+        "//tachyon/zk/expressions:instance_expression",
+        "//tachyon/zk/expressions:negated_expression",
+        "//tachyon/zk/expressions:product_expression",
+        "//tachyon/zk/expressions:scaled_expression",
+        "//tachyon/zk/expressions:selector_expression",
+        "//tachyon/zk/expressions:sum_expression",
     ],
 )
 
@@ -67,7 +67,7 @@ tachyon_cc_unittest(
     deps = [
         ":graph_evaluator",
         ":value_source",
-        "//tachyon/zk/plonk/circuit/expressions:expression_factory",
-        "//tachyon/zk/plonk/circuit/expressions/evaluator/test:evaluator_test",
+        "//tachyon/zk/expressions:expression_factory",
+        "//tachyon/zk/expressions/evaluator/test:evaluator_test",
     ],
 )

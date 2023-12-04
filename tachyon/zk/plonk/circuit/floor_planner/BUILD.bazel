@@ -12,6 +12,7 @@ tachyon_cc_library(
     name = "simple_lookup_table_layouter",
     hdrs = ["simple_lookup_table_layouter.h"],
     deps = [
+        "//tachyon/base:logging",
         "//tachyon/base/containers:contains",
         "//tachyon/math/base:rational_field",
         "//tachyon/zk/base:value",

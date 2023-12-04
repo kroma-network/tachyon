@@ -10,7 +10,7 @@
 #include <memory>
 #include <utility>
 
-#include "tachyon/zk/plonk/circuit/expressions/expression.h"
+#include "tachyon/zk/expressions/expression.h"
 
 namespace tachyon::zk {
 

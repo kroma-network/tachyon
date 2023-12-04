@@ -36,11 +36,9 @@ class FieldConfig {
   const Selector& s_mul() const { return s_mul_; }
 
  private:
-  FieldConfig(std::array<AdviceColumnKey, 2> advice, InstanceColumnKey instance,
-              Selector s_mul)
-      : advice_(std::move(advice)),
-        instance_(std::move(instance)),
-        s_mul_(std::move(s_mul)) {}
+  FieldConfig(std::array<AdviceColumnKey, 2>&& advice,
+              const InstanceColumnKey& instance, const Selector& s_mul)
+      : advice_(std::move(advice)), instance_(instance), s_mul_(s_mul) {}
 
   // For this chip, we will use two advice columns to implement our
   // instructions. These are also the columns through which we communicate with
@@ -58,12 +56,10 @@ class FieldConfig {
 template <typename F>
 class FieldChip {
  public:
-  FieldChip() = default;
-
   static FieldConfig<F> Configure(ConstraintSystem<F>& meta,
-                                  std::array<AdviceColumnKey, 2> advice,
-                                  InstanceColumnKey instance,
-                                  FixedColumnKey constant) {
+                                  std::array<AdviceColumnKey, 2>&& advice,
+                                  const InstanceColumnKey& instance,
+                                  const FixedColumnKey& constant) {
     meta.EnableEquality(instance);
     meta.EnableConstant(constant);
     for (const AdviceColumnKey& column : advice) {
@@ -107,48 +103,45 @@ class FieldChip {
            (std::move(lhs) * std::move(rhs) - std::move(out))});
     });
 
-    return FieldConfig<F>(std::move(advice), std::move(instance),
-                          std::move(sel));
+    return FieldConfig<F>(std::move(advice), instance, sel);
   }
 
-  Error LoadPrivate(Layouter<F>* layouter, const Value<F>& value,
-                    AssignedCell<F>* cell) const {
-    return layouter->AssignRegion("load private",
-                                  [this, cell, &value](Region<F>& region) {
-                                    return region.AssignAdvice(
-                                        "private input", config_.advice()[0], 0,
-                                        [&value]() { return value; }, cell);
-                                  });
-  }
-
-  Error LoadConstant(Layouter<F>* layouter, const F& constant,
-                     AssignedCell<F>* cell) const {
-    return layouter->AssignRegion(
-        "load constant", [this, &constant, cell](Region<F>& region) {
-          return region.AssignAdviceFromConstant(
-              "constant value", config_.advice()[0], 0, constant, cell);
+  AssignedCell<F> LoadPrivate(Layouter<F>* layouter,
+                              const Value<F>& value) const {
+    AssignedCell<F> ret;
+    layouter->AssignRegion(
+        "load private", [this, &value, &ret](Region<F>& region) {
+          ret = region.AssignAdvice("private input", config_.advice()[0], 0,
+                                    [&value]() { return value; });
         });
+    return ret;
   }
 
-  Error Mul(Layouter<F>* layouter, const AssignedCell<F>& a,
-            const AssignedCell<F>& b, AssignedCell<F>* cell) const {
-    return layouter->AssignRegion("mul", [this, a, b, cell](Region<F>& region) {
+  AssignedCell<F> LoadConstant(Layouter<F>* layouter, const F& constant) const {
+    AssignedCell<F> ret;
+    layouter->AssignRegion(
+        "load constant", [this, &constant, &ret](Region<F>& region) {
+          ret = region.AssignAdviceFromConstant(
+              "constant value", config_.advice()[0], 0, constant);
+        });
+    return ret;
+  }
+
+  AssignedCell<F> Mul(Layouter<F>* layouter, const AssignedCell<F>& a,
+                      const AssignedCell<F>& b) const {
+    AssignedCell<F> ret;
+    layouter->AssignRegion("mul", [this, a, b, &ret](Region<F>& region) {
       // We only want to use a single multiplication gate in this |region|,
       // so we enable it at |region| offset 0; this means it will constrain
       // cells at offsets 0 and 1.
-      Error error = config_.s_mul().Enable(region, 0);
-      if (error != Error::kNone) return error;
+      config_.s_mul().Enable(region, 0);
 
       // The inputs we've been given could be located anywhere in the
       // circuit, but we can only rely on relative offsets inside this
       // region. So we assign new cells inside the |region| and constrain
       // them to have the same values as the inputs.
-      AssignedCell<F> new_a;
-      error = a.CopyAdvice("lhs", region, config_.advice()[0], 0, &new_a);
-      if (error != Error::kNone) return error;
-      AssignedCell<F> new_b;
-      error = b.CopyAdvice("rhs", region, config_.advice()[1], 0, &new_b);
-      if (error != Error::kNone) return error;
+      a.CopyAdvice("lhs", region, config_.advice()[0], 0);
+      b.CopyAdvice("rhs", region, config_.advice()[1], 0);
 
       // Now we can assign the multiplication result, which is to be
       // assigned into the output position.
@@ -156,21 +149,21 @@ class FieldChip {
 
       // Finally, we do the assignment to the output, returning a
       // variable to be used in another part of the circuit.
-      return region.AssignAdvice(
-          "lhs * rhs", config_.advice()[0], 1, [&value]() { return value; },
-          cell);
+      ret = region.AssignAdvice("lhs * rhs", config_.advice()[0], 1,
+                                [&value]() { return value; });
     });
+    return ret;
   }
 
-  Error ExposePublic(Layouter<F>* layouter, const AssignedCell<F>& cell,
-                     size_t row) const {
-    return layouter->ConstrainInstance(cell.cell(), config_.instance(), row);
+  void ExposePublic(Layouter<F>* layouter, const AssignedCell<F>& cell,
+                    size_t row) const {
+    layouter->ConstrainInstance(cell.cell(), config_.instance(), row);
   }
 
  private:
   friend class SimpleCircuit<F>;
 
-  explicit FieldChip(FieldConfig<F> config) : config_(std::move(config)) {}
+  explicit FieldChip(FieldConfig<F>&& config) : config_(std::move(config)) {}
 
   FieldConfig<F> config_;
 };
@@ -197,27 +190,21 @@ class SimpleCircuit : public Circuit<FieldConfig<F>> {
     // Create a fixed column to load constants.
     FixedColumnKey constant = meta.CreateFixedColumn();
 
-    return FieldChip<F>::Configure(meta, std::move(advice), std::move(instance),
-                                   std::move(constant));
+    return FieldChip<F>::Configure(meta, std::move(advice), instance, constant);
   }
 
-  Error Synthesize(FieldConfig<F> config, Layouter<F>* layouter) override {
+  void Synthesize(FieldConfig<F>&& config, Layouter<F>* layouter) override {
     FieldChip<F> field_chip(std::move(config));
 
     // Load our private values into the circuit.
-    AssignedCell<F> a;
-    Error error =
-        field_chip.LoadPrivate(layouter->Namespace("load a").get(), a_, &a);
-    if (error != Error::kNone) return error;
-    AssignedCell<F> b;
-    error = field_chip.LoadPrivate(layouter->Namespace("load b").get(), b_, &b);
-    if (error != Error::kNone) return error;
+    AssignedCell<F> a =
+        field_chip.LoadPrivate(layouter->Namespace("load a").get(), a_);
+    AssignedCell<F> b =
+        field_chip.LoadPrivate(layouter->Namespace("load b").get(), b_);
 
     // Load the constant factor into the circuit.
-    AssignedCell<F> constant;
-    error = field_chip.LoadConstant(layouter->Namespace("load constant").get(),
-                                    constant_, &constant);
-    if (error != Error::kNone) return error;
+    AssignedCell<F> constant = field_chip.LoadConstant(
+        layouter->Namespace("load constant").get(), constant_);
 
     // We only have access to plain multiplication.
     // We could implement our circuit as:
@@ -230,19 +217,15 @@ class SimpleCircuit : public Circuit<FieldConfig<F>> {
     //     ab   = a * b
     //     absq = ab²
     //     c    = constant * absq
-    AssignedCell<F> ab;
-    error = field_chip.Mul(layouter->Namespace("a * b").get(), a, b, &ab);
-    if (error != Error::kNone) return error;
-    AssignedCell<F> absq;
-    error = field_chip.Mul(layouter->Namespace("ab * ab").get(), ab, ab, &absq);
-    if (error != Error::kNone) return error;
-    AssignedCell<F> c;
-    error = field_chip.Mul(layouter->Namespace("constant * absq").get(),
-                           constant, absq, &c);
-    if (error != Error::kNone) return error;
+    AssignedCell<F> ab =
+        field_chip.Mul(layouter->Namespace("a * b").get(), a, b);
+    AssignedCell<F> absq =
+        field_chip.Mul(layouter->Namespace("ab * ab").get(), ab, ab);
+    AssignedCell<F> c = field_chip.Mul(
+        layouter->Namespace("constant * absq").get(), constant, absq);
 
     // Expose the result as a public input to the circuit.
-    return field_chip.ExposePublic(layouter->Namespace("expose c").get(), c, 0);
+    field_chip.ExposePublic(layouter->Namespace("expose c").get(), c, 0);
   }
 
  private:

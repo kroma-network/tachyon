@@ -7,7 +7,7 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/zk/plonk/circuit/expressions/expression.h"
+#include "tachyon/zk/expressions/expression.h"
 
 namespace tachyon::zk {
 

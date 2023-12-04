@@ -8,10 +8,10 @@
 #define TACHYON_ZK_PLONK_CIRCUIT_ASSIGNED_CELL_H_
 
 #include <string>
+#include <utility>
 
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/cell.h"
-#include "tachyon/zk/plonk/error.h"
 
 namespace tachyon::zk {
 
@@ -25,17 +25,16 @@ class AssignedCell {
   AssignedCell() = default;
   AssignedCell(const Cell& cell, const Value<F>& value)
       : cell_(cell), value_(value) {}
+  AssignedCell(const Cell& cell, Value<F>&& value)
+      : cell_(cell), value_(std::move(value)) {}
 
   const Cell& cell() const { return cell_; }
   const Value<F>& value() const { return value_; }
 
   // Copies the value to a given advice cell and constrains them to be equal.
-  //
-  // Returns an error if either this cell or the given cell are in columns
-  // where equality has not been enabled.
-  Error CopyAdvice(std::string_view name, Region<F>& region,
-                   const AdviceColumnKey& column, size_t offset,
-                   AssignedCell<F>* assigned_cell) const;
+  AssignedCell<F> CopyAdvice(std::string_view name, Region<F>& region,
+                             const AdviceColumnKey& column,
+                             size_t offset) const;
 
   std::string ToString() const {
     return absl::Substitute("{cell: $0, value: $1}", cell_.ToString(),
