@@ -244,7 +244,7 @@ class SingleChipLayouter : public Layouter<F> {
 
     // Check that all table columns have the same length |first_unused|,
     // and all cells up to that length are assigned.
-    std::optional<size_t> first_unused = 0;
+    std::optional<size_t> first_unused;
     std::vector<std::optional<size_t>> assigned_sizes = base::Map(
         values.begin(), values.end(),
         [](const typename SimpleLookupTableLayouter<F>::Value& value) {
