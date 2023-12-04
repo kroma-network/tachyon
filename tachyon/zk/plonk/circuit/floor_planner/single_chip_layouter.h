@@ -157,7 +157,7 @@ class SingleChipLayouter : public Layouter<F> {
     // in use.
     size_t region_start = 0;
     for (auto it = shape.columns().begin(); it != shape.columns().end(); ++it) {
-      size_t column_start = columns_[it->first];
+      size_t column_start = columns_[*it];
       if (column_start != 0 && log_region_info) {
         VLOG(3) << "columns " << it->ToString()
                 << " reused between multi regions. start: " << column_start
