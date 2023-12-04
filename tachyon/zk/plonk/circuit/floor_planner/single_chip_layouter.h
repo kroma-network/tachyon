@@ -235,7 +235,7 @@ class SingleChipLayouter : public Layouter<F> {
                           base::identity())) {
             return std::optional<size_t>(value.assigned.size());
           } else {
-            return std::nullopt;
+            return std::optional<size_t>();
           }
         });
     for (const std::optional<size_t>& assigned_size : assigned_sizes) {
