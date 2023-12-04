@@ -33,12 +33,12 @@ class Value : public math::Field<Value<T>> {
   static Value Random() { return Value(T::Random()); }
 
   constexpr bool IsZero() const {
-    CHECK(!IsNone());
+    if (IsNone()) return false;
     return value_->IsZero();
   }
 
   constexpr bool IsOne() const {
-    CHECK(!IsNone());
+    if (IsNone()) return false;
     return value_->IsOne();
   }
 
@@ -65,113 +65,69 @@ class Value : public math::Field<Value<T>> {
   T* operator->() { return value_.operator->(); }
 
   // AdditiveSemigroup methods
-  constexpr Value& AddInPlace(const Value& other) {
-    CHECK(!other.IsNone());
-    return AddInPlace(*other.value_);
-  }
-
-  constexpr Value& AddInPlace(const T& other) {
-    CHECK(!IsNone());
-    *value_ += other;
-    return *this;
-  }
-
   constexpr Value Add(const Value& other) const {
-    CHECK(!other.IsNone());
-    return Add(*other.value_);
+    if (IsNone() || other.IsNone()) return Unknown();
+    return Value::Known(*value_ + *other.value_);
   }
 
   constexpr Value Add(const T& other) const {
-    CHECK(!IsNone());
+    if (IsNone()) return Unknown();
     return Value::Known(*value_ + other);
   }
 
   constexpr Value& DoubleInPlace() {
-    CHECK(!IsNone());
+    if (IsNone()) return *this;
     value_->DoubleInPlace();
     return *this;
   }
 
   // AdditiveGroup methods
-  constexpr Value& SubInPlace(const Value& other) {
-    CHECK(!other.IsNone());
-    return SubInPlace(*other.value_);
-  }
-
-  constexpr Value& SubInPlace(const T& other) {
-    CHECK(!IsNone());
-    *value_ -= other;
-    return *this;
-  }
-
   constexpr Value Sub(const Value& other) const {
-    CHECK(!other.IsNone());
-    return Sub(*other.value_);
+    if (IsNone() || other.IsNone()) return Unknown();
+    return Value::Known(*value_ - *other.value_);
   }
 
   constexpr Value Sub(const T& other) const {
-    CHECK(!IsNone());
+    if (IsNone()) return Unknown();
     return Value::Known(*value_ - other);
   }
 
   constexpr Value& NegInPlace() {
-    CHECK(!IsNone());
+    if (IsNone()) return *this;
     value_->NegInPlace();
     return *this;
   }
 
   // MultiplicativeSemigroup methods
-  constexpr Value& MulInPlace(const Value& other) {
-    CHECK(!other.IsNone());
-    return MulInPlace(*other.value_);
-  }
-
-  constexpr Value& MulInPlace(const T& other) {
-    CHECK(!IsNone());
-    *value_ *= other;
-    return *this;
-  }
-
   constexpr Value Mul(const Value& other) const {
-    CHECK(!other.IsNone());
-    return Mul(*other.value_);
+    if (IsNone() || other.IsNone()) return Unknown();
+    return Value::Known(*value_ * *other.value_);
   }
 
   constexpr Value Mul(const T& other) const {
-    CHECK(!IsNone());
+    if (IsNone()) return Unknown();
     return Value::Known(*value_ * other);
   }
 
   constexpr Value& SquareInPlace() {
-    CHECK(!IsNone());
+    if (IsNone()) return *this;
     value_->SquareInPlace();
     return *this;
   }
 
   // MultiplicativeGroup methods
-  constexpr Value& DivInPlace(const Value& other) {
-    CHECK(!other.IsNone());
-    return DivInPlace(*other.value_);
-  }
-
-  constexpr Value& DivInPlace(const T& other) {
-    CHECK(!IsNone());
-    *value_ /= other;
-    return *this;
-  }
-
   constexpr Value Div(const Value& other) const {
-    CHECK(!other.IsNone());
-    return Div(*other.value_);
+    if (IsNone() || other.IsNone()) return Unknown();
+    return Value::Known(*value_ / *other.value_);
   }
 
   constexpr Value Div(const T& other) const {
-    CHECK(!IsNone());
+    if (IsNone()) return Unknown();
     return Value::Known(*value_ / other);
   }
 
   constexpr Value& InverseInPlace() {
-    CHECK(!IsNone());
+    if (IsNone()) return *this;
     value_->InverseInPlace();
     return *this;
   }
