@@ -100,6 +100,7 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:arithmetics_results",
         "//tachyon/math/polynomials:polynomial",
+        "@com_google_absl//absl/hash",
         "@com_google_absl//absl/numeric:bits",
         "@com_google_absl//absl/types:span",
     ],
@@ -125,5 +126,6 @@ tachyon_cc_unittest(
         "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
         "//tachyon/math/elliptic_curves/bn/bn384_small_two_adicity:fq",
         "//tachyon/math/finite_fields/test:gf7",
+        "@com_google_absl//absl/hash:hash_testing",
     ],
 )

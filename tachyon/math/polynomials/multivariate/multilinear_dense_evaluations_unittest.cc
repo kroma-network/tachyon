@@ -1,5 +1,6 @@
 #include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/test/gf7.h"
@@ -205,6 +206,13 @@ TEST_F(MultilinearDenseEvaluationsTest, MultiplicativeOperators) {
     tmp /= test.b;
     EXPECT_EQ(tmp, test.a);
   }
+}
+
+TEST_F(MultilinearDenseEvaluationsTest, Hash) {
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(std::make_tuple(
+      Poly(), Poly::Zero(),
+      Poly(Evals(base::CreateVector(size_t{1} << kMaxDegree, GF7::Zero()))),
+      Poly::One(), Poly::Random(), Poly::Random())));
 }
 
 }  // namespace tachyon::math

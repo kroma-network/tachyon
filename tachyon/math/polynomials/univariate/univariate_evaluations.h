@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/hash/hash.h"
+
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
@@ -205,6 +207,21 @@ class PolynomialTraits<UnivariateEvaluations<F, MaxDegree>> {
  public:
   constexpr static bool kIsEvaluationForm = true;
 };
+
+template <typename H, typename F, size_t MaxDegree>
+H AbslHashValue(H h, const UnivariateEvaluations<F, MaxDegree>& evals) {
+  if (evals.evaluations().empty()) {
+    F zero = F::Zero();
+    for (size_t i = 0; i < MaxDegree + 1; ++i) {
+      h = H::combine(std::move(h), zero);
+    }
+  } else {
+    for (const F& eval : evals.evaluations()) {
+      h = H::combine(std::move(h), eval);
+    }
+  }
+  return h;
+}
 
 }  // namespace math
 

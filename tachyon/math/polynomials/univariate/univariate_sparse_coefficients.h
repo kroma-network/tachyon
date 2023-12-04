@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+#include "absl/hash/hash.h"
 #include "absl/numeric/internal/bits.h"
 #include "absl/types/span.h"
 
@@ -218,6 +219,26 @@ class UnivariateSparseCoefficients {
 
   std::vector<Term> terms_;
 };
+
+template <typename H, typename F, size_t MaxDegree>
+H AbslHashValue(
+    H h, const UnivariateSparseCoefficients<F, MaxDegree>& coefficients) {
+  // NOTE(chokobole): We shouldn't hash only with a non-zero term.
+  // See https://abseil.io/docs/cpp/guides/hash#the-abslhashvalue-overload
+  F zero = F::Zero();
+  size_t degree = 0;
+  for (const UnivariateTerm<F>& term : coefficients.terms()) {
+    for (size_t i = degree; i < term.degree; ++i) {
+      h = H::combine(std::move(h), zero);
+    }
+    h = H::combine(std::move(h), term.coefficient);
+    degree = term.degree + 1;
+  }
+  for (size_t i = degree; i < MaxDegree + 1; ++i) {
+    h = H::combine(std::move(h), zero);
+  }
+  return h;
+}
 
 }  // namespace math
 

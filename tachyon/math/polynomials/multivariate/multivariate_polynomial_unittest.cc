@@ -643,4 +643,5 @@ TEST_F(MultivariatePolynomialTest, AdditiveOperators) {
     EXPECT_EQ(tmp, test.a);
   }
 }
+
 }  // namespace tachyon::math

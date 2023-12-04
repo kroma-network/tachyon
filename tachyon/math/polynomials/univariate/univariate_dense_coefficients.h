@@ -15,6 +15,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/hash/hash.h"
+
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
@@ -241,6 +243,23 @@ class UnivariateDenseCoefficients {
 
   std::vector<F> coefficients_;
 };
+
+template <typename H, typename F, size_t MaxDegree>
+H AbslHashValue(H h,
+                const UnivariateDenseCoefficients<F, MaxDegree>& coefficients) {
+  // NOTE(chokobole): We shouldn't hash only with a non-zero term.
+  // See https://abseil.io/docs/cpp/guides/hash#the-abslhashvalue-overload
+  size_t degree = 0;
+  for (const F& coefficient : coefficients.coefficients()) {
+    h = H::combine(std::move(h), coefficient);
+    ++degree;
+  }
+  F zero = F::Zero();
+  for (size_t i = degree; i < MaxDegree + 1; ++i) {
+    h = H::combine(std::move(h), zero);
+  }
+  return h;
+}
 
 }  // namespace math
 

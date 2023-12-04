@@ -12,6 +12,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "absl/hash/hash.h"
+
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/polynomials/polynomial.h"
@@ -283,6 +285,11 @@ class PolynomialTraits<UnivariatePolynomial<Coefficients>> {
  public:
   constexpr static bool kIsCoefficientForm = true;
 };
+
+template <typename H, typename Coefficients>
+H AbslHashValue(H h, const UnivariatePolynomial<Coefficients>& poly) {
+  return H::combine(std::move(h), poly.coefficients());
+}
 
 }  // namespace math
 

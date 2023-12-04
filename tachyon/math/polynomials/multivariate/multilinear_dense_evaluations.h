@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/hash/hash.h"
+
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
@@ -176,6 +178,21 @@ class MultilinearDenseEvaluations {
 
   std::vector<F> evaluations_;
 };
+
+template <typename H, typename F, size_t MaxDegree>
+H AbslHashValue(H h, const MultilinearDenseEvaluations<F, MaxDegree>& evals) {
+  if (evals.evaluations().empty()) {
+    F zero = F::Zero();
+    for (size_t i = 0; i < size_t{1} << MaxDegree; ++i) {
+      h = H::combine(std::move(h), zero);
+    }
+  } else {
+    for (const F& eval : evals.evaluations()) {
+      h = H::combine(std::move(h), eval);
+    }
+  }
+  return h;
+}
 
 }  // namespace tachyon::math
 

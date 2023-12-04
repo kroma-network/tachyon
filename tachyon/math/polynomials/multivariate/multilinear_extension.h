@@ -10,6 +10,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/hash/hash.h"
+
 #include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 #include "tachyon/math/polynomials/polynomial.h"
 
@@ -152,6 +154,11 @@ class PolynomialTraits<MultilinearExtension<Evaluations>> {
  public:
   constexpr static bool kIsEvaluationForm = true;
 };
+
+template <typename H, typename Evaluations>
+H AbslHashValue(H h, const MultilinearExtension<Evaluations>& mle) {
+  return H::combine(std::move(h), mle.evaluations());
+}
 
 }  // namespace tachyon::math
 

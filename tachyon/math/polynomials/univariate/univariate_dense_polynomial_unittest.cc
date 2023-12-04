@@ -1,3 +1,4 @@
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
@@ -352,6 +353,12 @@ TEST_F(UnivariateDensePolynomialTest, Copyable) {
   buf.Read(&value);
 
   EXPECT_EQ(expected, value);
+}
+
+TEST_F(UnivariateDensePolynomialTest, Hash) {
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(Poly(), Poly::Zero(), Poly::One(),
+                      Poly::Random(kMaxDegree), Poly::Random(kMaxDegree))));
 }
 
 }  // namespace tachyon::math
