@@ -40,7 +40,15 @@ class LookupArgument {
     return input_expressions_;
   }
 
+  std::vector<std::unique_ptr<Expression<F>>>& input_expressions() {
+    return input_expressions_;
+  }
+
   const std::vector<std::unique_ptr<Expression<F>>>& table_expressions() const {
+    return table_expressions_;
+  }
+
+  std::vector<std::unique_ptr<Expression<F>>>& table_expressions() {
     return table_expressions_;
   }
 

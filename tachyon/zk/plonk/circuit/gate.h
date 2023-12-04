@@ -33,6 +33,7 @@ class Gate {
   const std::vector<std::unique_ptr<Expression<F>>>& polys() const {
     return polys_;
   }
+  std::vector<std::unique_ptr<Expression<F>>>& polys() { return polys_; }
   const std::vector<Selector>& queried_selectors() const {
     return queried_selectors_;
   }
