@@ -52,7 +52,7 @@ TEST_F(ExpressionTest, ArithmeticOperatorWithClone) {
   std::unique_ptr<Expression<Fr>> right =
       base::UniformElement(expressions_)->Clone();
 
-  if (left->ContainsSimpleSelector() || right->ContainsSimpleSelector()) {
+  if (left->ContainsSimpleSelector() && right->ContainsSimpleSelector()) {
     EXPECT_DEATH(left + right, "");
     EXPECT_DEATH(left - right, "");
     EXPECT_DEATH(left * right, "");
@@ -93,7 +93,7 @@ TEST_F(ExpressionTest, ArithmeticOperatorWithMove) {
   std::unique_ptr<Expression<Fr>> right =
       base::UniformElement(expressions_)->Clone();
 
-  if (left->ContainsSimpleSelector() || right->ContainsSimpleSelector()) {
+  if (left->ContainsSimpleSelector() && right->ContainsSimpleSelector()) {
     {
       std::unique_ptr<Expression<Fr>> left_tmp = left->Clone();
       std::unique_ptr<Expression<Fr>> right_tmp = right->Clone();
