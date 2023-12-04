@@ -142,7 +142,7 @@ class SingleChipLayouter : public Layouter<F> {
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 1st pass: " << name;
-      Region region(&shape);
+      zk::Region<F> region(&shape);
       assign.Run(region);
     }
     size_t row_count = shape.row_count();
@@ -180,7 +180,8 @@ class SingleChipLayouter : public Layouter<F> {
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 2nd pass: " << name;
-      assign.Run(region);
+      zk::Region<F> zk_region(&region);
+      assign.Run(zk_region);
     }
     assignment_->ExitRegion();
 
