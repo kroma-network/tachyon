@@ -168,9 +168,6 @@ class ColumnKey : public ColumnKeyBase {
   }
 
  private:
-  template <typename H>
-  friend H AbslHashValue(H h, const ColumnKey<C>& column);
-
   template <ColumnType C2>
   friend class ColumnKey;
 
@@ -184,7 +181,7 @@ using InstanceColumnKey = ColumnKey<ColumnType::kInstance>;
 
 template <typename H, ColumnType C>
 H AbslHashValue(H h, const ColumnKey<C>& column) {
-  return H::combine(std::move(h), column.type_, column.index_);
+  return H::combine(std::move(h), column.type(), column.index());
 }
 
 }  // namespace tachyon::zk

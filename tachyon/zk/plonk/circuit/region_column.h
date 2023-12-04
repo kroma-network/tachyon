@@ -32,6 +32,8 @@ class TACHYON_EXPORT RegionColumn {
       : type_(Type::kSelector), selector_(selector) {}
 
   Type type() const { return type_; }
+  const AnyColumnKey& column() const { return column_; }
+  const Selector& selector() const { return selector_; }
 
   std::string ToString() const {
     if (type_ == Type::kColumn) {
@@ -42,9 +44,6 @@ class TACHYON_EXPORT RegionColumn {
   }
 
  private:
-  template <typename H>
-  friend H AbslHashValue(H h, const RegionColumn& m);
-
   Type type_;
   union {
     AnyColumnKey column_;
@@ -54,10 +53,10 @@ class TACHYON_EXPORT RegionColumn {
 
 template <typename H>
 H AbslHashValue(H h, const RegionColumn& m) {
-  if (m.type_ == RegionColumn::Type::kColumn) {
-    return H::combine(std::move(h), m.column_);
+  if (m.type() == RegionColumn::Type::kColumn) {
+    return H::combine(std::move(h), m.column());
   } else {
-    return H::combine(std::move(h), m.selector_);
+    return H::combine(std::move(h), m.selector());
   }
 }
 
