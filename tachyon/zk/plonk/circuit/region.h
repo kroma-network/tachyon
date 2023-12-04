@@ -144,6 +144,7 @@ class Region {
   }
 
  private:
+  // not owned
   Layouter* const layouter_;
 };
 

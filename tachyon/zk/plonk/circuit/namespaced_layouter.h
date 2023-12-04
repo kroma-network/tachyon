@@ -64,6 +64,7 @@ class NamespacedLayouter : public Layouter<F> {
   }
 
  private:
+  // not owned
   Layouter<F>* const layouter_;
 };
 

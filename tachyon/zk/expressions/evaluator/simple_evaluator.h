@@ -57,6 +57,7 @@ class SimpleEvaluator
       ~ScopedIdxIncrement() { ++evaluator->idx_; }
 
      private:
+      // not owned
       SimpleEvaluator* const evaluator;
     };
     ScopedIdxIncrement scoped_idx_increment(this);

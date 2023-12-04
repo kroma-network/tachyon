@@ -39,6 +39,7 @@ class LookupTable {
   explicit LookupTable(Layouter* layouter) : layouter_(layouter) {}
 
  private:
+  // not owned
   Layouter* const layouter_;
 };
 

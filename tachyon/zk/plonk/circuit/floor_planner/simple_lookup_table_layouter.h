@@ -81,7 +81,9 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
   }
 
  private:
+  // not owned
   Assignment<F>* const assignment_;
+  // not owned
   const std::vector<LookupTableColumn>* const used_columns_;
   absl::flat_hash_map<LookupTableColumn, Value> values_;
 };

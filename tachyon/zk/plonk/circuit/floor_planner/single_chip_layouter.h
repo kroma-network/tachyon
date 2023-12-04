@@ -105,6 +105,7 @@ class SingleChipLayouter : public Layouter<F> {
     }
 
    private:
+    // not owned
     SingleChipLayouter* const layouter_;
     const size_t region_index_;
     // Stores the constants to be assigned, and the cells to which they are
@@ -282,6 +283,7 @@ class SingleChipLayouter : public Layouter<F> {
                      std::vector<FixedColumnKey> constants)
       : assignment_(assignment), constants_(std::move(constants)) {}
 
+  // not owned
   Assignment<F>* const assignment_;
   std::vector<FixedColumnKey> constants_;
   // Stores the starting row for each region.

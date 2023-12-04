@@ -90,6 +90,7 @@ class VirtualCells {
   }
 
  private:
+  // not owned
   ConstraintSystem<F>* const meta_;
   std::vector<Selector> queried_selectors_;
   std::vector<VirtualCell> queried_cells_;
