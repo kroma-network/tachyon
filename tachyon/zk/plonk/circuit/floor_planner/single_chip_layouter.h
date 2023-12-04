@@ -230,7 +230,10 @@ class SingleChipLayouter : public Layouter<F> {
     std::optional<size_t> first_unused;
     std::vector<std::optional<size_t>> assigned_sizes = base::Map(
         values.begin(), values.end(),
-        [](const typename SimpleLookupTableLayouter<F>::Value& value) {
+        [](const std::pair<LookupTableColumn,
+                           typename SimpleLookupTableLayouter<F>::Value>&
+               entry) {
+          const auto& [column, value] = entry;
           if (std::all_of(value.assigned.begin(), value.assigned.end(),
                           base::identity())) {
             return std::optional<size_t>(value.assigned.size());
