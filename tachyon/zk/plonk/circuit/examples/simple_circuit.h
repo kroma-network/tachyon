@@ -98,9 +98,11 @@ class FieldChip {
       // has the following properties:
       // - When s_mul = 0, any value is allowed in lhs, rhs, and out.
       // - When s_mul != 0, this constrains lhs * rhs = out.
-      return std::vector<Constraint<F>>(
-          {std::move(s_mul) *
-           (std::move(lhs) * std::move(rhs) - std::move(out))});
+      std::vector<Constraint<F>> constraints;
+      constraints.emplace_back(
+          std::move(s_mul) *
+          (std::move(lhs) * std::move(rhs) - std::move(out)));
+      return constraints;
     });
 
     return FieldConfig<F>(std::move(advice), instance, sel);
