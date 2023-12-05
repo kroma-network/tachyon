@@ -31,15 +31,14 @@ class KZGCommitmentSchemeExtension;
 namespace crypto {
 
 template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
-          typename _Commitment = typename math::Pippenger<G1PointTy>::Bucket>
+          typename Commitment = typename math::Pippenger<G1PointTy>::Bucket>
 class KZGCommitmentScheme
     : public UnivariatePolynomialCommitmentScheme<
-          KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, _Commitment>> {
+          KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>> {
  public:
   using Base = UnivariatePolynomialCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, _Commitment>>;
+      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
   using Field = typename G1PointTy::ScalarField;
-  using Commitment = _Commitment;
 
   static constexpr size_t kMaxDegree = MaxDegree;
 
