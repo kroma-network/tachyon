@@ -38,6 +38,7 @@ class UnivariateDenseCoefficients {
   constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
+  using Point = F;
 
   constexpr UnivariateDenseCoefficients() = default;
   constexpr explicit UnivariateDenseCoefficients(
@@ -157,7 +158,7 @@ class UnivariateDenseCoefficients {
 
   constexpr size_t NumElements() const { return coefficients_.size(); }
 
-  constexpr F Evaluate(const F& point) const {
+  constexpr F Evaluate(const Point& point) const {
     if (IsZero()) return F::Zero();
     if (point.IsZero()) return coefficients_[0];
     return DoEvaluate(point);
@@ -195,7 +196,7 @@ class UnivariateDenseCoefficients {
   friend class MixedRadixEvaluationDomain<F, MaxDegree>;
   friend class base::Copyable<UnivariateDenseCoefficients<F, MaxDegree>>;
 
-  constexpr F DoEvaluate(const F& point) const {
+  constexpr F DoEvaluate(const Point& point) const {
 #if defined(TACHYON_HAS_OPENMP)
     // Horner's method - parallel method
     // run Horner's method on each thread as follows:
@@ -220,7 +221,7 @@ class UnivariateDenseCoefficients {
   }
 
   constexpr static F HornerEvaluate(absl::Span<const F> coefficients,
-                                    const F& point) {
+                                    const Point& point) {
     return std::accumulate(coefficients.rbegin(), coefficients.rend(),
                            F::Zero(),
                            [&point](const F& result, const F& coeff) {

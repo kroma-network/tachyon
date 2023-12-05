@@ -23,6 +23,7 @@ class MultilinearExtension final
     : public Polynomial<MultilinearExtension<Evaluations>> {
  public:
   using Field = typename Evaluations::Field;
+  using Point = std::vector<Field>;
 
   constexpr MultilinearExtension() = default;
   constexpr explicit MultilinearExtension(const Evaluations& evaluations)
@@ -80,7 +81,7 @@ class MultilinearExtension final
   //   P(1, 1) = 2
 
   // In this context, {x₀, x₁} corresponds to the components of the |point|.
-  constexpr Field Evaluate(const std::vector<Field>& point) const {
+  constexpr Field Evaluate(const Point& point) const {
     return evaluations_.Evaluate(point);
   }
 

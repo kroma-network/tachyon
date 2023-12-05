@@ -11,6 +11,7 @@ namespace {
 const size_t kNumVars = 2;
 const size_t kMaxDegree = 5;
 
+using Point = std::vector<GF7>;
 using Poly = MultivariateSparsePolynomial<GF7, kMaxDegree>;
 using Coeffs = MultivariateSparseCoefficients<GF7, kMaxDegree>;
 
@@ -267,7 +268,7 @@ TEST_F(MultivariatePolynomialTest, Degree) {
 TEST_F(MultivariatePolynomialTest, Evaluate) {
   struct {
     const Poly& poly;
-    std::vector<GF7> evaluation_point;
+    Point evaluation_point;
     GF7 expected;
   } tests[] = {
       {polys_[0], {}, GF7(2)},

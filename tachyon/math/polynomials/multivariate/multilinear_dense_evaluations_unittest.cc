@@ -10,6 +10,7 @@ namespace tachyon::math {
 namespace {
 const size_t kMaxDegree = 4;
 
+using Point = std::vector<GF7>;
 using Poly = MultilinearExtension<MultilinearDenseEvaluations<GF7, kMaxDegree>>;
 using Evals = MultilinearDenseEvaluations<GF7, kMaxDegree>;
 
@@ -94,21 +95,21 @@ TEST_F(MultilinearDenseEvaluationsTest, Degree) {
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, Evaluate) {
-  std::function<std::vector<GF7>(size_t, size_t)> convert_to_le =
-      [](size_t number, size_t degree) {
-        std::vector<GF7> ret;
-        for (size_t i = 0; i < degree; ++i) {
-          ret.push_back(GF7(uint64_t{(number & (size_t{1} << i)) != 0}));
-        }
-        return ret;
-      };
+  std::function<Point(size_t, size_t)> convert_to_le = [](size_t number,
+                                                          size_t degree) {
+    Point ret;
+    for (size_t i = 0; i < degree; ++i) {
+      ret.push_back(GF7(uint64_t{(number & (size_t{1} << i)) != 0}));
+    }
+    return ret;
+  };
 
   for (const Poly& poly : polys_) {
     size_t degree = poly.Degree();
     for (size_t i = 0; i < (size_t{1} << degree); ++i) {
       const GF7* elem = poly[i];
       if (!elem) break;
-      std::vector<GF7> point = convert_to_le(i, degree);
+      Point point = convert_to_le(i, degree);
       EXPECT_EQ(poly.Evaluate(point), *elem);
     }
   }

@@ -26,6 +26,7 @@ class MultilinearDenseEvaluations {
   constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
+  using Point = std::vector<F>;
 
   constexpr MultilinearDenseEvaluations() = default;
   constexpr explicit MultilinearDenseEvaluations(
@@ -112,8 +113,7 @@ class MultilinearDenseEvaluations {
 
   // Fix k variables out of n variables, where k is
   // |partial_point.size()| and n is |Degree()|.
-  MultilinearDenseEvaluations FixVariables(
-      const std::vector<F>& partial_point) const {
+  MultilinearDenseEvaluations FixVariables(const Point& partial_point) const {
     size_t k = partial_point.size();
     size_t n = Degree();
     CHECK_LE(k, n);
@@ -157,7 +157,7 @@ class MultilinearDenseEvaluations {
   //   GF7 a = evals.Evaluate({GF7(2), GF7(3)});
   //   GF7 b = evals.Evaluate({GF7(2), GF7(3), GF7(0)});
   //   CHECK_EQ(a, b);
-  F Evaluate(const std::vector<F>& point) const {
+  F Evaluate(const Point& point) const {
     CHECK_EQ(
         point.size(),
         static_cast<size_t>(base::bits::SafeLog2Ceiling(evaluations_.size())));

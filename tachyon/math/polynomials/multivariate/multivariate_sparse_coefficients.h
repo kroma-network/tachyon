@@ -30,6 +30,7 @@ class MultivariateSparseCoefficients {
   constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
+  using Point = std::vector<F>;
 
   struct Element {
     size_t variable = 0;
@@ -94,7 +95,7 @@ class MultivariateSparseCoefficients {
           [](size_t acc, const Element& elem) { return acc + elem.exponent; });
     }
 
-    F Evaluate(const std::vector<F>& points) const {
+    F Evaluate(const Point& points) const {
 #if defined(TACHYON_HAS_OPENMP)
       std::vector<F> results = base::ParallelizeMap(
           elements, [&points](absl::Span<const Element> chunk) {
@@ -120,7 +121,7 @@ class MultivariateSparseCoefficients {
 
    private:
     static F EvaluateSerial(absl::Span<const Element> elements,
-                            const std::vector<F>& points) {
+                            const Point& points) {
       return std::accumulate(elements.begin(), elements.end(), F::One(),
                              [&points](F& acc, const Element& elem) {
                                return acc *=
@@ -251,7 +252,7 @@ class MultivariateSparseCoefficients {
     return terms_.back().Degree();
   }
 
-  constexpr F Evaluate(const std::vector<F>& points) const {
+  constexpr F Evaluate(const Point& points) const {
     CHECK_LE(points.size(), num_vars_) << "Invalid evaluation domain";
     if (IsZero()) {
       return F::Zero();
@@ -315,8 +316,7 @@ class MultivariateSparseCoefficients {
   friend class internal::MultivariatePolynomialOp<
       MultivariateSparseCoefficients<F, MaxDegree>>;
 
-  static F EvaluateSerial(absl::Span<const Term> terms,
-                          const std::vector<F>& points) {
+  static F EvaluateSerial(absl::Span<const Term> terms, const Point& points) {
     return std::accumulate(
         terms.begin(), terms.end(), F::Zero(),
         [&points](F& acc, const Term& term) {

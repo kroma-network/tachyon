@@ -34,6 +34,7 @@ class UnivariatePolynomial final
   constexpr static size_t kMaxDegree = Coefficients::kMaxDegree;
 
   using Field = typename Coefficients::Field;
+  using Point = Field;
 
   constexpr UnivariatePolynomial() = default;
   constexpr explicit UnivariatePolynomial(const Coefficients& coefficients)
@@ -142,7 +143,7 @@ class UnivariatePolynomial final
     return coefficients_.NumElements();
   }
 
-  constexpr Field Evaluate(const Field& point) const {
+  constexpr Field Evaluate(const Point& point) const {
     return coefficients_.Evaluate(point);
   }
 
