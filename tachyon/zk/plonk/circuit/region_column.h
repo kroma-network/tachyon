@@ -62,10 +62,18 @@ class TACHYON_EXPORT RegionColumn {
 
 template <typename H>
 H AbslHashValue(H h, const RegionColumn& m) {
+  // NOTE(chokobole): |kTypePrefixAdder| should prevent it from being a suffix
+  // of the other.
+  // See https://abseil.io/docs/cpp/guides/hash#the-abslhashvalue-overload
+  constexpr static int kTypePrefixAdder = 100;
   if (m.type() == RegionColumn::Type::kColumn) {
-    return H::combine(std::move(h), m.column());
+    return H::combine(std::move(h),
+                      kTypePrefixAdder + static_cast<int>(m.type()),
+                      m.column());
   } else {
-    return H::combine(std::move(h), m.selector());
+    return H::combine(std::move(h),
+                      kTypePrefixAdder + static_cast<int>(m.type()),
+                      m.selector());
   }
 }
 
