@@ -112,7 +112,7 @@ class KZGCommitmentScheme
   }
 
   // Return false if |n| >= |N()|.
-  bool Downsize(size_t n) {
+  [[nodiscard]] bool Downsize(size_t n) {
     if (n >= N()) return false;
     g1_powers_of_tau_.resize(n);
     g1_powers_of_tau_lagrange_.resize(n);
@@ -127,7 +127,7 @@ class KZGCommitmentScheme
   template <typename, typename, size_t, size_t, typename>
   friend class zk::KZGCommitmentSchemeExtension;
 
-  bool DoUnsafeSetup(size_t size) {
+  [[nodiscard]] bool DoUnsafeSetup(size_t size) {
     return UnsafeSetupWithTau(size, Field::Random());
   }
 
