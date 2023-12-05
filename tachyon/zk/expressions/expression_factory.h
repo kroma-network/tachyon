@@ -90,7 +90,7 @@ std::unique_ptr<Expression<F>> operator+(
 template <typename F>
 std::unique_ptr<Expression<F>> operator+(std::unique_ptr<Expression<F>>&& lhs,
                                          std::unique_ptr<Expression<F>>&& rhs) {
-  CHECK(!(lhs->ContainsSimpleSelector() || rhs->ContainsSimpleSelector()))
+  CHECK(!(lhs->ContainsSimpleSelector() && rhs->ContainsSimpleSelector()))
       << "attempted to use a simple selector in an addition";
   return ExpressionFactory<F>::Sum(std::move(lhs), std::move(rhs));
 }
@@ -105,7 +105,7 @@ std::unique_ptr<Expression<F>> operator-(
 template <typename F>
 std::unique_ptr<Expression<F>> operator-(std::unique_ptr<Expression<F>>&& lhs,
                                          std::unique_ptr<Expression<F>>&& rhs) {
-  CHECK(!(lhs->ContainsSimpleSelector() || rhs->ContainsSimpleSelector()))
+  CHECK(!(lhs->ContainsSimpleSelector() && rhs->ContainsSimpleSelector()))
       << "attempted to use a simple selector in a subtraction";
   return ExpressionFactory<F>::Sum(std::move(lhs), operator-(std::move(rhs)));
 }
@@ -120,7 +120,7 @@ std::unique_ptr<Expression<F>> operator*(
 template <typename F>
 std::unique_ptr<Expression<F>> operator*(std::unique_ptr<Expression<F>>&& lhs,
                                          std::unique_ptr<Expression<F>>&& rhs) {
-  CHECK(!(lhs->ContainsSimpleSelector() || rhs->ContainsSimpleSelector()))
+  CHECK(!(lhs->ContainsSimpleSelector() && rhs->ContainsSimpleSelector()))
       << "attempted to use a simple selector in a production";
   return ExpressionFactory<F>::Product(std::move(lhs), std::move(rhs));
 }

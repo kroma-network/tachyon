@@ -7,6 +7,7 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_REGION_COLUMN_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_REGION_COLUMN_H_
 
+#include <string>
 #include <utility>
 
 #include "absl/hash/hash.h"
@@ -31,11 +32,27 @@ class TACHYON_EXPORT RegionColumn {
       : type_(Type::kSelector), selector_(selector) {}
 
   Type type() const { return type_; }
+  const AnyColumnKey& column() const { return column_; }
+  const Selector& selector() const { return selector_; }
+
+  bool operator==(const RegionColumn& other) const {
+    if (type_ != other.type_) return false;
+    if (type_ == Type::kColumn) return column_ == other.column_;
+    return selector_ == other.selector_;
+  }
+  bool operator!=(const RegionColumn& other) const {
+    return !operator==(other);
+  }
+
+  std::string ToString() const {
+    if (type_ == Type::kColumn) {
+      return column_.ToString();
+    } else {
+      return selector_.ToString();
+    }
+  }
 
  private:
-  template <typename H>
-  friend H AbslHashValue(H h, const RegionColumn& m);
-
   Type type_;
   union {
     AnyColumnKey column_;
@@ -45,10 +62,18 @@ class TACHYON_EXPORT RegionColumn {
 
 template <typename H>
 H AbslHashValue(H h, const RegionColumn& m) {
-  if (m.type_ == RegionColumn::Type::kColumn) {
-    return H::combine(std::move(h), m.column_);
+  // NOTE(chokobole): |kTypePrefixAdder| should prevent it from being a suffix
+  // of the other.
+  // See https://abseil.io/docs/cpp/guides/hash#the-abslhashvalue-overload
+  constexpr static int kTypePrefixAdder = 100;
+  if (m.type() == RegionColumn::Type::kColumn) {
+    return H::combine(std::move(h),
+                      kTypePrefixAdder + static_cast<int>(m.type()),
+                      m.column());
   } else {
-    return H::combine(std::move(h), m.selector_);
+    return H::combine(std::move(h),
+                      kTypePrefixAdder + static_cast<int>(m.type()),
+                      m.selector());
   }
 }
 

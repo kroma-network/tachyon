@@ -55,7 +55,7 @@ class SelectorCompressor {
   // substitutions to the constraint system.
   //
   // This function is completely deterministic.
-  static Result Process(std::vector<std::vector<bool>>&& selectors_in,
+  static Result Process(const std::vector<std::vector<bool>>& selectors_in,
                         const std::vector<size_t>& degrees, size_t max_degree,
                         AllocateFixedColumnCallback callback) {
     if (selectors_in.empty()) return {};
@@ -70,36 +70,33 @@ class SelectorCompressor {
     auto zipped = base::Zipped(selectors_in, degrees);
     std::vector<SelectorDescription> selectors = base::Map(
         zipped.begin(), zipped.end(),
-        [](size_t selector_index, std::tuple<std::vector<bool>, size_t>& e) {
-          auto& [activations, max_degree] = e;
-          return SelectorDescription(selector_index, std::move(activations),
-                                     max_degree);
+        [](size_t selector_index,
+           const std::tuple<std::vector<bool>, size_t>& e) {
+          const auto& [activations, max_degree] = e;
+          return SelectorDescription(selector_index, activations, max_degree);
         });
 
-    std::vector<F> combination_assignments;
+    std::vector<std::vector<F>> combination_assignments;
     std::vector<SelectorAssignment<F>> selector_assignments;
 
     // All provided selectors of degree 0 are assumed to be either concrete
     // selectors or do not appear in a gate. Let's address these first.
-    base::EraseIf(
-        selectors.begin(), selectors.end(),
-        [&combination_assignments, &selector_assignments,
-         callback](const SelectorDescription& selector) {
-          if (selector.max_degree() != 0) return false;
-          // This is a complex selector, or a selector that does not
-          // appear in any gate constraint.
-          std::unique_ptr<Expression<F>> expression = callback.Run();
+    base::EraseIf(selectors, [&combination_assignments, &selector_assignments,
+                              callback](const SelectorDescription& selector) {
+      if (selector.max_degree() != 0) return false;
+      // This is a complex selector, or a selector that does not
+      // appear in any gate constraint.
+      std::unique_ptr<Expression<F>> expression = callback.Run();
 
-          std::vector<F> combination_assignment =
-              base::Map(selector.activations(),
-                        [](bool b) { return b ? F::One() : F::Zero(); });
-          size_t combination_index = combination_assignments.size();
-          combination_assignments.push_back(std::move(combination_assignment));
-          selector_assignments.push_back(
-              SelectorAssignment<F>(selector.selector_index(),
-                                    combination_index, std::move(expression)));
-          return true;
-        });
+      std::vector<F> combination_assignment =
+          base::Map(selector.activations(),
+                    [](bool b) { return b ? F::One() : F::Zero(); });
+      size_t combination_index = combination_assignments.size();
+      combination_assignments.push_back(std::move(combination_assignment));
+      selector_assignments.push_back(SelectorAssignment<F>(
+          selector.selector_index(), combination_index, std::move(expression)));
+      return true;
+    });
 
     // All of the remaining |selectors| are simple. Let's try to combine them.
     // First, we compute the exclusion matrix that has (j, k) = true if selector

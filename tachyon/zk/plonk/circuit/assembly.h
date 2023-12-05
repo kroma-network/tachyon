@@ -7,7 +7,6 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_ASSEMBLY_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_ASSEMBLY_H_
 
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -60,7 +59,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   void AssignFixed(std::string_view name, const FixedColumnKey& column,
                    size_t row, AssignCallback assign) override {
     CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
-    fixed_columns_[column.index()] = std::move(assign).Run();
+    *fixed_columns_[column.index()][row] = std::move(assign).Run().value();
   }
 
   void Copy(const AnyColumnKey& left_column, size_t left_row,
@@ -71,13 +70,12 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   }
 
   void FillFromRow(const FixedColumnKey& column, size_t from_row,
-                   AssignCallback assign) override {
+                   const math::RationalField<F>& value) override {
     CHECK(usable_rows_.Contains(from_row)) << "Not enough rows available";
-    math::RationalField<F> value = std::move(assign).Run();
     base::Range<size_t> range(usable_rows_.from + from_row, usable_rows_.to);
-    for (size_t i : range) {
-      std::ignore = i;
-      fixed_columns_[column.index()] = value;
+    RationalEvals& fixed_column = fixed_columns_[column.index()];
+    for (size_t row : range) {
+      *fixed_column[row] = value;
     }
   }
 

@@ -1,7 +1,5 @@
 #include "tachyon/zk/base/value.h"
 
-#include <tuple>
-
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/test/gf7.h"
@@ -44,25 +42,15 @@ TEST(ValueTest, AdditiveOperators) {
 
   for (const auto& test : tests) {
     if (test.a.IsNone() || test.b.IsNone()) {
-      EXPECT_DEATH(test.a + test.b, "");
-      EXPECT_DEATH(test.b + test.a, "");
-      EXPECT_DEATH(test.a - test.b, "");
-      EXPECT_DEATH(test.b - test.a, "");
-
-      Value<math::GF7> tmp = test.a;
-      EXPECT_DEATH(tmp += test.b, "");
-      EXPECT_DEATH(tmp -= test.b, "");
+      EXPECT_TRUE((test.a + test.b).IsNone());
+      EXPECT_TRUE((test.b + test.a).IsNone());
+      EXPECT_TRUE((test.a - test.b).IsNone());
+      EXPECT_TRUE((test.b - test.a).IsNone());
     } else {
       EXPECT_EQ(test.a + test.b, test.sum);
       EXPECT_EQ(test.b + test.a, test.sum);
       EXPECT_EQ(test.a - test.b, test.amb);
       EXPECT_EQ(test.b - test.a, test.bma);
-
-      Value<math::GF7> tmp = test.a;
-      tmp += test.b;
-      EXPECT_EQ(tmp, test.sum);
-      tmp -= test.b;
-      EXPECT_EQ(tmp, test.a);
     }
   }
 }
@@ -89,10 +77,10 @@ TEST(ValueTest, AdditiveGroupOperators) {
 
   for (auto& test : tests) {
     if (test.a.IsNone()) {
-      EXPECT_DEATH(std::ignore = -test.a, "");
-      EXPECT_DEATH(test.a.NegInPlace(), "");
-      EXPECT_DEATH(std::ignore = test.a.Double(), "");
-      EXPECT_DEATH(test.a.DoubleInPlace(), "");
+      EXPECT_TRUE(-test.a.IsNone());
+      EXPECT_TRUE(test.a.NegInPlace().IsNone());
+      EXPECT_TRUE(test.a.Double().IsNone());
+      EXPECT_TRUE(test.a.DoubleInPlace().IsNone());
     } else {
       EXPECT_EQ(-test.a, test.neg);
       Value<math::GF7> a_tmp = test.a;
@@ -131,25 +119,15 @@ TEST(ValueTest, MultiplicativeOperators) {
 
   for (const auto& test : tests) {
     if (test.a.IsNone() || test.b.IsNone()) {
-      EXPECT_DEATH(test.a * test.b, "");
-      EXPECT_DEATH(test.b * test.a, "");
-      EXPECT_DEATH(test.a / test.b, "");
-      EXPECT_DEATH(test.b / test.a, "");
-
-      Value<math::GF7> tmp = test.a;
-      EXPECT_DEATH(tmp *= test.b, "");
-      EXPECT_DEATH(tmp /= test.b, "");
+      EXPECT_TRUE((test.a * test.b).IsNone());
+      EXPECT_TRUE((test.b * test.a).IsNone());
+      EXPECT_TRUE((test.a / test.b).IsNone());
+      EXPECT_TRUE((test.b / test.a).IsNone());
     } else {
       EXPECT_EQ(test.a * test.b, test.mul);
       EXPECT_EQ(test.b * test.a, test.mul);
       EXPECT_EQ(test.a / test.b, test.adb);
       EXPECT_EQ(test.b / test.a, test.bda);
-
-      Value<math::GF7> tmp = test.a;
-      tmp *= test.b;
-      EXPECT_EQ(tmp, test.mul);
-      tmp /= test.b;
-      EXPECT_EQ(tmp, test.a);
     }
   }
 }
@@ -182,11 +160,11 @@ TEST(ValueTest, MultiplicativeGroupOperators) {
 
   for (auto& test : tests) {
     if (test.a.IsNone()) {
-      EXPECT_DEATH(std::ignore = test.a.Inverse(), "");
-      EXPECT_DEATH(test.a.InverseInPlace(), "");
-      EXPECT_DEATH(std::ignore = test.a.Square(), "");
-      EXPECT_DEATH(test.a.SquareInPlace(), "");
-      EXPECT_DEATH(std::ignore = test.a.Pow(5), "");
+      EXPECT_TRUE(test.a.Inverse().IsNone());
+      EXPECT_TRUE(test.a.InverseInPlace().IsNone());
+      EXPECT_TRUE(test.a.Square().IsNone());
+      EXPECT_TRUE(test.a.SquareInPlace().IsNone());
+      EXPECT_TRUE(test.a.Pow(5).IsNone());
     } else {
       EXPECT_EQ(test.a.Inverse(), test.inverse);
       Value<math::GF7> a_tmp = test.a;

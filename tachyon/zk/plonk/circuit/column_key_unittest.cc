@@ -1,5 +1,6 @@
 #include "tachyon/zk/plonk/circuit/column_key.h"
 
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 namespace tachyon::zk {
@@ -44,6 +45,22 @@ TYPED_TEST(ColumnKeyTest, NonAnyColumnKeyConstruction) {
   EXPECT_EQ(c3.type(), ColumnKeyTy::kDefaultType);
   c3 = AnyColumnKey(1);
   EXPECT_EQ(c3.type(), ColumnKeyTy::kDefaultType);
+}
+
+TYPED_TEST(ColumnKeyTest, Hash) {
+  using ColumnKeyTy = TypeParam;
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(ColumnKeyTy(), ColumnKeyTy(1))));
+}
+
+TEST(ColumnKeyBaseTest, Hash) {
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(ColumnKeyBase(), ColumnKeyBase(ColumnType::kFixed, 0),
+                      ColumnKeyBase(ColumnType::kFixed, 1),
+                      ColumnKeyBase(ColumnType::kAdvice, 0),
+                      ColumnKeyBase(ColumnType::kAdvice, 1),
+                      ColumnKeyBase(ColumnType::kInstance, 0),
+                      ColumnKeyBase(ColumnType::kInstance, 1))));
 }
 
 }  // namespace tachyon::zk

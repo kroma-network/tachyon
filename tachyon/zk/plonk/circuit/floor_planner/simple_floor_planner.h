@@ -15,7 +15,7 @@ class SimpleFloorPlanner {
                          Config&& config,
                          const std::vector<FixedColumnKey>& constants) {
     SingleChipLayouter layouter(assignment, constants);
-    circuit.Synthesize(std::move(config));
+    circuit.Synthesize(std::move(config), &layouter);
   }
 };
 

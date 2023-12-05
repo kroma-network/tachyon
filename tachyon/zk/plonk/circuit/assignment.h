@@ -24,7 +24,7 @@ namespace tachyon::zk {
 template <typename F>
 class Assignment {
  public:
-  using AssignCallback = base::OnceCallback<math::RationalField<F>()>;
+  using AssignCallback = base::OnceCallback<Value<math::RationalField<F>>()>;
 
   virtual ~Assignment() = default;
 
@@ -73,9 +73,9 @@ class Assignment {
   virtual void Copy(const AnyColumnKey& left_column, size_t left_row,
                     const AnyColumnKey& right_column, size_t right_row) {}
 
-  // Fills a fixed |column| starting from the given |row| with value |assign|.
+  // Fills a fixed |column| starting from the given |row| with |value|.
   virtual void FillFromRow(const FixedColumnKey& column, size_t row,
-                           AssignCallback assign) {}
+                           const math::RationalField<F>& value) {}
 
   // Queries the value of the given challenge.
   //

@@ -18,6 +18,11 @@ class TACHYON_EXPORT VirtualCell {
   const AnyColumnKey& column() const { return column_; }
   Rotation rotation() const { return rotation_; }
 
+  bool operator==(const VirtualCell& other) const {
+    return column_ == other.column_ && rotation_ == other.rotation_;
+  }
+  bool operator!=(const VirtualCell& other) const { return !operator==(other); }
+
   std::string ToString() const {
     return absl::Substitute("column: $0, rotation: $1", column_.ToString(),
                             rotation_.ToString());

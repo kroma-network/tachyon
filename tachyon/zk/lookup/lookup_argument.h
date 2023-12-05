@@ -40,12 +40,20 @@ class LookupArgument {
     return input_expressions_;
   }
 
+  std::vector<std::unique_ptr<Expression<F>>>& input_expressions() {
+    return input_expressions_;
+  }
+
   const std::vector<std::unique_ptr<Expression<F>>>& table_expressions() const {
     return table_expressions_;
   }
 
+  std::vector<std::unique_ptr<Expression<F>>>& table_expressions() {
+    return table_expressions_;
+  }
+
   size_t RequiredDegree() const {
-    CHECK_EQ(input_expressions_->size(), table_expressions_->size());
+    CHECK_EQ(input_expressions_.size(), table_expressions_.size());
 
     size_t max_input_degree = std::accumulate(
         input_expressions_.begin(), input_expressions_.end(), 1,

@@ -34,6 +34,8 @@ class SingleChipLayouter : public Layouter<F> {
     Region(SingleChipLayouter* layouter, size_t region_index)
         : layouter_(layouter), region_index_(region_index) {}
 
+    const Constants& constants() const { return constants_; }
+
     // zk::Region<F>::Layouter methods
     void EnableSelector(std::string_view name, const Selector& selector,
                         size_t offset) override {
@@ -72,7 +74,8 @@ class SingleChipLayouter : public Layouter<F> {
       Value<F> value = layouter_->assignment_->QueryInstance(instance, row);
 
       Cell cell = AssignAdvice(name, advice, offset, [&value]() {
-        return math::RationalField<F>(value);
+        return Value<math::RationalField<F>>::Known(
+            math::RationalField<F>(value.value()));
       });
 
       layouter_->assignment_->Copy(
@@ -93,7 +96,7 @@ class SingleChipLayouter : public Layouter<F> {
 
     void ConstrainConstant(const Cell& cell,
                            const math::RationalField<F>& constant) override {
-      constants_.emplace_back(constant, cell);
+      constants_.push_back({constant, cell});
     }
 
     void ConstrainEqual(const Cell& left, const Cell& right) override {
@@ -117,6 +120,10 @@ class SingleChipLayouter : public Layouter<F> {
   using AssignLookupTableCallback =
       typename Layouter<F>::AssignLookupTableCallback;
 
+  SingleChipLayouter(Assignment<F>* assignment,
+                     const std::vector<FixedColumnKey>& constants)
+      : assignment_(assignment), constants_(constants) {}
+
   const Assignment<F>* assignment() const { return assignment_; }
   const std::vector<FixedColumnKey>& constants() const { return constants_; }
   const std::vector<size_t>& regions() const { return regions_; }
@@ -138,7 +145,7 @@ class SingleChipLayouter : public Layouter<F> {
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 1st pass: " << name;
-      Region region(&shape);
+      zk::Region<F> region(&shape);
       assign.Run(region);
     }
     size_t row_count = shape.row_count();
@@ -151,7 +158,7 @@ class SingleChipLayouter : public Layouter<F> {
     // in use.
     size_t region_start = 0;
     for (auto it = shape.columns().begin(); it != shape.columns().end(); ++it) {
-      size_t column_start = columns_[it->first];
+      size_t column_start = columns_[*it];
       if (column_start != 0 && log_region_info) {
         VLOG(3) << "columns " << it->ToString()
                 << " reused between multi regions. start: " << column_start
@@ -176,27 +183,26 @@ class SingleChipLayouter : public Layouter<F> {
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 2nd pass: " << name;
-      assign.Run(region);
+      zk::Region<F> zk_region(&region);
+      assign.Run(zk_region);
     }
     assignment_->ExitRegion();
 
     // Assign constants. For the simple floor planner, we assign constants in
     // order in the first `constants` column.
     if (constants_.empty()) {
-      CHECK(region.constants.empty()) << "Not enough columns for constants";
+      CHECK(region.constants().empty()) << "Not enough columns for constants";
     } else {
       const FixedColumnKey& constants_column = constants_[0];
       size_t& next_constant_row = columns_[RegionColumn(constants_column)];
-      for (const Constant& constant : region.constants) {
+      for (const Constant& constant : region.constants()) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
+        std::string name =
+            absl::Substitute("Constant($0)", value.Evaluate().ToString());
         assignment_->AssignFixed(
-            [&value]() {
-              return absl::Substitute("Constant($0)",
-                                      value.Evaluate().ToString());
-            },
-            constants_column, next_constant_row,
-            [&value]() { return Value<F>::Known(value); });
+            name, constants_column, next_constant_row,
+            [&value]() { return Value<math::RationalField<F>>::Known(value); });
         assignment_->Copy(
             constants_column, next_constant_row, advice.column(),
             regions_[advice.region_index()] + advice.row_offset());
@@ -210,9 +216,12 @@ class SingleChipLayouter : public Layouter<F> {
     // Maintenance hazard: there is near-duplicate code in
     // |v1::AssignmentPass::AssignLookupTable|. Assign table cells.
     assignment_->EnterRegion(name);
-    SimpleLookupTableLayouter<F> lookup_table_layouter(&assignment_,
+    SimpleLookupTableLayouter<F> lookup_table_layouter(assignment_,
                                                        &lookup_table_columns_);
-    std::move(assign).Run(lookup_table_layouter);
+    {
+      LookupTable<F> table(&lookup_table_layouter);
+      std::move(assign).Run(table);
+    }
     const absl::flat_hash_map<LookupTableColumn,
                               typename SimpleLookupTableLayouter<F>::Value>&
         values = lookup_table_layouter.values();
@@ -223,12 +232,15 @@ class SingleChipLayouter : public Layouter<F> {
     std::optional<size_t> first_unused;
     std::vector<std::optional<size_t>> assigned_sizes = base::Map(
         values.begin(), values.end(),
-        [](const typename SimpleLookupTableLayouter<F>::Value& value) {
+        [](const std::pair<LookupTableColumn,
+                           typename SimpleLookupTableLayouter<F>::Value>&
+               entry) {
+          const auto& [column, value] = entry;
           if (std::all_of(value.assigned.begin(), value.assigned.end(),
                           base::identity())) {
             return std::optional<size_t>(value.assigned.size());
           } else {
-            return std::nullopt;
+            return std::optional<size_t>();
           }
         });
     for (const std::optional<size_t>& assigned_size : assigned_sizes) {
@@ -246,12 +258,13 @@ class SingleChipLayouter : public Layouter<F> {
         << "length is missing, maybe there are no table columns";
 
     // Record these columns so that we can prevent them from being used again.
-    for (const auto& [column, default_value] : values) {
+    for (const auto& [column, value] : values) {
       lookup_table_columns_.push_back(column);
-      // |it->second.default| must have value because we must have assigned
+      // |value.default_value| must have value because we must have assigned
       // at least one cell in each column, and in that case we checked
       // that all cells up to |first_unused| were assigned.
-      assignment_->FillFromRow(column, first_unused.value(), default_value);
+      assignment_->FillFromRow(column.column(), first_unused.value(),
+                               value.default_value.value().value());
     }
   }
 
@@ -278,10 +291,6 @@ class SingleChipLayouter : public Layouter<F> {
 
  private:
   friend class Region;
-
-  SingleChipLayouter(Assignment<F>* assignment,
-                     const std::vector<FixedColumnKey>& constants)
-      : assignment_(assignment), constants_(constants) {}
 
   // not owned
   Assignment<F>* const assignment_;

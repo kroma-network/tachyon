@@ -23,7 +23,6 @@ class RegionShape : public Region<F>::Layouter {
  public:
   using AssignCallback = typename Region<F>::Layouter::AssignCallback;
 
-  RegionShape() = default;
   explicit RegionShape(size_t region_index) : region_index_(region_index) {}
 
   size_t region_index() const { return region_index_; }
@@ -33,46 +32,44 @@ class RegionShape : public Region<F>::Layouter {
   // Region<F>::Layouter methods
   void EnableSelector(std::string_view, const Selector& selector,
                       size_t offset) override {
-    columns_.insert(RegionColumn(selector));
-    row_count_ = std::max(row_count_, offset + 1);
+    UpdateColumnsAndRowCount(selector, offset);
   }
 
   Cell AssignAdvice(std::string_view, const AdviceColumnKey& column,
-                    size_t offset, AssignCallback to) override {
-    columns_.insert(RegionColumn(column));
-    row_count_ = std::max(row_count_, offset + 1);
+                    size_t offset, AssignCallback) override {
+    UpdateColumnsAndRowCount(column, offset);
     return {region_index_, offset, column};
   }
 
-  Cell AssignAdviceFromConstant(std::string_view name,
-                                const AdviceColumnKey& column, size_t offset,
-                                math::RationalField<F> constant) override {
-    return AssignAdvice(name, column, offset,
-                        [constant = std::move(constant)]() {
-                          return Value<F>::Known(std::move(constant));
-                        });
+  Cell AssignAdviceFromConstant(
+      std::string_view name, const AdviceColumnKey& column, size_t offset,
+      const math::RationalField<F>& constant) override {
+    return AssignAdvice(name, column, offset, AssignCallback());
   }
 
   AssignedCell<F> AssignAdviceFromInstance(std::string_view,
-                                           const InstanceColumnKey& instance,
-                                           size_t row,
+                                           const InstanceColumnKey&, size_t,
                                            const AdviceColumnKey& advice,
                                            size_t offset) override {
-    columns_.insert(RegionColumn(advice));
-    row_count_ = std::max(row_count_, offset + 1);
+    UpdateColumnsAndRowCount(advice, offset);
     Cell cell(region_index_, offset, advice);
     return {std::move(cell), Value<F>::Unknown()};
   }
 
   Cell AssignFixed(std::string_view, const FixedColumnKey& column,
-                   size_t offset, AssignCallback to) override {
-    columns_.insert(RegionColumn(column));
-    row_count_ = std::max(row_count_, offset + 1);
+                   size_t offset, AssignCallback) override {
+    UpdateColumnsAndRowCount(column, offset);
     return {region_index_, offset, column};
   }
 
  private:
-  size_t region_index_ = 0;
+  template <typename T>
+  void UpdateColumnsAndRowCount(const T& arg, size_t offset) {
+    columns_.insert(RegionColumn(arg));
+    row_count_ = std::max(row_count_, offset + 1);
+  }
+
+  const size_t region_index_ = 0;
   absl::flat_hash_set<RegionColumn> columns_;
   size_t row_count_ = 0;
 };

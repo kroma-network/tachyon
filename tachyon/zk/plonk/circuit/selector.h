@@ -45,9 +45,6 @@ class TACHYON_EXPORT Selector {
   }
 
  private:
-  template <typename H>
-  friend H AbslHashValue(H h, const Selector& selector);
-
   Selector(size_t index, bool is_simple)
       : index_(index), is_simple_(is_simple) {}
 
@@ -57,7 +54,7 @@ class TACHYON_EXPORT Selector {
 
 template <typename H>
 H AbslHashValue(H h, const Selector& selector) {
-  return H::combine(std::move(h), selector.index_, selector.is_simple_);
+  return H::combine(std::move(h), selector.index(), selector.is_simple());
 }
 
 }  // namespace tachyon::zk

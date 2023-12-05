@@ -18,10 +18,10 @@ namespace tachyon::zk {
 class TACHYON_EXPORT SelectorDescription {
  public:
   SelectorDescription() = default;
-  SelectorDescription(size_t selector_index, std::vector<bool>&& activations,
-                      size_t max_degree)
+  SelectorDescription(size_t selector_index,
+                      const std::vector<bool>& activations, size_t max_degree)
       : selector_index_(selector_index),
-        activations_(std::move(activations)),
+        activations_(activations),
         max_degree_(max_degree) {}
 
   size_t selector_index() const { return selector_index_; }

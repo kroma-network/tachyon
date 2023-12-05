@@ -117,9 +117,7 @@ class ConstraintSystem {
 
   // Enable the ability to enforce equality over cells in this column
   void EnableEquality(const AnyColumnKey& column) {
-    // TODO(chokobole): should it be std::set<FixedColumnKey>?
-    constants_.push_back(column);
-    EnableEquality(column);
+    QueryAnyIndex(column, Rotation::Cur());
     permutation_.AddColumn(column);
   }
 
@@ -247,7 +245,7 @@ class ConstraintSystem {
   // panic if |constrain| returns an empty iterator.
   void CreateGate(std::string_view name, ConstrainCallback constrain) {
     VirtualCells cells(this);
-    std::vector<Constraint<F>> constraints = std::move(constraints).Run(cells);
+    std::vector<Constraint<F>> constraints = std::move(constrain).Run(cells);
     std::vector<Selector> queried_selectors =
         std::move(cells).queried_selectors();
     std::vector<VirtualCell> queried_cells = std::move(cells).queried_cells();
@@ -298,24 +296,24 @@ class ConstraintSystem {
     std::vector<FixedColumnKey> new_columns;
     typename SelectorCompressor<F>::Result result =
         SelectorCompressor<F>::Process(
-            std::move(selectors), degrees, ComputeDegree(),
-            [this, &new_columns]() {
+            selectors, degrees, ComputeDegree(), [this, &new_columns]() {
               FixedColumnKey column = CreateFixedColumn();
               new_columns.push_back(column);
               return ExpressionFactory<F>::Fixed(
                   FixedQuery(QueryFixedIndex(column, Rotation::Cur()),
-                             column.index(), Rotation::Cur()));
+                             Rotation::Cur(), FixedColumnKey(column.index())));
             });
 
     std::vector<FixedColumnKey> selector_map;
     selector_map.resize(result.assignments.size());
-    std::vector<Expression<F>*> selector_replacements =
-        base::CreateVector(result.assignments.size(), nullptr);
+    std::vector<Ref<const Expression<F>>> selector_replacements =
+        base::CreateVector(result.assignments.size(),
+                           Ref<const Expression<F>>());
     for (const SelectorAssignment<F>& assignment : result.assignments) {
       selector_replacements[assignment.selector_index()] =
-          assignment.expression();
+          Ref<const Expression<F>>(assignment.expression());
       selector_map[assignment.selector_index()] =
-          new_columns[assignment.combination_index]();
+          new_columns[assignment.combination_index()];
     }
 
     selector_map_ = std::move(selector_map);
@@ -517,7 +515,7 @@ class ConstraintSystem {
   size_t ComputeGateRequiredDegree() const {
     std::vector<size_t> required_degrees =
         base::FlatMap(gates_, [](const Gate<F>& gate) {
-          return base::Map(gate.polys,
+          return base::Map(gate.polys(),
                            [](const std::unique_ptr<Expression<F>>& poly) {
                              return poly->Degree();
                            });

@@ -52,19 +52,21 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
       return false;
     }
 
+    Value& entry = values_[column];
+
     zk::Value<math::RationalField<F>> value =
         zk::Value<math::RationalField<F>>::Unknown();
     assignment_->AssignFixed(
-        name, column.column(), offset, [&value, assign = std::move(assign)]() {
+        name, column.column(), offset, [&value, &assign]() {
           zk::Value<math::RationalField<F>> ret = std::move(assign).Run();
           value = ret;
           return ret;
         });
 
     if (offset == 0) {
-      if (!value.default_value.has_value()) {
+      if (!entry.default_value.has_value()) {
         // Use the value at offset 0 as the default value for this table column.
-        value.default_value = value;
+        entry.default_value = value;
       } else {
         // Since there is already an existing default value for this table
         // column, the caller should not be attempting to assign another
@@ -73,10 +75,10 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
         return false;
       }
     }
-    if (value.assigned.size() <= offset) {
-      value.assigned.resize(offset + 1, false);
+    if (entry.assigned.size() <= offset) {
+      entry.assigned.resize(offset + 1, false);
     }
-    value.assigned[offset] = true;
+    entry.assigned[offset] = true;
     return true;
   }
 

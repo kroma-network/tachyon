@@ -7,6 +7,10 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_LOOKUP_TABLE_COLUMN_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_LOOKUP_TABLE_COLUMN_H_
 
+#include <utility>
+
+#include "absl/hash/hash.h"
+
 #include "tachyon/export.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
 
@@ -45,6 +49,11 @@ class TACHYON_EXPORT LookupTableColumn {
  private:
   FixedColumnKey column_;
 };
+
+template <typename H>
+H AbslHashValue(H h, const LookupTableColumn& column) {
+  return H::combine(std::move(h), column.column());
+}
 
 }  // namespace tachyon::zk
 
