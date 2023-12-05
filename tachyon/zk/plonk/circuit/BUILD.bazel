@@ -318,12 +318,16 @@ tachyon_cc_unittest(
     srcs = [
         "column_key_unittest.cc",
         "lookup_table_column_unittest.cc",
+        "phase_unittest.cc",
+        "region_column_unittest.cc",
         "rotation_unittest.cc",
+        "selector_unittest.cc",
         "table_unittest.cc",
     ],
     deps = [
         ":column_key",
         ":lookup_table_column",
+        ":region_column",
         ":rotation",
         ":table",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
