@@ -64,11 +64,11 @@ TEST_F(PermutationTableStoreTest, GetColumns) {
   };
 
   for (size_t i = 0; i < permutation_table_store.GetChunkNum(); ++i) {
-    std::vector<Ref<const Evals>> value_columns =
+    std::vector<base::Ref<const Evals>> value_columns =
         permutation_table_store.GetValueColumns(i);
-    std::vector<Ref<const Evals>> permuted_columns =
+    std::vector<base::Ref<const Evals>> permuted_columns =
         permutation_table_store.GetPermutedColumns(i);
-    std::vector<Ref<const Evals>> unpermuted_columns =
+    std::vector<base::Ref<const Evals>> unpermuted_columns =
         permutation_table_store.GetUnpermutedColumns(i);
 
     size_t start = permutation_table_store.GetChunkOffset(i);

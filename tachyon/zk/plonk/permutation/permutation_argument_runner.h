@@ -67,15 +67,15 @@ class PermutationArgumentRunner {
   template <typename F>
   static std::function<base::ParallelizeCallback3<F>(size_t)>
   CreateNumeratorCallback(
-      const std::vector<Ref<const Evals>>& unpermuted_columns,
-      const std::vector<Ref<const Evals>>& value_columns, const F& beta,
+      const std::vector<base::Ref<const Evals>>& unpermuted_columns,
+      const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
       const F& gamma);
 
   template <typename F>
   static std::function<base::ParallelizeCallback3<F>(size_t)>
   CreateDenominatorCallback(
-      const std::vector<Ref<const Evals>>& permuted_columns,
-      const std::vector<Ref<const Evals>>& value_columns, const F& beta,
+      const std::vector<base::Ref<const Evals>>& permuted_columns,
+      const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
       const F& gamma);
 };
 

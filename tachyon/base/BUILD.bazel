@@ -108,6 +108,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "ref",
+    hdrs = ["ref.h"],
+)
+
+tachyon_cc_library(
     name = "scoped_generic",
     hdrs = ["scoped_generic.h"],
     deps = [":logging"],
@@ -140,6 +145,7 @@ tachyon_cc_unittest(
         "parallelize_unittest.cc",
         "random_unittest.cc",
         "range_unittest.cc",
+        "ref_unittest.cc",
         "scoped_generic_unittest.cc",
     ],
     deps = [
@@ -151,6 +157,7 @@ tachyon_cc_unittest(
         ":parallelize",
         ":random",
         ":range",
+        ":ref",
         ":scoped_generic",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/containers:contains",

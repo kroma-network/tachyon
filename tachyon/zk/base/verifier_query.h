@@ -9,7 +9,7 @@
 
 #include <utility>
 
-#include "tachyon/zk/base/ref.h"
+#include "tachyon/base/ref.h"
 
 namespace tachyon::zk {
 
@@ -19,24 +19,25 @@ class VerifierQuery {
   using F = typename PCSTy::Field;
   using Commitment = typename PCSTy::Commitment;
 
-  VerifierQuery(const F& point, Ref<const Commitment> commitment,
+  VerifierQuery(const F& point, base::Ref<const Commitment> commitment,
                 const F& evaluated)
       : point_(point), commitment_(commitment), evaluated_(evaluated) {}
 
-  VerifierQuery(F&& point, Ref<const Commitment> commitment, F&& evaluated)
+  VerifierQuery(F&& point, base::Ref<const Commitment> commitment,
+                F&& evaluated)
       : point_(std::move(point)),
         commitment_(commitment),
         evaluated_(std::move(evaluated)) {}
 
   const F& GetPoint() const { return point_; }
 
-  Ref<const Commitment> GetCommitment() const { return commitment_; }
+  base::Ref<const Commitment> GetCommitment() const { return commitment_; }
 
   const F& GetEval() const { return evaluated_; }
 
  private:
   F point_;
-  Ref<const Commitment> commitment_;
+  base::Ref<const Commitment> commitment_;
   F evaluated_;
 };
 

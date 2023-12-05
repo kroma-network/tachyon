@@ -306,12 +306,12 @@ class ConstraintSystem {
 
     std::vector<FixedColumnKey> selector_map;
     selector_map.resize(result.assignments.size());
-    std::vector<Ref<const Expression<F>>> selector_replacements =
+    std::vector<base::Ref<const Expression<F>>> selector_replacements =
         base::CreateVector(result.assignments.size(),
-                           Ref<const Expression<F>>());
+                           base::Ref<const Expression<F>>());
     for (const SelectorAssignment<F>& assignment : result.assignments) {
       selector_replacements[assignment.selector_index()] =
-          Ref<const Expression<F>>(assignment.expression());
+          base::Ref<const Expression<F>>(assignment.expression());
       selector_map[assignment.selector_index()] =
           new_columns[assignment.combination_index()];
     }

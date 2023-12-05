@@ -121,7 +121,7 @@ tachyon_cc_library(
     deps = [
         ":label",
         "//tachyon/base:range",
-        "//tachyon/zk/base:ref",
+        "//tachyon/base:ref",
     ],
 )
 
@@ -148,8 +148,8 @@ tachyon_cc_library(
     deps = [
         ":label",
         "//tachyon/base:range",
+        "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base:ref",
         "@com_google_googletest//:gtest_prod",
     ],
 )

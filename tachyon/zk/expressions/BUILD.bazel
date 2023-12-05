@@ -44,7 +44,7 @@ tachyon_cc_library(
     hdrs = ["expression.h"],
     deps = [
         ":expression_type",
-        "//tachyon/zk/base:ref",
+        "//tachyon/base:ref",
         "//tachyon/zk/plonk/circuit:selector",
     ],
 )

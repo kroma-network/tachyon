@@ -11,7 +11,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "blinded_polynomial",
     hdrs = ["blinded_polynomial.h"],
-    deps = [":ref"],
+    deps = ["//tachyon/base:ref"],
 )
 
 tachyon_cc_library(
@@ -49,11 +49,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "ref",
-    hdrs = ["ref.h"],
-)
-
-tachyon_cc_library(
     name = "univarate_polynomial_commitment_scheme_extension",
     hdrs = ["univarate_polynomial_commitment_scheme_extension.h"],
     deps = [
@@ -71,19 +66,17 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "verifier_query",
     hdrs = ["verifier_query.h"],
-    deps = [":ref"],
+    deps = ["//tachyon/base:ref"],
 )
 
 tachyon_cc_unittest(
     name = "base_unittests",
     srcs = [
         "blinder_unittest.cc",
-        "ref_unittest.cc",
         "value_unittest.cc",
     ],
     deps = [
         ":blinder",
-        ":ref",
         ":value",
         "//tachyon/base:random",
         "//tachyon/base/containers:container_util",

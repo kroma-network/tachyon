@@ -1,8 +1,8 @@
-#include "tachyon/zk/base/ref.h"
+#include "tachyon/base/ref.h"
 
 #include "gtest/gtest.h"
 
-namespace tachyon::zk {
+namespace tachyon::base {
 
 TEST(RefTest, BoolCasting) {
   Ref<int> ref;
@@ -29,4 +29,4 @@ TEST(RefTest, ConstRef) {
   EXPECT_EQ(ref.get(), &value);
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::base

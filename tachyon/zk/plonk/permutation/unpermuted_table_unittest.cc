@@ -59,12 +59,12 @@ TEST_F(UnpermutedTableTest, GetColumns) {
     omega_power *= delta;
   }
 
-  Ref<const Evals> column = unpermuted_table_.GetColumn(1);
+  base::Ref<const Evals> column = unpermuted_table_.GetColumn(1);
   for (size_t i = 0; i < kMaxDegree + 1; ++i) {
     EXPECT_EQ(omega_powers[i], *(*column)[i]);
   }
 
-  std::vector<Ref<const Evals>> columns =
+  std::vector<base::Ref<const Evals>> columns =
       unpermuted_table_.GetColumns(base::Range<size_t>(2, 4));
   for (size_t i = 0; i < 2; ++i) {
     for (size_t j = 0; j < kMaxDegree + 1; ++j) {

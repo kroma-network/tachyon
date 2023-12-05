@@ -1,7 +1,7 @@
-#ifndef TACHYON_ZK_BASE_REF_H_
-#define TACHYON_ZK_BASE_REF_H_
+#ifndef TACHYON_BASE_REF_H_
+#define TACHYON_BASE_REF_H_
 
-namespace tachyon::zk {
+namespace tachyon::base {
 
 template <typename T>
 class Ref {
@@ -28,6 +28,6 @@ class Ref {
   T* ref_ = nullptr;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::base
 
-#endif  // TACHYON_ZK_BASE_REF_H_
+#endif  // TACHYON_BASE_REF_H_
