@@ -41,13 +41,10 @@ class Halo2ProverTest : public testing::Test {
     PCS pcs;
     ASSERT_TRUE(pcs.UnsafeSetup(kDomainSize));
 
-    std::unique_ptr<Domain> domain =
-        math::UnivariateEvaluationDomainFactory<F, kMaxDegree>::Create(
-            kDomainSize);
+    std::unique_ptr<Domain> domain = Domain::Create(kDomainSize);
 
     std::unique_ptr<ExtendedDomain> extended_domain =
-        math::UnivariateEvaluationDomainFactory<F, kMaxExtendedDegree>::Create(
-            kExtendedDomainSize);
+        ExtendedDomain::Create(kExtendedDomainSize);
 
     base::VectorBuffer write_buf;
     std::unique_ptr<TranscriptWriter<math::bn254::G1AffinePoint>> writer =
