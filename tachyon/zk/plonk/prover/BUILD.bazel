@@ -3,6 +3,17 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "argument",
+    hdrs = ["argument.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/plonk/circuit:table",
+    ],
+)
+
+tachyon_cc_library(
     name = "synthesizer",
     hdrs = ["synthesizer.h"],
     deps = [
@@ -28,12 +39,14 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "prover_unittests",
     srcs = [
+        "argument_unittest.cc",
         "synthesizer_unittest.cc",
         "witness_collection_unittest.cc",
     ],
     deps = [
+        ":argument",
         ":synthesizer",
-        ":witness_collection",
+        "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/halo2:halo2_prover_test",
         "//tachyon/zk/plonk/circuit/examples:simple_circuit",
         "//tachyon/zk/plonk/keys/halo2:pinned_verifying_key",
