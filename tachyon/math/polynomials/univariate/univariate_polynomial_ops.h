@@ -227,10 +227,11 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   static UnivariatePolynomial<D>& DivInPlace(UnivariatePolynomial<D>& self,
                                              const F& scalar) {
     std::vector<F>& coefficients = self.coefficients_.coefficients_;
+    F scalar_inv = scalar.Inverse();
     // clang-format off
     OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
       // clang-format on
-      coefficient /= scalar;
+      coefficient *= scalar_inv;
     }
     return self;
   }
@@ -450,8 +451,9 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   static UnivariatePolynomial<S>& DivInPlace(UnivariatePolynomial<S>& self,
                                              const F& scalar) {
     std::vector<Term>& terms = self.coefficients_.terms_;
+    F scalar_inv = scalar.Inverse();
     for (Term& term : terms) {
-      term.coefficient /= scalar;
+      term.coefficient *= scalar_inv;
     }
     return self;
   }
