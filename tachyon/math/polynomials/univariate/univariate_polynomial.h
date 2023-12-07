@@ -57,6 +57,18 @@ class UnivariatePolynomial final
     return UnivariatePolynomial(Coefficients::Random(degree));
   }
 
+  // Return a vanishing polynomial according to the given |roots|.
+  template <typename ContainerTy>
+  constexpr static UnivariatePolynomial FromRoots(const ContainerTy& roots) {
+    using DenseCoeffs = UnivariateDenseCoefficients<Field, kMaxDegree>;
+    if constexpr (std::is_same_v<Coefficients, DenseCoeffs>) {
+      return UnivariatePolynomial(Coefficients::FromRoots(roots));
+    } else {
+      using DensePoly = UnivariatePolynomial<DenseCoeffs>;
+      return DensePoly(DenseCoeffs::FromRoots(roots)).ToSparse();
+    }
+  }
+
   constexpr bool IsZero() const { return coefficients_.IsZero(); }
 
   constexpr bool IsOne() const { return coefficients_.IsOne(); }

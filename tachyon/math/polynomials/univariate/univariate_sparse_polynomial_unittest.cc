@@ -334,6 +334,13 @@ TEST_F(UnivariateSparsePolynomialTest, DivScalar) {
   EXPECT_EQ(poly, expected);
 }
 
+TEST_F(UnivariateSparsePolynomialTest, FromRoots) {
+  // poly = x⁴ + 2x² + 4 = (x - 1)(x - 2)(x + 1)(x + 2)
+  Poly poly = Poly(Coeffs({{0, GF7(4)}, {2, GF7(2)}, {4, GF7(1)}}));
+  std::vector<GF7> roots = {GF7(1), GF7(2), GF7(6), GF7(5)};
+  EXPECT_EQ(Poly::FromRoots(roots), poly);
+}
+
 TEST_F(UnivariateSparsePolynomialTest, Copyable) {
   Poly expected(Coeffs({{0, GF7(3)}, {1, GF7(1)}}));
   Poly value;

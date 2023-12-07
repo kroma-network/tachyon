@@ -311,6 +311,13 @@ TEST_F(UnivariateDensePolynomialTest, DivScalar) {
   EXPECT_EQ(poly, expected);
 }
 
+TEST_F(UnivariateDensePolynomialTest, FromRoots) {
+  // poly = x⁴ + 2x² + 4 = (x - 1)(x - 2)(x + 1)(x + 2)
+  Poly poly = Poly(Coeffs({GF7(4), GF7::Zero(), GF7(2), GF7::Zero(), GF7(1)}));
+  std::vector<GF7> roots = {GF7(1), GF7(2), GF7(6), GF7(5)};
+  EXPECT_EQ(Poly::FromRoots(roots), poly);
+}
+
 TEST_F(UnivariateDensePolynomialTest, Copyable) {
   Poly expected(Coeffs({GF7(1), GF7(4), GF7(3), GF7(5)}));
   Poly value;
