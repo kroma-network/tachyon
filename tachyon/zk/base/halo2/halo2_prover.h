@@ -27,7 +27,7 @@ class Halo2Prover : public Prover<PCSTy> {
   static Halo2Prover CreateFromRandomSeed(
       PCSTy&& pcs, std::unique_ptr<Domain> domain,
       std::unique_ptr<ExtendedDomain> extended_domain,
-      std::unique_ptr<TranscriptWriter<Commitment>> writer,
+      std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       size_t blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromRandomSeed());
@@ -39,8 +39,8 @@ class Halo2Prover : public Prover<PCSTy> {
   static Halo2Prover CreateFromSeed(
       PCSTy&& pcs, std::unique_ptr<Domain> domain,
       std::unique_ptr<ExtendedDomain> extended_domain,
-      std::unique_ptr<TranscriptWriter<Commitment>> writer, uint8_t seed[16],
-      size_t blinding_factors) {
+      std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+      uint8_t seed[16], size_t blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromSeed(seed));
     return CreateFromRNG(std::move(pcs), std::move(domain),
@@ -51,7 +51,7 @@ class Halo2Prover : public Prover<PCSTy> {
   static Halo2Prover CreateFromRNG(
       PCSTy&& pcs, std::unique_ptr<Domain> domain,
       std::unique_ptr<ExtendedDomain> extended_domain,
-      std::unique_ptr<TranscriptWriter<Commitment>> writer,
+      std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       std::unique_ptr<crypto::XORShiftRNG> rng, size_t blinding_factors) {
     auto generator = std::make_unique<Halo2RandomFieldGenerator<F>>(rng.get());
     Blinder<PCSTy> blinder(generator.get(), blinding_factors);
@@ -66,7 +66,7 @@ class Halo2Prover : public Prover<PCSTy> {
  private:
   Halo2Prover(PCSTy&& pcs, std::unique_ptr<Domain> domain,
               std::unique_ptr<ExtendedDomain> extended_domain,
-              std::unique_ptr<TranscriptWriter<Commitment>> writer,
+              std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
               Blinder<PCSTy>&& blinder,
               std::unique_ptr<crypto::XORShiftRNG> rng,
               std::unique_ptr<Halo2RandomFieldGenerator<F>> generator)

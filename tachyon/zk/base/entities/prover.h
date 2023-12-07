@@ -29,7 +29,7 @@ class Prover : public Entity<PCSTy> {
 
   Prover(PCSTy&& pcs, std::unique_ptr<Domain> domain,
          std::unique_ptr<ExtendedDomain> extended_domain,
-         std::unique_ptr<TranscriptWriter<Commitment>> writer,
+         std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
          Blinder<PCSTy>&& blinder)
       : Entity<PCSTy>(std::move(pcs), std::move(domain),
                       std::move(extended_domain), std::move(writer)),
@@ -40,8 +40,9 @@ class Prover : public Entity<PCSTy> {
 
   Blinder<PCSTy>& blinder() { return blinder_; }
 
-  TranscriptWriter<Commitment>* GetWriter() {
-    return static_cast<TranscriptWriter<Commitment>*>(this->transcript());
+  crypto::TranscriptWriter<Commitment>* GetWriter() {
+    return static_cast<crypto::TranscriptWriter<Commitment>*>(
+        this->transcript());
   }
 
   size_t GetUsableRows() const {

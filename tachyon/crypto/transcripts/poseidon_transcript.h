@@ -4,17 +4,17 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_TRANSCRIPTS_POSEIDON_TRANSCRIPT_H_
-#define TACHYON_ZK_BASE_TRANSCRIPTS_POSEIDON_TRANSCRIPT_H_
+#ifndef TACHYON_CRYPTO_TRANSCRIPTS_POSEIDON_TRANSCRIPT_H_
+#define TACHYON_CRYPTO_TRANSCRIPTS_POSEIDON_TRANSCRIPT_H_
 
 #include <array>
 #include <utility>
 
 #include "tachyon/crypto/hashes/sponge/poseidon/halo2_poseidon.h"
+#include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
-#include "tachyon/zk/base/transcripts/transcript.h"
 
-namespace tachyon::zk {
+namespace tachyon::crypto {
 
 template <typename Curve>
 class PoseidonReader : public TranscriptReader<math::AffinePoint<Curve>> {
@@ -82,6 +82,6 @@ class PoseidonWriter : public TranscriptWriter<math::AffinePoint<Curve>> {
   crypto::Halo2PoseidonSponge<ScalarField> state_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::crypto
 
-#endif  // TACHYON_ZK_BASE_TRANSCRIPTS_POSEIDON_TRANSCRIPT_H_
+#endif  // TACHYON_CRYPTO_TRANSCRIPTS_POSEIDON_TRANSCRIPT_H_

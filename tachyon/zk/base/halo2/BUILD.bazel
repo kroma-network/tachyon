@@ -17,12 +17,12 @@ tachyon_cc_library(
     hdrs = ["halo2_prover_test.h"],
     deps = [
         ":halo2_prover",
+        "//tachyon/crypto/transcripts:poseidon_transcript",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/zk/base:blinder",
         "//tachyon/zk/base/commitments:kzg_commitment_scheme_extension",
-        "//tachyon/zk/base/transcripts:poseidon_transcript",
         "@com_google_absl//absl/memory",
     ],
 )

@@ -4,15 +4,15 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_TRANSCRIPTS_TRANSCRIPT_H_
-#define TACHYON_ZK_BASE_TRANSCRIPTS_TRANSCRIPT_H_
+#ifndef TACHYON_CRYPTO_TRANSCRIPTS_TRANSCRIPT_H_
+#define TACHYON_CRYPTO_TRANSCRIPTS_TRANSCRIPT_H_
 
 #include <utility>
 
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/base/big_int.h"
 
-namespace tachyon::zk {
+namespace tachyon::crypto {
 
 // A 255-bit challenge.
 template <typename F>
@@ -114,6 +114,6 @@ class TranscriptWriter : public Transcript<AffinePointTy> {
   base::VectorBuffer buffer_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::crypto
 
-#endif  // TACHYON_ZK_BASE_TRANSCRIPTS_TRANSCRIPT_H_
+#endif  // TACHYON_CRYPTO_TRANSCRIPTS_TRANSCRIPT_H_
