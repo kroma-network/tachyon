@@ -44,6 +44,10 @@ class Transcript {
   // Squeeze an encoded verifier challenge from the transcript.
   virtual Challenge255<ScalarField> SqueezeChallenge() = 0;
 
+  ScalarField SqueezeChallengeAsScalar() {
+    return SqueezeChallenge().ChallengeAsScalar();
+  }
+
   // Write a curve |point| to the transcript without writing it to the proof,
   // treating it as a common input.
   virtual bool WriteToTranscript(const AffinePointTy& point) = 0;
