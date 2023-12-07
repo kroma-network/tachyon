@@ -110,6 +110,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "ref",
     hdrs = ["ref.h"],
+    deps = ["@com_google_absl//absl/hash"],
 )
 
 tachyon_cc_library(
@@ -162,5 +163,6 @@ tachyon_cc_unittest(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/containers:contains",
         "//tachyon/base/containers:cxx20_erase",
+        "@com_google_absl//absl/hash:hash_testing",
     ],
 )
