@@ -1,5 +1,6 @@
 #include "tachyon/base/containers/container_util.h"
 
+#include <memory>
 #include <vector>
 
 #include "gmock/gmock.h"
@@ -85,6 +86,52 @@ TEST(ContainerUtilTest, FindIndexIf) {
   EXPECT_EQ(index.value(), 0);
   index = base::FindIndexIf(arr, [](size_t v) { return v == 3; });
   EXPECT_FALSE(index.has_value());
+}
+
+TEST(ContainerUtilTest, DoFindIndices) {
+  std::vector<int> arr({1, 2, 3, 1, 2, 3});
+  std::vector<std::unique_ptr<std::input_iterator_tag>> tags;
+  tags.push_back(std::make_unique<std::forward_iterator_tag>());
+  tags.push_back(std::make_unique<std::random_access_iterator_tag>());
+  for (const std::unique_ptr<std::input_iterator_tag>& tag : tags) {
+    std::vector<size_t> indices =
+        base::internal::DoFindIndices(arr.begin(), arr.end(), 1, *tag);
+    EXPECT_EQ(indices, std::vector<size_t>({0, 3}));
+    indices = base::internal::DoFindIndices(arr.begin(), arr.end(), 4, *tag);
+    EXPECT_TRUE(indices.empty());
+  }
+}
+
+TEST(ContainerUtilTest, FindIndices) {
+  std::vector<int> arr({1, 2, 3, 1, 2, 3});
+  std::vector<size_t> indices = base::FindIndices(arr, 1);
+  EXPECT_EQ(indices, std::vector<size_t>({0, 3}));
+  indices = base::FindIndices(arr, 4);
+  EXPECT_TRUE(indices.empty());
+}
+
+TEST(ContainerUtilTest, DoFindIndicesIf) {
+  std::vector<int> arr({1, 2, 3, 1, 2, 3});
+  std::vector<std::unique_ptr<std::input_iterator_tag>> tags;
+  tags.push_back(std::make_unique<std::forward_iterator_tag>());
+  tags.push_back(std::make_unique<std::random_access_iterator_tag>());
+  for (const std::unique_ptr<std::input_iterator_tag>& tag : tags) {
+    std::vector<size_t> indices = base::internal::DoFindIndicesIf(
+        arr.begin(), arr.end(), [](size_t v) { return v == 1; }, *tag);
+    EXPECT_EQ(indices, std::vector<size_t>({0, 3}));
+    indices = base::internal::DoFindIndicesIf(
+        arr.begin(), arr.end(), [](size_t v) { return v == 4; }, *tag);
+    EXPECT_TRUE(indices.empty());
+  }
+}
+
+TEST(ContainerUtilTest, FindIndicesIf) {
+  std::vector<int> arr({1, 2, 3, 1, 2, 3});
+  std::vector<size_t> indices =
+      base::FindIndicesIf(arr, [](size_t v) { return v == 1; });
+  EXPECT_EQ(indices, std::vector<size_t>({0, 3}));
+  indices = base::FindIndicesIf(arr, [](size_t v) { return v == 4; });
+  EXPECT_TRUE(indices.empty());
 }
 
 TEST(ContainerUtilTest, Shuffle) {
