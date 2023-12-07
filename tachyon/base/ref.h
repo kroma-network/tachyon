@@ -38,6 +38,34 @@ class Ref {
       return *ref_ != *other.ref_;
     }
   }
+  bool operator<(const Ref& other) const {
+    if constexpr (SHALLOW) {
+      return ref_ < other.ref_;
+    } else {
+      return *ref_ < *other.ref_;
+    }
+  }
+  bool operator<=(const Ref& other) const {
+    if constexpr (SHALLOW) {
+      return ref_ <= other.ref_;
+    } else {
+      return *ref_ <= *other.ref_;
+    }
+  }
+  bool operator>(const Ref& other) const {
+    if constexpr (SHALLOW) {
+      return ref_ > other.ref_;
+    } else {
+      return *ref_ > *other.ref_;
+    }
+  }
+  bool operator>=(const Ref& other) const {
+    if constexpr (SHALLOW) {
+      return ref_ >= other.ref_;
+    } else {
+      return *ref_ >= *other.ref_;
+    }
+  }
 
  private:
   // not owned
