@@ -42,7 +42,7 @@ class MultilinearDenseEvaluations {
   // NOTE(chokobole): The zero polynomial can be represented in two forms:
   // 1. An empty vector
   // 2. A vector filled with |F::Zero()| up to the |MaxDegree| + 1.
-  constexpr static MultilinearDenseEvaluations Zero(size_t degree) {
+  constexpr static MultilinearDenseEvaluations Zero() {
     return MultilinearDenseEvaluations();
   }
 
@@ -57,14 +57,14 @@ class MultilinearDenseEvaluations {
     return ret;
   }
 
-  constexpr static MultilinearDenseEvaluations One(size_t degree) {
+  constexpr static MultilinearDenseEvaluations One() {
     return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << degree, F::One()));
+        base::CreateVector(size_t{1} << MaxDegree, F::One()));
   }
 
-  constexpr static MultilinearDenseEvaluations Random(size_t degree) {
-    return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << degree, []() { return F::Random(); }));
+  constexpr static MultilinearDenseEvaluations Random() {
+    return MultilinearDenseEvaluations(base::CreateVector(
+        size_t{1} << MaxDegree, []() { return F::Random(); }));
   }
 
   constexpr const std::vector<F>& evaluations() const { return evaluations_; }

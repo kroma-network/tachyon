@@ -33,7 +33,7 @@ class MultilinearDenseEvaluationsTest : public testing::Test {
 
 TEST_F(MultilinearDenseEvaluationsTest, IsZero) {
   EXPECT_TRUE(Poly().IsZero());
-  EXPECT_TRUE(Poly::Zero(kMaxDegree).IsZero());
+  EXPECT_TRUE(Poly::Zero().IsZero());
   EXPECT_TRUE(Poly(Evals({GF7(0)})).IsZero());
   for (size_t i = 0; i < polys_.size(); ++i) {
     EXPECT_FALSE(Poly(polys_[i]).IsZero());
@@ -41,7 +41,7 @@ TEST_F(MultilinearDenseEvaluationsTest, IsZero) {
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, IsOne) {
-  EXPECT_TRUE(Poly::One(kMaxDegree).IsOne());
+  EXPECT_TRUE(Poly::One().IsOne());
   EXPECT_TRUE(Poly(Evals({GF7(1)})).IsOne());
   for (size_t i = 0; i < polys_.size(); ++i) {
     EXPECT_FALSE(polys_[i].IsOne());
@@ -50,9 +50,9 @@ TEST_F(MultilinearDenseEvaluationsTest, IsOne) {
 
 TEST_F(MultilinearDenseEvaluationsTest, Random) {
   bool success = false;
-  Poly r = Poly::Random(kMaxDegree);
+  Poly r = Poly::Random();
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random(kMaxDegree)) {
+    if (r != Poly::Random()) {
       success = true;
       break;
     }
@@ -91,7 +91,7 @@ TEST_F(MultilinearDenseEvaluationsTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
-  EXPECT_LE(Poly::Random(kMaxDegree).Degree(), kMaxDegree);
+  EXPECT_LE(Poly::Random().Degree(), kMaxDegree);
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, Evaluate) {

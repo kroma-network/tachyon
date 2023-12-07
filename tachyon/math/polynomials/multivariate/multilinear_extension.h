@@ -35,16 +35,16 @@ class MultilinearExtension final
 
   constexpr static bool IsEvaluationForm() { return true; }
 
-  constexpr static MultilinearExtension Zero(size_t degree) {
-    return MultilinearExtension(Evaluations::Zero(degree));
+  constexpr static MultilinearExtension Zero() {
+    return MultilinearExtension(Evaluations::Zero());
   }
 
-  constexpr static MultilinearExtension One(size_t degree) {
-    return MultilinearExtension(Evaluations::One(degree));
+  constexpr static MultilinearExtension One() {
+    return MultilinearExtension(Evaluations::One());
   }
 
-  constexpr static MultilinearExtension Random(size_t degree) {
-    return MultilinearExtension(Evaluations::Random(degree));
+  constexpr static MultilinearExtension Random() {
+    return MultilinearExtension(Evaluations::Random());
   }
 
   constexpr bool IsZero() const { return evaluations_.IsZero(); }
