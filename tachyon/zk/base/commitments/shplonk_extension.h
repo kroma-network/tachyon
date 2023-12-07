@@ -4,12 +4,12 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_COMMITMENTS_KZG_COMMITMENT_SCHEME_EXTENSION_H_
-#define TACHYON_ZK_BASE_COMMITMENTS_KZG_COMMITMENT_SCHEME_EXTENSION_H_
+#ifndef TACHYON_ZK_BASE_COMMITMENTS_SHPLONK_EXTENSION_H_
+#define TACHYON_ZK_BASE_COMMITMENTS_SHPLONK_EXTENSION_H_
 
 #include <utility>
 
-#include "tachyon/crypto/commitments/kzg/kzg_commitment_scheme.h"
+#include "tachyon/crypto/commitments/kzg/shplonk.h"
 #include "tachyon/zk/base/commitments/univariate_polynomial_commitment_scheme_extension.h"
 
 namespace tachyon {
@@ -17,45 +17,49 @@ namespace zk {
 
 template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
           size_t MaxExtendedDegree, typename Commitment>
-class KZGCommitmentSchemeExtension
-    : public UnivariatePolynomialCommitmentSchemeExtension<
-          KZGCommitmentSchemeExtension<G1PointTy, G2PointTy, MaxDegree,
-                                       MaxExtendedDegree, Commitment>> {
+class SHPlonkExtension
+    : public UnivariatePolynomialCommitmentSchemeExtension<SHPlonkExtension<
+          G1PointTy, G2PointTy, MaxDegree, MaxExtendedDegree, Commitment>> {
  public:
   using Field = typename G1PointTy::ScalarField;
 
-  KZGCommitmentSchemeExtension() = default;
-  explicit KZGCommitmentSchemeExtension(
-      crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>&&
-          kzg)
-      : kzg_(std::move(kzg)) {}
+  SHPlonkExtension() = default;
+  explicit SHPlonkExtension(
+      crypto::SHPlonk<G1PointTy, G2PointTy, MaxDegree, Commitment>&& shplonk)
+      : shplonk_(std::move(shplonk)) {}
 
-  size_t N() const { return kzg_.N(); }
+  size_t N() const { return shplonk_.N(); }
 
   [[nodiscard]] bool DoUnsafeSetup(size_t size) {
-    return kzg_.DoUnsafeSetup(size);
+    return shplonk_.DoUnsafeSetup(size);
   }
 
   template <typename BaseContainerTy>
   [[nodiscard]] bool DoCommit(const BaseContainerTy& v, Commitment* out) const {
-    return kzg_.DoMSM(kzg_.g1_powers_of_tau_, v, out);
+    return shplonk_.DoCommit(v, out);
   }
 
   template <typename BaseContainerTy>
   [[nodiscard]] bool DoCommitLagrange(const BaseContainerTy& v,
                                       Commitment* out) const {
-    return kzg_.DoMSM(kzg_.g1_powers_of_tau_lagrange_, v, out);
+    return shplonk_.DoCommitLagrange(v, out);
+  }
+
+  template <typename ContainerTy>
+  [[nodiscard]] bool DoCreateMultiOpeningProof(
+      const ContainerTy& poly_openings,
+      crypto::SHPlonkProof<Commitment>* proof) const {
+    return shplonk_.DoCreateMultiOpeningProof(poly_openings, proof);
   }
 
  private:
-  crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment> kzg_;
+  crypto::SHPlonk<G1PointTy, G2PointTy, MaxDegree, Commitment> shplonk_;
 };
 
 template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
           size_t MaxExtendedDegree, typename Commitment>
-struct UnivariatePolynomialCommitmentSchemeExtensionTraits<
-    KZGCommitmentSchemeExtension<G1PointTy, G2PointTy, MaxDegree,
-                                 MaxExtendedDegree, Commitment>> {
+struct UnivariatePolynomialCommitmentSchemeExtensionTraits<SHPlonkExtension<
+    G1PointTy, G2PointTy, MaxDegree, MaxExtendedDegree, Commitment>> {
  public:
   constexpr static size_t kMaxExtendedDegree = MaxExtendedDegree;
   constexpr static size_t kMaxExtendedSize = kMaxExtendedDegree + 1;
@@ -67,7 +71,7 @@ namespace crypto {
 
 template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
           size_t MaxExtendedDegree, typename _Commitment>
-struct VectorCommitmentSchemeTraits<zk::KZGCommitmentSchemeExtension<
+struct VectorCommitmentSchemeTraits<zk::SHPlonkExtension<
     G1PointTy, G2PointTy, MaxDegree, MaxExtendedDegree, _Commitment>> {
  public:
   using Field = typename G1PointTy::ScalarField;
@@ -80,4 +84,4 @@ struct VectorCommitmentSchemeTraits<zk::KZGCommitmentSchemeExtension<
 }  // namespace crypto
 }  // namespace tachyon
 
-#endif  // TACHYON_ZK_BASE_COMMITMENTS_KZG_COMMITMENT_SCHEME_EXTENSION_H_
+#endif  // TACHYON_ZK_BASE_COMMITMENTS_SHPLONK_EXTENSION_H_

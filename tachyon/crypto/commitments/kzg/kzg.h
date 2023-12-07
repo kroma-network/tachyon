@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_COMMITMENT_SCHEME_H_
-#define TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_COMMITMENT_SCHEME_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_H_
+#define TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_H_
 
 #include <algorithm>
 #include <memory>
@@ -13,45 +13,29 @@
 #include <vector>
 
 #include "tachyon/base/buffer/copyable.h"
-#include "tachyon/crypto/commitments/univariate_polynomial_commitment_scheme.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
-#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 
 namespace tachyon {
-namespace zk {
-
-template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
-          size_t MaxExtensionDegree,
-          typename _Commitment = typename math::Pippenger<G1PointTy>::Bucket>
-class KZGCommitmentSchemeExtension;
-
-}  // namespace zk
-
 namespace crypto {
 
-template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
+template <typename G1PointTy, size_t MaxDegree,
           typename Commitment = typename math::Pippenger<G1PointTy>::Bucket>
-class KZGCommitmentScheme
-    : public UnivariatePolynomialCommitmentScheme<
-          KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>> {
+class KZG {
  public:
-  using Base = UnivariatePolynomialCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
   using Field = typename G1PointTy::ScalarField;
 
   static constexpr size_t kMaxDegree = MaxDegree;
 
-  KZGCommitmentScheme() = default;
+  KZG() = default;
 
-  KZGCommitmentScheme(std::vector<G1PointTy> g1_powers_of_tau,
-                      std::vector<G1PointTy> g1_powers_of_tau_lagrange,
-                      G2PointTy tau_g2)
+  KZG(std::vector<G1PointTy>&& g1_powers_of_tau,
+      std::vector<G1PointTy>&& g1_powers_of_tau_lagrange)
       : g1_powers_of_tau_(std::move(g1_powers_of_tau)),
-        g1_powers_of_tau_lagrange_(std::move(g1_powers_of_tau_lagrange)),
-        tau_g2_(std::move(tau_g2)) {
+        g1_powers_of_tau_lagrange_(std::move(g1_powers_of_tau_lagrange)) {
     CHECK_EQ(g1_powers_of_tau_.size(), g1_powers_of_tau_lagrange_.size());
-    CHECK_LE(g1_powers_of_tau_.size(), Base::kMaxSize);
+    CHECK_LE(g1_powers_of_tau_.size(), kMaxDegree + 1);
   }
 
   const std::vector<G1PointTy>& g1_powers_of_tau() const {
@@ -62,10 +46,11 @@ class KZGCommitmentScheme
     return g1_powers_of_tau_lagrange_;
   }
 
-  const G2PointTy& tau_g2() const { return tau_g2_; }
-
-  // VectorCommitmentScheme methods
   size_t N() const { return g1_powers_of_tau_.size(); }
+
+  [[nodiscard]] bool UnsafeSetup(size_t size) {
+    return UnsafeSetupWithTau(size, Field::Random());
+  }
 
   [[nodiscard]] bool UnsafeSetupWithTau(size_t size, const Field& tau) {
     using G1JacobianPointTy = typename G1PointTy::JacobianPointTy;
@@ -99,15 +84,8 @@ class KZGCommitmentScheme
     }
 
     g1_powers_of_tau_lagrange_.resize(size);
-    if (!math::ConvertPoints(g1_powers_of_tau_lagrange_jacobian,
-                             &g1_powers_of_tau_lagrange_)) {
-      return false;
-    }
-
-    // |tau_g2_| = 𝜏 * g₂
-    tau_g2_ = (G2PointTy::Generator() * tau).ToAffine();
-
-    return true;
+    return math::ConvertPoints(g1_powers_of_tau_lagrange_jacobian,
+                               &g1_powers_of_tau_lagrange_);
   }
 
   // Return false if |n| >= |N()|.
@@ -118,29 +96,18 @@ class KZGCommitmentScheme
     return true;
   }
 
- private:
-  friend class VectorCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
-  friend class UnivariatePolynomialCommitmentScheme<
-      KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
-  template <typename, typename, size_t, size_t, typename>
-  friend class zk::KZGCommitmentSchemeExtension;
-
-  [[nodiscard]] bool DoUnsafeSetup(size_t size) {
-    return UnsafeSetupWithTau(size, Field::Random());
-  }
-
   template <typename BaseContainerTy>
-  [[nodiscard]] bool DoCommit(const BaseContainerTy& v, Commitment* out) const {
+  [[nodiscard]] bool Commit(const BaseContainerTy& v, Commitment* out) const {
     return DoMSM(g1_powers_of_tau_, v, out);
   }
 
   template <typename BaseContainerTy>
-  [[nodiscard]] bool DoCommitLagrange(const BaseContainerTy& v,
-                                      Commitment* out) const {
+  [[nodiscard]] bool CommitLagrange(const BaseContainerTy& v,
+                                    Commitment* out) const {
     return DoMSM(g1_powers_of_tau_lagrange_, v, out);
   }
 
+ private:
   template <typename BaseContainerTy, typename ScalarContainerTy>
   static bool DoMSM(const BaseContainerTy& bases,
                     const ScalarContainerTy& scalars, Commitment* out) {
@@ -161,60 +128,41 @@ class KZGCommitmentScheme
 
   std::vector<G1PointTy> g1_powers_of_tau_;
   std::vector<G1PointTy> g1_powers_of_tau_lagrange_;
-  G2PointTy tau_g2_;
-};
-
-template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
-          typename _Commitment>
-struct VectorCommitmentSchemeTraits<
-    KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, _Commitment>> {
- public:
-  using Field = typename G1PointTy::ScalarField;
-  using Commitment = _Commitment;
-
-  constexpr static size_t kMaxSize = MaxDegree + 1;
-  constexpr static bool kIsTransparent = false;
 };
 
 }  // namespace crypto
 
 namespace base {
 
-template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
-          typename Commitment>
-class Copyable<
-    crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>> {
+template <typename G1PointTy, size_t MaxDegree, typename Commitment>
+class Copyable<crypto::KZG<G1PointTy, MaxDegree, Commitment>> {
  public:
-  using PCS =
-      crypto::KZGCommitmentScheme<G1PointTy, G2PointTy, MaxDegree, Commitment>;
+  using PCS = crypto::KZG<G1PointTy, MaxDegree, Commitment>;
 
   static bool WriteTo(const PCS& pcs, Buffer* buffer) {
     return buffer->WriteMany(pcs.g1_powers_of_tau(),
-                             pcs.g1_powers_of_tau_lagrange(), pcs.tau_g2());
+                             pcs.g1_powers_of_tau_lagrange());
   }
 
   static bool ReadFrom(const Buffer& buffer, PCS* pcs) {
     std::vector<G1PointTy> g1_powers_of_tau;
     std::vector<G1PointTy> g1_powers_of_tau_lagrange;
-    G2PointTy tau_g2;
-    if (!buffer.ReadMany(&g1_powers_of_tau, &g1_powers_of_tau_lagrange,
-                         &tau_g2)) {
+    if (!buffer.ReadMany(&g1_powers_of_tau, &g1_powers_of_tau_lagrange)) {
       return false;
     }
 
-    *pcs = PCS(std::move(g1_powers_of_tau),
-               std::move(g1_powers_of_tau_lagrange), std::move(tau_g2));
+    *pcs =
+        PCS(std::move(g1_powers_of_tau), std::move(g1_powers_of_tau_lagrange));
     return true;
   }
 
   static size_t EstimateSize(const PCS& pcs) {
     return base::EstimateSize(pcs.g1_powers_of_tau()) +
-           base::EstimateSize(pcs.g1_powers_of_tau_lagrange()) +
-           base::EstimateSize(pcs.tau_g2());
+           base::EstimateSize(pcs.g1_powers_of_tau_lagrange());
   }
 };
 
 }  // namespace base
 }  // namespace tachyon
 
-#endif  // TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_COMMITMENT_SCHEME_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_H_

@@ -11,7 +11,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
-#include "tachyon/zk/base/commitments/kzg_commitment_scheme_extension.h"
+#include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/base/halo2/halo2_prover.h"
 
 namespace tachyon::zk {
@@ -25,9 +25,9 @@ class Halo2ProverTest : public testing::Test {
   constexpr static size_t kBlindingFactors = 5;
   constexpr static size_t kUsableRows = kDomainSize - (kBlindingFactors + 1);
 
-  using PCS = KZGCommitmentSchemeExtension<
-      math::bn254::G1AffinePoint, math::bn254::G2AffinePoint, kMaxDegree,
-      kMaxExtendedDegree, math::bn254::G1AffinePoint>;
+  using PCS = SHPlonkExtension<math::bn254::G1AffinePoint,
+                               math::bn254::G2AffinePoint, kMaxDegree,
+                               kMaxExtendedDegree, math::bn254::G1AffinePoint>;
   using F = PCS::Field;
   using Commitment = PCS::Commitment;
   using Poly = PCS::Poly;
