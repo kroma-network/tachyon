@@ -60,6 +60,22 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
 
 template <typename Poly, typename Evals>
 template <typename PCSTy, typename F>
+std::vector<LookupPermuted<Poly, Evals>>
+LookupArgumentRunner<Poly, Evals>::BatchPermuteArgument(
+    Prover<PCSTy>* prover, const std::vector<LookupArgument<F>>& arguments,
+    const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl) {
+  std::vector<LookupPermuted<Poly, Evals>> ret;
+  ret.reserve(arguments.size());
+  for (const LookupArgument<F>& arg : arguments) {
+    LookupPermuted<Poly, Evals> permuted =
+        PermuteArgument(prover, arg, theta, evaluator_tpl);
+    ret.push_back(std::move(permuted));
+  }
+  return ret;
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename F>
 LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
     Prover<PCSTy>* prover, LookupPermuted<Poly, Evals>&& permuted,
     const F& beta, const F& gamma) {
@@ -70,6 +86,22 @@ LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
   return LookupCommitted<Poly>(std::move(permuted).permuted_input_poly(),
                                std::move(permuted).permuted_table_poly(),
                                std::move(grand_product_poly));
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename F>
+std::vector<LookupCommitted<Poly>>
+LookupArgumentRunner<Poly, Evals>::BatchCommitPermuted(
+    Prover<PCSTy>* prover, std::vector<LookupPermuted<Poly, Evals>>&& permuteds,
+    const F& beta, const F& gamma) {
+  std::vector<LookupCommitted<Poly>> ret;
+  ret.reserve(permuteds.size());
+  for (LookupPermuted<Poly, Evals>& permuted : permuteds) {
+    LookupCommitted<Poly> committed =
+        CommitPermuted(prover, std::move(permuted), beta, gamma);
+    ret.push_back(std::move(committed));
+  }
+  return ret;
 }
 
 template <typename Poly, typename Evals>
@@ -100,6 +132,22 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
 
 template <typename Poly, typename Evals>
 template <typename PCSTy, typename F>
+std::vector<LookupEvaluated<Poly>>
+LookupArgumentRunner<Poly, Evals>::BatchEvaluateCommitted(
+    Prover<PCSTy>* prover, std::vector<LookupCommitted<Poly>>&& committeds,
+    const F& x) {
+  std::vector<LookupEvaluated<Poly>> ret;
+  ret.reserve(committeds.size());
+  for (LookupCommitted<Poly>& committed : committeds) {
+    LookupEvaluated<Poly> evaluated =
+        EvaluateCommitted(prover, std::move(committed), x);
+    ret.push_back(std::move(evaluated));
+  }
+  return ret;
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename F>
 std::vector<ProverQuery<PCSTy>>
 LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
     const Prover<PCSTy>* prover, const LookupEvaluated<Poly>& evaluated,
@@ -114,6 +162,22 @@ LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
       ProverQuery<PCSTy>(std::move(x_inv),
                          evaluated.permuted_input_poly().ToRef()),
       ProverQuery<PCSTy>(std::move(x_next), evaluated.product_poly().ToRef())};
+}
+
+template <typename Poly, typename Evals>
+template <typename PCSTy, typename F>
+std::vector<ProverQuery<PCSTy>>
+LookupArgumentRunner<Poly, Evals>::BatchOpenEvaluated(
+    const Prover<PCSTy>* prover,
+    const std::vector<LookupEvaluated<Poly>>& evaluateds, const F& x) {
+  std::vector<ProverQuery<PCSTy>> ret;
+  ret.reserve(evaluateds.size() * 5);
+  for (const LookupEvaluated<Poly>& evaluated : evaluateds) {
+    std::vector<ProverQuery<PCSTy>> queries =
+        OpenEvaluated(prover, evaluated, x);
+    std::move(queries.begin(), queries.end(), std::back_inserter(ret));
+  }
+  return ret;
 }
 
 template <typename Poly, typename Evals>

@@ -32,18 +32,39 @@ class LookupArgumentRunner {
       const SimpleEvaluator<Evals>& evaluator_tpl);
 
   template <typename PCSTy, typename F>
+  static std::vector<LookupPermuted<Poly, Evals>> BatchPermuteArgument(
+      Prover<PCSTy>* prover, const std::vector<LookupArgument<F>>& arguments,
+      const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl);
+
+  template <typename PCSTy, typename F>
   static LookupCommitted<Poly> CommitPermuted(
       Prover<PCSTy>* prover, LookupPermuted<Poly, Evals>&& permuted,
       const F& beta, const F& gamma);
+
+  template <typename PCSTy, typename F>
+  static std::vector<LookupCommitted<Poly>> BatchCommitPermuted(
+      Prover<PCSTy>* prover,
+      std::vector<LookupPermuted<Poly, Evals>>&& permuteds, const F& beta,
+      const F& gamma);
 
   template <typename PCSTy, typename F>
   static LookupEvaluated<Poly> EvaluateCommitted(
       Prover<PCSTy>* prover, LookupCommitted<Poly>&& committed, const F& x);
 
   template <typename PCSTy, typename F>
+  static std::vector<LookupEvaluated<Poly>> BatchEvaluateCommitted(
+      Prover<PCSTy>* prover, std::vector<LookupCommitted<Poly>>&& committeds,
+      const F& x);
+
+  template <typename PCSTy, typename F>
   static std::vector<ProverQuery<PCSTy>> OpenEvaluated(
       const Prover<PCSTy>* prover, const LookupEvaluated<Poly>& evaluated,
       const F& x);
+
+  template <typename PCSTy, typename F>
+  static std::vector<ProverQuery<PCSTy>> BatchOpenEvaluated(
+      const Prover<PCSTy>* prover,
+      const std::vector<LookupEvaluated<Poly>>& evaluateds, const F& x);
 
  private:
   FRIEND_TEST(LookupArgumentRunnerTest, ComputePermutationProduct);
