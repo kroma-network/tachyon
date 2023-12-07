@@ -66,6 +66,29 @@ TEST_F(UnivariateSparsePolynomialTest, Random) {
   EXPECT_TRUE(success);
 }
 
+TEST_F(UnivariateSparsePolynomialTest, Linearize) {
+  std::vector<Poly> polys = {
+      Poly::Random(kMaxDegree),
+      Poly::Random(kMaxDegree),
+      Poly::Random(kMaxDegree),
+  };
+  GF7 y = GF7::Random();
+  Poly linearized = Poly::Linearize(polys, y);
+
+  GF7 x = GF7::Random();
+  GF7 expected = polys[0].Evaluate(x);
+  GF7 power = y;
+  for (size_t i = 1; i < polys.size(); ++i) {
+    expected += polys[i].Evaluate(x) * power;
+    power *= y;
+  }
+
+  EXPECT_EQ(expected, linearized.Evaluate(x));
+
+  Poly linearized2 = Poly::LinearizeInPlace(polys, y);
+  EXPECT_EQ(linearized, linearized2);
+}
+
 TEST_F(UnivariateSparsePolynomialTest, IndexingOperator) {
   struct {
     const Poly& poly;

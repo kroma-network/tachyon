@@ -69,6 +69,51 @@ class UnivariatePolynomial final
     }
   }
 
+  // NOTE(chokobole): For a performance reason, I would recommend the
+  // |LinearizeInPlace()| if possible.
+  template <typename ContainerTy>
+  constexpr static UnivariatePolynomial Linearize(const ContainerTy& polys,
+                                                  const Field& r) {
+    CHECK(!polys.empty());
+    UnivariatePolynomial ret = polys[polys.size() - 1];
+    if (polys.size() > 1) {
+      for (size_t i = polys.size() - 2; i != SIZE_MAX; --i) {
+        ret *= r;
+        ret += polys[i];
+      }
+    }
+    return ret;
+  }
+
+  // NOTE(chokobole): This gives more performant result than |Linearize()|.
+  //
+  // clang-format off
+  //
+  // In normal case, you can linearize polynomials as follows:
+  //
+  //   const std::vector<UnivariatePolynomial> polys = {...};
+  //   UnivariatePolynomial ret = UnivariatePolynomial::Linearize(polys, Field::Random());
+  //
+  // If you can do like below, you can save additional allocation cost.
+  //
+  //   // Note that |polys| are going to be changed.
+  //   std::vector<UnivariatePolynomial> polys = {...};
+  //   UnivariatePolynomial& ret = UnivariatePolynomial::LinearizeInPlace(polys, Field::Random());
+  //
+  // clang-format off
+  template <typename ContainerTy>
+  constexpr static UnivariatePolynomial& LinearizeInPlace(ContainerTy& polys, const Field& r) {
+    CHECK(!polys.empty());
+    UnivariatePolynomial& ret = polys[polys.size() - 1];
+    if (polys.size() > 1) {
+      for (size_t i = polys.size() - 2; i != SIZE_MAX; --i) {
+        ret *= r;
+        ret += polys[i];
+      }
+    }
+    return ret;
+  }
+
   constexpr bool IsZero() const { return coefficients_.IsZero(); }
 
   constexpr bool IsOne() const { return coefficients_.IsOne(); }
