@@ -149,6 +149,15 @@ class UnivariatePolynomial final
     return coefficients_.Evaluate(point);
   }
 
+  template <typename ContainerTy>
+  constexpr static Field EvaluateVanishingPolyByRoots(const ContainerTy& roots,
+                                                      const Field& point) {
+    return std::accumulate(roots.begin(), roots.end(), Field::One(),
+                           [point](Field& acc, const Field& root) {
+                             return acc *= (point - root);
+                           });
+  }
+
   auto ToSparse() const {
     return internal::UnivariatePolynomialOp<Coefficients>::ToSparse(*this);
   }

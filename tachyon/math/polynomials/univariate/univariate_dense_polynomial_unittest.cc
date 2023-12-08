@@ -342,6 +342,15 @@ TEST_F(UnivariateDensePolynomialTest, FromRoots) {
   EXPECT_EQ(Poly::FromRoots(roots), poly);
 }
 
+TEST_F(UnivariateDensePolynomialTest, EvaluateVanishingPolyByRoots) {
+  // poly = x⁴ + 2x² + 4 = (x - 1)(x - 2)(x + 1)(x + 2)
+  Poly poly = Poly(Coeffs({GF7(4), GF7::Zero(), GF7(2), GF7::Zero(), GF7(1)}));
+  std::vector<GF7> roots = {GF7(1), GF7(2), GF7(6), GF7(5)};
+  GF7 point = GF7::Random();
+  EXPECT_EQ(Poly::EvaluateVanishingPolyByRoots(roots, point),
+            poly.Evaluate(point));
+}
+
 TEST_F(UnivariateDensePolynomialTest, Copyable) {
   Poly expected(Coeffs({GF7(1), GF7(4), GF7(3), GF7(5)}));
   Poly value;
