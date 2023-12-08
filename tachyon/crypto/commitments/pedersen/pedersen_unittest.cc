@@ -1,4 +1,4 @@
-#include "tachyon/crypto/commitments/pedersen/pedersen_commitment_scheme.h"
+#include "tachyon/crypto/commitments/pedersen/pedersen.h"
 
 #include "gtest/gtest.h"
 
@@ -9,18 +9,18 @@ namespace tachyon::crypto {
 
 namespace {
 
-class PedersenCommitmentSchemeTest : public testing::Test {
+class PedersenTest : public testing::Test {
  public:
   constexpr static size_t kMaxSize = 3;
 
-  using VCS = PedersenCommitmentScheme<math::bn254::G1JacobianPoint, kMaxSize>;
+  using VCS = Pedersen<math::bn254::G1JacobianPoint, kMaxSize>;
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
 
 }  // namespace
 
-TEST_F(PedersenCommitmentSchemeTest, CommitPedersen) {
+TEST_F(PedersenTest, CommitPedersen) {
   VCS vcs;
   ASSERT_TRUE(vcs.Setup());
 
@@ -38,7 +38,7 @@ TEST_F(PedersenCommitmentSchemeTest, CommitPedersen) {
   EXPECT_EQ(commitment, msm_result + r * vcs.h());
 }
 
-TEST_F(PedersenCommitmentSchemeTest, Copyable) {
+TEST_F(PedersenTest, Copyable) {
   VCS expected;
   ASSERT_TRUE(expected.Setup());
 
