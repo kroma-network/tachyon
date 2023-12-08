@@ -7,12 +7,12 @@
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/crypto/transcripts/poseidon_transcript.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
-#include "tachyon/zk/base/commitments/kzg_commitment_scheme_extension.h"
+#include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/base/halo2/halo2_prover.h"
-#include "tachyon/zk/base/transcripts/poseidon_transcript.h"
 
 namespace tachyon::zk {
 
@@ -25,9 +25,9 @@ class Halo2ProverTest : public testing::Test {
   constexpr static size_t kBlindingFactors = 5;
   constexpr static size_t kUsableRows = kDomainSize - (kBlindingFactors + 1);
 
-  using PCS = KZGCommitmentSchemeExtension<
-      math::bn254::G1AffinePoint, math::bn254::G2AffinePoint, kMaxDegree,
-      kMaxExtendedDegree, math::bn254::G1AffinePoint>;
+  using PCS = SHPlonkExtension<math::bn254::G1AffinePoint,
+                               math::bn254::G2AffinePoint, kMaxDegree,
+                               kMaxExtendedDegree, math::bn254::G1AffinePoint>;
   using F = PCS::Field;
   using Commitment = PCS::Commitment;
   using Poly = PCS::Poly;
@@ -41,18 +41,16 @@ class Halo2ProverTest : public testing::Test {
     PCS pcs;
     ASSERT_TRUE(pcs.UnsafeSetup(kDomainSize));
 
-    std::unique_ptr<Domain> domain =
-        math::UnivariateEvaluationDomainFactory<F, kMaxDegree>::Create(
-            kDomainSize);
+    std::unique_ptr<Domain> domain = Domain::Create(kDomainSize);
 
     std::unique_ptr<ExtendedDomain> extended_domain =
-        math::UnivariateEvaluationDomainFactory<F, kMaxExtendedDegree>::Create(
-            kExtendedDomainSize);
+        ExtendedDomain::Create(kExtendedDomainSize);
 
     base::VectorBuffer write_buf;
-    std::unique_ptr<TranscriptWriter<math::bn254::G1AffinePoint>> writer =
-        absl::WrapUnique(
-            new PoseidonWriter<math::bn254::G1Curve>(std::move(write_buf)));
+    std::unique_ptr<crypto::TranscriptWriter<math::bn254::G1AffinePoint>>
+        writer =
+            absl::WrapUnique(new crypto::PoseidonWriter<math::bn254::G1Curve>(
+                std::move(write_buf)));
 
     prover_ = std::make_unique<Halo2Prover<PCS>>(
         Halo2Prover<PCS>::CreateFromRandomSeed(

@@ -15,6 +15,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/hash/hash.h"
+
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
@@ -38,6 +40,7 @@ class UnivariateDenseCoefficients {
   constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
+  using Point = F;
 
   constexpr UnivariateDenseCoefficients() = default;
   constexpr explicit UnivariateDenseCoefficients(
@@ -72,6 +75,49 @@ class UnivariateDenseCoefficients {
   constexpr static UnivariateDenseCoefficients Random(size_t degree) {
     return UnivariateDenseCoefficients(
         base::CreateVector(degree + 1, []() { return F::Random(); }));
+  }
+
+  // Return dense coefficients according to the given |roots|.
+  // This is taken and modified from
+  // https://github.com/Plonky3/Plonky3/blob/b21d54f13fd7949a2661c9478b91c01bc3abccbe/field/src/helpers.rs#L81-L92.
+  template <typename ContainerTy>
+  constexpr static UnivariateDenseCoefficients FromRoots(
+      const ContainerTy& roots) {
+    // clang-format off
+    // For (X - x₀)(X - x₁)(X - x₂)(X - x₃), what this function does looks as follows:
+    //
+    //       |     c[0] |             c[1] |             c[2] |             c[3] |             c[4] |
+    // ------|----------|------------------|------------------|------------------| -----------------|
+    // init  |        1 |               0  |               0  |               0  |               0  |
+    // i = 0 |      -x₀ | c[0] - x₀ * c[1] | c[1] - x₀ * c[2] | c[2] - x₀ * c[3] | c[3] - x₀ * c[4] |
+    // i = 1 |     x₀x₁ | c[0] - x₁ * c[1] | c[1] - x₁ * c[2] | c[2] - x₁ * c[3] | c[3] - x₁ * c[4] |
+    // i = 2 |  -x₀x₁x₂ | c[0] - x₂ * c[1] | c[1] - x₂ * c[2] | c[2] - x₂ * c[3] | c[3] - x₂ * c[4] |
+    // i = 3 | x₀x₁x₂x₃ | c[0] - x₃ * c[1] | c[1] - x₃ * c[2] | c[2] - x₃ * c[3] | c[3] - x₃ * c[4] |
+
+    // Then the values are changed as follows:
+    //
+    //       |     c[0] |                                 c[1] |                                    c[2] |                 c[3] | c[4] |
+    // ------|----------|--------------------------------------|-----------------------------------------|----------------------|------|
+    // init  |        1 |                                    0 |                                       0 |                    0 |    0 |
+    // i = 0 |      -x₀ |                                    1 |                                       0 |                    0 |    0 |
+    // i = 1 |     x₀x₁ |                           -(x₀ + x₁) |                                       1 |                    0 |    0 |
+    // i = 2 |  -x₀x₁x₂ |                   x₀x₁ + x₀x₂ + x₁x₂ |                          -(x₀ + x₁ +x₂) |                    1 |    0 |
+    // i = 3 | x₀x₁x₂x₃ | -(x₀x₁x₂ + x₀x₁x₃ + x₀x₂x₃ + x₁x₂x₃) | x₀x₁ + x₀x₂ + x₀x₃ + x₁x₂ + x₁x₃ + x₂x₃ | -(x₀ + x₁ + x₂ + x₃) |    1 |
+    // clang-format on
+
+    std::vector<F> coefficients =
+        base::CreateVector(roots.size() + 1, F::Zero());
+    coefficients[0] = F::One();
+    for (size_t i = 0; i < roots.size(); ++i) {
+      for (size_t j = i + 1; j > 0; --j) {
+        coefficients[j] = coefficients[j - 1] - roots[i] * coefficients[j];
+      }
+      coefficients[0] *= -roots[i];
+    }
+
+    UnivariateDenseCoefficients ret;
+    ret.coefficients_ = std::move(coefficients);
+    return ret;
   }
 
   constexpr const std::vector<F>& coefficients() const { return coefficients_; }
@@ -114,7 +160,7 @@ class UnivariateDenseCoefficients {
 
   constexpr size_t NumElements() const { return coefficients_.size(); }
 
-  constexpr F Evaluate(const F& point) const {
+  constexpr F Evaluate(const Point& point) const {
     if (IsZero()) return F::Zero();
     if (point.IsZero()) return coefficients_[0];
     return DoEvaluate(point);
@@ -152,7 +198,7 @@ class UnivariateDenseCoefficients {
   friend class MixedRadixEvaluationDomain<F, MaxDegree>;
   friend class base::Copyable<UnivariateDenseCoefficients<F, MaxDegree>>;
 
-  constexpr F DoEvaluate(const F& point) const {
+  constexpr F DoEvaluate(const Point& point) const {
 #if defined(TACHYON_HAS_OPENMP)
     // Horner's method - parallel method
     // run Horner's method on each thread as follows:
@@ -177,7 +223,7 @@ class UnivariateDenseCoefficients {
   }
 
   constexpr static F HornerEvaluate(absl::Span<const F> coefficients,
-                                    const F& point) {
+                                    const Point& point) {
     return std::accumulate(coefficients.rbegin(), coefficients.rend(),
                            F::Zero(),
                            [&point](const F& result, const F& coeff) {
@@ -197,6 +243,23 @@ class UnivariateDenseCoefficients {
 
   std::vector<F> coefficients_;
 };
+
+template <typename H, typename F, size_t MaxDegree>
+H AbslHashValue(H h,
+                const UnivariateDenseCoefficients<F, MaxDegree>& coefficients) {
+  // NOTE(chokobole): We shouldn't hash only with a non-zero term.
+  // See https://abseil.io/docs/cpp/guides/hash#the-abslhashvalue-overload
+  size_t degree = 0;
+  for (const F& coefficient : coefficients.coefficients()) {
+    h = H::combine(std::move(h), coefficient);
+    ++degree;
+  }
+  F zero = F::Zero();
+  for (size_t i = degree; i < MaxDegree + 1; ++i) {
+    h = H::combine(std::move(h), zero);
+  }
+  return h;
+}
 
 }  // namespace math
 

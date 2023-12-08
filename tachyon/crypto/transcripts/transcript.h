@@ -4,15 +4,15 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_TRANSCRIPTS_TRANSCRIPT_H_
-#define TACHYON_ZK_BASE_TRANSCRIPTS_TRANSCRIPT_H_
+#ifndef TACHYON_CRYPTO_TRANSCRIPTS_TRANSCRIPT_H_
+#define TACHYON_CRYPTO_TRANSCRIPTS_TRANSCRIPT_H_
 
 #include <utility>
 
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/base/big_int.h"
 
-namespace tachyon::zk {
+namespace tachyon::crypto {
 
 // A 255-bit challenge.
 template <typename F>
@@ -33,6 +33,12 @@ class Challenge255 {
   math::BigInt<4> challenge_;
 };
 
+template <typename AffinePointTy>
+class TranscriptReader;
+
+template <typename AffinePointTy>
+class TranscriptWriter;
+
 // Generic transcript view (from either the prover or verifier's perspective)
 template <typename AffinePointTy>
 class Transcript {
@@ -44,6 +50,10 @@ class Transcript {
   // Squeeze an encoded verifier challenge from the transcript.
   virtual Challenge255<ScalarField> SqueezeChallenge() = 0;
 
+  ScalarField SqueezeChallengeAsScalar() {
+    return SqueezeChallenge().ChallengeAsScalar();
+  }
+
   // Write a curve |point| to the transcript without writing it to the proof,
   // treating it as a common input.
   virtual bool WriteToTranscript(const AffinePointTy& point) = 0;
@@ -51,6 +61,14 @@ class Transcript {
   // Write a curve |scalar| to the transcript without writing it to the proof,
   // treating it as a common input.
   virtual bool WriteToTranscript(const ScalarField& scalar) = 0;
+
+  TranscriptWriter<AffinePointTy>* ToWriter() {
+    return static_cast<TranscriptWriter<AffinePointTy>*>(this);
+  }
+
+  TranscriptReader<AffinePointTy>* ToReader() {
+    return static_cast<TranscriptReader<AffinePointTy>*>(this);
+  }
 };
 
 // Transcript view from the perspective of a verifier that has access to an
@@ -114,6 +132,6 @@ class TranscriptWriter : public Transcript<AffinePointTy> {
   base::VectorBuffer buffer_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::crypto
 
-#endif  // TACHYON_ZK_BASE_TRANSCRIPTS_TRANSCRIPT_H_
+#endif  // TACHYON_CRYPTO_TRANSCRIPTS_TRANSCRIPT_H_

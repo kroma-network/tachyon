@@ -115,6 +115,7 @@ tachyon_cc_library(
         "//tachyon/base:bits",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/math/base/gmp:gmp_util",
+        "@com_google_absl//absl/hash",
     ],
 )
 
@@ -205,6 +206,7 @@ tachyon_cc_unittest(
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/finite_fields/test:gf7_2",
         "//tachyon/math/finite_fields/test:gf7_3",
+        "@com_google_absl//absl/hash:hash_testing",
     ],
 )
 

@@ -104,8 +104,9 @@ class UnivariateEvaluationsOp {
 
   static Poly& DivInPlace(Poly& self, const F& scalar) {
     std::vector<F>& l_evaluations = self.evaluations_;
+    F scalar_inv = scalar.Inverse();
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
-      l_evaluations[i] /= scalar;
+      l_evaluations[i] *= scalar_inv;
     }
     return self;
   }

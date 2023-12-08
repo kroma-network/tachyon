@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/base/transcripts/sha256_transcript.h"
+#include "tachyon/crypto/transcripts/poseidon_transcript.h"
 
 #include <utility>
 #include <vector>
@@ -13,61 +13,61 @@
 
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
-namespace tachyon::zk {
+namespace tachyon::crypto {
 
 namespace {
 
-class Sha256TranscriptTest : public testing::Test {
+class PoseidonTranscriptTest : public testing::Test {
  public:
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
 
 }  // namespace
 
-TEST_F(Sha256TranscriptTest, WritePoint) {
+TEST_F(PoseidonTranscriptTest, WritePoint) {
   using Curve = math::bn254::G1Curve;
 
   base::VectorBuffer write_buf;
-  Sha256Writer<Curve> writer(std::move(write_buf));
+  PoseidonWriter<Curve> writer(std::move(write_buf));
   Curve::AffinePointTy expected = Curve::AffinePointTy::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  Sha256Reader<Curve> reader(std::move(read_buf));
+  PoseidonReader<Curve> reader(std::move(read_buf));
   Curve::AffinePointTy actual;
   ASSERT_TRUE(reader.ReadPoint(&actual));
 
   EXPECT_EQ(expected, actual);
 }
 
-TEST_F(Sha256TranscriptTest, WriteScalar) {
+TEST_F(PoseidonTranscriptTest, WriteScalar) {
   using Curve = math::bn254::G1Curve;
 
   base::VectorBuffer write_buf;
-  Sha256Writer<Curve> writer(std::move(write_buf));
+  PoseidonWriter<Curve> writer(std::move(write_buf));
   Curve::ScalarField expected = Curve::ScalarField::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  Sha256Reader<Curve> reader(std::move(read_buf));
+  PoseidonReader<Curve> reader(std::move(read_buf));
   Curve::ScalarField actual;
   ASSERT_TRUE(reader.ReadScalar(&actual));
 
   EXPECT_EQ(expected, actual);
 }
 
-TEST_F(Sha256TranscriptTest, SqueezeChallenge) {
+TEST_F(PoseidonTranscriptTest, SqueezeChallenge) {
   using Curve = math::bn254::G1Curve;
 
   base::VectorBuffer write_buf;
-  Sha256Writer<Curve> writer(std::move(write_buf));
+  PoseidonWriter<Curve> writer(std::move(write_buf));
   Curve::AffinePointTy generator = Curve::AffinePointTy::Generator();
   ASSERT_TRUE(writer.WriteToProof(generator));
 
-  std::vector<uint8_t> expected_bytes = {144, 70,  170, 43,  125, 191, 116, 100,
-                                         115, 242, 37,  247, 43,  227, 23,  192,
-                                         153, 176, 105, 131, 142, 165, 91,  3,
-                                         218, 85,  31,  89,  176, 94,  171, 5};
+  std::vector<uint8_t> expected_bytes = {25,  86,  205, 219, 59,  135, 187, 231,
+                                         192, 54,  23,  138, 114, 176, 9,   157,
+                                         1,   97,  110, 174, 67,  9,   89,  85,
+                                         126, 129, 216, 121, 53,  99,  227, 26};
   Curve::ScalarField expected = Curve::ScalarField::FromBigInt(
       math::BigInt<4>::FromBytesLE(expected_bytes));
 
@@ -76,4 +76,4 @@ TEST_F(Sha256TranscriptTest, SqueezeChallenge) {
   EXPECT_EQ(expected, actual);
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::crypto

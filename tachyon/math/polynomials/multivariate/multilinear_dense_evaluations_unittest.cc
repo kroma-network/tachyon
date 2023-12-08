@@ -1,5 +1,6 @@
 #include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/test/gf7.h"
@@ -10,6 +11,7 @@ namespace tachyon::math {
 namespace {
 const size_t kMaxDegree = 4;
 
+using Point = std::vector<GF7>;
 using Poly = MultilinearExtension<MultilinearDenseEvaluations<GF7, kMaxDegree>>;
 using Evals = MultilinearDenseEvaluations<GF7, kMaxDegree>;
 
@@ -32,7 +34,7 @@ class MultilinearDenseEvaluationsTest : public testing::Test {
 
 TEST_F(MultilinearDenseEvaluationsTest, IsZero) {
   EXPECT_TRUE(Poly().IsZero());
-  EXPECT_TRUE(Poly::Zero(kMaxDegree).IsZero());
+  EXPECT_TRUE(Poly::Zero().IsZero());
   EXPECT_TRUE(Poly(Evals({GF7(0)})).IsZero());
   for (size_t i = 0; i < polys_.size(); ++i) {
     EXPECT_FALSE(Poly(polys_[i]).IsZero());
@@ -40,7 +42,7 @@ TEST_F(MultilinearDenseEvaluationsTest, IsZero) {
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, IsOne) {
-  EXPECT_TRUE(Poly::One(kMaxDegree).IsOne());
+  EXPECT_TRUE(Poly::One().IsOne());
   EXPECT_TRUE(Poly(Evals({GF7(1)})).IsOne());
   for (size_t i = 0; i < polys_.size(); ++i) {
     EXPECT_FALSE(polys_[i].IsOne());
@@ -49,9 +51,9 @@ TEST_F(MultilinearDenseEvaluationsTest, IsOne) {
 
 TEST_F(MultilinearDenseEvaluationsTest, Random) {
   bool success = false;
-  Poly r = Poly::Random(kMaxDegree);
+  Poly r = Poly::Random();
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random(kMaxDegree)) {
+    if (r != Poly::Random()) {
       success = true;
       break;
     }
@@ -90,25 +92,25 @@ TEST_F(MultilinearDenseEvaluationsTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
-  EXPECT_LE(Poly::Random(kMaxDegree).Degree(), kMaxDegree);
+  EXPECT_LE(Poly::Random().Degree(), kMaxDegree);
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, Evaluate) {
-  std::function<std::vector<GF7>(size_t, size_t)> convert_to_le =
-      [](size_t number, size_t degree) {
-        std::vector<GF7> ret;
-        for (size_t i = 0; i < degree; ++i) {
-          ret.push_back(GF7(uint64_t{(number & (size_t{1} << i)) != 0}));
-        }
-        return ret;
-      };
+  std::function<Point(size_t, size_t)> convert_to_le = [](size_t number,
+                                                          size_t degree) {
+    Point ret;
+    for (size_t i = 0; i < degree; ++i) {
+      ret.push_back(GF7(uint64_t{(number & (size_t{1} << i)) != 0}));
+    }
+    return ret;
+  };
 
   for (const Poly& poly : polys_) {
     size_t degree = poly.Degree();
     for (size_t i = 0; i < (size_t{1} << degree); ++i) {
       const GF7* elem = poly[i];
       if (!elem) break;
-      std::vector<GF7> point = convert_to_le(i, degree);
+      Point point = convert_to_le(i, degree);
       EXPECT_EQ(poly.Evaluate(point), *elem);
     }
   }
@@ -204,6 +206,13 @@ TEST_F(MultilinearDenseEvaluationsTest, MultiplicativeOperators) {
     tmp /= test.b;
     EXPECT_EQ(tmp, test.a);
   }
+}
+
+TEST_F(MultilinearDenseEvaluationsTest, Hash) {
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(std::make_tuple(
+      Poly(), Poly::Zero(),
+      Poly(Evals(base::CreateVector(size_t{1} << kMaxDegree, GF7::Zero()))),
+      Poly::One(), Poly::Random(), Poly::Random())));
 }
 
 }  // namespace tachyon::math

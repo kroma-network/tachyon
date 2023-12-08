@@ -12,6 +12,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "absl/hash/hash.h"
+
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/polynomials/polynomial.h"
@@ -34,6 +36,7 @@ class UnivariatePolynomial final
   constexpr static size_t kMaxDegree = Coefficients::kMaxDegree;
 
   using Field = typename Coefficients::Field;
+  using Point = Field;
 
   constexpr UnivariatePolynomial() = default;
   constexpr explicit UnivariatePolynomial(const Coefficients& coefficients)
@@ -55,6 +58,63 @@ class UnivariatePolynomial final
 
   constexpr static UnivariatePolynomial Random(size_t degree) {
     return UnivariatePolynomial(Coefficients::Random(degree));
+  }
+
+  // Return a vanishing polynomial according to the given |roots|.
+  template <typename ContainerTy>
+  constexpr static UnivariatePolynomial FromRoots(const ContainerTy& roots) {
+    using DenseCoeffs = UnivariateDenseCoefficients<Field, kMaxDegree>;
+    if constexpr (std::is_same_v<Coefficients, DenseCoeffs>) {
+      return UnivariatePolynomial(Coefficients::FromRoots(roots));
+    } else {
+      using DensePoly = UnivariatePolynomial<DenseCoeffs>;
+      return DensePoly(DenseCoeffs::FromRoots(roots)).ToSparse();
+    }
+  }
+
+  // NOTE(chokobole): For a performance reason, I would recommend the
+  // |LinearizeInPlace()| if possible.
+  template <typename ContainerTy>
+  constexpr static UnivariatePolynomial Linearize(const ContainerTy& polys,
+                                                  const Field& r) {
+    CHECK(!polys.empty());
+    UnivariatePolynomial ret = polys[polys.size() - 1];
+    if (polys.size() > 1) {
+      for (size_t i = polys.size() - 2; i != SIZE_MAX; --i) {
+        ret *= r;
+        ret += polys[i];
+      }
+    }
+    return ret;
+  }
+
+  // NOTE(chokobole): This gives more performant result than |Linearize()|.
+  //
+  // clang-format off
+  //
+  // In normal case, you can linearize polynomials as follows:
+  //
+  //   const std::vector<UnivariatePolynomial> polys = {...};
+  //   UnivariatePolynomial ret = UnivariatePolynomial::Linearize(polys, Field::Random());
+  //
+  // If you can do like below, you can save additional allocation cost.
+  //
+  //   // Note that |polys| are going to be changed.
+  //   std::vector<UnivariatePolynomial> polys = {...};
+  //   UnivariatePolynomial& ret = UnivariatePolynomial::LinearizeInPlace(polys, Field::Random());
+  //
+  // clang-format off
+  template <typename ContainerTy>
+  constexpr static UnivariatePolynomial& LinearizeInPlace(ContainerTy& polys, const Field& r) {
+    CHECK(!polys.empty());
+    UnivariatePolynomial& ret = polys[polys.size() - 1];
+    if (polys.size() > 1) {
+      for (size_t i = polys.size() - 2; i != SIZE_MAX; --i) {
+        ret *= r;
+        ret += polys[i];
+      }
+    }
+    return ret;
   }
 
   constexpr bool IsZero() const { return coefficients_.IsZero(); }
@@ -85,8 +145,17 @@ class UnivariatePolynomial final
     return coefficients_.NumElements();
   }
 
-  constexpr Field Evaluate(const Field& point) const {
+  constexpr Field Evaluate(const Point& point) const {
     return coefficients_.Evaluate(point);
+  }
+
+  template <typename ContainerTy>
+  constexpr static Field EvaluateVanishingPolyByRoots(const ContainerTy& roots,
+                                                      const Field& point) {
+    return std::accumulate(roots.begin(), roots.end(), Field::One(),
+                           [point](Field& acc, const Field& root) {
+                             return acc *= (point - root);
+                           });
   }
 
   auto ToSparse() const {
@@ -225,6 +294,11 @@ class PolynomialTraits<UnivariatePolynomial<Coefficients>> {
  public:
   constexpr static bool kIsCoefficientForm = true;
 };
+
+template <typename H, typename Coefficients>
+H AbslHashValue(H h, const UnivariatePolynomial<Coefficients>& poly) {
+  return H::combine(std::move(h), poly.coefficients());
+}
 
 }  // namespace math
 

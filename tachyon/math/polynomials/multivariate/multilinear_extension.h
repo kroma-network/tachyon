@@ -10,6 +10,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/hash/hash.h"
+
 #include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 #include "tachyon/math/polynomials/polynomial.h"
 
@@ -23,6 +25,7 @@ class MultilinearExtension final
     : public Polynomial<MultilinearExtension<Evaluations>> {
  public:
   using Field = typename Evaluations::Field;
+  using Point = std::vector<Field>;
 
   constexpr MultilinearExtension() = default;
   constexpr explicit MultilinearExtension(const Evaluations& evaluations)
@@ -34,16 +37,16 @@ class MultilinearExtension final
 
   constexpr static bool IsEvaluationForm() { return true; }
 
-  constexpr static MultilinearExtension Zero(size_t degree) {
-    return MultilinearExtension(Evaluations::Zero(degree));
+  constexpr static MultilinearExtension Zero() {
+    return MultilinearExtension(Evaluations::Zero());
   }
 
-  constexpr static MultilinearExtension One(size_t degree) {
-    return MultilinearExtension(Evaluations::One(degree));
+  constexpr static MultilinearExtension One() {
+    return MultilinearExtension(Evaluations::One());
   }
 
-  constexpr static MultilinearExtension Random(size_t degree) {
-    return MultilinearExtension(Evaluations::Random(degree));
+  constexpr static MultilinearExtension Random() {
+    return MultilinearExtension(Evaluations::Random());
   }
 
   constexpr bool IsZero() const { return evaluations_.IsZero(); }
@@ -80,7 +83,7 @@ class MultilinearExtension final
   //   P(1, 1) = 2
 
   // In this context, {x₀, x₁} corresponds to the components of the |point|.
-  constexpr Field Evaluate(const std::vector<Field>& point) const {
+  constexpr Field Evaluate(const Point& point) const {
     return evaluations_.Evaluate(point);
   }
 
@@ -151,6 +154,11 @@ class PolynomialTraits<MultilinearExtension<Evaluations>> {
  public:
   constexpr static bool kIsEvaluationForm = true;
 };
+
+template <typename H, typename Evaluations>
+H AbslHashValue(H h, const MultilinearExtension<Evaluations>& mle) {
+  return H::combine(std::move(h), mle.evaluations());
+}
 
 }  // namespace tachyon::math
 

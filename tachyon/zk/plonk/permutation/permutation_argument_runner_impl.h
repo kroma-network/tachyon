@@ -52,11 +52,11 @@ PermutationArgumentRunner<Poly, Evals>::CommitArgument(
   F last_z = F::One();
 
   for (size_t i = 0; i < chunk_num; ++i) {
-    std::vector<Ref<const Evals>> permuted_columns =
+    std::vector<base::Ref<const Evals>> permuted_columns =
         table_store.GetPermutedColumns(i);
-    std::vector<Ref<const Evals>> unpermuted_columns =
+    std::vector<base::Ref<const Evals>> unpermuted_columns =
         table_store.GetUnpermutedColumns(i);
-    std::vector<Ref<const Evals>> value_columns =
+    std::vector<base::Ref<const Evals>> value_columns =
         table_store.GetValueColumns(i);
 
     size_t chunk_size = table_store.GetChunkSize(i);
@@ -176,8 +176,8 @@ template <typename Poly, typename Evals>
 template <typename F>
 std::function<base::ParallelizeCallback3<F>(size_t)>
 PermutationArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
-    const std::vector<Ref<const Evals>>& unpermuted_columns,
-    const std::vector<Ref<const Evals>>& value_columns, const F& beta,
+    const std::vector<base::Ref<const Evals>>& unpermuted_columns,
+    const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
     const F& gamma) {
   // vᵢ(ωʲ) + β * δⁱ * ωʲ + γ
   return [&unpermuted_columns, &value_columns, &beta,
@@ -199,8 +199,8 @@ template <typename Poly, typename Evals>
 template <typename F>
 std::function<base::ParallelizeCallback3<F>(size_t)>
 PermutationArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
-    const std::vector<Ref<const Evals>>& permuted_columns,
-    const std::vector<Ref<const Evals>>& value_columns, const F& beta,
+    const std::vector<base::Ref<const Evals>>& permuted_columns,
+    const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
     const F& gamma) {
   // vᵢ(ωʲ) + β * sᵢ(ωʲ) + γ
   return [&permuted_columns, &value_columns, &beta,

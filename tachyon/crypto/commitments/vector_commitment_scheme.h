@@ -74,6 +74,25 @@ class VectorCommitmentScheme {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoCommit(container, random_value, result);
   }
+
+  // Create an opening proof that proves that |members| belong to a
+  // commitment.
+  template <typename ContainerTy, typename Proof>
+  [[nodiscard]] bool CreateOpeningProof(const ContainerTy& members,
+                                        Proof* proof) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCreateOpeningProof(members, proof);
+  }
+
+  // Verify an opening |proof| that proves that |members| belong to a
+  // |commitment|.
+  template <typename ContainerTy, typename Proof>
+  [[nodiscard]] bool VerifyOpeningProof(const Commitment& commitment,
+                                        const ContainerTy& members,
+                                        const Proof& proof) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoVerifyOpeningProof(commitment, members, proof);
+  }
 };
 
 }  // namespace tachyon::crypto

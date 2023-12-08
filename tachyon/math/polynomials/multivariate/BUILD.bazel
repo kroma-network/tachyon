@@ -37,6 +37,7 @@ tachyon_cc_library(
         "//tachyon/base/ranges:algorithm",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/polynomials:polynomial",
+        "@com_google_absl//absl/hash",
         "@com_google_absl//absl/numeric:bits",
         "@com_google_absl//absl/types:span",
     ],
@@ -52,5 +53,6 @@ tachyon_cc_unittest(
         ":multilinear_extension",
         ":multivariate_polynomial",
         "//tachyon/math/finite_fields/test:gf7",
+        "@com_google_absl//absl/hash:hash_testing",
     ],
 )

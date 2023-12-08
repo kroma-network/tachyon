@@ -1,5 +1,6 @@
 #include <optional>
 
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
@@ -64,6 +65,29 @@ TEST_F(UnivariateSparsePolynomialTest, Random) {
     }
   }
   EXPECT_TRUE(success);
+}
+
+TEST_F(UnivariateSparsePolynomialTest, Linearize) {
+  std::vector<Poly> polys = {
+      Poly::Random(kMaxDegree),
+      Poly::Random(kMaxDegree),
+      Poly::Random(kMaxDegree),
+  };
+  GF7 y = GF7::Random();
+  Poly linearized = Poly::Linearize(polys, y);
+
+  GF7 x = GF7::Random();
+  GF7 expected = polys[0].Evaluate(x);
+  GF7 power = y;
+  for (size_t i = 1; i < polys.size(); ++i) {
+    expected += polys[i].Evaluate(x) * power;
+    power *= y;
+  }
+
+  EXPECT_EQ(expected, linearized.Evaluate(x));
+
+  Poly linearized2 = Poly::LinearizeInPlace(polys, y);
+  EXPECT_EQ(linearized, linearized2);
 }
 
 TEST_F(UnivariateSparsePolynomialTest, IndexingOperator) {
@@ -334,6 +358,22 @@ TEST_F(UnivariateSparsePolynomialTest, DivScalar) {
   EXPECT_EQ(poly, expected);
 }
 
+TEST_F(UnivariateSparsePolynomialTest, FromRoots) {
+  // poly = x⁴ + 2x² + 4 = (x - 1)(x - 2)(x + 1)(x + 2)
+  Poly poly = Poly(Coeffs({{0, GF7(4)}, {2, GF7(2)}, {4, GF7(1)}}));
+  std::vector<GF7> roots = {GF7(1), GF7(2), GF7(6), GF7(5)};
+  EXPECT_EQ(Poly::FromRoots(roots), poly);
+}
+
+TEST_F(UnivariateSparsePolynomialTest, EvaluateVanishingPolyByRoots) {
+  // poly = x⁴ + 2x² + 4 = (x - 1)(x - 2)(x + 1)(x + 2)
+  Poly poly = Poly(Coeffs({{0, GF7(4)}, {2, GF7(2)}, {4, GF7(1)}}));
+  std::vector<GF7> roots = {GF7(1), GF7(2), GF7(6), GF7(5)};
+  GF7 point = GF7::Random();
+  EXPECT_EQ(Poly::EvaluateVanishingPolyByRoots(roots, point),
+            poly.Evaluate(point));
+}
+
 TEST_F(UnivariateSparsePolynomialTest, Copyable) {
   Poly expected(Coeffs({{0, GF7(3)}, {1, GF7(1)}}));
   Poly value;
@@ -345,6 +385,12 @@ TEST_F(UnivariateSparsePolynomialTest, Copyable) {
   buf.Read(&value);
 
   EXPECT_EQ(expected, value);
+}
+
+TEST_F(UnivariateSparsePolynomialTest, Hash) {
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(Poly(), Poly::Zero(), Poly::One(),
+                      Poly::Random(kMaxDegree), Poly::Random(kMaxDegree))));
 }
 
 }  // namespace tachyon::math

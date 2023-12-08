@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/hash/hash.h"
+
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
@@ -26,6 +28,7 @@ class MultilinearDenseEvaluations {
   constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
+  using Point = std::vector<F>;
 
   constexpr MultilinearDenseEvaluations() = default;
   constexpr explicit MultilinearDenseEvaluations(
@@ -41,7 +44,7 @@ class MultilinearDenseEvaluations {
   // NOTE(chokobole): The zero polynomial can be represented in two forms:
   // 1. An empty vector
   // 2. A vector filled with |F::Zero()| up to the |MaxDegree| + 1.
-  constexpr static MultilinearDenseEvaluations Zero(size_t degree) {
+  constexpr static MultilinearDenseEvaluations Zero() {
     return MultilinearDenseEvaluations();
   }
 
@@ -56,14 +59,14 @@ class MultilinearDenseEvaluations {
     return ret;
   }
 
-  constexpr static MultilinearDenseEvaluations One(size_t degree) {
+  constexpr static MultilinearDenseEvaluations One() {
     return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << degree, F::One()));
+        base::CreateVector(size_t{1} << MaxDegree, F::One()));
   }
 
-  constexpr static MultilinearDenseEvaluations Random(size_t degree) {
-    return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << degree, []() { return F::Random(); }));
+  constexpr static MultilinearDenseEvaluations Random() {
+    return MultilinearDenseEvaluations(base::CreateVector(
+        size_t{1} << MaxDegree, []() { return F::Random(); }));
   }
 
   constexpr const std::vector<F>& evaluations() const { return evaluations_; }
@@ -112,8 +115,7 @@ class MultilinearDenseEvaluations {
 
   // Fix k variables out of n variables, where k is
   // |partial_point.size()| and n is |Degree()|.
-  MultilinearDenseEvaluations FixVariables(
-      const std::vector<F>& partial_point) const {
+  MultilinearDenseEvaluations FixVariables(const Point& partial_point) const {
     size_t k = partial_point.size();
     size_t n = Degree();
     CHECK_LE(k, n);
@@ -157,7 +159,7 @@ class MultilinearDenseEvaluations {
   //   GF7 a = evals.Evaluate({GF7(2), GF7(3)});
   //   GF7 b = evals.Evaluate({GF7(2), GF7(3), GF7(0)});
   //   CHECK_EQ(a, b);
-  F Evaluate(const std::vector<F>& point) const {
+  F Evaluate(const Point& point) const {
     CHECK_EQ(
         point.size(),
         static_cast<size_t>(base::bits::SafeLog2Ceiling(evaluations_.size())));
@@ -176,6 +178,21 @@ class MultilinearDenseEvaluations {
 
   std::vector<F> evaluations_;
 };
+
+template <typename H, typename F, size_t MaxDegree>
+H AbslHashValue(H h, const MultilinearDenseEvaluations<F, MaxDegree>& evals) {
+  if (evals.evaluations().empty()) {
+    F zero = F::Zero();
+    for (size_t i = 0; i < size_t{1} << MaxDegree; ++i) {
+      h = H::combine(std::move(h), zero);
+    }
+  } else {
+    for (const F& eval : evals.evaluations()) {
+      h = H::combine(std::move(h), eval);
+    }
+  }
+  return h;
+}
 
 }  // namespace tachyon::math
 

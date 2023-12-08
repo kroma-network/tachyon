@@ -7,6 +7,9 @@
 #define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_BASE_H_
 
 #include <cmath>
+#include <utility>
+
+#include "absl/hash/hash.h"
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/buffer/copyable.h"
@@ -145,6 +148,16 @@ class PrimeFieldBase : public FiniteField<F> {
     return static_cast<F&>(*this);
   }
 };
+
+template <
+    typename H, typename F,
+    std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<F>, F>>* = nullptr>
+H AbslHashValue(H h, const F& prime_field) {
+  for (uint64_t limb : prime_field.value().limbs) {
+    h = H::combine(std::move(h), limb);
+  }
+  return h;
+}
 
 }  // namespace math
 

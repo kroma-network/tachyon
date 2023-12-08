@@ -7,24 +7,45 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "kzg_commitment_scheme",
-    hdrs = ["kzg_commitment_scheme.h"],
+    name = "kzg",
+    hdrs = ["kzg.h"],
     deps = [
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
-        "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
+    ],
+)
+
+tachyon_cc_library(
+    name = "kzg_family",
+    hdrs = ["kzg_family.h"],
+    deps = [":kzg"],
+)
+
+tachyon_cc_library(
+    name = "shplonk",
+    hdrs = ["shplonk.h"],
+    deps = [
+        ":kzg_family",
+        "//tachyon/crypto/commitments:polynomial_openings",
+        "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
+        "//tachyon/crypto/transcripts:transcript",
     ],
 )
 
 tachyon_cc_unittest(
     name = "kzg_unittests",
-    srcs = ["kzg_commitment_scheme_unittest.cc"],
+    srcs = [
+        "kzg_unittest.cc",
+        "shplonk_unittest.cc",
+    ],
     deps = [
-        ":kzg_commitment_scheme",
+        ":shplonk",
         "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/crypto/transcripts:poseidon_transcript",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
 )

@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_CRYPTO_COMMITMENTS_PEDERSEN_PEDERSEN_COMMITMENT_SCHEME_H_
-#define TACHYON_CRYPTO_COMMITMENTS_PEDERSEN_PEDERSEN_COMMITMENT_SCHEME_H_
+#ifndef TACHYON_CRYPTO_COMMITMENTS_PEDERSEN_PEDERSEN_H_
+#define TACHYON_CRYPTO_COMMITMENTS_PEDERSEN_PEDERSEN_H_
 
 #include <sstream>
 #include <string>
@@ -25,19 +25,17 @@ namespace crypto {
 // cryptographically binding to data but hides it.
 template <typename PointTy, size_t MaxSize,
           typename Commitment = typename math::Pippenger<PointTy>::Bucket>
-class PedersenCommitmentScheme
-    : public VectorCommitmentScheme<
-          PedersenCommitmentScheme<PointTy, MaxSize, Commitment>> {
+class Pedersen
+    : public VectorCommitmentScheme<Pedersen<PointTy, MaxSize, Commitment>> {
  public:
   using Field = typename PointTy::ScalarField;
 
-  PedersenCommitmentScheme() = default;
-  PedersenCommitmentScheme(const PointTy& h,
-                           const std::vector<PointTy>& generators)
+  Pedersen() = default;
+  Pedersen(const PointTy& h, const std::vector<PointTy>& generators)
       : h_(h), generators_(generators) {
     CHECK_LE(generators_.size(), MaxSize);
   }
-  PedersenCommitmentScheme(PointTy&& h, std::vector<PointTy>&& generators)
+  Pedersen(PointTy&& h, std::vector<PointTy>&& generators)
       : h_(h), generators_(std::move(generators)) {
     CHECK_LE(generators_.size(), MaxSize);
   }
@@ -55,8 +53,7 @@ class PedersenCommitmentScheme
   }
 
  private:
-  friend class VectorCommitmentScheme<
-      PedersenCommitmentScheme<PointTy, MaxSize, Commitment>>;
+  friend class VectorCommitmentScheme<Pedersen<PointTy, MaxSize, Commitment>>;
 
   bool DoSetup(size_t size) {
     // NOTE(leegwangwoon): For security, |Random| is used instead of
@@ -97,8 +94,7 @@ class PedersenCommitmentScheme
 };
 
 template <typename PointTy, size_t MaxSize, typename _Commitment>
-struct VectorCommitmentSchemeTraits<
-    PedersenCommitmentScheme<PointTy, MaxSize, _Commitment>> {
+struct VectorCommitmentSchemeTraits<Pedersen<PointTy, MaxSize, _Commitment>> {
  public:
   constexpr static size_t kMaxSize = MaxSize;
   constexpr static bool kIsTransparent = true;
@@ -112,9 +108,9 @@ struct VectorCommitmentSchemeTraits<
 namespace base {
 
 template <typename PointTy, size_t MaxSize, typename Commitment>
-class Copyable<crypto::PedersenCommitmentScheme<PointTy, MaxSize, Commitment>> {
+class Copyable<crypto::Pedersen<PointTy, MaxSize, Commitment>> {
  public:
-  using PCS = crypto::PedersenCommitmentScheme<PointTy, MaxSize, Commitment>;
+  using PCS = crypto::Pedersen<PointTy, MaxSize, Commitment>;
 
   static bool WriteTo(const PCS& pcs, Buffer* buffer) {
     return buffer->WriteMany(pcs.h(), pcs.generators());
@@ -139,4 +135,4 @@ class Copyable<crypto::PedersenCommitmentScheme<PointTy, MaxSize, Commitment>> {
 }  // namespace base
 }  // namespace tachyon
 
-#endif  // TACHYON_CRYPTO_COMMITMENTS_PEDERSEN_PEDERSEN_COMMITMENT_SCHEME_H_
+#endif  // TACHYON_CRYPTO_COMMITMENTS_PEDERSEN_PEDERSEN_H_

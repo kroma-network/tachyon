@@ -289,7 +289,7 @@ tachyon_cc_library(
     deps = [
         ":column_key",
         "//tachyon/base:logging",
-        "//tachyon/zk/base:ref",
+        "//tachyon/base:ref",
     ],
 )
 

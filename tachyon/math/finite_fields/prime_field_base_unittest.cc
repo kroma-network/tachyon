@@ -1,5 +1,6 @@
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
@@ -102,6 +103,13 @@ TYPED_TEST(PrimeFieldBaseTest, LegendreSymbol) {
       break;
   }
   EXPECT_EQ(f.Pow(F::Config::kModulusMinusOneDivTwo), expected);
+}
+
+TYPED_TEST(PrimeFieldBaseTest, Hash) {
+  using F = TypeParam;
+
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(F::Random(), F::Random())));
 }
 
 }  // namespace tachyon::math

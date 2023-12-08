@@ -1,5 +1,6 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
+#include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
@@ -264,6 +265,13 @@ TEST_F(UnivariateEvaluationsTest, Copyable) {
   buf.Read(&value);
 
   EXPECT_EQ(polys_[0], value);
+}
+
+TEST_F(UnivariateEvaluationsTest, Hash) {
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(Poly(), Poly::Zero(),
+                      Poly({base::CreateVector(kMaxDegree + 1, GF7::Zero())}),
+                      Poly::One(), Poly::Random(), Poly::Random())));
 }
 
 }  // namespace tachyon::math

@@ -10,7 +10,7 @@
 #include <memory>
 #include <utility>
 
-#include "tachyon/zk/base/transcripts/transcript.h"
+#include "tachyon/crypto/transcripts/transcript.h"
 
 namespace tachyon::zk {
 
@@ -33,7 +33,7 @@ class Entity {
 
   Entity(PCSTy&& pcs, std::unique_ptr<Domain> domain,
          std::unique_ptr<ExtendedDomain> extended_domain,
-         std::unique_ptr<Transcript<Commitment>> transcript)
+         std::unique_ptr<crypto::Transcript<Commitment>> transcript)
       : pcs_(std::move(pcs)),
         domain_(std::move(domain)),
         extended_domain_(std::move(extended_domain)),
@@ -44,13 +44,13 @@ class Entity {
   const ExtendedDomain* extended_domain() const {
     return extended_domain_.get();
   }
-  Transcript<Commitment>* transcript() { return transcript_.get(); }
+  crypto::Transcript<Commitment>* transcript() { return transcript_.get(); }
 
  protected:
   PCSTy pcs_;
   std::unique_ptr<Domain> domain_;
   std::unique_ptr<ExtendedDomain> extended_domain_;
-  std::unique_ptr<Transcript<Commitment>> transcript_;
+  std::unique_ptr<crypto::Transcript<Commitment>> transcript_;
 };
 
 }  // namespace tachyon::zk

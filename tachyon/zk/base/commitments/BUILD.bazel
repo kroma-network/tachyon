@@ -3,11 +3,11 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "kzg_commitment_scheme_extension",
-    hdrs = ["kzg_commitment_scheme_extension.h"],
+    name = "shplonk_extension",
+    hdrs = ["shplonk_extension.h"],
     deps = [
         ":univariate_polynomial_commitment_scheme_extension",
-        "//tachyon/crypto/commitments/kzg:kzg_commitment_scheme",
+        "//tachyon/crypto/commitments/kzg:shplonk",
     ],
 )
 

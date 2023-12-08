@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_TRANSCRIPTS_BLAKE2B_TRANSCRIPT_H_
-#define TACHYON_ZK_BASE_TRANSCRIPTS_BLAKE2B_TRANSCRIPT_H_
+#ifndef TACHYON_CRYPTO_TRANSCRIPTS_BLAKE2B_TRANSCRIPT_H_
+#define TACHYON_CRYPTO_TRANSCRIPTS_BLAKE2B_TRANSCRIPT_H_
 
 #include <array>
 #include <utility>
@@ -13,11 +13,11 @@
 #include "openssl/blake2.h"
 
 #include "tachyon/base/ranges/algorithm.h"
+#include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
-#include "tachyon/zk/base/transcripts/transcript.h"
 
-namespace tachyon::zk {
+namespace tachyon::crypto {
 
 // Prefix to a prover's message soliciting a challenge
 constexpr uint8_t kBlake2bPrefixChallenge[1] = {0};
@@ -137,6 +137,6 @@ class Blake2bWriter : public TranscriptWriter<math::AffinePoint<Curve>> {
   BLAKE2B_CTX state_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::crypto
 
-#endif  // TACHYON_ZK_BASE_TRANSCRIPTS_BLAKE2B_TRANSCRIPT_H_
+#endif  // TACHYON_CRYPTO_TRANSCRIPTS_BLAKE2B_TRANSCRIPT_H_

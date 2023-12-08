@@ -18,8 +18,9 @@ namespace tachyon::zk {
 template <typename F>
 class SelectorsReplacer : public Evaluator<F, std::unique_ptr<Expression<F>>> {
  public:
-  SelectorsReplacer(const std::vector<Ref<const Expression<F>>>& replacements,
-                    bool must_be_non_simple)
+  SelectorsReplacer(
+      const std::vector<base::Ref<const Expression<F>>>& replacements,
+      bool must_be_non_simple)
       : replacements_(replacements), must_be_non_simple_(must_be_non_simple) {}
 
   // Evaluator methods
@@ -37,13 +38,13 @@ class SelectorsReplacer : public Evaluator<F, std::unique_ptr<Expression<F>>> {
   }
 
  private:
-  const std::vector<Ref<const Expression<F>>>& replacements_;
+  const std::vector<base::Ref<const Expression<F>>>& replacements_;
   const bool must_be_non_simple_;
 };
 
 template <typename F>
 std::unique_ptr<Expression<F>> Expression<F>::ReplaceSelectors(
-    const std::vector<Ref<const Expression<F>>>& replacements,
+    const std::vector<base::Ref<const Expression<F>>>& replacements,
     bool must_be_non_simple) const {
   SelectorsReplacer<F> replacer(replacements, must_be_non_simple);
   return Evaluate(&replacer);

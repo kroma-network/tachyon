@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/range.h"
-#include "tachyon/zk/base/ref.h"
+#include "tachyon/base/ref.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 
 namespace tachyon::zk {
@@ -29,15 +29,16 @@ class PermutedTable {
     return (*table_)[label.col][label.row];
   }
 
-  Ref<const Evals> GetColumn(size_t i) const {
-    return Ref<const Evals>(&(*table_)[i]);
+  base::Ref<const Evals> GetColumn(size_t i) const {
+    return base::Ref<const Evals>(&(*table_)[i]);
   }
 
-  std::vector<Ref<const Evals>> GetColumns(base::Range<size_t> range) const {
+  std::vector<base::Ref<const Evals>> GetColumns(
+      base::Range<size_t> range) const {
     CHECK_EQ(range.Intersect(base::Range<size_t>::Until(table_->size())),
              range);
 
-    std::vector<Ref<const Evals>> ret;
+    std::vector<base::Ref<const Evals>> ret;
     ret.reserve(range.GetSize());
     for (size_t i : range) {
       ret.push_back(GetColumn(i));

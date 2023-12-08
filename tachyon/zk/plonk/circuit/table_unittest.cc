@@ -53,7 +53,7 @@ TYPED_TEST(TableTest, GetColumns) {
                      absl::MakeConstSpan(this->advice_columns_),
                      absl::MakeConstSpan(this->instance_columns_));
 
-  std::vector<Ref<const Evals>> evals_refs = table.GetColumns(targets);
+  std::vector<base::Ref<const Evals>> evals_refs = table.GetColumns(targets);
 
   EXPECT_EQ(*evals_refs[0], this->fixed_columns_[1]);
   EXPECT_EQ(*evals_refs[1], this->advice_columns_[1]);

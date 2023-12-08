@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+#include "absl/hash/hash.h"
 #include "absl/numeric/internal/bits.h"
 #include "absl/types/span.h"
 
@@ -75,6 +76,7 @@ class UnivariateSparseCoefficients {
   constexpr static size_t kMaxDegree = MaxDegree;
 
   using Field = F;
+  using Point = F;
   using Term = UnivariateTerm<F>;
 
   constexpr UnivariateSparseCoefficients() = default;
@@ -154,16 +156,16 @@ class UnivariateSparseCoefficients {
 
   constexpr size_t NumElements() const { return terms_.size(); }
 
-  constexpr F Evaluate(const F& point) const {
+  constexpr F Evaluate(const Point& point) const {
     if (IsZero()) return F::Zero();
 
     static_assert(sizeof(size_t) == sizeof(uint64_t));
     size_t num_powers = absl::numeric_internal::CountLeadingZeroes64(0) -
                         absl::numeric_internal::CountLeadingZeroes64(Degree());
-    std::vector<F> powers_of_2;
+    std::vector<Point> powers_of_2;
     powers_of_2.reserve(num_powers);
 
-    F p = point;
+    Point p = point;
     powers_of_2.push_back(p);
     for (size_t i = 1; i < num_powers; ++i) {
       p.SquareInPlace();
@@ -217,6 +219,26 @@ class UnivariateSparseCoefficients {
 
   std::vector<Term> terms_;
 };
+
+template <typename H, typename F, size_t MaxDegree>
+H AbslHashValue(
+    H h, const UnivariateSparseCoefficients<F, MaxDegree>& coefficients) {
+  // NOTE(chokobole): We shouldn't hash only with a non-zero term.
+  // See https://abseil.io/docs/cpp/guides/hash#the-abslhashvalue-overload
+  F zero = F::Zero();
+  size_t degree = 0;
+  for (const UnivariateTerm<F>& term : coefficients.terms()) {
+    for (size_t i = degree; i < term.degree; ++i) {
+      h = H::combine(std::move(h), zero);
+    }
+    h = H::combine(std::move(h), term.coefficient);
+    degree = term.degree + 1;
+  }
+  for (size_t i = degree; i < MaxDegree + 1; ++i) {
+    h = H::combine(std::move(h), zero);
+  }
+  return h;
+}
 
 }  // namespace math
 

@@ -46,7 +46,7 @@ class PermutationTableStore {
     }
   }
 
-  std::vector<Ref<const Evals>> GetValueColumns(size_t chunk_idx) const {
+  std::vector<base::Ref<const Evals>> GetValueColumns(size_t chunk_idx) const {
     size_t chunk_offset = GetChunkOffset(chunk_idx);
     size_t chunk_size = GetChunkSize(chunk_idx);
     absl::Span<const AnyColumnKey> keys =
@@ -54,11 +54,13 @@ class PermutationTableStore {
     return table_.GetColumns(keys);
   }
 
-  std::vector<Ref<const Evals>> GetPermutedColumns(size_t chunk_idx) const {
+  std::vector<base::Ref<const Evals>> GetPermutedColumns(
+      size_t chunk_idx) const {
     return GetColumns(permuted_table_, chunk_idx);
   }
 
-  std::vector<Ref<const Evals>> GetUnpermutedColumns(size_t chunk_idx) const {
+  std::vector<base::Ref<const Evals>> GetUnpermutedColumns(
+      size_t chunk_idx) const {
     return GetColumns(unpermuted_table_, chunk_idx);
   }
 

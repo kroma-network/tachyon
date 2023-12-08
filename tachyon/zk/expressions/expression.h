@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
-#include "tachyon/zk/base/ref.h"
+#include "tachyon/base/ref.h"
 #include "tachyon/zk/expressions/expression_type.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
 
@@ -90,7 +90,7 @@ class Expression {
   std::optional<Selector> ExtractSimpleSelector() const;
 
   std::unique_ptr<Expression<F>> ReplaceSelectors(
-      const std::vector<Ref<const Expression<F>>>& replacements,
+      const std::vector<base::Ref<const Expression<F>>>& replacements,
       bool must_be_non_simple) const;
 
   template <typename EvaluatedTy>

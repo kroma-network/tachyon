@@ -23,6 +23,7 @@ class MultivariatePolynomial final
 
   using Field = typename Coefficients::Field;
   using Literal = typename Coefficients::Literal;
+  using Point = std::vector<Field>;
 
   constexpr MultivariatePolynomial() = default;
   explicit constexpr MultivariatePolynomial(const Coefficients& coefficients)
@@ -74,8 +75,8 @@ class MultivariatePolynomial final
 
   constexpr size_t Degree() const { return coefficients_.Degree(); }
 
-  constexpr Field Evaluate(const std::vector<Field>& points) const {
-    return coefficients_.Evaluate(points);
+  constexpr Field Evaluate(const Point& point) const {
+    return coefficients_.Evaluate(point);
   }
 
   std::string ToString() const { return coefficients_.ToString(); }
