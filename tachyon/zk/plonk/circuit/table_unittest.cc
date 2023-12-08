@@ -13,7 +13,6 @@ template <typename ColumnKeyType>
 class TableTest : public testing::Test {
  public:
   constexpr static size_t kMaxDegree = (size_t{1} << 3) - 1;
-  constexpr static Phase kFirstPhase = Phase(0);
 
   using F = math::bn254::G1AffinePoint::ScalarField;
   using Evals = math::UnivariateEvaluations<F, kMaxDegree>;
