@@ -18,7 +18,7 @@ class PermutationAssemblyTest : public Halo2ProverTest {
                 InstanceColumnKey(3)};
     argment_ = PermutationArgument(columns_);
     assembly_ = PermutationAssembly<PCS>::CreateForTesting(
-        columns_, CycleStore(columns_.size(), kDomainSize));
+        columns_, CycleStore(columns_.size(), kDomainSize), kDomainSize);
   }
 
  protected:

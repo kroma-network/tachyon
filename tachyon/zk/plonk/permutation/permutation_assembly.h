@@ -28,9 +28,6 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class PermutationAssembly {
  public:
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
-  constexpr static size_t kRows = kMaxDegree + 1;
-
   using F = typename PCSTy::Field;
   using Evals = typename PCSTy::Evals;
   using Poly = typename PCSTy::Poly;
@@ -41,22 +38,27 @@ class PermutationAssembly {
   PermutationAssembly() = default;
 
   // Constructor with |PermutationArgument|.
-  explicit PermutationAssembly(const PermutationArgument& p)
-      : PermutationAssembly(p.columns()) {}
+  PermutationAssembly(const PermutationArgument& p, size_t rows)
+      : PermutationAssembly(p.columns(), rows) {}
 
   // Constructor with permutation columns.
-  explicit PermutationAssembly(const std::vector<AnyColumnKey>& columns)
-      : columns_(columns), cycle_store_(CycleStore(columns_.size(), kRows)) {}
+  PermutationAssembly(const std::vector<AnyColumnKey>& columns, size_t rows)
+      : columns_(columns),
+        cycle_store_(CycleStore(columns_.size(), rows)),
+        rows_(rows) {}
 
-  explicit PermutationAssembly(std::vector<AnyColumnKey>&& columns)
+  PermutationAssembly(std::vector<AnyColumnKey>&& columns, size_t rows)
       : columns_(std::move(columns)),
-        cycle_store_(CycleStore(columns_.size(), kRows)) {}
+        cycle_store_(CycleStore(columns_.size(), rows)),
+        rows_(rows) {}
 
   static PermutationAssembly CreateForTesting(std::vector<AnyColumnKey> columns,
-                                              CycleStore cycle_store) {
+                                              CycleStore cycle_store,
+                                              size_t rows) {
     PermutationAssembly ret;
     ret.columns_ = std::move(columns);
     ret.cycle_store_ = std::move(cycle_store);
+    ret.rows_ = rows;
     return ret;
   }
 
@@ -65,8 +67,8 @@ class PermutationAssembly {
 
   void Copy(const AnyColumnKey& left_column, size_t left_row,
             const AnyColumnKey& right_column, size_t right_row) {
-    CHECK_LE(left_row, kRows);
-    CHECK_LE(right_row, kRows);
+    CHECK_LE(left_row, rows_);
+    CHECK_LE(right_row, rows_);
 
     // Get indices of each column.
     size_t left_col_idx = GetColumnIndex(left_column);
@@ -121,7 +123,7 @@ class PermutationAssembly {
 
     // Init evaluation formed polynomials with all-zero coefficients.
     std::vector<Evals> permutations =
-        base::CreateVector(columns_.size(), Evals::UnsafeZero(kMaxDegree));
+        base::CreateVector(columns_.size(), Evals::UnsafeZero(rows_ - 1));
 
     // Assign |unpermuted_table| to |permutations|.
     base::Parallelize(permutations, [&unpermuted_table, this](
@@ -129,7 +131,7 @@ class PermutationAssembly {
                                         size_t chunk_size) {
       size_t i = c * chunk_size;
       for (Evals& evals : chunk) {
-        for (size_t j = 0; j <= kMaxDegree; ++j) {
+        for (size_t j = 0; j < rows_; ++j) {
           *evals[j] = unpermuted_table[cycle_store_.GetNextLabel(Label(i, j))];
         }
         ++i;
@@ -146,6 +148,7 @@ class PermutationAssembly {
   // Columns that participate on the copy permutation argument.
   std::vector<AnyColumnKey> columns_;
   CycleStore cycle_store_;
+  size_t rows_ = 0;
 };
 
 }  // namespace tachyon::zk

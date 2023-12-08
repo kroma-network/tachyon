@@ -135,7 +135,7 @@ bool VerifyingKey<PCSTy>::Generate(const Entity<PCSTy>* entity,
       static_cast<uint32_t>(pcs.K()),
       base::CreateVector(constraint_system.num_fixed_columns(),
                          RationalEvals::UnsafeZero(pcs.N() - 1)),
-      PermutationAssembly<PCSTy>(constraint_system.permutation()),
+      PermutationAssembly<PCSTy>(constraint_system.permutation(), pcs.N()),
       base::CreateVector(constraint_system.num_selectors(),
                          base::CreateVector(pcs.N(), false)),
       base::Range<size_t>::Until(

@@ -75,7 +75,8 @@ TEST_F(PermutationArgumentTest, AddColumn) {
 TEST_F(PermutationArgumentTest, Commit) {
   PermutationAssembly<PCS> assembly =
       PermutationAssembly<PCS>::CreateForTesting(
-          column_keys_, CycleStore(column_keys_.size(), kDomainSize));
+          column_keys_, CycleStore(column_keys_.size(), kDomainSize),
+          kDomainSize);
 
   std::vector<Evals> permutations =
       assembly.GeneratePermutations(prover_->domain());
