@@ -54,6 +54,14 @@ class VectorCommitmentScheme {
     return derived->DoUnsafeSetup(size);
   }
 
+  template <typename T = Derived, typename Params,
+            std::enable_if_t<
+                !VectorCommitmentSchemeTraits<T>::kIsTransparent>* = nullptr>
+  [[nodiscard]] bool UnsafeSetup(size_t size, const Params& params) {
+    Derived* derived = static_cast<Derived*>(this);
+    return derived->DoUnsafeSetup(size, params);
+  }
+
   // Commit to |container| and populates |result| with the commitment.
   // Return false if the size of |container| doesn't match with the size of
   // parameters.

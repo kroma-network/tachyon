@@ -25,9 +25,11 @@ class KZGFamily {
   size_t N() const { return kzg_.N(); }
 
   [[nodiscard]] bool DoUnsafeSetup(size_t size) {
-    F tau = F::Random();
-    return kzg_.UnsafeSetupWithTau(size, tau) &&
-           DoUnsafeSetupWithTau(size, tau);
+    return DoUnsafeSetup(size, F::Random());
+  }
+
+  [[nodiscard]] bool DoUnsafeSetup(size_t size, const F& tau) {
+    return kzg_.UnsafeSetup(size, tau) && DoUnsafeSetupWithTau(size, tau);
   }
 
   template <typename ContainerTy>

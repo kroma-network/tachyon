@@ -40,6 +40,10 @@ class SHPlonkExtension
     return shplonk_.DoUnsafeSetup(size);
   }
 
+  [[nodiscard]] bool DoUnsafeSetup(size_t size, const Field& tau) {
+    return shplonk_.DoUnsafeSetup(size, tau);
+  }
+
   template <typename BaseContainerTy>
   [[nodiscard]] bool DoCommit(const BaseContainerTy& v, Commitment* out) const {
     return shplonk_.DoCommit(v, out);

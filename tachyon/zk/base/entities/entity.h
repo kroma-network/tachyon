@@ -40,6 +40,7 @@ class Entity {
         transcript_(std::move(transcript)) {}
 
   const PCSTy& pcs() const { return pcs_; }
+  PCSTy& pcs() { return pcs_; }
   const Domain* domain() const { return domain_.get(); }
   const ExtendedDomain* extended_domain() const {
     return extended_domain_.get();

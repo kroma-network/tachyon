@@ -49,10 +49,10 @@ class KZG {
   size_t N() const { return g1_powers_of_tau_.size(); }
 
   [[nodiscard]] bool UnsafeSetup(size_t size) {
-    return UnsafeSetupWithTau(size, Field::Random());
+    return UnsafeSetup(size, Field::Random());
   }
 
-  [[nodiscard]] bool UnsafeSetupWithTau(size_t size, const Field& tau) {
+  [[nodiscard]] bool UnsafeSetup(size_t size, const Field& tau) {
     using G1JacobianPointTy = typename G1PointTy::JacobianPointTy;
     using DomainTy = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
 
