@@ -97,6 +97,10 @@ class TACHYON_EXPORT CycleStore {
         Table(base::CreateVector(cols, base::CreateVector(rows, size_t{1})));
   }
 
+  const Table<Label>& mapping() const { return mapping_; }
+  const Table<Label>& aux() const { return aux_; }
+  const Table<size_t>& sizes() const { return sizes_; }
+
   // Return the next label of given |label| within a cycle.
   const Label& GetNextLabel(const Label& label) const {
     return mapping_[label];
