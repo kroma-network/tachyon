@@ -9,6 +9,10 @@
 
 #include <stddef.h>
 
+#include <string>
+
+#include "absl/strings/substitute.h"
+
 #include "tachyon/export.h"
 
 namespace tachyon::zk {
@@ -23,6 +27,10 @@ struct TACHYON_EXPORT Label {
     return col == other.col && row == other.row;
   }
   bool operator!=(const Label& other) const { return !operator==(other); }
+
+  std::string ToString() const {
+    return absl::Substitute("($0, $1)", col, row);
+  }
 };
 
 }  // namespace tachyon::zk
