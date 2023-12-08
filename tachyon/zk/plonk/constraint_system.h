@@ -497,7 +497,7 @@ class ConstraintSystem {
           return query.column() == column && query.rotation() == at;
         });
     if (!index.has_value()) return false;
-    *index = index.value();
+    *index_out = index.value();
     return true;
   }
 
