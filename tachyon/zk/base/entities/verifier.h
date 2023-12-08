@@ -28,8 +28,7 @@ class Verifier : public Entity<PCSTy> {
                       std::move(extended_domain), std::move(transcript)) {}
 
   crypto::TranscriptReader<Commitment>* GetReader() {
-    return static_cast<crypto::TranscriptReader<Commitment>*>(
-        this->transcript());
+    return this->transcript()->ToReader();
   }
 };
 

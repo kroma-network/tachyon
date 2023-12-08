@@ -33,6 +33,12 @@ class Challenge255 {
   math::BigInt<4> challenge_;
 };
 
+template <typename AffinePointTy>
+class TranscriptReader;
+
+template <typename AffinePointTy>
+class TranscriptWriter;
+
 // Generic transcript view (from either the prover or verifier's perspective)
 template <typename AffinePointTy>
 class Transcript {
@@ -55,6 +61,14 @@ class Transcript {
   // Write a curve |scalar| to the transcript without writing it to the proof,
   // treating it as a common input.
   virtual bool WriteToTranscript(const ScalarField& scalar) = 0;
+
+  TranscriptWriter<AffinePointTy>* ToWriter() {
+    return static_cast<TranscriptWriter<AffinePointTy>*>(this);
+  }
+
+  TranscriptReader<AffinePointTy>* ToReader() {
+    return static_cast<TranscriptReader<AffinePointTy>*>(this);
+  }
 };
 
 // Transcript view from the perspective of a verifier that has access to an

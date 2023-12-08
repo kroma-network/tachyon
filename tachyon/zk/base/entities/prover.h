@@ -41,8 +41,7 @@ class Prover : public Entity<PCSTy> {
   Blinder<PCSTy>& blinder() { return blinder_; }
 
   crypto::TranscriptWriter<Commitment>* GetWriter() {
-    return static_cast<crypto::TranscriptWriter<Commitment>*>(
-        this->transcript());
+    return this->transcript()->ToWriter();
   }
 
   size_t GetUsableRows() const {
