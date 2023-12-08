@@ -11,10 +11,11 @@ GOLDILOCKS_MODULUS = "18446744069414584321"
 generate_prime_fields(
     name = "goldilocks",
     class_name = "Goldilocks",
-    hdr_include_override = """#include "tachyon/export.h"
-#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
+    hdr_include_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #include "tachyon/math/finite_fields/goldilocks_prime/prime_field_goldilocks.h"
 #include "tachyon/build/build_config.h"
+#else
+#include "tachyon/math/finite_fields/prime_field.h"
 #endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
     modulus = GOLDILOCKS_MODULUS,
     namespace = "tachyon::math",
