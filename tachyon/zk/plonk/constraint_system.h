@@ -412,7 +412,7 @@ class ConstraintSystem {
   Phase ComputeMaxPhase() const {
     auto max_phase_it = std::max_element(advice_column_phases_.begin(),
                                          advice_column_phases_.end());
-    if (max_phase_it == advice_column_phases_.end()) return Phase(0);
+    if (max_phase_it == advice_column_phases_.end()) return kFirstPhase;
     return *max_phase_it;
   }
 
