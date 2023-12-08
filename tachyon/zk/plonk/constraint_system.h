@@ -459,7 +459,7 @@ class ConstraintSystem {
     factors = std::max(size_t{3}, factors);
 
     // Each polynomial is evaluated at most an additional time during
-    // multiopen (at x₃ to produce qₑᵥₐₗₛ):
+    // multiopen (at x₃ to produce q_evals):
     ++factors;
 
     // h(x) is derived by the other evaluations so it does not reveal
@@ -479,10 +479,10 @@ class ConstraintSystem {
   // account for e.g. blinding factors.
   size_t ComputeMinimumRows() const {
     return ComputeBlindingFactors()  // m blinding factors
-           + 1                       // for l_{-(m + 1)} (lₗₐₛₜ)
+           + 1                       // for l_{-(m + 1)} (l_last)
            + 1  // for l₀ (just for extra breathing room for the permutation
                 // argument, to essentially force a separation in the
-           // permutation polynomial between the roles of lₗₐₛₜ, l₀
+           // permutation polynomial between the roles of l_last, l₀
            // and the interstitial values.)
            + 1;  // for at least one row
   }
