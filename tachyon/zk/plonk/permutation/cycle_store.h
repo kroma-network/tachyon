@@ -75,6 +75,13 @@ class TACHYON_EXPORT CycleStore {
     T& operator[](const Label& l) { return values_[l.col][l.row]; }
     const T& operator[](const Label& l) const { return values_[l.col][l.row]; }
 
+    bool operator==(const Table<T>& other) const {
+      return values_ == other.values_;
+    }
+    bool operator!=(const Table<T>& other) const {
+      return values_ != other.values_;
+    }
+
    private:
     std::vector<std::vector<T>> values_;
   };
