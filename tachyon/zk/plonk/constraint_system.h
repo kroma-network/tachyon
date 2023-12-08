@@ -418,9 +418,9 @@ class ConstraintSystem {
 
   std::vector<Phase> GetPhases() const {
     Phase max_phase = ComputeMaxPhase();
-    return base::CreateVector(size_t{max_phase.value()}, [](size_t i) {
-      return Phase(static_cast<uint8_t>(i));
-    });
+    return base::CreateVector(
+        static_cast<size_t>(max_phase.value() + 1),
+        [](size_t i) { return Phase(static_cast<uint8_t>(i)); });
   }
 
   // Compute the degree of the constraint system (the maximum degree of all
