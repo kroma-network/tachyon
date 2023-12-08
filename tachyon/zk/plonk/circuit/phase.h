@@ -36,6 +36,10 @@ class TACHYON_EXPORT Phase {
 
   bool operator==(Phase other) const { return value_ == other.value_; }
   bool operator!=(Phase other) const { return value_ != other.value_; }
+  bool operator>(Phase other) const { return value_ > other.value_; }
+  bool operator>=(Phase other) const { return value_ >= other.value_; }
+  bool operator<(Phase other) const { return value_ < other.value_; }
+  bool operator<=(Phase other) const { return value_ <= other.value_; }
 
   std::string ToString() const { return base::NumberToString(value_); }
 
