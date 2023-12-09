@@ -26,10 +26,10 @@ TEST_F(Fp6Test, Copyable) {
   F value;
 
   base::VectorBuffer write_buf;
-  EXPECT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Write(expected));
 
   write_buf.set_buffer_offset(0);
-  EXPECT_TRUE(write_buf.Read(&value));
+  ASSERT_TRUE(write_buf.Read(&value));
   EXPECT_EQ(expected, value);
 }
 

@@ -258,11 +258,11 @@ TEST_F(UnivariateEvaluationsTest, DivScalar) {
 
 TEST_F(UnivariateEvaluationsTest, Copyable) {
   base::VectorBuffer buf;
-  buf.Write(polys_[0]);
+  ASSERT_TRUE(buf.Write(polys_[0]));
 
   buf.set_buffer_offset(0);
   Poly value;
-  buf.Read(&value);
+  ASSERT_TRUE(buf.Read(&value));
 
   EXPECT_EQ(polys_[0], value);
 }

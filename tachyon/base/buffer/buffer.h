@@ -72,12 +72,13 @@ class TACHYON_EXPORT Buffer {
 
   size_t buffer_len() const { return buffer_len_; }
 
-  bool Done() const { return buffer_offset_ == buffer_len_; }
+  [[nodiscard]] bool Done() const { return buffer_offset_ == buffer_len_; }
 
   // Returns false either
   // 1) |buffer_offset| + |size| overflows.
   // 2) if it tries to read more than |buffer_len_|.
-  bool ReadAt(size_t buffer_offset, uint8_t* ptr, size_t size) const;
+  [[nodiscard]] bool ReadAt(size_t buffer_offset, uint8_t* ptr,
+                            size_t size) const;
 
   template <
       typename Ptr, typename T = std::remove_pointer_t<Ptr>,
@@ -112,13 +113,13 @@ class TACHYON_EXPORT Buffer {
   template <
       typename T,
       std::enable_if_t<internal::IsNonBuiltinSerializable<T>::value>* = nullptr>
-  bool ReadAt(size_t buffer_offset, T* value) const {
+  [[nodiscard]] bool ReadAt(size_t buffer_offset, T* value) const {
     buffer_offset_ = buffer_offset;
     return Copyable<T>::ReadFrom(*this, value);
   }
 
   template <typename T, size_t N>
-  bool ReadAt(size_t buffer_offset, T (&array)[N]) const {
+  [[nodiscard]] bool ReadAt(size_t buffer_offset, T (&array)[N]) const {
     buffer_offset_ = buffer_offset;
     for (size_t i = 0; i < N; ++i) {
       if (!Read(&array[i])) return false;
@@ -126,53 +127,54 @@ class TACHYON_EXPORT Buffer {
     return true;
   }
 
-  bool Read(uint8_t* ptr, size_t size) const {
+  [[nodiscard]] bool Read(uint8_t* ptr, size_t size) const {
     return ReadAt(buffer_offset_, ptr, size);
   }
 
   template <typename T>
-  bool Read(T&& value) const {
+  [[nodiscard]] bool Read(T&& value) const {
     return ReadAt(buffer_offset_, std::forward<T>(value));
   }
 
   template <typename T>
-  bool ReadMany(T&& value) const {
+  [[nodiscard]] bool ReadMany(T&& value) const {
     return Read(std::forward<T>(value));
   }
 
   template <typename T, typename... Args>
-  bool ReadMany(T&& value, Args&&... args) const {
+  [[nodiscard]] bool ReadMany(T&& value, Args&&... args) const {
     if (!Read(std::forward<T>(value))) return false;
     return ReadMany(std::forward<Args>(args)...);
   }
 
   template <typename T, size_t N>
-  bool ReadManyAt(size_t buffer_offset, T&& value) const {
+  [[nodiscard]] bool ReadManyAt(size_t buffer_offset, T&& value) const {
     return ReadAt(buffer_offset, std::forward<T>(value));
   }
 
   template <typename T, typename... Args>
-  bool ReadManyAt(size_t buffer_offset, T&& value, Args&&... args) const {
+  [[nodiscard]] bool ReadManyAt(size_t buffer_offset, T&& value,
+                                Args&&... args) const {
     if (!ReadAt(buffer_offset, std::forward<T>(value))) return false;
     return ReadManyAt(buffer_offset, std::forward<Args>(args)...);
   }
 
-  bool Write(const uint8_t* ptr, size_t size) {
+  [[nodiscard]] bool Write(const uint8_t* ptr, size_t size) {
     return WriteAt(buffer_offset_, ptr, size);
   }
 
   template <typename T>
-  bool Write(const T& value) {
+  [[nodiscard]] bool Write(const T& value) {
     return WriteAt(buffer_offset_, value);
   }
 
   template <typename T>
-  bool WriteMany(const T& value) {
+  [[nodiscard]] bool WriteMany(const T& value) {
     return Write(value);
   }
 
   template <typename T, typename... Args>
-  bool WriteMany(const T& value, const Args&... args) {
+  [[nodiscard]] bool WriteMany(const T& value, const Args&... args) {
     if (!Write(value)) return false;
     return WriteMany(args...);
   }
@@ -181,20 +183,21 @@ class TACHYON_EXPORT Buffer {
   // 1) |buffer_offset| + |size| overflows.
   // 2) if it is not growable and it tries to write more than
   // |buffer_len_|.
-  bool WriteAt(size_t buffer_offset, const uint8_t* ptr, size_t size);
+  [[nodiscard]] bool WriteAt(size_t buffer_offset, const uint8_t* ptr,
+                             size_t size);
 
-  bool Write16BEAt(size_t buffer_offset, uint16_t ptr);
-  bool Write16LEAt(size_t buffer_offset, uint16_t ptr);
-  bool Write32BEAt(size_t buffer_offset, uint32_t ptr);
-  bool Write32LEAt(size_t buffer_offset, uint32_t ptr);
-  bool Write64BEAt(size_t buffer_offset, uint64_t ptr);
-  bool Write64LEAt(size_t buffer_offset, uint64_t ptr);
+  [[nodiscard]] bool Write16BEAt(size_t buffer_offset, uint16_t ptr);
+  [[nodiscard]] bool Write16LEAt(size_t buffer_offset, uint16_t ptr);
+  [[nodiscard]] bool Write32BEAt(size_t buffer_offset, uint32_t ptr);
+  [[nodiscard]] bool Write32LEAt(size_t buffer_offset, uint32_t ptr);
+  [[nodiscard]] bool Write64BEAt(size_t buffer_offset, uint64_t ptr);
+  [[nodiscard]] bool Write64LEAt(size_t buffer_offset, uint64_t ptr);
 
 #define DEFINE_WRITE_AT(bytes, bits, type)                                \
   template <typename T,                                                   \
             std::enable_if_t<internal::IsBuiltinSerializable<T>::value && \
                              (sizeof(T) == bytes)>* = nullptr>            \
-  bool WriteAt(size_t buffer_offset, T value) {                           \
+  [[nodiscard]] bool WriteAt(size_t buffer_offset, T value) {             \
     switch (endian_) {                                                    \
       case Endian::kBig:                                                  \
         return Write##bits##BEAt(buffer_offset, value);                   \
@@ -217,7 +220,7 @@ class TACHYON_EXPORT Buffer {
             std::enable_if_t<internal::IsBuiltinSerializable<T>::value &&
                              !((sizeof(T) == 2) || (sizeof(T) == 4) ||
                                (sizeof(T) == 8))>* = nullptr>
-  bool WriteAt(size_t buffer_offset, T value) {
+  [[nodiscard]] bool WriteAt(size_t buffer_offset, T value) {
     return WriteAt(buffer_offset, reinterpret_cast<const uint8_t*>(&value),
                    sizeof(T));
   }
@@ -225,23 +228,24 @@ class TACHYON_EXPORT Buffer {
   template <
       typename T,
       std::enable_if_t<internal::IsNonBuiltinSerializable<T>::value>* = nullptr>
-  bool WriteAt(size_t buffer_offset, const T& value) {
+  [[nodiscard]] bool WriteAt(size_t buffer_offset, const T& value) {
     buffer_offset_ = buffer_offset;
     return Copyable<T>::WriteTo(value, this);
   }
 
   template <typename T>
-  bool WriteManyAt(size_t buffer_offset, const T& value) {
+  [[nodiscard]] bool WriteManyAt(size_t buffer_offset, const T& value) {
     return WriteAt(buffer_offset, value);
   }
 
   template <typename T, typename... Args>
-  bool WriteManyAt(size_t buffer_offset, const T& value, const Args&... args) {
+  [[nodiscard]] bool WriteManyAt(size_t buffer_offset, const T& value,
+                                 const Args&... args) {
     if (!WriteAt(buffer_offset, value)) return false;
     return WriteManyAt(buffer_offset, args...);
   }
 
-  virtual bool Grow(size_t size) { return false; }
+  [[nodiscard]] virtual bool Grow(size_t size) { return false; }
 
  protected:
   bool Read16BEAt(size_t buffer_offset, uint16_t* ptr) const;

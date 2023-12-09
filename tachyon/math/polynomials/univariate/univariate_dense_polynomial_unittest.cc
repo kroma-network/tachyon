@@ -356,10 +356,10 @@ TEST_F(UnivariateDensePolynomialTest, Copyable) {
   Poly value;
 
   base::VectorBuffer buf;
-  buf.Write(expected);
+  ASSERT_TRUE(buf.Write(expected));
 
   buf.set_buffer_offset(0);
-  buf.Read(&value);
+  ASSERT_TRUE(buf.Read(&value));
 
   EXPECT_EQ(expected, value);
 }

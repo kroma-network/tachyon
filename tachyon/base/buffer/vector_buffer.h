@@ -23,7 +23,7 @@ class TACHYON_EXPORT VectorBuffer : public Buffer {
   }
   ~VectorBuffer() override = default;
 
-  bool Grow(size_t size) override {
+  [[nodiscard]] bool Grow(size_t size) override {
     owned_buffer_.resize(size);
     buffer_ = owned_buffer_.data();
     buffer_len_ = owned_buffer_.size();
