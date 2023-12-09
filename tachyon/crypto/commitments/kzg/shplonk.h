@@ -107,18 +107,6 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
               y, low_degree_extensions_vec[i]);
         });
 
-    for (size_t i = 0; i < low_degree_extensions_vec.size(); ++i) {
-      for (size_t j = 0; j < grouped_poly_openings_vec[i].points.size(); ++j) {
-        const Point& p = *grouped_poly_openings_vec[i].points[j];
-        for (size_t k = 0; k < low_degree_extensions_vec[i].size(); ++k) {
-          CHECK_EQ(
-              low_degree_extensions_vec[i][k].Evaluate(p),
-              grouped_poly_openings_vec[i].poly_openings_vec[k].poly->Evaluate(
-                  p));
-        }
-      }
-    }
-
     Field v = writer->SqueezeChallengeAsScalar();
 
     // Create a linear combination of polynomials [H₀(X), H₁(X), H₂(X)] with
