@@ -4,6 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -373,6 +374,76 @@ TEST_F(UnivariateSparsePolynomialTest, EvaluateVanishingPolyByRoots) {
   EXPECT_EQ(Poly::EvaluateVanishingPolyByRoots(roots, point),
             poly.Evaluate(point));
 }
+
+#define GET_COEFF(poly, degree)                \
+  ({                                           \
+    GF7* coeff = poly[degree];                 \
+    (coeff == nullptr) ? GF7::Zero() : *coeff; \
+  })
+
+TEST_F(UnivariateSparsePolynomialTest, FoldEven) {
+  Poly poly = Poly::Random(kMaxDegree);
+  GF7 r = GF7::Random();
+  Poly folded = poly.Fold<true>(r);
+  std::vector<UnivariateTerm<GF7>> terms{
+      {0, r * GET_COEFF(poly, 0) + GET_COEFF(poly, 1)},
+      {1, r * GET_COEFF(poly, 2) + GET_COEFF(poly, 3)},
+      {2, r * GET_COEFF(poly, 4) + GET_COEFF(poly, 5)}};
+  base::EraseIf(terms, [](const UnivariateTerm<GF7>& term) {
+    return term.coefficient.IsZero();
+  });
+  EXPECT_EQ(folded, Poly(Coeffs(std::move(terms))));
+
+  GF7 r2 = GF7::Random();
+  Poly folded2 = folded.Fold<true>(r2);
+  terms = {{0, r2 * GET_COEFF(folded, 0) + GET_COEFF(folded, 1)},
+           {1, r2 * GET_COEFF(folded, 2)}};
+  base::EraseIf(terms, [](const UnivariateTerm<GF7>& term) {
+    return term.coefficient.IsZero();
+  });
+  EXPECT_EQ(folded2, Poly(Coeffs(std::move(terms))));
+
+  GF7 r3 = GF7::Random();
+  Poly folded3 = folded2.Fold<true>(r3);
+  terms = {{0, r3 * GET_COEFF(folded2, 0) + GET_COEFF(folded2, 1)}};
+  base::EraseIf(terms, [](const UnivariateTerm<GF7>& term) {
+    return term.coefficient.IsZero();
+  });
+  EXPECT_EQ(folded3, Poly(Coeffs(std::move(terms))));
+}
+
+TEST_F(UnivariateSparsePolynomialTest, FoldOdd) {
+  Poly poly = Poly::Random(kMaxDegree);
+  GF7 r = GF7::Random();
+  Poly folded = poly.Fold<false>(r);
+  std::vector<UnivariateTerm<GF7>> terms{
+      {0, GET_COEFF(poly, 0) + r * GET_COEFF(poly, 1)},
+      {1, GET_COEFF(poly, 2) + r * GET_COEFF(poly, 3)},
+      {2, GET_COEFF(poly, 4) + r * GET_COEFF(poly, 5)}};
+  base::EraseIf(terms, [](const UnivariateTerm<GF7>& term) {
+    return term.coefficient.IsZero();
+  });
+  EXPECT_EQ(folded, Poly(Coeffs(std::move(terms))));
+
+  GF7 r2 = GF7::Random();
+  Poly folded2 = folded.Fold<false>(r2);
+  terms = {{0, GET_COEFF(folded, 0) + r2 * GET_COEFF(folded, 1)},
+           {1, GET_COEFF(folded, 2)}};
+  base::EraseIf(terms, [](const UnivariateTerm<GF7>& term) {
+    return term.coefficient.IsZero();
+  });
+  EXPECT_EQ(folded2, Poly(Coeffs(std::move(terms))));
+
+  GF7 r3 = GF7::Random();
+  Poly folded3 = folded2.Fold<false>(r3);
+  terms = {{0, GET_COEFF(folded2, 0) + r3 * GET_COEFF(folded2, 1)}};
+  base::EraseIf(terms, [](const UnivariateTerm<GF7>& term) {
+    return term.coefficient.IsZero();
+  });
+  EXPECT_EQ(folded3, Poly(Coeffs(std::move(terms))));
+}
+
+#undef GET_COEFF
 
 TEST_F(UnivariateSparsePolynomialTest, Copyable) {
   Poly expected(Coeffs({{0, GF7(3)}, {1, GF7(1)}}));

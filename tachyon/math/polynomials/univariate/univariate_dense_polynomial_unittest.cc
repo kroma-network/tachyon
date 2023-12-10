@@ -351,6 +351,56 @@ TEST_F(UnivariateDensePolynomialTest, EvaluateVanishingPolyByRoots) {
             poly.Evaluate(point));
 }
 
+#define GET_COEFF(poly, degree)                \
+  ({                                           \
+    GF7* coeff = poly[degree];                 \
+    (coeff == nullptr) ? GF7::Zero() : *coeff; \
+  })
+
+TEST_F(UnivariateDensePolynomialTest, FoldEven) {
+  Poly poly = Poly::Random(kMaxDegree);
+  GF7 r = GF7::Random();
+  Poly folded = poly.Fold<true>(r);
+  EXPECT_EQ(folded,
+            Poly(Coeffs({r * GET_COEFF(poly, 0) + GET_COEFF(poly, 1),
+                         r * GET_COEFF(poly, 2) + GET_COEFF(poly, 3),
+                         r * GET_COEFF(poly, 4) + GET_COEFF(poly, 5)})));
+
+  GF7 r2 = GF7::Random();
+  Poly folded2 = folded.Fold<true>(r2);
+  EXPECT_EQ(folded2,
+            Poly(Coeffs({r2 * GET_COEFF(folded, 0) + GET_COEFF(folded, 1),
+                         r2 * GET_COEFF(folded, 2)})));
+
+  GF7 r3 = GF7::Random();
+  Poly folded3 = folded2.Fold<true>(r3);
+  EXPECT_EQ(folded3,
+            Poly(Coeffs({r3 * GET_COEFF(folded2, 0) + GET_COEFF(folded2, 1)})));
+}
+
+TEST_F(UnivariateDensePolynomialTest, FoldOdd) {
+  Poly poly = Poly::Random(kMaxDegree);
+  GF7 r = GF7::Random();
+  Poly folded = poly.Fold<false>(r);
+  EXPECT_EQ(folded,
+            Poly(Coeffs({GET_COEFF(poly, 0) + r * GET_COEFF(poly, 1),
+                         GET_COEFF(poly, 2) + r * GET_COEFF(poly, 3),
+                         GET_COEFF(poly, 4) + r * GET_COEFF(poly, 5)})));
+
+  GF7 r2 = GF7::Random();
+  Poly folded2 = folded.Fold<false>(r2);
+  EXPECT_EQ(folded2,
+            Poly(Coeffs({GET_COEFF(folded, 0) + r2 * GET_COEFF(folded, 1),
+                         GET_COEFF(folded, 2)})));
+
+  GF7 r3 = GF7::Random();
+  Poly folded3 = folded2.Fold<false>(r3);
+  EXPECT_EQ(folded3,
+            Poly(Coeffs({GET_COEFF(folded2, 0) + r3 * GET_COEFF(folded2, 1)})));
+}
+
+#undef GET_COEFF
+
 TEST_F(UnivariateDensePolynomialTest, Copyable) {
   Poly expected(Coeffs({GF7(1), GF7(4), GF7(3), GF7(5)}));
   Poly value;
