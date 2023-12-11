@@ -89,10 +89,10 @@ PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
   for (size_t i = 0; i < product_polys.size(); ++i) {
     const Poly& poly = product_polys[i].poly();
 
-    prover->Evaluate(poly, x);
+    CHECK(prover->Evaluate(poly, x));
 
     F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
-    prover->Evaluate(poly, x_next);
+    CHECK(prover->Evaluate(poly, x_next));
 
     // If we have any remaining sets to process, evaluate this set at ωᵘ
     // so we can constrain the last value of its running product to equal the
@@ -100,7 +100,7 @@ PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
     if (i != product_polys.size() - 1) {
       F x_last =
           Rotation(-(blinding_factors + 1)).RotateOmega(prover->domain(), x);
-      prover->Evaluate(poly, x_last);
+      CHECK(prover->Evaluate(poly, x_last));
     }
   }
 
@@ -168,7 +168,7 @@ void PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
     Prover<PCSTy>* prover,
     const PermutationProvingKey<Poly, Evals>& proving_key, const F& x) {
   for (const Poly& poly : proving_key.polys()) {
-    prover->Evaluate(poly, x);
+    CHECK(prover->Evaluate(poly, x));
   }
 }
 
