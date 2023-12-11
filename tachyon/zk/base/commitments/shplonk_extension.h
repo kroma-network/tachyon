@@ -52,10 +52,10 @@ class SHPlonkExtension
   }
 
   template <typename ContainerTy>
-  [[nodiscard]] bool DoCreateMultiOpeningProof(
+  [[nodiscard]] bool DoCreateOpeningProof(
       const ContainerTy& poly_openings,
       crypto::SHPlonkProof<Commitment>* proof) const {
-    return shplonk_.DoCreateMultiOpeningProof(poly_openings, proof);
+    return shplonk_.DoCreateOpeningProof(poly_openings, proof);
   }
 
  private:
