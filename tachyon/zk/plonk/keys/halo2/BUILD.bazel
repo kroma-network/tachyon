@@ -21,6 +21,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/strings:rust_stringifier",
         "//tachyon/zk/base:field_stringifier",
+        "//tachyon/zk/base/entities:entity",
     ],
 )
 

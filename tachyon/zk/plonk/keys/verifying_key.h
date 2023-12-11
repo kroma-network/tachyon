@@ -52,19 +52,18 @@ class VerifyingKey {
         constraint_system_(std::move(constraint_system)) {}
 
   static VerifyingKey FromParts(
-      const Domain* domain, Commitments fixed_commitments,
+      const Entity<PCSTy>* entity, Commitments fixed_commitments,
       PermutationVerifyingKey<PCSTy> permutation_verifying_key,
       ConstraintSystem<F> constraint_system) {
-    VerifyingKey ret(domain, std::move(fixed_commitments),
+    VerifyingKey ret(entity->domain(), std::move(fixed_commitments),
                      std::move(permutation_verifying_key),
                      std::move(constraint_system));
-    ret.SetTranscriptRepresentative();
-
+    ret.SetTranscriptRepresentative(entity);
     return ret;
   }
 
-  void SetTranscriptRepresentative() {
-    halo2::PinnedVerifyingKey<PCSTy> pinned_verifying_key(*this);
+  void SetTranscriptRepresentative(const Entity<PCSTy>* entity) {
+    halo2::PinnedVerifyingKey<PCSTy> pinned_verifying_key(entity, *this);
 
     std::string vk_str = base::ToRustDebugString(pinned_verifying_key);
     size_t vk_str_size = vk_str.size();
@@ -179,9 +178,9 @@ bool VerifyingKey<PCSTy>::Generate(Entity<PCSTy>* entity,
         return commitment;
       });
 
-  *verifying_key = VerifyingKey::FromParts(
-      entity->domain(), std::move(fixed_commitments), std::move(permutation_vk),
-      std::move(constraint_system));
+  *verifying_key = VerifyingKey::FromParts(entity, std::move(fixed_commitments),
+                                           std::move(permutation_vk),
+                                           std::move(constraint_system));
   return true;
 }
 

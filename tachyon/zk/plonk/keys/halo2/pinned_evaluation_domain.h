@@ -13,6 +13,7 @@
 #include <utility>
 
 #include "tachyon/base/strings/rust_stringifier.h"
+#include "tachyon/zk/base/entities/entity.h"
 #include "tachyon/zk/base/field_stringifier.h"
 
 namespace tachyon {
@@ -26,6 +27,11 @@ class PinnedEvaluationDomain {
       : k_(k), extended_k_(extended_k), omega_(omega) {}
   PinnedEvaluationDomain(uint32_t k, uint32_t extended_k, F&& omega)
       : k_(k), extended_k_(extended_k), omega_(std::move(omega)) {}
+  template <typename PCSTy>
+  explicit PinnedEvaluationDomain(const Entity<PCSTy>* entity)
+      : k_(entity->domain()->log_size_of_group()),
+        extended_k_(entity->extended_domain()->log_size_of_group()),
+        omega_(entity->domain()->group_gen()) {}
 
   uint32_t k() const { return k_; }
   uint32_t extended_k() const { return extended_k_; }
