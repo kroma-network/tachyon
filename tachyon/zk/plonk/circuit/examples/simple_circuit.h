@@ -34,6 +34,11 @@ class FieldConfig {
 
   FieldConfig() = default;
 
+  FieldConfig Clone() const {
+    std::array<AdviceColumnKey, 2> advice_clone = advice_;
+    return FieldConfig(std::move(advice_clone), instance_, s_mul_);
+  }
+
   const std::array<AdviceColumnKey, 2>& advice() const { return advice_; }
   const InstanceColumnKey& instance() const { return instance_; }
   const Selector& s_mul() const { return s_mul_; }
