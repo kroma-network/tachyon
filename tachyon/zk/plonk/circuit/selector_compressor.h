@@ -137,7 +137,7 @@ class SelectorCompressor {
       std::vector<size_t> combination_added = {i};
 
       // Try to find other selectors that can join this one.
-      for (size_t j = i + 1; selectors.size(); ++j) {
+      for (size_t j = i + 1; j < selectors.size(); ++j) {
         if (d + combination.size() == max_degree) {
           // Short circuit; nothing can be added to this
           // combination.
