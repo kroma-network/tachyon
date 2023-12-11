@@ -23,7 +23,8 @@ class PermutationProvingKeyTest : public Halo2ProverTest {
 }  // namespace
 
 TEST_F(PermutationProvingKeyTest, Copyable) {
-  ProvingKey expected({Evals::Random(kMaxDegree)}, {Poly::Random(5)});
+  ProvingKey expected({Evals::Random(prover_->pcs().N() - 1)},
+                      {Poly::Random(5)});
   ProvingKey value;
 
   base::VectorBuffer write_buf;

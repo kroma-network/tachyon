@@ -17,12 +17,11 @@ class PermutationTableStoreTest : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
 
-    fixed_columns_ = {Evals::Random(kMaxDegree), Evals::Random(kMaxDegree),
-                      Evals::Random(kMaxDegree)};
-    advice_columns_ = {Evals::Random(kMaxDegree), Evals::Random(kMaxDegree),
-                       Evals::Random(kMaxDegree)};
-    instance_columns_ = {Evals::Random(kMaxDegree), Evals::Random(kMaxDegree),
-                         Evals::Random(kMaxDegree)};
+    size_t n = prover_->pcs().N();
+    size_t d = n - 1;
+    fixed_columns_ = {Evals::Random(d), Evals::Random(d), Evals::Random(d)};
+    advice_columns_ = {Evals::Random(d), Evals::Random(d), Evals::Random(d)};
+    instance_columns_ = {Evals::Random(d), Evals::Random(d), Evals::Random(d)};
 
     table_ = Table<Evals>(absl::MakeConstSpan(fixed_columns_),
                           absl::MakeConstSpan(advice_columns_),
@@ -34,7 +33,7 @@ class PermutationTableStoreTest : public Halo2ProverTest {
         AdviceColumnKey(2), InstanceColumnKey(1), InstanceColumnKey(2)};
 
     unpermuted_table_ = UnpermutedTable<Evals>::Construct(column_keys_.size(),
-                                                          prover_->domain());
+                                                          n, prover_->domain());
     for (const Evals& column : unpermuted_table_.table()) {
       permutations_.push_back(column);
     }

@@ -59,27 +59,26 @@ class UnpermutedTable {
   }
 
   template <typename Domain>
-  static UnpermutedTable Construct(size_t size, const Domain* domain) {
-    constexpr static size_t kMaxDegree = Domain::kMaxDegree;
-
+  static UnpermutedTable Construct(size_t cols, size_t rows,
+                                   const Domain* domain) {
     // The w is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
     std::vector<F> omega_powers =
-        domain->GetRootsOfUnity(kMaxDegree + 1, domain->group_gen());
+        domain->GetRootsOfUnity(rows, domain->group_gen());
 
     // The 𝛿 is g^2ˢ with order T where modulus = 2ˢ * T + 1.
     F delta = GetDelta();
 
     Table unpermuted_table;
-    unpermuted_table.reserve(size);
+    unpermuted_table.reserve(cols);
     // Assign [𝛿⁰w⁰, 𝛿⁰w¹, 𝛿⁰w², ..., 𝛿⁰wⁿ⁻¹] to the first col.
     unpermuted_table.push_back(Evals(std::move(omega_powers)));
 
     // Assign [𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] to each col.
-    for (size_t i = 1; i < size; ++i) {
-      std::vector<F> col = base::CreateVector(kMaxDegree + 1, F::Zero());
+    for (size_t i = 1; i < cols; ++i) {
+      std::vector<F> col = base::CreateVector(rows, F::Zero());
       // TODO(dongchangYoo): Optimize this with
       // https://github.com/kroma-network/tachyon/pull/115.
-      for (size_t j = 0; j <= kMaxDegree; ++j) {
+      for (size_t j = 0; j < rows; ++j) {
         col[j] = *unpermuted_table[i - 1][j] * delta;
       }
       unpermuted_table.push_back(Evals(std::move(col)));

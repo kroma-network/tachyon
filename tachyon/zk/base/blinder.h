@@ -23,6 +23,9 @@ class Blinder {
   const RandomFieldGenerator<F>* random_field_generator() const {
     return random_field_generator_;
   }
+  void set_blinding_factors(size_t blinding_factors) {
+    blinding_factors_ = blinding_factors;
+  }
   size_t blinding_factors() const { return blinding_factors_; }
 
   // Blinds |evals| at behind by |blinding_factors_|.

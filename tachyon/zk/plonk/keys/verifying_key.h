@@ -82,7 +82,7 @@ class VerifyingKey {
   }
 
   template <typename CircuitTy>
-  [[nodiscard]] static bool Generate(const Entity<PCSTy>* entity,
+  [[nodiscard]] static bool Generate(Entity<PCSTy>* entity,
                                      const CircuitTy& circuit,
                                      VerifyingKey* verifying_key);
 
@@ -113,23 +113,26 @@ class VerifyingKey {
 // static
 template <typename PCSTy>
 template <typename CircuitTy>
-bool VerifyingKey<PCSTy>::Generate(const Entity<PCSTy>* entity,
+bool VerifyingKey<PCSTy>::Generate(Entity<PCSTy>* entity,
                                    const CircuitTy& circuit,
                                    VerifyingKey* verifying_key) {
   using Config = typename CircuitTy::Config;
   using FloorPlanner = typename CircuitTy::FloorPlanner;
   using RationalEvals = typename Assembly<PCSTy>::RationalEvals;
   using Evals = typename PCSTy::Evals;
+  using ExtendedDomain = typename PCSTy::ExtendedDomain;
 
   ConstraintSystem<F> constraint_system;
   Config config = CircuitTy::Configure(constraint_system);
 
-  const PCSTy& pcs = entity->pcs();
+  PCSTy& pcs = entity->pcs();
   if (pcs.N() < constraint_system.ComputeMinimumRows()) {
     LOG(ERROR) << "Not enough rows available " << pcs.N() << " vs "
                << constraint_system.ComputeMinimumRows();
     return false;
   }
+  size_t extended_k = constraint_system.ComputeExtendedDegree(pcs.K());
+  entity->set_extended_domain(ExtendedDomain::Create(size_t{1} << extended_k));
 
   Assembly<PCSTy> assembly(
       static_cast<uint32_t>(pcs.K()),

@@ -22,26 +22,25 @@ namespace tachyon::zk {
 class LookupArgumentRunnerTest : public CompressExpressionTestSetting {};
 
 TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
-  constexpr size_t kBlindingFactors = 5;
+  prover_->blinder().set_blinding_factors(5);
 
   const F beta = F::Random();
   const F gamma = F::Random();
 
   std::vector<std::unique_ptr<Expression<F>>> input_expressions;
   std::vector<std::unique_ptr<Expression<F>>> table_expressions;
-  for (size_t i = 0; i < kDomainSize; ++i) {
+  size_t n = prover_->pcs().N();
+  for (size_t i = 0; i < n; ++i) {
     F random = F::Random();
     input_expressions.push_back(ExpressionFactory<F>::Constant(random));
     table_expressions.push_back(ExpressionFactory<F>::Constant(random));
   }
 
   Evals compressed_input_expression;
-  ASSERT_TRUE(CompressExpressions(input_expressions, prover_->domain()->size(),
-                                  theta_, evaluator_,
+  ASSERT_TRUE(CompressExpressions(input_expressions, n, theta_, evaluator_,
                                   &compressed_input_expression));
   Evals compressed_table_expression;
-  ASSERT_TRUE(CompressExpressions(table_expressions, prover_->domain()->size(),
-                                  theta_, evaluator_,
+  ASSERT_TRUE(CompressExpressions(table_expressions, n, theta_, evaluator_,
                                   &compressed_table_expression));
 
   LookupPair<Evals> compressed_evals_pair(
@@ -57,7 +56,7 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
       BlindedPolynomial<Poly>(), BlindedPolynomial<Poly>());
 
   Evals z_evals = GrandProductArgument::CreatePolynomial<Evals>(
-      kDomainSize, kBlindingFactors,
+      n, prover_->blinder().blinding_factors(),
       LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback<F>(
           lookup_permuted, beta, gamma),
       LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback<F>(
@@ -66,7 +65,7 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
 
   // sanity check brought from halo2
   ASSERT_EQ(z[0], F::One());
-  for (size_t i = 0; i < kUsableRows; ++i) {
+  for (size_t i = 0; i < prover_->GetUsableRows(); ++i) {
     F left = z[i + 1];
 
     left *= (beta + *lookup_permuted.permuted_evals_pair().input()[i]);

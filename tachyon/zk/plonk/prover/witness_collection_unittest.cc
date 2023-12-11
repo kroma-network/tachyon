@@ -23,13 +23,15 @@ class WitnessCollectionTest : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
 
+    prover_->blinder().set_blinding_factors(5);
+
     // There is a single challenge in |challenges_|.
     expected_challenges_[0] = F::Random();
-    expected_instance_columns_ = {Evals::Random(kMaxDegree)};
+    expected_instance_columns_ = {Evals::Random(prover_->pcs().N() - 1)};
 
     Phase current_phase(0);
     witness_collection_ = WitnessCollection<PCS>(
-        5, 3, kUsableRows, current_phase, expected_challenges_,
+        5, 3, prover_->GetUsableRows(), current_phase, expected_challenges_,
         expected_instance_columns_);
   }
 

@@ -31,17 +31,19 @@ class Entity {
   using Poly = typename PCSTy::Poly;
   using Commitment = typename PCSTy::Commitment;
 
-  Entity(PCSTy&& pcs, std::unique_ptr<Domain> domain,
-         std::unique_ptr<ExtendedDomain> extended_domain,
+  Entity(PCSTy&& pcs,
          std::unique_ptr<crypto::Transcript<Commitment>> transcript)
-      : pcs_(std::move(pcs)),
-        domain_(std::move(domain)),
-        extended_domain_(std::move(extended_domain)),
-        transcript_(std::move(transcript)) {}
+      : pcs_(std::move(pcs)), transcript_(std::move(transcript)) {}
 
   const PCSTy& pcs() const { return pcs_; }
   PCSTy& pcs() { return pcs_; }
+  void set_domain(std::unique_ptr<Domain> domain) {
+    domain_ = std::move(domain);
+  }
   const Domain* domain() const { return domain_.get(); }
+  void set_extended_domain(std::unique_ptr<ExtendedDomain> extended_domain) {
+    extended_domain_ = std::move(extended_domain);
+  }
   const ExtendedDomain* extended_domain() const {
     return extended_domain_.get();
   }
