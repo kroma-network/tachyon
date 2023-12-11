@@ -71,7 +71,7 @@ class SelectorCompressor {
         base::Map(selectors_in,
                   [&degrees](size_t i, const std::vector<bool>& activations) {
                     size_t max_degree = degrees[i];
-                    return SelectorDescription(i, activations, max_degree);
+                    return SelectorDescription(i, &activations, max_degree);
                   });
 
     std::vector<std::vector<F>> combination_assignments;
