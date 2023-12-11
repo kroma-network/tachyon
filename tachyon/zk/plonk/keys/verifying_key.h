@@ -35,19 +35,15 @@ constexpr char kVerifyingKeyStr[] = "Halo2-Verify-Key";
 template <typename PCSTy>
 class VerifyingKey {
  public:
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
-
   using F = typename PCSTy::Field;
-  using Domain = typename PCSTy::Domain;
   using Commitment = typename PCSTy::Commitment;
   using Commitments = std::vector<Commitment>;
 
   VerifyingKey() = default;
-  VerifyingKey(const Domain* domain, Commitments&& fixed_commitments,
+  VerifyingKey(Commitments&& fixed_commitments,
                PermutationVerifyingKey<PCSTy>&& permutation_verifying_key,
                ConstraintSystem<F>&& constraint_system)
-      : domain_(domain),
-        fixed_commitments_(std::move(fixed_commitments)),
+      : fixed_commitments_(std::move(fixed_commitments)),
         permutation_verifying_Key_(std::move(permutation_verifying_key)),
         constraint_system_(std::move(constraint_system)) {}
 
@@ -55,7 +51,7 @@ class VerifyingKey {
       const Entity<PCSTy>* entity, Commitments fixed_commitments,
       PermutationVerifyingKey<PCSTy> permutation_verifying_key,
       ConstraintSystem<F> constraint_system) {
-    VerifyingKey ret(entity->domain(), std::move(fixed_commitments),
+    VerifyingKey ret(std::move(fixed_commitments),
                      std::move(permutation_verifying_key),
                      std::move(constraint_system));
     ret.SetTranscriptRepresentative(entity);
@@ -85,8 +81,6 @@ class VerifyingKey {
                                      const CircuitTy& circuit,
                                      VerifyingKey* verifying_key);
 
-  const Domain* domain() const { return domain_; }
-
   const Commitments& fixed_commitments() const { return fixed_commitments_; }
 
   const PermutationVerifyingKey<PCSTy>& permutation_verifying_key() const {
@@ -100,8 +94,6 @@ class VerifyingKey {
   const F& transcript_repr() const { return transcript_repr_; }
 
  private:
-  // not owned
-  const Domain* domain_ = nullptr;
   Commitments fixed_commitments_;
   PermutationVerifyingKey<PCSTy> permutation_verifying_Key_;
   ConstraintSystem<F> constraint_system_;
