@@ -41,6 +41,20 @@ class Gate {
     return queried_cells_;
   }
 
+  bool operator==(const Gate& other) const {
+    if (!(name_ == other.name_ &&
+          constraint_names_ == other.constraint_names_ &&
+          queried_selectors_ == other.queried_selectors_ &&
+          queried_cells_ == other.queried_cells_))
+      return false;
+    if (polys_.size() != other.polys_.size()) return false;
+    for (size_t i = 0; i < polys_.size(); ++i) {
+      if (*polys_[i] != *other.polys_[i]) return false;
+    }
+    return true;
+  }
+  bool operator!=(const Gate& other) const { return !operator==(other); }
+
  private:
   std::string name_;
   std::vector<std::string> constraint_names_;
