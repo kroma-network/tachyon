@@ -83,16 +83,12 @@ class PermutationAssembly {
       const Entity<PCSTy>* entity,
       const std::vector<Evals>& permutations) const {
     const PCSTy& pcs = entity->pcs();
-
-    Commitments commitments;
-    commitments.reserve(columns_.size());
-    for (size_t i = 0; i < columns_.size(); ++i) {
-      Commitment commitment;
-      CHECK(pcs.CommitLagrange(permutations[i], &commitment));
-      commitments.push_back(std::move(commitment));
-    }
-
-    return PermutationVerifyingKey<PCSTy>(std::move(commitments));
+    return PermutationVerifyingKey<PCSTy>(
+        base::Map(permutations, [pcs](const Evals& permutation) {
+          Commitment commitment;
+          CHECK(pcs.CommitLagrange(permutation, &commitment));
+          return commitment;
+        }));
   }
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
