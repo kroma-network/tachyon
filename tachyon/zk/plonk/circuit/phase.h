@@ -19,7 +19,7 @@
 
 namespace tachyon::zk {
 
-// NOTE(lightscale-luke): Rotation class is copyable, assignable, and occupy 8
+// NOTE(lightscale-luke): Phase class is copyable, assignable, and occupy 8
 // bits per instance. Prefer to pass them by value.
 class TACHYON_EXPORT Phase {
  public:
@@ -34,8 +34,12 @@ class TACHYON_EXPORT Phase {
 
   uint8_t value() const { return value_; }
 
-  bool operator==(const Phase& other) const { return value_ == other.value_; }
-  bool operator!=(const Phase& other) const { return value_ != other.value_; }
+  bool operator==(Phase other) const { return value_ == other.value_; }
+  bool operator!=(Phase other) const { return value_ != other.value_; }
+  bool operator>(Phase other) const { return value_ > other.value_; }
+  bool operator>=(Phase other) const { return value_ >= other.value_; }
+  bool operator<(Phase other) const { return value_ < other.value_; }
+  bool operator<=(Phase other) const { return value_ <= other.value_; }
 
   std::string ToString() const { return base::NumberToString(value_); }
 
@@ -47,7 +51,7 @@ constexpr static Phase kFirstPhase = Phase(0);
 constexpr static Phase kSecondPhase = Phase(1);
 
 template <typename H>
-H AbslHashValue(H h, const Phase& phase) {
+H AbslHashValue(H h, Phase phase) {
   return H::combine(std::move(h), phase.value());
 }
 

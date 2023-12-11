@@ -412,15 +412,15 @@ class ConstraintSystem {
   Phase ComputeMaxPhase() const {
     auto max_phase_it = std::max_element(advice_column_phases_.begin(),
                                          advice_column_phases_.end());
-    if (max_phase_it == advice_column_phases_.end()) return Phase(0);
+    if (max_phase_it == advice_column_phases_.end()) return kFirstPhase;
     return *max_phase_it;
   }
 
   std::vector<Phase> GetPhases() const {
     Phase max_phase = ComputeMaxPhase();
-    return base::CreateVector(size_t{max_phase.value()}, [](size_t i) {
-      return Phase(static_cast<uint8_t>(i));
-    });
+    return base::CreateVector(
+        static_cast<size_t>(max_phase.value() + 1),
+        [](size_t i) { return Phase(static_cast<uint8_t>(i)); });
   }
 
   // Compute the degree of the constraint system (the maximum degree of all
@@ -459,7 +459,7 @@ class ConstraintSystem {
     factors = std::max(size_t{3}, factors);
 
     // Each polynomial is evaluated at most an additional time during
-    // multiopen (at x₃ to produce qₑᵥₐₗₛ):
+    // multiopen (at x₃ to produce q_evals):
     ++factors;
 
     // h(x) is derived by the other evaluations so it does not reveal
@@ -479,10 +479,10 @@ class ConstraintSystem {
   // account for e.g. blinding factors.
   size_t ComputeMinimumRows() const {
     return ComputeBlindingFactors()  // m blinding factors
-           + 1                       // for l_{-(m + 1)} (lₗₐₛₜ)
+           + 1                       // for l_{-(m + 1)} (l_last)
            + 1  // for l₀ (just for extra breathing room for the permutation
                 // argument, to essentially force a separation in the
-           // permutation polynomial between the roles of lₗₐₛₜ, l₀
+           // permutation polynomial between the roles of l_last, l₀
            // and the interstitial values.)
            + 1;  // for at least one row
   }
@@ -497,7 +497,7 @@ class ConstraintSystem {
           return query.column() == column && query.rotation() == at;
         });
     if (!index.has_value()) return false;
-    *index = index.value();
+    *index_out = index.value();
     return true;
   }
 
