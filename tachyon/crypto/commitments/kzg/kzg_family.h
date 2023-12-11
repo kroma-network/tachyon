@@ -10,6 +10,8 @@
 #include <utility>
 
 #include "tachyon/crypto/commitments/kzg/kzg.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
+#include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::crypto {
 
@@ -42,6 +44,18 @@ class KZGFamily {
   [[nodiscard]] bool DoCommitLagrange(const ContainerTy& poly,
                                       Commitment* commitment) const {
     return kzg_.CommitLagrange(poly, commitment);
+  }
+
+  [[nodiscard]] bool DoCommit(
+      const math::UnivariateDensePolynomial<F, MaxDegree>& poly,
+      Commitment* commitment) const {
+    return kzg_.Commit(poly.coefficients().coefficients(), commitment);
+  }
+
+  [[nodiscard]] bool DoCommitLagrange(
+      const math::UnivariateEvaluations<F, MaxDegree>& evals,
+      Commitment* commitment) const {
+    return kzg_.CommitLagrange(evals.evaluations(), commitment);
   }
 
  protected:
