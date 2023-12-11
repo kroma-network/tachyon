@@ -25,16 +25,43 @@ class SelectorsReplacer : public Evaluator<F, std::unique_ptr<Expression<F>>> {
 
   // Evaluator methods
   std::unique_ptr<Expression<F>> Evaluate(const Expression<F>* input) override {
-    if (input->type() == ExpressionType::kSelector) {
-      const Selector& selector = input->ToSelector()->selector();
-      if (must_be_non_simple_) {
-        // Simple selectors are prohibited from appearing in
-        // expressions in the lookup argument by |ConstraintSystem|.
-        CHECK(!selector.is_simple());
+    switch (input->type()) {
+      case ExpressionType::kConstant:
+      case ExpressionType::kFixed:
+      case ExpressionType::kAdvice:
+      case ExpressionType::kInstance:
+      case ExpressionType::kChallenge:
+        return input->Clone();
+      case ExpressionType::kSelector: {
+        const Selector& selector = input->ToSelector()->selector();
+        if (must_be_non_simple_) {
+          // Simple selectors are prohibited from appearing in
+          // expressions in the lookup argument by |ConstraintSystem|.
+          CHECK(!selector.is_simple());
+        }
+        return replacements_[selector.index()]->Clone();
       }
-      return replacements_[selector.index()]->Clone();
+      case ExpressionType::kNegated:
+        return ExpressionFactory<F>::Negated(
+            Evaluate(input->ToNegated()->expr()));
+      case ExpressionType::kSum: {
+        const SumExpression<F>* sum = input->ToSum();
+        return ExpressionFactory<F>::Sum(Evaluate(sum->left()),
+                                         Evaluate(sum->right()));
+      }
+      case ExpressionType::kProduct: {
+        const ProductExpression<F>* product = input->ToProduct();
+        return ExpressionFactory<F>::Product(Evaluate(product->left()),
+                                             Evaluate(product->right()));
+      }
+      case ExpressionType::kScaled: {
+        const ScaledExpression<F>* scaled = input->ToScaled();
+        return ExpressionFactory<F>::Scaled(Evaluate(scaled->expr()),
+                                            scaled->scale());
+      }
     }
-    return input->Clone();
+    NOTREACHED();
+    return nullptr;
   }
 
  private:
