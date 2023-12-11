@@ -150,6 +150,8 @@ tachyon_cc_library(
         "//tachyon/base:range",
         "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
+        # TODO(chokobole): Remove this dependency once fixing issue specified in unpermuted_table.h.
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "@com_google_googletest//:gtest_prod",
     ],
 )
