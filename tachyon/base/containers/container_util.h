@@ -167,6 +167,96 @@ std::optional<size_t> FindIndexIf(Container&& container, UnaryOp&& op) {
                      std::forward<UnaryOp>(op));
 }
 
+namespace internal {
+
+template <typename Iterator, typename T>
+std::vector<size_t> DoFindIndices(Iterator begin, Iterator end, const T& value,
+                                  const std::random_access_iterator_tag&) {
+  std::vector<size_t> matches;
+  auto it = std::find(begin, end, value);
+  while (it != end) {
+    size_t index = std::distance(begin, it);
+    matches.push_back(index);
+    it = std::find(it + 1, end, value);
+  }
+  return matches;
+}
+
+template <typename Iterator, typename T>
+std::vector<size_t> DoFindIndices(Iterator begin, Iterator end, const T& value,
+                                  const std::input_iterator_tag&) {
+  std::vector<size_t> matches;
+  auto it = std::find(begin, end, value);
+  auto last_it = begin;
+  size_t last_index = 0;
+  while (it != end) {
+    size_t index = last_index + std::distance(last_it, it);
+    matches.push_back(index);
+    last_it = it;
+    last_index = index;
+    it = std::find(last_it + 1, end, value);
+  }
+  return matches;
+}
+
+template <typename Iterator, typename UnaryOp>
+std::vector<size_t> DoFindIndicesIf(Iterator begin, Iterator end, UnaryOp&& op,
+                                    const std::random_access_iterator_tag&) {
+  std::vector<size_t> matches;
+  auto it = std::find_if(begin, end, std::forward<UnaryOp>(op));
+  while (it != end) {
+    size_t index = std::distance(begin, it);
+    matches.push_back(index);
+    it = std::find_if(it + 1, end, std::forward<UnaryOp>(op));
+  }
+  return matches;
+}
+
+template <typename Iterator, typename UnaryOp>
+std::vector<size_t> DoFindIndicesIf(Iterator begin, Iterator end, UnaryOp&& op,
+                                    const std::input_iterator_tag&) {
+  std::vector<size_t> matches;
+  auto it = std::find_if(begin, end, std::forward<UnaryOp>(op));
+  auto last_it = begin;
+  size_t last_index = 0;
+  while (it != end) {
+    size_t index = last_index + std::distance(last_it, it);
+    matches.push_back(index);
+    last_it = it;
+    last_index = index;
+    it = std::find_if(last_it + 1, end, std::forward<UnaryOp>(op));
+  }
+  return matches;
+}
+
+}  // namespace internal
+
+template <typename Iterator, typename T>
+std::vector<size_t> FindIndices(Iterator begin, Iterator end, const T& value) {
+  using iterator_category =
+      typename std::iterator_traits<Iterator>::iterator_category;
+  return internal::DoFindIndices(begin, end, value, iterator_category());
+}
+
+template <typename Container, typename T>
+std::vector<size_t> FindIndices(Container&& container, const T& value) {
+  return FindIndices(std::begin(container), std::end(container), value);
+}
+
+template <typename Iterator, typename UnaryOp>
+std::vector<size_t> FindIndicesIf(Iterator begin, Iterator end, UnaryOp&& op) {
+  using iterator_category =
+      typename std::iterator_traits<Iterator>::iterator_category;
+  return internal::DoFindIndicesIf(begin, end, std::forward<UnaryOp>(op),
+                                   iterator_category());
+}
+
+template <typename Container, typename UnaryOp>
+std::vector<size_t> FindIndicesIf(Container&& container, UnaryOp&& op) {
+  return FindIndicesIf(std::begin(container), std::end(container),
+                       std::forward<UnaryOp>(op));
+}
+
 template <typename Container>
 void Shuffle(Container& container) {
   absl::c_shuffle(container, GetAbslBitGen());

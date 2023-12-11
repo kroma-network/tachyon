@@ -42,7 +42,7 @@ class ProvingKey {
   const Poly& l_last() const { return l_last_; }
   const Poly& l_active_row() const { return l_active_row_; }
   const std::vector<Evals>& fixed_values() const { return fixed_values_; }
-  const std::vector<Evals>& fixed_polys() const { return fixed_polys_; }
+  const std::vector<Poly>& fixed_polys() const { return fixed_polys_; }
   const PermutationProvingKey<Poly, Evals>& permutation_proving_key() const {
     return permutation_proving_key_;
   }
@@ -53,7 +53,7 @@ class ProvingKey {
   Poly l_last_;
   Poly l_active_row_;
   std::vector<Evals> fixed_values_;
-  std::vector<Evals> fixed_polys_;
+  std::vector<Poly> fixed_polys_;
   PermutationProvingKey<Poly, Evals> permutation_proving_key_;
   VanishingArgument<PCSTy> vanishing_argument_;
 };
