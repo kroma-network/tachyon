@@ -30,6 +30,7 @@ class Halo2ProverTest : public testing::Test {
   using Commitment = PCS::Commitment;
   using Poly = PCS::Poly;
   using Evals = PCS::Evals;
+  using RationalEvals = PCS::RationalEvals;
   using Domain = PCS::Domain;
   using ExtendedDomain = PCS::ExtendedDomain;
 

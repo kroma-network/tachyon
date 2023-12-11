@@ -47,6 +47,20 @@ class VerifyingKey {
         permutation_verifying_Key_(std::move(permutation_verifying_key)),
         constraint_system_(std::move(constraint_system)) {}
 
+  static Assembly<PCSTy> CreateAssembly(
+      const PCSTy& pcs, const ConstraintSystem<F>& constraint_system) {
+    using RationalEvals = typename Assembly<PCSTy>::RationalEvals;
+    return {
+        static_cast<uint32_t>(pcs.K()),
+        base::CreateVector(constraint_system.num_fixed_columns(),
+                           RationalEvals::UnsafeZero(pcs.N() - 1)),
+        PermutationAssembly<PCSTy>(constraint_system.permutation(), pcs.N()),
+        base::CreateVector(constraint_system.num_selectors(),
+                           base::CreateVector(pcs.N(), false)),
+        base::Range<size_t>::Until(
+            pcs.N() - (constraint_system.ComputeBlindingFactors() + 1))};
+  }
+
   static VerifyingKey FromParts(
       const Entity<PCSTy>* entity, Commitments fixed_commitments,
       PermutationVerifyingKey<PCSTy> permutation_verifying_key,
@@ -125,16 +139,7 @@ bool VerifyingKey<PCSTy>::Generate(Entity<PCSTy>* entity,
   size_t extended_k = constraint_system.ComputeExtendedDegree(pcs.K());
   entity->set_extended_domain(ExtendedDomain::Create(size_t{1} << extended_k));
 
-  Assembly<PCSTy> assembly(
-      static_cast<uint32_t>(pcs.K()),
-      base::CreateVector(constraint_system.num_fixed_columns(),
-                         RationalEvals::UnsafeZero(pcs.N() - 1)),
-      PermutationAssembly<PCSTy>(constraint_system.permutation(), pcs.N()),
-      base::CreateVector(constraint_system.num_selectors(),
-                         base::CreateVector(pcs.N(), false)),
-      base::Range<size_t>::Until(
-          pcs.N() - (constraint_system.ComputeBlindingFactors() + 1)));
-
+  Assembly<PCSTy> assembly = CreateAssembly(pcs, constraint_system);
   FloorPlanner::Synthesize(&assembly, circuit, std::move(config),
                            constraint_system.constants());
 
