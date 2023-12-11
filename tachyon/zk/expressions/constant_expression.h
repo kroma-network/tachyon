@@ -27,15 +27,6 @@ class ConstantExpression : public Expression<F> {
 
   const F& value() const { return value_; }
 
-  bool operator==(const Expression<F>& other) const {
-    if (!Expression<F>::operator==(other)) return false;
-    const ConstantExpression* constant = other.ToConstant();
-    return value_ == constant->value_;
-  }
-  bool operator!=(const Expression<F>& other) const {
-    return !operator==(other);
-  }
-
   // Expression methods
   size_t Degree() const override { return 0; }
 
@@ -49,6 +40,12 @@ class ConstantExpression : public Expression<F> {
     return absl::Substitute("{type: $0, value: $1}",
                             ExpressionTypeToString(this->type_),
                             value_.ToString());
+  }
+
+  bool operator==(const Expression<F>& other) const override {
+    if (!Expression<F>::operator==(other)) return false;
+    const ConstantExpression* constant = other.ToConstant();
+    return value_ == constant->value_;
   }
 
  private:

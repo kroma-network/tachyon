@@ -28,15 +28,6 @@ class SelectorExpression : public Expression<F> {
 
   const Selector& selector() const { return selector_; }
 
-  bool operator==(const Expression<F>& other) const {
-    if (!Expression<F>::operator==(other)) return false;
-    const SelectorExpression* selector = other.ToSelector();
-    return selector_ == selector->selector_;
-  }
-  bool operator!=(const Expression<F>& other) const {
-    return !operator==(other);
-  }
-
   // Expression methods
   size_t Degree() const override { return 1; }
 
@@ -50,6 +41,12 @@ class SelectorExpression : public Expression<F> {
     return absl::Substitute("{type: $0, selector: $1}",
                             ExpressionTypeToString(this->type_),
                             selector_.ToString());
+  }
+
+  bool operator==(const Expression<F>& other) const override {
+    if (!Expression<F>::operator==(other)) return false;
+    const SelectorExpression* selector = other.ToSelector();
+    return selector_ == selector->selector_;
   }
 
  private:

@@ -29,15 +29,6 @@ class ChallengeExpression : public Expression<F> {
 
   const Challenge& challenge() const { return challenge_; }
 
-  bool operator==(const Expression<F>& other) const {
-    if (!Expression<F>::operator==(other)) return false;
-    const ChallengeExpression* challenge = other.ToChallenge();
-    return challenge_ == challenge->challenge_;
-  }
-  bool operator!=(const Expression<F>& other) const {
-    return !operator==(other);
-  }
-
   // Expression methods
   size_t Degree() const override { return 0; }
 
@@ -51,6 +42,12 @@ class ChallengeExpression : public Expression<F> {
     return absl::Substitute("{type: $0, challenge: $1}",
                             ExpressionTypeToString(this->type_),
                             challenge_.ToString());
+  }
+
+  bool operator==(const Expression<F>& other) const override {
+    if (!Expression<F>::operator==(other)) return false;
+    const ChallengeExpression* challenge = other.ToChallenge();
+    return challenge_ == challenge->challenge_;
   }
 
  private:
