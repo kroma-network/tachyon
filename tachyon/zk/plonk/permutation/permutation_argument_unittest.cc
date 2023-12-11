@@ -21,10 +21,13 @@ class PermutationArgumentTest : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
 
-    Evals cycled_column = Evals::Random();
-    fixed_columns_ = {cycled_column, Evals::Random(), Evals::Random()};
-    advice_columns_ = {Evals::Random(), cycled_column, Evals::Random()};
-    instance_columns_ = {cycled_column, Evals::Random(), Evals::Random()};
+    Evals cycled_column = Evals::Random(kMaxDegree);
+    fixed_columns_ = {cycled_column, Evals::Random(kMaxDegree),
+                      Evals::Random(kMaxDegree)};
+    advice_columns_ = {Evals::Random(kMaxDegree), cycled_column,
+                       Evals::Random(kMaxDegree)};
+    instance_columns_ = {cycled_column, Evals::Random(kMaxDegree),
+                         Evals::Random(kMaxDegree)};
 
     table_ = Table<Evals>(absl::MakeConstSpan(fixed_columns_),
                           absl::MakeConstSpan(advice_columns_),

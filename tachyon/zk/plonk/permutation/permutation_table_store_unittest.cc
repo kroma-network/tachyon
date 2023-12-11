@@ -17,9 +17,12 @@ class PermutationTableStoreTest : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
 
-    fixed_columns_ = {Evals::Random(), Evals::Random(), Evals::Random()};
-    advice_columns_ = {Evals::Random(), Evals::Random(), Evals::Random()};
-    instance_columns_ = {Evals::Random(), Evals::Random(), Evals::Random()};
+    fixed_columns_ = {Evals::Random(kMaxDegree), Evals::Random(kMaxDegree),
+                      Evals::Random(kMaxDegree)};
+    advice_columns_ = {Evals::Random(kMaxDegree), Evals::Random(kMaxDegree),
+                       Evals::Random(kMaxDegree)};
+    instance_columns_ = {Evals::Random(kMaxDegree), Evals::Random(kMaxDegree),
+                         Evals::Random(kMaxDegree)};
 
     table_ = Table<Evals>(absl::MakeConstSpan(fixed_columns_),
                           absl::MakeConstSpan(advice_columns_),

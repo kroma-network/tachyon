@@ -25,7 +25,7 @@ class WitnessCollectionTest : public Halo2ProverTest {
 
     // There is a single challenge in |challenges_|.
     expected_challenges_[0] = F::Random();
-    expected_instance_columns_ = {Evals::Random()};
+    expected_instance_columns_ = {Evals::Random(kMaxDegree)};
 
     Phase current_phase(0);
     witness_collection_ = WitnessCollection<PCS>(

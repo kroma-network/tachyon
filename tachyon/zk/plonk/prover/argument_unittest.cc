@@ -27,17 +27,17 @@ class ArgumentTest : public Halo2ProverTest {
   void InitColumns() {
     num_circuits_ = 2;
     expected_fixed_columns_ =
-        base::CreateVector(1, []() { return Evals::Random(); });
+        base::CreateVector(1, []() { return Evals::Random(kMaxDegree); });
     expected_fixed_polys_ =
         base::CreateVector(1, []() { return Poly::Random(kMaxDegree); });
     expected_advice_columns_vec_ = base::CreateVector(num_circuits_, []() {
-      return base::CreateVector(2, []() { return Evals::Random(); });
+      return base::CreateVector(2, []() { return Evals::Random(kMaxDegree); });
     });
     expected_advice_blinds_vec_ = base::CreateVector(num_circuits_, []() {
       return base::CreateVector(2, []() { return F::Random(); });
     });
     expected_instance_columns_vec_ = base::CreateVector(num_circuits_, []() {
-      return base::CreateVector(1, []() { return Evals::Random(); });
+      return base::CreateVector(1, []() { return Evals::Random(kMaxDegree); });
     });
     expected_challenges_ = {F::Random()};
   }

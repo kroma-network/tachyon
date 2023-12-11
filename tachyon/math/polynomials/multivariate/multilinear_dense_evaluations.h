@@ -42,31 +42,28 @@ class MultilinearDenseEvaluations {
   }
 
   // NOTE(chokobole): The zero polynomial can be represented in two forms:
-  // 1. An empty vector
-  // 2. A vector filled with |F::Zero()| up to the |MaxDegree| + 1.
+  // 1. An empty vector.
+  // 2. A vector filled with |F::Zero()|.
   constexpr static MultilinearDenseEvaluations Zero() {
     return MultilinearDenseEvaluations();
   }
 
-  // NOTE(chokobole): This creates polynomial that contains elements up to
-  // |degree| + 1. This breaks assumption of |MultilinearDenseEvaluations| that
-  // it contains exact degree sized elements except for zero polynomial. So when
-  // you compare polynomial with the returned polynomial, you can get unexpected
-  // result. So please use it carefully!
+  // NOTE(chokobole): This creates polynomial that contains |F::Zero()| up to
+  // |degree| + 1.
   constexpr static MultilinearDenseEvaluations UnsafeZero(size_t degree) {
     MultilinearDenseEvaluations ret;
     ret.evaluations_ = base::CreateVector(size_t{1} << degree, F::Zero());
     return ret;
   }
 
-  constexpr static MultilinearDenseEvaluations One() {
+  constexpr static MultilinearDenseEvaluations One(size_t degree) {
     return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << MaxDegree, F::One()));
+        base::CreateVector(size_t{1} << degree, F::One()));
   }
 
-  constexpr static MultilinearDenseEvaluations Random() {
-    return MultilinearDenseEvaluations(base::CreateVector(
-        size_t{1} << MaxDegree, []() { return F::Random(); }));
+  constexpr static MultilinearDenseEvaluations Random(size_t degree) {
+    return MultilinearDenseEvaluations(
+        base::CreateVector(size_t{1} << degree, []() { return F::Random(); }));
   }
 
   constexpr const std::vector<F>& evaluations() const { return evaluations_; }
@@ -181,15 +178,16 @@ class MultilinearDenseEvaluations {
 
 template <typename H, typename F, size_t MaxDegree>
 H AbslHashValue(H h, const MultilinearDenseEvaluations<F, MaxDegree>& evals) {
-  if (evals.evaluations().empty()) {
-    F zero = F::Zero();
-    for (size_t i = 0; i < size_t{1} << MaxDegree; ++i) {
-      h = H::combine(std::move(h), zero);
-    }
-  } else {
-    for (const F& eval : evals.evaluations()) {
-      h = H::combine(std::move(h), eval);
-    }
+  // NOTE(chokobole): We shouldn't hash only with a non-zero term.
+  // See https://abseil.io/docs/cpp/guides/hash#the-abslhashvalue-overload
+  size_t degree = 0;
+  for (const F& eval : evals.evaluations()) {
+    h = H::combine(std::move(h), eval);
+    ++degree;
+  }
+  F zero = F::Zero();
+  for (size_t i = degree; i < size_t{1} << MaxDegree; ++i) {
+    h = H::combine(std::move(h), zero);
   }
   return h;
 }

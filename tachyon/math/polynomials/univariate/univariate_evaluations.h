@@ -49,15 +49,11 @@ class UnivariateEvaluations final
   constexpr UnivariateEvaluations() = default;
   constexpr explicit UnivariateEvaluations(const std::vector<F>& evaluations)
       : evaluations_(evaluations) {
-    if (!evaluations_.empty()) {
-      CHECK_EQ(evaluations_.size() - 1, MaxDegree);
-    }
+    CHECK_LE(Degree(), MaxDegree);
   }
   constexpr explicit UnivariateEvaluations(std::vector<F>&& evaluations)
       : evaluations_(std::move(evaluations)) {
-    if (!evaluations_.empty()) {
-      CHECK_EQ(evaluations_.size() - 1, MaxDegree);
-    }
+    CHECK_LE(Degree(), MaxDegree);
   }
 
   constexpr static bool IsCoefficientForm() { return false; }
@@ -65,36 +61,42 @@ class UnivariateEvaluations final
   constexpr static bool IsEvaluationForm() { return true; }
 
   // NOTE(chokobole): The zero polynomial can be represented in two forms:
-  // 1. An empty vector
-  // 2. A vector filled with |F::Zero()| up to the |MaxDegree| + 1.
+  // 1. An empty vector.
+  // 2. A vector filled with |F::Zero()|.
   constexpr static UnivariateEvaluations Zero() {
     return UnivariateEvaluations();
   }
 
-  // NOTE(chokobole): This creates polynomial that contains elements up to
-  // |degree| + 1. This breaks assumption of |UnivariateEvaluations| that it
-  // contains exact degree sized elements except for zero polynomial. So when
-  // you compare polynomial with the returned polynomial, you can get unexpected
-  // result. So please use it carefully!
+  // NOTE(chokobole): This creates polynomial that contains |F::Zero()| up to
+  // |degree| + 1.
   constexpr static UnivariateEvaluations UnsafeZero(size_t degree) {
     UnivariateEvaluations ret;
     ret.evaluations_ = base::CreateVector(degree + 1, F::Zero());
     return ret;
   }
 
-  constexpr static UnivariateEvaluations One() {
+  constexpr static UnivariateEvaluations One(size_t degree) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = base::CreateVector(MaxDegree + 1, F::One());
+    ret.evaluations_ = base::CreateVector(degree + 1, F::One());
     return ret;
   }
 
-  constexpr static UnivariateEvaluations Random() {
+  constexpr static UnivariateEvaluations Random(size_t degree) {
     return UnivariateEvaluations(
-        base::CreateVector(MaxDegree + 1, []() { return F::Random(); }));
+        base::CreateVector(degree + 1, []() { return F::Random(); }));
   }
 
   constexpr const std::vector<F>& evaluations() const { return evaluations_; }
   constexpr std::vector<F>& evaluations() { return evaluations_; }
+
+  // NOTE(chokobole): Sometimes, this degree doesn't match with the exact
+  // degree of the coefficients that is produced by IFFT. I leave it for
+  // consistency with another polynomial.
+  // For example, [0, 0, 0, 0] gives you 3, but it's 0 in reality.
+  constexpr size_t Degree() const {
+    if (evaluations_.empty()) return 0;
+    return evaluations_.size() - 1;
+  }
 
   constexpr size_t NumElements() const { return evaluations_.size(); }
 
@@ -210,15 +212,16 @@ class PolynomialTraits<UnivariateEvaluations<F, MaxDegree>> {
 
 template <typename H, typename F, size_t MaxDegree>
 H AbslHashValue(H h, const UnivariateEvaluations<F, MaxDegree>& evals) {
-  if (evals.evaluations().empty()) {
-    F zero = F::Zero();
-    for (size_t i = 0; i < MaxDegree + 1; ++i) {
-      h = H::combine(std::move(h), zero);
-    }
-  } else {
-    for (const F& eval : evals.evaluations()) {
-      h = H::combine(std::move(h), eval);
-    }
+  // NOTE(chokobole): We shouldn't hash only with a non-zero term.
+  // See https://abseil.io/docs/cpp/guides/hash#the-abslhashvalue-overload
+  size_t degree = 0;
+  for (const F& eval : evals.evaluations()) {
+    h = H::combine(std::move(h), eval);
+    ++degree;
+  }
+  F zero = F::Zero();
+  for (size_t i = degree; i < MaxDegree + 1; ++i) {
+    h = H::combine(std::move(h), zero);
   }
   return h;
 }

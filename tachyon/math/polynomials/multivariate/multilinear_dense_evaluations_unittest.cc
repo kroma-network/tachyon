@@ -9,6 +9,7 @@
 namespace tachyon::math {
 
 namespace {
+
 const size_t kMaxDegree = 4;
 
 using Point = std::vector<GF7>;
@@ -42,7 +43,7 @@ TEST_F(MultilinearDenseEvaluationsTest, IsZero) {
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, IsOne) {
-  EXPECT_TRUE(Poly::One().IsOne());
+  EXPECT_TRUE(Poly::One(0).IsOne());
   EXPECT_TRUE(Poly(Evals({GF7(1)})).IsOne());
   for (size_t i = 0; i < polys_.size(); ++i) {
     EXPECT_FALSE(polys_[i].IsOne());
@@ -51,9 +52,9 @@ TEST_F(MultilinearDenseEvaluationsTest, IsOne) {
 
 TEST_F(MultilinearDenseEvaluationsTest, Random) {
   bool success = false;
-  Poly r = Poly::Random();
+  Poly r = Poly::Random(kMaxDegree);
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random()) {
+    if (r != Poly::Random(kMaxDegree)) {
       success = true;
       break;
     }
@@ -92,7 +93,7 @@ TEST_F(MultilinearDenseEvaluationsTest, Degree) {
   for (const auto& test : tests) {
     EXPECT_EQ(test.poly.Degree(), test.degree);
   }
-  EXPECT_LE(Poly::Random().Degree(), kMaxDegree);
+  EXPECT_LE(Poly::Random(kMaxDegree).Degree(), kMaxDegree);
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, Evaluate) {
@@ -212,7 +213,8 @@ TEST_F(MultilinearDenseEvaluationsTest, Hash) {
   EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(std::make_tuple(
       Poly(), Poly::Zero(),
       Poly(Evals(base::CreateVector(size_t{1} << kMaxDegree, GF7::Zero()))),
-      Poly::One(), Poly::Random(), Poly::Random())));
+      Poly::One(kMaxDegree), Poly::Random(kMaxDegree),
+      Poly::Random(kMaxDegree))));
 }
 
 }  // namespace tachyon::math
