@@ -34,7 +34,7 @@ class ScaledExpression : public Expression<F> {
   bool operator==(const Expression<F>& other) const {
     if (!Expression<F>::operator==(other)) return false;
     const ScaledExpression* scaled = other.ToScaled();
-    return *expr_ == *scaled->expr_ && scale_ == scaled->scale;
+    return *expr_ == *scaled->expr_ && scale_ == scaled->scale_;
   }
   bool operator!=(const Expression<F>& other) const {
     return !operator==(other);
