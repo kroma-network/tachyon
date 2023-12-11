@@ -20,10 +20,13 @@ bool DoStringToLimbs(std::string_view str, uint64_t* limbs, size_t limb_nums) {
 }
 
 template <size_t Base>
-std::string DoLimbsToString(const uint64_t* limbs, size_t limb_nums) {
+std::string DoLimbsToString(const uint64_t* limbs, size_t limb_nums,
+                            bool pad_zero) {
   mpz_class out;
   gmp::WriteLimbs(limbs, limb_nums, &out);
-  return out.get_str(Base);
+  std::string str = out.get_str(Base);
+  if (!pad_zero) return str;
+  return base::ToHexStringWithLeadingZero(str, limb_nums * 8 * 2);
 }
 
 }  // namespace
@@ -37,11 +40,12 @@ bool HexStringToLimbs(std::string_view str, uint64_t* limbs, size_t limb_nums) {
 }
 
 std::string LimbsToString(const uint64_t* limbs, size_t limb_nums) {
-  return DoLimbsToString<10>(limbs, limb_nums);
+  return DoLimbsToString<10>(limbs, limb_nums, false);
 }
 
-std::string LimbsToHexString(const uint64_t* limbs, size_t limb_nums) {
-  return base::MaybePrepend0x(DoLimbsToString<16>(limbs, limb_nums));
+std::string LimbsToHexString(const uint64_t* limbs, size_t limb_nums,
+                             bool pad_zero) {
+  return base::MaybePrepend0x(DoLimbsToString<16>(limbs, limb_nums, pad_zero));
 }
 
 }  // namespace tachyon::math::internal

@@ -108,6 +108,14 @@ TACHYON_EXPORT std::string MaybePrepend0x(std::string_view str);
 TACHYON_EXPORT std::string MaybePrepend0x(std::string&& str);
 TACHYON_EXPORT std::string MaybePrepend0x(const std::string& str);
 
+// Return a string that left padded with zero so that size of a hex number
+// is a given |num|. For example,
+//
+//   - |str| = "0x1234" and |num| = 6 => "0x001234"
+//   - |str| = "1234" and |num| = 6 => "001234"
+TACHYON_EXPORT std::string ToHexStringWithLeadingZero(const std::string& str,
+                                                      size_t num);
+
 ALWAYS_INLINE const char* BoolToString(bool b) { return b ? "true" : "false"; }
 
 template <typename T>

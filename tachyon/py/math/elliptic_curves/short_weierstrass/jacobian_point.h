@@ -29,7 +29,8 @@ void AddJacobianPoint(py11::module& m, const std::string& name) {
       .def("is_zero", &JacobianPointTy::IsZero)
       .def("is_on_curve", &JacobianPointTy::IsOnCurve)
       .def("to_string", &JacobianPointTy::ToString)
-      .def("to_hex_string", &JacobianPointTy::ToHexString)
+      .def("to_hex_string", &JacobianPointTy::ToHexString,
+           py11::arg("pad_zero") = false)
       .def(py11::self == py11::self)
       .def(py11::self != py11::self)
       .def(py11::self + py11::self)

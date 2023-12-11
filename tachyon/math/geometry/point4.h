@@ -41,9 +41,10 @@ struct Point4 {
                             z.ToString(), w.ToString());
   }
 
-  std::string ToHexString() const {
-    return absl::Substitute("($0, $1, $2, $3)", x.ToHexString(),
-                            y.ToHexString(), z.ToHexString(), w.ToHexString());
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute("($0, $1, $2, $3)", x.ToHexString(pad_zero),
+                            y.ToHexString(pad_zero), z.ToHexString(pad_zero),
+                            w.ToHexString(pad_zero));
   }
 };
 

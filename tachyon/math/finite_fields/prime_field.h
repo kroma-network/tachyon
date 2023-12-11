@@ -103,7 +103,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
   constexpr bool IsOne() const { return ToBigInt().IsOne(); }
 
   std::string ToString() const { return ToBigInt().ToString(); }
-  std::string ToHexString() const { return ToBigInt().ToHexString(); }
+  std::string ToHexString(bool pad_zero = false) const {
+    return ToBigInt().ToHexString(pad_zero);
+  }
 
   mpz_class ToMpzClass() const {
     mpz_class ret;

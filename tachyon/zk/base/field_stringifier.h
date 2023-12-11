@@ -21,7 +21,7 @@ class RustDebugStringifier<
  public:
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
                                       const T& value) {
-    return os << value.ToHexString();
+    return os << value.ToHexString(true);
   }
 };
 

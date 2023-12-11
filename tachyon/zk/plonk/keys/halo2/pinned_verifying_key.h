@@ -29,8 +29,8 @@ class PinnedVerifyingKey {
   using ScalarField = typename Commitment::ScalarField;
 
   explicit PinnedVerifyingKey(const VerifyingKey<PCSTy>& vk)
-      : base_modulus_(BaseField::Config::kModulus.ToHexString()),
-        scalar_modulus_(ScalarField::Config::kModulus.ToHexString()),
+      : base_modulus_(BaseField::Config::kModulus.ToHexString(true)),
+        scalar_modulus_(ScalarField::Config::kModulus.ToHexString(true)),
         // TODO(chokobole): initialize |domain_|.
         constraint_system_(vk.constraint_system()),
         fixed_commitments_(vk.fixed_commitments()),

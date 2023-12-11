@@ -191,10 +191,10 @@ class PointXYZZ<_Curve,
                             zz_.ToString(), zzz_.ToString());
   }
 
-  std::string ToHexString() const {
-    return absl::Substitute("($0, $1, $2, $3)", x_.ToHexString(),
-                            y_.ToHexString(), zz_.ToHexString(),
-                            zzz_.ToHexString());
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute("($0, $1, $2, $3)", x_.ToHexString(pad_zero),
+                            y_.ToHexString(pad_zero), zz_.ToHexString(pad_zero),
+                            zzz_.ToHexString(pad_zero));
   }
 
   // AdditiveSemigroup methods

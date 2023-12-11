@@ -27,7 +27,8 @@ void AddAffinePoint(py11::module& m, const std::string& name) {
       .def("is_zero", &AffinePointTy::IsZero)
       .def("is_on_curve", &AffinePointTy::IsOnCurve)
       .def("to_string", &AffinePointTy::ToString)
-      .def("to_hex_string", &AffinePointTy::ToHexString)
+      .def("to_hex_string", &AffinePointTy::ToHexString,
+           py11::arg("pad_zero") = false)
       .def(py11::self == py11::self)
       .def(py11::self != py11::self)
       .def(py11::self + py11::self)

@@ -35,7 +35,7 @@ void AddPrimeField(NodeModule& m, std::string_view name) {
       .AddMethod("isZero", &PrimeFieldTy::IsZero)
       .AddMethod("isOne", &PrimeFieldTy::IsOne)
       .AddMethod("toString", &PrimeFieldTy::ToString)
-      .AddMethod("toHexString", &PrimeFieldTy::ToHexString)
+      .AddMethod("toHexString", &PrimeFieldTy::ToHexString, false)
       .AddMethod("eq", &PrimeFieldTy::operator==)
       .AddMethod("ne", &PrimeFieldTy::operator!=)
       // NOLINTNEXTLINE(whitespace/operators)

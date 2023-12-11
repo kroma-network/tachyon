@@ -41,7 +41,7 @@ TACHYON_EXPORT bool HexStringToLimbs(std::string_view str, uint64_t* limbs,
 TACHYON_EXPORT std::string LimbsToString(const uint64_t* limbs,
                                          size_t limb_nums);
 TACHYON_EXPORT std::string LimbsToHexString(const uint64_t* limbs,
-                                            size_t limb_nums);
+                                            size_t limb_nums, bool pad_zero);
 
 constexpr size_t LimbsAlignment(size_t x) {
   return x % 4 == 0 ? 32 : (x % 2 == 0 ? 16 : 8);
@@ -669,8 +669,8 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   std::string ToString() const { return internal::LimbsToString(limbs, N); }
-  std::string ToHexString() const {
-    return internal::LimbsToHexString(limbs, N);
+  std::string ToHexString(bool pad_zero = false) const {
+    return internal::LimbsToHexString(limbs, N, pad_zero);
   }
 
   // Converts the BigInt to a bit array in little-endian.

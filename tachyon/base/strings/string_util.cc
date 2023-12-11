@@ -127,4 +127,14 @@ std::string MaybePrepend0x(std::string&& str) {
   return DoMaybePrepend0x(std::move(str));
 }
 
+std::string ToHexStringWithLeadingZero(const std::string& str, size_t num) {
+  CHECK_GE(num, str.size());
+  std::string_view sv = str;
+  if (ConsumePrefix0x(&sv)) {
+    return absl::StrCat(k0x, std::string(num - sv.size(), '0'), sv);
+  } else {
+    return absl::StrCat(std::string(num - sv.size(), '0'), sv);
+  }
+}
+
 }  // namespace tachyon::base
