@@ -24,11 +24,11 @@ class ProvingKey {
   using Evals = typename PCSTy::Evals;
 
   ProvingKey() = default;
-  ProvingKey(VerifyingKey<PCSTy>&& verifying_key, Poly&& l0, Poly&& l_last,
+  ProvingKey(VerifyingKey<PCSTy>&& verifying_key, Poly&& l_first, Poly&& l_last,
              Poly&& l_active_row, Evals&& fixed_values, Evals&& fixed_polys,
              PermutationProvingKey<Poly, Evals>&& permutation_proving_key)
       : verifying_key_(std::move(verifying_key)),
-        l0_(std::move(l0)),
+        l_first_(std::move(l_first)),
         l_last_(std::move(l_last)),
         l_active_row_(std::move(l_active_row)),
         fixed_values_(std::move(fixed_values)),
@@ -36,7 +36,7 @@ class ProvingKey {
         permutation_proving_key_(std::move(permutation_proving_key)) {}
 
   const VerifyingKey<PCSTy>& verifying_key() const { return verifying_key_; }
-  const Poly& l0() const { return l0_; }
+  const Poly& l_first() const { return l_first_; }
   const Poly& l_last() const { return l_last_; }
   const Poly& l_active_row() const { return l_active_row_; }
   const std::vector<Evals>& fixed_values() const { return fixed_values_; }
@@ -47,7 +47,7 @@ class ProvingKey {
 
  private:
   VerifyingKey<PCSTy> verifying_key_;
-  Poly l0_;
+  Poly l_first_;
   Poly l_last_;
   Poly l_active_row_;
   std::vector<Evals> fixed_values_;

@@ -63,10 +63,10 @@ template <typename PCSTy, typename Evals, typename F = typename Evals::Field>
     //
     // Lookup Argument must satisfy these 2 constraints.
     //
-    // - constraint 1: l₀(X) * (A'(X) - S'(x)) = 0
+    // - constraint 1: l_first(X) * (A'(X) - S'(x)) = 0
     // - constraint 2: (A'(X) - S'(x)) * (A'(X) - A'(ω⁻¹X)) = 0
     //
-    // - What 'row == 0' condition means: l₀(x) == 1.
+    // - What 'row == 0' condition means: l_first(x) == 1.
     // To satisfy constraint 1, A'(x) - S'(x) must be 0.
     // => checking if A'(x) == S'(x)
     // - What 'input_value != permuted_input_expressions[row-1]' condition

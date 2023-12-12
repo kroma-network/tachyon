@@ -487,9 +487,10 @@ class ConstraintSystem {
   size_t ComputeMinimumRows() const {
     return ComputeBlindingFactors()  // m blinding factors
            + 1                       // for l_{-(m + 1)} (l_last)
-           + 1  // for l₀ (just for extra breathing room for the permutation
-                // argument, to essentially force a separation in the
-           // permutation polynomial between the roles of l_last, l₀
+           +
+           1  // for l_first (just for extra breathing room for the permutation
+              // argument, to essentially force a separation in the
+           // permutation polynomial between the roles of l_last, l_first
            // and the interstitial values.)
            + 1;  // for at least one row
   }
