@@ -24,7 +24,7 @@ void AddJacobianPoint(NodeModule& m, std::string_view name) {
       .AddMethod("isZero", &JacobianPointTy::IsZero)
       .AddMethod("isOnCurve", &JacobianPointTy::IsOnCurve)
       .AddMethod("toString", &JacobianPointTy::ToString)
-      .AddMethod("toHexString", &JacobianPointTy::ToHexString)
+      .AddMethod("toHexString", &JacobianPointTy::ToHexString, false)
       .AddMethod("eq", &JacobianPointTy::operator==)
       .AddMethod("ne", &JacobianPointTy::operator!=)
       .AddMethod("add",

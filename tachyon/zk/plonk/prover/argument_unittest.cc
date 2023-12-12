@@ -18,26 +18,25 @@ namespace {
 
 class ArgumentTest : public Halo2ProverTest {
  public:
-  static constexpr size_t kMaxDegree = PCS::kMaxDegree;
-
   using F = typename PCS::Field;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
 
   void InitColumns() {
+    size_t d = prover_->pcs().N() - 1;
     num_circuits_ = 2;
     expected_fixed_columns_ =
-        base::CreateVector(1, []() { return Evals::Random(); });
+        base::CreateVector(1, [d]() { return Evals::Random(d); });
     expected_fixed_polys_ =
-        base::CreateVector(1, []() { return Poly::Random(kMaxDegree); });
-    expected_advice_columns_vec_ = base::CreateVector(num_circuits_, []() {
-      return base::CreateVector(2, []() { return Evals::Random(); });
+        base::CreateVector(1, [d]() { return Poly::Random(d); });
+    expected_advice_columns_vec_ = base::CreateVector(num_circuits_, [d]() {
+      return base::CreateVector(2, [d]() { return Evals::Random(d); });
     });
     expected_advice_blinds_vec_ = base::CreateVector(num_circuits_, []() {
       return base::CreateVector(2, []() { return F::Random(); });
     });
-    expected_instance_columns_vec_ = base::CreateVector(num_circuits_, []() {
-      return base::CreateVector(1, []() { return Evals::Random(); });
+    expected_instance_columns_vec_ = base::CreateVector(num_circuits_, [d]() {
+      return base::CreateVector(1, [d]() { return Evals::Random(d); });
     });
     expected_challenges_ = {F::Random()};
   }

@@ -89,8 +89,12 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   constexpr bool IsOne() const { return Goldilocks::isOne(value_); }
 
   std::string ToString() const { return Goldilocks::toString(value_, 10); }
-  std::string ToHexString() const {
-    return base::MaybePrepend0x(Goldilocks::toString(value_, 16));
+  std::string ToHexString(bool pad_zero = false) const {
+    std::string str = Goldilocks::toString(value_, 16);
+    if (pad_zero) {
+      str = base::ToHexStringWithLeadingZero(str);
+    }
+    return base::MaybePrepend0x(str);
   }
 
   mpz_class ToMpzClass() const {

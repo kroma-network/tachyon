@@ -20,9 +20,6 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class Synthesizer {
  public:
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
-  constexpr static size_t kDomainSize = kMaxDegree + 1;
-
   using F = typename PCSTy::Field;
   using Poly = typename PCSTy::Poly;
   using Evals = typename PCSTy::Evals;
@@ -70,7 +67,7 @@ class Synthesizer {
           CHECK(math::RationalField<F>::BatchEvaluate(column.evaluations(),
                                                       &evaluated));
           // Add blinding factors to advice columns
-          evaluated[kMaxDegree] = F::One();
+          evaluated[prover->pcs().N() - 1] = F::One();
 
           Evals evaluated_evals(evaluated);
           CHECK(prover->CommitEvals(evaluated_evals));

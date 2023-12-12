@@ -21,10 +21,13 @@ class PermutationArgumentTest : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
 
-    Evals cycled_column = Evals::Random();
-    fixed_columns_ = {cycled_column, Evals::Random(), Evals::Random()};
-    advice_columns_ = {Evals::Random(), cycled_column, Evals::Random()};
-    instance_columns_ = {cycled_column, Evals::Random(), Evals::Random()};
+    const size_t n = prover_->pcs().N();
+    const size_t d = n - 1;
+
+    Evals cycled_column = Evals::Random(d);
+    fixed_columns_ = {cycled_column, Evals::Random(d), Evals::Random(d)};
+    advice_columns_ = {Evals::Random(d), cycled_column, Evals::Random(d)};
+    instance_columns_ = {cycled_column, Evals::Random(d), Evals::Random(d)};
 
     table_ = Table<Evals>(absl::MakeConstSpan(fixed_columns_),
                           absl::MakeConstSpan(advice_columns_),
@@ -38,7 +41,7 @@ class PermutationArgumentTest : public Halo2ProverTest {
     argument_ = PermutationArgument(column_keys_);
 
     unpermuted_table_ = UnpermutedTable<Evals>::Construct(column_keys_.size(),
-                                                          prover_->domain());
+                                                          n, prover_->domain());
   }
 
  protected:
@@ -73,9 +76,12 @@ TEST_F(PermutationArgumentTest, AddColumn) {
 
 // TODO(chokobole): Implement test codes correctly. This just test compilation.
 TEST_F(PermutationArgumentTest, Commit) {
+  prover_->blinder().set_blinding_factors(5);
+
+  size_t n = prover_->pcs().N();
   PermutationAssembly<PCS> assembly =
       PermutationAssembly<PCS>::CreateForTesting(
-          column_keys_, CycleStore(column_keys_.size(), kDomainSize));
+          column_keys_, CycleStore(column_keys_.size(), n), n);
 
   std::vector<Evals> permutations =
       assembly.GeneratePermutations(prover_->domain());

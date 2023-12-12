@@ -27,15 +27,6 @@ class InstanceExpression : public Expression<F> {
 
   const InstanceQuery& query() const { return query_; }
 
-  bool operator==(const Expression<F>& other) const {
-    if (!Expression<F>::operator==(other)) return false;
-    const InstanceExpression* instance = other.ToInstance();
-    return query_ == instance->query_;
-  }
-  bool operator!=(const Expression<F>& other) const {
-    return !operator==(other);
-  }
-
   // Expression methods
   size_t Degree() const override { return 1; }
 
@@ -49,6 +40,12 @@ class InstanceExpression : public Expression<F> {
     return absl::Substitute("{type: $0, column: $1}",
                             ExpressionTypeToString(this->type_),
                             query_.ToString());
+  }
+
+  bool operator==(const Expression<F>& other) const override {
+    if (!Expression<F>::operator==(other)) return false;
+    const InstanceExpression* instance = other.ToInstance();
+    return query_ == instance->query_;
   }
 
  private:

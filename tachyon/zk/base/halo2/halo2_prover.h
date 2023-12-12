@@ -19,60 +19,46 @@ template <typename PCSTy>
 class Halo2Prover : public Prover<PCSTy> {
  public:
   using F = typename PCSTy::Field;
-  using Domain = typename PCSTy::Domain;
-  using ExtendedDomain = typename PCSTy::ExtendedDomain;
   using Evals = typename PCSTy::Evals;
   using Commitment = typename PCSTy::Commitment;
 
   static Halo2Prover CreateFromRandomSeed(
-      PCSTy&& pcs, std::unique_ptr<Domain> domain,
-      std::unique_ptr<ExtendedDomain> extended_domain,
-      std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+      PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       size_t blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromRandomSeed());
-    return CreateFromRNG(std::move(pcs), std::move(domain),
-                         std::move(extended_domain), std::move(writer),
-                         std::move(rng), blinding_factors);
+    return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),
+                         blinding_factors);
   }
 
   static Halo2Prover CreateFromSeed(
-      PCSTy&& pcs, std::unique_ptr<Domain> domain,
-      std::unique_ptr<ExtendedDomain> extended_domain,
-      std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+      PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       uint8_t seed[16], size_t blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromSeed(seed));
-    return CreateFromRNG(std::move(pcs), std::move(domain),
-                         std::move(extended_domain), std::move(writer),
-                         std::move(rng), blinding_factors);
+    return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),
+                         blinding_factors);
   }
 
   static Halo2Prover CreateFromRNG(
-      PCSTy&& pcs, std::unique_ptr<Domain> domain,
-      std::unique_ptr<ExtendedDomain> extended_domain,
-      std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+      PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       std::unique_ptr<crypto::XORShiftRNG> rng, size_t blinding_factors) {
     auto generator = std::make_unique<Halo2RandomFieldGenerator<F>>(rng.get());
     Blinder<PCSTy> blinder(generator.get(), blinding_factors);
-    return {std::move(pcs),      std::move(domain),  std::move(extended_domain),
-            std::move(writer),   std::move(blinder), std::move(rng),
-            std::move(generator)};
+    return {std::move(pcs), std::move(writer), std::move(blinder),
+            std::move(rng), std::move(generator)};
   }
 
   crypto::XORShiftRNG* rng() { return rng_.get(); }
   Halo2RandomFieldGenerator<F>* generator() { return generator_.get(); }
 
  private:
-  Halo2Prover(PCSTy&& pcs, std::unique_ptr<Domain> domain,
-              std::unique_ptr<ExtendedDomain> extended_domain,
+  Halo2Prover(PCSTy&& pcs,
               std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
               Blinder<PCSTy>&& blinder,
               std::unique_ptr<crypto::XORShiftRNG> rng,
               std::unique_ptr<Halo2RandomFieldGenerator<F>> generator)
-      : Prover<PCSTy>(std::move(pcs), std::move(domain),
-                      std::move(extended_domain), std::move(writer),
-                      std::move(blinder)),
+      : Prover<PCSTy>(std::move(pcs), std::move(writer), std::move(blinder)),
         rng_(std::move(rng)),
         generator_(std::move(generator)) {}
 

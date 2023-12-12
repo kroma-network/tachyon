@@ -41,12 +41,12 @@ class MultilinearExtension final
     return MultilinearExtension(Evaluations::Zero());
   }
 
-  constexpr static MultilinearExtension One() {
-    return MultilinearExtension(Evaluations::One());
+  constexpr static MultilinearExtension One(size_t degree) {
+    return MultilinearExtension(Evaluations::One(degree));
   }
 
-  constexpr static MultilinearExtension Random() {
-    return MultilinearExtension(Evaluations::Random());
+  constexpr static MultilinearExtension Random(size_t degree) {
+    return MultilinearExtension(Evaluations::Random(degree));
   }
 
   constexpr bool IsZero() const { return evaluations_.IsZero(); }

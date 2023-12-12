@@ -51,6 +51,8 @@ jobs:
           bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
 
       - name: Test Py Binding
+        # TODO(chokobole): Remove this condition once we fix https://github.com/kroma-network/tachyon/issues/197.
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cd tachyon/py/test
           bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...

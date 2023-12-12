@@ -19,8 +19,6 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class ProvingKey {
  public:
-  static constexpr size_t kMaxDegree = PCSTy::kMaxDegree;
-
   using F = typename PCSTy::Field;
   using Poly = typename PCSTy::Poly;
   using Evals = typename PCSTy::Evals;

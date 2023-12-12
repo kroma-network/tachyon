@@ -17,15 +17,11 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class Verifier : public Entity<PCSTy> {
  public:
-  using Domain = typename PCSTy::Domain;
-  using ExtendedDomain = typename PCSTy::ExtendedDomain;
   using Commitment = typename PCSTy::Commitment;
 
-  Verifier(PCSTy&& pcs, std::unique_ptr<Domain> domain,
-           std::unique_ptr<ExtendedDomain> extended_domain,
+  Verifier(PCSTy&& pcs,
            std::unique_ptr<crypto::TranscriptReader<Commitment>> transcript)
-      : Entity<PCSTy>(std::move(pcs), std::move(domain),
-                      std::move(extended_domain), std::move(transcript)) {}
+      : Entity<PCSTy>(std::move(pcs), std::move(transcript)) {}
 
   crypto::TranscriptReader<Commitment>* GetReader() {
     return this->transcript()->ToReader();

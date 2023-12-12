@@ -16,7 +16,7 @@ TEST_F(PinnedVerifyingKeyTest, ToRustDebugString) {
   // TODO(chokobole): Enable this test once every feature is implemented.
   // This just tests whether compilation is working or not.
   VerifyingKey<PCS> verifying_key;
-  PinnedVerifyingKey<PCS> pinned_verifying_key(verifying_key);
+  PinnedVerifyingKey<PCS> pinned_verifying_key(prover_.get(), verifying_key);
   base::ToRustDebugString(pinned_verifying_key);
 }
 

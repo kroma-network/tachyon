@@ -25,7 +25,7 @@ void AddPointXYZZ(NodeModule& m, std::string_view name) {
       .AddMethod("isZero", &PointXYZZTy::IsZero)
       .AddMethod("isOnCurve", &PointXYZZTy::IsOnCurve)
       .AddMethod("toString", &PointXYZZTy::ToString)
-      .AddMethod("toHexString", &PointXYZZTy::ToHexString)
+      .AddMethod("toHexString", &PointXYZZTy::ToHexString, false)
       .AddMethod("eq", &PointXYZZTy::operator==)
       .AddMethod("ne", &PointXYZZTy::operator!=)
       .AddMethod("add", &PointXYZZTy::template operator+ <const PointXYZZTy&>)

@@ -40,7 +40,7 @@ PermutationArgumentRunner<Poly, Evals>::CommitArgument(
   size_t chunk_num = (argument.columns().size() + chunk_size - 1) / chunk_size;
 
   UnpermutedTable<Evals> unpermuted_table = UnpermutedTable<Evals>::Construct(
-      argument.columns().size(), prover->domain());
+      argument.columns().size(), prover->pcs().N(), prover->domain());
   PermutedTable<Evals> permuted_table(&permutation_proving_key.permutations());
   PermutationTableStore<Evals> table_store(
       argument.columns(), table, permuted_table, unpermuted_table, chunk_size);

@@ -12,7 +12,7 @@ class ProverTest : public Halo2ProverTest {};
 
 TEST_F(ProverTest, CommitEvalsWithBlind) {
   // setting random polynomial
-  Evals evals = Evals::Random();
+  Evals evals = Evals::Random(prover_->pcs().N() - 1);
 
   // setting struct to get output
   BlindedPolynomial<Poly> out;

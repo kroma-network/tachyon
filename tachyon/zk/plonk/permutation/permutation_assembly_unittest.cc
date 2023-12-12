@@ -18,7 +18,8 @@ class PermutationAssemblyTest : public Halo2ProverTest {
                 InstanceColumnKey(3)};
     argment_ = PermutationArgument(columns_);
     assembly_ = PermutationAssembly<PCS>::CreateForTesting(
-        columns_, CycleStore(columns_.size(), kDomainSize));
+        columns_, CycleStore(columns_.size(), prover_->pcs().N()),
+        prover_->pcs().N());
   }
 
  protected:
@@ -34,11 +35,12 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
   const Domain* domain = prover_->domain();
   std::vector<Evals> permutations = assembly_.GeneratePermutations(domain);
 
+  size_t n = prover_->pcs().N();
   UnpermutedTable<Evals> unpermuted_table =
-      UnpermutedTable<Evals>::Construct(columns_.size(), domain);
+      UnpermutedTable<Evals>::Construct(columns_.size(), n, domain);
 
   for (size_t i = 0; i < columns_.size(); ++i) {
-    for (size_t j = 0; j <= kMaxDegree; ++j) {
+    for (size_t j = 0; j < n; ++j) {
       EXPECT_EQ(*permutations[i][j], unpermuted_table[Label(i, j)]);
     }
   }

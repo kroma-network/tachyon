@@ -23,8 +23,6 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class WitnessCollection : public Assignment<typename PCSTy::Field> {
  public:
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
-
   using F = typename PCSTy::Field;
   using Evals = typename PCSTy::Evals;
   using RationalEvals = typename PCSTy::RationalEvals;
@@ -37,7 +35,7 @@ class WitnessCollection : public Assignment<typename PCSTy::Field> {
                     const std::vector<Evals>& instance_columns)
       : k_(k),
         advices_(base::CreateVector(num_advice_columns,
-                                    RationalEvals::UnsafeZero(kMaxDegree))),
+                                    RationalEvals::UnsafeZero(size_t{1} << k))),
         usable_rows_(base::Range<size_t>::Until(usable_rows)),
         current_phase_(current_phase),
         challenges_(challenges),

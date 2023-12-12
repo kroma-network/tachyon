@@ -106,7 +106,9 @@ class PrimeFieldGpuDebug final
   constexpr bool IsOdd() const { return value_.IsOdd(); }
 
   std::string ToString() const { return ToBigInt().ToString(); }
-  std::string ToHexString() const { return ToBigInt().ToHexString(); }
+  std::string ToHexString(bool pad_zero = false) const {
+    return ToBigInt().ToHexString(pad_zero);
+  }
 
   mpz_class ToMpzClass() const {
     mpz_class ret;

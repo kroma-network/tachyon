@@ -125,7 +125,9 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   constexpr bool IsOdd() const { return value_.IsOdd(); }
 
   std::string ToString() const { return ToBigIntHost().ToString(); }
-  std::string ToHexString() const { return ToBigIntHost().ToHexString(); }
+  std::string ToHexString(bool pad_zero = false) const {
+    return ToBigIntHost().ToHexString(pad_zero);
+  }
 
   mpz_class ToMpzClass() const {
     mpz_class ret;

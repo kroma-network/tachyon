@@ -24,7 +24,7 @@ void AddProjectivePoint(NodeModule& m, std::string_view name) {
       .AddMethod("isZero", &ProjectivePointTy::IsZero)
       .AddMethod("isOnCurve", &ProjectivePointTy::IsOnCurve)
       .AddMethod("toString", &ProjectivePointTy::ToString)
-      .AddMethod("toHexString", &ProjectivePointTy::ToHexString)
+      .AddMethod("toHexString", &ProjectivePointTy::ToHexString, false)
       .AddMethod("eq", &ProjectivePointTy::operator==)
       .AddMethod("ne", &ProjectivePointTy::operator!=)
       .AddMethod("add", &ProjectivePointTy::template operator+

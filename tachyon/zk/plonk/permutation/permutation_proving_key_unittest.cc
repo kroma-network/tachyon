@@ -23,10 +23,8 @@ class PermutationProvingKeyTest : public Halo2ProverTest {
 }  // namespace
 
 TEST_F(PermutationProvingKeyTest, Copyable) {
-  // NOTE(chokobole): Since https://github.com/kroma-network/tachyon/pull/139,
-  // I intentionally use |Evals::Zero()| instead of |Evals::Random()| due to
-  // performance issues.
-  ProvingKey expected({Evals::Zero()}, {Poly::Random(5)});
+  ProvingKey expected({Evals::Random(prover_->pcs().N() - 1)},
+                      {Poly::Random(5)});
   ProvingKey value;
 
   base::VectorBuffer write_buf;

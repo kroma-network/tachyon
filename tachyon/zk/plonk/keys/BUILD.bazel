@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -22,18 +22,5 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/circuit:assembly",
         "//tachyon/zk/plonk/permutation:permutation_verifying_key",
         "@com_google_boringssl//:crypto",
-    ],
-)
-
-tachyon_cc_unittest(
-    name = "keys_unittests",
-    srcs = [
-        "proving_key_unittest.cc",
-        "verifying_key_unittest.cc",
-    ],
-    deps = [
-        ":proving_key",
-        "//tachyon/zk/base/halo2:halo2_prover_test",
-        "//tachyon/zk/plonk/keys/halo2:pinned_verifying_key",
     ],
 )

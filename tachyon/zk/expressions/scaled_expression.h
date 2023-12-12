@@ -31,15 +31,6 @@ class ScaledExpression : public Expression<F> {
   const Expression<F>* expr() const { return expr_.get(); }
   const F& scale() const { return scale_; }
 
-  bool operator==(const Expression<F>& other) const {
-    if (!Expression<F>::operator==(other)) return false;
-    const ScaledExpression* scaled = other.ToScaled();
-    return *expr_ == *scaled->expr_ && scale_ == scaled->scale;
-  }
-  bool operator!=(const Expression<F>& other) const {
-    return !operator==(other);
-  }
-
   // Expression methods
   size_t Degree() const override { return expr_->Degree(); }
 
@@ -55,6 +46,12 @@ class ScaledExpression : public Expression<F> {
     return absl::Substitute("{type: $0, expr: $1, scale: $2}",
                             ExpressionTypeToString(this->type_),
                             expr_->ToString(), scale_.ToString());
+  }
+
+  bool operator==(const Expression<F>& other) const override {
+    if (!Expression<F>::operator==(other)) return false;
+    const ScaledExpression* scaled = other.ToScaled();
+    return *expr_ == *scaled->expr_ && scale_ == scaled->scale_;
   }
 
  private:

@@ -29,7 +29,8 @@ void AddProjectivePoint(py11::module& m, const std::string& name) {
       .def("is_zero", &ProjectivePointTy::IsZero)
       .def("is_on_curve", &ProjectivePointTy::IsOnCurve)
       .def("to_string", &ProjectivePointTy::ToString)
-      .def("to_hex_string", &ProjectivePointTy::ToHexString)
+      .def("to_hex_string", &ProjectivePointTy::ToHexString,
+           py11::arg("pad_zero") = false)
       .def(py11::self == py11::self)
       .def(py11::self != py11::self)
       .def(py11::self + py11::self)

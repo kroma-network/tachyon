@@ -67,14 +67,12 @@ class SelectorCompressor {
                          return activations.size() == n;
                        }));
 
-    auto zipped = base::Zipped(selectors_in, degrees);
-    std::vector<SelectorDescription> selectors = base::Map(
-        zipped.begin(), zipped.end(),
-        [](size_t selector_index,
-           const std::tuple<std::vector<bool>, size_t>& e) {
-          const auto& [activations, max_degree] = e;
-          return SelectorDescription(selector_index, activations, max_degree);
-        });
+    std::vector<SelectorDescription> selectors =
+        base::Map(selectors_in,
+                  [&degrees](size_t i, const std::vector<bool>& activations) {
+                    size_t max_degree = degrees[i];
+                    return SelectorDescription(i, &activations, max_degree);
+                  });
 
     std::vector<std::vector<F>> combination_assignments;
     std::vector<SelectorAssignment<F>> selector_assignments;
@@ -137,7 +135,7 @@ class SelectorCompressor {
       std::vector<size_t> combination_added = {i};
 
       // Try to find other selectors that can join this one.
-      for (size_t j = i + 1; selectors.size(); ++j) {
+      for (size_t j = i + 1; j < selectors.size(); ++j) {
         if (d + combination.size() == max_degree) {
           // Short circuit; nothing can be added to this
           // combination.
@@ -200,12 +198,12 @@ class SelectorCompressor {
         }
 
         // Update the combination assignment
-        for (auto& [combination, selector] :
-             base::Zipped(combination_assignment, selector.activations())) {
+        const std::vector<bool>& activations = selector.activations();
+        for (size_t k = 0; k < n; ++k) {
           // This will not overwrite another selector's activations
           // because we have ensured that selectors are disjoint.
-          if (selector) {
-            combination = assigned_root;
+          if (activations[k]) {
+            combination_assignment[k] = assigned_root;
           }
         }
 

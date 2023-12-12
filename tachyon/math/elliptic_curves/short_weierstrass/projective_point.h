@@ -171,9 +171,9 @@ class ProjectivePoint<
                             z_.ToString());
   }
 
-  std::string ToHexString() const {
-    return absl::Substitute("($0, $1, $2)", x_.ToHexString(), y_.ToHexString(),
-                            z_.ToHexString());
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute("($0, $1, $2)", x_.ToHexString(pad_zero),
+                            y_.ToHexString(pad_zero), z_.ToHexString(pad_zero));
   }
 
   // AdditiveSemigroup methods

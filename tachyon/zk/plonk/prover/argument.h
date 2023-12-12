@@ -15,8 +15,6 @@ namespace tachyon::zk {
 template <typename PCSTy>
 class Argument {
  public:
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
-
   using F = typename PCSTy::Field;
   using Poly = typename PCSTy::Poly;
   using Evals = typename PCSTy::Evals;
@@ -140,7 +138,7 @@ class Argument {
                              if constexpr (PCSTy::kQueryInstance) {
                                CHECK(prover->CommitEvals(instance_column));
                              } else {
-                               for (size_t i = 0; i <= kMaxDegree; ++i) {
+                               for (size_t i = 0; i < prover->pcs().N(); ++i) {
                                  CHECK(prover->GetWriter()->WriteToTranscript(
                                      *instance_column[i]));
                                }

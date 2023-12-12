@@ -75,6 +75,13 @@ class TACHYON_EXPORT CycleStore {
     T& operator[](const Label& l) { return values_[l.col][l.row]; }
     const T& operator[](const Label& l) const { return values_[l.col][l.row]; }
 
+    bool operator==(const Table<T>& other) const {
+      return values_ == other.values_;
+    }
+    bool operator!=(const Table<T>& other) const {
+      return values_ != other.values_;
+    }
+
    private:
     std::vector<std::vector<T>> values_;
   };
@@ -89,6 +96,10 @@ class TACHYON_EXPORT CycleStore {
     sizes_ =
         Table(base::CreateVector(cols, base::CreateVector(rows, size_t{1})));
   }
+
+  const Table<Label>& mapping() const { return mapping_; }
+  const Table<Label>& aux() const { return aux_; }
+  const Table<size_t>& sizes() const { return sizes_; }
 
   // Return the next label of given |label| within a cycle.
   const Label& GetNextLabel(const Label& label) const {

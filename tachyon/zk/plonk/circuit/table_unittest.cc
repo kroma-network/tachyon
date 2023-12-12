@@ -22,11 +22,11 @@ class TableTest : public testing::Test {
   void SetUp() override {
     for (size_t i = 0; i < 5; ++i) {
       fixed_columns_.push_back(
-          math::UnivariateEvaluations<F, kMaxDegree>::Random());
+          math::UnivariateEvaluations<F, kMaxDegree>::Random(kMaxDegree));
       advice_columns_.push_back(
-          math::UnivariateEvaluations<F, kMaxDegree>::Random());
+          math::UnivariateEvaluations<F, kMaxDegree>::Random(kMaxDegree));
       instance_columns_.push_back(
-          math::UnivariateEvaluations<F, kMaxDegree>::Random());
+          math::UnivariateEvaluations<F, kMaxDegree>::Random(kMaxDegree));
     }
   }
 

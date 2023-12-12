@@ -186,6 +186,8 @@ class SimpleCircuit : public Circuit<FieldConfig<F>> {
   using FloorPlanner = SimpleFloorPlanner;
 
   SimpleCircuit() = default;
+  SimpleCircuit(const F& constant, const F& a, const F& b)
+      : constant_(constant), a_(Value<F>::Known(a)), b_(Value<F>::Known(b)) {}
 
   std::unique_ptr<Circuit<FieldConfig<F>>> WithoutWitness() const override {
     return std::make_unique<SimpleCircuit>();

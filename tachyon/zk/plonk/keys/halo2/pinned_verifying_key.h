@@ -28,10 +28,10 @@ class PinnedVerifyingKey {
   using BaseField = typename Commitment::BaseField;
   using ScalarField = typename Commitment::ScalarField;
 
-  explicit PinnedVerifyingKey(const VerifyingKey<PCSTy>& vk)
-      : base_modulus_(BaseField::Config::kModulus.ToHexString()),
-        scalar_modulus_(ScalarField::Config::kModulus.ToHexString()),
-        // TODO(chokobole): initialize |domain_|.
+  PinnedVerifyingKey(const Entity<PCSTy>* entity, const VerifyingKey<PCSTy>& vk)
+      : base_modulus_(BaseField::Config::kModulus.ToHexString(true)),
+        scalar_modulus_(ScalarField::Config::kModulus.ToHexString(true)),
+        domain_(entity),
         constraint_system_(vk.constraint_system()),
         fixed_commitments_(vk.fixed_commitments()),
         permutation_verifying_key_(vk.permutation_verifying_key()) {}

@@ -441,6 +441,13 @@ class ConstraintSystem {
     return std::max(degree, minimum_degree_.value_or(1));
   }
 
+  size_t ComputeExtendedDegree(size_t k) const {
+    size_t quotient_poly_degree = ComputeDegree() - 1;
+    return std::max(
+        base::bits::SafeLog2Ceiling((size_t{1} << k) * quotient_poly_degree),
+        static_cast<uint32_t>(k));
+  }
+
   // Compute the number of blinding factors necessary to perfectly blind
   // each of the prover's witness polynomials.
   size_t ComputeBlindingFactors() const {

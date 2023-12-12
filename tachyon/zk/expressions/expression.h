@@ -72,15 +72,13 @@ class Expression {
 
   virtual std::unique_ptr<Expression> Clone() const = 0;
 
-  std::unique_ptr<Expression> operator-() const {
-    return ExpressionFactory<F>::Negated(Clone());
-  }
-
-  bool operator==(const Expression& other) const {
+  virtual bool operator==(const Expression& other) const {
     return type_ == other.type_;
   }
-  bool operator!=(const Expression& other) const {
-    return type_ != other.type_;
+  bool operator!=(const Expression& other) const { return !operator==(other); }
+
+  std::unique_ptr<Expression> operator-() const {
+    return ExpressionFactory<F>::Negated(Clone());
   }
 
   // Returns whether or not this expression contains a simple selector.

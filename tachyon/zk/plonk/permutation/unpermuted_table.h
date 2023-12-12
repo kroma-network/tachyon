@@ -15,6 +15,8 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/range.h"
 #include "tachyon/base/ref.h"
+// TODO(chokobole): Remove this header. See comment in |GetDelta()| below.
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 
 namespace tachyon::zk {
@@ -57,27 +59,26 @@ class UnpermutedTable {
   }
 
   template <typename Domain>
-  static UnpermutedTable Construct(size_t size, const Domain* domain) {
-    constexpr static size_t kMaxDegree = Domain::kMaxDegree;
-
+  static UnpermutedTable Construct(size_t cols, size_t rows,
+                                   const Domain* domain) {
     // The w is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
     std::vector<F> omega_powers =
-        domain->GetRootsOfUnity(kMaxDegree + 1, domain->group_gen());
+        domain->GetRootsOfUnity(rows, domain->group_gen());
 
     // The 𝛿 is g^2ˢ with order T where modulus = 2ˢ * T + 1.
     F delta = GetDelta();
 
     Table unpermuted_table;
-    unpermuted_table.reserve(size);
+    unpermuted_table.reserve(cols);
     // Assign [𝛿⁰w⁰, 𝛿⁰w¹, 𝛿⁰w², ..., 𝛿⁰wⁿ⁻¹] to the first col.
     unpermuted_table.push_back(Evals(std::move(omega_powers)));
 
     // Assign [𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] to each col.
-    for (size_t i = 1; i < size; ++i) {
-      std::vector<F> col = base::CreateVector(kMaxDegree + 1, F::Zero());
+    for (size_t i = 1; i < cols; ++i) {
+      std::vector<F> col = base::CreateVector(rows, F::Zero());
       // TODO(dongchangYoo): Optimize this with
       // https://github.com/kroma-network/tachyon/pull/115.
-      for (size_t j = 0; j <= kMaxDegree; ++j) {
+      for (size_t j = 0; j < rows; ++j) {
         col[j] = *unpermuted_table[i - 1][j] * delta;
       }
       unpermuted_table.push_back(Evals(std::move(col)));
@@ -94,9 +95,20 @@ class UnpermutedTable {
   // Calculate 𝛿 = g^2ˢ with order T (i.e., T-th root of unity),
   // where T = F::Config::kTrace.
   constexpr static F GetDelta() {
-    F g = F::FromMontgomery(F::Config::kSubgroupGenerator);
-    F adicity = F(2).Pow(F::Config::kTwoAdicity);
-    return g.Pow(adicity.ToBigInt());
+    // NOTE(chokobole): The resulting value is different from the one in
+    // https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/bn256/fr.rs#L101-L110.
+    // This is an ugly way to produce a same result with Halo2Curves but we will
+    // remove once we don't have to match it against Halo2 any longer in the
+    // future.
+    if constexpr (std::is_same_v<F, math::bn254::Fr>) {
+      return F::FromMontgomery(math::BigInt<4>(
+          {UINT64_C(11100302345850292309), UINT64_C(5109383341788583484),
+           UINT64_C(6450182039226333095), UINT64_C(2498166472155664813)}));
+    } else {
+      F g = F::FromMontgomery(F::Config::kSubgroupGenerator);
+      F adicity = F(2).Pow(F::Config::kTwoAdicity);
+      return g.Pow(adicity.ToBigInt());
+    }
   }
 
   Table table_;

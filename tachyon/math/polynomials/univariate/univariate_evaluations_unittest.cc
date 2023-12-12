@@ -48,7 +48,7 @@ TEST_F(UnivariateEvaluationsTest, IsZero) {
 
 TEST_F(UnivariateEvaluationsTest, IsOne) {
   EXPECT_FALSE(Poly().IsOne());
-  EXPECT_TRUE(Poly::One().IsOne());
+  EXPECT_TRUE(Poly::One(kMaxDegree).IsOne());
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
     if (i == polys_.size() - 1) {
       EXPECT_TRUE(polys_[i].IsOne());
@@ -60,9 +60,9 @@ TEST_F(UnivariateEvaluationsTest, IsOne) {
 
 TEST_F(UnivariateEvaluationsTest, Random) {
   bool success = false;
-  Poly r = Poly::Random();
+  Poly r = Poly::Random(kMaxDegree);
   for (size_t i = 0; i < 100; ++i) {
-    if (r != Poly::Random()) {
+    if (r != Poly::Random(kMaxDegree)) {
       success = true;
       break;
     }
@@ -218,7 +218,7 @@ TEST_F(UnivariateEvaluationsTest, MultiplicativeOperators) {
 }
 
 TEST_F(UnivariateEvaluationsTest, MulScalar) {
-  Poly poly = Poly::Random();
+  Poly poly = Poly::Random(kMaxDegree);
   GF7 scalar = GF7::Random();
 
   std::vector<GF7> expected_evals;
@@ -236,7 +236,7 @@ TEST_F(UnivariateEvaluationsTest, MulScalar) {
 }
 
 TEST_F(UnivariateEvaluationsTest, DivScalar) {
-  Poly poly = Poly::Random();
+  Poly poly = Poly::Random(kMaxDegree);
   GF7 scalar = GF7::Random();
   while (scalar.IsZero()) {
     scalar = GF7::Random();
@@ -271,7 +271,8 @@ TEST_F(UnivariateEvaluationsTest, Hash) {
   EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
       std::make_tuple(Poly(), Poly::Zero(),
                       Poly({base::CreateVector(kMaxDegree + 1, GF7::Zero())}),
-                      Poly::One(), Poly::Random(), Poly::Random())));
+                      Poly::One(kMaxDegree), Poly::Random(kMaxDegree),
+                      Poly::Random(kMaxDegree))));
 }
 
 }  // namespace tachyon::math

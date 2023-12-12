@@ -35,36 +35,45 @@ constexpr char kVerifyingKeyStr[] = "Halo2-Verify-Key";
 template <typename PCSTy>
 class VerifyingKey {
  public:
-  constexpr static size_t kMaxDegree = PCSTy::kMaxDegree;
-
   using F = typename PCSTy::Field;
-  using Domain = typename PCSTy::Domain;
   using Commitment = typename PCSTy::Commitment;
   using Commitments = std::vector<Commitment>;
 
   VerifyingKey() = default;
-  VerifyingKey(const Domain* domain, Commitments&& fixed_commitments,
+  VerifyingKey(Commitments&& fixed_commitments,
                PermutationVerifyingKey<PCSTy>&& permutation_verifying_key,
                ConstraintSystem<F>&& constraint_system)
-      : domain_(domain),
-        fixed_commitments_(std::move(fixed_commitments)),
+      : fixed_commitments_(std::move(fixed_commitments)),
         permutation_verifying_Key_(std::move(permutation_verifying_key)),
         constraint_system_(std::move(constraint_system)) {}
 
+  static Assembly<PCSTy> CreateAssembly(
+      const PCSTy& pcs, const ConstraintSystem<F>& constraint_system) {
+    using RationalEvals = typename Assembly<PCSTy>::RationalEvals;
+    return {
+        static_cast<uint32_t>(pcs.K()),
+        base::CreateVector(constraint_system.num_fixed_columns(),
+                           RationalEvals::UnsafeZero(pcs.N() - 1)),
+        PermutationAssembly<PCSTy>(constraint_system.permutation(), pcs.N()),
+        base::CreateVector(constraint_system.num_selectors(),
+                           base::CreateVector(pcs.N(), false)),
+        base::Range<size_t>::Until(
+            pcs.N() - (constraint_system.ComputeBlindingFactors() + 1))};
+  }
+
   static VerifyingKey FromParts(
-      const Domain* domain, Commitments fixed_commitments,
+      const Entity<PCSTy>* entity, Commitments fixed_commitments,
       PermutationVerifyingKey<PCSTy> permutation_verifying_key,
       ConstraintSystem<F> constraint_system) {
-    VerifyingKey ret(domain, std::move(fixed_commitments),
+    VerifyingKey ret(std::move(fixed_commitments),
                      std::move(permutation_verifying_key),
                      std::move(constraint_system));
-    ret.SetTranscriptRepresentative();
-
+    ret.SetTranscriptRepresentative(entity);
     return ret;
   }
 
-  void SetTranscriptRepresentative() {
-    halo2::PinnedVerifyingKey<PCSTy> pinned_verifying_key(*this);
+  void SetTranscriptRepresentative(const Entity<PCSTy>* entity) {
+    halo2::PinnedVerifyingKey<PCSTy> pinned_verifying_key(entity, *this);
 
     std::string vk_str = base::ToRustDebugString(pinned_verifying_key);
     size_t vk_str_size = vk_str.size();
@@ -82,11 +91,9 @@ class VerifyingKey {
   }
 
   template <typename CircuitTy>
-  [[nodiscard]] static bool Generate(const Entity<PCSTy>* entity,
+  [[nodiscard]] static bool Generate(Entity<PCSTy>* entity,
                                      const CircuitTy& circuit,
                                      VerifyingKey* verifying_key);
-
-  const Domain* domain() const { return domain_; }
 
   const Commitments& fixed_commitments() const { return fixed_commitments_; }
 
@@ -101,8 +108,6 @@ class VerifyingKey {
   const F& transcript_repr() const { return transcript_repr_; }
 
  private:
-  // not owned
-  const Domain* domain_ = nullptr;
   Commitments fixed_commitments_;
   PermutationVerifyingKey<PCSTy> permutation_verifying_Key_;
   ConstraintSystem<F> constraint_system_;
@@ -113,34 +118,28 @@ class VerifyingKey {
 // static
 template <typename PCSTy>
 template <typename CircuitTy>
-bool VerifyingKey<PCSTy>::Generate(const Entity<PCSTy>* entity,
+bool VerifyingKey<PCSTy>::Generate(Entity<PCSTy>* entity,
                                    const CircuitTy& circuit,
                                    VerifyingKey* verifying_key) {
   using Config = typename CircuitTy::Config;
   using FloorPlanner = typename CircuitTy::FloorPlanner;
   using RationalEvals = typename Assembly<PCSTy>::RationalEvals;
   using Evals = typename PCSTy::Evals;
+  using ExtendedDomain = typename PCSTy::ExtendedDomain;
 
   ConstraintSystem<F> constraint_system;
   Config config = CircuitTy::Configure(constraint_system);
 
-  const PCSTy& pcs = entity->pcs();
+  PCSTy& pcs = entity->pcs();
   if (pcs.N() < constraint_system.ComputeMinimumRows()) {
     LOG(ERROR) << "Not enough rows available " << pcs.N() << " vs "
                << constraint_system.ComputeMinimumRows();
     return false;
   }
+  size_t extended_k = constraint_system.ComputeExtendedDegree(pcs.K());
+  entity->set_extended_domain(ExtendedDomain::Create(size_t{1} << extended_k));
 
-  Assembly<PCSTy> assembly(
-      static_cast<uint32_t>(pcs.K()),
-      base::CreateVector(constraint_system.num_fixed_columns(),
-                         RationalEvals::UnsafeZero(pcs.N() - 1)),
-      PermutationAssembly<PCSTy>(constraint_system.permutation()),
-      base::CreateVector(constraint_system.num_selectors(),
-                         base::CreateVector(pcs.N(), false)),
-      base::Range<size_t>::Until(
-          pcs.N() - (constraint_system.ComputeBlindingFactors() + 1)));
-
+  Assembly<PCSTy> assembly = CreateAssembly(pcs, constraint_system);
   FloorPlanner::Synthesize(&assembly, circuit, std::move(config),
                            constraint_system.constants());
 
@@ -176,9 +175,9 @@ bool VerifyingKey<PCSTy>::Generate(const Entity<PCSTy>* entity,
         return commitment;
       });
 
-  *verifying_key = VerifyingKey::FromParts(
-      entity->domain(), std::move(fixed_commitments), std::move(permutation_vk),
-      std::move(constraint_system));
+  *verifying_key = VerifyingKey::FromParts(entity, std::move(fixed_commitments),
+                                           std::move(permutation_vk),
+                                           std::move(constraint_system));
   return true;
 }
 

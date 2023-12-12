@@ -21,22 +21,15 @@ template <typename PCSTy>
 class Prover : public Entity<PCSTy> {
  public:
   using F = typename PCSTy::Field;
-  using Domain = typename PCSTy::Domain;
-  using ExtendedDomain = typename PCSTy::ExtendedDomain;
   using Evals = typename PCSTy::Evals;
   using Poly = typename PCSTy::Poly;
   using Commitment = typename PCSTy::Commitment;
 
-  Prover(PCSTy&& pcs, std::unique_ptr<Domain> domain,
-         std::unique_ptr<ExtendedDomain> extended_domain,
+  Prover(PCSTy&& pcs,
          std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
          Blinder<PCSTy>&& blinder)
-      : Entity<PCSTy>(std::move(pcs), std::move(domain),
-                      std::move(extended_domain), std::move(writer)),
-        blinder_(std::move(blinder)) {
-    CHECK_GT(this->domain_->size(), size_t{0});
-    CHECK_GE(this->domain_->size() - 1, blinder_.blinding_factors());
-  }
+      : Entity<PCSTy>(std::move(pcs), std::move(writer)),
+        blinder_(std::move(blinder)) {}
 
   Blinder<PCSTy>& blinder() { return blinder_; }
 

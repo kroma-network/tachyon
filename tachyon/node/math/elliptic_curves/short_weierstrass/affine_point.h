@@ -20,7 +20,7 @@ void AddAffinePoint(NodeModule& m, std::string_view name) {
       .AddMethod("isZero", &AffinePointTy::IsZero)
       .AddMethod("isOnCurve", &AffinePointTy::IsOnCurve)
       .AddMethod("toString", &AffinePointTy::ToString)
-      .AddMethod("toHexString", &AffinePointTy::ToHexString)
+      .AddMethod("toHexString", &AffinePointTy::ToHexString, false)
       .AddMethod("eq", &AffinePointTy::operator==)
       .AddMethod("ne", &AffinePointTy::operator!=)
       .AddMethod("add",

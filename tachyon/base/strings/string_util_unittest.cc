@@ -52,4 +52,11 @@ TEST(StringUtilTest, MaybePrepend0x) {
   EXPECT_EQ(MaybePrepend0x(sv), "0x3456");
 }
 
+TEST(StringUtilTest, ToHexStringWithLeadingZero) {
+  std::string str = "0x1234";
+  EXPECT_EQ(ToHexStringWithLeadingZero(str, 6), "0x001234");
+  str = "3456";
+  EXPECT_EQ(ToHexStringWithLeadingZero(str, 6), "003456");
+}
+
 }  // namespace tachyon::base

@@ -22,7 +22,8 @@ void AddPrimeField(py11::module& m, const std::string& name) {
       .def("is_zero", &PrimeFieldTy::IsZero)
       .def("is_one", &PrimeFieldTy::IsOne)
       .def("to_string", &PrimeFieldTy::ToString)
-      .def("to_hex_string", &PrimeFieldTy::ToHexString)
+      .def("to_hex_string", &PrimeFieldTy::ToHexString,
+           py11::arg("pad_zero") = false)
       .def(py11::self == py11::self)
       .def(py11::self != py11::self)
       .def(py11::self < py11::self)

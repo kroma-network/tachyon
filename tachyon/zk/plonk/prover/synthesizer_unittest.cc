@@ -43,9 +43,10 @@ class SynthesizerTest : public Halo2ProverTest {
 
 // TODO(dongchangYoo): it should be verified if it produces the expected values.
 TEST_F(SynthesizerTest, GenerateAdviceColumns) {
-  std::vector<std::vector<Evals>> instance_columns_vec = base::CreateVector(
-      circuits_.size(),
-      []() { return base::CreateVector(1, Evals::Random()); });
+  std::vector<std::vector<Evals>> instance_columns_vec =
+      base::CreateVector(circuits_.size(), [this]() {
+        return base::CreateVector(1, Evals::Random(prover_->pcs().N() - 1));
+      });
   synthesizer_.GenerateAdviceColumns(prover_.get(), circuits_,
                                      instance_columns_vec);
 

@@ -27,15 +27,6 @@ class FixedExpression : public Expression<F> {
 
   const FixedQuery& query() const { return query_; }
 
-  bool operator==(const Expression<F>& other) const {
-    if (!Expression<F>::operator==(other)) return false;
-    const FixedExpression* fixed = other.ToFixed();
-    return query_ == fixed->query_;
-  }
-  bool operator!=(const Expression<F>& other) const {
-    return !operator==(other);
-  }
-
   // Expression methods
   size_t Degree() const override { return 1; }
 
@@ -49,6 +40,12 @@ class FixedExpression : public Expression<F> {
     return absl::Substitute("{type: $0, column: $1}",
                             ExpressionTypeToString(this->type_),
                             query_.ToString());
+  }
+
+  bool operator==(const Expression<F>& other) const override {
+    if (!Expression<F>::operator==(other)) return false;
+    const FixedExpression* fixed = other.ToFixed();
+    return query_ == fixed->query_;
   }
 
  private:
