@@ -13,6 +13,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "evaluation_input",
+    hdrs = ["evaluation_input.h"],
+    deps = ["//tachyon/zk/plonk/circuit:owned_table"],
+)
+
+tachyon_cc_library(
     name = "graph_evaluator",
     hdrs = ["graph_evaluator.h"],
     deps = [
