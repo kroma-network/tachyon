@@ -43,12 +43,12 @@ TEST_F(PedersenTest, Copyable) {
   ASSERT_TRUE(expected.Setup());
 
   base::VectorBuffer write_buf;
-  EXPECT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Write(expected));
 
   write_buf.set_buffer_offset(0);
 
   VCS value;
-  EXPECT_TRUE(write_buf.Read(&value));
+  ASSERT_TRUE(write_buf.Read(&value));
 
   EXPECT_EQ(expected.h(), value.h());
   EXPECT_EQ(expected.generators(), value.generators());

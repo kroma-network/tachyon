@@ -68,12 +68,12 @@ TEST_F(KZGTest, Copyable) {
   ASSERT_TRUE(expected.UnsafeSetup(N));
 
   base::VectorBuffer write_buf;
-  EXPECT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Write(expected));
 
   write_buf.set_buffer_offset(0);
 
   PCS value;
-  EXPECT_TRUE(write_buf.Read(&value));
+  ASSERT_TRUE(write_buf.Read(&value));
 
   EXPECT_EQ(expected.g1_powers_of_tau(), value.g1_powers_of_tau());
   EXPECT_EQ(expected.g1_powers_of_tau_lagrange(),

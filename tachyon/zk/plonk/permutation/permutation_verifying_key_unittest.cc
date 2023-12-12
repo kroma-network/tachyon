@@ -27,11 +27,11 @@ TEST_F(PermutationVerifyingKeyTest, Copyable) {
   VerifyingKey value;
 
   base::VectorBuffer write_buf;
-  write_buf.Write(expected);
+  ASSERT_TRUE(write_buf.Write(expected));
 
   write_buf.set_buffer_offset(0);
 
-  write_buf.Read(&value);
+  ASSERT_TRUE(write_buf.Read(&value));
   EXPECT_EQ(value, expected);
 }
 
