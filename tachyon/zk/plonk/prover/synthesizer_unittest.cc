@@ -26,8 +26,7 @@ class SynthesizerTest : public Halo2ProverTest {
 
     circuits_ = {SimpleCircuit<F>(), SimpleCircuit<F>()};
 
-    CHECK(VerifyingKey<PCS>::Generate<SimpleCircuit<F>>(
-        prover_.get(), circuits_[0], &verifying_key_));
+    CHECK(verifying_key_.Load(prover_.get(), circuits_[0]));
 
     synthesizer_ =
         Synthesizer<PCS>(circuits_.size(), &verifying_key_.constraint_system());

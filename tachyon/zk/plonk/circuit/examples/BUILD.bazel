@@ -21,7 +21,7 @@ tachyon_cc_unittest(
     deps = [
         ":simple_circuit",
         "//tachyon/zk/base/halo2:halo2_prover_test",
-        "//tachyon/zk/plonk/keys:verifying_key",
+        "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/keys/halo2:pinned_verifying_key",
     ],
 )

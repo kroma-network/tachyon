@@ -36,7 +36,7 @@ class PermutationArgument {
   // circuit's degree and how many columns are involved in the permutation.
   size_t RequiredDegree() const {
     // degree 2:
-    // l₀(X) * (1 - z(X)) = 0
+    // l_first(X) * (1 - z(X)) = 0
     //
     // We will fit as many polynomials pᵢ(X) as possible
     // into the required degree of the circuit, so the
@@ -50,7 +50,7 @@ class PermutationArgument {
     // On the first sets of columns, except the first
     // set, we will do
     //
-    // l₀(X) * (z(X) - z'(ω^(last) X)) = 0
+    // l_first(X) * (z(X) - z'(ω^(last) X)) = 0
     //
     // where z'(X) is the permutation for the previous set
     // of columns.
