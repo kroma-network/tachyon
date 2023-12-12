@@ -33,6 +33,8 @@ class Key {
         PermutationAssembly<PCSTy>(constraint_system.permutation(), pcs.N()),
         base::CreateVector(constraint_system.num_selectors(),
                            base::CreateVector(pcs.N(), false)),
+        // NOTE(chokobole): Considering that this is called from a verifier,
+        // then you can't load this number through |prover->GetUsableRows()|.
         base::Range<size_t>::Until(
             pcs.N() - (constraint_system.ComputeBlindingFactors() + 1))};
   }
