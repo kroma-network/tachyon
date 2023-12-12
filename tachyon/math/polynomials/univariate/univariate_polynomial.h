@@ -29,10 +29,12 @@ namespace math {
 // not a univariate polynomial. The polynomial is represented as a vector of its
 // coefficients. These coefficients are stored in an object which can be
 // DenseCoefficients or SparseCoefficients.
-template <typename Coefficients>
+template <typename _Coefficients>
 class UnivariatePolynomial final
-    : public Polynomial<UnivariatePolynomial<Coefficients>> {
+    : public Polynomial<UnivariatePolynomial<_Coefficients>> {
  public:
+  using Coefficients = _Coefficients;
+
   constexpr static size_t kMaxDegree = Coefficients::kMaxDegree;
 
   using Field = typename Coefficients::Field;
