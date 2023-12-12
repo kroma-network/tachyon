@@ -82,12 +82,12 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  };",
       "  constexpr static TwistType kTwistType = TwistType::k%{twist_type};",
       "",
-      "  using FpTy = FqTy;"
-      "  using Fp2Ty = Fq2Ty;"
-      "  using Fp6Ty = Fq6Ty;"
-      "  using Fp12Ty = Fq12Ty;"
-      "  using G1Curve = _G1Curve;"
-      "  using G2Curve = _G2Curve;"
+      "  using FpTy = FqTy;",
+      "  using Fp2Ty = Fq2Ty;",
+      "  using Fp6Ty = Fq6Ty;",
+      "  using Fp12Ty = Fq12Ty;",
+      "  using G1Curve = _G1Curve;",
+      "  using G2Curve = _G2Curve;",
       "",
       "  // NOTE(chokobole): Make them constexpr.",
       "  static Fq2Ty kTwistMulByQX;",
