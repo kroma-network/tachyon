@@ -72,24 +72,6 @@ class VerifyingKey {
     return ret;
   }
 
-  void SetTranscriptRepresentative(const Entity<PCSTy>* entity) {
-    halo2::PinnedVerifyingKey<PCSTy> pinned_verifying_key(entity, *this);
-
-    std::string vk_str = base::ToRustDebugString(pinned_verifying_key);
-    size_t vk_str_size = vk_str.size();
-
-    BLAKE2B_CTX state;
-    BLAKE2B512_InitWithPersonal(&state, kVerifyingKeyStr);
-    BLAKE2B512_Update(&state, reinterpret_cast<const uint8_t*>(&vk_str_size),
-                      sizeof(size_t));
-    BLAKE2B512_Update(&state, vk_str.data(), vk_str.size());
-    uint8_t result[64] = {0};
-    BLAKE2B512_Final(result, &state);
-
-    transcript_repr_ =
-        F::FromAnySizedBigInt(math::BigInt<8>::FromBytesLE(result));
-  }
-
   template <typename CircuitTy>
   [[nodiscard]] static bool Generate(Entity<PCSTy>* entity,
                                      const CircuitTy& circuit,
@@ -108,6 +90,24 @@ class VerifyingKey {
   const F& transcript_repr() const { return transcript_repr_; }
 
  private:
+  void SetTranscriptRepresentative(const Entity<PCSTy>* entity) {
+    halo2::PinnedVerifyingKey<PCSTy> pinned_verifying_key(entity, *this);
+
+    std::string vk_str = base::ToRustDebugString(pinned_verifying_key);
+    size_t vk_str_size = vk_str.size();
+
+    BLAKE2B_CTX state;
+    BLAKE2B512_InitWithPersonal(&state, kVerifyingKeyStr);
+    BLAKE2B512_Update(&state, reinterpret_cast<const uint8_t*>(&vk_str_size),
+                      sizeof(size_t));
+    BLAKE2B512_Update(&state, vk_str.data(), vk_str.size());
+    uint8_t result[64] = {0};
+    BLAKE2B512_Final(result, &state);
+
+    transcript_repr_ =
+        F::FromAnySizedBigInt(math::BigInt<8>::FromBytesLE(result));
+  }
+
   Commitments fixed_commitments_;
   PermutationVerifyingKey<PCSTy> permutation_verifying_Key_;
   ConstraintSystem<F> constraint_system_;
