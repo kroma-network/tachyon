@@ -22,6 +22,10 @@ class PermutationCommitted {
       std::vector<BlindedPolynomial<Poly>>&& product_polys)
       : product_polys_(std::move(product_polys)) {}
 
+  const std::vector<BlindedPolynomial<Poly>>& product_polys() const {
+    return product_polys_;
+  }
+
   std::vector<BlindedPolynomial<Poly>>&& TakeProductPolys() && {
     return std::move(product_polys_);
   }

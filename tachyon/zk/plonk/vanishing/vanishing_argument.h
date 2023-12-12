@@ -12,10 +12,15 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 
 namespace tachyon::zk {
+
+template <typename PCSTy>
+class ProvingKey;
 
 template <typename F>
 class VanishingArgument {
@@ -75,8 +80,32 @@ class VanishingArgument {
     return evaluator;
   }
 
-  // TODO(chokobole): Implement EvaluateH. See
-  // [evaluate_h](https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/evaluation.rs#L279-L583).
+  const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
+  const std::vector<GraphEvaluator<F>> lookups() const { return lookups_; }
+
+  template <typename PCSTy, typename Poly = typename PCSTy::Poly,
+            typename ExtendedEvals = typename PCSTy::ExtendedEvals>
+  ExtendedEvals BuildExtendedCircuitColumn(
+      ProverBase<PCSTy>* prover, const ProvingKey<PCSTy>& proving_key,
+      const F& beta, const F& gamma, const F& theta, const F& y, const F& zeta,
+      const std::vector<F>& challenges,
+      const std::vector<PermutationCommitted<Poly>>& committed_permutations,
+      const std::vector<std::vector<LookupCommitted<Poly>>>&
+          committed_lookups_vec,
+      const std::vector<RefTable<Poly>>& poly_tables) const {
+    size_t blinding_factors = prover->blinder().blinding_factors();
+    size_t cs_degree =
+        proving_key.verifying_key().constraint_system().ComputeDegree();
+
+    CircuitPolynomialBuilder<PCSTy> builder =
+        CircuitPolynomialBuilder<PCSTy>::Create(
+            prover->domain(), prover->extended_domain(), prover->pcs().N(),
+            blinding_factors, cs_degree, &beta, &gamma, &theta, &y, &zeta,
+            &challenges, &proving_key, &committed_permutations,
+            &committed_lookups_vec, &poly_tables);
+
+    return builder.BuildExtendedCircuitColumn(custom_gates_, lookups_);
+  }
 
  private:
   GraphEvaluator<F> custom_gates_;

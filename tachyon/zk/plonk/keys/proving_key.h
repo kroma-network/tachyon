@@ -152,9 +152,8 @@ class ProvingKey : public Key<PCSTy> {
         });
     l_active_row_ = domain->IFFT(evals);
 
-    // TODO(chokobole): Set |vanishing_argument_|.
-    // See
-    // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/keygen.rs#L395.
+    vanishing_argument_ =
+        VanishingArgument<F>::Create(verifying_key_.constraint_system());
     return true;
   }
 

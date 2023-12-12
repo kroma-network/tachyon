@@ -86,12 +86,6 @@ class UnpermutedTable {
     return UnpermutedTable(std::move(unpermuted_table));
   }
 
- private:
-  FRIEND_TEST(UnpermutedTableTest, Construct);
-  FRIEND_TEST(UnpermutedTableTest, GetColumns);
-
-  explicit UnpermutedTable(Table table) : table_(std::move(table)) {}
-
   // Calculate 𝛿 = g^2ˢ with order T (i.e., T-th root of unity),
   // where T = F::Config::kTrace.
   constexpr static F GetDelta() {
@@ -110,6 +104,12 @@ class UnpermutedTable {
       return g.Pow(adicity.ToBigInt());
     }
   }
+
+ private:
+  FRIEND_TEST(UnpermutedTableTest, Construct);
+  FRIEND_TEST(UnpermutedTableTest, GetColumns);
+
+  explicit UnpermutedTable(Table table) : table_(std::move(table)) {}
 
   Table table_;
 };

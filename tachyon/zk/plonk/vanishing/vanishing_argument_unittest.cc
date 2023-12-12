@@ -8,11 +8,14 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
 #include "tachyon/zk/plonk/constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/zk/plonk/keys/proving_key.h"
+#include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
 #include "tachyon/zk/plonk/vanishing/prover_vanishing_argument.h"
 #include "tachyon/zk/plonk/vanishing/verifier_vanishing_argument.h"
 
@@ -20,14 +23,65 @@ namespace tachyon::zk {
 
 namespace {
 
-class VanishingArgumentTest : public halo2::ProverTest {};
+class VanishingArgumentTest : public halo2::ProverTest {
+ public:
+  BlindedPolynomial<Poly> GenRandomBlindedPoly() const {
+    return {prover_->domain()->Random<Poly>(), F::Random()};
+  }
+  Poly GenRandomPoly() const { return prover_->domain()->Random<Poly>(); }
+};
 
 }  // namespace
 
-TEST_F(VanishingArgumentTest, VanishingArgumentConstructor) {
-  ConstraintSystem<F> constraint_system;
+TEST_F(VanishingArgumentTest, BuildExtendedCircuitColumn) {
+  F constant(7);
+  F a(2);
+  F b(3);
+  SimpleCircuit<F> circuit(constant, a, b);
+
+  ProvingKey<PCS> pkey;
+  ASSERT_TRUE(pkey.Load(prover_.get(), circuit));
+
+  std::vector<Poly> instance_columns = {GenRandomPoly()};
+  std::vector<Poly> advice_columns = {GenRandomPoly(), GenRandomPoly()};
+  std::vector<Poly> fixed_columns = {GenRandomPoly(), GenRandomPoly()};
+  RefTable<Poly> table(absl::MakeConstSpan(fixed_columns),
+                       absl::MakeConstSpan(advice_columns),
+                       absl::MakeConstSpan(instance_columns));
+  std::vector<RefTable<Poly>> poly_tables = {table};
+
+  std::vector<F> challenges = base::CreateVector(0, F::Random());
+  F y = F::Random();
+  F beta = F::Random();
+  F gamma = F::Random();
+  F theta = F::Random();
+  F zeta = GetZeta<F>();
+
+  size_t cs_degree = pkey.verifying_key().constraint_system().ComputeDegree();
+  std::vector<PermutationCommitted<Poly>> committed_permutations =
+      base::CreateVector(1, [this, cs_degree]() {
+        std::vector<BlindedPolynomial<Poly>> product_polys =
+            base::CreateVector(cs_degree - 2, GenRandomBlindedPoly());
+        return PermutationCommitted<Poly>(std::move(product_polys));
+      });
+
+  std::vector<std::vector<LookupCommitted<Poly>>> committed_lookups_vec =
+      base::CreateVector(1, [this]() {
+        return base::CreateVector(0, [this]() {
+          return LookupCommitted<Poly>(GenRandomBlindedPoly(),
+                                       GenRandomBlindedPoly(),
+                                       GenRandomBlindedPoly());
+        });
+      });
+
   VanishingArgument<F> vanishing_argument =
-      VanishingArgument<F>::Create(constraint_system);
+      VanishingArgument<F>::Create(pkey.verifying_key().constraint_system());
+
+  ExtendedEvals circuit_column = vanishing_argument.BuildExtendedCircuitColumn(
+      prover_.get(), pkey, beta, gamma, theta, y, zeta, challenges,
+      committed_permutations, committed_lookups_vec, poly_tables);
+
+  EXPECT_FALSE(circuit_column.IsZero());
 }
 
 TEST_F(VanishingArgumentTest, VanishingArgument) {
