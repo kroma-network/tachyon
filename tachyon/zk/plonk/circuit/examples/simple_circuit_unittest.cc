@@ -166,7 +166,7 @@ TEST_F(SimpleCircuitTest, Synthesize) {
   EXPECT_EQ(assembly.usable_rows(), base::Range<size_t>::Until(10));
 }
 
-TEST_F(SimpleCircuitTest, GenerateVerifyingKey) {
+TEST_F(SimpleCircuitTest, LoadVerifyingKey) {
   size_t n = 16;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
@@ -177,7 +177,7 @@ TEST_F(SimpleCircuitTest, GenerateVerifyingKey) {
   SimpleCircuit<math::bn254::Fr> circuit(constant, a, b);
 
   VerifyingKey<PCS> vkey;
-  ASSERT_TRUE(VerifyingKey<PCS>::Generate(prover_.get(), circuit, &vkey));
+  ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
   struct Point {
     std::string_view x;
