@@ -41,6 +41,19 @@ class Prover : public Entity<PCSTy> {
     return this->domain_->size() - (blinder_.blinding_factors() + 1);
   }
 
+  [[nodiscard]] bool Commit(const Poly& poly) {
+    Commitment commitment;
+    if (!this->pcs_.Commit(poly, &commitment)) return false;
+    return GetWriter()->WriteToProof(commitment);
+  }
+
+  template <typename ContainerTy>
+  [[nodiscard]] bool Commit(const ContainerTy& coeffs) {
+    Commitment commitment;
+    if (!this->pcs_.DoCommit(coeffs, &commitment)) return false;
+    return GetWriter()->WriteToProof(commitment);
+  }
+
   [[nodiscard]] bool CommitEvals(const Evals& evals) {
     if (evals.NumElements() != this->domain_->size()) return false;
 
