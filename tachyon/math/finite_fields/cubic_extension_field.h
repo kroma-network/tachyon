@@ -338,6 +338,8 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
  protected:
+  template <typename Config, typename SFINAE>
+  friend class Fp6;
   template <typename Config>
   friend class Fp12;
 

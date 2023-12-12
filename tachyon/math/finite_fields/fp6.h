@@ -22,6 +22,9 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
   using BasePrimeField = typename Config::BasePrimeField;
   using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
+  using FpTy = BasePrimeField;
+  using Fp3Ty = BaseField;
+
   using CpuField = Fp6<Config>;
   // TODO(chokobole): Implements Fp6Gpu
   using GpuField = Fp6<Config>;
@@ -96,6 +99,112 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     SET_FROBENIUS_COEFF(5);
 
 #undef SET_FROBENIUS_COEFF
+  }
+
+  // Return α = {α₀', α₁', α₂', α₃', α₄', α₅'}, such that
+  // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₃y + β₄xy)
+  Fp6& MulInPlaceBy034(const FpTy& beta0, const FpTy& beta3,
+                       const FpTy& beta4) {
+    // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₃y + β₄xy)
+    //   = (α₀β₀ + α₄β₄q + α₅β₃q) + <- I am not clear here
+    //     (α₁β₀ + α₃β₃ + α₅β₄q)x + <- I am not clear here
+    //     (α₂β₀ + α₃β₄ + α₄β₃)x² + <- I am not clear here
+    //     (α₀β₃ + α₂β₄q + α₃β₀)y +
+    //     (α₀β₄ + α₁β₃ + α₄β₀)xy +
+    //     (α₁β₄ + α₂β₃ + α₅β₀)x²y, where q is a cubic non residue.
+    // NOTE(chokobole): This equation above works when assuming y² = x holds.
+
+    // z0 = α₀
+    FpTy z0 = this->c0_.c0_;
+    // z1 = α₁
+    FpTy z1 = this->c0_.c1_;
+    // z2 = α₂
+    FpTy z2 = this->c0_.c2_;
+    // z3 = α₃
+    FpTy z3 = this->c1_.c0_;
+    // z4 = α₄
+    FpTy z4 = this->c1_.c1_;
+    // z5 = α₅
+    FpTy z5 = this->c1_.c2_;
+
+    // x0 = β₀
+    FpTy x0 = beta0;
+    // x3 = β₃
+    FpTy x3 = beta3;
+    // x4 = β₄
+    FpTy x4 = beta4;
+
+    // tmp1 = β₃q
+    FpTy tmp1 = Fp3Ty::Config::MulByNonResidue(x3);
+    // tmp2 = β₄q
+    FpTy tmp2 = Fp3Ty::Config::MulByNonResidue(x4);
+
+    // α₀' = α₀β₀ + α₄β₄q + α₅β₃q
+    this->c0_.c0_ = (z0 * x0) + (z4 * tmp2) + (z5 * tmp1);
+    // α₁' = α₁β₀ + α₃β₃ + α₅β₄q
+    this->c0_.c1_ = (z1 * x0) + (z3 * x3) + (z5 * tmp2);
+    // α₂' = α₂β₀ + α₃β₄ + α₄β₃
+    this->c0_.c2_ = (z2 * x0) + (z3 * x4) + (z4 * x3);
+    // α₃' = α₀β₃ + α₂β₄q + α₃β₀
+    this->c1_.c0_ = (z0 * x3) + (z2 * tmp2) + (z3 * x0);
+    // α₄' = α₀β₄ + α₁β₃ + α₄β₀
+    this->c1_.c1_ = (z0 * x4) + (z1 * x3) + (z4 * x0);
+    // α₅' = α₁β₄ + α₂β₃ + α₅β₀
+    this->c1_.c2_ = (z1 * x4) + (z2 * x3) + (z5 * x0);
+    return *this;
+  }
+
+  // Return α = {α₀', α₁', α₂', α₃', α₄', α₅'}, such that
+  // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₁x + β₄xy)
+  Fp6& MulInPlaceBy014(const FpTy& beta0, const FpTy& beta1,
+                       const FpTy& beta4) {
+    // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₁x + β₄xy)
+    //   = (α₀β₀ + α₂β₁q + α₄β₄q) + <- I am not clear here
+    //     (α₀β₁ + α₁β₀ + α₅β₄q)x + <- I am not clear here
+    //     (α₁β₁ + α₂β₀ + α₃β₄)x² + <- I am not clear here
+    //     (α₂β₄q + α₃β₀ + α₅β₁q)y +
+    //     (α₀β₄ + α₃β₁ + α₄β₀)xy +
+    //     (α₁β₄ + α₄β₁ + α₅β₀)x²y, where q is a cubic non residue.
+    // NOTE(chokobole): This equation above works when assuming y² = x holds.
+
+    // z0 = α₀
+    FpTy z0 = this->c0_.c0_;
+    // z1 = α₁
+    FpTy z1 = this->c0_.c1_;
+    // z2 = α₂
+    FpTy z2 = this->c0_.c2_;
+    // z3 = α₃
+    FpTy z3 = this->c1_.c0_;
+    // z4 = α₄
+    FpTy z4 = this->c1_.c1_;
+    // z5 = α₅
+    FpTy z5 = this->c1_.c2_;
+
+    // x0 = β₀
+    FpTy x0 = beta0;
+    // x1 = β₁
+    FpTy x1 = beta1;
+    // x4 = β₄
+    FpTy x4 = beta4;
+
+    // tmp1 = β₁q
+    FpTy tmp1 = Fp3Ty::Config::MulByNonResidue(x1);
+    // tmp2 = β₄q
+    FpTy tmp2 = Fp3Ty::Config::MulByNonResidue(x4);
+
+    // α₀' = α₀β₀ + α₂β₁q + α₄β₄q
+    this->c0_.c0_ = (z0 * x0) + (z2 * tmp1) + (z4 * tmp2);
+    // α₁' = α₀β₁ + α₁β₀ + α₅β₄q
+    this->c0_.c1_ = (z0 * x1) + (z1 * x0) + (z5 * tmp2);
+    // α₂' = α₁β₁ + α₂β₀ + α₃β₄
+    this->c0_.c2_ = (z1 * x1) + (z2 * x0) + (z3 * x4);
+    // α₃' = α₂β₄q + α₃β₀ + α₅β₁q
+    this->c1_.c0_ = (z2 * tmp2) + (z3 * x0) + (z5 * tmp1);
+    // α₄' = α₀β₄ + α₃β₁ + α₄β₀
+    this->c1_.c1_ = (z0 * x4) + (z3 * x1) + (z4 * x0);
+    // α₅' = α₁β₄ + α₄β₁ + α₅β₀
+    this->c1_.c2_ = (z1 * x4) + (z4 * x1) + (z5 * x0);
+    return *this;
   }
 };
 
