@@ -3,6 +3,18 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "assembly",
+    hdrs = ["assembly.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base:range",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk/circuit:assignment",
+        "//tachyon/zk/plonk/permutation:permutation_assembly",
+    ],
+)
+
+tachyon_cc_library(
     name = "proving_key",
     hdrs = ["proving_key.h"],
     deps = [
@@ -16,10 +28,10 @@ tachyon_cc_library(
     name = "verifying_key",
     hdrs = ["verifying_key.h"],
     deps = [
+        ":assembly",
         "//tachyon/base/strings:rust_stringifier",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/zk/plonk:constraint_system",
-        "//tachyon/zk/plonk/circuit:assembly",
         "//tachyon/zk/plonk/permutation:permutation_verifying_key",
         "@com_google_boringssl//:crypto",
     ],

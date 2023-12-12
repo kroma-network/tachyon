@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_ASSEMBLY_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_ASSEMBLY_H_
+#ifndef TACHYON_ZK_PLONK_KEYS_ASSEMBLY_H_
+#define TACHYON_ZK_PLONK_KEYS_ASSEMBLY_H_
 
 #include <utility>
 #include <vector>
@@ -90,4 +90,4 @@ class Assembly : public Assignment<typename PCSTy::Field> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_ASSEMBLY_H_
+#endif  // TACHYON_ZK_PLONK_KEYS_ASSEMBLY_H_

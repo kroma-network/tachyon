@@ -18,8 +18,8 @@
 
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
-#include "tachyon/zk/plonk/circuit/assembly.h"
 #include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/keys/assembly.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 
 namespace tachyon::zk {
