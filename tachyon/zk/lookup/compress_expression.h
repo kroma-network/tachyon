@@ -15,7 +15,7 @@
 
 namespace tachyon::zk {
 
-template <typename Domain, typename Evals, typename F = typename Evals::Field>
+template <typename Domain, typename Evals, typename F>
 bool CompressExpressions(
     const Domain* domain,
     const std::vector<std::unique_ptr<Expression<F>>>& expressions,
