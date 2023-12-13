@@ -15,13 +15,13 @@
 
 namespace tachyon::zk {
 
-template <typename Evals, typename F = typename Evals::Field>
+template <typename Domain, typename Evals, typename F = typename Evals::Field>
 bool CompressExpressions(
+    const Domain* domain,
     const std::vector<std::unique_ptr<Expression<F>>>& expressions,
-    size_t domain_size, const F& theta,
-    const SimpleEvaluator<Evals>& evaluator_tpl, Evals* out) {
-  Evals compressed_value = Evals::UnsafeZero(domain_size - 1);
-  Evals values = Evals::UnsafeZero(domain_size - 1);
+    const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl, Evals* out) {
+  Evals compressed_value = domain->template Empty<Evals>();
+  Evals values = domain->template Empty<Evals>();
 
   for (size_t expr_idx = 0; expr_idx < expressions.size(); ++expr_idx) {
     base::Parallelize(

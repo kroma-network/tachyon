@@ -99,6 +99,16 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     return t;
   }
 
+  template <typename T>
+  constexpr T Empty() const {
+    return T::UnsafeZero(size_ - 1);
+  }
+
+  template <typename T>
+  constexpr T Random() const {
+    return T::Random(size_ - 1);
+  }
+
   // Compute a FFT.
   [[nodiscard]] constexpr virtual Evals FFT(const DensePoly& poly) const = 0;
 

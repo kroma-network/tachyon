@@ -44,7 +44,7 @@ class SynthesizerTest : public Halo2ProverTest {
 TEST_F(SynthesizerTest, GenerateAdviceColumns) {
   std::vector<std::vector<Evals>> instance_columns_vec =
       base::CreateVector(circuits_.size(), [this]() {
-        return base::CreateVector(1, Evals::Random(prover_->pcs().N() - 1));
+        return base::CreateVector(1, prover_->domain()->Random<Evals>());
       });
   synthesizer_.GenerateAdviceColumns(prover_.get(), circuits_,
                                      instance_columns_vec);

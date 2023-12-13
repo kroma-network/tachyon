@@ -24,14 +24,14 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
     const SimpleEvaluator<Evals>& evaluator_tpl) {
   // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
   Evals compressed_input_expression;
-  CHECK(CompressExpressions(argument.input_expressions(),
-                            prover->domain()->size(), theta, evaluator_tpl,
+  CHECK(CompressExpressions(prover->domain(), argument.input_expressions(),
+                            theta, evaluator_tpl,
                             &compressed_input_expression));
 
   // S_compressed(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
   Evals compressed_table_expression;
-  CHECK(CompressExpressions(argument.table_expressions(),
-                            prover->domain()->size(), theta, evaluator_tpl,
+  CHECK(CompressExpressions(prover->domain(), argument.table_expressions(),
+                            theta, evaluator_tpl,
                             &compressed_table_expression));
 
   // Permute compressed (InputExpression, TableExpression) pair.

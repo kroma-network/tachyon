@@ -114,12 +114,13 @@ class PermutationAssembly {
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
   std::vector<Evals> GeneratePermutations(const Domain* domain) const {
+    CHECK_EQ(domain->size(), rows_);
     UnpermutedTable<Evals> unpermuted_table =
         UnpermutedTable<Evals>::Construct(columns_.size(), rows_, domain);
 
     // Init evaluation formed polynomials with all-zero coefficients.
     std::vector<Evals> permutations =
-        base::CreateVector(columns_.size(), Evals::UnsafeZero(rows_ - 1));
+        base::CreateVector(columns_.size(), domain->template Empty<Evals>());
 
     // Assign |unpermuted_table| to |permutations|.
     base::Parallelize(permutations, [&unpermuted_table, this](

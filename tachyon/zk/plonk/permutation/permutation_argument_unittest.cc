@@ -21,13 +21,15 @@ class PermutationArgumentTest : public Halo2ProverTest {
   void SetUp() override {
     Halo2ProverTest::SetUp();
 
-    const size_t n = prover_->pcs().N();
-    const size_t d = n - 1;
+    const Domain* domain = prover_->domain();
 
-    Evals cycled_column = Evals::Random(d);
-    fixed_columns_ = {cycled_column, Evals::Random(d), Evals::Random(d)};
-    advice_columns_ = {Evals::Random(d), cycled_column, Evals::Random(d)};
-    instance_columns_ = {cycled_column, Evals::Random(d), Evals::Random(d)};
+    Evals cycled_column = domain->Random<Evals>();
+    fixed_columns_ = {cycled_column, domain->Random<Evals>(),
+                      domain->Random<Evals>()};
+    advice_columns_ = {domain->Random<Evals>(), cycled_column,
+                       domain->Random<Evals>()};
+    instance_columns_ = {cycled_column, domain->Random<Evals>(),
+                         domain->Random<Evals>()};
 
     table_ = Table<Evals>(absl::MakeConstSpan(fixed_columns_),
                           absl::MakeConstSpan(advice_columns_),
@@ -40,8 +42,8 @@ class PermutationArgumentTest : public Halo2ProverTest {
     };
     argument_ = PermutationArgument(column_keys_);
 
-    unpermuted_table_ = UnpermutedTable<Evals>::Construct(column_keys_.size(),
-                                                          n, prover_->domain());
+    unpermuted_table_ = UnpermutedTable<Evals>::Construct(
+        column_keys_.size(), prover_->pcs().N(), prover_->domain());
   }
 
  protected:
@@ -92,7 +94,7 @@ TEST_F(PermutationArgumentTest, Commit) {
   F gamma = F::Random();
 
   PermutationArgumentRunner<Poly, Evals>::CommitArgument(
-      prover_.get(), argument_, table_, prover_->pcs().N(), pk, beta, gamma);
+      prover_.get(), argument_, table_, n, pk, beta, gamma);
 }
 
 }  // namespace tachyon::zk

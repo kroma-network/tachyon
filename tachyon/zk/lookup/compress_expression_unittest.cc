@@ -38,7 +38,8 @@ TEST_F(CompressExpressionTest, CompressExpressions) {
   }
 
   Evals out;
-  ASSERT_TRUE(CompressExpressions(expressions, n, theta_, evaluator_, &out));
+  ASSERT_TRUE(CompressExpressions(prover_->domain(), expressions, theta_,
+                                  evaluator_, &out));
   EXPECT_EQ(out, Evals(std::move(expected)));
 }
 

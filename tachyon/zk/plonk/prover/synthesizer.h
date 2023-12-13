@@ -108,7 +108,7 @@ class Synthesizer {
     // number of blinding factors and an extra row for use in the
     // permutation argument.
     WitnessCollection<PCSTy> witness(
-        prover->pcs().K(), constraint_system_->num_advice_columns(),
+        prover->domain(), constraint_system_->num_advice_columns(),
         prover->GetUsableRows(), phase, challenges_, instance_columns);
 
     CircuitTy::FloorPlanner::Synthesize(&witness, circuit, config.Clone(),

@@ -24,17 +24,18 @@ template <typename PCSTy>
 class WitnessCollection : public Assignment<typename PCSTy::Field> {
  public:
   using F = typename PCSTy::Field;
+  using Domain = typename PCSTy::Domain;
   using Evals = typename PCSTy::Evals;
   using RationalEvals = typename PCSTy::RationalEvals;
   using AssignCallback = typename Assignment<F>::AssignCallback;
 
   WitnessCollection() = default;
-  WitnessCollection(size_t k, size_t num_advice_columns, size_t usable_rows,
-                    const Phase current_phase,
+  WitnessCollection(const Domain* domain, size_t num_advice_columns,
+                    size_t usable_rows, const Phase current_phase,
                     const absl::btree_map<size_t, F>& challenges,
                     const std::vector<Evals>& instance_columns)
       : advices_(base::CreateVector(num_advice_columns,
-                                    RationalEvals::UnsafeZero(size_t{1} << k))),
+                                    domain->template Empty<RationalEvals>())),
         usable_rows_(base::Range<size_t>::Until(usable_rows)),
         current_phase_(current_phase),
         challenges_(challenges),
