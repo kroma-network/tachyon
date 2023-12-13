@@ -133,6 +133,7 @@ class UnivariatePolynomial final
   constexpr bool IsOne() const { return coefficients_.IsOne(); }
 
   const Coefficients& coefficients() const { return coefficients_; }
+  Coefficients& coefficients() { return coefficients_; }
 
   constexpr bool operator==(const UnivariatePolynomial& other) const {
     return coefficients_ == other.coefficients_;
