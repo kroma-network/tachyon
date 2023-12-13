@@ -30,6 +30,7 @@ template <typename ContainerTy, typename Callable,
           size_t ArgNum = internal::GetSize<ArgList>>
 void ParallelizeByChunkSize(ContainerTy& container, size_t chunk_size,
                             Callable callback) {
+  if (chunk_size == 0) return;
   internal::ChunkedAdapter<ContainerTy> chunked_adapter =
       base::Chunked(container, chunk_size);
   std::vector<SpanTy> chunks =
@@ -73,6 +74,7 @@ template <typename ContainerTy, typename Callable,
 std::vector<ReturnType> ParallelizeMapByChunkSize(ContainerTy& container,
                                                   size_t chunk_size,
                                                   Callable callback) {
+  if (chunk_size == 0) return {};
   internal::ChunkedAdapter<ContainerTy> chunked_adapter =
       base::Chunked(container, chunk_size);
   std::vector<SpanTy> chunks =

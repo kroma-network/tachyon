@@ -16,6 +16,8 @@
 
 namespace tachyon::base {
 
+// NOTE(chokobole): This function might return 0. You should handle this case
+// carefully. See other examples where it is used.
 template <typename ContainerType>
 size_t GetNumElementsPerThread(const ContainerType& container,
                                std::optional<size_t> threshold = std::nullopt) {
