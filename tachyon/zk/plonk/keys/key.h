@@ -29,7 +29,7 @@ class Key {
     return {
         static_cast<uint32_t>(pcs.K()),
         base::CreateVector(constraint_system.num_fixed_columns(),
-                           RationalEvals::UnsafeZero(pcs.N() - 1)),
+                           RationalEvals::UnsafeZero(pcs.D())),
         PermutationAssembly<PCSTy>(constraint_system.permutation(), pcs.N()),
         base::CreateVector(constraint_system.num_selectors(),
                            base::CreateVector(pcs.N(), false)),

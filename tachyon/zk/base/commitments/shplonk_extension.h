@@ -36,6 +36,8 @@ class SHPlonkExtension
 
   size_t N() const { return shplonk_.N(); }
 
+  size_t D() const { return N() - 1; }
+
   [[nodiscard]] bool DoUnsafeSetup(size_t size) {
     return shplonk_.DoUnsafeSetup(size);
   }
