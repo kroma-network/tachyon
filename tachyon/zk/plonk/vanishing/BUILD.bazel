@@ -9,6 +9,7 @@ tachyon_cc_library(
     deps = [
         ":value_source",
         "//tachyon/base/strings:string_util",
+        "//tachyon/zk/plonk/vanishing:evaluation_input",
     ],
 )
 
@@ -59,16 +60,11 @@ tachyon_cc_library(
     srcs = ["value_source.cc"],
     hdrs = ["value_source.h"],
     deps = [
-        ":value_source_data",
         "//tachyon:export",
         "//tachyon/base:logging",
+        "//tachyon/zk/plonk/vanishing:evaluation_input",
         "@com_google_absl//absl/strings",
     ],
-)
-
-tachyon_cc_library(
-    name = "value_source_data",
-    hdrs = ["value_source_data.h"],
 )
 
 tachyon_cc_library(

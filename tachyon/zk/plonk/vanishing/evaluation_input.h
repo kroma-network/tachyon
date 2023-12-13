@@ -46,7 +46,7 @@ class EvaluationInput {
   const F& gamma() const { return *gamma_; }
   const F& theta() const { return *theta_; }
   const F& y() const { return *y_; }
-  const int32_t n() const { return n_; }
+  int32_t n() const { return n_; }
 
  private:
   std::vector<F> intermediates_;

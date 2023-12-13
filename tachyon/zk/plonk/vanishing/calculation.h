@@ -15,8 +15,8 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/export.h"
+#include "tachyon/zk/plonk/vanishing/evaluation_input.h"
 #include "tachyon/zk/plonk/vanishing/value_source.h"
-#include "tachyon/zk/plonk/vanishing/value_source_data.h"
 
 namespace tachyon::zk {
 
@@ -68,29 +68,34 @@ class TACHYON_EXPORT Calculation {
   }
   bool operator!=(const Calculation& other) const { return !operator==(other); }
 
-  template <typename Poly, typename F = typename Poly::Field>
-  F Evaluate(const ValueSourceData<Poly>& data) {
+  template <typename Poly, typename Evals, typename F>
+  F Evaluate(const EvaluationInput<Poly, Evals>& data,
+             const std::vector<F>& constants, const F& previous_value) const {
     switch (type_) {
       case Type::kAdd:
-        return pair().left.Get(data) + pair().right.Get(data);
+        return pair().left.Get(data, constants, previous_value) +
+               pair().right.Get(data, constants, previous_value);
       case Type::kSub:
-        return pair().left.Get(data) - pair().right.Get(data);
+        return pair().left.Get(data, constants, previous_value) -
+               pair().right.Get(data, constants, previous_value);
       case Type::kMul:
-        return pair().left.Get(data) * pair().right.Get(data);
+        return pair().left.Get(data, constants, previous_value) *
+               pair().right.Get(data, constants, previous_value);
       case Type::kSquare:
-        return value().Get(data).Square();
+        return value().Get(data, constants, previous_value).Square();
       case Type::kDouble:
-        return value().Get(data).Double();
+        return value().Get(data, constants, previous_value).Double();
       case Type::kNegate:
-        return -value().Get(data);
+        return -value().Get(data, constants, previous_value);
       case Type::kStore:
-        return value().Get(data);
+        return value().Get(data, constants, previous_value);
       case Type::kHorner: {
         const HornerData& honer = horner();
-        F factor = honer.factor.Get(data);
-        F value = honer.init.Get(data);
+        F factor = honer.factor.Get(data, constants, previous_value);
+        F value = honer.init.Get(data, constants, previous_value);
         for (const ValueSource& part : honer.parts) {
-          value = value * factor + part.Get(data);
+          value *= factor;
+          value += part.Get(data, constants, previous_value);
         }
         return value;
       }

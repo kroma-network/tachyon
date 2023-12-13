@@ -10,10 +10,11 @@
 #include <stddef.h>
 
 #include <string>
+#include <vector>
 
 #include "tachyon/base/logging.h"
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/vanishing/value_source_data.h"
+#include "tachyon/zk/plonk/vanishing/evaluation_input.h"
 
 namespace tachyon::zk {
 
@@ -131,34 +132,37 @@ class TACHYON_EXPORT ValueSource {
     return type_ < other.type_;
   }
 
-  template <typename Poly, typename F = typename Poly::Field>
-  F Get(const ValueSourceData<Poly>& data) const {
+  template <typename Poly, typename Evals, typename F>
+  F Get(const EvaluationInput<Poly, Evals>& data,
+        const std::vector<F>& constants, const F& previous_value) const {
     switch (type_) {
       case Type::kConstant:
-        return data.constants[index_];
+        return constants[index_];
       case Type::kIntermediate:
-        return data.intermediates[index_];
+        return data.intermediates()[index_];
       case Type::kChallenge:
-        return data.challenges[index_];
+        return data.challenges()[index_];
       case Type::kFixed:
-        return data
-            .fixed_columns[column_index_][data.rotations[rotation_index_]];
+        return *data.table().fixed_columns()[column_index_]
+                                            [data.rotations()[rotation_index_]];
       case Type::kAdvice:
-        return data
-            .advice_columns[column_index_][data.rotations[rotation_index_]];
+        return *data.table()
+                    .advice_columns()[column_index_]
+                                     [data.rotations()[rotation_index_]];
       case Type::kInstance:
-        return data
-            .instance_columns[column_index_][data.rotations[rotation_index_]];
+        return *data.table()
+                    .instance_columns()[column_index_]
+                                       [data.rotations()[rotation_index_]];
       case Type::kBeta:
-        return data.beta;
+        return data.beta();
       case Type::kGamma:
-        return data.gamma;
+        return data.gamma();
       case Type::kTheta:
-        return data.theta;
+        return data.theta();
       case Type::kY:
-        return data.y;
+        return data.y();
       case Type::kPreviousValue:
-        return data.previous_value;
+        return previous_value;
     }
     NOTREACHED();
     return F();
