@@ -16,8 +16,7 @@ class SimpleCircuitTest : public CircuitTest {};
 
 TEST_F(SimpleCircuitTest, Configure) {
   ConstraintSystem<F> constraint_system;
-  FieldConfig<math::bn254::Fr> config =
-      SimpleCircuit<math::bn254::Fr>::Configure(constraint_system);
+  FieldConfig<F> config = SimpleCircuit<F>::Configure(constraint_system);
   std::array<AdviceColumnKey, 2> expected_advice = {
       AdviceColumnKey(0),
       AdviceColumnKey(1),
@@ -35,30 +34,28 @@ TEST_F(SimpleCircuitTest, Configure) {
             expected_advice_column_phases);
   EXPECT_TRUE(constraint_system.challenge_phases().empty());
   EXPECT_TRUE(constraint_system.selector_map().empty());
-  std::vector<Gate<math::bn254::Fr>> expected_gates;
-  std::vector<std::unique_ptr<Expression<math::bn254::Fr>>> polys;
+  std::vector<Gate<F>> expected_gates;
+  std::vector<std::unique_ptr<Expression<F>>> polys;
   {
-    std::unique_ptr<Expression<math::bn254::Fr>> poly =
-        ExpressionFactory<math::bn254::Fr>::Product(
-            ExpressionFactory<math::bn254::Fr>::Selector(config.s_mul()),
-            ExpressionFactory<math::bn254::Fr>::Sum(
-                ExpressionFactory<math::bn254::Fr>::Product(
-                    ExpressionFactory<math::bn254::Fr>::Advice(
-                        AdviceQuery(0, Rotation::Cur(), config.advice()[0])),
-                    ExpressionFactory<math::bn254::Fr>::Advice(
-                        AdviceQuery(1, Rotation::Cur(), config.advice()[1]))),
-                ExpressionFactory<math::bn254::Fr>::Negated(
-                    ExpressionFactory<math::bn254::Fr>::Advice(AdviceQuery(
-                        2, Rotation::Next(), config.advice()[0])))));
+    std::unique_ptr<Expression<F>> poly = ExpressionFactory<F>::Product(
+        ExpressionFactory<F>::Selector(config.s_mul()),
+        ExpressionFactory<F>::Sum(
+            ExpressionFactory<F>::Product(
+                ExpressionFactory<F>::Advice(
+                    AdviceQuery(0, Rotation::Cur(), config.advice()[0])),
+                ExpressionFactory<F>::Advice(
+                    AdviceQuery(1, Rotation::Cur(), config.advice()[1]))),
+            ExpressionFactory<F>::Negated(ExpressionFactory<F>::Advice(
+                AdviceQuery(2, Rotation::Next(), config.advice()[0])))));
     polys.push_back(std::move(poly));
   }
-  expected_gates.push_back(Gate<math::bn254::Fr>(
-      "mul", {""}, std::move(polys), {Selector::Simple(0)},
-      {
-          {AdviceColumnKey(0), Rotation::Cur()},
-          {AdviceColumnKey(1), Rotation::Cur()},
-          {AdviceColumnKey(0), Rotation::Next()},
-      }));
+  expected_gates.push_back(Gate<F>("mul", {""}, std::move(polys),
+                                   {Selector::Simple(0)},
+                                   {
+                                       {AdviceColumnKey(0), Rotation::Cur()},
+                                       {AdviceColumnKey(1), Rotation::Cur()},
+                                       {AdviceColumnKey(0), Rotation::Next()},
+                                   }));
   EXPECT_EQ(constraint_system.gates(), expected_gates);
   std::vector<AdviceQueryData> expected_advice_queries = {
       AdviceQueryData(Rotation::Cur(), AdviceColumnKey(0)),
@@ -97,16 +94,15 @@ TEST_F(SimpleCircuitTest, Synthesize) {
   const Domain* domain = prover_->domain();
 
   ConstraintSystem<F> constraint_system;
-  FieldConfig<math::bn254::Fr> config =
-      SimpleCircuit<math::bn254::Fr>::Configure(constraint_system);
+  FieldConfig<F> config = SimpleCircuit<F>::Configure(constraint_system);
   Assembly<PCS> assembly =
       VerifyingKey<PCS>::CreateAssembly(domain, constraint_system);
 
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<math::bn254::Fr> circuit(constant, a, b);
-  SimpleCircuit<math::bn254::Fr>::FloorPlanner::Synthesize(
+  SimpleCircuit<F> circuit(constant, a, b);
+  SimpleCircuit<F>::FloorPlanner::Synthesize(
       &assembly, circuit, std::move(config), constraint_system.constants());
 
   std::vector<RationalEvals> expected_fixed_columns;
@@ -173,7 +169,7 @@ TEST_F(SimpleCircuitTest, LoadVerifyingKey) {
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<math::bn254::Fr> circuit(constant, a, b);
+  SimpleCircuit<F> circuit(constant, a, b);
 
   VerifyingKey<PCS> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
@@ -207,7 +203,7 @@ TEST_F(SimpleCircuitTest, LoadVerifyingKey) {
   }
   EXPECT_EQ(vkey.fixed_commitments(), expected_fixed_commitments);
 
-  math::bn254::Fr expected_transcript_repr = math::bn254::Fr::FromHexString(
+  F expected_transcript_repr = F::FromHexString(
       "0x03b30e0717f2047e825763ccf9c91fff91c82eef5ec0834f66f359f29a3d3b58");
   EXPECT_EQ(vkey.transcript_repr(), expected_transcript_repr);
 }
@@ -220,7 +216,7 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<math::bn254::Fr> circuit(constant, a, b);
+  SimpleCircuit<F> circuit(constant, a, b);
 
   for (size_t i = 0; i < 2; ++i) {
     ProvingKey<PCS> pkey;
