@@ -117,11 +117,11 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     // y0 = (r)⁻ˣ
     Fp12Ty y0 = Base::PowByNegX(r);
     // y1 = (y0)² = r^(-2x)
-    Fp12Ty y1 = y0.CyclotomicSquare();
+    Fp12Ty& y1 = y0.CyclotomicSquareInPlace();
     // y2 = (y1)² = r^(-4x)
     Fp12Ty y2 = y1.CyclotomicSquare();
     // y3 = y2 * y1 = r^(-6x)
-    Fp12Ty y3 = y2 * y1;
+    Fp12Ty& y3 = y2 *= y1;
     // y4 = (y3)⁻ˣ = r^(6x²)
     Fp12Ty y4 = Base::PowByNegX(y3);
     // y5 = (y4)² = r^(12x²)
@@ -133,7 +133,7 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     // y6 = (y6)⁻¹ = r^(12x³)
     y6.CyclotomicInverseInPlace();
     // y7 = y6 * y4 = r^(12x³ + 6x²)
-    Fp12Ty y7 = y6 * y4;
+    Fp12Ty& y7 = y6 *= y4;
     // y8 = y7 * y3 = r^(12x³ + 6x² + 6x)
     Fp12Ty y8 = y7 * y3;
     // y9 = y8 * y1 = r^(12x³ + 6x² + 4x)
@@ -141,29 +141,29 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     // y10 = y8 * y4 = r^(12x³ + 12x² + 6x)
     Fp12Ty y10 = y8 * y4;
     // y11 = y10 * r = r^(12x³ + 12x² + 6x + 1)
-    Fp12Ty y11 = y10 * r;
+    Fp12Ty& y11 = y10 *= r;
     // y12 = (y9)^q = r^(q * (12x³ + 6x² + 4x))
     Fp12Ty y12 = y9;
     y12.FrobeniusMapInPlace(1);
     // y13 = y12 * y11 = r^(q * (12x³ +  6x² + 4x) +
     //                      1 * (12x³ + 12x² + 6x + 1))
-    Fp12Ty y13 = y12 * y11;
+    Fp12Ty& y13 = y12 *= y11;
     // y8 = (y8)^q² = r^(q² * (12x³ + 6x² + 6x))
     y8.FrobeniusMapInPlace(2);
     // y14 = y8 * y13 = r^(q² * (12x³ +  6x² + 6x) +
     //                     q  * (12x³ +  6x² + 4x) +
     //                     1  * (12x³ + 12x² + 6x + 1))
-    Fp12Ty y14 = y8 * y13;
+    Fp12Ty& y14 = y8 *= y13;
     r.CyclotomicInverseInPlace();
     // y15 = r⁻¹ * y9 = r^(12x³ + 6x² + 4x - 1)
-    Fp12Ty y15 = r * y9;
+    Fp12Ty& y15 = r *= y9;
     // y15 = (y15)^q³ = r^(q³ * (12x³ + 6x² + 4x - 1))
     y15.FrobeniusMapInPlace(3);
     // y16 = y15 * y14 = r^(q³ * (12x³ +  6x² + 4x - 1) +
     //                      q² * (12x³ +  6x² + 6x) +
     //                      q  * (12x³ +  6x² + 4x) +
     //                      1  * (12x³ + 12x² + 6x + 1))
-    Fp12Ty y16 = y15 * y14;
+    Fp12Ty& y16 = y15 *= y14;
     return y16;
   }
 };
