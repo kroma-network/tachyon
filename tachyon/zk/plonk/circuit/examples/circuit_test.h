@@ -36,6 +36,20 @@ class CircuitTest : public Halo2ProverTest {
     return base::Map(columns, &CreateColumn);
   }
 
+  static RationalEvals CreateRationalColumn(
+      const std::vector<std::string_view>& column) {
+    std::vector<math::RationalField<F>> evaluations =
+        base::Map(column, [](std::string_view coeff) {
+          return math::RationalField<F>(F::FromHexString(coeff));
+        });
+    return RationalEvals(std::move(evaluations));
+  }
+
+  static std::vector<RationalEvals> CreateRationalColumns(
+      const std::vector<std::vector<std::string_view>>& columns) {
+    return base::Map(columns, &CreateRationalColumn);
+  }
+
   static Poly CreatePoly(const std::vector<std::string_view>& poly) {
     std::vector<F> coefficients = base::Map(
         poly, [](std::string_view coeff) { return F::FromHexString(coeff); });
