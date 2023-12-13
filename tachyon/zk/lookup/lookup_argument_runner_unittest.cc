@@ -37,11 +37,11 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
   }
 
   Evals compressed_input_expression;
-  ASSERT_TRUE(CompressExpressions(input_expressions, n, theta_, evaluator_,
-                                  &compressed_input_expression));
+  ASSERT_TRUE(CompressExpressions(prover_->domain(), input_expressions, theta_,
+                                  evaluator_, &compressed_input_expression));
   Evals compressed_table_expression;
-  ASSERT_TRUE(CompressExpressions(table_expressions, n, theta_, evaluator_,
-                                  &compressed_table_expression));
+  ASSERT_TRUE(CompressExpressions(prover_->domain(), table_expressions, theta_,
+                                  evaluator_, &compressed_table_expression));
 
   LookupPair<Evals> compressed_evals_pair(
       std::move(compressed_input_expression),

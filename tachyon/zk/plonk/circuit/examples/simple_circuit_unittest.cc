@@ -134,12 +134,13 @@ TEST_F(SimpleCircuitTest, Synthesize) {
   size_t n = 16;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
+  const Domain* domain = prover_->domain();
 
   ConstraintSystem<F> constraint_system;
   FieldConfig<math::bn254::Fr> config =
       SimpleCircuit<math::bn254::Fr>::Configure(constraint_system);
   Assembly<PCS> assembly =
-      VerifyingKey<PCS>::CreateAssembly(prover_->pcs(), constraint_system);
+      VerifyingKey<PCS>::CreateAssembly(domain, constraint_system);
 
   F constant(7);
   F a(2);
@@ -148,9 +149,8 @@ TEST_F(SimpleCircuitTest, Synthesize) {
   SimpleCircuit<math::bn254::Fr>::FloorPlanner::Synthesize(
       &assembly, circuit, std::move(config), constraint_system.constants());
 
-  EXPECT_EQ(assembly.k(), 4);
   std::vector<RationalEvals> expected_fixed_columns;
-  RationalEvals evals = RationalEvals::UnsafeZero(n - 1);
+  RationalEvals evals = domain->Empty<RationalEvals>();
   *evals[0] = math::RationalField<F>(constant);
   expected_fixed_columns.push_back(std::move(evals));
   EXPECT_EQ(assembly.fixed_columns(), expected_fixed_columns);

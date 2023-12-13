@@ -21,22 +21,23 @@ template <typename PCSTy>
 class Key {
  public:
   using F = typename PCSTy::Field;
+  using Domain = typename PCSTy::Domain;
   using Evals = typename PCSTy::Evals;
 
   static Assembly<PCSTy> CreateAssembly(
-      const PCSTy& pcs, const ConstraintSystem<F>& constraint_system) {
+      const Domain* domain, const ConstraintSystem<F>& constraint_system) {
     using RationalEvals = typename Assembly<PCSTy>::RationalEvals;
+    size_t n = domain->size();
     return {
-        static_cast<uint32_t>(pcs.K()),
         base::CreateVector(constraint_system.num_fixed_columns(),
-                           RationalEvals::UnsafeZero(pcs.N() - 1)),
-        PermutationAssembly<PCSTy>(constraint_system.permutation(), pcs.N()),
+                           domain->template Empty<RationalEvals>()),
+        PermutationAssembly<PCSTy>(constraint_system.permutation(), n),
         base::CreateVector(constraint_system.num_selectors(),
-                           base::CreateVector(pcs.N(), false)),
+                           base::CreateVector(n, false)),
         // NOTE(chokobole): Considering that this is called from a verifier,
         // then you can't load this number through |prover->GetUsableRows()|.
         base::Range<size_t>::Until(
-            pcs.N() - (constraint_system.ComputeBlindingFactors() + 1))};
+            n - (constraint_system.ComputeBlindingFactors() + 1))};
   }
 
  protected:
@@ -67,7 +68,7 @@ class Key {
     entity->set_extended_domain(
         ExtendedDomain::Create(size_t{1} << extended_k));
 
-    result->assembly = CreateAssembly(pcs, constraint_system);
+    result->assembly = CreateAssembly(entity->domain(), constraint_system);
     Assembly<PCSTy>& assembly = result->assembly;
     FloorPlanner::Synthesize(&assembly, circuit, std::move(config),
                              constraint_system.constants());

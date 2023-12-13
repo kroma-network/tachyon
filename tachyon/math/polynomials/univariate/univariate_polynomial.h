@@ -52,6 +52,15 @@ class UnivariatePolynomial final
     return UnivariatePolynomial(Coefficients::Zero());
   }
 
+  // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
+  // So when the returned evaluations is called with |IsZero()|, it returns
+  // false. So please use it carefully!
+  constexpr static UnivariatePolynomial UnsafeZero(size_t degree) {
+    UnivariatePolynomial ret;
+    ret.coefficients_ = Coefficients::UnsafeZero(degree);
+    return ret;
+  }
+
   constexpr static UnivariatePolynomial One() {
     return UnivariatePolynomial(Coefficients::One());
   }
@@ -268,15 +277,6 @@ class UnivariatePolynomial final
   friend class internal::UnivariatePolynomialOp<Coefficients>;
   friend class Radix2EvaluationDomain<Field, kMaxDegree>;
   friend class MixedRadixEvaluationDomain<Field, kMaxDegree>;
-
-  // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
-  // So when the returned evaluations is called with |IsZero()|, it returns
-  // false. So please use it carefully!
-  constexpr static UnivariatePolynomial UnsafeZero(size_t degree) {
-    UnivariatePolynomial ret;
-    ret.coefficients_ = Coefficients::UnsafeZero(degree);
-    return ret;
-  }
 
   Coefficients coefficients_;
 };

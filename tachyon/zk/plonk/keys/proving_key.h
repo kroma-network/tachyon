@@ -83,8 +83,7 @@ class ProvingKey : public Key<PCSTy> {
       permutations = std::move(vk_load_result->permutations);
     } else {
       permutations =
-          pre_load_result.assembly.permutation().GeneratePermutations(
-              prover->domain());
+          pre_load_result.assembly.permutation().GeneratePermutations(domain);
     }
 
     permutation_proving_key_ =
@@ -104,8 +103,7 @@ class ProvingKey : public Key<PCSTy> {
     // | 5 | 0          |
     // | 6 | 0          |
     // | 7 | 0          |
-    const PCSTy& pcs = prover->pcs();
-    Evals evals = Evals::UnsafeZero(pcs.N() - 1);
+    Evals evals = domain->template Empty<Evals>();
     *evals[0] = F::One();
     l_first_ = domain->IFFT(evals);
     *evals[0] = F::Zero();

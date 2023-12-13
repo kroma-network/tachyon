@@ -22,6 +22,11 @@ class UnivariatePolynomialCommitmentScheme
   using Evals = math::UnivariateEvaluations<Field, kMaxDegree>;
   using Domain = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
 
+  size_t D() const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->N() - 1;
+  }
+
   // Commit to |poly| and populates |result| with the commitment.
   // Return false if the degree of |poly| exceeds |kMaxDegree|.
   [[nodiscard]] bool Commit(const Poly& poly, Commitment* result) const {

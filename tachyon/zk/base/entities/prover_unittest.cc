@@ -11,8 +11,9 @@ class ProverTest : public Halo2ProverTest {};
 }  // namespace
 
 TEST_F(ProverTest, CommitEvalsWithBlind) {
+  const Domain* domain = prover_->domain();
   // setting random polynomial
-  Evals evals = Evals::Random(prover_->pcs().N() - 1);
+  Evals evals = domain->Random<Evals>();
 
   // setting struct to get output
   BlindedPolynomial<Poly> out;
