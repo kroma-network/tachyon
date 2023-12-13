@@ -33,15 +33,13 @@ class WitnessCollection : public Assignment<typename PCSTy::Field> {
                     const Phase current_phase,
                     const absl::btree_map<size_t, F>& challenges,
                     const std::vector<Evals>& instance_columns)
-      : k_(k),
-        advices_(base::CreateVector(num_advice_columns,
+      : advices_(base::CreateVector(num_advice_columns,
                                     RationalEvals::UnsafeZero(size_t{1} << k))),
         usable_rows_(base::Range<size_t>::Until(usable_rows)),
         current_phase_(current_phase),
         challenges_(challenges),
         instance_columns_(instance_columns) {}
 
-  size_t k() const { return k_; }
   // NOTE(dongchangYoo): This getter of |advices| transfers ownership as well.
   // That's why, |WitnessCollection| will be released as soon as emitting it.
   std::vector<RationalEvals>&& advices() && { return std::move(advices_); }
@@ -76,7 +74,6 @@ class WitnessCollection : public Assignment<typename PCSTy::Field> {
   }
 
  private:
-  size_t k_ = 0;
   std::vector<RationalEvals> advices_;
   base::Range<size_t> usable_rows_;
   Phase current_phase_;

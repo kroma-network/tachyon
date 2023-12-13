@@ -148,7 +148,6 @@ TEST_F(SimpleCircuitTest, Synthesize) {
   SimpleCircuit<math::bn254::Fr>::FloorPlanner::Synthesize(
       &assembly, circuit, std::move(config), constraint_system.constants());
 
-  EXPECT_EQ(assembly.k(), 4);
   std::vector<RationalEvals> expected_fixed_columns;
   RationalEvals evals = RationalEvals::UnsafeZero(n - 1);
   *evals[0] = math::RationalField<F>(constant);

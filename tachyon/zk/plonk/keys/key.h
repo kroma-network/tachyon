@@ -27,7 +27,6 @@ class Key {
       const PCSTy& pcs, const ConstraintSystem<F>& constraint_system) {
     using RationalEvals = typename Assembly<PCSTy>::RationalEvals;
     return {
-        static_cast<uint32_t>(pcs.K()),
         base::CreateVector(constraint_system.num_fixed_columns(),
                            RationalEvals::UnsafeZero(pcs.D())),
         PermutationAssembly<PCSTy>(constraint_system.permutation(), pcs.N()),
