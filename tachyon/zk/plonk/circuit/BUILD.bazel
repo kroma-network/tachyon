@@ -100,12 +100,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "constraints",
-    hdrs = ["constraints.h"],
-    deps = [":constraint"],
-)
-
-tachyon_cc_library(
     name = "gate",
     hdrs = ["gate.h"],
     deps = [
