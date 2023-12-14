@@ -26,7 +26,7 @@ template <typename Poly, typename Evals>
 template <typename PCSTy, typename F>
 PermutationCommitted<Poly>
 PermutationArgumentRunner<Poly, Evals>::CommitArgument(
-    Prover<PCSTy>* prover, const PermutationArgument& argument,
+    ProverBase<PCSTy>* prover, const PermutationArgument& argument,
     Table<Evals>& table, size_t constraint_system_degree,
     const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
     const F& beta, const F& gamma) {
@@ -79,7 +79,8 @@ template <typename Poly, typename Evals>
 template <typename PCSTy, typename F>
 PermutationEvaluated<Poly>
 PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
-    Prover<PCSTy>* prover, PermutationCommitted<Poly>&& committed, const F& x) {
+    ProverBase<PCSTy>* prover, PermutationCommitted<Poly>&& committed,
+    const F& x) {
   int32_t blinding_factors =
       static_cast<int32_t>(prover->blinder().blinding_factors());
 
@@ -111,8 +112,8 @@ template <typename Poly, typename Evals>
 template <typename PCSTy, typename F>
 std::vector<ProverQuery<PCSTy>>
 PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
-    const Prover<PCSTy>* prover, const PermutationEvaluated<Poly>& evaluated,
-    const F& x) {
+    const ProverBase<PCSTy>* prover,
+    const PermutationEvaluated<Poly>& evaluated, const F& x) {
   const std::vector<BlindedPolynomial<Poly>>& product_polys =
       evaluated.product_polys();
 
@@ -138,7 +139,7 @@ template <typename Poly, typename Evals>
 template <typename PCSTy, typename F>
 std::vector<BlindedPolynomial<Poly>>
 PermutationArgumentRunner<Poly, Evals>::BlindProvingKey(
-    Prover<PCSTy>* prover,
+    ProverBase<PCSTy>* prover,
     const PermutationProvingKey<Poly, Evals>& proving_key) {
   std::vector<BlindedPolynomial<Poly>> ret;
   ret.reserve(proving_key.polys().size());
@@ -165,7 +166,7 @@ PermutationArgumentRunner<Poly, Evals>::OpenBlindedPolynomials(
 template <typename Poly, typename Evals>
 template <typename PCSTy, typename F>
 void PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
-    Prover<PCSTy>* prover,
+    ProverBase<PCSTy>* prover,
     const PermutationProvingKey<Poly, Evals>& proving_key, const F& x) {
   for (const Poly& poly : proving_key.polys()) {
     CHECK(prover->Evaluate(poly, x));

@@ -10,16 +10,16 @@
 
 #include "tachyon/base/random.h"
 #include "tachyon/zk/plonk/circuit/table.h"
-#include "tachyon/zk/plonk/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/permutation_assembly.h"
 
 namespace tachyon::zk {
 
-class PermutationArgumentTest : public Halo2ProverTest {
+class PermutationArgumentTest : public halo2::ProverTest {
  public:
   void SetUp() override {
-    Halo2ProverTest::SetUp();
+    halo2::ProverTest::SetUp();
 
     const Domain* domain = prover_->domain();
 

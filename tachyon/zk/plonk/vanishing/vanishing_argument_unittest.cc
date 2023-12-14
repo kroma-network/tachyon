@@ -6,10 +6,10 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/base/entities/verifier.h"
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
+#include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
-#include "tachyon/zk/plonk/keys/halo2/pinned_verifying_key.h"
+#include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 #include "tachyon/zk/plonk/vanishing/prover_vanishing_argument.h"
 #include "tachyon/zk/plonk/vanishing/verifier_vanishing_argument.h"
 
@@ -17,7 +17,7 @@ namespace tachyon::zk {
 
 namespace {
 
-class VanishingArgumentTest : public Halo2ProverTest {};
+class VanishingArgumentTest : public halo2::ProverTest {};
 
 }  // namespace
 
@@ -47,10 +47,11 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
                         prover_->GetWriter()->buffer().buffer_len());
   std::unique_ptr<crypto::TranscriptReader<Commitment>> reader =
       absl::WrapUnique(
-          new crypto::PoseidonReader<Commitment::Curve>(std::move(read_buf)));
+          new crypto::Blake2bReader<Commitment::Curve>(std::move(read_buf)));
 
-  std::unique_ptr<Verifier<PCS>> verifier = std::make_unique<Verifier<PCS>>(
-      Verifier<PCS>(prover_->TakePCS(), std::move(reader)));
+  std::unique_ptr<VerifierBase<PCS>> verifier =
+      std::make_unique<VerifierBase<PCS>>(
+          VerifierBase<PCS>(prover_->TakePCS(), std::move(reader)));
   verifier->set_domain(prover_->TakeDomain());
   verifier->set_extended_domain(prover_->TakeExtendedDomain());
 

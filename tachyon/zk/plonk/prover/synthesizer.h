@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/constraint_system.h"
 #include "tachyon/zk/plonk/prover/witness_collection.h"
 
@@ -42,7 +42,7 @@ class Synthesizer {
   // Synthesize circuit and store advice columns.
   template <typename CircuitTy>
   void GenerateAdviceColumns(
-      Prover<PCSTy>* prover, const std::vector<CircuitTy>& circuits,
+      ProverBase<PCSTy>* prover, const std::vector<CircuitTy>& circuits,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
     CHECK_EQ(num_circuits_, circuits.size());
 
@@ -100,7 +100,7 @@ class Synthesizer {
   // returns a vector of |RationalEvals|.
   template <typename CircuitTy>
   std::vector<RationalEvals> GenerateRationalAdvices(
-      Prover<PCSTy>* prover, const Phase phase,
+      ProverBase<PCSTy>* prover, const Phase phase,
       const std::vector<Evals>& instance_columns, const CircuitTy& circuit,
       const typename CircuitTy::Config& config) {
     // The prover will not be allowed to assign values to advice
@@ -117,7 +117,7 @@ class Synthesizer {
     return std::move(witness).TakeAdvices();
   }
 
-  void UpdateChallenges(Prover<PCSTy>* prover, const Phase phase) {
+  void UpdateChallenges(ProverBase<PCSTy>* prover, const Phase phase) {
     const std::vector<Phase>& phases = constraint_system_->challenge_phases();
     for (size_t i = 0; i < phases.size(); ++i) {
       if (phase == phases[i]) {

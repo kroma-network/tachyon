@@ -4,25 +4,25 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_HALO2_HALO2_PROVER_H_
-#define TACHYON_ZK_PLONK_HALO2_HALO2_PROVER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_PROVER_H_
+#define TACHYON_ZK_PLONK_HALO2_PROVER_H_
 
 #include <memory>
 #include <utility>
 
-#include "tachyon/zk/base/entities/prover.h"
-#include "tachyon/zk/plonk/halo2/halo2_random_field_generator.h"
+#include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/plonk/halo2/random_field_generator.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 
 template <typename PCSTy>
-class Halo2Prover : public Prover<PCSTy> {
+class Prover : public ProverBase<PCSTy> {
  public:
   using F = typename PCSTy::Field;
   using Evals = typename PCSTy::Evals;
   using Commitment = typename PCSTy::Commitment;
 
-  static Halo2Prover CreateFromRandomSeed(
+  static Prover CreateFromRandomSeed(
       PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       size_t blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
@@ -31,7 +31,7 @@ class Halo2Prover : public Prover<PCSTy> {
                          blinding_factors);
   }
 
-  static Halo2Prover CreateFromSeed(
+  static Prover CreateFromSeed(
       PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       const uint8_t seed[16], size_t blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
@@ -40,32 +40,32 @@ class Halo2Prover : public Prover<PCSTy> {
                          blinding_factors);
   }
 
-  static Halo2Prover CreateFromRNG(
+  static Prover CreateFromRNG(
       PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       std::unique_ptr<crypto::XORShiftRNG> rng, size_t blinding_factors) {
-    auto generator = std::make_unique<Halo2RandomFieldGenerator<F>>(rng.get());
+    auto generator = std::make_unique<RandomFieldGenerator<F>>(rng.get());
     Blinder<PCSTy> blinder(generator.get(), blinding_factors);
     return {std::move(pcs), std::move(writer), std::move(blinder),
             std::move(rng), std::move(generator)};
   }
 
   crypto::XORShiftRNG* rng() { return rng_.get(); }
-  Halo2RandomFieldGenerator<F>* generator() { return generator_.get(); }
+  RandomFieldGenerator<F>* generator() { return generator_.get(); }
 
  private:
-  Halo2Prover(PCSTy&& pcs,
-              std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-              Blinder<PCSTy>&& blinder,
-              std::unique_ptr<crypto::XORShiftRNG> rng,
-              std::unique_ptr<Halo2RandomFieldGenerator<F>> generator)
-      : Prover<PCSTy>(std::move(pcs), std::move(writer), std::move(blinder)),
+  Prover(PCSTy&& pcs,
+         std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+         Blinder<PCSTy>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
+         std::unique_ptr<RandomFieldGenerator<F>> generator)
+      : ProverBase<PCSTy>(std::move(pcs), std::move(writer),
+                          std::move(blinder)),
         rng_(std::move(rng)),
         generator_(std::move(generator)) {}
 
   std::unique_ptr<crypto::XORShiftRNG> rng_;
-  std::unique_ptr<Halo2RandomFieldGenerator<F>> generator_;
+  std::unique_ptr<RandomFieldGenerator<F>> generator_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_ZK_PLONK_HALO2_HALO2_PROVER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_PROVER_H_

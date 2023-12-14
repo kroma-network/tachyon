@@ -8,7 +8,7 @@
 
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
-#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 
 namespace tachyon::zk {
 
@@ -19,7 +19,7 @@ class GrandProductArgument {
   // case.
   template <typename PCSTy, typename Callable,
             typename Poly = typename PCSTy::Poly>
-  static BlindedPolynomial<Poly> Commit(Prover<PCSTy>* prover,
+  static BlindedPolynomial<Poly> Commit(ProverBase<PCSTy>* prover,
                                         Callable numerator_callback,
                                         Callable denominator_callback) {
     using Evals = typename PCSTy::Evals;
@@ -43,7 +43,7 @@ class GrandProductArgument {
   // https://zcash.github.io/halo2/design/proving-system/permutation.html#spanning-a-large-number-of-columns
   template <typename PCSTy, typename Callable, typename F,
             typename Poly = typename PCSTy::Poly>
-  static BlindedPolynomial<Poly> CommitExcessive(Prover<PCSTy>* prover,
+  static BlindedPolynomial<Poly> CommitExcessive(ProverBase<PCSTy>* prover,
                                                  Callable numerator_callback,
                                                  Callable denominator_callback,
                                                  size_t num_cols, F& last_z) {

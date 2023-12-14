@@ -6,7 +6,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/circuit/table.h"
 
 namespace tachyon::zk {
@@ -21,7 +21,7 @@ class Argument {
   using Domain = typename PCSTy::Domain;
 
   Argument() = default;
-  static Argument Create(Prover<PCSTy>* prover, size_t num_circuits,
+  static Argument Create(ProverBase<PCSTy>* prover, size_t num_circuits,
                          const std::vector<Evals>* fixed_columns,
                          const std::vector<Poly>* fixed_polys,
                          std::vector<std::vector<Evals>>&& advice_columns_vec,
@@ -128,7 +128,7 @@ class Argument {
   // Generate a vector of instance coefficient-formed polynomials with a vector
   // of instance evaluation-formed columns. (a.k.a. Batch IFFT)
   static std::vector<std::vector<Poly>> GenerateInstancePolys(
-      Prover<PCSTy>* prover,
+      ProverBase<PCSTy>* prover,
       std::vector<std::vector<Evals>> instance_columns_vec) {
     return base::Map(instance_columns_vec,
                      [prover](const std::vector<Evals>& instance_columns) {

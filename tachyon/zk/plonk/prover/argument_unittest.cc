@@ -11,12 +11,12 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/zk/plonk/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 namespace {
 
-class ArgumentTest : public Halo2ProverTest {
+class ArgumentTest : public halo2::ProverTest {
  public:
   void InitColumns() {
     const Domain* domain = prover_->domain();
@@ -42,7 +42,7 @@ class ArgumentTest : public Halo2ProverTest {
   }
 
   void SetUp() override {
-    Halo2ProverTest::SetUp();
+    halo2::ProverTest::SetUp();
     InitColumns();
 
     // Copy data to be moved.

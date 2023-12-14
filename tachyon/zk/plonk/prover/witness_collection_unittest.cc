@@ -10,18 +10,18 @@
 
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
-#include "tachyon/zk/plonk/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 namespace {
 
-class WitnessCollectionTest : public Halo2ProverTest {
+class WitnessCollectionTest : public halo2::ProverTest {
  public:
   using F = typename PCS::Field;
   using RationalEvals = typename PCS::RationalEvals;
 
   void SetUp() override {
-    Halo2ProverTest::SetUp();
+    halo2::ProverTest::SetUp();
 
     const Domain* domain = prover_->domain();
     prover_->blinder().set_blinding_factors(5);

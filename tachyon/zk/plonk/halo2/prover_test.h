@@ -1,5 +1,5 @@
-#ifndef TACHYON_ZK_PLONK_HALO2_HALO2_PROVER_TEST_H_
-#define TACHYON_ZK_PLONK_HALO2_HALO2_PROVER_TEST_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_PROVER_TEST_H_
+#define TACHYON_ZK_PLONK_HALO2_PROVER_TEST_H_
 
 #include <memory>
 #include <utility>
@@ -13,11 +13,11 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
-#include "tachyon/zk/plonk/halo2/halo2_prover.h"
+#include "tachyon/zk/plonk/halo2/prover.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 
-class Halo2ProverTest : public testing::Test {
+class ProverTest : public testing::Test {
  public:
   constexpr static size_t kMaxDegree = (size_t{1} << 5) - 1;
   constexpr static size_t kMaxDomainSize = kMaxDegree + 1;
@@ -46,24 +46,23 @@ class Halo2ProverTest : public testing::Test {
     std::unique_ptr<crypto::TranscriptWriter<math::bn254::G1AffinePoint>>
         writer =
             absl::WrapUnique(new crypto::Blake2bWriter<math::bn254::G1Curve>(
-                std::move(write_buf), halo2::kTranscriptStr));
+                std::move(write_buf), kTranscriptStr));
 
     constexpr uint8_t kSeed[] = {0x59, 0x62, 0xbe, 0x5d, 0x76, 0x3d,
                                  0x31, 0x8d, 0x17, 0xdb, 0x37, 0x32,
                                  0x54, 0x06, 0xbc, 0xe5};
 
-    prover_ =
-        std::make_unique<Halo2Prover<PCS>>(Halo2Prover<PCS>::CreateFromSeed(
-            std::move(pcs), std::move(writer), kSeed, /*blinding_factors=*/0));
+    prover_ = std::make_unique<Prover<PCS>>(Prover<PCS>::CreateFromSeed(
+        std::move(pcs), std::move(writer), kSeed, /*blinding_factors=*/0));
     prover_->set_domain(Domain::Create(kMaxDomainSize));
     prover_->set_extended_domain(
         ExtendedDomain::Create(kMaxExtendedDomainSize));
   }
 
  protected:
-  std::unique_ptr<Halo2Prover<PCS>> prover_;
+  std::unique_ptr<Prover<PCS>> prover_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_ZK_PLONK_HALO2_HALO2_PROVER_TEST_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_PROVER_TEST_H_

@@ -33,7 +33,7 @@ struct FakePCS {
   using Evals = FakeEvals;
 };
 
-class FakeRandomFieldGenerator : public RandomFieldGenerator<math::GF7> {
+class FakeRandomFieldGenerator : public RandomFieldGeneratorBase<math::GF7> {
  public:
   explicit FakeRandomFieldGenerator(const std::vector<math::GF7>& values)
       : values_(values) {}

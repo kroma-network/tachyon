@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_ENTITIES_PROVER_H_
-#define TACHYON_ZK_BASE_ENTITIES_PROVER_H_
+#ifndef TACHYON_ZK_BASE_ENTITIES_PROVER_BASE_H_
+#define TACHYON_ZK_BASE_ENTITIES_PROVER_BASE_H_
 
 #include <memory>
 #include <utility>
@@ -18,16 +18,16 @@
 namespace tachyon::zk {
 
 template <typename PCSTy>
-class Prover : public Entity<PCSTy> {
+class ProverBase : public Entity<PCSTy> {
  public:
   using F = typename PCSTy::Field;
   using Evals = typename PCSTy::Evals;
   using Poly = typename PCSTy::Poly;
   using Commitment = typename PCSTy::Commitment;
 
-  Prover(PCSTy&& pcs,
-         std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-         Blinder<PCSTy>&& blinder)
+  ProverBase(PCSTy&& pcs,
+             std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+             Blinder<PCSTy>&& blinder)
       : Entity<PCSTy>(std::move(pcs), std::move(writer)),
         blinder_(std::move(blinder)) {}
 
@@ -80,4 +80,4 @@ class Prover : public Entity<PCSTy> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_BASE_ENTITIES_PROVER_H_
+#endif  // TACHYON_ZK_BASE_ENTITIES_PROVER_BASE_H_

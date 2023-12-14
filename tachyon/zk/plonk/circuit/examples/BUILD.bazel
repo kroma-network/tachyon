@@ -6,7 +6,7 @@ tachyon_cc_library(
     name = "circuit_test",
     testonly = True,
     hdrs = ["circuit_test.h"],
-    deps = ["//tachyon/zk/plonk/halo2:halo2_prover_test"],
+    deps = ["//tachyon/zk/plonk/halo2:prover_test"],
 )
 
 tachyon_cc_library(

@@ -14,8 +14,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "prover",
-    hdrs = ["prover.h"],
+    name = "prover_base",
+    hdrs = ["prover_base.h"],
     deps = [
         ":entity",
         "//tachyon/base:logging",
@@ -25,13 +25,13 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "verifier",
-    hdrs = ["verifier.h"],
+    name = "verifier_base",
+    hdrs = ["verifier_base.h"],
     deps = [":entity"],
 )
 
 tachyon_cc_unittest(
     name = "entities_unittests",
-    srcs = ["prover_unittest.cc"],
-    deps = ["//tachyon/zk/plonk/halo2:halo2_prover_test"],
+    srcs = ["prover_base_unittest.cc"],
+    deps = ["//tachyon/zk/plonk/halo2:prover_test"],
 )

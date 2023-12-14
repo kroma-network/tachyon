@@ -1,24 +1,24 @@
-#ifndef TACHYON_ZK_PLONK_HALO2_HALO2_RANDOM_FIELD_GENERATOR_H_
-#define TACHYON_ZK_PLONK_HALO2_HALO2_RANDOM_FIELD_GENERATOR_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_RANDOM_FIELD_GENERATOR_H_
+#define TACHYON_ZK_PLONK_HALO2_RANDOM_FIELD_GENERATOR_H_
 
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
 #include "tachyon/math/base/big_int.h"
-#include "tachyon/zk/base/random_field_generator.h"
+#include "tachyon/zk/base/random_field_generator_base.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 
 template <typename F>
-class Halo2RandomFieldGenerator : public RandomFieldGenerator<F> {
+class RandomFieldGenerator : public RandomFieldGeneratorBase<F> {
  public:
   static_assert(F::BigIntTy::kLimbNums == 4,
                 "Halo2Curves seems only supporting ~256 bit prime field.");
 
-  explicit Halo2RandomFieldGenerator(crypto::XORShiftRNG* generator)
+  explicit RandomFieldGenerator(crypto::XORShiftRNG* generator)
       : generator_(generator) {}
 
-  // RandomFieldGenerator<F> methods
+  // RandomFieldGeneratorBase<F> methods
   F Generate() override {
     uint64_t limbs[8] = {
         generator_->NextUint64(), generator_->NextUint64(),
@@ -30,7 +30,7 @@ class Halo2RandomFieldGenerator : public RandomFieldGenerator<F> {
   }
 
  private:
-  FRIEND_TEST(Halo2RandomFieldGeneratorTest, FromUint512);
+  FRIEND_TEST(RandomFieldGeneratorTest, FromUint512);
 
   // See
   // https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/derive/field.rs#L29-L47.
@@ -61,6 +61,6 @@ class Halo2RandomFieldGenerator : public RandomFieldGenerator<F> {
   crypto::XORShiftRNG* const generator_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_ZK_PLONK_HALO2_HALO2_RANDOM_FIELD_GENERATOR_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_RANDOM_FIELD_GENERATOR_H_

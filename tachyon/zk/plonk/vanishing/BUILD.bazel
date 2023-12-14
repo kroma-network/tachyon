@@ -43,7 +43,7 @@ tachyon_cc_library(
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/zk/base:prover_query",
         "//tachyon/zk/base/entities:entity_ty",
-        "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/keys:verifying_key",
     ],
 )
@@ -131,10 +131,10 @@ tachyon_cc_unittest(
     deps = [
         ":prover_vanishing_argument",
         ":verifier_vanishing_argument",
-        "//tachyon/zk/base/entities:verifier",
-        "//tachyon/zk/base/halo2:halo2_prover_test",
+        "//tachyon/zk/base/entities:verifier_base",
         "//tachyon/zk/plonk/circuit/examples:simple_circuit",
-        "//tachyon/zk/plonk/keys/halo2:pinned_verifying_key",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
+        "//tachyon/zk/plonk/halo2:prover_test",
     ],
 )
 

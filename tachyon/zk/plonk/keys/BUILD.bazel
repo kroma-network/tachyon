@@ -31,7 +31,7 @@ tachyon_cc_library(
     deps = [
         ":verifying_key",
         "//tachyon/base:parallelize",
-        "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/permutation:permutation_proving_key",
         "//tachyon/zk/plonk/vanishing:vanishing_argument",
     ],

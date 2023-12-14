@@ -8,43 +8,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "halo2_prover",
-    hdrs = ["halo2_prover.h"],
-    deps = [
-        ":halo2_random_field_generator",
-        "//tachyon/zk/base/entities:prover",
-    ],
-)
-
-tachyon_cc_library(
-    name = "halo2_prover_test",
-    testonly = True,
-    hdrs = ["halo2_prover_test.h"],
-    deps = [
-        ":constants",
-        ":halo2_prover",
-        "//tachyon/crypto/transcripts:blake2b_transcript",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/bn/bn254:g2",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
-        "//tachyon/zk/base:blinder",
-        "//tachyon/zk/base/commitments:shplonk_extension",
-        "@com_google_absl//absl/memory",
-    ],
-)
-
-tachyon_cc_library(
-    name = "halo2_random_field_generator",
-    hdrs = ["halo2_random_field_generator.h"],
-    deps = [
-        "//tachyon/crypto/random/xor_shift:xor_shift_rng",
-        "//tachyon/math/base:big_int",
-        "//tachyon/zk/base:random_field_generator",
-        "@com_google_googletest//:gtest_prod",
-    ],
-)
-
-tachyon_cc_library(
     name = "pinned_constraint_system",
     hdrs = ["pinned_constraint_system.h"],
     deps = [
@@ -84,14 +47,51 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "prover",
+    hdrs = ["prover.h"],
+    deps = [
+        ":random_field_generator",
+        "//tachyon/zk/base/entities:prover_base",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prover_test",
+    testonly = True,
+    hdrs = ["prover_test.h"],
+    deps = [
+        ":constants",
+        ":prover",
+        "//tachyon/crypto/transcripts:blake2b_transcript",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/bn/bn254:g2",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "//tachyon/zk/base:blinder",
+        "//tachyon/zk/base/commitments:shplonk_extension",
+        "@com_google_absl//absl/memory",
+    ],
+)
+
+tachyon_cc_library(
+    name = "random_field_generator",
+    hdrs = ["random_field_generator.h"],
+    deps = [
+        "//tachyon/crypto/random/xor_shift:xor_shift_rng",
+        "//tachyon/math/base:big_int",
+        "//tachyon/zk/base:random_field_generator_base",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "halo2_unittests",
     srcs = [
-        "halo2_random_field_generator_unittest.cc",
         "pinned_verifying_key_unittest.cc",
+        "random_field_generator_unittest.cc",
     ],
     deps = [
-        ":halo2_prover_test",
         ":pinned_verifying_key",
+        ":prover_test",
     ],
 )

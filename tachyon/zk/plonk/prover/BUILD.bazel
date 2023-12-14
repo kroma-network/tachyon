@@ -8,7 +8,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:logging",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/circuit:table",
     ],
 )
@@ -19,7 +19,7 @@ tachyon_cc_library(
     deps = [
         ":witness_collection",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk:constraint_system",
     ],
 )
@@ -48,7 +48,7 @@ tachyon_cc_unittest(
         ":synthesizer",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/plonk/circuit/examples:simple_circuit",
-        "//tachyon/zk/plonk/halo2:halo2_prover_test",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
+        "//tachyon/zk/plonk/halo2:prover_test",
     ],
 )

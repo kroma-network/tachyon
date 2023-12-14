@@ -14,7 +14,7 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/zk/base/entities/entity_ty.h"
-#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/prover_query.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_committed.h"
@@ -26,7 +26,8 @@ namespace tachyon::zk {
 
 template <typename PCSTy>
 [[nodiscard]] bool CommitRandomPoly(
-    Prover<PCSTy>* prover, VanishingCommitted<EntityTy::kProver, PCSTy>* out) {
+    ProverBase<PCSTy>* prover,
+    VanishingCommitted<EntityTy::kProver, PCSTy>* out) {
   using F = typename PCSTy::Field;
   using Poly = typename PCSTy::Poly;
 
@@ -50,7 +51,7 @@ template <typename PCSTy>
 
 template <typename PCSTy, typename ExtendedEvals>
 [[nodiscard]] bool CommitFinalHPoly(
-    Prover<PCSTy>* prover,
+    ProverBase<PCSTy>* prover,
     VanishingCommitted<EntityTy::kProver, PCSTy>&& committed,
     const VerifyingKey<PCSTy>& vk, ExtendedEvals& linear_combination_of_gates,
     VanishingConstructed<EntityTy::kProver, PCSTy>* constructed_out) {

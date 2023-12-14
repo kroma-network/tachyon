@@ -13,7 +13,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/parallelize.h"
-#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
@@ -94,7 +94,7 @@ class PermutationAssembly {
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
   constexpr PermutationProvingKey<Poly, Evals> BuildProvingKey(
-      const Prover<PCSTy>* prover,
+      const ProverBase<PCSTy>* prover,
       const std::vector<Evals>& permutations) const {
     const Domain* domain = prover->domain();
 

@@ -2,13 +2,13 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/plonk/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk::halo2 {
 
 namespace {
 
-class PinnedVerifyingKeyTest : public Halo2ProverTest {};
+class PinnedVerifyingKeyTest : public ProverTest {};
 
 }  // namespace
 
