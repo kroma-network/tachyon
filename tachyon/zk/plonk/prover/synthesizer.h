@@ -114,7 +114,7 @@ class Synthesizer {
     CircuitTy::FloorPlanner::Synthesize(&witness, circuit, config.Clone(),
                                         constraint_system_->constants());
 
-    return std::move(witness).advices();
+    return std::move(witness).TakeAdvices();
   }
 
   void UpdateChallenges(Prover<PCSTy>* prover, const Phase phase) {

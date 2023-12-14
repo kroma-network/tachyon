@@ -24,16 +24,14 @@ class VirtualCells {
   const std::vector<Selector>& queried_selectors() const& {
     return queried_selectors_;
   }
-
-  std::vector<Selector>&& queried_selectors() && {
-    return std::move(queried_selectors_);
-  }
-
   const std::vector<VirtualCell>& queried_cells() const& {
     return queried_cells_;
   }
 
-  std::vector<VirtualCell>&& queried_cells() && {
+  std::vector<Selector>&& TakeQueriedSelectors() && {
+    return std::move(queried_selectors_);
+  }
+  std::vector<VirtualCell>&& TakeQueriedCells() && {
     return std::move(queried_cells_);
   }
 

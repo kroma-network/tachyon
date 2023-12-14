@@ -43,7 +43,7 @@ class WitnessCollection : public Assignment<typename PCSTy::Field> {
 
   // NOTE(dongchangYoo): This getter of |advices| transfers ownership as well.
   // That's why, |WitnessCollection| will be released as soon as emitting it.
-  std::vector<RationalEvals>&& advices() && { return std::move(advices_); }
+  std::vector<RationalEvals>&& TakeAdvices() && { return std::move(advices_); }
   const Phase current_phase() const { return current_phase_; }
   const base::Range<size_t>& usable_rows() const { return usable_rows_; }
   const absl::btree_map<size_t, F>& challenges() const { return challenges_; }

@@ -67,7 +67,7 @@ TEST_F(WitnessCollectionTest, AssignAdvice) {
       });
 
   std::vector<RationalEvals> rational_advice_columns =
-      std::move(witness_collection_).advices();
+      std::move(witness_collection_).TakeAdvices();
   const RationalEvals& rational_column = rational_advice_columns[col];
   EXPECT_EQ(value_to_be_assign, *rational_column[row]);
 }

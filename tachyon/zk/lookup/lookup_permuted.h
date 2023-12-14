@@ -34,10 +34,10 @@ class LookupPermuted {
   const LookupPair<Evals>& permuted_evals_pair() const {
     return permuted_evals_pair_;
   }
-  BlindedPolynomial<Poly>&& permuted_input_poly() && {
+  BlindedPolynomial<Poly>&& TakePermutedInputPoly() && {
     return std::move(permuted_input_poly_);
   }
-  BlindedPolynomial<Poly>&& permuted_table_poly() && {
+  BlindedPolynomial<Poly>&& TakePermutedTablePoly() && {
     return std::move(permuted_table_poly_);
   }
 

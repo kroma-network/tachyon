@@ -84,7 +84,7 @@ PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
       static_cast<int32_t>(prover->blinder().blinding_factors());
 
   std::vector<BlindedPolynomial<Poly>> product_polys =
-      std::move(committed).product_polys();
+      std::move(committed).TakeProductPolys();
 
   for (size_t i = 0; i < product_polys.size(); ++i) {
     const Poly& poly = product_polys[i].poly();

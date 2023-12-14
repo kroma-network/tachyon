@@ -22,8 +22,8 @@ class LookupPair {
   const T& input() const& { return input_; }
   const U& table() const& { return table_; }
 
-  T&& input() && { return std::move(input_); }
-  U&& table() && { return std::move(table_); }
+  T&& TakeInput() && { return std::move(input_); }
+  U&& TakeTable() && { return std::move(table_); }
 
  private:
   T input_;
