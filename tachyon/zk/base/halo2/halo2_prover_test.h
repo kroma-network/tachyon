@@ -48,9 +48,13 @@ class Halo2ProverTest : public testing::Test {
             absl::WrapUnique(new crypto::Blake2bWriter<math::bn254::G1Curve>(
                 std::move(write_buf), halo2::kTranscriptStr));
 
-    prover_ = std::make_unique<Halo2Prover<PCS>>(
-        Halo2Prover<PCS>::CreateFromRandomSeed(
-            std::move(pcs), std::move(writer), /*blinding_factors=*/0));
+    constexpr uint8_t kSeed[] = {0x59, 0x62, 0xbe, 0x5d, 0x76, 0x3d,
+                                 0x31, 0x8d, 0x17, 0xdb, 0x37, 0x32,
+                                 0x54, 0x06, 0xbc, 0xe5};
+
+    prover_ =
+        std::make_unique<Halo2Prover<PCS>>(Halo2Prover<PCS>::CreateFromSeed(
+            std::move(pcs), std::move(writer), kSeed, /*blinding_factors=*/0));
     prover_->set_domain(Domain::Create(kMaxDomainSize));
     prover_->set_extended_domain(
         ExtendedDomain::Create(kMaxExtendedDomainSize));
