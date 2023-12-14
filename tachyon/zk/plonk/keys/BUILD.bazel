@@ -43,6 +43,7 @@ tachyon_cc_library(
     deps = [
         ":key",
         "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/zk/base/halo2:constants",
         "//tachyon/zk/plonk/permutation:permutation_verifying_key",
         "@com_google_boringssl//:crypto",
     ],

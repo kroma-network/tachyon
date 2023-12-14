@@ -28,8 +28,6 @@ constexpr uint8_t kBlake2bPrefixPoint[1] = {1};
 // Prefix to a prover's message containing a scalar
 constexpr uint8_t kBlake2bPrefixScalar[1] = {2};
 
-constexpr char kHalo2TranscriptStr[] = "Halo2-Transcript";
-
 // TODO(TomTaehoonKim): We will replace Blake2b with an algebraic hash function
 // in a later version. See
 // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/transcript/blake2b.rs#L25
@@ -44,7 +42,12 @@ class Blake2bReader : public TranscriptReader<math::AffinePoint<Curve>> {
   // Initialize a transcript given an input buffer.
   explicit Blake2bReader(base::Buffer read_buf)
       : TranscriptReader<AffinePointTy>(std::move(read_buf)) {
-    BLAKE2B512_InitWithPersonal(&state_, kHalo2TranscriptStr);
+    BLAKE2B512_Init(&state_);
+  }
+  // Initialize a transcript given an input buffer and |personal|.
+  explicit Blake2bReader(base::Buffer read_buf, std::string_view personal)
+      : TranscriptReader<AffinePointTy>(std::move(read_buf)) {
+    BLAKE2B512_InitWithPersonal(&state_, personal.data());
   }
 
   // Transcript methods
@@ -96,7 +99,12 @@ class Blake2bWriter : public TranscriptWriter<math::AffinePoint<Curve>> {
   // Initialize a transcript given an output buffer.
   explicit Blake2bWriter(base::VectorBuffer write_buf)
       : TranscriptWriter<AffinePointTy>(std::move(write_buf)) {
-    BLAKE2B512_InitWithPersonal(&state_, kHalo2TranscriptStr);
+    BLAKE2B512_Init(&state_);
+  }
+  // Initialize a transcript given an output buffer and |personal|.
+  Blake2bWriter(base::VectorBuffer write_buf, std::string_view personal)
+      : TranscriptWriter<AffinePointTy>(std::move(write_buf)) {
+    BLAKE2B512_InitWithPersonal(&state_, personal.data());
   }
 
   // Transcript methods

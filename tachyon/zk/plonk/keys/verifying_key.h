@@ -16,6 +16,7 @@
 #include "openssl/blake2.h"
 
 #include "tachyon/base/strings/rust_stringifier.h"
+#include "tachyon/zk/base/halo2/constants.h"
 #include "tachyon/zk/plonk/keys/key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 
@@ -29,8 +30,6 @@ class PinnedVerifyingKey;
 
 template <typename PCSTy>
 class ProvingKey;
-
-constexpr char kVerifyingKeyStr[] = "Halo2-Verify-Key";
 
 template <typename PCSTy>
 class VerifyingKey : public Key<PCSTy> {
@@ -104,7 +103,7 @@ class VerifyingKey : public Key<PCSTy> {
     size_t vk_str_size = vk_str.size();
 
     BLAKE2B_CTX state;
-    BLAKE2B512_InitWithPersonal(&state, kVerifyingKeyStr);
+    BLAKE2B512_InitWithPersonal(&state, halo2::kVerifyingKeyStr);
     BLAKE2B512_Update(&state, reinterpret_cast<const uint8_t*>(&vk_str_size),
                       sizeof(size_t));
     BLAKE2B512_Update(&state, vk_str.data(), vk_str.size());
