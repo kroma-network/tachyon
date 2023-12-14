@@ -4,35 +4,34 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_CRYPTO_TRANSCRIPTS_POSEIDON_TRANSCRIPT_H_
-#define TACHYON_CRYPTO_TRANSCRIPTS_POSEIDON_TRANSCRIPT_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_POSEIDON_TRANSCRIPT_H_
+#define TACHYON_ZK_PLONK_HALO2_POSEIDON_TRANSCRIPT_H_
 
 #include <array>
 #include <utility>
 
-#include "tachyon/crypto/hashes/sponge/poseidon/halo2_poseidon.h"
 #include "tachyon/crypto/transcripts/transcript.h"
-#include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/zk/plonk/halo2/poseidon_sponge.h"
 
-namespace tachyon::crypto {
+namespace tachyon::zk::halo2 {
 
-template <typename Curve>
-class PoseidonReader : public TranscriptReader<math::AffinePoint<Curve>> {
+template <typename AffinePointTy>
+class PoseidonReader : public crypto::TranscriptReader<AffinePointTy> {
  public:
-  using AffinePointTy = typename Curve::AffinePointTy;
-  using ScalarField = typename Curve::ScalarField;
+  using ScalarField = typename AffinePointTy::ScalarField;
+  using Curve = typename AffinePointTy::Curve;
   using CurveConfig = typename Curve::Config;
 
   PoseidonReader() = default;
   // Initialize a transcript given an input buffer.
   explicit PoseidonReader(base::Buffer buffer)
-      : TranscriptReader<AffinePointTy>(std::move(buffer)),
+      : crypto::TranscriptReader<AffinePointTy>(std::move(buffer)),
         state_(crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63,
                                                                  0)) {}
 
-  // Transcript methods
-  Challenge255<ScalarField> SqueezeChallenge() override {
-    return Challenge255<ScalarField>(state_.SqueezeNativeFieldElements(1)[0]);
+  // crypto::TranscriptReader methods
+  ScalarField SqueezeChallenge() override {
+    return state_.SqueezeNativeFieldElements(1)[0];
   }
 
   bool WriteToTranscript(const AffinePointTy& point) override {
@@ -41,31 +40,31 @@ class PoseidonReader : public TranscriptReader<math::AffinePoint<Curve>> {
     return state_.Absorb(coords);
   }
 
-  bool WriteToTranscript(const ScalarField& scalar) override {
-    return state_.Absorb(scalar);
+  bool WriteToTranscript(const ScalarField& value) override {
+    return state_.Absorb(value);
   }
 
  private:
-  crypto::Halo2PoseidonSponge<ScalarField> state_;
+  PoseidonSponge<ScalarField> state_;
 };
 
-template <typename Curve>
-class PoseidonWriter : public TranscriptWriter<math::AffinePoint<Curve>> {
+template <typename AffinePointTy>
+class PoseidonWriter : public crypto::TranscriptWriter<AffinePointTy> {
  public:
-  using AffinePointTy = typename Curve::AffinePointTy;
-  using ScalarField = typename Curve::ScalarField;
+  using ScalarField = typename AffinePointTy::ScalarField;
+  using Curve = typename AffinePointTy::Curve;
   using CurveConfig = typename Curve::Config;
 
   PoseidonWriter() = default;
   // Initialize a transcript given an output buffer.
   explicit PoseidonWriter(base::VectorBuffer buffer)
-      : TranscriptWriter<AffinePointTy>(std::move(buffer)),
+      : crypto::TranscriptWriter<AffinePointTy>(std::move(buffer)),
         state_(crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63,
                                                                  0)) {}
 
-  // Transcript methods
-  Challenge255<ScalarField> SqueezeChallenge() override {
-    return Challenge255<ScalarField>(state_.SqueezeNativeFieldElements(1)[0]);
+  // crypto::TranscriptWriter methods
+  ScalarField SqueezeChallenge() override {
+    return state_.SqueezeNativeFieldElements(1)[0];
   }
 
   bool WriteToTranscript(const AffinePointTy& point) override {
@@ -74,14 +73,14 @@ class PoseidonWriter : public TranscriptWriter<math::AffinePoint<Curve>> {
     return state_.Absorb(coords);
   }
 
-  bool WriteToTranscript(const ScalarField& scalar) override {
-    return state_.Absorb(scalar);
+  bool WriteToTranscript(const ScalarField& value) override {
+    return state_.Absorb(value);
   }
 
  private:
-  crypto::Halo2PoseidonSponge<ScalarField> state_;
+  PoseidonSponge<ScalarField> state_;
 };
 
-}  // namespace tachyon::crypto
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_CRYPTO_TRANSCRIPTS_POSEIDON_TRANSCRIPT_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_POSEIDON_TRANSCRIPT_H_

@@ -121,8 +121,8 @@ class Synthesizer {
     const std::vector<Phase>& phases = constraint_system_->challenge_phases();
     for (size_t i = 0; i < phases.size(); ++i) {
       if (phase == phases[i]) {
-        auto it = challenges_.try_emplace(
-            i, prover->GetWriter()->SqueezeChallengeAsScalar());
+        auto it =
+            challenges_.try_emplace(i, prover->GetWriter()->SqueezeChallenge());
         CHECK(it.second);
       }
     }

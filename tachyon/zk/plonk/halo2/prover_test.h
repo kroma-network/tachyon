@@ -6,12 +6,11 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/crypto/transcripts/blake2b_transcript.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
-#include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
 
 namespace tachyon::zk::halo2 {
@@ -42,9 +41,8 @@ class ProverTest : public testing::Test {
     ASSERT_TRUE(pcs.UnsafeSetup(kMaxDomainSize));
 
     base::VectorBuffer write_buf;
-    std::unique_ptr<crypto::TranscriptWriter<math::bn254::G1AffinePoint>>
-        writer = std::make_unique<crypto::Blake2bWriter<math::bn254::G1Curve>>(
-            std::move(write_buf), kTranscriptStr);
+    std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer =
+        std::make_unique<Blake2bWriter<Commitment>>(std::move(write_buf));
 
     constexpr uint8_t kSeed[] = {0x59, 0x62, 0xbe, 0x5d, 0x76, 0x3d,
                                  0x31, 0x8d, 0x17, 0xdb, 0x37, 0x32,

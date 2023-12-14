@@ -28,7 +28,7 @@ template <typename PCSTy, typename Commitment>
     crypto::TranscriptReader<Commitment>* transcript,
     VanishingCommitted<EntityTy::kVerifier, PCSTy>* committed_out) {
   Commitment c;
-  if (!transcript->ReadPoint(&c)) return false;
+  if (!transcript->ReadFromProof(&c)) return false;
 
   *committed_out = VanishingCommitted<EntityTy::kVerifier, PCSTy>(std::move(c));
   return true;
@@ -46,7 +46,7 @@ template <typename PCSTy, typename Commitment>
   size_t quotient_poly_degree = vk.constraint_system().ComputeDegree() - 1;
   h_commitments.resize(quotient_poly_degree);
   for (Commitment& commitment : h_commitments) {
-    if (!transcript->ReadPoint(&commitment)) return false;
+    if (!transcript->ReadFromProof(&commitment)) return false;
   }
 
   *constructed_out = {std::move(h_commitments),
@@ -60,7 +60,7 @@ template <typename F, typename PCSTy, typename Commitment>
     crypto::TranscriptReader<Commitment>* transcript,
     VanishingPartiallyEvaluated<PCSTy>* partially_evaluated_out) {
   F random_eval;
-  if (!transcript->ReadScalar(&random_eval)) return false;
+  if (!transcript->ReadFromProof(&random_eval)) return false;
 
   *partially_evaluated_out = {std::move(constructed).TakeHCommitments(),
                               std::move(constructed).TakeRandomPolyCommitment(),
@@ -71,18 +71,17 @@ template <typename F, typename PCSTy, typename Commitment>
 template <typename PCSTy, typename Evals, typename F>
 VanishingEvaluated<EntityTy::kVerifier, PCSTy> VerifyVanishingArgument(
     VanishingPartiallyEvaluated<PCSTy>&& partially_evaluated,
-    const Evals& expressions, const crypto::Challenge255<F>& y, const F& x_n) {
+    const Evals& expressions, const F& y, const F& x_n) {
   using Commitment = typename PCSTy::Commitment;
   using AdditiveResultTy =
       typename math::internal::AdditiveSemigroupTraits<Commitment>::ReturnTy;
 
-  F y_scalar = y.ChallengeAsScalar();
-  F expected_h_eval = std::accumulate(
-      expressions.evaluations().begin(), expressions.evaluations().end(),
-      F::Zero(), [y_scalar](F& h_eval, const F& v) {
-        h_eval *= y_scalar;
-        return h_eval += v;
-      });
+  F expected_h_eval = std::accumulate(expressions.evaluations().begin(),
+                                      expressions.evaluations().end(),
+                                      F::Zero(), [&y](F& h_eval, const F& v) {
+                                        h_eval *= y;
+                                        return h_eval += v;
+                                      });
   expected_h_eval /= x_n - F::One();
 
   Commitment h_commitment =
@@ -103,16 +102,12 @@ VanishingEvaluated<EntityTy::kVerifier, PCSTy> VerifyVanishingArgument(
 
 template <typename PCSTy, typename F>
 std::vector<VerifierQuery<PCSTy>> QueryVanishingArgument(
-    VanishingEvaluated<EntityTy::kVerifier, PCSTy>&& evaluated,
-    const crypto::Challenge255<F>& x) {
+    VanishingEvaluated<EntityTy::kVerifier, PCSTy>&& evaluated, const F& x) {
   using Commitment = typename PCSTy::Commitment;
 
-  F x_scalar = x.ChallengeAsScalar();
-
-  return {{x_scalar, base::Ref<const Commitment>(&evaluated.h_commitment()),
+  return {{x, base::Ref<const Commitment>(&evaluated.h_commitment()),
            std::move(evaluated).TakeExpectedHEval()},
-          {std::move(x_scalar),
-           base::Ref<const Commitment>(&evaluated.random_poly_commitment()),
+          {x, base::Ref<const Commitment>(&evaluated.random_poly_commitment()),
            std::move(evaluated).TakeRandomEval()}};
 }
 

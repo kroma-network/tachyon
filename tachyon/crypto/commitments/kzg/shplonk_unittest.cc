@@ -4,10 +4,10 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/crypto/transcripts/poseidon_transcript.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
+#include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 
 namespace tachyon::crypto {
 
@@ -33,7 +33,7 @@ class SHPlonkTest : public testing::Test {
   void SetUp() override {
     KZG<math::bn254::G1AffinePoint, kMaxDegree, math::bn254::G1AffinePoint> kzg;
     base::VectorBuffer write_buf;
-    writer_ = PoseidonWriter<math::bn254::G1Curve>(std::move(write_buf));
+    writer_ = zk::halo2::PoseidonWriter<Commitment>(std::move(write_buf));
     pcs_ = PCS(std::move(kzg), &writer_);
     ASSERT_TRUE(pcs_.UnsafeSetup(N));
 
@@ -79,7 +79,7 @@ class SHPlonkTest : public testing::Test {
   std::vector<Poly> polys_;
   std::vector<F> points_;
   std::vector<PolynomialOpening<Poly>> poly_openings_;
-  PoseidonWriter<math::bn254::G1Curve> writer_;
+  zk::halo2::PoseidonWriter<Commitment> writer_;
 };
 
 }  // namespace

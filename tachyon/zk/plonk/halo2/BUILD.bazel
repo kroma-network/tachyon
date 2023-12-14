@@ -3,6 +3,17 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "blake2b_transcript",
+    hdrs = ["blake2b_transcript.h"],
+    deps = [
+        ":constants",
+        "//tachyon/crypto/transcripts:transcript",
+        "//tachyon/math/base:big_int",
+        "@com_google_boringssl//:crypto",
+    ],
+)
+
+tachyon_cc_library(
     name = "constants",
     hdrs = ["constants.h"],
 )
@@ -48,6 +59,24 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "poseidon_sponge",
+    hdrs = ["poseidon_sponge.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge/poseidon",
+        "@local_config_gmp//:gmp",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon_transcript",
+    hdrs = ["poseidon_transcript.h"],
+    deps = [
+        ":poseidon_sponge",
+        "//tachyon/crypto/transcripts:transcript",
+    ],
+)
+
+tachyon_cc_library(
     name = "prover",
     hdrs = ["prover.h"],
     deps = [
@@ -61,14 +90,13 @@ tachyon_cc_library(
     testonly = True,
     hdrs = ["prover_test.h"],
     deps = [
-        ":constants",
         ":prover",
-        "//tachyon/crypto/transcripts:blake2b_transcript",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/zk/base:blinder",
         "//tachyon/zk/base/commitments:shplonk_extension",
+        "//tachyon/zk/plonk/halo2:blake2b_transcript",
     ],
 )
 
@@ -83,14 +111,32 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "sha256_transcript",
+    hdrs = ["sha256_transcript.h"],
+    deps = [
+        ":constants",
+        "//tachyon/base/types:always_false",
+        "//tachyon/crypto/transcripts:transcript",
+        "//tachyon/math/base:big_int",
+        "@com_google_boringssl//:crypto",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "halo2_unittests",
     srcs = [
+        "blake2b_transcript_unittest.cc",
         "pinned_verifying_key_unittest.cc",
+        "poseidon_transcript_unittest.cc",
         "random_field_generator_unittest.cc",
+        "sha256_transcript_unittest.cc",
     ],
     deps = [
+        ":blake2b_transcript",
         ":pinned_verifying_key",
+        ":poseidon_transcript",
         ":prover_test",
+        ":sha256_transcript",
     ],
 )

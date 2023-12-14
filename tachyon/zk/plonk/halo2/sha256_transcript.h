@@ -4,50 +4,35 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_CRYPTO_TRANSCRIPTS_SHA256_TRANSCRIPT_H_
-#define TACHYON_CRYPTO_TRANSCRIPTS_SHA256_TRANSCRIPT_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_SHA256_TRANSCRIPT_H_
+#define TACHYON_ZK_PLONK_HALO2_SHA256_TRANSCRIPT_H_
 
-#include <array>
 #include <utility>
 
 #include "openssl/sha.h"
 
-#include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/math/base/big_int.h"
-#include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/zk/plonk/halo2/constants.h"
 
-namespace tachyon::crypto {
+namespace tachyon::zk::halo2 {
 
-// Dummy zeros that come before prefix to a prover's message
-constexpr uint8_t kShaPrefixZeros[31] = {0};
-
-// Prefix to a prover's message soliciting a challenge
-constexpr uint8_t kShaPrefixChallenge[1] = {0};
-
-// Prefix to a prover's message containing a curve point
-constexpr uint8_t kShaPrefixPoint[1] = {1};
-
-// Prefix to a prover's message containing a scalar
-constexpr uint8_t kShaPrefixScalar[1] = {2};
-
-template <typename Curve>
-class Sha256Reader : public TranscriptReader<math::AffinePoint<Curve>> {
+template <typename AffinePointTy>
+class Sha256Reader : public crypto::TranscriptReader<AffinePointTy> {
  public:
-  using AffinePointTy = typename Curve::AffinePointTy;
-  using BaseField = typename Curve::BaseField;
-  using ScalarField = typename Curve::ScalarField;
+  using BaseField = typename AffinePointTy::BaseField;
+  using ScalarField = typename AffinePointTy::ScalarField;
 
   Sha256Reader() = default;
   // Initialize a transcript given an input buffer.
   explicit Sha256Reader(base::Buffer read_buf)
-      : TranscriptReader<AffinePointTy>(std::move(read_buf)) {
+      : crypto::TranscriptReader<AffinePointTy>(std::move(read_buf)) {
     SHA256_Init(&state_);
   }
 
-  // Transcript methods
-  Challenge255<ScalarField> SqueezeChallenge() override {
+  // crypto::TranscriptReader methods
+  ScalarField SqueezeChallenge() override {
     SHA256_Update(&state_, kShaPrefixChallenge, 1);
     SHA256_CTX hasher = state_;
     uint8_t result[32] = {0};
@@ -57,10 +42,10 @@ class Sha256Reader : public TranscriptReader<math::AffinePoint<Curve>> {
     SHA256_Update(&state_, result, 32);
 
     if constexpr (ScalarField::N <= 4) {
-      return Challenge255<ScalarField>(ScalarField::FromAnySizedBigInt(
-          math::BigInt<4>::FromBytesLE(result)));
+      return ScalarField::FromAnySizedBigInt(
+          math::BigInt<4>::FromBytesLE(result));
     } else {
-      base::AlwaysFalse<Curve>();
+      base::AlwaysFalse<AffinePointTy>();
     }
   }
 
@@ -86,22 +71,21 @@ class Sha256Reader : public TranscriptReader<math::AffinePoint<Curve>> {
   SHA256_CTX state_;
 };
 
-template <typename Curve>
-class Sha256Writer : public TranscriptWriter<math::AffinePoint<Curve>> {
+template <typename AffinePointTy>
+class Sha256Writer : public crypto::TranscriptWriter<AffinePointTy> {
  public:
-  using AffinePointTy = typename Curve::AffinePointTy;
-  using BaseField = typename Curve::BaseField;
-  using ScalarField = typename Curve::ScalarField;
+  using BaseField = typename AffinePointTy::BaseField;
+  using ScalarField = typename AffinePointTy::ScalarField;
 
   Sha256Writer() = default;
   // Initialize a transcript given an output buffer.
   explicit Sha256Writer(base::VectorBuffer write_buf)
-      : TranscriptWriter<AffinePointTy>(std::move(write_buf)) {
+      : crypto::TranscriptWriter<AffinePointTy>(std::move(write_buf)) {
     SHA256_Init(&state_);
   }
 
-  // Transcript methods
-  Challenge255<ScalarField> SqueezeChallenge() override {
+  // crypto::TranscriptWriter methods
+  ScalarField SqueezeChallenge() override {
     SHA256_Update(&state_, kShaPrefixChallenge, 1);
     SHA256_CTX hasher = state_;
     uint8_t result[32] = {0};
@@ -111,10 +95,10 @@ class Sha256Writer : public TranscriptWriter<math::AffinePoint<Curve>> {
     SHA256_Update(&state_, result, 32);
 
     if constexpr (ScalarField::N <= 4) {
-      return Challenge255<ScalarField>(ScalarField::FromAnySizedBigInt(
-          math::BigInt<4>::FromBytesLE(result)));
+      return ScalarField::FromAnySizedBigInt(
+          math::BigInt<4>::FromBytesLE(result));
     } else {
-      base::AlwaysFalse<Curve>();
+      base::AlwaysFalse<AffinePointTy>();
     }
   }
 
@@ -140,6 +124,6 @@ class Sha256Writer : public TranscriptWriter<math::AffinePoint<Curve>> {
   SHA256_CTX state_;
 };
 
-}  // namespace tachyon::crypto
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_CRYPTO_TRANSCRIPTS_SHA256_TRANSCRIPT_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_SHA256_TRANSCRIPT_H_
