@@ -416,6 +416,10 @@ class AdditiveSemigroup {
     size_t size = scalars.size();
     if (size != std::size(bases)) return false;
     if (size != std::size(*outputs)) return false;
+    if (size == 0) {
+      LOG(ERROR) << "scalars and bases are empty";
+      return false;
+    }
     size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
@@ -432,6 +436,10 @@ class AdditiveSemigroup {
                                            OutputContainer* outputs) {
     size_t size = std::size(scalars);
     if (size != std::size(*outputs)) return false;
+    if (size == 0) {
+      LOG(ERROR) << "scalars are empty";
+      return false;
+    }
     size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
@@ -448,6 +456,10 @@ class AdditiveSemigroup {
                                            OutputContainer* outputs) {
     size_t size = std::size(bases);
     if (size != std::size(*outputs)) return false;
+    if (size == 0) {
+      LOG(ERROR) << "bases are empty";
+      return false;
+    }
     size_t num_elems_per_thread = base::GetNumElementsPerThread(bases);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {

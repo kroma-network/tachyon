@@ -82,6 +82,8 @@ class TACHYON_EXPORT CycleStore {
       return values_ != other.values_;
     }
 
+    bool IsEmpty() const { return values_.empty(); }
+
    private:
     std::vector<std::vector<T>> values_;
   };

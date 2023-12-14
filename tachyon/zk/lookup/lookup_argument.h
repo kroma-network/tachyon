@@ -52,6 +52,24 @@ class LookupArgument {
     return table_expressions_;
   }
 
+  bool operator==(const LookupArgument& other) const {
+    if (name_ != other.name_) return false;
+    if (input_expressions_.size() != other.input_expressions_.size())
+      return false;
+    if (table_expressions_.size() != other.table_expressions_.size())
+      return false;
+    for (size_t i = 0; i < input_expressions_.size(); ++i) {
+      if (*input_expressions_[i] != *other.input_expressions_[i]) return false;
+    }
+    for (size_t i = 0; i < table_expressions_.size(); ++i) {
+      if (*table_expressions_[i] != *other.table_expressions_[i]) return false;
+    }
+    return true;
+  }
+  bool operator!=(const LookupArgument& other) const {
+    return !operator==(other);
+  }
+
   size_t RequiredDegree() const {
     CHECK_EQ(input_expressions_.size(), table_expressions_.size());
 

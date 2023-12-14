@@ -3,11 +3,25 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "circuit_test",
+    testonly = True,
+    hdrs = ["circuit_test.h"],
+    deps = ["//tachyon/zk/base/halo2:halo2_prover_test"],
+)
+
+tachyon_cc_library(
     name = "simple_circuit",
     hdrs = ["simple_circuit.h"],
     deps = [
-        "//tachyon/zk/base:value",
-        "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk/circuit",
+        "//tachyon/zk/plonk/circuit/floor_planner:simple_floor_planner",
+    ],
+)
+
+tachyon_cc_library(
+    name = "simple_lookup_circuit",
+    hdrs = ["simple_lookup_circuit.h"],
+    deps = [
         "//tachyon/zk/plonk/circuit",
         "//tachyon/zk/plonk/circuit/floor_planner:simple_floor_planner",
     ],
@@ -17,10 +31,12 @@ tachyon_cc_unittest(
     name = "examples_unittests",
     srcs = [
         "simple_circuit_unittest.cc",
+        "simple_lookup_circuit_unittest.cc",
     ],
     deps = [
+        ":circuit_test",
         ":simple_circuit",
-        "//tachyon/zk/base/halo2:halo2_prover_test",
+        ":simple_lookup_circuit",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/keys/halo2:pinned_verifying_key",
     ],

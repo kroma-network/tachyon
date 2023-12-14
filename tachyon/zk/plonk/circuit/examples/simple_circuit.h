@@ -12,10 +12,8 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/circuit.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
-#include "tachyon/zk/plonk/constraint_system.h"
 
 namespace tachyon::zk {
 

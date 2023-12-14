@@ -8,6 +8,7 @@
 #define TACHYON_ZK_PLONK_CIRCUIT_LOOKUP_TABLE_H_
 
 #include <string>
+#include <utility>
 
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/base/value.h"
@@ -19,6 +20,8 @@ namespace tachyon::zk {
 template <typename F>
 class LookupTable {
  public:
+  using AssignCallback = base::OnceCallback<Value<F>()>;
+
   class Layouter {
    public:
     using AssignCallback = base::OnceCallback<Value<math::RationalField<F>>()>;
@@ -37,6 +40,15 @@ class LookupTable {
   };
 
   explicit LookupTable(Layouter* layouter) : layouter_(layouter) {}
+
+  [[nodiscard]] bool AssignCell(std::string_view name,
+                                const LookupTableColumn& column, size_t offset,
+                                AssignCallback assign) {
+    return layouter_->AssignCell(name, column, offset, [&assign]() {
+      return Value<math::RationalField<F>>::Known(
+          math::RationalField<F>(std::move(assign).Run().value()));
+    });
+  }
 
  private:
   // not owned
