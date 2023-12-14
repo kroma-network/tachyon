@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/plonk/circuit/examples/circuit_test.h"
-#include "tachyon/zk/plonk/keys/halo2/pinned_verifying_key.h"
+#include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
 namespace tachyon::zk {

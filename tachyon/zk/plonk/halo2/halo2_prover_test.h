@@ -1,5 +1,5 @@
-#ifndef TACHYON_ZK_BASE_HALO2_HALO2_PROVER_TEST_H_
-#define TACHYON_ZK_BASE_HALO2_HALO2_PROVER_TEST_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_HALO2_PROVER_TEST_H_
+#define TACHYON_ZK_PLONK_HALO2_HALO2_PROVER_TEST_H_
 
 #include <memory>
 #include <utility>
@@ -12,8 +12,8 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
-#include "tachyon/zk/base/halo2/halo2_constants.h"
-#include "tachyon/zk/base/halo2/halo2_prover.h"
+#include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/halo2_prover.h"
 
 namespace tachyon::zk {
 
@@ -66,4 +66,4 @@ class Halo2ProverTest : public testing::Test {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_BASE_HALO2_HALO2_PROVER_TEST_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_HALO2_PROVER_TEST_H_

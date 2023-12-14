@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_KEYS_HALO2_PINNED_CONSTRAINT_SYSTEM_H_
-#define TACHYON_ZK_PLONK_KEYS_HALO2_PINNED_CONSTRAINT_SYSTEM_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_PINNED_CONSTRAINT_SYSTEM_H_
+#define TACHYON_ZK_PLONK_HALO2_PINNED_CONSTRAINT_SYSTEM_H_
 
 #include <optional>
 #include <string>
@@ -15,7 +15,7 @@
 #include "tachyon/zk/plonk/circuit/phase_stringifier.h"
 #include "tachyon/zk/plonk/circuit/query_stringifier.h"
 #include "tachyon/zk/plonk/constraint_system.h"
-#include "tachyon/zk/plonk/keys/halo2/pinned_gates.h"
+#include "tachyon/zk/plonk/halo2/pinned_gates.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_stringifier.h"
 
 namespace tachyon {
@@ -124,4 +124,4 @@ class RustDebugStringifier<zk::halo2::PinnedConstraintSystem<F>> {
 }  // namespace base::internal
 }  // namespace tachyon
 
-#endif  // TACHYON_ZK_PLONK_KEYS_HALO2_PINNED_CONSTRAINT_SYSTEM_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_PINNED_CONSTRAINT_SYSTEM_H_

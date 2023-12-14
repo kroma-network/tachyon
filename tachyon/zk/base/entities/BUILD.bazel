@@ -33,5 +33,5 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "entities_unittests",
     srcs = ["prover_unittest.cc"],
-    deps = ["//tachyon/zk/base/halo2:halo2_prover_test"],
+    deps = ["//tachyon/zk/plonk/halo2:halo2_prover_test"],
 )

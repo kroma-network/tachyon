@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/halo2_prover_test.h"
 
 namespace tachyon::zk {
 namespace {

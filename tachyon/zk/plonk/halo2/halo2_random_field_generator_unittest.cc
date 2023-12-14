@@ -1,4 +1,4 @@
-#include "tachyon/zk/base/halo2/halo2_random_field_generator.h"
+#include "tachyon/zk/plonk/halo2/halo2_random_field_generator.h"
 
 #include "gtest/gtest.h"
 

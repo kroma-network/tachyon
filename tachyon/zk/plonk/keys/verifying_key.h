@@ -16,7 +16,7 @@
 #include "openssl/blake2.h"
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/zk/base/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/keys/key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 

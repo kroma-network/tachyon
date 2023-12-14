@@ -9,8 +9,8 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/random.h"
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
 #include "tachyon/zk/plonk/circuit/table.h"
+#include "tachyon/zk/plonk/halo2/halo2_prover_test.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/permutation_assembly.h"
 

@@ -172,6 +172,6 @@ tachyon_cc_unittest(
         ":permutation_assembly",
         ":permutation_table_store",
         "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/zk/base/halo2:halo2_prover_test",
+        "//tachyon/zk/plonk/halo2:halo2_prover_test",
     ],
 )

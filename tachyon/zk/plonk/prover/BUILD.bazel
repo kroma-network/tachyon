@@ -47,8 +47,8 @@ tachyon_cc_unittest(
         ":argument",
         ":synthesizer",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base/halo2:halo2_prover_test",
         "//tachyon/zk/plonk/circuit/examples:simple_circuit",
-        "//tachyon/zk/plonk/keys/halo2:pinned_verifying_key",
+        "//tachyon/zk/plonk/halo2:halo2_prover_test",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
     ],
 )
