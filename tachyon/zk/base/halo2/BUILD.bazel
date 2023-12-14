@@ -21,8 +21,9 @@ tachyon_cc_library(
     testonly = True,
     hdrs = ["halo2_prover_test.h"],
     deps = [
+        ":halo2_constants",
         ":halo2_prover",
-        "//tachyon/crypto/transcripts:poseidon_transcript",
+        "//tachyon/crypto/transcripts:blake2b_transcript",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
