@@ -4,7 +4,6 @@
 #include <memory>
 #include <utility>
 
-#include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/crypto/transcripts/blake2b_transcript.h"
@@ -44,9 +43,8 @@ class ProverTest : public testing::Test {
 
     base::VectorBuffer write_buf;
     std::unique_ptr<crypto::TranscriptWriter<math::bn254::G1AffinePoint>>
-        writer =
-            absl::WrapUnique(new crypto::Blake2bWriter<math::bn254::G1Curve>(
-                std::move(write_buf), kTranscriptStr));
+        writer = std::make_unique<crypto::Blake2bWriter<math::bn254::G1Curve>>(
+            std::move(write_buf), kTranscriptStr);
 
     constexpr uint8_t kSeed[] = {0x59, 0x62, 0xbe, 0x5d, 0x76, 0x3d,
                                  0x31, 0x8d, 0x17, 0xdb, 0x37, 0x32,
