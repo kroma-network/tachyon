@@ -33,7 +33,7 @@ class Halo2Prover : public Prover<PCSTy> {
 
   static Halo2Prover CreateFromSeed(
       PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-      uint8_t seed[16], size_t blinding_factors) {
+      const uint8_t seed[16], size_t blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromSeed(seed));
     return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),
