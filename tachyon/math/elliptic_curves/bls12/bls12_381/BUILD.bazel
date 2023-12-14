@@ -1,4 +1,3 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_unittest")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load("//tachyon/math/elliptic_curves/bls12/generator:build_defs.bzl", "generate_bls12_curves")
 load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
@@ -186,10 +185,4 @@ generate_bls12_curves(
     twist_type = "M",
     # Hex: 0xd201000000010000
     x = "-15132376222941642752",
-)
-
-tachyon_cc_unittest(
-    name = "bls12_381_unittests",
-    srcs = ["bls12_381_unittest.cc"],
-    deps = [":bls12_381"],
 )

@@ -5,4 +5,20 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "bls12_curve",
     hdrs = ["bls12_curve.h"],
+    deps = [
+        ":g2_prepared",
+        "//tachyon/base:parallelize",
+        "//tachyon/math/elliptic_curves/pairing:pairing_friendly_curve",
+    ],
+)
+
+tachyon_cc_library(
+    name = "g2_prepared",
+    hdrs = ["g2_prepared.h"],
+    deps = [
+        "//tachyon/math/base:big_int",
+        "//tachyon/math/base:bit_iterator",
+        "//tachyon/math/elliptic_curves/pairing:g2_prepared_base",
+        "//tachyon/math/elliptic_curves/pairing:g2_projective",
+    ],
 )

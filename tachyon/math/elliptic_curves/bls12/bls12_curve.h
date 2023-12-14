@@ -6,16 +6,60 @@
 #ifndef TACHYON_MATH_ELLIPTIC_CURVES_BLS12_BLS12_CURVE_H_
 #define TACHYON_MATH_ELLIPTIC_CURVES_BLS12_BLS12_CURVE_H_
 
+#include <functional>
+#include <vector>
+
+#include "tachyon/base/parallelize.h"
+#include "tachyon/math/elliptic_curves/bls12/g2_prepared.h"
+#include "tachyon/math/elliptic_curves/pairing/pairing_friendly_curve.h"
+
 namespace tachyon::math {
 
-template <typename BLS12CurveConfig>
-class BLS12Curve {
+template <typename Config>
+class BLS12Curve : public PairingFriendlyCurve<Config> {
  public:
-  using Config = BLS12CurveConfig;
+  using Base = PairingFriendlyCurve<Config>;
   using Fp12Ty = typename Config::Fp12Ty;
+  using G2Prepared = bls12::G2Prepared<Config>;
 
-  static Fp12Ty PowByX(const Fp12Ty& f_in) {
-    Fp12Ty f = f_in.CyclotomicPow(Config::kX);
+  // TODO(chokobole): Leave a comment to help understand readers.
+  template <typename G1AffinePointContainer, typename G2PreparedContainer>
+  static Fp12Ty MultiMillerLoop(const G1AffinePointContainer& a,
+                                const G2PreparedContainer& b) {
+    using Pair = typename Base::Pair;
+
+    std::vector<Pair> pairs = Base::CreatePairs(a, b);
+
+    auto callback = [](absl::Span<const Pair> pairs) {
+      Fp12Ty f = Fp12Ty::One();
+      auto it = BitIteratorBE<BigInt<Config::kXLimbNums>>::begin(
+          &Config::kX,
+          /*skip_leading_zeros=*/true);
+      ++it;
+      auto end = BitIteratorBE<BigInt<Config::kXLimbNums>>::end(&Config::kX);
+
+      while (it != end) {
+        f.SquareInPlace();
+
+        for (const Pair& pair : pairs) {
+          Base::Ell(f, pair.NextEllCoeff(), pair.g1());
+        }
+
+        if ((*it)) {
+          for (const Pair& pair : pairs) {
+            Base::Ell(f, pair.NextEllCoeff(), pair.g1());
+          }
+        }
+        ++it;
+      }
+      return f;
+    };
+
+    std::vector<Fp12Ty> results =
+        base::ParallelizeMapByChunkSize(pairs, 4, callback);
+    Fp12Ty f = std::accumulate(results.begin(), results.end(), Fp12Ty::One(),
+                               std::multiplies<>());
+
     if constexpr (Config::kXIsNegative) {
       f.CyclotomicInverseInPlace();
     }
@@ -51,19 +95,19 @@ class BLS12Curve {
     // y0 = r²
     Fp12Ty y0 = r.CyclotomicSquare();
     // y1 = (r)ˣ
-    Fp12Ty y1 = PowByX(r);
+    Fp12Ty y1 = Base::PowByX(r);
     // y2 = (r)⁻¹
     Fp12Ty y2 = r.CyclotomicInverse();
     // y1 = y1 * y2 = r^(x - 1)
     y1 *= y2;
     // y2 = (y1)ˣ = r^(x² - x)
-    y2 = PowByX(y1);
+    y2 = Base::PowByX(y1);
     // y1 = (y1)⁻¹ = r^(-x + 1)
     y1.CyclotomicInverseInPlace();
     // y1 = y1 * y2 = r^(x² - 2x + 1)
     y1 *= y2;
     // y2 = (y1)ˣ = r^(x³ - 2x² + x)
-    y2 = PowByX(y1);
+    y2 = Base::PowByX(y1);
     // y1 = (y1)^q = r^(q * (x² - 2x + 1))
     y1.FrobeniusMapInPlace(1);
     // y1 = y1 * y2 = r^(q * (x² - 2x  + 1) +
@@ -73,10 +117,10 @@ class BLS12Curve {
     r *= y0;
     // y0 = (y1)ˣ = r^(q * (x³ - 2x² + x) +
     //                 1 * (x⁴ - 2x³ + x²))
-    y0 = PowByX(y1);
+    y0 = Base::PowByX(y1);
     // y2 = (y0)ˣ = r^(q * (x⁴ - 2x³ + x²) +
     //                 1 * (x⁵ - 2x⁴ + x³))
-    y2 = PowByX(y0);
+    y2 = Base::PowByX(y0);
     // y0 = (y1)^(q²) = r^(q³ * (x² - 2x  + 1)) +
     //                     q² * (x³ - 2x² + x))
     y0 = y1;

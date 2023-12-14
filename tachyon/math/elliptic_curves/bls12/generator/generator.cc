@@ -6,7 +6,7 @@
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/build/cc_writer.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
-#include "tachyon/math/elliptic_curves/twist_type.h"
+#include "tachyon/math/elliptic_curves/pairing/twist_type.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
 
 namespace tachyon {
@@ -30,13 +30,14 @@ int GenerationConfig::GenerateConfigHdr() const {
       "#include \"%{fq12_hdr}\"",
       "#include \"%{g1_hdr}\"",
       "#include \"%{g2_hdr}\"",
-      "#include \"tachyon/math/elliptic_curves/twist_type.h\"",
+      "#include \"tachyon/math/elliptic_curves/pairing/twist_type.h\"",
       "",
       "namespace %{namespace} {",
       "",
       "template <typename FqTy, typename Fq2Ty, typename Fq6Ty, typename Fq12Ty, typename _G1Curve, typename _G2Curve>",
       "class %{class}Config {",
       " public:",
+      "  constexpr static size_t kXLimbNums = %{x_size};",
       "  constexpr static BigInt<%{x_size}> kX = BigInt<%{x_size}>({",
       "    %{x}",
       "  });",

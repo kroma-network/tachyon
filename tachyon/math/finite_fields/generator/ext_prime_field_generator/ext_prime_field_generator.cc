@@ -45,6 +45,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "  constexpr static bool kNonResidueIsMinusOne = %{non_residue_is_minus_one};",
       "  constexpr static uint64_t kDegreeOverBaseField = %{degree_over_base_field};",
+      "  constexpr static uint64_t kDegreeOverBasePrimeField = %{degree_over_base_prime_field};",
       "",
       "  static BaseField MulByNonResidue(const BaseField& v) {",
       "%{mul_by_non_residue}",
@@ -123,6 +124,22 @@ int GenerationConfig::GenerateConfigHdr() const {
     ss << math::GenerateFastMultiplication(a_value);
     ss << ";";
     mul_by_non_residue = ss.str();
+  } else if (degree == 4) {
+    std::stringstream ss;
+    // clang-format off
+    ss << "    // See [[DESD06, Section 5.1]](https://eprint.iacr.org/2006/471.pdf).";
+    ss << std::endl;
+    ss << "    return BaseField(BaseField::Config::MulByNonResidue(v.c1()), v.c0());";
+    // clang-format on
+    mul_by_non_residue = ss.str();
+  } else if (degree == 12) {
+    std::stringstream ss;
+    // clang-format off
+    ss << "    // See [[DESD06, Section 6.1]](https://eprint.iacr.org/2006/471.pdf).";
+    ss << std::endl;
+    ss << "    return BaseField(BaseField::Config::MulByNonResidue(v.c2()), v.c0(), v.c1());";
+    // clang-format on
+    mul_by_non_residue = ss.str();
   } else {
     mul_by_non_residue = "    return v * kNonResidue;";
   }
@@ -142,6 +159,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       {"%{degree}", base::NumberToString(degree)},
       {"%{degree_over_base_field}",
        base::NumberToString(degree_over_base_field)},
+      {"%{degree_over_base_prime_field}", base::NumberToString(degree)},
       {"%{base_field_hdr}", base_field_hdr},
       {"%{base_field}", base_field},
       {"%{base_prime_field}", degree == degree_over_base_field

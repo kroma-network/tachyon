@@ -91,7 +91,7 @@ def generate_bn_curves(
             g1_dep,
             g2_dep,
             "//tachyon/math/elliptic_curves/bn:bn_curve",
-            "//tachyon/math/elliptic_curves:twist_type",
+            "//tachyon/math/elliptic_curves/pairing:twist_type",
         ],
         **kwargs
     )

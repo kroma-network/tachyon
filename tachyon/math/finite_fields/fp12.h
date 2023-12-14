@@ -6,6 +6,8 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_FP12_H_
 #define TACHYON_MATH_FINITE_FIELDS_FP12_H_
 
+#include <utility>
+
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/quadratic_extension_field.h"
 
@@ -17,6 +19,9 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
   using BaseField = typename Config::BaseField;
   using BasePrimeField = typename Config::BasePrimeField;
   using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
+
+  using Fp6Ty = BaseField;
+  using Fp2Ty = typename Fp6Ty::BaseField;
 
   using CpuField = Fp12<Config>;
   // TODO(chokobole): Implements Fp12Gpu
@@ -136,8 +141,6 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     // - Robert Granger and Michael Scott
 
     if constexpr (BasePrimeField::Config::kModulusModSixIsOne) {
-      using Fp6Ty = BaseField;
-      using Fp2Ty = typename Fp6Ty::BaseField;
       const Fp2Ty& a0 = this->c0_.c0_;
       const Fp2Ty& a1 = this->c0_.c1_;
       const Fp2Ty& a2 = this->c0_.c2_;
@@ -232,6 +235,118 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     } else {
       return this->SquareInPlace();
     }
+  }
+
+  // Return α = (α₀', α₁', α₂', α₃', α₄', α₅'), such that
+  // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₃y + β₄xy)
+  Fp12& MulInPlaceBy034(const Fp2Ty& beta0, const Fp2Ty& beta3,
+                        const Fp2Ty& beta4) {
+    // clang-format off
+    // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₃y + β₄xy)
+    //   = (α₀β₀ + α₃β₃p + α₅β₄pq) + (α₁β₀ + α₃β₄p + α₄β₃p)x + (α₂β₀ + α₄β₄p + α₅β₃p)x² +
+    //     (α₀β₃ + α₂β₄q + α₃β₀ + (α₀β₄ + α₁β₃ + α₄β₀)x + (α₁β₄ + α₂β₃ + α₅β₀)x²)y
+    //   = (α₃β₃ + α₅β₄q + (α₃β₄ + α₄β₃)x + (α₄β₄ + α₅β₃)x²)p + α₀β₀ + α₁β₀x + α₂β₀x²
+    //     (α₀β₃ + α₂β₄q + α₃β₀ + (α₀β₄ + α₁β₃ + α₄β₀)x + (α₁β₄ + α₂β₃ + α₅β₀)x²)y,
+    //      where p = y² and q = x³
+    // clang-format on
+
+    // a = α₀β₀ + α₁β₀x + α₂β₀x²
+    Fp6Ty a = this->c0_ * beta0;
+    // b = (α₃ + α₄x + α₅x²) * (β₃ + β₄x)
+    //   = (α₃β₃ + α₅β₄q) + (α₃β₄ + α₄β₃)x + (α₄β₄ + α₅β₃)x², where q = x³
+    Fp6Ty b = this->c1_;
+    b.MulInPlaceBy01(beta3, beta4);
+    // o = β₀ + β₃
+    Fp2Ty o = beta0;
+    o += beta3;
+
+    // c1 = (α₀ + α₃) + (α₁ + α₄)x + (α₂ + α₅)x²
+    this->c1_ += this->c0_;
+    // c1 = ((α₀ + α₃) + (α₁ + α₄)x + (α₂ + α₅)x²) * (β₀ + β₃ + β₄x)
+    //    = ((α₀ + α₃) * (β₀ + β₃) + (α₂ + α₅)β₄q) +
+    //      ((α₁ + α₄) * (β₀ + β₃) + (α₀ + α₃)β₄)x +
+    //      ((α₂ + α₅) * (β₀ + β₃) + (α₁ + α₄)β₄)x², where q = x³
+    //    = (α₀β₀ + α₀β₃ + α₃β₀ + α₃β₃ + α₂β₄q + α₅β₄q) +
+    //      (α₁β₀ + α₁β₃ + α₄β₀ + α₄β₃ + α₀β₄ + α₃β₄)x +
+    //      (α₂β₀ + α₂β₃ + α₅β₀ + α₅β₃ + α₁β₄ + α₄β₄)x², where q = x³
+    //    = (α₀β₀ + α₀β₃ + α₂β₄q + α₃β₀ + α₃β₃ + α₅β₄q) +
+    //      (α₀β₄ + α₁β₀ + α₁β₃ + α₃β₄ + α₄β₀ + α₄β₃)x +
+    //      (α₁β₄ + α₂β₀ + α₂β₃ + α₄β₄ + α₅β₀ + α₅β₃)x², where q = x³
+    this->c1_.MulInPlaceBy01(o, beta4);
+    // c1 = (α₀β₃ + α₂β₄q + α₃β₀ + α₃β₃ + α₅β₄q) +
+    //      (α₀β₄ + α₁β₃ + α₃β₄ + α₄β₀ + α₄β₃)x +
+    //      (α₁β₄ + α₂β₃ + α₄β₄ + α₅β₀ + α₅β₃)x², where q = x³
+    this->c1_ -= a;
+    // c1 = (α₀β₃ + α₂β₄q + α₃β₀) +
+    //      (α₀β₄ + α₁β₃ + α₄β₀)x +
+    //      (α₁β₄ + α₂β₃ + α₅β₀)x², where q = x³
+    this->c1_ -= b;
+    // c0 = ((α₃β₃ + α₅β₄q) + (α₄β₃ + α₃β₄)x + (α₅β₃ + α₄β₄)x²)p +
+    //      α₀β₀ + α₁β₀x + α₂β₀x², where p = y² and q = x³
+    this->c0_ = Config::MulByNonResidue(b);
+    this->c0_ += a;
+    return *this;
+  }
+
+  // Return α = (α₀', α₁', α₂', α₃', α₄', α₅'), such that
+  // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₁x + β₄xy)
+  Fp12& MulInPlaceBy014(const Fp2Ty& beta0, const Fp2Ty& beta1,
+                        const Fp2Ty& beta4) {
+    // clang-format off
+    // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₁x + β₄xy)
+    //   = (α₀β₀ + α₂β₁q + α₅β₄pq) + (α₀β₁ + α₁β₀ + α₃β₄p)x + (α₁β₁ + α₂β₀ + α₄β₄p)x² +
+    //     (α₂β₄q + α₃β₀ + α₅β₁q + (α₀β₄ + α₃β₁ + α₄β₀)x + (α₁β₄ + α₄β₁ + α₅β₀)x²)y
+    //   = (α₅β₄q + α₃β₄x + α₄β₄x²)p + (α₀β₀ + α₂β₁q) + (α₀β₁ + α₁β₀)x + (α₁β₁ + α₂β₀)x² +
+    //     (α₂β₄q + α₃β₀ + α₅β₁q + (α₀β₄ + α₃β₁ + α₄β₀)x + (α₁β₄ + α₄β₁ + α₅β₀)x²)y,
+    //      where p = y² and q = x³
+    // clang-format on
+
+    // c0 = (α₅β₄q + α₃β₄x + α₄β₄x²)p +
+    //      (α₀β₀ + α₂β₁q) + (α₀β₁ + α₁β₀)x + (α₁β₁ + α₂β₀)x²,
+    //      where p = y² and q = x³
+    // c1 = (α₃β₀ + (α₂β₄ + α₅β₁)q) +
+    //      (α₀β₄ + α₃β₁ + α₄β₀)x +
+    //      (α₁β₄ + α₄β₁ + α₅β₀)x², where q = x³
+
+    // a = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
+    //   = (α₀β₀ + α₂β₁q) + (α₀β₁ + α₁β₀)x + (α₁β₁ + α₂β₀)x², where q = x³
+    Fp6Ty a = this->c0_;
+    a.MulInPlaceBy01(beta0, beta1);
+    // b = (α₃ + α₄x + α₅x²) * β₄x
+    //   = α₅β₄q + α₃β₄x + α₄β₄x²
+    Fp6Ty b = this->c1_;
+    b.MulInPlaceBy1(beta4);
+    // o = β₁ + β₄
+    Fp2Ty o = beta1;
+    o += beta4;
+
+    // c1 = (α₀ + α₃) + (α₁ + α₄)x + (α₂ + α₅)x²
+    this->c1_ += this->c0_;
+    // c1 = ((α₀ + α₃) + (α₁ + α₄)x + (α₂ + α₅)x²) * (β₀ + (β₁ + β₄)x)
+    //    = ((α₀ + α₃) * β₀ + (α₂ + α₅)(β₁ + β₄)q) +
+    //      ((α₁ + α₄) * β₀ + (α₀ + α₃)(β₁ + β₄))x +
+    //      ((α₂ + α₅) * β₀ + (α₁ + α₄)(β₁ + β₄))x², where q = x³
+    //    = (α₀β₀ + α₃β₀ + (α₂β₁ + α₂β₄ + α₅β₁ + α₅β₄)q) +
+    //      (α₁β₀ + α₄β₀ + α₀β₁ + α₀β₄ + α₃β₁ + α₃β₄)x +
+    //      (α₂β₀ + α₅β₀ + α₁β₁ + α₁β₄ + α₄β₁ + α₄β₄)x², where q = x³
+    //    = (α₀β₀ + α₂β₁q + α₂β₄q + α₃β₀ + α₅β₁q + α₅β₄q) +
+    //      (α₀β₁ + α₀β₄ + α₁β₀ + α₃β₁ + α₃β₄ + α₄β₀)x +
+    //      (α₁β₁ + α₁β₄ + α₂β₀ + α₄β₁ + α₄β₄ + α₅β₀)x², where q = x³
+    this->c1_.MulInPlaceBy01(beta0, o);
+    // c1 = (α₂β₄q + α₃β₀ + α₅β₁q + α₅β₄q) +
+    //      (α₀β₄ + α₃β₁ + α₃β₄ + α₄β₀)x +
+    //      (α₁β₄ + α₄β₁ + α₄β₄ + α₅β₀)x², where q = x³
+    this->c1_ -= a;
+    // c1 = (α₂β₄q + α₃β₀ + α₅β₁q) +
+    //      (α₀β₄ + α₃β₁ + α₄β₀)x +
+    //      (α₁β₄ + α₄β₁ + α₅β₀)x², where q = x³
+    this->c1_ -= b;
+    // c0 = (α₅β₄q + α₃β₄x + α₄β₄x²)p +
+    //      (α₀β₀ + α₂β₁q) + (α₁β₀ + α₀β₁)x + (α₂β₀ + α₁β₁)x²,
+    //      where p = y² and q = x³
+    this->c0_ = Config::MulByNonResidue(b);
+    this->c0_ += a;
+    return *this;
   }
 };
 

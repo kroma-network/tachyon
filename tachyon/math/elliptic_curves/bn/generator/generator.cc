@@ -6,7 +6,7 @@
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/build/cc_writer.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
-#include "tachyon/math/elliptic_curves/twist_type.h"
+#include "tachyon/math/elliptic_curves/pairing/twist_type.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
 
 namespace tachyon {
@@ -66,7 +66,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "#include \"%{fq12_hdr}\"",
       "#include \"%{g1_hdr}\"",
       "#include \"%{g2_hdr}\"",
-      "#include \"tachyon/math/elliptic_curves/twist_type.h\"",
+      "#include \"tachyon/math/elliptic_curves/pairing/twist_type.h\"",
       "",
       "namespace %{namespace} {",
       "",
@@ -82,12 +82,12 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  };",
       "  constexpr static TwistType kTwistType = TwistType::k%{twist_type};",
       "",
-      "  using FpTy = FqTy;"
-      "  using Fp2Ty = Fq2Ty;"
-      "  using Fp6Ty = Fq6Ty;"
-      "  using Fp12Ty = Fq12Ty;"
-      "  using G1Curve = _G1Curve;"
-      "  using G2Curve = _G2Curve;"
+      "  using FpTy = FqTy;",
+      "  using Fp2Ty = Fq2Ty;",
+      "  using Fp6Ty = Fq6Ty;",
+      "  using Fp12Ty = Fq12Ty;",
+      "  using G1Curve = _G1Curve;",
+      "  using G2Curve = _G2Curve;",
       "",
       "  // NOTE(chokobole): Make them constexpr.",
       "  static Fq2Ty kTwistMulByQX;",
