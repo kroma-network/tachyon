@@ -126,28 +126,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
-    name = "vanishing_argument_unittests",
-    srcs = ["vanishing_argument_unittest.cc"],
-    deps = [
-        ":prover_vanishing_argument",
-        ":verifier_vanishing_argument",
-        "//tachyon/zk/base/entities:verifier_base",
-        "//tachyon/zk/plonk/circuit/examples:simple_circuit",
-        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
-        "//tachyon/zk/plonk/halo2:prover_test",
-    ],
-)
-
-tachyon_cc_unittest(
     name = "vanishing_unittests",
     srcs = [
         "graph_evaluator_unittest.cc",
         "value_source_unittest.cc",
+        "vanishing_argument_unittest.cc",
     ],
     deps = [
         ":graph_evaluator",
+        ":prover_vanishing_argument",
         ":value_source",
+        ":verifier_vanishing_argument",
+        "//tachyon/zk/base/entities:verifier_base",
         "//tachyon/zk/expressions:expression_factory",
         "//tachyon/zk/expressions/evaluator/test:evaluator_test",
+        "//tachyon/zk/plonk/circuit/examples:simple_circuit",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
+        "//tachyon/zk/plonk/halo2:prover_test",
     ],
 )
