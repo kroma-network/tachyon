@@ -40,8 +40,6 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
         "//tachyon/math/base/gmp:gmp_util",
-        "@com_google_absl//absl/container:inlined_vector",
-        "@com_google_absl//absl/types:span",
     ],
 )
 
@@ -143,6 +141,8 @@ tachyon_cc_unittest(
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
         "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
         "//tachyon/math/finite_fields/test:gf7",
+        "@com_google_absl//absl/container:inlined_vector",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

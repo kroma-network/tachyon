@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <vector>
 
+#include "absl/container/inlined_vector.h"
+#include "absl/types/span.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"

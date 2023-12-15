@@ -16,9 +16,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/container/inlined_vector.h"
-#include "absl/types/span.h"
-
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/compiler_specific.h"
