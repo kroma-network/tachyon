@@ -15,6 +15,7 @@
 #include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
 namespace tachyon::zk::halo2 {
 
@@ -68,6 +69,14 @@ class Sha256Reader : public crypto::TranscriptReader<AffinePointTy> {
   }
 
  private:
+  bool DoReadFromProof(AffinePointTy* point) const override {
+    return ProofSerializer<AffinePointTy>::ReadFromProof(this->buffer_, point);
+  }
+
+  bool DoReadFromProof(ScalarField* scalar) const override {
+    return ProofSerializer<ScalarField>::ReadFromProof(this->buffer_, scalar);
+  }
+
   SHA256_CTX state_;
 };
 
@@ -121,6 +130,14 @@ class Sha256Writer : public crypto::TranscriptWriter<AffinePointTy> {
   }
 
  private:
+  bool DoWriteToProof(const AffinePointTy& point) override {
+    return ProofSerializer<AffinePointTy>::WriteToProof(point, this->buffer_);
+  }
+
+  bool DoWriteToProof(const ScalarField& scalar) override {
+    return ProofSerializer<ScalarField>::WriteToProof(scalar, this->buffer_);
+  }
+
   SHA256_CTX state_;
 };
 

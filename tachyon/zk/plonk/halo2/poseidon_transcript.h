@@ -12,6 +12,7 @@
 
 #include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/zk/plonk/halo2/poseidon_sponge.h"
+#include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
 namespace tachyon::zk::halo2 {
 
@@ -45,6 +46,14 @@ class PoseidonReader : public crypto::TranscriptReader<AffinePointTy> {
   }
 
  private:
+  bool DoReadFromProof(AffinePointTy* point) const override {
+    return ProofSerializer<AffinePointTy>::ReadFromProof(this->buffer_, point);
+  }
+
+  bool DoReadFromProof(ScalarField* scalar) const override {
+    return ProofSerializer<ScalarField>::ReadFromProof(this->buffer_, scalar);
+  }
+
   PoseidonSponge<ScalarField> state_;
 };
 
@@ -78,6 +87,14 @@ class PoseidonWriter : public crypto::TranscriptWriter<AffinePointTy> {
   }
 
  private:
+  bool DoWriteToProof(const AffinePointTy& point) override {
+    return ProofSerializer<AffinePointTy>::WriteToProof(point, this->buffer_);
+  }
+
+  bool DoWriteToProof(const ScalarField& scalar) override {
+    return ProofSerializer<ScalarField>::WriteToProof(scalar, this->buffer_);
+  }
+
   PoseidonSponge<ScalarField> state_;
 };
 

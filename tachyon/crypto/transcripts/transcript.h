@@ -98,16 +98,22 @@ class TranscriptReaderImpl<Commitment, false> : public Transcript<Commitment> {
   // Read a |commitment| from the proof. Note that it also writes the
   // |commitment| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool ReadFromProof(Commitment* commitment) {
-    return buffer_.Read(commitment) && this->WriteToTranscript(*commitment);
+    return DoReadFromProof(commitment) && this->WriteToTranscript(*commitment);
   }
 
   // Read a |value| from the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool ReadFromProof(Field* value) {
-    return buffer_.Read(value) && this->WriteToTranscript(*value);
+    return DoReadFromProof(value) && this->WriteToTranscript(*value);
   }
 
- private:
+ protected:
+  //  Read a |commitment| from the proof.
+  [[nodiscard]] virtual bool DoReadFromProof(Commitment* commitment) const = 0;
+
+  //  Read a |value| from the proof.
+  [[nodiscard]] virtual bool DoReadFromProof(Field* value) const = 0;
+
   base::Buffer buffer_;
 };
 
@@ -125,10 +131,13 @@ class TranscriptReaderImpl<Field, true> : public Transcript<Field> {
   // Read a |value| from the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool ReadFromProof(Field* value) {
-    return buffer_.Read(value) && this->WriteToTranscript(*value);
+    return DoReadFromProof(value) && this->WriteToTranscript(*value);
   }
 
- private:
+ protected:
+  //  Read a |value| from the proof.
+  [[nodiscard]] virtual bool DoReadFromProof(Field* value) const = 0;
+
   base::Buffer buffer_;
 };
 
@@ -155,16 +164,22 @@ class TranscriptWriterImpl<Commitment, false> : public Transcript<Commitment> {
   // Write a |commitment| to the proof. Note that it also writes the
   // |commitment| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool WriteToProof(const Commitment& commitment) {
-    return this->WriteToTranscript(commitment) && buffer_.Write(commitment);
+    return this->WriteToTranscript(commitment) && DoWriteToProof(commitment);
   }
 
   // Write a |value| to the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool WriteToProof(const Field& value) {
-    return this->WriteToTranscript(value) && buffer_.Write(value);
+    return this->WriteToTranscript(value) && DoWriteToProof(value);
   }
 
- private:
+ protected:
+  //  Write a |commitment| to the proof.
+  [[nodiscard]] virtual bool DoWriteToProof(const Commitment& commitment) = 0;
+
+  //  Write a |value| to the proof.
+  [[nodiscard]] virtual bool DoWriteToProof(const Field& value) = 0;
+
   base::Uint8VectorBuffer buffer_;
 };
 
@@ -184,10 +199,13 @@ class TranscriptWriterImpl<Field, true> : public Transcript<Field> {
   // Write a |value| to the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool WriteToProof(const Field& value) {
-    return this->WriteToTranscript(value) && buffer_.Write(value);
+    return this->WriteToTranscript(value) && DoWriteToProof(value);
   }
 
- private:
+ protected:
+  //  Write a |value| to the proof.
+  [[nodiscard]] virtual bool DoWriteToProof(const Field& value) = 0;
+
   base::Uint8VectorBuffer buffer_;
 };
 

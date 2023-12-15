@@ -7,6 +7,7 @@ tachyon_cc_library(
     hdrs = ["blake2b_transcript.h"],
     deps = [
         ":constants",
+        ":proof_serializer",
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/math/base:big_int",
         "@com_google_boringssl//:crypto",
@@ -72,7 +73,18 @@ tachyon_cc_library(
     hdrs = ["poseidon_transcript.h"],
     deps = [
         ":poseidon_sponge",
+        ":proof_serializer",
         "//tachyon/crypto/transcripts:transcript",
+    ],
+)
+
+tachyon_cc_library(
+    name = "proof_serializer",
+    hdrs = ["proof_serializer.h"],
+    deps = [
+        "//tachyon/base/buffer",
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/finite_fields:prime_field_base",
     ],
 )
 
@@ -116,6 +128,7 @@ tachyon_cc_library(
     hdrs = ["sha256_transcript.h"],
     deps = [
         ":constants",
+        ":proof_serializer",
         "//tachyon/base/types:always_false",
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/math/base:big_int",
@@ -129,6 +142,7 @@ tachyon_cc_unittest(
         "blake2b_transcript_unittest.cc",
         "pinned_verifying_key_unittest.cc",
         "poseidon_transcript_unittest.cc",
+        "proof_serializer_unittest.cc",
         "random_field_generator_unittest.cc",
         "sha256_transcript_unittest.cc",
     ],
