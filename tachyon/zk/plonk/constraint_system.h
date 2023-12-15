@@ -427,19 +427,22 @@ class ConstraintSystem {
   // Compute the degree of the constraint system (the maximum degree of all
   // constraints).
   size_t ComputeDegree() const {
-    // The permutation argument will serve alongside the gates, so must be
-    // accounted for.
-    size_t degree = permutation_.RequiredDegree();
+    if (!cached_degree_.has_value()) {
+      // The permutation argument will serve alongside the gates, so must be
+      // accounted for.
+      size_t degree = permutation_.RequiredDegree();
 
-    // The lookup argument also serves alongside the gates and must be accounted
-    // for.
-    degree = std::max(degree, ComputeLookupRequiredDegree());
+      // The lookup argument also serves alongside the gates and must be
+      // accounted for.
+      degree = std::max(degree, ComputeLookupRequiredDegree());
 
-    // Account for each gate to ensure our quotient polynomial is the
-    // correct degree and that our extended domain is the right size.
-    degree = std::max(degree, ComputeGateRequiredDegree());
+      // Account for each gate to ensure our quotient polynomial is the
+      // correct degree and that our extended domain is the right size.
+      degree = std::max(degree, ComputeGateRequiredDegree());
 
-    return std::max(degree, minimum_degree_.value_or(1));
+      cached_degree_ = std::max(degree, minimum_degree_.value_or(1));
+    }
+    return *cached_degree_;
   }
 
   size_t ComputeExtendedDegree(size_t k) const {
@@ -452,35 +455,38 @@ class ConstraintSystem {
   // Compute the number of blinding factors necessary to perfectly blind
   // each of the prover's witness polynomials.
   size_t ComputeBlindingFactors() const {
-    // All of the prover's advice columns are evaluated at no more than
-    auto max_num_advice_query_it = std::max_element(num_advice_queries_.begin(),
-                                                    num_advice_queries_.end());
-    size_t factors = max_num_advice_query_it == num_advice_queries_.end()
-                         ? 1
-                         : *max_num_advice_query_it;
-    // distinct points during gate checks.
+    if (!cached_blinding_factors_.has_value()) {
+      // All of the prover's advice columns are evaluated at no more than
+      auto max_num_advice_query_it = std::max_element(
+          num_advice_queries_.begin(), num_advice_queries_.end());
+      size_t factors = max_num_advice_query_it == num_advice_queries_.end()
+                           ? 1
+                           : *max_num_advice_query_it;
+      // distinct points during gate checks.
 
-    // - The permutation argument witness polynomials are evaluated at most 3
-    //   times.
-    // - Each lookup argument has independent witness polynomials, and they are
-    //   evaluated at most 2 times.
-    factors = std::max(size_t{3}, factors);
+      // - The permutation argument witness polynomials are evaluated at most 3
+      //   times.
+      // - Each lookup argument has independent witness polynomials, and they
+      //   are evaluated at most 2 times.
+      factors = std::max(size_t{3}, factors);
 
-    // Each polynomial is evaluated at most an additional time during
-    // multiopen (at x₃ to produce q_evals):
-    ++factors;
+      // Each polynomial is evaluated at most an additional time during
+      // multiopen (at x₃ to produce q_evals):
+      ++factors;
 
-    // h(x) is derived by the other evaluations so it does not reveal
-    // anything; in fact it does not even appear in the proof.
+      // h(x) is derived by the other evaluations so it does not reveal
+      // anything; in fact it does not even appear in the proof.
 
-    // h(x₃) is also not revealed; the verifier only learns a single
-    // evaluation of a polynomial in x₁ which has h(x₃) and another random
-    // polynomial evaluated at x₃ as coefficients -- this random polynomial
-    // is "random_poly" in the vanishing argument.
+      // h(x₃) is also not revealed; the verifier only learns a single
+      // evaluation of a polynomial in x₁ which has h(x₃) and another random
+      // polynomial evaluated at x₃ as coefficients -- this random polynomial
+      // is "random_poly" in the vanishing argument.
 
-    // Add an additional blinding factor as a slight defense against
-    // off-by-one errors.
-    return ++factors;
+      // Add an additional blinding factor as a slight defense against
+      // off-by-one errors.
+      cached_blinding_factors_ = ++factors;
+    }
+    return *cached_blinding_factors_;
   }
 
   // Returns the minimum necessary rows that need to exist in order to
@@ -578,6 +584,9 @@ class ConstraintSystem {
   std::vector<FixedColumnKey> constants_;
 
   std::optional<size_t> minimum_degree_;
+
+  mutable std::optional<size_t> cached_degree_;
+  mutable std::optional<size_t> cached_blinding_factors_;
 };
 
 }  // namespace tachyon::zk
