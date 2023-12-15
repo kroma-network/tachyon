@@ -67,8 +67,8 @@ LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
       prover, CreateNumeratorCallback<F>(permuted, beta, gamma),
       CreateDenominatorCallback<F>(permuted, beta, gamma));
 
-  return LookupCommitted<Poly>(std::move(permuted).permuted_input_poly(),
-                               std::move(permuted).permuted_table_poly(),
+  return LookupCommitted<Poly>(std::move(permuted).TakePermutedInputPoly(),
+                               std::move(permuted).TakePermutedTablePoly(),
                                std::move(grand_product_poly));
 }
 
@@ -79,17 +79,17 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
   F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 
-  BlindedPolynomial<Poly> product_poly = std::move(committed).product_poly();
+  BlindedPolynomial<Poly> product_poly = std::move(committed).TakeProductPoly();
   BlindedPolynomial<Poly> permuted_input_poly =
-      std::move(committed).permuted_input_poly();
+      std::move(committed).TakePermutedInputPoly();
   BlindedPolynomial<Poly> permuted_table_poly =
-      std::move(committed).permuted_table_poly();
+      std::move(committed).TakePermutedTablePoly();
 
-  prover->Evaluate(product_poly.poly(), x);
-  prover->Evaluate(product_poly.poly(), x_next);
-  prover->Evaluate(permuted_input_poly.poly(), x);
-  prover->Evaluate(permuted_input_poly.poly(), x_inv);
-  prover->Evaluate(permuted_table_poly.poly(), x);
+  CHECK(prover->Evaluate(product_poly.poly(), x));
+  CHECK(prover->Evaluate(product_poly.poly(), x_next));
+  CHECK(prover->Evaluate(permuted_input_poly.poly(), x));
+  CHECK(prover->Evaluate(permuted_input_poly.poly(), x_inv));
+  CHECK(prover->Evaluate(permuted_table_poly.poly(), x));
 
   return {
       std::move(permuted_input_poly),

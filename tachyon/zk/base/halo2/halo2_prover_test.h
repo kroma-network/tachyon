@@ -33,6 +33,7 @@ class Halo2ProverTest : public testing::Test {
   using RationalEvals = PCS::RationalEvals;
   using Domain = PCS::Domain;
   using ExtendedDomain = PCS::ExtendedDomain;
+  using ExtendedEvals = PCS::ExtendedEvals;
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 

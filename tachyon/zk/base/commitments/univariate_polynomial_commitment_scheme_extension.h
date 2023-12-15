@@ -28,6 +28,9 @@ class UnivariatePolynomialCommitmentSchemeExtension
 
   using ExtendedDomain =
       math::UnivariateEvaluationDomain<Field, kMaxExtendedDegree>;
+  using ExtendedPoly =
+      math::UnivariateDensePolynomial<Field, kMaxExtendedDegree>;
+  using ExtendedEvals = math::UnivariateEvaluations<Field, kMaxExtendedDegree>;
 };
 
 }  // namespace tachyon::zk

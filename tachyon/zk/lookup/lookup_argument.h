@@ -29,8 +29,8 @@ class LookupArgument {
     table_expressions_.reserve(pairs.size());
 
     for (LookupPair<std::unique_ptr<Expression<F>>>& pair : pairs) {
-      input_expressions_.push_back(std::move(pair).input());
-      table_expressions_.push_back(std::move(pair).table());
+      input_expressions_.push_back(std::move(pair).TakeInput());
+      table_expressions_.push_back(std::move(pair).TakeTable());
     }
 
     pairs.clear();

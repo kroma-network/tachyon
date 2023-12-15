@@ -24,12 +24,12 @@ class Constraint {
       : name_(std::string(name)), expression_(std::move(expression)) {}
 
   const std::string& name() const& { return name_; }
-  std::string&& name() && { return std::move(name_); }
-
   const std::unique_ptr<Expression<F>>& expression() const& {
     return expression_;
   }
-  std::unique_ptr<Expression<F>>&& expression() && {
+
+  std::string&& TakeName() && { return std::move(name_); }
+  std::unique_ptr<Expression<F>>&& TakeExpression() && {
     return std::move(expression_);
   }
 

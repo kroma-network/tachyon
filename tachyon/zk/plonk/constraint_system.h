@@ -139,7 +139,7 @@ class ConstraintSystem {
               cells.QueryFixed(pair.table().column(), Rotation::Cur());
 
           return LookupPair<std::unique_ptr<Expression<F>>>(
-              std::move(pair).input(), std::move(table));
+              std::move(pair).TakeInput(), std::move(table));
         });
 
     lookups_.emplace_back(name, std::move(pairs));
@@ -247,14 +247,15 @@ class ConstraintSystem {
     VirtualCells cells(this);
     std::vector<Constraint<F>> constraints = std::move(constrain).Run(cells);
     std::vector<Selector> queried_selectors =
-        std::move(cells).queried_selectors();
-    std::vector<VirtualCell> queried_cells = std::move(cells).queried_cells();
+        std::move(cells).TakeQueriedSelectors();
+    std::vector<VirtualCell> queried_cells =
+        std::move(cells).TakeQueriedCells();
 
     std::vector<std::string> constraint_names;
     std::vector<std::unique_ptr<Expression<F>>> polys;
     for (Constraint<F>& constraint : constraints) {
-      constraint_names.push_back(std::move(constraint).name());
-      polys.push_back(std::move(constraint).expression());
+      constraint_names.push_back(std::move(constraint).TakeName());
+      polys.push_back(std::move(constraint).TakeExpression());
     }
     CHECK(!polys.empty()) << "Gates must contain at least one constraint.";
 

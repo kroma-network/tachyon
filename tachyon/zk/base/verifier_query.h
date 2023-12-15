@@ -23,6 +23,12 @@ class VerifierQuery {
                 const F& evaluated)
       : point_(point), commitment_(commitment), evaluated_(evaluated) {}
 
+  VerifierQuery(const F& point, base::Ref<const Commitment> commitment,
+                F&& evaluated)
+      : point_(point),
+        commitment_(commitment),
+        evaluated_(std::move(evaluated)) {}
+
   VerifierQuery(F&& point, base::Ref<const Commitment> commitment,
                 F&& evaluated)
       : point_(std::move(point)),

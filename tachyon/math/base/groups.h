@@ -131,11 +131,11 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
         const auto& [fields_chunk, inverses_chunk] = zipped_vector[i];
         DoBatchInverse(fields_chunk, inverses_chunk, coeff);
       }
-      return true;
     }
-#endif
+#else
     DoBatchInverse(absl::MakeConstSpan(groups), absl::MakeSpan(*inverses),
                    coeff);
+#endif
     return true;
   }
 
