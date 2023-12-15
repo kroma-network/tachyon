@@ -23,6 +23,10 @@ class TACHYON_EXPORT VectorBuffer : public Buffer {
   }
   ~VectorBuffer() override = default;
 
+  const std::vector<char>& owned_buffer() const { return owned_buffer_; }
+
+  std::vector<char>&& TakeOwnedBuffer() && { return std::move(owned_buffer_); }
+
   [[nodiscard]] bool Grow(size_t size) override {
     owned_buffer_.resize(size);
     buffer_ = owned_buffer_.data();

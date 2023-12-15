@@ -23,6 +23,10 @@ class TACHYON_EXPORT StringBuffer : public Buffer {
   }
   ~StringBuffer() override = default;
 
+  const std::string& owned_buffer() const { return owned_buffer_; }
+
+  std::string&& TakeOwnedBuffer() && { return std::move(owned_buffer_); }
+
   [[nodiscard]] bool Grow(size_t size) override {
     owned_buffer_.resize(size);
     buffer_ = owned_buffer_.data();
