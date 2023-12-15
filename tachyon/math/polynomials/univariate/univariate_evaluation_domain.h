@@ -14,6 +14,7 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/range.h"
 #include "tachyon/math/polynomials/evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -159,6 +160,19 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // polynomial P over H, where d < m, P(𝜏) can be computed as P(𝜏) =
   // Σ{i in m} Lᵢ_H(𝜏) * P(gⁱ).
   constexpr std::vector<F> EvaluateAllLagrangeCoefficients(const F& tau) const {
+    return EvaluatePartialLagrangeCoefficients(
+        tau, base::Range<size_t>::Until(size_));
+  }
+
+  // Almost same with above, but it only computes parts of the lagrange
+  // coefficients defined by |range|.
+  template <typename T>
+  constexpr std::vector<F> EvaluatePartialLagrangeCoefficients(
+      const F& tau, base::Range<T> range) const {
+    size_t size = range.GetSize();
+    CHECK_LE(size, size_);
+    if (size == 0) return {};
+
     // Evaluate all Lagrange polynomials at 𝜏 to get the lagrange
     // coefficients.
     //
@@ -174,8 +188,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       // Then i-th lagrange coefficient in this case is then simply 1,
       // and all other lagrange coefficients are 0.
       // Thus we find i by brute force.
-      std::vector<F> u(size_, F::Zero());
-      F omega_i = offset_;
+      std::vector<F> u(size, F::Zero());
+      F omega_i = GetElement(range.from);
       for (F& u_i : u) {
         if (omega_i == tau) {
           u_i = F::One();
@@ -197,21 +211,25 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       // (See
       // https://github.com/arkworks-rs/algebra/blob/4152c41769ae0178fc110bfd15cc699673a2ce4b/poly/src/domain/mod.rs#L198)
 
-      // v₀⁻¹ = m * hᵐ⁻¹
-      F v_0_inv = size_as_field_element_ * offset_pow_size_ * offset_inv_;
-      // lᵢ = Z_H(𝜏)⁻¹ * v₀⁻¹ = (Z_H(𝜏) * vᵢ)⁻¹
-      F l_i = z_h_at_tau.Inverse() * v_0_inv;
-      F negative_cur_elem = -offset_;
+      // t = m * hᵐ = v₀⁻¹ * h
+      F t = size_as_field_element_ * offset_pow_size_;
+      F omega_i = GetElement(range.from);
+      // lᵢ = (Z_H(𝜏) * h * gᵢ)⁻¹ * t
+      //    = (Z_H(𝜏) * h * gᵢ * t⁻¹)⁻¹
+      //    = (Z_H(𝜏) * h * gᵢ * v₀⁻¹ * h⁻¹)⁻¹
+      //    = (Z_H(𝜏) * gᵢ * v₀)⁻¹
+      F l_i = (z_h_at_tau * omega_i).Inverse() * t;
+      F negative_omega_i = -omega_i;
       std::vector<F> lagrange_coefficients_inverse =
-          base::CreateVector(size_, [this, &l_i, &tau, &negative_cur_elem]() {
+          base::CreateVector(size, [this, &l_i, &tau, &negative_omega_i]() {
             // 𝜏 - h * gⁱ
-            F r_i = tau + negative_cur_elem;
+            F r_i = tau + negative_omega_i;
             // (Z_H(𝜏) * vᵢ)⁻¹ * (𝜏 - h * gⁱ)
             F ret = l_i * r_i;
             // lᵢ₊₁ = g⁻¹ * lᵢ
             l_i *= group_gen_inv_;
             // -h * gⁱ⁺¹
-            negative_cur_elem *= group_gen_;
+            negative_omega_i *= group_gen_;
             return ret;
           });
 
@@ -275,8 +293,13 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   }
 
   // Returns the |i|-th element of the domain.
-  constexpr F GetElement(size_t i) const {
-    F result = group_gen_.Pow(i);
+  constexpr F GetElement(int64_t i) const {
+    F result;
+    if (i > 0) {
+      result = group_gen_.Pow(i);
+    } else {
+      result = group_gen_inv_.Pow(-i);
+    }
     if (!offset_.IsOne()) {
       result *= offset_;
     }

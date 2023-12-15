@@ -196,6 +196,17 @@ TYPED_TEST(UnivariateEvaluationDomainTest, NonSystematicLagrangeCoefficients) {
           std::vector<F> lagrange_coeffs =
               d.EvaluateAllLagrangeCoefficients(rand_pt);
 
+          std::vector<F> sub_lagrange_coeffs =
+              d.EvaluatePartialLagrangeCoefficients(
+                  rand_pt, base::Range<size_t>(1, domain_size - 1));
+
+          if (domain_size > 2) {
+            sub_lagrange_coeffs.push_back(lagrange_coeffs.back());
+            sub_lagrange_coeffs.insert(sub_lagrange_coeffs.begin(),
+                                       lagrange_coeffs.front());
+            EXPECT_EQ(lagrange_coeffs, sub_lagrange_coeffs);
+          }
+
           Evals poly_evals = d.FFT(rand_poly);
 
           // Do lagrange interpolation, and compare against the actual
@@ -227,6 +238,18 @@ TYPED_TEST(UnivariateEvaluationDomainTest, SystematicLagrangeCoefficients) {
             F x = d.GetElement(i);
             std::vector<F> lagrange_coeffs =
                 d.EvaluateAllLagrangeCoefficients(x);
+
+            std::vector<F> sub_lagrange_coeffs =
+                d.EvaluatePartialLagrangeCoefficients(
+                    x, base::Range<size_t>(1, domain_size - 1));
+
+            if (domain_size > 2) {
+              sub_lagrange_coeffs.push_back(lagrange_coeffs.back());
+              sub_lagrange_coeffs.insert(sub_lagrange_coeffs.begin(),
+                                         lagrange_coeffs.front());
+              EXPECT_EQ(lagrange_coeffs, sub_lagrange_coeffs);
+            }
+
             for (size_t j = 0; j < domain_size; ++j) {
               // Lagrange coefficient for the evaluation point,
               // which should be 1 if i == j
