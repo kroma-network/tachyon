@@ -35,7 +35,7 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
   ASSERT_TRUE(CommitFinalHPoly(prover_.get(), std::move(committed_p), vkey,
                                extended_evals, &constructed_p));
 
-  crypto::Challenge255<F> x(F::One());
+  F x = F::One();
   VanishingEvaluated<EntityTy::kProver, PCS> evaluated;
   ASSERT_TRUE(CommitRandomEval(prover_->pcs(), std::move(constructed_p), x,
                                F::One(), prover_->GetWriter(), &evaluated));
@@ -47,7 +47,7 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
                         prover_->GetWriter()->buffer().buffer_len());
   std::unique_ptr<crypto::TranscriptReader<Commitment>> reader =
       absl::WrapUnique(
-          new crypto::Blake2bReader<Commitment::Curve>(std::move(read_buf)));
+          new halo2::Blake2bReader<Commitment>(std::move(read_buf)));
 
   std::unique_ptr<VerifierBase<PCS>> verifier =
       std::make_unique<VerifierBase<PCS>>(
@@ -66,7 +66,7 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
   ASSERT_TRUE(EvaluateAfterX<F>(std::move(constructed_v), verifier->GetReader(),
                                 &partially_evaluated_v));
 
-  crypto::Challenge255<F> y(F::One());
+  F y = F::One();
   Evals evals = Evals::One(kMaxDegree);
   VanishingEvaluated<EntityTy::kVerifier, PCS> evaluated_v =
       VerifyVanishingArgument(std::move(partially_evaluated_v), evals, y, F(2));

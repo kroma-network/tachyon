@@ -10,127 +10,191 @@
 #include <utility>
 
 #include "tachyon/base/buffer/vector_buffer.h"
-#include "tachyon/math/base/big_int.h"
+#include "tachyon/crypto/transcripts/transcript_traits.h"
 
 namespace tachyon::crypto {
 
-// A 255-bit challenge.
-template <typename F>
-class Challenge255 {
- public:
-  static_assert(F::kLimbNums <= 4);
+template <typename Commitment, bool FieldAndCommitmentAreSameType>
+class TranscriptReaderImpl;
 
-  constexpr Challenge255() = default;
-  constexpr explicit Challenge255(const F& challenge_input)
-      : challenge_(math::BigInt<4>::FromBytesLE(
-            challenge_input.ToBigInt().ToBytesLE())) {}
+template <typename Commitment, bool FieldAndCommitmentAreSameType>
+class TranscriptWriterImpl;
 
-  constexpr const math::BigInt<4>& challenge() const { return challenge_; }
-
-  constexpr F ChallengeAsScalar() const { return F::FromBigInt(challenge_); }
-
- private:
-  math::BigInt<4> challenge_;
-};
-
-template <typename AffinePointTy>
-class TranscriptReader;
-
-template <typename AffinePointTy>
-class TranscriptWriter;
+template <typename _Commitment, bool FieldAndCommitmentAreSameType>
+class TranscriptImpl;
 
 // Generic transcript view (from either the prover or verifier's perspective)
-template <typename AffinePointTy>
-class Transcript {
+template <typename _Commitment>
+class TranscriptImpl<_Commitment, false> {
  public:
-  using ScalarField = typename AffinePointTy::ScalarField;
+  using Commitment = _Commitment;
+  using Field = typename TranscriptTraits<Commitment>::Field;
 
-  virtual ~Transcript() = default;
+  virtual ~TranscriptImpl() = default;
 
   // Squeeze an encoded verifier challenge from the transcript.
-  virtual Challenge255<ScalarField> SqueezeChallenge() = 0;
+  virtual Field SqueezeChallenge() = 0;
 
-  ScalarField SqueezeChallengeAsScalar() {
-    return SqueezeChallenge().ChallengeAsScalar();
+  // Write a |commitment| to the transcript without writing it to the proof,
+  // treating it as a common input.
+  [[nodiscard]] virtual bool WriteToTranscript(
+      const Commitment& commitment) = 0;
+
+  // Write a |value| to the transcript without writing it to the proof,
+  // treating it as a common input.
+  [[nodiscard]] virtual bool WriteToTranscript(const Field& value) = 0;
+
+  TranscriptWriterImpl<Commitment, false>* ToWriter() {
+    return static_cast<TranscriptWriterImpl<Commitment, false>*>(this);
   }
 
-  // Write a curve |point| to the transcript without writing it to the proof,
-  // treating it as a common input.
-  virtual bool WriteToTranscript(const AffinePointTy& point) = 0;
-
-  // Write a curve |scalar| to the transcript without writing it to the proof,
-  // treating it as a common input.
-  virtual bool WriteToTranscript(const ScalarField& scalar) = 0;
-
-  TranscriptWriter<AffinePointTy>* ToWriter() {
-    return static_cast<TranscriptWriter<AffinePointTy>*>(this);
-  }
-
-  TranscriptReader<AffinePointTy>* ToReader() {
-    return static_cast<TranscriptReader<AffinePointTy>*>(this);
+  TranscriptReaderImpl<Commitment, false>* ToReader() {
+    return static_cast<TranscriptReaderImpl<Commitment, false>*>(this);
   }
 };
+
+template <typename _Field>
+class TranscriptImpl<_Field, true> {
+ public:
+  using Field = _Field;
+
+  virtual ~TranscriptImpl() = default;
+
+  // Squeeze an encoded verifier challenge from the transcript.
+  virtual Field SqueezeChallenge() = 0;
+
+  // Write a |value| to the transcript without writing it to the proof,
+  // treating it as a common input.
+  [[nodiscard]] virtual bool WriteToTranscript(const Field& value) = 0;
+
+  TranscriptWriterImpl<Field, true>* ToWriter() {
+    return static_cast<TranscriptWriterImpl<Field, true>*>(this);
+  }
+
+  TranscriptReaderImpl<Field, true>* ToReader() {
+    return static_cast<TranscriptReaderImpl<Field, true>*>(this);
+  }
+};
+
+template <typename T>
+using Transcript =
+    TranscriptImpl<T, TranscriptTraits<T>::kFieldAndCommitmentAreSameType>;
 
 // Transcript view from the perspective of a verifier that has access to an
 // input stream of data from the prover to the verifier.
-template <typename AffinePointTy>
-class TranscriptReader : public Transcript<AffinePointTy> {
+template <typename Commitment>
+class TranscriptReaderImpl<Commitment, false> : public Transcript<Commitment> {
  public:
-  using ScalarField = typename AffinePointTy::ScalarField;
+  using Field = typename TranscriptTraits<Commitment>::Field;
 
-  TranscriptReader() = default;
+  TranscriptReaderImpl() = default;
   // Initialize a transcript given an input buffer.
-  explicit TranscriptReader(base::Buffer read_buf)
+  explicit TranscriptReaderImpl(base::Buffer read_buf)
       : buffer_(std::move(read_buf)) {}
 
   base::Buffer& buffer() { return buffer_; }
   const base::Buffer& buffer() const { return buffer_; }
 
-  // Read a curve |point| from the prover. Note that it also writes the
-  // |point| to the transcript by calling |WriteToTranscript()| internally.
-  bool ReadPoint(AffinePointTy* point) {
-    return buffer_.Read(point) && this->WriteToTranscript(*point);
+  // Read a |commitment| from the proof. Note that it also writes the
+  // |commitment| to the transcript by calling |WriteToTranscript()| internally.
+  [[nodiscard]] bool ReadFromProof(Commitment* commitment) {
+    return buffer_.Read(commitment) && this->WriteToTranscript(*commitment);
   }
 
-  // Read a curve |scalar| from the prover. Note that it also writes the
-  // |scalar| to the transcript by calling |WriteToTranscript()| internally.
-  bool ReadScalar(ScalarField* scalar) {
-    return buffer_.Read(scalar) && this->WriteToTranscript(*scalar);
+  // Read a |value| from the proof. Note that it also writes the
+  // |value| to the transcript by calling |WriteToTranscript()| internally.
+  [[nodiscard]] bool ReadFromProof(Field* value) {
+    return buffer_.Read(value) && this->WriteToTranscript(*value);
   }
 
  private:
   base::Buffer buffer_;
 };
 
+template <typename Field>
+class TranscriptReaderImpl<Field, true> : public Transcript<Field> {
+ public:
+  TranscriptReaderImpl() = default;
+  // Initialize a transcript given an input buffer.
+  explicit TranscriptReaderImpl(base::Buffer read_buf)
+      : buffer_(std::move(read_buf)) {}
+
+  base::Buffer& buffer() { return buffer_; }
+  const base::Buffer& buffer() const { return buffer_; }
+
+  // Read a |value| from the proof. Note that it also writes the
+  // |value| to the transcript by calling |WriteToTranscript()| internally.
+  [[nodiscard]] bool ReadFromProof(Field* value) {
+    return buffer_.Read(value) && this->WriteToTranscript(*value);
+  }
+
+ private:
+  base::Buffer buffer_;
+};
+
+template <typename T>
+using TranscriptReader =
+    TranscriptReaderImpl<T,
+                         TranscriptTraits<T>::kFieldAndCommitmentAreSameType>;
+
 // Transcript view from the perspective of a prover that has access to an output
 // stream of messages from the prover to the verifier.
-template <typename AffinePointTy>
-class TranscriptWriter : public Transcript<AffinePointTy> {
+template <typename Commitment>
+class TranscriptWriterImpl<Commitment, false> : public Transcript<Commitment> {
  public:
-  using ScalarField = typename AffinePointTy::ScalarField;
+  using Field = typename TranscriptTraits<Commitment>::Field;
 
-  TranscriptWriter() = default;
+  TranscriptWriterImpl() = default;
   // Initialize a transcript given an output buffer.
-  explicit TranscriptWriter(base::VectorBuffer buf) : buffer_(std::move(buf)) {}
+  explicit TranscriptWriterImpl(base::VectorBuffer buf)
+      : buffer_(std::move(buf)) {}
 
   base::VectorBuffer& buffer() { return buffer_; }
   const base::VectorBuffer& buffer() const { return buffer_; }
 
-  // Write a curve |point| to the proof. Note that it also writes the
-  // |point| to the transcript by calling |WriteToTranscript()| internally.
-  bool WriteToProof(const AffinePointTy& point) {
-    return this->WriteToTranscript(point) && buffer_.Write(point);
+  // Write a |commitment| to the proof. Note that it also writes the
+  // |commitment| to the transcript by calling |WriteToTranscript()| internally.
+  [[nodiscard]] bool WriteToProof(const Commitment& commitment) {
+    return this->WriteToTranscript(commitment) && buffer_.Write(commitment);
   }
 
-  // Write a curve |scalar| to the proof. Note that it also writes the
-  // |scalar| to the transcript by calling |WriteToTranscript()| internally.
-  bool WriteToProof(const ScalarField& scalar) {
-    return this->WriteToTranscript(scalar) && buffer_.Write(scalar);
+  // Write a |value| to the proof. Note that it also writes the
+  // |value| to the transcript by calling |WriteToTranscript()| internally.
+  [[nodiscard]] bool WriteToProof(const Field& value) {
+    return this->WriteToTranscript(value) && buffer_.Write(value);
   }
 
  private:
   base::VectorBuffer buffer_;
 };
+
+// Transcript view from the perspective of a prover that has access to an output
+// stream of messages from the prover to the verifier.
+template <typename Field>
+class TranscriptWriterImpl<Field, true> : public Transcript<Field> {
+ public:
+  TranscriptWriterImpl() = default;
+  // Initialize a transcript given an output buffer.
+  explicit TranscriptWriterImpl(base::VectorBuffer buf)
+      : buffer_(std::move(buf)) {}
+
+  base::VectorBuffer& buffer() { return buffer_; }
+  const base::VectorBuffer& buffer() const { return buffer_; }
+
+  // Write a |value| to the proof. Note that it also writes the
+  // |value| to the transcript by calling |WriteToTranscript()| internally.
+  [[nodiscard]] bool WriteToProof(const Field& value) {
+    return this->WriteToTranscript(value) && buffer_.Write(value);
+  }
+
+ private:
+  base::VectorBuffer buffer_;
+};
+
+template <typename T>
+using TranscriptWriter =
+    TranscriptWriterImpl<T,
+                         TranscriptTraits<T>::kFieldAndCommitmentAreSameType>;
 
 }  // namespace tachyon::crypto
 

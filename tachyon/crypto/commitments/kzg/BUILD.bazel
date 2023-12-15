@@ -43,9 +43,9 @@ tachyon_cc_unittest(
     deps = [
         ":shplonk",
         "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/crypto/transcripts:poseidon_transcript",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "//tachyon/zk/plonk/halo2:poseidon_transcript",
     ],
 )

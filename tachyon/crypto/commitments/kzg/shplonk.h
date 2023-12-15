@@ -88,7 +88,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     const absl::btree_set<PointDeepRef>& super_point_set =
         grouper.super_point_set();
 
-    Field y = writer->SqueezeChallengeAsScalar();
+    Field y = writer->SqueezeChallenge();
 
     // Create [H₀(X), H₁(X), H₂(X)].
     // clang-format off
@@ -107,7 +107,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
               y, low_degree_extensions_vec[i]);
         });
 
-    Field v = writer->SqueezeChallengeAsScalar();
+    Field v = writer->SqueezeChallenge();
 
     // Create a linear combination of polynomials [H₀(X), H₁(X), H₂(X)] with
     // with |v|.
@@ -119,7 +119,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     if (!this->Commit(h_poly, &h)) return false;
 
     CHECK(writer->WriteToProof(h));
-    Field u = writer->SqueezeChallengeAsScalar();
+    Field u = writer->SqueezeChallenge();
 
     // Create [L₀(X), L₁(X), L₂(X)].
     // L₀(X) = z₀ * ((P₀(X) - R₀(u)) + y(P₁(X) - R₁(u)) + y²(P₂(X) - R₂(u)))

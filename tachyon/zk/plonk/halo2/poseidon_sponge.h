@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_HALO2_POSEIDON_H_
-#define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_HALO2_POSEIDON_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_POSEIDON_SPONGE_H_
+#define TACHYON_ZK_PLONK_HALO2_POSEIDON_SPONGE_H_
 
 #include <vector>
 
@@ -13,15 +13,13 @@
 
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon.h"
 
-namespace tachyon::crypto {
+namespace tachyon::zk::halo2 {
 
-template <typename PrimeFieldTy>
-struct Halo2PoseidonSponge : public PoseidonSponge<PrimeFieldTy> {
-  using F = PrimeFieldTy;
-
-  Halo2PoseidonSponge() = default;
-  explicit Halo2PoseidonSponge(const PoseidonConfig<F>& config)
-      : PoseidonSponge<PrimeFieldTy>(config) {
+template <typename F>
+struct PoseidonSponge : public crypto::PoseidonSponge<F> {
+  PoseidonSponge() = default;
+  explicit PoseidonSponge(const crypto::PoseidonConfig<F>& config)
+      : crypto::PoseidonSponge<F>(config) {
     this->state.elements[0] = F::FromMpzClass(mpz_class(1) << 64);
   }
 
@@ -34,12 +32,12 @@ struct Halo2PoseidonSponge : public PoseidonSponge<PrimeFieldTy> {
     }
     this->state[squeeze_index + 1] = F::One();
     switch (this->state.mode.type) {
-      case DuplexSpongeMode::Type::kAbsorbing: {
+      case crypto::DuplexSpongeMode::Type::kAbsorbing: {
         this->Permute();
         this->SqueezeInternal(0, &ret);
         return ret;
       }
-      case DuplexSpongeMode::Type::kSqueezing: {
+      case crypto::DuplexSpongeMode::Type::kSqueezing: {
         size_t squeeze_index = this->state.mode.next_index;
         if (squeeze_index == this->config.rate) {
           this->Permute();
@@ -54,6 +52,6 @@ struct Halo2PoseidonSponge : public PoseidonSponge<PrimeFieldTy> {
   }
 };
 
-}  // namespace tachyon::crypto
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_HALO2_POSEIDON_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_POSEIDON_SPONGE_H_

@@ -107,9 +107,8 @@ template <typename PCSTy, typename ExtendedEvals>
 template <typename PCSTy, typename F, typename Commitment>
 [[nodiscard]] bool CommitRandomEval(
     const PCSTy& pcs,
-    VanishingConstructed<EntityTy::kProver, PCSTy>&& constructed,
-    const crypto::Challenge255<F>& x, const F& x_n,
-    crypto::TranscriptWriter<Commitment>* writer,
+    VanishingConstructed<EntityTy::kProver, PCSTy>&& constructed, const F& x,
+    const F& x_n, crypto::TranscriptWriter<Commitment>* writer,
     VanishingEvaluated<EntityTy::kProver, PCSTy>* evaluated_out) {
   using Poly = typename PCSTy::Poly;
   using Coeffs = typename Poly::Coefficients;
@@ -120,7 +119,7 @@ template <typename PCSTy, typename F, typename Commitment>
 
   VanishingCommitted<EntityTy::kProver, PCSTy> committed =
       std::move(constructed).TakeCommitted();
-  F random_eval = committed.random_poly().Evaluate(x.ChallengeAsScalar());
+  F random_eval = committed.random_poly().Evaluate(x);
   if (!writer->WriteToProof(random_eval)) return false;
 
   *evaluated_out = {std::move(h_poly), std::move(h_blind),
@@ -130,20 +129,17 @@ template <typename PCSTy, typename F, typename Commitment>
 
 template <typename PCSTy, typename F>
 std::vector<ProverQuery<PCSTy>> OpenVanishingArgument(
-    VanishingEvaluated<EntityTy::kProver, PCSTy>&& evaluated,
-    const crypto::Challenge255<F>& x) {
+    VanishingEvaluated<EntityTy::kProver, PCSTy>&& evaluated, const F& x) {
   using Poly = typename PCSTy::Poly;
 
-  F x_scalar = x.ChallengeAsScalar();
   VanishingCommitted<EntityTy::kProver, PCSTy>&& committed =
       std::move(evaluated).TakeCommitted();
-  return {
-      {x_scalar, BlindedPolynomial<Poly>(std::move(evaluated).TakeHPoly(),
-                                         std::move(evaluated).TakeHBlind())
-                     .ToRef()},
-      {x_scalar, BlindedPolynomial<Poly>(std::move(committed).TakeRandomPoly(),
-                                         std::move(committed).TakeRandomBlind())
-                     .ToRef()}};
+  return {{x, BlindedPolynomial<Poly>(std::move(evaluated).TakeHPoly(),
+                                      std::move(evaluated).TakeHBlind())
+                  .ToRef()},
+          {x, BlindedPolynomial<Poly>(std::move(committed).TakeRandomPoly(),
+                                      std::move(committed).TakeRandomBlind())
+                  .ToRef()}};
 }
 
 }  // namespace tachyon::zk
