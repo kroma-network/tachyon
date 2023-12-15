@@ -4,10 +4,13 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
+#include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
+
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
+#include "tachyon/zk/plonk/constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 #include "tachyon/zk/plonk/vanishing/prover_vanishing_argument.h"
@@ -20,6 +23,12 @@ namespace {
 class VanishingArgumentTest : public halo2::ProverTest {};
 
 }  // namespace
+
+TEST_F(VanishingArgumentTest, VanishingArgumentConstructor) {
+  ConstraintSystem<F> constraint_system;
+  VanishingArgument<F> vanishing_argument =
+      VanishingArgument<F>::Create(constraint_system);
+}
 
 TEST_F(VanishingArgumentTest, VanishingArgument) {
   VanishingCommitted<EntityTy::kProver, PCS> committed_p;

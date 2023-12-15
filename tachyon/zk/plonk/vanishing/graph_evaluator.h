@@ -223,24 +223,6 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
     };
   }
 
- private:
-  size_t AddRotation(const Rotation& rotation) {
-    size_t rotation_index = rotation.value();
-    std::optional<size_t> position = base::FindIndexIf(
-        rotations_,
-        [rotation_index](size_t value) { return rotation_index == value; });
-    if (position.has_value()) return position.value();
-    rotations_.push_back(rotation_index);
-    return rotations_.size() - 1;
-  }
-
-  ValueSource AddConstant(const F& constant) {
-    std::optional<size_t> position = base::FindIndex(constants_, constant);
-    if (position.has_value()) return ValueSource::Constant(position.value());
-    constants_.push_back(constant);
-    return ValueSource::Constant(constants_.size() - 1);
-  }
-
   // Currently does the simplest thing possible: just stores the
   // resulting value so the result can be reused  when that calculation
   // is done multiple times.
@@ -258,6 +240,24 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
   // Generates an optimized evaluation for the expression
   ValueSource AddExpression(const Expression<F>* expression) {
     return expression->Evaluate(this);
+  }
+
+ private:
+  size_t AddRotation(const Rotation& rotation) {
+    size_t rotation_index = rotation.value();
+    std::optional<size_t> position = base::FindIndexIf(
+        rotations_,
+        [rotation_index](size_t value) { return rotation_index == value; });
+    if (position.has_value()) return position.value();
+    rotations_.push_back(rotation_index);
+    return rotations_.size() - 1;
+  }
+
+  ValueSource AddConstant(const F& constant) {
+    std::optional<size_t> position = base::FindIndex(constants_, constant);
+    if (position.has_value()) return ValueSource::Constant(position.value());
+    constants_.push_back(constant);
+    return ValueSource::Constant(constants_.size() - 1);
   }
 
   std::vector<F> constants_ = {F::Zero(), F::One(), F(2)};

@@ -34,17 +34,6 @@ class TACHYON_EXPORT Calculation {
   };
 
   Calculation() : Calculation(Type::kAdd) {}
-  Calculation(const Calculation& other) { Copy(other); }
-  Calculation(Calculation&& other) { Move(std::move(other)); }
-  Calculation& operator=(const Calculation& other) {
-    Copy(other);
-    return *this;
-  }
-  Calculation& operator=(Calculation&& other) {
-    Move(std::move(other));
-    return *this;
-  }
-  ~Calculation() { Reset(); }
 
   static Calculation Add(const ValueSource& left, const ValueSource& right) {
     return Calculation(Type::kAdd, left, right);
@@ -74,22 +63,8 @@ class TACHYON_EXPORT Calculation {
   }
 
   bool operator==(const Calculation& other) const {
-    if (type_ != other.type_) return false;
-    switch (type_) {
-      case Type::kAdd:
-      case Type::kSub:
-      case Type::kMul:
-        return pair_ == other.pair_;
-      case Type::kSquare:
-      case Type::kDouble:
-      case Type::kNegate:
-      case Type::kStore:
-        return value_ == other.value_;
-      case Type::kHorner:
-        return horner_ == other.horner_;
-    }
-    NOTREACHED();
-    return false;
+    return type_ == other.type_ && pair_ == other.pair_ &&
+           value_ == other.value_ && horner_ == other.horner_;
   }
   bool operator!=(const Calculation& other) const { return !operator==(other); }
 
@@ -97,23 +72,24 @@ class TACHYON_EXPORT Calculation {
   F Evaluate(const ValueSourceData<Poly>& data) {
     switch (type_) {
       case Type::kAdd:
-        return pair_.left.Get(data) + pair_.right.Get(data);
+        return pair().left.Get(data) + pair().right.Get(data);
       case Type::kSub:
-        return pair_.left.Get(data) - pair_.right.Get(data);
+        return pair().left.Get(data) - pair().right.Get(data);
       case Type::kMul:
-        return pair_.left.Get(data) * pair_.right.Get(data);
+        return pair().left.Get(data) * pair().right.Get(data);
       case Type::kSquare:
-        return value_.Get(data).Square();
+        return value().Get(data).Square();
       case Type::kDouble:
-        return value_.Get(data).Double();
+        return value().Get(data).Double();
       case Type::kNegate:
-        return -value_.Get(data);
+        return -value().Get(data);
       case Type::kStore:
-        return value_.Get(data);
+        return value().Get(data);
       case Type::kHorner: {
-        F factor = horner_.factor.Get(data);
-        F value = horner_.init.Get(data);
-        for (const ValueSource& part : horner_.parts) {
+        const HornerData& honer = horner();
+        F factor = honer.factor.Get(data);
+        F value = honer.init.Get(data);
+        for (const ValueSource& part : honer.parts) {
           value = value * factor + part.Get(data);
         }
         return value;
@@ -163,63 +139,28 @@ class TACHYON_EXPORT Calculation {
   Calculation(Type type, const ValueSource& value)
       : type_(type), value_(value) {}
   Calculation(Type type, const ValueSource& left, const ValueSource& right)
-      : type_(type), pair_(left, right) {}
+      : type_(type), pair_(Pair(left, right)) {}
   Calculation(Type type, const ValueSource& init,
               const std::vector<ValueSource>& parts, const ValueSource& factor)
-      : type_(type), horner_(init, parts, factor) {}
+      : type_(type), horner_(HornerData(init, parts, factor)) {}
 
-  void Copy(const Calculation& other) {
-    type_ = other.type_;
-    switch (type_) {
-      case Type::kAdd:
-      case Type::kSub:
-      case Type::kMul:
-        pair_ = other.pair_;
-        break;
-      case Type::kSquare:
-      case Type::kDouble:
-      case Type::kNegate:
-      case Type::kStore:
-        value_ = other.value_;
-        break;
-      case Type::kHorner:
-        horner_ = other.horner_;
-        break;
-    }
+  const ValueSource& value() const {
+    CHECK(value_.has_value());
+    return value_.value();
   }
-
-  void Move(Calculation&& other) {
-    type_ = other.type_;
-    switch (type_) {
-      case Type::kAdd:
-      case Type::kSub:
-      case Type::kMul:
-        pair_ = other.pair_;
-        break;
-      case Type::kSquare:
-      case Type::kDouble:
-      case Type::kNegate:
-      case Type::kStore:
-        value_ = other.value_;
-        break;
-      case Type::kHorner:
-        horner_ = std::move(other.horner_);
-        break;
-    }
+  const Pair& pair() const {
+    CHECK(pair_.has_value());
+    return pair_.value();
   }
-
-  void Reset() {
-    if (type_ == Type::kHorner) {
-      horner_.~HornerData();
-    }
+  const HornerData& horner() const {
+    CHECK(horner_.has_value());
+    return horner_.value();
   }
 
   Type type_;
-  union {
-    ValueSource value_;
-    Pair pair_;
-    HornerData horner_;
-  };
+  std::optional<ValueSource> value_;
+  std::optional<Pair> pair_;
+  std::optional<HornerData> horner_;
 };
 
 }  // namespace tachyon::zk

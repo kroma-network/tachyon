@@ -15,26 +15,26 @@ namespace tachyon::zk {
 std::string Calculation::ToString() const {
   switch (type_) {
     case Type::kAdd:
-      return absl::Substitute("Add($0, $1)", pair_.left.ToString(),
-                              pair_.right.ToString());
+      return absl::Substitute("Add($0, $1)", pair().left.ToString(),
+                              pair().right.ToString());
     case Type::kSub:
-      return absl::Substitute("Sub($0, $1)", pair_.left.ToString(),
-                              pair_.right.ToString());
+      return absl::Substitute("Sub($0, $1)", pair().left.ToString(),
+                              pair().right.ToString());
     case Type::kMul:
-      return absl::Substitute("Mul($0, $1)", pair_.left.ToString(),
-                              pair_.right.ToString());
+      return absl::Substitute("Mul($0, $1)", pair().left.ToString(),
+                              pair().right.ToString());
     case Type::kSquare:
-      return absl::Substitute("Square($0)", value_.ToString());
+      return absl::Substitute("Square($0)", value().ToString());
     case Type::kDouble:
-      return absl::Substitute("Double($0)", value_.ToString());
+      return absl::Substitute("Double($0)", value().ToString());
     case Type::kNegate:
-      return absl::Substitute("Negate($0)", value_.ToString());
+      return absl::Substitute("Negate($0)", value().ToString());
     case Type::kStore:
-      return absl::Substitute("Store($0)", value_.ToString());
+      return absl::Substitute("Store($0)", value().ToString());
     case Type::kHorner:
-      return absl::Substitute("Horner($0, $1, $2)", horner_.init.ToString(),
-                              horner_.factor.ToString(),
-                              base::VectorToString(horner_.parts));
+      return absl::Substitute("Horner($0, $1, $2)", horner().init.ToString(),
+                              horner().factor.ToString(),
+                              base::VectorToString(horner().parts));
   }
   NOTREACHED();
   return "";
