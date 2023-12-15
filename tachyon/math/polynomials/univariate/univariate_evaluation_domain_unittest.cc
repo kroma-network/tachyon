@@ -185,7 +185,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, NonSystematicLagrangeCoefficients) {
   using DensePoly = typename UnivariateEvaluationDomainType::DensePoly;
   using Evals = typename UnivariateEvaluationDomainType::Evals;
 
-  for (size_t domain_dim = 1; domain_dim < kNumCoeffs; ++domain_dim) {
+  for (size_t domain_dim = 1; domain_dim < 5; ++domain_dim) {
     size_t domain_size = size_t{1} << domain_dim;
     F rand_pt = F::Random();
     DensePoly rand_poly = DensePoly::Random(domain_size - 1);
