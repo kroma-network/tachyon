@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/parallelize.h"
-#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
@@ -41,7 +41,7 @@ class ProvingKey : public Key<PCSTy> {
 
   // Return true if it is able to load from an instance of |circuit|.
   template <typename CircuitTy>
-  [[nodiscard]] bool Load(Prover<PCSTy>* prover, const CircuitTy& circuit) {
+  [[nodiscard]] bool Load(ProverBase<PCSTy>* prover, const CircuitTy& circuit) {
     PreLoadResult pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     VerifyingKeyLoadResult vk_result;
@@ -53,7 +53,7 @@ class ProvingKey : public Key<PCSTy> {
   // Return true if it is able to load from an instance of |circuit| and a
   // |verifying_key|.
   template <typename CircuitTy>
-  [[nodiscard]] bool LoadWithVerifyingKey(Prover<PCSTy>* prover,
+  [[nodiscard]] bool LoadWithVerifyingKey(ProverBase<PCSTy>* prover,
                                           const CircuitTy& circuit,
                                           VerifyingKey<PCSTy>&& verifying_key) {
     PreLoadResult pre_load_result;
@@ -63,7 +63,7 @@ class ProvingKey : public Key<PCSTy> {
   }
 
  private:
-  bool DoLoad(Prover<PCSTy>* prover, PreLoadResult&& pre_load_result,
+  bool DoLoad(ProverBase<PCSTy>* prover, PreLoadResult&& pre_load_result,
               VerifyingKeyLoadResult* vk_load_result) {
     using Domain = typename PCSTy::Domain;
 

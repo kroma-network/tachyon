@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#include "tachyon/zk/base/random_field_generator.h"
+#include "tachyon/zk/base/random_field_generator_base.h"
 
 namespace tachyon::zk {
 
@@ -15,12 +15,12 @@ class Blinder {
   using F = typename PCSTy::Field;
   using Evals = typename PCSTy::Evals;
 
-  Blinder(RandomFieldGenerator<F>* random_field_generator,
+  Blinder(RandomFieldGeneratorBase<F>* random_field_generator,
           size_t blinding_factors)
       : random_field_generator_(random_field_generator),
         blinding_factors_(blinding_factors) {}
 
-  const RandomFieldGenerator<F>* random_field_generator() const {
+  const RandomFieldGeneratorBase<F>* random_field_generator() const {
     return random_field_generator_;
   }
   void set_blinding_factors(size_t blinding_factors) {
@@ -44,7 +44,7 @@ class Blinder {
 
  private:
   // not owned
-  RandomFieldGenerator<F>* const random_field_generator_;
+  RandomFieldGeneratorBase<F>* const random_field_generator_;
   size_t blinding_factors_ = 0;
 };
 

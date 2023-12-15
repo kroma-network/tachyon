@@ -14,7 +14,7 @@
 #include "absl/container/btree_map.h"
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/lookup/lookup_pair.h"
 
 namespace tachyon::zk {
@@ -26,7 +26,7 @@ namespace tachyon::zk {
 //   that has the corresponding value in S'.
 // This method returns (A', S') if no errors are encountered.
 template <typename PCSTy, typename Evals, typename F = typename Evals::Field>
-[[nodiscard]] bool PermuteExpressionPair(Prover<PCSTy>* prover,
+[[nodiscard]] bool PermuteExpressionPair(ProverBase<PCSTy>* prover,
                                          const LookupPair<Evals>& in,
                                          LookupPair<Evals>* out) {
   size_t domain_size = prover->domain()->size();

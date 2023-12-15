@@ -10,18 +10,18 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 
 namespace {
 
-class UnpermutedTableTest : public Halo2ProverTest {
+class UnpermutedTableTest : public halo2::ProverTest {
  public:
   constexpr static size_t kCols = 4;
 
   void SetUp() override {
-    Halo2ProverTest::SetUp();
+    halo2::ProverTest::SetUp();
     unpermuted_table_ = UnpermutedTable<Evals>::Construct(
         kCols, prover_->pcs().N(), prover_->domain());
   }

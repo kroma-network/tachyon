@@ -5,17 +5,17 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 namespace {
 
-class PermutationTableStoreTest : public Halo2ProverTest {
+class PermutationTableStoreTest : public halo2::ProverTest {
  public:
   static constexpr size_t kChunkSize = 4;
 
   void SetUp() override {
-    Halo2ProverTest::SetUp();
+    halo2::ProverTest::SetUp();
 
     const Domain* domain = prover_->domain();
     fixed_columns_ =

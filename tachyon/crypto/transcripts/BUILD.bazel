@@ -3,11 +3,12 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "transcript",
-    hdrs = ["transcript.h"],
+    name = "blake2b_transcript",
+    hdrs = ["blake2b_transcript.h"],
     deps = [
-        "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/math/base:big_int",
+        ":transcript",
+        "//tachyon/math/elliptic_curves:points",
+        "@com_google_boringssl//:crypto",
     ],
 )
 
@@ -34,12 +35,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "blake2b_transcript",
-    hdrs = ["blake2b_transcript.h"],
+    name = "transcript",
+    hdrs = ["transcript.h"],
     deps = [
-        ":transcript",
-        "//tachyon/math/elliptic_curves:points",
-        "@com_google_boringssl//:crypto",
+        "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/math/base:big_int",
     ],
 )
 

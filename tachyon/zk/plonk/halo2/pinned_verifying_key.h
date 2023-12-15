@@ -4,16 +4,16 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_KEYS_HALO2_PINNED_VERIFYING_KEY_H_
-#define TACHYON_ZK_PLONK_KEYS_HALO2_PINNED_VERIFYING_KEY_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_PINNED_VERIFYING_KEY_H_
+#define TACHYON_ZK_PLONK_HALO2_PINNED_VERIFYING_KEY_H_
 
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/zk/plonk/keys/halo2/pinned_constraint_system.h"
-#include "tachyon/zk/plonk/keys/halo2/pinned_evaluation_domain.h"
+#include "tachyon/zk/plonk/halo2/pinned_constraint_system.h"
+#include "tachyon/zk/plonk/halo2/pinned_evaluation_domain.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key_stringifier.h"
 
@@ -86,4 +86,4 @@ class RustDebugStringifier<zk::halo2::PinnedVerifyingKey<PCSTy>> {
 }  // namespace base::internal
 }  // namespace tachyon
 
-#endif  // TACHYON_ZK_PLONK_KEYS_HALO2_PINNED_VERIFYING_KEY_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_PINNED_VERIFYING_KEY_H_

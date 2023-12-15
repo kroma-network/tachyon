@@ -11,7 +11,7 @@
 
 #include "gtest/gtest_prod.h"
 
-#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/prover_query.h"
 #include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
@@ -28,21 +28,21 @@ class LookupArgumentRunner {
 
   template <typename PCSTy, typename F>
   static LookupPermuted<Poly, Evals> PermuteArgument(
-      Prover<PCSTy>* prover, const LookupArgument<F>& argument, const F& theta,
-      const SimpleEvaluator<Evals>& evaluator_tpl);
+      ProverBase<PCSTy>* prover, const LookupArgument<F>& argument,
+      const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl);
 
   template <typename PCSTy, typename F>
   static LookupCommitted<Poly> CommitPermuted(
-      Prover<PCSTy>* prover, LookupPermuted<Poly, Evals>&& permuted,
+      ProverBase<PCSTy>* prover, LookupPermuted<Poly, Evals>&& permuted,
       const F& beta, const F& gamma);
 
   template <typename PCSTy, typename F>
   static LookupEvaluated<Poly> EvaluateCommitted(
-      Prover<PCSTy>* prover, LookupCommitted<Poly>&& committed, const F& x);
+      ProverBase<PCSTy>* prover, LookupCommitted<Poly>&& committed, const F& x);
 
   template <typename PCSTy, typename F>
   static std::vector<ProverQuery<PCSTy>> OpenEvaluated(
-      const Prover<PCSTy>* prover, const LookupEvaluated<Poly>& evaluated,
+      const ProverBase<PCSTy>* prover, const LookupEvaluated<Poly>& evaluated,
       const F& x);
 
  private:

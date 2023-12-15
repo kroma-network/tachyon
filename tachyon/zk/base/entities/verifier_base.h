@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_ENTITIES_VERIFIER_H_
-#define TACHYON_ZK_BASE_ENTITIES_VERIFIER_H_
+#ifndef TACHYON_ZK_BASE_ENTITIES_VERIFIER_BASE_H_
+#define TACHYON_ZK_BASE_ENTITIES_VERIFIER_BASE_H_
 
 #include <memory>
 #include <utility>
@@ -15,12 +15,12 @@
 namespace tachyon::zk {
 
 template <typename PCSTy>
-class Verifier : public Entity<PCSTy> {
+class VerifierBase : public Entity<PCSTy> {
  public:
   using Commitment = typename PCSTy::Commitment;
 
-  Verifier(PCSTy&& pcs,
-           std::unique_ptr<crypto::TranscriptReader<Commitment>> transcript)
+  VerifierBase(PCSTy&& pcs,
+               std::unique_ptr<crypto::TranscriptReader<Commitment>> transcript)
       : Entity<PCSTy>(std::move(pcs), std::move(transcript)) {}
 
   crypto::TranscriptReader<Commitment>* GetReader() {
@@ -30,4 +30,4 @@ class Verifier : public Entity<PCSTy> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_BASE_ENTITIES_VERIFIER_H_
+#endif  // TACHYON_ZK_BASE_ENTITIES_VERIFIER_BASE_H_

@@ -1,14 +1,14 @@
-#include "tachyon/zk/base/halo2/halo2_random_field_generator.h"
+#include "tachyon/zk/plonk/halo2/random_field_generator.h"
 
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 
 namespace {
 
-class Halo2RandomFieldGeneratorTest : public testing::Test {
+class RandomFieldGeneratorTest : public testing::Test {
  public:
   using F = tachyon::math::bn254::Fq;
 
@@ -17,7 +17,7 @@ class Halo2RandomFieldGeneratorTest : public testing::Test {
 
 }  // namespace
 
-TEST_F(Halo2RandomFieldGeneratorTest, FromUint512) {
+TEST_F(RandomFieldGeneratorTest, FromUint512) {
   uint64_t limbs4[4] = {
       0x1f8905a172affa8a,
       0xde45ad177dcf3306,
@@ -29,10 +29,10 @@ TEST_F(Halo2RandomFieldGeneratorTest, FromUint512) {
                         0xaaaaaaaaaaaaaaaa, 0xaaaaaaaaaaaaaaaa,
                         0xaaaaaaaaaaaaaaaa, 0xaaaaaaaaaaaaaaaa};
   EXPECT_EQ(F(math::BigInt<4>(limbs4)),
-            Halo2RandomFieldGenerator<F>::FromUint512(limbs8));
+            RandomFieldGenerator<F>::FromUint512(limbs8));
 }
 
-TEST_F(Halo2RandomFieldGeneratorTest, Random) {
+TEST_F(RandomFieldGeneratorTest, Random) {
   const char* kHexes[100] = {
       "0x04c0df95382d049b3f56cefbdebef7dc581a26714b42aa21726c2cfe23481d5a",
       "0x08c6d7817f7a5cb6758026c475fa2b7ea7494096c1909c8c95f518d996764d12",
@@ -139,10 +139,10 @@ TEST_F(Halo2RandomFieldGeneratorTest, Random) {
   uint8_t seed[16] = {0x59, 0x62, 0xbe, 0x5d, 0x76, 0x3d, 0x31, 0x8d,
                       0x17, 0xdb, 0x37, 0x32, 0x54, 0x06, 0xbc, 0xe5};
   crypto::XORShiftRNG rng = crypto::XORShiftRNG::FromSeed(seed);
-  Halo2RandomFieldGenerator<F> generator(&rng);
+  RandomFieldGenerator<F> generator(&rng);
   for (size_t i = 0; i < 100; ++i) {
     EXPECT_EQ(generator.Generate(), F::FromHexString(kHexes[i]));
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2

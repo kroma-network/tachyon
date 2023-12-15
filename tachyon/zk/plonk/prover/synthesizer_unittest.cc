@@ -10,19 +10,19 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
 #include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
-#include "tachyon/zk/plonk/keys/halo2/pinned_verifying_key.h"
+#include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 namespace {
 
-class SynthesizerTest : public Halo2ProverTest {
+class SynthesizerTest : public halo2::ProverTest {
  public:
   using F = typename PCS::Field;
 
   void SetUp() override {
-    Halo2ProverTest::SetUp();
+    halo2::ProverTest::SetUp();
 
     circuits_ = {SimpleCircuit<F>(), SimpleCircuit<F>()};
 

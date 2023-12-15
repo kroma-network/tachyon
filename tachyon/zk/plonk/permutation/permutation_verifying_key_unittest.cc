@@ -9,13 +9,13 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 
 namespace {
 
-class PermutationVerifyingKeyTest : public Halo2ProverTest {
+class PermutationVerifyingKeyTest : public halo2::ProverTest {
  public:
   using VerifyingKey = PermutationVerifyingKey<PCS>;
 };

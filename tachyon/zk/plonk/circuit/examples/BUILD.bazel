@@ -6,7 +6,7 @@ tachyon_cc_library(
     name = "circuit_test",
     testonly = True,
     hdrs = ["circuit_test.h"],
-    deps = ["//tachyon/zk/base/halo2:halo2_prover_test"],
+    deps = ["//tachyon/zk/plonk/halo2:prover_test"],
 )
 
 tachyon_cc_library(
@@ -37,7 +37,7 @@ tachyon_cc_unittest(
         ":circuit_test",
         ":simple_circuit",
         ":simple_lookup_circuit",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
-        "//tachyon/zk/plonk/keys/halo2:pinned_verifying_key",
     ],
 )

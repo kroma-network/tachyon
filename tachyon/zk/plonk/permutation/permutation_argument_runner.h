@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "tachyon/base/parallelize.h"
-#include "tachyon/zk/base/entities/prover.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/prover_query.h"
 #include "tachyon/zk/plonk/circuit/table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
@@ -32,24 +32,24 @@ class PermutationArgumentRunner {
   // https://zcash.github.io/halo2/design/proving-system/permutation.html
   template <typename PCSTy, typename F>
   static PermutationCommitted<Poly> CommitArgument(
-      Prover<PCSTy>* prover, const PermutationArgument& argument,
+      ProverBase<PCSTy>* prover, const PermutationArgument& argument,
       Table<Evals>& table, size_t constraint_system_degree,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
       const F& beta, const F& gamma);
 
   template <typename PCSTy, typename F>
   static PermutationEvaluated<Poly> EvaluateCommitted(
-      Prover<PCSTy>* prover, PermutationCommitted<Poly>&& committed,
+      ProverBase<PCSTy>* prover, PermutationCommitted<Poly>&& committed,
       const F& x);
 
   template <typename PCSTy, typename F>
   static std::vector<ProverQuery<PCSTy>> OpenEvaluated(
-      const Prover<PCSTy>* prover, const PermutationEvaluated<Poly>& evaluated,
-      const F& x);
+      const ProverBase<PCSTy>* prover,
+      const PermutationEvaluated<Poly>& evaluated, const F& x);
 
   template <typename PCSTy, typename F>
   static std::vector<BlindedPolynomial<Poly>> BlindProvingKey(
-      Prover<PCSTy>* prover,
+      ProverBase<PCSTy>* prover,
       const PermutationProvingKey<Poly, Evals>& proving_key);
 
   template <typename PCSTy, typename F>
@@ -60,7 +60,7 @@ class PermutationArgumentRunner {
   // |OpenBlindedPolynomials| when refactoring |CreateProof()|
   template <typename PCSTy, typename F>
   static void EvaluateProvingKey(
-      Prover<PCSTy>* prover,
+      ProverBase<PCSTy>* prover,
       const PermutationProvingKey<Poly, Evals>& proving_key, const F& x);
 
  private:

@@ -18,7 +18,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:parallelize",
         "//tachyon/zk/base:blinded_polynomial",
-        "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/base/entities:prover_base",
         "@com_google_googletest//:gtest_prod",
     ],
 )
@@ -52,7 +52,7 @@ tachyon_cc_library(
         ":permutation_proving_key",
         ":permutation_table_store",
         "//tachyon/zk/base:prover_query",
-        "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/circuit:rotation",
     ],
 )
@@ -138,7 +138,7 @@ tachyon_cc_library(
         "//tachyon/base:openmp_util",
         "//tachyon/base:parallelize",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base/entities:prover",
+        "//tachyon/zk/base/entities:prover_base",
     ],
 )
 
@@ -172,6 +172,6 @@ tachyon_cc_unittest(
         ":permutation_assembly",
         ":permutation_table_store",
         "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/zk/base/halo2:halo2_prover_test",
+        "//tachyon/zk/plonk/halo2:prover_test",
     ],
 )

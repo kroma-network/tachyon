@@ -23,7 +23,7 @@ class XORShiftRNG : public RNG<XORShiftRNG> {
  public:
   XORShiftRNG() = default;
 
-  static XORShiftRNG FromSeed(uint8_t seed[16]) {
+  static XORShiftRNG FromSeed(const uint8_t seed[16]) {
     XORShiftRNG ret;
     memcpy(&ret.x_, &seed[0], sizeof(uint32_t));
     memcpy(&ret.y_, &seed[4], sizeof(uint32_t));

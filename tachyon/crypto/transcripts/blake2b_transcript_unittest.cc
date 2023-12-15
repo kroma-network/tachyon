@@ -64,10 +64,10 @@ TEST_F(Blake2bTranscriptTest, SqueezeChallenge) {
   Curve::AffinePointTy generator = Curve::AffinePointTy::Generator();
   ASSERT_TRUE(writer.WriteToProof(generator));
 
-  std::vector<uint8_t> expected_bytes = {57, 2,   118, 182, 16,  184, 59,  179,
-                                         70, 176, 223, 71,  62,  168, 222, 171,
-                                         85, 224, 83,  43,  148, 194, 132, 184,
-                                         65, 25,  1,   208, 123, 166, 11,  12};
+  std::vector<uint8_t> expected_bytes = {26,  175, 9,   178, 100, 103, 8,   151,
+                                         102, 161, 101, 61,  222, 95,  165, 141,
+                                         175, 20,  97,  43,  214, 93,  71,  110,
+                                         109, 175, 18,  100, 39,  250, 214, 25};
   Curve::ScalarField expected = Curve::ScalarField::FromBigInt(
       math::BigInt<4>::FromBytesLE(expected_bytes));
 

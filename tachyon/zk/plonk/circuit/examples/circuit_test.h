@@ -4,11 +4,11 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 
-class CircuitTest : public Halo2ProverTest {
+class CircuitTest : public halo2::ProverTest {
  protected:
   struct Point {
     std::string_view x;

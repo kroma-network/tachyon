@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_KEYS_HALO2_PINNED_GATES_H_
-#define TACHYON_ZK_PLONK_KEYS_HALO2_PINNED_GATES_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_PINNED_GATES_H_
+#define TACHYON_ZK_PLONK_HALO2_PINNED_GATES_H_
 
 #include <memory>
 #include <string>
@@ -53,4 +53,4 @@ class RustDebugStringifier<zk::halo2::PinnedGates<F>> {
 }  // namespace base::internal
 }  // namespace tachyon
 
-#endif  // TACHYON_ZK_PLONK_KEYS_HALO2_PINNED_GATES_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_PINNED_GATES_H_

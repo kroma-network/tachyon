@@ -4,15 +4,15 @@
 #include <memory>
 #include <vector>
 
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
 #include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 
-class CompressExpressionTestSetting : public Halo2ProverTest {
+class CompressExpressionTestSetting : public halo2::ProverTest {
  public:
   void SetUp() override {
-    Halo2ProverTest::SetUp();
+    halo2::ProverTest::SetUp();
 
     Table<Evals> columns(absl::MakeConstSpan(fixed_columns_),
                          absl::MakeConstSpan(advice_columns_),

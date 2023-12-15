@@ -1,16 +1,16 @@
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 
 namespace {
 
-class ProverTest : public Halo2ProverTest {};
+class ProverBaseTest : public halo2::ProverTest {};
 
 }  // namespace
 
-TEST_F(ProverTest, CommitEvalsWithBlind) {
+TEST_F(ProverBaseTest, CommitEvalsWithBlind) {
   const Domain* domain = prover_->domain();
   // setting random polynomial
   Evals evals = domain->Random<Evals>();

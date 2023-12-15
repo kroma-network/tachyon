@@ -4,15 +4,15 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/base/halo2/halo2_prover_test.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
 namespace {
 
-class PermutationAssemblyTest : public Halo2ProverTest {
+class PermutationAssemblyTest : public halo2::ProverTest {
  public:
   void SetUp() override {
-    Halo2ProverTest::SetUp();
+    halo2::ProverTest::SetUp();
 
     columns_ = {AnyColumnKey(0), AdviceColumnKey(1), FixedColumnKey(2),
                 InstanceColumnKey(3)};
