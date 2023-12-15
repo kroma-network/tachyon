@@ -378,7 +378,7 @@ TEST_F(UnivariateSparsePolynomialTest, Copyable) {
   Poly expected(Coeffs({{0, GF7(3)}, {1, GF7(1)}}));
   Poly value;
 
-  base::VectorBuffer buf;
+  base::Uint8VectorBuffer buf;
   ASSERT_TRUE(buf.Write(expected));
 
   buf.set_buffer_offset(0);

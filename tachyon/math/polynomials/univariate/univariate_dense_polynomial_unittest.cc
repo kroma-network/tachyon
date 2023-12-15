@@ -355,7 +355,7 @@ TEST_F(UnivariateDensePolynomialTest, Copyable) {
   Poly expected(Coeffs({GF7(1), GF7(4), GF7(3), GF7(5)}));
   Poly value;
 
-  base::VectorBuffer buf;
+  base::Uint8VectorBuffer buf;
   ASSERT_TRUE(buf.Write(expected));
 
   buf.set_buffer_offset(0);

@@ -257,7 +257,7 @@ TEST_F(UnivariateEvaluationsTest, DivScalar) {
 }
 
 TEST_F(UnivariateEvaluationsTest, Copyable) {
-  base::VectorBuffer buf;
+  base::Uint8VectorBuffer buf;
   ASSERT_TRUE(buf.Write(polys_[0]));
 
   buf.set_buffer_offset(0);

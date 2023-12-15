@@ -146,11 +146,11 @@ class TranscriptWriterImpl<Commitment, false> : public Transcript<Commitment> {
 
   TranscriptWriterImpl() = default;
   // Initialize a transcript given an output buffer.
-  explicit TranscriptWriterImpl(base::VectorBuffer buf)
+  explicit TranscriptWriterImpl(base::Uint8VectorBuffer buf)
       : buffer_(std::move(buf)) {}
 
-  base::VectorBuffer& buffer() { return buffer_; }
-  const base::VectorBuffer& buffer() const { return buffer_; }
+  base::Uint8VectorBuffer& buffer() { return buffer_; }
+  const base::Uint8VectorBuffer& buffer() const { return buffer_; }
 
   // Write a |commitment| to the proof. Note that it also writes the
   // |commitment| to the transcript by calling |WriteToTranscript()| internally.
@@ -165,7 +165,7 @@ class TranscriptWriterImpl<Commitment, false> : public Transcript<Commitment> {
   }
 
  private:
-  base::VectorBuffer buffer_;
+  base::Uint8VectorBuffer buffer_;
 };
 
 // Transcript view from the perspective of a prover that has access to an output
@@ -175,11 +175,11 @@ class TranscriptWriterImpl<Field, true> : public Transcript<Field> {
  public:
   TranscriptWriterImpl() = default;
   // Initialize a transcript given an output buffer.
-  explicit TranscriptWriterImpl(base::VectorBuffer buf)
+  explicit TranscriptWriterImpl(base::Uint8VectorBuffer buf)
       : buffer_(std::move(buf)) {}
 
-  base::VectorBuffer& buffer() { return buffer_; }
-  const base::VectorBuffer& buffer() const { return buffer_; }
+  base::Uint8VectorBuffer& buffer() { return buffer_; }
+  const base::Uint8VectorBuffer& buffer() const { return buffer_; }
 
   // Write a |value| to the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
@@ -188,7 +188,7 @@ class TranscriptWriterImpl<Field, true> : public Transcript<Field> {
   }
 
  private:
-  base::VectorBuffer buffer_;
+  base::Uint8VectorBuffer buffer_;
 };
 
 template <typename T>

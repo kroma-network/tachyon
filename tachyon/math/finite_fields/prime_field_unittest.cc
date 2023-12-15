@@ -189,7 +189,7 @@ TEST_F(PrimeFieldTest, Copyable) {
   const GF7 expected = GF7::Random();
   GF7 value;
 
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Write(expected));
 
   write_buf.set_buffer_offset(0);

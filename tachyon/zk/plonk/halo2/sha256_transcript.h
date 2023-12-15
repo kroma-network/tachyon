@@ -79,7 +79,7 @@ class Sha256Writer : public crypto::TranscriptWriter<AffinePointTy> {
 
   Sha256Writer() = default;
   // Initialize a transcript given an output buffer.
-  explicit Sha256Writer(base::VectorBuffer write_buf)
+  explicit Sha256Writer(base::Uint8VectorBuffer write_buf)
       : crypto::TranscriptWriter<AffinePointTy>(std::move(write_buf)) {
     SHA256_Init(&state_);
   }

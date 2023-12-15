@@ -79,7 +79,7 @@ class Blake2bWriter : public crypto::TranscriptWriter<AffinePointTy> {
 
   Blake2bWriter() = default;
   // Initialize a transcript given an output buffer.
-  explicit Blake2bWriter(base::VectorBuffer write_buf)
+  explicit Blake2bWriter(base::Uint8VectorBuffer write_buf)
       : crypto::TranscriptWriter<AffinePointTy>(std::move(write_buf)) {
     BLAKE2B512_InitWithPersonal(&state_, kTranscriptStr);
   }

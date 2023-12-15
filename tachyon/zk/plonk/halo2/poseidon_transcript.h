@@ -57,7 +57,7 @@ class PoseidonWriter : public crypto::TranscriptWriter<AffinePointTy> {
 
   PoseidonWriter() = default;
   // Initialize a transcript given an output buffer.
-  explicit PoseidonWriter(base::VectorBuffer buffer)
+  explicit PoseidonWriter(base::Uint8VectorBuffer buffer)
       : crypto::TranscriptWriter<AffinePointTy>(std::move(buffer)),
         state_(crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63,
                                                                  0)) {}

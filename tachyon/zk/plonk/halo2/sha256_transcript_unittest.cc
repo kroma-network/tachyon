@@ -27,7 +27,7 @@ class Sha256TranscriptTest : public testing::Test {
 }  // namespace
 
 TEST_F(Sha256TranscriptTest, WritePoint) {
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   Sha256Writer<G1AffinePoint> writer(std::move(write_buf));
   G1AffinePoint expected = G1AffinePoint::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
@@ -41,7 +41,7 @@ TEST_F(Sha256TranscriptTest, WritePoint) {
 }
 
 TEST_F(Sha256TranscriptTest, WriteScalar) {
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   Sha256Writer<G1AffinePoint> writer(std::move(write_buf));
   Fr expected = Fr::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
@@ -55,7 +55,7 @@ TEST_F(Sha256TranscriptTest, WriteScalar) {
 }
 
 TEST_F(Sha256TranscriptTest, SqueezeChallenge) {
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   Sha256Writer<G1AffinePoint> writer(std::move(write_buf));
   G1AffinePoint generator = G1AffinePoint::Generator();
   ASSERT_TRUE(writer.WriteToProof(generator));

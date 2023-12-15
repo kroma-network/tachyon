@@ -25,7 +25,7 @@ TEST_F(Fp12Test, Copyable) {
   const F expected = F::Random();
   F value;
 
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Write(expected));
 
   write_buf.set_buffer_offset(0);
