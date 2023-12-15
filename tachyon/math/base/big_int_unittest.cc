@@ -128,7 +128,7 @@ TYPED_TEST(BigIntConversionTest, BytesLEConversion) {
   BigInt<4> actual = BigInt<4>::FromBytesLE(expected_input);
   ASSERT_EQ(actual, this->expected_);
 
-  std::vector<uint8_t> actual_input = actual.ToBytesLE();
+  std::array<uint8_t, 32> actual_input = actual.ToBytesLE();
   EXPECT_TRUE(std::equal(actual_input.begin(), actual_input.end(),
                          expected_input.begin()));
 }
@@ -152,7 +152,7 @@ TYPED_TEST(BigIntConversionTest, BytesBEConversion) {
   BigInt<4> actual = BigInt<4>::FromBytesBE(expected_input);
   ASSERT_EQ(actual, this->expected_);
 
-  std::vector<uint8_t> actual_input = actual.ToBytesBE();
+  std::array<uint8_t, 32> actual_input = actual.ToBytesBE();
   EXPECT_TRUE(std::equal(actual_input.begin(), actual_input.end(),
                          expected_input.begin()));
 }
