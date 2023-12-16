@@ -6,6 +6,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/crypto/commitments/merkle_tree/binary_merkle_tree/simple_binary_merkle_tree_storage.h"
 
 namespace tachyon::crypto {
 
@@ -18,20 +19,6 @@ class SimpleHasher : public BinaryMerkleHasher<int, int> {
   int ComputeParentHash(const int& left, const int& right) const override {
     return left + 2 * right;
   }
-};
-
-class SimpleMerkleTreeStorage : public BinaryMerkleTreeStorage<int> {
- public:
-  const std::vector<int>& hashes() const { return hashes_; }
-
-  // BinaryMerkleTreeStorage<int> methods
-  void Allocate(size_t size) override { hashes_.resize(size); }
-  size_t GetSize() const override { return hashes_.size(); }
-  const int& GetHash(size_t i) const override { return hashes_[i]; }
-  void SetHash(size_t i, const int& hash) override { hashes_[i] = hash; }
-
- private:
-  std::vector<int> hashes_;
 };
 
 class BinaryMerkleTreeTest : public testing::Test {
@@ -49,7 +36,7 @@ class BinaryMerkleTreeTest : public testing::Test {
   void CreateLeaves() { leaves_ = base::CreateRangedVector<int>(0, N); }
 
  protected:
-  SimpleMerkleTreeStorage storage_;
+  SimpleBinaryMerkleTreeStorage<int> storage_;
   SimpleHasher hasher_;
   VCS vcs_;
   std::vector<int> leaves_;

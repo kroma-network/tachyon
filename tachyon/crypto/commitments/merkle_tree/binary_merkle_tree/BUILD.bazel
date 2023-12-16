@@ -38,11 +38,19 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "simple_binary_merkle_tree_storage",
+    testonly = True,
+    hdrs = ["simple_binary_merkle_tree_storage.h"],
+    deps = [":binary_merkle_tree_storage"],
+)
+
 tachyon_cc_unittest(
     name = "binary_merkle_tree_unittests",
     srcs = ["binary_merkle_tree_unittest.cc"],
     deps = [
         ":binary_merkle_tree",
+        ":simple_binary_merkle_tree_storage",
         "//tachyon/base/containers:container_util",
     ],
 )
