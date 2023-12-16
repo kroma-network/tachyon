@@ -3,6 +3,13 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "simple_transcript",
+    testonly = True,
+    hdrs = ["simple_transcript.h"],
+    deps = [":transcript"],
+)
+
+tachyon_cc_library(
     name = "transcript",
     hdrs = ["transcript.h"],
     deps = [

@@ -4,10 +4,10 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/crypto/transcripts/simple_transcript.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
-#include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 
 namespace tachyon::crypto {
 
@@ -79,7 +79,7 @@ class SHPlonkTest : public testing::Test {
   std::vector<Poly> polys_;
   std::vector<F> points_;
   std::vector<PolynomialOpening<Poly>> poly_openings_;
-  zk::halo2::PoseidonWriter<Commitment> writer_;
+  SimpleTranscriptWriter<Commitment> writer_;
 };
 
 }  // namespace
