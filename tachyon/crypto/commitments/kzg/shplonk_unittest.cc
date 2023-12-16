@@ -30,10 +30,10 @@ class SHPlonkTest : public testing::Test {
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 
+  SHPlonkTest() : writer_(base::Uint8VectorBuffer()) {}
+
   void SetUp() override {
     KZG<math::bn254::G1AffinePoint, kMaxDegree, math::bn254::G1AffinePoint> kzg;
-    base::Uint8VectorBuffer write_buf;
-    writer_ = zk::halo2::PoseidonWriter<Commitment>(std::move(write_buf));
     pcs_ = PCS(std::move(kzg), &writer_);
     ASSERT_TRUE(pcs_.UnsafeSetup(N));
 
