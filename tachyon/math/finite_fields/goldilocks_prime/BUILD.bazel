@@ -17,6 +17,8 @@ generate_prime_fields(
     # Hex: 0xffffffff00000001
     modulus = "18446744069414584321",
     namespace = "tachyon::math",
+    small_subgroup_adicity = "1",
+    small_subgroup_base = "3",
     special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #if ARCH_CPU_X86_64
   constexpr static bool kIsSpecialPrime = true;
@@ -27,6 +29,7 @@ generate_prime_fields(
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif""",
+    subgroup_generator = "7",
     deps = if_polygon_zkevm_backend([
         ":prime_field_goldilocks",
         "//tachyon/build:build_config",
