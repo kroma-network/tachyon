@@ -4,10 +4,6 @@ load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bz
 
 package(default_visibility = ["//visibility:public"])
 
-# 2^64 - 2^32 + 1
-# Hex: 0xffffffff00000001
-GOLDILOCKS_MODULUS = "18446744069414584321"
-
 generate_prime_fields(
     name = "goldilocks",
     class_name = "Goldilocks",
@@ -17,7 +13,9 @@ generate_prime_fields(
 #else
 #include "tachyon/math/finite_fields/prime_field.h"
 #endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
-    modulus = GOLDILOCKS_MODULUS,
+    # 2⁶⁴ - 2³² + 1
+    # Hex: 0xffffffff00000001
+    modulus = "18446744069414584321",
     namespace = "tachyon::math",
     special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #if ARCH_CPU_X86_64
