@@ -31,7 +31,7 @@ class BinaryMerkleTreeTest : public testing::Test {
   void SetUp() override {
     vcs_ = VCS(&storage_, &hasher_);
     vcs_.set_leaves_size_for_parallelization(N >> 1);
-  };
+  }
 
   void CreateLeaves() { leaves_ = base::CreateRangedVector<int>(0, N); }
 
