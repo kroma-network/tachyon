@@ -129,8 +129,8 @@ TEST_F(SimpleLookupCircuitTest, Synthesize) {
       VerifyingKey<PCS>::CreateAssembly(domain, constraint_system);
 
   SimpleLookupCircuit<F, kBits> circuit(4);
-  SimpleLookupCircuit<F, kBits>::FloorPlanner::Synthesize(
-      &assembly, circuit, std::move(config), constraint_system.constants());
+  circuit.floor_planner().Synthesize(&assembly, circuit, std::move(config),
+                                     constraint_system.constants());
 
   std::vector<RationalEvals> expected_fixed_columns;
   {

@@ -3,9 +3,21 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "floor_planner",
+    hdrs = ["floor_planner.h"],
+    deps = [
+        "//tachyon/zk/plonk/circuit:assignment",
+        "//tachyon/zk/plonk/circuit:column_key",
+    ],
+)
+
+tachyon_cc_library(
     name = "simple_floor_planner",
     hdrs = ["simple_floor_planner.h"],
-    deps = [":single_chip_layouter"],
+    deps = [
+        ":floor_planner",
+        ":single_chip_layouter",
+    ],
 )
 
 tachyon_cc_library(

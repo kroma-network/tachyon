@@ -54,10 +54,12 @@ class SimpleLookupConfig {
 template <typename F, size_t Bits>
 class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
  public:
-  using FloorPlanner = SimpleFloorPlanner;
+  using FloorPlanner = SimpleFloorPlanner<SimpleLookupCircuit<F, Bits>>;
 
   SimpleLookupCircuit() = default;
   explicit SimpleLookupCircuit(size_t k) : k_(k) {}
+
+  FloorPlanner& floor_planner() { return floor_planner_; }
 
   std::unique_ptr<Circuit<SimpleLookupConfig<F, Bits>>> WithoutWitness()
       const override {
@@ -106,6 +108,7 @@ class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
 
  private:
   size_t k_ = 0;
+  FloorPlanner floor_planner_;
 };
 
 }  // namespace tachyon::zk

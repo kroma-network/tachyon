@@ -42,7 +42,7 @@ class Synthesizer {
   // Synthesize circuit and store advice columns.
   template <typename Circuit>
   void GenerateAdviceColumns(
-      ProverBase<PCS>* prover, const std::vector<Circuit>& circuits,
+      ProverBase<PCS>* prover, std::vector<Circuit>& circuits,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
     CHECK_EQ(num_circuits_, circuits.size());
 
@@ -101,7 +101,7 @@ class Synthesizer {
   template <typename Circuit>
   std::vector<RationalEvals> GenerateRationalAdvices(
       ProverBase<PCS>* prover, const Phase phase,
-      const std::vector<Evals>& instance_columns, const Circuit& circuit,
+      const std::vector<Evals>& instance_columns, Circuit& circuit,
       const typename Circuit::Config& config) {
     // The prover will not be allowed to assign values to advice
     // cells that exist within inactive rows, which include some
@@ -111,8 +111,8 @@ class Synthesizer {
         prover->domain(), constraint_system_->num_advice_columns(),
         prover->GetUsableRows(), phase, challenges_, instance_columns);
 
-    Circuit::FloorPlanner::Synthesize(&witness, circuit, config.Clone(),
-                                      constraint_system_->constants());
+    circuit.floor_planner().Synthesize(&witness, circuit, config.Clone(),
+                                       constraint_system_->constants());
 
     return std::move(witness).TakeAdvices();
   }

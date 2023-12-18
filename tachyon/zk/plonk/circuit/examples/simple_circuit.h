@@ -181,11 +181,13 @@ class FieldChip {
 template <typename F>
 class SimpleCircuit : public Circuit<FieldConfig<F>> {
  public:
-  using FloorPlanner = SimpleFloorPlanner;
+  using FloorPlanner = SimpleFloorPlanner<SimpleCircuit<F>>;
 
   SimpleCircuit() = default;
   SimpleCircuit(const F& constant, const F& a, const F& b)
       : constant_(constant), a_(Value<F>::Known(a)), b_(Value<F>::Known(b)) {}
+
+  FloorPlanner& floor_planner() { return floor_planner_; }
 
   std::unique_ptr<Circuit<FieldConfig<F>>> WithoutWitness() const override {
     return std::make_unique<SimpleCircuit>();
@@ -245,6 +247,7 @@ class SimpleCircuit : public Circuit<FieldConfig<F>> {
   F constant_;
   Value<F> a_;
   Value<F> b_;
+  FloorPlanner floor_planner_;
 };
 
 }  // namespace tachyon::zk
