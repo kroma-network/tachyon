@@ -16,9 +16,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/container/inlined_vector.h"
-#include "absl/types/span.h"
-
 #include "tachyon/base/bit_cast.h"
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/compiler_specific.h"
@@ -704,14 +701,14 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   // Converts the BigInt to a byte array in little-endian order. This method
   // processes the limbs of the BigInt, extracts individual bytes, and sets them
   // in the resulting array.
-  std::vector<uint8_t> ToBytesLE() const {
-    std::vector<uint8_t> ret;
-    ret.reserve(kByteNums);
+  std::array<uint8_t, kByteNums> ToBytesLE() const {
+    std::array<uint8_t, kByteNums> ret;
+    auto it = ret.begin();
     FOR_FROM_SMALLEST(i, 0, kByteNums) {
       size_t limb_idx = i / kLimbByteNums;
       uint64_t limb = limbs[limb_idx];
       size_t byte_r_idx = i % kLimbByteNums;
-      ret.push_back(reinterpret_cast<uint8_t*>(&limb)[byte_r_idx]);
+      *(it++) = reinterpret_cast<uint8_t*>(&limb)[byte_r_idx];
     }
     return ret;
   }
@@ -719,14 +716,14 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   // Converts the BigInt to a byte array in big-endian order. This method
   // processes the limbs of the BigInt, extracts individual bytes, and sets them
   // in the resulting array.
-  std::vector<uint8_t> ToBytesBE() const {
-    std::vector<uint8_t> ret;
-    ret.reserve(kByteNums);
+  std::array<uint8_t, kByteNums> ToBytesBE() const {
+    std::array<uint8_t, kByteNums> ret;
+    auto it = ret.begin();
     FOR_FROM_BIGGEST(i, 0, kByteNums) {
       size_t limb_idx = i / kLimbByteNums;
       uint64_t limb = limbs[limb_idx];
       size_t byte_r_idx = i % kLimbByteNums;
-      ret.push_back(reinterpret_cast<uint8_t*>(&limb)[byte_r_idx]);
+      *(it++) = reinterpret_cast<uint8_t*>(&limb)[byte_r_idx];
     }
     return ret;
   }

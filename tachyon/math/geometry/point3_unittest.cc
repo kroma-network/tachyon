@@ -44,7 +44,7 @@ TEST(Point3Test, Copyable) {
   Point3GF7 expected(GF7(1), GF7(2), GF7(3));
   Point3GF7 value;
 
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Write(expected));
 
   write_buf.set_buffer_offset(0);

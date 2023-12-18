@@ -197,7 +197,7 @@ struct PoseidonSponge
     std::vector<F> bytes;
     bytes.reserve(usable_bytes * num_elements);
     for (const F& elem : src_elements) {
-      std::vector<uint8_t> elem_bytes = elem.ToBigInt().ToBytesLE();
+      auto elem_bytes = elem.ToBigInt().ToBytesLE();
       bytes.insert(bytes.end(), elem_bytes.begin(), elem_bytes.end());
     }
 

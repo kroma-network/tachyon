@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <vector>
 
+#include "absl/container/inlined_vector.h"
+#include "absl/types/span.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
@@ -128,7 +130,7 @@ TYPED_TEST(BigIntConversionTest, BytesLEConversion) {
   BigInt<4> actual = BigInt<4>::FromBytesLE(expected_input);
   ASSERT_EQ(actual, this->expected_);
 
-  std::vector<uint8_t> actual_input = actual.ToBytesLE();
+  std::array<uint8_t, 32> actual_input = actual.ToBytesLE();
   EXPECT_TRUE(std::equal(actual_input.begin(), actual_input.end(),
                          expected_input.begin()));
 }
@@ -152,7 +154,7 @@ TYPED_TEST(BigIntConversionTest, BytesBEConversion) {
   BigInt<4> actual = BigInt<4>::FromBytesBE(expected_input);
   ASSERT_EQ(actual, this->expected_);
 
-  std::vector<uint8_t> actual_input = actual.ToBytesBE();
+  std::array<uint8_t, 32> actual_input = actual.ToBytesBE();
   EXPECT_TRUE(std::equal(actual_input.begin(), actual_input.end(),
                          expected_input.begin()));
 }
@@ -271,7 +273,7 @@ TEST(BigIntTest, Copyable) {
   BigInt<2> expected = BigInt<2>::Random();
   BigInt<2> value;
 
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Write(expected));
 
   write_buf.set_buffer_offset(0);

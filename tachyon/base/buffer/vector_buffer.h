@@ -8,8 +8,11 @@
 
 namespace tachyon::base {
 
-class TACHYON_EXPORT VectorBuffer : public Buffer {
+template <typename T>
+class VectorBuffer : public Buffer {
  public:
+  static_assert(sizeof(T) == 1);
+
   VectorBuffer() = default;
   VectorBuffer(const VectorBuffer& other) = delete;
   VectorBuffer& operator=(const VectorBuffer& other) = delete;
@@ -23,6 +26,10 @@ class TACHYON_EXPORT VectorBuffer : public Buffer {
   }
   ~VectorBuffer() override = default;
 
+  const std::vector<T>& owned_buffer() const { return owned_buffer_; }
+
+  std::vector<T>&& TakeOwnedBuffer() && { return std::move(owned_buffer_); }
+
   [[nodiscard]] bool Grow(size_t size) override {
     owned_buffer_.resize(size);
     buffer_ = owned_buffer_.data();
@@ -31,8 +38,14 @@ class TACHYON_EXPORT VectorBuffer : public Buffer {
   }
 
  protected:
-  std::vector<char> owned_buffer_;
+  std::vector<T> owned_buffer_;
 };
+
+using CharVectorBuffer = VectorBuffer<char>;
+using Uint8VectorBuffer = VectorBuffer<uint8_t>;
+
+extern template class TACHYON_EXPORT VectorBuffer<char>;
+extern template class TACHYON_EXPORT VectorBuffer<uint8_t>;
 
 }  // namespace tachyon::base
 

@@ -54,7 +54,7 @@ TEST(BufferTest, Write) {
   std::array<int, 4> kIntArray = {8, 9, 10, 11};
 
   for (Endian endian : {Endian::kNative, Endian::kBig, Endian::kLittle}) {
-    VectorBuffer write_buf;
+    Uint8VectorBuffer write_buf;
     write_buf.set_endian(endian);
     ASSERT_TRUE(write_buf.Write(kCharValue));
     ASSERT_TRUE(write_buf.Write(kIntValue));
@@ -106,7 +106,7 @@ TEST(BufferTest, WriteMany) {
   std::array<int, 4> kIntArray = {8, 9, 10, 11};
 
   for (Endian endian : {Endian::kNative, Endian::kBig, Endian::kLittle}) {
-    VectorBuffer write_buf;
+    Uint8VectorBuffer write_buf;
     write_buf.set_endian(endian);
     ASSERT_TRUE(write_buf.WriteMany(kCharValue, kIntValue, kBooleanValue,
                                     kCharPtrValue, kStringValue,

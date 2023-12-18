@@ -40,7 +40,7 @@ class ProverTest : public testing::Test {
     PCS pcs;
     ASSERT_TRUE(pcs.UnsafeSetup(kMaxDomainSize));
 
-    base::VectorBuffer write_buf;
+    base::Uint8VectorBuffer write_buf;
     std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer =
         std::make_unique<Blake2bWriter<Commitment>>(std::move(write_buf));
 

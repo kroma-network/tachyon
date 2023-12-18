@@ -27,7 +27,7 @@ class Blake2bTranscriptTest : public testing::Test {
 }  // namespace
 
 TEST_F(Blake2bTranscriptTest, WritePoint) {
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   Blake2bWriter<G1AffinePoint> writer(std::move(write_buf));
   G1AffinePoint expected = G1AffinePoint::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
@@ -41,7 +41,7 @@ TEST_F(Blake2bTranscriptTest, WritePoint) {
 }
 
 TEST_F(Blake2bTranscriptTest, WriteScalar) {
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   Blake2bWriter<G1AffinePoint> writer(std::move(write_buf));
   Fr expected = Fr::Random();
   ASSERT_TRUE(writer.WriteToProof(expected));
@@ -55,7 +55,7 @@ TEST_F(Blake2bTranscriptTest, WriteScalar) {
 }
 
 TEST_F(Blake2bTranscriptTest, SqueezeChallenge) {
-  base::VectorBuffer write_buf;
+  base::Uint8VectorBuffer write_buf;
   Blake2bWriter<G1AffinePoint> writer(std::move(write_buf));
   G1AffinePoint generator = G1AffinePoint::Generator();
   ASSERT_TRUE(writer.WriteToProof(generator));
