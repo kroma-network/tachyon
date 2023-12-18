@@ -86,7 +86,7 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
     y_.DoubleInPlace();
     BaseField lefts[] = {std::move(r), y_};
     BaseField rights[] = {std::move(v), std::move(j)};
-    y_ = BaseField::SumOfProducts(lefts, rights);
+    y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
     // Z3 = ((Z1 + Z2)² - Z1Z1 - Z2Z2) * H
     // This is equal to Z3 = 2 * Z1 * Z2 * H, and computing it this way is
@@ -159,7 +159,7 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
     // Y3 = r * (V - X3) + 2 * Y1 * J
     BaseField lefts[] = {std::move(r), y_.Double()};
     BaseField rights[] = {v - x_, std::move(j)};
-    y_ = BaseField::SumOfProducts(lefts, rights);
+    y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
     // Z3 = 2 * Z1 * H;
     // Can alternatively be computed as (Z1 + H)² - Z1Z1 - HH, but the latter is
