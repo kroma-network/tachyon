@@ -7,7 +7,11 @@ tachyon_cc_library(
     hdrs = ["selector_replacer.h"],
     deps = [
         "//tachyon/zk/expressions:evaluator",
+        "//tachyon/zk/expressions:negated_expression",
+        "//tachyon/zk/expressions:product_expression",
+        "//tachyon/zk/expressions:scaled_expression",
         "//tachyon/zk/expressions:selector_expression",
+        "//tachyon/zk/expressions:sum_expression",
     ],
 )
 
