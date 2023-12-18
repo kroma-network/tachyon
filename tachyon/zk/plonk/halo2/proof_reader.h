@@ -8,6 +8,7 @@
 #include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/zk/plonk/halo2/proof.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
+#include "tachyon/zk/plonk/permutation/permutation_utils.h"
 
 namespace tachyon::zk::halo2 {
 
@@ -105,7 +106,8 @@ class ProofReader {
     CHECK_EQ(cursor_, ProofCursor::kPermutationProductCommitments);
     const ConstraintSystem<F>& constraint_system =
         verifying_key_.constraint_system();
-    size_t chunk_len = constraint_system.ComputeDegree() - 2;
+    size_t chunk_len =
+        ComputePermutationChunkLength(constraint_system.ComputeDegree());
     size_t num_products =
         (constraint_system.permutation().columns().size() + chunk_len - 1) /
         chunk_len;

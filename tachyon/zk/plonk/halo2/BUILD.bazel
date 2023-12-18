@@ -92,6 +92,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/zk/plonk/keys:verifying_key",
+        "//tachyon/zk/plonk/permutation:permutation_utils",
     ],
 )
 

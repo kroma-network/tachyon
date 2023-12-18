@@ -17,6 +17,7 @@
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/permutation_table_store.h"
+#include "tachyon/zk/plonk/permutation/permutation_utils.h"
 #include "tachyon/zk/plonk/permutation/permuted_table.h"
 #include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 
@@ -36,14 +37,14 @@ PermutationArgumentRunner<Poly, Evals>::CommitArgument(
   // 3 circuit for the permutation argument.
   CHECK_GE(constraint_system_degree, argument.RequiredDegree());
 
-  size_t chunk_size = constraint_system_degree - 2;
-  size_t chunk_num = (argument.columns().size() + chunk_size - 1) / chunk_size;
+  size_t chunk_len = ComputePermutationChunkLength(constraint_system_degree);
+  size_t chunk_num = (argument.columns().size() + chunk_len - 1) / chunk_len;
 
   UnpermutedTable<Evals> unpermuted_table = UnpermutedTable<Evals>::Construct(
       argument.columns().size(), prover->pcs().N(), prover->domain());
   PermutedTable<Evals> permuted_table(&permutation_proving_key.permutations());
   PermutationTableStore<Evals> table_store(
-      argument.columns(), table, permuted_table, unpermuted_table, chunk_size);
+      argument.columns(), table, permuted_table, unpermuted_table, chunk_len);
 
   std::vector<BlindedPolynomial<Poly>> grand_product_polys;
   grand_product_polys.reserve(chunk_num);

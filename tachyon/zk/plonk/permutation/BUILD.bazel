@@ -51,6 +51,7 @@ tachyon_cc_library(
         ":permutation_evaluated",
         ":permutation_proving_key",
         ":permutation_table_store",
+        ":permutation_utils",
         "//tachyon/zk/base:prover_query",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/circuit:rotation",
@@ -95,6 +96,12 @@ tachyon_cc_library(
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",
     ],
+)
+
+tachyon_cc_library(
+    name = "permutation_utils",
+    hdrs = ["permutation_utils.h"],
+    deps = ["//tachyon/base/numerics:checked_math"],
 )
 
 tachyon_cc_library(
