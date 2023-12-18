@@ -94,8 +94,10 @@ class VectorCommitmentScheme {
 
   // Verify an opening |proof| that proves that |members| belong to a
   // |commitment|.
+  // NOTE(chokobole): const was removed from |Commitment| since it can be a
+  // |Transcript|. At this moment, |WriteToTranscript()| is not a const method.
   template <typename ContainerTy, typename Proof>
-  [[nodiscard]] bool VerifyOpeningProof(const Commitment& commitment,
+  [[nodiscard]] bool VerifyOpeningProof(Commitment& commitment,
                                         const ContainerTy& members,
                                         const Proof& proof) const {
     const Derived* derived = static_cast<const Derived*>(this);

@@ -161,6 +161,8 @@ class TranscriptWriterImpl<Commitment, false> : public Transcript<Commitment> {
   base::Uint8VectorBuffer& buffer() { return buffer_; }
   const base::Uint8VectorBuffer& buffer() const { return buffer_; }
 
+  base::Uint8VectorBuffer&& TakeBuffer() && { return std::move(buffer_); }
+
   // Write a |commitment| to the proof. Note that it also writes the
   // |commitment| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool WriteToProof(const Commitment& commitment) {
@@ -195,6 +197,8 @@ class TranscriptWriterImpl<Field, true> : public Transcript<Field> {
 
   base::Uint8VectorBuffer& buffer() { return buffer_; }
   const base::Uint8VectorBuffer& buffer() const { return buffer_; }
+
+  base::Uint8VectorBuffer&& TakeBuffer() && { return std::move(buffer_); }
 
   // Write a |value| to the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.

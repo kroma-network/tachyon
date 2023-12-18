@@ -107,7 +107,8 @@ TEST_F(BinaryMerkleTreeTest, CommitAndVerify) {
   };
   EXPECT_EQ(proof, expected_proof);
 
-  ASSERT_TRUE(vcs_.VerifyOpeningProof(commitment, 1, proof));
+  int leaf_hash = hasher_.ComputeLeafHash(1);
+  ASSERT_TRUE(vcs_.VerifyOpeningProof(commitment, leaf_hash, proof));
 }
 
 }  // namespace tachyon::crypto

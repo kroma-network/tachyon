@@ -108,9 +108,9 @@ class BinaryMerkleTree
   }
 
   [[nodiscard]] bool DoVerifyOpeningProof(
-      const HashTy& root, const LeafTy& leaf,
+      const HashTy& root, const HashTy& leaf_hash,
       const BinaryMerkleProof<HashTy>& proof) const {
-    HashTy hash = hasher_->ComputeLeafHash(leaf);
+    HashTy hash = leaf_hash;
     for (const BinaryMerklePath<HashTy>& path : proof.paths) {
       if (path.left) {
         hash = hasher_->ComputeParentHash(path.hash, hash);
