@@ -144,6 +144,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "owned_table",
+    hdrs = ["owned_table.h"],
+    deps = [":table_base"],
+)
+
+tachyon_cc_library(
     name = "phase",
     hdrs = ["phase.h"],
     deps = [
