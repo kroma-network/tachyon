@@ -7,3 +7,15 @@ tachyon_cc_library(
     hdrs = ["measurement_pass.h"],
     deps = ["//tachyon/zk/plonk/circuit:region_shape"],
 )
+
+tachyon_cc_library(
+    name = "v1_plan",
+    hdrs = ["v1_plan.h"],
+    deps = [
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk/circuit:assignment",
+        "//tachyon/zk/plonk/circuit:cell",
+        "//tachyon/zk/plonk/circuit:lookup_table_column",
+        "//tachyon/zk/plonk/circuit/floor_planner:constant",
+    ],
+)
