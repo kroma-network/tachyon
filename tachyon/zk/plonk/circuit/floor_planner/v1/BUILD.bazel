@@ -1,0 +1,9 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "measurement_pass",
+    hdrs = ["measurement_pass.h"],
+    deps = ["//tachyon/zk/plonk/circuit:region_shape"],
+)
