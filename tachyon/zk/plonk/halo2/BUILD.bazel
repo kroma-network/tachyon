@@ -85,6 +85,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "proof_reader",
+    hdrs = ["proof_reader.h"],
+    deps = [
+        ":proof",
+        "//tachyon/base:logging",
+        "//tachyon/crypto/transcripts:transcript",
+        "//tachyon/zk/plonk/keys:verifying_key",
+    ],
+)
+
+tachyon_cc_library(
     name = "proof_serializer",
     hdrs = ["proof_serializer.h"],
     deps = [
