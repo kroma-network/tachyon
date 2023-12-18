@@ -79,6 +79,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "proof",
+    hdrs = ["proof.h"],
+    deps = ["//tachyon/zk/lookup:lookup_pair"],
+)
+
+tachyon_cc_library(
     name = "proof_serializer",
     hdrs = ["proof_serializer.h"],
     deps = [
