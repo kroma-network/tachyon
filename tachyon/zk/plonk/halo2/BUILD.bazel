@@ -110,6 +110,7 @@ tachyon_cc_library(
     hdrs = ["prover.h"],
     deps = [
         ":random_field_generator",
+        ":verifier",
         "//tachyon/zk/base/entities:prover_base",
     ],
 )
@@ -150,6 +151,19 @@ tachyon_cc_library(
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/math/base:big_int",
         "@com_google_boringssl//:crypto",
+    ],
+)
+
+tachyon_cc_library(
+    name = "verifier",
+    hdrs = ["verifier.h"],
+    deps = [
+        ":proof_reader",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/base/entities:verifier_base",
+        "//tachyon/zk/plonk/keys:verifying_key",
+        "@com_google_absl//absl/functional:bind_front",
+        "@com_google_googletest//:gtest_prod",
     ],
 )
 
