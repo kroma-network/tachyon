@@ -30,8 +30,8 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
   // |SumOfProductsSerial| for all call sites, it gets stuck when doing
   // unittests. I think we need a some general threshold to check whether it is
   // good to doing parallelization.
-  template <typename Container>
-  constexpr static F SumOfProducts(const Container& a, const Container& b) {
+  template <typename ContainerA, typename ContainerB>
+  constexpr static F SumOfProducts(const ContainerA& a, const ContainerB& b) {
     size_t size = std::size(a);
     CHECK_EQ(size, std::size(b));
     CHECK_NE(size, size_t{0});
@@ -52,9 +52,9 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
                            });
   }
 
-  template <typename Container>
-  constexpr static F SumOfProductsSerial(const Container& a,
-                                         const Container& b) {
+  template <typename ContainerA, typename ContainerB>
+  constexpr static F SumOfProductsSerial(const ContainerA& a,
+                                         const ContainerB& b) {
     size_t size = std::size(a);
     CHECK_EQ(size, std::size(b));
     CHECK_NE(size, size_t{0});
@@ -62,9 +62,9 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
   }
 
  private:
-  template <typename Container>
-  constexpr static F DoSumOfProductsSerial(const Container& a,
-                                           const Container& b) {
+  template <typename ContainerA, typename ContainerB>
+  constexpr static F DoSumOfProductsSerial(const ContainerA& a,
+                                           const ContainerB& b) {
     size_t n = std::size(a);
     F sum = F::Zero();
     for (size_t i = 0; i < n; ++i) {

@@ -19,15 +19,15 @@ template <typename F>
 class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
  public:
   // Sum of products: a₁ * b₁ + a₂ * b₂ + ... + aₙ * bₙ
-  template <typename Container>
-  constexpr static F SumOfProducts(const Container& a, const Container& b) {
+  template <typename ContainerA, typename ContainerB>
+  constexpr static F SumOfProducts(const ContainerA& a, const ContainerB& b) {
     return Ring<F>::SumOfProducts(a, b);
   }
 
   // Sum of products: a₁ * b₁ + a₂ * b₂ + ... + aₙ * bₙ
-  template <typename Container>
-  constexpr static F SumOfProductsSerial(const Container& a,
-                                         const Container& b) {
+  template <typename ContainerA, typename ContainerB>
+  constexpr static F SumOfProductsSerial(const ContainerA& a,
+                                         const ContainerB& b) {
     return Ring<F>::SumOfProductsSerial(a, b);
   }
 };
