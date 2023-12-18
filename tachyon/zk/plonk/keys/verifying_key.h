@@ -56,7 +56,7 @@ class VerifyingKey : public Key<PCSTy> {
 
   // Return true if it is able to load from an instance of |circuit|.
   template <typename CircuitTy>
-  [[nodiscard]] bool Load(Entity<PCSTy>* entity, const CircuitTy& circuit) {
+  [[nodiscard]] bool Load(Entity<PCSTy>* entity, CircuitTy& circuit) {
     PreLoadResult result;
     if (!this->PreLoad(entity, circuit, &result)) return false;
     return DoLoad(entity, std::move(result), nullptr);

@@ -41,7 +41,7 @@ class ProvingKey : public Key<PCSTy> {
 
   // Return true if it is able to load from an instance of |circuit|.
   template <typename CircuitTy>
-  [[nodiscard]] bool Load(ProverBase<PCSTy>* prover, const CircuitTy& circuit) {
+  [[nodiscard]] bool Load(ProverBase<PCSTy>* prover, CircuitTy& circuit) {
     PreLoadResult pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     VerifyingKeyLoadResult vk_result;
@@ -54,7 +54,7 @@ class ProvingKey : public Key<PCSTy> {
   // |verifying_key|.
   template <typename CircuitTy>
   [[nodiscard]] bool LoadWithVerifyingKey(ProverBase<PCSTy>* prover,
-                                          const CircuitTy& circuit,
+                                          CircuitTy& circuit,
                                           VerifyingKey<PCSTy>&& verifying_key) {
     PreLoadResult pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;

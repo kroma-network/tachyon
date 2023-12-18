@@ -173,8 +173,8 @@ TEST_F(SimpleCircuitTest, Synthesize) {
   F a(2);
   F b(3);
   SimpleCircuit<F> circuit(constant, a, b);
-  SimpleCircuit<F>::FloorPlanner::Synthesize(
-      &assembly, circuit, std::move(config), constraint_system.constants());
+  circuit.floor_planner().Synthesize(&assembly, circuit, std::move(config),
+                                     constraint_system.constants());
 
   std::vector<RationalEvals> expected_fixed_columns;
   RationalEvals evals = domain->Empty<RationalEvals>();
