@@ -23,16 +23,13 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
     ProverBase<PCSTy>* prover, const LookupArgument<F>& argument,
     const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl) {
   // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
-  Evals compressed_input_expression;
-  CHECK(CompressExpressions(prover->domain(), argument.input_expressions(),
-                            theta, evaluator_tpl,
-                            &compressed_input_expression));
+  Evals compressed_input_expression = CompressExpressions(
+      prover->domain(), argument.input_expressions(), theta, evaluator_tpl);
 
   // S_compressed(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
-  Evals compressed_table_expression;
-  CHECK(CompressExpressions(prover->domain(), argument.table_expressions(),
-                            theta, evaluator_tpl,
-                            &compressed_table_expression));
+  Evals compressed_table_expression =
+      CompressExpressions(prover->domain(), argument.table_expressions(), theta,
+                          evaluator_tpl, &compressed_table_expression);
 
   // Permute compressed (InputExpression, TableExpression) pair.
   LookupPair<Evals> compressed_evals_pair(
