@@ -22,12 +22,12 @@
 namespace tachyon::zk {
 
 // The |UnpermutedTable| contains elements that are the product-of-powers
-// of 𝛿 and w (called "label"). And each permutation polynomial (in evaluation
+// of δ and ω (called "label"). And each permutation polynomial (in evaluation
 // form) is constructed by assigning elements in the |UnpermutedTable|.
 //
 // Let modulus = 2ˢ * T + 1, then
 // |UnpermutedTable|
-// = [[𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] for i in range(0..T-1)]
+// = [[δⁱω⁰, δⁱω¹, δⁱω², ..., δⁱωⁿ⁻¹] for i in range(0..T-1)]
 template <typename Evals>
 class UnpermutedTable {
  public:
@@ -61,19 +61,19 @@ class UnpermutedTable {
   template <typename Domain>
   static UnpermutedTable Construct(size_t cols, size_t rows,
                                    const Domain* domain) {
-    // The w is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
+    // The ω is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
     std::vector<F> omega_powers =
         domain->GetRootsOfUnity(rows, domain->group_gen());
 
-    // The 𝛿 is g^2ˢ with order T where modulus = 2ˢ * T + 1.
+    // The δ is g^2ˢ with order T where modulus = 2ˢ * T + 1.
     F delta = GetDelta();
 
     Table unpermuted_table;
     unpermuted_table.reserve(cols);
-    // Assign [𝛿⁰w⁰, 𝛿⁰w¹, 𝛿⁰w², ..., 𝛿⁰wⁿ⁻¹] to the first col.
+    // Assign [δ⁰ω⁰, δ⁰ω¹, δ⁰ω², ..., δ⁰ωⁿ⁻¹] to the first col.
     unpermuted_table.push_back(Evals(std::move(omega_powers)));
 
-    // Assign [𝛿ⁱw⁰, 𝛿ⁱw¹, 𝛿ⁱw², ..., 𝛿ⁱwⁿ⁻¹] to each col.
+    // Assign [δⁱω⁰, δⁱω¹, δⁱω², ..., δⁱωⁿ⁻¹] to each col.
     for (size_t i = 1; i < cols; ++i) {
       std::vector<F> col = base::CreateVector(rows, F::Zero());
       // TODO(dongchangYoo): Optimize this with
@@ -86,7 +86,7 @@ class UnpermutedTable {
     return UnpermutedTable(std::move(unpermuted_table));
   }
 
-  // Calculate 𝛿 = g^2ˢ with order T (i.e., T-th root of unity),
+  // Calculate δ = g^2ˢ with order T (i.e., T-th root of unity),
   // where T = F::Config::kTrace.
   constexpr static F GetDelta() {
     // NOTE(chokobole): The resulting value is different from the one in
