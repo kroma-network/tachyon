@@ -19,6 +19,7 @@
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/plonk/halo2/proof_reader.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
+#include "tachyon/zk/plonk/permutation/permutation_verification.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verification_evaluator.h"
 
 namespace tachyon::zk::halo2 {
@@ -258,9 +259,23 @@ class Verifier : public VerifierBase<PCSTy> {
   F ComputeExpectedHEval(size_t num_circuits, const VerifyingKey<PCSTy>& vkey,
                          const Proof<F, Commitment>& proof) {
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
+    size_t blinding_factors = constraint_system.ComputeBlindingFactors();
+    std::vector<F> l_evals = this->domain_->EvaluatePartialLagrangeCoefficients(
+        proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
+                             /*IsEndInclusive=*/true>(
+                     -static_cast<int32_t>(blinding_factors + 1), 0));
+    const F& l_first = l_evals[1 + blinding_factors];
+    F l_blind = std::accumulate(
+        l_evals.begin() + 1, l_evals.begin() + 1 + blinding_factors, F::Zero(),
+        [](F& acc, const F& eval) { return acc += eval; });
+    const F& l_last = l_evals[0];
+
     std::vector<F> expressions;
     const std::vector<Gate<F>>& gates = constraint_system.gates();
-    expressions.reserve(num_circuits * gates.size());
+    expressions.reserve(
+        num_circuits *
+        (gates.size() +
+         GetSizeOfPermutationVerificationExpressions(constraint_system)));
     for (size_t i = 0; i < num_circuits; ++i) {
       VanishingVerificationEvaluator<F> vanishing_verification_evaluator(
           proof.ToVanishingVerificationData(i));
@@ -270,6 +285,15 @@ class Verifier : public VerifierBase<PCSTy> {
               poly->Evaluate(&vanishing_verification_evaluator));
         }
       }
+
+      std::vector<F> permutation_expressions =
+          CreatePermutationVerificationExpressions(
+              proof.ToPermutationVerificationData(i, l_first, l_blind, l_last),
+              constraint_system);
+      expressions.insert(
+          expressions.end(),
+          std::make_move_iterator(permutation_expressions.begin()),
+          std::make_move_iterator(permutation_expressions.end()));
     }
     const F& y = proof.y;
     F expected_h_eval =

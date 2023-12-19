@@ -109,6 +109,24 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "permutation_verification_data",
+    hdrs = ["permutation_verification_data.h"],
+    deps = ["//tachyon/zk/plonk/vanishing:vanishing_verification_data"],
+)
+
+tachyon_cc_library(
+    name = "permutation_verification",
+    hdrs = ["permutation_verification.h"],
+    deps = [
+        ":permutation_utils",
+        ":permutation_verification_data",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/zk/plonk:constraint_system",
+    ],
+)
+
+tachyon_cc_library(
     name = "permutation_verifying_key",
     hdrs = ["permutation_verifying_key.h"],
     deps = [

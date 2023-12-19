@@ -166,9 +166,11 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Almost same with above, but it only computes parts of the lagrange
   // coefficients defined by |range|.
-  template <typename T>
+  // TODO(chokobole): If we want to accept IsStartInclusive as a template
+  // parameter, we need a way to get a starting index from |range|.
+  template <typename T, bool IsEndInclusive>
   constexpr std::vector<F> EvaluatePartialLagrangeCoefficients(
-      const F& tau, base::Range<T> range) const {
+      const F& tau, base::Range<T, true, IsEndInclusive> range) const {
     size_t size = range.GetSize();
     CHECK_LE(size, size_);
     if (size == 0) return {};
