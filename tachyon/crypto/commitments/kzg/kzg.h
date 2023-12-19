@@ -73,12 +73,12 @@ class KZG {
 
     // Get |g1_powers_of_tau_lagrange_| from 𝜏 and g₁.
     std::unique_ptr<DomainTy> domain = DomainTy::Create(size);
-    typename DomainTy::DenseCoeffs lagrange_coeffs =
+    std::vector<Field> lagrange_coeffs =
         domain->EvaluateAllLagrangeCoefficients(tau);
     std::vector<G1JacobianPointTy> g1_powers_of_tau_lagrange_jacobian;
 
     g1_powers_of_tau_lagrange_jacobian.resize(size);
-    if (!G1PointTy::MultiScalarMul(lagrange_coeffs.coefficients(), g1,
+    if (!G1PointTy::MultiScalarMul(lagrange_coeffs, g1,
                                    &g1_powers_of_tau_lagrange_jacobian)) {
       return false;
     }
