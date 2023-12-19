@@ -158,7 +158,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // is computed in time O(m). Then given the evaluations of a degree d
   // polynomial P over H, where d < m, P(𝜏) can be computed as P(𝜏) =
   // Σ{i in m} Lᵢ_H(𝜏) * P(gⁱ).
-  constexpr DenseCoeffs EvaluateAllLagrangeCoefficients(const F& tau) const {
+  constexpr std::vector<F> EvaluateAllLagrangeCoefficients(const F& tau) const {
     // Evaluate all Lagrange polynomials at 𝜏 to get the lagrange
     // coefficients.
     //
@@ -183,7 +183,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
         }
         omega_i *= group_gen_;
       }
-      return DenseCoeffs(std::move(u));
+      return u;
     } else {
       // In this case we have to compute Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
       // for i in 0..|size_|. We actually compute this by computing
@@ -219,7 +219,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       // and return these
       // Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
       F::BatchInverseInPlace(lagrange_coefficients_inverse);
-      return DenseCoeffs(std::move(lagrange_coefficients_inverse));
+      return lagrange_coefficients_inverse;
     }
   }
 

@@ -182,7 +182,6 @@ TYPED_TEST(UnivariateEvaluationDomainTest, NonSystematicLagrangeCoefficients) {
   using F = typename UnivariateEvaluationDomainType::Field;
   using BaseUnivariateEvaluationDomainType =
       UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
-  using DenseCoeffs = typename UnivariateEvaluationDomainType::DenseCoeffs;
   using DensePoly = typename UnivariateEvaluationDomainType::DensePoly;
   using Evals = typename UnivariateEvaluationDomainType::Evals;
 
@@ -194,7 +193,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, NonSystematicLagrangeCoefficients) {
     this->TestDomains(
         domain_size, [domain_size, &rand_pt, &rand_poly, &actual_eval](
                          const BaseUnivariateEvaluationDomainType& d) {
-          DenseCoeffs lagrange_coeffs =
+          std::vector<F> lagrange_coeffs =
               d.EvaluateAllLagrangeCoefficients(rand_pt);
 
           Evals poly_evals = d.FFT(rand_poly);
@@ -203,7 +202,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, NonSystematicLagrangeCoefficients) {
           // evaluation
           F interpolated_eval = F::Zero();
           for (size_t i = 0; i < domain_size; ++i) {
-            interpolated_eval += (*lagrange_coeffs[i]) * (*poly_evals[i]);
+            interpolated_eval += lagrange_coeffs[i] * (*poly_evals[i]);
           }
           EXPECT_EQ(actual_eval, interpolated_eval);
         });
@@ -216,7 +215,6 @@ TYPED_TEST(UnivariateEvaluationDomainTest, SystematicLagrangeCoefficients) {
   // low. We generate lagrange coefficients for each element in the domain.
   using UnivariateEvaluationDomainType = TypeParam;
   using F = typename UnivariateEvaluationDomainType::Field;
-  using DenseCoeffs = typename UnivariateEvaluationDomainType::DenseCoeffs;
   using BaseUnivariateEvaluationDomainType =
       UnivariateEvaluationDomain<F, UnivariateEvaluationDomainType::kMaxDegree>;
 
@@ -227,15 +225,15 @@ TYPED_TEST(UnivariateEvaluationDomainTest, SystematicLagrangeCoefficients) {
         [domain_size](const BaseUnivariateEvaluationDomainType& d) {
           for (size_t i = 0; i < domain_size; ++i) {
             F x = d.GetElement(i);
-            DenseCoeffs lagrange_coeffs = d.EvaluateAllLagrangeCoefficients(x);
+            std::vector<F> lagrange_coeffs =
+                d.EvaluateAllLagrangeCoefficients(x);
             for (size_t j = 0; j < domain_size; ++j) {
               // Lagrange coefficient for the evaluation point,
               // which should be 1 if i == j
               if (i == j) {
-                EXPECT_TRUE(lagrange_coeffs[j]->IsOne());
+                EXPECT_TRUE(lagrange_coeffs[j].IsOne());
               } else {
-                EXPECT_TRUE(lagrange_coeffs[j] == nullptr ||
-                            lagrange_coeffs[j]->IsZero());
+                EXPECT_TRUE(lagrange_coeffs[j].IsZero());
               }
             }
           }
