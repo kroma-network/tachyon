@@ -651,8 +651,8 @@ TEST_F(SimpleCircuitTest, Verify) {
       std::move(instance_columns)};
 
   Proof<F, Commitment> proof;
-  ASSERT_TRUE(
-      verifier->VerifyProofForTesting(vkey, instance_columns_vec, &proof));
+  ASSERT_TRUE(verifier->VerifyProofForTesting(vkey, instance_columns_vec,
+                                              &proof, nullptr));
 
   std::vector<std::vector<Commitment>> expected_advice_commitments_vec;
   {

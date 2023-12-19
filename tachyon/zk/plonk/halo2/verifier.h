@@ -8,6 +8,7 @@
 #define TACHYON_ZK_PLONK_HALO2_VERIFIER_H_
 
 #include <functional>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -18,6 +19,7 @@
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/plonk/halo2/proof_reader.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_verification_evaluator.h"
 
 namespace tachyon::zk::halo2 {
 
@@ -35,7 +37,7 @@ class Verifier : public VerifierBase<PCSTy> {
   [[nodiscard]] bool VerifyProof(
       const VerifyingKey<PCSTy>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
-    return VerifyProofForTesting(vkey, instance_columns_vec, nullptr);
+    return VerifyProofForTesting(vkey, instance_columns_vec, nullptr, nullptr);
   }
 
  private:
@@ -45,7 +47,7 @@ class Verifier : public VerifierBase<PCSTy> {
   bool VerifyProofForTesting(
       const VerifyingKey<PCSTy>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec,
-      Proof<F, Commitment>* proof_out) {
+      Proof<F, Commitment>* proof_out, F* expected_h_eval_out) {
     if (!ValidateInstanceColumnsVec(vkey, instance_columns_vec)) return false;
 
     std::vector<std::vector<Commitment>> instance_commitments_vec;
@@ -93,6 +95,12 @@ class Verifier : public VerifierBase<PCSTy> {
 
     if (proof_out) {
       *proof_out = proof;
+    }
+
+    F expected_h_eval =
+        ComputeExpectedHEval(instance_columns_vec.size(), vkey, proof);
+    if (expected_h_eval_out) {
+      *expected_h_eval_out = expected_h_eval;
     }
     return true;
   }
@@ -245,6 +253,32 @@ class Verifier : public VerifierBase<PCSTy> {
                            instance_columns, instance_queries,
                            partial_lagrange_coeffs, range.max);
                      });
+  }
+
+  F ComputeExpectedHEval(size_t num_circuits, const VerifyingKey<PCSTy>& vkey,
+                         const Proof<F, Commitment>& proof) {
+    const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
+    std::vector<F> expressions;
+    const std::vector<Gate<F>>& gates = constraint_system.gates();
+    expressions.reserve(num_circuits * gates.size());
+    for (size_t i = 0; i < num_circuits; ++i) {
+      VanishingVerificationEvaluator<F> vanishing_verification_evaluator(
+          proof.ToVanishingVerificationData(i));
+      for (const Gate<F>& gate : gates) {
+        for (const std::unique_ptr<Expression<F>>& poly : gate.polys()) {
+          expressions.push_back(
+              poly->Evaluate(&vanishing_verification_evaluator));
+        }
+      }
+    }
+    const F& y = proof.y;
+    F expected_h_eval =
+        std::accumulate(expressions.begin(), expressions.end(), F::Zero(),
+                        [&y](F& h_eval, const F& expression) {
+                          h_eval *= y;
+                          return h_eval += expression;
+                        });
+    return expected_h_eval /= (proof.x.Pow(this->pcs_.N()) - F::One());
   }
 };
 

@@ -154,6 +154,31 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "vanishing_verification_data",
+    hdrs = ["vanishing_verification_data.h"],
+    deps = ["@com_google_absl//absl/types:span"],
+)
+
+tachyon_cc_library(
+    name = "vanishing_verification_evaluator",
+    hdrs = ["vanishing_verification_evaluator.h"],
+    deps = [
+        ":vanishing_verification_data",
+        "//tachyon/zk/expressions:advice_expression",
+        "//tachyon/zk/expressions:challenge_expression",
+        "//tachyon/zk/expressions:constant_expression",
+        "//tachyon/zk/expressions:evaluator",
+        "//tachyon/zk/expressions:fixed_expression",
+        "//tachyon/zk/expressions:instance_expression",
+        "//tachyon/zk/expressions:negated_expression",
+        "//tachyon/zk/expressions:product_expression",
+        "//tachyon/zk/expressions:scaled_expression",
+        "//tachyon/zk/expressions:selector_expression",
+        "//tachyon/zk/expressions:sum_expression",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "vanishing_unittests",
     srcs = [
