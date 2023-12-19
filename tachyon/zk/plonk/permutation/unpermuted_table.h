@@ -15,9 +15,8 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/range.h"
 #include "tachyon/base/ref.h"
-// TODO(chokobole): Remove this header. See comment in |GetDelta()| below.
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/zk/plonk/permutation/label.h"
+#include "tachyon/zk/plonk/permutation/permutation_utils.h"
 
 namespace tachyon::zk {
 
@@ -66,7 +65,7 @@ class UnpermutedTable {
         domain->GetRootsOfUnity(rows, domain->group_gen());
 
     // The δ is g^2ˢ with order T where modulus = 2ˢ * T + 1.
-    F delta = GetDelta();
+    F delta = GetDelta<F>();
 
     Table unpermuted_table;
     unpermuted_table.reserve(cols);
@@ -86,29 +85,7 @@ class UnpermutedTable {
     return UnpermutedTable(std::move(unpermuted_table));
   }
 
-  // Calculate δ = g^2ˢ with order T (i.e., T-th root of unity),
-  // where T = F::Config::kTrace.
-  constexpr static F GetDelta() {
-    // NOTE(chokobole): The resulting value is different from the one in
-    // https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/bn256/fr.rs#L101-L110.
-    // This is an ugly way to produce a same result with Halo2Curves but we will
-    // remove once we don't have to match it against Halo2 any longer in the
-    // future.
-    if constexpr (std::is_same_v<F, math::bn254::Fr>) {
-      return F::FromMontgomery(math::BigInt<4>(
-          {UINT64_C(11100302345850292309), UINT64_C(5109383341788583484),
-           UINT64_C(6450182039226333095), UINT64_C(2498166472155664813)}));
-    } else {
-      F g = F::FromMontgomery(F::Config::kSubgroupGenerator);
-      F adicity = F(2).Pow(F::Config::kTwoAdicity);
-      return g.Pow(adicity.ToBigInt());
-    }
-  }
-
  private:
-  FRIEND_TEST(UnpermutedTableTest, Construct);
-  FRIEND_TEST(UnpermutedTableTest, GetColumns);
-
   explicit UnpermutedTable(Table table) : table_(std::move(table)) {}
 
   Table table_;

@@ -101,7 +101,11 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "permutation_utils",
     hdrs = ["permutation_utils.h"],
-    deps = ["//tachyon/base/numerics:checked_math"],
+    deps = [
+        # TODO(chokobole): Remove this dependency once fixing issue specified in permutation_utils.h.
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/base/numerics:checked_math",
+    ],
 )
 
 tachyon_cc_library(
@@ -154,12 +158,10 @@ tachyon_cc_library(
     hdrs = ["unpermuted_table.h"],
     deps = [
         ":label",
+        ":permutation_utils",
         "//tachyon/base:range",
         "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
-        # TODO(chokobole): Remove this dependency once fixing issue specified in unpermuted_table.h.
-        "//tachyon/math/elliptic_curves/bn/bn254:fr",
-        "@com_google_googletest//:gtest_prod",
     ],
 )
 
@@ -171,6 +173,7 @@ tachyon_cc_unittest(
         "permutation_assembly_unittest.cc",
         "permutation_proving_key_unittest.cc",
         "permutation_table_store_unittest.cc",
+        "permutation_utils_unittest.cc",
         "permutation_verifying_key_unittest.cc",
         "unpermuted_table_unittest.cc",
     ],
@@ -179,6 +182,7 @@ tachyon_cc_unittest(
         ":permutation_assembly",
         ":permutation_table_store",
         "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
         "//tachyon/zk/plonk/halo2:prover_test",
     ],
 )
