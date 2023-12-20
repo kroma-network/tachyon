@@ -28,6 +28,7 @@
 #include "tachyon/zk/plonk/circuit/selector_compressor.h"
 #include "tachyon/zk/plonk/circuit/virtual_cells.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
+#include "tachyon/zk/plonk/permutation/permutation_utils.h"
 
 namespace tachyon::zk {
 
@@ -500,6 +501,17 @@ class ConstraintSystem {
            // permutation polynomial between the roles of l_last, l_first
            // and the interstitial values.)
            + 1;  // for at least one row
+  }
+
+  // Return the length of permutation chunk.
+  size_t ComputePermutationChunkLen() const {
+    return ComputePermutationChunkLength(ComputeDegree());
+  }
+
+  // Return the number of permutation products.
+  size_t ComputePermutationProductNums() const {
+    size_t chunk_len = ComputePermutationChunkLen();
+    return (permutation_.columns().size() + chunk_len - 1) / chunk_len;
   }
 
  private:
