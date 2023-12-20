@@ -16,6 +16,7 @@
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/lookup/lookup_verification.h"
 #include "tachyon/zk/plonk/halo2/proof_reader.h"
@@ -33,6 +34,7 @@ class Verifier : public VerifierBase<PCS> {
   using Evals = typename PCS::Evals;
   using Poly = typename PCS::Poly;
   using Coefficients = typename Poly::Coefficients;
+  using Opening = crypto::PolynomialOpening<Poly, Commitment>;
 
   using VerifierBase<PCS>::VerifierBase;
 
@@ -106,7 +108,7 @@ class Verifier : public VerifierBase<PCS> {
     if (expected_h_eval_out) {
       *expected_h_eval_out = expected_h_eval;
     }
-    return true;
+    return DoVerify(instance_commitments_vec, vkey, proof);
   }
 
   bool ValidateInstanceColumnsVec(
@@ -313,6 +315,71 @@ class Verifier : public VerifierBase<PCS> {
     F expected_h_eval =
         F::template LinearCombination</*forward=*/true>(expressions, proof.y);
     return expected_h_eval /= (proof.x.Pow(this->pcs_.N()) - F::One());
+  }
+
+  size_t GetSizeOfAdviceInstanceColumnQueries(
+      const ConstraintSystem<F>& constraint_system) {
+    const std::vector<AdviceQueryData>& advice_queries =
+        constraint_system.advice_queries();
+    size_t size = advice_queries.size();
+    if constexpr (PCS::kQueryInstance) {
+      const std::vector<InstanceQueryData>& instance_queries =
+          constraint_system.instance_queries();
+      size += instance_queries.size();
+    }
+    return size;
+  }
+
+  template <ColumnType C>
+  void CreateColumnQueries(const std::vector<QueryData<C>>& queries,
+                           const std::vector<Commitment>& commitments,
+                           const std::vector<F>& evals,
+                           const Proof<F, Commitment>& proof,
+                           std::vector<Opening>& openings,
+                           std::vector<F>& points) const {
+    for (size_t i = 0; i < queries.size(); ++i) {
+      const QueryData<C>& query = queries[i];
+      const ColumnKey<C>& column = query.column();
+      points.push_back(query.rotation().RotateOmega(this->domain(), proof.x));
+      openings.emplace_back(
+          base::DeepRef<const Commitment>(&commitments[column.index()]),
+          base::DeepRef<const F>(&points.back()), evals[i]);
+    }
+  }
+
+  bool DoVerify(
+      const std::vector<std::vector<Commitment>>& instance_commitments_vec,
+      const VerifyingKey<PCS>& vkey, const Proof<F, Commitment>& proof) {
+    std::vector<Opening> queries;
+    size_t num_circuits = instance_commitments_vec.size();
+
+    const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
+    size_t queries_size =
+        num_circuits * GetSizeOfAdviceInstanceColumnQueries(constraint_system);
+    queries.reserve(queries_size);
+
+    std::vector<F> points;
+    size_t points_size =
+        num_circuits * GetSizeOfAdviceInstanceColumnQueries(constraint_system);
+    points.reserve(points_size);
+
+    for (size_t i = 0; i < num_circuits; ++i) {
+      if constexpr (PCS::kQueryInstance) {
+        const std::vector<InstanceQueryData>& instance_queries =
+            constraint_system.instance_queries();
+        CreateColumnQueries(instance_queries, instance_commitments_vec[i],
+                            proof.instance_evals_vec[i], proof, queries,
+                            points);
+      }
+      const std::vector<AdviceQueryData>& advice_queries =
+          constraint_system.advice_queries();
+      CreateColumnQueries(advice_queries, proof.advices_commitments_vec[i],
+                          proof.advice_evals_vec[i], proof, queries, points);
+    }
+
+    DCHECK_EQ(queries.size(), queries_size);
+    DCHECK_EQ(points.size(), points_size);
+    return true;
   }
 };
 
