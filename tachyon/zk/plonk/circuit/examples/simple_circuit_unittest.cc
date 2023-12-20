@@ -651,8 +651,9 @@ TEST_F(SimpleCircuitTest, Verify) {
       std::move(instance_columns)};
 
   Proof<F, Commitment> proof;
+  F h_eval;
   ASSERT_TRUE(verifier->VerifyProofForTesting(vkey, instance_columns_vec,
-                                              &proof, nullptr));
+                                              &proof, &h_eval));
 
   std::vector<std::vector<Commitment>> expected_advice_commitments_vec;
   {
@@ -827,6 +828,10 @@ TEST_F(SimpleCircuitTest, Verify) {
 
   ASSERT_EQ(proof.lookup_permuted_table_evals_vec.size(), 1);
   EXPECT_TRUE(proof.lookup_permuted_table_evals_vec[0].empty());
+
+  F expected_h_eval = F::FromHexString(
+      "0x0b91cc8fe9296c94157f8f2b226da12d1ef112be8e9e30c88b402e1b36bbab6e");
+  EXPECT_EQ(h_eval, expected_h_eval);
 }
 
 }  // namespace tachyon::zk::halo2

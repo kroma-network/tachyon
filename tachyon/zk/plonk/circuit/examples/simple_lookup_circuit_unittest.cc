@@ -535,8 +535,9 @@ TEST_F(SimpleLookupCircuitTest, Verify) {
       std::move(instance_columns)};
 
   Proof<F, Commitment> proof;
+  F h_eval;
   ASSERT_TRUE(verifier->VerifyProofForTesting(vkey, instance_columns_vec,
-                                              &proof, nullptr));
+                                              &proof, &h_eval));
 
   std::vector<std::vector<Commitment>> expected_advice_commitments_vec;
   {
@@ -710,6 +711,10 @@ TEST_F(SimpleLookupCircuitTest, Verify) {
   }
   EXPECT_EQ(proof.lookup_permuted_table_evals_vec,
             expected_lookup_permuted_table_evals_vec);
+
+  F expected_h_eval = F::FromHexString(
+      "0x01d8f3b1cc0f65fe4a711b22ac8843f20b8f0ca5cf6f01757c018ef1a9a44c7f");
+  EXPECT_EQ(h_eval, expected_h_eval);
 }
 
 }  // namespace tachyon::zk::halo2

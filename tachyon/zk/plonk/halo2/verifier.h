@@ -17,6 +17,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/verifier_base.h"
+#include "tachyon/zk/lookup/lookup_verification.h"
 #include "tachyon/zk/plonk/halo2/proof_reader.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verification.h"
@@ -272,10 +273,12 @@ class Verifier : public VerifierBase<PCSTy> {
 
     std::vector<F> expressions;
     const std::vector<Gate<F>>& gates = constraint_system.gates();
+    const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
     expressions.reserve(
         num_circuits *
         (gates.size() +
-         GetSizeOfPermutationVerificationExpressions(constraint_system)));
+         GetSizeOfPermutationVerificationExpressions(constraint_system) +
+         lookups.size() * GetSizeOfLookupVerificationExpressions()));
     for (size_t i = 0; i < num_circuits; ++i) {
       VanishingVerificationEvaluator<F> vanishing_verification_evaluator(
           proof.ToVanishingVerificationData(i));
@@ -294,6 +297,16 @@ class Verifier : public VerifierBase<PCSTy> {
           expressions.end(),
           std::make_move_iterator(permutation_expressions.begin()),
           std::make_move_iterator(permutation_expressions.end()));
+
+      for (size_t j = 0; j < lookups.size(); ++j) {
+        const LookupArgument<F>& lookup = lookups[j];
+        std::vector<F> lookup_expressions = CreateLookupVerificationExpressions(
+            proof.ToLookupVerificationData(i, j, l_first, l_blind, l_last),
+            lookup);
+        expressions.insert(expressions.end(),
+                           std::make_move_iterator(lookup_expressions.begin()),
+                           std::make_move_iterator(lookup_expressions.end()));
+      }
     }
     const F& y = proof.y;
     F expected_h_eval =

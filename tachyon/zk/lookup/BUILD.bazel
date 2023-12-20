@@ -74,6 +74,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "lookup_verification_data",
+    hdrs = ["lookup_verification_data.h"],
+    deps = ["//tachyon/zk/plonk/vanishing:vanishing_verification_data"],
+)
+
+tachyon_cc_library(
+    name = "lookup_verification",
+    hdrs = ["lookup_verification.h"],
+    deps = [
+        ":lookup_argument",
+        ":lookup_verification_data",
+        "//tachyon/zk/plonk/vanishing:vanishing_verification_evaluator",
+    ],
+)
+
+tachyon_cc_library(
     name = "permute_expression_pair",
     hdrs = ["permute_expression_pair.h"],
     deps = [
