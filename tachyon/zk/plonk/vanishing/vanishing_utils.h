@@ -10,7 +10,11 @@
 #include <utility>
 #include <vector>
 
+#include "absl/types/span.h"
+
 #include "tachyon/base/parallelize.h"
+#include "tachyon/zk/base/blinded_polynomial.h"
+#include "tachyon/zk/base/entities/prover_base.h"
 
 namespace tachyon::zk {
 
@@ -151,6 +155,65 @@ ExtendedPoly ExtendedToCoeff(const ExtendedEvals& evals,
   DistributePowersZeta<F>(poly, false);
 
   return poly;
+}
+
+template <typename Domain, typename Poly, typename F,
+          typename Evals = typename Domain::Evals>
+Evals CoeffToExtendedPart(const Domain* domain,
+                          const BlindedPolynomial<Poly>& poly, const F& zeta,
+                          const F& extended_omega_factor) {
+  Poly cloned = poly.poly();
+  Domain::DistributePowers(cloned, zeta * extended_omega_factor);
+  return domain->FFT(cloned);
+}
+
+template <typename Domain, typename Poly, typename F,
+          typename Evals = typename Domain::Evals>
+Evals CoeffToExtendedPart(const Domain* domain, const Poly& poly, const F& zeta,
+                          const F& extended_omega_factor) {
+  Poly cloned = poly;
+  Domain::DistributePowers(cloned, zeta * extended_omega_factor);
+  return domain->FFT(cloned);
+}
+
+template <typename Domain, typename Poly, typename F,
+          typename Evals = typename Domain::Evals>
+std::vector<Evals> CoeffsToExtendedPart(const Domain* domain,
+                                        absl::Span<Poly> polys, const F& zeta,
+                                        const F& extended_omega_factor) {
+  return base::Map(
+      polys, [domain, &zeta, &extended_omega_factor](const Poly& poly) {
+        return CoeffToExtendedPart(domain, poly, zeta, extended_omega_factor);
+      });
+}
+
+template <typename F>
+std::vector<F> BuildExtendedColumnWithColumns(
+    std::vector<std::vector<F>>&& columns) {
+  CHECK(!columns.empty());
+  size_t cols = columns.size();
+  size_t rows = columns[0].size();
+
+  std::vector<std::vector<F>> transposed = base::CreateVector(
+      rows, [cols]() { return base::CreateVector(cols, F::Zero()); });
+  for (size_t i = 0; i < columns.size(); ++i) {
+    base::Parallelize(transposed, [i, &src_column = columns[i]](
+                                      absl::Span<std::vector<F>> dst_columns,
+                                      size_t chunk_idx, size_t chunk_size) {
+      size_t start = chunk_idx * chunk_size;
+      for (size_t j = 0; j < dst_columns.size(); ++j) {
+        dst_columns[j][i] = src_column[start + j];
+      }
+    });
+  }
+  std::vector<F> flattened_columns;
+  flattened_columns.reserve(cols * rows);
+  for (std::vector<F>& column : transposed) {
+    flattened_columns.insert(flattened_columns.end(),
+                             std::make_move_iterator(column.begin()),
+                             std::make_move_iterator(column.end()));
+  }
+  return flattened_columns;
 }
 
 }  // namespace tachyon::zk

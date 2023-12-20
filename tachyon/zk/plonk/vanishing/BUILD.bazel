@@ -107,7 +107,12 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "vanishing_utils",
     hdrs = ["vanishing_utils.h"],
-    deps = ["//tachyon/base:parallelize"],
+    deps = [
+        "//tachyon/base:parallelize",
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base/entities:prover_base",
+        "@com_google_absl//absl/types:span",
+    ],
 )
 
 tachyon_cc_library(
@@ -131,6 +136,7 @@ tachyon_cc_unittest(
         "graph_evaluator_unittest.cc",
         "value_source_unittest.cc",
         "vanishing_argument_unittest.cc",
+        "vanishing_utils_unittest.cc",
     ],
     deps = [
         ":graph_evaluator",
@@ -142,6 +148,7 @@ tachyon_cc_unittest(
         "//tachyon/zk/expressions:expression_factory",
         "//tachyon/zk/expressions/evaluator/test:evaluator_test",
         "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk/circuit/examples:circuit_test",
         "//tachyon/zk/plonk/circuit/examples:simple_circuit",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/halo2:prover_test",
