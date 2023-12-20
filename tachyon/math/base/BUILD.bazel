@@ -89,7 +89,7 @@ tachyon_cc_library(
     hdrs = ["rings.h"],
     deps = [
         ":groups",
-        "//tachyon/base:template_util",
+        "//tachyon/base:parallelize",
     ],
 )
 

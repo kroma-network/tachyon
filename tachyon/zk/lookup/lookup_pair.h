@@ -25,6 +25,11 @@ class LookupPair {
   T&& TakeInput() && { return std::move(input_); }
   U&& TakeTable() && { return std::move(table_); }
 
+  bool operator==(const LookupPair& other) const {
+    return input_ == other.input_ && table_ == other.table_;
+  }
+  bool operator!=(const LookupPair& other) const { return !operator==(other); }
+
  private:
   T input_;
   U table_;

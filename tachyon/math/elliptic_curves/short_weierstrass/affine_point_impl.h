@@ -118,7 +118,7 @@ constexpr PointXYZZ<Curve> CLASS::DoubleXYZZ() const {
   // Y3 = M * (S - X3) - W * Y1
   BaseField lefts[] = {std::move(m), -w};
   BaseField rights[] = {s - x, y_};
-  BaseField y = BaseField::SumOfProducts(lefts, rights);
+  BaseField y = BaseField::SumOfProductsSerial(lefts, rights);
 
   // ZZ3 = V
   BaseField zz = std::move(v);

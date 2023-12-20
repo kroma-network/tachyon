@@ -79,6 +79,23 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "proof",
+    hdrs = ["proof.h"],
+    deps = ["//tachyon/zk/lookup:lookup_pair"],
+)
+
+tachyon_cc_library(
+    name = "proof_reader",
+    hdrs = ["proof_reader.h"],
+    deps = [
+        ":proof",
+        "//tachyon/base:logging",
+        "//tachyon/crypto/transcripts:transcript",
+        "//tachyon/zk/plonk/keys:verifying_key",
+    ],
+)
+
+tachyon_cc_library(
     name = "proof_serializer",
     hdrs = ["proof_serializer.h"],
     deps = [
@@ -93,6 +110,7 @@ tachyon_cc_library(
     hdrs = ["prover.h"],
     deps = [
         ":random_field_generator",
+        ":verifier",
         "//tachyon/zk/base/entities:prover_base",
     ],
 )
@@ -133,6 +151,19 @@ tachyon_cc_library(
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/math/base:big_int",
         "@com_google_boringssl//:crypto",
+    ],
+)
+
+tachyon_cc_library(
+    name = "verifier",
+    hdrs = ["verifier.h"],
+    deps = [
+        ":proof_reader",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/base/entities:verifier_base",
+        "//tachyon/zk/plonk/keys:verifying_key",
+        "@com_google_absl//absl/functional:bind_front",
+        "@com_google_googletest//:gtest_prod",
     ],
 )
 

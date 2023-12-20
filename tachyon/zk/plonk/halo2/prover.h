@@ -12,6 +12,7 @@
 
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/halo2/random_field_generator.h"
+#include "tachyon/zk/plonk/halo2/verifier.h"
 
 namespace tachyon::zk::halo2 {
 
@@ -51,6 +52,15 @@ class Prover : public ProverBase<PCSTy> {
 
   crypto::XORShiftRNG* rng() { return rng_.get(); }
   RandomFieldGenerator<F>* generator() { return generator_.get(); }
+
+  std::unique_ptr<Verifier<PCSTy>> ToVerifier(
+      std::unique_ptr<crypto::TranscriptReader<Commitment>> reader) {
+    std::unique_ptr<Verifier<PCSTy>> ret = std::make_unique<Verifier<PCSTy>>(
+        std::move(this->pcs_), std::move(reader));
+    ret->set_domain(std::move(this->domain_));
+    ret->set_extended_domain(std::move(this->extended_domain_));
+    return ret;
+  }
 
  private:
   Prover(PCSTy&& pcs,

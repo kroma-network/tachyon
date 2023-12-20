@@ -150,10 +150,10 @@ TEST_F(PrimeFieldTest, MultiplicativeGroupOperators) {
   EXPECT_EQ(f.Pow(5), GF7(5));
 }
 
-TEST_F(PrimeFieldTest, SumOfProducts) {
+TEST_F(PrimeFieldTest, SumOfProductsSerial) {
   const GF7 a[] = {GF7(3), GF7(2)};
   const GF7 b[] = {GF7(2), GF7(5)};
-  EXPECT_EQ(GF7::SumOfProducts(a, b), GF7(2));
+  EXPECT_EQ(GF7::SumOfProductsSerial(a, b), GF7(2));
 }
 
 TEST_F(PrimeFieldTest, Random) {

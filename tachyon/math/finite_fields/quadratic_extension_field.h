@@ -157,13 +157,13 @@ class QuadraticExtensionField
       {
         BaseField lefts[] = {c0_, Config::MulByNonResidue(c1_)};
         BaseField rights[] = {other.c0_, other.c1_};
-        c0 = BaseField::SumOfProducts(lefts, rights);
+        c0 = BaseField::SumOfProductsSerial(lefts, rights);
       }
       BaseField c1;
       {
         BaseField lefts[] = {c0_, c1_};
         BaseField rights[] = {other.c1_, other.c0_};
-        c1 = BaseField::SumOfProducts(lefts, rights);
+        c1 = BaseField::SumOfProductsSerial(lefts, rights);
       }
       c0_ = std::move(c0);
       c1_ = std::move(c1);

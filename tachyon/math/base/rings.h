@@ -2,8 +2,9 @@
 #define TACHYON_MATH_BASE_RINGS_H_
 
 #include <type_traits>
+#include <vector>
 
-#include "tachyon/base/template_util.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/math/base/groups.h"
 
 namespace tachyon::math {
@@ -25,26 +26,51 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
   // This is taken and modified from
   // https://github.com/arkworks-rs/algebra/blob/5dfeedf560da6937a5de0a2163b7958bd32cd551/ff/src/fields/mod.rs#L298C1-L305
   // Sum of products: a₁ * b₁ + a₂ * b₂ + ... + aₙ * bₙ
-  template <
-      typename InputIterator,
-      std::enable_if_t<std::is_same_v<F, base::iter_value_t<InputIterator>>>* =
-          nullptr>
-  constexpr static F SumOfProducts(InputIterator a_first, InputIterator a_last,
-                                   InputIterator b_first,
-                                   InputIterator b_last) {
-    F sum = F::Zero();
-    while (a_first != a_last) {
-      sum += (*a_first * *b_first);
-      ++a_first;
-      ++b_first;
-    }
-    return sum;
+  // TODO(chokobole): If I call |SumOfProducts()| instead of
+  // |SumOfProductsSerial| for all call sites, it gets stuck when doing
+  // unittests. I think we need a some general threshold to check whether it is
+  // good to doing parallelization.
+  template <typename ContainerA, typename ContainerB>
+  constexpr static F SumOfProducts(const ContainerA& a, const ContainerB& b) {
+    size_t size = std::size(a);
+    CHECK_EQ(size, std::size(b));
+    CHECK_NE(size, size_t{0});
+    std::vector<F> partial_sum_of_products = base::ParallelizeMap(
+        a,
+        [&b](absl::Span<const F> chunk, size_t chunk_idx, size_t chunk_size) {
+          F sum = F::Zero();
+          size_t i = chunk_idx * chunk_size;
+          for (size_t j = 0; j < chunk.size(); ++j) {
+            sum += (chunk[j] * b[i + j]);
+          }
+          return sum;
+        });
+    return std::accumulate(partial_sum_of_products.begin(),
+                           partial_sum_of_products.end(), F::Zero(),
+                           [](F& acc, const F& partial_sum_of_product) {
+                             return acc += partial_sum_of_product;
+                           });
   }
 
-  template <typename Container>
-  constexpr static F SumOfProducts(const Container& a, const Container& b) {
-    return SumOfProducts(std::begin(a), std::end(a), std::begin(b),
-                         std::end(b));
+  template <typename ContainerA, typename ContainerB>
+  constexpr static F SumOfProductsSerial(const ContainerA& a,
+                                         const ContainerB& b) {
+    size_t size = std::size(a);
+    CHECK_EQ(size, std::size(b));
+    CHECK_NE(size, size_t{0});
+    return DoSumOfProductsSerial(a, b);
+  }
+
+ private:
+  template <typename ContainerA, typename ContainerB>
+  constexpr static F DoSumOfProductsSerial(const ContainerA& a,
+                                           const ContainerB& b) {
+    size_t n = std::size(a);
+    F sum = F::Zero();
+    for (size_t i = 0; i < n; ++i) {
+      sum += (a[i] * b[i]);
+    }
+    return sum;
   }
 };
 

@@ -43,17 +43,10 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
   std::vector<ProverQuery<PCS>> h_x =
       OpenVanishingArgument(std::move(evaluated), x);
 
-  base::Buffer read_buf(prover_->GetWriter()->buffer().buffer(),
-                        prover_->GetWriter()->buffer().buffer_len());
-  std::unique_ptr<crypto::TranscriptReader<Commitment>> reader =
-      absl::WrapUnique(
-          new halo2::Blake2bReader<Commitment>(std::move(read_buf)));
-
-  std::unique_ptr<VerifierBase<PCS>> verifier =
-      std::make_unique<VerifierBase<PCS>>(
-          VerifierBase<PCS>(prover_->TakePCS(), std::move(reader)));
-  verifier->set_domain(prover_->TakeDomain());
-  verifier->set_extended_domain(prover_->TakeExtendedDomain());
+  base::Uint8VectorBuffer& write_buf = prover_->GetWriter()->buffer();
+  write_buf.set_buffer_offset(0);
+  std::unique_ptr<halo2::Verifier<PCS>> verifier =
+      CreateVerifier(std::move(write_buf));
 
   VanishingCommitted<EntityTy::kVerifier, PCS> committed_v;
   ASSERT_TRUE(ReadCommitmentsBeforeY(verifier->GetReader(), &committed_v));

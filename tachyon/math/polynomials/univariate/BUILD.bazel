@@ -47,6 +47,7 @@ tachyon_cc_library(
         ":univariate_polynomial",
         "//tachyon/base:bits",
         "//tachyon/base:openmp_util",
+        "//tachyon/base:range",
         "//tachyon/math/polynomials:evaluation_domain",
     ],
 )

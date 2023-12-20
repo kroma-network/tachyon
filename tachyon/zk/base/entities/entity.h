@@ -49,12 +49,6 @@ class Entity {
   }
   crypto::Transcript<Commitment>* transcript() { return transcript_.get(); }
 
-  PCSTy&& TakePCS() { return std::move(pcs_); }
-  std::unique_ptr<Domain> TakeDomain() { return std::move(domain_); }
-  std::unique_ptr<ExtendedDomain> TakeExtendedDomain() {
-    return std::move(extended_domain_);
-  }
-
  protected:
   PCSTy pcs_;
   std::unique_ptr<Domain> domain_;

@@ -71,7 +71,7 @@ constexpr CLASS& CLASS::AddInPlace(const PointXYZZ& other) {
   // Y3 = R * (Q - X3) - S1 * PPP
   BaseField lefts[] = {std::move(r), -s1};
   BaseField rights[] = {q - x_, ppp};
-  y_ = BaseField::SumOfProducts(lefts, rights);
+  y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // ZZ3 = ZZ1 * ZZ2 * PP
   zz_ *= other.zz_;
@@ -136,7 +136,7 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
   // Y3 = R * (Q - X3) - Y1 * PPP
   BaseField lefts[] = {std::move(r), -y_};
   BaseField rights[] = {q - x_, ppp};
-  y_ = BaseField::SumOfProducts(lefts, rights);
+  y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // ZZ3 = ZZ1 * PP
   zz_ *= pp;
@@ -186,7 +186,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   // Y3 = M * (S - X3) - W * Y1
   BaseField lefts[] = {std::move(m), -w};
   BaseField rights[] = {s - x_, y_};
-  y_ = BaseField::SumOfProducts(lefts, rights);
+  y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // ZZ3 = V * ZZ1
   zz_ *= v;
