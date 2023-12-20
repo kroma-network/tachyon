@@ -102,6 +102,10 @@ TEST_F(PolynomialOpeningsTest, CreateCombinedLowDegreeExtensions) {
 }
 
 TEST_F(PolynomialOpeningsTest, GroupByPolyAndPoints) {
+  using PolyOracleGroupedPair =
+      PolynomialOpeningGrouper<Poly>::PolyOracleGroupedPair;
+  using PointGroupedPair = PolynomialOpeningGrouper<Poly>::PointGroupedPair;
+
   std::vector<PolynomialOpening<Poly>> poly_openings;
   poly_openings.emplace_back(PolyDeepRef(&polys_[0]), PointDeepRef(&points_[0]),
                              polys_[0].Evaluate(points_[0]));
@@ -114,53 +118,51 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyAndPoints) {
   poly_openings.emplace_back(PolyDeepRef(&polys_[2]), PointDeepRef(&points_[2]),
                              polys_[0].Evaluate(points_[2]));
   PolynomialOpeningGrouper<Poly> grouper;
-  absl::flat_hash_map<PolyDeepRef, absl::btree_set<PointDeepRef>>
-      poly_openings_grouped_by_poly = grouper.GroupByPoly(poly_openings);
+  std::vector<PolyOracleGroupedPair> poly_openings_grouped_by_poly =
+      grouper.GroupByPoly(poly_openings);
+
+  for (const auto& poly_oracle_grouped_pair : poly_openings_grouped_by_poly) {
+    absl::btree_set<PointDeepRef> expected_points;
+    if (poly_oracle_grouped_pair.poly_oracle == PolyDeepRef(&polys_[0]) ||
+        poly_oracle_grouped_pair.poly_oracle == PolyDeepRef(&polys_[1])) {
+      expected_points = {
+          PointDeepRef(&points_[0]),
+          PointDeepRef(&points_[1]),
+      };
+    } else {
+      expected_points = {
+          PointDeepRef(&points_[2]),
+      };
+    }
+    EXPECT_EQ(poly_oracle_grouped_pair.points, expected_points);
+  }
+
   absl::btree_set<PointDeepRef> expected_points = {
-      PointDeepRef(&points_[0]),
-      PointDeepRef(&points_[1]),
-  };
-  EXPECT_EQ(poly_openings_grouped_by_poly[PolyDeepRef(&polys_[0])],
-            expected_points);
-  expected_points = {
-      PointDeepRef(&points_[0]),
-      PointDeepRef(&points_[1]),
-  };
-  EXPECT_EQ(poly_openings_grouped_by_poly[PolyDeepRef(&polys_[1])],
-            expected_points);
-  expected_points = {
-      PointDeepRef(&points_[2]),
-  };
-  EXPECT_EQ(poly_openings_grouped_by_poly[PolyDeepRef(&polys_[2])],
-            expected_points);
-  expected_points = {
       PointDeepRef(&points_[0]),
       PointDeepRef(&points_[1]),
       PointDeepRef(&points_[2]),
   };
   EXPECT_EQ(grouper.super_point_set(), expected_points);
 
-  absl::flat_hash_map<absl::btree_set<PointDeepRef>, std::vector<PolyDeepRef>>
-      poly_openings_grouped_by_poly_and_points =
-          grouper.GroupByPoints(poly_openings_grouped_by_poly);
-  absl::btree_set<PointDeepRef> points = {
-      PointDeepRef(&points_[0]),
-      PointDeepRef(&points_[1]),
-  };
-  std::vector<PolyDeepRef> expected_polys = {
-      PolyDeepRef(&polys_[1]),
-      PolyDeepRef(&polys_[0]),
-  };
-  EXPECT_THAT(poly_openings_grouped_by_poly_and_points[points],
-              testing::UnorderedElementsAreArray(expected_polys));
-  points = {
-      PointDeepRef(&points_[2]),
-  };
-  expected_polys = {
-      PolyDeepRef(&polys_[2]),
-  };
-  EXPECT_THAT(poly_openings_grouped_by_poly_and_points[points],
-              testing::UnorderedElementsAreArray(expected_polys));
+  std::vector<PointGroupedPair> poly_openings_grouped_by_poly_and_points =
+      grouper.GroupByPoints(poly_openings_grouped_by_poly);
+  for (const auto& point_grouped_pair :
+       poly_openings_grouped_by_poly_and_points) {
+    std::vector<PolyDeepRef> expected_polys;
+    if (point_grouped_pair.points ==
+        absl::btree_set<PointDeepRef>{PointDeepRef(&points_[0]),
+                                      PointDeepRef(&points_[1])}) {
+      expected_polys = {
+          PolyDeepRef(&polys_[0]),
+          PolyDeepRef(&polys_[1]),
+      };
+    } else {
+      expected_polys = {
+          PolyDeepRef(&polys_[2]),
+      };
+    }
+    EXPECT_EQ(point_grouped_pair.polys, expected_polys);
+  }
 
   grouper.CreateMultiPolynomialOpenings(
       poly_openings, poly_openings_grouped_by_poly_and_points);

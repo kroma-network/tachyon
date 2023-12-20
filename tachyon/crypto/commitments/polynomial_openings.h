@@ -152,17 +152,15 @@ class PolynomialOpeningGrouper {
     // {P₂, [x₀, x₁, x₂]}
     // {P₃, [x₂, x₃]}
     // {P₄, [x₄]}
-    absl::flat_hash_map<PolyOracleDeepRef, absl::btree_set<PointDeepRef>>
-        poly_openings_grouped_by_poly = GroupByPoly(poly_openings);
+    std::vector<PolyOracleGroupedPair> poly_openings_grouped_by_poly =
+        GroupByPoly(poly_openings);
 
     // Group |poly_openings_grouped_by_poly| by points.
     // [x₀, x₁, x₂]: [P₀, P₁, P₂]
     // [x₂, x₃]: [P₃]
     // [x₄]: [P₄]
-    absl::flat_hash_map<absl::btree_set<PointDeepRef>,
-                        std::vector<PolyOracleDeepRef>>
-        poly_openings_grouped_by_poly_and_points =
-            GroupByPoints(poly_openings_grouped_by_poly);
+    std::vector<PointGroupedPair> poly_openings_grouped_by_poly_and_points =
+        GroupByPoints(poly_openings_grouped_by_poly);
 
     // Construct opening sets from the flattened map.
     // Each contains oracles and the corresponding evaluation points.
@@ -176,36 +174,71 @@ class PolynomialOpeningGrouper {
  private:
   FRIEND_TEST(PolynomialOpeningsTest, GroupByPolyAndPoints);
 
-  absl::flat_hash_map<PolyOracleDeepRef, absl::btree_set<PointDeepRef>>
-  GroupByPoly(
+  struct PolyOracleGroupedPair {
+    PolyOracleDeepRef poly_oracle;
+    absl::btree_set<PointDeepRef> points;
+  };
+
+  std::vector<PolyOracleGroupedPair> GroupByPoly(
       const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
-    absl::flat_hash_map<PolyOracleDeepRef, absl::btree_set<PointDeepRef>> ret;
+    std::vector<PolyOracleGroupedPair> ret;
+    ret.reserve(poly_openings.size());
     for (const PolynomialOpening<Poly, PolyOracle>& poly_opening :
          poly_openings) {
       super_point_set_.insert(poly_opening.point);
-      ret[poly_opening.poly_oracle].insert(poly_opening.point);
+
+      auto it = std::find_if(
+          ret.begin(), ret.end(),
+          [&poly_opening](
+              const PolyOracleGroupedPair& poly_oracle_grouped_pair) {
+            return poly_oracle_grouped_pair.poly_oracle ==
+                   poly_opening.poly_oracle;
+          });
+
+      if (it != ret.end()) {
+        it->points.insert(poly_opening.point);
+      } else {
+        PolyOracleGroupedPair new_pair;
+        new_pair.poly_oracle = poly_opening.poly_oracle;
+        new_pair.points.insert(poly_opening.point);
+        ret.push_back(new_pair);
+      }
     }
     return ret;
   }
 
-  absl::flat_hash_map<absl::btree_set<PointDeepRef>,
-                      std::vector<PolyOracleDeepRef>>
-  GroupByPoints(const absl::flat_hash_map<PolyOracleDeepRef,
-                                          absl::btree_set<PointDeepRef>>&
-                    poly_openings_grouped_by_poly) {
-    absl::flat_hash_map<absl::btree_set<PointDeepRef>,
-                        std::vector<PolyOracleDeepRef>>
-        ret;
-    for (const auto& [poly_oracle, points] : poly_openings_grouped_by_poly) {
-      ret[points].push_back(poly_oracle);
+  struct PointGroupedPair {
+    absl::btree_set<PointDeepRef> points;
+    std::vector<PolyOracleDeepRef> polys;
+  };
+
+  std::vector<PointGroupedPair> GroupByPoints(
+      const std::vector<PolyOracleGroupedPair>& poly_openings_grouped_by_poly) {
+    std::vector<PointGroupedPair> ret;
+    ret.reserve(poly_openings_grouped_by_poly.size());
+    for (const auto& poly_oracle_grouped_pair : poly_openings_grouped_by_poly) {
+      auto it = std::find_if(ret.begin(), ret.end(),
+                             [&poly_oracle_grouped_pair](
+                                 const PointGroupedPair& point_grouped_pair) {
+                               return point_grouped_pair.points ==
+                                      poly_oracle_grouped_pair.points;
+                             });
+
+      if (it != ret.end()) {
+        it->polys.push_back(poly_oracle_grouped_pair.poly_oracle);
+      } else {
+        PointGroupedPair new_pair;
+        new_pair.points = poly_oracle_grouped_pair.points;
+        new_pair.polys.push_back(poly_oracle_grouped_pair.poly_oracle);
+        ret.push_back(new_pair);
+      }
     }
     return ret;
   }
 
   void CreateMultiPolynomialOpenings(
       const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings,
-      const absl::flat_hash_map<absl::btree_set<PointDeepRef>,
-                                std::vector<PolyOracleDeepRef>>&
+      const std::vector<PointGroupedPair>&
           poly_openings_grouped_by_poly_and_points) {
     grouped_poly_openings_vec_.reserve(
         poly_openings_grouped_by_poly_and_points.size());
