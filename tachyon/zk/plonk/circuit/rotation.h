@@ -50,13 +50,9 @@ class TACHYON_EXPORT Rotation {
     return size_t{base::bit_cast<uint32_t>(value % size)};
   }
 
-  template <typename Domain, typename F = typename Domain::F>
+  template <typename Domain, typename F>
   F RotateOmega(const Domain* domain, const F& point) const {
-    if (value_ >= 0) {
-      return point * domain->group_gen().Pow(value_);
-    } else {
-      return point * domain->group_gen_inv().Pow(-1 * value_);
-    }
+    return point * domain->GetElement(value_);
   }
 
  private:
