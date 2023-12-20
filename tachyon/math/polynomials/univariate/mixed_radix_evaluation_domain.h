@@ -51,6 +51,7 @@ template <typename F,
 class MixedRadixEvaluationDomain
     : public UnivariateEvaluationDomain<F, MaxDegree> {
  public:
+  using Base = UnivariateEvaluationDomain<F, MaxDegree>;
   using Field = F;
   using Evals = UnivariateEvaluations<F, MaxDegree>;
   using DensePoly = UnivariateDensePolynomial<F, MaxDegree>;
@@ -89,7 +90,7 @@ class MixedRadixEvaluationDomain
     Evals evals;
     evals.evaluations_ = poly.coefficients_.coefficients_;
     if (!this->offset_.IsOne()) {
-      this->DistributePowers(evals, this->offset_);
+      Base::DistributePowers(evals, this->offset_);
     }
     evals.evaluations_.resize(this->size_, F::Zero());
     BestFFT(evals, this->group_gen_);
@@ -112,7 +113,7 @@ class MixedRadixEvaluationDomain
         coeff *= this->size_inv_;
       }
     } else {
-      this->DistributePowersAndMulByConst(poly, this->offset_inv_,
+      Base::DistributePowersAndMulByConst(poly, this->offset_inv_,
                                           this->size_inv_);
     }
     poly.coefficients_.RemoveHighDegreeZeros();

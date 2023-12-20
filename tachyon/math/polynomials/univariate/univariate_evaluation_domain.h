@@ -318,18 +318,18 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     }
   }
 
- protected:
   // Multiply the i-th element of |poly_or_evals| with |g|ⁱ.
   template <typename PolyOrEvals>
-  constexpr void DistributePowers(PolyOrEvals& poly_or_evals,
-                                  const F& g) const {
+  constexpr static void DistributePowers(PolyOrEvals& poly_or_evals,
+                                         const F& g) {
     DistributePowersAndMulByConst(poly_or_evals, g, F::One());
   }
 
+ protected:
   // Multiply the i-th element of |poly_or_evals| with |c|*|g|ⁱ.
   template <typename PolyOrEvals>
-  constexpr void DistributePowersAndMulByConst(PolyOrEvals& poly_or_evals,
-                                               const F& g, const F& c) const {
+  constexpr static void DistributePowersAndMulByConst(
+      PolyOrEvals& poly_or_evals, const F& g, const F& c) {
 #if defined(TACHYON_HAS_OPENMP)
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
 #else
