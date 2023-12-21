@@ -76,7 +76,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "lookup_verification_data",
     hdrs = ["lookup_verification_data.h"],
-    deps = ["//tachyon/zk/plonk/vanishing:vanishing_verification_data"],
+    deps = [
+        "//tachyon/zk/lookup:lookup_pair",
+        "//tachyon/zk/plonk/vanishing:vanishing_verification_data",
+    ],
 )
 
 tachyon_cc_library(
@@ -85,6 +88,7 @@ tachyon_cc_library(
     deps = [
         ":lookup_argument",
         ":lookup_verification_data",
+        "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/plonk/vanishing:vanishing_verification_evaluator",
     ],
 )

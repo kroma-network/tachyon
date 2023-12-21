@@ -358,10 +358,12 @@ class Verifier : public VerifierBase<PCS> {
     size_t num_circuits = instance_commitments_vec.size();
 
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
+    const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
     size_t queries_size =
         num_circuits *
         (GetSizeOfAdviceInstanceColumnQueries(constraint_system) +
-         GetSizeOfPermutationVerifierQueries(constraint_system));
+         GetSizeOfPermutationVerifierQueries(constraint_system) +
+         lookups.size() * GetSizeOfLookupVerifierQueries());
     queries.reserve(queries_size);
 
     std::vector<F> points;
@@ -387,6 +389,14 @@ class Verifier : public VerifierBase<PCS> {
       queries.insert(queries.end(),
                      std::make_move_iterator(permutation_queries.begin()),
                      std::make_move_iterator(permutation_queries.end()));
+
+      for (size_t j = 0; j < lookups.size(); ++j) {
+        std::vector<Opening> lookup_queries =
+            CreateLookupQueries<PCS>(proof.ToLookupVerificationData(i, j));
+        queries.insert(queries.end(),
+                       std::make_move_iterator(lookup_queries.begin()),
+                       std::make_move_iterator(lookup_queries.end()));
+      }
     }
 
     F expected_h_eval = ComputeExpectedHEval(num_circuits, vkey, proof);

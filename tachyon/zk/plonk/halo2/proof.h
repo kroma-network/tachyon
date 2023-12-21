@@ -83,24 +83,29 @@ struct Proof {
     return ret;
   }
 
-  LookupVerificationData<F> ToLookupVerificationData(size_t i, size_t j) const {
-    LookupVerificationData<F> ret;
+  LookupVerificationData<F, C> ToLookupVerificationData(size_t i,
+                                                        size_t j) const {
+    LookupVerificationData<F, C> ret;
     ret.fixed_evals = absl::MakeConstSpan(fixed_evals);
     ret.advice_evals = absl::MakeConstSpan(advice_evals_vec[i]);
     ret.instance_evals = absl::MakeConstSpan(instance_evals_vec[i]);
     ret.challenges = absl::MakeConstSpan(challenges);
-    ret.product_eval = lookup_product_evals_vec[i][j];
-    ret.product_next_eval = lookup_product_next_evals_vec[i][j];
-    ret.permuted_input_eval = lookup_permuted_input_evals_vec[i][j];
-    ret.permuted_input_inv_eval = lookup_permuted_input_inv_evals_vec[i][j];
-    ret.permuted_table_eval = lookup_permuted_table_evals_vec[i][j];
-    ret.theta = theta;
-    ret.beta = beta;
-    ret.gamma = gamma;
-    ret.x = x;
-    ret.l_first = l_first;
-    ret.l_blind = l_blind;
-    ret.l_last = l_last;
+    ret.permuted_commitment = &lookup_permuted_commitments_vec[i][j];
+    ret.product_commitment = &lookup_product_commitments_vec[i][j];
+    ret.product_eval = &lookup_product_evals_vec[i][j];
+    ret.product_next_eval = &lookup_product_next_evals_vec[i][j];
+    ret.permuted_input_eval = &lookup_permuted_input_evals_vec[i][j];
+    ret.permuted_input_inv_eval = &lookup_permuted_input_inv_evals_vec[i][j];
+    ret.permuted_table_eval = &lookup_permuted_table_evals_vec[i][j];
+    ret.theta = &theta;
+    ret.beta = &beta;
+    ret.gamma = &gamma;
+    ret.x = &x;
+    ret.x_next = &x_next;
+    ret.x_prev = &x_prev;
+    ret.l_first = &l_first;
+    ret.l_blind = &l_blind;
+    ret.l_last = &l_last;
     return ret;
   }
 };
