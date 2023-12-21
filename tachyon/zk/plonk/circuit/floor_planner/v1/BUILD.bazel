@@ -3,6 +3,22 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "assignment_pass",
+    hdrs = ["assignment_pass.h"],
+    deps = [
+        ":v1_plan",
+        ":v1_region",
+        "//tachyon/base:logging",
+        "//tachyon/zk/plonk/circuit:cell",
+        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/circuit:layouter",
+        "//tachyon/zk/plonk/circuit/floor_planner:scoped_region",
+        "//tachyon/zk/plonk/circuit/floor_planner:simple_lookup_table_layouter",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
+
+tachyon_cc_library(
     name = "measurement_pass",
     hdrs = ["measurement_pass.h"],
     deps = ["//tachyon/zk/plonk/circuit:region_shape"],
