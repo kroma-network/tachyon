@@ -19,3 +19,12 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/circuit/floor_planner:constant",
     ],
 )
+
+tachyon_cc_library(
+    name = "v1_region",
+    hdrs = ["v1_region.h"],
+    deps = [
+        ":v1_plan",
+        "//tachyon/zk/plonk/circuit:region",
+    ],
+)
