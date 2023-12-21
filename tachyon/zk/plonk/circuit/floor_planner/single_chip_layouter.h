@@ -11,6 +11,7 @@
 
 #include "tachyon/base/functional/identity.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/constant.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 #include "tachyon/zk/plonk/circuit/region_column.h"
@@ -21,12 +22,6 @@ namespace tachyon::zk {
 template <typename F>
 class SingleChipLayouter : public Layouter<F> {
  public:
-  struct Constant {
-    math::RationalField<F> value;
-    Cell cell;
-  };
-  using Constants = std::vector<Constant>;
-
   class Region : public zk::Region<F>::Layouter {
    public:
     using AssignCallback = typename zk::Region<F>::Layouter::AssignCallback;
@@ -34,7 +29,7 @@ class SingleChipLayouter : public Layouter<F> {
     Region(SingleChipLayouter* layouter, size_t region_index)
         : layouter_(layouter), region_index_(region_index) {}
 
-    const Constants& constants() const { return constants_; }
+    const Constants<F>& constants() const { return constants_; }
 
     // zk::Region<F>::Layouter methods
     void EnableSelector(std::string_view name, const Selector& selector,
@@ -113,7 +108,7 @@ class SingleChipLayouter : public Layouter<F> {
     const size_t region_index_;
     // Stores the constants to be assigned, and the cells to which they are
     // copied.
-    Constants constants_;
+    Constants<F> constants_;
   };
 
   using AssignRegionCallback = typename Layouter<F>::AssignRegionCallback;
@@ -195,7 +190,7 @@ class SingleChipLayouter : public Layouter<F> {
     } else {
       const FixedColumnKey& constants_column = constants_[0];
       size_t& next_constant_row = columns_[RegionColumn(constants_column)];
-      for (const Constant& constant : region.constants()) {
+      for (const Constant<F>& constant : region.constants()) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
         std::string name =
