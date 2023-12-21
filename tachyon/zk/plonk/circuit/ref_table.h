@@ -9,59 +9,35 @@
 
 #include <vector>
 
-#include "absl/types/span.h"
-
-#include "tachyon/base/logging.h"
-#include "tachyon/base/ref.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
+#include "tachyon/zk/plonk/circuit/table_base.h"
 
 namespace tachyon::zk {
 
-template <typename Evals>
-class RefTable {
+template <typename PolyOrEvals>
+class RefTable : public TableBase<PolyOrEvals> {
  public:
   RefTable() = default;
-  RefTable(absl::Span<const Evals> fixed_columns,
-           absl::Span<const Evals> advice_columns,
-           absl::Span<const Evals> instance_columns)
+  RefTable(absl::Span<const PolyOrEvals> fixed_columns,
+           absl::Span<const PolyOrEvals> advice_columns,
+           absl::Span<const PolyOrEvals> instance_columns)
       : fixed_columns_(fixed_columns),
         advice_columns_(advice_columns),
         instance_columns_(instance_columns) {}
 
-  absl::Span<const Evals> fixed_columns() const { return fixed_columns_; }
-  absl::Span<const Evals> advice_columns() const { return advice_columns_; }
-  absl::Span<const Evals> instance_columns() const { return instance_columns_; }
-
-  base::Ref<const Evals> GetColumn(const ColumnKeyBase& column_key) const {
-    switch (column_key.type()) {
-      case ColumnType::kFixed:
-        return base::Ref<const Evals>(&fixed_columns_[column_key.index()]);
-      case ColumnType::kAdvice:
-        return base::Ref<const Evals>(&advice_columns_[column_key.index()]);
-      case ColumnType::kInstance:
-        return base::Ref<const Evals>(&instance_columns_[column_key.index()]);
-      case ColumnType::kAny:
-        break;
-    }
-    NOTREACHED();
-    return base::Ref<const Evals>();
+  absl::Span<const PolyOrEvals> fixed_columns() const override {
+    return fixed_columns_;
   }
-
-  template <typename Container>
-  std::vector<base::Ref<const Evals>> GetColumns(
-      const Container& column_keys) const {
-    std::vector<base::Ref<const Evals>> ret;
-    ret.reserve(std::size(column_keys));
-    for (const auto& column_key : column_keys) {
-      ret.push_back(GetColumn(column_key));
-    }
-    return ret;
+  absl::Span<const PolyOrEvals> advice_columns() const override {
+    return advice_columns_;
+  }
+  absl::Span<const PolyOrEvals> instance_columns() const override {
+    return instance_columns_;
   }
 
  protected:
-  absl::Span<const Evals> fixed_columns_;
-  absl::Span<const Evals> advice_columns_;
-  absl::Span<const Evals> instance_columns_;
+  absl::Span<const PolyOrEvals> fixed_columns_;
+  absl::Span<const PolyOrEvals> advice_columns_;
+  absl::Span<const PolyOrEvals> instance_columns_;
 };
 
 }  // namespace tachyon::zk
