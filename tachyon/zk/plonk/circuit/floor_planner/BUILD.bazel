@@ -3,6 +3,15 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "constant",
+    hdrs = ["constant.h"],
+    deps = [
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk/circuit:cell",
+    ],
+)
+
+tachyon_cc_library(
     name = "floor_planner",
     hdrs = ["floor_planner.h"],
     deps = [
@@ -38,6 +47,7 @@ tachyon_cc_library(
     name = "single_chip_layouter",
     hdrs = ["single_chip_layouter.h"],
     deps = [
+        ":constant",
         ":simple_lookup_table_layouter",
         "//tachyon/base:logging",
         "//tachyon/base/functional:identity",

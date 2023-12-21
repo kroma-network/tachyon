@@ -11,6 +11,7 @@
 
 #include "tachyon/base/functional/identity.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/constant.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 #include "tachyon/zk/plonk/circuit/region_column.h"
@@ -21,11 +22,7 @@ namespace tachyon::zk {
 template <typename F>
 class SingleChipLayouter : public Layouter<F> {
  public:
-  struct Constant {
-    math::RationalField<F> value;
-    Cell cell;
-  };
-  using Constants = std::vector<Constant>;
+  using Constants = std::vector<Constant<F>>;
 
   class Region : public zk::Region<F>::Layouter {
    public:
@@ -195,7 +192,7 @@ class SingleChipLayouter : public Layouter<F> {
     } else {
       const FixedColumnKey& constants_column = constants_[0];
       size_t& next_constant_row = columns_[RegionColumn(constants_column)];
-      for (const Constant& constant : region.constants()) {
+      for (const Constant<F>& constant : region.constants()) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
         std::string name =
