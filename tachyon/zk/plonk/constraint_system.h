@@ -143,7 +143,7 @@ class ConstraintSystem {
               std::move(pair).TakeInput(), std::move(table));
         });
 
-    lookups_.emplace_back(name, std::move(pairs));
+    lookups_.emplace_back(std::move(name), std::move(pairs));
     return lookups_.size() - 1;
   }
 
@@ -156,7 +156,7 @@ class ConstraintSystem {
     LookupPairs<std::unique_ptr<Expression<F>>> pairs =
         std::move(callback).Run(cells);
 
-    lookups_.emplace_back(name, std::move(pairs));
+    lookups_.emplace_back(std::move(name), std::move(pairs));
     return lookups_.size() - 1;
   }
 
@@ -260,8 +260,9 @@ class ConstraintSystem {
     }
     CHECK(!polys.empty()) << "Gates must contain at least one constraint.";
 
-    gates_.emplace_back(name, std::move(constraint_names), std::move(polys),
-                        std::move(queried_selectors), std::move(queried_cells));
+    gates_.emplace_back(std::move(name), std::move(constraint_names),
+                        std::move(polys), std::move(queried_selectors),
+                        std::move(queried_cells));
   }
 
   // This will compress selectors together depending on their provided

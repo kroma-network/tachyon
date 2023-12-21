@@ -44,7 +44,7 @@ class LookupTable {
   [[nodiscard]] bool AssignCell(std::string_view name,
                                 const LookupTableColumn& column, size_t offset,
                                 AssignCallback assign) {
-    return layouter_->AssignCell(name, column, offset, [&assign]() {
+    return layouter_->AssignCell(std::move(name), column, offset, [&assign]() {
       return Value<math::RationalField<F>>::Known(
           math::RationalField<F>(std::move(assign).Run().value()));
     });

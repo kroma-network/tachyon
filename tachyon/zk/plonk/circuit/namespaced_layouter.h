@@ -36,12 +36,12 @@ class NamespacedLayouter : public Layouter<F> {
   // Layouter<F> methods
   void AssignRegion(std::string_view name,
                     AssignRegionCallback assign) override {
-    layouter_->AssignRegion(name, std::move(assign));
+    layouter_->AssignRegion(std::move(name), std::move(assign));
   }
 
   void AssignLookupTable(std::string_view name,
                          AssignLookupTableCallback assign) override {
-    layouter_->AssignLookupTable(name, std::move(assign));
+    layouter_->AssignLookupTable(std::move(name), std::move(assign));
   }
 
   void ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
