@@ -76,7 +76,7 @@ class ArgumentTest : public halo2::ProverTest {
 
 TEST_F(ArgumentTest, ExportEvalsTables) {
   EXPECT_FALSE(argument_.advice_transformed());
-  std::vector<Table<Evals>> column_tables = argument_.ExportColumnTables();
+  std::vector<RefTable<Evals>> column_tables = argument_.ExportColumnTables();
 
   for (size_t i = 0; i < num_circuits_; ++i) {
     absl::Span<const Evals> fixed_columns = column_tables[i].fixed_columns();
@@ -94,7 +94,7 @@ TEST_F(ArgumentTest, ExportEvalsTables) {
 TEST_F(ArgumentTest, ExportPolyTables) {
   argument_.TransformAdvice(prover_->domain());
   EXPECT_TRUE(argument_.advice_transformed());
-  std::vector<Table<Poly>> poly_tables = argument_.ExportPolyTables();
+  std::vector<RefTable<Poly>> poly_tables = argument_.ExportPolyTables();
 
   for (size_t i = 0; i < num_circuits_; ++i) {
     absl::Span<const Poly> fixed_polys = poly_tables[i].fixed_columns();

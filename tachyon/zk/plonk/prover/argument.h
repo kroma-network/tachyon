@@ -7,7 +7,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/plonk/circuit/table.h"
+#include "tachyon/zk/plonk/circuit/ref_table.h"
 
 namespace tachyon::zk {
 
@@ -60,7 +60,7 @@ class Argument {
   }
 
   // Return tables including every type of polynomials in evaluation form.
-  std::vector<Table<Evals>> ExportColumnTables() const {
+  std::vector<RefTable<Evals>> ExportColumnTables() const {
     CHECK(!advice_transformed_);
     absl::Span<const Evals> fixed_columns =
         absl::MakeConstSpan(*fixed_columns_);
@@ -73,13 +73,13 @@ class Argument {
                            absl::MakeConstSpan(advice_columns_vec_[i]);
                        absl::Span<const Evals> instance_columns =
                            absl::MakeConstSpan(instance_columns_vec_[i]);
-                       return Table<Evals>(fixed_columns, advice_columns,
-                                           instance_columns);
+                       return RefTable<Evals>(fixed_columns, advice_columns,
+                                              instance_columns);
                      });
   }
 
   // Return a table including every type of polynomials in coefficient form.
-  std::vector<Table<Poly>> ExportPolyTables() const {
+  std::vector<RefTable<Poly>> ExportPolyTables() const {
     CHECK(advice_transformed_);
     absl::Span<const Poly> fixed_polys = absl::MakeConstSpan(*fixed_polys_);
 
@@ -91,8 +91,8 @@ class Argument {
                            absl::MakeConstSpan(advice_polys_vec_[i]);
                        absl::Span<const Poly> instance_polys =
                            absl::MakeConstSpan(instance_polys_vec_[i]);
-                       return Table<Poly>(fixed_polys, advice_polys,
-                                          instance_polys);
+                       return RefTable<Poly>(fixed_polys, advice_polys,
+                                             instance_polys);
                      });
   }
 

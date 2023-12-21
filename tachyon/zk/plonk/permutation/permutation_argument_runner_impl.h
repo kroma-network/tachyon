@@ -27,7 +27,7 @@ template <typename PCSTy, typename F>
 PermutationCommitted<Poly>
 PermutationArgumentRunner<Poly, Evals>::CommitArgument(
     ProverBase<PCSTy>* prover, const PermutationArgument& argument,
-    Table<Evals>& table, size_t constraint_system_degree,
+    RefTable<Evals>& table, size_t constraint_system_degree,
     const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
     const F& beta, const F& gamma) {
   // How many columns can be included in a single permutation polynomial?

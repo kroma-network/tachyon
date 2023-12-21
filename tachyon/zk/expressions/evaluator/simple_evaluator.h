@@ -22,7 +22,7 @@
 #include "tachyon/zk/expressions/scaled_expression.h"
 #include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
-#include "tachyon/zk/plonk/circuit/table.h"
+#include "tachyon/zk/plonk/circuit/ref_table.h"
 
 namespace tachyon::zk {
 
@@ -34,7 +34,8 @@ class SimpleEvaluator
 
   SimpleEvaluator() = default;
   SimpleEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
-                  const Table<Evals>& table, absl::Span<const Field> challenges)
+                  const RefTable<Evals>& table,
+                  absl::Span<const Field> challenges)
       : idx_(idx),
         size_(size),
         rot_scale_(rot_scale),

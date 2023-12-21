@@ -12,7 +12,7 @@
 #include "absl/types/span.h"
 #include "gtest/gtest_prod.h"
 
-#include "tachyon/zk/plonk/circuit/table.h"
+#include "tachyon/zk/plonk/circuit/ref_table.h"
 #include "tachyon/zk/plonk/permutation/permuted_table.h"
 #include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 
@@ -24,7 +24,7 @@ class PermutationTableStore {
   using F = typename Evals::Field;
 
   PermutationTableStore(const std::vector<AnyColumnKey>& column_keys,
-                        const Table<Evals>& table,
+                        const RefTable<Evals>& table,
                         const PermutedTable<Evals>& permuted_table,
                         const UnpermutedTable<Evals>& unpermuted_table,
                         size_t chunk_size)
@@ -84,7 +84,7 @@ class PermutationTableStore {
   }
 
   const std::vector<AnyColumnKey>& column_keys_;
-  const Table<Evals>& table_;
+  const RefTable<Evals>& table_;
   const PermutedTable<Evals>& permuted_table_;
   const UnpermutedTable<Evals>& unpermuted_table_;
   // The number of element in a chunk.

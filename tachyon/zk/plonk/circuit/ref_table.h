@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_TABLE_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_TABLE_H_
+#ifndef TACHYON_ZK_PLONK_CIRCUIT_REF_TABLE_H_
+#define TACHYON_ZK_PLONK_CIRCUIT_REF_TABLE_H_
 
 #include <vector>
 
@@ -18,12 +18,12 @@
 namespace tachyon::zk {
 
 template <typename Evals>
-class Table {
+class RefTable {
  public:
-  Table() = default;
-  Table(absl::Span<const Evals> fixed_columns,
-        absl::Span<const Evals> advice_columns,
-        absl::Span<const Evals> instance_columns)
+  RefTable() = default;
+  RefTable(absl::Span<const Evals> fixed_columns,
+           absl::Span<const Evals> advice_columns,
+           absl::Span<const Evals> instance_columns)
       : fixed_columns_(fixed_columns),
         advice_columns_(advice_columns),
         instance_columns_(instance_columns) {}
@@ -66,4 +66,4 @@ class Table {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_TABLE_H_
+#endif  // TACHYON_ZK_PLONK_CIRCUIT_REF_TABLE_H_
