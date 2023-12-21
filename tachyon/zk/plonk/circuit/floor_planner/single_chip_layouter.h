@@ -209,7 +209,9 @@ class SingleChipLayouter : public Layouter<F> {
   void AssignLookupTable(std::string_view name,
                          AssignLookupTableCallback assign) override {
     // Maintenance hazard: there is near-duplicate code in
-    // |v1::AssignmentPass::AssignLookupTable|. Assign table cells.
+    // |AssignmentPass::AssignLookupTable|.
+
+    // Assign table cells.
     assignment_->EnterRegion(name);
     SimpleLookupTableLayouter<F> lookup_table_layouter(assignment_,
                                                        &lookup_table_columns_);
