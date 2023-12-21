@@ -103,12 +103,28 @@ class Verifier : public VerifierBase<PCS> {
       *proof_out = proof;
     }
 
-    F expected_h_eval =
-        ComputeExpectedHEval(instance_columns_vec.size(), vkey, proof);
-    if (expected_h_eval_out) {
-      *expected_h_eval_out = expected_h_eval;
-    }
-    return DoVerify(instance_commitments_vec, vkey, proof);
+    ComputeAuxValues(vkey.constraint_system(), proof);
+
+    return DoVerify(instance_commitments_vec, vkey, proof, expected_h_eval_out);
+  }
+
+  void ComputeAuxValues(const ConstraintSystem<F>& constraint_system,
+                        Proof<F, Commitment>& proof) {
+    size_t blinding_factors = constraint_system.ComputeBlindingFactors();
+    std::vector<F> l_evals = this->domain_->EvaluatePartialLagrangeCoefficients(
+        proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
+                             /*IsEndInclusive=*/true>(
+                     -static_cast<int32_t>(blinding_factors + 1), 0));
+    proof.l_first = l_evals[1 + blinding_factors];
+    proof.l_blind = std::accumulate(
+        l_evals.begin() + 1, l_evals.begin() + 1 + blinding_factors, F::Zero(),
+        [](F& acc, const F& eval) { return acc += eval; });
+    proof.l_last = l_evals[0];
+
+    proof.x_next = Rotation::Next().RotateOmega(this->domain(), proof.x);
+    proof.x_prev = Rotation::Prev().RotateOmega(this->domain(), proof.x);
+    proof.x_last =
+        Rotation(-(blinding_factors + 1)).RotateOmega(this->domain(), proof.x);
   }
 
   bool ValidateInstanceColumnsVec(
@@ -264,17 +280,6 @@ class Verifier : public VerifierBase<PCS> {
   F ComputeExpectedHEval(size_t num_circuits, const VerifyingKey<PCS>& vkey,
                          const Proof<F, Commitment>& proof) {
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
-    size_t blinding_factors = constraint_system.ComputeBlindingFactors();
-    std::vector<F> l_evals = this->domain_->EvaluatePartialLagrangeCoefficients(
-        proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
-                             /*IsEndInclusive=*/true>(
-                     -static_cast<int32_t>(blinding_factors + 1), 0));
-    const F& l_first = l_evals[1 + blinding_factors];
-    F l_blind = std::accumulate(
-        l_evals.begin() + 1, l_evals.begin() + 1 + blinding_factors, F::Zero(),
-        [](F& acc, const F& eval) { return acc += eval; });
-    const F& l_last = l_evals[0];
-
     std::vector<F> expressions;
     const std::vector<Gate<F>>& gates = constraint_system.gates();
     const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
@@ -295,8 +300,7 @@ class Verifier : public VerifierBase<PCS> {
 
       std::vector<F> permutation_expressions =
           CreatePermutationVerificationExpressions(
-              proof.ToPermutationVerificationData(i, l_first, l_blind, l_last),
-              constraint_system);
+              proof.ToPermutationVerificationData(i), constraint_system);
       expressions.insert(
           expressions.end(),
           std::make_move_iterator(permutation_expressions.begin()),
@@ -305,8 +309,7 @@ class Verifier : public VerifierBase<PCS> {
       for (size_t j = 0; j < lookups.size(); ++j) {
         const LookupArgument<F>& lookup = lookups[j];
         std::vector<F> lookup_expressions = CreateLookupVerificationExpressions(
-            proof.ToLookupVerificationData(i, j, l_first, l_blind, l_last),
-            lookup);
+            proof.ToLookupVerificationData(i, j), lookup);
         expressions.insert(expressions.end(),
                            std::make_move_iterator(lookup_expressions.begin()),
                            std::make_move_iterator(lookup_expressions.end()));
@@ -349,13 +352,16 @@ class Verifier : public VerifierBase<PCS> {
 
   bool DoVerify(
       const std::vector<std::vector<Commitment>>& instance_commitments_vec,
-      const VerifyingKey<PCS>& vkey, const Proof<F, Commitment>& proof) {
+      const VerifyingKey<PCS>& vkey, const Proof<F, Commitment>& proof,
+      F* expected_h_eval_out) {
     std::vector<Opening> queries;
     size_t num_circuits = instance_commitments_vec.size();
 
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
     size_t queries_size =
-        num_circuits * GetSizeOfAdviceInstanceColumnQueries(constraint_system);
+        num_circuits *
+        (GetSizeOfAdviceInstanceColumnQueries(constraint_system) +
+         GetSizeOfPermutationVerifierQueries(constraint_system));
     queries.reserve(queries_size);
 
     std::vector<F> points;
@@ -375,6 +381,17 @@ class Verifier : public VerifierBase<PCS> {
           constraint_system.advice_queries();
       CreateColumnQueries(advice_queries, proof.advices_commitments_vec[i],
                           proof.advice_evals_vec[i], proof, queries, points);
+
+      std::vector<Opening> permutation_queries = CreatePermutationQueries<PCS>(
+          proof.ToPermutationVerificationData(i), constraint_system);
+      queries.insert(queries.end(),
+                     std::make_move_iterator(permutation_queries.begin()),
+                     std::make_move_iterator(permutation_queries.end()));
+    }
+
+    F expected_h_eval = ComputeExpectedHEval(num_circuits, vkey, proof);
+    if (expected_h_eval_out) {
+      *expected_h_eval_out = expected_h_eval;
     }
 
     DCHECK_EQ(queries.size(), queries_size);

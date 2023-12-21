@@ -7,18 +7,21 @@
 
 namespace tachyon::zk {
 
-template <typename F>
+template <typename F, typename C>
 struct PermutationVerificationData : public VanishingVerificationData<F> {
+  absl::Span<const C> product_commitments;
   absl::Span<const F> common_evals;
   absl::Span<const F> product_evals;
   absl::Span<const F> product_next_evals;
   absl::Span<const std::optional<F>> product_last_evals;
-  F beta;
-  F gamma;
-  F x;
-  F l_first;
-  F l_blind;
-  F l_last;
+  const F* beta = nullptr;
+  const F* gamma = nullptr;
+  const F* x = nullptr;
+  const F* x_next = nullptr;
+  const F* x_last = nullptr;
+  const F* l_first = nullptr;
+  const F* l_blind = nullptr;
+  const F* l_last = nullptr;
 };
 
 }  // namespace tachyon::zk

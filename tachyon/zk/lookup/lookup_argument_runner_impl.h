@@ -73,7 +73,7 @@ template <typename Poly, typename Evals>
 template <typename PCS, typename F>
 LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
     ProverBase<PCS>* prover, LookupCommitted<Poly>&& committed, const F& x) {
-  F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
+  F x_prev = Rotation::Prev().RotateOmega(prover->domain(), x);
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 
   BlindedPolynomial<Poly> product_poly = std::move(committed).TakeProductPoly();
@@ -85,7 +85,7 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
   CHECK(prover->Evaluate(product_poly.poly(), x));
   CHECK(prover->Evaluate(product_poly.poly(), x_next));
   CHECK(prover->Evaluate(permuted_input_poly.poly(), x));
-  CHECK(prover->Evaluate(permuted_input_poly.poly(), x_inv));
+  CHECK(prover->Evaluate(permuted_input_poly.poly(), x_prev));
   CHECK(prover->Evaluate(permuted_table_poly.poly(), x));
 
   return {
@@ -100,14 +100,14 @@ template <typename PCS, typename F>
 std::vector<ProverQuery<PCS>> LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
     const ProverBase<PCS>* prover, const LookupEvaluated<Poly>& evaluated,
     const F& x) {
-  F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
+  F x_prev = Rotation::Prev().RotateOmega(prover->domain(), x);
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 
   return {
       ProverQuery<PCS>(x, evaluated.product_poly().ToRef()),
       ProverQuery<PCS>(x, evaluated.permuted_input_poly().ToRef()),
       ProverQuery<PCS>(std::move(x), evaluated.permuted_table_poly().ToRef()),
-      ProverQuery<PCS>(std::move(x_inv),
+      ProverQuery<PCS>(std::move(x_prev),
                        evaluated.permuted_input_poly().ToRef()),
       ProverQuery<PCS>(std::move(x_next), evaluated.product_poly().ToRef())};
 }
