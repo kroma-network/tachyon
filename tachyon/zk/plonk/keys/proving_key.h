@@ -165,7 +165,7 @@ class ProvingKey : public Key<PCSTy> {
   std::vector<Evals> fixed_columns_;
   std::vector<Poly> fixed_polys_;
   PermutationProvingKey<Poly, Evals> permutation_proving_key_;
-  VanishingArgument<PCSTy> vanishing_argument_;
+  VanishingArgument<F> vanishing_argument_;
 };
 
 }  // namespace tachyon::zk

@@ -17,12 +17,9 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename F>
 class VanishingArgument {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
-
   VanishingArgument() = default;
 
   static VanishingArgument Create(
