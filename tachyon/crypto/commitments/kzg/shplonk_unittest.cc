@@ -34,7 +34,7 @@ class SHPlonkTest : public testing::Test {
 
   void SetUp() override {
     KZG<math::bn254::G1AffinePoint, kMaxDegree, math::bn254::G1AffinePoint> kzg;
-    pcs_ = PCS(std::move(kzg), &writer_);
+    pcs_ = PCS(std::move(kzg));
     ASSERT_TRUE(pcs_.UnsafeSetup(N));
 
     polys_ = base::CreateVector(5, []() { return Poly::Random(kMaxDegree); });
@@ -85,8 +85,7 @@ class SHPlonkTest : public testing::Test {
 }  // namespace
 
 TEST_F(SHPlonkTest, CreateProof) {
-  SHPlonkProof<Commitment> proof;
-  ASSERT_TRUE(pcs_.CreateOpeningProof(poly_openings_, &proof));
+  ASSERT_TRUE(pcs_.CreateOpeningProof(poly_openings_, &writer_));
 }
 
 }  // namespace tachyon::crypto

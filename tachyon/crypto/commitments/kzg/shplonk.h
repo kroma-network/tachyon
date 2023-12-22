@@ -27,21 +27,6 @@ class SHPlonkExtension;
 
 namespace crypto {
 
-template <typename C>
-class SHPlonkProof {
- public:
-  SHPlonkProof() = default;
-  SHPlonkProof(const C& h, const C& q) : h_(h), q_(q) {}
-  SHPlonkProof(C&& h, C&& q) : h_(std::move(h)), q_(std::move(q)) {}
-
-  const C& h() const { return h_; }
-  const C& q() const { return q_; }
-
- private:
-  C h_;
-  C q_;
-};
-
 template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
           typename Commitment = typename math::Pippenger<G1PointTy>::Bucket>
 class SHPlonk : public UnivariatePolynomialCommitmentScheme<
@@ -54,10 +39,8 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
   using Poly = typename Base::Poly;
 
   SHPlonk() = default;
-  SHPlonk(KZG<G1PointTy, MaxDegree, Commitment>&& kzg,
-          Transcript<Commitment>* transcript)
-      : KZGFamily<G1PointTy, MaxDegree, Commitment>(std::move(kzg)),
-        transcript_(transcript) {}
+  explicit SHPlonk(KZG<G1PointTy, MaxDegree, Commitment>&& kzg)
+      : KZGFamily<G1PointTy, MaxDegree, Commitment>(std::move(kzg)) {}
 
  private:
   friend class VectorCommitmentScheme<
@@ -70,11 +53,10 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
   // UnivariatePolynomialCommitmentScheme methods
   template <typename ContainerTy>
   [[nodiscard]] bool DoCreateOpeningProof(
-      const ContainerTy& poly_openings, SHPlonkProof<Commitment>* proof) const {
+      const ContainerTy& poly_openings,
+      TranscriptWriter<Commitment>* writer) const {
     using Point = typename Poly::Point;
     using PointDeepRef = base::DeepRef<const Point>;
-
-    TranscriptWriter<Commitment>* writer = transcript_->ToWriter();
 
     PolynomialOpeningGrouper<Poly> grouper;
     grouper.GroupByPolyAndPoints(poly_openings);
@@ -118,7 +100,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     Commitment h;
     if (!this->Commit(h_poly, &h)) return false;
 
-    CHECK(writer->WriteToProof(h));
+    if (!writer->WriteToProof(h)) return false;
     Field u = writer->SqueezeChallenge();
 
     // Create [L₀(X), L₁(X), L₂(X)].
@@ -194,10 +176,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     // Commit Q(X)
     Commitment q;
     if (!this->Commit(q_poly, &q)) return false;
-    CHECK(writer->WriteToProof(q));
-
-    *proof = {std::move(h), std::move(q)};
-    return true;
+    return writer->WriteToProof(q);
   }
 
   // KZGFamily methods
@@ -206,9 +185,6 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     NOTIMPLEMENTED();
     return true;
   }
-
-  // not owned
-  Transcript<Commitment>* transcript_ = nullptr;
 };
 
 template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,

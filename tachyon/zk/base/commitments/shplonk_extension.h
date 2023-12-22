@@ -57,10 +57,9 @@ class SHPlonkExtension
     return shplonk_.DoCommitLagrange(v, out);
   }
 
-  template <typename ContainerTy>
-  [[nodiscard]] bool DoCreateOpeningProof(
-      const ContainerTy& poly_openings,
-      crypto::SHPlonkProof<Commitment>* proof) const {
+  template <typename ContainerTy, typename Proof>
+  [[nodiscard]] bool DoCreateOpeningProof(const ContainerTy& poly_openings,
+                                          Proof* proof) const {
     return shplonk_.DoCreateOpeningProof(poly_openings, proof);
   }
 
