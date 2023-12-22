@@ -15,55 +15,57 @@
 
 namespace tachyon::crypto {
 
-// A single polynomial with a single opening.
-template <typename Poly>
+// A single polynomial oracle with a single opening
+// The type of polynomial oracle can be either |Poly| in |CreateOpeningProof()|
+// and |Commitment| in |VerifyOpeningProof()|
+template <typename Poly, typename PolyOracle = Poly>
 struct PolynomialOpening {
   using Field = typename Poly::Field;
   using Point = typename Poly::Point;
 
-  // P₀
-  base::DeepRef<const Poly> poly;
-  // x₀
+  // polynomial Pᵢ or commitment Cᵢ
+  base::DeepRef<const PolyOracle> poly_oracle;
+  // xᵢ
   base::DeepRef<const Point> point;
-  // P₀(x₀)
+  // Pᵢ(xᵢ)
   Field opening;
 
   PolynomialOpening() = default;
-  PolynomialOpening(base::DeepRef<const Poly> poly,
+  PolynomialOpening(base::DeepRef<const PolyOracle> poly_oracle,
                     base::DeepRef<const Point> point, Field&& opening)
-      : poly(poly), point(point), opening(std::move(opening)) {}
+      : poly_oracle(poly_oracle), point(point), opening(std::move(opening)) {}
 };
 
-// A single polynomial with multi openings.
-template <typename Poly>
+// A single polynomial oracle with multi openings.
+template <typename Poly, typename PolyOracle = Poly>
 struct PolynomialOpenings {
   using Field = typename Poly::Field;
 
-  // P₀
-  base::DeepRef<const Poly> poly;
-  // [P₀(x₀), P₀(x₁), P₀(x₂)]
+  // polynomial Pᵢ or commitment Cᵢ
+  base::DeepRef<const PolyOracle> poly_oracle;
+  // [Pᵢ(x₀), Pᵢ(x₁), Pᵢ(x₂)]
   std::vector<Field> openings;
 
   PolynomialOpenings() = default;
-  PolynomialOpenings(base::DeepRef<const Poly> poly,
+  PolynomialOpenings(base::DeepRef<const PolyOracle> poly_oracle,
                      std::vector<Field>&& openings)
-      : poly(poly), openings(std::move(openings)) {}
+      : poly_oracle(poly_oracle), openings(std::move(openings)) {}
 };
 
-// Multi polynomials with multi openings grouped by shared points.
-template <typename Poly>
+// Multi polynomial openings grouped by shared points.
+template <typename Poly, typename PolyOracle = Poly>
 struct GroupedPolynomialOpenings {
   using Field = typename Poly::Field;
   using Point = typename Poly::Point;
 
   // [{P₀, [P₀(x₀), P₀(x₁), P₀(x₂)]}, {P₁, [P₁(x₀), P₁(x₁), P₁(x₂)]}]
-  std::vector<PolynomialOpenings<Poly>> poly_openings_vec;
+  std::vector<PolynomialOpenings<Poly, PolyOracle>> poly_openings_vec;
   // [x₀, x₁, x₂]
   std::vector<base::DeepRef<const Point>> points;
 
   GroupedPolynomialOpenings() = default;
   GroupedPolynomialOpenings(
-      std::vector<PolynomialOpenings<Poly>>&& poly_openings_vec,
+      std::vector<PolynomialOpenings<Poly, PolyOracle>>&& poly_openings_vec,
       std::vector<base::DeepRef<const Point>>&& points)
       : poly_openings_vec(std::move(poly_openings_vec)),
         points(std::move(points)) {}
@@ -108,12 +110,12 @@ struct GroupedPolynomialOpenings {
       const Field& r, const std::vector<Point>& owned_points,
       const std::vector<Poly>& low_degree_extensions) const {
     // numerators: [P₀(X) - R₀(X), P₁(X) - R₁(X), P₂(X) - R₂(X)]
-    std::vector<Poly> numerators =
-        base::Map(poly_openings_vec,
-                  [&low_degree_extensions](
-                      size_t i, const PolynomialOpenings<Poly>& poly_openings) {
-                    return *poly_openings.poly - low_degree_extensions[i];
-                  });
+    std::vector<Poly> numerators = base::Map(
+        poly_openings_vec,
+        [&low_degree_extensions](
+            size_t i, const PolynomialOpenings<Poly>& poly_openings) {
+          return *poly_openings.poly_oracle - low_degree_extensions[i];
+        });
 
     // Combine numerator polynomials with powers of |r|.
     // N(X) = (P₀(X) - R₀(X)) + r(P₁(X) - R₁(X)) + r²(P₂(X) - R₂(X))
@@ -126,15 +128,15 @@ struct GroupedPolynomialOpenings {
   }
 };
 
-template <typename Poly>
+template <typename Poly, typename PolyOracle = Poly>
 class PolynomialOpeningGrouper {
  public:
   using Field = typename Poly::Field;
   using Point = typename Poly::Point;
-  using PolyDeepRef = base::DeepRef<const Poly>;
+  using PolyOracleDeepRef = base::DeepRef<const PolyOracle>;
   using PointDeepRef = base::DeepRef<const Point>;
 
-  const std::vector<GroupedPolynomialOpenings<Poly>>&
+  const std::vector<GroupedPolynomialOpenings<Poly, PolyOracle>>&
   grouped_poly_openings_vec() const {
     return grouped_poly_openings_vec_;
   }
@@ -143,21 +145,22 @@ class PolynomialOpeningGrouper {
   }
 
   void GroupByPolyAndPoints(
-      const std::vector<PolynomialOpening<Poly>>& poly_openings) {
+      const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
     // Group |poly_openings| by polynomial.
     // {P₀, [x₀, x₁, x₂]}
     // {P₁, [x₀, x₁, x₂]}
     // {P₂, [x₀, x₁, x₂]}
     // {P₃, [x₂, x₃]}
     // {P₄, [x₄]}
-    absl::flat_hash_map<PolyDeepRef, absl::btree_set<PointDeepRef>>
+    absl::flat_hash_map<PolyOracleDeepRef, absl::btree_set<PointDeepRef>>
         poly_openings_grouped_by_poly = GroupByPoly(poly_openings);
 
     // Group |poly_openings_grouped_by_poly| by points.
     // [x₀, x₁, x₂]: [P₀, P₁, P₂]
     // [x₂, x₃]: [P₃]
     // [x₄]: [P₄]
-    absl::flat_hash_map<absl::btree_set<PointDeepRef>, std::vector<PolyDeepRef>>
+    absl::flat_hash_map<absl::btree_set<PointDeepRef>,
+                        std::vector<PolyOracleDeepRef>>
         poly_openings_grouped_by_poly_and_points =
             GroupByPoints(poly_openings_grouped_by_poly);
 
@@ -173,32 +176,36 @@ class PolynomialOpeningGrouper {
  private:
   FRIEND_TEST(PolynomialOpeningsTest, GroupByPolyAndPoints);
 
-  absl::flat_hash_map<PolyDeepRef, absl::btree_set<PointDeepRef>> GroupByPoly(
-      const std::vector<PolynomialOpening<Poly>>& poly_openings) {
-    absl::flat_hash_map<PolyDeepRef, absl::btree_set<PointDeepRef>> ret;
-    for (const PolynomialOpening<Poly>& poly_opening : poly_openings) {
+  absl::flat_hash_map<PolyOracleDeepRef, absl::btree_set<PointDeepRef>>
+  GroupByPoly(
+      const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
+    absl::flat_hash_map<PolyOracleDeepRef, absl::btree_set<PointDeepRef>> ret;
+    for (const PolynomialOpening<Poly, PolyOracle>& poly_opening :
+         poly_openings) {
       super_point_set_.insert(poly_opening.point);
-      ret[poly_opening.poly].insert(poly_opening.point);
+      ret[poly_opening.poly_oracle].insert(poly_opening.point);
     }
     return ret;
   }
 
-  absl::flat_hash_map<absl::btree_set<PointDeepRef>, std::vector<PolyDeepRef>>
-  GroupByPoints(
-      const absl::flat_hash_map<PolyDeepRef, absl::btree_set<PointDeepRef>>&
-          poly_openings_grouped_by_poly) {
-    absl::flat_hash_map<absl::btree_set<PointDeepRef>, std::vector<PolyDeepRef>>
+  absl::flat_hash_map<absl::btree_set<PointDeepRef>,
+                      std::vector<PolyOracleDeepRef>>
+  GroupByPoints(const absl::flat_hash_map<PolyOracleDeepRef,
+                                          absl::btree_set<PointDeepRef>>&
+                    poly_openings_grouped_by_poly) {
+    absl::flat_hash_map<absl::btree_set<PointDeepRef>,
+                        std::vector<PolyOracleDeepRef>>
         ret;
-    for (const auto& [poly, points] : poly_openings_grouped_by_poly) {
-      ret[points].push_back(poly);
+    for (const auto& [poly_oracle, points] : poly_openings_grouped_by_poly) {
+      ret[points].push_back(poly_oracle);
     }
     return ret;
   }
 
   void CreateMultiPolynomialOpenings(
-      const std::vector<PolynomialOpening<Poly>>& poly_openings,
+      const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings,
       const absl::flat_hash_map<absl::btree_set<PointDeepRef>,
-                                std::vector<PolyDeepRef>>&
+                                std::vector<PolyOracleDeepRef>>&
           poly_openings_grouped_by_poly_and_points) {
     grouped_poly_openings_vec_.reserve(
         poly_openings_grouped_by_poly_and_points.size());
@@ -207,27 +214,33 @@ class PolynomialOpeningGrouper {
          poly_openings_grouped_by_poly_and_points) {
       std::vector<PointDeepRef> points_vec(points.begin(), points.end());
 
-      std::vector<PolynomialOpenings<Poly>> poly_openings_vec =
-          base::Map(polys, [&poly_openings, &points_vec](PolyDeepRef poly) {
+      std::vector<PolynomialOpenings<Poly, PolyOracle>> poly_openings_vec =
+          base::Map(polys, [&poly_openings,
+                            &points_vec](PolyOracleDeepRef poly_oracle) {
             std::vector<Field> openings = base::Map(
-                points_vec, [poly, &poly_openings](PointDeepRef point) {
-                  return GetOpeningFromPolyOpenings(poly_openings, poly, point);
+                points_vec, [poly_oracle, &poly_openings](PointDeepRef point) {
+                  return GetOpeningFromPolyOpenings(poly_openings, poly_oracle,
+                                                    point);
                 });
-            return PolynomialOpenings<Poly>(poly, std::move(openings));
+            return PolynomialOpenings<Poly, PolyOracle>(poly_oracle,
+                                                        std::move(openings));
           });
 
-      grouped_poly_openings_vec_.push_back(GroupedPolynomialOpenings<Poly>(
-          std::move(poly_openings_vec), std::move(points_vec)));
+      grouped_poly_openings_vec_.push_back(
+          GroupedPolynomialOpenings<Poly, PolyOracle>(
+              std::move(poly_openings_vec), std::move(points_vec)));
     }
   }
 
   static Field GetOpeningFromPolyOpenings(
-      const std::vector<PolynomialOpening<Poly>>& poly_openings,
-      PolyDeepRef poly, PointDeepRef point) {
+      const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings,
+      PolyOracleDeepRef poly_oracle, PointDeepRef point) {
     auto it = std::find_if(
         poly_openings.begin(), poly_openings.end(),
-        [poly, point](const PolynomialOpening<Poly>& poly_opening) {
-          return poly_opening.poly == poly && poly_opening.point == point;
+        [poly_oracle,
+         point](const PolynomialOpening<Poly, PolyOracle>& poly_opening) {
+          return poly_opening.poly_oracle == poly_oracle &&
+                 poly_opening.point == point;
         });
     CHECK(it != poly_openings.end());
     return it->opening;
@@ -235,11 +248,12 @@ class PolynomialOpeningGrouper {
 
   // |grouped_poly_openings_vec_| is a list of
   // |GroupedPolynomialOpenings|, which is the result of list of
-  // |PolynomialOpening| grouped by poly and points.
+  // |PolynomialOpening| grouped by poly_oracle and points.
   // {[P₀, P₁, P₂], [x₀, x₁, x₂]}
   // {[P₃], [x₂, x₃]}
   // {[P₄], [x₄]}
-  std::vector<GroupedPolynomialOpenings<Poly>> grouped_poly_openings_vec_;
+  std::vector<GroupedPolynomialOpenings<Poly, PolyOracle>>
+      grouped_poly_openings_vec_;
   // |super_point_set_| is all the points that appear in opening.
   // [x₀, x₁, x₂, x₃, x₄]
   absl::btree_set<base::DeepRef<const Point>> super_point_set_;

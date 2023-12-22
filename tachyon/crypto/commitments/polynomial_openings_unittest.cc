@@ -85,12 +85,12 @@ TEST_F(PolynomialOpeningsTest, CreateCombinedLowDegreeExtensions) {
   Point x = Point::Random();
   GF7 actual_eval = combined_low_degree_extension.Evaluate(x);
   GF7 expected_eval =
-      grouped_poly_opening.poly_openings_vec[0].poly->Evaluate(x) -
+      grouped_poly_opening.poly_openings_vec[0].poly_oracle->Evaluate(x) -
       low_degree_extensions[0].Evaluate(x);
   GF7 power = r;
   for (size_t i = 1; i < low_degree_extensions.size(); ++i) {
     expected_eval +=
-        (grouped_poly_opening.poly_openings_vec[i].poly->Evaluate(x) -
+        (grouped_poly_opening.poly_openings_vec[i].poly_oracle->Evaluate(x) -
          low_degree_extensions[i].Evaluate(x)) *
         power;
     power *= r;

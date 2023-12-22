@@ -37,6 +37,8 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
       SHPlonk<G1PointTy, G2PointTy, MaxDegree, Commitment>>;
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
+  using Point = typename Poly::Point;
+  using PointDeepRef = base::DeepRef<const Point>;
 
   SHPlonk() = default;
   explicit SHPlonk(KZG<G1PointTy, MaxDegree, Commitment>&& kzg)
@@ -55,9 +57,6 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
   [[nodiscard]] bool DoCreateOpeningProof(
       const ContainerTy& poly_openings,
       TranscriptWriter<Commitment>* writer) const {
-    using Point = typename Poly::Point;
-    using PointDeepRef = base::DeepRef<const Point>;
-
     PolynomialOpeningGrouper<Poly> grouper;
     grouper.GroupByPolyAndPoints(poly_openings);
 
@@ -138,7 +137,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
               grouped_poly_openings.poly_openings_vec,
               [&u, &low_degree_extensions](
                   size_t i, const PolynomialOpenings<Poly>& poly_openings) {
-                Poly poly = *poly_openings.poly;
+                Poly poly = *poly_openings.poly_oracle;
                 *poly[0] -= low_degree_extensions[i].Evaluate(u);
                 return poly;
               });
