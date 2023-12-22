@@ -101,6 +101,14 @@ class VectorCommitmentScheme {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoVerifyOpeningProof(commitment, members, proof);
   }
+
+  // Verify multi-openings |proof|.
+  template <typename ContainerTy, typename Proof>
+  [[nodiscard]] bool VerifyOpeningProof(const ContainerTy& members,
+                                        Proof* proof) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoVerifyOpeningProof(members, proof);
+  }
 };
 
 }  // namespace tachyon::crypto
