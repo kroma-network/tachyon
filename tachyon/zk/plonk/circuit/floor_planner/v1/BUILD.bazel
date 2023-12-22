@@ -25,6 +25,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "v1_pass",
+    hdrs = ["v1_pass.h"],
+    deps = [
+        ":assignment_pass",
+        ":measurement_pass",
+        "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk/circuit:layouter",
+    ],
+)
+
+tachyon_cc_library(
     name = "v1_plan",
     hdrs = ["v1_plan.h"],
     deps = [
