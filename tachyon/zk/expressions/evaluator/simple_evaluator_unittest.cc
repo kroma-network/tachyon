@@ -26,9 +26,9 @@ class SimpleEvaluatorTest : public EvaluatorTest {
       challenges_.push_back(GF7::Random());
     }
 
-    Table<Evals> columns(absl::MakeConstSpan(fixed_columns_),
-                         absl::MakeConstSpan(advice_columns_),
-                         absl::MakeConstSpan(instance_columns_));
+    RefTable<Evals> columns(absl::MakeConstSpan(fixed_columns_),
+                            absl::MakeConstSpan(advice_columns_),
+                            absl::MakeConstSpan(instance_columns_));
     simple_evaluator_ = std::make_unique<SimpleEvaluator<Evals>>(
         3, 4, 1, columns, absl::MakeConstSpan(challenges_));
   }

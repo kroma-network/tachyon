@@ -144,6 +144,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "owned_table",
+    hdrs = ["owned_table.h"],
+    deps = [":table_base"],
+)
+
+tachyon_cc_library(
     name = "phase",
     hdrs = ["phase.h"],
     deps = [
@@ -181,6 +187,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "ref_table",
+    hdrs = ["ref_table.h"],
+    deps = [":table_base"],
+)
+
+tachyon_cc_library(
     name = "region",
     hdrs = ["region.h"],
     deps = [
@@ -214,8 +226,8 @@ tachyon_cc_library(
     name = "rotation",
     hdrs = ["rotation.h"],
     deps = [
-        "//tachyon/base:bit_cast",
         "//tachyon/base:logging",
+        "//tachyon/base/numerics:checked_math",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
     ],
@@ -266,12 +278,14 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "table",
-    hdrs = ["table.h"],
+    name = "table_base",
+    hdrs = ["table_base.h"],
     deps = [
         ":column_key",
         "//tachyon/base:logging",
         "//tachyon/base:ref",
+        "//tachyon/base/containers:container_util",
+        "@com_google_absl//absl/types:span",
     ],
 )
 
@@ -301,17 +315,17 @@ tachyon_cc_unittest(
         "column_key_unittest.cc",
         "lookup_table_column_unittest.cc",
         "phase_unittest.cc",
+        "ref_table_unittest.cc",
         "region_column_unittest.cc",
         "rotation_unittest.cc",
         "selector_unittest.cc",
-        "table_unittest.cc",
     ],
     deps = [
         ":column_key",
         ":lookup_table_column",
+        ":ref_table",
         ":region_column",
         ":rotation",
-        ":table",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",

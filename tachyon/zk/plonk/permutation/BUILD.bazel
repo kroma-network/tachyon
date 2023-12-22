@@ -91,7 +91,7 @@ tachyon_cc_library(
     deps = [
         ":permuted_table",
         ":unpermuted_table",
-        "//tachyon/zk/plonk/circuit:table",
+        "//tachyon/zk/plonk/circuit:ref_table",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",
     ],

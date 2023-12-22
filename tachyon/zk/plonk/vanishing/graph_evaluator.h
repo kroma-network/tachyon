@@ -50,12 +50,6 @@ struct TACHYON_EXPORT CalculationInfo {
 };
 
 template <typename F>
-struct EvaluationData {
-  std::vector<F> intermediates;
-  std::vector<size_t> rotations;
-};
-
-template <typename F>
 class GraphEvaluator : public Evaluator<F, ValueSource> {
  public:
   GraphEvaluator() = default;
@@ -65,22 +59,21 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
   const std::vector<CalculationInfo>& calculations() { return calculations_; }
   size_t num_intermediates() const { return num_intermediates_; }
 
-  template <typename Poly>
-  F Evaluate(EvaluationData<F>& evaluation_data,
-             const ValueSourceData<Poly>& source_data, size_t idx,
-             int32_t scale, int32_t size) const {
+  template <typename Poly, typename Evals>
+  F Evaluate(EvaluationInput<Poly, Evals>& data, size_t idx, int32_t scale,
+             const F& previous_value) const {
     for (size_t i = 0; i < rotations_.size(); ++i) {
-      evaluation_data.rotations[i] =
-          Rotation(rotations_[i]).GetIndex(idx, scale, size);
+      data.rotations()[i] =
+          Rotation(rotations_[i]).GetIndex(idx, scale, data.n());
     }
 
     for (const CalculationInfo& calculation : calculations_) {
-      evaluation_data.intermediates[calculation.target] =
-          calculation.calculation.Evaluate(source_data);
+      data.intermediates()[calculation.target] =
+          calculation.calculation.Evaluate(data, constants_, previous_value);
     }
 
     if (calculations_.empty()) return F::Zero();
-    return evaluation_data.intermediates[calculations_.back().target];
+    return data.intermediates()[calculations_.back().target];
   }
 
   // Evaluator methods
@@ -216,29 +209,11 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
     return ValueSource();
   }
 
-  EvaluationData<F> CreateInstance() const {
-    return {
-        base::CreateVector(num_intermediates_, F::Zero()),
-        base::CreateVector(rotations_.size(), size_t{0}),
-    };
+  std::vector<F> CreateInitialIntermediates() const {
+    return base::CreateVector(num_intermediates_, F::Zero());
   }
-
- private:
-  size_t AddRotation(const Rotation& rotation) {
-    size_t rotation_index = rotation.value();
-    std::optional<size_t> position = base::FindIndexIf(
-        rotations_,
-        [rotation_index](size_t value) { return rotation_index == value; });
-    if (position.has_value()) return position.value();
-    rotations_.push_back(rotation_index);
-    return rotations_.size() - 1;
-  }
-
-  ValueSource AddConstant(const F& constant) {
-    std::optional<size_t> position = base::FindIndex(constants_, constant);
-    if (position.has_value()) return ValueSource::Constant(position.value());
-    constants_.push_back(constant);
-    return ValueSource::Constant(constants_.size() - 1);
+  std::vector<int32_t> CreateEmptyRotations() const {
+    return base::CreateVector(rotations_.size(), 0);
   }
 
   // Currently does the simplest thing possible: just stores the
@@ -258,6 +233,24 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
   // Generates an optimized evaluation for the expression
   ValueSource AddExpression(const Expression<F>* expression) {
     return expression->Evaluate(this);
+  }
+
+ private:
+  size_t AddRotation(const Rotation& rotation) {
+    size_t rotation_index = rotation.value();
+    std::optional<size_t> position = base::FindIndexIf(
+        rotations_,
+        [rotation_index](size_t value) { return rotation_index == value; });
+    if (position.has_value()) return position.value();
+    rotations_.push_back(rotation_index);
+    return rotations_.size() - 1;
+  }
+
+  ValueSource AddConstant(const F& constant) {
+    std::optional<size_t> position = base::FindIndex(constants_, constant);
+    if (position.has_value()) return ValueSource::Constant(position.value());
+    constants_.push_back(constant);
+    return ValueSource::Constant(constants_.size() - 1);
   }
 
   std::vector<F> constants_ = {F::Zero(), F::One(), F(2)};

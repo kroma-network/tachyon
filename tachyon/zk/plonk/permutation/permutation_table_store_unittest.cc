@@ -25,9 +25,9 @@ class PermutationTableStoreTest : public halo2::ProverTest {
     instance_columns_ =
         base::CreateVector(3, [domain]() { return domain->Random<Evals>(); });
 
-    table_ = Table<Evals>(absl::MakeConstSpan(fixed_columns_),
-                          absl::MakeConstSpan(advice_columns_),
-                          absl::MakeConstSpan(instance_columns_));
+    table_ = RefTable<Evals>(absl::MakeConstSpan(fixed_columns_),
+                             absl::MakeConstSpan(advice_columns_),
+                             absl::MakeConstSpan(instance_columns_));
 
     column_keys_ = {
         FixedColumnKey(0),  InstanceColumnKey(0), AdviceColumnKey(0),
@@ -46,7 +46,7 @@ class PermutationTableStoreTest : public halo2::ProverTest {
   std::vector<Evals> fixed_columns_;
   std::vector<Evals> advice_columns_;
   std::vector<Evals> instance_columns_;
-  Table<Evals> table_;
+  RefTable<Evals> table_;
 
   std::vector<AnyColumnKey> column_keys_;
   std::vector<Evals> permutations_;

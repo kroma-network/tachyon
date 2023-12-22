@@ -53,7 +53,7 @@ template <typename PCSTy, typename ExtendedEvals>
 [[nodiscard]] bool CommitFinalHPoly(
     ProverBase<PCSTy>* prover,
     VanishingCommitted<EntityTy::kProver, PCSTy>&& committed,
-    const VerifyingKey<PCSTy>& vk, ExtendedEvals& linear_combination_of_gates,
+    const VerifyingKey<PCSTy>& vk, ExtendedEvals& circuit_column,
     VanishingConstructed<EntityTy::kProver, PCSTy>* constructed_out) {
   using F = typename PCSTy::Field;
   using Poly = typename PCSTy::Poly;
@@ -62,7 +62,7 @@ template <typename PCSTy, typename ExtendedEvals>
 
   // Divide by t(X) = X^{params.n} - 1.
   ExtendedEvals h_evals = DivideByVanishingPolyInPlace<F>(
-      linear_combination_of_gates, prover->extended_domain(), prover->domain());
+      circuit_column, prover->extended_domain(), prover->domain());
 
   // Obtain final h(X) polynomial
   ExtendedPoly h_poly =

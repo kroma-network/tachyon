@@ -13,7 +13,7 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/prover_query.h"
-#include "tachyon/zk/plonk/circuit/table.h"
+#include "tachyon/zk/plonk/circuit/ref_table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_committed.h"
 #include "tachyon/zk/plonk/permutation/permutation_evaluated.h"
@@ -33,7 +33,7 @@ class PermutationArgumentRunner {
   template <typename PCSTy, typename F>
   static PermutationCommitted<Poly> CommitArgument(
       ProverBase<PCSTy>* prover, const PermutationArgument& argument,
-      Table<Evals>& table, size_t constraint_system_degree,
+      RefTable<Evals>& table, size_t constraint_system_degree,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
       const F& beta, const F& gamma);
 

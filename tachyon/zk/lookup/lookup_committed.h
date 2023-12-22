@@ -25,6 +25,14 @@ class LookupCommitted {
         permuted_table_poly_(std::move(permuted_table_poly)),
         product_poly_(std::move(product_poly)) {}
 
+  const BlindedPolynomial<Poly>& permuted_input_poly() const {
+    return permuted_input_poly_;
+  }
+  const BlindedPolynomial<Poly>& permuted_table_poly() const {
+    return permuted_table_poly_;
+  }
+  const BlindedPolynomial<Poly>& product_poly() const { return product_poly_; }
+
   BlindedPolynomial<Poly>&& TakePermutedInputPoly() && {
     return std::move(permuted_input_poly_);
   }

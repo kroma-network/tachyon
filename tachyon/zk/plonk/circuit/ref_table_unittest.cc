@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/table.h"
+#include "tachyon/zk/plonk/circuit/ref_table.h"
 
 #include <vector>
 
@@ -10,7 +10,7 @@
 namespace tachyon::zk {
 
 template <typename ColumnKeyType>
-class TableTest : public testing::Test {
+class RefTableTest : public testing::Test {
  public:
   constexpr static size_t kMaxDegree = (size_t{1} << 3) - 1;
 
@@ -37,20 +37,20 @@ class TableTest : public testing::Test {
 };
 
 using ColumnKeyTypes = testing::Types<ColumnKeyBase, AnyColumnKey>;
-TYPED_TEST_SUITE(TableTest, ColumnKeyTypes);
+TYPED_TEST_SUITE(RefTableTest, ColumnKeyTypes);
 
-TYPED_TEST(TableTest, GetColumns) {
+TYPED_TEST(RefTableTest, GetColumns) {
   using ColumnKeyType = TypeParam;
-  using Evals = typename TableTest<ColumnKeyType>::Evals;
+  using Evals = typename RefTableTest<ColumnKeyType>::Evals;
 
   std::vector<ColumnKeyType> targets = {
       FixedColumnKey(1), AdviceColumnKey(1, kFirstPhase), InstanceColumnKey(1),
       FixedColumnKey(2), AdviceColumnKey(2, kFirstPhase), InstanceColumnKey(2),
   };
 
-  Table<Evals> table(absl::MakeConstSpan(this->fixed_columns_),
-                     absl::MakeConstSpan(this->advice_columns_),
-                     absl::MakeConstSpan(this->instance_columns_));
+  RefTable<Evals> table(absl::MakeConstSpan(this->fixed_columns_),
+                        absl::MakeConstSpan(this->advice_columns_),
+                        absl::MakeConstSpan(this->instance_columns_));
 
   std::vector<base::Ref<const Evals>> evals_refs = table.GetColumns(targets);
 

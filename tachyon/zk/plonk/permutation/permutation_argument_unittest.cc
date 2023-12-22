@@ -9,7 +9,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/random.h"
-#include "tachyon/zk/plonk/circuit/table.h"
+#include "tachyon/zk/plonk/circuit/ref_table.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/permutation_assembly.h"
@@ -31,9 +31,9 @@ class PermutationArgumentTest : public halo2::ProverTest {
     instance_columns_ = {cycled_column, domain->Random<Evals>(),
                          domain->Random<Evals>()};
 
-    table_ = Table<Evals>(absl::MakeConstSpan(fixed_columns_),
-                          absl::MakeConstSpan(advice_columns_),
-                          absl::MakeConstSpan(instance_columns_));
+    table_ = RefTable<Evals>(absl::MakeConstSpan(fixed_columns_),
+                             absl::MakeConstSpan(advice_columns_),
+                             absl::MakeConstSpan(instance_columns_));
 
     column_keys_ = {
         FixedColumnKey(0), AdviceColumnKey(0), InstanceColumnKey(0),
@@ -50,7 +50,7 @@ class PermutationArgumentTest : public halo2::ProverTest {
   std::vector<Evals> fixed_columns_;
   std::vector<Evals> advice_columns_;
   std::vector<Evals> instance_columns_;
-  Table<Evals> table_;
+  RefTable<Evals> table_;
 
   std::vector<AnyColumnKey> column_keys_;
   PermutationArgument argument_;

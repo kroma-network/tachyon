@@ -39,6 +39,7 @@ template <typename F,
           size_t MaxDegree = (size_t{1} << F::Config::kTwoAdicity) - 1>
 class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
  public:
+  using Base = UnivariateEvaluationDomain<F, MaxDegree>;
   using Field = F;
   using Evals = UnivariateEvaluations<F, MaxDegree>;
   using DensePoly = UnivariateDensePolynomial<F, MaxDegree>;
@@ -128,7 +129,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   // https://github.com/arkworks-rs/algebra/blob/master/poly/src/domain/radix2/fft.rs#L28)
   constexpr void DegreeAwareFFTInPlace(Evals& evals) const {
     if (!this->offset_.IsOne()) {
-      this->DistributePowers(evals, this->offset_);
+      Base::DistributePowers(evals, this->offset_);
     }
     size_t n = this->size_;
     uint32_t log_n = this->log_size_of_group_;
@@ -161,7 +162,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
   constexpr void InOrderFFTInPlace(Evals& evals) const {
     if (!this->offset_.IsOne()) {
-      this->DistributePowers(evals, this->offset_);
+      Base::DistributePowers(evals, this->offset_);
     }
     FFTHelperInPlace(evals);
   }
@@ -175,7 +176,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
         val *= this->size_inv_;
       }
     } else {
-      this->DistributePowersAndMulByConst(poly, this->offset_inv_,
+      Base::DistributePowersAndMulByConst(poly, this->offset_inv_,
                                           this->size_inv_);
     }
   }

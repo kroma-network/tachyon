@@ -9,7 +9,35 @@ tachyon_cc_library(
     deps = [
         ":value_source",
         "//tachyon/base/strings:string_util",
+        "//tachyon/zk/plonk/vanishing:evaluation_input",
     ],
+)
+
+tachyon_cc_library(
+    name = "circuit_polynomial_builder",
+    hdrs = ["circuit_polynomial_builder.h"],
+    deps = [
+        ":evaluation_input",
+        ":graph_evaluator",
+        ":vanishing_utils",
+        "//tachyon/base:parallelize",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/numerics:checked_math",
+        "//tachyon/zk/lookup:lookup_committed",
+        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/circuit:owned_table",
+        "//tachyon/zk/plonk/circuit:ref_table",
+        "//tachyon/zk/plonk/circuit:rotation",
+        "//tachyon/zk/plonk/permutation:permutation_committed",
+        "//tachyon/zk/plonk/permutation:unpermuted_table",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
+    name = "evaluation_input",
+    hdrs = ["evaluation_input.h"],
+    deps = ["//tachyon/zk/plonk/circuit:owned_table"],
 )
 
 tachyon_cc_library(
@@ -53,22 +81,18 @@ tachyon_cc_library(
     srcs = ["value_source.cc"],
     hdrs = ["value_source.h"],
     deps = [
-        ":value_source_data",
         "//tachyon:export",
         "//tachyon/base:logging",
+        "//tachyon/zk/plonk/vanishing:evaluation_input",
         "@com_google_absl//absl/strings",
     ],
-)
-
-tachyon_cc_library(
-    name = "value_source_data",
-    hdrs = ["value_source_data.h"],
 )
 
 tachyon_cc_library(
     name = "vanishing_argument",
     hdrs = ["vanishing_argument.h"],
     deps = [
+        ":circuit_polynomial_builder",
         ":graph_evaluator",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/plonk:constraint_system",
@@ -107,7 +131,12 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "vanishing_utils",
     hdrs = ["vanishing_utils.h"],
-    deps = ["//tachyon/base:parallelize"],
+    deps = [
+        "//tachyon/base:parallelize",
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base/entities:prover_base",
+        "@com_google_absl//absl/types:span",
+    ],
 )
 
 tachyon_cc_library(
@@ -126,28 +155,28 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
-    name = "vanishing_argument_unittests",
-    srcs = ["vanishing_argument_unittest.cc"],
-    deps = [
-        ":prover_vanishing_argument",
-        ":verifier_vanishing_argument",
-        "//tachyon/zk/base/entities:verifier_base",
-        "//tachyon/zk/plonk/circuit/examples:simple_circuit",
-        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
-        "//tachyon/zk/plonk/halo2:prover_test",
-    ],
-)
-
-tachyon_cc_unittest(
     name = "vanishing_unittests",
     srcs = [
         "graph_evaluator_unittest.cc",
         "value_source_unittest.cc",
+        "vanishing_argument_unittest.cc",
+        "vanishing_utils_unittest.cc",
     ],
     deps = [
+        ":circuit_polynomial_builder",
         ":graph_evaluator",
+        ":prover_vanishing_argument",
         ":value_source",
+        ":vanishing_argument",
+        ":verifier_vanishing_argument",
+        "//tachyon/zk/base/entities:verifier_base",
         "//tachyon/zk/expressions:expression_factory",
         "//tachyon/zk/expressions/evaluator/test:evaluator_test",
+        "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk/circuit/examples:circuit_test",
+        "//tachyon/zk/plonk/circuit/examples:simple_circuit",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
+        "//tachyon/zk/plonk/halo2:prover_test",
+        "//tachyon/zk/plonk/keys:proving_key",
     ],
 )

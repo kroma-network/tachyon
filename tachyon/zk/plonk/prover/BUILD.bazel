@@ -9,7 +9,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/plonk/circuit:table",
+        "//tachyon/zk/plonk/circuit:ref_table",
     ],
 )
 
