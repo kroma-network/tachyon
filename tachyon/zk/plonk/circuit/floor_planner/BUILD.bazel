@@ -9,6 +9,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "allocations",
+    hdrs = ["allocations.h"],
+    deps = [
+        ":allocated_region",
+        "//tachyon:export",
+        "//tachyon/zk/plonk/circuit/floor_planner:empty_space",
+        "@com_google_absl//absl/container:btree",
+    ],
+)
+
+tachyon_cc_library(
     name = "constant",
     hdrs = ["constant.h"],
     deps = [
