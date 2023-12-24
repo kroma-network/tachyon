@@ -3,6 +3,12 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "allocated_region",
+    hdrs = ["allocated_region.h"],
+    deps = ["//tachyon:export"],
+)
+
+tachyon_cc_library(
     name = "constant",
     hdrs = ["constant.h"],
     deps = [
