@@ -18,6 +18,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "empty_space",
+    hdrs = ["empty_space.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:range",
+    ],
+)
+
+tachyon_cc_library(
     name = "floor_planner",
     hdrs = ["floor_planner.h"],
     deps = [
