@@ -55,3 +55,19 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/circuit:region",
     ],
 )
+
+tachyon_cc_library(
+    name = "v1_strategy",
+    srcs = ["v1_strategy.cc"],
+    hdrs = ["v1_strategy.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/circuit:column_type",
+        "//tachyon/zk/plonk/circuit:region_shape",
+        "//tachyon/zk/plonk/circuit/floor_planner:allocations",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
