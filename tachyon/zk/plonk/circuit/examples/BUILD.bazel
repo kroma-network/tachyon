@@ -26,6 +26,8 @@ tachyon_cc_unittest(
     srcs = [
         "simple_circuit_unittest.cc",
         "simple_lookup_circuit_unittest.cc",
+        "simple_lookup_v1_circuit_unittest.cc",
+        "simple_v1_circuit_unittest.cc",
     ],
     deps = [
         ":circuit_test",

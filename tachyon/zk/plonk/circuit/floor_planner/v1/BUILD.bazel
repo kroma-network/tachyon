@@ -36,6 +36,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "v1_floor_planner",
+    hdrs = ["v1_floor_planner.h"],
+    deps = [
+        ":measurement_pass",
+        ":v1_pass",
+        ":v1_plan",
+        ":v1_strategy",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/plonk/circuit/floor_planner",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
     name = "v1_plan",
     hdrs = ["v1_plan.h"],
     deps = [

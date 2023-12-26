@@ -45,6 +45,8 @@ class Verifier : public VerifierBase<PCS> {
  private:
   FRIEND_TEST(SimpleCircuitTest, Verify);
   FRIEND_TEST(SimpleLookupCircuitTest, Verify);
+  FRIEND_TEST(SimpleV1CircuitTest, Verify);
+  FRIEND_TEST(SimpleLookupV1CircuitTest, Verify);
 
   bool VerifyProofForTesting(
       const VerifyingKey<PCS>& vkey,
