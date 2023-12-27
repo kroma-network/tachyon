@@ -47,12 +47,12 @@ TEST_F(PolynomialOpeningsTest, CreateCombinedLowDegreeExtensions) {
       {PolyDeepRef(&polys_[1]),
        {polys_[1].Evaluate(points_[0]), polys_[1].Evaluate(points_[1])}},
   };
-  std::vector<PointDeepRef> points = {
+  std::vector<PointDeepRef> point_refs = {
       PointDeepRef(&points_[0]),
       PointDeepRef(&points_[1]),
   };
   GroupedPolynomialOpenings<Poly> grouped_poly_opening(
-      std::move(poly_openings_vec), std::move(points));
+      std::move(poly_openings_vec), std::move(point_refs));
 
   // NOTE(chokobole): Check whether the manually created low degree extensions
   // are constructed correctly.
@@ -64,8 +64,9 @@ TEST_F(PolynomialOpeningsTest, CreateCombinedLowDegreeExtensions) {
     const PolynomialOpenings<Poly>& poly_openings =
         grouped_poly_opening.poly_openings_vec[i];
     for (size_t j = 0; j < poly_openings.openings.size(); ++j) {
-      EXPECT_EQ(low_degree_extension.Evaluate(*grouped_poly_opening.points[j]),
-                poly_openings.openings[j]);
+      EXPECT_EQ(
+          low_degree_extension.Evaluate(*grouped_poly_opening.point_refs[j]),
+          poly_openings.openings[j]);
     }
   }
 
@@ -178,18 +179,18 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyAndPoints) {
   };
   // TODO(chokobole): Test validity of
   // grouped_poly_openings_vec[i].poly_openings_vec
-  if (grouped_poly_openings_vec[0].points.size() == 2) {
-    EXPECT_EQ(grouped_poly_openings_vec[1].points.size(), 1);
-    EXPECT_THAT(grouped_poly_openings_vec[0].points,
+  if (grouped_poly_openings_vec[0].point_refs.size() == 2) {
+    EXPECT_EQ(grouped_poly_openings_vec[1].point_refs.size(), 1);
+    EXPECT_THAT(grouped_poly_openings_vec[0].point_refs,
                 testing::UnorderedElementsAreArray(expected_points_vec));
-    EXPECT_THAT(grouped_poly_openings_vec[1].points,
+    EXPECT_THAT(grouped_poly_openings_vec[1].point_refs,
                 testing::UnorderedElementsAreArray(expected_points_vec2));
   } else {
-    ASSERT_EQ(grouped_poly_openings_vec[0].points.size(), 1);
-    EXPECT_EQ(grouped_poly_openings_vec[1].points.size(), 2);
-    EXPECT_THAT(grouped_poly_openings_vec[0].points,
+    ASSERT_EQ(grouped_poly_openings_vec[0].point_refs.size(), 1);
+    EXPECT_EQ(grouped_poly_openings_vec[1].point_refs.size(), 2);
+    EXPECT_THAT(grouped_poly_openings_vec[0].point_refs,
                 testing::UnorderedElementsAreArray(expected_points_vec2));
-    EXPECT_THAT(grouped_poly_openings_vec[1].points,
+    EXPECT_THAT(grouped_poly_openings_vec[1].point_refs,
                 testing::UnorderedElementsAreArray(expected_points_vec));
   }
 }

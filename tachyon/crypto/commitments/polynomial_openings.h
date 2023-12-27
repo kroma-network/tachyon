@@ -61,14 +61,14 @@ struct GroupedPolynomialOpenings {
   // [{P₀, [P₀(x₀), P₀(x₁), P₀(x₂)]}, {P₁, [P₁(x₀), P₁(x₁), P₁(x₂)]}]
   std::vector<PolynomialOpenings<Poly, PolyOracle>> poly_openings_vec;
   // [x₀, x₁, x₂]
-  std::vector<base::DeepRef<const Point>> points;
+  std::vector<base::DeepRef<const Point>> point_refs;
 
   GroupedPolynomialOpenings() = default;
   GroupedPolynomialOpenings(
       std::vector<PolynomialOpenings<Poly, PolyOracle>>&& poly_openings_vec,
-      std::vector<base::DeepRef<const Point>>&& points)
+      std::vector<base::DeepRef<const Point>>&& point_refs)
       : poly_openings_vec(std::move(poly_openings_vec)),
-        points(std::move(points)) {}
+        point_refs(std::move(point_refs)) {}
 
   // Create a low degree extension that is a linear combination with a set of
   // low degree extensions based on every |poly_openings_vec.openings| and
@@ -88,7 +88,7 @@ struct GroupedPolynomialOpenings {
   // indexing operator, if we use a vector of |base::DeepRef<const Point>| it
   // can't access as we expect.
   std::vector<Point> CreateOwnedPoints() const {
-    return base::Map(points,
+    return base::Map(point_refs,
                      [](const base::DeepRef<const Point>& p) { return *p; });
   }
 

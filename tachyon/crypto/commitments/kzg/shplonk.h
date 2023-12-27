@@ -113,12 +113,12 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
             size_t i,
             const GroupedPolynomialOpenings<Poly>& grouped_poly_openings) {
           absl::btree_set<PointDeepRef> diffs = super_point_set;
-          for (PointDeepRef point : grouped_poly_openings.points) {
-            diffs.erase(point);
+          for (PointDeepRef point_ref : grouped_poly_openings.point_refs) {
+            diffs.erase(point_ref);
           }
 
-          std::vector<Point> diffs_vec =
-              base::Map(diffs, [](PointDeepRef point) { return *point; });
+          std::vector<Point> diffs_vec = base::Map(
+              diffs, [](PointDeepRef point_ref) { return *point_ref; });
           // calculate difference vanishing polynomial evaluation
           // z₀ = Z₀(u) = (u - x₃)(u - x₄)
           // z₁ = Z₁(u) = (u - x₀)(u - x₁)(u - x₄)
