@@ -1,5 +1,5 @@
-#ifndef TACHYON_ZK_PLONK_PROVER_ARGUMENT_H_
-#define TACHYON_ZK_PLONK_PROVER_ARGUMENT_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_ARGUMENT_H_
+#define TACHYON_ZK_PLONK_HALO2_ARGUMENT_H_
 
 #include <utility>
 #include <vector>
@@ -9,7 +9,7 @@
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/circuit/ref_table.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 
 // Data class including all arguments for creating proof.
 template <typename PCS>
@@ -169,6 +169,6 @@ class Argument {
   std::vector<F> challenges_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_ZK_PLONK_PROVER_ARGUMENT_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_ARGUMENT_H_

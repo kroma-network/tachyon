@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/plonk/prover/argument.h"
+#include "tachyon/zk/plonk/halo2/argument.h"
 
 #include <vector>
 
@@ -13,7 +13,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 namespace {
 
 class ArgumentTest : public halo2::ProverTest {
@@ -118,4 +118,4 @@ TEST_F(ArgumentTest, GetAdviceBlinds) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2

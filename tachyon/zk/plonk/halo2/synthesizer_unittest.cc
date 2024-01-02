@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/plonk/prover/synthesizer.h"
+#include "tachyon/zk/plonk/halo2/synthesizer.h"
 
 #include <memory>
 
@@ -15,7 +15,7 @@
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 namespace {
 
 class SynthesizerTest : public halo2::ProverTest {
@@ -54,4 +54,4 @@ TEST_F(SynthesizerTest, GenerateAdviceColumns) {
   std::vector<F> challenges = synthesizer_.ExportChallenges();
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2

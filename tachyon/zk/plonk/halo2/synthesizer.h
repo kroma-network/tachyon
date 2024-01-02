@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_PROVER_SYNTHESIZER_H_
-#define TACHYON_ZK_PLONK_PROVER_SYNTHESIZER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_SYNTHESIZER_H_
+#define TACHYON_ZK_PLONK_HALO2_SYNTHESIZER_H_
 
 #include <utility>
 #include <vector>
@@ -13,9 +13,9 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/constraint_system.h"
-#include "tachyon/zk/plonk/prover/witness_collection.h"
+#include "tachyon/zk/plonk/halo2/witness_collection.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 
 template <typename PCS>
 class Synthesizer {
@@ -148,6 +148,6 @@ class Synthesizer {
   std::vector<std::vector<F>> advice_blinds_vec_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_ZK_PLONK_PROVER_SYNTHESIZER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_SYNTHESIZER_H_

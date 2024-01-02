@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/plonk/prover/witness_collection.h"
+#include "tachyon/zk/plonk/halo2/witness_collection.h"
 
 #include "gtest/gtest.h"
 
@@ -12,7 +12,7 @@
 #include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 namespace {
 
 class WitnessCollectionTest : public halo2::ProverTest {
@@ -80,4 +80,4 @@ TEST_F(WitnessCollectionTest, GetChallenge) {
   EXPECT_EQ(Value<F>::Known(expected_challenges_[target_idx]), challenge);
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2
