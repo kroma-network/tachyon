@@ -44,6 +44,22 @@ class TACHYON_EXPORT RegionColumn {
     return !operator==(other);
   }
 
+  bool operator<(const RegionColumn& other) const {
+    if (type_ == Type::kColumn) {
+      if (other.type_ == Type::kColumn) {
+        return column_ < other.column_;
+      } else {
+        return true;
+      }
+    } else {
+      if (other.type_ == Type::kColumn) {
+        return false;
+      } else {
+        return selector_.index() < other.selector_.index();
+      }
+    }
+  }
+
   std::string ToString() const {
     if (type_ == Type::kColumn) {
       return column_.ToString();
