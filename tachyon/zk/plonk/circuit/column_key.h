@@ -15,6 +15,7 @@
 #include "absl/hash/hash.h"
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/circuit/column_type.h"
 #include "tachyon/zk/plonk/circuit/phase.h"
 
@@ -155,6 +156,25 @@ class ColumnKey : public ColumnKeyBase {
     return true;
   }
   bool operator!=(const ColumnKey& other) const { return !operator==(other); }
+
+  // This ordering is consensus-critical! The layouters rely on deterministic
+  // column orderings.
+  template <ColumnType C2>
+  bool operator<(const ColumnKey<C2>& other) const {
+    CHECK_NE(type_, ColumnType::kAny);
+    CHECK_NE(other.type_, ColumnType::kAny);
+
+    if (type_ == other.type_) {
+      if (type_ == ColumnType::kInstance || type_ == ColumnType::kFixed) {
+        return false;
+      } else {
+        return phase_ < other.phase_;
+      }
+    } else {
+      // Across column types, sort Instance < Advice < Fixed.
+      return static_cast<int>(type_) < static_cast<int>(other.type_);
+    }
+  }
 
   std::string ToString() const {
     if (type_ == ColumnType::kAdvice) {
