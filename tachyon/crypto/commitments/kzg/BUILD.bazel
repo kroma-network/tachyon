@@ -31,6 +31,7 @@ tachyon_cc_library(
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
         "//tachyon/crypto/transcripts:transcript",
+        "//tachyon/math/elliptic_curves/pairing",
     ],
 )
 
@@ -44,6 +45,7 @@ tachyon_cc_unittest(
         ":shplonk",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/crypto/transcripts:simple_transcript",
+        "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",

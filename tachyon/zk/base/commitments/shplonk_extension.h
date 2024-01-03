@@ -15,11 +15,11 @@
 namespace tachyon {
 namespace zk {
 
-template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
-          size_t MaxExtendedDegree, typename Commitment>
+template <typename CurveTy, size_t MaxDegree, size_t MaxExtendedDegree,
+          typename Commitment>
 class SHPlonkExtension
-    : public UnivariatePolynomialCommitmentSchemeExtension<SHPlonkExtension<
-          G1PointTy, G2PointTy, MaxDegree, MaxExtendedDegree, Commitment>> {
+    : public UnivariatePolynomialCommitmentSchemeExtension<
+          SHPlonkExtension<CurveTy, MaxDegree, MaxExtendedDegree, Commitment>> {
  public:
   // NOTE(dongchangYoo): The following value are pre-determined according to
   // the Commitment Opening Scheme.
@@ -27,11 +27,12 @@ class SHPlonkExtension
   // github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/poly/kzg/multiopen/shplonk/prover.rs#L111
   constexpr static bool kQueryInstance = false;
 
+  using G1PointTy = typename CurveTy::G1Curve::AffinePointTy;
   using Field = typename G1PointTy::ScalarField;
 
   SHPlonkExtension() = default;
   explicit SHPlonkExtension(
-      crypto::SHPlonk<G1PointTy, G2PointTy, MaxDegree, Commitment>&& shplonk)
+      crypto::SHPlonk<CurveTy, MaxDegree, Commitment>&& shplonk)
       : shplonk_(std::move(shplonk)) {}
 
   size_t N() const { return shplonk_.N(); }
@@ -57,21 +58,20 @@ class SHPlonkExtension
     return shplonk_.DoCommitLagrange(v, out);
   }
 
-  template <typename ContainerTy>
-  [[nodiscard]] bool DoCreateOpeningProof(
-      const ContainerTy& poly_openings,
-      crypto::SHPlonkProof<Commitment>* proof) const {
+  template <typename ContainerTy, typename Proof>
+  [[nodiscard]] bool DoCreateOpeningProof(const ContainerTy& poly_openings,
+                                          Proof* proof) const {
     return shplonk_.DoCreateOpeningProof(poly_openings, proof);
   }
 
  private:
-  crypto::SHPlonk<G1PointTy, G2PointTy, MaxDegree, Commitment> shplonk_;
+  crypto::SHPlonk<CurveTy, MaxDegree, Commitment> shplonk_;
 };
 
-template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
-          size_t MaxExtendedDegree, typename Commitment>
-struct UnivariatePolynomialCommitmentSchemeExtensionTraits<SHPlonkExtension<
-    G1PointTy, G2PointTy, MaxDegree, MaxExtendedDegree, Commitment>> {
+template <typename CurveTy, size_t MaxDegree, size_t MaxExtendedDegree,
+          typename Commitment>
+struct UnivariatePolynomialCommitmentSchemeExtensionTraits<
+    SHPlonkExtension<CurveTy, MaxDegree, MaxExtendedDegree, Commitment>> {
  public:
   constexpr static size_t kMaxExtendedDegree = MaxExtendedDegree;
   constexpr static size_t kMaxExtendedSize = kMaxExtendedDegree + 1;
@@ -81,11 +81,12 @@ struct UnivariatePolynomialCommitmentSchemeExtensionTraits<SHPlonkExtension<
 
 namespace crypto {
 
-template <typename G1PointTy, typename G2PointTy, size_t MaxDegree,
-          size_t MaxExtendedDegree, typename _Commitment>
-struct VectorCommitmentSchemeTraits<zk::SHPlonkExtension<
-    G1PointTy, G2PointTy, MaxDegree, MaxExtendedDegree, _Commitment>> {
+template <typename CurveTy, size_t MaxDegree, size_t MaxExtendedDegree,
+          typename _Commitment>
+struct VectorCommitmentSchemeTraits<
+    zk::SHPlonkExtension<CurveTy, MaxDegree, MaxExtendedDegree, _Commitment>> {
  public:
+  using G1PointTy = typename CurveTy::G1Curve::AffinePointTy;
   using Field = typename G1PointTy::ScalarField;
   using Commitment = _Commitment;
 

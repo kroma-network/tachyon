@@ -6,8 +6,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
@@ -22,8 +21,7 @@ class ProverTest : public testing::Test {
   constexpr static size_t kMaxExtendedDegree = (size_t{1} << 7) - 1;
   constexpr static size_t kMaxExtendedDomainSize = kMaxExtendedDegree + 1;
 
-  using PCS = SHPlonkExtension<math::bn254::G1AffinePoint,
-                               math::bn254::G2AffinePoint, kMaxDegree,
+  using PCS = SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
                                kMaxExtendedDegree, math::bn254::G1AffinePoint>;
   using F = PCS::Field;
   using Commitment = PCS::Commitment;

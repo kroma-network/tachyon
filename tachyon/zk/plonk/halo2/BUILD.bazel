@@ -121,8 +121,7 @@ tachyon_cc_library(
     hdrs = ["prover_test.h"],
     deps = [
         ":prover",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/bn/bn254:g2",
+        "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/zk/base:blinder",
         "//tachyon/zk/base/commitments:shplonk_extension",
