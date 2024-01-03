@@ -67,6 +67,7 @@ tachyon_cc_library(
     deps = [
         ":column_type",
         ":phase",
+        "//tachyon/base:logging",
         "@com_google_absl//absl/strings",
     ],
 )
