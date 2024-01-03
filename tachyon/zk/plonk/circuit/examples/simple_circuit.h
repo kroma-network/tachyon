@@ -216,7 +216,7 @@ class SimpleCircuit : public Circuit<FieldConfig<F>> {
     //
     // but it's more efficient to implement it as:
     //     ab   = a * b
-    //     absq = ab²
+    //     absq = (ab)²
     //     c    = constant * absq
     AssignedCell<F> ab =
         field_chip.Mul(layouter->Namespace("a * b").get(), a, b);
