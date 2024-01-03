@@ -32,7 +32,7 @@ class AssignedCell {
   const Value<F>& value() const { return value_; }
 
   // Copies the value to a given advice cell and constrains them to be equal.
-  AssignedCell<F> CopyAdvice(std::string_view name, Region<F>& region,
+  AssignedCell<F> CopyAdvice(std::string_view, Region<F>& region,
                              const AdviceColumnKey& column,
                              size_t offset) const;
 
