@@ -20,6 +20,7 @@ namespace tachyon::zk {
 
 class TACHYON_EXPORT RegionColumn {
  public:
+  // NOTE(TomTaehoonKim): THE ORDER OF ELEMENTS ARE IMPORTANT!! DO NOT CHANGE!
   enum class Type {
     kColumn,
     kSelector,
@@ -42,6 +43,15 @@ class TACHYON_EXPORT RegionColumn {
   }
   bool operator!=(const RegionColumn& other) const {
     return !operator==(other);
+  }
+
+  bool operator<(const RegionColumn& other) const {
+    if (type_ == Type::kColumn && other.type_ == Type::kColumn) {
+      return column_ < other.column_;
+    } else if (type_ == Type::kSelector && other.type_ == Type::kSelector) {
+      return selector_.index() < other.selector_.index();
+    }
+    return static_cast<int>(type_) < static_cast<int>(other.type_);
   }
 
   std::string ToString() const {
