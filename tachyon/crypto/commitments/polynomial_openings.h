@@ -147,22 +147,22 @@ class PolynomialOpeningGrouper {
   void GroupByPolyAndPoints(
       const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
     // Group |poly_openings| by polynomial.
-    // {P₀, [x₀, x₁, x₂]}
-    // {P₁, [x₀, x₁, x₂]}
-    // {P₂, [x₀, x₁, x₂]}
-    // {P₃, [x₂, x₃]}
-    // {P₄, [x₄]}
+    // poly_openings_grouped_by_poly[0]: {P₀, [x₀, x₁, x₂]}
+    // poly_openings_grouped_by_poly[1]: {P₁, [x₀, x₁, x₂]}
+    // poly_openings_grouped_by_poly[2]: {P₂, [x₀, x₁, x₂]}
+    // poly_openings_grouped_by_poly[3]: {P₃, [x₂, x₃]}
+    // poly_openings_grouped_by_poly[4]: {P₄, [x₄]}
     std::vector<PolyOracleGroupedPair> poly_openings_grouped_by_poly =
         GroupByPoly(poly_openings);
 
     // Group |poly_openings_grouped_by_poly| by points.
-    // [x₀, x₁, x₂]: [P₀, P₁, P₂]
-    // [x₂, x₃]: [P₃]
-    // [x₄]: [P₄]
+    // poly_openings_grouped_by_poly_and_points[0]: {[x₀, x₁, x₂], [P₀, P₁, P₂]}
+    // poly_openings_grouped_by_poly_and_points[1]: {[x₂, x₃], [P₃]}
+    // poly_openings_grouped_by_poly_and_points[2]: {[x₄], [P₄]}
     std::vector<PointGroupedPair> poly_openings_grouped_by_poly_and_points =
         GroupByPoints(poly_openings_grouped_by_poly);
 
-    // Construct opening sets from the flattened map.
+    // Construct openings vectors from the |poly_openings_grouped_by_poly|.
     // Each contains oracles and the corresponding evaluation points.
     // grouped_poly_openings_vec_[0]: {[P₀, P₁, P₂], [x₀, x₁, x₂]}
     // grouped_poly_openings_vec_[1]: {[P₃], [x₂, x₃]}
