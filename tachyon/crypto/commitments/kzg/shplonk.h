@@ -241,7 +241,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
       // |diffs[1]| = [x₀, x₁, x₄]
       // |diffs[2]| = [x₀, x₁, x₂, x₃]
       std::vector<Point> diffs;
-      diffs.reserve(point_refs.size());
+      diffs.reserve(super_point_set.size() - point_refs.size());
       for (const PointDeepRef& point_ref : super_point_set) {
         if (std::find(point_refs.begin(), point_refs.end(), point_ref) ==
             point_refs.end()) {
