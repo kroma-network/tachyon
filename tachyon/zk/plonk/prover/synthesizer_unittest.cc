@@ -11,6 +11,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
@@ -24,7 +25,8 @@ class SynthesizerTest : public halo2::ProverTest {
   void SetUp() override {
     halo2::ProverTest::SetUp();
 
-    circuits_ = {SimpleCircuit<F>(), SimpleCircuit<F>()};
+    circuits_ = {SimpleCircuit<F, SimpleFloorPlanner>(),
+                 SimpleCircuit<F, SimpleFloorPlanner>()};
 
     CHECK(verifying_key_.Load(prover_.get(), circuits_[0]));
 
@@ -33,7 +35,7 @@ class SynthesizerTest : public halo2::ProverTest {
   }
 
  protected:
-  std::vector<SimpleCircuit<F>> circuits_;
+  std::vector<SimpleCircuit<F, SimpleFloorPlanner>> circuits_;
   VerifyingKey<PCS> verifying_key_;
   Synthesizer<PCS> synthesizer_;
 };
