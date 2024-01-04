@@ -224,22 +224,22 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     size_t i = 0;
     for (const auto& [poly_openings_vec, point_refs] :
          grouped_poly_openings_vec) {
-      // |commitments[0]| = [C₀, C₁, C₂]
-      // |commitments[1]| = [C₃]
-      // |commitments[2]| = [C₄]
+      // |commitments₀| = [C₀, C₁, C₂]
+      // |commitments₁| = [C₃]
+      // |commitments₂| = [C₄]
       std::vector<Commitment> commitments = base::Map(
           poly_openings_vec,
           [](const PolynomialOpenings<Poly, Commitment>& poly_openings) {
             return *poly_openings.poly_oracle;
           });
-      // |points[0]| = [x₀, x₁, x₂]
-      // |points[1]| = [x₂, x₃]
-      // |points[2]| = [x₄]
+      // |points₀| = [x₀, x₁, x₂]
+      // |points₁| = [x₂, x₃]
+      // |points₂| = [x₄]
       std::vector<Point> points = base::Map(
           point_refs, [](const PointDeepRef& point_ref) { return *point_ref; });
-      // |diffs[0]| = [x₃, x₄]
-      // |diffs[1]| = [x₀, x₁, x₄]
-      // |diffs[2]| = [x₀, x₁, x₂, x₃]
+      // |diffs₀| = [x₃, x₄]
+      // |diffs₁| = [x₀, x₁, x₄]
+      // |diffs₂| = [x₀, x₁, x₂, x₃]
       std::vector<Point> diffs;
       diffs.reserve(super_point_set.size() - point_refs.size());
       for (const PointDeepRef& point_ref : super_point_set) {
