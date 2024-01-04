@@ -67,7 +67,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
       const ContainerTy& poly_openings,
       TranscriptWriter<Commitment>* writer) const {
     PolynomialOpeningGrouper<Poly> grouper;
-    grouper.GroupByPolyAndPoints(poly_openings);
+    grouper.GroupByPolyOracleAndPoints(poly_openings);
 
     // Group |poly_openings| to |grouped_poly_openings_vec|.
     // {[P₀, P₁, P₂], [x₀, x₁, x₂]}
@@ -210,7 +210,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     if (!reader->ReadFromProof(&q)) return false;
 
     PolynomialOpeningGrouper<Poly, Commitment> grouper;
-    grouper.GroupByPolyAndPoints(poly_openings);
+    grouper.GroupByPolyOracleAndPoints(poly_openings);
 
     // Group |poly_openings| to |grouped_poly_openings_vec|.
     // {[C₀, C₁, C₂], [x₀, x₁, x₂]}
