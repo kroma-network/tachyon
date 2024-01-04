@@ -141,9 +141,6 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
 
           const std::vector<Poly>& low_degree_extensions =
               low_degree_extensions_vec[i];
-          // L₀(X) = (P₀(X) - R₀(u)) + y(P₁(X) - R₁(u)) + y²(P₂(X) - R₂(u)))
-          // L₁(X) = (P₃(X) - R₃(u))
-          // L₂(X) = (P₄(X) - R₄(u))
           std::vector<Poly> polys = base::Map(
               grouped_poly_openings.poly_openings_vec,
               [&u, &low_degree_extensions](
@@ -153,6 +150,11 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
                 return poly;
               });
 
+          // clang-format off
+          // L₀(X) = (P₀(X) - R₀(u)) + y(P₁(X) - R₁(u)) + y²(P₂(X) - R₂(u))) * Zᴛ\₀(u)
+          // L₁(X) = (P₃(X) - R₃(u)) * Zᴛ\₁(u)
+          // L₂(X) = (P₄(X) - R₄(u)) * Zᴛ\₂(u)
+          // clang-format on
           Poly& l = Poly::LinearizeInPlace(polys, y);
           return l *= z_diff;
         });

@@ -14,9 +14,9 @@
 
 namespace tachyon::crypto {
 
-// A single polynomial oracle with a single opening
+// A single polynomial oracle with a single opening.
 // The type of polynomial oracle can be either |Poly| in |CreateOpeningProof()|
-// and |Commitment| in |VerifyOpeningProof()|
+// and |Commitment| in |VerifyOpeningProof()|.
 template <typename Poly, typename PolyOracle = Poly>
 struct PolynomialOpening {
   using Field = typename Poly::Field;
@@ -51,7 +51,7 @@ struct PolynomialOpenings {
       : poly_oracle(poly_oracle), openings(std::move(openings)) {}
 };
 
-// Multi polynomial openings grouped by shared points.
+// Multi polynomial oracles with multi openings grouped by shared points.
 template <typename Poly, typename PolyOracle = Poly>
 struct GroupedPolynomialOpenings {
   using Field = typename Poly::Field;
