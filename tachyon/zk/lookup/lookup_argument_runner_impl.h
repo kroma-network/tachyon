@@ -10,8 +10,10 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/ref.h"
 #include "tachyon/zk/lookup/compress_expression.h"
 #include "tachyon/zk/lookup/lookup_argument_runner.h"
+#include "tachyon/zk/lookup/permute_expression_pair.h"
 #include "tachyon/zk/plonk/circuit/rotation.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 
@@ -27,9 +29,8 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
       prover->domain(), argument.input_expressions(), theta, evaluator_tpl);
 
   // S_compressed(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
-  Evals compressed_table_expression =
-      CompressExpressions(prover->domain(), argument.table_expressions(), theta,
-                          evaluator_tpl, &compressed_table_expression);
+  Evals compressed_table_expression = CompressExpressions(
+      prover->domain(), argument.table_expressions(), theta, evaluator_tpl);
 
   // Permute compressed (InputExpression, TableExpression) pair.
   LookupPair<Evals> compressed_evals_pair(
@@ -95,19 +96,32 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
 
 template <typename Poly, typename Evals>
 template <typename PCS, typename F>
-std::vector<ProverQuery<PCS>> LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
+std::vector<crypto::PolynomialOpening<Poly>>
+LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
     const ProverBase<PCS>* prover, const LookupEvaluated<Poly>& evaluated,
-    const F& x) {
+    const F& x, PointSet<F>& points) {
   F x_prev = Rotation::Prev().RotateOmega(prover->domain(), x);
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
+  base::DeepRef<const F> x_ref(&x);
+  base::DeepRef<const F> x_prev_ref = points.Insert(x_prev);
+  base::DeepRef<const F> x_next_ref = points.Insert(x_next);
 
   return {
-      ProverQuery<PCS>(x, evaluated.product_poly().ToRef()),
-      ProverQuery<PCS>(x, evaluated.permuted_input_poly().ToRef()),
-      ProverQuery<PCS>(std::move(x), evaluated.permuted_table_poly().ToRef()),
-      ProverQuery<PCS>(std::move(x_prev),
-                       evaluated.permuted_input_poly().ToRef()),
-      ProverQuery<PCS>(std::move(x_next), evaluated.product_poly().ToRef())};
+      crypto::PolynomialOpening<Poly>(
+          base::DeepRef<const Poly>(&evaluated.product_poly().poly()), x_ref,
+          evaluated.product_poly().poly().Evaluate(x)),
+      crypto::PolynomialOpening<Poly>(
+          base::DeepRef<const Poly>(&evaluated.permuted_input_poly().poly()),
+          x_ref, evaluated.permuted_input_poly().poly().Evaluate(x)),
+      crypto::PolynomialOpening<Poly>(
+          base::DeepRef<const Poly>(&evaluated.permuted_table_poly().poly()),
+          x_ref, evaluated.permuted_table_poly().poly().Evaluate(x)),
+      crypto::PolynomialOpening<Poly>(
+          base::DeepRef<const Poly>(&evaluated.permuted_input_poly().poly()),
+          x_prev_ref, evaluated.permuted_input_poly().poly().Evaluate(x_prev)),
+      crypto::PolynomialOpening<Poly>(
+          base::DeepRef<const Poly>(&evaluated.product_poly().poly()),
+          x_next_ref, evaluated.product_poly().poly().Evaluate(x_next))};
 }
 
 template <typename Poly, typename Evals>

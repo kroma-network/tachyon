@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/ref.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/plonk/circuit/rotation.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
@@ -28,7 +29,7 @@ template <typename PCS, typename F>
 PermutationCommitted<Poly>
 PermutationArgumentRunner<Poly, Evals>::CommitArgument(
     ProverBase<PCS>* prover, const PermutationArgument& argument,
-    RefTable<Evals>& table, size_t constraint_system_degree,
+    const RefTable<Evals>& table, size_t constraint_system_degree,
     const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
     const F& beta, const F& gamma) {
   // How many columns can be included in a single permutation polynomial?
@@ -111,57 +112,48 @@ PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
 
 template <typename Poly, typename Evals>
 template <typename PCS, typename F>
-std::vector<ProverQuery<PCS>>
+std::vector<crypto::PolynomialOpening<Poly>>
 PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
-    const ProverBase<PCS>* prover, const PermutationEvaluated<Poly>& evaluated,
-    const F& x) {
+    ProverBase<PCS>* prover, const PermutationEvaluated<Poly>& evaluated,
+    const F& x, PointSet<F>& points) {
   const std::vector<BlindedPolynomial<Poly>>& product_polys =
       evaluated.product_polys();
 
-  std::vector<ProverQuery<PCS>> ret;
+  std::vector<crypto::PolynomialOpening<Poly>> ret;
   ret.reserve(product_polys.size() * 3 - 1);
 
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
+  base::DeepRef<const F> x_next_ref = points.Insert(x_next);
+  base::DeepRef<const F> x_ref = points.Insert(x);
   for (const BlindedPolynomial<Poly>& blinded_poly : product_polys) {
-    ret.emplace_back(x, blinded_poly.ToRef());
-    ret.emplace_back(x_next, blinded_poly.ToRef());
+    const Poly& poly = blinded_poly.poly();
+    ret.emplace_back(base::DeepRef<const Poly>(&poly), x_ref, poly.Evaluate(x));
+    ret.emplace_back(base::DeepRef<const Poly>(&poly), x_next_ref,
+                     poly.Evaluate(x_next));
   }
 
-  int32_t blinding_factors =
-      static_cast<int32_t>(prover->blinder().blinding_factors());
-  F x_last = Rotation(-(blinding_factors + 1)).RotateOmega(prover->domain(), x);
+  Rotation last_rotation =
+      Rotation(-static_cast<int32_t>(prover->blinder().blinding_factors() + 1));
+  F x_last = last_rotation.RotateOmega(prover->domain(), x);
+  base::DeepRef<const F> x_last_ref = points.Insert(x_last);
   for (auto it = product_polys.rbegin() + 1; it != product_polys.rend(); ++it) {
-    ret.emplace_back(x_last, it->ToRef());
+    const Poly& poly = it->poly();
+    ret.emplace_back(base::DeepRef<const Poly>(&poly), x_last_ref,
+                     poly.Evaluate(x_last));
   }
   return ret;
 }
 
 template <typename Poly, typename Evals>
-template <typename PCS, typename F>
-std::vector<BlindedPolynomial<Poly>>
-PermutationArgumentRunner<Poly, Evals>::BlindProvingKey(
-    ProverBase<PCS>* prover,
-    const PermutationProvingKey<Poly, Evals>& proving_key) {
-  std::vector<BlindedPolynomial<Poly>> ret;
-  ret.reserve(proving_key.polys().size());
-  for (Poly& poly : proving_key.polys()) {
-    F blind = prover->blinder().Generate();
-    ret.emplace_back(std::move(poly), std::move(blind));
-  }
-  return ret;
-}
-
-template <typename Poly, typename Evals>
-template <typename PCS, typename F>
-std::vector<ProverQuery<PCS>>
-PermutationArgumentRunner<Poly, Evals>::OpenBlindedPolynomials(
-    const std::vector<BlindedPolynomial<Poly>>& blinded_polys, const F& x) {
-  std::vector<ProverQuery<PCS>> ret;
-  ret.reserve(blinded_polys.size());
-  for (const BlindedPolynomial<Poly>& blind_poly : blinded_polys) {
-    ret.emplace_back(x, blind_poly.ToRef());
-  }
-  return ret;
+template <typename F>
+std::vector<crypto::PolynomialOpening<Poly>>
+PermutationArgumentRunner<Poly, Evals>::OpenPermutationProvingKey(
+    const PermutationProvingKey<Poly, Evals>& proving_key, const F& x) {
+  return base::Map(proving_key.polys(), [&x](const Poly& poly) {
+    return crypto::PolynomialOpening<Poly>(base::DeepRef<const Poly>(&poly),
+                                           base::DeepRef<const F>(&x),
+                                           poly.Evaluate(x));
+  });
 }
 
 template <typename Poly, typename Evals>
