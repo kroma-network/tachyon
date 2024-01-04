@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "absl/container/btree_set.h"
-#include "absl/container/flat_hash_map.h"
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
