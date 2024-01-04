@@ -24,6 +24,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "point_set",
+    hdrs = ["point_set.h"],
+    deps = [
+        "//tachyon/base:ref",
+        "//tachyon/base/containers:container_util",
+    ],
+)
+
+tachyon_cc_library(
     name = "point_stringifier",
     hdrs = ["point_stringifier.h"],
     deps = [
