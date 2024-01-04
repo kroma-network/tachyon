@@ -111,8 +111,9 @@ class Synthesizer {
         prover->domain(), constraint_system_->num_advice_columns(),
         prover->GetUsableRows(), phase, challenges_, instance_columns);
 
-    circuit.floor_planner().Synthesize(&witness, circuit, config.Clone(),
-                                       constraint_system_->constants());
+    typename Circuit::FloorPlanner floor_planner;
+    floor_planner.Synthesize(&witness, circuit, config.Clone(),
+                             constraint_system_->constants());
 
     return std::move(witness).TakeAdvices();
   }

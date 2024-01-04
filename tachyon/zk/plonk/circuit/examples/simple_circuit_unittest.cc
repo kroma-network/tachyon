@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/plonk/circuit/examples/circuit_test.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
@@ -87,7 +88,8 @@ class SimpleCircuitTest : public CircuitTest {};
 
 TEST_F(SimpleCircuitTest, Configure) {
   ConstraintSystem<F> constraint_system;
-  FieldConfig<F> config = SimpleCircuit<F>::Configure(constraint_system);
+  FieldConfig<F> config =
+      SimpleCircuit<F, SimpleFloorPlanner>::Configure(constraint_system);
   std::array<AdviceColumnKey, 2> expected_advice = {
       AdviceColumnKey(0),
       AdviceColumnKey(1),
@@ -165,16 +167,18 @@ TEST_F(SimpleCircuitTest, Synthesize) {
   const Domain* domain = prover_->domain();
 
   ConstraintSystem<F> constraint_system;
-  FieldConfig<F> config = SimpleCircuit<F>::Configure(constraint_system);
+  FieldConfig<F> config =
+      SimpleCircuit<F, SimpleFloorPlanner>::Configure(constraint_system);
   Assembly<PCS> assembly =
       VerifyingKey<PCS>::CreateAssembly(domain, constraint_system);
 
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<F> circuit(constant, a, b);
-  circuit.floor_planner().Synthesize(&assembly, circuit, std::move(config),
-                                     constraint_system.constants());
+  SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
+  typename SimpleCircuit<F, SimpleFloorPlanner>::FloorPlanner floor_planner;
+  floor_planner.Synthesize(&assembly, circuit, std::move(config),
+                           constraint_system.constants());
 
   std::vector<RationalEvals> expected_fixed_columns;
   RationalEvals evals = domain->Empty<RationalEvals>();
@@ -240,7 +244,7 @@ TEST_F(SimpleCircuitTest, LoadVerifyingKey) {
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<F> circuit(constant, a, b);
+  SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
 
   VerifyingKey<PCS> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
@@ -287,7 +291,7 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<F> circuit(constant, a, b);
+  SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
 
   for (size_t i = 0; i < 2; ++i) {
     ProvingKey<PCS> pkey;
@@ -635,7 +639,7 @@ TEST_F(SimpleCircuitTest, Verify) {
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<F> circuit(constant, a, b);
+  SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
 
   VerifyingKey<PCS> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
