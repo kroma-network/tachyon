@@ -200,7 +200,7 @@ class PolynomialOpeningGrouper {
         PolyOracleGroupedPair new_pair;
         new_pair.poly_oracle = poly_opening.poly_oracle;
         new_pair.points.insert(poly_opening.point);
-        ret.push_back(new_pair);
+        ret.push_back(std::move(new_pair));
       }
     }
     return ret;
@@ -229,7 +229,7 @@ class PolynomialOpeningGrouper {
         PointGroupedPair new_pair;
         new_pair.points = poly_oracle_grouped_pair.points;
         new_pair.polys.push_back(poly_oracle_grouped_pair.poly_oracle);
-        ret.push_back(new_pair);
+        ret.push_back(std::move(new_pair));
       }
     }
     return ret;
