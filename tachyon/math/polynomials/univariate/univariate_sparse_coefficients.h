@@ -36,6 +36,24 @@ struct UnivariateTerm {
   size_t degree;
   F coefficient;
 
+  UnivariateTerm operator+(const F& scalar) const {
+    return {degree, coefficient + scalar};
+  }
+
+  UnivariateTerm& operator+=(const F& scalar) {
+    coefficient += scalar;
+    return *this;
+  }
+
+  UnivariateTerm operator-(const F& scalar) const {
+    return {degree, coefficient - scalar};
+  }
+
+  UnivariateTerm& operator-=(const F& scalar) {
+    coefficient -= scalar;
+    return *this;
+  }
+
   UnivariateTerm operator-() const { return {degree, -coefficient}; }
 
   UnivariateTerm operator*(const F& scalar) const {
@@ -179,6 +197,43 @@ class UnivariateSparseCoefficients {
              term.coefficient;
     }
     return sum;
+  }
+
+  // Return coefficients where the original coefficients reduce their degree
+  // by categorizing coefficients into even and odd degrees,
+  // multiplying either set of coefficients by a specified random field |r|,
+  // and summing them together.
+  template <bool MulRandomWithEvens>
+  constexpr UnivariateSparseCoefficients Fold(const Field& r) const {
+    std::vector<Term> terms;
+    terms.reserve(terms_.size() >> 1);
+    for (const Term& term : terms_) {
+      if (term.degree % 2 == 0) {
+        if constexpr (MulRandomWithEvens) {
+          terms.push_back({term.degree >> 1, term.coefficient * r});
+        } else {
+          terms.push_back({term.degree >> 1, term.coefficient});
+        }
+      } else {
+        if (!terms.empty() && terms.back().degree == (term.degree >> 1)) {
+          if constexpr (MulRandomWithEvens) {
+            terms.back() += term.coefficient;
+          } else {
+            terms.back() += (term.coefficient * r);
+          }
+          if (terms.back().coefficient.IsZero()) {
+            terms.pop_back();
+          }
+        } else {
+          if constexpr (MulRandomWithEvens) {
+            terms.push_back({term.degree >> 1, term.coefficient});
+          } else {
+            terms.push_back({term.degree >> 1, term.coefficient * r});
+          }
+        }
+      }
+    }
+    return UnivariateSparseCoefficients(std::move(terms));
   }
 
   std::string ToString() const {

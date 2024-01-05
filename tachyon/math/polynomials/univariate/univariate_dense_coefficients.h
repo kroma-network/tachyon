@@ -166,6 +166,35 @@ class UnivariateDenseCoefficients {
     return DoEvaluate(point);
   }
 
+  // Return coefficients where the original coefficients reduce their degree
+  // by categorizing coefficients into even and odd degrees,
+  // multiplying either set of coefficients by a specified random field |r|,
+  // and summing them together.
+  template <bool MulRandomWithEvens>
+  constexpr UnivariateDenseCoefficients Fold(const Field& r) const {
+    size_t size = coefficients_.size();
+    std::vector<F> coefficients =
+        base::CreateVector((size + 1) >> 1, F::Zero());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += 2) {
+      if constexpr (MulRandomWithEvens) {
+        coefficients[i >> 1] = coefficients_[i];
+        coefficients[i >> 1] *= r;
+        coefficients[i >> 1] += coefficients_[i + 1];
+      } else {
+        coefficients[i >> 1] = coefficients_[i + 1];
+        coefficients[i >> 1] *= r;
+        coefficients[i >> 1] += coefficients_[i];
+      }
+    }
+    if (size % 2 != 0) {
+      coefficients[size >> 1] = coefficients_[size - 1];
+      if constexpr (MulRandomWithEvens) {
+        coefficients[size >> 1] *= r;
+      }
+    }
+    return UnivariateDenseCoefficients(std::move(coefficients));
+  }
+
   std::string ToString() const {
     if (IsZero()) return base::EmptyString();
     size_t len = coefficients_.size() - 1;

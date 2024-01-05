@@ -27,8 +27,11 @@ class SHPlonkExtension
   // github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/poly/kzg/multiopen/shplonk/prover.rs#L111
   constexpr static bool kQueryInstance = false;
 
-  using G1PointTy = typename CurveTy::G1Curve::AffinePointTy;
-  using Field = typename G1PointTy::ScalarField;
+  using Base = UnivariatePolynomialCommitmentSchemeExtension<
+      SHPlonkExtension<CurveTy, MaxDegree, MaxExtendedDegree, Commitment>>;
+  using Field = typename Base::Field;
+  using Poly = typename Base::Poly;
+  using Evals = typename Base::Evals;
 
   SHPlonkExtension() = default;
   explicit SHPlonkExtension(
@@ -50,6 +53,15 @@ class SHPlonkExtension
   template <typename BaseContainerTy>
   [[nodiscard]] bool DoCommit(const BaseContainerTy& v, Commitment* out) const {
     return shplonk_.DoCommit(v, out);
+  }
+
+  [[nodiscard]] bool DoCommit(const Poly& poly, Commitment* out) const {
+    return shplonk_.DoCommit(poly, out);
+  }
+
+  [[nodiscard]] bool DoCommitLagrange(const Evals& evals,
+                                      Commitment* out) const {
+    return shplonk_.DoCommitLagrange(evals, out);
   }
 
   template <typename BaseContainerTy>

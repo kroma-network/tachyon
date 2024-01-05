@@ -170,6 +170,15 @@ class UnivariatePolynomial final
                            });
   }
 
+  // Return a polynomial where the original polynomial reduces its degree
+  // by categorizing coefficients into even and odd degrees,
+  // multiplying either set of coefficients by a specified random field |r|,
+  // and summing them together.
+  template <bool MulRandomWithEvens>
+  constexpr UnivariatePolynomial Fold(const Field& r) const {
+    return UnivariatePolynomial(coefficients_.template Fold<MulRandomWithEvens>(r));
+  }
+
   auto ToSparse() const {
     return internal::UnivariatePolynomialOp<Coefficients>::ToSparse(*this);
   }

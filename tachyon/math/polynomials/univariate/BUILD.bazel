@@ -123,6 +123,7 @@ tachyon_cc_unittest(
         ":univariate_polynomial",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/containers:contains",
+        "//tachyon/base/containers:cxx20_erase",
         "//tachyon/base/functional:function_ref",
         "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
         "//tachyon/math/elliptic_curves/bn/bn384_small_two_adicity:fq",

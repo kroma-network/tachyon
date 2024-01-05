@@ -1,0 +1,41 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "fri_proof",
+    hdrs = ["fri_proof.h"],
+    deps = ["//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:binary_merkle_proof"],
+)
+
+tachyon_cc_library(
+    name = "fri_storage",
+    hdrs = ["fri_storage.h"],
+    deps = ["//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:binary_merkle_tree_storage"],
+)
+
+tachyon_cc_library(
+    name = "fri",
+    hdrs = ["fri.h"],
+    deps = [
+        ":fri_proof",
+        ":fri_storage",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
+        "//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree",
+        "//tachyon/crypto/transcripts:transcript",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "fri_unittests",
+    srcs = ["fri_unittest.cc"],
+    deps = [
+        ":fri",
+        "//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree:simple_binary_merkle_tree_storage",
+        "//tachyon/crypto/transcripts:simple_transcript",
+        "//tachyon/math/finite_fields/goldilocks_prime:goldilocks",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+    ],
+)

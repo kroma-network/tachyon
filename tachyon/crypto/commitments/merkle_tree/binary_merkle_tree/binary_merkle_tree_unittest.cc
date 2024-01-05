@@ -6,6 +6,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/crypto/commitments/merkle_tree/binary_merkle_tree/simple_binary_merkle_tree_storage.h"
 
 namespace tachyon::crypto {
 
@@ -20,20 +21,6 @@ class SimpleHasher : public BinaryMerkleHasher<int, int> {
   }
 };
 
-class SimpleMerkleTreeStorage : public BinaryMerkleTreeStorage<int> {
- public:
-  const std::vector<int>& hashes() const { return hashes_; }
-
-  // BinaryMerkleTreeStorage<int> methods
-  void Allocate(size_t size) override { hashes_.resize(size); }
-  size_t GetSize() const override { return hashes_.size(); }
-  const int& GetHash(size_t i) const override { return hashes_[i]; }
-  void SetHash(size_t i, const int& hash) override { hashes_[i] = hash; }
-
- private:
-  std::vector<int> hashes_;
-};
-
 class BinaryMerkleTreeTest : public testing::Test {
  public:
   constexpr static size_t K = 3;
@@ -44,12 +31,12 @@ class BinaryMerkleTreeTest : public testing::Test {
   void SetUp() override {
     vcs_ = VCS(&storage_, &hasher_);
     vcs_.set_leaves_size_for_parallelization(N >> 1);
-  };
+  }
 
   void CreateLeaves() { leaves_ = base::CreateRangedVector<int>(0, N); }
 
  protected:
-  SimpleMerkleTreeStorage storage_;
+  SimpleBinaryMerkleTreeStorage<int> storage_;
   SimpleHasher hasher_;
   VCS vcs_;
   std::vector<int> leaves_;
@@ -120,7 +107,8 @@ TEST_F(BinaryMerkleTreeTest, CommitAndVerify) {
   };
   EXPECT_EQ(proof, expected_proof);
 
-  ASSERT_TRUE(vcs_.VerifyOpeningProof(commitment, 1, proof));
+  int leaf_hash = hasher_.ComputeLeafHash(1);
+  ASSERT_TRUE(vcs_.VerifyOpeningProof(commitment, leaf_hash, proof));
 }
 
 }  // namespace tachyon::crypto
