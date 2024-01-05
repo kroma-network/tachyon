@@ -1,0 +1,31 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "json",
+    hdrs = ["json.h"],
+    deps = [
+        ":rapidjson_util",
+        "//tachyon/base/files:file_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "rapidjson_util",
+    srcs = ["rapidjson_util.cc"],
+    hdrs = ["rapidjson_util.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base/numerics:safe_conversions",
+        "@com_github_tencent_rapidjson//:rapidjson",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "json_unittests",
+    srcs = ["json_unittest.cc"],
+    data = ["test/simple_data.json"],
+    deps = [":json"],
+)
