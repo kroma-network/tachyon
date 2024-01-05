@@ -67,7 +67,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
       const ContainerTy& poly_openings,
       TranscriptWriter<Commitment>* writer) const {
     PolynomialOpeningGrouper<Poly> grouper;
-    grouper.GroupByPolyAndPoints(poly_openings);
+    grouper.GroupByPolyOracleAndPoints(poly_openings);
 
     // Group |poly_openings| to |grouped_poly_openings_vec|.
     // {[P₀, P₁, P₂], [x₀, x₁, x₂]}
@@ -112,13 +112,15 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     Field u = writer->SqueezeChallenge();
 
     // Create [L₀(X), L₁(X), L₂(X)].
-    // L₀(X) = z₀ * ((P₀(X) - R₀(u)) + y(P₁(X) - R₁(u)) + y²(P₂(X) - R₂(u)))
-    // L₁(X) = z₁ * (P₃(X) - R₃(u))
-    // L₂(X) = z₂ * (P₄(X) - R₄(u))
-    Field first_z;
+    // clang-format off
+    // L₀(X) = Zᴛ\₀(u) * ((P₀(X) - R₀(u)) + y(P₁(X) - R₁(u)) + y²(P₂(X) - R₂(u)))
+    // L₁(X) = Zᴛ\₁(u) * (P₃(X) - R₃(u))
+    // L₂(X) = Zᴛ\₂(u) * (P₄(X) - R₄(u))
+    // clang-format on
+    Field first_z_diff;
     std::vector<Poly> l_polys = base::Map(
         grouped_poly_openings_vec,
-        [&y, &u, &first_z, &low_degree_extensions_vec, &super_point_set](
+        [&y, &u, &first_z_diff, &low_degree_extensions_vec, &super_point_set](
             size_t i,
             const GroupedPolynomialOpenings<Poly>& grouped_poly_openings) {
           absl::btree_set<PointDeepRef> diffs = super_point_set;
@@ -129,19 +131,16 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
           std::vector<Point> diffs_vec = base::Map(
               diffs, [](PointDeepRef point_ref) { return *point_ref; });
           // calculate difference vanishing polynomial evaluation
-          // z₀ = Z₀(u) = (u - x₃)(u - x₄)
-          // z₁ = Z₁(u) = (u - x₀)(u - x₁)(u - x₄)
-          // z₂ = Z₂(u) = (u - x₀)(u - x₁)(u - x₂)(u - x₃)
-          Field z = Poly::EvaluateVanishingPolyByRoots(diffs_vec, u);
+          // |z_diff₀| = Zᴛ\₀(u) = (u - x₃)(u - x₄)
+          // |z_diff₁| = Zᴛ\₁(u) = (u - x₀)(u - x₁)(u - x₄)
+          // |z_diff₂| = Zᴛ\₂(u) = (u - x₀)(u - x₁)(u - x₂)(u - x₃)
+          Field z_diff = Poly::EvaluateVanishingPolyByRoots(diffs_vec, u);
           if (i == 0) {
-            first_z = z;
+            first_z_diff = z_diff;
           }
 
           const std::vector<Poly>& low_degree_extensions =
               low_degree_extensions_vec[i];
-          // L₀(X) = (P₀(X) - R₀(u)) + y(P₁(X) - R₁(u)) + y²(P₂(X) - R₂(u)))
-          // L₁(X) = (P₃(X) - R₃(u))
-          // L₂(X) = (P₄(X) - R₄(u))
           std::vector<Poly> polys = base::Map(
               grouped_poly_openings.poly_openings_vec,
               [&u, &low_degree_extensions](
@@ -151,8 +150,13 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
                 return poly;
               });
 
+          // clang-format off
+          // L₀(X) = (P₀(X) - R₀(u)) + y(P₁(X) - R₁(u)) + y²(P₂(X) - R₂(u))) * Zᴛ\₀(u)
+          // L₁(X) = (P₃(X) - R₃(u)) * Zᴛ\₁(u)
+          // L₂(X) = (P₄(X) - R₄(u)) * Zᴛ\₂(u)
+          // clang-format on
           Poly& l = Poly::LinearizeInPlace(polys, y);
-          return l *= z;
+          return l *= z_diff;
         });
 
     // Create a linear combination of polynomials [L₀(X), L₁(X), L₂(X)] with
@@ -167,7 +171,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     // Zᴛ(u) = (u - x₀)(u - x₁)(u - x₂)(u - x₃)(u - x₄)
     Field zt_eval = Poly::EvaluateVanishingPolyByRoots(z_t, u);
 
-    // L(X) = L(X) - Zᴛ(u) * H(X)
+    // L(X) = L₀(X) + vL₁(X) + v²L₂(X) - Zᴛ(u) * H(X)
     h_poly *= zt_eval;
     l_poly -= h_poly;
 
@@ -179,7 +183,8 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     Poly& q_poly = l_poly /= vanishing_poly;
 
     // Normalize
-    q_poly /= first_z;
+    // Q(X) = L(X) / ((X - u) * Zᴛ\₀(u))
+    q_poly /= first_z_diff;
 
     // Commit Q(X)
     Commitment q;
@@ -205,7 +210,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     if (!reader->ReadFromProof(&q)) return false;
 
     PolynomialOpeningGrouper<Poly, Commitment> grouper;
-    grouper.GroupByPolyAndPoints(poly_openings);
+    grouper.GroupByPolyOracleAndPoints(poly_openings);
 
     // Group |poly_openings| to |grouped_poly_openings_vec|.
     // {[C₀, C₁, C₂], [x₀, x₁, x₂]}
@@ -219,29 +224,29 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     Field first_z_diff_inverse = Field::Zero();
     Field first_z = Field::Zero();
 
-    std::vector<G1JacobianPointTy> l_commitments;
-    l_commitments.reserve(grouped_poly_openings_vec.size());
+    std::vector<G1JacobianPointTy> normalized_l_commitments;
+    normalized_l_commitments.reserve(grouped_poly_openings_vec.size());
     size_t i = 0;
     for (const auto& [poly_openings_vec, point_refs] :
          grouped_poly_openings_vec) {
-      // |commitments[0]| = [C₀, C₁, C₂]
-      // |commitments[1]| = [C₃]
-      // |commitments[2]| = [C₄]
+      // |commitments₀| = [C₀, C₁, C₂]
+      // |commitments₁| = [C₃]
+      // |commitments₂| = [C₄]
       std::vector<Commitment> commitments = base::Map(
           poly_openings_vec,
           [](const PolynomialOpenings<Poly, Commitment>& poly_openings) {
             return *poly_openings.poly_oracle;
           });
-      // |points[0]| = [x₀, x₁, x₂]
-      // |points[1]| = [x₂, x₃]
-      // |points[2]| = [x₄]
+      // |points₀| = [x₀, x₁, x₂]
+      // |points₁| = [x₂, x₃]
+      // |points₂| = [x₄]
       std::vector<Point> points = base::Map(
           point_refs, [](const PointDeepRef& point_ref) { return *point_ref; });
-      // |diffs[0]| = [x₃, x₄]
-      // |diffs[1]| = [x₀, x₁, x₄]
-      // |diffs[2]| = [x₀, x₁, x₂, x₃]
+      // |diffs₀| = [x₃, x₄]
+      // |diffs₁| = [x₀, x₁, x₄]
+      // |diffs₂| = [x₀, x₁, x₂, x₃]
       std::vector<Point> diffs;
-      diffs.reserve(point_refs.size());
+      diffs.reserve(super_point_set.size() - point_refs.size());
       for (const PointDeepRef& point_ref : super_point_set) {
         if (std::find(point_refs.begin(), point_refs.end(), point_ref) ==
             point_refs.end()) {
@@ -249,90 +254,93 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
         }
       }
 
-      // z_diff_0 = (u - x₃)(u - x₄)
-      // z_diff_1 = (u - x₀)(u - x₁)(u - x₄)
-      // z_diff_2 = (u - x₀)(u - x₁)(u - x₂)(u - x₃)
-      Point z_diff_i = Poly::EvaluateVanishingPolyByRoots(std::move(diffs), u);
+      // clang-format off
+      // |normalized_z_diff₀| = Zᴛ\₀(u) / Zᴛ\₀(u) = 1
+      // |normalized_z_diff₁| = Zᴛ\₁(u) / Zᴛ\₀(u) = (u - x₀)(u - x₁)(u - x₄) / (u - x₃)(u - x₄)
+      // |normalized_z_diff₂| = Zᴛ\₂(u) / Zᴛ\₀(u) = (u - x₀)(u - x₁)(u - x₂)(u - x₃) / (u - x₃)(u - x₄)
+      // clang-format on
+      Point normalized_z_diff = Poly::EvaluateVanishingPolyByRoots(diffs, u);
       if (i == 0) {
-        // z₀ = (u - x₀)(u - x₁)(u - x₂)
-        first_z = Poly::EvaluateVanishingPolyByRoots(std::move(points), u);
-        // (u - x₃)(u - x₄)⁻¹
-        first_z_diff_inverse = z_diff_i.InverseInPlace();
-        z_diff_i = Field::One();
+        // Zᴛ = [x₀, x₁, x₂, x₃, x₄]
+        // |first_z| = Z₀(u) = Zᴛ(u) / Zᴛ\₀(u) = (u - x₀)(u - x₁)(u - x₂)
+        first_z = Poly::EvaluateVanishingPolyByRoots(points, u);
+        // Z₀(u)⁻¹ = (u - x₃)(u - x₄)⁻¹
+        first_z_diff_inverse = normalized_z_diff.InverseInPlace();
+        normalized_z_diff = Field::One();
       } else {
-        // z_diff_1 = (u - x₀)(u - x₁)(u - x₄)/(u - x₃)(u - x₄)
-        // z_diff_2 = (u - x₀)(u - x₁)(u - x₂)(u - x₃)/(u - x₃)(u - x₄)
-        z_diff_i *= first_z_diff_inverse;
+        normalized_z_diff *= first_z_diff_inverse;
       }
 
-      // For example in i = 0:
-      // [R₀(u)]₁ = R₀(u) * G₁
-      // [R₁(u)]₁ = R₁(u) * G₁
-      // [R₂(u)]₁ = R₂(u) * G₁
-      // r_commitments = [R₀(u) * G₁, R₁(u) * G₁, R₂(u) * G₁]
+      // |r_commitments₀| = [[R₀(u)]₁, [R₁(u)]₁, [R₂(u)]₁]
+      // |r_commitments₁| = [[R₃(u)]₁]
+      // |r_commitments₂| = [[R₄(u)]₁]
       std::vector<G1JacobianPointTy> r_commitments = base::Map(
           poly_openings_vec,
           [&points,
            &u](const PolynomialOpenings<Poly, Commitment>& poly_openings) {
-            Poly r_i;
-            CHECK(math::LagrangeInterpolate(points, poly_openings.openings,
-                                            &r_i));
-            Field r = r_i.Evaluate(u);
-            return G1PointTy::Generator().ScalarMul(r);
+            Poly r;
+            CHECK(
+                math::LagrangeInterpolate(points, poly_openings.openings, &r));
+            return r.Evaluate(u) * G1PointTy::Generator();
           });
 
-      // [L₀]₁ = (C₀ - [R₀(u)]₁) + y(C₁ - [R₁(u)]₁) + y²(C₂ - [R₂(u)]₁)
-      G1JacobianPointTy l_i = commitments.back() - r_commitments.back();
-      if (commitments.size() > 1) {
-        for (size_t j = commitments.size() - 2; j != SIZE_MAX; --j) {
-          l_i *= y;
-          l_i += (commitments[j] - r_commitments[j]);
-        }
+      // clang-format off
+      // |l_commitment₀| = (C₀ - [R₀(u)]₁) + y(C₁ - [R₁(u)]₁) + y²(C₂ - [R₂(u)]₁)
+      // |l_commitment₁| = C₁ - [R₁(u)]₁
+      // |l_commitment₂| = C₂ - [R₂(u)]₁
+      // clang-format on
+      G1JacobianPointTy l_commitment = G1JacobianPointTy::Zero();
+      for (size_t j = commitments.size() - 1; j != SIZE_MAX; --j) {
+        l_commitment *= y;
+        l_commitment += (commitments[j] - r_commitments[j]);
       }
 
-      // [L₀]₁ *= 1
-      // [L₁]₁ *= (u - x₀)(u - x₁)(u - x₄)/(u - x₃)(u - x₄)
-      // [L₂]₁ *= (u - x₀)(u - x₁)(u - x₂)(u - x₃)/(u - x₃)(u - x₄)
-      l_i *= z_diff_i;
-      l_commitments.push_back(l_i);
+      // clang-format off
+      // |normalized_l_commitments₀| = [L₀(𝜏)]₁ / Zᴛ\₀(u) = (C₀ - [R₀(u)]₁) + y(C₁ - [R₁(u)]₁) + y²(C₂ - [R₂(u)]₁) * Zᴛ\₀(u) / Zᴛ\₀(u)
+      // |normalized_l_commitments₁| = [L₁(𝜏)]₁ / Zᴛ\₀(u) = (C₁ - [R₁(u)]₁) * Zᴛ\₁(u) / Zᴛ\₀(u)
+      // |normalized_l_commitments₂| = [L₂(𝜏)]₁ / Zᴛ\₀(u) = (C₂ - [R₂(u)]₁) * Zᴛ\₂(u) / Zᴛ\₀(u)
+      // clang-format on
+      l_commitment *= normalized_z_diff;
+      normalized_l_commitments.push_back(std::move(l_commitment));
       ++i;
     }
 
-    // [L₀]₁ + v[L₁]₁ + v²[L₂]₁
-    G1JacobianPointTy linear_combination =
-        l_commitments[l_commitments.size() - 1];
-    if (l_commitments.size() > 1) {
-      for (size_t j = l_commitments.size() - 2; j != SIZE_MAX; --j) {
-        linear_combination *= v;
-        linear_combination += l_commitments[j];
-      }
+    // ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u)
+    G1JacobianPointTy linear_combination = G1JacobianPointTy::Zero();
+    for (size_t i = normalized_l_commitments.size() - 1; i != SIZE_MAX; --i) {
+      linear_combination *= v;
+      linear_combination += normalized_l_commitments[i];
     }
 
-    // lhs_g1 = [L₀]₁ + v[L₁]₁ + v²[L₂]₁ - z₀[H]₁ + u[Q]₁
-    // lhs_g2 = G₂
+    // clang-format off
+    // lhs_g1 = ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u) - Z₀(u)[H(𝜏)]₁ + u[Q(𝜏)]₁
+    // lhs_g2 = [1]₂
+    // clang-format on
     G1JacobianPointTy lhs = linear_combination;
 
-    lhs -= (h * first_z);
-    lhs += (q * u);
+    lhs -= (first_z * h);
+    lhs += (u * q);
 
     std::vector<G1PointTy> lhs_g1 = {lhs.ToAffine()};
     std::vector<G2Prepared> lhs_g2 = {
         CurveTy::G2Prepared::From(G2PointTy::Generator())};
-    Fp12Ty lhs_pairing =
-        math::Pairing<CurveTy>(std::move(lhs_g1), std::move(lhs_g2));
+    Fp12Ty lhs_pairing = math::Pairing<CurveTy>(lhs_g1, lhs_g2);
 
-    // rhs_g1 = [Q]₁
-    // rhs_g2 = 𝜏G₂
+    // rhs_g1 = [Q(𝜏)]₁
+    // rhs_g2 = [𝜏]₂
     std::vector<G1PointTy> rhs_g1 = {q};
     std::vector<G2Prepared> rhs_g2 = {CurveTy::G2Prepared::From(tau_g2_)};
-    Fp12Ty rhs_pairing =
-        math::Pairing<CurveTy>(std::move(rhs_g1), std::move(rhs_g2));
+    Fp12Ty rhs_pairing = math::Pairing<CurveTy>(rhs_g1, rhs_g2);
 
-    // e(lhs_g1, rhs_g2) == e(rhs_g1, lhs_g2)
-    // lhs: e(G₁, G₂)^([L₀]₁ + v[L₁]₁ + v²[L₂]₁ - z₀[H]₁ + u[Q]₁)
-    // rhs: e(G₁, G₂)^(𝜏[Q]₁)
-    // [L₀]₁ + v[L₁]₁ + v²[L₂]₁ - z₀[H]₁ + u[Q]₁ ?= 𝜏[Q]₁
-    // [L₀]₁ + v[L₁]₁ + v²[L₂]₁ - z₀[H]₁ ?= (𝜏 - u)[Q]₁
+    // clang-format off
+    // e(lhs_g1, rhs_g2) ≟ e(rhs_g1, lhs_g2)
+    // lhs: e(G₁, G₂)^((L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏))
+    // rhs: e(G₁, G₂)^(𝜏 * Q(𝜏))
+    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏) ≟ 𝜏 * Q(𝜏)
+    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) ≟ (𝜏 - u) * Q(𝜏)
+    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏) - Zᴛ(u) * H(𝜏)) / Zᴛ\₀(u) ≟ (𝜏 - u) * Q(𝜏)
+    // L(𝜏) ≟ (𝜏 - u) * Q(𝜏) * Zᴛ\₀(u)
+    // clang-format on
     return lhs_pairing == rhs_pairing;
   }
 

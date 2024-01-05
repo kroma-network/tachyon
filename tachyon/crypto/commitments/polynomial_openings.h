@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "absl/container/btree_set.h"
-#include "absl/container/flat_hash_map.h"
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
@@ -15,9 +14,9 @@
 
 namespace tachyon::crypto {
 
-// A single polynomial oracle with a single opening
+// A single polynomial oracle with a single opening.
 // The type of polynomial oracle can be either |Poly| in |CreateOpeningProof()|
-// and |Commitment| in |VerifyOpeningProof()|
+// and |Commitment| in |VerifyOpeningProof()|.
 template <typename Poly, typename PolyOracle = Poly>
 struct PolynomialOpening {
   using Field = typename Poly::Field;
@@ -52,7 +51,7 @@ struct PolynomialOpenings {
       : poly_oracle(poly_oracle), openings(std::move(openings)) {}
 };
 
-// Multi polynomial openings grouped by shared points.
+// Multi polynomial oracles with multi openings grouped by shared points.
 template <typename Poly, typename PolyOracle = Poly>
 struct GroupedPolynomialOpenings {
   using Field = typename Poly::Field;
@@ -144,44 +143,43 @@ class PolynomialOpeningGrouper {
     return super_point_set_;
   }
 
-  void GroupByPolyAndPoints(
+  void GroupByPolyOracleAndPoints(
       const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
     // Group |poly_openings| by polynomial.
-    // {P₀, [x₀, x₁, x₂]}
-    // {P₁, [x₀, x₁, x₂]}
-    // {P₂, [x₀, x₁, x₂]}
-    // {P₃, [x₂, x₃]}
-    // {P₄, [x₄]}
-    std::vector<PolyOracleGroupedPair> poly_openings_grouped_by_poly =
-        GroupByPoly(poly_openings);
+    // grouped_poly_oracle_pairs[0]: {P₀, [x₀, x₁, x₂]}
+    // grouped_poly_oracle_pairs[1]: {P₁, [x₀, x₁, x₂]}
+    // grouped_poly_oracle_pairs[2]: {P₂, [x₀, x₁, x₂]}
+    // grouped_poly_oracle_pairs[3]: {P₃, [x₂, x₃]}
+    // grouped_poly_oracle_pairs[4]: {P₄, [x₄]}
+    std::vector<GroupedPolyOraclePair> grouped_poly_oracle_pairs =
+        GroupByPolyOracle(poly_openings);
 
-    // Group |poly_openings_grouped_by_poly| by points.
-    // [x₀, x₁, x₂]: [P₀, P₁, P₂]
-    // [x₂, x₃]: [P₃]
-    // [x₄]: [P₄]
-    std::vector<PointGroupedPair> poly_openings_grouped_by_poly_and_points =
-        GroupByPoints(poly_openings_grouped_by_poly);
+    // Group |grouped_poly_oracle_pairs| by points.
+    // grouped_point_pairs[0]: {[x₀, x₁, x₂], [P₀, P₁, P₂]}
+    // grouped_point_pairs[1]: {[x₂, x₃], [P₃]}
+    // grouped_point_pairs[2]: {[x₄], [P₄]}
+    std::vector<GroupedPointPair> grouped_point_pairs =
+        GroupByPoints(grouped_poly_oracle_pairs);
 
-    // Construct opening sets from the flattened map.
+    // Construct openings vectors from the |grouped_poly_oracle_pairs|.
     // Each contains oracles and the corresponding evaluation points.
     // grouped_poly_openings_vec_[0]: {[P₀, P₁, P₂], [x₀, x₁, x₂]}
     // grouped_poly_openings_vec_[1]: {[P₃], [x₂, x₃]}
     // grouped_poly_openings_vec_[2]: {[P₄], [x₄]}
-    CreateMultiPolynomialOpenings(poly_openings,
-                                  poly_openings_grouped_by_poly_and_points);
+    CreateMultiPolynomialOpenings(poly_openings, grouped_point_pairs);
   }
 
  private:
-  FRIEND_TEST(PolynomialOpeningsTest, GroupByPolyAndPoints);
+  FRIEND_TEST(PolynomialOpeningsTest, GroupByPolyOracleAndPoints);
 
-  struct PolyOracleGroupedPair {
+  struct GroupedPolyOraclePair {
     PolyOracleDeepRef poly_oracle;
     absl::btree_set<PointDeepRef> points;
   };
 
-  std::vector<PolyOracleGroupedPair> GroupByPoly(
+  std::vector<GroupedPolyOraclePair> GroupByPolyOracle(
       const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
-    std::vector<PolyOracleGroupedPair> ret;
+    std::vector<GroupedPolyOraclePair> ret;
     ret.reserve(poly_openings.size());
     for (const PolynomialOpening<Poly, PolyOracle>& poly_opening :
          poly_openings) {
@@ -190,7 +188,7 @@ class PolynomialOpeningGrouper {
       auto it = std::find_if(
           ret.begin(), ret.end(),
           [&poly_opening](
-              const PolyOracleGroupedPair& poly_oracle_grouped_pair) {
+              const GroupedPolyOraclePair& poly_oracle_grouped_pair) {
             return poly_oracle_grouped_pair.poly_oracle ==
                    poly_opening.poly_oracle;
           });
@@ -198,28 +196,28 @@ class PolynomialOpeningGrouper {
       if (it != ret.end()) {
         it->points.insert(poly_opening.point);
       } else {
-        PolyOracleGroupedPair new_pair;
+        GroupedPolyOraclePair new_pair;
         new_pair.poly_oracle = poly_opening.poly_oracle;
         new_pair.points.insert(poly_opening.point);
-        ret.push_back(new_pair);
+        ret.push_back(std::move(new_pair));
       }
     }
     return ret;
   }
 
-  struct PointGroupedPair {
+  struct GroupedPointPair {
     absl::btree_set<PointDeepRef> points;
     std::vector<PolyOracleDeepRef> polys;
   };
 
-  std::vector<PointGroupedPair> GroupByPoints(
-      const std::vector<PolyOracleGroupedPair>& poly_openings_grouped_by_poly) {
-    std::vector<PointGroupedPair> ret;
-    ret.reserve(poly_openings_grouped_by_poly.size());
-    for (const auto& poly_oracle_grouped_pair : poly_openings_grouped_by_poly) {
+  std::vector<GroupedPointPair> GroupByPoints(
+      const std::vector<GroupedPolyOraclePair>& grouped_poly_oracle_pairs) {
+    std::vector<GroupedPointPair> ret;
+    ret.reserve(grouped_poly_oracle_pairs.size());
+    for (const auto& poly_oracle_grouped_pair : grouped_poly_oracle_pairs) {
       auto it = std::find_if(ret.begin(), ret.end(),
                              [&poly_oracle_grouped_pair](
-                                 const PointGroupedPair& point_grouped_pair) {
+                                 const GroupedPointPair& point_grouped_pair) {
                                return point_grouped_pair.points ==
                                       poly_oracle_grouped_pair.points;
                              });
@@ -227,10 +225,10 @@ class PolynomialOpeningGrouper {
       if (it != ret.end()) {
         it->polys.push_back(poly_oracle_grouped_pair.poly_oracle);
       } else {
-        PointGroupedPair new_pair;
+        GroupedPointPair new_pair;
         new_pair.points = poly_oracle_grouped_pair.points;
         new_pair.polys.push_back(poly_oracle_grouped_pair.poly_oracle);
-        ret.push_back(new_pair);
+        ret.push_back(std::move(new_pair));
       }
     }
     return ret;
@@ -238,13 +236,10 @@ class PolynomialOpeningGrouper {
 
   void CreateMultiPolynomialOpenings(
       const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings,
-      const std::vector<PointGroupedPair>&
-          poly_openings_grouped_by_poly_and_points) {
-    grouped_poly_openings_vec_.reserve(
-        poly_openings_grouped_by_poly_and_points.size());
+      const std::vector<GroupedPointPair>& grouped_point_pairs) {
+    grouped_poly_openings_vec_.reserve(grouped_point_pairs.size());
 
-    for (const auto& [points, polys] :
-         poly_openings_grouped_by_poly_and_points) {
+    for (const auto& [points, polys] : grouped_point_pairs) {
       std::vector<PointDeepRef> points_vec(points.begin(), points.end());
 
       std::vector<PolynomialOpenings<Poly, PolyOracle>> poly_openings_vec =

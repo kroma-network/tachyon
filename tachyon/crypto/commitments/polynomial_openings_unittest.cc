@@ -102,10 +102,10 @@ TEST_F(PolynomialOpeningsTest, CreateCombinedLowDegreeExtensions) {
   EXPECT_EQ(actual_eval, expected_eval);
 }
 
-TEST_F(PolynomialOpeningsTest, GroupByPolyAndPoints) {
-  using PolyOracleGroupedPair =
-      PolynomialOpeningGrouper<Poly>::PolyOracleGroupedPair;
-  using PointGroupedPair = PolynomialOpeningGrouper<Poly>::PointGroupedPair;
+TEST_F(PolynomialOpeningsTest, GroupByPolyOracleAndPoints) {
+  using GroupedPolyOraclePair =
+      PolynomialOpeningGrouper<Poly>::GroupedPolyOraclePair;
+  using GroupedPointPair = PolynomialOpeningGrouper<Poly>::GroupedPointPair;
 
   std::vector<PolynomialOpening<Poly>> poly_openings;
   poly_openings.emplace_back(PolyDeepRef(&polys_[0]), PointDeepRef(&points_[0]),
@@ -119,8 +119,8 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyAndPoints) {
   poly_openings.emplace_back(PolyDeepRef(&polys_[2]), PointDeepRef(&points_[2]),
                              polys_[0].Evaluate(points_[2]));
   PolynomialOpeningGrouper<Poly> grouper;
-  std::vector<PolyOracleGroupedPair> poly_openings_grouped_by_poly =
-      grouper.GroupByPoly(poly_openings);
+  std::vector<GroupedPolyOraclePair> poly_openings_grouped_by_poly =
+      grouper.GroupByPolyOracle(poly_openings);
 
   for (const auto& poly_oracle_grouped_pair : poly_openings_grouped_by_poly) {
     absl::btree_set<PointDeepRef> expected_points;
@@ -145,7 +145,7 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyAndPoints) {
   };
   EXPECT_EQ(grouper.super_point_set(), expected_points);
 
-  std::vector<PointGroupedPair> poly_openings_grouped_by_poly_and_points =
+  std::vector<GroupedPointPair> poly_openings_grouped_by_poly_and_points =
       grouper.GroupByPoints(poly_openings_grouped_by_poly);
   for (const auto& point_grouped_pair :
        poly_openings_grouped_by_poly_and_points) {
