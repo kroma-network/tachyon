@@ -11,7 +11,11 @@
 #include <vector>
 
 #include "tachyon/zk/expressions/evaluator.h"
+#include "tachyon/zk/expressions/negated_expression.h"
+#include "tachyon/zk/expressions/product_expression.h"
+#include "tachyon/zk/expressions/scaled_expression.h"
 #include "tachyon/zk/expressions/selector_expression.h"
+#include "tachyon/zk/expressions/sum_expression.h"
 
 namespace tachyon::zk {
 

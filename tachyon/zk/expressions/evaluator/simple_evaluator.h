@@ -68,6 +68,7 @@ class SimpleEvaluator
         return input->ToConstant()->value();
 
       case ExpressionType::kSelector:
+        NOTREACHED() << "virtual selectors are removed during optimization";
         break;
 
       case ExpressionType::kFixed: {

@@ -51,6 +51,7 @@ tachyon_cc_library(
         ":permutation_evaluated",
         ":permutation_proving_key",
         ":permutation_table_store",
+        ":permutation_utils",
         "//tachyon/zk/base:prover_query",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/circuit:rotation",
@@ -94,6 +95,34 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/circuit:ref_table",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permutation_utils",
+    hdrs = ["permutation_utils.h"],
+    deps = [
+        # TODO(chokobole): Remove this dependency once fixing issue specified in permutation_utils.h.
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/base/numerics:checked_math",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permutation_verification_data",
+    hdrs = ["permutation_verification_data.h"],
+    deps = ["//tachyon/zk/plonk/vanishing:vanishing_verification_data"],
+)
+
+tachyon_cc_library(
+    name = "permutation_verification",
+    hdrs = ["permutation_verification.h"],
+    deps = [
+        ":permutation_utils",
+        ":permutation_verification_data",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/zk/plonk:constraint_system",
     ],
 )
 
@@ -147,12 +176,10 @@ tachyon_cc_library(
     hdrs = ["unpermuted_table.h"],
     deps = [
         ":label",
+        ":permutation_utils",
         "//tachyon/base:range",
         "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
-        # TODO(chokobole): Remove this dependency once fixing issue specified in unpermuted_table.h.
-        "//tachyon/math/elliptic_curves/bn/bn254:fr",
-        "@com_google_googletest//:gtest_prod",
     ],
 )
 
@@ -164,6 +191,7 @@ tachyon_cc_unittest(
         "permutation_assembly_unittest.cc",
         "permutation_proving_key_unittest.cc",
         "permutation_table_store_unittest.cc",
+        "permutation_utils_unittest.cc",
         "permutation_verifying_key_unittest.cc",
         "unpermuted_table_unittest.cc",
     ],
@@ -172,6 +200,7 @@ tachyon_cc_unittest(
         ":permutation_assembly",
         ":permutation_table_store",
         "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
         "//tachyon/zk/plonk/halo2:prover_test",
     ],
 )

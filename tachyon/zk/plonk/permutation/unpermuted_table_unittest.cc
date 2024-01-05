@@ -39,9 +39,7 @@ TEST_F(UnpermutedTableTest, Construct) {
   size_t n = prover_->pcs().N();
   std::vector<F> omega_powers = domain->GetRootsOfUnity(n, omega);
 
-  const F delta = unpermuted_table_.GetDelta();
-  EXPECT_NE(delta, F::One());
-  EXPECT_EQ(delta.Pow(F::Config::kTrace), F::One());
+  const F delta = GetDelta<F>();
   for (size_t i = 1; i < kCols; ++i) {
     for (size_t j = 0; j < n; ++j) {
       omega_powers[j] *= delta;
@@ -54,7 +52,7 @@ TEST_F(UnpermutedTableTest, GetColumns) {
   const Domain* domain = prover_->domain();
 
   const F& omega = domain->group_gen();
-  const F delta = unpermuted_table_.GetDelta();
+  const F delta = GetDelta<F>();
   size_t n = prover_->pcs().N();
   std::vector<F> omega_powers = domain->GetRootsOfUnity(n, omega);
   for (F& omega_power : omega_powers) {

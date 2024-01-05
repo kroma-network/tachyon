@@ -8,6 +8,7 @@
 #define TACHYON_ZK_PLONK_HALO2_VERIFIER_H_
 
 #include <functional>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -16,8 +17,11 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/verifier_base.h"
+#include "tachyon/zk/lookup/lookup_verification.h"
 #include "tachyon/zk/plonk/halo2/proof_reader.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
+#include "tachyon/zk/plonk/permutation/permutation_verification.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_verification_evaluator.h"
 
 namespace tachyon::zk::halo2 {
 
@@ -35,7 +39,7 @@ class Verifier : public VerifierBase<PCSTy> {
   [[nodiscard]] bool VerifyProof(
       const VerifyingKey<PCSTy>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
-    return VerifyProofForTesting(vkey, instance_columns_vec, nullptr);
+    return VerifyProofForTesting(vkey, instance_columns_vec, nullptr, nullptr);
   }
 
  private:
@@ -45,7 +49,7 @@ class Verifier : public VerifierBase<PCSTy> {
   bool VerifyProofForTesting(
       const VerifyingKey<PCSTy>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec,
-      Proof<F, Commitment>* proof_out) {
+      Proof<F, Commitment>* proof_out, F* expected_h_eval_out) {
     if (!ValidateInstanceColumnsVec(vkey, instance_columns_vec)) return false;
 
     std::vector<std::vector<Commitment>> instance_commitments_vec;
@@ -93,6 +97,12 @@ class Verifier : public VerifierBase<PCSTy> {
 
     if (proof_out) {
       *proof_out = proof;
+    }
+
+    F expected_h_eval =
+        ComputeExpectedHEval(instance_columns_vec.size(), vkey, proof);
+    if (expected_h_eval_out) {
+      *expected_h_eval_out = expected_h_eval;
     }
     return true;
   }
@@ -245,6 +255,67 @@ class Verifier : public VerifierBase<PCSTy> {
                            instance_columns, instance_queries,
                            partial_lagrange_coeffs, range.max);
                      });
+  }
+
+  F ComputeExpectedHEval(size_t num_circuits, const VerifyingKey<PCSTy>& vkey,
+                         const Proof<F, Commitment>& proof) {
+    const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
+    size_t blinding_factors = constraint_system.ComputeBlindingFactors();
+    std::vector<F> l_evals = this->domain_->EvaluatePartialLagrangeCoefficients(
+        proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
+                             /*IsEndInclusive=*/true>(
+                     -static_cast<int32_t>(blinding_factors + 1), 0));
+    const F& l_first = l_evals[1 + blinding_factors];
+    F l_blind = std::accumulate(
+        l_evals.begin() + 1, l_evals.begin() + 1 + blinding_factors, F::Zero(),
+        [](F& acc, const F& eval) { return acc += eval; });
+    const F& l_last = l_evals[0];
+
+    std::vector<F> expressions;
+    const std::vector<Gate<F>>& gates = constraint_system.gates();
+    const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
+    expressions.reserve(
+        num_circuits *
+        (gates.size() +
+         GetSizeOfPermutationVerificationExpressions(constraint_system) +
+         lookups.size() * GetSizeOfLookupVerificationExpressions()));
+    for (size_t i = 0; i < num_circuits; ++i) {
+      VanishingVerificationEvaluator<F> vanishing_verification_evaluator(
+          proof.ToVanishingVerificationData(i));
+      for (const Gate<F>& gate : gates) {
+        for (const std::unique_ptr<Expression<F>>& poly : gate.polys()) {
+          expressions.push_back(
+              poly->Evaluate(&vanishing_verification_evaluator));
+        }
+      }
+
+      std::vector<F> permutation_expressions =
+          CreatePermutationVerificationExpressions(
+              proof.ToPermutationVerificationData(i, l_first, l_blind, l_last),
+              constraint_system);
+      expressions.insert(
+          expressions.end(),
+          std::make_move_iterator(permutation_expressions.begin()),
+          std::make_move_iterator(permutation_expressions.end()));
+
+      for (size_t j = 0; j < lookups.size(); ++j) {
+        const LookupArgument<F>& lookup = lookups[j];
+        std::vector<F> lookup_expressions = CreateLookupVerificationExpressions(
+            proof.ToLookupVerificationData(i, j, l_first, l_blind, l_last),
+            lookup);
+        expressions.insert(expressions.end(),
+                           std::make_move_iterator(lookup_expressions.begin()),
+                           std::make_move_iterator(lookup_expressions.end()));
+      }
+    }
+    const F& y = proof.y;
+    F expected_h_eval =
+        std::accumulate(expressions.begin(), expressions.end(), F::Zero(),
+                        [&y](F& h_eval, const F& expression) {
+                          h_eval *= y;
+                          return h_eval += expression;
+                        });
+    return expected_h_eval /= (proof.x.Pow(this->pcs_.N()) - F::One());
   }
 };
 

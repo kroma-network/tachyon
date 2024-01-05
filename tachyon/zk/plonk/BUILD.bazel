@@ -18,6 +18,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/circuit:selector_compressor",
         "//tachyon/zk/plonk/circuit:virtual_cells",
         "//tachyon/zk/plonk/permutation:permutation_argument",
+        "//tachyon/zk/plonk/permutation:permutation_utils",
     ],
 )
 

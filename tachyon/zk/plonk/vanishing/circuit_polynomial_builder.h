@@ -65,7 +65,7 @@ class CircuitPolynomialBuilder {
 
     builder.omega_ = &domain->group_gen();
     builder.extended_omega_ = &extended_domain->group_gen();
-    builder.delta_ = UnpermutedTable<Evals>::GetDelta();
+    builder.delta_ = GetDelta<F>();
     builder.beta_ = beta;
     builder.gamma_ = gamma;
     builder.theta_ = theta;

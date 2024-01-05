@@ -16,10 +16,10 @@
 namespace tachyon::zk {
 
 template <typename Domain, typename Evals, typename F>
-bool CompressExpressions(
+Evals CompressExpressions(
     const Domain* domain,
     const std::vector<std::unique_ptr<Expression<F>>>& expressions,
-    const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl, Evals* out) {
+    const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl) {
   Evals compressed_value = domain->template Empty<Evals>();
   Evals values = domain->template Empty<Evals>();
 
@@ -38,9 +38,7 @@ bool CompressExpressions(
     compressed_value *= theta;
     compressed_value += values;
   }
-
-  *out = Evals(std::move(compressed_value));
-  return true;
+  return compressed_value;
 }
 
 }  // namespace tachyon::zk
