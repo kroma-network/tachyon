@@ -15,13 +15,13 @@ tachyon_cc_library(
     name = "univariate_polynomial_commitment_scheme_extension",
     hdrs = ["univariate_polynomial_commitment_scheme_extension.h"],
     deps = [
-        ":univariate_polynomial_commitment_scheme_extension_traits",
+        ":univariate_polynomial_commitment_scheme_extension_traits_forward",
         "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
         "//tachyon/math/base:rational_field",
     ],
 )
 
 tachyon_cc_library(
-    name = "univariate_polynomial_commitment_scheme_extension_traits",
-    hdrs = ["univariate_polynomial_commitment_scheme_extension_traits.h"],
+    name = "univariate_polynomial_commitment_scheme_extension_traits_forward",
+    hdrs = ["univariate_polynomial_commitment_scheme_extension_traits_forward.h"],
 )

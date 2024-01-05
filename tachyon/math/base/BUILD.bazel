@@ -31,7 +31,7 @@ tachyon_cc_library(
     hdrs = ["big_int.h"],
     deps = [
         ":arithmetics",
-        ":bit_traits",
+        ":bit_traits_forward",
         "//tachyon/base:bit_cast",
         "//tachyon/base:compiler_specific",
         "//tachyon/base:endian_utils",
@@ -46,12 +46,12 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bit_iterator",
     hdrs = ["bit_iterator.h"],
-    deps = [":bit_traits"],
+    deps = [":bit_traits_forward"],
 )
 
 tachyon_cc_library(
-    name = "bit_traits",
-    hdrs = ["bit_traits.h"],
+    name = "bit_traits_forward",
+    hdrs = ["bit_traits_forward.h"],
 )
 
 tachyon_cc_library(

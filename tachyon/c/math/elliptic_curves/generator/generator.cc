@@ -280,7 +280,7 @@ int GenerationConfig::GeneratePrimeFieldTraitsHdr(
   // clang-format off
   std::vector<std::string_view> tpl = {
       "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/%{suffix}.h\"",
-      "#include \"tachyon/cc/math/finite_fields/prime_field_traits.h\"",
+      "#include \"tachyon/cc/math/finite_fields/prime_field_traits_forward.h\"",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/%{suffix}.h\"",
       "",
       "namespace tachyon::cc::math {",
@@ -642,7 +642,7 @@ int GenerationConfig::GenerateG1TraitsHdr() const {
   std::vector<std::string_view> tpl = {
       "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/fr.h\"",
       "#include \"tachyon/c/math/elliptic_curves/%{header_dir_name}/g1.h\"",
-      "#include \"tachyon/cc/math/elliptic_curves/point_traits.h\"",
+      "#include \"tachyon/cc/math/elliptic_curves/point_traits_forward.h\"",
       "#include \"tachyon/math/elliptic_curves/%{header_dir_name}/g1.h\"",
       "",
       "namespace tachyon::cc::math {",

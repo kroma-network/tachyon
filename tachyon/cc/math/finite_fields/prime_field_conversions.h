@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#include "tachyon/cc/math/finite_fields/prime_field_traits.h"
+#include "tachyon/cc/math/finite_fields/prime_field_traits_forward.h"
 #include "tachyon/math/base/big_int.h"
 
 namespace tachyon::cc::math {

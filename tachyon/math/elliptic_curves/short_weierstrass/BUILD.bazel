@@ -34,14 +34,14 @@ tachyon_cc_library(
     name = "sw_curve",
     srcs = ["sw_curve.h"],
     deps = [
-        ":sw_curve_traits",
+        ":sw_curve_traits_forward",
         "//tachyon/math/elliptic_curves:points",
     ],
 )
 
 tachyon_cc_library(
-    name = "sw_curve_traits",
-    srcs = ["sw_curve_traits.h"],
+    name = "sw_curve_traits_forward",
+    srcs = ["sw_curve_traits_forward.h"],
 )
 
 tachyon_cc_unittest(

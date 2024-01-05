@@ -6,7 +6,7 @@
 #include "absl/numeric/bits.h"
 #include "absl/types/span.h"
 
-#include "tachyon/cc/math/elliptic_curves/point_traits.h"
+#include "tachyon/cc/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/geometry/point2.h"
 
 namespace tachyon::c::math {

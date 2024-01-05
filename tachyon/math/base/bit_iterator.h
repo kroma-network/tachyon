@@ -10,7 +10,7 @@
 #include <limits>
 
 #include "tachyon/build/build_config.h"
-#include "tachyon/math/base/bit_traits.h"
+#include "tachyon/math/base/bit_traits_forward.h"
 
 namespace tachyon::math {
 

@@ -4,10 +4,9 @@
 #include <type_traits>
 
 #include "tachyon/math/base/ring.h"
-#include "tachyon/math/polynomials/polynomial_traits.h"
+#include "tachyon/math/polynomials/polynomial_traits_forward.h"
 
 namespace tachyon::math {
-
 template <typename T, typename SFINAE = void>
 class Polynomial;
 

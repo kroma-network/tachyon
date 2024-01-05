@@ -5,7 +5,7 @@
 
 #include <type_traits>
 
-#include "tachyon/cc/math/elliptic_curves/point_traits.h"
+#include "tachyon/cc/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/geometry/point2.h"
 #include "tachyon/math/geometry/point3.h"

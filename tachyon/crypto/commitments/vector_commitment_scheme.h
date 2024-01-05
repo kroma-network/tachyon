@@ -2,7 +2,7 @@
 #define TACHYON_CRYPTO_COMMITMENTS_VECTOR_COMMITMENT_SCHEME_H_
 
 #include "tachyon/base/bits.h"
-#include "tachyon/crypto/commitments/vector_commitment_scheme_traits.h"
+#include "tachyon/crypto/commitments/vector_commitment_scheme_traits_forward.h"
 
 namespace tachyon::crypto {
 

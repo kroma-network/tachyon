@@ -29,14 +29,14 @@ tachyon_cc_library(
     name = "vector_commitment_scheme",
     hdrs = ["vector_commitment_scheme.h"],
     deps = [
-        ":vector_commitment_scheme_traits",
+        ":vector_commitment_scheme_traits_forward",
         "//tachyon/base:bits",
     ],
 )
 
 tachyon_cc_library(
-    name = "vector_commitment_scheme_traits",
-    hdrs = ["vector_commitment_scheme_traits.h"],
+    name = "vector_commitment_scheme_traits_forward",
+    hdrs = ["vector_commitment_scheme_traits_forward.h"],
 )
 
 tachyon_cc_unittest(
