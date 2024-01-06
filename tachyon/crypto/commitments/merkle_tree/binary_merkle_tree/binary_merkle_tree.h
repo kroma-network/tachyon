@@ -22,15 +22,15 @@
 
 namespace tachyon::crypto {
 
-template <typename Leaf, typename HashTy, size_t MaxSize>
+template <typename Leaf, typename Hash, size_t MaxSize>
 class BinaryMerkleTree final
-    : public VectorCommitmentScheme<BinaryMerkleTree<Leaf, HashTy, MaxSize>> {
+    : public VectorCommitmentScheme<BinaryMerkleTree<Leaf, Hash, MaxSize>> {
  public:
   constexpr static size_t kDefaultLeavesSizeForParallelization = 1024;
 
   BinaryMerkleTree() = default;
-  BinaryMerkleTree(BinaryMerkleTreeStorage<HashTy>* storage,
-                   BinaryMerkleHasher<Leaf, HashTy>* hasher)
+  BinaryMerkleTree(BinaryMerkleTreeStorage<Hash>* storage,
+                   BinaryMerkleHasher<Leaf, Hash>* hasher)
       : storage_(storage), hasher_(hasher) {}
 
   size_t leaves_size_for_parallelization() const {
@@ -46,13 +46,13 @@ class BinaryMerkleTree final
   FRIEND_TEST(BinaryMerkleTreeTest, FillLeaves);
   FRIEND_TEST(BinaryMerkleTreeTest, BuildTreeFromLeaves);
 
-  friend class VectorCommitmentScheme<BinaryMerkleTree<Leaf, HashTy, MaxSize>>;
+  friend class VectorCommitmentScheme<BinaryMerkleTree<Leaf, Hash, MaxSize>>;
 
   // VectorCommitmentScheme methods
   size_t N() const { return MaxSize; }
 
   template <typename Container>
-  [[nodiscard]] bool DoCommit(const Container& leaves, HashTy* out) const {
+  [[nodiscard]] bool DoCommit(const Container& leaves, Hash* out) const {
     if (!FillLeaves(leaves)) return false;
 
     // For instance, if |leaves_size_for_parallelization_| equals 4, the
@@ -85,13 +85,13 @@ class BinaryMerkleTree final
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(
-      size_t index, BinaryMerkleProof<HashTy>* proof) const {
+      size_t index, BinaryMerkleProof<Hash>* proof) const {
     size_t size = storage_->GetSize();
     index = (size >> 1) + index;
     proof->paths.resize(base::bits::Log2Floor(size));
     size_t i = 0;
     while (index > 0) {
-      BinaryMerklePath<HashTy> path;
+      BinaryMerklePath<Hash> path;
       if (index % 2 == 0) {
         path.left = true;
         path.hash = storage_->GetHash(index - 1);
@@ -107,10 +107,10 @@ class BinaryMerkleTree final
   }
 
   [[nodiscard]] bool DoVerifyOpeningProof(
-      const HashTy& root, const HashTy& leaf_hash,
-      const BinaryMerkleProof<HashTy>& proof) const {
-    HashTy hash = leaf_hash;
-    for (const BinaryMerklePath<HashTy>& path : proof.paths) {
+      const Hash& root, const Hash& leaf_hash,
+      const BinaryMerkleProof<Hash>& proof) const {
+    Hash hash = leaf_hash;
+    for (const BinaryMerklePath<Hash>& path : proof.paths) {
       if (path.left) {
         hash = hasher_->ComputeParentHash(path.hash, hash);
       } else {
@@ -152,23 +152,23 @@ class BinaryMerkleTree final
   }
 
   // not owned
-  mutable BinaryMerkleTreeStorage<HashTy>* storage_ = nullptr;
+  mutable BinaryMerkleTreeStorage<Hash>* storage_ = nullptr;
   // not owned
-  BinaryMerkleHasher<Leaf, HashTy>* hasher_ = nullptr;
+  BinaryMerkleHasher<Leaf, Hash>* hasher_ = nullptr;
   size_t leaves_size_for_parallelization_ =
       kDefaultLeavesSizeForParallelization;
 };
 
-template <typename Leaf, typename HashTy, size_t MaxSize>
-struct VectorCommitmentSchemeTraits<BinaryMerkleTree<Leaf, HashTy, MaxSize>> {
+template <typename Leaf, typename Hash, size_t MaxSize>
+struct VectorCommitmentSchemeTraits<BinaryMerkleTree<Leaf, Hash, MaxSize>> {
  public:
   constexpr static size_t kMaxSize = MaxSize;
   constexpr static bool kIsTransparent = true;
 
   // TODO(chokobole): The result of Keccak256 is not a field. How can we handle
   // this?
-  using Field = HashTy;
-  using Commitment = HashTy;
+  using Field = Hash;
+  using Commitment = Hash;
 };
 
 }  // namespace tachyon::crypto

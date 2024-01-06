@@ -8,15 +8,15 @@
 
 namespace tachyon::crypto {
 
-template <typename HashTy>
+template <typename Hash>
 class BinaryMerkleTreeStorage {
  public:
   virtual ~BinaryMerkleTreeStorage() = default;
 
   virtual void Allocate(size_t size) = 0;
   virtual size_t GetSize() const = 0;
-  virtual const HashTy& GetHash(size_t i) const = 0;
-  virtual void SetHash(size_t i, const HashTy& hash) = 0;
+  virtual const Hash& GetHash(size_t i) const = 0;
+  virtual void SetHash(size_t i, const Hash& hash) = 0;
 };
 
 }  // namespace tachyon::crypto

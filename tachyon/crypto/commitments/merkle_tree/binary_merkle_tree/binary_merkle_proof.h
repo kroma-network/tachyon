@@ -8,10 +8,10 @@
 
 namespace tachyon::crypto {
 
-template <typename HashTy>
+template <typename Hash>
 struct BinaryMerklePath {
   bool left;
-  HashTy hash;
+  Hash hash;
 
   bool operator==(const BinaryMerklePath& other) const {
     return left == other.left && hash == other.hash;
@@ -21,9 +21,9 @@ struct BinaryMerklePath {
   }
 };
 
-template <typename HashTy>
+template <typename Hash>
 struct BinaryMerkleProof {
-  std::vector<BinaryMerklePath<HashTy>> paths;
+  std::vector<BinaryMerklePath<Hash>> paths;
 
   bool operator==(const BinaryMerkleProof& other) const {
     return paths == other.paths;
