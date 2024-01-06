@@ -130,7 +130,7 @@ template <typename PrimeField>
 math::Vector<PrimeField>
 PoseidonGrainLFSR<PrimeField>::GetFieldElementsRejectionSampling(
     size_t num_elems) {
-  using BigIntTy = typename PrimeField::BigIntTy;
+  using BigInt = typename PrimeField::BigIntTy;
 
   CHECK_EQ(PrimeField::Config::kModulusBits, prime_num_bits);
 
@@ -141,7 +141,7 @@ PoseidonGrainLFSR<PrimeField>::GetFieldElementsRejectionSampling(
     while (true) {
       // Obtain n bits and make it most-significant-bit first
       std::bitset<PrimeField::kModulusBits> bits = GetBits(prime_num_bits);
-      BigIntTy bigint = BigIntTy::FromBitsBE(bits);
+      BigInt bigint = BigInt::FromBitsBE(bits);
 
       if (bigint < PrimeField::Config::kModulus) {
         ret[i] = PrimeField::FromBigInt(bigint);
@@ -157,7 +157,7 @@ PoseidonGrainLFSR<PrimeField>::GetFieldElementsRejectionSampling(
 template <typename PrimeField>
 math::Vector<PrimeField> PoseidonGrainLFSR<PrimeField>::GetFieldElementsModP(
     size_t num_elems) {
-  using BigIntTy = typename PrimeField::BigIntTy;
+  using BigInt = typename PrimeField::BigIntTy;
 
   CHECK_EQ(PrimeField::Config::kModulusBits, prime_num_bits);
 
@@ -167,7 +167,7 @@ math::Vector<PrimeField> PoseidonGrainLFSR<PrimeField>::GetFieldElementsModP(
     // Obtain n bits and make it most-significant-bit first
     std::bitset<PrimeField::kModulusBits> bits = GetBits(prime_num_bits);
 
-    BigIntTy bigint = BigIntTy::FromBitsBE(bits);
+    BigInt bigint = BigInt::FromBitsBE(bits);
     bigint %= PrimeField::Config::kModulus;
 
     ret[i] = PrimeField::FromBigInt(bigint);
