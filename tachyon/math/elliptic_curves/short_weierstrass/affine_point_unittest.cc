@@ -112,6 +112,27 @@ TEST_F(AffinePointTest, ToPointXYZZ) {
   EXPECT_EQ(p.ToXYZZ(), test::PointXYZZ(GF7(3), GF7(2), GF7(1), GF7(1)));
 }
 
+TEST_F(AffinePointTest, BatchMapScalarFieldToPoint) {
+  std::vector<GF7> scalar_fields =
+      base::CreateVector(7, [](int i) { return GF7(i); });
+  test::AffinePoint point = test::AffinePoint::Generator();
+
+  std::vector<test::AffinePoint> affine_points;
+  affine_points.resize(6);
+  ASSERT_FALSE(test::AffinePoint::BatchMapScalarFieldToPoint(
+      point, scalar_fields, &affine_points));
+
+  affine_points.resize(7);
+  ASSERT_TRUE(test::AffinePoint::BatchMapScalarFieldToPoint(
+      point, scalar_fields, &affine_points));
+
+  std::vector<test::AffinePoint> expected_affine_points =
+      base::Map(scalar_fields, [&point](const GF7& scalar_field) {
+        return (scalar_field * point).ToAffine();
+      });
+  EXPECT_EQ(affine_points, expected_affine_points);
+}
+
 TEST_F(AffinePointTest, IsOnCurve) {
   test::AffinePoint invalid_point(GF7(1), GF7(2));
   EXPECT_FALSE(invalid_point.IsOnCurve());
