@@ -23,7 +23,7 @@ class GLV {
  public:
   using BaseField = typename Point::BaseField;
   using ScalarField = typename Point::ScalarField;
-  using ReturnTy = typename internal::AdditiveSemigroupTraits<Point>::ReturnTy;
+  using RetPoint = typename internal::AdditiveSemigroupTraits<Point>::ReturnTy;
 
   struct CoefficientDecompositionResult {
     SignedValue<mpz_class> k1;
@@ -73,7 +73,7 @@ class GLV {
     return {SignedValue<mpz_class>(k1), SignedValue<mpz_class>(k2)};
   }
 
-  static ReturnTy Mul(const Point& p, const ScalarField& k) {
+  static RetPoint Mul(const Point& p, const ScalarField& k) {
     CoefficientDecompositionResult result = Decompose(k);
 
     Point b1 = p;
@@ -86,13 +86,13 @@ class GLV {
       b2.NegInPlace();
     }
 
-    ReturnTy b1b2 = b1 + b2;
+    RetPoint b1b2 = b1 + b2;
 
     auto k1_begin = BitIteratorBE<mpz_class>::begin(&result.k1.abs_value);
     auto k1_end = BitIteratorBE<mpz_class>::end(&result.k1.abs_value);
     auto k2_begin = BitIteratorBE<mpz_class>::begin(&result.k2.abs_value);
 
-    ReturnTy ret = ReturnTy::Zero();
+    RetPoint ret = RetPoint::Zero();
     bool skip_zeros = true;
     auto k1_it = k1_begin;
     auto k2_it = k2_begin;

@@ -31,12 +31,12 @@ TYPED_TEST_SUITE(GLVTest, PointTypes);
 
 TYPED_TEST(GLVTest, Endomorphism) {
   using Point = TypeParam;
-  using ReturnTy = typename internal::AdditiveSemigroupTraits<Point>::ReturnTy;
+  using RetPoint = typename internal::AdditiveSemigroupTraits<Point>::ReturnTy;
 
   EXPECT_TRUE(Point::Curve::Config::kEndomorphismCoefficient.Pow(3).IsOne());
   Point base = Point::Random();
   EXPECT_EQ(base * Point::Curve::Config::kLambda,
-            ConvertPoint<ReturnTy>(Point::Endomorphism(base)));
+            ConvertPoint<RetPoint>(Point::Endomorphism(base)));
 }
 
 TYPED_TEST(GLVTest, Decompose) {
