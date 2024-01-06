@@ -26,6 +26,9 @@ namespace tachyon::crypto {
 // Squeeze: Squeeze elements out of the sponge.
 // This implementation of Poseidon is entirely Fractal's implementation in
 // [COS20][cos] with small syntax changes. See https://eprint.iacr.org/2019/1076
+// TODO(chokobole): I want to put `final` here but I can't, because there's a
+// chid class that inherits this. See
+// `tachyon/zk/plonk/halo2/poseidon_sponge.h`.
 template <typename PrimeFieldTy>
 struct PoseidonSponge
     : public FieldBasedCryptographicSponge<PoseidonSponge<PrimeFieldTy>> {

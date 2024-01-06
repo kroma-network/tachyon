@@ -25,7 +25,7 @@ namespace crypto {
 // cryptographically binding to data but hides it.
 template <typename PointTy, size_t MaxSize,
           typename Commitment = typename math::Pippenger<PointTy>::Bucket>
-class Pedersen
+class Pedersen final
     : public VectorCommitmentScheme<Pedersen<PointTy, MaxSize, Commitment>> {
  public:
   using Field = typename PointTy::ScalarField;

@@ -19,7 +19,7 @@ namespace tachyon::crypto {
 // [Seed Stability]
 // (https://abseil.io/docs/cpp/guides/random#classes-of-generator-stability)
 // and [Xorshift RNGs](https://www.jstatsoft.org/v08/i14/paper).
-class XORShiftRNG : public RNG<XORShiftRNG> {
+class XORShiftRNG final : public RNG<XORShiftRNG> {
  public:
   XORShiftRNG() = default;
 

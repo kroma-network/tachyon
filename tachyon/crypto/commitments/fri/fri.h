@@ -19,7 +19,8 @@
 namespace tachyon::crypto {
 
 template <typename F, size_t MaxDegree>
-class FRI : public UnivariatePolynomialCommitmentScheme<FRI<F, MaxDegree>> {
+class FRI final
+    : public UnivariatePolynomialCommitmentScheme<FRI<F, MaxDegree>> {
  public:
   using Base = UnivariatePolynomialCommitmentScheme<FRI<F, MaxDegree>>;
   using Poly = typename Base::Poly;

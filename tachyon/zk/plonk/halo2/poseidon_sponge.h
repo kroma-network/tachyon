@@ -16,7 +16,7 @@
 namespace tachyon::zk::halo2 {
 
 template <typename F>
-struct PoseidonSponge : public crypto::PoseidonSponge<F> {
+struct PoseidonSponge final : public crypto::PoseidonSponge<F> {
   PoseidonSponge() = default;
   explicit PoseidonSponge(const crypto::PoseidonConfig<F>& config)
       : crypto::PoseidonSponge<F>(config) {
