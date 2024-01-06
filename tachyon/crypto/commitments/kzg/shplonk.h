@@ -321,15 +321,14 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     lhs -= (first_z * h);
     lhs += (u * q);
 
-    std::vector<G1PointTy> lhs_g1 = {lhs.ToAffine()};
-    std::vector<G2Prepared> lhs_g2 = {
-        CurveTy::G2Prepared::From(G2PointTy::Generator())};
+    G1PointTy lhs_g1[] = {lhs.ToAffine()};
+    G2Prepared lhs_g2[] = {CurveTy::G2Prepared::From(G2PointTy::Generator())};
     Fp12Ty lhs_pairing = math::Pairing<CurveTy>(lhs_g1, lhs_g2);
 
     // rhs_g1 = [Q(𝜏)]₁
     // rhs_g2 = [𝜏]₂
-    std::vector<G1PointTy> rhs_g1 = {q};
-    std::vector<G2Prepared> rhs_g2 = {CurveTy::G2Prepared::From(tau_g2_)};
+    G1PointTy rhs_g1[] = {q};
+    G2Prepared rhs_g2[] = {CurveTy::G2Prepared::From(tau_g2_)};
     Fp12Ty rhs_pairing = math::Pairing<CurveTy>(rhs_g1, rhs_g2);
 
     // clang-format off
