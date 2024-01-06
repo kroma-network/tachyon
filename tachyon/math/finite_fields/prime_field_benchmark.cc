@@ -6,36 +6,35 @@
 namespace tachyon::math {
 namespace {
 
-template <typename PrimeFieldTy>
-std::vector<PrimeFieldTy> PrepareTestSet(size_t size) {
-  std::vector<PrimeFieldTy> test_set;
+template <typename PrimeField>
+std::vector<PrimeField> PrepareTestSet(size_t size) {
+  std::vector<PrimeField> test_set;
   test_set.reserve(size);
   for (size_t i = 0; i < size; ++i) {
-    test_set.push_back(PrimeFieldTy::Random());
+    test_set.push_back(PrimeField::Random());
   }
   return test_set;
 }
 
 }  // namespace
 
-#define ADD_BENCHMARK(method, operator)                                       \
-  template <typename PrimeFieldType>                                          \
-  void BM_##method(benchmark::State& state) {                                 \
-    PrimeFieldType::Init();                                                   \
-    size_t size = state.range(0);                                             \
-    std::vector<PrimeFieldType> test_set =                                    \
-        PrepareTestSet<PrimeFieldType>(size);                                 \
-    std::vector<PrimeFieldType> converted_test_set;                           \
-    converted_test_set.reserve(size);                                         \
-    for (const auto& f : test_set) {                                          \
-      converted_test_set.push_back(PrimeFieldType::FromBigInt(f.ToBigInt())); \
-    }                                                                         \
-    PrimeFieldType ret = PrimeFieldType::One();                               \
-    size_t i = 0;                                                             \
-    for (auto _ : state) {                                                    \
-      ret operator##= converted_test_set[(i++) % size];                       \
-    }                                                                         \
-    benchmark::DoNotOptimize(ret);                                            \
+#define ADD_BENCHMARK(method, operator)                                   \
+  template <typename PrimeField>                                          \
+  void BM_##method(benchmark::State& state) {                             \
+    PrimeField::Init();                                                   \
+    size_t size = state.range(0);                                         \
+    std::vector<PrimeField> test_set = PrepareTestSet<PrimeField>(size);  \
+    std::vector<PrimeField> converted_test_set;                           \
+    converted_test_set.reserve(size);                                     \
+    for (const auto& f : test_set) {                                      \
+      converted_test_set.push_back(PrimeField::FromBigInt(f.ToBigInt())); \
+    }                                                                     \
+    PrimeField ret = PrimeField::One();                                   \
+    size_t i = 0;                                                         \
+    for (auto _ : state) {                                                \
+      ret operator##= converted_test_set[(i++) % size];                   \
+    }                                                                     \
+    benchmark::DoNotOptimize(ret);                                        \
   }
 
 ADD_BENCHMARK(Add, +)

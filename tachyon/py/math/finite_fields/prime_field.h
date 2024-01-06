@@ -10,19 +10,19 @@
 
 namespace tachyon::py::math {
 
-template <typename PrimeFieldTy, size_t N = PrimeFieldTy::N>
+template <typename PrimeField, size_t N = PrimeField::N>
 void AddPrimeField(py11::module& m, const std::string& name) {
-  py11::class_<PrimeFieldTy>(m, name.data())
+  py11::class_<PrimeField>(m, name.data())
       .def(py11::init<const tachyon::math::BigInt<N>>())
-      .def_static("zero", &PrimeFieldTy::Zero)
-      .def_static("one", &PrimeFieldTy::One)
-      .def_static("random", &PrimeFieldTy::Random)
-      .def_static("from_dec_string", &PrimeFieldTy::FromDecString)
-      .def_static("from_hex_string", &PrimeFieldTy::FromHexString)
-      .def("is_zero", &PrimeFieldTy::IsZero)
-      .def("is_one", &PrimeFieldTy::IsOne)
-      .def("to_string", &PrimeFieldTy::ToString)
-      .def("to_hex_string", &PrimeFieldTy::ToHexString,
+      .def_static("zero", &PrimeField::Zero)
+      .def_static("one", &PrimeField::One)
+      .def_static("random", &PrimeField::Random)
+      .def_static("from_dec_string", &PrimeField::FromDecString)
+      .def_static("from_hex_string", &PrimeField::FromHexString)
+      .def("is_zero", &PrimeField::IsZero)
+      .def("is_one", &PrimeField::IsOne)
+      .def("to_string", &PrimeField::ToString)
+      .def("to_hex_string", &PrimeField::ToHexString,
            py11::arg("pad_zero") = false)
       .def(py11::self == py11::self)
       .def(py11::self != py11::self)
@@ -37,7 +37,7 @@ void AddPrimeField(py11::module& m, const std::string& name) {
       // .def(py11::self -= py11::self)
       .def(
           "__isub__",
-          [](PrimeFieldTy& lhs, const PrimeFieldTy& rhs) { return lhs -= rhs; },
+          [](PrimeField& lhs, const PrimeField& rhs) { return lhs -= rhs; },
           py11::is_operator())
       .def(py11::self * py11::self)
       .def(py11::self *= py11::self)
@@ -46,14 +46,14 @@ void AddPrimeField(py11::module& m, const std::string& name) {
       // .def(py11::self /= py11::self)
       .def(
           "__idiv__",
-          [](PrimeFieldTy& lhs, const PrimeFieldTy& rhs) { return lhs /= rhs; },
+          [](PrimeField& lhs, const PrimeField& rhs) { return lhs /= rhs; },
           py11::is_operator())
       .def(-py11::self)
-      .def("double", &PrimeFieldTy::Double)
-      .def("double_in_place", &PrimeFieldTy::DoubleInPlace)
-      .def("square", &PrimeFieldTy::Square)
-      .def("square_in_place", &PrimeFieldTy::SquareInPlace)
-      .def("__repr__", [name](const PrimeFieldTy& field) {
+      .def("double", &PrimeField::Double)
+      .def("double_in_place", &PrimeField::DoubleInPlace)
+      .def("square", &PrimeField::Square)
+      .def("square_in_place", &PrimeField::SquareInPlace)
+      .def("__repr__", [name](const PrimeField& field) {
         return absl::Substitute("$0($1)", name, field.ToString());
       });
 }

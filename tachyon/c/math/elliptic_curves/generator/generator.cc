@@ -183,8 +183,8 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
         // clang-format off
           "%{field} %{field}_$0() {\n"
           "  using namespace tachyon::cc::math;\n"
-          "  using PrimeFieldTy = typename PrimeFieldTraits<%{field}>::PrimeFieldTy;\n"
-          "  return ToCPrimeField(PrimeFieldTy::$1());\n"
+          "  using PrimeField = typename PrimeFieldTraits<%{field}>::PrimeField;\n"
+          "  return ToCPrimeField(PrimeField::$1());\n"
           "}",
         // clang-format on
         kFieldCreationOps[i], kUpperCreationOps[i]));
@@ -287,12 +287,12 @@ int GenerationConfig::GeneratePrimeFieldTraitsHdr(
       "",
       "template <>",
       "struct PrimeFieldTraits<tachyon_%{type}_%{suffix}> {",
-      "  using PrimeFieldTy = tachyon::math::%{type}::%{Suffix};",
+      "  using PrimeField = tachyon::math::%{type}::%{Suffix};",
       "};",
       "",
       "template <>",
       "struct PrimeFieldTraits<tachyon::math::%{type}::%{Suffix}> {",
-      "  using CPrimeFieldTy = tachyon_%{type}_%{suffix};",
+      "  using CPrimeField = tachyon_%{type}_%{suffix};",
       "};",
       "",
       "}  // namespace tachyon::cc::math",

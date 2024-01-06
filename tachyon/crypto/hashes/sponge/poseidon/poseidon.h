@@ -29,10 +29,10 @@ namespace tachyon::crypto {
 // TODO(chokobole): I want to put `final` here but I can't, because there's a
 // child class that inherits this. See
 // `tachyon/zk/plonk/halo2/poseidon_sponge.h`.
-template <typename PrimeFieldTy>
+template <typename PrimeField>
 struct PoseidonSponge
-    : public FieldBasedCryptographicSponge<PoseidonSponge<PrimeFieldTy>> {
-  using F = PrimeFieldTy;
+    : public FieldBasedCryptographicSponge<PoseidonSponge<PrimeField>> {
+  using F = PrimeField;
 
   struct State {
     // Current sponge's state (current elements in the permutation block)
@@ -271,9 +271,9 @@ struct PoseidonSponge
   }
 };
 
-template <typename PrimeFieldTy>
-struct CryptographicSpongeTraits<PoseidonSponge<PrimeFieldTy>> {
-  using F = PrimeFieldTy;
+template <typename PrimeField>
+struct CryptographicSpongeTraits<PoseidonSponge<PrimeField>> {
+  using F = PrimeField;
 };
 
 }  // namespace tachyon::crypto

@@ -8,27 +8,26 @@
 
 namespace tachyon::cc::math {
 
-template <typename CPrimeFieldTy,
-          typename PrimeFieldTy =
-              typename PrimeFieldTraits<CPrimeFieldTy>::PrimeFieldTy,
-          size_t N = PrimeFieldTy::N>
-tachyon::math::BigInt<N> ToBigInt(const CPrimeFieldTy& f) {
+template <
+    typename CPrimeField,
+    typename PrimeField = typename PrimeFieldTraits<CPrimeField>::PrimeField,
+    size_t N = PrimeField::N>
+tachyon::math::BigInt<N> ToBigInt(const CPrimeField& f) {
   return tachyon::math::BigInt<N>(f.limbs);
 }
 
-template <typename CPrimeFieldTy,
-          typename PrimeFieldTy =
-              typename PrimeFieldTraits<CPrimeFieldTy>::PrimeFieldTy>
-PrimeFieldTy ToPrimeField(const CPrimeFieldTy& f) {
-  return PrimeFieldTy::FromMontgomery(ToBigInt(f));
+template <typename CPrimeField, typename PrimeField = typename PrimeFieldTraits<
+                                    CPrimeField>::PrimeField>
+PrimeField ToPrimeField(const CPrimeField& f) {
+  return PrimeField::FromMontgomery(ToBigInt(f));
 }
 
-template <typename PrimeFieldTy,
-          typename CPrimeFieldTy =
-              typename PrimeFieldTraits<PrimeFieldTy>::CPrimeFieldTy,
-          size_t N = PrimeFieldTy::N>
-CPrimeFieldTy ToCPrimeField(const PrimeFieldTy& f) {
-  CPrimeFieldTy ret;
+template <
+    typename PrimeField,
+    typename CPrimeField = typename PrimeFieldTraits<PrimeField>::CPrimeField,
+    size_t N = PrimeField::N>
+CPrimeField ToCPrimeField(const PrimeField& f) {
+  CPrimeField ret;
   memcpy(ret.limbs, f.value().limbs, sizeof(uint64_t) * N);
   return ret;
 }

@@ -248,7 +248,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
   }
 
  private:
-  template <typename PrimeFieldType>
+  template <typename PrimeField>
   FRIEND_TEST(PrimeFieldCorrectnessTest, MultiplicativeOperators);
 
   constexpr PrimeField& FastMulInPlace(const PrimeField& other) {

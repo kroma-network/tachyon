@@ -9,10 +9,10 @@
 namespace tachyon::math {
 
 namespace {
-template <typename PrimeFieldType>
+template <typename PrimeField>
 class PrimeFieldBaseTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { PrimeFieldType::Init(); }
+  static void SetUpTestSuite() { PrimeField::Init(); }
 };
 
 }  // namespace

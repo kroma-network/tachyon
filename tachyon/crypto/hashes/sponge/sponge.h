@@ -23,24 +23,24 @@ class TACHYON_EXPORT FieldElementSize {
     return {true, num_bits};
   }
 
-  template <typename PrimeFieldTy>
+  template <typename PrimeField>
   size_t NumBits() {
-    static_assert(math::FiniteFieldTraits<PrimeFieldTy>::kIsPrimeField,
+    static_assert(math::FiniteFieldTraits<PrimeField>::kIsPrimeField,
                   "NumBits() is only supported for PrimeField");
     if (is_truncated_) {
-      CHECK_LE(num_bits_, PrimeFieldTy::kModulusBits)
+      CHECK_LE(num_bits_, PrimeField::kModulusBits)
           << "num_bits is greater than the bit size of the field.";
       return num_bits_;
     }
-    return PrimeFieldTy::kModulusBits - 1;
+    return PrimeField::kModulusBits - 1;
   }
 
   // Calculate the sum of prime field element sizes in |elements|.
-  template <typename PrimeFieldTy>
+  template <typename PrimeField>
   static size_t Sum(const std::vector<FieldElementSize>& elements) {
-    static_assert(math::FiniteFieldTraits<PrimeFieldTy>::kIsPrimeField,
+    static_assert(math::FiniteFieldTraits<PrimeField>::kIsPrimeField,
                   "Sum() is only supported for PrimeField");
-    return (PrimeFieldTy::kModulusBits - 1) * elements.size();
+    return (PrimeField::kModulusBits - 1) * elements.size();
   }
 
   bool IsFull() const { return !is_truncated_; }

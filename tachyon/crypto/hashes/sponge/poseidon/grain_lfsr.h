@@ -25,9 +25,9 @@ struct TACHYON_EXPORT PoseidonGrainLFSRConfig {
 
 // GrainLFSR is a pseudo-random generator using a stream cipher.
 // It is used to generate ARK and MDS for Poseidon.
-template <typename _PrimeFieldTy>
+template <typename _PrimeField>
 struct PoseidonGrainLFSR {
-  using PrimeFieldTy = _PrimeFieldTy;
+  using PrimeField = _PrimeField;
 
   uint64_t prime_num_bits = 0;
   bool state[80] = {
@@ -37,12 +37,11 @@ struct PoseidonGrainLFSR {
 
   explicit PoseidonGrainLFSR(const PoseidonGrainLFSRConfig& config);
 
-  std::bitset<PrimeFieldTy::kModulusBits> GetBits(size_t num_bits);
+  std::bitset<PrimeField::kModulusBits> GetBits(size_t num_bits);
 
-  math::Vector<PrimeFieldTy> GetFieldElementsRejectionSampling(
-      size_t num_elems);
+  math::Vector<PrimeField> GetFieldElementsRejectionSampling(size_t num_elems);
 
-  math::Vector<PrimeFieldTy> GetFieldElementsModP(size_t num_elems);
+  math::Vector<PrimeField> GetFieldElementsModP(size_t num_elems);
 
  private:
   bool Update() {
@@ -63,8 +62,8 @@ struct PoseidonGrainLFSR {
   }
 };
 
-template <typename PrimeFieldTy>
-PoseidonGrainLFSR<PrimeFieldTy>::PoseidonGrainLFSR(
+template <typename PrimeField>
+PoseidonGrainLFSR<PrimeField>::PoseidonGrainLFSR(
     const PoseidonGrainLFSRConfig& config)
     : prime_num_bits(config.prime_num_bits) {
   std::fill(std::begin(state), std::end(state), false);
@@ -104,10 +103,10 @@ PoseidonGrainLFSR<PrimeFieldTy>::PoseidonGrainLFSR(
   Init();
 }
 
-template <typename PrimeFieldTy>
-std::bitset<PrimeFieldTy::kModulusBits>
-PoseidonGrainLFSR<PrimeFieldTy>::GetBits(size_t num_bits) {
-  std::bitset<PrimeFieldTy::kModulusBits> ret;
+template <typename PrimeField>
+std::bitset<PrimeField::kModulusBits> PoseidonGrainLFSR<PrimeField>::GetBits(
+    size_t num_bits) {
+  std::bitset<PrimeField::kModulusBits> ret;
   for (size_t i = 0; i < num_bits; ++i) {
     // Obtain the first bit
     bool new_bit = Update();
@@ -127,25 +126,25 @@ PoseidonGrainLFSR<PrimeFieldTy>::GetBits(size_t num_bits) {
 }
 
 // Rejects elements greater than the modulus and resamples.
-template <typename PrimeFieldTy>
-math::Vector<PrimeFieldTy>
-PoseidonGrainLFSR<PrimeFieldTy>::GetFieldElementsRejectionSampling(
+template <typename PrimeField>
+math::Vector<PrimeField>
+PoseidonGrainLFSR<PrimeField>::GetFieldElementsRejectionSampling(
     size_t num_elems) {
-  using BigIntTy = typename PrimeFieldTy::BigIntTy;
+  using BigIntTy = typename PrimeField::BigIntTy;
 
-  CHECK_EQ(PrimeFieldTy::Config::kModulusBits, prime_num_bits);
+  CHECK_EQ(PrimeField::Config::kModulusBits, prime_num_bits);
 
-  math::Vector<PrimeFieldTy> ret(num_elems);
+  math::Vector<PrimeField> ret(num_elems);
 
   for (size_t i = 0; i < num_elems; ++i) {
     // Perform rejection sampling
     while (true) {
       // Obtain n bits and make it most-significant-bit first
-      std::bitset<PrimeFieldTy::kModulusBits> bits = GetBits(prime_num_bits);
+      std::bitset<PrimeField::kModulusBits> bits = GetBits(prime_num_bits);
       BigIntTy bigint = BigIntTy::FromBitsBE(bits);
 
-      if (bigint < PrimeFieldTy::Config::kModulus) {
-        ret[i] = PrimeFieldTy::FromBigInt(bigint);
+      if (bigint < PrimeField::Config::kModulus) {
+        ret[i] = PrimeField::FromBigInt(bigint);
         break;
       }
     }
@@ -155,23 +154,23 @@ PoseidonGrainLFSR<PrimeFieldTy>::GetFieldElementsRejectionSampling(
 }
 
 // Samples n bits and computes the remainder modulo P.
-template <typename PrimeFieldTy>
-math::Vector<PrimeFieldTy>
-PoseidonGrainLFSR<PrimeFieldTy>::GetFieldElementsModP(size_t num_elems) {
-  using BigIntTy = typename PrimeFieldTy::BigIntTy;
+template <typename PrimeField>
+math::Vector<PrimeField> PoseidonGrainLFSR<PrimeField>::GetFieldElementsModP(
+    size_t num_elems) {
+  using BigIntTy = typename PrimeField::BigIntTy;
 
-  CHECK_EQ(PrimeFieldTy::Config::kModulusBits, prime_num_bits);
+  CHECK_EQ(PrimeField::Config::kModulusBits, prime_num_bits);
 
-  math::Vector<PrimeFieldTy> ret(num_elems);
+  math::Vector<PrimeField> ret(num_elems);
 
   for (size_t i = 0; i < num_elems; ++i) {
     // Obtain n bits and make it most-significant-bit first
-    std::bitset<PrimeFieldTy::kModulusBits> bits = GetBits(prime_num_bits);
+    std::bitset<PrimeField::kModulusBits> bits = GetBits(prime_num_bits);
 
     BigIntTy bigint = BigIntTy::FromBitsBE(bits);
-    bigint %= PrimeFieldTy::Config::kModulus;
+    bigint %= PrimeField::Config::kModulus;
 
-    ret[i] = PrimeFieldTy::FromBigInt(bigint);
+    ret[i] = PrimeField::FromBigInt(bigint);
   }
 
   return ret;
