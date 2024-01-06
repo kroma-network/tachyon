@@ -135,11 +135,11 @@ class MultiplicativeSemigroup {
     return DoPow(exponent);
   }
 
-  template <typename ScalarTy>
-  [[nodiscard]] constexpr auto Pow(const ScalarTy& scalar) const {
-    if constexpr (std::is_constructible_v<BigInt<1>, ScalarTy>) {
+  template <typename Scalar>
+  [[nodiscard]] constexpr auto Pow(const Scalar& scalar) const {
+    if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
       return DoPow(BigInt<1>(scalar));
-    } else if constexpr (internal::SupportsToBigInt<ScalarTy>::value) {
+    } else if constexpr (internal::SupportsToBigInt<Scalar>::value) {
       return DoPow(scalar.ToBigInt());
     } else {
       static_assert(base::AlwaysFalse<G>);
@@ -337,11 +337,11 @@ class AdditiveSemigroup {
     return DoScalarMul(scalar);
   }
 
-  template <typename ScalarTy>
-  [[nodiscard]] constexpr auto ScalarMul(const ScalarTy& scalar) const {
-    if constexpr (std::is_constructible_v<BigInt<1>, ScalarTy>) {
+  template <typename Scalar>
+  [[nodiscard]] constexpr auto ScalarMul(const Scalar& scalar) const {
+    if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
       return DoScalarMul(BigInt<1>(scalar));
-    } else if constexpr (internal::SupportsToBigInt<ScalarTy>::value) {
+    } else if constexpr (internal::SupportsToBigInt<Scalar>::value) {
       return DoScalarMul(scalar.ToBigInt());
     } else {
       static_assert(base::AlwaysFalse<G>);
@@ -525,8 +525,8 @@ class AdditiveSemigroup {
   }
 
   // Single Scalar Multi Base
-  template <typename ScalarTy, typename BaseContainer, typename OutputContainer>
-  constexpr static bool MultiScalarMulSSMB(const ScalarTy& scalar,
+  template <typename Scalar, typename BaseContainer, typename OutputContainer>
+  constexpr static bool MultiScalarMulSSMB(const Scalar& scalar,
                                            const BaseContainer& bases,
                                            OutputContainer* outputs) {
     size_t size = std::size(bases);
