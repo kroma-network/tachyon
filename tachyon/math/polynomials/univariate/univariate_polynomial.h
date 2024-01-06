@@ -72,8 +72,8 @@ class UnivariatePolynomial final
   }
 
   // Return a vanishing polynomial according to the given |roots|.
-  template <typename ContainerTy>
-  constexpr static UnivariatePolynomial FromRoots(const ContainerTy& roots) {
+  template <typename Container>
+  constexpr static UnivariatePolynomial FromRoots(const Container& roots) {
     using DenseCoeffs = UnivariateDenseCoefficients<Field, kMaxDegree>;
     if constexpr (std::is_same_v<Coefficients, DenseCoeffs>) {
       return UnivariatePolynomial(Coefficients::FromRoots(roots));
@@ -116,8 +116,8 @@ class UnivariatePolynomial final
     return coefficients_.Evaluate(point);
   }
 
-  template <typename ContainerTy>
-  constexpr static Field EvaluateVanishingPolyByRoots(const ContainerTy& roots,
+  template <typename Container>
+  constexpr static Field EvaluateVanishingPolyByRoots(const Container& roots,
                                                       const Field& point) {
     return std::accumulate(roots.begin(), roots.end(), Field::One(),
                            [point](Field& acc, const Field& root) {

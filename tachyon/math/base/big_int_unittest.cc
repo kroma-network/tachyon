@@ -74,7 +74,7 @@ TEST(BigIntTest, BitsBEConversion) {
 
 namespace {
 
-template <typename ContainerType>
+template <typename Container>
 class BigIntConversionTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
@@ -97,12 +97,12 @@ class BigIntConversionTest : public testing::Test {
       204, 48,  116, 47,  169, 87,  174, 174, 179, 48};
 };
 
-template <typename ContainerType>
-math::BigInt<4> BigIntConversionTest<ContainerType>::expected_;
-template <typename ContainerType>
-constexpr uint8_t BigIntConversionTest<ContainerType>::kInputLE[32];
-template <typename ContainerType>
-constexpr uint8_t BigIntConversionTest<ContainerType>::kInputBE[32];
+template <typename Container>
+math::BigInt<4> BigIntConversionTest<Container>::expected_;
+template <typename Container>
+constexpr uint8_t BigIntConversionTest<Container>::kInputLE[32];
+template <typename Container>
+constexpr uint8_t BigIntConversionTest<Container>::kInputBE[32];
 
 }  // namespace
 
@@ -112,19 +112,19 @@ using ContainerTypes =
 TYPED_TEST_SUITE(BigIntConversionTest, ContainerTypes);
 
 TYPED_TEST(BigIntConversionTest, BytesLEConversion) {
-  using ContainerTy = TypeParam;
+  using Container = TypeParam;
 
-  ContainerTy expected_input;
+  Container expected_input;
 
-  if constexpr (std::is_same_v<ContainerTy, std::vector<uint8_t>> ||
-                std::is_same_v<ContainerTy, absl::InlinedVector<uint8_t, 32>>) {
+  if constexpr (std::is_same_v<Container, std::vector<uint8_t>> ||
+                std::is_same_v<Container, absl::InlinedVector<uint8_t, 32>>) {
     expected_input =
-        ContainerTy(std::begin(this->kInputLE), std::end(this->kInputLE));
-  } else if constexpr (std::is_same_v<ContainerTy, std::array<uint8_t, 32>>) {
+        Container(std::begin(this->kInputLE), std::end(this->kInputLE));
+  } else if constexpr (std::is_same_v<Container, std::array<uint8_t, 32>>) {
     std::copy(std::begin(this->kInputLE), std::end(this->kInputLE),
               expected_input.begin());
-  } else if constexpr (std::is_same_v<ContainerTy, absl::Span<const uint8_t>>) {
-    expected_input = ContainerTy(this->kInputLE, sizeof(this->kInputLE));
+  } else if constexpr (std::is_same_v<Container, absl::Span<const uint8_t>>) {
+    expected_input = Container(this->kInputLE, sizeof(this->kInputLE));
   }
 
   BigInt<4> actual = BigInt<4>::FromBytesLE(expected_input);
@@ -136,19 +136,19 @@ TYPED_TEST(BigIntConversionTest, BytesLEConversion) {
 }
 
 TYPED_TEST(BigIntConversionTest, BytesBEConversion) {
-  using ContainerTy = TypeParam;
+  using Container = TypeParam;
 
-  ContainerTy expected_input;
+  Container expected_input;
 
-  if constexpr (std::is_same_v<ContainerTy, std::vector<uint8_t>> ||
-                std::is_same_v<ContainerTy, absl::InlinedVector<uint8_t, 32>>) {
+  if constexpr (std::is_same_v<Container, std::vector<uint8_t>> ||
+                std::is_same_v<Container, absl::InlinedVector<uint8_t, 32>>) {
     expected_input =
-        ContainerTy(std::begin(this->kInputBE), std::end(this->kInputBE));
-  } else if constexpr (std::is_same_v<ContainerTy, std::array<uint8_t, 32>>) {
+        Container(std::begin(this->kInputBE), std::end(this->kInputBE));
+  } else if constexpr (std::is_same_v<Container, std::array<uint8_t, 32>>) {
     std::copy(std::begin(this->kInputBE), std::end(this->kInputBE),
               expected_input.begin());
-  } else if constexpr (std::is_same_v<ContainerTy, absl::Span<const uint8_t>>) {
-    expected_input = ContainerTy(this->kInputBE, sizeof(this->kInputBE));
+  } else if constexpr (std::is_same_v<Container, absl::Span<const uint8_t>>) {
+    expected_input = Container(this->kInputBE, sizeof(this->kInputBE));
   }
 
   BigInt<4> actual = BigInt<4>::FromBytesBE(expected_input);

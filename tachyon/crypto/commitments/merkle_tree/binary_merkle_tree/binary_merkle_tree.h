@@ -52,8 +52,8 @@ class BinaryMerkleTree final
   // VectorCommitmentScheme methods
   size_t N() const { return MaxSize; }
 
-  template <typename ContainerTy>
-  [[nodiscard]] bool DoCommit(const ContainerTy& leaves, HashTy* out) const {
+  template <typename Container>
+  [[nodiscard]] bool DoCommit(const Container& leaves, HashTy* out) const {
     if (!FillLeaves(leaves)) return false;
 
     // For instance, if |leaves_size_for_parallelization_| equals 4, the
@@ -121,8 +121,8 @@ class BinaryMerkleTree final
     return hash == root;
   }
 
-  template <typename ContainerTy>
-  bool FillLeaves(const ContainerTy& leaves) const {
+  template <typename Container>
+  bool FillLeaves(const Container& leaves) const {
     size_t leaves_size = std::size(leaves);
     if (!base::bits::IsPowerOfTwo(leaves_size)) {
       LOG(ERROR) << leaves_size << " is not a power of two";

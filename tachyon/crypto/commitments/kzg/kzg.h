@@ -96,21 +96,21 @@ class KZG {
     return true;
   }
 
-  template <typename BaseContainerTy>
-  [[nodiscard]] bool Commit(const BaseContainerTy& v, Commitment* out) const {
+  template <typename BaseContainer>
+  [[nodiscard]] bool Commit(const BaseContainer& v, Commitment* out) const {
     return DoMSM(g1_powers_of_tau_, v, out);
   }
 
-  template <typename BaseContainerTy>
-  [[nodiscard]] bool CommitLagrange(const BaseContainerTy& v,
+  template <typename BaseContainer>
+  [[nodiscard]] bool CommitLagrange(const BaseContainer& v,
                                     Commitment* out) const {
     return DoMSM(g1_powers_of_tau_lagrange_, v, out);
   }
 
  private:
-  template <typename BaseContainerTy, typename ScalarContainerTy>
-  static bool DoMSM(const BaseContainerTy& bases,
-                    const ScalarContainerTy& scalars, Commitment* out) {
+  template <typename BaseContainer, typename ScalarContainer>
+  static bool DoMSM(const BaseContainer& bases, const ScalarContainer& scalars,
+                    Commitment* out) {
     using Bucket = typename math::Pippenger<G1PointTy>::Bucket;
 
     math::VariableBaseMSM<G1PointTy> msm;

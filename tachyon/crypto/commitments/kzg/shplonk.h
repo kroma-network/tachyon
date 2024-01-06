@@ -62,9 +62,9 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   void SetTauG2(const G2PointTy& tau_g2) { tau_g2_ = tau_g2; }
 
   // UnivariatePolynomialCommitmentScheme methods
-  template <typename ContainerTy>
+  template <typename Container>
   [[nodiscard]] bool DoCreateOpeningProof(
-      const ContainerTy& poly_openings,
+      const Container& poly_openings,
       TranscriptWriter<Commitment>* writer) const {
     PolynomialOpeningGrouper<Poly> grouper;
     grouper.GroupByPolyOracleAndPoints(poly_openings);
@@ -195,9 +195,9 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     return writer->WriteToProof(q);
   }
 
-  template <typename ContainerTy>
+  template <typename Container>
   [[nodiscard]] bool DoVerifyOpeningProof(
-      const ContainerTy& poly_openings,
+      const Container& poly_openings,
       TranscriptReader<Commitment>* reader) const {
     using G1JacobianPointTy = typename G1PointTy::JacobianPointTy;
 

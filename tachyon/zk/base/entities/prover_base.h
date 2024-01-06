@@ -47,8 +47,8 @@ class ProverBase : public Entity<PCSTy> {
     return GetWriter()->WriteToProof(commitment);
   }
 
-  template <typename ContainerTy>
-  [[nodiscard]] bool Commit(const ContainerTy& coeffs) {
+  template <typename Container>
+  [[nodiscard]] bool Commit(const Container& coeffs) {
     Commitment commitment;
     if (!this->pcs_.DoCommit(coeffs, &commitment)) return false;
     return GetWriter()->WriteToProof(commitment);

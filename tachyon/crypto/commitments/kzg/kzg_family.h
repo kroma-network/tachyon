@@ -34,14 +34,14 @@ class KZGFamily {
     return kzg_.UnsafeSetup(size, tau) && DoUnsafeSetupWithTau(size, tau);
   }
 
-  template <typename ContainerTy>
-  [[nodiscard]] bool DoCommit(const ContainerTy& poly,
+  template <typename Container>
+  [[nodiscard]] bool DoCommit(const Container& poly,
                               Commitment* commitment) const {
     return kzg_.Commit(poly, commitment);
   }
 
-  template <typename ContainerTy>
-  [[nodiscard]] bool DoCommitLagrange(const ContainerTy& poly,
+  template <typename Container>
+  [[nodiscard]] bool DoCommitLagrange(const Container& poly,
                                       Commitment* commitment) const {
     return kzg_.CommitLagrange(poly, commitment);
   }

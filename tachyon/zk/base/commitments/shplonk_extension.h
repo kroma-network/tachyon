@@ -50,8 +50,8 @@ class SHPlonkExtension final
     return shplonk_.DoUnsafeSetup(size, tau);
   }
 
-  template <typename BaseContainerTy>
-  [[nodiscard]] bool DoCommit(const BaseContainerTy& v, Commitment* out) const {
+  template <typename BaseContainer>
+  [[nodiscard]] bool DoCommit(const BaseContainer& v, Commitment* out) const {
     return shplonk_.DoCommit(v, out);
   }
 
@@ -64,14 +64,14 @@ class SHPlonkExtension final
     return shplonk_.DoCommitLagrange(evals, out);
   }
 
-  template <typename BaseContainerTy>
-  [[nodiscard]] bool DoCommitLagrange(const BaseContainerTy& v,
+  template <typename BaseContainer>
+  [[nodiscard]] bool DoCommitLagrange(const BaseContainer& v,
                                       Commitment* out) const {
     return shplonk_.DoCommitLagrange(v, out);
   }
 
-  template <typename ContainerTy, typename Proof>
-  [[nodiscard]] bool DoCreateOpeningProof(const ContainerTy& poly_openings,
+  template <typename Container, typename Proof>
+  [[nodiscard]] bool DoCreateOpeningProof(const Container& poly_openings,
                                           Proof* proof) const {
     return shplonk_.DoCreateOpeningProof(poly_openings, proof);
   }
