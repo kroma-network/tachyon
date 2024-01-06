@@ -7,16 +7,16 @@
 
 namespace tachyon::math {
 
-template <typename CurveType>
+template <typename Curve>
 class PairingTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
-    using G1Curve = typename CurveType::G1Curve;
-    using G2Curve = typename CurveType::G2Curve;
+    using G1Curve = typename Curve::G1Curve;
+    using G2Curve = typename Curve::G2Curve;
 
     G1Curve::Init();
     G2Curve::Init();
-    CurveType::Init();
+    Curve::Init();
   }
 };
 

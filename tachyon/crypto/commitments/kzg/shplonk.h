@@ -19,29 +19,29 @@
 namespace tachyon {
 namespace zk {
 
-template <typename CurveTy, size_t MaxDegree, size_t MaxExtensionDegree,
+template <typename Curve, size_t MaxDegree, size_t MaxExtensionDegree,
           typename _Commitment = typename math::Pippenger<
-              typename CurveTy::G1Curve::AffinePointTy>::Bucket>
+              typename Curve::G1Curve::AffinePointTy>::Bucket>
 class SHPlonkExtension;
 
 }  // namespace zk
 
 namespace crypto {
 
-template <typename CurveTy, size_t MaxDegree,
+template <typename Curve, size_t MaxDegree,
           typename Commitment = typename math::Pippenger<
-              typename CurveTy::G1Curve::AffinePointTy>::Bucket>
+              typename Curve::G1Curve::AffinePointTy>::Bucket>
 class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
-                          SHPlonk<CurveTy, MaxDegree, Commitment>>,
-                      public KZGFamily<typename CurveTy::G1Curve::AffinePointTy,
+                          SHPlonk<Curve, MaxDegree, Commitment>>,
+                      public KZGFamily<typename Curve::G1Curve::AffinePointTy,
                                        MaxDegree, Commitment> {
  public:
   using Base = UnivariatePolynomialCommitmentScheme<
-      SHPlonk<CurveTy, MaxDegree, Commitment>>;
-  using G1PointTy = typename CurveTy::G1Curve::AffinePointTy;
-  using G2PointTy = typename CurveTy::G2Curve::AffinePointTy;
-  using G2Prepared = typename CurveTy::G2Prepared;
-  using Fp12Ty = typename CurveTy::Fp12Ty;
+      SHPlonk<Curve, MaxDegree, Commitment>>;
+  using G1PointTy = typename Curve::G1Curve::AffinePointTy;
+  using G2PointTy = typename Curve::G2Curve::AffinePointTy;
+  using G2Prepared = typename Curve::G2Prepared;
+  using Fp12Ty = typename Curve::Fp12Ty;
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
   using Point = typename Poly::Point;
@@ -52,9 +52,9 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       : KZGFamily<G1PointTy, MaxDegree, Commitment>(std::move(kzg)) {}
 
  private:
-  friend class VectorCommitmentScheme<SHPlonk<CurveTy, MaxDegree, Commitment>>;
+  friend class VectorCommitmentScheme<SHPlonk<Curve, MaxDegree, Commitment>>;
   friend class UnivariatePolynomialCommitmentScheme<
-      SHPlonk<CurveTy, MaxDegree, Commitment>>;
+      SHPlonk<Curve, MaxDegree, Commitment>>;
   template <typename, size_t, size_t, typename>
   friend class zk::SHPlonkExtension;
 
@@ -321,13 +321,13 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
 
     G1PointTy lhs_g1[] = {lhs.ToAffine()};
     G2Prepared lhs_g2[] = {G2Prepared::From(G2PointTy::Generator())};
-    Fp12Ty lhs_pairing = math::Pairing<CurveTy>(lhs_g1, lhs_g2);
+    Fp12Ty lhs_pairing = math::Pairing<Curve>(lhs_g1, lhs_g2);
 
     // rhs_g1 = [Q(𝜏)]₁
     // rhs_g2 = [𝜏]₂
     G1PointTy rhs_g1[] = {std::move(q)};
     G2Prepared rhs_g2[] = {G2Prepared::From(tau_g2_)};
-    Fp12Ty rhs_pairing = math::Pairing<CurveTy>(rhs_g1, rhs_g2);
+    Fp12Ty rhs_pairing = math::Pairing<Curve>(rhs_g1, rhs_g2);
 
     // clang-format off
     // e(lhs_g1, rhs_g2) ≟ e(rhs_g1, lhs_g2)
@@ -351,13 +351,13 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   G2PointTy tau_g2_;
 };
 
-template <typename CurveTy, size_t MaxDegree, typename _Commitment>
-struct VectorCommitmentSchemeTraits<SHPlonk<CurveTy, MaxDegree, _Commitment>> {
+template <typename Curve, size_t MaxDegree, typename _Commitment>
+struct VectorCommitmentSchemeTraits<SHPlonk<Curve, MaxDegree, _Commitment>> {
  public:
   constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = false;
 
-  using G1PointTy = typename CurveTy::G1Curve::AffinePointTy;
+  using G1PointTy = typename Curve::G1Curve::AffinePointTy;
   using Field = typename G1PointTy::ScalarField;
   using Commitment = _Commitment;
 };
