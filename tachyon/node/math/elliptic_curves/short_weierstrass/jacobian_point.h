@@ -6,39 +6,39 @@
 
 namespace tachyon::node::math {
 
-template <typename JacobianPointTy,
-          typename BaseField = typename JacobianPointTy::BaseField,
-          typename Curve = typename JacobianPointTy::Curve,
+template <typename JacobianPoint,
+          typename BaseField = typename JacobianPoint::BaseField,
+          typename Curve = typename JacobianPoint::Curve,
           typename AffinePointTy = tachyon::math::AffinePoint<Curve>>
 void AddJacobianPoint(NodeModule& m, std::string_view name) {
-  m.NewClass<JacobianPointTy>(name)
+  m.NewClass<JacobianPoint>(name)
       .template AddConstructor<>()
       .template AddConstructor<const BaseField&, const BaseField&,
                                const BaseField&>()
-      .AddStaticMethod("zero", &JacobianPointTy::Zero)
-      .AddStaticMethod("generator", &JacobianPointTy::Generator)
-      .AddStaticMethod("random", &JacobianPointTy::Random)
-      .AddReadOnlyProperty("x", &JacobianPointTy::x)
-      .AddReadOnlyProperty("y", &JacobianPointTy::y)
-      .AddReadOnlyProperty("z", &JacobianPointTy::z)
-      .AddMethod("isZero", &JacobianPointTy::IsZero)
-      .AddMethod("isOnCurve", &JacobianPointTy::IsOnCurve)
-      .AddMethod("toString", &JacobianPointTy::ToString)
-      .AddMethod("toHexString", &JacobianPointTy::ToHexString, false)
-      .AddMethod("eq", &JacobianPointTy::operator==)
-      .AddMethod("ne", &JacobianPointTy::operator!=)
+      .AddStaticMethod("zero", &JacobianPoint::Zero)
+      .AddStaticMethod("generator", &JacobianPoint::Generator)
+      .AddStaticMethod("random", &JacobianPoint::Random)
+      .AddReadOnlyProperty("x", &JacobianPoint::x)
+      .AddReadOnlyProperty("y", &JacobianPoint::y)
+      .AddReadOnlyProperty("z", &JacobianPoint::z)
+      .AddMethod("isZero", &JacobianPoint::IsZero)
+      .AddMethod("isOnCurve", &JacobianPoint::IsOnCurve)
+      .AddMethod("toString", &JacobianPoint::ToString)
+      .AddMethod("toHexString", &JacobianPoint::ToHexString, false)
+      .AddMethod("eq", &JacobianPoint::operator==)
+      .AddMethod("ne", &JacobianPoint::operator!=)
       .AddMethod("add",
-                 &JacobianPointTy::template operator+ <const JacobianPointTy&>)
+                 &JacobianPoint::template operator+ <const JacobianPoint&>)
       .AddMethod("addMixed",
-                 &JacobianPointTy::template operator+ <const AffinePointTy&>)
+                 &JacobianPoint::template operator+ <const AffinePointTy&>)
       .AddMethod("sub",
-                 &JacobianPointTy::template operator- <const JacobianPointTy&>)
+                 &JacobianPoint::template operator- <const JacobianPoint&>)
       .AddMethod("subMixed",
-                 &JacobianPointTy::template operator- <const AffinePointTy&>)
+                 &JacobianPoint::template operator- <const AffinePointTy&>)
       .AddMethod("negative",
-                 static_cast<JacobianPointTy (JacobianPointTy::*)() const>(
-                     &JacobianPointTy::operator-))
-      .AddMethod("double", &JacobianPointTy::Double);
+                 static_cast<JacobianPoint (JacobianPoint::*)() const>(
+                     &JacobianPoint::operator-))
+      .AddMethod("double", &JacobianPoint::Double);
 }
 
 }  // namespace tachyon::node::math
