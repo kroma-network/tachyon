@@ -27,7 +27,7 @@ class SWCurve {
   using AffinePoint = typename SWCurveTraits<Config>::AffinePointTy;
   using ProjectivePoint = typename SWCurveTraits<Config>::ProjectivePointTy;
   using JacobianPoint = typename SWCurveTraits<Config>::JacobianPointTy;
-  using PointXYZZTy = typename SWCurveTraits<Config>::PointXYZZTy;
+  using PointXYZZ = typename SWCurveTraits<Config>::PointXYZZTy;
 
   using CpuCurve = SWCurve<typename Config::CpuCurveConfig>;
   using GpuCurve = SWCurve<typename Config::GpuCurveConfig>;
@@ -111,7 +111,7 @@ class SWCurve {
     return point.y().Square() == right;
   }
 
-  constexpr static bool IsOnCurve(const PointXYZZTy& point) {
+  constexpr static bool IsOnCurve(const PointXYZZ& point) {
     if (point.zzz().IsZero()) return false;
     BaseField right =
         point.x().Square() * point.x() + Config::kB * point.zzz().Square();
