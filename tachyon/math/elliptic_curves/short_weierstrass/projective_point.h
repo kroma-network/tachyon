@@ -4,9 +4,11 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
@@ -102,6 +104,37 @@ class ProjectivePoint<
   constexpr static ProjectivePoint Endomorphism(const ProjectivePoint& point) {
     return ProjectivePoint(point.x_ * Curve::Config::kEndomorphismCoefficient,
                            point.y_, point.z_);
+  }
+
+  // TODO(chokobole): Implement parallel versioned |BatchNormalize| when doing
+  // chunking and zipping gets easier.
+  template <typename ProjectiveContainer, typename AffineContainer>
+  [[nodiscard]] constexpr static bool BatchNormalize(
+      const ProjectiveContainer& projective_points,
+      AffineContainer* affine_points) {
+    size_t size = std::size(projective_points);
+    if (size != std::size(*affine_points)) {
+      LOG(ERROR)
+          << "Size of |projective_points| and |affine_points| do not match";
+      return false;
+    }
+    std::vector<BaseField> z_inverses =
+        base::Map(projective_points,
+                  [](const ProjectivePoint& point) { return point.z_; });
+    if (!BaseField::BatchInverseInPlaceSerial(z_inverses)) return false;
+    for (size_t i = 0; i < size; ++i) {
+      const BaseField& z_inv = z_inverses[i];
+      if (z_inv.IsZero()) {
+        (*affine_points)[i] = AffinePoint<Curve>::Zero();
+      } else if (z_inv.IsOne()) {
+        (*affine_points)[i] = {projective_points[i].x_,
+                               projective_points[i].y_};
+      } else {
+        (*affine_points)[i] = {projective_points[i].x_ * z_inv,
+                               projective_points[i].y_ * z_inv};
+      }
+    }
+    return true;
   }
 
   constexpr const BaseField& x() const { return x_; }

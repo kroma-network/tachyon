@@ -167,6 +167,27 @@ TEST_F(ProjectivePointTest, ToXYZZ) {
             test::PointXYZZ(GF7(3), GF7(4), GF7(2), GF7(6)));
 }
 
+TEST_F(ProjectivePointTest, BatchNormalize) {
+  std::vector<test::ProjectivePoint> projective_points = {
+      test::ProjectivePoint(GF7(1), GF7(2), GF7(0)),
+      test::ProjectivePoint(GF7(1), GF7(2), GF7(1)),
+      test::ProjectivePoint(GF7(1), GF7(2), GF7(3))};
+
+  std::vector<test::AffinePoint> affine_points;
+  affine_points.resize(2);
+  ASSERT_FALSE(
+      test::ProjectivePoint::BatchNormalize(projective_points, &affine_points));
+
+  affine_points.resize(3);
+  ASSERT_TRUE(
+      test::ProjectivePoint::BatchNormalize(projective_points, &affine_points));
+
+  std::vector<test::AffinePoint> expected_affine_points = {
+      test::AffinePoint::Zero(), test::AffinePoint(GF7(1), GF7(2)),
+      test::AffinePoint(GF7(5), GF7(3))};
+  EXPECT_EQ(affine_points, expected_affine_points);
+}
+
 TEST_F(ProjectivePointTest, IsOnCurve) {
   test::ProjectivePoint invalid_point(GF7(1), GF7(2), GF7(1));
   EXPECT_FALSE(invalid_point.IsOnCurve());

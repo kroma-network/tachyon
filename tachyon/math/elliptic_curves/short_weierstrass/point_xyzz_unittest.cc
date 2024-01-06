@@ -169,6 +169,25 @@ TEST_F(PointXYZZTest, ToJacobian) {
             test::JacobianPoint(GF7(2), GF7(2), GF7(5)));
 }
 
+TEST_F(PointXYZZTest, BatchNormalize) {
+  std::vector<test::PointXYZZ> point_xyzzs = {
+      test::PointXYZZ(GF7(1), GF7(2), GF7(0), GF7(0)),
+      test::PointXYZZ(GF7(1), GF7(2), GF7(1), GF7(1)),
+      test::PointXYZZ(GF7(1), GF7(2), GF7(2), GF7(6))};
+
+  std::vector<test::AffinePoint> affine_points;
+  affine_points.resize(2);
+  ASSERT_FALSE(test::PointXYZZ::BatchNormalize(point_xyzzs, &affine_points));
+
+  affine_points.resize(3);
+  ASSERT_TRUE(test::PointXYZZ::BatchNormalize(point_xyzzs, &affine_points));
+
+  std::vector<test::AffinePoint> expected_affine_points = {
+      test::AffinePoint::Zero(), test::AffinePoint(GF7(1), GF7(2)),
+      test::AffinePoint(GF7(4), GF7(5))};
+  EXPECT_EQ(affine_points, expected_affine_points);
+}
+
 TEST_F(PointXYZZTest, IsOnCurve) {
   test::PointXYZZ invalid_point(GF7(1), GF7(2), GF7(1), GF7(1));
   EXPECT_FALSE(invalid_point.IsOnCurve());

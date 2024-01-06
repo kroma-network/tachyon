@@ -21,6 +21,7 @@ tachyon_cc_library(
         "projective_point_impl.h",
     ],
     deps = [
+        "//tachyon/base/containers:container_util",
         "//tachyon/math/base:groups",
         "//tachyon/math/elliptic_curves:points",
         "//tachyon/math/geometry:point2",
