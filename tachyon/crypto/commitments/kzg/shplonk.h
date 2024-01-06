@@ -316,7 +316,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
     // lhs_g1 = ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u) - Z₀(u)[H(𝜏)]₁ + u[Q(𝜏)]₁
     // lhs_g2 = [1]₂
     // clang-format on
-    G1JacobianPointTy lhs = linear_combination;
+    G1JacobianPointTy lhs = std::move(linear_combination);
 
     lhs -= (first_z * h);
     lhs += (u * q);
@@ -327,7 +327,7 @@ class SHPlonk : public UnivariatePolynomialCommitmentScheme<
 
     // rhs_g1 = [Q(𝜏)]₁
     // rhs_g2 = [𝜏]₂
-    G1PointTy rhs_g1[] = {q};
+    G1PointTy rhs_g1[] = {std::move(q)};
     G2Prepared rhs_g2[] = {CurveTy::G2Prepared::From(tau_g2_)};
     Fp12Ty rhs_pairing = math::Pairing<CurveTy>(rhs_g1, rhs_g2);
 
