@@ -10,24 +10,24 @@
 
 namespace tachyon::py::math {
 
-template <typename AffinePointTy,
-          typename BaseField = typename AffinePointTy::BaseField,
-          typename ScalarField = typename AffinePointTy::ScalarField>
+template <typename AffinePoint,
+          typename BaseField = typename AffinePoint::BaseField,
+          typename ScalarField = typename AffinePoint::ScalarField>
 void AddAffinePoint(py11::module& m, const std::string& name) {
-  py11::class_<AffinePointTy>(m, name.data())
+  py11::class_<AffinePoint>(m, name.data())
       .def(py11::init<>())
       .def(py11::init<const BaseField&, const BaseField&, bool>(),
            py11::arg("x"), py11::arg("y"), py11::arg("infinity") = false)
-      .def_static("zero", &AffinePointTy::Zero)
-      .def_static("generator", &AffinePointTy::Generator)
-      .def_static("random", &AffinePointTy::Random)
-      .def_property_readonly("x", &AffinePointTy::x)
-      .def_property_readonly("y", &AffinePointTy::y)
-      .def_property_readonly("infinity", &AffinePointTy::infinity)
-      .def("is_zero", &AffinePointTy::IsZero)
-      .def("is_on_curve", &AffinePointTy::IsOnCurve)
-      .def("to_string", &AffinePointTy::ToString)
-      .def("to_hex_string", &AffinePointTy::ToHexString,
+      .def_static("zero", &AffinePoint::Zero)
+      .def_static("generator", &AffinePoint::Generator)
+      .def_static("random", &AffinePoint::Random)
+      .def_property_readonly("x", &AffinePoint::x)
+      .def_property_readonly("y", &AffinePoint::y)
+      .def_property_readonly("infinity", &AffinePoint::infinity)
+      .def("is_zero", &AffinePoint::IsZero)
+      .def("is_on_curve", &AffinePoint::IsOnCurve)
+      .def("to_string", &AffinePoint::ToString)
+      .def("to_hex_string", &AffinePoint::ToHexString,
            py11::arg("pad_zero") = false)
       .def(py11::self == py11::self)
       .def(py11::self != py11::self)
@@ -36,8 +36,8 @@ void AddAffinePoint(py11::module& m, const std::string& name) {
       .def(py11::self * ScalarField())
       .def(ScalarField() * py11::self)
       .def(-py11::self)
-      .def("double", &AffinePointTy::Double)
-      .def("__repr__", [name](const AffinePointTy& point) {
+      .def("double", &AffinePoint::Double)
+      .def("__repr__", [name](const AffinePoint& point) {
         return absl::Substitute("$0$1", name, point.ToString());
       });
 }

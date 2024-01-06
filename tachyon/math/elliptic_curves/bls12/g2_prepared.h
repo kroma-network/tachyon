@@ -22,7 +22,7 @@ class G2Prepared : public G2PreparedBase<BLS12CurveConfig> {
   using G2Curve = typename Config::G2Curve;
   using Fp2Ty = typename G2Curve::BaseField;
   using FpTy = typename Fp2Ty::BaseField;
-  using G2AffinePointTy = typename G2Curve::AffinePointTy;
+  using G2AffinePoint = typename G2Curve::AffinePoint;
 
   G2Prepared() = default;
   explicit G2Prepared(const EllCoeffs<Fp2Ty>& ell_coeffs)
@@ -30,7 +30,7 @@ class G2Prepared : public G2PreparedBase<BLS12CurveConfig> {
   explicit G2Prepared(EllCoeffs<Fp2Ty>&& ell_coeffs)
       : G2PreparedBase<BLS12CurveConfig>(std::move(ell_coeffs)) {}
 
-  static G2Prepared From(const G2AffinePointTy& q) {
+  static G2Prepared From(const G2AffinePoint& q) {
     if (q.infinity()) {
       return {};
     } else {

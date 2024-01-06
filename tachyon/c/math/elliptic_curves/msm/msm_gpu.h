@@ -22,16 +22,16 @@ namespace tachyon::c::math {
 
 template <typename GpuCurve>
 struct MSMGpuApi {
-  using GpuAffinePointTy = tachyon::math::AffinePoint<GpuCurve>;
-  using GpuScalarField = typename GpuAffinePointTy::ScalarField;
+  using GpuAffinePoint = tachyon::math::AffinePoint<GpuCurve>;
+  using GpuScalarField = typename GpuAffinePoint::ScalarField;
   using CpuCurve = typename GpuCurve::CpuCurve;
-  using CpuAffinePointTy = tachyon::math::AffinePoint<CpuCurve>;
+  using CpuAffinePoint = tachyon::math::AffinePoint<CpuCurve>;
 
   tachyon::device::gpu::ScopedMemPool mem_pool;
   tachyon::device::gpu::ScopedStream stream;
-  tachyon::device::gpu::GpuMemory<GpuAffinePointTy> d_bases;
+  tachyon::device::gpu::GpuMemory<GpuAffinePoint> d_bases;
   tachyon::device::gpu::GpuMemory<GpuScalarField> d_scalars;
-  MSMInputProvider<CpuAffinePointTy> provider;
+  MSMInputProvider<CpuAffinePoint> provider;
   std::unique_ptr<tachyon::math::VariableBaseMSMGpu<GpuCurve>> msm;
 
   std::string save_location;
@@ -81,7 +81,7 @@ struct MSMGpuApi {
         "Failed to gpuMemPoolSetAttribute()");
 
     uint64_t size = uint64_t{1} << degree;
-    d_bases = tachyon::device::gpu::GpuMemory<GpuAffinePointTy>::Malloc(size);
+    d_bases = tachyon::device::gpu::GpuMemory<GpuAffinePoint>::Malloc(size);
     d_scalars = tachyon::device::gpu::GpuMemory<GpuScalarField>::Malloc(size);
 
     stream = tachyon::device::gpu::CreateStream();

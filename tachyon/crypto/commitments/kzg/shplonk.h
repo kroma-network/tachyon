@@ -21,7 +21,7 @@ namespace zk {
 
 template <typename Curve, size_t MaxDegree, size_t MaxExtensionDegree,
           typename _Commitment = typename math::Pippenger<
-              typename Curve::G1Curve::AffinePointTy>::Bucket>
+              typename Curve::G1Curve::AffinePoint>::Bucket>
 class SHPlonkExtension;
 
 }  // namespace zk
@@ -30,16 +30,16 @@ namespace crypto {
 
 template <typename Curve, size_t MaxDegree,
           typename Commitment = typename math::Pippenger<
-              typename Curve::G1Curve::AffinePointTy>::Bucket>
+              typename Curve::G1Curve::AffinePoint>::Bucket>
 class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
                           SHPlonk<Curve, MaxDegree, Commitment>>,
-                      public KZGFamily<typename Curve::G1Curve::AffinePointTy,
+                      public KZGFamily<typename Curve::G1Curve::AffinePoint,
                                        MaxDegree, Commitment> {
  public:
   using Base = UnivariatePolynomialCommitmentScheme<
       SHPlonk<Curve, MaxDegree, Commitment>>;
-  using G1PointTy = typename Curve::G1Curve::AffinePointTy;
-  using G2PointTy = typename Curve::G2Curve::AffinePointTy;
+  using G1PointTy = typename Curve::G1Curve::AffinePoint;
+  using G2PointTy = typename Curve::G2Curve::AffinePoint;
   using G2Prepared = typename Curve::G2Prepared;
   using Fp12Ty = typename Curve::Fp12Ty;
   using Field = typename Base::Field;
@@ -357,7 +357,7 @@ struct VectorCommitmentSchemeTraits<SHPlonk<Curve, MaxDegree, _Commitment>> {
   constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = false;
 
-  using G1PointTy = typename Curve::G1Curve::AffinePointTy;
+  using G1PointTy = typename Curve::G1Curve::AffinePoint;
   using Field = typename G1PointTy::ScalarField;
   using Commitment = _Commitment;
 };

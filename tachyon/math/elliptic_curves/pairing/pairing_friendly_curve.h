@@ -16,7 +16,7 @@ class PairingFriendlyCurve {
   using G2Curve = typename Config::G2Curve;
   using Fp2Ty = typename G2Curve::BaseField;
   using Fp12Ty = typename Config::Fp12Ty;
-  using G1AffinePointTy = typename G1Curve::AffinePointTy;
+  using G1AffinePoint = typename G1Curve::AffinePoint;
 
   static void Init() {
     Config::Init();
@@ -27,17 +27,17 @@ class PairingFriendlyCurve {
   class Pair {
    public:
     Pair() = default;
-    Pair(const G1AffinePointTy* g1,
+    Pair(const G1AffinePoint* g1,
          const std::vector<EllCoeff<Fp2Ty>>* ell_coeffs)
         : g1_(g1), ell_coeffs_(ell_coeffs) {}
 
-    const G1AffinePointTy& g1() const { return *g1_; }
+    const G1AffinePoint& g1() const { return *g1_; }
     const EllCoeff<Fp2Ty>& NextEllCoeff() const {
       return (*ell_coeffs_)[idx_++];
     }
 
    private:
-    const G1AffinePointTy* g1_ = nullptr;
+    const G1AffinePoint* g1_ = nullptr;
     const std::vector<EllCoeff<Fp2Ty>>* ell_coeffs_ = nullptr;
     mutable size_t idx_ = 0;
   };
@@ -61,7 +61,7 @@ class PairingFriendlyCurve {
   // TODO(chokobole): Leave a comment to help understand readers.
   // Evaluates the line function at point |p|.
   static void Ell(Fp12Ty& f, const EllCoeff<Fp2Ty>& coeffs,
-                  const G1AffinePointTy& p) {
+                  const G1AffinePoint& p) {
     if constexpr (Config::kTwistType == TwistType::kM) {
       f.MulInPlaceBy014(coeffs.c0(), coeffs.c1() * p.x(), coeffs.c2() * p.y());
     } else {

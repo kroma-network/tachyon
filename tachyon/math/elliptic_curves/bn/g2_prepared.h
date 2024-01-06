@@ -20,7 +20,7 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
   using G2Curve = typename Config::G2Curve;
   using Fp2Ty = typename G2Curve::BaseField;
   using FpTy = typename Fp2Ty::BaseField;
-  using G2AffinePointTy = typename G2Curve::AffinePointTy;
+  using G2AffinePoint = typename G2Curve::AffinePoint;
 
   G2Prepared() = default;
   explicit G2Prepared(const EllCoeffs<Fp2Ty>& ell_coeffs)
@@ -28,7 +28,7 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
   explicit G2Prepared(EllCoeffs<Fp2Ty>&& ell_coeffs)
       : G2PreparedBase<BNCurveConfig>(std::move(ell_coeffs)) {}
 
-  static G2Prepared From(const G2AffinePointTy& q) {
+  static G2Prepared From(const G2AffinePoint& q) {
     if (q.infinity()) {
       return {};
     } else {
@@ -41,7 +41,7 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
       size_t size = std::size(Config::kAteLoopCount);
       ell_coeffs.reserve(/*double=*/size + /*add=*/size * 2 / 3);
 
-      G2AffinePointTy neg_q = -q;
+      G2AffinePoint neg_q = -q;
 
       FpTy two_inv = FpTy(2).Inverse();
       // NOTE(chokobole): skip the fist.
@@ -60,8 +60,8 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
         }
       }
 
-      G2AffinePointTy q1 = MulByCharacteristic(q);
-      G2AffinePointTy q2 = MulByCharacteristic(q1);
+      G2AffinePoint q1 = MulByCharacteristic(q);
+      G2AffinePoint q2 = MulByCharacteristic(q1);
       q2.NegInPlace();
 
       if constexpr (Config::kXIsNegative) {
@@ -76,14 +76,14 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
   }
 
  private:
-  static G2AffinePointTy MulByCharacteristic(const G2AffinePointTy& r) {
+  static G2AffinePoint MulByCharacteristic(const G2AffinePoint& r) {
     Fp2Ty x = r.x();
     x.FrobeniusMapInPlace(1);
     x *= Config::kTwistMulByQX;
     Fp2Ty y = r.y();
     y.FrobeniusMapInPlace(1);
     y *= Config::kTwistMulByQY;
-    return G2AffinePointTy(std::move(x), std::move(y));
+    return G2AffinePoint(std::move(x), std::move(y));
   }
 };
 

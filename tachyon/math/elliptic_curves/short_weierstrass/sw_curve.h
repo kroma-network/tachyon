@@ -24,7 +24,7 @@ class SWCurve {
 
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
-  using AffinePointTy = typename SWCurveTraits<Config>::AffinePointTy;
+  using AffinePoint = typename SWCurveTraits<Config>::AffinePointTy;
   using ProjectivePointTy = typename SWCurveTraits<Config>::ProjectivePointTy;
   using JacobianPointTy = typename SWCurveTraits<Config>::JacobianPointTy;
   using PointXYZZTy = typename SWCurveTraits<Config>::PointXYZZTy;
@@ -50,10 +50,10 @@ class SWCurve {
     BaseField even_y;
     BaseField odd_y;
     if (!GetYsFromX(x, &even_y, &odd_y)) return false;
-    if constexpr (std::is_same_v<PointTy, AffinePointTy>) {
-      *point = AffinePointTy(x, pick_odd ? odd_y : even_y);
+    if constexpr (std::is_same_v<PointTy, AffinePoint>) {
+      *point = AffinePoint(x, pick_odd ? odd_y : even_y);
     } else {
-      AffinePointTy affine_point(x, pick_odd ? odd_y : even_y);
+      AffinePoint affine_point(x, pick_odd ? odd_y : even_y);
       *point = ConvertPoint<PointTy>(affine_point);
     }
     return true;
@@ -81,7 +81,7 @@ class SWCurve {
     return true;
   }
 
-  constexpr static bool IsOnCurve(const AffinePointTy& point) {
+  constexpr static bool IsOnCurve(const AffinePoint& point) {
     if (point.infinity()) return false;
     BaseField right = point.x().Square() * point.x() + Config::kB;
     if constexpr (!Config::kAIsZero) {

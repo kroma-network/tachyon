@@ -20,7 +20,7 @@ class G2Projective {
   using G2Curve = typename Config::G2Curve;
   using Fp2Ty = typename G2Curve::BaseField;
   using FpTy = typename Fp2Ty::BaseField;
-  using G2AffinePointTy = typename G2Curve::AffinePointTy;
+  using G2AffinePoint = typename G2Curve::AffinePoint;
 
   G2Projective() = default;
   G2Projective(const Fp2Ty& x, const Fp2Ty& y, const Fp2Ty& z)
@@ -33,7 +33,7 @@ class G2Projective {
   const Fp2Ty& z() const { return z_; }
 
   // TODO(chokobole): Leave a comment to help understand readers.
-  EllCoeff<Fp2Ty> AddInPlace(const G2AffinePointTy& q) {
+  EllCoeff<Fp2Ty> AddInPlace(const G2AffinePoint& q) {
     // Formula for line function when working with
     // homogeneous projective coordinates.
     Fp2Ty theta = y_ - (q.y() * z_);

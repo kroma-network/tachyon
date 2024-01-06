@@ -98,7 +98,7 @@ template <typename Curve, size_t MaxDegree, size_t MaxExtendedDegree,
 struct VectorCommitmentSchemeTraits<
     zk::SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, _Commitment>> {
  public:
-  using G1PointTy = typename Curve::G1Curve::AffinePointTy;
+  using G1PointTy = typename Curve::G1Curve::AffinePoint;
   using Field = typename G1PointTy::ScalarField;
   using Commitment = _Commitment;
 

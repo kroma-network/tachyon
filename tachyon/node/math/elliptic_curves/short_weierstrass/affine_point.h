@@ -5,32 +5,29 @@
 
 namespace tachyon::node::math {
 
-template <typename AffinePointTy,
-          typename BaseField = typename AffinePointTy::BaseField>
+template <typename AffinePoint,
+          typename BaseField = typename AffinePoint::BaseField>
 void AddAffinePoint(NodeModule& m, std::string_view name) {
-  m.NewClass<AffinePointTy>(name)
+  m.NewClass<AffinePoint>(name)
       .template AddConstructor<>()
       .template AddConstructor<const BaseField&, const BaseField&, bool>(false)
-      .AddStaticMethod("zero", &AffinePointTy::Zero)
-      .AddStaticMethod("generator", &AffinePointTy::Generator)
-      .AddStaticMethod("random", &AffinePointTy::Random)
-      .AddReadOnlyProperty("x", &AffinePointTy::x)
-      .AddReadOnlyProperty("y", &AffinePointTy::y)
-      .AddReadOnlyProperty("infinity", &AffinePointTy::infinity)
-      .AddMethod("isZero", &AffinePointTy::IsZero)
-      .AddMethod("isOnCurve", &AffinePointTy::IsOnCurve)
-      .AddMethod("toString", &AffinePointTy::ToString)
-      .AddMethod("toHexString", &AffinePointTy::ToHexString, false)
-      .AddMethod("eq", &AffinePointTy::operator==)
-      .AddMethod("ne", &AffinePointTy::operator!=)
-      .AddMethod("add",
-                 &AffinePointTy::template operator+ <const AffinePointTy&>)
-      .AddMethod("sub",
-                 &AffinePointTy::template operator- <const AffinePointTy&>)
-      .AddMethod("negative",
-                 static_cast<AffinePointTy (AffinePointTy::*)() const>(
-                     &AffinePointTy::operator-))
-      .AddMethod("double", &AffinePointTy::Double);
+      .AddStaticMethod("zero", &AffinePoint::Zero)
+      .AddStaticMethod("generator", &AffinePoint::Generator)
+      .AddStaticMethod("random", &AffinePoint::Random)
+      .AddReadOnlyProperty("x", &AffinePoint::x)
+      .AddReadOnlyProperty("y", &AffinePoint::y)
+      .AddReadOnlyProperty("infinity", &AffinePoint::infinity)
+      .AddMethod("isZero", &AffinePoint::IsZero)
+      .AddMethod("isOnCurve", &AffinePoint::IsOnCurve)
+      .AddMethod("toString", &AffinePoint::ToString)
+      .AddMethod("toHexString", &AffinePoint::ToHexString, false)
+      .AddMethod("eq", &AffinePoint::operator==)
+      .AddMethod("ne", &AffinePoint::operator!=)
+      .AddMethod("add", &AffinePoint::template operator+ <const AffinePoint&>)
+      .AddMethod("sub", &AffinePoint::template operator- <const AffinePoint&>)
+      .AddMethod("negative", static_cast<AffinePoint (AffinePoint::*)() const>(
+                                 &AffinePoint::operator-))
+      .AddMethod("double", &AffinePoint::Double);
 }
 
 }  // namespace tachyon::node::math
