@@ -25,8 +25,8 @@ namespace tachyon::zk {
 // - the first row in a sequence of like values in A' is the row
 //   that has the corresponding value in S'.
 // This method returns (A', S') if no errors are encountered.
-template <typename PCSTy, typename Evals, typename F = typename Evals::Field>
-[[nodiscard]] bool PermuteExpressionPair(ProverBase<PCSTy>* prover,
+template <typename PCS, typename Evals, typename F = typename Evals::Field>
+[[nodiscard]] bool PermuteExpressionPair(ProverBase<PCS>* prover,
                                          const LookupPair<Evals>& in,
                                          LookupPair<Evals>* out) {
   size_t domain_size = prover->domain()->size();

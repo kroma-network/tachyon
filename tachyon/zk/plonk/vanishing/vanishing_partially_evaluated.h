@@ -12,11 +12,11 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename PCS>
 class VanishingPartiallyEvaluated {
  public:
-  using F = typename PCSTy::Field;
-  using Commitment = typename PCSTy::Commitment;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
 
   VanishingPartiallyEvaluated() = default;
   VanishingPartiallyEvaluated(std::vector<Commitment>&& h_commitments,

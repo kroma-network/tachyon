@@ -17,12 +17,11 @@ class GrandProductArgument {
   // If the number of rows is within than the supported size of polynomial
   // commitment scheme, you should use this version. See lookup argument for use
   // case.
-  template <typename PCSTy, typename Callable,
-            typename Poly = typename PCSTy::Poly>
-  static BlindedPolynomial<Poly> Commit(ProverBase<PCSTy>* prover,
+  template <typename PCS, typename Callable, typename Poly = typename PCS::Poly>
+  static BlindedPolynomial<Poly> Commit(ProverBase<PCS>* prover,
                                         Callable numerator_callback,
                                         Callable denominator_callback) {
-    using Evals = typename PCSTy::Evals;
+    using Evals = typename PCS::Evals;
 
     size_t size = prover->pcs().N();
     size_t blinding_factors = prover->blinder().blinding_factors();
@@ -41,13 +40,13 @@ class GrandProductArgument {
   // for use case.
   // See
   // https://zcash.github.io/halo2/design/proving-system/permutation.html#spanning-a-large-number-of-columns
-  template <typename PCSTy, typename Callable, typename F,
-            typename Poly = typename PCSTy::Poly>
-  static BlindedPolynomial<Poly> CommitExcessive(ProverBase<PCSTy>* prover,
+  template <typename PCS, typename Callable, typename F,
+            typename Poly = typename PCS::Poly>
+  static BlindedPolynomial<Poly> CommitExcessive(ProverBase<PCS>* prover,
                                                  Callable numerator_callback,
                                                  Callable denominator_callback,
                                                  size_t num_cols, F& last_z) {
-    using Evals = typename PCSTy::Evals;
+    using Evals = typename PCS::Evals;
 
     size_t size = prover->pcs().N();
     size_t blinding_factors = prover->blinder().blinding_factors();

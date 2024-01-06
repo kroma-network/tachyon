@@ -19,7 +19,7 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename PCS>
 class ProvingKey;
 
 template <typename F>
@@ -83,10 +83,10 @@ class VanishingArgument {
   const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
   const std::vector<GraphEvaluator<F>> lookups() const { return lookups_; }
 
-  template <typename PCSTy, typename Poly = typename PCSTy::Poly,
-            typename ExtendedEvals = typename PCSTy::ExtendedEvals>
+  template <typename PCS, typename Poly = typename PCS::Poly,
+            typename ExtendedEvals = typename PCS::ExtendedEvals>
   ExtendedEvals BuildExtendedCircuitColumn(
-      ProverBase<PCSTy>* prover, const ProvingKey<PCSTy>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<PCS>& proving_key,
       const F& beta, const F& gamma, const F& theta, const F& y, const F& zeta,
       const std::vector<F>& challenges,
       const std::vector<PermutationCommitted<Poly>>& committed_permutations,
@@ -97,8 +97,8 @@ class VanishingArgument {
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 
-    CircuitPolynomialBuilder<PCSTy> builder =
-        CircuitPolynomialBuilder<PCSTy>::Create(
+    CircuitPolynomialBuilder<PCS> builder =
+        CircuitPolynomialBuilder<PCS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
             blinding_factors, cs_degree, &beta, &gamma, &theta, &y, &zeta,
             &challenges, &proving_key, &committed_permutations,

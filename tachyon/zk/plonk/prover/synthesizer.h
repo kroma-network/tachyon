@@ -17,13 +17,13 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename PCS>
 class Synthesizer {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
-  using Evals = typename PCSTy::Evals;
-  using RationalEvals = typename PCSTy::RationalEvals;
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+  using RationalEvals = typename PCS::RationalEvals;
 
   Synthesizer() = default;
   Synthesizer(size_t num_circuits, const ConstraintSystem<F>* constraint_system)
@@ -42,7 +42,7 @@ class Synthesizer {
   // Synthesize circuit and store advice columns.
   template <typename CircuitTy>
   void GenerateAdviceColumns(
-      ProverBase<PCSTy>* prover, const std::vector<CircuitTy>& circuits,
+      ProverBase<PCS>* prover, const std::vector<CircuitTy>& circuits,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
     CHECK_EQ(num_circuits_, circuits.size());
 
@@ -100,14 +100,14 @@ class Synthesizer {
   // returns a vector of |RationalEvals|.
   template <typename CircuitTy>
   std::vector<RationalEvals> GenerateRationalAdvices(
-      ProverBase<PCSTy>* prover, const Phase phase,
+      ProverBase<PCS>* prover, const Phase phase,
       const std::vector<Evals>& instance_columns, const CircuitTy& circuit,
       const typename CircuitTy::Config& config) {
     // The prover will not be allowed to assign values to advice
     // cells that exist within inactive rows, which include some
     // number of blinding factors and an extra row for use in the
     // permutation argument.
-    WitnessCollection<PCSTy> witness(
+    WitnessCollection<PCS> witness(
         prover->domain(), constraint_system_->num_advice_columns(),
         prover->GetUsableRows(), phase, challenges_, instance_columns);
 
@@ -117,7 +117,7 @@ class Synthesizer {
     return std::move(witness).TakeAdvices();
   }
 
-  void UpdateChallenges(ProverBase<PCSTy>* prover, const Phase phase) {
+  void UpdateChallenges(ProverBase<PCS>* prover, const Phase phase) {
     const std::vector<Phase>& phases = constraint_system_->challenge_phases();
     for (size_t i = 0; i < phases.size(); ++i) {
       if (phase == phases[i]) {

@@ -13,11 +13,11 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename PCS>
 class ProverQuery {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
   using Commitment = base::Ref<const BlindedPolynomial<Poly>>;
 
   ProverQuery(const F& point, Commitment poly) : point_(point), poly_(poly) {}

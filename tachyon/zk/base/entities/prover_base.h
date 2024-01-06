@@ -17,21 +17,21 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
-class ProverBase : public Entity<PCSTy> {
+template <typename PCS>
+class ProverBase : public Entity<PCS> {
  public:
-  using F = typename PCSTy::Field;
-  using Evals = typename PCSTy::Evals;
-  using Poly = typename PCSTy::Poly;
-  using Commitment = typename PCSTy::Commitment;
+  using F = typename PCS::Field;
+  using Evals = typename PCS::Evals;
+  using Poly = typename PCS::Poly;
+  using Commitment = typename PCS::Commitment;
 
-  ProverBase(PCSTy&& pcs,
+  ProverBase(PCS&& pcs,
              std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-             Blinder<PCSTy>&& blinder)
-      : Entity<PCSTy>(std::move(pcs), std::move(writer)),
+             Blinder<PCS>&& blinder)
+      : Entity<PCS>(std::move(pcs), std::move(writer)),
         blinder_(std::move(blinder)) {}
 
-  Blinder<PCSTy>& blinder() { return blinder_; }
+  Blinder<PCS>& blinder() { return blinder_; }
 
   crypto::TranscriptWriter<Commitment>* GetWriter() {
     return this->transcript()->ToWriter();
@@ -75,7 +75,7 @@ class ProverBase : public Entity<PCSTy> {
   }
 
  protected:
-  Blinder<PCSTy> blinder_;
+  Blinder<PCS> blinder_;
 };
 
 }  // namespace tachyon::zk

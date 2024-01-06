@@ -12,16 +12,16 @@
 namespace tachyon::zk {
 
 // Data class including all arguments for creating proof.
-template <typename PCSTy>
+template <typename PCS>
 class Argument {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
-  using Evals = typename PCSTy::Evals;
-  using Domain = typename PCSTy::Domain;
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+  using Domain = typename PCS::Domain;
 
   Argument() = default;
-  static Argument Create(ProverBase<PCSTy>* prover, size_t num_circuits,
+  static Argument Create(ProverBase<PCS>* prover, size_t num_circuits,
                          const std::vector<Evals>* fixed_columns,
                          const std::vector<Poly>* fixed_polys,
                          std::vector<std::vector<Evals>>&& advice_columns_vec,
@@ -128,14 +128,14 @@ class Argument {
   // Generate a vector of instance coefficient-formed polynomials with a vector
   // of instance evaluation-formed columns. (a.k.a. Batch IFFT)
   static std::vector<std::vector<Poly>> GenerateInstancePolys(
-      ProverBase<PCSTy>* prover,
+      ProverBase<PCS>* prover,
       std::vector<std::vector<Evals>> instance_columns_vec) {
     return base::Map(instance_columns_vec,
                      [prover](const std::vector<Evals>& instance_columns) {
                        return base::Map(
                            instance_columns,
                            [prover](const Evals& instance_column) {
-                             if constexpr (PCSTy::kQueryInstance) {
+                             if constexpr (PCS::kQueryInstance) {
                                CHECK(prover->CommitEvals(instance_column));
                              } else {
                                for (size_t i = 0; i < prover->pcs().N(); ++i) {

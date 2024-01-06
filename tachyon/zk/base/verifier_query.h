@@ -13,11 +13,11 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename PCS>
 class VerifierQuery {
  public:
-  using F = typename PCSTy::Field;
-  using Commitment = typename PCSTy::Commitment;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
 
   VerifierQuery(const F& point, base::Ref<const Commitment> commitment,
                 const F& evaluated)

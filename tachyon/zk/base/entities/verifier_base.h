@@ -14,14 +14,14 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
-class VerifierBase : public Entity<PCSTy> {
+template <typename PCS>
+class VerifierBase : public Entity<PCS> {
  public:
-  using Commitment = typename PCSTy::Commitment;
+  using Commitment = typename PCS::Commitment;
 
-  VerifierBase(PCSTy&& pcs,
+  VerifierBase(PCS&& pcs,
                std::unique_ptr<crypto::TranscriptReader<Commitment>> transcript)
-      : Entity<PCSTy>(std::move(pcs), std::move(transcript)) {}
+      : Entity<PCS>(std::move(pcs), std::move(transcript)) {}
 
   crypto::TranscriptReader<Commitment>* GetReader() {
     return this->transcript()->ToReader();

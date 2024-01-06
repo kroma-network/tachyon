@@ -28,22 +28,22 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename PCS>
 class ProvingKey;
 
 // It generates "CircuitPolynomial" formed below:
 // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
 // You can find more detailed theory in "Halo2 book"
 // https://zcash.github.io/halo2/design/proving-system/vanishing.html
-template <typename PCSTy>
+template <typename PCS>
 class CircuitPolynomialBuilder {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
-  using Evals = typename PCSTy::Evals;
-  using Domain = typename PCSTy::Domain;
-  using ExtendedDomain = typename PCSTy::ExtendedDomain;
-  using ExtendedEvals = typename PCSTy::ExtendedEvals;
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+  using Domain = typename PCS::Domain;
+  using ExtendedDomain = typename PCS::ExtendedDomain;
+  using ExtendedEvals = typename PCS::ExtendedEvals;
 
   CircuitPolynomialBuilder() = default;
 
@@ -51,7 +51,7 @@ class CircuitPolynomialBuilder {
       const Domain* domain, const ExtendedDomain* extended_domain, size_t n,
       size_t blinding_factors, size_t cs_degree, const F* beta, const F* gamma,
       const F* theta, const F* y, const F* zeta,
-      const std::vector<F>* challenges, const ProvingKey<PCSTy>* proving_key,
+      const std::vector<F>* challenges, const ProvingKey<PCS>* proving_key,
       const std::vector<PermutationCommitted<Poly>>* committed_permutations,
       const std::vector<std::vector<LookupCommitted<Poly>>>*
           committed_lookups_vec,
@@ -395,7 +395,7 @@ class CircuitPolynomialBuilder {
   F delta_start_;
 
   // not owned
-  const ProvingKey<PCSTy>* proving_key_;
+  const ProvingKey<PCS>* proving_key_;
   // not owned
   const std::vector<PermutationCommitted<Poly>>* committed_permutations_;
   // not owned

@@ -25,14 +25,14 @@ namespace tachyon::zk {
 
 // Struct that accumulates all the necessary data in order to construct the
 // permutation argument.
-template <typename PCSTy>
+template <typename PCS>
 class PermutationAssembly {
  public:
-  using F = typename PCSTy::Field;
-  using Evals = typename PCSTy::Evals;
-  using Poly = typename PCSTy::Poly;
-  using Domain = typename PCSTy::Domain;
-  using Commitment = typename PCSTy::Commitment;
+  using F = typename PCS::Field;
+  using Evals = typename PCS::Evals;
+  using Poly = typename PCS::Poly;
+  using Domain = typename PCS::Domain;
+  using Commitment = typename PCS::Commitment;
   using Commitments = std::vector<Commitment>;
 
   PermutationAssembly() = default;
@@ -79,11 +79,10 @@ class PermutationAssembly {
   }
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
-  constexpr PermutationVerifyingKey<PCSTy> BuildVerifyingKey(
-      const Entity<PCSTy>* entity,
-      const std::vector<Evals>& permutations) const {
-    const PCSTy& pcs = entity->pcs();
-    return PermutationVerifyingKey<PCSTy>(
+  constexpr PermutationVerifyingKey<PCS> BuildVerifyingKey(
+      const Entity<PCS>* entity, const std::vector<Evals>& permutations) const {
+    const PCS& pcs = entity->pcs();
+    return PermutationVerifyingKey<PCS>(
         base::Map(permutations, [pcs](const Evals& permutation) {
           Commitment commitment;
           CHECK(pcs.CommitLagrange(permutation, &commitment));
@@ -94,7 +93,7 @@ class PermutationAssembly {
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
   constexpr PermutationProvingKey<Poly, Evals> BuildProvingKey(
-      const ProverBase<PCSTy>* prover,
+      const ProverBase<PCS>* prover,
       const std::vector<Evals>& permutations) const {
     const Domain* domain = prover->domain();
 

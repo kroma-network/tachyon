@@ -18,18 +18,18 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
-class ProvingKey : public Key<PCSTy> {
+template <typename PCS>
+class ProvingKey : public Key<PCS> {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
-  using Evals = typename PCSTy::Evals;
-  using PreLoadResult = typename Key<PCSTy>::PreLoadResult;
-  using VerifyingKeyLoadResult = typename VerifyingKey<PCSTy>::LoadResult;
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+  using PreLoadResult = typename Key<PCS>::PreLoadResult;
+  using VerifyingKeyLoadResult = typename VerifyingKey<PCS>::LoadResult;
 
   ProvingKey() = default;
 
-  const VerifyingKey<PCSTy>& verifying_key() const { return verifying_key_; }
+  const VerifyingKey<PCS>& verifying_key() const { return verifying_key_; }
   const Poly& l_first() const { return l_first_; }
   const Poly& l_last() const { return l_last_; }
   const Poly& l_active_row() const { return l_active_row_; }
@@ -41,7 +41,7 @@ class ProvingKey : public Key<PCSTy> {
 
   // Return true if it is able to load from an instance of |circuit|.
   template <typename CircuitTy>
-  [[nodiscard]] bool Load(ProverBase<PCSTy>* prover, const CircuitTy& circuit) {
+  [[nodiscard]] bool Load(ProverBase<PCS>* prover, const CircuitTy& circuit) {
     PreLoadResult pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     VerifyingKeyLoadResult vk_result;
@@ -53,9 +53,9 @@ class ProvingKey : public Key<PCSTy> {
   // Return true if it is able to load from an instance of |circuit| and a
   // |verifying_key|.
   template <typename CircuitTy>
-  [[nodiscard]] bool LoadWithVerifyingKey(ProverBase<PCSTy>* prover,
+  [[nodiscard]] bool LoadWithVerifyingKey(ProverBase<PCS>* prover,
                                           const CircuitTy& circuit,
-                                          VerifyingKey<PCSTy>&& verifying_key) {
+                                          VerifyingKey<PCS>&& verifying_key) {
     PreLoadResult pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     verifying_key_ = std::move(verifying_key);
@@ -63,9 +63,9 @@ class ProvingKey : public Key<PCSTy> {
   }
 
  private:
-  bool DoLoad(ProverBase<PCSTy>* prover, PreLoadResult&& pre_load_result,
+  bool DoLoad(ProverBase<PCS>* prover, PreLoadResult&& pre_load_result,
               VerifyingKeyLoadResult* vk_load_result) {
-    using Domain = typename PCSTy::Domain;
+    using Domain = typename PCS::Domain;
 
     // NOTE(chokobole): |ComputeBlindingFactors()| is a second call. The first
     // was called inside |PreLoad()|. But I think this is cheap to compute.
@@ -157,7 +157,7 @@ class ProvingKey : public Key<PCSTy> {
     return true;
   }
 
-  VerifyingKey<PCSTy> verifying_key_;
+  VerifyingKey<PCS> verifying_key_;
   Poly l_first_;
   Poly l_last_;
   Poly l_active_row_;

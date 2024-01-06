@@ -18,16 +18,16 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
-class Assembly : public Assignment<typename PCSTy::Field> {
+template <typename PCS>
+class Assembly : public Assignment<typename PCS::Field> {
  public:
-  using F = typename PCSTy::Field;
-  using RationalEvals = typename PCSTy::RationalEvals;
+  using F = typename PCS::Field;
+  using RationalEvals = typename PCS::RationalEvals;
   using AssignCallback = typename Assignment<F>::AssignCallback;
 
   Assembly() = default;
   Assembly(std::vector<RationalEvals>&& fixed_columns,
-           PermutationAssembly<PCSTy>&& permutation,
+           PermutationAssembly<PCS>&& permutation,
            std::vector<std::vector<bool>>&& selectors,
            base::Range<size_t> usable_rows)
       : fixed_columns_(std::move(fixed_columns)),
@@ -38,7 +38,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
   const std::vector<RationalEvals>& fixed_columns() const {
     return fixed_columns_;
   }
-  const PermutationAssembly<PCSTy>& permutation() const { return permutation_; }
+  const PermutationAssembly<PCS>& permutation() const { return permutation_; }
   const std::vector<std::vector<bool>>& selectors() const { return selectors_; }
   const base::Range<size_t>& usable_rows() const { return usable_rows_; }
 
@@ -79,7 +79,7 @@ class Assembly : public Assignment<typename PCSTy::Field> {
 
  private:
   std::vector<RationalEvals> fixed_columns_;
-  PermutationAssembly<PCSTy> permutation_;
+  PermutationAssembly<PCS> permutation_;
   std::vector<std::vector<bool>> selectors_;
   // A range of available rows for assignment and copies.
   base::Range<size_t> usable_rows_;

@@ -15,10 +15,10 @@
 namespace tachyon {
 namespace zk {
 
-template <typename PCSTy>
+template <typename PCS>
 class PermutationVerifyingKey {
  public:
-  using Commitment = typename PCSTy::Commitment;
+  using Commitment = typename PCS::Commitment;
   using Commitments = std::vector<Commitment>;
 
   PermutationVerifyingKey() = default;
@@ -47,23 +47,23 @@ class PermutationVerifyingKey {
 
 namespace base {
 
-template <typename PCSTy>
-class Copyable<zk::PermutationVerifyingKey<PCSTy>> {
+template <typename PCS>
+class Copyable<zk::PermutationVerifyingKey<PCS>> {
  public:
-  static bool WriteTo(const zk::PermutationVerifyingKey<PCSTy>& vk,
+  static bool WriteTo(const zk::PermutationVerifyingKey<PCS>& vk,
                       Buffer* buffer) {
     return buffer->Write(vk.commitments());
   }
 
   static bool ReadFrom(const Buffer& buffer,
-                       zk::PermutationVerifyingKey<PCSTy>* vk) {
-    typename zk::PermutationVerifyingKey<PCSTy>::Commitments commitments;
+                       zk::PermutationVerifyingKey<PCS>* vk) {
+    typename zk::PermutationVerifyingKey<PCS>::Commitments commitments;
     if (!buffer.Read(&commitments)) return false;
-    *vk = zk::PermutationVerifyingKey<PCSTy>(std::move(commitments));
+    *vk = zk::PermutationVerifyingKey<PCS>(std::move(commitments));
     return true;
   }
 
-  static size_t EstimateSize(const zk::PermutationVerifyingKey<PCSTy>& vk) {
+  static size_t EstimateSize(const zk::PermutationVerifyingKey<PCS>& vk) {
     return base::EstimateSize(vk.commitments());
   }
 };

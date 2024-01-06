@@ -17,21 +17,21 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename PCS>
 class Key {
  public:
-  using F = typename PCSTy::Field;
-  using Domain = typename PCSTy::Domain;
-  using Evals = typename PCSTy::Evals;
+  using F = typename PCS::Field;
+  using Domain = typename PCS::Domain;
+  using Evals = typename PCS::Evals;
 
-  static Assembly<PCSTy> CreateAssembly(
+  static Assembly<PCS> CreateAssembly(
       const Domain* domain, const ConstraintSystem<F>& constraint_system) {
-    using RationalEvals = typename Assembly<PCSTy>::RationalEvals;
+    using RationalEvals = typename Assembly<PCS>::RationalEvals;
     size_t n = domain->size();
     return {
         base::CreateVector(constraint_system.num_fixed_columns(),
                            domain->template Empty<RationalEvals>()),
-        PermutationAssembly<PCSTy>(constraint_system.permutation(), n),
+        PermutationAssembly<PCS>(constraint_system.permutation(), n),
         base::CreateVector(constraint_system.num_selectors(),
                            base::CreateVector(n, false)),
         // NOTE(chokobole): Considering that this is called from a verifier,
@@ -43,22 +43,22 @@ class Key {
  protected:
   struct PreLoadResult {
     ConstraintSystem<F> constraint_system;
-    Assembly<PCSTy> assembly;
+    Assembly<PCS> assembly;
     std::vector<Evals> fixed_columns;
   };
 
   template <typename CircuitTy>
-  bool PreLoad(Entity<PCSTy>* entity, const CircuitTy& circuit,
+  bool PreLoad(Entity<PCS>* entity, const CircuitTy& circuit,
                PreLoadResult* result) {
     using Config = typename CircuitTy::Config;
     using FloorPlanner = typename CircuitTy::FloorPlanner;
-    using RationalEvals = typename Assembly<PCSTy>::RationalEvals;
-    using ExtendedDomain = typename PCSTy::ExtendedDomain;
+    using RationalEvals = typename Assembly<PCS>::RationalEvals;
+    using ExtendedDomain = typename PCS::ExtendedDomain;
 
     ConstraintSystem<F>& constraint_system = result->constraint_system;
     Config config = CircuitTy::Configure(constraint_system);
 
-    PCSTy& pcs = entity->pcs();
+    PCS& pcs = entity->pcs();
     if (pcs.N() < constraint_system.ComputeMinimumRows()) {
       LOG(ERROR) << "Not enough rows available " << pcs.N() << " vs "
                  << constraint_system.ComputeMinimumRows();
@@ -69,7 +69,7 @@ class Key {
         ExtendedDomain::Create(size_t{1} << extended_k));
 
     result->assembly = CreateAssembly(entity->domain(), constraint_system);
-    Assembly<PCSTy>& assembly = result->assembly;
+    Assembly<PCS>& assembly = result->assembly;
     FloorPlanner::Synthesize(&assembly, circuit, std::move(config),
                              constraint_system.constants());
 

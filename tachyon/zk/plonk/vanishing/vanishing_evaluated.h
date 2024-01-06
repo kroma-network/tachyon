@@ -15,39 +15,39 @@
 
 namespace tachyon::zk {
 
-template <EntityTy EntityType, typename PCSTy>
+template <EntityTy EntityType, typename PCS>
 class VanishingEvaluated;
 
-template <typename PCSTy>
-class VanishingEvaluated<EntityTy::kProver, PCSTy> {
+template <typename PCS>
+class VanishingEvaluated<EntityTy::kProver, PCS> {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
 
   VanishingEvaluated() = default;
   VanishingEvaluated(Poly&& h_poly, F&& h_blind,
-                     VanishingCommitted<EntityTy::kProver, PCSTy>&& committed)
+                     VanishingCommitted<EntityTy::kProver, PCS>&& committed)
       : h_poly_(std::move(h_poly)),
         h_blind_(std::move(h_blind)),
         committed_(std::move(committed)) {}
 
   Poly&& TakeHPoly() && { return std::move(h_poly_); }
   F&& TakeHBlind() && { return std::move(h_blind_); }
-  VanishingCommitted<EntityTy::kProver, PCSTy>&& TakeCommitted() && {
+  VanishingCommitted<EntityTy::kProver, PCS>&& TakeCommitted() && {
     return std::move(committed_);
   }
 
  private:
   Poly h_poly_;
   F h_blind_;
-  VanishingCommitted<EntityTy::kProver, PCSTy> committed_;
+  VanishingCommitted<EntityTy::kProver, PCS> committed_;
 };
 
-template <typename PCSTy>
-class VanishingEvaluated<EntityTy::kVerifier, PCSTy> {
+template <typename PCS>
+class VanishingEvaluated<EntityTy::kVerifier, PCS> {
  public:
-  using F = typename PCSTy::Field;
-  using Commitment = typename PCSTy::Commitment;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
 
   VanishingEvaluated() = default;
   VanishingEvaluated(Commitment&& h_commitment,

@@ -16,15 +16,15 @@
 
 namespace tachyon::zk::halo2 {
 
-template <typename PCSTy>
-class Prover : public ProverBase<PCSTy> {
+template <typename PCS>
+class Prover : public ProverBase<PCS> {
  public:
-  using F = typename PCSTy::Field;
-  using Evals = typename PCSTy::Evals;
-  using Commitment = typename PCSTy::Commitment;
+  using F = typename PCS::Field;
+  using Evals = typename PCS::Evals;
+  using Commitment = typename PCS::Commitment;
 
   static Prover CreateFromRandomSeed(
-      PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+      PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       size_t blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromRandomSeed());
@@ -33,7 +33,7 @@ class Prover : public ProverBase<PCSTy> {
   }
 
   static Prover CreateFromSeed(
-      PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+      PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       const uint8_t seed[16], size_t blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromSeed(seed));
@@ -42,10 +42,10 @@ class Prover : public ProverBase<PCSTy> {
   }
 
   static Prover CreateFromRNG(
-      PCSTy&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+      PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       std::unique_ptr<crypto::XORShiftRNG> rng, size_t blinding_factors) {
     auto generator = std::make_unique<RandomFieldGenerator<F>>(rng.get());
-    Blinder<PCSTy> blinder(generator.get(), blinding_factors);
+    Blinder<PCS> blinder(generator.get(), blinding_factors);
     return {std::move(pcs), std::move(writer), std::move(blinder),
             std::move(rng), std::move(generator)};
   }
@@ -53,9 +53,9 @@ class Prover : public ProverBase<PCSTy> {
   crypto::XORShiftRNG* rng() { return rng_.get(); }
   RandomFieldGenerator<F>* generator() { return generator_.get(); }
 
-  std::unique_ptr<Verifier<PCSTy>> ToVerifier(
+  std::unique_ptr<Verifier<PCS>> ToVerifier(
       std::unique_ptr<crypto::TranscriptReader<Commitment>> reader) {
-    std::unique_ptr<Verifier<PCSTy>> ret = std::make_unique<Verifier<PCSTy>>(
+    std::unique_ptr<Verifier<PCS>> ret = std::make_unique<Verifier<PCS>>(
         std::move(this->pcs_), std::move(reader));
     ret->set_domain(std::move(this->domain_));
     ret->set_extended_domain(std::move(this->extended_domain_));
@@ -63,12 +63,11 @@ class Prover : public ProverBase<PCSTy> {
   }
 
  private:
-  Prover(PCSTy&& pcs,
+  Prover(PCS&& pcs,
          std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-         Blinder<PCSTy>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
+         Blinder<PCS>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
          std::unique_ptr<RandomFieldGenerator<F>> generator)
-      : ProverBase<PCSTy>(std::move(pcs), std::move(writer),
-                          std::move(blinder)),
+      : ProverBase<PCS>(std::move(pcs), std::move(writer), std::move(blinder)),
         rng_(std::move(rng)),
         generator_(std::move(generator)) {}
 

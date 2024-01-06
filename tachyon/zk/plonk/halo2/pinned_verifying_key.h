@@ -20,15 +20,15 @@
 namespace tachyon {
 namespace zk::halo2 {
 
-template <typename PCSTy>
+template <typename PCS>
 class PinnedVerifyingKey {
  public:
-  using F = typename PCSTy::Field;
-  using Commitment = typename PCSTy::Commitment;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
   using BaseField = typename Commitment::BaseField;
   using ScalarField = typename Commitment::ScalarField;
 
-  PinnedVerifyingKey(const Entity<PCSTy>* entity, const VerifyingKey<PCSTy>& vk)
+  PinnedVerifyingKey(const Entity<PCS>* entity, const VerifyingKey<PCS>& vk)
       : base_modulus_(BaseField::Config::kModulus.ToHexString(true)),
         scalar_modulus_(ScalarField::Config::kModulus.ToHexString(true)),
         domain_(entity),
@@ -45,7 +45,7 @@ class PinnedVerifyingKey {
   const std::vector<Commitment>& fixed_commitments() const {
     return fixed_commitments_;
   }
-  const PermutationVerifyingKey<PCSTy>& permutation_verifying_key() const {
+  const PermutationVerifyingKey<PCS>& permutation_verifying_key() const {
     return permutation_verifying_key_;
   }
 
@@ -55,19 +55,19 @@ class PinnedVerifyingKey {
   PinnedEvaluationDomain<F> domain_;
   PinnedConstraintSystem<F> constraint_system_;
   const std::vector<Commitment>& fixed_commitments_;
-  const PermutationVerifyingKey<PCSTy>& permutation_verifying_key_;
+  const PermutationVerifyingKey<PCS>& permutation_verifying_key_;
 };
 
 }  // namespace zk::halo2
 
 namespace base::internal {
 
-template <typename PCSTy>
-class RustDebugStringifier<zk::halo2::PinnedVerifyingKey<PCSTy>> {
+template <typename PCS>
+class RustDebugStringifier<zk::halo2::PinnedVerifyingKey<PCS>> {
  public:
   static std::ostream& AppendToStream(
       std::ostream& os, RustFormatter& fmt,
-      const zk::halo2::PinnedVerifyingKey<PCSTy>& pinned_vk) {
+      const zk::halo2::PinnedVerifyingKey<PCS>& pinned_vk) {
     // NOTE(chokobole): Original name is PinnedVerificationKey not
     // PinnedVerifyingKey. See
     // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk.rs#L252-L263.

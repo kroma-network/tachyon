@@ -18,10 +18,10 @@
 namespace tachyon::zk {
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
+template <typename PCS, typename F>
 LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
-    ProverBase<PCSTy>* prover, const LookupArgument<F>& argument,
-    const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl) {
+    ProverBase<PCS>* prover, const LookupArgument<F>& argument, const F& theta,
+    const SimpleEvaluator<Evals>& evaluator_tpl) {
   // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
   Evals compressed_input_expression = CompressExpressions(
       prover->domain(), argument.input_expressions(), theta, evaluator_tpl);
@@ -56,9 +56,9 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
+template <typename PCS, typename F>
 LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
-    ProverBase<PCSTy>* prover, LookupPermuted<Poly, Evals>&& permuted,
+    ProverBase<PCS>* prover, LookupPermuted<Poly, Evals>&& permuted,
     const F& beta, const F& gamma) {
   BlindedPolynomial<Poly> grand_product_poly = GrandProductArgument::Commit(
       prover, CreateNumeratorCallback<F>(permuted, beta, gamma),
@@ -70,9 +70,9 @@ LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
+template <typename PCS, typename F>
 LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
-    ProverBase<PCSTy>* prover, LookupCommitted<Poly>&& committed, const F& x) {
+    ProverBase<PCS>* prover, LookupCommitted<Poly>&& committed, const F& x) {
   F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 
@@ -96,21 +96,20 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
-std::vector<ProverQuery<PCSTy>>
-LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
-    const ProverBase<PCSTy>* prover, const LookupEvaluated<Poly>& evaluated,
+template <typename PCS, typename F>
+std::vector<ProverQuery<PCS>> LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
+    const ProverBase<PCS>* prover, const LookupEvaluated<Poly>& evaluated,
     const F& x) {
   F x_inv = Rotation::Prev().RotateOmega(prover->domain(), x);
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
 
   return {
-      ProverQuery<PCSTy>(x, evaluated.product_poly().ToRef()),
-      ProverQuery<PCSTy>(x, evaluated.permuted_input_poly().ToRef()),
-      ProverQuery<PCSTy>(std::move(x), evaluated.permuted_table_poly().ToRef()),
-      ProverQuery<PCSTy>(std::move(x_inv),
-                         evaluated.permuted_input_poly().ToRef()),
-      ProverQuery<PCSTy>(std::move(x_next), evaluated.product_poly().ToRef())};
+      ProverQuery<PCS>(x, evaluated.product_poly().ToRef()),
+      ProverQuery<PCS>(x, evaluated.permuted_input_poly().ToRef()),
+      ProverQuery<PCS>(std::move(x), evaluated.permuted_table_poly().ToRef()),
+      ProverQuery<PCS>(std::move(x_inv),
+                       evaluated.permuted_input_poly().ToRef()),
+      ProverQuery<PCS>(std::move(x_next), evaluated.product_poly().ToRef())};
 }
 
 template <typename Poly, typename Evals>
