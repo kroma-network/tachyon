@@ -22,15 +22,15 @@
 
 namespace tachyon::crypto {
 
-template <typename LeafTy, typename HashTy, size_t MaxSize>
+template <typename Leaf, typename HashTy, size_t MaxSize>
 class BinaryMerkleTree final
-    : public VectorCommitmentScheme<BinaryMerkleTree<LeafTy, HashTy, MaxSize>> {
+    : public VectorCommitmentScheme<BinaryMerkleTree<Leaf, HashTy, MaxSize>> {
  public:
   constexpr static size_t kDefaultLeavesSizeForParallelization = 1024;
 
   BinaryMerkleTree() = default;
   BinaryMerkleTree(BinaryMerkleTreeStorage<HashTy>* storage,
-                   BinaryMerkleHasher<LeafTy, HashTy>* hasher)
+                   BinaryMerkleHasher<Leaf, HashTy>* hasher)
       : storage_(storage), hasher_(hasher) {}
 
   size_t leaves_size_for_parallelization() const {
@@ -46,8 +46,7 @@ class BinaryMerkleTree final
   FRIEND_TEST(BinaryMerkleTreeTest, FillLeaves);
   FRIEND_TEST(BinaryMerkleTreeTest, BuildTreeFromLeaves);
 
-  friend class VectorCommitmentScheme<
-      BinaryMerkleTree<LeafTy, HashTy, MaxSize>>;
+  friend class VectorCommitmentScheme<BinaryMerkleTree<Leaf, HashTy, MaxSize>>;
 
   // VectorCommitmentScheme methods
   size_t N() const { return MaxSize; }
@@ -155,13 +154,13 @@ class BinaryMerkleTree final
   // not owned
   mutable BinaryMerkleTreeStorage<HashTy>* storage_ = nullptr;
   // not owned
-  BinaryMerkleHasher<LeafTy, HashTy>* hasher_ = nullptr;
+  BinaryMerkleHasher<Leaf, HashTy>* hasher_ = nullptr;
   size_t leaves_size_for_parallelization_ =
       kDefaultLeavesSizeForParallelization;
 };
 
-template <typename LeafTy, typename HashTy, size_t MaxSize>
-struct VectorCommitmentSchemeTraits<BinaryMerkleTree<LeafTy, HashTy, MaxSize>> {
+template <typename Leaf, typename HashTy, size_t MaxSize>
+struct VectorCommitmentSchemeTraits<BinaryMerkleTree<Leaf, HashTy, MaxSize>> {
  public:
   constexpr static size_t kMaxSize = MaxSize;
   constexpr static bool kIsTransparent = true;
