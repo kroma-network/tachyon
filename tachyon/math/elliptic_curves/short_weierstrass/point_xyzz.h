@@ -30,9 +30,6 @@ class PointXYZZ<_Curve,
   using Curve = _Curve;
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
-  using AffinePointTy = AffinePoint<Curve>;
-  using ProjectivePointTy = ProjectivePoint<Curve>;
-  using JacobianPointTy = JacobianPoint<Curve>;
 
   constexpr PointXYZZ()
       : PointXYZZ(BaseField::One(), BaseField::One(), BaseField::Zero(),

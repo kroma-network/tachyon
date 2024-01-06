@@ -32,9 +32,6 @@ class AffinePoint<
   using Curve = _Curve;
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
-  using ProjectivePointTy = ProjectivePoint<Curve>;
-  using JacobianPointTy = JacobianPoint<Curve>;
-  using PointXYZZTy = PointXYZZ<Curve>;
 
   constexpr AffinePoint()
       : AffinePoint(BaseField::Zero(), BaseField::Zero(), true) {}
@@ -115,10 +112,10 @@ class AffinePoint<
       LOG(ERROR) << "Size of |scalar_fields| and |affine_points| do not match";
       return false;
     }
-    std::vector<JacobianPointTy> jacobian_points = base::Map(
+    std::vector<JacobianPoint<Curve>> jacobian_points = base::Map(
         scalar_fields,
         [&point](const ScalarField& scalar) { return scalar * point; });
-    return JacobianPointTy::BatchNormalize(jacobian_points, affine_points);
+    return JacobianPoint<Curve>::BatchNormalize(jacobian_points, affine_points);
   }
 
   constexpr const BaseField& x() const { return x_; }

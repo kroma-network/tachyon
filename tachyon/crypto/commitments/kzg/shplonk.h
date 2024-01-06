@@ -199,7 +199,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   [[nodiscard]] bool DoVerifyOpeningProof(
       const Container& poly_openings,
       TranscriptReader<Commitment>* reader) const {
-    using G1JacobianPointTy = typename G1PointTy::JacobianPointTy;
+    using G1JacobianPoint = math::JacobianPoint<typename G1PointTy::Curve>;
 
     Field y = reader->SqueezeChallenge();
     Field v = reader->SqueezeChallenge();
@@ -227,7 +227,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     Field first_z_diff_inverse = Field::Zero();
     Field first_z = Field::Zero();
 
-    std::vector<G1JacobianPointTy> normalized_l_commitments;
+    std::vector<G1JacobianPoint> normalized_l_commitments;
     normalized_l_commitments.reserve(grouped_poly_openings_vec.size());
     size_t i = 0;
     for (const auto& [poly_openings_vec, point_refs] :
@@ -277,7 +277,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       // |r_commitments₀| = [[R₀(u)]₁, [R₁(u)]₁, [R₂(u)]₁]
       // |r_commitments₁| = [[R₃(u)]₁]
       // |r_commitments₂| = [[R₄(u)]₁]
-      std::vector<G1JacobianPointTy> r_commitments = base::Map(
+      std::vector<G1JacobianPoint> r_commitments = base::Map(
           poly_openings_vec,
           [&points,
            &u](const PolynomialOpenings<Poly, Commitment>& poly_openings) {
@@ -292,7 +292,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       // |l_commitment₁| = C₁ - [R₁(u)]₁
       // |l_commitment₂| = C₂ - [R₂(u)]₁
       // clang-format on
-      G1JacobianPointTy l_commitment = G1JacobianPointTy::Zero();
+      G1JacobianPoint l_commitment = G1JacobianPoint::Zero();
       for (size_t j = commitments.size() - 1; j != SIZE_MAX; --j) {
         l_commitment *= y;
         l_commitment += (commitments[j] - r_commitments[j]);
@@ -312,8 +312,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     // lhs_g1 = ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u) - Z₀(u)[H(𝜏)]₁ + u[Q(𝜏)]₁
     // lhs_g2 = [1]₂
     // clang-format on
-    G1JacobianPointTy& lhs =
-        G1JacobianPointTy::template LinearCombinationInPlace</*forward=*/false>(
+    G1JacobianPoint& lhs =
+        G1JacobianPoint::template LinearCombinationInPlace</*forward=*/false>(
             normalized_l_commitments, v);
 
     lhs -= (first_z * h);

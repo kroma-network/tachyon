@@ -53,13 +53,13 @@ class KZG {
   }
 
   [[nodiscard]] bool UnsafeSetup(size_t size, const Field& tau) {
-    using G1JacobianPointTy = typename G1PointTy::JacobianPointTy;
+    using G1JacobianPoint = math::JacobianPoint<typename G1PointTy::Curve>;
     using DomainTy = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
 
     // |g1_powers_of_tau_| = [𝜏⁰g₁, 𝜏¹g₁, ... , 𝜏ⁿ⁻¹g₁]
     G1PointTy g1 = G1PointTy::Generator();
     std::vector<Field> powers_of_tau = Field::GetSuccessivePowers(size, tau);
-    std::vector<G1JacobianPointTy> g1_powers_of_tau_jacobian;
+    std::vector<G1JacobianPoint> g1_powers_of_tau_jacobian;
 
     g1_powers_of_tau_jacobian.resize(size);
     if (!G1PointTy::MultiScalarMul(powers_of_tau, g1,
@@ -75,7 +75,7 @@ class KZG {
     std::unique_ptr<DomainTy> domain = DomainTy::Create(size);
     std::vector<Field> lagrange_coeffs =
         domain->EvaluateAllLagrangeCoefficients(tau);
-    std::vector<G1JacobianPointTy> g1_powers_of_tau_lagrange_jacobian;
+    std::vector<G1JacobianPoint> g1_powers_of_tau_lagrange_jacobian;
 
     g1_powers_of_tau_lagrange_jacobian.resize(size);
     if (!G1PointTy::MultiScalarMul(lagrange_coeffs, g1,
