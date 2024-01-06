@@ -23,25 +23,25 @@ namespace crypto {
 
 // A Pedersen commitment is a point on an elliptic curve that is
 // cryptographically binding to data but hides it.
-template <typename PointTy, size_t MaxSize,
-          typename Commitment = typename math::Pippenger<PointTy>::Bucket>
+template <typename Point, size_t MaxSize,
+          typename Commitment = typename math::Pippenger<Point>::Bucket>
 class Pedersen final
-    : public VectorCommitmentScheme<Pedersen<PointTy, MaxSize, Commitment>> {
+    : public VectorCommitmentScheme<Pedersen<Point, MaxSize, Commitment>> {
  public:
-  using Field = typename PointTy::ScalarField;
+  using Field = typename Point::ScalarField;
 
   Pedersen() = default;
-  Pedersen(const PointTy& h, const std::vector<PointTy>& generators)
+  Pedersen(const Point& h, const std::vector<Point>& generators)
       : h_(h), generators_(generators) {
     CHECK_LE(generators_.size(), MaxSize);
   }
-  Pedersen(PointTy&& h, std::vector<PointTy>&& generators)
+  Pedersen(Point&& h, std::vector<Point>&& generators)
       : h_(h), generators_(std::move(generators)) {
     CHECK_LE(generators_.size(), MaxSize);
   }
 
-  const PointTy& h() const { return h_; }
-  const std::vector<PointTy>& generators() const { return generators_; }
+  const Point& h() const { return h_; }
+  const std::vector<Point>& generators() const { return generators_; }
 
   // VectorCommitmentScheme methods
   size_t N() const { return generators_.size(); }
@@ -53,7 +53,7 @@ class Pedersen final
   }
 
  private:
-  friend class VectorCommitmentScheme<Pedersen<PointTy, MaxSize, Commitment>>;
+  friend class VectorCommitmentScheme<Pedersen<Point, MaxSize, Commitment>>;
 
   bool DoSetup(size_t size) {
     // NOTE(leegwangwoon): For security, |Random| is used instead of
@@ -61,8 +61,8 @@ class Pedersen final
     // See
     // https://research.nccgroup.com/2023/03/22/breaking-pedersen-hashes-in-practice/
 
-    h_ = PointTy::Random();
-    generators_ = base::CreateVector(size, []() { return PointTy::Random(); });
+    h_ = Point::Random();
+    generators_ = base::CreateVector(size, []() { return Point::Random(); });
     return true;
   }
 
@@ -76,9 +76,9 @@ class Pedersen final
   // clang-format on
   bool DoCommit(const std::vector<Field>& v, const Field& r,
                 Commitment* out) const {
-    using Bucket = typename math::Pippenger<PointTy>::Bucket;
+    using Bucket = typename math::Pippenger<Point>::Bucket;
 
-    math::VariableBaseMSM<PointTy> msm;
+    math::VariableBaseMSM<Point> msm;
     Bucket result;
     if (!msm.Run(generators_, v, &result)) return false;
     if constexpr (std::is_same_v<Commitment, Bucket>) {
@@ -89,17 +89,17 @@ class Pedersen final
     return true;
   }
 
-  PointTy h_;
-  std::vector<PointTy> generators_;
+  Point h_;
+  std::vector<Point> generators_;
 };
 
-template <typename PointTy, size_t MaxSize, typename _Commitment>
-struct VectorCommitmentSchemeTraits<Pedersen<PointTy, MaxSize, _Commitment>> {
+template <typename Point, size_t MaxSize, typename _Commitment>
+struct VectorCommitmentSchemeTraits<Pedersen<Point, MaxSize, _Commitment>> {
  public:
   constexpr static size_t kMaxSize = MaxSize;
   constexpr static bool kIsTransparent = true;
 
-  using Field = typename PointTy::ScalarField;
+  using Field = typename Point::ScalarField;
   using Commitment = _Commitment;
 };
 
@@ -107,18 +107,18 @@ struct VectorCommitmentSchemeTraits<Pedersen<PointTy, MaxSize, _Commitment>> {
 
 namespace base {
 
-template <typename PointTy, size_t MaxSize, typename Commitment>
-class Copyable<crypto::Pedersen<PointTy, MaxSize, Commitment>> {
+template <typename Point, size_t MaxSize, typename Commitment>
+class Copyable<crypto::Pedersen<Point, MaxSize, Commitment>> {
  public:
-  using PCS = crypto::Pedersen<PointTy, MaxSize, Commitment>;
+  using PCS = crypto::Pedersen<Point, MaxSize, Commitment>;
 
   static bool WriteTo(const PCS& pcs, Buffer* buffer) {
     return buffer->WriteMany(pcs.h(), pcs.generators());
   }
 
   static bool ReadFrom(const Buffer& buffer, PCS* pcs) {
-    PointTy h;
-    std::vector<PointTy> generators;
+    Point h;
+    std::vector<Point> generators;
     if (!buffer.ReadMany(&h, &generators)) {
       return false;
     }

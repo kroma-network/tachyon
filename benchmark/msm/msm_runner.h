@@ -15,18 +15,18 @@
 
 namespace tachyon {
 
-template <typename PointTy>
+template <typename Point>
 class MSMRunner {
  public:
-  using ScalarField = typename PointTy::ScalarField;
+  using ScalarField = typename Point::ScalarField;
   using ReturnTy =
-      typename math::internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
+      typename math::internal::AdditiveSemigroupTraits<Point>::ReturnTy;
 
-  using CPointTy = typename cc::math::PointTraits<PointTy>::CCurvePointTy;
-  using CReturnTy = typename cc::math::PointTraits<ReturnTy>::CCurvePointTy;
-  using CScalarField = typename cc::math::PointTraits<PointTy>::CScalarField;
+  using CPoint = typename cc::math::PointTraits<Point>::CCurvePoint;
+  using CReturnTy = typename cc::math::PointTraits<ReturnTy>::CCurvePoint;
+  using CScalarField = typename cc::math::PointTraits<Point>::CScalarField;
 
-  typedef CReturnTy* (*MSMAffineExternalFn)(const CPointTy* bases,
+  typedef CReturnTy* (*MSMAffineExternalFn)(const CPoint* bases,
                                             const CScalarField* scalars,
                                             size_t size,
                                             uint64_t* duration_in_us);
@@ -34,7 +34,7 @@ class MSMRunner {
   explicit MSMRunner(SimpleMSMBenchmarkReporter* reporter)
       : reporter_(reporter) {}
 
-  void SetInputs(const std::vector<PointTy>* bases,
+  void SetInputs(const std::vector<Point>* bases,
                  const std::vector<ScalarField>* scalars) {
     bases_ = bases;
     scalars_ = scalars;
@@ -47,7 +47,7 @@ class MSMRunner {
     for (size_t i = 0; i < point_nums.size(); ++i) {
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CReturnTy> ret;
-      ret.reset(fn(msm, reinterpret_cast<const CPointTy*>(bases_->data()),
+      ret.reset(fn(msm, reinterpret_cast<const CPoint*>(bases_->data()),
                    reinterpret_cast<const CScalarField*>(scalars_->data()),
                    point_nums[i]));
       reporter_->AddResult(i, (base::TimeTicks::Now() - now).InSecondsF());
@@ -61,7 +61,7 @@ class MSMRunner {
     for (size_t i = 0; i < point_nums.size(); ++i) {
       std::unique_ptr<CReturnTy> ret;
       uint64_t duration_in_us;
-      ret.reset(fn(reinterpret_cast<const CPointTy*>(bases_->data()),
+      ret.reset(fn(reinterpret_cast<const CPoint*>(bases_->data()),
                    reinterpret_cast<const CScalarField*>(scalars_->data()),
                    point_nums[i], &duration_in_us));
       results->push_back(*reinterpret_cast<ReturnTy*>(ret.get()));
@@ -73,7 +73,7 @@ class MSMRunner {
   // not owned
   SimpleMSMBenchmarkReporter* reporter_ = nullptr;
   // not owned
-  const std::vector<PointTy>* bases_ = nullptr;
+  const std::vector<Point>* bases_ = nullptr;
   // not owned
   const std::vector<ScalarField>* scalars_ = nullptr;
 };

@@ -91,13 +91,13 @@ struct MSMGpuApi {
   }
 };
 
-template <typename RetPointTy, typename GpuCurve, typename CPointTy,
-          typename CScalarField,
-          typename CRetPointTy =
-              typename cc::math::PointTraits<RetPointTy>::CCurvePointTy,
-          typename CpuCurve = typename GpuCurve::CpuCurve>
-CRetPointTy* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPointTy* bases,
-                      const CScalarField* scalars, size_t size) {
+template <
+    typename RetPoint, typename GpuCurve, typename CPoint,
+    typename CScalarField,
+    typename CRetPoint = typename cc::math::PointTraits<RetPoint>::CCurvePoint,
+    typename CpuCurve = typename GpuCurve::CpuCurve>
+CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
+                    const CScalarField* scalars, size_t size) {
   msm_api.provider.Inject(bases, scalars, size);
 
   size_t aligned_size = msm_api.provider.bases().size();
@@ -108,10 +108,10 @@ CRetPointTy* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPointTy* bases,
                                    tachyon::device::gpu::GpuMemoryType::kHost,
                                    0, aligned_size));
 
-  RetPointTy ret;
+  RetPoint ret;
   CHECK(
       msm_api.msm->Run(msm_api.d_bases, msm_api.d_scalars, aligned_size, &ret));
-  CRetPointTy* cret = new CRetPointTy();
+  CRetPoint* cret = new CRetPoint();
   cc::math::ToCPoint3(ret, cret);
 
   if (msm_api.log_msm) {

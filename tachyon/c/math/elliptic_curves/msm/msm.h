@@ -11,10 +11,10 @@
 
 namespace tachyon::c::math {
 
-template <typename PointTy>
+template <typename Point>
 struct MSMApi {
-  MSMInputProvider<PointTy> provider;
-  tachyon::math::VariableBaseMSM<PointTy> msm;
+  MSMInputProvider<Point> provider;
+  tachyon::math::VariableBaseMSM<Point> msm;
 
   explicit MSMApi(uint8_t degree) {
     // NOTE(chokobole): This constructor accepts |degree| for compatibility with
@@ -33,19 +33,17 @@ struct MSMApi {
 };
 
 template <
-    typename RetPointTy, typename PointTy, typename CPointTy,
-    typename CScalarField,
-    typename CRetPointTy =
-        typename cc::math::PointTraits<RetPointTy>::CCurvePointTy,
-    typename Bucket = typename tachyon::math::VariableBaseMSM<PointTy>::Bucket>
-CRetPointTy* DoMSM(MSMApi<PointTy>& msm_api, const CPointTy* bases,
-                   const CScalarField* scalars, size_t size) {
+    typename RetPoint, typename Point, typename CPoint, typename CScalarField,
+    typename CRetPoint = typename cc::math::PointTraits<RetPoint>::CCurvePoint,
+    typename Bucket = typename tachyon::math::VariableBaseMSM<Point>::Bucket>
+CRetPoint* DoMSM(MSMApi<Point>& msm_api, const CPoint* bases,
+                 const CScalarField* scalars, size_t size) {
   msm_api.provider.Inject(bases, scalars, size);
   Bucket bucket;
   CHECK(msm_api.msm.Run(msm_api.provider.bases(), msm_api.provider.scalars(),
                         &bucket));
-  auto ret = tachyon::math::ConvertPoint<RetPointTy>(bucket);
-  CRetPointTy* cret = new CRetPointTy();
+  auto ret = tachyon::math::ConvertPoint<RetPoint>(bucket);
+  CRetPoint* cret = new CRetPoint();
   cc::math::ToCPoint3(ret, cret);
   return cret;
 }

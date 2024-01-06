@@ -38,8 +38,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
  public:
   using Base = UnivariatePolynomialCommitmentScheme<
       SHPlonk<Curve, MaxDegree, Commitment>>;
-  using G1PointTy = typename Curve::G1Curve::AffinePoint;
-  using G2PointTy = typename Curve::G2Curve::AffinePoint;
+  using G1Point = typename Curve::G1Curve::AffinePoint;
+  using G2Point = typename Curve::G2Curve::AffinePoint;
   using G2Prepared = typename Curve::G2Prepared;
   using Fp12Ty = typename Curve::Fp12Ty;
   using Field = typename Base::Field;
@@ -48,8 +48,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   using PointDeepRef = base::DeepRef<const Point>;
 
   SHPlonk() = default;
-  explicit SHPlonk(KZG<G1PointTy, MaxDegree, Commitment>&& kzg)
-      : KZGFamily<G1PointTy, MaxDegree, Commitment>(std::move(kzg)) {}
+  explicit SHPlonk(KZG<G1Point, MaxDegree, Commitment>&& kzg)
+      : KZGFamily<G1Point, MaxDegree, Commitment>(std::move(kzg)) {}
 
  private:
   friend class VectorCommitmentScheme<SHPlonk<Curve, MaxDegree, Commitment>>;
@@ -59,7 +59,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   friend class zk::SHPlonkExtension;
 
   // Set 𝜏G₂
-  void SetTauG2(const G2PointTy& tau_g2) { tau_g2_ = tau_g2; }
+  void SetTauG2(const G2Point& tau_g2) { tau_g2_ = tau_g2; }
 
   // UnivariatePolynomialCommitmentScheme methods
   template <typename Container>
@@ -199,7 +199,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   [[nodiscard]] bool DoVerifyOpeningProof(
       const Container& poly_openings,
       TranscriptReader<Commitment>* reader) const {
-    using G1JacobianPoint = math::JacobianPoint<typename G1PointTy::Curve>;
+    using G1JacobianPoint = math::JacobianPoint<typename G1Point::Curve>;
 
     Field y = reader->SqueezeChallenge();
     Field v = reader->SqueezeChallenge();
@@ -284,7 +284,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
             Poly r;
             CHECK(
                 math::LagrangeInterpolate(points, poly_openings.openings, &r));
-            return r.Evaluate(u) * G1PointTy::Generator();
+            return r.Evaluate(u) * G1Point::Generator();
           });
 
       // clang-format off
@@ -319,13 +319,13 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     lhs -= (first_z * h);
     lhs += (u * q);
 
-    G1PointTy lhs_g1[] = {lhs.ToAffine()};
-    G2Prepared lhs_g2[] = {G2Prepared::From(G2PointTy::Generator())};
+    G1Point lhs_g1[] = {lhs.ToAffine()};
+    G2Prepared lhs_g2[] = {G2Prepared::From(G2Point::Generator())};
     Fp12Ty lhs_pairing = math::Pairing<Curve>(lhs_g1, lhs_g2);
 
     // rhs_g1 = [Q(𝜏)]₁
     // rhs_g2 = [𝜏]₂
-    G1PointTy rhs_g1[] = {std::move(q)};
+    G1Point rhs_g1[] = {std::move(q)};
     G2Prepared rhs_g2[] = {G2Prepared::From(tau_g2_)};
     Fp12Ty rhs_pairing = math::Pairing<Curve>(rhs_g1, rhs_g2);
 
@@ -344,11 +344,11 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   // KZGFamily methods
   [[nodiscard]] bool DoUnsafeSetupWithTau(size_t size,
                                           const Field& tau) override {
-    tau_g2_ = G2PointTy::Generator().ScalarMul(tau).ToAffine();
+    tau_g2_ = G2Point::Generator().ScalarMul(tau).ToAffine();
     return true;
   }
 
-  G2PointTy tau_g2_;
+  G2Point tau_g2_;
 };
 
 template <typename Curve, size_t MaxDegree, typename _Commitment>
@@ -357,8 +357,8 @@ struct VectorCommitmentSchemeTraits<SHPlonk<Curve, MaxDegree, _Commitment>> {
   constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = false;
 
-  using G1PointTy = typename Curve::G1Curve::AffinePoint;
-  using Field = typename G1PointTy::ScalarField;
+  using G1Point = typename Curve::G1Curve::AffinePoint;
+  using Field = typename G1Point::ScalarField;
   using Commitment = _Commitment;
 };
 

@@ -50,15 +50,15 @@ void FillDigits(const BigInt<N>& scalar, size_t window_bits,
   digits->back() += static_cast<int64_t>(carry << window_bits);
 }
 
-template <typename PointTy>
-class Pippenger : public PippengerBase<PointTy> {
+template <typename Point>
+class Pippenger : public PippengerBase<Point> {
  public:
-  using ScalarField = typename PointTy::ScalarField;
-  using Bucket = typename PippengerBase<PointTy>::Bucket;
+  using ScalarField = typename Point::ScalarField;
+  using Bucket = typename PippengerBase<Point>::Bucket;
 
   constexpr static size_t N = ScalarField::N;
 
-  Pippenger() : use_msm_window_naf_(PointTy::kNegationIsCheap) {
+  Pippenger() : use_msm_window_naf_(Point::kNegationIsCheap) {
 #if defined(TACHYON_HAS_OPENMP)
     parallel_windows_ = true;
 #endif  // defined(TACHYON_HAS_OPENMP)
@@ -77,7 +77,7 @@ class Pippenger : public PippengerBase<PointTy> {
 
   template <typename BaseInputIterator, typename ScalarInputIterator,
             std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
-                                         PointTy, ScalarField>>* = nullptr>
+                                         Point, ScalarField>>* = nullptr>
   bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
            ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,
            Bucket* ret) {
@@ -105,7 +105,7 @@ class Pippenger : public PippengerBase<PointTy> {
       AccumulateWindowSums(std::move(bases_first), scalars, &window_sums);
     }
 
-    *ret = PippengerBase<PointTy>::AccumulateWindowSums(
+    *ret = PippengerBase<Point>::AccumulateWindowSums(
         absl::MakeConstSpan(window_sums), ctx_.window_bits);
     return true;
   }
@@ -125,7 +125,7 @@ class Pippenger : public PippengerBase<PointTy> {
     std::vector<Bucket> buckets =
         base::CreateVector(bucket_size, Bucket::Zero());
     for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
-      const PointTy& base = *bases_it;
+      const Point& base = *bases_it;
       int64_t scalar = scalar_digits[j][i];
       if (0 < scalar) {
         buckets[static_cast<uint64_t>(scalar - 1)] += base;
@@ -134,7 +134,7 @@ class Pippenger : public PippengerBase<PointTy> {
       }
     }
     *window_sum =
-        PippengerBase<PointTy>::AccumulateBuckets(absl::MakeConstSpan(buckets));
+        PippengerBase<Point>::AccumulateBuckets(absl::MakeConstSpan(buckets));
   }
 
   template <typename BaseInputIterator>
@@ -178,7 +178,7 @@ class Pippenger : public PippengerBase<PointTy> {
       const BigInt<N>& scalar = scalars[j];
       if (scalar.IsZero()) continue;
 
-      const PointTy& base = *bases_it;
+      const Point& base = *bases_it;
       if (scalar.IsOne()) {
         // We only process unit scalars once in the first window.
         if (window_offset == 0) {
@@ -202,8 +202,8 @@ class Pippenger : public PippengerBase<PointTy> {
         }
       }
     }
-    *out = PippengerBase<PointTy>::AccumulateBuckets(
-        absl::MakeConstSpan(buckets), window_sum);
+    *out = PippengerBase<Point>::AccumulateBuckets(absl::MakeConstSpan(buckets),
+                                                   window_sum);
   }
 
   template <typename BaseInputIterator>

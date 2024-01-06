@@ -18,12 +18,12 @@ enum class MSMMethod {
   kNaive,
 };
 
-template <typename PointTy,
-          typename Bucket = typename VariableBaseMSM<PointTy>::Bucket>
+template <typename Point,
+          typename Bucket = typename VariableBaseMSM<Point>::Bucket>
 struct MSMTestSet {
-  using ScalarField = typename PointTy::ScalarField;
+  using ScalarField = typename Point::ScalarField;
 
-  std::vector<PointTy> bases;
+  std::vector<Point> bases;
   std::vector<ScalarField> scalars;
   Bucket answer;
 
@@ -31,7 +31,7 @@ struct MSMTestSet {
 
   static MSMTestSet Random(size_t size, MSMMethod method) {
     MSMTestSet test_set;
-    test_set.bases = CreatePseudoRandomPoints<PointTy>(size);
+    test_set.bases = CreatePseudoRandomPoints<Point>(size);
     test_set.scalars =
         base::CreateVector(size, []() { return ScalarField::Random(); });
     test_set.ComputeAnswer(method);
@@ -41,7 +41,7 @@ struct MSMTestSet {
   static MSMTestSet NonUniform(size_t size, size_t scalar_size,
                                MSMMethod method) {
     MSMTestSet test_set;
-    test_set.bases = CreatePseudoRandomPoints<PointTy>(size);
+    test_set.bases = CreatePseudoRandomPoints<Point>(size);
     std::vector<ScalarField> scalar_sets =
         base::CreateVector(scalar_size, []() { return ScalarField::Random(); });
     test_set.scalars = base::CreateVector(
@@ -53,7 +53,7 @@ struct MSMTestSet {
   static MSMTestSet Easy(size_t size, MSMMethod method) {
     MSMTestSet test_set;
     test_set.bases =
-        base::CreateVector(size, []() { return PointTy::Generator(); });
+        base::CreateVector(size, []() { return Point::Generator(); });
     ScalarField s = ScalarField::One();
     test_set.scalars = base::CreateVector(size, [&s]() {
       ScalarField ret = s;
@@ -86,13 +86,13 @@ struct MSMTestSet {
       case MSMMethod::kNone:
         break;
       case MSMMethod::kMSM: {
-        VariableBaseMSM<PointTy> msm;
+        VariableBaseMSM<Point> msm;
         msm.Run(bases, scalars, &answer);
         break;
       }
       case MSMMethod::kNaive: {
         using AddResultTy =
-            typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
+            typename internal::AdditiveSemigroupTraits<Point>::ReturnTy;
         AddResultTy sum = AddResultTy::Zero();
         for (size_t i = 0; i < bases.size(); ++i) {
           sum += bases[i] * scalars[i];

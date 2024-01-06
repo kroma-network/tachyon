@@ -5,19 +5,19 @@
 
 namespace tachyon::math {
 
-template <typename PointTy, bool IsRandom,
+template <typename Point, bool IsRandom,
           enum PippengerParallelStrategy Strategy>
 void BM_PippengerAdapter(benchmark::State& state) {
-  PointTy::Curve::Init();
-  MSMTestSet<PointTy> test_set;
+  Point::Curve::Init();
+  MSMTestSet<Point> test_set;
   if constexpr (IsRandom) {
-    test_set = MSMTestSet<PointTy>::Random(state.range(0), MSMMethod::kNone);
+    test_set = MSMTestSet<Point>::Random(state.range(0), MSMMethod::kNone);
   } else {
     test_set =
-        MSMTestSet<PointTy>::NonUniform(state.range(0), 10, MSMMethod::kNone);
+        MSMTestSet<Point>::NonUniform(state.range(0), 10, MSMMethod::kNone);
   }
-  PippengerAdapter<PointTy> pippenger;
-  using Bucket = typename PippengerAdapter<PointTy>::Bucket;
+  PippengerAdapter<Point> pippenger;
+  using Bucket = typename PippengerAdapter<Point>::Bucket;
   Bucket ret;
   for (auto _ : state) {
     pippenger.RunWithStrategy(test_set.bases.begin(), test_set.bases.end(),
@@ -27,41 +27,41 @@ void BM_PippengerAdapter(benchmark::State& state) {
   benchmark::DoNotOptimize(ret);
 }
 
-template <typename PointTy>
+template <typename Point>
 void BM_PippengerAdapterRandomWithParallelWindow(benchmark::State& state) {
-  BM_PippengerAdapter<PointTy, true,
-                      PippengerParallelStrategy::kParallelWindow>(state);
+  BM_PippengerAdapter<Point, true, PippengerParallelStrategy::kParallelWindow>(
+      state);
 }
 
-template <typename PointTy>
+template <typename Point>
 void BM_PippengerAdapterNonUniformWithParallelWindow(benchmark::State& state) {
-  BM_PippengerAdapter<PointTy, false,
-                      PippengerParallelStrategy::kParallelWindow>(state);
+  BM_PippengerAdapter<Point, false, PippengerParallelStrategy::kParallelWindow>(
+      state);
 }
 
-template <typename PointTy>
+template <typename Point>
 void BM_PippengerAdapterRandomWithParallelTerm(benchmark::State& state) {
-  BM_PippengerAdapter<PointTy, true, PippengerParallelStrategy::kParallelTerm>(
+  BM_PippengerAdapter<Point, true, PippengerParallelStrategy::kParallelTerm>(
       state);
 }
 
-template <typename PointTy>
+template <typename Point>
 void BM_PippengerAdapterNonUniformWithParallelTerm(benchmark::State& state) {
-  BM_PippengerAdapter<PointTy, false, PippengerParallelStrategy::kParallelTerm>(
+  BM_PippengerAdapter<Point, false, PippengerParallelStrategy::kParallelTerm>(
       state);
 }
 
-template <typename PointTy>
+template <typename Point>
 void BM_PippengerAdapterRandomWithParallelWindowAndTerm(
     benchmark::State& state) {
-  BM_PippengerAdapter<PointTy, true,
+  BM_PippengerAdapter<Point, true,
                       PippengerParallelStrategy::kParallelWindowAndTerm>(state);
 }
 
-template <typename PointTy>
+template <typename Point>
 void BM_PippengerAdapterNonUniformWithParallelWindowAndTerm(
     benchmark::State& state) {
-  BM_PippengerAdapter<PointTy, false,
+  BM_PippengerAdapter<Point, false,
                       PippengerParallelStrategy::kParallelWindowAndTerm>(state);
 }
 

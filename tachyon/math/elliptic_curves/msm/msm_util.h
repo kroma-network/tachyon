@@ -9,9 +9,9 @@
 namespace tachyon::math {
 
 template <typename BaseInputIterator, typename ScalarInputIterator,
-          typename PointTy, typename ScalarField>
+          typename Point, typename ScalarField>
 inline constexpr bool IsAbleToMSM =
-    std::is_same_v<PointTy, base::iter_value_t<BaseInputIterator>> &&
+    std::is_same_v<Point, base::iter_value_t<BaseInputIterator>> &&
     std::is_same_v<ScalarField, base::iter_value_t<ScalarInputIterator>>;
 
 }  // namespace tachyon::math

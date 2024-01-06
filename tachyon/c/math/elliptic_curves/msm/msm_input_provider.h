@@ -16,10 +16,9 @@ class MSMInputProvider {
  public:
   using BaseField = typename AffinePoint::BaseField;
   using ScalarField = typename AffinePoint::ScalarField;
-  using CCurvePointTy =
-      typename tachyon::cc::math::PointTraits<AffinePoint>::CCurvePointTy;
-  using CPointTy =
-      typename tachyon::cc::math::PointTraits<AffinePoint>::CPointTy;
+  using CCurvePoint =
+      typename tachyon::cc::math::PointTraits<AffinePoint>::CCurvePoint;
+  using CPoint = typename tachyon::cc::math::PointTraits<AffinePoint>::CPoint;
   using CScalarField =
       typename tachyon::cc::math::PointTraits<AffinePoint>::CScalarField;
 
@@ -33,7 +32,7 @@ class MSMInputProvider {
     scalars_owned_.clear();
   }
 
-  void Inject(const CPointTy* bases_in, const CScalarField* scalars_in,
+  void Inject(const CPoint* bases_in, const CScalarField* scalars_in,
               size_t size) {
     absl::Span<const tachyon::math::Point2<BaseField>> points(
         reinterpret_cast<const tachyon::math::Point2<BaseField>*>(bases_in),
@@ -69,7 +68,7 @@ class MSMInputProvider {
     }
   }
 
-  void Inject(const CCurvePointTy* bases_in, const CScalarField* scalars_in,
+  void Inject(const CCurvePoint* bases_in, const CScalarField* scalars_in,
               size_t size) {
     if (needs_align_) {
       size_t aligned_size = absl::bit_ceil(size);

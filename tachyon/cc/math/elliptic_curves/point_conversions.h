@@ -13,76 +13,73 @@
 
 namespace tachyon::cc::math {
 
-template <typename CPointTy,
-          typename CurvePointTy = typename PointTraits<CPointTy>::CurvePointTy,
-          typename BaseField = typename CurvePointTy::BaseField>
-CurvePointTy ToAffinePoint(const CPointTy& point_in) {
+template <typename CPoint,
+          typename CurvePoint = typename PointTraits<CPoint>::CurvePoint,
+          typename BaseField = typename CurvePoint::BaseField>
+CurvePoint ToAffinePoint(const CPoint& point_in) {
   tachyon::math::Point2<BaseField> point;
   point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
   point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
-  return CurvePointTy(point, point_in.infinity);
+  return CurvePoint(point, point_in.infinity);
 }
 
-template <typename CPointTy,
-          typename CurvePointTy = typename PointTraits<CPointTy>::CurvePointTy,
-          typename BaseField = typename CurvePointTy::BaseField>
-CurvePointTy ToProjectivePoint(const CPointTy& point_in) {
+template <typename CPoint,
+          typename CurvePoint = typename PointTraits<CPoint>::CurvePoint,
+          typename BaseField = typename CurvePoint::BaseField>
+CurvePoint ToProjectivePoint(const CPoint& point_in) {
   tachyon::math::Point3<BaseField> point;
   point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
   point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
   point.z = BaseField::FromMontgomery(ToBigInt(point_in.z));
-  return CurvePointTy(point);
+  return CurvePoint(point);
 }
 
-template <typename CPointTy,
-          typename CurvePointTy = typename PointTraits<CPointTy>::CurvePointTy,
-          typename BaseField = typename CurvePointTy::BaseField>
-CurvePointTy ToJacobianPoint(const CPointTy& point_in) {
+template <typename CPoint,
+          typename CurvePoint = typename PointTraits<CPoint>::CurvePoint,
+          typename BaseField = typename CurvePoint::BaseField>
+CurvePoint ToJacobianPoint(const CPoint& point_in) {
   tachyon::math::Point3<BaseField> point;
   point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
   point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
   point.z = BaseField::FromMontgomery(ToBigInt(point_in.z));
-  return CurvePointTy(point);
+  return CurvePoint(point);
 }
 
-template <typename CPointTy,
-          typename CurvePointTy = typename PointTraits<CPointTy>::CurvePointTy,
-          typename BaseField = typename CurvePointTy::BaseField>
-CurvePointTy ToPointXYZZ(const CPointTy& point_in) {
+template <typename CPoint,
+          typename CurvePoint = typename PointTraits<CPoint>::CurvePoint,
+          typename BaseField = typename CurvePoint::BaseField>
+CurvePoint ToPointXYZZ(const CPoint& point_in) {
   tachyon::math::Point4<BaseField> point;
   point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
   point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
   point.z = BaseField::FromMontgomery(ToBigInt(point_in.zz));
   point.w = BaseField::FromMontgomery(ToBigInt(point_in.zzz));
-  return CurvePointTy(point);
+  return CurvePoint(point);
 }
 
-template <typename CPointTy,
-          typename PointTy = typename PointTraits<CPointTy>::PointTy,
-          typename BaseField = typename PointTy::value_type>
-PointTy ToPoint2(const CPointTy& point_in) {
-  PointTy point;
+template <typename CPoint, typename Point = typename PointTraits<CPoint>::Point,
+          typename BaseField = typename Point::value_type>
+Point ToPoint2(const CPoint& point_in) {
+  Point point;
   point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
   point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
   return point;
 }
 
-template <typename CPointTy,
-          typename PointTy = typename PointTraits<CPointTy>::PointTy,
-          typename BaseField = typename PointTy::value_type>
-PointTy ToPoint3(const CPointTy& point_in) {
-  PointTy point;
+template <typename CPoint, typename Point = typename PointTraits<CPoint>::Point,
+          typename BaseField = typename Point::value_type>
+Point ToPoint3(const CPoint& point_in) {
+  Point point;
   point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
   point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
   point.z = BaseField::FromMontgomery(ToBigInt(point_in.z));
   return point;
 }
 
-template <typename CPointTy,
-          typename PointTy = typename PointTraits<CPointTy>::PointTy,
-          typename BaseField = typename PointTy::value_type>
-PointTy ToPoint4(const CPointTy& point_in) {
-  PointTy point;
+template <typename CPoint, typename Point = typename PointTraits<CPoint>::Point,
+          typename BaseField = typename Point::value_type>
+Point ToPoint4(const CPoint& point_in) {
+  Point point;
   point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
   point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
   point.z = BaseField::FromMontgomery(ToBigInt(point_in.z));
@@ -90,48 +87,48 @@ PointTy ToPoint4(const CPointTy& point_in) {
   return point;
 }
 
-template <typename PointTy,
-          typename CPointTy = typename PointTraits<PointTy>::CCurvePointTy,
-          typename BaseField = typename PointTy::BaseField,
+template <typename Point,
+          typename CPoint = typename PointTraits<Point>::CCurvePoint,
+          typename BaseField = typename Point::BaseField,
           size_t LimbNumbs = BaseField::kLimbNums>
-CPointTy ToCAffinePoint(const PointTy& point_in) {
-  CPointTy ret;
+CPoint ToCAffinePoint(const Point& point_in) {
+  CPoint ret;
   memcpy(ret.x.limbs, point_in.x().value().limbs, sizeof(uint64_t) * LimbNumbs);
   memcpy(ret.y.limbs, point_in.y().value().limbs, sizeof(uint64_t) * LimbNumbs);
   ret.infinity = point_in.infinity();
   return ret;
 }
 
-template <typename PointTy,
-          typename CPointTy = typename PointTraits<PointTy>::CCurvePointTy,
-          typename BaseField = typename PointTy::BaseField,
+template <typename Point,
+          typename CPoint = typename PointTraits<Point>::CCurvePoint,
+          typename BaseField = typename Point::BaseField,
           size_t LimbNumbs = BaseField::kLimbNums>
-CPointTy ToCProjectivePoint(const PointTy& point_in) {
-  CPointTy ret;
+CPoint ToCProjectivePoint(const Point& point_in) {
+  CPoint ret;
   memcpy(ret.x.limbs, point_in.x().value().limbs, sizeof(uint64_t) * LimbNumbs);
   memcpy(ret.y.limbs, point_in.y().value().limbs, sizeof(uint64_t) * LimbNumbs);
   memcpy(ret.z.limbs, point_in.z().value().limbs, sizeof(uint64_t) * LimbNumbs);
   return ret;
 }
 
-template <typename PointTy,
-          typename CPointTy = typename PointTraits<PointTy>::CCurvePointTy,
-          typename BaseField = typename PointTy::BaseField,
+template <typename Point,
+          typename CPoint = typename PointTraits<Point>::CCurvePoint,
+          typename BaseField = typename Point::BaseField,
           size_t LimbNumbs = BaseField::kLimbNums>
-CPointTy ToCJacobianPoint(const PointTy& point_in) {
-  CPointTy ret;
+CPoint ToCJacobianPoint(const Point& point_in) {
+  CPoint ret;
   memcpy(ret.x.limbs, point_in.x().value().limbs, sizeof(uint64_t) * LimbNumbs);
   memcpy(ret.y.limbs, point_in.y().value().limbs, sizeof(uint64_t) * LimbNumbs);
   memcpy(ret.z.limbs, point_in.z().value().limbs, sizeof(uint64_t) * LimbNumbs);
   return ret;
 }
 
-template <typename PointTy,
-          typename CPointTy = typename PointTraits<PointTy>::CCurvePointTy,
-          typename BaseField = typename PointTy::BaseField,
+template <typename Point,
+          typename CPoint = typename PointTraits<Point>::CCurvePoint,
+          typename BaseField = typename Point::BaseField,
           size_t LimbNumbs = BaseField::kLimbNums>
-CPointTy ToCPointXYZZ(const PointTy& point_in) {
-  CPointTy ret;
+CPoint ToCPointXYZZ(const Point& point_in) {
+  CPoint ret;
   memcpy(ret.x.limbs, point_in.x().value().limbs, sizeof(uint64_t) * LimbNumbs);
   memcpy(ret.y.limbs, point_in.y().value().limbs, sizeof(uint64_t) * LimbNumbs);
   memcpy(ret.zz.limbs, point_in.zz().value().limbs,
@@ -141,20 +138,20 @@ CPointTy ToCPointXYZZ(const PointTy& point_in) {
   return ret;
 }
 
-template <typename PointTy, typename CPointTy,
-          typename BaseField = typename PointTy::BaseField,
+template <typename Point, typename CPoint,
+          typename BaseField = typename Point::BaseField,
           size_t LimbNumbs = BaseField::kLimbNums>
-void ToCPoint2(const PointTy& point_in, CPointTy* point_out) {
+void ToCPoint2(const Point& point_in, CPoint* point_out) {
   memcpy(point_out->x.limbs, point_in.x().value().limbs,
          sizeof(uint64_t) * LimbNumbs);
   memcpy(point_out->y.limbs, point_in.y().value().limbs,
          sizeof(uint64_t) * LimbNumbs);
 }
 
-template <typename PointTy, typename CPointTy,
-          typename BaseField = typename PointTy::BaseField,
+template <typename Point, typename CPoint,
+          typename BaseField = typename Point::BaseField,
           size_t LimbNumbs = BaseField::kLimbNums>
-void ToCPoint3(const PointTy& point_in, CPointTy* point_out) {
+void ToCPoint3(const Point& point_in, CPoint* point_out) {
   memcpy(point_out->x.limbs, point_in.x().value().limbs,
          sizeof(uint64_t) * LimbNumbs);
   memcpy(point_out->y.limbs, point_in.y().value().limbs,
@@ -163,10 +160,10 @@ void ToCPoint3(const PointTy& point_in, CPointTy* point_out) {
          sizeof(uint64_t) * LimbNumbs);
 }
 
-template <typename PointTy, typename CPointTy,
-          typename BaseField = typename PointTy::BaseField,
+template <typename Point, typename CPoint,
+          typename BaseField = typename Point::BaseField,
           size_t LimbNumbs = BaseField::kLimbNums>
-void ToCPoint4(const PointTy& point_in, CPointTy* point_out) {
+void ToCPoint4(const Point& point_in, CPoint* point_out) {
   memcpy(point_out->x.limbs, point_in.x().value().limbs,
          sizeof(uint64_t) * LimbNumbs);
   memcpy(point_out->y.limbs, point_in.y().value().limbs,

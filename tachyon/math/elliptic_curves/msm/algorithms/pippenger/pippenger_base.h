@@ -15,10 +15,10 @@
 
 namespace tachyon::math {
 
-template <typename PointTy>
+template <typename Point>
 class PippengerTraits {
  public:
-  using Bucket = typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
+  using Bucket = typename internal::AdditiveSemigroupTraits<Point>::ReturnTy;
 };
 
 template <typename Curve>
@@ -27,8 +27,8 @@ class PippengerTraits<AffinePoint<Curve>> {
   using Bucket = PointXYZZ<Curve>;
 };
 
-template <typename PointTy,
-          typename Bucket_ = typename PippengerTraits<PointTy>::Bucket>
+template <typename Point,
+          typename Bucket_ = typename PippengerTraits<Point>::Bucket>
 class PippengerBase {
  public:
   using Bucket = Bucket_;

@@ -3,7 +3,7 @@
 
 namespace tachyon::cc::math {
 
-template <typename PointTy>
+template <typename Point>
 struct PointTraits;
 
 }  // namespace tachyon::cc::math

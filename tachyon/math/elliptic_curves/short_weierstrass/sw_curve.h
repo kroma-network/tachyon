@@ -44,17 +44,17 @@ class SWCurve {
   // Attempts to construct an affine point given an |x| coordinate. The
   // point is not guaranteed to be in the prime order subgroup.
   // If |pick_odd| is set to true, it chooses an odd(positive) y coordinate.
-  template <typename PointTy>
+  template <typename Point>
   constexpr static bool GetPointFromX(const BaseField& x, bool pick_odd,
-                                      PointTy* point) {
+                                      Point* point) {
     BaseField even_y;
     BaseField odd_y;
     if (!GetYsFromX(x, &even_y, &odd_y)) return false;
-    if constexpr (std::is_same_v<PointTy, AffinePoint>) {
+    if constexpr (std::is_same_v<Point, AffinePoint>) {
       *point = AffinePoint(x, pick_odd ? odd_y : even_y);
     } else {
       AffinePoint affine_point(x, pick_odd ? odd_y : even_y);
-      *point = ConvertPoint<PointTy>(affine_point);
+      *point = ConvertPoint<Point>(affine_point);
     }
     return true;
   }
