@@ -22,8 +22,8 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
   using BasePrimeField = typename Config::BasePrimeField;
   using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
-  using FpTy = BasePrimeField;
-  using Fp3Ty = BaseField;
+  using Fp = BasePrimeField;
+  using Fp3 = BaseField;
 
   using CpuField = Fp6<Config>;
   // TODO(chokobole): Implements Fp6Gpu
@@ -103,8 +103,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
 
   // Return α = {α₀', α₁', α₂', α₃', α₄', α₅'}, such that
   // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₃y + β₄xy)
-  Fp6& MulInPlaceBy034(const FpTy& beta0, const FpTy& beta3,
-                       const FpTy& beta4) {
+  Fp6& MulInPlaceBy034(const Fp& beta0, const Fp& beta3, const Fp& beta4) {
     // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₃y + β₄xy)
     //   = (α₀β₀ + α₄β₄q + α₅β₃q) + <- I am not clear here
     //     (α₁β₀ + α₃β₃ + α₅β₄q)x + <- I am not clear here
@@ -115,29 +114,29 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     // NOTE(chokobole): This equation above works when assuming y² = x holds.
 
     // z0 = α₀
-    FpTy z0 = this->c0_.c0_;
+    Fp z0 = this->c0_.c0_;
     // z1 = α₁
-    FpTy z1 = this->c0_.c1_;
+    Fp z1 = this->c0_.c1_;
     // z2 = α₂
-    FpTy z2 = this->c0_.c2_;
+    Fp z2 = this->c0_.c2_;
     // z3 = α₃
-    FpTy z3 = this->c1_.c0_;
+    Fp z3 = this->c1_.c0_;
     // z4 = α₄
-    FpTy z4 = this->c1_.c1_;
+    Fp z4 = this->c1_.c1_;
     // z5 = α₅
-    FpTy z5 = this->c1_.c2_;
+    Fp z5 = this->c1_.c2_;
 
     // x0 = β₀
-    FpTy x0 = beta0;
+    Fp x0 = beta0;
     // x3 = β₃
-    FpTy x3 = beta3;
+    Fp x3 = beta3;
     // x4 = β₄
-    FpTy x4 = beta4;
+    Fp x4 = beta4;
 
     // tmp1 = β₃q
-    FpTy tmp1 = Fp3Ty::Config::MulByNonResidue(x3);
+    Fp tmp1 = Fp3::Config::MulByNonResidue(x3);
     // tmp2 = β₄q
-    FpTy tmp2 = Fp3Ty::Config::MulByNonResidue(x4);
+    Fp tmp2 = Fp3::Config::MulByNonResidue(x4);
 
     // α₀' = α₀β₀ + α₄β₄q + α₅β₃q
     this->c0_.c0_ = (z0 * x0) + (z4 * tmp2) + (z5 * tmp1);
@@ -156,8 +155,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
 
   // Return α = {α₀', α₁', α₂', α₃', α₄', α₅'}, such that
   // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₁x + β₄xy)
-  Fp6& MulInPlaceBy014(const FpTy& beta0, const FpTy& beta1,
-                       const FpTy& beta4) {
+  Fp6& MulInPlaceBy014(const Fp& beta0, const Fp& beta1, const Fp& beta4) {
     // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₁x + β₄xy)
     //   = (α₀β₀ + α₂β₁q + α₄β₄q) + <- I am not clear here
     //     (α₀β₁ + α₁β₀ + α₅β₄q)x + <- I am not clear here
@@ -168,29 +166,29 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     // NOTE(chokobole): This equation above works when assuming y² = x holds.
 
     // z0 = α₀
-    FpTy z0 = this->c0_.c0_;
+    Fp z0 = this->c0_.c0_;
     // z1 = α₁
-    FpTy z1 = this->c0_.c1_;
+    Fp z1 = this->c0_.c1_;
     // z2 = α₂
-    FpTy z2 = this->c0_.c2_;
+    Fp z2 = this->c0_.c2_;
     // z3 = α₃
-    FpTy z3 = this->c1_.c0_;
+    Fp z3 = this->c1_.c0_;
     // z4 = α₄
-    FpTy z4 = this->c1_.c1_;
+    Fp z4 = this->c1_.c1_;
     // z5 = α₅
-    FpTy z5 = this->c1_.c2_;
+    Fp z5 = this->c1_.c2_;
 
     // x0 = β₀
-    FpTy x0 = beta0;
+    Fp x0 = beta0;
     // x1 = β₁
-    FpTy x1 = beta1;
+    Fp x1 = beta1;
     // x4 = β₄
-    FpTy x4 = beta4;
+    Fp x4 = beta4;
 
     // tmp1 = β₁q
-    FpTy tmp1 = Fp3Ty::Config::MulByNonResidue(x1);
+    Fp tmp1 = Fp3::Config::MulByNonResidue(x1);
     // tmp2 = β₄q
-    FpTy tmp2 = Fp3Ty::Config::MulByNonResidue(x4);
+    Fp tmp2 = Fp3::Config::MulByNonResidue(x4);
 
     // α₀' = α₀β₀ + α₂β₁q + α₄β₄q
     this->c0_.c0_ = (z0 * x0) + (z2 * tmp1) + (z4 * tmp2);
@@ -216,7 +214,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
   using BasePrimeField = typename Config::BasePrimeField;
   using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
-  using Fp2Ty = BaseField;
+  using Fp2 = BaseField;
 
   using CpuField = Fp6<Config>;
   // TODO(chokobole): Implements Fp6Gpu
@@ -313,24 +311,24 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
   }
 
   // Return α = {α₀', α₁', α₂'}, such that α = (α₀ + α₁x + α₂x²) * β₁x
-  Fp6& MulInPlaceBy1(const Fp2Ty& beta1) {
+  Fp6& MulInPlaceBy1(const Fp2& beta1) {
     // α = (α₀ + α₁x + α₂x²) * β₁x
     //   = α₂β₁q + α₀β₁x + α₁β₁x², where q is a cubic non residue.
 
     // t0 = α₂
-    Fp2Ty t0 = this->c2_;
+    Fp2 t0 = this->c2_;
     // t0 = α₂β₁
     t0 *= beta1;
     // t0 = α₂β₁q
     t0 = Config::MulByNonResidue(t0);
 
     // t1 = α₀
-    Fp2Ty t1 = this->c0_;
+    Fp2 t1 = this->c0_;
     // t1 = α₀β₁
     t1 *= beta1;
 
     // t2 = α₁
-    Fp2Ty t2 = this->c1_;
+    Fp2 t2 = this->c1_;
     // t2 = α₁β₁
     t2 *= beta1;
 
@@ -344,7 +342,7 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
   }
 
   // Return α = {α₀', α₁', α₂'}, such that α = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
-  Fp6& MulInPlaceBy01(const Fp2Ty& beta0, const Fp2Ty& beta1) {
+  Fp6& MulInPlaceBy01(const Fp2& beta0, const Fp2& beta1) {
     // α = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
     //   = α₀β₀ + α₂β₁q + (α₀β₁ + α₁β₀)x + (α₂β₀ + α₁β₁)x²,
     //     where q is a cubic non residue.
@@ -353,17 +351,17 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     // optimized to multiply 5 times.
 
     // a_a = α₀β₀
-    Fp2Ty a_a = this->c0_;
+    Fp2 a_a = this->c0_;
     a_a *= beta0;
     // b_b = α₁β₁
-    Fp2Ty b_b = this->c1_;
+    Fp2 b_b = this->c1_;
     b_b *= beta1;
 
     // t0 = β₁
-    Fp2Ty t0 = beta1;
+    Fp2 t0 = beta1;
     {
       // tmp = α₁ + α₂
-      Fp2Ty tmp = this->c1_;
+      Fp2 tmp = this->c1_;
       tmp += this->c2_;
 
       // t0 = (α₁ + α₂)β₁ = α₁β₁ + α₂β₁
@@ -377,12 +375,12 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     }
 
     // t1 = β₀
-    Fp2Ty t1 = beta0;
+    Fp2 t1 = beta0;
     // t1 = β₀ + β₁
     t1 += beta1;
     {
       // tmp = α₀ + α₁
-      Fp2Ty tmp = this->c0_;
+      Fp2 tmp = this->c0_;
       tmp += this->c1_;
 
       // t1 = (α₀ + α₁)(β₀ + β₁) = α₀β₀ + α₀β₁ + α₁β₀ + α₁β₁
@@ -394,10 +392,10 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     }
 
     // t2 = β₀
-    Fp2Ty t2 = beta0;
+    Fp2 t2 = beta0;
     {
       // tmp = α₀ + α₂
-      Fp2Ty tmp = this->c0_;
+      Fp2 tmp = this->c0_;
       tmp += this->c2_;
 
       // t2 = (α₀ + α₂)β₀ = α₀β₀ + α₂β₀

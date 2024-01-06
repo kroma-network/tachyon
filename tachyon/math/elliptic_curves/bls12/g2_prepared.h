@@ -20,30 +20,30 @@ class G2Prepared : public G2PreparedBase<BLS12CurveConfig> {
  public:
   using Config = BLS12CurveConfig;
   using G2Curve = typename Config::G2Curve;
-  using Fp2Ty = typename G2Curve::BaseField;
-  using FpTy = typename Fp2Ty::BaseField;
+  using Fp2 = typename G2Curve::BaseField;
+  using Fp = typename Fp2::BaseField;
   using G2AffinePoint = typename G2Curve::AffinePoint;
 
   G2Prepared() = default;
-  explicit G2Prepared(const EllCoeffs<Fp2Ty>& ell_coeffs)
+  explicit G2Prepared(const EllCoeffs<Fp2>& ell_coeffs)
       : G2PreparedBase<BLS12CurveConfig>(ell_coeffs) {}
-  explicit G2Prepared(EllCoeffs<Fp2Ty>&& ell_coeffs)
+  explicit G2Prepared(EllCoeffs<Fp2>&& ell_coeffs)
       : G2PreparedBase<BLS12CurveConfig>(std::move(ell_coeffs)) {}
 
   static G2Prepared From(const G2AffinePoint& q) {
     if (q.infinity()) {
       return {};
     } else {
-      FpTy two_inv = FpTy(2).Inverse();
+      Fp two_inv = Fp(2).Inverse();
 
-      EllCoeffs<Fp2Ty> ell_coeffs;
+      EllCoeffs<Fp2> ell_coeffs;
       size_t size = Config::kXLimbNums * 64;
       // NOTE(chokobole): A bit array consists of elements from [0, 1].
       // We reserve space in |ell_coeffs| assuming that these elements are
       // uniformly distributed.
       ell_coeffs.reserve(/*double=*/size + /*add=*/size / 2);
 
-      G2Projective<Config> r(q.x(), q.y(), Fp2Ty::One());
+      G2Projective<Config> r(q.x(), q.y(), Fp2::One());
       auto it = BitIteratorBE<BigInt<Config::kXLimbNums>>::begin(
           &Config::kX,
           /*skip_leading_zeros=*/false);

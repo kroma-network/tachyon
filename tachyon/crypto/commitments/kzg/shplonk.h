@@ -41,7 +41,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using G2Point = typename Curve::G2Curve::AffinePoint;
   using G2Prepared = typename Curve::G2Prepared;
-  using Fp12Ty = typename Curve::Fp12Ty;
+  using Fp12 = typename Curve::Fp12;
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
   using Point = typename Poly::Point;
@@ -321,13 +321,13 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
 
     G1Point lhs_g1[] = {lhs.ToAffine()};
     G2Prepared lhs_g2[] = {G2Prepared::From(G2Point::Generator())};
-    Fp12Ty lhs_pairing = math::Pairing<Curve>(lhs_g1, lhs_g2);
+    Fp12 lhs_pairing = math::Pairing<Curve>(lhs_g1, lhs_g2);
 
     // rhs_g1 = [Q(𝜏)]₁
     // rhs_g2 = [𝜏]₂
     G1Point rhs_g1[] = {std::move(q)};
     G2Prepared rhs_g2[] = {G2Prepared::From(tau_g2_)};
-    Fp12Ty rhs_pairing = math::Pairing<Curve>(rhs_g1, rhs_g2);
+    Fp12 rhs_pairing = math::Pairing<Curve>(rhs_g1, rhs_g2);
 
     // clang-format off
     // e(lhs_g1, rhs_g2) ≟ e(rhs_g1, lhs_g2)

@@ -18,23 +18,23 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
  public:
   using Config = BNCurveConfig;
   using G2Curve = typename Config::G2Curve;
-  using Fp2Ty = typename G2Curve::BaseField;
-  using FpTy = typename Fp2Ty::BaseField;
+  using Fp2 = typename G2Curve::BaseField;
+  using Fp = typename Fp2::BaseField;
   using G2AffinePoint = typename G2Curve::AffinePoint;
 
   G2Prepared() = default;
-  explicit G2Prepared(const EllCoeffs<Fp2Ty>& ell_coeffs)
+  explicit G2Prepared(const EllCoeffs<Fp2>& ell_coeffs)
       : G2PreparedBase<BNCurveConfig>(ell_coeffs) {}
-  explicit G2Prepared(EllCoeffs<Fp2Ty>&& ell_coeffs)
+  explicit G2Prepared(EllCoeffs<Fp2>&& ell_coeffs)
       : G2PreparedBase<BNCurveConfig>(std::move(ell_coeffs)) {}
 
   static G2Prepared From(const G2AffinePoint& q) {
     if (q.infinity()) {
       return {};
     } else {
-      G2Projective<Config> r(q.x(), q.y(), Fp2Ty::One());
+      G2Projective<Config> r(q.x(), q.y(), Fp2::One());
 
-      EllCoeffs<Fp2Ty> ell_coeffs;
+      EllCoeffs<Fp2> ell_coeffs;
       // NOTE(chokobole): |Config::kAteLoopCount| consists of elements
       // from [-1, 0, 1]. We reserve space in |ell_coeffs| assuming that these
       // elements are uniformly distributed.
@@ -43,7 +43,7 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
 
       G2AffinePoint neg_q = -q;
 
-      FpTy two_inv = FpTy(2).Inverse();
+      Fp two_inv = Fp(2).Inverse();
       // NOTE(chokobole): skip the fist.
       for (size_t i = size - 2; i != SIZE_MAX; --i) {
         ell_coeffs.push_back(r.DoubleInPlace(two_inv));
@@ -77,10 +77,10 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
 
  private:
   static G2AffinePoint MulByCharacteristic(const G2AffinePoint& r) {
-    Fp2Ty x = r.x();
+    Fp2 x = r.x();
     x.FrobeniusMapInPlace(1);
     x *= Config::kTwistMulByQX;
-    Fp2Ty y = r.y();
+    Fp2 y = r.y();
     y.FrobeniusMapInPlace(1);
     y *= Config::kTwistMulByQY;
     return G2AffinePoint(std::move(x), std::move(y));

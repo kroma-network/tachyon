@@ -34,7 +34,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "namespace %{namespace} {",
       "",
-      "template <typename FqTy, typename Fq2Ty, typename Fq6Ty, typename Fq12Ty, typename _G1Curve, typename _G2Curve>",
+      "template <typename Fq, typename Fq2, typename Fq6, typename Fq12, typename _G1Curve, typename _G2Curve>",
       "class %{class}Config {",
       " public:",
       "  constexpr static size_t kXLimbNums = %{x_size};",
@@ -44,10 +44,10 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  constexpr static bool kXIsNegative = %{x_is_negative};",
       "  constexpr static TwistType kTwistType = TwistType::k%{twist_type};",
       "",
-      "  using FpTy = FqTy;"
-      "  using Fp2Ty = Fq2Ty;"
-      "  using Fp6Ty = Fq6Ty;"
-      "  using Fp12Ty = Fq12Ty;"
+      "  using Fp = Fq;"
+      "  using Fp2 = Fq2;"
+      "  using Fp6 = Fq6;"
+      "  using Fp12 = Fq12;"
       "  using G1Curve = _G1Curve;"
       "  using G2Curve = _G2Curve;"
       "",

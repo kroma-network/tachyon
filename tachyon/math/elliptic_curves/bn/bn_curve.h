@@ -19,19 +19,19 @@ template <typename Config>
 class BNCurve : public PairingFriendlyCurve<Config> {
  public:
   using Base = PairingFriendlyCurve<Config>;
-  using Fp12Ty = typename Config::Fp12Ty;
+  using Fp12 = typename Config::Fp12;
   using G2Prepared = bn::G2Prepared<Config>;
 
   // TODO(chokobole): Leave a comment to help understand readers.
   template <typename G1AffinePointContainer, typename G2PreparedContainer>
-  static Fp12Ty MultiMillerLoop(const G1AffinePointContainer& a,
-                                const G2PreparedContainer& b) {
+  static Fp12 MultiMillerLoop(const G1AffinePointContainer& a,
+                              const G2PreparedContainer& b) {
     using Pair = typename Base::Pair;
 
     std::vector<Pair> pairs = Base::CreatePairs(a, b);
 
     auto callback = [](absl::Span<const Pair> pairs) {
-      Fp12Ty f = Fp12Ty::One();
+      Fp12 f = Fp12::One();
       for (size_t i = std::size(Config::kAteLoopCount) - 1; i >= 1; --i) {
         if (i != std::size(Config::kAteLoopCount) - 1) {
           f.SquareInPlace();
@@ -51,10 +51,10 @@ class BNCurve : public PairingFriendlyCurve<Config> {
       return f;
     };
 
-    std::vector<Fp12Ty> results =
+    std::vector<Fp12> results =
         base::ParallelizeMapByChunkSize(pairs, 4, callback);
-    Fp12Ty f = std::accumulate(results.begin(), results.end(), Fp12Ty::One(),
-                               std::multiplies<>());
+    Fp12 f = std::accumulate(results.begin(), results.end(), Fp12::One(),
+                             std::multiplies<>());
 
     if constexpr (Config::kXIsNegative) {
       f.CyclotomicInverseInPlace();
@@ -71,7 +71,7 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     return f;
   }
 
-  static Fp12Ty FinalExponentiation(const Fp12Ty& f) {
+  static Fp12 FinalExponentiation(const Fp12& f) {
     // clang-format off
     // f^((q¹² - 1) / r) = f^((q⁶ - 1) * ((q⁶ + 1) / φ₁₂(q)) * (φ₁₂(q) / r))
     //                   = f^((q⁶ - 1) * ((q⁶ + 1) / (q⁴ - q² + 1)) * ((q⁴ - q² + 1) / r))
@@ -83,14 +83,14 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     //   f^((q⁶ - 1) * (q² + 1)) = (conj(f) * f⁻¹)^(q² + 1)
 
     // f1 = f.CyclotomicInverseInPlace() = f^(q⁶)
-    Fp12Ty f1 = f;
+    Fp12 f1 = f;
     f1.CyclotomicInverseInPlace();
 
     // f2 = f⁻¹
-    Fp12Ty f2 = f.Inverse();
+    Fp12 f2 = f.Inverse();
 
     // r = f^(q⁶ - 1)
-    Fp12Ty r = f1 * f2;
+    Fp12 r = f1 * f2;
 
     // f2 = f^(q⁶ - 1)
     f2 = r;
@@ -115,55 +115,55 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     // result = f^(2x * (6x² + 3x + 1) * ((q⁴ - q² + 1) / r))
 
     // y0 = (r)⁻ˣ
-    Fp12Ty y0 = Base::PowByNegX(r);
+    Fp12 y0 = Base::PowByNegX(r);
     // y1 = (y0)² = r^(-2x)
-    Fp12Ty& y1 = y0.CyclotomicSquareInPlace();
+    Fp12& y1 = y0.CyclotomicSquareInPlace();
     // y2 = (y1)² = r^(-4x)
-    Fp12Ty y2 = y1.CyclotomicSquare();
+    Fp12 y2 = y1.CyclotomicSquare();
     // y3 = y2 * y1 = r^(-6x)
-    Fp12Ty& y3 = y2 *= y1;
+    Fp12& y3 = y2 *= y1;
     // y4 = (y3)⁻ˣ = r^(6x²)
-    Fp12Ty y4 = Base::PowByNegX(y3);
+    Fp12 y4 = Base::PowByNegX(y3);
     // y5 = (y4)² = r^(12x²)
-    Fp12Ty y5 = y4.CyclotomicSquare();
+    Fp12 y5 = y4.CyclotomicSquare();
     // y6 = (y5)⁻ˣ = r^(-12x³)
-    Fp12Ty y6 = Base::PowByNegX(y5);
+    Fp12 y6 = Base::PowByNegX(y5);
     // y3 = (y3)⁻¹ = r^(6x)
     y3.CyclotomicInverseInPlace();
     // y6 = (y6)⁻¹ = r^(12x³)
     y6.CyclotomicInverseInPlace();
     // y7 = y6 * y4 = r^(12x³ + 6x²)
-    Fp12Ty& y7 = y6 *= y4;
+    Fp12& y7 = y6 *= y4;
     // y8 = y7 * y3 = r^(12x³ + 6x² + 6x)
-    Fp12Ty y8 = y7 * y3;
+    Fp12 y8 = y7 * y3;
     // y9 = y8 * y1 = r^(12x³ + 6x² + 4x)
-    Fp12Ty y9 = y8 * y1;
+    Fp12 y9 = y8 * y1;
     // y10 = y8 * y4 = r^(12x³ + 12x² + 6x)
-    Fp12Ty y10 = y8 * y4;
+    Fp12 y10 = y8 * y4;
     // y11 = y10 * r = r^(12x³ + 12x² + 6x + 1)
-    Fp12Ty& y11 = y10 *= r;
+    Fp12& y11 = y10 *= r;
     // y12 = (y9)^q = r^(q * (12x³ + 6x² + 4x))
-    Fp12Ty y12 = y9;
+    Fp12 y12 = y9;
     y12.FrobeniusMapInPlace(1);
     // y13 = y12 * y11 = r^(q * (12x³ +  6x² + 4x) +
     //                      1 * (12x³ + 12x² + 6x + 1))
-    Fp12Ty& y13 = y12 *= y11;
+    Fp12& y13 = y12 *= y11;
     // y8 = (y8)^q² = r^(q² * (12x³ + 6x² + 6x))
     y8.FrobeniusMapInPlace(2);
     // y14 = y8 * y13 = r^(q² * (12x³ +  6x² + 6x) +
     //                     q  * (12x³ +  6x² + 4x) +
     //                     1  * (12x³ + 12x² + 6x + 1))
-    Fp12Ty& y14 = y8 *= y13;
+    Fp12& y14 = y8 *= y13;
     r.CyclotomicInverseInPlace();
     // y15 = r⁻¹ * y9 = r^(12x³ + 6x² + 4x - 1)
-    Fp12Ty& y15 = r *= y9;
+    Fp12& y15 = r *= y9;
     // y15 = (y15)^q³ = r^(q³ * (12x³ + 6x² + 4x - 1))
     y15.FrobeniusMapInPlace(3);
     // y16 = y15 * y14 = r^(q³ * (12x³ +  6x² + 4x - 1) +
     //                      q² * (12x³ +  6x² + 6x) +
     //                      q  * (12x³ +  6x² + 4x) +
     //                      1  * (12x³ + 12x² + 6x + 1))
-    Fp12Ty& y16 = y15 *= y14;
+    Fp12& y16 = y15 *= y14;
     return y16;
   }
 };

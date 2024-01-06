@@ -20,8 +20,8 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
   using BasePrimeField = typename Config::BasePrimeField;
   using FrobeniusCoefficient = typename Config::FrobeniusCoefficient;
 
-  using Fp6Ty = BaseField;
-  using Fp2Ty = typename Fp6Ty::BaseField;
+  using Fp6 = BaseField;
+  using Fp2 = typename Fp6::BaseField;
 
   using CpuField = Fp12<Config>;
   // TODO(chokobole): Implements Fp12Gpu
@@ -141,23 +141,23 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     // - Robert Granger and Michael Scott
 
     if constexpr (BasePrimeField::Config::kModulusModSixIsOne) {
-      const Fp2Ty& a0 = this->c0_.c0_;
-      const Fp2Ty& a1 = this->c0_.c1_;
-      const Fp2Ty& a2 = this->c0_.c2_;
-      const Fp2Ty& a3 = this->c1_.c0_;
-      const Fp2Ty& a4 = this->c1_.c1_;
-      const Fp2Ty& a5 = this->c1_.c2_;
+      const Fp2& a0 = this->c0_.c0_;
+      const Fp2& a1 = this->c0_.c1_;
+      const Fp2& a2 = this->c0_.c2_;
+      const Fp2& a3 = this->c1_.c0_;
+      const Fp2& a4 = this->c1_.c1_;
+      const Fp2& a5 = this->c1_.c2_;
 
       // a² = (α₀ + α₄x)² = α₀² + 2α₀α₄x + α₄²x²
       //                  = α₀² + α₄²q + 2α₀α₄x (where q = x²)
       //                  = t₀ + t₁x
-      Fp2Ty tmp = a0 * a4;
+      Fp2 tmp = a0 * a4;
       // t₀ = (α₀ + α₄) * (α₀ + α₄q) - α₀α₄ - α₀α₄x
       //    = α₀² + α₄²q
-      Fp2Ty t0 = (a0 + a4) * (a0 + Fp6Ty::Config::MulByNonResidue(a4)) - tmp -
-                 Fp6Ty::Config::MulByNonResidue(tmp);
+      Fp2 t0 = (a0 + a4) * (a0 + Fp6::Config::MulByNonResidue(a4)) - tmp -
+               Fp6::Config::MulByNonResidue(tmp);
       // t₁ = 2α₀α₄
-      Fp2Ty t1 = tmp.Double();
+      Fp2 t1 = tmp.Double();
 
       // b² = (α₃ + α₂x)² = α₃² + 2α₂α₃x + α₂²x²
       //                  = α₃² + α₂²q + 2α₂α₃x (where q = x²)
@@ -165,10 +165,10 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
       tmp = a3 * a2;
       // t₂ = (α₃ + α₂) * (α₃ + α₂q) - α₂α₃ - α₂α₃x
       //    = α₃² + α₂²q
-      Fp2Ty t2 = (a3 + a2) * (a3 + Fp6Ty::Config::MulByNonResidue(a2)) - tmp -
-                 Fp6Ty::Config::MulByNonResidue(tmp);
+      Fp2 t2 = (a3 + a2) * (a3 + Fp6::Config::MulByNonResidue(a2)) - tmp -
+               Fp6::Config::MulByNonResidue(tmp);
       // t₃ = 2α₂α₃
-      Fp2Ty t3 = tmp.Double();
+      Fp2 t3 = tmp.Double();
 
       // c² = (α₁ + α₅x)² = α₁² + 2α₁α₅x + α₅²x²
       //                  = α₁² + α₅²q + 2α₁α₅x (where q = x²)
@@ -176,17 +176,17 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
       tmp = a1 * a5;
       // t₄ = (α₁ + α₅) * (α₁ + α₅q) - α₁α₅ - α₁α₅x
       //    = α₁² + α₅²q
-      Fp2Ty t4 = (a1 + a5) * (a1 + Fp6Ty::Config::MulByNonResidue(a5)) - tmp -
-                 Fp6Ty::Config::MulByNonResidue(tmp);
+      Fp2 t4 = (a1 + a5) * (a1 + Fp6::Config::MulByNonResidue(a5)) - tmp -
+               Fp6::Config::MulByNonResidue(tmp);
       // t₅ = 2α₁α₅
-      Fp2Ty t5 = tmp.Double();
+      Fp2 t5 = tmp.Double();
 
-      Fp2Ty& z0 = this->c0_.c0_;
-      Fp2Ty& z4 = this->c0_.c1_;
-      Fp2Ty& z3 = this->c0_.c2_;
-      Fp2Ty& z2 = this->c1_.c0_;
-      Fp2Ty& z1 = this->c1_.c1_;
-      Fp2Ty& z5 = this->c1_.c2_;
+      Fp2& z0 = this->c0_.c0_;
+      Fp2& z4 = this->c0_.c1_;
+      Fp2& z3 = this->c0_.c2_;
+      Fp2& z2 = this->c1_.c0_;
+      Fp2& z1 = this->c1_.c1_;
+      Fp2& z5 = this->c1_.c2_;
 
       // for A
 
@@ -206,7 +206,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
 
       // z₂ = 3 * (q * t₅) + 2 * z₂
       //    = 2 * (z₂ + q * t₅) + q * t₅
-      tmp = Fp6Ty::Config::MulByNonResidue(t5);
+      tmp = Fp6::Config::MulByNonResidue(t5);
       z2 += tmp;
       z2.DoubleInPlace();
       z2 += tmp;
@@ -239,8 +239,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
 
   // Return α = (α₀', α₁', α₂', α₃', α₄', α₅'), such that
   // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₃y + β₄xy)
-  Fp12& MulInPlaceBy034(const Fp2Ty& beta0, const Fp2Ty& beta3,
-                        const Fp2Ty& beta4) {
+  Fp12& MulInPlaceBy034(const Fp2& beta0, const Fp2& beta3, const Fp2& beta4) {
     // clang-format off
     // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₃y + β₄xy)
     //   = (α₀β₀ + α₃β₃p + α₅β₄pq) + (α₁β₀ + α₃β₄p + α₄β₃p)x + (α₂β₀ + α₄β₄p + α₅β₃p)x² +
@@ -251,13 +250,13 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     // clang-format on
 
     // a = α₀β₀ + α₁β₀x + α₂β₀x²
-    Fp6Ty a = this->c0_ * beta0;
+    Fp6 a = this->c0_ * beta0;
     // b = (α₃ + α₄x + α₅x²) * (β₃ + β₄x)
     //   = (α₃β₃ + α₅β₄q) + (α₃β₄ + α₄β₃)x + (α₄β₄ + α₅β₃)x², where q = x³
-    Fp6Ty b = this->c1_;
+    Fp6 b = this->c1_;
     b.MulInPlaceBy01(beta3, beta4);
     // o = β₀ + β₃
-    Fp2Ty o = beta0;
+    Fp2 o = beta0;
     o += beta3;
 
     // c1 = (α₀ + α₃) + (α₁ + α₄)x + (α₂ + α₅)x²
@@ -290,8 +289,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
 
   // Return α = (α₀', α₁', α₂', α₃', α₄', α₅'), such that
   // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₁x + β₄xy)
-  Fp12& MulInPlaceBy014(const Fp2Ty& beta0, const Fp2Ty& beta1,
-                        const Fp2Ty& beta4) {
+  Fp12& MulInPlaceBy014(const Fp2& beta0, const Fp2& beta1, const Fp2& beta4) {
     // clang-format off
     // α = (α₀ + α₁x + α₂x² + (α₃ + α₄x + α₅x²)y) * (β₀ + β₁x + β₄xy)
     //   = (α₀β₀ + α₂β₁q + α₅β₄pq) + (α₀β₁ + α₁β₀ + α₃β₄p)x + (α₁β₁ + α₂β₀ + α₄β₄p)x² +
@@ -310,14 +308,14 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
 
     // a = (α₀ + α₁x + α₂x²) * (β₀ + β₁x)
     //   = (α₀β₀ + α₂β₁q) + (α₀β₁ + α₁β₀)x + (α₁β₁ + α₂β₀)x², where q = x³
-    Fp6Ty a = this->c0_;
+    Fp6 a = this->c0_;
     a.MulInPlaceBy01(beta0, beta1);
     // b = (α₃ + α₄x + α₅x²) * β₄x
     //   = α₅β₄q + α₃β₄x + α₄β₄x²
-    Fp6Ty b = this->c1_;
+    Fp6 b = this->c1_;
     b.MulInPlaceBy1(beta4);
     // o = β₁ + β₄
-    Fp2Ty o = beta1;
+    Fp2 o = beta1;
     o += beta4;
 
     // c1 = (α₀ + α₃) + (α₁ + α₄)x + (α₂ + α₅)x²
