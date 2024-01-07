@@ -20,8 +20,8 @@ namespace tachyon::math {
 
 // The Ring supports SumOfProducts, inheriting the properties of both
 // AdditiveGroup and MultiplicativeSemigroup.
-template <typename F>
-class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
+template <typename R>
+class Ring : public AdditiveGroup<R>, public MultiplicativeSemigroup<R> {
  public:
   // This is taken and modified from
   // https://github.com/arkworks-rs/algebra/blob/5dfeedf560da6937a5de0a2163b7958bd32cd551/ff/src/fields/mod.rs#L298C1-L305
@@ -31,14 +31,14 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
   // unittests. I think we need a some general threshold to check whether it is
   // good to doing parallelization.
   template <typename ContainerA, typename ContainerB>
-  constexpr static F SumOfProducts(const ContainerA& a, const ContainerB& b) {
+  constexpr static R SumOfProducts(const ContainerA& a, const ContainerB& b) {
     size_t size = std::size(a);
     CHECK_EQ(size, std::size(b));
     CHECK_NE(size, size_t{0});
-    std::vector<F> partial_sum_of_products = base::ParallelizeMap(
+    std::vector<R> partial_sum_of_products = base::ParallelizeMap(
         a,
-        [&b](absl::Span<const F> chunk, size_t chunk_idx, size_t chunk_size) {
-          F sum = F::Zero();
+        [&b](absl::Span<const R> chunk, size_t chunk_idx, size_t chunk_size) {
+          R sum = R::Zero();
           size_t i = chunk_idx * chunk_size;
           for (size_t j = 0; j < chunk.size(); ++j) {
             sum += (chunk[j] * b[i + j]);
@@ -46,14 +46,14 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
           return sum;
         });
     return std::accumulate(partial_sum_of_products.begin(),
-                           partial_sum_of_products.end(), F::Zero(),
-                           [](F& acc, const F& partial_sum_of_product) {
+                           partial_sum_of_products.end(), R::Zero(),
+                           [](R& acc, const R& partial_sum_of_product) {
                              return acc += partial_sum_of_product;
                            });
   }
 
   template <typename ContainerA, typename ContainerB>
-  constexpr static F SumOfProductsSerial(const ContainerA& a,
+  constexpr static R SumOfProductsSerial(const ContainerA& a,
                                          const ContainerB& b) {
     size_t size = std::size(a);
     CHECK_EQ(size, std::size(b));
@@ -63,10 +63,10 @@ class Ring : public AdditiveGroup<F>, public MultiplicativeSemigroup<F> {
 
  private:
   template <typename ContainerA, typename ContainerB>
-  constexpr static F DoSumOfProductsSerial(const ContainerA& a,
+  constexpr static R DoSumOfProductsSerial(const ContainerA& a,
                                            const ContainerB& b) {
     size_t n = std::size(a);
-    F sum = F::Zero();
+    R sum = R::Zero();
     for (size_t i = 0; i < n; ++i) {
       sum += (a[i] * b[i]);
     }
