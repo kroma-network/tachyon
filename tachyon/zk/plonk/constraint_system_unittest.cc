@@ -105,7 +105,7 @@ TEST_F(ConstraintSystemTest, Phases) {
 
 namespace {
 
-template <typename ColumnKeyType>
+template <typename ColumnKey>
 class ConstraintSystemTypedTest : public testing::Test {
  public:
   static void SetUpTestSuite() { math::GF7::Init(); }
@@ -118,7 +118,7 @@ using ColumnKeyTypes =
 TYPED_TEST_SUITE(ConstraintSystemTypedTest, ColumnKeyTypes);
 
 TYPED_TEST(ConstraintSystemTypedTest, EnableEquality) {
-  using ColumnKeyTy = TypeParam;
+  using ColumnKey = TypeParam;
 
   ConstraintSystem<math::GF7> constraint_system;
   std::vector<AnyColumnKey> expected_permutation_columns;
@@ -129,11 +129,11 @@ TYPED_TEST(ConstraintSystemTypedTest, EnableEquality) {
   EXPECT_EQ(constraint_system.permutation().columns(),
             expected_permutation_columns);
 
-  ColumnKeyTy column;
-  if constexpr (std::is_same_v<ColumnKeyTy, FixedColumnKey>) {
+  ColumnKey column;
+  if constexpr (std::is_same_v<ColumnKey, FixedColumnKey>) {
     column = constraint_system.CreateFixedColumn();
     fixed_queries.push_back(FixedQueryData(Rotation::Cur(), column));
-  } else if constexpr (std::is_same_v<ColumnKeyTy, AdviceColumnKey>) {
+  } else if constexpr (std::is_same_v<ColumnKey, AdviceColumnKey>) {
     column = constraint_system.CreateAdviceColumn();
     num_advice_queries.push_back(0);
     EXPECT_EQ(constraint_system.num_advice_queries(), num_advice_queries);
@@ -162,20 +162,20 @@ TYPED_TEST(ConstraintSystemTypedTest, EnableEquality) {
 }
 
 TYPED_TEST(ConstraintSystemTypedTest, QueryAnyIndex) {
-  using ColumnKeyTy = TypeParam;
+  using ColumnKey = TypeParam;
 
   ConstraintSystem<math::GF7> constraint_system;
-  std::function<ColumnKeyTy()> create_column = [&constraint_system]() {
-    if constexpr (std::is_same_v<ColumnKeyTy, FixedColumnKey>) {
+  std::function<ColumnKey()> create_column = [&constraint_system]() {
+    if constexpr (std::is_same_v<ColumnKey, FixedColumnKey>) {
       return constraint_system.CreateFixedColumn();
-    } else if constexpr (std::is_same_v<ColumnKeyTy, AdviceColumnKey>) {
+    } else if constexpr (std::is_same_v<ColumnKey, AdviceColumnKey>) {
       return constraint_system.CreateAdviceColumn();
     } else {
       return constraint_system.CreateInstanceColumn();
     }
   };
 
-  ColumnKeyTy column = create_column();
+  ColumnKey column = create_column();
   Rotation rotation = Rotation::Cur();
   EXPECT_EQ(constraint_system.QueryAnyIndex(column, rotation), 0);
   EXPECT_EQ(constraint_system.QueryAnyIndex(column, rotation), 0);

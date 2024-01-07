@@ -9,7 +9,7 @@
 
 namespace tachyon::zk {
 
-template <typename ColumnKeyType>
+template <typename ColumnKey>
 class RefTableTest : public testing::Test {
  public:
   constexpr static size_t kMaxDegree = (size_t{1} << 3) - 1;
@@ -40,10 +40,10 @@ using ColumnKeyTypes = testing::Types<ColumnKeyBase, AnyColumnKey>;
 TYPED_TEST_SUITE(RefTableTest, ColumnKeyTypes);
 
 TYPED_TEST(RefTableTest, GetColumns) {
-  using ColumnKeyType = TypeParam;
-  using Evals = typename RefTableTest<ColumnKeyType>::Evals;
+  using ColumnKey = TypeParam;
+  using Evals = typename RefTableTest<ColumnKey>::Evals;
 
-  std::vector<ColumnKeyType> targets = {
+  std::vector<ColumnKey> targets = {
       FixedColumnKey(1), AdviceColumnKey(1, kFirstPhase), InstanceColumnKey(1),
       FixedColumnKey(2), AdviceColumnKey(2, kFirstPhase), InstanceColumnKey(2),
   };
