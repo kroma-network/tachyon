@@ -89,6 +89,9 @@ struct AdditiveSemigroupTraits {
 template <typename G>
 class MultiplicativeSemigroup {
  public:
+  using ReturnTy =
+      typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy;
+
   // The minimum size of vector at which parallelization of
   // |GetSuccessivePowers()| is beneficial. This value was chosen empirically.
   constexpr static uint32_t kMinLogSizeForParallelization = 7;
@@ -148,9 +151,7 @@ class MultiplicativeSemigroup {
 
   // Computes the power of a base element using a pre-computed table of powers
   // of two, instead of performing repeated multiplications.
-  template <size_t N,
-            typename ReturnTy =
-                typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
+  template <size_t N>
   static ReturnTy PowWithTable(absl::Span<const G> powers_of_2,
                                const BigInt<N>& exponent) {
     auto it = BitIteratorLE<BigInt<N>>::begin(&exponent);
@@ -196,9 +197,7 @@ class MultiplicativeSemigroup {
   }
 
  private:
-  template <size_t N,
-            typename ReturnTy =
-                typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
+  template <size_t N>
   [[nodiscard]] constexpr ReturnTy DoPow(const BigInt<N>& exponent) const {
     const G* g = static_cast<const G*>(this);
     ReturnTy ret = ReturnTy::One();
@@ -294,6 +293,8 @@ class MultiplicativeSemigroup {
 template <typename G>
 class AdditiveSemigroup {
  public:
+  using ReturnTy = typename internal::AdditiveSemigroupTraits<G>::ReturnTy;
+
   // Addition: a + b
   template <
       typename G2,
@@ -366,9 +367,7 @@ class AdditiveSemigroup {
   //     bases: [G₀, G₁, ..., Gₙ₋₁]
   //     outputs: [sG₀, sG₁, ..., sGₙ₋₁]
   template <typename ScalarOrScalars, typename BaseOrBases,
-            typename OutputContainer,
-            typename OutputTy =
-                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
+            typename OutputContainer>
   [[nodiscard]] constexpr static bool MultiScalarMul(
       const ScalarOrScalars& scalar_or_scalars,
       const BaseOrBases& base_or_bases, OutputContainer* outputs) {
@@ -456,9 +455,7 @@ class AdditiveSemigroup {
   }
 
  private:
-  template <size_t N,
-            typename ReturnTy =
-                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
+  template <size_t N>
   [[nodiscard]] constexpr ReturnTy DoScalarMul(const BigInt<N>& scalar) const {
     const G* g = static_cast<const G*>(this);
     ReturnTy ret = ReturnTy::Zero();
