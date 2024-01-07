@@ -52,6 +52,7 @@ class Ring : public AdditiveGroup<R>, public MultiplicativeSemigroup<R> {
                            });
   }
 
+  // Sum of products: a₁ * b₁ + a₂ * b₂ + ... + aₙ * bₙ
   template <typename ContainerA, typename ContainerB>
   constexpr static R SumOfProductsSerial(const ContainerA& a,
                                          const ContainerB& b) {
