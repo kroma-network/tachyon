@@ -26,6 +26,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "pairing",
     hdrs = ["pairing.h"],
+    deps = ["//tachyon/base/containers:container_util"],
 )
 
 tachyon_cc_library(
