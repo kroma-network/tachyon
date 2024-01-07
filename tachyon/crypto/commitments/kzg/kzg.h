@@ -54,7 +54,7 @@ class KZG {
 
   [[nodiscard]] bool UnsafeSetup(size_t size, const Field& tau) {
     using G1JacobianPoint = math::JacobianPoint<typename G1Point::Curve>;
-    using DomainTy = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
+    using Domain = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
 
     // |g1_powers_of_tau_| = [𝜏⁰g₁, 𝜏¹g₁, ... , 𝜏ⁿ⁻¹g₁]
     G1Point g1 = G1Point::Generator();
@@ -72,7 +72,7 @@ class KZG {
     }
 
     // Get |g1_powers_of_tau_lagrange_| from 𝜏 and g₁.
-    std::unique_ptr<DomainTy> domain = DomainTy::Create(size);
+    std::unique_ptr<Domain> domain = Domain::Create(size);
     std::vector<Field> lagrange_coeffs =
         domain->EvaluateAllLagrangeCoefficients(tau);
     std::vector<G1JacobianPoint> g1_powers_of_tau_lagrange_jacobian;
