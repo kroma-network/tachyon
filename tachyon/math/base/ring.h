@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_BASE_RINGS_H_
-#define TACHYON_MATH_BASE_RINGS_H_
+#ifndef TACHYON_MATH_BASE_RING_H_
+#define TACHYON_MATH_BASE_RING_H_
 
 #include <type_traits>
 #include <vector>
