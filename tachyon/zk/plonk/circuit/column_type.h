@@ -17,11 +17,12 @@ namespace tachyon::zk {
 // As the names denotes, |kFixed|, |kAdvice| and |kInstance| types
 // represent fixed, advice and instance columns.
 // |kAny| type of column can be either fixed, advice or instance column
+// NOTE(TomTaehoonKim): THE ORDER OF ELEMENTS ARE IMPORTANT!! DO NOT CHANGE!
 enum class ColumnType {
   kAny,
-  kFixed,
-  kAdvice,
   kInstance,
+  kAdvice,
+  kFixed,
 };
 
 TACHYON_EXPORT std::string_view ColumnTypeToString(ColumnType type);
