@@ -92,10 +92,6 @@ class MultiplicativeSemigroup {
   using ReturnTy =
       typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy;
 
-  // The minimum size of vector at which parallelization of
-  // |GetSuccessivePowers()| is beneficial. This value was chosen empirically.
-  constexpr static uint32_t kMinLogSizeForParallelization = 7;
-
   // Multiplication: a * b
   template <
       typename G2,
@@ -169,31 +165,20 @@ class MultiplicativeSemigroup {
   }
 
   // generator: g
-  // return: [1, g, g², ..., g^{size - 1}]
-  // If OpenMP is enabled, it operates Divide-and-Conquer in parallel.
-  // Note that below example in the comment is when size = 16.
-  constexpr static std::vector<G> GetSuccessivePowers(size_t size,
-                                                      const G& generator) {
-#if defined(TACHYON_HAS_OPENMP)
-    uint32_t log_size = size_t{base::bits::SafeLog2Ceiling(size)};
-    if (log_size <= kMinLogSizeForParallelization)
-#endif
-      return GetSuccessivePowersSerial(size, generator);
-#if defined(TACHYON_HAS_OPENMP)
-    G power = generator;
-    // [g, g², g⁴, g⁸, ..., g^(2^(|log_size|))]
-    std::vector<G> log_powers = base::CreateVector(log_size, [&power]() {
-      G old_value = power;
-      power.SquareInPlace();
-      return old_value;
-    });
-
-    // allocate the return vector and start the recursion
-    std::vector<G> powers =
-        base::CreateVector(size_t{1} << log_size, G::Zero());
-    GetSuccessivePowersRecursive(powers, absl::MakeConstSpan(log_powers));
-    return powers;
-#endif
+  // return: [c, c * g, c * g², ..., c * g^{|size| - 1}]
+  constexpr static std::vector<ReturnTy> GetSuccessivePowers(
+      size_t size, const G& generator, const G& c = G::One()) {
+    std::vector<ReturnTy> ret;
+    ret.resize(size);
+    size_t num_elems_per_thread = base::GetNumElementsPerThread(ret);
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
+      ReturnTy pow = c * generator.Pow(i);
+      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
+        ret[j] = pow;
+        pow *= generator;
+      }
+    }
+    return ret;
   }
 
  private:
@@ -219,73 +204,6 @@ class MultiplicativeSemigroup {
       ++it;
     }
     return ret;
-  }
-
-#if defined(TACHYON_HAS_OPENMP)
-  constexpr static void GetSuccessivePowersRecursive(
-      std::vector<G>& out, absl::Span<const G> log_powers) {
-    CHECK_EQ(out.size(), size_t{1} << log_powers.size());
-
-    // base case: just compute the powers sequentially,
-    // g = log_powers[0], |out| = [1, g, g², ..., g^(|out.size() - 1|)]
-    if (log_powers.size() <= size_t{kMinLogSizeForParallelization}) {
-      out[0] = G::One();
-      for (size_t i = 1; i < out.size(); ++i) {
-        out[i] = out[i - 1] * log_powers[0];
-      }
-      return;
-    }
-
-    // recursive case:
-    // 1. split |log_powers| in half
-    // |log_powers| = [g, g², g⁴, g⁸]
-    size_t half_size = (1 + log_powers.size()) / 2;
-    // |log_powers_lo| = [g, g²]
-    absl::Span<const G> log_powers_lo = log_powers.subspan(0, half_size);
-    // |log_powers_hi| = [g⁴, g⁸]
-    absl::Span<const G> log_powers_hi = log_powers.subspan(half_size);
-    std::vector<G> src_lo =
-        base::CreateVector(1 << log_powers_lo.size(), G::Zero());
-    std::vector<G> src_hi =
-        base::CreateVector(1 << log_powers_hi.size(), G::Zero());
-
-    // clang-format off
-    // 2. compute each half individually
-    // |src_lo| = [1, g, g², g³]
-    // |src_hi| = [1, g⁴, g⁸, g¹²]
-    // clang-format on
-#pragma omp parallel for
-    for (size_t i = 0; i < 2; ++i) {
-      GetSuccessivePowersRecursive(i == 0 ? src_lo : src_hi,
-                                   i == 0 ? log_powers_lo : log_powers_hi);
-    }
-
-    // clang-format off
-    // 3. recombine halves
-    // At this point, out is a blank slice.
-    // |out| = [1, g, g², g³, g⁴, g⁵, g⁶, g⁷, g⁸, ... g¹², g¹³, g¹⁴, g¹⁵]
-    // clang-format on
-    base::ParallelizeByChunkSize(
-        out, src_lo.size(), [&src_lo, &src_hi](absl::Span<G> chunk, size_t i) {
-          const G& hi = src_hi[i];
-          for (size_t j = 0; j < chunk.size(); ++j) {
-            chunk[j] = hi * src_lo[j];
-          }
-        });
-  }
-#endif
-
-  constexpr static std::vector<G> GetSuccessivePowersSerial(
-      size_t size, const G& generator) {
-    return ComputePowersAndMulByConstSerial(size, generator, G::One());
-  }
-
-  constexpr static std::vector<G> ComputePowersAndMulByConstSerial(
-      size_t size, const G& generator, const G& c) {
-    G value = c;
-    return base::CreateVector(size, [&value, generator]() {
-      return std::exchange(value, value * generator);
-    });
   }
 };
 

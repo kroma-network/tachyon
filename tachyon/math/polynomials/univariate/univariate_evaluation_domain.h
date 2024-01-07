@@ -310,14 +310,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Returns all the elements of the domain.
   constexpr std::vector<F> GetElements() const {
-    if (offset_.IsOne()) {
-      return F::GetSuccessivePowers(size_, group_gen_);
-    } else {
-      F value = offset_;
-      return base::CreateVector(size_, [this, &value]() {
-        return std::exchange(value, value * group_gen_);
-      });
-    }
+    return F::GetSuccessivePowers(size_, group_gen_, offset_);
   }
 
   // Multiply the i-th element of |poly_or_evals| with |g|ⁱ.
