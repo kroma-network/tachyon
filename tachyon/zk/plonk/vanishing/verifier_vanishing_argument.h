@@ -73,25 +73,16 @@ VanishingEvaluated<EntityTy::kVerifier, PCSTy> VerifyVanishingArgument(
     VanishingPartiallyEvaluated<PCSTy>&& partially_evaluated,
     const Evals& expressions, const F& y, const F& x_n) {
   using Commitment = typename PCSTy::Commitment;
-  using AdditiveResultTy =
-      typename math::internal::AdditiveSemigroupTraits<Commitment>::ReturnTy;
 
-  F expected_h_eval = std::accumulate(expressions.evaluations().begin(),
-                                      expressions.evaluations().end(),
-                                      F::Zero(), [&y](F& h_eval, const F& v) {
-                                        h_eval *= y;
-                                        return h_eval += v;
-                                      });
+  F expected_h_eval = F::template LinearCombination</*forward=*/true>(
+      expressions.evaluations(), y);
   expected_h_eval /= x_n - F::One();
 
+  // TODO(chokobole): Remove |ToAffine()| since this assumes commitment is an
+  // elliptic curve point.
   Commitment h_commitment =
-      std::accumulate(
-          partially_evaluated.h_commitments().rbegin(),
-          partially_evaluated.h_commitments().rend(), AdditiveResultTy::Zero(),
-          [&x_n](AdditiveResultTy& acc, const Commitment& commitment) {
-            acc *= x_n;
-            return acc += commitment;
-          })
+      Commitment::template LinearCombination</*forward=*/false>(
+          partially_evaluated.h_commitments(), x_n)
           .ToAffine();
 
   return {std::move(h_commitment),

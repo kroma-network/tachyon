@@ -102,7 +102,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     // Create a linear combination of polynomials [H₀(X), H₁(X), H₂(X)] with
     // with |v|.
     // H(X) = H₀(X) + vH₁(X) + v²H₂(X)
-    Poly& h_poly = Poly::LinearizeInPlace(h_polys, v);
+    Poly& h_poly =
+        Poly::template LinearCombinationInPlace</*forward=*/false>(h_polys, v);
 
     // Commit H(X)
     Commitment h;
@@ -155,14 +156,16 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
           // L₁(X) = (P₃(X) - R₃(u)) * Zᴛ\₁(u)
           // L₂(X) = (P₄(X) - R₄(u)) * Zᴛ\₂(u)
           // clang-format on
-          Poly& l = Poly::LinearizeInPlace(polys, y);
+          Poly& l = Poly::template LinearCombinationInPlace</*forward=*/false>(
+              polys, y);
           return l *= z_diff;
         });
 
     // Create a linear combination of polynomials [L₀(X), L₁(X), L₂(X)] with
     // |v|.
     // L(X) = L₀(X) + vL₁(X) + v²L₂(X)
-    Poly& l_poly = Poly::LinearizeInPlace(l_polys, v);
+    Poly& l_poly =
+        Poly::template LinearCombinationInPlace</*forward=*/false>(l_polys, v);
 
     // Zᴛ = [x₀, x₁, x₂, x₃, x₄]
     std::vector<Field> z_t =
@@ -305,18 +308,13 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       ++i;
     }
 
-    // ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u)
-    G1JacobianPointTy linear_combination = G1JacobianPointTy::Zero();
-    for (size_t i = normalized_l_commitments.size() - 1; i != SIZE_MAX; --i) {
-      linear_combination *= v;
-      linear_combination += normalized_l_commitments[i];
-    }
-
     // clang-format off
     // lhs_g1 = ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u) - Z₀(u)[H(𝜏)]₁ + u[Q(𝜏)]₁
     // lhs_g2 = [1]₂
     // clang-format on
-    G1JacobianPointTy lhs = std::move(linear_combination);
+    G1JacobianPointTy& lhs =
+        G1JacobianPointTy::template LinearCombinationInPlace</*forward=*/false>(
+            normalized_l_commitments, v);
 
     lhs -= (first_z * h);
     lhs += (u * q);

@@ -118,7 +118,8 @@ struct GroupedPolynomialOpenings {
 
     // Combine numerator polynomials with powers of |r|.
     // N(X) = (P₀(X) - R₀(X)) + r(P₁(X) - R₁(X)) + r²(P₂(X) - R₂(X))
-    Poly& n = Poly::LinearizeInPlace(numerators, r);
+    Poly& n = Poly::template LinearCombinationInPlace</*forward=*/false>(
+        numerators, r);
 
     // Divide combined polynomial by vanishing polynomial of evaluation points.
     // H(X) = N(X) / (X - x₀)(X - x₁)(X - x₂)

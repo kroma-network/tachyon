@@ -113,7 +113,8 @@ template <typename PCSTy, typename F, typename Commitment>
   using Poly = typename PCSTy::Poly;
   using Coeffs = typename Poly::Coefficients;
 
-  Poly h_poly = Poly::Linearize(constructed.h_pieces(), x_n);
+  Poly h_poly = Poly::template LinearCombination</*forward=*/false>(
+      constructed.h_pieces(), x_n);
 
   F h_blind = Poly(Coeffs(constructed.h_blinds())).Evaluate(x_n);
 
