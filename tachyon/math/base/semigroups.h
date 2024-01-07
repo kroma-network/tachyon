@@ -301,6 +301,26 @@ class AdditiveSemigroup {
     }
   }
 
+  // generator: G
+  // return: [0G, 1G, 2G, ..., (|size| - 1)G]
+  // NOTE(chokobole): Unlike |GetSuccessivePowers()|, this doesn't have an
+  // additional |c| parameter because I think there's no usecase that depends on
+  // it.
+  constexpr static std::vector<ReturnTy> GetSuccessiveScalarMuls(
+      size_t size, const G& generator) {
+    std::vector<ReturnTy> ret;
+    ret.resize(size);
+    size_t num_elems_per_thread = base::GetNumElementsPerThread(ret);
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
+      ReturnTy scalar_mul = generator.ScalarMul(i);
+      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
+        ret[j] = scalar_mul;
+        scalar_mul += generator;
+      }
+    }
+    return ret;
+  }
+
   // Linear combination
   // - forward: a₀ * rⁿ⁻¹ + a₁ * rⁿ⁻² + ... + aₙ₋₁
   // - backward: a₀ + a₁ * r + ... + aₙ₋₁ * rⁿ⁻¹
