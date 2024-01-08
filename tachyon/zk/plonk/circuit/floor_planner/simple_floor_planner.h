@@ -10,8 +10,8 @@ namespace tachyon::zk {
 
 class SimpleFloorPlanner {
  public:
-  template <typename F, typename CircuitTy, typename Config>
-  static void Synthesize(Assignment<F>* assignment, CircuitTy& circuit,
+  template <typename F, typename Circuit, typename Config>
+  static void Synthesize(Assignment<F>* assignment, Circuit& circuit,
                          Config&& config,
                          const std::vector<FixedColumnKey>& constants) {
     SingleChipLayouter layouter(assignment, constants);

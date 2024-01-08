@@ -40,15 +40,15 @@ class Synthesizer {
   }
 
   // Synthesize circuit and store advice columns.
-  template <typename CircuitTy>
+  template <typename Circuit>
   void GenerateAdviceColumns(
-      ProverBase<PCS>* prover, const std::vector<CircuitTy>& circuits,
+      ProverBase<PCS>* prover, const std::vector<Circuit>& circuits,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
     CHECK_EQ(num_circuits_, circuits.size());
 
     ConstraintSystem<F> empty_constraint_system;
-    typename CircuitTy::Config config =
-        CircuitTy::Configure(empty_constraint_system);
+    typename Circuit::Config config =
+        Circuit::Configure(empty_constraint_system);
 
     for (Phase current_phase : constraint_system_->GetPhases()) {
       for (size_t i = 0; i < num_circuits_; ++i) {
@@ -98,11 +98,11 @@ class Synthesizer {
 
   // Performs synthesis for a specific |circuit| and a specific |phase|, and
   // returns a vector of |RationalEvals|.
-  template <typename CircuitTy>
+  template <typename Circuit>
   std::vector<RationalEvals> GenerateRationalAdvices(
       ProverBase<PCS>* prover, const Phase phase,
-      const std::vector<Evals>& instance_columns, const CircuitTy& circuit,
-      const typename CircuitTy::Config& config) {
+      const std::vector<Evals>& instance_columns, const Circuit& circuit,
+      const typename Circuit::Config& config) {
     // The prover will not be allowed to assign values to advice
     // cells that exist within inactive rows, which include some
     // number of blinding factors and an extra row for use in the
@@ -111,8 +111,8 @@ class Synthesizer {
         prover->domain(), constraint_system_->num_advice_columns(),
         prover->GetUsableRows(), phase, challenges_, instance_columns);
 
-    CircuitTy::FloorPlanner::Synthesize(&witness, circuit, config.Clone(),
-                                        constraint_system_->constants());
+    Circuit::FloorPlanner::Synthesize(&witness, circuit, config.Clone(),
+                                      constraint_system_->constants());
 
     return std::move(witness).TakeAdvices();
   }

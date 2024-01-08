@@ -55,8 +55,8 @@ class VerifyingKey : public Key<PCS> {
   const F& transcript_repr() const { return transcript_repr_; }
 
   // Return true if it is able to load from an instance of |circuit|.
-  template <typename CircuitTy>
-  [[nodiscard]] bool Load(Entity<PCS>* entity, const CircuitTy& circuit) {
+  template <typename Circuit>
+  [[nodiscard]] bool Load(Entity<PCS>* entity, const Circuit& circuit) {
     PreLoadResult result;
     if (!this->PreLoad(entity, circuit, &result)) return false;
     return DoLoad(entity, std::move(result), nullptr);

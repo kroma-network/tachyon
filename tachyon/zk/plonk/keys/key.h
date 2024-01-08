@@ -47,16 +47,16 @@ class Key {
     std::vector<Evals> fixed_columns;
   };
 
-  template <typename CircuitTy>
-  bool PreLoad(Entity<PCS>* entity, const CircuitTy& circuit,
+  template <typename Circuit>
+  bool PreLoad(Entity<PCS>* entity, const Circuit& circuit,
                PreLoadResult* result) {
-    using Config = typename CircuitTy::Config;
-    using FloorPlanner = typename CircuitTy::FloorPlanner;
+    using Config = typename Circuit::Config;
+    using FloorPlanner = typename Circuit::FloorPlanner;
     using RationalEvals = typename Assembly<PCS>::RationalEvals;
     using ExtendedDomain = typename PCS::ExtendedDomain;
 
     ConstraintSystem<F>& constraint_system = result->constraint_system;
-    Config config = CircuitTy::Configure(constraint_system);
+    Config config = Circuit::Configure(constraint_system);
 
     PCS& pcs = entity->pcs();
     if (pcs.N() < constraint_system.ComputeMinimumRows()) {
