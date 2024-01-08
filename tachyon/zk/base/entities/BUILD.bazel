@@ -5,7 +5,6 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "entity",
     hdrs = ["entity.h"],
-    deps = ["//tachyon/crypto/transcripts:transcript"],
 )
 
 tachyon_cc_library(
@@ -27,7 +26,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "verifier_base",
     hdrs = ["verifier_base.h"],
-    deps = [":entity"],
+    deps = [
+        ":entity",
+        "//tachyon/base:logging",
+    ],
 )
 
 tachyon_cc_unittest(

@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "tachyon/base/parallelize.h"
-#include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/zk/base/entities/entity_ty.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/prover_query.h"
@@ -103,10 +102,10 @@ template <typename PCS, typename ExtendedEvals>
   return true;
 }
 
-template <typename PCS, typename F, typename Commitment>
+template <typename PCS, typename F, typename TranscriptWriter>
 [[nodiscard]] bool CommitRandomEval(
     const PCS& pcs, VanishingConstructed<EntityTy::kProver, PCS>&& constructed,
-    const F& x, const F& x_n, crypto::TranscriptWriter<Commitment>* writer,
+    const F& x, const F& x_n, TranscriptWriter* writer,
     VanishingEvaluated<EntityTy::kProver, PCS>* evaluated_out) {
   using Poly = typename PCS::Poly;
   using Coeffs = typename Poly::Coefficients;

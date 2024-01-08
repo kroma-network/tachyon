@@ -8,13 +8,13 @@
 
 namespace tachyon::crypto {
 
-template <typename Hash>
+template <typename F>
 class FRIStorage {
  public:
   virtual ~FRIStorage() = default;
 
   virtual void Allocate(size_t size) = 0;
-  virtual BinaryMerkleTreeStorage<Hash>* GetLayer(size_t index) = 0;
+  virtual BinaryMerkleTreeStorage<F, F>* GetLayer(size_t index) = 0;
 };
 
 }  // namespace tachyon::crypto

@@ -33,19 +33,25 @@ class SimpleHasher
 
 class SimpleFRIStorage : public FRIStorage<math::Goldilocks> {
  public:
-  const std::vector<SimpleBinaryMerkleTreeStorage<math::Goldilocks>>& layers()
-      const {
-    return layers_;
+  using Layer =
+      SimpleBinaryMerkleTreeStorage<math::Goldilocks, math::Goldilocks>;
+
+  const std::vector<Layer>& layers() const { return layers_; }
+
+  std::vector<math::Goldilocks> GetRoots() const {
+    return base::Map(layers_,
+                     [](const Layer& layer) { return layer.GetRoot(); });
   }
 
   // FRIStorage<math::Goldilocks> methods
   void Allocate(size_t size) override { layers_.resize(size); }
-  BinaryMerkleTreeStorage<math::Goldilocks>* GetLayer(size_t index) override {
+  BinaryMerkleTreeStorage<math::Goldilocks, math::Goldilocks>* GetLayer(
+      size_t index) override {
     return &layers_[index];
   }
 
  private:
-  std::vector<SimpleBinaryMerkleTreeStorage<math::Goldilocks>> layers_;
+  std::vector<Layer> layers_;
 };
 
 class FRITest : public testing::Test {
@@ -54,11 +60,14 @@ class FRITest : public testing::Test {
   constexpr static size_t N = size_t{1} << K;
   constexpr static size_t kMaxDegree = N - 1;
 
-  using PCS = FRI<math::Goldilocks, kMaxDegree>;
+  using PCS = FRI<math::Goldilocks, kMaxDegree,
+                  SimpleTranscriptReader<math::Goldilocks>,
+                  SimpleTranscriptWriter<math::Goldilocks>>;
   using F = PCS::Field;
   using Poly = PCS::Poly;
-  using Commitment = PCS::Commitment;
   using Domain = PCS::Domain;
+  using TranscriptReader = PCS::TranscriptReader;
+  using TranscriptWriter = PCS::TranscriptWriter;
 
   static void SetUpTestSuite() { math::Goldilocks::Init(); }
 
@@ -79,16 +88,19 @@ class FRITest : public testing::Test {
 TEST_F(FRITest, CommitAndVerify) {
   Poly poly = Poly::Random(kMaxDegree);
   base::Uint8VectorBuffer write_buffer;
-  SimpleTranscriptWriter<F> writer(std::move(write_buffer));
-  ASSERT_TRUE(pcs_.Commit(poly, &writer));
+  TranscriptWriter writer(std::move(write_buffer));
+  std::vector<F> roots;
+  ASSERT_TRUE(pcs_.Commit(poly, &roots, &writer));
+  roots.pop_back();
+  EXPECT_EQ(roots, storage_.GetRoots());
 
   size_t index = base::Uniform(base::Range<size_t>::Until(kMaxDegree + 1));
   FRIProof<math::Goldilocks> proof;
   ASSERT_TRUE(pcs_.CreateOpeningProof(index, &proof));
 
-  SimpleTranscriptReader<F> reader(std::move(writer).TakeBuffer());
+  TranscriptReader reader(std::move(writer).TakeBuffer());
   reader.buffer().set_buffer_offset(0);
-  ASSERT_TRUE(pcs_.VerifyOpeningProof(reader, index, proof));
+  ASSERT_TRUE(pcs_.VerifyOpeningProof(index, proof, reader));
 }
 
 }  // namespace tachyon::crypto

@@ -24,18 +24,23 @@ class ProverBase : public Entity<PCS> {
   using Evals = typename PCS::Evals;
   using Poly = typename PCS::Poly;
   using Commitment = typename PCS::Commitment;
+  using TranscriptReader = typename PCS::TranscriptReader;
+  using TranscriptWriter = typename PCS::TranscriptWriter;
 
-  ProverBase(PCS&& pcs,
-             std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+  ProverBase(PCS&& pcs, std::unique_ptr<TranscriptWriter> writer,
              Blinder<PCS>&& blinder)
-      : Entity<PCS>(std::move(pcs), std::move(writer)),
+      : Entity<PCS>(std::move(pcs)),
+        writer_(std::move(writer)),
         blinder_(std::move(blinder)) {}
 
   Blinder<PCS>& blinder() { return blinder_; }
 
-  crypto::TranscriptWriter<Commitment>* GetWriter() {
-    return this->transcript()->ToWriter();
+  TranscriptReader* GetReader() const override {
+    NOTREACHED();
+    return nullptr;
   }
+
+  TranscriptWriter* GetWriter() const override { return writer_.get(); }
 
   size_t GetUsableRows() const {
     return this->domain_->size() - (blinder_.blinding_factors() + 1);
@@ -44,7 +49,7 @@ class ProverBase : public Entity<PCS> {
   [[nodiscard]] bool Commit(const Poly& poly) {
     Commitment commitment;
     if (!this->pcs_.Commit(poly, &commitment)) return false;
-    return GetWriter()->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+    return writer_->template WriteToProof</*NeedToWriteToTranscript=*/true>(
         commitment);
   }
 
@@ -52,7 +57,7 @@ class ProverBase : public Entity<PCS> {
   [[nodiscard]] bool Commit(const Container& coeffs) {
     Commitment commitment;
     if (!this->pcs_.DoCommit(coeffs, &commitment)) return false;
-    return GetWriter()->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+    return writer_->template WriteToProof</*NeedToWriteToTranscript=*/true>(
         commitment);
   }
 
@@ -61,7 +66,7 @@ class ProverBase : public Entity<PCS> {
 
     Commitment commitment;
     if (!this->pcs_.CommitLagrange(evals, &commitment)) return false;
-    return GetWriter()->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+    return writer_->template WriteToProof</*NeedToWriteToTranscript=*/true>(
         commitment);
   }
 
@@ -74,11 +79,12 @@ class ProverBase : public Entity<PCS> {
 
   [[nodiscard]] bool Evaluate(const Poly& poly, const F& x) {
     F result = poly.Evaluate(x);
-    return GetWriter()->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+    return writer_->template WriteToProof</*NeedToWriteToTranscript=*/true>(
         result);
   }
 
  protected:
+  std::unique_ptr<TranscriptWriter> writer_;
   Blinder<PCS> blinder_;
 };
 

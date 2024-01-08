@@ -10,8 +10,6 @@
 #include <memory>
 #include <utility>
 
-#include "tachyon/crypto/transcripts/transcript.h"
-
 namespace tachyon::zk {
 
 // |Entity| class is a parent class of |Prover| and |Verifier|.
@@ -29,10 +27,11 @@ class Entity {
   using ExtendedDomain = typename PCS::ExtendedDomain;
   using Evals = typename PCS::Evals;
   using Poly = typename PCS::Poly;
-  using Commitment = typename PCS::Commitment;
+  using TranscriptReader = typename PCS::TranscriptReader;
+  using TranscriptWriter = typename PCS::TranscriptWriter;
 
-  Entity(PCS&& pcs, std::unique_ptr<crypto::Transcript<Commitment>> transcript)
-      : pcs_(std::move(pcs)), transcript_(std::move(transcript)) {}
+  explicit Entity(PCS&& pcs) : pcs_(std::move(pcs)) {}
+  virtual ~Entity() = default;
 
   const PCS& pcs() const { return pcs_; }
   PCS& pcs() { return pcs_; }
@@ -46,13 +45,14 @@ class Entity {
   const ExtendedDomain* extended_domain() const {
     return extended_domain_.get();
   }
-  crypto::Transcript<Commitment>* transcript() { return transcript_.get(); }
+
+  virtual TranscriptReader* GetReader() const = 0;
+  virtual TranscriptWriter* GetWriter() const = 0;
 
  protected:
   PCS pcs_;
   std::unique_ptr<Domain> domain_;
   std::unique_ptr<ExtendedDomain> extended_domain_;
-  std::unique_ptr<crypto::Transcript<Commitment>> transcript_;
 };
 
 }  // namespace tachyon::zk

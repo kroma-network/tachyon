@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "tachyon/crypto/commitments/kzg/kzg_family.h"
+#include "tachyon/crypto/commitments/kzg/shplonk_proof.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/crypto/commitments/univariate_polynomial_commitment_scheme.h"
 #include "tachyon/crypto/transcripts/transcript.h"
@@ -21,24 +22,24 @@ namespace tachyon {
 namespace zk {
 
 template <typename Curve, size_t MaxDegree, size_t MaxExtensionDegree,
-          typename _Commitment = typename math::Pippenger<
-              typename Curve::G1Curve::AffinePoint>::Bucket>
+          typename Commitment, typename TranscriptReader,
+          typename TranscriptWriter>
 class SHPlonkExtension;
 
 }  // namespace zk
 
 namespace crypto {
 
-template <typename Curve, size_t MaxDegree,
-          typename Commitment = typename math::Pippenger<
-              typename Curve::G1Curve::AffinePoint>::Bucket>
-class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
-                          SHPlonk<Curve, MaxDegree, Commitment>>,
-                      public KZGFamily<typename Curve::G1Curve::AffinePoint,
-                                       MaxDegree, Commitment> {
+template <typename Curve, size_t MaxDegree, typename Commitment,
+          typename TranscriptReader, typename TranscriptWriter>
+class SHPlonk final
+    : public UnivariatePolynomialCommitmentScheme<SHPlonk<
+          Curve, MaxDegree, Commitment, TranscriptReader, TranscriptWriter>>,
+      public KZGFamily<typename Curve::G1Curve::AffinePoint, MaxDegree,
+                       Commitment> {
  public:
-  using Base = UnivariatePolynomialCommitmentScheme<
-      SHPlonk<Curve, MaxDegree, Commitment>>;
+  using Base = UnivariatePolynomialCommitmentScheme<SHPlonk<
+      Curve, MaxDegree, Commitment, TranscriptReader, TranscriptWriter>>;
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using G2Point = typename Curve::G2Curve::AffinePoint;
   using G2Prepared = typename Curve::G2Prepared;
@@ -53,17 +54,18 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       : KZGFamily<G1Point, MaxDegree, Commitment>(std::move(kzg)) {}
 
  private:
-  friend class VectorCommitmentScheme<SHPlonk<Curve, MaxDegree, Commitment>>;
-  friend class UnivariatePolynomialCommitmentScheme<
-      SHPlonk<Curve, MaxDegree, Commitment>>;
-  template <typename, size_t, size_t, typename>
+  friend class VectorCommitmentScheme<SHPlonk<
+      Curve, MaxDegree, Commitment, TranscriptReader, TranscriptWriter>>;
+  friend class UnivariatePolynomialCommitmentScheme<SHPlonk<
+      Curve, MaxDegree, Commitment, TranscriptReader, TranscriptWriter>>;
+  template <typename, size_t, size_t, typename, typename, typename>
   friend class zk::SHPlonkExtension;
 
   // UnivariatePolynomialCommitmentScheme methods
   template <typename Container>
-  [[nodiscard]] bool DoCreateOpeningProof(
-      const Container& poly_openings,
-      TranscriptWriter<Commitment>* writer) const {
+  [[nodiscard]] bool DoCreateOpeningProof(const Container& poly_openings,
+                                          SHPlonkProof<Commitment>* proof,
+                                          TranscriptWriter* writer) const {
     PolynomialOpeningGrouper<Poly> grouper;
     grouper.GroupByPolyOracleAndPoints(poly_openings);
 
@@ -104,10 +106,10 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         Poly::template LinearCombinationInPlace</*forward=*/false>(h_polys, v);
 
     // Commit H(X)
-    Commitment h;
-    if (!this->Commit(h_poly, &h)) return false;
+    if (!this->Commit(h_poly, &proof->h)) return false;
 
-    if (!writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(h))
+    if (!writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+            proof->h))
       return false;
     Field u = writer->SqueezeChallenge();
 
@@ -189,29 +191,25 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     q_poly /= first_z_diff;
 
     // Commit Q(X)
-    Commitment q;
-    if (!this->Commit(q_poly, &q)) return false;
-    return writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(q);
+    if (!this->Commit(q_poly, &proof->q)) return false;
+    return writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+        proof->q);
   }
 
   template <typename Container>
-  [[nodiscard]] bool DoVerifyOpeningProof(
-      const Container& poly_openings,
-      TranscriptReader<Commitment>* reader) const {
+  [[nodiscard]] bool DoVerifyOpeningProof(const Container& poly_openings,
+                                          const SHPlonkProof<Commitment>& proof,
+                                          TranscriptReader& reader) const {
     using G1JacobianPoint = math::JacobianPoint<typename G1Point::Curve>;
 
-    Field y = reader->SqueezeChallenge();
-    Field v = reader->SqueezeChallenge();
+    Field y = reader.SqueezeChallenge();
+    Field v = reader.SqueezeChallenge();
 
-    Commitment h;
-    if (!reader->template ReadFromProof</*NeedToWriteToTranscript=*/true>(&h))
-      return false;
+    if (!reader.WriteToTranscript(proof.h)) return false;
 
-    Field u = reader->SqueezeChallenge();
+    Field u = reader.SqueezeChallenge();
 
-    Commitment q;
-    if (!reader->template ReadFromProof</*NeedToWriteToTranscript=*/true>(&q))
-      return false;
+    if (!reader.WriteToTranscript(proof.q)) return false;
 
     PolynomialOpeningGrouper<Poly, Commitment> grouper;
     grouper.GroupByPolyOracleAndPoints(poly_openings);
@@ -316,17 +314,16 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         G1JacobianPoint::template LinearCombinationInPlace</*forward=*/false>(
             normalized_l_commitments, v);
 
-    p -= (first_z * h);
-    p += (u * q);
+    p -= (first_z * proof.h);
+    p += (u * proof.q);
 
-    // clang-format off
     // e(p, [1]₂) * e([Q(𝜏)]₁, [-𝜏]₂) ≟ gᴛ⁰
-    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏) - 𝜏 * Q(𝜏) ≟ 0
-    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) ≟ (𝜏 - u) * Q(𝜏)
-    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏) - Zᴛ(u) * H(𝜏)) / Zᴛ\₀(u) ≟ (𝜏 - u) * Q(𝜏)
-    // L(𝜏) ≟ (𝜏 - u) * Q(𝜏) * Zᴛ\₀(u)
+    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏) - 𝜏
+    // * Q(𝜏) ≟ 0 (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) ≟ (𝜏
+    // - u) * Q(𝜏) (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏) - Zᴛ(u) * H(𝜏)) / Zᴛ\₀(u) ≟
+    // (𝜏 - u) * Q(𝜏) L(𝜏) ≟ (𝜏 - u) * Q(𝜏) * Zᴛ\₀(u)
     // clang-format on
-    G1Point g1_arr[] = {p.ToAffine(), std::move(q)};
+    G1Point g1_arr[] = {p.ToAffine(), proof.q};
     return math::Pairing<Curve>(g1_arr, g2_arr_).IsOne();
   }
 
@@ -341,15 +338,22 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   std::array<G2Prepared, 2> g2_arr_;
 };
 
-template <typename Curve, size_t MaxDegree, typename _Commitment>
-struct VectorCommitmentSchemeTraits<SHPlonk<Curve, MaxDegree, _Commitment>> {
+template <typename Curve, size_t MaxDegree, typename _Commitment,
+          typename _TranscriptReader, typename _TranscriptWriter>
+struct VectorCommitmentSchemeTraits<SHPlonk<
+    Curve, MaxDegree, _Commitment, _TranscriptReader, _TranscriptWriter>> {
  public:
   constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = false;
+  constexpr static bool kIsCommitInteractive = false;
+  constexpr static bool kIsOpenInteractive = true;
 
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using Field = typename G1Point::ScalarField;
   using Commitment = _Commitment;
+  using TranscriptReader = _TranscriptReader;
+  using TranscriptWriter = _TranscriptWriter;
+  using Proof = SHPlonkProof<Commitment>;
 };
 
 }  // namespace crypto

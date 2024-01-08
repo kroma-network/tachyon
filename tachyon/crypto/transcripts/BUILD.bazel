@@ -6,24 +6,24 @@ tachyon_cc_library(
     name = "simple_transcript",
     testonly = True,
     hdrs = ["simple_transcript.h"],
-    deps = [":transcript"],
+    deps = [
+        ":transcript",
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/finite_fields:prime_field_base",
+    ],
 )
 
 tachyon_cc_library(
     name = "transcript",
     hdrs = ["transcript.h"],
     deps = [
-        ":transcript_traits",
+        ":transcript_traits_forward",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/base:big_int",
     ],
 )
 
 tachyon_cc_library(
-    name = "transcript_traits",
-    hdrs = ["transcript_traits.h"],
-    deps = [
-        "//tachyon/math/elliptic_curves:points",
-        "//tachyon/math/finite_fields:prime_field_base",
-    ],
+    name = "transcript_traits_forward",
+    hdrs = ["transcript_traits_forward.h"],
 )

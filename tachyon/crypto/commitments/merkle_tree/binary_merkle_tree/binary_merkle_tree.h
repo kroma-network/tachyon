@@ -29,7 +29,7 @@ class BinaryMerkleTree final
   constexpr static size_t kDefaultLeavesSizeForParallelization = 1024;
 
   BinaryMerkleTree() = default;
-  BinaryMerkleTree(BinaryMerkleTreeStorage<Hash>* storage,
+  BinaryMerkleTree(BinaryMerkleTreeStorage<Leaf, Hash>* storage,
                    BinaryMerkleHasher<Leaf, Hash>* hasher)
       : storage_(storage), hasher_(hasher) {}
 
@@ -85,8 +85,9 @@ class BinaryMerkleTree final
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(
-      size_t index, BinaryMerkleProof<Hash>* proof) const {
-    size_t size = storage_->GetSize();
+      size_t index, BinaryMerkleProof<Leaf, Hash>* proof) const {
+    proof->value = storage_->GetLeaf(index);
+    size_t size = storage_->GetHashesSize();
     index = (size >> 1) + index;
     proof->paths.resize(base::bits::Log2Floor(size));
     size_t i = 0;
@@ -107,9 +108,8 @@ class BinaryMerkleTree final
   }
 
   [[nodiscard]] bool DoVerifyOpeningProof(
-      const Hash& root, const Hash& leaf_hash,
-      const BinaryMerkleProof<Hash>& proof) const {
-    Hash hash = leaf_hash;
+      const Hash& root, const BinaryMerkleProof<Leaf, Hash>& proof) const {
+    Hash hash = hasher_->ComputeLeafHash(proof.value);
     for (const BinaryMerklePath<Hash>& path : proof.paths) {
       if (path.left) {
         hash = hasher_->ComputeParentHash(path.hash, hash);
@@ -132,8 +132,10 @@ class BinaryMerkleTree final
       return false;
     }
     base::CheckedNumeric<size_t> n = leaves_size;
-    storage_->Allocate(((n << 1) - 1).ValueOrDie());
+    storage_->AllocateLeaves(leaves_size);
+    storage_->AllocateHashes(((n << 1) - 1).ValueOrDie());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < leaves_size; ++i) {
+      storage_->SetLeaf(i, leaves[i]);
       storage_->SetHash(leaves_size + i - 1,
                         hasher_->ComputeLeafHash(leaves[i]));
     }
@@ -152,7 +154,7 @@ class BinaryMerkleTree final
   }
 
   // not owned
-  mutable BinaryMerkleTreeStorage<Hash>* storage_ = nullptr;
+  mutable BinaryMerkleTreeStorage<Leaf, Hash>* storage_ = nullptr;
   // not owned
   BinaryMerkleHasher<Leaf, Hash>* hasher_ = nullptr;
   size_t leaves_size_for_parallelization_ =
@@ -164,11 +166,18 @@ struct VectorCommitmentSchemeTraits<BinaryMerkleTree<Leaf, Hash, MaxSize>> {
  public:
   constexpr static size_t kMaxSize = MaxSize;
   constexpr static bool kIsTransparent = true;
+  constexpr static bool kIsCommitInteractive = false;
+  constexpr static bool kIsOpenInteractive = false;
 
   // TODO(chokobole): The result of Keccak256 is not a field. How can we handle
   // this?
   using Field = Hash;
   using Commitment = Hash;
+  // not used
+  using TranscriptReader = void*;
+  // not used
+  using TranscriptWriter = void*;
+  using Proof = BinaryMerkleProof<Leaf, Hash>;
 };
 
 }  // namespace tachyon::crypto

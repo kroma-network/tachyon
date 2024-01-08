@@ -95,7 +95,6 @@ tachyon_cc_library(
     deps = [
         ":proof",
         "//tachyon/base:logging",
-        "//tachyon/crypto/transcripts:transcript",
         "//tachyon/zk/plonk/keys:verifying_key",
         "//tachyon/zk/plonk/permutation:permutation_utils",
     ],
@@ -118,6 +117,7 @@ tachyon_cc_library(
         ":random_field_generator",
         ":verifier",
         "//tachyon/zk/base/entities:prover_base",
+        "@com_google_absl//absl/memory",
     ],
 )
 

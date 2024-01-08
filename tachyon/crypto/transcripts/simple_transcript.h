@@ -1,11 +1,21 @@
 #ifndef TACHYON_CRYPTO_TRANSCRIPTS_SIMPLE_TRANSCRIPT_H_
 #define TACHYON_CRYPTO_TRANSCRIPTS_SIMPLE_TRANSCRIPT_H_
 
+#include <type_traits>
 #include <utility>
 
 #include "tachyon/crypto/transcripts/transcript.h"
+#include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::crypto {
+
+template <typename F, typename SFINAE = void>
+class SimpleTranscriptReader;
+
+template <typename F, typename SFINAE = void>
+class SimpleTranscriptWriter;
+
 namespace internal {
 
 template <typename F, typename SFINAE = void>
@@ -15,6 +25,9 @@ template <typename F>
 class SimpleTranscript<
     F, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<F>, F>>> {
  protected:
+  friend class Transcript<SimpleTranscriptReader<F>>;
+  friend class Transcript<SimpleTranscriptWriter<F>>;
+
   F DoSqueezeChallenge() { return state_.DoubleInPlace(); }
 
   bool DoWriteToTranscript(const F& value) {
@@ -29,7 +42,10 @@ class SimpleTranscript<
 template <typename Curve>
 class SimpleTranscript<math::AffinePoint<Curve>> {
  protected:
-  using F = typename TranscriptTraits<math::AffinePoint<Curve>>::Field;
+  friend class Transcript<SimpleTranscriptReader<math::AffinePoint<Curve>>>;
+  friend class Transcript<SimpleTranscriptWriter<math::AffinePoint<Curve>>>;
+
+  using F = typename math::AffinePoint<Curve>::ScalarField;
   using CurveConfig = typename Curve::Config;
 
   F DoSqueezeChallenge() { return state_.DoubleInPlace(); }
@@ -51,114 +67,102 @@ class SimpleTranscript<math::AffinePoint<Curve>> {
 
 }  // namespace internal
 
-template <typename F, typename SFINAE = void>
-class SimpleTranscriptReader;
-
 template <typename F>
 class SimpleTranscriptReader<
     F, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<F>, F>>>
-    : public TranscriptReader<F>, protected internal::SimpleTranscript<F> {
+    final : public TranscriptReader<SimpleTranscriptReader<F>>,
+            public internal::SimpleTranscript<F> {
  public:
   explicit SimpleTranscriptReader(base::Buffer read_buf)
-      : TranscriptReader<F>(std::move(read_buf)) {}
-
-  // TranscriptReader methods
-  F SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const F& value) override {
-    return this->DoWriteToTranscript(value);
-  }
+      : TranscriptReader<SimpleTranscriptReader<F>>(std::move(read_buf)) {}
 
  private:
-  bool DoReadFromProof(F* value) const override {
+  friend class TranscriptReader<SimpleTranscriptReader<F>>;
+
+  template <typename T>
+  bool DoReadFromProof(T* value) const {
+    return this->buffer_.Read(value);
+  }
+};
+
+template <typename F>
+struct TranscriptTraits<SimpleTranscriptReader<
+    F, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<F>, F>>>> {
+  using Field = F;
+};
+
+template <typename Curve>
+class SimpleTranscriptReader<math::AffinePoint<Curve>> final
+    : public TranscriptReader<SimpleTranscriptReader<math::AffinePoint<Curve>>>,
+      public internal::SimpleTranscript<math::AffinePoint<Curve>> {
+ public:
+  explicit SimpleTranscriptReader(base::Buffer read_buf)
+      : TranscriptReader<SimpleTranscriptReader<math::AffinePoint<Curve>>>(
+            std::move(read_buf)) {}
+
+ private:
+  friend class TranscriptReader<
+      SimpleTranscriptReader<math::AffinePoint<Curve>>>;
+
+  template <typename T>
+  bool DoReadFromProof(T* value) const {
     return this->buffer_.Read(value);
   }
 };
 
 template <typename Curve>
-class SimpleTranscriptReader<math::AffinePoint<Curve>>
-    : public TranscriptReader<math::AffinePoint<Curve>>,
-      protected internal::SimpleTranscript<math::AffinePoint<Curve>> {
- public:
-  using F = typename TranscriptTraits<math::AffinePoint<Curve>>::Field;
-
-  explicit SimpleTranscriptReader(base::Buffer read_buf)
-      : TranscriptReader<math::AffinePoint<Curve>>(std::move(read_buf)) {}
-
-  // TranscriptReader methods
-  F SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const math::AffinePoint<Curve>& point) override {
-    return this->DoWriteToTranscript(point);
-  }
-
-  bool WriteToTranscript(const F& scalar) override {
-    return this->DoWriteToTranscript(scalar);
-  }
-
- private:
-  bool DoReadFromProof(math::AffinePoint<Curve>* point) const override {
-    return this->buffer_.Read(point);
-  }
-
-  bool DoReadFromProof(F* scalar) const override {
-    return this->buffer_.Read(scalar);
-  }
+struct TranscriptTraits<SimpleTranscriptReader<math::AffinePoint<Curve>>> {
+  using Field = typename math::AffinePoint<Curve>::ScalarField;
 };
-
-template <typename F, typename SFINAE = void>
-class SimpleTranscriptWriter;
 
 template <typename F>
 class SimpleTranscriptWriter<
     F, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<F>, F>>>
-    : public TranscriptWriter<F>, protected internal::SimpleTranscript<F> {
+    : public TranscriptWriter<SimpleTranscriptWriter<F>>,
+      public internal::SimpleTranscript<F> {
  public:
+  using Field = F;
+
   explicit SimpleTranscriptWriter(base::Uint8VectorBuffer write_buf)
-      : TranscriptWriter<F>(std::move(write_buf)) {}
-
-  // TranscriptWriter methods
-  F SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const F& value) override {
-    return this->DoWriteToTranscript(value);
-  }
+      : TranscriptWriter<SimpleTranscriptWriter<F>>(std::move(write_buf)) {}
 
  private:
-  bool DoWriteToProof(const F& value) override {
+  friend class TranscriptWriter<SimpleTranscriptWriter<F>>;
+
+  template <typename T>
+  bool DoWriteToProof(const T& value) {
+    return this->buffer_.Write(value);
+  }
+};
+
+template <typename F>
+struct TranscriptTraits<SimpleTranscriptWriter<
+    F, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<F>, F>>>> {
+  using Field = F;
+};
+
+template <typename Curve>
+class SimpleTranscriptWriter<math::AffinePoint<Curve>>
+    : public TranscriptWriter<SimpleTranscriptWriter<math::AffinePoint<Curve>>>,
+      public internal::SimpleTranscript<math::AffinePoint<Curve>> {
+ public:
+  explicit SimpleTranscriptWriter(base::Uint8VectorBuffer write_buf)
+      : TranscriptWriter<SimpleTranscriptWriter<math::AffinePoint<Curve>>>(
+            std::move(write_buf)) {}
+
+ private:
+  friend class TranscriptWriter<
+      SimpleTranscriptWriter<math::AffinePoint<Curve>>>;
+
+  template <typename T>
+  bool DoWriteToProof(const T& value) {
     return this->buffer_.Write(value);
   }
 };
 
 template <typename Curve>
-class SimpleTranscriptWriter<math::AffinePoint<Curve>>
-    : public TranscriptWriter<math::AffinePoint<Curve>>,
-      protected internal::SimpleTranscript<math::AffinePoint<Curve>> {
- public:
-  using F = typename TranscriptTraits<math::AffinePoint<Curve>>::Field;
-
-  explicit SimpleTranscriptWriter(base::Uint8VectorBuffer write_buf)
-      : TranscriptWriter<math::AffinePoint<Curve>>(std::move(write_buf)) {}
-
-  // TranscriptWriter methods
-  F SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const math::AffinePoint<Curve>& point) override {
-    return this->DoWriteToTranscript(point);
-  }
-
-  bool WriteToTranscript(const F& scalar) override {
-    return this->DoWriteToTranscript(scalar);
-  }
-
- private:
-  bool DoWriteToProof(const math::AffinePoint<Curve>& point) override {
-    return this->buffer_.Write(point);
-  }
-
-  bool DoWriteToProof(const F& scalar) override {
-    return this->buffer_.Write(scalar);
-  }
+struct TranscriptTraits<SimpleTranscriptWriter<math::AffinePoint<Curve>>> {
+  using Field = typename math::AffinePoint<Curve>::ScalarField;
 };
 
 }  // namespace tachyon::crypto

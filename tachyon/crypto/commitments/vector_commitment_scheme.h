@@ -16,6 +16,11 @@ class VectorCommitmentScheme {
 
   using Field = typename VectorCommitmentSchemeTraits<Derived>::Field;
   using Commitment = typename VectorCommitmentSchemeTraits<Derived>::Commitment;
+  using TranscriptReader =
+      typename VectorCommitmentSchemeTraits<Derived>::TranscriptReader;
+  using TranscriptWriter =
+      typename VectorCommitmentSchemeTraits<Derived>::TranscriptWriter;
+  using Proof = typename VectorCommitmentSchemeTraits<Derived>::Proof;
 
   size_t K() const {
     const Derived* derived = static_cast<const Derived*>(this);
@@ -62,54 +67,91 @@ class VectorCommitmentScheme {
     return derived->DoUnsafeSetup(size, params);
   }
 
-  // Commit to |container| and populates |result| with the commitment.
+  // Commit to |container| and populates |commitment|.
   // Return false if the size of |container| doesn't match with the size of
   // parameters.
-  template <typename Container>
+  template <typename Container, typename T = Derived,
+            std::enable_if_t<!VectorCommitmentSchemeTraits<
+                T>::kIsCommitInteractive>* = nullptr>
   [[nodiscard]] bool Commit(const Container& container,
-                            Commitment* result) const {
+                            Commitment* commitment) const {
     const Derived* derived = static_cast<const Derived*>(this);
-    return derived->DoCommit(container, result);
+    return derived->DoCommit(container, commitment);
   }
 
-  // Commit to |container| with a |random_value| and populates |result| with the
-  // commitment. Return false if the size of |container| doesn't match with the
-  // size of parameters.
-  template <typename Container>
+  // Commit to |container| with a |random_value| and populates |commitment|.
+  // Return false if the size of |container| doesn't match with the size of
+  // parameters. e.g, Pedersen.
+  template <typename Container, typename T = Derived,
+            std::enable_if_t<!VectorCommitmentSchemeTraits<
+                T>::kIsCommitInteractive>* = nullptr>
   [[nodiscard]] bool Commit(const Container& container,
                             const Field& random_value,
-                            Commitment* result) const {
+                            Commitment* commitment) const {
     const Derived* derived = static_cast<const Derived*>(this);
-    return derived->DoCommit(container, random_value, result);
+    return derived->DoCommit(container, random_value, commitment);
   }
 
-  // Create an opening proof that proves that |members| belong to a
-  // commitment.
-  template <typename Container, typename Proof>
-  [[nodiscard]] bool CreateOpeningProof(const Container& members,
-                                        Proof* proof) const {
+  // Commit to |container| with a |transcript_writer| and populates
+  // |commitment|. Return false if the size of |container| doesn't match with
+  // the size of parameters.
+  template <
+      typename Container, typename T = Derived,
+      std::enable_if_t<VectorCommitmentSchemeTraits<T>::IsCommitInteractive>* =
+          nullptr>
+  [[nodiscard]] bool Commit(const Container& container, Commitment* commitment,
+                            TranscriptWriter* transcript_writer) const {
     const Derived* derived = static_cast<const Derived*>(this);
-    return derived->DoCreateOpeningProof(members, proof);
+    return derived->DoCommit(container, commitment, transcript_writer);
   }
 
-  // Verify an opening |proof| that proves that |members| belong to a
-  // |commitment|.
-  // NOTE(chokobole): const was removed from |Commitment| since it can be a
-  // |Transcript|. At this moment, |WriteToTranscript()| is not a const method.
-  template <typename Container, typename Proof>
-  [[nodiscard]] bool VerifyOpeningProof(Commitment& commitment,
-                                        const Container& members,
+  // Create an opening |proof| based on |args|. |args| is defined according to
+  // the implementation.
+  template <
+      typename Args, typename T = Derived,
+      std::enable_if_t<!VectorCommitmentSchemeTraits<T>::kIsOpenInteractive>* =
+          nullptr>
+  [[nodiscard]] bool CreateOpeningProof(const Args& args, Proof* proof) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCreateOpeningProof(args, proof);
+  }
+
+  // Create an opening |proof| with a |transcript_writer| based on |args|.
+  // |args| is defined according to the implementation.
+  template <typename Args, typename T = Derived,
+            std::enable_if_t<
+                VectorCommitmentSchemeTraits<T>::kIsOpenInteractive>* = nullptr>
+  [[nodiscard]] bool CreateOpeningProof(
+      const Args& args, Proof* proof,
+      TranscriptWriter* transcript_writer) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCreateOpeningProof(args, proof, transcript_writer);
+  }
+
+  // Verify an opening |proof| with |args|. e.g, BinaryMerkleTree.
+  // |args| is defined according to the implementation.
+  template <
+      typename Args, typename T = Derived,
+      std::enable_if_t<
+          !(VectorCommitmentSchemeTraits<T>::kIsCommitInteractive ||
+            VectorCommitmentSchemeTraits<T>::kIsOpenInteractive)>* = nullptr>
+  [[nodiscard]] bool VerifyOpeningProof(const Args& args,
                                         const Proof& proof) const {
     const Derived* derived = static_cast<const Derived*>(this);
-    return derived->DoVerifyOpeningProof(commitment, members, proof);
+    return derived->DoVerifyOpeningProof(args, proof);
   }
 
-  // Verify multi-openings |proof|.
-  template <typename Container, typename Proof>
-  [[nodiscard]] bool VerifyOpeningProof(const Container& members,
-                                        Proof* proof) const {
+  // Verify an opening |proof| with a |transcript_reader| and |args|. e.g, FRI.
+  // |args| is defined according to the implementation.
+  template <typename Args, typename T = Derived,
+            std::enable_if_t<
+                VectorCommitmentSchemeTraits<T>::kIsCommitInteractive ||
+                VectorCommitmentSchemeTraits<T>::kIsOpenInteractive>* = nullptr>
+  [[nodiscard]] bool VerifyOpeningProof(
+      const Args& args, const Proof& proof,
+      TranscriptReader& transcript_reader) const {
     const Derived* derived = static_cast<const Derived*>(this);
-    return derived->DoVerifyOpeningProof(members, proof);
+    return derived->DoVerifyOpeningProof(args, proof, transcript_reader);
   }
 };
 

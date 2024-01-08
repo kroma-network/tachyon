@@ -18,11 +18,13 @@
 
 namespace tachyon::crypto {
 
-template <typename F, size_t MaxDegree>
-class FRI final
-    : public UnivariatePolynomialCommitmentScheme<FRI<F, MaxDegree>> {
+template <typename F, size_t MaxDegree, typename TranscriptReader,
+          typename TranscriptWriter>
+class FRI final : public UnivariatePolynomialCommitmentScheme<
+                      FRI<F, MaxDegree, TranscriptReader, TranscriptWriter>> {
  public:
-  using Base = UnivariatePolynomialCommitmentScheme<FRI<F, MaxDegree>>;
+  using Base = UnivariatePolynomialCommitmentScheme<
+      FRI<F, MaxDegree, TranscriptReader, TranscriptWriter>>;
   using Poly = typename Base::Poly;
   using Evals = typename Base::Evals;
   using Domain = typename Base::Domain;
@@ -45,14 +47,15 @@ class FRI final
   // UnivariatePolynomialCommitmentScheme methods
   size_t N() const { return domain_->size(); }
 
-  [[nodiscard]] bool Commit(const Poly& poly, Transcript<F>* transcript) const {
+  [[nodiscard]] bool Commit(const Poly& poly, std::vector<F>* roots,
+                            TranscriptWriter* writer) const {
     size_t num_layers = domain_->log_size_of_group();
-    TranscriptWriter<F>* writer = transcript->ToWriter();
     BinaryMerkleTree<F, F, MaxDegree + 1> tree(storage_->GetLayer(0), hasher_);
     Evals evals = domain_->FFT(poly);
-    F root;
-    if (!tree.Commit(evals.evaluations(), &root)) return false;
-    if (!writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(root))
+    roots->resize(num_layers + 1);
+    if (!tree.Commit(evals.evaluations(), &(*roots)[0])) return false;
+    if (!writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+            (*roots)[0]))
       return false;
     const Poly* cur_poly = &poly;
 
@@ -67,9 +70,9 @@ class FRI final
         BinaryMerkleTree<F, F, MaxDegree + 1> tree(storage_->GetLayer(i),
                                                    hasher_);
         evals = sub_domains_[i - 1]->FFT(folded_poly);
-        if (!tree.Commit(evals.evaluations(), &root)) return false;
+        if (!tree.Commit(evals.evaluations(), &(*roots)[i])) return false;
         if (!writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(
-                root))
+                (*roots)[i]))
           return false;
         cur_poly = &folded_poly;
       }
@@ -78,46 +81,39 @@ class FRI final
     beta = writer->SqueezeChallenge();
     folded_poly = cur_poly->template Fold<false>(beta);
     const F* constant = folded_poly[0];
-    root = constant ? *constant : F::Zero();
+    (*roots)[num_layers] = constant ? *constant : F::Zero();
     return writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(
-        root);
+        (*roots)[num_layers]);
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(size_t index,
                                           FRIProof<F>* fri_proof) const {
     size_t domain_size = domain_->size();
     size_t num_layers = domain_->log_size_of_group();
+    fri_proof->proof.resize(num_layers);
+    fri_proof->proof_sym.resize(num_layers);
     for (size_t i = 0; i < num_layers; ++i) {
-      size_t leaf_index = index % domain_size;
-      BinaryMerkleTreeStorage<F>* layer = storage_->GetLayer(i);
-      BinaryMerkleTree<F, F, MaxDegree + 1> tree(layer, hasher_);
-      BinaryMerkleProof<F> proof;
-      if (!tree.CreateOpeningProof(leaf_index, &proof)) return false;
       // Merkle proof for Pᵢ(ωʲ) against Cᵢ
-      fri_proof->paths.push_back(std::move(proof));
-      // Pᵢ(ωʲ)
-      fri_proof->evaluations.push_back(
-          layer->GetHash(domain_size - 1 + leaf_index));
+      size_t leaf_index = index % domain_size;
+      BinaryMerkleTreeStorage<F, F>* layer = storage_->GetLayer(i);
+      BinaryMerkleTree<F, F, MaxDegree + 1> tree(layer, hasher_);
+      if (!tree.CreateOpeningProof(leaf_index, &fri_proof->proof[i]))
+        return false;
 
+      // Merkle proof for Pᵢ(-ωʲ) against Cᵢ
       size_t half_domain_size = domain_size >> 1;
       size_t leaf_index_sym = (index + half_domain_size) % domain_size;
-      BinaryMerkleProof<F> proof_sym;
-      if (!tree.CreateOpeningProof(leaf_index_sym, &proof_sym)) return false;
-      // Merkle proof for Pᵢ(-ωʲ) against Cᵢ
-      fri_proof->paths_sym.push_back(std::move(proof_sym));
-      // Pᵢ(-ωʲ)
-      fri_proof->evaluations_sym.push_back(
-          layer->GetHash(domain_size - 1 + leaf_index_sym));
+      if (!tree.CreateOpeningProof(leaf_index_sym, &fri_proof->proof_sym[i]))
+        return false;
 
       domain_size = half_domain_size;
     }
     return true;
   }
 
-  [[nodiscard]] bool DoVerifyOpeningProof(Transcript<F>& transcript,
-                                          size_t index,
-                                          const FRIProof<F>& proof) const {
-    TranscriptReader<F>* reader = transcript.ToReader();
+  [[nodiscard]] bool DoVerifyOpeningProof(size_t index,
+                                          const FRIProof<F>& fri_proof,
+                                          TranscriptReader& reader) const {
     size_t domain_size = domain_->size();
     size_t num_layers = domain_->log_size_of_group();
     F root;
@@ -127,18 +123,14 @@ class FRI final
     F evaluation_sym;
     F two_inv = F(2).Inverse();
     for (size_t i = 0; i < num_layers; ++i) {
-      BinaryMerkleTreeStorage<F>* layer = storage_->GetLayer(i);
+      BinaryMerkleTreeStorage<F, F>* layer = storage_->GetLayer(i);
       BinaryMerkleTree<F, F, MaxDegree + 1> tree(layer, hasher_);
 
-      if (!reader->template ReadFromProof</*NeedToWriteToTranscript=*/true>(
+      if (!reader.template ReadFromProof</*NeedToWriteToTranscript=*/true>(
               &root))
         return false;
-      if (!tree.VerifyOpeningProof(root, proof.evaluations[i], proof.paths[i]))
-        return false;
-
-      if (!tree.VerifyOpeningProof(root, proof.evaluations_sym[i],
-                                   proof.paths_sym[i]))
-        return false;
+      if (!tree.VerifyOpeningProof(root, fri_proof.proof[i])) return false;
+      if (!tree.VerifyOpeningProof(root, fri_proof.proof_sym[i])) return false;
 
       // Given equations:
       // Pᵢ(X)  = Pᵢ_even(X²) + X * Pᵢ_odd(X²)
@@ -163,8 +155,8 @@ class FRI final
       //           = ((1 + β * ω⁻ʲ) * Pᵢ(ωʲ) + (1 - β * ω⁻ʲ) * Pᵢ(-ωʲ)) / 2
       size_t leaf_index = index % domain_size;
       if (i == 0) {
-        evaluation = proof.evaluations[i];
-        evaluation_sym = proof.evaluations_sym[i];
+        evaluation = fri_proof.proof[i].value;
+        evaluation_sym = fri_proof.proof_sym[i].value;
         x = domain_->GetElement(leaf_index);
       } else {
         evaluation *= (F::One() + beta);
@@ -172,16 +164,16 @@ class FRI final
         evaluation += evaluation_sym;
         evaluation *= two_inv;
 
-        if (evaluation != proof.evaluations[i]) {
+        if (evaluation != fri_proof.proof[i].value) {
           LOG(ERROR)
               << "Proof doesn't match with expected evaluation at layer [" << i
               << "]";
           return false;
         }
-        evaluation_sym = proof.evaluations_sym[i];
+        evaluation_sym = fri_proof.proof_sym[i].value;
         x = sub_domains_[i - 1]->GetElement(leaf_index);
       }
-      beta = reader->SqueezeChallenge();
+      beta = reader.SqueezeChallenge();
       beta *= x.Inverse();
       domain_size = domain_size >> 1;
     }
@@ -191,8 +183,7 @@ class FRI final
     evaluation += evaluation_sym;
     evaluation *= two_inv;
 
-    if (!reader->template ReadFromProof</*NeedToWriteToTranscript=*/true>(
-            &root))
+    if (!reader.template ReadFromProof</*NeedToWriteToTranscript=*/true>(&root))
       return false;
     if (root != evaluation) {
       LOG(ERROR) << "Root doesn't match with expected evaluation";
@@ -208,19 +199,24 @@ class FRI final
   mutable FRIStorage<F>* storage_ = nullptr;
   // not owned
   BinaryMerkleHasher<F, F>* hasher_ = nullptr;
-  // not owned
-  Transcript<F>* transcript_ = nullptr;
   std::vector<std::unique_ptr<Domain>> sub_domains_;
 };
 
-template <typename F, size_t MaxDegree>
-struct VectorCommitmentSchemeTraits<FRI<F, MaxDegree>> {
+template <typename F, size_t MaxDegree, typename _TranscriptReader,
+          typename _TranscriptWriter>
+struct VectorCommitmentSchemeTraits<
+    FRI<F, MaxDegree, _TranscriptReader, _TranscriptWriter>> {
  public:
   constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = true;
+  constexpr static bool kIsCommitInteractive = true;
+  constexpr static bool kIsOpenInteractive = false;
 
   using Field = F;
-  using Commitment = Transcript<F>;
+  using Commitment = std::vector<F>;
+  using TranscriptReader = _TranscriptReader;
+  using TranscriptWriter = _TranscriptWriter;
+  using Proof = FRIProof<F>;
 };
 
 }  // namespace tachyon::crypto

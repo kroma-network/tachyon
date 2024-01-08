@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
-#include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/zk/plonk/halo2/proof.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
@@ -38,9 +37,10 @@ class ProofReader {
  public:
   using F = typename PCS::Field;
   using C = typename PCS::Commitment;
+  using TranscriptReader = typename PCS::TranscriptReader;
 
   ProofReader(const VerifyingKey<PCS>& verifying_key,
-              crypto::TranscriptReader<C>* transcript, size_t num_circuits)
+              TranscriptReader* transcript, size_t num_circuits)
       : verifying_key_(verifying_key),
         transcript_(transcript),
         num_circuits_(num_circuits) {}
@@ -256,7 +256,7 @@ class ProofReader {
 
   const VerifyingKey<PCS>& verifying_key_;
   // not owned
-  crypto::TranscriptReader<C>* const transcript_ = nullptr;
+  TranscriptReader* const transcript_ = nullptr;
   size_t num_circuits_ = 0;
   Proof<F, C> proof_;
   ProofCursor cursor_ = ProofCursor::kAdviceCommitmentsVecAndChallenges;

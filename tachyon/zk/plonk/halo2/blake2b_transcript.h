@@ -16,14 +16,26 @@
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon {
+namespace zk::halo2 {
+
+template <typename Curve>
+class Blake2bReader;
+
+template <typename Curve>
+class Blake2bWriter;
+
 namespace internal {
 
-template <typename AffinePoint>
+template <typename Curve>
 class Blake2bBase {
  protected:
-  using BaseField = typename AffinePoint::BaseField;
-  using ScalarField = typename AffinePoint::ScalarField;
+  friend class crypto::Transcript<Blake2bReader<Curve>>;
+  friend class crypto::Transcript<Blake2bWriter<Curve>>;
+
+  using Point = math::AffinePoint<Curve>;
+  using BaseField = typename Point::BaseField;
+  using ScalarField = typename Point::ScalarField;
 
   Blake2bBase() { BLAKE2B512_InitWithPersonal(&state_, kTranscriptStr); }
 
@@ -36,7 +48,7 @@ class Blake2bBase {
         math::BigInt<8>::FromBytesLE(result));
   }
 
-  bool DoWriteToTranscript(const AffinePoint& point) {
+  bool DoWriteToTranscript(const Point& point) {
     BLAKE2B512_Update(&state_, kBlake2bPrefixPoint, 1);
     if (point.infinity()) {
       BLAKE2B512_Update(&state_, BaseField::BigIntTy::Zero().ToBytesLE().data(),
@@ -68,68 +80,57 @@ class Blake2bBase {
 // TODO(TomTaehoonKim): We will replace Blake2b with an algebraic hash function
 // in a later version. See
 // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/transcript/blake2b.rs#L25
-template <typename AffinePoint>
-class Blake2bReader : public crypto::TranscriptReader<AffinePoint>,
-                      protected internal::Blake2bBase<AffinePoint> {
+template <typename Curve>
+class Blake2bReader final
+    : public crypto::TranscriptReader<Blake2bReader<Curve>>,
+      public internal::Blake2bBase<Curve> {
  public:
-  using ScalarField = typename AffinePoint::ScalarField;
-
   // Initialize a transcript given an input buffer.
   explicit Blake2bReader(base::Buffer read_buf)
-      : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
-
-  // crypto::TranscriptReader methods
-  ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const AffinePoint& point) override {
-    return this->DoWriteToTranscript(point);
-  }
-
-  bool WriteToTranscript(const ScalarField& scalar) override {
-    return this->DoWriteToTranscript(scalar);
-  }
+      : crypto::TranscriptReader<Blake2bReader<Curve>>(std::move(read_buf)) {}
 
  private:
-  bool DoReadFromProof(AffinePoint* point) const override {
-    return ProofSerializer<AffinePoint>::ReadFromProof(this->buffer_, point);
-  }
+  friend class crypto::TranscriptReader<Blake2bReader<Curve>>;
 
-  bool DoReadFromProof(ScalarField* scalar) const override {
-    return ProofSerializer<ScalarField>::ReadFromProof(this->buffer_, scalar);
+  template <typename T>
+  bool DoReadFromProof(T* value) const {
+    return ProofSerializer<T>::ReadFromProof(this->buffer_, value);
   }
 };
 
-template <typename AffinePoint>
-class Blake2bWriter : public crypto::TranscriptWriter<AffinePoint>,
-                      protected internal::Blake2bBase<AffinePoint> {
+template <typename Curve>
+class Blake2bWriter final
+    : public crypto::TranscriptWriter<Blake2bWriter<Curve>>,
+      public internal::Blake2bBase<Curve> {
  public:
-  using ScalarField = typename AffinePoint::ScalarField;
-
   // Initialize a transcript given an output buffer.
   explicit Blake2bWriter(base::Uint8VectorBuffer write_buf)
-      : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {}
-
-  // crypto::TranscriptWriter methods
-  ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const AffinePoint& point) override {
-    return this->DoWriteToTranscript(point);
-  }
-
-  bool WriteToTranscript(const ScalarField& scalar) override {
-    return this->DoWriteToTranscript(scalar);
-  }
+      : crypto::TranscriptWriter<Blake2bWriter<Curve>>(std::move(write_buf)) {}
 
  private:
-  bool DoWriteToProof(const AffinePoint& point) override {
-    return ProofSerializer<AffinePoint>::WriteToProof(point, this->buffer_);
-  }
+  friend class crypto::TranscriptWriter<Blake2bWriter<Curve>>;
 
-  bool DoWriteToProof(const ScalarField& scalar) override {
-    return ProofSerializer<ScalarField>::WriteToProof(scalar, this->buffer_);
+  template <typename T>
+  bool DoWriteToProof(const T& value) {
+    return ProofSerializer<T>::WriteToProof(value, this->buffer_);
   }
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace zk::halo2
+
+namespace crypto {
+
+template <typename Curve>
+struct TranscriptTraits<zk::halo2::Blake2bReader<Curve>> {
+  using Field = typename math::AffinePoint<Curve>::ScalarField;
+};
+
+template <typename Curve>
+struct TranscriptTraits<zk::halo2::Blake2bWriter<Curve>> {
+  using Field = typename math::AffinePoint<Curve>::ScalarField;
+};
+
+}  // namespace crypto
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_HALO2_BLAKE2B_TRANSCRIPT_H_

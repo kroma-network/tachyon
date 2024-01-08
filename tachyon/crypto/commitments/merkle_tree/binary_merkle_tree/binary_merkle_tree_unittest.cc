@@ -36,7 +36,7 @@ class BinaryMerkleTreeTest : public testing::Test {
   void CreateLeaves() { leaves_ = base::CreateRangedVector<int>(0, N); }
 
  protected:
-  SimpleBinaryMerkleTreeStorage<int> storage_;
+  SimpleBinaryMerkleTreeStorage<int, int> storage_;
   SimpleHasher hasher_;
   VCS vcs_;
   std::vector<int> leaves_;
@@ -96,10 +96,12 @@ TEST_F(BinaryMerkleTreeTest, CommitAndVerify) {
   ASSERT_TRUE(vcs_.Commit(leaves_, &commitment));
   EXPECT_EQ(commitment, 126);
 
-  BinaryMerkleProof<int> proof;
-  ASSERT_TRUE(vcs_.CreateOpeningProof(1, &proof));
+  BinaryMerkleProof<int, int> proof;
+  size_t index = 1;
+  ASSERT_TRUE(vcs_.CreateOpeningProof(index, &proof));
 
-  BinaryMerkleProof<int> expected_proof;
+  BinaryMerkleProof<int, int> expected_proof;
+  expected_proof.value = leaves_[index];
   expected_proof.paths = std::vector<BinaryMerklePath<int>>{
       {true, 0},
       {false, 8},
@@ -107,8 +109,7 @@ TEST_F(BinaryMerkleTreeTest, CommitAndVerify) {
   };
   EXPECT_EQ(proof, expected_proof);
 
-  int leaf_hash = hasher_.ComputeLeafHash(1);
-  ASSERT_TRUE(vcs_.VerifyOpeningProof(commitment, leaf_hash, proof));
+  ASSERT_TRUE(vcs_.VerifyOpeningProof(commitment, proof));
 }
 
 }  // namespace tachyon::crypto

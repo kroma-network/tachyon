@@ -10,6 +10,7 @@
 #include <memory>
 #include <utility>
 
+#include "tachyon/base/logging.h"
 #include "tachyon/zk/base/entities/entity.h"
 
 namespace tachyon::zk {
@@ -17,15 +18,21 @@ namespace tachyon::zk {
 template <typename PCS>
 class VerifierBase : public Entity<PCS> {
  public:
-  using Commitment = typename PCS::Commitment;
+  using TranscriptReader = typename PCS::TranscriptReader;
+  using TranscriptWriter = typename PCS::TranscriptWriter;
 
-  VerifierBase(PCS&& pcs,
-               std::unique_ptr<crypto::TranscriptReader<Commitment>> transcript)
-      : Entity<PCS>(std::move(pcs), std::move(transcript)) {}
+  VerifierBase(PCS&& pcs, std::unique_ptr<TranscriptReader> reader)
+      : Entity<PCS>(std::move(pcs)), reader_(std::move(reader)) {}
 
-  crypto::TranscriptReader<Commitment>* GetReader() {
-    return this->transcript()->ToReader();
+  TranscriptReader* GetReader() const override { return reader_.get(); }
+
+  TranscriptWriter* GetWriter() const override {
+    NOTREACHED();
+    return nullptr;
   }
+
+ protected:
+  std::unique_ptr<TranscriptReader> reader_;
 };
 
 }  // namespace tachyon::zk

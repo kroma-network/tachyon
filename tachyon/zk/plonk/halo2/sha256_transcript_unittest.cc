@@ -28,12 +28,12 @@ class Sha256TranscriptTest : public testing::Test {
 
 TEST_F(Sha256TranscriptTest, WritePoint) {
   base::Uint8VectorBuffer write_buf;
-  Sha256Writer<G1AffinePoint> writer(std::move(write_buf));
+  Sha256Writer<G1Curve> writer(std::move(write_buf));
   G1AffinePoint expected = G1AffinePoint::Random();
   ASSERT_TRUE(writer.WriteToProof</*NeedToWriteToTranscript=*/true>(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  Sha256Reader<G1AffinePoint> reader(std::move(read_buf));
+  Sha256Reader<G1Curve> reader(std::move(read_buf));
   G1AffinePoint actual;
   ASSERT_TRUE(reader.ReadFromProof</*NeedToWriteToTranscript=*/true>(&actual));
 
@@ -42,12 +42,12 @@ TEST_F(Sha256TranscriptTest, WritePoint) {
 
 TEST_F(Sha256TranscriptTest, WriteScalar) {
   base::Uint8VectorBuffer write_buf;
-  Sha256Writer<G1AffinePoint> writer(std::move(write_buf));
+  Sha256Writer<G1Curve> writer(std::move(write_buf));
   Fr expected = Fr::Random();
   ASSERT_TRUE(writer.WriteToProof</*NeedToWriteToTranscript=*/true>(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
-  Sha256Reader<G1AffinePoint> reader(std::move(read_buf));
+  Sha256Reader<G1Curve> reader(std::move(read_buf));
   Fr actual;
   ASSERT_TRUE(reader.ReadFromProof</*NeedToWriteToTranscript=*/true>(&actual));
 
@@ -56,7 +56,7 @@ TEST_F(Sha256TranscriptTest, WriteScalar) {
 
 TEST_F(Sha256TranscriptTest, SqueezeChallenge) {
   base::Uint8VectorBuffer write_buf;
-  Sha256Writer<G1AffinePoint> writer(std::move(write_buf));
+  Sha256Writer<G1Curve> writer(std::move(write_buf));
   G1AffinePoint generator = G1AffinePoint::Generator();
   ASSERT_TRUE(writer.WriteToProof</*NeedToWriteToTranscript=*/true>(generator));
 
