@@ -71,7 +71,7 @@ class NamespacedLayouter : public Layouter<F> {
 template <typename F>
 std::unique_ptr<NamespacedLayouter<F>> Layouter<F>::Namespace(
     std::string_view name) {
-  GetRoot()->PushNamespace(std::move(name));
+  GetRoot()->PushNamespace(name);
   return std::make_unique<NamespacedLayouter<F>>(GetRoot());
 }
 

@@ -172,7 +172,7 @@ class SingleChipLayouter : public Layouter<F> {
     }
 
     // Assign region cells.
-    assignment_->EnterRegion(std::move(name));
+    assignment_->EnterRegion(name);
     Region region(this, region_index);
     {
       // TODO(chokobole): Add event trace using
