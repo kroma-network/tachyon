@@ -24,7 +24,7 @@
 #include "tachyon/base/random.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics.h"
-#include "tachyon/math/base/bit_traits.h"
+#include "tachyon/math/base/bit_traits_forward.h"
 
 namespace tachyon {
 namespace math {

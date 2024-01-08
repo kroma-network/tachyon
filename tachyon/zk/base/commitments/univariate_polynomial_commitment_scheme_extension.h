@@ -5,7 +5,7 @@
 
 #include "tachyon/crypto/commitments/univariate_polynomial_commitment_scheme.h"
 #include "tachyon/math/base/rational_field.h"
-#include "tachyon/zk/base/commitments/univariate_polynomial_commitment_scheme_extension_traits.h"
+#include "tachyon/zk/base/commitments/univariate_polynomial_commitment_scheme_extension_traits_forward.h"
 
 namespace tachyon::zk {
 

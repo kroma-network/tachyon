@@ -7,7 +7,7 @@ tachyon_cc_library(
     hdrs = ["bit_traits.h"],
     deps = [
         ":gmp_util",
-        "//tachyon/math/base:bit_traits",
+        "//tachyon/math/base:bit_traits_forward",
     ],
 )
 

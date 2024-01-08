@@ -23,7 +23,7 @@ tachyon_cc_library(
     name = "msm_input_provider",
     hdrs = ["msm_input_provider.h"],
     deps = [
-        "//tachyon/cc/math/elliptic_curves:point_traits",
+        "//tachyon/cc/math/elliptic_curves:point_traits_forward",
         "//tachyon/math/geometry:point2",
         "@com_google_absl//absl/numeric:bits",
         "@com_google_absl//absl/types:span",

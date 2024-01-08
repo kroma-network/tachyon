@@ -10,7 +10,7 @@
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
 // clang-format on
 #include "tachyon/base/time/time.h"
-#include "tachyon/cc/math/elliptic_curves/point_traits.h"
+#include "tachyon/cc/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/base/semigroups.h"
 
 namespace tachyon {

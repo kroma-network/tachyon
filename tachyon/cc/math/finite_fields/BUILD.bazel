@@ -6,14 +6,14 @@ tachyon_cc_library(
     name = "prime_field_conversions",
     hdrs = ["prime_field_conversions.h"],
     deps = [
-        ":prime_field_traits",
+        ":prime_field_traits_forward",
         "//tachyon/math/base:big_int",
     ],
 )
 
 tachyon_cc_library(
-    name = "prime_field_traits",
-    hdrs = ["prime_field_traits.h"],
+    name = "prime_field_traits_forward",
+    hdrs = ["prime_field_traits_forward.h"],
 )
 
 tachyon_cc_unittest(
