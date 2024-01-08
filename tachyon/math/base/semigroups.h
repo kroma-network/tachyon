@@ -89,9 +89,8 @@ struct AdditiveSemigroupTraits {
 template <typename G>
 class MultiplicativeSemigroup {
  public:
-  // The minimum size of vector at which parallelization of
-  // |GetSuccessivePowers()| is beneficial. This value was chosen empirically.
-  constexpr static uint32_t kMinLogSizeForParallelization = 7;
+  using ReturnTy =
+      typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy;
 
   // Multiplication: a * b
   template <
@@ -148,9 +147,7 @@ class MultiplicativeSemigroup {
 
   // Computes the power of a base element using a pre-computed table of powers
   // of two, instead of performing repeated multiplications.
-  template <size_t N,
-            typename ReturnTy =
-                typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
+  template <size_t N>
   static ReturnTy PowWithTable(absl::Span<const G> powers_of_2,
                                const BigInt<N>& exponent) {
     auto it = BitIteratorLE<BigInt<N>>::begin(&exponent);
@@ -168,37 +165,27 @@ class MultiplicativeSemigroup {
   }
 
   // generator: g
-  // return: [1, g, g², ..., g^{size - 1}]
-  // If OpenMP is enabled, it operates Divide-and-Conquer in parallel.
-  // Note that below example in the comment is when size = 16.
-  constexpr static std::vector<G> GetSuccessivePowers(size_t size,
-                                                      const G& generator) {
-#if defined(TACHYON_HAS_OPENMP)
-    uint32_t log_size = size_t{base::bits::SafeLog2Ceiling(size)};
-    if (log_size <= kMinLogSizeForParallelization)
-#endif
-      return GetSuccessivePowersSerial(size, generator);
-#if defined(TACHYON_HAS_OPENMP)
-    G power = generator;
-    // [g, g², g⁴, g⁸, ..., g^(2^(|log_size|))]
-    std::vector<G> log_powers = base::CreateVector(log_size, [&power]() {
-      G old_value = power;
-      power.SquareInPlace();
-      return old_value;
-    });
-
-    // allocate the return vector and start the recursion
-    std::vector<G> powers =
-        base::CreateVector(size_t{1} << log_size, G::Zero());
-    GetSuccessivePowersRecursive(powers, absl::MakeConstSpan(log_powers));
-    return powers;
-#endif
+  // return: [c, c * g, c * g², ..., c * g^{|size| - 1}]
+  constexpr static std::vector<ReturnTy> GetSuccessivePowers(
+      size_t size, const G& generator, const G& c = G::One()) {
+    std::vector<ReturnTy> ret;
+    ret.resize(size);
+    size_t num_elems_per_thread =
+        base::GetNumElementsPerThread(ret, kDefaultParallelThreshold);
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
+      ReturnTy pow = c * generator.Pow(i);
+      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
+        ret[j] = pow;
+        pow *= generator;
+      }
+    }
+    return ret;
   }
 
  private:
-  template <size_t N,
-            typename ReturnTy =
-                typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy>
+  constexpr static size_t kDefaultParallelThreshold = 1024;
+
+  template <size_t N>
   [[nodiscard]] constexpr ReturnTy DoPow(const BigInt<N>& exponent) const {
     const G* g = static_cast<const G*>(this);
     ReturnTy ret = ReturnTy::One();
@@ -221,79 +208,14 @@ class MultiplicativeSemigroup {
     }
     return ret;
   }
-
-#if defined(TACHYON_HAS_OPENMP)
-  constexpr static void GetSuccessivePowersRecursive(
-      std::vector<G>& out, absl::Span<const G> log_powers) {
-    CHECK_EQ(out.size(), size_t{1} << log_powers.size());
-
-    // base case: just compute the powers sequentially,
-    // g = log_powers[0], |out| = [1, g, g², ..., g^(|out.size() - 1|)]
-    if (log_powers.size() <= size_t{kMinLogSizeForParallelization}) {
-      out[0] = G::One();
-      for (size_t i = 1; i < out.size(); ++i) {
-        out[i] = out[i - 1] * log_powers[0];
-      }
-      return;
-    }
-
-    // recursive case:
-    // 1. split |log_powers| in half
-    // |log_powers| = [g, g², g⁴, g⁸]
-    size_t half_size = (1 + log_powers.size()) / 2;
-    // |log_powers_lo| = [g, g²]
-    absl::Span<const G> log_powers_lo = log_powers.subspan(0, half_size);
-    // |log_powers_hi| = [g⁴, g⁸]
-    absl::Span<const G> log_powers_hi = log_powers.subspan(half_size);
-    std::vector<G> src_lo =
-        base::CreateVector(1 << log_powers_lo.size(), G::Zero());
-    std::vector<G> src_hi =
-        base::CreateVector(1 << log_powers_hi.size(), G::Zero());
-
-    // clang-format off
-    // 2. compute each half individually
-    // |src_lo| = [1, g, g², g³]
-    // |src_hi| = [1, g⁴, g⁸, g¹²]
-    // clang-format on
-#pragma omp parallel for
-    for (size_t i = 0; i < 2; ++i) {
-      GetSuccessivePowersRecursive(i == 0 ? src_lo : src_hi,
-                                   i == 0 ? log_powers_lo : log_powers_hi);
-    }
-
-    // clang-format off
-    // 3. recombine halves
-    // At this point, out is a blank slice.
-    // |out| = [1, g, g², g³, g⁴, g⁵, g⁶, g⁷, g⁸, ... g¹², g¹³, g¹⁴, g¹⁵]
-    // clang-format on
-    base::ParallelizeByChunkSize(
-        out, src_lo.size(), [&src_lo, &src_hi](absl::Span<G> chunk, size_t i) {
-          const G& hi = src_hi[i];
-          for (size_t j = 0; j < chunk.size(); ++j) {
-            chunk[j] = hi * src_lo[j];
-          }
-        });
-  }
-#endif
-
-  constexpr static std::vector<G> GetSuccessivePowersSerial(
-      size_t size, const G& generator) {
-    return ComputePowersAndMulByConstSerial(size, generator, G::One());
-  }
-
-  constexpr static std::vector<G> ComputePowersAndMulByConstSerial(
-      size_t size, const G& generator, const G& c) {
-    G value = c;
-    return base::CreateVector(size, [&value, generator]() {
-      return std::exchange(value, value * generator);
-    });
-  }
 };
 
 // AdditiveSemigroup is a semigroup with an additive operator.
 template <typename G>
 class AdditiveSemigroup {
  public:
+  using ReturnTy = typename internal::AdditiveSemigroupTraits<G>::ReturnTy;
+
   // Addition: a + b
   template <
       typename G2,
@@ -366,9 +288,7 @@ class AdditiveSemigroup {
   //     bases: [G₀, G₁, ..., Gₙ₋₁]
   //     outputs: [sG₀, sG₁, ..., sGₙ₋₁]
   template <typename ScalarOrScalars, typename BaseOrBases,
-            typename OutputContainer,
-            typename OutputTy =
-                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
+            typename OutputContainer>
   [[nodiscard]] constexpr static bool MultiScalarMul(
       const ScalarOrScalars& scalar_or_scalars,
       const BaseOrBases& base_or_bases, OutputContainer* outputs) {
@@ -382,6 +302,27 @@ class AdditiveSemigroup {
     } else {
       static_assert(base::AlwaysFalse<G>);
     }
+  }
+
+  // generator: G
+  // return: [0G, 1G, 2G, ..., (|size| - 1)G]
+  // NOTE(chokobole): Unlike |GetSuccessivePowers()|, this doesn't have an
+  // additional |c| parameter because I think there's no usecase that depends on
+  // it.
+  constexpr static std::vector<ReturnTy> GetSuccessiveScalarMuls(
+      size_t size, const G& generator) {
+    std::vector<ReturnTy> ret;
+    ret.resize(size);
+    size_t num_elems_per_thread =
+        base::GetNumElementsPerThread(ret, kDefaultParallelThreshold);
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
+      ReturnTy scalar_mul = generator.ScalarMul(i);
+      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
+        ret[j] = scalar_mul;
+        scalar_mul += generator;
+      }
+    }
+    return ret;
   }
 
   // Linear combination
@@ -456,9 +397,9 @@ class AdditiveSemigroup {
   }
 
  private:
-  template <size_t N,
-            typename ReturnTy =
-                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
+  constexpr static size_t kDefaultParallelThreshold = 1024;
+
+  template <size_t N>
   [[nodiscard]] constexpr ReturnTy DoScalarMul(const BigInt<N>& scalar) const {
     const G* g = static_cast<const G*>(this);
     ReturnTy ret = ReturnTy::Zero();
@@ -495,7 +436,8 @@ class AdditiveSemigroup {
       LOG(ERROR) << "scalars and bases are empty";
       return false;
     }
-    size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
+    size_t num_elems_per_thread =
+        base::GetNumElementsPerThread(scalars, kDefaultParallelThreshold);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
         (*outputs)[j] = bases[j].ScalarMul(scalars[j]);
@@ -515,7 +457,8 @@ class AdditiveSemigroup {
       LOG(ERROR) << "scalars are empty";
       return false;
     }
-    size_t num_elems_per_thread = base::GetNumElementsPerThread(scalars);
+    size_t num_elems_per_thread =
+        base::GetNumElementsPerThread(scalars, kDefaultParallelThreshold);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
         (*outputs)[j] = base.ScalarMul(scalars[j]);
@@ -535,7 +478,8 @@ class AdditiveSemigroup {
       LOG(ERROR) << "bases are empty";
       return false;
     }
-    size_t num_elems_per_thread = base::GetNumElementsPerThread(bases);
+    size_t num_elems_per_thread =
+        base::GetNumElementsPerThread(bases, kDefaultParallelThreshold);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
         (*outputs)[j] = bases[j].ScalarMul(scalar);
