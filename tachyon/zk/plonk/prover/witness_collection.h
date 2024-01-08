@@ -20,13 +20,13 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
-class WitnessCollection : public Assignment<typename PCSTy::Field> {
+template <typename PCS>
+class WitnessCollection : public Assignment<typename PCS::Field> {
  public:
-  using F = typename PCSTy::Field;
-  using Domain = typename PCSTy::Domain;
-  using Evals = typename PCSTy::Evals;
-  using RationalEvals = typename PCSTy::RationalEvals;
+  using F = typename PCS::Field;
+  using Domain = typename PCS::Domain;
+  using Evals = typename PCS::Evals;
+  using RationalEvals = typename PCS::RationalEvals;
   using AssignCallback = typename Assignment<F>::AssignCallback;
 
   WitnessCollection() = default;

@@ -18,8 +18,8 @@ namespace tachyon::base {
 
 // NOTE(chokobole): This function might return 0. You should handle this case
 // carefully. See other examples where it is used.
-template <typename ContainerType>
-size_t GetNumElementsPerThread(const ContainerType& container,
+template <typename Container>
+size_t GetNumElementsPerThread(const Container& container,
                                std::optional<size_t> threshold = std::nullopt) {
 #if defined(TACHYON_HAS_OPENMP)
   size_t thread_nums = static_cast<size_t>(omp_get_max_threads());

@@ -7,10 +7,10 @@ namespace tachyon::math {
 
 template <typename F>
 void BM_BatchInverse(benchmark::State& state) {
-  using BigIntTy = typename F::BigIntTy;
+  using BigInt = typename F::BigIntTy;
 
   std::vector<F> fields = base::CreateVector(
-      state.range(0), [](size_t i) { return F::FromBigInt(BigIntTy(i)); });
+      state.range(0), [](size_t i) { return F::FromBigInt(BigInt(i)); });
   for (auto _ : state) {
     F::BatchInverseInPlace(fields);
   }

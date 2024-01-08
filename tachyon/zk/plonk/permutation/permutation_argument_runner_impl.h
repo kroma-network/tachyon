@@ -24,10 +24,10 @@
 namespace tachyon::zk {
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
+template <typename PCS, typename F>
 PermutationCommitted<Poly>
 PermutationArgumentRunner<Poly, Evals>::CommitArgument(
-    ProverBase<PCSTy>* prover, const PermutationArgument& argument,
+    ProverBase<PCS>* prover, const PermutationArgument& argument,
     RefTable<Evals>& table, size_t constraint_system_degree,
     const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
     const F& beta, const F& gamma) {
@@ -77,10 +77,10 @@ PermutationArgumentRunner<Poly, Evals>::CommitArgument(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
+template <typename PCS, typename F>
 PermutationEvaluated<Poly>
 PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
-    ProverBase<PCSTy>* prover, PermutationCommitted<Poly>&& committed,
+    ProverBase<PCS>* prover, PermutationCommitted<Poly>&& committed,
     const F& x) {
   int32_t blinding_factors =
       static_cast<int32_t>(prover->blinder().blinding_factors());
@@ -110,15 +110,15 @@ PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
-std::vector<ProverQuery<PCSTy>>
+template <typename PCS, typename F>
+std::vector<ProverQuery<PCS>>
 PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
-    const ProverBase<PCSTy>* prover,
-    const PermutationEvaluated<Poly>& evaluated, const F& x) {
+    const ProverBase<PCS>* prover, const PermutationEvaluated<Poly>& evaluated,
+    const F& x) {
   const std::vector<BlindedPolynomial<Poly>>& product_polys =
       evaluated.product_polys();
 
-  std::vector<ProverQuery<PCSTy>> ret;
+  std::vector<ProverQuery<PCS>> ret;
   ret.reserve(product_polys.size() * 3 - 1);
 
   F x_next = Rotation::Next().RotateOmega(prover->domain(), x);
@@ -137,10 +137,10 @@ PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
+template <typename PCS, typename F>
 std::vector<BlindedPolynomial<Poly>>
 PermutationArgumentRunner<Poly, Evals>::BlindProvingKey(
-    ProverBase<PCSTy>* prover,
+    ProverBase<PCS>* prover,
     const PermutationProvingKey<Poly, Evals>& proving_key) {
   std::vector<BlindedPolynomial<Poly>> ret;
   ret.reserve(proving_key.polys().size());
@@ -152,11 +152,11 @@ PermutationArgumentRunner<Poly, Evals>::BlindProvingKey(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
-std::vector<ProverQuery<PCSTy>>
+template <typename PCS, typename F>
+std::vector<ProverQuery<PCS>>
 PermutationArgumentRunner<Poly, Evals>::OpenBlindedPolynomials(
     const std::vector<BlindedPolynomial<Poly>>& blinded_polys, const F& x) {
-  std::vector<ProverQuery<PCSTy>> ret;
+  std::vector<ProverQuery<PCS>> ret;
   ret.reserve(blinded_polys.size());
   for (const BlindedPolynomial<Poly>& blind_poly : blinded_polys) {
     ret.emplace_back(x, blind_poly.ToRef());
@@ -165,9 +165,9 @@ PermutationArgumentRunner<Poly, Evals>::OpenBlindedPolynomials(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCSTy, typename F>
+template <typename PCS, typename F>
 void PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
-    ProverBase<PCSTy>* prover,
+    ProverBase<PCS>* prover,
     const PermutationProvingKey<Poly, Evals>& proving_key, const F& x) {
   for (const Poly& poly : proving_key.polys()) {
     CHECK(prover->Evaluate(poly, x));

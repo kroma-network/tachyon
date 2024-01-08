@@ -30,9 +30,6 @@ class ProjectivePoint<
   using Curve = _Curve;
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
-  using AffinePointTy = AffinePoint<Curve>;
-  using JacobianPointTy = JacobianPoint<Curve>;
-  using PointXYZZTy = PointXYZZ<Curve>;
 
   constexpr ProjectivePoint()
       : ProjectivePoint(BaseField::One(), BaseField::One(), BaseField::Zero()) {

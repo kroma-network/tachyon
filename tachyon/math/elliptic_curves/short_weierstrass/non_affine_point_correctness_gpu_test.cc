@@ -51,11 +51,11 @@ DEFINE_LAUNCH_COMPARISON_OP(Ne)
 
 using namespace device;
 
-template <typename PointType>
+template <typename Point>
 class PointCorrectnessGpuTest : public testing::Test {
  public:
-  using Actual = typename PointType::Actual;
-  using Expected = typename PointType::Expected;
+  using Actual = typename Point::Actual;
+  using Expected = typename Point::Expected;
 
   // Runs tests with |N| data.
   constexpr static size_t N = kThreadNum * 2;
@@ -112,28 +112,28 @@ class PointCorrectnessGpuTest : public testing::Test {
   static std::vector<Expected> y_cpus_;
 };
 
-template <typename PointType>
-gpu::GpuMemory<typename PointCorrectnessGpuTest<PointType>::Actual>
-    PointCorrectnessGpuTest<PointType>::xs_;
+template <typename Point>
+gpu::GpuMemory<typename PointCorrectnessGpuTest<Point>::Actual>
+    PointCorrectnessGpuTest<Point>::xs_;
 
-template <typename PointType>
-gpu::GpuMemory<typename PointCorrectnessGpuTest<PointType>::Actual>
-    PointCorrectnessGpuTest<PointType>::ys_;
+template <typename Point>
+gpu::GpuMemory<typename PointCorrectnessGpuTest<Point>::Actual>
+    PointCorrectnessGpuTest<Point>::ys_;
 
-template <typename PointType>
-gpu::GpuMemory<typename PointCorrectnessGpuTest<PointType>::Actual>
-    PointCorrectnessGpuTest<PointType>::results_;
+template <typename Point>
+gpu::GpuMemory<typename PointCorrectnessGpuTest<Point>::Actual>
+    PointCorrectnessGpuTest<Point>::results_;
 
-template <typename PointType>
-gpu::GpuMemory<bool> PointCorrectnessGpuTest<PointType>::bool_results_;
+template <typename Point>
+gpu::GpuMemory<bool> PointCorrectnessGpuTest<Point>::bool_results_;
 
-template <typename PointType>
-std::vector<typename PointCorrectnessGpuTest<PointType>::Expected>
-    PointCorrectnessGpuTest<PointType>::x_cpus_;
+template <typename Point>
+std::vector<typename PointCorrectnessGpuTest<Point>::Expected>
+    PointCorrectnessGpuTest<Point>::x_cpus_;
 
-template <typename PointType>
-std::vector<typename PointCorrectnessGpuTest<PointType>::Expected>
-    PointCorrectnessGpuTest<PointType>::y_cpus_;
+template <typename Point>
+std::vector<typename PointCorrectnessGpuTest<Point>::Expected>
+    PointCorrectnessGpuTest<Point>::y_cpus_;
 
 }  // namespace
 

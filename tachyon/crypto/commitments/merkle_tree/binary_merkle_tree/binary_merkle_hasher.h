@@ -6,15 +6,14 @@
 
 namespace tachyon::crypto {
 
-template <typename LeafTy, typename HashTy>
+template <typename Leaf, typename Hash>
 class BinaryMerkleHasher {
  public:
   virtual ~BinaryMerkleHasher() = default;
 
-  virtual HashTy ComputeLeafHash(const LeafTy& leaf) const = 0;
+  virtual Hash ComputeLeafHash(const Leaf& leaf) const = 0;
 
-  virtual HashTy ComputeParentHash(const HashTy& left,
-                                   const HashTy& right) const = 0;
+  virtual Hash ComputeParentHash(const Hash& left, const Hash& right) const = 0;
 };
 
 }  // namespace tachyon::crypto

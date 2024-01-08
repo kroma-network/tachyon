@@ -8,51 +8,50 @@
 
 namespace tachyon::node::math {
 
-template <typename PrimeFieldTy, size_t N>
-PrimeFieldTy PrimeFieldFromNumber(const tachyon::math::BigInt<N>& value) {
-  return PrimeFieldTy(value);
+template <typename PrimeField, size_t N>
+PrimeField PrimeFieldFromNumber(const tachyon::math::BigInt<N>& value) {
+  return PrimeField(value);
 }
 
-template <typename PrimeFieldTy>
-PrimeFieldTy PrimeFieldFromDecString(const std::string& str) {
-  return PrimeFieldTy::FromDecString(str);
+template <typename PrimeField>
+PrimeField PrimeFieldFromDecString(const std::string& str) {
+  return PrimeField::FromDecString(str);
 }
 
-template <typename PrimeFieldTy>
-PrimeFieldTy PrimeFieldFromHexString(const std::string& str) {
-  return PrimeFieldTy::FromHexString(str);
+template <typename PrimeField>
+PrimeField PrimeFieldFromHexString(const std::string& str) {
+  return PrimeField::FromHexString(str);
 }
 
-template <typename PrimeFieldTy, size_t N = PrimeFieldTy::N>
+template <typename PrimeField, size_t N = PrimeField::N>
 void AddPrimeField(NodeModule& m, std::string_view name) {
-  m.NewClass<PrimeFieldTy>(name)
-      .AddStaticMethod("zero", &PrimeFieldTy::Zero)
-      .AddStaticMethod("one", &PrimeFieldTy::One)
-      .AddStaticMethod("random", &PrimeFieldTy::Random)
-      .AddStaticMethod("fromNumber", &PrimeFieldFromNumber<PrimeFieldTy, N>)
-      .AddStaticMethod("fromDecString", &PrimeFieldFromDecString<PrimeFieldTy>)
-      .AddStaticMethod("fromHexString", &PrimeFieldFromHexString<PrimeFieldTy>)
-      .AddMethod("isZero", &PrimeFieldTy::IsZero)
-      .AddMethod("isOne", &PrimeFieldTy::IsOne)
-      .AddMethod("toString", &PrimeFieldTy::ToString)
-      .AddMethod("toHexString", &PrimeFieldTy::ToHexString, false)
-      .AddMethod("eq", &PrimeFieldTy::operator==)
-      .AddMethod("ne", &PrimeFieldTy::operator!=)
+  m.NewClass<PrimeField>(name)
+      .AddStaticMethod("zero", &PrimeField::Zero)
+      .AddStaticMethod("one", &PrimeField::One)
+      .AddStaticMethod("random", &PrimeField::Random)
+      .AddStaticMethod("fromNumber", &PrimeFieldFromNumber<PrimeField, N>)
+      .AddStaticMethod("fromDecString", &PrimeFieldFromDecString<PrimeField>)
+      .AddStaticMethod("fromHexString", &PrimeFieldFromHexString<PrimeField>)
+      .AddMethod("isZero", &PrimeField::IsZero)
+      .AddMethod("isOne", &PrimeField::IsOne)
+      .AddMethod("toString", &PrimeField::ToString)
+      .AddMethod("toHexString", &PrimeField::ToHexString, false)
+      .AddMethod("eq", &PrimeField::operator==)
+      .AddMethod("ne", &PrimeField::operator!=)
       // NOLINTNEXTLINE(whitespace/operators)
-      .AddMethod("lt", &PrimeFieldTy::operator<)
-      .AddMethod("le", &PrimeFieldTy::operator<=)
+      .AddMethod("lt", &PrimeField::operator<)
+      .AddMethod("le", &PrimeField::operator<=)
       // NOLINTNEXTLINE(whitespace/operators)
-      .AddMethod("gt", &PrimeFieldTy::operator>)
-      .AddMethod("ge", &PrimeFieldTy::operator>=)
-      .AddMethod("add", &PrimeFieldTy::template operator+ <const PrimeFieldTy&>)
-      .AddMethod("sub", &PrimeFieldTy::template operator- <const PrimeFieldTy&>)
-      .AddMethod("mul", &PrimeFieldTy::template operator* <const PrimeFieldTy&>)
-      .AddMethod("div", &PrimeFieldTy::template operator/ <const PrimeFieldTy&>)
-      .AddMethod("negative",
-                 static_cast<PrimeFieldTy (PrimeFieldTy::*)() const>(
-                     &PrimeFieldTy::operator-))
-      .AddMethod("double", &PrimeFieldTy::Double)
-      .AddMethod("square", &PrimeFieldTy::Square);
+      .AddMethod("gt", &PrimeField::operator>)
+      .AddMethod("ge", &PrimeField::operator>=)
+      .AddMethod("add", &PrimeField::template operator+ <const PrimeField&>)
+      .AddMethod("sub", &PrimeField::template operator- <const PrimeField&>)
+      .AddMethod("mul", &PrimeField::template operator* <const PrimeField&>)
+      .AddMethod("div", &PrimeField::template operator/ <const PrimeField&>)
+      .AddMethod("negative", static_cast<PrimeField (PrimeField::*)() const>(
+                                 &PrimeField::operator-))
+      .AddMethod("double", &PrimeField::Double)
+      .AddMethod("square", &PrimeField::Square);
 }
 
 }  // namespace tachyon::node::math

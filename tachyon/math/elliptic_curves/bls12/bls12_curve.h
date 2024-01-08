@@ -19,19 +19,19 @@ template <typename Config>
 class BLS12Curve : public PairingFriendlyCurve<Config> {
  public:
   using Base = PairingFriendlyCurve<Config>;
-  using Fp12Ty = typename Config::Fp12Ty;
+  using Fp12 = typename Config::Fp12;
   using G2Prepared = bls12::G2Prepared<Config>;
 
   // TODO(chokobole): Leave a comment to help understand readers.
   template <typename G1AffinePointContainer, typename G2PreparedContainer>
-  static Fp12Ty MultiMillerLoop(const G1AffinePointContainer& a,
-                                const G2PreparedContainer& b) {
+  static Fp12 MultiMillerLoop(const G1AffinePointContainer& a,
+                              const G2PreparedContainer& b) {
     using Pair = typename Base::Pair;
 
     std::vector<Pair> pairs = Base::CreatePairs(a, b);
 
     auto callback = [](absl::Span<const Pair> pairs) {
-      Fp12Ty f = Fp12Ty::One();
+      Fp12 f = Fp12::One();
       auto it = BitIteratorBE<BigInt<Config::kXLimbNums>>::begin(
           &Config::kX,
           /*skip_leading_zeros=*/true);
@@ -55,10 +55,10 @@ class BLS12Curve : public PairingFriendlyCurve<Config> {
       return f;
     };
 
-    std::vector<Fp12Ty> results =
+    std::vector<Fp12> results =
         base::ParallelizeMapByChunkSize(pairs, 4, callback);
-    Fp12Ty f = std::accumulate(results.begin(), results.end(), Fp12Ty::One(),
-                               std::multiplies<>());
+    Fp12 f = std::accumulate(results.begin(), results.end(), Fp12::One(),
+                             std::multiplies<>());
 
     if constexpr (Config::kXIsNegative) {
       f.CyclotomicInverseInPlace();
@@ -66,21 +66,21 @@ class BLS12Curve : public PairingFriendlyCurve<Config> {
     return f;
   }
 
-  static Fp12Ty FinalExponentiation(const Fp12Ty& f) {
+  static Fp12 FinalExponentiation(const Fp12& f) {
     // Computing the final exponentiation following
     // https://eprint.iacr.org/2020/875
     // Adapted from the implementation in
     // https://github.com/ConsenSys/gurvy/pull/29
 
     // f1 = f.CyclotomicInverseInPlace() = f^(q⁶)
-    Fp12Ty f1 = f;
+    Fp12 f1 = f;
     f1.CyclotomicInverseInPlace();
 
     // f2 = f⁻¹
-    Fp12Ty f2 = f.Inverse();
+    Fp12 f2 = f.Inverse();
 
     // r = f^(q⁶ - 1)
-    Fp12Ty r = f1 * f2;
+    Fp12 r = f1 * f2;
 
     // f2 = f^(q⁶ - 1)
     f2 = r;
@@ -93,11 +93,11 @@ class BLS12Curve : public PairingFriendlyCurve<Config> {
 
     // Hard part of the final exponentiation:
     // y0 = r²
-    Fp12Ty y0 = r.CyclotomicSquare();
+    Fp12 y0 = r.CyclotomicSquare();
     // y1 = (r)ˣ
-    Fp12Ty y1 = Base::PowByX(r);
+    Fp12 y1 = Base::PowByX(r);
     // y2 = (r)⁻¹
-    Fp12Ty y2 = r.CyclotomicInverse();
+    Fp12 y2 = r.CyclotomicInverse();
     // y1 = y1 * y2 = r^(x - 1)
     y1 *= y2;
     // y2 = (y1)ˣ = r^(x² - x)

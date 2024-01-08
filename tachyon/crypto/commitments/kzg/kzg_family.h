@@ -15,13 +15,13 @@
 
 namespace tachyon::crypto {
 
-template <typename G1PointTy, size_t MaxDegree, typename Commitment>
+template <typename G1Point, size_t MaxDegree, typename Commitment>
 class KZGFamily {
  public:
-  using F = typename G1PointTy::ScalarField;
+  using F = typename G1Point::ScalarField;
 
   KZGFamily() = default;
-  explicit KZGFamily(KZG<G1PointTy, MaxDegree, Commitment>&& kzg)
+  explicit KZGFamily(KZG<G1Point, MaxDegree, Commitment>&& kzg)
       : kzg_(std::move(kzg)) {}
 
   size_t N() const { return kzg_.N(); }
@@ -34,14 +34,14 @@ class KZGFamily {
     return kzg_.UnsafeSetup(size, tau) && DoUnsafeSetupWithTau(size, tau);
   }
 
-  template <typename ContainerTy>
-  [[nodiscard]] bool DoCommit(const ContainerTy& poly,
+  template <typename Container>
+  [[nodiscard]] bool DoCommit(const Container& poly,
                               Commitment* commitment) const {
     return kzg_.Commit(poly, commitment);
   }
 
-  template <typename ContainerTy>
-  [[nodiscard]] bool DoCommitLagrange(const ContainerTy& poly,
+  template <typename Container>
+  [[nodiscard]] bool DoCommitLagrange(const Container& poly,
                                       Commitment* commitment) const {
     return kzg_.CommitLagrange(poly, commitment);
   }
@@ -62,7 +62,7 @@ class KZGFamily {
   [[nodiscard]] virtual bool DoUnsafeSetupWithTau(size_t size,
                                                   const F& tau) = 0;
 
-  KZG<G1PointTy, MaxDegree, Commitment> kzg_;
+  KZG<G1Point, MaxDegree, Commitment> kzg_;
 };
 
 }  // namespace tachyon::crypto

@@ -27,8 +27,8 @@ class PinnedEvaluationDomain {
       : k_(k), extended_k_(extended_k), omega_(omega) {}
   PinnedEvaluationDomain(uint32_t k, uint32_t extended_k, F&& omega)
       : k_(k), extended_k_(extended_k), omega_(std::move(omega)) {}
-  template <typename PCSTy>
-  explicit PinnedEvaluationDomain(const Entity<PCSTy>* entity)
+  template <typename PCS>
+  explicit PinnedEvaluationDomain(const Entity<PCS>* entity)
       : k_(entity->domain()->log_size_of_group()),
         extended_k_(entity->extended_domain()->log_size_of_group()),
         omega_(entity->domain()->group_gen()) {}

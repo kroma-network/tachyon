@@ -12,19 +12,19 @@ namespace {
 
 const size_t kSize = 40;
 
-template <typename PointTy>
+template <typename Point>
 class PippengerTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { PointTy::Curve::Init(); }
+  static void SetUpTestSuite() { Point::Curve::Init(); }
 
   PippengerTest()
-      : test_set_(MSMTestSet<PointTy>::Random(kSize, MSMMethod::kNaive)) {}
+      : test_set_(MSMTestSet<Point>::Random(kSize, MSMMethod::kNaive)) {}
   PippengerTest(const PippengerTest&) = delete;
   PippengerTest& operator=(const PippengerTest&) = delete;
   ~PippengerTest() override = default;
 
  protected:
-  MSMTestSet<PointTy> test_set_;
+  MSMTestSet<Point> test_set_;
 };
 
 }  // namespace
@@ -37,10 +37,10 @@ using PointTypes =
 TYPED_TEST_SUITE(PippengerTest, PointTypes);
 
 TYPED_TEST(PippengerTest, Run) {
-  using PointTy = TypeParam;
-  using Bucket = typename Pippenger<PointTy>::Bucket;
+  using Point = TypeParam;
+  using Bucket = typename Pippenger<Point>::Bucket;
 
-  const MSMTestSet<PointTy>& test_set = this->test_set_;
+  const MSMTestSet<Point>& test_set = this->test_set_;
 
   struct {
     bool use_window_naf;
@@ -55,7 +55,7 @@ TYPED_TEST(PippengerTest, Run) {
   };
 
   for (const auto& test : tests) {
-    Pippenger<PointTy> pippenger;
+    Pippenger<Point> pippenger;
     SCOPED_TRACE(absl::Substitute("use_window_naf: $0 parallel_windows: $1",
                                   test.use_window_naf, test.parallel_windows));
     pippenger.SetUseMSMWindowNAForTesting(test.use_window_naf);

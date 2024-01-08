@@ -9,19 +9,19 @@ namespace {
 
 const size_t kSize = 40;
 
-template <typename PointTy>
+template <typename Point>
 class VariableBaseMSMTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { PointTy::Curve::Init(); }
+  static void SetUpTestSuite() { Point::Curve::Init(); }
 
   VariableBaseMSMTest()
-      : test_set_(MSMTestSet<PointTy>::Random(kSize, MSMMethod::kNaive)) {}
+      : test_set_(MSMTestSet<Point>::Random(kSize, MSMMethod::kNaive)) {}
   VariableBaseMSMTest(const VariableBaseMSMTest&) = delete;
   VariableBaseMSMTest& operator=(const VariableBaseMSMTest&) = delete;
   ~VariableBaseMSMTest() override = default;
 
  protected:
-  MSMTestSet<PointTy> test_set_;
+  MSMTestSet<Point> test_set_;
 };
 
 }  // namespace
@@ -32,12 +32,12 @@ using PointTypes =
 TYPED_TEST_SUITE(VariableBaseMSMTest, PointTypes);
 
 TYPED_TEST(VariableBaseMSMTest, DoMSM) {
-  using PointTy = TypeParam;
-  using Bucket = typename VariableBaseMSM<PointTy>::Bucket;
+  using Point = TypeParam;
+  using Bucket = typename VariableBaseMSM<Point>::Bucket;
 
-  const MSMTestSet<PointTy>& test_set = this->test_set_;
+  const MSMTestSet<Point>& test_set = this->test_set_;
 
-  VariableBaseMSM<PointTy> msm;
+  VariableBaseMSM<Point> msm;
   Bucket ret;
   EXPECT_TRUE(msm.Run(test_set.bases, test_set.scalars, &ret));
   EXPECT_EQ(ret, test_set.answer);

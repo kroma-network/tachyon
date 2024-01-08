@@ -16,11 +16,11 @@ enum class PippengerParallelStrategy {
   kParallelWindowAndTerm,
 };
 
-template <typename PointTy>
+template <typename Point>
 class PippengerAdapter {
  public:
-  using ScalarField = typename PointTy::ScalarField;
-  using Bucket = typename Pippenger<PointTy>::Bucket;
+  using ScalarField = typename Point::ScalarField;
+  using Bucket = typename Pippenger<Point>::Bucket;
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
   bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
@@ -39,7 +39,7 @@ class PippengerAdapter {
                        PippengerParallelStrategy strategy, Bucket* ret) {
     if (strategy == PippengerParallelStrategy::kNone ||
         strategy == PippengerParallelStrategy::kParallelWindow) {
-      Pippenger<PointTy> pippenger;
+      Pippenger<Point> pippenger;
       pippenger.SetParallelWindows(strategy ==
                                    PippengerParallelStrategy::kParallelWindow);
       return pippenger.Run(std::move(bases_first), std::move(bases_last),
@@ -76,7 +76,7 @@ class PippengerAdapter {
       omp_set_num_threads(thread_nums);
 #endif
       OPENMP_PARALLEL_FOR(int i = 0; i < thread_nums; ++i) {
-        Pippenger<PointTy> pippenger;
+        Pippenger<Point> pippenger;
         pippenger.SetParallelWindows(
             strategy == PippengerParallelStrategy::kParallelWindowAndTerm);
         auto bases_start = bases_first + size * i;

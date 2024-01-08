@@ -172,16 +172,16 @@ class Copyable<
   }
 
   static bool ReadFrom(const Buffer& buffer, T* prime_field) {
-    using BigIntTy = typename T::BigIntTy;
-    BigIntTy v;
+    using BigInt = typename T::BigIntTy;
+    BigInt v;
     if (!buffer.Read(&v)) return false;
     *prime_field = T::FromBigInt(v);
     return true;
   }
 
   static size_t EstimateSize(const T& prime_field) {
-    using BigIntTy = typename T::BigIntTy;
-    return BigIntTy::kLimbNums * sizeof(uint64_t);
+    using BigInt = typename T::BigIntTy;
+    return BigInt::kLimbNums * sizeof(uint64_t);
   }
 };
 

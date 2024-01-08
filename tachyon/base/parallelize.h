@@ -21,17 +21,17 @@ using ParallelizeCallback3 = std::function<void(absl::Span<T>, size_t, size_t)>;
 
 // Splits the |container| by |chunk_size| and executes |callback| in parallel.
 // See parallelize_unittest.cc for more details.
-template <typename ContainerTy, typename Callable,
+template <typename Container, typename Callable,
           typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
           typename RunType = typename FunctorTraits::RunType,
           typename ArgList = internal::ExtractArgs<RunType>,
           typename SpanTy = internal::GetType<0, ArgList>,
           typename T = typename SpanTy::value_type,
           size_t ArgNum = internal::GetSize<ArgList>>
-void ParallelizeByChunkSize(ContainerTy& container, size_t chunk_size,
+void ParallelizeByChunkSize(Container& container, size_t chunk_size,
                             Callable callback) {
   if (chunk_size == 0) return;
-  internal::ChunkedAdapter<ContainerTy> chunked_adapter =
+  internal::ChunkedAdapter<Container> chunked_adapter =
       base::Chunked(container, chunk_size);
   std::vector<SpanTy> chunks =
       base::Map(chunked_adapter.begin(), chunked_adapter.end(),
@@ -50,8 +50,8 @@ void ParallelizeByChunkSize(ContainerTy& container, size_t chunk_size,
 
 // Splits the |container| into threads and executes |callback| in parallel.
 // See parallelize_unittest.cc for more details.
-template <typename ContainerTy, typename Callable>
-void Parallelize(ContainerTy& container, Callable callback,
+template <typename Container, typename Callable>
+void Parallelize(Container& container, Callable callback,
                  std::optional<size_t> threshold = std::nullopt) {
   size_t num_elements_per_thread =
       GetNumElementsPerThread(container, threshold);
@@ -63,7 +63,7 @@ void Parallelize(ContainerTy& container, Callable callback,
 // |callback| in parallel. Each callback's return value is collected into a
 // vector which is then returned.
 // See parallelize_unittest.cc for more details.
-template <typename ContainerTy, typename Callable,
+template <typename Container, typename Callable,
           typename FunctorTraits = internal::MakeFunctorTraits<Callable>,
           typename RunType = typename FunctorTraits::RunType,
           typename ReturnType = typename FunctorTraits::ReturnType,
@@ -71,11 +71,11 @@ template <typename ContainerTy, typename Callable,
           typename SpanTy = internal::GetType<0, ArgList>,
           typename T = typename SpanTy::value_type,
           size_t ArgNum = internal::GetSize<ArgList>>
-std::vector<ReturnType> ParallelizeMapByChunkSize(ContainerTy& container,
+std::vector<ReturnType> ParallelizeMapByChunkSize(Container& container,
                                                   size_t chunk_size,
                                                   Callable callback) {
   if (chunk_size == 0) return {};
-  internal::ChunkedAdapter<ContainerTy> chunked_adapter =
+  internal::ChunkedAdapter<Container> chunked_adapter =
       base::Chunked(container, chunk_size);
   std::vector<SpanTy> chunks =
       base::Map(chunked_adapter.begin(), chunked_adapter.end(),
@@ -99,8 +99,8 @@ std::vector<ReturnType> ParallelizeMapByChunkSize(ContainerTy& container,
 // |callback| in parallel. The results from each callback are collected into a
 // vector and returned.
 // See parallelize_unittest.cc for more details.
-template <typename ContainerTy, typename Callable>
-auto ParallelizeMap(ContainerTy& container, Callable callback,
+template <typename Container, typename Callable>
+auto ParallelizeMap(Container& container, Callable callback,
                     std::optional<size_t> threshold = std::nullopt) {
   size_t num_elements_per_thread =
       GetNumElementsPerThread(container, threshold);

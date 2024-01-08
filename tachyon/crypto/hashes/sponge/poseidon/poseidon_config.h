@@ -14,7 +14,7 @@
 
 namespace tachyon::crypto {
 
-template <typename PrimeFieldTy>
+template <typename PrimeField>
 struct PoseidonConfig;
 
 // An entry in the Poseidon config
@@ -46,18 +46,18 @@ struct TACHYON_EXPORT PoseidonConfigEntry {
         partial_rounds(partial_rounds),
         skip_matrices(skip_matrices) {}
 
-  template <typename PrimeFieldTy>
+  template <typename PrimeField>
   PoseidonGrainLFSRConfig ToPoseidonGrainLFSRConfig() const {
     PoseidonGrainLFSRConfig config;
-    config.prime_num_bits = PrimeFieldTy::kModulusBits;
+    config.prime_num_bits = PrimeField::kModulusBits;
     config.state_len = rate + 1;
     config.num_full_rounds = full_rounds;
     config.num_partial_rounds = partial_rounds;
     return config;
   }
 
-  template <typename PrimeFieldTy>
-  PoseidonConfig<PrimeFieldTy> ToPoseidonConfig() const;
+  template <typename PrimeField>
+  PoseidonConfig<PrimeField> ToPoseidonConfig() const;
 };
 
 // An array of the default config optimized for constraints
@@ -90,13 +90,12 @@ constexpr const PoseidonConfigEntry kOptimizedWeightsDefaultParams[] = {
 // MDS(Maximum Distance Separable) is a matrix that is applied to the |state|
 // for each round. It ensures that the sum of the vector's weight before and
 // after the MDS is at least |state| + 1.
-template <typename PrimeFieldTy>
+template <typename PrimeField>
 void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
-                           size_t skip_matrices,
-                           math::Matrix<PrimeFieldTy>* ark,
-                           math::Matrix<PrimeFieldTy>* mds) {
-  PoseidonGrainLFSR<PrimeFieldTy> lfsr(config);
-  *ark = math::Matrix<PrimeFieldTy>(
+                           size_t skip_matrices, math::Matrix<PrimeField>* ark,
+                           math::Matrix<PrimeField>* mds) {
+  PoseidonGrainLFSR<PrimeField> lfsr(config);
+  *ark = math::Matrix<PrimeField>(
       config.num_full_rounds + config.num_partial_rounds, config.state_len);
   for (size_t i = 0; i < config.num_full_rounds + config.num_partial_rounds;
        ++i) {
@@ -112,10 +111,10 @@ void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
   // - there is no i and j such that x[i] + y[j] = p
   // - the resultant MDS passes all the three tests
 
-  math::Vector<PrimeFieldTy> xs = lfsr.GetFieldElementsModP(config.state_len);
-  math::Vector<PrimeFieldTy> ys = lfsr.GetFieldElementsModP(config.state_len);
+  math::Vector<PrimeField> xs = lfsr.GetFieldElementsModP(config.state_len);
+  math::Vector<PrimeField> ys = lfsr.GetFieldElementsModP(config.state_len);
 
-  *mds = math::Matrix<PrimeFieldTy>(config.state_len, config.state_len);
+  *mds = math::Matrix<PrimeField>(config.state_len, config.state_len);
   for (Eigen::Index i = 0; i < mds->rows(); ++i) {
     for (Eigen::Index j = 0; j < mds->cols(); ++j) {
       (*mds)(i, j) = (xs[i] + ys[j]).Inverse();
@@ -123,9 +122,9 @@ void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
   }
 }
 
-template <typename PrimeFieldTy>
+template <typename PrimeField>
 struct PoseidonConfig {
-  using F = PrimeFieldTy;
+  using F = PrimeField;
 
   // Number of rounds in a full-round operation.
   size_t full_rounds = 0;
@@ -138,10 +137,10 @@ struct PoseidonConfig {
 
   // Additive Round Keys added before each MDS matrix application to make it an
   // affine shift. They are indexed by |ark[round_num][state_element_index]|.
-  math::Matrix<PrimeFieldTy> ark;
+  math::Matrix<PrimeField> ark;
 
   // Maximally Distance Separating (MDS) Matrix.
-  math::Matrix<PrimeFieldTy> mds;
+  math::Matrix<PrimeField> mds;
 
   // The rate (in terms of number of field elements).
   // See https://iacr.org/archive/eurocrypt2008/49650180/49650180.pdf
@@ -161,10 +160,10 @@ struct PoseidonConfig {
                                       return param.rate == rate;
                                     });
     CHECK_NE(it, param_set.end());
-    PoseidonConfig ret = it->template ToPoseidonConfig<PrimeFieldTy>();
-    FindPoseidonArkAndMds<PrimeFieldTy>(
-        it->template ToPoseidonGrainLFSRConfig<PrimeFieldTy>(),
-        it->skip_matrices, &ret.ark, &ret.mds);
+    PoseidonConfig ret = it->template ToPoseidonConfig<PrimeField>();
+    FindPoseidonArkAndMds<PrimeField>(
+        it->template ToPoseidonGrainLFSRConfig<PrimeField>(), it->skip_matrices,
+        &ret.ark, &ret.mds);
     return ret;
   }
 
@@ -174,9 +173,9 @@ struct PoseidonConfig {
                                                size_t skip_matrices) {
     PoseidonConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds,
                                      skip_matrices);
-    PoseidonConfig ret = config_entry.ToPoseidonConfig<PrimeFieldTy>();
-    FindPoseidonArkAndMds<PrimeFieldTy>(
-        config_entry.ToPoseidonGrainLFSRConfig<PrimeFieldTy>(), skip_matrices,
+    PoseidonConfig ret = config_entry.ToPoseidonConfig<PrimeField>();
+    FindPoseidonArkAndMds<PrimeField>(
+        config_entry.ToPoseidonGrainLFSRConfig<PrimeField>(), skip_matrices,
         &ret.ark, &ret.mds);
     return ret;
   }
@@ -189,9 +188,9 @@ struct PoseidonConfig {
   }
 };
 
-template <typename PrimeFieldTy>
-PoseidonConfig<PrimeFieldTy> PoseidonConfigEntry::ToPoseidonConfig() const {
-  PoseidonConfig<PrimeFieldTy> config;
+template <typename PrimeField>
+PoseidonConfig<PrimeField> PoseidonConfigEntry::ToPoseidonConfig() const {
+  PoseidonConfig<PrimeField> config;
   config.full_rounds = full_rounds;
   config.partial_rounds = partial_rounds;
   config.alpha = alpha;

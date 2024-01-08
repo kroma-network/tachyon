@@ -6,37 +6,37 @@
 
 namespace tachyon::node::math {
 
-template <typename PointXYZZTy,
-          typename BaseField = typename PointXYZZTy::BaseField,
-          typename Curve = typename PointXYZZTy::Curve,
+template <typename PointXYZZ,
+          typename BaseField = typename PointXYZZ::BaseField,
+          typename Curve = typename PointXYZZ::Curve,
           typename AffinePointTy = tachyon::math::AffinePoint<Curve>>
 void AddPointXYZZ(NodeModule& m, std::string_view name) {
-  m.NewClass<PointXYZZTy>(name)
+  m.NewClass<PointXYZZ>(name)
       .template AddConstructor<>()
       .template AddConstructor<const BaseField&, const BaseField&,
                                const BaseField&, const BaseField&>()
-      .AddStaticMethod("zero", &PointXYZZTy::Zero)
-      .AddStaticMethod("generator", &PointXYZZTy::Generator)
-      .AddStaticMethod("random", &PointXYZZTy::Random)
-      .AddReadOnlyProperty("x", &PointXYZZTy::x)
-      .AddReadOnlyProperty("y", &PointXYZZTy::y)
-      .AddReadOnlyProperty("zz", &PointXYZZTy::zz)
-      .AddReadOnlyProperty("zzz", &PointXYZZTy::zzz)
-      .AddMethod("isZero", &PointXYZZTy::IsZero)
-      .AddMethod("isOnCurve", &PointXYZZTy::IsOnCurve)
-      .AddMethod("toString", &PointXYZZTy::ToString)
-      .AddMethod("toHexString", &PointXYZZTy::ToHexString, false)
-      .AddMethod("eq", &PointXYZZTy::operator==)
-      .AddMethod("ne", &PointXYZZTy::operator!=)
-      .AddMethod("add", &PointXYZZTy::template operator+ <const PointXYZZTy&>)
+      .AddStaticMethod("zero", &PointXYZZ::Zero)
+      .AddStaticMethod("generator", &PointXYZZ::Generator)
+      .AddStaticMethod("random", &PointXYZZ::Random)
+      .AddReadOnlyProperty("x", &PointXYZZ::x)
+      .AddReadOnlyProperty("y", &PointXYZZ::y)
+      .AddReadOnlyProperty("zz", &PointXYZZ::zz)
+      .AddReadOnlyProperty("zzz", &PointXYZZ::zzz)
+      .AddMethod("isZero", &PointXYZZ::IsZero)
+      .AddMethod("isOnCurve", &PointXYZZ::IsOnCurve)
+      .AddMethod("toString", &PointXYZZ::ToString)
+      .AddMethod("toHexString", &PointXYZZ::ToHexString, false)
+      .AddMethod("eq", &PointXYZZ::operator==)
+      .AddMethod("ne", &PointXYZZ::operator!=)
+      .AddMethod("add", &PointXYZZ::template operator+ <const PointXYZZ&>)
       .AddMethod("addMixed",
-                 &PointXYZZTy::template operator+ <const AffinePointTy&>)
-      .AddMethod("sub", &PointXYZZTy::template operator- <const PointXYZZTy&>)
+                 &PointXYZZ::template operator+ <const AffinePointTy&>)
+      .AddMethod("sub", &PointXYZZ::template operator- <const PointXYZZ&>)
       .AddMethod("subMixed",
-                 &PointXYZZTy::template operator- <const AffinePointTy&>)
-      .AddMethod("negative", static_cast<PointXYZZTy (PointXYZZTy::*)() const>(
-                                 &PointXYZZTy::operator-))
-      .AddMethod("double", &PointXYZZTy::Double);
+                 &PointXYZZ::template operator- <const AffinePointTy&>)
+      .AddMethod("negative", static_cast<PointXYZZ (PointXYZZ::*)() const>(
+                                 &PointXYZZ::operator-))
+      .AddMethod("double", &PointXYZZ::Double);
 }
 
 }  // namespace tachyon::node::math

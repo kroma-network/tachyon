@@ -31,9 +31,6 @@ class JacobianPoint<
   using Curve = _Curve;
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
-  using AffinePointTy = AffinePoint<Curve>;
-  using ProjectivePointTy = ProjectivePoint<Curve>;
-  using PointXYZZTy = PointXYZZ<Curve>;
 
   constexpr JacobianPoint()
       : JacobianPoint(BaseField::One(), BaseField::One(), BaseField::Zero()) {}

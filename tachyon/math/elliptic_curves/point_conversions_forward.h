@@ -3,7 +3,7 @@
 
 namespace tachyon::math {
 
-template <typename SrcPointTy, typename DstPointTy, typename SFINAE = void>
+template <typename SrcPoint, typename DstPoint, typename SFINAE = void>
 struct PointConversions;
 
 }  // namespace tachyon::math

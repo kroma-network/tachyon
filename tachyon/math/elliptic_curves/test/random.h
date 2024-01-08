@@ -8,17 +8,17 @@
 
 namespace tachyon::math {
 
-template <typename PointTy>
-std::vector<PointTy> CreatePseudoRandomPoints(size_t size) {
-  // NOTE(chokobole): PointTy::Random() is an expensive operation, which
+template <typename Point>
+std::vector<Point> CreatePseudoRandomPoints(size_t size) {
+  // NOTE(chokobole): Point::Random() is an expensive operation, which
   // internally, randomly picks a scalar field and multiplies by a
   // generator. In most case, including MSM, bases doesn't affect to a
   // performance or test. So here it just produces pseudo random points by
   // doubling from a first selected random point.
-  PointTy p = PointTy::Random();
+  Point p = Point::Random();
   return base::CreateVector(size, [&p]() {
-    PointTy ret = p;
-    p = ConvertPoint<PointTy>(p.Double());
+    Point ret = p;
+    p = ConvertPoint<Point>(p.Double());
     return ret;
   });
 }

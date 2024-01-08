@@ -20,11 +20,11 @@
 namespace tachyon::zk::halo2 {
 namespace internal {
 
-template <typename AffinePointTy>
+template <typename AffinePoint>
 class Sha256Base {
  protected:
-  using BaseField = typename AffinePointTy::BaseField;
-  using ScalarField = typename AffinePointTy::ScalarField;
+  using BaseField = typename AffinePoint::BaseField;
+  using ScalarField = typename AffinePoint::ScalarField;
 
   Sha256Base() { SHA256_Init(&state_); }
 
@@ -41,11 +41,11 @@ class Sha256Base {
       return ScalarField::FromAnySizedBigInt(
           math::BigInt<4>::FromBytesLE(result));
     } else {
-      base::AlwaysFalse<AffinePointTy>();
+      base::AlwaysFalse<AffinePoint>();
     }
   }
 
-  bool DoWriteToTranscript(const AffinePointTy& point) {
+  bool DoWriteToTranscript(const AffinePoint& point) {
     SHA256_Update(&state_, kShaPrefixZeros, 31);
     SHA256_Update(&state_, kShaPrefixPoint, 1);
     SHA256_Update(&state_, point.x().ToBigInt().ToBytesBE().data(),
@@ -68,20 +68,20 @@ class Sha256Base {
 
 }  // namespace internal
 
-template <typename AffinePointTy>
-class Sha256Reader : public crypto::TranscriptReader<AffinePointTy>,
-                     protected internal::Sha256Base<AffinePointTy> {
+template <typename AffinePoint>
+class Sha256Reader : public crypto::TranscriptReader<AffinePoint>,
+                     protected internal::Sha256Base<AffinePoint> {
  public:
-  using ScalarField = typename AffinePointTy::ScalarField;
+  using ScalarField = typename AffinePoint::ScalarField;
 
   // Initialize a transcript given an input buffer.
   explicit Sha256Reader(base::Buffer read_buf)
-      : crypto::TranscriptReader<AffinePointTy>(std::move(read_buf)) {}
+      : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
 
   // crypto::TranscriptReader methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
 
-  bool WriteToTranscript(const AffinePointTy& point) override {
+  bool WriteToTranscript(const AffinePoint& point) override {
     return this->DoWriteToTranscript(point);
   }
 
@@ -90,8 +90,8 @@ class Sha256Reader : public crypto::TranscriptReader<AffinePointTy>,
   }
 
  private:
-  bool DoReadFromProof(AffinePointTy* point) const override {
-    return ProofSerializer<AffinePointTy>::ReadFromProof(this->buffer_, point);
+  bool DoReadFromProof(AffinePoint* point) const override {
+    return ProofSerializer<AffinePoint>::ReadFromProof(this->buffer_, point);
   }
 
   bool DoReadFromProof(ScalarField* scalar) const override {
@@ -99,22 +99,22 @@ class Sha256Reader : public crypto::TranscriptReader<AffinePointTy>,
   }
 };
 
-template <typename AffinePointTy>
-class Sha256Writer : public crypto::TranscriptWriter<AffinePointTy>,
-                     protected internal::Sha256Base<AffinePointTy> {
+template <typename AffinePoint>
+class Sha256Writer : public crypto::TranscriptWriter<AffinePoint>,
+                     protected internal::Sha256Base<AffinePoint> {
  public:
-  using ScalarField = typename AffinePointTy::ScalarField;
+  using ScalarField = typename AffinePoint::ScalarField;
 
   // Initialize a transcript given an output buffer.
   explicit Sha256Writer(base::Uint8VectorBuffer write_buf)
-      : crypto::TranscriptWriter<AffinePointTy>(std::move(write_buf)) {
+      : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {
     SHA256_Init(&state_);
   }
 
   // crypto::TranscriptWriter methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
 
-  bool WriteToTranscript(const AffinePointTy& point) override {
+  bool WriteToTranscript(const AffinePoint& point) override {
     return this->DoWriteToTranscript(point);
   }
 
@@ -123,8 +123,8 @@ class Sha256Writer : public crypto::TranscriptWriter<AffinePointTy>,
   }
 
  private:
-  bool DoWriteToProof(const AffinePointTy& point) override {
-    return ProofSerializer<AffinePointTy>::WriteToProof(point, this->buffer_);
+  bool DoWriteToProof(const AffinePoint& point) override {
+    return ProofSerializer<AffinePoint>::WriteToProof(point, this->buffer_);
   }
 
   bool DoWriteToProof(const ScalarField& scalar) override {

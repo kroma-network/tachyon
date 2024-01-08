@@ -24,10 +24,10 @@ class SWCurve {
 
   using BaseField = typename Config::BaseField;
   using ScalarField = typename Config::ScalarField;
-  using AffinePointTy = typename SWCurveTraits<Config>::AffinePointTy;
-  using ProjectivePointTy = typename SWCurveTraits<Config>::ProjectivePointTy;
-  using JacobianPointTy = typename SWCurveTraits<Config>::JacobianPointTy;
-  using PointXYZZTy = typename SWCurveTraits<Config>::PointXYZZTy;
+  using AffinePoint = typename SWCurveTraits<Config>::AffinePointTy;
+  using ProjectivePoint = typename SWCurveTraits<Config>::ProjectivePointTy;
+  using JacobianPoint = typename SWCurveTraits<Config>::JacobianPointTy;
+  using PointXYZZ = typename SWCurveTraits<Config>::PointXYZZTy;
 
   using CpuCurve = SWCurve<typename Config::CpuCurveConfig>;
   using GpuCurve = SWCurve<typename Config::GpuCurveConfig>;
@@ -44,17 +44,17 @@ class SWCurve {
   // Attempts to construct an affine point given an |x| coordinate. The
   // point is not guaranteed to be in the prime order subgroup.
   // If |pick_odd| is set to true, it chooses an odd(positive) y coordinate.
-  template <typename PointTy>
+  template <typename Point>
   constexpr static bool GetPointFromX(const BaseField& x, bool pick_odd,
-                                      PointTy* point) {
+                                      Point* point) {
     BaseField even_y;
     BaseField odd_y;
     if (!GetYsFromX(x, &even_y, &odd_y)) return false;
-    if constexpr (std::is_same_v<PointTy, AffinePointTy>) {
-      *point = AffinePointTy(x, pick_odd ? odd_y : even_y);
+    if constexpr (std::is_same_v<Point, AffinePoint>) {
+      *point = AffinePoint(x, pick_odd ? odd_y : even_y);
     } else {
-      AffinePointTy affine_point(x, pick_odd ? odd_y : even_y);
-      *point = ConvertPoint<PointTy>(affine_point);
+      AffinePoint affine_point(x, pick_odd ? odd_y : even_y);
+      *point = ConvertPoint<Point>(affine_point);
     }
     return true;
   }
@@ -81,7 +81,7 @@ class SWCurve {
     return true;
   }
 
-  constexpr static bool IsOnCurve(const AffinePointTy& point) {
+  constexpr static bool IsOnCurve(const AffinePoint& point) {
     if (point.infinity()) return false;
     BaseField right = point.x().Square() * point.x() + Config::kB;
     if constexpr (!Config::kAIsZero) {
@@ -90,7 +90,7 @@ class SWCurve {
     return point.y().Square() == right;
   }
 
-  constexpr static bool IsOnCurve(const ProjectivePointTy& point) {
+  constexpr static bool IsOnCurve(const ProjectivePoint& point) {
     if (point.z().IsZero()) return false;
     BaseField z2 = point.z().Square();
     BaseField z3 = z2 * point.z();
@@ -101,7 +101,7 @@ class SWCurve {
     return point.y().Square() * point.z() == right;
   }
 
-  constexpr static bool IsOnCurve(const JacobianPointTy& point) {
+  constexpr static bool IsOnCurve(const JacobianPoint& point) {
     if (point.z().IsZero()) return false;
     BaseField z3 = point.z().Square() * point.z();
     BaseField right = point.x().Square() * point.x() + Config::kB * z3.Square();
@@ -111,7 +111,7 @@ class SWCurve {
     return point.y().Square() == right;
   }
 
-  constexpr static bool IsOnCurve(const PointXYZZTy& point) {
+  constexpr static bool IsOnCurve(const PointXYZZ& point) {
     if (point.zzz().IsZero()) return false;
     BaseField right =
         point.x().Square() * point.x() + Config::kB * point.zzz().Square();

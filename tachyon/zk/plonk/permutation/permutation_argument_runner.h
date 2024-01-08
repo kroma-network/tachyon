@@ -30,37 +30,37 @@ class PermutationArgumentRunner {
   //
   // See Halo2 book to figure out logic in detail.
   // https://zcash.github.io/halo2/design/proving-system/permutation.html
-  template <typename PCSTy, typename F>
+  template <typename PCS, typename F>
   static PermutationCommitted<Poly> CommitArgument(
-      ProverBase<PCSTy>* prover, const PermutationArgument& argument,
+      ProverBase<PCS>* prover, const PermutationArgument& argument,
       RefTable<Evals>& table, size_t constraint_system_degree,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
       const F& beta, const F& gamma);
 
-  template <typename PCSTy, typename F>
+  template <typename PCS, typename F>
   static PermutationEvaluated<Poly> EvaluateCommitted(
-      ProverBase<PCSTy>* prover, PermutationCommitted<Poly>&& committed,
+      ProverBase<PCS>* prover, PermutationCommitted<Poly>&& committed,
       const F& x);
 
-  template <typename PCSTy, typename F>
-  static std::vector<ProverQuery<PCSTy>> OpenEvaluated(
-      const ProverBase<PCSTy>* prover,
+  template <typename PCS, typename F>
+  static std::vector<ProverQuery<PCS>> OpenEvaluated(
+      const ProverBase<PCS>* prover,
       const PermutationEvaluated<Poly>& evaluated, const F& x);
 
-  template <typename PCSTy, typename F>
+  template <typename PCS, typename F>
   static std::vector<BlindedPolynomial<Poly>> BlindProvingKey(
-      ProverBase<PCSTy>* prover,
+      ProverBase<PCS>* prover,
       const PermutationProvingKey<Poly, Evals>& proving_key);
 
-  template <typename PCSTy, typename F>
-  static std::vector<ProverQuery<PCSTy>> OpenBlindedPolynomials(
+  template <typename PCS, typename F>
+  static std::vector<ProverQuery<PCS>> OpenBlindedPolynomials(
       const std::vector<BlindedPolynomial<Poly>>& blinded_polys, const F& x);
 
   // TODO(dongchangYoo): Check if this func can be merged with the
   // |OpenBlindedPolynomials| when refactoring |CreateProof()|
-  template <typename PCSTy, typename F>
+  template <typename PCS, typename F>
   static void EvaluateProvingKey(
-      ProverBase<PCSTy>* prover,
+      ProverBase<PCS>* prover,
       const PermutationProvingKey<Poly, Evals>& proving_key, const F& x);
 
  private:

@@ -25,19 +25,19 @@
 
 namespace tachyon::zk::halo2 {
 
-template <typename PCSTy>
-class Verifier : public VerifierBase<PCSTy> {
+template <typename PCS>
+class Verifier : public VerifierBase<PCS> {
  public:
-  using F = typename PCSTy::Field;
-  using Commitment = typename PCSTy::Commitment;
-  using Evals = typename PCSTy::Evals;
-  using Poly = typename PCSTy::Poly;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
+  using Evals = typename PCS::Evals;
+  using Poly = typename PCS::Poly;
   using Coefficients = typename Poly::Coefficients;
 
-  using VerifierBase<PCSTy>::VerifierBase;
+  using VerifierBase<PCS>::VerifierBase;
 
   [[nodiscard]] bool VerifyProof(
-      const VerifyingKey<PCSTy>& vkey,
+      const VerifyingKey<PCS>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
     return VerifyProofForTesting(vkey, instance_columns_vec, nullptr, nullptr);
   }
@@ -47,13 +47,13 @@ class Verifier : public VerifierBase<PCSTy> {
   FRIEND_TEST(SimpleLookupCircuitTest, Verify);
 
   bool VerifyProofForTesting(
-      const VerifyingKey<PCSTy>& vkey,
+      const VerifyingKey<PCS>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec,
       Proof<F, Commitment>* proof_out, F* expected_h_eval_out) {
     if (!ValidateInstanceColumnsVec(vkey, instance_columns_vec)) return false;
 
     std::vector<std::vector<Commitment>> instance_commitments_vec;
-    if constexpr (PCSTy::kQueryInstance) {
+    if constexpr (PCS::kQueryInstance) {
       instance_commitments_vec = CommitColumnsVec(vkey, instance_columns_vec);
     } else {
       instance_commitments_vec.resize(instance_columns_vec.size());
@@ -62,14 +62,14 @@ class Verifier : public VerifierBase<PCSTy> {
     crypto::TranscriptReader<Commitment>* transcript = this->GetReader();
     CHECK(transcript->WriteToTranscript(vkey.transcript_repr()));
 
-    if constexpr (PCSTy::kQueryInstance) {
+    if constexpr (PCS::kQueryInstance) {
       WriteCommitmentsVecToTranscript(transcript, instance_commitments_vec);
     } else {
       WriteColumnsVecToTranscript(transcript, instance_columns_vec);
     }
 
-    ProofReader<PCSTy> proof_reader(vkey, transcript,
-                                    instance_commitments_vec.size());
+    ProofReader<PCS> proof_reader(vkey, transcript,
+                                  instance_commitments_vec.size());
     Proof<F, Commitment>& proof = proof_reader.proof();
     proof_reader.ReadAdviceCommitmentsVecAndChallenges();
     proof_reader.ReadTheta();
@@ -81,7 +81,7 @@ class Verifier : public VerifierBase<PCSTy> {
     proof_reader.ReadY();
     proof_reader.ReadVanishingHPolyCommitments();
     proof_reader.ReadX();
-    if constexpr (PCSTy::kQueryInstance) {
+    if constexpr (PCS::kQueryInstance) {
       proof_reader.ReadInstanceEvalsIfQueryInstance();
     } else {
       proof_reader.ReadInstanceEvalsIfNoQueryInstance();
@@ -108,7 +108,7 @@ class Verifier : public VerifierBase<PCSTy> {
   }
 
   bool ValidateInstanceColumnsVec(
-      const VerifyingKey<PCSTy>& vkey,
+      const VerifyingKey<PCS>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
     size_t num_instance_columns =
         vkey.constraint_system().num_instance_columns();
@@ -214,7 +214,7 @@ class Verifier : public VerifierBase<PCSTy> {
   }
 
   std::vector<std::vector<F>> ComputeInstanceEvalsVec(
-      const VerifyingKey<PCSTy>& vkey,
+      const VerifyingKey<PCS>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec, const F& x) {
     struct RotationRange {
       int32_t min = 0;
@@ -257,7 +257,7 @@ class Verifier : public VerifierBase<PCSTy> {
                      });
   }
 
-  F ComputeExpectedHEval(size_t num_circuits, const VerifyingKey<PCSTy>& vkey,
+  F ComputeExpectedHEval(size_t num_circuits, const VerifyingKey<PCS>& vkey,
                          const Proof<F, Commitment>& proof) {
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
     size_t blinding_factors = constraint_system.ComputeBlindingFactors();

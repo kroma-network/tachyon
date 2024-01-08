@@ -38,7 +38,7 @@ template <typename Curve>
 class ProofSerializer<math::AffinePoint<Curve>> {
  public:
   using BaseField = typename math::AffinePoint<Curve>::BaseField;
-  using BigIntTy = typename BaseField::BigIntTy;
+  using BigInt = typename BaseField::BigIntTy;
 
   static_assert(BaseField::kModulusBits % 8 != 0,
                 "Halo2 needs 1 spare bit to put sign bit");
@@ -51,7 +51,7 @@ class ProofSerializer<math::AffinePoint<Curve>> {
     if (!buffer.Read(bytes)) return false;
     uint8_t is_odd = bytes[kByteSize - 1] >> 7;
     bytes[kByteSize - 1] &= 0b01111111;
-    BaseField x = BaseField::FromBigInt(BigIntTy::FromBytesLE(bytes));
+    BaseField x = BaseField::FromBigInt(BigInt::FromBytesLE(bytes));
     if (x.IsZero()) {
       *point_out = math::AffinePoint<Curve>::Zero();
       return true;

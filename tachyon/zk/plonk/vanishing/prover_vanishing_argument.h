@@ -24,12 +24,11 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename PCS>
 [[nodiscard]] bool CommitRandomPoly(
-    ProverBase<PCSTy>* prover,
-    VanishingCommitted<EntityTy::kProver, PCSTy>* out) {
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
+    ProverBase<PCS>* prover, VanishingCommitted<EntityTy::kProver, PCS>* out) {
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
 
   // Sample a random polynomial of degree n - 1
   // TODO(TomTaehoonKim): Figure out why it is named |random_poly|.
@@ -49,16 +48,16 @@ template <typename PCSTy>
   return true;
 }
 
-template <typename PCSTy, typename ExtendedEvals>
+template <typename PCS, typename ExtendedEvals>
 [[nodiscard]] bool CommitFinalHPoly(
-    ProverBase<PCSTy>* prover,
-    VanishingCommitted<EntityTy::kProver, PCSTy>&& committed,
-    const VerifyingKey<PCSTy>& vk, ExtendedEvals& circuit_column,
-    VanishingConstructed<EntityTy::kProver, PCSTy>* constructed_out) {
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
+    ProverBase<PCS>* prover,
+    VanishingCommitted<EntityTy::kProver, PCS>&& committed,
+    const VerifyingKey<PCS>& vk, ExtendedEvals& circuit_column,
+    VanishingConstructed<EntityTy::kProver, PCS>* constructed_out) {
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
   using Coeffs = typename Poly::Coefficients;
-  using ExtendedPoly = typename PCSTy::ExtendedPoly;
+  using ExtendedPoly = typename PCS::ExtendedPoly;
 
   // Divide by t(X) = X^{params.n} - 1.
   ExtendedEvals h_evals = DivideByVanishingPolyInPlace<F>(
@@ -104,13 +103,12 @@ template <typename PCSTy, typename ExtendedEvals>
   return true;
 }
 
-template <typename PCSTy, typename F, typename Commitment>
+template <typename PCS, typename F, typename Commitment>
 [[nodiscard]] bool CommitRandomEval(
-    const PCSTy& pcs,
-    VanishingConstructed<EntityTy::kProver, PCSTy>&& constructed, const F& x,
-    const F& x_n, crypto::TranscriptWriter<Commitment>* writer,
-    VanishingEvaluated<EntityTy::kProver, PCSTy>* evaluated_out) {
-  using Poly = typename PCSTy::Poly;
+    const PCS& pcs, VanishingConstructed<EntityTy::kProver, PCS>&& constructed,
+    const F& x, const F& x_n, crypto::TranscriptWriter<Commitment>* writer,
+    VanishingEvaluated<EntityTy::kProver, PCS>* evaluated_out) {
+  using Poly = typename PCS::Poly;
   using Coeffs = typename Poly::Coefficients;
 
   Poly h_poly = Poly::template LinearCombination</*forward=*/false>(
@@ -118,7 +116,7 @@ template <typename PCSTy, typename F, typename Commitment>
 
   F h_blind = Poly(Coeffs(constructed.h_blinds())).Evaluate(x_n);
 
-  VanishingCommitted<EntityTy::kProver, PCSTy> committed =
+  VanishingCommitted<EntityTy::kProver, PCS> committed =
       std::move(constructed).TakeCommitted();
   F random_eval = committed.random_poly().Evaluate(x);
   if (!writer->WriteToProof(random_eval)) return false;
@@ -128,12 +126,12 @@ template <typename PCSTy, typename F, typename Commitment>
   return true;
 }
 
-template <typename PCSTy, typename F>
-std::vector<ProverQuery<PCSTy>> OpenVanishingArgument(
-    VanishingEvaluated<EntityTy::kProver, PCSTy>&& evaluated, const F& x) {
-  using Poly = typename PCSTy::Poly;
+template <typename PCS, typename F>
+std::vector<ProverQuery<PCS>> OpenVanishingArgument(
+    VanishingEvaluated<EntityTy::kProver, PCS>&& evaluated, const F& x) {
+  using Poly = typename PCS::Poly;
 
-  VanishingCommitted<EntityTy::kProver, PCSTy>&& committed =
+  VanishingCommitted<EntityTy::kProver, PCS>&& committed =
       std::move(evaluated).TakeCommitted();
   return {{x, BlindedPolynomial<Poly>(std::move(evaluated).TakeHPoly(),
                                       std::move(evaluated).TakeHBlind())

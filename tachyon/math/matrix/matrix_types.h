@@ -5,14 +5,14 @@
 
 namespace tachyon::math {
 
-template <typename PrimeFieldTy>
-using Matrix = Eigen::Matrix<PrimeFieldTy, Eigen::Dynamic, Eigen::Dynamic>;
+template <typename PrimeField>
+using Matrix = Eigen::Matrix<PrimeField, Eigen::Dynamic, Eigen::Dynamic>;
 
-template <typename PrimeFieldTy>
-using Vector = Eigen::Matrix<PrimeFieldTy, Eigen::Dynamic, 1>;
+template <typename PrimeField>
+using Vector = Eigen::Matrix<PrimeField, Eigen::Dynamic, 1>;
 
-template <typename PrimeFieldTy>
-using RowVector = Eigen::Matrix<PrimeFieldTy, 1, Eigen::Dynamic>;
+template <typename PrimeField>
+using RowVector = Eigen::Matrix<PrimeField, 1, Eigen::Dynamic>;
 
 }  // namespace tachyon::math
 

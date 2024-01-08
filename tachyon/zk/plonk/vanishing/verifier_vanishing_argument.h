@@ -23,23 +23,23 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy, typename Commitment>
+template <typename PCS, typename Commitment>
 [[nodiscard]] bool ReadCommitmentsBeforeY(
     crypto::TranscriptReader<Commitment>* transcript,
-    VanishingCommitted<EntityTy::kVerifier, PCSTy>* committed_out) {
+    VanishingCommitted<EntityTy::kVerifier, PCS>* committed_out) {
   Commitment c;
   if (!transcript->ReadFromProof(&c)) return false;
 
-  *committed_out = VanishingCommitted<EntityTy::kVerifier, PCSTy>(std::move(c));
+  *committed_out = VanishingCommitted<EntityTy::kVerifier, PCS>(std::move(c));
   return true;
 }
 
-template <typename PCSTy, typename Commitment>
+template <typename PCS, typename Commitment>
 [[nodiscard]] bool ReadCommitmentsAfterY(
-    VanishingCommitted<EntityTy::kVerifier, PCSTy>&& committed,
-    const VerifyingKey<PCSTy>& vk,
+    VanishingCommitted<EntityTy::kVerifier, PCS>&& committed,
+    const VerifyingKey<PCS>& vk,
     crypto::TranscriptReader<Commitment>* transcript,
-    VanishingConstructed<EntityTy::kVerifier, PCSTy>* constructed_out) {
+    VanishingConstructed<EntityTy::kVerifier, PCS>* constructed_out) {
   // Obtain a commitment to h(X) in the form of multiple pieces of degree
   // n - 1
   std::vector<Commitment> h_commitments;
@@ -54,11 +54,11 @@ template <typename PCSTy, typename Commitment>
   return true;
 }
 
-template <typename F, typename PCSTy, typename Commitment>
+template <typename F, typename PCS, typename Commitment>
 [[nodiscard]] bool EvaluateAfterX(
-    VanishingConstructed<EntityTy::kVerifier, PCSTy>&& constructed,
+    VanishingConstructed<EntityTy::kVerifier, PCS>&& constructed,
     crypto::TranscriptReader<Commitment>* transcript,
-    VanishingPartiallyEvaluated<PCSTy>* partially_evaluated_out) {
+    VanishingPartiallyEvaluated<PCS>* partially_evaluated_out) {
   F random_eval;
   if (!transcript->ReadFromProof(&random_eval)) return false;
 
@@ -68,11 +68,11 @@ template <typename F, typename PCSTy, typename Commitment>
   return true;
 }
 
-template <typename PCSTy, typename Evals, typename F>
-VanishingEvaluated<EntityTy::kVerifier, PCSTy> VerifyVanishingArgument(
-    VanishingPartiallyEvaluated<PCSTy>&& partially_evaluated,
+template <typename PCS, typename Evals, typename F>
+VanishingEvaluated<EntityTy::kVerifier, PCS> VerifyVanishingArgument(
+    VanishingPartiallyEvaluated<PCS>&& partially_evaluated,
     const Evals& expressions, const F& y, const F& x_n) {
-  using Commitment = typename PCSTy::Commitment;
+  using Commitment = typename PCS::Commitment;
 
   F expected_h_eval = F::template LinearCombination</*forward=*/true>(
       expressions.evaluations(), y);
@@ -91,10 +91,10 @@ VanishingEvaluated<EntityTy::kVerifier, PCSTy> VerifyVanishingArgument(
           std::move(partially_evaluated).TakeRandomEval()};
 }
 
-template <typename PCSTy, typename F>
-std::vector<VerifierQuery<PCSTy>> QueryVanishingArgument(
-    VanishingEvaluated<EntityTy::kVerifier, PCSTy>&& evaluated, const F& x) {
-  using Commitment = typename PCSTy::Commitment;
+template <typename PCS, typename F>
+std::vector<VerifierQuery<PCS>> QueryVanishingArgument(
+    VanishingEvaluated<EntityTy::kVerifier, PCS>&& evaluated, const F& x) {
+  using Commitment = typename PCS::Commitment;
 
   return {{x, base::Ref<const Commitment>(&evaluated.h_commitment()),
            std::move(evaluated).TakeExpectedHEval()},

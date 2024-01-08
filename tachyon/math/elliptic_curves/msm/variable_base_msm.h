@@ -6,11 +6,11 @@
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_adapter.h"
 
 namespace tachyon::math {
-template <typename PointTy>
+template <typename Point>
 class VariableBaseMSM {
  public:
-  using ScalarField = typename PointTy::ScalarField;
-  using Bucket = typename Pippenger<PointTy>::Bucket;
+  using ScalarField = typename Point::ScalarField;
+  using Bucket = typename Pippenger<Point>::Bucket;
 
   // MSM(Multi-Scalar Multiplication): s₀ * g₀ + s₁ * g₁ + ... + sₙ * gₙ
   // Variable-base MSM is an operation that multiplies different base points
@@ -21,7 +21,7 @@ class VariableBaseMSM {
   bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
            ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,
            Bucket* ret) {
-    PippengerAdapter<PointTy> pippenger;
+    PippengerAdapter<Point> pippenger;
     return pippenger.Run(std::move(bases_first), std::move(bases_last),
                          std::move(scalars_first), std::move(scalars_last),
                          ret);

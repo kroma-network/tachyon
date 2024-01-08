@@ -20,23 +20,22 @@ namespace tachyon::zk {
 // - If you write codes only for verifier, you should use |Verifier| class.
 // - If you write codes for both prover and verifier, you should use
 //  |Entity| class.
-template <typename _PCSTy>
+template <typename _PCS>
 class Entity {
  public:
-  using PCSTy = _PCSTy;
-  using F = typename PCSTy::Field;
-  using Domain = typename PCSTy::Domain;
-  using ExtendedDomain = typename PCSTy::ExtendedDomain;
-  using Evals = typename PCSTy::Evals;
-  using Poly = typename PCSTy::Poly;
-  using Commitment = typename PCSTy::Commitment;
+  using PCS = _PCS;
+  using F = typename PCS::Field;
+  using Domain = typename PCS::Domain;
+  using ExtendedDomain = typename PCS::ExtendedDomain;
+  using Evals = typename PCS::Evals;
+  using Poly = typename PCS::Poly;
+  using Commitment = typename PCS::Commitment;
 
-  Entity(PCSTy&& pcs,
-         std::unique_ptr<crypto::Transcript<Commitment>> transcript)
+  Entity(PCS&& pcs, std::unique_ptr<crypto::Transcript<Commitment>> transcript)
       : pcs_(std::move(pcs)), transcript_(std::move(transcript)) {}
 
-  const PCSTy& pcs() const { return pcs_; }
-  PCSTy& pcs() { return pcs_; }
+  const PCS& pcs() const { return pcs_; }
+  PCS& pcs() { return pcs_; }
   void set_domain(std::unique_ptr<Domain> domain) {
     domain_ = std::move(domain);
   }
@@ -50,7 +49,7 @@ class Entity {
   crypto::Transcript<Commitment>* transcript() { return transcript_.get(); }
 
  protected:
-  PCSTy pcs_;
+  PCS pcs_;
   std::unique_ptr<Domain> domain_;
   std::unique_ptr<ExtendedDomain> extended_domain_;
   std::unique_ptr<crypto::Transcript<Commitment>> transcript_;

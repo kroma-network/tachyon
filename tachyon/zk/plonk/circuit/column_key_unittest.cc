@@ -5,7 +5,7 @@
 
 namespace tachyon::zk {
 
-template <typename ColumnKeyType>
+template <typename ColumnKey>
 class ColumnKeyTest : public testing::Test {};
 
 using ColumnKeyTypes =
@@ -13,44 +13,44 @@ using ColumnKeyTypes =
 TYPED_TEST_SUITE(ColumnKeyTest, ColumnKeyTypes);
 
 TYPED_TEST(ColumnKeyTest, AnyColumnKeyConstruction) {
-  using ColumnKeyTy = TypeParam;
+  using ColumnKey = TypeParam;
 
-  AnyColumnKey any(ColumnKeyTy(1));
-  EXPECT_EQ(any.type(), ColumnKeyTy::kDefaultType);
+  AnyColumnKey any(ColumnKey(1));
+  EXPECT_EQ(any.type(), ColumnKey::kDefaultType);
   AnyColumnKey any2;
   EXPECT_EQ(any2.type(), ColumnType::kAny);
-  any2 = ColumnKeyTy(1);
-  EXPECT_EQ(any2.type(), ColumnKeyTy::kDefaultType);
+  any2 = ColumnKey(1);
+  EXPECT_EQ(any2.type(), ColumnKey::kDefaultType);
 
-  if constexpr (std::is_same_v<ColumnKeyTy, AdviceColumnKey>) {
-    AnyColumnKey any(ColumnKeyTy(1, kSecondPhase));
+  if constexpr (std::is_same_v<ColumnKey, AdviceColumnKey>) {
+    AnyColumnKey any(ColumnKey(1, kSecondPhase));
     EXPECT_EQ(any.phase(), kSecondPhase);
     AnyColumnKey any2;
     EXPECT_EQ(any2.phase(), kFirstPhase);
-    any2 = ColumnKeyTy(1, kSecondPhase);
+    any2 = ColumnKey(1, kSecondPhase);
     EXPECT_EQ(any2.phase(), kSecondPhase);
   }
 }
 
 TYPED_TEST(ColumnKeyTest, NonAnyColumnKeyConstruction) {
-  using ColumnKeyTy = TypeParam;
+  using ColumnKey = TypeParam;
 
-  ColumnKeyTy c(ColumnKeyTy(1));
-  EXPECT_EQ(c.type(), ColumnKeyTy::kDefaultType);
-  c = ColumnKeyTy(1);
-  EXPECT_EQ(c.type(), ColumnKeyTy::kDefaultType);
-  ColumnKeyTy c2(AnyColumnKey(1));
-  EXPECT_EQ(c2.type(), ColumnKeyTy::kDefaultType);
-  ColumnKeyTy c3;
-  EXPECT_EQ(c3.type(), ColumnKeyTy::kDefaultType);
+  ColumnKey c(ColumnKey(1));
+  EXPECT_EQ(c.type(), ColumnKey::kDefaultType);
+  c = ColumnKey(1);
+  EXPECT_EQ(c.type(), ColumnKey::kDefaultType);
+  ColumnKey c2(AnyColumnKey(1));
+  EXPECT_EQ(c2.type(), ColumnKey::kDefaultType);
+  ColumnKey c3;
+  EXPECT_EQ(c3.type(), ColumnKey::kDefaultType);
   c3 = AnyColumnKey(1);
-  EXPECT_EQ(c3.type(), ColumnKeyTy::kDefaultType);
+  EXPECT_EQ(c3.type(), ColumnKey::kDefaultType);
 }
 
 TYPED_TEST(ColumnKeyTest, Hash) {
-  using ColumnKeyTy = TypeParam;
+  using ColumnKey = TypeParam;
   EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
-      std::make_tuple(ColumnKeyTy(), ColumnKeyTy(1))));
+      std::make_tuple(ColumnKey(), ColumnKey(1))));
 }
 
 TEST(ColumnKeyBaseTest, Hash) {

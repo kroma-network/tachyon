@@ -65,8 +65,8 @@ class VectorCommitmentScheme {
   // Commit to |container| and populates |result| with the commitment.
   // Return false if the size of |container| doesn't match with the size of
   // parameters.
-  template <typename ContainerTy>
-  [[nodiscard]] bool Commit(const ContainerTy& container,
+  template <typename Container>
+  [[nodiscard]] bool Commit(const Container& container,
                             Commitment* result) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoCommit(container, result);
@@ -75,8 +75,8 @@ class VectorCommitmentScheme {
   // Commit to |container| with a |random_value| and populates |result| with the
   // commitment. Return false if the size of |container| doesn't match with the
   // size of parameters.
-  template <typename ContainerTy>
-  [[nodiscard]] bool Commit(const ContainerTy& container,
+  template <typename Container>
+  [[nodiscard]] bool Commit(const Container& container,
                             const Field& random_value,
                             Commitment* result) const {
     const Derived* derived = static_cast<const Derived*>(this);
@@ -85,8 +85,8 @@ class VectorCommitmentScheme {
 
   // Create an opening proof that proves that |members| belong to a
   // commitment.
-  template <typename ContainerTy, typename Proof>
-  [[nodiscard]] bool CreateOpeningProof(const ContainerTy& members,
+  template <typename Container, typename Proof>
+  [[nodiscard]] bool CreateOpeningProof(const Container& members,
                                         Proof* proof) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoCreateOpeningProof(members, proof);
@@ -96,17 +96,17 @@ class VectorCommitmentScheme {
   // |commitment|.
   // NOTE(chokobole): const was removed from |Commitment| since it can be a
   // |Transcript|. At this moment, |WriteToTranscript()| is not a const method.
-  template <typename ContainerTy, typename Proof>
+  template <typename Container, typename Proof>
   [[nodiscard]] bool VerifyOpeningProof(Commitment& commitment,
-                                        const ContainerTy& members,
+                                        const Container& members,
                                         const Proof& proof) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoVerifyOpeningProof(commitment, members, proof);
   }
 
   // Verify multi-openings |proof|.
-  template <typename ContainerTy, typename Proof>
-  [[nodiscard]] bool VerifyOpeningProof(const ContainerTy& members,
+  template <typename Container, typename Proof>
+  [[nodiscard]] bool VerifyOpeningProof(const Container& members,
                                         Proof* proof) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoVerifyOpeningProof(members, proof);

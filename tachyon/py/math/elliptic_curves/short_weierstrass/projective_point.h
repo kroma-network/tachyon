@@ -10,26 +10,26 @@
 
 namespace tachyon::py::math {
 
-template <typename ProjectivePointTy,
-          typename BaseField = typename ProjectivePointTy::BaseField,
-          typename ScalarField = typename ProjectivePointTy::ScalarField,
-          typename Curve = typename ProjectivePointTy::Curve,
+template <typename ProjectivePoint,
+          typename BaseField = typename ProjectivePoint::BaseField,
+          typename ScalarField = typename ProjectivePoint::ScalarField,
+          typename Curve = typename ProjectivePoint::Curve,
           typename AffinePointTy = tachyon::math::AffinePoint<Curve>>
 void AddProjectivePoint(py11::module& m, const std::string& name) {
-  py11::class_<ProjectivePointTy>(m, name.data())
+  py11::class_<ProjectivePoint>(m, name.data())
       .def(py11::init<>())
       .def(py11::init<const BaseField&, const BaseField&, const BaseField&>(),
            py11::arg("x"), py11::arg("y"), py11::arg("z"))
-      .def_static("zero", &ProjectivePointTy::Zero)
-      .def_static("generator", &ProjectivePointTy::Generator)
-      .def_static("random", &ProjectivePointTy::Random)
-      .def_property_readonly("x", &ProjectivePointTy::x)
-      .def_property_readonly("y", &ProjectivePointTy::y)
-      .def_property_readonly("z", &ProjectivePointTy::z)
-      .def("is_zero", &ProjectivePointTy::IsZero)
-      .def("is_on_curve", &ProjectivePointTy::IsOnCurve)
-      .def("to_string", &ProjectivePointTy::ToString)
-      .def("to_hex_string", &ProjectivePointTy::ToHexString,
+      .def_static("zero", &ProjectivePoint::Zero)
+      .def_static("generator", &ProjectivePoint::Generator)
+      .def_static("random", &ProjectivePoint::Random)
+      .def_property_readonly("x", &ProjectivePoint::x)
+      .def_property_readonly("y", &ProjectivePoint::y)
+      .def_property_readonly("z", &ProjectivePoint::z)
+      .def("is_zero", &ProjectivePoint::IsZero)
+      .def("is_on_curve", &ProjectivePoint::IsOnCurve)
+      .def("to_string", &ProjectivePoint::ToString)
+      .def("to_hex_string", &ProjectivePoint::ToHexString,
            py11::arg("pad_zero") = false)
       .def(py11::self == py11::self)
       .def(py11::self != py11::self)
@@ -42,7 +42,7 @@ void AddProjectivePoint(py11::module& m, const std::string& name) {
       // .def(py11::self -= py11::self)
       .def(
           "__isub__",
-          [](ProjectivePointTy& lhs, const ProjectivePointTy& rhs) {
+          [](ProjectivePoint& lhs, const ProjectivePoint& rhs) {
             return lhs -= rhs;
           },
           py11::is_operator())
@@ -52,9 +52,9 @@ void AddProjectivePoint(py11::module& m, const std::string& name) {
       .def(py11::self *= ScalarField())
       .def(ScalarField() * py11::self)
       .def(-py11::self)
-      .def("double", &ProjectivePointTy::Double)
-      .def("double_in_place", &ProjectivePointTy::DoubleInPlace)
-      .def("__repr__", [name](const ProjectivePointTy& point) {
+      .def("double", &ProjectivePoint::Double)
+      .def("double_in_place", &ProjectivePoint::DoubleInPlace)
+      .def("__repr__", [name](const ProjectivePoint& point) {
         return absl::Substitute("$0$1", name, point.ToString());
       });
 }

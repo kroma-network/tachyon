@@ -12,10 +12,10 @@ namespace tachyon::math {
 
 namespace {
 
-template <typename PointTy>
+template <typename Point>
 class GLVTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { PointTy::Curve::Init(); }
+  static void SetUpTestSuite() { Point::Curve::Init(); }
 };
 
 }  // namespace
@@ -30,22 +30,21 @@ using PointTypes =
 TYPED_TEST_SUITE(GLVTest, PointTypes);
 
 TYPED_TEST(GLVTest, Endomorphism) {
-  using PointTy = TypeParam;
-  using ReturnTy =
-      typename internal::AdditiveSemigroupTraits<PointTy>::ReturnTy;
+  using Point = TypeParam;
+  using RetPoint = typename internal::AdditiveSemigroupTraits<Point>::ReturnTy;
 
-  EXPECT_TRUE(PointTy::Curve::Config::kEndomorphismCoefficient.Pow(3).IsOne());
-  PointTy base = PointTy::Random();
-  EXPECT_EQ(base * PointTy::Curve::Config::kLambda,
-            ConvertPoint<ReturnTy>(PointTy::Endomorphism(base)));
+  EXPECT_TRUE(Point::Curve::Config::kEndomorphismCoefficient.Pow(3).IsOne());
+  Point base = Point::Random();
+  EXPECT_EQ(base * Point::Curve::Config::kLambda,
+            ConvertPoint<RetPoint>(Point::Endomorphism(base)));
 }
 
 TYPED_TEST(GLVTest, Decompose) {
-  using PointTy = TypeParam;
-  using ScalarField = typename PointTy::ScalarField;
+  using Point = TypeParam;
+  using ScalarField = typename Point::ScalarField;
 
   ScalarField scalar = ScalarField::Random();
-  auto result = GLV<PointTy>::Decompose(scalar);
+  auto result = GLV<Point>::Decompose(scalar);
   ScalarField k1 = ScalarField::FromMpzClass(result.k1.abs_value);
   ScalarField k2 = ScalarField::FromMpzClass(result.k2.abs_value);
   if (result.k1.sign == Sign::kNegative) {
@@ -54,16 +53,16 @@ TYPED_TEST(GLVTest, Decompose) {
   if (result.k2.sign == Sign::kNegative) {
     k2.NegInPlace();
   }
-  EXPECT_EQ(scalar, k1 + PointTy::Curve::Config::kLambda * k2);
+  EXPECT_EQ(scalar, k1 + Point::Curve::Config::kLambda * k2);
 }
 
 TYPED_TEST(GLVTest, Mul) {
-  using PointTy = TypeParam;
-  using ScalarField = typename PointTy::ScalarField;
+  using Point = TypeParam;
+  using ScalarField = typename Point::ScalarField;
 
-  PointTy base = PointTy::Random();
+  Point base = Point::Random();
   ScalarField scalar = ScalarField::Random();
-  EXPECT_EQ(GLV<PointTy>::Mul(base, scalar), base * scalar);
+  EXPECT_EQ(GLV<Point>::Mul(base, scalar), base * scalar);
 }
 
 }  // namespace tachyon::math

@@ -5,18 +5,18 @@
 
 namespace tachyon::math {
 
-template <typename PointTy, bool IsRandom>
+template <typename Point, bool IsRandom>
 void BM_Pippenger(benchmark::State& state) {
-  PointTy::Curve::Init();
-  MSMTestSet<PointTy> test_set;
+  Point::Curve::Init();
+  MSMTestSet<Point> test_set;
   if constexpr (IsRandom) {
-    test_set = MSMTestSet<PointTy>::Random(state.range(0), MSMMethod::kNone);
+    test_set = MSMTestSet<Point>::Random(state.range(0), MSMMethod::kNone);
   } else {
     test_set =
-        MSMTestSet<PointTy>::NonUniform(state.range(0), 10, MSMMethod::kNone);
+        MSMTestSet<Point>::NonUniform(state.range(0), 10, MSMMethod::kNone);
   }
-  Pippenger<PointTy> pippenger;
-  using Bucket = typename Pippenger<PointTy>::Bucket;
+  Pippenger<Point> pippenger;
+  using Bucket = typename Pippenger<Point>::Bucket;
   Bucket ret;
   for (auto _ : state) {
     pippenger.Run(test_set.bases.begin(), test_set.bases.end(),
@@ -25,14 +25,14 @@ void BM_Pippenger(benchmark::State& state) {
   benchmark::DoNotOptimize(ret);
 }
 
-template <typename PointTy>
+template <typename Point>
 void BM_PippengerRandom(benchmark::State& state) {
-  BM_Pippenger<PointTy, true>(state);
+  BM_Pippenger<Point, true>(state);
 }
 
-template <typename PointTy>
+template <typename Point>
 void BM_PippengerNonUniform(benchmark::State& state) {
-  BM_Pippenger<PointTy, false>(state);
+  BM_Pippenger<Point, false>(state);
 }
 
 BENCHMARK_TEMPLATE(BM_PippengerRandom, bn254::G1AffinePoint)

@@ -26,23 +26,23 @@ class LookupArgumentRunner {
  public:
   LookupArgumentRunner() = delete;
 
-  template <typename PCSTy, typename F>
+  template <typename PCS, typename F>
   static LookupPermuted<Poly, Evals> PermuteArgument(
-      ProverBase<PCSTy>* prover, const LookupArgument<F>& argument,
+      ProverBase<PCS>* prover, const LookupArgument<F>& argument,
       const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl);
 
-  template <typename PCSTy, typename F>
+  template <typename PCS, typename F>
   static LookupCommitted<Poly> CommitPermuted(
-      ProverBase<PCSTy>* prover, LookupPermuted<Poly, Evals>&& permuted,
+      ProverBase<PCS>* prover, LookupPermuted<Poly, Evals>&& permuted,
       const F& beta, const F& gamma);
 
-  template <typename PCSTy, typename F>
+  template <typename PCS, typename F>
   static LookupEvaluated<Poly> EvaluateCommitted(
-      ProverBase<PCSTy>* prover, LookupCommitted<Poly>&& committed, const F& x);
+      ProverBase<PCS>* prover, LookupCommitted<Poly>&& committed, const F& x);
 
-  template <typename PCSTy, typename F>
-  static std::vector<ProverQuery<PCSTy>> OpenEvaluated(
-      const ProverBase<PCSTy>* prover, const LookupEvaluated<Poly>& evaluated,
+  template <typename PCS, typename F>
+  static std::vector<ProverQuery<PCS>> OpenEvaluated(
+      const ProverBase<PCS>* prover, const LookupEvaluated<Poly>& evaluated,
       const F& x);
 
  private:

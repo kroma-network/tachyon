@@ -9,11 +9,11 @@
 
 namespace tachyon::zk {
 
-template <typename PCSTy>
+template <typename PCS>
 class Blinder {
  public:
-  using F = typename PCSTy::Field;
-  using Evals = typename PCSTy::Evals;
+  using F = typename PCS::Field;
+  using Evals = typename PCS::Evals;
 
   Blinder(RandomFieldGeneratorBase<F>* random_field_generator,
           size_t blinding_factors)

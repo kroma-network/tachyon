@@ -9,13 +9,13 @@
 
 namespace tachyon::math {
 
-template <typename SrcPrimeFieldTy, typename DstPrimeFieldTy>
+template <typename SrcPrimeField, typename DstPrimeField>
 struct PrimeFieldConversions;
 
-template <typename DstPrimeFieldTy, typename SrcPrimeFieldTy>
-constexpr DstPrimeFieldTy ConvertPrimeField(
-    const SrcPrimeFieldTy& src_prime_field) {
-  return PrimeFieldConversions<SrcPrimeFieldTy, DstPrimeFieldTy>::Convert(
+template <typename DstPrimeField, typename SrcPrimeField>
+constexpr DstPrimeField ConvertPrimeField(
+    const SrcPrimeField& src_prime_field) {
+  return PrimeFieldConversions<SrcPrimeField, DstPrimeField>::Convert(
       src_prime_field);
 }
 

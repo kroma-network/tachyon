@@ -43,16 +43,16 @@ class MSMConfig {
 
   std::vector<uint64_t> GetPointNums() const;
 
-  template <typename PointTy, typename Bucket>
+  template <typename Point, typename Bucket>
   bool GenerateTestSet(uint64_t size,
-                       math::MSMTestSet<PointTy, Bucket>* out) const {
+                       math::MSMTestSet<Point, Bucket>* out) const {
     switch (test_set_) {
       case TestSet::kRandom:
-        *out = math::MSMTestSet<PointTy, Bucket>::Random(
-            size, math::MSMMethod::kNone);
+        *out = math::MSMTestSet<Point, Bucket>::Random(size,
+                                                       math::MSMMethod::kNone);
         return true;
       case TestSet::kNonUniform:
-        *out = math::MSMTestSet<PointTy, Bucket>::NonUniform(
+        *out = math::MSMTestSet<Point, Bucket>::NonUniform(
             size, 1, math::MSMMethod::kNone);
         return true;
     }

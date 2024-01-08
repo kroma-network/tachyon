@@ -22,16 +22,16 @@ namespace tachyon::c::math {
 
 template <typename GpuCurve>
 struct MSMGpuApi {
-  using GpuAffinePointTy = tachyon::math::AffinePoint<GpuCurve>;
-  using GpuScalarField = typename GpuAffinePointTy::ScalarField;
+  using GpuAffinePoint = tachyon::math::AffinePoint<GpuCurve>;
+  using GpuScalarField = typename GpuAffinePoint::ScalarField;
   using CpuCurve = typename GpuCurve::CpuCurve;
-  using CpuAffinePointTy = tachyon::math::AffinePoint<CpuCurve>;
+  using CpuAffinePoint = tachyon::math::AffinePoint<CpuCurve>;
 
   tachyon::device::gpu::ScopedMemPool mem_pool;
   tachyon::device::gpu::ScopedStream stream;
-  tachyon::device::gpu::GpuMemory<GpuAffinePointTy> d_bases;
+  tachyon::device::gpu::GpuMemory<GpuAffinePoint> d_bases;
   tachyon::device::gpu::GpuMemory<GpuScalarField> d_scalars;
-  MSMInputProvider<CpuAffinePointTy> provider;
+  MSMInputProvider<CpuAffinePoint> provider;
   std::unique_ptr<tachyon::math::VariableBaseMSMGpu<GpuCurve>> msm;
 
   std::string save_location;
@@ -81,7 +81,7 @@ struct MSMGpuApi {
         "Failed to gpuMemPoolSetAttribute()");
 
     uint64_t size = uint64_t{1} << degree;
-    d_bases = tachyon::device::gpu::GpuMemory<GpuAffinePointTy>::Malloc(size);
+    d_bases = tachyon::device::gpu::GpuMemory<GpuAffinePoint>::Malloc(size);
     d_scalars = tachyon::device::gpu::GpuMemory<GpuScalarField>::Malloc(size);
 
     stream = tachyon::device::gpu::CreateStream();
@@ -91,13 +91,13 @@ struct MSMGpuApi {
   }
 };
 
-template <typename RetPointTy, typename GpuCurve, typename CPointTy,
-          typename CScalarField,
-          typename CRetPointTy =
-              typename cc::math::PointTraits<RetPointTy>::CCurvePointTy,
-          typename CpuCurve = typename GpuCurve::CpuCurve>
-CRetPointTy* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPointTy* bases,
-                      const CScalarField* scalars, size_t size) {
+template <
+    typename RetPoint, typename GpuCurve, typename CPoint,
+    typename CScalarField,
+    typename CRetPoint = typename cc::math::PointTraits<RetPoint>::CCurvePoint,
+    typename CpuCurve = typename GpuCurve::CpuCurve>
+CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
+                    const CScalarField* scalars, size_t size) {
   msm_api.provider.Inject(bases, scalars, size);
 
   size_t aligned_size = msm_api.provider.bases().size();
@@ -108,10 +108,10 @@ CRetPointTy* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPointTy* bases,
                                    tachyon::device::gpu::GpuMemoryType::kHost,
                                    0, aligned_size));
 
-  RetPointTy ret;
+  RetPoint ret;
   CHECK(
       msm_api.msm->Run(msm_api.d_bases, msm_api.d_scalars, aligned_size, &ret));
-  CRetPointTy* cret = new CRetPointTy();
+  CRetPoint* cret = new CRetPoint();
   cc::math::ToCPoint3(ret, cret);
 
   if (msm_api.log_msm) {

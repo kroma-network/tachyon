@@ -13,14 +13,14 @@
 
 namespace tachyon::zk {
 
-template <EntityTy EntityType, typename PCSTy>
+template <EntityTy EntityType, typename PCS>
 class VanishingCommitted;
 
-template <typename PCSTy>
-class VanishingCommitted<EntityTy::kProver, PCSTy> {
+template <typename PCS>
+class VanishingCommitted<EntityTy::kProver, PCS> {
  public:
-  using F = typename PCSTy::Field;
-  using Poly = typename PCSTy::Poly;
+  using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
 
   VanishingCommitted() = default;
   VanishingCommitted(Poly&& random_poly, F&& random_blind)
@@ -37,10 +37,10 @@ class VanishingCommitted<EntityTy::kProver, PCSTy> {
   F random_blind_;
 };
 
-template <typename PCSTy>
-class VanishingCommitted<EntityTy::kVerifier, PCSTy> {
+template <typename PCS>
+class VanishingCommitted<EntityTy::kVerifier, PCS> {
  public:
-  using Commitment = typename PCSTy::Commitment;
+  using Commitment = typename PCS::Commitment;
 
   VanishingCommitted() = default;
   explicit VanishingCommitted(Commitment&& random_poly_commitment)

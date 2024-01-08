@@ -6,39 +6,39 @@
 
 namespace tachyon::node::math {
 
-template <typename ProjectivePointTy,
-          typename BaseField = typename ProjectivePointTy::BaseField,
-          typename Curve = typename ProjectivePointTy::Curve,
+template <typename ProjectivePoint,
+          typename BaseField = typename ProjectivePoint::BaseField,
+          typename Curve = typename ProjectivePoint::Curve,
           typename AffinePointTy = tachyon::math::AffinePoint<Curve>>
 void AddProjectivePoint(NodeModule& m, std::string_view name) {
-  m.NewClass<ProjectivePointTy>(name)
+  m.NewClass<ProjectivePoint>(name)
       .template AddConstructor<>()
       .template AddConstructor<const BaseField&, const BaseField&,
                                const BaseField&>()
-      .AddStaticMethod("zero", &ProjectivePointTy::Zero)
-      .AddStaticMethod("generator", &ProjectivePointTy::Generator)
-      .AddStaticMethod("random", &ProjectivePointTy::Random)
-      .AddReadOnlyProperty("x", &ProjectivePointTy::x)
-      .AddReadOnlyProperty("y", &ProjectivePointTy::y)
-      .AddReadOnlyProperty("z", &ProjectivePointTy::z)
-      .AddMethod("isZero", &ProjectivePointTy::IsZero)
-      .AddMethod("isOnCurve", &ProjectivePointTy::IsOnCurve)
-      .AddMethod("toString", &ProjectivePointTy::ToString)
-      .AddMethod("toHexString", &ProjectivePointTy::ToHexString, false)
-      .AddMethod("eq", &ProjectivePointTy::operator==)
-      .AddMethod("ne", &ProjectivePointTy::operator!=)
-      .AddMethod("add", &ProjectivePointTy::template operator+
-                        <const ProjectivePointTy&>)
+      .AddStaticMethod("zero", &ProjectivePoint::Zero)
+      .AddStaticMethod("generator", &ProjectivePoint::Generator)
+      .AddStaticMethod("random", &ProjectivePoint::Random)
+      .AddReadOnlyProperty("x", &ProjectivePoint::x)
+      .AddReadOnlyProperty("y", &ProjectivePoint::y)
+      .AddReadOnlyProperty("z", &ProjectivePoint::z)
+      .AddMethod("isZero", &ProjectivePoint::IsZero)
+      .AddMethod("isOnCurve", &ProjectivePoint::IsOnCurve)
+      .AddMethod("toString", &ProjectivePoint::ToString)
+      .AddMethod("toHexString", &ProjectivePoint::ToHexString, false)
+      .AddMethod("eq", &ProjectivePoint::operator==)
+      .AddMethod("ne", &ProjectivePoint::operator!=)
+      .AddMethod("add",
+                 &ProjectivePoint::template operator+ <const ProjectivePoint&>)
       .AddMethod("addMixed",
-                 &ProjectivePointTy::template operator+ <const AffinePointTy&>)
-      .AddMethod("sub", &ProjectivePointTy::template operator-
-                        <const ProjectivePointTy&>)
+                 &ProjectivePoint::template operator+ <const AffinePointTy&>)
+      .AddMethod("sub",
+                 &ProjectivePoint::template operator- <const ProjectivePoint&>)
       .AddMethod("subMixed",
-                 &ProjectivePointTy::template operator- <const AffinePointTy&>)
+                 &ProjectivePoint::template operator- <const AffinePointTy&>)
       .AddMethod("negative",
-                 static_cast<ProjectivePointTy (ProjectivePointTy::*)() const>(
-                     &ProjectivePointTy::operator-))
-      .AddMethod("double", &ProjectivePointTy::Double);
+                 static_cast<ProjectivePoint (ProjectivePoint::*)() const>(
+                     &ProjectivePoint::operator-))
+      .AddMethod("double", &ProjectivePoint::Double);
 }
 
 }  // namespace tachyon::node::math

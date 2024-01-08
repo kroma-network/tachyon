@@ -11,21 +11,20 @@
 
 namespace tachyon::c::math {
 
-template <typename AffinePointTy>
+template <typename AffinePoint>
 class MSMInputProvider {
  public:
-  using BaseField = typename AffinePointTy::BaseField;
-  using ScalarField = typename AffinePointTy::ScalarField;
-  using CCurvePointTy =
-      typename tachyon::cc::math::PointTraits<AffinePointTy>::CCurvePointTy;
-  using CPointTy =
-      typename tachyon::cc::math::PointTraits<AffinePointTy>::CPointTy;
+  using BaseField = typename AffinePoint::BaseField;
+  using ScalarField = typename AffinePoint::ScalarField;
+  using CCurvePoint =
+      typename tachyon::cc::math::PointTraits<AffinePoint>::CCurvePoint;
+  using CPoint = typename tachyon::cc::math::PointTraits<AffinePoint>::CPoint;
   using CScalarField =
-      typename tachyon::cc::math::PointTraits<AffinePointTy>::CScalarField;
+      typename tachyon::cc::math::PointTraits<AffinePoint>::CScalarField;
 
   void set_needs_align(bool needs_align) { needs_align_ = needs_align; }
 
-  absl::Span<const AffinePointTy> bases() const { return bases_; }
+  absl::Span<const AffinePoint> bases() const { return bases_; }
   absl::Span<const ScalarField> scalars() const { return scalars_; }
 
   void Clear() {
@@ -33,7 +32,7 @@ class MSMInputProvider {
     scalars_owned_.clear();
   }
 
-  void Inject(const CPointTy* bases_in, const CScalarField* scalars_in,
+  void Inject(const CPoint* bases_in, const CScalarField* scalars_in,
               size_t size) {
     absl::Span<const tachyon::math::Point2<BaseField>> points(
         reinterpret_cast<const tachyon::math::Point2<BaseField>*>(bases_in),
@@ -43,14 +42,14 @@ class MSMInputProvider {
       aligned_size = absl::bit_ceil(size);
       bases_owned_.resize(aligned_size);
       for (size_t i = size; i < aligned_size; ++i) {
-        bases_owned_[i] = AffinePointTy::Zero();
+        bases_owned_[i] = AffinePoint::Zero();
       }
     } else {
       bases_owned_.resize(size);
     }
     for (size_t i = 0; i < size; ++i) {
-      bases_owned_[i] = AffinePointTy(
-          points[i], points[i].x.IsZero() && points[i].y.IsZero());
+      bases_owned_[i] =
+          AffinePoint(points[i], points[i].x.IsZero() && points[i].y.IsZero());
     }
     bases_ = absl::MakeConstSpan(bases_owned_);
 
@@ -69,16 +68,16 @@ class MSMInputProvider {
     }
   }
 
-  void Inject(const CCurvePointTy* bases_in, const CScalarField* scalars_in,
+  void Inject(const CCurvePoint* bases_in, const CScalarField* scalars_in,
               size_t size) {
     if (needs_align_) {
       size_t aligned_size = absl::bit_ceil(size);
       bases_owned_.resize(aligned_size);
       for (size_t i = 0; i < size; ++i) {
-        bases_owned_[i] = reinterpret_cast<const AffinePointTy*>(bases_in)[i];
+        bases_owned_[i] = reinterpret_cast<const AffinePoint*>(bases_in)[i];
       }
       for (size_t i = size; i < aligned_size; ++i) {
-        bases_owned_[i] = AffinePointTy::Zero();
+        bases_owned_[i] = AffinePoint::Zero();
       }
       scalars_owned_.resize(aligned_size);
       for (size_t i = 0; i < size; ++i) {
@@ -91,7 +90,7 @@ class MSMInputProvider {
       scalars_ = absl::MakeConstSpan(scalars_owned_);
     } else {
       bases_ = absl::MakeConstSpan(
-          reinterpret_cast<const AffinePointTy*>(bases_in), size);
+          reinterpret_cast<const AffinePoint*>(bases_in), size);
       scalars_ = absl::MakeConstSpan(
           reinterpret_cast<const ScalarField*>(scalars_in), size);
     }
@@ -99,9 +98,9 @@ class MSMInputProvider {
 
  private:
   bool needs_align_ = false;
-  absl::Span<const AffinePointTy> bases_;
+  absl::Span<const AffinePoint> bases_;
   absl::Span<const ScalarField> scalars_;
-  std::vector<AffinePointTy> bases_owned_;
+  std::vector<AffinePoint> bases_owned_;
   std::vector<ScalarField> scalars_owned_;
 };
 
