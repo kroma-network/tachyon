@@ -54,7 +54,7 @@ class VectorCommitmentScheme {
     return derived->DoUnsafeSetup(size);
   }
 
-  template <typename T = Derived, typename Params,
+  template <typename Params, typename T = Derived,
             std::enable_if_t<
                 !VectorCommitmentSchemeTraits<T>::kIsTransparent>* = nullptr>
   [[nodiscard]] bool UnsafeSetup(size_t size, const Params& params) {
