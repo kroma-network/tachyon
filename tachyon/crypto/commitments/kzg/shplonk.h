@@ -7,6 +7,7 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_KZG_SHPLONK_H_
 #define TACHYON_CRYPTO_COMMITMENTS_KZG_SHPLONK_H_
 
+#include <array>
 #include <utility>
 #include <vector>
 
@@ -40,6 +41,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       SHPlonk<Curve, MaxDegree, Commitment>>;
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using G2Point = typename Curve::G2Curve::AffinePoint;
+  using G2Prepared = typename Curve::G2Prepared;
   using Fp12 = typename Curve::Fp12;
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
@@ -56,9 +58,6 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       SHPlonk<Curve, MaxDegree, Commitment>>;
   template <typename, size_t, size_t, typename>
   friend class zk::SHPlonkExtension;
-
-  // Set 𝜏G₂
-  void SetTauG2(const G2Point& tau_g2) { tau_g2_ = tau_g2; }
 
   // UnivariatePolynomialCommitmentScheme methods
   template <typename Container>
@@ -319,14 +318,12 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     lhs += (u * q);
 
     G1Point lhs_g1[] = {lhs.ToAffine()};
-    G2Point lhs_g2[] = {G2Point::Generator()};
-    Fp12 lhs_pairing = math::Pairing<Curve>(lhs_g1, lhs_g2);
+    Fp12 lhs_pairing = math::Pairing<Curve>(lhs_g1, lhs_g2_);
 
     // rhs_g1 = [Q(𝜏)]₁
     // rhs_g2 = [𝜏]₂
     G1Point rhs_g1[] = {std::move(q)};
-    G2Point rhs_g2[] = {tau_g2_};
-    Fp12 rhs_pairing = math::Pairing<Curve>(rhs_g1, rhs_g2);
+    Fp12 rhs_pairing = math::Pairing<Curve>(rhs_g1, rhs_g2_);
 
     // clang-format off
     // e(lhs_g1, rhs_g2) ≟ e(rhs_g1, lhs_g2)
@@ -343,11 +340,13 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   // KZGFamily methods
   [[nodiscard]] bool DoUnsafeSetupWithTau(size_t size,
                                           const Field& tau) override {
-    tau_g2_ = G2Point::Generator().ScalarMul(tau).ToAffine();
+    lhs_g2_ = {G2Prepared::From(G2Point::Generator())};
+    rhs_g2_ = {G2Prepared::From((G2Point::Generator() * tau).ToAffine())};
     return true;
   }
 
-  G2Point tau_g2_;
+  std::array<G2Prepared, 1> lhs_g2_;
+  std::array<G2Prepared, 1> rhs_g2_;
 };
 
 template <typename Curve, size_t MaxDegree, typename _Commitment>
