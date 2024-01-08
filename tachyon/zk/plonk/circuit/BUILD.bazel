@@ -284,6 +284,7 @@ tachyon_cc_library(
         ":column_key",
         "//tachyon/base:logging",
         "//tachyon/base:ref",
+        "//tachyon/base:template_util",
         "//tachyon/base/containers:container_util",
         "@com_google_absl//absl/types:span",
     ],

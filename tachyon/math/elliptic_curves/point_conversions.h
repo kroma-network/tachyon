@@ -2,6 +2,7 @@
 #define TACHYON_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/template_util.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
@@ -19,7 +20,7 @@ constexpr DstPoint ConvertPoint(const SrcPoint& src_point) {
 template <typename DstContainer, typename SrcContainer>
 [[nodiscard]] constexpr bool ConvertPoints(const SrcContainer& src_points,
                                            DstContainer* dst_points) {
-  using DstPoint = typename DstContainer::value_type;
+  using DstPoint = base::container_value_t<DstContainer>;
 
   if (std::size(src_points) != std::size(*dst_points)) return false;
   for (size_t i = 0; i < std::size(src_points); ++i) {

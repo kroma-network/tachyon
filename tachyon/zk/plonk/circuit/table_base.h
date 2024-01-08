@@ -14,6 +14,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ref.h"
+#include "tachyon/base/template_util.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
 
 namespace tachyon::zk {
@@ -49,10 +50,11 @@ class TableBase {
   template <typename Container>
   std::vector<base::Ref<const PolyOrEvals>> GetColumns(
       const Container& column_keys) const {
-    using value_type = typename Container::value_type;
-    return base::Map(column_keys, [this](const value_type& column_key) {
-      return GetColumn(column_key);
-    });
+    return base::Map(
+        column_keys,
+        [this](const base::container_value_t<Container>& column_key) {
+          return GetColumn(column_key);
+        });
   }
 };
 
