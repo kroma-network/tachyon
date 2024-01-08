@@ -23,7 +23,7 @@
 namespace tachyon::crypto {
 
 template <typename LeafTy, typename HashTy, size_t MaxSize>
-class BinaryMerkleTree
+class BinaryMerkleTree final
     : public VectorCommitmentScheme<BinaryMerkleTree<LeafTy, HashTy, MaxSize>> {
  public:
   constexpr static size_t kDefaultLeavesSizeForParallelization = 1024;

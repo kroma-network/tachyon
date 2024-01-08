@@ -17,7 +17,7 @@ namespace zk {
 
 template <typename CurveTy, size_t MaxDegree, size_t MaxExtendedDegree,
           typename Commitment>
-class SHPlonkExtension
+class SHPlonkExtension final
     : public UnivariatePolynomialCommitmentSchemeExtension<
           SHPlonkExtension<CurveTy, MaxDegree, MaxExtendedDegree, Commitment>> {
  public:

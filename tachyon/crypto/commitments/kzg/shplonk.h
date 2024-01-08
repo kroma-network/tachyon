@@ -31,10 +31,10 @@ namespace crypto {
 template <typename CurveTy, size_t MaxDegree,
           typename Commitment = typename math::Pippenger<
               typename CurveTy::G1Curve::AffinePointTy>::Bucket>
-class SHPlonk : public UnivariatePolynomialCommitmentScheme<
-                    SHPlonk<CurveTy, MaxDegree, Commitment>>,
-                public KZGFamily<typename CurveTy::G1Curve::AffinePointTy,
-                                 MaxDegree, Commitment> {
+class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
+                          SHPlonk<CurveTy, MaxDegree, Commitment>>,
+                      public KZGFamily<typename CurveTy::G1Curve::AffinePointTy,
+                                       MaxDegree, Commitment> {
  public:
   using Base = UnivariatePolynomialCommitmentScheme<
       SHPlonk<CurveTy, MaxDegree, Commitment>>;
