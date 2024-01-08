@@ -13,6 +13,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/parallelize.h"
+#include "tachyon/math/base/big_int.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 
