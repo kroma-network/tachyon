@@ -308,13 +308,8 @@ class Verifier : public VerifierBase<PCSTy> {
                            std::make_move_iterator(lookup_expressions.end()));
       }
     }
-    const F& y = proof.y;
     F expected_h_eval =
-        std::accumulate(expressions.begin(), expressions.end(), F::Zero(),
-                        [&y](F& h_eval, const F& expression) {
-                          h_eval *= y;
-                          return h_eval += expression;
-                        });
+        F::template LinearCombination</*forward=*/true>(expressions, proof.y);
     return expected_h_eval /= (proof.x.Pow(this->pcs_.N()) - F::One());
   }
 };

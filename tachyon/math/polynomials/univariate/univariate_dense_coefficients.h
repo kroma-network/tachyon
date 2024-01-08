@@ -254,9 +254,9 @@ class UnivariateDenseCoefficients {
   constexpr static F HornerEvaluate(absl::Span<const F> coefficients,
                                     const Point& point) {
     return std::accumulate(coefficients.rbegin(), coefficients.rend(),
-                           F::Zero(),
-                           [&point](const F& result, const F& coeff) {
-                             return result * point + coeff;
+                           F::Zero(), [&point](F& result, const F& coeff) {
+                             result *= point;
+                             return result += coeff;
                            });
   }
 

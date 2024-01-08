@@ -1,6 +1,9 @@
 #ifndef TACHYON_MATH_BASE_SEMIGROUPS_H_
 #define TACHYON_MATH_BASE_SEMIGROUPS_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <algorithm>
 #include <vector>
 
@@ -9,6 +12,7 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/big_int.h"
@@ -377,6 +381,77 @@ class AdditiveSemigroup {
       return MultiScalarMulSSMB(scalar_or_scalars, base_or_bases, outputs);
     } else {
       static_assert(base::AlwaysFalse<G>);
+    }
+  }
+
+  // Linear combination
+  // - forward: a₀ * rⁿ⁻¹ + a₁ * rⁿ⁻² + ... + aₙ₋₁
+  // - backward: a₀ + a₁ * r + ... + aₙ₋₁ * rⁿ⁻¹
+  // NOTE(chokobole): For performance reasons, I recommend using
+  // |LinearCombinationInPlace()| if possible.
+  template <bool Forward, typename Container, typename T,
+            typename ReturnTy =
+                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
+  constexpr static ReturnTy LinearCombination(const Container& values,
+                                              const T& r) {
+    size_t size = std::size(values);
+    ReturnTy ret = ReturnTy::Zero();
+    if constexpr (Forward) {
+      for (size_t i = 0; i < size; ++i) {
+        ret *= r;
+        ret += values[i];
+      }
+    } else {
+      for (size_t i = size - 1; i != SIZE_MAX; --i) {
+        ret *= r;
+        ret += values[i];
+      }
+    }
+    return ret;
+  }
+
+  // Linear combination
+  // - forward: a₀ * rⁿ⁻¹ + a₁ * rⁿ⁻² + ... + aₙ₋₁
+  // - backward: a₀ + a₁ * r + ... + aₙ₋₁ * rⁿ⁻¹
+  // NOTE(chokobole): This gives more performant result than
+  // |LinearCombination()|.
+  //
+  // When using |LinearCombination()|, you can linearize groups as follows:
+  //
+  //   const std::vector<G> groups = {...};
+  //   G ret = G::LinearCombination(groups, G::Random());
+  //
+  // When using |LinearCombinationInPlace()|, you can save additional allocation
+  // cost.
+  //
+  //   // Note that |groups| are going to be changed.
+  //   std::vector<G> groups = {...};
+  //   G& ret = G::LinearCombinationInPlace(groups, G::Random());
+  template <bool Forward, typename Container, typename T,
+            typename ReturnTy =
+                typename internal::AdditiveSemigroupTraits<G>::ReturnTy,
+            std::enable_if_t<std::is_same_v<G, ReturnTy>>* = nullptr>
+  constexpr static G& LinearCombinationInPlace(Container& values, const T& r) {
+    size_t size = std::size(values);
+    CHECK_GT(size, size_t{0});
+    if constexpr (Forward) {
+      G& ret = values[0];
+      if (size > 1) {
+        for (size_t i = 1; i < size; ++i) {
+          ret *= r;
+          ret += values[i];
+        }
+      }
+      return ret;
+    } else {
+      G& ret = values[size - 1];
+      if (size > 1) {
+        for (size_t i = size - 2; i != SIZE_MAX; --i) {
+          ret *= r;
+          ret += values[i];
+        }
+      }
+      return ret;
     }
   }
 

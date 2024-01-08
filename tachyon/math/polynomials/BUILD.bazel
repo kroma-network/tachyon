@@ -15,7 +15,7 @@ tachyon_cc_library(
     ],
     deps = [
         ":polynomial_traits",
-        "//tachyon/math/base:rings",
+        "//tachyon/math/base:ring",
     ],
 )
 

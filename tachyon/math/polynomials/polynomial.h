@@ -3,7 +3,7 @@
 
 #include <type_traits>
 
-#include "tachyon/math/base/rings.h"
+#include "tachyon/math/base/ring.h"
 #include "tachyon/math/polynomials/polynomial_traits.h"
 
 namespace tachyon::math {
