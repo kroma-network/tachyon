@@ -61,13 +61,9 @@ class KZG {
     std::vector<Field> powers_of_tau = Field::GetSuccessivePowers(size, tau);
     std::vector<G1JacobianPoint> g1_powers_of_tau_jacobian;
 
-    g1_powers_of_tau_jacobian.resize(size);
-    if (!G1Point::MultiScalarMul(powers_of_tau, g1,
-                                 &g1_powers_of_tau_jacobian)) {
-      return false;
-    }
     g1_powers_of_tau_.resize(size);
-    if (!math::ConvertPoints(g1_powers_of_tau_jacobian, &g1_powers_of_tau_)) {
+    if (!G1Point::BatchMapScalarFieldToPoint(g1, powers_of_tau,
+                                             &g1_powers_of_tau_)) {
       return false;
     }
 
@@ -77,15 +73,9 @@ class KZG {
         domain->EvaluateAllLagrangeCoefficients(tau);
     std::vector<G1JacobianPoint> g1_powers_of_tau_lagrange_jacobian;
 
-    g1_powers_of_tau_lagrange_jacobian.resize(size);
-    if (!G1Point::MultiScalarMul(lagrange_coeffs, g1,
-                                 &g1_powers_of_tau_lagrange_jacobian)) {
-      return false;
-    }
-
     g1_powers_of_tau_lagrange_.resize(size);
-    return math::ConvertPoints(g1_powers_of_tau_lagrange_jacobian,
-                               &g1_powers_of_tau_lagrange_);
+    return G1Point::BatchMapScalarFieldToPoint(g1, lagrange_coeffs,
+                                               &g1_powers_of_tau_lagrange_);
   }
 
   // Return false if |n| >= |N()|.
