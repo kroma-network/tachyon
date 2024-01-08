@@ -29,7 +29,6 @@ TYPED_TEST(PairingTest, Bilinearity) {
   using G1AffinePoint = typename G1Curve::AffinePoint;
   using G2Curve = typename Curve::G2Curve;
   using G2AffinePoint = typename G2Curve::AffinePoint;
-  using G2Prepared = typename Curve::G2Prepared;
   using ScalarField = typename G1Curve::ScalarField;
   using Fp12 = typename Curve::Fp12;
 
@@ -41,14 +40,14 @@ TYPED_TEST(PairingTest, Bilinearity) {
   Fp12 result;
   {
     G1AffinePoint g1s[] = {(a * b * g1).ToAffine()};
-    G2Prepared g2s[] = {G2Prepared::From(g2)};
+    G2AffinePoint g2s[] = {g2};
     result = Pairing<Curve>(g1s, g2s);
   }
 
   Fp12 result2;
   {
     G1AffinePoint g1s[] = {(a * g1).ToAffine()};
-    G2Prepared g2s[] = {G2Prepared::From((b * g2).ToAffine())};
+    G2AffinePoint g2s[] = {(b * g2).ToAffine()};
     result2 = Pairing<Curve>(g1s, g2s);
   }
 
@@ -57,7 +56,7 @@ TYPED_TEST(PairingTest, Bilinearity) {
   Fp12 result3;
   {
     G1AffinePoint g1s[] = {(b * g1).ToAffine()};
-    G2Prepared g2s[] = {G2Prepared::From((a * g2).ToAffine())};
+    G2AffinePoint g2s[] = {(a * g2).ToAffine()};
     result3 = Pairing<Curve>(g1s, g2s);
   }
 
@@ -66,7 +65,7 @@ TYPED_TEST(PairingTest, Bilinearity) {
   Fp12 result4;
   {
     G1AffinePoint g1s[] = {g1};
-    G2Prepared g2s[] = {G2Prepared::From((a * b * g2).ToAffine())};
+    G2AffinePoint g2s[] = {(a * b * g2).ToAffine()};
     result4 = Pairing<Curve>(g1s, g2s);
   }
 
