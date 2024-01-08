@@ -5,9 +5,11 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
@@ -107,6 +109,35 @@ class PointXYZZ<_Curve,
   constexpr static PointXYZZ Endomorphism(const PointXYZZ& point) {
     return PointXYZZ(point.x_ * Curve::Config::kEndomorphismCoefficient,
                      point.y_, point.zz_, point.zzz_);
+  }
+
+  // TODO(chokobole): Implement parallel versioned |BatchNormalize| when doing
+  // chunking and zipping gets easier.
+  template <typename PointXYZZContainer, typename AffineContainer>
+  [[nodiscard]] constexpr static bool BatchNormalize(
+      const PointXYZZContainer& point_xyzzs, AffineContainer* affine_points) {
+    size_t size = std::size(point_xyzzs);
+    if (size != std::size(*affine_points)) {
+      LOG(ERROR) << "Size of |point_xyzzs| and |affine_points| do not match";
+      return false;
+    }
+    std::vector<BaseField> zzz_inverses = base::Map(
+        point_xyzzs, [](const PointXYZZ& point) { return point.zzz_; });
+    if (!BaseField::BatchInverseInPlaceSerial(zzz_inverses)) return false;
+    for (size_t i = 0; i < size; ++i) {
+      const BaseField& z_inv_cubic = zzz_inverses[i];
+      if (z_inv_cubic.IsZero()) {
+        (*affine_points)[i] = AffinePoint<Curve>::Zero();
+      } else if (z_inv_cubic.IsOne()) {
+        (*affine_points)[i] = {point_xyzzs[i].x_, point_xyzzs[i].y_};
+      } else {
+        BaseField z_inv_square = z_inv_cubic * point_xyzzs[i].zz_;
+        z_inv_square.SquareInPlace();
+        (*affine_points)[i] = {point_xyzzs[i].x_ * z_inv_square,
+                               point_xyzzs[i].y_ * z_inv_cubic};
+      }
+    }
+    return true;
   }
 
   constexpr const BaseField& x() const { return x_; }

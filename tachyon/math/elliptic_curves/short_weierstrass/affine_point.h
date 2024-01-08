@@ -5,9 +5,11 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
@@ -102,6 +104,21 @@ class AffinePoint<
   constexpr static AffinePoint Endomorphism(const AffinePoint& point) {
     return AffinePoint(point.x_ * Curve::Config::kEndomorphismCoefficient,
                        point.y_);
+  }
+
+  template <typename ScalarFieldContainer, typename AffineContainer>
+  [[nodiscard]] constexpr static bool BatchMapScalarFieldToPoint(
+      const AffinePoint& point, const ScalarFieldContainer& scalar_fields,
+      AffineContainer* affine_points) {
+    size_t size = std::size(scalar_fields);
+    if (size != std::size(*affine_points)) {
+      LOG(ERROR) << "Size of |scalar_fields| and |affine_points| do not match";
+      return false;
+    }
+    std::vector<JacobianPointTy> jacobian_points = base::Map(
+        scalar_fields,
+        [&point](const ScalarField& scalar) { return scalar * point; });
+    return JacobianPointTy::BatchNormalize(jacobian_points, affine_points);
   }
 
   constexpr const BaseField& x() const { return x_; }
