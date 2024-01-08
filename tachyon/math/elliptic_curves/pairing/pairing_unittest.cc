@@ -1,7 +1,5 @@
 #include "tachyon/math/elliptic_curves/pairing/pairing.h"
 
-#include <vector>
-
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/bls12_381.h"
@@ -42,15 +40,15 @@ TYPED_TEST(PairingTest, Bilinearity) {
 
   Fp12Ty result;
   {
-    std::vector<G1AffinePointTy> g1s = {(a * b * g1).ToAffine()};
-    std::vector<G2Prepared> g2s = {G2Prepared::From(g2)};
+    G1AffinePointTy g1s[] = {(a * b * g1).ToAffine()};
+    G2Prepared g2s[] = {G2Prepared::From(g2)};
     result = Pairing<Curve>(g1s, g2s);
   }
 
   Fp12Ty result2;
   {
-    std::vector<G1AffinePointTy> g1s = {(a * g1).ToAffine()};
-    std::vector<G2Prepared> g2s = {G2Prepared::From((b * g2).ToAffine())};
+    G1AffinePointTy g1s[] = {(a * g1).ToAffine()};
+    G2Prepared g2s[] = {G2Prepared::From((b * g2).ToAffine())};
     result2 = Pairing<Curve>(g1s, g2s);
   }
 
@@ -58,8 +56,8 @@ TYPED_TEST(PairingTest, Bilinearity) {
 
   Fp12Ty result3;
   {
-    std::vector<G1AffinePointTy> g1s = {(b * g1).ToAffine()};
-    std::vector<G2Prepared> g2s = {G2Prepared::From((a * g2).ToAffine())};
+    G1AffinePointTy g1s[] = {(b * g1).ToAffine()};
+    G2Prepared g2s[] = {G2Prepared::From((a * g2).ToAffine())};
     result3 = Pairing<Curve>(g1s, g2s);
   }
 
@@ -67,8 +65,8 @@ TYPED_TEST(PairingTest, Bilinearity) {
 
   Fp12Ty result4;
   {
-    std::vector<G1AffinePointTy> g1s = {g1};
-    std::vector<G2Prepared> g2s = {G2Prepared::From((a * b * g2).ToAffine())};
+    G1AffinePointTy g1s[] = {g1};
+    G2Prepared g2s[] = {G2Prepared::From((a * b * g2).ToAffine())};
     result4 = Pairing<Curve>(g1s, g2s);
   }
 
