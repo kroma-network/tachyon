@@ -307,46 +307,35 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     }
 
     // clang-format off
-    // lhs_g1 = ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u) - Z₀(u)[H(𝜏)]₁ + u[Q(𝜏)]₁
-    // lhs_g2 = [1]₂
+    // |p| = ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u) - Z₀(u)[H(𝜏)]₁ + u[Q(𝜏)]₁
     // clang-format on
-    G1JacobianPoint& lhs =
+    G1JacobianPoint& p =
         G1JacobianPoint::template LinearCombinationInPlace</*forward=*/false>(
             normalized_l_commitments, v);
 
-    lhs -= (first_z * h);
-    lhs += (u * q);
-
-    G1Point lhs_g1[] = {lhs.ToAffine()};
-    Fp12 lhs_pairing = math::Pairing<Curve>(lhs_g1, lhs_g2_);
-
-    // rhs_g1 = [Q(𝜏)]₁
-    // rhs_g2 = [𝜏]₂
-    G1Point rhs_g1[] = {std::move(q)};
-    Fp12 rhs_pairing = math::Pairing<Curve>(rhs_g1, rhs_g2_);
+    p -= (first_z * h);
+    p += (u * q);
 
     // clang-format off
-    // e(lhs_g1, rhs_g2) ≟ e(rhs_g1, lhs_g2)
-    // lhs: e(G₁, G₂)^((L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏))
-    // rhs: e(G₁, G₂)^(𝜏 * Q(𝜏))
-    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏) ≟ 𝜏 * Q(𝜏)
+    // e(p, [1]₂) * e([Q(𝜏)]₁, [-𝜏]₂) ≟ gᴛ⁰
+    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏) - 𝜏 * Q(𝜏) ≟ 0
     // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) ≟ (𝜏 - u) * Q(𝜏)
     // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏) - Zᴛ(u) * H(𝜏)) / Zᴛ\₀(u) ≟ (𝜏 - u) * Q(𝜏)
     // L(𝜏) ≟ (𝜏 - u) * Q(𝜏) * Zᴛ\₀(u)
     // clang-format on
-    return lhs_pairing == rhs_pairing;
+    G1Point g1_arr[] = {p.ToAffine(), std::move(q)};
+    return math::Pairing<Curve>(g1_arr, g2_arr_).IsOne();
   }
 
   // KZGFamily methods
   [[nodiscard]] bool DoUnsafeSetupWithTau(size_t size,
                                           const Field& tau) override {
-    lhs_g2_ = {G2Prepared::From(G2Point::Generator())};
-    rhs_g2_ = {G2Prepared::From((G2Point::Generator() * tau).ToAffine())};
+    g2_arr_ = {G2Prepared::From(G2Point::Generator()),
+               G2Prepared::From((G2Point::Generator() * -tau).ToAffine())};
     return true;
   }
 
-  std::array<G2Prepared, 1> lhs_g2_;
-  std::array<G2Prepared, 1> rhs_g2_;
+  std::array<G2Prepared, 2> g2_arr_;
 };
 
 template <typename Curve, size_t MaxDegree, typename _Commitment>
