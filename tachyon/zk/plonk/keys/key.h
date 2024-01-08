@@ -48,7 +48,7 @@ class Key {
   };
 
   template <typename CircuitTy>
-  bool PreLoad(Entity<PCSTy>* entity, const CircuitTy& circuit,
+  bool PreLoad(Entity<PCSTy>* entity, CircuitTy& circuit,
                PreLoadResult* result) {
     using Config = typename CircuitTy::Config;
     using FloorPlanner = typename CircuitTy::FloorPlanner;
@@ -70,7 +70,8 @@ class Key {
 
     result->assembly = CreateAssembly(entity->domain(), constraint_system);
     Assembly<PCSTy>& assembly = result->assembly;
-    FloorPlanner::Synthesize(&assembly, circuit, std::move(config),
+    FloorPlanner floor_planner;
+    floor_planner.Synthesize(&assembly, circuit, std::move(config),
                              constraint_system.constants());
 
     result->fixed_columns =

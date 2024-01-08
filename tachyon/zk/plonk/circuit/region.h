@@ -79,12 +79,12 @@ class Region {
   // See the comment above.
   void EnableSelector(std::string_view name, const Selector& selector,
                       size_t offset) {
-    layouter_->EnableSelector(name, selector, offset);
+    layouter_->EnableSelector(std::move(name), selector, offset);
   }
 
   // See the comment above.
   void NameColumn(std::string_view name, const AnyColumnKey& column) {
-    layouter_->NameColumn(name, column);
+    layouter_->NameColumn(std::move(name), column);
   }
 
   // See the comment above.
@@ -92,11 +92,11 @@ class Region {
                                const AdviceColumnKey& column, size_t offset,
                                AssignCallback assign) {
     Value<F> value = Value<F>::Unknown();
-    Cell cell =
-        layouter_->AssignAdvice(name, column, offset, [&value, &assign]() {
-          value = std::move(assign).Run();
-          return value.ToRationalFieldValue();
-        });
+    Cell cell = layouter_->AssignAdvice(std::move(name), column, offset,
+                                        [&value, &assign]() {
+                                          value = std::move(assign).Run();
+                                          return value.ToRationalFieldValue();
+                                        });
     return {std::move(cell), std::move(value)};
   }
 
@@ -105,7 +105,7 @@ class Region {
                                            const AdviceColumnKey& column,
                                            size_t offset, const F& constant) {
     Cell cell = layouter_->AssignAdviceFromConstant(
-        name, column, offset, math::RationalField<F>(constant));
+        std::move(name), column, offset, math::RationalField<F>(constant));
     return {std::move(cell), Value<F>::Known(constant)};
   }
 
@@ -115,8 +115,8 @@ class Region {
                                            size_t row,
                                            const AdviceColumnKey& advice,
                                            size_t offset) {
-    return layouter_->AssignAdviceFromInstance(name, instance, row, advice,
-                                               offset);
+    return layouter_->AssignAdviceFromInstance(std::move(name), instance, row,
+                                               advice, offset);
   }
 
   // See the comment above.
@@ -124,11 +124,11 @@ class Region {
                               const FixedColumnKey& column, size_t offset,
                               AssignCallback assign) {
     Value<F> value = Value<F>::Unknown();
-    Cell cell =
-        layouter_->AssignFixed(name, column, offset, [&value, &assign]() {
-          value = std::move(assign).Run();
-          return value.ToRationalFieldValue();
-        });
+    Cell cell = layouter_->AssignFixed(std::move(name), column, offset,
+                                       [&value, &assign]() {
+                                         value = std::move(assign).Run();
+                                         return value.ToRationalFieldValue();
+                                       });
     return {std::move(cell), std::move(value)};
   }
 
@@ -158,8 +158,8 @@ AssignedCell<F> AssignedCell<F>::CopyAdvice(std::string_view name,
                                             Region<F>& region,
                                             const AdviceColumnKey& column,
                                             size_t offset) const {
-  AssignedCell<F> ret =
-      region.AssignAdvice(name, column, offset, [this]() { return value_; });
+  AssignedCell<F> ret = region.AssignAdvice(std::move(name), column, offset,
+                                            [this]() { return value_; });
   region.ConstrainEqual(ret.cell_, cell_);
   return ret;
 }

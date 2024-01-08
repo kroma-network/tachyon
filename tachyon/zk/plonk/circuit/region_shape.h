@@ -44,7 +44,7 @@ class RegionShape : public Region<F>::Layouter {
   Cell AssignAdviceFromConstant(
       std::string_view name, const AdviceColumnKey& column, size_t offset,
       const math::RationalField<F>& constant) override {
-    return AssignAdvice(name, column, offset, AssignCallback());
+    return AssignAdvice(std::move(name), column, offset, AssignCallback());
   }
 
   AssignedCell<F> AssignAdviceFromInstance(std::string_view,
@@ -69,7 +69,7 @@ class RegionShape : public Region<F>::Layouter {
     row_count_ = std::max(row_count_, offset + 1);
   }
 
-  const size_t region_index_ = 0;
+  size_t region_index_ = 0;
   absl::flat_hash_set<RegionColumn> columns_;
   size_t row_count_ = 0;
 };

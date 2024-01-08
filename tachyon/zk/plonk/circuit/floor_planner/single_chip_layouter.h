@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -11,6 +12,7 @@
 
 #include "tachyon/base/functional/identity.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/constant.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 #include "tachyon/zk/plonk/circuit/region_column.h"
@@ -21,11 +23,7 @@ namespace tachyon::zk {
 template <typename F>
 class SingleChipLayouter : public Layouter<F> {
  public:
-  struct Constant {
-    math::RationalField<F> value;
-    Cell cell;
-  };
-  using Constants = std::vector<Constant>;
+  using Constants = std::vector<Constant<F>>;
 
   class Region : public zk::Region<F>::Layouter {
    public:
@@ -40,18 +38,19 @@ class SingleChipLayouter : public Layouter<F> {
     void EnableSelector(std::string_view name, const Selector& selector,
                         size_t offset) override {
       layouter_->assignment_->EnableSelector(
-          name, selector, layouter_->regions_[region_index_] + offset);
+          std::move(name), selector,
+          layouter_->regions_[region_index_] + offset);
     }
 
     void NameColumn(std::string_view name,
                     const AnyColumnKey& column) override {
-      layouter_->assignment_->NameColumn(name, column);
+      layouter_->assignment_->NameColumn(std::move(name), column);
     }
 
     Cell AssignAdvice(std::string_view name, const AdviceColumnKey& column,
                       size_t offset, AssignCallback assign) override {
       layouter_->assignment_->AssignAdvice(
-          name, column, layouter_->regions_[region_index_] + offset,
+          std::move(name), column, layouter_->regions_[region_index_] + offset,
           std::move(assign));
       return {region_index_, offset, column};
     }
@@ -59,7 +58,7 @@ class SingleChipLayouter : public Layouter<F> {
     Cell AssignAdviceFromConstant(
         std::string_view name, const AdviceColumnKey& column, size_t offset,
         const math::RationalField<F>& constant) override {
-      Cell cell = AssignAdvice(name, column, offset, [&constant]() {
+      Cell cell = AssignAdvice(std::move(name), column, offset, [&constant]() {
         return Value<math::RationalField<F>>::Known(constant);
       });
       ConstrainConstant(cell, constant);
@@ -73,7 +72,7 @@ class SingleChipLayouter : public Layouter<F> {
                                              size_t offset) override {
       Value<F> value = layouter_->assignment_->QueryInstance(instance, row);
 
-      Cell cell = AssignAdvice(name, advice, offset, [&value]() {
+      Cell cell = AssignAdvice(std::move(name), advice, offset, [&value]() {
         return Value<math::RationalField<F>>::Known(
             math::RationalField<F>(value.value()));
       });
@@ -89,7 +88,7 @@ class SingleChipLayouter : public Layouter<F> {
     Cell AssignFixed(std::string_view name, const FixedColumnKey& column,
                      size_t offset, AssignCallback assign) override {
       layouter_->assignment_->AssignFixed(
-          name, column, layouter_->regions_[region_index_] + offset,
+          std::move(name), column, layouter_->regions_[region_index_] + offset,
           std::move(assign));
       return {region_index_, offset, column};
     }
@@ -177,7 +176,7 @@ class SingleChipLayouter : public Layouter<F> {
     }
 
     // Assign region cells.
-    assignment_->EnterRegion(std::move(name));
+    assignment_->EnterRegion(name);
     Region region(this, region_index);
     {
       // TODO(chokobole): Add event trace using
@@ -195,13 +194,13 @@ class SingleChipLayouter : public Layouter<F> {
     } else {
       const FixedColumnKey& constants_column = constants_[0];
       size_t& next_constant_row = columns_[RegionColumn(constants_column)];
-      for (const Constant& constant : region.constants()) {
+      for (const Constant<F>& constant : region.constants()) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
         std::string name =
             absl::Substitute("Constant($0)", value.Evaluate().ToString());
         assignment_->AssignFixed(
-            name, constants_column, next_constant_row,
+            std::move(name), constants_column, next_constant_row,
             [&value]() { return Value<math::RationalField<F>>::Known(value); });
         assignment_->Copy(
             constants_column, next_constant_row, advice.column(),
@@ -214,8 +213,10 @@ class SingleChipLayouter : public Layouter<F> {
   void AssignLookupTable(std::string_view name,
                          AssignLookupTableCallback assign) override {
     // Maintenance hazard: there is near-duplicate code in
-    // |v1::AssignmentPass::AssignLookupTable|. Assign table cells.
-    assignment_->EnterRegion(name);
+    // |AssignmentPass::AssignLookupTable|.
+
+    // Assign table cells.
+    assignment_->EnterRegion(std::move(name));
     SimpleLookupTableLayouter<F> lookup_table_layouter(assignment_,
                                                        &lookup_table_columns_);
     {
@@ -282,7 +283,7 @@ class SingleChipLayouter : public Layouter<F> {
   Layouter<F>* GetRoot() override { return this; }
 
   void PushNamespace(std::string_view name) override {
-    assignment_->PushNamespace(name);
+    assignment_->PushNamespace(std::move(name));
   }
 
   void PopNamespace(const std::optional<std::string>& gadget_name) override {

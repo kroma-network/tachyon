@@ -11,6 +11,7 @@
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
 #include "tachyon/zk/plonk/constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
@@ -37,7 +38,7 @@ TEST_F(VanishingArgumentTest, BuildExtendedCircuitColumn) {
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<F> circuit(constant, a, b);
+  SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
 
   ProvingKey<PCS> pkey;
   ASSERT_TRUE(pkey.Load(prover_.get(), circuit));
@@ -88,7 +89,8 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
   VanishingCommitted<EntityTy::kProver, PCS> committed_p;
   ASSERT_TRUE(CommitRandomPoly(prover_.get(), &committed_p));
 
-  SimpleCircuit<F> circuit = SimpleCircuit<F>();
+  SimpleCircuit<F, SimpleFloorPlanner> circuit =
+      SimpleCircuit<F, SimpleFloorPlanner>();
   VerifyingKey<PCS> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
