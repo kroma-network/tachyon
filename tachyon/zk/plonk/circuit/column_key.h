@@ -148,14 +148,18 @@ class ColumnKey : public ColumnKeyBase {
   size_t index() const { return index_; }
   Phase phase() const { return phase_; }
 
-  bool operator==(const ColumnKey& other) const {
+  template <ColumnType C2>
+  bool operator==(const ColumnKey<C2>& other) const {
     if (!ColumnKeyBase::operator==(other)) return false;
     if (type_ == ColumnType::kAdvice) {
       return phase_ == other.phase_;
     }
     return true;
   }
-  bool operator!=(const ColumnKey& other) const { return !operator==(other); }
+  template <ColumnType C2>
+  bool operator!=(const ColumnKey<C2>& other) const {
+    return !operator==(other);
+  }
 
   // This ordering is consensus-critical! The layouters rely on deterministic
   // column orderings.
