@@ -21,6 +21,7 @@ tachyon_cc_library(
         "projective_point_impl.h",
     ],
     deps = [
+        "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/base:groups",
         "//tachyon/math/elliptic_curves:points",
@@ -54,6 +55,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":points",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
     ],
 )

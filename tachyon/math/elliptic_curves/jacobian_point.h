@@ -3,12 +3,10 @@
 
 #include <utility>
 
-#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
 #include "tachyon/math/geometry/point3.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename Curve, typename SFINAE = void>
 class JacobianPoint;
@@ -39,35 +37,6 @@ struct PointConversions<JacobianPoint<SrcCurve>, JacobianPoint<DstCurve>,
   }
 };
 
-}  // namespace math
-
-namespace base {
-
-template <typename Curve>
-class Copyable<math::JacobianPoint<Curve>> {
- public:
-  static bool WriteTo(const math::JacobianPoint<Curve>& point, Buffer* buffer) {
-    return buffer->WriteMany(point.x(), point.y(), point.z());
-  }
-
-  static bool ReadFrom(const Buffer& buffer,
-                       math::JacobianPoint<Curve>* point) {
-    using BaseField = typename math::JacobianPoint<Curve>::BaseField;
-    BaseField x, y, z;
-    if (!buffer.ReadMany(&x, &y, &z)) return false;
-
-    *point =
-        math::JacobianPoint<Curve>(std::move(x), std::move(y), std::move(z));
-    return true;
-  }
-
-  static size_t EstimateSize(const math::JacobianPoint<Curve>& point) {
-    return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
-           base::EstimateSize(point.z());
-  }
-};
-
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_JACOBIAN_POINT_H_

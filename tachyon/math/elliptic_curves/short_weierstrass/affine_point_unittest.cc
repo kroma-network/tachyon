@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
@@ -160,6 +161,19 @@ TEST_F(AffinePointTest, CreateFromX) {
         test::AffinePoint::CreateFromX(GF7(1), /*pick_odd=*/false);
     ASSERT_FALSE(p.has_value());
   }
+}
+
+TEST_F(AffinePointTest, Copyable) {
+  test::AffinePoint expected = test::AffinePoint::Random();
+  test::AffinePoint value;
+
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Write(expected));
+
+  write_buf.set_buffer_offset(0);
+  ASSERT_TRUE(write_buf.Read(&value));
+
+  EXPECT_EQ(expected, value);
 }
 
 }  // namespace tachyon::math

@@ -9,6 +9,7 @@
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/groups.h"
@@ -19,7 +20,8 @@
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/geometry/point3.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 template <typename _Curve>
 class JacobianPoint<
@@ -232,8 +234,38 @@ class JacobianPoint<
   BaseField y_;
   BaseField z_;
 };
+}  // namespace math
 
-}  // namespace tachyon::math
+namespace base {
+
+template <typename Curve>
+class Copyable<math::JacobianPoint<
+    Curve,
+    std::enable_if_t<Curve::kType == math::CurveType::kShortWeierstrass>>> {
+ public:
+  static bool WriteTo(const math::JacobianPoint<Curve>& point, Buffer* buffer) {
+    return buffer->WriteMany(point.x(), point.y(), point.z());
+  }
+
+  static bool ReadFrom(const Buffer& buffer,
+                       math::JacobianPoint<Curve>* point) {
+    using BaseField = typename math::JacobianPoint<Curve>::BaseField;
+    BaseField x, y, z;
+    if (!buffer.ReadMany(&x, &y, &z)) return false;
+
+    *point =
+        math::JacobianPoint<Curve>(std::move(x), std::move(y), std::move(z));
+    return true;
+  }
+
+  static size_t EstimateSize(const math::JacobianPoint<Curve>& point) {
+    return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
+           base::EstimateSize(point.z());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point_impl.h"
 

@@ -20,7 +20,8 @@
 #include "tachyon/math/elliptic_curves/semigroups.h"
 #include "tachyon/math/geometry/point2.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 template <typename _Curve>
 class AffinePoint<
@@ -203,7 +204,37 @@ class AffinePoint<
   bool infinity_;
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename Curve>
+class Copyable<math::AffinePoint<
+    Curve,
+    std::enable_if_t<Curve::kType == math::CurveType::kShortWeierstrass>>> {
+ public:
+  static bool WriteTo(const math::AffinePoint<Curve>& point, Buffer* buffer) {
+    return buffer->WriteMany(point.x(), point.y(), point.infinity());
+  }
+
+  static bool ReadFrom(const Buffer& buffer, math::AffinePoint<Curve>* point) {
+    using BaseField = typename math::AffinePoint<Curve>::BaseField;
+    BaseField x, y;
+    bool infinity;
+    if (!buffer.ReadMany(&x, &y, &infinity)) return false;
+
+    *point = math::AffinePoint<Curve>(std::move(x), std::move(y), infinity);
+    return true;
+  }
+
+  static size_t EstimateSize(const math::AffinePoint<Curve>& point) {
+    return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
+           base::EstimateSize(point.infinity());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point_impl.h"
 

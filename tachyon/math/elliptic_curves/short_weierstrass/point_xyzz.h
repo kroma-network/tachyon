@@ -18,7 +18,8 @@
 #include "tachyon/math/elliptic_curves/projective_point.h"
 #include "tachyon/math/geometry/point4.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 template <typename _Curve>
 class PointXYZZ<_Curve,
@@ -250,7 +251,37 @@ class PointXYZZ<_Curve,
   BaseField zzz_;
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename Curve>
+class Copyable<math::PointXYZZ<
+    Curve,
+    std::enable_if_t<Curve::kType == math::CurveType::kShortWeierstrass>>> {
+ public:
+  static bool WriteTo(const math::PointXYZZ<Curve>& point, Buffer* buffer) {
+    return buffer->WriteMany(point.x(), point.y(), point.zz(), point.zzz());
+  }
+
+  static bool ReadFrom(const Buffer& buffer, math::PointXYZZ<Curve>* point) {
+    using BaseField = typename math::PointXYZZ<Curve>::BaseField;
+    BaseField x, y, zz, zzz;
+    if (!buffer.ReadMany(&x, &y, &zz, &zzz)) return false;
+
+    *point = math::PointXYZZ<Curve>(std::move(x), std::move(y), std::move(zz),
+                                    std::move(zzz));
+    return true;
+  }
+
+  static size_t EstimateSize(const math::PointXYZZ<Curve>& point) {
+    return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
+           base::EstimateSize(point.zz()) + base::EstimateSize(point.zzz());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz_impl.h"
 

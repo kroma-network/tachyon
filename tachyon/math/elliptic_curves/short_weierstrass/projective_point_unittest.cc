@@ -5,6 +5,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
@@ -215,6 +216,19 @@ TEST_F(ProjectivePointTest, CreateFromX) {
         test::ProjectivePoint::CreateFromX(GF7(1), /*pick_odd=*/false);
     ASSERT_FALSE(p.has_value());
   }
+}
+
+TEST_F(ProjectivePointTest, Copyable) {
+  test::ProjectivePoint expected = test::ProjectivePoint::Random();
+  test::ProjectivePoint value;
+
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Write(expected));
+
+  write_buf.set_buffer_offset(0);
+  ASSERT_TRUE(write_buf.Read(&value));
+
+  EXPECT_EQ(expected, value);
 }
 
 }  // namespace tachyon::math
