@@ -11,10 +11,12 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #include "absl/hash/hash.h"
 
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/polynomials/polynomial.h"
 #include "tachyon/math/polynomials/univariate/univariate_dense_coefficients.h"
@@ -291,6 +293,29 @@ class Copyable<math::UnivariatePolynomial<Coefficients>> {
   static size_t EstimateSize(
       const math::UnivariatePolynomial<Coefficients>& poly) {
     return base::EstimateSize(poly.coefficients());
+  }
+};
+
+template <typename F, size_t MaxDegree>
+class RapidJsonValueConverter<math::UnivariateDensePolynomial<F, MaxDegree>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(
+      const math::UnivariateDensePolynomial<F, MaxDegree>& value,
+      Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "coefficients", value.coefficients(), allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::UnivariateDensePolynomial<F, MaxDegree>* value,
+                 std::string* error) {
+    math::UnivariateDenseCoefficients<F, MaxDegree> dense_coeffs;
+    if (!ParseJsonElement(json_value, "coefficients", &dense_coeffs, error))
+      return false;
+    *value = math::UnivariatePolynomial(std::move(dense_coeffs));
+    return true;
   }
 };
 
