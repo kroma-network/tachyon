@@ -10,6 +10,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
@@ -277,6 +278,40 @@ class Copyable<math::PointXYZZ<
   static size_t EstimateSize(const math::PointXYZZ<Curve>& point) {
     return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
            base::EstimateSize(point.zz()) + base::EstimateSize(point.zzz());
+  }
+};
+
+template <typename Curve>
+class RapidJsonValueConverter<math::PointXYZZ<
+    Curve,
+    std::enable_if_t<Curve::kType == math::CurveType::kShortWeierstrass>>> {
+ public:
+  using Field = typename math::PointXYZZ<Curve>::BaseField;
+
+  template <typename Allocator>
+  static rapidjson::Value From(const math::PointXYZZ<Curve>& value,
+                               Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "x", value.x(), allocator);
+    AddJsonElement(object, "y", value.y(), allocator);
+    AddJsonElement(object, "zz", value.zz(), allocator);
+    AddJsonElement(object, "zzz", value.zzz(), allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::PointXYZZ<Curve>* value, std::string* error) {
+    Field x;
+    Field y;
+    Field zz;
+    Field zzz;
+    if (!ParseJsonElement(json_value, "x", &x, error)) return false;
+    if (!ParseJsonElement(json_value, "y", &y, error)) return false;
+    if (!ParseJsonElement(json_value, "zz", &zz, error)) return false;
+    if (!ParseJsonElement(json_value, "zzz", &zzz, error)) return false;
+    *value = math::PointXYZZ<Curve>(std::move(x), std::move(y), std::move(zz),
+                                    std::move(zzz));
+    return true;
   }
 };
 

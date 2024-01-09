@@ -262,6 +262,37 @@ class Copyable<math::ProjectivePoint<
   }
 };
 
+template <typename Curve>
+class RapidJsonValueConverter<math::ProjectivePoint<
+    Curve,
+    std::enable_if_t<Curve::kType == math::CurveType::kShortWeierstrass>>> {
+ public:
+  using Field = typename math::ProjectivePoint<Curve>::BaseField;
+
+  template <typename Allocator>
+  static rapidjson::Value From(const math::ProjectivePoint<Curve>& value,
+                               Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "x", value.x(), allocator);
+    AddJsonElement(object, "y", value.y(), allocator);
+    AddJsonElement(object, "z", value.z(), allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::ProjectivePoint<Curve>* value, std::string* error) {
+    Field x;
+    Field y;
+    Field z;
+    if (!ParseJsonElement(json_value, "x", &x, error)) return false;
+    if (!ParseJsonElement(json_value, "y", &y, error)) return false;
+    if (!ParseJsonElement(json_value, "z", &z, error)) return false;
+    *value =
+        math::ProjectivePoint<Curve>(std::move(x), std::move(y), std::move(z));
+    return true;
+  }
+};
+
 }  // namespace base
 }  // namespace tachyon
 

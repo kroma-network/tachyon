@@ -231,4 +231,19 @@ TEST_F(PointXYZZTest, Copyable) {
   EXPECT_EQ(expected, value);
 }
 
+TEST_F(PointXYZZTest, JsonValueConverter) {
+  test::PointXYZZ expected_point(GF7(1), GF7(2), GF7(3), GF7(4));
+  std::string expected_json =
+      R"({"x":{"value":"0x1"},"y":{"value":"0x2"},"zz":{"value":"0x3"},"zzz":{"value":"0x4"}})";
+
+  test::PointXYZZ p;
+  std::string error;
+  ASSERT_TRUE(base::ParseJson(expected_json, &p, &error));
+  ASSERT_TRUE(error.empty());
+  EXPECT_EQ(p, expected_point);
+
+  std::string json = base::WriteToJson(p);
+  EXPECT_EQ(json, expected_json);
+}
+
 }  // namespace tachyon::math
