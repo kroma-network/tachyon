@@ -5,6 +5,39 @@
 
 namespace tachyon::zk {
 
+TEST(RegionColumnTest, Order) {
+  EXPECT_FALSE(RegionColumn(FixedColumnKey()) < RegionColumn(FixedColumnKey()));
+
+  EXPECT_FALSE(RegionColumn(Selector::Simple(0)) <
+               RegionColumn(Selector::Simple(0)));
+  EXPECT_TRUE(RegionColumn(Selector::Simple(0)) <
+              RegionColumn(Selector::Simple(1)));
+
+  EXPECT_FALSE(RegionColumn(Selector::Complex(0)) <
+               RegionColumn(Selector::Complex(0)));
+  EXPECT_TRUE(RegionColumn(Selector::Complex(0)) <
+              RegionColumn(Selector::Complex(1)));
+
+  EXPECT_TRUE(RegionColumn(AnyColumnKey()) < RegionColumn(Selector::Simple(0)));
+  EXPECT_TRUE(RegionColumn(AnyColumnKey()) <
+              RegionColumn(Selector::Complex(0)));
+
+  EXPECT_TRUE(RegionColumn(InstanceColumnKey()) <
+              RegionColumn(Selector::Simple(0)));
+  EXPECT_TRUE(RegionColumn(InstanceColumnKey()) <
+              RegionColumn(Selector::Complex(0)));
+
+  EXPECT_TRUE(RegionColumn(AdviceColumnKey()) <
+              RegionColumn(Selector::Simple(0)));
+  EXPECT_TRUE(RegionColumn(AdviceColumnKey()) <
+              RegionColumn(Selector::Complex(0)));
+
+  EXPECT_TRUE(RegionColumn(FixedColumnKey()) <
+              RegionColumn(Selector::Simple(0)));
+  EXPECT_TRUE(RegionColumn(FixedColumnKey()) <
+              RegionColumn(Selector::Complex(0)));
+}
+
 TEST(RegionColumnTest, Hash) {
   EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(std::make_tuple(
       RegionColumn(FixedColumnKey(0)), RegionColumn(FixedColumnKey(1)),

@@ -43,7 +43,7 @@ class Assembly : public Assignment<typename PCS::Field> {
   const base::Range<size_t>& usable_rows() const { return usable_rows_; }
 
   // Assignment methods
-  void EnableSelector(std::string_view name, const Selector& selector,
+  void EnableSelector(std::string_view, const Selector& selector,
                       size_t row) override {
     CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
     selectors_[selector.index()][row] = true;
@@ -54,8 +54,8 @@ class Assembly : public Assignment<typename PCS::Field> {
     return Value<F>::Unknown();
   }
 
-  void AssignFixed(std::string_view name, const FixedColumnKey& column,
-                   size_t row, AssignCallback assign) override {
+  void AssignFixed(std::string_view, const FixedColumnKey& column, size_t row,
+                   AssignCallback assign) override {
     CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
     *fixed_columns_[column.index()][row] = std::move(assign).Run().value();
   }

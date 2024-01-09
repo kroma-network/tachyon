@@ -4,16 +4,19 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/zk/plonk/circuit/floor_planner/floor_planner.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/single_chip_layouter.h"
 
 namespace tachyon::zk {
 
-class SimpleFloorPlanner {
+template <typename Circuit>
+class SimpleFloorPlanner : public FloorPlanner<Circuit> {
  public:
-  template <typename F, typename Circuit, typename Config>
-  static void Synthesize(Assignment<F>* assignment, Circuit& circuit,
-                         Config&& config,
-                         const std::vector<FixedColumnKey>& constants) {
+  using F = typename Circuit::Field;
+  using Config = typename Circuit::Config;
+
+  void Synthesize(Assignment<F>* assignment, Circuit& circuit, Config&& config,
+                  const std::vector<FixedColumnKey>& constants) override {
     SingleChipLayouter layouter(assignment, constants);
     circuit.Synthesize(std::move(config), &layouter);
   }

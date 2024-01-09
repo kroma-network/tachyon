@@ -1,9 +1,8 @@
-#include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
-
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/plonk/circuit/examples/circuit_test.h"
-#include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
+#include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/v1/v1_floor_planner.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
@@ -12,84 +11,84 @@ namespace tachyon::zk::halo2 {
 namespace {
 
 constexpr uint8_t kExpectedProof[] = {
-    206, 109, 139, 136, 181, 35,  204, 231, 212, 93,  105, 116, 154, 77,  204,
-    23,  71,  148, 11,  151, 126, 145, 6,   150, 171, 185, 254, 230, 41,  136,
-    76,  141, 132, 227, 154, 206, 134, 35,  253, 67,  8,   186, 228, 143, 116,
-    139, 145, 119, 85,  253, 127, 208, 95,  153, 195, 112, 209, 116, 172, 45,
-    15,  175, 128, 142, 204, 179, 55,  39,  34,  51,  72,  104, 203, 18,  200,
-    167, 238, 128, 150, 95,  51,  70,  102, 245, 31,  126, 175, 75,  128, 131,
-    210, 183, 26,  150, 167, 148, 4,   122, 209, 122, 247, 23,  28,  107, 152,
-    91,  100, 24,  117, 196, 95,  56,  57,  63,  0,   13,  164, 147, 133, 185,
-    227, 117, 218, 126, 171, 80,  126, 29,  105, 149, 45,  14,  144, 234, 250,
-    146, 228, 251, 88,  94,  78,  192, 70,  209, 240, 185, 175, 207, 176, 237,
-    223, 162, 182, 167, 55,  27,  174, 75,  86,  146, 242, 122, 52,  24,  231,
-    152, 166, 17,  135, 33,  51,  216, 81,  14,  114, 175, 246, 221, 85,  47,
-    12,  246, 175, 152, 25,  30,  71,  14,  217, 13,  253, 129, 1,   0,   0,
+    19,  29,  49,  75,  8,   191, 254, 126, 107, 125, 58,  193, 235, 208, 41,
+    102, 196, 144, 108, 7,   165, 223, 43,  109, 53,  216, 237, 43,  184, 227,
+    83,  9,   184, 235, 153, 217, 206, 69,  132, 165, 210, 205, 116, 237, 238,
+    162, 49,  49,  204, 46,  223, 58,  73,  229, 128, 143, 213, 188, 0,   212,
+    5,   85,  163, 5,   143, 118, 177, 63,  150, 170, 126, 253, 76,  171, 24,
+    60,  255, 11,  51,  154, 165, 99,  4,   75,  197, 89,  80,  146, 214, 252,
+    144, 126, 78,  83,  109, 152, 147, 12,  50,  121, 140, 246, 218, 64,  22,
+    250, 214, 94,  91,  40,  210, 216, 158, 14,  248, 237, 139, 166, 164, 181,
+    163, 173, 40,  206, 118, 144, 35,  172, 2,   199, 115, 80,  179, 46,  200,
+    239, 204, 233, 228, 14,  165, 73,  46,  111, 195, 217, 200, 239, 216, 85,
+    203, 71,  121, 165, 128, 173, 40,  197, 132, 172, 180, 102, 167, 151, 87,
+    51,  153, 17,  51,  0,   91,  29,  131, 77,  119, 167, 59,  228, 0,   245,
+    222, 41,  206, 245, 188, 174, 66,  94,  184, 86,  112, 21,  1,   0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   193,
-    124, 38,  97,  203, 45,  175, 171, 18,  114, 71,  19,  96,  21,  168, 135,
-    110, 37,  229, 152, 175, 52,  149, 169, 112, 55,  141, 136, 233, 197, 87,
-    33,  12,  248, 45,  245, 255, 25,  21,  60,  244, 81,  90,  111, 175, 128,
-    152, 67,  107, 251, 200, 109, 221, 63,  39,  110, 145, 162, 222, 19,  222,
-    231, 116, 159, 18,  176, 226, 254, 178, 169, 131, 246, 249, 216, 204, 245,
-    126, 14,  4,   60,  243, 190, 16,  143, 233, 121, 48,  35,  89,  249, 30,
-    177, 21,  176, 212, 15,  104, 131, 160, 212, 128, 253, 250, 162, 45,  82,
-    102, 102, 122, 91,  166, 246, 215, 246, 183, 243, 105, 62,  217, 187, 0,
-    204, 214, 174, 4,   59,  14,  38,  128, 53,  79,  244, 40,  240, 226, 63,
-    154, 124, 81,  250, 85,  206, 241, 220, 188, 207, 0,   8,   38,  48,  13,
-    222, 204, 177, 10,  132, 98,  177, 91,  38,  92,  92,  44,  89,  83,  82,
-    255, 169, 79,  241, 50,  24,  75,  236, 80,  251, 125, 22,  180, 97,  200,
-    127, 13,  206, 115, 245, 155, 160, 230, 136, 154, 30,  172, 120, 173, 39,
-    72,  19,  73,  8,   116, 13,  98,  133, 200, 250, 234, 55,  132, 198, 99,
-    242, 169, 149, 17,  203, 131, 253, 90,  251, 56,  205, 125, 9,   1,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   2,
+    101, 235, 212, 23,  48,  250, 152, 227, 110, 221, 191, 145, 170, 116, 253,
+    211, 235, 129, 35,  197, 14,  237, 53,  55,  30,  186, 52,  130, 141, 169,
+    16,  187, 240, 210, 95,  164, 202, 254, 94,  61,  148, 173, 220, 97,  194,
+    73,  183, 97,  255, 255, 181, 227, 212, 132, 162, 250, 191, 203, 3,   183,
+    253, 244, 27,  18,  148, 179, 134, 155, 110, 103, 49,  35,  144, 67,  122,
+    143, 172, 18,  19,  192, 164, 239, 8,   150, 216, 47,  108, 7,   233, 179,
+    42,  243, 209, 198, 22,  229, 8,   223, 4,   206, 14,  125, 85,  220, 42,
+    126, 165, 7,   92,  14,  174, 33,  226, 14,  15,  238, 119, 212, 126, 155,
+    25,  99,  125, 135, 251, 48,  34,  57,  187, 165, 61,  205, 218, 221, 255,
+    91,  229, 146, 157, 37,  132, 26,  139, 195, 21,  34,  140, 157, 2,   228,
+    4,   139, 177, 21,  3,   14,  91,  109, 15,  198, 85,  184, 232, 226, 145,
+    66,  157, 168, 49,  238, 59,  183, 221, 151, 195, 29,  54,  16,  18,  2,
+    171, 248, 78,  163, 246, 51,  212, 223, 134, 120, 0,   110, 212, 77,  61,
+    47,  245, 156, 134, 93,  149, 14,  49,  47,  161, 0,   180, 184, 107, 112,
+    126, 155, 32,  206, 243, 100, 157, 221, 227, 109, 22,  247, 20,  1,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    101, 219, 98,  123, 150, 137, 140, 239, 244, 207, 227, 226, 239, 50,  245,
-    206, 4,   135, 3,   203, 197, 107, 95,  238, 229, 70,  60,  3,   84,  16,
-    193, 21,  186, 141, 39,  27,  61,  37,  131, 39,  58,  247, 149, 128, 72,
-    154, 7,   98,  194, 213, 81,  39,  101, 190, 142, 121, 16,  198, 34,  24,
-    115, 198, 18,  26,  144, 125, 33,  75,  113, 228, 149, 7,   80,  26,  242,
-    236, 2,   250, 37,  139, 215, 91,  203, 46,  222, 13,  30,  16,  43,  95,
-    137, 62,  35,  128, 253, 0,   252, 149, 54,  172, 100, 182, 3,   142, 64,
-    61,  20,  112, 162, 3,   168, 57,  60,  208, 203, 114, 237, 54,  238, 243,
-    178, 83,  100, 252, 146, 17,  48,  19,  248, 244, 246, 126, 158, 218, 45,
-    239, 52,  234, 165, 93,  254, 40,  74,  97,  79,  71,  103, 94,  68,  40,
-    254, 199, 137, 112, 217, 4,   174, 90,  36,  10,  160, 10,  23,  50,  127,
-    108, 35,  107, 233, 162, 124, 252, 90,  154, 69,  130, 138, 146, 152, 92,
-    204, 222, 218, 175, 136, 170, 222, 10,  121, 198, 196, 0,   118, 232, 193,
-    37,  167, 252, 236, 132, 180, 32,  133, 173, 84,  210, 183, 226, 17,  152,
-    254, 134, 173, 241, 28,  87,  229, 48,  185, 197, 202, 126, 116, 13,  158,
-    17,  242, 206, 155, 216, 163, 131, 207, 97,  146, 105, 198, 21,  29,  235,
-    163, 253, 248, 54,  166, 140, 84,  109, 77,  88,  15,  133, 239, 177, 66,
-    35,  141, 193, 65,  27,  252, 207, 0,   238, 201, 89,  146, 26,  31,  49,
-    36,  248, 237, 114, 159, 174, 81,  102, 131, 204, 164, 209, 155, 208, 54,
-    242, 11,  26,  18,  81,  255, 169, 79,  127, 254, 205, 201, 84,  81,  26,
-    100, 113, 181, 175, 12,  64,  206, 141, 30,  234, 221, 69,  88,  123, 58,
-    46,  251, 89,  163, 12,  0,   129, 169, 250, 211, 36,  4,   21,  235, 7,
-    141, 16,  88,  60,  29,  62,  39,  190, 103, 126, 80,  118, 119, 139, 28,
-    111, 2,   47,  160, 211, 93,  37,  106, 199, 117, 42,  209, 3,   67,  40,
-    228, 53,  162, 184, 195, 168, 100, 242, 224, 72,  249, 239, 186, 235, 197,
-    16,  140, 187, 204, 147, 92,  10,  4,   3,   195, 25,  12,  118, 126, 116,
-    71,  45,  243, 105, 220, 34,  185, 219, 254, 31,  237, 109, 158, 176, 236,
-    151, 52,  245, 254, 108, 56,  157, 136, 166, 107, 43,  100, 140, 44,  126,
-    190, 248, 75,  134, 46,  182, 90,  241, 5,   37,  202, 235, 23,  237, 68,
-    131, 22,  85,  163, 159, 155, 92,  163, 70,  168, 174, 112, 0,   188, 235,
-    127, 169, 179, 70,  81,  52,  243, 101, 53,  74,  114, 117, 219, 241, 37,
-    65,  109, 119, 112, 207, 45,  130, 99,  31,  149, 218, 238, 224, 161, 30,
-    37,  157, 153, 114, 39,  20,  158, 233, 47,  4,   162, 237, 192, 218, 12,
-    61,  155, 149, 69,  29,  211, 217, 53,  3,   249, 233, 19,  147, 126, 73,
-    150, 24,  76,  186, 238, 245, 143, 157, 17,  150, 41,  114, 91,  230, 104,
-    213, 121, 49,  182, 91,  207, 101, 207, 228, 155, 97,  73,  192, 230, 142,
-    99,  202, 97,  38};
+    117, 175, 214, 40,  42,  192, 219, 238, 177, 187, 91,  221, 196, 15,  23,
+    108, 96,  170, 142, 117, 100, 174, 120, 172, 31,  19,  238, 7,   68,  25,
+    218, 37,  215, 85,  227, 16,  177, 27,  195, 120, 89,  3,   171, 31,  3,
+    144, 250, 9,   234, 108, 158, 214, 24,  51,  65,  57,  147, 66,  240, 63,
+    115, 129, 103, 5,   178, 196, 94,  172, 3,   149, 62,  234, 187, 227, 204,
+    125, 217, 6,   51,  135, 185, 72,  128, 247, 203, 184, 240, 36,  148, 41,
+    61,  155, 205, 11,  25,  17,  247, 55,  232, 120, 145, 100, 204, 146, 29,
+    251, 153, 90,  190, 100, 63,  33,  191, 41,  230, 19,  31,  205, 112, 131,
+    224, 251, 3,   169, 148, 73,  132, 20,  206, 157, 63,  155, 125, 104, 141,
+    139, 150, 227, 154, 20,  111, 74,  70,  162, 17,  228, 72,  143, 160, 242,
+    65,  174, 69,  132, 221, 195, 24,  62,  138, 16,  93,  90,  170, 161, 134,
+    60,  84,  7,   186, 217, 207, 23,  199, 226, 206, 164, 170, 203, 139, 58,
+    45,  101, 83,  202, 7,   90,  141, 54,  40,  200, 53,  35,  238, 216, 218,
+    218, 135, 153, 61,  213, 10,  239, 5,   110, 179, 30,  149, 159, 233, 117,
+    73,  229, 202, 91,  224, 83,  233, 80,  128, 241, 86,  166, 107, 29,  101,
+    8,   15,  149, 82,  32,  84,  215, 112, 25,  10,  77,  128, 13,  153, 142,
+    221, 17,  187, 117, 194, 193, 71,  170, 20,  38,  4,   77,  56,  101, 129,
+    10,  226, 115, 135, 86,  10,  89,  27,  110, 66,  121, 147, 118, 188, 10,
+    246, 157, 239, 48,  136, 133, 111, 134, 117, 12,  239, 84,  33,  152, 5,
+    255, 96,  25,  0,   227, 174, 120, 122, 242, 15,  41,  216, 250, 253, 7,
+    132, 18,  168, 174, 94,  239, 21,  59,  88,  67,  69,  196, 58,  135, 246,
+    255, 181, 30,  51,  40,  155, 39,  28,  30,  218, 134, 84,  218, 184, 178,
+    99,  95,  231, 99,  226, 152, 53,  99,  149, 84,  82,  226, 34,  18,  134,
+    207, 2,   59,  113, 111, 235, 33,  175, 23,  167, 104, 139, 95,  10,  91,
+    129, 202, 23,  15,  238, 59,  152, 106, 60,  71,  186, 78,  26,  141, 87,
+    46,  34,  47,  52,  227, 62,  184, 124, 15,  88,  154, 52,  202, 15,  52,
+    105, 19,  145, 47,  93,  228, 55,  153, 93,  194, 207, 209, 203, 187, 134,
+    92,  227, 43,  249, 223, 24,  117, 122, 194, 106, 17,  7,   26,  63,  110,
+    149, 92,  169, 51,  41,  225, 31,  95,  58,  159, 194, 28,  208, 81,  99,
+    80,  47,  233, 216, 216, 69,  83,  216, 172, 169, 159, 241, 9,   36,  103,
+    82,  151, 131, 92,  187, 141, 225, 203, 90,  165, 2,   227, 142, 52,  90,
+    27,  111, 89,  41,  232, 41,  45,  60,  87,  185, 91,  105, 220, 62,  42,
+    35,  117, 140, 51,  123, 127, 144, 60,  4,   72,  122, 166, 246, 62,  184,
+    87,  199, 178, 151, 103, 205, 96,  44,  119, 136, 154, 153, 221, 54,  13,
+    118, 46,  198, 206, 169, 119, 173, 57,  28,  0,   72,  145, 178, 181, 13,
+    54,  38,  16,  39,  221, 68,  99,  207, 54,  100, 159, 247, 48,  28,  230,
+    117, 251, 231, 130};
 
-class SimpleCircuitTest : public CircuitTest {};
+class SimpleV1CircuitTest : public CircuitTest {};
 
 }  // namespace
 
-TEST_F(SimpleCircuitTest, Configure) {
+TEST_F(SimpleV1CircuitTest, Configure) {
   ConstraintSystem<F> constraint_system;
   FieldConfig<F> config =
-      SimpleCircuit<F, SimpleFloorPlanner>::Configure(constraint_system);
+      SimpleCircuit<F, V1FloorPlanner>::Configure(constraint_system);
   std::array<AdviceColumnKey, 2> expected_advice = {
       AdviceColumnKey(0),
       AdviceColumnKey(1),
@@ -160,7 +159,7 @@ TEST_F(SimpleCircuitTest, Configure) {
   EXPECT_FALSE(constraint_system.minimum_degree().has_value());
 }
 
-TEST_F(SimpleCircuitTest, Synthesize) {
+TEST_F(SimpleV1CircuitTest, Synthesize) {
   size_t n = 16;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
@@ -168,15 +167,15 @@ TEST_F(SimpleCircuitTest, Synthesize) {
 
   ConstraintSystem<F> constraint_system;
   FieldConfig<F> config =
-      SimpleCircuit<F, SimpleFloorPlanner>::Configure(constraint_system);
+      SimpleCircuit<F, V1FloorPlanner>::Configure(constraint_system);
   Assembly<PCS> assembly =
       VerifyingKey<PCS>::CreateAssembly(domain, constraint_system);
 
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
-  typename SimpleCircuit<F, SimpleFloorPlanner>::FloorPlanner floor_planner;
+  SimpleCircuit<F, V1FloorPlanner> circuit(constant, a, b);
+  typename SimpleCircuit<F, V1FloorPlanner>::FloorPlanner floor_planner;
   floor_planner.Synthesize(&assembly, circuit, std::move(config),
                            constraint_system.constants());
 
@@ -197,30 +196,30 @@ TEST_F(SimpleCircuitTest, Synthesize) {
   const CycleStore& cycle_store = assembly.permutation().cycle_store();
   // clang-format off
   CycleStore::Table<Label> expected_mapping({
-      {{2, 8}, {0, 1},  {0, 2},  {0, 3},  {0, 4},  {0, 5},  {0, 6},  {0, 7},
+      {{2, 1}, {0, 1},  {0, 2},  {0, 3},  {0, 4},  {0, 5},  {0, 6},  {0, 7},
        {0, 8}, {0, 9}, {0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},
-      {{2, 2}, {1, 1},  {1, 2},  {1, 3},  {1, 4},  {1, 5},  {1, 6},  {1, 7},
+      {{2, 0}, {1, 1},  {1, 2},  {1, 3},  {1, 4},  {1, 5},  {1, 6},  {1, 7},
        {1, 8}, {1, 9}, {1, 10}, {1, 11}, {1, 12}, {1, 13}, {1, 14}, {1, 15}},
-      {{2, 3}, {3, 3},  {2, 7},  {2, 0},  {3, 5},  {2, 4},  {3, 7},  {1, 0},
-       {0, 0}, {2, 9}, {2, 10}, {2, 11}, {2, 12}, {2, 13}, {2, 14}, {2, 15}},
-      {{3, 0}, {3, 1},  {3, 2},  {2, 1},  {3, 4},  {2, 5},  {3, 6},  {2, 6},
+      {{2, 6}, {0, 0},  {2, 5},  {3, 0},  {2, 8},  {3, 2},  {1, 0},  {3, 4},
+       {2, 4}, {2, 9}, {2, 10}, {2, 11}, {2, 12}, {2, 13}, {2, 14}, {2, 15}},
+      {{2, 3}, {3, 1},  {2, 2},  {3, 3},  {2, 7},  {3, 5},  {3, 6},  {3, 7},
        {3, 8}, {3, 9}, {3, 10}, {3, 11}, {3, 12}, {3, 13}, {3, 14}, {3, 15}},
   });
   CycleStore::Table<Label> expected_aux({
-      {{2, 8}, {0, 1},  {0, 2},  {0, 3},  {0, 4},  {0, 5},  {0, 6},  {0, 7},
+      {{2, 1}, {0, 1},  {0, 2},  {0, 3},  {0, 4},  {0, 5},  {0, 6},  {0, 7},
        {0, 8}, {0, 9}, {0, 10}, {0, 11}, {0, 12}, {0, 13}, {0, 14}, {0, 15}},
-      {{1, 0}, {1, 1},  {1, 2},  {1, 3},  {1, 4},  {1, 5},  {1, 6},  {1, 7},
+      {{2, 0}, {1, 1},  {1, 2},  {1, 3},  {1, 4},  {1, 5},  {1, 6},  {1, 7},
        {1, 8}, {1, 9}, {1, 10}, {1, 11}, {1, 12}, {1, 13}, {1, 14}, {1, 15}},
-      {{2, 3}, {3, 3},  {1, 0},  {2, 3},  {2, 5},  {2, 5},  {3, 7},  {1, 0},
-       {2, 8}, {2, 9}, {2, 10}, {2, 11}, {2, 12}, {2, 13}, {2, 14}, {2, 15}},
-      {{3, 0}, {3, 1},  {3, 2},  {3, 3},  {3, 4},  {2, 5},  {3, 6},  {3, 7},
+      {{2, 0}, {2, 1},  {2, 2},  {3, 0},  {2, 4},  {2, 2},  {2, 0},  {3, 4},
+       {2, 4}, {2, 9}, {2, 10}, {2, 11}, {2, 12}, {2, 13}, {2, 14}, {2, 15}},
+      {{3, 0}, {3, 1},  {2, 2},  {3, 3},  {3, 4},  {3, 5},  {3, 6},  {3, 7},
        {3, 8}, {3, 9}, {3, 10}, {3, 11}, {3, 12}, {3, 13}, {3, 14}, {3, 15}},
   });
   CycleStore::Table<size_t> expected_sizes({
       {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-      {3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-      {1, 1, 1, 2, 1, 3, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1},
-      {1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1},
+      {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {3, 2, 3, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+      {2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
   });
   // clang-format on
   EXPECT_EQ(cycle_store.mapping(), expected_mapping);
@@ -229,14 +228,14 @@ TEST_F(SimpleCircuitTest, Synthesize) {
 
   // clang-format off
   std::vector<std::vector<bool>> expected_selectors = {
-      {false, false, false,  true, false,  true, false,  true,
+      {true, false, true, false, true, false, false, false,
        false, false, false, false, false, false, false, false}};
   // clang-format on
   EXPECT_EQ(assembly.selectors(), expected_selectors);
   EXPECT_EQ(assembly.usable_rows(), base::Range<size_t>::Until(10));
 }
 
-TEST_F(SimpleCircuitTest, LoadVerifyingKey) {
+TEST_F(SimpleV1CircuitTest, LoadVerifyingKey) {
   size_t n = 16;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
@@ -244,7 +243,7 @@ TEST_F(SimpleCircuitTest, LoadVerifyingKey) {
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
+  SimpleCircuit<F, V1FloorPlanner> circuit(constant, a, b);
 
   VerifyingKey<PCS> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
@@ -252,14 +251,14 @@ TEST_F(SimpleCircuitTest, LoadVerifyingKey) {
   std::vector<Commitment> expected_permutation_verifying_key;
   {
     std::vector<Point> points = {
-        {"0x0365b8986f1c38476aa6479eea1b688244b4070413eb393efa5b06441ac2aeaa",
-         "0x303ed0aaed99cb2848d844239ab4ab9a9191b86544edab860c42a2d4e504cf34"},
-        {"0x1af13f7dc79a97c1a690215e2ffd3d8386f682fe1a13bdb8588d2fbaa0161edc",
-         "0x10f0c0ddf9db782e88deb3e49464292b1276b2b9ad29b5a25971c85fe0b8aa96"},
-        {"0x09837455c613e5b0e0edd2a1d47f1efdee21eeeda00548f3686c733301e23da4",
-         "0x2e2b7776741eb2214916eb80ae0982c32b02e57e83c51e8907b5ffeab048bf2d"},
-        {"0x23e033260e2f2ed7dd27295a06d951fad7c1545a493f24e8d7f416ccc3c74670",
-         "0x0957c9d3b0c00ff783bc3357dd0b5cf891f49bc78f569126ba6e68bc394859ef"},
+        {"0x2f8d8133413e0224e1cbb20aa8281458fe0d9cf4d723ff07ac0524acffc8be48",
+         "0x1f3e4dd4175e92cd38d3a8d3cd473e6daa6e9f28eb616222945904a6eadc52c6"},
+        {"0x27f329c25618696f90d09ab41e80f4f2c1e927a6d0f86d8670e81882a449af36",
+         "0x1a69f0c1a2dee36915704c4fdee41ff8b7029c1894dc89356dd2cf4738e95df2"},
+        {"0x2a7f86208a87462b85678f6aee3c9c3ee17371167b436ad58501819ae02cbffd",
+         "0x18b536eae002a69d57783fad5c63e35df0a2506dc43ee3d88053faff8f19cc40"},
+        {"0x1bb17f6d2c12d9c8cd8860c00fcadebf63986bb330dfde5b9097b17047a4dfc1",
+         "0x1d6be3858a788f18e3c16ca8d3a88893f3678be9f827463af0f30d6b1f7df112"},
     };
     expected_permutation_verifying_key = CreateCommitments(points);
   }
@@ -271,19 +270,19 @@ TEST_F(SimpleCircuitTest, LoadVerifyingKey) {
     std::vector<Point> points = {
         {"0x0f9cc629d0010671d7f755267acccfc8d5854f47d4e437ec84bddcc27b9f19d1",
          "0x199b1dcc7aff518a4e49c6393bcf847cc3fde52ae69e326dea0d1d901424552a"},
-        {"0x10472018b5bfdcc76f3925ea4f660dc7167ef12c96fb70f686d0c1cf7791cde5",
-         "0x0358f44f7cb29a8d129dbe6b61fc1d921a903f1e9209abc137c7a6446c3ae38f"},
+        {"0x00253ad9f42498136d40e617f9d46d11bf33256914aab88e32fd413bed9baccc",
+         "0x154f7ddc2d7959e1abc7a0cada48f1b8f079c9fb45c6fdc2ee2121cc83a83b16"},
     };
     expected_fixed_commitments = CreateCommitments(points);
   }
   EXPECT_EQ(vkey.fixed_commitments(), expected_fixed_commitments);
 
   F expected_transcript_repr = F::FromHexString(
-      "0x03b30e0717f2047e825763ccf9c91fff91c82eef5ec0834f66f359f29a3d3b58");
+      "0x012577899026da8b4a257e25b4edf52711038e19083900a458e1c1e18c29eb08");
   EXPECT_EQ(vkey.transcript_repr(), expected_transcript_repr);
 }
 
-TEST_F(SimpleCircuitTest, LoadProvingKey) {
+TEST_F(SimpleV1CircuitTest, LoadProvingKey) {
   size_t n = 16;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
@@ -291,7 +290,7 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
+  SimpleCircuit<F, V1FloorPlanner> circuit(constant, a, b);
 
   for (size_t i = 0; i < 2; ++i) {
     ProvingKey<PCS> pkey;
@@ -401,14 +400,14 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
           "0x0000000000000000000000000000000000000000000000000000000000000000",
       },
       {
-          "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "0x0000000000000000000000000000000000000000000000000000000000000000",
           "0x0000000000000000000000000000000000000000000000000000000000000001",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
           "0x0000000000000000000000000000000000000000000000000000000000000001",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
           "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
           "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -446,21 +445,21 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
       },
       {
           "0x27517fbd56f85221e5c138a4493917cbb0aa2cbae2e6ab760727978833000001",
-          "0x2e2956f8332a2abea8eae65e83211a8cfd4c9c38c6ed5c09186cafec19009edf",
-          "0x2014447de15a99b6df03833e95f96ae1299c9ec6ff990b6e75fa3b3b04846a57",
-          "0x130034a5a3705c18e67b698f576257c783c3403058f57e9a359495efd00ce8cf",
-          "0x2144f5eefad21e1ca37ae273a4ee5b4a7eef137cbbeb1d198c9e59c37ef70364",
-          "0x11ded077258dd59f58ab8525c92955ebcb2b1905e676b2fe47ca20d6919e5e16",
-          "0x02b337de1c8c14f22ec9b9e2f96afef3652627366f8170a0a948dad4ac1bd5e8",
-          "0x152fae7ca9f4520815c46c7ae6996e0cd78f9e211ed4ffa8d8d48d83b3a445cd",
-          "0x0912ceb58a394e07d28f0d12384840917789bb8d96d2c51b3cba5e0bbd000000",
-          "0x023af77aae07756b0f655f57fe603dd02ae74c0fb2cc14882b7545a7d6ff6122",
-          "0x105009f4ffd70672d94cc277eb87ed7bfe9749817a206522cde7ba58eb7b95aa",
-          "0x1d6419cd3dc14410d1d4dc272a1f0095a470a81820c3f1f70e4d5fa41ff31732",
+          "0x1c691d91b8236e7d529d215f6002d508d558dfc8b053219170ed36d01d849247",
           "0x0f1f5883e65f820d14d56342dc92fd12a944d4cbbdce5377b7439bd07108fc9d",
-          "0x1e857dfbbba3ca8a5fa4c090b85802715d08cf429342bd92fc17d4bd5e61a1eb",
-          "0x2db11694c4a58b3789868bd388165969c30dc1120a37fff09a991abf43e42a19",
-          "0x1b349ff6373d4e21a28bd93b9ae7ea5050a44a275ae470e86b0d68103c5bba34",
+          "0x1b8b7929b032ef27d92c2435436b46d14745adc1c4ce156fcf175f9593db2d7c",
+          "0x2d5e098bb31e86271ccb415b196942d755b0a9c3f21dd9882fa3d63ab1000001",
+          "0x2c2d581a99a701c15853e2260a74526e005e350e35cbc7dd18ffb7b2368d66f4",
+          "0x2144f5eefad21e1ca37ae273a4ee5b4a7eef137cbbeb1d198c9e59c37ef70364",
+          "0x20f1e8e5e94b190c36bf97fb364144b81191fc2ea3d0f6b121a9153eec12d94c",
+          "0x27517fbd56f85221e5c138a4493917cbb0aa2cbae2e6ab760727978833000001",
+          "0x1c691d91b8236e7d529d215f6002d508d558dfc8b053219170ed36d01d849247",
+          "0x0f1f5883e65f820d14d56342dc92fd12a944d4cbbdce5377b7439bd07108fc9d",
+          "0x1b8b7929b032ef27d92c2435436b46d14745adc1c4ce156fcf175f9593db2d7c",
+          "0x2d5e098bb31e86271ccb415b196942d755b0a9c3f21dd9882fa3d63ab1000001",
+          "0x2c2d581a99a701c15853e2260a74526e005e350e35cbc7dd18ffb7b2368d66f4",
+          "0x2144f5eefad21e1ca37ae273a4ee5b4a7eef137cbbeb1d198c9e59c37ef70364",
+          "0x20f1e8e5e94b190c36bf97fb364144b81191fc2ea3d0f6b121a9153eec12d94c",
       }};
       // clang-format on
       expected_fixed_polys = CreatePolys(polys);
@@ -471,7 +470,7 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
     {
       // clang-format off
       std::vector<std::vector<std::string_view>> evals = {{
-          "0x1cb0ed9df901b713b97ee5357df1bf9b16f16cc0d737b31e07ba77d910efc8d6",
+          "0x08e7cbfea108224b0777f0558503af41585b75ab8d4d807505158f4bc8c771de",
           "0x21082ca216cbbf4e1c6e4f4594dd508c996dfbe1174efb98b11509c6e306460b",
           "0x2b337de1c8c14f22ec9b9e2f96afef3652627366f8170a0a948dad4ac1bd5e80",
           "0x107aab49e65a67f9da9cd2abf78be38bd9dc1d5db39f81de36bcfa5b4b039043",
@@ -489,7 +488,7 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
           "0x02e40daf409556c02bfc85eb303402b774954d30aeb0337eb85a71e6373428de",
       },
       {
-          "0x0b6f861977ce57ddb2e647048ed9b9433cac640ba0599e264e24446765d915d3",
+          "0x13b360d4e82fe915fed16081038f98c211427b87a281bd733c277dbadf10372b",
           "0x133f51f46c2a51201fbb89dc1d6868acfef0f7ce0e572ccb98e04e99eac3ea36",
           "0x1240a374ee6f71e12df10a129946ca9ba824f58a50e3a58b4c68dd5590b74ad8",
           "0x009553089042fe83ab570b54e4e64d307d8e8b20d568e782ece3926981d0a96c",
@@ -507,15 +506,15 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
           "0x0d4615fec1d5611cd5ffa9e358e64eb494829d350acf01c136f55acac8e3624c",
       },
       {
-          "0x26f93d99832c6285d9abf8c5b896ea753ed137516972c5ddcc464b56c488d600",
-          "0x0f34fda7cd268bf095354ea6c2631826c349d7518bf094361bc91f61c519c7fb",
-          "0x2a3d1fef5cb3ce1065d222dde5f9b16d48b42597868c1a49e15cb8007c8778a4",
-          "0x13b360d4e82fe915fed16081038f98c211427b87a281bd733c277dbadf10372b",
-          "0x1e626bf9ef3c8920522383ff9be21287c3af8d47fe61ff9af6c6d8d0118154bc",
-          "0x086398ace043cf0db4e99f2712f392ddbd9c7b9202b2fcadf26e9b145316df9f",
-          "0x2a150ee7450ad90cace368ea424c8fdf36b3821e79f5f1c617a5f8e74c19b4cf",
-          "0x09226b6e22c6f0ca64ec26aad4c86e715b5f898e5e963f25870e56bbe533e9a2",
+          "0x2e39c17d3e15071a9341cfcea233ad5f25a14dea28716de88ae369ac2c9944ac",
           "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "0x04765b5102d6627cfcc389436e96bbc9aa478dcb720b546c77063077a40910ce",
+          "0x18afdf23e9bd9302673fc1e076a492d4d65bd18ebc4d854ed189139bab313e52",
+          "0x1cb0ed9df901b713b97ee5357df1bf9b16f16cc0d737b31e07ba77d910efc8d6",
+          "0x034183d253b6b250dae0a457797029523434d2b6bc41c09b6ef409bd970e4208",
+          "0x09226b6e22c6f0ca64ec26aad4c86e715b5f898e5e963f25870e56bbe533e9a2",
+          "0x2f549305063b1803a77ba92486c5383e00468fc857ec66d944868c4a309e596a",
+          "0x086398ace043cf0db4e99f2712f392ddbd9c7b9202b2fcadf26e9b145316df9f",
           "0x277c827440297ddeb0d85560fc7da91bcfd8729cec6bf01c3ecc664827388e23",
           "0x24f4c8596963484c0569feb1f2a79f19eb87843cd95fd26af5bdb12c8a26ea2e",
           "0x096b10d95e053da3dea44cf0c8ea6de7e962b0f71046aab3779baa3d2b772a01",
@@ -525,14 +524,14 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
           "0x06272e83847dd219527e22d89b87a6efdf7fc2b0f32d564762853d937378875d",
       },
       {
-          "0x18afdf23e9bd9302673fc1e076a492d4d65bd18ebc4d854ed189139bab313e52",
+          "0x26f93d99832c6285d9abf8c5b896ea753ed137516972c5ddcc464b56c488d600",
           "0x2f0e061e83e8b12c1bdf8df7cca02483295e89f78a462ce38859661e06501815",
-          "0x034183d253b6b250dae0a457797029523434d2b6bc41c09b6ef409bd970e4208",
-          "0x08e7cbfea108224b0777f0558503af41585b75ab8d4d807505158f4bc8c771de",
-          "0x2f549305063b1803a77ba92486c5383e00468fc857ec66d944868c4a309e596a",
-          "0x04765b5102d6627cfcc389436e96bbc9aa478dcb720b546c77063077a40910ce",
+          "0x0b6f861977ce57ddb2e647048ed9b9433cac640ba0599e264e24446765d915d3",
+          "0x0f34fda7cd268bf095354ea6c2631826c349d7518bf094361bc91f61c519c7fb",
+          "0x2a3d1fef5cb3ce1065d222dde5f9b16d48b42597868c1a49e15cb8007c8778a4",
+          "0x1e626bf9ef3c8920522383ff9be21287c3af8d47fe61ff9af6c6d8d0118154bc",
           "0x02898db49f7022cac0aeabf721a3c7ab96e14ad35e7d6b0410b868ff504b62fc",
-          "0x2e39c17d3e15071a9341cfcea233ad5f25a14dea28716de88ae369ac2c9944ac",
+          "0x2a150ee7450ad90cace368ea424c8fdf36b3821e79f5f1c617a5f8e74c19b4cf",
           "0x17b46f4ef7740d27511083d60adcc58851d816b9bd6beb427258e1f844cec1af",
           "0x015648545d48eefd9c70b7beb4e133d9fed55e50ef7343adbb888f75e9afe7ec",
           "0x2d22caa08d7aedd8dd6fa15f08112f0af3ff1591bd77aff5d4edebd658f1bdf9",
@@ -552,76 +551,76 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
     {
       // clang-format off
       std::vector<std::vector<std::string_view>> polys = {{
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8f",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
-          "0x231004c8da62398dea4f1e40d0e808b9bd12c67de122f895bf270053460efc8e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771f",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
+          "0x09a14b757449d02c83068c1790987b858d0f72e84fa79d228d0bb700798c771e",
       },
       {
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x0640f831aa044d38fe46c45508516d98a6f118b1ab16de0c7f41963d5e3e3c65",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
-          "0x2d82db36686efc9851aae360b50a578473c5776bc63a0f783c153515690a52c4",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x1ef75d16d1a336615f2d98c8105d77bf28546e4da8161849f012c49c8dd1ae7b",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
+          "0x15d4f1a8aedc4596fa41721d3b95094dccf4e4bf497fd92469046de0a89dc4d9",
       },
       {
-          "0x18038fb09dafe4561b7c81a4ddecb5a9fdec9905c914eb53873760ec477b6153",
-          "0x01330c7cbea5f36f17d3698ffdacd0e8d561fc0253004050c673cb4825a5d678",
-          "0x11bd06280c7c8a6daa71eb9d3b2c97f9f211a37a41798bc63f78d5af70135d20",
-          "0x021ebc7877f2b98917ec49b986e1a497743d0464e2e1cf787fcc843b013626bb",
-          "0x2965a7e65ce635bbab94a2fffae4c86626d67c0eb10d658380f782f08db31ef9",
-          "0x13d9914eeb3084263023150484b8da37654dc6d57f82afffca2739b48de541c3",
-          "0x150b22b022aca6d5eacd65a0435fe2b487242afc5df5b9a417a001d5a79554a0",
-          "0x1911d0efc0d670781ad228d1df69e12aa502675c2c2b0873421dc9f32f16364f",
-          "0x173bca2a5af56060d72e1cf66a4c15350c7a1d0985d14232e9c548bf83a8e270",
-          "0x1761ac780a2688e48980ee5f7bb6c6489891ad7207f1b53c9a9aecdf3ca68117",
-          "0x2af4468570b8b17c26c074b53131f4dab8f4abc05ac204dfee977cd8f2ec9c0e",
-          "0x29a949ffe203c1114c6cc31a6b99269932f7cd7340abbe797c0d6c99a7f802f1",
-          "0x2f93c69781f9dd1bcc42e4149107242b847da4d909a47893ebe85b9a1fe5700e",
-          "0x2a7dc0ef215246ec520423ffc5f6e6fa3d5c0144e341d3358dd64ce8e648afff",
-          "0x134ac81b3f8e47b083bd4a759f2e5be3ec6cdfc0d4b28794740f1a3096f24a6d",
-          "0x2115cec3e5a7af5c4f4829c80b9825c24f499de351535dc35cb607a47b85c1b7",
+          "0x18eae12fd704e5bc3d0acf5f32330e0f3a23a3600b66f24ce31ff4dcd7950b5f",
+          "0x1668c537404f9338905d9b885be857f7927a91f29c6b623e5d744fb232c8c7cb",
+          "0x0d1bfa0c9869dfa02919a0d7834f3f2a4d64218aa8582ca4b43c029a435d42f1",
+          "0x2ceb4c0d1b5b06357be3af62312632f070a6eac793edb5e815c743e973aaab7d",
+          "0x2c814b07e5b0482b27173e2370c3a08662204993e2d8fdb097c17c0a93fb2ebd",
+          "0x11656a996c4ae9762c3899876dbeeef8c9638869fa4a66dfe73e4b59685040a3",
+          "0x1753fa2f3bf232558b65d8726f2ce1d9b092400c892a93d51017051b72c4aa7e",
+          "0x231490648c345450dd40f890419598f601d543b3e319fcacf23a9d9ecb819762",
+          "0x092f15a06a9434ad833065f6c50caf3d5afa51cf219ce91f1e429bf444f56a50",
+          "0x0b7e67f7e58f3f373c2e9a9cae2e7c1b3a9b8571964ae0cab3e7568106eaa6e0",
+          "0x2053b23f55828893e49b77ac55a9d0587fa75004919673d04e07bf0940e88120",
+          "0x2f56ca1e5a468ea9c03068b5f43d501484a981ddfde12ad4f4baa97b2144f9f8",
+          "0x0cb5df9af846bd3540562259624801f754344c5466a397fef1565be386dc9ef6",
+          "0x19ac12db90e5885a5224538b937cbcf1298034e8dde3eda38e033b460ce6afa9",
+          "0x2498f7b8d9eb6152686b24b08d67043db5445508860199e20f6aae67d96b6038",
+          "0x205f2438ff62bf51c8571e289c1a7eec31cc7961b6d43e347a59808f956596bd",
       },
       {
-          "0x28967ba8c313c600d17a4ddd20a4f32f49d6e1e9fcba5e5249324a66d96b4f5e",
-          "0x00a354bfcc60f6a39aa68e9a9fa36f4f2bc9322db22d4c76b20738f12376fa40",
-          "0x2d0e02c7383ab7a8d1dc324434cbc0efa7c7da0a5c10f1008c072ad9284c951b",
-          "0x295fc9ac7c7023fa3374d3df0959578ede07bc8e8e32a7d46b5928ac0f6051c7",
-          "0x2be457106435d313da2cbe5c1304c9b5eac6cef2e824ab55be7e094f779a7680",
-          "0x11d0a6eb25ba5944c820e99c5b6bfeacbaed201b58985a3e47ac129d746acb2d",
-          "0x10f99e36b6e6090fddea8d5f4048b35d3bf6c5f9b4b84f83c3f8695c1fc00a84",
-          "0x1269a9b9c8dd3f9f671c12f107a14cb0be65a15412dc8d8b0fb139184bfbd050",
-          "0x07cdd2ca1e1dda28e6d5f7d960dc652dde5d065e7cff123efaafab2d1694b0a3",
-          "0x180c8a641d5c9c5ecc993345d7012385aa929f610a2038d81f81daaa87ba4412",
-          "0x03564baba8f6e880e67413724cb5976d806c0e3e1da87f90b7dacabac7b36ae6",
-          "0x070484c664c17c2f84db71d7782800ce4a2c2bb9eb86c8bcd888cce7e09fae3a",
-          "0x047ff7627cfbcd15de23875a6e7c8ea73d6d19559194c53b8563ec4478658981",
-          "0x1e93a787bb7746e4f02f5c1a261559b06d46c82d21211652fc35e2f67b9534d4",
-          "0x1f6ab03c2a4b9719da65b8574138a4ffec3d224ec501210d7fe98c37d03ff57d",
-          "0x1dfaa4b91854608a513432c579e00bac69ce46f466dce3063430bc7ba4042fb1",
+          "0x28677e97c83844d3b64dbdd904a21dd7bc3fd5894ee4788eae93d169e640b8ac",
+          "0x0b09ea89c6731047056d4cde1f39228a9a88b04ffa4b7db592540476c69a20d5",
+          "0x22c644b2532a4b71b8545dde2743e1d1b73b6b0426942d10912538e47312096d",
+          "0x118e682968bef69c68c23668dfb585f320bad9da0b5d89d01a581bd198d8779d",
+          "0x09230d4716f64c08081addf15104149f62107231664d96828840909836675e32",
+          "0x296a7370fa3f06b11a95a596e8a8b260ea0a6ed3aa2810059fd557dda2ed0369",
+          "0x283c4b2b66fee7fbb2a6c2591755de8829136b66ffd2ad6d206a98fa0e9bc5a3",
+          "0x1ed5e6497872a98d4f8e0f4da1cbd26a07790e6e6e5be6c12989d9c257278864",
+          "0x28677e97c83844d3b64dbdd904a21dd7bc3fd5894ee4788eae93d169e640b8ac",
+          "0x22be59d8bde71d6e567dd0b42a15e812ec60c709b7b768f804ace66f0b68e284",
+          "0x22c644b2532a4b71b8545dde2743e1d1b73b6b0426942d10912538e47312096d",
+          "0x118e682968bef69c68c23668dfb585f320bad9da0b5d89d01a581bd198d8779d",
+          "0x09230d4716f64c08081addf15104149f62107231664d96828840909836675e32",
+          "0x296a7370fa3f06b11a95a596e8a8b260ea0a6ed3aa2810059fd557dda2ed0369",
+          "0x283c4b2b66fee7fbb2a6c2591755de8829136b66ffd2ad6d206a98fa0e9bc5a3",
+          "0x1ed5e6497872a98d4f8e0f4da1cbd26a07790e6e6e5be6c12989d9c257278864",
       }};
       // clang-format on
       expected_permutations_polys = CreatePolys(polys);
@@ -631,7 +630,7 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
   }
 }
 
-TEST_F(SimpleCircuitTest, Verify) {
+TEST_F(SimpleV1CircuitTest, Verify) {
   size_t n = 16;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
@@ -639,7 +638,7 @@ TEST_F(SimpleCircuitTest, Verify) {
   F constant(7);
   F a(2);
   F b(3);
-  SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
+  SimpleCircuit<F, V1FloorPlanner> circuit(constant, a, b);
 
   VerifyingKey<PCS> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
@@ -662,10 +661,10 @@ TEST_F(SimpleCircuitTest, Verify) {
   std::vector<std::vector<Commitment>> expected_advice_commitments_vec;
   {
     std::vector<Point> points = {
-        {"0x0d4c8829e6feb9ab9606917e970b944717cc4d9a74695dd4e7cc23b5888b6dce",
-         "0x03a99ef4660a95515763e072043119fcbf6d3f3b709af6bf05b5c8b4d815a775"},
-        {"0x0e80af0f2dac74d170c3995fd07ffd5577918b748fe4ba0843fd2386ce9ae384",
-         "0x058b31b773e7a0e22f1ef9d6bbcc154b3dfaec09ff6c78084c1ae5c150f6624d"},
+        {"0x0953e3b82bedd8356d2bdfa5076c90c46629d0ebc13a7d6b7efebf084b311d13",
+         "0x0e1846fc46b7f84859cf41eabe2cfadf1c08f6be2df3fd75f47dd9945ecdea66"},
+        {"0x05a35505d400bcd58f80e5493adf2ecc3131a2eeed74cdd2a58445ced999ebb8",
+         "0x167f11ce9f3d3ebc24fe1a9d722ffdc7ee94a1734d544837868c7ccd7de960f0"},
     };
     expected_advice_commitments_vec.push_back(CreateCommitments(points));
   }
@@ -674,32 +673,32 @@ TEST_F(SimpleCircuitTest, Verify) {
   EXPECT_TRUE(proof.challenges.empty());
 
   F expected_theta = F::FromHexString(
-      "0x12a46ce074901bb2ec3136e73969ba388a925ace4891d853aa071cabaf4589ce");
+      "0x1e59668b92c989bea8d2ba08d3d58af7a9c4b941a5b144a05c68ff533f68986a");
   EXPECT_EQ(proof.theta, expected_theta);
 
   ASSERT_EQ(proof.lookup_permuted_commitments_vec.size(), 1);
   EXPECT_TRUE(proof.lookup_permuted_commitments_vec[0].empty());
 
   F expected_beta = F::FromHexString(
-      "0x1e2502cf4ba7d2e862c9432f546db6549f0073ff75bcce16ec6ba78c12a1d682");
+      "0x21b46fb50af72088662a64a58e8b819e450b6bda307950d549278d3756ba4880");
   EXPECT_EQ(proof.beta, expected_beta);
 
   F expected_gamma = F::FromHexString(
-      "0x13ca5867ed47dd5ee525ced9e7c6c82907ee4b622d638bc5ec5c484e850d561b");
+      "0x22736699ddc8d40e896f188a133d8489b4501c591a44b3d8982b3256c4ecd9ae");
   EXPECT_EQ(proof.gamma, expected_gamma);
 
   std::vector<std::vector<Commitment>>
       expected_permutation_product_commitments_vec;
   {
     std::vector<Point> points = {
-        {"0x14a7961ab7d283804baf7e1ff56646335f9680eea7c812cb684833222737b3cc",
-         "0x1775df6698bfa7af48a83408e92cf0a132f20438bf9636100567960c6f26bb59"},
-        {"0x1d7e50ab7eda75e3b98593a40d003f39385fc47518645b986b1c17f77ad17a04",
-         "0x00ef3b17b03c469c18380ab7acc3c5d5befd60a46a1659631d50fd480416cab6"},
-        {"0x12564bae1b37a7b6a2dfedb0cfafb9f0d146c04e5e58fbe492faea900e2d9569",
-         "0x0cf1580112a8d2918afd4ebe3b021a2e3844712efb346c49029a077a67e06df1"},
-        {"0x01fd0dd90e471e1998aff60c2f55ddf6af720e51d833218711a698e718347af2",
-         "0x2cc11fb912c0f0e8fcd677d966361edf4c005813981ed9c20fd10184835556f7"},
+        {"0x186d534e7e90fcd6925059c54b0463a59a330bff3c18ab4cfd7eaa963fb1768f",
+         "0x2b2cfeda225a408ce72d76115abb8600857e00ef1e411560a7d77f59e0a0f879"},
+        {"0x2c239076ce28ada3b5a4a68bedf80e9ed8d2285b5ed6fa1640daf68c79320c93",
+         "0x04ae04434454674f0f9a54377501fdaae86391e08172b9d00ef5e49c6318c625"},
+        {"0x2c84c528ad80a57947cb55d8efc8d9c36f2e49a50ee4e9ccefc82eb35073c702",
+         "0x2d1e3c651112f3710bdcc3f370e20f6da9055b4cd6908e72db3e2e1ae613cc49"},
+        {"0x157056b85e42aebcf5ce29def500e43ba7774d831d5b00331199335797a766b4",
+         "0x1546d10e6b1d8f160ec28b1d815378f00c4a65140774e6147ddd793e36302fe8"},
     };
     expected_permutation_product_commitments_vec.push_back(
         CreateCommitments(points));
@@ -720,16 +719,16 @@ TEST_F(SimpleCircuitTest, Verify) {
             expected_vanishing_random_poly_commitment);
 
   F expected_y = F::FromHexString(
-      "0x1af9ee1bca5f25fb7746430586cc6d4d4cc9152d5e3251e9c77fe38f6c9178b1");
+      "0x2c2186391d08b03bf166e5b682e624dbcdc2ca63e9190f0934ce7473c44fd7e2");
   EXPECT_EQ(proof.y, expected_y);
 
   std::vector<Commitment> expected_vanishing_h_poly_commitments;
   {
     std::vector<Point> points = {
-        {"0x2157c5e9888d3770a99534af98e5256e87a8156013477212abaf2dcb61267cc1",
-         "0x2b04d3cec50250e35b5919da1cfe8142db0a636c0f29c6427fe713f52c1fff60"},
-        {"0x1f74e7de13dea2916e273fdd6dc8fb6b439880af6f5a51f43c1519fff52df80c",
-         "0x1fd85823b8d30be9fdde823da1f8c4c876bb874a236050c3d04032999ac56eb7"},
+        {"0x10a98d8234ba1e3735ed0ec52381ebd3fd74aa91bfdd6ee398fa3017d4eb6502",
+         "0x0287856e16f35d446494172326c1964dc3f9feef33d0c5a2e830dff9e11a4d70"},
+        {"0x1bf4fdb703cbbffaa284d4e3b5ffff61b749c261dcad943d5efecaa45fd2f0bb",
+         "0x013b7018e287bd61722080446c0cbc056d0df5fa410222b93d881a6b63775864"},
     };
     expected_vanishing_h_poly_commitments = CreateCommitments(points);
   }
@@ -737,15 +736,15 @@ TEST_F(SimpleCircuitTest, Verify) {
             expected_vanishing_h_poly_commitments);
 
   F expected_x = F::FromHexString(
-      "0x16b464904a5cd90ce14436a70fcf094ec288e227a6fe7ece36e9630b5a18d6cc");
+      "0x0c0d8beac4282953e1a0662ea3dca6e8acada8a09b9aa23cc09aef9b90a0dc90");
   EXPECT_EQ(proof.x, expected_x);
 
   std::vector<std::vector<F>> expected_advice_evals_vec;
   {
     std::vector<std::string_view> evals = {
-        "0x0fd4b015b11ef959233079e98f10bef33c040e7ef5ccd8f9f683a9b2fee2b012",
-        "0x260e3b04aed6cc00bbd93e69f3b7f6d7f6a65b7a6666522da2fafd80d4a08368",
-        "0x265bb162840ab1ccde0d30260800cfbcdcf1ce55fa517c9a3fe2f028f44f3580",
+        "0x16c6d1f32ab3e9076c2fd89608efa4c01312ac8f7a43902331676e9b86b39412",
+        "0x2230fb877d63199b7ed477ee0f0ee221ae0e5c07a57e2adc557d0ece04df08e5",
+        "0x0f6d5b0e0315b18b04e4029d8c2215c38b1a84259d92e55bffdddacd3da5bb39",
     };
     expected_advice_evals_vec.push_back(CreateEvals(evals));
   }
@@ -754,8 +753,8 @@ TEST_F(SimpleCircuitTest, Verify) {
   std::vector<F> expected_fixed_evals;
   {
     std::vector<std::string_view> evals = {
-        "0x1e9a88e6a09bf573ce0d7fc861b4167dfb50ec4b1832f14fa9ff5253592c5c5c",
-        "0x097dcd38fb5afd83cb1195a9f263c68437eafac885620d740849134827ad78ac",
+        "0x007886dfd433f6a34ef8ab021210361dc397ddb73bee31a89d4291e2e8b855c6",
+        "0x14f7166de3dd9d64f3ce209b7e706bb8b400a12f310e955d869cf52f3d4dd46e",
     };
     expected_fixed_evals = CreateEvals(evals);
   }
@@ -768,10 +767,10 @@ TEST_F(SimpleCircuitTest, Verify) {
   std::vector<F> expected_common_permutation_evals;
   {
     std::vector<std::string_view> evals = {
-        "0x15c11054033c46e5ee5f6bc5cb038704cef532efe2e3cff4ef8c89967b62db65",
-        "0x1a12c6731822c610798ebe652751d5c262079a488095f73a2783253d1b278dba",
-        "0x00fd80233e895f2b101e0dde2ecb5bd78b25fa02ecf21a500795e4714b217d90",
-        "0x13301192fc6453b2f3ee36ed72cbd03c39a803a270143d408e03b664ac3695fc",
+        "0x25da194407ee131fac78ae64758eaa606c170fc4dd5bbbb1eedbc02a28d6af75",
+        "0x056781733ff0429339413318d69e6cea09fa90031fab035978c31bb110e355d7",
+        "0x11190bcd9b3d299424f0b8cbf78048b9873306d97dcce3bbea3e9503ac5ec4b2",
+        "0x14844994a903fbe08370cd1f13e629bf213f64be5a99fb1d92cc649178e837f7",
     };
     expected_common_permutation_evals = CreateEvals(evals);
   }
@@ -780,10 +779,10 @@ TEST_F(SimpleCircuitTest, Verify) {
   std::vector<std::vector<F>> expected_permutation_product_evals_vec;
   {
     std::vector<std::string_view> evals = {
-        "0x0a245aae04d97089c7fe28445e67474f614a28fe5da5ea34ef2dda9e7ef6f4f8",
-        "0x2342b1ef850f584d6d548ca636f8fda3eb1d15c6699261cf83a3d89bcef2119e",
-        "0x255dd3a02f026f1c8b7776507e67be273e1d3c58108d07eb150424d3faa98100",
-        "0x0070aea846a35c9b9fa355168344ed17ebca2505f15ab62e864bf8be7e2c8c64",
+        "0x108a3e18c3dd8445ae41f2a08f48e411a2464a6f149ae3968b8d687d9b3f9dce",
+        "0x0a8165384d042614aa47c1c275bb11dd8e990d804d0a1970d7542052950f0865",
+        "0x21eb6f713b02cf861222e2525495633598e263e75f63b2b8da5486da1e1c279b",
+        "0x09f19fa9acd85345d8d8e92f506351d01cc29f3a5f1fe12933a95c956e3f1a07",
     };
     expected_permutation_product_evals_vec.push_back(CreateEvals(evals));
   }
@@ -793,10 +792,10 @@ TEST_F(SimpleCircuitTest, Verify) {
   std::vector<std::vector<F>> expected_permutation_product_next_evals_vec;
   {
     std::vector<std::string_view> evals = {
-        "0x00c4c6790adeaa88afdadecc5c98928a82459a5afc7ca2e96b236c7f32170aa0",
-        "0x1a0bf236d09bd1a4cc836651ae9f72edf824311f1a9259c9ee00cffc1b41c18d",
-        "0x03040a5c93ccbb8c10c5ebbaeff948e0f264a8c3b8a235e4284303d12a75c76a",
-        "0x1ea1e0eeda951f63822dcf70776d4125f1db75724a3565f3345146b3a97febbc",
+        "0x2335c828368d5a07ca53652d3a8bcbaaa4cee2c717cfd9ba07543c86a1aa5a5d",
+        "0x1960ff05982154ef0c75866f858830ef9df60abc769379426e1b590a568773e2",
+        "0x0f7cb83ee3342f222e578d1a4eba473c6a983bee0f17ca815b0a5f8b68a717af",
+        "0x2a3edc695bb9573c2d29e829596f1b5a348ee302a55acbe18dbb5c8397526724",
     };
     expected_permutation_product_next_evals_vec.push_back(CreateEvals(evals));
   }
@@ -807,9 +806,9 @@ TEST_F(SimpleCircuitTest, Verify) {
       expected_permutation_product_last_evals_vec;
   {
     std::vector<std::string_view> evals = {
-        "0x0d747ecac5b930e5571cf1ad86fe9811e2b7d254ad8520b484ecfca725c1e876",
-        "0x0ca359fb2e3a7b5845ddea1e8dce400cafb571641a5154c9cdfe7f4fa9ff5112",
-        "0x2b6ba6889d386cfef53497ecb09e6ded1ffedbb922dc69f32d47747e760c19c3",
+        "0x1d6ba656f18050e953e05bcae54975e99f951eb36e05ef0ad53d9987dadad8ee",
+        "0x28331eb5fff6873ac44543583b15ef5eaea8128407fdfad8290ff27a78aee300",
+        "0x116ac27a7518dff92be35c86bbcbd1cfc25d9937e45d2f911369340fca349a58",
         "",
     };
     expected_permutation_product_last_evals_vec.push_back(
@@ -834,7 +833,7 @@ TEST_F(SimpleCircuitTest, Verify) {
   EXPECT_TRUE(proof.lookup_permuted_table_evals_vec[0].empty());
 
   F expected_h_eval = F::FromHexString(
-      "0x0b91cc8fe9296c94157f8f2b226da12d1ef112be8e9e30c88b402e1b36bbab6e");
+      "0x020452325cb00a51db7420a281da9c60516fd63e544c2ecfe855b6e2d1ac0be2");
   EXPECT_EQ(h_eval, expected_h_eval);
 }
 

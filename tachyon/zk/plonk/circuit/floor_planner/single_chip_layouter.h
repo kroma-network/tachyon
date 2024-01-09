@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -11,6 +12,8 @@
 
 #include "tachyon/base/functional/identity.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/constant.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/scoped_region.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 #include "tachyon/zk/plonk/circuit/region_column.h"
@@ -21,12 +24,6 @@ namespace tachyon::zk {
 template <typename F>
 class SingleChipLayouter : public Layouter<F> {
  public:
-  struct Constant {
-    math::RationalField<F> value;
-    Cell cell;
-  };
-  using Constants = std::vector<Constant>;
-
   class Region : public zk::Region<F>::Layouter {
    public:
     using AssignCallback = typename zk::Region<F>::Layouter::AssignCallback;
@@ -34,7 +31,7 @@ class SingleChipLayouter : public Layouter<F> {
     Region(SingleChipLayouter* layouter, size_t region_index)
         : layouter_(layouter), region_index_(region_index) {}
 
-    const Constants& constants() const { return constants_; }
+    const Constants<F>& constants() const { return constants_; }
 
     // zk::Region<F>::Layouter methods
     void EnableSelector(std::string_view name, const Selector& selector,
@@ -113,7 +110,7 @@ class SingleChipLayouter : public Layouter<F> {
     const size_t region_index_;
     // Stores the constants to be assigned, and the cells to which they are
     // copied.
-    Constants constants_;
+    Constants<F> constants_;
   };
 
   using AssignRegionCallback = typename Layouter<F>::AssignRegionCallback;
@@ -177,16 +174,15 @@ class SingleChipLayouter : public Layouter<F> {
     }
 
     // Assign region cells.
-    assignment_->EnterRegion(std::move(name));
     Region region(this, region_index);
     {
+      ScopedRegion<F> scoped_region(assignment_, name);
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 2nd pass: " << name;
       zk::Region<F> zk_region(&region);
       assign.Run(zk_region);
     }
-    assignment_->ExitRegion();
 
     // Assign constants. For the simple floor planner, we assign constants in
     // order in the first `constants` column.
@@ -195,7 +191,7 @@ class SingleChipLayouter : public Layouter<F> {
     } else {
       const FixedColumnKey& constants_column = constants_[0];
       size_t& next_constant_row = columns_[RegionColumn(constants_column)];
-      for (const Constant& constant : region.constants()) {
+      for (const Constant<F>& constant : region.constants()) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
         std::string name =
@@ -214,18 +210,19 @@ class SingleChipLayouter : public Layouter<F> {
   void AssignLookupTable(std::string_view name,
                          AssignLookupTableCallback assign) override {
     // Maintenance hazard: there is near-duplicate code in
-    // |v1::AssignmentPass::AssignLookupTable|. Assign table cells.
-    assignment_->EnterRegion(name);
+    // |AssignmentPass::AssignLookupTable|.
+
+    // Assign table cells.
     SimpleLookupTableLayouter<F> lookup_table_layouter(assignment_,
                                                        &lookup_table_columns_);
     {
+      ScopedRegion<F> scoped_region(assignment_, name);
       LookupTable<F> table(&lookup_table_layouter);
       std::move(assign).Run(table);
     }
     const absl::flat_hash_map<LookupTableColumn,
                               typename SimpleLookupTableLayouter<F>::Value>&
         values = lookup_table_layouter.values();
-    assignment_->ExitRegion();
 
     // Check that all table columns have the same length |first_unused|,
     // and all cells up to that length are assigned.

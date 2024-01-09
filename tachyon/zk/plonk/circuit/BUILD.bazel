@@ -55,7 +55,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "circuit",
     hdrs = ["circuit.h"],
-    deps = [":layouter"],
+    deps = [
+        ":layouter",
+        "//tachyon/zk/plonk/circuit/floor_planner",
+    ],
 )
 
 tachyon_cc_library(
@@ -64,6 +67,7 @@ tachyon_cc_library(
     deps = [
         ":column_type",
         ":phase",
+        "//tachyon/base:logging",
         "@com_google_absl//absl/strings",
     ],
 )

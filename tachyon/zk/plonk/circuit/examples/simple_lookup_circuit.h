@@ -11,7 +11,6 @@
 #include <utility>
 
 #include "tachyon/zk/plonk/circuit/circuit.h"
-#include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
 
 namespace tachyon::zk {
 
@@ -51,10 +50,11 @@ class SimpleLookupConfig {
 
 // This is taken and modified from
 // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/benches/dev_lookup.rs#L28-L91.
-template <typename F, size_t Bits>
+template <typename F, size_t Bits, template <typename> class _FloorPlanner>
 class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
  public:
-  using FloorPlanner = SimpleFloorPlanner;
+  using FloorPlanner =
+      _FloorPlanner<SimpleLookupCircuit<F, Bits, _FloorPlanner>>;
 
   SimpleLookupCircuit() = default;
   explicit SimpleLookupCircuit(size_t k) : k_(k) {}

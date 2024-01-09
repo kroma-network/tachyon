@@ -69,7 +69,7 @@ class RegionShape : public Region<F>::Layouter {
     row_count_ = std::max(row_count_, offset + 1);
   }
 
-  const size_t region_index_ = 0;
+  size_t region_index_ = 0;
   absl::flat_hash_set<RegionColumn> columns_;
   size_t row_count_ = 0;
 };

@@ -55,11 +55,11 @@ class NamespacedLayouter : public Layouter<F> {
 
   Layouter<F>* GetRoot() override { return layouter_->GetRoot(); }
 
-  void PushNamespace(std::string_view name) override {
+  void PushNamespace(std::string_view) override {
     NOTREACHED() << "Only the root layouter is allowed to call PushNamespace()";
   }
 
-  void PopNamespace(const std::optional<std::string>& gadget_name) override {
+  void PopNamespace(const std::optional<std::string>&) override {
     NOTREACHED() << "Only the root layouter is allowed to call PopNamespace()";
   }
 
@@ -71,7 +71,7 @@ class NamespacedLayouter : public Layouter<F> {
 template <typename F>
 std::unique_ptr<NamespacedLayouter<F>> Layouter<F>::Namespace(
     std::string_view name) {
-  GetRoot()->PushNamespace(std::move(name));
+  GetRoot()->PushNamespace(name);
   return std::make_unique<NamespacedLayouter<F>>(GetRoot());
 }
 

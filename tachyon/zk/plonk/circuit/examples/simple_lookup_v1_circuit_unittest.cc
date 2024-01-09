@@ -1,11 +1,10 @@
-#include "tachyon/zk/plonk/circuit/examples/simple_lookup_circuit.h"
-
 #include <vector>
 
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/plonk/circuit/examples/circuit_test.h"
-#include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
+#include "tachyon/zk/plonk/circuit/examples/simple_lookup_circuit.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/v1/v1_floor_planner.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
@@ -60,14 +59,14 @@ constexpr uint8_t kExpectedProof[] = {
     162, 210, 171, 230, 111, 50,  248, 118, 206, 52,  121, 43,  116, 34,  115,
     77,  174, 137, 208, 21,  143, 232, 236, 188, 160};
 
-class SimpleLookupCircuitTest : public CircuitTest {};
+class SimpleLookupV1CircuitTest : public CircuitTest {};
 
 }  // namespace
 
-TEST_F(SimpleLookupCircuitTest, Configure) {
+TEST_F(SimpleLookupV1CircuitTest, Configure) {
   ConstraintSystem<F> constraint_system;
   SimpleLookupConfig<F, kBits> config =
-      SimpleLookupCircuit<F, kBits, SimpleFloorPlanner>::Configure(
+      SimpleLookupCircuit<F, kBits, V1FloorPlanner>::Configure(
           constraint_system);
   EXPECT_EQ(config.selector(), Selector::Complex(0));
   EXPECT_EQ(config.table(), LookupTableColumn(FixedColumnKey(0)));
@@ -118,7 +117,7 @@ TEST_F(SimpleLookupCircuitTest, Configure) {
   EXPECT_FALSE(constraint_system.minimum_degree().has_value());
 }
 
-TEST_F(SimpleLookupCircuitTest, Synthesize) {
+TEST_F(SimpleLookupV1CircuitTest, Synthesize) {
   size_t n = 32;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
@@ -126,13 +125,13 @@ TEST_F(SimpleLookupCircuitTest, Synthesize) {
 
   ConstraintSystem<F> constraint_system;
   SimpleLookupConfig<F, kBits> config =
-      SimpleLookupCircuit<F, kBits, SimpleFloorPlanner>::Configure(
+      SimpleLookupCircuit<F, kBits, V1FloorPlanner>::Configure(
           constraint_system);
   Assembly<PCS> assembly =
       VerifyingKey<PCS>::CreateAssembly(domain, constraint_system);
 
-  SimpleLookupCircuit<F, kBits, SimpleFloorPlanner> circuit(4);
-  typename SimpleLookupCircuit<F, kBits, SimpleFloorPlanner>::FloorPlanner
+  SimpleLookupCircuit<F, kBits, V1FloorPlanner> circuit(4);
+  typename SimpleLookupCircuit<F, kBits, V1FloorPlanner>::FloorPlanner
       floor_planner;
   floor_planner.Synthesize(&assembly, circuit, std::move(config),
                            constraint_system.constants());
@@ -194,12 +193,12 @@ TEST_F(SimpleLookupCircuitTest, Synthesize) {
   EXPECT_EQ(assembly.usable_rows(), base::Range<size_t>::Until(26));
 }
 
-TEST_F(SimpleLookupCircuitTest, LoadVerifyingKey) {
+TEST_F(SimpleLookupV1CircuitTest, LoadVerifyingKey) {
   size_t n = 32;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
 
-  SimpleLookupCircuit<F, kBits, SimpleFloorPlanner> circuit(4);
+  SimpleLookupCircuit<F, kBits, V1FloorPlanner> circuit(4);
 
   VerifyingKey<PCS> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
@@ -223,12 +222,12 @@ TEST_F(SimpleLookupCircuitTest, LoadVerifyingKey) {
   EXPECT_EQ(vkey.transcript_repr(), expected_transcript_repr);
 }
 
-TEST_F(SimpleLookupCircuitTest, LoadProvingKey) {
+TEST_F(SimpleLookupV1CircuitTest, LoadProvingKey) {
   size_t n = 32;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
 
-  SimpleLookupCircuit<F, kBits, SimpleFloorPlanner> circuit(4);
+  SimpleLookupCircuit<F, kBits, V1FloorPlanner> circuit(4);
 
   for (size_t i = 0; i < 2; ++i) {
     ProvingKey<PCS> pkey;
@@ -521,12 +520,12 @@ TEST_F(SimpleLookupCircuitTest, LoadProvingKey) {
   }
 }
 
-TEST_F(SimpleLookupCircuitTest, Verify) {
+TEST_F(SimpleLookupV1CircuitTest, Verify) {
   size_t n = 32;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
 
-  SimpleLookupCircuit<F, kBits, SimpleFloorPlanner> circuit(4);
+  SimpleLookupCircuit<F, kBits, V1FloorPlanner> circuit(4);
 
   VerifyingKey<PCS> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));

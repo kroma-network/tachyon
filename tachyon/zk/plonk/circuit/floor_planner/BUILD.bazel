@@ -3,9 +3,62 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "allocated_region",
+    hdrs = ["allocated_region.h"],
+    deps = ["//tachyon:export"],
+)
+
+tachyon_cc_library(
+    name = "allocations",
+    hdrs = ["allocations.h"],
+    deps = [
+        ":allocated_region",
+        "//tachyon:export",
+        "//tachyon/zk/plonk/circuit/floor_planner:empty_space",
+        "@com_google_absl//absl/container:btree",
+    ],
+)
+
+tachyon_cc_library(
+    name = "constant",
+    hdrs = ["constant.h"],
+    deps = [
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk/circuit:cell",
+    ],
+)
+
+tachyon_cc_library(
+    name = "empty_space",
+    hdrs = ["empty_space.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:range",
+    ],
+)
+
+tachyon_cc_library(
+    name = "floor_planner",
+    hdrs = ["floor_planner.h"],
+    deps = [
+        "//tachyon/zk/plonk/circuit:assignment",
+        "//tachyon/zk/plonk/circuit:column_key",
+    ],
+)
+
+tachyon_cc_library(
+    name = "scoped_region",
+    hdrs = ["scoped_region.h"],
+    deps = ["//tachyon/zk/plonk/circuit:assignment"],
+)
+
+tachyon_cc_library(
     name = "simple_floor_planner",
     hdrs = ["simple_floor_planner.h"],
-    deps = [":single_chip_layouter"],
+    deps = [
+        ":floor_planner",
+        ":single_chip_layouter",
+    ],
 )
 
 tachyon_cc_library(
@@ -26,6 +79,8 @@ tachyon_cc_library(
     name = "single_chip_layouter",
     hdrs = ["single_chip_layouter.h"],
     deps = [
+        ":constant",
+        ":scoped_region",
         ":simple_lookup_table_layouter",
         "//tachyon/base:logging",
         "//tachyon/base/functional:identity",
