@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 
+#include "tachyon/base/template_util.h"
 #include "tachyon/math/base/field.h"
 
 namespace tachyon::math {
@@ -42,8 +43,8 @@ class RationalField : public Field<RationalField<F>> {
                                       OutputContainer* results,
                                       const F& coeff = F::One()) {
     static_assert(
-        std::is_same_v<typename InputContainer::value_type, RationalField>);
-    static_assert(std::is_same_v<typename OutputContainer::value_type, F>);
+        std::is_same_v<base::container_value_t<InputContainer>, RationalField>);
+    static_assert(std::is_same_v<base::container_value_t<OutputContainer>, F>);
 
     if (std::size(ration_fields) != std::size(*results)) {
       LOG(ERROR) << "Size of |ration_fields| and |results| do not match";

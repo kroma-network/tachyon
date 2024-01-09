@@ -240,6 +240,19 @@ struct reference_to_pointer<T&> {
 template <typename T>
 using reference_to_pointer_t = typename reference_to_pointer<T>::Type;
 
+template <typename T>
+struct container_value {
+  using type = typename T::value_type;
+};
+
+template <typename T, size_t N>
+struct container_value<T[N]> {
+  using type = T;
+};
+
+template <typename T>
+using container_value_t = typename container_value<T>::type;
+
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_TEMPLATE_UTIL_H_

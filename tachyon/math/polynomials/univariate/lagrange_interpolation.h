@@ -12,6 +12,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/template_util.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
@@ -19,8 +20,9 @@ namespace tachyon::math {
 template <size_t MaxDegree, typename Container>
 bool LagrangeInterpolate(
     const Container& points, const Container& evals,
-    UnivariateDensePolynomial<typename Container::value_type, MaxDegree>* ret) {
-  using F = typename Container::value_type;
+    UnivariateDensePolynomial<base::container_value_t<Container>, MaxDegree>*
+        ret) {
+  using F = base::container_value_t<Container>;
   using Poly = UnivariateDensePolynomial<F, MaxDegree>;
   using Coeffs = UnivariateDenseCoefficients<F, MaxDegree>;
 

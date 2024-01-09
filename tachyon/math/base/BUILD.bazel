@@ -81,7 +81,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "rational_field",
     hdrs = ["rational_field.h"],
-    deps = [":field"],
+    deps = [
+        ":field",
+        "//tachyon/base:template_util",
+    ],
 )
 
 tachyon_cc_library(

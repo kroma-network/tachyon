@@ -7,6 +7,7 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_KZG_SHPLONK_H_
 #define TACHYON_CRYPTO_COMMITMENTS_KZG_SHPLONK_H_
 
+#include <array>
 #include <utility>
 #include <vector>
 
@@ -40,6 +41,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       SHPlonk<Curve, MaxDegree, Commitment>>;
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using G2Point = typename Curve::G2Curve::AffinePoint;
+  using G2Prepared = typename Curve::G2Prepared;
   using Fp12 = typename Curve::Fp12;
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
@@ -56,9 +58,6 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       SHPlonk<Curve, MaxDegree, Commitment>>;
   template <typename, size_t, size_t, typename>
   friend class zk::SHPlonkExtension;
-
-  // Set 𝜏G₂
-  void SetTauG2(const G2Point& tau_g2) { tau_g2_ = tau_g2; }
 
   // UnivariatePolynomialCommitmentScheme methods
   template <typename Container>
@@ -308,46 +307,35 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     }
 
     // clang-format off
-    // lhs_g1 = ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u) - Z₀(u)[H(𝜏)]₁ + u[Q(𝜏)]₁
-    // lhs_g2 = [1]₂
+    // |p| = ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u) - Z₀(u)[H(𝜏)]₁ + u[Q(𝜏)]₁
     // clang-format on
-    G1JacobianPoint& lhs =
+    G1JacobianPoint& p =
         G1JacobianPoint::template LinearCombinationInPlace</*forward=*/false>(
             normalized_l_commitments, v);
 
-    lhs -= (first_z * h);
-    lhs += (u * q);
-
-    G1Point lhs_g1[] = {lhs.ToAffine()};
-    G2Point lhs_g2[] = {G2Point::Generator()};
-    Fp12 lhs_pairing = math::Pairing<Curve>(lhs_g1, lhs_g2);
-
-    // rhs_g1 = [Q(𝜏)]₁
-    // rhs_g2 = [𝜏]₂
-    G1Point rhs_g1[] = {std::move(q)};
-    G2Point rhs_g2[] = {tau_g2_};
-    Fp12 rhs_pairing = math::Pairing<Curve>(rhs_g1, rhs_g2);
+    p -= (first_z * h);
+    p += (u * q);
 
     // clang-format off
-    // e(lhs_g1, rhs_g2) ≟ e(rhs_g1, lhs_g2)
-    // lhs: e(G₁, G₂)^((L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏))
-    // rhs: e(G₁, G₂)^(𝜏 * Q(𝜏))
-    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏) ≟ 𝜏 * Q(𝜏)
+    // e(p, [1]₂) * e([Q(𝜏)]₁, [-𝜏]₂) ≟ gᴛ⁰
+    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏) - 𝜏 * Q(𝜏) ≟ 0
     // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) ≟ (𝜏 - u) * Q(𝜏)
     // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏) - Zᴛ(u) * H(𝜏)) / Zᴛ\₀(u) ≟ (𝜏 - u) * Q(𝜏)
     // L(𝜏) ≟ (𝜏 - u) * Q(𝜏) * Zᴛ\₀(u)
     // clang-format on
-    return lhs_pairing == rhs_pairing;
+    G1Point g1_arr[] = {p.ToAffine(), std::move(q)};
+    return math::Pairing<Curve>(g1_arr, g2_arr_).IsOne();
   }
 
   // KZGFamily methods
   [[nodiscard]] bool DoUnsafeSetupWithTau(size_t size,
                                           const Field& tau) override {
-    tau_g2_ = G2Point::Generator().ScalarMul(tau).ToAffine();
+    g2_arr_ = {G2Prepared::From(G2Point::Generator()),
+               G2Prepared::From((G2Point::Generator() * -tau).ToAffine())};
     return true;
   }
 
-  G2Point tau_g2_;
+  std::array<G2Prepared, 2> g2_arr_;
 };
 
 template <typename Curve, size_t MaxDegree, typename _Commitment>
