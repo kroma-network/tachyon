@@ -112,4 +112,20 @@ TYPED_TEST(PrimeFieldBaseTest, Hash) {
       std::make_tuple(F::Random(), F::Random())));
 }
 
+TYPED_TEST(PrimeFieldBaseTest, JsonValueConverter) {
+  using F = TypeParam;
+
+  F expected_point(3);
+  std::string expected_json = R"({"value":"0x3"})";
+
+  F p;
+  std::string error;
+  ASSERT_TRUE(base::ParseJson(expected_json, &p, &error));
+  ASSERT_TRUE(error.empty());
+  EXPECT_EQ(p, expected_point);
+
+  std::string json = base::WriteToJson(p);
+  EXPECT_EQ(json, expected_json);
+}
+
 }  // namespace tachyon::math

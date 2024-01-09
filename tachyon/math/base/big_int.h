@@ -20,6 +20,7 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/compiler_specific.h"
 #include "tachyon/base/endian_utils.h"
+#include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/random.h"
 #include "tachyon/build/build_config.h"
@@ -1012,6 +1013,34 @@ class Copyable<math::BigInt<N>> {
 
   static size_t EstimateSize(const math::BigInt<N>& bigint) {
     return base::EstimateSize(bigint.limbs);
+  }
+};
+
+template <size_t N>
+class RapidJsonValueConverter<math::BigInt<N>> {
+ public:
+  // NOTE(dongchangYoo): Classes inheriting |BigInt<N>| have a member of
+  // type |uint64_t[N]|, but for the sake of readability in the JSON file,
+  // |BigInt<N>| is implemented to be converted into a hexadecimal string.
+  template <typename Allocator>
+  static rapidjson::Value From(const math::BigInt<N>& value,
+                               Allocator& allocator) {
+    std::string value_str = value.ToHexString();
+    return RapidJsonValueConverter<std::string>::From(value_str, allocator);
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::BigInt<N>* value, std::string* error) {
+    if (!json_value.IsString()) {
+      *error = RapidJsonMismatchedTypeError(key, "string", json_value);
+      return false;
+    }
+    std::string_view value_str;
+    if (!RapidJsonValueConverter<std::string_view>::To(json_value, "",
+                                                       &value_str, error))
+      return false;
+    *value = math::BigInt<N>::FromHexString(value_str);
+    return true;
   }
 };
 

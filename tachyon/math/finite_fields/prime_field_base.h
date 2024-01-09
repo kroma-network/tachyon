@@ -7,12 +7,14 @@
 #define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_BASE_H_
 
 #include <cmath>
+#include <string>
 #include <utility>
 
 #include "absl/hash/hash.h"
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/base/json/json.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/finite_field.h"
@@ -182,6 +184,27 @@ class Copyable<
   static size_t EstimateSize(const T& prime_field) {
     using BigInt = typename T::BigIntTy;
     return BigInt::kLimbNums * sizeof(uint64_t);
+  }
+};
+
+template <typename T>
+class RapidJsonValueConverter<
+    T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(const T& value, Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "value", value.ToBigInt(), allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 T* value, std::string* error) {
+    typename T::BigIntTy value_big_int;
+    if (!ParseJsonElement(json_value, "value", &value_big_int, error))
+      return false;
+    *value = T(std::move(value_big_int));
+    return true;
   }
 };
 

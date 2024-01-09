@@ -37,6 +37,7 @@ tachyon_cc_library(
         "//tachyon/base:endian_utils",
         "//tachyon/base:random",
         "//tachyon/base/buffer:copyable",
+        "//tachyon/base/json",
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
         "//tachyon/math/base/gmp:gmp_util",

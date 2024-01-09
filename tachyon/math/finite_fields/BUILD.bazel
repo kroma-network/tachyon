@@ -113,6 +113,7 @@ tachyon_cc_library(
         ":legendre_symbol",
         ":prime_field_util",
         "//tachyon/base:bits",
+        "//tachyon/base/json",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/math/base/gmp:gmp_util",
         "@com_google_absl//absl/hash",
