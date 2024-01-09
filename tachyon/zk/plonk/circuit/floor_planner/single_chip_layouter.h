@@ -13,6 +13,7 @@
 #include "tachyon/base/functional/identity.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/constant.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/scoped_region.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 #include "tachyon/zk/plonk/circuit/region_column.h"
@@ -173,16 +174,15 @@ class SingleChipLayouter : public Layouter<F> {
     }
 
     // Assign region cells.
-    assignment_->EnterRegion(name);
     Region region(this, region_index);
     {
+      ScopedRegion<F> scoped_region(assignment_, name);
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 2nd pass: " << name;
       zk::Region<F> zk_region(&region);
       assign.Run(zk_region);
     }
-    assignment_->ExitRegion();
 
     // Assign constants. For the simple floor planner, we assign constants in
     // order in the first `constants` column.
@@ -213,17 +213,16 @@ class SingleChipLayouter : public Layouter<F> {
     // |AssignmentPass::AssignLookupTable|.
 
     // Assign table cells.
-    assignment_->EnterRegion(name);
     SimpleLookupTableLayouter<F> lookup_table_layouter(assignment_,
                                                        &lookup_table_columns_);
     {
+      ScopedRegion<F> scoped_region(assignment_, name);
       LookupTable<F> table(&lookup_table_layouter);
       std::move(assign).Run(table);
     }
     const absl::flat_hash_map<LookupTableColumn,
                               typename SimpleLookupTableLayouter<F>::Value>&
         values = lookup_table_layouter.values();
-    assignment_->ExitRegion();
 
     // Check that all table columns have the same length |first_unused|,
     // and all cells up to that length are assigned.

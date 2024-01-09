@@ -21,6 +21,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "scoped_region",
+    hdrs = ["scoped_region.h"],
+    deps = ["//tachyon/zk/plonk/circuit:assignment"],
+)
+
+tachyon_cc_library(
     name = "simple_floor_planner",
     hdrs = ["simple_floor_planner.h"],
     deps = [
@@ -48,6 +54,7 @@ tachyon_cc_library(
     hdrs = ["single_chip_layouter.h"],
     deps = [
         ":constant",
+        ":scoped_region",
         ":simple_lookup_table_layouter",
         "//tachyon/base:logging",
         "//tachyon/base/functional:identity",
