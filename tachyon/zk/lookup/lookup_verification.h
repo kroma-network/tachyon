@@ -55,7 +55,7 @@ std::vector<F> CreateLookupVerificationExpressions(
   F active_rows = F::One() - (*data.l_last + *data.l_blind);
   std::vector<F> ret;
   ret.reserve(GetSizeOfLookupVerificationExpressions());
-  // l_first(X) * (1 - z'(X)) = 0
+  // l_first(X) * (1 - z(X)) = 0
   ret.push_back(*data.l_first * (F::One() - *data.product_eval));
   // l_last(X) * (z(X)² - z(X)) = 0
   ret.push_back(*data.l_last *
@@ -69,7 +69,7 @@ std::vector<F> CreateLookupVerificationExpressions(
   ret.push_back(*data.l_first *
                 (*data.permuted_input_eval - *data.permuted_table_eval));
   // (1 - (l_last(X) + l_blind(X))) *
-  // (a′(X) − s′(X)) * (a′(X) − a′(ω⁻¹ * X)) = 0
+  // (a'(X) − s'(X)) * (a'(X) − a'(ω⁻¹ * X)) = 0
   ret.push_back(active_rows *
                 (*data.permuted_input_eval - *data.permuted_table_eval) *
                 (*data.permuted_input_eval - *data.permuted_input_inv_eval));
