@@ -244,7 +244,8 @@ class ProofReader {
   template <typename T>
   T Read() {
     T value;
-    CHECK(transcript_->ReadFromProof(&value));
+    CHECK(transcript_->template ReadFromProof</*NeedToWriteToTranscript=*/true>(
+        &value));
     return value;
   }
 

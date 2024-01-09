@@ -35,13 +35,11 @@ class TranscriptImpl<_Commitment, false> {
   // Squeeze an encoded verifier challenge from the transcript.
   virtual Field SqueezeChallenge() = 0;
 
-  // Write a |commitment| to the transcript without writing it to the proof,
-  // treating it as a common input.
+  // Write a |commitment| to the transcript.
   [[nodiscard]] virtual bool WriteToTranscript(
       const Commitment& commitment) = 0;
 
-  // Write a |value| to the transcript without writing it to the proof,
-  // treating it as a common input.
+  // Write a |value| to the transcript.
   [[nodiscard]] virtual bool WriteToTranscript(const Field& value) = 0;
 
   TranscriptWriterImpl<Commitment, false>* ToWriter() {
@@ -63,8 +61,7 @@ class TranscriptImpl<_Field, true> {
   // Squeeze an encoded verifier challenge from the transcript.
   virtual Field SqueezeChallenge() = 0;
 
-  // Write a |value| to the transcript without writing it to the proof,
-  // treating it as a common input.
+  // Write a |value| to the transcript.
   [[nodiscard]] virtual bool WriteToTranscript(const Field& value) = 0;
 
   TranscriptWriterImpl<Field, true>* ToWriter() {
@@ -96,15 +93,28 @@ class TranscriptReaderImpl<Commitment, false> : public Transcript<Commitment> {
   const base::Buffer& buffer() const { return buffer_; }
 
   // Read a |commitment| from the proof. Note that it also writes the
-  // |commitment| to the transcript by calling |WriteToTranscript()| internally.
+  // |commitment| to the transcript by calling |WriteToTranscript()| internally
+  // when |NeedToWriteToTranscript| is set to true.
+  template <bool NeedToWriteToTranscript>
   [[nodiscard]] bool ReadFromProof(Commitment* commitment) {
-    return DoReadFromProof(commitment) && this->WriteToTranscript(*commitment);
+    if constexpr (NeedToWriteToTranscript) {
+      return DoReadFromProof(commitment) &&
+             this->WriteToTranscript(*commitment);
+    } else {
+      return DoReadFromProof(commitment);
+    }
   }
 
   // Read a |value| from the proof. Note that it also writes the
-  // |value| to the transcript by calling |WriteToTranscript()| internally.
+  // |value| to the transcript by calling |WriteToTranscript()| internally when
+  // |NeedToWriteToTranscript| is set to true.
+  template <bool NeedToWriteToTranscript>
   [[nodiscard]] bool ReadFromProof(Field* value) {
-    return DoReadFromProof(value) && this->WriteToTranscript(*value);
+    if constexpr (NeedToWriteToTranscript) {
+      return DoReadFromProof(value) && this->WriteToTranscript(*value);
+    } else {
+      return DoReadFromProof(value);
+    }
   }
 
  protected:
@@ -129,9 +139,15 @@ class TranscriptReaderImpl<Field, true> : public Transcript<Field> {
   const base::Buffer& buffer() const { return buffer_; }
 
   // Read a |value| from the proof. Note that it also writes the
-  // |value| to the transcript by calling |WriteToTranscript()| internally.
+  // |value| to the transcript by calling |WriteToTranscript()| internally when
+  // |NeedToWriteToTranscript| is set to true.
+  template <bool NeedToWriteToTranscript>
   [[nodiscard]] bool ReadFromProof(Field* value) {
-    return DoReadFromProof(value) && this->WriteToTranscript(*value);
+    if constexpr (NeedToWriteToTranscript) {
+      return DoReadFromProof(value) && this->WriteToTranscript(*value);
+    } else {
+      return DoReadFromProof(value);
+    }
   }
 
  protected:
@@ -164,15 +180,27 @@ class TranscriptWriterImpl<Commitment, false> : public Transcript<Commitment> {
   base::Uint8VectorBuffer&& TakeBuffer() && { return std::move(buffer_); }
 
   // Write a |commitment| to the proof. Note that it also writes the
-  // |commitment| to the transcript by calling |WriteToTranscript()| internally.
+  // |commitment| to the transcript by calling |WriteToTranscript()| internally
+  // when |NeedToWriteToTranscript| is set to true.
+  template <bool NeedToWriteToTranscript>
   [[nodiscard]] bool WriteToProof(const Commitment& commitment) {
-    return this->WriteToTranscript(commitment) && DoWriteToProof(commitment);
+    if constexpr (NeedToWriteToTranscript) {
+      return this->WriteToTranscript(commitment) && DoWriteToProof(commitment);
+    } else {
+      return DoWriteToProof(commitment);
+    }
   }
 
   // Write a |value| to the proof. Note that it also writes the
-  // |value| to the transcript by calling |WriteToTranscript()| internally.
+  // |value| to the transcript by calling |WriteToTranscript()| internally when
+  // |NeedToWriteToTranscript| is set to true.
+  template <bool NeedToWriteToTranscript>
   [[nodiscard]] bool WriteToProof(const Field& value) {
-    return this->WriteToTranscript(value) && DoWriteToProof(value);
+    if constexpr (NeedToWriteToTranscript) {
+      return this->WriteToTranscript(value) && DoWriteToProof(value);
+    } else {
+      return DoWriteToProof(value);
+    }
   }
 
  protected:
@@ -201,9 +229,15 @@ class TranscriptWriterImpl<Field, true> : public Transcript<Field> {
   base::Uint8VectorBuffer&& TakeBuffer() && { return std::move(buffer_); }
 
   // Write a |value| to the proof. Note that it also writes the
-  // |value| to the transcript by calling |WriteToTranscript()| internally.
+  // |value| to the transcript by calling |WriteToTranscript()| internally when
+  // |NeedToWriteToTranscript| is set to true.
+  template <bool NeedToWriteToTranscript>
   [[nodiscard]] bool WriteToProof(const Field& value) {
-    return this->WriteToTranscript(value) && DoWriteToProof(value);
+    if constexpr (NeedToWriteToTranscript) {
+      return this->WriteToTranscript(value) && DoWriteToProof(value);
+    } else {
+      return DoWriteToProof(value);
+    }
   }
 
  protected:

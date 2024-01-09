@@ -119,7 +119,9 @@ template <typename PCS, typename F, typename Commitment>
   VanishingCommitted<EntityTy::kProver, PCS> committed =
       std::move(constructed).TakeCommitted();
   F random_eval = committed.random_poly().Evaluate(x);
-  if (!writer->WriteToProof(random_eval)) return false;
+  if (!writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+          random_eval))
+    return false;
 
   *evaluated_out = {std::move(h_poly), std::move(h_blind),
                     std::move(committed)};

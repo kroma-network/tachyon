@@ -52,7 +52,8 @@ class FRI final
     Evals evals = domain_->FFT(poly);
     F root;
     if (!tree.Commit(evals.evaluations(), &root)) return false;
-    if (!writer->WriteToProof(root)) return false;
+    if (!writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(root))
+      return false;
     const Poly* cur_poly = &poly;
 
     F beta;
@@ -67,7 +68,9 @@ class FRI final
                                                    hasher_);
         evals = sub_domains_[i - 1]->FFT(folded_poly);
         if (!tree.Commit(evals.evaluations(), &root)) return false;
-        if (!writer->WriteToProof(root)) return false;
+        if (!writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+                root))
+          return false;
         cur_poly = &folded_poly;
       }
     }
@@ -76,7 +79,8 @@ class FRI final
     folded_poly = cur_poly->template Fold<false>(beta);
     const F* constant = folded_poly[0];
     root = constant ? *constant : F::Zero();
-    return writer->WriteToProof(root);
+    return writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+        root);
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(size_t index,
@@ -126,7 +130,9 @@ class FRI final
       BinaryMerkleTreeStorage<F>* layer = storage_->GetLayer(i);
       BinaryMerkleTree<F, F, MaxDegree + 1> tree(layer, hasher_);
 
-      if (!reader->ReadFromProof(&root)) return false;
+      if (!reader->template ReadFromProof</*NeedToWriteToTranscript=*/true>(
+              &root))
+        return false;
       if (!tree.VerifyOpeningProof(root, proof.evaluations[i], proof.paths[i]))
         return false;
 
@@ -185,7 +191,9 @@ class FRI final
     evaluation += evaluation_sym;
     evaluation *= two_inv;
 
-    if (!reader->ReadFromProof(&root)) return false;
+    if (!reader->template ReadFromProof</*NeedToWriteToTranscript=*/true>(
+            &root))
+      return false;
     if (root != evaluation) {
       LOG(ERROR) << "Root doesn't match with expected evaluation";
       return false;

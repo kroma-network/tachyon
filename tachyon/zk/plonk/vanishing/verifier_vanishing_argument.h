@@ -28,7 +28,8 @@ template <typename PCS, typename Commitment>
     crypto::TranscriptReader<Commitment>* transcript,
     VanishingCommitted<EntityTy::kVerifier, PCS>* committed_out) {
   Commitment c;
-  if (!transcript->ReadFromProof(&c)) return false;
+  if (!transcript->template ReadFromProof</*NeedToWriteToTranscript=*/true>(&c))
+    return false;
 
   *committed_out = VanishingCommitted<EntityTy::kVerifier, PCS>(std::move(c));
   return true;
@@ -46,7 +47,9 @@ template <typename PCS, typename Commitment>
   size_t quotient_poly_degree = vk.constraint_system().ComputeDegree() - 1;
   h_commitments.resize(quotient_poly_degree);
   for (Commitment& commitment : h_commitments) {
-    if (!transcript->ReadFromProof(&commitment)) return false;
+    if (!transcript->template ReadFromProof</*NeedToWriteToTranscript=*/true>(
+            &commitment))
+      return false;
   }
 
   *constructed_out = {std::move(h_commitments),
@@ -60,7 +63,9 @@ template <typename F, typename PCS, typename Commitment>
     crypto::TranscriptReader<Commitment>* transcript,
     VanishingPartiallyEvaluated<PCS>* partially_evaluated_out) {
   F random_eval;
-  if (!transcript->ReadFromProof(&random_eval)) return false;
+  if (!transcript->template ReadFromProof</*NeedToWriteToTranscript=*/true>(
+          &random_eval))
+    return false;
 
   *partially_evaluated_out = {std::move(constructed).TakeHCommitments(),
                               std::move(constructed).TakeRandomPolyCommitment(),

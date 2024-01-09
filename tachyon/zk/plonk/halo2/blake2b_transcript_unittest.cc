@@ -30,12 +30,12 @@ TEST_F(Blake2bTranscriptTest, WritePoint) {
   base::Uint8VectorBuffer write_buf;
   Blake2bWriter<G1AffinePoint> writer(std::move(write_buf));
   G1AffinePoint expected = G1AffinePoint::Random();
-  ASSERT_TRUE(writer.WriteToProof(expected));
+  ASSERT_TRUE(writer.WriteToProof</*NeedToWriteToTranscript=*/true>(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
   Blake2bReader<G1AffinePoint> reader(std::move(read_buf));
   G1AffinePoint actual;
-  ASSERT_TRUE(reader.ReadFromProof(&actual));
+  ASSERT_TRUE(reader.ReadFromProof</*NeedToWriteToTranscript=*/true>(&actual));
 
   EXPECT_EQ(expected, actual);
 }
@@ -44,12 +44,12 @@ TEST_F(Blake2bTranscriptTest, WriteScalar) {
   base::Uint8VectorBuffer write_buf;
   Blake2bWriter<G1AffinePoint> writer(std::move(write_buf));
   Fr expected = Fr::Random();
-  ASSERT_TRUE(writer.WriteToProof(expected));
+  ASSERT_TRUE(writer.WriteToProof</*NeedToWriteToTranscript=*/true>(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
   Blake2bReader<G1AffinePoint> reader(std::move(read_buf));
   Fr actual;
-  ASSERT_TRUE(reader.ReadFromProof(&actual));
+  ASSERT_TRUE(reader.ReadFromProof</*NeedToWriteToTranscript=*/true>(&actual));
 
   EXPECT_EQ(expected, actual);
 }
@@ -58,7 +58,7 @@ TEST_F(Blake2bTranscriptTest, SqueezeChallenge) {
   base::Uint8VectorBuffer write_buf;
   Blake2bWriter<G1AffinePoint> writer(std::move(write_buf));
   G1AffinePoint generator = G1AffinePoint::Generator();
-  ASSERT_TRUE(writer.WriteToProof(generator));
+  ASSERT_TRUE(writer.WriteToProof</*NeedToWriteToTranscript=*/true>(generator));
 
   std::vector<uint8_t> expected_bytes = {57, 2,   118, 182, 16,  184, 59,  179,
                                          70, 176, 223, 71,  62,  168, 222, 171,

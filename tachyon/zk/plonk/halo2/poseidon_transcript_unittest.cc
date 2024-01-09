@@ -30,12 +30,12 @@ TEST_F(PoseidonTranscriptTest, WritePoint) {
   base::Uint8VectorBuffer write_buf;
   PoseidonWriter<G1AffinePoint> writer(std::move(write_buf));
   G1AffinePoint expected = G1AffinePoint::Random();
-  ASSERT_TRUE(writer.WriteToProof(expected));
+  ASSERT_TRUE(writer.WriteToProof</*NeedToWriteToTranscript=*/true>(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
   PoseidonReader<G1AffinePoint> reader(std::move(read_buf));
   G1AffinePoint actual;
-  ASSERT_TRUE(reader.ReadFromProof(&actual));
+  ASSERT_TRUE(reader.ReadFromProof</*NeedToWriteToTranscript=*/true>(&actual));
 
   EXPECT_EQ(expected, actual);
 }
@@ -44,12 +44,12 @@ TEST_F(PoseidonTranscriptTest, WriteScalar) {
   base::Uint8VectorBuffer write_buf;
   PoseidonWriter<G1AffinePoint> writer(std::move(write_buf));
   Fr expected = Fr::Random();
-  ASSERT_TRUE(writer.WriteToProof(expected));
+  ASSERT_TRUE(writer.WriteToProof</*NeedToWriteToTranscript=*/true>(expected));
 
   base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
   PoseidonReader<G1AffinePoint> reader(std::move(read_buf));
   Fr actual;
-  ASSERT_TRUE(reader.ReadFromProof(&actual));
+  ASSERT_TRUE(reader.ReadFromProof</*NeedToWriteToTranscript=*/true>(&actual));
 
   EXPECT_EQ(expected, actual);
 }
@@ -58,7 +58,7 @@ TEST_F(PoseidonTranscriptTest, SqueezeChallenge) {
   base::Uint8VectorBuffer write_buf;
   PoseidonWriter<G1AffinePoint> writer(std::move(write_buf));
   G1AffinePoint generator = G1AffinePoint::Generator();
-  ASSERT_TRUE(writer.WriteToProof(generator));
+  ASSERT_TRUE(writer.WriteToProof</*NeedToWriteToTranscript=*/true>(generator));
 
   std::vector<uint8_t> expected_bytes = {25,  86,  205, 219, 59,  135, 187, 231,
                                          192, 54,  23,  138, 114, 176, 9,   157,

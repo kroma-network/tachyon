@@ -107,7 +107,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     Commitment h;
     if (!this->Commit(h_poly, &h)) return false;
 
-    if (!writer->WriteToProof(h)) return false;
+    if (!writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(h))
+      return false;
     Field u = writer->SqueezeChallenge();
 
     // Create [L₀(X), L₁(X), L₂(X)].
@@ -190,7 +191,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     // Commit Q(X)
     Commitment q;
     if (!this->Commit(q_poly, &q)) return false;
-    return writer->WriteToProof(q);
+    return writer->template WriteToProof</*NeedToWriteToTranscript=*/true>(q);
   }
 
   template <typename Container>
@@ -203,12 +204,14 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     Field v = reader->SqueezeChallenge();
 
     Commitment h;
-    if (!reader->ReadFromProof(&h)) return false;
+    if (!reader->template ReadFromProof</*NeedToWriteToTranscript=*/true>(&h))
+      return false;
 
     Field u = reader->SqueezeChallenge();
 
     Commitment q;
-    if (!reader->ReadFromProof(&q)) return false;
+    if (!reader->template ReadFromProof</*NeedToWriteToTranscript=*/true>(&q))
+      return false;
 
     PolynomialOpeningGrouper<Poly, Commitment> grouper;
     grouper.GroupByPolyOracleAndPoints(poly_openings);

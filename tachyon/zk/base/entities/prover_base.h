@@ -44,14 +44,16 @@ class ProverBase : public Entity<PCS> {
   [[nodiscard]] bool Commit(const Poly& poly) {
     Commitment commitment;
     if (!this->pcs_.Commit(poly, &commitment)) return false;
-    return GetWriter()->WriteToProof(commitment);
+    return GetWriter()->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+        commitment);
   }
 
   template <typename Container>
   [[nodiscard]] bool Commit(const Container& coeffs) {
     Commitment commitment;
     if (!this->pcs_.DoCommit(coeffs, &commitment)) return false;
-    return GetWriter()->WriteToProof(commitment);
+    return GetWriter()->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+        commitment);
   }
 
   [[nodiscard]] bool CommitEvals(const Evals& evals) {
@@ -59,7 +61,8 @@ class ProverBase : public Entity<PCS> {
 
     Commitment commitment;
     if (!this->pcs_.CommitLagrange(evals, &commitment)) return false;
-    return GetWriter()->WriteToProof(commitment);
+    return GetWriter()->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+        commitment);
   }
 
   [[nodiscard]] bool CommitEvalsWithBlind(const Evals& evals,
@@ -71,7 +74,8 @@ class ProverBase : public Entity<PCS> {
 
   [[nodiscard]] bool Evaluate(const Poly& poly, const F& x) {
     F result = poly.Evaluate(x);
-    return GetWriter()->WriteToProof(result);
+    return GetWriter()->template WriteToProof</*NeedToWriteToTranscript=*/true>(
+        result);
   }
 
  protected:
