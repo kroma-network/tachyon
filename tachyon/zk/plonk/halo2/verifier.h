@@ -94,7 +94,7 @@ class Verifier : public VerifierBase<PCS> {
     }
     proof_reader.ReadAdviceEvals();
     proof_reader.ReadFixedEvals();
-    proof_reader.ReadVanishingEval();
+    proof_reader.ReadVanishingRandomEval();
     proof_reader.ReadCommonPermutationEvals();
     proof_reader.ReadPermutationEvals();
     proof_reader.ReadLookupEvals();

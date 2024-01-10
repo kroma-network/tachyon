@@ -652,9 +652,9 @@ TEST_F(SimpleLookupV1CircuitTest, Verify) {
   }
   EXPECT_EQ(proof.fixed_evals, expected_fixed_evals);
 
-  F expected_vanishing_eval = F::FromHexString(
+  F expected_vanishing_random_eval = F::FromHexString(
       "0x0000000000000000000000000000000000000000000000000000000000000001");
-  EXPECT_EQ(proof.vanishing_eval, expected_vanishing_eval);
+  EXPECT_EQ(proof.vanishing_random_eval, expected_vanishing_random_eval);
 
   EXPECT_TRUE(proof.common_permutation_evals.empty());
 

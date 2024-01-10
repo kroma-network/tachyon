@@ -29,7 +29,7 @@ struct Proof {
   std::vector<std::vector<F>> instance_evals_vec;
   std::vector<std::vector<F>> advice_evals_vec;
   std::vector<F> fixed_evals;
-  F vanishing_eval;
+  F vanishing_random_eval;
   std::vector<F> common_permutation_evals;
   std::vector<std::vector<F>> permutation_product_evals_vec;
   std::vector<std::vector<F>> permutation_product_next_evals_vec;

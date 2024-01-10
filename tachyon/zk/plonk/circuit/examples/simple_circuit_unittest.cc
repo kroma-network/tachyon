@@ -761,9 +761,9 @@ TEST_F(SimpleCircuitTest, Verify) {
   }
   EXPECT_EQ(proof.fixed_evals, expected_fixed_evals);
 
-  F expected_vanishing_eval = F::FromHexString(
+  F expected_vanishing_random_eval = F::FromHexString(
       "0x0000000000000000000000000000000000000000000000000000000000000001");
-  EXPECT_EQ(proof.vanishing_eval, expected_vanishing_eval);
+  EXPECT_EQ(proof.vanishing_random_eval, expected_vanishing_random_eval);
 
   std::vector<F> expected_common_permutation_evals;
   {

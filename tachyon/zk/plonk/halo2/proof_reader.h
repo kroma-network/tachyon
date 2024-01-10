@@ -26,7 +26,7 @@ enum class ProofCursor {
   kInstanceEvals,
   kAdviceEvals,
   kFixedEvals,
-  kVanishingEval,
+  kVanishingRandomEval,
   kCommonPermutationEvals,
   kPermutationEvals,
   kLookupEvalsVec,
@@ -179,12 +179,12 @@ class ProofReader {
     size_t num_fixed_queries =
         verifying_key_.constraint_system().fixed_queries().size();
     proof_.fixed_evals = ReadMany<F>(num_fixed_queries);
-    cursor_ = ProofCursor::kVanishingEval;
+    cursor_ = ProofCursor::kVanishingRandomEval;
   }
 
-  void ReadVanishingEval() {
-    CHECK_EQ(cursor_, ProofCursor::kVanishingEval);
-    proof_.vanishing_eval = Read<F>();
+  void ReadVanishingRandomEval() {
+    CHECK_EQ(cursor_, ProofCursor::kVanishingRandomEval);
+    proof_.vanishing_random_eval = Read<F>();
     cursor_ = ProofCursor::kCommonPermutationEvals;
   }
 
