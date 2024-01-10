@@ -20,6 +20,7 @@
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/adapters.h"
+#include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
@@ -342,6 +343,54 @@ class Copyable<math::UnivariateSparseCoefficients<F, MaxDegree>> {
   static size_t EstimateSize(
       const math::UnivariateSparseCoefficients<F, MaxDegree>& coeffs) {
     return base::EstimateSize(coeffs.terms_);
+  }
+};
+
+template <typename F>
+class RapidJsonValueConverter<math::UnivariateTerm<F>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(const math::UnivariateTerm<F>& value,
+                               Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "degree", value.degree, allocator);
+    AddJsonElement(object, "coefficient", value.coefficient, allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::UnivariateTerm<F>* value, std::string* error) {
+    size_t degree;
+    F coefficient;
+    if (!ParseJsonElement(json_value, "degree", &degree, error)) return false;
+    if (!ParseJsonElement(json_value, "coefficient", &coefficient, error))
+      return false;
+    value->degree = degree;
+    value->coefficient = std::move(coefficient);
+    return true;
+  }
+};
+
+template <typename F, size_t MaxDegree>
+class RapidJsonValueConverter<
+    math::UnivariateSparseCoefficients<F, MaxDegree>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(
+      const math::UnivariateSparseCoefficients<F, MaxDegree>& value,
+      Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "terms", value.terms(), allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::UnivariateSparseCoefficients<F, MaxDegree>* value,
+                 std::string* error) {
+    std::vector<math::UnivariateTerm<F>> terms;
+    if (!ParseJsonElement(json_value, "terms", &terms, error)) return false;
+    *value = math::UnivariateSparseCoefficients<F, MaxDegree>(std::move(terms));
+    return true;
   }
 };
 
