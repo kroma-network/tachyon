@@ -17,6 +17,7 @@ tachyon_cc_library(
     hdrs = ["rapidjson_util.h"],
     deps = [
         "//tachyon:export",
+        "//tachyon/base:bit_cast",
         "//tachyon/base/numerics:safe_conversions",
         "@com_github_tencent_rapidjson//:rapidjson",
         "@com_google_absl//absl/strings",
