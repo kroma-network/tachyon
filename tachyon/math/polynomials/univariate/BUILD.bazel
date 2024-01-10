@@ -78,6 +78,7 @@ tachyon_cc_library(
         "//tachyon/base:openmp_util",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
+        "//tachyon/base/json",
         "//tachyon/math/polynomials:polynomial",
     ],
 )
