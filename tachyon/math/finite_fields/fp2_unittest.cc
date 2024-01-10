@@ -33,4 +33,17 @@ TEST_F(Fp2Test, Copyable) {
   EXPECT_EQ(expected, value);
 }
 
+TEST_F(Fp2Test, JsonValueConverter) {
+  using F = bn254::Fq2;
+
+  F expected = F::Random();
+  std::string json = base::WriteToJson(expected);
+
+  F value;
+  std::string error;
+  ASSERT_TRUE(base::ParseJson(json, &value, &error));
+  ASSERT_TRUE(error.empty());
+  EXPECT_EQ(value, expected);
+}
+
 }  // namespace tachyon::math
