@@ -125,6 +125,7 @@ class Verifier : public VerifierBase<PCS> {
     proof.x_prev = Rotation::Prev().RotateOmega(this->domain(), proof.x);
     proof.x_last =
         Rotation(-(blinding_factors + 1)).RotateOmega(this->domain(), proof.x);
+    proof.x_n = proof.x.Pow(this->pcs_.N());
   }
 
   bool ValidateInstanceColumnsVec(
@@ -317,7 +318,7 @@ class Verifier : public VerifierBase<PCS> {
     }
     F expected_h_eval =
         F::template LinearCombination</*forward=*/true>(expressions, proof.y);
-    return expected_h_eval /= (proof.x.Pow(this->pcs_.N()) - F::One());
+    return expected_h_eval /= (proof.x_n - F::One());
   }
 
   size_t GetSizeOfAdviceInstanceColumnQueries(
@@ -368,7 +369,7 @@ class Verifier : public VerifierBase<PCS> {
             (GetSizeOfAdviceInstanceColumnQueries(constraint_system) +
              GetSizeOfPermutationVerifierQueries(constraint_system) +
              lookups.size() * GetSizeOfLookupVerifierQueries()) +
-        fixed_queries.size() + common_permutation_commitments.size();
+        fixed_queries.size() + common_permutation_commitments.size() + 2;
     queries.reserve(queries_size);
 
     std::vector<F> points;
@@ -414,14 +415,29 @@ class Verifier : public VerifierBase<PCS> {
           base::DeepRef<const F>(&proof.x), proof.common_permutation_evals[i]);
     }
 
+    // TODO(chokobole): Remove |ToAffine()| since this assumes commitment is an
+    // elliptic curve point.
+    Commitment h_commitment =
+        Commitment::template LinearCombination</*forward=*/false>(
+            proof.vanishing_h_poly_commitments, proof.x_n)
+            .ToAffine();
+
     F expected_h_eval = ComputeExpectedHEval(num_circuits, vkey, proof);
+
     if (expected_h_eval_out) {
       *expected_h_eval_out = expected_h_eval;
     }
 
+    queries.emplace_back(base::DeepRef<const Commitment>(&h_commitment),
+                         base::DeepRef<const F>(&proof.x), expected_h_eval);
+    queries.emplace_back(base::DeepRef<const Commitment>(
+                             &proof.vanishing_random_poly_commitment),
+                         base::DeepRef<const F>(&proof.x),
+                         proof.vanishing_random_eval);
+
     DCHECK_EQ(queries.size(), queries_size);
     DCHECK_EQ(points.size(), points_size);
-    return true;
+    return this->pcs_.VerifyOpeningProof(queries, this->GetReader());
   }
 };
 

@@ -47,6 +47,7 @@ struct Proof {
   F x_next;
   F x_prev;
   F x_last;
+  F x_n;
 
   VanishingVerificationData<F> ToVanishingVerificationData(size_t i) const {
     VanishingVerificationData<F> ret;
