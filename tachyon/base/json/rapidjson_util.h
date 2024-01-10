@@ -197,6 +197,25 @@ class RapidJsonValueConverter<std::string> {
   }
 };
 
+template <>
+class RapidJsonValueConverter<std::string_view> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(std::string_view value, Allocator& allocator) {
+    return rapidjson::Value(value.data(), value.length());
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 std::string_view* value, std::string* error) {
+    if (!json_value.IsString()) {
+      *error = RapidJsonMismatchedTypeError(key, "string_view", json_value);
+      return false;
+    }
+    *value = json_value.GetString();
+    return true;
+  }
+};
+
 template <typename T>
 class RapidJsonValueConverter<T, std::enable_if_t<std::is_enum<T>::value>> {
  public:
