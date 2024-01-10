@@ -177,7 +177,7 @@ class RapidJsonValueConverter<std::string> {
  public:
   template <typename Allocator>
   static rapidjson::Value From(const std::string& value, Allocator& allocator) {
-    return rapidjson::Value(value.c_str(), value.length());
+    return rapidjson::Value(value.c_str(), value.length(), allocator);
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
