@@ -284,11 +284,16 @@ class Verifier : public VerifierBase<PCS> {
     std::vector<F> expressions;
     const std::vector<Gate<F>>& gates = constraint_system.gates();
     const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
-    expressions.reserve(
+    size_t polys_size = std::accumulate(gates.begin(), gates.end(), 0,
+                                        [](size_t acc, const Gate<F>& gate) {
+                                          return acc += gate.polys().size();
+                                        });
+    size_t expressions_size =
         num_circuits *
-        (gates.size() +
+        (polys_size +
          GetSizeOfPermutationVerificationExpressions(constraint_system) +
-         lookups.size() * GetSizeOfLookupVerificationExpressions()));
+         lookups.size() * GetSizeOfLookupVerificationExpressions());
+    expressions.reserve(expressions_size);
     for (size_t i = 0; i < num_circuits; ++i) {
       VanishingVerificationEvaluator<F> vanishing_verification_evaluator(
           proof.ToVanishingVerificationData(i));
@@ -316,6 +321,7 @@ class Verifier : public VerifierBase<PCS> {
                            std::make_move_iterator(lookup_expressions.end()));
       }
     }
+    DCHECK_EQ(expressions.size(), expressions_size);
     F expected_h_eval =
         F::template LinearCombination</*forward=*/true>(expressions, proof.y);
     return expected_h_eval /= (proof.x_n - F::One());
@@ -434,7 +440,6 @@ class Verifier : public VerifierBase<PCS> {
                              &proof.vanishing_random_poly_commitment),
                          base::DeepRef<const F>(&proof.x),
                          proof.vanishing_random_eval);
-
     DCHECK_EQ(queries.size(), queries_size);
     DCHECK_EQ(points.size(), points_size);
     return this->pcs_.VerifyOpeningProof(queries, this->GetReader());

@@ -51,8 +51,7 @@ size_t GetSizeOfPermutationVerificationExpressions(
     const ConstraintSystem<F>& constraint_system) {
   size_t num_products = constraint_system.ComputePermutationProductNums();
   if (num_products == 0) return 0;
-  size_t chunk_len = constraint_system.ComputePermutationChunkLen();
-  return num_products + 1 + chunk_len;
+  return 2 * num_products + 1;
 }
 
 template <typename F, typename C>
