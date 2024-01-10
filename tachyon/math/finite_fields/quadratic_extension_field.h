@@ -84,6 +84,11 @@ class QuadraticExtensionField
     return absl::Substitute("($0, $1)", c0_.ToString(), c1_.ToString());
   }
 
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute("($0, $1)", c0_.ToHexString(pad_zero),
+                            c1_.ToHexString(pad_zero));
+  }
+
   constexpr const BaseField& c0() const { return c0_; }
   constexpr const BaseField& c1() const { return c1_; }
 

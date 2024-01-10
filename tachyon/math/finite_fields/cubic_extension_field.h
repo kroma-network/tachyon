@@ -105,6 +105,12 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
                             c2_.ToString());
   }
 
+  std::string ToHexString(bool pad_zero = false) const {
+    return absl::Substitute("($0, $1, $2)", c0_.ToHexString(pad_zero),
+                            c1_.ToHexString(pad_zero),
+                            c2_.ToHexString(pad_zero));
+  }
+
   constexpr const BaseField& c0() const { return c0_; }
   constexpr const BaseField& c1() const { return c1_; }
   constexpr const BaseField& c2() const { return c2_; }
