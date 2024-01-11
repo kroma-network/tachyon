@@ -63,12 +63,6 @@ tachyon_cc_library(
     deps = ["//tachyon/math/base:rational_field"],
 )
 
-tachyon_cc_library(
-    name = "verifier_query",
-    hdrs = ["verifier_query.h"],
-    deps = ["//tachyon/base:ref"],
-)
-
 tachyon_cc_unittest(
     name = "base_unittests",
     srcs = [
