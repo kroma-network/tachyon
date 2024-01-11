@@ -5,11 +5,10 @@ authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
 edition = "2021"
 rust-version = "1.56.1"
 description = """
-Halo2 KZG commitment unittest based on tachyon
+Halo2 unittest based on tachyon
 """
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/kroma-network/tachyon"
-documentation = "https://docs.rs/tachyon_halo2"
 readme = "README.md"
 categories = ["cryptography"]
 keywords = ["tachyon", "halo", "proofs", "zkp", "zkSNARKs"]
