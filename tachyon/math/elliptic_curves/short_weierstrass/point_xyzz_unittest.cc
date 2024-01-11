@@ -5,6 +5,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
@@ -215,6 +216,34 @@ TEST_F(PointXYZZTest, CreateFromX) {
         test::PointXYZZ::CreateFromX(GF7(1), /*pick_odd=*/false);
     ASSERT_FALSE(p.has_value());
   }
+}
+
+TEST_F(PointXYZZTest, Copyable) {
+  test::PointXYZZ expected = test::PointXYZZ::Random();
+  test::PointXYZZ value;
+
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Write(expected));
+
+  write_buf.set_buffer_offset(0);
+  ASSERT_TRUE(write_buf.Read(&value));
+
+  EXPECT_EQ(expected, value);
+}
+
+TEST_F(PointXYZZTest, JsonValueConverter) {
+  test::PointXYZZ expected_point(GF7(1), GF7(2), GF7(3), GF7(4));
+  std::string expected_json =
+      R"({"x":{"value":"0x1"},"y":{"value":"0x2"},"zz":{"value":"0x3"},"zzz":{"value":"0x4"}})";
+
+  test::PointXYZZ p;
+  std::string error;
+  ASSERT_TRUE(base::ParseJson(expected_json, &p, &error));
+  ASSERT_TRUE(error.empty());
+  EXPECT_EQ(p, expected_point);
+
+  std::string json = base::WriteToJson(p);
+  EXPECT_EQ(json, expected_json);
 }
 
 }  // namespace tachyon::math

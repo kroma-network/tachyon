@@ -12,6 +12,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/base/json/json.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
 #include "tachyon/math/geometry/point3.h"
 
@@ -392,6 +393,38 @@ class Copyable<Derived, std::enable_if_t<std::is_base_of_v<
     return EstimateSize(cubic_extension_field.c0()) +
            EstimateSize(cubic_extension_field.c1()) +
            EstimateSize(cubic_extension_field.c2());
+  }
+};
+
+template <typename Derived>
+class RapidJsonValueConverter<
+    Derived, std::enable_if_t<std::is_base_of_v<
+                 math::CubicExtensionField<Derived>, Derived>>> {
+ public:
+  using BaseField = typename math::CubicExtensionField<Derived>::BaseField;
+
+  template <typename Allocator>
+  static rapidjson::Value From(const math::CubicExtensionField<Derived>& value,
+                               Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "c0", value.c0(), allocator);
+    AddJsonElement(object, "c1", value.c1(), allocator);
+    AddJsonElement(object, "c2", value.c2(), allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::CubicExtensionField<Derived>* value,
+                 std::string* error) {
+    BaseField c0;
+    BaseField c1;
+    BaseField c2;
+    if (!ParseJsonElement(json_value, "c0", &c0, error)) return false;
+    if (!ParseJsonElement(json_value, "c1", &c1, error)) return false;
+    if (!ParseJsonElement(json_value, "c2", &c2, error)) return false;
+    *value = math::CubicExtensionField<Derived>(std::move(c0), std::move(c1),
+                                                std::move(c2));
+    return true;
   }
 };
 

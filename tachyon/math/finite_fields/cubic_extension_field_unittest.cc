@@ -175,4 +175,19 @@ TEST_F(CubicExtensionFieldTest, MultiplicativeGroupOperators) {
   EXPECT_EQ(f, f_sqr);
 }
 
+TEST_F(CubicExtensionFieldTest, JsonValueConverter) {
+  GF7_3 expected_point(GF7(1), GF7(2), GF7(3));
+  std::string expected_json =
+      R"({"c0":{"value":"0x1"},"c1":{"value":"0x2"},"c2":{"value":"0x3"}})";
+
+  GF7_3 p;
+  std::string error;
+  ASSERT_TRUE(base::ParseJson(expected_json, &p, &error));
+  ASSERT_TRUE(error.empty());
+  EXPECT_EQ(p, expected_point);
+
+  std::string json = base::WriteToJson(p);
+  EXPECT_EQ(json, expected_json);
+}
+
 }  // namespace tachyon::math

@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -20,21 +20,5 @@ tachyon_cc_library(
         "//tachyon/math/geometry:point2",
         "//tachyon/math/geometry:point3",
         "//tachyon/math/geometry:point4",
-    ],
-)
-
-tachyon_cc_unittest(
-    name = "elliptic_curves_unittests",
-    srcs = [
-        "affine_point_unittest.cc",
-        "jacobian_point_unittest.cc",
-        "point_xyzz_unittest.cc",
-        "projective_point_unittest.cc",
-    ],
-    deps = [
-        "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/math/elliptic_curves/bls12/bls12_381",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
     ],
 )

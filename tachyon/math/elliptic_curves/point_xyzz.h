@@ -3,12 +3,10 @@
 
 #include <utility>
 
-#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
 #include "tachyon/math/geometry/point4.h"
 
-namespace tachyon {
-namespace math {
+namespace tachyon::math {
 
 template <typename Curve, typename SFINAE = void>
 class PointXYZZ;
@@ -38,34 +36,6 @@ struct PointConversions<PointXYZZ<SrcCurve>, PointXYZZ<DstCurve>,
   }
 };
 
-}  // namespace math
-
-namespace base {
-
-template <typename Curve>
-class Copyable<math::PointXYZZ<Curve>> {
- public:
-  static bool WriteTo(const math::PointXYZZ<Curve>& point, Buffer* buffer) {
-    return buffer->WriteMany(point.x(), point.y(), point.zz(), point.zzz());
-  }
-
-  static bool ReadFrom(const Buffer& buffer, math::PointXYZZ<Curve>* point) {
-    using BaseField = typename math::PointXYZZ<Curve>::BaseField;
-    BaseField x, y, zz, zzz;
-    if (!buffer.ReadMany(&x, &y, &zz, &zzz)) return false;
-
-    *point = math::PointXYZZ<Curve>(std::move(x), std::move(y), std::move(zz),
-                                    std::move(zzz));
-    return true;
-  }
-
-  static size_t EstimateSize(const math::PointXYZZ<Curve>& point) {
-    return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
-           base::EstimateSize(point.zz()) + base::EstimateSize(point.zzz());
-  }
-};
-
-}  // namespace base
-}  // namespace tachyon
+}  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_ELLIPTIC_CURVES_POINT_XYZZ_H_

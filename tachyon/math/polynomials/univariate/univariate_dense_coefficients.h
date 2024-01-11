@@ -319,6 +319,29 @@ class Copyable<math::UnivariateDenseCoefficients<F, MaxDegree>> {
   }
 };
 
+template <typename F, size_t MaxDegree>
+class RapidJsonValueConverter<math::UnivariateDenseCoefficients<F, MaxDegree>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(
+      const math::UnivariateDenseCoefficients<F, MaxDegree>& value,
+      Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "coefficients", value.coefficients(), allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::UnivariateDenseCoefficients<F, MaxDegree>* value,
+                 std::string* error) {
+    std::vector<F> coeffs;
+    if (!ParseJsonElement(json_value, "coefficients", &coeffs, error))
+      return false;
+    *value = math::UnivariateDenseCoefficients<F, MaxDegree>(std::move(coeffs));
+    return true;
+  }
+};
+
 }  // namespace base
 }  // namespace tachyon
 

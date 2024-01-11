@@ -441,4 +441,19 @@ TEST_F(UnivariateSparsePolynomialTest, Hash) {
                       Poly::Random(kMaxDegree), Poly::Random(kMaxDegree))));
 }
 
+TEST_F(UnivariateSparsePolynomialTest, JsonValueConverter) {
+  Poly expected_poly(Coeffs({{0, GF7(1)}, {1, GF7(2)}, {4, GF7(3)}}));
+  std::string expected_json =
+      R"({"coefficients":{"terms":[{"degree":0,"coefficient":{"value":"0x1"}},{"degree":1,"coefficient":{"value":"0x2"}},{"degree":4,"coefficient":{"value":"0x3"}}]}})";
+
+  Poly poly;
+  std::string error;
+  ASSERT_TRUE(base::ParseJson(expected_json, &poly, &error));
+  ASSERT_TRUE(error.empty());
+  EXPECT_EQ(poly, expected_poly);
+
+  std::string json = base::WriteToJson(poly);
+  EXPECT_EQ(json, expected_json);
+}
+
 }  // namespace tachyon::math

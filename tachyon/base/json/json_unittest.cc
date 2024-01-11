@@ -43,7 +43,9 @@ class RapidJsonValueConverter<SimpleData> {
   template <typename Allocator>
   static rapidjson::Value From(const SimpleData& value, Allocator& allocator) {
     rapidjson::Value object(rapidjson::kObjectType);
-    AddJsonElement(object, "message", value.message, allocator);
+    // NOTE: avoid unnecessary copy.
+    std::string_view message = value.message;
+    AddJsonElement(object, "message", message, allocator);
     AddJsonElement(object, "index", value.index, allocator);
     AddJsonElement(object, "flag", value.flag, allocator);
     AddJsonElement(object, "data", value.data, allocator);

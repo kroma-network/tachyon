@@ -11,6 +11,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 
+#include "tachyon/base/bit_cast.h"
 #include "tachyon/base/numerics/safe_conversions.h"
 #include "tachyon/export.h"
 
@@ -46,47 +47,27 @@ class RapidJsonValueConverter<bool> {
   }
 };
 
-template <>
-class RapidJsonValueConverter<int64_t> {
+template <typename T>
+class RapidJsonValueConverter<
+    T, std::enable_if_t<std::is_integral<T>::value &&
+                        std::is_signed<T>::value && sizeof(T) == 8>> {
  public:
   template <typename Allocator>
-  static rapidjson::Value From(int64_t value, Allocator& allocator) {
-    return rapidjson::Value(value);
+  static rapidjson::Value From(T value, Allocator& allocator) {
+    int64_t i64_value = base::bit_cast<int64_t>(value);
+    return rapidjson::Value(i64_value);
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
-                 int64_t* value, std::string* error) {
+                 T* value, std::string* error) {
     if (!json_value.IsInt64() && !json_value.IsInt()) {
       *error = RapidJsonMismatchedTypeError(key, "int64", json_value);
       return false;
     }
     if (json_value.IsInt()) {
-      *value = json_value.GetInt();
+      *value = base::bit_cast<T>(static_cast<int64_t>(json_value.GetInt()));
     } else {
-      *value = json_value.GetInt64();
-    }
-    return true;
-  }
-};
-
-template <>
-class RapidJsonValueConverter<uint64_t> {
- public:
-  template <typename Allocator>
-  static rapidjson::Value From(uint64_t value, Allocator& allocator) {
-    return rapidjson::Value(value);
-  }
-
-  static bool To(const rapidjson::Value& json_value, std::string_view key,
-                 uint64_t* value, std::string* error) {
-    if (!json_value.IsUint64() && !json_value.IsUint()) {
-      *error = RapidJsonMismatchedTypeError(key, "uint64", json_value);
-      return false;
-    }
-    if (json_value.IsUint()) {
-      *value = json_value.GetUint();
-    } else {
-      *value = json_value.GetUint64();
+      *value = base::bit_cast<T>(json_value.GetInt64());
     }
     return true;
   }
@@ -94,13 +75,39 @@ class RapidJsonValueConverter<uint64_t> {
 
 template <typename T>
 class RapidJsonValueConverter<
-    T,
-    std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value &&
-                     !std::is_same<T, int64_t>::value>> {
+    T, std::enable_if_t<std::is_integral<T>::value &&
+                        !std::is_signed<T>::value && sizeof(T) == 8>> {
  public:
   template <typename Allocator>
   static rapidjson::Value From(T value, Allocator& allocator) {
-    return rapidjson::Value(value);
+    uint64_t u64_value = base::bit_cast<uint64_t>(value);
+    return rapidjson::Value(u64_value);
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 T* value, std::string* error) {
+    if (!json_value.IsUint64() && !json_value.IsUint()) {
+      *error = RapidJsonMismatchedTypeError(key, "uint64", json_value);
+      return false;
+    }
+    if (json_value.IsUint()) {
+      *value = base::bit_cast<T>(static_cast<uint64_t>(json_value.GetUint()));
+    } else {
+      *value = base::bit_cast<T>(json_value.GetUint64());
+    }
+    return true;
+  }
+};
+
+template <typename T>
+class RapidJsonValueConverter<
+    T, std::enable_if_t<std::is_integral<T>::value &&
+                        std::is_signed<T>::value && sizeof(T) < 8>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(T value, Allocator& allocator) {
+    static_assert(sizeof(T) <= sizeof(int));
+    return rapidjson::Value(static_cast<int>(value));
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
@@ -109,7 +116,7 @@ class RapidJsonValueConverter<
       *error = RapidJsonMismatchedTypeError(key, "int", json_value);
       return false;
     }
-    int64_t value_tmp = json_value.GetInt();
+    int value_tmp = json_value.GetInt();
     if (!IsValueInRangeForNumericType<T>(value_tmp)) {
       *error = RapidJsonOutOfRangeError(key, value_tmp);
       return false;
@@ -121,14 +128,13 @@ class RapidJsonValueConverter<
 
 template <typename T>
 class RapidJsonValueConverter<
-    T,
-    std::enable_if_t<std::is_integral<T>::value && !std::is_signed<T>::value &&
-                     !std::is_same<T, uint64_t>::value &&
-                     !std::is_same<T, bool>::value>> {
+    T, std::enable_if_t<std::is_integral<T>::value &&
+                        !std::is_signed<T>::value && sizeof(T) < 8>> {
  public:
   template <typename Allocator>
   static rapidjson::Value From(T value, Allocator& allocator) {
-    return rapidjson::Value(value);
+    static_assert(sizeof(T) <= sizeof(unsigned));
+    return rapidjson::Value(static_cast<unsigned>(value));
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
@@ -137,7 +143,7 @@ class RapidJsonValueConverter<
       *error = RapidJsonMismatchedTypeError(key, "uint", json_value);
       return false;
     }
-    uint64_t value_tmp = json_value.GetUint();
+    unsigned value_tmp = json_value.GetUint();
     if (!IsValueInRangeForNumericType<T>(value_tmp)) {
       *error = RapidJsonOutOfRangeError(key, value_tmp);
       return false;
@@ -177,13 +183,32 @@ class RapidJsonValueConverter<std::string> {
  public:
   template <typename Allocator>
   static rapidjson::Value From(const std::string& value, Allocator& allocator) {
-    return rapidjson::Value(value.c_str(), value.length());
+    return rapidjson::Value(value.c_str(), value.length(), allocator);
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
                  std::string* value, std::string* error) {
     if (!json_value.IsString()) {
       *error = RapidJsonMismatchedTypeError(key, "string", json_value);
+      return false;
+    }
+    *value = json_value.GetString();
+    return true;
+  }
+};
+
+template <>
+class RapidJsonValueConverter<std::string_view> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(std::string_view value, Allocator& allocator) {
+    return rapidjson::Value(value.data(), value.length());
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 std::string_view* value, std::string* error) {
+    if (!json_value.IsString()) {
+      *error = RapidJsonMismatchedTypeError(key, "string_view", json_value);
       return false;
     }
     *value = json_value.GetString();

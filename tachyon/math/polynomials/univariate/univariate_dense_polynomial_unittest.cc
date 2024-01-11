@@ -397,4 +397,19 @@ TEST_F(UnivariateDensePolynomialTest, Hash) {
                       Poly::Random(kMaxDegree), Poly::Random(kMaxDegree))));
 }
 
+TEST_F(UnivariateDensePolynomialTest, JsonValueConverter) {
+  Poly expected_poly(Coeffs({GF7(1), GF7(2), GF7(3), GF7(4), GF7(5)}));
+  std::string expected_json =
+      R"({"coefficients":{"coefficients":[{"value":"0x1"},{"value":"0x2"},{"value":"0x3"},{"value":"0x4"},{"value":"0x5"}]}})";
+
+  Poly poly;
+  std::string error;
+  ASSERT_TRUE(base::ParseJson(expected_json, &poly, &error));
+  ASSERT_TRUE(error.empty());
+  EXPECT_EQ(poly, expected_poly);
+
+  std::string json = base::WriteToJson(poly);
+  EXPECT_EQ(json, expected_json);
+}
+
 }  // namespace tachyon::math

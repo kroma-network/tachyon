@@ -10,6 +10,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
@@ -20,7 +21,8 @@
 #include "tachyon/math/elliptic_curves/semigroups.h"
 #include "tachyon/math/geometry/point2.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 template <typename _Curve>
 class AffinePoint<
@@ -203,7 +205,64 @@ class AffinePoint<
   bool infinity_;
 };
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename Curve>
+class Copyable<math::AffinePoint<
+    Curve,
+    std::enable_if_t<Curve::kType == math::CurveType::kShortWeierstrass>>> {
+ public:
+  static bool WriteTo(const math::AffinePoint<Curve>& point, Buffer* buffer) {
+    return buffer->WriteMany(point.x(), point.y(), point.infinity());
+  }
+
+  static bool ReadFrom(const Buffer& buffer, math::AffinePoint<Curve>* point) {
+    using BaseField = typename math::AffinePoint<Curve>::BaseField;
+    BaseField x, y;
+    bool infinity;
+    if (!buffer.ReadMany(&x, &y, &infinity)) return false;
+
+    *point = math::AffinePoint<Curve>(std::move(x), std::move(y), infinity);
+    return true;
+  }
+
+  static size_t EstimateSize(const math::AffinePoint<Curve>& point) {
+    return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
+           base::EstimateSize(point.infinity());
+  }
+};
+
+template <typename Curve>
+class RapidJsonValueConverter<math::AffinePoint<
+    Curve,
+    std::enable_if_t<Curve::kType == math::CurveType::kShortWeierstrass>>> {
+ public:
+  using Field = typename math::AffinePoint<Curve>::BaseField;
+
+  template <typename Allocator>
+  static rapidjson::Value From(const math::AffinePoint<Curve>& value,
+                               Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "x", value.x(), allocator);
+    AddJsonElement(object, "y", value.y(), allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::AffinePoint<Curve>* value, std::string* error) {
+    Field x;
+    Field y;
+    if (!ParseJsonElement(json_value, "x", &x, error)) return false;
+    if (!ParseJsonElement(json_value, "y", &y, error)) return false;
+    *value = math::AffinePoint<Curve>(std::move(x), std::move(y));
+    return true;
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point_impl.h"
 

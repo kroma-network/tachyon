@@ -7,6 +7,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/base/json/json.h"
 
 namespace tachyon {
 namespace math {
@@ -59,6 +60,30 @@ class Copyable<math::Point2<T>> {
 
   static size_t EstimateSize(const math::Point2<T>& point) {
     return base::EstimateSize(point.x) + base::EstimateSize(point.y);
+  }
+};
+
+template <typename T>
+class RapidJsonValueConverter<math::Point2<T>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(const math::Point2<T>& value,
+                               Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "x", value.x, allocator);
+    AddJsonElement(object, "y", value.y, allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::Point2<T>* value, std::string* error) {
+    T x;
+    T y;
+    if (!ParseJsonElement(json_value, "x", &x, error)) return false;
+    if (!ParseJsonElement(json_value, "y", &y, error)) return false;
+    value->x = std::move(x);
+    value->y = std::move(y);
+    return true;
   }
 };
 

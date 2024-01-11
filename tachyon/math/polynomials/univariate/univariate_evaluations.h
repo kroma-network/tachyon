@@ -16,6 +16,7 @@
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/polynomial.h"
@@ -249,6 +250,29 @@ class Copyable<math::UnivariateEvaluations<F, MaxDegree>> {
   static size_t EstimateSize(
       const math::UnivariateEvaluations<F, MaxDegree>& evals) {
     return base::EstimateSize(evals.evaluations());
+  }
+};
+
+template <typename F, size_t MaxDegree>
+class RapidJsonValueConverter<math::UnivariateEvaluations<F, MaxDegree>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(
+      const math::UnivariateEvaluations<F, MaxDegree>& value,
+      Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "evaluations", value.evaluations(), allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::UnivariateEvaluations<F, MaxDegree>* value,
+                 std::string* error) {
+    std::vector<F> evals;
+    if (!ParseJsonElement(json_value, "evaluations", &evals, error))
+      return false;
+    *value = math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
+    return true;
   }
 };
 

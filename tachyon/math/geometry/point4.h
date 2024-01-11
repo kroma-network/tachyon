@@ -7,6 +7,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/base/json/json.h"
 
 namespace tachyon {
 namespace math {
@@ -66,6 +67,38 @@ class Copyable<math::Point4<T>> {
   static size_t EstimateSize(const math::Point4<T>& point) {
     return base::EstimateSize(point.x) + base::EstimateSize(point.y) +
            base::EstimateSize(point.z) + base::EstimateSize(point.w);
+  }
+};
+
+template <typename T>
+class RapidJsonValueConverter<math::Point4<T>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(const math::Point4<T>& value,
+                               Allocator& allocator) {
+    rapidjson::Value object(rapidjson::kObjectType);
+    AddJsonElement(object, "x", value.x, allocator);
+    AddJsonElement(object, "y", value.y, allocator);
+    AddJsonElement(object, "z", value.z, allocator);
+    AddJsonElement(object, "w", value.w, allocator);
+    return object;
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 math::Point4<T>* value, std::string* error) {
+    T x;
+    T y;
+    T z;
+    T w;
+    if (!ParseJsonElement(json_value, "x", &x, error)) return false;
+    if (!ParseJsonElement(json_value, "y", &y, error)) return false;
+    if (!ParseJsonElement(json_value, "z", &z, error)) return false;
+    if (!ParseJsonElement(json_value, "w", &w, error)) return false;
+    value->x = std::move(x);
+    value->y = std::move(y);
+    value->z = std::move(z);
+    value->w = std::move(w);
+    return true;
   }
 };
 

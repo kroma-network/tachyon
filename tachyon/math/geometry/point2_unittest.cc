@@ -51,4 +51,18 @@ TEST(Point2Test, Copyable) {
   EXPECT_EQ(expected, value);
 }
 
+TEST(Point2Test, JsonValueConverter) {
+  Point2GF7 expected_point(GF7(1), GF7(2));
+  std::string expected_json = R"({"x":{"value":"0x1"},"y":{"value":"0x2"}})";
+
+  Point2GF7 p;
+  std::string error;
+  ASSERT_TRUE(base::ParseJson(expected_json, &p, &error));
+  ASSERT_TRUE(error.empty());
+  EXPECT_EQ(p, expected_point);
+
+  std::string json = base::WriteToJson(p);
+  EXPECT_EQ(json, expected_json);
+}
+
 }  // namespace tachyon::math
