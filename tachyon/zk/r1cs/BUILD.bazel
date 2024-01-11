@@ -1,0 +1,23 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "variable",
+    srcs = ["variable.cc"],
+    hdrs = ["variable.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "r1cs_unittests",
+    srcs = ["variable_unittest.cc"],
+    deps = [
+        ":variable",
+        "//tachyon/base:random",
+    ],
+)
