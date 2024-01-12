@@ -32,11 +32,7 @@ class ProverTest : public testing::Test {
   using ExtendedDomain = PCS::ExtendedDomain;
   using ExtendedEvals = PCS::ExtendedEvals;
 
-  static void SetUpTestSuite() {
-    math::bn254::BN254Curve::Init();
-    math::bn254::G1Curve::Init();
-    math::bn254::G2Curve::Init();
-  }
+  static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
 
   void SetUp() override {
     PCS pcs;

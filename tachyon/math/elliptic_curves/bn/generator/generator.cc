@@ -99,6 +99,8 @@ int GenerationConfig::GenerateConfigHdr() const {
       "    using BasePrimeField = Fq;",
       "%{twist_mul_by_q_x_init}",
       "%{twist_mul_by_q_y_init}",
+      "    G1Curve::Init();",
+      "    G2Curve::Init();",
       "  }",
       "};",
       "",
