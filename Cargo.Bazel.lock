@@ -1,5 +1,5 @@
 {
-  "checksum": "e4969856254cf7d44a14f5ee75ddb8d1be3595c7d8fab4a02e3d75b7edeb8a62",
+  "checksum": "f8d78f49ecd6beb606a263beb94a533afb3235a3e9e69fceade241054a6fc440",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -3013,7 +3013,7 @@
         "Git": {
           "remote": "https://github.com/kroma-network/halo2.git",
           "commitish": {
-            "Rev": "9922fbb"
+            "Rev": "8e61a59"
           },
           "strip_prefix": "halo2_proofs"
         }
@@ -4915,6 +4915,45 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "rand_xorshift 0.3.0": {
+      "name": "rand_xorshift",
+      "version": "0.3.0",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/rand_xorshift/0.3.0/download",
+          "sha256": "d25bf25ec5ae4a3f1b92f929810509a2f53d7dca2f50b794ff57e3face536c8f"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "rand_xorshift",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "rand_xorshift",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "rand_core 0.6.4",
+              "target": "rand_core"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.3.0"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "rayon 1.7.0": {
       "name": "rayon",
       "version": "1.7.0",
@@ -5622,12 +5661,20 @@
               "target": "cxx"
             },
             {
+              "id": "ff 0.12.1",
+              "target": "ff"
+            },
+            {
               "id": "halo2_proofs 0.2.0",
               "target": "halo2_proofs"
             },
             {
               "id": "halo2curves 0.3.1",
               "target": "halo2curves"
+            },
+            {
+              "id": "rand_core 0.6.4",
+              "target": "rand_core"
             }
           ],
           "selects": {}
@@ -5635,8 +5682,8 @@
         "deps_dev": {
           "common": [
             {
-              "id": "rand_core 0.6.4",
-              "target": "rand_core"
+              "id": "rand_xorshift 0.3.0",
+              "target": "rand_xorshift"
             }
           ],
           "selects": {}

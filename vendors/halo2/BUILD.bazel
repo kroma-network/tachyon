@@ -18,6 +18,7 @@ tachyon_rust_library(
         ":bn254_cxx_bridge",
         ":bn254_msm",
         ":bn254_msm_gpu",
+        ":bn254_prover",
     ],
 )
 
@@ -49,6 +50,7 @@ tachyon_cc_library(
     hdrs = [
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
+        "include/bn254_prover.h",
     ],
     deps = ["@cxx.rs//:core"],
 )
@@ -79,5 +81,14 @@ tachyon_cc_library(
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_prover",
+    srcs = ["src/bn254_prover.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
     ],
 )

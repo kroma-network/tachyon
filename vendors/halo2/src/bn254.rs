@@ -41,4 +41,10 @@ pub mod ffi {
             scalars: &[Fr],
         ) -> Box<G1JacobianPoint>;
     }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_prover.h");
+
+        fn create_proof(degree: u8);
+    }
 }

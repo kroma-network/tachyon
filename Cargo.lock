@@ -580,7 +580,7 @@ dependencies = [
 [[package]]
 name = "halo2_proofs"
 version = "0.2.0"
-source = "git+https://github.com/kroma-network/halo2.git?rev=9922fbb#9922fbb853201d8ad9feb82bd830a031d7c290b1"
+source = "git+https://github.com/kroma-network/halo2.git?rev=8e61a59#8e61a59d20c2a466ea60af35ac87589f682ebcb0"
 dependencies = [
  "ark-std 0.3.0",
  "blake2b_simd",
@@ -900,6 +900,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rand_xorshift"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d25bf25ec5ae4a3f1b92f929810509a2f53d7dca2f50b794ff57e3face536c8f"
+dependencies = [
+ "rand_core 0.6.4",
+]
+
+[[package]]
 name = "rayon"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1022,9 +1031,11 @@ name = "tachyon_halo2"
 version = "0.0.1"
 dependencies = [
  "cxx",
+ "ff",
  "halo2_proofs",
  "halo2curves",
  "rand_core 0.6.4",
+ "rand_xorshift",
  "tachyon_rs",
 ]
 

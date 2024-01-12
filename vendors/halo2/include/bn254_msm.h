@@ -19,6 +19,8 @@ rust::Box<G1JacobianPoint> g1_point2_msm(G1MSM* msm,
                                          rust::Slice<const G1Point2> bases,
                                          rust::Slice<const Fr> scalars);
 
+void create_proof(uint8_t degree);
+
 }  // namespace tachyon::halo2_api::bn254
 
 #endif  // VENDORS_HALO2_INCLUDE_BN254_MSM_H_
