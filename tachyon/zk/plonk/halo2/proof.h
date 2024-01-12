@@ -29,7 +29,7 @@ struct Proof {
   std::vector<std::vector<F>> instance_evals_vec;
   std::vector<std::vector<F>> advice_evals_vec;
   std::vector<F> fixed_evals;
-  F vanishing_eval;
+  F vanishing_random_eval;
   std::vector<F> common_permutation_evals;
   std::vector<std::vector<F>> permutation_product_evals_vec;
   std::vector<std::vector<F>> permutation_product_next_evals_vec;
@@ -40,6 +40,15 @@ struct Proof {
   std::vector<std::vector<F>> lookup_permuted_input_inv_evals_vec;
   std::vector<std::vector<F>> lookup_permuted_table_evals_vec;
 
+  // auxiliary values
+  F l_first;
+  F l_blind;
+  F l_last;
+  F x_next;
+  F x_prev;
+  F x_last;
+  F x_n;
+
   VanishingVerificationData<F> ToVanishingVerificationData(size_t i) const {
     VanishingVerificationData<F> ret;
     ret.fixed_evals = absl::MakeConstSpan(fixed_evals);
@@ -49,49 +58,55 @@ struct Proof {
     return ret;
   }
 
-  PermutationVerificationData<F> ToPermutationVerificationData(
-      size_t i, const F& l_first, const F& l_blind, const F& l_last) const {
-    PermutationVerificationData<F> ret;
+  PermutationVerificationData<F, C> ToPermutationVerificationData(
+      size_t i) const {
+    PermutationVerificationData<F, C> ret;
     ret.fixed_evals = absl::MakeConstSpan(fixed_evals);
     ret.advice_evals = absl::MakeConstSpan(advice_evals_vec[i]);
     ret.instance_evals = absl::MakeConstSpan(instance_evals_vec[i]);
     ret.challenges = absl::MakeConstSpan(challenges);
+    ret.product_commitments =
+        absl::MakeConstSpan(permutation_product_commitments_vec[i]);
     ret.common_evals = absl::MakeConstSpan(common_permutation_evals);
     ret.product_evals = absl::MakeConstSpan(permutation_product_evals_vec[i]);
     ret.product_next_evals =
         absl::MakeConstSpan(permutation_product_next_evals_vec[i]);
     ret.product_last_evals =
         absl::MakeConstSpan(permutation_product_last_evals_vec[i]);
-    ret.beta = beta;
-    ret.gamma = gamma;
-    ret.x = x;
-    ret.l_first = l_first;
-    ret.l_blind = l_blind;
-    ret.l_last = l_last;
+    ret.beta = &beta;
+    ret.gamma = &gamma;
+    ret.x = &x;
+    ret.x_next = &x_next;
+    ret.x_last = &x_last;
+    ret.l_first = &l_first;
+    ret.l_blind = &l_blind;
+    ret.l_last = &l_last;
     return ret;
   }
 
-  LookupVerificationData<F> ToLookupVerificationData(size_t i, size_t j,
-                                                     const F& l_first,
-                                                     const F& l_blind,
-                                                     const F& l_last) const {
-    LookupVerificationData<F> ret;
+  LookupVerificationData<F, C> ToLookupVerificationData(size_t i,
+                                                        size_t j) const {
+    LookupVerificationData<F, C> ret;
     ret.fixed_evals = absl::MakeConstSpan(fixed_evals);
     ret.advice_evals = absl::MakeConstSpan(advice_evals_vec[i]);
     ret.instance_evals = absl::MakeConstSpan(instance_evals_vec[i]);
     ret.challenges = absl::MakeConstSpan(challenges);
-    ret.product_eval = lookup_product_evals_vec[i][j];
-    ret.product_next_eval = lookup_product_next_evals_vec[i][j];
-    ret.permuted_input_eval = lookup_permuted_input_evals_vec[i][j];
-    ret.permuted_input_inv_eval = lookup_permuted_input_inv_evals_vec[i][j];
-    ret.permuted_table_eval = lookup_permuted_table_evals_vec[i][j];
-    ret.theta = theta;
-    ret.beta = beta;
-    ret.gamma = gamma;
-    ret.x = x;
-    ret.l_first = l_first;
-    ret.l_blind = l_blind;
-    ret.l_last = l_last;
+    ret.permuted_commitment = &lookup_permuted_commitments_vec[i][j];
+    ret.product_commitment = &lookup_product_commitments_vec[i][j];
+    ret.product_eval = &lookup_product_evals_vec[i][j];
+    ret.product_next_eval = &lookup_product_next_evals_vec[i][j];
+    ret.permuted_input_eval = &lookup_permuted_input_evals_vec[i][j];
+    ret.permuted_input_inv_eval = &lookup_permuted_input_inv_evals_vec[i][j];
+    ret.permuted_table_eval = &lookup_permuted_table_evals_vec[i][j];
+    ret.theta = &theta;
+    ret.beta = &beta;
+    ret.gamma = &gamma;
+    ret.x = &x;
+    ret.x_next = &x_next;
+    ret.x_prev = &x_prev;
+    ret.l_first = &l_first;
+    ret.l_blind = &l_blind;
+    ret.l_last = &l_last;
     return ret;
   }
 };

@@ -9,15 +9,10 @@
 
 #include <utility>
 
-#include "tachyon/zk/base/entities/entity_ty.h"
-
 namespace tachyon::zk {
 
-template <EntityTy EntityType, typename PCS>
-class VanishingCommitted;
-
 template <typename PCS>
-class VanishingCommitted<EntityTy::kProver, PCS> {
+class VanishingCommitted {
  public:
   using F = typename PCS::Field;
   using Poly = typename PCS::Poly;
@@ -35,23 +30,6 @@ class VanishingCommitted<EntityTy::kProver, PCS> {
  private:
   Poly random_poly_;
   F random_blind_;
-};
-
-template <typename PCS>
-class VanishingCommitted<EntityTy::kVerifier, PCS> {
- public:
-  using Commitment = typename PCS::Commitment;
-
-  VanishingCommitted() = default;
-  explicit VanishingCommitted(Commitment&& random_poly_commitment)
-      : random_poly_commitment_(std::move(random_poly_commitment)) {}
-
-  Commitment&& TakeRandomPolyCommitment() && {
-    return std::move(random_poly_commitment_);
-  }
-
- private:
-  Commitment random_poly_commitment_;
 };
 
 }  // namespace tachyon::zk

@@ -70,7 +70,6 @@ tachyon_cc_library(
         "//tachyon/base:parallelize",
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/zk/base:prover_query",
-        "//tachyon/zk/base/entities:entity_ty",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/keys:verifying_key",
     ],
@@ -102,25 +101,18 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "vanishing_committed",
     hdrs = ["vanishing_committed.h"],
-    deps = ["//tachyon/zk/base/entities:entity_ty"],
 )
 
 tachyon_cc_library(
     name = "vanishing_constructed",
     hdrs = ["vanishing_constructed.h"],
-    deps = [
-        ":vanishing_committed",
-        "//tachyon/zk/base/entities:entity_ty",
-    ],
+    deps = [":vanishing_committed"],
 )
 
 tachyon_cc_library(
     name = "vanishing_evaluated",
     hdrs = ["vanishing_evaluated.h"],
-    deps = [
-        ":vanishing_committed",
-        "//tachyon/zk/base/entities:entity_ty",
-    ],
+    deps = [":vanishing_committed"],
 )
 
 tachyon_cc_library(
@@ -136,21 +128,6 @@ tachyon_cc_library(
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base/entities:prover_base",
         "@com_google_absl//absl/types:span",
-    ],
-)
-
-tachyon_cc_library(
-    name = "verifier_vanishing_argument",
-    hdrs = ["verifier_vanishing_argument.h"],
-    deps = [
-        ":vanishing_committed",
-        ":vanishing_constructed",
-        ":vanishing_evaluated",
-        ":vanishing_partially_evaluated",
-        "//tachyon/crypto/transcripts:transcript",
-        "//tachyon/math/elliptic_curves:points",
-        "//tachyon/zk/base:verifier_query",
-        "//tachyon/zk/plonk/keys:verifying_key",
     ],
 )
 
@@ -193,7 +170,6 @@ tachyon_cc_unittest(
         ":prover_vanishing_argument",
         ":value_source",
         ":vanishing_argument",
-        ":verifier_vanishing_argument",
         "//tachyon/zk/base/entities:verifier_base",
         "//tachyon/zk/expressions:expression_factory",
         "//tachyon/zk/expressions/evaluator/test:evaluator_test",

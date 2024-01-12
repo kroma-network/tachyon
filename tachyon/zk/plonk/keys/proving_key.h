@@ -117,10 +117,10 @@ class ProvingKey : public Key<PCS> {
     // | 1 | 0         |
     // | 2 | 0         |
     // | 3 | 0         |
-    // | 4 | 0         |
+    // | 4 | 1         |
     // | 5 | 0         |
     // | 6 | 0         |
-    // | 7 | 1         |
+    // | 7 | 0         |
     size_t usable_rows = prover->GetUsableRows();
     *evals[usable_rows] = F::One();
     l_last_ = domain->IFFT(evals);

@@ -31,6 +31,9 @@ struct PolynomialOpening {
 
   PolynomialOpening() = default;
   PolynomialOpening(base::DeepRef<const PolyOracle> poly_oracle,
+                    base::DeepRef<const Point> point, const Field& opening)
+      : poly_oracle(poly_oracle), point(point), opening(opening) {}
+  PolynomialOpening(base::DeepRef<const PolyOracle> poly_oracle,
                     base::DeepRef<const Point> point, Field&& opening)
       : poly_oracle(poly_oracle), point(point), opening(std::move(opening)) {}
 };

@@ -18,7 +18,6 @@
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
 #include "tachyon/zk/plonk/vanishing/prover_vanishing_argument.h"
-#include "tachyon/zk/plonk/vanishing/verifier_vanishing_argument.h"
 
 namespace tachyon::zk {
 
@@ -86,7 +85,7 @@ TEST_F(VanishingArgumentTest, BuildExtendedCircuitColumn) {
 }
 
 TEST_F(VanishingArgumentTest, VanishingArgument) {
-  VanishingCommitted<EntityTy::kProver, PCS> committed_p;
+  VanishingCommitted<PCS> committed_p;
   ASSERT_TRUE(CommitRandomPoly(prover_.get(), &committed_p));
 
   SimpleCircuit<F, SimpleFloorPlanner> circuit =
@@ -96,40 +95,14 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
 
   ExtendedEvals extended_evals =
       ExtendedEvals::One(prover_->extended_domain()->size() - 1);
-  VanishingConstructed<EntityTy::kProver, PCS> constructed_p;
+  VanishingConstructed<PCS> constructed_p;
   ASSERT_TRUE(CommitFinalHPoly(prover_.get(), std::move(committed_p), vkey,
                                extended_evals, &constructed_p));
 
   F x = F::One();
-  VanishingEvaluated<EntityTy::kProver, PCS> evaluated;
+  VanishingEvaluated<PCS> evaluated;
   ASSERT_TRUE(CommitRandomEval(prover_->pcs(), std::move(constructed_p), x,
                                F::One(), prover_->GetWriter(), &evaluated));
-
-  std::vector<ProverQuery<PCS>> h_x =
-      OpenVanishingArgument(std::move(evaluated), x);
-
-  base::Uint8VectorBuffer& write_buf = prover_->GetWriter()->buffer();
-  write_buf.set_buffer_offset(0);
-  std::unique_ptr<halo2::Verifier<PCS>> verifier =
-      CreateVerifier(std::move(write_buf));
-
-  VanishingCommitted<EntityTy::kVerifier, PCS> committed_v;
-  ASSERT_TRUE(ReadCommitmentsBeforeY(verifier->GetReader(), &committed_v));
-
-  VanishingConstructed<EntityTy::kVerifier, PCS> constructed_v;
-  ASSERT_TRUE(ReadCommitmentsAfterY(std::move(committed_v), vkey,
-                                    verifier->GetReader(), &constructed_v));
-
-  VanishingPartiallyEvaluated<PCS> partially_evaluated_v;
-  ASSERT_TRUE(EvaluateAfterX<F>(std::move(constructed_v), verifier->GetReader(),
-                                &partially_evaluated_v));
-
-  F y = F::One();
-  Evals evals = Evals::One(kMaxDegree);
-  VanishingEvaluated<EntityTy::kVerifier, PCS> evaluated_v =
-      VerifyVanishingArgument(std::move(partially_evaluated_v), evals, y, F(2));
-
-  QueryVanishingArgument(std::move(evaluated_v), x);
 }
 
 }  // namespace tachyon::zk

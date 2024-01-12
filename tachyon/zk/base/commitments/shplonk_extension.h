@@ -76,6 +76,12 @@ class SHPlonkExtension final
     return shplonk_.DoCreateOpeningProof(poly_openings, proof);
   }
 
+  template <typename Container, typename Proof>
+  [[nodiscard]] bool DoVerifyOpeningProof(const Container& poly_openings,
+                                          Proof* proof) const {
+    return shplonk_.DoVerifyOpeningProof(poly_openings, proof);
+  }
+
  private:
   crypto::SHPlonk<Curve, MaxDegree, Commitment> shplonk_;
 };

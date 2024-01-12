@@ -122,6 +122,7 @@ tachyon_cc_library(
         ":permutation_verification_data",
         "//tachyon/base:logging",
         "//tachyon/base/containers:adapters",
+        "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/plonk:constraint_system",
     ],
 )

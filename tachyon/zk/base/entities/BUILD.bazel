@@ -9,11 +9,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "entity_ty",
-    hdrs = ["entity_ty.h"],
-)
-
-tachyon_cc_library(
     name = "prover_base",
     hdrs = ["prover_base.h"],
     deps = [
