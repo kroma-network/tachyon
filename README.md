@@ -118,7 +118,7 @@ _NOTE:_: Only x86_64 is supported.
 
 ### Pyenv
 
-If you are using pyenv, don't forget to add a option `--enable-shared`.
+If you are using pyenv, don't forget to add an option `--enable-shared`.
 
 ```shell
 > CONFIGURE_OPTS=--enable-shared pyenv install <version>
