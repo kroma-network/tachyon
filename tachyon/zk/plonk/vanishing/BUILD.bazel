@@ -68,7 +68,6 @@ tachyon_cc_library(
         ":vanishing_evaluated",
         ":vanishing_utils",
         "//tachyon/base:parallelize",
-        "//tachyon/crypto/transcripts:transcript",
         "//tachyon/zk/base:prover_query",
         "//tachyon/zk/base/entities:entity_ty",
         "//tachyon/zk/base/entities:prover_base",
@@ -133,6 +132,7 @@ tachyon_cc_library(
     hdrs = ["vanishing_utils.h"],
     deps = [
         "//tachyon/base:parallelize",
+        "//tachyon/math/base:big_int",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base/entities:prover_base",
         "@com_google_absl//absl/types:span",
@@ -147,7 +147,6 @@ tachyon_cc_library(
         ":vanishing_constructed",
         ":vanishing_evaluated",
         ":vanishing_partially_evaluated",
-        "//tachyon/crypto/transcripts:transcript",
         "//tachyon/math/elliptic_curves:points",
         "//tachyon/zk/base:verifier_query",
         "//tachyon/zk/plonk/keys:verifying_key",

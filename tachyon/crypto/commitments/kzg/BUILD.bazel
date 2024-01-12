@@ -28,11 +28,17 @@ tachyon_cc_library(
     hdrs = ["shplonk.h"],
     deps = [
         ":kzg_family",
+        ":shplonk_proof",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/math/elliptic_curves/pairing",
     ],
+)
+
+tachyon_cc_library(
+    name = "shplonk_proof",
+    hdrs = ["shplonk_proof.h"],
 )
 
 tachyon_cc_unittest(

@@ -14,15 +14,26 @@
 #include "tachyon/zk/plonk/halo2/poseidon_sponge.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon {
+namespace zk::halo2 {
+
+template <typename Curve>
+class PoseidonReader;
+
+template <typename Curve>
+class PoseidonWriter;
+
 namespace internal {
 
-template <typename AffinePoint>
+template <typename Curve>
 class PoseidonBase {
  protected:
-  using ScalarField = typename AffinePoint::ScalarField;
-  using Curve = typename AffinePoint::Curve;
-  using CurveConfig = typename Curve::Config;
+  friend class crypto::Transcript<PoseidonReader<Curve>>;
+  friend class crypto::Transcript<PoseidonWriter<Curve>>;
+
+  using Point = math::AffinePoint<Curve>;
+  using BaseField = typename Point::BaseField;
+  using ScalarField = typename Point::ScalarField;
 
   PoseidonBase()
       : state_(crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63,
@@ -32,9 +43,10 @@ class PoseidonBase {
     return state_.SqueezeNativeFieldElements(1)[0];
   }
 
-  bool DoWriteToTranscript(const AffinePoint& point) {
-    std::array<ScalarField, 2> coords = {CurveConfig::BaseToScalar(point.x()),
-                                         CurveConfig::BaseToScalar(point.y())};
+  bool DoWriteToTranscript(const Point& point) {
+    std::array<ScalarField, 2> coords = {
+        Curve::Config::BaseToScalar(point.x()),
+        Curve::Config::BaseToScalar(point.y())};
     return state_.Absorb(coords);
   }
 
@@ -47,68 +59,57 @@ class PoseidonBase {
 
 }  // namespace internal
 
-template <typename AffinePoint>
-class PoseidonReader : public crypto::TranscriptReader<AffinePoint>,
-                       protected internal::PoseidonBase<AffinePoint> {
+template <typename Curve>
+class PoseidonReader final
+    : public crypto::TranscriptReader<PoseidonReader<Curve>>,
+      public internal::PoseidonBase<Curve> {
  public:
-  using ScalarField = typename AffinePoint::ScalarField;
-
   // Initialize a transcript given an input buffer.
   explicit PoseidonReader(base::Buffer buffer)
-      : crypto::TranscriptReader<AffinePoint>(std::move(buffer)) {}
-
-  // crypto::TranscriptReader methods
-  ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const AffinePoint& point) override {
-    return this->DoWriteToTranscript(point);
-  }
-
-  bool WriteToTranscript(const ScalarField& scalar) override {
-    return this->DoWriteToTranscript(scalar);
-  }
+      : crypto::TranscriptReader<PoseidonReader<Curve>>(std::move(buffer)) {}
 
  private:
-  bool DoReadFromProof(AffinePoint* point) const override {
-    return ProofSerializer<AffinePoint>::ReadFromProof(this->buffer_, point);
-  }
+  friend class crypto::TranscriptReader<PoseidonReader<Curve>>;
 
-  bool DoReadFromProof(ScalarField* scalar) const override {
-    return ProofSerializer<ScalarField>::ReadFromProof(this->buffer_, scalar);
+  template <typename T>
+  bool DoReadFromProof(T* value) const {
+    return ProofSerializer<T>::ReadFromProof(this->buffer_, value);
   }
 };
 
-template <typename AffinePoint>
-class PoseidonWriter : public crypto::TranscriptWriter<AffinePoint>,
-                       protected internal::PoseidonBase<AffinePoint> {
+template <typename Curve>
+class PoseidonWriter final
+    : public crypto::TranscriptWriter<PoseidonWriter<Curve>>,
+      public internal::PoseidonBase<Curve> {
  public:
-  using ScalarField = typename AffinePoint::ScalarField;
-
   // Initialize a transcript given an output buffer.
   explicit PoseidonWriter(base::Uint8VectorBuffer buffer)
-      : crypto::TranscriptWriter<AffinePoint>(std::move(buffer)) {}
-
-  // crypto::TranscriptWriter methods
-  ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const AffinePoint& point) override {
-    return this->DoWriteToTranscript(point);
-  }
-
-  bool WriteToTranscript(const ScalarField& scalar) override {
-    return this->DoWriteToTranscript(scalar);
-  }
+      : crypto::TranscriptWriter<PoseidonWriter<Curve>>(std::move(buffer)) {}
 
  private:
-  bool DoWriteToProof(const AffinePoint& point) override {
-    return ProofSerializer<AffinePoint>::WriteToProof(point, this->buffer_);
-  }
+  friend class crypto::TranscriptWriter<PoseidonWriter<Curve>>;
 
-  bool DoWriteToProof(const ScalarField& scalar) override {
-    return ProofSerializer<ScalarField>::WriteToProof(scalar, this->buffer_);
+  template <typename T>
+  bool DoWriteToProof(const T& value) {
+    return ProofSerializer<T>::WriteToProof(value, this->buffer_);
   }
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace zk::halo2
+
+namespace crypto {
+
+template <typename Curve>
+struct TranscriptTraits<zk::halo2::PoseidonReader<Curve>> {
+  using Field = typename math::AffinePoint<Curve>::ScalarField;
+};
+
+template <typename Curve>
+struct TranscriptTraits<zk::halo2::PoseidonWriter<Curve>> {
+  using Field = typename math::AffinePoint<Curve>::ScalarField;
+};
+
+}  // namespace crypto
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_HALO2_POSEIDON_TRANSCRIPT_H_

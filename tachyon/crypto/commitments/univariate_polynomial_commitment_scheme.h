@@ -18,6 +18,10 @@ class UnivariatePolynomialCommitmentScheme
 
   using Field = typename VectorCommitmentScheme<Derived>::Field;
   using Commitment = typename VectorCommitmentScheme<Derived>::Commitment;
+  using TranscriptReader =
+      typename VectorCommitmentSchemeTraits<Derived>::TranscriptReader;
+  using TranscriptWriter =
+      typename VectorCommitmentSchemeTraits<Derived>::TranscriptWriter;
   using Poly = math::UnivariateDensePolynomial<Field, kMaxDegree>;
   using Evals = math::UnivariateEvaluations<Field, kMaxDegree>;
   using Domain = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
@@ -27,19 +31,47 @@ class UnivariatePolynomialCommitmentScheme
     return derived->N() - 1;
   }
 
-  // Commit to |poly| and populates |result| with the commitment.
+  // Commit to |poly| and populates |commitment|.
   // Return false if the degree of |poly| exceeds |kMaxDegree|.
-  [[nodiscard]] bool Commit(const Poly& poly, Commitment* result) const {
+  template <typename T = Derived,
+            std::enable_if_t<!VectorCommitmentSchemeTraits<
+                T>::kIsCommitInteractive>* = nullptr>
+  [[nodiscard]] bool Commit(const Poly& poly, Commitment* commitment) const {
     const Derived* derived = static_cast<const Derived*>(this);
-    return derived->DoCommit(poly, result);
+    return derived->DoCommit(poly, commitment);
   }
 
-  // Commit to |poly| and populates |result| with the commitment.
+  // Commit to |poly| with a |transcript_writer| and populates |commitment|.
   // Return false if the degree of |poly| exceeds |kMaxDegree|.
-  [[nodiscard]] bool CommitLagrange(const Evals& evals,
-                                    Commitment* result) const {
+  template <typename T = Derived, std::enable_if_t<VectorCommitmentSchemeTraits<
+                                      T>::IsCommitInteractive>* = nullptr>
+  [[nodiscard]] bool Commit(const Poly& poly,
+                            TranscriptWriter* transcript_writer,
+                            Commitment* commitment) const {
     const Derived* derived = static_cast<const Derived*>(this);
-    return derived->DoCommitLagrange(evals, result);
+    return derived->DoCommit(poly, transcript_writer, commitment);
+  }
+
+  // Commit to |evals| and populates |commitment|.
+  // Return false if the degree of |evals| exceeds |kMaxDegree|.
+  template <typename T = Derived,
+            std::enable_if_t<!VectorCommitmentSchemeTraits<
+                T>::kIsCommitInteractive>* = nullptr>
+  [[nodiscard]] bool CommitLagrange(const Evals& evals,
+                                    Commitment* commitment) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCommitLagrange(evals, commitment);
+  }
+
+  // Commit to |evals| with a |transcript_writer| and populates |commitment|.
+  // Return false if the degree of |evals| exceeds |kMaxDegree|.
+  template <typename T = Derived, std::enable_if_t<VectorCommitmentSchemeTraits<
+                                      T>::kIsCommitInteractive>* = nullptr>
+  [[nodiscard]] bool CommitLagrange(const Evals& evals,
+                                    TranscriptWriter* transcript_writer,
+                                    Commitment* commitment) const {
+    const Derived* derived = static_cast<const Derived*>(this);
+    return derived->DoCommitLagrange(evals, transcript_writer, commitment);
   }
 };
 

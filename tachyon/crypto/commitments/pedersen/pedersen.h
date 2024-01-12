@@ -98,9 +98,16 @@ struct VectorCommitmentSchemeTraits<Pedersen<Point, MaxSize, _Commitment>> {
  public:
   constexpr static size_t kMaxSize = MaxSize;
   constexpr static bool kIsTransparent = true;
+  constexpr static bool kIsCommitInteractive = false;
 
   using Field = typename Point::ScalarField;
   using Commitment = _Commitment;
+  // not used
+  using TranscriptReader = void*;
+  // not used
+  using TranscriptWriter = void*;
+  // not used
+  using Proof = void*;
 };
 
 }  // namespace crypto

@@ -21,15 +21,16 @@ struct BinaryMerklePath {
   }
 };
 
-template <typename Hash>
+template <typename Leaf, typename Hash>
 struct BinaryMerkleProof {
+  Leaf value;
   std::vector<BinaryMerklePath<Hash>> paths;
 
   bool operator==(const BinaryMerkleProof& other) const {
-    return paths == other.paths;
+    return value == other.value && paths == other.paths;
   }
   bool operator!=(const BinaryMerkleProof& other) const {
-    return paths != other.paths;
+    return !operator==(other);
   }
 };
 

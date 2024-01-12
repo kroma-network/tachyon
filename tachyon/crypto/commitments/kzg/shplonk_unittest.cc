@@ -21,11 +21,15 @@ class SHPlonkTest : public testing::Test {
   constexpr static size_t kMaxDegree = N - 1;
 
   using PCS =
-      SHPlonk<math::bn254::BN254Curve, kMaxDegree, math::bn254::G1AffinePoint>;
+      SHPlonk<math::bn254::BN254Curve, kMaxDegree, math::bn254::G1AffinePoint,
+              SimpleTranscriptReader<math::bn254::G1AffinePoint>,
+              SimpleTranscriptWriter<math::bn254::G1AffinePoint>>;
   using F = PCS::Field;
   using Poly = PCS::Poly;
   using Commitment = PCS::Commitment;
   using Point = Poly::Point;
+  using TranscriptReader = PCS::TranscriptReader;
+  using TranscriptWriter = PCS::TranscriptWriter;
   using PolyRef = base::DeepRef<const Poly>;
   using PointRef = base::DeepRef<const Point>;
   using CommitmentRef = base::DeepRef<const Commitment>;
@@ -35,8 +39,6 @@ class SHPlonkTest : public testing::Test {
     math::bn254::G1Curve::Init();
     math::bn254::G2Curve::Init();
   }
-
-  SHPlonkTest() : writer_(base::Uint8VectorBuffer()) {}
 
   void SetUp() override {
     KZG<math::bn254::G1AffinePoint, kMaxDegree, math::bn254::G1AffinePoint> kzg;
@@ -103,18 +105,19 @@ class SHPlonkTest : public testing::Test {
   std::vector<Commitment> commitments_;
   std::vector<PolynomialOpening<Poly>> prover_openings_;
   std::vector<PolynomialOpening<Poly, Commitment>> verifier_openings_;
-  SimpleTranscriptWriter<Commitment> writer_;
 };
 
 }  // namespace
 
 TEST_F(SHPlonkTest, CreateAndVerifyProof) {
-  ASSERT_TRUE(pcs_.CreateOpeningProof(prover_openings_, &writer_));
+  SHPlonkProof<Commitment> proof;
+  base::Uint8VectorBuffer write_buffer;
+  TranscriptWriter writer(std::move(write_buffer));
+  ASSERT_TRUE(pcs_.CreateOpeningProof(prover_openings_, &proof, &writer));
 
-  base::Buffer read_buf(writer_.buffer().buffer(),
-                        writer_.buffer().buffer_len());
-  SimpleTranscriptReader<Commitment> reader(std::move(read_buf));
-  EXPECT_TRUE((pcs_.VerifyOpeningProof(verifier_openings_, &reader)));
+  base::Buffer read_buf(writer.buffer().buffer(), writer.buffer().buffer_len());
+  TranscriptReader reader(std::move(read_buf));
+  EXPECT_TRUE((pcs_.VerifyOpeningProof(verifier_openings_, proof, reader)));
 }
 
 }  // namespace tachyon::crypto

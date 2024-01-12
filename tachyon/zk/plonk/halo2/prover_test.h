@@ -22,7 +22,9 @@ class ProverTest : public testing::Test {
   constexpr static size_t kMaxExtendedDomainSize = kMaxExtendedDegree + 1;
 
   using PCS = SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
-                               kMaxExtendedDegree, math::bn254::G1AffinePoint>;
+                               kMaxExtendedDegree, math::bn254::G1AffinePoint,
+                               Blake2bReader<math::bn254::G1Curve>,
+                               Blake2bWriter<math::bn254::G1Curve>>;
   using F = PCS::Field;
   using Commitment = PCS::Commitment;
   using Poly = PCS::Poly;
@@ -39,15 +41,16 @@ class ProverTest : public testing::Test {
     ASSERT_TRUE(pcs.UnsafeSetup(kMaxDomainSize));
 
     base::Uint8VectorBuffer write_buf;
-    std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer =
-        std::make_unique<Blake2bWriter<Commitment>>(std::move(write_buf));
+    std::unique_ptr<Blake2bWriter<math::bn254::G1Curve>> writer =
+        std::make_unique<Blake2bWriter<math::bn254::G1Curve>>(
+            std::move(write_buf));
 
     constexpr uint8_t kSeed[] = {0x59, 0x62, 0xbe, 0x5d, 0x76, 0x3d,
                                  0x31, 0x8d, 0x17, 0xdb, 0x37, 0x32,
                                  0x54, 0x06, 0xbc, 0xe5};
 
-    prover_ = std::make_unique<Prover<PCS>>(Prover<PCS>::CreateFromSeed(
-        std::move(pcs), std::move(writer), kSeed, /*blinding_factors=*/0));
+    prover_ = Prover<PCS>::CreateFromSeed(std::move(pcs), std::move(writer),
+                                          kSeed, /*blinding_factors=*/0);
     prover_->set_domain(Domain::Create(kMaxDomainSize));
     prover_->set_extended_domain(
         ExtendedDomain::Create(kMaxExtendedDomainSize));
@@ -55,8 +58,9 @@ class ProverTest : public testing::Test {
 
  protected:
   std::unique_ptr<Verifier<PCS>> CreateVerifier(base::Buffer read_buf) {
-    std::unique_ptr<crypto::TranscriptReader<Commitment>> reader =
-        std::make_unique<Blake2bReader<Commitment>>(std::move(read_buf));
+    std::unique_ptr<Blake2bReader<math::bn254::G1Curve>> reader =
+        std::make_unique<Blake2bReader<math::bn254::G1Curve>>(
+            std::move(read_buf));
     return prover_->ToVerifier(std::move(reader));
   }
 

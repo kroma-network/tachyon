@@ -32,6 +32,7 @@ class Verifier : public VerifierBase<PCS> {
   using Commitment = typename PCS::Commitment;
   using Evals = typename PCS::Evals;
   using Poly = typename PCS::Poly;
+  using TranscriptReader = typename PCS::TranscriptReader;
   using Coefficients = typename Poly::Coefficients;
 
   using VerifierBase<PCS>::VerifierBase;
@@ -61,7 +62,7 @@ class Verifier : public VerifierBase<PCS> {
       instance_commitments_vec.resize(instance_columns_vec.size());
     }
 
-    crypto::TranscriptReader<Commitment>* transcript = this->GetReader();
+    TranscriptReader* transcript = this->GetReader();
     CHECK(transcript->WriteToTranscript(vkey.transcript_repr()));
 
     if constexpr (PCS::kQueryInstance) {
@@ -160,7 +161,7 @@ class Verifier : public VerifierBase<PCS> {
   }
 
   static void WriteCommitmentsVecToTranscript(
-      crypto::TranscriptReader<Commitment>* transcript,
+      TranscriptReader* transcript,
       const std::vector<std::vector<Commitment>>& commitments_vec) {
     for (const std::vector<Commitment>& commitments : commitments_vec) {
       for (const Commitment& commitment : commitments) {
@@ -170,7 +171,7 @@ class Verifier : public VerifierBase<PCS> {
   }
 
   static void WriteColumnsVecToTranscript(
-      crypto::TranscriptReader<Commitment>* transcript,
+      TranscriptReader* transcript,
       const std::vector<std::vector<Evals>>& columns_vec) {
     for (const std::vector<Evals>& columns : columns_vec) {
       for (const Evals& column : columns) {

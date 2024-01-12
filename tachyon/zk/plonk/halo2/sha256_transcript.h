@@ -17,14 +17,26 @@
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon {
+namespace zk::halo2 {
+
+template <typename Curve>
+class Sha256Reader;
+
+template <typename Curve>
+class Sha256Writer;
+
 namespace internal {
 
-template <typename AffinePoint>
+template <typename Curve>
 class Sha256Base {
  protected:
-  using BaseField = typename AffinePoint::BaseField;
-  using ScalarField = typename AffinePoint::ScalarField;
+  friend class crypto::Transcript<Sha256Reader<Curve>>;
+  friend class crypto::Transcript<Sha256Writer<Curve>>;
+
+  using Point = math::AffinePoint<Curve>;
+  using BaseField = typename Point::BaseField;
+  using ScalarField = typename Point::ScalarField;
 
   Sha256Base() { SHA256_Init(&state_); }
 
@@ -41,11 +53,11 @@ class Sha256Base {
       return ScalarField::FromAnySizedBigInt(
           math::BigInt<4>::FromBytesLE(result));
     } else {
-      base::AlwaysFalse<AffinePoint>();
+      base::AlwaysFalse<Curve>();
     }
   }
 
-  bool DoWriteToTranscript(const AffinePoint& point) {
+  bool DoWriteToTranscript(const Point& point) {
     SHA256_Update(&state_, kShaPrefixZeros, 31);
     SHA256_Update(&state_, kShaPrefixPoint, 1);
     SHA256_Update(&state_, point.x().ToBigInt().ToBytesBE().data(),
@@ -68,72 +80,59 @@ class Sha256Base {
 
 }  // namespace internal
 
-template <typename AffinePoint>
-class Sha256Reader : public crypto::TranscriptReader<AffinePoint>,
-                     protected internal::Sha256Base<AffinePoint> {
+template <typename Curve>
+class Sha256Reader final : public crypto::TranscriptReader<Sha256Reader<Curve>>,
+                           public internal::Sha256Base<Curve> {
  public:
-  using ScalarField = typename AffinePoint::ScalarField;
-
   // Initialize a transcript given an input buffer.
   explicit Sha256Reader(base::Buffer read_buf)
-      : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
-
-  // crypto::TranscriptReader methods
-  ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const AffinePoint& point) override {
-    return this->DoWriteToTranscript(point);
-  }
-
-  bool WriteToTranscript(const ScalarField& scalar) override {
-    return this->DoWriteToTranscript(scalar);
-  }
+      : crypto::TranscriptReader<Sha256Reader<Curve>>(std::move(read_buf)) {}
 
  private:
-  bool DoReadFromProof(AffinePoint* point) const override {
-    return ProofSerializer<AffinePoint>::ReadFromProof(this->buffer_, point);
-  }
+  friend class crypto::TranscriptReader<Sha256Reader<Curve>>;
 
-  bool DoReadFromProof(ScalarField* scalar) const override {
-    return ProofSerializer<ScalarField>::ReadFromProof(this->buffer_, scalar);
+  template <typename T>
+  bool DoReadFromProof(T* value) const {
+    return ProofSerializer<T>::ReadFromProof(this->buffer_, value);
   }
 };
 
-template <typename AffinePoint>
-class Sha256Writer : public crypto::TranscriptWriter<AffinePoint>,
-                     protected internal::Sha256Base<AffinePoint> {
+template <typename Curve>
+class Sha256Writer final : public crypto::TranscriptWriter<Sha256Writer<Curve>>,
+                           public internal::Sha256Base<Curve> {
  public:
-  using ScalarField = typename AffinePoint::ScalarField;
-
   // Initialize a transcript given an output buffer.
   explicit Sha256Writer(base::Uint8VectorBuffer write_buf)
-      : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {
+      : crypto::TranscriptWriter<Sha256Writer<Curve>>(std::move(write_buf)) {
     SHA256_Init(&state_);
   }
 
-  // crypto::TranscriptWriter methods
-  ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
-
-  bool WriteToTranscript(const AffinePoint& point) override {
-    return this->DoWriteToTranscript(point);
-  }
-
-  bool WriteToTranscript(const ScalarField& scalar) override {
-    return this->DoWriteToTranscript(scalar);
-  }
-
  private:
-  bool DoWriteToProof(const AffinePoint& point) override {
-    return ProofSerializer<AffinePoint>::WriteToProof(point, this->buffer_);
-  }
+  friend class crypto::TranscriptWriter<Sha256Writer<Curve>>;
 
-  bool DoWriteToProof(const ScalarField& scalar) override {
-    return ProofSerializer<ScalarField>::WriteToProof(scalar, this->buffer_);
+  template <typename T>
+  bool DoWriteToProof(const T& value) {
+    return ProofSerializer<T>::WriteToProof(value, this->buffer_);
   }
 
   SHA256_CTX state_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace zk::halo2
+
+namespace crypto {
+
+template <typename Curve>
+struct TranscriptTraits<zk::halo2::Sha256Reader<Curve>> {
+  using Field = typename math::AffinePoint<Curve>::ScalarField;
+};
+
+template <typename Curve>
+struct TranscriptTraits<zk::halo2::Sha256Writer<Curve>> {
+  using Field = typename math::AffinePoint<Curve>::ScalarField;
+};
+
+}  // namespace crypto
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_HALO2_SHA256_TRANSCRIPT_H_

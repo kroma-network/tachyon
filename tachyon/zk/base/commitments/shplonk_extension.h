@@ -16,10 +16,12 @@ namespace tachyon {
 namespace zk {
 
 template <typename Curve, size_t MaxDegree, size_t MaxExtendedDegree,
-          typename Commitment>
+          typename Commitment, typename TranscriptReader,
+          typename TranscriptWriter>
 class SHPlonkExtension final
     : public UnivariatePolynomialCommitmentSchemeExtension<
-          SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>> {
+          SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment,
+                           TranscriptReader, TranscriptWriter>> {
  public:
   // NOTE(dongchangYoo): The following value are pre-determined according to
   // the Commitment Opening Scheme.
@@ -28,14 +30,16 @@ class SHPlonkExtension final
   constexpr static bool kQueryInstance = false;
 
   using Base = UnivariatePolynomialCommitmentSchemeExtension<
-      SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
+      SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment,
+                       TranscriptReader, TranscriptWriter>>;
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
   using Evals = typename Base::Evals;
 
   SHPlonkExtension() = default;
   explicit SHPlonkExtension(
-      crypto::SHPlonk<Curve, MaxDegree, Commitment>&& shplonk)
+      crypto::SHPlonk<Curve, MaxDegree, Commitment, TranscriptReader,
+                      TranscriptWriter>&& shplonk)
       : shplonk_(std::move(shplonk)) {}
 
   size_t N() const { return shplonk_.N(); }
@@ -70,20 +74,24 @@ class SHPlonkExtension final
     return shplonk_.DoCommitLagrange(v, out);
   }
 
-  template <typename Container, typename Proof>
+  template <typename Container>
   [[nodiscard]] bool DoCreateOpeningProof(const Container& poly_openings,
-                                          Proof* proof) const {
-    return shplonk_.DoCreateOpeningProof(poly_openings, proof);
+                                          TranscriptWriter* writer) const {
+    return shplonk_.DoCreateOpeningProof(poly_openings, writer);
   }
 
  private:
-  crypto::SHPlonk<Curve, MaxDegree, Commitment> shplonk_;
+  crypto::SHPlonk<Curve, MaxDegree, Commitment, TranscriptReader,
+                  TranscriptWriter>
+      shplonk_;
 };
 
 template <typename Curve, size_t MaxDegree, size_t MaxExtendedDegree,
-          typename Commitment>
+          typename Commitment, typename TranscriptReader,
+          typename TranscriptWriter>
 struct UnivariatePolynomialCommitmentSchemeExtensionTraits<
-    SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>> {
+    SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment,
+                     TranscriptReader, TranscriptWriter>> {
  public:
   constexpr static size_t kMaxExtendedDegree = MaxExtendedDegree;
   constexpr static size_t kMaxExtendedSize = kMaxExtendedDegree + 1;
@@ -94,16 +102,24 @@ struct UnivariatePolynomialCommitmentSchemeExtensionTraits<
 namespace crypto {
 
 template <typename Curve, size_t MaxDegree, size_t MaxExtendedDegree,
-          typename _Commitment>
+          typename _Commitment, typename _TranscriptReader,
+          typename _TranscriptWriter>
 struct VectorCommitmentSchemeTraits<
-    zk::SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, _Commitment>> {
+    zk::SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, _Commitment,
+                         _TranscriptReader, _TranscriptWriter>> {
  public:
+  constexpr static size_t kMaxSize = MaxDegree + 1;
+  constexpr static bool kIsTransparent = false;
+  constexpr static bool kIsCommitInteractive = false;
+  constexpr static bool kIsOpenInteractive = true;
+
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using Field = typename G1Point::ScalarField;
   using Commitment = _Commitment;
-
-  constexpr static size_t kMaxSize = MaxDegree + 1;
-  constexpr static bool kIsTransparent = false;
+  using TranscriptReader = _TranscriptReader;
+  using TranscriptWriter = _TranscriptWriter;
+  // not used since all of the proof needed is recorded in transcript.
+  using Proof = void*;
 };
 
 }  // namespace crypto

@@ -12,10 +12,8 @@ namespace tachyon::crypto {
 
 template <typename F>
 struct FRIProof {
-  std::vector<BinaryMerkleProof<F>> paths;
-  std::vector<BinaryMerkleProof<F>> paths_sym;
-  std::vector<F> evaluations;
-  std::vector<F> evaluations_sym;
+  std::vector<BinaryMerkleProof<F, F>> proof;
+  std::vector<BinaryMerkleProof<F, F>> proof_sym;
 };
 
 }  // namespace tachyon::crypto

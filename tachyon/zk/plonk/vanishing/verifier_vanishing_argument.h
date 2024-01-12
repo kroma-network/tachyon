@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "tachyon/base/ref.h"
-#include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/math/elliptic_curves/semigroups.h"
 #include "tachyon/zk/base/entities/entity_ty.h"
 #include "tachyon/zk/base/verifier_query.h"
@@ -23,30 +22,36 @@
 
 namespace tachyon::zk {
 
-template <typename PCS, typename Commitment>
+template <typename TranscriptReader, typename PCS>
 [[nodiscard]] bool ReadCommitmentsBeforeY(
-    crypto::TranscriptReader<Commitment>* transcript,
+    TranscriptReader* transcript,
     VanishingCommitted<EntityTy::kVerifier, PCS>* committed_out) {
+  using Commitment = typename PCS::Commitment;
+
   Commitment c;
-  if (!transcript->ReadFromProof(&c)) return false;
+  if (!transcript->template ReadFromProof</*NeedToWriteToTranscript=*/true>(&c))
+    return false;
 
   *committed_out = VanishingCommitted<EntityTy::kVerifier, PCS>(std::move(c));
   return true;
 }
 
-template <typename PCS, typename Commitment>
+template <typename PCS, typename TranscriptReader>
 [[nodiscard]] bool ReadCommitmentsAfterY(
     VanishingCommitted<EntityTy::kVerifier, PCS>&& committed,
-    const VerifyingKey<PCS>& vk,
-    crypto::TranscriptReader<Commitment>* transcript,
+    const VerifyingKey<PCS>& vk, TranscriptReader* transcript,
     VanishingConstructed<EntityTy::kVerifier, PCS>* constructed_out) {
+  using Commitment = typename PCS::Commitment;
+
   // Obtain a commitment to h(X) in the form of multiple pieces of degree
   // n - 1
   std::vector<Commitment> h_commitments;
   size_t quotient_poly_degree = vk.constraint_system().ComputeDegree() - 1;
   h_commitments.resize(quotient_poly_degree);
   for (Commitment& commitment : h_commitments) {
-    if (!transcript->ReadFromProof(&commitment)) return false;
+    if (!transcript->template ReadFromProof</*NeedToWriteToTranscript=*/true>(
+            &commitment))
+      return false;
   }
 
   *constructed_out = {std::move(h_commitments),
@@ -54,13 +59,15 @@ template <typename PCS, typename Commitment>
   return true;
 }
 
-template <typename F, typename PCS, typename Commitment>
+template <typename F, typename PCS, typename TranscriptReader>
 [[nodiscard]] bool EvaluateAfterX(
     VanishingConstructed<EntityTy::kVerifier, PCS>&& constructed,
-    crypto::TranscriptReader<Commitment>* transcript,
+    TranscriptReader* transcript,
     VanishingPartiallyEvaluated<PCS>* partially_evaluated_out) {
   F random_eval;
-  if (!transcript->ReadFromProof(&random_eval)) return false;
+  if (!transcript->template ReadFromProof</*NeedToWriteToTranscript=*/true>(
+          &random_eval))
+    return false;
 
   *partially_evaluated_out = {std::move(constructed).TakeHCommitments(),
                               std::move(constructed).TakeRandomPolyCommitment(),
