@@ -1,12 +1,12 @@
 #[cfg(test)]
 mod test {
+    use crate::bn254::{ffi, Fr as CppFr, G1Point2 as CppG1Point2};
     use halo2_proofs::arithmetic::best_multiexp;
     use halo2curves::{
         bn256::{Fr, G1Affine, G1},
         group::{ff::Field, Curve, Group},
     };
     use std::{mem, time::Instant};
-    use tachyon_rs::math::elliptic_curves::bn::bn254::{ffi, Fr as CppFr, G1Point2 as CppG1Point2};
 
     struct Timer {
         now: Instant,
