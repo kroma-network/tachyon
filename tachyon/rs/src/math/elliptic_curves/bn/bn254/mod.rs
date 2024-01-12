@@ -1,5 +1,5 @@
 use crate::math::{
-    elliptic_curves::{AffinePoint, JacobianPoint, PointXYZZ, ProjectivePoint},
+    elliptic_curves::short_weierstrass::{AffinePoint, JacobianPoint, PointXYZZ, ProjectivePoint},
     finite_fields::PrimeField,
     geometry::{Point2, Point3, Point4},
 };
