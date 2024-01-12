@@ -30,11 +30,7 @@ class SHPlonkTest : public testing::Test {
   using PointRef = base::DeepRef<const Point>;
   using CommitmentRef = base::DeepRef<const Commitment>;
 
-  static void SetUpTestSuite() {
-    math::bn254::BN254Curve::Init();
-    math::bn254::G1Curve::Init();
-    math::bn254::G2Curve::Init();
-  }
+  static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
 
   SHPlonkTest() : writer_(base::Uint8VectorBuffer()) {}
 

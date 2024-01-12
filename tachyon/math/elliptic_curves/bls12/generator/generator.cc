@@ -44,14 +44,17 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  constexpr static bool kXIsNegative = %{x_is_negative};",
       "  constexpr static TwistType kTwistType = TwistType::k%{twist_type};",
       "",
-      "  using Fp = Fq;"
-      "  using Fp2 = Fq2;"
-      "  using Fp6 = Fq6;"
-      "  using Fp12 = Fq12;"
-      "  using G1Curve = _G1Curve;"
-      "  using G2Curve = _G2Curve;"
+      "  using Fp = Fq;",
+      "  using Fp2 = Fq2;",
+      "  using Fp6 = Fq6;",
+      "  using Fp12 = Fq12;",
+      "  using G1Curve = _G1Curve;",
+      "  using G2Curve = _G2Curve;",
       "",
-      "  static void Init() {}",
+      "  static void Init() {",
+      "    G1Curve::Init();",
+      "    G2Curve::Init();",
+      "  }",
       "};",
       "",
       "using %{class}Curve = BLS12Curve<%{class}Config<Fq, Fq2, Fq6, Fq12, G1Curve, G2Curve>>;",
