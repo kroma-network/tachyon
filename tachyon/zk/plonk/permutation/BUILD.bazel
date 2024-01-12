@@ -33,6 +33,7 @@ tachyon_cc_library(
     name = "permutation_argument",
     hdrs = ["permutation_argument.h"],
     deps = [
+        "//tachyon:export",
         "//tachyon/base/containers:contains",
         "//tachyon/zk/plonk/circuit:column_key",
     ],
