@@ -85,7 +85,7 @@ class G2Projective {
   }
 
   G2Projective& NegInPlace() {
-    y_ = -y_;
+    y_.NegInPlace();
     return *this;
   }
 
