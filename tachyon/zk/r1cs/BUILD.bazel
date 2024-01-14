@@ -3,6 +3,23 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "linear_combination",
+    hdrs = ["linear_combination.h"],
+    deps = [
+        ":term",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/ranges:algorithm",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
+    name = "term",
+    hdrs = ["term.h"],
+    deps = [":variable"],
+)
+
+tachyon_cc_library(
     name = "variable",
     srcs = ["variable.cc"],
     hdrs = ["variable.h"],
@@ -15,9 +32,13 @@ tachyon_cc_library(
 
 tachyon_cc_unittest(
     name = "r1cs_unittests",
-    srcs = ["variable_unittest.cc"],
+    srcs = [
+        "linear_combination_unittest.cc",
+        "variable_unittest.cc",
+    ],
     deps = [
-        ":variable",
+        ":linear_combination",
         "//tachyon/base:random",
+        "//tachyon/math/finite_fields/test:gf7",
     ],
 )
