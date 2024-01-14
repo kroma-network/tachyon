@@ -501,6 +501,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     auto l_it = l_terms.begin();
     auto r_it = r_terms.begin();
     std::vector<Term> ret;
+    ret.reserve(std::max(l_terms.size(), r_terms.size()));
     while (l_it != l_terms.end() || r_it != r_terms.end()) {
       if (l_it == l_terms.end()) {
         if constexpr (NEGATION) {
