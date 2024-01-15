@@ -28,36 +28,43 @@ class Blake2bBase {
   Blake2bBase() { BLAKE2B512_InitWithPersonal(&state_, kTranscriptStr); }
 
   ScalarField DoSqueezeChallenge() {
-    BLAKE2B512_Update(&state_, kBlake2bPrefixChallenge, 1);
-    BLAKE2B_CTX hasher = state_;
+    DoUpdate(kBlake2bPrefixChallenge, 1);
     uint8_t result[64] = {0};
-    BLAKE2B512_Final(result, &hasher);
+    DoFinalize(result);
     return ScalarField::FromAnySizedBigInt(
         math::BigInt<8>::FromBytesLE(result));
   }
 
   bool DoWriteToTranscript(const AffinePoint& point) {
-    BLAKE2B512_Update(&state_, kBlake2bPrefixPoint, 1);
+    DoUpdate(kBlake2bPrefixPoint, 1);
     if (point.infinity()) {
-      BLAKE2B512_Update(&state_, BaseField::BigIntTy::Zero().ToBytesLE().data(),
-                        BaseField::BigIntTy::kByteNums);
-      BLAKE2B512_Update(&state_,
-                        typename BaseField::BigIntTy(5).ToBytesLE().data(),
-                        BaseField::BigIntTy::kByteNums);
+      DoUpdate(BaseField::BigIntTy::Zero().ToBytesLE().data(),
+               BaseField::BigIntTy::kByteNums);
+      DoUpdate(typename BaseField::BigIntTy(5).ToBytesLE().data(),
+               BaseField::BigIntTy::kByteNums);
     } else {
-      BLAKE2B512_Update(&state_, point.x().ToBigInt().ToBytesLE().data(),
-                        BaseField::BigIntTy::kByteNums);
-      BLAKE2B512_Update(&state_, point.y().ToBigInt().ToBytesLE().data(),
-                        BaseField::BigIntTy::kByteNums);
+      DoUpdate(point.x().ToBigInt().ToBytesLE().data(),
+               BaseField::BigIntTy::kByteNums);
+      DoUpdate(point.y().ToBigInt().ToBytesLE().data(),
+               BaseField::BigIntTy::kByteNums);
     }
     return true;
   }
 
   bool DoWriteToTranscript(const ScalarField& scalar) {
-    BLAKE2B512_Update(&state_, kBlake2bPrefixScalar, 1);
-    BLAKE2B512_Update(&state_, scalar.ToBigInt().ToBytesLE().data(),
-                      ScalarField::BigIntTy::kByteNums);
+    DoUpdate(kBlake2bPrefixScalar, 1);
+    DoUpdate(scalar.ToBigInt().ToBytesLE().data(),
+             ScalarField::BigIntTy::kByteNums);
     return true;
+  }
+
+  void DoUpdate(const void* data, size_t len) {
+    BLAKE2B512_Update(&state_, data, len);
+  }
+
+  void DoFinalize(uint8_t result[64]) {
+    BLAKE2B_CTX hasher = state_;
+    BLAKE2B512_Final(result, &hasher);
   }
 
   BLAKE2B_CTX state_;
@@ -77,6 +84,10 @@ class Blake2bReader : public crypto::TranscriptReader<AffinePoint>,
   // Initialize a transcript given an input buffer.
   explicit Blake2bReader(base::Buffer read_buf)
       : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
+
+  void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
+
+  void Finalize(uint8_t result[64]) { this->DoFinalize(result); }
 
   // crypto::TranscriptReader methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
@@ -108,6 +119,10 @@ class Blake2bWriter : public crypto::TranscriptWriter<AffinePoint>,
   // Initialize a transcript given an output buffer.
   explicit Blake2bWriter(base::Uint8VectorBuffer write_buf)
       : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {}
+
+  void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
+
+  void Finalize(uint8_t result[64]) { this->DoFinalize(result); }
 
   // crypto::TranscriptWriter methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }

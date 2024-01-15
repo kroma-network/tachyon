@@ -3,3 +3,4 @@ mod circuit;
 mod circuits;
 mod msm;
 mod prover;
+mod transcript;

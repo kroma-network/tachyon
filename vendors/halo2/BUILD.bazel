@@ -15,6 +15,7 @@ tachyon_rust_library(
     proc_macro_deps = all_crate_deps(proc_macro = True),
     deps = all_crate_deps(normal = True) + [
         "//tachyon/rs:tachyon_rs",
+        ":bn254_blake2b_writer",
         ":bn254_cxx_bridge",
         ":bn254_msm",
         ":bn254_msm_gpu",
@@ -48,6 +49,8 @@ tachyon_rust_test(
 tachyon_cc_library(
     name = "bn254_api_hdrs",
     hdrs = [
+        "include/blake2b_writer_impl.h",
+        "include/bn254_blake2b_writer.h",
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
         "include/bn254_prover.h",
@@ -62,6 +65,17 @@ rust_cxx_bridge(
         '--cfg=feature="gpu"',
     ]),
     deps = [":bn254_api_hdrs"],
+)
+
+tachyon_cc_library(
+    name = "bn254_blake2b_writer",
+    srcs = ["src/bn254_blake2b_writer.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/zk/plonk/halo2:blake2b_transcript",
+    ],
 )
 
 tachyon_cc_library(
