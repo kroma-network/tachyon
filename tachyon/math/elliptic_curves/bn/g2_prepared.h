@@ -65,7 +65,7 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
       q2.NegInPlace();
 
       if constexpr (Config::kXIsNegative) {
-        r.NegateInPlace();
+        r.NegInPlace();
       }
 
       ell_coeffs.push_back(r.AddInPlace(q1));
