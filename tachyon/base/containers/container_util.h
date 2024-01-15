@@ -150,7 +150,7 @@ std::optional<size_t> FindIndex(Iterator begin, Iterator end, const T& value) {
 }
 
 template <typename Container, typename T>
-std::optional<size_t> FindIndex(Container&& container, const T& value) {
+std::optional<size_t> FindIndex(const Container& container, const T& value) {
   return FindIndex(std::begin(container), std::end(container), value);
 }
 
@@ -162,7 +162,7 @@ std::optional<size_t> FindIndexIf(Iterator begin, Iterator end, UnaryOp&& op) {
 }
 
 template <typename Container, typename UnaryOp>
-std::optional<size_t> FindIndexIf(Container&& container, UnaryOp&& op) {
+std::optional<size_t> FindIndexIf(const Container& container, UnaryOp&& op) {
   return FindIndexIf(std::begin(container), std::end(container),
                      std::forward<UnaryOp>(op));
 }
@@ -239,7 +239,7 @@ std::vector<size_t> FindIndices(Iterator begin, Iterator end, const T& value) {
 }
 
 template <typename Container, typename T>
-std::vector<size_t> FindIndices(Container&& container, const T& value) {
+std::vector<size_t> FindIndices(const Container& container, const T& value) {
   return FindIndices(std::begin(container), std::end(container), value);
 }
 
@@ -252,7 +252,7 @@ std::vector<size_t> FindIndicesIf(Iterator begin, Iterator end, UnaryOp&& op) {
 }
 
 template <typename Container, typename UnaryOp>
-std::vector<size_t> FindIndicesIf(Container&& container, UnaryOp&& op) {
+std::vector<size_t> FindIndicesIf(const Container& container, UnaryOp&& op) {
   return FindIndicesIf(std::begin(container), std::end(container),
                        std::forward<UnaryOp>(op));
 }
