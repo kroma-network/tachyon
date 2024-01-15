@@ -11,12 +11,13 @@
 #include <vector>
 
 #include "tachyon/base/containers/contains.h"
+#include "tachyon/export.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
 
 namespace tachyon::zk {
 
 // TODO(dongchangYoo): impl logics related to prove and verify.
-class PermutationArgument {
+class TACHYON_EXPORT PermutationArgument {
  public:
   PermutationArgument() = default;
   explicit PermutationArgument(const std::vector<AnyColumnKey>& columns)
