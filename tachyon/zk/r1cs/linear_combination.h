@@ -28,17 +28,69 @@ class LinearCombination {
  public:
   constexpr LinearCombination() = default;
   constexpr explicit LinearCombination(const std::vector<Term<F>>& terms)
-      : terms_(terms) {
-    Deduplicate();
-    DCHECK(IsSorted());
-  }
+      : terms_(terms) {}
   constexpr explicit LinearCombination(std::vector<Term<F>>&& terms)
-      : terms_(std::move(terms)) {
-    Deduplicate();
-    DCHECK(IsSorted());
-  }
+      : terms_(std::move(terms)) {}
 
   const std::vector<Term<F>>& terms() const { return terms_; }
+
+  constexpr static LinearCombination CreateDeduplicated(
+      const std::vector<Term<F>>& terms) {
+    LinearCombination lc(terms);
+    lc.Deduplicate();
+    return lc;
+  }
+
+  constexpr static LinearCombination CreateDeduplicated(
+      std::vector<Term<F>>&& terms) {
+    LinearCombination lc(std::move(terms));
+    lc.Deduplicate();
+    return lc;
+  }
+
+  void AppendTerm(const Term<F>& term) { terms_.push_back(term); }
+  void AppendTerm(Term<F>&& term) { terms_.push_back(std::move(term)); }
+
+  void AppendTerms(const std::vector<Term<F>>& terms) {
+    terms_.insert(terms_.end(), terms.begin(), terms.end());
+  }
+  void AppendTerms(std::vector<Term<F>>&& terms) {
+    terms_.insert(terms_.end(), std::make_move_iterator(terms.begin()),
+                  std::make_move_iterator(terms.end()));
+  }
+
+  std::vector<Term<F>>&& TakeTerms() && { return std::move(terms_); }
+
+  void Deduplicate() {
+    std::sort(terms_.begin(), terms_.end(),
+              [](const Term<F>& a, const Term<F>& b) {
+                return a.variable < b.variable;
+              });
+    bool is_first = true;
+    auto cur_var_first_it = terms_.begin();
+    auto it = terms_.begin();
+    while (it != terms_.end()) {
+      if (!is_first && cur_var_first_it->variable == it->variable) {
+        cur_var_first_it->coefficient += it->coefficient;
+      } else {
+        cur_var_first_it = it;
+        is_first = false;
+      }
+      ++it;
+    }
+    auto last = std::unique(terms_.begin(), terms_.end(),
+                            [](const Term<F>& a, const Term<F>& b) {
+                              return a.variable == b.variable;
+                            });
+    terms_.erase(last, terms_.end());
+  }
+
+  bool IsSorted() const {
+    return base::ranges::is_sorted(terms_.begin(), terms_.end(),
+                                   [](const Term<F>& a, const Term<F>& b) {
+                                     return a.variable < b.variable;
+                                   });
+  }
 
   LinearCombination operator+(const Term<F>& term) const {
     LinearCombination ret = *this;
@@ -169,39 +221,7 @@ class LinearCombination {
   }
 
  private:
-  FRIEND_TEST(LinearCombinationTest, Deduplicate);
   FRIEND_TEST(LinearCombinationTest, BinarySearch);
-
-  void Deduplicate() {
-    std::sort(terms_.begin(), terms_.end(),
-              [](const Term<F>& a, const Term<F>& b) {
-                return a.variable < b.variable;
-              });
-    bool is_first = true;
-    auto cur_var_first_it = terms_.begin();
-    auto it = terms_.begin();
-    while (it != terms_.end()) {
-      if (!is_first && cur_var_first_it->variable == it->variable) {
-        cur_var_first_it->coefficient += it->coefficient;
-      } else {
-        cur_var_first_it = it;
-        is_first = false;
-      }
-      ++it;
-    }
-    auto last = std::unique(terms_.begin(), terms_.end(),
-                            [](const Term<F>& a, const Term<F>& b) {
-                              return a.variable == b.variable;
-                            });
-    terms_.erase(last, terms_.end());
-  }
-
-  bool IsSorted() const {
-    return base::ranges::is_sorted(terms_.begin(), terms_.end(),
-                                   [](const Term<F>& a, const Term<F>& b) {
-                                     return a.variable < b.variable;
-                                   });
-  }
 
   bool GetVarLocation(const Variable& variable, size_t* index) const {
     constexpr static size_t kBinarySearchThreshold = 6;
