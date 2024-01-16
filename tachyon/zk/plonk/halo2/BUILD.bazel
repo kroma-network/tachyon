@@ -148,6 +148,7 @@ tachyon_cc_library(
     name = "prover",
     hdrs = ["prover.h"],
     deps = [
+        ":argument",
         ":random_field_generator",
         ":verifier",
         "//tachyon/zk/base/entities:prover_base",
