@@ -33,6 +33,7 @@ class LinearCombination {
       : terms_(std::move(terms)) {}
 
   const std::vector<Term<F>>& terms() const { return terms_; }
+  std::vector<Term<F>>& terms() { return terms_; }
 
   constexpr static LinearCombination CreateDeduplicated(
       const std::vector<Term<F>>& terms) {

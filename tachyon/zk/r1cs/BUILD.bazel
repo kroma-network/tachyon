@@ -3,6 +3,27 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "constraint_matrices",
+    hdrs = ["constraint_matrices.h"],
+    deps = [":matrix"],
+)
+
+tachyon_cc_library(
+    name = "constraint_system",
+    hdrs = ["constraint_system.h"],
+    deps = [
+        ":constraint_matrices",
+        ":linear_combination",
+        ":optimization_goal",
+        ":synthesis_mode",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/functional:callback",
+        "@com_google_absl//absl/container:btree",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
     name = "linear_combination",
     hdrs = ["linear_combination.h"],
     deps = [
@@ -11,6 +32,25 @@ tachyon_cc_library(
         "//tachyon/base/ranges:algorithm",
         "@com_google_googletest//:gtest_prod",
     ],
+)
+
+tachyon_cc_library(
+    name = "matrix",
+    hdrs = ["matrix.h"],
+    deps = [
+        "//tachyon/base/containers:container_util",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "optimization_goal",
+    hdrs = ["optimization_goal.h"],
+)
+
+tachyon_cc_library(
+    name = "synthesis_mode",
+    hdrs = ["synthesis_mode.h"],
 )
 
 tachyon_cc_library(
@@ -33,11 +73,12 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "r1cs_unittests",
     srcs = [
+        "constraint_system_unittest.cc",
         "linear_combination_unittest.cc",
         "variable_unittest.cc",
     ],
     deps = [
-        ":linear_combination",
+        ":constraint_system",
         "//tachyon/base:random",
         "//tachyon/math/finite_fields/test:gf7",
     ],
