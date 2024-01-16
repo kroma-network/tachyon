@@ -8,9 +8,30 @@ tachyon_cc_library(
     deps = [
         ":synthesizer",
         "//tachyon/base:logging",
+        "//tachyon/crypto/commitments:polynomial_openings",
+        "//tachyon/zk/plonk/halo2:argument_util",
+        "//tachyon/zk/plonk/vanishing:prover_vanishing_argument",
+        "//tachyon/zk/plonk/vanishing:vanishing_argument",
+    ],
+)
+
+tachyon_cc_library(
+    name = "argument_util",
+    hdrs = ["argument_util.h"],
+    deps = [
+        ":step_returns",
+        "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
+        "//tachyon/base/numerics:checked_math",
+        "//tachyon/zk/base:point_set",
         "//tachyon/zk/base/entities:prover_base",
+        "//tachyon/zk/lookup:lookup_argument_runner",
+        "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk/circuit:query",
         "//tachyon/zk/plonk/circuit:ref_table",
+        "//tachyon/zk/plonk/keys:proving_key",
+        "//tachyon/zk/plonk/permutation:permutation_argument_runner",
+        "@com_google_absl//absl/types:span",
     ],
 )
 
