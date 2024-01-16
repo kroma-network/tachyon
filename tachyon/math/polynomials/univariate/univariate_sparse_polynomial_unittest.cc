@@ -68,6 +68,14 @@ TEST_F(UnivariateSparsePolynomialTest, Random) {
   EXPECT_TRUE(success);
 }
 
+TEST_F(UnivariateSparsePolynomialTest, CreateChecked) {
+  EXPECT_DEATH(Coeffs::CreateChecked({{2, GF7(3)}, {0, GF7(1)}, {4, GF7(2)}}),
+               "");
+  EXPECT_EQ(
+      Poly(Coeffs::CreateChecked({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})),
+      polys_[0]);
+}
+
 TEST_F(UnivariateSparsePolynomialTest, IndexingOperator) {
   struct {
     const Poly& poly;

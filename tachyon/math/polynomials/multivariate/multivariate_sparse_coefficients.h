@@ -63,13 +63,20 @@ class MultivariateSparseCoefficients {
     Literal() = default;
 
     // NOLINTNEXTLINE(runtime/explicit)
-    Literal(const std::vector<Element>& elems) : elements(elems) {
-      DCHECK(base::ranges::is_sorted(elements.begin(), elements.end()));
-    }
+    Literal(const std::vector<Element>& elems) : elements(elems) {}
 
     // NOLINTNEXTLINE(runtime/explicit)
-    Literal(std::vector<Element>&& elems) : elements(std::move(elems)) {
-      DCHECK(base::ranges::is_sorted(elements.begin(), elements.end()));
+    Literal(std::vector<Element>&& elems) : elements(std::move(elems)) {}
+
+    constexpr static Literal CreateChecked(
+        const std::vector<Element>& elements) {
+      CHECK(base::ranges::is_sorted(elements.begin(), elements.end()));
+      return Literal(elements);
+    }
+
+    constexpr static Literal CreateChecked(std::vector<Element>&& elements) {
+      CHECK(base::ranges::is_sorted(elements.begin(), elements.end()));
+      return Literal(std::move(elements));
     }
 
     bool operator<(const Literal& other) const {
@@ -161,12 +168,22 @@ class MultivariateSparseCoefficients {
   constexpr MultivariateSparseCoefficients(size_t num_vars, const Terms& terms)
       : num_vars_(num_vars), terms_(terms) {
     CHECK_LE(Degree(), kMaxDegree);
-    DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
   }
   constexpr MultivariateSparseCoefficients(size_t num_vars, Terms&& terms)
       : num_vars_(num_vars), terms_(std::move(terms)) {
     CHECK_LE(Degree(), kMaxDegree);
-    DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
+  }
+
+  constexpr static MultivariateSparseCoefficients CreateChecked(
+      size_t num_vars, const Terms& terms) {
+    CHECK(base::ranges::is_sorted(terms.begin(), terms.end()));
+    return {num_vars, terms};
+  }
+
+  constexpr static MultivariateSparseCoefficients CreateChecked(size_t num_vars,
+                                                                Terms&& terms) {
+    CHECK(base::ranges::is_sorted(terms.begin(), terms.end()));
+    return {num_vars, std::move(terms)};
   }
 
   constexpr static MultivariateSparseCoefficients Zero() {
