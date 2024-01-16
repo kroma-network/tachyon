@@ -8,6 +8,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/circuit/ref_table.h"
+#include "tachyon/zk/plonk/halo2/synthesizer.h"
 
 namespace tachyon::zk::halo2 {
 
@@ -21,20 +22,47 @@ class Argument {
   using Domain = typename PCS::Domain;
 
   Argument() = default;
+  template <typename Circuit>
   static Argument Create(
-      ProverBase<PCS>* prover, size_t num_circuits,
+      ProverBase<PCS>* prover, std::vector<Circuit>& circuits,
       const std::vector<Evals>* fixed_columns,
       const std::vector<Poly>* fixed_polys,
-      std::vector<std::vector<Evals>>&& advice_columns_vec,
-      std::vector<std::vector<F>>&& advice_blinds_vec,
-      std::vector<F>&& challenges,
-      std::vector<std::vector<Evals>>&& instance_columns_vec) {
+      const ConstraintSystem<F>& constraint_system,
+      std::vector<std::vector<std::vector<F>>>&& instance_columns_vec) {
+    size_t num_circuits = circuits.size();
+
+    // Generate instance polynomial and write it to transcript.
     std::vector<std::vector<Poly>> instance_polys_vec =
         GenerateInstancePolys(prover, instance_columns_vec);
 
+    // Generate instance columns
+    std::vector<std::vector<Evals>> instance_columns_vec_with_leading_zero =
+        base::Map(instance_columns_vec,
+                  [prover](std::vector<std::vector<F>>& instances_vec) {
+                    return base::Map(
+                        instances_vec, [prover](std::vector<F>& instances) {
+                          // Append leading zeros to |instances|.
+                          std::vector<F> leading_zeros = base::CreateVector(
+                              prover->pcs().N() - instances.size(), F::Zero());
+                          instances.reserve(prover->pcs().N());
+                          instances.insert(
+                              instances.end(),
+                              std::make_move_iterator(leading_zeros.begin()),
+                              std::make_move_iterator(leading_zeros.end()));
+                          return Evals(std::move(instances));
+                        });
+                  });
+
+    // Generate advice poly by synthesizing circuit and write it to transcript.
+    Synthesizer<PCS> synthesizer(num_circuits, &constraint_system);
+    synthesizer.GenerateAdviceColumns(prover, circuits,
+                                      instance_columns_vec_with_leading_zero);
+
     return Argument(num_circuits, fixed_columns, fixed_polys,
-                    std::move(advice_columns_vec), std::move(advice_blinds_vec),
-                    std::move(challenges), std::move(instance_columns_vec),
+                    std::move(synthesizer).TakeAdviceColumnsVec(),
+                    std::move(synthesizer).TakeAdviceBlindsVec(),
+                    std::move(synthesizer).TakeChallenges(),
+                    std::move(instance_columns_vec_with_leading_zero),
                     std::move(instance_polys_vec));
   }
 
