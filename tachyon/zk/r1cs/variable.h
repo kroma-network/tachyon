@@ -64,6 +64,7 @@ class TACHYON_EXPORT Variable {
         return std::nullopt;
     }
     NOTREACHED();
+    return std::nullopt;
   }
   std::optional<size_t> GetSymbolicLinearCombinationIndex() const {
     if (IsSymbolicLinearCombination()) return index_;
