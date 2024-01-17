@@ -28,12 +28,17 @@ class Blinder {
   }
   size_t blinding_factors() const { return blinding_factors_; }
 
-  // Blinds |evals| at behind by |blinding_factors_|.
-  // Returns false if |evals.NumElements()| is less than |blinding_factors_|.
-  bool Blind(Evals& evals) {
+  // The number of |blinding_rows| is determined to be either
+  // |blinding_factors_| or |blinding_factors_| + 1, depending on the
+  // |include_last_row| option.
+  // Blinds |evals| at behind by |blinding_rows|.
+  // Returns false if |evals.NumElements()| is less than |blinding_rows|.
+  bool Blind(Evals& evals, bool include_last_row = false) {
     size_t size = evals.NumElements();
-    if (size < blinding_factors_) return false;
-    size_t start = size - blinding_factors_;
+    size_t blinding_rows =
+        include_last_row ? blinding_factors_ + 1 : blinding_factors_;
+    if (size < blinding_rows) return false;
+    size_t start = size - blinding_rows;
     for (size_t i = start; i < size; ++i) {
       *evals[i] = random_field_generator_->Generate();
     }
