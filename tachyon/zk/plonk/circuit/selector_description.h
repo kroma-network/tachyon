@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/containers/adapters.h"
 #include "tachyon/export.h"
 
 namespace tachyon::zk {
@@ -27,6 +28,19 @@ class TACHYON_EXPORT SelectorDescription {
   size_t selector_index() const { return selector_index_; }
   const std::vector<bool>& activations() const { return *activations_; }
   size_t max_degree() const { return max_degree_; }
+
+  // Checks if two |activations| vectors are orthogonal.
+  // In a mathematical sense, two vectors are orthogonal if their dot product is
+  // zero. For boolean vectors, this means there is no position where both have
+  // true values.
+  bool IsOrthogonal(const SelectorDescription& other) const {
+    for (auto [l, r] : base::Zipped(*activations_, other.activations())) {
+      if (l & r) {
+        return false;
+      }
+    }
+    return true;
+  }
 
  private:
   // The selector that this description references, by index.

@@ -278,7 +278,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "selector_description",
     hdrs = ["selector_description.h"],
-    deps = ["//tachyon:export"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base/containers:adapters",
+    ],
 )
 
 tachyon_cc_library(
@@ -323,6 +326,7 @@ tachyon_cc_unittest(
         "ref_table_unittest.cc",
         "region_column_unittest.cc",
         "rotation_unittest.cc",
+        "selector_description_unittest.cc",
         "selector_unittest.cc",
     ],
     deps = [
@@ -331,6 +335,7 @@ tachyon_cc_unittest(
         ":ref_table",
         ":region_column",
         ":rotation",
+        ":selector_description",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
