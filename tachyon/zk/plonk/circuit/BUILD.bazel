@@ -104,6 +104,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "exclusion_matrix",
+    hdrs = ["exclusion_matrix.h"],
+    deps = [
+        ":selector_description",
+        "//tachyon:export",
+        "//tachyon/base/containers:container_util",
+    ],
+)
+
+tachyon_cc_library(
     name = "gate",
     hdrs = ["gate.h"],
     deps = [
@@ -321,6 +331,7 @@ tachyon_cc_unittest(
     name = "circuit_unittests",
     srcs = [
         "column_key_unittest.cc",
+        "exclusion_matrix_unittest.cc",
         "lookup_table_column_unittest.cc",
         "phase_unittest.cc",
         "ref_table_unittest.cc",
@@ -331,6 +342,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":column_key",
+        ":exclusion_matrix",
         ":lookup_table_column",
         ":ref_table",
         ":region_column",
