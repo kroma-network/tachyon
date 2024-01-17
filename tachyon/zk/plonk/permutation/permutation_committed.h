@@ -18,6 +18,7 @@ namespace tachyon::zk {
 template <typename Poly>
 class PermutationCommitted {
  public:
+  PermutationCommitted() = default;
   explicit PermutationCommitted(
       std::vector<BlindedPolynomial<Poly>>&& product_polys)
       : product_polys_(std::move(product_polys)) {}
