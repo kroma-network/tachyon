@@ -69,7 +69,7 @@ class Synthesizer {
           // Add blinding factors to advice columns
           evaluated[prover->pcs().N() - 1] = F::One();
 
-          Evals evaluated_evals(evaluated);
+          Evals evaluated_evals(std::move(evaluated));
           prover->CommitAndWriteToProof(evaluated_evals);
           SetAdviceColumn(i, j, std::move(evaluated_evals),
                           prover->blinder().Generate());
