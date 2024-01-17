@@ -14,7 +14,7 @@
 
 namespace tachyon::zk {
 
-/// This describes a selector and where it is activated.
+// This describes a selector and where it is activated.
 class TACHYON_EXPORT SelectorDescription {
  public:
   SelectorDescription() = default;
