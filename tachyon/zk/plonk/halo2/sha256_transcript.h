@@ -29,13 +29,12 @@ class Sha256Base {
   Sha256Base() { SHA256_Init(&state_); }
 
   ScalarField DoSqueezeChallenge() {
-    SHA256_Update(&state_, kShaPrefixChallenge, 1);
-    SHA256_CTX hasher = state_;
+    DoUpdate(kShaPrefixChallenge, 1);
     uint8_t result[32] = {0};
-    SHA256_Final(result, &hasher);
+    DoFinalize(result);
 
-    SHA256_Init(&state_);
-    SHA256_Update(&state_, result, 32);
+    DoInit();
+    DoUpdate(result, 32);
 
     if constexpr (ScalarField::N <= 4) {
       return ScalarField::FromAnySizedBigInt(
@@ -46,21 +45,32 @@ class Sha256Base {
   }
 
   bool DoWriteToTranscript(const AffinePoint& point) {
-    SHA256_Update(&state_, kShaPrefixZeros, 31);
-    SHA256_Update(&state_, kShaPrefixPoint, 1);
-    SHA256_Update(&state_, point.x().ToBigInt().ToBytesBE().data(),
-                  BaseField::BigIntTy::kByteNums);
-    SHA256_Update(&state_, point.y().ToBigInt().ToBytesBE().data(),
-                  BaseField::BigIntTy::kByteNums);
+    DoUpdate(kShaPrefixZeros, 31);
+    DoUpdate(kShaPrefixPoint, 1);
+    DoUpdate(point.x().ToBigInt().ToBytesBE().data(),
+             BaseField::BigIntTy::kByteNums);
+    DoUpdate(point.y().ToBigInt().ToBytesBE().data(),
+             BaseField::BigIntTy::kByteNums);
     return true;
   }
 
   bool DoWriteToTranscript(const ScalarField& scalar) {
-    SHA256_Update(&state_, kShaPrefixZeros, 31);
-    SHA256_Update(&state_, kShaPrefixScalar, 1);
-    SHA256_Update(&state_, scalar.ToBigInt().ToBytesBE().data(),
-                  ScalarField::BigIntTy::kByteNums);
+    DoUpdate(kShaPrefixZeros, 31);
+    DoUpdate(kShaPrefixScalar, 1);
+    DoUpdate(scalar.ToBigInt().ToBytesBE().data(),
+             ScalarField::BigIntTy::kByteNums);
     return true;
+  }
+
+  void DoInit() { SHA256_Init(&state_); }
+
+  void DoUpdate(const void* data, size_t len) {
+    SHA256_Update(&state_, data, len);
+  }
+
+  void DoFinalize(uint8_t result[32]) {
+    SHA256_CTX hasher = state_;
+    SHA256_Final(result, &hasher);
   }
 
   SHA256_CTX state_;
@@ -77,6 +87,12 @@ class Sha256Reader : public crypto::TranscriptReader<AffinePoint>,
   // Initialize a transcript given an input buffer.
   explicit Sha256Reader(base::Buffer read_buf)
       : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
+
+  void Init() { this->DoInit(); }
+
+  void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
+
+  void Finalize(uint8_t result[32]) { this->DoFinalize(result); }
 
   // crypto::TranscriptReader methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
@@ -110,6 +126,12 @@ class Sha256Writer : public crypto::TranscriptWriter<AffinePoint>,
       : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {
     SHA256_Init(&state_);
   }
+
+  void Init() { this->DoInit(); }
+
+  void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
+
+  void Finalize(uint8_t result[32]) { this->DoFinalize(result); }
 
   // crypto::TranscriptWriter methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }

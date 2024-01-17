@@ -1,6 +1,8 @@
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load("@cxx.rs//tools/bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon.bzl", "if_gpu_is_configured", "if_has_openmp")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//bazel:tachyon_rust.bzl", "tachyon_rust_library", "tachyon_rust_test")
 
 FEATUERS = if_gpu_is_configured(["gpu"])
@@ -13,6 +15,11 @@ tachyon_rust_library(
     proc_macro_deps = all_crate_deps(proc_macro = True),
     deps = all_crate_deps(normal = True) + [
         "//tachyon/rs:tachyon_rs",
+        ":bn254_blake2b_writer",
+        ":bn254_cxx_bridge",
+        ":bn254_msm",
+        ":bn254_msm_gpu",
+        ":bn254_prover",
     ],
 )
 
@@ -37,4 +44,65 @@ tachyon_rust_test(
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
+)
+
+tachyon_cc_library(
+    name = "bn254_api_hdrs",
+    hdrs = [
+        "include/blake2b_writer_impl.h",
+        "include/bn254_blake2b_writer.h",
+        "include/bn254_msm.h",
+        "include/bn254_msm_gpu.h",
+        "include/bn254_prover.h",
+    ],
+    deps = ["@cxx.rs//:core"],
+)
+
+rust_cxx_bridge(
+    name = "bn254_cxx_bridge",
+    src = "src/bn254.rs",
+    args = if_gpu_is_configured([
+        '--cfg=feature="gpu"',
+    ]),
+    deps = [":bn254_api_hdrs"],
+)
+
+tachyon_cc_library(
+    name = "bn254_blake2b_writer",
+    srcs = ["src/bn254_blake2b_writer.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/zk/plonk/halo2:blake2b_transcript",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_msm",
+    srcs = ["src/bn254_msm.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_msm_gpu",
+    srcs = if_gpu_is_configured(["src/bn254_msm_gpu.cc"]),
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_prover",
+    srcs = ["src/bn254_prover.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+    ],
 )

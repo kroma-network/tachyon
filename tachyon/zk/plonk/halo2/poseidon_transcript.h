@@ -42,6 +42,9 @@ class PoseidonBase {
     return state_.Absorb(scalar);
   }
 
+  // TODO(chokobole): Implement DoUpdate() and DoFinalize() like
+  // |Blake2bTranscript| or |Sha256Transcript|.
+
   PoseidonSponge<ScalarField> state_;
 };
 

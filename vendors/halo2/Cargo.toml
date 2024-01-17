@@ -5,22 +5,28 @@ authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
 edition = "2021"
 rust-version = "1.56.1"
 description = """
-Halo2 KZG commitment unittest based on tachyon
+Halo2 unittest based on tachyon
 """
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/kroma-network/tachyon"
-documentation = "https://docs.rs/tachyon_halo2"
 readme = "README.md"
 categories = ["cryptography"]
 keywords = ["tachyon", "halo", "proofs", "zkp", "zkSNARKs"]
 publish = false
 
 [dependencies]
-halo2_proofs = { git = "https://github.com/kroma-network/halo2.git", rev = "9922fbb" }
+cxx = "1.0"
+ff = "0.12"
+halo2_proofs = { git = "https://github.com/kroma-network/halo2.git", rev = "6bf4e0a" }
 halo2curves = { git = "https://github.com/kroma-network/halo2curves.git", rev = "c0ac193" }
 tachyon_rs = { path = "../../tachyon/rs" }
-
-[dev-dependencies]
 rand_core = { version = "0.6", default-features = false, features = [
     "getrandom",
 ] }
+
+[dev-dependencies]
+rand_xorshift = "0.3"
+
+[features]
+default = []
+gpu = []

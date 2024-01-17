@@ -15,11 +15,6 @@ keywords = ["tachyon", "proofs", "zkp", "zkSNARKs"]
 publish = false
 
 [dependencies]
-cxx = "1.0"
 zeroize = { version = "1", default-features = false, features = [
   "zeroize_derive",
 ] }
-
-[features]
-default = []
-gpu = []
