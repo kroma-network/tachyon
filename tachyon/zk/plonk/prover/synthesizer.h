@@ -70,7 +70,7 @@ class Synthesizer {
           evaluated[prover->pcs().N() - 1] = F::One();
 
           Evals evaluated_evals(evaluated);
-          CHECK(prover->CommitEvals(evaluated_evals));
+          prover->CommitAndWriteToProof(evaluated_evals);
           SetAdviceColumn(i, j, std::move(evaluated_evals),
                           prover->blinder().Generate());
         }

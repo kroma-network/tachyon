@@ -29,10 +29,7 @@ class GrandProductArgument {
                                       std::move(numerator_callback),
                                       std::move(denominator_callback));
     CHECK(prover->blinder().Blind(z));
-
-    BlindedPolynomial<Poly> ret;
-    CHECK(prover->CommitEvalsWithBlind(z, &ret));
-    return ret;
+    return prover->CommitAndWriteToProofWithBlind(z);
   }
 
   // If the number of rows is out of the supported size of polynomial
@@ -54,10 +51,7 @@ class GrandProductArgument {
         size, blinding_factors, num_cols, last_z, std::move(numerator_callback),
         std::move(denominator_callback));
     CHECK(prover->blinder().Blind(z));
-
-    BlindedPolynomial<Poly> ret;
-    CHECK(prover->CommitEvalsWithBlind(z, &ret));
-    return ret;
+    return prover->CommitAndWriteToProofWithBlind(z);
   }
 
  private:

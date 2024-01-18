@@ -136,7 +136,7 @@ class Argument {
                            instance_columns,
                            [prover](const Evals& instance_column) {
                              if constexpr (PCS::kQueryInstance) {
-                               CHECK(prover->CommitEvals(instance_column));
+                               prover->CommitAndWriteToProof(instance_column);
                              } else {
                                for (size_t i = 0; i < prover->pcs().N(); ++i) {
                                  CHECK(prover->GetWriter()->WriteToTranscript(

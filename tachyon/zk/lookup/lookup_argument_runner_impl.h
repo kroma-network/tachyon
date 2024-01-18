@@ -42,14 +42,12 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
                               &permuted_evals_pair));
 
   // Commit(A'(X))
-  BlindedPolynomial<Poly> permuted_input_poly;
-  CHECK(prover->CommitEvalsWithBlind(permuted_evals_pair.input(),
-                                     &permuted_input_poly));
+  BlindedPolynomial<Poly> permuted_input_poly =
+      prover->CommitAndWriteToProofWithBlind(permuted_evals_pair.input());
 
   // Commit(S'(X))
-  BlindedPolynomial<Poly> permuted_table_poly;
-  CHECK(prover->CommitEvalsWithBlind(permuted_evals_pair.table(),
-                                     &permuted_table_poly));
+  BlindedPolynomial<Poly> permuted_table_poly =
+      prover->CommitAndWriteToProofWithBlind(permuted_evals_pair.table());
 
   return {std::move(compressed_evals_pair), std::move(permuted_evals_pair),
           std::move(permuted_input_poly), std::move(permuted_table_poly)};

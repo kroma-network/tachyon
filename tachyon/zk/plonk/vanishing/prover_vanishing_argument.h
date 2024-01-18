@@ -41,7 +41,7 @@ template <typename PCS>
   // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/vanishing/prover.rs#L55-L56
   F random_blind = F::Zero();
 
-  if (!prover->Commit(random_poly)) return false;
+  prover->CommitAndWriteToProof(random_poly);
 
   *out = {std::move(random_poly), std::move(random_blind)};
   return true;
@@ -81,15 +81,12 @@ template <typename PCS, typename ExtendedEvals>
       });
 
   // Compute commitments to each h(X) piece
-  std::vector<bool> results = base::ParallelizeMapByChunkSize(
-      h_coeffs, prover->pcs().N(),
-      [prover](absl::Span<const F> h_piece, size_t chunk_index) {
-        return prover->Commit(h_piece);
-      });
-  if (std::any_of(results.begin(), results.end(),
-                  [](bool result) { return result == false; })) {
-    return false;
-  }
+  std::vector<typename PCS::Commitment> results =
+      base::ParallelizeMapByChunkSize(
+          h_coeffs, prover->pcs().N(),
+          [prover](absl::Span<const F> h_piece, size_t chunk_index) {
+            return prover->Commit(h_piece);
+          });
 
   // FIXME(TomTaehoonKim): Remove this if possible.
   std::vector<F> h_blinds =

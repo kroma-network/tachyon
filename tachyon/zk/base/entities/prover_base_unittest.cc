@@ -16,9 +16,7 @@ TEST_F(ProverBaseTest, CommitEvalsWithBlind) {
   Evals evals = domain->Random<Evals>();
 
   // setting struct to get output
-  BlindedPolynomial<Poly> out;
-  ASSERT_TRUE(prover_->CommitEvalsWithBlind(evals, &out));
-
+  BlindedPolynomial<Poly> out = prover_->CommitAndWriteToProofWithBlind(evals);
   EXPECT_EQ(out.poly(), prover_->domain()->IFFT(evals));
 }
 
