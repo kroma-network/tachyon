@@ -45,7 +45,7 @@ class PinnedVerifyingKey {
   const std::vector<Commitment>& fixed_commitments() const {
     return fixed_commitments_;
   }
-  const PermutationVerifyingKey<PCS>& permutation_verifying_key() const {
+  const PermutationVerifyingKey<Commitment>& permutation_verifying_key() const {
     return permutation_verifying_key_;
   }
 
@@ -55,7 +55,7 @@ class PinnedVerifyingKey {
   PinnedEvaluationDomain<F> domain_;
   PinnedConstraintSystem<F> constraint_system_;
   const std::vector<Commitment>& fixed_commitments_;
-  const PermutationVerifyingKey<PCS>& permutation_verifying_key_;
+  const PermutationVerifyingKey<Commitment>& permutation_verifying_key_;
 };
 
 }  // namespace zk::halo2

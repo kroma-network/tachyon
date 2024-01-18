@@ -44,7 +44,7 @@ class VerifyingKey : public Key<PCS> {
 
   const Commitments& fixed_commitments() const { return fixed_commitments_; }
 
-  const PermutationVerifyingKey<PCS>& permutation_verifying_key() const {
+  const PermutationVerifyingKey<Commitment>& permutation_verifying_key() const {
     return permutation_verifying_Key_;
   }
 
@@ -115,7 +115,7 @@ class VerifyingKey : public Key<PCS> {
   }
 
   Commitments fixed_commitments_;
-  PermutationVerifyingKey<PCS> permutation_verifying_Key_;
+  PermutationVerifyingKey<Commitment> permutation_verifying_Key_;
   ConstraintSystem<F> constraint_system_;
   // The representative of this |VerifyingKey| in transcripts.
   F transcript_repr_ = F::Zero();

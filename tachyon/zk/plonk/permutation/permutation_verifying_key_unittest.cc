@@ -17,7 +17,7 @@ namespace {
 
 class PermutationVerifyingKeyTest : public halo2::ProverTest {
  public:
-  using VerifyingKey = PermutationVerifyingKey<PCS>;
+  using VerifyingKey = PermutationVerifyingKey<Commitment>;
 };
 
 }  // namespace
