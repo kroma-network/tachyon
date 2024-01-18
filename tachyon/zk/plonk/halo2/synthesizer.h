@@ -97,6 +97,20 @@ class Synthesizer {
         [](std::pair<size_t, F>&& item) { return std::move(item.second); });
   }
 
+  // Move out |challenge_| as a vector.
+  std::vector<F> TakeChallenges() && {
+    return base::Map(
+        std::make_move_iterator(challenges_.begin()),
+        std::make_move_iterator(challenges_.end()),
+        [](std::pair<size_t, F>&& item) { return std::move(item.second); });
+  }
+  std::vector<std::vector<Evals>>&& TakeAdviceColumnsVec() && {
+    return std::move(advice_columns_vec_);
+  };
+  std::vector<std::vector<F>>&& TakeAdviceBlindsVec() && {
+    return std::move(advice_blinds_vec_);
+  };
+
  private:
   void SetAdviceColumn(size_t circuit_idx, size_t column_idx, Evals&& column,
                        F&& blind) {
