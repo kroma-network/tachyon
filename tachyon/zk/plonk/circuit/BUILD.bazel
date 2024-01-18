@@ -276,12 +276,14 @@ tachyon_cc_library(
     name = "selector_compressor",
     hdrs = ["selector_compressor.h"],
     deps = [
+        ":exclusion_matrix",
         ":selector_assignment",
         ":selector_description",
-        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:container_util",
         "//tachyon/base/containers:cxx20_erase",
         "//tachyon/base/functional:callback",
         "//tachyon/zk/expressions:expression_factory",
+        "@com_google_googletest//:gtest_prod",
     ],
 )
 

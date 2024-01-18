@@ -296,22 +296,23 @@ class ConstraintSystem {
     // We will not increase the degree of the constraint system, so we limit
     // ourselves to the largest existing degree constraint.
     std::vector<FixedColumnKey> new_columns;
-    typename SelectorCompressor<F>::Result result =
-        SelectorCompressor<F>::Process(
-            selectors, degrees, ComputeDegree(), [this, &new_columns]() {
-              FixedColumnKey column = CreateFixedColumn();
-              new_columns.push_back(column);
-              return ExpressionFactory<F>::Fixed(
-                  FixedQuery(QueryFixedIndex(column, Rotation::Cur()),
-                             Rotation::Cur(), FixedColumnKey(column.index())));
-            });
+    SelectorCompressor<F> selector_compressor;
+    selector_compressor.Process(
+        selectors, degrees, ComputeDegree(), [this, &new_columns]() {
+          FixedColumnKey column = CreateFixedColumn();
+          new_columns.push_back(column);
+          return ExpressionFactory<F>::Fixed(
+              FixedQuery(QueryFixedIndex(column, Rotation::Cur()),
+                         Rotation::Cur(), FixedColumnKey(column.index())));
+        });
 
     std::vector<FixedColumnKey> selector_map;
-    selector_map.resize(result.assignments.size());
+    selector_map.resize(selector_compressor.selector_assignments().size());
     std::vector<base::Ref<const Expression<F>>> selector_replacements =
-        base::CreateVector(result.assignments.size(),
+        base::CreateVector(selector_compressor.selector_assignments().size(),
                            base::Ref<const Expression<F>>());
-    for (const SelectorAssignment<F>& assignment : result.assignments) {
+    for (const SelectorAssignment<F>& assignment :
+         selector_compressor.selector_assignments()) {
       selector_replacements[assignment.selector_index()] =
           base::Ref<const Expression<F>>(assignment.expression());
       selector_map[assignment.selector_index()] =
@@ -336,7 +337,7 @@ class ConstraintSystem {
       }
     }
 
-    return result.polys;
+    return selector_compressor.combination_assignments();
   }
 
   // Allocate a new simple selector. Simple selectors cannot be added to
