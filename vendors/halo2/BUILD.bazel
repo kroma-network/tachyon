@@ -49,7 +49,6 @@ tachyon_rust_test(
 tachyon_cc_library(
     name = "bn254_api_hdrs",
     hdrs = [
-        "include/blake2b_writer_impl.h",
         "include/bn254_blake2b_writer.h",
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
@@ -69,7 +68,10 @@ rust_cxx_bridge(
 
 tachyon_cc_library(
     name = "bn254_blake2b_writer",
-    srcs = ["src/bn254_blake2b_writer.cc"],
+    srcs = [
+        "src/blake2b_writer_impl.h",
+        "src/bn254_blake2b_writer.cc",
+    ],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",

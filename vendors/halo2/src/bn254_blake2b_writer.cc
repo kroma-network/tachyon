@@ -1,7 +1,7 @@
 #include "vendors/halo2/include/bn254_blake2b_writer.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "vendors/halo2/include/blake2b_writer_impl.h"
+#include "vendors/halo2/src/blake2b_writer_impl.h"
 
 namespace tachyon::halo2_api::bn254 {
 
