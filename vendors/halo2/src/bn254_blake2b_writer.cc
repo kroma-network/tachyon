@@ -8,7 +8,7 @@ namespace tachyon::halo2_api::bn254 {
 class Blake2bWriter::Impl
     : public Blake2bWriterImpl<math::bn254::G1AffinePoint> {};
 
-Blake2bWriter::Blake2bWriter() : impl_(new Blake2bWriter::Impl()) {}
+Blake2bWriter::Blake2bWriter() : impl_(new Impl()) {}
 
 void Blake2bWriter::update(rust::Slice<const uint8_t> data) {
   return impl_->Update(data);
