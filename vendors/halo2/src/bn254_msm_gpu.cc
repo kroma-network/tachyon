@@ -1,8 +1,7 @@
 #include "vendors/halo2/include/bn254_msm_gpu.h"
 
-#include "vendors/halo2/src/bn254.rs.h"
-
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm_gpu.h"
+#include "vendors/halo2/src/bn254.rs.h"
 
 namespace tachyon::halo2_api::bn254 {
 
