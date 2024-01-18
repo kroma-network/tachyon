@@ -212,14 +212,12 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "halo2_unittests",
     srcs = [
-        "argument_unittest.cc",
         "blake2b_transcript_unittest.cc",
         "pinned_verifying_key_unittest.cc",
         "poseidon_transcript_unittest.cc",
         "proof_serializer_unittest.cc",
         "random_field_generator_unittest.cc",
         "sha256_transcript_unittest.cc",
-        "synthesizer_unittest.cc",
         "witness_collection_unittest.cc",
     ],
     deps = [
