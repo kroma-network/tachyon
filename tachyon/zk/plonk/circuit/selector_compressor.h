@@ -165,7 +165,7 @@ class SelectorCompressor {
         }
 
         d = new_d;
-        combination.push_back(selector);
+        combination.push_back(selectors[j]);
         combination_added.push_back(j);
         added[j] = true;
       }
