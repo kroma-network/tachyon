@@ -84,7 +84,7 @@ class TACHYON_EXPORT Buffer {
       typename Ptr, typename T = std::remove_pointer_t<Ptr>,
       std::enable_if_t<std::is_pointer_v<Ptr> &&
                        internal::IsBuiltinSerializable<T>::value>* = nullptr>
-  bool ReadAt(size_t buffer_offset, Ptr ptr) const {
+  [[nodiscard]] bool ReadAt(size_t buffer_offset, Ptr ptr) const {
     switch (endian_) {
       case Endian::kBig:
         if constexpr (sizeof(T) == 8) {
@@ -248,12 +248,12 @@ class TACHYON_EXPORT Buffer {
   [[nodiscard]] virtual bool Grow(size_t size) { return false; }
 
  protected:
-  bool Read16BEAt(size_t buffer_offset, uint16_t* ptr) const;
-  bool Read16LEAt(size_t buffer_offset, uint16_t* ptr) const;
-  bool Read32BEAt(size_t buffer_offset, uint32_t* ptr) const;
-  bool Read32LEAt(size_t buffer_offset, uint32_t* ptr) const;
-  bool Read64BEAt(size_t buffer_offset, uint64_t* ptr) const;
-  bool Read64LEAt(size_t buffer_offset, uint64_t* ptr) const;
+  [[nodiscard]] bool Read16BEAt(size_t buffer_offset, uint16_t* ptr) const;
+  [[nodiscard]] bool Read16LEAt(size_t buffer_offset, uint16_t* ptr) const;
+  [[nodiscard]] bool Read32BEAt(size_t buffer_offset, uint32_t* ptr) const;
+  [[nodiscard]] bool Read32LEAt(size_t buffer_offset, uint32_t* ptr) const;
+  [[nodiscard]] bool Read64BEAt(size_t buffer_offset, uint64_t* ptr) const;
+  [[nodiscard]] bool Read64LEAt(size_t buffer_offset, uint64_t* ptr) const;
 
   Endian endian_ = Endian::kNative;
 
