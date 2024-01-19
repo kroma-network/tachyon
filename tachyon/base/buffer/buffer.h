@@ -110,6 +110,13 @@ class TACHYON_EXPORT Buffer {
     return false;
   }
 
+  [[nodiscard]] bool Read16BEAt(size_t buffer_offset, uint16_t* ptr) const;
+  [[nodiscard]] bool Read16LEAt(size_t buffer_offset, uint16_t* ptr) const;
+  [[nodiscard]] bool Read32BEAt(size_t buffer_offset, uint32_t* ptr) const;
+  [[nodiscard]] bool Read32LEAt(size_t buffer_offset, uint32_t* ptr) const;
+  [[nodiscard]] bool Read64BEAt(size_t buffer_offset, uint64_t* ptr) const;
+  [[nodiscard]] bool Read64LEAt(size_t buffer_offset, uint64_t* ptr) const;
+
   template <
       typename T,
       std::enable_if_t<internal::IsNonBuiltinSerializable<T>::value>* = nullptr>
@@ -134,6 +141,30 @@ class TACHYON_EXPORT Buffer {
   template <typename T>
   [[nodiscard]] bool Read(T&& value) const {
     return ReadAt(buffer_offset_, std::forward<T>(value));
+  }
+
+  [[nodiscard]] bool Read16BE(uint16_t* ptr) const {
+    return Read16BEAt(buffer_offset_, ptr);
+  }
+
+  [[nodiscard]] bool Read16LE(uint16_t* ptr) const {
+    return Read16LEAt(buffer_offset_, ptr);
+  }
+
+  [[nodiscard]] bool Read32BE(uint32_t* ptr) const {
+    return Read32BEAt(buffer_offset_, ptr);
+  }
+
+  [[nodiscard]] bool Read32LE(uint32_t* ptr) const {
+    return Read32LEAt(buffer_offset_, ptr);
+  }
+
+  [[nodiscard]] bool Read64BE(uint64_t* ptr) const {
+    return Read64BEAt(buffer_offset_, ptr);
+  }
+
+  [[nodiscard]] bool Read64LE(uint64_t* ptr) const {
+    return Read64LEAt(buffer_offset_, ptr);
   }
 
   template <typename T>
@@ -166,6 +197,30 @@ class TACHYON_EXPORT Buffer {
   template <typename T>
   [[nodiscard]] bool Write(const T& value) {
     return WriteAt(buffer_offset_, value);
+  }
+
+  [[nodiscard]] bool Write16BE(uint16_t value) {
+    return Write16BEAt(buffer_offset_, value);
+  }
+
+  [[nodiscard]] bool Write16LE(uint16_t value) {
+    return Write16LEAt(buffer_offset_, value);
+  }
+
+  [[nodiscard]] bool Write32BE(uint32_t value) {
+    return Write32BEAt(buffer_offset_, value);
+  }
+
+  [[nodiscard]] bool Write32LE(uint32_t value) {
+    return Write32LEAt(buffer_offset_, value);
+  }
+
+  [[nodiscard]] bool Write64BE(uint64_t value) {
+    return Write64BEAt(buffer_offset_, value);
+  }
+
+  [[nodiscard]] bool Write64LE(uint64_t value) {
+    return Write64LEAt(buffer_offset_, value);
   }
 
   template <typename T>
@@ -248,13 +303,6 @@ class TACHYON_EXPORT Buffer {
   [[nodiscard]] virtual bool Grow(size_t size) { return false; }
 
  protected:
-  [[nodiscard]] bool Read16BEAt(size_t buffer_offset, uint16_t* ptr) const;
-  [[nodiscard]] bool Read16LEAt(size_t buffer_offset, uint16_t* ptr) const;
-  [[nodiscard]] bool Read32BEAt(size_t buffer_offset, uint32_t* ptr) const;
-  [[nodiscard]] bool Read32LEAt(size_t buffer_offset, uint32_t* ptr) const;
-  [[nodiscard]] bool Read64BEAt(size_t buffer_offset, uint64_t* ptr) const;
-  [[nodiscard]] bool Read64LEAt(size_t buffer_offset, uint64_t* ptr) const;
-
   Endian endian_ = Endian::kNative;
 
   void* buffer_ = nullptr;
