@@ -34,8 +34,8 @@ class UnivariatePolynomialCommitmentScheme
     return derived->DoCommit(poly, result);
   }
 
-  // Commit to |poly| and populates |result| with the commitment.
-  // Return false if the degree of |poly| exceeds |kMaxDegree|.
+  // Commit to |evals| and populates |result| with the commitment.
+  // Return false if the degree of |evals| exceeds |kMaxDegree|.
   [[nodiscard]] bool CommitLagrange(const Evals& evals,
                                     Commitment* result) const {
     const Derived* derived = static_cast<const Derived*>(this);
