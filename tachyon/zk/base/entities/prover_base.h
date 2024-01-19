@@ -41,37 +41,65 @@ class ProverBase : public Entity<PCS> {
     return this->domain_->size() - (blinder_.blinding_factors() + 1);
   }
 
-  [[nodiscard]] bool Commit(const Poly& poly) {
+  Commitment Commit(const Poly& poly) {
     Commitment commitment;
-    if (!this->pcs_.Commit(poly, &commitment)) return false;
-    return GetWriter()->WriteToProof(commitment);
+    CHECK(this->pcs_.Commit(poly, &commitment));
+    return commitment;
+  }
+
+  void CommitAndWriteToTranscript(const Poly& poly) {
+    Commitment commitment = Commit(poly);
+    CHECK(GetWriter()->WriteToTranscript(commitment));
+  }
+
+  void CommitAndWriteToProof(const Poly& poly) {
+    Commitment commitment = Commit(poly);
+    CHECK(GetWriter()->WriteToProof(commitment));
   }
 
   template <typename Container>
-  [[nodiscard]] bool Commit(const Container& coeffs) {
+  Commitment Commit(const Container& coeffs) {
     Commitment commitment;
-    if (!this->pcs_.DoCommit(coeffs, &commitment)) return false;
-    return GetWriter()->WriteToProof(commitment);
+    CHECK(this->pcs_.DoCommit(coeffs, &commitment));
+    return commitment;
   }
 
-  [[nodiscard]] bool CommitEvals(const Evals& evals) {
-    if (evals.NumElements() != this->domain_->size()) return false;
+  template <typename Container>
+  void CommitAndWriteToTranscript(const Container& coeffs) {
+    Commitment commitment = Commit(coeffs);
+    CHECK(GetWriter()->WriteToTranscript(commitment));
+  }
 
+  template <typename Container>
+  void CommitAndWriteToProof(const Container& coeffs) {
+    Commitment commitment = Commit(coeffs);
+    CHECK(GetWriter()->WriteToProof(commitment));
+  }
+
+  Commitment Commit(const Evals& evals) {
     Commitment commitment;
-    if (!this->pcs_.CommitLagrange(evals, &commitment)) return false;
-    return GetWriter()->WriteToProof(commitment);
+    CHECK(this->pcs_.CommitLagrange(evals, &commitment));
+    return commitment;
   }
 
-  [[nodiscard]] bool CommitEvalsWithBlind(const Evals& evals,
-                                          BlindedPolynomial<Poly>* out) {
-    if (!CommitEvals(evals)) return false;
-    *out = {this->domain_->IFFT(evals), blinder_.Generate()};
-    return true;
+  void CommitAndWriteToTranscript(const Evals& evals) {
+    Commitment commitment = Commit(evals);
+    CHECK(GetWriter()->WriteToTranscript(commitment));
   }
 
-  [[nodiscard]] bool Evaluate(const Poly& poly, const F& x) {
+  void CommitAndWriteToProof(const Evals& evals) {
+    Commitment commitment = Commit(evals);
+    CHECK(GetWriter()->WriteToProof(commitment));
+  }
+
+  BlindedPolynomial<Poly> CommitAndWriteToProofWithBlind(const Evals& evals) {
+    CommitAndWriteToProof(evals);
+    return {this->domain_->IFFT(evals), blinder_.Generate()};
+  }
+
+  void EvaluateAndWriteToProof(const Poly& poly, const F& x) {
     F result = poly.Evaluate(x);
-    return GetWriter()->WriteToProof(result);
+    CHECK(GetWriter()->WriteToProof(result));
   }
 
  protected:
