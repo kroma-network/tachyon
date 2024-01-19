@@ -286,7 +286,7 @@ class Verifier : public VerifierBase<PCS> {
     const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
     size_t polys_size = std::accumulate(gates.begin(), gates.end(), 0,
                                         [](size_t acc, const Gate<F>& gate) {
-                                          return acc += gate.polys().size();
+                                          return acc + gate.polys().size();
                                         });
     size_t expressions_size =
         num_circuits *
