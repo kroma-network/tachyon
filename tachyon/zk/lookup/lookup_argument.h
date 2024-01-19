@@ -22,7 +22,7 @@ template <typename F>
 class LookupArgument {
  public:
   LookupArgument() = default;
-  LookupArgument(const std::string_view& name,
+  LookupArgument(std::string_view name,
                  LookupPairs<std::unique_ptr<Expression<F>>> pairs)
       : name_(std::string(name)) {
     input_expressions_.reserve(pairs.size());
