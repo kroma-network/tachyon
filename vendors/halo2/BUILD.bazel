@@ -46,6 +46,15 @@ tachyon_rust_test(
     ]),
 )
 
+rust_cxx_bridge(
+    name = "bn254_cxx_bridge",
+    src = "src/bn254.rs",
+    args = if_gpu_is_configured([
+        '--cfg=feature="gpu"',
+    ]),
+    deps = [":bn254_api_hdrs"],
+)
+
 tachyon_cc_library(
     name = "bn254_api_hdrs",
     hdrs = [
@@ -55,15 +64,6 @@ tachyon_cc_library(
         "include/bn254_prover.h",
     ],
     deps = ["@cxx.rs//:core"],
-)
-
-rust_cxx_bridge(
-    name = "bn254_cxx_bridge",
-    src = "src/bn254.rs",
-    args = if_gpu_is_configured([
-        '--cfg=feature="gpu"',
-    ]),
-    deps = [":bn254_api_hdrs"],
 )
 
 tachyon_cc_library(
