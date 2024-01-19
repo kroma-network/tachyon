@@ -103,14 +103,24 @@ class UnivariateSparseCoefficients {
       const std::vector<Term>& terms)
       : terms_(terms) {
     CHECK_LE(Degree(), kMaxDegree);
-    DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
     RemoveHighDegreeZeros();
   }
   constexpr explicit UnivariateSparseCoefficients(std::vector<Term>&& terms)
       : terms_(std::move(terms)) {
     CHECK_LE(Degree(), kMaxDegree);
-    DCHECK(base::ranges::is_sorted(terms_.begin(), terms_.end()));
     RemoveHighDegreeZeros();
+  }
+
+  constexpr static UnivariateSparseCoefficients CreateChecked(
+      const std::vector<Term>& terms) {
+    CHECK(base::ranges::is_sorted(terms.begin(), terms.end()));
+    return UnivariateSparseCoefficients(terms);
+  }
+
+  constexpr static UnivariateSparseCoefficients CreateChecked(
+      std::vector<Term>&& terms) {
+    CHECK(base::ranges::is_sorted(terms.begin(), terms.end()));
+    return UnivariateSparseCoefficients(std::move(terms));
   }
 
   constexpr static UnivariateSparseCoefficients Zero() {

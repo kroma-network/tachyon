@@ -212,6 +212,50 @@ TEST_F(MultivariatePolynomialTest, IsOne) {
   }
 }
 
+TEST_F(MultivariatePolynomialTest, CreateChecked) {
+  EXPECT_DEATH(Coeffs::CreateChecked(2,
+                                     {
+                                         {
+                                             {
+                                                 {
+                                                     {1, 1}  // Element
+                                                 }           // vector<Element>
+                                             },              // Literal
+                                             GF7(1)          // coefficient
+                                         },                  // Term
+                                         {
+                                             {
+                                                 {
+                                                     {0, 1}  // Element
+                                                 }           // vector<Element>
+                                             },              // Literal
+                                             GF7(1)          // coefficient
+                                         }                   // Term
+                                     }),                     // vector<Term>
+               "");
+  EXPECT_EQ(Poly(Coeffs::CreateChecked(2,
+                                       {
+                                           {
+                                               {
+                                                   {
+                                                       {0, 1}  // Element
+                                                   }   // vector<Element>
+                                               },      // Literal
+                                               GF7(1)  // coefficient
+                                           },          // Term
+                                           {
+                                               {
+                                                   {
+                                                       {1, 1}  // Element
+                                                   }   // vector<Element>
+                                               },      // Literal
+                                               GF7(1)  // coefficient
+                                           }           // Term
+                                       }))             // vector<Term>
+            ,
+            polys_[3]);
+}
+
 TEST_F(MultivariatePolynomialTest, Random) {
   bool success = false;
   Poly r = Poly::Random(kNumVars, kMaxDegree);

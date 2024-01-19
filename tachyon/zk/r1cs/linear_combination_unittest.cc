@@ -15,6 +15,15 @@ class LinearCombinationTest : public testing::Test {
   static void SetUpTestSuite() { F::Init(); }
 };
 
+void TestDeduplicate(const std::vector<Term<F>>& terms,
+                     const LinearCombination<F>& expected_lc) {
+  LinearCombination<F> lc(terms);
+  lc.Deduplicate();
+  EXPECT_EQ(lc, expected_lc);
+  EXPECT_EQ(LinearCombination<F>::CreateDeduplicated(terms), expected_lc);
+  EXPECT_TRUE(lc.IsSorted());
+}
+
 // |lc| is copied on purpose.
 template <typename T>
 void TestAddition(LinearCombination<F> lc, const T& value,
@@ -39,21 +48,12 @@ TEST_F(LinearCombinationTest, Deduplicate) {
   Variable zero = Variable::Zero();
   Variable one = Variable::One();
 
-  LinearCombination<F> lc;
-  lc.Deduplicate();
-  LinearCombination<F> expected_lc;
-  EXPECT_EQ(lc, expected_lc);
-
-  lc = LinearCombination<F>({{F(2), zero}, {F(3), zero}});
-  lc.Deduplicate();
-  expected_lc = LinearCombination<F>({{F(5), zero}});
-  EXPECT_EQ(lc, expected_lc);
-
-  lc = LinearCombination<F>(
-      {{F(2), zero}, {F(3), one}, {F(2), one}, {F(2), zero}, {F(1), one}});
-  lc.Deduplicate();
-  expected_lc = LinearCombination<F>({{F(4), zero}, {F(6), one}});
-  EXPECT_EQ(lc, expected_lc);
+  TestDeduplicate({}, LinearCombination<F>());
+  TestDeduplicate({{F(2), zero}, {F(3), zero}},
+                  LinearCombination<F>({{F(5), zero}}));
+  TestDeduplicate(
+      {{F(2), zero}, {F(3), one}, {F(2), one}, {F(2), zero}, {F(1), one}},
+      LinearCombination<F>({{F(4), zero}, {F(6), one}}));
 }
 
 TEST_F(LinearCombinationTest, AdditionTerm) {
