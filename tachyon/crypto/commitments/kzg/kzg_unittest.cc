@@ -18,6 +18,9 @@ class KZGTest : public testing::Test {
  public:
   using PCS =
       KZG<math::bn254::G1AffinePoint, kMaxDegree, math::bn254::G1AffinePoint>;
+  using Domain = math::UnivariateEvaluationDomain<math::bn254::Fr, kMaxDegree>;
+  using Poly = math::UnivariateDensePolynomial<math::bn254::Fr, kMaxDegree>;
+  using Evals = math::UnivariateEvaluations<math::bn254::Fr, kMaxDegree>;
 
   static void SetUpTestSuite() { math::bn254::G1Curve::Init(); }
 };
@@ -34,10 +37,6 @@ TEST_F(KZGTest, UnsafeSetup) {
 }
 
 TEST_F(KZGTest, CommitLagrange) {
-  using Domain = math::UnivariateEvaluationDomain<math::bn254::Fr, kMaxDegree>;
-  using Poly = math::UnivariateDensePolynomial<math::bn254::Fr, kMaxDegree>;
-  using Evals = math::UnivariateEvaluations<math::bn254::Fr, kMaxDegree>;
-
   PCS pcs;
   ASSERT_TRUE(pcs.UnsafeSetup(N));
 
