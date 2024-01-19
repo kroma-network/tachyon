@@ -25,6 +25,7 @@ template <typename G1Point, size_t MaxDegree,
 class KZG {
  public:
   using Field = typename G1Point::ScalarField;
+  using Bucket = typename math::Pippenger<G1Point>::Bucket;
 
   static constexpr size_t kMaxDegree = MaxDegree;
 
@@ -101,8 +102,6 @@ class KZG {
   template <typename BaseContainer, typename ScalarContainer>
   static bool DoMSM(const BaseContainer& bases, const ScalarContainer& scalars,
                     Commitment* out) {
-    using Bucket = typename math::Pippenger<G1Point>::Bucket;
-
     math::VariableBaseMSM<G1Point> msm;
     absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
         bases.data(), std::min(bases.size(), scalars.size()));

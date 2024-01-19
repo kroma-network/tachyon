@@ -29,6 +29,7 @@ class Pedersen final
     : public VectorCommitmentScheme<Pedersen<Point, MaxSize, Commitment>> {
  public:
   using Field = typename Point::ScalarField;
+  using Bucket = typename math::Pippenger<Point>::Bucket;
 
   Pedersen() = default;
   Pedersen(const Point& h, const std::vector<Point>& generators)
@@ -76,8 +77,6 @@ class Pedersen final
   // clang-format on
   bool DoCommit(const std::vector<Field>& v, const Field& r,
                 Commitment* out) const {
-    using Bucket = typename math::Pippenger<Point>::Bucket;
-
     math::VariableBaseMSM<Point> msm;
     Bucket result;
     if (!msm.Run(generators_, v, &result)) return false;
