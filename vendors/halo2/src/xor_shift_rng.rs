@@ -7,11 +7,20 @@ pub mod ffi {
 
         fn new_xor_shift_rng(seed: [u8; 16]) -> UniquePtr<XORShiftRng>;
         fn next_u32(self: Pin<&mut XORShiftRng>) -> u32;
+        fn clone(&self) -> UniquePtr<XORShiftRng>;
     }
 }
 
 struct XORShiftRng {
     inner: cxx::UniquePtr<ffi::XORShiftRng>,
+}
+
+impl Clone for XORShiftRng {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+        }
+    }
 }
 
 impl rand_core::SeedableRng for XORShiftRng {
@@ -60,5 +69,16 @@ mod test {
         let random_u64s = (0..LEN).map(|_| rng.next_u64()).collect::<Vec<_>>();
         let random_u64s_tachyon = (0..LEN).map(|_| rng_tachyon.next_u64()).collect::<Vec<_>>();
         assert_eq!(random_u64s, random_u64s_tachyon);
+    }
+
+    #[test]
+    fn test_clone() {
+        let mut rng = crate::xor_shift_rng::XORShiftRng::from_seed(SEED);
+        let mut rng_clone = rng.clone();
+
+        const LEN: i32 = 100;
+        let random_u64s = (0..LEN).map(|_| rng.next_u64()).collect::<Vec<_>>();
+        let random_u64s_clone = (0..LEN).map(|_| rng_clone.next_u64()).collect::<Vec<_>>();
+        assert_eq!(random_u64s, random_u64s_clone);
     }
 }

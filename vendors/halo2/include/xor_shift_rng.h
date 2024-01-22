@@ -12,9 +12,11 @@ namespace tachyon::halo2_api {
 
 class XORShiftRng {
  public:
+  XORShiftRng() = default;
   explicit XORShiftRng(std::array<uint8_t, 16> seed);
 
   uint32_t next_u32();
+  std::unique_ptr<XORShiftRng> clone() const;
 
  private:
   class Impl;

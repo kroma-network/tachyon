@@ -11,6 +11,7 @@ class XORShiftRng::Impl {
     memcpy(seed_copy, seed.data(), 16);
     rng_ = crypto::XORShiftRNG::FromSeed(seed_copy);
   }
+  Impl(const Impl& other) : rng_(other.rng_) {}
 
   uint32_t NextUint32() { return rng_.NextUint32(); }
 
@@ -22,6 +23,12 @@ XORShiftRng::XORShiftRng(std::array<uint8_t, 16> seed)
     : impl_(new Impl(seed)) {}
 
 uint32_t XORShiftRng::next_u32() { return impl_->NextUint32(); }
+
+std::unique_ptr<XORShiftRng> XORShiftRng::clone() const {
+  std::unique_ptr<XORShiftRng> ret(new XORShiftRng());
+  ret->impl_.reset(new Impl(*impl_));
+  return ret;
+}
 
 std::unique_ptr<XORShiftRng> new_xor_shift_rng(std::array<uint8_t, 16> seed) {
   return std::make_unique<XORShiftRng>(seed);
