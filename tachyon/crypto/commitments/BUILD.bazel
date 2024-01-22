@@ -3,6 +3,12 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "batch_commitment_state",
+    hdrs = ["batch_commitment_state.h"],
+    deps = ["//tachyon:export"],
+)
+
+tachyon_cc_library(
     name = "polynomial_openings",
     hdrs = ["polynomial_openings.h"],
     deps = [
@@ -29,6 +35,7 @@ tachyon_cc_library(
     name = "vector_commitment_scheme",
     hdrs = ["vector_commitment_scheme.h"],
     deps = [
+        ":batch_commitment_state",
         ":vector_commitment_scheme_traits_forward",
         "//tachyon/base:bits",
     ],

@@ -54,6 +54,42 @@ TEST_F(KZGTest, CommitLagrange) {
   EXPECT_EQ(commit, commit_lagrange);
 }
 
+TEST_F(KZGTest, BatchCommitLagrange) {
+  PCS pcs;
+  ASSERT_TRUE(pcs.UnsafeSetup(N));
+
+  size_t num_polys = 10;
+  std::vector<Poly> polys =
+      base::CreateVector(num_polys, []() { return Poly::Random(N - 1); });
+
+  BatchCommitmentState state(true, num_polys);
+  pcs.ResizeBatchCommitments(num_polys);
+  for (size_t i = 0; i < num_polys; ++i) {
+    ASSERT_TRUE(pcs.Commit(polys[i].coefficients().coefficients(), state, i));
+  }
+  std::vector<math::bn254::G1AffinePoint> batch_commitments =
+      pcs.GetBatchCommitments(state);
+  EXPECT_EQ(state.batch_mode, false);
+  EXPECT_EQ(state.batch_count, size_t{0});
+
+  std::unique_ptr<Domain> domain = Domain::Create(N);
+  std::vector<Evals> poly_evals = base::Map(
+      polys, [&domain](const Poly& poly) { return domain->FFT(poly); });
+
+  state.batch_mode = true;
+  state.batch_count = num_polys;
+  pcs.ResizeBatchCommitments(num_polys);
+  for (size_t i = 0; i < num_polys; ++i) {
+    ASSERT_TRUE(pcs.CommitLagrange(poly_evals[i].evaluations(), state, i));
+  }
+  std::vector<math::bn254::G1AffinePoint> batch_commitments_lagrange =
+      pcs.GetBatchCommitments(state);
+  EXPECT_EQ(state.batch_mode, false);
+  EXPECT_EQ(state.batch_count, size_t{0});
+
+  EXPECT_EQ(batch_commitments, batch_commitments_lagrange);
+}
+
 TEST_F(KZGTest, Downsize) {
   PCS pcs;
   ASSERT_TRUE(pcs.UnsafeSetup(N));

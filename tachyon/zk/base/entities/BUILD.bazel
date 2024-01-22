@@ -14,6 +14,7 @@ tachyon_cc_library(
     deps = [
         ":entity",
         "//tachyon/base:logging",
+        "//tachyon/crypto/commitments:vector_commitment_scheme_traits_forward",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:blinder",
     ],

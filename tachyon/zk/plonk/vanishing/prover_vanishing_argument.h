@@ -53,6 +53,7 @@ template <typename PCS, typename ExtendedEvals>
     const VerifyingKey<PCS>& vk, ExtendedEvals& circuit_column,
     VanishingConstructed<PCS>* constructed_out) {
   using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
   using Poly = typename PCS::Poly;
   using Coeffs = typename Poly::Coefficients;
   using ExtendedPoly = typename PCS::ExtendedPoly;
@@ -81,12 +82,23 @@ template <typename PCS, typename ExtendedEvals>
       });
 
   // Compute commitments to each h(X) piece
-  std::vector<typename PCS::Commitment> results =
-      base::ParallelizeMapByChunkSize(
-          h_coeffs, prover->pcs().N(),
-          [prover](absl::Span<const F> h_piece, size_t chunk_index) {
-            return prover->Commit(h_piece);
-          });
+  if constexpr (PCS::kSupportsBatchMode) {
+    prover->pcs().SetBatchMode(h_pieces.size());
+    base::ParallelizeByChunkSize(
+        h_coeffs, prover->pcs().N(),
+        [prover](absl::Span<const F> h_piece, size_t chunk_index) {
+          prover->BatchCommitAt(h_piece, chunk_index);
+        });
+    prover->RetrieveAndWriteBatchCommitmentsToProof();
+  } else {
+    std::vector<Commitment> commitments = base::ParallelizeMapByChunkSize(
+        h_coeffs, prover->pcs().N(), [prover](absl::Span<const F> h_piece) {
+          return prover->Commit(h_piece);
+        });
+    for (const Commitment& commitment : commitments) {
+      if (!prover->GetWriter()->WriteToProof(commitment)) return false;
+    }
+  }
 
   // FIXME(TomTaehoonKim): Remove this if possible.
   std::vector<F> h_blinds =

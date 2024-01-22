@@ -7,10 +7,14 @@
 #ifndef TACHYON_ZK_BASE_ENTITIES_PROVER_BASE_H_
 #define TACHYON_ZK_BASE_ENTITIES_PROVER_BASE_H_
 
+#include <stddef.h>
+
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/crypto/commitments/vector_commitment_scheme_traits_forward.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/blinder.h"
 #include "tachyon/zk/base/entities/entity.h"
@@ -47,6 +51,13 @@ class ProverBase : public Entity<PCS> {
     return commitment;
   }
 
+  template <typename T = PCS,
+            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
+                T>::kSupportsBatchMode>* = nullptr>
+  void BatchCommitAt(const Poly& poly, size_t index) {
+    CHECK(this->pcs_.Commit(poly, index));
+  }
+
   void CommitAndWriteToTranscript(const Poly& poly) {
     Commitment commitment = Commit(poly);
     CHECK(GetWriter()->WriteToTranscript(commitment));
@@ -62,6 +73,14 @@ class ProverBase : public Entity<PCS> {
     Commitment commitment;
     CHECK(this->pcs_.DoCommit(coeffs, &commitment));
     return commitment;
+  }
+
+  template <typename T = PCS, typename Container,
+            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
+                T>::kSupportsBatchMode>* = nullptr>
+  void BatchCommitAt(const Container& coeffs, size_t index) {
+    CHECK(this->pcs_.DoCommit(coeffs, this->pcs_.batch_commitment_state(),
+                              index));
   }
 
   template <typename Container>
@@ -82,6 +101,13 @@ class ProverBase : public Entity<PCS> {
     return commitment;
   }
 
+  template <typename T = PCS,
+            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
+                T>::kSupportsBatchMode>* = nullptr>
+  void BatchCommitAt(const Evals& evals, size_t index) {
+    CHECK(this->pcs_.CommitLagrange(evals, index));
+  }
+
   void CommitAndWriteToTranscript(const Evals& evals) {
     Commitment commitment = Commit(evals);
     CHECK(GetWriter()->WriteToTranscript(commitment));
@@ -100,6 +126,16 @@ class ProverBase : public Entity<PCS> {
   void EvaluateAndWriteToProof(const Poly& poly, const F& x) {
     F result = poly.Evaluate(x);
     CHECK(GetWriter()->WriteToProof(result));
+  }
+
+  template <typename T = PCS,
+            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
+                T>::kSupportsBatchMode>* = nullptr>
+  void RetrieveAndWriteBatchCommitmentsToProof() {
+    std::vector<Commitment> commitments = this->pcs_.GetBatchCommitments();
+    for (const Commitment& commitment : commitments) {
+      CHECK(GetWriter()->WriteToProof(commitment));
+    }
   }
 
  protected:

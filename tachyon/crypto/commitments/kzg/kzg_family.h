@@ -7,6 +7,8 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_FAMILY_H_
 #define TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_FAMILY_H_
 
+#include <stddef.h>
+
 #include <utility>
 
 #include "tachyon/crypto/commitments/kzg/kzg.h"
@@ -41,9 +43,22 @@ class KZGFamily {
   }
 
   template <typename ScalarContainer>
+  [[nodiscard]] bool DoCommit(const ScalarContainer& poly,
+                              BatchCommitmentState& state, size_t index) {
+    return kzg_.Commit(poly, state, index);
+  }
+
+  template <typename ScalarContainer>
   [[nodiscard]] bool DoCommitLagrange(const ScalarContainer& poly,
                                       Commitment* commitment) const {
     return kzg_.CommitLagrange(poly, commitment);
+  }
+
+  template <typename ScalarContainer>
+  [[nodiscard]] bool DoCommitLagrange(const ScalarContainer& poly,
+                                      BatchCommitmentState& state,
+                                      size_t index) {
+    return kzg_.CommitLagrange(poly, state, index);
   }
 
   [[nodiscard]] bool DoCommit(
@@ -52,10 +67,22 @@ class KZGFamily {
     return kzg_.Commit(poly.coefficients().coefficients(), commitment);
   }
 
+  [[nodiscard]] bool DoCommit(
+      const math::UnivariateDensePolynomial<F, MaxDegree>& poly,
+      BatchCommitmentState& state, size_t index) {
+    return kzg_.Commit(poly.coefficients().coefficients(), state, index);
+  }
+
   [[nodiscard]] bool DoCommitLagrange(
       const math::UnivariateEvaluations<F, MaxDegree>& evals,
       Commitment* commitment) const {
     return kzg_.CommitLagrange(evals.evaluations(), commitment);
+  }
+
+  [[nodiscard]] bool DoCommitLagrange(
+      const math::UnivariateEvaluations<F, MaxDegree>& evals,
+      BatchCommitmentState& state, size_t index) {
+    return kzg_.CommitLagrange(evals.evaluations(), state, index);
   }
 
  protected:

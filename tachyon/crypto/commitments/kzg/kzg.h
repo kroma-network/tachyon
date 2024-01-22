@@ -7,12 +7,16 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_H_
 #define TACHYON_CRYPTO_COMMITMENTS_KZG_KZG_H_
 
+#include <stddef.h>
+
 #include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/buffer/copyable.h"
+#include "tachyon/base/logging.h"
+#include "tachyon/crypto/commitments/batch_commitment_state.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
@@ -45,6 +49,21 @@ class KZG {
 
   const std::vector<G1Point>& g1_powers_of_tau_lagrange() const {
     return g1_powers_of_tau_lagrange_;
+  }
+
+  void ResizeBatchCommitments(size_t size) { batch_commitments_.resize(size); }
+
+  std::vector<Commitment> GetBatchCommitments(BatchCommitmentState& state) {
+    std::vector<Commitment> batch_commitments;
+    if constexpr (std::is_same_v<Commitment, Bucket>) {
+      batch_commitments = std::move(batch_commitments_);
+    } else {
+      batch_commitments.resize(batch_commitments_.size());
+      CHECK(Bucket::BatchNormalize(batch_commitments_, &batch_commitments));
+      batch_commitments_.clear();
+    }
+    state.Reset();
+    return batch_commitments;
   }
 
   size_t N() const { return g1_powers_of_tau_.size(); }
@@ -93,9 +112,21 @@ class KZG {
   }
 
   template <typename ScalarContainer>
+  [[nodiscard]] bool Commit(const ScalarContainer& v,
+                            BatchCommitmentState& state, size_t index) {
+    return DoMSM(g1_powers_of_tau_, v, state, index);
+  }
+
+  template <typename ScalarContainer>
   [[nodiscard]] bool CommitLagrange(const ScalarContainer& v,
                                     Commitment* out) const {
     return DoMSM(g1_powers_of_tau_lagrange_, v, out);
+  }
+
+  template <typename ScalarContainer>
+  [[nodiscard]] bool CommitLagrange(const ScalarContainer& v,
+                                    BatchCommitmentState& state, size_t index) {
+    return DoMSM(g1_powers_of_tau_lagrange_, v, state, index);
   }
 
  private:
@@ -115,8 +146,18 @@ class KZG {
     }
   }
 
+  template <typename BaseContainer, typename ScalarContainer>
+  bool DoMSM(const BaseContainer& bases, const ScalarContainer& scalars,
+             BatchCommitmentState& state, size_t index) {
+    math::VariableBaseMSM<G1Point> msm;
+    absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
+        bases.data(), std::min(bases.size(), scalars.size()));
+    return msm.Run(bases_span, scalars, &batch_commitments_[index]);
+  }
+
   std::vector<G1Point> g1_powers_of_tau_;
   std::vector<G1Point> g1_powers_of_tau_lagrange_;
+  std::vector<Bucket> batch_commitments_;
 };
 
 }  // namespace crypto
