@@ -30,7 +30,7 @@ class V1Plan {
   void set_regions(std::vector<size_t>&& regions) {
     regions_ = std::move(regions);
   }
-  std::vector<Constant<F>>& constants() { return constants_; }
+  Constants<F>& constants() { return constants_; }
   std::vector<LookupTableColumn>& table_columns() { return table_columns_; }
 
  private:
@@ -40,7 +40,7 @@ class V1Plan {
   std::vector<size_t> regions_;
   // Stores the constants to be assigned, and the cells to which
   // they are copied.
-  std::vector<Constant<F>> constants_;
+  Constants<F> constants_;
   // Stores the table fixed columns.
   std::vector<LookupTableColumn> table_columns_;
 };
