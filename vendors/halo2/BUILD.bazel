@@ -20,6 +20,8 @@ tachyon_rust_library(
         ":bn254_msm",
         ":bn254_msm_gpu",
         ":bn254_prover",
+        ":xor_shift_rng",
+        ":xor_shift_rng_cxx_bridge",
     ],
 )
 
@@ -46,18 +48,6 @@ tachyon_rust_test(
     ]),
 )
 
-tachyon_cc_library(
-    name = "bn254_api_hdrs",
-    hdrs = [
-        "include/blake2b_writer_impl.h",
-        "include/bn254_blake2b_writer.h",
-        "include/bn254_msm.h",
-        "include/bn254_msm_gpu.h",
-        "include/bn254_prover.h",
-    ],
-    deps = ["@cxx.rs//:core"],
-)
-
 rust_cxx_bridge(
     name = "bn254_cxx_bridge",
     src = "src/bn254.rs",
@@ -67,9 +57,29 @@ rust_cxx_bridge(
     deps = [":bn254_api_hdrs"],
 )
 
+rust_cxx_bridge(
+    name = "xor_shift_rng_cxx_bridge",
+    src = "src/xor_shift_rng.rs",
+    deps = [":xor_shift_rng_api_hdrs"],
+)
+
+tachyon_cc_library(
+    name = "bn254_api_hdrs",
+    hdrs = [
+        "include/bn254_blake2b_writer.h",
+        "include/bn254_msm.h",
+        "include/bn254_msm_gpu.h",
+        "include/bn254_prover.h",
+    ],
+    deps = ["@cxx.rs//:core"],
+)
+
 tachyon_cc_library(
     name = "bn254_blake2b_writer",
-    srcs = ["src/bn254_blake2b_writer.cc"],
+    srcs = [
+        "src/blake2b_writer_impl.h",
+        "src/bn254_blake2b_writer.cc",
+    ],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
@@ -104,5 +114,21 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "xor_shift_rng_api_hdrs",
+    hdrs = ["include/xor_shift_rng.h"],
+    deps = ["@cxx.rs//:core"],
+)
+
+tachyon_cc_library(
+    name = "xor_shift_rng",
+    srcs = ["src/xor_shift_rng.cc"],
+    deps = [
+        ":xor_shift_rng_api_hdrs",
+        ":xor_shift_rng_cxx_bridge/include",
+        "//tachyon/crypto/random/xor_shift:xor_shift_rng",
     ],
 )

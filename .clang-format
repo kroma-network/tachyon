@@ -27,7 +27,7 @@ IncludeCategories:
   - Regex:    '^<'
     Priority: 40
   # Your project's h files.
-  - Regex:    '^"tachyon'
+  - Regex:    '^"(tachyon|vendors)'
     Priority: 50
   # Other libraries' h files (with quotes).
   - Regex:    '^"'

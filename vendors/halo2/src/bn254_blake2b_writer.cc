@@ -1,15 +1,14 @@
 #include "vendors/halo2/include/bn254_blake2b_writer.h"
 
-#include "vendors/halo2/include/blake2b_writer_impl.h"
-
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "vendors/halo2/src/blake2b_writer_impl.h"
 
 namespace tachyon::halo2_api::bn254 {
 
 class Blake2bWriter::Impl
     : public Blake2bWriterImpl<math::bn254::G1AffinePoint> {};
 
-Blake2bWriter::Blake2bWriter() : impl_(new Blake2bWriter::Impl()) {}
+Blake2bWriter::Blake2bWriter() : impl_(new Impl()) {}
 
 void Blake2bWriter::update(rust::Slice<const uint8_t> data) {
   return impl_->Update(data);
