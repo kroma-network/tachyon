@@ -45,7 +45,7 @@ class VerifyingKey : public Key<PCS> {
   const Commitments& fixed_commitments() const { return fixed_commitments_; }
 
   const PermutationVerifyingKey<Commitment>& permutation_verifying_key() const {
-    return permutation_verifying_Key_;
+    return permutation_verifying_key_;
   }
 
   const ConstraintSystem<F>& constraint_system() const {
@@ -76,7 +76,7 @@ class VerifyingKey : public Key<PCS> {
     std::vector<Evals> permutations =
         pre_load_result.assembly.permutation().GeneratePermutations(
             entity->domain());
-    permutation_verifying_Key_ =
+    permutation_verifying_key_ =
         pre_load_result.assembly.permutation().BuildVerifyingKey(entity,
                                                                  permutations);
     if (load_result) {
@@ -115,7 +115,7 @@ class VerifyingKey : public Key<PCS> {
   }
 
   Commitments fixed_commitments_;
-  PermutationVerifyingKey<Commitment> permutation_verifying_Key_;
+  PermutationVerifyingKey<Commitment> permutation_verifying_key_;
   ConstraintSystem<F> constraint_system_;
   // The representative of this |VerifyingKey| in transcripts.
   F transcript_repr_ = F::Zero();
