@@ -62,7 +62,6 @@ In certain versions of MacOS (prior to v13.5.1), a bug related to incorrect Bigi
 The [issue](https://github.com/kroma-network/tachyon/issues/98) will be fixed as soon as possible.
 
 ### Test
-
 #### Test on Linux
 
 ```shell
