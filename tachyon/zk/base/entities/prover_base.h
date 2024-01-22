@@ -138,6 +138,16 @@ class ProverBase : public Entity<PCS> {
     }
   }
 
+  template <typename T = PCS,
+            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
+                T>::kSupportsBatchMode>* = nullptr>
+  void RetrieveAndWriteBatchCommitmentsToTranscript() {
+    std::vector<Commitment> commitments = this->pcs_.GetBatchCommitments();
+    for (const Commitment& commitment : commitments) {
+      CHECK(GetWriter()->WriteToTranscript(commitment));
+    }
+  }
+
  protected:
   Blinder<PCS> blinder_;
 };

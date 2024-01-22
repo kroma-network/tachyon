@@ -129,23 +129,49 @@ class Argument {
   // of instance evaluation-formed columns. (a.k.a. Batch IFFT)
   static std::vector<std::vector<Poly>> GenerateInstancePolys(
       ProverBase<PCS>* prover,
-      std::vector<std::vector<Evals>> instance_columns_vec) {
-    return base::Map(instance_columns_vec,
-                     [prover](const std::vector<Evals>& instance_columns) {
-                       return base::Map(
-                           instance_columns,
-                           [prover](const Evals& instance_column) {
-                             if constexpr (PCS::kQueryInstance) {
-                               prover->CommitAndWriteToProof(instance_column);
-                             } else {
-                               for (size_t i = 0; i < prover->pcs().N(); ++i) {
-                                 CHECK(prover->GetWriter()->WriteToTranscript(
-                                     *instance_column[i]));
-                               }
-                             }
-                             return prover->domain()->IFFT(instance_column);
-                           });
-                     });
+      const std::vector<std::vector<std::vector<F>>>& instance_columns_vec) {
+    size_t num_circuit = instance_columns_vec.size();
+    CHECK_GT(num_circuit, size_t{0});
+    size_t num_instance_columns = instance_columns_vec[0].size();
+    if constexpr (PCS::kSupportsBatchMode && PCS::kQueryInstance) {
+      size_t num_commitment = num_circuit * num_instance_columns;
+      prover->pcs().SetBatchMode(num_commitment);
+    }
+
+    std::vector<std::vector<Poly>> instance_polys_vec;
+    instance_polys_vec.reserve(num_circuit);
+    for (size_t i = 0; i < num_circuit; ++i) {
+      const std::vector<std::vector<F>>& instance_columns =
+          instance_columns_vec[i];
+      std::vector<Poly> instance_polys;
+      instance_polys.reserve(num_instance_columns);
+      for (size_t j = 0; j < num_instance_columns; ++j) {
+        const std::vector<F>& instances = instance_columns[j];
+        if constexpr (PCS::kQueryInstance) {
+          // FIXME(dongchangYoo): This causes copy internally and I want to
+          // avoid this.
+          Evals instance_column(instances);
+          if constexpr (PCS::kSupportsBatchMode) {
+            prover->BatchCommitAt(instance_column,
+                                  i * num_instance_columns + j);
+            instance_polys.push_back(prover->domain()->IFFT(instance_column));
+          } else {
+            CHECK(prover->GetWriter()->WriteToTranscript(instance_column));
+            instance_polys.push_back(prover->domain()->IFFT(instance_column));
+          }
+        } else {
+          for (const F& instance : instances) {
+            CHECK(prover->GetWriter()->WriteToTranscript(instance));
+          }
+          instance_polys.push_back(prover->domain()->IFFT(Evals(instances)));
+        }
+      }
+      instance_polys_vec.push_back(std::move(instance_polys));
+    }
+    if constexpr (PCS::kSupportsBatchMode && PCS::kQueryInstance) {
+      prover->RetrieveAndWriteBatchCommitmentsToTranscript();
+    }
+    return instance_polys_vec;
   }
 
   size_t num_circuits_ = 0;
