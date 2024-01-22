@@ -50,6 +50,11 @@ class Synthesizer {
     typename Circuit::Config config =
         Circuit::Configure(empty_constraint_system);
 
+    size_t write_idx = 0;
+    if constexpr (PCS::kSupportsBatchMode) {
+      prover->pcs().SetBatchMode(constraint_system_->num_advice_columns() *
+                                 num_circuits_);
+    }
     for (Phase current_phase : constraint_system_->GetPhases()) {
       for (size_t i = 0; i < num_circuits_; ++i) {
         std::vector<RationalEvals> rational_advice_columns =
@@ -60,9 +65,6 @@ class Synthesizer {
         // Parse only indices related to the |current_phase|.
         const std::vector<Phase>& advice_phases =
             constraint_system_->advice_column_phases();
-        if constexpr (PCS::kSupportsBatchMode) {
-          prover->pcs().SetBatchMode(rational_advice_columns.size());
-        }
         for (size_t j = 0; j < rational_advice_columns.size(); ++j) {
           if (current_phase != advice_phases[j]) continue;
           const RationalEvals& column = rational_advice_columns[j];
@@ -74,18 +76,18 @@ class Synthesizer {
 
           Evals evaluated_evals(std::move(evaluated));
           if constexpr (PCS::kSupportsBatchMode) {
-            prover->BatchCommitAt(evaluated_evals, j);
+            prover->BatchCommitAt(evaluated_evals, write_idx++);
           } else {
             prover->CommitAndWriteToProof(evaluated_evals);
           }
           SetAdviceColumn(i, j, std::move(evaluated_evals),
                           prover->blinder().Generate());
         }
-        if constexpr (PCS::kSupportsBatchMode) {
-          prover->RetrieveAndWriteBatchCommitmentsToProof();
-        }
       }
       UpdateChallenges(prover, current_phase);
+    }
+    if constexpr (PCS::kSupportsBatchMode) {
+      prover->RetrieveAndWriteBatchCommitmentsToProof();
     }
   }
 
