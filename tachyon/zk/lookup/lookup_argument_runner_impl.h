@@ -80,11 +80,11 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
   BlindedPolynomial<Poly> permuted_table_poly =
       std::move(committed).TakePermutedTablePoly();
 
-  CHECK(prover->Evaluate(product_poly.poly(), x));
-  CHECK(prover->Evaluate(product_poly.poly(), x_next));
-  CHECK(prover->Evaluate(permuted_input_poly.poly(), x));
-  CHECK(prover->Evaluate(permuted_input_poly.poly(), x_prev));
-  CHECK(prover->Evaluate(permuted_table_poly.poly(), x));
+  prover->EvaluateAndWriteToProof(product_poly.poly(), x);
+  prover->EvaluateAndWriteToProof(product_poly.poly(), x_next);
+  prover->EvaluateAndWriteToProof(permuted_input_poly.poly(), x);
+  prover->EvaluateAndWriteToProof(permuted_input_poly.poly(), x_prev);
+  prover->EvaluateAndWriteToProof(permuted_table_poly.poly(), x);
 
   return {
       std::move(permuted_input_poly),
