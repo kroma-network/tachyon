@@ -210,6 +210,7 @@ struct VectorCommitmentSchemeTraits<FRI<F, MaxDegree>> {
  public:
   constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = true;
+  constexpr static bool kSupportsBatchMode = false;
 
   using Field = F;
   using Commitment = Transcript<F>;

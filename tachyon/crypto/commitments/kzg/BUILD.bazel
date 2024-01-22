@@ -10,8 +10,10 @@ tachyon_cc_library(
     name = "kzg",
     hdrs = ["kzg.h"],
     deps = [
+        "//tachyon/base:logging",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
+        "//tachyon/crypto/commitments:batch_commitment_state",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
     ],

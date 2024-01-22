@@ -83,7 +83,7 @@ class PermutationAssembly {
       const Entity<PCS>* entity, const std::vector<Evals>& permutations) const {
     const PCS& pcs = entity->pcs();
     return PermutationVerifyingKey<PCS>(
-        base::Map(permutations, [pcs](const Evals& permutation) {
+        base::Map(permutations, [&pcs](const Evals& permutation) {
           Commitment commitment;
           CHECK(pcs.CommitLagrange(permutation, &commitment));
           return commitment;

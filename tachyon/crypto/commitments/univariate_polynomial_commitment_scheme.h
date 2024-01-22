@@ -34,12 +34,35 @@ class UnivariatePolynomialCommitmentScheme
     return derived->DoCommit(poly, result);
   }
 
-  // Commit to |poly| and populates |result| with the commitment.
-  // Return false if the degree of |poly| exceeds |kMaxDegree|.
+  // Commit to |poly| and stores the commitment in |batch_commitments_| at
+  // |index| if |batch_mode| is true. Return false if the degree of |poly|
+  // exceeds |kMaxDegree|. It terminates when |batch_mode| is false.
+  template <typename T = Derived, std::enable_if_t<VectorCommitmentSchemeTraits<
+                                      T>::kSupportsBatchMode>* = nullptr>
+  [[nodiscard]] bool Commit(const Poly& poly, size_t index) {
+    Derived* derived = static_cast<Derived*>(this);
+    CHECK(derived->GetBatchMode());
+    return derived->DoCommit(poly, derived->batch_commitment_state(), index);
+  }
+
+  // Commit to |evals| and populates |result| with the commitment.
+  // Return false if the degree of |evals| exceeds |kMaxDegree|.
   [[nodiscard]] bool CommitLagrange(const Evals& evals,
                                     Commitment* result) const {
     const Derived* derived = static_cast<const Derived*>(this);
     return derived->DoCommitLagrange(evals, result);
+  }
+
+  // Commit to |evals| and stores the commitment in |batch_commitments_| at
+  // |index| if |batch_mode| is true. Return false if the degree of |evals|
+  // exceeds |kMaxDegree|. It terminates when |batch_mode| is false.
+  template <typename T = Derived, std::enable_if_t<VectorCommitmentSchemeTraits<
+                                      T>::kSupportsBatchMode>* = nullptr>
+  [[nodiscard]] bool CommitLagrange(const Evals& evals, size_t index) {
+    Derived* derived = static_cast<Derived*>(this);
+    CHECK(derived->GetBatchMode());
+    return derived->DoCommitLagrange(evals, derived->batch_commitment_state(),
+                                     index);
   }
 };
 

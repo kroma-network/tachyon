@@ -38,6 +38,40 @@ TEST_F(PedersenTest, CommitPedersen) {
   EXPECT_EQ(commitment, msm_result + r * vcs.h());
 }
 
+TEST_F(PedersenTest, BatchCommitPedersen) {
+  VCS vcs;
+  ASSERT_TRUE(vcs.Setup());
+
+  size_t num_vectors = 10;
+
+  std::vector<std::vector<math::bn254::Fr>> v_vec =
+      base::CreateVector(num_vectors, []() {
+        return base::CreateVector(kMaxSize,
+                                  []() { return math::bn254::Fr::Random(); });
+      });
+
+  std::vector<math::bn254::Fr> r_vec = base::CreateVector(
+      num_vectors, []() { return math::bn254::Fr::Random(); });
+
+  vcs.SetBatchMode(num_vectors);
+  for (size_t i = 0; i < num_vectors; ++i) {
+    ASSERT_TRUE(vcs.Commit(v_vec[i], r_vec[i], i));
+  }
+  std::vector<math::bn254::G1JacobianPoint> batch_commitments =
+      vcs.GetBatchCommitments();
+  EXPECT_EQ(vcs.batch_commitment_state().batch_mode, false);
+  EXPECT_EQ(vcs.batch_commitment_state().batch_count, size_t{0});
+
+  math::VariableBaseMSM<math::bn254::G1JacobianPoint> msm;
+  std::vector<math::bn254::G1JacobianPoint> msm_results;
+  msm_results.resize(num_vectors);
+  for (size_t i = 0; i < num_vectors; ++i) {
+    ASSERT_TRUE(msm.Run(vcs.generators(), v_vec[i], &msm_results[i]));
+  }
+
+  EXPECT_EQ(batch_commitments, msm_results);
+}
+
 TEST_F(PedersenTest, Copyable) {
   VCS expected;
   ASSERT_TRUE(expected.Setup());

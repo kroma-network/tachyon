@@ -7,8 +7,12 @@
 #ifndef TACHYON_ZK_BASE_COMMITMENTS_SHPLONK_EXTENSION_H_
 #define TACHYON_ZK_BASE_COMMITMENTS_SHPLONK_EXTENSION_H_
 
-#include <utility>
+#include <stddef.h>
 
+#include <utility>
+#include <vector>
+
+#include "tachyon/crypto/commitments/batch_commitment_state.h"
 #include "tachyon/crypto/commitments/kzg/shplonk.h"
 #include "tachyon/zk/base/commitments/univariate_polynomial_commitment_scheme_extension.h"
 
@@ -42,6 +46,17 @@ class SHPlonkExtension final
 
   size_t D() const { return N() - 1; }
 
+  crypto::BatchCommitmentState& batch_commitment_state() {
+    return shplonk_.batch_commitment_state();
+  }
+  bool GetBatchMode() const { return shplonk_.GetBatchMode(); }
+
+  void SetBatchMode(size_t batch_count) { shplonk_.SetBatchMode(batch_count); }
+
+  std::vector<Commitment> GetBatchCommitments() {
+    return shplonk_.GetBatchCommitments();
+  }
+
   [[nodiscard]] bool DoUnsafeSetup(size_t size) {
     return shplonk_.DoUnsafeSetup(size);
   }
@@ -50,13 +65,26 @@ class SHPlonkExtension final
     return shplonk_.DoUnsafeSetup(size, tau);
   }
 
-  template <typename BaseContainer>
-  [[nodiscard]] bool DoCommit(const BaseContainer& v, Commitment* out) const {
+  template <typename ScalarContainer>
+  [[nodiscard]] bool DoCommit(const ScalarContainer& v, Commitment* out) const {
     return shplonk_.DoCommit(v, out);
+  }
+
+  template <typename ScalarContainer>
+  [[nodiscard]] bool DoCommit(const ScalarContainer& v,
+                              crypto::BatchCommitmentState& state,
+                              size_t index) {
+    return shplonk_.DoCommit(v, state, index);
   }
 
   [[nodiscard]] bool DoCommit(const Poly& poly, Commitment* out) const {
     return shplonk_.DoCommit(poly, out);
+  }
+
+  [[nodiscard]] bool DoCommit(const Poly& poly,
+                              crypto::BatchCommitmentState& state,
+                              size_t index) {
+    return shplonk_.DoCommit(poly, state, index);
   }
 
   [[nodiscard]] bool DoCommitLagrange(const Evals& evals,
@@ -64,10 +92,23 @@ class SHPlonkExtension final
     return shplonk_.DoCommitLagrange(evals, out);
   }
 
-  template <typename BaseContainer>
-  [[nodiscard]] bool DoCommitLagrange(const BaseContainer& v,
+  [[nodiscard]] bool DoCommitLagrange(const Evals& evals,
+                                      crypto::BatchCommitmentState& state,
+                                      size_t index) {
+    return shplonk_.DoCommitLagrange(evals, state, index);
+  }
+
+  template <typename ScalarContainer>
+  [[nodiscard]] bool DoCommitLagrange(const ScalarContainer& v,
                                       Commitment* out) const {
     return shplonk_.DoCommitLagrange(v, out);
+  }
+
+  template <typename ScalarContainer>
+  [[nodiscard]] bool DoCommitLagrange(const ScalarContainer& v,
+                                      crypto::BatchCommitmentState& state,
+                                      size_t index) {
+    return shplonk_.DoCommitLagrange(v, state, index);
   }
 
   template <typename Container, typename Proof>
@@ -110,6 +151,7 @@ struct VectorCommitmentSchemeTraits<
 
   constexpr static size_t kMaxSize = MaxDegree + 1;
   constexpr static bool kIsTransparent = false;
+  constexpr static bool kSupportsBatchMode = true;
 };
 
 }  // namespace crypto

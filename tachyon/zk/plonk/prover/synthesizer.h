@@ -60,6 +60,9 @@ class Synthesizer {
         // Parse only indices related to the |current_phase|.
         const std::vector<Phase>& phases =
             constraint_system_->challenge_phases();
+        if constexpr (PCS::kSupportsBatchMode) {
+          prover->pcs().SetBatchMode(phases.size());
+        }
         for (size_t j = 0; j < phases.size(); ++i) {
           if (current_phase != phases[j]) continue;
           const RationalEvals& column = rational_advice_columns[j];
@@ -69,10 +72,17 @@ class Synthesizer {
           // Add blinding factors to advice columns
           evaluated[prover->pcs().N() - 1] = F::One();
 
-          Evals evaluated_evals(evaluated);
-          prover->CommitAndWriteToProof(evaluated_evals);
+          Evals evaluated_evals(std::move(evaluated));
+          if constexpr (PCS::kSupportsBatchMode) {
+            prover->BatchCommitAt(evaluated_evals, j);
+          } else {
+            prover->CommitAndWriteToProof(evaluated_evals);
+          }
           SetAdviceColumn(i, j, std::move(evaluated_evals),
                           prover->blinder().Generate());
+        }
+        if constexpr (PCS::kSupportsBatchMode) {
+          prover->RetrieveAndWriteBatchCommitmentsToProof();
         }
       }
       UpdateChallenges(prover, current_phase);

@@ -164,6 +164,7 @@ struct VectorCommitmentSchemeTraits<BinaryMerkleTree<Leaf, Hash, MaxSize>> {
  public:
   constexpr static size_t kMaxSize = MaxSize;
   constexpr static bool kIsTransparent = true;
+  constexpr static bool kSupportsBatchMode = false;
 
   // TODO(chokobole): The result of Keccak256 is not a field. How can we handle
   // this?
