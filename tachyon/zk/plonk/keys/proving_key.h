@@ -16,7 +16,15 @@
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
 
-namespace tachyon::zk {
+namespace tachyon {
+namespace halo2_api {
+
+template <typename PCS>
+class ProvingKeyImpl;
+
+}  // namespace halo2_api
+
+namespace zk {
 
 template <typename PCS>
 class ProvingKey : public Key<PCS> {
@@ -63,6 +71,8 @@ class ProvingKey : public Key<PCS> {
   }
 
  private:
+  friend class halo2_api::ProvingKeyImpl<PCS>;
+
   bool DoLoad(ProverBase<PCS>* prover, PreLoadResult&& pre_load_result,
               VerifyingKeyLoadResult* vk_load_result) {
     using Domain = typename PCS::Domain;
@@ -167,6 +177,7 @@ class ProvingKey : public Key<PCS> {
   VanishingArgument<F> vanishing_argument_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace zk
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_KEYS_PROVING_KEY_H_

@@ -4,5 +4,6 @@ mod circuits;
 mod consts;
 mod msm;
 mod prover;
-mod xor_shift_rng;
+mod proving_key;
 mod transcript;
+mod xor_shift_rng;

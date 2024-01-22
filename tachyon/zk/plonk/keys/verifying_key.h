@@ -20,7 +20,15 @@
 #include "tachyon/zk/plonk/keys/key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 
-namespace tachyon::zk {
+namespace tachyon {
+namespace halo2_api {
+
+template <typename PCS>
+class ProvingKeyImpl;
+
+}  // namespace halo2_api
+
+namespace zk {
 namespace halo2 {
 
 template <typename PCS>
@@ -64,6 +72,7 @@ class VerifyingKey : public Key<PCS> {
 
  private:
   friend class ProvingKey<PCS>;
+  friend class halo2_api::ProvingKeyImpl<PCS>;
 
   struct LoadResult {
     std::vector<Evals> permutations;
@@ -121,6 +130,7 @@ class VerifyingKey : public Key<PCS> {
   F transcript_repr_ = F::Zero();
 };
 
-}  // namespace tachyon::zk
+}  // namespace zk
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_KEYS_VERIFYING_KEY_H_

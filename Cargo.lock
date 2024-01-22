@@ -580,7 +580,7 @@ dependencies = [
 [[package]]
 name = "halo2_proofs"
 version = "0.2.0"
-source = "git+https://github.com/kroma-network/halo2.git?rev=6bf4e0a#6bf4e0a51ccf907c6ff5d728a375d9922b065635"
+source = "git+https://github.com/kroma-network/halo2.git?rev=746e4ac#746e4ac62ea39e8fec9f711a6b5a359dfa596818"
 dependencies = [
  "ark-std 0.3.0",
  "blake2b_simd",
