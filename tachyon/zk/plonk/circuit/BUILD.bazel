@@ -120,6 +120,7 @@ tachyon_cc_library(
         ":selector",
         ":virtual_cell",
         "//tachyon/zk/expressions:expression",
+        "@com_google_absl//absl/strings",
     ],
 )
 
