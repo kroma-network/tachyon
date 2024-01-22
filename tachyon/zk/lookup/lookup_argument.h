@@ -23,6 +23,12 @@ class LookupArgument {
  public:
   LookupArgument() = default;
   LookupArgument(std::string_view name,
+                 std::vector<std::unique_ptr<Expression<F>>> input_expressions,
+                 std::vector<std::unique_ptr<Expression<F>>> table_expressions)
+      : name_(std::string(name)),
+        input_expressions_(std::move(input_expressions)),
+        table_expressions_(std::move(table_expressions)) {}
+  LookupArgument(std::string_view name,
                  LookupPairs<std::unique_ptr<Expression<F>>> pairs)
       : name_(std::string(name)) {
     input_expressions_.reserve(pairs.size());
