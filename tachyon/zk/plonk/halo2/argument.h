@@ -21,20 +21,21 @@ class Argument {
   using Domain = typename PCS::Domain;
 
   Argument() = default;
-  static Argument Create(ProverBase<PCS>* prover, size_t num_circuits,
-                         const std::vector<Evals>* fixed_columns,
-                         const std::vector<Poly>* fixed_polys,
-                         std::vector<std::vector<Evals>>&& advice_columns_vec,
-                         std::vector<std::vector<F>>&& advice_blinds_vec,
-                         std::vector<std::vector<Evals>>&& instance_columns_vec,
-                         std::vector<F>&& challenges) {
+  static Argument Create(
+      ProverBase<PCS>* prover, size_t num_circuits,
+      const std::vector<Evals>* fixed_columns,
+      const std::vector<Poly>* fixed_polys,
+      std::vector<std::vector<Evals>>&& advice_columns_vec,
+      std::vector<std::vector<F>>&& advice_blinds_vec,
+      std::vector<F>&& challenges,
+      std::vector<std::vector<Evals>>&& instance_columns_vec) {
     std::vector<std::vector<Poly>> instance_polys_vec =
         GenerateInstancePolys(prover, instance_columns_vec);
 
     return Argument(num_circuits, fixed_columns, fixed_polys,
                     std::move(advice_columns_vec), std::move(advice_blinds_vec),
-                    std::move(instance_columns_vec),
-                    std::move(instance_polys_vec), std::move(challenges));
+                    std::move(challenges), std::move(instance_columns_vec),
+                    std::move(instance_polys_vec));
   }
 
   bool advice_transformed() const { return advice_transformed_; }
@@ -108,17 +109,17 @@ class Argument {
            const std::vector<Poly>* fixed_polys,
            std::vector<std::vector<Evals>>&& advice_columns_vec,
            std::vector<std::vector<F>>&& advice_blinds_vec,
+           std::vector<F>&& challenges,
            std::vector<std::vector<Evals>>&& instance_columns_vec,
-           std::vector<std::vector<Poly>>&& instance_polys_vec,
-           std::vector<F>&& challenges)
+           std::vector<std::vector<Poly>>&& instance_polys_vec)
       : num_circuits_(num_circuits),
         fixed_columns_(fixed_columns),
         fixed_polys_(fixed_polys),
         advice_columns_vec_(std::move(advice_columns_vec)),
         advice_blinds_vec_(std::move(advice_blinds_vec)),
+        challenges_(std::move(challenges)),
         instance_columns_vec_(std::move(instance_columns_vec)),
-        instance_polys_vec_(std::move(instance_polys_vec)),
-        challenges_(std::move(challenges)) {
+        instance_polys_vec_(std::move(instance_polys_vec)) {
     CHECK_EQ(num_circuits_, advice_columns_vec_.size());
     CHECK_EQ(num_circuits_, advice_blinds_vec_.size());
     CHECK_EQ(num_circuits_, instance_columns_vec_.size());
@@ -180,19 +181,18 @@ class Argument {
   // not owned
   const std::vector<Poly>* fixed_polys_ = nullptr;
 
-  std::vector<std::vector<Evals>> advice_columns_vec_;
-  std::vector<std::vector<F>> advice_blinds_vec_;
   // NOTE(dongchangYoo): to optimize memory usage, release every advice
   // evaluations after generating an advice polynomial. That is, when
   // |advice_transformed_| is set to true, |advice_columns_vec_| is
   // released, and only |advice_polys_vec_| becomes available for use.
-  std::vector<std::vector<Poly>> advice_polys_vec_;
   bool advice_transformed_ = false;
+  std::vector<std::vector<Evals>> advice_columns_vec_;
+  std::vector<std::vector<Poly>> advice_polys_vec_;
+  std::vector<std::vector<F>> advice_blinds_vec_;
+  std::vector<F> challenges_;
 
   std::vector<std::vector<Evals>> instance_columns_vec_;
   std::vector<std::vector<Poly>> instance_polys_vec_;
-
-  std::vector<F> challenges_;
 };
 
 }  // namespace tachyon::zk::halo2
