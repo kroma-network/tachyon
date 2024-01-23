@@ -47,7 +47,7 @@ TEST_F(GraphEvaluatorTest, Fixed) {
       {0, 1, 0, 0},
       {1, 2, 1, 1},
       {0, 1, 0, 0},
-      {0, 2, 1, 1},
+      {0, 2, 1, 2},
   };
 
   GraphEvaluator<GF7> graph_evaluator;
@@ -75,7 +75,7 @@ TEST_F(GraphEvaluatorTest, Advice) {
       {0, 1, 0, 0},
       {1, 2, 1, 1},
       {0, 1, 0, 0},
-      {0, 2, 1, 1},
+      {0, 2, 1, 2},
   };
 
   GraphEvaluator<GF7> graph_evaluator;
@@ -103,7 +103,7 @@ TEST_F(GraphEvaluatorTest, Instance) {
       {0, 1, 0, 0},
       {1, 2, 1, 1},
       {0, 1, 0, 0},
-      {0, 2, 1, 1},
+      {0, 2, 1, 2},
   };
 
   GraphEvaluator<GF7> graph_evaluator;
