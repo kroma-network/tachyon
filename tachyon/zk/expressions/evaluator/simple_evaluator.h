@@ -61,8 +61,6 @@ class SimpleEvaluator
       // not owned
       SimpleEvaluator* const evaluator;
     };
-    ScopedIdxIncrement scoped_idx_increment(this);
-
     switch (input->type()) {
       case ExpressionType::kConstant:
         return input->ToConstant()->value();

@@ -28,11 +28,11 @@ Evals CompressExpressions(
         values.evaluations(),
         [expr_idx, &expressions, &evaluator_tpl](
             absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
-          SimpleEvaluator<Evals> evaluator = evaluator_tpl;
-          evaluator.set_idx(chunk_index * chunk_size);
-
-          for (F& value : chunk) {
-            value = evaluator.Evaluate(expressions[expr_idx].get());
+          size_t start = chunk_index * chunk_size;
+          for (size_t i = 0; i < chunk.size(); ++i) {
+            SimpleEvaluator<Evals> evaluator = evaluator_tpl;
+            evaluator.set_idx(start + i);
+            chunk[i] = evaluator.Evaluate(expressions[expr_idx].get());
           }
         });
     compressed_value *= theta;

@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_PROVER_SYNTHESIZER_H_
-#define TACHYON_ZK_PLONK_PROVER_SYNTHESIZER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_SYNTHESIZER_H_
+#define TACHYON_ZK_PLONK_HALO2_SYNTHESIZER_H_
 
 #include <utility>
 #include <vector>
@@ -13,9 +13,9 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/constraint_system.h"
-#include "tachyon/zk/plonk/prover/witness_collection.h"
+#include "tachyon/zk/plonk/halo2/witness_collection.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 
 template <typename PCS>
 class Synthesizer {
@@ -50,6 +50,11 @@ class Synthesizer {
     typename Circuit::Config config =
         Circuit::Configure(empty_constraint_system);
 
+    size_t write_idx = 0;
+    if constexpr (PCS::kSupportsBatchMode) {
+      prover->pcs().SetBatchMode(constraint_system_->num_advice_columns() *
+                                 num_circuits_);
+    }
     for (Phase current_phase : constraint_system_->GetPhases()) {
       for (size_t i = 0; i < num_circuits_; ++i) {
         std::vector<RationalEvals> rational_advice_columns =
@@ -58,15 +63,12 @@ class Synthesizer {
                                     config);
 
         // Parse only indices related to the |current_phase|.
-        const std::vector<Phase>& phases =
-            constraint_system_->challenge_phases();
-        if constexpr (PCS::kSupportsBatchMode) {
-          prover->pcs().SetBatchMode(phases.size());
-        }
-        for (size_t j = 0; j < phases.size(); ++i) {
-          if (current_phase != phases[j]) continue;
+        const std::vector<Phase>& advice_phases =
+            constraint_system_->advice_column_phases();
+        for (size_t j = 0; j < rational_advice_columns.size(); ++j) {
+          if (current_phase != advice_phases[j]) continue;
           const RationalEvals& column = rational_advice_columns[j];
-          std::vector<F> evaluated;
+          std::vector<F> evaluated(column.NumElements());
           CHECK(math::RationalField<F>::BatchEvaluate(column.evaluations(),
                                                       &evaluated));
           // Add blinding factors to advice columns
@@ -74,18 +76,18 @@ class Synthesizer {
 
           Evals evaluated_evals(std::move(evaluated));
           if constexpr (PCS::kSupportsBatchMode) {
-            prover->BatchCommitAt(evaluated_evals, j);
+            prover->BatchCommitAt(evaluated_evals, write_idx++);
           } else {
             prover->CommitAndWriteToProof(evaluated_evals);
           }
           SetAdviceColumn(i, j, std::move(evaluated_evals),
                           prover->blinder().Generate());
         }
-        if constexpr (PCS::kSupportsBatchMode) {
-          prover->RetrieveAndWriteBatchCommitmentsToProof();
-        }
       }
       UpdateChallenges(prover, current_phase);
+    }
+    if constexpr (PCS::kSupportsBatchMode) {
+      prover->RetrieveAndWriteBatchCommitmentsToProof();
     }
   }
 
@@ -96,6 +98,20 @@ class Synthesizer {
         std::make_move_iterator(challenges_.end()),
         [](std::pair<size_t, F>&& item) { return std::move(item.second); });
   }
+
+  // Move out |challenge_| as a vector.
+  std::vector<F> TakeChallenges() && {
+    return base::Map(
+        std::make_move_iterator(challenges_.begin()),
+        std::make_move_iterator(challenges_.end()),
+        [](std::pair<size_t, F>&& item) { return std::move(item.second); });
+  }
+  std::vector<std::vector<Evals>>&& TakeAdviceColumnsVec() && {
+    return std::move(advice_columns_vec_);
+  };
+  std::vector<std::vector<F>>&& TakeAdviceBlindsVec() && {
+    return std::move(advice_blinds_vec_);
+  };
 
  private:
   void SetAdviceColumn(size_t circuit_idx, size_t column_idx, Evals&& column,
@@ -148,6 +164,6 @@ class Synthesizer {
   std::vector<std::vector<F>> advice_blinds_vec_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_ZK_PLONK_PROVER_SYNTHESIZER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_SYNTHESIZER_H_

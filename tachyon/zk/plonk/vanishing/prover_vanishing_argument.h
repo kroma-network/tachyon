@@ -12,9 +12,9 @@
 #include <vector>
 
 #include "tachyon/base/parallelize.h"
+#include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/base/prover_query.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_committed.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_constructed.h"
@@ -132,18 +132,16 @@ template <typename PCS, typename F, typename Commitment>
   return true;
 }
 
-template <typename PCS, typename F>
-std::vector<ProverQuery<PCS>> OpenVanishingArgument(
-    VanishingEvaluated<PCS>&& evaluated, const F& x) {
-  using Poly = typename PCS::Poly;
-
-  VanishingCommitted<PCS>&& committed = std::move(evaluated).TakeCommitted();
-  return {{x, BlindedPolynomial<Poly>(std::move(evaluated).TakeHPoly(),
-                                      std::move(evaluated).TakeHBlind())
-                  .ToRef()},
-          {x, BlindedPolynomial<Poly>(std::move(committed).TakeRandomPoly(),
-                                      std::move(committed).TakeRandomBlind())
-                  .ToRef()}};
+template <typename PCS, typename F, typename Poly = typename PCS::Poly>
+std::vector<crypto::PolynomialOpening<Poly>> OpenVanishingArgument(
+    const VanishingEvaluated<PCS>& evaluated, const F& x) {
+  base::DeepRef<const F> x_ref(&x);
+  return {crypto::PolynomialOpening<Poly>(
+              base::DeepRef<const Poly>(&evaluated.h_poly()), x_ref,
+              evaluated.h_poly().Evaluate(x)),
+          crypto::PolynomialOpening<Poly>(
+              base::DeepRef<const Poly>(&evaluated.committed().random_poly()),
+              x_ref, evaluated.committed().random_poly().Evaluate(x))};
 }
 
 }  // namespace tachyon::zk

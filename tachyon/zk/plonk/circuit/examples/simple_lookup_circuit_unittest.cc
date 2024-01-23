@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/plonk/circuit/examples/circuit_test.h"
@@ -519,6 +520,29 @@ TEST_F(SimpleLookupCircuitTest, LoadProvingKey) {
     EXPECT_TRUE(pkey.permutation_proving_key().permutations().empty());
     EXPECT_TRUE(pkey.permutation_proving_key().polys().empty());
   }
+}
+
+TEST_F(SimpleLookupCircuitTest, CreateProof) {
+  size_t n = 32;
+  CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
+  prover_->set_domain(Domain::Create(n));
+
+  SimpleLookupCircuit<F, kBits, SimpleFloorPlanner> circuit(4);
+  std::vector<SimpleLookupCircuit<F, kBits, SimpleFloorPlanner>> circuits = {
+      std::move(circuit)};
+
+  std::vector<std::vector<F>> instance_columns;
+  std::vector<std::vector<std::vector<F>>> instance_columns_vec = {
+      std::move(instance_columns)};
+
+  ProvingKey<PCS> pkey;
+  ASSERT_TRUE(pkey.Load(prover_.get(), circuit));
+  prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
+
+  std::vector<uint8_t> proof = prover_->GetWriter()->buffer().owned_buffer();
+  std::vector<uint8_t> expected_proof(std::begin(kExpectedProof),
+                                      std::end(kExpectedProof));
+  EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
 TEST_F(SimpleLookupCircuitTest, Verify) {

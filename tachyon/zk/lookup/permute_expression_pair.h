@@ -134,8 +134,8 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
   Evals input(std::move(permuted_input_expressions));
   Evals table(std::move(permuted_table_expressions));
 
-  prover->blinder().Blind(input);
-  prover->blinder().Blind(table);
+  prover->blinder().Blind(input, /*include_last_row=*/true);
+  prover->blinder().Blind(table, /*include_last_row=*/true);
 
   *out = {std::move(input), std::move(table)};
   return true;

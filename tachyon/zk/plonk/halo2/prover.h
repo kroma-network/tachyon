@@ -9,8 +9,10 @@
 
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/plonk/halo2/argument.h"
 #include "tachyon/zk/plonk/halo2/random_field_generator.h"
 #include "tachyon/zk/plonk/halo2/verifier.h"
 
@@ -20,7 +22,9 @@ template <typename PCS>
 class Prover : public ProverBase<PCS> {
  public:
   using F = typename PCS::Field;
+  using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
+  using ExtendedEvals = typename PCS::ExtendedEvals;
   using Commitment = typename PCS::Commitment;
 
   static Prover CreateFromRandomSeed(
@@ -60,6 +64,71 @@ class Prover : public ProverBase<PCS> {
     ret->set_domain(std::move(this->domain_));
     ret->set_extended_domain(std::move(this->extended_domain_));
     return ret;
+  }
+
+  template <typename Circuit>
+  void CreateProof(
+      const ProvingKey<PCS>& proving_key,
+      std::vector<std::vector<std::vector<F>>>&& instance_columns_vec,
+      std::vector<Circuit>& circuits) {
+    size_t num_circuits = circuits.size();
+
+    // Check length of instances.
+    CHECK_EQ(num_circuits, instance_columns_vec.size());
+    for (const std::vector<std::vector<F>>& instances_vec :
+         instance_columns_vec) {
+      CHECK_EQ(instances_vec.size(), proving_key.verifying_key()
+                                         .constraint_system()
+                                         .num_instance_columns());
+    }
+
+    // Initially write hash value of verification key to transcript.
+    crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
+    CHECK(writer->WriteToTranscript(
+        proving_key.verifying_key().transcript_repr()));
+
+    // It owns all the columns, polys and the others required in the proof
+    // generation process and provides step-by-step logics as its methods.
+    Argument<PCS> argument =
+        Argument<PCS>::Create(this, circuits, &proving_key.fixed_columns(),
+                              &proving_key.fixed_polys(),
+                              proving_key.verifying_key().constraint_system(),
+                              std::move(instance_columns_vec));
+
+    F theta = writer->SqueezeChallenge();
+    std::vector<std::vector<LookupPermuted<Poly, Evals>>> permuted_lookups_vec =
+        argument.CompressLookupStep(
+            this, proving_key.verifying_key().constraint_system(), theta);
+
+    F beta = writer->SqueezeChallenge();
+    F gamma = writer->SqueezeChallenge();
+    StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
+                VanishingCommitted<PCS>>
+        committed_result = argument.CommitCircuitStep(
+            this, proving_key.verifying_key().constraint_system(),
+            proving_key.permutation_proving_key(),
+            std::move(permuted_lookups_vec), beta, gamma);
+
+    F y = writer->SqueezeChallenge();
+    argument.TransformAdvice(this->domain());
+    ExtendedEvals circuit_column = argument.GenerateCircuitPolynomial(
+        this, proving_key, committed_result, beta, gamma, theta, y);
+    VanishingConstructed<PCS> constructed_vanishing;
+    CHECK(CommitFinalHPoly(this, std::move(committed_result).TakeVanishing(),
+                           proving_key.verifying_key(), circuit_column,
+                           &constructed_vanishing));
+
+    F x = writer->SqueezeChallenge();
+    StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
+                VanishingEvaluated<PCS>>
+        evaluated_result =
+            argument.EvaluateCircuitStep(this, proving_key, committed_result,
+                                         std::move(constructed_vanishing), x);
+
+    std::vector<crypto::PolynomialOpening<Poly>> openings =
+        argument.ConstructOpenings(this, proving_key, evaluated_result, x);
+
+    CHECK(this->pcs_.CreateOpeningProof(openings, this->GetWriter()));
   }
 
  private:

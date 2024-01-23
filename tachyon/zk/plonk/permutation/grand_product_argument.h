@@ -81,7 +81,7 @@ class GrandProductArgument {
                                          size_t num_cols, F& last_z,
                                          Callable numerator_callback,
                                          Callable denominator_callback) {
-    std::vector<F> grand_product(size, F::Zero());
+    std::vector<F> grand_product(size, F::One());
 
     for (size_t i = 0; i < num_cols; ++i) {
       base::Parallelize(grand_product, denominator_callback(i));

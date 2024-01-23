@@ -11,8 +11,9 @@
 #include <vector>
 
 #include "tachyon/base/parallelize.h"
+#include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/base/prover_query.h"
+#include "tachyon/zk/base/point_set.h"
 #include "tachyon/zk/plonk/circuit/ref_table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_committed.h"
@@ -33,7 +34,7 @@ class PermutationArgumentRunner {
   template <typename PCS, typename F>
   static PermutationCommitted<Poly> CommitArgument(
       ProverBase<PCS>* prover, const PermutationArgument& argument,
-      RefTable<Evals>& table, size_t constraint_system_degree,
+      const RefTable<Evals>& table, size_t constraint_system_degree,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
       const F& beta, const F& gamma);
 
@@ -43,21 +44,14 @@ class PermutationArgumentRunner {
       const F& x);
 
   template <typename PCS, typename F>
-  static std::vector<ProverQuery<PCS>> OpenEvaluated(
-      const ProverBase<PCS>* prover,
-      const PermutationEvaluated<Poly>& evaluated, const F& x);
+  static std::vector<crypto::PolynomialOpening<Poly>> OpenEvaluated(
+      ProverBase<PCS>* prover, const PermutationEvaluated<Poly>& evaluated,
+      const F& x, PointSet<F>& points);
 
-  template <typename PCS, typename F>
-  static std::vector<BlindedPolynomial<Poly>> BlindProvingKey(
-      ProverBase<PCS>* prover,
-      const PermutationProvingKey<Poly, Evals>& proving_key);
+  template <typename F>
+  static std::vector<crypto::PolynomialOpening<Poly>> OpenPermutationProvingKey(
+      const PermutationProvingKey<Poly, Evals>& proving_key, const F& x);
 
-  template <typename PCS, typename F>
-  static std::vector<ProverQuery<PCS>> OpenBlindedPolynomials(
-      const std::vector<BlindedPolynomial<Poly>>& blinded_polys, const F& x);
-
-  // TODO(dongchangYoo): Check if this func can be merged with the
-  // |OpenBlindedPolynomials| when refactoring |CreateProof()|
   template <typename PCS, typename F>
   static void EvaluateProvingKey(
       ProverBase<PCS>* prover,

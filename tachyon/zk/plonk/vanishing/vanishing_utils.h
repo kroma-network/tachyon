@@ -56,22 +56,23 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
   const size_t t_evaluations_size = size_t{1}
                                     << (extended_domain->log_size_of_group() -
                                         domain->log_size_of_group());
+  // |coset_gen_pow_n| = w'ⁿ where w' is generator of extended domain.
   const F coset_gen_pow_n = extended_domain->group_gen().Pow(domain->size());
+  // |powers_of_coset_gen| = [w'ⁿ, w'²ⁿ, w'³ⁿ, ..].
   const std::vector<F> powers_of_coset_gen =
       F::GetSuccessivePowers(t_evaluations_size, coset_gen_pow_n);
 
   std::vector<F> t_evaluations;
   t_evaluations.resize(t_evaluations_size);
 
+  // Make |t_evaluations| = [ζⁿ, ζⁿ * w'ⁿ, ζⁿ * w'²ⁿ, ...]
   const F zeta_pow_n = zeta.Pow(domain->size());
-  CHECK(F::MultiScalarMul(zeta_pow_n * coset_gen_pow_n, powers_of_coset_gen,
-                          &t_evaluations));
+  CHECK(F::MultiScalarMul(zeta_pow_n, powers_of_coset_gen, &t_evaluations));
   CHECK_EQ(t_evaluations.size(),
            size_t{1} << (extended_domain->log_size_of_group() -
                          domain->log_size_of_group()));
 
-  // Subtract 1 from each to give us t_evaluations[i] = t(zeta *
-  // extended_omegaⁱ)
+  // Subtract 1 from each to give us |t_evaluations[i]|.
   // TODO(TomTaehoonKim): Consider implementing "translate" function.
   base::Parallelize(t_evaluations, [](absl::Span<F> chunk) {
     for (F& coeff : chunk) {
@@ -122,7 +123,7 @@ void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
   std::vector<F> coset_powers{into_coset ? zeta : zeta_inv,
                               into_coset ? zeta_inv : zeta};
 
-  std::vector<F> coeffs = poly.coefficients().coefficients();
+  std::vector<F>& coeffs = poly.coefficients().coefficients();
   base::Parallelize(coeffs,
                     [&coset_powers](absl::Span<F> chunk, size_t chunk_idx,
                                     size_t chunk_size) {

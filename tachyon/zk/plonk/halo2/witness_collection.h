@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_PROVER_WITNESS_COLLECTION_H_
-#define TACHYON_ZK_PLONK_PROVER_WITNESS_COLLECTION_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_WITNESS_COLLECTION_H_
+#define TACHYON_ZK_PLONK_HALO2_WITNESS_COLLECTION_H_
 
 #include <string>
 #include <utility>
@@ -18,7 +18,7 @@
 #include "tachyon/zk/plonk/circuit/assignment.h"
 #include "tachyon/zk/plonk/circuit/phase.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::halo2 {
 
 template <typename PCS>
 class WitnessCollection : public Assignment<typename PCS::Field> {
@@ -82,6 +82,6 @@ class WitnessCollection : public Assignment<typename PCS::Field> {
   std::vector<Evals> instance_columns_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_ZK_PLONK_PROVER_WITNESS_COLLECTION_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_WITNESS_COLLECTION_H_

@@ -93,7 +93,8 @@ class TACHYON_EXPORT ValueSource {
       case Type::kFixed:
       case Type::kAdvice:
       case Type::kInstance:
-        return column_index_ == other.rotation_index_;
+        return column_index_ == other.column_index_ &&
+               rotation_index_ == other.rotation_index_;
       case Type::kBeta:
       case Type::kGamma:
       case Type::kTheta:

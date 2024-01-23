@@ -22,7 +22,7 @@ class VanishingCommitted {
       : random_poly_(std::move(random_poly)),
         random_blind_(std::move(random_blind)) {}
 
-  const Poly& random_poly() { return random_poly_; }
+  const Poly& random_poly() const { return random_poly_; }
 
   Poly&& TakeRandomPoly() && { return std::move(random_poly_); }
   F&& TakeRandomBlind() && { return std::move(random_blind_); }
