@@ -1,25 +1,13 @@
 #include "vendors/halo2/include/bn254_shplonk_proving_key.h"
 
-#include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/rs/base/container_util.h"
 #include "vendors/halo2/src/bn254.rs.h"
-#include "vendors/halo2/src/degrees.h"
-#include "vendors/halo2/src/shplonk_proving_key_impl.h"
+#include "vendors/halo2/src/bn254_shplonk_proving_key_impl.h"
 
 namespace tachyon::halo2_api::bn254 {
 
-using PCS =
-    zk::SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
-                         kMaxExtendedDegree, math::bn254::G1AffinePoint>;
-
-class SHPlonkProvingKey::Impl : public ProvingKeyImpl<PCS> {
- public:
-  explicit Impl(rust::Slice<const uint8_t> bytes)
-      : ProvingKeyImpl<PCS>(bytes) {}
-};
-
 SHPlonkProvingKey::SHPlonkProvingKey(rust::Slice<const uint8_t> pk_bytes)
-    : impl_(new Impl(pk_bytes)) {}
+    : impl_(new SHPlonkProvingKeyImpl(pk_bytes)) {}
 
 rust::Slice<const uint8_t> SHPlonkProvingKey::advice_column_phases() const {
   return rs::ConvertCppVecToRustSlice<uint8_t>(impl_->GetAdviceColumnPhases());

@@ -10,6 +10,8 @@
 
 namespace tachyon::halo2_api::bn254 {
 
+class SHPlonkProvingKeyImpl;
+
 class SHPlonkProvingKey {
  public:
   explicit SHPlonkProvingKey(rust::Slice<const uint8_t> pk_bytes);
@@ -24,8 +26,7 @@ class SHPlonkProvingKey {
   rust::Vec<uint8_t> phases() const;
 
  private:
-  class Impl;
-  std::shared_ptr<Impl> impl_;
+  std::shared_ptr<SHPlonkProvingKeyImpl> impl_;
 };
 
 std::unique_ptr<SHPlonkProvingKey> new_proving_key(
