@@ -182,7 +182,7 @@ class Argument {
 
   std::vector<std::vector<Evals>> advice_columns_vec_;
   std::vector<std::vector<F>> advice_blinds_vec_;
-  // Note(dongchangYoo): to optimize memory usage, release every advice
+  // NOTE(dongchangYoo): to optimize memory usage, release every advice
   // evaluations after generating an advice polynomial. That is, when
   // |advice_transformed_| is set to true, |advice_columns_vec_| is
   // released, and only |advice_polys_vec_| becomes available for use.
