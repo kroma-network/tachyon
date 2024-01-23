@@ -47,6 +47,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "lookup_table_assigner",
+    hdrs = ["lookup_table_assigner.h"],
+    deps = [
+        ":scoped_region",
+        ":simple_lookup_table_layouter",
+        "//tachyon/base:logging",
+        "//tachyon/base/functional:identity",
+        "//tachyon/zk/plonk/circuit:assignment",
+        "//tachyon/zk/plonk/circuit:layouter",
+        "//tachyon/zk/plonk/circuit:lookup_table",
+        "//tachyon/zk/plonk/circuit:lookup_table_column",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
+
+tachyon_cc_library(
     name = "plan_region",
     hdrs = ["plan_region.h"],
     deps = [
@@ -91,13 +107,14 @@ tachyon_cc_library(
     hdrs = ["single_chip_layouter.h"],
     deps = [
         ":constant",
+        ":lookup_table_assigner",
         ":plan_region",
         ":scoped_region",
-        ":simple_lookup_table_layouter",
         "//tachyon/base:logging",
-        "//tachyon/base/functional:identity",
+        "//tachyon/zk/plonk/circuit:column_key",
         "//tachyon/zk/plonk/circuit:layouter",
         "//tachyon/zk/plonk/circuit:region_column",
         "//tachyon/zk/plonk/circuit:region_shape",
+        "@com_google_absl//absl/container:flat_hash_map",
     ],
 )

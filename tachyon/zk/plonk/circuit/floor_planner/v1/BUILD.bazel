@@ -7,14 +7,12 @@ tachyon_cc_library(
     hdrs = ["assignment_pass.h"],
     deps = [
         ":v1_plan",
-        "//tachyon/base:logging",
         "//tachyon/zk/plonk/circuit:cell",
         "//tachyon/zk/plonk/circuit:column_key",
         "//tachyon/zk/plonk/circuit:layouter",
+        "//tachyon/zk/plonk/circuit/floor_planner:lookup_table_assigner",
         "//tachyon/zk/plonk/circuit/floor_planner:plan_region",
         "//tachyon/zk/plonk/circuit/floor_planner:scoped_region",
-        "//tachyon/zk/plonk/circuit/floor_planner:simple_lookup_table_layouter",
-        "@com_google_absl//absl/container:flat_hash_map",
     ],
 )
 

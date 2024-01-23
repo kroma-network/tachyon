@@ -9,19 +9,14 @@
 
 #include <stddef.h>
 
-#include <optional>
 #include <string_view>
 #include <utility>
-#include <vector>
 
-#include "absl/container/flat_hash_map.h"
-
-#include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/circuit/cell.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/lookup_table_assigner.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/plan_region.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/scoped_region.h"
-#include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/v1/v1_plan.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 
@@ -49,60 +44,9 @@ class AssignmentPass {
 
   void AssignLookupTable(std::string_view name,
                          AssignLookupTableCallback assign) {
-    // Maintenance hazard: there is near-duplicate code in
-    // |SingleChipLayouter::AssignLookUpTable|.
-
-    // Assign table cells.
-    SimpleLookupTableLayouter<F> lookup_table_layouter(plan_->assignment(),
-                                                       &plan_->table_columns());
-    {
-      ScopedRegion<F> scoped_region(plan_->assignment(), name);
-      LookupTable<F> table(&lookup_table_layouter);
-      std::move(assign).Run(table);
-    }
-    const absl::flat_hash_map<LookupTableColumn,
-                              typename SimpleLookupTableLayouter<F>::Value>&
-        values = lookup_table_layouter.values();
-
-    // Check that all table columns have the same length |first_unused|,
-    // and all cells up to that length are assigned.
-    std::optional<size_t> first_unused;
-    std::vector<std::optional<size_t>> assigned_sizes = base::Map(
-        values.begin(), values.end(),
-        [](const std::pair<LookupTableColumn,
-                           typename SimpleLookupTableLayouter<F>::Value>&
-               entry) {
-          const auto& [column, value] = entry;
-          if (std::all_of(value.assigned.begin(), value.assigned.end(),
-                          base::identity())) {
-            return std::optional<size_t>(value.assigned.size());
-          } else {
-            return std::optional<size_t>();
-          }
-        });
-    for (const std::optional<size_t>& assigned_size : assigned_sizes) {
-      CHECK(assigned_size.has_value()) << "length is missing";
-
-      if (first_unused.has_value()) {
-        CHECK_EQ(first_unused.value(), assigned_size.value())
-            << "all table columns must have the same length";
-      } else {
-        first_unused = assigned_size;
-      }
-    }
-
-    CHECK(first_unused.has_value())
-        << "length is missing, maybe there are no table columns";
-
-    // Record these columns so that we can prevent them from being used again.
-    for (const auto& [column, value] : values) {
-      plan_->table_columns().push_back(column);
-      // |value.default_value| must have value because we must have assigned
-      // at least one cell in each column, and in that case we checked
-      // that all cells up to |first_unused| were assigned.
-      plan_->assignment()->FillFromRow(column.column(), first_unused.value(),
-                                       value.default_value.value().value());
-    }
+    LookupTableAssigner<F> lookup_table_assigner(plan_->assignment(),
+                                                 plan_->table_columns());
+    lookup_table_assigner.AssignLookupTable(name, std::move(assign));
   }
 
   void ConstrainInstance(const Cell& cell, const InstanceColumnKey& instance,
