@@ -237,7 +237,7 @@ impl<F: FieldExt> NumericInstructions<F> for FieldChip<F> {
 /// In this struct we store the private input variables. We use `Option<F>` because
 /// they won't have any value during key generation. During proving, if any of these
 /// were `None` we would get an error.
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct SimpleCircuit<F: FieldExt> {
     pub constant: F,
     pub a: Value<F>,
