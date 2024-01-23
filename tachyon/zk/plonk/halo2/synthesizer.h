@@ -58,13 +58,13 @@ class Synthesizer {
                                     config);
 
         // Parse only indices related to the |current_phase|.
-        const std::vector<Phase>& phases =
-            constraint_system_->challenge_phases();
+        const std::vector<Phase>& advice_phases =
+            constraint_system_->advice_column_phases();
         if constexpr (PCS::kSupportsBatchMode) {
-          prover->pcs().SetBatchMode(phases.size());
+          prover->pcs().SetBatchMode(rational_advice_columns.size());
         }
-        for (size_t j = 0; j < phases.size(); ++j) {
-          if (current_phase != phases[j]) continue;
+        for (size_t j = 0; j < rational_advice_columns.size(); ++j) {
+          if (current_phase != advice_phases[j]) continue;
           const RationalEvals& column = rational_advice_columns[j];
           std::vector<F> evaluated;
           CHECK(math::RationalField<F>::BatchEvaluate(column.evaluations(),
