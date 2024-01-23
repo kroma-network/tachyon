@@ -11,7 +11,7 @@ pub mod ffi {
     }
 }
 
-struct XORShiftRng {
+pub struct XORShiftRng {
     inner: cxx::UniquePtr<ffi::XORShiftRng>,
 }
 
