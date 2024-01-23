@@ -17,6 +17,12 @@
 #include "tachyon/zk/base/commitments/univariate_polynomial_commitment_scheme_extension.h"
 
 namespace tachyon {
+namespace halo2_api::bn254 {
+
+class SHPlonkProver;
+
+}  // namespace halo2_api::bn254
+
 namespace zk {
 
 template <typename Curve, size_t MaxDegree, size_t MaxExtendedDegree,
@@ -124,6 +130,18 @@ class SHPlonkExtension final
   }
 
  private:
+  friend class halo2_api::bn254::SHPlonkProver;
+
+  using G1Point = typename Curve::G1Curve::AffinePoint;
+
+  const std::vector<G1Point>& GetG1PowersOfTau() const {
+    return this->shplonk_.GetG1PowersOfTau();
+  }
+
+  const std::vector<G1Point>& GetG1PowersOfTauLagrange() const {
+    return this->shplonk_.GetG1PowersOfTauLagrange();
+  }
+
   crypto::SHPlonk<Curve, MaxDegree, Commitment> shplonk_;
 };
 

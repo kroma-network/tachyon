@@ -3,12 +3,10 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/rs/base/container_util.h"
 #include "vendors/halo2/src/bn254.rs.h"
+#include "vendors/halo2/src/degrees.h"
 #include "vendors/halo2/src/shplonk_proving_key_impl.h"
 
 namespace tachyon::halo2_api::bn254 {
-
-constexpr size_t kMaxDegree = (size_t{1} << 5) - 1;
-constexpr size_t kMaxExtendedDegree = (size_t{1} << 7) - 1;
 
 using PCS =
     zk::SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,

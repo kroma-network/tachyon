@@ -5,7 +5,6 @@ use std::{
     ops::RangeTo,
 };
 
-use crate::bn254::ffi;
 use ff::Field;
 use halo2_proofs::{
     arithmetic::CurveAffine,
@@ -419,6 +418,39 @@ pub fn create_proof<
         (advice, challenges)
     };
 
-    ffi::create_proof(5);
+    // TODO(chokobole): implement `create_proof()`.
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use crate::bn254::SHPlonkProver as TachyonSHPlonkProver;
+    use ff::Field;
+    use halo2_proofs::poly::{
+        commitment::{Blind, Params, ParamsProver},
+        kzg::commitment::ParamsKZG,
+        EvaluationDomain,
+    };
+    use halo2curves::bn256::{Bn256, Fr};
+    use rand_core::OsRng;
+
+    #[test]
+    fn test_params() {
+        let k = 4;
+        const N: u64 = 16;
+        let s = Fr::from(2);
+        let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
+        let prover = TachyonSHPlonkProver::new(k, &s);
+        assert_eq!(prover.n(), N);
+
+        let domain = EvaluationDomain::new(1, k);
+        let scalars = (0..N).map(|_| Fr::random(OsRng)).collect::<Vec<_>>();
+        let poly = domain.coeff_from_vec(scalars.clone());
+        assert_eq!(params.commit(&poly, Blind::default()), prover.commit(&poly));
+        let poly = domain.lagrange_from_vec(scalars);
+        assert_eq!(
+            params.commit_lagrange(&poly, Blind::default()),
+            prover.commit_lagrange(&poly)
+        );
+    }
 }

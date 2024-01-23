@@ -1,11 +1,13 @@
 use std::{
     io::{self, Write},
     marker::PhantomData,
+    ops::Deref,
 };
 
 use ff::PrimeField;
 use halo2_proofs::{
     plonk::{sealed, Column, Fixed},
+    poly::{Coeff, LagrangeCoeff, Polynomial},
     transcript::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
@@ -57,12 +59,6 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
-        include!("vendors/halo2/include/bn254_prover.h");
-
-        fn create_proof(degree: u8);
-    }
-
-    unsafe extern "C++" {
         include!("vendors/halo2/include/bn254_blake2b_writer.h");
 
         type Blake2bWriter;
@@ -86,6 +82,18 @@ pub mod ffi {
         fn num_challenges(&self) -> usize;
         fn num_instance_columns(&self) -> usize;
         fn phases(&self) -> Vec<u8>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_shplonk_prover.h");
+
+        type SHPlonkProver;
+
+        fn new_shplonk_prover(k: u32, s: &Fr) -> UniquePtr<SHPlonkProver>;
+        fn k(&self) -> u32;
+        fn n(&self) -> u64;
+        fn commit(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
+        fn commit_lagrange(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
     }
 }
 
@@ -234,6 +242,49 @@ impl SHPlonkProvingKey {
         unsafe {
             let phases: Vec<sealed::Phase> = std::mem::transmute(self.inner.phases());
             phases
+        }
+    }
+}
+
+pub struct SHPlonkProver {
+    inner: cxx::UniquePtr<ffi::SHPlonkProver>,
+}
+
+impl SHPlonkProver {
+    pub fn new(k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver {
+        let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
+        SHPlonkProver {
+            inner: ffi::new_shplonk_prover(k, cpp_s),
+        }
+    }
+
+    pub fn k(&self) -> u32 {
+        self.inner.k()
+    }
+
+    pub fn n(&self) -> u64 {
+        self.inner.n()
+    }
+
+    pub fn commit(
+        &self,
+        poly: &Polynomial<halo2curves::bn256::Fr, Coeff>,
+    ) -> halo2curves::bn256::G1 {
+        *unsafe {
+            let scalars: &[Fr] = std::mem::transmute(poly.deref());
+            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(self.inner.commit(scalars))
+        }
+    }
+
+    pub fn commit_lagrange(
+        &self,
+        poly: &Polynomial<halo2curves::bn256::Fr, LagrangeCoeff>,
+    ) -> halo2curves::bn256::G1 {
+        *unsafe {
+            let scalars: &[Fr] = std::mem::transmute(poly.deref());
+            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(
+                self.inner.commit_lagrange(scalars),
+            )
         }
     }
 }
