@@ -7,14 +7,12 @@ tachyon_cc_library(
     hdrs = ["assignment_pass.h"],
     deps = [
         ":v1_plan",
-        ":v1_region",
-        "//tachyon/base:logging",
         "//tachyon/zk/plonk/circuit:cell",
         "//tachyon/zk/plonk/circuit:column_key",
         "//tachyon/zk/plonk/circuit:layouter",
+        "//tachyon/zk/plonk/circuit/floor_planner:lookup_table_assigner",
+        "//tachyon/zk/plonk/circuit/floor_planner:plan_region",
         "//tachyon/zk/plonk/circuit/floor_planner:scoped_region",
-        "//tachyon/zk/plonk/circuit/floor_planner:simple_lookup_table_layouter",
-        "@com_google_absl//absl/container:flat_hash_map",
     ],
 )
 
@@ -22,17 +20,6 @@ tachyon_cc_library(
     name = "measurement_pass",
     hdrs = ["measurement_pass.h"],
     deps = ["//tachyon/zk/plonk/circuit:region_shape"],
-)
-
-tachyon_cc_library(
-    name = "v1_pass",
-    hdrs = ["v1_pass.h"],
-    deps = [
-        ":assignment_pass",
-        ":measurement_pass",
-        "//tachyon/zk/base:value",
-        "//tachyon/zk/plonk/circuit:layouter",
-    ],
 )
 
 tachyon_cc_library(
@@ -52,6 +39,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "v1_pass",
+    hdrs = ["v1_pass.h"],
+    deps = [
+        ":assignment_pass",
+        ":measurement_pass",
+        "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk/circuit:layouter",
+    ],
+)
+
+tachyon_cc_library(
     name = "v1_plan",
     hdrs = ["v1_plan.h"],
     deps = [
@@ -60,15 +58,6 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/circuit:cell",
         "//tachyon/zk/plonk/circuit:lookup_table_column",
         "//tachyon/zk/plonk/circuit/floor_planner:constant",
-    ],
-)
-
-tachyon_cc_library(
-    name = "v1_region",
-    hdrs = ["v1_region.h"],
-    deps = [
-        ":v1_plan",
-        "//tachyon/zk/plonk/circuit:region",
     ],
 )
 

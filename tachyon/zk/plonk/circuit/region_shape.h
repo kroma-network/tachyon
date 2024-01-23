@@ -13,15 +13,15 @@
 #include "absl/container/flat_hash_set.h"
 
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/region.h"
 #include "tachyon/zk/plonk/circuit/region_column.h"
+#include "tachyon/zk/plonk/circuit/region_layouter.h"
 
 namespace tachyon::zk {
 
 template <typename F>
-class RegionShape : public Region<F>::Layouter {
+class RegionShape : public RegionLayouter<F> {
  public:
-  using AssignCallback = typename Region<F>::Layouter::AssignCallback;
+  using AssignCallback = typename RegionLayouter<F>::AssignCallback;
 
   explicit RegionShape(size_t region_index) : region_index_(region_index) {}
 
@@ -29,7 +29,7 @@ class RegionShape : public Region<F>::Layouter {
   const absl::flat_hash_set<RegionColumn>& columns() const { return columns_; }
   size_t row_count() const { return row_count_; }
 
-  // Region<F>::Layouter methods
+  // RegionLayouter methods
   void EnableSelector(std::string_view, const Selector& selector,
                       size_t offset) override {
     UpdateColumnsAndRowCount(selector, offset);
