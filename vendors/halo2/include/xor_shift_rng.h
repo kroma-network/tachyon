@@ -17,6 +17,7 @@ class XORShiftRng {
 
   uint32_t next_u32();
   std::unique_ptr<XORShiftRng> clone() const;
+  rust::Vec<uint8_t> state() const;
 
  private:
   class Impl;

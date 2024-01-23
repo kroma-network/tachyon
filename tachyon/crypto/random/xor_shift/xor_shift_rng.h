@@ -23,6 +23,11 @@ class XORShiftRNG final : public RNG<XORShiftRNG> {
  public:
   XORShiftRNG() = default;
 
+  uint32_t x() const { return x_; }
+  uint32_t y() const { return y_; }
+  uint32_t z() const { return z_; }
+  uint32_t w() const { return w_; }
+
   static XORShiftRNG FromSeed(const uint8_t seed[16]) {
     XORShiftRNG ret;
     memcpy(&ret.x_, &seed[0], sizeof(uint32_t));

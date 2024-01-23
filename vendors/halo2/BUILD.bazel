@@ -187,6 +187,8 @@ tachyon_cc_library(
     deps = [
         ":xor_shift_rng_api_hdrs",
         ":xor_shift_rng_cxx_bridge/include",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
+        "//tachyon/rs/base:container_util",
     ],
 )
