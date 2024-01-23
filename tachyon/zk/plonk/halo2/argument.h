@@ -184,8 +184,8 @@ class Argument {
   std::vector<std::vector<F>> advice_blinds_vec_;
   // Note(dongchangYoo): to optimize memory usage, release every advice
   // evaluations after generating an advice polynomial. That is, when
-  // |advice_transformed_| is set to true, |advice_values_by_circuits| is
-  // released, and only |advice_polys_by_circuits| becomes available for use.
+  // |advice_transformed_| is set to true, |advice_columns_vec_| is
+  // released, and only |advice_polys_vec_| becomes available for use.
   std::vector<std::vector<Poly>> advice_polys_vec_;
   bool advice_transformed_ = false;
 
