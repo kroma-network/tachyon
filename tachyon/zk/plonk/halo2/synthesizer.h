@@ -66,7 +66,7 @@ class Synthesizer {
         for (size_t j = 0; j < rational_advice_columns.size(); ++j) {
           if (current_phase != advice_phases[j]) continue;
           const RationalEvals& column = rational_advice_columns[j];
-          std::vector<F> evaluated;
+          std::vector<F> evaluated(column.NumElements());
           CHECK(math::RationalField<F>::BatchEvaluate(column.evaluations(),
                                                       &evaluated));
           // Add blinding factors to advice columns
