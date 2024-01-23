@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "absl/types/span.h"
 #include "openssl/blake2.h"
 
 #include "tachyon/crypto/transcripts/transcript.h"
@@ -84,6 +85,17 @@ class Blake2bBase {
     return std::move(buffer).TakeOwnedBuffer();
   }
 
+  void DoSetState(absl::Span<const uint8_t> state) {
+    base::Buffer buffer(const_cast<uint8_t*>(state.data()), state.size());
+    buffer.set_endian(base::Endian::kLittle);
+    blake2b_state_st* state_impl = reinterpret_cast<blake2b_state_st*>(&state_);
+    CHECK(buffer.Read(state_impl->h));
+    CHECK(buffer.Read(&state_impl->t_low));
+    CHECK(buffer.Read(&state_impl->t_high));
+    CHECK(buffer.Read(state_impl->block));
+    CHECK(buffer.Read(&state_impl->block_used));
+  }
+
   BLAKE2B_CTX state_;
 };
 
@@ -133,13 +145,15 @@ class Blake2bWriter : public crypto::TranscriptWriter<AffinePoint>,
   explicit Blake2bWriter(base::Uint8VectorBuffer write_buf)
       : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {}
 
-  // NOTE(chokobole): |Update()|, |Finalize()| and |GetState()| are called from
-  // rust binding.
+  // NOTE(chokobole): |Update()|, |Finalize()|, |GetState()| and |SetState()|
+  // are called from rust binding.
   void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
 
   void Finalize(uint8_t result[64]) { this->DoFinalize(result); }
 
   std::vector<uint8_t> GetState() const { return this->DoGetState(); }
+
+  void SetState(absl::Span<const uint8_t> state) { this->DoSetState(state); }
 
   // crypto::TranscriptWriter methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }

@@ -22,6 +22,8 @@ class SHPlonkProver {
   rust::Box<G1JacobianPoint> commit(rust::Slice<const Fr> scalars) const;
   rust::Box<G1JacobianPoint> commit_lagrange(
       rust::Slice<const Fr> scalars) const;
+  void set_rng(rust::Slice<const uint8_t> state);
+  void set_transcript(rust::Slice<const uint8_t> state);
 
  private:
   std::shared_ptr<SHPlonkProverImpl> impl_;

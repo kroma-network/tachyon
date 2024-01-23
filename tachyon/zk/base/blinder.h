@@ -49,7 +49,7 @@ class Blinder {
 
  private:
   // not owned
-  RandomFieldGeneratorBase<F>* const random_field_generator_;
+  RandomFieldGeneratorBase<F>* random_field_generator_ = nullptr;
   size_t blinding_factors_ = 0;
 };
 

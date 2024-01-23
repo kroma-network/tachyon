@@ -16,7 +16,15 @@
 #include "tachyon/zk/plonk/halo2/random_field_generator.h"
 #include "tachyon/zk/plonk/halo2/verifier.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon {
+namespace halo2_api {
+
+template <typename PCS>
+class ProverImpl;
+
+}  // namespace halo2_api
+
+namespace zk::halo2 {
 
 template <typename PCS>
 class Prover : public ProverBase<PCS> {
@@ -131,6 +139,8 @@ class Prover : public ProverBase<PCS> {
   }
 
  private:
+  friend class halo2_api::ProverImpl<PCS>;
+
   Prover(PCS&& pcs,
          std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
          Blinder<PCS>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
@@ -139,10 +149,18 @@ class Prover : public ProverBase<PCS> {
         rng_(std::move(rng)),
         generator_(std::move(generator)) {}
 
+  void SetRng(std::unique_ptr<crypto::XORShiftRNG> rng) {
+    rng_ = std::move(rng);
+    generator_ = std::make_unique<RandomFieldGenerator<F>>(rng_.get());
+    this->blinder_ =
+        Blinder<PCS>(generator_.get(), this->blinder_.blinding_factors());
+  }
+
   std::unique_ptr<crypto::XORShiftRNG> rng_;
   std::unique_ptr<RandomFieldGenerator<F>> generator_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace zk::halo2
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_HALO2_PROVER_H_

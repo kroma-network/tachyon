@@ -95,6 +95,8 @@ pub mod ffi {
         fn n(&self) -> u64;
         fn commit(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
         fn commit_lagrange(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
+        fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
+        fn set_transcript(self: Pin<&mut SHPlonkProver>, state: &[u8]);
     }
 }
 
@@ -293,5 +295,13 @@ impl SHPlonkProver {
                 self.inner.commit_lagrange(scalars),
             )
         }
+    }
+
+    pub fn set_rng(&mut self, state: &[u8]) {
+        self.inner.pin_mut().set_rng(state)
+    }
+
+    pub fn set_transcript(&mut self, state: &[u8]) {
+        self.inner.pin_mut().set_transcript(state)
     }
 }

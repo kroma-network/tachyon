@@ -46,6 +46,10 @@ class XORShiftRNG final : public RNG<XORShiftRNG> {
     return FromSeed(seed);
   }
 
+  static XORShiftRNG FromState(uint32_t x, uint32_t y, uint32_t z, uint32_t w) {
+    return {x, y, z, w};
+  }
+
   uint32_t NextUint32() {
     uint32_t t = x_ ^ (x_ << 11);
     x_ = y_;
@@ -56,6 +60,9 @@ class XORShiftRNG final : public RNG<XORShiftRNG> {
   }
 
  private:
+  XORShiftRNG(uint32_t x, uint32_t y, uint32_t z, uint32_t w)
+      : x_(x), y_(y), z_(z), w_(w) {}
+
   uint32_t x_ = 195911405;  // 0xBAD_5EED
   uint32_t y_ = 195911405;  // 0xBAD_5EED
   uint32_t z_ = 195911405;  // 0xBAD_5EED

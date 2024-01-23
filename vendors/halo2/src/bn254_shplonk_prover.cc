@@ -1,5 +1,6 @@
 #include "vendors/halo2/include/bn254_shplonk_prover.h"
 
+#include "tachyon/base/buffer/buffer.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/rs/base/container_util.h"
@@ -41,6 +42,26 @@ rust::Box<G1JacobianPoint> SHPlonkProver::commit(
 rust::Box<G1JacobianPoint> SHPlonkProver::commit_lagrange(
     rust::Slice<const Fr> scalars) const {
   return DoCommit(impl_->prover().pcs().GetG1PowersOfTauLagrange(), scalars);
+}
+
+void SHPlonkProver::set_rng(rust::Slice<const uint8_t> state) {
+  base::Buffer buffer(const_cast<uint8_t*>(state.data()), state.size());
+  uint32_t x, y, z, w;
+  CHECK(buffer.Read32LE(&x));
+  CHECK(buffer.Read32LE(&y));
+  CHECK(buffer.Read32LE(&z));
+  CHECK(buffer.Read32LE(&w));
+  impl_->SetRng(std::make_unique<crypto::XORShiftRNG>(
+      crypto::XORShiftRNG::FromState(x, y, z, w)));
+}
+
+void SHPlonkProver::set_transcript(rust::Slice<const uint8_t> state) {
+  base::Uint8VectorBuffer write_buf;
+  std::unique_ptr<zk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>> writer =
+      std::make_unique<zk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
+          std::move(write_buf));
+  writer->SetState(rs::ConvertRustSliceToCppSpan<const uint8_t>(state));
+  impl_->SetTranscript(std::move(writer));
 }
 
 std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint32_t k, const Fr& s) {
