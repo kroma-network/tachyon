@@ -135,7 +135,7 @@ class CircuitPolynomialBuilder {
                                                size_t chunk_offset,
                                                size_t chunk_size) {
         const Evals& input_coset = lookup_input_cosets_[i];
-        const Evals& table_coset = lookup_input_cosets_[i];
+        const Evals& table_coset = lookup_table_cosets_[i];
         const Evals& product_coset = lookup_product_cosets_[i];
 
         EvaluationInput<Poly, Evals> evaluation_input = ExtractEvaluationInput(
@@ -282,7 +282,7 @@ class CircuitPolynomialBuilder {
                    F* current_delta, size_t idx, const F* initial_value) {
     F right = *initial_value;
     for (size_t i = 0; i < column_chunk.size(); ++i) {
-      right *= *(*column_chunk[i])[idx] + delta_ + *gamma_;
+      right *= *(*column_chunk[i])[idx] + *current_delta + *gamma_;
       *current_delta *= delta_;
     }
     return right;
