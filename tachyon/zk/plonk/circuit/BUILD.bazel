@@ -213,6 +213,7 @@ tachyon_cc_library(
         ":assigned_cell",
         ":column_key",
         ":selector",
+        ":region_layouter",
         "//tachyon/base/functional:callback",
     ],
 )
@@ -223,6 +224,19 @@ tachyon_cc_library(
     deps = [
         ":column_key",
         ":selector",
+    ],
+)
+
+tachyon_cc_library(
+    name = "region_layouter",
+    hdrs = ["region_layouter.h"],
+    deps = [
+        ":assigned_cell",
+        ":column_key",
+        ":selector",
+        "//tachyon/base/functional:callback",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:value",
     ],
 )
 
