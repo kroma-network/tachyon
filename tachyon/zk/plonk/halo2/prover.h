@@ -57,12 +57,11 @@ class Prover : public ProverBase<PCS> {
   crypto::XORShiftRNG* rng() { return rng_.get(); }
   RandomFieldGenerator<F>* generator() { return generator_.get(); }
 
-  std::unique_ptr<Verifier<PCS>> ToVerifier(
+  Verifier<PCS> ToVerifier(
       std::unique_ptr<crypto::TranscriptReader<Commitment>> reader) {
-    std::unique_ptr<Verifier<PCS>> ret = std::make_unique<Verifier<PCS>>(
-        std::move(this->pcs_), std::move(reader));
-    ret->set_domain(std::move(this->domain_));
-    ret->set_extended_domain(std::move(this->extended_domain_));
+    Verifier<PCS> ret(std::move(this->pcs_), std::move(reader));
+    ret.set_domain(std::move(this->domain_));
+    ret.set_extended_domain(std::move(this->extended_domain_));
     return ret;
   }
 

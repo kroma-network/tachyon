@@ -673,7 +673,7 @@ TEST_F(SimpleV1CircuitTest, Verify) {
 
   std::vector<uint8_t> owned_proof(std::begin(kExpectedProof),
                                    std::end(kExpectedProof));
-  std::unique_ptr<Verifier<PCS>> verifier =
+  Verifier<PCS> verifier =
       CreateVerifier(CreateBufferWithProof(absl::MakeSpan(owned_proof)));
   F c = constant * a.Square() * b.Square();
   std::vector<F> instance_column = {std::move(c)};
@@ -683,8 +683,8 @@ TEST_F(SimpleV1CircuitTest, Verify) {
 
   Proof<F, Commitment> proof;
   F h_eval;
-  ASSERT_TRUE(verifier->VerifyProofForTesting(vkey, instance_columns_vec,
-                                              &proof, &h_eval));
+  ASSERT_TRUE(verifier.VerifyProofForTesting(vkey, instance_columns_vec, &proof,
+                                             &h_eval));
 
   std::vector<std::vector<Commitment>> expected_advice_commitments_vec;
   {

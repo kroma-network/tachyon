@@ -54,7 +54,7 @@ class ProverTest : public testing::Test {
   }
 
  protected:
-  std::unique_ptr<Verifier<PCS>> CreateVerifier(base::Buffer read_buf) {
+  Verifier<PCS> CreateVerifier(base::Buffer read_buf) {
     std::unique_ptr<crypto::TranscriptReader<Commitment>> reader =
         std::make_unique<Blake2bReader<Commitment>>(std::move(read_buf));
     return prover_->ToVerifier(std::move(reader));
