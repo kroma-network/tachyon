@@ -15,6 +15,7 @@ class Blake2bWriter {
 
   void update(rust::Slice<const uint8_t> data);
   void finalize(std::array<uint8_t, 64>& result);
+  rust::Vec<uint8_t> state() const;
 
  private:
   class Impl;

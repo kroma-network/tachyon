@@ -7,7 +7,10 @@
 #ifndef TACHYON_ZK_PLONK_HALO2_BLAKE2B_TRANSCRIPT_H_
 #define TACHYON_ZK_PLONK_HALO2_BLAKE2B_TRANSCRIPT_H_
 
+#include <stdint.h>
+
 #include <utility>
+#include <vector>
 
 #include "openssl/blake2.h"
 
@@ -67,6 +70,20 @@ class Blake2bBase {
     BLAKE2B512_Final(result, &hasher);
   }
 
+  std::vector<uint8_t> DoGetState() const {
+    const blake2b_state_st* state_impl =
+        reinterpret_cast<const blake2b_state_st*>(&state_);
+    base::Uint8VectorBuffer buffer;
+    buffer.set_endian(base::Endian::kLittle);
+    CHECK(buffer.Grow(sizeof(blake2b_state_st)));
+    CHECK(buffer.Write(state_impl->h));
+    CHECK(buffer.Write(state_impl->t_low));
+    CHECK(buffer.Write(state_impl->t_high));
+    CHECK(buffer.Write(state_impl->block));
+    CHECK(buffer.Write(state_impl->block_used));
+    return std::move(buffer).TakeOwnedBuffer();
+  }
+
   BLAKE2B_CTX state_;
 };
 
@@ -116,9 +133,13 @@ class Blake2bWriter : public crypto::TranscriptWriter<AffinePoint>,
   explicit Blake2bWriter(base::Uint8VectorBuffer write_buf)
       : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {}
 
+  // NOTE(chokobole): |Update()|, |Finalize()| and |GetState()| are called from
+  // rust binding.
   void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
 
   void Finalize(uint8_t result[64]) { this->DoFinalize(result); }
+
+  std::vector<uint8_t> GetState() const { return this->DoGetState(); }
 
   // crypto::TranscriptWriter methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }

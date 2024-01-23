@@ -87,6 +87,7 @@ tachyon_cc_library(
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/rs/base:container_util",
         "//tachyon/zk/plonk/halo2:blake2b_transcript",
     ],
 )

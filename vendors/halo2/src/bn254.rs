@@ -66,6 +66,7 @@ pub mod ffi {
         fn new_blake2b_writer() -> UniquePtr<Blake2bWriter>;
         fn update(self: Pin<&mut Blake2bWriter>, data: &[u8]);
         fn finalize(self: Pin<&mut Blake2bWriter>, result: &mut [u8; 64]);
+        fn state(&self) -> Vec<u8>;
     }
 
     unsafe extern "C++" {
@@ -101,6 +102,12 @@ pub struct Blake2bWrite<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
     state: cxx::UniquePtr<ffi::Blake2bWriter>,
     writer: W,
     _marker: PhantomData<(W, C, E)>,
+}
+
+impl<W: Write, C: CurveAffine> Blake2bWrite<W, C, Challenge255<C>> {
+    pub fn state(&self) -> Vec<u8> {
+        self.state.state()
+    }
 }
 
 impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
