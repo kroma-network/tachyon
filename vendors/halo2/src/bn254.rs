@@ -202,18 +202,16 @@ impl SHPlonkProvingKey {
 
     // pk.vk.cs.constants
     pub fn constants(&self) -> Vec<Column<Fixed>> {
-        unsafe {
-            let constants = self
-                .inner
-                .constants()
-                .iter()
-                .map(|index| Column {
-                    index: *index,
-                    column_type: Fixed,
-                })
-                .collect::<Vec<_>>();
-            constants
-        }
+        let constants = self
+            .inner
+            .constants()
+            .iter()
+            .map(|index| Column {
+                index: *index,
+                column_type: Fixed,
+            })
+            .collect::<Vec<_>>();
+        constants
     }
 
     // pk.vk.cs.num_advice_columns
