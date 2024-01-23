@@ -30,7 +30,15 @@
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
 
-namespace tachyon::zk {
+namespace tachyon {
+namespace halo2_api {
+
+template <typename PCS>
+class ProvingKeyImpl;
+
+}  // namespace halo2_api
+
+namespace zk {
 
 // This is a description of the circuit environment, such as the gate, column
 // and permutation arrangements.
@@ -516,6 +524,9 @@ class ConstraintSystem {
   }
 
  private:
+  template <typename PCS>
+  friend class halo2_api::ProvingKeyImpl;
+
   template <typename QueryData, typename ColumnTy>
   static bool QueryIndex(const std::vector<QueryData>& queries,
                          const ColumnTy& column, Rotation at,
@@ -602,6 +613,7 @@ class ConstraintSystem {
   mutable std::optional<size_t> cached_blinding_factors_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace zk
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_H_

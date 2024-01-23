@@ -20,7 +20,15 @@
 #include "tachyon/zk/plonk/keys/key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 
-namespace tachyon::zk {
+namespace tachyon {
+namespace halo2_api {
+
+template <typename PCS>
+class ProvingKeyImpl;
+
+}  // namespace halo2_api
+
+namespace zk {
 namespace halo2 {
 
 template <typename PCS>
@@ -44,8 +52,8 @@ class VerifyingKey : public Key<PCS> {
 
   const Commitments& fixed_commitments() const { return fixed_commitments_; }
 
-  const PermutationVerifyingKey<PCS>& permutation_verifying_key() const {
-    return permutation_verifying_Key_;
+  const PermutationVerifyingKey<Commitment>& permutation_verifying_key() const {
+    return permutation_verifying_key_;
   }
 
   const ConstraintSystem<F>& constraint_system() const {
@@ -64,6 +72,7 @@ class VerifyingKey : public Key<PCS> {
 
  private:
   friend class ProvingKey<PCS>;
+  friend class halo2_api::ProvingKeyImpl<PCS>;
 
   struct LoadResult {
     std::vector<Evals> permutations;
@@ -76,7 +85,7 @@ class VerifyingKey : public Key<PCS> {
     std::vector<Evals> permutations =
         pre_load_result.assembly.permutation().GeneratePermutations(
             entity->domain());
-    permutation_verifying_Key_ =
+    permutation_verifying_key_ =
         pre_load_result.assembly.permutation().BuildVerifyingKey(entity,
                                                                  permutations);
     if (load_result) {
@@ -115,12 +124,13 @@ class VerifyingKey : public Key<PCS> {
   }
 
   Commitments fixed_commitments_;
-  PermutationVerifyingKey<PCS> permutation_verifying_Key_;
+  PermutationVerifyingKey<Commitment> permutation_verifying_key_;
   ConstraintSystem<F> constraint_system_;
   // The representative of this |VerifyingKey| in transcripts.
   F transcript_repr_ = F::Zero();
 };
 
-}  // namespace tachyon::zk
+}  // namespace zk
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_KEYS_VERIFYING_KEY_H_

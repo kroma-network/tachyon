@@ -4,8 +4,11 @@ use std::{
 };
 
 use ff::PrimeField;
-use halo2_proofs::transcript::{
-    Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
+use halo2_proofs::{
+    plonk::{sealed, Column, Fixed},
+    transcript::{
+        Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
+    },
 };
 use halo2curves::{Coordinates, CurveAffine};
 
@@ -67,6 +70,22 @@ pub mod ffi {
         fn new_blake2b_writer() -> UniquePtr<Blake2bWriter>;
         fn update(self: Pin<&mut Blake2bWriter>, data: &[u8]);
         fn finalize(self: Pin<&mut Blake2bWriter>, result: &mut [u8; 64]);
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_shplonk_proving_key.h");
+
+        type SHPlonkProvingKey;
+
+        fn new_proving_key(data: &[u8]) -> UniquePtr<SHPlonkProvingKey>;
+        fn advice_column_phases(&self) -> &[u8];
+        fn blinding_factors(&self) -> usize;
+        fn challenge_phases(&self) -> &[u8];
+        fn constants(&self) -> Vec<usize>;
+        fn num_advice_columns(&self) -> usize;
+        fn num_challenges(&self) -> usize;
+        fn num_instance_columns(&self) -> usize;
+        fn phases(&self) -> Vec<u8>;
     }
 }
 
@@ -144,5 +163,79 @@ impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
     fn finalize(self) -> W {
         // TODO: handle outstanding scalars? see issue #138
         self.writer
+    }
+}
+
+pub struct SHPlonkProvingKey {
+    inner: cxx::UniquePtr<ffi::SHPlonkProvingKey>,
+}
+
+impl SHPlonkProvingKey {
+    pub fn from(data: &[u8]) -> SHPlonkProvingKey {
+        SHPlonkProvingKey {
+            inner: ffi::new_proving_key(data),
+        }
+    }
+
+    // NOTE(chokobole): We name this as plural since it contains multi phases.
+    // pk.vk.cs.advice_column_phase
+    pub fn advice_column_phases(&self) -> &[sealed::Phase] {
+        unsafe {
+            let phases: &[sealed::Phase] = std::mem::transmute(self.inner.advice_column_phases());
+            phases
+        }
+    }
+
+    // pk.vk.cs.blinding_factors()
+    pub fn blinding_factors(&self) -> usize {
+        self.inner.blinding_factors()
+    }
+
+    // NOTE(chokobole): We name this as plural since it contains multi phases.
+    // pk.vk.cs.challenge_phase
+    pub fn challenge_phases(&self) -> &[sealed::Phase] {
+        unsafe {
+            let phases: &[sealed::Phase] = std::mem::transmute(self.inner.challenge_phases());
+            phases
+        }
+    }
+
+    // pk.vk.cs.constants
+    pub fn constants(&self) -> Vec<Column<Fixed>> {
+        unsafe {
+            let constants = self
+                .inner
+                .constants()
+                .iter()
+                .map(|index| Column {
+                    index: *index,
+                    column_type: Fixed,
+                })
+                .collect::<Vec<_>>();
+            constants
+        }
+    }
+
+    // pk.vk.cs.num_advice_columns
+    pub fn num_advice_columns(&self) -> usize {
+        self.inner.num_advice_columns()
+    }
+
+    // pk.vk.cs.num_challenges
+    pub fn num_challenges(&self) -> usize {
+        self.inner.num_challenges()
+    }
+
+    // pk.vk.cs.num_instance_columns
+    pub fn num_instance_columns(&self) -> usize {
+        self.inner.num_instance_columns()
+    }
+
+    // pk.vk.cs.phases()
+    pub fn phases(&self) -> Vec<sealed::Phase> {
+        unsafe {
+            let phases: Vec<sealed::Phase> = std::mem::transmute(self.inner.phases());
+            phases
+        }
     }
 }

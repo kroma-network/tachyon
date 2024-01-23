@@ -6,6 +6,9 @@
 #include <utility>
 #include <vector>
 
+#include "absl/strings/str_join.h"
+#include "absl/strings/substitute.h"
+
 #include "tachyon/zk/expressions/expression.h"
 #include "tachyon/zk/plonk/circuit/selector.h"
 #include "tachyon/zk/plonk/circuit/virtual_cell.h"
@@ -54,6 +57,27 @@ class Gate {
     return true;
   }
   bool operator!=(const Gate& other) const { return !operator==(other); }
+
+  std::string ToString() const {
+    std::vector<std::string> polys_str =
+        base::Map(polys_, [](const std::unique_ptr<Expression<F>>& expr) {
+          return expr->ToString();
+        });
+    std::vector<std::string> queried_selectors_str =
+        base::Map(queried_selectors_,
+                  [](const Selector& selector) { return selector.ToString(); });
+    std::vector<std::string> queried_cells_str =
+        base::Map(queried_cells_, [](const VirtualCell& queried_cell) {
+          return queried_cell.ToString();
+        });
+    return absl::Substitute(
+        "name: $0, constraint_names: [$1], polys: [$2], queried_selectors: "
+        "[$3], queried_cells: [$4]",
+        name_, absl::StrJoin(constraint_names_, ", "),
+        absl::StrJoin(polys_str, ", "),
+        absl::StrJoin(queried_selectors_str, ", "),
+        absl::StrJoin(queried_cells_str, ", "));
+  }
 
  private:
   std::string name_;

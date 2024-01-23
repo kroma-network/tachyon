@@ -20,6 +20,7 @@ tachyon_rust_library(
         ":bn254_msm",
         ":bn254_msm_gpu",
         ":bn254_prover",
+        ":bn254_shplonk_proving_key",
         ":xor_shift_rng",
         ":xor_shift_rng_cxx_bridge",
     ],
@@ -70,6 +71,8 @@ tachyon_cc_library(
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
         "include/bn254_prover.h",
+        "include/bn254_shplonk_proving_key.h",
+        "include/proving_key_impl_forward.h",
     ],
     deps = ["@cxx.rs//:core"],
 )
@@ -114,6 +117,33 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_shplonk_proving_key",
+    srcs = [
+        "src/bn254_shplonk_proving_key.cc",
+        "src/buffer_reader.h",
+        "src/endian_auto_reset.h",
+        "src/shplonk_proving_key_impl.h",
+    ],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        "//tachyon/base:logging",
+        "//tachyon/base/buffer",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+        "//tachyon/zk/base/commitments:shplonk_extension",
+        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/circuit:gate",
+        "//tachyon/zk/plonk/circuit:phase",
+        "//tachyon/zk/plonk/keys:proving_key",
+        "//tachyon/zk/plonk/permutation:permutation_argument",
     ],
 )
 

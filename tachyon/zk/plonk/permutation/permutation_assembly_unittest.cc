@@ -55,7 +55,7 @@ TEST_F(PermutationAssemblyTest, BuildKeys) {
       assembly_.BuildProvingKey(prover_.get(), permutations);
   EXPECT_EQ(pk.permutations().size(), pk.polys().size());
 
-  PermutationVerifyingKey<PCS> vk =
+  PermutationVerifyingKey<Commitment> vk =
       assembly_.BuildVerifyingKey(prover_.get(), permutations);
   EXPECT_EQ(pk.permutations().size(), vk.commitments().size());
 
