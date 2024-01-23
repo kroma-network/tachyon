@@ -63,7 +63,7 @@ class Synthesizer {
         if constexpr (PCS::kSupportsBatchMode) {
           prover->pcs().SetBatchMode(phases.size());
         }
-        for (size_t j = 0; j < phases.size(); ++i) {
+        for (size_t j = 0; j < phases.size(); ++j) {
           if (current_phase != phases[j]) continue;
           const RationalEvals& column = rational_advice_columns[j];
           std::vector<F> evaluated;
