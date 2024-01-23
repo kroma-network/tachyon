@@ -66,35 +66,26 @@ class Argument {
     absl::Span<const Evals> fixed_columns =
         absl::MakeConstSpan(*fixed_columns_);
 
-    base::Range<size_t> circuit_range =
-        base::Range<size_t>::Until(num_circuits_);
-    return base::Map(circuit_range.begin(), circuit_range.end(),
-                     [fixed_columns, this](size_t i) {
-                       absl::Span<const Evals> advice_columns =
-                           absl::MakeConstSpan(advice_columns_vec_[i]);
-                       absl::Span<const Evals> instance_columns =
-                           absl::MakeConstSpan(instance_columns_vec_[i]);
-                       return RefTable<Evals>(fixed_columns, advice_columns,
-                                              instance_columns);
-                     });
+    return base::CreateVector(num_circuits_, [fixed_columns, this](size_t i) {
+      absl::Span<const Evals> advice_columns =
+          absl::MakeConstSpan(advice_columns_vec_[i]);
+      absl::Span<const Evals> instance_columns =
+          absl::MakeConstSpan(instance_columns_vec_[i]);
+      return RefTable<Evals>(fixed_columns, advice_columns, instance_columns);
+    });
   }
 
   // Return a table including every type of polynomials in coefficient form.
   std::vector<RefTable<Poly>> ExportPolyTables() const {
     CHECK(advice_transformed_);
     absl::Span<const Poly> fixed_polys = absl::MakeConstSpan(*fixed_polys_);
-
-    base::Range<size_t> circuit_range =
-        base::Range<size_t>::Until(num_circuits_);
-    return base::Map(circuit_range.begin(), circuit_range.end(),
-                     [fixed_polys, this](size_t i) {
-                       absl::Span<const Poly> advice_polys =
-                           absl::MakeConstSpan(advice_polys_vec_[i]);
-                       absl::Span<const Poly> instance_polys =
-                           absl::MakeConstSpan(instance_polys_vec_[i]);
-                       return RefTable<Poly>(fixed_polys, advice_polys,
-                                             instance_polys);
-                     });
+    return base::CreateVector(num_circuits_, [fixed_polys, this](size_t i) {
+      absl::Span<const Poly> advice_polys =
+          absl::MakeConstSpan(advice_polys_vec_[i]);
+      absl::Span<const Poly> instance_polys =
+          absl::MakeConstSpan(instance_polys_vec_[i]);
+      return RefTable<Poly>(fixed_polys, advice_polys, instance_polys);
+    });
   }
 
   const std::vector<F>& GetAdviceBlinds(size_t circuit_idx) const {
