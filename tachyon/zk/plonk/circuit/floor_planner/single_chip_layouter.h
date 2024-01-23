@@ -13,6 +13,7 @@
 #include "tachyon/base/functional/identity.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/constant.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/plan_region.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/scoped_region.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
@@ -24,95 +25,6 @@ namespace tachyon::zk {
 template <typename F>
 class SingleChipLayouter : public Layouter<F> {
  public:
-  class Region : public zk::Region<F>::Layouter {
-   public:
-    using AssignCallback = typename zk::Region<F>::Layouter::AssignCallback;
-
-    Region(SingleChipLayouter* layouter, size_t region_index)
-        : layouter_(layouter), region_index_(region_index) {}
-
-    const Constants<F>& constants() const { return constants_; }
-
-    // zk::Region<F>::Layouter methods
-    void EnableSelector(std::string_view name, const Selector& selector,
-                        size_t offset) override {
-      layouter_->assignment_->EnableSelector(
-          name, selector, layouter_->regions_[region_index_] + offset);
-    }
-
-    void NameColumn(std::string_view name,
-                    const AnyColumnKey& column) override {
-      layouter_->assignment_->NameColumn(name, column);
-    }
-
-    Cell AssignAdvice(std::string_view name, const AdviceColumnKey& column,
-                      size_t offset, AssignCallback assign) override {
-      layouter_->assignment_->AssignAdvice(
-          name, column, layouter_->regions_[region_index_] + offset,
-          std::move(assign));
-      return {region_index_, offset, column};
-    }
-
-    Cell AssignAdviceFromConstant(
-        std::string_view name, const AdviceColumnKey& column, size_t offset,
-        const math::RationalField<F>& constant) override {
-      Cell cell = AssignAdvice(name, column, offset, [&constant]() {
-        return Value<math::RationalField<F>>::Known(constant);
-      });
-      ConstrainConstant(cell, constant);
-      return cell;
-    }
-
-    AssignedCell<F> AssignAdviceFromInstance(std::string_view name,
-                                             const InstanceColumnKey& instance,
-                                             size_t row,
-                                             const AdviceColumnKey& advice,
-                                             size_t offset) override {
-      Value<F> value = layouter_->assignment_->QueryInstance(instance, row);
-
-      Cell cell = AssignAdvice(name, advice, offset, [&value]() {
-        return Value<math::RationalField<F>>::Known(
-            math::RationalField<F>(value.value()));
-      });
-
-      layouter_->assignment_->Copy(
-          cell.column(),
-          layouter_->regions_[cell.region_index()] + cell.row_offset(),
-          instance, row);
-
-      return {std::move(cell), std::move(value)};
-    }
-
-    Cell AssignFixed(std::string_view name, const FixedColumnKey& column,
-                     size_t offset, AssignCallback assign) override {
-      layouter_->assignment_->AssignFixed(
-          name, column, layouter_->regions_[region_index_] + offset,
-          std::move(assign));
-      return {region_index_, offset, column};
-    }
-
-    void ConstrainConstant(const Cell& cell,
-                           const math::RationalField<F>& constant) override {
-      constants_.push_back({constant, cell});
-    }
-
-    void ConstrainEqual(const Cell& left, const Cell& right) override {
-      layouter_->assignment_->Copy(
-          left.column(),
-          layouter_->regions_[left.region_index()] + left.row_offset(),
-          right.column(),
-          layouter_->regions_[right.region_index()] + right.row_offset());
-    }
-
-   private:
-    // not owned
-    SingleChipLayouter* const layouter_;
-    const size_t region_index_;
-    // Stores the constants to be assigned, and the cells to which they are
-    // copied.
-    Constants<F> constants_;
-  };
-
   using AssignRegionCallback = typename Layouter<F>::AssignRegionCallback;
   using AssignLookupTableCallback =
       typename Layouter<F>::AssignLookupTableCallback;
@@ -142,7 +54,7 @@ class SingleChipLayouter : public Layouter<F> {
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 1st pass: " << name;
-      zk::Region<F> region(&shape);
+      Region<F> region(&shape);
       assign.Run(region);
     }
     size_t row_count = shape.row_count();
@@ -173,25 +85,28 @@ class SingleChipLayouter : public Layouter<F> {
       columns_[column] = region_start + shape.row_count();
     }
 
+    Constants<F> constants;
+
     // Assign region cells.
-    Region region(this, region_index);
+    PlanRegion plan_region(assignment_, regions_, region_index, constants);
     {
       ScopedRegion<F> scoped_region(assignment_, name);
       // TODO(chokobole): Add event trace using
       // https://github.com/google/perfetto.
       VLOG(1) << "Assign region 2nd pass: " << name;
-      zk::Region<F> zk_region(&region);
-      assign.Run(zk_region);
+      Region<F> region(&plan_region);
+      assign.Run(region);
     }
 
     // Assign constants. For the simple floor planner, we assign constants in
     // order in the first |constants| column.
     if (constants_.empty()) {
-      CHECK(region.constants().empty()) << "Not enough columns for constants";
+      CHECK(plan_region.constants().empty())
+          << "Not enough columns for constants";
     } else {
       const FixedColumnKey& constants_column = constants_[0];
       size_t& next_constant_row = columns_[RegionColumn(constants_column)];
-      for (const Constant<F>& constant : region.constants()) {
+      for (const Constant<F>& constant : plan_region.constants()) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
         std::string name =
@@ -287,8 +202,6 @@ class SingleChipLayouter : public Layouter<F> {
   }
 
  private:
-  friend class Region;
-
   // not owned
   Assignment<F>* const assignment_;
   std::vector<FixedColumnKey> constants_;

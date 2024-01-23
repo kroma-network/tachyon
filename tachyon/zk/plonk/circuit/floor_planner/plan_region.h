@@ -4,43 +4,51 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_V1_V1_REGION_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_V1_V1_REGION_H_
+#ifndef TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_PLAN_REGION_H_
+#define TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_PLAN_REGION_H_
 
 #include <stddef.h>
 
 #include <utility>
 
-#include "tachyon/zk/plonk/circuit/floor_planner/v1/v1_plan.h"
-#include "tachyon/zk/plonk/circuit/region.h"
+#include "tachyon/math/base/rational_field.h"
+#include "tachyon/zk/plonk/circuit/assignment.h"
+#include "tachyon/zk/plonk/circuit/column_key.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/constant.h"
+#include "tachyon/zk/plonk/circuit/region_layouter.h"
 
 namespace tachyon::zk {
 
 template <typename F>
-class V1Region : public Region<F>::Layouter {
+class PlanRegion : public RegionLayouter<F> {
  public:
-  using AssignCallback = typename Region<F>::Layouter::AssignCallback;
+  using AssignCallback = typename RegionLayouter<F>::AssignCallback;
 
-  V1Region(V1Plan<F>* plan, size_t region_index)
-      : plan_(plan), region_index_(region_index) {}
+  PlanRegion(Assignment<F>* assignment, const std::vector<size_t>& regions,
+             size_t region_index, Constants<F>& constant)
+      : assignment_(assignment),
+        regions_(regions),
+        region_index_(region_index),
+        constants_(constant) {}
 
-  // Region<F>::Layouter methods
+  const Constants<F>& constants() const { return constants_; }
+
+  // RegionLayouter methods
   void EnableSelector(std::string_view name, const Selector& selector,
                       size_t offset) override {
-    plan_->assignment()->EnableSelector(
-        name, selector, plan_->regions()[region_index_] + offset);
+    assignment_->EnableSelector(name, selector,
+                                regions_[region_index_] + offset);
+  }
+
+  void NameColumn(std::string_view name, const AnyColumnKey& column) override {
+    assignment_->NameColumn(name, column);
   }
 
   Cell AssignAdvice(std::string_view name, const AdviceColumnKey& column,
                     size_t offset, AssignCallback assign) override {
-    plan_->assignment()->AssignAdvice(name, column,
-                                      plan_->regions()[region_index_] + offset,
-                                      std::move(assign));
+    assignment_->AssignAdvice(name, column, regions_[region_index_] + offset,
+                              std::move(assign));
     return {region_index_, offset, column};
-  }
-
-  void NameColumn(std::string_view name, const AnyColumnKey& column) override {
-    plan_->assignment()->NameColumn(name, column);
   }
 
   Cell AssignAdviceFromConstant(
@@ -58,48 +66,46 @@ class V1Region : public Region<F>::Layouter {
                                            size_t row,
                                            const AdviceColumnKey& advice,
                                            size_t offset) override {
-    Value<F> value = plan_->assignment()->QueryInstance(instance, row);
+    Value<F> value = assignment_->QueryInstance(instance, row);
 
     Cell cell = AssignAdvice(name, advice, offset, [&value]() {
       return Value<math::RationalField<F>>::Known(
           math::RationalField<F>(value.value()));
     });
 
-    plan_->assignment()->Copy(
-        cell.column(),
-        plan_->regions()[cell.region_index()] + cell.row_offset(), instance,
-        row);
+    assignment_->Copy(cell.column(),
+                      regions_[cell.region_index()] + cell.row_offset(),
+                      instance, row);
 
     return {std::move(cell), std::move(value)};
   }
 
   Cell AssignFixed(std::string_view name, const FixedColumnKey& column,
                    size_t offset, AssignCallback assign) override {
-    plan_->assignment()->AssignFixed(name, column,
-                                     plan_->regions()[region_index_] + offset,
-                                     std::move(assign));
+    assignment_->AssignFixed(name, column, regions_[region_index_] + offset,
+                             std::move(assign));
     return {region_index_, offset, column};
   }
 
   void ConstrainConstant(const Cell& cell,
                          const math::RationalField<F>& constant) override {
-    plan_->constants().emplace_back(constant, cell);
+    constants_.emplace_back(constant, cell);
   }
 
   void ConstrainEqual(const Cell& left, const Cell& right) override {
-    plan_->assignment()->Copy(
-        left.column(),
-        plan_->regions()[left.region_index()] + left.row_offset(),
-        right.column(),
-        plan_->regions()[right.region_index()] + right.row_offset());
+    assignment_->Copy(
+        left.column(), regions_[left.region_index()] + left.row_offset(),
+        right.column(), regions_[right.region_index()] + right.row_offset());
   }
 
  private:
   // not owned
-  V1Plan<F>* const plan_;
-  size_t region_index_;
+  Assignment<F>* const assignment_;
+  const std::vector<size_t>& regions_;
+  const size_t region_index_;
+  Constants<F>& constants_;
 };
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_V1_V1_REGION_H_
+#endif  // TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_PLAN_REGION_H_

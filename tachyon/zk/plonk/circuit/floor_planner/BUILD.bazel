@@ -47,6 +47,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "plan_region",
+    hdrs = ["plan_region.h"],
+    deps = [
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk/circuit:assignment",
+        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/circuit:region",
+    ],
+)
+
+tachyon_cc_library(
     name = "scoped_region",
     hdrs = ["scoped_region.h"],
     deps = ["//tachyon/zk/plonk/circuit:assignment"],
@@ -80,6 +91,7 @@ tachyon_cc_library(
     hdrs = ["single_chip_layouter.h"],
     deps = [
         ":constant",
+        ":plan_region",
         ":scoped_region",
         ":simple_lookup_table_layouter",
         "//tachyon/base:logging",

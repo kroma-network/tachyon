@@ -19,10 +19,10 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/circuit/cell.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
+#include "tachyon/zk/plonk/circuit/floor_planner/plan_region.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/scoped_region.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_lookup_table_layouter.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/v1/v1_plan.h"
-#include "tachyon/zk/plonk/circuit/floor_planner/v1/v1_region.h"
 #include "tachyon/zk/plonk/circuit/layouter.h"
 
 namespace tachyon::zk {
@@ -41,8 +41,9 @@ class AssignmentPass {
 
   void AssignRegion(std::string_view name, AssignRegionCallback assign) {
     ScopedRegion<F> scoped_region(plan_->assignment(), name);
-    V1Region<F> v1_region(plan_, region_index_++);
-    zk::Region<F> region(&v1_region);
+    PlanRegion<F> plan_region(plan_->assignment(), plan_->regions(),
+                              region_index_++, plan_->constants());
+    Region<F> region(&plan_region);
     assign.Run(region);
   }
 
