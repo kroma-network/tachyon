@@ -1,6 +1,11 @@
 #[cfg(test)]
 mod test {
+    use crate::bn254::{
+        Blake2bWrite as TachyonBlake2bWrite, SHPlonkProver,
+        SHPlonkProvingKey as TachyonSHPlonkProvingKey,
+    };
     use crate::prover::create_proof as tachyon_create_proof;
+    use crate::xor_shift_rng::XORShiftRng;
     use crate::{circuits::simple_circuit::SimpleCircuit, consts::SEED};
     use halo2_proofs::{
         circuit::Value,
@@ -13,7 +18,6 @@ mod test {
     };
     use halo2curves::bn256::{Bn256, Fr, G1Affine};
     use rand_core::SeedableRng;
-    use rand_xorshift::XorShiftRng;
 
     #[test]
     fn test_create_proof() {
@@ -43,20 +47,27 @@ mod test {
 
         // Given the correct public input, our circuit will verify.
         let s = Fr::from(2);
-        let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s);
+        let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
         let pk = keygen_pk2(&params, &circuit).expect("vk should not fail");
 
-        let rng = XorShiftRng::from_seed(SEED);
+        let rng = XORShiftRng::from_seed(SEED);
 
-        let proof = {
+        let halo2_proof = {
             let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
 
-            tachyon_create_proof::<KZGCommitmentScheme<Bn256>, ProverSHPLONK<_>, _, _, _, _>(
+            halo2_proofs::plonk::create_proof::<
+                KZGCommitmentScheme<Bn256>,
+                ProverSHPLONK<_>,
+                _,
+                _,
+                _,
+                _,
+            >(
                 &params,
                 &pk,
-                &[circuit],
+                &[circuit.clone()],
                 public_inputs3.as_slice(),
-                rng,
+                rng.clone(),
                 &mut transcript,
             )
             .expect("proof generation should not fail");
@@ -64,7 +75,30 @@ mod test {
             transcript.finalize()
         };
 
-        // TODO(chokobole): Need to compare `proof` with the one created from `halo2_create_proof()`.
+        let tachyon_proof = {
+            let mut prover = SHPlonkProver::new(k, &s);
+
+            let mut pk_bytes: Vec<u8> = vec![];
+            pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
+                .unwrap();
+            let tachyon_pk = TachyonSHPlonkProvingKey::from(pk_bytes.as_slice());
+            let mut transcript = TachyonBlake2bWrite::init(vec![]);
+            let domain = &pk.vk.domain;
+
+            tachyon_create_proof::<_, _>(
+                &mut prover,
+                &tachyon_pk,
+                &[circuit],
+                public_inputs3.as_slice(),
+                rng,
+                &mut transcript,
+                &domain,
+            )
+            .expect("proof generation should not fail");
+
+            transcript.finalize()
+        };
+        // TODO(chokobole): Need to compare `halo2_proof` and `tachyon_proof`.
         // ANCHOR_END: test-circuit
     }
 }
