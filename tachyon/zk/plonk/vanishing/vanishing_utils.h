@@ -123,7 +123,7 @@ void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
   std::vector<F> coset_powers{into_coset ? zeta : zeta_inv,
                               into_coset ? zeta_inv : zeta};
 
-  std::vector<F> coeffs = poly.coefficients().coefficients();
+  std::vector<F>& coeffs = poly.coefficients().coefficients();
   base::Parallelize(coeffs,
                     [&coset_powers](absl::Span<F> chunk, size_t chunk_idx,
                                     size_t chunk_size) {
