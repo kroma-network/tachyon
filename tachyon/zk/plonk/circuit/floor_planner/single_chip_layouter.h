@@ -185,7 +185,7 @@ class SingleChipLayouter : public Layouter<F> {
     }
 
     // Assign constants. For the simple floor planner, we assign constants in
-    // order in the first `constants` column.
+    // order in the first |constants| column.
     if (constants_.empty()) {
       CHECK(region.constants().empty()) << "Not enough columns for constants";
     } else {
