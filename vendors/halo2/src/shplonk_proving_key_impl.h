@@ -76,6 +76,8 @@ class ProvingKeyImpl<
     ReadBuffer(buffer, key_.fixed_columns_);
     ReadBuffer(buffer, key_.fixed_polys_);
     ReadBuffer(buffer, key_.permutation_proving_key_);
+    key_.vanishing_argument_ = zk::VanishingArgument<F>::Create(
+        key_.verifying_key_.constraint_system());
     CHECK(buffer.Done());
   }
 
