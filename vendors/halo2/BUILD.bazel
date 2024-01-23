@@ -138,6 +138,7 @@ tachyon_cc_library(
         "//tachyon/math/finite_fields:prime_field_base",
         "//tachyon/math/polynomials/univariate:univariate_evaluations",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
+        "//tachyon/rs/base:container_util",
         "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/plonk/circuit:column_key",
         "//tachyon/zk/plonk/circuit:gate",
