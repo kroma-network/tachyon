@@ -304,22 +304,16 @@ class Argument {
       instance_polys.reserve(num_instance_columns);
       for (size_t j = 0; j < num_instance_columns; ++j) {
         const Evals& instance_column = instance_columns[j];
-        if constexpr (PCS::kQueryInstance) {
-          if constexpr (PCS::kSupportsBatchMode) {
-            prover->BatchCommitAt(instance_column,
-                                  i * num_instance_columns + j);
-            instance_polys.push_back(prover->domain()->IFFT(instance_column));
-          } else {
-            prover->CommitAndWriteToTranscript(instance_column);
-            instance_polys.push_back(prover->domain()->IFFT(instance_column));
-          }
+        if constexpr (PCS::kQueryInstance && PCS::kSupportsBatchMode) {
+          prover->BatchCommitAt(instance_column, i * num_instance_columns + j);
+        } else if constexpr (PCS::kQueryInstance && !PCS::kSupportsBatchMode) {
+          prover->CommitAndWriteToTranscript(instance_column);
         } else {
           for (const F& instance : instance_column.evaluations()) {
             CHECK(prover->GetWriter()->WriteToTranscript(instance));
           }
-          instance_polys.push_back(
-              prover->domain()->IFFT(Evals(instance_column)));
         }
+        instance_polys.push_back(prover->domain()->IFFT(instance_column));
       }
       instance_polys_vec.push_back(std::move(instance_polys));
     }
