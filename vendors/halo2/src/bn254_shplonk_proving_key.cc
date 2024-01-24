@@ -1,6 +1,5 @@
 #include "vendors/halo2/include/bn254_shplonk_proving_key.h"
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/rs/base/container_util.h"
 #include "vendors/halo2/src/bn254.rs.h"
