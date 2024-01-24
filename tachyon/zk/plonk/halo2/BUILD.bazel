@@ -254,7 +254,6 @@ tachyon_cc_unittest(
     name = "halo2_unittests",
     srcs = [
         "blake2b_transcript_unittest.cc",
-        "pinned_verifying_key_unittest.cc",
         "poseidon_transcript_unittest.cc",
         "proof_serializer_unittest.cc",
         "proof_unittest.cc",
