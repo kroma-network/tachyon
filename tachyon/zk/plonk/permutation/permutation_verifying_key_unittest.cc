@@ -8,7 +8,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/base/buffer/buffer.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk {
@@ -23,14 +23,19 @@ class PermutationVerifyingKeyTest : public halo2::ProverTest {
 }  // namespace
 
 TEST_F(PermutationVerifyingKeyTest, Copyable) {
-  VerifyingKey expected({math::bn254::G1AffinePoint::Random()});
-  VerifyingKey value;
+  VerifyingKey expected({math::bn254::G1AffinePoint::Random(),
+                         math::bn254::G1AffinePoint::Random(),
+                         math::bn254::G1AffinePoint::Random()});
 
-  base::Uint8VectorBuffer write_buf;
+  std::vector<uint8_t> vec;
+  vec.resize(base::EstimateSize(expected));
+  base::Buffer write_buf(vec.data(), vec.size());
   ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Done());
 
   write_buf.set_buffer_offset(0);
 
+  VerifyingKey value;
   ASSERT_TRUE(write_buf.Read(&value));
   EXPECT_EQ(value, expected);
 }
