@@ -530,8 +530,8 @@ TEST_F(SimpleLookupV1CircuitTest, CreateProof) {
   std::vector<SimpleLookupCircuit<F, kBits, V1FloorPlanner>> circuits = {
       std::move(circuit)};
 
-  std::vector<std::vector<F>> instance_columns;
-  std::vector<std::vector<std::vector<F>>> instance_columns_vec = {
+  std::vector<Evals> instance_columns;
+  std::vector<std::vector<Evals>> instance_columns_vec = {
       std::move(instance_columns)};
 
   ProvingKey<PCS> pkey;

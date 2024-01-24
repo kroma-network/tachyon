@@ -30,36 +30,30 @@ class Argument {
       const std::vector<Evals>* fixed_columns,
       const std::vector<Poly>* fixed_polys,
       const ConstraintSystem<F>& constraint_system,
-      std::vector<std::vector<std::vector<F>>>&& instance_columns_vec) {
+      std::vector<std::vector<Evals>>&& instance_columns_vec) {
     size_t num_circuits = circuits.size();
 
     // Generate instance polynomial and write it to transcript.
     std::vector<std::vector<Poly>> instance_polys_vec =
         GenerateInstancePolys(prover, instance_columns_vec);
 
-    // Generate instance columns
+    // Append leading zeros to each column of |instance_columns_vec|.
     size_t n = prover->pcs().N();
-    std::vector<std::vector<Evals>> instance_columns_vec_with_leading_zero =
-        base::Map(instance_columns_vec,
-                  [n](std::vector<std::vector<F>>& instances_vec) {
-                    return base::Map(instances_vec,
-                                     [n](std::vector<F>& instances) {
-                                       // Append leading zeros to |instances|.
-                                       instances.resize(n);
-                                       return Evals(std::move(instances));
-                                     });
-                  });
+    for (size_t i = 0; i < num_circuits; ++i) {
+      for (Evals& instance_column : instance_columns_vec[i]) {
+        instance_column.evaluations().resize(n);
+      }
+    }
 
     // Generate advice poly by synthesizing circuit and write it to transcript.
     Synthesizer<PCS> synthesizer(num_circuits, &constraint_system);
-    synthesizer.GenerateAdviceColumns(prover, circuits,
-                                      instance_columns_vec_with_leading_zero);
+    synthesizer.GenerateAdviceColumns(prover, circuits, instance_columns_vec);
 
     return Argument(num_circuits, fixed_columns, fixed_polys,
                     std::move(synthesizer).TakeAdviceColumnsVec(),
                     std::move(synthesizer).TakeAdviceBlindsVec(),
                     std::move(synthesizer).TakeChallenges(),
-                    std::move(instance_columns_vec_with_leading_zero),
+                    std::move(instance_columns_vec),
                     std::move(instance_polys_vec));
   }
 
@@ -293,7 +287,7 @@ class Argument {
   // of instance evaluation-formed columns. (a.k.a. Batch IFFT)
   static std::vector<std::vector<Poly>> GenerateInstancePolys(
       ProverBase<PCS>* prover,
-      const std::vector<std::vector<std::vector<F>>>& instance_columns_vec) {
+      const std::vector<std::vector<Evals>>& instance_columns_vec) {
     size_t num_circuit = instance_columns_vec.size();
     CHECK_GT(num_circuit, size_t{0});
     size_t num_instance_columns = instance_columns_vec[0].size();
@@ -305,16 +299,12 @@ class Argument {
     std::vector<std::vector<Poly>> instance_polys_vec;
     instance_polys_vec.reserve(num_circuit);
     for (size_t i = 0; i < num_circuit; ++i) {
-      const std::vector<std::vector<F>>& instance_columns =
-          instance_columns_vec[i];
+      const std::vector<Evals>& instance_columns = instance_columns_vec[i];
       std::vector<Poly> instance_polys;
       instance_polys.reserve(num_instance_columns);
       for (size_t j = 0; j < num_instance_columns; ++j) {
-        const std::vector<F>& instances = instance_columns[j];
+        const Evals& instance_column = instance_columns[j];
         if constexpr (PCS::kQueryInstance) {
-          // FIXME(dongchangYoo): This causes copy internally and I want to
-          // avoid this.
-          Evals instance_column(instances);
           if constexpr (PCS::kSupportsBatchMode) {
             prover->BatchCommitAt(instance_column,
                                   i * num_instance_columns + j);
@@ -324,10 +314,11 @@ class Argument {
             instance_polys.push_back(prover->domain()->IFFT(instance_column));
           }
         } else {
-          for (const F& instance : instances) {
+          for (const F& instance : instance_column.evaluations()) {
             CHECK(prover->GetWriter()->WriteToTranscript(instance));
           }
-          instance_polys.push_back(prover->domain()->IFFT(Evals(instances)));
+          instance_polys.push_back(
+              prover->domain()->IFFT(Evals(instance_column)));
         }
       }
       instance_polys_vec.push_back(std::move(instance_polys));
