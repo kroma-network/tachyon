@@ -31,6 +31,10 @@ class ProvingKeyImpl<
     ReadProvingKey(buffer);
   }
 
+  const zk::ConstraintSystem<F>& GetConstraintSystem() const {
+    return key_.verifying_key().constraint_system();
+  }
+
   const std::vector<zk::Phase>& GetAdviceColumnPhases() const {
     return GetConstraintSystem().advice_column_phases();
   }
@@ -64,10 +68,6 @@ class ProvingKeyImpl<
   }
 
  private:
-  const zk::ConstraintSystem<F>& GetConstraintSystem() const {
-    return key_.verifying_key().constraint_system();
-  }
-
   void ReadProvingKey(base::Buffer& buffer) {
     ReadVerifyingKey(buffer, key_.verifying_key_);
     ReadBuffer(buffer, key_.l_first_);

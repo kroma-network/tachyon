@@ -6,6 +6,7 @@
 #include "tachyon/rs/base/container_util.h"
 #include "vendors/halo2/src/bn254.rs.h"
 #include "vendors/halo2/src/bn254_shplonk_prover_impl.h"
+#include "vendors/halo2/src/bn254_shplonk_proving_key_impl.h"
 
 namespace tachyon::halo2_api::bn254 {
 
@@ -62,6 +63,10 @@ void SHPlonkProver::set_transcript(rust::Slice<const uint8_t> state) {
           std::move(write_buf));
   writer->SetState(rs::ConvertRustSliceToCppSpan<const uint8_t>(state));
   impl_->SetTranscript(std::move(writer));
+}
+
+void SHPlonkProver::set_extended_domain(const SHPlonkProvingKey& pk) {
+  impl_->SetExtendedDomain(pk.impl()->GetConstraintSystem());
 }
 
 std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint32_t k, const Fr& s) {

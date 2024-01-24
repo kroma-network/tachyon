@@ -97,6 +97,7 @@ pub mod ffi {
         fn commit_lagrange(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
         fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_transcript(self: Pin<&mut SHPlonkProver>, state: &[u8]);
+        fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &SHPlonkProvingKey);
     }
 }
 
@@ -192,6 +193,10 @@ impl SHPlonkProvingKey {
         SHPlonkProvingKey {
             inner: ffi::new_proving_key(data),
         }
+    }
+
+    pub fn inner(&self) -> &ffi::SHPlonkProvingKey {
+        &self.inner
     }
 
     // NOTE(chokobole): We name this as plural since it contains multi phases.
@@ -303,5 +308,9 @@ impl SHPlonkProver {
 
     pub fn set_transcript(&mut self, state: &[u8]) {
         self.inner.pin_mut().set_transcript(state)
+    }
+
+    pub fn set_extended_domain(&mut self, pk: &SHPlonkProvingKey) {
+        self.inner.pin_mut().set_extended_domain(pk.inner())
     }
 }

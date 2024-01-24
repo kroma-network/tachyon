@@ -12,6 +12,7 @@ namespace tachyon::halo2_api::bn254 {
 struct Fr;
 struct G1JacobianPoint;
 class SHPlonkProverImpl;
+class SHPlonkProvingKey;
 
 class SHPlonkProver {
  public:
@@ -24,6 +25,7 @@ class SHPlonkProver {
       rust::Slice<const Fr> scalars) const;
   void set_rng(rust::Slice<const uint8_t> state);
   void set_transcript(rust::Slice<const uint8_t> state);
+  void set_extended_domain(const SHPlonkProvingKey& pk);
 
  private:
   std::shared_ptr<SHPlonkProverImpl> impl_;

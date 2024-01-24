@@ -49,6 +49,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
         }
     }
 
+    prover.set_extended_domain(pk);
     // Hash verification key into transcript
     // TODO(chokobole): Implement this
     // pk.vk.hash_into(transcript)?;

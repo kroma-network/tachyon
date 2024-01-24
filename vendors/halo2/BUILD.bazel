@@ -133,6 +133,7 @@ tachyon_cc_library(
         "src/prover_impl.h",
     ],
     deps = [
+        ":bn254_shplonk_proving_key_impl",
         ":degrees",
         "//tachyon/base/buffer",
         "//tachyon/base/functional:callback",

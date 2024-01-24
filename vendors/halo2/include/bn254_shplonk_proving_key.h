@@ -16,6 +16,8 @@ class SHPlonkProvingKey {
  public:
   explicit SHPlonkProvingKey(rust::Slice<const uint8_t> pk_bytes);
 
+  const SHPlonkProvingKeyImpl* impl() const { return impl_.get(); }
+
   rust::Slice<const uint8_t> advice_column_phases() const;
   size_t blinding_factors() const;
   rust::Slice<const uint8_t> challenge_phases() const;
