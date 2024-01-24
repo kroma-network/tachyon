@@ -325,7 +325,7 @@ class Argument {
                                   i * num_instance_columns + j);
             instance_polys.push_back(prover->domain()->IFFT(instance_column));
           } else {
-            CHECK(prover->GetWriter()->WriteToTranscript(instance_column));
+            prover->CommitAndWriteToTranscript(instance_column);
             instance_polys.push_back(prover->domain()->IFFT(instance_column));
           }
         } else {
