@@ -1,8 +1,10 @@
 #include "tachyon/math/geometry/point2.h"
 
+#include <vector>
+
 #include "gtest/gtest.h"
 
-#include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/base/buffer/buffer.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
@@ -40,14 +42,17 @@ TEST(Point2Test, ToHexString) {
 
 TEST(Point2Test, Copyable) {
   Point2GF7 expected(GF7(1), GF7(2));
-  Point2GF7 value;
 
-  base::Uint8VectorBuffer write_buf;
+  std::vector<uint8_t> vec;
+  vec.resize(base::EstimateSize(expected));
+  base::Buffer write_buf(vec.data(), vec.size());
   ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Done());
 
   write_buf.set_buffer_offset(0);
-  ASSERT_TRUE(write_buf.Read(&value));
 
+  Point2GF7 value;
+  ASSERT_TRUE(write_buf.Read(&value));
   EXPECT_EQ(expected, value);
 }
 
