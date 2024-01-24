@@ -38,21 +38,16 @@ class Argument {
         GenerateInstancePolys(prover, instance_columns_vec);
 
     // Generate instance columns
+    size_t n = prover->pcs().N();
     std::vector<std::vector<Evals>> instance_columns_vec_with_leading_zero =
         base::Map(instance_columns_vec,
-                  [prover](std::vector<std::vector<F>>& instances_vec) {
-                    return base::Map(
-                        instances_vec, [prover](std::vector<F>& instances) {
-                          // Append leading zeros to |instances|.
-                          std::vector<F> leading_zeros = base::CreateVector(
-                              prover->pcs().N() - instances.size(), F::Zero());
-                          instances.reserve(prover->pcs().N());
-                          instances.insert(
-                              instances.end(),
-                              std::make_move_iterator(leading_zeros.begin()),
-                              std::make_move_iterator(leading_zeros.end()));
-                          return Evals(std::move(instances));
-                        });
+                  [n](std::vector<std::vector<F>>& instances_vec) {
+                    return base::Map(instances_vec,
+                                     [n](std::vector<F>& instances) {
+                                       // Append leading zeros to |instances|.
+                                       instances.resize(n);
+                                       return Evals(std::move(instances));
+                                     });
                   });
 
     // Generate advice poly by synthesizing circuit and write it to transcript.
