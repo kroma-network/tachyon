@@ -8,6 +8,7 @@
 
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
+#include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "vendors/halo2/include/proving_key_impl_forward.h"
 #include "vendors/halo2/src/buffer_reader.h"
@@ -65,6 +66,11 @@ class ProvingKeyImpl<
 
   std::vector<zk::Phase> GetPhases() const {
     return GetConstraintSystem().GetPhases();
+  }
+
+  const F& GetTranscriptRepr(const zk::Entity<PCS>& entity) {
+    key_.verifying_key_.SetTranscriptRepresentative(&entity);
+    return key_.verifying_key_.transcript_repr_;
   }
 
  private:

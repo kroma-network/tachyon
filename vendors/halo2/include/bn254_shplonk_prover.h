@@ -18,6 +18,8 @@ class SHPlonkProver {
  public:
   SHPlonkProver(uint32_t k, const Fr& s);
 
+  const SHPlonkProverImpl* impl() const { return impl_.get(); }
+
   uint32_t k() const;
   uint64_t n() const;
   rust::Box<G1JacobianPoint> commit(rust::Slice<const Fr> scalars) const;

@@ -81,13 +81,13 @@ mod test {
             let mut pk_bytes: Vec<u8> = vec![];
             pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
                 .unwrap();
-            let tachyon_pk = TachyonSHPlonkProvingKey::from(pk_bytes.as_slice());
+            let mut tachyon_pk = TachyonSHPlonkProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
             let domain = &pk.vk.domain;
 
             tachyon_create_proof::<_, _>(
                 &mut prover,
-                &tachyon_pk,
+                &mut tachyon_pk,
                 &[circuit],
                 public_inputs3.as_slice(),
                 rng,

@@ -83,6 +83,7 @@ pub mod ffi {
         fn num_challenges(&self) -> usize;
         fn num_instance_columns(&self) -> usize;
         fn phases(&self) -> Vec<u8>;
+        fn transcript_repr(self: Pin<&mut SHPlonkProvingKey>, prover: &SHPlonkProver) -> Box<Fr>;
     }
 
     unsafe extern "C++" {
@@ -258,6 +259,15 @@ impl SHPlonkProvingKey {
             phases
         }
     }
+
+    // pk.vk.transcript_repr
+    pub fn transcript_repr(&mut self, prover: &SHPlonkProver) -> halo2curves::bn256::Fr {
+        *unsafe {
+            std::mem::transmute::<_, Box<halo2curves::bn256::Fr>>(
+                self.inner.pin_mut().transcript_repr(prover.inner()),
+            )
+        }
+    }
 }
 
 pub struct SHPlonkProver {
@@ -270,6 +280,10 @@ impl SHPlonkProver {
         SHPlonkProver {
             inner: ffi::new_shplonk_prover(k, cpp_s),
         }
+    }
+
+    pub(crate) fn inner(&self) -> &ffi::SHPlonkProver {
+        &self.inner
     }
 
     pub fn k(&self) -> u32 {

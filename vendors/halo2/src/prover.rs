@@ -36,7 +36,7 @@ use halo2curves::{
 /// are zero-padded internally.
 pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     prover: &mut TachyonSHPlonkProver,
-    pk: &TachyonSHPlonkProvingKey,
+    pk: &mut TachyonSHPlonkProvingKey,
     circuits: &[ConcreteCircuit],
     instances: &[&[&[Fr]]],
     mut rng: TachyonXORShiftRng,
@@ -51,8 +51,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
 
     prover.set_extended_domain(pk);
     // Hash verification key into transcript
-    // TODO(chokobole): Implement this
-    // pk.vk.hash_into(transcript)?;
+    transcript.common_scalar(pk.transcript_repr(prover))?;
 
     let mut meta = ConstraintSystem::default();
     let config = ConcreteCircuit::configure(&mut meta);

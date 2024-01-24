@@ -73,4 +73,10 @@ std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint32_t k, const Fr& s) {
   return std::make_unique<SHPlonkProver>(k, s);
 }
 
+rust::Box<Fr> SHPlonkProvingKey::transcript_repr(const SHPlonkProver& prover) {
+  math::bn254::Fr* ret =
+      new math::bn254::Fr(impl_->GetTranscriptRepr(prover.impl()->prover()));
+  return rust::Box<Fr>::from_raw(reinterpret_cast<Fr*>(ret));
+}
+
 }  // namespace tachyon::halo2_api::bn254
