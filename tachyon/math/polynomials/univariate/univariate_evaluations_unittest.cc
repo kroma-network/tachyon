@@ -3,7 +3,7 @@
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/base/buffer/buffer.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
@@ -257,14 +257,19 @@ TEST_F(UnivariateEvaluationsTest, DivScalar) {
 }
 
 TEST_F(UnivariateEvaluationsTest, Copyable) {
-  base::Uint8VectorBuffer buf;
-  ASSERT_TRUE(buf.Write(polys_[0]));
+  Poly expected = Poly::Random(kMaxDegree);
 
-  buf.set_buffer_offset(0);
+  std::vector<uint8_t> vec;
+  vec.resize(base::EstimateSize(expected));
+  base::Buffer write_buf(vec.data(), vec.size());
+  ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Done());
+
+  write_buf.set_buffer_offset(0);
+
   Poly value;
-  ASSERT_TRUE(buf.Read(&value));
-
-  EXPECT_EQ(polys_[0], value);
+  ASSERT_TRUE(write_buf.Read(&value));
+  EXPECT_EQ(expected, value);
 }
 
 TEST_F(UnivariateEvaluationsTest, Hash) {

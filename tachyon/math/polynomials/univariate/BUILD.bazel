@@ -124,7 +124,7 @@ tachyon_cc_unittest(
         ":mixed_radix_evaluation_domain",
         ":radix2_evaluation_domain",
         ":univariate_polynomial",
-        "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/base/buffer",
         "//tachyon/base/containers:contains",
         "//tachyon/base/containers:cxx20_erase",
         "//tachyon/base/functional:function_ref",
