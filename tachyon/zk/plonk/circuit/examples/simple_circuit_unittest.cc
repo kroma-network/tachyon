@@ -646,8 +646,8 @@ TEST_F(SimpleCircuitTest, CreateProof) {
 
   F c = constant * a.Square() * b.Square();
   std::vector<F> instance_column = {std::move(c)};
-  std::vector<std::vector<F>> instance_columns = {std::move(instance_column)};
-  std::vector<std::vector<std::vector<F>>> instance_columns_vec = {
+  std::vector<Evals> instance_columns = {Evals(std::move(instance_column))};
+  std::vector<std::vector<Evals>> instance_columns_vec = {
       std::move(instance_columns)};
 
   ProvingKey<PCS> pkey;

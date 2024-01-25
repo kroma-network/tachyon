@@ -67,16 +67,14 @@ class Prover : public ProverBase<PCS> {
   }
 
   template <typename Circuit>
-  void CreateProof(
-      const ProvingKey<PCS>& proving_key,
-      std::vector<std::vector<std::vector<F>>>&& instance_columns_vec,
-      std::vector<Circuit>& circuits) {
+  void CreateProof(const ProvingKey<PCS>& proving_key,
+                   std::vector<std::vector<Evals>>&& instance_columns_vec,
+                   std::vector<Circuit>& circuits) {
     size_t num_circuits = circuits.size();
 
     // Check length of instances.
     CHECK_EQ(num_circuits, instance_columns_vec.size());
-    for (const std::vector<std::vector<F>>& instances_vec :
-         instance_columns_vec) {
+    for (const std::vector<Evals>& instances_vec : instance_columns_vec) {
       CHECK_EQ(instances_vec.size(), proving_key.verifying_key()
                                          .constraint_system()
                                          .num_instance_columns());
