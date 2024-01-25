@@ -85,10 +85,6 @@ class Blake2bReader : public crypto::TranscriptReader<AffinePoint>,
   explicit Blake2bReader(base::Buffer read_buf)
       : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
 
-  void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
-
-  void Finalize(uint8_t result[64]) { this->DoFinalize(result); }
-
   // crypto::TranscriptReader methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
 
