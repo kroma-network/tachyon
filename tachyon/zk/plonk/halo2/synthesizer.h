@@ -91,7 +91,7 @@ class Synthesizer {
     }
   }
 
-  // Return |challenge_| as a vector.
+  // Return |challenges_| as a vector.
   std::vector<F> ExportChallenges() {
     return base::Map(
         std::make_move_iterator(challenges_.begin()),
@@ -99,7 +99,7 @@ class Synthesizer {
         [](std::pair<size_t, F>&& item) { return std::move(item.second); });
   }
 
-  // Move out |challenge_| as a vector.
+  // Move out |challenges_| as a vector.
   std::vector<F> TakeChallenges() && {
     return base::Map(
         std::make_move_iterator(challenges_.begin()),

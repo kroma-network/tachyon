@@ -26,7 +26,7 @@ class WitnessCollectionTest : public halo2::ProverTest {
     const Domain* domain = prover_->domain();
     prover_->blinder().set_blinding_factors(5);
 
-    // There is a single challenge in |challenges_|.
+    // There is a single challenge in |expected_challenges_|.
     expected_challenges_[0] = F::Random();
     expected_instance_columns_ = {domain->Random<Evals>()};
 
