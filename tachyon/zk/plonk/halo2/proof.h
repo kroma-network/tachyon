@@ -49,6 +49,43 @@ struct Proof {
   F x_last;
   F x_n;
 
+  bool operator==(const Proof& other) const {
+    return advices_commitments_vec == other.advices_commitments_vec &&
+           challenges == other.challenges && theta == other.theta &&
+           lookup_permuted_commitments_vec ==
+               other.lookup_permuted_commitments_vec &&
+           beta == other.beta && gamma == other.gamma &&
+           permutation_product_commitments_vec ==
+               other.permutation_product_commitments_vec &&
+           lookup_product_commitments_vec ==
+               other.lookup_product_commitments_vec &&
+           vanishing_random_poly_commitment ==
+               other.vanishing_random_poly_commitment &&
+           y == other.y &&
+           vanishing_h_poly_commitments == other.vanishing_h_poly_commitments &&
+           x == other.x && instance_evals_vec == other.instance_evals_vec &&
+           advice_evals_vec == other.advice_evals_vec &&
+           fixed_evals == other.fixed_evals &&
+           vanishing_random_eval == other.vanishing_random_eval &&
+           common_permutation_evals == other.common_permutation_evals &&
+           permutation_product_evals_vec ==
+               other.permutation_product_evals_vec &&
+           permutation_product_next_evals_vec ==
+               other.permutation_product_next_evals_vec &&
+           permutation_product_last_evals_vec ==
+               other.permutation_product_last_evals_vec &&
+           lookup_product_evals_vec == other.lookup_product_evals_vec &&
+           lookup_product_next_evals_vec ==
+               other.lookup_product_next_evals_vec &&
+           lookup_permuted_input_evals_vec ==
+               other.lookup_permuted_input_evals_vec &&
+           lookup_permuted_input_inv_evals_vec ==
+               other.lookup_permuted_input_inv_evals_vec &&
+           lookup_permuted_table_evals_vec ==
+               other.lookup_permuted_table_evals_vec;
+  }
+  bool operator!=(const Proof& other) const { return !operator==(other); }
+
   VanishingVerificationData<F> ToVanishingVerificationData(size_t i) const {
     VanishingVerificationData<F> ret;
     ret.fixed_evals = absl::MakeConstSpan(fixed_evals);
