@@ -402,7 +402,11 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
 
     prover.set_rng(rng.state().as_slice());
     prover.set_transcript(transcript.state().as_slice());
-    // TODO(chokobole): implement `create_proof()`.
+
+    let instance = unsafe { std::mem::transmute::<_, Vec<crate::bn254::InstanceSingle>>(instance) };
+    let advice = unsafe { std::mem::transmute::<_, Vec<crate::bn254::AdviceSingle>>(advice) };
+    let challenges = unsafe { std::mem::transmute::<_, Vec<crate::bn254::Fr>>(challenges) };
+    prover.create_proof(pk, instance, advice, challenges);
     Ok(())
 }
 

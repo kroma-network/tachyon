@@ -24,6 +24,29 @@ class Argument {
   using ExtendedEvals = typename PCS::ExtendedEvals;
 
   Argument() = default;
+
+  // NOTE(chokobole): This is used by rust halo2 binding.
+  Argument(size_t num_circuits, const std::vector<Evals>* fixed_columns,
+           const std::vector<Poly>* fixed_polys,
+           std::vector<std::vector<Evals>>&& advice_columns_vec,
+           std::vector<std::vector<F>>&& advice_blinds_vec,
+           std::vector<F>&& challenges,
+           std::vector<std::vector<Evals>>&& instance_columns_vec,
+           std::vector<std::vector<Poly>>&& instance_polys_vec)
+      : num_circuits_(num_circuits),
+        fixed_columns_(fixed_columns),
+        fixed_polys_(fixed_polys),
+        advice_columns_vec_(std::move(advice_columns_vec)),
+        advice_blinds_vec_(std::move(advice_blinds_vec)),
+        challenges_(std::move(challenges)),
+        instance_columns_vec_(std::move(instance_columns_vec)),
+        instance_polys_vec_(std::move(instance_polys_vec)) {
+    CHECK_EQ(num_circuits_, advice_columns_vec_.size());
+    CHECK_EQ(num_circuits_, advice_blinds_vec_.size());
+    CHECK_EQ(num_circuits_, instance_columns_vec_.size());
+    CHECK_EQ(num_circuits_, instance_polys_vec_.size());
+  }
+
   template <typename Circuit>
   static Argument Create(
       ProverBase<PCS>* prover, std::vector<Circuit>& circuits,
@@ -273,27 +296,6 @@ class Argument {
   }
 
  private:
-  Argument(size_t num_circuits, const std::vector<Evals>* fixed_columns,
-           const std::vector<Poly>* fixed_polys,
-           std::vector<std::vector<Evals>>&& advice_columns_vec,
-           std::vector<std::vector<F>>&& advice_blinds_vec,
-           std::vector<F>&& challenges,
-           std::vector<std::vector<Evals>>&& instance_columns_vec,
-           std::vector<std::vector<Poly>>&& instance_polys_vec)
-      : num_circuits_(num_circuits),
-        fixed_columns_(fixed_columns),
-        fixed_polys_(fixed_polys),
-        advice_columns_vec_(std::move(advice_columns_vec)),
-        advice_blinds_vec_(std::move(advice_blinds_vec)),
-        challenges_(std::move(challenges)),
-        instance_columns_vec_(std::move(instance_columns_vec)),
-        instance_polys_vec_(std::move(instance_polys_vec)) {
-    CHECK_EQ(num_circuits_, advice_columns_vec_.size());
-    CHECK_EQ(num_circuits_, advice_blinds_vec_.size());
-    CHECK_EQ(num_circuits_, instance_columns_vec_.size());
-    CHECK_EQ(num_circuits_, instance_polys_vec_.size());
-  }
-
   // Generate a vector of instance coefficient-formed polynomials with a vector
   // of instance evaluation-formed columns. (a.k.a. Batch IFFT)
   static std::vector<std::vector<Poly>> GenerateInstancePolys(

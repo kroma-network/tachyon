@@ -11,6 +11,8 @@ namespace tachyon::halo2_api::bn254 {
 
 struct Fr;
 struct G1JacobianPoint;
+struct InstanceSingle;
+struct AdviceSingle;
 class SHPlonkProverImpl;
 class SHPlonkProvingKey;
 
@@ -28,6 +30,11 @@ class SHPlonkProver {
   void set_rng(rust::Slice<const uint8_t> state);
   void set_transcript(rust::Slice<const uint8_t> state);
   void set_extended_domain(const SHPlonkProvingKey& pk);
+  void create_proof(const SHPlonkProvingKey& key,
+                    rust::Vec<InstanceSingle> instance_singles,
+                    rust::Vec<AdviceSingle> advice_singles,
+                    rust::Vec<Fr> challenges);
+  rust::Vec<uint8_t> finalize_transcript();
 
  private:
   std::shared_ptr<SHPlonkProverImpl> impl_;

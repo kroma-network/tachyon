@@ -32,6 +32,8 @@ class ProvingKeyImpl<
     ReadProvingKey(buffer);
   }
 
+  const zk::ProvingKey<PCS>& key() const { return key_; }
+
   const zk::ConstraintSystem<F>& GetConstraintSystem() const {
     return key_.verifying_key().constraint_system();
   }

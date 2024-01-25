@@ -7,6 +7,7 @@
 #include <array>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "rust/cxx.h"
 
@@ -45,6 +46,19 @@ class ProverImpl {
         constraint_system.ComputeExtendedDegree(prover_.pcs().K());
     prover_.set_extended_domain(
         ExtendedDomain::Create(size_t{1} << extended_k));
+  }
+
+  void SetBlindingFactors(size_t binding_factors) {
+    prover_.blinder_.set_blinding_factors(binding_factors);
+  }
+
+  void CreateProof(const zk::ProvingKey<PCS>& proving_key,
+                   zk::halo2::Argument<PCS>& argument) {
+    prover_.CreateProof(proving_key, argument);
+  }
+
+  const std::vector<uint8_t>& GetTranscriptOwnedBuffer() {
+    return prover_.GetWriter()->buffer().owned_buffer();
   }
 
  private:

@@ -124,6 +124,7 @@ tachyon_cc_library(
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/rs/base:container_util",
+        "//tachyon/rs/base:rust_vec_copyable",
     ],
 )
 

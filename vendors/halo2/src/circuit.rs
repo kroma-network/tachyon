@@ -96,9 +96,12 @@ mod test {
             )
             .expect("proof generation should not fail");
 
-            transcript.finalize()
+            let mut proof = transcript.finalize();
+            let proof_last = prover.finalize_transcript();
+            proof.extend_from_slice(&proof_last);
+            proof
         };
-        // TODO(chokobole): Need to compare `halo2_proof` and `tachyon_proof`.
+        assert_eq!(halo2_proof, tachyon_proof);
         // ANCHOR_END: test-circuit
     }
 }

@@ -102,6 +102,32 @@ class Prover : public ProverBase<PCS> {
                               proving_key.verifying_key().constraint_system(),
                               std::move(instance_columns_vec));
 
+    CreateProof(proving_key, argument);
+  }
+
+ private:
+  friend class halo2_api::ProverImpl<PCS>;
+
+  Prover(PCS&& pcs,
+         std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+         Blinder<PCS>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
+         std::unique_ptr<RandomFieldGenerator<F>> generator)
+      : ProverBase<PCS>(std::move(pcs), std::move(writer), std::move(blinder)),
+        rng_(std::move(rng)),
+        generator_(std::move(generator)) {}
+
+  void SetRng(std::unique_ptr<crypto::XORShiftRNG> rng) {
+    rng_ = std::move(rng);
+    generator_ = std::make_unique<RandomFieldGenerator<F>>(rng_.get());
+    this->blinder_ =
+        Blinder<PCS>(generator_.get(), this->blinder_.blinding_factors());
+  }
+
+  void CreateProof(const ProvingKey<PCS>& proving_key,
+                   Argument<PCS>& argument) {
+    crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
+    auto state =
+        reinterpret_cast<halo2::Blake2bWriter<Commitment>*>(writer)->GetState();
     F theta = writer->SqueezeChallenge();
     std::vector<std::vector<LookupPermuted<Poly, Evals>>> permuted_lookups_vec =
         argument.CompressLookupStep(
@@ -136,24 +162,6 @@ class Prover : public ProverBase<PCS> {
         argument.ConstructOpenings(this, proving_key, evaluated_result, x);
 
     CHECK(this->pcs_.CreateOpeningProof(openings, this->GetWriter()));
-  }
-
- private:
-  friend class halo2_api::ProverImpl<PCS>;
-
-  Prover(PCS&& pcs,
-         std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-         Blinder<PCS>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
-         std::unique_ptr<RandomFieldGenerator<F>> generator)
-      : ProverBase<PCS>(std::move(pcs), std::move(writer), std::move(blinder)),
-        rng_(std::move(rng)),
-        generator_(std::move(generator)) {}
-
-  void SetRng(std::unique_ptr<crypto::XORShiftRNG> rng) {
-    rng_ = std::move(rng);
-    generator_ = std::make_unique<RandomFieldGenerator<F>>(rng_.get());
-    this->blinder_ =
-        Blinder<PCS>(generator_.get(), this->blinder_.blinding_factors());
   }
 
   std::unique_ptr<crypto::XORShiftRNG> rng_;

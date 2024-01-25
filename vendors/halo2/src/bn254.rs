@@ -23,6 +23,14 @@ pub struct G1MSMGpu;
 pub struct G1JacobianPoint(pub G1JacobianPointImpl);
 pub struct G1Point2(pub G1Point2Impl);
 pub struct Fr(pub FrImpl);
+pub struct InstanceSingle {
+    pub instance_values: Vec<Vec<Fr>>,
+    pub instance_polys: Vec<Vec<Fr>>,
+}
+pub struct AdviceSingle {
+    pub advice_polys: Vec<Vec<Fr>>,
+    pub advice_blinds: Vec<Fr>,
+}
 
 #[cxx::bridge(namespace = "tachyon::halo2_api::bn254")]
 pub mod ffi {
@@ -32,6 +40,8 @@ pub mod ffi {
         type G1JacobianPoint;
         type G1Point2;
         type Fr;
+        type InstanceSingle;
+        type AdviceSingle;
     }
 
     unsafe extern "C++" {
@@ -99,6 +109,15 @@ pub mod ffi {
         fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_transcript(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &SHPlonkProvingKey);
+        // TODO(chokobole): Needs to take `instance_singles` and `advice_singles` as a slice.
+        fn create_proof(
+            self: Pin<&mut SHPlonkProver>,
+            key: &SHPlonkProvingKey,
+            instance_singles: Vec<InstanceSingle>,
+            advice_singles: Vec<AdviceSingle>,
+            challenges: Vec<Fr>,
+        );
+        fn finalize_transcript(self: Pin<&mut SHPlonkProver>) -> Vec<u8>;
     }
 }
 
@@ -187,6 +206,14 @@ impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
 
 pub struct SHPlonkProvingKey {
     inner: cxx::UniquePtr<ffi::SHPlonkProvingKey>,
+}
+
+impl Deref for SHPlonkProvingKey {
+    type Target = ffi::SHPlonkProvingKey;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
 }
 
 impl SHPlonkProvingKey {
@@ -326,5 +353,21 @@ impl SHPlonkProver {
 
     pub fn set_extended_domain(&mut self, pk: &SHPlonkProvingKey) {
         self.inner.pin_mut().set_extended_domain(pk.inner())
+    }
+
+    pub fn create_proof(
+        &mut self,
+        key: &SHPlonkProvingKey,
+        instance_singles: Vec<InstanceSingle>,
+        advice_singles: Vec<AdviceSingle>,
+        challenges: Vec<Fr>,
+    ) {
+        self.inner
+            .pin_mut()
+            .create_proof(key, instance_singles, advice_singles, challenges)
+    }
+
+    pub fn finalize_transcript(&mut self) -> Vec<u8> {
+        self.inner.pin_mut().finalize_transcript()
     }
 }
