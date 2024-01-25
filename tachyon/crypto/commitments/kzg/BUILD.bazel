@@ -45,7 +45,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":shplonk",
-        "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/base/buffer",
         "//tachyon/crypto/transcripts:simple_transcript",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",

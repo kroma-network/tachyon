@@ -203,7 +203,7 @@ tachyon_cc_unittest(
         ":permutation_argument_runner",
         ":permutation_assembly",
         ":permutation_table_store",
-        "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/base/buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
         "//tachyon/zk/plonk/halo2:prover_test",
     ],

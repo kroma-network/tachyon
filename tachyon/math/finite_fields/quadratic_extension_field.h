@@ -337,8 +337,8 @@ class Copyable<Derived, std::enable_if_t<std::is_base_of_v<
 
   static size_t EstimateSize(
       const math::QuadraticExtensionField<Derived>& quadratic_extension_field) {
-    return EstimateSize(quadratic_extension_field.c0()) +
-           EstimateSize(quadratic_extension_field.c1());
+    return base::EstimateSize(quadratic_extension_field.c0()) +
+           base::EstimateSize(quadratic_extension_field.c1());
   }
 };
 

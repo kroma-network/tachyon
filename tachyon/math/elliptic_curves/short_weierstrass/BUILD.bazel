@@ -56,7 +56,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":points",
-        "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/base/buffer",
         "//tachyon/base/json",
         "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
     ],

@@ -3,7 +3,7 @@
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/base/buffer/buffer.h"
 #include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -431,15 +431,18 @@ TEST_F(UnivariateSparsePolynomialTest, FoldOdd) {
 #undef GET_COEFF
 
 TEST_F(UnivariateSparsePolynomialTest, Copyable) {
-  Poly expected(Coeffs({{0, GF7(3)}, {1, GF7(1)}}));
+  Poly expected = Poly::Random(kMaxDegree);
+
+  std::vector<uint8_t> vec;
+  vec.resize(base::EstimateSize(expected));
+  base::Buffer write_buf(vec.data(), vec.size());
+  ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Done());
+
+  write_buf.set_buffer_offset(0);
+
   Poly value;
-
-  base::Uint8VectorBuffer buf;
-  ASSERT_TRUE(buf.Write(expected));
-
-  buf.set_buffer_offset(0);
-  ASSERT_TRUE(buf.Read(&value));
-
+  ASSERT_TRUE(write_buf.Read(&value));
   EXPECT_EQ(expected, value);
 }
 
