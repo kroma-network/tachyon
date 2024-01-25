@@ -1,6 +1,7 @@
 #ifndef TACHYON_BASE_JSON_RAPIDJSON_UTIL_H_
 #define TACHYON_BASE_JSON_RAPIDJSON_UTIL_H_
 
+#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -263,6 +264,33 @@ class RapidJsonValueConverter<std::vector<T>> {
       value_tmp.push_back(std::move(v));
     }
     *value = std::move(value_tmp);
+    return true;
+  }
+};
+
+template <typename T>
+class RapidJsonValueConverter<std::optional<T>> {
+ public:
+  template <typename Allocator>
+  static rapidjson::Value From(const std::optional<T>& value,
+                               Allocator& allocator) {
+    if (value.has_value()) {
+      return RapidJsonValueConverter<T>::From(value.value(), allocator);
+    } else {
+      return rapidjson::Value();
+    }
+  }
+
+  static bool To(const rapidjson::Value& json_value, std::string_view key,
+                 std::optional<T>* value, std::string* error) {
+    if (json_value.IsNull()) {
+      *value = std::optional<T>();
+    } else {
+      T value_tmp;
+      if (!RapidJsonValueConverter<T>::To(json_value, key, &value_tmp, error))
+        return false;
+      *value = std::move(value_tmp);
+    }
     return true;
   }
 };
