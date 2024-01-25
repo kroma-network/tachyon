@@ -42,11 +42,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "polynomial_pointer",
-    hdrs = ["polynomial_pointer.h"],
-)
-
-tachyon_cc_library(
     name = "random_field_generator_base",
     hdrs = ["random_field_generator_base.h"],
 )
