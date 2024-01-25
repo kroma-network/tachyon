@@ -14,6 +14,14 @@ class VectorBuffer : public Buffer {
   static_assert(sizeof(T) == 1);
 
   VectorBuffer() = default;
+  explicit VectorBuffer(const std::vector<T>& owned_buffer)
+      : owned_buffer_(owned_buffer) {
+    UpdateBuffer();
+  }
+  explicit VectorBuffer(std::vector<T>&& owned_buffer)
+      : owned_buffer_(std::move(owned_buffer)) {
+    UpdateBuffer();
+  }
   VectorBuffer(const VectorBuffer& other) = delete;
   VectorBuffer& operator=(const VectorBuffer& other) = delete;
   VectorBuffer(VectorBuffer&& other)
@@ -32,12 +40,16 @@ class VectorBuffer : public Buffer {
 
   [[nodiscard]] bool Grow(size_t size) override {
     owned_buffer_.resize(size);
-    buffer_ = owned_buffer_.data();
-    buffer_len_ = owned_buffer_.size();
+    UpdateBuffer();
     return true;
   }
 
  protected:
+  void UpdateBuffer() {
+    buffer_ = owned_buffer_.data();
+    buffer_len_ = owned_buffer_.size();
+  }
+
   std::vector<T> owned_buffer_;
 };
 
