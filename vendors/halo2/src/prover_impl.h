@@ -53,8 +53,8 @@ class ProverImpl {
   }
 
   void CreateProof(const zk::ProvingKey<PCS>& proving_key,
-                   zk::halo2::Argument<PCS>& argument) {
-    prover_.CreateProof(proving_key, argument);
+                   zk::halo2::ArgumentData<PCS>* argument_data) {
+    prover_.CreateProof(proving_key, argument_data);
   }
 
   const std::vector<uint8_t>& GetTranscriptOwnedBuffer() {

@@ -88,7 +88,7 @@ class VanishingArgument {
   ExtendedEvals BuildExtendedCircuitColumn(
       ProverBase<PCS>* prover, const ProvingKey<PCS>& proving_key,
       const F& beta, const F& gamma, const F& theta, const F& y, const F& zeta,
-      const std::vector<F>& challenges,
+      absl::Span<const F> challenges,
       const std::vector<PermutationCommitted<Poly>>& committed_permutations,
       const std::vector<std::vector<LookupCommitted<Poly>>>&
           committed_lookups_vec,
@@ -101,7 +101,7 @@ class VanishingArgument {
         CircuitPolynomialBuilder<PCS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
             blinding_factors, cs_degree, &beta, &gamma, &theta, &y, &zeta,
-            &challenges, &proving_key, &committed_permutations,
+            challenges, &proving_key, &committed_permutations,
             &committed_lookups_vec, &poly_tables);
 
     return builder.BuildExtendedCircuitColumn(custom_gates_, lookups_);

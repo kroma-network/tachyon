@@ -24,8 +24,8 @@ class EvaluationInput {
   EvaluationInput(std::vector<F>&& intermediates,
                   std::vector<int32_t>&& rotations,
                   const OwnedTable<Evals>* table,
-                  const std::vector<F>* challenges, const F* beta,
-                  const F* gamma, const F* theta, const F* y, int32_t n)
+                  absl::Span<const F> challenges, const F* beta, const F* gamma,
+                  const F* theta, const F* y, int32_t n)
       : intermediates_(std::move(intermediates)),
         rotations_(std::move(rotations)),
         table_(table),
@@ -41,7 +41,7 @@ class EvaluationInput {
   const std::vector<int32_t>& rotations() const { return rotations_; }
   std::vector<int32_t>& rotations() { return rotations_; }
   const OwnedTable<Evals>& table() const { return *table_; }
-  const std::vector<F>& challenges() const { return *challenges_; }
+  absl::Span<const F> challenges() const { return challenges_; }
   const F& beta() const { return *beta_; }
   const F& gamma() const { return *gamma_; }
   const F& theta() const { return *theta_; }
@@ -53,8 +53,7 @@ class EvaluationInput {
   std::vector<int32_t> rotations_;
   // not owned
   const OwnedTable<Evals>* table_ = nullptr;
-  // not owned
-  const std::vector<F>* challenges_ = nullptr;
+  absl::Span<const F> challenges_;
   // not owned
   const F* beta_ = nullptr;
   // not owned
