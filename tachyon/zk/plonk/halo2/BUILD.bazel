@@ -244,6 +244,7 @@ tachyon_cc_unittest(
         "pinned_verifying_key_unittest.cc",
         "poseidon_transcript_unittest.cc",
         "proof_serializer_unittest.cc",
+        "proof_unittest.cc",
         "random_field_generator_unittest.cc",
         "sha256_transcript_unittest.cc",
         "witness_collection_unittest.cc",
