@@ -1,5 +1,4 @@
 mod bn254;
-mod circuit;
 mod circuits;
 mod consts;
 mod msm;
