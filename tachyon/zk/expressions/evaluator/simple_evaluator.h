@@ -39,9 +39,9 @@ class SimpleEvaluator
       : idx_(idx),
         size_(size),
         rot_scale_(rot_scale),
-        fixed_columns_(table.fixed_columns()),
-        advice_columns_(table.advice_columns()),
-        instance_columns_(table.instance_columns()),
+        fixed_columns_(table.GetFixedColumns()),
+        advice_columns_(table.GetAdviceColumns()),
+        instance_columns_(table.GetInstanceColumns()),
         challenges_(challenges) {}
 
   int32_t idx() const { return idx_; }

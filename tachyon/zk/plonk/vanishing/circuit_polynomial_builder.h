@@ -350,13 +350,13 @@ class CircuitPolynomialBuilder {
 
   void UpdateVanishingTable(size_t circuit_idx) {
     std::vector<Evals> fixed_columns = CoeffsToExtendedPart(
-        domain_, (*poly_tables_)[circuit_idx].fixed_columns(), *zeta_,
+        domain_, (*poly_tables_)[circuit_idx].GetFixedColumns(), *zeta_,
         current_extended_omega_);
     std::vector<Evals> advice_columns = CoeffsToExtendedPart(
-        domain_, (*poly_tables_)[circuit_idx].advice_columns(), *zeta_,
+        domain_, (*poly_tables_)[circuit_idx].GetAdviceColumns(), *zeta_,
         current_extended_omega_);
     std::vector<Evals> instance_columns = CoeffsToExtendedPart(
-        domain_, (*poly_tables_)[circuit_idx].instance_columns(), *zeta_,
+        domain_, (*poly_tables_)[circuit_idx].GetInstanceColumns(), *zeta_,
         current_extended_omega_);
     table_ =
         OwnedTable<Evals>(std::move(fixed_columns), std::move(advice_columns),

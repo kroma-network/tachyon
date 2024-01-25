@@ -130,16 +130,16 @@ void EvaluateColumns(ProverBase<PCS>* prover,
   size_t num_circuits = tables.size();
   if constexpr (PCS::kQueryInstance) {
     for (size_t i = 0; i < num_circuits; ++i) {
-      EvaluatePolysByQueries(prover, tables[i].instance_columns(),
+      EvaluatePolysByQueries(prover, tables[i].GetInstanceColumns(),
                              constraint_system.instance_queries(), x);
     }
   }
   for (size_t i = 0; i < num_circuits; ++i) {
-    EvaluatePolysByQueries(prover, tables[i].advice_columns(),
+    EvaluatePolysByQueries(prover, tables[i].GetAdviceColumns(),
                            constraint_system.advice_queries(), x);
   }
 
-  EvaluatePolysByQueries(prover, tables[0].fixed_columns(),
+  EvaluatePolysByQueries(prover, tables[0].GetFixedColumns(),
                          constraint_system.fixed_queries(), x);
 }
 

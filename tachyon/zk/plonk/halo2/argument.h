@@ -232,7 +232,7 @@ class Argument {
       // Generate openings for instances columns of the specific circuit.
       if constexpr (PCS::kQueryInstance) {
         std::vector<crypto::PolynomialOpening<Poly>> openings =
-            GenerateColumnOpenings(prover, tables[i].instance_columns(),
+            GenerateColumnOpenings(prover, tables[i].GetInstanceColumns(),
                                    cs.instance_queries(), x,
                                    opening_points_set_);
         ret.insert(ret.end(), std::make_move_iterator(openings.begin()),
@@ -241,7 +241,7 @@ class Argument {
 
       // Generate openings for advices columns of the specific circuit.
       std::vector<crypto::PolynomialOpening<Poly>> openings =
-          GenerateColumnOpenings(prover, tables[i].advice_columns(),
+          GenerateColumnOpenings(prover, tables[i].GetAdviceColumns(),
                                  cs.advice_queries(), x, opening_points_set_);
       ret.insert(ret.end(), std::make_move_iterator(openings.begin()),
                  std::make_move_iterator(openings.end()));
@@ -266,7 +266,7 @@ class Argument {
     // Generate openings for fixed columns.
     // NOTE(dongchangYoo): |fixed_xx|s of each |tables[i]| are equal each other.
     std::vector<crypto::PolynomialOpening<Poly>> openings =
-        GenerateColumnOpenings(prover, tables[0].fixed_columns(),
+        GenerateColumnOpenings(prover, tables[0].GetFixedColumns(),
                                cs.fixed_queries(), x, opening_points_set_);
     ret.insert(ret.end(), std::make_move_iterator(openings.begin()),
                std::make_move_iterator(openings.end()));
