@@ -6,7 +6,6 @@
 #ifndef TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
 #define TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
 
-#include <iostream>
 #include <utility>
 #include <vector>
 
