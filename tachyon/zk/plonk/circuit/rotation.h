@@ -7,14 +7,13 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_ROTATION_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_ROTATION_H_
 
-#include <stdint.h>
-
 #include <string>
 
 #include "tachyon/base/logging.h"
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
+#include "tachyon/zk/base/row_index.h"
 
 namespace tachyon::zk {
 
@@ -43,7 +42,7 @@ class TACHYON_EXPORT Rotation {
   std::string ToString() const { return base::NumberToString(value_); }
 
   // Returns (|idx| + |value_| * |scale|) modulo |size|.
-  size_t GetIndex(int32_t idx, int32_t scale, int32_t size) const {
+  RowIndex GetIndex(int32_t idx, int32_t scale, int32_t size) const {
     CHECK_GT(size, 0);
     base::CheckedNumeric<int32_t> value = value_;
     int32_t result = ((idx + value * scale) % size).ValueOrDie();

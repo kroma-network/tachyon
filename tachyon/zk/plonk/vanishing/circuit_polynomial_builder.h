@@ -147,8 +147,8 @@ class CircuitPolynomialBuilder {
           F zero = F::Zero();
           F table_value = ev.Evaluate(evaluation_input, idx, rot_scale_, zero);
 
-          size_t r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
-          size_t r_prev = Rotation(-1).GetIndex(idx, rot_scale_, n_);
+          RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
+          RowIndex r_prev = Rotation(-1).GetIndex(idx, rot_scale_, n_);
 
           F a_minus_s = *input_coset[idx] - *table_coset[idx];
 
@@ -214,7 +214,7 @@ class CircuitPolynomialBuilder {
 
         // Except for the first set, enforce:
         // l_first(X) * (zᵢ(X) - zᵢ₋₁(w⁻¹X)) = 0
-        size_t r_last = last_rotation_.GetIndex(idx, rot_scale_, n_);
+        RowIndex r_last = last_rotation_.GetIndex(idx, rot_scale_, n_);
         for (size_t set_idx = 0; set_idx < product_cosets.size(); ++set_idx) {
           if (set_idx == 0) continue;
           chunk[i] *= *y_;
@@ -225,7 +225,7 @@ class CircuitPolynomialBuilder {
         // And for all the sets we enforce: (1 - (l_last(X) + l_blind(X))) *
         // (zᵢ(wX) * Πⱼ(p(X) + βsⱼ(X) + γ) - zᵢ(X) Πⱼ(p(X) + δʲβX + γ))
         F current_delta = delta_start_ * beta_term;
-        size_t r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
+        RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
 
         const std::vector<AnyColumnKey>& column_keys =
             proving_key_->verifying_key()

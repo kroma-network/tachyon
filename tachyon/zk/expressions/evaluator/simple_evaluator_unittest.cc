@@ -68,9 +68,9 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
     int32_t size = simple_evaluator_->size();
     FixedQuery query(1, Rotation(test.rotation),
                      FixedColumnKey(test.column_index));
-    size_t evals_index = query.rotation().GetIndex(idx, rot_scale, size);
+    RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
-    const GF7* expected = fixed_columns_[test.column_index][evals_index];
+    const GF7* expected = fixed_columns_[test.column_index][row_index];
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, *expected);
@@ -94,9 +94,9 @@ TEST_F(SimpleEvaluatorTest, Advice) {
     int32_t size = simple_evaluator_->size();
     AdviceQuery query(1, Rotation(test.rotation),
                       AdviceColumnKey(test.column_index, Phase(0)));
-    size_t evals_index = query.rotation().GetIndex(idx, rot_scale, size);
+    RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
-    const GF7* expected = advice_columns_[test.column_index][evals_index];
+    const GF7* expected = advice_columns_[test.column_index][row_index];
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, *expected);
@@ -120,9 +120,9 @@ TEST_F(SimpleEvaluatorTest, Instance) {
     int32_t size = simple_evaluator_->size();
     InstanceQuery query(1, Rotation(test.rotation),
                         InstanceColumnKey(test.column_index));
-    size_t evals_index = query.rotation().GetIndex(idx, rot_scale, size);
+    RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
-    const GF7* expected = instance_columns_[test.column_index][evals_index];
+    const GF7* expected = instance_columns_[test.column_index][row_index];
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, *expected);
