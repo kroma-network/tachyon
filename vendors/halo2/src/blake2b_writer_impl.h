@@ -1,6 +1,10 @@
 #ifndef VENDORS_HALO2_SRC_BLAKE2B_WRITER_IMPL_H_
 #define VENDORS_HALO2_SRC_BLAKE2B_WRITER_IMPL_H_
 
+#include <stdint.h>
+
+#include <vector>
+
 #include "rust/cxx.h"
 
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
@@ -23,6 +27,8 @@ class Blake2bWriterImpl {
     writer_.Finalize(stack_result);
     memcpy(result.data(), stack_result, sizeof(stack_result));
   }
+
+  std::vector<uint8_t> GetState() const { return writer_.GetState(); }
 
  private:
   zk::halo2::Blake2bWriter<AffinePoint> writer_;

@@ -1,11 +1,13 @@
 use std::{
     io::{self, Write},
     marker::PhantomData,
+    ops::Deref,
 };
 
 use ff::PrimeField;
 use halo2_proofs::{
     plonk::{sealed, Column, Fixed},
+    poly::{Coeff, LagrangeCoeff, Polynomial},
     transcript::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
@@ -21,6 +23,14 @@ pub struct G1MSMGpu;
 pub struct G1JacobianPoint(pub G1JacobianPointImpl);
 pub struct G1Point2(pub G1Point2Impl);
 pub struct Fr(pub FrImpl);
+pub struct InstanceSingle {
+    pub instance_values: Vec<Vec<Fr>>,
+    pub instance_polys: Vec<Vec<Fr>>,
+}
+pub struct AdviceSingle {
+    pub advice_polys: Vec<Vec<Fr>>,
+    pub advice_blinds: Vec<Fr>,
+}
 
 #[cxx::bridge(namespace = "tachyon::halo2_api::bn254")]
 pub mod ffi {
@@ -30,6 +40,8 @@ pub mod ffi {
         type G1JacobianPoint;
         type G1Point2;
         type Fr;
+        type InstanceSingle;
+        type AdviceSingle;
     }
 
     unsafe extern "C++" {
@@ -57,12 +69,6 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
-        include!("vendors/halo2/include/bn254_prover.h");
-
-        fn create_proof(degree: u8);
-    }
-
-    unsafe extern "C++" {
         include!("vendors/halo2/include/bn254_blake2b_writer.h");
 
         type Blake2bWriter;
@@ -70,6 +76,7 @@ pub mod ffi {
         fn new_blake2b_writer() -> UniquePtr<Blake2bWriter>;
         fn update(self: Pin<&mut Blake2bWriter>, data: &[u8]);
         fn finalize(self: Pin<&mut Blake2bWriter>, result: &mut [u8; 64]);
+        fn state(&self) -> Vec<u8>;
     }
 
     unsafe extern "C++" {
@@ -86,6 +93,31 @@ pub mod ffi {
         fn num_challenges(&self) -> usize;
         fn num_instance_columns(&self) -> usize;
         fn phases(&self) -> Vec<u8>;
+        fn transcript_repr(self: Pin<&mut SHPlonkProvingKey>, prover: &SHPlonkProver) -> Box<Fr>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_shplonk_prover.h");
+
+        type SHPlonkProver;
+
+        fn new_shplonk_prover(k: u32, s: &Fr) -> UniquePtr<SHPlonkProver>;
+        fn k(&self) -> u32;
+        fn n(&self) -> u64;
+        fn commit(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
+        fn commit_lagrange(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
+        fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
+        fn set_transcript(self: Pin<&mut SHPlonkProver>, state: &[u8]);
+        fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &SHPlonkProvingKey);
+        // TODO(chokobole): Needs to take `instance_singles` and `advice_singles` as a slice.
+        fn create_proof(
+            self: Pin<&mut SHPlonkProver>,
+            key: &SHPlonkProvingKey,
+            instance_singles: Vec<InstanceSingle>,
+            advice_singles: Vec<AdviceSingle>,
+            challenges: Vec<Fr>,
+        );
+        fn finalize_transcript(self: Pin<&mut SHPlonkProver>) -> Vec<u8>;
     }
 }
 
@@ -93,6 +125,12 @@ pub struct Blake2bWrite<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
     state: cxx::UniquePtr<ffi::Blake2bWriter>,
     writer: W,
     _marker: PhantomData<(W, C, E)>,
+}
+
+impl<W: Write, C: CurveAffine> Blake2bWrite<W, C, Challenge255<C>> {
+    pub fn state(&self) -> Vec<u8> {
+        self.state.state()
+    }
 }
 
 impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
@@ -170,11 +208,23 @@ pub struct SHPlonkProvingKey {
     inner: cxx::UniquePtr<ffi::SHPlonkProvingKey>,
 }
 
+impl Deref for SHPlonkProvingKey {
+    type Target = ffi::SHPlonkProvingKey;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
 impl SHPlonkProvingKey {
     pub fn from(data: &[u8]) -> SHPlonkProvingKey {
         SHPlonkProvingKey {
             inner: ffi::new_proving_key(data),
         }
+    }
+
+    pub fn inner(&self) -> &ffi::SHPlonkProvingKey {
+        &self.inner
     }
 
     // NOTE(chokobole): We name this as plural since it contains multi phases.
@@ -202,18 +252,16 @@ impl SHPlonkProvingKey {
 
     // pk.vk.cs.constants
     pub fn constants(&self) -> Vec<Column<Fixed>> {
-        unsafe {
-            let constants = self
-                .inner
-                .constants()
-                .iter()
-                .map(|index| Column {
-                    index: *index,
-                    column_type: Fixed,
-                })
-                .collect::<Vec<_>>();
-            constants
-        }
+        let constants = self
+            .inner
+            .constants()
+            .iter()
+            .map(|index| Column {
+                index: *index,
+                column_type: Fixed,
+            })
+            .collect::<Vec<_>>();
+        constants
     }
 
     // pk.vk.cs.num_advice_columns
@@ -237,5 +285,89 @@ impl SHPlonkProvingKey {
             let phases: Vec<sealed::Phase> = std::mem::transmute(self.inner.phases());
             phases
         }
+    }
+
+    // pk.vk.transcript_repr
+    pub fn transcript_repr(&mut self, prover: &SHPlonkProver) -> halo2curves::bn256::Fr {
+        *unsafe {
+            std::mem::transmute::<_, Box<halo2curves::bn256::Fr>>(
+                self.inner.pin_mut().transcript_repr(prover.inner()),
+            )
+        }
+    }
+}
+
+pub struct SHPlonkProver {
+    inner: cxx::UniquePtr<ffi::SHPlonkProver>,
+}
+
+impl SHPlonkProver {
+    pub fn new(k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver {
+        let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
+        SHPlonkProver {
+            inner: ffi::new_shplonk_prover(k, cpp_s),
+        }
+    }
+
+    pub(crate) fn inner(&self) -> &ffi::SHPlonkProver {
+        &self.inner
+    }
+
+    pub fn k(&self) -> u32 {
+        self.inner.k()
+    }
+
+    pub fn n(&self) -> u64 {
+        self.inner.n()
+    }
+
+    pub fn commit(
+        &self,
+        poly: &Polynomial<halo2curves::bn256::Fr, Coeff>,
+    ) -> halo2curves::bn256::G1 {
+        *unsafe {
+            let scalars: &[Fr] = std::mem::transmute(poly.deref());
+            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(self.inner.commit(scalars))
+        }
+    }
+
+    pub fn commit_lagrange(
+        &self,
+        poly: &Polynomial<halo2curves::bn256::Fr, LagrangeCoeff>,
+    ) -> halo2curves::bn256::G1 {
+        *unsafe {
+            let scalars: &[Fr] = std::mem::transmute(poly.deref());
+            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(
+                self.inner.commit_lagrange(scalars),
+            )
+        }
+    }
+
+    pub fn set_rng(&mut self, state: &[u8]) {
+        self.inner.pin_mut().set_rng(state)
+    }
+
+    pub fn set_transcript(&mut self, state: &[u8]) {
+        self.inner.pin_mut().set_transcript(state)
+    }
+
+    pub fn set_extended_domain(&mut self, pk: &SHPlonkProvingKey) {
+        self.inner.pin_mut().set_extended_domain(pk.inner())
+    }
+
+    pub fn create_proof(
+        &mut self,
+        key: &SHPlonkProvingKey,
+        instance_singles: Vec<InstanceSingle>,
+        advice_singles: Vec<AdviceSingle>,
+        challenges: Vec<Fr>,
+    ) {
+        self.inner
+            .pin_mut()
+            .create_proof(key, instance_singles, advice_singles, challenges)
+    }
+
+    pub fn finalize_transcript(&mut self) -> Vec<u8> {
+        self.inner.pin_mut().finalize_transcript()
     }
 }

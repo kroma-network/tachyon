@@ -42,11 +42,11 @@ class BufferReader<T, std::enable_if_t<std::is_integral_v<T>>> {
   }
 };
 
-bool ReadU8AsBool(base::Buffer& buffer) {
+inline bool ReadU8AsBool(base::Buffer& buffer) {
   return BufferReader<uint8_t>::Read(buffer) != 0;
 }
 
-size_t ReadU32AsSizeT(base::Buffer& buffer) {
+inline size_t ReadU32AsSizeT(base::Buffer& buffer) {
   return size_t{BufferReader<uint32_t>::Read(buffer)};
 }
 

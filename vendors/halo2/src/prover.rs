@@ -2,110 +2,91 @@
 
 use std::{
     collections::{BTreeSet, HashMap},
+    io::Write,
     ops::RangeTo,
 };
 
-use crate::bn254::ffi;
+use crate::bn254::{
+    Blake2bWrite as TachyonBlake2bWrite, SHPlonkProver as TachyonSHPlonkProver,
+    SHPlonkProvingKey as TachyonSHPlonkProvingKey,
+};
+use crate::xor_shift_rng::XORShiftRng as TachyonXORShiftRng;
 use ff::Field;
 use halo2_proofs::{
     arithmetic::CurveAffine,
     circuit::Value,
     plonk::{
         sealed, Advice, Any, Assigned, Assignment, Challenge, Circuit, Column, ConstraintSystem,
-        Error, Fixed, FloorPlanner, Instance, ProvingKey, Selector,
+        Error, Fixed, FloorPlanner, Instance, Selector,
     },
     poly::{
-        batch_invert_assigned,
-        commitment::{Blind, CommitmentScheme, Params, Prover},
-        Basis, Coeff, LagrangeCoeff, Polynomial,
+        batch_invert_assigned, commitment::Blind, Basis, Coeff, EvaluationDomain, LagrangeCoeff,
+        Polynomial,
     },
-    transcript::{EncodedChallenge, TranscriptWrite},
+    transcript::{Challenge255, Transcript, TranscriptWrite},
 };
-use halo2curves::group::{prime::PrimeCurveAffine, Curve};
-use rand_core::RngCore;
+use halo2curves::{
+    bn256::{Fr, G1Affine, G1},
+    group::{prime::PrimeCurveAffine, Curve},
+};
 
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
 /// generated previously for the same circuit. The provided `instances`
 /// are zero-padded internally.
-pub fn create_proof<
-    'params,
-    Scheme: CommitmentScheme,
-    P: Prover<'params, Scheme>,
-    E: EncodedChallenge<Scheme::Curve>,
-    R: RngCore,
-    T: TranscriptWrite<Scheme::Curve, E>,
-    ConcreteCircuit: Circuit<Scheme::Scalar>,
->(
-    params: &'params Scheme::ParamsProver,
-    pk: &ProvingKey<Scheme::Curve>,
+pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
+    prover: &mut TachyonSHPlonkProver,
+    pk: &mut TachyonSHPlonkProvingKey,
     circuits: &[ConcreteCircuit],
-    instances: &[&[&[Scheme::Scalar]]],
-    mut rng: R,
-    transcript: &mut T,
+    instances: &[&[&[Fr]]],
+    mut rng: TachyonXORShiftRng,
+    transcript: &mut TachyonBlake2bWrite<W, G1Affine, Challenge255<G1Affine>>,
+    domain: &EvaluationDomain<Fr>,
 ) -> Result<(), Error> {
     for instance in instances.iter() {
-        if instance.len() != pk.vk.cs.num_instance_columns {
+        if instance.len() != pk.num_instance_columns() {
             return Err(Error::InvalidInstances);
         }
     }
 
+    prover.set_extended_domain(pk);
     // Hash verification key into transcript
-    pk.vk.hash_into(transcript)?;
+    transcript.common_scalar(pk.transcript_repr(prover))?;
 
-    let domain = &pk.vk.domain;
     let mut meta = ConstraintSystem::default();
     let config = ConcreteCircuit::configure(&mut meta);
 
     // Selector optimizations cannot be applied here; use the ConstraintSystem
     // from the verification key.
-    let meta = &pk.vk.cs;
 
     struct InstanceSingle<C: CurveAffine> {
         pub instance_values: Vec<Polynomial<C::Scalar, LagrangeCoeff>>,
         pub instance_polys: Vec<Polynomial<C::Scalar, Coeff>>,
     }
 
-    let instance: Vec<InstanceSingle<Scheme::Curve>> = instances
+    let instance: Vec<InstanceSingle<G1Affine>> = instances
         .iter()
-        .map(|instance| -> Result<InstanceSingle<Scheme::Curve>, Error> {
+        .map(|instance| -> Result<InstanceSingle<G1Affine>, Error> {
             let instance_values = instance
                 .iter()
                 .map(|values| {
                     let mut poly = domain.empty_lagrange();
-                    assert_eq!(poly.len(), params.n() as usize);
-                    if values.len() > (poly.len() - (meta.blinding_factors() + 1)) {
+                    assert_eq!(poly.len(), prover.n() as usize);
+                    if values.len() > (poly.len() - (pk.blinding_factors() + 1)) {
                         return Err(Error::InstanceTooLarge);
                     }
                     for (poly, value) in poly.iter_mut().zip(values.iter()) {
-                        if !P::QUERY_INSTANCE {
-                            transcript.common_scalar(*value)?;
-                        }
+                        // NOTE(chokobole): I removed the P::QUERY_INSTANCE if statements since I can't make it compilable with the statement.
+                        // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L91.
+                        transcript.common_scalar(*value)?;
                         *poly = *value;
                     }
                     Ok(poly)
                 })
                 .collect::<Result<Vec<_>, _>>()?;
 
-            if P::QUERY_INSTANCE {
-                let instance_commitments_projective: Vec<_> = instance_values
-                    .iter()
-                    .map(|poly| params.commit_lagrange(poly, Blind::default()))
-                    .collect();
-                let mut instance_commitments =
-                    vec![Scheme::Curve::identity(); instance_commitments_projective.len()];
-                <Scheme::Curve as CurveAffine>::CurveExt::batch_normalize(
-                    &instance_commitments_projective,
-                    &mut instance_commitments,
-                );
-                let instance_commitments = instance_commitments;
-                drop(instance_commitments_projective);
-
-                for commitment in &instance_commitments {
-                    transcript.common_point(*commitment)?;
-                }
-            }
-
+            // NOTE(chokobole): I removed the P::QUERY_INSTANCE if statements since I can't make it compilable with the statement.
+            // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L100-L117.
             let instance_polys: Vec<_> = instance_values
                 .iter()
                 .map(|poly| {
@@ -272,20 +253,22 @@ pub fn create_proof<
     }
 
     let (advice, challenges) = {
+        let num_advice_columns = pk.num_advice_columns();
+        let num_challenges = pk.num_challenges();
         let mut advice = vec![
-            AdviceSingle::<Scheme::Curve, LagrangeCoeff> {
-                advice_polys: vec![domain.empty_lagrange(); meta.num_advice_columns],
-                advice_blinds: vec![Blind::default(); meta.num_advice_columns],
+            AdviceSingle::<G1Affine, LagrangeCoeff> {
+                advice_polys: vec![domain.empty_lagrange(); num_advice_columns],
+                advice_blinds: vec![Blind::default(); num_advice_columns],
             };
             instances.len()
         ];
         #[cfg(feature = "phase-check")]
         let mut advice_assignments =
-            vec![vec![domain.empty_lagrange_assigned(); meta.num_advice_columns]; instances.len()];
-        let mut challenges = HashMap::<usize, Scheme::Scalar>::with_capacity(meta.num_challenges);
+            vec![vec![domain.empty_lagrange_assigned(); num_advice_columns]; instances.len()];
+        let mut challenges = HashMap::<usize, Fr>::with_capacity(num_challenges);
 
-        let unusable_rows_start = params.n() as usize - (meta.blinding_factors() + 1);
-        for current_phase in pk.vk.cs.phases() {
+        let unusable_rows_start = prover.n() as usize - (pk.blinding_factors() + 1);
+        for current_phase in pk.phases() {
             let column_indices = meta
                 .advice_column_phase
                 .iter()
@@ -306,9 +289,9 @@ pub fn create_proof<
                 .enumerate()
             {
                 let mut witness = WitnessCollection {
-                    k: params.k(),
+                    k: prover.k(),
                     current_phase,
-                    advice: vec![domain.empty_lagrange_assigned(); meta.num_advice_columns],
+                    advice: vec![domain.empty_lagrange_assigned(); num_advice_columns],
                     instances,
                     challenges: &challenges,
                     // The prover will not be allowed to assign values to advice
@@ -324,18 +307,19 @@ pub fn create_proof<
                     &mut witness,
                     circuit,
                     config.clone(),
-                    meta.constants.clone(),
+                    pk.constants(),
                 )?;
 
                 #[cfg(feature = "phase-check")]
                 {
+                    let advice_column_phases = pk.advice_column_phases();
                     for (idx, advice_col) in witness.advice.iter().enumerate() {
-                        if pk.vk.cs.advice_column_phase[idx].0 < current_phase.0 {
+                        if advice_column_phases[idx].0 < current_phase.0 {
                             if advice_assignments[circuit_idx][idx].values != advice_col.values {
                                 log::error!(
                                     "advice column {}(at {:?}) changed when {:?}",
                                     idx,
-                                    pk.vk.cs.advice_column_phase[idx],
+                                    advice_column_phases[idx],
                                     current_phase
                                 );
                             }
@@ -343,7 +327,7 @@ pub fn create_proof<
                     }
                 }
 
-                let mut advice_values = batch_invert_assigned::<Scheme::Scalar>(
+                let mut advice_values = batch_invert_assigned::<Fr>(
                     witness
                         .advice
                         .into_iter()
@@ -369,25 +353,22 @@ pub fn create_proof<
                     //*cell = C::Scalar::one();
                     //}
                     let idx = advice_values.len() - 1;
-                    advice_values[idx] = Scheme::Scalar::one();
+                    advice_values[idx] = Fr::one();
                 }
 
                 // Compute commitments to advice column polynomials
                 let blinds: Vec<_> = advice_values
                     .iter()
-                    .map(|_| Blind(Scheme::Scalar::random(&mut rng)))
+                    .map(|_| Blind(Fr::random(&mut rng)))
                     .collect();
                 let advice_commitments_projective: Vec<_> = advice_values
                     .iter()
                     .zip(blinds.iter())
-                    .map(|(poly, blind)| params.commit_lagrange(poly, *blind))
+                    .map(|(poly, _)| prover.commit_lagrange(poly))
                     .collect();
                 let mut advice_commitments =
-                    vec![Scheme::Curve::identity(); advice_commitments_projective.len()];
-                <Scheme::Curve as CurveAffine>::CurveExt::batch_normalize(
-                    &advice_commitments_projective,
-                    &mut advice_commitments,
-                );
+                    vec![G1Affine::identity(); advice_commitments_projective.len()];
+                G1::batch_normalize(&advice_commitments_projective, &mut advice_commitments);
                 let advice_commitments = advice_commitments;
                 drop(advice_commitments_projective);
 
@@ -402,7 +383,7 @@ pub fn create_proof<
                 }
             }
 
-            for (index, phase) in meta.challenge_phase.iter().enumerate() {
+            for (index, phase) in pk.challenge_phases().iter().enumerate() {
                 if current_phase == *phase {
                     let existing =
                         challenges.insert(index, *transcript.squeeze_challenge_scalar::<()>());
@@ -411,14 +392,53 @@ pub fn create_proof<
             }
         }
 
-        assert_eq!(challenges.len(), meta.num_challenges);
-        let challenges = (0..meta.num_challenges)
+        assert_eq!(challenges.len(), num_challenges);
+        let challenges = (0..num_challenges)
             .map(|index| challenges.remove(&index).unwrap())
             .collect::<Vec<_>>();
 
         (advice, challenges)
     };
 
-    ffi::create_proof(5);
+    prover.set_rng(rng.state().as_slice());
+    prover.set_transcript(transcript.state().as_slice());
+
+    let instance = unsafe { std::mem::transmute::<_, Vec<crate::bn254::InstanceSingle>>(instance) };
+    let advice = unsafe { std::mem::transmute::<_, Vec<crate::bn254::AdviceSingle>>(advice) };
+    let challenges = unsafe { std::mem::transmute::<_, Vec<crate::bn254::Fr>>(challenges) };
+    prover.create_proof(pk, instance, advice, challenges);
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use crate::bn254::SHPlonkProver as TachyonSHPlonkProver;
+    use ff::Field;
+    use halo2_proofs::poly::{
+        commitment::{Blind, Params, ParamsProver},
+        kzg::commitment::ParamsKZG,
+        EvaluationDomain,
+    };
+    use halo2curves::bn256::{Bn256, Fr};
+    use rand_core::OsRng;
+
+    #[test]
+    fn test_params() {
+        let k = 4;
+        const N: u64 = 16;
+        let s = Fr::from(2);
+        let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
+        let prover = TachyonSHPlonkProver::new(k, &s);
+        assert_eq!(prover.n(), N);
+
+        let domain = EvaluationDomain::new(1, k);
+        let scalars = (0..N).map(|_| Fr::random(OsRng)).collect::<Vec<_>>();
+        let poly = domain.coeff_from_vec(scalars.clone());
+        assert_eq!(params.commit(&poly, Blind::default()), prover.commit(&poly));
+        let poly = domain.lagrange_from_vec(scalars);
+        assert_eq!(
+            params.commit_lagrange(&poly, Blind::default()),
+            prover.commit_lagrange(&poly)
+        );
+    }
 }

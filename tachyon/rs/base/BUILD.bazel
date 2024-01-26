@@ -1,0 +1,26 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "container_util",
+    hdrs = ["container_util.h"],
+    deps = [
+        "//tachyon/base/functional:functor_traits",
+        "@com_google_absl//absl/types:span",
+        "@cxx.rs//:core",
+    ],
+)
+
+tachyon_cc_library(
+    name = "rust_vec_copyable",
+    hdrs = ["rust_vec_copyable.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/base/strings:string_number_conversions",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+    ],
+)

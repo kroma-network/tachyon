@@ -8,6 +8,7 @@
 
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
+#include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "vendors/halo2/include/proving_key_impl_forward.h"
 #include "vendors/halo2/src/buffer_reader.h"
@@ -29,6 +30,12 @@ class ProvingKeyImpl<
   explicit ProvingKeyImpl(rust::Slice<const uint8_t> bytes) {
     base::Buffer buffer(const_cast<uint8_t*>(bytes.data()), bytes.size());
     ReadProvingKey(buffer);
+  }
+
+  const zk::ProvingKey<PCS>& key() const { return key_; }
+
+  const zk::ConstraintSystem<F>& GetConstraintSystem() const {
+    return key_.verifying_key().constraint_system();
   }
 
   const std::vector<zk::Phase>& GetAdviceColumnPhases() const {
@@ -63,11 +70,12 @@ class ProvingKeyImpl<
     return GetConstraintSystem().GetPhases();
   }
 
- private:
-  const zk::ConstraintSystem<F>& GetConstraintSystem() const {
-    return key_.verifying_key().constraint_system();
+  const F& GetTranscriptRepr(const zk::Entity<PCS>& entity) {
+    key_.verifying_key_.SetTranscriptRepresentative(&entity);
+    return key_.verifying_key_.transcript_repr_;
   }
 
+ private:
   void ReadProvingKey(base::Buffer& buffer) {
     ReadVerifyingKey(buffer, key_.verifying_key_);
     ReadBuffer(buffer, key_.l_first_);
@@ -76,6 +84,8 @@ class ProvingKeyImpl<
     ReadBuffer(buffer, key_.fixed_columns_);
     ReadBuffer(buffer, key_.fixed_polys_);
     ReadBuffer(buffer, key_.permutation_proving_key_);
+    key_.vanishing_argument_ = zk::VanishingArgument<F>::Create(
+        key_.verifying_key_.constraint_system());
     CHECK(buffer.Done());
   }
 

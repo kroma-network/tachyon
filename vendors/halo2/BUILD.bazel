@@ -19,7 +19,7 @@ tachyon_rust_library(
         ":bn254_cxx_bridge",
         ":bn254_msm",
         ":bn254_msm_gpu",
-        ":bn254_prover",
+        ":bn254_shplonk_prover",
         ":bn254_shplonk_proving_key",
         ":xor_shift_rng",
         ":xor_shift_rng_cxx_bridge",
@@ -70,7 +70,7 @@ tachyon_cc_library(
         "include/bn254_blake2b_writer.h",
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
-        "include/bn254_prover.h",
+        "include/bn254_shplonk_prover.h",
         "include/bn254_shplonk_proving_key.h",
         "include/proving_key_impl_forward.h",
     ],
@@ -87,6 +87,7 @@ tachyon_cc_library(
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/rs/base:container_util",
         "//tachyon/zk/plonk/halo2:blake2b_transcript",
     ],
 )
@@ -112,25 +113,60 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "bn254_prover",
-    srcs = ["src/bn254_prover.cc"],
+    name = "bn254_shplonk_prover",
+    srcs = ["src/bn254_shplonk_prover.cc"],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+        ":bn254_shplonk_prover_impl",
+        ":bn254_shplonk_proving_key_impl",
+        "//tachyon/base/buffer",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "//tachyon/rs/base:container_util",
+        "//tachyon/rs/base:rust_vec_copyable",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_shplonk_prover_impl",
+    hdrs = [
+        "src/bn254_shplonk_prover_impl.h",
+        "src/prover_impl.h",
+    ],
+    deps = [
+        ":bn254_shplonk_proving_key_impl",
+        ":degrees",
+        "//tachyon/base/buffer",
+        "//tachyon/base/functional:callback",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/base/commitments:shplonk_extension",
+        "//tachyon/zk/plonk/halo2:blake2b_transcript",
+        "//tachyon/zk/plonk/halo2:prover",
     ],
 )
 
 tachyon_cc_library(
     name = "bn254_shplonk_proving_key",
+    srcs = ["src/bn254_shplonk_proving_key.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        ":bn254_shplonk_proving_key_impl",
+        "//tachyon/rs/base:container_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_shplonk_proving_key_impl",
     srcs = [
-        "src/bn254_shplonk_proving_key.cc",
+        "src/bn254_shplonk_proving_key_impl.h",
         "src/buffer_reader.h",
         "src/endian_auto_reset.h",
         "src/shplonk_proving_key_impl.h",
     ],
     deps = [
-        ":bn254_api_hdrs",
-        ":bn254_cxx_bridge/include",
+        ":degrees",
         "//tachyon/base:logging",
         "//tachyon/base/buffer",
         "//tachyon/base/containers:container_util",
@@ -142,9 +178,15 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/circuit:column_key",
         "//tachyon/zk/plonk/circuit:gate",
         "//tachyon/zk/plonk/circuit:phase",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/permutation:permutation_argument",
     ],
+)
+
+tachyon_cc_library(
+    name = "degrees",
+    hdrs = ["src/degrees.h"],
 )
 
 tachyon_cc_library(
@@ -159,6 +201,8 @@ tachyon_cc_library(
     deps = [
         ":xor_shift_rng_api_hdrs",
         ":xor_shift_rng_cxx_bridge/include",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
+        "//tachyon/rs/base:container_util",
     ],
 )

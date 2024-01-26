@@ -68,6 +68,14 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   template <typename, size_t, size_t, typename>
   friend class zk::SHPlonkExtension;
 
+  const std::vector<G1Point>& GetG1PowersOfTau() const {
+    return this->kzg_.g1_powers_of_tau();
+  }
+
+  const std::vector<G1Point>& GetG1PowersOfTauLagrange() const {
+    return this->kzg_.g1_powers_of_tau_lagrange();
+  }
+
   // UnivariatePolynomialCommitmentScheme methods
   template <typename Container>
   [[nodiscard]] bool DoCreateOpeningProof(

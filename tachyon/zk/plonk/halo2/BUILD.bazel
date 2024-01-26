@@ -43,6 +43,7 @@ tachyon_cc_library(
         ":proof_serializer",
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/math/base:big_int",
+        "@com_google_absl//absl/types:span",
         "@com_google_boringssl//:crypto",
     ],
 )

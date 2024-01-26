@@ -10,9 +10,15 @@
 
 namespace tachyon::halo2_api::bn254 {
 
+struct Fr;
+class SHPlonkProver;
+class SHPlonkProvingKeyImpl;
+
 class SHPlonkProvingKey {
  public:
   explicit SHPlonkProvingKey(rust::Slice<const uint8_t> pk_bytes);
+
+  const SHPlonkProvingKeyImpl* impl() const { return impl_.get(); }
 
   rust::Slice<const uint8_t> advice_column_phases() const;
   size_t blinding_factors() const;
@@ -22,10 +28,10 @@ class SHPlonkProvingKey {
   size_t num_challenges() const;
   size_t num_instance_columns() const;
   rust::Vec<uint8_t> phases() const;
+  rust::Box<Fr> transcript_repr(const SHPlonkProver& prover);
 
  private:
-  class Impl;
-  std::shared_ptr<Impl> impl_;
+  std::shared_ptr<SHPlonkProvingKeyImpl> impl_;
 };
 
 std::unique_ptr<SHPlonkProvingKey> new_proving_key(

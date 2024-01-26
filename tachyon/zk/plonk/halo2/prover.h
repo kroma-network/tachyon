@@ -16,7 +16,15 @@
 #include "tachyon/zk/plonk/halo2/random_field_generator.h"
 #include "tachyon/zk/plonk/halo2/verifier.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon {
+namespace halo2_api {
+
+template <typename PCS>
+class ProverImpl;
+
+}  // namespace halo2_api
+
+namespace zk::halo2 {
 
 template <typename PCS>
 class Prover : public ProverBase<PCS> {
@@ -57,12 +65,11 @@ class Prover : public ProverBase<PCS> {
   crypto::XORShiftRNG* rng() { return rng_.get(); }
   RandomFieldGenerator<F>* generator() { return generator_.get(); }
 
-  std::unique_ptr<Verifier<PCS>> ToVerifier(
+  Verifier<PCS> ToVerifier(
       std::unique_ptr<crypto::TranscriptReader<Commitment>> reader) {
-    std::unique_ptr<Verifier<PCS>> ret = std::make_unique<Verifier<PCS>>(
-        std::move(this->pcs_), std::move(reader));
-    ret->set_domain(std::move(this->domain_));
-    ret->set_extended_domain(std::move(this->extended_domain_));
+    Verifier<PCS> ret(std::move(this->pcs_), std::move(reader));
+    ret.set_domain(std::move(this->domain_));
+    ret.set_extended_domain(std::move(this->extended_domain_));
     return ret;
   }
 
@@ -93,6 +100,32 @@ class Prover : public ProverBase<PCS> {
                               proving_key.verifying_key().constraint_system(),
                               std::move(instance_columns_vec));
 
+    CreateProof(proving_key, argument);
+  }
+
+ private:
+  friend class halo2_api::ProverImpl<PCS>;
+
+  Prover(PCS&& pcs,
+         std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
+         Blinder<PCS>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
+         std::unique_ptr<RandomFieldGenerator<F>> generator)
+      : ProverBase<PCS>(std::move(pcs), std::move(writer), std::move(blinder)),
+        rng_(std::move(rng)),
+        generator_(std::move(generator)) {}
+
+  void SetRng(std::unique_ptr<crypto::XORShiftRNG> rng) {
+    rng_ = std::move(rng);
+    generator_ = std::make_unique<RandomFieldGenerator<F>>(rng_.get());
+    this->blinder_ =
+        Blinder<PCS>(generator_.get(), this->blinder_.blinding_factors());
+  }
+
+  void CreateProof(const ProvingKey<PCS>& proving_key,
+                   Argument<PCS>& argument) {
+    crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
+    auto state =
+        reinterpret_cast<halo2::Blake2bWriter<Commitment>*>(writer)->GetState();
     F theta = writer->SqueezeChallenge();
     std::vector<std::vector<LookupPermuted<Poly, Evals>>> permuted_lookups_vec =
         argument.CompressLookupStep(
@@ -129,19 +162,11 @@ class Prover : public ProverBase<PCS> {
     CHECK(this->pcs_.CreateOpeningProof(openings, this->GetWriter()));
   }
 
- private:
-  Prover(PCS&& pcs,
-         std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-         Blinder<PCS>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
-         std::unique_ptr<RandomFieldGenerator<F>> generator)
-      : ProverBase<PCS>(std::move(pcs), std::move(writer), std::move(blinder)),
-        rng_(std::move(rng)),
-        generator_(std::move(generator)) {}
-
   std::unique_ptr<crypto::XORShiftRNG> rng_;
   std::unique_ptr<RandomFieldGenerator<F>> generator_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace zk::halo2
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_HALO2_PROVER_H_
