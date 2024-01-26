@@ -12,6 +12,7 @@ class Poly {
   Poly();
 
   PolyImpl* impl() { return impl_.get(); }
+  const PolyImpl* impl() const { return impl_.get(); }
 
  private:
   std::shared_ptr<PolyImpl> impl_;

@@ -23,6 +23,7 @@ tachyon_rust_library(
         ":bn254_poly",
         ":bn254_shplonk_prover",
         ":bn254_shplonk_proving_key",
+        ":bn254_rational_evals",
         ":xor_shift_rng",
         ":xor_shift_rng_cxx_bridge",
     ],
@@ -74,6 +75,7 @@ tachyon_cc_library(
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
         "include/bn254_poly.h",
+        "include/bn254_rational_evals.h",
         "include/bn254_shplonk_prover.h",
         "include/bn254_shplonk_proving_key.h",
         "include/proving_key_impl_forward.h",
@@ -147,6 +149,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "bn254_rational_evals",
+    srcs = [
+        "src/bn254_rational_evals.cc",
+        "src/bn254_rational_evals_impl.h",
+    ],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        ":degrees",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+    ],
+)
+
+tachyon_cc_library(
     name = "bn254_shplonk_prover",
     srcs = ["src/bn254_shplonk_prover.cc"],
     deps = [
@@ -154,6 +172,7 @@ tachyon_cc_library(
         ":bn254_cxx_bridge/include",
         ":bn254_evals",
         ":bn254_poly",
+        ":bn254_rational_evals",
         ":bn254_shplonk_prover_impl",
         ":bn254_shplonk_proving_key_impl",
         "//tachyon/base/buffer",

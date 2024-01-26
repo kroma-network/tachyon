@@ -14,4 +14,12 @@ void Evals::set_value(size_t idx, const Fr& fr) {
       reinterpret_cast<const math::bn254::Fr&>(fr);
 }
 
+std::unique_ptr<Evals> Evals::clone() const {
+  std::unique_ptr<Evals> ret(new Evals);
+  ret->impl()->evals() = impl_->evals();
+  return ret;
+}
+
+std::unique_ptr<Evals> zero_evals() { return std::make_unique<Evals>(); }
+
 }  // namespace tachyon::halo2_api::bn254

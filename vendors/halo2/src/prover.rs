@@ -7,22 +7,18 @@ use std::{
 };
 
 use crate::bn254::{
-    Blake2bWrite as TachyonBlake2bWrite, InstanceSingle, SHPlonkProver as TachyonSHPlonkProver,
-    SHPlonkProvingKey as TachyonSHPlonkProvingKey,
+    AdviceSingle, Blake2bWrite as TachyonBlake2bWrite, Evals, InstanceSingle, RationalEvals,
+    SHPlonkProver as TachyonSHPlonkProver, SHPlonkProvingKey as TachyonSHPlonkProvingKey,
 };
 use crate::xor_shift_rng::XORShiftRng as TachyonXORShiftRng;
 use ff::Field;
 use halo2_proofs::{
-    arithmetic::CurveAffine,
     circuit::Value,
     plonk::{
         sealed, Advice, Any, Assigned, Assignment, Challenge, Circuit, Column, ConstraintSystem,
         Error, Fixed, FloorPlanner, Instance, Selector,
     },
-    poly::{
-        batch_invert_assigned, commitment::Blind, Basis, EvaluationDomain, LagrangeCoeff,
-        Polynomial,
-    },
+    poly::commitment::Blind,
     transcript::{Challenge255, Transcript, TranscriptWrite},
 };
 use halo2curves::{
@@ -41,7 +37,6 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     instances: &[&[&[Fr]]],
     mut rng: TachyonXORShiftRng,
     transcript: &mut TachyonBlake2bWrite<W, G1Affine, Challenge255<G1Affine>>,
-    domain: &EvaluationDomain<Fr>,
 ) -> Result<(), Error> {
     for instance in instances.iter() {
         if instance.len() != pk.num_instance_columns() {
@@ -95,16 +90,10 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
         })
         .collect::<Result<Vec<_>, _>>()?;
 
-    #[derive(Clone)]
-    struct AdviceSingle<C: CurveAffine, B: Basis> {
-        pub advice_polys: Vec<Polynomial<C::Scalar, B>>,
-        pub advice_blinds: Vec<Blind<C::Scalar>>,
-    }
-
     struct WitnessCollection<'a, F: Field> {
         k: u32,
         current_phase: sealed::Phase,
-        advice: Vec<Polynomial<Assigned<F>, LagrangeCoeff>>,
+        advice: Vec<RationalEvals>,
         challenges: &'a HashMap<usize, F>,
         instances: &'a [&'a [F]],
         usable_rows: RangeTo<usize>,
@@ -176,11 +165,24 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                 return Err(Error::not_enough_rows_available(self.k));
             }
 
-            *self
+            let rational_evals = self
                 .advice
                 .get_mut(column.index())
-                .and_then(|v| v.get_mut(row))
-                .ok_or(Error::BoundsFailure)? = to().into_field().assign()?;
+                .ok_or(Error::BoundsFailure)?;
+
+            let value = to().into_field().assign()?;
+            match &value {
+                Assigned::Zero => rational_evals.set_zero(row),
+                Assigned::Trivial(numerator) => {
+                    let numerator = unsafe { std::mem::transmute::<_, &Fr>(numerator) };
+                    rational_evals.set_trivial(row, numerator);
+                }
+                Assigned::Rational(numerator, denominator) => {
+                    let numerator = unsafe { std::mem::transmute::<_, &Fr>(numerator) };
+                    let denominator = unsafe { std::mem::transmute::<_, &Fr>(denominator) };
+                    rational_evals.set_rational(row, numerator, denominator)
+                }
+            }
 
             Ok(())
         }
@@ -249,15 +251,15 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
         let num_advice_columns = pk.num_advice_columns();
         let num_challenges = pk.num_challenges();
         let mut advice = vec![
-            AdviceSingle::<G1Affine, LagrangeCoeff> {
-                advice_polys: vec![domain.empty_lagrange(); num_advice_columns],
+            AdviceSingle {
+                advice_polys: vec![prover.empty_evals(); num_advice_columns],
                 advice_blinds: vec![Blind::default(); num_advice_columns],
             };
             instances.len()
         ];
         #[cfg(feature = "phase-check")]
         let mut advice_assignments =
-            vec![vec![domain.empty_lagrange_assigned(); num_advice_columns]; instances.len()];
+            vec![vec![prover.empty_rational_evals(); num_advice_columns]; instances.len()];
         let mut challenges = HashMap::<usize, Fr>::with_capacity(num_challenges);
 
         let unusable_rows_start = prover.n() as usize - (pk.blinding_factors() + 1);
@@ -284,7 +286,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                 let mut witness = WitnessCollection {
                     k: prover.k(),
                     current_phase,
-                    advice: vec![domain.empty_lagrange_assigned(); num_advice_columns],
+                    advice: vec![prover.empty_rational_evals(); num_advice_columns],
                     instances,
                     challenges: &challenges,
                     // The prover will not be allowed to assign values to advice
@@ -320,23 +322,26 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                     }
                 }
 
-                let mut advice_values = batch_invert_assigned::<Fr>(
-                    witness
-                        .advice
-                        .into_iter()
-                        .enumerate()
-                        .filter_map(|(column_index, advice)| {
-                            if column_indices.contains(&column_index) {
-                                #[cfg(feature = "phase-check")]
-                                {
-                                    advice_assignments[circuit_idx][column_index] = advice.clone();
-                                }
-                                Some(advice)
-                            } else {
-                                None
+                let mut advice_assigned_values = witness
+                    .advice
+                    .into_iter()
+                    .enumerate()
+                    .filter_map(|(column_index, advice)| {
+                        if column_indices.contains(&column_index) {
+                            #[cfg(feature = "phase-check")]
+                            {
+                                advice_assignments[circuit_idx][column_index] = advice.clone();
                             }
-                        })
-                        .collect(),
+                            Some(advice)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<_>>();
+                let mut advice_values = vec![Evals::zero(); advice_assigned_values.len()];
+                prover.batch_evaluate(
+                    advice_assigned_values.as_mut_slice(),
+                    advice_values.as_mut_slice(),
                 );
 
                 // Add blinding factors to advice columns
@@ -346,7 +351,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                     //*cell = C::Scalar::one();
                     //}
                     let idx = advice_values.len() - 1;
-                    advice_values[idx] = Fr::one();
+                    advice_values.set_value(idx, &Fr::one());
                 }
 
                 // Compute commitments to advice column polynomials
@@ -396,7 +401,6 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     prover.set_rng(rng.state().as_slice());
     prover.set_transcript(transcript.state().as_slice());
 
-    let advice = unsafe { std::mem::transmute::<_, Vec<crate::bn254::AdviceSingle>>(advice) };
     let challenges = unsafe { std::mem::transmute::<_, Vec<crate::bn254::Fr>>(challenges) };
     prover.create_proof(pk, instance, advice, challenges);
     Ok(())
@@ -425,12 +429,20 @@ mod test {
 
         let domain = EvaluationDomain::new(1, k);
         let scalars = (0..N).map(|_| Fr::random(OsRng)).collect::<Vec<_>>();
-        let poly = domain.coeff_from_vec(scalars.clone());
-        assert_eq!(params.commit(&poly, Blind::default()), prover.commit(&poly));
-        let poly = domain.lagrange_from_vec(scalars);
+        let mut evals = prover.empty_evals();
+        for i in 0..scalars.len() {
+            evals.set_value(i, &scalars[i]);
+        }
+        let lagrange = domain.lagrange_from_vec(scalars.clone());
         assert_eq!(
-            params.commit_lagrange(&poly, Blind::default()),
-            prover.commit_lagrange(&poly)
+            params.commit_lagrange(&lagrange, Blind::default()),
+            prover.commit_lagrange(&evals)
+        );
+        let cpp_poly = prover.ifft(&evals);
+        let poly = domain.lagrange_to_coeff(lagrange);
+        assert_eq!(
+            params.commit(&poly, Blind::default()),
+            prover.commit(&cpp_poly)
         );
     }
 }

@@ -16,6 +16,7 @@ struct AdviceSingle;
 class SHPlonkProverImpl;
 class SHPlonkProvingKey;
 class Evals;
+class RationalEvals;
 class Poly;
 
 class SHPlonkProver {
@@ -26,11 +27,14 @@ class SHPlonkProver {
 
   uint32_t k() const;
   uint64_t n() const;
-  rust::Box<G1JacobianPoint> commit(rust::Slice<const Fr> scalars) const;
-  rust::Box<G1JacobianPoint> commit_lagrange(
-      rust::Slice<const Fr> scalars) const;
+  rust::Box<G1JacobianPoint> commit(const Poly& poly) const;
+  rust::Box<G1JacobianPoint> commit_lagrange(const Evals& evals) const;
   std::unique_ptr<Evals> empty_evals() const;
+  std::unique_ptr<RationalEvals> empty_rational_evals() const;
   std::unique_ptr<Poly> ifft(const Evals& evals) const;
+  void batch_evaluate(
+      rust::Slice<std::unique_ptr<RationalEvals>> rational_evals,
+      rust::Slice<std::unique_ptr<Evals>> evals) const;
   void set_rng(rust::Slice<const uint8_t> state);
   void set_transcript(rust::Slice<const uint8_t> state);
   void set_extended_domain(const SHPlonkProvingKey& pk);

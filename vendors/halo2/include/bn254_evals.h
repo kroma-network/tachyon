@@ -19,10 +19,13 @@ class Evals {
 
   size_t len() const;
   void set_value(size_t idx, const Fr& value);
+  std::unique_ptr<Evals> clone() const;
 
  private:
   std::shared_ptr<EvalsImpl> impl_;
 };
+
+std::unique_ptr<Evals> zero_evals();
 
 }  // namespace tachyon::halo2_api::bn254
 
