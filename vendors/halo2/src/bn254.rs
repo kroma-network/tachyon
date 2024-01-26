@@ -208,23 +208,11 @@ pub struct SHPlonkProvingKey {
     inner: cxx::UniquePtr<ffi::SHPlonkProvingKey>,
 }
 
-impl Deref for SHPlonkProvingKey {
-    type Target = ffi::SHPlonkProvingKey;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
 impl SHPlonkProvingKey {
     pub fn from(data: &[u8]) -> SHPlonkProvingKey {
         SHPlonkProvingKey {
             inner: ffi::new_proving_key(data),
         }
-    }
-
-    pub fn inner(&self) -> &ffi::SHPlonkProvingKey {
-        &self.inner
     }
 
     // NOTE(chokobole): We name this as plural since it contains multi phases.
@@ -291,7 +279,7 @@ impl SHPlonkProvingKey {
     pub fn transcript_repr(&mut self, prover: &SHPlonkProver) -> halo2curves::bn256::Fr {
         *unsafe {
             std::mem::transmute::<_, Box<halo2curves::bn256::Fr>>(
-                self.inner.pin_mut().transcript_repr(prover.inner()),
+                self.inner.pin_mut().transcript_repr(&prover.inner),
             )
         }
     }
@@ -307,10 +295,6 @@ impl SHPlonkProver {
         SHPlonkProver {
             inner: ffi::new_shplonk_prover(k, cpp_s),
         }
-    }
-
-    pub(crate) fn inner(&self) -> &ffi::SHPlonkProver {
-        &self.inner
     }
 
     pub fn k(&self) -> u32 {
@@ -352,7 +336,7 @@ impl SHPlonkProver {
     }
 
     pub fn set_extended_domain(&mut self, pk: &SHPlonkProvingKey) {
-        self.inner.pin_mut().set_extended_domain(pk.inner())
+        self.inner.pin_mut().set_extended_domain(&pk.inner)
     }
 
     pub fn create_proof(
@@ -364,7 +348,7 @@ impl SHPlonkProver {
     ) {
         self.inner
             .pin_mut()
-            .create_proof(key, instance_singles, advice_singles, challenges)
+            .create_proof(&key.inner, instance_singles, advice_singles, challenges)
     }
 
     pub fn finalize_transcript(&mut self) -> Vec<u8> {
