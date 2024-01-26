@@ -7,10 +7,9 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_REGION_LAYOUTER_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_REGION_LAYOUTER_H_
 
-#include <stddef.h>
-
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/math/base/rational_field.h"
+#include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/assigned_cell.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
@@ -27,7 +26,7 @@ class RegionLayouter {
 
   // Enables a |selector| at the given |offset|.
   virtual void EnableSelector(std::string_view name, const Selector& selector,
-                              size_t offset) {}
+                              RowIndex offset) {}
 
   // Allows the circuit implementer to name a Column within a Region
   // context.
@@ -38,7 +37,7 @@ class RegionLayouter {
 
   // Assign an advice column value (witness)
   virtual Cell AssignAdvice(std::string_view name,
-                            const AdviceColumnKey& column, size_t offset,
+                            const AdviceColumnKey& column, RowIndex offset,
                             AssignCallback assign) = 0;
 
   // Assigns a constant value to the column |advice| at |offset| within this
@@ -47,18 +46,18 @@ class RegionLayouter {
   // The constant value will be assigned to a cell within one of the fixed
   // columns configured via |ConstraintSystem::EnableConstant|.
   virtual Cell AssignAdviceFromConstant(
-      std::string_view name, const AdviceColumnKey& column, size_t offset,
+      std::string_view name, const AdviceColumnKey& column, RowIndex offset,
       const math::RationalField<F>& constant) = 0;
 
   // Assign the value of the instance column's cell at absolute location
   // |row| to the column |advice| at |offset| within this region.
   virtual AssignedCell<F> AssignAdviceFromInstance(
-      std::string_view name, const InstanceColumnKey& instance, size_t row,
-      const AdviceColumnKey& advice, size_t offset) = 0;
+      std::string_view name, const InstanceColumnKey& instance, RowIndex row,
+      const AdviceColumnKey& advice, RowIndex offset) = 0;
 
   // Assign a fixed value
   virtual Cell AssignFixed(std::string_view name, const FixedColumnKey& column,
-                           size_t offset, AssignCallback assign) = 0;
+                           RowIndex offset, AssignCallback assign) = 0;
 
   // Constrain a cell to have a constant value.
   virtual void ConstrainConstant(const Cell& cell,

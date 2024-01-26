@@ -28,7 +28,7 @@ class Region {
 
   // See the comment above.
   void EnableSelector(std::string_view name, const Selector& selector,
-                      size_t offset) {
+                      RowIndex offset) {
     layouter_->EnableSelector(name, selector, offset);
   }
 
@@ -39,7 +39,7 @@ class Region {
 
   // See the comment above.
   AssignedCell<F> AssignAdvice(std::string_view name,
-                               const AdviceColumnKey& column, size_t offset,
+                               const AdviceColumnKey& column, RowIndex offset,
                                AssignCallback assign) {
     Value<F> value = Value<F>::Unknown();
     Cell cell =
@@ -53,7 +53,7 @@ class Region {
   // See the comment above.
   AssignedCell<F> AssignAdviceFromConstant(std::string_view name,
                                            const AdviceColumnKey& column,
-                                           size_t offset, const F& constant) {
+                                           RowIndex offset, const F& constant) {
     Cell cell = layouter_->AssignAdviceFromConstant(
         name, column, offset, math::RationalField<F>(constant));
     return {std::move(cell), Value<F>::Known(constant)};
@@ -62,16 +62,16 @@ class Region {
   // See the comment above.
   AssignedCell<F> AssignAdviceFromInstance(std::string_view name,
                                            const InstanceColumnKey& instance,
-                                           size_t row,
+                                           RowIndex row,
                                            const AdviceColumnKey& advice,
-                                           size_t offset) {
+                                           RowIndex offset) {
     return layouter_->AssignAdviceFromInstance(name, instance, row, advice,
                                                offset);
   }
 
   // See the comment above.
   AssignedCell<F> AssignFixed(std::string_view name,
-                              const FixedColumnKey& column, size_t offset,
+                              const FixedColumnKey& column, RowIndex offset,
                               AssignCallback assign) {
     Value<F> value = Value<F>::Unknown();
     Cell cell =
@@ -99,7 +99,7 @@ class Region {
 };
 
 template <typename F>
-void Selector::Enable(Region<F>& region, size_t offset) const {
+void Selector::Enable(Region<F>& region, RowIndex offset) const {
   region.EnableSelector("", *this, offset);
 }
 
@@ -107,7 +107,7 @@ template <typename F>
 AssignedCell<F> AssignedCell<F>::CopyAdvice(std::string_view name,
                                             Region<F>& region,
                                             const AdviceColumnKey& column,
-                                            size_t offset) const {
+                                            RowIndex offset) const {
   AssignedCell<F> ret =
       region.AssignAdvice(name, column, offset, [this]() { return value_; });
   region.ConstrainEqual(ret.cell_, cell_);

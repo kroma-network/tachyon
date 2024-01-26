@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 
+#include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/cell.h"
 
@@ -34,7 +35,7 @@ class AssignedCell {
   // Copies the value to a given advice cell and constrains them to be equal.
   AssignedCell<F> CopyAdvice(std::string_view, Region<F>& region,
                              const AdviceColumnKey& column,
-                             size_t offset) const;
+                             RowIndex offset) const;
 
   std::string ToString() const {
     return absl::Substitute("{cell: $0, value: $1}", cell_.ToString(),

@@ -7,8 +7,6 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_ALLOCATIONS_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_ALLOCATIONS_H_
 
-#include <stddef.h>
-
 #include <algorithm>
 #include <vector>
 
@@ -29,7 +27,7 @@ class TACHYON_EXPORT Allocations {
   absl::btree_set<AllocatedRegion>& allocations() { return allocations_; }
 
   // Returns the row that forms the unbounded unallocated interval.
-  size_t UnboundedIntervalStart() const {
+  RowIndex UnboundedIntervalStart() const {
     if (allocations_.empty()) {
       return 0;
     }
@@ -38,17 +36,17 @@ class TACHYON_EXPORT Allocations {
 
   // Return all the *unallocated* non-empty intervals intersecting [|start|,
   // |end|). |end| = std::nullopt represents an unbounded end.
-  std::vector<EmptySpace> FreeIntervals(size_t start,
-                                        std::optional<size_t> end) const {
+  std::vector<EmptySpace> FreeIntervals(RowIndex start,
+                                        std::optional<RowIndex> end) const {
     std::vector<EmptySpace> result;
     result.reserve(allocations_.size() + 1);
-    size_t row = start;
+    RowIndex row = start;
     for (const AllocatedRegion& region : allocations_) {
       if (end.has_value() && region.start() >= end.value()) {
         break;
       }
       if (row < region.start()) {
-        result.emplace_back(row, std::optional<size_t>(region.start()));
+        result.emplace_back(row, std::optional<RowIndex>(region.start()));
       }
       row = std::max(row, region.End());
     }

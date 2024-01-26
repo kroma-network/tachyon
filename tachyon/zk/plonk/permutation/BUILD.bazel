@@ -26,7 +26,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "label",
     hdrs = ["label.h"],
-    deps = ["//tachyon:export"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/zk/base:row_index",
+    ],
 )
 
 tachyon_cc_library(

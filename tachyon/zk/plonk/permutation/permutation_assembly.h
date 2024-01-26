@@ -38,23 +38,23 @@ class PermutationAssembly {
   PermutationAssembly() = default;
 
   // Constructor with |PermutationArgument|.
-  PermutationAssembly(const PermutationArgument& p, size_t rows)
+  PermutationAssembly(const PermutationArgument& p, RowIndex rows)
       : PermutationAssembly(p.columns(), rows) {}
 
   // Constructor with permutation columns.
-  PermutationAssembly(const std::vector<AnyColumnKey>& columns, size_t rows)
+  PermutationAssembly(const std::vector<AnyColumnKey>& columns, RowIndex rows)
       : columns_(columns),
         cycle_store_(CycleStore(columns_.size(), rows)),
         rows_(rows) {}
 
-  PermutationAssembly(std::vector<AnyColumnKey>&& columns, size_t rows)
+  PermutationAssembly(std::vector<AnyColumnKey>&& columns, RowIndex rows)
       : columns_(std::move(columns)),
         cycle_store_(CycleStore(columns_.size(), rows)),
         rows_(rows) {}
 
   static PermutationAssembly CreateForTesting(std::vector<AnyColumnKey> columns,
                                               CycleStore cycle_store,
-                                              size_t rows) {
+                                              RowIndex rows) {
     PermutationAssembly ret;
     ret.columns_ = std::move(columns);
     ret.cycle_store_ = std::move(cycle_store);
@@ -65,8 +65,8 @@ class PermutationAssembly {
   const std::vector<AnyColumnKey>& columns() const { return columns_; }
   const CycleStore& cycle_store() const { return cycle_store_; }
 
-  void Copy(const AnyColumnKey& left_column, size_t left_row,
-            const AnyColumnKey& right_column, size_t right_row) {
+  void Copy(const AnyColumnKey& left_column, RowIndex left_row,
+            const AnyColumnKey& right_column, RowIndex right_row) {
     CHECK_LE(left_row, rows_);
     CHECK_LE(right_row, rows_);
 
@@ -113,7 +113,7 @@ class PermutationAssembly {
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
   std::vector<Evals> GeneratePermutations(const Domain* domain) const {
-    CHECK_EQ(domain->size(), rows_);
+    CHECK_EQ(domain->size(), size_t{rows_});
     UnpermutedTable<Evals> unpermuted_table =
         UnpermutedTable<Evals>::Construct(columns_.size(), rows_, domain);
 
@@ -144,7 +144,7 @@ class PermutationAssembly {
   // Columns that participate on the copy permutation argument.
   std::vector<AnyColumnKey> columns_;
   CycleStore cycle_store_;
-  size_t rows_ = 0;
+  RowIndex rows_ = 0;
 };
 
 }  // namespace tachyon::zk

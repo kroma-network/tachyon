@@ -158,7 +158,7 @@ class FieldChip {
   }
 
   void ExposePublic(Layouter<F>* layouter, const AssignedCell<F>& cell,
-                    size_t row) const {
+                    RowIndex row) const {
     layouter->ConstrainInstance(cell.cell(), config_.instance(), row);
   }
 

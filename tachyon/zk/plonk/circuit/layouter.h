@@ -12,6 +12,7 @@
 #include <string>
 
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/plonk/circuit/challenge.h"
 #include "tachyon/zk/plonk/circuit/lookup_table.h"
 #include "tachyon/zk/plonk/circuit/region.h"
@@ -51,7 +52,7 @@ class Layouter {
   // absolute position.
   virtual void ConstrainInstance(const Cell& cell,
                                  const InstanceColumnKey& column,
-                                 size_t row) = 0;
+                                 RowIndex row) = 0;
 
   // Queries the value of the given challenge.
   //

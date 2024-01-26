@@ -70,9 +70,9 @@ class V1FloorPlanner : public FloorPlanner<Circuit> {
     plan.set_regions(std::move(result.region_starts));
 
     // - Determine how many rows our planned circuit will require.
-    size_t first_unassigned_row = 0;
+    RowIndex first_unassigned_row = 0;
     if (!result.column_allocations.empty()) {
-      std::vector<size_t> unbounded_interval_starts = base::Map(
+      std::vector<RowIndex> unbounded_interval_starts = base::Map(
           result.column_allocations,
           [](const std::pair<RegionColumn, Allocations>& column_allocation) {
             return column_allocation.second.UnboundedIntervalStart();
@@ -94,10 +94,10 @@ class V1FloorPlanner : public FloorPlanner<Circuit> {
           return base::FlatMap(
               fixed_allocation.rows.FreeIntervals(0, first_unassigned_row),
               [&column = fixed_allocation.column](const EmptySpace& space) {
-                std::optional<base::Range<size_t>> range = space.Range();
+                std::optional<base::Range<RowIndex>> range = space.Range();
                 return range.has_value()
                            ? base::Map(range.value(),
-                                       [&column](size_t row) {
+                                       [&column](RowIndex row) {
                                          return ConstantPosition(column, row);
                                        })
                            : std::vector<ConstantPosition>();
@@ -145,11 +145,11 @@ class V1FloorPlanner : public FloorPlanner<Circuit> {
   };
 
   struct ConstantPosition {
-    ConstantPosition(const FixedColumnKey& column, size_t row)
+    ConstantPosition(const FixedColumnKey& column, RowIndex row)
         : column(column), row(row) {}
 
     FixedColumnKey column;
-    size_t row;
+    RowIndex row;
   };
 };
 

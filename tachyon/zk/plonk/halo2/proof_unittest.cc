@@ -11,6 +11,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
+#include "tachyon/zk/base/row_index.h"
 
 namespace tachyon::zk::halo2 {
 namespace {
@@ -19,13 +20,14 @@ using F = math::bn254::Fr;
 using Commitment = math::bn254::G1AffinePoint;
 
 template <typename T>
-std::vector<std::vector<T>> CreateRandomElementsVec(size_t rows, size_t cols) {
+std::vector<std::vector<T>> CreateRandomElementsVec(RowIndex rows,
+                                                    size_t cols) {
   return base::CreateVector(
       rows, [cols]() { return base::CreateVector(cols, T::Random()); });
 }
 
 std::vector<std::vector<zk::LookupPair<Commitment>>> CreateRandomLookupPairsVec(
-    size_t rows, size_t cols) {
+    RowIndex rows, size_t cols) {
   return base::CreateVector(rows, [cols]() {
     return base::CreateVector(cols, []() {
       return zk::LookupPair<Commitment>(Commitment::Random(),

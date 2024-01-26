@@ -7,13 +7,12 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_ASSIGNMENT_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_ASSIGNMENT_H_
 
-#include <stddef.h>
-
 #include <optional>
 #include <string>
 
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/math/base/rational_field.h"
+#include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/challenge.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
@@ -53,28 +52,29 @@ class Assignment {
 
   // Enables a selector at the given row.
   virtual void EnableSelector(std::string_view name, const Selector& selector,
-                              size_t row) {}
+                              RowIndex row) {}
 
   // Queries the cell of an instance column at a particular absolute row.
-  virtual Value<F> QueryInstance(const InstanceColumnKey& column, size_t row) {
+  virtual Value<F> QueryInstance(const InstanceColumnKey& column,
+                                 RowIndex row) {
     return Value<F>();
   }
 
   // Assign an advice column value (witness).
   virtual void AssignAdvice(std::string_view name,
-                            const AdviceColumnKey& column, size_t row,
+                            const AdviceColumnKey& column, RowIndex row,
                             AssignCallback assign) {}
 
   // Assign a fixed value.
   virtual void AssignFixed(std::string_view name, const FixedColumnKey& column,
-                           size_t row, AssignCallback assign) {}
+                           RowIndex row, AssignCallback assign) {}
 
   // Assign two cells to have the same value
-  virtual void Copy(const AnyColumnKey& left_column, size_t left_row,
-                    const AnyColumnKey& right_column, size_t right_row) {}
+  virtual void Copy(const AnyColumnKey& left_column, RowIndex left_row,
+                    const AnyColumnKey& right_column, RowIndex right_row) {}
 
   // Fills a fixed |column| starting from the given |row| with |value|.
-  virtual void FillFromRow(const FixedColumnKey& column, size_t row,
+  virtual void FillFromRow(const FixedColumnKey& column, RowIndex row,
                            const math::RationalField<F>& value) {}
 
   // Queries the value of the given challenge.

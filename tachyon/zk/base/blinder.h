@@ -33,12 +33,13 @@ class Blinder {
   // Blinds |evals| at behind by |blinding_rows|.
   // Returns false if |evals.NumElements()| is less than |blinding_rows|.
   bool Blind(Evals& evals, bool include_last_row = false) {
-    size_t size = evals.NumElements();
+    // NOTE(chokobole): It's safe to downcast because domain is already checked.
+    RowIndex size = static_cast<RowIndex>(evals.NumElements());
     RowIndex blinding_rows = blinding_factors_;
     if (include_last_row) ++blinding_rows;
-    if (size < size_t{blinding_rows}) return false;
-    size_t start = size - blinding_rows;
-    for (size_t i = start; i < size; ++i) {
+    if (size < blinding_rows) return false;
+    RowIndex start = size - blinding_rows;
+    for (RowIndex i = start; i < size; ++i) {
       *evals[i] = random_field_generator_->Generate();
     }
     return true;

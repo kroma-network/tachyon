@@ -46,7 +46,7 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
 
   // LookupTable<F>::Layouter methods
   bool AssignCell(std::string_view name, const LookupTableColumn& column,
-                  size_t offset, AssignCallback assign) override {
+                  RowIndex offset, AssignCallback assign) override {
     if (base::Contains(*used_columns_, column)) {
       LOG(ERROR) << "column already has been assigned";
       return false;

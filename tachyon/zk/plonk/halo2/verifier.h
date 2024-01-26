@@ -143,10 +143,11 @@ class Verifier : public VerifierBase<PCS> {
           return true;
         };
 
-    size_t max_rows = this->pcs_.N() -
-                      (vkey.constraint_system().ComputeBlindingFactors() + 1);
+    // NOTE(chokobole): It's safe to downcast because domain is already checked.
+    RowIndex max_rows = static_cast<RowIndex>(this->pcs_.N()) -
+                        (vkey.constraint_system().ComputeBlindingFactors() + 1);
     auto check_rows = [max_rows](const Evals& instance_columns) {
-      if (instance_columns.NumElements() > max_rows) {
+      if (instance_columns.NumElements() > size_t{max_rows}) {
         LOG(ERROR) << "Too many number of elements in instance column";
         return false;
       }
@@ -200,10 +201,13 @@ class Verifier : public VerifierBase<PCS> {
     }
   }
 
-  static size_t ComputeMaxRow(const std::vector<Evals>& columns) {
+  static RowIndex ComputeMaxRow(const std::vector<Evals>& columns) {
     if (columns.empty()) return 0;
-    std::vector<size_t> rows = base::Map(
-        columns, [](const Evals& evals) { return evals.NumElements(); });
+    std::vector<RowIndex> rows = base::Map(columns, [](const Evals& evals) {
+      // NOTE(chokobole): It's safe to downcast because domain is already
+      // checked.
+      return static_cast<RowIndex>(evals.NumElements());
+    });
     return *std::max_element(rows.begin(), rows.end());
   }
 
@@ -256,13 +260,13 @@ class Verifier : public VerifierBase<PCS> {
           return range;
         });
 
-    std::vector<size_t> max_instances_rows =
+    std::vector<RowIndex> max_instances_rows =
         base::Map(instance_columns_vec, &ComputeMaxRow);
     auto max_instances_row_it =
         std::max_element(max_instances_rows.begin(), max_instances_rows.end());
-    size_t max_instances_row = max_instances_row_it != max_instances_rows.end()
-                                   ? *max_instances_row_it
-                                   : 0;
+    RowIndex max_instances_row =
+        max_instances_row_it != max_instances_rows.end() ? *max_instances_row_it
+                                                         : 0;
     std::vector<F> partial_lagrange_coeffs =
         this->domain_->EvaluatePartialLagrangeCoefficients(
             x, base::Range<int32_t>(-range.max,

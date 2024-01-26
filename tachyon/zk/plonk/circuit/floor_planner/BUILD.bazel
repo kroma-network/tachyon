@@ -5,7 +5,10 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "allocated_region",
     hdrs = ["allocated_region.h"],
-    deps = ["//tachyon:export"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/zk/base:row_index",
+    ],
 )
 
 tachyon_cc_library(
@@ -34,6 +37,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon:export",
         "//tachyon/base:range",
+        "//tachyon/zk/base:row_index",
     ],
 )
 

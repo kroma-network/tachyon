@@ -29,7 +29,8 @@ class Key {
   static Assembly<PCS> CreateAssembly(
       const Domain* domain, const ConstraintSystem<F>& constraint_system) {
     using RationalEvals = typename Assembly<PCS>::RationalEvals;
-    size_t n = domain->size();
+    // NOTE(chokobole): It's safe to downcast because domain is already checked.
+    RowIndex n = static_cast<RowIndex>(domain->size());
     return {
         base::CreateVector(constraint_system.num_fixed_columns(),
                            domain->template Empty<RationalEvals>()),
@@ -38,7 +39,7 @@ class Key {
                            base::CreateVector(n, false)),
         // NOTE(chokobole): Considering that this is called from a verifier,
         // then you can't load this number through |prover->GetUsableRows()|.
-        base::Range<size_t>::Until(
+        base::Range<RowIndex>::Until(
             n - (constraint_system.ComputeBlindingFactors() + 1))};
   }
 

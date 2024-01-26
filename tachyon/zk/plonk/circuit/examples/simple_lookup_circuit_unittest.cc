@@ -192,7 +192,7 @@ TEST_F(SimpleLookupCircuitTest, Synthesize) {
       false, false, false, false, false, false, false, false,
   }};
   EXPECT_EQ(assembly.selectors(), expected_selectors);
-  EXPECT_EQ(assembly.usable_rows(), base::Range<size_t>::Until(26));
+  EXPECT_EQ(assembly.usable_rows(), base::Range<RowIndex>::Until(26));
 }
 
 TEST_F(SimpleLookupCircuitTest, LoadVerifyingKey) {
