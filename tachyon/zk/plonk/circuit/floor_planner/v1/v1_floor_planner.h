@@ -90,7 +90,7 @@ class V1FloorPlanner : public FloorPlanner<Circuit> {
 
     std::vector<ConstantPosition> constant_positions = base::FlatMap(
         fixed_allocations,
-        [&first_unassigned_row](const FixedAllocation& fixed_allocation) {
+        [first_unassigned_row](const FixedAllocation& fixed_allocation) {
           return base::FlatMap(
               fixed_allocation.rows.FreeIntervals(0, first_unassigned_row),
               [&column = fixed_allocation.column](const EmptySpace& space) {
