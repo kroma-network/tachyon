@@ -7,7 +7,7 @@ use std::{
 };
 
 use crate::bn254::{
-    Blake2bWrite as TachyonBlake2bWrite, SHPlonkProver as TachyonSHPlonkProver,
+    Blake2bWrite as TachyonBlake2bWrite, InstanceSingle, SHPlonkProver as TachyonSHPlonkProver,
     SHPlonkProvingKey as TachyonSHPlonkProvingKey,
 };
 use crate::xor_shift_rng::XORShiftRng as TachyonXORShiftRng;
@@ -20,7 +20,7 @@ use halo2_proofs::{
         Error, Fixed, FloorPlanner, Instance, Selector,
     },
     poly::{
-        batch_invert_assigned, commitment::Blind, Basis, Coeff, EvaluationDomain, LagrangeCoeff,
+        batch_invert_assigned, commitment::Blind, Basis, EvaluationDomain, LagrangeCoeff,
         Polynomial,
     },
     transcript::{Challenge255, Transcript, TranscriptWrite},
@@ -59,27 +59,23 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     // Selector optimizations cannot be applied here; use the ConstraintSystem
     // from the verification key.
 
-    struct InstanceSingle<C: CurveAffine> {
-        pub instance_values: Vec<Polynomial<C::Scalar, LagrangeCoeff>>,
-        pub instance_polys: Vec<Polynomial<C::Scalar, Coeff>>,
-    }
-
-    let instance: Vec<InstanceSingle<G1Affine>> = instances
+    let instance: Vec<InstanceSingle> = instances
         .iter()
-        .map(|instance| -> Result<InstanceSingle<G1Affine>, Error> {
+        .map(|instance| -> Result<InstanceSingle, Error> {
             let instance_values = instance
                 .iter()
                 .map(|values| {
-                    let mut poly = domain.empty_lagrange();
+                    let mut poly = prover.empty_evals();
                     assert_eq!(poly.len(), prover.n() as usize);
                     if values.len() > (poly.len() - (pk.blinding_factors() + 1)) {
                         return Err(Error::InstanceTooLarge);
                     }
-                    for (poly, value) in poly.iter_mut().zip(values.iter()) {
+
+                    for i in 0..values.len() {
                         // NOTE(chokobole): I removed the P::QUERY_INSTANCE if statements since I can't make it compilable with the statement.
                         // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L91.
-                        transcript.common_scalar(*value)?;
-                        *poly = *value;
+                        transcript.common_scalar(values[i])?;
+                        poly.set_value(i, &values[i]);
                     }
                     Ok(poly)
                 })
@@ -89,10 +85,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
             // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L100-L117.
             let instance_polys: Vec<_> = instance_values
                 .iter()
-                .map(|poly| {
-                    let lagrange_vec = domain.lagrange_from_vec(poly.to_vec());
-                    domain.lagrange_to_coeff(lagrange_vec)
-                })
+                .map(|evals| prover.ifft(evals))
                 .collect();
 
             Ok(InstanceSingle {
@@ -403,7 +396,6 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     prover.set_rng(rng.state().as_slice());
     prover.set_transcript(transcript.state().as_slice());
 
-    let instance = unsafe { std::mem::transmute::<_, Vec<crate::bn254::InstanceSingle>>(instance) };
     let advice = unsafe { std::mem::transmute::<_, Vec<crate::bn254::AdviceSingle>>(advice) };
     let challenges = unsafe { std::mem::transmute::<_, Vec<crate::bn254::Fr>>(challenges) };
     prover.create_proof(pk, instance, advice, challenges);

@@ -24,8 +24,8 @@ pub struct G1JacobianPoint(pub G1JacobianPointImpl);
 pub struct G1Point2(pub G1Point2Impl);
 pub struct Fr(pub FrImpl);
 pub struct InstanceSingle {
-    pub instance_values: Vec<Vec<Fr>>,
-    pub instance_polys: Vec<Vec<Fr>>,
+    pub instance_values: Vec<Evals>,
+    pub instance_polys: Vec<Poly>,
 }
 pub struct AdviceSingle {
     pub advice_polys: Vec<Vec<Fr>>,
@@ -97,6 +97,21 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_evals.h");
+
+        type Evals;
+
+        fn len(&self) -> usize;
+        fn set_value(self: Pin<&mut Evals>, idx: usize, value: &Fr);
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_poly.h");
+
+        type Poly;
+    }
+
+    unsafe extern "C++" {
         include!("vendors/halo2/include/bn254_shplonk_prover.h");
 
         type SHPlonkProver;
@@ -106,6 +121,8 @@ pub mod ffi {
         fn n(&self) -> u64;
         fn commit(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
         fn commit_lagrange(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
+        fn empty_evals(&self) -> UniquePtr<Evals>;
+        fn ifft(&self, evals: &Evals) -> UniquePtr<Poly>;
         fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_transcript(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &SHPlonkProvingKey);
@@ -285,6 +302,35 @@ impl SHPlonkProvingKey {
     }
 }
 
+pub struct Evals {
+    inner: cxx::UniquePtr<ffi::Evals>,
+}
+
+impl Evals {
+    pub fn new(inner: cxx::UniquePtr<ffi::Evals>) -> Evals {
+        Evals { inner }
+    }
+
+    pub fn len(&self) -> usize {
+        self.inner.len()
+    }
+
+    pub fn set_value(&mut self, idx: usize, fr: &halo2curves::bn256::Fr) {
+        let cpp_fr = unsafe { std::mem::transmute::<_, &Fr>(fr) };
+        self.inner.pin_mut().set_value(idx, cpp_fr)
+    }
+}
+
+pub struct Poly {
+    inner: cxx::UniquePtr<ffi::Poly>,
+}
+
+impl Poly {
+    pub fn new(inner: cxx::UniquePtr<ffi::Poly>) -> Poly {
+        Poly { inner }
+    }
+}
+
 pub struct SHPlonkProver {
     inner: cxx::UniquePtr<ffi::SHPlonkProver>,
 }
@@ -325,6 +371,14 @@ impl SHPlonkProver {
                 self.inner.commit_lagrange(scalars),
             )
         }
+    }
+
+    pub fn empty_evals(&self) -> Evals {
+        Evals::new(self.inner.empty_evals())
+    }
+
+    pub fn ifft(&self, evals: &Evals) -> Poly {
+        Poly::new(self.inner.ifft(&evals.inner))
     }
 
     pub fn set_rng(&mut self, state: &[u8]) {
