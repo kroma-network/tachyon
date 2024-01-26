@@ -124,7 +124,7 @@ TYPED_TEST(ConstraintSystemTypedTest, EnableEquality) {
   std::vector<AnyColumnKey> expected_permutation_columns;
   std::vector<FixedQueryData> fixed_queries;
   std::vector<AdviceQueryData> advice_queries;
-  std::vector<size_t> num_advice_queries;
+  std::vector<RowIndex> num_advice_queries;
   std::vector<InstanceQueryData> instance_queries;
   EXPECT_EQ(constraint_system.permutation().columns(),
             expected_permutation_columns);

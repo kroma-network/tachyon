@@ -137,7 +137,7 @@ TEST_F(SimpleCircuitTest, Configure) {
       AdviceQueryData(Rotation::Next(), AdviceColumnKey(0)),
   };
   EXPECT_EQ(constraint_system.advice_queries(), expected_advice_queries);
-  std::vector<size_t> expected_num_advice_queries = {2, 1};
+  std::vector<RowIndex> expected_num_advice_queries = {2, 1};
   EXPECT_EQ(constraint_system.num_advice_queries(),
             expected_num_advice_queries);
   std::vector<InstanceQueryData> expected_instance_queries = {

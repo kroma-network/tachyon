@@ -87,7 +87,7 @@ TEST_F(SimpleLookupV1CircuitTest, Configure) {
       AdviceQueryData(Rotation::Cur(), AdviceColumnKey(0)),
   };
   EXPECT_EQ(constraint_system.advice_queries(), expected_advice_queries);
-  std::vector<size_t> expected_num_advice_queries = {1};
+  std::vector<RowIndex> expected_num_advice_queries = {1};
   EXPECT_EQ(constraint_system.num_advice_queries(),
             expected_num_advice_queries);
   EXPECT_TRUE(constraint_system.instance_queries().empty());

@@ -85,7 +85,7 @@ class ConstraintSystem {
     return advice_queries_;
   }
 
-  const std::vector<size_t>& num_advice_queries() const {
+  const std::vector<RowIndex>& num_advice_queries() const {
     return num_advice_queries_;
   }
 
@@ -486,7 +486,7 @@ class ConstraintSystem {
 
       RowIndex factors = max_num_advice_query_it == num_advice_queries_.end()
                              ? 1
-                             : static_cast<RowIndex>(*max_num_advice_query_it);
+                             : *max_num_advice_query_it;
       // distinct points during gate checks.
 
       // - The permutation argument witness polynomials are evaluated at most 3
@@ -602,7 +602,7 @@ class ConstraintSystem {
   // Contains an integer for each advice column
   // identifying how many distinct queries it has
   // so far; should be same length as num_advice_columns.
-  std::vector<size_t> num_advice_queries_;
+  std::vector<RowIndex> num_advice_queries_;
   std::vector<InstanceQueryData> instance_queries_;
   std::vector<FixedQueryData> fixed_queries_;
 
