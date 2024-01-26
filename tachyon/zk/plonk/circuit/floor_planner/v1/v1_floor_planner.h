@@ -97,7 +97,7 @@ class V1FloorPlanner : public FloorPlanner<Circuit> {
                 std::optional<base::Range<size_t>> range = space.Range();
                 return range.has_value()
                            ? base::Map(range.value(),
-                                       [&column](const size_t& row) {
+                                       [&column](size_t row) {
                                          return ConstantPosition(column, row);
                                        })
                            : std::vector<ConstantPosition>();
