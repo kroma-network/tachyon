@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include <utility>
+#include <vector>
 
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"

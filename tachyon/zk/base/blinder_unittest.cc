@@ -1,5 +1,7 @@
 #include "tachyon/zk/base/blinder.h"
 
+#include <vector>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
