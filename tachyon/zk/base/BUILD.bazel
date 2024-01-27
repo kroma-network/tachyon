@@ -47,6 +47,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "row_index",
+    hdrs = ["row_index.h"],
+)
+
+tachyon_cc_library(
     name = "univarate_polynomial_commitment_scheme_extension",
     hdrs = ["univarate_polynomial_commitment_scheme_extension.h"],
     deps = [
