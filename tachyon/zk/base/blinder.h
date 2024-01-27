@@ -3,8 +3,6 @@
 
 #include <stddef.h>
 
-#include <vector>
-
 #include "tachyon/zk/base/random_field_generator_base.h"
 #include "tachyon/zk/base/row_index.h"
 
