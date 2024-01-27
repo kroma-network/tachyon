@@ -42,8 +42,7 @@ class ProverImpl {
   }
 
   void SetExtendedDomain(const zk::ConstraintSystem<Field>& constraint_system) {
-    uint32_t extended_k =
-        constraint_system.ComputeExtendedDegree(prover_.pcs().K());
+    uint32_t extended_k = constraint_system.ComputeExtendedK(prover_.pcs().K());
     prover_.set_extended_domain(
         ExtendedDomain::Create(size_t{1} << extended_k));
   }

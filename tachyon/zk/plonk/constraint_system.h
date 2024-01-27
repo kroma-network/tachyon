@@ -457,7 +457,18 @@ class ConstraintSystem {
     return *cached_degree_;
   }
 
-  uint32_t ComputeExtendedDegree(uint32_t k) const {
+  // Compute the extended K. Since the degree of h(X) exceeds 2ᵏ - 1, h(X) will
+  // be split to h₀(X), h₁(X), ..., h_{d - 1}(X). The extended K denotes the K
+  // of the extended domain for these.
+  //
+  // h(X) = (gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...) / t(X)
+  //
+  // h₀(X) + Xⁿ * h₁(X) + ... + Xⁿ⁽ᵈ⁻¹⁾ * h_{d - 1}(X).
+  // H = [Commit(h₀(X)), Commit(h₁(X)), ..., Commit(h_{d - 1}(X))]
+  //
+  // See
+  // https://zcash.github.io/halo2/design/proving-system/vanishing.html#committing-to-hx.
+  uint32_t ComputeExtendedK(uint32_t k) const {
     size_t quotient_poly_degree = ComputeDegree() - 1;
     return std::max(
         base::bits::SafeLog2Ceiling((size_t{1} << k) * quotient_poly_degree),

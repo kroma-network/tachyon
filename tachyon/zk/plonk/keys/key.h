@@ -66,7 +66,7 @@ class Key {
                  << constraint_system.ComputeMinimumRows();
       return false;
     }
-    uint32_t extended_k = constraint_system.ComputeExtendedDegree(pcs.K());
+    uint32_t extended_k = constraint_system.ComputeExtendedK(pcs.K());
     entity->set_extended_domain(
         ExtendedDomain::Create(size_t{1} << extended_k));
 
