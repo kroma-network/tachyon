@@ -2,6 +2,7 @@
 #define TACHYON_CRYPTO_COMMITMENTS_VECTOR_COMMITMENT_SCHEME_H_
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include "tachyon/base/bits.h"
 #include "tachyon/crypto/commitments/batch_commitment_state.h"
@@ -22,7 +23,7 @@ class VectorCommitmentScheme {
   using Field = typename VectorCommitmentSchemeTraits<Derived>::Field;
   using Commitment = typename VectorCommitmentSchemeTraits<Derived>::Commitment;
 
-  size_t K() const {
+  uint32_t K() const {
     const Derived* derived = static_cast<const Derived*>(this);
     return base::bits::SafeLog2Ceiling(derived->N());
   }

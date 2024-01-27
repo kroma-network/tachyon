@@ -7,6 +7,8 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
 
+#include <stdint.h>
+
 #include <memory>
 #include <utility>
 
@@ -61,7 +63,7 @@ class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
       _FloorPlanner<SimpleLookupCircuit<F, Bits, _FloorPlanner>>;
 
   SimpleLookupCircuit() = default;
-  explicit SimpleLookupCircuit(size_t k) : k_(k) {}
+  explicit SimpleLookupCircuit(uint32_t k) : k_(k) {}
 
   std::unique_ptr<Circuit<SimpleLookupConfig<F, Bits>>> WithoutWitness()
       const override {
@@ -109,7 +111,7 @@ class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
   }
 
  private:
-  size_t k_ = 0;
+  uint32_t k_ = 0;
 };
 
 }  // namespace tachyon::zk

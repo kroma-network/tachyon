@@ -28,7 +28,7 @@ class ProverImpl {
 
   const zk::halo2::Prover<PCS>& prover() const { return prover_; }
 
-  size_t K() const { return prover_.pcs().K(); }
+  uint32_t K() const { return prover_.pcs().K(); }
 
   size_t N() const { return prover_.pcs().N(); }
 
@@ -42,7 +42,7 @@ class ProverImpl {
   }
 
   void SetExtendedDomain(const zk::ConstraintSystem<Field>& constraint_system) {
-    size_t extended_k =
+    uint32_t extended_k =
         constraint_system.ComputeExtendedDegree(prover_.pcs().K());
     prover_.set_extended_domain(
         ExtendedDomain::Create(size_t{1} << extended_k));

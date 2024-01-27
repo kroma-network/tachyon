@@ -7,6 +7,8 @@
 #ifndef TACHYON_ZK_PLONK_KEYS_KEY_H_
 #define TACHYON_ZK_PLONK_KEYS_KEY_H_
 
+#include <stdint.h>
+
 #include <utility>
 #include <vector>
 
@@ -64,7 +66,7 @@ class Key {
                  << constraint_system.ComputeMinimumRows();
       return false;
     }
-    size_t extended_k = constraint_system.ComputeExtendedDegree(pcs.K());
+    uint32_t extended_k = constraint_system.ComputeExtendedDegree(pcs.K());
     entity->set_extended_domain(
         ExtendedDomain::Create(size_t{1} << extended_k));
 

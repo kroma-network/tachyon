@@ -7,6 +7,8 @@
 #ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_H_
 #define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_H_
 
+#include <stdint.h>
+
 #include <algorithm>
 #include <memory>
 #include <optional>
@@ -455,11 +457,11 @@ class ConstraintSystem {
     return *cached_degree_;
   }
 
-  size_t ComputeExtendedDegree(size_t k) const {
+  uint32_t ComputeExtendedDegree(uint32_t k) const {
     size_t quotient_poly_degree = ComputeDegree() - 1;
     return std::max(
         base::bits::SafeLog2Ceiling((size_t{1} << k) * quotient_poly_degree),
-        static_cast<uint32_t>(k));
+        k);
   }
 
   // Compute the number of blinding factors necessary to perfectly blind
