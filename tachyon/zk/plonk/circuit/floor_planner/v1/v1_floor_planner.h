@@ -34,14 +34,13 @@ namespace tachyon::zk {
 // - Regions are measured as rectangles, bounded on the cells they assign.
 // - Regions are laid out using a greedy first-fit strategy, after sorting
 //   regions by their "advice area" (number of advice columns * rows).
-template <typename CircuitTy>
-class V1FloorPlanner : public FloorPlanner<CircuitTy> {
+template <typename Circuit>
+class V1FloorPlanner : public FloorPlanner<Circuit> {
  public:
-  using F = typename CircuitTy::Field;
-  using Config = typename CircuitTy::Config;
+  using F = typename Circuit::Field;
+  using Config = typename Circuit::Config;
 
-  void Synthesize(Assignment<F>* assignment, CircuitTy& circuit,
-                  Config&& config,
+  void Synthesize(Assignment<F>* assignment, Circuit& circuit, Config&& config,
                   const std::vector<FixedColumnKey>& constants) override {
     // First pass: measure the regions within the circuit.
     MeasurementPass<F> measure;

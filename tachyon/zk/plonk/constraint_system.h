@@ -527,10 +527,9 @@ class ConstraintSystem {
   template <typename PCS>
   friend class halo2_api::ProvingKeyImpl;
 
-  template <typename QueryData, typename ColumnTy>
+  template <typename QueryData, typename Column>
   static bool QueryIndex(const std::vector<QueryData>& queries,
-                         const ColumnTy& column, Rotation at,
-                         size_t* index_out) {
+                         const Column& column, Rotation at, size_t* index_out) {
     std::optional<size_t> index =
         base::FindIndexIf(queries, [&column, at](const QueryData& query) {
           return query.column() == column && query.rotation() == at;

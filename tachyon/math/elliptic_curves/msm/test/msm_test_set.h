@@ -91,9 +91,9 @@ struct MSMTestSet {
         break;
       }
       case MSMMethod::kNaive: {
-        using AddResultTy =
+        using AddResult =
             typename internal::AdditiveSemigroupTraits<Point>::ReturnTy;
-        AddResultTy sum = AddResultTy::Zero();
+        AddResult sum = AddResult::Zero();
         for (size_t i = 0; i < bases.size(); ++i) {
           sum += bases[i] * scalars[i];
         }

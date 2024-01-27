@@ -91,8 +91,8 @@ class Expression {
       const std::vector<base::Ref<const Expression<F>>>& replacements,
       bool must_be_non_simple) const;
 
-  template <typename EvaluatedTy>
-  EvaluatedTy Evaluate(Evaluator<F, EvaluatedTy>* evaluator) const {
+  template <typename Evaluated>
+  Evaluated Evaluate(Evaluator<F, Evaluated>* evaluator) const {
     return evaluator->Evaluate(this);
   }
 

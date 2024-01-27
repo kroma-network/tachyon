@@ -15,13 +15,13 @@
 
 namespace tachyon::zk {
 
-template <typename CircuitTy>
+template <typename Circuit>
 class FloorPlanner {
  public:
-  using F = typename CircuitTy::Field;
-  using Config = typename CircuitTy::Config;
+  using F = typename Circuit::Field;
+  using Config = typename Circuit::Config;
 
-  virtual void Synthesize(Assignment<F>* assignment, CircuitTy& circuit,
+  virtual void Synthesize(Assignment<F>* assignment, Circuit& circuit,
                           Config&& config,
                           const std::vector<FixedColumnKey>& constants) = 0;
 };
