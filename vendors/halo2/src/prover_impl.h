@@ -47,7 +47,7 @@ class ProverImpl {
         ExtendedDomain::Create(size_t{1} << extended_k));
   }
 
-  void SetBlindingFactors(size_t binding_factors) {
+  void SetBlindingFactors(uint32_t binding_factors) {
     prover_.blinder_.set_blinding_factors(binding_factors);
   }
 

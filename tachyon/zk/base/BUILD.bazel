@@ -5,7 +5,10 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "blinder",
     hdrs = ["blinder.h"],
-    deps = [":random_field_generator_base"],
+    deps = [
+        ":random_field_generator_base",
+        ":row_index",
+    ],
 )
 
 tachyon_cc_library(

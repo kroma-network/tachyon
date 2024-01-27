@@ -37,7 +37,10 @@ mod test {
             pk.vk.cs.advice_column_phase,
             tachyon_pk.advice_column_phases()
         );
-        assert_eq!(pk.vk.cs.blinding_factors(), tachyon_pk.blinding_factors());
+        assert_eq!(
+            pk.vk.cs.blinding_factors(),
+            tachyon_pk.blinding_factors() as usize
+        );
         assert_eq!(pk.vk.cs.challenge_phase, tachyon_pk.challenge_phases());
         assert_eq!(pk.vk.cs.constants, tachyon_pk.constants());
         assert_eq!(pk.vk.cs.num_advice_columns, tachyon_pk.num_advice_columns());

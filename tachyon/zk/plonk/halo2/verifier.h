@@ -110,7 +110,7 @@ class Verifier : public VerifierBase<PCS> {
 
   void ComputeAuxValues(const ConstraintSystem<F>& constraint_system,
                         Proof<F, Commitment>& proof) {
-    size_t blinding_factors = constraint_system.ComputeBlindingFactors();
+    RowIndex blinding_factors = constraint_system.ComputeBlindingFactors();
     std::vector<F> l_evals = this->domain_->EvaluatePartialLagrangeCoefficients(
         proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
                              /*IsEndInclusive=*/true>(

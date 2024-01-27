@@ -48,9 +48,9 @@ class CircuitPolynomialBuilder {
 
   static CircuitPolynomialBuilder Create(
       const Domain* domain, const ExtendedDomain* extended_domain, size_t n,
-      size_t blinding_factors, size_t cs_degree, const F* beta, const F* gamma,
-      const F* theta, const F* y, const F* zeta, absl::Span<const F> challenges,
-      const ProvingKey<PCS>* proving_key,
+      RowIndex blinding_factors, size_t cs_degree, const F* beta,
+      const F* gamma, const F* theta, const F* y, const F* zeta,
+      absl::Span<const F> challenges, const ProvingKey<PCS>* proving_key,
       const std::vector<PermutationCommitted<Poly>>* committed_permutations,
       const std::vector<std::vector<LookupCommitted<Poly>>>*
           committed_lookups_vec,

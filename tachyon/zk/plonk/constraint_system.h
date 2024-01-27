@@ -21,6 +21,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/circuit/constraint.h"
@@ -477,21 +478,22 @@ class ConstraintSystem {
 
   // Compute the number of blinding factors necessary to perfectly blind
   // each of the prover's witness polynomials.
-  size_t ComputeBlindingFactors() const {
+  RowIndex ComputeBlindingFactors() const {
     if (!cached_blinding_factors_.has_value()) {
       // All of the prover's advice columns are evaluated at no more than
       auto max_num_advice_query_it = std::max_element(
           num_advice_queries_.begin(), num_advice_queries_.end());
-      size_t factors = max_num_advice_query_it == num_advice_queries_.end()
-                           ? 1
-                           : *max_num_advice_query_it;
+
+      RowIndex factors = max_num_advice_query_it == num_advice_queries_.end()
+                             ? 1
+                             : static_cast<RowIndex>(*max_num_advice_query_it);
       // distinct points during gate checks.
 
       // - The permutation argument witness polynomials are evaluated at most 3
       //   times.
       // - Each lookup argument has independent witness polynomials, and they
       //   are evaluated at most 2 times.
-      factors = std::max(size_t{3}, factors);
+      factors = std::max(RowIndex{3}, factors);
 
       // Each polynomial is evaluated at most an additional time during
       // multiopen (at x₃ to produce q_evals):
@@ -622,7 +624,7 @@ class ConstraintSystem {
   std::optional<size_t> minimum_degree_;
 
   mutable std::optional<size_t> cached_degree_;
-  mutable std::optional<size_t> cached_blinding_factors_;
+  mutable std::optional<RowIndex> cached_blinding_factors_;
 };
 
 }  // namespace zk

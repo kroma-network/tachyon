@@ -7,6 +7,8 @@
 #ifndef TACHYON_ZK_PLONK_VANISHING_VANISHING_ARGUMENT_H_
 #define TACHYON_ZK_PLONK_VANISHING_VANISHING_ARGUMENT_H_
 
+#include <stdint.h>
+
 #include <memory>
 #include <utility>
 #include <vector>
@@ -93,7 +95,7 @@ class VanishingArgument {
       const std::vector<std::vector<LookupCommitted<Poly>>>&
           committed_lookups_vec,
       const std::vector<RefTable<Poly>>& poly_tables) const {
-    size_t blinding_factors = prover->blinder().blinding_factors();
+    RowIndex blinding_factors = prover->blinder().blinding_factors();
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 

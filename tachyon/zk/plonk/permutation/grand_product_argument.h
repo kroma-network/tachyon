@@ -24,7 +24,7 @@ class GrandProductArgument {
     using Evals = typename PCS::Evals;
 
     size_t size = prover->pcs().N();
-    size_t blinding_factors = prover->blinder().blinding_factors();
+    RowIndex blinding_factors = prover->blinder().blinding_factors();
     Evals z = CreatePolynomial<Evals>(size, blinding_factors,
                                       std::move(numerator_callback),
                                       std::move(denominator_callback));
@@ -46,7 +46,7 @@ class GrandProductArgument {
     using Evals = typename PCS::Evals;
 
     size_t size = prover->pcs().N();
-    size_t blinding_factors = prover->blinder().blinding_factors();
+    RowIndex blinding_factors = prover->blinder().blinding_factors();
     Evals z = CreatePolynomialExcessive<Evals>(
         size, blinding_factors, num_cols, last_z, std::move(numerator_callback),
         std::move(denominator_callback));
@@ -58,7 +58,7 @@ class GrandProductArgument {
   FRIEND_TEST(LookupArgumentRunnerTest, ComputePermutationProduct);
 
   template <typename Evals, typename Callable>
-  static Evals CreatePolynomial(size_t size, size_t blinding_factors,
+  static Evals CreatePolynomial(size_t size, RowIndex blinding_factors,
                                 Callable numerator_callback,
                                 Callable denominator_callback) {
     using F = typename Evals::Field;
@@ -77,7 +77,7 @@ class GrandProductArgument {
   }
 
   template <typename Evals, typename F, typename Callable>
-  static Evals CreatePolynomialExcessive(size_t size, size_t blinding_factors,
+  static Evals CreatePolynomialExcessive(size_t size, RowIndex blinding_factors,
                                          size_t num_cols, F& last_z,
                                          Callable numerator_callback,
                                          Callable denominator_callback) {
@@ -100,7 +100,7 @@ class GrandProductArgument {
   template <typename Evals, typename F>
   static Evals DoCreatePolynomial(F& last_z, size_t size,
                                   const std::vector<F>& grand_product,
-                                  size_t blinding_factors) {
+                                  RowIndex blinding_factors) {
     std::vector<F> z;
     z.resize(size);
     z[0] = last_z;

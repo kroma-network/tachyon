@@ -37,7 +37,7 @@ class Prover : public ProverBase<PCS> {
 
   static Prover CreateFromRandomSeed(
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-      size_t blinding_factors) {
+      RowIndex blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromRandomSeed());
     return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),
@@ -46,7 +46,7 @@ class Prover : public ProverBase<PCS> {
 
   static Prover CreateFromSeed(
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-      const uint8_t seed[16], size_t blinding_factors) {
+      const uint8_t seed[16], RowIndex blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromSeed(seed));
     return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),
@@ -55,7 +55,7 @@ class Prover : public ProverBase<PCS> {
 
   static Prover CreateFromRNG(
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-      std::unique_ptr<crypto::XORShiftRNG> rng, size_t blinding_factors) {
+      std::unique_ptr<crypto::XORShiftRNG> rng, RowIndex blinding_factors) {
     auto generator = std::make_unique<RandomFieldGenerator<F>>(rng.get());
     Blinder<PCS> blinder(generator.get(), blinding_factors);
     return {std::move(pcs), std::move(writer), std::move(blinder),
