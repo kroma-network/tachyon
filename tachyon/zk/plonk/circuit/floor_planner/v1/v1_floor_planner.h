@@ -40,7 +40,8 @@ class V1FloorPlanner : public FloorPlanner<Circuit> {
   using F = typename Circuit::Field;
   using Config = typename Circuit::Config;
 
-  void Synthesize(Assignment<F>* assignment, Circuit& circuit, Config&& config,
+  void Synthesize(Assignment<F>* assignment, const Circuit& circuit,
+                  Config&& config,
                   const std::vector<FixedColumnKey>& constants) override {
     // First pass: measure the regions within the circuit.
     MeasurementPass<F> measure;

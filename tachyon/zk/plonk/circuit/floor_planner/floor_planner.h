@@ -21,7 +21,7 @@ class FloorPlanner {
   using F = typename Circuit::Field;
   using Config = typename Circuit::Config;
 
-  virtual void Synthesize(Assignment<F>* assignment, Circuit& circuit,
+  virtual void Synthesize(Assignment<F>* assignment, const Circuit& circuit,
                           Config&& config,
                           const std::vector<FixedColumnKey>& constants) = 0;
 };

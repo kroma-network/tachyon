@@ -15,7 +15,8 @@ class SimpleFloorPlanner : public FloorPlanner<Circuit> {
   using F = typename Circuit::Field;
   using Config = typename Circuit::Config;
 
-  void Synthesize(Assignment<F>* assignment, Circuit& circuit, Config&& config,
+  void Synthesize(Assignment<F>* assignment, const Circuit& circuit,
+                  Config&& config,
                   const std::vector<FixedColumnKey>& constants) override {
     SingleChipLayouter layouter(assignment, constants);
     circuit.Synthesize(std::move(config), &layouter);
