@@ -10,9 +10,9 @@ namespace tachyon::halo2_api {
 
 class XORShiftRng::Impl {
  public:
-  explicit Impl(std::array<uint8_t, 16> seed) {
-    uint8_t seed_copy[16];
-    memcpy(seed_copy, seed.data(), 16);
+  explicit Impl(std::array<uint8_t, crypto::XORShiftRNG::kSeedSize> seed) {
+    uint8_t seed_copy[crypto::XORShiftRNG::kSeedSize];
+    memcpy(seed_copy, seed.data(), crypto::XORShiftRNG::kSeedSize);
     rng_ = crypto::XORShiftRNG::FromSeed(seed_copy);
   }
   Impl(const Impl& other) : rng_(other.rng_) {}
@@ -21,7 +21,7 @@ class XORShiftRng::Impl {
 
   rust::Vec<uint8_t> GetState() const {
     base::Uint8VectorBuffer buffer;
-    CHECK(buffer.Grow(16));
+    CHECK(buffer.Grow(crypto::XORShiftRNG::kStateSize));
     CHECK(buffer.Write32LE(rng_.x()));
     CHECK(buffer.Write32LE(rng_.y()));
     CHECK(buffer.Write32LE(rng_.z()));
@@ -33,7 +33,8 @@ class XORShiftRng::Impl {
   crypto::XORShiftRNG rng_;
 };
 
-XORShiftRng::XORShiftRng(std::array<uint8_t, 16> seed)
+XORShiftRng::XORShiftRng(
+    std::array<uint8_t, crypto::XORShiftRNG::kSeedSize> seed)
     : impl_(new Impl(seed)) {}
 
 uint32_t XORShiftRng::next_u32() { return impl_->NextUint32(); }
@@ -46,7 +47,8 @@ std::unique_ptr<XORShiftRng> XORShiftRng::clone() const {
 
 rust::Vec<uint8_t> XORShiftRng::state() const { return impl_->GetState(); }
 
-std::unique_ptr<XORShiftRng> new_xor_shift_rng(std::array<uint8_t, 16> seed) {
+std::unique_ptr<XORShiftRng> new_xor_shift_rng(
+    std::array<uint8_t, crypto::XORShiftRNG::kSeedSize> seed) {
   return std::make_unique<XORShiftRng>(seed);
 }
 

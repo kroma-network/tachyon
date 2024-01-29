@@ -23,6 +23,9 @@ namespace tachyon::crypto {
 // and [Xorshift RNGs](https://www.jstatsoft.org/v08/i14/paper).
 class XORShiftRNG final : public RNG<XORShiftRNG> {
  public:
+  constexpr static size_t kSeedSize = 16;
+  constexpr static size_t kStateSize = 16;
+
   XORShiftRNG() = default;
 
   uint32_t x() const { return x_; }
@@ -32,7 +35,7 @@ class XORShiftRNG final : public RNG<XORShiftRNG> {
 
   template <typename Container>
   static XORShiftRNG FromSeed(const Container& seed) {
-    CHECK_EQ(std::size(seed), size_t{16});
+    CHECK_EQ(std::size(seed), kSeedSize);
     static_assert(std::is_same_v<base::container_value_t<Container>, uint8_t>,
                   "The value type of |seed| must be uint8_t");
     XORShiftRNG ret;
@@ -43,7 +46,7 @@ class XORShiftRNG final : public RNG<XORShiftRNG> {
     return ret;
   }
 
-  static XORShiftRNG FromSeed(const uint8_t seed[16]) {
+  static XORShiftRNG FromSeed(const uint8_t seed[kSeedSize]) {
     XORShiftRNG ret;
     memcpy(&ret.x_, &seed[0], sizeof(uint32_t));
     memcpy(&ret.y_, &seed[4], sizeof(uint32_t));
@@ -53,7 +56,7 @@ class XORShiftRNG final : public RNG<XORShiftRNG> {
   }
 
   static XORShiftRNG FromRandomSeed() {
-    uint8_t seed[16];
+    uint8_t seed[kSeedSize];
     uint64_t lo = base::Uniform(base::Range<uint64_t>::All());
     uint64_t hi = base::Uniform(base::Range<uint64_t>::All());
     memcpy(&seed[0], &lo, sizeof(uint64_t));
