@@ -1,40 +1,49 @@
 #include "vendors/halo2/include/xor_shift_rng.h"
 
-#include <vector>
+#include <string.h>
 
-#include "tachyon/base/buffer/vector_buffer.h"
-#include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
+#include "tachyon/base/logging.h"
+#include "tachyon/c/crypto/random/rng.h"
 #include "tachyon/rs/base/container_util.h"
 
 namespace tachyon::halo2_api {
 
+constexpr size_t kSeedSize = 16;
+constexpr size_t kStateSize = 16;
+
 class XORShiftRng::Impl {
  public:
-  explicit Impl(std::array<uint8_t, crypto::XORShiftRNG::kSeedSize> seed) {
-    uint8_t seed_copy[crypto::XORShiftRNG::kSeedSize];
-    memcpy(seed_copy, seed.data(), crypto::XORShiftRNG::kSeedSize);
-    rng_ = crypto::XORShiftRNG::FromSeed(seed_copy);
+  explicit Impl(std::array<uint8_t, kSeedSize> seed) {
+    uint8_t seed_copy[kSeedSize];
+    memcpy(seed_copy, seed.data(), kSeedSize);
+    rng_ = tachyon_rng_create_from_seed(TACHYON_RNG_XOR_SHIFT, seed_copy,
+                                        kSeedSize);
   }
-  Impl(const Impl& other) : rng_(other.rng_) {}
+  Impl(const Impl& other) {
+    uint8_t state[kStateSize];
+    size_t state_len;
+    tachyon_rng_get_state(other.rng_, state, &state_len);
+    CHECK_EQ(state_len, kStateSize);
+    rng_ =
+        tachyon_rng_create_from_state(TACHYON_RNG_XOR_SHIFT, state, kStateSize);
+  }
+  ~Impl() { tachyon_rng_destroy(rng_); }
 
-  uint32_t NextUint32() { return rng_.NextUint32(); }
+  uint32_t NextUint32() { return tachyon_rng_get_next_u32(rng_); }
 
   rust::Vec<uint8_t> GetState() const {
-    base::Uint8VectorBuffer buffer;
-    CHECK(buffer.Grow(crypto::XORShiftRNG::kStateSize));
-    CHECK(buffer.Write32LE(rng_.x()));
-    CHECK(buffer.Write32LE(rng_.y()));
-    CHECK(buffer.Write32LE(rng_.z()));
-    CHECK(buffer.Write32LE(rng_.w()));
-    return rs::ConvertCppContainerToRustVec(buffer.owned_buffer());
+    uint8_t state[kStateSize];
+    size_t state_len;
+    tachyon_rng_get_state(rng_, state, &state_len);
+    CHECK_EQ(state_len, kStateSize);
+    return rs::ConvertCppContainerToRustVec(state);
   }
 
  private:
-  crypto::XORShiftRNG rng_;
+  tachyon_rng* rng_;
 };
 
-XORShiftRng::XORShiftRng(
-    std::array<uint8_t, crypto::XORShiftRNG::kSeedSize> seed)
+XORShiftRng::XORShiftRng(std::array<uint8_t, kSeedSize> seed)
     : impl_(new Impl(seed)) {}
 
 uint32_t XORShiftRng::next_u32() { return impl_->NextUint32(); }
@@ -48,7 +57,7 @@ std::unique_ptr<XORShiftRng> XORShiftRng::clone() const {
 rust::Vec<uint8_t> XORShiftRng::state() const { return impl_->GetState(); }
 
 std::unique_ptr<XORShiftRng> new_xor_shift_rng(
-    std::array<uint8_t, crypto::XORShiftRNG::kSeedSize> seed) {
+    std::array<uint8_t, kSeedSize> seed) {
   return std::make_unique<XORShiftRng>(seed);
 }
 
