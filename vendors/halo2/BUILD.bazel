@@ -17,10 +17,13 @@ tachyon_rust_library(
         "//tachyon/rs:tachyon_rs",
         ":bn254_blake2b_writer",
         ":bn254_cxx_bridge",
+        ":bn254_evals",
         ":bn254_msm",
         ":bn254_msm_gpu",
+        ":bn254_poly",
         ":bn254_shplonk_prover",
         ":bn254_shplonk_proving_key",
+        ":bn254_rational_evals",
         ":xor_shift_rng",
         ":xor_shift_rng_cxx_bridge",
     ],
@@ -68,8 +71,11 @@ tachyon_cc_library(
     name = "bn254_api_hdrs",
     hdrs = [
         "include/bn254_blake2b_writer.h",
+        "include/bn254_evals.h",
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
+        "include/bn254_poly.h",
+        "include/bn254_rational_evals.h",
         "include/bn254_shplonk_prover.h",
         "include/bn254_shplonk_proving_key.h",
         "include/proving_key_impl_forward.h",
@@ -89,6 +95,21 @@ tachyon_cc_library(
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/rs/base:container_util",
         "//tachyon/zk/plonk/halo2:blake2b_transcript",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_evals",
+    srcs = [
+        "src/bn254_evals.cc",
+        "src/bn254_evals_impl.h",
+    ],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        ":degrees",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
     ],
 )
 
@@ -113,11 +134,45 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "bn254_poly",
+    srcs = [
+        "src/bn254_poly.cc",
+        "src/bn254_poly_impl.h",
+    ],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        ":degrees",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_rational_evals",
+    srcs = [
+        "src/bn254_rational_evals.cc",
+        "src/bn254_rational_evals_impl.h",
+    ],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        ":degrees",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+    ],
+)
+
+tachyon_cc_library(
     name = "bn254_shplonk_prover",
     srcs = ["src/bn254_shplonk_prover.cc"],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+        ":bn254_evals",
+        ":bn254_poly",
+        ":bn254_rational_evals",
         ":bn254_shplonk_prover_impl",
         ":bn254_shplonk_proving_key_impl",
         "//tachyon/base/buffer",

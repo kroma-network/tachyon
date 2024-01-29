@@ -161,7 +161,6 @@ mod test {
                 .unwrap();
             let mut tachyon_pk = TachyonSHPlonkProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
-            let domain = &pk.vk.domain;
 
             tachyon_create_proof::<_, _>(
                 &mut prover,
@@ -170,7 +169,6 @@ mod test {
                 public_inputs2.as_slice(),
                 rng,
                 &mut transcript,
-                &domain,
             )
             .expect("proof generation should not fail");
 

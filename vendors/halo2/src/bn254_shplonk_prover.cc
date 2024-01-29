@@ -5,7 +5,13 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/rs/base/container_util.h"
 #include "tachyon/rs/base/rust_vec_copyable.h"
+#include "vendors/halo2/include/bn254_evals.h"
+#include "vendors/halo2/include/bn254_poly.h"
+#include "vendors/halo2/include/bn254_rational_evals.h"
 #include "vendors/halo2/src/bn254.rs.h"
+#include "vendors/halo2/src/bn254_evals_impl.h"
+#include "vendors/halo2/src/bn254_poly_impl.h"
+#include "vendors/halo2/src/bn254_rational_evals_impl.h"
 #include "vendors/halo2/src/bn254_shplonk_prover_impl.h"
 #include "vendors/halo2/src/bn254_shplonk_proving_key_impl.h"
 
@@ -15,32 +21,32 @@ namespace {
 
 rust::Box<G1JacobianPoint> DoCommit(
     const std::vector<math::bn254::G1AffinePoint>& cpp_bases,
-    rust::Slice<const Fr> scalars) {
+    const std::vector<math::bn254::Fr>& scalars) {
   math::VariableBaseMSM<math::bn254::G1AffinePoint> msm;
   math::VariableBaseMSM<math::bn254::G1AffinePoint>::Bucket bucket;
-  CHECK(msm.Run(cpp_bases,
-                rs::ConvertRustSliceToCppSpan<const math::bn254::Fr>(scalars),
-                &bucket));
+  CHECK(msm.Run(cpp_bases, scalars, &bucket));
   math::bn254::G1JacobianPoint* result = new math::bn254::G1JacobianPoint;
   *result = bucket.ToJacobian();
   return rust::Box<G1JacobianPoint>::from_raw(
       reinterpret_cast<G1JacobianPoint*>(result));
 }
 
-std::vector<math::bn254::Fr> ReadFrs(uint8_t* vec_ptr, size_t i) {
-  size_t num_bytes = base::EstimateSize(rs::RustVec());
-  base::Buffer buffer(&vec_ptr[num_bytes * i], num_bytes);
-  rs::RustVec vec;
-  CHECK(buffer.Read(&vec));
-  return vec.ToVec<math::bn254::Fr>();
-}
-
 PCS::Evals ReadEvals(uint8_t* vec_ptr, size_t i) {
-  return PCS::Evals(ReadFrs(vec_ptr, i));
+  size_t num_bytes = sizeof(uintptr_t);
+  base::Buffer buffer(&vec_ptr[num_bytes * i], num_bytes);
+  uintptr_t ptr;
+  CHECK(buffer.Read(&ptr));
+  Evals* evals = reinterpret_cast<Evals*>(ptr);
+  return std::move(*evals->impl()).TakeEvals();
 }
 
 PCS::Poly ReadPoly(uint8_t* vec_ptr, size_t i) {
-  return PCS::Poly(PCS::Poly::Coefficients(ReadFrs(vec_ptr, i)));
+  size_t num_bytes = sizeof(uintptr_t);
+  base::Buffer buffer(&vec_ptr[num_bytes * i], num_bytes);
+  uintptr_t ptr;
+  CHECK(buffer.Read(&ptr));
+  Poly* poly = reinterpret_cast<Poly*>(ptr);
+  return std::move(*poly->impl()).TakePoly();
 }
 
 }  // namespace
@@ -52,14 +58,64 @@ uint32_t SHPlonkProver::k() const { return static_cast<uint32_t>(impl_->K()); }
 
 uint64_t SHPlonkProver::n() const { return static_cast<uint64_t>(impl_->N()); }
 
-rust::Box<G1JacobianPoint> SHPlonkProver::commit(
-    rust::Slice<const Fr> scalars) const {
-  return DoCommit(impl_->prover().pcs().GetG1PowersOfTau(), scalars);
+rust::Box<G1JacobianPoint> SHPlonkProver::commit(const Poly& poly) const {
+  return DoCommit(impl_->prover().pcs().GetG1PowersOfTau(),
+                  poly.impl()->poly().coefficients().coefficients());
 }
 
 rust::Box<G1JacobianPoint> SHPlonkProver::commit_lagrange(
-    rust::Slice<const Fr> scalars) const {
-  return DoCommit(impl_->prover().pcs().GetG1PowersOfTauLagrange(), scalars);
+    const Evals& evals) const {
+  return DoCommit(impl_->prover().pcs().GetG1PowersOfTauLagrange(),
+                  evals.impl()->evals().evaluations());
+}
+
+std::unique_ptr<Evals> SHPlonkProver::empty_evals() const {
+  const PCS::Domain* domain = impl_->prover().domain();
+  PCS::Evals evals = domain->Empty<PCS::Evals>();
+  std::unique_ptr<Evals> ret(new Evals());
+  PCS::Evals& impl = reinterpret_cast<PCS::Evals&>(ret->impl()->evals());
+  impl = std::move(evals);
+  return ret;
+}
+
+std::unique_ptr<RationalEvals> SHPlonkProver::empty_rational_evals() const {
+  const PCS::Domain* domain = impl_->prover().domain();
+  PCS::RationalEvals evals = domain->Empty<PCS::RationalEvals>();
+  std::unique_ptr<RationalEvals> ret(new RationalEvals());
+  PCS::RationalEvals& impl =
+      reinterpret_cast<PCS::RationalEvals&>(ret->impl()->evals());
+  impl = std::move(evals);
+  return ret;
+}
+
+std::unique_ptr<Poly> SHPlonkProver::ifft(const Evals& evals) const {
+  const PCS::Domain* domain = impl_->prover().domain();
+  PCS::Poly poly =
+      domain->IFFT(reinterpret_cast<const PCS::Evals&>(evals.impl()->evals()));
+  std::unique_ptr<Poly> ret(new Poly());
+  PCS::Poly& impl = reinterpret_cast<PCS::Poly&>(ret->impl()->poly());
+  impl = std::move(poly);
+  // NOTE(chokobole): The zero degrees might be removed. This is not compatible
+  // with rust halo2.
+  impl.coefficients().coefficients().resize(domain->size());
+  return ret;
+}
+
+void SHPlonkProver::batch_evaluate(
+    rust::Slice<std::unique_ptr<RationalEvals>> rational_evals,
+    rust::Slice<std::unique_ptr<Evals>> evals) const {
+  std::vector<PCS::RationalEvals> cpp_rational_evals = base::Map(
+      rational_evals, [](std::unique_ptr<RationalEvals>& rational_eval) {
+        return PCS::RationalEvals(
+            std::move(*rational_eval->impl()).TakeEvals());
+      });
+  for (size_t i = 0; i < cpp_rational_evals.size(); ++i) {
+    const PCS::RationalEvals& cpp_rational_eval = cpp_rational_evals[i];
+    std::vector<math::bn254::Fr> cpp_values(cpp_rational_eval.NumElements());
+    CHECK(math::RationalField<math::bn254::Fr>::BatchEvaluate(
+        cpp_rational_eval.evaluations(), &cpp_values));
+    evals[i]->impl()->evals() = PCS::Evals(std::move(cpp_values));
+  }
 }
 
 void SHPlonkProver::set_rng(rust::Slice<const uint8_t> state) {

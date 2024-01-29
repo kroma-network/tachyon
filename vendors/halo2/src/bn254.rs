@@ -1,13 +1,12 @@
 use std::{
     io::{self, Write},
     marker::PhantomData,
-    ops::Deref,
 };
 
 use ff::PrimeField;
 use halo2_proofs::{
     plonk::{sealed, Column, Fixed},
-    poly::{Coeff, LagrangeCoeff, Polynomial},
+    poly::commitment::Blind,
     transcript::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
@@ -24,12 +23,13 @@ pub struct G1JacobianPoint(pub G1JacobianPointImpl);
 pub struct G1Point2(pub G1Point2Impl);
 pub struct Fr(pub FrImpl);
 pub struct InstanceSingle {
-    pub instance_values: Vec<Vec<Fr>>,
-    pub instance_polys: Vec<Vec<Fr>>,
+    pub instance_values: Vec<Evals>,
+    pub instance_polys: Vec<Poly>,
 }
+#[derive(Clone)]
 pub struct AdviceSingle {
-    pub advice_polys: Vec<Vec<Fr>>,
-    pub advice_blinds: Vec<Fr>,
+    pub advice_polys: Vec<Evals>,
+    pub advice_blinds: Vec<Blind<halo2curves::bn256::Fr>>,
 }
 
 #[cxx::bridge(namespace = "tachyon::halo2_api::bn254")]
@@ -97,6 +97,39 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_evals.h");
+
+        type Evals;
+
+        fn zero_evals() -> UniquePtr<Evals>;
+        fn len(&self) -> usize;
+        fn set_value(self: Pin<&mut Evals>, idx: usize, value: &Fr);
+        fn clone(&self) -> UniquePtr<Evals>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_rational_evals.h");
+
+        type RationalEvals;
+
+        fn set_zero(self: Pin<&mut RationalEvals>, idx: usize);
+        fn set_trivial(self: Pin<&mut RationalEvals>, idx: usize, numerator: &Fr);
+        fn set_rational(
+            self: Pin<&mut RationalEvals>,
+            idx: usize,
+            numerator: &Fr,
+            denominator: &Fr,
+        );
+        fn clone(&self) -> UniquePtr<RationalEvals>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_poly.h");
+
+        type Poly;
+    }
+
+    unsafe extern "C++" {
         include!("vendors/halo2/include/bn254_shplonk_prover.h");
 
         type SHPlonkProver;
@@ -104,8 +137,16 @@ pub mod ffi {
         fn new_shplonk_prover(k: u32, s: &Fr) -> UniquePtr<SHPlonkProver>;
         fn k(&self) -> u32;
         fn n(&self) -> u64;
-        fn commit(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
-        fn commit_lagrange(&self, scalars: &[Fr]) -> Box<G1JacobianPoint>;
+        fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
+        fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
+        fn empty_evals(&self) -> UniquePtr<Evals>;
+        fn empty_rational_evals(&self) -> UniquePtr<RationalEvals>;
+        fn ifft(&self, evals: &Evals) -> UniquePtr<Poly>;
+        fn batch_evaluate(
+            &self,
+            rational_evals: &mut [UniquePtr<RationalEvals>],
+            evals: &mut [UniquePtr<Evals>],
+        );
         fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_transcript(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &SHPlonkProvingKey);
@@ -208,23 +249,11 @@ pub struct SHPlonkProvingKey {
     inner: cxx::UniquePtr<ffi::SHPlonkProvingKey>,
 }
 
-impl Deref for SHPlonkProvingKey {
-    type Target = ffi::SHPlonkProvingKey;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
 impl SHPlonkProvingKey {
     pub fn from(data: &[u8]) -> SHPlonkProvingKey {
         SHPlonkProvingKey {
             inner: ffi::new_proving_key(data),
         }
-    }
-
-    pub fn inner(&self) -> &ffi::SHPlonkProvingKey {
-        &self.inner
     }
 
     // NOTE(chokobole): We name this as plural since it contains multi phases.
@@ -291,9 +320,90 @@ impl SHPlonkProvingKey {
     pub fn transcript_repr(&mut self, prover: &SHPlonkProver) -> halo2curves::bn256::Fr {
         *unsafe {
             std::mem::transmute::<_, Box<halo2curves::bn256::Fr>>(
-                self.inner.pin_mut().transcript_repr(prover.inner()),
+                self.inner.pin_mut().transcript_repr(&prover.inner),
             )
         }
+    }
+}
+
+pub struct Evals {
+    inner: cxx::UniquePtr<ffi::Evals>,
+}
+
+impl Evals {
+    pub fn zero() -> Evals {
+        Self::new(ffi::zero_evals())
+    }
+
+    pub fn new(inner: cxx::UniquePtr<ffi::Evals>) -> Evals {
+        Evals { inner }
+    }
+
+    pub fn len(&self) -> usize {
+        self.inner.len()
+    }
+
+    pub fn set_value(&mut self, idx: usize, fr: &halo2curves::bn256::Fr) {
+        let cpp_fr = unsafe { std::mem::transmute::<_, &Fr>(fr) };
+        self.inner.pin_mut().set_value(idx, cpp_fr)
+    }
+}
+
+impl Clone for Evals {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+        }
+    }
+}
+
+pub struct RationalEvals {
+    inner: cxx::UniquePtr<ffi::RationalEvals>,
+}
+
+impl RationalEvals {
+    pub fn new(inner: cxx::UniquePtr<ffi::RationalEvals>) -> RationalEvals {
+        RationalEvals { inner }
+    }
+
+    pub fn set_zero(&mut self, idx: usize) {
+        self.inner.pin_mut().set_zero(idx)
+    }
+
+    pub fn set_trivial(&mut self, idx: usize, numerator: &halo2curves::bn256::Fr) {
+        let cpp_numerator = unsafe { std::mem::transmute::<_, &Fr>(numerator) };
+        self.inner.pin_mut().set_trivial(idx, cpp_numerator)
+    }
+
+    pub fn set_rational(
+        &mut self,
+        idx: usize,
+        numerator: &halo2curves::bn256::Fr,
+        denominator: &halo2curves::bn256::Fr,
+    ) {
+        let cpp_numerator = unsafe { std::mem::transmute::<_, &Fr>(numerator) };
+        let cpp_denominator = unsafe { std::mem::transmute::<_, &Fr>(denominator) };
+        self.inner
+            .pin_mut()
+            .set_rational(idx, cpp_numerator, cpp_denominator)
+    }
+}
+
+impl Clone for RationalEvals {
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
+        }
+    }
+}
+
+pub struct Poly {
+    inner: cxx::UniquePtr<ffi::Poly>,
+}
+
+impl Poly {
+    pub fn new(inner: cxx::UniquePtr<ffi::Poly>) -> Poly {
+        Poly { inner }
     }
 }
 
@@ -309,10 +419,6 @@ impl SHPlonkProver {
         }
     }
 
-    pub(crate) fn inner(&self) -> &ffi::SHPlonkProver {
-        &self.inner
-    }
-
     pub fn k(&self) -> u32 {
         self.inner.k()
     }
@@ -321,26 +427,39 @@ impl SHPlonkProver {
         self.inner.n()
     }
 
-    pub fn commit(
-        &self,
-        poly: &Polynomial<halo2curves::bn256::Fr, Coeff>,
-    ) -> halo2curves::bn256::G1 {
+    pub fn commit(&self, poly: &Poly) -> halo2curves::bn256::G1 {
         *unsafe {
-            let scalars: &[Fr] = std::mem::transmute(poly.deref());
-            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(self.inner.commit(scalars))
+            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(self.inner.commit(&poly.inner))
         }
     }
 
-    pub fn commit_lagrange(
-        &self,
-        poly: &Polynomial<halo2curves::bn256::Fr, LagrangeCoeff>,
-    ) -> halo2curves::bn256::G1 {
+    pub fn commit_lagrange(&self, evals: &Evals) -> halo2curves::bn256::G1 {
         *unsafe {
-            let scalars: &[Fr] = std::mem::transmute(poly.deref());
             std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(
-                self.inner.commit_lagrange(scalars),
+                self.inner.commit_lagrange(&evals.inner),
             )
         }
+    }
+
+    pub fn empty_evals(&self) -> Evals {
+        Evals::new(self.inner.empty_evals())
+    }
+
+    pub fn empty_rational_evals(&self) -> RationalEvals {
+        RationalEvals::new(self.inner.empty_rational_evals())
+    }
+
+    pub fn batch_evaluate(&self, rational_evals: &mut [RationalEvals], evals: &mut [Evals]) {
+        unsafe {
+            let rational_evals: &mut [cxx::UniquePtr<ffi::RationalEvals>] =
+                std::mem::transmute(rational_evals);
+            let evals: &mut [cxx::UniquePtr<ffi::Evals>] = std::mem::transmute(evals);
+            self.inner.batch_evaluate(rational_evals, evals)
+        }
+    }
+
+    pub fn ifft(&self, evals: &Evals) -> Poly {
+        Poly::new(self.inner.ifft(&evals.inner))
     }
 
     pub fn set_rng(&mut self, state: &[u8]) {
@@ -352,7 +471,7 @@ impl SHPlonkProver {
     }
 
     pub fn set_extended_domain(&mut self, pk: &SHPlonkProvingKey) {
-        self.inner.pin_mut().set_extended_domain(pk.inner())
+        self.inner.pin_mut().set_extended_domain(&pk.inner)
     }
 
     pub fn create_proof(
@@ -364,7 +483,7 @@ impl SHPlonkProver {
     ) {
         self.inner
             .pin_mut()
-            .create_proof(key, instance_singles, advice_singles, challenges)
+            .create_proof(&key.inner, instance_singles, advice_singles, challenges)
     }
 
     pub fn finalize_transcript(&mut self) -> Vec<u8> {
