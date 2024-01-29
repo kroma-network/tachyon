@@ -1,5 +1,5 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_objc_library")
 load("//bazel:tachyon.bzl", "if_linux", "if_macos", "if_posix")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_objc_library")
 
 package(default_visibility = ["//visibility:public"])
 
