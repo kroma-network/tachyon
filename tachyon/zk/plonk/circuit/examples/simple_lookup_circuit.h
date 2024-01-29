@@ -7,6 +7,7 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include <memory>

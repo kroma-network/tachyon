@@ -7,6 +7,7 @@
 #ifndef TACHYON_ZK_PLONK_KEYS_KEY_H_
 #define TACHYON_ZK_PLONK_KEYS_KEY_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include <utility>

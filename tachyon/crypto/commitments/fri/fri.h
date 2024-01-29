@@ -4,6 +4,7 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_H_
 #define TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include <memory>
