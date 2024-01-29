@@ -127,7 +127,7 @@ class Synthesizer {
   template <typename Circuit>
   std::vector<RationalEvals> GenerateRationalAdvices(
       ProverBase<PCS>* prover, const Phase phase,
-      const std::vector<Evals>& instance_columns, Circuit& circuit,
+      const std::vector<Evals>& instance_columns, const Circuit& circuit,
       const typename Circuit::Config& config) {
     // The prover will not be allowed to assign values to advice
     // cells that exist within inactive rows, which include some

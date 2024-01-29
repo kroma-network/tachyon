@@ -89,7 +89,7 @@ struct AdditiveSemigroupTraits {
 template <typename G>
 class MultiplicativeSemigroup {
  public:
-  using ReturnTy =
+  using MulResult =
       typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy;
 
   // Multiplication: a * b
@@ -148,11 +148,11 @@ class MultiplicativeSemigroup {
   // Computes the power of a base element using a pre-computed table of powers
   // of two, instead of performing repeated multiplications.
   template <size_t N>
-  static ReturnTy PowWithTable(absl::Span<const G> powers_of_2,
-                               const BigInt<N>& exponent) {
+  static MulResult PowWithTable(absl::Span<const G> powers_of_2,
+                                const BigInt<N>& exponent) {
     auto it = BitIteratorLE<BigInt<N>>::begin(&exponent);
     auto end = BitIteratorLE<BigInt<N>>::end(&exponent, true);
-    ReturnTy g = ReturnTy::One();
+    MulResult g = MulResult::One();
     size_t i = 0;
     while (it != end) {
       if (*it) {
@@ -166,14 +166,14 @@ class MultiplicativeSemigroup {
 
   // generator: g
   // return: [c, c * g, c * g², ..., c * g^{|size| - 1}]
-  constexpr static std::vector<ReturnTy> GetSuccessivePowers(
+  constexpr static std::vector<MulResult> GetSuccessivePowers(
       size_t size, const G& generator, const G& c = G::One()) {
-    std::vector<ReturnTy> ret;
+    std::vector<MulResult> ret;
     ret.resize(size);
     size_t num_elems_per_thread =
         base::GetNumElementsPerThread(ret, kDefaultParallelThreshold);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      ReturnTy pow = c * generator.Pow(i);
+      MulResult pow = c * generator.Pow(i);
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
         ret[j] = pow;
         pow *= generator;
@@ -186,9 +186,9 @@ class MultiplicativeSemigroup {
   constexpr static size_t kDefaultParallelThreshold = 1024;
 
   template <size_t N>
-  [[nodiscard]] constexpr ReturnTy DoPow(const BigInt<N>& exponent) const {
+  [[nodiscard]] constexpr MulResult DoPow(const BigInt<N>& exponent) const {
     const G* g = static_cast<const G*>(this);
-    ReturnTy ret = ReturnTy::One();
+    MulResult ret = MulResult::One();
     auto it = BitIteratorBE<BigInt<N>>::begin(&exponent, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&exponent);
     while (it != end) {
@@ -198,7 +198,7 @@ class MultiplicativeSemigroup {
         ret = ret.Square();
       }
       if (*it) {
-        if constexpr (internal::SupportsMulInPlace<ReturnTy, G>::value) {
+        if constexpr (internal::SupportsMulInPlace<MulResult, G>::value) {
           ret.MulInPlace(*g);
         } else {
           ret = ret.Mul(*g);
@@ -214,7 +214,7 @@ class MultiplicativeSemigroup {
 template <typename G>
 class AdditiveSemigroup {
  public:
-  using ReturnTy = typename internal::AdditiveSemigroupTraits<G>::ReturnTy;
+  using AddResult = typename internal::AdditiveSemigroupTraits<G>::ReturnTy;
 
   // Addition: a + b
   template <
@@ -309,14 +309,14 @@ class AdditiveSemigroup {
   // NOTE(chokobole): Unlike |GetSuccessivePowers()|, this doesn't have an
   // additional |c| parameter because I think there's no usecase that depends on
   // it.
-  constexpr static std::vector<ReturnTy> GetSuccessiveScalarMuls(
+  constexpr static std::vector<AddResult> GetSuccessiveScalarMuls(
       size_t size, const G& generator) {
-    std::vector<ReturnTy> ret;
+    std::vector<AddResult> ret;
     ret.resize(size);
     size_t num_elems_per_thread =
         base::GetNumElementsPerThread(ret, kDefaultParallelThreshold);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      ReturnTy scalar_mul = generator.ScalarMul(i);
+      AddResult scalar_mul = generator.ScalarMul(i);
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
         ret[j] = scalar_mul;
         scalar_mul += generator;
@@ -330,13 +330,11 @@ class AdditiveSemigroup {
   // - backward: a₀ + a₁ * r + ... + aₙ₋₁ * rⁿ⁻¹
   // NOTE(chokobole): For performance reasons, I recommend using
   // |LinearCombinationInPlace()| if possible.
-  template <bool Forward, typename Container, typename T,
-            typename ReturnTy =
-                typename internal::AdditiveSemigroupTraits<G>::ReturnTy>
-  constexpr static ReturnTy LinearCombination(const Container& values,
-                                              const T& r) {
+  template <bool Forward, typename Container, typename T>
+  constexpr static AddResult LinearCombination(const Container& values,
+                                               const T& r) {
     size_t size = std::size(values);
-    ReturnTy ret = ReturnTy::Zero();
+    AddResult ret = AddResult::Zero();
     if constexpr (Forward) {
       for (size_t i = 0; i < size; ++i) {
         ret *= r;
@@ -369,9 +367,9 @@ class AdditiveSemigroup {
   //   std::vector<G> groups = {...};
   //   G& ret = G::LinearCombinationInPlace(groups, G::Random());
   template <bool Forward, typename Container, typename T,
-            typename ReturnTy =
+            typename AddResult =
                 typename internal::AdditiveSemigroupTraits<G>::ReturnTy,
-            std::enable_if_t<std::is_same_v<G, ReturnTy>>* = nullptr>
+            std::enable_if_t<std::is_same_v<G, AddResult>>* = nullptr>
   constexpr static G& LinearCombinationInPlace(Container& values, const T& r) {
     size_t size = std::size(values);
     CHECK_GT(size, size_t{0});
@@ -400,9 +398,9 @@ class AdditiveSemigroup {
   constexpr static size_t kDefaultParallelThreshold = 1024;
 
   template <size_t N>
-  [[nodiscard]] constexpr ReturnTy DoScalarMul(const BigInt<N>& scalar) const {
+  [[nodiscard]] constexpr AddResult DoScalarMul(const BigInt<N>& scalar) const {
     const G* g = static_cast<const G*>(this);
-    ReturnTy ret = ReturnTy::Zero();
+    AddResult ret = AddResult::Zero();
     auto it = BitIteratorBE<BigInt<N>>::begin(&scalar, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&scalar);
     while (it != end) {
@@ -412,7 +410,7 @@ class AdditiveSemigroup {
         ret = ret.Double();
       }
       if (*it) {
-        if constexpr (internal::SupportsAddInPlace<ReturnTy, G>::value) {
+        if constexpr (internal::SupportsAddInPlace<AddResult, G>::value) {
           ret.AddInPlace(*g);
         } else {
           ret = ret.Add(*g);

@@ -48,7 +48,8 @@ class Key {
   };
 
   template <typename Circuit>
-  bool PreLoad(Entity<PCS>* entity, Circuit& circuit, PreLoadResult* result) {
+  bool PreLoad(Entity<PCS>* entity, const Circuit& circuit,
+               PreLoadResult* result) {
     using Config = typename Circuit::Config;
     using FloorPlanner = typename Circuit::FloorPlanner;
     using RationalEvals = typename Assembly<PCS>::RationalEvals;
