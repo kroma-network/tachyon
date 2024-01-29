@@ -8,9 +8,29 @@
 
 namespace tachyon::zk {
 
+namespace {
+
 using Expr = std::unique_ptr<Expression<GF7>>;
 
+struct ColumnInfo {
+  size_t column_index;
+  int32_t rotation;
+  size_t rotation_index;
+  size_t calculation_index;
+};
+
+std::vector<ColumnInfo> GenerateTestColumnInfos() {
+  std::vector<ColumnInfo> test_column_infos;
+  test_column_infos.push_back({0, 1, 0, 0});
+  test_column_infos.push_back({1, 2, 1, 1});
+  test_column_infos.push_back({0, 1, 0, 0});
+  test_column_infos.push_back({0, 2, 1, 2});
+  return test_column_infos;
+}
+
 class GraphEvaluatorTest : public EvaluatorTest {};
+
+}  // namespace
 
 TEST_F(GraphEvaluatorTest, Constant) {
   GraphEvaluator<GF7> graph_evaluator;
@@ -38,86 +58,62 @@ TEST_F(GraphEvaluatorTest, Selector) {
 }
 
 TEST_F(GraphEvaluatorTest, Fixed) {
-  struct {
-    size_t column_index;
-    int32_t rotation;
-    size_t rotation_index;
-    size_t calculation_index;
-  } tests[] = {
-      {0, 1, 0, 0},
-      {1, 2, 1, 1},
-      {0, 1, 0, 0},
-      {0, 2, 1, 2},
-  };
+  std::vector<ColumnInfo> test_column_infos = GenerateTestColumnInfos();
 
   GraphEvaluator<GF7> graph_evaluator;
-  for (const auto& test : tests) {
-    FixedQuery query(1, Rotation(test.rotation),
-                     FixedColumnKey(test.column_index));
+  for (const ColumnInfo& column_info : test_column_infos) {
+    FixedQuery query(1, Rotation(column_info.rotation),
+                     FixedColumnKey(column_info.column_index));
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     ValueSource source = graph_evaluator.Evaluate(expr.get());
-    EXPECT_EQ(source, ValueSource::Intermediate(test.calculation_index));
-    EXPECT_EQ(graph_evaluator.calculations()[test.calculation_index],
-              CalculationInfo(Calculation::Store(ValueSource::Fixed(
-                                  test.column_index, test.rotation_index)),
-                              test.calculation_index));
-    EXPECT_EQ(graph_evaluator.rotations()[test.rotation_index], test.rotation);
+    EXPECT_EQ(source, ValueSource::Intermediate(column_info.calculation_index));
+    EXPECT_EQ(graph_evaluator.calculations()[column_info.calculation_index],
+              CalculationInfo(
+                  Calculation::Store(ValueSource::Fixed(
+                      column_info.column_index, column_info.rotation_index)),
+                  column_info.calculation_index));
+    EXPECT_EQ(graph_evaluator.rotations()[column_info.rotation_index],
+              column_info.rotation);
   }
 }
 
 TEST_F(GraphEvaluatorTest, Advice) {
-  struct {
-    size_t column_index;
-    int32_t rotation;
-    size_t rotation_index;
-    size_t calculation_index;
-  } tests[] = {
-      {0, 1, 0, 0},
-      {1, 2, 1, 1},
-      {0, 1, 0, 0},
-      {0, 2, 1, 2},
-  };
+  std::vector<ColumnInfo> test_column_infos = GenerateTestColumnInfos();
 
   GraphEvaluator<GF7> graph_evaluator;
-  for (const auto& test : tests) {
-    AdviceQuery query(1, Rotation(test.rotation),
-                      AdviceColumnKey(test.column_index));
+  for (const ColumnInfo& column_info : test_column_infos) {
+    AdviceQuery query(1, Rotation(column_info.rotation),
+                      AdviceColumnKey(column_info.column_index));
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     ValueSource source = graph_evaluator.Evaluate(expr.get());
-    EXPECT_EQ(source, ValueSource::Intermediate(test.calculation_index));
-    EXPECT_EQ(graph_evaluator.calculations()[test.calculation_index],
-              CalculationInfo(Calculation::Store(ValueSource::Advice(
-                                  test.column_index, test.rotation_index)),
-                              test.calculation_index));
-    EXPECT_EQ(graph_evaluator.rotations()[test.rotation_index], test.rotation);
+    EXPECT_EQ(source, ValueSource::Intermediate(column_info.calculation_index));
+    EXPECT_EQ(graph_evaluator.calculations()[column_info.calculation_index],
+              CalculationInfo(
+                  Calculation::Store(ValueSource::Advice(
+                      column_info.column_index, column_info.rotation_index)),
+                  column_info.calculation_index));
+    EXPECT_EQ(graph_evaluator.rotations()[column_info.rotation_index],
+              column_info.rotation);
   }
 }
 
 TEST_F(GraphEvaluatorTest, Instance) {
-  struct {
-    size_t column_index;
-    int32_t rotation;
-    size_t rotation_index;
-    size_t calculation_index;
-  } tests[] = {
-      {0, 1, 0, 0},
-      {1, 2, 1, 1},
-      {0, 1, 0, 0},
-      {0, 2, 1, 2},
-  };
+  std::vector<ColumnInfo> test_column_infos = GenerateTestColumnInfos();
 
   GraphEvaluator<GF7> graph_evaluator;
-  for (const auto& test : tests) {
-    InstanceQuery query(1, Rotation(test.rotation),
-                        InstanceColumnKey(test.column_index));
+  for (const ColumnInfo& column_info : test_column_infos) {
+    InstanceQuery query(1, Rotation(column_info.rotation),
+                        InstanceColumnKey(column_info.column_index));
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     ValueSource source = graph_evaluator.Evaluate(expr.get());
-    EXPECT_EQ(source, ValueSource::Intermediate(test.calculation_index));
-    EXPECT_EQ(graph_evaluator.calculations()[test.calculation_index],
-              CalculationInfo(Calculation::Store(ValueSource::Instance(
-                                  test.column_index, test.rotation_index)),
-                              test.calculation_index));
-    EXPECT_EQ(graph_evaluator.rotations()[test.rotation_index], test.rotation);
+    EXPECT_EQ(source, ValueSource::Intermediate(column_info.calculation_index));
+    EXPECT_EQ(graph_evaluator.calculations()[column_info.calculation_index],
+              CalculationInfo(
+                  Calculation::Store(ValueSource::Instance(
+                      column_info.column_index, column_info.rotation_index)),
+                  column_info.calculation_index));
+    EXPECT_EQ(graph_evaluator.rotations()[column_info.rotation_index],
+              column_info.rotation);
   }
 }
 
