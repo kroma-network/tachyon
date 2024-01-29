@@ -5,7 +5,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "tachyon/base/logging.h"
 #include "tachyon/base/random.h"
+#include "tachyon/base/template_util.h"
 #include "tachyon/crypto/random/rng.h"
 
 namespace tachyon::crypto {
@@ -27,6 +29,19 @@ class XORShiftRNG final : public RNG<XORShiftRNG> {
   uint32_t y() const { return y_; }
   uint32_t z() const { return z_; }
   uint32_t w() const { return w_; }
+
+  template <typename Container>
+  static XORShiftRNG FromSeed(const Container& seed) {
+    CHECK_EQ(std::size(seed), size_t{16});
+    static_assert(std::is_same_v<base::container_value_t<Container>, uint8_t>,
+                  "The value type of |seed| must be uint8_t");
+    XORShiftRNG ret;
+    memcpy(&ret.x_, &seed[0], sizeof(uint32_t));
+    memcpy(&ret.y_, &seed[4], sizeof(uint32_t));
+    memcpy(&ret.z_, &seed[8], sizeof(uint32_t));
+    memcpy(&ret.w_, &seed[12], sizeof(uint32_t));
+    return ret;
+  }
 
   static XORShiftRNG FromSeed(const uint8_t seed[16]) {
     XORShiftRNG ret;
