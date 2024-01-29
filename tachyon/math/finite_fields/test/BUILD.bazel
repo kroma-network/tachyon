@@ -1,9 +1,9 @@
-load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
 load(
     "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
     "generate_fp2s",
     "generate_fp3s",
 )
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
