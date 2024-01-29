@@ -46,10 +46,11 @@ tachyon_cc_unittest(
     deps = [
         ":shplonk",
         "//tachyon/base/buffer",
+        "//tachyon/base/json",
+        "//tachyon/crypto/commitments/test:bn254_kzg_polynomial_openings",
         "//tachyon/crypto/transcripts:simple_transcript",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/bn/bn254:g2",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
 )

@@ -1,0 +1,14 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "bn254_kzg_polynomial_openings",
+    hdrs = ["bn254_kzg_polynomial_openings.h"],
+    data = ["bn254_kzg_polynomial_openings.json"],
+    deps = [
+        "//tachyon/base:ref",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/json",
+    ],
+)
