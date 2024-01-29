@@ -213,8 +213,8 @@ tachyon_cc_library(
     deps = [
         ":assigned_cell",
         ":column_key",
-        ":selector",
         ":region_layouter",
+        ":selector",
         "//tachyon/base/functional:callback",
     ],
 )
