@@ -9,7 +9,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base:range",
         "//tachyon/math/base:rational_field",
-        "//tachyon/zk/plonk/circuit:assignment",
+        "//tachyon/zk/plonk/layout:assignment",
         "//tachyon/zk/plonk/permutation:permutation_assembly",
     ],
 )

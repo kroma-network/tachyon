@@ -5,10 +5,10 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
 #include "tachyon/zk/plonk/examples/circuit_test.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
+#include "tachyon/zk/plonk/layout/floor_planner/simple_floor_planner.h"
 
 namespace tachyon::zk::halo2 {
 

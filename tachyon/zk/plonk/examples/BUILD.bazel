@@ -35,9 +35,9 @@ tachyon_cc_test(
         ":circuit_test",
         ":simple_circuit",
         ":simple_lookup_circuit",
-        "//tachyon/zk/plonk/circuit/floor_planner:simple_floor_planner",
-        "//tachyon/zk/plonk/circuit/floor_planner/v1:v1_floor_planner",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
+        "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
+        "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",
     ],
 )

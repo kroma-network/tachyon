@@ -25,12 +25,12 @@
 #include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
-#include "tachyon/zk/plonk/circuit/lookup_table_column.h"
 #include "tachyon/zk/plonk/constraint_system/constraint.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"
 #include "tachyon/zk/plonk/constraint_system/query.h"
 #include "tachyon/zk/plonk/constraint_system/selector_compressor.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cells.h"
+#include "tachyon/zk/plonk/layout/lookup_table_column.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
 

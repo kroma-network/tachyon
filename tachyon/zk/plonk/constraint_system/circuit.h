@@ -9,7 +9,7 @@
 
 #include <memory>
 
-#include "tachyon/zk/plonk/circuit/layouter.h"
+#include "tachyon/zk/plonk/layout/layouter.h"
 
 namespace tachyon::zk {
 

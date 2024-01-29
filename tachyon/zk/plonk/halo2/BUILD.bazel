@@ -245,7 +245,7 @@ tachyon_cc_library(
         "//tachyon/base:range",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/plonk/base:phase",
-        "//tachyon/zk/plonk/circuit:assignment",
+        "//tachyon/zk/plonk/layout:assignment",
         "@com_google_absl//absl/container:btree",
     ],
 )
@@ -269,7 +269,7 @@ tachyon_cc_unittest(
         ":prover_test",
         ":sha256_transcript",
         ":synthesizer",
-        "//tachyon/zk/plonk/circuit/floor_planner:simple_floor_planner",
         "//tachyon/zk/plonk/examples:simple_circuit",
+        "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
     ],
 )

@@ -1,0 +1,124 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "allocated_region",
+    hdrs = ["allocated_region.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/zk/base:row_index",
+    ],
+)
+
+tachyon_cc_library(
+    name = "allocations",
+    hdrs = ["allocations.h"],
+    deps = [
+        ":allocated_region",
+        ":empty_space",
+        "//tachyon:export",
+        "@com_google_absl//absl/container:btree",
+    ],
+)
+
+tachyon_cc_library(
+    name = "constant",
+    hdrs = ["constant.h"],
+    deps = [
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk/layout:cell",
+    ],
+)
+
+tachyon_cc_library(
+    name = "empty_space",
+    hdrs = ["empty_space.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:range",
+        "//tachyon/zk/base:row_index",
+    ],
+)
+
+tachyon_cc_library(
+    name = "floor_planner",
+    hdrs = ["floor_planner.h"],
+    deps = [
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/layout:assignment",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_table_assigner",
+    hdrs = ["lookup_table_assigner.h"],
+    deps = [
+        ":scoped_region",
+        ":simple_lookup_table_layouter",
+        "//tachyon/base:logging",
+        "//tachyon/base/functional:identity",
+        "//tachyon/zk/plonk/layout:assignment",
+        "//tachyon/zk/plonk/layout:layouter",
+        "//tachyon/zk/plonk/layout:lookup_table",
+        "//tachyon/zk/plonk/layout:lookup_table_column",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
+
+tachyon_cc_library(
+    name = "plan_region",
+    hdrs = ["plan_region.h"],
+    deps = [
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/layout:assignment",
+        "//tachyon/zk/plonk/layout:region",
+    ],
+)
+
+tachyon_cc_library(
+    name = "scoped_region",
+    hdrs = ["scoped_region.h"],
+    deps = ["//tachyon/zk/plonk/layout:assignment"],
+)
+
+tachyon_cc_library(
+    name = "simple_floor_planner",
+    hdrs = ["simple_floor_planner.h"],
+    deps = [
+        ":floor_planner",
+        ":single_chip_layouter",
+    ],
+)
+
+tachyon_cc_library(
+    name = "simple_lookup_table_layouter",
+    hdrs = ["simple_lookup_table_layouter.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:contains",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk/layout:assignment",
+        "//tachyon/zk/plonk/layout:lookup_table_column",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
+
+tachyon_cc_library(
+    name = "single_chip_layouter",
+    hdrs = ["single_chip_layouter.h"],
+    deps = [
+        ":constant",
+        ":lookup_table_assigner",
+        ":plan_region",
+        ":scoped_region",
+        "//tachyon/base:logging",
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/layout:layouter",
+        "//tachyon/zk/plonk/layout:region_column",
+        "//tachyon/zk/plonk/layout:region_shape",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
