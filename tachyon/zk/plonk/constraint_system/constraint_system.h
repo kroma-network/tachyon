@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_H_
-#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CONSTRAINT_SYSTEM_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CONSTRAINT_SYSTEM_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -25,12 +25,12 @@
 #include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
-#include "tachyon/zk/plonk/circuit/constraint.h"
-#include "tachyon/zk/plonk/circuit/gate.h"
 #include "tachyon/zk/plonk/circuit/lookup_table_column.h"
-#include "tachyon/zk/plonk/circuit/query.h"
-#include "tachyon/zk/plonk/circuit/selector_compressor.h"
-#include "tachyon/zk/plonk/circuit/virtual_cells.h"
+#include "tachyon/zk/plonk/constraint_system/constraint.h"
+#include "tachyon/zk/plonk/constraint_system/gate.h"
+#include "tachyon/zk/plonk/constraint_system/query.h"
+#include "tachyon/zk/plonk/constraint_system/selector_compressor.h"
+#include "tachyon/zk/plonk/constraint_system/virtual_cells.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
 
@@ -632,4 +632,4 @@ class ConstraintSystem {
 }  // namespace zk
 }  // namespace tachyon
 
-#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CONSTRAINT_SYSTEM_H_

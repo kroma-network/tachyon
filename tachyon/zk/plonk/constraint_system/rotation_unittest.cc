@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/rotation.h"
+#include "tachyon/zk/plonk/constraint_system/rotation.h"
 
 #include "gtest/gtest.h"
 

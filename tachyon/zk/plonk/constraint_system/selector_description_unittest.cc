@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/selector_description.h"
+#include "tachyon/zk/plonk/constraint_system/selector_description.h"
 
 #include "gtest/gtest.h"
 

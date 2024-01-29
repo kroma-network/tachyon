@@ -4,15 +4,15 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_QUERY_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_QUERY_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_QUERY_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_QUERY_H_
 
 #include <string>
 
 #include "absl/strings/substitute.h"
 
 #include "tachyon/zk/plonk/circuit/column_key.h"
-#include "tachyon/zk/plonk/circuit/rotation.h"
+#include "tachyon/zk/plonk/constraint_system/rotation.h"
 
 namespace tachyon::zk {
 
@@ -75,4 +75,4 @@ using AdviceQuery = Query<ColumnType::kAdvice>;
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_QUERY_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_QUERY_H_

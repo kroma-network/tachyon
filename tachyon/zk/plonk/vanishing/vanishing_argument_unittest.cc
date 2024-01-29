@@ -12,7 +12,7 @@
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/simple_floor_planner.h"
-#include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"

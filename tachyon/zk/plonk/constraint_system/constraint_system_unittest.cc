@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 
 #include "gtest/gtest.h"
 

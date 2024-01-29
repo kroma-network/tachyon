@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_SELECTOR_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_SELECTOR_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_H_
 
 #include <stddef.h>
 
@@ -60,4 +60,4 @@ H AbslHashValue(H h, const Selector& selector) {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_SELECTOR_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_H_

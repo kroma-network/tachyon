@@ -21,7 +21,7 @@ tachyon_cc_library(
         ":assembly",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:entity",
-        "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk/constraint_system",
     ],
 )
 

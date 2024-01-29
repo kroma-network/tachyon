@@ -12,13 +12,13 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "simple_circuit",
     hdrs = ["simple_circuit.h"],
-    deps = ["//tachyon/zk/plonk/circuit"],
+    deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
 )
 
 tachyon_cc_library(
     name = "simple_lookup_circuit",
     hdrs = ["simple_lookup_circuit.h"],
-    deps = ["//tachyon/zk/plonk/circuit"],
+    deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
 )
 
 # TODO(dongchangYoo): This is failed in CI because of timeout, 60 secs.

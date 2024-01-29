@@ -14,7 +14,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/zk/expressions/expression.h"
-#include "tachyon/zk/plonk/circuit/selector.h"
+#include "tachyon/zk/plonk/constraint_system/selector.h"
 
 namespace tachyon::zk {
 

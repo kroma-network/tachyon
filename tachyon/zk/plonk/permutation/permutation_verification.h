@@ -15,7 +15,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
-#include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
 #include "tachyon/zk/plonk/permutation/permutation_verification_data.h"
 

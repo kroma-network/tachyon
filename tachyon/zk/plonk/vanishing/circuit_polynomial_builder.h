@@ -18,7 +18,7 @@
 #include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/owned_table.h"
 #include "tachyon/zk/plonk/circuit/ref_table.h"
-#include "tachyon/zk/plonk/circuit/rotation.h"
+#include "tachyon/zk/plonk/constraint_system/rotation.h"
 #include "tachyon/zk/plonk/permutation/permutation_committed.h"
 #include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 #include "tachyon/zk/plonk/vanishing/evaluation_input.h"

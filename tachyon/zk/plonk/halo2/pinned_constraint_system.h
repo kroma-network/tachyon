@@ -13,8 +13,8 @@
 
 #include "tachyon/zk/lookup/lookup_argument_stringifier.h"
 #include "tachyon/zk/plonk/circuit/phase_stringifier.h"
-#include "tachyon/zk/plonk/circuit/query_stringifier.h"
-#include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/constraint_system/constraint_system.h"
+#include "tachyon/zk/plonk/constraint_system/query_stringifier.h"
 #include "tachyon/zk/plonk/halo2/pinned_gates.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_stringifier.h"
 

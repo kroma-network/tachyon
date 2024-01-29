@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_SELECTOR_COMPRESSOR_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_SELECTOR_COMPRESSOR_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_COMPRESSOR_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_COMPRESSOR_H_
 
 #include <stddef.h>
 
@@ -21,9 +21,9 @@
 #include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/zk/expressions/expression_factory.h"
-#include "tachyon/zk/plonk/circuit/exclusion_matrix.h"
-#include "tachyon/zk/plonk/circuit/selector_assignment.h"
-#include "tachyon/zk/plonk/circuit/selector_description.h"
+#include "tachyon/zk/plonk/constraint_system/exclusion_matrix.h"
+#include "tachyon/zk/plonk/constraint_system/selector_assignment.h"
+#include "tachyon/zk/plonk/constraint_system/selector_description.h"
 
 namespace tachyon::zk {
 
@@ -115,7 +115,7 @@ class SelectorCompressor {
 
     // All of the remaining |selectors| are simple. Let's try to combine them.
     // First, we compute the exclusion matrix.
-    // See tachyon/zk/plonk/circuit/exclusion_matrix.h for details.
+    // See tachyon/zk/plonk/constraint_system/exclusion_matrix.h for details.
     ExclusionMatrix exclusion_matrix(selectors_);
 
     // Then, we combine the remaining |selectors|.
@@ -290,4 +290,4 @@ class SelectorCompressor {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_SELECTOR_COMPRESSOR_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_COMPRESSOR_H_

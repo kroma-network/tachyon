@@ -14,7 +14,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
-#include "tachyon/zk/plonk/circuit/rotation.h"
+#include "tachyon/zk/plonk/constraint_system/rotation.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/permutation_table_store.h"

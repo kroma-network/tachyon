@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/exclusion_matrix.h"
+#include "tachyon/zk/plonk/constraint_system/exclusion_matrix.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"

@@ -13,7 +13,7 @@
 #include <memory>
 #include <utility>
 
-#include "tachyon/zk/plonk/circuit/circuit.h"
+#include "tachyon/zk/plonk/constraint_system/circuit.h"
 
 namespace tachyon::zk {
 

@@ -13,10 +13,10 @@
 
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/zk/base/row_index.h"
-#include "tachyon/zk/plonk/circuit/challenge.h"
 #include "tachyon/zk/plonk/circuit/lookup_table.h"
 #include "tachyon/zk/plonk/circuit/region.h"
-#include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/constraint_system/challenge.h"
+#include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 
 namespace tachyon::zk {
 

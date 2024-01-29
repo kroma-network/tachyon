@@ -15,7 +15,7 @@
 #include "tachyon/zk/plonk/circuit/assigned_cell.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/region_layouter.h"
-#include "tachyon/zk/plonk/circuit/selector.h"
+#include "tachyon/zk/plonk/constraint_system/selector.h"
 
 namespace tachyon::zk {
 

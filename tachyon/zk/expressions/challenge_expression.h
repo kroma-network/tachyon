@@ -15,7 +15,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/zk/expressions/expression.h"
-#include "tachyon/zk/plonk/circuit/challenge.h"
+#include "tachyon/zk/plonk/constraint_system/challenge.h"
 
 namespace tachyon::zk {
 

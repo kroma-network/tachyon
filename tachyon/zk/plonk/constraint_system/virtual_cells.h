@@ -1,13 +1,13 @@
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_VIRTUAL_CELLS_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_VIRTUAL_CELLS_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_VIRTUAL_CELLS_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_VIRTUAL_CELLS_H_
 
 #include <memory>
 #include <utility>
 #include <vector>
 
 #include "tachyon/zk/expressions/expression_factory.h"
-#include "tachyon/zk/plonk/circuit/selector.h"
-#include "tachyon/zk/plonk/circuit/virtual_cell.h"
+#include "tachyon/zk/plonk/constraint_system/selector.h"
+#include "tachyon/zk/plonk/constraint_system/virtual_cell.h"
 
 namespace tachyon::zk {
 
@@ -96,4 +96,4 @@ class VirtualCells {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_VIRTUAL_CELLS_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_VIRTUAL_CELLS_H_

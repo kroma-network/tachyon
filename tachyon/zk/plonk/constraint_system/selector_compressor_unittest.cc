@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/selector_compressor.h"
+#include "tachyon/zk/plonk/constraint_system/selector_compressor.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"

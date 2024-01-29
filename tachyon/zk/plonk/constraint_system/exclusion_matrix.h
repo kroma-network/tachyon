@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_EXCLUSION_MATRIX_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_EXCLUSION_MATRIX_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_EXCLUSION_MATRIX_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_EXCLUSION_MATRIX_H_
 
 #include <algorithm>
 #include <utility>
@@ -13,7 +13,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/selector_description.h"
+#include "tachyon/zk/plonk/constraint_system/selector_description.h"
 
 namespace tachyon::zk {
 
@@ -84,4 +84,4 @@ class TACHYON_EXPORT ExclusionMatrix {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_EXCLUSION_MATRIX_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_EXCLUSION_MATRIX_H_

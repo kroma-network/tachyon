@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "tachyon/zk/expressions/expression_stringifier.h"
-#include "tachyon/zk/plonk/circuit/gate.h"
+#include "tachyon/zk/plonk/constraint_system/gate.h"
 
 namespace tachyon {
 namespace zk::halo2 {

@@ -1,11 +1,11 @@
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_VIRTUAL_CELL_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_VIRTUAL_CELL_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_VIRTUAL_CELL_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_VIRTUAL_CELL_H_
 
 #include <string>
 
 #include "tachyon/export.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
-#include "tachyon/zk/plonk/circuit/rotation.h"
+#include "tachyon/zk/plonk/constraint_system/rotation.h"
 
 namespace tachyon::zk {
 
@@ -35,4 +35,4 @@ class TACHYON_EXPORT VirtualCell {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_VIRTUAL_CELL_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_VIRTUAL_CELL_H_

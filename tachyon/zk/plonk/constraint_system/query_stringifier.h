@@ -4,15 +4,15 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_QUERY_STRINGIFIER_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_QUERY_STRINGIFIER_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_QUERY_STRINGIFIER_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_QUERY_STRINGIFIER_H_
 
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/plonk/circuit/column_key_stringifier.h"
-#include "tachyon/zk/plonk/circuit/query.h"
-#include "tachyon/zk/plonk/circuit/rotation_stringifier.h"
+#include "tachyon/zk/plonk/constraint_system/query.h"
+#include "tachyon/zk/plonk/constraint_system/rotation_stringifier.h"
 
 namespace tachyon::base::internal {
 
@@ -32,4 +32,4 @@ class RustDebugStringifier<zk::QueryData<C>> {
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_QUERY_STRINGIFIER_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_QUERY_STRINGIFIER_H_

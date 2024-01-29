@@ -12,7 +12,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/halo2/witness_collection.h"
 
 namespace tachyon::zk::halo2 {

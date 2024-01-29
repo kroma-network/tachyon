@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/selector.h"
+#include "tachyon/zk/plonk/constraint_system/selector.h"
 
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"

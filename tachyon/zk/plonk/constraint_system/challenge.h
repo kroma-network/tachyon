@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_CHALLENGE_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_CHALLENGE_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CHALLENGE_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CHALLENGE_H_
 
 #include <string>
 
@@ -39,4 +39,4 @@ class TACHYON_EXPORT Challenge {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_CHALLENGE_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CHALLENGE_H_

@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_ROTATION_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_ROTATION_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_ROTATION_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_ROTATION_H_
 
 #include <string>
 
@@ -61,4 +61,4 @@ class TACHYON_EXPORT Rotation {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_ROTATION_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_ROTATION_H_

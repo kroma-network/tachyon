@@ -1,5 +1,5 @@
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_GATE_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_GATE_H_
+#ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_GATE_H_
+#define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_GATE_H_
 
 #include <memory>
 #include <string>
@@ -10,8 +10,8 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/zk/expressions/expression.h"
-#include "tachyon/zk/plonk/circuit/selector.h"
-#include "tachyon/zk/plonk/circuit/virtual_cell.h"
+#include "tachyon/zk/plonk/constraint_system/selector.h"
+#include "tachyon/zk/plonk/constraint_system/virtual_cell.h"
 
 namespace tachyon::zk {
 
@@ -91,4 +91,4 @@ class Gate {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_GATE_H_
+#endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_GATE_H_

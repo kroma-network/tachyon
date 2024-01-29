@@ -16,8 +16,8 @@
 #include "tachyon/zk/expressions/expression_factory.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/circuit/column_key.h"
-#include "tachyon/zk/plonk/circuit/gate.h"
 #include "tachyon/zk/plonk/circuit/phase.h"
+#include "tachyon/zk/plonk/constraint_system/gate.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "vendors/halo2/src/endian_auto_reset.h"
 
