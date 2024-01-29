@@ -4,6 +4,9 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_H_
 #define TACHYON_CRYPTO_COMMITMENTS_FRI_FRI_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <memory>
 #include <utility>
 #include <vector>
@@ -33,7 +36,7 @@ class FRI final
       : domain_(domain), storage_(storage), hasher_(hasher) {
     // This ensures last folding process.
     CHECK_GE(domain->size(), size_t{2}) << "Domain size must be at least 2";
-    size_t k = domain->log_size_of_group();
+    uint32_t k = domain->log_size_of_group();
     if (k > 1) {
       sub_domains_ = base::CreateVector(k - 1, [k](size_t i) {
         return Domain::Create(size_t{1} << (k - i - 1));
@@ -46,7 +49,7 @@ class FRI final
   size_t N() const { return domain_->size(); }
 
   [[nodiscard]] bool Commit(const Poly& poly, Transcript<F>* transcript) const {
-    size_t num_layers = domain_->log_size_of_group();
+    uint32_t num_layers = domain_->log_size_of_group();
     TranscriptWriter<F>* writer = transcript->ToWriter();
     BinaryMerkleTree<F, F, MaxDegree + 1> tree(storage_->GetLayer(0), hasher_);
     Evals evals = domain_->FFT(poly);
@@ -58,7 +61,7 @@ class FRI final
     F beta;
     Poly folded_poly;
     if (num_layers > 1) {
-      for (size_t i = 1; i < num_layers; ++i) {
+      for (uint32_t i = 1; i < num_layers; ++i) {
         // Pᵢ(X)   = Pᵢ_even(X²) + X * Pᵢ_odd(X²)
         // Pᵢ₊₁(X) = Pᵢ_even(X²) + β * Pᵢ_odd(X²)
         beta = writer->SqueezeChallenge();
@@ -82,8 +85,8 @@ class FRI final
   [[nodiscard]] bool DoCreateOpeningProof(size_t index,
                                           FRIProof<F>* fri_proof) const {
     size_t domain_size = domain_->size();
-    size_t num_layers = domain_->log_size_of_group();
-    for (size_t i = 0; i < num_layers; ++i) {
+    uint32_t num_layers = domain_->log_size_of_group();
+    for (uint32_t i = 0; i < num_layers; ++i) {
       size_t leaf_index = index % domain_size;
       BinaryMerkleTreeStorage<F>* layer = storage_->GetLayer(i);
       BinaryMerkleTree<F, F, MaxDegree + 1> tree(layer, hasher_);
@@ -115,14 +118,14 @@ class FRI final
                                           const FRIProof<F>& proof) const {
     TranscriptReader<F>* reader = transcript.ToReader();
     size_t domain_size = domain_->size();
-    size_t num_layers = domain_->log_size_of_group();
+    uint32_t num_layers = domain_->log_size_of_group();
     F root;
     F x;
     F beta;
     F evaluation;
     F evaluation_sym;
     F two_inv = F(2).Inverse();
-    for (size_t i = 0; i < num_layers; ++i) {
+    for (uint32_t i = 0; i < num_layers; ++i) {
       BinaryMerkleTreeStorage<F>* layer = storage_->GetLayer(i);
       BinaryMerkleTree<F, F, MaxDegree + 1> tree(layer, hasher_);
 

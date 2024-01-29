@@ -137,7 +137,7 @@ TEST_F(SimpleCircuitTest, Configure) {
       AdviceQueryData(Rotation::Next(), AdviceColumnKey(0)),
   };
   EXPECT_EQ(constraint_system.advice_queries(), expected_advice_queries);
-  std::vector<size_t> expected_num_advice_queries = {2, 1};
+  std::vector<RowIndex> expected_num_advice_queries = {2, 1};
   EXPECT_EQ(constraint_system.num_advice_queries(),
             expected_num_advice_queries);
   std::vector<InstanceQueryData> expected_instance_queries = {
@@ -234,7 +234,7 @@ TEST_F(SimpleCircuitTest, Synthesize) {
        false, false, false, false, false, false, false, false}};
   // clang-format on
   EXPECT_EQ(assembly.selectors(), expected_selectors);
-  EXPECT_EQ(assembly.usable_rows(), base::Range<size_t>::Until(10));
+  EXPECT_EQ(assembly.usable_rows(), base::Range<RowIndex>::Until(10));
 }
 
 TEST_F(SimpleCircuitTest, LoadVerifyingKey) {

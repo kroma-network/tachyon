@@ -7,10 +7,13 @@
 #ifndef TACHYON_ZK_BASE_ENTITIES_ENTITY_H_
 #define TACHYON_ZK_BASE_ENTITIES_ENTITY_H_
 
+#include <limits>
 #include <memory>
 #include <utility>
 
+#include "tachyon/base/logging.h"
 #include "tachyon/crypto/transcripts/transcript.h"
+#include "tachyon/zk/base/row_index.h"
 
 namespace tachyon::zk {
 
@@ -37,6 +40,7 @@ class Entity {
   const PCS& pcs() const { return pcs_; }
   PCS& pcs() { return pcs_; }
   void set_domain(std::unique_ptr<Domain> domain) {
+    CHECK_LE(domain->size(), size_t{std::numeric_limits<RowIndex>::max()});
     domain_ = std::move(domain);
   }
   const Domain* domain() const { return domain_.get(); }

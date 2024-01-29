@@ -32,17 +32,17 @@ using CircuitAllocations = absl::flat_hash_map<RegionColumn, Allocations>;
 // - |start| is the current start row of the region (not of this column).
 // - |slack| is the maximum number of rows the start could be moved down,
 //   taking into account prior columns.
-TACHYON_EXPORT std::optional<size_t> FirstFitRegion(
+TACHYON_EXPORT std::optional<RowIndex> FirstFitRegion(
     CircuitAllocations* column_allocations,
-    const std::vector<RegionColumn>& region_columns, size_t region_length,
-    size_t start, std::optional<size_t> slack);
+    const std::vector<RegionColumn>& region_columns, RowIndex region_length,
+    RowIndex start, std::optional<RowIndex> slack);
 
 template <typename F>
 struct RegionInfo {
-  RegionInfo(size_t region_start, RegionShape<F>&& region)
+  RegionInfo(RowIndex region_start, RegionShape<F>&& region)
       : region_start(region_start), region(std::move(region)) {}
 
-  size_t region_start;
+  RowIndex region_start;
   RegionShape<F> region;
 };
 
@@ -76,7 +76,7 @@ SlotInResult<F> SlotIn(std::vector<RegionShape<F>>& region_shapes) {
                 return lhs < rhs;
               });
 
-    std::optional<size_t> region_start =
+    std::optional<RowIndex> region_start =
         FirstFitRegion(&column_allocations, region_columns, region.row_count(),
                        0, std::nullopt);
     CHECK(region_start.has_value()) << "We can always fit a region somewhere";
@@ -88,7 +88,7 @@ SlotInResult<F> SlotIn(std::vector<RegionShape<F>>& region_shapes) {
 }
 
 TACHYON_EXPORT struct SlotInBiggestAdviceFirstResult {
-  std::vector<size_t> region_starts;
+  std::vector<RowIndex> region_starts;
   CircuitAllocations column_allocations;
 };
 
@@ -139,7 +139,7 @@ SlotInBiggestAdviceFirstResult SlotInBiggestAdviceFirst(
             [](const RegionInfo<F>& lhs, const RegionInfo<F>& rhs) {
               return lhs.region.region_index() < rhs.region.region_index();
             });
-  std::vector<size_t> region_starts = base::Map(
+  std::vector<RowIndex> region_starts = base::Map(
       result.regions,
       [](const RegionInfo<F>& region) { return region.region_start; });
 

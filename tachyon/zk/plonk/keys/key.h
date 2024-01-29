@@ -7,6 +7,9 @@
 #ifndef TACHYON_ZK_PLONK_KEYS_KEY_H_
 #define TACHYON_ZK_PLONK_KEYS_KEY_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <utility>
 #include <vector>
 
@@ -27,7 +30,8 @@ class Key {
   static Assembly<PCS> CreateAssembly(
       const Domain* domain, const ConstraintSystem<F>& constraint_system) {
     using RationalEvals = typename Assembly<PCS>::RationalEvals;
-    size_t n = domain->size();
+    // NOTE(chokobole): It's safe to downcast because domain is already checked.
+    RowIndex n = static_cast<RowIndex>(domain->size());
     return {
         base::CreateVector(constraint_system.num_fixed_columns(),
                            domain->template Empty<RationalEvals>()),
@@ -36,7 +40,7 @@ class Key {
                            base::CreateVector(n, false)),
         // NOTE(chokobole): Considering that this is called from a verifier,
         // then you can't load this number through |prover->GetUsableRows()|.
-        base::Range<size_t>::Until(
+        base::Range<RowIndex>::Until(
             n - (constraint_system.ComputeBlindingFactors() + 1))};
   }
 
@@ -64,7 +68,7 @@ class Key {
                  << constraint_system.ComputeMinimumRows();
       return false;
     }
-    size_t extended_k = constraint_system.ComputeExtendedDegree(pcs.K());
+    uint32_t extended_k = constraint_system.ComputeExtendedK(pcs.K());
     entity->set_extended_domain(
         ExtendedDomain::Create(size_t{1} << extended_k));
 

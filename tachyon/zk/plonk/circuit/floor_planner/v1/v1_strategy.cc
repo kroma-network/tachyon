@@ -13,10 +13,10 @@ namespace tachyon::zk {
 // - |start| is the current start row of the region (not of this column).
 // - |slack| is the maximum number of rows the start could be moved down,
 // taking into account prior columns.
-std::optional<size_t> FirstFitRegion(
+std::optional<RowIndex> FirstFitRegion(
     CircuitAllocations* column_allocations,
-    const std::vector<RegionColumn>& region_columns, size_t region_length,
-    size_t start, std::optional<size_t> slack) {
+    const std::vector<RegionColumn>& region_columns, RowIndex region_length,
+    RowIndex start, std::optional<RowIndex> slack) {
   if (region_columns.empty()) {
     return start;
   }
@@ -25,7 +25,7 @@ std::optional<size_t> FirstFitRegion(
   std::vector<RegionColumn> remaining_columns(region_columns.begin() + 1,
                                               region_columns.end());
 
-  std::optional<size_t> end;
+  std::optional<RowIndex> end;
   if (slack.has_value()) {
     end = start + region_length + slack.value();
   }
@@ -44,9 +44,9 @@ std::optional<size_t> FirstFitRegion(
       CHECK_LE(s_slack.value(), static_cast<int64_t>(slack.value()));
     }
     if (!s_slack.has_value() || s_slack.value() >= 0) {
-      std::optional<size_t> row = FirstFitRegion(
+      std::optional<RowIndex> row = FirstFitRegion(
           column_allocations, remaining_columns, region_length, space.start(),
-          s_slack.has_value() ? std::optional<size_t>(s_slack.value())
+          s_slack.has_value() ? std::optional<RowIndex>(s_slack.value())
                               : std::nullopt);
       if (row.has_value()) {
         if (end.has_value()) {

@@ -63,7 +63,7 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
 
   // sanity check brought from halo2
   ASSERT_EQ(z[0], F::One());
-  for (size_t i = 0; i < prover_->GetUsableRows(); ++i) {
+  for (RowIndex i = 0; i < prover_->GetUsableRows(); ++i) {
     F left = z[i + 1];
 
     left *= (beta + *lookup_permuted.permuted_evals_pair().input()[i]);

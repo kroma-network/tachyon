@@ -7,6 +7,9 @@
 #ifndef TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_H_
 #define TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <algorithm>
 #include <memory>
 #include <optional>
@@ -19,6 +22,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/circuit/constraint.h"
@@ -82,7 +86,7 @@ class ConstraintSystem {
     return advice_queries_;
   }
 
-  const std::vector<size_t>& num_advice_queries() const {
+  const std::vector<RowIndex>& num_advice_queries() const {
     return num_advice_queries_;
   }
 
@@ -455,30 +459,43 @@ class ConstraintSystem {
     return *cached_degree_;
   }
 
-  size_t ComputeExtendedDegree(size_t k) const {
+  // Compute the extended K. Since the degree of h(X) exceeds 2ᵏ - 1, h(X) will
+  // be split to h₀(X), h₁(X), ..., h_{d - 1}(X). The extended K denotes the K
+  // of the extended domain for these.
+  //
+  // h(X) = (gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...) / t(X)
+  //
+  // h₀(X) + Xⁿ * h₁(X) + ... + Xⁿ⁽ᵈ⁻¹⁾ * h_{d - 1}(X).
+  // H = [Commit(h₀(X)), Commit(h₁(X)), ..., Commit(h_{d - 1}(X))]
+  //
+  // See
+  // https://zcash.github.io/halo2/design/proving-system/vanishing.html#committing-to-hx.
+  uint32_t ComputeExtendedK(uint32_t k) const {
     size_t quotient_poly_degree = ComputeDegree() - 1;
     return std::max(
         base::bits::SafeLog2Ceiling((size_t{1} << k) * quotient_poly_degree),
-        static_cast<uint32_t>(k));
+        k);
   }
 
   // Compute the number of blinding factors necessary to perfectly blind
   // each of the prover's witness polynomials.
-  size_t ComputeBlindingFactors() const {
+  RowIndex ComputeBlindingFactors() const {
     if (!cached_blinding_factors_.has_value()) {
       // All of the prover's advice columns are evaluated at no more than
       auto max_num_advice_query_it = std::max_element(
           num_advice_queries_.begin(), num_advice_queries_.end());
-      size_t factors = max_num_advice_query_it == num_advice_queries_.end()
-                           ? 1
-                           : *max_num_advice_query_it;
+
+      RowIndex factors = max_num_advice_query_it == num_advice_queries_.end()
+                             ? 1
+                             : *max_num_advice_query_it;
       // distinct points during gate checks.
 
       // - The permutation argument witness polynomials are evaluated at most 3
       //   times.
       // - Each lookup argument has independent witness polynomials, and they
       //   are evaluated at most 2 times.
-      factors = std::max(size_t{3}, factors);
+      factors = std::max(RowIndex{3}, factors);
+      CHECK_LE(factors, UINT32_MAX - 2);
 
       // Each polynomial is evaluated at most an additional time during
       // multiopen (at x₃ to produce q_evals):
@@ -586,7 +603,7 @@ class ConstraintSystem {
   // Contains an integer for each advice column
   // identifying how many distinct queries it has
   // so far; should be same length as num_advice_columns.
-  std::vector<size_t> num_advice_queries_;
+  std::vector<RowIndex> num_advice_queries_;
   std::vector<InstanceQueryData> instance_queries_;
   std::vector<FixedQueryData> fixed_queries_;
 
@@ -609,7 +626,7 @@ class ConstraintSystem {
   std::optional<size_t> minimum_degree_;
 
   mutable std::optional<size_t> cached_degree_;
-  mutable std::optional<size_t> cached_blinding_factors_;
+  mutable std::optional<RowIndex> cached_blinding_factors_;
 };
 
 }  // namespace zk

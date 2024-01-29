@@ -44,7 +44,7 @@ class V1Pass : public Layouter<F> {
   }
 
   void ConstrainInstance(const Cell& cell, const InstanceColumnKey& instance,
-                         size_t row) override {
+                         RowIndex row) override {
     if (std::holds_alternative<AssignmentPass<F>*>(pass_)) {
       std::get<AssignmentPass<F>*>(pass_)->ConstrainInstance(cell, instance,
                                                              row);

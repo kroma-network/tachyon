@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include <utility>
+#include <vector>
 
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
@@ -24,7 +25,7 @@ class PlanRegion : public RegionLayouter<F> {
  public:
   using AssignCallback = typename RegionLayouter<F>::AssignCallback;
 
-  PlanRegion(Assignment<F>* assignment, const std::vector<size_t>& regions,
+  PlanRegion(Assignment<F>* assignment, const std::vector<RowIndex>& regions,
              size_t region_index, Constants<F>& constant)
       : assignment_(assignment),
         regions_(regions),
@@ -35,7 +36,7 @@ class PlanRegion : public RegionLayouter<F> {
 
   // RegionLayouter methods
   void EnableSelector(std::string_view name, const Selector& selector,
-                      size_t offset) override {
+                      RowIndex offset) override {
     assignment_->EnableSelector(name, selector,
                                 regions_[region_index_] + offset);
   }
@@ -45,14 +46,14 @@ class PlanRegion : public RegionLayouter<F> {
   }
 
   Cell AssignAdvice(std::string_view name, const AdviceColumnKey& column,
-                    size_t offset, AssignCallback assign) override {
+                    RowIndex offset, AssignCallback assign) override {
     assignment_->AssignAdvice(name, column, regions_[region_index_] + offset,
                               std::move(assign));
     return {region_index_, offset, column};
   }
 
   Cell AssignAdviceFromConstant(
-      std::string_view name, const AdviceColumnKey& column, size_t offset,
+      std::string_view name, const AdviceColumnKey& column, RowIndex offset,
       const math::RationalField<F>& constant) override {
     Cell cell = AssignAdvice(name, column, offset, [&constant]() {
       return Value<math::RationalField<F>>::Known(constant);
@@ -63,9 +64,9 @@ class PlanRegion : public RegionLayouter<F> {
 
   AssignedCell<F> AssignAdviceFromInstance(std::string_view name,
                                            const InstanceColumnKey& instance,
-                                           size_t row,
+                                           RowIndex row,
                                            const AdviceColumnKey& advice,
-                                           size_t offset) override {
+                                           RowIndex offset) override {
     Value<F> value = assignment_->QueryInstance(instance, row);
 
     Cell cell = AssignAdvice(name, advice, offset, [&value]() {
@@ -81,7 +82,7 @@ class PlanRegion : public RegionLayouter<F> {
   }
 
   Cell AssignFixed(std::string_view name, const FixedColumnKey& column,
-                   size_t offset, AssignCallback assign) override {
+                   RowIndex offset, AssignCallback assign) override {
     assignment_->AssignFixed(name, column, regions_[region_index_] + offset,
                              std::move(assign));
     return {region_index_, offset, column};
@@ -101,7 +102,7 @@ class PlanRegion : public RegionLayouter<F> {
  private:
   // not owned
   Assignment<F>* const assignment_;
-  const std::vector<size_t>& regions_;
+  const std::vector<RowIndex>& regions_;
   const size_t region_index_;
   Constants<F>& constants_;
 };

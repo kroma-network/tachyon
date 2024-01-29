@@ -1,5 +1,7 @@
 #include "tachyon/zk/base/blinder.h"
 
+#include <vector>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
@@ -52,7 +54,7 @@ class FakeRandomFieldGenerator : public RandomFieldGeneratorBase<math::GF7> {
 }  // namespace
 
 TEST(BlinderUnittest, Blind) {
-  constexpr size_t kBlindingFactors = 10;
+  constexpr RowIndex kBlindingFactors = 10;
   std::vector<math::GF7> blinding_values = base::CreateVector(
       kBlindingFactors, []() { return math::GF7::Random(); });
   FakeRandomFieldGenerator generator(blinding_values);

@@ -13,7 +13,7 @@ rust::Slice<const uint8_t> SHPlonkProvingKey::advice_column_phases() const {
   return rs::ConvertCppVecToRustSlice<uint8_t>(impl_->GetAdviceColumnPhases());
 }
 
-size_t SHPlonkProvingKey::blinding_factors() const {
+uint32_t SHPlonkProvingKey::blinding_factors() const {
   return impl_->ComputeBlindingFactors();
 }
 

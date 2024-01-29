@@ -50,7 +50,7 @@ class AssignmentPass {
   }
 
   void ConstrainInstance(const Cell& cell, const InstanceColumnKey& instance,
-                         size_t row) {
+                         RowIndex row) {
     plan_->assignment()->Copy(
         cell.column(),
         plan_->regions()[cell.region_index()] + cell.row_offset(), instance,

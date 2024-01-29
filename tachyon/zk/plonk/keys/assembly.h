@@ -29,7 +29,7 @@ class Assembly : public Assignment<typename PCS::Field> {
   Assembly(std::vector<RationalEvals>&& fixed_columns,
            PermutationAssembly<PCS>&& permutation,
            std::vector<std::vector<bool>>&& selectors,
-           base::Range<size_t> usable_rows)
+           base::Range<RowIndex> usable_rows)
       : fixed_columns_(std::move(fixed_columns)),
         permutation_(std::move(permutation)),
         selectors_(std::move(selectors)),
@@ -40,39 +40,40 @@ class Assembly : public Assignment<typename PCS::Field> {
   }
   const PermutationAssembly<PCS>& permutation() const { return permutation_; }
   const std::vector<std::vector<bool>>& selectors() const { return selectors_; }
-  const base::Range<size_t>& usable_rows() const { return usable_rows_; }
+  const base::Range<RowIndex>& usable_rows() const { return usable_rows_; }
 
   // Assignment methods
   void EnableSelector(std::string_view, const Selector& selector,
-                      size_t row) override {
+                      RowIndex row) override {
     CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
     selectors_[selector.index()][row] = true;
   }
 
-  Value<F> QueryInstance(const InstanceColumnKey& column, size_t row) override {
+  Value<F> QueryInstance(const InstanceColumnKey& column,
+                         RowIndex row) override {
     CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
     return Value<F>::Unknown();
   }
 
-  void AssignFixed(std::string_view, const FixedColumnKey& column, size_t row,
+  void AssignFixed(std::string_view, const FixedColumnKey& column, RowIndex row,
                    AssignCallback assign) override {
     CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
     *fixed_columns_[column.index()][row] = std::move(assign).Run().value();
   }
 
-  void Copy(const AnyColumnKey& left_column, size_t left_row,
-            const AnyColumnKey& right_column, size_t right_row) override {
+  void Copy(const AnyColumnKey& left_column, RowIndex left_row,
+            const AnyColumnKey& right_column, RowIndex right_row) override {
     CHECK(usable_rows_.Contains(left_row) && usable_rows_.Contains(right_row))
         << "Not enough rows available";
     permutation_.Copy(left_column, left_row, right_column, right_row);
   }
 
-  void FillFromRow(const FixedColumnKey& column, size_t from_row,
+  void FillFromRow(const FixedColumnKey& column, RowIndex from_row,
                    const math::RationalField<F>& value) override {
     CHECK(usable_rows_.Contains(from_row)) << "Not enough rows available";
-    base::Range<size_t> range(usable_rows_.from + from_row, usable_rows_.to);
+    base::Range<RowIndex> range(usable_rows_.from + from_row, usable_rows_.to);
     RationalEvals& fixed_column = fixed_columns_[column.index()];
-    for (size_t row : range) {
+    for (RowIndex row : range) {
       *fixed_column[row] = value;
     }
   }
@@ -82,7 +83,7 @@ class Assembly : public Assignment<typename PCS::Field> {
   PermutationAssembly<PCS> permutation_;
   std::vector<std::vector<bool>> selectors_;
   // A range of available rows for assignment and copies.
-  base::Range<size_t> usable_rows_;
+  base::Range<RowIndex> usable_rows_;
 };
 
 }  // namespace tachyon::zk

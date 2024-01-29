@@ -24,15 +24,16 @@ class PermuteExpressionPairTest : public halo2::ProverTest {};
 TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
   prover_->blinder().set_blinding_factors(5);
   size_t n = prover_->pcs().N();
-  size_t usable_rows = prover_->GetUsableRows();
+  RowIndex usable_rows = prover_->GetUsableRows();
 
   std::vector<F> table_evals =
       base::CreateVector(n, []() { return F::Random(); });
 
-  std::vector<F> input_evals = base::CreateVector(n, [usable_rows,
-                                                      &table_evals]() {
-    return table_evals[base::Uniform(base::Range<size_t>::Until(usable_rows))];
-  });
+  std::vector<F> input_evals =
+      base::CreateVector(n, [usable_rows, &table_evals]() {
+        return table_evals[base::Uniform(
+            base::Range<RowIndex>::Until(usable_rows))];
+      });
 
   LookupPair<Evals> input(Evals(std::move(input_evals)),
                           Evals(std::move(table_evals)));

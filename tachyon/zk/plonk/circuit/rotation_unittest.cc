@@ -10,7 +10,7 @@ TEST(RotationTest, GetRotationIdx) {
     Rotation rotation;
     int32_t scale;
     int32_t size;
-    int32_t expected;
+    RowIndex expected;
   } tests[] = {
       // (2 + 1 * 3) % 2 = 1
       {2, Rotation(1), 3, 2, 1},

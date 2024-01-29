@@ -89,10 +89,10 @@ class TACHYON_EXPORT CycleStore {
   };
 
   CycleStore() = default;
-  CycleStore(size_t cols, size_t rows) {
+  CycleStore(size_t cols, RowIndex rows) {
     mapping_ = Table(base::CreateVector(cols, [rows](size_t col) {
-      return base::CreateVector(rows,
-                                [col](size_t row) { return Label(col, row); });
+      return base::CreateVector(
+          rows, [col](RowIndex row) { return Label(col, row); });
     }));
     aux_ = mapping_;
     sizes_ =

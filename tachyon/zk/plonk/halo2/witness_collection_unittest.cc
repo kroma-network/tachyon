@@ -46,7 +46,7 @@ class WitnessCollectionTest : public halo2::ProverTest {
 
 TEST_F(WitnessCollectionTest, QueryInstance) {
   size_t col = 0;
-  size_t row = 10;
+  RowIndex row = 10;
 
   // Query a value in specific instance column.
   Value<F> queried_value =
@@ -58,7 +58,7 @@ TEST_F(WitnessCollectionTest, QueryInstance) {
 TEST_F(WitnessCollectionTest, AssignAdvice) {
   math::RationalField<F> value_to_be_assign(F::Random());
   size_t col = 0;
-  size_t row = 10;
+  RowIndex row = 10;
 
   // Assign a random value to specific cell.
   witness_collection_.AssignAdvice(

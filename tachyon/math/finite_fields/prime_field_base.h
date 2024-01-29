@@ -6,6 +6,9 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_BASE_H_
 #define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_BASE_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <cmath>
 #include <string>
 #include <utility>
@@ -117,8 +120,7 @@ class PrimeFieldBase : public FiniteField<F> {
         omega.SquareInPlace();
       }
     } else {
-      uint64_t log_size_of_group =
-          static_cast<uint64_t>(base::bits::Log2Ceiling(n));
+      uint32_t log_size_of_group = base::bits::Log2Ceiling(n);
       uint64_t size = uint64_t{1} << log_size_of_group;
 
       if (n != size || log_size_of_group > Config::kTwoAdicity) {
@@ -126,7 +128,7 @@ class PrimeFieldBase : public FiniteField<F> {
       }
 
       omega = F::FromMontgomery(Config::kTwoAdicRootOfUnity);
-      for (size_t i = log_size_of_group; i < Config::kTwoAdicity; ++i) {
+      for (uint32_t i = log_size_of_group; i < Config::kTwoAdicity; ++i) {
         omega.SquareInPlace();
       }
     }

@@ -5,7 +5,11 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "entity",
     hdrs = ["entity.h"],
-    deps = ["//tachyon/crypto/transcripts:transcript"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/crypto/transcripts:transcript",
+        "//tachyon/zk/base:row_index",
+    ],
 )
 
 tachyon_cc_library(
@@ -17,6 +21,7 @@ tachyon_cc_library(
         "//tachyon/crypto/commitments:vector_commitment_scheme_traits_forward",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:blinder",
+        "//tachyon/zk/base:row_index",
     ],
 )
 

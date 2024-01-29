@@ -7,8 +7,6 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_V1_V1_PLAN_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_V1_V1_PLAN_H_
 
-#include <stddef.h>
-
 #include <utility>
 #include <vector>
 
@@ -26,8 +24,8 @@ class V1Plan {
   explicit V1Plan(Assignment<F>* assignment) : assignment_(assignment) {}
 
   Assignment<F>* assignment() { return assignment_; }
-  const std::vector<size_t>& regions() const { return regions_; }
-  void set_regions(std::vector<size_t>&& regions) {
+  const std::vector<RowIndex>& regions() const { return regions_; }
+  void set_regions(std::vector<RowIndex>&& regions) {
     regions_ = std::move(regions);
   }
   Constants<F>& constants() { return constants_; }
@@ -37,7 +35,7 @@ class V1Plan {
   // not owned
   Assignment<F>* const assignment_;
   // Stores the starting row for each region.
-  std::vector<size_t> regions_;
+  std::vector<RowIndex> regions_;
   // Stores the constants to be assigned, and the cells to which
   // they are copied.
   Constants<F> constants_;

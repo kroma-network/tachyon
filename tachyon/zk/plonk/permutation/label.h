@@ -14,14 +14,15 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/export.h"
+#include "tachyon/zk/base/row_index.h"
 
 namespace tachyon::zk {
 
 struct TACHYON_EXPORT Label {
   size_t col = 0;
-  size_t row = 0;
+  RowIndex row = 0;
 
-  Label(size_t col, size_t row) : col(col), row(row) {}
+  Label(size_t col, RowIndex row) : col(col), row(row) {}
 
   bool operator==(const Label& other) const {
     return col == other.col && row == other.row;

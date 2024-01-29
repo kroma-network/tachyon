@@ -37,8 +37,8 @@ class SingleChipLayouter : public Layouter<F> {
 
   const Assignment<F>* assignment() const { return assignment_; }
   const std::vector<FixedColumnKey>& constants() const { return constants_; }
-  const std::vector<size_t>& regions() const { return regions_; }
-  const absl::flat_hash_map<RegionColumn, size_t>& columns() const {
+  const std::vector<RowIndex>& regions() const { return regions_; }
+  const absl::flat_hash_map<RegionColumn, RowIndex>& columns() const {
     return columns_;
   }
   const std::vector<LookupTableColumn>& lookup_table_columns() const {
@@ -59,7 +59,7 @@ class SingleChipLayouter : public Layouter<F> {
       Region<F> region(&shape);
       assign.Run(region);
     }
-    size_t row_count = shape.row_count();
+    RowIndex row_count = shape.row_count();
     bool log_region_info = row_count >= 40;
     DLOG_IF(INFO, log_region_info)
         << "Region row count \"" << name << "\": " << row_count;
@@ -107,7 +107,7 @@ class SingleChipLayouter : public Layouter<F> {
           << "Not enough columns for constants";
     } else {
       const FixedColumnKey& constants_column = constants_[0];
-      size_t& next_constant_row = columns_[RegionColumn(constants_column)];
+      RowIndex& next_constant_row = columns_[RegionColumn(constants_column)];
       for (const Constant<F>& constant : plan_region.constants()) {
         const math::RationalField<F>& value = constant.value;
         const Cell& advice = constant.cell;
@@ -132,7 +132,7 @@ class SingleChipLayouter : public Layouter<F> {
   }
 
   void ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
-                         size_t row) override {
+                         RowIndex row) override {
     assignment_->Copy(cell.column(),
                       regions_[cell.region_index()] + cell.row_offset(), column,
                       row);
@@ -157,9 +157,9 @@ class SingleChipLayouter : public Layouter<F> {
   Assignment<F>* const assignment_;
   std::vector<FixedColumnKey> constants_;
   // Stores the starting row for each region.
-  std::vector<size_t> regions_;
+  std::vector<RowIndex> regions_;
   // Stores the first empty row for each column.
-  absl::flat_hash_map<RegionColumn, size_t> columns_;
+  absl::flat_hash_map<RegionColumn, RowIndex> columns_;
   // Stores the table fixed columns.
   std::vector<LookupTableColumn> lookup_table_columns_;
 };

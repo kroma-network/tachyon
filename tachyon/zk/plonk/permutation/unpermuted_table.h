@@ -58,7 +58,7 @@ class UnpermutedTable {
   }
 
   template <typename Domain>
-  static UnpermutedTable Construct(size_t cols, size_t rows,
+  static UnpermutedTable Construct(size_t cols, RowIndex rows,
                                    const Domain* domain) {
     // The ω is gᵀ with order 2ˢ where modulus = 2ˢ * T + 1.
     std::vector<F> omega_powers =
@@ -77,7 +77,7 @@ class UnpermutedTable {
       std::vector<F> col = base::CreateVector(rows, F::Zero());
       // TODO(dongchangYoo): Optimize this with
       // https://github.com/kroma-network/tachyon/pull/115.
-      for (size_t j = 0; j < rows; ++j) {
+      for (RowIndex j = 0; j < rows; ++j) {
         col[j] = *unpermuted_table[i - 1][j] * delta;
       }
       unpermuted_table.push_back(Evals(std::move(col)));

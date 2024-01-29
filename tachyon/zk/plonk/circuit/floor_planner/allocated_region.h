@@ -7,22 +7,21 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_ALLOCATED_REGION_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_ALLOCATED_REGION_H_
 
-#include <stddef.h>
-
 #include "tachyon/export.h"
+#include "tachyon/zk/base/row_index.h"
 
 namespace tachyon::zk {
 
 // A region allocated within a column.
 class TACHYON_EXPORT AllocatedRegion {
  public:
-  constexpr AllocatedRegion(size_t start, size_t length)
+  constexpr AllocatedRegion(RowIndex start, RowIndex length)
       : start_(start), length_(length) {}
 
-  constexpr size_t start() const { return start_; }
-  constexpr size_t length() const { return length_; }
+  constexpr RowIndex start() const { return start_; }
+  constexpr RowIndex length() const { return length_; }
 
-  constexpr size_t End() const { return start_ + length_; }
+  constexpr RowIndex End() const { return start_ + length_; }
 
   constexpr bool operator<(const AllocatedRegion& other) const {
     return start_ < other.start_;
@@ -30,9 +29,9 @@ class TACHYON_EXPORT AllocatedRegion {
 
  private:
   // The starting position of the region.
-  size_t start_ = 0;
+  RowIndex start_ = 0;
   // The length of the region.
-  size_t length_ = 0;
+  RowIndex length_ = 0;
 };
 
 }  // namespace tachyon::zk

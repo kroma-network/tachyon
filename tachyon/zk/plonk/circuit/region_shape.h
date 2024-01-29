@@ -27,51 +27,51 @@ class RegionShape : public RegionLayouter<F> {
 
   size_t region_index() const { return region_index_; }
   const absl::flat_hash_set<RegionColumn>& columns() const { return columns_; }
-  size_t row_count() const { return row_count_; }
+  RowIndex row_count() const { return row_count_; }
 
   // RegionLayouter methods
   void EnableSelector(std::string_view, const Selector& selector,
-                      size_t offset) override {
+                      RowIndex offset) override {
     UpdateColumnsAndRowCount(selector, offset);
   }
 
   Cell AssignAdvice(std::string_view, const AdviceColumnKey& column,
-                    size_t offset, AssignCallback) override {
+                    RowIndex offset, AssignCallback) override {
     UpdateColumnsAndRowCount(column, offset);
     return {region_index_, offset, column};
   }
 
   Cell AssignAdviceFromConstant(
-      std::string_view name, const AdviceColumnKey& column, size_t offset,
+      std::string_view name, const AdviceColumnKey& column, RowIndex offset,
       const math::RationalField<F>& constant) override {
     return AssignAdvice(name, column, offset, AssignCallback());
   }
 
   AssignedCell<F> AssignAdviceFromInstance(std::string_view,
-                                           const InstanceColumnKey&, size_t,
+                                           const InstanceColumnKey&, RowIndex,
                                            const AdviceColumnKey& advice,
-                                           size_t offset) override {
+                                           RowIndex offset) override {
     UpdateColumnsAndRowCount(advice, offset);
     Cell cell(region_index_, offset, advice);
     return {std::move(cell), Value<F>::Unknown()};
   }
 
   Cell AssignFixed(std::string_view, const FixedColumnKey& column,
-                   size_t offset, AssignCallback) override {
+                   RowIndex offset, AssignCallback) override {
     UpdateColumnsAndRowCount(column, offset);
     return {region_index_, offset, column};
   }
 
  private:
   template <typename T>
-  void UpdateColumnsAndRowCount(const T& arg, size_t offset) {
+  void UpdateColumnsAndRowCount(const T& arg, RowIndex offset) {
     columns_.insert(RegionColumn(arg));
     row_count_ = std::max(row_count_, offset + 1);
   }
 
   size_t region_index_ = 0;
   absl::flat_hash_set<RegionColumn> columns_;
-  size_t row_count_ = 0;
+  RowIndex row_count_ = 0;
 };
 
 }  // namespace tachyon::zk

@@ -9,6 +9,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/containers:contains",
         "//tachyon/base/functional:callback",
+        "//tachyon/zk/base:row_index",
         "//tachyon/zk/expressions/evaluator:simple_selector_finder",
         "//tachyon/zk/lookup:lookup_argument",
         "//tachyon/zk/plonk/circuit:constraint",

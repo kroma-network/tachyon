@@ -30,7 +30,7 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
                                          const LookupPair<Evals>& in,
                                          LookupPair<Evals>* out) {
   size_t domain_size = prover->domain()->size();
-  size_t usable_rows = prover->GetUsableRows();
+  RowIndex usable_rows = prover->GetUsableRows();
 
   std::vector<F> permuted_input_expressions = in.input().evaluations();
 
@@ -39,12 +39,12 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
             permuted_input_expressions.begin() + usable_rows);
 
   // a map of each unique element in the table expression and its count
-  absl::btree_map<F, uint32_t> leftover_table_map;
+  absl::btree_map<F, RowIndex> leftover_table_map;
 
-  for (size_t i = 0; i < usable_rows; ++i) {
+  for (RowIndex i = 0; i < usable_rows; ++i) {
     const F& coeff = *in.table()[i];
     // if key doesn't exist, insert the key and value 1 for the key.
-    auto it = leftover_table_map.try_emplace(coeff, uint32_t{1});
+    auto it = leftover_table_map.try_emplace(coeff, RowIndex{1});
     // no inserted value, meaning the key exists.
     if (!it.second) {
       // Increase value by 1 if not inserted.
@@ -55,8 +55,8 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
   std::vector<F> permuted_table_expressions =
       base::CreateVector(domain_size, F::Zero());
 
-  std::vector<size_t> repeated_input_rows;
-  for (size_t row = 0; row < usable_rows; ++row) {
+  std::vector<RowIndex> repeated_input_rows;
+  for (RowIndex row = 0; row < usable_rows; ++row) {
     const F& input_value = permuted_input_expressions[row];
 
     // ref: https://zcash.github.io/halo2/design/proving-system/lookup.html
@@ -109,7 +109,7 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
 
       // input value found, check if the value > 0.
       // then decrement the value by 1
-      CHECK_GT(it->second--, size_t{0});
+      CHECK_GT(it->second--, RowIndex{0});
     } else {
       repeated_input_rows.push_back(row);
     }
@@ -119,11 +119,11 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
   for (auto it = leftover_table_map.begin(); it != leftover_table_map.end();
        ++it) {
     const F& coeff = it->first;
-    const uint32_t count = it->second;
+    const RowIndex count = it->second;
 
-    for (uint32_t i = 0; i < count; ++i) {
+    for (RowIndex i = 0; i < count; ++i) {
       CHECK(!repeated_input_rows.empty());
-      size_t row = repeated_input_rows.back();
+      RowIndex row = repeated_input_rows.back();
       permuted_table_expressions[row] = coeff;
       repeated_input_rows.pop_back();
     }

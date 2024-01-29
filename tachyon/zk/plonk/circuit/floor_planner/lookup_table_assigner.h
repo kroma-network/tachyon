@@ -1,8 +1,6 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_LOOKUP_TABLE_ASSIGNER_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_FLOOR_PLANNER_LOOKUP_TABLE_ASSIGNER_H_
 
-#include <stddef.h>
-
 #include <optional>
 #include <utility>
 #include <vector>
@@ -45,8 +43,8 @@ class LookupTableAssigner {
         values = lookup_table_layouter.values();
     // Check that all table columns have the same length |first_unused|,
     // and all cells up to that length are assigned.
-    std::optional<size_t> first_unused;
-    std::vector<std::optional<size_t>> assigned_sizes = base::Map(
+    std::optional<RowIndex> first_unused;
+    std::vector<std::optional<RowIndex>> assigned_sizes = base::Map(
         values.begin(), values.end(),
         [](const std::pair<LookupTableColumn,
                            typename SimpleLookupTableLayouter<F>::Value>&
@@ -54,12 +52,12 @@ class LookupTableAssigner {
           const auto& [column, value] = entry;
           if (std::all_of(value.assigned.begin(), value.assigned.end(),
                           base::identity())) {
-            return std::optional<size_t>(value.assigned.size());
+            return std::optional<RowIndex>(value.assigned.size());
           } else {
-            return std::optional<size_t>();
+            return std::optional<RowIndex>();
           }
         });
-    for (const std::optional<size_t>& assigned_size : assigned_sizes) {
+    for (const std::optional<RowIndex>& assigned_size : assigned_sizes) {
       CHECK(assigned_size.has_value()) << "length is missing";
 
       if (first_unused.has_value()) {

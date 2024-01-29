@@ -7,6 +7,7 @@ tachyon_cc_library(
     hdrs = ["assigned_cell.h"],
     deps = [
         ":cell",
+        "//tachyon/zk/base:row_index",
         "//tachyon/zk/base:value",
     ],
 )
@@ -20,6 +21,7 @@ tachyon_cc_library(
         ":selector",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:row_index",
         "//tachyon/zk/base:value",
     ],
 )
@@ -30,6 +32,7 @@ tachyon_cc_library(
     deps = [
         ":column_key",
         "//tachyon:export",
+        "//tachyon/zk/base:row_index",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -135,6 +138,7 @@ tachyon_cc_library(
         ":lookup_table",
         ":region",
         "//tachyon/base/functional:callback",
+        "//tachyon/zk/base:row_index",
         "//tachyon/zk/plonk:constraint_system",
     ],
 )
@@ -145,6 +149,7 @@ tachyon_cc_library(
     deps = [
         ":lookup_table_column",
         "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:row_index",
         "//tachyon/zk/base:value",
     ],
 )
@@ -213,8 +218,8 @@ tachyon_cc_library(
     deps = [
         ":assigned_cell",
         ":column_key",
-        ":selector",
         ":region_layouter",
+        ":selector",
         "//tachyon/base/functional:callback",
     ],
 )
@@ -237,6 +242,7 @@ tachyon_cc_library(
         ":selector",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:row_index",
         "//tachyon/zk/base:value",
     ],
 )
@@ -259,6 +265,7 @@ tachyon_cc_library(
         "//tachyon/base/numerics:checked_math",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
+        "//tachyon/zk/base:row_index",
     ],
 )
 
@@ -276,6 +283,7 @@ tachyon_cc_library(
     hdrs = ["selector.h"],
     deps = [
         "//tachyon:export",
+        "//tachyon/zk/base:row_index",
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
     ],

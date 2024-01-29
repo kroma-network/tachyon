@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "tachyon/math/base/rational_field.h"
+#include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/circuit/lookup_table_column.h"
 
@@ -33,7 +34,7 @@ class LookupTable {
     // Return false if the table cell has already been assigned.
     [[nodiscard]] virtual bool AssignCell(std::string_view name,
                                           const LookupTableColumn& column,
-                                          size_t offset,
+                                          RowIndex offset,
                                           AssignCallback assign) {
       return true;
     }
@@ -42,8 +43,8 @@ class LookupTable {
   explicit LookupTable(Layouter* layouter) : layouter_(layouter) {}
 
   [[nodiscard]] bool AssignCell(std::string_view name,
-                                const LookupTableColumn& column, size_t offset,
-                                AssignCallback assign) {
+                                const LookupTableColumn& column,
+                                RowIndex offset, AssignCallback assign) {
     return layouter_->AssignCell(name, column, offset, [&assign]() {
       return Value<math::RationalField<F>>::Known(
           math::RationalField<F>(std::move(assign).Run().value()));

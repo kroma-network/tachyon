@@ -7,6 +7,9 @@
 #ifndef TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
 #define TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include <memory>
 #include <utility>
 
@@ -36,7 +39,7 @@ class SimpleLookupConfig {
   void Load(Layouter<F>* layouter) const {
     layouter->AssignLookupTable(
         absl::Substitute("$0-bit table", Bits), [this](LookupTable<F>& table) {
-          for (size_t row = 0; row < size_t{1} << Bits; ++row) {
+          for (RowIndex row = 0; row < RowIndex{1} << Bits; ++row) {
             if (!table.AssignCell(
                     absl::Substitute("row $0", row), table_, row,
                     [row]() { return Value<F>::Known(F(row + 1)); }))
@@ -61,7 +64,7 @@ class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
       _FloorPlanner<SimpleLookupCircuit<F, Bits, _FloorPlanner>>;
 
   SimpleLookupCircuit() = default;
-  explicit SimpleLookupCircuit(size_t k) : k_(k) {}
+  explicit SimpleLookupCircuit(uint32_t k) : k_(k) {}
 
   std::unique_ptr<Circuit<SimpleLookupConfig<F, Bits>>> WithoutWitness()
       const override {
@@ -99,7 +102,7 @@ class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
     constexpr static size_t kModulus = size_t{1} << Bits;
 
     layouter->AssignRegion("assign values", [this, &config](Region<F>& region) {
-      for (size_t offset = 0; offset < (size_t{1} << k_); ++offset) {
+      for (RowIndex offset = 0; offset < (RowIndex{1} << k_); ++offset) {
         config.selector().Enable(region, offset);
         region.AssignAdvice(
             absl::Substitute("offset $0", offset), config.advice(), offset,
@@ -109,7 +112,7 @@ class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
   }
 
  private:
-  size_t k_ = 0;
+  uint32_t k_ = 0;
 };
 
 }  // namespace tachyon::zk

@@ -86,7 +86,7 @@ pub mod ffi {
 
         fn new_proving_key(data: &[u8]) -> UniquePtr<SHPlonkProvingKey>;
         fn advice_column_phases(&self) -> &[u8];
-        fn blinding_factors(&self) -> usize;
+        fn blinding_factors(&self) -> u32;
         fn challenge_phases(&self) -> &[u8];
         fn constants(&self) -> Vec<usize>;
         fn num_advice_columns(&self) -> usize;
@@ -266,7 +266,7 @@ impl SHPlonkProvingKey {
     }
 
     // pk.vk.cs.blinding_factors()
-    pub fn blinding_factors(&self) -> usize {
+    pub fn blinding_factors(&self) -> u32 {
         self.inner.blinding_factors()
     }
 

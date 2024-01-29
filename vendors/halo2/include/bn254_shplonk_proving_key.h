@@ -21,7 +21,7 @@ class SHPlonkProvingKey {
   const SHPlonkProvingKeyImpl* impl() const { return impl_.get(); }
 
   rust::Slice<const uint8_t> advice_column_phases() const;
-  size_t blinding_factors() const;
+  uint32_t blinding_factors() const;
   rust::Slice<const uint8_t> challenge_phases() const;
   rust::Vec<size_t> constants() const;
   size_t num_advice_columns() const;

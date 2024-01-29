@@ -119,7 +119,8 @@ class ProvingKeyImpl<
     ReadBuffer(buffer, cs.gates_);
     ReadBuffer(buffer, cs.advice_queries_);
     cs.num_advice_queries_ = base::CreateVector(
-        ReadU32AsSizeT(buffer), [&buffer]() { return ReadU32AsSizeT(buffer); });
+        ReadU32AsSizeT(buffer),
+        [&buffer]() { return BufferReader<uint32_t>::Read(buffer); });
     ReadBuffer(buffer, cs.instance_queries_);
     ReadBuffer(buffer, cs.fixed_queries_);
     ReadBuffer(buffer, cs.permutation_);

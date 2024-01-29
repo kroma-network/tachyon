@@ -14,13 +14,13 @@ namespace tachyon::zk {
 
 TEST(CycleStoreTest, MergeCycle) {
   constexpr size_t kCols = 10;
-  constexpr size_t kRows = 10;
+  constexpr RowIndex kRows = 10;
 
   CycleStore store(kCols, kRows);
   std::vector<Label> labels;
   labels.reserve(kCols * kRows);
   for (size_t col = 0; col < kCols; ++col) {
-    for (size_t row = 0; row < kRows; ++row) {
+    for (RowIndex row = 0; row < kRows; ++row) {
       Label l(col, row);
       EXPECT_EQ(store.GetCycleBase(l), l);
       EXPECT_EQ(store.GetCycleSize(l), size_t{1});

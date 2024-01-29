@@ -36,12 +36,12 @@ TEST_F(UnpermutedTableTest, Construct) {
   const Domain* domain = prover_->domain();
 
   const F& omega = domain->group_gen();
-  size_t n = prover_->pcs().N();
+  RowIndex n = static_cast<RowIndex>(prover_->pcs().N());
   std::vector<F> omega_powers = domain->GetRootsOfUnity(n, omega);
 
   const F delta = GetDelta<F>();
   for (size_t i = 1; i < kCols; ++i) {
-    for (size_t j = 0; j < n; ++j) {
+    for (RowIndex j = 0; j < n; ++j) {
       omega_powers[j] *= delta;
       EXPECT_EQ(omega_powers[j], unpermuted_table_[Label(i, j)]);
     }
@@ -53,21 +53,21 @@ TEST_F(UnpermutedTableTest, GetColumns) {
 
   const F& omega = domain->group_gen();
   const F delta = GetDelta<F>();
-  size_t n = prover_->pcs().N();
+  RowIndex n = static_cast<RowIndex>(prover_->pcs().N());
   std::vector<F> omega_powers = domain->GetRootsOfUnity(n, omega);
   for (F& omega_power : omega_powers) {
     omega_power *= delta;
   }
 
   base::Ref<const Evals> column = unpermuted_table_.GetColumn(1);
-  for (size_t i = 0; i < n; ++i) {
+  for (RowIndex i = 0; i < n; ++i) {
     EXPECT_EQ(omega_powers[i], *(*column)[i]);
   }
 
   std::vector<base::Ref<const Evals>> columns =
       unpermuted_table_.GetColumns(base::Range<size_t>(2, 4));
   for (size_t i = 0; i < 2; ++i) {
-    for (size_t j = 0; j < n; ++j) {
+    for (RowIndex j = 0; j < n; ++j) {
       omega_powers[j] *= delta;
       EXPECT_EQ(omega_powers[j], *(*columns[i])[j]);
     }

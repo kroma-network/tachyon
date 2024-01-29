@@ -45,7 +45,7 @@ class NamespacedLayouter : public Layouter<F> {
   }
 
   void ConstrainInstance(const Cell& cell, const InstanceColumnKey& column,
-                         size_t row) override {
+                         RowIndex row) override {
     layouter_->ConstrainInstance(cell, column, row);
   }
 
