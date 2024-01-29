@@ -89,3 +89,15 @@ jobs:
         with:
           clang-format-version: "17"
           check-path: "."
+
+      - name: Install Buildifier
+        run: |
+          wget https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildifier-linux-amd64
+          chmod +x buildifier-linux-amd64
+          sudo mv buildifier-linux-amd64 /usr/local/bin/buildifier
+
+      - name: Run Buildifier
+        run: |
+          find tachyon/ -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --lint=fix
+          find tachyon/ -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --mode=check
+          git diff --exit-code
