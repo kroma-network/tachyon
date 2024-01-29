@@ -83,9 +83,9 @@ Related: #<issue number>
 #   │       │             └─⫸ Summary in present tense. Not capitalized.
 #   │       │                 No period at the end.
 #   │       │
-#   │       └─⫸ Commit Scope: base|benchmark|build|crypto|device|examples|
-#   │                         halo2|math|zk
-#   │
+#   │       └─⫸ Commit Scope: base|benchmark|build|c(subscope)|cc(subscope)|
+#   │                         crypto|device|examples|halo2|math|node(subscope)|
+#   │                         rs(subscope)|zk
 #   │
 #   └─⫸ Commit Type: build|chore|ci|docs|feat|fix|perf|refac|test
 # ```
