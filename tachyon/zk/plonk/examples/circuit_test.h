@@ -1,5 +1,5 @@
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_CIRCUIT_TEST_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_CIRCUIT_TEST_H_
+#ifndef TACHYON_ZK_PLONK_EXAMPLES_CIRCUIT_TEST_H_
+#define TACHYON_ZK_PLONK_EXAMPLES_CIRCUIT_TEST_H_
 
 #include <optional>
 #include <utility>
@@ -98,4 +98,4 @@ class CircuitTest : public ProverTest {
 
 }  // namespace tachyon::zk::halo2
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_CIRCUIT_TEST_H_
+#endif  // TACHYON_ZK_PLONK_EXAMPLES_CIRCUIT_TEST_H_

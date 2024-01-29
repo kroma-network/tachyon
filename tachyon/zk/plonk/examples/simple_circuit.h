@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_CIRCUIT_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_CIRCUIT_H_
+#ifndef TACHYON_ZK_PLONK_EXAMPLES_SIMPLE_CIRCUIT_H_
+#define TACHYON_ZK_PLONK_EXAMPLES_SIMPLE_CIRCUIT_H_
 
 #include <array>
 #include <memory>
@@ -237,4 +237,4 @@ class SimpleCircuit : public Circuit<FieldConfig<F>> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_CIRCUIT_H_
+#endif  // TACHYON_ZK_PLONK_EXAMPLES_SIMPLE_CIRCUIT_H_

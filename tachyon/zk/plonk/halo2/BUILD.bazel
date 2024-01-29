@@ -269,7 +269,7 @@ tachyon_cc_unittest(
         ":prover_test",
         ":sha256_transcript",
         ":synthesizer",
-        "//tachyon/zk/plonk/circuit/examples:simple_circuit",
         "//tachyon/zk/plonk/circuit/floor_planner:simple_floor_planner",
+        "//tachyon/zk/plonk/examples:simple_circuit",
     ],
 )

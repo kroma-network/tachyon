@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
+#ifndef TACHYON_ZK_PLONK_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
+#define TACHYON_ZK_PLONK_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -117,4 +117,4 @@ class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_
+#endif  // TACHYON_ZK_PLONK_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_

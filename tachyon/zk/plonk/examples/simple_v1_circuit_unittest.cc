@@ -1,9 +1,9 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/plonk/circuit/examples/circuit_test.h"
-#include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/v1/v1_floor_planner.h"
+#include "tachyon/zk/plonk/examples/circuit_test.h"
+#include "tachyon/zk/plonk/examples/simple_circuit.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
