@@ -17,7 +17,7 @@ const size_t kMaxDegree = 4;
 using Point = GF7;
 using Poly = UnivariateDensePolynomial<GF7, kMaxDegree>;
 using Coeffs = UnivariateDenseCoefficients<GF7, kMaxDegree>;
-using PolyDeepRef = base::DeepRef<const Poly>;
+using PolyRef = base::Ref<const Poly>;
 using PointDeepRef = base::DeepRef<const Point>;
 
 class PolynomialOpeningsTest : public testing::Test {
@@ -42,9 +42,9 @@ class PolynomialOpeningsTest : public testing::Test {
 
 TEST_F(PolynomialOpeningsTest, CreateCombinedLowDegreeExtensions) {
   std::vector<PolynomialOpenings<Poly>> poly_openings_vec = {
-      {PolyDeepRef(&polys_[0]),
+      {PolyRef(&polys_[0]),
        {polys_[0].Evaluate(points_[0]), polys_[0].Evaluate(points_[1])}},
-      {PolyDeepRef(&polys_[1]),
+      {PolyRef(&polys_[1]),
        {polys_[1].Evaluate(points_[0]), polys_[1].Evaluate(points_[1])}},
   };
   std::vector<PointDeepRef> point_refs = {
@@ -108,15 +108,15 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyOracleAndPoints) {
   using GroupedPointPair = PolynomialOpeningGrouper<Poly>::GroupedPointPair;
 
   std::vector<PolynomialOpening<Poly>> poly_openings;
-  poly_openings.emplace_back(PolyDeepRef(&polys_[0]), PointDeepRef(&points_[0]),
+  poly_openings.emplace_back(PolyRef(&polys_[0]), PointDeepRef(&points_[0]),
                              polys_[0].Evaluate(points_[0]));
-  poly_openings.emplace_back(PolyDeepRef(&polys_[0]), PointDeepRef(&points_[1]),
+  poly_openings.emplace_back(PolyRef(&polys_[0]), PointDeepRef(&points_[1]),
                              polys_[0].Evaluate(points_[1]));
-  poly_openings.emplace_back(PolyDeepRef(&polys_[1]), PointDeepRef(&points_[0]),
+  poly_openings.emplace_back(PolyRef(&polys_[1]), PointDeepRef(&points_[0]),
                              polys_[0].Evaluate(points_[0]));
-  poly_openings.emplace_back(PolyDeepRef(&polys_[1]), PointDeepRef(&points_[1]),
+  poly_openings.emplace_back(PolyRef(&polys_[1]), PointDeepRef(&points_[1]),
                              polys_[0].Evaluate(points_[1]));
-  poly_openings.emplace_back(PolyDeepRef(&polys_[2]), PointDeepRef(&points_[2]),
+  poly_openings.emplace_back(PolyRef(&polys_[2]), PointDeepRef(&points_[2]),
                              polys_[0].Evaluate(points_[2]));
   PolynomialOpeningGrouper<Poly> grouper;
   std::vector<GroupedPolyOraclePair> poly_openings_grouped_by_poly =
@@ -124,8 +124,8 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyOracleAndPoints) {
 
   for (const auto& poly_oracle_grouped_pair : poly_openings_grouped_by_poly) {
     absl::btree_set<PointDeepRef> expected_points;
-    if (poly_oracle_grouped_pair.poly_oracle == PolyDeepRef(&polys_[0]) ||
-        poly_oracle_grouped_pair.poly_oracle == PolyDeepRef(&polys_[1])) {
+    if (poly_oracle_grouped_pair.poly_oracle == PolyRef(&polys_[0]) ||
+        poly_oracle_grouped_pair.poly_oracle == PolyRef(&polys_[1])) {
       expected_points = {
           PointDeepRef(&points_[0]),
           PointDeepRef(&points_[1]),
@@ -149,17 +149,17 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyOracleAndPoints) {
       grouper.GroupByPoints(poly_openings_grouped_by_poly);
   for (const auto& point_grouped_pair :
        poly_openings_grouped_by_poly_and_points) {
-    std::vector<PolyDeepRef> expected_polys;
+    std::vector<PolyRef> expected_polys;
     if (point_grouped_pair.points ==
         absl::btree_set<PointDeepRef>{PointDeepRef(&points_[0]),
                                       PointDeepRef(&points_[1])}) {
       expected_polys = {
-          PolyDeepRef(&polys_[0]),
-          PolyDeepRef(&polys_[1]),
+          PolyRef(&polys_[0]),
+          PolyRef(&polys_[1]),
       };
     } else {
       expected_polys = {
-          PolyDeepRef(&polys_[2]),
+          PolyRef(&polys_[2]),
       };
     }
     EXPECT_EQ(point_grouped_pair.polys, expected_polys);

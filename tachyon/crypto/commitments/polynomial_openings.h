@@ -23,17 +23,17 @@ struct PolynomialOpening {
   using Point = typename Poly::Point;
 
   // polynomial Pᵢ or commitment Cᵢ
-  base::DeepRef<const PolyOracle> poly_oracle;
+  base::Ref<const PolyOracle> poly_oracle;
   // xᵢ
   base::DeepRef<const Point> point;
   // Pᵢ(xᵢ)
   Field opening;
 
   PolynomialOpening() = default;
-  PolynomialOpening(base::DeepRef<const PolyOracle> poly_oracle,
+  PolynomialOpening(base::Ref<const PolyOracle> poly_oracle,
                     base::DeepRef<const Point> point, const Field& opening)
       : poly_oracle(poly_oracle), point(point), opening(opening) {}
-  PolynomialOpening(base::DeepRef<const PolyOracle> poly_oracle,
+  PolynomialOpening(base::Ref<const PolyOracle> poly_oracle,
                     base::DeepRef<const Point> point, Field&& opening)
       : poly_oracle(poly_oracle), point(point), opening(std::move(opening)) {}
 };
@@ -44,12 +44,12 @@ struct PolynomialOpenings {
   using Field = typename Poly::Field;
 
   // polynomial Pᵢ or commitment Cᵢ
-  base::DeepRef<const PolyOracle> poly_oracle;
+  base::Ref<const PolyOracle> poly_oracle;
   // [Pᵢ(x₀), Pᵢ(x₁), Pᵢ(x₂)]
   std::vector<Field> openings;
 
   PolynomialOpenings() = default;
-  PolynomialOpenings(base::DeepRef<const PolyOracle> poly_oracle,
+  PolynomialOpenings(base::Ref<const PolyOracle> poly_oracle,
                      std::vector<Field>&& openings)
       : poly_oracle(poly_oracle), openings(std::move(openings)) {}
 };
@@ -136,7 +136,7 @@ class PolynomialOpeningGrouper {
  public:
   using Field = typename Poly::Field;
   using Point = typename Poly::Point;
-  using PolyOracleDeepRef = base::DeepRef<const PolyOracle>;
+  using PolyOracleRef = base::Ref<const PolyOracle>;
   using PointDeepRef = base::DeepRef<const Point>;
 
   const std::vector<GroupedPolynomialOpenings<Poly, PolyOracle>>&
@@ -177,7 +177,7 @@ class PolynomialOpeningGrouper {
   FRIEND_TEST(PolynomialOpeningsTest, GroupByPolyOracleAndPoints);
 
   struct GroupedPolyOraclePair {
-    PolyOracleDeepRef poly_oracle;
+    PolyOracleRef poly_oracle;
     absl::btree_set<PointDeepRef> points;
   };
 
@@ -211,7 +211,7 @@ class PolynomialOpeningGrouper {
 
   struct GroupedPointPair {
     absl::btree_set<PointDeepRef> points;
-    std::vector<PolyOracleDeepRef> polys;
+    std::vector<PolyOracleRef> polys;
   };
 
   std::vector<GroupedPointPair> GroupByPoints(
@@ -248,7 +248,7 @@ class PolynomialOpeningGrouper {
 
       std::vector<PolynomialOpenings<Poly, PolyOracle>> poly_openings_vec =
           base::Map(polys, [&poly_openings,
-                            &points_vec](PolyOracleDeepRef poly_oracle) {
+                            &points_vec](PolyOracleRef poly_oracle) {
             std::vector<Field> openings = base::Map(
                 points_vec, [poly_oracle, &poly_openings](PointDeepRef point) {
                   return GetOpeningFromPolyOpenings(poly_openings, poly_oracle,
@@ -266,7 +266,7 @@ class PolynomialOpeningGrouper {
 
   static Field GetOpeningFromPolyOpenings(
       const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings,
-      PolyOracleDeepRef poly_oracle, PointDeepRef point) {
+      PolyOracleRef poly_oracle, PointDeepRef point) {
     auto it = std::find_if(
         poly_openings.begin(), poly_openings.end(),
         [poly_oracle,
