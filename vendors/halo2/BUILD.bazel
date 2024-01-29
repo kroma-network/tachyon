@@ -85,16 +85,12 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "bn254_blake2b_writer",
-    srcs = [
-        "src/blake2b_writer_impl.h",
-        "src/bn254_blake2b_writer.cc",
-    ],
+    srcs = ["src/bn254_blake2b_writer.cc"],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/rs/base:container_util",
-        "//tachyon/zk/plonk/halo2:blake2b_transcript",
+        "//tachyon/base:logging",
+        "//tachyon/c/zk/plonk/halo2:bn254_transcript",
     ],
 )
 
