@@ -30,11 +30,11 @@ class Sha256Base {
 
   ScalarField DoSqueezeChallenge() {
     DoUpdate(kShaPrefixChallenge, 1);
-    uint8_t result[32] = {0};
+    uint8_t result[SHA256_DIGEST_LENGTH] = {0};
     DoFinalize(result);
 
     DoInit();
-    DoUpdate(result, 32);
+    DoUpdate(result, SHA256_DIGEST_LENGTH);
 
     if constexpr (ScalarField::N <= 4) {
       return ScalarField::FromAnySizedBigInt(
@@ -45,7 +45,7 @@ class Sha256Base {
   }
 
   bool DoWriteToTranscript(const AffinePoint& point) {
-    DoUpdate(kShaPrefixZeros, 31);
+    DoUpdate(kShaPrefixZeros, SHA256_DIGEST_LENGTH - 1);
     DoUpdate(kShaPrefixPoint, 1);
     DoUpdate(point.x().ToBigInt().ToBytesBE().data(),
              BaseField::BigIntTy::kByteNums);
@@ -55,7 +55,7 @@ class Sha256Base {
   }
 
   bool DoWriteToTranscript(const ScalarField& scalar) {
-    DoUpdate(kShaPrefixZeros, 31);
+    DoUpdate(kShaPrefixZeros, SHA256_DIGEST_LENGTH - 1);
     DoUpdate(kShaPrefixScalar, 1);
     DoUpdate(scalar.ToBigInt().ToBytesBE().data(),
              ScalarField::BigIntTy::kByteNums);
@@ -68,7 +68,7 @@ class Sha256Base {
     SHA256_Update(&state_, data, len);
   }
 
-  void DoFinalize(uint8_t result[32]) {
+  void DoFinalize(uint8_t result[SHA256_DIGEST_LENGTH]) {
     SHA256_CTX hasher = state_;
     SHA256_Final(result, &hasher);
   }
@@ -92,7 +92,9 @@ class Sha256Reader : public crypto::TranscriptReader<AffinePoint>,
 
   void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
 
-  void Finalize(uint8_t result[32]) { this->DoFinalize(result); }
+  void Finalize(uint8_t result[SHA256_DIGEST_LENGTH]) {
+    this->DoFinalize(result);
+  }
 
   // crypto::TranscriptReader methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
@@ -131,7 +133,9 @@ class Sha256Writer : public crypto::TranscriptWriter<AffinePoint>,
 
   void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
 
-  void Finalize(uint8_t result[32]) { this->DoFinalize(result); }
+  void Finalize(uint8_t result[SHA256_DIGEST_LENGTH]) {
+    this->DoFinalize(result);
+  }
 
   // crypto::TranscriptWriter methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
