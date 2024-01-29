@@ -22,8 +22,8 @@ class Blake2bWriterImpl {
     writer_.Update(data.data(), data.size());
   }
 
-  void Finalize(std::array<uint8_t, 64>& result) {
-    uint8_t stack_result[64];
+  void Finalize(std::array<uint8_t, BLAKE2B512_DIGEST_LENGTH>& result) {
+    uint8_t stack_result[BLAKE2B512_DIGEST_LENGTH];
     writer_.Finalize(stack_result);
     memcpy(result.data(), stack_result, sizeof(stack_result));
   }

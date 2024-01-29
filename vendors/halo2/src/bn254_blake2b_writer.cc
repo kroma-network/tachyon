@@ -15,7 +15,8 @@ void Blake2bWriter::update(rust::Slice<const uint8_t> data) {
   return impl_->Update(data);
 }
 
-void Blake2bWriter::finalize(std::array<uint8_t, 64>& result) {
+void Blake2bWriter::finalize(
+    std::array<uint8_t, BLAKE2B512_DIGEST_LENGTH>& result) {
   return impl_->Finalize(result);
 }
 
