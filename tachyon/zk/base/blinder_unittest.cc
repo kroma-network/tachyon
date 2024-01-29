@@ -71,11 +71,11 @@ TEST(BlinderUnittest, Blind) {
   fake_evals = FakeEvals(evals);
   ASSERT_TRUE(blinder.Blind(fake_evals));
 
-  for (size_t i = 0; i < 5; ++i) {
+  for (size_t i = 0; i < kBlindingFactors + 5; ++i) {
     if (i < 5) {
-      EXPECT_EQ(evals[i], fake_evals.evaluations()[i]);
+      EXPECT_EQ(fake_evals.evaluations()[i], evals[i]);
     } else {
-      EXPECT_EQ(evals[i], blinding_values[i - 5]);
+      EXPECT_EQ(fake_evals.evaluations()[i], blinding_values[i - 5]);
     }
   }
 }
