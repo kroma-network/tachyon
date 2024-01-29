@@ -1,0 +1,26 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "halo2_hdrs",
+    srcs = ["bn254_transcript.h"],
+)
+
+tachyon_cc_library(
+    name = "bn254_transcript",
+    srcs = ["bn254_transcript.cc"],
+    hdrs = ["bn254_transcript.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/c:export",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/zk/plonk/halo2:blake2b_transcript",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "halo2_unittests",
+    srcs = ["bn254_transcript_unittest.cc"],
+    deps = [":bn254_transcript"],
+)
