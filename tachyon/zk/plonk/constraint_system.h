@@ -494,6 +494,7 @@ class ConstraintSystem {
       // - Each lookup argument has independent witness polynomials, and they
       //   are evaluated at most 2 times.
       factors = std::max(RowIndex{3}, factors);
+      CHECK_LE(factors, UINT32_MAX - 2);
 
       // Each polynomial is evaluated at most an additional time during
       // multiopen (at x₃ to produce q_evals):
