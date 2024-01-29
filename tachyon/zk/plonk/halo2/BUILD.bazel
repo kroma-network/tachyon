@@ -6,12 +6,24 @@ tachyon_cc_library(
     name = "argument",
     hdrs = ["argument.h"],
     deps = [
-        ":synthesizer",
+        ":argument_data",
         "//tachyon/base:logging",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/plonk/halo2:argument_util",
         "//tachyon/zk/plonk/vanishing:prover_vanishing_argument",
         "//tachyon/zk/plonk/vanishing:vanishing_argument",
+    ],
+)
+
+tachyon_cc_library(
+    name = "argument_data",
+    hdrs = ["argument_data.h"],
+    deps = [
+        ":synthesizer",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/plonk/circuit:ref_table",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

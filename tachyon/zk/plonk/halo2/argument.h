@@ -6,8 +6,8 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
+#include "tachyon/zk/plonk/halo2/argument_data.h"
 #include "tachyon/zk/plonk/halo2/argument_util.h"
-#include "tachyon/zk/plonk/halo2/synthesizer.h"
 #include "tachyon/zk/plonk/vanishing/prover_vanishing_argument.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
 
@@ -26,123 +26,24 @@ class Argument {
   Argument() = default;
 
   // NOTE(chokobole): This is used by rust halo2 binding.
-  Argument(size_t num_circuits, const std::vector<Evals>* fixed_columns,
+  Argument(const std::vector<Evals>* fixed_columns,
            const std::vector<Poly>* fixed_polys,
-           std::vector<std::vector<Evals>>&& advice_columns_vec,
-           std::vector<std::vector<F>>&& advice_blinds_vec,
-           std::vector<F>&& challenges,
-           std::vector<std::vector<Evals>>&& instance_columns_vec,
-           std::vector<std::vector<Poly>>&& instance_polys_vec)
-      : num_circuits_(num_circuits),
-        fixed_columns_(fixed_columns),
+           ArgumentData<PCS>* argument_data)
+      : fixed_columns_(fixed_columns),
         fixed_polys_(fixed_polys),
-        advice_columns_vec_(std::move(advice_columns_vec)),
-        advice_blinds_vec_(std::move(advice_blinds_vec)),
-        challenges_(std::move(challenges)),
-        instance_columns_vec_(std::move(instance_columns_vec)),
-        instance_polys_vec_(std::move(instance_polys_vec)) {
-    CHECK_EQ(num_circuits_, advice_columns_vec_.size());
-    CHECK_EQ(num_circuits_, advice_blinds_vec_.size());
-    CHECK_EQ(num_circuits_, instance_columns_vec_.size());
-    CHECK_EQ(num_circuits_, instance_polys_vec_.size());
-  }
+        argument_data_(argument_data) {}
 
-  template <typename Circuit>
-  static Argument Create(
-      ProverBase<PCS>* prover, std::vector<Circuit>& circuits,
-      const std::vector<Evals>* fixed_columns,
-      const std::vector<Poly>* fixed_polys,
-      const ConstraintSystem<F>& constraint_system,
-      std::vector<std::vector<Evals>>&& instance_columns_vec) {
-    size_t num_circuits = circuits.size();
-
-    // Generate instance polynomial and write it to transcript.
-    std::vector<std::vector<Poly>> instance_polys_vec =
-        GenerateInstancePolys(prover, instance_columns_vec);
-
-    // Append leading zeros to each column of |instance_columns_vec|.
-    size_t n = prover->pcs().N();
-    for (size_t i = 0; i < num_circuits; ++i) {
-      for (Evals& instance_column : instance_columns_vec[i]) {
-        instance_column.evaluations().resize(n);
-      }
-    }
-
-    // Generate advice poly by synthesizing circuit and write it to transcript.
-    Synthesizer<PCS> synthesizer(num_circuits, &constraint_system);
-    synthesizer.GenerateAdviceColumns(prover, circuits, instance_columns_vec);
-
-    return Argument(num_circuits, fixed_columns, fixed_polys,
-                    std::move(synthesizer).TakeAdviceColumnsVec(),
-                    std::move(synthesizer).TakeAdviceBlindsVec(),
-                    std::move(synthesizer).TakeChallenges(),
-                    std::move(instance_columns_vec),
-                    std::move(instance_polys_vec));
-  }
-
-  bool advice_transformed() const { return advice_transformed_; }
-
-  // Generate a vector of advice coefficient-formed polynomials with a vector
-  // of advice evaluation-formed columns. (a.k.a. Batch IFFT)
-  // And for memory optimization, every evaluations of advice will be released
-  // as soon as transforming it to coefficient form.
   void TransformAdvice(const Domain* domain) {
-    CHECK(!advice_transformed_);
-    advice_polys_vec_ = base::Map(
-        advice_columns_vec_, [domain](std::vector<Evals>& advice_columns) {
-          return base::Map(advice_columns, [domain](Evals& advice_column) {
-            Poly poly = domain->IFFT(advice_column);
-            // Release advice evals for memory optimization.
-            advice_column = Evals::Zero();
-            return poly;
-          });
-        });
-    // Deallocate evaluations for memory optimization.
-    advice_columns_vec_.clear();
-    advice_transformed_ = true;
+    return argument_data_->TransformAdvice(domain);
   }
-
-  // Return tables including every type of polynomials in evaluation form.
-  std::vector<RefTable<Evals>> ExportColumnTables() const {
-    CHECK(!advice_transformed_);
-    absl::Span<const Evals> fixed_columns =
-        absl::MakeConstSpan(*fixed_columns_);
-
-    return base::CreateVector(num_circuits_, [fixed_columns, this](size_t i) {
-      absl::Span<const Evals> advice_columns =
-          absl::MakeConstSpan(advice_columns_vec_[i]);
-      absl::Span<const Evals> instance_columns =
-          absl::MakeConstSpan(instance_columns_vec_[i]);
-      return RefTable<Evals>(fixed_columns, advice_columns, instance_columns);
-    });
-  }
-
-  // Return a table including every type of polynomials in coefficient form.
-  std::vector<RefTable<Poly>> ExportPolyTables() const {
-    CHECK(advice_transformed_);
-    absl::Span<const Poly> fixed_polys = absl::MakeConstSpan(*fixed_polys_);
-    return base::CreateVector(num_circuits_, [fixed_polys, this](size_t i) {
-      absl::Span<const Poly> advice_polys =
-          absl::MakeConstSpan(advice_polys_vec_[i]);
-      absl::Span<const Poly> instance_polys =
-          absl::MakeConstSpan(instance_polys_vec_[i]);
-      return RefTable<Poly>(fixed_polys, advice_polys, instance_polys);
-    });
-  }
-
-  const std::vector<F>& GetAdviceBlinds(size_t circuit_idx) const {
-    CHECK_LT(circuit_idx, num_circuits_);
-    return advice_blinds_vec_[circuit_idx];
-  }
-
-  const std::vector<F>& challenges() const { return challenges_; }
 
   std::vector<std::vector<LookupPermuted<Poly, Evals>>> CompressLookupStep(
       ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
       const F& theta) const {
-    std::vector<RefTable<Evals>> tables = ExportColumnTables();
+    std::vector<RefTable<Evals>> tables = argument_data_->ExportColumnTables(
+        absl::MakeConstSpan(*fixed_columns_));
     return BatchPermuteLookups(prover, constraint_system.lookups(), tables,
-                               challenges_, theta);
+                               argument_data_->GetChallenges(), theta);
   }
 
   StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
@@ -153,7 +54,8 @@ class Argument {
       std::vector<std::vector<LookupPermuted<Poly, Evals>>>&&
           permuted_lookups_vec,
       const F& beta, const F& gamma) {
-    std::vector<RefTable<Evals>> tables = ExportColumnTables();
+    std::vector<RefTable<Evals>> tables = argument_data_->ExportColumnTables(
+        absl::MakeConstSpan(*fixed_columns_));
 
     std::vector<PermutationCommitted<Poly>> committed_permutations =
         BatchCommitPermutations(prover, constraint_system.permutation(),
@@ -181,8 +83,10 @@ class Argument {
         proving_key.verifying_key().constraint_system());
     F zeta = GetHalo2Zeta<F>();
     return vanishing_argument.BuildExtendedCircuitColumn(
-        prover, proving_key, beta, gamma, theta, y, zeta, challenges_,
-        committed.permutations(), committed.lookups_vec(), ExportPolyTables());
+        prover, proving_key, beta, gamma, theta, y, zeta,
+        argument_data_->GetChallenges(), committed.permutations(),
+        committed.lookups_vec(),
+        argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_)));
   }
 
   template <typename P, typename L, typename V>
@@ -195,7 +99,8 @@ class Argument {
                       const F& x) const {
     const ConstraintSystem<F>& cs =
         proving_key.verifying_key().constraint_system();
-    std::vector<RefTable<Poly>> tables = ExportPolyTables();
+    std::vector<RefTable<Poly>> tables =
+        argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_));
     EvaluateColumns(prover, cs, tables, x);
 
     F xn = x.Pow(prover->pcs().N());
@@ -221,18 +126,20 @@ class Argument {
   std::vector<crypto::PolynomialOpening<Poly>> ConstructOpenings(
       ProverBase<PCS>* prover, const ProvingKey<PCS>& proving_key,
       const StepReturns<P, L, V>& evaluated, const F& x) {
-    std::vector<RefTable<Poly>> tables = ExportPolyTables();
+    std::vector<RefTable<Poly>> tables =
+        argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_));
     const ConstraintSystem<F>& cs =
         proving_key.verifying_key().constraint_system();
     opening_points_set_.Insert(x);
 
+    size_t num_circuits = argument_data_->GetNumCircuits();
     std::vector<crypto::PolynomialOpening<Poly>> ret;
-    ret.reserve(GetNumOpenings(proving_key, evaluated, num_circuits_));
-    for (size_t i = 0; i < num_circuits_; ++i) {
+    ret.reserve(GetNumOpenings(proving_key, evaluated, num_circuits));
+    for (size_t i = 0; i < num_circuits; ++i) {
       // Generate openings for instances columns of the specific circuit.
       if constexpr (PCS::kQueryInstance) {
         std::vector<crypto::PolynomialOpening<Poly>> openings =
-            GenerateColumnOpenings(prover, tables[i].instance_columns(),
+            GenerateColumnOpenings(prover, tables[i].GetInstanceColumns(),
                                    cs.instance_queries(), x,
                                    opening_points_set_);
         ret.insert(ret.end(), std::make_move_iterator(openings.begin()),
@@ -241,7 +148,7 @@ class Argument {
 
       // Generate openings for advices columns of the specific circuit.
       std::vector<crypto::PolynomialOpening<Poly>> openings =
-          GenerateColumnOpenings(prover, tables[i].advice_columns(),
+          GenerateColumnOpenings(prover, tables[i].GetAdviceColumns(),
                                  cs.advice_queries(), x, opening_points_set_);
       ret.insert(ret.end(), std::make_move_iterator(openings.begin()),
                  std::make_move_iterator(openings.end()));
@@ -266,7 +173,7 @@ class Argument {
     // Generate openings for fixed columns.
     // NOTE(dongchangYoo): |fixed_xx|s of each |tables[i]| are equal each other.
     std::vector<crypto::PolynomialOpening<Poly>> openings =
-        GenerateColumnOpenings(prover, tables[0].fixed_columns(),
+        GenerateColumnOpenings(prover, tables[0].GetFixedColumns(),
                                cs.fixed_queries(), x, opening_points_set_);
     ret.insert(ret.end(), std::make_move_iterator(openings.begin()),
                std::make_move_iterator(openings.end()));
@@ -325,24 +232,12 @@ class Argument {
     return instance_polys_vec;
   }
 
-  size_t num_circuits_ = 0;
   // not owned
   const std::vector<Evals>* fixed_columns_ = nullptr;
   // not owned
   const std::vector<Poly>* fixed_polys_ = nullptr;
-
-  // NOTE(dongchangYoo): to optimize memory usage, release every advice
-  // evaluations after generating an advice polynomial. That is, when
-  // |advice_transformed_| is set to true, |advice_columns_vec_| is
-  // released, and only |advice_polys_vec_| becomes available for use.
-  bool advice_transformed_ = false;
-  std::vector<std::vector<Evals>> advice_columns_vec_;
-  std::vector<std::vector<Poly>> advice_polys_vec_;
-  std::vector<std::vector<F>> advice_blinds_vec_;
-  std::vector<F> challenges_;
-
-  std::vector<std::vector<Evals>> instance_columns_vec_;
-  std::vector<std::vector<Poly>> instance_polys_vec_;
+  // not owned
+  ArgumentData<PCS>* argument_data_ = nullptr;
 
   // NOTE(dongchangYoo): set of points which will be included to any openings.
   PointSet<F> opening_points_set_;

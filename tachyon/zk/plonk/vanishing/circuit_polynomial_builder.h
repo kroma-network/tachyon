@@ -6,7 +6,6 @@
 #ifndef TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
 #define TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
 
-#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -50,8 +49,8 @@ class CircuitPolynomialBuilder {
   static CircuitPolynomialBuilder Create(
       const Domain* domain, const ExtendedDomain* extended_domain, size_t n,
       size_t blinding_factors, size_t cs_degree, const F* beta, const F* gamma,
-      const F* theta, const F* y, const F* zeta,
-      const std::vector<F>* challenges, const ProvingKey<PCS>* proving_key,
+      const F* theta, const F* y, const F* zeta, absl::Span<const F> challenges,
+      const ProvingKey<PCS>* proving_key,
       const std::vector<PermutationCommitted<Poly>>* committed_permutations,
       const std::vector<std::vector<LookupCommitted<Poly>>>*
           committed_lookups_vec,
@@ -351,13 +350,13 @@ class CircuitPolynomialBuilder {
 
   void UpdateVanishingTable(size_t circuit_idx) {
     std::vector<Evals> fixed_columns = CoeffsToExtendedPart(
-        domain_, (*poly_tables_)[circuit_idx].fixed_columns(), *zeta_,
+        domain_, (*poly_tables_)[circuit_idx].GetFixedColumns(), *zeta_,
         current_extended_omega_);
     std::vector<Evals> advice_columns = CoeffsToExtendedPart(
-        domain_, (*poly_tables_)[circuit_idx].advice_columns(), *zeta_,
+        domain_, (*poly_tables_)[circuit_idx].GetAdviceColumns(), *zeta_,
         current_extended_omega_);
     std::vector<Evals> instance_columns = CoeffsToExtendedPart(
-        domain_, (*poly_tables_)[circuit_idx].instance_columns(), *zeta_,
+        domain_, (*poly_tables_)[circuit_idx].GetInstanceColumns(), *zeta_,
         current_extended_omega_);
     table_ =
         OwnedTable<Evals>(std::move(fixed_columns), std::move(advice_columns),
@@ -389,8 +388,7 @@ class CircuitPolynomialBuilder {
   const F* y_ = nullptr;
   // not owned
   const F* zeta_ = nullptr;
-  // not owned
-  const std::vector<F>* challenges_ = nullptr;
+  absl::Span<const F> challenges_;
   Rotation last_rotation_;
   F delta_start_;
 

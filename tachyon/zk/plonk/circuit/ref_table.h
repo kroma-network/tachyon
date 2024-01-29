@@ -24,13 +24,14 @@ class RefTable : public TableBase<PolyOrEvals> {
         advice_columns_(advice_columns),
         instance_columns_(instance_columns) {}
 
-  absl::Span<const PolyOrEvals> fixed_columns() const override {
+  // TableBase<PolyOrEvals> methods
+  absl::Span<const PolyOrEvals> GetFixedColumns() const override {
     return fixed_columns_;
   }
-  absl::Span<const PolyOrEvals> advice_columns() const override {
+  absl::Span<const PolyOrEvals> GetAdviceColumns() const override {
     return advice_columns_;
   }
-  absl::Span<const PolyOrEvals> instance_columns() const override {
+  absl::Span<const PolyOrEvals> GetInstanceColumns() const override {
     return instance_columns_;
   }
 

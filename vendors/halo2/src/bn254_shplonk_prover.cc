@@ -206,12 +206,11 @@ void SHPlonkProver::create_proof(const SHPlonkProvingKey& key,
         [vec_ptr](size_t j) { return ReadPoly(vec_ptr, j); });
   }
 
-  zk::halo2::Argument<PCS> argument(
-      num_circuits, &cpp_key.fixed_columns(), &cpp_key.fixed_polys(),
+  zk::halo2::ArgumentData<PCS> argument_data(
       std::move(advice_columns_vec), std::move(advice_blinds_vec),
       std::move(cpp_challenges), std::move(instance_columns_vec),
       std::move(instance_polys_vec));
-  impl_->CreateProof(cpp_key, argument);
+  impl_->CreateProof(cpp_key, &argument_data);
 }
 
 rust::Vec<uint8_t> SHPlonkProver::finalize_transcript() {

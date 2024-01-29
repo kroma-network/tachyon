@@ -24,22 +24,22 @@ class TableBase {
  public:
   virtual ~TableBase() = default;
 
-  virtual absl::Span<const PolyOrEvals> fixed_columns() const = 0;
-  virtual absl::Span<const PolyOrEvals> advice_columns() const = 0;
-  virtual absl::Span<const PolyOrEvals> instance_columns() const = 0;
+  virtual absl::Span<const PolyOrEvals> GetFixedColumns() const = 0;
+  virtual absl::Span<const PolyOrEvals> GetAdviceColumns() const = 0;
+  virtual absl::Span<const PolyOrEvals> GetInstanceColumns() const = 0;
 
   base::Ref<const PolyOrEvals> GetColumn(
       const ColumnKeyBase& column_key) const {
     switch (column_key.type()) {
       case ColumnType::kFixed:
         return base::Ref<const PolyOrEvals>(
-            &fixed_columns()[column_key.index()]);
+            &GetFixedColumns()[column_key.index()]);
       case ColumnType::kAdvice:
         return base::Ref<const PolyOrEvals>(
-            &advice_columns()[column_key.index()]);
+            &GetAdviceColumns()[column_key.index()]);
       case ColumnType::kInstance:
         return base::Ref<const PolyOrEvals>(
-            &instance_columns()[column_key.index()]);
+            &GetInstanceColumns()[column_key.index()]);
       case ColumnType::kAny:
         break;
     }

@@ -91,7 +91,7 @@ class Synthesizer {
     }
   }
 
-  // Return |challenge_| as a vector.
+  // Return |challenges_| as a vector.
   std::vector<F> ExportChallenges() {
     return base::Map(
         std::make_move_iterator(challenges_.begin()),
@@ -99,7 +99,7 @@ class Synthesizer {
         [](std::pair<size_t, F>&& item) { return std::move(item.second); });
   }
 
-  // Move out |challenge_| as a vector.
+  // Move out |challenges_| as a vector.
   std::vector<F> TakeChallenges() && {
     return base::Map(
         std::make_move_iterator(challenges_.begin()),
@@ -126,7 +126,7 @@ class Synthesizer {
   // returns a vector of |RationalEvals|.
   template <typename Circuit>
   std::vector<RationalEvals> GenerateRationalAdvices(
-      ProverBase<PCS>* prover, const Phase phase,
+      ProverBase<PCS>* prover, Phase phase,
       const std::vector<Evals>& instance_columns, const Circuit& circuit,
       const typename Circuit::Config& config) {
     // The prover will not be allowed to assign values to advice
@@ -144,7 +144,7 @@ class Synthesizer {
     return std::move(witness).TakeAdvices();
   }
 
-  void UpdateChallenges(ProverBase<PCS>* prover, const Phase phase) {
+  void UpdateChallenges(ProverBase<PCS>* prover, Phase phase) {
     const std::vector<Phase>& phases = constraint_system_->challenge_phases();
     for (size_t i = 0; i < phases.size(); ++i) {
       if (phase == phases[i]) {

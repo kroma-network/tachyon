@@ -94,13 +94,10 @@ class Prover : public ProverBase<PCS> {
 
     // It owns all the columns, polys and the others required in the proof
     // generation process and provides step-by-step logics as its methods.
-    Argument<PCS> argument =
-        Argument<PCS>::Create(this, circuits, &proving_key.fixed_columns(),
-                              &proving_key.fixed_polys(),
-                              proving_key.verifying_key().constraint_system(),
-                              std::move(instance_columns_vec));
-
-    CreateProof(proving_key, argument);
+    ArgumentData<PCS> argument_data = ArgumentData<PCS>::Create(
+        this, circuits, proving_key.verifying_key().constraint_system(),
+        std::move(instance_columns_vec));
+    CreateProof(proving_key, &argument_data);
   }
 
  private:
@@ -122,7 +119,10 @@ class Prover : public ProverBase<PCS> {
   }
 
   void CreateProof(const ProvingKey<PCS>& proving_key,
-                   Argument<PCS>& argument) {
+                   ArgumentData<PCS>* argument_data) {
+    Argument<PCS> argument(&proving_key.fixed_columns(),
+                           &proving_key.fixed_polys(), argument_data);
+
     crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
     auto state =
         reinterpret_cast<halo2::Blake2bWriter<Commitment>*>(writer)->GetState();

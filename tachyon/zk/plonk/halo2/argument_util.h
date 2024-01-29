@@ -28,19 +28,19 @@ template <typename PCS, typename F, typename Evals,
 std::vector<std::vector<LookupPermuted<Poly, Evals>>> BatchPermuteLookups(
     ProverBase<PCS>* prover,
     const std::vector<LookupArgument<F>>& lookup_arguments,
-    const std::vector<RefTable<Evals>>& tables,
-    const std::vector<F>& challenges, const F& theta) {
+    const std::vector<RefTable<Evals>>& tables, absl::Span<const F> challenges,
+    const F& theta) {
   size_t num_circuits = tables.size();
   base::CheckedNumeric<int32_t> n_tmp = prover->pcs().N();
   int32_t n = n_tmp.ValueOrDie();
-  return base::CreateVector(num_circuits, [prover, &lookup_arguments, &tables,
-                                           &challenges, &theta, n](size_t i) {
+  return base::CreateVector(num_circuits, [prover, challenges,
+                                           &lookup_arguments, &tables, &theta,
+                                           n](size_t i) {
     const RefTable<Evals>& table = tables[i];
     return base::Map(
-        lookup_arguments, [prover, &table, &challenges, &theta,
+        lookup_arguments, [prover, challenges, &table, &theta,
                            n](const LookupArgument<F>& lookup_argument) {
-          SimpleEvaluator<Evals> simple_evaluator(
-              0, n, 1, table, absl::MakeConstSpan(challenges));
+          SimpleEvaluator<Evals> simple_evaluator(0, n, 1, table, challenges);
           return LookupArgumentRunner<Poly, Evals>::PermuteArgument(
               prover, lookup_argument, theta, simple_evaluator);
         });
@@ -130,16 +130,16 @@ void EvaluateColumns(ProverBase<PCS>* prover,
   size_t num_circuits = tables.size();
   if constexpr (PCS::kQueryInstance) {
     for (size_t i = 0; i < num_circuits; ++i) {
-      EvaluatePolysByQueries(prover, tables[i].instance_columns(),
+      EvaluatePolysByQueries(prover, tables[i].GetInstanceColumns(),
                              constraint_system.instance_queries(), x);
     }
   }
   for (size_t i = 0; i < num_circuits; ++i) {
-    EvaluatePolysByQueries(prover, tables[i].advice_columns(),
+    EvaluatePolysByQueries(prover, tables[i].GetAdviceColumns(),
                            constraint_system.advice_queries(), x);
   }
 
-  EvaluatePolysByQueries(prover, tables[0].fixed_columns(),
+  EvaluatePolysByQueries(prover, tables[0].GetFixedColumns(),
                          constraint_system.fixed_queries(), x);
 }
 
