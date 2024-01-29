@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/zk/plonk/circuit/layouter.h"
 #include "tachyon/zk/plonk/circuit/region_shape.h"
 
 namespace tachyon::zk {
