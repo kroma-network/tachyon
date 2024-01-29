@@ -10,8 +10,8 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
 
 namespace tachyon::zk {
 

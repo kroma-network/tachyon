@@ -45,8 +45,8 @@ tachyon_cc_library(
     name = "floor_planner",
     hdrs = ["floor_planner.h"],
     deps = [
+        "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/circuit:assignment",
-        "//tachyon/zk/plonk/circuit:column_key",
     ],
 )
 
@@ -71,8 +71,8 @@ tachyon_cc_library(
     hdrs = ["plan_region.h"],
     deps = [
         "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/circuit:assignment",
-        "//tachyon/zk/plonk/circuit:column_key",
         "//tachyon/zk/plonk/circuit:region",
     ],
 )
@@ -115,7 +115,7 @@ tachyon_cc_library(
         ":plan_region",
         ":scoped_region",
         "//tachyon/base:logging",
-        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/circuit:layouter",
         "//tachyon/zk/plonk/circuit:region_column",
         "//tachyon/zk/plonk/circuit:region_shape",

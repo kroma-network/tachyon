@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/phase.h"
+#include "tachyon/zk/plonk/base/phase.h"
 
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"

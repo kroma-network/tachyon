@@ -18,7 +18,7 @@
 #include "tachyon/zk/expressions/scaled_expression.h"
 #include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
-#include "tachyon/zk/plonk/circuit/phase_stringifier.h"
+#include "tachyon/zk/plonk/base/phase_stringifier.h"
 #include "tachyon/zk/plonk/constraint_system/challenge_stringifier.h"
 #include "tachyon/zk/plonk/constraint_system/rotation_stringifier.h"
 

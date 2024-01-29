@@ -22,7 +22,7 @@ tachyon_cc_library(
         ":synthesizer",
         "//tachyon/base:logging",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/plonk/circuit:ref_table",
+        "//tachyon/zk/plonk/base:ref_table",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -38,7 +38,7 @@ tachyon_cc_library(
         "//tachyon/zk/base:point_set",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/lookup:lookup_argument_runner",
-        "//tachyon/zk/plonk/circuit:ref_table",
+        "//tachyon/zk/plonk/base:ref_table",
         "//tachyon/zk/plonk/constraint_system",
         "//tachyon/zk/plonk/constraint_system:query",
         "//tachyon/zk/plonk/keys:proving_key",
@@ -71,7 +71,7 @@ tachyon_cc_library(
     deps = [
         ":pinned_gates",
         "//tachyon/zk/lookup:lookup_argument_stringifier",
-        "//tachyon/zk/plonk/circuit:phase_stringifier",
+        "//tachyon/zk/plonk/base:phase_stringifier",
         "//tachyon/zk/plonk/constraint_system",
         "//tachyon/zk/plonk/constraint_system:query_stringifier",
         "//tachyon/zk/plonk/permutation:permutation_argument_stringifier",
@@ -244,8 +244,8 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:range",
         "//tachyon/base/containers:container_util",
+        "//tachyon/zk/plonk/base:phase",
         "//tachyon/zk/plonk/circuit:assignment",
-        "//tachyon/zk/plonk/circuit:phase",
         "@com_google_absl//absl/container:btree",
     ],
 )

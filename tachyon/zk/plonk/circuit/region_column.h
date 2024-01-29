@@ -13,7 +13,7 @@
 #include "absl/hash/hash.h"
 
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
+#include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 
 namespace tachyon::zk {

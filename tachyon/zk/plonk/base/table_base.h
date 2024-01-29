@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_TABLE_BASE_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_TABLE_BASE_H_
+#ifndef TACHYON_ZK_PLONK_BASE_TABLE_BASE_H_
+#define TACHYON_ZK_PLONK_BASE_TABLE_BASE_H_
 
 #include <vector>
 
@@ -15,7 +15,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/base/template_util.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
+#include "tachyon/zk/plonk/base/column_key.h"
 
 namespace tachyon::zk {
 
@@ -60,4 +60,4 @@ class TableBase {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_TABLE_BASE_H_
+#endif  // TACHYON_ZK_PLONK_BASE_TABLE_BASE_H_

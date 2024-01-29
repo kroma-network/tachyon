@@ -1,4 +1,4 @@
-#include "tachyon/zk/plonk/circuit/column_key.h"
+#include "tachyon/zk/plonk/base/column_key.h"
 
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"

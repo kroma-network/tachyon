@@ -4,7 +4,7 @@
 #include <string>
 
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
+#include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/constraint_system/rotation.h"
 
 namespace tachyon::zk {

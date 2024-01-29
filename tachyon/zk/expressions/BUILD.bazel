@@ -84,7 +84,7 @@ tachyon_cc_library(
         ":selector_expression",
         ":sum_expression",
         "//tachyon/zk/base:field_stringifier",
-        "//tachyon/zk/plonk/circuit:phase_stringifier",
+        "//tachyon/zk/plonk/base:phase_stringifier",
         "//tachyon/zk/plonk/constraint_system:challenge_stringifier",
         "//tachyon/zk/plonk/constraint_system:rotation_stringifier",
     ],

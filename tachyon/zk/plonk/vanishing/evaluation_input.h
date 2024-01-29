@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/owned_table.h"
+#include "tachyon/zk/plonk/base/owned_table.h"
 
 namespace tachyon::zk {
 

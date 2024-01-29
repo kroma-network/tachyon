@@ -4,14 +4,14 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_COLUMN_KEY_STRINGIFIER_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_COLUMN_KEY_STRINGIFIER_H_
+#ifndef TACHYON_ZK_PLONK_BASE_COLUMN_KEY_STRINGIFIER_H_
+#define TACHYON_ZK_PLONK_BASE_COLUMN_KEY_STRINGIFIER_H_
 
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
-#include "tachyon/zk/plonk/circuit/column_type_stringifier.h"
+#include "tachyon/zk/plonk/base/column_key.h"
+#include "tachyon/zk/plonk/base/column_type_stringifier.h"
 
 namespace tachyon::base::internal {
 
@@ -59,4 +59,4 @@ class RustDebugStringifier<zk::ColumnKey<C>> {
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_COLUMN_KEY_STRINGIFIER_H_
+#endif  // TACHYON_ZK_PLONK_BASE_COLUMN_KEY_STRINGIFIER_H_

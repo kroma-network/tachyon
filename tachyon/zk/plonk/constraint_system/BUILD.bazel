@@ -6,7 +6,7 @@ tachyon_cc_library(
     name = "challenge",
     hdrs = ["challenge.h"],
     deps = [
-        "//tachyon/zk/plonk/circuit:phase",
+        "//tachyon/zk/plonk/base:phase",
         "@com_google_absl//absl/strings",
     ],
 )
@@ -16,7 +16,7 @@ tachyon_cc_library(
     hdrs = ["challenge_stringifier.h"],
     deps = [
         ":challenge",
-        "//tachyon/zk/plonk/circuit:phase_stringifier",
+        "//tachyon/zk/plonk/base:phase_stringifier",
     ],
 )
 
@@ -83,7 +83,7 @@ tachyon_cc_library(
     hdrs = ["query.h"],
     deps = [
         ":rotation",
-        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/base:column_key",
     ],
 )
 
@@ -93,7 +93,7 @@ tachyon_cc_library(
     deps = [
         ":query",
         ":rotation_stringifier",
-        "//tachyon/zk/plonk/circuit:column_key_stringifier",
+        "//tachyon/zk/plonk/base:column_key_stringifier",
     ],
 )
 
@@ -165,7 +165,7 @@ tachyon_cc_library(
     deps = [
         ":rotation",
         "//tachyon:export",
-        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/base:column_key",
     ],
 )
 

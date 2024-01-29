@@ -19,8 +19,8 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/export.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
-#include "tachyon/zk/plonk/circuit/column_type.h"
+#include "tachyon/zk/plonk/base/column_key.h"
+#include "tachyon/zk/plonk/base/column_type.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/allocations.h"
 #include "tachyon/zk/plonk/circuit/region_shape.h"
 

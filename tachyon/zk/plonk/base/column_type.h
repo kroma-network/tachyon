@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_COLUMN_TYPE_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_COLUMN_TYPE_H_
+#ifndef TACHYON_ZK_PLONK_BASE_COLUMN_TYPE_H_
+#define TACHYON_ZK_PLONK_BASE_COLUMN_TYPE_H_
 
 #include <ostream>
 #include <string_view>
@@ -29,4 +29,4 @@ TACHYON_EXPORT std::string_view ColumnTypeToString(ColumnType type);
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_COLUMN_TYPE_H_
+#endif  // TACHYON_ZK_PLONK_BASE_COLUMN_TYPE_H_

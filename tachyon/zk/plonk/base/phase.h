@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_PHASE_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_PHASE_H_
+#ifndef TACHYON_ZK_PLONK_BASE_PHASE_H_
+#define TACHYON_ZK_PLONK_BASE_PHASE_H_
 
 #include <stdint.h>
 
@@ -57,4 +57,4 @@ H AbslHashValue(H h, Phase phase) {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_PHASE_H_
+#endif  // TACHYON_ZK_PLONK_BASE_PHASE_H_

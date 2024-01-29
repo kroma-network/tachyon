@@ -16,11 +16,11 @@ tachyon_cc_library(
     name = "assignment",
     hdrs = ["assignment.h"],
     deps = [
-        ":column_key",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
         "//tachyon/zk/base:row_index",
         "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/constraint_system:challenge",
         "//tachyon/zk/plonk/constraint_system:selector",
     ],
@@ -30,46 +30,10 @@ tachyon_cc_library(
     name = "cell",
     hdrs = ["cell.h"],
     deps = [
-        ":column_key",
         "//tachyon:export",
         "//tachyon/zk/base:row_index",
+        "//tachyon/zk/plonk/base:column_key",
         "@com_google_absl//absl/strings",
-    ],
-)
-
-tachyon_cc_library(
-    name = "column_key",
-    hdrs = ["column_key.h"],
-    deps = [
-        ":column_type",
-        ":phase",
-        "//tachyon/base:logging",
-        "@com_google_absl//absl/strings",
-    ],
-)
-
-tachyon_cc_library(
-    name = "column_key_stringifier",
-    hdrs = ["column_key_stringifier.h"],
-    deps = [
-        ":column_key",
-        ":column_type_stringifier",
-    ],
-)
-
-tachyon_cc_library(
-    name = "column_type",
-    srcs = ["column_type.cc"],
-    hdrs = ["column_type.h"],
-    deps = ["//tachyon/base:logging"],
-)
-
-tachyon_cc_library(
-    name = "column_type_stringifier",
-    hdrs = ["column_type_stringifier.h"],
-    deps = [
-        ":column_type",
-        "//tachyon/base/strings:rust_stringifier",
     ],
 )
 
@@ -104,39 +68,9 @@ tachyon_cc_library(
     name = "lookup_table_column",
     hdrs = ["lookup_table_column.h"],
     deps = [
-        ":column_key",
         "//tachyon:export",
+        "//tachyon/zk/plonk/base:column_key",
     ],
-)
-
-tachyon_cc_library(
-    name = "owned_table",
-    hdrs = ["owned_table.h"],
-    deps = [":table_base"],
-)
-
-tachyon_cc_library(
-    name = "phase",
-    hdrs = ["phase.h"],
-    deps = [
-        "//tachyon/base/strings:string_number_conversions",
-        "@com_google_absl//absl/hash",
-    ],
-)
-
-tachyon_cc_library(
-    name = "phase_stringifier",
-    hdrs = ["phase_stringifier.h"],
-    deps = [
-        ":phase",
-        "//tachyon/base/strings:rust_stringifier",
-    ],
-)
-
-tachyon_cc_library(
-    name = "ref_table",
-    hdrs = ["ref_table.h"],
-    deps = [":table_base"],
 )
 
 tachyon_cc_library(
@@ -144,9 +78,9 @@ tachyon_cc_library(
     hdrs = ["region.h"],
     deps = [
         ":assigned_cell",
-        ":column_key",
         ":region_layouter",
         "//tachyon/base/functional:callback",
+        "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/constraint_system:selector",
     ],
 )
@@ -155,7 +89,7 @@ tachyon_cc_library(
     name = "region_column",
     hdrs = ["region_column.h"],
     deps = [
-        ":column_key",
+        "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/constraint_system:selector",
     ],
 )
@@ -165,11 +99,11 @@ tachyon_cc_library(
     hdrs = ["region_layouter.h"],
     deps = [
         ":assigned_cell",
-        ":column_key",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
         "//tachyon/zk/base:row_index",
         "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/constraint_system:selector",
     ],
 )
@@ -184,36 +118,15 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cc_library(
-    name = "table_base",
-    hdrs = ["table_base.h"],
-    deps = [
-        ":column_key",
-        "//tachyon/base:logging",
-        "//tachyon/base:ref",
-        "//tachyon/base:template_util",
-        "//tachyon/base/containers:container_util",
-        "@com_google_absl//absl/types:span",
-    ],
-)
-
 tachyon_cc_unittest(
     name = "circuit_unittests",
     srcs = [
-        "column_key_unittest.cc",
         "lookup_table_column_unittest.cc",
-        "phase_unittest.cc",
-        "ref_table_unittest.cc",
         "region_column_unittest.cc",
     ],
     deps = [
-        ":column_key",
         ":lookup_table_column",
-        ":ref_table",
         ":region_column",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/finite_fields/test:gf7",
-        "//tachyon/math/polynomials/univariate:univariate_evaluations",
         "@com_google_absl//absl/hash:hash_testing",
     ],
 )

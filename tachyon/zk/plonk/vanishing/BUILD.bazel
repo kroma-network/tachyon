@@ -24,9 +24,9 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/numerics:checked_math",
         "//tachyon/zk/lookup:lookup_committed",
-        "//tachyon/zk/plonk/circuit:column_key",
-        "//tachyon/zk/plonk/circuit:owned_table",
-        "//tachyon/zk/plonk/circuit:ref_table",
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/base:owned_table",
+        "//tachyon/zk/plonk/base:ref_table",
         "//tachyon/zk/plonk/constraint_system:rotation",
         "//tachyon/zk/plonk/permutation:permutation_committed",
         "//tachyon/zk/plonk/permutation:unpermuted_table",
@@ -37,7 +37,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "evaluation_input",
     hdrs = ["evaluation_input.h"],
-    deps = ["//tachyon/zk/plonk/circuit:owned_table"],
+    deps = ["//tachyon/zk/plonk/base:owned_table"],
 )
 
 tachyon_cc_library(

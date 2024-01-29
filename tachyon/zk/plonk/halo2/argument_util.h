@@ -14,7 +14,7 @@
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/point_set.h"
 #include "tachyon/zk/lookup/lookup_argument_runner.h"
-#include "tachyon/zk/plonk/circuit/ref_table.h"
+#include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/constraint_system/query.h"
 #include "tachyon/zk/plonk/halo2/step_returns.h"

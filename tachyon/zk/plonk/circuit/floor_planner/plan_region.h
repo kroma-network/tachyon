@@ -13,8 +13,8 @@
 #include <vector>
 
 #include "tachyon/math/base/rational_field.h"
+#include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/circuit/assignment.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/constant.h"
 #include "tachyon/zk/plonk/circuit/region_layouter.h"
 

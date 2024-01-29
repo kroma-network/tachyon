@@ -12,8 +12,8 @@
 #include <utility>
 
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/circuit/assigned_cell.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
 #include "tachyon/zk/plonk/circuit/region_layouter.h"
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 

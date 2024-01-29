@@ -10,7 +10,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/zk/plonk/circuit/ref_table.h"
+#include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/halo2/argument_data.h"
 #include "tachyon/zk/plonk/halo2/synthesizer.h"
 

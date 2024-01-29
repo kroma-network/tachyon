@@ -11,7 +11,7 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/zk/plonk/circuit/phase.h"
+#include "tachyon/zk/plonk/base/phase.h"
 
 namespace tachyon::zk {
 

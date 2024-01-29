@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/plonk/circuit/column_type.h"
+#include "tachyon/zk/plonk/base/column_type.h"
 
 #include "tachyon/base/logging.h"
 

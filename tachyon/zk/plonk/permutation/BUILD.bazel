@@ -38,7 +38,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon:export",
         "//tachyon/base/containers:contains",
-        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/base:column_key",
     ],
 )
 
@@ -70,7 +70,7 @@ tachyon_cc_library(
     deps = [
         ":permutation_argument",
         "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/plonk/circuit:column_key_stringifier",
+        "//tachyon/zk/plonk/base:column_key_stringifier",
     ],
 )
 
@@ -98,7 +98,7 @@ tachyon_cc_library(
     deps = [
         ":permuted_table",
         ":unpermuted_table",
-        "//tachyon/zk/plonk/circuit:ref_table",
+        "//tachyon/zk/plonk/base:ref_table",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",
     ],

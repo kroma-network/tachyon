@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_COLUMN_KEY_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_COLUMN_KEY_H_
+#ifndef TACHYON_ZK_PLONK_BASE_COLUMN_KEY_H_
+#define TACHYON_ZK_PLONK_BASE_COLUMN_KEY_H_
 
 #include <stddef.h>
 
@@ -16,8 +16,8 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/base/logging.h"
-#include "tachyon/zk/plonk/circuit/column_type.h"
-#include "tachyon/zk/plonk/circuit/phase.h"
+#include "tachyon/zk/plonk/base/column_type.h"
+#include "tachyon/zk/plonk/base/phase.h"
 
 namespace tachyon::zk {
 
@@ -211,4 +211,4 @@ H AbslHashValue(H h, const ColumnKey<C>& column) {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_COLUMN_KEY_H_
+#endif  // TACHYON_ZK_PLONK_BASE_COLUMN_KEY_H_

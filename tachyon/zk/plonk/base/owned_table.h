@@ -4,13 +4,13 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_CIRCUIT_OWNED_TABLE_H_
-#define TACHYON_ZK_PLONK_CIRCUIT_OWNED_TABLE_H_
+#ifndef TACHYON_ZK_PLONK_BASE_OWNED_TABLE_H_
+#define TACHYON_ZK_PLONK_BASE_OWNED_TABLE_H_
 
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/circuit/table_base.h"
+#include "tachyon/zk/plonk/base/table_base.h"
 
 namespace tachyon::zk {
 
@@ -44,4 +44,4 @@ class OwnedTable : public TableBase<PolyOrEvals> {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_PLONK_CIRCUIT_OWNED_TABLE_H_
+#endif  // TACHYON_ZK_PLONK_BASE_OWNED_TABLE_H_

@@ -13,7 +13,7 @@
 #include "absl/container/flat_hash_map.h"
 
 #include "tachyon/base/logging.h"
-#include "tachyon/zk/plonk/circuit/column_key.h"
+#include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/constant.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/lookup_table_assigner.h"
 #include "tachyon/zk/plonk/circuit/floor_planner/plan_region.h"
