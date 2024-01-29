@@ -402,7 +402,7 @@ class ConstraintSystem {
     Phase previous_phase;
     if (phase.Prev(&previous_phase)) {
       CHECK(base::Contains(advice_column_phases_, previous_phase))
-          << "Phase " << previous_phase.ToString() << "is not used";
+          << "Phase " << previous_phase.ToString() << " is not used";
     }
 
     AdviceColumnKey column(num_advice_columns_++, phase);
@@ -418,7 +418,7 @@ class ConstraintSystem {
 
   Challenge CreateChallengeUsableAfter(Phase phase) {
     CHECK(base::Contains(advice_column_phases_, phase))
-        << "Phase " << phase.ToString() << "is not used";
+        << "Phase " << phase.ToString() << " is not used";
     Challenge challenge(num_challenges_++, phase);
     challenge_phases_.push_back(phase);
     return challenge;
