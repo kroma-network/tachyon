@@ -67,6 +67,7 @@ tachyon_cc_shared_library(
         ":version",
         "//tachyon/c/crypto/random:rng",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
+        "//tachyon/c/zk/plonk/constraint_system:bn254_constraint_system",
         "//tachyon/c/zk/plonk/halo2:bn254_transcript",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",

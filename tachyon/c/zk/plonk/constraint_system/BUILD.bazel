@@ -1,0 +1,52 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "constraint_system_hdrs",
+    srcs = [
+        "bn254_constraint_system.h",
+        "column_key.h",
+        "column_type.h",
+        "phase.h",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_constraint_system",
+    srcs = ["bn254_constraint_system.cc"],
+    hdrs = ["bn254_constraint_system.h"],
+    deps = [
+        ":column_key",
+        "//tachyon/c:export",
+        "//tachyon/zk/plonk/constraint_system",
+    ],
+)
+
+tachyon_cc_library(
+    name = "column_key",
+    hdrs = ["column_key.h"],
+    deps = [
+        ":column_type",
+        ":phase",
+    ],
+)
+
+tachyon_cc_library(
+    name = "column_type",
+    hdrs = ["column_type.h"],
+)
+
+tachyon_cc_library(
+    name = "phase",
+    hdrs = ["phase.h"],
+)
+
+tachyon_cc_unittest(
+    name = "constraint_system_unittests",
+    srcs = ["bn254_constraint_system_unittest.cc"],
+    deps = [
+        ":bn254_constraint_system",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+    ],
+)
