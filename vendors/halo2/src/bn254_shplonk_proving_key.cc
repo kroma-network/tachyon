@@ -10,7 +10,8 @@ SHPlonkProvingKey::SHPlonkProvingKey(rust::Slice<const uint8_t> pk_bytes)
     : impl_(new SHPlonkProvingKeyImpl(pk_bytes)) {}
 
 rust::Slice<const uint8_t> SHPlonkProvingKey::advice_column_phases() const {
-  return rs::ConvertCppVecToRustSlice<uint8_t>(impl_->GetAdviceColumnPhases());
+  return rs::ConvertCppContainerToRustSlice<uint8_t>(
+      impl_->GetAdviceColumnPhases());
 }
 
 uint32_t SHPlonkProvingKey::blinding_factors() const {
@@ -18,7 +19,8 @@ uint32_t SHPlonkProvingKey::blinding_factors() const {
 }
 
 rust::Slice<const uint8_t> SHPlonkProvingKey::challenge_phases() const {
-  return rs::ConvertCppVecToRustSlice<uint8_t>(impl_->GetChallengePhases());
+  return rs::ConvertCppContainerToRustSlice<uint8_t>(
+      impl_->GetChallengePhases());
 }
 
 rust::Vec<size_t> SHPlonkProvingKey::constants() const {
@@ -44,7 +46,7 @@ size_t SHPlonkProvingKey::num_instance_columns() const {
 }
 
 rust::Vec<uint8_t> SHPlonkProvingKey::phases() const {
-  return rs::ConvertCppVecToRustVec(
+  return rs::ConvertCppContainerToRustVec(
       impl_->GetPhases(), [](zk::Phase phase) { return phase.value(); });
 }
 

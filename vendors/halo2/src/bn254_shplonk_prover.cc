@@ -214,7 +214,7 @@ void SHPlonkProver::create_proof(const SHPlonkProvingKey& key,
 }
 
 rust::Vec<uint8_t> SHPlonkProver::finalize_transcript() {
-  return rs::ConvertCppVecToRustVec(impl_->GetTranscriptOwnedBuffer());
+  return rs::ConvertCppContainerToRustVec(impl_->GetTranscriptOwnedBuffer());
 }
 
 std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint32_t k, const Fr& s) {

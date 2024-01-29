@@ -20,7 +20,7 @@ void Blake2bWriter::finalize(std::array<uint8_t, 64>& result) {
 }
 
 rust::Vec<uint8_t> Blake2bWriter::state() const {
-  return rs::ConvertCppVecToRustVec(impl_->GetState());
+  return rs::ConvertCppContainerToRustVec(impl_->GetState());
 }
 
 std::unique_ptr<Blake2bWriter> new_blake2b_writer() {

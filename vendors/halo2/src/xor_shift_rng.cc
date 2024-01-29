@@ -26,7 +26,7 @@ class XORShiftRng::Impl {
     CHECK(buffer.Write32LE(rng_.y()));
     CHECK(buffer.Write32LE(rng_.z()));
     CHECK(buffer.Write32LE(rng_.w()));
-    return rs::ConvertCppVecToRustVec(buffer.owned_buffer());
+    return rs::ConvertCppContainerToRustVec(buffer.owned_buffer());
   }
 
  private:

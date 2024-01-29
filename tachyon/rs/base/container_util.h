@@ -1,42 +1,44 @@
 #ifndef TACHYON_RS_BASE_CONTAINER_UTIL_H_
 #define TACHYON_RS_BASE_CONTAINER_UTIL_H_
 
-#include <vector>
-
 #include "absl/types/span.h"
 #include "rust/cxx.h"
 
 #include "tachyon/base/functional/functor_traits.h"
+#include "tachyon/base/template_util.h"
 
 namespace tachyon::rs {
 
-template <typename T>
-rust::Vec<T> ConvertCppVecToRustVec(const std::vector<T>& vec) {
+template <typename Container, typename T = base::container_value_t<Container>>
+rust::Vec<T> ConvertCppContainerToRustVec(const Container& container) {
   rust::Vec<T> ret;
-  ret.reserve(vec.size());
-  for (const T& elem : vec) {
+  ret.reserve(std::size(container));
+  for (const T& elem : container) {
     ret.push_back(elem);
   }
   return ret;
 }
 
-template <typename T, typename UnaryOp,
+template <typename Container, typename UnaryOp,
           typename FunctorTraits = base::internal::MakeFunctorTraits<UnaryOp>,
           typename RunType = typename FunctorTraits::RunType,
-          typename ReturnType = typename FunctorTraits::ReturnType>
-rust::Vec<ReturnType> ConvertCppVecToRustVec(const std::vector<T>& vec,
-                                             UnaryOp&& op) {
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename T = base::container_value_t<Container>>
+rust::Vec<ReturnType> ConvertCppContainerToRustVec(const Container& container,
+                                                   UnaryOp&& op) {
   rust::Vec<ReturnType> ret;
-  ret.reserve(vec.size());
-  for (const T& elem : vec) {
+  ret.reserve(std::size(container));
+  for (const T& elem : container) {
     ret.push_back(op(elem));
   }
   return ret;
 }
 
-template <typename R, typename T>
-rust::Slice<const R> ConvertCppVecToRustSlice(const std::vector<T>& vec) {
-  return {reinterpret_cast<const R*>(vec.data()), vec.size()};
+template <typename R, typename Container>
+rust::Slice<const R> ConvertCppContainerToRustSlice(
+    const Container& container) {
+  return {reinterpret_cast<const R*>(std::data(container)),
+          std::size(container)};
 }
 
 template <typename R, typename T>

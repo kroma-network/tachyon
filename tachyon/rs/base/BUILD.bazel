@@ -6,6 +6,7 @@ tachyon_cc_library(
     name = "container_util",
     hdrs = ["container_util.h"],
     deps = [
+        "//tachyon/base:template_util",
         "//tachyon/base/functional:functor_traits",
         "@com_google_absl//absl/types:span",
         "@cxx.rs//:core",
