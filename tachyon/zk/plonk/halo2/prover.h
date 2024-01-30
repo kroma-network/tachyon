@@ -121,8 +121,8 @@ class Prover : public ProverBase<PCS> {
 
   void CreateProof(const ProvingKey<PCS>& proving_key,
                    ArgumentData<Poly, Evals>* argument_data) {
-    Argument<PCS> argument(&proving_key.fixed_columns(),
-                           &proving_key.fixed_polys(), argument_data);
+    Argument<Poly, Evals> argument(&proving_key.fixed_columns(),
+                                   &proving_key.fixed_polys(), argument_data);
 
     crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
     auto state =

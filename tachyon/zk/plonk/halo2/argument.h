@@ -14,14 +14,10 @@
 namespace tachyon::zk::halo2 {
 
 // Data class including all arguments for creating proof.
-template <typename PCS>
+template <typename Poly, typename Evals>
 class Argument {
  public:
-  using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
-  using Evals = typename PCS::Evals;
-  using Domain = typename PCS::Domain;
-  using ExtendedEvals = typename PCS::ExtendedEvals;
+  using F = typename Poly::Field;
 
   Argument() = default;
 
@@ -33,10 +29,12 @@ class Argument {
         fixed_polys_(fixed_polys),
         argument_data_(argument_data) {}
 
+  template <typename Domain>
   void TransformAdvice(const Domain* domain) {
     return argument_data_->TransformAdvice(domain);
   }
 
+  template <typename PCS>
   std::vector<std::vector<LookupPermuted<Poly, Evals>>> CompressLookupStep(
       ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
       const F& theta) const {
@@ -46,6 +44,7 @@ class Argument {
                                argument_data_->GetChallenges(), theta);
   }
 
+  template <typename PCS>
   StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
               VanishingCommitted<Poly>>
   CommitCircuitStep(
@@ -73,7 +72,8 @@ class Argument {
             std::move(vanishing_committed)};
   }
 
-  template <typename P, typename L, typename V>
+  template <typename PCS, typename P, typename L, typename V,
+            typename ExtendedEvals = typename PCS::ExtendedEvals>
   ExtendedEvals GenerateCircuitPolynomial(ProverBase<PCS>* prover,
                                           const ProvingKey<PCS>& proving_key,
                                           const StepReturns<P, L, V>& committed,
@@ -89,7 +89,7 @@ class Argument {
         argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_)));
   }
 
-  template <typename P, typename L, typename V>
+  template <typename PCS, typename P, typename L, typename V>
   StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
               VanishingEvaluated<Poly>>
   EvaluateCircuitStep(ProverBase<PCS>* prover,
@@ -122,7 +122,7 @@ class Argument {
             std::move(evaluated_vanishing)};
   }
 
-  template <typename P, typename L, typename V>
+  template <typename PCS, typename P, typename L, typename V>
   std::vector<crypto::PolynomialOpening<Poly>> ConstructOpenings(
       ProverBase<PCS>* prover, const ProvingKey<PCS>& proving_key,
       const StepReturns<P, L, V>& evaluated, const F& x) {
