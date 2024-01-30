@@ -130,8 +130,8 @@ TEST_F(SimpleLookupCircuitTest, Synthesize) {
       SimpleLookupCircuit<F, kBits, SimpleFloorPlanner>::Configure(
           constraint_system);
   Assembly<RationalEvals> assembly =
-      VerifyingKey<PCS>::CreateAssembly<RationalEvals>(domain,
-                                                       constraint_system);
+      VerifyingKey<F, Commitment>::CreateAssembly<RationalEvals>(
+          domain, constraint_system);
 
   SimpleLookupCircuit<F, kBits, SimpleFloorPlanner> circuit(4);
   typename SimpleLookupCircuit<F, kBits, SimpleFloorPlanner>::FloorPlanner
@@ -203,7 +203,7 @@ TEST_F(SimpleLookupCircuitTest, LoadVerifyingKey) {
 
   SimpleLookupCircuit<F, kBits, SimpleFloorPlanner> circuit(4);
 
-  VerifyingKey<PCS> vkey;
+  VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
   EXPECT_TRUE(vkey.permutation_verifying_key().commitments().empty());
@@ -238,7 +238,7 @@ TEST_F(SimpleLookupCircuitTest, LoadProvingKey) {
     SCOPED_TRACE(
         absl::Substitute("load_verifying_key: $0", load_verifying_key));
     if (load_verifying_key) {
-      VerifyingKey<PCS> vkey;
+      VerifyingKey<F, Commitment> vkey;
       ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
       ASSERT_TRUE(
           pkey.LoadWithVerifyingKey(prover_.get(), circuit, std::move(vkey)));
@@ -553,7 +553,7 @@ TEST_F(SimpleLookupCircuitTest, Verify) {
 
   SimpleLookupCircuit<F, kBits, SimpleFloorPlanner> circuit(4);
 
-  VerifyingKey<PCS> vkey;
+  VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
   std::vector<uint8_t> owned_proof(std::begin(kExpectedProof),

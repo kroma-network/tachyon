@@ -39,21 +39,21 @@ class PinnedVerifyingKey;
 template <typename PCS>
 class ProvingKey;
 
-template <typename PCS>
+template <typename Evals>
+struct VerifyingKeyLoadResult {
+  std::vector<Evals> permutations;
+};
+
+template <typename F, typename C>
 class VerifyingKey : public Key {
  public:
-  using F = typename PCS::Field;
-  using Evals = typename PCS::Evals;
-  using RationalEvals = typename PCS::RationalEvals;
-  using Commitment = typename PCS::Commitment;
-  using Commitments = std::vector<Commitment>;
-  using PreLoadResult = KeyPreLoadResult<Evals, RationalEvals>;
+  using Commitments = std::vector<C>;
 
   VerifyingKey() = default;
 
   const Commitments& fixed_commitments() const { return fixed_commitments_; }
 
-  const PermutationVerifyingKey<Commitment>& permutation_verifying_key() const {
+  const PermutationVerifyingKey<C>& permutation_verifying_key() const {
     return permutation_verifying_key_;
   }
 
@@ -64,23 +64,28 @@ class VerifyingKey : public Key {
   const F& transcript_repr() const { return transcript_repr_; }
 
   // Return true if it is able to load from an instance of |circuit|.
-  template <typename Circuit>
+  template <typename PCS, typename Circuit>
   [[nodiscard]] bool Load(Entity<PCS>* entity, const Circuit& circuit) {
-    PreLoadResult result;
+    using Evals = typename PCS::Evals;
+    using RationalEvals = typename PCS::RationalEvals;
+    KeyPreLoadResult<Evals, RationalEvals> result;
     if (!this->PreLoad(entity, circuit, &result)) return false;
-    return DoLoad(entity, std::move(result), nullptr);
+    // NOTE(chokobole): This helps the compiler to infer type easily.
+    // Without this line, it won't compile.
+    VerifyingKeyLoadResult<Evals>* load_result = nullptr;
+    return DoLoad(entity, std::move(result), load_result);
   }
 
  private:
-  friend class ProvingKey<PCS>;
-  friend class halo2_api::ProvingKeyImpl<PCS>;
+  template <typename PCS>
+  friend class ProvingKey;
+  template <typename PCS>
+  friend class halo2_api::ProvingKeyImpl;
 
-  struct LoadResult {
-    std::vector<Evals> permutations;
-  };
-
-  bool DoLoad(Entity<PCS>* entity, PreLoadResult&& pre_load_result,
-              LoadResult* load_result) {
+  template <typename PCS, typename Evals, typename RationalEvals>
+  bool DoLoad(Entity<PCS>* entity,
+              KeyPreLoadResult<Evals, RationalEvals>&& pre_load_result,
+              VerifyingKeyLoadResult<Evals>* load_result) {
     constraint_system_ = std::move(pre_load_result.constraint_system);
 
     std::vector<Evals> permutations =
@@ -97,7 +102,7 @@ class VerifyingKey : public Key {
     // TODO(chokobole): Parallelize this.
     fixed_commitments_ =
         base::Map(pre_load_result.fixed_columns, [&pcs](const Evals& evals) {
-          Commitment commitment;
+          C commitment;
           CHECK(pcs.CommitLagrange(evals, &commitment));
           return commitment;
         });
@@ -106,6 +111,7 @@ class VerifyingKey : public Key {
     return true;
   }
 
+  template <typename PCS>
   void SetTranscriptRepresentative(const Entity<PCS>* entity) {
     halo2::PinnedVerifyingKey<PCS> pinned_verifying_key(entity, *this);
 
@@ -125,7 +131,7 @@ class VerifyingKey : public Key {
   }
 
   Commitments fixed_commitments_;
-  PermutationVerifyingKey<Commitment> permutation_verifying_key_;
+  PermutationVerifyingKey<C> permutation_verifying_key_;
   ConstraintSystem<F> constraint_system_;
   // The representative of this |VerifyingKey| in transcripts.
   F transcript_repr_ = F::Zero();

@@ -170,8 +170,8 @@ TEST_F(SimpleV1CircuitTest, Synthesize) {
   FieldConfig<F> config =
       SimpleCircuit<F, V1FloorPlanner>::Configure(constraint_system);
   Assembly<RationalEvals> assembly =
-      VerifyingKey<PCS>::CreateAssembly<RationalEvals>(domain,
-                                                       constraint_system);
+      VerifyingKey<F, Commitment>::CreateAssembly<RationalEvals>(
+          domain, constraint_system);
 
   F constant(7);
   F a(2);
@@ -247,7 +247,7 @@ TEST_F(SimpleV1CircuitTest, LoadVerifyingKey) {
   F b(3);
   SimpleCircuit<F, V1FloorPlanner> circuit(constant, a, b);
 
-  VerifyingKey<PCS> vkey;
+  VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
   std::vector<Commitment> expected_permutation_verifying_key;
@@ -300,7 +300,7 @@ TEST_F(SimpleV1CircuitTest, LoadProvingKey) {
     SCOPED_TRACE(
         absl::Substitute("load_verifying_key: $0", load_verifying_key));
     if (load_verifying_key) {
-      VerifyingKey<PCS> vkey;
+      VerifyingKey<F, Commitment> vkey;
       ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
       ASSERT_TRUE(
           pkey.LoadWithVerifyingKey(prover_.get(), circuit, std::move(vkey)));
@@ -669,7 +669,7 @@ TEST_F(SimpleV1CircuitTest, Verify) {
   F b(3);
   SimpleCircuit<F, V1FloorPlanner> circuit(constant, a, b);
 
-  VerifyingKey<PCS> vkey;
+  VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
   std::vector<uint8_t> owned_proof(std::begin(kExpectedProof),

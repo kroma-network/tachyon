@@ -90,7 +90,7 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
 
   SimpleCircuit<F, SimpleFloorPlanner> circuit =
       SimpleCircuit<F, SimpleFloorPlanner>();
-  VerifyingKey<PCS> vkey;
+  VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
   ExtendedEvals extended_evals =

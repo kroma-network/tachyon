@@ -30,15 +30,15 @@ template <typename PCS>
 class ProvingKey : public Key {
  public:
   using F = typename PCS::Field;
+  using C = typename PCS::Commitment;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
   using RationalEvals = typename PCS::RationalEvals;
   using PreLoadResult = KeyPreLoadResult<Evals, RationalEvals>;
-  using VerifyingKeyLoadResult = typename VerifyingKey<PCS>::LoadResult;
 
   ProvingKey() = default;
 
-  const VerifyingKey<PCS>& verifying_key() const { return verifying_key_; }
+  const VerifyingKey<F, C>& verifying_key() const { return verifying_key_; }
   const Poly& l_first() const { return l_first_; }
   const Poly& l_last() const { return l_last_; }
   const Poly& l_active_row() const { return l_active_row_; }
@@ -53,7 +53,7 @@ class ProvingKey : public Key {
   [[nodiscard]] bool Load(ProverBase<PCS>* prover, const Circuit& circuit) {
     PreLoadResult pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
-    VerifyingKeyLoadResult vk_result;
+    VerifyingKeyLoadResult<Evals> vk_result;
     if (!verifying_key_.DoLoad(prover, std::move(pre_load_result), &vk_result))
       return false;
     return DoLoad(prover, std::move(pre_load_result), &vk_result);
@@ -64,7 +64,7 @@ class ProvingKey : public Key {
   template <typename Circuit>
   [[nodiscard]] bool LoadWithVerifyingKey(ProverBase<PCS>* prover,
                                           const Circuit& circuit,
-                                          VerifyingKey<PCS>&& verifying_key) {
+                                          VerifyingKey<F, C>&& verifying_key) {
     PreLoadResult pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     verifying_key_ = std::move(verifying_key);
@@ -75,7 +75,7 @@ class ProvingKey : public Key {
   friend class halo2_api::ProvingKeyImpl<PCS>;
 
   bool DoLoad(ProverBase<PCS>* prover, PreLoadResult&& pre_load_result,
-              VerifyingKeyLoadResult* vk_load_result) {
+              VerifyingKeyLoadResult<Evals>* vk_load_result) {
     using Domain = typename PCS::Domain;
 
     // NOTE(chokobole): |ComputeBlindingFactors()| is a second call. The first
@@ -168,7 +168,7 @@ class ProvingKey : public Key {
     return true;
   }
 
-  VerifyingKey<PCS> verifying_key_;
+  VerifyingKey<F, C> verifying_key_;
   Poly l_first_;
   Poly l_last_;
   Poly l_active_row_;

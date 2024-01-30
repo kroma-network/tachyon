@@ -90,7 +90,7 @@ class ProvingKeyImpl<
   }
 
   static void ReadVerifyingKey(base::Buffer& buffer,
-                               zk::VerifyingKey<PCS>& vkey) {
+                               zk::VerifyingKey<F, Commitment>& vkey) {
     // NOTE(chokobole): For k
     ReadU32AsSizeT(buffer);
     ReadBuffer(buffer, vkey.fixed_commitments_);

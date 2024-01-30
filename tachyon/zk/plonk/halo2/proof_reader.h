@@ -39,7 +39,7 @@ class ProofReader {
   using F = typename PCS::Field;
   using C = typename PCS::Commitment;
 
-  ProofReader(const VerifyingKey<PCS>& verifying_key,
+  ProofReader(const VerifyingKey<F, C>& verifying_key,
               crypto::TranscriptReader<C>* transcript, size_t num_circuits)
       : verifying_key_(verifying_key),
         transcript_(transcript),
@@ -253,7 +253,7 @@ class ProofReader {
     return base::CreateVector(n, [this]() { return Read<T>(); });
   }
 
-  const VerifyingKey<PCS>& verifying_key_;
+  const VerifyingKey<F, C>& verifying_key_;
   // not owned
   crypto::TranscriptReader<C>* const transcript_ = nullptr;
   size_t num_circuits_ = 0;

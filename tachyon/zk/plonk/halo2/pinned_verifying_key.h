@@ -28,7 +28,8 @@ class PinnedVerifyingKey {
   using BaseField = typename Commitment::BaseField;
   using ScalarField = typename Commitment::ScalarField;
 
-  PinnedVerifyingKey(const Entity<PCS>* entity, const VerifyingKey<PCS>& vk)
+  PinnedVerifyingKey(const Entity<PCS>* entity,
+                     const VerifyingKey<F, Commitment>& vk)
       : base_modulus_(BaseField::Config::kModulus.ToHexString(true)),
         scalar_modulus_(ScalarField::Config::kModulus.ToHexString(true)),
         domain_(entity),

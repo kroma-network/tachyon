@@ -46,13 +46,12 @@ template <typename PCS, typename Poly>
   return true;
 }
 
-template <typename PCS, typename Poly, typename ExtendedEvals>
+template <typename PCS, typename Poly, typename F, typename C,
+          typename ExtendedEvals>
 [[nodiscard]] bool CommitFinalHPoly(
     ProverBase<PCS>* prover, VanishingCommitted<Poly>&& committed,
-    const VerifyingKey<PCS>& vk, ExtendedEvals& circuit_column,
+    const VerifyingKey<F, C>& vk, ExtendedEvals& circuit_column,
     VanishingConstructed<Poly>* constructed_out) {
-  using F = typename PCS::Field;
-  using Commitment = typename PCS::Commitment;
   using Coeffs = typename Poly::Coefficients;
   using ExtendedPoly = typename PCS::ExtendedPoly;
 
@@ -89,11 +88,11 @@ template <typename PCS, typename Poly, typename ExtendedEvals>
         });
     prover->RetrieveAndWriteBatchCommitmentsToProof();
   } else {
-    std::vector<Commitment> commitments = base::ParallelizeMapByChunkSize(
+    std::vector<C> commitments = base::ParallelizeMapByChunkSize(
         h_coeffs, prover->pcs().N(), [prover](absl::Span<const F> h_piece) {
           return prover->Commit(h_piece);
         });
-    for (const Commitment& commitment : commitments) {
+    for (const C& commitment : commitments) {
       if (!prover->GetWriter()->WriteToProof(commitment)) return false;
     }
   }
