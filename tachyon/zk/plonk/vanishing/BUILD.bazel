@@ -116,11 +116,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "vanishing_partially_evaluated",
-    hdrs = ["vanishing_partially_evaluated.h"],
-)
-
-tachyon_cc_library(
     name = "vanishing_utils",
     hdrs = ["vanishing_utils.h"],
     deps = [
