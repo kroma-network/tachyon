@@ -137,7 +137,7 @@ class CircuitPolynomialBuilder {
         const Evals& table_coset = lookup_table_cosets_[i];
         const Evals& product_coset = lookup_product_cosets_[i];
 
-        EvaluationInput<Poly, Evals> evaluation_input = ExtractEvaluationInput(
+        EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
             ev.CreateInitialIntermediates(), ev.CreateEmptyRotations());
 
         size_t start = chunk_offset * chunk_size;
@@ -257,11 +257,11 @@ class CircuitPolynomialBuilder {
   }
 
  private:
-  EvaluationInput<Poly, Evals> ExtractEvaluationInput(
+  EvaluationInput<Evals> ExtractEvaluationInput(
       std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
-    return EvaluationInput<Poly, Evals>(
-        std::move(intermediates), std::move(rotations), &table_, challenges_,
-        beta_, gamma_, theta_, y_, n_);
+    return EvaluationInput<Evals>(std::move(intermediates),
+                                  std::move(rotations), &table_, challenges_,
+                                  beta_, gamma_, theta_, y_, n_);
   }
 
   template <typename Evals>
@@ -292,7 +292,7 @@ class CircuitPolynomialBuilder {
     base::Parallelize(values, [this, &custom_gate_evaluator](
                                   absl::Span<F> chunk, size_t chunk_offset,
                                   size_t chunk_size) {
-      EvaluationInput<Poly, Evals> evaluation_input = ExtractEvaluationInput(
+      EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
           custom_gate_evaluator.CreateInitialIntermediates(),
           custom_gate_evaluator.CreateEmptyRotations());
 

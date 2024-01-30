@@ -16,10 +16,10 @@
 
 namespace tachyon::zk {
 
-template <typename Poly, typename Evals>
+template <typename Evals>
 class EvaluationInput {
  public:
-  using F = typename Poly::Field;
+  using F = typename Evals::Field;
 
   EvaluationInput(std::vector<F>&& intermediates,
                   std::vector<int32_t>&& rotations,
