@@ -206,7 +206,7 @@ void SHPlonkProver::create_proof(const SHPlonkProvingKey& key,
         [vec_ptr](size_t j) { return ReadPoly(vec_ptr, j); });
   }
 
-  zk::halo2::ArgumentData<PCS> argument_data(
+  zk::halo2::ArgumentData<PCS::Poly, PCS::Evals> argument_data(
       std::move(advice_columns_vec), std::move(advice_blinds_vec),
       std::move(cpp_challenges), std::move(instance_columns_vec),
       std::move(instance_polys_vec));

@@ -95,7 +95,7 @@ class Prover : public ProverBase<PCS> {
 
     // It owns all the columns, polys and the others required in the proof
     // generation process and provides step-by-step logics as its methods.
-    ArgumentData<PCS> argument_data = ArgumentData<PCS>::Create(
+    ArgumentData<Poly, Evals> argument_data = ArgumentData<Poly, Evals>::Create(
         this, circuits, proving_key.verifying_key().constraint_system(),
         std::move(instance_columns_vec));
     CreateProof(proving_key, &argument_data);
@@ -120,7 +120,7 @@ class Prover : public ProverBase<PCS> {
   }
 
   void CreateProof(const ProvingKey<PCS>& proving_key,
-                   ArgumentData<PCS>* argument_data) {
+                   ArgumentData<Poly, Evals>* argument_data) {
     Argument<PCS> argument(&proving_key.fixed_columns(),
                            &proving_key.fixed_polys(), argument_data);
 

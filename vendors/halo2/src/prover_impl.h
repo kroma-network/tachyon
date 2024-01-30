@@ -20,6 +20,8 @@ template <typename PCS>
 class ProverImpl {
  public:
   using Field = typename PCS::Field;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
   using Commitment = typename PCS::Commitment;
   using ExtendedDomain = typename PCS::ExtendedDomain;
 
@@ -52,7 +54,7 @@ class ProverImpl {
   }
 
   void CreateProof(const zk::ProvingKey<PCS>& proving_key,
-                   zk::halo2::ArgumentData<PCS>* argument_data) {
+                   zk::halo2::ArgumentData<Poly, Evals>* argument_data) {
     prover_.CreateProof(proving_key, argument_data);
   }
 

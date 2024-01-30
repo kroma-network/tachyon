@@ -16,13 +16,10 @@
 
 namespace tachyon::zk::halo2 {
 
-template <typename PCS>
+template <typename Poly, typename Evals>
 class ArgumentData {
  public:
-  using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
-  using Evals = typename PCS::Evals;
-  using Domain = typename PCS::Domain;
+  using F = typename Poly::Field;
 
   ArgumentData(std::vector<std::vector<Evals>>&& advice_columns_vec,
                std::vector<std::vector<F>>&& advice_blinds_vec,
@@ -40,7 +37,7 @@ class ArgumentData {
     CHECK_EQ(num_circuits, instance_polys_vec_.size());
   }
 
-  template <typename Circuit>
+  template <typename PCS, typename Circuit>
   static ArgumentData Create(
       ProverBase<PCS>* prover, std::vector<Circuit>& circuits,
       const ConstraintSystem<F>& constraint_system,
@@ -84,6 +81,7 @@ class ArgumentData {
   // of advice evaluation-formed columns. (a.k.a. Batch IFFT)
   // And for memory optimization, every evaluations of advice will be released
   // as soon as transforming it to coefficient form.
+  template <typename Domain>
   void TransformAdvice(const Domain* domain) {
     CHECK(!advice_transformed_);
     advice_polys_vec_ = base::Map(
@@ -130,6 +128,7 @@ class ArgumentData {
  private:
   // Generate a vector of instance coefficient-formed polynomials with a vector
   // of instance evaluation-formed columns. (a.k.a. Batch IFFT)
+  template <typename PCS>
   static std::vector<std::vector<Poly>> GenerateInstancePolys(
       ProverBase<PCS>* prover,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {

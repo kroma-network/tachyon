@@ -28,7 +28,7 @@ class Argument {
   // NOTE(chokobole): This is used by rust halo2 binding.
   Argument(const std::vector<Evals>* fixed_columns,
            const std::vector<Poly>* fixed_polys,
-           ArgumentData<PCS>* argument_data)
+           ArgumentData<Poly, Evals>* argument_data)
       : fixed_columns_(fixed_columns),
         fixed_polys_(fixed_polys),
         argument_data_(argument_data) {}
@@ -197,7 +197,7 @@ class Argument {
   // not owned
   const std::vector<Poly>* fixed_polys_ = nullptr;
   // not owned
-  ArgumentData<PCS>* argument_data_ = nullptr;
+  ArgumentData<Poly, Evals>* argument_data_ = nullptr;
 
   // NOTE(dongchangYoo): set of points which will be included to any openings.
   PointSet<F> opening_points_set_;
