@@ -145,7 +145,7 @@ class Prover : public ProverBase<PCS> {
     argument.TransformAdvice(this->domain());
     ExtendedEvals circuit_column = argument.GenerateCircuitPolynomial(
         this, proving_key, committed_result, beta, gamma, theta, y);
-    VanishingConstructed<PCS> constructed_vanishing;
+    VanishingConstructed<Poly> constructed_vanishing;
     CHECK(CommitFinalHPoly(this, std::move(committed_result).TakeVanishing(),
                            proving_key.verifying_key(), circuit_column,
                            &constructed_vanishing));

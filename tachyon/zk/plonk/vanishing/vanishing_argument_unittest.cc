@@ -95,7 +95,7 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
 
   ExtendedEvals extended_evals =
       ExtendedEvals::One(prover_->extended_domain()->size() - 1);
-  VanishingConstructed<PCS> constructed_p;
+  VanishingConstructed<Poly> constructed_p;
   ASSERT_TRUE(CommitFinalHPoly(prover_.get(), std::move(committed_p), vkey,
                                extended_evals, &constructed_p));
 

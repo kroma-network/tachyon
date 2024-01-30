@@ -50,7 +50,7 @@ template <typename PCS, typename Poly, typename ExtendedEvals>
 [[nodiscard]] bool CommitFinalHPoly(
     ProverBase<PCS>* prover, VanishingCommitted<Poly>&& committed,
     const VerifyingKey<PCS>& vk, ExtendedEvals& circuit_column,
-    VanishingConstructed<PCS>* constructed_out) {
+    VanishingConstructed<Poly>* constructed_out) {
   using F = typename PCS::Field;
   using Commitment = typename PCS::Commitment;
   using Coeffs = typename Poly::Coefficients;
@@ -108,12 +108,11 @@ template <typename PCS, typename Poly, typename ExtendedEvals>
   return true;
 }
 
-template <typename PCS, typename F, typename Commitment>
+template <typename PCS, typename Poly, typename F, typename Commitment>
 [[nodiscard]] bool CommitRandomEval(
-    const PCS& pcs, VanishingConstructed<PCS>&& constructed, const F& x,
+    const PCS& pcs, VanishingConstructed<Poly>&& constructed, const F& x,
     const F& x_n, crypto::TranscriptWriter<Commitment>* writer,
     VanishingEvaluated<PCS>* evaluated_out) {
-  using Poly = typename PCS::Poly;
   using Coeffs = typename Poly::Coefficients;
 
   Poly h_poly = Poly::template LinearCombination</*forward=*/false>(

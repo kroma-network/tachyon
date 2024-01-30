@@ -95,7 +95,7 @@ class Argument {
   EvaluateCircuitStep(ProverBase<PCS>* prover,
                       const ProvingKey<PCS>& proving_key,
                       StepReturns<P, L, V>& committed,
-                      VanishingConstructed<PCS>&& constructed_vanishing,
+                      VanishingConstructed<Poly>&& constructed_vanishing,
                       const F& x) const {
     const ConstraintSystem<F>& cs =
         proving_key.verifying_key().constraint_system();
