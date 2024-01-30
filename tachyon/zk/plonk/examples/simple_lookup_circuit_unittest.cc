@@ -564,6 +564,7 @@ TEST_F(SimpleLookupCircuitTest, Verify) {
   std::vector<std::vector<Evals>> instance_columns_vec = {
       std::move(instance_columns)};
 
+  size_t num_circuits = instance_columns_vec.size();
   Proof<F, Commitment> proof;
   F h_eval;
   ASSERT_TRUE(verifier.VerifyProofForTesting(vkey, instance_columns_vec, &proof,
@@ -610,7 +611,7 @@ TEST_F(SimpleLookupCircuitTest, Verify) {
       "0x1083f5b6c86390dfb35fbaeca4bf3fa53a05277508abc025bf7b05c4305b29a0");
   EXPECT_EQ(proof.gamma, expected_gamma);
 
-  ASSERT_EQ(proof.permutation_product_commitments_vec.size(), 1);
+  ASSERT_EQ(proof.permutation_product_commitments_vec.size(), num_circuits);
   EXPECT_TRUE(proof.permutation_product_commitments_vec[0].empty());
 
   std::vector<std::vector<Commitment>> expected_lookup_product_commitments_vec;
@@ -684,13 +685,13 @@ TEST_F(SimpleLookupCircuitTest, Verify) {
 
   EXPECT_TRUE(proof.common_permutation_evals.empty());
 
-  ASSERT_EQ(proof.permutation_product_evals_vec.size(), 1);
+  ASSERT_EQ(proof.permutation_product_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.permutation_product_evals_vec[0].empty());
 
-  ASSERT_EQ(proof.permutation_product_next_evals_vec.size(), 1);
+  ASSERT_EQ(proof.permutation_product_next_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.permutation_product_next_evals_vec[0].empty());
 
-  ASSERT_EQ(proof.permutation_product_last_evals_vec.size(), 1);
+  ASSERT_EQ(proof.permutation_product_last_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.permutation_product_last_evals_vec[0].empty());
 
   std::vector<std::vector<F>> expected_lookup_product_evals_vec;

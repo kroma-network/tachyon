@@ -684,6 +684,7 @@ TEST_F(SimpleCircuitTest, Verify) {
   std::vector<std::vector<Evals>> instance_columns_vec = {
       std::move(instance_columns)};
 
+  size_t num_circuits = instance_columns_vec.size();
   Proof<F, Commitment> proof;
   F h_eval;
   ASSERT_TRUE(verifier.VerifyProofForTesting(vkey, instance_columns_vec, &proof,
@@ -707,7 +708,7 @@ TEST_F(SimpleCircuitTest, Verify) {
       "0x12a46ce074901bb2ec3136e73969ba388a925ace4891d853aa071cabaf4589ce");
   EXPECT_EQ(proof.theta, expected_theta);
 
-  ASSERT_EQ(proof.lookup_permuted_commitments_vec.size(), 1);
+  ASSERT_EQ(proof.lookup_permuted_commitments_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_permuted_commitments_vec[0].empty());
 
   F expected_beta = F::FromHexString(
@@ -737,7 +738,7 @@ TEST_F(SimpleCircuitTest, Verify) {
   EXPECT_EQ(proof.permutation_product_commitments_vec,
             expected_permutation_product_commitments_vec);
 
-  ASSERT_EQ(proof.lookup_product_commitments_vec.size(), 1);
+  ASSERT_EQ(proof.lookup_product_commitments_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_product_commitments_vec[0].empty());
 
   Commitment expected_vanishing_random_poly_commitment;
@@ -848,19 +849,19 @@ TEST_F(SimpleCircuitTest, Verify) {
   EXPECT_EQ(proof.permutation_product_last_evals_vec,
             expected_permutation_product_last_evals_vec);
 
-  ASSERT_EQ(proof.lookup_product_evals_vec.size(), 1);
+  ASSERT_EQ(proof.lookup_product_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_product_evals_vec[0].empty());
 
-  ASSERT_EQ(proof.lookup_product_next_evals_vec.size(), 1);
+  ASSERT_EQ(proof.lookup_product_next_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_product_next_evals_vec[0].empty());
 
-  ASSERT_EQ(proof.lookup_permuted_input_evals_vec.size(), 1);
+  ASSERT_EQ(proof.lookup_permuted_input_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_permuted_input_evals_vec[0].empty());
 
-  ASSERT_EQ(proof.lookup_permuted_input_inv_evals_vec.size(), 1);
+  ASSERT_EQ(proof.lookup_permuted_input_inv_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_permuted_input_inv_evals_vec[0].empty());
 
-  ASSERT_EQ(proof.lookup_permuted_table_evals_vec.size(), 1);
+  ASSERT_EQ(proof.lookup_permuted_table_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_permuted_table_evals_vec[0].empty());
 
   F expected_h_eval = F::FromHexString(
