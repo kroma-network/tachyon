@@ -5,13 +5,13 @@ load("//bazel:tachyon.bzl", "if_gpu_is_configured", "if_has_openmp")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//bazel:tachyon_rust.bzl", "tachyon_rust_library", "tachyon_rust_test")
 
-FEATUERS = if_gpu_is_configured(["gpu"])
+FEATURES = if_gpu_is_configured(["gpu"])
 
 tachyon_rust_library(
     name = "halo2",
     srcs = glob(["src/**/*.rs"]),
     aliases = aliases(),
-    crate_features = FEATUERS,
+    crate_features = FEATURES,
     proc_macro_deps = all_crate_deps(proc_macro = True),
     deps = all_crate_deps(normal = True) + [
         ":bn254_blake2b_writer",
@@ -42,7 +42,7 @@ tachyon_rust_test(
     size = "small",
     aliases = aliases(),
     crate = ":halo2",
-    crate_features = FEATUERS,
+    crate_features = FEATURES,
     proc_macro_deps = all_crate_deps(proc_macro_dev = True),
     deps = all_crate_deps(normal_dev = True) + [
         ":openmp",
