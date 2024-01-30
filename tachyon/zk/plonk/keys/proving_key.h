@@ -17,24 +17,13 @@
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
 
 namespace tachyon {
-namespace halo2_api {
-
-template <typename PCS>
-class ProvingKeyImpl;
-
-}  // namespace halo2_api
 
 namespace zk {
 
-template <typename PCS>
+template <typename Poly, typename Evals, typename C>
 class ProvingKey : public Key {
  public:
-  using F = typename PCS::Field;
-  using C = typename PCS::Commitment;
-  using Poly = typename PCS::Poly;
-  using Evals = typename PCS::Evals;
-  using RationalEvals = typename PCS::RationalEvals;
-  using PreLoadResult = KeyPreLoadResult<Evals, RationalEvals>;
+  using F = typename Poly::Field;
 
   ProvingKey() = default;
 
@@ -49,9 +38,10 @@ class ProvingKey : public Key {
   }
 
   // Return true if it is able to load from an instance of |circuit|.
-  template <typename Circuit>
+  template <typename PCS, typename Circuit>
   [[nodiscard]] bool Load(ProverBase<PCS>* prover, const Circuit& circuit) {
-    PreLoadResult pre_load_result;
+    using RationalEvals = typename PCS::RationalEvals;
+    KeyPreLoadResult<Evals, RationalEvals> pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     VerifyingKeyLoadResult<Evals> vk_result;
     if (!verifying_key_.DoLoad(prover, std::move(pre_load_result), &vk_result))
@@ -61,20 +51,23 @@ class ProvingKey : public Key {
 
   // Return true if it is able to load from an instance of |circuit| and a
   // |verifying_key|.
-  template <typename Circuit>
+  template <typename PCS, typename Circuit>
   [[nodiscard]] bool LoadWithVerifyingKey(ProverBase<PCS>* prover,
                                           const Circuit& circuit,
                                           VerifyingKey<F, C>&& verifying_key) {
-    PreLoadResult pre_load_result;
+    using RationalEvals = typename PCS::RationalEvals;
+    KeyPreLoadResult<Evals, RationalEvals> pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     verifying_key_ = std::move(verifying_key);
     return DoLoad(prover, std::move(pre_load_result), nullptr);
   }
 
  private:
-  friend class halo2_api::ProvingKeyImpl<PCS>;
+  friend class halo2_api::ProvingKeyImplBase<Poly, Evals, C>;
 
-  bool DoLoad(ProverBase<PCS>* prover, PreLoadResult&& pre_load_result,
+  template <typename PCS, typename RationalEvals>
+  bool DoLoad(ProverBase<PCS>* prover,
+              KeyPreLoadResult<Evals, RationalEvals>&& pre_load_result,
               VerifyingKeyLoadResult<Evals>* vk_load_result) {
     using Domain = typename PCS::Domain;
 

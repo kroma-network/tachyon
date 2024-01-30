@@ -19,6 +19,7 @@
 #include "tachyon/zk/plonk/base/owned_table.h"
 #include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/constraint_system/rotation.h"
+#include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/permutation/permutation_committed.h"
 #include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 #include "tachyon/zk/plonk/vanishing/evaluation_input.h"
@@ -26,9 +27,6 @@
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 
 namespace tachyon::zk {
-
-template <typename PCS>
-class ProvingKey;
 
 // It generates "CircuitPolynomial" formed below:
 // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
@@ -38,6 +36,7 @@ template <typename PCS>
 class CircuitPolynomialBuilder {
  public:
   using F = typename PCS::Field;
+  using C = typename PCS::Commitment;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
   using Domain = typename PCS::Domain;
@@ -50,7 +49,8 @@ class CircuitPolynomialBuilder {
       const Domain* domain, const ExtendedDomain* extended_domain, size_t n,
       RowIndex blinding_factors, size_t cs_degree, const F* beta,
       const F* gamma, const F* theta, const F* y, const F* zeta,
-      absl::Span<const F> challenges, const ProvingKey<PCS>* proving_key,
+      absl::Span<const F> challenges,
+      const ProvingKey<Poly, Evals, C>* proving_key,
       const std::vector<PermutationCommitted<Poly>>* committed_permutations,
       const std::vector<std::vector<LookupCommitted<Poly>>>*
           committed_lookups_vec,
@@ -393,7 +393,7 @@ class CircuitPolynomialBuilder {
   F delta_start_;
 
   // not owned
-  const ProvingKey<PCS>* proving_key_;
+  const ProvingKey<Poly, Evals, C>* proving_key_;
   // not owned
   const std::vector<PermutationCommitted<Poly>>* committed_permutations_;
   // not owned

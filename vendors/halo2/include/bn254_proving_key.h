@@ -1,5 +1,5 @@
-#ifndef VENDORS_HALO2_INCLUDE_BN254_SHPLONK_PROVING_KEY_H_
-#define VENDORS_HALO2_INCLUDE_BN254_SHPLONK_PROVING_KEY_H_
+#ifndef VENDORS_HALO2_INCLUDE_BN254_PROVING_KEY_H_
+#define VENDORS_HALO2_INCLUDE_BN254_PROVING_KEY_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -12,13 +12,13 @@ namespace tachyon::halo2_api::bn254 {
 
 struct Fr;
 class SHPlonkProver;
-class SHPlonkProvingKeyImpl;
+class ProvingKeyImpl;
 
-class SHPlonkProvingKey {
+class ProvingKey {
  public:
-  explicit SHPlonkProvingKey(rust::Slice<const uint8_t> pk_bytes);
+  explicit ProvingKey(rust::Slice<const uint8_t> pk_bytes);
 
-  const SHPlonkProvingKeyImpl* impl() const { return impl_.get(); }
+  const ProvingKeyImpl* impl() const { return impl_.get(); }
 
   rust::Slice<const uint8_t> advice_column_phases() const;
   uint32_t blinding_factors() const;
@@ -31,12 +31,12 @@ class SHPlonkProvingKey {
   rust::Box<Fr> transcript_repr(const SHPlonkProver& prover);
 
  private:
-  std::shared_ptr<SHPlonkProvingKeyImpl> impl_;
+  std::shared_ptr<ProvingKeyImpl> impl_;
 };
 
-std::unique_ptr<SHPlonkProvingKey> new_proving_key(
+std::unique_ptr<ProvingKey> new_proving_key(
     rust::Slice<const uint8_t> pk_bytes);
 
 }  // namespace tachyon::halo2_api::bn254
 
-#endif  // VENDORS_HALO2_INCLUDE_BN254_SHPLONK_PROVING_KEY_H_
+#endif  // VENDORS_HALO2_INCLUDE_BN254_PROVING_KEY_H_

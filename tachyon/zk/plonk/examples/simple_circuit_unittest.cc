@@ -296,7 +296,7 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
   SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
 
   for (size_t i = 0; i < 2; ++i) {
-    ProvingKey<PCS> pkey;
+    ProvingKey<Poly, Evals, Commitment> pkey;
     bool load_verifying_key = i == 0;
     SCOPED_TRACE(
         absl::Substitute("load_verifying_key: $0", load_verifying_key));
@@ -651,7 +651,7 @@ TEST_F(SimpleCircuitTest, CreateProof) {
   std::vector<std::vector<Evals>> instance_columns_vec = {
       std::move(instance_columns)};
 
-  ProvingKey<PCS> pkey;
+  ProvingKey<Poly, Evals, Commitment> pkey;
   ASSERT_TRUE(pkey.Load(prover_.get(), circuit));
   prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 

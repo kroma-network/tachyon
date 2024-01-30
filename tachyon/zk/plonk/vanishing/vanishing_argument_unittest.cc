@@ -39,7 +39,7 @@ TEST_F(VanishingArgumentTest, BuildExtendedCircuitColumn) {
   F b(3);
   SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
 
-  ProvingKey<PCS> pkey;
+  ProvingKey<Poly, Evals, Commitment> pkey;
   ASSERT_TRUE(pkey.Load(prover_.get(), circuit));
 
   std::vector<Poly> instance_columns = {GenRandomPoly()};

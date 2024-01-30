@@ -1,5 +1,5 @@
-#ifndef VENDORS_HALO2_SRC_SHPLONK_PROVING_KEY_IMPL_H_
-#define VENDORS_HALO2_SRC_SHPLONK_PROVING_KEY_IMPL_H_
+#ifndef VENDORS_HALO2_SRC_PROVING_KEY_IMPL_BASE_H_
+#define VENDORS_HALO2_SRC_PROVING_KEY_IMPL_BASE_H_
 
 #include <utility>
 #include <vector>
@@ -7,32 +7,23 @@
 #include "rust/cxx.h"
 
 #include "tachyon/base/buffer/buffer.h"
-#include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
-#include "vendors/halo2/include/proving_key_impl_forward.h"
 #include "vendors/halo2/src/buffer_reader.h"
 
 namespace tachyon::halo2_api {
 
-template <typename Curve, size_t MaxDegree, size_t MaxExtendedDegree>
-class ProvingKeyImpl<
-    zk::SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree,
-                         math::AffinePoint<typename Curve::G1Curve>>> {
+template <typename Poly, typename Evals, typename C>
+class ProvingKeyImplBase {
  public:
-  using Commitment = math::AffinePoint<typename Curve::G1Curve>;
-  using PCS =
-      zk::SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>;
-  using F = typename PCS::Field;
-  using Evals = typename PCS::Evals;
-  using Poly = typename PCS::Poly;
+  using F = typename Poly::Field;
 
-  explicit ProvingKeyImpl(rust::Slice<const uint8_t> bytes) {
+  explicit ProvingKeyImplBase(rust::Slice<const uint8_t> bytes) {
     base::Buffer buffer(const_cast<uint8_t*>(bytes.data()), bytes.size());
     ReadProvingKey(buffer);
   }
 
-  const zk::ProvingKey<PCS>& key() const { return key_; }
+  const zk::ProvingKey<Poly, Evals, C>& key() const { return key_; }
 
   const zk::ConstraintSystem<F>& GetConstraintSystem() const {
     return key_.verifying_key().constraint_system();
@@ -70,6 +61,7 @@ class ProvingKeyImpl<
     return GetConstraintSystem().GetPhases();
   }
 
+  template <typename PCS>
   const F& GetTranscriptRepr(const zk::Entity<PCS>& entity) {
     key_.verifying_key_.SetTranscriptRepresentative(&entity);
     return key_.verifying_key_.transcript_repr_;
@@ -90,20 +82,20 @@ class ProvingKeyImpl<
   }
 
   static void ReadVerifyingKey(base::Buffer& buffer,
-                               zk::VerifyingKey<F, Commitment>& vkey) {
+                               zk::VerifyingKey<F, C>& vkey) {
     // NOTE(chokobole): For k
     ReadU32AsSizeT(buffer);
     ReadBuffer(buffer, vkey.fixed_commitments_);
     ReadConstraintSystem(buffer, vkey.constraint_system_);
     size_t num_commitments =
         vkey.constraint_system_.permutation().columns().size();
-    std::vector<Commitment> commitments;
+    std::vector<C> commitments;
     commitments.resize(num_commitments);
     for (size_t i = 0; i < num_commitments; ++i) {
       ReadBuffer(buffer, commitments[i]);
     }
     vkey.permutation_verifying_key_ =
-        zk::PermutationVerifyingKey<Commitment>(std::move(commitments));
+        zk::PermutationVerifyingKey<C>(std::move(commitments));
   }
 
   static void ReadConstraintSystem(base::Buffer& buffer,
@@ -128,9 +120,9 @@ class ProvingKeyImpl<
     ReadBuffer(buffer, cs.constants_);
   }
 
-  zk::ProvingKey<PCS> key_;
+  zk::ProvingKey<Poly, Evals, C> key_;
 };
 
 }  // namespace tachyon::halo2_api
 
-#endif  // VENDORS_HALO2_SRC_SHPLONK_PROVING_KEY_IMPL_H_
+#endif  // VENDORS_HALO2_SRC_PROVING_KEY_IMPL_BASE_H_

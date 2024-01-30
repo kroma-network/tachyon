@@ -72,13 +72,12 @@ class Argument {
             std::move(vanishing_committed)};
   }
 
-  template <typename PCS, typename P, typename L, typename V,
+  template <typename PCS, typename C, typename P, typename L, typename V,
             typename ExtendedEvals = typename PCS::ExtendedEvals>
-  ExtendedEvals GenerateCircuitPolynomial(ProverBase<PCS>* prover,
-                                          const ProvingKey<PCS>& proving_key,
-                                          const StepReturns<P, L, V>& committed,
-                                          const F& beta, const F& gamma,
-                                          const F& theta, const F& y) const {
+  ExtendedEvals GenerateCircuitPolynomial(
+      ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
+      const StepReturns<P, L, V>& committed, const F& beta, const F& gamma,
+      const F& theta, const F& y) const {
     VanishingArgument<F> vanishing_argument = VanishingArgument<F>::Create(
         proving_key.verifying_key().constraint_system());
     F zeta = GetHalo2Zeta<F>();
@@ -89,11 +88,11 @@ class Argument {
         argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_)));
   }
 
-  template <typename PCS, typename P, typename L, typename V>
+  template <typename PCS, typename C, typename P, typename L, typename V>
   StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
               VanishingEvaluated<Poly>>
   EvaluateCircuitStep(ProverBase<PCS>* prover,
-                      const ProvingKey<PCS>& proving_key,
+                      const ProvingKey<Poly, Evals, C>& proving_key,
                       StepReturns<P, L, V>& committed,
                       VanishingConstructed<Poly>&& constructed_vanishing,
                       const F& x) const {
@@ -122,9 +121,9 @@ class Argument {
             std::move(evaluated_vanishing)};
   }
 
-  template <typename PCS, typename P, typename L, typename V>
+  template <typename PCS, typename C, typename P, typename L, typename V>
   std::vector<crypto::PolynomialOpening<Poly>> ConstructOpenings(
-      ProverBase<PCS>* prover, const ProvingKey<PCS>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
       const StepReturns<P, L, V>& evaluated, const F& x) {
     std::vector<RefTable<Poly>> tables =
         argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_));
@@ -134,7 +133,7 @@ class Argument {
 
     size_t num_circuits = argument_data_->GetNumCircuits();
     std::vector<crypto::PolynomialOpening<Poly>> ret;
-    ret.reserve(GetNumOpenings(proving_key, evaluated, num_circuits));
+    ret.reserve(GetNumOpenings<PCS>(proving_key, evaluated, num_circuits));
     for (size_t i = 0; i < num_circuits; ++i) {
       // Generate openings for instances columns of the specific circuit.
       if constexpr (PCS::kQueryInstance) {

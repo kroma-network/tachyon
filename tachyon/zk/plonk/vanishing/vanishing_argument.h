@@ -16,13 +16,11 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
+#include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 
 namespace tachyon::zk {
-
-template <typename PCS>
-class ProvingKey;
 
 template <typename F>
 class VanishingArgument {
@@ -85,10 +83,10 @@ class VanishingArgument {
   const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
   const std::vector<GraphEvaluator<F>> lookups() const { return lookups_; }
 
-  template <typename PCS, typename Poly = typename PCS::Poly,
+  template <typename PCS, typename Poly, typename Evals, typename C,
             typename ExtendedEvals = typename PCS::ExtendedEvals>
   ExtendedEvals BuildExtendedCircuitColumn(
-      ProverBase<PCS>* prover, const ProvingKey<PCS>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
       const F& beta, const F& gamma, const F& theta, const F& y, const F& zeta,
       absl::Span<const F> challenges,
       const std::vector<PermutationCommitted<Poly>>& committed_permutations,

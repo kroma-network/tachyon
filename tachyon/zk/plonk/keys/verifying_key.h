@@ -18,21 +18,12 @@
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key_forward.h"
+#include "tachyon/zk/plonk/keys/halo2_api_proving_key_impl_base_forward.h"
 #include "tachyon/zk/plonk/keys/key.h"
+#include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 
-namespace tachyon {
-namespace halo2_api {
-
-template <typename PCS>
-class ProvingKeyImpl;
-
-}  // namespace halo2_api
-
-namespace zk {
-
-template <typename PCS>
-class ProvingKey;
+namespace tachyon::zk {
 
 template <typename Evals>
 struct VerifyingKeyLoadResult {
@@ -72,10 +63,10 @@ class VerifyingKey : public Key {
   }
 
  private:
-  template <typename PCS>
+  template <typename Poly, typename Evals, typename Commitment>
   friend class ProvingKey;
-  template <typename PCS>
-  friend class halo2_api::ProvingKeyImpl;
+  template <typename Poly, typename Evals, typename Commitment>
+  friend class halo2_api::ProvingKeyImplBase;
 
   template <typename PCS, typename Evals, typename RationalEvals>
   bool DoLoad(Entity<PCS>* entity,
@@ -132,7 +123,6 @@ class VerifyingKey : public Key {
   F transcript_repr_ = F::Zero();
 };
 
-}  // namespace zk
-}  // namespace tachyon
+}  // namespace tachyon::zk
 
 #endif  // TACHYON_ZK_PLONK_KEYS_VERIFYING_KEY_H_
