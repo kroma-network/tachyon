@@ -170,7 +170,7 @@ TEST_F(SimpleCircuitTest, Synthesize) {
   ConstraintSystem<F> constraint_system;
   FieldConfig<F> config =
       SimpleCircuit<F, SimpleFloorPlanner>::Configure(constraint_system);
-  Assembly<PCS> assembly =
+  Assembly<RationalEvals> assembly =
       VerifyingKey<PCS>::CreateAssembly(domain, constraint_system);
 
   F constant(7);

@@ -18,11 +18,10 @@
 
 namespace tachyon::zk {
 
-template <typename PCS>
-class Assembly : public Assignment<typename PCS::Field> {
+template <typename RationalEvals>
+class Assembly : public Assignment<typename RationalEvals::Field::InnerField> {
  public:
-  using F = typename PCS::Field;
-  using RationalEvals = typename PCS::RationalEvals;
+  using F = typename RationalEvals::Field::InnerField;
   using AssignCallback = typename Assignment<F>::AssignCallback;
 
   Assembly() = default;

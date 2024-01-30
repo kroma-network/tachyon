@@ -26,10 +26,10 @@ class Key {
   using F = typename PCS::Field;
   using Domain = typename PCS::Domain;
   using Evals = typename PCS::Evals;
+  using RationalEvals = typename PCS::RationalEvals;
 
-  static Assembly<PCS> CreateAssembly(
+  static Assembly<RationalEvals> CreateAssembly(
       const Domain* domain, const ConstraintSystem<F>& constraint_system) {
-    using RationalEvals = typename Assembly<PCS>::RationalEvals;
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex n = static_cast<RowIndex>(domain->size());
     return {
@@ -47,7 +47,7 @@ class Key {
  protected:
   struct PreLoadResult {
     ConstraintSystem<F> constraint_system;
-    Assembly<PCS> assembly;
+    Assembly<RationalEvals> assembly;
     std::vector<Evals> fixed_columns;
   };
 
@@ -56,7 +56,6 @@ class Key {
                PreLoadResult* result) {
     using Config = typename Circuit::Config;
     using FloorPlanner = typename Circuit::FloorPlanner;
-    using RationalEvals = typename Assembly<PCS>::RationalEvals;
     using ExtendedDomain = typename PCS::ExtendedDomain;
 
     ConstraintSystem<F>& constraint_system = result->constraint_system;
@@ -73,7 +72,7 @@ class Key {
         ExtendedDomain::Create(size_t{1} << extended_k));
 
     result->assembly = CreateAssembly(entity->domain(), constraint_system);
-    Assembly<PCS>& assembly = result->assembly;
+    Assembly<RationalEvals>& assembly = result->assembly;
     FloorPlanner floor_planner;
     floor_planner.Synthesize(&assembly, circuit, std::move(config),
                              constraint_system.constants());
