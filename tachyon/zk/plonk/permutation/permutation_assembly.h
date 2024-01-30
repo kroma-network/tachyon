@@ -30,11 +30,9 @@ class TACHYON_EXPORT PermutationAssembly {
  public:
   PermutationAssembly() = default;
 
-  // Constructor with |PermutationArgument|.
   PermutationAssembly(const PermutationArgument& p, RowIndex rows)
       : PermutationAssembly(p.columns(), rows) {}
 
-  // Constructor with permutation columns.
   PermutationAssembly(const std::vector<AnyColumnKey>& columns, RowIndex rows)
       : columns_(columns),
         cycle_store_(CycleStore(columns_.size(), rows)),
