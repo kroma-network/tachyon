@@ -85,9 +85,9 @@ pub mod ffi {
         type ProvingKey;
 
         fn new_proving_key(data: &[u8]) -> UniquePtr<ProvingKey>;
-        fn advice_column_phases(&self) -> &[u8];
+        fn advice_column_phases(&self) -> Vec<u8>;
         fn blinding_factors(&self) -> u32;
-        fn challenge_phases(&self) -> &[u8];
+        fn challenge_phases(&self) -> Vec<u8>;
         fn constants(&self) -> Vec<usize>;
         fn num_advice_columns(&self) -> usize;
         fn num_challenges(&self) -> usize;
@@ -258,9 +258,9 @@ impl ProvingKey {
 
     // NOTE(chokobole): We name this as plural since it contains multi phases.
     // pk.vk.cs.advice_column_phase
-    pub fn advice_column_phases(&self) -> &[sealed::Phase] {
+    pub fn advice_column_phases(&self) -> Vec<sealed::Phase> {
         unsafe {
-            let phases: &[sealed::Phase] = std::mem::transmute(self.inner.advice_column_phases());
+            let phases: Vec<sealed::Phase> = std::mem::transmute(self.inner.advice_column_phases());
             phases
         }
     }
@@ -272,9 +272,9 @@ impl ProvingKey {
 
     // NOTE(chokobole): We name this as plural since it contains multi phases.
     // pk.vk.cs.challenge_phase
-    pub fn challenge_phases(&self) -> &[sealed::Phase] {
+    pub fn challenge_phases(&self) -> Vec<sealed::Phase> {
         unsafe {
-            let phases: &[sealed::Phase] = std::mem::transmute(self.inner.challenge_phases());
+            let phases: Vec<sealed::Phase> = std::mem::transmute(self.inner.challenge_phases());
             phases
         }
     }

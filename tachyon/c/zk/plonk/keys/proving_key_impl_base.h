@@ -27,38 +27,6 @@ class ProvingKeyImplBase : public tachyon::zk::ProvingKey<Poly, Evals, C> {
     return this->verifying_key_.constraint_system_;
   }
 
-  const std::vector<tachyon::zk::Phase>& GetAdviceColumnPhases() const {
-    return GetConstraintSystem().advice_column_phases();
-  }
-
-  size_t ComputeBlindingFactors() const {
-    return GetConstraintSystem().ComputeBlindingFactors();
-  }
-
-  const std::vector<tachyon::zk::Phase>& GetChallengePhases() const {
-    return GetConstraintSystem().challenge_phases();
-  }
-
-  const std::vector<tachyon::zk::FixedColumnKey> GetConstants() const {
-    return GetConstraintSystem().constants();
-  }
-
-  size_t GetNumAdviceColumns() const {
-    return GetConstraintSystem().num_advice_columns();
-  }
-
-  size_t GetNumChallenges() const {
-    return GetConstraintSystem().num_challenges();
-  }
-
-  size_t GetNumInstanceColumns() const {
-    return GetConstraintSystem().num_instance_columns();
-  }
-
-  std::vector<tachyon::zk::Phase> GetPhases() const {
-    return GetConstraintSystem().GetPhases();
-  }
-
   template <typename PCS>
   void SetTranscriptRepr(const tachyon::zk::Entity<PCS>& entity) {
     this->verifying_key_.SetTranscriptRepresentative(&entity);
