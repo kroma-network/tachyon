@@ -22,7 +22,7 @@
 #include "tachyon/zk/expressions/scaled_expression.h"
 #include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
-#include "tachyon/zk/plonk/circuit/ref_table.h"
+#include "tachyon/zk/plonk/base/ref_table.h"
 
 namespace tachyon::zk {
 

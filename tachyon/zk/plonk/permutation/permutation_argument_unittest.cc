@@ -9,7 +9,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/random.h"
-#include "tachyon/zk/plonk/circuit/ref_table.h"
+#include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/permutation_assembly.h"

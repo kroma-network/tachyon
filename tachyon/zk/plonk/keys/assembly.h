@@ -13,7 +13,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/range.h"
 #include "tachyon/math/base/rational_field.h"
-#include "tachyon/zk/plonk/circuit/assignment.h"
+#include "tachyon/zk/plonk/layout/assignment.h"
 #include "tachyon/zk/plonk/permutation/permutation_assembly.h"
 
 namespace tachyon::zk {

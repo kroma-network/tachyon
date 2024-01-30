@@ -12,7 +12,7 @@
 #include "absl/types/span.h"
 #include "gtest/gtest_prod.h"
 
-#include "tachyon/zk/plonk/circuit/ref_table.h"
+#include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/permutation/permuted_table.h"
 #include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 

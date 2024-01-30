@@ -14,7 +14,7 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/point_set.h"
-#include "tachyon/zk/plonk/circuit/ref_table.h"
+#include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_committed.h"
 #include "tachyon/zk/plonk/permutation/permutation_evaluated.h"

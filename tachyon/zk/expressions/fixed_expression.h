@@ -13,7 +13,7 @@
 #include "absl/memory/memory.h"
 
 #include "tachyon/zk/expressions/expression.h"
-#include "tachyon/zk/plonk/circuit/query.h"
+#include "tachyon/zk/plonk/constraint_system/query.h"
 
 namespace tachyon::zk {
 

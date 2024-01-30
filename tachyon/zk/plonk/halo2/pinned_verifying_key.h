@@ -14,8 +14,8 @@
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/plonk/halo2/pinned_constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_evaluation_domain.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/permutation_verifying_key_stringifier.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
-#include "tachyon/zk/plonk/permutation/permutation_verifying_key_stringifier.h"
 
 namespace tachyon {
 namespace zk::halo2 {

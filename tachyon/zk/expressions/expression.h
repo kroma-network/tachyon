@@ -15,7 +15,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/expressions/expression_type.h"
-#include "tachyon/zk/plonk/circuit/selector.h"
+#include "tachyon/zk/plonk/constraint_system/selector.h"
 
 namespace tachyon::zk {
 

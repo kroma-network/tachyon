@@ -35,18 +35,8 @@ tachyon_cc_library(
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/expressions/evaluator:simple_evaluator",
         "//tachyon/zk/lookup:permute_expression_pair",
-        "//tachyon/zk/plonk/circuit:rotation",
+        "//tachyon/zk/plonk/constraint_system:rotation",
         "//tachyon/zk/plonk/permutation:grand_product_argument",
-    ],
-)
-
-tachyon_cc_library(
-    name = "lookup_argument_stringifier",
-    hdrs = ["lookup_argument_stringifier.h"],
-    deps = [
-        ":lookup_argument",
-        "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/expressions:expression_stringifier",
     ],
 )
 

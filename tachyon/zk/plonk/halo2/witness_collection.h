@@ -15,8 +15,8 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/range.h"
-#include "tachyon/zk/plonk/circuit/assignment.h"
-#include "tachyon/zk/plonk/circuit/phase.h"
+#include "tachyon/zk/plonk/base/phase.h"
+#include "tachyon/zk/plonk/layout/assignment.h"
 
 namespace tachyon::zk::halo2 {
 

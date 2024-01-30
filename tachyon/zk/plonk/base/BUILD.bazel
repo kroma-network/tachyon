@@ -1,0 +1,72 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "column_key",
+    hdrs = ["column_key.h"],
+    deps = [
+        ":column_type",
+        ":phase",
+        "//tachyon/base:logging",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "column_type",
+    srcs = ["column_type.cc"],
+    hdrs = ["column_type.h"],
+    deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
+    name = "owned_table",
+    hdrs = ["owned_table.h"],
+    deps = [":table_base"],
+)
+
+tachyon_cc_library(
+    name = "phase",
+    hdrs = ["phase.h"],
+    deps = [
+        "//tachyon/base/strings:string_number_conversions",
+        "@com_google_absl//absl/hash",
+    ],
+)
+
+tachyon_cc_library(
+    name = "ref_table",
+    hdrs = ["ref_table.h"],
+    deps = [":table_base"],
+)
+
+tachyon_cc_library(
+    name = "table_base",
+    hdrs = ["table_base.h"],
+    deps = [
+        ":column_key",
+        "//tachyon/base:logging",
+        "//tachyon/base:ref",
+        "//tachyon/base:template_util",
+        "//tachyon/base/containers:container_util",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "base_unittests",
+    srcs = [
+        "column_key_unittest.cc",
+        "phase_unittest.cc",
+        "ref_table_unittest.cc",
+    ],
+    deps = [
+        ":column_key",
+        ":phase",
+        ":ref_table",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+        "@com_google_absl//absl/hash:hash_testing",
+    ],
+)

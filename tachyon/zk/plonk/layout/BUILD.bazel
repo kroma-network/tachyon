@@ -1,0 +1,132 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "assigned_cell",
+    hdrs = ["assigned_cell.h"],
+    deps = [
+        ":cell",
+        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:value",
+    ],
+)
+
+tachyon_cc_library(
+    name = "assignment",
+    hdrs = ["assignment.h"],
+    deps = [
+        "//tachyon/base/functional:callback",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/constraint_system:challenge",
+        "//tachyon/zk/plonk/constraint_system:selector",
+    ],
+)
+
+tachyon_cc_library(
+    name = "cell",
+    hdrs = ["cell.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/plonk/base:column_key",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "layouter",
+    hdrs = [
+        "layouter.h",
+        "namespaced_layouter.h",
+    ],
+    deps = [
+        ":lookup_table",
+        ":region",
+        "//tachyon/base/functional:callback",
+        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/plonk/constraint_system",
+        "//tachyon/zk/plonk/constraint_system:challenge",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_table",
+    hdrs = ["lookup_table.h"],
+    deps = [
+        ":lookup_table_column",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:value",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_table_column",
+    hdrs = ["lookup_table_column.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/zk/plonk/base:column_key",
+    ],
+)
+
+tachyon_cc_library(
+    name = "region",
+    hdrs = ["region.h"],
+    deps = [
+        ":assigned_cell",
+        ":region_layouter",
+        "//tachyon/base/functional:callback",
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/constraint_system:selector",
+    ],
+)
+
+tachyon_cc_library(
+    name = "region_column",
+    hdrs = ["region_column.h"],
+    deps = [
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/constraint_system:selector",
+    ],
+)
+
+tachyon_cc_library(
+    name = "region_layouter",
+    hdrs = ["region_layouter.h"],
+    deps = [
+        ":assigned_cell",
+        "//tachyon/base/functional:callback",
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/constraint_system:selector",
+    ],
+)
+
+tachyon_cc_library(
+    name = "region_shape",
+    hdrs = ["region_shape.h"],
+    deps = [
+        ":region",
+        ":region_column",
+        "@com_google_absl//absl/container:flat_hash_set",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "circuit_unittests",
+    srcs = [
+        "lookup_table_column_unittest.cc",
+        "region_column_unittest.cc",
+    ],
+    deps = [
+        ":lookup_table_column",
+        ":region_column",
+        "@com_google_absl//absl/hash:hash_testing",
+    ],
+)

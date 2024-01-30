@@ -1,0 +1,78 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "assignment_pass",
+    hdrs = ["assignment_pass.h"],
+    deps = [
+        ":v1_plan",
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/layout:cell",
+        "//tachyon/zk/plonk/layout:layouter",
+        "//tachyon/zk/plonk/layout/floor_planner:lookup_table_assigner",
+        "//tachyon/zk/plonk/layout/floor_planner:plan_region",
+        "//tachyon/zk/plonk/layout/floor_planner:scoped_region",
+    ],
+)
+
+tachyon_cc_library(
+    name = "measurement_pass",
+    hdrs = ["measurement_pass.h"],
+    deps = ["//tachyon/zk/plonk/layout:region_shape"],
+)
+
+tachyon_cc_library(
+    name = "v1_floor_planner",
+    hdrs = ["v1_floor_planner.h"],
+    deps = [
+        ":measurement_pass",
+        ":v1_pass",
+        ":v1_plan",
+        ":v1_strategy",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:adapters",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/plonk/layout/floor_planner",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "v1_pass",
+    hdrs = ["v1_pass.h"],
+    deps = [
+        ":assignment_pass",
+        ":measurement_pass",
+        "//tachyon/zk/base:value",
+        "//tachyon/zk/plonk/layout:layouter",
+    ],
+)
+
+tachyon_cc_library(
+    name = "v1_plan",
+    hdrs = ["v1_plan.h"],
+    deps = [
+        "//tachyon/math/base:rational_field",
+        "//tachyon/zk/plonk/layout:assignment",
+        "//tachyon/zk/plonk/layout:cell",
+        "//tachyon/zk/plonk/layout:lookup_table_column",
+        "//tachyon/zk/plonk/layout/floor_planner:constant",
+    ],
+)
+
+tachyon_cc_library(
+    name = "v1_strategy",
+    srcs = ["v1_strategy.cc"],
+    hdrs = ["v1_strategy.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/base:column_type",
+        "//tachyon/zk/plonk/layout:region_shape",
+        "//tachyon/zk/plonk/layout/floor_planner:allocations",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)

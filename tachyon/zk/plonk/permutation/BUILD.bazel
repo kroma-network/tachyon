@@ -38,7 +38,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon:export",
         "//tachyon/base/containers:contains",
-        "//tachyon/zk/plonk/circuit:column_key",
+        "//tachyon/zk/plonk/base:column_key",
     ],
 )
 
@@ -60,17 +60,7 @@ tachyon_cc_library(
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/base:point_set",
         "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/plonk/circuit:rotation",
-    ],
-)
-
-tachyon_cc_library(
-    name = "permutation_argument_stringifier",
-    hdrs = ["permutation_argument_stringifier.h"],
-    deps = [
-        ":permutation_argument",
-        "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/plonk/circuit:column_key_stringifier",
+        "//tachyon/zk/plonk/constraint_system:rotation",
     ],
 )
 
@@ -98,7 +88,7 @@ tachyon_cc_library(
     deps = [
         ":permuted_table",
         ":unpermuted_table",
-        "//tachyon/zk/plonk/circuit:ref_table",
+        "//tachyon/zk/plonk/base:ref_table",
         "@com_google_absl//absl/types:span",
         "@com_google_googletest//:gtest_prod",
     ],
@@ -129,7 +119,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base/containers:adapters",
         "//tachyon/crypto/commitments:polynomial_openings",
-        "//tachyon/zk/plonk:constraint_system",
+        "//tachyon/zk/plonk/constraint_system",
     ],
 )
 
@@ -138,16 +128,6 @@ tachyon_cc_library(
     hdrs = ["permutation_verifying_key.h"],
     deps = [
         "//tachyon/base/buffer:copyable",
-    ],
-)
-
-tachyon_cc_library(
-    name = "permutation_verifying_key_stringifier",
-    hdrs = ["permutation_verifying_key_stringifier.h"],
-    deps = [
-        ":permutation_verifying_key",
-        "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/base:point_stringifier",
     ],
 )
 

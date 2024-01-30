@@ -9,7 +9,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/base/value.h"
-#include "tachyon/zk/plonk/circuit/examples/simple_circuit.h"
+#include "tachyon/zk/plonk/examples/simple_circuit.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk::halo2 {

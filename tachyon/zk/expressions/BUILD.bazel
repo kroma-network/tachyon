@@ -7,7 +7,7 @@ tachyon_cc_library(
     hdrs = ["advice_expression.h"],
     deps = [
         ":expression",
-        "//tachyon/zk/plonk/circuit:query",
+        "//tachyon/zk/plonk/constraint_system:query",
         "@com_google_absl//absl/memory",
     ],
 )
@@ -17,7 +17,7 @@ tachyon_cc_library(
     hdrs = ["challenge_expression.h"],
     deps = [
         ":expression",
-        "//tachyon/zk/plonk/circuit:challenge",
+        "//tachyon/zk/plonk/constraint_system:challenge",
         "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
     ],
@@ -45,7 +45,7 @@ tachyon_cc_library(
     deps = [
         ":expression_type",
         "//tachyon/base:ref",
-        "//tachyon/zk/plonk/circuit:selector",
+        "//tachyon/zk/plonk/constraint_system:selector",
     ],
 )
 
@@ -70,27 +70,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "expression_stringifier",
-    hdrs = ["expression_stringifier.h"],
-    deps = [
-        ":advice_expression",
-        ":challenge_expression",
-        ":constant_expression",
-        ":fixed_expression",
-        ":instance_expression",
-        ":negated_expression",
-        ":product_expression",
-        ":scaled_expression",
-        ":selector_expression",
-        ":sum_expression",
-        "//tachyon/zk/base:field_stringifier",
-        "//tachyon/zk/plonk/circuit:challenge_stringifier",
-        "//tachyon/zk/plonk/circuit:phase_stringifier",
-        "//tachyon/zk/plonk/circuit:rotation_stringifier",
-    ],
-)
-
-tachyon_cc_library(
     name = "expression_type",
     srcs = ["expression_type.cc"],
     hdrs = ["expression_type.h"],
@@ -102,7 +81,7 @@ tachyon_cc_library(
     hdrs = ["fixed_expression.h"],
     deps = [
         ":expression",
-        "//tachyon/zk/plonk/circuit:query",
+        "//tachyon/zk/plonk/constraint_system:query",
         "@com_google_absl//absl/memory",
     ],
 )
@@ -112,7 +91,7 @@ tachyon_cc_library(
     hdrs = ["instance_expression.h"],
     deps = [
         ":expression",
-        "//tachyon/zk/plonk/circuit:query",
+        "//tachyon/zk/plonk/constraint_system:query",
         "@com_google_absl//absl/memory",
     ],
 )

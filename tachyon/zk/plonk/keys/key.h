@@ -15,7 +15,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/entity.h"
-#include "tachyon/zk/plonk/constraint_system.h"
+#include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/keys/assembly.h"
 
 namespace tachyon::zk {
