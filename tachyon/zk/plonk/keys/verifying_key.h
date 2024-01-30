@@ -17,6 +17,7 @@
 
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/pinned_verifying_key_forward.h"
 #include "tachyon/zk/plonk/keys/key.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 
@@ -29,12 +30,6 @@ class ProvingKeyImpl;
 }  // namespace halo2_api
 
 namespace zk {
-namespace halo2 {
-
-template <typename PCS>
-class PinnedVerifyingKey;
-
-}  // namespace halo2
 
 template <typename PCS>
 class ProvingKey;
@@ -113,7 +108,7 @@ class VerifyingKey : public Key {
 
   template <typename PCS>
   void SetTranscriptRepresentative(const Entity<PCS>* entity) {
-    halo2::PinnedVerifyingKey<PCS> pinned_verifying_key(entity, *this);
+    halo2::PinnedVerifyingKey<F, C> pinned_verifying_key(entity, *this);
 
     std::string vk_str = base::ToRustDebugString(pinned_verifying_key);
     size_t vk_str_size = vk_str.size();

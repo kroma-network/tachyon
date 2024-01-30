@@ -45,6 +45,7 @@ tachyon_cc_library(
         ":key",
         "//tachyon/base/strings:rust_stringifier",
         "//tachyon/zk/plonk/halo2:constants",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key_forward",
         "//tachyon/zk/plonk/permutation:permutation_verifying_key",
         "@com_google_boringssl//:crypto",
     ],
