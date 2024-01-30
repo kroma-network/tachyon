@@ -35,7 +35,7 @@ class Key {
     return {
         base::CreateVector(constraint_system.num_fixed_columns(),
                            domain->template Empty<RationalEvals>()),
-        PermutationAssembly<PCS>(constraint_system.permutation(), n),
+        PermutationAssembly(constraint_system.permutation(), n),
         base::CreateVector(constraint_system.num_selectors(),
                            base::CreateVector(n, false)),
         // NOTE(chokobole): Considering that this is called from a verifier,

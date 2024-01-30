@@ -83,8 +83,8 @@ class VerifyingKey : public Key<PCS> {
     constraint_system_ = std::move(pre_load_result.constraint_system);
 
     std::vector<Evals> permutations =
-        pre_load_result.assembly.permutation().GeneratePermutations(
-            entity->domain());
+        pre_load_result.assembly.permutation()
+            .template GeneratePermutations<Evals>(entity->domain());
     permutation_verifying_key_ =
         pre_load_result.assembly.permutation().BuildVerifyingKey(entity,
                                                                  permutations);

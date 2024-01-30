@@ -17,7 +17,7 @@ class PermutationAssemblyTest : public halo2::ProverTest {
     columns_ = {AnyColumnKey(0), AdviceColumnKey(1), FixedColumnKey(2),
                 InstanceColumnKey(3)};
     argment_ = PermutationArgument(columns_);
-    assembly_ = PermutationAssembly<PCS>::CreateForTesting(
+    assembly_ = PermutationAssembly::CreateForTesting(
         columns_, CycleStore(columns_.size(), prover_->pcs().N()),
         prover_->pcs().N());
   }
@@ -25,7 +25,7 @@ class PermutationAssemblyTest : public halo2::ProverTest {
  protected:
   std::vector<AnyColumnKey> columns_;
   PermutationArgument argment_;
-  PermutationAssembly<PCS> assembly_;
+  PermutationAssembly assembly_;
 };
 
 }  // namespace
@@ -33,7 +33,8 @@ class PermutationAssemblyTest : public halo2::ProverTest {
 TEST_F(PermutationAssemblyTest, GeneratePermutation) {
   // Check initial permutation polynomials w/o any copy.
   const Domain* domain = prover_->domain();
-  std::vector<Evals> permutations = assembly_.GeneratePermutations(domain);
+  std::vector<Evals> permutations =
+      assembly_.GeneratePermutations<Evals>(domain);
 
   size_t n = prover_->pcs().N();
   UnpermutedTable<Evals> unpermuted_table =
@@ -50,7 +51,7 @@ TEST_F(PermutationAssemblyTest, BuildKeys) {
   const PCS& pcs = prover_->pcs();
 
   std::vector<Evals> permutations =
-      assembly_.GeneratePermutations(prover_->domain());
+      assembly_.GeneratePermutations<Evals>(prover_->domain());
   PermutationProvingKey<Poly, Evals> pk =
       assembly_.BuildProvingKey(prover_.get(), permutations);
   EXPECT_EQ(pk.permutations().size(), pk.polys().size());

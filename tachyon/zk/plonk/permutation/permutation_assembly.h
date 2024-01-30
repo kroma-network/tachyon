@@ -13,6 +13,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/export.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
 #include "tachyon/zk/plonk/permutation/label.h"
@@ -25,16 +26,8 @@ namespace tachyon::zk {
 
 // Struct that accumulates all the necessary data in order to construct the
 // permutation argument.
-template <typename PCS>
-class PermutationAssembly {
+class TACHYON_EXPORT PermutationAssembly {
  public:
-  using F = typename PCS::Field;
-  using Evals = typename PCS::Evals;
-  using Poly = typename PCS::Poly;
-  using Domain = typename PCS::Domain;
-  using Commitment = typename PCS::Commitment;
-  using Commitments = std::vector<Commitment>;
-
   PermutationAssembly() = default;
 
   // Constructor with |PermutationArgument|.
@@ -79,6 +72,8 @@ class PermutationAssembly {
   }
 
   // Returns |PermutationVerifyingKey| which has commitments for permutations.
+  template <typename PCS, typename Evals,
+            typename Commitment = typename PCS::Commitment>
   constexpr PermutationVerifyingKey<Commitment> BuildVerifyingKey(
       const Entity<PCS>* entity, const std::vector<Evals>& permutations) const {
     const PCS& pcs = entity->pcs();
@@ -92,9 +87,13 @@ class PermutationAssembly {
 
   // Returns the |PermutationProvingKey| that has the coefficient form and
   // evaluation form of the permutation.
+  template <typename PCS, typename Poly = typename PCS::Poly,
+            typename Evals = typename PCS::Evals>
   constexpr PermutationProvingKey<Poly, Evals> BuildProvingKey(
       const ProverBase<PCS>* prover,
       const std::vector<Evals>& permutations) const {
+    using Domain = typename PCS::Domain;
+
     const Domain* domain = prover->domain();
 
     // The polynomials of permutations with coefficients.
@@ -112,6 +111,7 @@ class PermutationAssembly {
   // Generate the permutation polynomials based on the accumulated copy
   // permutations. Note that the permutation polynomials are in evaluation
   // form.
+  template <typename Evals, typename Domain>
   std::vector<Evals> GeneratePermutations(const Domain* domain) const {
     CHECK_EQ(domain->size(), size_t{rows_});
     UnpermutedTable<Evals> unpermuted_table =

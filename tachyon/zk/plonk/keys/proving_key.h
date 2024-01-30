@@ -92,8 +92,8 @@ class ProvingKey : public Key<PCS> {
     if (vk_load_result) {
       permutations = std::move(vk_load_result->permutations);
     } else {
-      permutations =
-          pre_load_result.assembly.permutation().GeneratePermutations(domain);
+      permutations = pre_load_result.assembly.permutation()
+                         .template GeneratePermutations<Evals>(domain);
     }
 
     permutation_proving_key_ =

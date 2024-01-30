@@ -74,6 +74,7 @@ tachyon_cc_library(
         ":permutation_proving_key",
         ":permutation_verifying_key",
         ":unpermuted_table",
+        "//tachyon:export",
         "//tachyon/base:openmp_util",
         "//tachyon/base:parallelize",
         "//tachyon/base/containers:container_util",
