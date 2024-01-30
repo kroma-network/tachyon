@@ -33,7 +33,7 @@ class Blake2bBase {
 
   ScalarField DoSqueezeChallenge() {
     DoUpdate(kBlake2bPrefixChallenge, 1);
-    uint8_t result[64] = {0};
+    uint8_t result[BLAKE2B512_DIGEST_LENGTH] = {0};
     DoFinalize(result);
     return ScalarField::FromAnySizedBigInt(
         math::BigInt<8>::FromBytesLE(result));
@@ -66,7 +66,7 @@ class Blake2bBase {
     BLAKE2B512_Update(&state_, data, len);
   }
 
-  void DoFinalize(uint8_t result[64]) {
+  void DoFinalize(uint8_t result[BLAKE2B512_DIGEST_LENGTH]) {
     BLAKE2B_CTX hasher = state_;
     BLAKE2B512_Final(result, &hasher);
   }
@@ -149,7 +149,9 @@ class Blake2bWriter : public crypto::TranscriptWriter<AffinePoint>,
   // are called from rust binding.
   void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
 
-  void Finalize(uint8_t result[64]) { this->DoFinalize(result); }
+  void Finalize(uint8_t result[BLAKE2B512_DIGEST_LENGTH]) {
+    this->DoFinalize(result);
+  }
 
   std::vector<uint8_t> GetState() const { return this->DoGetState(); }
 

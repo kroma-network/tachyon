@@ -116,7 +116,7 @@ class VerifyingKey : public Key<PCS> {
     BLAKE2B512_Update(&state, reinterpret_cast<const uint8_t*>(&vk_str_size),
                       sizeof(size_t));
     BLAKE2B512_Update(&state, vk_str.data(), vk_str.size());
-    uint8_t result[64] = {0};
+    uint8_t result[BLAKE2B512_DIGEST_LENGTH] = {0};
     BLAKE2B512_Final(result, &state);
 
     transcript_repr_ =

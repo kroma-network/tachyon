@@ -1,0 +1,6 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "plonk_hdrs",
+    srcs = ["//tachyon/c/zk/plonk/halo2:halo2_hdrs"],
+)

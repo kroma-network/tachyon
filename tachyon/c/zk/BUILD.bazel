@@ -1,0 +1,6 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "zk_hdrs",
+    srcs = ["//tachyon/c/zk/plonk:plonk_hdrs"],
+)
