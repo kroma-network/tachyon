@@ -70,11 +70,11 @@ tachyon_cc_library(
     hdrs = ["pinned_constraint_system.h"],
     deps = [
         ":pinned_gates",
-        "//tachyon/zk/lookup:lookup_argument_stringifier",
-        "//tachyon/zk/plonk/base:phase_stringifier",
         "//tachyon/zk/plonk/constraint_system",
-        "//tachyon/zk/plonk/constraint_system:query_stringifier",
-        "//tachyon/zk/plonk/permutation:permutation_argument_stringifier",
+        "//tachyon/zk/plonk/halo2/stringifiers:lookup_argument_stringifier",
+        "//tachyon/zk/plonk/halo2/stringifiers:permutation_argument_stringifier",
+        "//tachyon/zk/plonk/halo2/stringifiers:phase_stringifier",
+        "//tachyon/zk/plonk/halo2/stringifiers:query_stringifier",
     ],
 )
 
@@ -83,8 +83,8 @@ tachyon_cc_library(
     hdrs = ["pinned_evaluation_domain.h"],
     deps = [
         "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/base:field_stringifier",
         "//tachyon/zk/base/entities:entity",
+        "//tachyon/zk/plonk/halo2/stringifiers:field_stringifier",
     ],
 )
 
@@ -100,8 +100,8 @@ tachyon_cc_library(
     deps = [
         ":pinned_constraint_system",
         ":pinned_evaluation_domain",
+        "//tachyon/zk/plonk/halo2/stringifiers:permutation_verifying_key_stringifier",
         "//tachyon/zk/plonk/keys:verifying_key",
-        "//tachyon/zk/plonk/permutation:permutation_verifying_key_stringifier",
     ],
 )
 

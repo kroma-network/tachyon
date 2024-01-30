@@ -14,7 +14,7 @@
 
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/base/entities/entity.h"
-#include "tachyon/zk/base/field_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/field_stringifier.h"
 
 namespace tachyon {
 namespace zk::halo2 {

@@ -65,16 +65,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "permutation_argument_stringifier",
-    hdrs = ["permutation_argument_stringifier.h"],
-    deps = [
-        ":permutation_argument",
-        "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/plonk/base:column_key_stringifier",
-    ],
-)
-
-tachyon_cc_library(
     name = "permutation_committed",
     hdrs = ["permutation_committed.h"],
     deps = ["//tachyon/zk/base:blinded_polynomial"],
@@ -138,16 +128,6 @@ tachyon_cc_library(
     hdrs = ["permutation_verifying_key.h"],
     deps = [
         "//tachyon/base/buffer:copyable",
-    ],
-)
-
-tachyon_cc_library(
-    name = "permutation_verifying_key_stringifier",
-    hdrs = ["permutation_verifying_key_stringifier.h"],
-    deps = [
-        ":permutation_verifying_key",
-        "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/base:point_stringifier",
     ],
 )
 

@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 
-#include "tachyon/zk/expressions/expression_stringifier.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/expression_stringifier.h"
 
 namespace tachyon {
 namespace zk::halo2 {

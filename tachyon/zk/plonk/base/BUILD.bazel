@@ -14,28 +14,10 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "column_key_stringifier",
-    hdrs = ["column_key_stringifier.h"],
-    deps = [
-        ":column_key",
-        ":column_type_stringifier",
-    ],
-)
-
-tachyon_cc_library(
     name = "column_type",
     srcs = ["column_type.cc"],
     hdrs = ["column_type.h"],
     deps = ["//tachyon/base:logging"],
-)
-
-tachyon_cc_library(
-    name = "column_type_stringifier",
-    hdrs = ["column_type_stringifier.h"],
-    deps = [
-        ":column_type",
-        "//tachyon/base/strings:rust_stringifier",
-    ],
 )
 
 tachyon_cc_library(
@@ -50,15 +32,6 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/strings:string_number_conversions",
         "@com_google_absl//absl/hash",
-    ],
-)
-
-tachyon_cc_library(
-    name = "phase_stringifier",
-    hdrs = ["phase_stringifier.h"],
-    deps = [
-        ":phase",
-        "//tachyon/base/strings:rust_stringifier",
     ],
 )
 

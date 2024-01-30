@@ -4,13 +4,13 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
-#define TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
+#define TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
 
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/zk/base/point_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/point_stringifier.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 
 namespace tachyon::base::internal {
@@ -31,4 +31,4 @@ class RustDebugStringifier<zk::PermutationVerifyingKey<Commitment>> {
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_

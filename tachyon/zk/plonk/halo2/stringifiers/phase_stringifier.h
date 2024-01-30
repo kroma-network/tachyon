@@ -4,27 +4,25 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_FIELD_STRINGIFIER_H_
-#define TACHYON_ZK_BASE_FIELD_STRINGIFIER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PHASE_STRINGIFIER_H_
+#define TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PHASE_STRINGIFIER_H_
 
 #include <ostream>
-#include <type_traits>
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/math/finite_fields/prime_field_base.h"
+#include "tachyon/zk/plonk/base/phase.h"
 
 namespace tachyon::base::internal {
 
-template <typename T>
-class RustDebugStringifier<
-    T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
+template <>
+class RustDebugStringifier<zk::Phase> {
  public:
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
-                                      const T& value) {
-    return os << value.ToHexString(true);
+                                      zk::Phase phase) {
+    return os << fmt.DebugTuple("Phase").Field(int{phase.value()}).Finish();
   }
 };
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_BASE_FIELD_STRINGIFIER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PHASE_STRINGIFIER_H_

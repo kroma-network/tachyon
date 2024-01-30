@@ -4,14 +4,14 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_BASE_POINT_STRINGIFIER_H_
-#define TACHYON_ZK_BASE_POINT_STRINGIFIER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_POINT_STRINGIFIER_H_
+#define TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_POINT_STRINGIFIER_H_
 
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
-#include "tachyon/zk/base/field_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/field_stringifier.h"
 
 namespace tachyon::base::internal {
 
@@ -26,4 +26,4 @@ class RustDebugStringifier<math::AffinePoint<Curve>> {
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_BASE_POINT_STRINGIFIER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_POINT_STRINGIFIER_H_

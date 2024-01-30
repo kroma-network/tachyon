@@ -4,25 +4,25 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_BASE_COLUMN_TYPE_STRINGIFIER_H_
-#define TACHYON_ZK_PLONK_BASE_COLUMN_TYPE_STRINGIFIER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_ROTATION_STRINGIFIER_H_
+#define TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_ROTATION_STRINGIFIER_H_
 
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/zk/plonk/base/column_type.h"
+#include "tachyon/zk/plonk/constraint_system/rotation.h"
 
 namespace tachyon::base::internal {
 
 template <>
-class RustDebugStringifier<zk::ColumnType> {
+class RustDebugStringifier<zk::Rotation> {
  public:
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
-                                      zk::ColumnType type) {
-    return os << zk::ColumnTypeToString(type);
+                                      zk::Rotation rotation) {
+    return os << fmt.DebugTuple("Rotation").Field(rotation.value()).Finish();
   }
 };
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_PLONK_BASE_COLUMN_TYPE_STRINGIFIER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_ROTATION_STRINGIFIER_H_

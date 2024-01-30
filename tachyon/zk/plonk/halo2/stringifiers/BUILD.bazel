@@ -1,0 +1,124 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "challenge_stringifier",
+    hdrs = ["challenge_stringifier.h"],
+    deps = [
+        ":phase_stringifier",
+        "//tachyon/zk/plonk/constraint_system:challenge",
+    ],
+)
+
+tachyon_cc_library(
+    name = "column_key_stringifier",
+    hdrs = ["column_key_stringifier.h"],
+    deps = [
+        ":column_type_stringifier",
+        "//tachyon/zk/plonk/base:column_key",
+    ],
+)
+
+tachyon_cc_library(
+    name = "column_type_stringifier",
+    hdrs = ["column_type_stringifier.h"],
+    deps = [
+        "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/zk/plonk/base:column_type",
+    ],
+)
+
+tachyon_cc_library(
+    name = "expression_stringifier",
+    hdrs = ["expression_stringifier.h"],
+    deps = [
+        ":challenge_stringifier",
+        ":field_stringifier",
+        ":phase_stringifier",
+        ":rotation_stringifier",
+        "//tachyon/zk/expressions:advice_expression",
+        "//tachyon/zk/expressions:challenge_expression",
+        "//tachyon/zk/expressions:constant_expression",
+        "//tachyon/zk/expressions:fixed_expression",
+        "//tachyon/zk/expressions:instance_expression",
+        "//tachyon/zk/expressions:negated_expression",
+        "//tachyon/zk/expressions:product_expression",
+        "//tachyon/zk/expressions:scaled_expression",
+        "//tachyon/zk/expressions:selector_expression",
+        "//tachyon/zk/expressions:sum_expression",
+    ],
+)
+
+tachyon_cc_library(
+    name = "field_stringifier",
+    hdrs = ["field_stringifier.h"],
+    deps = [
+        "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/math/finite_fields:prime_field_base",
+    ],
+)
+
+tachyon_cc_library(
+    name = "lookup_argument_stringifier",
+    hdrs = ["lookup_argument_stringifier.h"],
+    deps = [
+        ":expression_stringifier",
+        "//tachyon/zk/lookup:lookup_argument",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permutation_argument_stringifier",
+    hdrs = ["permutation_argument_stringifier.h"],
+    deps = [
+        ":column_key_stringifier",
+        "//tachyon/zk/plonk/permutation:permutation_argument",
+    ],
+)
+
+tachyon_cc_library(
+    name = "permutation_verifying_key_stringifier",
+    hdrs = ["permutation_verifying_key_stringifier.h"],
+    deps = [
+        ":point_stringifier",
+        "//tachyon/zk/plonk/permutation:permutation_verifying_key",
+    ],
+)
+
+tachyon_cc_library(
+    name = "phase_stringifier",
+    hdrs = ["phase_stringifier.h"],
+    deps = [
+        "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/zk/plonk/base:phase",
+    ],
+)
+
+tachyon_cc_library(
+    name = "point_stringifier",
+    hdrs = ["point_stringifier.h"],
+    deps = [
+        ":field_stringifier",
+        "//tachyon/math/elliptic_curves:points",
+    ],
+)
+
+tachyon_cc_library(
+    name = "query_stringifier",
+    hdrs = ["query_stringifier.h"],
+    deps = [
+        ":column_key_stringifier",
+        ":rotation_stringifier",
+        "//tachyon/zk/plonk/constraint_system:query",
+    ],
+)
+
+tachyon_cc_library(
+    name = "rotation_stringifier",
+    hdrs = ["rotation_stringifier.h"],
+    deps = [
+        "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/zk/plonk/constraint_system:rotation",
+    ],
+)

@@ -1,5 +1,5 @@
-#ifndef TACHYON_ZK_EXPRESSIONS_EXPRESSION_STRINGIFIER_H_
-#define TACHYON_ZK_EXPRESSIONS_EXPRESSION_STRINGIFIER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_EXPRESSION_STRINGIFIER_H_
+#define TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_EXPRESSION_STRINGIFIER_H_
 
 #include <memory>
 #include <string>
@@ -7,7 +7,6 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/zk/base/field_stringifier.h"
 #include "tachyon/zk/expressions/advice_expression.h"
 #include "tachyon/zk/expressions/challenge_expression.h"
 #include "tachyon/zk/expressions/constant_expression.h"
@@ -18,9 +17,10 @@
 #include "tachyon/zk/expressions/scaled_expression.h"
 #include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
-#include "tachyon/zk/plonk/base/phase_stringifier.h"
-#include "tachyon/zk/plonk/constraint_system/challenge_stringifier.h"
-#include "tachyon/zk/plonk/constraint_system/rotation_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/challenge_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/field_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/phase_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/rotation_stringifier.h"
 
 namespace tachyon::base::internal {
 
@@ -119,4 +119,4 @@ class RustDebugStringifier<std::vector<std::unique_ptr<zk::Expression<F>>>> {
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_EXPRESSIONS_EXPRESSION_STRINGIFIER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_EXPRESSION_STRINGIFIER_H_

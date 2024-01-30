@@ -12,15 +12,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "challenge_stringifier",
-    hdrs = ["challenge_stringifier.h"],
-    deps = [
-        ":challenge",
-        "//tachyon/zk/plonk/base:phase_stringifier",
-    ],
-)
-
-tachyon_cc_library(
     name = "circuit",
     hdrs = ["circuit.h"],
     deps = [
@@ -88,16 +79,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "query_stringifier",
-    hdrs = ["query_stringifier.h"],
-    deps = [
-        ":query",
-        ":rotation_stringifier",
-        "//tachyon/zk/plonk/base:column_key_stringifier",
-    ],
-)
-
-tachyon_cc_library(
     name = "rotation",
     hdrs = ["rotation.h"],
     deps = [
@@ -106,15 +87,6 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
         "//tachyon/zk/base:row_index",
-    ],
-)
-
-tachyon_cc_library(
-    name = "rotation_stringifier",
-    hdrs = ["rotation_stringifier.h"],
-    deps = [
-        ":rotation",
-        "//tachyon/base/strings:rust_stringifier",
     ],
 )
 

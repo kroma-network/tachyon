@@ -70,27 +70,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "expression_stringifier",
-    hdrs = ["expression_stringifier.h"],
-    deps = [
-        ":advice_expression",
-        ":challenge_expression",
-        ":constant_expression",
-        ":fixed_expression",
-        ":instance_expression",
-        ":negated_expression",
-        ":product_expression",
-        ":scaled_expression",
-        ":selector_expression",
-        ":sum_expression",
-        "//tachyon/zk/base:field_stringifier",
-        "//tachyon/zk/plonk/base:phase_stringifier",
-        "//tachyon/zk/plonk/constraint_system:challenge_stringifier",
-        "//tachyon/zk/plonk/constraint_system:rotation_stringifier",
-    ],
-)
-
-tachyon_cc_library(
     name = "expression_type",
     srcs = ["expression_type.cc"],
     hdrs = ["expression_type.h"],

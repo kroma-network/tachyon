@@ -41,16 +41,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "lookup_argument_stringifier",
-    hdrs = ["lookup_argument_stringifier.h"],
-    deps = [
-        ":lookup_argument",
-        "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/expressions:expression_stringifier",
-    ],
-)
-
-tachyon_cc_library(
     name = "lookup_committed",
     hdrs = ["lookup_committed.h"],
     deps = ["//tachyon/zk/base:blinded_polynomial"],
