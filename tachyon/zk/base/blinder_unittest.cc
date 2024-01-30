@@ -56,26 +56,34 @@ class FakeRandomFieldGenerator : public RandomFieldGeneratorBase<math::GF7> {
 TEST(BlinderUnittest, Blind) {
   constexpr RowIndex kBlindingFactors = 10;
   std::vector<math::GF7> blinding_values = base::CreateVector(
-      kBlindingFactors, []() { return math::GF7::Random(); });
-  FakeRandomFieldGenerator generator(blinding_values);
-  Blinder<FakePCS> blinder(&generator, kBlindingFactors);
+      kBlindingFactors + 1, []() { return math::GF7::Random(); });
 
-  std::vector<math::GF7> evals = base::CreateVector(
-      kBlindingFactors - 1, []() { return math::GF7::Random(); });
+  for (size_t i = 0; i < 2; ++i) {
+    bool include_last_row = i == 0;
 
-  FakeEvals fake_evals(evals);
-  ASSERT_FALSE(blinder.Blind(fake_evals));
+    FakeRandomFieldGenerator generator(blinding_values);
+    Blinder<FakePCS> blinder(&generator, kBlindingFactors);
 
-  evals = base::CreateVector(kBlindingFactors + 5,
-                             []() { return math::GF7::Random(); });
-  fake_evals = FakeEvals(evals);
-  ASSERT_TRUE(blinder.Blind(fake_evals));
+    RowIndex blinded_rows = kBlindingFactors;
+    if (include_last_row) ++blinded_rows;
+    std::vector<math::GF7> evals = base::CreateVector(
+        blinded_rows - 1, []() { return math::GF7::Random(); });
+    FakeEvals fake_evals(evals);
+    ASSERT_FALSE(blinder.Blind(fake_evals, include_last_row));
 
-  for (size_t i = 0; i < kBlindingFactors + 5; ++i) {
-    if (i < 5) {
-      EXPECT_EQ(fake_evals.evaluations()[i], evals[i]);
-    } else {
-      EXPECT_EQ(fake_evals.evaluations()[i], blinding_values[i - 5]);
+    RowIndex rows = kBlindingFactors + 5;
+    evals = base::CreateVector(rows, []() { return math::GF7::Random(); });
+    fake_evals = FakeEvals(evals);
+    ASSERT_TRUE(blinder.Blind(fake_evals, include_last_row));
+
+    RowIndex not_blinded_rows = rows - blinded_rows;
+    for (RowIndex i = 0; i < rows; ++i) {
+      if (i < not_blinded_rows) {
+        EXPECT_EQ(fake_evals.evaluations()[i], evals[i]);
+      } else {
+        EXPECT_EQ(fake_evals.evaluations()[i],
+                  blinding_values[i - not_blinded_rows]);
+      }
     }
   }
 }
