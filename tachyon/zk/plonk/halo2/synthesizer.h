@@ -132,7 +132,7 @@ class Synthesizer {
     // cells that exist within inactive rows, which include some
     // number of blinding factors and an extra row for use in the
     // permutation argument.
-    WitnessCollection<PCS> witness(
+    WitnessCollection<Evals, RationalEvals> witness(
         prover->domain(), constraint_system_->num_advice_columns(),
         prover->GetUsableRows(), phase, challenges_, instance_columns);
 

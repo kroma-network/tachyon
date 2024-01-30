@@ -17,9 +17,6 @@ namespace {
 
 class WitnessCollectionTest : public halo2::ProverTest {
  public:
-  using F = typename PCS::Field;
-  using RationalEvals = typename PCS::RationalEvals;
-
   void SetUp() override {
     halo2::ProverTest::SetUp();
 
@@ -31,7 +28,7 @@ class WitnessCollectionTest : public halo2::ProverTest {
     expected_instance_columns_ = {domain->Random<Evals>()};
 
     Phase current_phase(0);
-    witness_collection_ = WitnessCollection<PCS>(
+    witness_collection_ = WitnessCollection<Evals, RationalEvals>(
         domain, 3, prover_->GetUsableRows(), current_phase,
         expected_challenges_, expected_instance_columns_);
   }
@@ -39,7 +36,7 @@ class WitnessCollectionTest : public halo2::ProverTest {
  protected:
   absl::btree_map<size_t, F> expected_challenges_;
   std::vector<Evals> expected_instance_columns_;
-  WitnessCollection<PCS> witness_collection_;
+  WitnessCollection<Evals, RationalEvals> witness_collection_;
 };
 
 }  // namespace
