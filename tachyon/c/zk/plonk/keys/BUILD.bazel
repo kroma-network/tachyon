@@ -1,0 +1,31 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "keys_hdrs",
+    srcs = ["bn254_plonk_verifying_key.h"],
+)
+
+tachyon_cc_library(
+    name = "bn254_keys",
+    deps = [":bn254_plonk_verifying_key"],
+)
+
+tachyon_cc_library(
+    name = "bn254_plonk_verifying_key",
+    srcs = ["bn254_plonk_verifying_key.cc"],
+    hdrs = ["bn254_plonk_verifying_key.h"],
+    deps = [
+        "//tachyon/c/zk/plonk/constraint_system:bn254_constraint_system",
+        "//tachyon/cc/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/zk/plonk/keys:verifying_key",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "keys_unittests",
+    srcs = ["bn254_plonk_verifying_key_unittest.cc"],
+    deps = [":bn254_plonk_verifying_key"],
+)

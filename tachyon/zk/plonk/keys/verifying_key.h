@@ -49,6 +49,10 @@ class VerifyingKey : public Key {
 
   const F& transcript_repr() const { return transcript_repr_; }
 
+  void SetTranscriptReprForTesting(const F& transcript_repr) {
+    transcript_repr_ = transcript_repr;
+  }
+
   // Return true if it is able to load from an instance of |circuit|.
   template <typename PCS, typename Circuit>
   [[nodiscard]] bool Load(Entity<PCS>* entity, const Circuit& circuit) {
