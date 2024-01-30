@@ -55,9 +55,9 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
 
   Evals z_evals = GrandProductArgument::CreatePolynomial<Evals>(
       n, prover_->blinder().blinding_factors(),
-      LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback<F>(
+      LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
           lookup_permuted, beta, gamma),
-      LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback<F>(
+      LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
           lookup_permuted, beta, gamma));
   const std::vector<F>& z = z_evals.evaluations();
 
