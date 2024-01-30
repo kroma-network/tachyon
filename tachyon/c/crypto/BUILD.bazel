@@ -1,0 +1,6 @@
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "crypto_hdrs",
+    srcs = ["//tachyon/c/crypto/random:random_hdrs"],
+)

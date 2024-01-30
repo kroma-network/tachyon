@@ -1,13 +1,5 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load(
-    ":version.bzl",
-    "VERSION",
-    "VERSION_MAJOR",
-    "VERSION_MINOR",
-    "VERSION_PATCH",
-    "VERSION_PRERELEASE",
-)
-load(
     "//bazel:tachyon_cc.bzl",
     "collect_hdrs",
     "tachyon_cc_library",
@@ -15,6 +7,14 @@ load(
     "tachyon_cc_unittest",
 )
 load("//tachyon/build:version.bzl", "write_version_header")
+load(
+    ":version.bzl",
+    "VERSION",
+    "VERSION_MAJOR",
+    "VERSION_MINOR",
+    "VERSION_PATCH",
+    "VERSION_PRERELEASE",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -65,6 +65,7 @@ tachyon_cc_shared_library(
     tags = ["manual"],
     deps = CURVE_DEPS + [
         ":version",
+        "//tachyon/c/crypto/random:rng",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
@@ -79,6 +80,7 @@ collect_hdrs(
         "version.h",
     ],
     deps = [
+        "//tachyon/c/crypto:crypto_hdrs",
         "//tachyon/c/math:math_hdrs",
     ],
 )

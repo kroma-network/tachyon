@@ -1,5 +1,5 @@
-load("//bazel:tachyon_ts.bzl", "tachyon_ts_project")
 load("//bazel:tachyon_jest.bzl", "tachyon_jest_unittest")
+load("//bazel:tachyon_ts.bzl", "tachyon_ts_project")
 
 tachyon_ts_project(
     name = "finite_fields",

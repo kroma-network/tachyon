@@ -44,9 +44,10 @@ class Prover : public ProverBase<PCS> {
                          blinding_factors);
   }
 
+  template <typename Container>
   static Prover CreateFromSeed(
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-      const uint8_t seed[16], RowIndex blinding_factors) {
+      const Container& seed, RowIndex blinding_factors) {
     auto rng = std::make_unique<crypto::XORShiftRNG>(
         crypto::XORShiftRNG::FromSeed(seed));
     return CreateFromRNG(std::move(pcs), std::move(writer), std::move(rng),

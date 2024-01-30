@@ -1,12 +1,4 @@
 load(
-    ":version.bzl",
-    "VERSION",
-    "VERSION_MAJOR",
-    "VERSION_MINOR",
-    "VERSION_PATCH",
-    "VERSION_PRERELEASE",
-)
-load(
     "//bazel:tachyon_cc.bzl",
     "collect_hdrs",
     "tachyon_cc_library",
@@ -14,6 +6,14 @@ load(
     "tachyon_cc_unittest",
 )
 load("//tachyon/build:version.bzl", "write_version_header")
+load(
+    ":version.bzl",
+    "VERSION",
+    "VERSION_MAJOR",
+    "VERSION_MINOR",
+    "VERSION_PATCH",
+    "VERSION_PRERELEASE",
+)
 
 package(default_visibility = ["//visibility:public"])
 

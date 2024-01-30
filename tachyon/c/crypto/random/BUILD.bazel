@@ -1,0 +1,30 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "random_hdrs",
+    srcs = ["rng.h"],
+)
+
+tachyon_cc_library(
+    name = "rng",
+    srcs = ["rng.cc"],
+    hdrs = ["rng.h"],
+    deps = [
+        "//tachyon/base/buffer",
+        "//tachyon/c:export",
+        "//tachyon/crypto/random/xor_shift:xor_shift_rng",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "rng_unittests",
+    srcs = ["rng_unittest.cc"],
+    deps = [
+        ":rng",
+        "//tachyon/base:random",
+        "//tachyon/base/containers:container_util",
+    ],
+)

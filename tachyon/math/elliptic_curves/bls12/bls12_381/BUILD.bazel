@@ -1,12 +1,12 @@
-load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load("//tachyon/math/elliptic_curves/bls12/generator:build_defs.bzl", "generate_bls12_curves")
-load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load(
     "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
     "generate_fp12s",
     "generate_fp2s",
     "generate_fp6s",
 )
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 

@@ -1,5 +1,5 @@
-load("//tachyon/build:buildflag.bzl", "attrs", "gen_buildflag_header_helper", "get_var")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//tachyon/build:buildflag.bzl", "attrs", "gen_buildflag_header_helper", "get_var")
 
 def _gen_time_buildflag_header_impl(ctx):
     names = ["ENABLE_MACH_ABSOLUTE_TIME_TICKS"]
