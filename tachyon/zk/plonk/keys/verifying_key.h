@@ -40,13 +40,14 @@ template <typename PCS>
 class ProvingKey;
 
 template <typename PCS>
-class VerifyingKey : public Key<PCS> {
+class VerifyingKey : public Key {
  public:
   using F = typename PCS::Field;
   using Evals = typename PCS::Evals;
+  using RationalEvals = typename PCS::RationalEvals;
   using Commitment = typename PCS::Commitment;
   using Commitments = std::vector<Commitment>;
-  using PreLoadResult = typename Key<PCS>::PreLoadResult;
+  using PreLoadResult = KeyPreLoadResult<Evals, RationalEvals>;
 
   VerifyingKey() = default;
 

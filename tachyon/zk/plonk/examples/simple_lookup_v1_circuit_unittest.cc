@@ -129,7 +129,8 @@ TEST_F(SimpleLookupV1CircuitTest, Synthesize) {
       SimpleLookupCircuit<F, kBits, V1FloorPlanner>::Configure(
           constraint_system);
   Assembly<RationalEvals> assembly =
-      VerifyingKey<PCS>::CreateAssembly(domain, constraint_system);
+      VerifyingKey<PCS>::CreateAssembly<RationalEvals>(domain,
+                                                       constraint_system);
 
   SimpleLookupCircuit<F, kBits, V1FloorPlanner> circuit(4);
   typename SimpleLookupCircuit<F, kBits, V1FloorPlanner>::FloorPlanner

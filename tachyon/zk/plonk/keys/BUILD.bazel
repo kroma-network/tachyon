@@ -19,6 +19,7 @@ tachyon_cc_library(
     hdrs = ["key.h"],
     deps = [
         ":assembly",
+        "//tachyon:export",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:entity",
         "//tachyon/zk/plonk/constraint_system",

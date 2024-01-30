@@ -27,12 +27,13 @@ class ProvingKeyImpl;
 namespace zk {
 
 template <typename PCS>
-class ProvingKey : public Key<PCS> {
+class ProvingKey : public Key {
  public:
   using F = typename PCS::Field;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
-  using PreLoadResult = typename Key<PCS>::PreLoadResult;
+  using RationalEvals = typename PCS::RationalEvals;
+  using PreLoadResult = KeyPreLoadResult<Evals, RationalEvals>;
   using VerifyingKeyLoadResult = typename VerifyingKey<PCS>::LoadResult;
 
   ProvingKey() = default;

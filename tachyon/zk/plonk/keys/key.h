@@ -14,20 +14,25 @@
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/export.h"
 #include "tachyon/zk/base/entities/entity.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/keys/assembly.h"
 
 namespace tachyon::zk {
 
-template <typename PCS>
-class Key {
- public:
-  using F = typename PCS::Field;
-  using Domain = typename PCS::Domain;
-  using Evals = typename PCS::Evals;
-  using RationalEvals = typename PCS::RationalEvals;
+template <typename Evals, typename RationalEvals>
+struct KeyPreLoadResult {
+  using F = typename Evals::Field;
 
+  ConstraintSystem<F> constraint_system;
+  Assembly<RationalEvals> assembly;
+  std::vector<Evals> fixed_columns;
+};
+
+class TACHYON_EXPORT Key {
+ public:
+  template <typename RationalEvals, typename Domain, typename F>
   static Assembly<RationalEvals> CreateAssembly(
       const Domain* domain, const ConstraintSystem<F>& constraint_system) {
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
@@ -45,15 +50,11 @@ class Key {
   }
 
  protected:
-  struct PreLoadResult {
-    ConstraintSystem<F> constraint_system;
-    Assembly<RationalEvals> assembly;
-    std::vector<Evals> fixed_columns;
-  };
-
-  template <typename Circuit>
+  template <typename PCS, typename Circuit, typename Evals,
+            typename RationalEvals>
   bool PreLoad(Entity<PCS>* entity, const Circuit& circuit,
-               PreLoadResult* result) {
+               KeyPreLoadResult<Evals, RationalEvals>* result) {
+    using F = typename Evals::Field;
     using Config = typename Circuit::Config;
     using FloorPlanner = typename Circuit::FloorPlanner;
     using ExtendedDomain = typename PCS::ExtendedDomain;
@@ -71,7 +72,8 @@ class Key {
     entity->set_extended_domain(
         ExtendedDomain::Create(size_t{1} << extended_k));
 
-    result->assembly = CreateAssembly(entity->domain(), constraint_system);
+    result->assembly =
+        CreateAssembly<RationalEvals>(entity->domain(), constraint_system);
     Assembly<RationalEvals>& assembly = result->assembly;
     FloorPlanner floor_planner;
     floor_planner.Synthesize(&assembly, circuit, std::move(config),
