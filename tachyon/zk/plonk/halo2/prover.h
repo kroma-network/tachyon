@@ -125,8 +125,6 @@ class Prover : public ProverBase<PCS> {
                                    &proving_key.fixed_polys(), argument_data);
 
     crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
-    auto state =
-        reinterpret_cast<halo2::Blake2bWriter<Commitment>*>(writer)->GetState();
     F theta = writer->SqueezeChallenge();
     std::vector<std::vector<LookupPermuted<Poly, Evals>>> permuted_lookups_vec =
         argument.CompressLookupStep(
