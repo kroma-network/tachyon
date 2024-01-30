@@ -192,46 +192,6 @@ class Argument {
   }
 
  private:
-  // Generate a vector of instance coefficient-formed polynomials with a vector
-  // of instance evaluation-formed columns. (a.k.a. Batch IFFT)
-  static std::vector<std::vector<Poly>> GenerateInstancePolys(
-      ProverBase<PCS>* prover,
-      const std::vector<std::vector<Evals>>& instance_columns_vec) {
-    size_t num_circuit = instance_columns_vec.size();
-    CHECK_GT(num_circuit, size_t{0});
-    size_t num_instance_columns = instance_columns_vec[0].size();
-    if constexpr (PCS::kSupportsBatchMode && PCS::kQueryInstance) {
-      size_t num_commitment = num_circuit * num_instance_columns;
-      prover->pcs().SetBatchMode(num_commitment);
-    }
-
-    std::vector<std::vector<Poly>> instance_polys_vec;
-    instance_polys_vec.reserve(num_circuit);
-    for (size_t i = 0; i < num_circuit; ++i) {
-      const std::vector<Evals>& instance_columns = instance_columns_vec[i];
-      std::vector<Poly> instance_polys;
-      instance_polys.reserve(num_instance_columns);
-      for (size_t j = 0; j < num_instance_columns; ++j) {
-        const Evals& instance_column = instance_columns[j];
-        if constexpr (PCS::kQueryInstance && PCS::kSupportsBatchMode) {
-          prover->BatchCommitAt(instance_column, i * num_instance_columns + j);
-        } else if constexpr (PCS::kQueryInstance && !PCS::kSupportsBatchMode) {
-          prover->CommitAndWriteToTranscript(instance_column);
-        } else {
-          for (const F& instance : instance_column.evaluations()) {
-            CHECK(prover->GetWriter()->WriteToTranscript(instance));
-          }
-        }
-        instance_polys.push_back(prover->domain()->IFFT(instance_column));
-      }
-      instance_polys_vec.push_back(std::move(instance_polys));
-    }
-    if constexpr (PCS::kSupportsBatchMode && PCS::kQueryInstance) {
-      prover->RetrieveAndWriteBatchCommitmentsToTranscript();
-    }
-    return instance_polys_vec;
-  }
-
   // not owned
   const std::vector<Evals>* fixed_columns_ = nullptr;
   // not owned
