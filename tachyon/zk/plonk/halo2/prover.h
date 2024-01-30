@@ -152,7 +152,7 @@ class Prover : public ProverBase<PCS> {
 
     F x = writer->SqueezeChallenge();
     StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
-                VanishingEvaluated<PCS>>
+                VanishingEvaluated<Poly>>
         evaluated_result =
             argument.EvaluateCircuitStep(this, proving_key, committed_result,
                                          std::move(constructed_vanishing), x);

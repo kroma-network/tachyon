@@ -14,11 +14,10 @@
 
 namespace tachyon::zk {
 
-template <typename PCS>
+template <typename Poly>
 class VanishingEvaluated {
  public:
-  using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
+  using F = typename Poly::Field;
 
   VanishingEvaluated() = default;
   VanishingEvaluated(Poly&& h_poly, F&& h_blind,

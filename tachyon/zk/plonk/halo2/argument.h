@@ -91,7 +91,7 @@ class Argument {
 
   template <typename P, typename L, typename V>
   StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
-              VanishingEvaluated<PCS>>
+              VanishingEvaluated<Poly>>
   EvaluateCircuitStep(ProverBase<PCS>* prover,
                       const ProvingKey<PCS>& proving_key,
                       StepReturns<P, L, V>& committed,
@@ -104,7 +104,7 @@ class Argument {
     EvaluateColumns(prover, cs, tables, x);
 
     F xn = x.Pow(prover->pcs().N());
-    VanishingEvaluated<PCS> evaluated_vanishing;
+    VanishingEvaluated<Poly> evaluated_vanishing;
     CHECK(CommitRandomEval(prover->pcs(), std::move(constructed_vanishing), x,
                            xn, prover->GetWriter(), &evaluated_vanishing));
 

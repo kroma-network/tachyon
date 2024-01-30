@@ -112,7 +112,7 @@ template <typename PCS, typename Poly, typename F, typename Commitment>
 [[nodiscard]] bool CommitRandomEval(
     const PCS& pcs, VanishingConstructed<Poly>&& constructed, const F& x,
     const F& x_n, crypto::TranscriptWriter<Commitment>* writer,
-    VanishingEvaluated<PCS>* evaluated_out) {
+    VanishingEvaluated<Poly>* evaluated_out) {
   using Coeffs = typename Poly::Coefficients;
 
   Poly h_poly = Poly::template LinearCombination</*forward=*/false>(
@@ -129,9 +129,9 @@ template <typename PCS, typename Poly, typename F, typename Commitment>
   return true;
 }
 
-template <typename PCS, typename F, typename Poly = typename PCS::Poly>
+template <typename Poly, typename F>
 std::vector<crypto::PolynomialOpening<Poly>> OpenVanishingArgument(
-    const VanishingEvaluated<PCS>& evaluated, const F& x) {
+    const VanishingEvaluated<Poly>& evaluated, const F& x) {
   base::DeepRef<const F> x_ref(&x);
   return {crypto::PolynomialOpening<Poly>(
               base::DeepRef<const Poly>(&evaluated.h_poly()), x_ref,

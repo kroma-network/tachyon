@@ -100,7 +100,7 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
                                extended_evals, &constructed_p));
 
   F x = F::One();
-  VanishingEvaluated<PCS> evaluated;
+  VanishingEvaluated<Poly> evaluated;
   ASSERT_TRUE(CommitRandomEval(prover_->pcs(), std::move(constructed_p), x,
                                F::One(), prover_->GetWriter(), &evaluated));
 }
