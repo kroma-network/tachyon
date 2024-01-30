@@ -147,7 +147,7 @@ void SHPlonkProver::create_proof(const ProvingKey& key,
                                  rust::Vec<AdviceSingle> advice_singles,
                                  rust::Vec<Fr> challenges) {
   const zk::ProvingKey<PCS::Poly, PCS::Evals, PCS::Commitment>& cpp_key =
-      key.impl()->key();
+      *key.impl();
   impl_->SetBlindingFactors(
       cpp_key.verifying_key().constraint_system().ComputeBlindingFactors());
 
@@ -223,6 +223,7 @@ std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint32_t k, const Fr& s) {
 }
 
 rust::Box<Fr> ProvingKey::transcript_repr(const SHPlonkProver& prover) {
+  impl_->SetTranscriptRepr(prover.impl()->prover());
   math::bn254::Fr* ret =
       new math::bn254::Fr(impl_->GetTranscriptRepr(prover.impl()->prover()));
   return rust::Box<Fr>::from_raw(reinterpret_cast<Fr*>(ret));

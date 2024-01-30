@@ -63,7 +63,7 @@ class ProvingKey : public Key {
   }
 
  private:
-  friend class halo2_api::ProvingKeyImplBase<Poly, Evals, C>;
+  friend class c::zk::ProvingKeyImplBase<Poly, Evals, C>;
 
   template <typename PCS, typename RationalEvals>
   bool DoLoad(ProverBase<PCS>* prover,

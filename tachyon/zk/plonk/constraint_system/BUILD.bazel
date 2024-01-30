@@ -41,7 +41,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/constraint_system:query",
         "//tachyon/zk/plonk/constraint_system:selector_compressor",
         "//tachyon/zk/plonk/constraint_system:virtual_cells",
-        "//tachyon/zk/plonk/keys:halo2_api_proving_key_impl_base_forward",
+        "//tachyon/zk/plonk/keys:c_proving_key_impl_base_forward",
         "//tachyon/zk/plonk/layout:lookup_table_column",
         "//tachyon/zk/plonk/permutation:permutation_argument",
         "//tachyon/zk/plonk/permutation:permutation_utils",

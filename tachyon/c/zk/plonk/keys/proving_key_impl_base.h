@@ -1,35 +1,33 @@
-#ifndef VENDORS_HALO2_SRC_PROVING_KEY_IMPL_BASE_H_
-#define VENDORS_HALO2_SRC_PROVING_KEY_IMPL_BASE_H_
+#ifndef TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_
+#define TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_
 
 #include <utility>
 #include <vector>
 
-#include "rust/cxx.h"
+#include "absl/types/span.h"
 
 #include "tachyon/base/buffer/buffer.h"
+#include "tachyon/c/zk/plonk/keys/buffer_reader.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
-#include "vendors/halo2/src/buffer_reader.h"
 
-namespace tachyon::halo2_api {
+namespace tachyon::c::zk {
 
 template <typename Poly, typename Evals, typename C>
-class ProvingKeyImplBase {
+class ProvingKeyImplBase : public tachyon::zk::ProvingKey<Poly, Evals, C> {
  public:
   using F = typename Poly::Field;
 
-  explicit ProvingKeyImplBase(rust::Slice<const uint8_t> bytes) {
-    base::Buffer buffer(const_cast<uint8_t*>(bytes.data()), bytes.size());
+  explicit ProvingKeyImplBase(absl::Span<const uint8_t> state) {
+    base::Buffer buffer(const_cast<uint8_t*>(state.data()), state.size());
     ReadProvingKey(buffer);
   }
 
-  const zk::ProvingKey<Poly, Evals, C>& key() const { return key_; }
-
-  const zk::ConstraintSystem<F>& GetConstraintSystem() const {
-    return key_.verifying_key().constraint_system();
+  const tachyon::zk::ConstraintSystem<F>& GetConstraintSystem() const {
+    return this->verifying_key_.constraint_system_;
   }
 
-  const std::vector<zk::Phase>& GetAdviceColumnPhases() const {
+  const std::vector<tachyon::zk::Phase>& GetAdviceColumnPhases() const {
     return GetConstraintSystem().advice_column_phases();
   }
 
@@ -37,11 +35,11 @@ class ProvingKeyImplBase {
     return GetConstraintSystem().ComputeBlindingFactors();
   }
 
-  const std::vector<zk::Phase>& GetChallengePhases() const {
+  const std::vector<tachyon::zk::Phase>& GetChallengePhases() const {
     return GetConstraintSystem().challenge_phases();
   }
 
-  const std::vector<zk::FixedColumnKey> GetConstants() const {
+  const std::vector<tachyon::zk::FixedColumnKey> GetConstants() const {
     return GetConstraintSystem().constants();
   }
 
@@ -57,32 +55,36 @@ class ProvingKeyImplBase {
     return GetConstraintSystem().num_instance_columns();
   }
 
-  std::vector<zk::Phase> GetPhases() const {
+  std::vector<tachyon::zk::Phase> GetPhases() const {
     return GetConstraintSystem().GetPhases();
   }
 
   template <typename PCS>
-  const F& GetTranscriptRepr(const zk::Entity<PCS>& entity) {
-    key_.verifying_key_.SetTranscriptRepresentative(&entity);
-    return key_.verifying_key_.transcript_repr_;
+  void SetTranscriptRepr(const tachyon::zk::Entity<PCS>& entity) {
+    this->verifying_key_.SetTranscriptRepresentative(&entity);
+  }
+
+  template <typename PCS>
+  const F& GetTranscriptRepr(const tachyon::zk::Entity<PCS>& entity) {
+    return this->verifying_key_.transcript_repr_;
   }
 
  private:
   void ReadProvingKey(base::Buffer& buffer) {
-    ReadVerifyingKey(buffer, key_.verifying_key_);
-    ReadBuffer(buffer, key_.l_first_);
-    ReadBuffer(buffer, key_.l_last_);
-    ReadBuffer(buffer, key_.l_active_row_);
-    ReadBuffer(buffer, key_.fixed_columns_);
-    ReadBuffer(buffer, key_.fixed_polys_);
-    ReadBuffer(buffer, key_.permutation_proving_key_);
-    key_.vanishing_argument_ = zk::VanishingArgument<F>::Create(
-        key_.verifying_key_.constraint_system());
+    ReadVerifyingKey(buffer, this->verifying_key_);
+    ReadBuffer(buffer, this->l_first_);
+    ReadBuffer(buffer, this->l_last_);
+    ReadBuffer(buffer, this->l_active_row_);
+    ReadBuffer(buffer, this->fixed_columns_);
+    ReadBuffer(buffer, this->fixed_polys_);
+    ReadBuffer(buffer, this->permutation_proving_key_);
+    this->vanishing_argument_ = tachyon::zk::VanishingArgument<F>::Create(
+        this->verifying_key_.constraint_system_);
     CHECK(buffer.Done());
   }
 
   static void ReadVerifyingKey(base::Buffer& buffer,
-                               zk::VerifyingKey<F, C>& vkey) {
+                               tachyon::zk::VerifyingKey<F, C>& vkey) {
     // NOTE(chokobole): For k
     ReadU32AsSizeT(buffer);
     ReadBuffer(buffer, vkey.fixed_commitments_);
@@ -95,11 +97,11 @@ class ProvingKeyImplBase {
       ReadBuffer(buffer, commitments[i]);
     }
     vkey.permutation_verifying_key_ =
-        zk::PermutationVerifyingKey<C>(std::move(commitments));
+        tachyon::zk::PermutationVerifyingKey<C>(std::move(commitments));
   }
 
   static void ReadConstraintSystem(base::Buffer& buffer,
-                                   zk::ConstraintSystem<F>& cs) {
+                                   tachyon::zk::ConstraintSystem<F>& cs) {
     cs.num_fixed_columns_ = ReadU32AsSizeT(buffer);
     cs.num_advice_columns_ = ReadU32AsSizeT(buffer);
     cs.num_instance_columns_ = ReadU32AsSizeT(buffer);
@@ -119,10 +121,8 @@ class ProvingKeyImplBase {
     ReadBuffer(buffer, cs.lookups_);
     ReadBuffer(buffer, cs.constants_);
   }
-
-  zk::ProvingKey<Poly, Evals, C> key_;
 };
 
-}  // namespace tachyon::halo2_api
+}  // namespace tachyon::c::zk
 
-#endif  // VENDORS_HALO2_SRC_PROVING_KEY_IMPL_BASE_H_
+#endif  // TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_
