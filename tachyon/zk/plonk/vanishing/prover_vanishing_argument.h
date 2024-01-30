@@ -23,11 +23,10 @@
 
 namespace tachyon::zk {
 
-template <typename PCS>
+template <typename PCS, typename Poly>
 [[nodiscard]] bool CommitRandomPoly(ProverBase<PCS>* prover,
-                                    VanishingCommitted<PCS>* out) {
+                                    VanishingCommitted<Poly>* out) {
   using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
 
   // Sample a random polynomial of degree n - 1
   // TODO(TomTaehoonKim): Figure out why it is named |random_poly|.
@@ -47,14 +46,13 @@ template <typename PCS>
   return true;
 }
 
-template <typename PCS, typename ExtendedEvals>
+template <typename PCS, typename Poly, typename ExtendedEvals>
 [[nodiscard]] bool CommitFinalHPoly(
-    ProverBase<PCS>* prover, VanishingCommitted<PCS>&& committed,
+    ProverBase<PCS>* prover, VanishingCommitted<Poly>&& committed,
     const VerifyingKey<PCS>& vk, ExtendedEvals& circuit_column,
     VanishingConstructed<PCS>* constructed_out) {
   using F = typename PCS::Field;
   using Commitment = typename PCS::Commitment;
-  using Poly = typename PCS::Poly;
   using Coeffs = typename Poly::Coefficients;
   using ExtendedPoly = typename PCS::ExtendedPoly;
 
@@ -123,7 +121,7 @@ template <typename PCS, typename F, typename Commitment>
 
   F h_blind = Poly(Coeffs(constructed.h_blinds())).Evaluate(x_n);
 
-  VanishingCommitted<PCS> committed = std::move(constructed).TakeCommitted();
+  VanishingCommitted<Poly> committed = std::move(constructed).TakeCommitted();
   F random_eval = committed.random_poly().Evaluate(x);
   if (!writer->WriteToProof(random_eval)) return false;
 

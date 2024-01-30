@@ -22,23 +22,25 @@ class VanishingEvaluated {
 
   VanishingEvaluated() = default;
   VanishingEvaluated(Poly&& h_poly, F&& h_blind,
-                     VanishingCommitted<PCS>&& committed)
+                     VanishingCommitted<Poly>&& committed)
       : h_poly_(std::move(h_poly)),
         h_blind_(std::move(h_blind)),
         committed_(std::move(committed)) {}
 
   const Poly& h_poly() const { return h_poly_; }
   const F& h_blind() const { return h_blind_; }
-  const VanishingCommitted<PCS>& committed() const { return committed_; }
+  const VanishingCommitted<Poly>& committed() const { return committed_; }
 
   Poly&& TakeHPoly() && { return std::move(h_poly_); }
   F&& TakeHBlind() && { return std::move(h_blind_); }
-  VanishingCommitted<PCS>&& TakeCommitted() && { return std::move(committed_); }
+  VanishingCommitted<Poly>&& TakeCommitted() && {
+    return std::move(committed_);
+  }
 
  private:
   Poly h_poly_;
   F h_blind_;
-  VanishingCommitted<PCS> committed_;
+  VanishingCommitted<Poly> committed_;
 };
 
 }  // namespace tachyon::zk

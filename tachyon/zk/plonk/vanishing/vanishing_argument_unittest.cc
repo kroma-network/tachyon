@@ -85,7 +85,7 @@ TEST_F(VanishingArgumentTest, BuildExtendedCircuitColumn) {
 }
 
 TEST_F(VanishingArgumentTest, VanishingArgument) {
-  VanishingCommitted<PCS> committed_p;
+  VanishingCommitted<Poly> committed_p;
   ASSERT_TRUE(CommitRandomPoly(prover_.get(), &committed_p));
 
   SimpleCircuit<F, SimpleFloorPlanner> circuit =

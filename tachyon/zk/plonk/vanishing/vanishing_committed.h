@@ -11,11 +11,10 @@
 
 namespace tachyon::zk {
 
-template <typename PCS>
+template <typename Poly>
 class VanishingCommitted {
  public:
-  using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
+  using F = typename Poly::Field;
 
   VanishingCommitted() = default;
   VanishingCommitted(Poly&& random_poly, F&& random_blind)

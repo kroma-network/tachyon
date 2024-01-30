@@ -135,7 +135,7 @@ class Prover : public ProverBase<PCS> {
     F beta = writer->SqueezeChallenge();
     F gamma = writer->SqueezeChallenge();
     StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
-                VanishingCommitted<PCS>>
+                VanishingCommitted<Poly>>
         committed_result = argument.CommitCircuitStep(
             this, proving_key.verifying_key().constraint_system(),
             proving_key.permutation_proving_key(),

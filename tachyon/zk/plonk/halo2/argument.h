@@ -47,7 +47,7 @@ class Argument {
   }
 
   StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
-              VanishingCommitted<PCS>>
+              VanishingCommitted<Poly>>
   CommitCircuitStep(
       ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
@@ -66,7 +66,7 @@ class Argument {
         BatchCommitLookups(prover, std::move(permuted_lookups_vec), beta,
                            gamma);
 
-    VanishingCommitted<PCS> vanishing_committed;
+    VanishingCommitted<Poly> vanishing_committed;
     CHECK(CommitRandomPoly(prover, &vanishing_committed));
 
     return {std::move(committed_permutations), std::move(committed_lookups_vec),
