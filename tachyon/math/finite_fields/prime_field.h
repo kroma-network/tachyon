@@ -241,10 +241,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return MulInPlace(other.Inverse());
   }
 
-  constexpr PrimeField& InverseInPlace() {
-    value_ = value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
-        Config::kModulus, Config::kMontgomeryR2);
-    return *this;
+  constexpr bool InverseInPlace() {
+     return value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
+        Config::kModulus, Config::kMontgomeryR2, &value_);
   }
 
  private:

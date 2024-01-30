@@ -76,13 +76,13 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     }
   }
 
-  // Inverse: a⁻¹
+   // Inverse: a⁻¹
   template <
       typename G2 = G,
       std::enable_if_t<internal::SupportsInverseInPlace<G2>::value>* = nullptr>
-  [[nodiscard]] constexpr auto Inverse() const {
-    G ret = *static_cast<const G*>(this);
-    return ret.InverseInPlace();
+  [[nodiscard]] constexpr bool Inverse(G* inverse) const {
+    *inverse = *static_cast<const G*>(this);
+    return inverse->InverseInPlace();    
   }
 
   template <typename Container>

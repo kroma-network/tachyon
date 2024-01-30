@@ -20,6 +20,9 @@
 # Prerequisites
 *.d
 
+#VS code folder
+.vscode
+
 # Compiled Object files
 *.slo
 *.lo

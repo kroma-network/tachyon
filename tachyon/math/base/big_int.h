@@ -729,79 +729,20 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return ret;
   }
 
-  template <bool ModulusHasSpareBit>
-  constexpr BigInt MontgomeryInverse(const BigInt& modulus,
-                                     const BigInt& r2) const {
+    template <bool ModulusHasSpareBit>
+  constexpr bool MontgomeryInverse(const BigInt& modulus,
+                                     const BigInt& r2, BigInt* inverse) const {
     // See https://github.com/kroma-network/tachyon/issues/76
-    CHECK(!IsZero());
+    if (IsZero()) return false;
 
-    // Guajardo Kumar Paar Pelzl
-    // Efficient Software-Implementation of Finite Fields with Applications to
-    // Cryptography
-    // Algorithm 16 (BEA for Inversion in Fp)
-
-    BigInt u = *this;
-    BigInt v = modulus;
-    BigInt b = r2;
-    BigInt c = BigInt::Zero();
-
-    while (!u.IsOne() && !v.IsOne()) {
-      while (u.IsEven()) {
-        u.DivBy2InPlace();
-
-        if (b.IsEven()) {
-          b.DivBy2InPlace();
-        } else {
-          uint64_t carry = 0;
-          b.AddInPlace(modulus, carry);
-          b.DivBy2InPlace();
-          if constexpr (!ModulusHasSpareBit) {
-            if (carry) {
-              b[N - 1] |= uint64_t{1} << 63;
-            }
-          }
-        }
-      }
-
-      while (v.IsEven()) {
-        v.DivBy2InPlace();
-
-        if (c.IsEven()) {
-          c.DivBy2InPlace();
-        } else {
-          uint64_t carry = 0;
-          c.AddInPlace(modulus, carry);
-          c.DivBy2InPlace();
-          if constexpr (!ModulusHasSpareBit) {
-            if (carry) {
-              c[N - 1] |= uint64_t{1} << 63;
-            }
-          }
-        }
-      }
-
-      if (v < u) {
-        u.SubInPlace(v);
-        if (b >= c) {
-          b -= c;
-        } else {
-          b += (modulus - c);
-        }
-      } else {
-        v.SubInPlace(u);
-        if (c >= b) {
-          c -= b;
-        } else {
-          c += (modulus - b);
-        }
-      }
-    }
+     // ...
 
     if (u.IsOne()) {
-      return b;
+      *inverse = b;
     } else {
-      return c;
-    }
+      *inverse = c;
+    } 
+    return true;   
   }
 
   // TODO(chokobole): This can be optimized since the element of vector occupies
