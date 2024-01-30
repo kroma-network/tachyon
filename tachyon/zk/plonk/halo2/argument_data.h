@@ -56,7 +56,7 @@ class ArgumentData {
     }
 
     // Generate advice poly by synthesizing circuit and write it to transcript.
-    Synthesizer<PCS> synthesizer(num_circuits, &constraint_system);
+    Synthesizer<Evals> synthesizer(num_circuits, &constraint_system);
     synthesizer.GenerateAdviceColumns(prover, circuits, instance_columns_vec);
 
     return ArgumentData(std::move(synthesizer).TakeAdviceColumnsVec(),
