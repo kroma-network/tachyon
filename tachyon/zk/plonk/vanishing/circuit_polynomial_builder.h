@@ -127,7 +127,7 @@ class CircuitPolynomialBuilder {
   void UpdateValuesByLookups(
       const std::vector<GraphEvaluator<F>>& lookup_evaluators,
       std::vector<F>& values) {
-    for (size_t i = 0; i < committed_lookups_vec_->size(); ++i) {
+    for (size_t i = 0; i < lookup_evaluators.size(); ++i) {
       const GraphEvaluator<F>& ev = lookup_evaluators[i];
 
       base::Parallelize(values, [this, i, &ev](absl::Span<F> chunk,
@@ -326,7 +326,7 @@ class CircuitPolynomialBuilder {
   }
 
   void UpdateVanishingLookups(size_t circuit_idx) {
-    size_t num_lookups = committed_lookups_vec_->size();
+    size_t num_lookups = (*committed_lookups_vec_)[circuit_idx].size();
     std::vector<LookupCommitted<Poly>> current_committed_lookups =
         (*committed_lookups_vec_)[circuit_idx];
     lookup_product_cosets_.clear();
