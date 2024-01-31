@@ -6,6 +6,7 @@ filegroup(
     name = "univariate_hdrs",
     srcs = [
         "bn254_univariate_dense_polynomial.h",
+        "bn254_univariate_evaluation_domain.h",
         "bn254_univariate_evaluations.h",
         "bn254_univariate_rational_evaluations.h",
     ],
@@ -13,10 +14,7 @@ filegroup(
 
 tachyon_cc_library(
     name = "bn254_univariate",
-    deps = [
-        ":bn254_univariate_dense_polynomial",
-        ":bn254_univariate_rational_evaluations",
-    ],
+    deps = [":bn254_univariate_evaluation_domain"],
 )
 
 tachyon_cc_library(
@@ -27,6 +25,19 @@ tachyon_cc_library(
         "//tachyon/c:export",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_univariate_evaluation_domain",
+    srcs = ["bn254_univariate_evaluation_domain.cc"],
+    hdrs = ["bn254_univariate_evaluation_domain.h"],
+    deps = [
+        ":bn254_univariate_dense_polynomial",
+        ":bn254_univariate_evaluations",
+        ":bn254_univariate_rational_evaluations",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
 )
 
@@ -55,11 +66,12 @@ tachyon_cc_unittest(
     name = "univariate_unittests",
     srcs = [
         "bn254_univariate_dense_polynomial_unittest.cc",
+        "bn254_univariate_evaluation_domain_unittest.cc",
         "bn254_univariate_evaluations_unittest.cc",
         "bn254_univariate_rational_evaluations_unittest.cc",
     ],
     deps = [
-        ":bn254_univariate_dense_polynomial",
+        ":bn254_univariate_evaluation_domain",
         ":bn254_univariate_rational_evaluations",
         "//tachyon/base/containers:container_util",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:fr",
