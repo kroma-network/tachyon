@@ -13,6 +13,7 @@
 
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/halo2/argument.h"
+#include "tachyon/zk/plonk/halo2/c_prover_impl_base_forward.h"
 #include "tachyon/zk/plonk/halo2/random_field_generator.h"
 #include "tachyon/zk/plonk/halo2/verifier.h"
 
@@ -103,6 +104,7 @@ class Prover : public ProverBase<PCS> {
 
  private:
   friend class halo2_api::ProverImpl<PCS>;
+  friend class c::zk::plonk::halo2::ProverImplBase<PCS>;
 
   Prover(PCS&& pcs,
          std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,

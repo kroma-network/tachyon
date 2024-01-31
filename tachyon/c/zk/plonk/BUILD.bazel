@@ -1,3 +1,5 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
@@ -6,5 +8,14 @@ filegroup(
         "//tachyon/c/zk/plonk/constraint_system:constraint_system_hdrs",
         "//tachyon/c/zk/plonk/halo2:halo2_hdrs",
         "//tachyon/c/zk/plonk/keys:keys_hdrs",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_plonk",
+    deps = [
+        "//tachyon/c/zk/plonk/constraint_system:bn254_constraint_system",
+        "//tachyon/c/zk/plonk/halo2:bn254_halo2",
+        "//tachyon/c/zk/plonk/keys:bn254_keys",
     ],
 )

@@ -61,6 +61,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "c_prover_impl_base_forward",
+    hdrs = ["c_prover_impl_base_forward.h"],
+)
+
+tachyon_cc_library(
     name = "constants",
     hdrs = ["constants.h"],
 )
@@ -168,6 +173,7 @@ tachyon_cc_library(
     hdrs = ["prover.h"],
     deps = [
         ":argument",
+        ":c_prover_impl_base_forward",
         ":random_field_generator",
         ":verifier",
         "//tachyon/zk/base/entities:prover_base",

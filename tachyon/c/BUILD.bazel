@@ -67,9 +67,7 @@ tachyon_cc_shared_library(
         ":version",
         "//tachyon/c/crypto/random:rng",
         "//tachyon/c/math:bn254_math",
-        "//tachyon/c/zk/plonk/constraint_system:bn254_constraint_system",
-        "//tachyon/c/zk/plonk/halo2:bn254_transcript",
-        "//tachyon/c/zk/plonk/keys:bn254_keys",
+        "//tachyon/c/zk:bn254_zk",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
