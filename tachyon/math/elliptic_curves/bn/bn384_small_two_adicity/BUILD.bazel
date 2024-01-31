@@ -1,27 +1,64 @@
-load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load(
+    "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
+    "SMALL_SUBGROUP_ADICITY",
+    "SMALL_SUBGROUP_BASE",
+    "SUBGROUP_GENERATOR",
+    "generate_large_fft_prime_fields",
+)
 
 package(default_visibility = ["//visibility:public"])
 
+string_flag(
+    name = "fq_" + SMALL_SUBGROUP_ADICITY,
+    build_setting_default = "2",
+)
+
+string_flag(
+    name = "fq_" + SMALL_SUBGROUP_BASE,
+    build_setting_default = "3",
+)
+
+string_flag(
+    name = "fq_" + SUBGROUP_GENERATOR,
+    build_setting_default = "7",
+)
+
 # Parameters are from https://github.com/arkworks-rs/algebra/blob/master/test-curves/src/bn384_small_two_adicity/fq.rs
-generate_prime_fields(
+generate_large_fft_prime_fields(
     name = "fq",
     class_name = "Fq",
     # Hex: 0x26a192ce09033aefd13bdbf17786104ad304fe31dc79b326e86a281d61074bec649bdd411682c645207c4e269a431001
     modulus = "5945877603251831796258517492029536515488649313567122628447476625319762940580461319088175968449723373773214087057409",
     namespace = "tachyon::math::bn384_small_two_adicity",
-    small_subgroup_adicity = "2",
-    small_subgroup_base = "3",
-    subgroup_generator = "7",
+    small_subgroup_adicity = ":fq_" + SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = ":fq_" + SMALL_SUBGROUP_BASE,
+    subgroup_generator = ":fq_" + SUBGROUP_GENERATOR,
+)
+
+string_flag(
+    name = "fr_" + SMALL_SUBGROUP_ADICITY,
+    build_setting_default = "2",
+)
+
+string_flag(
+    name = "fr_" + SMALL_SUBGROUP_BASE,
+    build_setting_default = "3",
+)
+
+string_flag(
+    name = "fr_" + SUBGROUP_GENERATOR,
+    build_setting_default = "5",
 )
 
 # Parameters are from https://github.com/arkworks-rs/algebra/blob/master/test-curves/src/bn384_small_two_adicity/fr.rs
-generate_prime_fields(
+generate_large_fft_prime_fields(
     name = "fr",
     class_name = "Fr",
     # Hex: 0x26a192ce09033aefd13bdbf17786104ad304fe31dc79b32684f7e52225e599a5b91f07ba93282245f13a3723b4c31001
     modulus = "5945877603251831796258517492029536515488649313567122628445038208291596545947608789992834434053176523624102324539393",
     namespace = "tachyon::math::bn384_small_two_adicity",
-    small_subgroup_adicity = "2",
-    small_subgroup_base = "3",
-    subgroup_generator = "5",
+    small_subgroup_adicity = ":fr_" + SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = ":fr_" + SMALL_SUBGROUP_BASE,
+    subgroup_generator = ":fr_" + SUBGROUP_GENERATOR,
 )

@@ -1,3 +1,4 @@
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("//tachyon/math/elliptic_curves/bls12/generator:build_defs.bzl", "generate_bls12_curves")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load(
@@ -6,31 +7,67 @@ load(
     "generate_fp2s",
     "generate_fp6s",
 )
-load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+load(
+    "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
+    "SMALL_SUBGROUP_ADICITY",
+    "SMALL_SUBGROUP_BASE",
+    "SUBGROUP_GENERATOR",
+    "generate_large_fft_prime_fields",
+)
 
 package(default_visibility = ["//visibility:public"])
 
+string_flag(
+    name = "fq_" + SMALL_SUBGROUP_ADICITY,
+    build_setting_default = "2",
+)
+
+string_flag(
+    name = "fq_" + SMALL_SUBGROUP_BASE,
+    build_setting_default = "3",
+)
+
+string_flag(
+    name = "fq_" + SUBGROUP_GENERATOR,
+    build_setting_default = "2",
+)
+
 # Parameters are from https://zips.z.cash/protocol/protocol.pdf#page=98 and https://github.com/arkworks-rs/curves/tree/master/bls12_381/src/fields
-generate_prime_fields(
+generate_large_fft_prime_fields(
     name = "fq",
     class_name = "Fq",
     # Hex: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
     modulus = "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787",
     namespace = "tachyon::math::bls12_381",
-    small_subgroup_adicity = "2",
-    small_subgroup_base = "3",
-    subgroup_generator = "2",
+    small_subgroup_adicity = ":fq_" + SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = ":fq_" + SMALL_SUBGROUP_BASE,
+    subgroup_generator = ":fq_" + SUBGROUP_GENERATOR,
 )
 
-generate_prime_fields(
+string_flag(
+    name = "fr_" + SMALL_SUBGROUP_ADICITY,
+    build_setting_default = "1",
+)
+
+string_flag(
+    name = "fr_" + SMALL_SUBGROUP_BASE,
+    build_setting_default = "3",
+)
+
+string_flag(
+    name = "fr_" + SUBGROUP_GENERATOR,
+    build_setting_default = "7",
+)
+
+generate_large_fft_prime_fields(
     name = "fr",
     class_name = "Fr",
     # Hex: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
     modulus = "52435875175126190479447740508185965837690552500527637822603658699938581184513",
     namespace = "tachyon::math::bls12_381",
-    small_subgroup_adicity = "1",
-    small_subgroup_base = "3",
-    subgroup_generator = "7",
+    small_subgroup_adicity = ":fr_" + SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = ":fr_" + SMALL_SUBGROUP_BASE,
+    subgroup_generator = ":fr_" + SUBGROUP_GENERATOR,
 )
 
 generate_fp2s(

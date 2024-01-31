@@ -1,3 +1,4 @@
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//tachyon/math/elliptic_curves/bn/generator:build_defs.bzl", "generate_bn_curves")
@@ -8,12 +9,24 @@ load(
     "generate_fp2s",
     "generate_fp6s",
 )
-load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+load(
+    "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
+    "SMALL_SUBGROUP_ADICITY",
+    "SMALL_SUBGROUP_BASE",
+    "SUBGROUP_GENERATOR",
+    "generate_fft_prime_fields",
+    "generate_large_fft_prime_fields",
+)
 
 package(default_visibility = ["//visibility:public"])
 
+string_flag(
+    name = "fq_" + SUBGROUP_GENERATOR,
+    build_setting_default = "3",
+)
+
 # Parameters are from https://zips.z.cash/protocol/protocol.pdf#page=97 and https://github.com/arkworks-rs/curves/tree/master/bn254/src/fields
-generate_prime_fields(
+generate_fft_prime_fields(
     name = "fq",
     class_name = "Fq",
     hdr_include_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
@@ -35,14 +48,29 @@ generate_prime_fields(
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif""",
-    subgroup_generator = "3",
+    subgroup_generator = ":fq_" + SUBGROUP_GENERATOR,
     deps = if_polygon_zkevm_backend([
         ":prime_field_fq",
         "//tachyon/build:build_config",
     ]),
 )
 
-generate_prime_fields(
+string_flag(
+    name = "fr_" + SMALL_SUBGROUP_ADICITY,
+    build_setting_default = "2",
+)
+
+string_flag(
+    name = "fr_" + SMALL_SUBGROUP_BASE,
+    build_setting_default = "3",
+)
+
+string_flag(
+    name = "fr_" + SUBGROUP_GENERATOR,
+    build_setting_default = "5",
+)
+
+generate_large_fft_prime_fields(
     name = "fr",
     class_name = "Fr",
     hdr_include_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
@@ -54,8 +82,8 @@ generate_prime_fields(
     # Hex: 0x30644e72e131a029b85045b68181585d2833e84879b9709143e1f593f0000001
     modulus = "21888242871839275222246405745257275088548364400416034343698204186575808495617",
     namespace = "tachyon::math::bn254",
-    small_subgroup_adicity = "2",
-    small_subgroup_base = "3",
+    small_subgroup_adicity = ":fr_" + SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = ":fr_" + SMALL_SUBGROUP_BASE,
     special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #if ARCH_CPU_X86_64
   constexpr static bool kIsSpecialPrime = true;
@@ -66,7 +94,7 @@ generate_prime_fields(
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif""",
-    subgroup_generator = "5",
+    subgroup_generator = ":fr_" + SUBGROUP_GENERATOR,
     deps = if_polygon_zkevm_backend([
         ":prime_field_fr",
         "//tachyon/build:build_config",
