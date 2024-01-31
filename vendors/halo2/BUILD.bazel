@@ -83,6 +83,7 @@ tachyon_cc_library(
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluations",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_rational_evaluations",
+        "//tachyon/c/zk/plonk/halo2:bn254_transcript",
         "@cxx.rs//:core",
     ],
 )
@@ -94,7 +95,6 @@ tachyon_cc_library(
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
         "//tachyon/base:logging",
-        "//tachyon/c/zk/plonk/halo2:bn254_transcript",
     ],
 )
 
