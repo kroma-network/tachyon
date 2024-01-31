@@ -1,3 +1,5 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
@@ -6,5 +8,14 @@ filegroup(
         "//tachyon/c/math/elliptic_curves/bls12/bls12_381:bls12_381_hdrs",
         "//tachyon/c/math/elliptic_curves/bn/bn254:bn254_hdrs",
         "//tachyon/c/math/elliptic_curves/msm:msm_hdrs",
+        "//tachyon/c/math/polynomials:polynomials_hdrs",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_math",
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
+        "//tachyon/c/math/polynomials:bn254_polynomials",
     ],
 )

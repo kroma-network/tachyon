@@ -1,0 +1,13 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "polynomials_hdrs",
+    srcs = ["//tachyon/c/math/polynomials/univariate:univariate_hdrs"],
+)
+
+tachyon_cc_library(
+    name = "bn254_polynomials",
+    deps = ["//tachyon/c/math/polynomials/univariate:bn254_univariate"],
+)
