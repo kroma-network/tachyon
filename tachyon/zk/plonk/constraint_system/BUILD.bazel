@@ -74,20 +74,8 @@ tachyon_cc_library(
     name = "query",
     hdrs = ["query.h"],
     deps = [
-        ":rotation",
+        "//tachyon/zk/base:rotation",
         "//tachyon/zk/plonk/base:column_key",
-    ],
-)
-
-tachyon_cc_library(
-    name = "rotation",
-    hdrs = ["rotation.h"],
-    deps = [
-        "//tachyon/base:logging",
-        "//tachyon/base/numerics:checked_math",
-        "//tachyon/base/strings:string_number_conversions",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
-        "//tachyon/zk/base:row_index",
     ],
 )
 
@@ -136,8 +124,8 @@ tachyon_cc_library(
     name = "virtual_cell",
     hdrs = ["virtual_cell.h"],
     deps = [
-        ":rotation",
         "//tachyon:export",
+        "//tachyon/zk/base:rotation",
         "//tachyon/zk/plonk/base:column_key",
     ],
 )
@@ -157,7 +145,6 @@ tachyon_cc_unittest(
     srcs = [
         "constraint_system_unittest.cc",
         "exclusion_matrix_unittest.cc",
-        "rotation_unittest.cc",
         "selector_compressor_unittest.cc",
         "selector_description_unittest.cc",
         "selector_unittest.cc",

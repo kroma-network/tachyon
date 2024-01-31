@@ -32,6 +32,18 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "rotation",
+    hdrs = ["rotation.h"],
+    deps = [
+        ":row_index",
+        "//tachyon/base:logging",
+        "//tachyon/base/numerics:checked_math",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
+    ],
+)
+
+tachyon_cc_library(
     name = "row_index",
     hdrs = ["row_index.h"],
 )
@@ -55,10 +67,12 @@ tachyon_cc_unittest(
     name = "base_unittests",
     srcs = [
         "blinder_unittest.cc",
+        "rotation_unittest.cc",
         "value_unittest.cc",
     ],
     deps = [
         ":blinder",
+        ":rotation",
         ":value",
         "//tachyon/base:random",
         "//tachyon/base/containers:container_util",

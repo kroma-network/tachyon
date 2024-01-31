@@ -32,10 +32,10 @@ tachyon_cc_library(
         "//tachyon/base:ref",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/base:point_set",
+        "//tachyon/zk/base:rotation",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/expressions/evaluator:simple_evaluator",
         "//tachyon/zk/lookup:permute_expression_pair",
-        "//tachyon/zk/plonk/constraint_system:rotation",
         "//tachyon/zk/plonk/permutation:grand_product_argument",
     ],
 )

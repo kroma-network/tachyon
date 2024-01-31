@@ -119,6 +119,6 @@ tachyon_cc_library(
     hdrs = ["rotation_stringifier.h"],
     deps = [
         "//tachyon/base/strings:rust_stringifier",
-        "//tachyon/zk/plonk/constraint_system:rotation",
+        "//tachyon/zk/base:rotation",
     ],
 )
