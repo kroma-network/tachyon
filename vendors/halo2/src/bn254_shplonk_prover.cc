@@ -10,7 +10,6 @@
 #include "vendors/halo2/include/bn254_poly.h"
 #include "vendors/halo2/include/bn254_rational_evals.h"
 #include "vendors/halo2/src/bn254.rs.h"
-#include "vendors/halo2/src/bn254_proving_key_impl.h"
 #include "vendors/halo2/src/bn254_shplonk_prover_impl.h"
 
 namespace tachyon::halo2_api::bn254 {
@@ -144,7 +143,7 @@ void SHPlonkProver::set_transcript(rust::Slice<const uint8_t> state) {
 void SHPlonkProver::set_extended_domain(const ProvingKey& pk) {
   const c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>*
       cpp_key = reinterpret_cast<const c::zk::ProvingKeyImplBase<
-          PCS::Poly, PCS::Evals, PCS::Commitment>*>(pk.impl()->pk());
+          PCS::Poly, PCS::Evals, PCS::Commitment>*>(pk.pk());
   impl_->SetExtendedDomain(cpp_key->GetConstraintSystem());
 }
 
@@ -154,7 +153,7 @@ void SHPlonkProver::create_proof(const ProvingKey& key,
                                  rust::Vec<Fr> challenges) {
   const c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>*
       cpp_key = reinterpret_cast<const c::zk::ProvingKeyImplBase<
-          PCS::Poly, PCS::Evals, PCS::Commitment>*>(key.impl()->pk());
+          PCS::Poly, PCS::Evals, PCS::Commitment>*>(key.pk());
   impl_->SetBlindingFactors(
       cpp_key->verifying_key().constraint_system().ComputeBlindingFactors());
 
@@ -233,7 +232,7 @@ rust::Box<Fr> ProvingKey::transcript_repr(const SHPlonkProver& prover) {
   c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>* cpp_key =
       reinterpret_cast<
           c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>*>(
-          impl_->pk());
+          pk_);
   cpp_key->SetTranscriptRepr(prover.impl()->prover());
   math::bn254::Fr* ret =
       new math::bn254::Fr(cpp_key->GetTranscriptRepr(prover.impl()->prover()));

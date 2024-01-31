@@ -84,6 +84,7 @@ tachyon_cc_library(
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluations",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_rational_evaluations",
         "//tachyon/c/zk/plonk/halo2:bn254_transcript",
+        "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key",
         "@cxx.rs//:core",
     ],
 )
@@ -153,7 +154,6 @@ tachyon_cc_library(
         ":bn254_cxx_bridge/include",
         ":bn254_evals",
         ":bn254_poly",
-        ":bn254_proving_key_impl",
         ":bn254_rational_evals",
         ":bn254_shplonk_prover_impl",
         "//tachyon/base/buffer",
@@ -172,7 +172,6 @@ tachyon_cc_library(
         "src/prover_impl.h",
     ],
     deps = [
-        ":bn254_proving_key_impl",
         ":degrees",
         "//tachyon/base/buffer",
         "//tachyon/base/functional:callback",
@@ -189,14 +188,7 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
-        ":bn254_proving_key_impl",
     ],
-)
-
-tachyon_cc_library(
-    name = "bn254_proving_key_impl",
-    srcs = ["src/bn254_proving_key_impl.h"],
-    deps = ["//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key"],
 )
 
 tachyon_cc_library(
