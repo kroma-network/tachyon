@@ -1,0 +1,19 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "base_hdrs",
+    srcs = ["bn254_blinder.h"],
+)
+
+tachyon_cc_library(
+    name = "bn254_blinder",
+    srcs = ["bn254_blinder.cc"],
+    hdrs = ["bn254_blinder.h"],
+    deps = [
+        "//tachyon/c:export",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/zk/base:blinder",
+    ],
+)
