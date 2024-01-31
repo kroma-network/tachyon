@@ -1,19 +1,29 @@
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load(
     "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
     "generate_fp2s",
     "generate_fp3s",
 )
-load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+load(
+    "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
+    "SMALL_SUBGROUP_ADICITY",
+    "generate_fft_prime_fields",
+)
 
 package(default_visibility = ["//visibility:public"])
 
-generate_prime_fields(
+string_flag(
+    name = SMALL_SUBGROUP_ADICITY,
+    build_setting_default = "3",
+)
+
+generate_fft_prime_fields(
     name = "gf7",
     testonly = True,
     class_name = "GF7",
     modulus = "7",
     namespace = "tachyon::math",
-    subgroup_generator = "3",
+    subgroup_generator = ":" + SMALL_SUBGROUP_ADICITY,
 )
 
 generate_fp2s(

@@ -1,10 +1,32 @@
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
-load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+load(
+    "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
+    "SMALL_SUBGROUP_ADICITY",
+    "SMALL_SUBGROUP_BASE",
+    "SUBGROUP_GENERATOR",
+    "generate_large_fft_prime_fields",
+)
 
 package(default_visibility = ["//visibility:public"])
 
-generate_prime_fields(
+string_flag(
+    name = "fr_" + SMALL_SUBGROUP_ADICITY,
+    build_setting_default = "1",
+)
+
+string_flag(
+    name = "fr_" + SMALL_SUBGROUP_BASE,
+    build_setting_default = "3",
+)
+
+string_flag(
+    name = "fr_" + SUBGROUP_GENERATOR,
+    build_setting_default = "7",
+)
+
+generate_large_fft_prime_fields(
     name = "goldilocks",
     class_name = "Goldilocks",
     hdr_include_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
@@ -17,8 +39,8 @@ generate_prime_fields(
     # Hex: 0xffffffff00000001
     modulus = "18446744069414584321",
     namespace = "tachyon::math",
-    small_subgroup_adicity = "1",
-    small_subgroup_base = "3",
+    small_subgroup_adicity = ":fr_" + SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = ":fr_" + SMALL_SUBGROUP_BASE,
     special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #if ARCH_CPU_X86_64
   constexpr static bool kIsSpecialPrime = true;
@@ -29,7 +51,7 @@ generate_prime_fields(
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif""",
-    subgroup_generator = "7",
+    subgroup_generator = ":fr_" + SUBGROUP_GENERATOR,
     deps = if_polygon_zkevm_backend([
         ":prime_field_goldilocks",
         "//tachyon/build:build_config",

@@ -1,6 +1,3 @@
-def get_var(ctx, name):
-    return name in ctx.var and ctx.var[name]
-
 def attrs():
     return {
         "out": attr.output(mandatory = True),

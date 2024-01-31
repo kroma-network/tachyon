@@ -1,3 +1,4 @@
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("//bazel:tachyon.bzl", "if_macos", "if_posix")
 load(
     "//bazel:tachyon_cc.bzl",
@@ -5,11 +6,19 @@ load(
     "tachyon_cc_unittest",
     "tachyon_objc_library",
 )
-load(":time_buildflags.bzl", "time_buildflag_header")
+load(":time_buildflags.bzl", "ENABLE_MACH_ABSOLUTE_TIME_TICKS", "time_buildflag_header")
 
 package(default_visibility = ["//visibility:public"])
 
-time_buildflag_header(name = "time_buildflags")
+bool_flag(
+    name = ENABLE_MACH_ABSOLUTE_TIME_TICKS,
+    build_setting_default = True,
+)
+
+time_buildflag_header(
+    name = "time_buildflags",
+    enable_mach_absolute_time_ticks = ":" + ENABLE_MACH_ABSOLUTE_TIME_TICKS,
+)
 
 tachyon_cc_library(
     name = "time_base",
