@@ -207,7 +207,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "xor_shift_rng_api_hdrs",
     hdrs = ["include/xor_shift_rng.h"],
-    deps = ["@cxx.rs//:core"],
+    deps = [
+        "//tachyon/c/crypto/random:rng",
+        "@cxx.rs//:core",
+    ],
 )
 
 tachyon_cc_library(
@@ -217,7 +220,6 @@ tachyon_cc_library(
         ":xor_shift_rng_api_hdrs",
         ":xor_shift_rng_cxx_bridge/include",
         "//tachyon/base:logging",
-        "//tachyon/c/crypto/random:rng",
         "//tachyon/rs/base:container_util",
     ],
 )
