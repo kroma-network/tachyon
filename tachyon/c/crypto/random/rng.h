@@ -6,16 +6,16 @@
 
 #include "tachyon/c/export.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define TACHYON_RNG_XOR_SHIFT 0
 
 struct tachyon_rng {
   uint8_t type;
   void* extra;
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 TACHYON_C_EXPORT tachyon_rng* tachyon_rng_create_from_seed(uint8_t type,
                                                            const uint8_t* seed,
