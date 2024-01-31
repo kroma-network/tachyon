@@ -12,7 +12,6 @@
 #include "vendors/halo2/src/bn254.rs.h"
 #include "vendors/halo2/src/bn254_poly_impl.h"
 #include "vendors/halo2/src/bn254_proving_key_impl.h"
-#include "vendors/halo2/src/bn254_rational_evals_impl.h"
 #include "vendors/halo2/src/bn254_shplonk_prover_impl.h"
 
 namespace tachyon::halo2_api::bn254 {
@@ -84,7 +83,7 @@ std::unique_ptr<RationalEvals> SHPlonkProver::empty_rational_evals() const {
   PCS::RationalEvals evals = domain->Empty<PCS::RationalEvals>();
   std::unique_ptr<RationalEvals> ret(new RationalEvals());
   PCS::RationalEvals& impl =
-      reinterpret_cast<PCS::RationalEvals&>(ret->impl()->evals());
+      reinterpret_cast<PCS::RationalEvals&>(*ret->evals());
   impl = std::move(evals);
   return ret;
 }
@@ -107,8 +106,8 @@ void SHPlonkProver::batch_evaluate(
     rust::Slice<std::unique_ptr<Evals>> evals) const {
   std::vector<PCS::RationalEvals> cpp_rational_evals = base::Map(
       rational_evals, [](std::unique_ptr<RationalEvals>& rational_eval) {
-        return PCS::RationalEvals(
-            std::move(*rational_eval->impl()).TakeEvals());
+        return PCS::RationalEvals(std::move(
+            reinterpret_cast<PCS::RationalEvals&>(*rational_eval->evals())));
       });
   for (size_t i = 0; i < cpp_rational_evals.size(); ++i) {
     const PCS::RationalEvals& cpp_rational_eval = cpp_rational_evals[i];

@@ -4,18 +4,31 @@
 #include <stddef.h>
 
 #include <memory>
+#include <utility>
+
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_rational_evaluations.h"
 
 namespace tachyon::halo2_api::bn254 {
 
 struct Fr;
-class RationalEvalsImpl;
 
 class RationalEvals {
  public:
   RationalEvals();
+  explicit RationalEvals(tachyon_bn254_univariate_rational_evaluations* evals)
+      : evals_(evals) {}
+  RationalEvals(const RationalEvals& other) = delete;
+  RationalEvals& operator=(const RationalEvals& other) = delete;
+  ~RationalEvals();
 
-  RationalEvalsImpl* impl() { return impl_.get(); }
-  const RationalEvalsImpl* impl() const { return impl_.get(); }
+  tachyon_bn254_univariate_rational_evaluations* evals() { return evals_; }
+  const tachyon_bn254_univariate_rational_evaluations* evals() const {
+    return evals_;
+  }
+
+  tachyon_bn254_univariate_rational_evaluations* release() {
+    return std::exchange(evals_, nullptr);
+  }
 
   size_t len() const;
   void set_zero(size_t idx);
@@ -24,7 +37,7 @@ class RationalEvals {
   std::unique_ptr<RationalEvals> clone() const;
 
  private:
-  std::shared_ptr<RationalEvalsImpl> impl_;
+  tachyon_bn254_univariate_rational_evaluations* evals_;
 };
 
 }  // namespace tachyon::halo2_api::bn254
