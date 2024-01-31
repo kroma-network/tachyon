@@ -16,9 +16,6 @@ build:macos_arm64 --config=macos
 build:macos_arm64 --cpu=darwin_arm64
 build:macos_arm64 --host_cpu=darwin_arm64
 
-# Chromium things
-build:macos --define=enable_mach_absolute_time_ticks=true
-
 build --@kroma_network_tachyon//:node_binding
 # See https://www.typescriptlang.org/tsconfig#skipLibCheck
 build --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig
