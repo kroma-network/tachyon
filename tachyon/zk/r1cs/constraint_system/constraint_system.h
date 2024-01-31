@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_H_
-#define TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_H_
+#ifndef TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_CONSTRAINT_SYSTEM_H_
+#define TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_CONSTRAINT_SYSTEM_H_
 
 #include <stddef.h>
 
@@ -17,10 +17,10 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/functional/callback.h"
-#include "tachyon/zk/r1cs/constraint_matrices.h"
-#include "tachyon/zk/r1cs/linear_combination.h"
-#include "tachyon/zk/r1cs/optimization_goal.h"
-#include "tachyon/zk/r1cs/synthesis_mode.h"
+#include "tachyon/zk/r1cs/constraint_system/constraint_matrices.h"
+#include "tachyon/zk/r1cs/constraint_system/linear_combination.h"
+#include "tachyon/zk/r1cs/constraint_system/optimization_goal.h"
+#include "tachyon/zk/r1cs/constraint_system/synthesis_mode.h"
 
 namespace tachyon::zk::r1cs {
 
@@ -499,4 +499,4 @@ class ConstraintSystem {
 
 }  // namespace tachyon::zk::r1cs
 
-#endif  // TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_H_
+#endif  // TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_CONSTRAINT_SYSTEM_H_

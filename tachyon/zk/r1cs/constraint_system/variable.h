@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_ZK_R1CS_VARIABLE_H_
-#define TACHYON_ZK_R1CS_VARIABLE_H_
+#ifndef TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_VARIABLE_H_
+#define TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_VARIABLE_H_
 
 #include <stddef.h>
 
@@ -128,4 +128,4 @@ class TACHYON_EXPORT Variable {
 
 }  // namespace tachyon::zk::r1cs
 
-#endif  // TACHYON_ZK_R1CS_VARIABLE_H_
+#endif  // TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_VARIABLE_H_

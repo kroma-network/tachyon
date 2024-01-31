@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_ZK_R1CS_CONSTRAINT_MATRICES_H_
-#define TACHYON_ZK_R1CS_CONSTRAINT_MATRICES_H_
+#ifndef TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_CONSTRAINT_MATRICES_H_
+#define TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_CONSTRAINT_MATRICES_H_
 
 #include <stddef.h>
 
@@ -12,7 +12,7 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/zk/r1cs/matrix.h"
+#include "tachyon/zk/r1cs/constraint_system/matrix.h"
 
 namespace tachyon::zk::r1cs {
 
@@ -72,4 +72,4 @@ struct ConstraintMatrices {
 
 }  // namespace tachyon::zk::r1cs
 
-#endif  // TACHYON_ZK_R1CS_CONSTRAINT_MATRICES_H_
+#endif  // TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_CONSTRAINT_MATRICES_H_

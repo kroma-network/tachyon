@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#include "tachyon/zk/r1cs/variable.h"
+#include "tachyon/zk/r1cs/constraint_system/variable.h"
 
 #include "absl/strings/substitute.h"
 

@@ -3,15 +3,15 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_ZK_R1CS_TERM_H_
-#define TACHYON_ZK_R1CS_TERM_H_
+#ifndef TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_TERM_H_
+#define TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_TERM_H_
 
 #include <string>
 #include <utility>
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/zk/r1cs/variable.h"
+#include "tachyon/zk/r1cs/constraint_system/variable.h"
 
 namespace tachyon::zk::r1cs {
 
@@ -59,4 +59,4 @@ struct Term {
 
 }  // namespace tachyon::zk::r1cs
 
-#endif  // TACHYON_ZK_R1CS_TERM_H_
+#endif  // TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_TERM_H_

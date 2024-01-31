@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_ZK_R1CS_SYNTHESIS_MODE_H_
-#define TACHYON_ZK_R1CS_SYNTHESIS_MODE_H_
+#ifndef TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_SYNTHESIS_MODE_H_
+#define TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_SYNTHESIS_MODE_H_
 
 namespace tachyon::zk::r1cs {
 
@@ -43,4 +43,4 @@ class SynthesisMode {
 
 }  // namespace tachyon::zk::r1cs
 
-#endif  // TACHYON_ZK_R1CS_SYNTHESIS_MODE_H_
+#endif  // TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_SYNTHESIS_MODE_H_

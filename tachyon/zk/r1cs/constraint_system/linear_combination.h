@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_ZK_R1CS_LINEAR_COMBINATION_H_
-#define TACHYON_ZK_R1CS_LINEAR_COMBINATION_H_
+#ifndef TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_LINEAR_COMBINATION_H_
+#define TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_LINEAR_COMBINATION_H_
 
 #include <stddef.h>
 
@@ -19,7 +19,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/ranges/algorithm.h"
-#include "tachyon/zk/r1cs/term.h"
+#include "tachyon/zk/r1cs/constraint_system/term.h"
 
 namespace tachyon::zk::r1cs {
 
@@ -333,4 +333,4 @@ class LinearCombination {
 
 }  // namespace tachyon::zk::r1cs
 
-#endif  // TACHYON_ZK_R1CS_LINEAR_COMBINATION_H_
+#endif  // TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_LINEAR_COMBINATION_H_

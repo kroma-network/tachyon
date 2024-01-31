@@ -1,4 +1,4 @@
-#include "tachyon/zk/r1cs/linear_combination.h"
+#include "tachyon/zk/r1cs/constraint_system/linear_combination.h"
 
 #include "gtest/gtest.h"
 

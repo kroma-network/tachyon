@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_ZK_R1CS_OPTIMIZATION_GOAL_H_
-#define TACHYON_ZK_R1CS_OPTIMIZATION_GOAL_H_
+#ifndef TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_OPTIMIZATION_GOAL_H_
+#define TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_OPTIMIZATION_GOAL_H_
 
 namespace tachyon::zk::r1cs {
 
@@ -18,4 +18,4 @@ enum class OptimizationGoal {
 
 }  // namespace tachyon::zk::r1cs
 
-#endif  // TACHYON_ZK_R1CS_OPTIMIZATION_GOAL_H_
+#endif  // TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_OPTIMIZATION_GOAL_H_
