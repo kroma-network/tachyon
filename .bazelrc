@@ -93,6 +93,10 @@ build:linux --build_tag_filters -objc,-cuda,-rust
 build:macos --build_tag_filters -cuda,-rust
 build:windows --build_tag_filters -objc,-cuda,-rust
 
+# Halo2 uses subgroup generator of bn254 scalar field as 7.
+# See https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/bn256/fr.rs#L68-L70
+build:halo2 --//tachyon/math/elliptic_curves/bn/bn254:fr_subgroup_generator=7
+
 # Config-specific options should come above this line.
 
 # Load rc file with user-specific options.
