@@ -1,9 +1,9 @@
 #include "vendors/halo2/include/bn254_poly.h"
 
-#include "vendors/halo2/src/bn254_poly_impl.h"
-
 namespace tachyon::halo2_api::bn254 {
 
-Poly::Poly() : impl_(new PolyImpl()) {}
+Poly::Poly() : poly_(tachyon_bn254_univariate_dense_polynomial_create()) {}
+
+Poly::~Poly() { tachyon_bn254_univariate_dense_polynomial_destroy(poly_); }
 
 }  // namespace tachyon::halo2_api::bn254

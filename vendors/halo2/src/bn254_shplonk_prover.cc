@@ -10,7 +10,6 @@
 #include "vendors/halo2/include/bn254_poly.h"
 #include "vendors/halo2/include/bn254_rational_evals.h"
 #include "vendors/halo2/src/bn254.rs.h"
-#include "vendors/halo2/src/bn254_poly_impl.h"
 #include "vendors/halo2/src/bn254_proving_key_impl.h"
 #include "vendors/halo2/src/bn254_shplonk_prover_impl.h"
 
@@ -45,7 +44,7 @@ PCS::Poly ReadPoly(uint8_t* vec_ptr, size_t i) {
   uintptr_t ptr;
   CHECK(buffer.Read(&ptr));
   Poly* poly = reinterpret_cast<Poly*>(ptr);
-  return std::move(*poly->impl()).TakePoly();
+  return PCS::Poly(std::move(reinterpret_cast<PCS::Poly&>(*poly->poly())));
 }
 
 }  // namespace
@@ -59,7 +58,9 @@ uint64_t SHPlonkProver::n() const { return static_cast<uint64_t>(impl_->N()); }
 
 rust::Box<G1JacobianPoint> SHPlonkProver::commit(const Poly& poly) const {
   return DoCommit(impl_->prover().pcs().GetG1PowersOfTau(),
-                  poly.impl()->poly().coefficients().coefficients());
+                  reinterpret_cast<const PCS::Poly*>(poly.poly())
+                      ->coefficients()
+                      .coefficients());
 }
 
 rust::Box<G1JacobianPoint> SHPlonkProver::commit_lagrange(
@@ -93,7 +94,7 @@ std::unique_ptr<Poly> SHPlonkProver::ifft(const Evals& evals) const {
   PCS::Poly poly =
       domain->IFFT(reinterpret_cast<const PCS::Evals&>(*evals.evals()));
   std::unique_ptr<Poly> ret(new Poly());
-  PCS::Poly& impl = reinterpret_cast<PCS::Poly&>(ret->impl()->poly());
+  PCS::Poly& impl = reinterpret_cast<PCS::Poly&>(*ret->poly());
   impl = std::move(poly);
   // NOTE(chokobole): The zero degrees might be removed. This is not compatible
   // with rust halo2.
