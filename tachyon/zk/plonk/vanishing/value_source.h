@@ -133,9 +133,9 @@ class TACHYON_EXPORT ValueSource {
     return type_ < other.type_;
   }
 
-  template <typename Poly, typename Evals, typename F>
-  F Get(const EvaluationInput<Poly, Evals>& data,
-        const std::vector<F>& constants, const F& previous_value) const {
+  template <typename Evals, typename F>
+  F Get(const EvaluationInput<Evals>& data, const std::vector<F>& constants,
+        const F& previous_value) const {
     switch (type_) {
       case Type::kConstant:
         return constants[index_];

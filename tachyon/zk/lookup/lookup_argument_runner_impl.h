@@ -20,7 +20,7 @@
 namespace tachyon::zk {
 
 template <typename Poly, typename Evals>
-template <typename PCS, typename F>
+template <typename PCS>
 LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
     ProverBase<PCS>* prover, const LookupArgument<F>& argument, const F& theta,
     const SimpleEvaluator<Evals>& evaluator_tpl) {
@@ -55,13 +55,13 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCS, typename F>
+template <typename PCS>
 LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
     ProverBase<PCS>* prover, LookupPermuted<Poly, Evals>&& permuted,
     const F& beta, const F& gamma) {
   BlindedPolynomial<Poly> grand_product_poly = GrandProductArgument::Commit(
-      prover, CreateNumeratorCallback<F>(permuted, beta, gamma),
-      CreateDenominatorCallback<F>(permuted, beta, gamma));
+      prover, CreateNumeratorCallback(permuted, beta, gamma),
+      CreateDenominatorCallback(permuted, beta, gamma));
 
   return LookupCommitted<Poly>(std::move(permuted).TakePermutedInputPoly(),
                                std::move(permuted).TakePermutedTablePoly(),
@@ -69,7 +69,7 @@ LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCS, typename F>
+template <typename PCS>
 LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
     ProverBase<PCS>* prover, LookupCommitted<Poly>&& committed, const F& x) {
   F x_prev = Rotation::Prev().RotateOmega(prover->domain(), x);
@@ -95,7 +95,7 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCS, typename F>
+template <typename PCS>
 std::vector<crypto::PolynomialOpening<Poly>>
 LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
     const ProverBase<PCS>* prover, const LookupEvaluated<Poly>& evaluated,
@@ -125,8 +125,7 @@ LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
 }
 
 template <typename Poly, typename Evals>
-template <typename F>
-base::ParallelizeCallback3<F>
+base::ParallelizeCallback3<typename Poly::Field>
 LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
     const LookupPermuted<Poly, Evals>& permuted, const F& beta,
     const F& gamma) {
@@ -143,8 +142,7 @@ LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
 }
 
 template <typename Poly, typename Evals>
-template <typename F>
-base::ParallelizeCallback3<F>
+base::ParallelizeCallback3<typename Poly::Field>
 LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
     const LookupPermuted<Poly, Evals>& permuted, const F& beta,
     const F& gamma) {

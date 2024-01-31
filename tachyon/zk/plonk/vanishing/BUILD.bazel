@@ -28,6 +28,7 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/base:owned_table",
         "//tachyon/zk/plonk/base:ref_table",
         "//tachyon/zk/plonk/constraint_system:rotation",
+        "//tachyon/zk/plonk/keys:proving_key_forward",
         "//tachyon/zk/plonk/permutation:permutation_committed",
         "//tachyon/zk/plonk/permutation:unpermuted_table",
         "@com_google_absl//absl/types:span",
@@ -113,11 +114,6 @@ tachyon_cc_library(
     name = "vanishing_evaluated",
     hdrs = ["vanishing_evaluated.h"],
     deps = [":vanishing_committed"],
-)
-
-tachyon_cc_library(
-    name = "vanishing_partially_evaluated",
-    hdrs = ["vanishing_partially_evaluated.h"],
 )
 
 tachyon_cc_library(

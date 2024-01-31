@@ -20,9 +20,9 @@ tachyon_rust_library(
         ":bn254_msm",
         ":bn254_msm_gpu",
         ":bn254_poly",
+        ":bn254_proving_key",
         ":bn254_rational_evals",
         ":bn254_shplonk_prover",
-        ":bn254_shplonk_proving_key",
         ":xor_shift_rng",
         ":xor_shift_rng_cxx_bridge",
         "//tachyon/rs:tachyon_rs",
@@ -75,10 +75,9 @@ tachyon_cc_library(
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
         "include/bn254_poly.h",
+        "include/bn254_proving_key.h",
         "include/bn254_rational_evals.h",
         "include/bn254_shplonk_prover.h",
-        "include/bn254_shplonk_proving_key.h",
-        "include/proving_key_impl_forward.h",
     ],
     deps = ["@cxx.rs//:core"],
 )
@@ -168,9 +167,9 @@ tachyon_cc_library(
         ":bn254_cxx_bridge/include",
         ":bn254_evals",
         ":bn254_poly",
+        ":bn254_proving_key_impl",
         ":bn254_rational_evals",
         ":bn254_shplonk_prover_impl",
-        ":bn254_shplonk_proving_key_impl",
         "//tachyon/base/buffer",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
@@ -186,7 +185,7 @@ tachyon_cc_library(
         "src/prover_impl.h",
     ],
     deps = [
-        ":bn254_shplonk_proving_key_impl",
+        ":bn254_proving_key_impl",
         ":degrees",
         "//tachyon/base/buffer",
         "//tachyon/base/functional:callback",
@@ -198,23 +197,23 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "bn254_shplonk_proving_key",
-    srcs = ["src/bn254_shplonk_proving_key.cc"],
+    name = "bn254_proving_key",
+    srcs = ["src/bn254_proving_key.cc"],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
-        ":bn254_shplonk_proving_key_impl",
+        ":bn254_proving_key_impl",
         "//tachyon/rs/base:container_util",
     ],
 )
 
 tachyon_cc_library(
-    name = "bn254_shplonk_proving_key_impl",
+    name = "bn254_proving_key_impl",
     srcs = [
-        "src/bn254_shplonk_proving_key_impl.h",
+        "src/bn254_proving_key_impl.h",
         "src/buffer_reader.h",
         "src/endian_auto_reset.h",
-        "src/shplonk_proving_key_impl.h",
+        "src/proving_key_impl_base.h",
     ],
     deps = [
         ":degrees",
@@ -225,7 +224,6 @@ tachyon_cc_library(
         "//tachyon/math/finite_fields:prime_field_base",
         "//tachyon/math/polynomials/univariate:univariate_evaluations",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
-        "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/base:phase",
         "//tachyon/zk/plonk/constraint_system:gate",

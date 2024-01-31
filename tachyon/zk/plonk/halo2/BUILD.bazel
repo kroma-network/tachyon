@@ -100,9 +100,15 @@ tachyon_cc_library(
     deps = [
         ":pinned_constraint_system",
         ":pinned_evaluation_domain",
+        ":pinned_verifying_key_forward",
         "//tachyon/zk/plonk/halo2/stringifiers:permutation_verifying_key_stringifier",
         "//tachyon/zk/plonk/keys:verifying_key",
     ],
+)
+
+tachyon_cc_library(
+    name = "pinned_verifying_key_forward",
+    hdrs = ["pinned_verifying_key_forward.h"],
 )
 
 tachyon_cc_library(

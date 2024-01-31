@@ -58,7 +58,7 @@ class Prover : public ProverBase<PCS> {
       PCS&& pcs, std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
       std::unique_ptr<crypto::XORShiftRNG> rng, RowIndex blinding_factors) {
     auto generator = std::make_unique<RandomFieldGenerator<F>>(rng.get());
-    Blinder<PCS> blinder(generator.get(), blinding_factors);
+    Blinder<F> blinder(generator.get(), blinding_factors);
     return {std::move(pcs), std::move(writer), std::move(blinder),
             std::move(rng), std::move(generator)};
   }
@@ -75,7 +75,7 @@ class Prover : public ProverBase<PCS> {
   }
 
   template <typename Circuit>
-  void CreateProof(const ProvingKey<PCS>& proving_key,
+  void CreateProof(const ProvingKey<Poly, Evals, Commitment>& proving_key,
                    std::vector<std::vector<Evals>>&& instance_columns_vec,
                    std::vector<Circuit>& circuits) {
     size_t num_circuits = circuits.size();
@@ -95,7 +95,7 @@ class Prover : public ProverBase<PCS> {
 
     // It owns all the columns, polys and the others required in the proof
     // generation process and provides step-by-step logics as its methods.
-    ArgumentData<PCS> argument_data = ArgumentData<PCS>::Create(
+    ArgumentData<Poly, Evals> argument_data = ArgumentData<Poly, Evals>::Create(
         this, circuits, proving_key.verifying_key().constraint_system(),
         std::move(instance_columns_vec));
     CreateProof(proving_key, &argument_data);
@@ -106,7 +106,7 @@ class Prover : public ProverBase<PCS> {
 
   Prover(PCS&& pcs,
          std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-         Blinder<PCS>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
+         Blinder<F>&& blinder, std::unique_ptr<crypto::XORShiftRNG> rng,
          std::unique_ptr<RandomFieldGenerator<F>> generator)
       : ProverBase<PCS>(std::move(pcs), std::move(writer), std::move(blinder)),
         rng_(std::move(rng)),
@@ -116,13 +116,13 @@ class Prover : public ProverBase<PCS> {
     rng_ = std::move(rng);
     generator_ = std::make_unique<RandomFieldGenerator<F>>(rng_.get());
     this->blinder_ =
-        Blinder<PCS>(generator_.get(), this->blinder_.blinding_factors());
+        Blinder<F>(generator_.get(), this->blinder_.blinding_factors());
   }
 
-  void CreateProof(const ProvingKey<PCS>& proving_key,
-                   ArgumentData<PCS>* argument_data) {
-    Argument<PCS> argument(&proving_key.fixed_columns(),
-                           &proving_key.fixed_polys(), argument_data);
+  void CreateProof(const ProvingKey<Poly, Evals, Commitment>& proving_key,
+                   ArgumentData<Poly, Evals>* argument_data) {
+    Argument<Poly, Evals> argument(&proving_key.fixed_columns(),
+                                   &proving_key.fixed_polys(), argument_data);
 
     crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
     auto state =
@@ -135,7 +135,7 @@ class Prover : public ProverBase<PCS> {
     F beta = writer->SqueezeChallenge();
     F gamma = writer->SqueezeChallenge();
     StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
-                VanishingCommitted<PCS>>
+                VanishingCommitted<Poly>>
         committed_result = argument.CommitCircuitStep(
             this, proving_key.verifying_key().constraint_system(),
             proving_key.permutation_proving_key(),
@@ -145,14 +145,14 @@ class Prover : public ProverBase<PCS> {
     argument.TransformAdvice(this->domain());
     ExtendedEvals circuit_column = argument.GenerateCircuitPolynomial(
         this, proving_key, committed_result, beta, gamma, theta, y);
-    VanishingConstructed<PCS> constructed_vanishing;
+    VanishingConstructed<Poly> constructed_vanishing;
     CHECK(CommitFinalHPoly(this, std::move(committed_result).TakeVanishing(),
                            proving_key.verifying_key(), circuit_column,
                            &constructed_vanishing));
 
     F x = writer->SqueezeChallenge();
     StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
-                VanishingEvaluated<PCS>>
+                VanishingEvaluated<Poly>>
         evaluated_result =
             argument.EvaluateCircuitStep(this, proving_key, committed_result,
                                          std::move(constructed_vanishing), x);

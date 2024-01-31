@@ -25,47 +25,46 @@ namespace tachyon::zk {
 template <typename Poly, typename Evals>
 class PermutationArgumentRunner {
  public:
+  using F = typename Poly::Field;
+
   PermutationArgumentRunner() = delete;
 
   // Returns commitments of Zₚ,ᵢ for chunk index i.
   //
   // See Halo2 book to figure out logic in detail.
   // https://zcash.github.io/halo2/design/proving-system/permutation.html
-  template <typename PCS, typename F>
+  template <typename PCS>
   static PermutationCommitted<Poly> CommitArgument(
       ProverBase<PCS>* prover, const PermutationArgument& argument,
       const RefTable<Evals>& table, size_t constraint_system_degree,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
       const F& beta, const F& gamma);
 
-  template <typename PCS, typename F>
+  template <typename PCS>
   static PermutationEvaluated<Poly> EvaluateCommitted(
       ProverBase<PCS>* prover, PermutationCommitted<Poly>&& committed,
       const F& x);
 
-  template <typename PCS, typename F>
+  template <typename PCS>
   static std::vector<crypto::PolynomialOpening<Poly>> OpenEvaluated(
       ProverBase<PCS>* prover, const PermutationEvaluated<Poly>& evaluated,
       const F& x, PointSet<F>& points);
 
-  template <typename F>
   static std::vector<crypto::PolynomialOpening<Poly>> OpenPermutationProvingKey(
       const PermutationProvingKey<Poly, Evals>& proving_key, const F& x);
 
-  template <typename PCS, typename F>
+  template <typename PCS>
   static void EvaluateProvingKey(
       ProverBase<PCS>* prover,
       const PermutationProvingKey<Poly, Evals>& proving_key, const F& x);
 
  private:
-  template <typename F>
   static std::function<base::ParallelizeCallback3<F>(size_t)>
   CreateNumeratorCallback(
       const std::vector<base::Ref<const Evals>>& unpermuted_columns,
       const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
       const F& gamma);
 
-  template <typename F>
   static std::function<base::ParallelizeCallback3<F>(size_t)>
   CreateDenominatorCallback(
       const std::vector<base::Ref<const Evals>>& permuted_columns,

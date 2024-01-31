@@ -59,8 +59,8 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
   const std::vector<CalculationInfo>& calculations() { return calculations_; }
   size_t num_intermediates() const { return num_intermediates_; }
 
-  template <typename Poly, typename Evals>
-  F Evaluate(EvaluationInput<Poly, Evals>& data, size_t idx, int32_t scale,
+  template <typename Evals>
+  F Evaluate(EvaluationInput<Evals>& data, size_t idx, int32_t scale,
              const F& previous_value) const {
     for (size_t i = 0; i < rotations_.size(); ++i) {
       data.rotations()[i] =

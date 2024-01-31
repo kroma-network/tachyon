@@ -8,12 +8,9 @@
 
 namespace tachyon::zk {
 
-template <typename PCS>
+template <typename F>
 class Blinder {
  public:
-  using F = typename PCS::Field;
-  using Evals = typename PCS::Evals;
-
   Blinder(RandomFieldGeneratorBase<F>* random_field_generator,
           RowIndex blinding_factors)
       : random_field_generator_(random_field_generator),
@@ -32,6 +29,7 @@ class Blinder {
   // |include_last_row| option.
   // Blinds |evals| at behind by |blinding_rows|.
   // Returns false if |evals.NumElements()| is less than |blinding_rows|.
+  template <typename Evals>
   bool Blind(Evals& evals, bool include_last_row = false) {
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(evals.NumElements());

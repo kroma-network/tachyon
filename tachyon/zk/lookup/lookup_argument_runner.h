@@ -25,23 +25,25 @@ namespace tachyon::zk {
 template <typename Poly, typename Evals>
 class LookupArgumentRunner {
  public:
+  using F = typename Poly::Field;
+
   LookupArgumentRunner() = delete;
 
-  template <typename PCS, typename F>
+  template <typename PCS>
   static LookupPermuted<Poly, Evals> PermuteArgument(
       ProverBase<PCS>* prover, const LookupArgument<F>& argument,
       const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl);
 
-  template <typename PCS, typename F>
+  template <typename PCS>
   static LookupCommitted<Poly> CommitPermuted(
       ProverBase<PCS>* prover, LookupPermuted<Poly, Evals>&& permuted,
       const F& beta, const F& gamma);
 
-  template <typename PCS, typename F>
+  template <typename PCS>
   static LookupEvaluated<Poly> EvaluateCommitted(
       ProverBase<PCS>* prover, LookupCommitted<Poly>&& committed, const F& x);
 
-  template <typename PCS, typename F>
+  template <typename PCS>
   static std::vector<crypto::PolynomialOpening<Poly>> OpenEvaluated(
       const ProverBase<PCS>* prover, const LookupEvaluated<Poly>& evaluated,
       const F& x, PointSet<F>& points);
@@ -49,12 +51,10 @@ class LookupArgumentRunner {
  private:
   FRIEND_TEST(LookupArgumentRunnerTest, ComputePermutationProduct);
 
-  template <typename F>
   static base::ParallelizeCallback3<F> CreateNumeratorCallback(
       const LookupPermuted<Poly, Evals>& permuted, const F& beta,
       const F& gamma);
 
-  template <typename F>
   static base::ParallelizeCallback3<F> CreateDenominatorCallback(
       const LookupPermuted<Poly, Evals>& permuted, const F& beta,
       const F& gamma);

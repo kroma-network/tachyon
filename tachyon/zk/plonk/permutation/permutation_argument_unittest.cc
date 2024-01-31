@@ -81,12 +81,11 @@ TEST_F(PermutationArgumentTest, Commit) {
   prover_->blinder().set_blinding_factors(5);
 
   size_t n = prover_->pcs().N();
-  PermutationAssembly<PCS> assembly =
-      PermutationAssembly<PCS>::CreateForTesting(
-          column_keys_, CycleStore(column_keys_.size(), n), n);
+  PermutationAssembly assembly = PermutationAssembly::CreateForTesting(
+      column_keys_, CycleStore(column_keys_.size(), n), n);
 
   std::vector<Evals> permutations =
-      assembly.GeneratePermutations(prover_->domain());
+      assembly.GeneratePermutations<Evals>(prover_->domain());
   PermutationProvingKey<Poly, Evals> pk =
       assembly.BuildProvingKey(prover_.get(), permutations);
 

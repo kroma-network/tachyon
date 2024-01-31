@@ -80,11 +80,11 @@ pub mod ffi {
     }
 
     unsafe extern "C++" {
-        include!("vendors/halo2/include/bn254_shplonk_proving_key.h");
+        include!("vendors/halo2/include/bn254_proving_key.h");
 
-        type SHPlonkProvingKey;
+        type ProvingKey;
 
-        fn new_proving_key(data: &[u8]) -> UniquePtr<SHPlonkProvingKey>;
+        fn new_proving_key(data: &[u8]) -> UniquePtr<ProvingKey>;
         fn advice_column_phases(&self) -> &[u8];
         fn blinding_factors(&self) -> u32;
         fn challenge_phases(&self) -> &[u8];
@@ -93,7 +93,7 @@ pub mod ffi {
         fn num_challenges(&self) -> usize;
         fn num_instance_columns(&self) -> usize;
         fn phases(&self) -> Vec<u8>;
-        fn transcript_repr(self: Pin<&mut SHPlonkProvingKey>, prover: &SHPlonkProver) -> Box<Fr>;
+        fn transcript_repr(self: Pin<&mut ProvingKey>, prover: &SHPlonkProver) -> Box<Fr>;
     }
 
     unsafe extern "C++" {
@@ -149,11 +149,11 @@ pub mod ffi {
         );
         fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_transcript(self: Pin<&mut SHPlonkProver>, state: &[u8]);
-        fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &SHPlonkProvingKey);
+        fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &ProvingKey);
         // TODO(chokobole): Needs to take `instance_singles` and `advice_singles` as a slice.
         fn create_proof(
             self: Pin<&mut SHPlonkProver>,
-            key: &SHPlonkProvingKey,
+            key: &ProvingKey,
             instance_singles: Vec<InstanceSingle>,
             advice_singles: Vec<AdviceSingle>,
             challenges: Vec<Fr>,
@@ -245,13 +245,13 @@ impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
     }
 }
 
-pub struct SHPlonkProvingKey {
-    inner: cxx::UniquePtr<ffi::SHPlonkProvingKey>,
+pub struct ProvingKey {
+    inner: cxx::UniquePtr<ffi::ProvingKey>,
 }
 
-impl SHPlonkProvingKey {
-    pub fn from(data: &[u8]) -> SHPlonkProvingKey {
-        SHPlonkProvingKey {
+impl ProvingKey {
+    pub fn from(data: &[u8]) -> ProvingKey {
+        ProvingKey {
             inner: ffi::new_proving_key(data),
         }
     }
@@ -470,13 +470,13 @@ impl SHPlonkProver {
         self.inner.pin_mut().set_transcript(state)
     }
 
-    pub fn set_extended_domain(&mut self, pk: &SHPlonkProvingKey) {
+    pub fn set_extended_domain(&mut self, pk: &ProvingKey) {
         self.inner.pin_mut().set_extended_domain(&pk.inner)
     }
 
     pub fn create_proof(
         &mut self,
-        key: &SHPlonkProvingKey,
+        key: &ProvingKey,
         instance_singles: Vec<InstanceSingle>,
         advice_singles: Vec<AdviceSingle>,
         challenges: Vec<Fr>,

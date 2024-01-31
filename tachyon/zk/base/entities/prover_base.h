@@ -32,11 +32,11 @@ class ProverBase : public Entity<PCS> {
 
   ProverBase(PCS&& pcs,
              std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer,
-             Blinder<PCS>&& blinder)
+             Blinder<F>&& blinder)
       : Entity<PCS>(std::move(pcs), std::move(writer)),
         blinder_(std::move(blinder)) {}
 
-  Blinder<PCS>& blinder() { return blinder_; }
+  Blinder<F>& blinder() { return blinder_; }
 
   crypto::TranscriptWriter<Commitment>* GetWriter() {
     return this->transcript()->ToWriter();
@@ -150,7 +150,7 @@ class ProverBase : public Entity<PCS> {
   }
 
  protected:
-  Blinder<PCS> blinder_;
+  Blinder<F> blinder_;
 };
 
 }  // namespace tachyon::zk

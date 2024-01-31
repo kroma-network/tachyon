@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod test {
-    use crate::bn254::SHPlonkProvingKey;
+    use crate::bn254::ProvingKey;
     use crate::circuits::simple_circuit::SimpleCircuit;
     use halo2_proofs::{circuit::Value, plonk::keygen_pk2, poly::kzg::commitment::ParamsKZG};
     use halo2curves::bn256::{Bn256, Fr};
@@ -31,7 +31,7 @@ mod test {
         let mut pk_bytes: Vec<u8> = vec![];
         pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
             .unwrap();
-        let tachyon_pk = SHPlonkProvingKey::from(pk_bytes.as_slice());
+        let tachyon_pk = ProvingKey::from(pk_bytes.as_slice());
 
         assert_eq!(
             pk.vk.cs.advice_column_phase,

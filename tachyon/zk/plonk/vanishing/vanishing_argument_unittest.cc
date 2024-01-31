@@ -39,7 +39,7 @@ TEST_F(VanishingArgumentTest, BuildExtendedCircuitColumn) {
   F b(3);
   SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
 
-  ProvingKey<PCS> pkey;
+  ProvingKey<Poly, Evals, Commitment> pkey;
   ASSERT_TRUE(pkey.Load(prover_.get(), circuit));
 
   std::vector<Poly> instance_columns = {GenRandomPoly()};
@@ -85,22 +85,22 @@ TEST_F(VanishingArgumentTest, BuildExtendedCircuitColumn) {
 }
 
 TEST_F(VanishingArgumentTest, VanishingArgument) {
-  VanishingCommitted<PCS> committed_p;
+  VanishingCommitted<Poly> committed_p;
   ASSERT_TRUE(CommitRandomPoly(prover_.get(), &committed_p));
 
   SimpleCircuit<F, SimpleFloorPlanner> circuit =
       SimpleCircuit<F, SimpleFloorPlanner>();
-  VerifyingKey<PCS> vkey;
+  VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
   ExtendedEvals extended_evals =
       ExtendedEvals::One(prover_->extended_domain()->size() - 1);
-  VanishingConstructed<PCS> constructed_p;
+  VanishingConstructed<Poly> constructed_p;
   ASSERT_TRUE(CommitFinalHPoly(prover_.get(), std::move(committed_p), vkey,
                                extended_evals, &constructed_p));
 
   F x = F::One();
-  VanishingEvaluated<PCS> evaluated;
+  VanishingEvaluated<Poly> evaluated;
   ASSERT_TRUE(CommitRandomEval(prover_->pcs(), std::move(constructed_p), x,
                                F::One(), prover_->GetWriter(), &evaluated));
 }

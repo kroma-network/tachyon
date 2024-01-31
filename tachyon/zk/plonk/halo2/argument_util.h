@@ -143,8 +143,9 @@ void EvaluateColumns(ProverBase<PCS>* prover,
                          constraint_system.fixed_queries(), x);
 }
 
-template <typename PCS, typename P, typename L, typename V>
-size_t GetNumOpenings(const ProvingKey<PCS>& proving_key,
+template <typename PCS, typename Poly, typename Evals, typename C, typename P,
+          typename L, typename V>
+size_t GetNumOpenings(const ProvingKey<Poly, Evals, C>& proving_key,
                       const StepReturns<P, L, V>& evaluated,
                       size_t num_circuits) {
   const ConstraintSystem<typename PCS::Field>& cs =

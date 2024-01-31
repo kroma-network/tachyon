@@ -7,8 +7,8 @@ use std::{
 };
 
 use crate::bn254::{
-    AdviceSingle, Blake2bWrite as TachyonBlake2bWrite, Evals, InstanceSingle, RationalEvals,
-    SHPlonkProver as TachyonSHPlonkProver, SHPlonkProvingKey as TachyonSHPlonkProvingKey,
+    AdviceSingle, Blake2bWrite as TachyonBlake2bWrite, Evals, InstanceSingle,
+    ProvingKey as TachyonProvingKey, RationalEvals, SHPlonkProver as TachyonSHPlonkProver,
 };
 use crate::xor_shift_rng::XORShiftRng as TachyonXORShiftRng;
 use ff::Field;
@@ -32,7 +32,7 @@ use halo2curves::{
 /// are zero-padded internally.
 pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     prover: &mut TachyonSHPlonkProver,
-    pk: &mut TachyonSHPlonkProvingKey,
+    pk: &mut TachyonProvingKey,
     circuits: &[ConcreteCircuit],
     instances: &[&[&[Fr]]],
     mut rng: TachyonXORShiftRng,

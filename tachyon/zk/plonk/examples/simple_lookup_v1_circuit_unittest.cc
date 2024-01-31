@@ -128,8 +128,9 @@ TEST_F(SimpleLookupV1CircuitTest, Synthesize) {
   SimpleLookupConfig<F, kBits> config =
       SimpleLookupCircuit<F, kBits, V1FloorPlanner>::Configure(
           constraint_system);
-  Assembly<PCS> assembly =
-      VerifyingKey<PCS>::CreateAssembly(domain, constraint_system);
+  Assembly<RationalEvals> assembly =
+      VerifyingKey<F, Commitment>::CreateAssembly<RationalEvals>(
+          domain, constraint_system);
 
   SimpleLookupCircuit<F, kBits, V1FloorPlanner> circuit(4);
   typename SimpleLookupCircuit<F, kBits, V1FloorPlanner>::FloorPlanner
@@ -201,7 +202,7 @@ TEST_F(SimpleLookupV1CircuitTest, LoadVerifyingKey) {
 
   SimpleLookupCircuit<F, kBits, V1FloorPlanner> circuit(4);
 
-  VerifyingKey<PCS> vkey;
+  VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
   EXPECT_TRUE(vkey.permutation_verifying_key().commitments().empty());
@@ -231,12 +232,12 @@ TEST_F(SimpleLookupV1CircuitTest, LoadProvingKey) {
   SimpleLookupCircuit<F, kBits, V1FloorPlanner> circuit(4);
 
   for (size_t i = 0; i < 2; ++i) {
-    ProvingKey<PCS> pkey;
+    ProvingKey<Poly, Evals, Commitment> pkey;
     bool load_verifying_key = i == 0;
     SCOPED_TRACE(
         absl::Substitute("load_verifying_key: $0", load_verifying_key));
     if (load_verifying_key) {
-      VerifyingKey<PCS> vkey;
+      VerifyingKey<F, Commitment> vkey;
       ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
       ASSERT_TRUE(
           pkey.LoadWithVerifyingKey(prover_.get(), circuit, std::move(vkey)));
@@ -534,7 +535,7 @@ TEST_F(SimpleLookupV1CircuitTest, CreateProof) {
   std::vector<std::vector<Evals>> instance_columns_vec = {
       std::move(instance_columns)};
 
-  ProvingKey<PCS> pkey;
+  ProvingKey<Poly, Evals, Commitment> pkey;
   ASSERT_TRUE(pkey.Load(prover_.get(), circuit));
   prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
@@ -551,7 +552,7 @@ TEST_F(SimpleLookupV1CircuitTest, Verify) {
 
   SimpleLookupCircuit<F, kBits, V1FloorPlanner> circuit(4);
 
-  VerifyingKey<PCS> vkey;
+  VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
   std::vector<uint8_t> owned_proof(std::begin(kExpectedProof),

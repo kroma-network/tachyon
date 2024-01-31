@@ -17,27 +17,17 @@
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
 
 namespace tachyon {
-namespace halo2_api {
-
-template <typename PCS>
-class ProvingKeyImpl;
-
-}  // namespace halo2_api
 
 namespace zk {
 
-template <typename PCS>
-class ProvingKey : public Key<PCS> {
+template <typename Poly, typename Evals, typename C>
+class ProvingKey : public Key {
  public:
-  using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
-  using Evals = typename PCS::Evals;
-  using PreLoadResult = typename Key<PCS>::PreLoadResult;
-  using VerifyingKeyLoadResult = typename VerifyingKey<PCS>::LoadResult;
+  using F = typename Poly::Field;
 
   ProvingKey() = default;
 
-  const VerifyingKey<PCS>& verifying_key() const { return verifying_key_; }
+  const VerifyingKey<F, C>& verifying_key() const { return verifying_key_; }
   const Poly& l_first() const { return l_first_; }
   const Poly& l_last() const { return l_last_; }
   const Poly& l_active_row() const { return l_active_row_; }
@@ -48,11 +38,12 @@ class ProvingKey : public Key<PCS> {
   }
 
   // Return true if it is able to load from an instance of |circuit|.
-  template <typename Circuit>
+  template <typename PCS, typename Circuit>
   [[nodiscard]] bool Load(ProverBase<PCS>* prover, const Circuit& circuit) {
-    PreLoadResult pre_load_result;
+    using RationalEvals = typename PCS::RationalEvals;
+    KeyPreLoadResult<Evals, RationalEvals> pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
-    VerifyingKeyLoadResult vk_result;
+    VerifyingKeyLoadResult<Evals> vk_result;
     if (!verifying_key_.DoLoad(prover, std::move(pre_load_result), &vk_result))
       return false;
     return DoLoad(prover, std::move(pre_load_result), &vk_result);
@@ -60,21 +51,24 @@ class ProvingKey : public Key<PCS> {
 
   // Return true if it is able to load from an instance of |circuit| and a
   // |verifying_key|.
-  template <typename Circuit>
+  template <typename PCS, typename Circuit>
   [[nodiscard]] bool LoadWithVerifyingKey(ProverBase<PCS>* prover,
                                           const Circuit& circuit,
-                                          VerifyingKey<PCS>&& verifying_key) {
-    PreLoadResult pre_load_result;
+                                          VerifyingKey<F, C>&& verifying_key) {
+    using RationalEvals = typename PCS::RationalEvals;
+    KeyPreLoadResult<Evals, RationalEvals> pre_load_result;
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     verifying_key_ = std::move(verifying_key);
     return DoLoad(prover, std::move(pre_load_result), nullptr);
   }
 
  private:
-  friend class halo2_api::ProvingKeyImpl<PCS>;
+  friend class halo2_api::ProvingKeyImplBase<Poly, Evals, C>;
 
-  bool DoLoad(ProverBase<PCS>* prover, PreLoadResult&& pre_load_result,
-              VerifyingKeyLoadResult* vk_load_result) {
+  template <typename PCS, typename RationalEvals>
+  bool DoLoad(ProverBase<PCS>* prover,
+              KeyPreLoadResult<Evals, RationalEvals>&& pre_load_result,
+              VerifyingKeyLoadResult<Evals>* vk_load_result) {
     using Domain = typename PCS::Domain;
 
     // NOTE(chokobole): |ComputeBlindingFactors()| is a second call. The first
@@ -92,8 +86,8 @@ class ProvingKey : public Key<PCS> {
     if (vk_load_result) {
       permutations = std::move(vk_load_result->permutations);
     } else {
-      permutations =
-          pre_load_result.assembly.permutation().GeneratePermutations(domain);
+      permutations = pre_load_result.assembly.permutation()
+                         .template GeneratePermutations<Evals>(domain);
     }
 
     permutation_proving_key_ =
@@ -167,7 +161,7 @@ class ProvingKey : public Key<PCS> {
     return true;
   }
 
-  VerifyingKey<PCS> verifying_key_;
+  VerifyingKey<F, C> verifying_key_;
   Poly l_first_;
   Poly l_last_;
   Poly l_active_row_;

@@ -20,16 +20,14 @@
 
 namespace tachyon::zk::halo2 {
 
-template <typename PCS>
-class WitnessCollection : public Assignment<typename PCS::Field> {
+template <typename Evals, typename RationalEvals>
+class WitnessCollection : public Assignment<typename Evals::Field> {
  public:
-  using F = typename PCS::Field;
-  using Domain = typename PCS::Domain;
-  using Evals = typename PCS::Evals;
-  using RationalEvals = typename PCS::RationalEvals;
+  using F = typename Evals::Field;
   using AssignCallback = typename Assignment<F>::AssignCallback;
 
   WitnessCollection() = default;
+  template <typename Domain>
   WitnessCollection(const Domain* domain, size_t num_advice_columns,
                     RowIndex usable_rows, Phase current_phase,
                     const absl::btree_map<size_t, F>& challenges,

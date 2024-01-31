@@ -65,6 +65,24 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "permutation_assembly",
+    hdrs = ["permutation_assembly.h"],
+    deps = [
+        ":cycle_store",
+        ":label",
+        ":permutation_argument",
+        ":permutation_proving_key",
+        ":permutation_verifying_key",
+        ":unpermuted_table",
+        "//tachyon:export",
+        "//tachyon/base:openmp_util",
+        "//tachyon/base:parallelize",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/base/entities:prover_base",
+    ],
+)
+
+tachyon_cc_library(
     name = "permutation_committed",
     hdrs = ["permutation_committed.h"],
     deps = ["//tachyon/zk/base:blinded_polynomial"],
@@ -138,23 +156,6 @@ tachyon_cc_library(
         ":label",
         "//tachyon/base:range",
         "//tachyon/base:ref",
-    ],
-)
-
-tachyon_cc_library(
-    name = "permutation_assembly",
-    hdrs = ["permutation_assembly.h"],
-    deps = [
-        ":cycle_store",
-        ":label",
-        ":permutation_argument",
-        ":permutation_proving_key",
-        ":permutation_verifying_key",
-        ":unpermuted_table",
-        "//tachyon/base:openmp_util",
-        "//tachyon/base:parallelize",
-        "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base/entities:prover_base",
     ],
 )
 

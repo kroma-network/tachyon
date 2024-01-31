@@ -39,7 +39,7 @@ class Verifier : public VerifierBase<PCS> {
   using VerifierBase<PCS>::VerifierBase;
 
   [[nodiscard]] bool VerifyProof(
-      const VerifyingKey<PCS>& vkey,
+      const VerifyingKey<F, Commitment>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
     return VerifyProofForTesting(vkey, instance_columns_vec, nullptr, nullptr);
   }
@@ -51,7 +51,7 @@ class Verifier : public VerifierBase<PCS> {
   FRIEND_TEST(SimpleLookupV1CircuitTest, Verify);
 
   bool VerifyProofForTesting(
-      const VerifyingKey<PCS>& vkey,
+      const VerifyingKey<F, Commitment>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec,
       Proof<F, Commitment>* proof_out, F* expected_h_eval_out) {
     if (!ValidateInstanceColumnsVec(vkey, instance_columns_vec)) return false;
@@ -129,7 +129,7 @@ class Verifier : public VerifierBase<PCS> {
   }
 
   bool ValidateInstanceColumnsVec(
-      const VerifyingKey<PCS>& vkey,
+      const VerifyingKey<F, Commitment>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
     size_t num_instance_columns =
         vkey.constraint_system().num_instance_columns();
@@ -239,7 +239,7 @@ class Verifier : public VerifierBase<PCS> {
   }
 
   std::vector<std::vector<F>> ComputeInstanceEvalsVec(
-      const VerifyingKey<PCS>& vkey,
+      const VerifyingKey<F, Commitment>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec, const F& x) {
     struct RotationRange {
       int32_t min = 0;
@@ -282,7 +282,8 @@ class Verifier : public VerifierBase<PCS> {
                      });
   }
 
-  F ComputeExpectedHEval(size_t num_circuits, const VerifyingKey<PCS>& vkey,
+  F ComputeExpectedHEval(size_t num_circuits,
+                         const VerifyingKey<F, Commitment>& vkey,
                          const Proof<F, Commitment>& proof) {
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
     std::vector<F> expressions;
@@ -363,8 +364,8 @@ class Verifier : public VerifierBase<PCS> {
 
   bool DoVerify(
       const std::vector<std::vector<Commitment>>& instance_commitments_vec,
-      const VerifyingKey<PCS>& vkey, const Proof<F, Commitment>& proof,
-      F* expected_h_eval_out) {
+      const VerifyingKey<F, Commitment>& vkey,
+      const Proof<F, Commitment>& proof, F* expected_h_eval_out) {
     std::vector<Opening> queries;
     size_t num_circuits = instance_commitments_vec.size();
 

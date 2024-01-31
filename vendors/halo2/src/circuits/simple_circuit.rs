@@ -305,8 +305,7 @@ impl<F: FieldExt> Circuit<F> for SimpleCircuit<F> {
 #[cfg(test)]
 mod test {
     use crate::bn254::{
-        Blake2bWrite as TachyonBlake2bWrite, SHPlonkProver,
-        SHPlonkProvingKey as TachyonSHPlonkProvingKey,
+        Blake2bWrite as TachyonBlake2bWrite, ProvingKey as TachyonProvingKey, SHPlonkProver,
     };
     use crate::circuits::simple_circuit::SimpleCircuit;
     use crate::consts::SEED;
@@ -386,7 +385,7 @@ mod test {
             let mut pk_bytes: Vec<u8> = vec![];
             pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
                 .unwrap();
-            let mut tachyon_pk = TachyonSHPlonkProvingKey::from(pk_bytes.as_slice());
+            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
             tachyon_create_proof::<_, _>(

@@ -15,6 +15,8 @@ namespace tachyon::math {
 template <typename F>
 class RationalField : public Field<RationalField<F>> {
  public:
+  using InnerField = F;
+
   constexpr RationalField() = default;
   constexpr explicit RationalField(const F& numerator)
       : numerator_(numerator) {}

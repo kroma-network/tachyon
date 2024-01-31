@@ -14,29 +14,27 @@
 namespace tachyon::zk::halo2 {
 
 // Data class including all arguments for creating proof.
-template <typename PCS>
+template <typename Poly, typename Evals>
 class Argument {
  public:
-  using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
-  using Evals = typename PCS::Evals;
-  using Domain = typename PCS::Domain;
-  using ExtendedEvals = typename PCS::ExtendedEvals;
+  using F = typename Poly::Field;
 
   Argument() = default;
 
   // NOTE(chokobole): This is used by rust halo2 binding.
   Argument(const std::vector<Evals>* fixed_columns,
            const std::vector<Poly>* fixed_polys,
-           ArgumentData<PCS>* argument_data)
+           ArgumentData<Poly, Evals>* argument_data)
       : fixed_columns_(fixed_columns),
         fixed_polys_(fixed_polys),
         argument_data_(argument_data) {}
 
+  template <typename Domain>
   void TransformAdvice(const Domain* domain) {
     return argument_data_->TransformAdvice(domain);
   }
 
+  template <typename PCS>
   std::vector<std::vector<LookupPermuted<Poly, Evals>>> CompressLookupStep(
       ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
       const F& theta) const {
@@ -46,8 +44,9 @@ class Argument {
                                argument_data_->GetChallenges(), theta);
   }
 
+  template <typename PCS>
   StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
-              VanishingCommitted<PCS>>
+              VanishingCommitted<Poly>>
   CommitCircuitStep(
       ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
@@ -66,19 +65,19 @@ class Argument {
         BatchCommitLookups(prover, std::move(permuted_lookups_vec), beta,
                            gamma);
 
-    VanishingCommitted<PCS> vanishing_committed;
+    VanishingCommitted<Poly> vanishing_committed;
     CHECK(CommitRandomPoly(prover, &vanishing_committed));
 
     return {std::move(committed_permutations), std::move(committed_lookups_vec),
             std::move(vanishing_committed)};
   }
 
-  template <typename P, typename L, typename V>
-  ExtendedEvals GenerateCircuitPolynomial(ProverBase<PCS>* prover,
-                                          const ProvingKey<PCS>& proving_key,
-                                          const StepReturns<P, L, V>& committed,
-                                          const F& beta, const F& gamma,
-                                          const F& theta, const F& y) const {
+  template <typename PCS, typename C, typename P, typename L, typename V,
+            typename ExtendedEvals = typename PCS::ExtendedEvals>
+  ExtendedEvals GenerateCircuitPolynomial(
+      ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
+      const StepReturns<P, L, V>& committed, const F& beta, const F& gamma,
+      const F& theta, const F& y) const {
     VanishingArgument<F> vanishing_argument = VanishingArgument<F>::Create(
         proving_key.verifying_key().constraint_system());
     F zeta = GetHalo2Zeta<F>();
@@ -89,13 +88,13 @@ class Argument {
         argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_)));
   }
 
-  template <typename P, typename L, typename V>
+  template <typename PCS, typename C, typename P, typename L, typename V>
   StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
-              VanishingEvaluated<PCS>>
+              VanishingEvaluated<Poly>>
   EvaluateCircuitStep(ProverBase<PCS>* prover,
-                      const ProvingKey<PCS>& proving_key,
+                      const ProvingKey<Poly, Evals, C>& proving_key,
                       StepReturns<P, L, V>& committed,
-                      VanishingConstructed<PCS>&& constructed_vanishing,
+                      VanishingConstructed<Poly>&& constructed_vanishing,
                       const F& x) const {
     const ConstraintSystem<F>& cs =
         proving_key.verifying_key().constraint_system();
@@ -104,7 +103,7 @@ class Argument {
     EvaluateColumns(prover, cs, tables, x);
 
     F xn = x.Pow(prover->pcs().N());
-    VanishingEvaluated<PCS> evaluated_vanishing;
+    VanishingEvaluated<Poly> evaluated_vanishing;
     CHECK(CommitRandomEval(prover->pcs(), std::move(constructed_vanishing), x,
                            xn, prover->GetWriter(), &evaluated_vanishing));
 
@@ -122,9 +121,9 @@ class Argument {
             std::move(evaluated_vanishing)};
   }
 
-  template <typename P, typename L, typename V>
+  template <typename PCS, typename C, typename P, typename L, typename V>
   std::vector<crypto::PolynomialOpening<Poly>> ConstructOpenings(
-      ProverBase<PCS>* prover, const ProvingKey<PCS>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
       const StepReturns<P, L, V>& evaluated, const F& x) {
     std::vector<RefTable<Poly>> tables =
         argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_));
@@ -134,7 +133,7 @@ class Argument {
 
     size_t num_circuits = argument_data_->GetNumCircuits();
     std::vector<crypto::PolynomialOpening<Poly>> ret;
-    ret.reserve(GetNumOpenings(proving_key, evaluated, num_circuits));
+    ret.reserve(GetNumOpenings<PCS>(proving_key, evaluated, num_circuits));
     for (size_t i = 0; i < num_circuits; ++i) {
       // Generate openings for instances columns of the specific circuit.
       if constexpr (PCS::kQueryInstance) {
@@ -192,52 +191,12 @@ class Argument {
   }
 
  private:
-  // Generate a vector of instance coefficient-formed polynomials with a vector
-  // of instance evaluation-formed columns. (a.k.a. Batch IFFT)
-  static std::vector<std::vector<Poly>> GenerateInstancePolys(
-      ProverBase<PCS>* prover,
-      const std::vector<std::vector<Evals>>& instance_columns_vec) {
-    size_t num_circuit = instance_columns_vec.size();
-    CHECK_GT(num_circuit, size_t{0});
-    size_t num_instance_columns = instance_columns_vec[0].size();
-    if constexpr (PCS::kSupportsBatchMode && PCS::kQueryInstance) {
-      size_t num_commitment = num_circuit * num_instance_columns;
-      prover->pcs().SetBatchMode(num_commitment);
-    }
-
-    std::vector<std::vector<Poly>> instance_polys_vec;
-    instance_polys_vec.reserve(num_circuit);
-    for (size_t i = 0; i < num_circuit; ++i) {
-      const std::vector<Evals>& instance_columns = instance_columns_vec[i];
-      std::vector<Poly> instance_polys;
-      instance_polys.reserve(num_instance_columns);
-      for (size_t j = 0; j < num_instance_columns; ++j) {
-        const Evals& instance_column = instance_columns[j];
-        if constexpr (PCS::kQueryInstance && PCS::kSupportsBatchMode) {
-          prover->BatchCommitAt(instance_column, i * num_instance_columns + j);
-        } else if constexpr (PCS::kQueryInstance && !PCS::kSupportsBatchMode) {
-          prover->CommitAndWriteToTranscript(instance_column);
-        } else {
-          for (const F& instance : instance_column.evaluations()) {
-            CHECK(prover->GetWriter()->WriteToTranscript(instance));
-          }
-        }
-        instance_polys.push_back(prover->domain()->IFFT(instance_column));
-      }
-      instance_polys_vec.push_back(std::move(instance_polys));
-    }
-    if constexpr (PCS::kSupportsBatchMode && PCS::kQueryInstance) {
-      prover->RetrieveAndWriteBatchCommitmentsToTranscript();
-    }
-    return instance_polys_vec;
-  }
-
   // not owned
   const std::vector<Evals>* fixed_columns_ = nullptr;
   // not owned
   const std::vector<Poly>* fixed_polys_ = nullptr;
   // not owned
-  ArgumentData<PCS>* argument_data_ = nullptr;
+  ArgumentData<Poly, Evals>* argument_data_ = nullptr;
 
   // NOTE(dongchangYoo): set of points which will be included to any openings.
   PointSet<F> opening_points_set_;

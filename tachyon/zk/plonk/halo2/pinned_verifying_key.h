@@ -14,21 +14,21 @@
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/plonk/halo2/pinned_constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_evaluation_domain.h"
+#include "tachyon/zk/plonk/halo2/pinned_verifying_key_forward.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/permutation_verifying_key_stringifier.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 
 namespace tachyon {
 namespace zk::halo2 {
 
-template <typename PCS>
+template <typename F, typename C>
 class PinnedVerifyingKey {
  public:
-  using F = typename PCS::Field;
-  using Commitment = typename PCS::Commitment;
-  using BaseField = typename Commitment::BaseField;
-  using ScalarField = typename Commitment::ScalarField;
+  using BaseField = typename C::BaseField;
+  using ScalarField = typename C::ScalarField;
 
-  PinnedVerifyingKey(const Entity<PCS>* entity, const VerifyingKey<PCS>& vk)
+  template <typename PCS>
+  PinnedVerifyingKey(const Entity<PCS>* entity, const VerifyingKey<F, C>& vk)
       : base_modulus_(BaseField::Config::kModulus.ToHexString(true)),
         scalar_modulus_(ScalarField::Config::kModulus.ToHexString(true)),
         domain_(entity),
@@ -42,10 +42,8 @@ class PinnedVerifyingKey {
   const PinnedConstraintSystem<F>& constraint_system() const {
     return constraint_system_;
   }
-  const std::vector<Commitment>& fixed_commitments() const {
-    return fixed_commitments_;
-  }
-  const PermutationVerifyingKey<Commitment>& permutation_verifying_key() const {
+  const std::vector<C>& fixed_commitments() const { return fixed_commitments_; }
+  const PermutationVerifyingKey<C>& permutation_verifying_key() const {
     return permutation_verifying_key_;
   }
 
@@ -54,20 +52,20 @@ class PinnedVerifyingKey {
   std::string scalar_modulus_;
   PinnedEvaluationDomain<F> domain_;
   PinnedConstraintSystem<F> constraint_system_;
-  const std::vector<Commitment>& fixed_commitments_;
-  const PermutationVerifyingKey<Commitment>& permutation_verifying_key_;
+  const std::vector<C>& fixed_commitments_;
+  const PermutationVerifyingKey<C>& permutation_verifying_key_;
 };
 
 }  // namespace zk::halo2
 
 namespace base::internal {
 
-template <typename PCS>
-class RustDebugStringifier<zk::halo2::PinnedVerifyingKey<PCS>> {
+template <typename F, typename C>
+class RustDebugStringifier<zk::halo2::PinnedVerifyingKey<F, C>> {
  public:
   static std::ostream& AppendToStream(
       std::ostream& os, RustFormatter& fmt,
-      const zk::halo2::PinnedVerifyingKey<PCS>& pinned_vk) {
+      const zk::halo2::PinnedVerifyingKey<F, C>& pinned_vk) {
     // NOTE(chokobole): Original name is PinnedVerificationKey not
     // PinnedVerifyingKey. See
     // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk.rs#L252-L263.

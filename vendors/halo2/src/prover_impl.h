@@ -20,6 +20,8 @@ template <typename PCS>
 class ProverImpl {
  public:
   using Field = typename PCS::Field;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
   using Commitment = typename PCS::Commitment;
   using ExtendedDomain = typename PCS::ExtendedDomain;
 
@@ -51,8 +53,8 @@ class ProverImpl {
     prover_.blinder_.set_blinding_factors(binding_factors);
   }
 
-  void CreateProof(const zk::ProvingKey<PCS>& proving_key,
-                   zk::halo2::ArgumentData<PCS>* argument_data) {
+  void CreateProof(const zk::ProvingKey<Poly, Evals, Commitment>& proving_key,
+                   zk::halo2::ArgumentData<Poly, Evals>* argument_data) {
     prover_.CreateProof(proving_key, argument_data);
   }
 

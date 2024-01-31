@@ -17,13 +17,10 @@
 
 namespace tachyon::zk::halo2 {
 
-template <typename PCS>
+template <typename Evals>
 class Synthesizer {
  public:
-  using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
-  using Evals = typename PCS::Evals;
-  using RationalEvals = typename PCS::RationalEvals;
+  using F = typename Evals::Field;
 
   Synthesizer() = default;
   Synthesizer(size_t num_circuits, const ConstraintSystem<F>* constraint_system)
@@ -40,7 +37,8 @@ class Synthesizer {
   }
 
   // Synthesize circuit and store advice columns.
-  template <typename Circuit>
+  template <typename PCS, typename Circuit,
+            typename RationalEvals = typename PCS::RationalEvals>
   void GenerateAdviceColumns(
       ProverBase<PCS>* prover, std::vector<Circuit>& circuits,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
@@ -124,7 +122,8 @@ class Synthesizer {
 
   // Performs synthesis for a specific |circuit| and a specific |phase|, and
   // returns a vector of |RationalEvals|.
-  template <typename Circuit>
+  template <typename PCS, typename Circuit,
+            typename RationalEvals = typename PCS::RationalEvals>
   std::vector<RationalEvals> GenerateRationalAdvices(
       ProverBase<PCS>* prover, Phase phase,
       const std::vector<Evals>& instance_columns, const Circuit& circuit,
@@ -133,7 +132,7 @@ class Synthesizer {
     // cells that exist within inactive rows, which include some
     // number of blinding factors and an extra row for use in the
     // permutation argument.
-    WitnessCollection<PCS> witness(
+    WitnessCollection<Evals, RationalEvals> witness(
         prover->domain(), constraint_system_->num_advice_columns(),
         prover->GetUsableRows(), phase, challenges_, instance_columns);
 
@@ -144,6 +143,7 @@ class Synthesizer {
     return std::move(witness).TakeAdvices();
   }
 
+  template <typename PCS>
   void UpdateChallenges(ProverBase<PCS>* prover, Phase phase) {
     const std::vector<Phase>& phases = constraint_system_->challenge_phases();
     for (size_t i = 0; i < phases.size(); ++i) {

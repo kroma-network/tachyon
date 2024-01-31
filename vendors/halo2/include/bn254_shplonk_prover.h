@@ -14,7 +14,7 @@ struct G1JacobianPoint;
 struct InstanceSingle;
 struct AdviceSingle;
 class SHPlonkProverImpl;
-class SHPlonkProvingKey;
+class ProvingKey;
 class Evals;
 class RationalEvals;
 class Poly;
@@ -37,8 +37,8 @@ class SHPlonkProver {
       rust::Slice<std::unique_ptr<Evals>> evals) const;
   void set_rng(rust::Slice<const uint8_t> state);
   void set_transcript(rust::Slice<const uint8_t> state);
-  void set_extended_domain(const SHPlonkProvingKey& pk);
-  void create_proof(const SHPlonkProvingKey& key,
+  void set_extended_domain(const ProvingKey& pk);
+  void create_proof(const ProvingKey& key,
                     rust::Vec<InstanceSingle> instance_singles,
                     rust::Vec<AdviceSingle> advice_singles,
                     rust::Vec<Fr> challenges);

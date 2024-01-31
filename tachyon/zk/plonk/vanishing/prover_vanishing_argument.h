@@ -23,11 +23,10 @@
 
 namespace tachyon::zk {
 
-template <typename PCS>
+template <typename PCS, typename Poly>
 [[nodiscard]] bool CommitRandomPoly(ProverBase<PCS>* prover,
-                                    VanishingCommitted<PCS>* out) {
+                                    VanishingCommitted<Poly>* out) {
   using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
 
   // Sample a random polynomial of degree n - 1
   // TODO(TomTaehoonKim): Figure out why it is named |random_poly|.
@@ -47,14 +46,12 @@ template <typename PCS>
   return true;
 }
 
-template <typename PCS, typename ExtendedEvals>
+template <typename PCS, typename Poly, typename F, typename C,
+          typename ExtendedEvals>
 [[nodiscard]] bool CommitFinalHPoly(
-    ProverBase<PCS>* prover, VanishingCommitted<PCS>&& committed,
-    const VerifyingKey<PCS>& vk, ExtendedEvals& circuit_column,
-    VanishingConstructed<PCS>* constructed_out) {
-  using F = typename PCS::Field;
-  using Commitment = typename PCS::Commitment;
-  using Poly = typename PCS::Poly;
+    ProverBase<PCS>* prover, VanishingCommitted<Poly>&& committed,
+    const VerifyingKey<F, C>& vk, ExtendedEvals& circuit_column,
+    VanishingConstructed<Poly>* constructed_out) {
   using Coeffs = typename Poly::Coefficients;
   using ExtendedPoly = typename PCS::ExtendedPoly;
 
@@ -91,11 +88,11 @@ template <typename PCS, typename ExtendedEvals>
         });
     prover->RetrieveAndWriteBatchCommitmentsToProof();
   } else {
-    std::vector<Commitment> commitments = base::ParallelizeMapByChunkSize(
+    std::vector<C> commitments = base::ParallelizeMapByChunkSize(
         h_coeffs, prover->pcs().N(), [prover](absl::Span<const F> h_piece) {
           return prover->Commit(h_piece);
         });
-    for (const Commitment& commitment : commitments) {
+    for (const C& commitment : commitments) {
       if (!prover->GetWriter()->WriteToProof(commitment)) return false;
     }
   }
@@ -110,12 +107,11 @@ template <typename PCS, typename ExtendedEvals>
   return true;
 }
 
-template <typename PCS, typename F, typename Commitment>
+template <typename PCS, typename Poly, typename F, typename Commitment>
 [[nodiscard]] bool CommitRandomEval(
-    const PCS& pcs, VanishingConstructed<PCS>&& constructed, const F& x,
+    const PCS& pcs, VanishingConstructed<Poly>&& constructed, const F& x,
     const F& x_n, crypto::TranscriptWriter<Commitment>* writer,
-    VanishingEvaluated<PCS>* evaluated_out) {
-  using Poly = typename PCS::Poly;
+    VanishingEvaluated<Poly>* evaluated_out) {
   using Coeffs = typename Poly::Coefficients;
 
   Poly h_poly = Poly::template LinearCombination</*forward=*/false>(
@@ -123,7 +119,7 @@ template <typename PCS, typename F, typename Commitment>
 
   F h_blind = Poly(Coeffs(constructed.h_blinds())).Evaluate(x_n);
 
-  VanishingCommitted<PCS> committed = std::move(constructed).TakeCommitted();
+  VanishingCommitted<Poly> committed = std::move(constructed).TakeCommitted();
   F random_eval = committed.random_poly().Evaluate(x);
   if (!writer->WriteToProof(random_eval)) return false;
 
@@ -132,9 +128,9 @@ template <typename PCS, typename F, typename Commitment>
   return true;
 }
 
-template <typename PCS, typename F, typename Poly = typename PCS::Poly>
+template <typename Poly, typename F>
 std::vector<crypto::PolynomialOpening<Poly>> OpenVanishingArgument(
-    const VanishingEvaluated<PCS>& evaluated, const F& x) {
+    const VanishingEvaluated<Poly>& evaluated, const F& x) {
   base::DeepRef<const F> x_ref(&x);
   return {crypto::PolynomialOpening<Poly>(
               base::DeepRef<const Poly>(&evaluated.h_poly()), x_ref,

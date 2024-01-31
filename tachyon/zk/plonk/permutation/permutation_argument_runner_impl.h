@@ -25,7 +25,7 @@
 namespace tachyon::zk {
 
 template <typename Poly, typename Evals>
-template <typename PCS, typename F>
+template <typename PCS>
 PermutationCommitted<Poly>
 PermutationArgumentRunner<Poly, Evals>::CommitArgument(
     ProverBase<PCS>* prover, const PermutationArgument& argument,
@@ -66,10 +66,10 @@ PermutationArgumentRunner<Poly, Evals>::CommitArgument(
     BlindedPolynomial<Poly> grand_product_poly =
         GrandProductArgument::CommitExcessive(
             prover,
-            CreateNumeratorCallback<F>(unpermuted_columns, value_columns, beta,
-                                       gamma),
-            CreateDenominatorCallback<F>(permuted_columns, value_columns, beta,
-                                         gamma),
+            CreateNumeratorCallback(unpermuted_columns, value_columns, beta,
+                                    gamma),
+            CreateDenominatorCallback(permuted_columns, value_columns, beta,
+                                      gamma),
             chunk_size, last_z);
 
     grand_product_polys.push_back(std::move(grand_product_poly));
@@ -79,7 +79,7 @@ PermutationArgumentRunner<Poly, Evals>::CommitArgument(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCS, typename F>
+template <typename PCS>
 PermutationEvaluated<Poly>
 PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
     ProverBase<PCS>* prover, PermutationCommitted<Poly>&& committed,
@@ -113,7 +113,7 @@ PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCS, typename F>
+template <typename PCS>
 std::vector<crypto::PolynomialOpening<Poly>>
 PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
     ProverBase<PCS>* prover, const PermutationEvaluated<Poly>& evaluated,
@@ -148,7 +148,6 @@ PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
 }
 
 template <typename Poly, typename Evals>
-template <typename F>
 std::vector<crypto::PolynomialOpening<Poly>>
 PermutationArgumentRunner<Poly, Evals>::OpenPermutationProvingKey(
     const PermutationProvingKey<Poly, Evals>& proving_key, const F& x) {
@@ -160,7 +159,7 @@ PermutationArgumentRunner<Poly, Evals>::OpenPermutationProvingKey(
 }
 
 template <typename Poly, typename Evals>
-template <typename PCS, typename F>
+template <typename PCS>
 void PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
     ProverBase<PCS>* prover,
     const PermutationProvingKey<Poly, Evals>& proving_key, const F& x) {
@@ -170,8 +169,7 @@ void PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
 }
 
 template <typename Poly, typename Evals>
-template <typename F>
-std::function<base::ParallelizeCallback3<F>(size_t)>
+std::function<base::ParallelizeCallback3<typename Poly::Field>(size_t)>
 PermutationArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
     const std::vector<base::Ref<const Evals>>& unpermuted_columns,
     const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
@@ -193,8 +191,7 @@ PermutationArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
 }
 
 template <typename Poly, typename Evals>
-template <typename F>
-std::function<base::ParallelizeCallback3<F>(size_t)>
+std::function<base::ParallelizeCallback3<typename Poly::Field>(size_t)>
 PermutationArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
     const std::vector<base::Ref<const Evals>>& permuted_columns,
     const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,

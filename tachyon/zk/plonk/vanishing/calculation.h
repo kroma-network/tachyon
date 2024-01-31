@@ -68,8 +68,8 @@ class TACHYON_EXPORT Calculation {
   }
   bool operator!=(const Calculation& other) const { return !operator==(other); }
 
-  template <typename Poly, typename Evals, typename F>
-  F Evaluate(const EvaluationInput<Poly, Evals>& data,
+  template <typename Evals, typename F>
+  F Evaluate(const EvaluationInput<Evals>& data,
              const std::vector<F>& constants, const F& previous_value) const {
     switch (type_) {
       case Type::kAdd:

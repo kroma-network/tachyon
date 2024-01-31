@@ -14,16 +14,14 @@
 
 namespace tachyon::zk {
 
-template <typename PCS>
+template <typename Poly>
 class VanishingConstructed {
  public:
-  using F = typename PCS::Field;
-  using Poly = typename PCS::Poly;
-  using ExtendedPoly = typename PCS::ExtendedPoly;
+  using F = typename Poly::Field;
 
   VanishingConstructed() = default;
   VanishingConstructed(std::vector<Poly>&& h_pieces, std::vector<F>&& h_blinds,
-                       VanishingCommitted<PCS>&& committed)
+                       VanishingCommitted<Poly>&& committed)
       : h_pieces_(std::move(h_pieces)),
         h_blinds_(std::move(h_blinds)),
         committed_(std::move(committed)) {}
@@ -31,12 +29,14 @@ class VanishingConstructed {
   const std::vector<Poly>& h_pieces() const { return h_pieces_; }
   const std::vector<F>& h_blinds() const { return h_blinds_; }
 
-  VanishingCommitted<PCS>&& TakeCommitted() && { return std::move(committed_); }
+  VanishingCommitted<Poly>&& TakeCommitted() && {
+    return std::move(committed_);
+  }
 
  private:
   std::vector<Poly> h_pieces_;
   std::vector<F> h_blinds_;
-  VanishingCommitted<PCS> committed_;
+  VanishingCommitted<Poly> committed_;
 };
 
 }  // namespace tachyon::zk
