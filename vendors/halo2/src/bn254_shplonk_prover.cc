@@ -10,7 +10,6 @@
 #include "vendors/halo2/include/bn254_poly.h"
 #include "vendors/halo2/include/bn254_rational_evals.h"
 #include "vendors/halo2/src/bn254.rs.h"
-#include "vendors/halo2/src/bn254_evals_impl.h"
 #include "vendors/halo2/src/bn254_poly_impl.h"
 #include "vendors/halo2/src/bn254_proving_key_impl.h"
 #include "vendors/halo2/src/bn254_rational_evals_impl.h"
@@ -38,7 +37,7 @@ PCS::Evals ReadEvals(uint8_t* vec_ptr, size_t i) {
   uintptr_t ptr;
   CHECK(buffer.Read(&ptr));
   Evals* evals = reinterpret_cast<Evals*>(ptr);
-  return std::move(*evals->impl()).TakeEvals();
+  return PCS::Evals(std::move(reinterpret_cast<PCS::Evals&>(*evals->evals())));
 }
 
 PCS::Poly ReadPoly(uint8_t* vec_ptr, size_t i) {
@@ -66,15 +65,16 @@ rust::Box<G1JacobianPoint> SHPlonkProver::commit(const Poly& poly) const {
 
 rust::Box<G1JacobianPoint> SHPlonkProver::commit_lagrange(
     const Evals& evals) const {
-  return DoCommit(impl_->prover().pcs().GetG1PowersOfTauLagrange(),
-                  evals.impl()->evals().evaluations());
+  return DoCommit(
+      impl_->prover().pcs().GetG1PowersOfTauLagrange(),
+      reinterpret_cast<const PCS::Evals*>(evals.evals())->evaluations());
 }
 
 std::unique_ptr<Evals> SHPlonkProver::empty_evals() const {
   const PCS::Domain* domain = impl_->prover().domain();
   PCS::Evals evals = domain->Empty<PCS::Evals>();
   std::unique_ptr<Evals> ret(new Evals());
-  PCS::Evals& impl = reinterpret_cast<PCS::Evals&>(ret->impl()->evals());
+  PCS::Evals& impl = reinterpret_cast<PCS::Evals&>(*ret->evals());
   impl = std::move(evals);
   return ret;
 }
@@ -92,7 +92,7 @@ std::unique_ptr<RationalEvals> SHPlonkProver::empty_rational_evals() const {
 std::unique_ptr<Poly> SHPlonkProver::ifft(const Evals& evals) const {
   const PCS::Domain* domain = impl_->prover().domain();
   PCS::Poly poly =
-      domain->IFFT(reinterpret_cast<const PCS::Evals&>(evals.impl()->evals()));
+      domain->IFFT(reinterpret_cast<const PCS::Evals&>(*evals.evals()));
   std::unique_ptr<Poly> ret(new Poly());
   PCS::Poly& impl = reinterpret_cast<PCS::Poly&>(ret->impl()->poly());
   impl = std::move(poly);
@@ -115,7 +115,8 @@ void SHPlonkProver::batch_evaluate(
     std::vector<math::bn254::Fr> cpp_values(cpp_rational_eval.NumElements());
     CHECK(math::RationalField<math::bn254::Fr>::BatchEvaluate(
         cpp_rational_eval.evaluations(), &cpp_values));
-    evals[i]->impl()->evals() = PCS::Evals(std::move(cpp_values));
+    reinterpret_cast<PCS::Evals&>(*evals[i]->evals()) =
+        PCS::Evals(std::move(cpp_values));
   }
 }
 
