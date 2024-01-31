@@ -85,22 +85,22 @@ std::vector<crypto::PolynomialOpening<Poly, C>> CreateLookupQueries(
   std::vector<crypto::PolynomialOpening<Poly, C>> queries;
   queries.reserve(GetSizeOfLookupVerifierQueries());
   // Open lookup product commitment at x.
-  queries.emplace_back(base::DeepRef<const C>(data.product_commitment),
+  queries.emplace_back(base::Ref<const C>(data.product_commitment),
                        base::DeepRef<const F>(data.x), *data.product_eval);
   // Open lookup input commitments at x.
-  queries.emplace_back(
-      base::DeepRef<const C>(&data.permuted_commitment->input()),
-      base::DeepRef<const F>(data.x), *data.permuted_input_eval);
+  queries.emplace_back(base::Ref<const C>(&data.permuted_commitment->input()),
+                       base::DeepRef<const F>(data.x),
+                       *data.permuted_input_eval);
   // Open lookup table commitments at x.
-  queries.emplace_back(
-      base::DeepRef<const C>(&data.permuted_commitment->table()),
-      base::DeepRef<const F>(data.x), *data.permuted_table_eval);
+  queries.emplace_back(base::Ref<const C>(&data.permuted_commitment->table()),
+                       base::DeepRef<const F>(data.x),
+                       *data.permuted_table_eval);
   // Open lookup input commitments at ω⁻¹ * x.
-  queries.emplace_back(
-      base::DeepRef<const C>(&data.permuted_commitment->input()),
-      base::DeepRef<const F>(data.x_prev), *data.permuted_input_inv_eval);
+  queries.emplace_back(base::Ref<const C>(&data.permuted_commitment->input()),
+                       base::DeepRef<const F>(data.x_prev),
+                       *data.permuted_input_inv_eval);
   // Open lookup product commitments at ω * x.
-  queries.emplace_back(base::DeepRef<const C>(data.product_commitment),
+  queries.emplace_back(base::Ref<const C>(data.product_commitment),
                        base::DeepRef<const F>(data.x_next),
                        *data.product_next_eval);
   return queries;

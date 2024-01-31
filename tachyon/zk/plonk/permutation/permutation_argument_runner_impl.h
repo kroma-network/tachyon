@@ -130,8 +130,8 @@ PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
   base::DeepRef<const F> x_ref = points.Insert(x);
   for (const BlindedPolynomial<Poly>& blinded_poly : product_polys) {
     const Poly& poly = blinded_poly.poly();
-    ret.emplace_back(base::DeepRef<const Poly>(&poly), x_ref, poly.Evaluate(x));
-    ret.emplace_back(base::DeepRef<const Poly>(&poly), x_next_ref,
+    ret.emplace_back(base::Ref<const Poly>(&poly), x_ref, poly.Evaluate(x));
+    ret.emplace_back(base::Ref<const Poly>(&poly), x_next_ref,
                      poly.Evaluate(x_next));
   }
 
@@ -141,7 +141,7 @@ PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
   base::DeepRef<const F> x_last_ref = points.Insert(x_last);
   for (auto it = product_polys.rbegin() + 1; it != product_polys.rend(); ++it) {
     const Poly& poly = it->poly();
-    ret.emplace_back(base::DeepRef<const Poly>(&poly), x_last_ref,
+    ret.emplace_back(base::Ref<const Poly>(&poly), x_last_ref,
                      poly.Evaluate(x_last));
   }
   return ret;
@@ -152,7 +152,7 @@ std::vector<crypto::PolynomialOpening<Poly>>
 PermutationArgumentRunner<Poly, Evals>::OpenPermutationProvingKey(
     const PermutationProvingKey<Poly, Evals>& proving_key, const F& x) {
   return base::Map(proving_key.polys(), [&x](const Poly& poly) {
-    return crypto::PolynomialOpening<Poly>(base::DeepRef<const Poly>(&poly),
+    return crypto::PolynomialOpening<Poly>(base::Ref<const Poly>(&poly),
                                            base::DeepRef<const F>(&x),
                                            poly.Evaluate(x));
   });

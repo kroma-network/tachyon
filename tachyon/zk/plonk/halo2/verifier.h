@@ -357,7 +357,7 @@ class Verifier : public VerifierBase<PCS> {
       const ColumnKey<C>& column = query.column();
       points.push_back(query.rotation().RotateOmega(this->domain(), proof.x));
       openings.emplace_back(
-          base::DeepRef<const Commitment>(&commitments[column.index()]),
+          base::Ref<const Commitment>(&commitments[column.index()]),
           base::DeepRef<const F>(&points.back()), evals[i]);
     }
   }
@@ -422,7 +422,7 @@ class Verifier : public VerifierBase<PCS> {
 
     for (size_t i = 0; i < proof.common_permutation_evals.size(); ++i) {
       queries.emplace_back(
-          base::DeepRef<const Commitment>(&common_permutation_commitments[i]),
+          base::Ref<const Commitment>(&common_permutation_commitments[i]),
           base::DeepRef<const F>(&proof.x), proof.common_permutation_evals[i]);
     }
 
@@ -439,12 +439,11 @@ class Verifier : public VerifierBase<PCS> {
       *expected_h_eval_out = expected_h_eval;
     }
 
-    queries.emplace_back(base::DeepRef<const Commitment>(&h_commitment),
+    queries.emplace_back(base::Ref<const Commitment>(&h_commitment),
                          base::DeepRef<const F>(&proof.x), expected_h_eval);
-    queries.emplace_back(base::DeepRef<const Commitment>(
-                             &proof.vanishing_random_poly_commitment),
-                         base::DeepRef<const F>(&proof.x),
-                         proof.vanishing_random_eval);
+    queries.emplace_back(
+        base::Ref<const Commitment>(&proof.vanishing_random_poly_commitment),
+        base::DeepRef<const F>(&proof.x), proof.vanishing_random_eval);
     DCHECK_EQ(queries.size(), queries_size);
     DCHECK_EQ(points.size(), points_size);
     return this->pcs_.VerifyOpeningProof(queries, this->GetReader());

@@ -179,7 +179,7 @@ std::vector<crypto::PolynomialOpening<Poly>> GenerateColumnOpenings(
         const F point = query.rotation().RotateOmega(prover->domain(), x);
         base::DeepRef<const F> point_ref = points.Insert(point);
         const Poly& poly = polys[query.column().index()];
-        return crypto::PolynomialOpening<Poly>(base::DeepRef<const Poly>(&poly),
+        return crypto::PolynomialOpening<Poly>(base::Ref<const Poly>(&poly),
                                                point_ref, poly.Evaluate(point));
       });
 }

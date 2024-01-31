@@ -133,10 +133,10 @@ std::vector<crypto::PolynomialOpening<Poly>> OpenVanishingArgument(
     const VanishingEvaluated<Poly>& evaluated, const F& x) {
   base::DeepRef<const F> x_ref(&x);
   return {crypto::PolynomialOpening<Poly>(
-              base::DeepRef<const Poly>(&evaluated.h_poly()), x_ref,
+              base::Ref<const Poly>(&evaluated.h_poly()), x_ref,
               evaluated.h_poly().Evaluate(x)),
           crypto::PolynomialOpening<Poly>(
-              base::DeepRef<const Poly>(&evaluated.committed().random_poly()),
+              base::Ref<const Poly>(&evaluated.committed().random_poly()),
               x_ref, evaluated.committed().random_poly().Evaluate(x))};
 }
 

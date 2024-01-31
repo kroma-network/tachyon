@@ -129,16 +129,16 @@ std::vector<crypto::PolynomialOpening<Poly, C>> CreatePermutationQueries(
   // Open permutation product commitments at x and ω⁻¹ * x.
   // Open permutation product commitments at x and ω * x.
   for (size_t i = 0; i < num_products; ++i) {
-    queries.emplace_back(base::DeepRef<const C>(&data.product_commitments[i]),
+    queries.emplace_back(base::Ref<const C>(&data.product_commitments[i]),
                          base::DeepRef<const F>(data.x), data.product_evals[i]);
-    queries.emplace_back(base::DeepRef<const C>(&data.product_commitments[i]),
+    queries.emplace_back(base::Ref<const C>(&data.product_commitments[i]),
                          base::DeepRef<const F>(data.x_next),
                          data.product_next_evals[i]);
   }
   if (num_products > 1) {
     // Open it at ω^{last} * x for all but the last set.
     for (size_t i = num_products - 2; i != SIZE_MAX; --i) {
-      queries.emplace_back(base::DeepRef<const C>(&data.product_commitments[i]),
+      queries.emplace_back(base::Ref<const C>(&data.product_commitments[i]),
                            base::DeepRef<const F>(data.x_last),
                            data.product_last_evals[i].value());
     }
