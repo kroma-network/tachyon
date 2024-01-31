@@ -28,6 +28,9 @@
 namespace tachyon {
 namespace math {
 
+template <typename Coefficients>
+class UnivariatePolynomial;
+
 template <typename F, size_t MaxDegree>
 class UnivariateSparseCoefficients;
 
@@ -57,15 +60,6 @@ class UnivariateDenseCoefficients {
 
   constexpr static UnivariateDenseCoefficients Zero() {
     return UnivariateDenseCoefficients();
-  }
-
-  // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
-  // So when the returned evaluations is called with |IsZero()|, it returns
-  // false. So please use it carefully!
-  constexpr static UnivariateDenseCoefficients UnsafeZero(size_t degree) {
-    UnivariateDenseCoefficients ret;
-    ret.coefficients_ = base::CreateVector(degree + 1, F::Zero());
-    return ret;
   }
 
   constexpr static UnivariateDenseCoefficients One() {
@@ -223,9 +217,19 @@ class UnivariateDenseCoefficients {
       UnivariateDenseCoefficients<F, MaxDegree>>;
   friend class internal::UnivariatePolynomialOp<
       UnivariateSparseCoefficients<F, MaxDegree>>;
+  friend class UnivariatePolynomial<UnivariateDenseCoefficients<F, MaxDegree>>;
   friend class Radix2EvaluationDomain<F, MaxDegree>;
   friend class MixedRadixEvaluationDomain<F, MaxDegree>;
   friend class base::Copyable<UnivariateDenseCoefficients<F, MaxDegree>>;
+
+  // NOTE(chokobole): This doesn't call |RemoveHighDegreeZeros()| internally.
+  // So when the returned instance of |UnivariateDenseCoefficients| is called
+  // with |IsZero()|, it returns false. So please use it carefully!
+  constexpr static UnivariateDenseCoefficients Zero(size_t degree) {
+    UnivariateDenseCoefficients ret;
+    ret.coefficients_ = base::CreateVector(degree + 1, F::Zero());
+    return ret;
+  }
 
   constexpr F DoEvaluate(const Point& point) const {
 #if defined(TACHYON_HAS_OPENMP)

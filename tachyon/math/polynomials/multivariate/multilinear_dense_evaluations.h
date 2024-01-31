@@ -48,14 +48,6 @@ class MultilinearDenseEvaluations {
     return MultilinearDenseEvaluations();
   }
 
-  // NOTE(chokobole): This creates polynomial that contains |F::Zero()| up to
-  // |degree| + 1.
-  constexpr static MultilinearDenseEvaluations UnsafeZero(size_t degree) {
-    MultilinearDenseEvaluations ret;
-    ret.evaluations_ = base::CreateVector(size_t{1} << degree, F::Zero());
-    return ret;
-  }
-
   constexpr static MultilinearDenseEvaluations One(size_t degree) {
     return MultilinearDenseEvaluations(
         base::CreateVector(size_t{1} << degree, F::One()));
@@ -172,6 +164,14 @@ class MultilinearDenseEvaluations {
  private:
   friend class internal::MultilinearExtensionOp<
       MultilinearDenseEvaluations<F, MaxDegree>>;
+
+  // NOTE(chokobole): This creates a polynomial that contains |F::Zero()| up to
+  // |degree| + 1.
+  constexpr static MultilinearDenseEvaluations Zero(size_t degree) {
+    MultilinearDenseEvaluations ret;
+    ret.evaluations_ = base::CreateVector(size_t{1} << degree, F::Zero());
+    return ret;
+  }
 
   std::vector<F> evaluations_;
 };

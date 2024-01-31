@@ -68,14 +68,6 @@ class UnivariateEvaluations final
     return UnivariateEvaluations();
   }
 
-  // NOTE(chokobole): This creates polynomial that contains |F::Zero()| up to
-  // |degree| + 1.
-  constexpr static UnivariateEvaluations UnsafeZero(size_t degree) {
-    UnivariateEvaluations ret;
-    ret.evaluations_ = base::CreateVector(degree + 1, F::Zero());
-    return ret;
-  }
-
   constexpr static UnivariateEvaluations One(size_t degree) {
     UnivariateEvaluations ret;
     ret.evaluations_ = base::CreateVector(degree + 1, F::One());
@@ -199,8 +191,22 @@ class UnivariateEvaluations final
 
  private:
   friend class internal::UnivariateEvaluationsOp<F, MaxDegree>;
+  // NOTE(chokobole): Commented code below doesn't work since we have code
+  // that tries to create evaluations from a domain whose field is
+  // |RationalField<F>|.
+  // friend class UnivariateEvaluationDomain<F, MaxDegree>;
+  template <typename, size_t>
+  friend class UnivariateEvaluationDomain;
   friend class Radix2EvaluationDomain<F, MaxDegree>;
   friend class MixedRadixEvaluationDomain<F, kMaxDegree>;
+
+  // NOTE(chokobole): This creates a polynomial that contains |F::Zero()| up to
+  // |degree| + 1.
+  constexpr static UnivariateEvaluations Zero(size_t degree) {
+    UnivariateEvaluations ret;
+    ret.evaluations_ = base::CreateVector(degree + 1, F::Zero());
+    return ret;
+  }
 
   std::vector<F> evaluations_;
 };
