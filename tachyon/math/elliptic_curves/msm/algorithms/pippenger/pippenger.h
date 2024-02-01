@@ -66,9 +66,6 @@ class Pippenger : public PippengerBase<Point> {
 
   void SetParallelWindows(bool parallel_windows) {
     parallel_windows_ = parallel_windows;
-#if !defined(TACHYON_HAS_OPENMP)
-    LOG_IF(WARNING, parallel_windows) << "Set parallel windows without openmp";
-#endif  // !defined(TACHYON_HAS_OPENMP)
   }
 
   void SetUseMSMWindowNAForTesting(bool use_msm_window_naf) {
