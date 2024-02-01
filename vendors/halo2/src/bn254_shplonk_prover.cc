@@ -85,9 +85,9 @@ void SHPlonkProver::set_extended_domain(const ProvingKey& pk) {
 }
 
 void SHPlonkProver::create_proof(const ProvingKey& key,
-                                 rust::Vec<InstanceSingle> instance_singles,
-                                 rust::Vec<AdviceSingle> advice_singles,
-                                 rust::Vec<Fr> challenges) {
+                                 rust::Slice<InstanceSingle> instance_singles,
+                                 rust::Slice<AdviceSingle> advice_singles,
+                                 rust::Slice<const Fr> challenges) {
   tachyon_bn254_blinder* blinder =
       tachyon_halo2_bn254_shplonk_prover_get_blinder(prover_);
   const tachyon_bn254_plonk_verifying_key* vk =

@@ -150,13 +150,12 @@ pub mod ffi {
         fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_transcript(self: Pin<&mut SHPlonkProver>, state: &[u8]);
         fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &ProvingKey);
-        // TODO(chokobole): Needs to take `instance_singles` and `advice_singles` as a slice.
         fn create_proof(
             self: Pin<&mut SHPlonkProver>,
             key: &ProvingKey,
-            instance_singles: Vec<InstanceSingle>,
-            advice_singles: Vec<AdviceSingle>,
-            challenges: Vec<Fr>,
+            instance_singles: &mut [InstanceSingle],
+            advice_singles: &mut [AdviceSingle],
+            challenges: &[Fr],
         );
         fn get_proof(self: &SHPlonkProver) -> Vec<u8>;
     }
@@ -477,9 +476,9 @@ impl SHPlonkProver {
     pub fn create_proof(
         &mut self,
         key: &ProvingKey,
-        instance_singles: Vec<InstanceSingle>,
-        advice_singles: Vec<AdviceSingle>,
-        challenges: Vec<Fr>,
+        instance_singles: &mut [InstanceSingle],
+        advice_singles: &mut [AdviceSingle],
+        challenges: &[Fr],
     ) {
         self.inner
             .pin_mut()

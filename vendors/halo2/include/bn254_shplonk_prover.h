@@ -43,9 +43,9 @@ class SHPlonkProver {
   void set_transcript(rust::Slice<const uint8_t> state);
   void set_extended_domain(const ProvingKey& pk);
   void create_proof(const ProvingKey& key,
-                    rust::Vec<InstanceSingle> instance_singles,
-                    rust::Vec<AdviceSingle> advice_singles,
-                    rust::Vec<Fr> challenges);
+                    rust::Slice<InstanceSingle> instance_singles,
+                    rust::Slice<AdviceSingle> advice_singles,
+                    rust::Slice<const Fr> challenges);
   rust::Vec<uint8_t> get_proof() const;
 
  private:

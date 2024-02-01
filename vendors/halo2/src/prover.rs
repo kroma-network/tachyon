@@ -54,7 +54,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     // Selector optimizations cannot be applied here; use the ConstraintSystem
     // from the verification key.
 
-    let instance: Vec<InstanceSingle> = instances
+    let mut instance: Vec<InstanceSingle> = instances
         .iter()
         .map(|instance| -> Result<InstanceSingle, Error> {
             let instance_values = instance
@@ -247,7 +247,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
         }
     }
 
-    let (advice, challenges) = {
+    let (mut advice, challenges) = {
         let num_advice_columns = pk.num_advice_columns();
         let num_challenges = pk.num_challenges();
         let mut advice = vec![
@@ -402,7 +402,12 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     prover.set_transcript(transcript.state().as_slice());
 
     let challenges = unsafe { std::mem::transmute::<_, Vec<crate::bn254::Fr>>(challenges) };
-    prover.create_proof(pk, instance, advice, challenges);
+    prover.create_proof(
+        pk,
+        instance.as_mut_slice(),
+        advice.as_mut_slice(),
+        challenges.as_slice(),
+    );
     Ok(())
 }
 
