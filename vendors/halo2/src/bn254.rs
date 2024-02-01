@@ -144,7 +144,7 @@ pub mod ffi {
         fn ifft(&self, evals: &Evals) -> UniquePtr<Poly>;
         fn batch_evaluate(
             &self,
-            rational_evals: &mut [UniquePtr<RationalEvals>],
+            rational_evals: &[UniquePtr<RationalEvals>],
             evals: &mut [UniquePtr<Evals>],
         );
         fn set_rng(self: Pin<&mut SHPlonkProver>, state: &[u8]);
@@ -158,7 +158,7 @@ pub mod ffi {
             advice_singles: Vec<AdviceSingle>,
             challenges: Vec<Fr>,
         );
-        fn finalize_transcript(self: Pin<&mut SHPlonkProver>) -> Vec<u8>;
+        fn get_proof(self: &SHPlonkProver) -> Vec<u8>;
     }
 }
 
@@ -449,9 +449,9 @@ impl SHPlonkProver {
         RationalEvals::new(self.inner.empty_rational_evals())
     }
 
-    pub fn batch_evaluate(&self, rational_evals: &mut [RationalEvals], evals: &mut [Evals]) {
+    pub fn batch_evaluate(&self, rational_evals: &[RationalEvals], evals: &mut [Evals]) {
         unsafe {
-            let rational_evals: &mut [cxx::UniquePtr<ffi::RationalEvals>] =
+            let rational_evals: &[cxx::UniquePtr<ffi::RationalEvals>] =
                 std::mem::transmute(rational_evals);
             let evals: &mut [cxx::UniquePtr<ffi::Evals>] = std::mem::transmute(evals);
             self.inner.batch_evaluate(rational_evals, evals)
@@ -486,7 +486,7 @@ impl SHPlonkProver {
             .create_proof(&key.inner, instance_singles, advice_singles, challenges)
     }
 
-    pub fn finalize_transcript(&mut self) -> Vec<u8> {
-        self.inner.pin_mut().finalize_transcript()
+    pub fn get_proof(&self) -> Vec<u8> {
+        self.inner.get_proof()
     }
 }

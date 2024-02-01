@@ -322,7 +322,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                     }
                 }
 
-                let mut advice_assigned_values = witness
+                let advice_assigned_values = witness
                     .advice
                     .into_iter()
                     .enumerate()
@@ -340,7 +340,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                     .collect::<Vec<_>>();
                 let mut advice_values = vec![Evals::zero(); advice_assigned_values.len()];
                 prover.batch_evaluate(
-                    advice_assigned_values.as_mut_slice(),
+                    advice_assigned_values.as_slice(),
                     advice_values.as_mut_slice(),
                 );
 

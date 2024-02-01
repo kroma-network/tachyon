@@ -17,15 +17,7 @@
 #include "tachyon/zk/plonk/halo2/random_field_generator.h"
 #include "tachyon/zk/plonk/halo2/verifier.h"
 
-namespace tachyon {
-namespace halo2_api {
-
-template <typename PCS>
-class ProverImpl;
-
-}  // namespace halo2_api
-
-namespace zk::plonk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename PCS>
 class Prover : public ProverBase<PCS> {
@@ -103,7 +95,6 @@ class Prover : public ProverBase<PCS> {
   }
 
  private:
-  friend class halo2_api::ProverImpl<PCS>;
   friend class c::zk::plonk::halo2::ProverImplBase<PCS>;
 
   Prover(PCS&& pcs,
@@ -182,7 +173,6 @@ class Prover : public ProverBase<PCS> {
   std::unique_ptr<RandomFieldGenerator<F>> generator_;
 };
 
-}  // namespace zk::plonk::halo2
-}  // namespace tachyon
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_PROVER_H_
