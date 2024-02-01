@@ -15,6 +15,7 @@
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
 #endif
 
+#include "tachyon/base/logging.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
@@ -90,9 +91,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return FromBigInt(big_int);
   }
 
-  static void Init() {
-    // Do nothing.
-  }
+  static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
   constexpr static BigInt<N> GetModulus() { return Config::kModulus; }
 

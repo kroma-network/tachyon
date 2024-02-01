@@ -106,6 +106,7 @@ class ArgumentData {
   // as soon as transforming it to coefficient form.
   template <typename Domain>
   void TransformAdvice(const Domain* domain) {
+    VLOG(2) << "Transform advice columns to polys";
     CHECK(!advice_transformed_);
     advice_polys_vec_ = base::Map(
         advice_columns_vec_, [domain](std::vector<Evals>& advice_columns) {
@@ -155,6 +156,7 @@ class ArgumentData {
   static std::vector<std::vector<Poly>> GenerateInstancePolys(
       ProverBase<PCS>* prover,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
+    VLOG(2) << "Generating instance polys";
     size_t num_circuit = instance_columns_vec.size();
     CHECK_GT(num_circuit, size_t{0});
     size_t num_instance_columns = instance_columns_vec[0].size();

@@ -64,6 +64,8 @@ class Pedersen final
   }
 
   // VectorCommitmentScheme methods
+  const char* Name() const { return "Pedersen"; }
+
   size_t N() const { return generators_.size(); }
 
   std::string ToString() const {

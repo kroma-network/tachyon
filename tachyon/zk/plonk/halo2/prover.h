@@ -125,15 +125,28 @@ class Prover : public ProverBase<PCS> {
                    ArgumentData<Poly, Evals>* argument_data) {
     Argument<Poly, Evals> argument(&proving_key.fixed_columns(),
                                    &proving_key.fixed_polys(), argument_data);
+    // NOTE(chokobole): This is an entry point fom Halo2 rust. So this is the
+    // earliest time to log constraint system.
+    VLOG(1) << "PCS name: " << this->pcs_.Name() << ", k: " << this->pcs_.K()
+            << ", n: " << this->pcs_.N() << ", extended_k: "
+            << proving_key.verifying_key().constraint_system().ComputeExtendedK(
+                   this->pcs_.K())
+            << ", max_degree: " << PCS::kMaxDegree
+            << ", extended_max_degree: " << PCS::kMaxExtendedDegree;
+    VLOG(1) << "Halo2 Constraint System: "
+            << proving_key.verifying_key().constraint_system().ToString();
 
     crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
     F theta = writer->SqueezeChallenge();
+    VLOG(2) << "Halo2(theta): " << theta.ToHexString(true);
     std::vector<std::vector<LookupPermuted<Poly, Evals>>> permuted_lookups_vec =
         argument.CompressLookupStep(
             this, proving_key.verifying_key().constraint_system(), theta);
 
     F beta = writer->SqueezeChallenge();
+    VLOG(2) << "Halo2(beta): " << beta.ToHexString(true);
     F gamma = writer->SqueezeChallenge();
+    VLOG(2) << "Halo2(gamma): " << gamma.ToHexString(true);
     StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
                 VanishingCommitted<Poly>>
         committed_result = argument.CommitCircuitStep(
@@ -142,6 +155,7 @@ class Prover : public ProverBase<PCS> {
             std::move(permuted_lookups_vec), beta, gamma);
 
     F y = writer->SqueezeChallenge();
+    VLOG(2) << "Halo2(y): " << y.ToHexString(true);
     argument.TransformAdvice(this->domain());
     ExtendedEvals circuit_column = argument.GenerateCircuitPolynomial(
         this, proving_key, committed_result, beta, gamma, theta, y);
@@ -151,6 +165,7 @@ class Prover : public ProverBase<PCS> {
                            &constructed_vanishing));
 
     F x = writer->SqueezeChallenge();
+    VLOG(2) << "Halo2(x): " << x.ToHexString(true);
     StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
                 VanishingEvaluated<Poly>>
         evaluated_result =

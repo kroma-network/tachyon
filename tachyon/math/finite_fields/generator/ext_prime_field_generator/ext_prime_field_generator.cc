@@ -26,6 +26,7 @@ struct GenerationConfig : public build::CcWriter {
 int GenerationConfig::GenerateConfigHdr() const {
   // clang-format off
   std::vector<std::string> tpl = {
+      "#include \"tachyon/base/logging.h\"",
       "#include \"tachyon/math/finite_fields/fp%{degree}.h\"",
       "#include \"%{base_field_hdr}\"",
       "",
@@ -54,6 +55,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  static void Init() {",
       "    BaseField::Init();",
       "%{init}",
+      "    VLOG(1) << \"%{namespace}::%{class} initialized\";",
       "  }",
       "};",
       "",

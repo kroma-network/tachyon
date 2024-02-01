@@ -54,6 +54,8 @@ class SHPlonkExtension final
       crypto::SHPlonk<Curve, MaxDegree, Commitment>&& shplonk)
       : shplonk_(std::move(shplonk)) {}
 
+  const char* Name() { return shplonk_.Name(); }
+
   size_t N() const { return shplonk_.N(); }
 
   size_t D() const { return N() - 1; }

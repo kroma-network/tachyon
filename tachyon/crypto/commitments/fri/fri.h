@@ -46,6 +46,8 @@ class FRI final
   }
 
   // UnivariatePolynomialCommitmentScheme methods
+  const char* Name() const { return "FRI"; }
+
   size_t N() const { return domain_->size(); }
 
   [[nodiscard]] bool Commit(const Poly& poly, Transcript<F>* transcript) const {
@@ -65,6 +67,7 @@ class FRI final
         // Pᵢ(X)   = Pᵢ_even(X²) + X * Pᵢ_odd(X²)
         // Pᵢ₊₁(X) = Pᵢ_even(X²) + β * Pᵢ_odd(X²)
         beta = writer->SqueezeChallenge();
+        VLOG(2) << "FRI(beta[" << i - 1 << "]): " << beta.ToHexString(true);
         folded_poly = cur_poly->template Fold<false>(beta);
         BinaryMerkleTree<F, F, MaxDegree + 1> tree(storage_->GetLayer(i),
                                                    hasher_);
@@ -76,6 +79,8 @@ class FRI final
     }
 
     beta = writer->SqueezeChallenge();
+    VLOG(2) << "FRI(beta[" << num_layers - 1
+            << "]): " << beta.ToHexString(true);
     folded_poly = cur_poly->template Fold<false>(beta);
     const F* constant = folded_poly[0];
     root = constant ? *constant : F::Zero();
@@ -179,6 +184,7 @@ class FRI final
         x = sub_domains_[i - 1]->GetElement(leaf_index);
       }
       beta = reader->SqueezeChallenge();
+      VLOG(2) << "FRI(beta[" << i << "]): " << beta.ToHexString(true);
       beta *= x.Inverse();
       domain_size = domain_size >> 1;
     }

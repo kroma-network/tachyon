@@ -26,6 +26,7 @@ struct GenerationConfig : public build::CcWriter {
 int GenerationConfig::GenerateConfigHdr() const {
   std::vector<std::string_view> tpl = {
       // clang-format off
+      "#include \"tachyon/base/logging.h\"",
       "#include \"tachyon/math/elliptic_curves/bls12/bls12_curve.h\"",
       "#include \"%{fq12_hdr}\"",
       "#include \"%{g1_hdr}\"",
@@ -54,6 +55,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  static void Init() {",
       "    G1Curve::Init();",
       "    G2Curve::Init();",
+      "    VLOG(1) << \"%{namespace}::%{class} initialized\";",
       "  }",
       "};",
       "",

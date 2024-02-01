@@ -106,6 +106,7 @@ class VerifyingKey : public Key {
     halo2::PinnedVerifyingKey<F, C> pinned_verifying_key(entity, *this);
 
     std::string vk_str = base::ToRustDebugString(pinned_verifying_key);
+    VLOG(3) << vk_str;
     size_t vk_str_size = vk_str.size();
 
     BLAKE2B_CTX state;

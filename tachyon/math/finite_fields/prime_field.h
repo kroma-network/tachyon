@@ -13,6 +13,7 @@
 
 #include "gtest/gtest_prod.h"
 
+#include "tachyon/base/logging.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
@@ -91,9 +92,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return FromBigInt(big_int);
   }
 
-  static void Init() {
-    // Do nothing.
-  }
+  static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
   const value_type& value() const { return value_; }
   size_t GetLimbSize() const { return N; }
