@@ -105,9 +105,9 @@ class RustDebugStringifier<zk::plonk::halo2::PinnedConstraintSystem<F>> {
         .Field("num_selectors", constraint_system.num_selectors());
     if (constraint_system.num_challenges() > 0) {
       debug_struct.Field("num_challenges", constraint_system.num_challenges())
-          .Field("advice_column_phases",
+          .Field("advice_column_phase",
                  constraint_system.advice_column_phases())
-          .Field("challenge_phases", constraint_system.challenge_phases());
+          .Field("challenge_phase", constraint_system.challenge_phases());
     }
     debug_struct.Field("gates", constraint_system.gates())
         .Field("advice_queries", constraint_system.advice_queries())
