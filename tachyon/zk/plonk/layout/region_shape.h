@@ -16,7 +16,7 @@
 #include "tachyon/zk/plonk/layout/region_column.h"
 #include "tachyon/zk/plonk/layout/region_layouter.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class RegionShape : public RegionLayouter<F> {
@@ -74,6 +74,6 @@ class RegionShape : public RegionLayouter<F> {
   RowIndex row_count_ = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_REGION_SHAPE_H_

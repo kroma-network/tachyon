@@ -6,7 +6,7 @@
 
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 namespace {
 
 class PermutationAssemblyTest : public halo2::ProverTest {
@@ -77,4 +77,4 @@ TEST_F(PermutationAssemblyTest, BuildKeys) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

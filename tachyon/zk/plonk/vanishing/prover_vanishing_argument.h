@@ -21,7 +21,7 @@
 #include "tachyon/zk/plonk/vanishing/vanishing_evaluated.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename PCS, typename Poly>
 [[nodiscard]] bool CommitRandomPoly(ProverBase<PCS>* prover,
@@ -140,6 +140,6 @@ std::vector<crypto::PolynomialOpening<Poly>> OpenVanishingArgument(
               x_ref, evaluated.committed().random_poly().Evaluate(x))};
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_PROVER_VANISHING_ARGUMENT_H_

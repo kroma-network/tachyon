@@ -14,7 +14,7 @@
 
 #include "tachyon/zk/plonk/base/owned_table.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Evals>
 class EvaluationInput {
@@ -65,6 +65,6 @@ class EvaluationInput {
   int32_t n_ = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_EVALUATION_INPUT_H_

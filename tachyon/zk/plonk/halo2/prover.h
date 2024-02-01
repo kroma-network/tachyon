@@ -24,7 +24,7 @@ class ProverImpl;
 
 }  // namespace halo2_api
 
-namespace zk::halo2 {
+namespace zk::plonk::halo2 {
 
 template <typename PCS>
 class Prover : public ProverBase<PCS> {
@@ -167,7 +167,7 @@ class Prover : public ProverBase<PCS> {
   std::unique_ptr<RandomFieldGenerator<F>> generator_;
 };
 
-}  // namespace zk::halo2
+}  // namespace zk::plonk::halo2
 }  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_HALO2_PROVER_H_

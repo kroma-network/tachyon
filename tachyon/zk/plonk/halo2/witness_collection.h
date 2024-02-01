@@ -18,7 +18,7 @@
 #include "tachyon/zk/plonk/base/phase.h"
 #include "tachyon/zk/plonk/layout/assignment.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename Evals, typename RationalEvals>
 class WitnessCollection : public Assignment<typename Evals::Field> {
@@ -75,6 +75,6 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
   std::vector<Evals> instance_columns_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_WITNESS_COLLECTION_H_

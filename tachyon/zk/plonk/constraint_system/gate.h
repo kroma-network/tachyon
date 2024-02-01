@@ -13,7 +13,7 @@
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cell.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class Gate {
@@ -89,6 +89,6 @@ class Gate {
   std::vector<VirtualCell> queried_cells_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_GATE_H_

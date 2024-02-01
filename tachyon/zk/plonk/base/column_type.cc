@@ -8,7 +8,7 @@
 
 #include "tachyon/base/logging.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 std::string_view ColumnTypeToString(ColumnType type) {
   switch (type) {
@@ -25,4 +25,4 @@ std::string_view ColumnTypeToString(ColumnType type) {
   return "";
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

@@ -9,7 +9,7 @@
 
 #include "tachyon/zk/expressions/expression.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // An individual polynomial constraint.
 //
@@ -43,6 +43,6 @@ class Constraint {
   std::unique_ptr<Expression<F>> expression_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CONSTRAINT_H_

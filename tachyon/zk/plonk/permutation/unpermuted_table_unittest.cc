@@ -12,7 +12,7 @@
 
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -74,4 +74,4 @@ TEST_F(UnpermutedTableTest, GetColumns) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

@@ -18,7 +18,7 @@
 #include "tachyon/zk/plonk/layout/floor_planner/constant.h"
 #include "tachyon/zk/plonk/layout/region_layouter.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class PlanRegion : public RegionLayouter<F> {
@@ -107,6 +107,6 @@ class PlanRegion : public RegionLayouter<F> {
   Constants<F>& constants_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_PLAN_REGION_H_

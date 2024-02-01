@@ -4,7 +4,7 @@
 
 #include "tachyon/math/finite_fields/test/gf7.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -188,4 +188,4 @@ TYPED_TEST(ConstraintSystemTypedTest, QueryAnyIndex) {
   EXPECT_EQ(constraint_system.QueryAnyIndex(column, rotation), 2);
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

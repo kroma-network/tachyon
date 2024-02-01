@@ -25,10 +25,11 @@ class ProverImpl {
   using Commitment = typename PCS::Commitment;
   using ExtendedDomain = typename PCS::ExtendedDomain;
 
-  explicit ProverImpl(base::OnceCallback<zk::halo2::Prover<PCS>()> callback)
+  explicit ProverImpl(
+      base::OnceCallback<zk::plonk::halo2::Prover<PCS>()> callback)
       : prover_(std::move(callback).Run()) {}
 
-  const zk::halo2::Prover<PCS>& prover() const { return prover_; }
+  const zk::plonk::halo2::Prover<PCS>& prover() const { return prover_; }
 
   uint32_t K() const { return prover_.pcs().K(); }
 
@@ -43,7 +44,8 @@ class ProverImpl {
     prover_.transcript_ = std::move(writer);
   }
 
-  void SetExtendedDomain(const zk::ConstraintSystem<Field>& constraint_system) {
+  void SetExtendedDomain(
+      const zk::plonk::ConstraintSystem<Field>& constraint_system) {
     uint32_t extended_k = constraint_system.ComputeExtendedK(prover_.pcs().K());
     prover_.set_extended_domain(
         ExtendedDomain::Create(size_t{1} << extended_k));
@@ -53,8 +55,9 @@ class ProverImpl {
     prover_.blinder_.set_blinding_factors(binding_factors);
   }
 
-  void CreateProof(const zk::ProvingKey<Poly, Evals, Commitment>& proving_key,
-                   zk::halo2::ArgumentData<Poly, Evals>* argument_data) {
+  void CreateProof(
+      const zk::plonk::ProvingKey<Poly, Evals, Commitment>& proving_key,
+      zk::plonk::halo2::ArgumentData<Poly, Evals>* argument_data) {
     prover_.CreateProof(proving_key, argument_data);
   }
 
@@ -63,7 +66,7 @@ class ProverImpl {
   }
 
  private:
-  zk::halo2::Prover<PCS> prover_;
+  zk::plonk::halo2::Prover<PCS> prover_;
 };
 
 }  // namespace tachyon::halo2_api

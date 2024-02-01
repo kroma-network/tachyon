@@ -15,10 +15,10 @@
 namespace tachyon::base::internal {
 
 template <>
-class RustDebugStringifier<zk::Challenge> {
+class RustDebugStringifier<zk::plonk::Challenge> {
  public:
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
-                                      const zk::Challenge& challenge) {
+                                      const zk::plonk::Challenge& challenge) {
     return os << fmt.DebugStruct("Challenge")
                      .Field("index", challenge.index())
                      .Field("phase", challenge.phase())

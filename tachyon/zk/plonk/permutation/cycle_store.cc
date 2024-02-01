@@ -8,7 +8,7 @@
 
 #include <utility>
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 bool CycleStore::MergeCycle(const Label& label, const Label& label2) {
   Label left_cycle_base = GetCycleBase(label);
@@ -50,4 +50,4 @@ std::vector<Label> CycleStore::GetAllLabels(const Label& label) const {
   return ret;
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

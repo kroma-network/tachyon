@@ -19,9 +19,9 @@ TEST_F(SimpleSelectorFinderTest, Constant) {
 }
 
 TEST_F(SimpleSelectorFinderTest, Selector) {
-  Expr expr = ExpressionFactory<GF7>::Selector(Selector::Simple(1));
+  Expr expr = ExpressionFactory<GF7>::Selector(plonk::Selector::Simple(1));
   EXPECT_TRUE(expr->ContainsSimpleSelector());
-  expr = ExpressionFactory<GF7>::Selector(Selector::Complex(1));
+  expr = ExpressionFactory<GF7>::Selector(plonk::Selector::Complex(1));
   EXPECT_FALSE(expr->ContainsSimpleSelector());
 }
 
@@ -35,8 +35,8 @@ TEST_F(SimpleSelectorFinderTest, Fixed) {
   };
 
   for (const auto& test : tests) {
-    FixedQuery query(1, Rotation(test.rotation),
-                     FixedColumnKey(test.column_index));
+    plonk::FixedQuery query(1, Rotation(test.rotation),
+                            plonk::FixedColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     EXPECT_FALSE(expr->ContainsSimpleSelector());
   }
@@ -52,8 +52,9 @@ TEST_F(SimpleSelectorFinderTest, Advice) {
   };
 
   for (const auto& test : tests) {
-    AdviceQuery query(1, Rotation(test.rotation),
-                      AdviceColumnKey(test.column_index, Phase(0)));
+    plonk::AdviceQuery query(
+        1, Rotation(test.rotation),
+        plonk::AdviceColumnKey(test.column_index, plonk::Phase(0)));
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     EXPECT_FALSE(expr->ContainsSimpleSelector());
   }
@@ -69,15 +70,16 @@ TEST_F(SimpleSelectorFinderTest, Instance) {
   };
 
   for (const auto& test : tests) {
-    InstanceQuery query(1, Rotation(test.rotation),
-                        InstanceColumnKey(test.column_index));
+    plonk::InstanceQuery query(1, Rotation(test.rotation),
+                               plonk::InstanceColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     EXPECT_FALSE(expr->ContainsSimpleSelector());
   }
 }
 
 TEST_F(SimpleSelectorFinderTest, Challenges) {
-  Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(1, Phase(0)));
+  Expr expr =
+      ExpressionFactory<GF7>::Challenge(plonk::Challenge(1, plonk::Phase(0)));
   EXPECT_FALSE(expr->ContainsSimpleSelector());
 }
 
@@ -96,7 +98,7 @@ TEST_F(SimpleSelectorFinderTest, Sum) {
   EXPECT_FALSE(expr->ContainsSimpleSelector());
   expr = ExpressionFactory<GF7>::Sum(
       ExpressionFactory<GF7>::Constant(a),
-      ExpressionFactory<GF7>::Selector(Selector::Simple(1)));
+      ExpressionFactory<GF7>::Selector(plonk::Selector::Simple(1)));
   EXPECT_TRUE(expr->ContainsSimpleSelector());
 }
 
@@ -108,7 +110,7 @@ TEST_F(SimpleSelectorFinderTest, Product) {
   EXPECT_FALSE(expr->ContainsSimpleSelector());
   expr = ExpressionFactory<GF7>::Product(
       ExpressionFactory<GF7>::Constant(a),
-      ExpressionFactory<GF7>::Selector(Selector::Simple(1)));
+      ExpressionFactory<GF7>::Selector(plonk::Selector::Simple(1)));
   EXPECT_TRUE(expr->ContainsSimpleSelector());
 }
 
@@ -119,7 +121,7 @@ TEST_F(SimpleSelectorFinderTest, Scaled) {
       ExpressionFactory<GF7>::Scaled(ExpressionFactory<GF7>::Constant(a), b);
   EXPECT_FALSE(expr->ContainsSimpleSelector());
   expr = ExpressionFactory<GF7>::Scaled(
-      ExpressionFactory<GF7>::Selector(Selector::Simple(1)), GF7(3));
+      ExpressionFactory<GF7>::Selector(plonk::Selector::Simple(1)), GF7(3));
   EXPECT_TRUE(expr->ContainsSimpleSelector());
 }
 

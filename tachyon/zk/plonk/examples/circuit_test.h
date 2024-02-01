@@ -10,7 +10,7 @@
 #include "tachyon/zk/lookup/lookup_pair.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 class CircuitTest : public ProverTest {
  protected:
@@ -96,6 +96,6 @@ class CircuitTest : public ProverTest {
   }
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_EXAMPLES_CIRCUIT_TEST_H_

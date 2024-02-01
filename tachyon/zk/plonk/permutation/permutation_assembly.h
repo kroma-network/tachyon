@@ -22,7 +22,7 @@
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 #include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // Struct that accumulates all the necessary data in order to construct the
 // permutation argument.
@@ -145,6 +145,6 @@ class TACHYON_EXPORT PermutationAssembly {
   RowIndex rows_ = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_ASSEMBLY_H_

@@ -3,7 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -100,4 +100,4 @@ TEST_F(ExclusionMatrixTest, IsExclusive) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

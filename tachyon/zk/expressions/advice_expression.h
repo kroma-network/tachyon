@@ -21,11 +21,11 @@ template <typename F>
 class AdviceExpression : public Expression<F> {
  public:
   static std::unique_ptr<AdviceExpression> CreateForTesting(
-      const AdviceQuery& query) {
+      const plonk::AdviceQuery& query) {
     return absl::WrapUnique(new AdviceExpression(query));
   }
 
-  const AdviceQuery& query() const { return query_; }
+  const plonk::AdviceQuery& query() const { return query_; }
 
   // Expression methods
   size_t Degree() const override { return 1; }
@@ -51,10 +51,10 @@ class AdviceExpression : public Expression<F> {
  private:
   friend class ExpressionFactory<F>;
 
-  explicit AdviceExpression(const AdviceQuery& query)
+  explicit AdviceExpression(const plonk::AdviceQuery& query)
       : Expression<F>(ExpressionType::kAdvice), query_(query) {}
 
-  AdviceQuery query_;
+  plonk::AdviceQuery query_;
 };
 
 }  // namespace tachyon::zk

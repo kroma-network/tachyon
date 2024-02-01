@@ -14,7 +14,7 @@
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/layout/cell.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class Region;
@@ -47,6 +47,6 @@ class AssignedCell {
   Value<F> value_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_ASSIGNED_CELL_H_

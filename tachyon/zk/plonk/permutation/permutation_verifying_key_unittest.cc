@@ -11,7 +11,7 @@
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -40,4 +40,4 @@ TEST_F(PermutationVerifyingKeyTest, Copyable) {
   EXPECT_EQ(value, expected);
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

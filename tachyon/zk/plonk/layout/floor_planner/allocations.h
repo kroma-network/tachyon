@@ -16,7 +16,7 @@
 #include "tachyon/zk/plonk/layout/floor_planner/allocated_region.h"
 #include "tachyon/zk/plonk/layout/floor_planner/empty_space.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // Allocated rows within a column.
 
@@ -60,6 +60,6 @@ class TACHYON_EXPORT Allocations {
   absl::btree_set<AllocatedRegion> allocations_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_ALLOCATIONS_H_

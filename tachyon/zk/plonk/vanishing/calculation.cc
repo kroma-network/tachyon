@@ -10,7 +10,7 @@
 
 #include "tachyon/base/strings/string_util.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 std::string Calculation::ToString() const {
   switch (type_) {
@@ -40,4 +40,4 @@ std::string Calculation::ToString() const {
   return "";
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

@@ -5,7 +5,7 @@
 
 #include "tachyon/zk/plonk/vanishing/vanishing_verification_data.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F, typename C>
 struct PermutationVerificationData : public VanishingVerificationData<F> {
@@ -24,6 +24,6 @@ struct PermutationVerificationData : public VanishingVerificationData<F> {
   const F* l_last = nullptr;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_VERIFICATION_DATA_H_

@@ -10,7 +10,7 @@
 #include "tachyon/export.h"
 #include "tachyon/zk/base/row_index.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // A region allocated within a column.
 class TACHYON_EXPORT AllocatedRegion {
@@ -34,6 +34,6 @@ class TACHYON_EXPORT AllocatedRegion {
   RowIndex length_ = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_ALLOCATED_REGION_H_

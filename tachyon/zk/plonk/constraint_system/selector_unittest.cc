@@ -3,7 +3,7 @@
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 TEST(SelectorTest, Hash) {
   EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
@@ -11,4 +11,4 @@ TEST(SelectorTest, Hash) {
                       Selector::Complex(0), Selector::Complex(1))));
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

@@ -13,7 +13,7 @@
 
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename F>
 struct PoseidonSponge final : public crypto::PoseidonSponge<F> {
@@ -52,6 +52,6 @@ struct PoseidonSponge final : public crypto::PoseidonSponge<F> {
   }
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_POSEIDON_SPONGE_H_

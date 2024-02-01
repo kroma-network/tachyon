@@ -19,7 +19,7 @@
 
 namespace tachyon::zk {
 
-class PermuteExpressionPairTest : public halo2::ProverTest {};
+class PermuteExpressionPairTest : public plonk::halo2::ProverTest {};
 
 TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
   prover_->blinder().set_blinding_factors(5);

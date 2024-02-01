@@ -18,7 +18,7 @@
 #include "tachyon/zk/plonk/constraint_system/challenge.h"
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class Assignment {
@@ -98,6 +98,6 @@ class Assignment {
   virtual void PopNamespace(const std::optional<std::string>& gadget_name) {}
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_ASSIGNMENT_H_

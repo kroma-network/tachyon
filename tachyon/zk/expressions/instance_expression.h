@@ -21,11 +21,11 @@ template <typename F>
 class InstanceExpression : public Expression<F> {
  public:
   static std::unique_ptr<InstanceExpression> CreateForTesting(
-      const InstanceQuery& query) {
+      const plonk::InstanceQuery& query) {
     return absl::WrapUnique(new InstanceExpression(query));
   }
 
-  const InstanceQuery& query() const { return query_; }
+  const plonk::InstanceQuery& query() const { return query_; }
 
   // Expression methods
   size_t Degree() const override { return 1; }
@@ -51,10 +51,10 @@ class InstanceExpression : public Expression<F> {
  private:
   friend class ExpressionFactory<F>;
 
-  explicit InstanceExpression(const InstanceQuery& query)
+  explicit InstanceExpression(const plonk::InstanceQuery& query)
       : Expression<F>(ExpressionType::kInstance), query_(query) {}
 
-  InstanceQuery query_;
+  plonk::InstanceQuery query_;
 };
 
 }  // namespace tachyon::zk

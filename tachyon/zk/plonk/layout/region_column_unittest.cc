@@ -3,7 +3,7 @@
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 TEST(RegionColumnTest, Order) {
   EXPECT_FALSE(RegionColumn(FixedColumnKey()) < RegionColumn(FixedColumnKey()));
@@ -47,4 +47,4 @@ TEST(RegionColumnTest, Hash) {
       RegionColumn(Selector::Complex(0)), RegionColumn(Selector::Complex(1)))));
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

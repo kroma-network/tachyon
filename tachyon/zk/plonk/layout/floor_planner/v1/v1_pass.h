@@ -16,7 +16,7 @@
 #include "tachyon/zk/plonk/layout/floor_planner/v1/measurement_pass.h"
 #include "tachyon/zk/plonk/layout/layouter.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // A single pass of the |V1FloorPlanner| layouter.
 template <typename F>
@@ -82,6 +82,6 @@ class V1Pass : public Layouter<F> {
   std::variant<MeasurementPass<F>*, AssignmentPass<F>*> pass_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_V1_V1_PASS_H_

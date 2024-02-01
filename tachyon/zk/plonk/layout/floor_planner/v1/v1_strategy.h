@@ -24,7 +24,7 @@
 #include "tachyon/zk/plonk/layout/floor_planner/allocations.h"
 #include "tachyon/zk/plonk/layout/region_shape.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // Allocated rows within a circuit.
 using CircuitAllocations = absl::flat_hash_map<RegionColumn, Allocations>;
@@ -146,6 +146,6 @@ SlotInBiggestAdviceFirstResult SlotInBiggestAdviceFirst(
   return {region_starts, result.column_allocations};
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_V1_V1_STRATEGY_H_

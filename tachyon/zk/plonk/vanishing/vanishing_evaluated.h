@@ -12,7 +12,7 @@
 
 #include "tachyon/zk/plonk/vanishing/vanishing_committed.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Poly>
 class VanishingEvaluated {
@@ -42,6 +42,6 @@ class VanishingEvaluated {
   VanishingCommitted<Poly> committed_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_VANISHING_EVALUATED_H_

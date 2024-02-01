@@ -15,7 +15,7 @@
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // A lookup table in the circuit.
 template <typename F>
@@ -56,6 +56,6 @@ class LookupTable {
   Layouter* const layouter_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_LOOKUP_TABLE_H_

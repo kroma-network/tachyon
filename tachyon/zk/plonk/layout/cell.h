@@ -17,7 +17,7 @@
 #include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // A pointer to a cell within a circuit.
 class TACHYON_EXPORT Cell {
@@ -44,6 +44,6 @@ class TACHYON_EXPORT Cell {
   AnyColumnKey column_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_CELL_H_

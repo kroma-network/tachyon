@@ -15,10 +15,10 @@
 namespace tachyon::base::internal {
 
 template <>
-class RustDebugStringifier<zk::Phase> {
+class RustDebugStringifier<zk::plonk::Phase> {
  public:
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
-                                      zk::Phase phase) {
+                                      zk::plonk::Phase phase) {
     return os << fmt.DebugTuple("Phase").Field(int{phase.value()}).Finish();
   }
 };

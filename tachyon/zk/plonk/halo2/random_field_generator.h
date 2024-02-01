@@ -7,7 +7,7 @@
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/zk/base/random_field_generator_base.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename F>
 class RandomFieldGenerator : public RandomFieldGeneratorBase<F> {
@@ -61,6 +61,6 @@ class RandomFieldGenerator : public RandomFieldGeneratorBase<F> {
   crypto::XORShiftRNG* const generator_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_RANDOM_FIELD_GENERATOR_H_

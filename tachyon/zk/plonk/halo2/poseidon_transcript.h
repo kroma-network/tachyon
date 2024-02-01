@@ -14,7 +14,7 @@
 #include "tachyon/zk/plonk/halo2/poseidon_sponge.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 namespace internal {
 
 template <typename AffinePoint>
@@ -112,6 +112,6 @@ class PoseidonWriter : public crypto::TranscriptWriter<AffinePoint>,
   }
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_POSEIDON_TRANSCRIPT_H_

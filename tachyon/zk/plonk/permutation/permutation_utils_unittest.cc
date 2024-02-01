@@ -10,7 +10,7 @@
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -33,4 +33,4 @@ TYPED_TEST(PermutationUtilsTest, GetDelta) {
   EXPECT_EQ(delta.Pow(F::Config::kTrace), F::One());
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

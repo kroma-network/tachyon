@@ -25,7 +25,7 @@ class TranscriptWriterTest : public testing::Test {
 };
 
 using TranscriptTypes =
-    testing::Types<halo2::Blake2bWriter<math::bn254::G1AffinePoint>>;
+    testing::Types<plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>;
 TYPED_TEST_SUITE(TranscriptWriterTest, TranscriptTypes);
 
 TYPED_TEST(TranscriptWriterTest, APIs) {
@@ -37,7 +37,7 @@ TYPED_TEST(TranscriptWriterTest, APIs) {
   uint8_t type;
   if constexpr (std::is_same_v<
                     TranscriptWriter,
-                    halo2::Blake2bWriter<math::bn254::G1AffinePoint>>) {
+                    plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>) {
     type = TACHYON_HALO2_BLAKE_TRANSCRIPT;
   }
 

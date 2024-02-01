@@ -36,11 +36,12 @@ class SHPlonkProverImpl : public ProverImpl<PCS> {
           base::Uint8VectorBuffer write_buf;
           std::unique_ptr<crypto::TranscriptWriter<math::bn254::G1AffinePoint>>
               writer = std::make_unique<
-                  zk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
+                  zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
                   std::move(write_buf));
-          zk::halo2::Prover<PCS> prover = zk::halo2::Prover<PCS>::CreateFromRNG(
-              std::move(pcs), std::move(writer), /*rng=*/nullptr,
-              /*blinding_factors=*/0);
+          zk::plonk::halo2::Prover<PCS> prover =
+              zk::plonk::halo2::Prover<PCS>::CreateFromRNG(
+                  std::move(pcs), std::move(writer), /*rng=*/nullptr,
+                  /*blinding_factors=*/0);
           prover.set_domain(PCS::Domain::Create(n));
           return prover;
         }) {}

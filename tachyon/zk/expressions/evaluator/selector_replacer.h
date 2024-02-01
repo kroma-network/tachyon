@@ -37,7 +37,7 @@ class SelectorsReplacer : public Evaluator<F, std::unique_ptr<Expression<F>>> {
       case ExpressionType::kChallenge:
         return input->Clone();
       case ExpressionType::kSelector: {
-        const Selector& selector = input->ToSelector()->selector();
+        const plonk::Selector& selector = input->ToSelector()->selector();
         if (must_be_non_simple_) {
           // Simple selectors are prohibited from appearing in
           // expressions in the lookup argument by |ConstraintSystem|.

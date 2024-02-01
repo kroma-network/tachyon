@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 constexpr char kTranscriptStr[] = "Halo2-Transcript";
 
@@ -30,6 +30,6 @@ constexpr uint8_t kShaPrefixScalar[1] = {2};
 
 constexpr char kVerifyingKeyStr[] = "Halo2-Verify-Key";
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_CONSTANTS_H_

@@ -15,7 +15,7 @@
 #include "tachyon/zk/plonk/halo2/stringifiers/expression_stringifier.h"
 
 namespace tachyon {
-namespace zk::halo2 {
+namespace zk::plonk::halo2 {
 
 template <typename F>
 class PinnedGates {
@@ -28,18 +28,18 @@ class PinnedGates {
   const std::vector<Gate<F>>& gates_;
 };
 
-}  // namespace zk::halo2
+}  // namespace zk::plonk::halo2
 
 namespace base::internal {
 
 template <typename F>
-class RustDebugStringifier<zk::halo2::PinnedGates<F>> {
+class RustDebugStringifier<zk::plonk::halo2::PinnedGates<F>> {
  public:
   static std::ostream& AppendToStream(
       std::ostream& os, RustFormatter& fmt,
-      const zk::halo2::PinnedGates<F>& pinned_gates) {
+      const zk::plonk::halo2::PinnedGates<F>& pinned_gates) {
     DebugList list = fmt.DebugList();
-    for (const zk::Gate<F>& gate : pinned_gates.gates()) {
+    for (const zk::plonk::Gate<F>& gate : pinned_gates.gates()) {
       const std::vector<std::unique_ptr<zk::Expression<F>>>& polys =
           gate.polys();
       for (const std::unique_ptr<zk::Expression<F>>& poly : polys) {

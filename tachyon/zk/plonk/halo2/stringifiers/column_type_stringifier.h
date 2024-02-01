@@ -15,11 +15,11 @@
 namespace tachyon::base::internal {
 
 template <>
-class RustDebugStringifier<zk::ColumnType> {
+class RustDebugStringifier<zk::plonk::ColumnType> {
  public:
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
-                                      zk::ColumnType type) {
-    return os << zk::ColumnTypeToString(type);
+                                      zk::plonk::ColumnType type) {
+    return os << zk::plonk::ColumnTypeToString(type);
   }
 };
 

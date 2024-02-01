@@ -19,7 +19,7 @@
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 
 namespace tachyon {
-namespace zk::halo2 {
+namespace zk::plonk::halo2 {
 
 template <typename F, typename C>
 class PinnedVerifyingKey {
@@ -56,16 +56,16 @@ class PinnedVerifyingKey {
   const PermutationVerifyingKey<C>& permutation_verifying_key_;
 };
 
-}  // namespace zk::halo2
+}  // namespace zk::plonk::halo2
 
 namespace base::internal {
 
 template <typename F, typename C>
-class RustDebugStringifier<zk::halo2::PinnedVerifyingKey<F, C>> {
+class RustDebugStringifier<zk::plonk::halo2::PinnedVerifyingKey<F, C>> {
  public:
   static std::ostream& AppendToStream(
       std::ostream& os, RustFormatter& fmt,
-      const zk::halo2::PinnedVerifyingKey<F, C>& pinned_vk) {
+      const zk::plonk::halo2::PinnedVerifyingKey<F, C>& pinned_vk) {
     // NOTE(chokobole): Original name is PinnedVerificationKey not
     // PinnedVerifyingKey. See
     // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk.rs#L252-L263.

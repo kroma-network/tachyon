@@ -22,7 +22,7 @@ class Bn254PlonkProvingKeyTest : public testing::Test {
 }  // namespace
 
 TEST_F(Bn254PlonkProvingKeyTest, GetVerifyingKey) {
-  ProvingKey<Poly, Evals, math::bn254::G1AffinePoint> cpp_pkey;
+  plonk::ProvingKey<Poly, Evals, math::bn254::G1AffinePoint> cpp_pkey;
 
   tachyon_bn254_plonk_proving_key* pkey =
       reinterpret_cast<tachyon_bn254_plonk_proving_key*>(&cpp_pkey);

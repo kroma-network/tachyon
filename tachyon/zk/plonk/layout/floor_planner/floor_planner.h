@@ -13,7 +13,7 @@
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/layout/assignment.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Circuit>
 class FloorPlanner {
@@ -26,6 +26,6 @@ class FloorPlanner {
                           const std::vector<FixedColumnKey>& constants) = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_FLOOR_PLANNER_H_

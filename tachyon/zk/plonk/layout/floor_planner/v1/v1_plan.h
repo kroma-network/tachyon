@@ -16,7 +16,7 @@
 #include "tachyon/zk/plonk/layout/floor_planner/constant.h"
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class V1Plan {
@@ -43,6 +43,6 @@ class V1Plan {
   std::vector<LookupTableColumn> table_columns_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_V1_V1_PLAN_H_

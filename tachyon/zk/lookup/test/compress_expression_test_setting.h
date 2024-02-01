@@ -9,14 +9,14 @@
 
 namespace tachyon::zk {
 
-class CompressExpressionTestSetting : public halo2::ProverTest {
+class CompressExpressionTestSetting : public plonk::halo2::ProverTest {
  public:
   void SetUp() override {
-    halo2::ProverTest::SetUp();
+    plonk::halo2::ProverTest::SetUp();
 
-    RefTable<Evals> columns(absl::MakeConstSpan(fixed_columns_),
-                            absl::MakeConstSpan(advice_columns_),
-                            absl::MakeConstSpan(instance_columns_));
+    plonk::RefTable<Evals> columns(absl::MakeConstSpan(fixed_columns_),
+                                   absl::MakeConstSpan(advice_columns_),
+                                   absl::MakeConstSpan(instance_columns_));
     evaluator_ = {0, static_cast<int32_t>(prover_->domain()->size()), 1,
                   columns, absl::MakeConstSpan(challenges_)};
     theta_ = F(2);

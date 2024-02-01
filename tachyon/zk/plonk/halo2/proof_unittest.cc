@@ -13,7 +13,7 @@
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/base/row_index.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 namespace {
 
 using F = math::bn254::Fr;
@@ -96,4 +96,4 @@ TEST(ProofTest, JsonValueConverter) {
   EXPECT_EQ(proof, expected_proof);
 }
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2

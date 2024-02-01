@@ -11,7 +11,8 @@
 
 using namespace tachyon;
 
-using Blake2bWriter = zk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>;
+using Blake2bWriter =
+    zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>;
 
 tachyon_halo2_bn254_transcript_writer*
 tachyon_halo2_bn254_transcript_writer_create(uint8_t type) {

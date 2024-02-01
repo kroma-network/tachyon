@@ -8,7 +8,7 @@
 
 #include "absl/strings/substitute.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 std::string ValueSource::ToString() const {
   switch (type_) {
@@ -40,4 +40,4 @@ std::string ValueSource::ToString() const {
   return "";
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

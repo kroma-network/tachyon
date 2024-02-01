@@ -13,7 +13,7 @@
 #include "tachyon/base/buffer/copyable.h"
 
 namespace tachyon {
-namespace zk {
+namespace zk::plonk {
 
 template <typename Commitment>
 class PermutationVerifyingKey {
@@ -42,28 +42,30 @@ class PermutationVerifyingKey {
   Commitments commitments_;
 };
 
-}  // namespace zk
+}  // namespace zk::plonk
 
 namespace base {
 
 template <typename Commitment>
-class Copyable<zk::PermutationVerifyingKey<Commitment>> {
+class Copyable<zk::plonk::PermutationVerifyingKey<Commitment>> {
  public:
-  static bool WriteTo(const zk::PermutationVerifyingKey<Commitment>& vk,
+  static bool WriteTo(const zk::plonk::PermutationVerifyingKey<Commitment>& vk,
                       Buffer* buffer) {
     return buffer->Write(vk.commitments());
   }
 
   static bool ReadFrom(const Buffer& buffer,
-                       zk::PermutationVerifyingKey<Commitment>* vk) {
-    typename zk::PermutationVerifyingKey<Commitment>::Commitments commitments;
+                       zk::plonk::PermutationVerifyingKey<Commitment>* vk) {
+    typename zk::plonk::PermutationVerifyingKey<Commitment>::Commitments
+        commitments;
     if (!buffer.Read(&commitments)) return false;
-    *vk = zk::PermutationVerifyingKey<Commitment>(std::move(commitments));
+    *vk =
+        zk::plonk::PermutationVerifyingKey<Commitment>(std::move(commitments));
     return true;
   }
 
   static size_t EstimateSize(
-      const zk::PermutationVerifyingKey<Commitment>& vk) {
+      const zk::plonk::PermutationVerifyingKey<Commitment>& vk) {
     return base::EstimateSize(vk.commitments());
   }
 };

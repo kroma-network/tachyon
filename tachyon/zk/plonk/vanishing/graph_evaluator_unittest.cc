@@ -6,7 +6,7 @@
 #include "tachyon/zk/expressions/evaluator/test/evaluator_test.h"
 #include "tachyon/zk/expressions/expression_factory.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -490,4 +490,4 @@ TEST_F(GraphEvaluatorTest, Scaled) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

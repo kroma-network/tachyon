@@ -11,7 +11,7 @@
 
 #include "tachyon/zk/plonk/layout/assignment.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 struct ScopedRegion {
@@ -25,6 +25,6 @@ struct ScopedRegion {
   Assignment<F>* const assignment_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_SCOPED_REGION_H_

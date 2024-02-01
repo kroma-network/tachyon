@@ -15,7 +15,7 @@
 #include "tachyon/export.h"
 #include "tachyon/zk/plonk/constraint_system/selector_description.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // Exclusion matrix that has (i, j) = true if activations vector of selector i
 // and selector j conflict -- that is, they are both enabled on the same row.
@@ -82,6 +82,6 @@ class TACHYON_EXPORT ExclusionMatrix {
   std::vector<std::vector<bool>> lower_triangular_matrix_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_EXCLUSION_MATRIX_H_

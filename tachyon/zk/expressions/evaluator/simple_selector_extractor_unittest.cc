@@ -19,11 +19,11 @@ TEST_F(SimpleSelectorExtractorTest, Constant) {
 }
 
 TEST_F(SimpleSelectorExtractorTest, Selector) {
-  Selector expected_selector = Selector::Simple(1);
+  plonk::Selector expected_selector = plonk::Selector::Simple(1);
   Expr expr = ExpressionFactory<GF7>::Selector(expected_selector);
-  std::optional<Selector> selector = expr->ExtractSimpleSelector();
+  std::optional<plonk::Selector> selector = expr->ExtractSimpleSelector();
   EXPECT_EQ(selector.value(), expected_selector);
-  expr = ExpressionFactory<GF7>::Selector(Selector::Complex(1));
+  expr = ExpressionFactory<GF7>::Selector(plonk::Selector::Complex(1));
   EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
 }
 
@@ -37,8 +37,8 @@ TEST_F(SimpleSelectorExtractorTest, Fixed) {
   };
 
   for (const auto& test : tests) {
-    FixedQuery query(1, Rotation(test.rotation),
-                     FixedColumnKey(test.column_index));
+    plonk::FixedQuery query(1, Rotation(test.rotation),
+                            plonk::FixedColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
   }
@@ -54,8 +54,9 @@ TEST_F(SimpleSelectorExtractorTest, Advice) {
   };
 
   for (const auto& test : tests) {
-    AdviceQuery query(1, Rotation(test.rotation),
-                      AdviceColumnKey(test.column_index, Phase(0)));
+    plonk::AdviceQuery query(
+        1, Rotation(test.rotation),
+        plonk::AdviceColumnKey(test.column_index, plonk::Phase(0)));
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
   }
@@ -71,15 +72,16 @@ TEST_F(SimpleSelectorExtractorTest, Instance) {
   };
 
   for (const auto& test : tests) {
-    InstanceQuery query(1, Rotation(test.rotation),
-                        InstanceColumnKey(test.column_index));
+    plonk::InstanceQuery query(1, Rotation(test.rotation),
+                               plonk::InstanceColumnKey(test.column_index));
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
   }
 }
 
 TEST_F(SimpleSelectorExtractorTest, Challenges) {
-  Expr expr = ExpressionFactory<GF7>::Challenge(Challenge(1, Phase(0)));
+  Expr expr =
+      ExpressionFactory<GF7>::Challenge(plonk::Challenge(1, plonk::Phase(0)));
   EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
 }
 
@@ -96,11 +98,11 @@ TEST_F(SimpleSelectorExtractorTest, Sum) {
   Expr expr = ExpressionFactory<GF7>::Sum(ExpressionFactory<GF7>::Constant(a),
                                           ExpressionFactory<GF7>::Constant(b));
   EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
-  Selector expected_selector = Selector::Simple(1);
+  plonk::Selector expected_selector = plonk::Selector::Simple(1);
   expr = ExpressionFactory<GF7>::Sum(
       ExpressionFactory<GF7>::Constant(a),
       ExpressionFactory<GF7>::Selector(expected_selector));
-  std::optional<Selector> selector = expr->ExtractSimpleSelector();
+  std::optional<plonk::Selector> selector = expr->ExtractSimpleSelector();
   EXPECT_EQ(selector.value(), expected_selector);
 }
 
@@ -110,11 +112,11 @@ TEST_F(SimpleSelectorExtractorTest, Product) {
   Expr expr = ExpressionFactory<GF7>::Product(
       ExpressionFactory<GF7>::Constant(a), ExpressionFactory<GF7>::Constant(b));
   EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
-  Selector expected_selector = Selector::Simple(1);
+  plonk::Selector expected_selector = plonk::Selector::Simple(1);
   expr = ExpressionFactory<GF7>::Product(
       ExpressionFactory<GF7>::Constant(a),
       ExpressionFactory<GF7>::Selector(expected_selector));
-  std::optional<Selector> selector = expr->ExtractSimpleSelector();
+  std::optional<plonk::Selector> selector = expr->ExtractSimpleSelector();
   EXPECT_EQ(selector.value(), expected_selector);
 }
 
@@ -124,10 +126,10 @@ TEST_F(SimpleSelectorExtractorTest, Scaled) {
   Expr expr =
       ExpressionFactory<GF7>::Scaled(ExpressionFactory<GF7>::Constant(a), b);
   EXPECT_FALSE(expr->ExtractSimpleSelector().has_value());
-  Selector expected_selector = Selector::Simple(1);
+  plonk::Selector expected_selector = plonk::Selector::Simple(1);
   expr = ExpressionFactory<GF7>::Scaled(
       ExpressionFactory<GF7>::Selector(expected_selector), GF7(3));
-  std::optional<Selector> selector = expr->ExtractSimpleSelector();
+  std::optional<plonk::Selector> selector = expr->ExtractSimpleSelector();
   EXPECT_EQ(selector.value(), expected_selector);
 }
 

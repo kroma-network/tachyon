@@ -15,7 +15,7 @@
 
 #include "tachyon/zk/plonk/constraint_system/circuit.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // This is taken and modified from
 // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/benches/dev_lookup.rs#L21-L26.
@@ -115,6 +115,6 @@ class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
   uint32_t k_ = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_EXAMPLES_SIMPLE_LOOKUP_CIRCUIT_H_

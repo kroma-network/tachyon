@@ -17,7 +17,7 @@
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/export.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // NOTE(lightscale-luke): Phase class is copyable, assignable, and occupy 8
 // bits per instance. Prefer to pass them by value.
@@ -55,6 +55,6 @@ H AbslHashValue(H h, Phase phase) {
   return H::combine(std::move(h), phase.value());
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_BASE_PHASE_H_

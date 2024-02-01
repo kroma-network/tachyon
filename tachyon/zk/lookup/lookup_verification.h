@@ -20,7 +20,7 @@ namespace tachyon::zk {
 template <typename F>
 F CompressExpressions(
     const std::vector<std::unique_ptr<Expression<F>>>& expressions,
-    const F& theta, VanishingVerificationEvaluator<F>& evaluator) {
+    const F& theta, plonk::VanishingVerificationEvaluator<F>& evaluator) {
   F compressed_value = F::Zero();
   for (size_t expr_idx = 0; expr_idx < expressions.size(); ++expr_idx) {
     compressed_value *= theta;
@@ -32,7 +32,7 @@ F CompressExpressions(
 template <typename F, typename C>
 F CreateProductExpression(const LookupVerificationData<F, C>& data,
                           const LookupArgument<F>& argument) {
-  VanishingVerificationEvaluator<F> evaluator(data);
+  plonk::VanishingVerificationEvaluator<F> evaluator(data);
   // z(ω * X) * (a'(X) + β) * (s'(X) + γ)
   // - z(X) * (θᵐ⁻¹a₀(X) + ... + aₘ₋₁(X) + β) * (θᵐ⁻¹s₀(X) + ... + sₘ₋₁(X) + γ)
   F left = *data.product_next_eval * (*data.permuted_input_eval + *data.beta) *

@@ -20,7 +20,7 @@
 #include "tachyon/zk/plonk/permutation/permutation_evaluated.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Poly, typename Evals>
 class PermutationArgumentRunner {
@@ -72,7 +72,7 @@ class PermutationArgumentRunner {
       const F& gamma);
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner_impl.h"
 

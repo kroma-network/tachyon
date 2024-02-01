@@ -14,7 +14,7 @@
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 #include "tachyon/zk/plonk/permutation/permutation_assembly.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 class PermutationArgumentTest : public halo2::ProverTest {
  public:
@@ -96,4 +96,4 @@ TEST_F(PermutationArgumentTest, Commit) {
       prover_.get(), argument_, table_, n, pk, beta, gamma);
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

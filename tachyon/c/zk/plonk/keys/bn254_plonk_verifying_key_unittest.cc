@@ -19,7 +19,7 @@ class Bn254PlonkVerifyingKeyTest : public testing::Test {
 }  // namespace
 
 TEST_F(Bn254PlonkVerifyingKeyTest, GetTranscriptRepr) {
-  VerifyingKey<math::bn254::Fr, math::bn254::G1AffinePoint> cpp_vkey;
+  plonk::VerifyingKey<math::bn254::Fr, math::bn254::G1AffinePoint> cpp_vkey;
   math::bn254::Fr cpp_transcript_repr = math::bn254::Fr::Random();
   cpp_vkey.SetTranscriptReprForTesting(cpp_transcript_repr);
 

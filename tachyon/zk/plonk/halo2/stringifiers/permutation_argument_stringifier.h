@@ -16,10 +16,11 @@
 namespace tachyon::base::internal {
 
 template <>
-class RustDebugStringifier<zk::PermutationArgument> {
+class RustDebugStringifier<zk::plonk::PermutationArgument> {
  public:
-  static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
-                                      const zk::PermutationArgument& argument) {
+  static std::ostream& AppendToStream(
+      std::ostream& os, RustFormatter& fmt,
+      const zk::plonk::PermutationArgument& argument) {
     return os << fmt.DebugStruct("Argument")
                      .Field("columns", argument.columns())
                      .Finish();

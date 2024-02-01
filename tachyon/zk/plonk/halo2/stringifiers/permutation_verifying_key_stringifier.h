@@ -16,11 +16,11 @@
 namespace tachyon::base::internal {
 
 template <typename Commitment>
-class RustDebugStringifier<zk::PermutationVerifyingKey<Commitment>> {
+class RustDebugStringifier<zk::plonk::PermutationVerifyingKey<Commitment>> {
  public:
   static std::ostream& AppendToStream(
       std::ostream& os, RustFormatter& fmt,
-      const zk::PermutationVerifyingKey<Commitment>& vk) {
+      const zk::plonk::PermutationVerifyingKey<Commitment>& vk) {
     // NOTE(chokobole): See
     // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/permutation.rs#L80-L84
     return os << fmt.DebugStruct("VerifyingKey")

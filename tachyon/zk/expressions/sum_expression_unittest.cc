@@ -19,7 +19,7 @@ TEST_F(SumExpressionTest, DegreeComplexity) {
   std::unique_ptr<ConstantExpression<Fr>> left =
       ConstantExpression<Fr>::CreateForTesting(Fr::One());
   std::unique_ptr<SelectorExpression<Fr>> right =
-      SelectorExpression<Fr>::CreateForTesting(Selector::Simple(1));
+      SelectorExpression<Fr>::CreateForTesting(plonk::Selector::Simple(1));
 
   size_t left_degree = left->Degree();
   uint64_t left_complexity = left->Complexity();

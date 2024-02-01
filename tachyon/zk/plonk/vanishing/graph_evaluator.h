@@ -26,7 +26,7 @@
 #include "tachyon/zk/expressions/sum_expression.h"
 #include "tachyon/zk/plonk/vanishing/calculation.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 struct TACHYON_EXPORT CalculationInfo {
   Calculation calculation;
@@ -259,6 +259,6 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
   size_t num_intermediates_ = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_GRAPH_EVALUATOR_H_

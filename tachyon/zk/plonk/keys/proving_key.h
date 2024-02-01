@@ -18,7 +18,7 @@
 
 namespace tachyon {
 
-namespace zk {
+namespace zk::plonk {
 
 template <typename Poly, typename Evals, typename C>
 class ProvingKey : public Key {
@@ -171,7 +171,7 @@ class ProvingKey : public Key {
   VanishingArgument<F> vanishing_argument_;
 };
 
-}  // namespace zk
+}  // namespace zk::plonk
 }  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_KEYS_PROVING_KEY_H_

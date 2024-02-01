@@ -7,7 +7,7 @@
 // TODO(chokobole): Remove this header. See comment in |GetDelta()| below.
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 constexpr size_t ComputePermutationChunkLength(size_t cs_degree) {
   base::CheckedNumeric<size_t> checked_cs_degree(cs_degree);
@@ -34,6 +34,6 @@ constexpr F GetDelta() {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_UTILS_H_

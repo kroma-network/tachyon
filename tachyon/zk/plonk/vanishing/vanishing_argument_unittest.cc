@@ -19,7 +19,7 @@
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
 #include "tachyon/zk/plonk/vanishing/prover_vanishing_argument.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -105,4 +105,4 @@ TEST_F(VanishingArgumentTest, VanishingArgument) {
                                F::One(), prover_->GetWriter(), &evaluated));
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

@@ -10,7 +10,7 @@
 
 #include "tachyon/base/random.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 TEST(CycleStoreTest, MergeCycle) {
   constexpr size_t kCols = 10;
@@ -50,4 +50,4 @@ TEST(CycleStoreTest, MergeCycle) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

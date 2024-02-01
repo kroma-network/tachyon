@@ -9,7 +9,7 @@
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "tachyon/zk/plonk/layout/floor_planner/v1/v1_floor_planner.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 namespace {
 
@@ -812,4 +812,4 @@ TEST_F(SimpleLookupV1CircuitTest, Verify) {
   EXPECT_EQ(h_eval, expected_h_eval);
 }
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2

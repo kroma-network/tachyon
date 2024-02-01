@@ -16,7 +16,7 @@ class FixedExpressionTest : public testing::Test {
 TEST_F(FixedExpressionTest, DegreeComplexity) {
   std::unique_ptr<FixedExpression<Fr>> expr =
       FixedExpression<Fr>::CreateForTesting(
-          FixedQuery(1, Rotation(1), FixedColumnKey(1)));
+          plonk::FixedQuery(1, Rotation(1), plonk::FixedColumnKey(1)));
   EXPECT_EQ(expr->Degree(), size_t{1});
   EXPECT_EQ(expr->Complexity(), uint64_t{1});
 }

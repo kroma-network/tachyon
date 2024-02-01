@@ -14,7 +14,7 @@
 #include "tachyon/export.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // CycleStore stores cycle that is used to constrain equality between values.
 //
@@ -138,6 +138,6 @@ class TACHYON_EXPORT CycleStore {
   Table<size_t> sizes_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_CYCLE_STORE_H_

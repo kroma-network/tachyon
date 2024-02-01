@@ -15,7 +15,7 @@
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 #include "tachyon/zk/plonk/layout/assigned_cell.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class RegionLayouter {
@@ -67,6 +67,6 @@ class RegionLayouter {
   virtual void ConstrainEqual(const Cell& left, const Cell& right) {}
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_REGION_LAYOUTER_H_

@@ -15,7 +15,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -76,4 +76,4 @@ TEST_F(VanishingUtilsTest, BuildExtendedColumnWithColumns) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

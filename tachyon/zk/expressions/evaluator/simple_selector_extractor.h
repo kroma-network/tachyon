@@ -15,13 +15,14 @@
 namespace tachyon::zk {
 
 template <typename F>
-class SimpleSelectorExtractor : public Evaluator<F, std::optional<Selector>> {
+class SimpleSelectorExtractor
+    : public Evaluator<F, std::optional<plonk::Selector>> {
  public:
   // Evaluator methods
-  std::optional<Selector> Evaluate(const Expression<F>* input) override {
-    auto op =
-        [](const std::optional<Selector>& left,
-           const std::optional<Selector>& right) -> std::optional<Selector> {
+  std::optional<plonk::Selector> Evaluate(const Expression<F>* input) override {
+    auto op = [](const std::optional<plonk::Selector>& left,
+                 const std::optional<plonk::Selector>& right)
+        -> std::optional<plonk::Selector> {
       CHECK(!(left.has_value() && right.has_value()))
           << "two simple selectors cannot be in the same expression";
       if (left.has_value()) return left;
@@ -33,7 +34,7 @@ class SimpleSelectorExtractor : public Evaluator<F, std::optional<Selector>> {
       case ExpressionType::kConstant:
         return std::nullopt;
       case ExpressionType::kSelector: {
-        const Selector& selector = input->ToSelector()->selector();
+        const plonk::Selector& selector = input->ToSelector()->selector();
         if (selector.is_simple()) {
           return selector;
         }
@@ -69,7 +70,7 @@ class SimpleSelectorExtractor : public Evaluator<F, std::optional<Selector>> {
 };
 
 template <typename F>
-std::optional<Selector> Expression<F>::ExtractSimpleSelector() const {
+std::optional<plonk::Selector> Expression<F>::ExtractSimpleSelector() const {
   SimpleSelectorExtractor<F> extractor;
   return Evaluate(&extractor);
 }

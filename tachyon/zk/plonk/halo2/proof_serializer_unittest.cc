@@ -14,7 +14,7 @@
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 namespace {
 
@@ -95,4 +95,4 @@ TEST_F(ProofSerializerTest, SerializeProof) {
   }
 }
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2

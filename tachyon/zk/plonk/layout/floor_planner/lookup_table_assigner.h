@@ -16,7 +16,7 @@
 #include "tachyon/zk/plonk/layout/lookup_table.h"
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class LookupTableAssigner {
@@ -88,6 +88,6 @@ class LookupTableAssigner {
   std::vector<LookupTableColumn>& lookup_table_columns_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_LOOKUP_TABLE_ASSIGNER_H_

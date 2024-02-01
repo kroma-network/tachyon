@@ -38,23 +38,23 @@ class ExpressionFactory {
     return absl::WrapUnique(new ConstantExpression<F>(value));
   }
 
-  static std::unique_ptr<Expr> Selector(const Selector& selector) {
+  static std::unique_ptr<Expr> Selector(const plonk::Selector& selector) {
     return absl::WrapUnique(new SelectorExpression<F>(selector));
   }
 
-  static std::unique_ptr<Expr> Fixed(const FixedQuery& query) {
+  static std::unique_ptr<Expr> Fixed(const plonk::FixedQuery& query) {
     return absl::WrapUnique(new FixedExpression<F>(query));
   }
 
-  static std::unique_ptr<Expr> Advice(const AdviceQuery& query) {
+  static std::unique_ptr<Expr> Advice(const plonk::AdviceQuery& query) {
     return absl::WrapUnique(new AdviceExpression<F>(query));
   }
 
-  static std::unique_ptr<Expr> Instance(const InstanceQuery& query) {
+  static std::unique_ptr<Expr> Instance(const plonk::InstanceQuery& query) {
     return absl::WrapUnique(new InstanceExpression<F>(query));
   }
 
-  static std::unique_ptr<Expr> Challenge(const Challenge& challenge) {
+  static std::unique_ptr<Expr> Challenge(const plonk::Challenge& challenge) {
     return absl::WrapUnique(new ChallengeExpression<F>(challenge));
   }
 

@@ -16,7 +16,7 @@
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 class TACHYON_EXPORT RegionColumn {
  public:
@@ -87,6 +87,6 @@ H AbslHashValue(H h, const RegionColumn& m) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_REGION_COLUMN_H_

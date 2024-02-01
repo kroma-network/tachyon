@@ -15,7 +15,7 @@ class SelectorExpressionTest : public testing::Test {
 
 TEST_F(SelectorExpressionTest, Degree_Complexity) {
   std::unique_ptr<SelectorExpression<Fr>> expr =
-      SelectorExpression<Fr>::CreateForTesting(Selector::Simple(1));
+      SelectorExpression<Fr>::CreateForTesting(plonk::Selector::Simple(1));
   EXPECT_EQ(expr->Degree(), size_t{1});
   EXPECT_EQ(expr->Complexity(), uint64_t{1});
 }

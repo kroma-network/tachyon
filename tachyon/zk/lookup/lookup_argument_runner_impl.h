@@ -59,9 +59,10 @@ template <typename PCS>
 LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
     ProverBase<PCS>* prover, LookupPermuted<Poly, Evals>&& permuted,
     const F& beta, const F& gamma) {
-  BlindedPolynomial<Poly> grand_product_poly = GrandProductArgument::Commit(
-      prover, CreateNumeratorCallback(permuted, beta, gamma),
-      CreateDenominatorCallback(permuted, beta, gamma));
+  BlindedPolynomial<Poly> grand_product_poly =
+      plonk::GrandProductArgument::Commit(
+          prover, CreateNumeratorCallback(permuted, beta, gamma),
+          CreateDenominatorCallback(permuted, beta, gamma));
 
   return LookupCommitted<Poly>(std::move(permuted).TakePermutedInputPoly(),
                                std::move(permuted).TakePermutedTablePoly(),

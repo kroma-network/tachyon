@@ -16,7 +16,7 @@
 #include "tachyon/export.h"
 #include "tachyon/zk/plonk/vanishing/evaluation_input.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 class TACHYON_EXPORT ValueSource {
  public:
@@ -190,6 +190,6 @@ class TACHYON_EXPORT ValueSource {
   };
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_VALUE_SOURCE_H_

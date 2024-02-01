@@ -15,7 +15,8 @@ class ChallengeExpressionTest : public testing::Test {
 
 TEST_F(ChallengeExpressionTest, DegreeComplexity) {
   std::unique_ptr<ChallengeExpression<Fr>> expr =
-      ChallengeExpression<Fr>::CreateForTesting(Challenge(1, Phase(1)));
+      ChallengeExpression<Fr>::CreateForTesting(
+          plonk::Challenge(1, plonk::Phase(1)));
   EXPECT_EQ(expr->Degree(), size_t{0});
   EXPECT_EQ(expr->Complexity(), uint64_t{0});
 }

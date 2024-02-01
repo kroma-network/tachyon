@@ -53,7 +53,7 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
       std::move(compressed_evals_pair), std::move(permuted_evals_pair),
       BlindedPolynomial<Poly>(), BlindedPolynomial<Poly>());
 
-  Evals z_evals = GrandProductArgument::CreatePolynomial<Evals>(
+  Evals z_evals = plonk::GrandProductArgument::CreatePolynomial<Evals>(
       n, prover_->blinder().blinding_factors(),
       LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
           lookup_permuted, beta, gamma),
