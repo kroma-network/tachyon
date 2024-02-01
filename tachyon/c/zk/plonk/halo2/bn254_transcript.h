@@ -6,16 +6,16 @@
 
 #include "tachyon/c/export.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define TACHYON_HALO2_BLAKE_TRANSCRIPT 0
 
 struct tachyon_halo2_bn254_transcript_writer {
   uint8_t type;
   void* extra;
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 TACHYON_C_EXPORT tachyon_halo2_bn254_transcript_writer*
 tachyon_halo2_bn254_transcript_writer_create(uint8_t type);

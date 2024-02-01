@@ -30,7 +30,7 @@
 #include "tachyon/zk/plonk/constraint_system/query.h"
 #include "tachyon/zk/plonk/constraint_system/selector_compressor.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cells.h"
-#include "tachyon/zk/plonk/keys/halo2_api_proving_key_impl_base_forward.h"
+#include "tachyon/zk/plonk/keys/c_proving_key_impl_base_forward.h"
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
@@ -535,7 +535,7 @@ class ConstraintSystem {
 
  private:
   template <typename Poly, typename Evals, typename C>
-  friend class halo2_api::ProvingKeyImplBase;
+  friend class c::zk::ProvingKeyImplBase;
 
   template <typename QueryData, typename Column>
   static bool QueryIndex(const std::vector<QueryData>& queries,

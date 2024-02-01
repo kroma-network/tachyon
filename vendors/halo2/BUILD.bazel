@@ -171,6 +171,7 @@ tachyon_cc_library(
         ":bn254_rational_evals",
         ":bn254_shplonk_prover_impl",
         "//tachyon/base/buffer",
+        "//tachyon/c/zk/plonk/keys:proving_key_impl_base",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/rs/base:container_util",
@@ -203,34 +204,13 @@ tachyon_cc_library(
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
         ":bn254_proving_key_impl",
-        "//tachyon/rs/base:container_util",
     ],
 )
 
 tachyon_cc_library(
     name = "bn254_proving_key_impl",
-    srcs = [
-        "src/bn254_proving_key_impl.h",
-        "src/buffer_reader.h",
-        "src/endian_auto_reset.h",
-        "src/proving_key_impl_base.h",
-    ],
-    deps = [
-        ":degrees",
-        "//tachyon/base:logging",
-        "//tachyon/base/buffer",
-        "//tachyon/base/containers:container_util",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/math/finite_fields:prime_field_base",
-        "//tachyon/math/polynomials/univariate:univariate_evaluations",
-        "//tachyon/math/polynomials/univariate:univariate_polynomial",
-        "//tachyon/zk/plonk/base:column_key",
-        "//tachyon/zk/plonk/base:phase",
-        "//tachyon/zk/plonk/constraint_system:gate",
-        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
-        "//tachyon/zk/plonk/keys:proving_key",
-        "//tachyon/zk/plonk/permutation:permutation_argument",
-    ],
+    srcs = ["src/bn254_proving_key_impl.h"],
+    deps = ["//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key"],
 )
 
 tachyon_cc_library(

@@ -1,9 +1,9 @@
-#ifndef VENDORS_HALO2_SRC_ENDIAN_AUTO_RESET_H_
-#define VENDORS_HALO2_SRC_ENDIAN_AUTO_RESET_H_
+#ifndef TACHYON_C_ZK_PLONK_KEYS_ENDIAN_AUTO_RESET_H_
+#define TACHYON_C_ZK_PLONK_KEYS_ENDIAN_AUTO_RESET_H_
 
 #include "tachyon/base/buffer/buffer.h"
 
-namespace tachyon::halo2_api {
+namespace tachyon::c::zk {
 
 struct EndianAutoReset {
   explicit EndianAutoReset(base::Buffer& buffer, base::Endian endian)
@@ -16,6 +16,6 @@ struct EndianAutoReset {
   base::Endian old_endian;
 };
 
-}  // namespace tachyon::halo2_api
+}  // namespace tachyon::c::zk
 
-#endif  // VENDORS_HALO2_SRC_ENDIAN_AUTO_RESET_H_
+#endif  // TACHYON_C_ZK_PLONK_KEYS_ENDIAN_AUTO_RESET_H_

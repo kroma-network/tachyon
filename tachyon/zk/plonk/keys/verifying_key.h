@@ -18,7 +18,7 @@
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key_forward.h"
-#include "tachyon/zk/plonk/keys/halo2_api_proving_key_impl_base_forward.h"
+#include "tachyon/zk/plonk/keys/c_proving_key_impl_base_forward.h"
 #include "tachyon/zk/plonk/keys/key.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
@@ -49,6 +49,10 @@ class VerifyingKey : public Key {
 
   const F& transcript_repr() const { return transcript_repr_; }
 
+  void SetTranscriptReprForTesting(const F& transcript_repr) {
+    transcript_repr_ = transcript_repr;
+  }
+
   // Return true if it is able to load from an instance of |circuit|.
   template <typename PCS, typename Circuit>
   [[nodiscard]] bool Load(Entity<PCS>* entity, const Circuit& circuit) {
@@ -66,7 +70,7 @@ class VerifyingKey : public Key {
   template <typename Poly, typename Evals, typename Commitment>
   friend class ProvingKey;
   template <typename Poly, typename Evals, typename Commitment>
-  friend class halo2_api::ProvingKeyImplBase;
+  friend class c::zk::ProvingKeyImplBase;
 
   template <typename PCS, typename Evals, typename RationalEvals>
   bool DoLoad(Entity<PCS>* entity,

@@ -1,6 +1,7 @@
 #include "vendors/halo2/include/bn254_shplonk_prover.h"
 
 #include "tachyon/base/buffer/buffer.h"
+#include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/rs/base/container_util.h"
@@ -139,17 +140,21 @@ void SHPlonkProver::set_transcript(rust::Slice<const uint8_t> state) {
 }
 
 void SHPlonkProver::set_extended_domain(const ProvingKey& pk) {
-  impl_->SetExtendedDomain(pk.impl()->GetConstraintSystem());
+  const c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>*
+      cpp_key = reinterpret_cast<const c::zk::ProvingKeyImplBase<
+          PCS::Poly, PCS::Evals, PCS::Commitment>*>(pk.impl()->pk());
+  impl_->SetExtendedDomain(cpp_key->GetConstraintSystem());
 }
 
 void SHPlonkProver::create_proof(const ProvingKey& key,
                                  rust::Vec<InstanceSingle> instance_singles,
                                  rust::Vec<AdviceSingle> advice_singles,
                                  rust::Vec<Fr> challenges) {
-  const zk::ProvingKey<PCS::Poly, PCS::Evals, PCS::Commitment>& cpp_key =
-      key.impl()->key();
+  const c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>*
+      cpp_key = reinterpret_cast<const c::zk::ProvingKeyImplBase<
+          PCS::Poly, PCS::Evals, PCS::Commitment>*>(key.impl()->pk());
   impl_->SetBlindingFactors(
-      cpp_key.verifying_key().constraint_system().ComputeBlindingFactors());
+      cpp_key->verifying_key().constraint_system().ComputeBlindingFactors());
 
   size_t num_circuits = instance_singles.size();
   CHECK_EQ(num_circuits, advice_singles.size())
@@ -211,7 +216,7 @@ void SHPlonkProver::create_proof(const ProvingKey& key,
       std::move(advice_columns_vec), std::move(advice_blinds_vec),
       std::move(cpp_challenges), std::move(instance_columns_vec),
       std::move(instance_polys_vec));
-  impl_->CreateProof(cpp_key, &argument_data);
+  impl_->CreateProof(*cpp_key, &argument_data);
 }
 
 rust::Vec<uint8_t> SHPlonkProver::finalize_transcript() {
@@ -223,8 +228,13 @@ std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint32_t k, const Fr& s) {
 }
 
 rust::Box<Fr> ProvingKey::transcript_repr(const SHPlonkProver& prover) {
+  c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>* cpp_key =
+      reinterpret_cast<
+          c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>*>(
+          impl_->pk());
+  cpp_key->SetTranscriptRepr(prover.impl()->prover());
   math::bn254::Fr* ret =
-      new math::bn254::Fr(impl_->GetTranscriptRepr(prover.impl()->prover()));
+      new math::bn254::Fr(cpp_key->GetTranscriptRepr(prover.impl()->prover()));
   return rust::Box<Fr>::from_raw(reinterpret_cast<Fr*>(ret));
 }
 
