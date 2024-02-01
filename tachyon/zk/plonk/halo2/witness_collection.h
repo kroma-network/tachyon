@@ -63,8 +63,10 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
   }
 
   Value<F> GetChallenge(Challenge challenge) override {
-    CHECK_LT(challenge.index(), challenges_.size());
-    return Value<F>::Known(challenges_[challenge.index()]);
+    if (challenges_.find(challenge.index()) != challenges_.end())
+      return Value<F>::Known(challenges_[challenge.index()]);
+    else
+      return Value<F>::Unknown();
   }
 
  private:
