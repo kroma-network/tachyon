@@ -157,7 +157,7 @@ tachyon_cc_library(
         ":bn254_poly",
         ":bn254_rational_evals",
         "//tachyon/base/buffer",
-        "//tachyon/rs/base:rust_vec_copyable",
+        "//tachyon/rs/base:rust_vec",
     ],
 )
 

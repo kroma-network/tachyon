@@ -2,7 +2,7 @@
 
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
-#include "tachyon/rs/base/rust_vec_copyable.h"
+#include "tachyon/rs/base/rust_vec.h"
 #include "vendors/halo2/src/bn254.rs.h"
 
 namespace tachyon::halo2_api::bn254 {
