@@ -106,7 +106,6 @@ void SHPlonkProver::create_proof(const ProvingKey& key,
       tachyon_halo2_bn254_argument_data_create(num_circuits);
   tachyon_halo2_bn254_argument_data_reserve_challenges(data, challenges.size());
 
-  // TODO(chokobole): We shouldn't copy values here in the next iteration.
   size_t num_bytes = base::EstimateSize(rs::RustVec());
   for (size_t i = 0; i < num_circuits; ++i) {
     uint8_t* buffer_ptr = reinterpret_cast<uint8_t*>(advice_singles.data());
