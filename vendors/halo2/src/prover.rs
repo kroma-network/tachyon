@@ -67,7 +67,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                     }
 
                     for i in 0..values.len() {
-                        // NOTE(chokobole): I removed the P::QUERY_INSTANCE if statements since I can't make it compilable with the statement.
+                        // NOTE(chokobole): P::QUERY_INSTANCE is removed since this isn't compiled well with it.
                         // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L91.
                         transcript.common_scalar(values[i])?;
                         poly.set_value(i, &values[i]);
@@ -76,7 +76,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                 })
                 .collect::<Result<Vec<_>, _>>()?;
 
-            // NOTE(chokobole): I removed the P::QUERY_INSTANCE if statements since I can't make it compilable with the statement.
+            // NOTE(chokobole): P::QUERY_INSTANCE is removed since this isn't compiled well with it.
             // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L100-L117.
             let instance_polys: Vec<_> = instance_values
                 .iter()

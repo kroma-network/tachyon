@@ -57,7 +57,7 @@ def tachyon_deps():
 
     if not native.existing_rule("com_github_google_glog"):
         # TODO(chokobole): Bump up to 0.6.0.
-        # If I built with glog v0.6.0 and --config cuda, it gave me an error.
+        # glog v0.6.0 can't be built with --config cuda.
         http_archive(
             name = "com_github_google_glog",
             sha256 = "21bc744fb7f2fa701ee8db339ded7dce4f975d0d55837a97be7d46e8382dea5a",

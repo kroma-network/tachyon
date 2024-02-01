@@ -83,7 +83,7 @@ class UnivariateEvaluations final
   constexpr std::vector<F>& evaluations() { return evaluations_; }
 
   // NOTE(chokobole): Sometimes, this degree doesn't match with the exact
-  // degree of the coefficients that is produced by IFFT. I leave it for
+  // degree of the coefficients that is produced by IFFT. We leave it for
   // consistency with another polynomial.
   // For example, [0, 0, 0, 0] gives you 3, but it's 0 in reality.
   constexpr size_t Degree() const {
