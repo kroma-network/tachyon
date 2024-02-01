@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "tachyon/base/logging.h"
-#include "tachyon/rs/base/container_util.h"
 
 namespace tachyon::halo2_api {
 
@@ -29,11 +28,16 @@ std::unique_ptr<XORShiftRng> XORShiftRng::clone() const {
 }
 
 rust::Vec<uint8_t> XORShiftRng::state() const {
-  uint8_t state[kStateSize];
+  rust::Vec<uint8_t> ret;
+  // NOTE(chokobole): |rust::Vec<uint8_t>| doesn't have |resize()|.
+  ret.reserve(kStateSize);
+  for (size_t i = 0; i < kStateSize; ++i) {
+    ret.push_back(0);
+  }
   size_t state_len;
-  tachyon_rng_get_state(rng_, state, &state_len);
+  tachyon_rng_get_state(rng_, ret.data(), &state_len);
   CHECK_EQ(state_len, kStateSize);
-  return rs::ConvertCppContainerToRustVec(state);
+  return ret;
 }
 
 std::unique_ptr<XORShiftRng> new_xor_shift_rng(

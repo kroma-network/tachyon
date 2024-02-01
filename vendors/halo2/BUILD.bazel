@@ -186,6 +186,5 @@ tachyon_cc_library(
         ":xor_shift_rng_api_hdrs",
         ":xor_shift_rng_cxx_bridge/include",
         "//tachyon/base:logging",
-        "//tachyon/rs/base:container_util",
     ],
 )
