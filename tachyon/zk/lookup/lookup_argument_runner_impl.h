@@ -11,10 +11,10 @@
 #include <vector>
 
 #include "tachyon/base/ref.h"
+#include "tachyon/zk/base/rotation.h"
 #include "tachyon/zk/lookup/compress_expression.h"
 #include "tachyon/zk/lookup/lookup_argument_runner.h"
 #include "tachyon/zk/lookup/permute_expression_pair.h"
-#include "tachyon/zk/plonk/constraint_system/rotation.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 
 namespace tachyon::zk {

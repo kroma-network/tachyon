@@ -10,7 +10,7 @@
 #include <ostream>
 
 #include "tachyon/base/strings/rust_stringifier.h"
-#include "tachyon/zk/plonk/constraint_system/rotation.h"
+#include "tachyon/zk/base/rotation.h"
 
 namespace tachyon::base::internal {
 

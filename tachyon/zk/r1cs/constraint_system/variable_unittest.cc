@@ -1,4 +1,4 @@
-#include "tachyon/zk/r1cs/variable.h"
+#include "tachyon/zk/r1cs/constraint_system/variable.h"
 
 #include "gtest/gtest.h"
 

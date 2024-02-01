@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_ZK_R1CS_MATRIX_H_
-#define TACHYON_ZK_R1CS_MATRIX_H_
+#ifndef TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_MATRIX_H_
+#define TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_MATRIX_H_
 
 #include <stddef.h>
 
@@ -21,7 +21,7 @@
 namespace tachyon::zk::r1cs {
 
 // FIXME(chokobole): I want to separate |coefficient| from |Cell|.
-// See comments in tachyon/zk/r1cs/constraint_matrices.h.
+// See comments in tachyon/zk/r1cs/constraint_system/constraint_matrices.h.
 template <typename F>
 struct Cell {
   F coefficient;
@@ -76,4 +76,4 @@ class Matrix {
 
 }  // namespace tachyon::zk::r1cs
 
-#endif  // TACHYON_ZK_R1CS_MATRIX_H_
+#endif  // TACHYON_ZK_R1CS_CONSTRAINT_SYSTEM_MATRIX_H_
