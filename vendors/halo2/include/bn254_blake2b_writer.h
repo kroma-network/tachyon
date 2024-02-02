@@ -5,21 +5,26 @@
 
 #include <memory>
 
+#include "openssl/blake2.h"
 #include "rust/cxx.h"
+
+#include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 
 namespace tachyon::halo2_api::bn254 {
 
 class Blake2bWriter {
  public:
   Blake2bWriter();
+  Blake2bWriter(const Blake2bWriter& other) = delete;
+  Blake2bWriter& operator=(const Blake2bWriter& other) = delete;
+  ~Blake2bWriter();
 
   void update(rust::Slice<const uint8_t> data);
-  void finalize(std::array<uint8_t, 64>& result);
+  void finalize(std::array<uint8_t, BLAKE2B512_DIGEST_LENGTH>& result);
   rust::Vec<uint8_t> state() const;
 
  private:
-  class Impl;
-  std::shared_ptr<Impl> impl_;
+  tachyon_halo2_bn254_transcript_writer* writer_;
 };
 
 std::unique_ptr<Blake2bWriter> new_blake2b_writer();

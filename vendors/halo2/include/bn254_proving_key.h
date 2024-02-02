@@ -8,17 +8,21 @@
 
 #include "rust/cxx.h"
 
+#include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key.h"
+
 namespace tachyon::halo2_api::bn254 {
 
 struct Fr;
 class SHPlonkProver;
-class ProvingKeyImpl;
 
 class ProvingKey {
  public:
   explicit ProvingKey(rust::Slice<const uint8_t> pk_bytes);
+  ProvingKey(const ProvingKey& other) = delete;
+  ProvingKey& operator=(const ProvingKey& other) = delete;
+  ~ProvingKey();
 
-  const ProvingKeyImpl* impl() const { return impl_.get(); }
+  const tachyon_bn254_plonk_proving_key* pk() const { return pk_; }
 
   rust::Vec<uint8_t> advice_column_phases() const;
   uint32_t blinding_factors() const;
@@ -31,7 +35,10 @@ class ProvingKey {
   rust::Box<Fr> transcript_repr(const SHPlonkProver& prover);
 
  private:
-  std::shared_ptr<ProvingKeyImpl> impl_;
+  const tachyon_bn254_plonk_verifying_key* GetVerifyingKey() const;
+  const tachyon_bn254_plonk_constraint_system* GetConstraintSystem() const;
+
+  tachyon_bn254_plonk_proving_key* pk_;
 };
 
 std::unique_ptr<ProvingKey> new_proving_key(

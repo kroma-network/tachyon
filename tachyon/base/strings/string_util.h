@@ -1,6 +1,7 @@
 #ifndef TACHYON_BASE_STRINGS_STRING_UTIL_H_
 #define TACHYON_BASE_STRINGS_STRING_UTIL_H_
 
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -117,6 +118,17 @@ TACHYON_EXPORT std::string ToHexStringWithLeadingZero(const std::string& str,
                                                       size_t num);
 
 ALWAYS_INLINE const char* BoolToString(bool b) { return b ? "true" : "false"; }
+
+template <typename T>
+std::string OptionalToString(const std::optional<T>& value) {
+  if (!value.has_value()) return "None";
+  std::stringstream ss;
+  ss << "Some(";
+  // NOTE(chokobole): This is a trick to call |operator<<()| or |ToString()|.
+  google::MakeCheckOpValueString(&ss, value.value());
+  ss << ")";
+  return ss.str();
+}
 
 template <typename T>
 std::string VectorToString(const std::vector<T>& data) {

@@ -54,7 +54,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     // Selector optimizations cannot be applied here; use the ConstraintSystem
     // from the verification key.
 
-    let instance: Vec<InstanceSingle> = instances
+    let mut instance: Vec<InstanceSingle> = instances
         .iter()
         .map(|instance| -> Result<InstanceSingle, Error> {
             let instance_values = instance
@@ -67,7 +67,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                     }
 
                     for i in 0..values.len() {
-                        // NOTE(chokobole): I removed the P::QUERY_INSTANCE if statements since I can't make it compilable with the statement.
+                        // NOTE(chokobole): P::QUERY_INSTANCE is removed since this isn't compiled well with it.
                         // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L91.
                         transcript.common_scalar(values[i])?;
                         poly.set_value(i, &values[i]);
@@ -76,7 +76,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                 })
                 .collect::<Result<Vec<_>, _>>()?;
 
-            // NOTE(chokobole): I removed the P::QUERY_INSTANCE if statements since I can't make it compilable with the statement.
+            // NOTE(chokobole): P::QUERY_INSTANCE is removed since this isn't compiled well with it.
             // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L100-L117.
             let instance_polys: Vec<_> = instance_values
                 .iter()
@@ -247,7 +247,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
         }
     }
 
-    let (advice, challenges) = {
+    let (mut advice, challenges) = {
         let num_advice_columns = pk.num_advice_columns();
         let num_challenges = pk.num_challenges();
         let mut advice = vec![
@@ -322,7 +322,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                     }
                 }
 
-                let mut advice_assigned_values = witness
+                let advice_assigned_values = witness
                     .advice
                     .into_iter()
                     .enumerate()
@@ -340,7 +340,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                     .collect::<Vec<_>>();
                 let mut advice_values = vec![Evals::zero(); advice_assigned_values.len()];
                 prover.batch_evaluate(
-                    advice_assigned_values.as_mut_slice(),
+                    advice_assigned_values.as_slice(),
                     advice_values.as_mut_slice(),
                 );
 
@@ -402,7 +402,12 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
     prover.set_transcript(transcript.state().as_slice());
 
     let challenges = unsafe { std::mem::transmute::<_, Vec<crate::bn254::Fr>>(challenges) };
-    prover.create_proof(pk, instance, advice, challenges);
+    prover.create_proof(
+        pk,
+        instance.as_mut_slice(),
+        advice.as_mut_slice(),
+        challenges.as_slice(),
+    );
     Ok(())
 }
 

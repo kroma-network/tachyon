@@ -21,6 +21,14 @@ class ArgumentData {
  public:
   using F = typename Poly::Field;
 
+  // NOTE(chokobole): This constructor is used by the c api.
+  explicit ArgumentData(size_t num_circuits) {
+    advice_columns_vec_.resize(num_circuits);
+    advice_blinds_vec_.resize(num_circuits);
+    instance_columns_vec_.resize(num_circuits);
+    instance_polys_vec_.resize(num_circuits);
+  }
+
   ArgumentData(std::vector<std::vector<Evals>>&& advice_columns_vec,
                std::vector<std::vector<F>>&& advice_blinds_vec,
                std::vector<F>&& challenges,
@@ -66,6 +74,21 @@ class ArgumentData {
                         std::move(instance_polys_vec));
   }
 
+  // NOTE(chokobole): These getters are used by the c api.
+  std::vector<std::vector<Evals>>& advice_columns_vec() {
+    return advice_columns_vec_;
+  }
+  std::vector<std::vector<F>>& advice_blinds_vec() {
+    return advice_blinds_vec_;
+  }
+  std::vector<F>& challenges() { return challenges_; }
+  std::vector<std::vector<Evals>>& instance_columns_vec() {
+    return instance_columns_vec_;
+  }
+  std::vector<std::vector<Poly>>& instance_polys_vec() {
+    return instance_polys_vec_;
+  }
+
   size_t GetNumCircuits() const { return instance_columns_vec_.size(); }
 
   absl::Span<const F> GetAdviceBlinds(size_t circuit_idx) const {
@@ -83,6 +106,7 @@ class ArgumentData {
   // as soon as transforming it to coefficient form.
   template <typename Domain>
   void TransformAdvice(const Domain* domain) {
+    VLOG(2) << "Transform advice columns to polys";
     CHECK(!advice_transformed_);
     advice_polys_vec_ = base::Map(
         advice_columns_vec_, [domain](std::vector<Evals>& advice_columns) {
@@ -132,6 +156,7 @@ class ArgumentData {
   static std::vector<std::vector<Poly>> GenerateInstancePolys(
       ProverBase<PCS>* prover,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
+    VLOG(2) << "Generating instance polys";
     size_t num_circuit = instance_columns_vec.size();
     CHECK_GT(num_circuit, size_t{0});
     size_t num_instance_columns = instance_columns_vec[0].size();

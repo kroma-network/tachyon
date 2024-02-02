@@ -49,6 +49,8 @@ class BinaryMerkleTree final
   friend class VectorCommitmentScheme<BinaryMerkleTree<Leaf, Hash, MaxSize>>;
 
   // VectorCommitmentScheme methods
+  const char* Name() const { return "BinaryMerkleTree"; }
+
   size_t N() const { return MaxSize; }
 
   template <typename Container>

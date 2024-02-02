@@ -139,6 +139,7 @@ tachyon_cc_library(
         ":modulus",
         ":prime_field_base",
         "//tachyon/base:compiler_specific",
+        "//tachyon/base:logging",
         "//tachyon/base/containers:adapters",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:arithmetics",

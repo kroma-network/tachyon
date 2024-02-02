@@ -34,22 +34,31 @@ mod test {
         let tachyon_pk = ProvingKey::from(pk_bytes.as_slice());
 
         assert_eq!(
-            pk.vk.cs.advice_column_phase,
+            pk.get_vk().cs().advice_column_phase,
             tachyon_pk.advice_column_phases()
         );
         assert_eq!(
-            pk.vk.cs.blinding_factors(),
+            pk.get_vk().cs().blinding_factors(),
             tachyon_pk.blinding_factors() as usize
         );
-        assert_eq!(pk.vk.cs.challenge_phase, tachyon_pk.challenge_phases());
-        assert_eq!(pk.vk.cs.constants, tachyon_pk.constants());
-        assert_eq!(pk.vk.cs.num_advice_columns, tachyon_pk.num_advice_columns());
-        assert_eq!(pk.vk.cs.num_challenges, tachyon_pk.num_challenges());
         assert_eq!(
-            pk.vk.cs.num_instance_columns,
+            pk.get_vk().cs().challenge_phase,
+            tachyon_pk.challenge_phases()
+        );
+        assert_eq!(*pk.get_vk().cs().constants(), tachyon_pk.constants());
+        assert_eq!(
+            pk.get_vk().cs().num_advice_columns,
+            tachyon_pk.num_advice_columns()
+        );
+        assert_eq!(
+            pk.get_vk().cs().num_challenges(),
+            tachyon_pk.num_challenges()
+        );
+        assert_eq!(
+            pk.get_vk().cs().num_instance_columns,
             tachyon_pk.num_instance_columns()
         );
-        let phases = pk.vk.cs.phases().collect::<Vec<_>>();
+        let phases = pk.get_vk().cs().phases().collect::<Vec<_>>();
         assert_eq!(phases, tachyon_pk.phases());
     }
 }

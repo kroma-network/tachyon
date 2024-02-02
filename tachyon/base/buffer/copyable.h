@@ -12,7 +12,7 @@
 
 namespace tachyon::base {
 
-// NOTE(chokobole): I omitted |WriteTo()| and |ReadFrom()| on purpose.
+// NOTE(chokobole): We omitted |WriteTo()| and |ReadFrom()| on purpose.
 // The reason why |EstimateSize()| is implemented here is to enable other
 // |Copyable<T>| to use this. (e.g, Copyable<int>::EstimateSize(1))
 template <typename T>

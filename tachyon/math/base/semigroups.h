@@ -250,9 +250,11 @@ class AdditiveSemigroup {
     }
   }
 
-  // FIXME(chokobole): In g++ (Ubuntu 11.3.0-1ubuntu1~22.04.1) 11.3.0, if I use
-  // the function below, then it gives me an error "error: request for member
-  // 'operator*' is ambiguous".
+  // FIXME(chokobole): It would be nice to support multiplication operator
+  // when multiplying scalar. But in g++
+  // (Ubuntu 11.3.0-1ubuntu1~22.04.1) 11.3.0, the commented line isn't compiled
+  // with this error.
+  // "error: request for member 'operator*' is ambiguous".
   // constexpr auto operator*(const BigInt<N>& scalar) const {
   template <size_t N>
   [[nodiscard]] constexpr auto ScalarMul(const BigInt<N>& scalar) const {
@@ -307,7 +309,7 @@ class AdditiveSemigroup {
   // generator: G
   // return: [0G, 1G, 2G, ..., (|size| - 1)G]
   // NOTE(chokobole): Unlike |GetSuccessivePowers()|, this doesn't have an
-  // additional |c| parameter because I think there's no usecase that depends on
+  // additional |c| parameter because there's no usecase that depends on
   // it.
   constexpr static std::vector<AddResult> GetSuccessiveScalarMuls(
       size_t size, const G& generator) {
@@ -328,7 +330,7 @@ class AdditiveSemigroup {
   // Linear combination
   // - forward: a₀ * rⁿ⁻¹ + a₁ * rⁿ⁻² + ... + aₙ₋₁
   // - backward: a₀ + a₁ * r + ... + aₙ₋₁ * rⁿ⁻¹
-  // NOTE(chokobole): For performance reasons, I recommend using
+  // NOTE(chokobole): For performance reasons, we recommend using
   // |LinearCombinationInPlace()| if possible.
   template <bool Forward, typename Container, typename T>
   constexpr static AddResult LinearCombination(const Container& values,

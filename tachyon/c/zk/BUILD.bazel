@@ -1,6 +1,16 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "zk_hdrs",
-    srcs = ["//tachyon/c/zk/plonk:plonk_hdrs"],
+    srcs = [
+        "//tachyon/c/zk/base:base_hdrs",
+        "//tachyon/c/zk/plonk:plonk_hdrs",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_zk",
+    deps = ["//tachyon/c/zk/plonk:bn254_plonk"],
 )

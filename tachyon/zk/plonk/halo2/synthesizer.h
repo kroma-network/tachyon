@@ -42,6 +42,7 @@ class Synthesizer {
   void GenerateAdviceColumns(
       ProverBase<PCS>* prover, std::vector<Circuit>& circuits,
       const std::vector<std::vector<Evals>>& instance_columns_vec) {
+    VLOG(2) << "Generating advice columns";
     CHECK_EQ(num_circuits_, circuits.size());
 
     ConstraintSystem<F> empty_constraint_system;
@@ -148,8 +149,10 @@ class Synthesizer {
     const std::vector<Phase>& phases = constraint_system_->challenge_phases();
     for (size_t i = 0; i < phases.size(); ++i) {
       if (phase == phases[i]) {
-        auto it =
-            challenges_.try_emplace(i, prover->GetWriter()->SqueezeChallenge());
+        F challenge = prover->GetWriter()->SqueezeChallenge();
+        VLOG(2) << "Halo2(challenge[" << i
+                << "]): " << challenge.ToHexString(true);
+        auto it = challenges_.try_emplace(i, std::move(challenge));
         CHECK(it.second);
       }
     }

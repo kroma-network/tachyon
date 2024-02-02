@@ -314,7 +314,7 @@ class MixedRadixEvaluationDomain
     // 2 * |num_cosets|}, etc.) These are cosets with generator
     // g^{|num_cosets|}, and varying shifts.
     std::vector<PolyOrEvals> tmp =
-        base::CreateVector(num_cosets, PolyOrEvals::UnsafeZero(coset_size - 1));
+        base::CreateVector(num_cosets, PolyOrEvals::Zero(coset_size - 1));
     F new_omega = omega.Pow(num_cosets);
     uint32_t new_two_adicity =
         ComputeAdicity(2, gmp::FromUnsignedInt(coset_size));

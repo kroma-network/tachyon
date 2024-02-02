@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -22,6 +23,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
@@ -531,6 +533,22 @@ class ConstraintSystem {
   size_t ComputePermutationProductNums() const {
     size_t chunk_len = ComputePermutationChunkLen();
     return (permutation_.columns().size() + chunk_len - 1) / chunk_len;
+  }
+
+  std::string ToString() const {
+    std::stringstream ss;
+    ss << "num_fixed_columns: " << num_fixed_columns_
+       << ", num_advice_columns: " << num_advice_columns_
+       << ", num_instance_columns: " << num_instance_columns_
+       << ", num_selectors: " << num_selectors_
+       << ", num_challenges: " << num_challenges_
+       << ", degree: " << ComputeDegree()
+       << ", minimum_degree: " << base::OptionalToString(minimum_degree_)
+       << ", blinding_factors: " << ComputeBlindingFactors()
+       << ", max_phase: " << uint32_t{ComputeMaxPhase().value()}
+       << ", permutations: " << permutation_.columns().size()
+       << ", lookups: " << lookups_.size();
+    return ss.str();
   }
 
  private:

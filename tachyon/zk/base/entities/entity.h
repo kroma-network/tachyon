@@ -51,6 +51,9 @@ class Entity {
     return extended_domain_.get();
   }
   crypto::Transcript<Commitment>* transcript() { return transcript_.get(); }
+  const crypto::Transcript<Commitment>* transcript() const {
+    return transcript_.get();
+  }
 
  protected:
   PCS pcs_;

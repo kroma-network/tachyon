@@ -94,6 +94,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "",
       "class TACHYON_EXPORT %{class}Config {",
       " public:",
+      "  constexpr static const char* kName = \"%{namespace}::%{class}\";",
       "  constexpr static bool kIsSpecialPrime = false;",
       "",
       "  constexpr static size_t kModulusBits = %{modulus_bits};",

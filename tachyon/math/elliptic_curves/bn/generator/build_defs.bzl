@@ -90,6 +90,7 @@ def generate_bn_curves(
             fq12_dep,
             g1_dep,
             g2_dep,
+            "//tachyon/base:logging",
             "//tachyon/math/elliptic_curves/bn:bn_curve",
             "//tachyon/math/elliptic_curves/pairing:twist_type",
         ],

@@ -37,6 +37,7 @@ struct GenerationConfig : public build::CcWriter {
 int GenerationConfig::GenerateConfigHdr() const {
   std::vector<std::string_view> tpl = {
       // clang-format off
+      "#include \"tachyon/base/logging.h\"",
       "#include \"%{base_field_hdr}\"",
       "#include \"%{scalar_field_hdr}\"",
       "#include \"tachyon/math/base/gmp/gmp_util.h\"",
@@ -80,6 +81,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       "%{endomorphism_coefficient_init}",
       "%{lambda_init}",
       "%{glv_coeffs_init}",
+      "    VLOG(1) << \"%{namespace}::%{class} initialized\";",
       "  }",
       "",
       "  constexpr static BaseField MulByA(const BaseField& v) {",

@@ -68,6 +68,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   template <typename, size_t, size_t, typename>
   friend class zk::SHPlonkExtension;
 
+  const char* Name() const { return "SHPlonk"; }
+
   const std::vector<G1Point>& GetG1PowersOfTau() const {
     return this->kzg_.g1_powers_of_tau();
   }
@@ -94,6 +96,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         grouper.super_point_set();
 
     Field y = writer->SqueezeChallenge();
+    VLOG(2) << "SHPlonk(y): " << y.ToHexString(true);
 
     // Create [H₀(X), H₁(X), H₂(X)].
     // clang-format off
@@ -113,6 +116,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         });
 
     Field v = writer->SqueezeChallenge();
+    VLOG(2) << "SHPlonk(v): " << v.ToHexString(true);
 
     // Create a linear combination of polynomials [H₀(X), H₁(X), H₂(X)] with
     // with |v|.
@@ -126,6 +130,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
 
     if (!writer->WriteToProof(h)) return false;
     Field u = writer->SqueezeChallenge();
+    VLOG(2) << "SHPlonk(u): " << u.ToHexString(true);
 
     // Create [L₀(X), L₁(X), L₂(X)].
     // clang-format off
@@ -217,12 +222,15 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     using G1JacobianPoint = math::JacobianPoint<typename G1Point::Curve>;
 
     Field y = reader->SqueezeChallenge();
+    VLOG(2) << "SHPlonk(y): " << y.ToHexString(true);
     Field v = reader->SqueezeChallenge();
+    VLOG(2) << "SHPlonk(v): " << v.ToHexString(true);
 
     Commitment h;
     if (!reader->ReadFromProof(&h)) return false;
 
     Field u = reader->SqueezeChallenge();
+    VLOG(2) << "SHPlonk(u): " << u.ToHexString(true);
 
     Commitment q;
     if (!reader->ReadFromProof(&q)) return false;

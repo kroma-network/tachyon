@@ -48,8 +48,16 @@ class TranscriptImpl<_Commitment, false> {
     return static_cast<TranscriptWriterImpl<Commitment, false>*>(this);
   }
 
+  const TranscriptWriterImpl<Commitment, false>* ToWriter() const {
+    return static_cast<const TranscriptWriterImpl<Commitment, false>*>(this);
+  }
+
   TranscriptReaderImpl<Commitment, false>* ToReader() {
     return static_cast<TranscriptReaderImpl<Commitment, false>*>(this);
+  }
+
+  const TranscriptReaderImpl<Commitment, false>* ToReader() const {
+    return static_cast<const TranscriptReaderImpl<Commitment, false>*>(this);
   }
 };
 
@@ -71,8 +79,16 @@ class TranscriptImpl<_Field, true> {
     return static_cast<TranscriptWriterImpl<Field, true>*>(this);
   }
 
+  const TranscriptWriterImpl<Field, true>* ToWriter() const {
+    return static_cast<const TranscriptWriterImpl<Field, true>*>(this);
+  }
+
   TranscriptReaderImpl<Field, true>* ToReader() {
     return static_cast<TranscriptReaderImpl<Field, true>*>(this);
+  }
+
+  const TranscriptReaderImpl<Field, true>* ToReader() const {
+    return static_cast<const TranscriptReaderImpl<Field, true>*>(this);
   }
 };
 
@@ -166,12 +182,15 @@ class TranscriptWriterImpl<Commitment, false> : public Transcript<Commitment> {
   // Write a |commitment| to the proof. Note that it also writes the
   // |commitment| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool WriteToProof(const Commitment& commitment) {
+    VLOG(3) << "Proof[" << proof_idx_++
+            << "]: " << commitment.ToHexString(true);
     return this->WriteToTranscript(commitment) && DoWriteToProof(commitment);
   }
 
   // Write a |value| to the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool WriteToProof(const Field& value) {
+    VLOG(3) << "Proof[" << proof_idx_++ << "]: " << value.ToHexString(true);
     return this->WriteToTranscript(value) && DoWriteToProof(value);
   }
 
@@ -183,6 +202,7 @@ class TranscriptWriterImpl<Commitment, false> : public Transcript<Commitment> {
   [[nodiscard]] virtual bool DoWriteToProof(const Field& value) = 0;
 
   base::Uint8VectorBuffer buffer_;
+  size_t proof_idx_ = 0;
 };
 
 // Transcript view from the perspective of a prover that has access to an output
@@ -203,6 +223,7 @@ class TranscriptWriterImpl<Field, true> : public Transcript<Field> {
   // Write a |value| to the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool WriteToProof(const Field& value) {
+    VLOG(3) << "Proof[" << proof_idx_++ << "]: " << value.ToHexString(true);
     return this->WriteToTranscript(value) && DoWriteToProof(value);
   }
 
@@ -211,6 +232,7 @@ class TranscriptWriterImpl<Field, true> : public Transcript<Field> {
   [[nodiscard]] virtual bool DoWriteToProof(const Field& value) = 0;
 
   base::Uint8VectorBuffer buffer_;
+  size_t proof_idx_ = 0;
 };
 
 template <typename T>

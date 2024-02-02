@@ -78,6 +78,7 @@ def generate_bls12_curves(
             fq12_dep,
             g1_dep,
             g2_dep,
+            "//tachyon/base:logging",
             "//tachyon/math/elliptic_curves/bls12:bls12_curve",
             "//tachyon/math/elliptic_curves/pairing:twist_type",
         ],

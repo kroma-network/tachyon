@@ -10,12 +10,12 @@ using namespace tachyon;
 
 namespace {
 
-// NOTE(chokobole): I set |kMaxDegree| and |kMaxExtendedDegree| to |SIZE_MAX| on
-// purpose to avoid creating a variant apis corresponding to the set of each
+// NOTE(chokobole): We set |kMaxDegree| and |kMaxExtendedDegree| to |SIZE_MAX|
+// on purpose to avoid creating variant apis corresponding to the set of each
 // degree.
 constexpr size_t kMaxDegree = SIZE_MAX;
 
-// NOTE(chokobole): I assume that proving key has univariate dense polynomial
+// NOTE(chokobole): It assumes that proving key has univariate dense polynomial
 // and evaluations.
 using Poly = math::UnivariateDensePolynomial<math::bn254::Fr, kMaxDegree>;
 using Evals = math::UnivariateEvaluations<math::bn254::Fr, kMaxDegree>;

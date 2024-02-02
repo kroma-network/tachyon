@@ -172,7 +172,7 @@ mod test {
             .expect("proof generation should not fail");
 
             let mut proof = transcript.finalize();
-            let proof_last = prover.finalize_transcript();
+            let proof_last = prover.get_proof();
             proof.extend_from_slice(&proof_last);
             proof
         };

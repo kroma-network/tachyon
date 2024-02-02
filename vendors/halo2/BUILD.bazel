@@ -79,7 +79,15 @@ tachyon_cc_library(
         "include/bn254_rational_evals.h",
         "include/bn254_shplonk_prover.h",
     ],
-    deps = ["@cxx.rs//:core"],
+    deps = [
+        "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
+        "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluations",
+        "//tachyon/c/math/polynomials/univariate:bn254_univariate_rational_evaluations",
+        "//tachyon/c/zk/plonk/halo2:bn254_shplonk_prover",
+        "//tachyon/c/zk/plonk/halo2:bn254_transcript",
+        "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key",
+        "@cxx.rs//:core",
+    ],
 )
 
 tachyon_cc_library(
@@ -89,22 +97,15 @@ tachyon_cc_library(
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
         "//tachyon/base:logging",
-        "//tachyon/c/zk/plonk/halo2:bn254_transcript",
     ],
 )
 
 tachyon_cc_library(
     name = "bn254_evals",
-    srcs = [
-        "src/bn254_evals.cc",
-        "src/bn254_evals_impl.h",
-    ],
+    srcs = ["src/bn254_evals.cc"],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
-        ":degrees",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/polynomials/univariate:univariate_evaluations",
     ],
 )
 
@@ -130,32 +131,19 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "bn254_poly",
-    srcs = [
-        "src/bn254_poly.cc",
-        "src/bn254_poly_impl.h",
-    ],
+    srcs = ["src/bn254_poly.cc"],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
-        ":degrees",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/polynomials/univariate:univariate_polynomial",
     ],
 )
 
 tachyon_cc_library(
     name = "bn254_rational_evals",
-    srcs = [
-        "src/bn254_rational_evals.cc",
-        "src/bn254_rational_evals_impl.h",
-    ],
+    srcs = ["src/bn254_rational_evals.cc"],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
-        ":degrees",
-        "//tachyon/math/base:rational_field",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/polynomials/univariate:univariate_evaluations",
     ],
 )
 
@@ -167,33 +155,9 @@ tachyon_cc_library(
         ":bn254_cxx_bridge/include",
         ":bn254_evals",
         ":bn254_poly",
-        ":bn254_proving_key_impl",
         ":bn254_rational_evals",
-        ":bn254_shplonk_prover_impl",
         "//tachyon/base/buffer",
-        "//tachyon/c/zk/plonk/keys:proving_key_impl_base",
-        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
-        "//tachyon/rs/base:container_util",
-        "//tachyon/rs/base:rust_vec_copyable",
-    ],
-)
-
-tachyon_cc_library(
-    name = "bn254_shplonk_prover_impl",
-    hdrs = [
-        "src/bn254_shplonk_prover_impl.h",
-        "src/prover_impl.h",
-    ],
-    deps = [
-        ":bn254_proving_key_impl",
-        ":degrees",
-        "//tachyon/base/buffer",
-        "//tachyon/base/functional:callback",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/base/commitments:shplonk_extension",
-        "//tachyon/zk/plonk/halo2:blake2b_transcript",
-        "//tachyon/zk/plonk/halo2:prover",
+        "//tachyon/rs/base:rust_vec",
     ],
 )
 
@@ -203,25 +167,16 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
-        ":bn254_proving_key_impl",
     ],
-)
-
-tachyon_cc_library(
-    name = "bn254_proving_key_impl",
-    srcs = ["src/bn254_proving_key_impl.h"],
-    deps = ["//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key"],
-)
-
-tachyon_cc_library(
-    name = "degrees",
-    hdrs = ["src/degrees.h"],
 )
 
 tachyon_cc_library(
     name = "xor_shift_rng_api_hdrs",
     hdrs = ["include/xor_shift_rng.h"],
-    deps = ["@cxx.rs//:core"],
+    deps = [
+        "//tachyon/c/crypto/random:rng",
+        "@cxx.rs//:core",
+    ],
 )
 
 tachyon_cc_library(
@@ -231,7 +186,5 @@ tachyon_cc_library(
         ":xor_shift_rng_api_hdrs",
         ":xor_shift_rng_cxx_bridge/include",
         "//tachyon/base:logging",
-        "//tachyon/c/crypto/random:rng",
-        "//tachyon/rs/base:container_util",
     ],
 )

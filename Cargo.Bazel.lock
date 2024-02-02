@@ -1,5 +1,5 @@
 {
-  "checksum": "ba3a401aa4da7f571c84122a60dc89d1f42be12df9d18eff822dae1683b0a824",
+  "checksum": "78504ed4df18400abd203d18dab21dca96cf3f1017e238f4f1c4f87bac1d1cfb",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -3013,7 +3013,7 @@
         "Git": {
           "remote": "https://github.com/kroma-network/halo2.git",
           "commitish": {
-            "Rev": "746e4ac"
+            "Rev": "be2e64f"
           },
           "strip_prefix": "halo2_proofs"
         }

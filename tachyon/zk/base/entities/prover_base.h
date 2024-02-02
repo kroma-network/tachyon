@@ -41,6 +41,9 @@ class ProverBase : public Entity<PCS> {
   crypto::TranscriptWriter<Commitment>* GetWriter() {
     return this->transcript()->ToWriter();
   }
+  const crypto::TranscriptWriter<Commitment>* GetWriter() const {
+    return this->transcript()->ToWriter();
+  }
 
   RowIndex GetUsableRows() const {
     return this->domain_->size() - (blinder_.blinding_factors() + 1);

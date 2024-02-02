@@ -72,7 +72,8 @@ class ProvingKey : public Key {
     using Domain = typename PCS::Domain;
 
     // NOTE(chokobole): |ComputeBlindingFactors()| is a second call. The first
-    // was called inside |PreLoad()|. But I think this is cheap to compute.
+    // was called inside |PreLoad()|. But it's okay since this is cheap to
+    // compute.
     prover->blinder().set_blinding_factors(
         verifying_key_.constraint_system().ComputeBlindingFactors());
 

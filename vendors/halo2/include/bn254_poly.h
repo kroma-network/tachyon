@@ -1,21 +1,32 @@
 #ifndef VENDORS_HALO2_INCLUDE_BN254_POLY_H_
 #define VENDORS_HALO2_INCLUDE_BN254_POLY_H_
 
-#include <memory>
+#include <utility>
+
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial.h"
 
 namespace tachyon::halo2_api::bn254 {
-
-class PolyImpl;
 
 class Poly {
  public:
   Poly();
+  explicit Poly(tachyon_bn254_univariate_dense_polynomial* poly)
+      : poly_(poly) {}
+  Poly(const Poly& other) = delete;
+  Poly& operator=(const Poly& other) = delete;
+  ~Poly();
 
-  PolyImpl* impl() { return impl_.get(); }
-  const PolyImpl* impl() const { return impl_.get(); }
+  tachyon_bn254_univariate_dense_polynomial* poly() { return poly_; }
+  const tachyon_bn254_univariate_dense_polynomial* poly() const {
+    return poly_;
+  }
+
+  tachyon_bn254_univariate_dense_polynomial* release() {
+    return std::exchange(poly_, nullptr);
+  }
 
  private:
-  std::shared_ptr<PolyImpl> impl_;
+  tachyon_bn254_univariate_dense_polynomial* poly_;
 };
 
 }  // namespace tachyon::halo2_api::bn254

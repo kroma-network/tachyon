@@ -68,7 +68,10 @@ class ProofReader {
       }
       for (Phase phase : constraint_system.challenge_phases()) {
         if (current_phase == phase) {
-          proof_.challenges.push_back(transcript_->SqueezeChallenge());
+          F challenge = transcript_->SqueezeChallenge();
+          VLOG(2) << "Halo2(challenge[" << phase.value()
+                  << "]): " << challenge.ToHexString(true);
+          proof_.challenges.push_back(std::move(challenge));
         }
       }
     }
@@ -78,6 +81,7 @@ class ProofReader {
   void ReadTheta() {
     CHECK_EQ(cursor_, ProofCursor::kTheta);
     proof_.theta = transcript_->SqueezeChallenge();
+    VLOG(2) << "Halo2(theta): " << proof_.theta.ToHexString(true);
     cursor_ = ProofCursor::kLookupPermutedCommitments;
   }
 
@@ -98,7 +102,9 @@ class ProofReader {
   void ReadBetaAndGamma() {
     CHECK_EQ(cursor_, ProofCursor::kBetaAndGamma);
     proof_.beta = transcript_->SqueezeChallenge();
+    VLOG(2) << "Halo2(beta): " << proof_.beta.ToHexString(true);
     proof_.gamma = transcript_->SqueezeChallenge();
+    VLOG(2) << "Halo2(gamma): " << proof_.gamma.ToHexString(true);
     cursor_ = ProofCursor::kPermutationProductCommitments;
   }
 
@@ -131,6 +137,7 @@ class ProofReader {
   void ReadY() {
     CHECK_EQ(cursor_, ProofCursor::kY);
     proof_.y = transcript_->SqueezeChallenge();
+    VLOG(2) << "Halo2(y): " << proof_.y.ToHexString(true);
     cursor_ = ProofCursor::kVanishingHPolyCommitments;
   }
 
@@ -145,6 +152,7 @@ class ProofReader {
   void ReadX() {
     CHECK_EQ(cursor_, ProofCursor::kX);
     proof_.x = transcript_->SqueezeChallenge();
+    VLOG(2) << "Halo2(x): " << proof_.x.ToHexString(true);
     cursor_ = ProofCursor::kInstanceEvals;
   }
 

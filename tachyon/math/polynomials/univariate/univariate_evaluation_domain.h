@@ -102,7 +102,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   template <typename T>
   constexpr T Empty() const {
-    return T::UnsafeZero(size_ - 1);
+    return T::Zero(size_ - 1);
   }
 
   template <typename T>

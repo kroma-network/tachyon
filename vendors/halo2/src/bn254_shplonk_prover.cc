@@ -1,182 +1,111 @@
 #include "vendors/halo2/include/bn254_shplonk_prover.h"
 
 #include "tachyon/base/buffer/buffer.h"
-#include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
-#include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
-#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
-#include "tachyon/rs/base/container_util.h"
-#include "tachyon/rs/base/rust_vec_copyable.h"
-#include "vendors/halo2/include/bn254_evals.h"
-#include "vendors/halo2/include/bn254_poly.h"
-#include "vendors/halo2/include/bn254_rational_evals.h"
+#include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
+#include "tachyon/rs/base/rust_vec.h"
 #include "vendors/halo2/src/bn254.rs.h"
-#include "vendors/halo2/src/bn254_evals_impl.h"
-#include "vendors/halo2/src/bn254_poly_impl.h"
-#include "vendors/halo2/src/bn254_proving_key_impl.h"
-#include "vendors/halo2/src/bn254_rational_evals_impl.h"
-#include "vendors/halo2/src/bn254_shplonk_prover_impl.h"
 
 namespace tachyon::halo2_api::bn254 {
 
-namespace {
-
-rust::Box<G1JacobianPoint> DoCommit(
-    const std::vector<math::bn254::G1AffinePoint>& cpp_bases,
-    const std::vector<math::bn254::Fr>& scalars) {
-  math::VariableBaseMSM<math::bn254::G1AffinePoint> msm;
-  math::VariableBaseMSM<math::bn254::G1AffinePoint>::Bucket bucket;
-  CHECK(msm.Run(cpp_bases, scalars, &bucket));
-  math::bn254::G1JacobianPoint* result = new math::bn254::G1JacobianPoint;
-  *result = bucket.ToJacobian();
-  return rust::Box<G1JacobianPoint>::from_raw(
-      reinterpret_cast<G1JacobianPoint*>(result));
-}
-
-PCS::Evals ReadEvals(uint8_t* vec_ptr, size_t i) {
-  size_t num_bytes = sizeof(uintptr_t);
-  base::Buffer buffer(&vec_ptr[num_bytes * i], num_bytes);
-  uintptr_t ptr;
-  CHECK(buffer.Read(&ptr));
-  Evals* evals = reinterpret_cast<Evals*>(ptr);
-  return std::move(*evals->impl()).TakeEvals();
-}
-
-PCS::Poly ReadPoly(uint8_t* vec_ptr, size_t i) {
-  size_t num_bytes = sizeof(uintptr_t);
-  base::Buffer buffer(&vec_ptr[num_bytes * i], num_bytes);
-  uintptr_t ptr;
-  CHECK(buffer.Read(&ptr));
-  Poly* poly = reinterpret_cast<Poly*>(ptr);
-  return std::move(*poly->impl()).TakePoly();
-}
-
-}  // namespace
-
 SHPlonkProver::SHPlonkProver(uint32_t k, const Fr& s)
-    : impl_(new SHPlonkProverImpl(k, s)) {}
+    : prover_(tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
+          TACHYON_HALO2_BLAKE_TRANSCRIPT, k,
+          reinterpret_cast<const tachyon_bn254_fr*>(&s))) {}
 
-uint32_t SHPlonkProver::k() const { return static_cast<uint32_t>(impl_->K()); }
+SHPlonkProver::~SHPlonkProver() {
+  tachyon_halo2_bn254_shplonk_prover_destroy(prover_);
+}
 
-uint64_t SHPlonkProver::n() const { return static_cast<uint64_t>(impl_->N()); }
+uint32_t SHPlonkProver::k() const {
+  return tachyon_halo2_bn254_shplonk_prover_get_k(prover_);
+}
+
+uint64_t SHPlonkProver::n() const {
+  return static_cast<uint64_t>(
+      tachyon_halo2_bn254_shplonk_prover_get_n(prover_));
+}
 
 rust::Box<G1JacobianPoint> SHPlonkProver::commit(const Poly& poly) const {
-  return DoCommit(impl_->prover().pcs().GetG1PowersOfTau(),
-                  poly.impl()->poly().coefficients().coefficients());
+  return rust::Box<G1JacobianPoint>::from_raw(
+      reinterpret_cast<G1JacobianPoint*>(
+          tachyon_halo2_bn254_shplonk_prover_commit(prover_, poly.poly())));
 }
 
 rust::Box<G1JacobianPoint> SHPlonkProver::commit_lagrange(
     const Evals& evals) const {
-  return DoCommit(impl_->prover().pcs().GetG1PowersOfTauLagrange(),
-                  evals.impl()->evals().evaluations());
+  return rust::Box<G1JacobianPoint>::from_raw(
+      reinterpret_cast<G1JacobianPoint*>(
+          tachyon_halo2_bn254_shplonk_prover_commit_lagrange(prover_,
+                                                             evals.evals())));
 }
 
 std::unique_ptr<Evals> SHPlonkProver::empty_evals() const {
-  const PCS::Domain* domain = impl_->prover().domain();
-  PCS::Evals evals = domain->Empty<PCS::Evals>();
-  std::unique_ptr<Evals> ret(new Evals());
-  PCS::Evals& impl = reinterpret_cast<PCS::Evals&>(ret->impl()->evals());
-  impl = std::move(evals);
-  return ret;
+  return std::make_unique<Evals>(
+      tachyon_bn254_univariate_evaluation_domain_empty_evals(
+          tachyon_halo2_bn254_shplonk_prover_get_domain(prover_)));
 }
 
 std::unique_ptr<RationalEvals> SHPlonkProver::empty_rational_evals() const {
-  const PCS::Domain* domain = impl_->prover().domain();
-  PCS::RationalEvals evals = domain->Empty<PCS::RationalEvals>();
-  std::unique_ptr<RationalEvals> ret(new RationalEvals());
-  PCS::RationalEvals& impl =
-      reinterpret_cast<PCS::RationalEvals&>(ret->impl()->evals());
-  impl = std::move(evals);
-  return ret;
+  return std::make_unique<RationalEvals>(
+      tachyon_bn254_univariate_evaluation_domain_empty_rational_evals(
+          tachyon_halo2_bn254_shplonk_prover_get_domain(prover_)));
 }
 
 std::unique_ptr<Poly> SHPlonkProver::ifft(const Evals& evals) const {
-  const PCS::Domain* domain = impl_->prover().domain();
-  PCS::Poly poly =
-      domain->IFFT(reinterpret_cast<const PCS::Evals&>(evals.impl()->evals()));
-  std::unique_ptr<Poly> ret(new Poly());
-  PCS::Poly& impl = reinterpret_cast<PCS::Poly&>(ret->impl()->poly());
-  impl = std::move(poly);
-  // NOTE(chokobole): The zero degrees might be removed. This is not compatible
-  // with rust halo2.
-  impl.coefficients().coefficients().resize(domain->size());
-  return ret;
+  // NOTE(chokobole): The zero degrees might be removed. This might cause an
+  // unexpected error if you use this carelessly. Since this is only used to
+  // compute instance polynomial and this is used only in Tachyon side, so it's
+  // fine.
+  return std::make_unique<Poly>(tachyon_bn254_univariate_evaluation_domain_ifft(
+      tachyon_halo2_bn254_shplonk_prover_get_domain(prover_), evals.evals()));
 }
 
 void SHPlonkProver::batch_evaluate(
-    rust::Slice<std::unique_ptr<RationalEvals>> rational_evals,
+    rust::Slice<const std::unique_ptr<RationalEvals>> rational_evals,
     rust::Slice<std::unique_ptr<Evals>> evals) const {
-  std::vector<PCS::RationalEvals> cpp_rational_evals = base::Map(
-      rational_evals, [](std::unique_ptr<RationalEvals>& rational_eval) {
-        return PCS::RationalEvals(
-            std::move(*rational_eval->impl()).TakeEvals());
-      });
-  for (size_t i = 0; i < cpp_rational_evals.size(); ++i) {
-    const PCS::RationalEvals& cpp_rational_eval = cpp_rational_evals[i];
-    std::vector<math::bn254::Fr> cpp_values(cpp_rational_eval.NumElements());
-    CHECK(math::RationalField<math::bn254::Fr>::BatchEvaluate(
-        cpp_rational_eval.evaluations(), &cpp_values));
-    evals[i]->impl()->evals() = PCS::Evals(std::move(cpp_values));
+  for (size_t i = 0; i < rational_evals.size(); ++i) {
+    evals[i] = std::make_unique<Evals>(
+        tachyon_bn254_univariate_rational_evaluations_batch_evaluate(
+            rational_evals[i]->evals()));
   }
 }
 
 void SHPlonkProver::set_rng(rust::Slice<const uint8_t> state) {
-  base::Buffer buffer(const_cast<uint8_t*>(state.data()), state.size());
-  uint32_t x, y, z, w;
-  CHECK(buffer.Read32LE(&x));
-  CHECK(buffer.Read32LE(&y));
-  CHECK(buffer.Read32LE(&z));
-  CHECK(buffer.Read32LE(&w));
-  impl_->SetRng(std::make_unique<crypto::XORShiftRNG>(
-      crypto::XORShiftRNG::FromState(x, y, z, w)));
+  tachyon_halo2_bn254_shplonk_prover_set_rng_state(prover_, state.data(),
+                                                   state.size());
 }
 
 void SHPlonkProver::set_transcript(rust::Slice<const uint8_t> state) {
-  base::Uint8VectorBuffer write_buf;
-  std::unique_ptr<zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>
-      writer = std::make_unique<
-          zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
-          std::move(write_buf));
-  writer->SetState(rs::ConvertRustSliceToCppSpan<const uint8_t>(state));
-  impl_->SetTranscript(std::move(writer));
+  tachyon_halo2_bn254_shplonk_prover_set_transcript_state(prover_, state.data(),
+                                                          state.size());
 }
 
 void SHPlonkProver::set_extended_domain(const ProvingKey& pk) {
-  const c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>*
-      cpp_key = reinterpret_cast<const c::zk::ProvingKeyImplBase<
-          PCS::Poly, PCS::Evals, PCS::Commitment>*>(pk.impl()->pk());
-  impl_->SetExtendedDomain(cpp_key->GetConstraintSystem());
+  tachyon_halo2_bn254_shplonk_prover_set_extended_domain(prover_, pk.pk());
 }
 
 void SHPlonkProver::create_proof(const ProvingKey& key,
-                                 rust::Vec<InstanceSingle> instance_singles,
-                                 rust::Vec<AdviceSingle> advice_singles,
-                                 rust::Vec<Fr> challenges) {
-  const c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>*
-      cpp_key = reinterpret_cast<const c::zk::ProvingKeyImplBase<
-          PCS::Poly, PCS::Evals, PCS::Commitment>*>(key.impl()->pk());
-  impl_->SetBlindingFactors(
-      cpp_key->verifying_key().constraint_system().ComputeBlindingFactors());
+                                 rust::Slice<InstanceSingle> instance_singles,
+                                 rust::Slice<AdviceSingle> advice_singles,
+                                 rust::Slice<const Fr> challenges) {
+  tachyon_bn254_blinder* blinder =
+      tachyon_halo2_bn254_shplonk_prover_get_blinder(prover_);
+  const tachyon_bn254_plonk_verifying_key* vk =
+      tachyon_bn254_plonk_proving_key_get_verifying_key(key.pk());
+  const tachyon_bn254_plonk_constraint_system* cs =
+      tachyon_bn254_plonk_verifying_key_get_constraint_system(vk);
+  uint32_t blinding_factors =
+      tachyon_bn254_plonk_constraint_system_compute_blinding_factors(cs);
+  tachyon_halo2_bn254_blinder_set_blinding_factors(blinder, blinding_factors);
 
   size_t num_circuits = instance_singles.size();
   CHECK_EQ(num_circuits, advice_singles.size())
       << "size of |instance_singles| and |advice_singles| don't match";
 
-  std::vector<std::vector<PCS::Evals>> advice_columns_vec;
-  advice_columns_vec.resize(num_circuits);
-  std::vector<std::vector<math::bn254::Fr>> advice_blinds_vec;
-  advice_blinds_vec.resize(num_circuits);
+  tachyon_halo2_bn254_argument_data* data =
+      tachyon_halo2_bn254_argument_data_create(num_circuits);
+  tachyon_halo2_bn254_argument_data_reserve_challenges(data, challenges.size());
 
-  std::vector<math::bn254::Fr> cpp_challenges =
-      base::Map(challenges, [](const Fr& fr) {
-        return reinterpret_cast<const math::bn254::Fr&>(fr);
-      });
-
-  std::vector<std::vector<PCS::Evals>> instance_columns_vec;
-  instance_columns_vec.resize(num_circuits);
-  std::vector<std::vector<PCS::Poly>> instance_polys_vec;
-  instance_polys_vec.resize(num_circuits);
-
-  // TODO(chokobole): We shouldn't copy values here in the next iteration.
   size_t num_bytes = base::EstimateSize(rs::RustVec());
   for (size_t i = 0; i < num_circuits; ++i) {
     uint8_t* buffer_ptr = reinterpret_cast<uint8_t*>(advice_singles.data());
@@ -185,43 +114,67 @@ void SHPlonkProver::create_proof(const ProvingKey& key,
 
     CHECK(buffer.Read(&vec));
     size_t num_advice_columns = vec.length;
-    uint8_t* vec_ptr = reinterpret_cast<uint8_t*>(vec.ptr);
-    advice_columns_vec[i] = base::CreateVector(
-        num_advice_columns,
-        [vec_ptr](size_t j) { return ReadEvals(vec_ptr, j); });
+    uintptr_t* advice_columns_ptr = reinterpret_cast<uintptr_t*>(vec.ptr);
+    tachyon_halo2_bn254_argument_data_reserve_advice_columns(
+        data, i, num_advice_columns);
+    for (size_t j = 0; j < num_advice_columns; ++j) {
+      tachyon_halo2_bn254_argument_data_add_advice_column(
+          data, i, reinterpret_cast<Evals*>(advice_columns_ptr[j])->release());
+    }
 
     CHECK(buffer.Read(&vec));
-    vec_ptr = reinterpret_cast<uint8_t*>(vec.ptr);
-    advice_blinds_vec[i] = vec.ToVec<math::bn254::Fr>();
+    size_t num_blinds = vec.length;
+    const tachyon_bn254_fr* blinds_ptr =
+        reinterpret_cast<const tachyon_bn254_fr*>(vec.ptr);
+    tachyon_halo2_bn254_argument_data_reserve_advice_blinds(data, i,
+                                                            num_blinds);
+    for (size_t j = 0; j < num_blinds; ++j) {
+      tachyon_halo2_bn254_argument_data_add_advice_blind(data, i,
+                                                         &blinds_ptr[j]);
+    }
 
     buffer_ptr = reinterpret_cast<uint8_t*>(instance_singles.data());
     buffer = base::Buffer(&buffer_ptr[num_bytes * 2 * i], num_bytes * 2);
 
     CHECK(buffer.Read(&vec));
     size_t num_instance_columns = vec.length;
-    vec_ptr = reinterpret_cast<uint8_t*>(vec.ptr);
-    instance_columns_vec[i] = base::CreateVector(
-        num_instance_columns,
-        [vec_ptr](size_t j) { return ReadEvals(vec_ptr, j); });
+    uintptr_t* instance_columns_ptr = reinterpret_cast<uintptr_t*>(vec.ptr);
+    tachyon_halo2_bn254_argument_data_reserve_instance_columns(
+        data, i, num_instance_columns);
+    for (size_t j = 0; j < num_instance_columns; ++j) {
+      tachyon_halo2_bn254_argument_data_add_instance_column(
+          data, i,
+          reinterpret_cast<Evals*>(instance_columns_ptr[j])->release());
+    }
 
     CHECK(buffer.Read(&vec));
     CHECK_EQ(num_instance_columns, vec.length)
         << "size of instance columns don't match";
-    vec_ptr = reinterpret_cast<uint8_t*>(vec.ptr);
-    instance_polys_vec[i] = base::CreateVector(
-        num_instance_columns,
-        [vec_ptr](size_t j) { return ReadPoly(vec_ptr, j); });
+    uintptr_t* instance_poly_ptr = reinterpret_cast<uintptr_t*>(vec.ptr);
+    tachyon_halo2_bn254_argument_data_reserve_instance_polys(
+        data, i, num_instance_columns);
+    for (size_t j = 0; j < num_instance_columns; ++j) {
+      tachyon_halo2_bn254_argument_data_add_instance_poly(
+          data, i, reinterpret_cast<Poly*>(instance_poly_ptr[j])->release());
+    }
   }
 
-  zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals> argument_data(
-      std::move(advice_columns_vec), std::move(advice_blinds_vec),
-      std::move(cpp_challenges), std::move(instance_columns_vec),
-      std::move(instance_polys_vec));
-  impl_->CreateProof(*cpp_key, &argument_data);
+  tachyon_halo2_bn254_shplonk_prover_create_proof(prover_, key.pk(), data);
+  tachyon_halo2_bn254_argument_data_destroy(data);
 }
 
-rust::Vec<uint8_t> SHPlonkProver::finalize_transcript() {
-  return rs::ConvertCppContainerToRustVec(impl_->GetTranscriptOwnedBuffer());
+rust::Vec<uint8_t> SHPlonkProver::get_proof() const {
+  size_t proof_len;
+  tachyon_halo2_bn254_shplonk_prover_get_proof(prover_, nullptr, &proof_len);
+  rust::Vec<uint8_t> proof;
+  // NOTE(chokobole): |rust::Vec<uint8_t>| doesn't have |resize()|.
+  proof.reserve(proof_len);
+  for (size_t i = 0; i < proof_len; ++i) {
+    proof.push_back(0);
+  }
+  tachyon_halo2_bn254_shplonk_prover_get_proof(prover_, proof.data(),
+                                               &proof_len);
+  return proof;
 }
 
 std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint32_t k, const Fr& s) {
@@ -229,13 +182,11 @@ std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint32_t k, const Fr& s) {
 }
 
 rust::Box<Fr> ProvingKey::transcript_repr(const SHPlonkProver& prover) {
-  c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>* cpp_key =
-      reinterpret_cast<
-          c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>*>(
-          impl_->pk());
-  cpp_key->SetTranscriptRepr(prover.impl()->prover());
-  math::bn254::Fr* ret =
-      new math::bn254::Fr(cpp_key->GetTranscriptRepr(prover.impl()->prover()));
+  tachyon_halo2_bn254_shplonk_prover_set_transcript_repr(prover.prover(), pk_);
+  tachyon_bn254_fr* ret = new tachyon_bn254_fr;
+  tachyon_bn254_fr repr = tachyon_bn254_plonk_verifying_key_get_transcript_repr(
+      tachyon_bn254_plonk_proving_key_get_verifying_key(pk_));
+  memcpy(ret->limbs, repr.limbs, sizeof(uint64_t) * 4);
   return rust::Box<Fr>::from_raw(reinterpret_cast<Fr*>(ret));
 }
 

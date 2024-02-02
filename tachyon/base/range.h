@@ -110,7 +110,7 @@ struct Range<T, IsStartInclusive, IsEndInclusive,
   // y < x. This is different from std::numeric_limits<T>::min() for
   // floating-point types. Only meaningful for bounded types.
   // See https://en.cppreference.com/w/cpp/types/numeric_limits/lowest
-  // NOTE(chokobole): I used |lowest()| over |min()| for the reason above.
+  // NOTE(chokobole): We used |lowest()| over |min()| for the reason above.
   T from = std::numeric_limits<T>::lowest();
   T to = std::numeric_limits<T>::max();
 

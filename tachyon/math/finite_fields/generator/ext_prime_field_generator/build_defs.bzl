@@ -80,7 +80,9 @@ def _generate_ext_prime_fields(
     tachyon_cc_library(
         name = name,
         hdrs = [":{}_gen_hdr".format(name)],
-        deps = deps + ext_prime_field_deps,
+        deps = deps + ext_prime_field_deps + [
+            "//tachyon/base:logging",
+        ],
         **kwargs
     )
 
