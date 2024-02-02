@@ -7,6 +7,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
+#include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
@@ -20,11 +21,9 @@ constexpr size_t kDegree = 5;
 
 class UnivariateRationalEvaluationsTest : public testing::Test {
  public:
-  constexpr static size_t kMaxDegree = SIZE_MAX;
-
-  using Evals = UnivariateEvaluations<bn254::Fr, kMaxDegree>;
+  using Evals = UnivariateEvaluations<bn254::Fr, c::math::kMaxDegree>;
   using RationalEvals =
-      UnivariateEvaluations<RationalField<bn254::Fr>, kMaxDegree>;
+      UnivariateEvaluations<RationalField<bn254::Fr>, c::math::kMaxDegree>;
 
   static void SetUpTestSuite() { bn254::Fr::Init(); }
 

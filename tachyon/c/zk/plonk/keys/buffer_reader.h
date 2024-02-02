@@ -63,11 +63,12 @@ class BufferReader<std::vector<T>> {
 };
 
 template <typename Curve>
-class BufferReader<math::AffinePoint<Curve>> {
+class BufferReader<tachyon::math::AffinePoint<Curve>> {
  public:
-  using BaseField = typename math::AffinePoint<Curve>::BaseField;
+  using BaseField = typename tachyon::math::AffinePoint<Curve>::BaseField;
 
-  static math::AffinePoint<Curve> Read(const base::ReadOnlyBuffer& buffer) {
+  static tachyon::math::AffinePoint<Curve> Read(
+      const base::ReadOnlyBuffer& buffer) {
     BaseField x = BufferReader<BaseField>::Read(buffer);
     BaseField y = BufferReader<BaseField>::Read(buffer);
     if (x.IsZero() && y.IsZero()) {
@@ -79,7 +80,8 @@ class BufferReader<math::AffinePoint<Curve>> {
 
 template <typename T>
 class BufferReader<
-    T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
+    T,
+    std::enable_if_t<std::is_base_of_v<tachyon::math::PrimeFieldBase<T>, T>>> {
  public:
   using BigInt = typename T::BigIntTy;
 
@@ -92,27 +94,28 @@ class BufferReader<
 };
 
 template <typename F, size_t MaxDegree>
-class BufferReader<math::UnivariateDensePolynomial<F, MaxDegree>> {
+class BufferReader<tachyon::math::UnivariateDensePolynomial<F, MaxDegree>> {
  public:
-  static math::UnivariateDensePolynomial<F, MaxDegree> Read(
+  static tachyon::math::UnivariateDensePolynomial<F, MaxDegree> Read(
       const base::ReadOnlyBuffer& buffer) {
     std::vector<F> coeffs;
     ReadBuffer(buffer, coeffs);
-    return math::UnivariateDensePolynomial<F, MaxDegree>(
-        math::UnivariateDenseCoefficients<F, MaxDegree>(std::move(coeffs)));
+    return tachyon::math::UnivariateDensePolynomial<F, MaxDegree>(
+        tachyon::math::UnivariateDenseCoefficients<F, MaxDegree>(
+            std::move(coeffs)));
   }
-};
+};  // namespace tachyon::c::zk
 
 template <typename F, size_t MaxDegree>
-class BufferReader<math::UnivariateEvaluations<F, MaxDegree>> {
+class BufferReader<tachyon::math::UnivariateEvaluations<F, MaxDegree>> {
  public:
-  static math::UnivariateEvaluations<F, MaxDegree> Read(
+  static tachyon::math::UnivariateEvaluations<F, MaxDegree> Read(
       const base::ReadOnlyBuffer& buffer) {
     std::vector<F> evals;
     ReadBuffer(buffer, evals);
-    return math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
+    return tachyon::math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
   }
-};
+};  // namespace tachyon::c::zk
 
 template <>
 class BufferReader<tachyon::zk::plonk::Phase> {

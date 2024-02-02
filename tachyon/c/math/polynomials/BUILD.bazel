@@ -4,10 +4,18 @@ package(default_visibility = ["//visibility:public"])
 
 filegroup(
     name = "polynomials_hdrs",
-    srcs = ["//tachyon/c/math/polynomials/univariate:univariate_hdrs"],
+    srcs = [
+        "constants.h",
+        "//tachyon/c/math/polynomials/univariate:univariate_hdrs",
+    ],
 )
 
 tachyon_cc_library(
     name = "bn254_polynomials",
     deps = ["//tachyon/c/math/polynomials/univariate:bn254_univariate"],
+)
+
+tachyon_cc_library(
+    name = "constants",
+    hdrs = ["constants.h"],
 )

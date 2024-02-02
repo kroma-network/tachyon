@@ -1,14 +1,12 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_dense_polynomial.h"
 
+#include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 using namespace tachyon::math;
 
-// NOTE(chokobole): We set |kMaxDegree| to |SIZE_MAX| on purpose to avoid
-// creating variant apis corresponding to the set of each degree.
-constexpr size_t kMaxDegree = SIZE_MAX;
-using Poly = UnivariateDensePolynomial<bn254::Fr, kMaxDegree>;
+using Poly = UnivariateDensePolynomial<bn254::Fr, tachyon::c::math::kMaxDegree>;
 
 tachyon_bn254_univariate_dense_polynomial*
 tachyon_bn254_univariate_dense_polynomial_create() {

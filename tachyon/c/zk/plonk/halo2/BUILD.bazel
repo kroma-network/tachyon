@@ -16,6 +16,7 @@ tachyon_cc_library(
     srcs = ["bn254_argument_data.cc"],
     hdrs = ["bn254_argument_data.h"],
     deps = [
+        "//tachyon/c/math/polynomials:constants",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluations",
         "//tachyon/zk/plonk/halo2:argument_data",

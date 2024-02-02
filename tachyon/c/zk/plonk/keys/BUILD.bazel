@@ -22,6 +22,7 @@ tachyon_cc_library(
     deps = [
         ":bn254_plonk_verifying_key",
         ":proving_key_impl_base",
+        "//tachyon/c/math/polynomials:constants",
     ],
 )
 

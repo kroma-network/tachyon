@@ -1,5 +1,6 @@
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key.h"
 
+#include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -10,15 +11,11 @@ using namespace tachyon;
 
 namespace {
 
-// NOTE(chokobole): We set |kMaxDegree| and |kMaxExtendedDegree| to |SIZE_MAX|
-// on purpose to avoid creating variant apis corresponding to the set of each
-// degree.
-constexpr size_t kMaxDegree = SIZE_MAX;
-
 // NOTE(chokobole): It assumes that proving key has univariate dense polynomial
 // and evaluations.
-using Poly = math::UnivariateDensePolynomial<math::bn254::Fr, kMaxDegree>;
-using Evals = math::UnivariateEvaluations<math::bn254::Fr, kMaxDegree>;
+using Poly =
+    math::UnivariateDensePolynomial<math::bn254::Fr, c::math::kMaxDegree>;
+using Evals = math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
 
 class Bn254ProvingKeyImpl
     : public c::zk::ProvingKeyImplBase<Poly, Evals,

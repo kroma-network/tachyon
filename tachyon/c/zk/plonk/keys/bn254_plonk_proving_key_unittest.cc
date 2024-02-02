@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
@@ -11,10 +12,10 @@ namespace {
 
 class Bn254PlonkProvingKeyTest : public testing::Test {
  public:
-  constexpr static size_t kMaxDegree = SIZE_MAX;
-
-  using Poly = math::UnivariateDensePolynomial<math::bn254::Fr, kMaxDegree>;
-  using Evals = math::UnivariateEvaluations<math::bn254::Fr, kMaxDegree>;
+  using Poly =
+      math::UnivariateDensePolynomial<math::bn254::Fr, c::math::kMaxDegree>;
+  using Evals =
+      math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
 
   static void SetUpTestSuite() { math::bn254::Fr::Init(); }
 };

@@ -9,6 +9,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_prime_field_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
@@ -20,11 +21,8 @@ namespace tachyon::zk::plonk::halo2 {
 
 class SHPlonkProverTest : public testing::Test {
  public:
-  constexpr static size_t kMaxDegree = SIZE_MAX;
-  constexpr static size_t kMaxExtendedDegree = SIZE_MAX;
-
-  using PCS = SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
-                               kMaxExtendedDegree, math::bn254::G1AffinePoint>;
+  using PCS = SHPlonkExtension<math::bn254::BN254Curve, c::math::kMaxDegree,
+                               c::math::kMaxDegree, math::bn254::G1AffinePoint>;
 
   void SetUp() override {
     k_ = 5;
