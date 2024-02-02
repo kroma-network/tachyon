@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
 
@@ -16,20 +16,21 @@ class PippengerAdapterTest : public testing::Test {
   static void SetUpTestSuite() { bn254::G1Curve::Init(); }
 
   PippengerAdapterTest()
-      : test_set_(
-            MSMTestSet<bn254::G1AffinePoint>::Random(kSize, MSMMethod::kMSM)) {}
+      : test_set_(VariableBaseMSMTestSet<bn254::G1AffinePoint>::Random(
+            kSize, VariableBaseMSMMethod::kMSM)) {}
   PippengerAdapterTest(const PippengerAdapterTest&) = delete;
   PippengerAdapterTest& operator=(const PippengerAdapterTest&) = delete;
   ~PippengerAdapterTest() override = default;
 
  protected:
-  MSMTestSet<bn254::G1AffinePoint> test_set_;
+  VariableBaseMSMTestSet<bn254::G1AffinePoint> test_set_;
 };
 
 }  // namespace
 
 TEST_F(PippengerAdapterTest, RunWithStrategy) {
-  const MSMTestSet<bn254::G1AffinePoint>& test_set = this->test_set_;
+  const VariableBaseMSMTestSet<bn254::G1AffinePoint>& test_set =
+      this->test_set_;
 
   for (PippengerParallelStrategy strategy :
        {PippengerParallelStrategy::kNone,

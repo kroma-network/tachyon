@@ -46,7 +46,7 @@ tachyon_cc_unittest(
         ":pippenger_adapter",
         "//tachyon/math/elliptic_curves/bls12/bls12_381:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
 
@@ -57,7 +57,7 @@ tachyon_cc_benchmark(
         ":pippenger_adapter",
         "//tachyon/base:logging",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
 
@@ -67,6 +67,6 @@ tachyon_cc_benchmark(
     deps = [
         ":pippenger",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )

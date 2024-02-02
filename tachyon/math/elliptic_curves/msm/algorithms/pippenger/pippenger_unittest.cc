@@ -4,7 +4,7 @@
 
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/g1.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
 
@@ -18,13 +18,14 @@ class PippengerTest : public testing::Test {
   static void SetUpTestSuite() { Point::Curve::Init(); }
 
   PippengerTest()
-      : test_set_(MSMTestSet<Point>::Random(kSize, MSMMethod::kNaive)) {}
+      : test_set_(VariableBaseMSMTestSet<Point>::Random(
+            kSize, VariableBaseMSMMethod::kNaive)) {}
   PippengerTest(const PippengerTest&) = delete;
   PippengerTest& operator=(const PippengerTest&) = delete;
   ~PippengerTest() override = default;
 
  protected:
-  MSMTestSet<Point> test_set_;
+  VariableBaseMSMTestSet<Point> test_set_;
 };
 
 }  // namespace
@@ -40,7 +41,7 @@ TYPED_TEST(PippengerTest, Run) {
   using Point = TypeParam;
   using Bucket = typename Pippenger<Point>::Bucket;
 
-  const MSMTestSet<Point>& test_set = this->test_set_;
+  const VariableBaseMSMTestSet<Point>& test_set = this->test_set_;
 
   struct {
     bool use_window_naf;

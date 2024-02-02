@@ -3,9 +3,9 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "msm_test_set",
+    name = "variable_base_msm_test_set",
     testonly = True,
-    hdrs = ["msm_test_set.h"],
+    hdrs = ["variable_base_msm_test_set.h"],
     deps = [
         "//tachyon/base:logging",
         "//tachyon/base/containers:container_util",

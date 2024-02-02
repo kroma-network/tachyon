@@ -59,7 +59,7 @@ tachyon_cc_unittest(
         "//tachyon/math/elliptic_curves/bls12/bls12_381:g2",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
 
@@ -72,6 +72,6 @@ tachyon_cuda_unittest(
         "//tachyon/device/gpu:scoped_mem_pool",
         "//tachyon/math/elliptic_curves/msm/kernels/bellman:bn254_bellman_msm_kernels",
         "//tachyon/math/elliptic_curves/msm/kernels/cuzk:bn254_cuzk_kernels",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )

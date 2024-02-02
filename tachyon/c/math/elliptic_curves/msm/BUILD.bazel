@@ -62,7 +62,7 @@ tachyon_cc_unittest(
     deps = [
         "//tachyon/base:bits",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
 
@@ -72,7 +72,7 @@ tachyon_cuda_unittest(
     deps = [
         "//tachyon/base:bits",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm_gpu",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
 

@@ -9,7 +9,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm_gpu.h"
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon {
 
@@ -34,7 +34,7 @@ int RealMain(int argc, char** argv) {
 
   std::cout << "Generating random points..." << std::endl;
   uint64_t max_point_num = point_nums.back();
-  MSMTestSet<bn254::G1AffinePoint> test_set;
+  VariableBaseMSMTestSet<bn254::G1AffinePoint> test_set;
   CHECK(config.GenerateTestSet(max_point_num, &test_set));
   std::cout << "Generation completed" << std::endl;
 

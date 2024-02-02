@@ -10,7 +10,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
 #include "tachyon/math/elliptic_curves/msm/kernels/bellman/bn254_bellman_msm_kernels.cu.h"
 #include "tachyon/math/elliptic_curves/msm/kernels/cuzk/bn254_cuzk_kernels.cu.h"
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
 
@@ -28,8 +28,9 @@ class VariableMSMCorrectnessGpuTest : public testing::Test {
   static void SetUpTestSuite() {
     bn254::G1Curve::Init();
 
-    MSMTestSet<bn254::G1AffinePoint> test_set =
-        MSMTestSet<bn254::G1AffinePoint>::Random(kCount, MSMMethod::kMSM);
+    VariableBaseMSMTestSet<bn254::G1AffinePoint> test_set =
+        VariableBaseMSMTestSet<bn254::G1AffinePoint>::Random(
+            kCount, VariableBaseMSMMethod::kMSM);
 
     d_bases_ = gpu::GpuMemory<bn254::G1AffinePointGpu>::Malloc(kCount);
     d_scalars_ = gpu::GpuMemory<bn254::FrGpu>::Malloc(kCount);

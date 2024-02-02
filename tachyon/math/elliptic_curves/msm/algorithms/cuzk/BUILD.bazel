@@ -59,6 +59,6 @@ tachyon_cuda_unittest(
     deps = [
         ":cuzk",
         "//tachyon/math/elliptic_curves/msm/kernels/cuzk:bn254_cuzk_kernels",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
