@@ -57,7 +57,9 @@ class TACHYON_EXPORT ReadOnlyBuffer {
   ~ReadOnlyBuffer() = default;
 
   Endian endian() const { return endian_; }
-  void set_endian(Endian endian) { endian_ = endian; }
+  // NOTE(chokobole): This is changed to const method to ensure
+  // |const ReadOnlyBuffer&| calls this.
+  void set_endian(Endian endian) const { endian_ = endian; }
 
   const void* buffer() const { return buffer_; }
 
@@ -187,7 +189,7 @@ class TACHYON_EXPORT ReadOnlyBuffer {
   }
 
  protected:
-  Endian endian_ = Endian::kNative;
+  mutable Endian endian_ = Endian::kNative;
 
   void* buffer_ = nullptr;
   mutable size_t buffer_offset_ = 0;
