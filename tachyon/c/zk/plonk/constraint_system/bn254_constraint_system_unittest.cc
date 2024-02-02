@@ -5,7 +5,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -18,7 +18,7 @@ class ConstraintSystemTest : public testing::Test {
   }
 
  protected:
-  plonk::ConstraintSystem<math::bn254::Fr> cpp_cs_;
+  ConstraintSystem<math::bn254::Fr> cpp_cs_;
   tachyon_bn254_plonk_constraint_system* cs_;
 };
 
@@ -36,7 +36,7 @@ TEST_F(ConstraintSystemTest, GetAdviceColumnPhases) {
                                                                    &phases_len);
     ASSERT_EQ(phases_len, i);
 
-    cpp_cs_.CreateAdviceColumn(plonk::Phase(i));
+    cpp_cs_.CreateAdviceColumn(Phase(i));
   }
 
   tachyon_phase phases[3];
@@ -55,8 +55,8 @@ TEST_F(ConstraintSystemTest, GetChallengePhases) {
                                                                &phases_len);
     ASSERT_EQ(phases_len, i);
 
-    cpp_cs_.CreateAdviceColumn(plonk::Phase(i));
-    cpp_cs_.CreateChallengeUsableAfter(plonk::Phase(i));
+    cpp_cs_.CreateAdviceColumn(Phase(i));
+    cpp_cs_.CreateChallengeUsableAfter(Phase(i));
   }
 
   tachyon_phase phases[3];
@@ -78,7 +78,7 @@ TEST_F(ConstraintSystemTest, GetPhases) {
       ASSERT_EQ(phases_len, i);
     }
 
-    cpp_cs_.CreateAdviceColumn(plonk::Phase(i));
+    cpp_cs_.CreateAdviceColumn(Phase(i));
   }
 
   tachyon_phase phases[3];
@@ -121,8 +121,8 @@ TEST_F(ConstraintSystemTest, GetNumChallenges) {
   for (uint8_t i = 0; i < 3; ++i) {
     EXPECT_EQ(tachyon_bn254_plonk_constraint_system_get_num_challenges(cs_), i);
 
-    cpp_cs_.CreateAdviceColumn(plonk::Phase(i));
-    cpp_cs_.CreateChallengeUsableAfter(plonk::Phase(i));
+    cpp_cs_.CreateAdviceColumn(Phase(i));
+    cpp_cs_.CreateChallengeUsableAfter(Phase(i));
   }
   EXPECT_EQ(tachyon_bn254_plonk_constraint_system_get_num_challenges(cs_), 3);
 }
@@ -134,7 +134,7 @@ TEST_F(ConstraintSystemTest, GetConstants) {
                                                         &constants_len);
     ASSERT_EQ(constants_len, i);
 
-    plonk::FixedColumnKey column = cpp_cs_.CreateFixedColumn();
+    FixedColumnKey column = cpp_cs_.CreateFixedColumn();
     cpp_cs_.EnableConstant(column);
   }
 
@@ -147,4 +147,4 @@ TEST_F(ConstraintSystemTest, GetConstants) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

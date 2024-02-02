@@ -18,12 +18,12 @@ using Poly =
 using Evals = math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
 
 class Bn254ProvingKeyImpl
-    : public c::zk::ProvingKeyImplBase<Poly, Evals,
-                                       math::bn254::G1AffinePoint> {
+    : public c::zk::plonk::ProvingKeyImplBase<Poly, Evals,
+                                              math::bn254::G1AffinePoint> {
  public:
   explicit Bn254ProvingKeyImpl(absl::Span<const uint8_t> state)
-      : c::zk::ProvingKeyImplBase<Poly, Evals, math::bn254::G1AffinePoint>(
-            state) {}
+      : c::zk::plonk::ProvingKeyImplBase<Poly, Evals,
+                                         math::bn254::G1AffinePoint>(state) {}
 };
 
 using PKeyImpl = Bn254ProvingKeyImpl;

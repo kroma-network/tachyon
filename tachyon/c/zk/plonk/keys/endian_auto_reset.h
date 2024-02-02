@@ -3,7 +3,7 @@
 
 #include "tachyon/base/buffer/buffer.h"
 
-namespace tachyon::c::zk {
+namespace tachyon::c::zk::plonk {
 
 struct EndianAutoReset {
   explicit EndianAutoReset(const base::ReadOnlyBuffer& buffer,
@@ -17,6 +17,6 @@ struct EndianAutoReset {
   base::Endian old_endian;
 };
 
-}  // namespace tachyon::c::zk
+}  // namespace tachyon::c::zk::plonk
 
 #endif  // TACHYON_C_ZK_PLONK_KEYS_ENDIAN_AUTO_RESET_H_

@@ -553,7 +553,7 @@ class ConstraintSystem {
 
  private:
   template <typename Poly, typename Evals, typename C>
-  friend class c::zk::ProvingKeyImplBase;
+  friend class c::zk::plonk::ProvingKeyImplBase;
 
   template <typename QueryData, typename Column>
   static bool QueryIndex(const std::vector<QueryData>& queries,

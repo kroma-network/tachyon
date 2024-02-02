@@ -37,7 +37,7 @@ using PCS = c::zk::plonk::halo2::PCS;
 using CS = zk::plonk::ConstraintSystem<PCS::Field>;
 using ProverImpl = Bn254SHPlonkProverImpl;
 using ProvingKey =
-    c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>;
+    c::zk::plonk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>;
 using Data = zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;
 
 }  // namespace

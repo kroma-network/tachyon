@@ -7,7 +7,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename Transcript>
 class TranscriptWriterTest : public testing::Test {
@@ -25,7 +25,7 @@ class TranscriptWriterTest : public testing::Test {
 };
 
 using TranscriptTypes =
-    testing::Types<plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>;
+    testing::Types<Blake2bWriter<math::bn254::G1AffinePoint>>;
 TYPED_TEST_SUITE(TranscriptWriterTest, TranscriptTypes);
 
 TYPED_TEST(TranscriptWriterTest, APIs) {
@@ -35,9 +35,8 @@ TYPED_TEST(TranscriptWriterTest, APIs) {
   TranscriptWriter cpp_writer(std::move(buffer));
 
   uint8_t type;
-  if constexpr (std::is_same_v<
-                    TranscriptWriter,
-                    plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>) {
+  if constexpr (std::is_same_v<TranscriptWriter,
+                               Blake2bWriter<math::bn254::G1AffinePoint>>) {
     type = TACHYON_HALO2_BLAKE_TRANSCRIPT;
   }
 
@@ -66,4 +65,4 @@ TYPED_TEST(TranscriptWriterTest, APIs) {
                 ->SqueezeChallenge());
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk::halo2

@@ -16,7 +16,7 @@
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
-namespace tachyon::c::zk {
+namespace tachyon::c::zk::plonk {
 
 template <typename Poly, typename Evals, typename C>
 class ProvingKeyImplBase
@@ -106,6 +106,6 @@ class ProvingKeyImplBase
   }
 };
 
-}  // namespace tachyon::c::zk
+}  // namespace tachyon::c::zk::plonk
 
 #endif  // TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_

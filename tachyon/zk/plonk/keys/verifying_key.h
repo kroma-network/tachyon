@@ -71,7 +71,7 @@ class VerifyingKey : public Key {
   template <typename Poly, typename Evals, typename Commitment>
   friend class ProvingKey;
   template <typename Poly, typename Evals, typename Commitment>
-  friend class c::zk::ProvingKeyImplBase;
+  friend class c::zk::plonk::ProvingKeyImplBase;
 
   template <typename PCS, typename Evals, typename RationalEvals>
   bool DoLoad(Entity<PCS>* entity,

@@ -23,7 +23,7 @@
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 
-namespace tachyon::c::zk {
+namespace tachyon::c::zk::plonk {
 
 template <typename T, typename SFINAE = void>
 class BufferReader;
@@ -366,6 +366,6 @@ class BufferReader<tachyon::zk::plonk::PermutationProvingKey<Poly, Evals>> {
   }
 };
 
-}  // namespace tachyon::c::zk
+}  // namespace tachyon::c::zk::plonk
 
 #endif  // TACHYON_C_ZK_PLONK_KEYS_BUFFER_READER_H_
