@@ -187,6 +187,7 @@ tachyon_cc_library(
     hdrs = ["prover_test.h"],
     deps = [
         ":blake2b_transcript",
+        ":constants",
         ":prover",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
