@@ -17,7 +17,7 @@
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
 
-namespace tachyon::zk::plonk::halo2 {
+namespace tachyon::zk::plonk::halo2::bn254 {
 
 class SHPlonkProverTest : public testing::Test {
  public:
@@ -121,4 +121,4 @@ TEST_F(SHPlonkProverTest, SetTranscript) {
   tachyon_halo2_bn254_transcript_writer_destroy(transcript);
 }
 
-}  // namespace tachyon::zk::plonk::halo2
+}  // namespace tachyon::zk::plonk::halo2::bn254

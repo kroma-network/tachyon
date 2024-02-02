@@ -17,16 +17,17 @@ namespace tachyon::c::zk::plonk::halo2 {
 template <typename PCS>
 class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS> {
  public:
+  using Base = tachyon::zk::plonk::halo2::Prover<PCS>;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
   using Commitment = typename PCS::Commitment;
+  using Callback = base::OnceCallback<Base()>;
 
-  explicit ProverImplBase(
-      base::OnceCallback<tachyon::zk::plonk::halo2::Prover<PCS>()> callback)
-      : tachyon::zk::plonk::halo2::Prover<PCS>(std::move(callback).Run()) {}
+  explicit ProverImplBase(Callback callback)
+      : Base(std::move(callback).Run()) {}
 
   void SetRng(std::unique_ptr<crypto::XORShiftRNG> rng) {
-    tachyon::zk::plonk::halo2::Prover<PCS>::SetRng(std::move(rng));
+    Base::SetRng(std::move(rng));
   }
 
   void SetTranscript(
@@ -48,8 +49,7 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS> {
                                  absl::MakeConstSpan(buffer.owned_buffer())));
     }
 
-    tachyon::zk::plonk::halo2::Prover<PCS>::CreateProof(proving_key,
-                                                        argument_data);
+    Base::CreateProof(proving_key, argument_data);
   }
 };
 

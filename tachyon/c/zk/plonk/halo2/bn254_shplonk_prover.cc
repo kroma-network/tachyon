@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_impl.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
-#include "tachyon/c/zk/plonk/halo2/shplonk_prover_impl_base.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
@@ -18,24 +18,9 @@ using namespace tachyon;
 
 namespace {
 
-class Bn254SHPlonkProverImpl
-    : public c::zk::plonk::halo2::SHPlonkProverImplBase {
- public:
-  Bn254SHPlonkProverImpl(
-      base::OnceCallback<zk::plonk::halo2::Prover<PCS>()> callback,
-      uint8_t transcript_type)
-      : c::zk::plonk::halo2::SHPlonkProverImplBase(std::move(callback)),
-        transcript_type_(transcript_type) {}
-
-  uint8_t transcript_type() const { return transcript_type_; }
-
- private:
-  uint8_t transcript_type_;
-};
-
-using PCS = c::zk::plonk::halo2::PCS;
+using PCS = c::zk::plonk::halo2::bn254::PCS;
 using CS = zk::plonk::ConstraintSystem<PCS::Field>;
-using ProverImpl = Bn254SHPlonkProverImpl;
+using ProverImpl = c::zk::plonk::halo2::bn254::SHPlonkProverImpl;
 using ProvingKey =
     c::zk::plonk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>;
 using Data = zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;
