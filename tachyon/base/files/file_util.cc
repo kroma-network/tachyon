@@ -458,6 +458,16 @@ bool WriteFile(const FilePath& filename, std::string_view data) {
   return WriteFile(filename, data.data(), size) == size;
 }
 
+bool WriteLargeFile(const FilePath& filename, absl::Span<const uint8_t> data) {
+  return WriteLargeFile(filename, reinterpret_cast<const char*>(data.data()),
+                   data.size());
+}
+
+bool WriteLargeFile(const FilePath& filename, std::string_view data) {
+return WriteLargeFile(filename, data.data(),
+                   data.size());
+}
+
 int GetUniquePathNumber(const FilePath& path) {
   DCHECK(!path.empty());
   if (!PathExists(path))

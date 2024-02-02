@@ -59,6 +59,9 @@ tachyon_cc_library(
     name = "prover_impl_base",
     hdrs = ["prover_impl_base.h"],
     deps = [
+        "//tachyon/base:environment",
+        "//tachyon/base:logging",
+        "//tachyon/base/files:file_util",
         "//tachyon/base/functional:callback",
         "//tachyon/zk/plonk/halo2:prover",
     ],

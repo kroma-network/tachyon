@@ -1,10 +1,15 @@
 #ifndef TACHYON_C_ZK_PLONK_HALO2_PROVER_IMPL_BASE_H_
 #define TACHYON_C_ZK_PLONK_HALO2_PROVER_IMPL_BASE_H_
 
+#include <stdint.h>
+
 #include <memory>
 #include <utility>
 
+#include "tachyon/base/environment.h"
+#include "tachyon/base/files/file_util.h"
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
 
 namespace tachyon::c::zk::plonk::halo2 {
@@ -33,6 +38,16 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS> {
       const tachyon::zk::plonk::ProvingKey<Poly, Evals, Commitment>&
           proving_key,
       tachyon::zk::plonk::halo2::ArgumentData<Poly, Evals>* argument_data) {
+    std::string_view arg_data_str;
+    if (base::Environment::Get("TACHYON_ARG_DATA_LOG_PATH", &arg_data_str)) {
+      VLOG(1) << "Save argument data to: " << arg_data_str;
+      base::Uint8VectorBuffer buffer;
+      CHECK(buffer.Grow(base::EstimateSize(*argument_data)));
+      CHECK(buffer.Write(*argument_data));
+      CHECK(base::WriteLargeFile(base::FilePath(arg_data_str),
+                                 absl::MakeConstSpan(buffer.owned_buffer())));
+    }
+
     tachyon::zk::plonk::halo2::Prover<PCS>::CreateProof(proving_key,
                                                         argument_data);
   }

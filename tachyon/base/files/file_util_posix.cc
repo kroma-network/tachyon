@@ -964,6 +964,32 @@ int WriteFile(const FilePath& filename, const char* data, int size) {
   return bytes_written;
 }
 
+bool WriteLargeFile(const FilePath& filename, const char* data, size_t size) {
+  int fd = HANDLE_EINTR(creat(filename.value().c_str(), 0666));
+  if (fd < 0)
+    return false;
+
+  size_t offset = 0;
+  size_t to_write = size;
+  int bytes_written = 0;
+
+  while (to_write > 0) {
+    int chunk_size = std::min(to_write, size_t{INT_MAX});
+    bytes_written =
+        WriteFileDescriptor(fd, std::string_view(data + offset, chunk_size))
+            ? chunk_size
+            : -1;
+    if (bytes_written == -1) break;
+    offset += chunk_size;
+    to_write -= chunk_size;
+  }
+
+  if (IGNORE_EINTR(close(fd)) < 0)
+    return false;
+  return bytes_written != -1;
+
+}
+
 bool WriteFileDescriptor(int fd, absl::Span<const uint8_t> data) {
   // Allow for partial writes.
   ssize_t bytes_written_total = 0;

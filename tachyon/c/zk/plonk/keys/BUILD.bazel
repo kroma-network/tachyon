@@ -70,6 +70,10 @@ tachyon_cc_library(
     hdrs = ["proving_key_impl_base.h"],
     deps = [
         ":buffer_reader",
+        "//tachyon/base:environment",
+        "//tachyon/base:logging",
+        "//tachyon/base/buffer",
+        "//tachyon/base/files:file_util",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "@com_google_absl//absl/types:span",

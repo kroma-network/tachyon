@@ -533,17 +533,35 @@ TACHYON_EXPORT int ReadFile(const FilePath& filename, char* data, int max_size);
 // previously there.  Returns the number of bytes written, or -1 on error.
 // If file doesn't exist, it gets created with read/write permissions for all.
 // Note that the other variants of WriteFile() below may be easier to use.
+// Note that it restricts the |size| to |INT_MAX|.
 TACHYON_EXPORT int WriteFile(const FilePath& filename, const char* data,
                              int size);
 
 // Writes |data| into the file, overwriting any data that was previously there.
 // Returns true if and only if all of |data| was written. If the file does not
 // exist, it gets created with read/write permissions for all.
+// Note that it restricts the length of the |data| to |INT_MAX|.
 TACHYON_EXPORT bool WriteFile(const FilePath& filename, absl::Span<const uint8_t> data);
 
 // Another WriteFile() variant that takes a std::string_view so callers don't have to
 // do manual conversions from a char span to a uint8_t span.
+// Note that it restricts the length of the |data| to |INT_MAX|.
 TACHYON_EXPORT bool WriteFile(const FilePath& filename, std::string_view data);
+
+// Writes the given buffer into the file, overwriting any data that was
+// previously there.  Returns true on success, false on failure.
+// If file doesn't exist, it gets created with read/write permissions for all.
+// Note that the other variants of WriteFile() below may be easier to use.
+TACHYON_EXPORT bool WriteLargeFile(const FilePath& filename, const char* data, size_t size);
+
+// Writes |data| into the file, overwriting any data that was previously there.
+// Returns true if and only if all of |data| was written. If the file does not
+// exist, it gets created with read/write permissions for all.
+TACHYON_EXPORT bool WriteLargeFile(const FilePath& filename, absl::Span<const uint8_t> data);
+
+// Another WriteFile() variant that takes a std::string_view so callers don't have to
+// do manual conversions from a char span to a uint8_t span.
+TACHYON_EXPORT bool WriteLargeFile(const FilePath& filename, std::string_view data);
 
 #if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
 // Appends |data| to |fd|. Does not close |fd| when done.  Returns true iff all
