@@ -75,9 +75,10 @@ class Pippenger : public PippengerBase<Point> {
   template <typename BaseInputIterator, typename ScalarInputIterator,
             std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
                                          Point, ScalarField>>* = nullptr>
-  bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
-           ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,
-           Bucket* ret) {
+  [[nodiscard]] bool Run(BaseInputIterator bases_first,
+                         BaseInputIterator bases_last,
+                         ScalarInputIterator scalars_first,
+                         ScalarInputIterator scalars_last, Bucket* ret) {
     size_t bases_size = std::distance(bases_first, bases_last);
     size_t scalars_size = std::distance(scalars_first, scalars_last);
     if (bases_size != scalars_size) {

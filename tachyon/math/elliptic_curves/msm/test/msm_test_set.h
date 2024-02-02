@@ -5,6 +5,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/files/file_util.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/math/base/semigroups.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
@@ -87,7 +88,7 @@ struct MSMTestSet {
         break;
       case MSMMethod::kMSM: {
         VariableBaseMSM<Point> msm;
-        msm.Run(bases, scalars, &answer);
+        CHECK(msm.Run(bases, scalars, &answer));
         break;
       }
       case MSMMethod::kNaive: {

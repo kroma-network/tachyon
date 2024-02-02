@@ -1,5 +1,6 @@
 #include "benchmark/benchmark.h"
 
+#include "tachyon/base/logging.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
 
@@ -20,9 +21,9 @@ void BM_PippengerAdapter(benchmark::State& state) {
   using Bucket = typename PippengerAdapter<Point>::Bucket;
   Bucket ret;
   for (auto _ : state) {
-    pippenger.RunWithStrategy(test_set.bases.begin(), test_set.bases.end(),
-                              test_set.scalars.begin(), test_set.scalars.end(),
-                              Strategy, &ret);
+    CHECK(pippenger.RunWithStrategy(
+        test_set.bases.begin(), test_set.bases.end(), test_set.scalars.begin(),
+        test_set.scalars.end(), Strategy, &ret));
   }
   benchmark::DoNotOptimize(ret);
 }

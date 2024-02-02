@@ -56,18 +56,20 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
   }
 
   // MSMGpuAlgorithm methods
-  bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
-           const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
-           JacobianPoint<CpuCurve>* cpu_result) override {
+  [[nodiscard]] bool Run(
+      const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
+      const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
+      JacobianPoint<CpuCurve>* cpu_result) override {
     PointXYZZ<CpuCurve> out;
     if (!Run(bases, scalars, size, &out)) return false;
     *cpu_result = out.ToJacobian();
     return true;
   }
 
-  bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
-           const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
-           PointXYZZ<CpuCurve>* cpu_result) {
+  [[nodiscard]] bool Run(
+      const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
+      const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
+      PointXYZZ<CpuCurve>* cpu_result) {
     if (bases.size() < size) {
       LOG(ERROR) << "bases.size() is smaller than size";
       return false;

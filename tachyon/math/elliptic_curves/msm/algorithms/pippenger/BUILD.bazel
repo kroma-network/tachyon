@@ -55,6 +55,7 @@ tachyon_cc_benchmark(
     srcs = ["pippenger_adapter_benchmark.cc"],
     deps = [
         ":pippenger_adapter",
+        "//tachyon/base:logging",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
     ],

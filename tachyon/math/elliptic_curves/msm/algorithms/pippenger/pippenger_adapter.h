@@ -23,20 +23,22 @@ class PippengerAdapter {
   using Bucket = typename Pippenger<Point>::Bucket;
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
-  bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
-           ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,
-           Bucket* ret) {
+  [[nodiscard]] bool Run(BaseInputIterator bases_first,
+                         BaseInputIterator bases_last,
+                         ScalarInputIterator scalars_first,
+                         ScalarInputIterator scalars_last, Bucket* ret) {
     return RunWithStrategy(std::move(bases_first), std::move(bases_last),
                            std::move(scalars_first), std::move(scalars_last),
                            PippengerParallelStrategy::kParallelWindow, ret);
   }
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
-  bool RunWithStrategy(BaseInputIterator bases_first,
-                       BaseInputIterator bases_last,
-                       ScalarInputIterator scalars_first,
-                       ScalarInputIterator scalars_last,
-                       PippengerParallelStrategy strategy, Bucket* ret) {
+  [[nodiscard]] bool RunWithStrategy(BaseInputIterator bases_first,
+                                     BaseInputIterator bases_last,
+                                     ScalarInputIterator scalars_first,
+                                     ScalarInputIterator scalars_last,
+                                     PippengerParallelStrategy strategy,
+                                     Bucket* ret) {
     if (strategy == PippengerParallelStrategy::kNone ||
         strategy == PippengerParallelStrategy::kParallelWindow) {
       Pippenger<Point> pippenger;

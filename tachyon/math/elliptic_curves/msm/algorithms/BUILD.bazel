@@ -6,6 +6,7 @@ tachyon_cc_library(
     name = "msm_algorithm",
     hdrs = ["msm_algorithm.h"],
     deps = [
+        "//tachyon/base:logging",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/elliptic_curves:points",
     ],
