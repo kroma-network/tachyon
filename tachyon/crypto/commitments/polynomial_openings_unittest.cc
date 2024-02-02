@@ -113,11 +113,11 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyOracleAndPoints) {
   poly_openings.emplace_back(PolyRef(&polys_[0]), PointDeepRef(&points_[1]),
                              polys_[0].Evaluate(points_[1]));
   poly_openings.emplace_back(PolyRef(&polys_[1]), PointDeepRef(&points_[0]),
-                             polys_[0].Evaluate(points_[0]));
+                             polys_[1].Evaluate(points_[0]));
   poly_openings.emplace_back(PolyRef(&polys_[1]), PointDeepRef(&points_[1]),
-                             polys_[0].Evaluate(points_[1]));
+                             polys_[1].Evaluate(points_[1]));
   poly_openings.emplace_back(PolyRef(&polys_[2]), PointDeepRef(&points_[2]),
-                             polys_[0].Evaluate(points_[2]));
+                             polys_[2].Evaluate(points_[2]));
   PolynomialOpeningGrouper<Poly> grouper;
   std::vector<GroupedPolyOraclePair> poly_openings_grouped_by_poly =
       grouper.GroupByPolyOracle(poly_openings);
