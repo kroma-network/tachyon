@@ -82,6 +82,7 @@ class Blake2bBase {
     CHECK(buffer.Write(state_impl->t_high));
     CHECK(buffer.Write(state_impl->block));
     CHECK(buffer.Write(state_impl->block_used));
+    CHECK(buffer.Done());
     return std::move(buffer).TakeOwnedBuffer();
   }
 
@@ -94,6 +95,7 @@ class Blake2bBase {
     CHECK(buffer.Read(&state_impl->t_high));
     CHECK(buffer.Read(state_impl->block));
     CHECK(buffer.Read(&state_impl->block_used));
+    CHECK(buffer.Done());
   }
 
   BLAKE2B_CTX state_;

@@ -157,6 +157,8 @@ void SHPlonkProver::create_proof(const ProvingKey& key,
       tachyon_halo2_bn254_argument_data_add_instance_poly(
           data, i, reinterpret_cast<Poly*>(instance_poly_ptr[j])->release());
     }
+
+    CHECK(buffer.Done());
   }
 
   tachyon_halo2_bn254_shplonk_prover_create_proof(prover_, key.pk(), data);

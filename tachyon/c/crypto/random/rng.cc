@@ -34,6 +34,7 @@ tachyon_rng* tachyon_rng_create_from_state(uint8_t type, const uint8_t* state,
     CHECK(buffer.Read32LE(&y));
     CHECK(buffer.Read32LE(&z));
     CHECK(buffer.Read32LE(&w));
+    CHECK(buffer.Done());
     crypto::XORShiftRNG* xor_shift = new crypto::XORShiftRNG;
     *xor_shift = crypto::XORShiftRNG::FromState(x, y, z, w);
     rng->extra = xor_shift;
