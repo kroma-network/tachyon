@@ -21,6 +21,7 @@ tachyon_cc_library(
     deps = [
         ":synthesizer",
         "//tachyon/base:logging",
+        "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/plonk/base:ref_table",
         "@com_google_absl//absl/types:span",
@@ -265,6 +266,7 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "halo2_unittests",
     srcs = [
+        "argument_data_unittest.cc",
         "blake2b_transcript_unittest.cc",
         "poseidon_transcript_unittest.cc",
         "proof_serializer_unittest.cc",
@@ -281,6 +283,7 @@ tachyon_cc_unittest(
         ":prover_test",
         ":sha256_transcript",
         ":synthesizer",
+        "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/zk/plonk/examples:simple_circuit",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
     ],

@@ -8,18 +8,22 @@
 
 #include "absl/types/span.h"
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/halo2/argument_data.h"
 #include "tachyon/zk/plonk/halo2/synthesizer.h"
 
-namespace tachyon::zk::plonk::halo2 {
+namespace tachyon {
+namespace zk::plonk::halo2 {
 
 template <typename Poly, typename Evals>
 class ArgumentData {
  public:
   using F = typename Poly::Field;
+
+  ArgumentData() = default;
 
   // NOTE(chokobole): This constructor is used by the c api.
   explicit ArgumentData(size_t num_circuits) {
@@ -149,7 +153,22 @@ class ArgumentData {
     });
   }
 
+  bool operator==(const ArgumentData& other) const {
+    return advice_transformed_ == other.advice_transformed_ &&
+           advice_columns_vec_ == other.advice_columns_vec_ &&
+           advice_polys_vec_ == other.advice_polys_vec_ &&
+           advice_blinds_vec_ == other.advice_blinds_vec_ &&
+           challenges_ == other.challenges_ &&
+           instance_columns_vec_ == other.instance_columns_vec_ &&
+           instance_polys_vec_ == other.instance_polys_vec_;
+  }
+  bool operator!=(const ArgumentData& other) const {
+    return !operator==(other);
+  }
+
  private:
+  friend class base::Copyable<ArgumentData>;
+
   // Generate a vector of instance coefficient-formed polynomials with a vector
   // of instance evaluation-formed columns. (a.k.a. Batch IFFT)
   template <typename PCS>
@@ -206,6 +225,50 @@ class ArgumentData {
   std::vector<std::vector<Poly>> instance_polys_vec_;
 };
 
-}  // namespace tachyon::zk::plonk::halo2
+}  // namespace zk::plonk::halo2
+
+namespace base {
+
+template <typename Poly, typename Evals>
+class Copyable<zk::plonk::halo2::ArgumentData<Poly, Evals>> {
+ public:
+  using F = typename Poly::Field;
+
+  static bool WriteTo(const zk::plonk::halo2::ArgumentData<Poly, Evals>& data,
+                      Buffer* buffer) {
+    return buffer->WriteMany(data.advice_columns_vec_, data.advice_blinds_vec_,
+                             data.challenges_, data.instance_columns_vec_,
+                             data.instance_polys_vec_);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       zk::plonk::halo2::ArgumentData<Poly, Evals>* data) {
+    std::vector<std::vector<Evals>> advice_columns_vec;
+    std::vector<std::vector<F>> advice_blinds_vec;
+    std::vector<F> challenges;
+    std::vector<std::vector<Evals>> instance_columns_vec;
+    std::vector<std::vector<Poly>> instance_polys_vec;
+    if (!buffer.ReadMany(&advice_columns_vec, &advice_blinds_vec, &challenges,
+                         &instance_columns_vec, &instance_polys_vec))
+      return false;
+    *data = zk::plonk::halo2::ArgumentData<Poly, Evals>(
+        std::move(advice_columns_vec), std::move(advice_blinds_vec),
+        std::move(challenges), std::move(instance_columns_vec),
+        std::move(instance_polys_vec));
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const zk::plonk::halo2::ArgumentData<Poly, Evals>& data) {
+    return base::EstimateSize(data.advice_columns_vec_) +
+           base::EstimateSize(data.advice_blinds_vec_) +
+           base::EstimateSize(data.challenges_) +
+           base::EstimateSize(data.instance_columns_vec_) +
+           base::EstimateSize(data.instance_polys_vec_);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_HALO2_ARGUMENT_DATA_H_
