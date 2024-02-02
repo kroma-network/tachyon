@@ -1,5 +1,5 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_CTX_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_CTX_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_MSM_CTX_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_MSM_CTX_H_
 
 #include <stddef.h>
 
@@ -9,7 +9,7 @@
 
 namespace tachyon::math {
 
-struct TACHYON_EXPORT PippengerCtx {
+struct TACHYON_EXPORT MSMCtx {
   unsigned int window_count = 0;
   unsigned int window_bits = 0;
   unsigned int size = 0;
@@ -17,8 +17,8 @@ struct TACHYON_EXPORT PippengerCtx {
   constexpr unsigned int GetWindowLength() const { return 1 << window_bits; }
 
   template <typename ScalarField>
-  constexpr static PippengerCtx CreateDefault(size_t size) {
-    PippengerCtx ctx;
+  constexpr static MSMCtx CreateDefault(size_t size) {
+    MSMCtx ctx;
     ctx.window_bits = ComputeWindowsBits(size);
     ctx.window_count = ComputeWindowsCount<ScalarField>(ctx.window_bits);
     ctx.size = size;
@@ -48,4 +48,4 @@ struct TACHYON_EXPORT PippengerCtx {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_ALGORITHMS_PIPPENGER_PIPPENGER_CTX_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_MSM_CTX_H_

@@ -32,7 +32,7 @@ class CUZKTest : public testing::Test {
 
 TEST_F(CUZKTest, ReduceBuckets) {
   size_t size = 1 << 10;
-  PippengerCtx ctx = PippengerCtx::CreateDefault<bn254::Fr>(size);
+  MSMCtx ctx = MSMCtx::CreateDefault<bn254::Fr>(size);
   size_t start_group = 0;
   size_t end_group = ctx.window_count;
   size_t window_length = ctx.GetWindowLength();
