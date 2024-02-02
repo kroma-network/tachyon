@@ -20,7 +20,15 @@ tachyon_cc_library(
     srcs = ["bn254_plonk_proving_key.cc"],
     hdrs = ["bn254_plonk_proving_key.h"],
     deps = [
+        ":bn254_plonk_proving_key_impl",
         ":bn254_plonk_verifying_key",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_plonk_proving_key_impl",
+    hdrs = ["bn254_plonk_proving_key_impl.h"],
+    deps = [
         ":proving_key_impl_base",
         "//tachyon/c/math/polynomials:constants",
     ],
