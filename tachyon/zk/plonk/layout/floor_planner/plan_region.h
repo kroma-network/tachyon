@@ -35,7 +35,7 @@ class PlanRegion : public RegionLayouter<F> {
   const Constants<F>& constants() const { return constants_; }
 
   // RegionLayouter methods
-  void EnableSelector(std::string_view name, const Selector& selector,
+  void EnableSelector(std::string_view name, Selector selector,
                       RowIndex offset) override {
     assignment_->EnableSelector(name, selector,
                                 regions_[region_index_] + offset);

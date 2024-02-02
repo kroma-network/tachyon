@@ -34,7 +34,7 @@ class SimpleSelectorExtractor
       case ExpressionType::kConstant:
         return std::nullopt;
       case ExpressionType::kSelector: {
-        const plonk::Selector& selector = input->ToSelector()->selector();
+        plonk::Selector selector = input->ToSelector()->selector();
         if (selector.is_simple()) {
           return selector;
         }

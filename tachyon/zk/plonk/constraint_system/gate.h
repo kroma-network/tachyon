@@ -65,7 +65,7 @@ class Gate {
         });
     std::vector<std::string> queried_selectors_str =
         base::Map(queried_selectors_,
-                  [](const Selector& selector) { return selector.ToString(); });
+                  [](Selector selector) { return selector.ToString(); });
     std::vector<std::string> queried_cells_str =
         base::Map(queried_cells_, [](const VirtualCell& queried_cell) {
           return queried_cell.ToString();

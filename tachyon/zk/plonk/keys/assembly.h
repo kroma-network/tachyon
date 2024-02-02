@@ -42,7 +42,7 @@ class Assembly : public Assignment<typename RationalEvals::Field::InnerField> {
   const base::Range<RowIndex>& usable_rows() const { return usable_rows_; }
 
   // Assignment methods
-  void EnableSelector(std::string_view, const Selector& selector,
+  void EnableSelector(std::string_view, Selector selector,
                       RowIndex row) override {
     CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
     selectors_[selector.index()][row] = true;

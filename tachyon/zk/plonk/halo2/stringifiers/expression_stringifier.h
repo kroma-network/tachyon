@@ -36,8 +36,7 @@ class RustDebugStringifier<zk::Expression<F>> {
                          .Finish();
       }
       case zk::ExpressionType::kSelector: {
-        const zk::plonk::Selector& selector =
-            expression.ToSelector()->selector();
+        zk::plonk::Selector selector = expression.ToSelector()->selector();
         return os
                << fmt.DebugTuple("Selector").Field(selector.index()).Finish();
       }

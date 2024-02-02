@@ -36,7 +36,7 @@ class VirtualCells {
   }
 
   // Query a selector at the current position.
-  std::unique_ptr<Expression<F>> QuerySelector(const Selector& selector) {
+  std::unique_ptr<Expression<F>> QuerySelector(Selector selector) {
     queried_selectors_.push_back(selector);
     return ExpressionFactory<F>::Selector(selector);
   }

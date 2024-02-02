@@ -38,7 +38,7 @@ class ExpressionFactory {
     return absl::WrapUnique(new ConstantExpression<F>(value));
   }
 
-  static std::unique_ptr<Expr> Selector(const plonk::Selector& selector) {
+  static std::unique_ptr<Expr> Selector(plonk::Selector selector) {
     return absl::WrapUnique(new SelectorExpression<F>(selector));
   }
 

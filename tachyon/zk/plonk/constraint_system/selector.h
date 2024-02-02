@@ -23,6 +23,8 @@ namespace tachyon::zk::plonk {
 template <typename F>
 class Region;
 
+// NOTE(dongchangYoo): Selector class is copyable, assignable, and occupy 65
+// bits per instance. Prefer to pass them by value.
 class TACHYON_EXPORT Selector {
  public:
   static Selector Simple(size_t index) { return {index, true}; }
@@ -32,10 +34,10 @@ class TACHYON_EXPORT Selector {
   size_t index() const { return index_; }
   bool is_simple() const { return is_simple_; }
 
-  bool operator==(const Selector& other) const {
+  bool operator==(Selector other) const {
     return index_ == other.index_ && is_simple_ == other.is_simple_;
   }
-  bool operator!=(const Selector& other) const { return !operator==(other); }
+  bool operator!=(Selector other) const { return !operator==(other); }
 
   // Defined in region.h
   template <typename F>
@@ -54,7 +56,7 @@ class TACHYON_EXPORT Selector {
 };
 
 template <typename H>
-H AbslHashValue(H h, const Selector& selector) {
+H AbslHashValue(H h, Selector selector) {
   return H::combine(std::move(h), selector.index(), selector.is_simple());
 }
 

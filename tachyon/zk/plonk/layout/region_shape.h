@@ -30,7 +30,7 @@ class RegionShape : public RegionLayouter<F> {
   RowIndex row_count() const { return row_count_; }
 
   // RegionLayouter methods
-  void EnableSelector(std::string_view, const Selector& selector,
+  void EnableSelector(std::string_view, Selector selector,
                       RowIndex offset) override {
     UpdateColumnsAndRowCount(selector, offset);
   }

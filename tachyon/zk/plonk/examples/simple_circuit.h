@@ -25,7 +25,7 @@ class FieldConfig {
 
   FieldConfig() = default;
   FieldConfig(std::array<AdviceColumnKey, 2>&& advice,
-              const InstanceColumnKey& instance, const Selector& s_mul)
+              const InstanceColumnKey& instance, Selector s_mul)
       : advice_(std::move(advice)), instance_(instance), s_mul_(s_mul) {}
 
   FieldConfig Clone() const {
@@ -35,7 +35,7 @@ class FieldConfig {
 
   const std::array<AdviceColumnKey, 2>& advice() const { return advice_; }
   const InstanceColumnKey& instance() const { return instance_; }
-  const Selector& s_mul() const { return s_mul_; }
+  Selector s_mul() const { return s_mul_; }
 
  private:
   // For this chip, we will use two advice columns to implement our
