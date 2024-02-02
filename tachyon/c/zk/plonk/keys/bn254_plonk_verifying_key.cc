@@ -7,7 +7,8 @@
 
 using namespace tachyon;
 
-using VKey = zk::VerifyingKey<math::bn254::Fr, math::bn254::G1AffinePoint>;
+using VKey =
+    zk::plonk::VerifyingKey<math::bn254::Fr, math::bn254::G1AffinePoint>;
 
 const tachyon_bn254_plonk_constraint_system*
 tachyon_bn254_plonk_verifying_key_get_constraint_system(

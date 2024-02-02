@@ -7,11 +7,11 @@
 #ifndef TACHYON_ZK_PLONK_HALO2_PINNED_VERIFYING_KEY_FORWARD_H_
 #define TACHYON_ZK_PLONK_HALO2_PINNED_VERIFYING_KEY_FORWARD_H_
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename F, typename C>
 class PinnedVerifyingKey;
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_PINNED_VERIFYING_KEY_FORWARD_H_

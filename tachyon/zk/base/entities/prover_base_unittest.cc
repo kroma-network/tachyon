@@ -6,7 +6,7 @@ namespace tachyon::zk {
 
 namespace {
 
-class ProverBaseTest : public halo2::ProverTest {};
+class ProverBaseTest : public plonk::halo2::ProverTest {};
 
 }  // namespace
 

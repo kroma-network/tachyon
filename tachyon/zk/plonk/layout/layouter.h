@@ -18,7 +18,7 @@
 #include "tachyon/zk/plonk/layout/lookup_table.h"
 #include "tachyon/zk/plonk/layout/region.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class NamespacedLayouter;
@@ -82,7 +82,7 @@ class Layouter {
   std::unique_ptr<NamespacedLayouter<F>> Namespace(std::string_view name);
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #include "tachyon/zk/plonk/layout/namespaced_layouter.h"
 

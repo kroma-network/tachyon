@@ -9,7 +9,7 @@
 
 #include <utility>
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Poly>
 class VanishingCommitted {
@@ -31,6 +31,6 @@ class VanishingCommitted {
   F random_blind_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_VANISHING_COMMITTED_H_

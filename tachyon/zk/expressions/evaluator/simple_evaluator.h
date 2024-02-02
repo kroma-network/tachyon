@@ -34,7 +34,7 @@ class SimpleEvaluator
 
   SimpleEvaluator() = default;
   SimpleEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
-                  const RefTable<Evals>& table,
+                  const plonk::RefTable<Evals>& table,
                   absl::Span<const Field> challenges)
       : idx_(idx),
         size_(size),
@@ -71,7 +71,7 @@ class SimpleEvaluator
 
       case ExpressionType::kFixed: {
         const FixedExpression<Field>* fixed_expr = input->ToFixed();
-        const FixedQuery& query = fixed_expr->query();
+        const plonk::FixedQuery& query = fixed_expr->query();
         const Evals& evals = fixed_columns_[query.column().index()];
         const Field* ret =
             evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
@@ -83,7 +83,7 @@ class SimpleEvaluator
 
       case ExpressionType::kAdvice: {
         const AdviceExpression<Field>* advice_expr = input->ToAdvice();
-        const AdviceQuery& query = advice_expr->query();
+        const plonk::AdviceQuery& query = advice_expr->query();
         const Evals& evals = advice_columns_[query.column().index()];
         const Field* ret =
             evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
@@ -95,7 +95,7 @@ class SimpleEvaluator
 
       case ExpressionType::kInstance: {
         const InstanceExpression<Field>* instance_expr = input->ToInstance();
-        const InstanceQuery& query = instance_expr->query();
+        const plonk::InstanceQuery& query = instance_expr->query();
         const Evals& evals = instance_columns_[query.column().index()];
         const Field* ret =
             evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];

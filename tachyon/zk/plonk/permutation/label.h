@@ -16,7 +16,7 @@
 #include "tachyon/export.h"
 #include "tachyon/zk/base/row_index.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 struct TACHYON_EXPORT Label {
   size_t col = 0;
@@ -34,6 +34,6 @@ struct TACHYON_EXPORT Label {
   }
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_LABEL_H_

@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
-#define TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
+#define TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
 
 #include <ostream>
 
@@ -16,11 +16,11 @@
 namespace tachyon::base::internal {
 
 template <typename Commitment>
-class RustDebugStringifier<zk::PermutationVerifyingKey<Commitment>> {
+class RustDebugStringifier<zk::plonk::PermutationVerifyingKey<Commitment>> {
  public:
   static std::ostream& AppendToStream(
       std::ostream& os, RustFormatter& fmt,
-      const zk::PermutationVerifyingKey<Commitment>& vk) {
+      const zk::plonk::PermutationVerifyingKey<Commitment>& vk) {
     // NOTE(chokobole): See
     // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/permutation.rs#L80-L84
     return os << fmt.DebugStruct("VerifyingKey")
@@ -31,4 +31,4 @@ class RustDebugStringifier<zk::PermutationVerifyingKey<Commitment>> {
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_VERIFYING_KEY_STRINGIFIER_H_

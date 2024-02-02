@@ -4,13 +4,15 @@
 #include <utility>
 #include <vector>
 
-#include "gtest/gtest_prod.h"
-
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 
 namespace tachyon::zk {
+
+class LookupArgumentRunnerTest_ComputePermutationProduct_Test;
+
+namespace plonk {
 
 class GrandProductArgument {
  public:
@@ -55,7 +57,7 @@ class GrandProductArgument {
   }
 
  private:
-  FRIEND_TEST(LookupArgumentRunnerTest, ComputePermutationProduct);
+  friend class zk::LookupArgumentRunnerTest_ComputePermutationProduct_Test;
 
   template <typename Evals, typename Callable>
   static Evals CreatePolynomial(size_t size, RowIndex blinding_factors,
@@ -112,6 +114,7 @@ class GrandProductArgument {
   }
 };
 
+}  // namespace plonk
 }  // namespace tachyon::zk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_GRAND_PRODUCT_ARGUMENT_H_

@@ -15,7 +15,7 @@
 
 // This is a "namespaced" layouter which borrows a |Layouter| (pushing a
 // namespace context) and, when dropped, pops out of the namespace context.
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class NamespacedLayouter : public Layouter<F> {
@@ -75,6 +75,6 @@ std::unique_ptr<NamespacedLayouter<F>> Layouter<F>::Namespace(
   return std::make_unique<NamespacedLayouter<F>>(GetRoot());
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_NAMESPACED_LAYOUTER_H_

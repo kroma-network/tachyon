@@ -20,7 +20,7 @@
 #include "tachyon/zk/expressions/sum_expression.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verification_data.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class VanishingVerificationEvaluator : public Evaluator<F, F> {
@@ -91,6 +91,6 @@ class VanishingVerificationEvaluator : public Evaluator<F, F> {
   const VanishingVerificationData<F>& data_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_VANISHING_VERIFICATION_EVALUATOR_H_

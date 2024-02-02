@@ -24,7 +24,7 @@
 #include "tachyon/zk/plonk/layout/floor_planner/v1/v1_plan.h"
 #include "tachyon/zk/plonk/layout/floor_planner/v1/v1_strategy.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // The version 1 |FloorPlanner| provided by "halo2".
 //
@@ -153,6 +153,6 @@ class V1FloorPlanner : public FloorPlanner<Circuit> {
   };
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_V1_V1_FLOOR_PLANNER_H_

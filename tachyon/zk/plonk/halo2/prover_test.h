@@ -12,7 +12,7 @@
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 class ProverTest : public testing::Test {
  public:
@@ -63,6 +63,6 @@ class ProverTest : public testing::Test {
   std::unique_ptr<Prover<PCS>> prover_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_PROVER_TEST_H_

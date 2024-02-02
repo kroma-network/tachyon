@@ -13,7 +13,7 @@
 #include "tachyon/zk/plonk/vanishing/vanishing_verification_data.h"
 
 namespace tachyon {
-namespace zk::halo2 {
+namespace zk::plonk::halo2 {
 
 template <typename F, typename C>
 struct Proof {
@@ -151,15 +151,15 @@ struct Proof {
   }
 };
 
-}  // namespace zk::halo2
+}  // namespace zk::plonk::halo2
 
 namespace base {
 
 template <typename F, typename C>
-class RapidJsonValueConverter<zk::halo2::Proof<F, C>> {
+class RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>> {
  public:
   template <typename Allocator>
-  static rapidjson::Value From(const zk::halo2::Proof<F, C>& value,
+  static rapidjson::Value From(const zk::plonk::halo2::Proof<F, C>& value,
                                Allocator& allocator) {
     rapidjson::Value object(rapidjson::kObjectType);
     AddJsonElement(object, "advices_commitments_vec",
@@ -209,8 +209,8 @@ class RapidJsonValueConverter<zk::halo2::Proof<F, C>> {
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
-                 zk::halo2::Proof<F, C>* proof_out, std::string* error) {
-    zk::halo2::Proof<F, C> proof;
+                 zk::plonk::halo2::Proof<F, C>* proof_out, std::string* error) {
+    zk::plonk::halo2::Proof<F, C> proof;
     if (!ParseJsonElement(json_value, "advices_commitments_vec",
                           &proof.advices_commitments_vec, error))
       return false;

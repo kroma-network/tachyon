@@ -17,7 +17,7 @@
 #include "tachyon/zk/plonk/halo2/stringifiers/field_stringifier.h"
 
 namespace tachyon {
-namespace zk::halo2 {
+namespace zk::plonk::halo2 {
 
 template <typename F>
 class PinnedEvaluationDomain {
@@ -43,16 +43,16 @@ class PinnedEvaluationDomain {
   F omega_;
 };
 
-}  // namespace zk::halo2
+}  // namespace zk::plonk::halo2
 
 namespace base::internal {
 
 template <typename F>
-class RustDebugStringifier<zk::halo2::PinnedEvaluationDomain<F>> {
+class RustDebugStringifier<zk::plonk::halo2::PinnedEvaluationDomain<F>> {
  public:
   static std::ostream& AppendToStream(
       std::ostream& os, RustFormatter& fmt,
-      const zk::halo2::PinnedEvaluationDomain<F>& value) {
+      const zk::plonk::halo2::PinnedEvaluationDomain<F>& value) {
     return os << fmt.DebugStruct("PinnedEvaluationDomain")
                      .Field("k", value.k())
                      .Field("extended_k", value.extended_k())

@@ -3,7 +3,7 @@
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename ColumnKey>
 class ColumnKeyTest : public testing::Test {};
@@ -109,4 +109,4 @@ TEST(ColumnKeyBaseTest, Hash) {
                       ColumnKeyBase(ColumnType::kInstance, 1))));
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

@@ -25,7 +25,7 @@
 #include "tachyon/zk/plonk/constraint_system/selector_assignment.h"
 #include "tachyon/zk/plonk/constraint_system/selector_description.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class SelectorCompressor {
@@ -288,6 +288,6 @@ class SelectorCompressor {
   std::vector<SelectorDescription> selectors_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_COMPRESSOR_H_

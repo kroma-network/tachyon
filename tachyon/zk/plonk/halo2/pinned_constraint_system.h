@@ -19,7 +19,7 @@
 #include "tachyon/zk/plonk/halo2/stringifiers/query_stringifier.h"
 
 namespace tachyon {
-namespace zk::halo2 {
+namespace zk::plonk::halo2 {
 
 template <typename F>
 class PinnedConstraintSystem {
@@ -87,16 +87,16 @@ class PinnedConstraintSystem {
   const std::optional<size_t>& minimum_degree_;
 };
 
-}  // namespace zk::halo2
+}  // namespace zk::plonk::halo2
 
 namespace base::internal {
 
 template <typename F>
-class RustDebugStringifier<zk::halo2::PinnedConstraintSystem<F>> {
+class RustDebugStringifier<zk::plonk::halo2::PinnedConstraintSystem<F>> {
  public:
   static std::ostream& AppendToStream(
       std::ostream& os, RustFormatter& fmt,
-      const zk::halo2::PinnedConstraintSystem<F>& constraint_system) {
+      const zk::plonk::halo2::PinnedConstraintSystem<F>& constraint_system) {
     DebugStruct debug_struct = fmt.DebugStruct("PinnedConstraintSystem");
     debug_struct
         .Field("num_fixed_columns", constraint_system.num_fixed_columns())

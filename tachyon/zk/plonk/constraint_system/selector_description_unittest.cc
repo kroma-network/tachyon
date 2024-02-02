@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 TEST(SelectorDescriptionTest, IsOrthogonal) {
   std::vector<std::vector<bool>> selector_activations = {
@@ -31,4 +31,4 @@ TEST(SelectorDescriptionTest, IsOrthogonal) {
   EXPECT_FALSE(a.IsOrthogonal(c));
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

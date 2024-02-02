@@ -7,7 +7,7 @@
 
 using namespace tachyon;
 
-using CS = zk::ConstraintSystem<math::bn254::Fr>;
+using CS = zk::plonk::ConstraintSystem<math::bn254::Fr>;
 
 uint32_t tachyon_bn254_plonk_constraint_system_compute_blinding_factors(
     const tachyon_bn254_plonk_constraint_system* cs) {
@@ -17,7 +17,7 @@ uint32_t tachyon_bn254_plonk_constraint_system_compute_blinding_factors(
 void tachyon_bn254_plonk_constraint_system_get_advice_column_phases(
     const tachyon_bn254_plonk_constraint_system* cs, tachyon_phase* phases,
     size_t* phases_len) {
-  const std::vector<zk::Phase>& cpp_phases =
+  const std::vector<zk::plonk::Phase>& cpp_phases =
       reinterpret_cast<const CS*>(cs)->advice_column_phases();
   *phases_len = cpp_phases.size();
   if (phases == nullptr) return;
@@ -29,7 +29,7 @@ void tachyon_bn254_plonk_constraint_system_get_advice_column_phases(
 void tachyon_bn254_plonk_constraint_system_get_challenge_phases(
     const tachyon_bn254_plonk_constraint_system* cs, tachyon_phase* phases,
     size_t* phases_len) {
-  const std::vector<zk::Phase>& cpp_phases =
+  const std::vector<zk::plonk::Phase>& cpp_phases =
       reinterpret_cast<const CS*>(cs)->challenge_phases();
   *phases_len = cpp_phases.size();
   if (phases == nullptr) return;
@@ -41,7 +41,7 @@ void tachyon_bn254_plonk_constraint_system_get_challenge_phases(
 void tachyon_bn254_plonk_constraint_system_get_phases(
     const tachyon_bn254_plonk_constraint_system* cs, tachyon_phase* phases,
     size_t* phases_len) {
-  std::vector<zk::Phase> cpp_phases =
+  std::vector<zk::plonk::Phase> cpp_phases =
       reinterpret_cast<const CS*>(cs)->GetPhases();
   *phases_len = cpp_phases.size();
   if (phases == nullptr) return;
@@ -73,7 +73,7 @@ size_t tachyon_bn254_plonk_constraint_system_get_num_challenges(
 void tachyon_bn254_plonk_constraint_system_get_constants(
     const tachyon_bn254_plonk_constraint_system* cs,
     tachyon_fixed_column_key* constants, size_t* constants_len) {
-  const std::vector<zk::FixedColumnKey>& cpp_constants =
+  const std::vector<zk::plonk::FixedColumnKey>& cpp_constants =
       reinterpret_cast<const CS*>(cs)->constants();
   *constants_len = cpp_constants.size();
   if (constants == nullptr) return;

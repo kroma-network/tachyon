@@ -14,7 +14,7 @@
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/plonk/permutation/label.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Evals>
 class PermutedTable {
@@ -51,6 +51,6 @@ class PermutedTable {
   const Table* table_ = nullptr;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTED_TABLE_H_

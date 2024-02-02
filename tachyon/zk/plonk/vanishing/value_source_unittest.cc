@@ -4,7 +4,7 @@
 
 #include "tachyon/base/random.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 #define TEST_CONSTANTS(name, index)                                       \
   size_t value = base::Uniform(base::Range<size_t>::From(index + 1));     \
@@ -45,4 +45,4 @@ TEST(ValueSourceTest, IsTwoConstant) {
 
 #undef TEST_CONSTANTS
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

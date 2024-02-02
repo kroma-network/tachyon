@@ -7,7 +7,7 @@
 #include "tachyon/zk/plonk/layout/floor_planner/floor_planner.h"
 #include "tachyon/zk/plonk/layout/floor_planner/single_chip_layouter.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Circuit>
 class SimpleFloorPlanner : public FloorPlanner<Circuit> {
@@ -23,6 +23,6 @@ class SimpleFloorPlanner : public FloorPlanner<Circuit> {
   }
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_SIMPLE_FLOOR_PLANNER_H_

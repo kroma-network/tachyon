@@ -13,7 +13,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/export.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // This describes a selector and where it is activated.
 class TACHYON_EXPORT SelectorDescription {
@@ -55,6 +55,6 @@ class TACHYON_EXPORT SelectorDescription {
   size_t max_degree_ = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_DESCRIPTION_H_

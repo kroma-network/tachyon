@@ -20,7 +20,7 @@
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 namespace internal {
 
 template <typename AffinePoint>
@@ -178,6 +178,6 @@ class Blake2bWriter : public crypto::TranscriptWriter<AffinePoint>,
   }
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_BLAKE2B_TRANSCRIPT_H_

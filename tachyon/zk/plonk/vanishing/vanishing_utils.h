@@ -16,7 +16,7 @@
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // Calculate ζ = g^((2ˢ * T) / 3).
 template <typename F>
@@ -217,6 +217,6 @@ std::vector<F> BuildExtendedColumnWithColumns(
   return flattened_columns;
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_VANISHING_UTILS_H_

@@ -18,7 +18,7 @@
 #include "tachyon/export.h"
 #include "tachyon/zk/base/row_index.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class Region;
@@ -58,6 +58,6 @@ H AbslHashValue(H h, const Selector& selector) {
   return H::combine(std::move(h), selector.index(), selector.is_simple());
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_H_

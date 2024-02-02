@@ -20,7 +20,7 @@
 #include "tachyon/zk/plonk/layout/floor_planner/v1/v1_plan.h"
 #include "tachyon/zk/plonk/layout/layouter.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // Assigns the circuit.
 template <typename F>
@@ -64,6 +64,6 @@ class AssignmentPass {
   size_t region_index_ = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_V1_ASSIGNMENT_PASS_H_

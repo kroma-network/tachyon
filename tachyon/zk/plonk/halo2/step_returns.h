@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename P, typename L, typename V>
 class StepReturns {
@@ -33,6 +33,6 @@ class StepReturns {
   V vanishing_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_STEP_RETURNS_H_

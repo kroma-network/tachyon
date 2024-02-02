@@ -7,7 +7,7 @@
 
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 namespace {
 
 class PermutationTableStoreTest : public halo2::ProverTest {
@@ -84,4 +84,4 @@ TEST_F(PermutationTableStoreTest, GetColumns) {
   }
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

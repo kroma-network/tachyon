@@ -14,7 +14,7 @@
 #include "tachyon/export.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // A fixed column of a lookup table.
 //
@@ -55,6 +55,6 @@ H AbslHashValue(H h, const LookupTableColumn& column) {
   return H::combine(std::move(h), column.column());
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_LOOKUP_TABLE_COLUMN_H_

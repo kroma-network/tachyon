@@ -22,7 +22,7 @@
 #include "tachyon/zk/plonk/layout/region_column.h"
 #include "tachyon/zk/plonk/layout/region_shape.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class SingleChipLayouter : public Layouter<F> {
@@ -164,6 +164,6 @@ class SingleChipLayouter : public Layouter<F> {
   std::vector<LookupTableColumn> lookup_table_columns_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_SINGLE_CHIP_LAYOUTER_H_

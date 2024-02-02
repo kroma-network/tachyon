@@ -14,7 +14,7 @@
 #include "tachyon/zk/plonk/layout/layouter.h"
 #include "tachyon/zk/plonk/layout/region_shape.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // Measures the circuit.
 template <typename F>
@@ -40,7 +40,7 @@ class MeasurementPass {
     // Get shape of the region.
     RegionShape<F> shape(region_index);
     {
-      zk::Region<F> region(&shape);
+      zk::plonk::Region<F> region(&shape);
       assign.Run(region);
     }
     regions_.emplace_back(name, std::move(shape));
@@ -50,6 +50,6 @@ class MeasurementPass {
   std::vector<Region> regions_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_V1_MEASUREMENT_PASS_H_

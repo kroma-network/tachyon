@@ -13,7 +13,7 @@
 #include "tachyon/base/buffer/copyable.h"
 
 namespace tachyon {
-namespace zk {
+namespace zk::plonk {
 
 template <typename Poly, typename Evals>
 class PermutationProvingKey {
@@ -44,30 +44,31 @@ class PermutationProvingKey {
   std::vector<Poly> polys_;
 };
 
-}  // namespace zk
+}  // namespace zk::plonk
 
 namespace base {
 
 template <typename Poly, typename Evals>
-class Copyable<zk::PermutationProvingKey<Poly, Evals>> {
+class Copyable<zk::plonk::PermutationProvingKey<Poly, Evals>> {
  public:
-  static bool WriteTo(const zk::PermutationProvingKey<Poly, Evals>& pk,
+  static bool WriteTo(const zk::plonk::PermutationProvingKey<Poly, Evals>& pk,
                       Buffer* buffer) {
     return buffer->WriteMany(pk.permutations(), pk.polys());
   }
 
   static bool ReadFrom(const Buffer& buffer,
-                       zk::PermutationProvingKey<Poly, Evals>* pk) {
+                       zk::plonk::PermutationProvingKey<Poly, Evals>* pk) {
     std::vector<Evals> perms;
     std::vector<Poly> poly;
     if (!buffer.ReadMany(&perms, &poly)) return false;
 
-    *pk = zk::PermutationProvingKey<Poly, Evals>(std::move(perms),
-                                                 std::move(poly));
+    *pk = zk::plonk::PermutationProvingKey<Poly, Evals>(std::move(perms),
+                                                        std::move(poly));
     return true;
   }
 
-  static size_t EstimateSize(const zk::PermutationProvingKey<Poly, Evals>& pk) {
+  static size_t EstimateSize(
+      const zk::plonk::PermutationProvingKey<Poly, Evals>& pk) {
     return base::EstimateSize(pk.permutations()) +
            base::EstimateSize(pk.polys());
   }

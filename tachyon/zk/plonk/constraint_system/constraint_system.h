@@ -35,7 +35,7 @@
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // This is a description of the circuit environment, such as the gate, column
 // and permutation arrangements.
@@ -622,6 +622,6 @@ class ConstraintSystem {
   mutable std::optional<RowIndex> cached_blinding_factors_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CONSTRAINT_SYSTEM_H_

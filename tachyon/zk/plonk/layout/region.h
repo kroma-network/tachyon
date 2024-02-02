@@ -17,7 +17,7 @@
 #include "tachyon/zk/plonk/layout/assigned_cell.h"
 #include "tachyon/zk/plonk/layout/region_layouter.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class Region {
@@ -114,6 +114,6 @@ AssignedCell<F> AssignedCell<F>::CopyAdvice(std::string_view name,
   return ret;
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_REGION_H_

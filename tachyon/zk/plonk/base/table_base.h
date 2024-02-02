@@ -17,7 +17,7 @@
 #include "tachyon/base/template_util.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename PolyOrEvals>
 class TableBase {
@@ -58,6 +58,6 @@ class TableBase {
   }
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_BASE_TABLE_BASE_H_

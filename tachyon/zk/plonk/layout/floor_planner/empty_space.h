@@ -13,7 +13,7 @@
 #include "tachyon/export.h"
 #include "tachyon/zk/base/row_index.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // An area of empty space within a column.
 class TACHYON_EXPORT EmptySpace {
@@ -40,6 +40,6 @@ class TACHYON_EXPORT EmptySpace {
   std::optional<RowIndex> end_ = std::nullopt;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_EMPTY_SPACE_H_

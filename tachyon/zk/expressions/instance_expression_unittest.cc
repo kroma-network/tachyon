@@ -16,7 +16,7 @@ class InstanceExpressionTest : public testing::Test {
 TEST_F(InstanceExpressionTest, DegreeComplexity) {
   std::unique_ptr<InstanceExpression<Fr>> expr =
       InstanceExpression<Fr>::CreateForTesting(
-          InstanceQuery(1, Rotation(1), InstanceColumnKey(1)));
+          plonk::InstanceQuery(1, Rotation(1), plonk::InstanceColumnKey(1)));
   EXPECT_EQ(expr->Degree(), size_t{1});
   EXPECT_EQ(expr->Complexity(), uint64_t{1});
 }

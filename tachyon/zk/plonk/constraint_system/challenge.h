@@ -13,7 +13,7 @@
 
 #include "tachyon/zk/plonk/base/phase.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 class TACHYON_EXPORT Challenge {
  public:
@@ -37,6 +37,6 @@ class TACHYON_EXPORT Challenge {
   Phase phase_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CHALLENGE_H_

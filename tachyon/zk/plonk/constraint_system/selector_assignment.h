@@ -12,7 +12,7 @@
 
 #include "tachyon/zk/expressions/expression.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // This describes the assigned combination of a particular selector as well as
 // the expression it should be substituted with.
@@ -39,6 +39,6 @@ class SelectorAssignment {
   std::unique_ptr<Expression<F>> expression_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_SELECTOR_ASSIGNMENT_H_

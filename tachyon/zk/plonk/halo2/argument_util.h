@@ -21,7 +21,7 @@
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument_runner.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename PCS, typename F, typename Evals,
           typename Poly = typename PCS::Poly>
@@ -184,6 +184,6 @@ std::vector<crypto::PolynomialOpening<Poly>> GenerateColumnOpenings(
       });
 }
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_ARGUMENT_UTIL_H_

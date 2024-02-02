@@ -4,7 +4,7 @@
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 namespace {
 
@@ -146,4 +146,4 @@ TEST_F(RandomFieldGeneratorTest, Random) {
   }
 }
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2

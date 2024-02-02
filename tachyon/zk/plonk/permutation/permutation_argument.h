@@ -14,7 +14,7 @@
 #include "tachyon/export.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // TODO(dongchangYoo): impl logics related to prove and verify.
 class TACHYON_EXPORT PermutationArgument {
@@ -73,6 +73,6 @@ class TACHYON_EXPORT PermutationArgument {
   std::vector<AnyColumnKey> columns_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_ARGUMENT_H_

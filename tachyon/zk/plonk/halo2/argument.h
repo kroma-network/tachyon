@@ -11,7 +11,7 @@
 #include "tachyon/zk/plonk/vanishing/prover_vanishing_argument.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_argument.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 // Data class including all arguments for creating proof.
 template <typename Poly, typename Evals>
@@ -202,6 +202,6 @@ class Argument {
   PointSet<F> opening_points_set_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_ARGUMENT_H_

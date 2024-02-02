@@ -22,7 +22,7 @@
 #include "tachyon/zk/plonk/permutation/permuted_table.h"
 #include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Poly, typename Evals>
 template <typename PCS>
@@ -212,6 +212,6 @@ PermutationArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
   };
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_ARGUMENT_RUNNER_IMPL_H_

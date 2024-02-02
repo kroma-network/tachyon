@@ -3,7 +3,7 @@
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 TEST(LookupTableColumnTest, Hash) {
   EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
@@ -11,4 +11,4 @@ TEST(LookupTableColumnTest, Hash) {
                       LookupTableColumn(FixedColumnKey(2)))));
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

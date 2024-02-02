@@ -14,7 +14,7 @@
 #include "tachyon/zk/base/rotation.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <ColumnType C>
 class QueryData {
@@ -73,6 +73,6 @@ using FixedQuery = Query<ColumnType::kFixed>;
 using InstanceQuery = Query<ColumnType::kInstance>;
 using AdviceQuery = Query<ColumnType::kAdvice>;
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_QUERY_H_

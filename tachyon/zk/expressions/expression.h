@@ -85,7 +85,7 @@ class Expression {
   bool ContainsSimpleSelector() const;
 
   // Extracts a simple selector from this gate, if present.
-  std::optional<Selector> ExtractSimpleSelector() const;
+  std::optional<plonk::Selector> ExtractSimpleSelector() const;
 
   std::unique_ptr<Expression<F>> ReplaceSelectors(
       const std::vector<base::Ref<const Expression<F>>>& replacements,

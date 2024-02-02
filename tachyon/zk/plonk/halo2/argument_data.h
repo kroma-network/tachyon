@@ -14,7 +14,7 @@
 #include "tachyon/zk/plonk/halo2/argument_data.h"
 #include "tachyon/zk/plonk/halo2/synthesizer.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename Poly, typename Evals>
 class ArgumentData {
@@ -181,6 +181,6 @@ class ArgumentData {
   std::vector<std::vector<Poly>> instance_polys_vec_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_ARGUMENT_DATA_H_

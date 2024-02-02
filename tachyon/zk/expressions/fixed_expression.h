@@ -21,11 +21,11 @@ template <typename F>
 class FixedExpression : public Expression<F> {
  public:
   static std::unique_ptr<FixedExpression> CreateForTesting(
-      const FixedQuery& query) {
+      const plonk::FixedQuery& query) {
     return absl::WrapUnique(new FixedExpression(query));
   }
 
-  const FixedQuery& query() const { return query_; }
+  const plonk::FixedQuery& query() const { return query_; }
 
   // Expression methods
   size_t Degree() const override { return 1; }
@@ -51,10 +51,10 @@ class FixedExpression : public Expression<F> {
  private:
   friend class ExpressionFactory<F>;
 
-  explicit FixedExpression(const FixedQuery& query)
+  explicit FixedExpression(const plonk::FixedQuery& query)
       : Expression<F>(ExpressionType::kFixed), query_(query) {}
 
-  FixedQuery query_;
+  plonk::FixedQuery query_;
 };
 
 }  // namespace tachyon::zk

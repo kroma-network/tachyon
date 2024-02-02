@@ -18,7 +18,7 @@
 #include "tachyon/zk/plonk/vanishing/evaluation_input.h"
 #include "tachyon/zk/plonk/vanishing/value_source.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 class TACHYON_EXPORT Calculation {
  public:
@@ -168,6 +168,6 @@ class TACHYON_EXPORT Calculation {
   std::optional<HornerData> horner_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_CALCULATION_H_

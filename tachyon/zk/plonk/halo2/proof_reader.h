@@ -10,7 +10,7 @@
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 enum class ProofCursor {
   kAdviceCommitmentsVecAndChallenges,
@@ -261,6 +261,6 @@ class ProofReader {
   ProofCursor cursor_ = ProofCursor::kAdviceCommitmentsVecAndChallenges;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_PROOF_READER_H_

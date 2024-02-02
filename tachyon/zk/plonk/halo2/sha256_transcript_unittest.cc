@@ -13,7 +13,7 @@
 
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 namespace {
 
@@ -71,4 +71,4 @@ TEST_F(Sha256TranscriptTest, SqueezeChallenge) {
   EXPECT_EQ(expected, actual);
 }
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2

@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // - |start| is the current start row of the region (not of this column).
 // - |slack| is the maximum number of rows the start could be moved down,
@@ -63,4 +63,4 @@ std::optional<RowIndex> FirstFitRegion(
   return std::nullopt;
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

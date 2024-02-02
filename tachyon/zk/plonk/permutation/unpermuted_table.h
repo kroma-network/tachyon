@@ -18,7 +18,7 @@
 #include "tachyon/zk/plonk/permutation/label.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // The |UnpermutedTable| contains elements that are the product-of-powers
 // of δ and ω (called "label"). And each permutation polynomial (in evaluation
@@ -91,6 +91,6 @@ class UnpermutedTable {
   Table table_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_UNPERMUTED_TABLE_H_

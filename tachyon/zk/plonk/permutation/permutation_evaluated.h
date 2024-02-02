@@ -12,7 +12,7 @@
 
 #include "tachyon/zk/base/blinded_polynomial.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Poly>
 class PermutationEvaluated {
@@ -30,6 +30,6 @@ class PermutationEvaluated {
   std::vector<BlindedPolynomial<Poly>> product_polys_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_EVALUATED_H_

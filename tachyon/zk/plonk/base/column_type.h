@@ -12,7 +12,7 @@
 
 #include "tachyon/export.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 // As the names denotes, |kFixed|, |kAdvice| and |kInstance| types
 // represent fixed, advice and instance columns.
@@ -27,6 +27,6 @@ enum class ColumnType {
 
 TACHYON_EXPORT std::string_view ColumnTypeToString(ColumnType type);
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_BASE_COLUMN_TYPE_H_

@@ -3,7 +3,7 @@
 
 #include "absl/types/span.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 struct VanishingVerificationData {
@@ -13,6 +13,6 @@ struct VanishingVerificationData {
   absl::Span<const F> challenges;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_VANISHING_VANISHING_VERIFICATION_DATA_H_

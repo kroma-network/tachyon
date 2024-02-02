@@ -7,7 +7,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename ColumnKey>
 class RefTableTest : public testing::Test {
@@ -62,4 +62,4 @@ TYPED_TEST(RefTableTest, GetColumns) {
   EXPECT_EQ(*evals_refs[5], this->instance_columns_[2]);
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk

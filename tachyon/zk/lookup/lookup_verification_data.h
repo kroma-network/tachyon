@@ -7,7 +7,7 @@
 namespace tachyon::zk {
 
 template <typename F, typename C>
-struct LookupVerificationData : public VanishingVerificationData<F> {
+struct LookupVerificationData : public plonk::VanishingVerificationData<F> {
   const LookupPair<C>* permuted_commitment = nullptr;
   const C* product_commitment = nullptr;
   const F* product_eval = nullptr;

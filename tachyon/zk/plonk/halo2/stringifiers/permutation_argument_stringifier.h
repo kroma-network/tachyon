@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_PERMUTATION_ARGUMENT_STRINGIFIER_H_
-#define TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_PERMUTATION_ARGUMENT_STRINGIFIER_H_
+#ifndef TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_ARGUMENT_STRINGIFIER_H_
+#define TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_ARGUMENT_STRINGIFIER_H_
 
 #include <ostream>
 
@@ -16,10 +16,11 @@
 namespace tachyon::base::internal {
 
 template <>
-class RustDebugStringifier<zk::PermutationArgument> {
+class RustDebugStringifier<zk::plonk::PermutationArgument> {
  public:
-  static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
-                                      const zk::PermutationArgument& argument) {
+  static std::ostream& AppendToStream(
+      std::ostream& os, RustFormatter& fmt,
+      const zk::plonk::PermutationArgument& argument) {
     return os << fmt.DebugStruct("Argument")
                      .Field("columns", argument.columns())
                      .Finish();
@@ -28,4 +29,4 @@ class RustDebugStringifier<zk::PermutationArgument> {
 
 }  // namespace tachyon::base::internal
 
-#endif  // TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_PERMUTATION_ARGUMENT_STRINGIFIER_H_
+#endif  // TACHYON_ZK_PLONK_HALO2_STRINGIFIERS_PERMUTATION_ARGUMENT_STRINGIFIER_H_

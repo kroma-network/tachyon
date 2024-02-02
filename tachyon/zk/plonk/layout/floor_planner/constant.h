@@ -12,7 +12,7 @@
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/zk/plonk/layout/cell.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 struct Constant {
@@ -26,6 +26,6 @@ struct Constant {
 template <typename F>
 using Constants = std::vector<Constant<F>>;
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_CONSTANT_H_

@@ -12,7 +12,7 @@
 
 #include "tachyon/zk/plonk/base/table_base.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename PolyOrEvals>
 class OwnedTable : public TableBase<PolyOrEvals> {
@@ -42,6 +42,6 @@ class OwnedTable : public TableBase<PolyOrEvals> {
   std::vector<PolyOrEvals> instance_columns_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_BASE_OWNED_TABLE_H_

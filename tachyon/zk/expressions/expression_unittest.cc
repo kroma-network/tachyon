@@ -17,17 +17,17 @@ class ExpressionTest : public testing::Test {
   void SetUp() override {
     expressions_.push_back(ExpressionFactory<Fr>::Constant(Fr(1)));
     expressions_.push_back(
-        ExpressionFactory<Fr>::Selector(Selector::Simple(1)));
+        ExpressionFactory<Fr>::Selector(plonk::Selector::Simple(1)));
     expressions_.push_back(
-        ExpressionFactory<Fr>::Selector(Selector::Complex(2)));
+        ExpressionFactory<Fr>::Selector(plonk::Selector::Complex(2)));
     expressions_.push_back(ExpressionFactory<Fr>::Fixed(
-        FixedQuery(1, Rotation(1), FixedColumnKey(1))));
-    expressions_.push_back(ExpressionFactory<Fr>::Advice(
-        AdviceQuery(1, Rotation(1), AdviceColumnKey(1, Phase(0)))));
+        plonk::FixedQuery(1, Rotation(1), plonk::FixedColumnKey(1))));
+    expressions_.push_back(ExpressionFactory<Fr>::Advice(plonk::AdviceQuery(
+        1, Rotation(1), plonk::AdviceColumnKey(1, plonk::Phase(0)))));
     expressions_.push_back(ExpressionFactory<Fr>::Instance(
-        InstanceQuery(1, Rotation(1), InstanceColumnKey(1))));
+        plonk::InstanceQuery(1, Rotation(1), plonk::InstanceColumnKey(1))));
     expressions_.push_back(
-        ExpressionFactory<Fr>::Challenge(Challenge(1, Phase(0))));
+        ExpressionFactory<Fr>::Challenge(plonk::Challenge(1, plonk::Phase(0))));
     expressions_.push_back(
         ExpressionFactory<Fr>::Negated(ExpressionFactory<Fr>::Constant(Fr(1))));
     expressions_.push_back(

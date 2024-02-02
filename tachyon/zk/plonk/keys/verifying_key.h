@@ -23,7 +23,7 @@
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/permutation/permutation_verifying_key.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Evals>
 struct VerifyingKeyLoadResult {
@@ -127,6 +127,6 @@ class VerifyingKey : public Key {
   F transcript_repr_ = F::Zero();
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_KEYS_VERIFYING_KEY_H_

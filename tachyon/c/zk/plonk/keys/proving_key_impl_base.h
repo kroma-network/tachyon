@@ -14,7 +14,8 @@
 namespace tachyon::c::zk {
 
 template <typename Poly, typename Evals, typename C>
-class ProvingKeyImplBase : public tachyon::zk::ProvingKey<Poly, Evals, C> {
+class ProvingKeyImplBase
+    : public tachyon::zk::plonk::ProvingKey<Poly, Evals, C> {
  public:
   using F = typename Poly::Field;
 
@@ -23,7 +24,7 @@ class ProvingKeyImplBase : public tachyon::zk::ProvingKey<Poly, Evals, C> {
     ReadProvingKey(buffer);
   }
 
-  const tachyon::zk::ConstraintSystem<F>& GetConstraintSystem() const {
+  const tachyon::zk::plonk::ConstraintSystem<F>& GetConstraintSystem() const {
     return this->verifying_key_.constraint_system_;
   }
 
@@ -46,13 +47,14 @@ class ProvingKeyImplBase : public tachyon::zk::ProvingKey<Poly, Evals, C> {
     ReadBuffer(buffer, this->fixed_columns_);
     ReadBuffer(buffer, this->fixed_polys_);
     ReadBuffer(buffer, this->permutation_proving_key_);
-    this->vanishing_argument_ = tachyon::zk::VanishingArgument<F>::Create(
-        this->verifying_key_.constraint_system_);
+    this->vanishing_argument_ =
+        tachyon::zk::plonk::VanishingArgument<F>::Create(
+            this->verifying_key_.constraint_system_);
     CHECK(buffer.Done());
   }
 
   static void ReadVerifyingKey(base::Buffer& buffer,
-                               tachyon::zk::VerifyingKey<F, C>& vkey) {
+                               tachyon::zk::plonk::VerifyingKey<F, C>& vkey) {
     // NOTE(chokobole): For k
     ReadU32AsSizeT(buffer);
     ReadBuffer(buffer, vkey.fixed_commitments_);
@@ -65,11 +67,11 @@ class ProvingKeyImplBase : public tachyon::zk::ProvingKey<Poly, Evals, C> {
       ReadBuffer(buffer, commitments[i]);
     }
     vkey.permutation_verifying_key_ =
-        tachyon::zk::PermutationVerifyingKey<C>(std::move(commitments));
+        tachyon::zk::plonk::PermutationVerifyingKey<C>(std::move(commitments));
   }
 
-  static void ReadConstraintSystem(base::Buffer& buffer,
-                                   tachyon::zk::ConstraintSystem<F>& cs) {
+  static void ReadConstraintSystem(
+      base::Buffer& buffer, tachyon::zk::plonk::ConstraintSystem<F>& cs) {
     cs.num_fixed_columns_ = ReadU32AsSizeT(buffer);
     cs.num_advice_columns_ = ReadU32AsSizeT(buffer);
     cs.num_instance_columns_ = ReadU32AsSizeT(buffer);

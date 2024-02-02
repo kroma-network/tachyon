@@ -19,7 +19,7 @@
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
 #include "tachyon/zk/plonk/permutation/permutation_verification_data.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F, typename C>
 const F& GetEval(const PermutationVerificationData<F, C>& data,
@@ -146,6 +146,6 @@ std::vector<crypto::PolynomialOpening<Poly, C>> CreatePermutationQueries(
   return queries;
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_VERIFICATION_H_

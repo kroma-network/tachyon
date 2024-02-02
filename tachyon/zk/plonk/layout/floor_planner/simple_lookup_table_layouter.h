@@ -15,7 +15,7 @@
 #include "tachyon/zk/plonk/layout/lookup_table.h"
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
@@ -90,6 +90,6 @@ class SimpleLookupTableLayouter : public LookupTable<F>::Layouter {
   absl::flat_hash_map<LookupTableColumn, Value> values_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_SIMPLE_LOOKUP_TABLE_LAYOUTER_H_

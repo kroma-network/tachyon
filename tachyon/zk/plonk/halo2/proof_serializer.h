@@ -14,7 +14,7 @@
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename F, typename SFINAE = void>
 class ProofSerializer;
@@ -81,6 +81,6 @@ class ProofSerializer<math::AffinePoint<Curve>> {
   }
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_PROOF_SERIALIZER_H_

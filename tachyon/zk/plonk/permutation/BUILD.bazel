@@ -19,7 +19,6 @@ tachyon_cc_library(
         "//tachyon/base:parallelize",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base/entities:prover_base",
-        "@com_google_googletest//:gtest_prod",
     ],
 )
 

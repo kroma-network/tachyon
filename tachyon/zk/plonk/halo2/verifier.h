@@ -24,7 +24,7 @@
 #include "tachyon/zk/plonk/permutation/permutation_verification.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verification_evaluator.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename PCS>
 class Verifier : public VerifierBase<PCS> {
@@ -450,6 +450,6 @@ class Verifier : public VerifierBase<PCS> {
   }
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_VERIFIER_H_

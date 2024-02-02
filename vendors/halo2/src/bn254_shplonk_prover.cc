@@ -132,8 +132,9 @@ void SHPlonkProver::set_rng(rust::Slice<const uint8_t> state) {
 
 void SHPlonkProver::set_transcript(rust::Slice<const uint8_t> state) {
   base::Uint8VectorBuffer write_buf;
-  std::unique_ptr<zk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>> writer =
-      std::make_unique<zk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
+  std::unique_ptr<zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>
+      writer = std::make_unique<
+          zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
           std::move(write_buf));
   writer->SetState(rs::ConvertRustSliceToCppSpan<const uint8_t>(state));
   impl_->SetTranscript(std::move(writer));
@@ -212,7 +213,7 @@ void SHPlonkProver::create_proof(const ProvingKey& key,
         [vec_ptr](size_t j) { return ReadPoly(vec_ptr, j); });
   }
 
-  zk::halo2::ArgumentData<PCS::Poly, PCS::Evals> argument_data(
+  zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals> argument_data(
       std::move(advice_columns_vec), std::move(advice_blinds_vec),
       std::move(cpp_challenges), std::move(instance_columns_vec),
       std::move(instance_polys_vec));

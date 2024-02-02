@@ -11,7 +11,7 @@
 
 #include "tachyon/zk/plonk/base/table_base.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename PolyOrEvals>
 class RefTable : public TableBase<PolyOrEvals> {
@@ -41,6 +41,6 @@ class RefTable : public TableBase<PolyOrEvals> {
   absl::Span<const PolyOrEvals> instance_columns_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_BASE_REF_TABLE_H_

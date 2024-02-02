@@ -19,7 +19,7 @@
 #include "tachyon/zk/plonk/base/column_type.h"
 #include "tachyon/zk/plonk/base/phase.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 class TACHYON_EXPORT ColumnKeyBase {
  public:
@@ -209,6 +209,6 @@ H AbslHashValue(H h, const ColumnKey<C>& column) {
                     column.phase());
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_BASE_COLUMN_KEY_H_

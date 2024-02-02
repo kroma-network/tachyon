@@ -11,7 +11,7 @@
 
 #include "tachyon/zk/plonk/layout/layouter.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename _Config>
 class Circuit {
@@ -26,6 +26,6 @@ class Circuit {
   virtual void Synthesize(Config&& config, Layouter<Field>* layouter) const = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_CONSTRAINT_SYSTEM_CIRCUIT_H_

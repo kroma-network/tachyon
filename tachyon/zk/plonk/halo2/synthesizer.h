@@ -15,7 +15,7 @@
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/halo2/witness_collection.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 
 template <typename Evals>
 class Synthesizer {
@@ -164,6 +164,6 @@ class Synthesizer {
   std::vector<std::vector<F>> advice_blinds_vec_;
 };
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2
 
 #endif  // TACHYON_ZK_PLONK_HALO2_SYNTHESIZER_H_

@@ -12,7 +12,7 @@
 #include "tachyon/zk/plonk/examples/simple_circuit.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk::halo2 {
+namespace tachyon::zk::plonk::halo2 {
 namespace {
 
 class WitnessCollectionTest : public halo2::ProverTest {
@@ -77,4 +77,4 @@ TEST_F(WitnessCollectionTest, GetChallenge) {
   EXPECT_EQ(Value<F>::Known(expected_challenges_[target_idx]), challenge);
 }
 
-}  // namespace tachyon::zk::halo2
+}  // namespace tachyon::zk::plonk::halo2

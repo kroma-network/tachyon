@@ -16,7 +16,7 @@
 #include "tachyon/zk/plonk/permutation/permuted_table.h"
 #include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename Evals>
 class PermutationTableStore {
@@ -91,6 +91,6 @@ class PermutationTableStore {
   size_t chunk_size_ = 0;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_TABLE_STORE_H_

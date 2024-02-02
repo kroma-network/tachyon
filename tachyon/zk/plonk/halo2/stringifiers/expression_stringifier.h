@@ -36,12 +36,13 @@ class RustDebugStringifier<zk::Expression<F>> {
                          .Finish();
       }
       case zk::ExpressionType::kSelector: {
-        const zk::Selector& selector = expression.ToSelector()->selector();
+        const zk::plonk::Selector& selector =
+            expression.ToSelector()->selector();
         return os
                << fmt.DebugTuple("Selector").Field(selector.index()).Finish();
       }
       case zk::ExpressionType::kFixed: {
-        const zk::FixedQuery& query = expression.ToFixed()->query();
+        const zk::plonk::FixedQuery& query = expression.ToFixed()->query();
         return os << fmt.DebugStruct("Fixed")
                          .Field("query_index", query.index())
                          .Field("column_index", query.column().index())
@@ -49,18 +50,19 @@ class RustDebugStringifier<zk::Expression<F>> {
                          .Finish();
       }
       case zk::ExpressionType::kAdvice: {
-        const zk::AdviceQuery& query = expression.ToAdvice()->query();
+        const zk::plonk::AdviceQuery& query = expression.ToAdvice()->query();
         base::internal::DebugStruct debug_struct = fmt.DebugStruct("Advice");
         debug_struct.Field("query_index", query.index())
             .Field("column_index", query.column().index())
             .Field("rotation", query.rotation());
-        if (query.column().phase() != zk::kFirstPhase) {
+        if (query.column().phase() != zk::plonk::kFirstPhase) {
           debug_struct.Field("phase", query.column().phase());
         }
         return os << debug_struct.Finish();
       }
       case zk::ExpressionType::kInstance: {
-        const zk::InstanceQuery& query = expression.ToInstance()->query();
+        const zk::plonk::InstanceQuery& query =
+            expression.ToInstance()->query();
         return os << fmt.DebugStruct("Instance")
                          .Field("query_index", query.index())
                          .Field("column_index", query.column().index())
@@ -68,7 +70,8 @@ class RustDebugStringifier<zk::Expression<F>> {
                          .Finish();
       }
       case zk::ExpressionType::kChallenge: {
-        const zk::Challenge& challenge = expression.ToChallenge()->challenge();
+        const zk::plonk::Challenge& challenge =
+            expression.ToChallenge()->challenge();
         return os << fmt.DebugTuple("Challenge").Field(challenge).Finish();
       }
       case zk::ExpressionType::kNegated: {

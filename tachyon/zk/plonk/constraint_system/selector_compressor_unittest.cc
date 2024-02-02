@@ -7,7 +7,7 @@
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/zk/expressions/expression_factory.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 namespace {
 
@@ -140,4 +140,4 @@ TEST_F(SelectorCompressorTest, Process) {
   EXPECT_EQ(actual_selector_indices, expected_selector_indices);
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
