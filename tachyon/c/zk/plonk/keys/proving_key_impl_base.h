@@ -6,7 +6,7 @@
 
 #include "absl/types/span.h"
 
-#include "tachyon/base/buffer/buffer.h"
+#include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/c/zk/plonk/keys/buffer_reader.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
@@ -20,7 +20,7 @@ class ProvingKeyImplBase
   using F = typename Poly::Field;
 
   explicit ProvingKeyImplBase(absl::Span<const uint8_t> state) {
-    base::Buffer buffer(const_cast<uint8_t*>(state.data()), state.size());
+    base::ReadOnlyBuffer buffer(state.data(), state.size());
     ReadProvingKey(buffer);
   }
 
@@ -39,7 +39,7 @@ class ProvingKeyImplBase
   }
 
  private:
-  void ReadProvingKey(base::Buffer& buffer) {
+  void ReadProvingKey(const base::ReadOnlyBuffer& buffer) {
     ReadVerifyingKey(buffer, this->verifying_key_);
     ReadBuffer(buffer, this->l_first_);
     ReadBuffer(buffer, this->l_last_);
@@ -53,7 +53,7 @@ class ProvingKeyImplBase
     CHECK(buffer.Done());
   }
 
-  static void ReadVerifyingKey(base::Buffer& buffer,
+  static void ReadVerifyingKey(const base::ReadOnlyBuffer& buffer,
                                tachyon::zk::plonk::VerifyingKey<F, C>& vkey) {
     // NOTE(chokobole): For k
     ReadU32AsSizeT(buffer);
@@ -71,7 +71,8 @@ class ProvingKeyImplBase
   }
 
   static void ReadConstraintSystem(
-      base::Buffer& buffer, tachyon::zk::plonk::ConstraintSystem<F>& cs) {
+      const base::ReadOnlyBuffer& buffer,
+      tachyon::zk::plonk::ConstraintSystem<F>& cs) {
     cs.num_fixed_columns_ = ReadU32AsSizeT(buffer);
     cs.num_advice_columns_ = ReadU32AsSizeT(buffer);
     cs.num_instance_columns_ = ReadU32AsSizeT(buffer);

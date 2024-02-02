@@ -43,7 +43,7 @@ tachyon_cc_library(
     deps = [
         ":endian_auto_reset",
         "//tachyon/base:logging",
-        "//tachyon/base/buffer",
+        "//tachyon/base/buffer:read_only_buffer",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves:points",
         "//tachyon/math/finite_fields:prime_field_base",
@@ -70,7 +70,6 @@ tachyon_cc_library(
     hdrs = ["proving_key_impl_base.h"],
     deps = [
         ":buffer_reader",
-        "//tachyon/base/buffer",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "@com_google_absl//absl/types:span",

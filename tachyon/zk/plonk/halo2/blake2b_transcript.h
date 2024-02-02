@@ -86,7 +86,7 @@ class Blake2bBase {
   }
 
   void DoSetState(absl::Span<const uint8_t> state) {
-    base::Buffer buffer(const_cast<uint8_t*>(state.data()), state.size());
+    base::ReadOnlyBuffer buffer(state.data(), state.size());
     buffer.set_endian(base::Endian::kLittle);
     blake2b_state_st* state_impl = reinterpret_cast<blake2b_state_st*>(&state_);
     CHECK(buffer.Read(state_impl->h));
