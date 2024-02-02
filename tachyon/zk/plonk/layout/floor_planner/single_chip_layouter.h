@@ -138,7 +138,7 @@ class SingleChipLayouter : public Layouter<F> {
                       row);
   }
 
-  Value<F> GetChallenge(const Challenge& challenge) const override {
+  Value<F> GetChallenge(Challenge challenge) const override {
     return assignment_->GetChallenge(challenge);
   }
 

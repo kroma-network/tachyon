@@ -51,7 +51,7 @@ class V1Pass : public Layouter<F> {
     }
   }
 
-  Value<F> GetChallenge(const Challenge& challenge) const override {
+  Value<F> GetChallenge(Challenge challenge) const override {
     if (std::holds_alternative<MeasurementPass<F>*>(pass_)) {
       return Value<F>::Unknown();
     } else {

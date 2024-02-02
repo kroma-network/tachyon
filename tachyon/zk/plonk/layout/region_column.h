@@ -29,12 +29,12 @@ class TACHYON_EXPORT RegionColumn {
   RegionColumn() {}
   explicit RegionColumn(const AnyColumnKey& column)
       : type_(Type::kColumn), column_(column) {}
-  explicit RegionColumn(const Selector& selector)
+  explicit RegionColumn(Selector selector)
       : type_(Type::kSelector), selector_(selector) {}
 
   Type type() const { return type_; }
   const AnyColumnKey& column() const { return column_; }
-  const Selector& selector() const { return selector_; }
+  Selector selector() const { return selector_; }
 
   bool operator==(const RegionColumn& other) const {
     if (type_ != other.type_) return false;

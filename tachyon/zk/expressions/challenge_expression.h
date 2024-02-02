@@ -23,11 +23,11 @@ template <typename F>
 class ChallengeExpression : public Expression<F> {
  public:
   static std::unique_ptr<ChallengeExpression> CreateForTesting(
-      const plonk::Challenge& challenge) {
+      plonk::Challenge challenge) {
     return absl::WrapUnique(new ChallengeExpression(challenge));
   }
 
-  const plonk::Challenge& challenge() const { return challenge_; }
+  plonk::Challenge challenge() const { return challenge_; }
 
   // Expression methods
   size_t Degree() const override { return 0; }
@@ -53,7 +53,7 @@ class ChallengeExpression : public Expression<F> {
  private:
   friend class ExpressionFactory<F>;
 
-  explicit ChallengeExpression(const plonk::Challenge& challenge)
+  explicit ChallengeExpression(plonk::Challenge challenge)
       : Expression<F>(ExpressionType::kChallenge), challenge_(challenge) {}
 
   plonk::Challenge challenge_;

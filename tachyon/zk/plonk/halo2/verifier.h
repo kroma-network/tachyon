@@ -47,6 +47,7 @@ class Verifier : public VerifierBase<PCS> {
  private:
   FRIEND_TEST(SimpleCircuitTest, Verify);
   FRIEND_TEST(SimpleLookupCircuitTest, Verify);
+  FRIEND_TEST(ShuffleCircuitTest, Verify);
   FRIEND_TEST(SimpleV1CircuitTest, Verify);
   FRIEND_TEST(SimpleLookupV1CircuitTest, Verify);
 
@@ -300,8 +301,8 @@ class Verifier : public VerifierBase<PCS> {
          lookups.size() * GetSizeOfLookupVerificationExpressions());
     expressions.reserve(expressions_size);
     for (size_t i = 0; i < num_circuits; ++i) {
-      VanishingVerificationEvaluator<F> vanishing_verification_evaluator(
-          proof.ToVanishingVerificationData(i));
+      VanishingVerificationData<F> data = proof.ToVanishingVerificationData(i);
+      VanishingVerificationEvaluator<F> vanishing_verification_evaluator(data);
       for (const Gate<F>& gate : gates) {
         for (const std::unique_ptr<Expression<F>>& poly : gate.polys()) {
           expressions.push_back(

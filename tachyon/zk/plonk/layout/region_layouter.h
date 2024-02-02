@@ -25,7 +25,7 @@ class RegionLayouter {
   virtual ~RegionLayouter() = default;
 
   // Enables a |selector| at the given |offset|.
-  virtual void EnableSelector(std::string_view name, const Selector& selector,
+  virtual void EnableSelector(std::string_view name, Selector selector,
                               RowIndex offset) {}
 
   // Allows the circuit implementer to name a Column within a Region

@@ -18,7 +18,7 @@ template <>
 class RustDebugStringifier<zk::plonk::Challenge> {
  public:
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
-                                      const zk::plonk::Challenge& challenge) {
+                                      zk::plonk::Challenge challenge) {
     return os << fmt.DebugStruct("Challenge")
                      .Field("index", challenge.index())
                      .Field("phase", challenge.phase())

@@ -36,8 +36,7 @@ class RustDebugStringifier<zk::Expression<F>> {
                          .Finish();
       }
       case zk::ExpressionType::kSelector: {
-        const zk::plonk::Selector& selector =
-            expression.ToSelector()->selector();
+        zk::plonk::Selector selector = expression.ToSelector()->selector();
         return os
                << fmt.DebugTuple("Selector").Field(selector.index()).Finish();
       }
@@ -70,8 +69,7 @@ class RustDebugStringifier<zk::Expression<F>> {
                          .Finish();
       }
       case zk::ExpressionType::kChallenge: {
-        const zk::plonk::Challenge& challenge =
-            expression.ToChallenge()->challenge();
+        zk::plonk::Challenge challenge = expression.ToChallenge()->challenge();
         return os << fmt.DebugTuple("Challenge").Field(challenge).Finish();
       }
       case zk::ExpressionType::kNegated: {

@@ -51,7 +51,7 @@ class Assignment {
   virtual void ExitRegion() {}
 
   // Enables a selector at the given row.
-  virtual void EnableSelector(std::string_view name, const Selector& selector,
+  virtual void EnableSelector(std::string_view name, Selector selector,
                               RowIndex row) {}
 
   // Queries the cell of an instance column at a particular absolute row.
@@ -81,7 +81,7 @@ class Assignment {
   //
   // Returns |Value<F>::Unknown()| if the current synthesis phase
   // is before the challenge can be queried.
-  virtual Value<F> GetChallenge(const Challenge& challenge) {
+  virtual Value<F> GetChallenge(Challenge challenge) {
     return Value<F>::Unknown();
   }
 

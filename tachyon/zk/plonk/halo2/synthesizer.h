@@ -49,12 +49,15 @@ class Synthesizer {
     typename Circuit::Config config =
         Circuit::Configure(empty_constraint_system);
 
-    size_t write_idx = 0;
-    if constexpr (PCS::kSupportsBatchMode) {
-      prover->pcs().SetBatchMode(constraint_system_->num_advice_columns() *
-                                 num_circuits_);
-    }
     for (Phase current_phase : constraint_system_->GetPhases()) {
+      size_t write_idx = 0;
+      if constexpr (PCS::kSupportsBatchMode) {
+        std::vector<size_t> current_phase_column_indices = base::FindIndices(
+            constraint_system_->advice_column_phases().begin(),
+            constraint_system_->advice_column_phases().end(), current_phase);
+        prover->pcs().SetBatchMode(current_phase_column_indices.size() *
+                                   num_circuits_);
+      }
       for (size_t i = 0; i < num_circuits_; ++i) {
         std::vector<RationalEvals> rational_advice_columns =
             GenerateRationalAdvices(prover, current_phase,
@@ -83,10 +86,10 @@ class Synthesizer {
                           prover->blinder().Generate());
         }
       }
+      if constexpr (PCS::kSupportsBatchMode) {
+        prover->RetrieveAndWriteBatchCommitmentsToProof();
+      }
       UpdateChallenges(prover, current_phase);
-    }
-    if constexpr (PCS::kSupportsBatchMode) {
-      prover->RetrieveAndWriteBatchCommitmentsToProof();
     }
   }
 

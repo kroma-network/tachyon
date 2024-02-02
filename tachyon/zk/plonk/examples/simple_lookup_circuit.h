@@ -24,7 +24,7 @@ class SimpleLookupConfig {
  public:
   using Field = F;
 
-  SimpleLookupConfig(const Selector& selector, const LookupTableColumn& table,
+  SimpleLookupConfig(Selector selector, const LookupTableColumn& table,
                      const AdviceColumnKey& advice)
       : selector_(selector), table_(table), advice_(advice) {}
 
@@ -32,7 +32,7 @@ class SimpleLookupConfig {
     return SimpleLookupConfig(selector_, table_, advice_);
   }
 
-  const Selector& selector() const { return selector_; }
+  Selector selector() const { return selector_; }
   const LookupTableColumn& table() const { return table_; }
   const AdviceColumnKey& advice() const { return advice_; }
 

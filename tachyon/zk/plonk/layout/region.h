@@ -27,7 +27,7 @@ class Region {
   explicit Region(RegionLayouter<F>* layouter) : layouter_(layouter) {}
 
   // See the comment above.
-  void EnableSelector(std::string_view name, const Selector& selector,
+  void EnableSelector(std::string_view name, Selector selector,
                       RowIndex offset) {
     layouter_->EnableSelector(name, selector, offset);
   }

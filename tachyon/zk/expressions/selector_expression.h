@@ -22,11 +22,11 @@ template <typename F>
 class SelectorExpression : public Expression<F> {
  public:
   static std::unique_ptr<SelectorExpression> CreateForTesting(
-      const plonk::Selector& selector) {
+      plonk::Selector selector) {
     return absl::WrapUnique(new SelectorExpression(selector));
   }
 
-  const plonk::Selector& selector() const { return selector_; }
+  plonk::Selector selector() const { return selector_; }
 
   // Expression methods
   size_t Degree() const override { return 1; }
@@ -52,7 +52,7 @@ class SelectorExpression : public Expression<F> {
  private:
   friend class ExpressionFactory<F>;
 
-  explicit SelectorExpression(const plonk::Selector& selector)
+  explicit SelectorExpression(plonk::Selector selector)
       : Expression<F>(ExpressionType::kSelector), selector_(selector) {}
 
   plonk::Selector selector_;
