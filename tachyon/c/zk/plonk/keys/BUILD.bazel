@@ -42,8 +42,8 @@ tachyon_cc_library(
     name = "buffer_reader",
     hdrs = ["buffer_reader.h"],
     deps = [
-        ":endian_auto_reset",
         "//tachyon/base:logging",
+        "//tachyon/base/buffer:endian_auto_reset",
         "//tachyon/base/buffer:read_only_buffer",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves:points",

@@ -6,11 +6,11 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/c/zk/plonk/keys/buffer_reader.h"
-#include "tachyon/c/zk/plonk/keys/endian_auto_reset.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -37,7 +37,7 @@ template <typename T>
 class BufferReader<T, std::enable_if_t<std::is_integral_v<T>>> {
  public:
   static T Read(const base::ReadOnlyBuffer& buffer) {
-    EndianAutoReset resetter(buffer, base::Endian::kBig);
+    base::EndianAutoReset resetter(buffer, base::Endian::kBig);
     T v;
     CHECK(buffer.Read(&v));
     return v;
@@ -86,7 +86,7 @@ class BufferReader<
   using BigInt = typename T::BigIntTy;
 
   static T Read(const base::ReadOnlyBuffer& buffer) {
-    EndianAutoReset resetter(buffer, base::Endian::kLittle);
+    base::EndianAutoReset resetter(buffer, base::Endian::kLittle);
     BigInt montgomery;
     CHECK(buffer.Read(montgomery.limbs));
     return T::FromMontgomery(montgomery);
