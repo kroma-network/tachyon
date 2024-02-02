@@ -3,6 +3,19 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "fixed_base_msm_test_set",
+    testonly = True,
+    hdrs = ["fixed_base_msm_test_set.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/files:file_util",
+        "//tachyon/math/elliptic_curves/msm:fixed_base_msm",
+        "//tachyon/math/elliptic_curves/test:random",
+    ],
+)
+
+tachyon_cc_library(
     name = "variable_base_msm_test_set",
     testonly = True,
     hdrs = ["variable_base_msm_test_set.h"],

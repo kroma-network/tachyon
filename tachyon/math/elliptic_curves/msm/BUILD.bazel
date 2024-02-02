@@ -9,6 +9,19 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "fixed_base_msm",
+    hdrs = ["fixed_base_msm.h"],
+    deps = [
+        ":msm_ctx",
+        "//tachyon/base:parallelize",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/base:bit_iterator",
+        "//tachyon/math/base:semigroups",
+        "//tachyon/math/elliptic_curves:points",
+    ],
+)
+
+tachyon_cc_library(
     name = "glv",
     hdrs = ["glv.h"],
     deps = [
@@ -50,6 +63,7 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "msm_unittests",
     srcs = [
+        "fixed_base_msm_unittest.cc",
         "glv_unittest.cc",
         "variable_base_msm_unittest.cc",
     ],
@@ -59,6 +73,7 @@ tachyon_cc_unittest(
         "//tachyon/math/elliptic_curves/bls12/bls12_381:g2",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g2",
+        "//tachyon/math/elliptic_curves/msm/test:fixed_base_msm_test_set",
         "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
