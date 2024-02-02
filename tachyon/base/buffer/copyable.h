@@ -31,7 +31,7 @@ class Copyable<std::basic_string_view<CharTy>> {
                          value.size());
   }
 
-  static bool ReadFrom(const Buffer& buffer,
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        std::basic_string_view<CharTy>* value) {
     NOTREACHED() << "Not supported ReadFrom for std::basic_string_view<CharTy>";
     return false;
@@ -51,7 +51,8 @@ class Copyable<std::basic_string<CharTy>> {
                          value.size());
   }
 
-  static bool ReadFrom(const Buffer& buffer, std::basic_string<CharTy>* value) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       std::basic_string<CharTy>* value) {
     size_t size;
     if (!buffer.Read(&size)) return false;
     value->resize(size);
@@ -77,7 +78,7 @@ class Copyable<
                          length * sizeof(CharTy));
   }
 
-  static bool ReadFrom(const Buffer& buffer, const CharTy** value) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, const CharTy** value) {
     NOTREACHED() << "Not supported ReadFrom for const CharTy*";
     return false;
   }
@@ -98,7 +99,7 @@ class Copyable<T[N]> {
     return true;
   }
 
-  static bool ReadFrom(const Buffer& buffer, T* values) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, T* values) {
     for (size_t i = 0; i < N; ++i) {
       if (!buffer.Read(&values[i])) return false;
     }
@@ -124,7 +125,7 @@ class Copyable<std::vector<T>> {
     return true;
   }
 
-  static bool ReadFrom(const Buffer& buffer, std::vector<T>* values) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, std::vector<T>* values) {
     size_t size;
     if (!buffer.Read(&size)) return false;
     values->resize(size);
@@ -152,7 +153,7 @@ class Copyable<std::array<T, N>> {
     return true;
   }
 
-  static bool ReadFrom(const Buffer& buffer, std::array<T, N>* values) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, std::array<T, N>* values) {
     for (T& value : (*values)) {
       if (!buffer.Read(&value)) return false;
     }

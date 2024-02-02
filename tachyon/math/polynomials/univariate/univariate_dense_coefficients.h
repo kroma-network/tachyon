@@ -308,7 +308,7 @@ class Copyable<math::UnivariateDenseCoefficients<F, MaxDegree>> {
   }
 
   static bool ReadFrom(
-      const Buffer& buffer,
+      const ReadOnlyBuffer& buffer,
       math::UnivariateDenseCoefficients<F, MaxDegree>* coeffs) {
     std::vector<F> raw_coeff;
     if (!buffer.Read(&raw_coeff)) return false;

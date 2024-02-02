@@ -175,7 +175,7 @@ class Copyable<
     return buffer->Write(prime_field.ToBigInt());
   }
 
-  static bool ReadFrom(const Buffer& buffer, T* prime_field) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, T* prime_field) {
     using BigInt = typename T::BigIntTy;
     BigInt v;
     if (!buffer.Read(&v)) return false;

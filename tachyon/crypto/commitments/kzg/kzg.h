@@ -174,7 +174,7 @@ class Copyable<crypto::KZG<G1Point, MaxDegree, Commitment>> {
                              pcs.g1_powers_of_tau_lagrange());
   }
 
-  static bool ReadFrom(const Buffer& buffer, PCS* pcs) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, PCS* pcs) {
     std::vector<G1Point> g1_powers_of_tau;
     std::vector<G1Point> g1_powers_of_tau_lagrange;
     if (!buffer.ReadMany(&g1_powers_of_tau, &g1_powers_of_tau_lagrange)) {

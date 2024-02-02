@@ -54,7 +54,7 @@ class Copyable<zk::plonk::PermutationVerifyingKey<Commitment>> {
     return buffer->Write(vk.commitments());
   }
 
-  static bool ReadFrom(const Buffer& buffer,
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        zk::plonk::PermutationVerifyingKey<Commitment>* vk) {
     typename zk::plonk::PermutationVerifyingKey<Commitment>::Commitments
         commitments;

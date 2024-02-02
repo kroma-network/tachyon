@@ -8,6 +8,7 @@
 namespace tachyon::base {
 
 class Buffer;
+class ReadOnlyBuffer;
 
 // NOTE: Do not implement for builtin serializable.
 // See tachyon/base/buffer.h
@@ -24,7 +25,7 @@ struct IsCopyable<
         decltype(Copyable<T>::WriteTo(std::declval<const T&>(),
                                       std::declval<Buffer*>())),
         decltype(Copyable<T>::ReadFrom(
-            std::declval<const Buffer&>(),
+            std::declval<const ReadOnlyBuffer&>(),
             std::declval<std::conditional_t<is_bounded_array_v<T>, T, T*>>())),
         decltype(Copyable<T>::EstimateSize(std::declval<const T&>()))>>
     : std::true_type {};

@@ -6,12 +6,7 @@ tachyon_cc_library(
     name = "buffer",
     srcs = ["buffer.cc"],
     hdrs = ["buffer.h"],
-    deps = [
-        ":copyable_forward",
-        "//tachyon/base:endian",
-        "//tachyon/base/numerics:checked_math",
-        "@com_google_absl//absl/base:endian",
-    ],
+    deps = [":read_only_buffer"],
 )
 
 tachyon_cc_library(
@@ -28,6 +23,18 @@ tachyon_cc_library(
     name = "copyable_forward",
     hdrs = ["copyable_forward.h"],
     deps = ["//tachyon/base/types:cxx20_is_bounded_array"],
+)
+
+tachyon_cc_library(
+    name = "read_only_buffer",
+    srcs = ["read_only_buffer.cc"],
+    hdrs = ["read_only_buffer.h"],
+    deps = [
+        ":copyable_forward",
+        "//tachyon/base:endian",
+        "//tachyon/base/numerics:checked_math",
+        "@com_google_absl//absl/base:endian",
+    ],
 )
 
 tachyon_cc_library(

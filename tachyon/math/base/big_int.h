@@ -1007,7 +1007,7 @@ class Copyable<math::BigInt<N>> {
     return buffer->Write(bigint.limbs);
   }
 
-  static bool ReadFrom(const Buffer& buffer, math::BigInt<N>* bigint) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, math::BigInt<N>* bigint) {
     return buffer.Read(bigint->limbs);
   }
 

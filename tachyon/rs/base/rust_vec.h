@@ -52,7 +52,7 @@ class Copyable<rs::RustVec> {
     return false;
   }
 
-  static bool ReadFrom(const Buffer& buffer, rs::RustVec* rust_vec) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, rs::RustVec* rust_vec) {
     uintptr_t ptr;
     size_t capacity;
     size_t length;

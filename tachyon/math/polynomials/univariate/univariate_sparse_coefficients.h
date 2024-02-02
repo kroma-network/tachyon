@@ -318,7 +318,7 @@ class Copyable<typename math::UnivariateTerm<F>> {
     return buffer->WriteMany(term.degree, term.coefficient);
   }
 
-  static bool ReadFrom(const Buffer& buffer, Term* term) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, Term* term) {
     size_t degree;
     F coefficient;
     if (!buffer.ReadMany(&degree, &coefficient)) return false;
@@ -342,7 +342,7 @@ class Copyable<math::UnivariateSparseCoefficients<F, MaxDegree>> {
   }
 
   static bool ReadFrom(
-      const Buffer& buffer,
+      const ReadOnlyBuffer& buffer,
       math::UnivariateSparseCoefficients<F, MaxDegree>* coeffs) {
     std::vector<math::UnivariateTerm<F>> terms;
     if (!buffer.Read(&terms)) return false;

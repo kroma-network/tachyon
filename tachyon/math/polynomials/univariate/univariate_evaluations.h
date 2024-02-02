@@ -245,7 +245,7 @@ class Copyable<math::UnivariateEvaluations<F, MaxDegree>> {
     return buffer->Write(evals.evaluations());
   }
 
-  static bool ReadFrom(const Buffer& buffer,
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::UnivariateEvaluations<F, MaxDegree>* evals) {
     std::vector<F> evals_vec;
     if (!buffer.Read(&evals_vec)) return false;

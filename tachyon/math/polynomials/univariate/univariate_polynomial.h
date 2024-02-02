@@ -283,7 +283,7 @@ class Copyable<math::UnivariatePolynomial<Coefficients>> {
     return buffer->Write(poly.coefficients());
   }
 
-  static bool ReadFrom(const Buffer& buffer,
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::UnivariatePolynomial<Coefficients>* poly) {
     Coefficients coeff;
     if (!buffer.Read(&coeff)) return false;
