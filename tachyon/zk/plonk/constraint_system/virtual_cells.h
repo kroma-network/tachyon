@@ -83,7 +83,7 @@ class VirtualCells {
   }
 
   // Query a challenge
-  std::unique_ptr<Expression<F>> QueryChallenge(const Challenge& challenge) {
+  std::unique_ptr<Expression<F>> QueryChallenge(Challenge challenge) {
     return ExpressionFactory<F>::Challenge(challenge);
   }
 

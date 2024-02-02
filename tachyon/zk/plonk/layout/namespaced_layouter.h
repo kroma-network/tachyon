@@ -49,7 +49,7 @@ class NamespacedLayouter : public Layouter<F> {
     layouter_->ConstrainInstance(cell, column, row);
   }
 
-  Value<F> GetChallenge(const Challenge& challenge) const override {
+  Value<F> GetChallenge(Challenge challenge) const override {
     return layouter_->GetChallenge(challenge);
   }
 

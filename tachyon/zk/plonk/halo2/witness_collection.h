@@ -62,7 +62,7 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
     *advices_[column.index()][row] = std::move(assign).Run().value();
   }
 
-  Value<F> GetChallenge(const Challenge& challenge) override {
+  Value<F> GetChallenge(Challenge challenge) override {
     CHECK_LT(challenge.index(), challenges_.size());
     return Value<F>::Known(challenges_[challenge.index()]);
   }

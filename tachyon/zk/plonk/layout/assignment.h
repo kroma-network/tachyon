@@ -81,7 +81,7 @@ class Assignment {
   //
   // Returns |Value<F>::Unknown()| if the current synthesis phase
   // is before the challenge can be queried.
-  virtual Value<F> GetChallenge(const Challenge& challenge) {
+  virtual Value<F> GetChallenge(Challenge challenge) {
     return Value<F>::Unknown();
   }
 

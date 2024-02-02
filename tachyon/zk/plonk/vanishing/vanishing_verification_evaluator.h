@@ -59,7 +59,7 @@ class VanishingVerificationEvaluator : public Evaluator<F, F> {
 
       case ExpressionType::kChallenge: {
         const ChallengeExpression<F>* challenge_expr = input->ToChallenge();
-        const Challenge& challenge = challenge_expr->challenge();
+        Challenge challenge = challenge_expr->challenge();
         return data_.challenges[challenge.index()];
       }
 

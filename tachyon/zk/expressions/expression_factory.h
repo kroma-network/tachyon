@@ -54,7 +54,7 @@ class ExpressionFactory {
     return absl::WrapUnique(new InstanceExpression<F>(query));
   }
 
-  static std::unique_ptr<Expr> Challenge(const plonk::Challenge& challenge) {
+  static std::unique_ptr<Expr> Challenge(plonk::Challenge challenge) {
     return absl::WrapUnique(new ChallengeExpression<F>(challenge));
   }
 

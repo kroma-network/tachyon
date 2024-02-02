@@ -58,7 +58,7 @@ class Layouter {
   //
   // Returns |Value<F>::Unknown()| if the current synthesis phase is before the
   // challenge can be queried.
-  virtual Value<F> GetChallenge(const Challenge& challenge) const = 0;
+  virtual Value<F> GetChallenge(Challenge challenge) const = 0;
 
   // Gets the "root" of this assignment, bypassing the namespacing.
   //

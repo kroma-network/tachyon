@@ -111,7 +111,7 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
 
       case ExpressionType::kChallenge: {
         const ChallengeExpression<F>* expr = input->ToChallenge();
-        const Challenge& challenge = expr->challenge();
+        Challenge challenge = expr->challenge();
         return AddCalculation(
             Calculation::Store(ValueSource::Challenge(challenge.index())));
       }

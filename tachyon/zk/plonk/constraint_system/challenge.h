@@ -15,6 +15,8 @@
 
 namespace tachyon::zk::plonk {
 
+// NOTE(dongchangYoo): Challenge class is copyable, assignable, and occupy 72
+// bits per instance. Prefer to pass them by value.
 class TACHYON_EXPORT Challenge {
  public:
   Challenge(size_t index, Phase phase) : index_(index), phase_(phase) {}
@@ -22,10 +24,10 @@ class TACHYON_EXPORT Challenge {
   size_t index() const { return index_; }
   Phase phase() const { return phase_; }
 
-  bool operator==(const Challenge& other) const {
+  bool operator==(Challenge other) const {
     return index_ == other.index_ && phase_ == other.phase_;
   }
-  bool operator!=(const Challenge& other) const { return !operator==(other); }
+  bool operator!=(Challenge other) const { return !operator==(other); }
 
   std::string ToString() const {
     return absl::Substitute("{index: $0, phase: $1}", index_,
