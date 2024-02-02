@@ -11,7 +11,7 @@ class Buffer;
 class ReadOnlyBuffer;
 
 // NOTE: Do not implement for builtin serializable.
-// See tachyon/base/buffer.h
+// See tachyon/base/buffer/read_only_buffer.h
 template <typename T, typename SFINAE = void>
 class Copyable;
 
