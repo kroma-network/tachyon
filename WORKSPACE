@@ -29,6 +29,9 @@ load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_regi
 
 rules_rust_dependencies()
 
+# We need to change the default value of flag //tachyon/rs/base:rustc_version_ge_1.67.0
+# if we change the default rustc version.
+# See //tachyon/rs/base/BUILD.bazel.
 rust_register_toolchains(
     edition = "2021",
     versions = [

@@ -56,7 +56,11 @@ class Copyable<rs::RustVec> {
     uintptr_t ptr;
     size_t capacity;
     size_t length;
+#if defined(RUSTC_VERSION_GE_1_67_0)
+    if (!buffer.ReadMany(&capacity, &ptr, &length)) return false;
+#else
     if (!buffer.ReadMany(&ptr, &capacity, &length)) return false;
+#endif
     *rust_vec = {ptr, capacity, length};
     return true;
   }

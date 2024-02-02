@@ -1,6 +1,18 @@
+load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
+
+# We need to change the default value if we change the default rustc version.
+bool_flag(
+    name = "rustc_version_ge_1.67.0",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "rustc_version_ge_1.67.0_is_true",
+    flag_values = {"rustc_version_ge_1.67.0": "true"},
+)
 
 tachyon_cc_library(
     name = "container_util",
@@ -16,6 +28,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "rust_vec",
     hdrs = ["rust_vec.h"],
+    defines = select({
+        ":rustc_version_ge_1.67.0_is_true": ["RUSTC_VERSION_GE_1_67_0"],
+        "//conditions:default": [],
+    }),
     deps = [
         "//tachyon:export",
         "//tachyon/base:logging",
