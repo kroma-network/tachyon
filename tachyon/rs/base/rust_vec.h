@@ -1,5 +1,5 @@
-#ifndef TACHYON_RS_BASE_RUST_VEC_COPYABLE_H_
-#define TACHYON_RS_BASE_RUST_VEC_COPYABLE_H_
+#ifndef TACHYON_RS_BASE_RUST_VEC_H_
+#define TACHYON_RS_BASE_RUST_VEC_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -74,4 +74,4 @@ class Copyable<rs::RustVec> {
 }  // namespace base
 }  // namespace tachyon
 
-#endif  // TACHYON_RS_BASE_RUST_VEC_COPYABLE_H_
+#endif  // TACHYON_RS_BASE_RUST_VEC_H_
