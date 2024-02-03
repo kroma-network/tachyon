@@ -55,6 +55,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "quadratic_arithmetic_program",
+    hdrs = ["quadratic_arithmetic_program.h"],
+    deps = [":constraint_system"],
+)
+
+tachyon_cc_library(
     name = "synthesis_mode",
     hdrs = ["synthesis_mode.h"],
 )
