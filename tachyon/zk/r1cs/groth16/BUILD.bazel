@@ -3,6 +3,29 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "key",
+    hdrs = ["key.h"],
+    deps = [
+        ":toxic_waste",
+        "//tachyon:export",
+        "//tachyon/math/elliptic_curves/msm:fixed_base_msm",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain",
+        "//tachyon/zk/r1cs/constraint_system:circuit",
+        "//tachyon/zk/r1cs/constraint_system:quadratic_arithmetic_program",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prepared_verifying_key",
+    hdrs = ["prepared_verifying_key.h"],
+    deps = [
+        ":verifying_key",
+        "//tachyon/math/elliptic_curves/pairing",
+    ],
+)
+
+tachyon_cc_library(
     name = "proof",
     hdrs = ["proof.h"],
     deps = ["@com_google_absl//absl/strings"],
@@ -12,4 +35,13 @@ tachyon_cc_library(
     name = "toxic_waste",
     hdrs = ["toxic_waste.h"],
     deps = ["@com_google_absl//absl/strings"],
+)
+
+tachyon_cc_library(
+    name = "verifying_key",
+    hdrs = ["verifying_key.h"],
+    deps = [
+        ":key",
+        "//tachyon/base:openmp_util",
+    ],
 )
