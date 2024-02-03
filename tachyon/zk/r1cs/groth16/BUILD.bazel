@@ -7,3 +7,9 @@ tachyon_cc_library(
     hdrs = ["proof.h"],
     deps = ["@com_google_absl//absl/strings"],
 )
+
+tachyon_cc_library(
+    name = "toxic_waste",
+    hdrs = ["toxic_waste.h"],
+    deps = ["@com_google_absl//absl/strings"],
+)
