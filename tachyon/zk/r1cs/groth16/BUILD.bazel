@@ -38,6 +38,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "verify",
+    hdrs = ["verify.h"],
+    deps = [
+        ":prepared_verifying_key",
+        ":proof",
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+    ],
+)
+
+tachyon_cc_library(
     name = "verifying_key",
     hdrs = ["verifying_key.h"],
     deps = [
