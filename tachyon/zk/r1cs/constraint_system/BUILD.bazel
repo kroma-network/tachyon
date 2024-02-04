@@ -57,7 +57,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "quadratic_arithmetic_program",
     hdrs = ["quadratic_arithmetic_program.h"],
-    deps = [":constraint_system"],
+    deps = [
+        ":constraint_system",
+        "//tachyon/base:parallelize",
+    ],
 )
 
 tachyon_cc_library(

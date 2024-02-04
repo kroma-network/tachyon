@@ -32,6 +32,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "proving_key",
+    hdrs = ["proving_key.h"],
+    deps = [":verifying_key"],
+)
+
+tachyon_cc_library(
     name = "toxic_waste",
     hdrs = ["toxic_waste.h"],
     deps = ["@com_google_absl//absl/strings"],

@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/parallelize.h"
 #include "tachyon/zk/r1cs/constraint_system/constraint_system.h"
 
 namespace tachyon::zk::r1cs {
@@ -88,6 +89,26 @@ class QuadraticArithmeticProgram {
     return {std::move(a),          std::move(b),     std::move(c),
             std::move(t_x),        num_constraints,  num_instance_variables,
             num_witness_variables, num_qap_variables};
+  }
+
+  template <typename Domain>
+  static std::vector<F> ComputeHQuery(const Domain* domain, const F& t_x,
+                                      const F& x, const F& delta_inverse) {
+    std::vector<F> h_query(domain->size() - 1);
+    base::Parallelize(h_query, [&t_x, &x, &delta_inverse](absl::Span<F> chunk,
+                                                          size_t chunk_index,
+                                                          size_t chunk_size) {
+      size_t i = chunk_index * chunk_size;
+      F x_i = x.Pow(i);
+      for (F& v : chunk) {
+        // (xⁱ * t(x)) / δ
+        v = x_i;
+        v *= t_x;
+        v *= delta_inverse;
+        x_i *= x;
+      }
+    });
+    return h_query;
   }
 };
 
