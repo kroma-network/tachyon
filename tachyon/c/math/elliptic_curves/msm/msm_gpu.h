@@ -4,8 +4,8 @@
 #include <limits>
 #include <memory>
 #include <string>
-#include <vector>
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/base/console/console_stream.h"
 #include "tachyon/base/environment.h"
 #include "tachyon/base/files/file_util.h"
@@ -124,27 +124,23 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
   }
 
   if (!msm_api.save_location.empty()) {
+    base::Uint8VectorBuffer buffer;
     {
-      std::vector<std::string> results;
-      for (const auto& base : msm_api.provider.bases()) {
-        results.push_back(base.ToMontgomery().ToString());
-      }
-      results.push_back("");
+      CHECK(buffer.Grow(msm_api.provider.bases()));
+      CHECK(buffer.Write(msm_api.provider.bases()));
       base::WriteFile(
           base::FilePath(absl::Substitute(
               "$0/bases$1.txt", msm_api.save_location, msm_api.idx - 1)),
-          absl::StrJoin(results, "\n"));
+          absl::MakeConstSpan(buffer.owned_buffer()));
     }
     {
-      std::vector<std::string> results;
-      for (const auto& scalar : msm_api.provider.scalars()) {
-        results.push_back(scalar.ToMontgomery().ToString());
-      }
-      results.push_back("");
+      buffer.set_buffer_offset(0);
+      CHECK(buffer.Grow(msm_api.provider.scalars()));
+      CHECK(buffer.Write(msm_api.provider.scalars()));
       base::WriteFile(
           base::FilePath(absl::Substitute(
               "$0/scalars$1.txt", msm_api.save_location, msm_api.idx - 1)),
-          absl::StrJoin(results, "\n"));
+          absl::MakeConstSpan(buffer.owned_buffer()));
     }
   }
 

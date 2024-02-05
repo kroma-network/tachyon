@@ -47,6 +47,7 @@ tachyon_cc_library(
     deps = [
         ":algorithm",
         ":msm_input_provider",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/console",
         "//tachyon/base/files:file_util",
         "//tachyon/cc/math/elliptic_curves:point_conversions",

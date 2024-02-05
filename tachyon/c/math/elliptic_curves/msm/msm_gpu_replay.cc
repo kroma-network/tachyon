@@ -1,8 +1,6 @@
 #if TACHYON_CUDA
 #include <iostream>
 
-#include "absl/strings/str_split.h"
-
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/files/file_path_flag.h"
@@ -19,41 +17,24 @@ namespace tachyon {
 
 using namespace math;
 
-template <typename R>
-R ReadField(std::string_view* txt) {
-  *txt = absl::StripLeadingAsciiWhitespace(*txt);
-  size_t idx = txt->find(',');
-  std::string_view elm = txt->substr(0, idx);
-  txt->remove_prefix(idx);
-  auto bigint = BigInt<4>::FromDecString(std::string(elm));
-  return R::FromMontgomery(bigint);
-}
-
 std::vector<bn254::G1AffinePoint> ReadAffinePoints(const base::FilePath& path) {
   std::string bases;
   CHECK(base::ReadFileToString(path, &bases));
-  std::vector<std::string> lines = absl::StrSplit(bases, "\n");
-  lines.pop_back();
-  return base::Map(lines, [](const std::string& line) {
-    std::string_view txt = line;
-    CHECK(base::ConsumePrefix(&txt, "("));
-    CHECK(base::ConsumeSuffix(&txt, ")"));
-    auto x = ReadField<bn254::Fq>(&txt);
-    CHECK(base::ConsumePrefix(&txt, ", "));
-    auto y = ReadField<bn254::Fq>(&txt);
-    return bn254::G1AffinePoint(x, y, x.IsZero() && y.IsZero());
-  });
+  base::Buffer buffer(reinterpret_cast<char*>(bases.data()), bases.size());
+  std::vector<bn254::G1AffinePoint> ret;
+  CHECK(buffer.Read(&ret));
+  CHECK(buffer.Done());
+  return ret;
 }
 
 std::vector<bn254::Fr> ReadScalarFields(const base::FilePath& path) {
   std::string scalars;
   CHECK(base::ReadFileToString(path, &scalars));
-  std::vector<std::string> lines = absl::StrSplit(scalars, "\n");
-  lines.pop_back();
-  return base::Map(lines, [](const std::string& line) {
-    std::string_view txt = line;
-    return ReadField<bn254::Fr>(&txt);
-  });
+  base::Buffer buffer(reinterpret_cast<char*>(scalars.data()), scalars.size());
+  std::vector<bn254::Fr> ret;
+  CHECK(buffer.Read(&ret));
+  CHECK(buffer.Done());
+  return ret;
 }
 
 int RealMain(int argc, char** argv) {
