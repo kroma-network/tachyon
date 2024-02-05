@@ -60,7 +60,7 @@ class Copyable<math::Point4<T>> {
     return buffer->WriteMany(point.x, point.y, point.z, point.w);
   }
 
-  static bool ReadFrom(const Buffer& buffer, math::Point4<T>* point) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, math::Point4<T>* point) {
     return buffer.ReadMany(&point->x, &point->y, &point->z, &point->w);
   }
 

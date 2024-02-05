@@ -6,13 +6,14 @@
 namespace tachyon::c::zk {
 
 struct EndianAutoReset {
-  explicit EndianAutoReset(base::Buffer& buffer, base::Endian endian)
+  explicit EndianAutoReset(const base::ReadOnlyBuffer& buffer,
+                           base::Endian endian)
       : buffer(buffer), old_endian(buffer.endian()) {
     buffer.set_endian(endian);
   }
   ~EndianAutoReset() { buffer.set_endian(old_endian); }
 
-  base::Buffer& buffer;
+  const base::ReadOnlyBuffer& buffer;
   base::Endian old_endian;
 };
 

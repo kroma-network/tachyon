@@ -82,11 +82,12 @@ class Blake2bBase {
     CHECK(buffer.Write(state_impl->t_high));
     CHECK(buffer.Write(state_impl->block));
     CHECK(buffer.Write(state_impl->block_used));
+    CHECK(buffer.Done());
     return std::move(buffer).TakeOwnedBuffer();
   }
 
   void DoSetState(absl::Span<const uint8_t> state) {
-    base::Buffer buffer(const_cast<uint8_t*>(state.data()), state.size());
+    base::ReadOnlyBuffer buffer(state.data(), state.size());
     buffer.set_endian(base::Endian::kLittle);
     blake2b_state_st* state_impl = reinterpret_cast<blake2b_state_st*>(&state_);
     CHECK(buffer.Read(state_impl->h));
@@ -94,6 +95,7 @@ class Blake2bBase {
     CHECK(buffer.Read(&state_impl->t_high));
     CHECK(buffer.Read(state_impl->block));
     CHECK(buffer.Read(&state_impl->block_used));
+    CHECK(buffer.Done());
   }
 
   BLAKE2B_CTX state_;

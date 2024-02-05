@@ -245,7 +245,7 @@ class Copyable<math::ProjectivePoint<
     return buffer->WriteMany(point.x(), point.y(), point.z());
   }
 
-  static bool ReadFrom(const Buffer& buffer,
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::ProjectivePoint<Curve>* point) {
     using BaseField = typename math::ProjectivePoint<Curve>::BaseField;
     BaseField x, y, z;

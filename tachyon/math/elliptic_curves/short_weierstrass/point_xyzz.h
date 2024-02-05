@@ -265,7 +265,8 @@ class Copyable<math::PointXYZZ<
     return buffer->WriteMany(point.x(), point.y(), point.zz(), point.zzz());
   }
 
-  static bool ReadFrom(const Buffer& buffer, math::PointXYZZ<Curve>* point) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       math::PointXYZZ<Curve>* point) {
     using BaseField = typename math::PointXYZZ<Curve>::BaseField;
     BaseField x, y, zz, zzz;
     if (!buffer.ReadMany(&x, &y, &zz, &zzz)) return false;

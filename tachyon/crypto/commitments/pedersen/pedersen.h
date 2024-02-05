@@ -146,7 +146,7 @@ class Copyable<crypto::Pedersen<Point, MaxSize, Commitment>> {
     return buffer->WriteMany(pcs.h(), pcs.generators());
   }
 
-  static bool ReadFrom(const Buffer& buffer, PCS* pcs) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, PCS* pcs) {
     Point h;
     std::vector<Point> generators;
     if (!buffer.ReadMany(&h, &generators)) {

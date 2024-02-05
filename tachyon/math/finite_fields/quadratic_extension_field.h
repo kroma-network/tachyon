@@ -324,7 +324,7 @@ class Copyable<Derived, std::enable_if_t<std::is_base_of_v<
   }
 
   static bool ReadFrom(
-      const Buffer& buffer,
+      const ReadOnlyBuffer& buffer,
       math::QuadraticExtensionField<Derived>* quadratic_extension_field) {
     typename Derived::BaseField c0;
     typename Derived::BaseField c1;

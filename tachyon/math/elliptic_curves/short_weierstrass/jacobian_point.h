@@ -248,7 +248,7 @@ class Copyable<math::JacobianPoint<
     return buffer->WriteMany(point.x(), point.y(), point.z());
   }
 
-  static bool ReadFrom(const Buffer& buffer,
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::JacobianPoint<Curve>* point) {
     using BaseField = typename math::JacobianPoint<Curve>::BaseField;
     BaseField x, y, z;

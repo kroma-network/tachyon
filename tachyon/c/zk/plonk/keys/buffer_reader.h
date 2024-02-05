@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/buffer/buffer.h"
+#include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/c/zk/plonk/keys/buffer_reader.h"
@@ -29,14 +29,14 @@ template <typename T, typename SFINAE = void>
 class BufferReader;
 
 template <typename T>
-void ReadBuffer(base::Buffer& buffer, T& value) {
+void ReadBuffer(const base::ReadOnlyBuffer& buffer, T& value) {
   value = BufferReader<T>::Read(buffer);
 }
 
 template <typename T>
 class BufferReader<T, std::enable_if_t<std::is_integral_v<T>>> {
  public:
-  static T Read(base::Buffer& buffer) {
+  static T Read(const base::ReadOnlyBuffer& buffer) {
     EndianAutoReset resetter(buffer, base::Endian::kBig);
     T v;
     CHECK(buffer.Read(&v));
@@ -44,18 +44,18 @@ class BufferReader<T, std::enable_if_t<std::is_integral_v<T>>> {
   }
 };
 
-inline bool ReadU8AsBool(base::Buffer& buffer) {
+inline bool ReadU8AsBool(const base::ReadOnlyBuffer& buffer) {
   return BufferReader<uint8_t>::Read(buffer) != 0;
 }
 
-inline size_t ReadU32AsSizeT(base::Buffer& buffer) {
+inline size_t ReadU32AsSizeT(const base::ReadOnlyBuffer& buffer) {
   return size_t{BufferReader<uint32_t>::Read(buffer)};
 }
 
 template <typename T>
 class BufferReader<std::vector<T>> {
  public:
-  static std::vector<T> Read(base::Buffer& buffer) {
+  static std::vector<T> Read(const base::ReadOnlyBuffer& buffer) {
     return base::CreateVector(ReadU32AsSizeT(buffer), [&buffer]() {
       return BufferReader<T>::Read(buffer);
     });
@@ -67,7 +67,7 @@ class BufferReader<math::AffinePoint<Curve>> {
  public:
   using BaseField = typename math::AffinePoint<Curve>::BaseField;
 
-  static math::AffinePoint<Curve> Read(base::Buffer& buffer) {
+  static math::AffinePoint<Curve> Read(const base::ReadOnlyBuffer& buffer) {
     BaseField x = BufferReader<BaseField>::Read(buffer);
     BaseField y = BufferReader<BaseField>::Read(buffer);
     return {std::move(x), std::move(y)};
@@ -80,7 +80,7 @@ class BufferReader<
  public:
   using BigInt = typename T::BigIntTy;
 
-  static T Read(base::Buffer& buffer) {
+  static T Read(const base::ReadOnlyBuffer& buffer) {
     EndianAutoReset resetter(buffer, base::Endian::kLittle);
     BigInt montgomery;
     CHECK(buffer.Read(montgomery.limbs));
@@ -92,7 +92,7 @@ template <typename F, size_t MaxDegree>
 class BufferReader<math::UnivariateDensePolynomial<F, MaxDegree>> {
  public:
   static math::UnivariateDensePolynomial<F, MaxDegree> Read(
-      base::Buffer& buffer) {
+      const base::ReadOnlyBuffer& buffer) {
     std::vector<F> coeffs;
     ReadBuffer(buffer, coeffs);
     return math::UnivariateDensePolynomial<F, MaxDegree>(
@@ -103,7 +103,8 @@ class BufferReader<math::UnivariateDensePolynomial<F, MaxDegree>> {
 template <typename F, size_t MaxDegree>
 class BufferReader<math::UnivariateEvaluations<F, MaxDegree>> {
  public:
-  static math::UnivariateEvaluations<F, MaxDegree> Read(base::Buffer& buffer) {
+  static math::UnivariateEvaluations<F, MaxDegree> Read(
+      const base::ReadOnlyBuffer& buffer) {
     std::vector<F> evals;
     ReadBuffer(buffer, evals);
     return math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
@@ -113,7 +114,7 @@ class BufferReader<math::UnivariateEvaluations<F, MaxDegree>> {
 template <>
 class BufferReader<tachyon::zk::plonk::Phase> {
  public:
-  static tachyon::zk::plonk::Phase Read(base::Buffer& buffer) {
+  static tachyon::zk::plonk::Phase Read(const base::ReadOnlyBuffer& buffer) {
     return tachyon::zk::plonk::Phase(BufferReader<uint8_t>::Read(buffer));
   }
 };
@@ -121,7 +122,8 @@ class BufferReader<tachyon::zk::plonk::Phase> {
 template <>
 class BufferReader<tachyon::zk::plonk::Challenge> {
  public:
-  static tachyon::zk::plonk::Challenge Read(base::Buffer& buffer) {
+  static tachyon::zk::plonk::Challenge Read(
+      const base::ReadOnlyBuffer& buffer) {
     size_t index = ReadU32AsSizeT(buffer);
     tachyon::zk::plonk::Phase phase =
         BufferReader<tachyon::zk::plonk::Phase>::Read(buffer);
@@ -132,7 +134,7 @@ class BufferReader<tachyon::zk::plonk::Challenge> {
 template <>
 class BufferReader<tachyon::zk::Rotation> {
  public:
-  static tachyon::zk::Rotation Read(base::Buffer& buffer) {
+  static tachyon::zk::Rotation Read(const base::ReadOnlyBuffer& buffer) {
     return tachyon::zk::Rotation(BufferReader<int32_t>::Read(buffer));
   }
 };
@@ -140,7 +142,7 @@ class BufferReader<tachyon::zk::Rotation> {
 template <>
 class BufferReader<tachyon::zk::plonk::Selector> {
  public:
-  static tachyon::zk::plonk::Selector Read(base::Buffer& buffer) {
+  static tachyon::zk::plonk::Selector Read(const base::ReadOnlyBuffer& buffer) {
     size_t index = ReadU32AsSizeT(buffer);
     bool is_simple = ReadU8AsBool(buffer);
     return is_simple ? tachyon::zk::plonk::Selector::Simple(index)
@@ -151,7 +153,8 @@ class BufferReader<tachyon::zk::plonk::Selector> {
 template <tachyon::zk::plonk::ColumnType C>
 class BufferReader<tachyon::zk::plonk::ColumnKey<C>> {
  public:
-  static tachyon::zk::plonk::ColumnKey<C> Read(base::Buffer& buffer) {
+  static tachyon::zk::plonk::ColumnKey<C> Read(
+      const base::ReadOnlyBuffer& buffer) {
     size_t index = ReadU32AsSizeT(buffer);
     uint8_t kind = BufferReader<uint8_t>::Read(buffer);
     if constexpr (C == tachyon::zk::plonk::ColumnType::kAdvice) {
@@ -186,7 +189,8 @@ class BufferReader<tachyon::zk::plonk::ColumnKey<C>> {
 template <>
 class BufferReader<tachyon::zk::plonk::VirtualCell> {
  public:
-  static tachyon::zk::plonk::VirtualCell Read(base::Buffer& buffer) {
+  static tachyon::zk::plonk::VirtualCell Read(
+      const base::ReadOnlyBuffer& buffer) {
     tachyon::zk::plonk::AnyColumnKey column =
         BufferReader<tachyon::zk::plonk::AnyColumnKey>::Read(buffer);
     tachyon::zk::Rotation rotation =
@@ -198,7 +202,8 @@ class BufferReader<tachyon::zk::plonk::VirtualCell> {
 template <tachyon::zk::plonk::ColumnType C>
 class BufferReader<tachyon::zk::plonk::QueryData<C>> {
  public:
-  static tachyon::zk::plonk::QueryData<C> Read(base::Buffer& buffer) {
+  static tachyon::zk::plonk::QueryData<C> Read(
+      const base::ReadOnlyBuffer& buffer) {
     if constexpr (C == tachyon::zk::plonk::ColumnType::kAny) {
       NOTREACHED();
     } else {
@@ -214,7 +219,7 @@ class BufferReader<tachyon::zk::plonk::QueryData<C>> {
 template <tachyon::zk::plonk::ColumnType C>
 class BufferReader<tachyon::zk::plonk::Query<C>> {
  public:
-  static tachyon::zk::plonk::Query<C> Read(base::Buffer& buffer) {
+  static tachyon::zk::plonk::Query<C> Read(const base::ReadOnlyBuffer& buffer) {
     size_t index = ReadU32AsSizeT(buffer);
     size_t column_index = ReadU32AsSizeT(buffer);
     tachyon::zk::Rotation rotation =
@@ -246,7 +251,7 @@ template <typename F>
 class BufferReader<std::unique_ptr<tachyon::zk::Expression<F>>> {
  public:
   static std::unique_ptr<tachyon::zk::Expression<F>> Read(
-      base::Buffer& buffer) {
+      const base::ReadOnlyBuffer& buffer) {
     uint8_t kind = BufferReader<uint8_t>::Read(buffer);
     switch (kind) {
       case 0:
@@ -303,7 +308,7 @@ class BufferReader<std::unique_ptr<tachyon::zk::Expression<F>>> {
 template <typename F>
 class BufferReader<tachyon::zk::plonk::Gate<F>> {
  public:
-  static tachyon::zk::plonk::Gate<F> Read(base::Buffer& buffer) {
+  static tachyon::zk::plonk::Gate<F> Read(const base::ReadOnlyBuffer& buffer) {
     std::vector<std::unique_ptr<tachyon::zk::Expression<F>>> polys;
     ReadBuffer(buffer, polys);
     std::vector<tachyon::zk::plonk::Selector> queried_selectors;
@@ -319,7 +324,8 @@ class BufferReader<tachyon::zk::plonk::Gate<F>> {
 template <>
 class BufferReader<tachyon::zk::plonk::PermutationArgument> {
  public:
-  static tachyon::zk::plonk::PermutationArgument Read(base::Buffer& buffer) {
+  static tachyon::zk::plonk::PermutationArgument Read(
+      const base::ReadOnlyBuffer& buffer) {
     std::vector<tachyon::zk::plonk::AnyColumnKey> column_keys;
     ReadBuffer(buffer, column_keys);
     return tachyon::zk::plonk::PermutationArgument(std::move(column_keys));
@@ -329,7 +335,8 @@ class BufferReader<tachyon::zk::plonk::PermutationArgument> {
 template <typename F>
 class BufferReader<tachyon::zk::LookupArgument<F>> {
  public:
-  static tachyon::zk::LookupArgument<F> Read(base::Buffer& buffer) {
+  static tachyon::zk::LookupArgument<F> Read(
+      const base::ReadOnlyBuffer& buffer) {
     std::vector<std::unique_ptr<tachyon::zk::Expression<F>>> input_expressions;
     ReadBuffer(buffer, input_expressions);
     std::vector<std::unique_ptr<tachyon::zk::Expression<F>>> table_expressions;
@@ -343,7 +350,7 @@ template <typename Poly, typename Evals>
 class BufferReader<tachyon::zk::plonk::PermutationProvingKey<Poly, Evals>> {
  public:
   static tachyon::zk::plonk::PermutationProvingKey<Poly, Evals> Read(
-      base::Buffer& buffer) {
+      const base::ReadOnlyBuffer& buffer) {
     std::vector<Evals> permutations;
     ReadBuffer(buffer, permutations);
     std::vector<Poly> polys;

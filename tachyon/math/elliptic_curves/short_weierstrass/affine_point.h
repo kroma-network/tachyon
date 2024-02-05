@@ -218,7 +218,8 @@ class Copyable<math::AffinePoint<
     return buffer->WriteMany(point.x(), point.y(), point.infinity());
   }
 
-  static bool ReadFrom(const Buffer& buffer, math::AffinePoint<Curve>* point) {
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       math::AffinePoint<Curve>* point) {
     using BaseField = typename math::AffinePoint<Curve>::BaseField;
     BaseField x, y;
     bool infinity;

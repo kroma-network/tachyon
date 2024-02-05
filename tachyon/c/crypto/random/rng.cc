@@ -28,12 +28,13 @@ tachyon_rng* tachyon_rng_create_from_state(uint8_t type, const uint8_t* state,
   rng->type = type;
   if (type == TACHYON_RNG_XOR_SHIFT) {
     CHECK_EQ(state_len, crypto::XORShiftRNG::kStateSize);
-    base::Buffer buffer(const_cast<uint8_t*>(state), state_len);
+    base::ReadOnlyBuffer buffer(state, state_len);
     uint32_t x, y, z, w;
     CHECK(buffer.Read32LE(&x));
     CHECK(buffer.Read32LE(&y));
     CHECK(buffer.Read32LE(&z));
     CHECK(buffer.Read32LE(&w));
+    CHECK(buffer.Done());
     crypto::XORShiftRNG* xor_shift = new crypto::XORShiftRNG;
     *xor_shift = crypto::XORShiftRNG::FromState(x, y, z, w);
     rng->extra = xor_shift;

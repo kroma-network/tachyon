@@ -56,7 +56,7 @@ class Copyable<zk::plonk::PermutationProvingKey<Poly, Evals>> {
     return buffer->WriteMany(pk.permutations(), pk.polys());
   }
 
-  static bool ReadFrom(const Buffer& buffer,
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        zk::plonk::PermutationProvingKey<Poly, Evals>* pk) {
     std::vector<Evals> perms;
     std::vector<Poly> poly;
