@@ -62,4 +62,22 @@ TEST_F(SHPlonkTest, CreateAndVerifyProof) {
   EXPECT_TRUE((pcs_.VerifyOpeningProof(verifier_openings, &reader)));
 }
 
+TEST_F(SHPlonkTest, Copyable) {
+  std::vector<uint8_t> vec;
+  vec.resize(base::EstimateSize(pcs_));
+  base::Buffer write_buf(vec.data(), vec.size());
+  ASSERT_TRUE(write_buf.Write(pcs_));
+  ASSERT_TRUE(write_buf.Done());
+
+  write_buf.set_buffer_offset(0);
+
+  PCS value;
+  ASSERT_TRUE(write_buf.Read(&value));
+
+  EXPECT_EQ(pcs_.kzg().g1_powers_of_tau(), value.kzg().g1_powers_of_tau());
+  EXPECT_EQ(pcs_.kzg().g1_powers_of_tau_lagrange(),
+            value.kzg().g1_powers_of_tau_lagrange());
+  EXPECT_EQ(pcs_.s_g2(), value.s_g2());
+}
+
 }  // namespace tachyon::crypto

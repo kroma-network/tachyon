@@ -34,6 +34,7 @@ tachyon_cc_library(
         "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
         "//tachyon/crypto/transcripts:transcript",
         "//tachyon/math/elliptic_curves/pairing",
+        "@com_google_googletest//:gtest_prod",
     ],
 )
 
