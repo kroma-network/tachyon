@@ -77,8 +77,8 @@ tachyon_cuda_unittest(
 )
 
 tachyon_cuda_binary(
-    name = "msm_gpu_debug",
-    srcs = ["msm_gpu_debug.cc"],
+    name = "msm_gpu_replay",
+    srcs = ["msm_gpu_replay.cc"],
     deps = [
         "//tachyon/base/containers:container_util",
         "//tachyon/base/flag:flag_parser",
