@@ -7,7 +7,10 @@
 #ifndef TACHYON_ZK_BASE_BLINDED_POLYNOMIAL_H_
 #define TACHYON_ZK_BASE_BLINDED_POLYNOMIAL_H_
 
+#include <string>
 #include <utility>
+
+#include "absl/strings/substitute.h"
 
 #include "tachyon/base/ref.h"
 
@@ -32,6 +35,11 @@ class BlindedPolynomial {
 
   base::Ref<const BlindedPolynomial<Poly>> ToRef() const {
     return base::Ref<const BlindedPolynomial<Poly>>(this);
+  }
+
+  std::string ToString() const {
+    return absl::Substitute("{poly: $0, blind: $1}", poly_.ToString(),
+                            blind_.ToString());
   }
 
  private:
