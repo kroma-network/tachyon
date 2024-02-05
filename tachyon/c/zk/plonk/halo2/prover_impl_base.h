@@ -23,8 +23,22 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS> {
   using Commitment = typename PCS::Commitment;
   using Callback = base::OnceCallback<Base()>;
 
-  explicit ProverImplBase(Callback callback)
-      : Base(std::move(callback).Run()) {}
+  ProverImplBase(Callback callback, uint8_t transcript_type)
+      : Base(std::move(callback).Run()), transcript_type_(transcript_type) {}
+
+  uint8_t transcript_type() const { return transcript_type_; }
+
+  void SetRngState(absl::Span<const uint8_t> state) {
+    base::ReadOnlyBuffer buffer(state.data(), state.size());
+    uint32_t x, y, z, w;
+    CHECK(buffer.Read32LE(&x));
+    CHECK(buffer.Read32LE(&y));
+    CHECK(buffer.Read32LE(&z));
+    CHECK(buffer.Read32LE(&w));
+    CHECK(buffer.Done());
+    Base::SetRng(std::make_unique<crypto::XORShiftRNG>(
+        crypto::XORShiftRNG::FromState(x, y, z, w)));
+  }
 
   void SetRng(std::unique_ptr<crypto::XORShiftRNG> rng) {
     Base::SetRng(std::move(rng));
@@ -51,6 +65,9 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS> {
 
     Base::CreateProof(proving_key, argument_data);
   }
+
+ protected:
+  uint8_t transcript_type_;
 };
 
 }  // namespace tachyon::c::zk::plonk::halo2

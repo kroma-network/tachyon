@@ -109,16 +109,8 @@ tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_shplonk_prover_commit_lagrange(
 void tachyon_halo2_bn254_shplonk_prover_set_rng_state(
     tachyon_halo2_bn254_shplonk_prover* prover, const uint8_t* state,
     size_t state_len) {
-  base::ReadOnlyBuffer buffer(state, state_len);
-  uint32_t x, y, z, w;
-  CHECK(buffer.Read32LE(&x));
-  CHECK(buffer.Read32LE(&y));
-  CHECK(buffer.Read32LE(&z));
-  CHECK(buffer.Read32LE(&w));
-  CHECK(buffer.Done());
-  reinterpret_cast<ProverImpl*>(prover)->SetRng(
-      std::make_unique<crypto::XORShiftRNG>(
-          crypto::XORShiftRNG::FromState(x, y, z, w)));
+  reinterpret_cast<ProverImpl*>(prover)->SetRngState(
+      absl::Span<const uint8_t>(state, state_len));
 }
 
 void tachyon_halo2_bn254_shplonk_prover_set_transcript_state(

@@ -18,9 +18,7 @@ class SHPlonkProverImpl : public ProverImplBase<PCS> {
  public:
   using Callback = ProverImplBase<PCS>::Callback;
 
-  SHPlonkProverImpl(Callback callback, uint8_t transcript_type)
-      : ProverImplBase<PCS>(std::move(callback)),
-        transcript_type_(transcript_type) {}
+  using ProverImplBase<PCS>::ProverImplBase;
 
   tachyon_bn254_g1_jacobian* Commit(
       const std::vector<tachyon::math::bn254::Fr>& scalars) const {
@@ -31,8 +29,6 @@ class SHPlonkProverImpl : public ProverImplBase<PCS> {
       const std::vector<tachyon::math::bn254::Fr>& scalars) const {
     return DoMSM(pcs_.GetG1PowersOfTauLagrange(), scalars);
   }
-
-  uint8_t transcript_type() const { return transcript_type_; }
 
  private:
   static tachyon_bn254_g1_jacobian* DoMSM(
@@ -50,8 +46,6 @@ class SHPlonkProverImpl : public ProverImplBase<PCS> {
         new tachyon::math::bn254::G1JacobianPoint(bucket.ToJacobian());
     return reinterpret_cast<tachyon_bn254_g1_jacobian*>(ret);
   }
-
-  uint8_t transcript_type_;
 };
 
 }  // namespace tachyon::c::zk::plonk::halo2::bn254
