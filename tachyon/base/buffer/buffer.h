@@ -73,7 +73,7 @@ class TACHYON_EXPORT Buffer {
 
   [[nodiscard]] bool Done() const { return buffer_offset_ == buffer_len_; }
 
-  // Returns false either
+  // Returns false when either
   // 1) |buffer_offset| + |size| overflows.
   // 2) if it tries to read more than |buffer_len_|.
   [[nodiscard]] bool ReadAt(size_t buffer_offset, uint8_t* ptr,
@@ -233,7 +233,7 @@ class TACHYON_EXPORT Buffer {
     return WriteMany(args...);
   }
 
-  // Returns false either
+  // Returns false when either
   // 1) |buffer_offset| + |size| overflows.
   // 2) if it is not growable and it tries to write more than
   // |buffer_len_|.
