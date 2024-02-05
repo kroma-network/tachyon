@@ -7,7 +7,7 @@
 
 namespace tachyon::math {
 
-// MSM(Multi-Scalar Multiplication): s₀ * g₀ + s₁ * g₁ + ... + sₙ * gₙ
+// MSM(Multi-Scalar Multiplication): s₀ * g₀ + s₁ * g₁ + ... + sₙ₋₁ * gₙ₋₁
 // Variable-base MSM is an operation that multiplies different base points
 // with respective scalars, unlike the Fixed-base MSM, which uses the same
 // base point for all multiplications.
