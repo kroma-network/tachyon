@@ -23,7 +23,7 @@ template <typename F>
 class ProofSerializer<
     F, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<F>, F>>> {
  public:
-  [[nodiscard]] static bool ReadFromProof(const base::Buffer& buffer,
+  [[nodiscard]] static bool ReadFromProof(const base::ReadOnlyBuffer& buffer,
                                           F* scalar) {
     return buffer.Read(scalar);
   }
@@ -45,7 +45,7 @@ class ProofSerializer<math::AffinePoint<Curve>> {
 
   constexpr static size_t kByteSize = BaseField::kLimbNums * sizeof(uint64_t);
 
-  [[nodiscard]] static bool ReadFromProof(const base::Buffer& buffer,
+  [[nodiscard]] static bool ReadFromProof(const base::ReadOnlyBuffer& buffer,
                                           math::AffinePoint<Curve>* point_out) {
     uint8_t bytes[kByteSize];
     if (!buffer.Read(bytes)) return false;
