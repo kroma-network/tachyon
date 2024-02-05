@@ -16,9 +16,9 @@ namespace tachyon::zk::plonk::halo2 {
 
 class ProverTest : public testing::Test {
  public:
-  constexpr static size_t kMaxDegree = (size_t{1} << 5) - 1;
+  constexpr static size_t kMaxDegree = (size_t{1} << 11) - 1;
   constexpr static size_t kMaxDomainSize = kMaxDegree + 1;
-  constexpr static size_t kMaxExtendedDegree = (size_t{1} << 7) - 1;
+  constexpr static size_t kMaxExtendedDegree = (size_t{1} << 13) - 1;
   constexpr static size_t kMaxExtendedDomainSize = kMaxExtendedDegree + 1;
 
   using PCS = SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
