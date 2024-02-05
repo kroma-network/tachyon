@@ -45,9 +45,9 @@ class Verifier : public VerifierBase<PCS> {
   }
 
  private:
+  FRIEND_TEST(ShuffleCircuitTest, Verify);
   FRIEND_TEST(SimpleCircuitTest, Verify);
   FRIEND_TEST(SimpleLookupCircuitTest, Verify);
-  FRIEND_TEST(ShuffleCircuitTest, Verify);
   FRIEND_TEST(SimpleV1CircuitTest, Verify);
   FRIEND_TEST(SimpleLookupV1CircuitTest, Verify);
 
