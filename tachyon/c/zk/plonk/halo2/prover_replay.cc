@@ -1,0 +1,208 @@
+#include <string>
+
+#include "absl/strings/substitute.h"
+
+#include "tachyon/base/console/iostream.h"
+#include "tachyon/base/files/file_path_flag.h"
+#include "tachyon/base/files/file_util.h"
+#include "tachyon/base/flag/flag_parser.h"
+#include "tachyon/base/logging.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_impl.h"
+#include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h"
+#include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
+#include "tachyon/zk/plonk/halo2/constants.h"
+
+namespace tachyon {
+
+enum class TranscriptType : uint8_t {
+  kBlake2b,
+};
+
+namespace base {
+
+template <>
+class FlagValueTraits<TranscriptType> {
+ public:
+  static bool ParseValue(std::string_view input, TranscriptType* value,
+                         std::string* reason) {
+    if (input == "blake2b") {
+      *value = TranscriptType::kBlake2b;
+    } else {
+      *reason = absl::Substitute("Unknown test set: $0", input);
+      return false;
+    }
+    return true;
+  }
+};
+
+}  // namespace base
+
+namespace c::zk::plonk::halo2::bn254 {
+
+using ArgumentData =
+    tachyon::zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;
+
+using Prover = SHPlonkProverImpl;
+
+using ProvingKey = plonk::bn254::ProvingKeyImpl;
+
+ArgumentData DeserializeArgumentData(
+    const std::vector<uint8_t>& arg_data_bytes) {
+  ArgumentData arg_data;
+  base::Buffer buffer(const_cast<uint8_t*>(arg_data_bytes.data()),
+                      arg_data_bytes.size());
+  CHECK(buffer.Read(&arg_data));
+  CHECK(buffer.Done());
+  return arg_data;
+}
+
+void CreateProof(tachyon_halo2_bn254_shplonk_prover* c_prover,
+                 const std::vector<uint8_t>& pk_bytes,
+                 const std::vector<uint8_t>& arg_data_bytes,
+                 const std::vector<uint8_t>& transcript_state_bytes) {
+  Prover* prover = reinterpret_cast<Prover*>(c_prover);
+  ProvingKey pk(absl::MakeConstSpan(pk_bytes));
+
+  uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(
+      prover->pcs().K());
+  prover->set_extended_domain(
+      PCS::ExtendedDomain::Create(size_t{1} << extended_k));
+
+  tachyon_halo2_bn254_shplonk_prover_set_transcript_state(
+      c_prover, transcript_state_bytes.data(), transcript_state_bytes.size());
+
+  prover->SetRng(std::make_unique<crypto::XORShiftRNG>(
+      crypto::XORShiftRNG::FromSeed(tachyon::zk::plonk::halo2::kXORShiftSeed)));
+
+  ArgumentData arg_data = DeserializeArgumentData(arg_data_bytes);
+  for (size_t i = 0; i < arg_data.advice_blinds_vec().size(); ++i) {
+    const std::vector<tachyon::math::bn254::Fr>& advice_blinds =
+        arg_data.advice_blinds_vec()[i];
+    for (size_t j = 0; j < advice_blinds.size(); ++j) {
+      // Update Rng state
+      prover->blinder().Generate();
+    }
+  }
+
+  prover->blinder().set_blinding_factors(
+      pk.verifying_key().constraint_system().ComputeBlindingFactors());
+  prover->CreateProof(pk, &arg_data);
+}
+
+}  // namespace c::zk::plonk::halo2::bn254
+
+int RunMain(int argc, char** argv) {
+  if (base::Environment::Has("TACHYON_PK_LOG_PATH")) {
+    tachyon_cerr << "If this is set, the pk log is overwritten" << std::endl;
+    return 1;
+  }
+  if (base::Environment::Has("TACHYON_ARG_DATA_LOG_PATH")) {
+    tachyon_cerr << "If this is set, the arg data log is overwritten"
+                 << std::endl;
+    return 1;
+  }
+  if (base::Environment::Has("TACHYON_TRANSCRIPT_STATE_LOG_PATH")) {
+    tachyon_cerr << "If this is set, the transcript state log is overwritten"
+                 << std::endl;
+    return 1;
+  }
+
+  TranscriptType transcript_type;
+  uint32_t k;
+  std::string s_hex;
+  base::FilePath pk_path;
+  base::FilePath arg_data_path;
+  base::FilePath transcript_state_path;
+  base::FlagParser parser;
+  parser.AddFlag<base::Flag<TranscriptType>>(&transcript_type)
+      .set_long_name("--transcript_type")
+      .set_required()
+      .set_help("Transcript type");
+  parser.AddFlag<base::Uint32Flag>(&k)
+      .set_short_name("-k")
+      .set_required()
+      .set_help("K");
+  parser.AddFlag<base::StringFlag>(&s_hex)
+      .set_short_name("-s")
+      .set_required()
+      .set_help("s in hex");
+  parser.AddFlag<base::FilePathFlag>(&pk_path)
+      .set_long_name("--pk")
+      .set_required()
+      .set_help("The path to proving key");
+  parser.AddFlag<base::FilePathFlag>(&arg_data_path)
+      .set_long_name("--arg_data")
+      .set_required()
+      .set_help("The path to argument data");
+  parser.AddFlag<base::FilePathFlag>(&transcript_state_path)
+      .set_long_name("--transcript_state")
+      .set_required()
+      .set_help("The path to transcript state");
+  {
+    std::string error;
+    if (!parser.Parse(argc, argv, &error)) {
+      tachyon_cerr << error << std::endl;
+      return 1;
+    }
+  }
+
+  std ::optional<std::vector<uint8_t>> pk_bytes =
+      base::ReadFileToBytes(pk_path);
+  if (!pk_bytes.has_value()) {
+    tachyon_cerr << "Failed to read file: " << pk_path.value() << std::endl;
+    return 1;
+  }
+
+  std::optional<std::vector<uint8_t>> arg_data_bytes =
+      base::ReadFileToBytes(arg_data_path);
+  if (!arg_data_bytes.has_value()) {
+    tachyon_cerr << "Failed to read file: " << arg_data_path.value()
+                 << std::endl;
+    return 1;
+  }
+
+  std::optional<std::vector<uint8_t>> transcript_state_bytes =
+      base::ReadFileToBytes(transcript_state_path);
+  if (!transcript_state_bytes.has_value()) {
+    tachyon_cerr << "Failed to read file: " << transcript_state_path.value()
+                 << std::endl;
+    return 1;
+  }
+
+  math::bn254::Fr cpp_s = math::bn254::Fr::FromHexString(s_hex);
+  tachyon_bn254_fr s = cc::math::ToCPrimeField(cpp_s);
+
+  tachyon_halo2_bn254_shplonk_prover* prover =
+      tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
+          static_cast<uint8_t>(transcript_type), k, &s);
+
+  c::zk::plonk::halo2::bn254::CreateProof(prover, pk_bytes.value(),
+                                          arg_data_bytes.value(),
+                                          transcript_state_bytes.value());
+
+  std::vector<uint8_t> proof;
+  size_t proof_size;
+  tachyon_halo2_bn254_shplonk_prover_get_proof(prover, nullptr, &proof_size);
+  proof.resize(proof_size);
+  tachyon_halo2_bn254_shplonk_prover_get_proof(prover, proof.data(),
+                                               &proof_size);
+
+  std::cout << "proof: [";
+  for (size_t i = 0; i < proof_size; ++i) {
+    std::cout << uint32_t{proof[i]};
+    if (i != proof_size - 1) {
+      std::cout << ", ";
+    }
+  }
+  std::cout << "]" << std::endl;
+
+  tachyon_halo2_bn254_shplonk_prover_destroy(prover);
+  return 0;
+}
+
+}  // namespace tachyon
+
+int main(int argc, char** argv) { return tachyon::RunMain(argc, argv); }

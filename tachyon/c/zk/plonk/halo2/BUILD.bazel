@@ -1,4 +1,9 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_binary",
+    "tachyon_cc_library",
+    "tachyon_cc_unittest",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -87,6 +92,24 @@ tachyon_cc_library(
         "//tachyon/base/files:file_util",
         "//tachyon/base/functional:callback",
         "//tachyon/zk/plonk/halo2:prover",
+    ],
+)
+
+tachyon_cc_binary(
+    name = "prover_replay",
+    srcs = ["prover_replay.cc"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/console",
+        "//tachyon/base/files:file_path_flag",
+        "//tachyon/base/files:file_util",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/c/zk/plonk/halo2:bn254_shplonk_prover",
+        "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key_impl",
+        "//tachyon/cc/math/finite_fields:prime_field_conversions",
+        "//tachyon/zk/plonk/halo2:constants",
+        "@com_google_absl//absl/strings",
     ],
 )
 
