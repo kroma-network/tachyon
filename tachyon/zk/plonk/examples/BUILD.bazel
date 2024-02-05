@@ -21,6 +21,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "shuffle_circuit_test_data",
+    testonly = True,
+    hdrs = ["shuffle_circuit_test_data.h"],
+)
+
+tachyon_cc_library(
     name = "simple_circuit",
     testonly = True,
     hdrs = ["simple_circuit.h"],
@@ -28,10 +34,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "simple_circuit_test_data",
+    testonly = True,
+    hdrs = ["simple_circuit_test_data.h"],
+)
+
+tachyon_cc_library(
     name = "simple_lookup_circuit",
     testonly = True,
     hdrs = ["simple_lookup_circuit.h"],
     deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
+)
+
+tachyon_cc_library(
+    name = "simple_lookup_circuit_test_data",
+    testonly = True,
+    hdrs = ["simple_lookup_circuit_test_data.h"],
 )
 
 # TODO(dongchangYoo): This is failed in CI because of timeout, 60 secs.
@@ -42,6 +60,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":shuffle_circuit",
+        ":shuffle_circuit_test_data",
+        "//tachyon/zk/plonk/halo2:pinned_constraint_system",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
@@ -55,6 +75,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":simple_circuit",
+        ":simple_circuit_test_data",
+        "//tachyon/zk/plonk/halo2:pinned_constraint_system",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
@@ -67,6 +89,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":simple_lookup_circuit",
+        ":simple_lookup_circuit_test_data",
+        "//tachyon/zk/plonk/halo2:pinned_constraint_system",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
@@ -79,6 +103,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":simple_lookup_circuit",
+        ":simple_lookup_circuit_test_data",
+        "//tachyon/zk/plonk/halo2:pinned_constraint_system",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
@@ -92,6 +118,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":simple_circuit",
+        ":simple_circuit_test_data",
+        "//tachyon/zk/plonk/halo2:pinned_constraint_system",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",

@@ -5,6 +5,8 @@
 
 #include "tachyon/zk/plonk/examples/circuit_test.h"
 #include "tachyon/zk/plonk/examples/simple_lookup_circuit.h"
+#include "tachyon/zk/plonk/examples/simple_lookup_circuit_test_data.h"
+#include "tachyon/zk/plonk/halo2/pinned_constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "tachyon/zk/plonk/layout/floor_planner/v1/v1_floor_planner.h"
@@ -14,72 +16,6 @@ namespace tachyon::zk::plonk::halo2 {
 namespace {
 
 constexpr size_t kBits = 3;
-
-constexpr uint8_t kExpectedProof[] = {
-    47,  182, 87,  188, 243, 30,  63,  165, 203, 25,  53,  75,  159, 66,  202,
-    142, 241, 131, 243, 14,  210, 25,  158, 80,  248, 54,  227, 231, 128, 14,
-    188, 33,  47,  182, 87,  188, 243, 30,  63,  165, 203, 25,  53,  75,  159,
-    66,  202, 142, 241, 131, 243, 14,  210, 25,  158, 80,  248, 54,  227, 231,
-    128, 14,  188, 33,  161, 99,  130, 124, 10,  20,  160, 177, 184, 226, 59,
-    230, 41,  56,  59,  50,  77,  199, 118, 186, 205, 135, 239, 134, 240, 216,
-    178, 143, 224, 186, 112, 133, 110, 18,  165, 210, 171, 209, 142, 38,  49,
-    39,  167, 176, 66,  2,   157, 206, 154, 213, 99,  116, 249, 18,  192, 71,
-    196, 104, 232, 248, 155, 157, 34,  159, 89,  158, 214, 71,  187, 172, 132,
-    250, 244, 246, 27,  26,  161, 145, 46,  212, 131, 213, 197, 195, 198, 107,
-    243, 182, 186, 151, 97,  0,   50,  34,  16,  153, 109, 145, 193, 251, 94,
-    145, 202, 240, 196, 236, 95,  31,  161, 173, 90,  245, 183, 206, 42,  94,
-    187, 113, 14,  9,   16,  180, 18,  53,  240, 184, 230, 160, 141, 34,  61,
-    50,  56,  77,  136, 29,  85,  118, 10,  11,  246, 144, 45,  247, 193, 24,
-    159, 171, 151, 79,  99,  231, 4,   196, 85,  14,  155, 140, 73,  154, 13,
-    51,  1,   183, 129, 90,  188, 60,  1,   201, 92,  29,  18,  150, 103, 47,
-    167, 207, 151, 155, 254, 184, 236, 190, 146, 119, 107, 159, 165, 160, 64,
-    165, 1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   47,  172, 222, 13,  13,  12,  224, 97,  93,  200, 160, 75,
-    5,   163, 114, 90,  192, 141, 254, 13,  100, 184, 101, 163, 233, 159, 78,
-    5,   241, 39,  149, 5,   40,  11,  98,  1,   131, 105, 31,  119, 211, 35,
-    208, 92,  16,  141, 54,  186, 85,  51,  48,  147, 26,  212, 124, 16,  28,
-    2,   89,  147, 218, 21,  81,  0,   108, 96,  172, 102, 157, 115, 78,  132,
-    158, 105, 84,  190, 71,  232, 56,  178, 31,  177, 102, 86,  121, 78,  135,
-    139, 195, 51,  89,  225, 105, 42,  121, 156, 82,  179, 44,  221, 114, 243,
-    65,  222, 7,   178, 43,  232, 233, 163, 39,  248, 255, 223, 71,  229, 151,
-    12,  34,  80,  73,  103, 57,  110, 1,   139, 223, 171, 204, 73,  3,   168,
-    27,  182, 207, 72,  36,  191, 169, 49,  218, 64,  166, 147, 146, 6,   242,
-    47,  237, 168, 252, 122, 135, 62,  131, 186, 247, 123, 158, 4,   204, 73,
-    3,   168, 27,  182, 207, 72,  36,  191, 169, 49,  218, 64,  166, 147, 146,
-    6,   242, 47,  237, 168, 252, 122, 135, 62,  131, 186, 247, 123, 158, 4,
-    139, 30,  224, 135, 52,  150, 157, 241, 211, 151, 197, 1,   41,  166, 172,
-    233, 28,  128, 103, 213, 108, 62,  199, 22,  27,  44,  107, 62,  220, 198,
-    172, 24,  202, 35,  32,  107, 51,  158, 42,  192, 112, 163, 235, 241, 13,
-    21,  31,  138, 195, 38,  74,  235, 102, 118, 197, 233, 145, 137, 92,  237,
-    50,  169, 218, 31,  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   147, 9,   27,  191, 53,  255, 133, 161, 207,
-    13,  48,  194, 151, 1,   51,  177, 200, 1,   10,  177, 231, 20,  173, 104,
-    17,  223, 68,  229, 202, 28,  92,  7,   202, 190, 62,  194, 225, 115, 241,
-    77,  54,  107, 222, 211, 213, 40,  221, 124, 236, 132, 45,  28,  50,  124,
-    187, 14,  225, 140, 170, 71,  229, 214, 157, 21,  210, 74,  235, 46,  221,
-    76,  167, 90,  61,  36,  164, 163, 205, 203, 121, 48,  38,  204, 205, 60,
-    50,  87,  40,  8,   134, 231, 171, 226, 150, 94,  48,  7,   229, 121, 5,
-    139, 205, 183, 36,  150, 127, 201, 6,   223, 16,  249, 167, 247, 41,  251,
-    50,  61,  37,  71,  102, 218, 56,  197, 9,   162, 69,  159, 96,  10,  83,
-    156, 93,  126, 48,  239, 157, 14,  151, 244, 182, 207, 214, 114, 206, 66,
-    125, 143, 9,   39,  58,  125, 31,  207, 247, 184, 221, 159, 199, 221, 1,
-    5,   1,   160, 63,  77,  223, 129, 195, 86,  34,  53,  60,  89,  38,  147,
-    91,  250, 196, 77,  154, 203, 20,  87,  74,  15,  23,  14,  193, 179, 251,
-    70,  128, 17,  27,  172, 155, 236, 201, 208, 65,  160, 226, 93,  16,  146,
-    53,  179, 114, 131, 165, 122, 137, 68,  149, 154, 38,  109, 61,  21,  151,
-    184, 239, 157, 122, 41,  149, 180, 63,  151, 95,  120, 63,  5,   163, 232,
-    209, 202, 25,  166, 247, 195, 41,  238, 217, 8,   170, 185, 191, 187, 91,
-    119, 200, 233, 235, 168, 156, 9,   172, 76,  239, 215, 3,   217, 222, 86,
-    109, 249, 0,   195, 134, 197, 87,  64,  151, 214, 250, 23,  241, 132, 6,
-    4,   12,  33,  156, 12,  166, 249, 207, 26,  161, 82,  172, 32,  172, 188,
-    238, 122, 176, 68,  121, 246, 202, 25,  9,   65,  144, 93,  19,  17,  67,
-    179, 86,  103, 217, 182, 214, 217, 248, 12,  119, 39,  188, 160, 17,  210,
-    52,  34,  134, 158, 145, 158, 123, 236, 212, 139, 45,  173, 239, 186, 235,
-    196, 183, 190, 66,  121, 8,   119, 95,  12,  151, 160, 172, 18,  145, 117,
-    33,  138, 63,  122, 32,  15,  217, 123, 11,  246, 172, 91,  51,  159, 113,
-    109, 205, 185, 29,  253, 28,  11,  35,  238, 106, 172, 44,  253, 192, 158};
 
 class SimpleLookupV1CircuitTest : public CircuitTest {};
 
@@ -93,50 +29,13 @@ TEST_F(SimpleLookupV1CircuitTest, Configure) {
   EXPECT_EQ(config.selector(), Selector::Complex(0));
   EXPECT_EQ(config.table(), LookupTableColumn(FixedColumnKey(0)));
   EXPECT_EQ(config.advice(), AdviceColumnKey(0));
-  EXPECT_EQ(constraint_system.num_fixed_columns(), 1);
-  EXPECT_EQ(constraint_system.num_advice_columns(), 1);
-  EXPECT_EQ(constraint_system.num_instance_columns(), 0);
-  EXPECT_EQ(constraint_system.num_selectors(), 1);
-  EXPECT_EQ(constraint_system.num_challenges(), 0);
-  std::vector<Phase> expected_advice_column_phases = {kFirstPhase};
-  EXPECT_EQ(constraint_system.advice_column_phases(),
-            expected_advice_column_phases);
-  EXPECT_TRUE(constraint_system.challenge_phases().empty());
+
+  halo2::PinnedConstraintSystem<F> pinned_constraint_system(constraint_system);
+  EXPECT_EQ(simple_lookup_v1::kPinnedConstraintSystem,
+            base::ToRustDebugString(pinned_constraint_system));
+
   EXPECT_TRUE(constraint_system.selector_map().empty());
-  EXPECT_TRUE(constraint_system.gates().empty());
-  std::vector<AdviceQueryData> expected_advice_queries = {
-      AdviceQueryData(Rotation::Cur(), AdviceColumnKey(0)),
-  };
-  EXPECT_EQ(constraint_system.advice_queries(), expected_advice_queries);
-  std::vector<RowIndex> expected_num_advice_queries = {1};
-  EXPECT_EQ(constraint_system.num_advice_queries(),
-            expected_num_advice_queries);
-  EXPECT_TRUE(constraint_system.instance_queries().empty());
-  std::vector<FixedQueryData> expected_fixed_queries = {
-      FixedQueryData(Rotation::Cur(), FixedColumnKey(0)),
-  };
-  EXPECT_EQ(constraint_system.fixed_queries(), expected_fixed_queries);
-  EXPECT_TRUE(constraint_system.permutation().columns().empty());
-  std::vector<LookupArgument<F>> expected_lookups;
-  {
-    LookupPairs<std::unique_ptr<Expression<F>>> pairs;
-    pairs.emplace_back(
-        ExpressionFactory<F>::Sum(
-            ExpressionFactory<F>::Product(
-                ExpressionFactory<F>::Selector(config.selector()),
-                ExpressionFactory<F>::Advice(
-                    AdviceQuery(0, Rotation::Cur(), config.advice()))),
-            ExpressionFactory<F>::Sum(
-                ExpressionFactory<F>::Constant(F::One()),
-                ExpressionFactory<F>::Negated(
-                    ExpressionFactory<F>::Selector(config.selector())))),
-        ExpressionFactory<F>::Fixed(
-            FixedQuery(0, Rotation::Cur(), config.table().column())));
-    expected_lookups.emplace_back("lookup", std::move(pairs));
-  }
-  EXPECT_EQ(constraint_system.lookups(), expected_lookups);
   EXPECT_TRUE(constraint_system.general_column_annotations().empty());
-  EXPECT_FALSE(constraint_system.minimum_degree().has_value());
 }
 
 TEST_F(SimpleLookupV1CircuitTest, Synthesize) {
@@ -226,19 +125,9 @@ TEST_F(SimpleLookupV1CircuitTest, LoadVerifyingKey) {
   VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
-  EXPECT_TRUE(vkey.permutation_verifying_key().commitments().empty());
-
-  std::vector<Commitment> expected_fixed_commitments;
-  {
-    std::vector<Point> points = {
-        {"0x2491b553ef715ba083a05cf556402967f4eb0d63faac61e1011382f579e92a25",
-         "0x21797eb7fe8cdbb4abbaf6b4a38d22f61555af4ffebd38547f1b0a978c8a1ddf"},
-        {"0x06301defe1b3e0ee7910835b9b40d15107294b715b16753d4b9b34aafa4e1418",
-         "0x2d03286f3624c40418f311b994f7c2c7257e0d92d487704983720fce4a99fbe7"},
-    };
-    expected_fixed_commitments = CreateCommitments(points);
-  }
-  EXPECT_EQ(vkey.fixed_commitments(), expected_fixed_commitments);
+  halo2::PinnedVerifyingKey pinned_vkey(prover_.get(), vkey);
+  EXPECT_EQ(simple_lookup_v1::kPinnedVerifyingKey,
+            base::ToRustDebugString(pinned_vkey));
 
   F expected_transcript_repr = F::FromHexString(
       "0x01522b814675ed8fa132994e824c46042f5130b140ac340c760eb426c7253ae8");
@@ -561,8 +450,9 @@ TEST_F(SimpleLookupV1CircuitTest, CreateProof) {
   prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
   std::vector<uint8_t> proof = prover_->GetWriter()->buffer().owned_buffer();
-  std::vector<uint8_t> expected_proof(std::begin(kExpectedProof),
-                                      std::end(kExpectedProof));
+  std::vector<uint8_t> expected_proof(
+      std::begin(simple_lookup_v1::kExpectedProof),
+      std::end(simple_lookup_v1::kExpectedProof));
   EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
@@ -576,8 +466,8 @@ TEST_F(SimpleLookupV1CircuitTest, VerifyProof) {
   VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
-  std::vector<uint8_t> owned_proof(std::begin(kExpectedProof),
-                                   std::end(kExpectedProof));
+  std::vector<uint8_t> owned_proof(std::begin(simple_lookup_v1::kExpectedProof),
+                                   std::end(simple_lookup_v1::kExpectedProof));
   Verifier<PCS> verifier =
       CreateVerifier(CreateBufferWithProof(absl::MakeSpan(owned_proof)));
   std::vector<Evals> instance_columns;
