@@ -18,6 +18,22 @@ tachyon_cc_library(
     hdrs = ["fibonacci1_circuit_test_data.h"],
 )
 
+tachyon_cc_library(
+    name = "fibonacci2_circuit",
+    testonly = True,
+    hdrs = ["fibonacci2_circuit.h"],
+    deps = [
+        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/plonk/constraint_system:circuit",
+    ],
+)
+
+tachyon_cc_library(
+    name = "fibonacci2_circuit_test_data",
+    testonly = True,
+    hdrs = ["fibonacci2_circuit_test_data.h"],
+)
+
 tachyon_cc_unittest(
     name = "fibonacci1_circuit_test",
     srcs = ["fibonacci1_circuit_test.cc"],
@@ -38,6 +54,34 @@ tachyon_cc_unittest(
     deps = [
         ":fibonacci1_circuit",
         ":fibonacci1_circuit_test_data",
+        "//tachyon/zk/plonk/examples:circuit_test",
+        "//tachyon/zk/plonk/halo2:pinned_constraint_system",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
+        "//tachyon/zk/plonk/keys:proving_key",
+        "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "fibonacci2_circuit_test",
+    srcs = ["fibonacci2_circuit_test.cc"],
+    deps = [
+        ":fibonacci2_circuit",
+        ":fibonacci2_circuit_test_data",
+        "//tachyon/zk/plonk/examples:circuit_test",
+        "//tachyon/zk/plonk/halo2:pinned_constraint_system",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
+        "//tachyon/zk/plonk/keys:proving_key",
+        "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "fibonacci2_v1_circuit_test",
+    srcs = ["fibonacci2_v1_circuit_test.cc"],
+    deps = [
+        ":fibonacci2_circuit",
+        ":fibonacci2_circuit_test_data",
         "//tachyon/zk/plonk/examples:circuit_test",
         "//tachyon/zk/plonk/halo2:pinned_constraint_system",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",

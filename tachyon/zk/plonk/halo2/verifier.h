@@ -52,6 +52,8 @@ class Verifier : public VerifierBase<PCS> {
   FRIEND_TEST(SimpleLookupV1CircuitTest, VerifyProof);
   FRIEND_TEST(Fibonacci1CircuitTest, VerifyProof);
   FRIEND_TEST(Fibonacci1V1CircuitTest, VerifyProof);
+  FRIEND_TEST(Fibonacci2CircuitTest, VerifyProof);
+  FRIEND_TEST(Fibonacci2V1CircuitTest, VerifyProof);
 
   bool VerifyProofForTesting(
       const VerifyingKey<F, Commitment>& vkey,
