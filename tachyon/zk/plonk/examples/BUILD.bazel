@@ -11,6 +11,7 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "shuffle_circuit",
+    testonly = True,
     hdrs = ["shuffle_circuit.h"],
     deps = [
         "//tachyon/zk/base:row_index",
@@ -21,12 +22,14 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "simple_circuit",
+    testonly = True,
     hdrs = ["simple_circuit.h"],
     deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
 )
 
 tachyon_cc_library(
     name = "simple_lookup_circuit",
+    testonly = True,
     hdrs = ["simple_lookup_circuit.h"],
     deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
 )
