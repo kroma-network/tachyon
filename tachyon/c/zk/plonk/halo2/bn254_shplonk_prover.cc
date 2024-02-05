@@ -124,8 +124,9 @@ void tachyon_halo2_bn254_shplonk_prover_set_transcript_state(
         writer = std::make_unique<
             zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
             std::move(write_buf));
-    writer->SetState(absl::Span<const uint8_t>(state, state_len));
-    prover_impl->SetTranscript(std::move(writer));
+    absl::Span<const uint8_t> state_span(state, state_len);
+    writer->SetState(state_span);
+    prover_impl->SetTranscript(state_span, std::move(writer));
   } else {
     NOTREACHED();
   }

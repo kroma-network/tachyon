@@ -45,7 +45,15 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS> {
   }
 
   void SetTranscript(
+      absl::Span<const uint8_t> state,
       std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer) {
+    std::string_view state_str;
+    if (base::Environment::Get("TACHYON_TRANSCRIPT_STATE_LOG_PATH",
+                               &state_str)) {
+      VLOG(1) << "Save transcript state to: " << state_str;
+      CHECK(base::WriteFile(base::FilePath(state_str), state));
+    }
+
     this->transcript_ = std::move(writer);
   }
 
