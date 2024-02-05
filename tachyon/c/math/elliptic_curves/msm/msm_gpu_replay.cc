@@ -38,7 +38,7 @@ std::vector<bn254::Fr> ReadScalarFields(const base::FilePath& path) {
 }
 
 int RealMain(int argc, char** argv) {
-  if (base::Environment::Has("TACHYON_SAVE_LOCATION")) {
+  if (base::Environment::Has("TACHYON_MSM_GPU_INPUT_DIR")) {
     tachyon_cerr << "If this is set, the log is overwritten" << std::endl;
     return 1;
   }
@@ -46,7 +46,7 @@ int RealMain(int argc, char** argv) {
   base::FlagParser parser;
   std::vector<int> idxes;
   int degree;
-  base::FilePath location;
+  base::FilePath input_dir;
   int algorithm = 0;
   parser.AddFlag<base::Flag<std::vector<int>>>(&idxes)
       .set_long_name("--idx")
@@ -54,8 +54,8 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::IntFlag>(&degree)
       .set_long_name("--degree")
       .set_required();
-  parser.AddFlag<base::FilePathFlag>(&location)
-      .set_long_name("--location")
+  parser.AddFlag<base::FilePathFlag>(&input_dir)
+      .set_long_name("--input_dir")
       .set_required();
   parser
       .AddFlag<base::IntFlag>(
@@ -87,9 +87,10 @@ int RealMain(int argc, char** argv) {
       tachyon_bn254_g1_create_msm_gpu(degree, algorithm);
 
   for (int idx : idxes) {
-    base::FilePath bases_txt(absl::Substitute("$0/bases$1.txt", location, idx));
+    base::FilePath bases_txt(
+        absl::Substitute("$0/bases$1.txt", input_dir, idx));
     base::FilePath scalars_txt(
-        absl::Substitute("$0/scalars$1.txt", location, idx));
+        absl::Substitute("$0/scalars$1.txt", input_dir, idx));
     auto bases = ReadAffinePoints(bases_txt);
     auto scalars = ReadScalarFields(scalars_txt);
     CHECK_EQ(bases.size(), scalars.size());
