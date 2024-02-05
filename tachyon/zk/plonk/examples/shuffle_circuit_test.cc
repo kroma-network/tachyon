@@ -641,7 +641,7 @@ TEST_F(ShuffleCircuitTest, CreateV1Proof) {
   EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
-TEST_F(ShuffleCircuitTest, Verify) {
+TEST_F(ShuffleCircuitTest, VerifyProof) {
   size_t n = size_t{1} << K;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));

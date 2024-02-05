@@ -567,7 +567,7 @@ TEST_F(SimpleLookupCircuitTest, CreateProof) {
   EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
-TEST_F(SimpleLookupCircuitTest, Verify) {
+TEST_F(SimpleLookupCircuitTest, VerifyProof) {
   size_t n = 32;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));

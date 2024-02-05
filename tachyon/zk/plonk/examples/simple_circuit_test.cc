@@ -703,7 +703,7 @@ TEST_F(SimpleCircuitTest, CreateProof) {
   EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
-TEST_F(SimpleCircuitTest, Verify) {
+TEST_F(SimpleCircuitTest, VerifyProof) {
   size_t n = 16;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));

@@ -45,11 +45,11 @@ class Verifier : public VerifierBase<PCS> {
   }
 
  private:
-  FRIEND_TEST(ShuffleCircuitTest, Verify);
-  FRIEND_TEST(SimpleCircuitTest, Verify);
-  FRIEND_TEST(SimpleLookupCircuitTest, Verify);
-  FRIEND_TEST(SimpleV1CircuitTest, Verify);
-  FRIEND_TEST(SimpleLookupV1CircuitTest, Verify);
+  FRIEND_TEST(ShuffleCircuitTest, VerifyProof);
+  FRIEND_TEST(SimpleCircuitTest, VerifyProof);
+  FRIEND_TEST(SimpleLookupCircuitTest, VerifyProof);
+  FRIEND_TEST(SimpleV1CircuitTest, VerifyProof);
+  FRIEND_TEST(SimpleLookupV1CircuitTest, VerifyProof);
 
   bool VerifyProofForTesting(
       const VerifyingKey<F, Commitment>& vkey,
