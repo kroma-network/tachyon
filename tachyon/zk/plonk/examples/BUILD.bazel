@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -52,9 +52,7 @@ tachyon_cc_library(
     hdrs = ["simple_lookup_circuit_test_data.h"],
 )
 
-# TODO(dongchangYoo): This is failed in CI because of timeout, 60 secs.
-# Change |tachyon_cc_test| to |tachyon_cc_unittest| once CI can run within the timeout.
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "shuffle_circuit_test",
     srcs = ["shuffle_circuit_test.cc"],
     deps = [
@@ -69,7 +67,7 @@ tachyon_cc_test(
     ],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "simple_circuit_test",
     srcs = ["simple_circuit_test.cc"],
     deps = [
@@ -83,7 +81,7 @@ tachyon_cc_test(
     ],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "simple_lookup_circuit_test",
     srcs = ["simple_lookup_circuit_test.cc"],
     deps = [
@@ -97,7 +95,7 @@ tachyon_cc_test(
     ],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "simple_lookup_v1_circuit_test",
     srcs = ["simple_lookup_v1_circuit_test.cc"],
     deps = [
@@ -112,7 +110,7 @@ tachyon_cc_test(
     ],
 )
 
-tachyon_cc_test(
+tachyon_cc_unittest(
     name = "simple_v1_circuit_test",
     srcs = ["simple_v1_circuit_test.cc"],
     deps = [
