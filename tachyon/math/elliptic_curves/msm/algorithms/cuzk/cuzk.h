@@ -17,8 +17,8 @@
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk_ell_sparse_matrix.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/msm_algorithm.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_ctx.h"
 #include "tachyon/math/elliptic_curves/msm/kernels/cuzk/cuzk_kernels.cu.h"
+#include "tachyon/math/elliptic_curves/msm/msm_ctx.h"
 
 namespace tachyon::math {
 
@@ -43,7 +43,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
   CUZK(const CUZK& other) = delete;
   CUZK& operator=(const CUZK& other) = delete;
 
-  void SetContextForTesting(const PippengerCtx& ctx) { ctx_ = ctx; }
+  void SetContextForTesting(const MSMCtx& ctx) { ctx_ = ctx; }
 
   void SetGroupsForTesting(unsigned int start_group, unsigned int end_group) {
     start_group_ = start_group;
@@ -56,18 +56,20 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
   }
 
   // MSMGpuAlgorithm methods
-  bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
-           const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
-           JacobianPoint<CpuCurve>* cpu_result) override {
+  [[nodiscard]] bool Run(
+      const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
+      const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
+      JacobianPoint<CpuCurve>* cpu_result) override {
     PointXYZZ<CpuCurve> out;
     if (!Run(bases, scalars, size, &out)) return false;
     *cpu_result = out.ToJacobian();
     return true;
   }
 
-  bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
-           const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
-           PointXYZZ<CpuCurve>* cpu_result) {
+  [[nodiscard]] bool Run(
+      const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
+      const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
+      PointXYZZ<CpuCurve>* cpu_result) {
     if (bases.size() < size) {
       LOG(ERROR) << "bases.size() is smaller than size";
       return false;
@@ -83,7 +85,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
       error = LOG_IF_GPU_ERROR(cudaGetDevice(&device_id_),
                                "Failed to cudaGetDevice()");
     }
-    ctx_ = PippengerCtx::CreateDefault<ScalarField>(size);
+    ctx_ = MSMCtx::CreateDefault<ScalarField>(size);
     start_group_ =
         (ctx_.window_count + device_count_ - 1) / device_count_ * device_id_;
     end_group_ = (ctx_.window_count + device_count_ - 1) / device_count_ *
@@ -431,7 +433,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
   gpuMemPool_t mem_pool_ = nullptr;
   gpuStream_t stream_ = nullptr;
 
-  PippengerCtx ctx_;
+  MSMCtx ctx_;
   int device_count_ = 0;
   int device_id_ = 0;
   unsigned int grid_size_ = 0;

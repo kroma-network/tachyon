@@ -10,9 +10,9 @@ tachyon_cuda_library(
     deps = [
         "//tachyon/device/gpu/cuda:cuda_memory",
         "//tachyon/math/base:big_int",
+        "//tachyon/math/elliptic_curves/msm:msm_ctx",
         "//tachyon/math/elliptic_curves/msm/algorithms/cuzk:cuzk_csr_sparse_matrix",
         "//tachyon/math/elliptic_curves/msm/algorithms/cuzk:cuzk_ell_sparse_matrix",
-        "//tachyon/math/elliptic_curves/msm/algorithms/pippenger:pippenger_ctx",
         "//tachyon/math/elliptic_curves/short_weierstrass:points",
     ],
 )

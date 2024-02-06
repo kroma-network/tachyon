@@ -45,7 +45,7 @@ int RealMain(int argc, char** argv) {
 
   std::cout << "Generating random points..." << std::endl;
   uint64_t max_point_num = point_nums.back();
-  MSMTestSet<bn254::G1AffinePoint> test_set;
+  VariableBaseMSMTestSet<bn254::G1AffinePoint> test_set;
   CHECK(config.GenerateTestSet(max_point_num, &test_set));
   std::cout << "Generation completed" << std::endl;
 

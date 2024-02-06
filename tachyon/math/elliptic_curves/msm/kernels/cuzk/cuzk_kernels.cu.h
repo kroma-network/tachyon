@@ -11,7 +11,7 @@
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk_csr_sparse_matrix.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk_ell_sparse_matrix.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_ctx.h"
+#include "tachyon/math/elliptic_curves/msm/msm_ctx.h"
 #include "tachyon/math/elliptic_curves/point_xyzz.h"
 
 namespace tachyon::math::cuzk {
@@ -19,7 +19,7 @@ namespace tachyon::math::cuzk {
 // This is a pStoreECPoints in the Algorithm3 section from
 // https://eprint.iacr.org/2022/1321.pdf
 template <typename ScalarField>
-__global__ void WriteBucketIndexesToELLMatrix(PippengerCtx ctx,
+__global__ void WriteBucketIndexesToELLMatrix(MSMCtx ctx,
                                               unsigned int window_index,
                                               const ScalarField* scalars,
                                               CUZKELLSparseMatrix matrix) {
@@ -59,7 +59,7 @@ __global__ void ConvertELLToCSRTransposedStep5(CUZKELLSparseMatrix ell_matrix,
 
 template <typename Curve>
 __global__ void MultiplyCSRMatrixWithOneVectorStep1(
-    PippengerCtx ctx, unsigned int z, CUZKCSRSparseMatrix csr_matrix,
+    MSMCtx ctx, unsigned int z, CUZKCSRSparseMatrix csr_matrix,
     const AffinePoint<Curve>* bases, PointXYZZ<Curve>* results,
     unsigned int bucket_index) {
   unsigned int tid = blockDim.x * blockIdx.x + threadIdx.x;
@@ -95,7 +95,7 @@ __global__ void MultiplyCSRMatrixWithOneVectorStep2(
 
 template <typename Curve>
 __global__ void MultiplyCSRMatrixWithOneVectorStep3(
-    PippengerCtx ctx, unsigned int index, unsigned int count,
+    MSMCtx ctx, unsigned int index, unsigned int count,
     CUZKCSRSparseMatrix csr_matrix,
     const AffinePoint<Curve>* __restrict__ bases,
     PointXYZZ<Curve>* __restrict__ max_intermediate_results,
@@ -181,7 +181,7 @@ __global__ void MultiplyCSRMatrixWithOneVectorStep5(
 // from https://eprint.iacr.org/2022/1321.pdf
 template <typename Curve>
 __global__ void ReduceBucketsStep1(
-    PippengerCtx ctx, PointXYZZ<Curve>* __restrict__ buckets,
+    MSMCtx ctx, PointXYZZ<Curve>* __restrict__ buckets,
     PointXYZZ<Curve>* __restrict__ intermediate_results,
     unsigned int group_grid) {
   unsigned int gid = blockIdx.x / group_grid;
@@ -228,7 +228,7 @@ __global__ void ReduceBucketsStep2(
 
 template <typename Curve>
 __global__ void ReduceBucketsStep3(
-    PippengerCtx ctx, PointXYZZ<Curve>* __restrict__ intermediate_results,
+    MSMCtx ctx, PointXYZZ<Curve>* __restrict__ intermediate_results,
     unsigned int start_group, unsigned int end_group, unsigned int gnum,
     PointXYZZ<Curve>* result) {
   *result = PointXYZZ<Curve>::Zero();

@@ -43,9 +43,10 @@ class BellmanMSM : public PippengerBase<AffinePoint<GpuCurve>>,
   BellmanMSM& operator=(const BellmanMSM& other) = delete;
 
   // MSMGpuAlgorithm methods
-  bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
-           const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
-           JacobianPoint<CpuCurve>* cpu_result) override {
+  [[nodiscard]] bool Run(
+      const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
+      const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
+      JacobianPoint<CpuCurve>* cpu_result) override {
     bellman::ExecutionConfig<GpuCurve> config;
     config.mem_pool = mem_pool_;
     config.stream = stream_;

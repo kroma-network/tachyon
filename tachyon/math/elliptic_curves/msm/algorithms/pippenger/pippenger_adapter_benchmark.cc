@@ -1,7 +1,8 @@
 #include "benchmark/benchmark.h"
 
+#include "tachyon/base/logging.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
 
@@ -9,20 +10,21 @@ template <typename Point, bool IsRandom,
           enum PippengerParallelStrategy Strategy>
 void BM_PippengerAdapter(benchmark::State& state) {
   Point::Curve::Init();
-  MSMTestSet<Point> test_set;
+  VariableBaseMSMTestSet<Point> test_set;
   if constexpr (IsRandom) {
-    test_set = MSMTestSet<Point>::Random(state.range(0), MSMMethod::kNone);
+    test_set = VariableBaseMSMTestSet<Point>::Random(
+        state.range(0), VariableBaseMSMMethod::kNone);
   } else {
-    test_set =
-        MSMTestSet<Point>::NonUniform(state.range(0), 10, MSMMethod::kNone);
+    test_set = VariableBaseMSMTestSet<Point>::NonUniform(
+        state.range(0), 10, VariableBaseMSMMethod::kNone);
   }
   PippengerAdapter<Point> pippenger;
   using Bucket = typename PippengerAdapter<Point>::Bucket;
   Bucket ret;
   for (auto _ : state) {
-    pippenger.RunWithStrategy(test_set.bases.begin(), test_set.bases.end(),
-                              test_set.scalars.begin(), test_set.scalars.end(),
-                              Strategy, &ret);
+    CHECK(pippenger.RunWithStrategy(
+        test_set.bases.begin(), test_set.bases.end(), test_set.scalars.begin(),
+        test_set.scalars.end(), Strategy, &ret));
   }
   benchmark::DoNotOptimize(ret);
 }

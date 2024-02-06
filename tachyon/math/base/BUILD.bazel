@@ -143,7 +143,7 @@ tachyon_cc_unittest(
         ":sign",
         "//tachyon/base/buffer",
         "//tachyon/base/containers:container_util",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
         "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
         "//tachyon/math/finite_fields/test:gf7",
         "@com_google_absl//absl/container:inlined_vector",

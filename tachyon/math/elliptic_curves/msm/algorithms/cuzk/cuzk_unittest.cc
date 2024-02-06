@@ -10,7 +10,7 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
 #include "tachyon/math/elliptic_curves/msm/kernels/cuzk/bn254_cuzk_kernels.cu.h"
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 
@@ -32,7 +32,7 @@ class CUZKTest : public testing::Test {
 
 TEST_F(CUZKTest, ReduceBuckets) {
   size_t size = 1 << 10;
-  PippengerCtx ctx = PippengerCtx::CreateDefault<bn254::Fr>(size);
+  MSMCtx ctx = MSMCtx::CreateDefault<bn254::Fr>(size);
   size_t start_group = 0;
   size_t end_group = ctx.window_count;
   size_t window_length = ctx.GetWindowLength();
@@ -67,8 +67,8 @@ TEST_F(CUZKTest, ReduceBuckets) {
 
 TEST_F(CUZKTest, RunWithRandom) {
   size_t size = 1 << 10;
-  auto test_set =
-      MSMTestSet<bn254::G1AffinePoint>::Random(size, MSMMethod::kMSM);
+  auto test_set = VariableBaseMSMTestSet<bn254::G1AffinePoint>::Random(
+      size, VariableBaseMSMMethod::kMSM);
 
   auto bases = gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(size);
   for (size_t i = 0; i < bases.size(); ++i) {

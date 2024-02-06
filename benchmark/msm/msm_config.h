@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon {
 
@@ -45,15 +45,15 @@ class MSMConfig {
 
   template <typename Point, typename Bucket>
   bool GenerateTestSet(uint64_t size,
-                       math::MSMTestSet<Point, Bucket>* out) const {
+                       math::VariableBaseMSMTestSet<Point, Bucket>* out) const {
     switch (test_set_) {
       case TestSet::kRandom:
-        *out = math::MSMTestSet<Point, Bucket>::Random(size,
-                                                       math::MSMMethod::kNone);
+        *out = math::VariableBaseMSMTestSet<Point, Bucket>::Random(
+            size, math::VariableBaseMSMMethod::kNone);
         return true;
       case TestSet::kNonUniform:
-        *out = math::MSMTestSet<Point, Bucket>::NonUniform(
-            size, 1, math::MSMMethod::kNone);
+        *out = math::VariableBaseMSMTestSet<Point, Bucket>::NonUniform(
+            size, 1, math::VariableBaseMSMMethod::kNone);
         return true;
     }
     return false;

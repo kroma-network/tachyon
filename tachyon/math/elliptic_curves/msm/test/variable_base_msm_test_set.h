@@ -1,10 +1,11 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_TEST_MSM_TEST_SET_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_TEST_MSM_TEST_SET_H_
+#ifndef TACHYON_MATH_ELLIPTIC_CURVES_MSM_TEST_VARIABLE_BASE_MSM_TEST_SET_H_
+#define TACHYON_MATH_ELLIPTIC_CURVES_MSM_TEST_VARIABLE_BASE_MSM_TEST_SET_H_
 
 #include <vector>
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/files/file_util.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/math/base/semigroups.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
@@ -12,7 +13,7 @@
 
 namespace tachyon::math {
 
-enum class MSMMethod {
+enum class VariableBaseMSMMethod {
   kNone,
   kMSM,
   kNaive,
@@ -20,7 +21,7 @@ enum class MSMMethod {
 
 template <typename Point,
           typename Bucket = typename VariableBaseMSM<Point>::Bucket>
-struct MSMTestSet {
+struct VariableBaseMSMTestSet {
   using ScalarField = typename Point::ScalarField;
 
   std::vector<Point> bases;
@@ -29,8 +30,9 @@ struct MSMTestSet {
 
   constexpr size_t size() const { return bases.size(); }
 
-  static MSMTestSet Random(size_t size, MSMMethod method) {
-    MSMTestSet test_set;
+  static VariableBaseMSMTestSet Random(size_t size,
+                                       VariableBaseMSMMethod method) {
+    VariableBaseMSMTestSet test_set;
     test_set.bases = CreatePseudoRandomPoints<Point>(size);
     test_set.scalars =
         base::CreateVector(size, []() { return ScalarField::Random(); });
@@ -38,9 +40,9 @@ struct MSMTestSet {
     return test_set;
   }
 
-  static MSMTestSet NonUniform(size_t size, size_t scalar_size,
-                               MSMMethod method) {
-    MSMTestSet test_set;
+  static VariableBaseMSMTestSet NonUniform(size_t size, size_t scalar_size,
+                                           VariableBaseMSMMethod method) {
+    VariableBaseMSMTestSet test_set;
     test_set.bases = CreatePseudoRandomPoints<Point>(size);
     std::vector<ScalarField> scalar_sets =
         base::CreateVector(scalar_size, []() { return ScalarField::Random(); });
@@ -50,8 +52,9 @@ struct MSMTestSet {
     return test_set;
   }
 
-  static MSMTestSet Easy(size_t size, MSMMethod method) {
-    MSMTestSet test_set;
+  static VariableBaseMSMTestSet Easy(size_t size,
+                                     VariableBaseMSMMethod method) {
+    VariableBaseMSMTestSet test_set;
     test_set.bases =
         base::CreateVector(size, []() { return Point::Generator(); });
     ScalarField s = ScalarField::One();
@@ -80,17 +83,17 @@ struct MSMTestSet {
   }
 
  private:
-  void ComputeAnswer(MSMMethod method) {
+  void ComputeAnswer(VariableBaseMSMMethod method) {
     answer = Bucket::Zero();
     switch (method) {
-      case MSMMethod::kNone:
+      case VariableBaseMSMMethod::kNone:
         break;
-      case MSMMethod::kMSM: {
+      case VariableBaseMSMMethod::kMSM: {
         VariableBaseMSM<Point> msm;
-        msm.Run(bases, scalars, &answer);
+        CHECK(msm.Run(bases, scalars, &answer));
         break;
       }
-      case MSMMethod::kNaive: {
+      case VariableBaseMSMMethod::kNaive: {
         using AddResult =
             typename internal::AdditiveSemigroupTraits<Point>::ReturnTy;
         AddResult sum = AddResult::Zero();
@@ -106,4 +109,4 @@ struct MSMTestSet {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_TEST_MSM_TEST_SET_H_
+#endif  // TACHYON_MATH_ELLIPTIC_CURVES_MSM_TEST_VARIABLE_BASE_MSM_TEST_SET_H_

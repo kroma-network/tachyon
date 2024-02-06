@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
 
@@ -15,13 +15,14 @@ class VariableBaseMSMTest : public testing::Test {
   static void SetUpTestSuite() { Point::Curve::Init(); }
 
   VariableBaseMSMTest()
-      : test_set_(MSMTestSet<Point>::Random(kSize, MSMMethod::kNaive)) {}
+      : test_set_(VariableBaseMSMTestSet<Point>::Random(
+            kSize, VariableBaseMSMMethod::kNaive)) {}
   VariableBaseMSMTest(const VariableBaseMSMTest&) = delete;
   VariableBaseMSMTest& operator=(const VariableBaseMSMTest&) = delete;
   ~VariableBaseMSMTest() override = default;
 
  protected:
-  MSMTestSet<Point> test_set_;
+  VariableBaseMSMTestSet<Point> test_set_;
 };
 
 }  // namespace
@@ -35,7 +36,7 @@ TYPED_TEST(VariableBaseMSMTest, DoMSM) {
   using Point = TypeParam;
   using Bucket = typename VariableBaseMSM<Point>::Bucket;
 
-  const MSMTestSet<Point>& test_set = this->test_set_;
+  const VariableBaseMSMTestSet<Point>& test_set = this->test_set_;
 
   VariableBaseMSM<Point> msm;
   Bucket ret;

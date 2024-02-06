@@ -1,26 +1,29 @@
 #include "benchmark/benchmark.h"
 
+#include "tachyon/base/logging.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
 
 template <typename Point, bool IsRandom>
 void BM_Pippenger(benchmark::State& state) {
   Point::Curve::Init();
-  MSMTestSet<Point> test_set;
+  VariableBaseMSMTestSet<Point> test_set;
   if constexpr (IsRandom) {
-    test_set = MSMTestSet<Point>::Random(state.range(0), MSMMethod::kNone);
+    test_set = VariableBaseMSMTestSet<Point>::Random(
+        state.range(0), VariableBaseMSMMethod::kNone);
   } else {
-    test_set =
-        MSMTestSet<Point>::NonUniform(state.range(0), 10, MSMMethod::kNone);
+    test_set = VariableBaseMSMTestSet<Point>::NonUniform(
+        state.range(0), 10, VariableBaseMSMMethod::kNone);
   }
   Pippenger<Point> pippenger;
   using Bucket = typename Pippenger<Point>::Bucket;
   Bucket ret;
   for (auto _ : state) {
-    pippenger.Run(test_set.bases.begin(), test_set.bases.end(),
-                  test_set.scalars.begin(), test_set.scalars.end(), &ret);
+    CHECK(pippenger.Run(test_set.bases.begin(), test_set.bases.end(),
+                        test_set.scalars.begin(), test_set.scalars.end(),
+                        &ret));
   }
   benchmark::DoNotOptimize(ret);
 }

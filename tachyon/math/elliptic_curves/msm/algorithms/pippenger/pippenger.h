@@ -16,7 +16,7 @@
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_ctx.h"
+#include "tachyon/math/elliptic_curves/msm/msm_ctx.h"
 #include "tachyon/math/elliptic_curves/msm/msm_util.h"
 #include "tachyon/math/elliptic_curves/semigroups.h"
 
@@ -75,16 +75,17 @@ class Pippenger : public PippengerBase<Point> {
   template <typename BaseInputIterator, typename ScalarInputIterator,
             std::enable_if_t<IsAbleToMSM<BaseInputIterator, ScalarInputIterator,
                                          Point, ScalarField>>* = nullptr>
-  bool Run(BaseInputIterator bases_first, BaseInputIterator bases_last,
-           ScalarInputIterator scalars_first, ScalarInputIterator scalars_last,
-           Bucket* ret) {
+  [[nodiscard]] bool Run(BaseInputIterator bases_first,
+                         BaseInputIterator bases_last,
+                         ScalarInputIterator scalars_first,
+                         ScalarInputIterator scalars_last, Bucket* ret) {
     size_t bases_size = std::distance(bases_first, bases_last);
     size_t scalars_size = std::distance(scalars_first, scalars_last);
     if (bases_size != scalars_size) {
       LOG(ERROR) << "bases_size and scalars_size don't match";
       return false;
     }
-    ctx_ = PippengerCtx::CreateDefault<ScalarField>(scalars_size);
+    ctx_ = MSMCtx::CreateDefault<ScalarField>(scalars_size);
 
     std::vector<BigInt<N>> scalars;
     scalars.resize(scalars_size);
@@ -222,7 +223,7 @@ class Pippenger : public PippengerBase<Point> {
 
   bool use_msm_window_naf_ = false;
   bool parallel_windows_ = false;
-  PippengerCtx ctx_;
+  MSMCtx ctx_;
 };
 
 }  // namespace tachyon::math

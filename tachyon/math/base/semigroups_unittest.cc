@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/adapters.h"
-#include "tachyon/math/elliptic_curves/msm/test/msm_test_set.h"
+#include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/sw_curve_config.h"
 
 namespace tachyon::math {
@@ -125,15 +125,15 @@ class MultiScalarMulTest : public testing::Test {
 #else
     size_t thread_nums = 1;
 #endif
-    test_set_ = MSMTestSet<test::AffinePoint>::Random(thread_nums * 5,
-                                                      MSMMethod::kNone);
+    test_set_ = VariableBaseMSMTestSet<test::AffinePoint>::Random(
+        thread_nums * 5, VariableBaseMSMMethod::kNone);
   }
 
  protected:
-  static MSMTestSet<test::AffinePoint> test_set_;
+  static VariableBaseMSMTestSet<test::AffinePoint> test_set_;
 };
 
-MSMTestSet<test::AffinePoint> MultiScalarMulTest::test_set_;
+VariableBaseMSMTestSet<test::AffinePoint> MultiScalarMulTest::test_set_;
 
 }  // namespace
 

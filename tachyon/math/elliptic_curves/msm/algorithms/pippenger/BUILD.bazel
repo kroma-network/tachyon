@@ -12,9 +12,9 @@ tachyon_cc_library(
     hdrs = ["pippenger.h"],
     deps = [
         ":pippenger_base",
-        ":pippenger_ctx",
         "//tachyon/base:openmp_util",
         "//tachyon/base/containers:container_util",
+        "//tachyon/math/elliptic_curves/msm:msm_ctx",
         "//tachyon/math/elliptic_curves/msm:msm_util",
     ],
 )
@@ -36,12 +36,6 @@ tachyon_cc_library(
     ],
 )
 
-tachyon_cc_library(
-    name = "pippenger_ctx",
-    hdrs = ["pippenger_ctx.h"],
-    deps = ["//tachyon:export"],
-)
-
 tachyon_cc_unittest(
     name = "algorithms_unittests",
     srcs = [
@@ -52,7 +46,7 @@ tachyon_cc_unittest(
         ":pippenger_adapter",
         "//tachyon/math/elliptic_curves/bls12/bls12_381:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
 
@@ -61,8 +55,9 @@ tachyon_cc_benchmark(
     srcs = ["pippenger_adapter_benchmark.cc"],
     deps = [
         ":pippenger_adapter",
+        "//tachyon/base:logging",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
 
@@ -72,6 +67,6 @@ tachyon_cc_benchmark(
     deps = [
         ":pippenger",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/msm/test:msm_test_set",
+        "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],
 )
