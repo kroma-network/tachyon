@@ -75,7 +75,9 @@ void CreateProof(tachyon_halo2_bn254_shplonk_prover* c_prover,
                  const std::vector<uint8_t>& arg_data_bytes,
                  const std::vector<uint8_t>& transcript_state_bytes) {
   Prover* prover = reinterpret_cast<Prover*>(c_prover);
+  std::cout << "deserializing proving key" << std::endl;
   ProvingKey pk(absl::MakeConstSpan(pk_bytes));
+  std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(
       prover->pcs().K());
@@ -88,7 +90,9 @@ void CreateProof(tachyon_halo2_bn254_shplonk_prover* c_prover,
   prover->SetRng(std::make_unique<crypto::XORShiftRNG>(
       crypto::XORShiftRNG::FromSeed(tachyon::zk::plonk::halo2::kXORShiftSeed)));
 
+  std::cout << "deserializing argument data" << std::endl;
   ArgumentData arg_data = DeserializeArgumentData(arg_data_bytes);
+  std::cout << "done deserializing argument data" << std::endl;
   for (size_t i = 0; i < arg_data.advice_blinds_vec().size(); ++i) {
     const std::vector<tachyon::math::bn254::Fr>& advice_blinds =
         arg_data.advice_blinds_vec()[i];
@@ -192,9 +196,11 @@ int RunMain(int argc, char** argv) {
   }
 
   if (pcs_params_bytes.has_value()) {
+    std::cout << "creating prover" << std::endl;
     prover = tachyon_halo2_bn254_shplonk_prover_create_from_params(
         static_cast<uint8_t>(transcript_type), k, pcs_params_bytes->data(),
         pcs_params_bytes->size());
+    std::cout << "done creating prover" << std::endl;
   } else {
     if (s_hex.empty()) {
       tachyon_cerr << "s_hex is empty" << std::endl;
@@ -203,8 +209,10 @@ int RunMain(int argc, char** argv) {
     math::bn254::Fr cpp_s = math::bn254::Fr::FromHexString(s_hex);
     tachyon_bn254_fr s = cc::math::ToCPrimeField(cpp_s);
 
+    std::cout << "creating prover" << std::endl;
     prover = tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
         static_cast<uint8_t>(transcript_type), k, &s);
+    std::cout << "done creating prover" << std::endl;
     if (!pcs_params_path.empty()) {
       c::zk::plonk::halo2::bn254::WriteParams(prover, pcs_params_path);
     }
