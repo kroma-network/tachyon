@@ -27,7 +27,7 @@ size_t GetNumElementsPerThread(const Container& container,
   size_t thread_nums = 1;
 #endif
   size_t size = std::size(container);
-  return (threshold.has_value() && size > threshold.value())
+  return (!threshold.has_value() || size > threshold.value())
              ? (size + thread_nums - 1) / thread_nums
              : size;
 }

@@ -36,48 +36,51 @@ bool LagrangeInterpolate(
     return true;
   }
 
-  // points = [x₀, x₁, ..., xₙ]
-  // denoms[i] = 1 / (xᵢ - x₀)(xᵢ - x₁)...(xᵢ - xₙ)
+  // points = [x₀, x₁, ..., xₙ₋₁]
+  // |denoms[i]| = Dᵢ = 1 / (xᵢ - x₀)(xᵢ - x₁)...(xᵢ - xₙ₋₁)
   std::vector<F> denoms = base::CreateVector(points.size(), F::One());
-  base::Parallelize(denoms, [&points](absl::Span<F> chunk) {
-    for (size_t i = 0; i < chunk.size(); ++i) {
+  base::Parallelize(denoms, [&points](absl::Span<F> chunk, size_t chunk_offset,
+                                      size_t chunk_size) {
+    size_t i = chunk_offset * chunk_size;
+    for (F& denom : chunk) {
       for (size_t j = 0; j < points.size(); ++j) {
-        if (j != i) {
-          chunk[i] *= (points[i] - points[j]);
-        }
+        if (i == j) continue;
+        denom *= (points[i] - points[j]);
       }
+      ++i;
     }
     F::BatchInverseInPlaceSerial(chunk);
   });
 
-  // Final polynomial: ∑ᵢ evals[i] * numerators[i] * denoms[i]
   std::vector<F> final_coeffs = base::CreateVector(points.size(), F::Zero());
-  base::Parallelize(final_coeffs, [&points, &evals,
-                                   &denoms](absl::Span<F> chunk) {
-    for (size_t i = 0; i < chunk.size(); ++i) {
-      // Get numerators for each i:
-      // numerators[i] = (x - x₀)...(x - xᵢ₋₁)(x - xᵢ₊₁)...(x - xₙ)
-      std::vector<F> numerators = {F::One()};
-      for (const F& x_j : points) {
-        if (x_j != points[i]) {
-          std::vector<F> product =
-              base::CreateVector(numerators.size() + 1, F::Zero());
-          for (size_t j = 0; j < numerators.size(); ++j) {
-            product[j] -= x_j * numerators[j];
-            product[j + 1] += numerators[j];
-          }
-          numerators = std::move(product);
-        }
+  for (size_t i = 0; i < points.size(); ++i) {
+    // See comments in |UnivariateDenseCoefficients::FromRoots()|.
+    // clang-format off
+    // NOTE(chokobole): This computes the polynomial whose roots are {x₀, ..., xᵢ₋₁, xᵢ₊₁, ..., xₙ₋₁}.
+    // Nᵢ(X) = (X - x₀)...(X - xᵢ₋₁)(X - xᵢ₊₁)...(X - xₙ₋₁)
+    //       = cₙ₋₁Xⁿ⁻¹ + cₙ₋₂Xⁿ⁻² + ... + c₁X¹ + c₀X⁰
+    // |coeffs[i]| = cᵢ
+    // clang-format on
+    std::vector<F> coeffs = base::CreateVector(points.size(), F::Zero());
+    coeffs[0] = F::One();
+    size_t k_start = 1;
+    for (size_t j = 0; j < points.size(); ++j) {
+      if (i == j) continue;
+      for (size_t k = k_start; k > 0; --k) {
+        coeffs[k] = coeffs[k - 1] - points[j] * coeffs[k];
       }
-      CHECK_EQ(numerators.size(), points.size());
-      // clang-format off
-      // evals[i] * (x - x₀)(x - x₁)...(x - xₙ) / (xᵢ - x₀)(xᵢ - x₁)...(xᵢ - xₙ)
-      // clang-format on
-      for (size_t j = 0; j < numerators.size(); ++j) {
-        chunk[j] += evals[i] * numerators[j] * denoms[i];
-      }
+      ++k_start;
+      coeffs[0] *= -points[j];
     }
-  });
+
+    // P(X) = ∑ᵢ(P(Xᵢ) * Dᵢ * Nᵢ(X))
+    //      = ∑ᵢ(P(Xᵢ) * Dᵢ * (cₙ₋₁Xⁿ⁻¹ + cₙ₋₂Xⁿ⁻² + ... + c₁X¹ + c₀X⁰))
+    OPENMP_PARALLEL_FOR(size_t j = 0; j < coeffs.size(); ++j) {
+      coeffs[j] *= evals[i];
+      coeffs[j] *= denoms[i];
+      final_coeffs[j] += coeffs[j];
+    }
+  }
   *ret = Poly(Coeffs(std::move(final_coeffs)));
   return true;
 }
