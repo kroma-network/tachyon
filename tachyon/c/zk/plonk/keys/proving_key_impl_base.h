@@ -1,17 +1,22 @@
 #ifndef TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_
 #define TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_
 
+#include <stdint.h>
+
 #include <utility>
 #include <vector>
 
 #include "absl/types/span.h"
 
 #include "tachyon/base/buffer/read_only_buffer.h"
+#include "tachyon/base/environment.h"
+#include "tachyon/base/files/file_util.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/c/zk/plonk/keys/buffer_reader.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
-namespace tachyon::c::zk {
+namespace tachyon::c::zk::plonk {
 
 template <typename Poly, typename Evals, typename C>
 class ProvingKeyImplBase
@@ -20,7 +25,14 @@ class ProvingKeyImplBase
   using F = typename Poly::Field;
 
   explicit ProvingKeyImplBase(absl::Span<const uint8_t> state) {
+    std::string_view pk_str;
+    if (base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {
+      VLOG(1) << "Save pk to: " << pk_str;
+      CHECK(base::WriteLargeFile(base::FilePath(pk_str), state));
+    }
+
     base::ReadOnlyBuffer buffer(state.data(), state.size());
+
     ReadProvingKey(buffer);
   }
 
@@ -94,6 +106,6 @@ class ProvingKeyImplBase
   }
 };
 
-}  // namespace tachyon::c::zk
+}  // namespace tachyon::c::zk::plonk
 
 #endif  // TACHYON_C_ZK_PLONK_KEYS_PROVING_KEY_IMPL_BASE_H_

@@ -20,8 +20,17 @@ tachyon_cc_library(
     srcs = ["bn254_plonk_proving_key.cc"],
     hdrs = ["bn254_plonk_proving_key.h"],
     deps = [
+        ":bn254_plonk_proving_key_impl",
         ":bn254_plonk_verifying_key",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_plonk_proving_key_impl",
+    hdrs = ["bn254_plonk_proving_key_impl.h"],
+    deps = [
         ":proving_key_impl_base",
+        "//tachyon/c/math/polynomials:constants",
     ],
 )
 
@@ -41,8 +50,8 @@ tachyon_cc_library(
     name = "buffer_reader",
     hdrs = ["buffer_reader.h"],
     deps = [
-        ":endian_auto_reset",
         "//tachyon/base:logging",
+        "//tachyon/base/buffer:endian_auto_reset",
         "//tachyon/base/buffer:read_only_buffer",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves:points",
@@ -70,6 +79,10 @@ tachyon_cc_library(
     hdrs = ["proving_key_impl_base.h"],
     deps = [
         ":buffer_reader",
+        "//tachyon/base:environment",
+        "//tachyon/base:logging",
+        "//tachyon/base/buffer",
+        "//tachyon/base/files:file_util",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "@com_google_absl//absl/types:span",

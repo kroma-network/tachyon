@@ -55,6 +55,7 @@ tachyon_cc_library(
         ":c_proving_key_impl_base_forward",
         ":key",
         ":proving_key_forward",
+        "//tachyon/base:logging",
         "//tachyon/base/strings:rust_stringifier",
         "//tachyon/zk/plonk/halo2:constants",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key_forward",

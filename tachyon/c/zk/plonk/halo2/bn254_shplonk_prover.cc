@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_impl.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
-#include "tachyon/c/zk/plonk/halo2/shplonk_prover_impl_base.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
@@ -18,26 +18,11 @@ using namespace tachyon;
 
 namespace {
 
-class Bn254SHPlonkProverImpl
-    : public c::zk::plonk::halo2::SHPlonkProverImplBase {
- public:
-  Bn254SHPlonkProverImpl(
-      base::OnceCallback<zk::plonk::halo2::Prover<PCS>()> callback,
-      uint8_t transcript_type)
-      : c::zk::plonk::halo2::SHPlonkProverImplBase(std::move(callback)),
-        transcript_type_(transcript_type) {}
-
-  uint8_t transcript_type() const { return transcript_type_; }
-
- private:
-  uint8_t transcript_type_;
-};
-
-using PCS = c::zk::plonk::halo2::PCS;
+using PCS = c::zk::plonk::halo2::bn254::PCS;
 using CS = zk::plonk::ConstraintSystem<PCS::Field>;
-using ProverImpl = Bn254SHPlonkProverImpl;
+using ProverImpl = c::zk::plonk::halo2::bn254::SHPlonkProverImpl;
 using ProvingKey =
-    c::zk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>;
+    c::zk::plonk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>;
 using Data = zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;
 
 }  // namespace
@@ -124,16 +109,8 @@ tachyon_bn254_g1_jacobian* tachyon_halo2_bn254_shplonk_prover_commit_lagrange(
 void tachyon_halo2_bn254_shplonk_prover_set_rng_state(
     tachyon_halo2_bn254_shplonk_prover* prover, const uint8_t* state,
     size_t state_len) {
-  base::ReadOnlyBuffer buffer(state, state_len);
-  uint32_t x, y, z, w;
-  CHECK(buffer.Read32LE(&x));
-  CHECK(buffer.Read32LE(&y));
-  CHECK(buffer.Read32LE(&z));
-  CHECK(buffer.Read32LE(&w));
-  CHECK(buffer.Done());
-  reinterpret_cast<ProverImpl*>(prover)->SetRng(
-      std::make_unique<crypto::XORShiftRNG>(
-          crypto::XORShiftRNG::FromState(x, y, z, w)));
+  reinterpret_cast<ProverImpl*>(prover)->SetRngState(
+      absl::Span<const uint8_t>(state, state_len));
 }
 
 void tachyon_halo2_bn254_shplonk_prover_set_transcript_state(
@@ -147,8 +124,9 @@ void tachyon_halo2_bn254_shplonk_prover_set_transcript_state(
         writer = std::make_unique<
             zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
             std::move(write_buf));
-    writer->SetState(absl::Span<const uint8_t>(state, state_len));
-    prover_impl->SetTranscript(std::move(writer));
+    absl::Span<const uint8_t> state_span(state, state_len);
+    writer->SetState(state_span);
+    prover_impl->SetTranscript(state_span, std::move(writer));
   } else {
     NOTREACHED();
   }

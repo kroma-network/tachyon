@@ -6,11 +6,11 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/c/zk/plonk/keys/buffer_reader.h"
-#include "tachyon/c/zk/plonk/keys/endian_auto_reset.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -23,7 +23,7 @@
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 
-namespace tachyon::c::zk {
+namespace tachyon::c::zk::plonk {
 
 template <typename T, typename SFINAE = void>
 class BufferReader;
@@ -37,7 +37,7 @@ template <typename T>
 class BufferReader<T, std::enable_if_t<std::is_integral_v<T>>> {
  public:
   static T Read(const base::ReadOnlyBuffer& buffer) {
-    EndianAutoReset resetter(buffer, base::Endian::kBig);
+    base::EndianAutoReset resetter(buffer, base::Endian::kBig);
     T v;
     CHECK(buffer.Read(&v));
     return v;
@@ -63,11 +63,12 @@ class BufferReader<std::vector<T>> {
 };
 
 template <typename Curve>
-class BufferReader<math::AffinePoint<Curve>> {
+class BufferReader<tachyon::math::AffinePoint<Curve>> {
  public:
-  using BaseField = typename math::AffinePoint<Curve>::BaseField;
+  using BaseField = typename tachyon::math::AffinePoint<Curve>::BaseField;
 
-  static math::AffinePoint<Curve> Read(const base::ReadOnlyBuffer& buffer) {
+  static tachyon::math::AffinePoint<Curve> Read(
+      const base::ReadOnlyBuffer& buffer) {
     BaseField x = BufferReader<BaseField>::Read(buffer);
     BaseField y = BufferReader<BaseField>::Read(buffer);
     if (x.IsZero() && y.IsZero()) {
@@ -79,12 +80,13 @@ class BufferReader<math::AffinePoint<Curve>> {
 
 template <typename T>
 class BufferReader<
-    T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
+    T,
+    std::enable_if_t<std::is_base_of_v<tachyon::math::PrimeFieldBase<T>, T>>> {
  public:
   using BigInt = typename T::BigIntTy;
 
   static T Read(const base::ReadOnlyBuffer& buffer) {
-    EndianAutoReset resetter(buffer, base::Endian::kLittle);
+    base::EndianAutoReset resetter(buffer, base::Endian::kLittle);
     BigInt montgomery;
     CHECK(buffer.Read(montgomery.limbs));
     return T::FromMontgomery(montgomery);
@@ -92,27 +94,28 @@ class BufferReader<
 };
 
 template <typename F, size_t MaxDegree>
-class BufferReader<math::UnivariateDensePolynomial<F, MaxDegree>> {
+class BufferReader<tachyon::math::UnivariateDensePolynomial<F, MaxDegree>> {
  public:
-  static math::UnivariateDensePolynomial<F, MaxDegree> Read(
+  static tachyon::math::UnivariateDensePolynomial<F, MaxDegree> Read(
       const base::ReadOnlyBuffer& buffer) {
     std::vector<F> coeffs;
     ReadBuffer(buffer, coeffs);
-    return math::UnivariateDensePolynomial<F, MaxDegree>(
-        math::UnivariateDenseCoefficients<F, MaxDegree>(std::move(coeffs)));
+    return tachyon::math::UnivariateDensePolynomial<F, MaxDegree>(
+        tachyon::math::UnivariateDenseCoefficients<F, MaxDegree>(
+            std::move(coeffs)));
   }
-};
+};  // namespace tachyon::c::zk
 
 template <typename F, size_t MaxDegree>
-class BufferReader<math::UnivariateEvaluations<F, MaxDegree>> {
+class BufferReader<tachyon::math::UnivariateEvaluations<F, MaxDegree>> {
  public:
-  static math::UnivariateEvaluations<F, MaxDegree> Read(
+  static tachyon::math::UnivariateEvaluations<F, MaxDegree> Read(
       const base::ReadOnlyBuffer& buffer) {
     std::vector<F> evals;
     ReadBuffer(buffer, evals);
-    return math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
+    return tachyon::math::UnivariateEvaluations<F, MaxDegree>(std::move(evals));
   }
-};
+};  // namespace tachyon::c::zk
 
 template <>
 class BufferReader<tachyon::zk::plonk::Phase> {
@@ -363,6 +366,6 @@ class BufferReader<tachyon::zk::plonk::PermutationProvingKey<Poly, Evals>> {
   }
 };
 
-}  // namespace tachyon::c::zk
+}  // namespace tachyon::c::zk::plonk
 
 #endif  // TACHYON_C_ZK_PLONK_KEYS_BUFFER_READER_H_

@@ -26,6 +26,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "endian_auto_reset",
+    hdrs = ["endian_auto_reset.h"],
+    deps = [
+        ":buffer",
+        "//tachyon:export",
+    ],
+)
+
+tachyon_cc_library(
     name = "read_only_buffer",
     srcs = ["read_only_buffer.cc"],
     hdrs = ["read_only_buffer.h"],

@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -13,9 +14,7 @@ constexpr size_t kDegree = 5;
 
 class UnivariateDensePolynomialTest : public testing::Test {
  public:
-  constexpr static size_t kMaxDegree = SIZE_MAX;
-
-  using Poly = UnivariateDensePolynomial<bn254::Fr, kMaxDegree>;
+  using Poly = UnivariateDensePolynomial<bn254::Fr, c::math::kMaxDegree>;
 
   static void SetUpTestSuite() { bn254::Fr::Init(); }
 

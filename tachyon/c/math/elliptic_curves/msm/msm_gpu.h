@@ -4,8 +4,8 @@
 #include <limits>
 #include <memory>
 #include <string>
-#include <vector>
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/base/console/console_stream.h"
 #include "tachyon/base/environment.h"
 #include "tachyon/base/files/file_util.h"
@@ -34,7 +34,7 @@ struct MSMGpuApi {
   MSMInputProvider<CpuAffinePoint> provider;
   std::unique_ptr<tachyon::math::VariableBaseMSMGpu<GpuCurve>> msm;
 
-  std::string save_location;
+  std::string msm_gpu_input_dir;
   bool log_msm = false;
   size_t idx = 0;
 
@@ -61,9 +61,10 @@ struct MSMGpuApi {
       std::cout << "CreateMSMGpuApi()" << std::endl;
     }
 
-    std::string_view save_location_str;
-    if (base::Environment::Get("TACHYON_SAVE_LOCATION", &save_location_str)) {
-      save_location = std::string(save_location_str);
+    std::string_view msm_gpu_input_dir_str;
+    if (base::Environment::Get("TACHYON_MSM_GPU_INPUT_DIR",
+                               &msm_gpu_input_dir_str)) {
+      msm_gpu_input_dir = std::string(msm_gpu_input_dir_str);
     }
     std::string_view log_msm_str;
     if (base::Environment::Get("TACHYON_LOG_MSM", &log_msm_str)) {
@@ -123,28 +124,24 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
     std::cout << ret.ToHexString() << std::endl;
   }
 
-  if (!msm_api.save_location.empty()) {
+  if (!msm_api.msm_gpu_input_dir.empty()) {
+    base::Uint8VectorBuffer buffer;
     {
-      std::vector<std::string> results;
-      for (const auto& base : msm_api.provider.bases()) {
-        results.push_back(base.ToMontgomery().ToString());
-      }
-      results.push_back("");
+      CHECK(buffer.Grow(msm_api.provider.bases()));
+      CHECK(buffer.Write(msm_api.provider.bases()));
       base::WriteFile(
           base::FilePath(absl::Substitute(
-              "$0/bases$1.txt", msm_api.save_location, msm_api.idx - 1)),
-          absl::StrJoin(results, "\n"));
+              "$0/bases$1.txt", msm_api.msm_gpu_input_dir, msm_api.idx - 1)),
+          absl::MakeConstSpan(buffer.owned_buffer()));
     }
     {
-      std::vector<std::string> results;
-      for (const auto& scalar : msm_api.provider.scalars()) {
-        results.push_back(scalar.ToMontgomery().ToString());
-      }
-      results.push_back("");
+      buffer.set_buffer_offset(0);
+      CHECK(buffer.Grow(msm_api.provider.scalars()));
+      CHECK(buffer.Write(msm_api.provider.scalars()));
       base::WriteFile(
           base::FilePath(absl::Substitute(
-              "$0/scalars$1.txt", msm_api.save_location, msm_api.idx - 1)),
-          absl::StrJoin(results, "\n"));
+              "$0/scalars$1.txt", msm_api.msm_gpu_input_dir, msm_api.idx - 1)),
+          absl::MakeConstSpan(buffer.owned_buffer()));
     }
   }
 

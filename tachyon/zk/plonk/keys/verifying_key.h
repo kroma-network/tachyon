@@ -15,6 +15,7 @@
 
 #include "openssl/blake2.h"
 
+#include "tachyon/base/logging.h"
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key_forward.h"
@@ -70,7 +71,7 @@ class VerifyingKey : public Key {
   template <typename Poly, typename Evals, typename Commitment>
   friend class ProvingKey;
   template <typename Poly, typename Evals, typename Commitment>
-  friend class c::zk::ProvingKeyImplBase;
+  friend class c::zk::plonk::ProvingKeyImplBase;
 
   template <typename PCS, typename Evals, typename RationalEvals>
   bool DoLoad(Entity<PCS>* entity,
@@ -119,6 +120,7 @@ class VerifyingKey : public Key {
 
     transcript_repr_ =
         F::FromAnySizedBigInt(math::BigInt<8>::FromBytesLE(result));
+    VLOG(2) << "Halo2(transcript_repr): " << transcript_repr_.ToHexString(true);
   }
 
   Commitments fixed_commitments_;

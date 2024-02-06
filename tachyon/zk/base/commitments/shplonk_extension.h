@@ -17,11 +17,11 @@
 #include "tachyon/zk/base/commitments/univariate_polynomial_commitment_scheme_extension.h"
 
 namespace tachyon {
-namespace c::zk::plonk::halo2 {
+namespace c::zk::plonk::halo2::bn254 {
 
-class SHPlonkProverImplBase;
+class SHPlonkProverImpl;
 
-}  // namespace c::zk::plonk::halo2
+}  // namespace c::zk::plonk::halo2::bn254
 
 namespace halo2_api::bn254 {
 
@@ -138,7 +138,7 @@ class SHPlonkExtension final
   }
 
  private:
-  friend class c::zk::plonk::halo2::SHPlonkProverImplBase;
+  friend class c::zk::plonk::halo2::bn254::SHPlonkProverImpl;
   friend class halo2_api::bn254::SHPlonkProver;
 
   using G1Point = typename Curve::G1Curve::AffinePoint;

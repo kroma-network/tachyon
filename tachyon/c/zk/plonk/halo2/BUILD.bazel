@@ -1,4 +1,9 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_binary",
+    "tachyon_cc_library",
+    "tachyon_cc_unittest",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -16,6 +21,7 @@ tachyon_cc_library(
     srcs = ["bn254_argument_data.cc"],
     hdrs = ["bn254_argument_data.h"],
     deps = [
+        "//tachyon/c/math/polynomials:constants",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluations",
         "//tachyon/zk/plonk/halo2:argument_data",
@@ -28,18 +34,40 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "bn254_shplonk_pcs",
+    hdrs = ["bn254_shplonk_pcs.h"],
+    deps = [
+        "//tachyon/c/math/polynomials:constants",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/base/commitments:shplonk_extension",
+    ],
+)
+
+tachyon_cc_library(
     name = "bn254_shplonk_prover",
     srcs = ["bn254_shplonk_prover.cc"],
     hdrs = ["bn254_shplonk_prover.h"],
     deps = [
         ":bn254_argument_data",
+        ":bn254_shplonk_prover_impl",
         ":bn254_transcript",
-        ":shplonk_prover_impl_base",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
         "//tachyon/c/zk/base:bn254_blinder",
         "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/base/commitments:shplonk_extension",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_shplonk_prover_impl",
+    hdrs = ["bn254_shplonk_prover_impl.h"],
+    deps = [
+        ":bn254_shplonk_pcs",
+        ":prover_impl_base",
+        "//tachyon/base:logging",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "@com_google_absl//absl/types:span",
     ],
 )
 
@@ -59,21 +87,29 @@ tachyon_cc_library(
     name = "prover_impl_base",
     hdrs = ["prover_impl_base.h"],
     deps = [
+        "//tachyon/base:environment",
+        "//tachyon/base:logging",
+        "//tachyon/base/files:file_util",
         "//tachyon/base/functional:callback",
         "//tachyon/zk/plonk/halo2:prover",
     ],
 )
 
-tachyon_cc_library(
-    name = "shplonk_prover_impl_base",
-    hdrs = ["shplonk_prover_impl_base.h"],
+tachyon_cc_binary(
+    name = "prover_replay",
+    srcs = ["prover_replay.cc"],
     deps = [
-        ":prover_impl_base",
         "//tachyon/base:logging",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/base/commitments:shplonk_extension",
-        "@com_google_absl//absl/types:span",
+        "//tachyon/base/console",
+        "//tachyon/base/files:file_path_flag",
+        "//tachyon/base/files:file_util",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/c/zk/plonk/halo2:bn254_shplonk_prover",
+        "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key_impl",
+        "//tachyon/cc/math/finite_fields:prime_field_conversions",
+        "//tachyon/zk/plonk/halo2:constants",
+        "@com_google_absl//absl/strings",
     ],
 )
 

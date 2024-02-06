@@ -1,5 +1,6 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 
+#include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
@@ -7,12 +8,10 @@
 
 using namespace tachyon::math;
 
-// NOTE(chokobole): We set |kMaxDegree| to |SIZE_MAX| on purpose to avoid
-// creating variant apis corresponding to the set of each degree.
-constexpr size_t kMaxDegree = SIZE_MAX;
-using Domain = UnivariateEvaluationDomain<bn254::Fr, kMaxDegree>;
-using RationalEvals =
-    UnivariateEvaluations<RationalField<bn254::Fr>, kMaxDegree>;
+using Domain =
+    UnivariateEvaluationDomain<bn254::Fr, tachyon::c::math::kMaxDegree>;
+using RationalEvals = UnivariateEvaluations<RationalField<bn254::Fr>,
+                                            tachyon::c::math::kMaxDegree>;
 
 tachyon_bn254_univariate_evaluation_domain*
 tachyon_bn254_univariate_evaluation_domain_create(size_t num_coeffs) {

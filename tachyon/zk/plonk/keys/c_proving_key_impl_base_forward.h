@@ -7,11 +7,11 @@
 #ifndef TACHYON_ZK_PLONK_KEYS_C_PROVING_KEY_IMPL_BASE_FORWARD_H_
 #define TACHYON_ZK_PLONK_KEYS_C_PROVING_KEY_IMPL_BASE_FORWARD_H_
 
-namespace tachyon::c::zk {
+namespace tachyon::c::zk::plonk {
 
 template <typename Poly, typename Evals, typename C>
 class ProvingKeyImplBase;
 
-}  // namespace tachyon::c::zk
+}  // namespace tachyon::c::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_KEYS_C_PROVING_KEY_IMPL_BASE_FORWARD_H_

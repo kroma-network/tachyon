@@ -10,6 +10,7 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
+#include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
 
 namespace tachyon::zk::plonk::halo2 {
@@ -42,12 +43,9 @@ class ProverTest : public testing::Test {
     std::unique_ptr<crypto::TranscriptWriter<Commitment>> writer =
         std::make_unique<Blake2bWriter<Commitment>>(std::move(write_buf));
 
-    constexpr uint8_t kSeed[] = {0x59, 0x62, 0xbe, 0x5d, 0x76, 0x3d,
-                                 0x31, 0x8d, 0x17, 0xdb, 0x37, 0x32,
-                                 0x54, 0x06, 0xbc, 0xe5};
-
-    prover_ = std::make_unique<Prover<PCS>>(Prover<PCS>::CreateFromSeed(
-        std::move(pcs), std::move(writer), kSeed, /*blinding_factors=*/0));
+    prover_ = std::make_unique<Prover<PCS>>(
+        Prover<PCS>::CreateFromSeed(std::move(pcs), std::move(writer),
+                                    kXORShiftSeed, /*blinding_factors=*/0));
     prover_->set_domain(Domain::Create(kMaxDomainSize));
     prover_->set_extended_domain(
         ExtendedDomain::Create(kMaxExtendedDomainSize));

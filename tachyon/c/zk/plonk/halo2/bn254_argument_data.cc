@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -9,12 +10,9 @@
 
 using namespace tachyon;
 
-// NOTE(chokobole): We set |kMaxDegree| to |SIZE_MAX| on purpose to avoid
-// creating variant apis corresponding to the set of each degree.
-constexpr size_t kMaxDegree = SIZE_MAX;
-
-using Poly = math::UnivariateDensePolynomial<math::bn254::Fr, kMaxDegree>;
-using Evals = math::UnivariateEvaluations<math::bn254::Fr, kMaxDegree>;
+using Poly =
+    math::UnivariateDensePolynomial<math::bn254::Fr, c::math::kMaxDegree>;
+using Evals = math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
 using Data = zk::plonk::halo2::ArgumentData<Poly, Evals>;
 
 tachyon_halo2_bn254_argument_data* tachyon_halo2_bn254_argument_data_create(

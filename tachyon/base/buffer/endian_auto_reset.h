@@ -1,11 +1,12 @@
-#ifndef TACHYON_C_ZK_PLONK_KEYS_ENDIAN_AUTO_RESET_H_
-#define TACHYON_C_ZK_PLONK_KEYS_ENDIAN_AUTO_RESET_H_
+#ifndef TACHYON_BASE_BUFFER_ENDIAN_AUTO_RESET_H_
+#define TACHYON_BASE_BUFFER_ENDIAN_AUTO_RESET_H_
 
 #include "tachyon/base/buffer/buffer.h"
+#include "tachyon/export.h"
 
-namespace tachyon::c::zk {
+namespace tachyon::base {
 
-struct EndianAutoReset {
+struct TACHYON_EXPORT EndianAutoReset {
   explicit EndianAutoReset(const base::ReadOnlyBuffer& buffer,
                            base::Endian endian)
       : buffer(buffer), old_endian(buffer.endian()) {
@@ -17,6 +18,6 @@ struct EndianAutoReset {
   base::Endian old_endian;
 };
 
-}  // namespace tachyon::c::zk
+}  // namespace tachyon::base
 
-#endif  // TACHYON_C_ZK_PLONK_KEYS_ENDIAN_AUTO_RESET_H_
+#endif  // TACHYON_BASE_BUFFER_ENDIAN_AUTO_RESET_H_
