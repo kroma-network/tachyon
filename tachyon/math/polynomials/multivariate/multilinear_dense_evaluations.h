@@ -75,11 +75,11 @@ class MultilinearDenseEvaluations {
     return !operator==(other);
   }
 
-  constexpr F* Get(size_t i) {
-    return const_cast<F*>(std::as_const(*this).Get(i));
+  constexpr F* operator[](size_t i) {
+    return const_cast<F*>(std::as_const(*this)[i]);
   }
 
-  constexpr const F* Get(size_t i) const {
+  constexpr const F* operator[](size_t i) const {
     if (i < evaluations_.size()) {
       return &evaluations_[i];
     }

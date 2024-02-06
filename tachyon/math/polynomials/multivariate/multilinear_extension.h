@@ -63,11 +63,9 @@ class MultilinearExtension final
     return !operator==(other);
   }
 
-  constexpr Field* operator[](size_t i) { return evaluations_.Get(i); }
+  constexpr Field* operator[](size_t i) { return evaluations_[i]; }
 
-  constexpr const Field* operator[](size_t i) const {
-    return evaluations_.Get(i);
-  }
+  constexpr const Field* operator[](size_t i) const { return evaluations_[i]; }
 
   constexpr size_t Degree() const { return evaluations_.Degree(); }
 

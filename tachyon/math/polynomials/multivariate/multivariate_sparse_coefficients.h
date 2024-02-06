@@ -237,11 +237,11 @@ class MultivariateSparseCoefficients {
     return !operator==(other);
   }
 
-  constexpr F* Get(const Literal& literal) {
-    return const_cast<F*>(std::as_const(*this).Get(literal));
+  constexpr F* operator[](const Literal& literal) {
+    return const_cast<F*>(std::as_const(*this)[literal]);
   }
 
-  constexpr const F* Get(const Literal& literal) const {
+  constexpr const F* operator[](const Literal& literal) const {
     auto it = std::lower_bound(terms_.begin(), terms_.end(), literal,
                                [](const Term& term, const Literal& literal) {
                                  return term.literal < literal;

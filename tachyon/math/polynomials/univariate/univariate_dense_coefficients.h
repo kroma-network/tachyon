@@ -126,7 +126,7 @@ class UnivariateDenseCoefficients {
   }
 
   constexpr F* operator[](size_t i) {
-    return const_cast<F*>(std::as_const(*this).operator[](i));
+    return const_cast<F*>(std::as_const(*this)[i]);
   }
 
   constexpr const F* operator[](size_t i) const {

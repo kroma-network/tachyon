@@ -62,11 +62,11 @@ class MultivariatePolynomial final
   }
 
   constexpr Field* operator[](const Literal& literal) {
-    return coefficients_.Get(literal);
+    return coefficients_[literal];
   }
 
   constexpr const Field* operator[](const Literal& literal) const {
-    return coefficients_.Get(literal);
+    return coefficients_[literal];
   }
 
   constexpr const Field* GetLeadingCoefficient() const {
