@@ -48,7 +48,7 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
     CHECK(usable_rows_.Contains(row));
     CHECK_LT(column.index(), instance_columns_.size());
 
-    return Value<F>::Known(*instance_columns_[column.index()][row]);
+    return Value<F>::Known(instance_columns_[column.index()][row]);
   }
 
   void AssignAdvice(std::string_view, const AdviceColumnKey& column,
@@ -59,7 +59,8 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
     CHECK(usable_rows_.Contains(row));
     CHECK_LT(column.index(), advices_.size());
 
-    *advices_[column.index()][row] = std::move(assign).Run().value();
+    // NOTE(chokobole): Boundary check is the responsibility of API callers.
+    advices_[column.index()].at(row) = std::move(assign).Run().value();
   }
 
   Value<F> GetChallenge(Challenge challenge) override {

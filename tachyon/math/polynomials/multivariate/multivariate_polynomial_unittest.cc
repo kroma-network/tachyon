@@ -292,7 +292,7 @@ TEST_F(MultivariatePolynomialTest, IndexingOperator) {
   };
 
   for (const auto& test : tests) {
-    EXPECT_EQ(*test.poly[test.literal], test.expected);
+    EXPECT_EQ(test.poly[test.literal], test.expected);
   }
 }
 

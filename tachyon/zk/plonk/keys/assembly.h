@@ -57,7 +57,8 @@ class Assembly : public Assignment<typename RationalEvals::Field::InnerField> {
   void AssignFixed(std::string_view, const FixedColumnKey& column, RowIndex row,
                    AssignCallback assign) override {
     CHECK(usable_rows_.Contains(row)) << "Not enough rows available";
-    *fixed_columns_[column.index()][row] = std::move(assign).Run().value();
+    // NOTE(chokobole): Boundary check is the responsibility of API callers.
+    fixed_columns_[column.index()].at(row) = std::move(assign).Run().value();
   }
 
   void Copy(const AnyColumnKey& left_column, RowIndex left_row,
@@ -73,7 +74,8 @@ class Assembly : public Assignment<typename RationalEvals::Field::InnerField> {
     base::Range<RowIndex> range(usable_rows_.from + from_row, usable_rows_.to);
     RationalEvals& fixed_column = fixed_columns_[column.index()];
     for (RowIndex row : range) {
-      *fixed_column[row] = value;
+      // NOTE(chokobole): Boundary check is the responsibility of API callers.
+      fixed_column.at(row) = value;
     }
   }
 

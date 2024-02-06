@@ -47,7 +47,8 @@ class UnivariateRationalEvaluationsTest : public testing::Test {
 TEST_F(UnivariateRationalEvaluationsTest, Clone) {
   tachyon_bn254_univariate_rational_evaluations* evals_clone =
       tachyon_bn254_univariate_rational_evaluations_clone(evals_);
-  *reinterpret_cast<RationalEvals&>(*evals_)[0] +=
+  // NOTE(chokobole): It's safe to access since we created |kDegree| |evals_|.
+  reinterpret_cast<RationalEvals&>(*evals_).at(0) +=
       RationalField<bn254::Fr>::One();
   EXPECT_NE((reinterpret_cast<RationalEvals&>(*evals_))[0],
             (reinterpret_cast<RationalEvals&>(*evals_clone))[0]);
@@ -61,7 +62,7 @@ TEST_F(UnivariateRationalEvaluationsTest, Len) {
 
 TEST_F(UnivariateRationalEvaluationsTest, SetZero) {
   tachyon_bn254_univariate_rational_evaluations_set_zero(evals_, 0);
-  EXPECT_TRUE(reinterpret_cast<RationalEvals&>(*evals_)[0]->IsZero());
+  EXPECT_TRUE(reinterpret_cast<RationalEvals&>(*evals_)[0].IsZero());
 }
 
 TEST_F(UnivariateRationalEvaluationsTest, SetTrivial) {
@@ -70,7 +71,7 @@ TEST_F(UnivariateRationalEvaluationsTest, SetTrivial) {
   tachyon_bn254_fr numerator = cc::math::ToCPrimeField(expected.numerator());
   tachyon_bn254_univariate_rational_evaluations_set_trivial(evals_, 0,
                                                             &numerator);
-  EXPECT_EQ(*reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
+  EXPECT_EQ(reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
 }
 
 TEST_F(UnivariateRationalEvaluationsTest, SetRational) {
@@ -80,7 +81,7 @@ TEST_F(UnivariateRationalEvaluationsTest, SetRational) {
       cc::math::ToCPrimeField(expected.denominator());
   tachyon_bn254_univariate_rational_evaluations_set_rational(
       evals_, 0, &numerator, &denominator);
-  EXPECT_EQ(*reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
+  EXPECT_EQ(reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
 }
 
 TEST_F(UnivariateRationalEvaluationsTest, BatchEvaluate) {

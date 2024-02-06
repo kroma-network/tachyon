@@ -225,10 +225,10 @@ class MixedRadixEvaluationDomain
       std::vector<bool> seen(n, false);
       for (size_t k = 0; k < n; ++k) {
         size_t i = k;
-        F& a_i = *a[i];
+        F& a_i = a.at(i);
         while (!seen[i]) {
           size_t dest = MixedRadixFFTPermute(two_adicity, q_adicity, q, n, i);
-          std::swap(*a[dest], a_i);
+          std::swap(a.at(dest), a_i);
           seen[i] = true;
           i = dest;
         }
@@ -248,20 +248,20 @@ class MixedRadixEvaluationDomain
         for (size_t k = 0; k < n; k += q * m) {
           F w_j = F::One();  // ωⱼ is ωₘʲ
           for (size_t j = 0; j < m; ++j) {
-            const F& base_term = *a[k + j];
+            const F& base_term = a[k + j];
             F w_j_i = w_j;
             for (size_t i = 1; i < q; ++i) {
-              terms[i - 1] = *a[k + j + i * m];
+              terms[i - 1] = a[k + j + i * m];
               terms[i - 1] *= w_j_i;
               w_j_i *= w_j;
             }
 
             for (size_t i = 0; i < q; ++i) {
-              *a[k + j + i * m] = base_term;
+              a.at(k + j + i * m) = base_term;
               for (size_t l = 1; l < q; ++l) {
                 F tmp = terms[l - 1];
                 tmp *= qth_roots[(i * l) % q];
-                *a[k + j + i * m] += tmp;
+                a.at(k + j + i * m) += tmp;
               }
             }
 
@@ -282,7 +282,7 @@ class MixedRadixEvaluationDomain
         F w = F::One();
         for (size_t j = 0; j < m; ++j) {
           UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn(
-              *a[k + j], *a[(k + m) + j], w);
+              a.at(k + j), a.at((k + m) + j), w);
           w *= w_m;
         }
       }
@@ -359,10 +359,10 @@ class MixedRadixEvaluationDomain
           size_t idx = i + (c * coset_size);
           // t = the value of a corresponding to the ith element of
           // the sth coset.
-          F t = *a[idx];
+          F t = a[idx];
           // elt = g^{k * idx}
           t *= elt;
-          *kth_poly_coeffs[i] += t;
+          kth_poly_coeffs.at(i) += t;
           elt *= omega_step;
         }
         elt *= omega_k;
@@ -377,7 +377,7 @@ class MixedRadixEvaluationDomain
     // shuffle the values computed above into a
     // The evaluations of a should be ordered as (1, g, g², ...)
     for (size_t i = 0; i < a.NumElements(); ++i) {
-      *a[i] = *tmp[i % num_cosets][i / num_cosets];
+      a.at(i) = tmp[i % num_cosets][i / num_cosets];
     }
   }
 #endif

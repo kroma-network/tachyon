@@ -33,6 +33,7 @@ size_t tachyon_bn254_univariate_evaluations_len(
 void tachyon_bn254_univariate_evaluations_set_value(
     tachyon_bn254_univariate_evaluations* evals, size_t i,
     const tachyon_bn254_fr* value) {
-  *reinterpret_cast<Evals&>(*evals)[i] =
+  // NOTE(chokobole): Boundary check is the responsibility of API callers.
+  reinterpret_cast<Evals&>(*evals).at(i) =
       reinterpret_cast<const bn254::Fr&>(*value);
 }

@@ -39,7 +39,8 @@ class UnivariateEvaluationsTest : public testing::Test {
 TEST_F(UnivariateEvaluationsTest, Clone) {
   tachyon_bn254_univariate_evaluations* evals_clone =
       tachyon_bn254_univariate_evaluations_clone(evals_);
-  *reinterpret_cast<Evals&>(*evals_)[0] += bn254::Fr::One();
+  // NOTE(chokobole): It's safe to access since we created |kDegree| |evals_|.
+  reinterpret_cast<Evals&>(*evals_).at(0) += bn254::Fr::One();
   EXPECT_NE((reinterpret_cast<Evals&>(*evals_))[0],
             (reinterpret_cast<Evals&>(*evals_clone))[0]);
   tachyon_bn254_univariate_evaluations_destroy(evals_clone);
@@ -53,7 +54,8 @@ TEST_F(UnivariateEvaluationsTest, SetValue) {
   bn254::Fr cpp_value = bn254::Fr::Random();
   tachyon_bn254_fr value = cc::math::ToCPrimeField(cpp_value);
   tachyon_bn254_univariate_evaluations_set_value(evals_, 0, &value);
-  EXPECT_EQ(*reinterpret_cast<Evals&>(*evals_)[0], cpp_value);
+  // NOTE(chokobole): It's safe to access since we created |kDegree| |evals_|.
+  EXPECT_EQ(reinterpret_cast<Evals&>(*evals_)[0], cpp_value);
 }
 
 }  // namespace tachyon::math

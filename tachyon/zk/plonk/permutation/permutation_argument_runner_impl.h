@@ -183,7 +183,7 @@ PermutationArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
                absl::Span<F> chunk, size_t chunk_index, size_t chunk_size_in) {
       size_t i = chunk_index * chunk_size_in;
       for (F& result : chunk) {
-        result *= *values[i] + beta * *unpermuted_values[i] + gamma;
+        result *= values[i] + beta * unpermuted_values[i] + gamma;
         ++i;
       }
     };
@@ -205,7 +205,7 @@ PermutationArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
                absl::Span<F> chunk, size_t chunk_index, size_t chunk_size_in) {
       size_t i = chunk_index * chunk_size_in;
       for (F& result : chunk) {
-        result *= *values[i] + beta * *permuted_values[i] + gamma;
+        result *= values[i] + beta * permuted_values[i] + gamma;
         ++i;
       }
     };

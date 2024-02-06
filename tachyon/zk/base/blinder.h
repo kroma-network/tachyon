@@ -38,7 +38,8 @@ class Blinder {
     if (size < blinding_rows) return false;
     RowIndex start = size - blinding_rows;
     for (RowIndex i = start; i < size; ++i) {
-      *evals[i] = random_field_generator_->Generate();
+      // NOTE(chokobole): Boundary check is the responsibility of API callers.
+      evals.at(i) = random_field_generator_->Generate();
     }
     return true;
   }

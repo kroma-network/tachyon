@@ -66,12 +66,12 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
   for (RowIndex i = 0; i < prover_->GetUsableRows(); ++i) {
     F left = z[i + 1];
 
-    left *= (beta + *lookup_permuted.permuted_evals_pair().input()[i]);
-    left *= (gamma + *lookup_permuted.permuted_evals_pair().table()[i]);
+    left *= (beta + lookup_permuted.permuted_evals_pair().input()[i]);
+    left *= (gamma + lookup_permuted.permuted_evals_pair().table()[i]);
 
     F right = z[i];
-    F input_term = *lookup_permuted.compressed_evals_pair().input()[i];
-    F table_term = *lookup_permuted.compressed_evals_pair().table()[i];
+    F input_term = lookup_permuted.compressed_evals_pair().input()[i];
+    F table_term = lookup_permuted.compressed_evals_pair().table()[i];
 
     input_term += beta;
     table_term += gamma;

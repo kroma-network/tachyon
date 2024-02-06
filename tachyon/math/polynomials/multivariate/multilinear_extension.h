@@ -63,9 +63,17 @@ class MultilinearExtension final
     return !operator==(other);
   }
 
-  constexpr Field* operator[](size_t i) { return evaluations_[i]; }
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, it terminates the program.
+  constexpr Field& at(size_t i) { return evaluations_.at(i); }
 
-  constexpr const Field* operator[](size_t i) const { return evaluations_[i]; }
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, returns a reference to the |Field::Zero()|.
+  constexpr const Field& at(size_t i) const { return evaluations_.at(i); }
+
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, returns a reference to the |Field::Zero()|.
+  constexpr const Field& operator[](size_t i) const { return evaluations_[i]; }
 
   constexpr size_t Degree() const { return evaluations_.Degree(); }
 

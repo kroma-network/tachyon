@@ -61,15 +61,27 @@ class MultivariatePolynomial final
     return !operator==(other);
   }
 
-  constexpr Field* operator[](const Literal& literal) {
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, it terminates the program.
+  constexpr Field& at(const Literal& literal) {
+    return coefficients_.at(literal);
+  }
+
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, returns a reference to the |Field::Zero()|.
+  constexpr const Field& at(const Literal& literal) const {
+    return coefficients_.at(literal);
+  }
+
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, returns a reference to the |Field::Zero()|.
+  constexpr const Field& operator[](const Literal& literal) const {
     return coefficients_[literal];
   }
 
-  constexpr const Field* operator[](const Literal& literal) const {
-    return coefficients_[literal];
-  }
-
-  constexpr const Field* GetLeadingCoefficient() const {
+  // Returns a reference to the leading coefficient if it exists.
+  // Otherwise, returns a reference to the |Field::Zero()|.
+  constexpr const Field& GetLeadingCoefficient() const {
     return coefficients_.GetLeadingCoefficient();
   }
 

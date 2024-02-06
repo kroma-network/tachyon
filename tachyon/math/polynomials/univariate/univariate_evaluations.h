@@ -44,6 +44,7 @@ class UnivariateEvaluations final
     : public Polynomial<UnivariateEvaluations<F, MaxDegree>> {
  public:
   constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static F kZero = F::Zero();
 
   using Field = F;
 
@@ -119,15 +120,24 @@ class UnivariateEvaluations final
     return !operator==(other);
   }
 
-  constexpr F* operator[](size_t i) {
-    return const_cast<F*>(std::as_const(*this)[i]);
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, it terminates the program.
+  constexpr F& at(size_t i) {
+    CHECK_LT(i, evaluations_.size());
+    return evaluations_[i];
   }
 
-  constexpr const F* operator[](size_t i) const {
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, returns a reference to the |F::Zero()|.
+  constexpr const F& at(size_t i) const { return (*this)[i]; }
+
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, returns a reference to the |F::Zero()|.
+  constexpr const F& operator[](size_t i) const {
     if (i < evaluations_.size()) {
-      return &evaluations_[i];
+      return evaluations_[i];
     }
-    return nullptr;
+    return kZero;
   }
 
   std::string ToString() const { return base::VectorToString(evaluations_); }

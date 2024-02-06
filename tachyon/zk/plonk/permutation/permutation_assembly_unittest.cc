@@ -42,7 +42,7 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
 
   for (size_t i = 0; i < columns_.size(); ++i) {
     for (size_t j = 0; j < n; ++j) {
-      EXPECT_EQ(*permutations[i][j], unpermuted_table[Label(i, j)]);
+      EXPECT_EQ(permutations[i][j], unpermuted_table[Label(i, j)]);
     }
   }
 }

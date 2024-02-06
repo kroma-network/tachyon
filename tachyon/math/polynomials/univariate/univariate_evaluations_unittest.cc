@@ -82,9 +82,9 @@ TEST_F(UnivariateEvaluationsTest, IndexingOperator) {
   for (const auto& test : tests) {
     for (size_t i = 0; i < kMaxDegree; ++i) {
       if (i < test.evaluations.size()) {
-        EXPECT_EQ(*test.poly[i], GF7(test.evaluations[i]));
+        EXPECT_EQ(test.poly[i], GF7(test.evaluations[i]));
       } else {
-        EXPECT_EQ(test.poly[i], nullptr);
+        EXPECT_EQ(test.poly[i], GF7::Zero());
       }
     }
   }

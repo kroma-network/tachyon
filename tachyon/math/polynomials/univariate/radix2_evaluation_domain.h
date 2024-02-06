@@ -219,13 +219,13 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       if (gap > kMinGapSizeForParallelization && chunk_size < thread_nums) {
         OPENMP_PARALLEL_FOR(size_t j = 0; j < gap; ++j) {
           if (j * step < roots.size()) {
-            fn(*poly_or_evals[i + j], *poly_or_evals[i + j + gap],
+            fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap),
                roots[j * step]);
           }
         }
       } else {
         for (size_t j = 0, k = 0; j < gap && k < roots.size(); ++j, k += step) {
-          fn(*poly_or_evals[i + j], *poly_or_evals[i + j + gap], roots[k]);
+          fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap), roots[k]);
         }
       }
     }

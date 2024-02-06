@@ -70,10 +70,10 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
                             plonk::FixedColumnKey(test.column_index));
     RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
-    const GF7* expected = fixed_columns_[test.column_index][row_index];
+    const GF7& expected = fixed_columns_[test.column_index][row_index];
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
     GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
-    EXPECT_EQ(evaluated, *expected);
+    EXPECT_EQ(evaluated, expected);
   }
 }
 
@@ -97,10 +97,10 @@ TEST_F(SimpleEvaluatorTest, Advice) {
         plonk::AdviceColumnKey(test.column_index, plonk::Phase(0)));
     RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
-    const GF7* expected = advice_columns_[test.column_index][row_index];
+    const GF7& expected = advice_columns_[test.column_index][row_index];
     Expr expr = ExpressionFactory<GF7>::Advice(query);
     GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
-    EXPECT_EQ(evaluated, *expected);
+    EXPECT_EQ(evaluated, expected);
   }
 }
 
@@ -123,10 +123,10 @@ TEST_F(SimpleEvaluatorTest, Instance) {
                                plonk::InstanceColumnKey(test.column_index));
     RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
-    const GF7* expected = instance_columns_[test.column_index][row_index];
+    const GF7& expected = instance_columns_[test.column_index][row_index];
     Expr expr = ExpressionFactory<GF7>::Instance(query);
     GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
-    EXPECT_EQ(evaluated, *expected);
+    EXPECT_EQ(evaluated, expected);
   }
 }
 

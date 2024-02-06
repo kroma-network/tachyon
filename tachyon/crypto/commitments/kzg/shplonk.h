@@ -166,9 +166,18 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
               grouped_poly_openings.poly_openings_vec,
               [&u, &low_degree_extensions](
                   size_t i, const PolynomialOpenings<Poly>& poly_openings) {
+                using Coefficients = typename Poly::Coefficients;
+
                 Poly poly = *poly_openings.poly_oracle;
-                *poly[0] -= low_degree_extensions[i].Evaluate(u);
-                return poly;
+                if (poly.NumElements() > 0) {
+                  // NOTE(chokobole): It's safe to access since we checked
+                  // |NumElements()| is greater than 0.
+                  poly.at(0) -= low_degree_extensions[i].Evaluate(u);
+                  return poly;
+                }
+
+                return Poly(
+                    Coefficients({-low_degree_extensions[i].Evaluate(u)}));
               });
 
           // clang-format off

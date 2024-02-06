@@ -42,21 +42,24 @@ size_t tachyon_bn254_univariate_rational_evaluations_len(
 
 void tachyon_bn254_univariate_rational_evaluations_set_zero(
     tachyon_bn254_univariate_rational_evaluations* evals, size_t i) {
-  *reinterpret_cast<RationalEvals&>(*evals)[i] =
+  // NOTE(chokobole): Boundary check is the responsibility of API callers.
+  reinterpret_cast<RationalEvals&>(*evals).at(i) =
       RationalField<bn254::Fr>::Zero();
 }
 
 void tachyon_bn254_univariate_rational_evaluations_set_trivial(
     tachyon_bn254_univariate_rational_evaluations* evals, size_t i,
     const tachyon_bn254_fr* numerator) {
-  *reinterpret_cast<RationalEvals&>(*evals)[i] =
+  // NOTE(chokobole): Boundary check is the responsibility of API callers.
+  reinterpret_cast<RationalEvals&>(*evals).at(i) =
       RationalField<bn254::Fr>(reinterpret_cast<const bn254::Fr&>(*numerator));
 }
 
 void tachyon_bn254_univariate_rational_evaluations_set_rational(
     tachyon_bn254_univariate_rational_evaluations* evals, size_t i,
     const tachyon_bn254_fr* numerator, const tachyon_bn254_fr* denominator) {
-  *reinterpret_cast<RationalEvals&>(*evals)[i] = {
+  // NOTE(chokobole): Boundary check is the responsibility of API callers.
+  reinterpret_cast<RationalEvals&>(*evals).at(i) = {
       reinterpret_cast<const bn254::Fr&>(*numerator),
       reinterpret_cast<const bn254::Fr&>(*denominator),
   };

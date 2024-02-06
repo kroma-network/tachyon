@@ -35,16 +35,18 @@ class UnivariateDensePolynomialTest : public testing::Test {
 }  // namespace
 
 TEST_F(UnivariateDensePolynomialTest, Clone) {
-  if (reinterpret_cast<Poly&>(*poly_)[0] != nullptr) {
+  if (reinterpret_cast<Poly&>(*poly_).NumElements() > 0) {
     tachyon_bn254_univariate_dense_polynomial* poly_clone =
         tachyon_bn254_univariate_dense_polynomial_clone(poly_);
-    *reinterpret_cast<Poly&>(*poly_)[0] += bn254::Fr::One();
+    // NOTE(chokobole): It's safe to access since we checked |NumElements()| is
+    // greater than 0.
+    reinterpret_cast<Poly&>(*poly_).at(0) += bn254::Fr::One();
     EXPECT_NE((reinterpret_cast<Poly&>(*poly_))[0],
               (reinterpret_cast<Poly&>(*poly_clone))[0]);
     tachyon_bn254_univariate_dense_polynomial_destroy(poly_clone);
   } else {
     GTEST_SKIP() << "This test assumes that the coefficient for the 0th degree "
-                    "is not zero";
+                    "is not empty";
   }
 }
 
