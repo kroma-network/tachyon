@@ -29,7 +29,7 @@ tachyon_bn254_univariate_evaluation_domain_empty_evals(
     const tachyon_bn254_univariate_evaluation_domain* domain) {
   return reinterpret_cast<tachyon_bn254_univariate_evaluations*>(
       new Domain::Evals(
-          reinterpret_cast<const Domain*>(domain)->Empty<Domain::Evals>()));
+          reinterpret_cast<const Domain*>(domain)->Zero<Domain::Evals>()));
 }
 
 tachyon_bn254_univariate_dense_polynomial*
@@ -37,7 +37,7 @@ tachyon_bn254_univariate_evaluation_domain_empty_poly(
     const tachyon_bn254_univariate_evaluation_domain* domain) {
   return reinterpret_cast<tachyon_bn254_univariate_dense_polynomial*>(
       new Domain::DensePoly(
-          reinterpret_cast<const Domain*>(domain)->Empty<Domain::DensePoly>()));
+          reinterpret_cast<const Domain*>(domain)->Zero<Domain::DensePoly>()));
 }
 
 tachyon_bn254_univariate_rational_evaluations*
@@ -45,7 +45,7 @@ tachyon_bn254_univariate_evaluation_domain_empty_rational_evals(
     const tachyon_bn254_univariate_evaluation_domain* domain) {
   return reinterpret_cast<tachyon_bn254_univariate_rational_evaluations*>(
       new RationalEvals(
-          reinterpret_cast<const Domain*>(domain)->Empty<RationalEvals>()));
+          reinterpret_cast<const Domain*>(domain)->Zero<RationalEvals>()));
 }
 
 tachyon_bn254_univariate_evaluations*

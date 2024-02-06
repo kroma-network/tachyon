@@ -33,7 +33,7 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
                     const absl::btree_map<size_t, F>& challenges,
                     const std::vector<Evals>& instance_columns)
       : advices_(base::CreateVector(num_advice_columns,
-                                    domain->template Empty<RationalEvals>())),
+                                    domain->template Zero<RationalEvals>())),
         usable_rows_(base::Range<RowIndex>::Until(usable_rows)),
         current_phase_(current_phase),
         challenges_(challenges),

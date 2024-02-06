@@ -38,7 +38,7 @@ class UnivariateEvaluationDomainTest : public testing::Test {
 
 TEST_F(UnivariateEvaluationDomainTest, EmptyEvals) {
   Domain::Evals cpp_evals =
-      reinterpret_cast<Domain*>(domain_)->Empty<Domain::Evals>();
+      reinterpret_cast<Domain*>(domain_)->Zero<Domain::Evals>();
   tachyon_bn254_univariate_evaluations* evals =
       tachyon_bn254_univariate_evaluation_domain_empty_evals(domain_);
   EXPECT_EQ(cpp_evals, reinterpret_cast<Domain::Evals&>(*evals));
@@ -47,7 +47,7 @@ TEST_F(UnivariateEvaluationDomainTest, EmptyEvals) {
 
 TEST_F(UnivariateEvaluationDomainTest, EmptyPoly) {
   Domain::DensePoly cpp_poly =
-      reinterpret_cast<Domain*>(domain_)->Empty<Domain::DensePoly>();
+      reinterpret_cast<Domain*>(domain_)->Zero<Domain::DensePoly>();
   tachyon_bn254_univariate_dense_polynomial* poly =
       tachyon_bn254_univariate_evaluation_domain_empty_poly(domain_);
   EXPECT_EQ(cpp_poly, reinterpret_cast<Domain::DensePoly&>(*poly));
@@ -56,7 +56,7 @@ TEST_F(UnivariateEvaluationDomainTest, EmptyPoly) {
 
 TEST_F(UnivariateEvaluationDomainTest, EmptyRationalEvals) {
   RationalEvals cpp_evals =
-      reinterpret_cast<Domain*>(domain_)->Empty<RationalEvals>();
+      reinterpret_cast<Domain*>(domain_)->Zero<RationalEvals>();
   tachyon_bn254_univariate_rational_evaluations* evals =
       tachyon_bn254_univariate_evaluation_domain_empty_rational_evals(domain_);
   EXPECT_EQ(cpp_evals, reinterpret_cast<RationalEvals&>(*evals));

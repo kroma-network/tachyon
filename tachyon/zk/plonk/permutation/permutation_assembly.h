@@ -117,7 +117,7 @@ class TACHYON_EXPORT PermutationAssembly {
 
     // Init evaluation formed polynomials with all-zero coefficients.
     std::vector<Evals> permutations =
-        base::CreateVector(columns_.size(), domain->template Empty<Evals>());
+        base::CreateVector(columns_.size(), domain->template Zero<Evals>());
 
     // Assign |unpermuted_table| to |permutations|.
     base::Parallelize(permutations, [&unpermuted_table, this](

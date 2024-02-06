@@ -108,7 +108,7 @@ class ProvingKey : public Key {
     // | 5 | 0          |
     // | 6 | 0          |
     // | 7 | 0          |
-    Evals evals = domain->template Empty<Evals>();
+    Evals evals = domain->template Zero<Evals>();
     *evals[0] = F::One();
     l_first_ = domain->IFFT(evals);
     *evals[0] = F::Zero();
