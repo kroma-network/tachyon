@@ -70,6 +70,9 @@ class BufferReader<math::AffinePoint<Curve>> {
   static math::AffinePoint<Curve> Read(const base::ReadOnlyBuffer& buffer) {
     BaseField x = BufferReader<BaseField>::Read(buffer);
     BaseField y = BufferReader<BaseField>::Read(buffer);
+    if (x.IsZero() && y.IsZero()) {
+      return {};
+    }
     return {std::move(x), std::move(y)};
   }
 };

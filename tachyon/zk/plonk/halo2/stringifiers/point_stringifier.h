@@ -20,7 +20,12 @@ class RustDebugStringifier<math::AffinePoint<Curve>> {
  public:
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
                                       const math::AffinePoint<Curve>& value) {
-    return os << fmt.DebugTuple("").Field(value.x()).Field(value.y()).Finish();
+    if (value.infinity()) {
+      return os << "Infinity";
+    } else {
+      return os
+             << fmt.DebugTuple("").Field(value.x()).Field(value.y()).Finish();
+    }
   }
 };
 
