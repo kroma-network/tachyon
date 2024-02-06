@@ -37,6 +37,7 @@ tachyon_cc_library(
         ":field_stringifier",
         ":phase_stringifier",
         ":rotation_stringifier",
+        ":selector_stringifier",
         "//tachyon/zk/expressions:advice_expression",
         "//tachyon/zk/expressions:challenge_expression",
         "//tachyon/zk/expressions:constant_expression",
@@ -120,5 +121,14 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/strings:rust_stringifier",
         "//tachyon/zk/base:rotation",
+    ],
+)
+
+tachyon_cc_library(
+    name = "selector_stringifier",
+    hdrs = ["selector_stringifier.h"],
+    deps = [
+        "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/zk/plonk/constraint_system:selector",
     ],
 )
