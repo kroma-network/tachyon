@@ -21,6 +21,7 @@
 #include "tachyon/zk/plonk/halo2/stringifiers/field_stringifier.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/phase_stringifier.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/rotation_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/selector_stringifier.h"
 
 namespace tachyon::base::internal {
 
@@ -37,8 +38,7 @@ class RustDebugStringifier<zk::Expression<F>> {
       }
       case zk::ExpressionType::kSelector: {
         zk::plonk::Selector selector = expression.ToSelector()->selector();
-        return os
-               << fmt.DebugTuple("Selector").Field(selector.index()).Finish();
+        return os << fmt.DebugTuple("Selector").Field(selector).Finish();
       }
       case zk::ExpressionType::kFixed: {
         const zk::plonk::FixedQuery& query = expression.ToFixed()->query();
