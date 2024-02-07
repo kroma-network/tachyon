@@ -274,7 +274,7 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{projective_equality_ops}",
       "",
-      "  %{c_g1}_projective ToCPoint() const {"
+      "  %{c_g1}_projective ToCPoint() const {",
       "    %{c_g1}_projective ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
       "    memcpy(ret.y.limbs, y_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
@@ -326,7 +326,7 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{jacobian_equality_ops}",
       "",
-      "  %{c_g1}_jacobian ToCPoint() const {"
+      "  %{c_g1}_jacobian ToCPoint() const {",
       "    %{c_g1}_jacobian ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
       "    memcpy(ret.y.limbs, y_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
@@ -378,7 +378,7 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{affine_equality_ops}",
       "",
-      "  %{c_g1}_affine ToCPoint() const {"
+      "  %{c_g1}_affine ToCPoint() const {",
       "    %{c_g1}_affine ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
       "    memcpy(ret.y.limbs, y_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
@@ -434,7 +434,7 @@ int GenerationConfig::GenerateG1Hdr() const {
       "",
       "%{xyzz_equality_ops}",
       "",
-      "  %{c_g1}_xyzz ToCPoint() const {"
+      "  %{c_g1}_xyzz ToCPoint() const {",
       "    %{c_g1}_xyzz ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
       "    memcpy(ret.y.limbs, y_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
@@ -472,7 +472,7 @@ int GenerationConfig::GenerateG1Hdr() const {
       "  const Fq& y() const { return y_; }",
       "  Fq& y() { return y_; }",
       "",
-      "  %{c_g1}_point2 ToCPoint() const {"
+      "  %{c_g1}_point2 ToCPoint() const {",
       "    %{c_g1}_point2 ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
       "    memcpy(ret.y.limbs, y_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
@@ -510,7 +510,7 @@ int GenerationConfig::GenerateG1Hdr() const {
       "  const Fq& z() const { return z_; }",
       "  Fq& z() { return z_; }",
       "",
-      "  %{c_g1}_point3 ToCPoint() const {"
+      "  %{c_g1}_point3 ToCPoint() const {",
       "    %{c_g1}_point3 ret;",
       "    memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
       "    memcpy(ret.y.limbs, y_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});",
