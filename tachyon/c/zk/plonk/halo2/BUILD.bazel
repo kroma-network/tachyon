@@ -11,7 +11,9 @@ filegroup(
     name = "halo2_hdrs",
     srcs = [
         "bn254_argument_data.h",
+        "bn254_instance_columns_vec.h",
         "bn254_shplonk_prover.h",
+        "bn254_shplonk_verifier.h",
         "bn254_transcript.h",
     ],
 )
@@ -26,6 +28,13 @@ tachyon_cc_library(
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluations",
         "//tachyon/zk/plonk/halo2:argument_data",
     ],
+)
+
+tachyon_cc_library(
+    name = "bn254_instance_columns_vec",
+    srcs = ["bn254_instance_columns_vec.cc"],
+    hdrs = ["bn254_instance_columns_vec.h"],
+    deps = ["//tachyon/c/math/elliptic_curves/bn/bn254:fr"],
 )
 
 tachyon_cc_library(
@@ -84,6 +93,28 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "bn254_shplonk_verifier",
+    srcs = ["bn254_shplonk_verifier.cc"],
+    hdrs = ["bn254_shplonk_verifier.h"],
+    deps = [
+        ":bn254_instance_columns_vec",
+        ":bn254_shplonk_verifier_impl",
+        ":bn254_transcript",
+        "//tachyon/c/zk/plonk/keys:bn254_plonk_verifying_key",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_shplonk_verifier_impl",
+    hdrs = ["bn254_shplonk_verifier_impl.h"],
+    deps = [
+        ":bn254_shplonk_pcs",
+        ":verifier_impl_base",
+    ],
+)
+
+tachyon_cc_library(
     name = "prover_impl_base",
     hdrs = ["prover_impl_base.h"],
     deps = [
@@ -110,6 +141,16 @@ tachyon_cc_binary(
         "//tachyon/cc/math/finite_fields:prime_field_conversions",
         "//tachyon/zk/plonk/halo2:constants",
         "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
+    name = "verifier_impl_base",
+    hdrs = ["verifier_impl_base.h"],
+    deps = [
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/functional:callback",
+        "//tachyon/zk/plonk/halo2:verifier",
     ],
 )
 
