@@ -5,23 +5,23 @@
 #include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 
-namespace tachyon::c::math {
+namespace tachyon {
 
 namespace {
 
 class PrimeFieldTest : public testing::Test {
  public:
   void SetUp() override {
-    a_ = tachyon::math::bn254::Fr::Random();
-    b_ = tachyon::math::bn254::Fr::Random();
+    a_ = math::bn254::Fr::Random();
+    b_ = math::bn254::Fr::Random();
 
     c_a_ = cc::math::ToCPrimeField(a_);
     c_b_ = cc::math::ToCPrimeField(b_);
   }
 
  protected:
-  tachyon::math::bn254::Fr a_;
-  tachyon::math::bn254::Fr b_;
+  math::bn254::Fr a_;
+  math::bn254::Fr b_;
   tachyon_bn254_fr c_a_;
   tachyon_bn254_fr c_b_;
 };
@@ -107,4 +107,4 @@ TEST_F(PrimeFieldTest, Le) {
   EXPECT_EQ(tachyon_bn254_fr_le(&c_a_, &c_b_), a_ <= b_);
 }
 
-}  // namespace tachyon::c::math
+}  // namespace tachyon
