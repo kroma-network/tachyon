@@ -91,11 +91,21 @@ class UnivariatePolynomial final
     return !operator==(other);
   }
 
-  constexpr Field* operator[](size_t i) { return coefficients_[i]; }
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, it terminates the program.
+  constexpr Field& at(size_t i) { return coefficients_.at(i); }
 
-  constexpr const Field* operator[](size_t i) const { return coefficients_[i]; }
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, returns a reference to the |Field::Zero()|.
+  constexpr const Field& at(size_t i) const { return coefficients_.at(i); }
 
-  constexpr const Field* GetLeadingCoefficient() const {
+  // Returns a reference to the coefficient for the given |i| if it exists.
+  // Otherwise, returns a reference to the |Field::Zero()|.
+  constexpr const Field& operator[](size_t i) const { return coefficients_[i]; }
+
+  // Returns a reference to the leading coefficient if it exists.
+  // Otherwise, returns a reference to the |Field::Zero()|.
+  constexpr const Field& GetLeadingCoefficient() const {
     return coefficients_.GetLeadingCoefficient();
   }
 

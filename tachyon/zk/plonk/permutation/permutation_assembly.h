@@ -117,20 +117,23 @@ class TACHYON_EXPORT PermutationAssembly {
 
     // Init evaluation formed polynomials with all-zero coefficients.
     std::vector<Evals> permutations =
-        base::CreateVector(columns_.size(), domain->template Empty<Evals>());
+        base::CreateVector(columns_.size(), domain->template Zero<Evals>());
 
     // Assign |unpermuted_table| to |permutations|.
-    base::Parallelize(permutations, [&unpermuted_table, this](
-                                        absl::Span<Evals> chunk, size_t c,
-                                        size_t chunk_size) {
-      size_t i = c * chunk_size;
-      for (Evals& evals : chunk) {
-        for (size_t j = 0; j < rows_; ++j) {
-          *evals[j] = unpermuted_table[cycle_store_.GetNextLabel(Label(i, j))];
-        }
-        ++i;
-      }
-    });
+    base::Parallelize(
+        permutations, [&unpermuted_table, this](absl::Span<Evals> chunk,
+                                                size_t c, size_t chunk_size) {
+          size_t i = c * chunk_size;
+          for (Evals& evals : chunk) {
+            for (size_t j = 0; j < rows_; ++j) {
+              // NOTE(chokobole): It's safe to access since we created |kDegree|
+              // |Zeros()|.
+              evals.at(j) =
+                  unpermuted_table[cycle_store_.GetNextLabel(Label(i, j))];
+            }
+            ++i;
+          }
+        });
     return permutations;
   }
 

@@ -197,7 +197,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, NonSystematicLagrangeCoefficients) {
       // evaluation
       F interpolated_eval = F::Zero();
       for (size_t i = 0; i < domain_size; ++i) {
-        interpolated_eval += lagrange_coeffs[i] * (*poly_evals[i]);
+        interpolated_eval += lagrange_coeffs[i] * poly_evals[i];
       }
       EXPECT_EQ(actual_eval, interpolated_eval);
     });
@@ -266,7 +266,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FFTCorrectness) {
         domain_size, [domain_size, &rand_poly](const BaseDomain& d) {
           Evals poly_evals = d.FFT(rand_poly);
           for (size_t i = 0; i < domain_size; ++i) {
-            EXPECT_EQ(*poly_evals[i], rand_poly.Evaluate(d.GetElement(i)));
+            EXPECT_EQ(poly_evals[i], rand_poly.Evaluate(d.GetElement(i)));
           }
           EXPECT_EQ(rand_poly, d.IFFT(poly_evals));
         });
@@ -291,7 +291,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, DegreeAwareFFTCorrectness) {
                                     &rand_poly](const BaseDomain& d) {
       Evals deg_aware_fft_evals = d.FFT(rand_poly);
       for (size_t i = 0; i < domain_size; ++i) {
-        EXPECT_EQ(*deg_aware_fft_evals[i], rand_poly.Evaluate(d.GetElement(i)));
+        EXPECT_EQ(deg_aware_fft_evals[i], rand_poly.Evaluate(d.GetElement(i)));
       }
     });
   } else {

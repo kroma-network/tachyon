@@ -42,6 +42,8 @@ class UnivariateDenseCoefficients {
  public:
   constexpr static size_t kMaxDegree = MaxDegree;
 
+  constexpr static F kZero = F::Zero();
+
   using Field = F;
   using Point = F;
 
@@ -125,20 +127,22 @@ class UnivariateDenseCoefficients {
     return !operator==(other);
   }
 
-  constexpr F* operator[](size_t i) {
-    return const_cast<F*>(std::as_const(*this).operator[](i));
+  constexpr F& at(size_t i) {
+    CHECK_LT(i, coefficients_.size());
+    return coefficients_[i];
   }
+  constexpr const F& at(size_t i) const { return (*this)[i]; }
 
-  constexpr const F* operator[](size_t i) const {
+  constexpr const F& operator[](size_t i) const {
     if (i < coefficients_.size()) {
-      return &coefficients_[i];
+      return coefficients_[i];
     }
-    return nullptr;
+    return kZero;
   }
 
-  constexpr const F* GetLeadingCoefficient() const {
-    if (IsZero()) return nullptr;
-    return &coefficients_.back();
+  constexpr const F& GetLeadingCoefficient() const {
+    if (IsZero()) return kZero;
+    return coefficients_.back();
   }
 
   constexpr bool IsZero() const { return coefficients_.empty(); }

@@ -28,6 +28,7 @@ template <typename F, size_t MaxDegree>
 class MultivariateSparseCoefficients {
  public:
   constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static F kZero = F::Zero();
 
   using Field = F;
   using Point = std::vector<F>;
@@ -237,24 +238,25 @@ class MultivariateSparseCoefficients {
     return !operator==(other);
   }
 
-  constexpr F* Get(const Literal& literal) {
-    return const_cast<F*>(std::as_const(*this).Get(literal));
+  constexpr F& at(const Literal& literal) {
+    const F* ptr = const_cast<F*>(std::as_const(*this).GetCoefficient(literal));
+    if (ptr) return *ptr;
+    return kZero;
   }
 
-  constexpr const F* Get(const Literal& literal) const {
-    auto it = std::lower_bound(terms_.begin(), terms_.end(), literal,
-                               [](const Term& term, const Literal& literal) {
-                                 return term.literal < literal;
-                               });
-    if (it != terms_.end() && it->literal == literal) {
-      return &it->coefficient;
-    }
-    return nullptr;
+  constexpr const F& at(const Literal& literal) const {
+    return (*this)[literal];
   }
 
-  constexpr const F* GetLeadingCoefficient() const {
-    if (IsZero()) return nullptr;
-    return &terms_.begin().coefficient;
+  constexpr const F& operator[](const Literal& literal) const {
+    const F* ptr = GetCoefficient(literal);
+    if (ptr) return *ptr;
+    return kZero;
+  }
+
+  constexpr const F& GetLeadingCoefficient() const {
+    if (IsZero()) return kZero;
+    return terms_.begin().coefficient;
   }
 
   constexpr bool IsZero() const { return terms_.empty(); }
@@ -332,6 +334,17 @@ class MultivariateSparseCoefficients {
  private:
   friend class internal::MultivariatePolynomialOp<
       MultivariateSparseCoefficients<F, MaxDegree>>;
+
+  constexpr const F* GetCoefficient(const Literal& literal) const {
+    auto it = std::lower_bound(terms_.begin(), terms_.end(), literal,
+                               [](const Term& term, const Literal& literal) {
+                                 return term.literal < literal;
+                               });
+    if (it != terms_.end() && it->literal == literal) {
+      return &it->coefficient;
+    }
+    return nullptr;
+  }
 
   static F EvaluateSerial(absl::Span<const Term> terms, const Point& points) {
     return std::accumulate(

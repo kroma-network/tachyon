@@ -26,6 +26,7 @@ template <typename F, size_t MaxDegree>
 class MultilinearDenseEvaluations {
  public:
   constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static F kZero = F::Zero();
 
   using Field = F;
   using Point = std::vector<F>;
@@ -75,15 +76,18 @@ class MultilinearDenseEvaluations {
     return !operator==(other);
   }
 
-  constexpr F* Get(size_t i) {
-    return const_cast<F*>(std::as_const(*this).Get(i));
+  constexpr F& at(size_t i) {
+    CHECK_LT(i, evaluations_.size());
+    return evaluations_[i];
   }
 
-  constexpr const F* Get(size_t i) const {
+  constexpr const F& at(size_t i) const { return (*this)[i]; }
+
+  constexpr const F& operator[](size_t i) const {
     if (i < evaluations_.size()) {
-      return &evaluations_[i];
+      return evaluations_[i];
     }
-    return nullptr;
+    return kZero;
   }
 
   constexpr bool IsZero() const {

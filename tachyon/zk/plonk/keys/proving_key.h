@@ -108,10 +108,12 @@ class ProvingKey : public Key {
     // | 5 | 0          |
     // | 6 | 0          |
     // | 7 | 0          |
-    Evals evals = domain->template Empty<Evals>();
-    *evals[0] = F::One();
+    Evals evals = domain->template Zero<Evals>();
+    // NOTE(chokobole): It's safe to access since we created |domain->size()|
+    // |evals|.
+    evals.at(0) = F::One();
     l_first_ = domain->IFFT(evals);
-    *evals[0] = F::Zero();
+    evals.at(0) = F::Zero();
 
     // Compute l_last(X) which evaluates to 1 on the first inactive row (just
     // before the blinding factors) and 0 otherwise over the domain.
@@ -127,9 +129,11 @@ class ProvingKey : public Key {
     // | 6 | 0         |
     // | 7 | 0         |
     RowIndex usable_rows = prover->GetUsableRows();
-    *evals[usable_rows] = F::One();
+    // NOTE(chokobole): It's safe to access since we created |domain->size()|
+    // |evals|, which is greater than |usable_rows|.
+    evals.at(usable_rows) = F::One();
     l_last_ = domain->IFFT(evals);
-    *evals[usable_rows] = F::Zero();
+    evals.at(usable_rows) = F::Zero();
 
     // Compute l_active_row(X).
     //

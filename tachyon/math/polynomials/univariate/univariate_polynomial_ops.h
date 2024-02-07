@@ -271,10 +271,10 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     // TODO(chokobole): What if this dense polynomial is really sparse..?
     terms.reserve(size);
     for (size_t i = 0; i < size; ++i) {
-      if (self[i] == nullptr || self[i]->IsZero()) {
+      if (self[i].IsZero()) {
         continue;
       }
-      terms.push_back({i, *self[i]});
+      terms.push_back({i, self[i]});
     }
     return UnivariatePolynomial<S>(S(std::move(terms)));
   }
@@ -313,7 +313,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
         base::CreateVector(self.Degree() - other.Degree() + 1, F::Zero());
     UnivariatePolynomial<D> remainder = self.ToDense();
     std::vector<F>& r_coefficients = remainder.coefficients_.coefficients_;
-    F divisor_leading_inv = other.GetLeadingCoefficient()->Inverse();
+    F divisor_leading_inv = other.GetLeadingCoefficient().Inverse();
 
     while (!remainder.IsZero() && remainder.Degree() >= other.Degree()) {
       F q_coeff =
@@ -482,7 +482,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     size_t size = self.Degree() + 1;
     coefficients.reserve(size);
     for (size_t i = 0; i < size; ++i) {
-      coefficients.push_back(self[i] == nullptr ? F::Zero() : *self[i]);
+      coefficients.push_back(self[i]);
     }
     return UnivariatePolynomial<D>(D(std::move(coefficients)));
   }

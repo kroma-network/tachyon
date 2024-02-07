@@ -150,16 +150,16 @@ class CircuitPolynomialBuilder {
           RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
           RowIndex r_prev = Rotation(-1).GetIndex(idx, rot_scale_, n_);
 
-          F a_minus_s = *input_coset[idx] - *table_coset[idx];
+          F a_minus_s = input_coset[idx] - table_coset[idx];
 
           // l_first(X) * (1 - z(X)) = 0
           chunk[j] *= *y_;
-          chunk[j] += (one_ - *product_coset[idx]) * *l_first_[idx];
+          chunk[j] += (one_ - product_coset[idx]) * l_first_[idx];
 
           // l_last(X) * (z(X)² - z(X)) = 0
           chunk[j] *= *y_;
-          chunk[j] += (product_coset[idx]->Square() - *product_coset[idx]) *
-                      *l_last_[idx];
+          chunk[j] +=
+              (product_coset[idx].Square() - product_coset[idx]) * l_last_[idx];
 
           // clang-format off
           // A * (B - C) = 0 where
@@ -168,24 +168,24 @@ class CircuitPolynomialBuilder {
           //  - C = z(X) * (θᵐ⁻¹ a₀(X) + ... + aₘ₋₁(X) + β) * (θᵐ⁻¹ s₀(X) + ... + sₘ₋₁(X) + γ)
           // clang-format on
           chunk[j] *= *y_;
-          chunk[j] += (*product_coset[r_next] * (*input_coset[idx] + *beta_) *
-                           (*table_coset[idx] + *gamma_) -
-                       *product_coset[idx] * table_value) *
-                      *l_active_row_[idx];
+          chunk[j] += (product_coset[r_next] * (input_coset[idx] + *beta_) *
+                           (table_coset[idx] + *gamma_) -
+                       product_coset[idx] * table_value) *
+                      l_active_row_[idx];
 
           // Check that the first values in the permuted input expression and
           // permuted fixed expression are the same.
           // l_first(X) * (a'(X) - s'(X)) = 0
           chunk[j] *= *y_;
-          chunk[j] += a_minus_s * *l_first_[idx];
+          chunk[j] += a_minus_s * l_first_[idx];
 
           // Check that each value in the permuted lookup input expression is
           // either equal to the value above it, or the value at the same
           // index in the permuted table expression. (1 - (l_last + l_blind)) *
           // (a′(X) − s′(X))⋅(a′(X) − a′(w⁻¹X)) = 0
           chunk[j] *= *y_;
-          chunk[j] += a_minus_s * (*input_coset[idx] - *input_coset[r_prev]) *
-                      *l_active_row_[idx];
+          chunk[j] += a_minus_s * (input_coset[idx] - input_coset[r_prev]) *
+                      l_active_row_[idx];
         }
       });
     }
@@ -204,13 +204,12 @@ class CircuitPolynomialBuilder {
 
         // Enforce only for the first set: l_first(X) * (1 - z₀(X)) = 0
         chunk[i] *= *y_;
-        chunk[i] += (one_ - *product_cosets.front()[idx]) * *l_first_[idx];
+        chunk[i] += (one_ - product_cosets.front()[idx]) * l_first_[idx];
 
         // Enforce only for the last set: l_last(X) * (z_l(X)² - z_l(X)) = 0
         const Evals& last_coset = product_cosets.back();
         chunk[i] *= *y_;
-        chunk[i] +=
-            *l_last_[idx] * (last_coset[idx]->Square() - *last_coset[idx]);
+        chunk[i] += l_last_[idx] * (last_coset[idx].Square() - last_coset[idx]);
 
         // Except for the first set, enforce:
         // l_first(X) * (zᵢ(X) - zᵢ₋₁(w⁻¹X)) = 0
@@ -218,8 +217,8 @@ class CircuitPolynomialBuilder {
         for (size_t set_idx = 0; set_idx < product_cosets.size(); ++set_idx) {
           if (set_idx == 0) continue;
           chunk[i] *= *y_;
-          chunk[i] += *l_first_[idx] * (*product_cosets[set_idx][idx] -
-                                        *product_cosets[set_idx - 1][r_last]);
+          chunk[i] += l_first_[idx] * (product_cosets[set_idx][idx] -
+                                       product_cosets[set_idx - 1][r_last]);
         }
 
         // And for all the sets we enforce: (1 - (l_last(X) + l_blind(X))) *
@@ -249,7 +248,7 @@ class CircuitPolynomialBuilder {
           F right = CalculateRight(column_chunk, &current_delta, idx,
                                    product_cosets[j][idx]);
           chunk[i] *= *y_;
-          chunk[i] += (left - right) * *l_active_row_[idx];
+          chunk[i] += (left - right) * l_active_row_[idx];
         }
         beta_term *= *omega_;
       }
@@ -267,21 +266,20 @@ class CircuitPolynomialBuilder {
   template <typename Evals>
   F CalculateLeft(const std::vector<base::Ref<const Evals>>& column_chunk,
                   absl::Span<const Evals> coset_chunk, size_t idx,
-                  const F* initial_value) {
-    F left = *initial_value;
+                  const F& initial_value) {
+    F left = initial_value;
     for (size_t i = 0; i < column_chunk.size(); ++i) {
-      left *=
-          *(*column_chunk[i])[idx] + *beta_ * *coset_chunk[i][idx] + *gamma_;
+      left *= (*column_chunk[i])[idx] + *beta_ * coset_chunk[i][idx] + *gamma_;
     }
     return left;
   }
 
   template <typename Evals>
   F CalculateRight(const std::vector<base::Ref<const Evals>>& column_chunk,
-                   F* current_delta, size_t idx, const F* initial_value) {
-    F right = *initial_value;
+                   F* current_delta, size_t idx, const F& initial_value) {
+    F right = initial_value;
     for (size_t i = 0; i < column_chunk.size(); ++i) {
-      right *= *(*column_chunk[i])[idx] + *current_delta + *gamma_;
+      right *= (*column_chunk[i])[idx] + *current_delta + *gamma_;
       *current_delta *= delta_;
     }
     return right;

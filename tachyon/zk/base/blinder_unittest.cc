@@ -62,9 +62,9 @@ TEST(BlinderUnittest, Blind) {
     RowIndex not_blinded_rows = rows - blinded_rows;
     for (RowIndex i = 0; i < rows; ++i) {
       if (i < not_blinded_rows) {
-        EXPECT_EQ(*evals[i], values[i]);
+        EXPECT_EQ(evals[i], values[i]);
       } else {
-        EXPECT_EQ(*evals[i], blinding_values[i - not_blinded_rows]);
+        EXPECT_EQ(evals[i], blinding_values[i - not_blinded_rows]);
       }
     }
   }

@@ -224,8 +224,9 @@ TEST_F(SimpleV1CircuitTest, Synthesize) {
                            constraint_system.constants());
 
   std::vector<RationalEvals> expected_fixed_columns;
-  RationalEvals evals = domain->Empty<RationalEvals>();
-  *evals[0] = math::RationalField<F>(constant);
+  RationalEvals evals = domain->Zero<RationalEvals>();
+  // NOTE(chokobole): It's safe to access since we created |n|-sized |evals_|.
+  evals.at(0) = math::RationalField<F>(constant);
   expected_fixed_columns.push_back(std::move(evals));
   EXPECT_EQ(assembly.fixed_columns(), expected_fixed_columns);
 

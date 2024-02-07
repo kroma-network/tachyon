@@ -76,9 +76,9 @@ TEST_F(MultilinearDenseEvaluationsTest, IndexingOperator) {
   for (const auto& test : tests) {
     for (size_t i = 0; i < kMaxDegree; ++i) {
       if (i < test.evaluations.size()) {
-        EXPECT_EQ(*test.poly[i], GF7(test.evaluations[i]));
+        EXPECT_EQ(test.poly[i], GF7(test.evaluations[i]));
       } else {
-        EXPECT_EQ(test.poly[i], nullptr);
+        EXPECT_EQ(test.poly[i], GF7::Zero());
       }
     }
   }
@@ -109,10 +109,10 @@ TEST_F(MultilinearDenseEvaluationsTest, Evaluate) {
   for (const Poly& poly : polys_) {
     size_t degree = poly.Degree();
     for (size_t i = 0; i < (size_t{1} << degree); ++i) {
-      const GF7* elem = poly[i];
-      if (!elem) break;
+      const GF7& elem = poly[i];
+      if (elem.IsZero()) break;
       Point point = convert_to_le(i, degree);
-      EXPECT_EQ(poly.Evaluate(point), *elem);
+      EXPECT_EQ(poly.Evaluate(point), elem);
     }
   }
 }

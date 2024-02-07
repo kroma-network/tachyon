@@ -101,7 +101,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   }
 
   template <typename T>
-  constexpr T Empty() const {
+  constexpr T Zero() const {
     return T::Zero(size_ - 1);
   }
 
@@ -337,7 +337,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       F pow = c * g.Pow(i);
       for (size_t j = 0; j < num_elems_per_thread; ++j) {
         if (i + j >= size) break;
-        (*poly_or_evals[i + j]) *= pow;
+        poly_or_evals.at(i + j) *= pow;
         pow *= g;
       }
     }
@@ -428,7 +428,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     for (size_t idx = 1; idx < size; ++idx) {
       size_t ridx = base::bits::BitRev(idx) >> (sizeof(size_t) * 8 - log_len);
       if (idx < ridx) {
-        std::swap(*poly_or_evals[idx], *poly_or_evals[ridx]);
+        std::swap(poly_or_evals.at(idx), poly_or_evals.at(ridx));
       }
     }
   }

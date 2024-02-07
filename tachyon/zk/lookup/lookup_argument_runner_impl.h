@@ -135,8 +135,8 @@ LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
                                     size_t chunk_size) {
     size_t i = chunk_index * chunk_size;
     for (F& value : chunk) {
-      value *= (*permuted.compressed_evals_pair().input()[i] + beta);
-      value *= (*permuted.compressed_evals_pair().table()[i] + gamma);
+      value *= (permuted.compressed_evals_pair().input()[i] + beta);
+      value *= (permuted.compressed_evals_pair().table()[i] + gamma);
       ++i;
     }
   };
@@ -152,8 +152,8 @@ LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
                                     size_t chunk_size) {
     size_t i = chunk_index * chunk_size;
     for (F& value : chunk) {
-      value = (*permuted.permuted_evals_pair().input()[i] + beta) *
-              (*permuted.permuted_evals_pair().table()[i] + gamma);
+      value = (permuted.permuted_evals_pair().input()[i] + beta) *
+              (permuted.permuted_evals_pair().table()[i] + gamma);
       ++i;
     }
   };

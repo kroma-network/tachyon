@@ -33,7 +33,7 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
                     const absl::btree_map<size_t, F>& challenges,
                     const std::vector<Evals>& instance_columns)
       : advices_(base::CreateVector(num_advice_columns,
-                                    domain->template Empty<RationalEvals>())),
+                                    domain->template Zero<RationalEvals>())),
         usable_rows_(base::Range<RowIndex>::Until(usable_rows)),
         current_phase_(current_phase),
         challenges_(challenges),
@@ -48,7 +48,7 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
     CHECK(usable_rows_.Contains(row));
     CHECK_LT(column.index(), instance_columns_.size());
 
-    return Value<F>::Known(*instance_columns_[column.index()][row]);
+    return Value<F>::Known(instance_columns_[column.index()][row]);
   }
 
   void AssignAdvice(std::string_view, const AdviceColumnKey& column,
@@ -59,7 +59,8 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
     CHECK(usable_rows_.Contains(row));
     CHECK_LT(column.index(), advices_.size());
 
-    *advices_[column.index()][row] = std::move(assign).Run().value();
+    // NOTE(chokobole): Boundary check is the responsibility of API callers.
+    advices_[column.index()].at(row) = std::move(assign).Run().value();
   }
 
   Value<F> GetChallenge(Challenge challenge) override {

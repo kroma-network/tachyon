@@ -39,7 +39,7 @@ class TACHYON_EXPORT Key {
     RowIndex n = static_cast<RowIndex>(domain->size());
     return {
         base::CreateVector(constraint_system.num_fixed_columns(),
-                           domain->template Empty<RationalEvals>()),
+                           domain->template Zero<RationalEvals>()),
         PermutationAssembly(constraint_system.permutation(), n),
         base::CreateVector(constraint_system.num_selectors(),
                            base::CreateVector(n, false)),

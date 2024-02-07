@@ -20,8 +20,8 @@ Evals CompressExpressions(
     const Domain* domain,
     const std::vector<std::unique_ptr<Expression<F>>>& expressions,
     const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl) {
-  Evals compressed_value = domain->template Empty<Evals>();
-  Evals values = domain->template Empty<Evals>();
+  Evals compressed_value = domain->template Zero<Evals>();
+  Evals values = domain->template Zero<Evals>();
 
   for (size_t expr_idx = 0; expr_idx < expressions.size(); ++expr_idx) {
     base::Parallelize(

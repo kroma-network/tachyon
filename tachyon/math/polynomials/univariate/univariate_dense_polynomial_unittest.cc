@@ -74,9 +74,9 @@ TEST_F(UnivariateDensePolynomialTest, IndexingOperator) {
   for (const auto& test : tests) {
     for (size_t i = 0; i < kMaxDegree; ++i) {
       if (i < test.coefficients.size()) {
-        EXPECT_EQ(*test.poly[i], GF7(test.coefficients[i]));
+        EXPECT_EQ(test.poly[i], GF7(test.coefficients[i]));
       } else {
-        EXPECT_EQ(test.poly[i], nullptr);
+        EXPECT_EQ(test.poly[i], GF7::Zero());
       }
     }
   }
@@ -328,55 +328,38 @@ TEST_F(UnivariateDensePolynomialTest, EvaluateVanishingPolyByRoots) {
             poly.Evaluate(point));
 }
 
-#define GET_COEFF(poly, degree)                \
-  ({                                           \
-    GF7* coeff = poly[degree];                 \
-    (coeff == nullptr) ? GF7::Zero() : *coeff; \
-  })
-
 TEST_F(UnivariateDensePolynomialTest, FoldEven) {
   Poly poly = Poly::Random(kMaxDegree);
   GF7 r = GF7::Random();
   Poly folded = poly.Fold<true>(r);
-  EXPECT_EQ(folded,
-            Poly(Coeffs({r * GET_COEFF(poly, 0) + GET_COEFF(poly, 1),
-                         r * GET_COEFF(poly, 2) + GET_COEFF(poly, 3),
-                         r * GET_COEFF(poly, 4) + GET_COEFF(poly, 5)})));
+  EXPECT_EQ(folded, Poly(Coeffs({r * poly[0] + poly[1], r * poly[2] + poly[3],
+                                 r * poly[4] + poly[5]})));
 
   GF7 r2 = GF7::Random();
   Poly folded2 = folded.Fold<true>(r2);
   EXPECT_EQ(folded2,
-            Poly(Coeffs({r2 * GET_COEFF(folded, 0) + GET_COEFF(folded, 1),
-                         r2 * GET_COEFF(folded, 2)})));
+            Poly(Coeffs({r2 * folded[0] + folded[1], r2 * folded[2]})));
 
   GF7 r3 = GF7::Random();
   Poly folded3 = folded2.Fold<true>(r3);
-  EXPECT_EQ(folded3,
-            Poly(Coeffs({r3 * GET_COEFF(folded2, 0) + GET_COEFF(folded2, 1)})));
+  EXPECT_EQ(folded3, Poly(Coeffs({r3 * folded2[0] + folded2[1]})));
 }
 
 TEST_F(UnivariateDensePolynomialTest, FoldOdd) {
   Poly poly = Poly::Random(kMaxDegree);
   GF7 r = GF7::Random();
   Poly folded = poly.Fold<false>(r);
-  EXPECT_EQ(folded,
-            Poly(Coeffs({GET_COEFF(poly, 0) + r * GET_COEFF(poly, 1),
-                         GET_COEFF(poly, 2) + r * GET_COEFF(poly, 3),
-                         GET_COEFF(poly, 4) + r * GET_COEFF(poly, 5)})));
+  EXPECT_EQ(folded, Poly(Coeffs({poly[0] + r * poly[1], poly[2] + r * poly[3],
+                                 poly[4] + r * poly[5]})));
 
   GF7 r2 = GF7::Random();
   Poly folded2 = folded.Fold<false>(r2);
-  EXPECT_EQ(folded2,
-            Poly(Coeffs({GET_COEFF(folded, 0) + r2 * GET_COEFF(folded, 1),
-                         GET_COEFF(folded, 2)})));
+  EXPECT_EQ(folded2, Poly(Coeffs({folded[0] + r2 * folded[1], folded[2]})));
 
   GF7 r3 = GF7::Random();
   Poly folded3 = folded2.Fold<false>(r3);
-  EXPECT_EQ(folded3,
-            Poly(Coeffs({GET_COEFF(folded2, 0) + r3 * GET_COEFF(folded2, 1)})));
+  EXPECT_EQ(folded3, Poly(Coeffs({folded2[0] + r3 * folded2[1]})));
 }
-
-#undef GET_COEFF
 
 TEST_F(UnivariateDensePolynomialTest, Copyable) {
   Poly expected = Poly::Random(kMaxDegree);

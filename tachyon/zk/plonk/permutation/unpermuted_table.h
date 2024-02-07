@@ -38,7 +38,7 @@ class UnpermutedTable {
   const Table& table() const& { return table_; }
 
   const F& operator[](const Label& label) const {
-    return *table_[label.col][label.row];
+    return table_[label.col][label.row];
   }
 
   base::Ref<const Evals> GetColumn(size_t i) const {
@@ -78,7 +78,7 @@ class UnpermutedTable {
       // TODO(dongchangYoo): Optimize this with
       // https://github.com/kroma-network/tachyon/pull/115.
       for (RowIndex j = 0; j < rows; ++j) {
-        col[j] = *unpermuted_table[i - 1][j] * delta;
+        col[j] = unpermuted_table[i - 1][j] * delta;
       }
       unpermuted_table.push_back(Evals(std::move(col)));
     }

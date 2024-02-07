@@ -82,9 +82,7 @@ class FRI final
     VLOG(2) << "FRI(beta[" << num_layers - 1
             << "]): " << beta.ToHexString(true);
     folded_poly = cur_poly->template Fold<false>(beta);
-    const F* constant = folded_poly[0];
-    root = constant ? *constant : F::Zero();
-    return writer->WriteToProof(root);
+    return writer->WriteToProof(folded_poly[0]);
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(size_t index,

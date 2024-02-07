@@ -93,6 +93,7 @@ template <typename F, size_t MaxDegree>
 class UnivariateSparseCoefficients {
  public:
   constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static F kZero = F::Zero();
 
   using Field = F;
   using Point = F;
@@ -153,22 +154,23 @@ class UnivariateSparseCoefficients {
     return !operator==(other);
   }
 
-  constexpr F* operator[](size_t i) {
-    return const_cast<F*>(std::as_const(*this).operator[](i));
+  constexpr F& at(size_t i) {
+    F* ptr = const_cast<F*>(std::as_const(*this).GetCoefficient(i));
+    CHECK(ptr);
+    return *ptr;
   }
 
-  constexpr const F* operator[](size_t i) const {
-    auto it = std::lower_bound(
-        terms_.begin(), terms_.end(), i,
-        [](const Term& term, size_t degree) { return term.degree < degree; });
-    if (it == terms_.end()) return nullptr;
-    if (it->degree != i) return nullptr;
-    return &it->coefficient;
+  constexpr const F& at(size_t i) const { return (*this)[i]; }
+
+  constexpr const F& operator[](size_t i) const {
+    const F* ptr = GetCoefficient(i);
+    if (ptr) return *ptr;
+    return kZero;
   }
 
-  constexpr const F* GetLeadingCoefficient() const {
-    if (IsZero()) return nullptr;
-    return &terms_.back().coefficient;
+  constexpr const F& GetLeadingCoefficient() const {
+    if (IsZero()) return kZero;
+    return terms_.back().coefficient;
   }
 
   constexpr bool IsZero() const { return terms_.empty(); }
@@ -272,6 +274,15 @@ class UnivariateSparseCoefficients {
   friend class internal::UnivariatePolynomialOp<
       UnivariateSparseCoefficients<F, MaxDegree>>;
   friend class base::Copyable<UnivariateSparseCoefficients<F, MaxDegree>>;
+
+  constexpr const F* GetCoefficient(size_t i) const {
+    auto it = std::lower_bound(
+        terms_.begin(), terms_.end(), i,
+        [](const Term& term, size_t degree) { return term.degree < degree; });
+    if (it == terms_.end()) return nullptr;
+    if (it->degree != i) return nullptr;
+    return &it->coefficient;
+  }
 
   void RemoveHighDegreeZeros() {  // Fix to RemoveZeros
     while (!IsZero()) {

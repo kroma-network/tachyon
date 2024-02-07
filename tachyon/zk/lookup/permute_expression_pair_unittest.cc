@@ -43,8 +43,8 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
   // sanity check brought from halo2
   std::optional<F> last;
   for (size_t i = 0; i < usable_rows; ++i) {
-    const F& perm_input_expr = *output.input()[i];
-    const F& perm_table_coeff = *output.table()[i];
+    const F& perm_input_expr = output.input()[i];
+    const F& perm_table_coeff = output.table()[i];
 
     if (perm_input_expr != perm_table_coeff) {
       EXPECT_EQ(perm_input_expr, last.value());

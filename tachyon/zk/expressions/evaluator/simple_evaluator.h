@@ -73,36 +73,21 @@ class SimpleEvaluator
         const FixedExpression<Field>* fixed_expr = input->ToFixed();
         const plonk::FixedQuery& query = fixed_expr->query();
         const Evals& evals = fixed_columns_[query.column().index()];
-        const Field* ret =
-            evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
-        if (ret == nullptr) {
-          return Field::Zero();
-        }
-        return *ret;
+        return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
 
       case ExpressionType::kAdvice: {
         const AdviceExpression<Field>* advice_expr = input->ToAdvice();
         const plonk::AdviceQuery& query = advice_expr->query();
         const Evals& evals = advice_columns_[query.column().index()];
-        const Field* ret =
-            evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
-        if (ret == nullptr) {
-          return Field::Zero();
-        }
-        return *ret;
+        return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
 
       case ExpressionType::kInstance: {
         const InstanceExpression<Field>* instance_expr = input->ToInstance();
         const plonk::InstanceQuery& query = instance_expr->query();
         const Evals& evals = instance_columns_[query.column().index()];
-        const Field* ret =
-            evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
-        if (ret == nullptr) {
-          return Field::Zero();
-        }
-        return *ret;
+        return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
       case ExpressionType::kChallenge:
         return challenges_[input->ToChallenge()->challenge().index()];
