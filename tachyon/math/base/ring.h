@@ -77,4 +77,4 @@ class Ring : public AdditiveGroup<R>, public MultiplicativeSemigroup<R> {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_BASE_RINGS_H_
+#endif  // TACHYON_MATH_BASE_RING_H_
