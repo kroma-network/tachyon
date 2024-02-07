@@ -140,15 +140,17 @@ class SHPlonkExtension final
  private:
   friend class c::zk::plonk::halo2::bn254::SHPlonkProverImpl;
   friend class halo2_api::bn254::SHPlonkProver;
+  friend class base::Copyable<
+      SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
 
   using G1Point = typename Curve::G1Curve::AffinePoint;
 
   const std::vector<G1Point>& GetG1PowersOfTau() const {
-    return this->shplonk_.GetG1PowersOfTau();
+    return this->shplonk_.kzg().g1_powers_of_tau();
   }
 
   const std::vector<G1Point>& GetG1PowersOfTauLagrange() const {
-    return this->shplonk_.GetG1PowersOfTauLagrange();
+    return this->shplonk_.kzg().g1_powers_of_tau_lagrange();
   }
 
   crypto::SHPlonk<Curve, MaxDegree, Commitment> shplonk_;
@@ -182,6 +184,37 @@ struct VectorCommitmentSchemeTraits<
 };
 
 }  // namespace crypto
+
+namespace base {
+
+template <typename Curve, size_t MaxDegree, size_t MaxExtendedDegree,
+          typename Commitment>
+class Copyable<
+    zk::SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>> {
+ public:
+  using PCS =
+      zk::SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>;
+
+  static bool WriteTo(const PCS& pcs, Buffer* buffer) {
+    return buffer->WriteMany(pcs.shplonk_);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, PCS* pcs) {
+    crypto::SHPlonk<Curve, MaxDegree, Commitment> shplonk;
+    if (!buffer.ReadMany(&shplonk)) {
+      return false;
+    }
+
+    pcs->shplonk_ = std::move(shplonk);
+    return true;
+  }
+
+  static size_t EstimateSize(const PCS& pcs) {
+    return base::EstimateSize(pcs.shplonk_);
+  }
+};
+
+}  // namespace base
 }  // namespace tachyon
 
 #endif  // TACHYON_ZK_BASE_COMMITMENTS_SHPLONK_EXTENSION_H_

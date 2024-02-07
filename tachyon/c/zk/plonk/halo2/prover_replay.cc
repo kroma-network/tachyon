@@ -59,12 +59,25 @@ ArgumentData DeserializeArgumentData(
   return arg_data;
 }
 
+void WriteParams(tachyon_halo2_bn254_shplonk_prover* c_prover,
+                 const base::FilePath& params_path) {
+  Prover* prover = reinterpret_cast<Prover*>(c_prover);
+  base::Uint8VectorBuffer buffer;
+  CHECK(buffer.Grow(base::EstimateSize(prover->pcs())));
+  CHECK(buffer.Write(prover->pcs()));
+  CHECK(buffer.Done());
+  CHECK(base::WriteLargeFile(params_path,
+                             absl::MakeConstSpan(buffer.owned_buffer())));
+}
+
 void CreateProof(tachyon_halo2_bn254_shplonk_prover* c_prover,
                  const std::vector<uint8_t>& pk_bytes,
                  const std::vector<uint8_t>& arg_data_bytes,
                  const std::vector<uint8_t>& transcript_state_bytes) {
   Prover* prover = reinterpret_cast<Prover*>(c_prover);
+  std::cout << "deserializing proving key" << std::endl;
   ProvingKey pk(absl::MakeConstSpan(pk_bytes));
+  std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(
       prover->pcs().K());
@@ -77,7 +90,9 @@ void CreateProof(tachyon_halo2_bn254_shplonk_prover* c_prover,
   prover->SetRng(std::make_unique<crypto::XORShiftRNG>(
       crypto::XORShiftRNG::FromSeed(tachyon::zk::plonk::halo2::kXORShiftSeed)));
 
+  std::cout << "deserializing argument data" << std::endl;
   ArgumentData arg_data = DeserializeArgumentData(arg_data_bytes);
+  std::cout << "done deserializing argument data" << std::endl;
   for (size_t i = 0; i < arg_data.advice_blinds_vec().size(); ++i) {
     const std::vector<tachyon::math::bn254::Fr>& advice_blinds =
         arg_data.advice_blinds_vec()[i];
@@ -113,6 +128,7 @@ int RunMain(int argc, char** argv) {
   TranscriptType transcript_type;
   uint32_t k;
   std::string s_hex;
+  base::FilePath pcs_params_path;
   base::FilePath pk_path;
   base::FilePath arg_data_path;
   base::FilePath transcript_state_path;
@@ -125,10 +141,11 @@ int RunMain(int argc, char** argv) {
       .set_short_name("-k")
       .set_required()
       .set_help("K");
-  parser.AddFlag<base::StringFlag>(&s_hex)
-      .set_short_name("-s")
-      .set_required()
-      .set_help("s in hex");
+  parser.AddFlag<base::StringFlag>(&s_hex).set_short_name("-s").set_help(
+      "s in hex");
+  parser.AddFlag<base::FilePathFlag>(&pcs_params_path)
+      .set_long_name("--pcs_params")
+      .set_help("The path to pcs params");
   parser.AddFlag<base::FilePathFlag>(&pk_path)
       .set_long_name("--pk")
       .set_required()
@@ -172,12 +189,34 @@ int RunMain(int argc, char** argv) {
     return 1;
   }
 
-  math::bn254::Fr cpp_s = math::bn254::Fr::FromHexString(s_hex);
-  tachyon_bn254_fr s = cc::math::ToCPrimeField(cpp_s);
+  tachyon_halo2_bn254_shplonk_prover* prover;
+  std::optional<std::vector<uint8_t>> pcs_params_bytes;
+  if (!pcs_params_path.empty()) {
+    pcs_params_bytes = base::ReadFileToBytes(pcs_params_path);
+  }
 
-  tachyon_halo2_bn254_shplonk_prover* prover =
-      tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
-          static_cast<uint8_t>(transcript_type), k, &s);
+  if (pcs_params_bytes.has_value()) {
+    std::cout << "creating prover" << std::endl;
+    prover = tachyon_halo2_bn254_shplonk_prover_create_from_params(
+        static_cast<uint8_t>(transcript_type), k, pcs_params_bytes->data(),
+        pcs_params_bytes->size());
+    std::cout << "done creating prover" << std::endl;
+  } else {
+    if (s_hex.empty()) {
+      tachyon_cerr << "s_hex is empty" << std::endl;
+      return 1;
+    }
+    math::bn254::Fr cpp_s = math::bn254::Fr::FromHexString(s_hex);
+    tachyon_bn254_fr s = cc::math::ToCPrimeField(cpp_s);
+
+    std::cout << "creating prover" << std::endl;
+    prover = tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
+        static_cast<uint8_t>(transcript_type), k, &s);
+    std::cout << "done creating prover" << std::endl;
+    if (!pcs_params_path.empty()) {
+      c::zk::plonk::halo2::bn254::WriteParams(prover, pcs_params_path);
+    }
+  }
 
   c::zk::plonk::halo2::bn254::CreateProof(prover, pk_bytes.value(),
                                           arg_data_bytes.value(),

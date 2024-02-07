@@ -22,6 +22,12 @@ TACHYON_C_EXPORT tachyon_halo2_bn254_shplonk_prover*
 tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
     uint8_t transcript_type, uint32_t k, const tachyon_bn254_fr* s);
 
+TACHYON_C_EXPORT tachyon_halo2_bn254_shplonk_prover*
+tachyon_halo2_bn254_shplonk_prover_create_from_params(uint8_t transcript_type,
+                                                      uint32_t k,
+                                                      const uint8_t* params,
+                                                      size_t params_len);
+
 TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_destroy(
     tachyon_halo2_bn254_shplonk_prover* prover);
 

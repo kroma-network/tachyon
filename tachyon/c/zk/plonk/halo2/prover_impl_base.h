@@ -24,7 +24,18 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS> {
   using Callback = base::OnceCallback<Base()>;
 
   ProverImplBase(Callback callback, uint8_t transcript_type)
-      : Base(std::move(callback).Run()), transcript_type_(transcript_type) {}
+      : Base(std::move(callback).Run()), transcript_type_(transcript_type) {
+    std::string_view pcs_params_str;
+    if (base::Environment::Get("TACHYON_PCS_PARAMS_LOG_PATH",
+                               &pcs_params_str)) {
+      VLOG(1) << "Save pcs params to: " << pcs_params_str;
+      base::Uint8VectorBuffer buffer;
+      CHECK(buffer.Grow(base::EstimateSize(this->pcs_)));
+      CHECK(buffer.Write(this->pcs_));
+      CHECK(base::WriteFile(base::FilePath(pcs_params_str),
+                            absl::MakeConstSpan(buffer.owned_buffer())));
+    }
+  }
 
   uint8_t transcript_type() const { return transcript_type_; }
 

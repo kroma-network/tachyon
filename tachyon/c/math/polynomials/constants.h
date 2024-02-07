@@ -6,9 +6,9 @@
 
 namespace tachyon::c::math {
 
-// NOTE(chokobole): We set |kMaxDegree| to |SIZE_MAX| on purpose to avoid
+// NOTE(chokobole): We set |kMaxDegree| to |SIZE_MAX| - 1 on purpose to avoid
 // creating variant apis corresponding to the set of each degree.
-constexpr size_t kMaxDegree = SIZE_MAX;
+constexpr size_t kMaxDegree = SIZE_MAX - 1;
 
 }  // namespace tachyon::c::math
 

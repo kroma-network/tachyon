@@ -11,6 +11,8 @@
 #include <utility>
 #include <vector>
 
+#include "gtest/gtest_prod.h"
+
 #include "tachyon/crypto/commitments/kzg/kzg_family.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/crypto/commitments/univariate_polynomial_commitment_scheme.h"
@@ -51,6 +53,13 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   SHPlonk() = default;
   explicit SHPlonk(KZG<G1Point, MaxDegree, Commitment>&& kzg)
       : KZGFamily<G1Point, MaxDegree, Commitment>(std::move(kzg)) {}
+  SHPlonk(KZG<G1Point, MaxDegree, Commitment>&& kzg, G2Point&& s_g2)
+      : KZGFamily<G1Point, MaxDegree, Commitment>(std::move(kzg)),
+        s_g2_(std::move(s_g2)),
+        g2_arr_({G2Prepared::From(G2Point::Generator()),
+                 G2Prepared::From(-s_g2)}) {}
+
+  const G2Point& s_g2() const { return s_g2_; }
 
   void ResizeBatchCommitments() {
     this->kzg_.ResizeBatchCommitments(
@@ -67,16 +76,9 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       SHPlonk<Curve, MaxDegree, Commitment>>;
   template <typename, size_t, size_t, typename>
   friend class zk::SHPlonkExtension;
+  FRIEND_TEST(SHPlonkTest, Copyable);
 
   const char* Name() const { return "SHPlonk"; }
-
-  const std::vector<G1Point>& GetG1PowersOfTau() const {
-    return this->kzg_.g1_powers_of_tau();
-  }
-
-  const std::vector<G1Point>& GetG1PowersOfTauLagrange() const {
-    return this->kzg_.g1_powers_of_tau_lagrange();
-  }
 
   // UnivariatePolynomialCommitmentScheme methods
   template <typename Container>
@@ -355,11 +357,13 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   // KZGFamily methods
   [[nodiscard]] bool DoUnsafeSetupWithTau(size_t size,
                                           const Field& tau) override {
+    s_g2_ = (G2Point::Generator() * tau).ToAffine();
     g2_arr_ = {G2Prepared::From(G2Point::Generator()),
-               G2Prepared::From((G2Point::Generator() * -tau).ToAffine())};
+               G2Prepared::From(-s_g2_)};
     return true;
   }
 
+  G2Point s_g2_;
   std::array<G2Prepared, 2> g2_arr_;
 };
 
@@ -376,6 +380,38 @@ struct VectorCommitmentSchemeTraits<SHPlonk<Curve, MaxDegree, _Commitment>> {
 };
 
 }  // namespace crypto
+
+namespace base {
+
+template <typename Curve, size_t MaxDegree, typename Commitment>
+class Copyable<crypto::SHPlonk<Curve, MaxDegree, Commitment>> {
+ public:
+  using G1Point = typename Curve::G1Curve::AffinePoint;
+  using G2Point = typename Curve::G2Curve::AffinePoint;
+  using KZG = crypto::KZG<G1Point, MaxDegree, Commitment>;
+  using PCS = crypto::SHPlonk<Curve, MaxDegree, Commitment>;
+
+  static bool WriteTo(const PCS& pcs, Buffer* buffer) {
+    return buffer->WriteMany(pcs.kzg(), pcs.s_g2());
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, PCS* pcs) {
+    KZG kzg;
+    G2Point s_g2;
+    if (!buffer.ReadMany(&kzg, &s_g2)) {
+      return false;
+    }
+
+    *pcs = PCS(std::move(kzg), std::move(s_g2));
+    return true;
+  }
+
+  static size_t EstimateSize(const PCS& pcs) {
+    return base::EstimateSize(pcs.kzg()) + base::EstimateSize(pcs.s_g2());
+  }
+};
+
+}  // namespace base
 }  // namespace tachyon
 
 #endif  // TACHYON_CRYPTO_COMMITMENTS_KZG_SHPLONK_H_

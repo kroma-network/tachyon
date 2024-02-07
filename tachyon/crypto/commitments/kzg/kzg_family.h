@@ -26,6 +26,8 @@ class KZGFamily {
   explicit KZGFamily(KZG<G1Point, MaxDegree, Commitment>&& kzg)
       : kzg_(std::move(kzg)) {}
 
+  const KZG<G1Point, MaxDegree, Commitment>& kzg() const { return kzg_; }
+
   size_t N() const { return kzg_.N(); }
 
   [[nodiscard]] bool DoUnsafeSetup(size_t size) {
