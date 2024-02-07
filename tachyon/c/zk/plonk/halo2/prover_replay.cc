@@ -110,6 +110,11 @@ void CreateProof(tachyon_halo2_bn254_shplonk_prover* c_prover,
 }  // namespace c::zk::plonk::halo2::bn254
 
 int RunMain(int argc, char** argv) {
+  if (base::Environment::Has("TACHYON_PCS_PARAMS_PATH")) {
+    tachyon_cerr << "If this is set, the pcs params is overwritten"
+                 << std::endl;
+    return 1;
+  }
   if (base::Environment::Has("TACHYON_PK_LOG_PATH")) {
     tachyon_cerr << "If this is set, the pk log is overwritten" << std::endl;
     return 1;
