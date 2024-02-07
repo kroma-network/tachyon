@@ -57,7 +57,7 @@ class PoseidonReader : public crypto::TranscriptReader<AffinePoint>,
   using ScalarField = typename AffinePoint::ScalarField;
 
   // Initialize a transcript given an input buffer.
-  explicit PoseidonReader(base::Buffer buffer)
+  explicit PoseidonReader(base::ReadOnlyBuffer buffer)
       : crypto::TranscriptReader<AffinePoint>(std::move(buffer)) {}
 
   // crypto::TranscriptReader methods

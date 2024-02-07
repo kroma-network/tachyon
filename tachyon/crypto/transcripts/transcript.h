@@ -105,11 +105,11 @@ class TranscriptReaderImpl<Commitment, false> : public Transcript<Commitment> {
 
   TranscriptReaderImpl() = default;
   // Initialize a transcript given an input buffer.
-  explicit TranscriptReaderImpl(base::Buffer read_buf)
+  explicit TranscriptReaderImpl(base::ReadOnlyBuffer read_buf)
       : buffer_(std::move(read_buf)) {}
 
-  base::Buffer& buffer() { return buffer_; }
-  const base::Buffer& buffer() const { return buffer_; }
+  base::ReadOnlyBuffer& buffer() { return buffer_; }
+  const base::ReadOnlyBuffer& buffer() const { return buffer_; }
 
   // Read a |commitment| from the proof. Note that it also writes the
   // |commitment| to the transcript by calling |WriteToTranscript()| internally.
@@ -130,7 +130,7 @@ class TranscriptReaderImpl<Commitment, false> : public Transcript<Commitment> {
   //  Read a |value| from the proof.
   [[nodiscard]] virtual bool DoReadFromProof(Field* value) const = 0;
 
-  base::Buffer buffer_;
+  base::ReadOnlyBuffer buffer_;
 };
 
 template <typename Field>
@@ -138,11 +138,11 @@ class TranscriptReaderImpl<Field, true> : public Transcript<Field> {
  public:
   TranscriptReaderImpl() = default;
   // Initialize a transcript given an input buffer.
-  explicit TranscriptReaderImpl(base::Buffer read_buf)
+  explicit TranscriptReaderImpl(base::ReadOnlyBuffer read_buf)
       : buffer_(std::move(read_buf)) {}
 
-  base::Buffer& buffer() { return buffer_; }
-  const base::Buffer& buffer() const { return buffer_; }
+  base::ReadOnlyBuffer& buffer() { return buffer_; }
+  const base::ReadOnlyBuffer& buffer() const { return buffer_; }
 
   // Read a |value| from the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
@@ -154,7 +154,7 @@ class TranscriptReaderImpl<Field, true> : public Transcript<Field> {
   //  Read a |value| from the proof.
   [[nodiscard]] virtual bool DoReadFromProof(Field* value) const = 0;
 
-  base::Buffer buffer_;
+  base::ReadOnlyBuffer buffer_;
 };
 
 template <typename T>

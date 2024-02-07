@@ -85,7 +85,7 @@ class Sha256Reader : public crypto::TranscriptReader<AffinePoint>,
   using ScalarField = typename AffinePoint::ScalarField;
 
   // Initialize a transcript given an input buffer.
-  explicit Sha256Reader(base::Buffer read_buf)
+  explicit Sha256Reader(base::ReadOnlyBuffer read_buf)
       : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
 
   void Init() { this->DoInit(); }
