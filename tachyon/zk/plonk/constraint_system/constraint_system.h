@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "absl/container/flat_hash_map.h"
+#include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/contains.h"
@@ -561,6 +562,9 @@ class ConstraintSystem {
  private:
   template <typename Poly, typename Evals, typename C>
   friend class c::zk::plonk::ProvingKeyImplBase;
+
+  FRIEND_TEST(ConstraintSystemTest, Lookup);
+  FRIEND_TEST(ConstraintSystemTest, LookupAny);
 
   template <typename QueryData, typename Column>
   static bool QueryIndex(const std::vector<QueryData>& queries,
