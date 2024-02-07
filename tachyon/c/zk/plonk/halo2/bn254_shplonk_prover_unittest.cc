@@ -27,7 +27,7 @@ class SHPlonkProverTest : public testing::Test {
   void SetUp() override {
     k_ = 5;
     s_ = math::bn254::Fr(2);
-    tachyon_bn254_fr c_s = cc::math::ToCPrimeField(s_);
+    const tachyon_bn254_fr& c_s = cc::math::c_cast(s_);
     prover_ = tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
         TACHYON_HALO2_BLAKE_TRANSCRIPT, k_, &c_s);
   }

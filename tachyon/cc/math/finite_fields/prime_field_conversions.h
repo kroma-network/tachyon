@@ -8,28 +8,36 @@
 
 namespace tachyon::cc::math {
 
-template <
-    typename CPrimeField,
-    typename PrimeField = typename PrimeFieldTraits<CPrimeField>::PrimeField,
-    size_t N = PrimeField::N>
-tachyon::math::BigInt<N> ToBigInt(const CPrimeField& f) {
-  return tachyon::math::BigInt<N>(f.limbs);
+template <typename CPrimeField, typename PrimeField = typename PrimeFieldTraits<
+                                    CPrimeField>::PrimeField>
+const PrimeField& native_cast(const CPrimeField& f) {
+  static_assert(sizeof(PrimeField) == sizeof(CPrimeField));
+  return reinterpret_cast<const PrimeField&>(f);
 }
 
 template <typename CPrimeField, typename PrimeField = typename PrimeFieldTraits<
                                     CPrimeField>::PrimeField>
-PrimeField ToPrimeField(const CPrimeField& f) {
-  return PrimeField::FromMontgomery(ToBigInt(f));
+PrimeField& native_cast(CPrimeField& f) {
+  static_assert(sizeof(PrimeField) == sizeof(CPrimeField));
+  return reinterpret_cast<PrimeField&>(f);
 }
 
 template <
     typename PrimeField,
     typename CPrimeField = typename PrimeFieldTraits<PrimeField>::CPrimeField,
     size_t N = PrimeField::N>
-CPrimeField ToCPrimeField(const PrimeField& f) {
-  CPrimeField ret;
-  memcpy(ret.limbs, f.value().limbs, sizeof(uint64_t) * N);
-  return ret;
+const CPrimeField& c_cast(const PrimeField& f) {
+  static_assert(sizeof(CPrimeField) == sizeof(PrimeField));
+  return reinterpret_cast<const CPrimeField&>(f);
+}
+
+template <
+    typename PrimeField,
+    typename CPrimeField = typename PrimeFieldTraits<PrimeField>::CPrimeField,
+    size_t N = PrimeField::N>
+CPrimeField& c_cast(PrimeField& f) {
+  static_assert(sizeof(CPrimeField) == sizeof(PrimeField));
+  return reinterpret_cast<CPrimeField&>(f);
 }
 
 }  // namespace tachyon::cc::math

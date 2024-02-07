@@ -184,7 +184,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
           "%{field} %{field}_$0() {\n"
           "  using namespace tachyon::cc::math;\n"
           "  using PrimeField = typename PrimeFieldTraits<%{field}>::PrimeField;\n"
-          "  return ToCPrimeField(PrimeField::$1());\n"
+          "  return c_cast(PrimeField::$1());\n"
           "}",
         // clang-format on
         kFieldCreationOps[i], kUpperCreationOps[i]));
@@ -202,7 +202,9 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
         // clang-format off
           "%{field} %{field}_$0(const %{field}* a, const %{field}* b) {\n"
           "  using namespace tachyon::cc::math;\n"
-          "  return ToCPrimeField(ToPrimeField(*a).$1InPlace(ToPrimeField(*b)));\n"
+          "  using PrimeField = typename PrimeFieldTraits<%{field}>::PrimeField;\n"
+          "  PrimeField native_a = native_cast(*a);\n"
+          "  return c_cast(native_a.$1InPlace(native_cast(*b)));\n"
           "}",
         // clang-format on
         kFieldBinaryArithmeticOps[i], kUpperBinaryArithmeticOps[i]));
@@ -221,7 +223,9 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
         // clang-format off
           "%{field} %{field}_$0(const %{field}* a) {\n"
           "  using namespace tachyon::cc::math;\n"
-          "  return ToCPrimeField(ToPrimeField(*a).$1InPlace());\n"
+          "  using PrimeField = typename PrimeFieldTraits<%{field}>::PrimeField;\n"
+          "  PrimeField native_a = native_cast(*a);\n"
+          "  return c_cast(native_a.$1InPlace());\n"
           "}",
         // clang-format on
         kFieldUnaryArithmeticOps[i], kUpperUnaryArithmeticOps[i]));
@@ -239,7 +243,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
         // clang-format off
           "bool %{field}_$0(const %{field}* a, const %{field}* b) {\n"
           "  using namespace tachyon::cc::math;\n"
-          "  return ToPrimeField(*a) $1 ToPrimeField(*b);\n"
+          "  return native_cast(*a) $1 native_cast(*b);\n"
           "}",
         // clang-format on
         kComparisonOps[i], kBinaryComparisonSymbols[i]));

@@ -196,7 +196,7 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
       "namespace tachyon::cc::math::%{type} {",
       "",
       "std::string %{cc_field}::ToString() const {",
-      "  return ToBigInt(value_).ToString();",
+      "  return native_cast(value_).ToString();",
       "}",
       "",
       "std::ostream& operator<<(std::ostream& os, const %{cc_field}& value) {",

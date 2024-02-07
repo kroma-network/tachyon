@@ -207,7 +207,7 @@ int RunMain(int argc, char** argv) {
       return 1;
     }
     math::bn254::Fr cpp_s = math::bn254::Fr::FromHexString(s_hex);
-    tachyon_bn254_fr s = cc::math::ToCPrimeField(cpp_s);
+    const tachyon_bn254_fr& s = cc::math::c_cast(cpp_s);
 
     std::cout << "creating prover" << std::endl;
     prover = tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(

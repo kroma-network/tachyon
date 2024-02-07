@@ -20,6 +20,5 @@ tachyon_bn254_plonk_verifying_key_get_constraint_system(
 
 tachyon_bn254_fr tachyon_bn254_plonk_verifying_key_get_transcript_repr(
     const tachyon_bn254_plonk_verifying_key* vk) {
-  return cc::math::ToCPrimeField(
-      reinterpret_cast<const VKey*>(vk)->transcript_repr());
+  return cc::math::c_cast(reinterpret_cast<const VKey*>(vk)->transcript_repr());
 }

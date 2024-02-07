@@ -68,7 +68,7 @@ TEST_F(UnivariateRationalEvaluationsTest, SetZero) {
 TEST_F(UnivariateRationalEvaluationsTest, SetTrivial) {
   RationalField<bn254::Fr> expected =
       RationalField<bn254::Fr>(bn254::Fr::Random());
-  tachyon_bn254_fr numerator = cc::math::ToCPrimeField(expected.numerator());
+  const tachyon_bn254_fr& numerator = cc::math::c_cast(expected.numerator());
   tachyon_bn254_univariate_rational_evaluations_set_trivial(evals_, 0,
                                                             &numerator);
   EXPECT_EQ(reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
@@ -76,9 +76,9 @@ TEST_F(UnivariateRationalEvaluationsTest, SetTrivial) {
 
 TEST_F(UnivariateRationalEvaluationsTest, SetRational) {
   RationalField<bn254::Fr> expected = RationalField<bn254::Fr>::Random();
-  tachyon_bn254_fr numerator = cc::math::ToCPrimeField(expected.numerator());
-  tachyon_bn254_fr denominator =
-      cc::math::ToCPrimeField(expected.denominator());
+  const tachyon_bn254_fr& numerator = cc::math::c_cast(expected.numerator());
+  const tachyon_bn254_fr& denominator =
+      cc::math::c_cast(expected.denominator());
   tachyon_bn254_univariate_rational_evaluations_set_rational(
       evals_, 0, &numerator, &denominator);
   EXPECT_EQ(reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
@@ -88,10 +88,10 @@ TEST_F(UnivariateRationalEvaluationsTest, BatchEvaluate) {
   std::vector<RationalField<bn254::Fr>> rational_values = base::CreateVector(
       kDegree + 1, []() { return RationalField<bn254::Fr>::Random(); });
   for (size_t i = 0; i < rational_values.size(); ++i) {
-    tachyon_bn254_fr numerator =
-        cc::math::ToCPrimeField(rational_values[i].numerator());
-    tachyon_bn254_fr denominator =
-        cc::math::ToCPrimeField(rational_values[i].denominator());
+    const tachyon_bn254_fr& numerator =
+        cc::math::c_cast(rational_values[i].numerator());
+    const tachyon_bn254_fr& denominator =
+        cc::math::c_cast(rational_values[i].denominator());
     tachyon_bn254_univariate_rational_evaluations_set_rational(
         evals_, i, &numerator, &denominator);
   }

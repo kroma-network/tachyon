@@ -27,7 +27,7 @@ TEST_F(Bn254PlonkVerifyingKeyTest, GetTranscriptRepr) {
       reinterpret_cast<tachyon_bn254_plonk_verifying_key*>(&cpp_vkey);
   tachyon_bn254_fr transcript_repr =
       tachyon_bn254_plonk_verifying_key_get_transcript_repr(vkey);
-  EXPECT_EQ(cc::math::ToPrimeField(transcript_repr), cpp_transcript_repr);
+  EXPECT_EQ(cc::math::native_cast(transcript_repr), cpp_transcript_repr);
 }
 
 }  // namespace tachyon::zk::plonk
