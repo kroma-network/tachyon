@@ -163,6 +163,12 @@ class ConstraintSystem {
     LookupPairs<std::unique_ptr<Expression<F>>> pairs =
         std::move(callback).Run(cells);
 
+    for (const LookupPair<std::unique_ptr<Expression<F>>>& pair : pairs) {
+      CHECK(!pair.input()->ContainsSimpleSelector())
+          << "expression containing simple selector "
+             "supplied to lookup argument";
+    }
+
     lookups_.emplace_back(name, std::move(pairs));
     return lookups_.size() - 1;
   }
