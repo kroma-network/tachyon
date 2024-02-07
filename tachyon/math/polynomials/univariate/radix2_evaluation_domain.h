@@ -255,10 +255,18 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       if (should_compact) {
         if (!first) {
           size_t size = roots.size() / (step * 2);
+#if defined(TACHYON_HAS_OPENMP)
+          std::vector<F> new_roots(size);
           OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
+            new_roots[i] = roots[i * (step * 2)];
+          }
+          roots = std::move(new_roots);
+#else
+          for (size_t i = 0; i < size; ++i) {
             roots[i] = roots[i * (step * 2)];
           }
           roots.erase(roots.begin() + size, roots.end());
+#endif
         }
         step = 1;
       } else {
