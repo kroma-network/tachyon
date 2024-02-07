@@ -34,7 +34,7 @@ class Ring : public AdditiveGroup<R>, public MultiplicativeSemigroup<R> {
   constexpr static R SumOfProducts(const ContainerA& a, const ContainerB& b) {
     size_t size = std::size(a);
     CHECK_EQ(size, std::size(b));
-    CHECK_NE(size, size_t{0});
+    if (size == 0) return R::Zero();
     std::vector<R> partial_sum_of_products = base::ParallelizeMap(
         a,
         [&b](absl::Span<const R> chunk, size_t chunk_idx, size_t chunk_size) {
@@ -58,7 +58,7 @@ class Ring : public AdditiveGroup<R>, public MultiplicativeSemigroup<R> {
                                          const ContainerB& b) {
     size_t size = std::size(a);
     CHECK_EQ(size, std::size(b));
-    CHECK_NE(size, size_t{0});
+    if (size == 0) return R::Zero();
     return DoSumOfProductsSerial(a, b);
   }
 
