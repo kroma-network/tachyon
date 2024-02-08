@@ -23,6 +23,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
