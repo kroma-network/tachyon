@@ -65,9 +65,8 @@ TEST_F(VanishingUtilsTest, CoeffToExtendedPart) {
 }
 
 TEST_F(VanishingUtilsTest, BuildExtendedColumnWithColumns) {
-  base::Range<size_t> range = base::Range<size_t>::Until(4);
-  std::vector<std::vector<F>> columns =
-      base::Map(range, [](size_t i) { return base::CreateVector(N, F(i)); });
+  std::vector<std::vector<F>> columns = base::CreateVector(
+      4, [](size_t i) { return base::CreateVector(N, F(i)); });
 
   std::vector<F> extended = BuildExtendedColumnWithColumns(columns);
   EXPECT_EQ(extended.size(), 4 * N);
