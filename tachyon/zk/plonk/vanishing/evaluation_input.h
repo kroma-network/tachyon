@@ -36,7 +36,7 @@ class EvaluationInput {
         y_(y),
         n_(n) {}
 
-  const std::vector<F> intermediates() const { return intermediates_; }
+  const std::vector<F>& intermediates() const { return intermediates_; }
   std::vector<F>& intermediates() { return intermediates_; }
   const std::vector<int32_t>& rotations() const { return rotations_; }
   std::vector<int32_t>& rotations() { return rotations_; }
