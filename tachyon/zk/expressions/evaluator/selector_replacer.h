@@ -41,7 +41,9 @@ class SelectorsReplacer : public Evaluator<F, std::unique_ptr<Expression<F>>> {
         if (must_be_non_simple_) {
           // Simple selectors are prohibited from appearing in
           // expressions in the lookup argument by |ConstraintSystem|.
-          CHECK(!selector.is_simple());
+          if (selector.is_simple()) {
+            LOG(DFATAL) << "Simple selector found in lookup argument";
+          }
         }
         return replacements_[selector.index()]->Clone();
       }
