@@ -20,9 +20,8 @@ class ProvingKeyImpl
     : public ProvingKeyImplBase<Poly, Evals,
                                 tachyon::math::bn254::G1AffinePoint> {
  public:
-  explicit ProvingKeyImpl(absl::Span<const uint8_t> state)
-      : ProvingKeyImplBase<Poly, Evals, tachyon::math::bn254::G1AffinePoint>(
-            state) {}
+  using ProvingKeyImplBase<
+      Poly, Evals, tachyon::math::bn254::G1AffinePoint>::ProvingKeyImplBase;
 };
 
 using PKeyImpl = ProvingKeyImpl;

@@ -14,7 +14,8 @@ using PKeyImpl = c::zk::plonk::bn254::ProvingKeyImpl;
 tachyon_bn254_plonk_proving_key*
 tachyon_bn254_plonk_proving_key_create_from_state(const uint8_t* state,
                                                   size_t state_len) {
-  PKeyImpl* pkey = new PKeyImpl(absl::Span<const uint8_t>(state, state_len));
+  PKeyImpl* pkey = new PKeyImpl(absl::Span<const uint8_t>(state, state_len),
+                                /*read_only_vk=*/false);
   return reinterpret_cast<tachyon_bn254_plonk_proving_key*>(pkey);
 }
 

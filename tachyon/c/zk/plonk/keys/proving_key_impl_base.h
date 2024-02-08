@@ -24,7 +24,8 @@ class ProvingKeyImplBase
  public:
   using F = typename Poly::Field;
 
-  explicit ProvingKeyImplBase(absl::Span<const uint8_t> state) {
+  ProvingKeyImplBase(absl::Span<const uint8_t> state, bool read_only_vk)
+      : read_only_vk_(read_only_vk) {
     std::string_view pk_str;
     if (base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {
       VLOG(1) << "Save pk to: " << pk_str;
@@ -53,6 +54,7 @@ class ProvingKeyImplBase
  private:
   void ReadProvingKey(const base::ReadOnlyBuffer& buffer) {
     ReadVerifyingKey(buffer, this->verifying_key_);
+    if (read_only_vk_) return;
     ReadBuffer(buffer, this->l_first_);
     ReadBuffer(buffer, this->l_last_);
     ReadBuffer(buffer, this->l_active_row_);
@@ -104,6 +106,9 @@ class ProvingKeyImplBase
     ReadBuffer(buffer, cs.lookups_);
     ReadBuffer(buffer, cs.constants_);
   }
+
+ private:
+  bool read_only_vk_ = false;
 };
 
 }  // namespace tachyon::c::zk::plonk
