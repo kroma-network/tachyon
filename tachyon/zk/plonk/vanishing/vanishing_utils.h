@@ -61,42 +61,28 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
                                         domain->log_size_of_group());
   // |coset_gen_pow_n| = w'ⁿ where w' is generator of extended domain.
   const F coset_gen_pow_n = extended_domain->group_gen().Pow(domain->size());
-  // |powers_of_coset_gen| = [w'ⁿ, w'²ⁿ, w'³ⁿ, ..].
-  const std::vector<F> powers_of_coset_gen =
-      F::GetSuccessivePowers(t_evaluations_size, coset_gen_pow_n);
-
-  std::vector<F> t_evaluations;
-  t_evaluations.resize(t_evaluations_size);
-
-  // Make |t_evaluations| = [ζⁿ, ζⁿ * w'ⁿ, ζⁿ * w'²ⁿ, ...]
   const F zeta_pow_n = zeta.Pow(domain->size());
-  CHECK(F::MultiScalarMul(zeta_pow_n, powers_of_coset_gen, &t_evaluations));
+  // |t_evaluations| = [ζⁿ, ζⁿ * w'ⁿ, ζⁿ * w'²ⁿ, ...]
+  std::vector<F> t_evaluations =
+      F::GetSuccessivePowers(t_evaluations_size, coset_gen_pow_n, zeta_pow_n);
   CHECK_EQ(t_evaluations.size(),
            size_t{1} << (extended_domain->log_size_of_group() -
                          domain->log_size_of_group()));
 
-  // Subtract 1 from each to give us |t_evaluations[i]|.
-  // TODO(TomTaehoonKim): Consider implementing "translate" function.
+  // |t_evaluations| = [ζⁿ - 1, ζⁿ * w'ⁿ - 1, ζⁿ * w'²ⁿ - 1, ...]
   base::Parallelize(t_evaluations, [](absl::Span<F> chunk) {
     for (F& coeff : chunk) {
       coeff -= F::One();
     }
+    CHECK(F::BatchInverseInPlaceSerial(chunk));
   });
-
-  CHECK(F::BatchInverseInPlace(t_evaluations));
 
   // Multiply the inverse to obtain the quotient polynomial in the coset
   // evaluation domain.
   std::vector<F>& evaluations = evals.evaluations();
-  base::Parallelize(evaluations,
-                    [&t_evaluations](absl::Span<F> chunk, size_t chunk_idx,
-                                     size_t chunk_size) {
-                      size_t index = chunk_idx * chunk_size;
-                      for (F& h : chunk) {
-                        h *= t_evaluations[index % t_evaluations.size()];
-                        ++index;
-                      }
-                    });
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < evaluations.size(); ++i) {
+    evaluations[i] *= t_evaluations[i % t_evaluations.size()];
+  }
 
   return evals;
 }
