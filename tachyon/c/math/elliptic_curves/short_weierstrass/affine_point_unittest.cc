@@ -6,7 +6,7 @@
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
-namespace tachyon::c::math {
+namespace tachyon {
 
 namespace {
 
@@ -15,16 +15,16 @@ class AffinePointTest : public testing::Test {
   static void SetUpTestSuite() { tachyon_bn254_g1_init(); }
 
   void SetUp() override {
-    a_ = tachyon::math::bn254::G1AffinePoint::Random();
-    b_ = tachyon::math::bn254::G1AffinePoint::Random();
+    a_ = math::bn254::G1AffinePoint::Random();
+    b_ = math::bn254::G1AffinePoint::Random();
 
     c_a_ = cc::math::ToCAffinePoint(a_);
     c_b_ = cc::math::ToCAffinePoint(b_);
   }
 
  protected:
-  tachyon::math::bn254::G1AffinePoint a_;
-  tachyon::math::bn254::G1AffinePoint b_;
+  math::bn254::G1AffinePoint a_;
+  math::bn254::G1AffinePoint b_;
   tachyon_bn254_g1_affine c_a_;
   tachyon_bn254_g1_affine c_b_;
 };
@@ -39,7 +39,7 @@ TEST_F(AffinePointTest, Zero) {
 TEST_F(AffinePointTest, Generator) {
   tachyon_bn254_g1_affine c_ret = tachyon_bn254_g1_affine_generator();
   EXPECT_EQ(cc::math::ToAffinePoint(c_ret),
-            tachyon::math::bn254::G1AffinePoint::Generator());
+            math::bn254::G1AffinePoint::Generator());
 }
 
 TEST_F(AffinePointTest, Random) {
@@ -75,4 +75,4 @@ TEST_F(AffinePointTest, Dbl) {
   EXPECT_EQ(cc::math::ToJacobianPoint(c_ret), a_.Double());
 }
 
-}  // namespace tachyon::c::math
+}  // namespace tachyon

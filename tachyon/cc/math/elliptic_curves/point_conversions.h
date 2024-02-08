@@ -18,8 +18,8 @@ template <typename CPoint,
           typename BaseField = typename CurvePoint::BaseField>
 CurvePoint ToAffinePoint(const CPoint& point_in) {
   tachyon::math::Point2<BaseField> point;
-  point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
-  point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
+  point.x = native_cast(point_in.x);
+  point.y = native_cast(point_in.y);
   return CurvePoint(point, point_in.infinity);
 }
 
@@ -28,9 +28,9 @@ template <typename CPoint,
           typename BaseField = typename CurvePoint::BaseField>
 CurvePoint ToProjectivePoint(const CPoint& point_in) {
   tachyon::math::Point3<BaseField> point;
-  point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
-  point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
-  point.z = BaseField::FromMontgomery(ToBigInt(point_in.z));
+  point.x = native_cast(point_in.x);
+  point.y = native_cast(point_in.y);
+  point.z = native_cast(point_in.z);
   return CurvePoint(point);
 }
 
@@ -39,9 +39,9 @@ template <typename CPoint,
           typename BaseField = typename CurvePoint::BaseField>
 CurvePoint ToJacobianPoint(const CPoint& point_in) {
   tachyon::math::Point3<BaseField> point;
-  point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
-  point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
-  point.z = BaseField::FromMontgomery(ToBigInt(point_in.z));
+  point.x = native_cast(point_in.x);
+  point.y = native_cast(point_in.y);
+  point.z = native_cast(point_in.z);
   return CurvePoint(point);
 }
 
@@ -50,10 +50,10 @@ template <typename CPoint,
           typename BaseField = typename CurvePoint::BaseField>
 CurvePoint ToPointXYZZ(const CPoint& point_in) {
   tachyon::math::Point4<BaseField> point;
-  point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
-  point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
-  point.z = BaseField::FromMontgomery(ToBigInt(point_in.zz));
-  point.w = BaseField::FromMontgomery(ToBigInt(point_in.zzz));
+  point.x = native_cast(point_in.x);
+  point.y = native_cast(point_in.y);
+  point.z = native_cast(point_in.zz);
+  point.w = native_cast(point_in.zzz);
   return CurvePoint(point);
 }
 
@@ -61,8 +61,8 @@ template <typename CPoint, typename Point = typename PointTraits<CPoint>::Point,
           typename BaseField = typename Point::value_type>
 Point ToPoint2(const CPoint& point_in) {
   Point point;
-  point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
-  point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
+  point.x = native_cast(point_in.x);
+  point.y = native_cast(point_in.y);
   return point;
 }
 
@@ -70,9 +70,9 @@ template <typename CPoint, typename Point = typename PointTraits<CPoint>::Point,
           typename BaseField = typename Point::value_type>
 Point ToPoint3(const CPoint& point_in) {
   Point point;
-  point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
-  point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
-  point.z = BaseField::FromMontgomery(ToBigInt(point_in.z));
+  point.x = native_cast(point_in.x);
+  point.y = native_cast(point_in.y);
+  point.z = native_cast(point_in.z);
   return point;
 }
 
@@ -80,10 +80,10 @@ template <typename CPoint, typename Point = typename PointTraits<CPoint>::Point,
           typename BaseField = typename Point::value_type>
 Point ToPoint4(const CPoint& point_in) {
   Point point;
-  point.x = BaseField::FromMontgomery(ToBigInt(point_in.x));
-  point.y = BaseField::FromMontgomery(ToBigInt(point_in.y));
-  point.z = BaseField::FromMontgomery(ToBigInt(point_in.z));
-  point.w = BaseField::FromMontgomery(ToBigInt(point_in.w));
+  point.x = native_cast(point_in.x);
+  point.y = native_cast(point_in.y);
+  point.z = native_cast(point_in.z);
+  point.w = native_cast(point_in.w);
   return point;
 }
 

@@ -16,16 +16,12 @@
 
 using namespace tachyon;
 
-namespace {
-
 using PCS = c::zk::plonk::halo2::bn254::PCS;
 using CS = zk::plonk::ConstraintSystem<PCS::Field>;
 using ProverImpl = c::zk::plonk::halo2::bn254::SHPlonkProverImpl;
 using ProvingKey =
     c::zk::plonk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>;
 using Data = zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;
-
-}  // namespace
 
 tachyon_halo2_bn254_shplonk_prover*
 tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(

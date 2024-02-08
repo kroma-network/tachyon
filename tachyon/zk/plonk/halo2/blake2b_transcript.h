@@ -113,7 +113,7 @@ class Blake2bReader : public crypto::TranscriptReader<AffinePoint>,
   using ScalarField = typename AffinePoint::ScalarField;
 
   // Initialize a transcript given an input buffer.
-  explicit Blake2bReader(base::Buffer read_buf)
+  explicit Blake2bReader(base::ReadOnlyBuffer read_buf)
       : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
 
   // crypto::TranscriptReader methods

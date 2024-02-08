@@ -6,7 +6,7 @@
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
-namespace tachyon::c::math {
+namespace tachyon {
 
 namespace {
 
@@ -15,16 +15,16 @@ class ProjectivePointTest : public testing::Test {
   static void SetUpTestSuite() { tachyon_bn254_g1_init(); }
 
   void SetUp() override {
-    a_ = tachyon::math::bn254::G1ProjectivePoint::Random();
-    b_ = tachyon::math::bn254::G1ProjectivePoint::Random();
+    a_ = math::bn254::G1ProjectivePoint::Random();
+    b_ = math::bn254::G1ProjectivePoint::Random();
 
     c_a_ = cc::math::ToCProjectivePoint(a_);
     c_b_ = cc::math::ToCProjectivePoint(b_);
   }
 
  protected:
-  tachyon::math::bn254::G1ProjectivePoint a_;
-  tachyon::math::bn254::G1ProjectivePoint b_;
+  math::bn254::G1ProjectivePoint a_;
+  math::bn254::G1ProjectivePoint b_;
   tachyon_bn254_g1_projective c_a_;
   tachyon_bn254_g1_projective c_b_;
 };
@@ -39,7 +39,7 @@ TEST_F(ProjectivePointTest, Zero) {
 TEST_F(ProjectivePointTest, Generator) {
   tachyon_bn254_g1_projective c_ret = tachyon_bn254_g1_projective_generator();
   EXPECT_EQ(cc::math::ToProjectivePoint(c_ret),
-            tachyon::math::bn254::G1ProjectivePoint::Generator());
+            math::bn254::G1ProjectivePoint::Generator());
 }
 
 TEST_F(ProjectivePointTest, Random) {
@@ -60,8 +60,7 @@ TEST_F(ProjectivePointTest, Add) {
       tachyon_bn254_g1_projective_add(&c_a_, &c_b_);
   EXPECT_EQ(cc::math::ToProjectivePoint(c_ret), a_ + b_);
 
-  tachyon::math::bn254::G1AffinePoint d =
-      tachyon::math::bn254::G1AffinePoint::Random();
+  math::bn254::G1AffinePoint d = math::bn254::G1AffinePoint::Random();
   tachyon_bn254_g1_affine c_d = cc::math::ToCAffinePoint(d);
   c_ret = tachyon_bn254_g1_projective_add_mixed(&c_a_, &c_d);
   EXPECT_EQ(cc::math::ToProjectivePoint(c_ret), a_ + d);
@@ -72,8 +71,7 @@ TEST_F(ProjectivePointTest, Sub) {
       tachyon_bn254_g1_projective_sub(&c_a_, &c_b_);
   EXPECT_EQ(cc::math::ToProjectivePoint(c_ret), a_ - b_);
 
-  tachyon::math::bn254::G1AffinePoint d =
-      tachyon::math::bn254::G1AffinePoint::Random();
+  math::bn254::G1AffinePoint d = math::bn254::G1AffinePoint::Random();
   tachyon_bn254_g1_affine c_d = cc::math::ToCAffinePoint(d);
   c_ret = tachyon_bn254_g1_projective_sub_mixed(&c_a_, &c_d);
   EXPECT_EQ(cc::math::ToProjectivePoint(c_ret), a_ - d);
@@ -89,4 +87,4 @@ TEST_F(ProjectivePointTest, Dbl) {
   EXPECT_EQ(cc::math::ToProjectivePoint(c_ret), a_.Double());
 }
 
-}  // namespace tachyon::c::math
+}  // namespace tachyon

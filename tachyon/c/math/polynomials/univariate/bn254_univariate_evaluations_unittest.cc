@@ -52,7 +52,7 @@ TEST_F(UnivariateEvaluationsTest, Len) {
 
 TEST_F(UnivariateEvaluationsTest, SetValue) {
   bn254::Fr cpp_value = bn254::Fr::Random();
-  tachyon_bn254_fr value = cc::math::ToCPrimeField(cpp_value);
+  const tachyon_bn254_fr& value = cc::math::c_cast(cpp_value);
   tachyon_bn254_univariate_evaluations_set_value(evals_, 0, &value);
   // NOTE(chokobole): It's safe to access since we created |kDegree| |evals_|.
   EXPECT_EQ(reinterpret_cast<Evals&>(*evals_)[0], cpp_value);

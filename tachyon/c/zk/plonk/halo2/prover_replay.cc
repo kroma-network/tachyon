@@ -1,7 +1,5 @@
 #include <string>
 
-#include "absl/strings/substitute.h"
-
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/files/file_path_flag.h"
 #include "tachyon/base/files/file_util.h"
@@ -10,36 +8,13 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_impl.h"
+#include "tachyon/c/zk/plonk/halo2/transcript_type.h"
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h"
 #include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
 
 namespace tachyon {
-
-enum class TranscriptType : uint8_t {
-  kBlake2b,
-};
-
-namespace base {
-
-template <>
-class FlagValueTraits<TranscriptType> {
- public:
-  static bool ParseValue(std::string_view input, TranscriptType* value,
-                         std::string* reason) {
-    if (input == "blake2b") {
-      *value = TranscriptType::kBlake2b;
-    } else {
-      *reason = absl::Substitute("Unknown test set: $0", input);
-      return false;
-    }
-    return true;
-  }
-};
-
-}  // namespace base
-
 namespace c::zk::plonk::halo2::bn254 {
 
 using ArgumentData =
@@ -110,6 +85,11 @@ void CreateProof(tachyon_halo2_bn254_shplonk_prover* c_prover,
 }  // namespace c::zk::plonk::halo2::bn254
 
 int RunMain(int argc, char** argv) {
+  if (base::Environment::Has("TACHYON_PCS_PARAMS_PATH")) {
+    tachyon_cerr << "If this is set, the pcs params is overwritten"
+                 << std::endl;
+    return 1;
+  }
   if (base::Environment::Has("TACHYON_PK_LOG_PATH")) {
     tachyon_cerr << "If this is set, the pk log is overwritten" << std::endl;
     return 1;
@@ -125,7 +105,7 @@ int RunMain(int argc, char** argv) {
     return 1;
   }
 
-  TranscriptType transcript_type;
+  c::zk::plonk::halo2::TranscriptType transcript_type;
   uint32_t k;
   std::string s_hex;
   base::FilePath pcs_params_path;
@@ -133,7 +113,9 @@ int RunMain(int argc, char** argv) {
   base::FilePath arg_data_path;
   base::FilePath transcript_state_path;
   base::FlagParser parser;
-  parser.AddFlag<base::Flag<TranscriptType>>(&transcript_type)
+  parser
+      .AddFlag<base::Flag<c::zk::plonk::halo2::TranscriptType>>(
+          &transcript_type)
       .set_long_name("--transcript_type")
       .set_required()
       .set_help("Transcript type");
@@ -207,7 +189,7 @@ int RunMain(int argc, char** argv) {
       return 1;
     }
     math::bn254::Fr cpp_s = math::bn254::Fr::FromHexString(s_hex);
-    tachyon_bn254_fr s = cc::math::ToCPrimeField(cpp_s);
+    const tachyon_bn254_fr& s = cc::math::c_cast(cpp_s);
 
     std::cout << "creating prover" << std::endl;
     prover = tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
