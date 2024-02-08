@@ -123,23 +123,15 @@ template <typename F, typename ExtendedPoly>
 void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
   F zeta = GetHalo2Zeta<F>();
   F zeta_inv = zeta.Square();
-  std::vector<F> coset_powers{into_coset ? zeta : zeta_inv,
-                              into_coset ? zeta_inv : zeta};
+  F coset_powers[] = {into_coset ? zeta : zeta_inv,
+                      into_coset ? zeta_inv : zeta};
 
   std::vector<F>& coeffs = poly.coefficients().coefficients();
-  base::Parallelize(coeffs,
-                    [&coset_powers](absl::Span<F> chunk, size_t chunk_idx,
-                                    size_t chunk_size) {
-                      size_t i = chunk_idx * chunk_size;
-                      for (F& a : chunk) {
-                        // Distribute powers to move into/from coset
-                        size_t j = i % (coset_powers.size() + 1);
-                        if (j != 0) {
-                          a *= coset_powers[j - 1];
-                        }
-                        ++i;
-                      }
-                    });
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < coeffs.size(); ++i) {
+    size_t j = i % 3;
+    if (j == 0) continue;
+    coeffs[i] *= coset_powers[j - 1];
+  }
 }
 
 // This takes us from the extended evaluation domain and gets us the quotient
