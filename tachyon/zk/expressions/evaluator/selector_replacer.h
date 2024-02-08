@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 
+#include "tachyon/base/logging.h"
 #include "tachyon/zk/expressions/evaluator.h"
 #include "tachyon/zk/expressions/negated_expression.h"
 #include "tachyon/zk/expressions/product_expression.h"
@@ -41,7 +42,9 @@ class SelectorsReplacer : public Evaluator<F, std::unique_ptr<Expression<F>>> {
         if (must_be_non_simple_) {
           // Simple selectors are prohibited from appearing in
           // expressions in the lookup argument by |ConstraintSystem|.
-          CHECK(!selector.is_simple());
+          if (selector.is_simple()) {
+            LOG(DFATAL) << "Simple selector found in lookup argument";
+          }
         }
         return replacements_[selector.index()]->Clone();
       }

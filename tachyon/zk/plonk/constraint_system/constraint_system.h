@@ -23,6 +23,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
@@ -162,6 +163,12 @@ class ConstraintSystem {
     VirtualCells cells(this);
     LookupPairs<std::unique_ptr<Expression<F>>> pairs =
         std::move(callback).Run(cells);
+
+    for (const LookupPair<std::unique_ptr<Expression<F>>>& pair : pairs) {
+      CHECK(!pair.input()->ContainsSimpleSelector())
+          << "expression containing simple selector "
+             "supplied to lookup argument";
+    }
 
     lookups_.emplace_back(name, std::move(pairs));
     return lookups_.size() - 1;
