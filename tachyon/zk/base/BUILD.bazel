@@ -1,4 +1,9 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_benchmark",
+    "tachyon_cc_library",
+    "tachyon_cc_unittest",
+)
 
 package(default_visibility = ["//visibility:public"])
 
@@ -81,5 +86,23 @@ tachyon_cc_unittest(
         "//tachyon/base/containers:container_util",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/polynomials/univariate:univariate_evaluations",
+    ],
+)
+
+tachyon_cc_benchmark(
+    name = "nested_for_loop_openmp_benchmark",
+    srcs = ["nested_for_loop_openmp_benchmark.cc"],
+    deps = [
+        "//tachyon/base:parallelize",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
+    ],
+)
+
+tachyon_cc_benchmark(
+    name = "parallelize_benchmark",
+    srcs = ["parallelize_benchmark.cc"],
+    deps = [
+        "//tachyon/base:parallelize",
+        "//tachyon/math/elliptic_curves/bn/bn254:fr",
     ],
 )
