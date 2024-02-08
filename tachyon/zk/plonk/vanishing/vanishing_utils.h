@@ -166,18 +166,14 @@ template <typename Domain, typename Poly, typename F,
 Evals CoeffToExtendedPart(const Domain* domain,
                           const BlindedPolynomial<Poly>& poly, const F& zeta,
                           const F& extended_omega_factor) {
-  Poly cloned = poly.poly();
-  Domain::DistributePowers(cloned, zeta * extended_omega_factor);
-  return domain->FFT(cloned);
+  return domain->GetCoset(zeta * extended_omega_factor)->FFT(poly.poly());
 }
 
 template <typename Domain, typename Poly, typename F,
           typename Evals = typename Domain::Evals>
 Evals CoeffToExtendedPart(const Domain* domain, const Poly& poly, const F& zeta,
                           const F& extended_omega_factor) {
-  Poly cloned = poly;
-  Domain::DistributePowers(cloned, zeta * extended_omega_factor);
-  return domain->FFT(cloned);
+  return domain->GetCoset(zeta * extended_omega_factor)->FFT(poly);
 }
 
 template <typename Domain, typename Poly, typename F,
