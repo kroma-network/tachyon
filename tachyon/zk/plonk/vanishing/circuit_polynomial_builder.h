@@ -97,12 +97,16 @@ class CircuitPolynomialBuilder {
     value_parts.reserve(num_parts_);
     // Calculate the quotient polynomial for each part
     for (size_t i = 0; i < num_parts_; ++i) {
+      VLOG(1) << "BuildExtendedCircuitColumn part: (" << i << " / "
+              << num_parts_ - 1 << ")";
       UpdateVanishingProvingKey();
 
       std::vector<F> value_part =
           base::CreateVector(static_cast<size_t>(n_), F::Zero());
       size_t circuit_num = poly_tables_->size();
       for (size_t j = 0; j < circuit_num; ++j) {
+        VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
+                << j << " / " << circuit_num - 1 << ")";
         UpdateVanishingTable(j);
         UpdateValuesByCustomGates(custom_gate_evaluator, value_part);
 
@@ -119,8 +123,7 @@ class CircuitPolynomialBuilder {
       value_parts.push_back(std::move(value_part));
       UpdateCurrentExtendedOmega();
     }
-    std::vector<F> extended =
-        BuildExtendedColumnWithColumns(std::move(value_parts));
+    std::vector<F> extended = BuildExtendedColumnWithColumns(value_parts);
     return ExtendedEvals(std::move(extended));
   }
 

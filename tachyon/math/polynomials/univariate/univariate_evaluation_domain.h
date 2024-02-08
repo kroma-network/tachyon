@@ -238,7 +238,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       // Invert |lagrange_coefficients_inverse| to get the actual coefficients,
       // and return these
       // Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
-      F::BatchInverseInPlace(lagrange_coefficients_inverse);
+      CHECK(F::BatchInverseInPlace(lagrange_coefficients_inverse));
       return lagrange_coefficients_inverse;
     }
   }

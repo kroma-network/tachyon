@@ -12,7 +12,7 @@ void BM_BatchInverse(benchmark::State& state) {
   std::vector<F> fields = base::CreateVector(
       state.range(0), [](size_t i) { return F::FromBigInt(BigInt(i)); });
   for (auto _ : state) {
-    F::BatchInverseInPlace(fields);
+    CHECK(F::BatchInverseInPlace(fields));
   }
   benchmark::DoNotOptimize(fields);
 }

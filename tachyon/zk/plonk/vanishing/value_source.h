@@ -134,8 +134,8 @@ class TACHYON_EXPORT ValueSource {
   }
 
   template <typename Evals, typename F>
-  F Get(const EvaluationInput<Evals>& data, const std::vector<F>& constants,
-        const F& previous_value) const {
+  const F& Get(const EvaluationInput<Evals>& data,
+               const std::vector<F>& constants, const F& previous_value) const {
     switch (type_) {
       case Type::kConstant:
         return constants[index_];
@@ -167,7 +167,7 @@ class TACHYON_EXPORT ValueSource {
         return previous_value;
     }
     NOTREACHED();
-    return F();
+    return previous_value;
   }
 
   std::string ToString() const;

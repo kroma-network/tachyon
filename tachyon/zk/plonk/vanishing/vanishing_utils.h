@@ -21,11 +21,14 @@ namespace tachyon::zk::plonk {
 // Calculate ζ = g^((2ˢ * T) / 3).
 template <typename F>
 constexpr F GetZeta() {
-  CHECK_EQ(F::Config::kTrace % math::BigInt<F::kLimbNums>(3),
-           math::BigInt<F::kLimbNums>(0));
-  return F::FromMontgomery(F::Config::kSubgroupGenerator)
-      .Pow(F(2).Pow(F::Config::kTwoAdicity).ToBigInt() * F::Config::kTrace /
-           math::BigInt<F::kLimbNums>(3));
+  using BigInt = typename F::BigIntTy;
+  CHECK_EQ(F::Config::kTrace % BigInt(3), BigInt(0));
+  BigInt exp = F::Config::kTrace;
+  // NOTE(chokobole): The result of the exponential operation does not exceed
+  // the modulus of the scalar field.
+  exp.MulBy2ExpInPlace(F::Config::kTwoAdicity);
+  exp /= BigInt(3);
+  return F::FromMontgomery(F::Config::kSubgroupGenerator).Pow(exp);
 }
 
 // NOTE(TomTaehoonKim): The returning value of |GetZeta()| is different from the
@@ -58,42 +61,28 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
                                         domain->log_size_of_group());
   // |coset_gen_pow_n| = w'ⁿ where w' is generator of extended domain.
   const F coset_gen_pow_n = extended_domain->group_gen().Pow(domain->size());
-  // |powers_of_coset_gen| = [w'ⁿ, w'²ⁿ, w'³ⁿ, ..].
-  const std::vector<F> powers_of_coset_gen =
-      F::GetSuccessivePowers(t_evaluations_size, coset_gen_pow_n);
-
-  std::vector<F> t_evaluations;
-  t_evaluations.resize(t_evaluations_size);
-
-  // Make |t_evaluations| = [ζⁿ, ζⁿ * w'ⁿ, ζⁿ * w'²ⁿ, ...]
   const F zeta_pow_n = zeta.Pow(domain->size());
-  CHECK(F::MultiScalarMul(zeta_pow_n, powers_of_coset_gen, &t_evaluations));
+  // |t_evaluations| = [ζⁿ, ζⁿ * w'ⁿ, ζⁿ * w'²ⁿ, ...]
+  std::vector<F> t_evaluations =
+      F::GetSuccessivePowers(t_evaluations_size, coset_gen_pow_n, zeta_pow_n);
   CHECK_EQ(t_evaluations.size(),
            size_t{1} << (extended_domain->log_size_of_group() -
                          domain->log_size_of_group()));
 
-  // Subtract 1 from each to give us |t_evaluations[i]|.
-  // TODO(TomTaehoonKim): Consider implementing "translate" function.
+  // |t_evaluations| = [ζⁿ - 1, ζⁿ * w'ⁿ - 1, ζⁿ * w'²ⁿ - 1, ...]
   base::Parallelize(t_evaluations, [](absl::Span<F> chunk) {
     for (F& coeff : chunk) {
       coeff -= F::One();
     }
+    CHECK(F::BatchInverseInPlaceSerial(chunk));
   });
-
-  F::BatchInverseInPlace(t_evaluations);
 
   // Multiply the inverse to obtain the quotient polynomial in the coset
   // evaluation domain.
   std::vector<F>& evaluations = evals.evaluations();
-  base::Parallelize(evaluations,
-                    [&t_evaluations](absl::Span<F> chunk, size_t chunk_idx,
-                                     size_t chunk_size) {
-                      size_t index = chunk_idx * chunk_size;
-                      for (F& h : chunk) {
-                        h *= t_evaluations[index % t_evaluations.size()];
-                        ++index;
-                      }
-                    });
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < evaluations.size(); ++i) {
+    evaluations[i] *= t_evaluations[i % t_evaluations.size()];
+  }
 
   return evals;
 }
@@ -120,23 +109,15 @@ template <typename F, typename ExtendedPoly>
 void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
   F zeta = GetHalo2Zeta<F>();
   F zeta_inv = zeta.Square();
-  std::vector<F> coset_powers{into_coset ? zeta : zeta_inv,
-                              into_coset ? zeta_inv : zeta};
+  F coset_powers[] = {into_coset ? zeta : zeta_inv,
+                      into_coset ? zeta_inv : zeta};
 
   std::vector<F>& coeffs = poly.coefficients().coefficients();
-  base::Parallelize(coeffs,
-                    [&coset_powers](absl::Span<F> chunk, size_t chunk_idx,
-                                    size_t chunk_size) {
-                      size_t i = chunk_idx * chunk_size;
-                      for (F& a : chunk) {
-                        // Distribute powers to move into/from coset
-                        size_t j = i % (coset_powers.size() + 1);
-                        if (j != 0) {
-                          a *= coset_powers[j - 1];
-                        }
-                        ++i;
-                      }
-                    });
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < coeffs.size(); ++i) {
+    size_t j = i % 3;
+    if (j == 0) continue;
+    coeffs[i] *= coset_powers[j - 1];
+  }
 }
 
 // This takes us from the extended evaluation domain and gets us the quotient
@@ -163,18 +144,14 @@ template <typename Domain, typename Poly, typename F,
 Evals CoeffToExtendedPart(const Domain* domain,
                           const BlindedPolynomial<Poly>& poly, const F& zeta,
                           const F& extended_omega_factor) {
-  Poly cloned = poly.poly();
-  Domain::DistributePowers(cloned, zeta * extended_omega_factor);
-  return domain->FFT(cloned);
+  return domain->GetCoset(zeta * extended_omega_factor)->FFT(poly.poly());
 }
 
 template <typename Domain, typename Poly, typename F,
           typename Evals = typename Domain::Evals>
 Evals CoeffToExtendedPart(const Domain* domain, const Poly& poly, const F& zeta,
                           const F& extended_omega_factor) {
-  Poly cloned = poly;
-  Domain::DistributePowers(cloned, zeta * extended_omega_factor);
-  return domain->FFT(cloned);
+  return domain->GetCoset(zeta * extended_omega_factor)->FFT(poly);
 }
 
 template <typename Domain, typename Poly, typename F,
@@ -190,31 +167,18 @@ std::vector<Evals> CoeffsToExtendedPart(const Domain* domain,
 
 template <typename F>
 std::vector<F> BuildExtendedColumnWithColumns(
-    std::vector<std::vector<F>>&& columns) {
+    const std::vector<std::vector<F>>& columns) {
   CHECK(!columns.empty());
   size_t cols = columns.size();
   size_t rows = columns[0].size();
 
-  std::vector<std::vector<F>> transposed = base::CreateVector(
-      rows, [cols]() { return base::CreateVector(cols, F::Zero()); });
+  std::vector<F> flattened_transposed_columns(cols * rows);
   for (size_t i = 0; i < columns.size(); ++i) {
-    base::Parallelize(transposed, [i, &src_column = columns[i]](
-                                      absl::Span<std::vector<F>> dst_columns,
-                                      size_t chunk_idx, size_t chunk_size) {
-      size_t start = chunk_idx * chunk_size;
-      for (size_t j = 0; j < dst_columns.size(); ++j) {
-        dst_columns[j][i] = src_column[start + j];
-      }
-    });
+    OPENMP_PARALLEL_FOR(size_t j = 0; j < rows; ++j) {
+      flattened_transposed_columns[j * cols + i] = columns[i][j];
+    }
   }
-  std::vector<F> flattened_columns;
-  flattened_columns.reserve(cols * rows);
-  for (std::vector<F>& column : transposed) {
-    flattened_columns.insert(flattened_columns.end(),
-                             std::make_move_iterator(column.begin()),
-                             std::make_move_iterator(column.end()));
-  }
-  return flattened_columns;
+  return flattened_transposed_columns;
 }
 
 }  // namespace tachyon::zk::plonk
