@@ -21,11 +21,14 @@ namespace tachyon::zk::plonk {
 // Calculate ζ = g^((2ˢ * T) / 3).
 template <typename F>
 constexpr F GetZeta() {
-  CHECK_EQ(F::Config::kTrace % math::BigInt<F::kLimbNums>(3),
-           math::BigInt<F::kLimbNums>(0));
-  return F::FromMontgomery(F::Config::kSubgroupGenerator)
-      .Pow(F(2).Pow(F::Config::kTwoAdicity).ToBigInt() * F::Config::kTrace /
-           math::BigInt<F::kLimbNums>(3));
+  using BigInt = typename F::BigIntTy;
+  CHECK_EQ(F::Config::kTrace % BigInt(3), BigInt(0));
+  BigInt exp = F::Config::kTrace;
+  // NOTE(chokobole): The result of the exponential operation does not exceed
+  // the modulus of the scalar field.
+  exp.MulBy2ExpInPlace(F::Config::kTwoAdicity);
+  exp /= BigInt(3);
+  return F::FromMontgomery(F::Config::kSubgroupGenerator).Pow(exp);
 }
 
 // NOTE(TomTaehoonKim): The returning value of |GetZeta()| is different from the
