@@ -56,7 +56,7 @@ class RationalField : public Field<RationalField<F>> {
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
       (*results)[i] = ration_fields[i].denominator_;
     }
-    F::BatchInverseInPlace(*results, coeff);
+    CHECK(F::BatchInverseInPlace(*results, coeff));
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
       (*results)[i] *= ration_fields[i].numerator_;
     }

@@ -86,14 +86,14 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   }
 
   template <typename Container>
-  constexpr static bool BatchInverseInPlace(Container& groups,
-                                            const G& coeff = G::One()) {
+  [[nodiscard]] constexpr static bool BatchInverseInPlace(
+      Container& groups, const G& coeff = G::One()) {
     return BatchInverse(groups, &groups, coeff);
   }
 
   template <typename Container>
-  constexpr static bool BatchInverseInPlaceSerial(Container& groups,
-                                                  const G& coeff = G::One()) {
+  [[nodiscard]] constexpr static bool BatchInverseInPlaceSerial(
+      Container& groups, const G& coeff = G::One()) {
     return BatchInverseSerial(groups, &groups, coeff);
   }
 
@@ -101,9 +101,9 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   // https://github.com/arkworks-rs/algebra/blob/5dfeedf560da6937a5de0a2163b7958bd32cd551/ff/src/fields/mod.rs#L355-L418.
   // Batch inverse: [a₁, a₂, ..., aₙ] -> [a₁⁻¹, a₂⁻¹, ... , aₙ⁻¹]
   template <typename InputContainer, typename OutputContainer>
-  constexpr static bool BatchInverse(const InputContainer& groups,
-                                     OutputContainer* inverses,
-                                     const G& coeff = G::One()) {
+  [[nodiscard]] constexpr static bool BatchInverse(const InputContainer& groups,
+                                                   OutputContainer* inverses,
+                                                   const G& coeff = G::One()) {
     if (std::size(groups) != std::size(*inverses)) {
       LOG(ERROR) << "Size of |groups| and |inverses| do not match";
       return false;
@@ -140,9 +140,9 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   }
 
   template <typename InputContainer, typename OutputContainer>
-  constexpr static bool BatchInverseSerial(const InputContainer& groups,
-                                           OutputContainer* inverses,
-                                           const G& coeff = G::One()) {
+  [[nodiscard]] constexpr static bool BatchInverseSerial(
+      const InputContainer& groups, OutputContainer* inverses,
+      const G& coeff = G::One()) {
     if (std::size(groups) != std::size(*inverses)) {
       LOG(ERROR) << "Size of |groups| and |inverses| do not match";
       return false;

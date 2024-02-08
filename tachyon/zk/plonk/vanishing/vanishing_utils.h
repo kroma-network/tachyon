@@ -83,7 +83,7 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
     }
   });
 
-  F::BatchInverseInPlace(t_evaluations);
+  CHECK(F::BatchInverseInPlace(t_evaluations));
 
   // Multiply the inverse to obtain the quotient polynomial in the coset
   // evaluation domain.

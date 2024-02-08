@@ -268,7 +268,7 @@ class ShuffleCircuit : public Circuit<ShuffleCircuitConfig<F, W>> {
                   return compressed;
                 });
 
-            F::BatchInverseInPlace(product);
+            CHECK(F::BatchInverseInPlace(product));
 
             for (RowIndex i = 0; i < H; ++i) {
               F compressed = std::accumulate(

@@ -49,7 +49,7 @@ bool LagrangeInterpolate(
       }
       ++i;
     }
-    F::BatchInverseInPlaceSerial(chunk);
+    CHECK(F::BatchInverseInPlaceSerial(chunk));
   });
 
   std::vector<F> final_coeffs = base::CreateVector(points.size(), F::Zero());

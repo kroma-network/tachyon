@@ -69,7 +69,7 @@ class GrandProductArgument {
 
     base::Parallelize(grand_product, std::move(denominator_callback));
 
-    F::BatchInverseInPlace(grand_product);
+    CHECK(F::BatchInverseInPlace(grand_product));
 
     base::Parallelize(grand_product, std::move(numerator_callback));
 
@@ -89,7 +89,7 @@ class GrandProductArgument {
       base::Parallelize(grand_product, denominator_callback(i));
     }
 
-    F::BatchInverseInPlace(grand_product);
+    CHECK(F::BatchInverseInPlace(grand_product));
 
     for (size_t i = 0; i < num_cols; ++i) {
       base::Parallelize(grand_product, numerator_callback(i));
