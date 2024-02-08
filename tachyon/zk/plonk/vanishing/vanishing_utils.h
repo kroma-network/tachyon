@@ -190,7 +190,7 @@ std::vector<Evals> CoeffsToExtendedPart(const Domain* domain,
 
 template <typename F>
 std::vector<F> BuildExtendedColumnWithColumns(
-    std::vector<std::vector<F>>&& columns) {
+    const std::vector<std::vector<F>>& columns) {
   CHECK(!columns.empty());
   size_t cols = columns.size();
   size_t rows = columns[0].size();

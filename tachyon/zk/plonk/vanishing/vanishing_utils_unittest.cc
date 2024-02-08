@@ -69,7 +69,7 @@ TEST_F(VanishingUtilsTest, BuildExtendedColumnWithColumns) {
   std::vector<std::vector<F>> columns =
       base::Map(range, [](size_t i) { return base::CreateVector(N, F(i)); });
 
-  std::vector<F> extended = BuildExtendedColumnWithColumns(std::move(columns));
+  std::vector<F> extended = BuildExtendedColumnWithColumns(columns);
   EXPECT_EQ(extended.size(), 4 * N);
   for (size_t i = 0; i < extended.size(); ++i) {
     EXPECT_EQ(F(i % 4), extended[i]);

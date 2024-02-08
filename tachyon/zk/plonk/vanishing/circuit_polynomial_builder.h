@@ -123,8 +123,7 @@ class CircuitPolynomialBuilder {
       value_parts.push_back(std::move(value_part));
       UpdateCurrentExtendedOmega();
     }
-    std::vector<F> extended =
-        BuildExtendedColumnWithColumns(std::move(value_parts));
+    std::vector<F> extended = BuildExtendedColumnWithColumns(value_parts);
     return ExtendedEvals(std::move(extended));
   }
 
