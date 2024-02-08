@@ -195,26 +195,13 @@ std::vector<F> BuildExtendedColumnWithColumns(
   size_t cols = columns.size();
   size_t rows = columns[0].size();
 
-  std::vector<std::vector<F>> transposed = base::CreateVector(
-      rows, [cols]() { return base::CreateVector(cols, F::Zero()); });
+  std::vector<F> flattened_transposed_columns(cols * rows);
   for (size_t i = 0; i < columns.size(); ++i) {
-    base::Parallelize(transposed, [i, &src_column = columns[i]](
-                                      absl::Span<std::vector<F>> dst_columns,
-                                      size_t chunk_idx, size_t chunk_size) {
-      size_t start = chunk_idx * chunk_size;
-      for (size_t j = 0; j < dst_columns.size(); ++j) {
-        dst_columns[j][i] = src_column[start + j];
-      }
-    });
+    OPENMP_PARALLEL_FOR(size_t j = 0; j < rows; ++j) {
+      flattened_transposed_columns[j * cols + i] = columns[i][j];
+    }
   }
-  std::vector<F> flattened_columns;
-  flattened_columns.reserve(cols * rows);
-  for (std::vector<F>& column : transposed) {
-    flattened_columns.insert(flattened_columns.end(),
-                             std::make_move_iterator(column.begin()),
-                             std::make_move_iterator(column.end()));
-  }
-  return flattened_columns;
+  return flattened_transposed_columns;
 }
 
 }  // namespace tachyon::zk::plonk
