@@ -27,8 +27,8 @@ class GrandProductArgument {
 
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
-    RowIndex blinding_factors = prover->blinder().blinding_factors();
-    Evals z = CreatePolynomial<Evals>(size, blinding_factors,
+    RowIndex usable_rows = prover->GetUsableRows();
+    Evals z = CreatePolynomial<Evals>(size, usable_rows,
                                       std::move(numerator_callback),
                                       std::move(denominator_callback));
     CHECK(prover->blinder().Blind(z));
@@ -50,9 +50,9 @@ class GrandProductArgument {
 
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
-    RowIndex blinding_factors = prover->blinder().blinding_factors();
+    RowIndex usable_rows = prover->GetUsableRows();
     Evals z = CreatePolynomialExcessive<Evals>(
-        size, blinding_factors, num_cols, last_z, std::move(numerator_callback),
+        size, usable_rows, num_cols, last_z, std::move(numerator_callback),
         std::move(denominator_callback));
     CHECK(prover->blinder().Blind(z));
     return prover->CommitAndWriteToProofWithBlind(z);
@@ -62,7 +62,7 @@ class GrandProductArgument {
   friend class zk::LookupArgumentRunnerTest_ComputePermutationProduct_Test;
 
   template <typename Evals, typename Callable>
-  static Evals CreatePolynomial(RowIndex size, RowIndex blinding_factors,
+  static Evals CreatePolynomial(RowIndex size, RowIndex usable_rows,
                                 Callable numerator_callback,
                                 Callable denominator_callback) {
     using F = typename Evals::Field;
@@ -76,13 +76,11 @@ class GrandProductArgument {
     base::Parallelize(grand_product, std::move(numerator_callback));
 
     F last_z = F::One();
-    return DoCreatePolynomial<Evals>(last_z, size, grand_product,
-                                     blinding_factors);
+    return DoCreatePolynomial<Evals>(last_z, size, grand_product, usable_rows);
   }
 
   template <typename Evals, typename F, typename Callable>
-  static Evals CreatePolynomialExcessive(RowIndex size,
-                                         RowIndex blinding_factors,
+  static Evals CreatePolynomialExcessive(RowIndex size, RowIndex usable_rows,
                                          size_t num_cols, F& last_z,
                                          Callable numerator_callback,
                                          Callable denominator_callback) {
@@ -98,21 +96,20 @@ class GrandProductArgument {
       base::Parallelize(grand_product, numerator_callback(i));
     }
 
-    return DoCreatePolynomial<Evals>(last_z, size, grand_product,
-                                     blinding_factors);
+    return DoCreatePolynomial<Evals>(last_z, size, grand_product, usable_rows);
   }
 
   template <typename Evals, typename F>
   static Evals DoCreatePolynomial(F& last_z, RowIndex size,
                                   const std::vector<F>& grand_product,
-                                  RowIndex blinding_factors) {
+                                  RowIndex usable_rows) {
     std::vector<F> z;
     z.resize(size);
     z[0] = last_z;
-    for (RowIndex i = 0; i < size - blinding_factors - 1; ++i) {
+    for (RowIndex i = 0; i < usable_rows; ++i) {
       z[i + 1] = z[i] * grand_product[i];
     }
-    last_z = z[size - blinding_factors - 1];
+    last_z = z[usable_rows];
     return Evals(std::move(z));
   }
 };
