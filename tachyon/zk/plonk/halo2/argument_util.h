@@ -31,8 +31,8 @@ std::vector<std::vector<LookupPermuted<Poly, Evals>>> BatchPermuteLookups(
     const std::vector<RefTable<Evals>>& tables, absl::Span<const F> challenges,
     const F& theta) {
   size_t num_circuits = tables.size();
-  base::CheckedNumeric<int32_t> n_tmp = prover->pcs().N();
-  int32_t n = n_tmp.ValueOrDie();
+  // NOTE(chokobole): It's safe to downcast because domain is already checked.
+  int32_t n = static_cast<int32_t>(prover->pcs().N());
   return base::CreateVector(num_circuits, [prover, challenges,
                                            &lookup_arguments, &tables, &theta,
                                            n](size_t i) {
