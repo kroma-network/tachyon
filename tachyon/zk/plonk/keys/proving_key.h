@@ -92,8 +92,8 @@ class ProvingKey : public Key {
     }
 
     permutation_proving_key_ =
-        pre_load_result.assembly.permutation().BuildProvingKey(prover,
-                                                               permutations);
+        pre_load_result.assembly.permutation().BuildProvingKey(
+            prover, std::move(permutations));
 
     // Compute l_first(X)
     // if |blinding_factors| = 3 and |pcs.N()| = 8,

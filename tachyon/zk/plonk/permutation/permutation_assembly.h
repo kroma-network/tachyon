@@ -88,8 +88,7 @@ class TACHYON_EXPORT PermutationAssembly {
   template <typename PCS, typename Poly = typename PCS::Poly,
             typename Evals = typename PCS::Evals>
   constexpr PermutationProvingKey<Poly, Evals> BuildProvingKey(
-      const ProverBase<PCS>* prover,
-      const std::vector<Evals>& permutations) const {
+      const ProverBase<PCS>* prover, std::vector<Evals>&& permutations) const {
     using Domain = typename PCS::Domain;
 
     const Domain* domain = prover->domain();
