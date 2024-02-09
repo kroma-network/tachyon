@@ -103,7 +103,7 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
-    name = "lookup_argument_unittests",
+    name = "lookup_unittests",
     srcs = [
         "compress_expression_unittest.cc",
         "lookup_argument_runner_unittest.cc",
