@@ -76,7 +76,7 @@ class GrandProductArgument {
     base::Parallelize(grand_product, std::move(numerator_callback));
 
     F last_z = F::One();
-    return DoCreatePolynomial<Evals>(last_z, size, grand_product, usable_rows);
+    return DoCreatePolynomial<Evals>(size, usable_rows, last_z, grand_product);
   }
 
   template <typename Evals, typename F, typename Callable>
@@ -96,13 +96,13 @@ class GrandProductArgument {
       base::Parallelize(grand_product, numerator_callback(i));
     }
 
-    return DoCreatePolynomial<Evals>(last_z, size, grand_product, usable_rows);
+    return DoCreatePolynomial<Evals>(size, usable_rows, last_z, grand_product);
   }
 
   template <typename Evals, typename F>
-  static Evals DoCreatePolynomial(F& last_z, RowIndex size,
-                                  const std::vector<F>& grand_product,
-                                  RowIndex usable_rows) {
+  static Evals DoCreatePolynomial(RowIndex size, RowIndex usable_rows,
+                                  F& last_z,
+                                  const std::vector<F>& grand_product) {
     std::vector<F> z;
     z.resize(size);
     z[0] = last_z;
