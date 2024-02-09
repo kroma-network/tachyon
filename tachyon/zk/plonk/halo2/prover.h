@@ -131,7 +131,7 @@ class Prover : public ProverBase<PCS> {
     F theta = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(theta): " << theta.ToHexString(true);
     std::vector<std::vector<LookupPermuted<Poly, Evals>>> permuted_lookups_vec =
-        argument.CompressLookupStep(
+        argument.PermuteLookupsStep(
             this, proving_key.verifying_key().constraint_system(), theta);
 
     F beta = writer->SqueezeChallenge();

@@ -40,7 +40,7 @@ class Argument {
   }
 
   template <typename PCS>
-  std::vector<std::vector<LookupPermuted<Poly, Evals>>> CompressLookupStep(
+  std::vector<std::vector<LookupPermuted<Poly, Evals>>> PermuteLookupsStep(
       ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
       const F& theta) const {
     std::vector<RefTable<Evals>> tables = argument_data_->ExportColumnTables(
