@@ -56,6 +56,7 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
       base::CreateVector(domain_size, F::Zero());
 
   std::vector<RowIndex> repeated_input_rows;
+  repeated_input_rows.reserve(usable_rows - 1);
   for (RowIndex row = 0; row < usable_rows; ++row) {
     const F& input_value = permuted_input_expressions[row];
 
