@@ -1,0 +1,9 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "simple_circuit",
+    testonly = True,
+    hdrs = ["simple_circuit.h"],
+)

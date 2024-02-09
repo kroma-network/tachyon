@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -32,6 +32,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "prove",
+    hdrs = ["prove.h"],
+    deps = [
+        ":proof",
+        ":proving_key",
+        "//tachyon/math/elliptic_curves/msm:variable_base_msm",
+    ],
+)
+
+tachyon_cc_library(
     name = "proving_key",
     hdrs = ["proving_key.h"],
     deps = [":verifying_key"],
@@ -60,5 +70,17 @@ tachyon_cc_library(
     deps = [
         ":key",
         "//tachyon/base:openmp_util",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "groth16_unittests",
+    srcs = ["groth16_unittest.cc"],
+    deps = [
+        ":prove",
+        ":verify",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "//tachyon/zk/r1cs/constraint_system/test:simple_circuit",
     ],
 )
