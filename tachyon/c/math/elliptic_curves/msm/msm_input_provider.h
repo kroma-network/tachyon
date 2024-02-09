@@ -6,6 +6,7 @@
 #include "absl/numeric/bits.h"
 #include "absl/types/span.h"
 
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/cc/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/geometry/point2.h"
 
@@ -47,7 +48,7 @@ class MSMInputProvider {
     } else {
       bases_owned_.resize(size);
     }
-    for (size_t i = 0; i < size; ++i) {
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
       bases_owned_[i] =
           AffinePoint(points[i], points[i].x.IsZero() && points[i].y.IsZero());
     }
