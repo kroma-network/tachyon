@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
@@ -67,7 +68,8 @@ class GrandProductArgument {
                                 Callable denominator_callback) {
     using F = typename Evals::Field;
 
-    std::vector<F> grand_product(size, F::Zero());
+    std::vector<F> z = base::CreateVector(size + 1, F::Zero());
+    absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
     base::Parallelize(grand_product, std::move(denominator_callback));
 
@@ -76,7 +78,7 @@ class GrandProductArgument {
     base::Parallelize(grand_product, std::move(numerator_callback));
 
     F last_z = F::One();
-    return DoCreatePolynomial<Evals>(size, usable_rows, last_z, grand_product);
+    return DoCreatePolynomial<Evals>(size, usable_rows, last_z, std::move(z));
   }
 
   template <typename Evals, typename F, typename Callable>
@@ -84,7 +86,8 @@ class GrandProductArgument {
                                          size_t num_cols, F& last_z,
                                          Callable numerator_callback,
                                          Callable denominator_callback) {
-    std::vector<F> grand_product(size, F::One());
+    std::vector<F> z = base::CreateVector(size + 1, F::One());
+    absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
     for (size_t i = 0; i < num_cols; ++i) {
       base::Parallelize(grand_product, denominator_callback(i));
@@ -96,21 +99,20 @@ class GrandProductArgument {
       base::Parallelize(grand_product, numerator_callback(i));
     }
 
-    return DoCreatePolynomial<Evals>(size, usable_rows, last_z, grand_product);
+    return DoCreatePolynomial<Evals>(size, usable_rows, last_z, std::move(z));
   }
 
   template <typename Evals, typename F>
   static Evals DoCreatePolynomial(RowIndex size, RowIndex usable_rows,
-                                  F& last_z,
-                                  const std::vector<F>& grand_product) {
-    std::vector<F> z;
-    z.resize(size);
+                                  F& last_z, std::vector<F>&& grand_product) {
+    absl::Span<F> z = absl::MakeSpan(grand_product);
     z[0] = last_z;
     for (RowIndex i = 0; i < usable_rows; ++i) {
-      z[i + 1] = z[i] * grand_product[i];
+      z[i + 1] = z[i] * grand_product[i + 1];
     }
     last_z = z[usable_rows];
-    return Evals(std::move(z));
+    grand_product.pop_back();
+    return Evals(std::move(grand_product));
   }
 };
 
