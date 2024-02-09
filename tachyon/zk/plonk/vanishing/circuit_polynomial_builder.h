@@ -315,12 +315,12 @@ class CircuitPolynomialBuilder {
   }
 
   void UpdateVanishingPermutation(size_t circuit_idx) {
-    permutation_product_cosets_ = CoeffsToExtendedPart(
+    permutation_product_cosets_ = CoeffsToExtendedParts(
         domain_,
         absl::MakeConstSpan(
             (*committed_permutations_)[circuit_idx].product_polys()),
         *zeta_, current_extended_omega_);
-    permutation_cosets_ = CoeffsToExtendedPart(
+    permutation_cosets_ = CoeffsToExtendedParts(
         domain_,
         absl::MakeConstSpan(proving_key_->permutation_proving_key().polys()),
         *zeta_, current_extended_omega_);
@@ -350,13 +350,13 @@ class CircuitPolynomialBuilder {
   }
 
   void UpdateVanishingTable(size_t circuit_idx) {
-    std::vector<Evals> fixed_columns = CoeffsToExtendedPart(
+    std::vector<Evals> fixed_columns = CoeffsToExtendedParts(
         domain_, (*poly_tables_)[circuit_idx].GetFixedColumns(), *zeta_,
         current_extended_omega_);
-    std::vector<Evals> advice_columns = CoeffsToExtendedPart(
+    std::vector<Evals> advice_columns = CoeffsToExtendedParts(
         domain_, (*poly_tables_)[circuit_idx].GetAdviceColumns(), *zeta_,
         current_extended_omega_);
-    std::vector<Evals> instance_columns = CoeffsToExtendedPart(
+    std::vector<Evals> instance_columns = CoeffsToExtendedParts(
         domain_, (*poly_tables_)[circuit_idx].GetInstanceColumns(), *zeta_,
         current_extended_omega_);
     table_ =

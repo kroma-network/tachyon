@@ -156,9 +156,9 @@ Evals CoeffToExtendedPart(const Domain* domain, const Poly& poly, const F& zeta,
 
 template <typename Domain, typename Poly, typename F,
           typename Evals = typename Domain::Evals>
-std::vector<Evals> CoeffsToExtendedPart(const Domain* domain,
-                                        absl::Span<Poly> polys, const F& zeta,
-                                        const F& extended_omega_factor) {
+std::vector<Evals> CoeffsToExtendedParts(const Domain* domain,
+                                         absl::Span<Poly> polys, const F& zeta,
+                                         const F& extended_omega_factor) {
   return base::Map(
       polys, [domain, &zeta, &extended_omega_factor](const Poly& poly) {
         return CoeffToExtendedPart(domain, poly, zeta, extended_omega_factor);
