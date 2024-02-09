@@ -84,7 +84,7 @@ void SHPlonkProver::set_extended_domain(const ProvingKey& pk) {
   tachyon_halo2_bn254_shplonk_prover_set_extended_domain(prover_, pk.pk());
 }
 
-void SHPlonkProver::create_proof(const ProvingKey& key,
+void SHPlonkProver::create_proof(ProvingKey& key,
                                  rust::Slice<InstanceSingle> instance_singles,
                                  rust::Slice<AdviceSingle> advice_singles,
                                  rust::Slice<const Fr> challenges) {

@@ -93,7 +93,7 @@ class ArgumentData {
     return instance_polys_vec_;
   }
 
-  size_t GetNumCircuits() const { return instance_columns_vec_.size(); }
+  size_t GetNumCircuits() const { return instance_polys_vec_.size(); }
 
   absl::Span<const F> GetAdviceBlinds(size_t circuit_idx) const {
     CHECK_LT(circuit_idx, GetNumCircuits());
@@ -121,9 +121,12 @@ class ArgumentData {
             return poly;
           });
         });
-    // NOTE(dongchangYoo): Deallocate evaluations for memory optimization.
-    advice_columns_vec_.clear();
     advice_transformed_ = true;
+  }
+
+  void DeallocateAllColumnsVec() {
+    advice_columns_vec_.clear();
+    instance_columns_vec_.clear();
   }
 
   // Return tables including every type of columns in evaluation form.

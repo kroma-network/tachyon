@@ -68,7 +68,7 @@ class Prover : public ProverBase<PCS> {
   }
 
   template <typename Circuit>
-  void CreateProof(const ProvingKey<Poly, Evals, Commitment>& proving_key,
+  void CreateProof(ProvingKey<Poly, Evals, Commitment>& proving_key,
                    std::vector<std::vector<Evals>>&& instance_columns_vec,
                    std::vector<Circuit>& circuits) {
     size_t num_circuits = circuits.size();
@@ -112,7 +112,7 @@ class Prover : public ProverBase<PCS> {
         Blinder<F>(generator_.get(), this->blinder_.blinding_factors());
   }
 
-  void CreateProof(const ProvingKey<Poly, Evals, Commitment>& proving_key,
+  void CreateProof(ProvingKey<Poly, Evals, Commitment>& proving_key,
                    ArgumentData<Poly, Evals>* argument_data) {
     Argument<Poly, Evals> argument(&proving_key.fixed_columns(),
                                    &proving_key.fixed_polys(), argument_data);
@@ -148,6 +148,7 @@ class Prover : public ProverBase<PCS> {
     F y = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(y): " << y.ToHexString(true);
     argument.TransformAdvice(this->domain());
+    argument.DeallocateAllColumnsVec();
     ExtendedEvals circuit_column = argument.GenerateCircuitPolynomial(
         this, proving_key, committed_result, beta, gamma, theta, y);
     VanishingConstructed<Poly> constructed_vanishing;

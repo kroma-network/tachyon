@@ -22,7 +22,7 @@ class Argument {
   Argument() = default;
 
   // NOTE(chokobole): This is used by rust halo2 binding.
-  Argument(const std::vector<Evals>* fixed_columns,
+  Argument(std::vector<Evals>* fixed_columns,
            const std::vector<Poly>* fixed_polys,
            ArgumentData<Poly, Evals>* argument_data)
       : fixed_columns_(fixed_columns),
@@ -32,6 +32,11 @@ class Argument {
   template <typename Domain>
   void TransformAdvice(const Domain* domain) {
     return argument_data_->TransformAdvice(domain);
+  }
+
+  void DeallocateAllColumnsVec() {
+    argument_data_->DeallocateAllColumnsVec();
+    fixed_columns_->clear();
   }
 
   template <typename PCS>
@@ -192,7 +197,7 @@ class Argument {
 
  private:
   // not owned
-  const std::vector<Evals>* fixed_columns_ = nullptr;
+  std::vector<Evals>* fixed_columns_ = nullptr;
   // not owned
   const std::vector<Poly>* fixed_polys_ = nullptr;
   // not owned
