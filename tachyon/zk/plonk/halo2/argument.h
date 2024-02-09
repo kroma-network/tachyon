@@ -70,10 +70,10 @@ class Argument {
         BatchCommitLookups(prover, std::move(permuted_lookups_vec), beta,
                            gamma);
 
-    VanishingCommitted<Poly> vanishing_committed = CommitRandomPoly(prover);
+    VanishingCommitted<Poly> committed_vanishing = CommitRandomPoly(prover);
 
     return {std::move(committed_permutations), std::move(committed_lookups_vec),
-            std::move(vanishing_committed)};
+            std::move(committed_vanishing)};
   }
 
   template <typename PCS, typename C, typename P, typename L, typename V,
