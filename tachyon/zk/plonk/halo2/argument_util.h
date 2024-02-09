@@ -53,7 +53,7 @@ std::vector<std::vector<LookupCommitted<Poly>>> BatchCommitLookups(
     std::vector<std::vector<LookupPermuted<Poly, Evals>>>&&
         permuted_lookups_vec,
     const F& beta, const F& gamma) {
-  return base::Map(
+  std::vector<std::vector<LookupCommitted<Poly>>> ret = base::Map(
       permuted_lookups_vec,
       [prover, &beta,
        &gamma](std::vector<LookupPermuted<Poly, Evals>>& permuted_lookups) {
@@ -65,6 +65,8 @@ std::vector<std::vector<LookupCommitted<Poly>>> BatchCommitLookups(
                   prover, std::move(permuted_lookup), beta, gamma);
             });
       });
+  permuted_lookups_vec.clear();
+  return ret;
 }
 
 template <typename PCS, typename Poly, typename F>
@@ -72,7 +74,7 @@ std::vector<std::vector<LookupEvaluated<Poly>>> BatchEvaluateLookups(
     ProverBase<PCS>* prover,
     std::vector<std::vector<LookupCommitted<Poly>>>&& committed_lookups_vec,
     const F& x) {
-  return base::Map(
+  std::vector<std::vector<LookupEvaluated<Poly>>> ret = base::Map(
       committed_lookups_vec,
       [prover, &x](std::vector<LookupCommitted<Poly>>& committed_lookups) {
         return base::Map(
@@ -82,6 +84,8 @@ std::vector<std::vector<LookupEvaluated<Poly>>> BatchEvaluateLookups(
                   EvaluateCommitted(prover, std::move(committed_lookup), x);
             });
       });
+  committed_lookups_vec.clear();
+  return ret;
 }
 
 template <typename PCS, typename Poly, typename Evals, typename F>
@@ -103,12 +107,14 @@ std::vector<PermutationEvaluated<Poly>> BatchEvaluatePermutations(
     ProverBase<PCS>* prover,
     std::vector<PermutationCommitted<Poly>>&& committed_permutations,
     const F& x) {
-  return base::Map(
+  std::vector<PermutationEvaluated<Poly>> ret = base::Map(
       committed_permutations,
       [&](PermutationCommitted<Poly>& committed_permutation) {
         return PermutationArgumentRunner<Poly, typename PCS::Evals>::
             EvaluateCommitted(prover, std::move(committed_permutation), x);
       });
+  committed_permutations.clear();
+  return ret;
 }
 
 template <typename PCS, typename Poly, typename F, ColumnType C>
