@@ -23,9 +23,8 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename PCS, typename Poly>
-[[nodiscard]] bool CommitRandomPoly(ProverBase<PCS>* prover,
-                                    VanishingCommitted<Poly>* out) {
+template <typename PCS, typename Poly = typename PCS::Poly>
+VanishingCommitted<Poly> CommitRandomPoly(ProverBase<PCS>* prover) {
   using F = typename PCS::Field;
 
   // Sample a random polynomial of degree n - 1
@@ -42,16 +41,14 @@ template <typename PCS, typename Poly>
 
   prover->CommitAndWriteToProof(random_poly);
 
-  *out = {std::move(random_poly), std::move(random_blind)};
-  return true;
+  return {std::move(random_poly), std::move(random_blind)};
 }
 
 template <typename PCS, typename Poly, typename F, typename C,
           typename ExtendedEvals>
-[[nodiscard]] bool CommitFinalHPoly(
+VanishingConstructed<Poly> CommitFinalHPoly(
     ProverBase<PCS>* prover, VanishingCommitted<Poly>&& committed,
-    const VerifyingKey<F, C>& vk, ExtendedEvals& circuit_column,
-    VanishingConstructed<Poly>* constructed_out) {
+    const VerifyingKey<F, C>& vk, ExtendedEvals& circuit_column) {
   using Coeffs = typename Poly::Coefficients;
   using ExtendedPoly = typename PCS::ExtendedPoly;
 
@@ -102,16 +99,13 @@ template <typename PCS, typename Poly, typename F, typename C,
       base::CreateVector(quotient_poly_degree,
                          [prover]() { return prover->blinder().Generate(); });
 
-  *constructed_out = {std::move(h_pieces), std::move(h_blinds),
-                      std::move(committed)};
-  return true;
+  return {std::move(h_pieces), std::move(h_blinds), std::move(committed)};
 }
 
 template <typename PCS, typename Poly, typename F, typename Commitment>
-[[nodiscard]] bool CommitRandomEval(
+VanishingEvaluated<Poly> CommitRandomEval(
     const PCS& pcs, VanishingConstructed<Poly>&& constructed, const F& x,
-    const F& x_n, crypto::TranscriptWriter<Commitment>* writer,
-    VanishingEvaluated<Poly>* evaluated_out) {
+    const F& x_n, crypto::TranscriptWriter<Commitment>* writer) {
   using Coeffs = typename Poly::Coefficients;
 
   Poly h_poly = Poly::template LinearCombination</*forward=*/false>(
@@ -123,9 +117,7 @@ template <typename PCS, typename Poly, typename F, typename Commitment>
   F random_eval = committed.random_poly().Evaluate(x);
   CHECK(writer->WriteToProof(random_eval));
 
-  *evaluated_out = {std::move(h_poly), std::move(h_blind),
-                    std::move(committed)};
-  return true;
+  return {std::move(h_poly), std::move(h_blind), std::move(committed)};
 }
 
 template <typename Poly, typename F>

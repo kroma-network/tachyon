@@ -70,8 +70,7 @@ class Argument {
         BatchCommitLookups(prover, std::move(permuted_lookups_vec), beta,
                            gamma);
 
-    VanishingCommitted<Poly> vanishing_committed;
-    CHECK(CommitRandomPoly(prover, &vanishing_committed));
+    VanishingCommitted<Poly> vanishing_committed = CommitRandomPoly(prover);
 
     return {std::move(committed_permutations), std::move(committed_lookups_vec),
             std::move(vanishing_committed)};
@@ -108,9 +107,9 @@ class Argument {
     EvaluateColumns(prover, cs, tables, x);
 
     F xn = x.Pow(prover->pcs().N());
-    VanishingEvaluated<Poly> evaluated_vanishing;
-    CHECK(CommitRandomEval(prover->pcs(), std::move(constructed_vanishing), x,
-                           xn, prover->GetWriter(), &evaluated_vanishing));
+    VanishingEvaluated<Poly> evaluated_vanishing =
+        CommitRandomEval(prover->pcs(), std::move(constructed_vanishing), x, xn,
+                         prover->GetWriter());
 
     PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
         prover, proving_key.permutation_proving_key(), x);
