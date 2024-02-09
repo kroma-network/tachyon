@@ -11,6 +11,8 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/compiler_specific.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
 
 namespace tachyon::zk {
@@ -20,25 +22,26 @@ Evals CompressExpressions(
     const Domain* domain,
     const std::vector<std::unique_ptr<Expression<F>>>& expressions,
     const F& theta, const SimpleEvaluator<Evals>& evaluator_tpl) {
-  Evals compressed_value = domain->template Zero<Evals>();
-  Evals values = domain->template Zero<Evals>();
+  Evals compressed_evals = domain->template Zero<Evals>();
+  std::vector<F>& compressed_values = compressed_evals.evaluations();
 
   for (size_t expr_idx = 0; expr_idx < expressions.size(); ++expr_idx) {
-    base::Parallelize(
-        values.evaluations(),
-        [expr_idx, &expressions, &evaluator_tpl](
-            absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
-          size_t start = chunk_index * chunk_size;
-          for (size_t i = 0; i < chunk.size(); ++i) {
-            SimpleEvaluator<Evals> evaluator = evaluator_tpl;
-            evaluator.set_idx(start + i);
-            chunk[i] = evaluator.Evaluate(expressions[expr_idx].get());
-          }
-        });
-    compressed_value *= theta;
-    compressed_value += values;
+    if (UNLIKELY(expr_idx == 0)) {
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < compressed_values.size(); ++i) {
+        SimpleEvaluator<Evals> evaluator = evaluator_tpl;
+        evaluator.set_idx(i);
+        compressed_values[i] = evaluator.Evaluate(expressions[expr_idx].get());
+      }
+    } else {
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < compressed_values.size(); ++i) {
+        SimpleEvaluator<Evals> evaluator = evaluator_tpl;
+        evaluator.set_idx(i);
+        compressed_values[i] *= theta;
+        compressed_values[i] += evaluator.Evaluate(expressions[expr_idx].get());
+      }
+    }
   }
-  return compressed_value;
+  return compressed_evals;
 }
 
 }  // namespace tachyon::zk
