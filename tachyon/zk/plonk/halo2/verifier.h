@@ -99,6 +99,7 @@ class Verifier : public VerifierBase<PCS> {
     proof_reader.ReadCommonPermutationEvals();
     proof_reader.ReadPermutationEvals();
     proof_reader.ReadLookupEvals();
+    CHECK(proof_reader.Done());
 
     if (proof_out) {
       *proof_out = proof;

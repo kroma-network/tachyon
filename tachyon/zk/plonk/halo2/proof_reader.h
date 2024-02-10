@@ -247,8 +247,10 @@ class ProofReader {
         proof_.lookup_permuted_table_evals_vec[i].push_back(Read<F>());
       }
     }
-    // TODO(chokobole): Implement reading data for the last pairing step.
+    cursor_ = ProofCursor::kDone;
   }
+
+  bool Done() const { return cursor_ == ProofCursor::kDone; }
 
  private:
   template <typename T>
