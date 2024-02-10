@@ -90,7 +90,6 @@ class VerifyingKey : public Key {
     }
 
     const PCS& pcs = entity->pcs();
-    // TODO(chokobole): Parallelize this.
     fixed_commitments_ =
         base::Map(pre_load_result.fixed_columns, [&pcs](const Evals& evals) {
           C commitment;
