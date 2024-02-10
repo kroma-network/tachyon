@@ -3,7 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/base/containers/adapters.h"
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/sw_curve_config.h"
 
@@ -141,11 +141,10 @@ VariableBaseMSMTestSet<test::AffinePoint> MultiScalarMulTest::test_set_;
 // bases: [G₀, G₁, ..., Gₙ₋₁]
 // return: [sG₀, sG₁, ..., sGₙ₋₁]
 TEST_F(MultiScalarMulTest, SingleScalarMultiBases) {
-  std::vector<test::JacobianPoint> expected;
   const GF7& scalar = test_set_.scalars[0];
-  for (const test::AffinePoint& base : test_set_.bases) {
-    expected.push_back(base * scalar);
-  }
+  std::vector<test::JacobianPoint> expected = base::Map(
+      test_set_.bases,
+      [&scalar](const test::AffinePoint& base) { return base * scalar; });
   {
     std::vector<test::JacobianPoint> actual;
     actual.resize(test_set_.bases.size());
@@ -166,10 +165,9 @@ TEST_F(MultiScalarMulTest, SingleScalarMultiBases) {
 // base: G
 // return: [s₀G, s₁G, ..., sₙ₋₁G]
 TEST_F(MultiScalarMulTest, MultiScalarsSingleBase) {
-  std::vector<test::JacobianPoint> expected;
-  for (const GF7& scalar : test_set_.scalars) {
-    expected.push_back(test_set_.bases[0] * scalar);
-  }
+  const test::AffinePoint& base = test_set_.bases[0];
+  std::vector<test::JacobianPoint> expected = base::Map(
+      test_set_.scalars, [&base](const GF7& scalar) { return base * scalar; });
   {
     std::vector<test::JacobianPoint> actual;
     actual.resize(test_set_.scalars.size());
@@ -190,11 +188,9 @@ TEST_F(MultiScalarMulTest, MultiScalarsSingleBase) {
 // bases: [G₀, G₁, ..., Gₙ₋₁]
 // return: [s₀G₀, s₁G₁, ..., sₙ₋₁Gₙ₋₁]
 TEST_F(MultiScalarMulTest, MultiScalarsMultiBases) {
-  std::vector<test::JacobianPoint> expected;
-  for (auto& [scalar, base] :
-       base::Zipped(test_set_.scalars, test_set_.bases)) {
-    expected.push_back(base * scalar);
-  }
+  std::vector<test::JacobianPoint> expected = base::Map(
+      test_set_.scalars,
+      [](size_t i, const GF7& scalar) { return test_set_.bases[i] * scalar; });
   {
     std::vector<test::JacobianPoint> actual;
     actual.resize(test_set_.scalars.size());

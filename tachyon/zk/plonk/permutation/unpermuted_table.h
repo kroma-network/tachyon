@@ -49,13 +49,7 @@ class UnpermutedTable {
   std::vector<base::Ref<const Evals>> GetColumns(
       base::Range<size_t> range) const {
     CHECK_EQ(range.Intersect(base::Range<size_t>::Until(table_.size())), range);
-
-    std::vector<base::Ref<const Evals>> ret;
-    ret.reserve(range.GetSize());
-    for (size_t i : range) {
-      ret.push_back(GetColumn(i));
-    }
-    return ret;
+    return base::Map(range, [this](size_t i) { return GetColumn(i); });
   }
 
   template <typename Domain>
