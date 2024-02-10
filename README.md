@@ -66,9 +66,10 @@ Symbol Definitions:
 
 ### Frontends
 
-|       | CPU                | GPU |
-| ----- | ------------------ | --- |
-| Halo2 | :heavy_check_mark: | :x: |
+|        | CPU                | GPU |
+| ------ | ------------------ | --- |
+| Circom | 🏗️                 | :x: |
+| Halo2  | :heavy_check_mark: | :x: |
 
 ## Roadmap
 

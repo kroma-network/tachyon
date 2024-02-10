@@ -1,0 +1,19 @@
+[package]
+name = "tachyon_circom"
+version = "0.0.1"
+authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
+edition = "2021"
+rust-version = "1.56.1"
+description = """
+Circom unittest based on tachyon
+"""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/kroma-network/tachyon"
+readme = "README.md"
+categories = ["cryptography"]
+keywords = ["tachyon", "circom", "proofs", "zkp", "zkSNARKs"]
+publish = false
+
+[dependencies]
+circom = { git = "https://github.com/kroma-network/circom.git", rev = "d5a5aca" }
+ansi_term = "0.12.1"
