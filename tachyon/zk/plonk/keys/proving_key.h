@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/parallelize.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
@@ -148,18 +148,11 @@ class ProvingKey : public Key {
     // | 5 | 0               |
     // | 6 | 0               |
     // | 7 | 0               |
-    F one = F::One();
-    base::Parallelize(
-        evals.evaluations(),
-        [&one, usable_rows](absl::Span<F> chunk, size_t chunk_index,
-                            size_t chunk_size_in) {
-          size_t i = chunk_index * chunk_size_in;
-          for (F& value : chunk) {
-            if (i++ < usable_rows) {
-              value = one;
-            }
-          }
-        });
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < usable_rows; ++i) {
+      // NOTE(chokobole): It's safe to access since we created |domain->size()|
+      // |evals|, which is greater than |usable_rows|.
+      evals.at(i) = F::One();
+    }
     l_active_row_ = domain->IFFT(evals);
 
     vanishing_argument_ =
