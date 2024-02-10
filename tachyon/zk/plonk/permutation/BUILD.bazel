@@ -165,6 +165,7 @@ tachyon_cc_library(
     deps = [
         ":label",
         ":permutation_utils",
+        "//tachyon/base:openmp_util",
         "//tachyon/base:range",
         "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
