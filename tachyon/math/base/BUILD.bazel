@@ -74,7 +74,6 @@ tachyon_cc_library(
         ":semigroups",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/types:always_false",
-        "@com_google_googletest//:gtest_prod",
     ],
 )
 

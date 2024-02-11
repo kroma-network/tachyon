@@ -106,10 +106,58 @@ class JacobianPoint<
                          point.y_, point.z_);
   }
 
-  // TODO(chokobole): Implement parallel versioned |BatchNormalize| when doing
-  // chunking and zipping gets easier.
   template <typename JacobianContainer, typename AffineContainer>
   [[nodiscard]] constexpr static bool BatchNormalize(
+      const JacobianContainer& jacobian_points,
+      AffineContainer* affine_points) {
+    size_t size = std::size(jacobian_points);
+    if (size != std::size(*affine_points)) {
+      LOG(ERROR)
+          << "Size of |jacobian_points| and |affine_points| do not match";
+      return false;
+    }
+    std::vector<BaseField> z_inverses = base::Map(
+        jacobian_points, [](const JacobianPoint& point) { return point.z_; });
+#if defined(TACHYON_HAS_OPENMP)
+    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
+    if (size >=
+        size_t{1} << (thread_nums /
+                      ScalarField::kParallelBatchInverseDivisorThreshold)) {
+      size_t chunk_size = base::GetNumElementsPerThread(jacobian_points);
+      size_t num_chunks = (size + chunk_size - 1) / chunk_size;
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+        size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
+        absl::Span<AffinePoint<Curve>> affine_points_chunk(
+            std::data(*affine_points) + i * chunk_size, len);
+        absl::Span<const JacobianPoint> jacobian_points_chunk(
+            std::data(jacobian_points) + i * chunk_size, len);
+        absl::Span<BaseField> z_inverses_chunk(&z_inverses[i * chunk_size],
+                                               len);
+
+        CHECK(BaseField::BatchInverseInPlaceSerial(z_inverses_chunk));
+        for (size_t i = 0; i < z_inverses_chunk.size(); ++i) {
+          const BaseField& z_inv = z_inverses_chunk[i];
+          if (z_inv.IsZero()) {
+            affine_points_chunk[i] = AffinePoint<Curve>::Zero();
+          } else if (z_inv.IsOne()) {
+            affine_points_chunk[i] = {jacobian_points_chunk[i].x_,
+                                      jacobian_points_chunk[i].y_};
+          } else {
+            BaseField z_inv_square = z_inv.Square();
+            affine_points_chunk[i] = {
+                jacobian_points_chunk[i].x_ * z_inv_square,
+                jacobian_points_chunk[i].y_ * z_inv_square * z_inv};
+          }
+        }
+      }
+      return true;
+    }
+#endif
+    return BatchNormalizeSerial(jacobian_points, affine_points);
+  }
+
+  template <typename JacobianContainer, typename AffineContainer>
+  [[nodiscard]] constexpr static bool BatchNormalizeSerial(
       const JacobianContainer& jacobian_points,
       AffineContainer* affine_points) {
     size_t size = std::size(jacobian_points);

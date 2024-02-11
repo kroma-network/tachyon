@@ -6,8 +6,6 @@
 #include <utility>
 #include <vector>
 
-#include "gtest/gtest_prod.h"
-
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/types/always_false.h"
@@ -35,6 +33,11 @@ SUPPORTS_UNARY_IN_PLACE_OPERATOR(Neg);
 template <typename G>
 class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
  public:
+  // NOTE(chokobole): This value was chosen empirically that
+  // |batch_inverse_benchmark| performs better at fewer input compared to the
+  // number of cpu cores.
+  constexpr static size_t kParallelBatchInverseDivisorThreshold = 4;
+
   // Division:
   //   1) a / b if division is supported.
   //   2) a * b⁻¹ otherwise
@@ -146,13 +149,6 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   }
 
  private:
-  // NOTE(chokobole): This value was chosen empirically that
-  // |batch_inverse_benchmark| performs better at fewer input compared to the
-  // number of cpu cores.
-  constexpr static size_t kParallelBatchInverseDivisorThreshold = 4;
-
-  FRIEND_TEST(GroupsTest, BatchInverse);
-
   constexpr static void DoBatchInverse(absl::Span<const G> groups,
                                        absl::Span<G> inverses, const G& coeff) {
     // Montgomery’s Trick and Fast Implementation of Masked AES

@@ -109,15 +109,16 @@ class AffinePoint<
   [[nodiscard]] constexpr static bool BatchMapScalarFieldToPoint(
       const AffinePoint& point, const ScalarFieldContainer& scalar_fields,
       AffineContainer* affine_points) {
-    size_t size = std::size(scalar_fields);
-    if (size != std::size(*affine_points)) {
-      LOG(ERROR) << "Size of |scalar_fields| and |affine_points| do not match";
-      return false;
-    }
-    std::vector<JacobianPoint<Curve>> jacobian_points = base::Map(
-        scalar_fields,
-        [&point](const ScalarField& scalar) { return scalar * point; });
-    return JacobianPoint<Curve>::BatchNormalize(jacobian_points, affine_points);
+    return DoBatchMapScalarFieldToPoint<false>(point, scalar_fields,
+                                               affine_points);
+  }
+
+  template <typename ScalarFieldContainer, typename AffineContainer>
+  [[nodiscard]] constexpr static bool BatchMapScalarFieldToPointSerial(
+      const AffinePoint& point, const ScalarFieldContainer& scalar_fields,
+      AffineContainer* affine_points) {
+    return DoBatchMapScalarFieldToPoint<true>(point, scalar_fields,
+                                              affine_points);
   }
 
   constexpr const BaseField& x() const { return x_; }
@@ -200,6 +201,28 @@ class AffinePoint<
   }
 
  private:
+  template <bool IsSerial, typename ScalarFieldContainer,
+            typename AffineContainer>
+  [[nodiscard]] constexpr static bool DoBatchMapScalarFieldToPoint(
+      const AffinePoint& point, const ScalarFieldContainer& scalar_fields,
+      AffineContainer* affine_points) {
+    size_t size = std::size(scalar_fields);
+    if (size != std::size(*affine_points)) {
+      LOG(ERROR) << "Size of |scalar_fields| and |affine_points| do not match";
+      return false;
+    }
+    std::vector<JacobianPoint<Curve>> jacobian_points = base::Map(
+        scalar_fields,
+        [&point](const ScalarField& scalar) { return scalar * point; });
+    if constexpr (IsSerial) {
+      return JacobianPoint<Curve>::BatchNormalizeSerial(jacobian_points,
+                                                        affine_points);
+    } else {
+      return JacobianPoint<Curve>::BatchNormalize(jacobian_points,
+                                                  affine_points);
+    }
+  }
+
   BaseField x_;
   BaseField y_;
   bool infinity_;

@@ -59,6 +59,7 @@ tachyon_cc_unittest(
         "//tachyon/base/buffer",
         "//tachyon/base/json",
         "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
+        "//tachyon/math/elliptic_curves/test:random",
     ],
 )
 

@@ -10,6 +10,7 @@
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/projective_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/sw_curve_config.h"
+#include "tachyon/math/elliptic_curves/test/random.h"
 
 namespace tachyon::math {
 
@@ -165,7 +166,33 @@ TEST_F(JacobianPointTest, ToXYZZ) {
             test::PointXYZZ(GF7(1), GF7(2), GF7(2), GF7(6)));
 }
 
+#if defined(TACHYON_HAS_OPENMP)
 TEST_F(JacobianPointTest, BatchNormalize) {
+  size_t size = size_t{1} << (static_cast<size_t>(omp_get_max_threads()) /
+                              GF7::kParallelBatchInverseDivisorThreshold);
+  for (size_t i = 0; i < 1; ++i) {
+    // NOTE(chokobole): if i == 0 runs in parallel, otherwise runs in serial.
+    std::vector<test::JacobianPoint> jacobian_points =
+        CreatePseudoRandomPoints<test::JacobianPoint>(size - i);
+
+    std::vector<test::AffinePoint> affine_points;
+    affine_points.resize(jacobian_points.size() - 1);
+    ASSERT_FALSE(
+        test::JacobianPoint::BatchNormalize(jacobian_points, &affine_points));
+
+    affine_points.resize(jacobian_points.size());
+    ASSERT_TRUE(
+        test::JacobianPoint::BatchNormalize(jacobian_points, &affine_points));
+
+    std::vector<test::AffinePoint> expected_affine_points = base::Map(
+        jacobian_points,
+        [](const test::JacobianPoint& point) { return point.ToAffine(); });
+    EXPECT_EQ(affine_points, expected_affine_points);
+  }
+}
+#endif  // defined(TACHYON_HAS_OPENMP)
+
+TEST_F(JacobianPointTest, BatchNormalizeSerial) {
   std::vector<test::JacobianPoint> jacobian_points = {
       test::JacobianPoint(GF7(1), GF7(2), GF7(0)),
       test::JacobianPoint(GF7(1), GF7(2), GF7(1)),
@@ -173,12 +200,12 @@ TEST_F(JacobianPointTest, BatchNormalize) {
 
   std::vector<test::AffinePoint> affine_points;
   affine_points.resize(2);
-  ASSERT_FALSE(
-      test::JacobianPoint::BatchNormalize(jacobian_points, &affine_points));
+  ASSERT_FALSE(test::JacobianPoint::BatchNormalizeSerial(jacobian_points,
+                                                         &affine_points));
 
   affine_points.resize(3);
-  ASSERT_TRUE(
-      test::JacobianPoint::BatchNormalize(jacobian_points, &affine_points));
+  ASSERT_TRUE(test::JacobianPoint::BatchNormalizeSerial(jacobian_points,
+                                                        &affine_points));
 
   std::vector<test::AffinePoint> expected_affine_points = {
       test::AffinePoint::Zero(), test::AffinePoint(GF7(1), GF7(2)),
