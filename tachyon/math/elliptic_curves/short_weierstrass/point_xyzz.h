@@ -124,16 +124,17 @@ class PointXYZZ<_Curve,
         point_xyzzs, [](const PointXYZZ& point) { return point.zzz_; });
     if (!BaseField::BatchInverseInPlaceSerial(zzz_inverses)) return false;
     for (size_t i = 0; i < size; ++i) {
-      const BaseField& z_inv_cubic = zzz_inverses[i];
-      if (z_inv_cubic.IsZero()) {
+      const PointXYZZ& point_xyzz = point_xyzzs[i];
+      if (point_xyzz.zz_.IsZero()) {
         (*affine_points)[i] = AffinePoint<Curve>::Zero();
-      } else if (z_inv_cubic.IsOne()) {
-        (*affine_points)[i] = {point_xyzzs[i].x_, point_xyzzs[i].y_};
+      } else if (point_xyzz.zz_.IsOne()) {
+        (*affine_points)[i] = {point_xyzz.x_, point_xyzz.y_};
       } else {
-        BaseField z_inv_square = z_inv_cubic * point_xyzzs[i].zz_;
+        const BaseField& z_inv_cubic = zzz_inverses[i];
+        BaseField z_inv_square = z_inv_cubic * point_xyzz.zz_;
         z_inv_square.SquareInPlace();
-        (*affine_points)[i] = {point_xyzzs[i].x_ * z_inv_square,
-                               point_xyzzs[i].y_ * z_inv_cubic};
+        (*affine_points)[i] = {point_xyzz.x_ * z_inv_square,
+                               point_xyzz.y_ * z_inv_cubic};
       }
     }
     return true;
