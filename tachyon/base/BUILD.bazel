@@ -84,9 +84,8 @@ tachyon_cc_library(
     hdrs = ["parallelize.h"],
     deps = [
         ":openmp_util",
-        "//tachyon/base/containers:adapters",
-        "//tachyon/base/containers:container_util",
         "//tachyon/base/functional:functor_traits",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

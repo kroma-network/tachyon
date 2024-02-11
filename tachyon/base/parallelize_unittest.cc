@@ -5,6 +5,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/base/containers/container_util.h"
+
 namespace tachyon::base {
 
 namespace {

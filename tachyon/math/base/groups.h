@@ -8,7 +8,6 @@
 
 #include "gtest/gtest_prod.h"
 
-#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/types/always_false.h"
@@ -104,7 +103,8 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   [[nodiscard]] constexpr static bool BatchInverse(const InputContainer& groups,
                                                    OutputContainer* inverses,
                                                    const G& coeff = G::One()) {
-    if (std::size(groups) != std::size(*inverses)) {
+    size_t size = std::size(groups);
+    if (size != std::size(*inverses)) {
       LOG(ERROR) << "Size of |groups| and |inverses| do not match";
       return false;
     }
@@ -112,24 +112,17 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
 #if defined(TACHYON_HAS_OPENMP)
     using G2 = decltype(std::declval<G>().Inverse());
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-    if (std::size(groups) >=
+    if (size >=
         size_t{1} << (thread_nums / kParallelBatchInverseDivisorThreshold)) {
-      size_t num_elem_per_thread =
-          (std::size(groups) + thread_nums - 1) / thread_nums;
-
-      auto groups_chunks = base::Chunked(groups, num_elem_per_thread);
-      auto inverses_chunks = base::Chunked(*inverses, num_elem_per_thread);
-      auto zipped = base::Zipped(groups_chunks, inverses_chunks);
-      auto zipped_vector = base::Map(
-          zipped.begin(), zipped.end(),
-          [](const std::tuple<absl::Span<const G2>, absl::Span<G2>>& v) {
-            return v;
-          });
-
-#pragma omp parallel for
-      for (size_t i = 0; i < zipped_vector.size(); ++i) {
-        const auto& [fields_chunk, inverses_chunk] = zipped_vector[i];
-        DoBatchInverse(fields_chunk, inverses_chunk, coeff);
+      size_t chunk_size = base::GetNumElementsPerThread(groups);
+      size_t num_chunks = (size + chunk_size - 1) / chunk_size;
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+        size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
+        absl::Span<const G> groups_chunk(std::data(groups) + i * chunk_size,
+                                         len);
+        absl::Span<G2> inverses_chunk(std::data(*inverses) + i * chunk_size,
+                                      len);
+        DoBatchInverse(groups_chunk, inverses_chunk, coeff);
       }
       return true;
     }
