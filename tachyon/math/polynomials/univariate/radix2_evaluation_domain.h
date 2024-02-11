@@ -23,7 +23,6 @@
 #include "absl/types/span.h"
 #include "gtest/gtest_prod.h"
 
-#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/parallelize.h"

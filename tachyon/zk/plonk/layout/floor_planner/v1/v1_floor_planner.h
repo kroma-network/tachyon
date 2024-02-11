@@ -15,7 +15,6 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/zk/plonk/layout/floor_planner/floor_planner.h"

@@ -106,7 +106,6 @@ tachyon_cc_library(
         "//tachyon/base:bits",
         "//tachyon/base:logging",
         "//tachyon/base:parallelize",
-        "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/types:always_false",
         "@com_google_absl//absl/types:span",
