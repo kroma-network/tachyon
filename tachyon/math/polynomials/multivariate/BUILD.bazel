@@ -3,6 +3,25 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "linear_combination",
+    hdrs = ["linear_combination.h"],
+    deps = [
+        ":linear_combination_term",
+        "//tachyon/base/containers:container_util",
+        "@com_google_absl//absl/container:node_hash_map",
+    ],
+)
+
+tachyon_cc_library(
+    name = "linear_combination_term",
+    hdrs = ["linear_combination_term.h"],
+    deps = [
+        "//tachyon/base:parallelize",
+        "//tachyon/base/buffer:copyable",
+    ],
+)
+
+tachyon_cc_library(
     name = "multilinear_extension",
     hdrs = [
         "multilinear_dense_evaluations.h",
@@ -14,6 +33,7 @@ tachyon_cc_library(
         "//tachyon/base:bits",
         "//tachyon/base:logging",
         "//tachyon/base:openmp_util",
+        "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/polynomials:polynomial",

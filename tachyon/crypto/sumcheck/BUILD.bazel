@@ -1,0 +1,22 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "sumcheck_proving_key",
+    hdrs = ["sumcheck_proving_key.h"],
+    deps = [
+        ":sumcheck_verifying_key",
+        "//tachyon/base/containers:container_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "sumcheck_verifying_key",
+    hdrs = ["sumcheck_verifying_key.h"],
+    deps = [
+        "//tachyon/base:random",
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/math/polynomials/multivariate:linear_combination",
+    ],
+)
