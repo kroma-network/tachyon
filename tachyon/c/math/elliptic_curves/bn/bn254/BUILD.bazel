@@ -1,3 +1,4 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//tachyon/c/math/elliptic_curves/generator:build_defs.bzl", "generate_ec_points")
 
 package(default_visibility = ["//visibility:public"])
@@ -22,5 +23,15 @@ generate_ec_points(
     g1_msm_kernels_deps = [
         "//tachyon/math/elliptic_curves/msm/kernels/bellman:bn254_bellman_msm_kernels",
         "//tachyon/math/elliptic_curves/msm/kernels/cuzk:bn254_cuzk_kernels",
+    ],
+)
+
+tachyon_cc_library(
+    name = "g1_test",
+    testonly = True,
+    hdrs = ["g1_test.h"],
+    deps = [
+        ":g1",
+        "@com_google_googletest//:gtest",
     ],
 )

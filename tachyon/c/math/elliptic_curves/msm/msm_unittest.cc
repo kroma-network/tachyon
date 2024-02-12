@@ -5,6 +5,7 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_prime_field_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_test.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
@@ -12,10 +13,10 @@ namespace tachyon::math {
 
 constexpr size_t kNums[] = {32, 2, 5};
 
-class MSMTest : public testing::Test {
+class MSMTest : public c::math::bn254::G1Test {
  public:
   static void SetUpTestSuite() {
-    tachyon_bn254_g1_init();
+    c::math::bn254::G1Test::SetUpTestSuite();
 
     size_t max_num = *std::max_element(std::begin(kNums), std::end(kNums));
     msm_ = tachyon_bn254_g1_create_msm(base::bits::Log2Ceiling(max_num));
