@@ -16,7 +16,6 @@
 
 namespace tachyon::zk::plonk {
 
-// TODO(dongchangYoo): impl logics related to prove and verify.
 class TACHYON_EXPORT PermutationArgument {
  public:
   PermutationArgument() = default;
