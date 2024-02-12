@@ -164,6 +164,7 @@ tachyon_cc_unittest(
     deps = [
         ":expression_factory",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/polynomials/univariate:univariate_polynomial",
     ],

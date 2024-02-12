@@ -5,6 +5,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/fq_gpu.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
 #include "tachyon/math/finite_fields/prime_field_conversions.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/test/launch_op_macros.h"
 
 namespace tachyon::math {
@@ -25,18 +26,18 @@ DEFINE_LAUNCH_FIELD_OP(Div)
 
 using namespace device;
 
-class PrimeFieldCorrectnessGpuTest : public testing::Test {
+class PrimeFieldCorrectnessGpuTest : public FiniteFieldTest<bn254::Fq> {
  public:
   // Runs tests with |N| data.
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
+    FiniteFieldTest<bn254::Fq>::SetUpTestSuite();
+
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
     xs_ = gpu::GpuMemory<bn254::FqGpu>::MallocManaged(N);
     ys_ = gpu::GpuMemory<bn254::FqGpu>::MallocManaged(N);
     results_ = gpu::GpuMemory<bn254::FqGpu>::MallocManaged(N);
-
-    bn254::Fq::Init();
 
     x_cpus_.reserve(N);
     y_cpus_.reserve(N);

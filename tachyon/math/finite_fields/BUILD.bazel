@@ -207,6 +207,7 @@ tachyon_cc_unittest(
         "//tachyon/base/buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:fq12",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/finite_fields/test:gf7_2",
         "//tachyon/math/finite_fields/test:gf7_3",
@@ -221,6 +222,7 @@ tachyon_cuda_unittest(
         ":prime_field_conversions",
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7_gpu",
         "//tachyon/math/test:launch_op_macros",
     ],
@@ -235,6 +237,7 @@ tachyon_cuda_test(
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/elliptic_curves/bn/bn254:fq_gpu",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/test:launch_op_macros",
     ],
 )

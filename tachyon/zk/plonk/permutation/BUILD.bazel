@@ -188,6 +188,7 @@ tachyon_cc_unittest(
         ":permutation_table_store",
         "//tachyon/base/buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/zk/plonk/halo2:prover_test",
     ],
 )

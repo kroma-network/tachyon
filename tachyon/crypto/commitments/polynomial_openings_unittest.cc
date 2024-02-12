@@ -3,6 +3,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -20,10 +21,8 @@ using Coeffs = UnivariateDenseCoefficients<GF7, kMaxDegree>;
 using PolyRef = base::Ref<const Poly>;
 using PointDeepRef = base::DeepRef<const Point>;
 
-class PolynomialOpeningsTest : public testing::Test {
+class PolynomialOpeningsTest : public FiniteFieldTest<GF7> {
  public:
-  static void SetUpTestSuite() { GF7::Init(); }
-
   void SetUp() override {
     // NOTE(Insun35): For testing, I added the same polynomial to |polys_[2]|
     // and |polys_[3]| on purpose. Even if they have the same value, they should

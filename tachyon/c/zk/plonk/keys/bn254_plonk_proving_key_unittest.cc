@@ -4,20 +4,19 @@
 
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 
 namespace tachyon::zk::plonk {
 
 namespace {
 
-class Bn254PlonkProvingKeyTest : public testing::Test {
+class Bn254PlonkProvingKeyTest : public math::FiniteFieldTest<math::bn254::Fr> {
  public:
   using Poly =
       math::UnivariateDensePolynomial<math::bn254::Fr, c::math::kMaxDegree>;
   using Evals =
       math::UnivariateEvaluations<math::bn254::Fr, c::math::kMaxDegree>;
-
-  static void SetUpTestSuite() { math::bn254::Fr::Init(); }
 };
 
 }  // namespace

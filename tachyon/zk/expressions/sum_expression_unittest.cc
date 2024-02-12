@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/expressions/constant_expression.h"
 #include "tachyon/zk/expressions/selector_expression.h"
 
@@ -10,10 +11,7 @@ namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-class SumExpressionTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { Fr::Init(); }
-};
+class SumExpressionTest : public math::FiniteFieldTest<Fr> {};
 
 TEST_F(SumExpressionTest, DegreeComplexity) {
   std::unique_ptr<ConstantExpression<Fr>> left =

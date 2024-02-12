@@ -4,6 +4,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
@@ -12,10 +13,7 @@ using R = RationalField<GF7>;
 
 namespace {
 
-class RationalFieldTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { GF7::Init(); }
-};
+class RationalFieldTest : public FiniteFieldTest<GF7> {};
 
 }  // namespace
 

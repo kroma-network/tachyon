@@ -2,6 +2,7 @@
 
 #include "tachyon/base/random.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/expressions/expression_factory.h"
 
 namespace tachyon::zk {
@@ -10,10 +11,8 @@ using Fr = math::bn254::Fr;
 
 namespace {
 
-class ExpressionTest : public testing::Test {
+class ExpressionTest : public math::FiniteFieldTest<Fr> {
  public:
-  static void SetUpTestSuite() { Fr::Init(); }
-
   void SetUp() override {
     expressions_.push_back(ExpressionFactory<Fr>::Constant(Fr(1)));
     expressions_.push_back(

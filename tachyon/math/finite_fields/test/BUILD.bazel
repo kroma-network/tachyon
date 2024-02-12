@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load(
     "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
     "generate_fp2s",
@@ -46,4 +47,11 @@ generate_fp3s(
     namespace = "tachyon::math",
     non_residue = ["2"],
     deps = [":gf7"],
+)
+
+tachyon_cc_library(
+    name = "finite_field_test",
+    testonly = True,
+    hdrs = ["finite_field_test.h"],
+    deps = ["@com_google_googletest//:gtest"],
 )

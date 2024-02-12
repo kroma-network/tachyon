@@ -1,15 +1,13 @@
 #include "gtest/gtest.h"
 
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
 
 namespace {
 
-class FieldTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { math::GF7::Init(); }
-};
+class FieldTest : public FiniteFieldTest<math::GF7> {};
 
 }  // namespace
 

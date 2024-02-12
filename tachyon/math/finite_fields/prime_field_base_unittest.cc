@@ -5,15 +5,13 @@
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::math {
 
 namespace {
 template <typename PrimeField>
-class PrimeFieldBaseTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { PrimeField::Init(); }
-};
+class PrimeFieldBaseTest : public FiniteFieldTest<PrimeField> {};
 
 }  // namespace
 

@@ -284,6 +284,7 @@ tachyon_cc_unittest(
         ":prover_test",
         ":sha256_transcript",
         ":synthesizer",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/zk/plonk/examples:simple_circuit",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",

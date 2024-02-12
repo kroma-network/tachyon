@@ -3,15 +3,13 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::zk {
 
 using Fr = math::bn254::Fr;
 
-class FixedExpressionTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { Fr::Init(); }
-};
+class FixedExpressionTest : public math::FiniteFieldTest<Fr> {};
 
 TEST_F(FixedExpressionTest, DegreeComplexity) {
   std::unique_ptr<FixedExpression<Fr>> expr =

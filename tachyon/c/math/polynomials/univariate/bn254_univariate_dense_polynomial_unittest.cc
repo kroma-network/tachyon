@@ -4,6 +4,7 @@
 
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
@@ -12,11 +13,9 @@ namespace {
 
 constexpr size_t kDegree = 5;
 
-class UnivariateDensePolynomialTest : public testing::Test {
+class UnivariateDensePolynomialTest : public FiniteFieldTest<bn254::Fr> {
  public:
   using Poly = UnivariateDensePolynomial<bn254::Fr, c::math::kMaxDegree>;
-
-  static void SetUpTestSuite() { bn254::Fr::Init(); }
 
   void SetUp() override {
     Poly* cpp_poly = new Poly(Poly::Random(kDegree));

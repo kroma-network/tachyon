@@ -5,16 +5,15 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
 #include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 
 namespace tachyon::zk::plonk {
 
 namespace {
 
-class Bn254PlonkVerifyingKeyTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { math::bn254::Fr::Init(); }
-};
+class Bn254PlonkVerifyingKeyTest
+    : public math::FiniteFieldTest<math::bn254::Fr> {};
 
 }  // namespace
 

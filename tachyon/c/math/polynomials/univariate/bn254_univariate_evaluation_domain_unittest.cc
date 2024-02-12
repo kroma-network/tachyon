@@ -5,6 +5,7 @@
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
@@ -14,13 +15,11 @@ namespace {
 
 constexpr size_t kDegree = 5;
 
-class UnivariateEvaluationDomainTest : public testing::Test {
+class UnivariateEvaluationDomainTest : public FiniteFieldTest<bn254::Fr> {
  public:
   using Domain = UnivariateEvaluationDomain<bn254::Fr, c::math::kMaxDegree>;
   using RationalEvals =
       UnivariateEvaluations<RationalField<bn254::Fr>, c::math::kMaxDegree>;
-
-  static void SetUpTestSuite() { bn254::Fr::Init(); }
 
   void SetUp() override {
     domain_ = tachyon_bn254_univariate_evaluation_domain_create(kDegree);

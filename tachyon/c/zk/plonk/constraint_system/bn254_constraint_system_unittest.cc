@@ -3,16 +3,15 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 
 namespace tachyon::zk::plonk {
 
 namespace {
 
-class ConstraintSystemTest : public testing::Test {
+class ConstraintSystemTest : public math::FiniteFieldTest<math::bn254::Fr> {
  public:
-  static void SetUpTestSuite() { math::bn254::Fr::Init(); }
-
   void SetUp() override {
     cs_ = reinterpret_cast<tachyon_bn254_plonk_constraint_system*>(&cpp_cs_);
   }

@@ -11,6 +11,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
@@ -21,10 +22,7 @@ constexpr size_t kMaxDegree = 5;
 using GF7 = math::GF7;
 using Evals = math::UnivariateEvaluations<GF7, kMaxDegree>;
 
-class EvaluatorTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { math::GF7::Init(); }
-
+class EvaluatorTest : public math::FiniteFieldTest<GF7> {
  protected:
   std::vector<Evals> fixed_columns_;
   std::vector<Evals> advice_columns_;

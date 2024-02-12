@@ -9,6 +9,7 @@
 #include "tachyon/crypto/commitments/merkle_tree/binary_merkle_tree/simple_binary_merkle_tree_storage.h"
 #include "tachyon/crypto/transcripts/simple_transcript.h"
 #include "tachyon/math/finite_fields/goldilocks_prime/goldilocks.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -48,7 +49,7 @@ class SimpleFRIStorage : public FRIStorage<math::Goldilocks> {
   std::vector<SimpleBinaryMerkleTreeStorage<math::Goldilocks>> layers_;
 };
 
-class FRITest : public testing::Test {
+class FRITest : public math::FiniteFieldTest<math::Goldilocks> {
  public:
   constexpr static size_t K = 3;
   constexpr static size_t N = size_t{1} << K;
@@ -59,8 +60,6 @@ class FRITest : public testing::Test {
   using Poly = PCS::Poly;
   using Commitment = PCS::Commitment;
   using Domain = PCS::Domain;
-
-  static void SetUpTestSuite() { math::Goldilocks::Init(); }
 
   void SetUp() override {
     domain_ = Domain::Create(N);

@@ -11,6 +11,7 @@
 #include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
 namespace tachyon::math {
@@ -19,13 +20,11 @@ namespace {
 
 constexpr size_t kDegree = 5;
 
-class UnivariateRationalEvaluationsTest : public testing::Test {
+class UnivariateRationalEvaluationsTest : public FiniteFieldTest<bn254::Fr> {
  public:
   using Evals = UnivariateEvaluations<bn254::Fr, c::math::kMaxDegree>;
   using RationalEvals =
       UnivariateEvaluations<RationalField<bn254::Fr>, c::math::kMaxDegree>;
-
-  static void SetUpTestSuite() { bn254::Fr::Init(); }
 
   void SetUp() override {
     RationalEvals* cpp_evals =
