@@ -184,7 +184,6 @@ tachyon_cc_unittest(
         "unpermuted_table_unittest.cc",
     ],
     deps = [
-        ":permutation_argument_runner",
         ":permutation_assembly",
         ":permutation_table_store",
         "//tachyon/base/buffer",
