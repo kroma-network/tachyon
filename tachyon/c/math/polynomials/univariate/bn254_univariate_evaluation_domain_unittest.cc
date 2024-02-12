@@ -70,7 +70,7 @@ TEST_F(UnivariateEvaluationDomainTest, FFT) {
           domain_,
           reinterpret_cast<const tachyon_bn254_univariate_dense_polynomial*>(
               &poly));
-  EXPECT_EQ(Domain::Create(kDegree)->FFT(poly),
+  EXPECT_EQ(Domain::Create(kDegree + 1)->FFT(poly),
             reinterpret_cast<Domain::Evals&>(*evals));
   tachyon_bn254_univariate_evaluations_destroy(evals);
 }
@@ -82,7 +82,7 @@ TEST_F(UnivariateEvaluationDomainTest, IFFT) {
           domain_,
           reinterpret_cast<const tachyon_bn254_univariate_evaluations*>(
               &evals));
-  EXPECT_EQ(Domain::Create(kDegree)->IFFT(evals),
+  EXPECT_EQ(Domain::Create(kDegree + 1)->IFFT(evals),
             reinterpret_cast<Domain::DensePoly&>(*poly));
   tachyon_bn254_univariate_dense_polynomial_destroy(poly);
 }
