@@ -9,8 +9,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
-#include "tachyon/zk/base/commitments/shplonk_extension.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/zk/base/row_index.h"
 
 namespace tachyon::zk::plonk::halo2 {
