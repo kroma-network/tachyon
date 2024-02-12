@@ -2,34 +2,34 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/zk/expressions/constant_expression.h"
 #include "tachyon/zk/expressions/selector_expression.h"
 
 namespace tachyon::zk {
 
-using Fr = math::bn254::Fr;
+using F = math::GF7;
 
-class SumExpressionTest : public math::FiniteFieldTest<Fr> {};
+class SumExpressionTest : public math::FiniteFieldTest<F> {};
 
 TEST_F(SumExpressionTest, DegreeComplexity) {
-  std::unique_ptr<ConstantExpression<Fr>> left =
-      ConstantExpression<Fr>::CreateForTesting(Fr::One());
-  std::unique_ptr<SelectorExpression<Fr>> right =
-      SelectorExpression<Fr>::CreateForTesting(plonk::Selector::Simple(1));
+  std::unique_ptr<ConstantExpression<F>> left =
+      ConstantExpression<F>::CreateForTesting(F::One());
+  std::unique_ptr<SelectorExpression<F>> right =
+      SelectorExpression<F>::CreateForTesting(plonk::Selector::Simple(1));
 
   size_t left_degree = left->Degree();
   uint64_t left_complexity = left->Complexity();
   size_t right_degree = right->Degree();
   uint64_t right_complexity = right->Complexity();
 
-  std::unique_ptr<SumExpression<Fr>> sum_expression =
-      SumExpression<Fr>::CreateForTesting(std::move(left), std::move(right));
+  std::unique_ptr<SumExpression<F>> sum_expression =
+      SumExpression<F>::CreateForTesting(std::move(left), std::move(right));
 
   EXPECT_EQ(sum_expression->Degree(), std::max(left_degree, right_degree));
   EXPECT_EQ(sum_expression->Complexity(),
-            left_complexity + right_complexity + SumExpression<Fr>::kOverhead);
+            left_complexity + right_complexity + SumExpression<F>::kOverhead);
 }
 
 }  // namespace tachyon::zk
