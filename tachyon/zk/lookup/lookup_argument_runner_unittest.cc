@@ -15,11 +15,11 @@
 #include "tachyon/zk/expressions/expression_factory.h"
 #include "tachyon/zk/lookup/compress_expression.h"
 #include "tachyon/zk/lookup/permute_expression_pair.h"
-#include "tachyon/zk/lookup/test/compress_expression_test_setting.h"
+#include "tachyon/zk/lookup/test/compress_expression_test.h"
 
 namespace tachyon::zk {
 
-class LookupArgumentRunnerTest : public CompressExpressionTestSetting {};
+class LookupArgumentRunnerTest : public CompressExpressionTest {};
 
 TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
   prover_->blinder().set_blinding_factors(5);
