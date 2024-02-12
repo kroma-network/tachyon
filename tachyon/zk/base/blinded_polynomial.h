@@ -12,12 +12,7 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/base/ref.h"
-
 namespace tachyon::zk {
-
-template <typename T>
-class Ref;
 
 template <typename Poly>
 class BlindedPolynomial {
@@ -32,10 +27,6 @@ class BlindedPolynomial {
 
   const Poly& poly() const { return poly_; }
   const F& blind() const { return blind_; }
-
-  base::Ref<const BlindedPolynomial<Poly>> ToRef() const {
-    return base::Ref<const BlindedPolynomial<Poly>>(this);
-  }
 
   std::string ToString() const {
     return absl::Substitute("{poly: $0, blind: $1}", poly_.ToString(),
