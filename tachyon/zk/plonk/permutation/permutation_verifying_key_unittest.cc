@@ -9,23 +9,25 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/buffer.h"
-#include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/math/elliptic_curves/short_weierstrass/test/sw_curve_config.h"
 
 namespace tachyon::zk::plonk {
 
 namespace {
 
-class PermutationVerifyingKeyTest : public halo2::ProverTest {
+class PermutationVerifyingKeyTest : public testing::Test {
  public:
-  using VerifyingKey = PermutationVerifyingKey<Commitment>;
+  using VerifyingKey = PermutationVerifyingKey<math::test::AffinePoint>;
+
+  static void SetUpTestSuite() { math::test::G1Curve::Init(); }
 };
 
 }  // namespace
 
 TEST_F(PermutationVerifyingKeyTest, Copyable) {
-  VerifyingKey expected({math::bn254::G1AffinePoint::Random(),
-                         math::bn254::G1AffinePoint::Random(),
-                         math::bn254::G1AffinePoint::Random()});
+  VerifyingKey expected({math::test::AffinePoint::Random(),
+                         math::test::AffinePoint::Random(),
+                         math::test::AffinePoint::Random()});
 
   std::vector<uint8_t> vec;
   vec.resize(base::EstimateSize(expected));

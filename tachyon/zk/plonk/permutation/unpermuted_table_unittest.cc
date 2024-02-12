@@ -10,38 +10,46 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
+#include "tachyon/zk/base/row_index.h"
 
 namespace tachyon::zk::plonk {
 
 namespace {
 
-class UnpermutedTableTest : public halo2::ProverTest {
+using F = math::bn254::Fr;
+
+class UnpermutedTableTest : public math::FiniteFieldTest<F> {
  public:
+  constexpr static RowIndex kRows = 32;
   constexpr static size_t kCols = 4;
 
+  using Domain = math::UnivariateEvaluationDomain<F, kRows - 1>;
+  using Evals = Domain::Evals;
+
   void SetUp() override {
-    halo2::ProverTest::SetUp();
-    unpermuted_table_ = UnpermutedTable<Evals>::Construct(
-        kCols, prover_->pcs().N(), prover_->domain());
+    domain_ = Domain::Create(kRows);
+
+    unpermuted_table_ =
+        UnpermutedTable<Evals>::Construct(kCols, kRows, domain_.get());
   }
 
  protected:
+  std::unique_ptr<Domain> domain_;
   UnpermutedTable<Evals> unpermuted_table_;
 };
 
 }  // namespace
 
 TEST_F(UnpermutedTableTest, Construct) {
-  const Domain* domain = prover_->domain();
-
-  const F& omega = domain->group_gen();
-  RowIndex n = static_cast<RowIndex>(prover_->pcs().N());
-  std::vector<F> omega_powers = domain->GetRootsOfUnity(n, omega);
+  const F& omega = domain_->group_gen();
+  std::vector<F> omega_powers = domain_->GetRootsOfUnity(kRows, omega);
 
   const F delta = GetDelta<F>();
   for (size_t i = 1; i < kCols; ++i) {
-    for (RowIndex j = 0; j < n; ++j) {
+    for (RowIndex j = 0; j < kRows; ++j) {
       omega_powers[j] *= delta;
       EXPECT_EQ(omega_powers[j], unpermuted_table_[Label(i, j)]);
     }
@@ -49,25 +57,22 @@ TEST_F(UnpermutedTableTest, Construct) {
 }
 
 TEST_F(UnpermutedTableTest, GetColumns) {
-  const Domain* domain = prover_->domain();
-
-  const F& omega = domain->group_gen();
+  const F& omega = domain_->group_gen();
   const F delta = GetDelta<F>();
-  RowIndex n = static_cast<RowIndex>(prover_->pcs().N());
-  std::vector<F> omega_powers = domain->GetRootsOfUnity(n, omega);
+  std::vector<F> omega_powers = domain_->GetRootsOfUnity(kRows, omega);
   for (F& omega_power : omega_powers) {
     omega_power *= delta;
   }
 
   base::Ref<const Evals> column = unpermuted_table_.GetColumn(1);
-  for (RowIndex i = 0; i < n; ++i) {
+  for (RowIndex i = 0; i < kRows; ++i) {
     EXPECT_EQ(omega_powers[i], (*column)[i]);
   }
 
   std::vector<base::Ref<const Evals>> columns =
       unpermuted_table_.GetColumns(base::Range<size_t>(2, 4));
   for (size_t i = 0; i < 2; ++i) {
-    for (RowIndex j = 0; j < n; ++j) {
+    for (RowIndex j = 0; j < kRows; ++j) {
       omega_powers[j] *= delta;
       EXPECT_EQ(omega_powers[j], (*columns[i])[j]);
     }

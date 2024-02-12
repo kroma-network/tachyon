@@ -1,29 +1,39 @@
 #include "tachyon/zk/plonk/permutation/permutation_table_store.h"
 
+#include <memory>
 #include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
 namespace tachyon::zk::plonk {
 namespace {
 
-class PermutationTableStoreTest : public halo2::ProverTest {
+using F = math::bn254::Fr;
+
+class PermutationTableStoreTest : public math::FiniteFieldTest<F> {
  public:
   static constexpr size_t kChunkSize = 4;
+  constexpr static RowIndex kRows = 32;
+  constexpr static size_t kMaxDegree = kRows - 1;
+
+  using Domain = math::UnivariateEvaluationDomain<F, kMaxDegree>;
+  using Evals = Domain::Evals;
 
   void SetUp() override {
-    halo2::ProverTest::SetUp();
+    std::unique_ptr<Domain> domain = Domain::Create(kRows);
+    const Domain* domain_ptr = domain.get();
 
-    const Domain* domain = prover_->domain();
-    fixed_columns_ =
-        base::CreateVector(3, [domain]() { return domain->Random<Evals>(); });
-    advice_columns_ =
-        base::CreateVector(3, [domain]() { return domain->Random<Evals>(); });
-    instance_columns_ =
-        base::CreateVector(3, [domain]() { return domain->Random<Evals>(); });
+    fixed_columns_ = base::CreateVector(
+        3, [domain_ptr]() { return domain_ptr->Random<Evals>(); });
+    advice_columns_ = base::CreateVector(
+        3, [domain_ptr]() { return domain_ptr->Random<Evals>(); });
+    instance_columns_ = base::CreateVector(
+        3, [domain_ptr]() { return domain_ptr->Random<Evals>(); });
 
     table_ = RefTable<Evals>(absl::MakeConstSpan(fixed_columns_),
                              absl::MakeConstSpan(advice_columns_),
@@ -34,8 +44,8 @@ class PermutationTableStoreTest : public halo2::ProverTest {
         AdviceColumnKey(1), FixedColumnKey(1),    FixedColumnKey(2),
         AdviceColumnKey(2), InstanceColumnKey(1), InstanceColumnKey(2)};
 
-    unpermuted_table_ = UnpermutedTable<Evals>::Construct(
-        column_keys_.size(), prover_->pcs().N(), prover_->domain());
+    unpermuted_table_ = UnpermutedTable<Evals>::Construct(column_keys_.size(),
+                                                          kRows, domain_ptr);
     for (const Evals& column : unpermuted_table_.table()) {
       permutations_.push_back(column);
     }
