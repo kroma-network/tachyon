@@ -11,6 +11,7 @@
 
 #include "absl/types/span.h"
 
+#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/base/parallelize.h"
@@ -235,13 +236,12 @@ class CircuitPolynomialBuilder {
                 .permutation()
                 .columns();
         std::vector<absl::Span<const AnyColumnKey>> column_key_chunks =
-            base::ParallelizeMapByChunkSize(
-                column_keys, chunk_len_,
+            base::Map(
+                base::Chunked(column_keys, chunk_len_),
                 [](absl::Span<const AnyColumnKey> chunk) { return chunk; });
         std::vector<absl::Span<const Evals>> coset_chunks =
-            base::ParallelizeMapByChunkSize(
-                cosets, chunk_len_,
-                [](absl::Span<const Evals> chunk) { return chunk; });
+            base::Map(base::Chunked(cosets, chunk_len_),
+                      [](absl::Span<const Evals> chunk) { return chunk; });
 
         for (size_t j = 0; j < product_cosets.size(); ++j) {
           std::vector<base::Ref<const Evals>> column_chunk =

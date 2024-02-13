@@ -21,6 +21,7 @@ tachyon_cc_library(
         ":graph_evaluator",
         ":vanishing_utils",
         "//tachyon/base:parallelize",
+        "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/numerics:checked_math",
         "//tachyon/zk/base:rotation",
