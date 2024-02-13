@@ -53,7 +53,7 @@ VanishingConstructed<Poly> CommitFinalHPoly(
   using ExtendedPoly = typename PCS::ExtendedPoly;
 
   // Divide by t(X) = X^{params.n} - 1.
-  ExtendedEvals h_evals = DivideByVanishingPolyInPlace<F>(
+  ExtendedEvals& h_evals = DivideByVanishingPolyInPlace<F>(
       circuit_column, prover->extended_domain(), prover->domain());
 
   // Obtain final h(X) polynomial

@@ -87,18 +87,6 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
   return evals;
 }
 
-// This divides the polynomial (in the extended domain) by the vanishing
-// polynomial of the 2ᵏ size domain.
-template <typename F, typename Domain, typename ExtendedDomain,
-          typename ExtendedEvals>
-ExtendedEvals DivideByVanishingPoly(const ExtendedEvals& evals,
-                                    const ExtendedDomain* extended_domain,
-                                    const Domain* domain) {
-  ExtendedEvals ret = evals;
-  DivideByVanishingPolyInPlace<F>(ret, extended_domain, domain);
-  return ret;
-}
-
 // Given a |poly| of coefficients  [a₀, a₁, a₂, ...], this returns
 // [a₀, ζa₁, ζ²a₂, a₃, ζa₄, ζ²a₅, a₆, ...], where ζ is a cube root of unity in
 // the multiplicative subgroup with order (p - 1), i.e. ζ³ = 1.
