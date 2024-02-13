@@ -1,0 +1,14 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "multilinear_sumcheck",
+    hdrs = ["data_structures.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/math/polynomials/multivariate:multilinear_extension",
+        "@com_google_absl//absl/container:node_hash_map",
+    ],
+)
