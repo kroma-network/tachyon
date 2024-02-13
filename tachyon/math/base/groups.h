@@ -36,7 +36,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   // NOTE(chokobole): This value was chosen empirically that
   // |batch_inverse_benchmark| performs better at fewer input compared to the
   // number of cpu cores.
-  constexpr static size_t kParallelBatchInverseDivisorThreshold = 4;
+  constexpr static size_t kParallelBatchInverseDivisorThreshold = 2;
 
   // Division:
   //   1) a / b if division is supported.
