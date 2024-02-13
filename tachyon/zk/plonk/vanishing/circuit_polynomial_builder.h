@@ -22,7 +22,6 @@
 #include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/permutation/permutation_committed.h"
-#include "tachyon/zk/plonk/permutation/unpermuted_table.h"
 #include "tachyon/zk/plonk/vanishing/evaluation_input.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
