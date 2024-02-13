@@ -23,6 +23,7 @@
 #include "absl/types/span.h"
 #include "gtest/gtest_prod.h"
 
+#include "tachyon/base/bits.h"
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
@@ -46,6 +47,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   using SparsePoly = UnivariateSparsePolynomial<F, MaxDegree>;
 
   constexpr static size_t kMaxDegree = MaxDegree;
+  constexpr static uint32_t kSparseTwiddleDegree = 10;
   // Factor that determines if a the degree aware FFT should be called.
   constexpr static size_t kDegreeAwareFFTThresholdFactor = 1 << 2;
   // The minimum size of a chunk at which parallelization of |Butterfly()| is
@@ -76,14 +78,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     return base::bits::SafeLog2Ceiling(num_coeffs) <= F::Config::kTwoAdicity;
   }
 
-  void set_min_num_chunks_for_compaction(size_t min_num_chunks_for_compaction) {
-    min_num_chunks_for_compaction_ = min_num_chunks_for_compaction;
-  }
-
-  size_t min_num_chunks_for_compaction() const {
-    return min_num_chunks_for_compaction_;
-  }
-
  private:
   template <typename T>
   FRIEND_TEST(UnivariateEvaluationDomainTest, RootsOfUnity);
@@ -101,13 +95,11 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
     Evals evals;
     evals.evaluations_ = poly.coefficients_.coefficients_;
-    if (evals.evaluations_.size() * kDegreeAwareFFTThresholdFactor <=
-        this->size_) {
-      DegreeAwareFFTInPlace(evals);
-    } else {
-      evals.evaluations_.resize(this->size_, F::Zero());
-      InOrderFFTInPlace(evals);
+    if (!this->offset_.IsOne()) {
+      Base::DistributePowers(evals, this->offset_);
     }
+    evals.evaluations_.resize(this->size_, F::Zero());
+    BestFFT(evals.evaluations_, this->group_gen_);
     return evals;
   }
 
@@ -119,211 +111,261 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     DensePoly poly;
     poly.coefficients_.coefficients_ = evals.evaluations_;
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
-    InOrderIFFTInPlace(poly);
-    poly.coefficients_.RemoveHighDegreeZeros();
-    return poly;
-  }
-
-  // Degree aware FFT that runs in O(n log d) instead of O(n log n).
-  // Implementation copied from libiop. (See
-  // https://github.com/arkworks-rs/algebra/blob/master/poly/src/domain/radix2/fft.rs#L28)
-  constexpr void DegreeAwareFFTInPlace(Evals& evals) const {
-    if (!this->offset_.IsOne()) {
-      Base::DistributePowers(evals, this->offset_);
-    }
-    size_t n = this->size_;
-    uint32_t log_n = this->log_size_of_group_;
-    size_t num_coeffs = absl::bit_ceil(evals.evaluations_.size());
-    uint32_t log_d = base::bits::SafeLog2Ceiling(num_coeffs);
-    // When the polynomial is of size k * |coset|, for k < 2ⁱ, the first i
-    // iterations of Cooley-Tukey are easily predictable. This is because they
-    // will be combining g(w²) + wh(w²), but g or h will always refer to a
-    // coefficient that is 0. Therefore those first i rounds have the effect
-    // of copying the evaluations into more locations, so we handle this in
-    // initialization, and reduce the number of loops that are performing
-    // arithmetic. The number of times we copy each initial non-zero element
-    // is as below:
-    CHECK_GE(log_n, log_d);
-    size_t duplicity_of_initials = size_t{1} << (log_n - log_d);
-    evals.evaluations_.resize(n, F::Zero());
-    this->SwapElements(evals, num_coeffs, log_n);
-    if (duplicity_of_initials > 1) {
-      base::ParallelizeByChunkSize(evals.evaluations_, duplicity_of_initials,
-                                   [](absl::Span<F> chunk) {
-                                     const F& v = chunk[0];
-                                     for (size_t j = 1; j < chunk.size(); ++j) {
-                                       chunk[j] = v;
-                                     }
-                                   });
-    }
-    size_t start_gap = duplicity_of_initials;
-    OutInHelper(evals, this->group_gen_, start_gap);
-  }
-
-  constexpr void InOrderFFTInPlace(Evals& evals) const {
-    if (!this->offset_.IsOne()) {
-      Base::DistributePowers(evals, this->offset_);
-    }
-    FFTHelperInPlace(evals);
-  }
-
-  constexpr void InOrderIFFTInPlace(DensePoly& poly) const {
-    IFFTHelperInPlace(poly);
+    BestFFT(poly.coefficients_.coefficients_, this->group_gen_inv_);
     if (this->offset_.IsOne()) {
       // clang-format off
-      OPENMP_PARALLEL_FOR(F& val : poly.coefficients_.coefficients_) {
+      OPENMP_PARALLEL_FOR(F& coeff : poly.coefficients_.coefficients_) {
         // clang-format on
-        val *= this->size_inv_;
+        coeff *= this->size_inv_;
       }
     } else {
       Base::DistributePowersAndMulByConst(poly, this->offset_inv_,
                                           this->size_inv_);
     }
+    poly.coefficients_.RemoveHighDegreeZeros();
+    return poly;
   }
 
-  constexpr void FFTHelperInPlace(Evals& evals) const {
-    uint32_t log_len = static_cast<uint32_t>(base::bits::Log2Ceiling(
-        static_cast<uint32_t>(evals.evaluations_.size())));
-    this->SwapElements(evals, evals.evaluations_.size() - 1, log_len);
-    OutInHelper(evals, this->group_gen_, 1);
-  }
+  template <typename PolyOrEvals>
+  void BestFFT(PolyOrEvals& poly_or_evals, const F& omega) const {
+#if defined(TACHYON_HAS_OPENMP)
+    uint32_t thread_nums = static_cast<uint32_t>(omp_get_max_threads());
+    size_t log_split = base::bits::Log2Floor(thread_nums);
+    size_t n = poly_or_evals.size();
+    size_t sub_n = n >> log_split;
+    size_t split_m = 1 << log_split;
 
-  // Handles doing an IFFT with handling of being in order and out of order.
-  // The results here must all be divided by |poly|, which is left up to the
-  // caller to do.
-  constexpr void IFFTHelperInPlace(DensePoly& poly) const {
-    InOutHelper(poly, this->group_gen_inv_);
-    uint32_t log_len = static_cast<uint32_t>(base::bits::Log2Ceiling(
-        static_cast<uint32_t>(poly.coefficients_.coefficients_.size())));
-    this->SwapElements(poly, poly.coefficients_.coefficients_.size() - 1,
-                       log_len);
-  }
-
-  template <FFTOrder Order, typename PolyOrEvals>
-  constexpr static void ApplyButterfly(PolyOrEvals& poly_or_evals,
-                                       absl::Span<const F> roots, size_t step,
-                                       size_t chunk_size, size_t thread_nums,
-                                       size_t gap) {
-    void (*fn)(F&, F&, const F&);
-
-    if constexpr (Order == FFTOrder::kInOut) {
-      fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnInOut;
+    if (sub_n < split_m) {
+#endif
+      return SerialFFT(poly_or_evals, omega, this->log_size_of_group_);
+#if defined(TACHYON_HAS_OPENMP)
     } else {
-      static_assert(Order == FFTOrder::kOutIn);
-      fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn;
+      return ParallelFFT(poly_or_evals, omega, this->log_size_of_group_);
     }
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < poly_or_evals.NumElements();
-                        i += chunk_size) {
-      // If the chunk is sufficiently big that parallelism helps,
-      // we parallelize the butterfly operation within the chunk.
-      if (gap > kMinGapSizeForParallelization && chunk_size < thread_nums) {
-        OPENMP_PARALLEL_FOR(size_t j = 0; j < gap; ++j) {
-          if (j * step < roots.size()) {
-            fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap),
-               roots[j * step]);
-          }
+#endif
+  }
+
+  template <typename PolyOrEvals>
+  static void SerialFFT(PolyOrEvals& a, const F& omega, uint32_t log_n) {
+    size_t n = a.size();
+
+    Base::SwapElements(a, n, log_n);
+
+    uint32_t m = 1;
+    for (size_t i = 0; i < log_n; ++i) {
+      F w_m = omega.Pow(n / (2 * m));
+
+      size_t k = 0;
+      while (k < n) {
+        F w = F::One();
+        for (size_t j = 0; j < m; ++j) {
+          F t = a.at(k + j + m);
+          t *= w;
+          a.at(k + j + m) = a.at(k + j);
+          a.at(k + j + m) -= t;
+          a.at(k + j) += t;
+          w *= w_m;
         }
-      } else {
-        for (size_t j = 0, k = 0; j < gap && k < roots.size(); ++j, k += step) {
-          fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap), roots[k]);
-        }
+
+        k += 2 * m;
       }
+
+      m *= 2;
     }
   }
 
-  constexpr void InOutHelper(DensePoly& poly, const F& root) const {
-    std::vector<F> roots = this->GetRootsOfUnity(this->size_ / 2, root);
-    size_t step = 1;
-    bool first = true;
-
 #if defined(TACHYON_HAS_OPENMP)
-    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-#else
-    size_t thread_nums = 1;
-#endif
-
-    size_t gap = poly.coefficients_.coefficients_.size() / 2;
-    while (gap > 0) {
-      // Each butterfly cluster uses 2 * |gap| positions.
-      size_t chunk_size = 2 * gap;
-      size_t num_chunks = poly.coefficients_.coefficients_.size() / chunk_size;
-
-      // Only compact roots to achieve cache locality/compactness if the roots
-      // lookup is done a significant amount of times, which also implies a
-      // large lookup stride.
-      bool should_compact = num_chunks >= min_num_chunks_for_compaction_;
-      if (should_compact) {
-        if (!first) {
-          size_t size = roots.size() / (step * 2);
-#if defined(TACHYON_HAS_OPENMP)
-          std::vector<F> new_roots(size);
-          OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
-            new_roots[i] = roots[i * (step * 2)];
-          }
-          roots = std::move(new_roots);
-#else
-          for (size_t i = 0; i < size; ++i) {
-            roots[i] = roots[i * (step * 2)];
-          }
-          roots.erase(roots.begin() + size, roots.end());
-#endif
-        }
-        step = 1;
-      } else {
-        step = num_chunks;
+  static void SerialSplitFFT(std::vector<F>& a,
+                             const std::vector<F>& twiddle_lut,
+                             size_t twiddle_scale, uint32_t log_n) {
+    size_t n = a.size();
+    size_t m = 1;
+    for (size_t i = 0; i < log_n; ++i) {
+      size_t omega_idx = twiddle_scale * n / (2 * m);
+      size_t low_idx = omega_idx % (1 << kSparseTwiddleDegree);
+      size_t high_idx = omega_idx >> kSparseTwiddleDegree;
+      F w_m = twiddle_lut[low_idx];
+      if (high_idx > 0) {
+        w_m *= twiddle_lut[(1 << kSparseTwiddleDegree) + high_idx];
       }
-      first = false;
 
-      ApplyButterfly<FFTOrder::kInOut>(poly, roots, step, chunk_size,
-                                       thread_nums, gap);
-      gap /= 2;
+      size_t k = 0;
+      while (k < n) {
+        F w = F::One();
+        for (size_t j = 0; j < m; ++j) {
+          F t = a.at(k + j + m);
+          t *= w;
+          a.at(k + j + m) = a.at(k + j);
+          a.at(k + j + m) -= t;
+          a.at(k + j) += t;
+          w *= w_m;
+        }
+
+        k += 2 * m;
+      }
+
+      m *= 2;
     }
   }
-
-  constexpr void OutInHelper(Evals& evals, const F& root,
-                             size_t start_gap) const {
-    std::vector<F> roots_cache = this->GetRootsOfUnity(this->size_ / 2, root);
-    // The |std::min| is only necessary for the case where
-    // |min_num_chunks_for_compaction_ = 1|. Else, notice that we compact the
-    // |roots_cache| by a |step| of at least |min_num_chunks_for_compaction_|.
-    size_t compaction_max_size =
-        std::min(roots_cache.size() / 2,
-                 roots_cache.size() / min_num_chunks_for_compaction_);
-    std::vector<F> compacted_roots(compaction_max_size, F::Zero());
-
-#if defined(TACHYON_HAS_OPENMP)
-    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-#else
-    size_t thread_nums = 1;
 #endif
 
-    size_t gap = start_gap;
-    while (gap < evals.evaluations_.size()) {
-      // Each butterfly cluster uses 2 * |gap| positions
-      size_t chunk_size = 2 * gap;
-      size_t num_chunks = evals.evaluations_.size() / chunk_size;
+#if defined(TACHYON_HAS_OPENMP)
+  template <typename PolyOrEvals>
+  static void SplitRadixFFT(absl::Span<F>& tmp, const PolyOrEvals& a,
+                            const std::vector<F>& twiddle_lut, size_t n,
+                            size_t sub_fft_offset, uint32_t log_split) {
+    size_t split_m = 1 << log_split;
+    size_t sub_n = n >> log_split;
 
-      // Only compact |roots| to achieve cache locality/compactness if the
-      // |roots| lookup is done a significant amount of times, which also
-      // implies a large lookup |step|.
-      bool should_compact = num_chunks >= min_num_chunks_for_compaction_ &&
-                            gap < evals.evaluations_.size() / 2;
-      if (should_compact) {
-        OPENMP_PARALLEL_FOR(size_t i = 0; i < gap; ++i) {
-          compacted_roots[i] = roots_cache[i * num_chunks];
-        }
-      }
-      ApplyButterfly<FFTOrder::kOutIn>(
-          evals,
-          should_compact ? absl::Span<const F>(compacted_roots.data(), gap)
-                         : roots_cache,
-          /*step=*/should_compact ? 1 : num_chunks, chunk_size, thread_nums,
-          gap);
-      gap *= 2;
+    std::vector<F> t1 = base::CreateVector<F>(split_m, F::Zero());
+    for (size_t i = 0; i < split_m; ++i) {
+      size_t ridx = base::bits::BitRev(i) >> (sizeof(size_t) * 8 - log_split);
+      t1.at(ridx) = a.at(i * sub_n + sub_fft_offset);
+    }
+    SerialSplitFFT(t1, twiddle_lut, sub_n, log_split);
+
+    size_t sparse_degree = kSparseTwiddleDegree;
+    size_t omega_idx = sub_fft_offset;
+    size_t low_idx = omega_idx % (1 << sparse_degree);
+    size_t high_idx = omega_idx >> sparse_degree;
+    F omega = twiddle_lut.at(low_idx);
+    if (high_idx > 0) {
+      omega *= twiddle_lut.at((1 << sparse_degree) + high_idx);
+    }
+    F w_m = F::One();
+    for (size_t i = 0; i < split_m; ++i) {
+      t1.at(i) *= w_m;
+      tmp.at(i) = t1.at(i);
+      w_m *= omega;
     }
   }
+#endif
 
-  size_t min_num_chunks_for_compaction_ = kDefaultMinNumChunksForCompaction;
+#if defined(TACHYON_HAS_OPENMP)
+  static std::vector<F> GenerateTwiddleLookupTable(const F& omega,
+                                                   uint32_t log_n,
+                                                   uint32_t sparse_degree,
+                                                   bool with_last_level) {
+    bool without_last_level = !with_last_level;
+    bool is_lut_len_large = sparse_degree > log_n;
+
+    // dense
+    if (is_lut_len_large) {
+      std::vector<F> twiddle_lut =
+          base::CreateVector<F>(size_t{1} << log_n, F::Zero());
+      base::Parallelize(
+          twiddle_lut,
+          [&](absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
+            F w_n = omega.Pow(chunk_index * chunk_size);
+            for (F& twiddle : chunk) {
+              twiddle = w_n;
+              w_n *= omega;
+            }
+          });
+      return twiddle_lut;
+    }
+
+    // sparse
+    size_t low_degree_lut_len = size_t{1} << sparse_degree;
+    size_t high_degree_lut_len =
+        size_t{1} << (log_n - sparse_degree - uint32_t{without_last_level});
+    std::vector<F> twiddle_lut = base::CreateVector<F>(
+        low_degree_lut_len + high_degree_lut_len, F::Zero());
+    absl::Span<F> low_degree_lut =
+        absl::MakeSpan(twiddle_lut).subspan(0, low_degree_lut_len);
+    absl::Span<F> high_degree_lut =
+        absl::MakeSpan(twiddle_lut).subspan(low_degree_lut_len);
+    base::Parallelize(
+        low_degree_lut,
+        [&](absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
+          F w_n = omega.Pow(chunk_index * chunk_size);
+          for (F& twiddle : chunk) {
+            twiddle = w_n;
+            w_n *= omega;
+          }
+        });
+
+    F high_degree_omega = omega.Pow(uint64_t{1} << sparse_degree);
+    base::Parallelize(
+        high_degree_lut,
+        [&](absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
+          F w_n = high_degree_omega.Pow(chunk_index * chunk_size);
+          for (F& twiddle : chunk) {
+            twiddle = w_n;
+            w_n *= high_degree_omega;
+          }
+        });
+
+    return twiddle_lut;
+  }
+#endif
+
+#if defined(TACHYON_HAS_OPENMP)
+  template <typename PolyOrEvals>
+  static void ParallelFFT(PolyOrEvals& a, const F& omega, uint32_t log_n) {
+    size_t n = a.size();
+    uint32_t log_split =
+        base::bits::Log2Floor(static_cast<uint32_t>(omp_get_max_threads()));
+    size_t split_m = 1 << log_split;
+    size_t sub_n = n >> log_split;
+
+    std::vector<F> twiddle_lut =
+        GenerateTwiddleLookupTable(omega, log_n, kSparseTwiddleDegree, true);
+
+    // split fft
+    std::vector<F> tmp = base::CreateVector<F>(n, F::Zero());
+    base::ParallelizeByChunkSize(
+        tmp, sub_n,
+        [&](absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
+          size_t split_fft_offset = chunk_index * chunk_size >> log_split;
+          base::ParallelizeByChunkSize(
+              chunk, split_m, [&](absl::Span<F> chunk, size_t chunk_index) {
+                size_t sub_fft_offset = split_fft_offset + chunk_index;
+                SplitRadixFFT(chunk, a, twiddle_lut, n, sub_fft_offset,
+                              log_split);
+              });
+        });
+
+    // shuffle
+    base::Parallelize(
+        a, [&](absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
+          for (size_t k = 0; k < chunk.size(); ++k) {
+            size_t idx = chunk_index * chunk_size + k;
+            size_t i = idx / sub_n;
+            size_t j = idx % sub_n;
+            chunk.at(k) = tmp.at(j * split_m + i);
+          }
+        });
+
+    // sub fft
+    F new_omega = omega.Pow(split_m);
+    base::ParallelizeByChunkSize(
+        a, sub_n,
+        [&](absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
+          SerialFFT(chunk, new_omega, log_n - log_split);
+        });
+
+    // copy & unshuffle
+    size_t mask = (1 << log_split) - 1;
+    base::Parallelize(
+        tmp, [&](absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
+          for (size_t i = 0; i < chunk.size(); ++i) {
+            size_t idx = chunk_index * chunk_size + i;
+            chunk.at(i) = a.at(idx);
+          }
+        });
+    base::Parallelize(
+        a, [&](absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
+          for (size_t i = 0; i < chunk.size(); ++i) {
+            size_t idx = chunk_index * chunk_size + i;
+            chunk.at(i) = tmp.at(sub_n * (idx & mask) + (idx >> log_split));
+          }
+        });
+    for (size_t i = 0; i < a.size(); ++i) {
+      a.at(i) = tmp.at(sub_n * (i & mask) + (i >> log_split));
+    }
+  }
+#endif
 };
 
 }  // namespace tachyon::math
