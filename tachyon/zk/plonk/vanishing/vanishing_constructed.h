@@ -14,19 +14,20 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename Poly>
+template <typename Poly, typename ExtendedPoly>
 class VanishingConstructed {
  public:
   using F = typename Poly::Field;
 
   VanishingConstructed() = default;
-  VanishingConstructed(std::vector<Poly>&& h_pieces, std::vector<F>&& h_blinds,
+  VanishingConstructed(ExtendedPoly&& h_poly, std::vector<F>&& h_blinds,
                        VanishingCommitted<Poly>&& committed)
-      : h_pieces_(std::move(h_pieces)),
+      : h_poly_(std::move(h_poly)),
         h_blinds_(std::move(h_blinds)),
         committed_(std::move(committed)) {}
 
-  const std::vector<Poly>& h_pieces() const { return h_pieces_; }
+  const ExtendedPoly& h_poly() const { return h_poly_; }
+  ExtendedPoly& h_poly() { return h_poly_; }
   const std::vector<F>& h_blinds() const { return h_blinds_; }
 
   VanishingCommitted<Poly>&& TakeCommitted() && {
@@ -34,7 +35,7 @@ class VanishingConstructed {
   }
 
  private:
-  std::vector<Poly> h_pieces_;
+  ExtendedPoly h_poly_;
   std::vector<F> h_blinds_;
   VanishingCommitted<Poly> committed_;
 };

@@ -92,14 +92,15 @@ class Argument {
         argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_)));
   }
 
-  template <typename PCS, typename C, typename P, typename L, typename V>
+  template <typename PCS, typename C, typename P, typename L, typename V,
+            typename ExtendedPoly>
   StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
               VanishingEvaluated<Poly>>
-  EvaluateCircuitStep(ProverBase<PCS>* prover,
-                      const ProvingKey<Poly, Evals, C>& proving_key,
-                      StepReturns<P, L, V>& committed,
-                      VanishingConstructed<Poly>&& constructed_vanishing,
-                      const F& x) const {
+  EvaluateCircuitStep(
+      ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
+      StepReturns<P, L, V>& committed,
+      VanishingConstructed<Poly, ExtendedPoly>&& constructed_vanishing,
+      const F& x) const {
     const ConstraintSystem<F>& cs =
         proving_key.verifying_key().constraint_system();
     std::vector<RefTable<Poly>> tables =

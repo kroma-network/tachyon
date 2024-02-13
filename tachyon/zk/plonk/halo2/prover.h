@@ -114,6 +114,8 @@ class Prover : public ProverBase<PCS> {
 
   void CreateProof(ProvingKey<Poly, Evals, Commitment>& proving_key,
                    ArgumentData<Poly, Evals>* argument_data) {
+    using ExtendedPoly = typename PCS::ExtendedPoly;
+
     Argument<Poly, Evals> argument(&proving_key.fixed_columns(),
                                    &proving_key.fixed_polys(), argument_data);
     // NOTE(chokobole): This is an entry point fom Halo2 rust. So this is the
@@ -151,7 +153,7 @@ class Prover : public ProverBase<PCS> {
     argument.DeallocateAllColumnsVec();
     ExtendedEvals circuit_column = argument.GenerateCircuitPolynomial(
         this, proving_key, committed_result, beta, gamma, theta, y);
-    VanishingConstructed<Poly> constructed_vanishing =
+    VanishingConstructed<Poly, ExtendedPoly> constructed_vanishing =
         CommitFinalHPoly(this, std::move(committed_result).TakeVanishing(),
                          proving_key.verifying_key(), circuit_column);
 
