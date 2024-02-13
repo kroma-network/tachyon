@@ -328,7 +328,7 @@ class CircuitPolynomialBuilder {
 
   void UpdateVanishingLookups(size_t circuit_idx) {
     size_t num_lookups = (*committed_lookups_vec_)[circuit_idx].size();
-    std::vector<LookupCommitted<Poly>> current_committed_lookups =
+    const std::vector<LookupCommitted<Poly>>& current_committed_lookups =
         (*committed_lookups_vec_)[circuit_idx];
     lookup_product_cosets_.clear();
     lookup_input_cosets_.clear();
