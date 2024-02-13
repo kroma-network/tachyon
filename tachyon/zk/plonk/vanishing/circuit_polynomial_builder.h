@@ -330,22 +330,19 @@ class CircuitPolynomialBuilder {
     size_t num_lookups = (*committed_lookups_vec_)[circuit_idx].size();
     const std::vector<LookupCommitted<Poly>>& current_committed_lookups =
         (*committed_lookups_vec_)[circuit_idx];
-    lookup_product_cosets_.clear();
-    lookup_input_cosets_.clear();
-    lookup_table_cosets_.clear();
-    lookup_product_cosets_.reserve(num_lookups);
-    lookup_input_cosets_.reserve(num_lookups);
-    lookup_table_cosets_.reserve(num_lookups);
+    lookup_product_cosets_.resize(num_lookups);
+    lookup_input_cosets_.resize(num_lookups);
+    lookup_table_cosets_.resize(num_lookups);
     for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_product_cosets_.push_back(CoeffToExtendedPart(
+      lookup_product_cosets_[i] = CoeffToExtendedPart(
           domain_, current_committed_lookups[i].product_poly(), *zeta_,
-          current_extended_omega_));
-      lookup_input_cosets_.push_back(CoeffToExtendedPart(
+          current_extended_omega_);
+      lookup_input_cosets_[i] = CoeffToExtendedPart(
           domain_, current_committed_lookups[i].permuted_input_poly(), *zeta_,
-          current_extended_omega_));
-      lookup_table_cosets_.push_back(CoeffToExtendedPart(
+          current_extended_omega_);
+      lookup_table_cosets_[i] = CoeffToExtendedPart(
           domain_, current_committed_lookups[i].permuted_table_poly(), *zeta_,
-          current_extended_omega_));
+          current_extended_omega_);
     }
   }
 
