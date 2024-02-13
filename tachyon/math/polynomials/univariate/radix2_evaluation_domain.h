@@ -47,9 +47,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   constexpr static size_t kMaxDegree = MaxDegree;
   // Factor that determines if a the degree aware FFT should be called.
   constexpr static size_t kDegreeAwareFFTThresholdFactor = 1 << 2;
-  // The minimum size of a chunk at which parallelization of |Butterfly()| is
-  // beneficial. This value was chosen empirically.
-  constexpr static size_t kMinGapSizeForParallelization = 1 << 10;
   // The minimum number of chunks at which root compaction is beneficial.
   constexpr static size_t kDefaultMinNumChunksForCompaction = 1 << 7;
 
@@ -211,20 +208,14 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       static_assert(Order == FFTOrder::kOutIn);
       fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn;
     }
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < poly_or_evals.NumElements();
-                        i += chunk_size) {
+    OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < poly_or_evals.NumElements();
+                               i += chunk_size) {
       // If the chunk is sufficiently big that parallelism helps,
       // we parallelize the butterfly operation within the chunk.
-      if (gap > kMinGapSizeForParallelization && chunk_size < thread_nums) {
-        OPENMP_PARALLEL_FOR(size_t j = 0; j < gap; ++j) {
-          if (j * step < roots.size()) {
-            fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap),
-               roots[j * step]);
-          }
-        }
-      } else {
-        for (size_t j = 0, k = 0; j < gap && k < roots.size(); ++j, k += step) {
-          fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap), roots[k]);
+      for (size_t j = 0; j < gap; ++j) {
+        if (j * step < roots.size()) {
+          fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap),
+             roots[j * step]);
         }
       }
     }

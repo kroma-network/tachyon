@@ -76,7 +76,6 @@ tachyon_cc_library(
         ":unpermuted_table",
         "//tachyon:export",
         "//tachyon/base:openmp_util",
-        "//tachyon/base:parallelize",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:prover_base",
     ],

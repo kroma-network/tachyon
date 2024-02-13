@@ -161,8 +161,8 @@ std::vector<F> BuildExtendedColumnWithColumns(
   size_t rows = columns[0].size();
 
   std::vector<F> flattened_transposed_columns(cols * rows);
-  for (size_t i = 0; i < columns.size(); ++i) {
-    OPENMP_PARALLEL_FOR(size_t j = 0; j < rows; ++j) {
+  OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < columns.size(); ++i) {
+    for (size_t j = 0; j < rows; ++j) {
       flattened_transposed_columns[j * cols + i] = columns[i][j];
     }
   }
