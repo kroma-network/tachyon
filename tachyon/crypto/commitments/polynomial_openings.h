@@ -197,6 +197,32 @@ class PolynomialOpeningGrouper {
     return super_point_set_;
   }
 
+  // Used by GWC.
+  void GroupBySinglePoint(
+      const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
+    for (const PolynomialOpening<Poly, PolyOracle>& poly_opening :
+         poly_openings) {
+      super_point_set_.insert(poly_opening.point);
+
+      auto it = std::find_if(
+          grouped_poly_openings_vec_.begin(), grouped_poly_openings_vec_.end(),
+          [&poly_opening](const GroupedPolynomialOpenings<Poly, PolyOracle>&
+                              grouped_poly_openings) {
+            return grouped_poly_openings.point_refs[0] == poly_opening.point;
+          });
+
+      PolynomialOpenings<Poly, PolyOracle> poly_openings(
+          poly_opening.poly_oracle, {poly_opening.opening});
+      if (it != grouped_poly_openings_vec_.end()) {
+        it->poly_openings_vec.push_back(std::move(poly_openings));
+      } else {
+        grouped_poly_openings_vec_.push_back(
+            {{std::move(poly_openings)}, {poly_opening.point}});
+      }
+    }
+  }
+
+  // Used by SHPlonk.
   void GroupByPolyOracleAndPoints(
       const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
     // Group |poly_openings| by polynomial.
