@@ -436,12 +436,8 @@ class AdditiveSemigroup {
       LOG(ERROR) << "scalars and bases are empty";
       return false;
     }
-    size_t num_elems_per_thread =
-        base::GetNumElementsPerThread(scalars, kDefaultParallelThreshold);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        (*outputs)[j] = bases[j].ScalarMul(scalars[j]);
-      }
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
+      (*outputs)[i] = bases[i].ScalarMul(scalars[i]);
     }
     return true;
   }
@@ -457,12 +453,8 @@ class AdditiveSemigroup {
       LOG(ERROR) << "scalars are empty";
       return false;
     }
-    size_t num_elems_per_thread =
-        base::GetNumElementsPerThread(scalars, kDefaultParallelThreshold);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        (*outputs)[j] = base.ScalarMul(scalars[j]);
-      }
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
+      (*outputs)[i] = base.ScalarMul(scalars[i]);
     }
     return true;
   }
@@ -478,12 +470,8 @@ class AdditiveSemigroup {
       LOG(ERROR) << "bases are empty";
       return false;
     }
-    size_t num_elems_per_thread =
-        base::GetNumElementsPerThread(bases, kDefaultParallelThreshold);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        (*outputs)[j] = bases[j].ScalarMul(scalar);
-      }
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
+      (*outputs)[i] = bases[i].ScalarMul(scalar);
     }
     return true;
   }
