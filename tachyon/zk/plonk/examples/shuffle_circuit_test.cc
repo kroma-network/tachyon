@@ -6,6 +6,8 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
+#include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/examples/circuit_test.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
@@ -15,6 +17,9 @@
 namespace tachyon::zk::plonk::halo2 {
 
 namespace {
+
+using PCS = SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
+                             kMaxExtendedDegree, math::bn254::G1AffinePoint>;
 
 constexpr uint8_t kExpectedProof[] = {
     122, 117, 229, 163, 114, 52,  159, 223, 87,  191, 210, 4,   56,  250, 59,
@@ -182,8 +187,10 @@ constexpr size_t W = 2;
 constexpr size_t H = 8;
 constexpr size_t K = 4;
 
-class ShuffleCircuitTest : public CircuitTest {
+class ShuffleCircuitTest : public CircuitTest<PCS> {
  public:
+  static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
+
   static std::vector<std::vector<F>> CreateTable(
       const std::vector<std::vector<std::string_view>>& table) {
     return base::CreateVector(W, [&table](size_t i) {

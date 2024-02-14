@@ -3,6 +3,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
+#include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/examples/circuit_test.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
@@ -11,6 +13,9 @@
 namespace tachyon::zk::plonk::halo2 {
 
 namespace {
+
+using PCS = SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
+                             kMaxExtendedDegree, math::bn254::G1AffinePoint>;
 
 constexpr uint8_t kExpectedProof[] = {
     206, 109, 139, 136, 181, 35,  204, 231, 212, 93,  105, 116, 154, 77,  204,
@@ -125,7 +130,10 @@ constexpr uint8_t kExpectedProof[] = {
     59,  246, 51,  38,  12,  208, 190, 66,  35,  23,  195, 152, 31,  96,  15,
     198, 165, 206, 149, 89,  130, 172, 23,  119, 105, 140, 216, 51,  6};
 
-class SimpleCircuitTest : public CircuitTest {};
+class SimpleCircuitTest : public CircuitTest<PCS> {
+ public:
+  static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
+};
 
 }  // namespace
 
