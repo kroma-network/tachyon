@@ -33,8 +33,8 @@ SUPPORTS_UNARY_IN_PLACE_OPERATOR(Neg);
 template <typename G>
 class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
  public:
-  // NOTE(chokobole): This value was chosen empirically that
-  // |batch_inverse_benchmark| performs better at fewer input compared to the
+  // NOTE(chokobole): This value was chosen empirically such that
+  // |batch_inverse_benchmark| performs better at fewer inputs compared to the
   // number of cpu cores.
   constexpr static size_t kParallelBatchInverseDivisorThreshold = 2;
 
