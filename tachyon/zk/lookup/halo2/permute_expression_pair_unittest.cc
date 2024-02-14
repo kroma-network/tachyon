@@ -15,11 +15,12 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/random.h"
-#include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/zk/plonk/halo2/bn254_shplonk_prover_test.h"
 
 namespace tachyon::zk::lookup::halo2 {
 
-class PermuteExpressionPairTest : public plonk::halo2::ProverTest {};
+class PermuteExpressionPairTest : public plonk::halo2::BN254SHPlonkProverTest {
+};
 
 TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
   prover_->blinder().set_blinding_factors(5);

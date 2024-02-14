@@ -5,14 +5,14 @@
 #include <vector>
 
 #include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
-#include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/zk/plonk/halo2/bn254_shplonk_prover_test.h"
 
 namespace tachyon::zk {
 
-class CompressExpressionTest : public plonk::halo2::ProverTest {
+class CompressExpressionTest : public plonk::halo2::BN254SHPlonkProverTest {
  public:
   void SetUp() override {
-    plonk::halo2::ProverTest::SetUp();
+    plonk::halo2::BN254SHPlonkProverTest::SetUp();
 
     plonk::RefTable<Evals> columns(absl::MakeConstSpan(fixed_columns_),
                                    absl::MakeConstSpan(advice_columns_),

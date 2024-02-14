@@ -183,6 +183,6 @@ tachyon_cc_unittest(
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
-        "//tachyon/zk/plonk/halo2:prover_test",
+        "//tachyon/zk/plonk/halo2:bn254_shplonk_prover_test",
     ],
 )

@@ -8,11 +8,11 @@
 #include "absl/types/span.h"
 
 #include "tachyon/zk/lookup/lookup_pair.h"
-#include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/zk/plonk/halo2/bn254_shplonk_prover_test.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
-class CircuitTest : public ProverTest {
+class CircuitTest : public BN254SHPlonkProverTest {
  protected:
   struct Point {
     std::string_view x;
