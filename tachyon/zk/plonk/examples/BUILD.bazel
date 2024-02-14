@@ -13,7 +13,6 @@ tachyon_cc_library(
     name = "shuffle_circuit",
     hdrs = ["shuffle_circuit.h"],
     deps = [
-        "//tachyon/zk/base:row_index",
         "//tachyon/zk/plonk/constraint_system:circuit",
         "@com_google_absl//absl/strings",
     ],
