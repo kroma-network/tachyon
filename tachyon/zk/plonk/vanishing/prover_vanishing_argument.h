@@ -93,7 +93,7 @@ template <typename PCS, typename Poly, typename F, typename C,
           return prover->Commit(h_piece);
         });
     for (const C& commitment : commitments) {
-      if (!prover->GetWriter()->WriteToProof(commitment)) return false;
+      CHECK(prover->GetWriter()->WriteToProof(commitment));
     }
   }
 
@@ -121,7 +121,7 @@ template <typename PCS, typename Poly, typename F, typename Commitment>
 
   VanishingCommitted<Poly> committed = std::move(constructed).TakeCommitted();
   F random_eval = committed.random_poly().Evaluate(x);
-  if (!writer->WriteToProof(random_eval)) return false;
+  CHECK(writer->WriteToProof(random_eval));
 
   *evaluated_out = {std::move(h_poly), std::move(h_blind),
                     std::move(committed)};
