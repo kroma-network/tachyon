@@ -107,18 +107,24 @@ class CircuitPolynomialBuilder {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
                 << j << " / " << circuit_num - 1 << ")";
         UpdateVanishingTable(j);
-        UpdateValuesByCustomGates(custom_gate_evaluator, value_part);
-
         // Do iff there are permutation constraints.
-        if ((*permutation_provers_)[j].grand_product_polys().size() > 0) {
+        if ((*permutation_provers_)[j].grand_product_polys().size() > 0)
           UpdateVanishingPermutation(j);
-          UpdateValuesByPermutation(value_part);
-        }
-        if ((*lookup_provers_)[j].grand_product_polys().size() > 0) {
+        // Do iff there are lookup constraints.
+        if ((*lookup_provers_)[j].grand_product_polys().size() > 0)
           UpdateVanishingLookups(j);
-          UpdateValuesByLookups(lookup_evaluators, value_part);
-        }
+        base::Parallelize(
+            value_part,
+            [this, &custom_gate_evaluator, &lookup_evaluators](
+                absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
+              UpdateValuesByCustomGates(custom_gate_evaluator, chunk,
+                                        chunk_offset, chunk_size);
+              UpdateValuesByPermutation(chunk, chunk_offset, chunk_size);
+              UpdateValuesByLookups(lookup_evaluators, chunk, chunk_offset,
+                                    chunk_size);
+            });
       }
+
       value_parts.push_back(std::move(value_part));
       UpdateCurrentExtendedOmega();
     }
@@ -128,132 +134,126 @@ class CircuitPolynomialBuilder {
 
   void UpdateValuesByLookups(
       const std::vector<GraphEvaluator<F>>& lookup_evaluators,
-      std::vector<F>& values) {
+      absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
     for (size_t i = 0; i < lookup_evaluators.size(); ++i) {
       const GraphEvaluator<F>& ev = lookup_evaluators[i];
+      const Evals& input_coset = lookup_input_cosets_[i];
+      const Evals& table_coset = lookup_table_cosets_[i];
+      const Evals& product_coset = lookup_product_cosets_[i];
 
-      base::Parallelize(values, [this, i, &ev](absl::Span<F> chunk,
-                                               size_t chunk_offset,
-                                               size_t chunk_size) {
-        const Evals& input_coset = lookup_input_cosets_[i];
-        const Evals& table_coset = lookup_table_cosets_[i];
-        const Evals& product_coset = lookup_product_cosets_[i];
+      EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
+          ev.CreateInitialIntermediates(), ev.CreateEmptyRotations());
 
-        EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
-            ev.CreateInitialIntermediates(), ev.CreateEmptyRotations());
+      size_t start = chunk_offset * chunk_size;
+      for (size_t j = 0; j < chunk.size(); ++j) {
+        size_t idx = start + j;
 
-        size_t start = chunk_offset * chunk_size;
-        for (size_t j = 0; j < chunk.size(); ++j) {
-          size_t idx = start + j;
+        F zero = F::Zero();
+        F table_value = ev.Evaluate(evaluation_input, idx, rot_scale_, zero);
 
-          F zero = F::Zero();
-          F table_value = ev.Evaluate(evaluation_input, idx, rot_scale_, zero);
+        RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
+        RowIndex r_prev = Rotation(-1).GetIndex(idx, rot_scale_, n_);
 
-          RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
-          RowIndex r_prev = Rotation(-1).GetIndex(idx, rot_scale_, n_);
+        F a_minus_s = input_coset[idx] - table_coset[idx];
 
-          F a_minus_s = input_coset[idx] - table_coset[idx];
+        // l_first(X) * (1 - z(X)) = 0
+        chunk[j] *= *y_;
+        chunk[j] += (one_ - product_coset[idx]) * l_first_[idx];
 
-          // l_first(X) * (1 - z(X)) = 0
-          chunk[j] *= *y_;
-          chunk[j] += (one_ - product_coset[idx]) * l_first_[idx];
+        // l_last(X) * (z(X)² - z(X)) = 0
+        chunk[j] *= *y_;
+        chunk[j] +=
+            (product_coset[idx].Square() - product_coset[idx]) * l_last_[idx];
 
-          // l_last(X) * (z(X)² - z(X)) = 0
-          chunk[j] *= *y_;
-          chunk[j] +=
-              (product_coset[idx].Square() - product_coset[idx]) * l_last_[idx];
+        // clang-format off
+        // A * (B - C) = 0 where
+        //  - A = 1 - (l_last(X) + l_blind(X))
+        //  - B = z(wX) * (a'(X) + β) * (s'(X) + γ)
+        //  - C = z(X) * (θᵐ⁻¹ a₀(X) + ... + aₘ₋₁(X) + β) * (θᵐ⁻¹ s₀(X) + ... + sₘ₋₁(X) + γ)
+        // clang-format on
+        chunk[j] *= *y_;
+        chunk[j] += (product_coset[r_next] * (input_coset[idx] + *beta_) *
+                         (table_coset[idx] + *gamma_) -
+                     product_coset[idx] * table_value) *
+                    l_active_row_[idx];
 
-          // clang-format off
-          // A * (B - C) = 0 where
-          //  - A = 1 - (l_last(X) + l_blind(X))
-          //  - B = z(wX) * (a'(X) + β) * (s'(X) + γ)
-          //  - C = z(X) * (θᵐ⁻¹ a₀(X) + ... + aₘ₋₁(X) + β) * (θᵐ⁻¹ s₀(X) + ... + sₘ₋₁(X) + γ)
-          // clang-format on
-          chunk[j] *= *y_;
-          chunk[j] += (product_coset[r_next] * (input_coset[idx] + *beta_) *
-                           (table_coset[idx] + *gamma_) -
-                       product_coset[idx] * table_value) *
-                      l_active_row_[idx];
+        // Check that the first values in the permuted input expression and
+        // permuted fixed expression are the same.
+        // l_first(X) * (a'(X) - s'(X)) = 0
+        chunk[j] *= *y_;
+        chunk[j] += a_minus_s * l_first_[idx];
 
-          // Check that the first values in the permuted input expression and
-          // permuted fixed expression are the same.
-          // l_first(X) * (a'(X) - s'(X)) = 0
-          chunk[j] *= *y_;
-          chunk[j] += a_minus_s * l_first_[idx];
-
-          // Check that each value in the permuted lookup input expression is
-          // either equal to the value above it, or the value at the same
-          // index in the permuted table expression. (1 - (l_last + l_blind)) *
-          // (a′(X) − s′(X))⋅(a′(X) − a′(w⁻¹X)) = 0
-          chunk[j] *= *y_;
-          chunk[j] += a_minus_s * (input_coset[idx] - input_coset[r_prev]) *
-                      l_active_row_[idx];
-        }
-      });
+        // Check that each value in the permuted lookup input expression is
+        // either equal to the value above it, or the value at the same
+        // index in the permuted table expression. (1 - (l_last + l_blind)) *
+        // (a′(X) − s′(X))⋅(a′(X) − a′(w⁻¹X)) = 0
+        chunk[j] *= *y_;
+        chunk[j] += a_minus_s * (input_coset[idx] - input_coset[r_prev]) *
+                    l_active_row_[idx];
+      }
     }
   }
 
-  void UpdateValuesByPermutation(std::vector<F>& values) {
-    base::Parallelize(values, [this](absl::Span<F> chunk, size_t chunk_offset,
-                                     size_t chunk_size) {
-      const std::vector<Evals>& product_cosets = permutation_product_cosets_;
-      const std::vector<Evals>& cosets = permutation_cosets_;
+  void UpdateValuesByPermutation(absl::Span<F> chunk, size_t chunk_offset,
+                                 size_t chunk_size) {
+    if (permutation_product_cosets_.empty()) return;
 
-      size_t start = chunk_offset * chunk_size;
-      F beta_term = current_extended_omega_ * omega_->Pow(start);
-      for (size_t i = 0; i < chunk.size(); ++i) {
-        size_t idx = start + i;
+    const std::vector<Evals>& product_cosets = permutation_product_cosets_;
+    const std::vector<Evals>& cosets = permutation_cosets_;
 
-        // Enforce only for the first set: l_first(X) * (1 - z₀(X)) = 0
+    size_t start = chunk_offset * chunk_size;
+    F beta_term = current_extended_omega_ * omega_->Pow(start);
+    for (size_t i = 0; i < chunk.size(); ++i) {
+      size_t idx = start + i;
+
+      // Enforce only for the first set: l_first(X) * (1 - z₀(X)) = 0
+      chunk[i] *= *y_;
+      chunk[i] += (one_ - product_cosets.front()[idx]) * l_first_[idx];
+
+      // Enforce only for the last set: l_last(X) * (z_l(X)² - z_l(X)) = 0
+      const Evals& last_coset = product_cosets.back();
+      chunk[i] *= *y_;
+      chunk[i] += l_last_[idx] * (last_coset[idx].Square() - last_coset[idx]);
+
+      // Except for the first set, enforce:
+      // l_first(X) * (zᵢ(X) - zᵢ₋₁(w⁻¹X)) = 0
+      RowIndex r_last = last_rotation_.GetIndex(idx, rot_scale_, n_);
+      for (size_t set_idx = 0; set_idx < product_cosets.size(); ++set_idx) {
+        if (set_idx == 0) continue;
         chunk[i] *= *y_;
-        chunk[i] += (one_ - product_cosets.front()[idx]) * l_first_[idx];
-
-        // Enforce only for the last set: l_last(X) * (z_l(X)² - z_l(X)) = 0
-        const Evals& last_coset = product_cosets.back();
-        chunk[i] *= *y_;
-        chunk[i] += l_last_[idx] * (last_coset[idx].Square() - last_coset[idx]);
-
-        // Except for the first set, enforce:
-        // l_first(X) * (zᵢ(X) - zᵢ₋₁(w⁻¹X)) = 0
-        RowIndex r_last = last_rotation_.GetIndex(idx, rot_scale_, n_);
-        for (size_t set_idx = 0; set_idx < product_cosets.size(); ++set_idx) {
-          if (set_idx == 0) continue;
-          chunk[i] *= *y_;
-          chunk[i] += l_first_[idx] * (product_cosets[set_idx][idx] -
-                                       product_cosets[set_idx - 1][r_last]);
-        }
-
-        // And for all the sets we enforce: (1 - (l_last(X) + l_blind(X))) *
-        // (zᵢ(wX) * Πⱼ(p(X) + βsⱼ(X) + γ) - zᵢ(X) Πⱼ(p(X) + δʲβX + γ))
-        F current_delta = delta_start_ * beta_term;
-        RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
-
-        const std::vector<AnyColumnKey>& column_keys =
-            proving_key_->verifying_key()
-                .constraint_system()
-                .permutation()
-                .columns();
-        std::vector<absl::Span<const AnyColumnKey>> column_key_chunks =
-            base::Map(
-                base::Chunked(column_keys, chunk_len_),
-                [](absl::Span<const AnyColumnKey> chunk) { return chunk; });
-        std::vector<absl::Span<const Evals>> coset_chunks =
-            base::Map(base::Chunked(cosets, chunk_len_),
-                      [](absl::Span<const Evals> chunk) { return chunk; });
-
-        for (size_t j = 0; j < product_cosets.size(); ++j) {
-          std::vector<base::Ref<const Evals>> column_chunk =
-              table_.GetColumns(column_key_chunks[j]);
-          F left = CalculateLeft(column_chunk, coset_chunks[j], idx,
-                                 product_cosets[j][r_next]);
-          F right = CalculateRight(column_chunk, &current_delta, idx,
-                                   product_cosets[j][idx]);
-          chunk[i] *= *y_;
-          chunk[i] += (left - right) * l_active_row_[idx];
-        }
-        beta_term *= *omega_;
+        chunk[i] += l_first_[idx] * (product_cosets[set_idx][idx] -
+                                     product_cosets[set_idx - 1][r_last]);
       }
-    });
+
+      // And for all the sets we enforce: (1 - (l_last(X) + l_blind(X))) *
+      // (zᵢ(wX) * Πⱼ(p(X) + βsⱼ(X) + γ) - zᵢ(X) Πⱼ(p(X) + δʲβX + γ))
+      F current_delta = delta_start_ * beta_term;
+      RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
+
+      const std::vector<AnyColumnKey>& column_keys =
+          proving_key_->verifying_key()
+              .constraint_system()
+              .permutation()
+              .columns();
+      std::vector<absl::Span<const AnyColumnKey>> column_key_chunks =
+          base::Map(base::Chunked(column_keys, chunk_len_),
+                    [](absl::Span<const AnyColumnKey> chunk) { return chunk; });
+      std::vector<absl::Span<const Evals>> coset_chunks =
+          base::Map(base::Chunked(cosets, chunk_len_),
+                    [](absl::Span<const Evals> chunk) { return chunk; });
+
+      for (size_t j = 0; j < product_cosets.size(); ++j) {
+        std::vector<base::Ref<const Evals>> column_chunk =
+            table_.GetColumns(column_key_chunks[j]);
+        F left = CalculateLeft(column_chunk, coset_chunks[j], idx,
+                               product_cosets[j][r_next]);
+        F right = CalculateRight(column_chunk, &current_delta, idx,
+                                 product_cosets[j][idx]);
+        chunk[i] *= *y_;
+        chunk[i] += (left - right) * l_active_row_[idx];
+      }
+      beta_term *= *omega_;
+    }
   }
 
  private:
@@ -287,20 +287,16 @@ class CircuitPolynomialBuilder {
   }
 
   void UpdateValuesByCustomGates(const GraphEvaluator<F>& custom_gate_evaluator,
-                                 std::vector<F>& values) {
-    base::Parallelize(values, [this, &custom_gate_evaluator](
-                                  absl::Span<F> chunk, size_t chunk_offset,
-                                  size_t chunk_size) {
-      EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
-          custom_gate_evaluator.CreateInitialIntermediates(),
-          custom_gate_evaluator.CreateEmptyRotations());
-
-      size_t start = chunk_offset * chunk_size;
-      for (size_t i = 0; i < chunk.size(); ++i) {
-        chunk[i] = custom_gate_evaluator.Evaluate(evaluation_input, start + i,
-                                                  rot_scale_, chunk[i]);
-      }
-    });
+                                 absl::Span<F> chunk, size_t chunk_offset,
+                                 size_t chunk_size) {
+    EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
+        custom_gate_evaluator.CreateInitialIntermediates(),
+        custom_gate_evaluator.CreateEmptyRotations());
+    size_t start = chunk_offset * chunk_size;
+    for (size_t i = 0; i < chunk.size(); ++i) {
+      chunk[i] = custom_gate_evaluator.Evaluate(evaluation_input, start + i,
+                                                rot_scale_, chunk[i]);
+    }
   }
 
   void UpdateVanishingProvingKey() {
