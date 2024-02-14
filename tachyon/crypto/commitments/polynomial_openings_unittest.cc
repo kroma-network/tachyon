@@ -198,39 +198,17 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyOracleAndPoints) {
       PolyRef(&polys_[3]),
   };
 
-  if (grouped_poly_openings_vec[0].point_refs.size() == 2) {
-    EXPECT_EQ(grouped_poly_openings_vec[1].point_refs.size(), 1);
-    EXPECT_THAT(grouped_poly_openings_vec[0].point_refs,
-                testing::UnorderedElementsAreArray(expected_points_vec));
-    EXPECT_THAT(grouped_poly_openings_vec[1].point_refs,
-                testing::UnorderedElementsAreArray(expected_points_vec2));
-    for (const PolynomialOpenings<Poly>& poly_openings :
-         grouped_poly_openings_vec[0].poly_openings_vec) {
-      EXPECT_THAT(expected_polys_vec,
-                  testing::Contains(poly_openings.poly_oracle));
-    }
-    for (const PolynomialOpenings<Poly>& poly_openings :
-         grouped_poly_openings_vec[1].poly_openings_vec) {
-      EXPECT_THAT(expected_polys_vec2,
-                  testing::Contains(poly_openings.poly_oracle));
-    }
-  } else {
-    ASSERT_EQ(grouped_poly_openings_vec[0].point_refs.size(), 1);
-    EXPECT_EQ(grouped_poly_openings_vec[1].point_refs.size(), 2);
-    EXPECT_THAT(grouped_poly_openings_vec[0].point_refs,
-                testing::UnorderedElementsAreArray(expected_points_vec2));
-    EXPECT_THAT(grouped_poly_openings_vec[1].point_refs,
-                testing::UnorderedElementsAreArray(expected_points_vec));
-    for (const PolynomialOpenings<Poly>& poly_openings :
-         grouped_poly_openings_vec[0].poly_openings_vec) {
-      EXPECT_THAT(expected_polys_vec2,
-                  testing::Contains(poly_openings.poly_oracle));
-    }
-    for (const PolynomialOpenings<Poly>& poly_openings :
-         grouped_poly_openings_vec[1].poly_openings_vec) {
-      EXPECT_THAT(expected_polys_vec,
-                  testing::Contains(poly_openings.poly_oracle));
-    }
+  EXPECT_EQ(grouped_poly_openings_vec[0].point_refs, expected_points_vec);
+  EXPECT_EQ(grouped_poly_openings_vec[1].point_refs, expected_points_vec2);
+  for (const PolynomialOpenings<Poly>& poly_openings :
+       grouped_poly_openings_vec[0].poly_openings_vec) {
+    EXPECT_THAT(expected_polys_vec,
+                testing::Contains(poly_openings.poly_oracle));
+  }
+  for (const PolynomialOpenings<Poly>& poly_openings :
+       grouped_poly_openings_vec[1].poly_openings_vec) {
+    EXPECT_THAT(expected_polys_vec2,
+                testing::Contains(poly_openings.poly_oracle));
   }
 }
 
