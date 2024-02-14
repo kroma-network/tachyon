@@ -18,7 +18,6 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:parallelize",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base/entities:prover_base",
     ],
 )
@@ -43,28 +42,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "permutation_argument_runner",
-    hdrs = [
-        "permutation_argument_runner.h",
-        "permutation_argument_runner_impl.h",
-    ],
-    deps = [
-        ":grand_product_argument",
-        ":permutation_argument",
-        ":permutation_committed",
-        ":permutation_evaluated",
-        ":permutation_proving_key",
-        ":permutation_table_store",
-        ":permutation_utils",
-        "//tachyon/base:ref",
-        "//tachyon/crypto/commitments:polynomial_openings",
-        "//tachyon/zk/base:point_set",
-        "//tachyon/zk/base:rotation",
-        "//tachyon/zk/base/entities:prover_base",
-    ],
-)
-
-tachyon_cc_library(
     name = "permutation_assembly",
     hdrs = ["permutation_assembly.h"],
     deps = [
@@ -82,15 +59,30 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "permutation_committed",
-    hdrs = ["permutation_committed.h"],
-    deps = ["//tachyon/zk/base:blinded_polynomial"],
+    name = "permutation_opening_point_set",
+    hdrs = ["permutation_opening_point_set.h"],
 )
 
 tachyon_cc_library(
-    name = "permutation_evaluated",
-    hdrs = ["permutation_evaluated.h"],
-    deps = ["//tachyon/zk/base:blinded_polynomial"],
+    name = "permutation_prover",
+    hdrs = [
+        "permutation_prover.h",
+        "permutation_prover_impl.h",
+    ],
+    deps = [
+        ":grand_product_argument",
+        ":permutation_argument",
+        ":permutation_opening_point_set",
+        ":permutation_proving_key",
+        ":permutation_table_store",
+        ":permutation_utils",
+        "//tachyon/base:parallelize",
+        "//tachyon/base:ref",
+        "//tachyon/crypto/commitments:polynomial_openings",
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base/entities:prover_base",
+        "//tachyon/zk/plonk/base:ref_table",
+    ],
 )
 
 tachyon_cc_library(
@@ -175,7 +167,6 @@ tachyon_cc_unittest(
     name = "permutation_unittests",
     srcs = [
         "cycle_store_unittest.cc",
-        "permutation_argument_unittest.cc",
         "permutation_assembly_unittest.cc",
         "permutation_proving_key_unittest.cc",
         "permutation_table_store_unittest.cc",

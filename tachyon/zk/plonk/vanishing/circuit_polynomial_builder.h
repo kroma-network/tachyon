@@ -16,12 +16,12 @@
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/rotation.h"
-#include "tachyon/zk/lookup/halo2/lookup_committed.h"
+#include "tachyon/zk/lookup/halo2/prover.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/base/owned_table.h"
 #include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
-#include "tachyon/zk/plonk/permutation/permutation_committed.h"
+#include "tachyon/zk/plonk/permutation/permutation_prover.h"
 #include "tachyon/zk/plonk/vanishing/evaluation_input.h"
 #include "tachyon/zk/plonk/vanishing/graph_evaluator.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
@@ -47,14 +47,13 @@ class CircuitPolynomialBuilder {
 
   static CircuitPolynomialBuilder Create(
       const Domain* domain, const ExtendedDomain* extended_domain, size_t n,
-      RowIndex blinding_factors, size_t cs_degree, const F* beta,
-      const F* gamma, const F* theta, const F* y, const F* zeta,
-      absl::Span<const F> challenges,
+      RowIndex blinding_factors, size_t cs_degree,
+      const std::vector<RefTable<Poly>>* poly_tables,
+      absl::Span<const F> challenges, const F* theta, const F* beta,
+      const F* gamma, const F* y, const F* zeta,
       const ProvingKey<Poly, Evals, C>* proving_key,
-      const std::vector<PermutationCommitted<Poly>>* committed_permutations,
-      const std::vector<std::vector<lookup::halo2::LookupCommitted<Poly>>>*
-          committed_lookups_vec,
-      const std::vector<RefTable<Poly>>* poly_tables) {
+      const std::vector<PermutationProver<Poly, Evals>>* permutation_provers,
+      const std::vector<lookup::halo2::Prover<Poly, Evals>>* lookup_provers) {
     CircuitPolynomialBuilder builder;
     builder.domain_ = domain;
 
@@ -77,8 +76,8 @@ class CircuitPolynomialBuilder {
     builder.delta_start_ = *beta * *zeta;
 
     builder.proving_key_ = proving_key;
-    builder.committed_permutations_ = committed_permutations;
-    builder.committed_lookups_vec_ = committed_lookups_vec;
+    builder.permutation_provers_ = permutation_provers;
+    builder.lookup_provers_ = lookup_provers;
     builder.poly_tables_ = poly_tables;
 
     return builder;
@@ -111,11 +110,11 @@ class CircuitPolynomialBuilder {
         UpdateValuesByCustomGates(custom_gate_evaluator, value_part);
 
         // Do iff there are permutation constraints.
-        if ((*committed_permutations_)[j].product_polys().size() > 0) {
+        if ((*permutation_provers_)[j].grand_product_polys().size() > 0) {
           UpdateVanishingPermutation(j);
           UpdateValuesByPermutation(value_part);
         }
-        if ((*committed_lookups_vec_)[j].size() > 0) {
+        if ((*lookup_provers_)[j].grand_product_polys().size() > 0) {
           UpdateVanishingLookups(j);
           UpdateValuesByLookups(lookup_evaluators, value_part);
         }
@@ -317,7 +316,7 @@ class CircuitPolynomialBuilder {
     permutation_product_cosets_ = CoeffsToExtendedParts(
         domain_,
         absl::MakeConstSpan(
-            (*committed_permutations_)[circuit_idx].product_polys()),
+            (*permutation_provers_)[circuit_idx].grand_product_polys()),
         *zeta_, current_extended_omega_);
     permutation_cosets_ = CoeffsToExtendedParts(
         domain_,
@@ -326,21 +325,22 @@ class CircuitPolynomialBuilder {
   }
 
   void UpdateVanishingLookups(size_t circuit_idx) {
-    size_t num_lookups = (*committed_lookups_vec_)[circuit_idx].size();
-    const std::vector<lookup::halo2::LookupCommitted<Poly>>&
-        current_committed_lookups = (*committed_lookups_vec_)[circuit_idx];
+    size_t num_lookups =
+        (*lookup_provers_)[circuit_idx].grand_product_polys().size();
+    const lookup::halo2::Prover<Poly, Evals>& lookup_prover =
+        (*lookup_provers_)[circuit_idx];
     lookup_product_cosets_.resize(num_lookups);
     lookup_input_cosets_.resize(num_lookups);
     lookup_table_cosets_.resize(num_lookups);
     for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_product_cosets_[i] = CoeffToExtendedPart(
-          domain_, current_committed_lookups[i].product_poly(), *zeta_,
-          current_extended_omega_);
+      lookup_product_cosets_[i] =
+          CoeffToExtendedPart(domain_, lookup_prover.grand_product_polys()[i],
+                              *zeta_, current_extended_omega_);
       lookup_input_cosets_[i] = CoeffToExtendedPart(
-          domain_, current_committed_lookups[i].permuted_input_poly(), *zeta_,
+          domain_, lookup_prover.permuted_pairs()[i].input(), *zeta_,
           current_extended_omega_);
       lookup_table_cosets_[i] = CoeffToExtendedPart(
-          domain_, current_committed_lookups[i].permuted_table_poly(), *zeta_,
+          domain_, lookup_prover.permuted_pairs()[i].table(), *zeta_,
           current_extended_omega_);
     }
   }
@@ -392,10 +392,9 @@ class CircuitPolynomialBuilder {
   // not owned
   const ProvingKey<Poly, Evals, C>* proving_key_;
   // not owned
-  const std::vector<PermutationCommitted<Poly>>* committed_permutations_;
+  const std::vector<PermutationProver<Poly, Evals>>* permutation_provers_;
   // not owned
-  const std::vector<std::vector<lookup::halo2::LookupCommitted<Poly>>>*
-      committed_lookups_vec_;
+  const std::vector<lookup::halo2::Prover<Poly, Evals>>* lookup_provers_;
   // not owned
   const std::vector<RefTable<Poly>>* poly_tables_;
 

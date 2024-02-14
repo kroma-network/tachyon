@@ -127,11 +127,10 @@ ExtendedPoly ExtendedToCoeff(const ExtendedEvals& evals,
   return poly;
 }
 
-template <typename Domain, typename Poly, typename F,
-          typename Evals = typename Domain::Evals>
+template <typename Domain, typename Poly, typename F, typename Evals>
 Evals CoeffToExtendedPart(const Domain* domain,
-                          const BlindedPolynomial<Poly>& poly, const F& zeta,
-                          const F& extended_omega_factor) {
+                          const BlindedPolynomial<Poly, Evals>& poly,
+                          const F& zeta, const F& extended_omega_factor) {
   return domain->GetCoset(zeta * extended_omega_factor)->FFT(poly.poly());
 }
 

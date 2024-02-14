@@ -109,7 +109,7 @@ class ArgumentData {
   // And for memory optimization, every evaluations of advice will be released
   // as soon as transforming it to coefficient form.
   template <typename Domain>
-  void TransformAdvice(const Domain* domain) {
+  void TransformEvalsToPoly(const Domain* domain) {
     VLOG(2) << "Transform advice columns to polys";
     CHECK(!advice_transformed_);
     advice_polys_vec_ = base::Map(

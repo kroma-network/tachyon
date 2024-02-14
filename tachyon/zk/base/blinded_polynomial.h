@@ -14,27 +14,44 @@
 
 namespace tachyon::zk {
 
-template <typename Poly>
+template <typename Poly, typename Evals>
 class BlindedPolynomial {
  public:
   using F = typename Poly::Field;
 
   BlindedPolynomial() = default;
+  BlindedPolynomial(Evals&& evals, const F& blind)
+      : evals_(std::move(evals)), blind_(blind) {}
+  BlindedPolynomial(Evals&& evals, F&& blind)
+      : evals_(std::move(evals)), blind_(std::move(blind)) {}
   BlindedPolynomial(Poly&& poly, const F& blind)
       : poly_(std::move(poly)), blind_(blind) {}
   BlindedPolynomial(Poly&& poly, F&& blind)
       : poly_(std::move(poly)), blind_(std::move(blind)) {}
 
   const Poly& poly() const { return poly_; }
+  const Evals& evals() const { return evals_; }
   const F& blind() const { return blind_; }
 
+  template <typename Domain>
+  void TransformEvalsToPoly(const Domain* domain) {
+    poly_ = domain->IFFT(evals_);
+    evals_ = Evals::Zero();
+  }
+
   std::string ToString() const {
-    return absl::Substitute("{poly: $0, blind: $1}", poly_.ToString(),
-                            blind_.ToString());
+    if (evals_.NumElements() == 0) {
+      return absl::Substitute("{poly: $0, blind: $1}", poly_.ToString(),
+                              blind_.ToString());
+    } else {
+      return absl::Substitute("{evals: $0, blind: $1}", evals_.ToString(),
+                              blind_.ToString());
+    }
   }
 
  private:
   Poly poly_;
+  Evals evals_;
   F blind_;
 };
 

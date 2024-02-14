@@ -122,11 +122,6 @@ class ProverBase : public Entity<PCS> {
     CHECK(GetWriter()->WriteToProof(commitment));
   }
 
-  BlindedPolynomial<Poly> CommitAndWriteToProofWithBlind(const Evals& evals) {
-    CommitAndWriteToProof(evals);
-    return {this->domain_->IFFT(evals), blinder_.Generate()};
-  }
-
   void EvaluateAndWriteToProof(const Poly& poly, const F& x) {
     F result = poly.Evaluate(x);
     CHECK(GetWriter()->WriteToProof(result));
