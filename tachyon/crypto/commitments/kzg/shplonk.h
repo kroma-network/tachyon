@@ -83,8 +83,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   // UnivariatePolynomialCommitmentScheme methods
   template <typename Container>
   [[nodiscard]] bool DoCreateOpeningProof(
-      const Container& poly_openings,
-      TranscriptWriter<Commitment>* writer) const {
+      const Container& poly_openings, TranscriptWriter<Commitment>* writer) {
     PolynomialOpeningGrouper<Poly> grouper;
     grouper.GroupByPolyOracleAndPoints(poly_openings);
 

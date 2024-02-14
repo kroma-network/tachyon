@@ -127,7 +127,7 @@ class SHPlonkExtension final
 
   template <typename Container, typename Proof>
   [[nodiscard]] bool DoCreateOpeningProof(const Container& poly_openings,
-                                          Proof* proof) const {
+                                          Proof* proof) {
     return shplonk_.DoCreateOpeningProof(poly_openings, proof);
   }
 
