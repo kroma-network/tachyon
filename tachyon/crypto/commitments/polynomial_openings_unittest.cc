@@ -1,6 +1,5 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 
-#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -189,27 +188,22 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyOracleAndPoints) {
   std::vector<PointDeepRef> expected_points_vec2 = {
       PointDeepRef(&points_[2]),
   };
-  std::vector<PolyRef> expected_polys_vec = {
-      PolyRef(&polys_[0]),
-      PolyRef(&polys_[1]),
+  std::vector<PolynomialOpenings<Poly>> expected_polys_vec = {
+      PolynomialOpenings<Poly>(PolyRef(&polys_[0]), {poly_openings[0].opening,
+                                                     poly_openings[1].opening}),
+      PolynomialOpenings<Poly>(PolyRef(&polys_[1]), {poly_openings[2].opening,
+                                                     poly_openings[3].opening}),
   };
-  std::vector<PolyRef> expected_polys_vec2 = {
-      PolyRef(&polys_[2]),
-      PolyRef(&polys_[3]),
+  std::vector<PolynomialOpenings<Poly>> expected_polys_vec2 = {
+      PolynomialOpenings<Poly>(PolyRef(&polys_[2]), {poly_openings[4].opening}),
+      PolynomialOpenings<Poly>(PolyRef(&polys_[3]), {poly_openings[5].opening}),
   };
 
   EXPECT_EQ(grouped_poly_openings_vec[0].point_refs, expected_points_vec);
+  EXPECT_EQ(grouped_poly_openings_vec[0].poly_openings_vec, expected_polys_vec);
   EXPECT_EQ(grouped_poly_openings_vec[1].point_refs, expected_points_vec2);
-  for (const PolynomialOpenings<Poly>& poly_openings :
-       grouped_poly_openings_vec[0].poly_openings_vec) {
-    EXPECT_THAT(expected_polys_vec,
-                testing::Contains(poly_openings.poly_oracle));
-  }
-  for (const PolynomialOpenings<Poly>& poly_openings :
-       grouped_poly_openings_vec[1].poly_openings_vec) {
-    EXPECT_THAT(expected_polys_vec2,
-                testing::Contains(poly_openings.poly_oracle));
-  }
+  EXPECT_EQ(grouped_poly_openings_vec[1].poly_openings_vec,
+            expected_polys_vec2);
 }
 
 }  // namespace tachyon::crypto
