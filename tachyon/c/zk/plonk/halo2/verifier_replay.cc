@@ -36,7 +36,7 @@ bool VerifyProof(tachyon_halo2_bn254_shplonk_verifier* c_verifier,
                  const std::vector<uint8_t>& pk_bytes) {
   Verifier* verifier = reinterpret_cast<Verifier*>(c_verifier);
   std::cout << "deserializing proving key" << std::endl;
-  ProvingKey pk(absl::MakeConstSpan(pk_bytes));
+  ProvingKey pk(absl::MakeConstSpan(pk_bytes), /*read_only_vk=*/true);
   std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(

@@ -53,16 +53,18 @@ class ProofReader {
     const ConstraintSystem<F>& constraint_system =
         verifying_key_.constraint_system();
     proof_.advices_commitments_vec.resize(num_circuits_);
+    size_t num_advice_columns = constraint_system.num_advice_columns();
     for (size_t i = 0; i < num_circuits_; ++i) {
-      proof_.advices_commitments_vec[i].reserve(
-          constraint_system.num_advice_columns());
+      proof_.advices_commitments_vec[i].resize(num_advice_columns);
     }
     proof_.challenges.reserve(constraint_system.challenge_phases().size());
     for (Phase current_phase : constraint_system.GetPhases()) {
       for (size_t i = 0; i < num_circuits_; ++i) {
-        for (Phase phase : constraint_system.advice_column_phases()) {
-          if (current_phase == phase) {
-            proof_.advices_commitments_vec[i].push_back(Read<C>());
+        const std::vector<Phase>& advice_column_phases =
+            constraint_system.advice_column_phases();
+        for (size_t j = 0; j < num_advice_columns; ++j) {
+          if (current_phase == advice_column_phases[j]) {
+            proof_.advices_commitments_vec[i][j] = Read<C>();
           }
         }
       }
