@@ -151,8 +151,12 @@ constexpr uint8_t kGWCExpectedProof[] = {
     199, 67,  95,  218, 218, 119, 67,  127, 7,   147, 173, 104, 127, 197, 127,
     234, 110, 49,  115, 143, 218, 23,  132, 5,   35,  0,   217, 55,  177, 128};
 
+constexpr size_t W = 2;
+constexpr size_t H = 8;
+constexpr size_t K = 4;
+
 // clang-format off
-std::vector<std::vector<std::vector<std::string_view>>> original_tables = {
+constexpr const char* original_tables[2][W][H] = {
   {
     {
         "0x0330fa29c0b79377aa26b9f89ad6c94912201b4c8a854c4fe1db0aae5d3e3139",
@@ -199,7 +203,7 @@ std::vector<std::vector<std::vector<std::string_view>>> original_tables = {
   }
 };
 
-std::vector<std::vector<std::vector<std::string_view>>> shuffled_tables = {
+constexpr const char* shuffled_tables[2][W][H] = {
   {
     {
         "0x23037b83210a774ff6b6caa3093f1c3a075ecc20f46ba78ce33f71214797853d",
@@ -247,10 +251,6 @@ std::vector<std::vector<std::vector<std::string_view>>> shuffled_tables = {
 };
 // clang-format on
 
-constexpr size_t W = 2;
-constexpr size_t H = 8;
-constexpr size_t K = 4;
-
 template <typename PCS>
 class ShuffleCircuitTest : public CircuitTest<PCS> {
  public:
@@ -259,17 +259,16 @@ class ShuffleCircuitTest : public CircuitTest<PCS> {
   static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
 
   static std::vector<std::vector<F>> CreateTable(
-      const std::vector<std::vector<std::string_view>>& table) {
-    return base::CreateVector(W, [&table](size_t i) {
-      std::vector<std::string_view> table_i = table[i];
+      const char* const table[W][H]) {
+    return base::CreateVector(W, [table](size_t i) {
       return base::CreateVector(
-          H, [&table_i](size_t j) { return F::FromHexString(table_i[j]); });
+          H, [table, i](size_t j) { return F::FromHexString(table[i][j]); });
     });
   }
 
   template <template <typename> class FloorPlanner>
   static ShuffleCircuit<F, W, H, FloorPlanner> GetCircuitForTest(size_t i = 0) {
-    CHECK_LT(i, original_tables.size());
+    CHECK_LT(i, std::size(original_tables));
     return {CreateTable(original_tables[i]), CreateTable(shuffled_tables[i])};
   }
 };
