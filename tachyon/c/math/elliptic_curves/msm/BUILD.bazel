@@ -63,6 +63,7 @@ tachyon_cc_unittest(
     srcs = ["msm_unittest.cc"],
     deps = [
         "//tachyon/base:bits",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1_test",
         "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
         "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
     ],

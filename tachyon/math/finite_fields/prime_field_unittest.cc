@@ -1,16 +1,14 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/buffer.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
 
 namespace {
 
-class PrimeFieldTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { GF7::Init(); }
-};
+class PrimeFieldTest : public FiniteFieldTest<GF7> {};
 
 }  // namespace
 

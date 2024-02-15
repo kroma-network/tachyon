@@ -8,15 +8,15 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {
 
 namespace {
 
-class PoseidonGrainLFSRTest : public testing::Test {
+class PoseidonGrainLFSRTest
+    : public math::FiniteFieldTest<math::bls12_381::Fr> {
  public:
-  static void SetUpTestSuite() { math::bls12_381::Fr::Init(); }
-
   void SetUp() override {
     default_config_.is_sbox_an_inverse = false;
     default_config_.prime_num_bits = 255;

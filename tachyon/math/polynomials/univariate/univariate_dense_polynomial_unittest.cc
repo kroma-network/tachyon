@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/buffer.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -14,10 +15,8 @@ const size_t kMaxDegree = 5;
 using Poly = UnivariateDensePolynomial<GF7, kMaxDegree>;
 using Coeffs = UnivariateDenseCoefficients<GF7, kMaxDegree>;
 
-class UnivariateDensePolynomialTest : public testing::Test {
+class UnivariateDensePolynomialTest : public FiniteFieldTest<GF7> {
  public:
-  static void SetUpTestSuite() { GF7::Init(); }
-
   void SetUp() override {
     polys_.push_back(Poly(Coeffs({GF7(3), GF7(0), GF7(1), GF7(0), GF7(2)})));
     polys_.push_back(Poly(Coeffs({GF7(3)})));

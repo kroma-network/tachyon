@@ -3,16 +3,15 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
 namespace {
 
-class RandomFieldGeneratorTest : public testing::Test {
+class RandomFieldGeneratorTest : public math::FiniteFieldTest<math::bn254::Fq> {
  public:
   using F = tachyon::math::bn254::Fq;
-
-  static void SetUpTestSuite() { F::Init(); }
 };
 
 }  // namespace

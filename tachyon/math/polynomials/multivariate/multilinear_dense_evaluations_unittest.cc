@@ -3,6 +3,7 @@
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/multivariate/multilinear_extension.h"
 
@@ -16,10 +17,8 @@ using Point = std::vector<GF7>;
 using Poly = MultilinearExtension<MultilinearDenseEvaluations<GF7, kMaxDegree>>;
 using Evals = MultilinearDenseEvaluations<GF7, kMaxDegree>;
 
-class MultilinearDenseEvaluationsTest : public testing::Test {
+class MultilinearDenseEvaluationsTest : public FiniteFieldTest<GF7> {
  public:
-  static void SetUpTestSuite() { GF7::Init(); }
-
   void SetUp() override {
     polys_.push_back(Poly(Evals({GF7(2), GF7(3)})));
     polys_.push_back(Poly(Evals({GF7(4), GF7(2)})));

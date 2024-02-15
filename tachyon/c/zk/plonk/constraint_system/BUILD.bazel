@@ -48,5 +48,6 @@ tachyon_cc_unittest(
     deps = [
         ":bn254_constraint_system",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )

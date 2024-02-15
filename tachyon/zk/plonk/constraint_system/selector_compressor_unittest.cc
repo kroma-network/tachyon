@@ -4,6 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/functional/callback.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/zk/expressions/expression_factory.h"
 
@@ -15,9 +16,8 @@ using F = math::GF7;
 using AllocateFixedColumnCallback =
     base::RepeatingCallback<std::unique_ptr<Expression<F>>()>;
 
-class SelectorCompressorTest : public ::testing::Test {
+class SelectorCompressorTest : public math::FiniteFieldTest<F> {
  public:
-  static void SetUpTestSuite() { F::Init(); }
   void SetUp() override {
     // [1, 0, 0, 0, 0, 0, 0, 0, 1],
     selectors_in_.push_back(

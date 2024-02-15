@@ -153,6 +153,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":constraint_system",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
         "@com_google_absl//absl/hash:hash_testing",
     ],

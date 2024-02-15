@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
@@ -15,10 +16,8 @@ using Point = std::vector<GF7>;
 using Poly = MultivariateSparsePolynomial<GF7, kMaxDegree>;
 using Coeffs = MultivariateSparseCoefficients<GF7, kMaxDegree>;
 
-class MultivariatePolynomialTest : public testing::Test {
+class MultivariatePolynomialTest : public FiniteFieldTest<GF7> {
  public:
-  static void SetUpTestSuite() { GF7::Init(); }
-
   void SetUp() override {
     // poly0: 2
     polys_.push_back(Poly(Coeffs(1, {

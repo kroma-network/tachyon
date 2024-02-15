@@ -1,5 +1,5 @@
-#ifndef TACHYON_ZK_LOOKUP_TEST_COMPRESS_EXPRESSION_TEST_SETTING_H_
-#define TACHYON_ZK_LOOKUP_TEST_COMPRESS_EXPRESSION_TEST_SETTING_H_
+#ifndef TACHYON_ZK_LOOKUP_TEST_COMPRESS_EXPRESSION_TEST_H_
+#define TACHYON_ZK_LOOKUP_TEST_COMPRESS_EXPRESSION_TEST_H_
 
 #include <memory>
 #include <vector>
@@ -9,7 +9,7 @@
 
 namespace tachyon::zk {
 
-class CompressExpressionTestSetting : public plonk::halo2::ProverTest {
+class CompressExpressionTest : public plonk::halo2::ProverTest {
  public:
   void SetUp() override {
     plonk::halo2::ProverTest::SetUp();
@@ -33,4 +33,4 @@ class CompressExpressionTestSetting : public plonk::halo2::ProverTest {
 
 }  // namespace tachyon::zk
 
-#endif  // TACHYON_ZK_LOOKUP_TEST_COMPRESS_EXPRESSION_TEST_SETTING_H_
+#endif  // TACHYON_ZK_LOOKUP_TEST_COMPRESS_EXPRESSION_TEST_H_

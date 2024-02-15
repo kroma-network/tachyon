@@ -3,6 +3,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::zk::plonk::halo2 {
@@ -11,12 +12,10 @@ namespace {
 
 constexpr size_t kMaxDegree = 7;
 
-class ArgumentDataTest : public testing::Test {
+class ArgumentDataTest : public math::FiniteFieldTest<math::GF7> {
  public:
   using Poly = math::UnivariateDensePolynomial<math::GF7, kMaxDegree>;
   using Evals = math::UnivariateEvaluations<math::GF7, kMaxDegree>;
-
-  static void SetUpTestSuite() { math::GF7::Init(); }
 };
 
 }  // namespace

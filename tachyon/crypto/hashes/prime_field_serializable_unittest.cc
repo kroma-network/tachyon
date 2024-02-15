@@ -2,16 +2,14 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::crypto {
 
 namespace {
 
-class PrimeFieldSerializableTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { math::GF7::Init(); }
-};
+class PrimeFieldSerializableTest : public math::FiniteFieldTest<math::GF7> {};
 
 }  // namespace
 

@@ -2,20 +2,18 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::zk {
 
-using Fr = math::bn254::Fr;
+using F = math::GF7;
 
-class InstanceExpressionTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { Fr::Init(); }
-};
+class InstanceExpressionTest : public math::FiniteFieldTest<F> {};
 
 TEST_F(InstanceExpressionTest, DegreeComplexity) {
-  std::unique_ptr<InstanceExpression<Fr>> expr =
-      InstanceExpression<Fr>::CreateForTesting(
+  std::unique_ptr<InstanceExpression<F>> expr =
+      InstanceExpression<F>::CreateForTesting(
           plonk::InstanceQuery(1, Rotation(1), plonk::InstanceColumnKey(1)));
   EXPECT_EQ(expr->Degree(), size_t{1});
   EXPECT_EQ(expr->Complexity(), uint64_t{1});

@@ -10,15 +10,13 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {
 
 namespace {
 
-class PoseidonTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { math::bls12_381::Fr::Init(); }
-};
+class PoseidonTest : public math::FiniteFieldTest<math::bls12_381::Fr> {};
 
 }  // namespace
 

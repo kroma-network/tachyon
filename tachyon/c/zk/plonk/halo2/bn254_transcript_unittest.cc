@@ -5,15 +5,14 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
 template <typename Transcript>
-class TranscriptWriterTest : public testing::Test {
+class TranscriptWriterTest : public math::FiniteFieldTest<math::bn254::Fr> {
  public:
-  static void SetUpTestSuite() { math::bn254::Fr::Init(); }
-
   void TearDown() override {
     tachyon_halo2_bn254_transcript_writer_destroy(writer_);
     tachyon_halo2_bn254_transcript_writer_destroy(writer_clone_);

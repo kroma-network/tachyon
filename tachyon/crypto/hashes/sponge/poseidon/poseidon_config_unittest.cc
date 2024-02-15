@@ -18,20 +18,9 @@
 
 namespace tachyon::crypto {
 
-namespace {
-
-class PoseidonConfigTest : public testing::Test {
- public:
-  static void SetUpTestSuite() {
-    math::bls12_381::Fr::Init();
-    math::bn254::Fr::Init();
-  }
-};
-
-}  // namespace
-
-TEST_F(PoseidonConfigTest, CreateDefault) {
+TEST(PoseidonConfigTest, CreateDefault) {
   using F = math::bls12_381::Fr;
+  F::Init();
 
   // clang-format off
   struct {
@@ -66,8 +55,9 @@ TEST_F(PoseidonConfigTest, CreateDefault) {
   }
 }
 
-TEST_F(PoseidonConfigTest, CreateCustom) {
+TEST(PoseidonConfigTest, CreateCustom) {
   using F = math::bn254::Fr;
+  F::Init();
 
   // clang-format off
   struct {

@@ -77,5 +77,6 @@ tachyon_cc_unittest(
         ":bn254_univariate_rational_evaluations",
         "//tachyon/base/containers:container_util",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )

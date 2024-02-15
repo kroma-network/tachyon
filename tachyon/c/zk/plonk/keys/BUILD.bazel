@@ -95,5 +95,8 @@ tachyon_cc_unittest(
         "bn254_plonk_proving_key_unittest.cc",
         "bn254_plonk_verifying_key_unittest.cc",
     ],
-    deps = [":bn254_plonk_proving_key"],
+    deps = [
+        ":bn254_plonk_proving_key",
+        "//tachyon/math/finite_fields/test:finite_field_test",
+    ],
 )

@@ -9,16 +9,14 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::zk::plonk {
 
 namespace {
 
 template <typename PrimeField>
-class PermutationUtilsTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { PrimeField::Init(); }
-};
+class PermutationUtilsTest : public math::FiniteFieldTest<PrimeField> {};
 
 }  // namespace
 

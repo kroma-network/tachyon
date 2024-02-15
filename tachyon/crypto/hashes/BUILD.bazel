@@ -20,6 +20,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         ":prime_field_serializable",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
     ],
 )

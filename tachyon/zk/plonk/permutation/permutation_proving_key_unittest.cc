@@ -6,24 +6,36 @@
 
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
 
+#include <memory>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/buffer.h"
-#include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 
 namespace tachyon::zk::plonk {
 
 namespace {
 
-class PermutationProvingKeyTest : public halo2::ProverTest {
- public:
-  using ProvingKey = PermutationProvingKey<Poly, Evals>;
-};
+using F = math::bn254::Fr;
+
+class PermutationProvingKeyTest : public math::FiniteFieldTest<F> {};
 
 }  // namespace
 
 TEST_F(PermutationProvingKeyTest, Copyable) {
-  const Domain* domain = prover_->domain();
+  constexpr static size_t N = 32;
+  constexpr static size_t kMaxDegree = N - 1;
+
+  using Domain = math::UnivariateEvaluationDomain<F, kMaxDegree>;
+  using Poly = Domain::DensePoly;
+  using Evals = Domain::Evals;
+  using ProvingKey = PermutationProvingKey<Poly, Evals>;
+
+  std::unique_ptr<Domain> domain = Domain::Create(N);
+
   ProvingKey expected(
       {domain->Random<Evals>(), domain->Random<Evals>(),
        domain->Random<Evals>()},

@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::zk::r1cs {
@@ -10,10 +11,7 @@ namespace {
 
 using F = math::GF7;
 
-class ConstraintSystemTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { F::Init(); }
-};
+class ConstraintSystemTest : public math::FiniteFieldTest<F> {};
 
 }  // namespace
 

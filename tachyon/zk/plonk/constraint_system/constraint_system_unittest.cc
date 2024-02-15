@@ -2,16 +2,14 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::zk::plonk {
 
 namespace {
 
-class ConstraintSystemTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { math::GF7::Init(); }
-};
+class ConstraintSystemTest : public math::FiniteFieldTest<math::GF7> {};
 
 }  // namespace
 
@@ -106,10 +104,7 @@ TEST_F(ConstraintSystemTest, Phases) {
 namespace {
 
 template <typename ColumnKey>
-class ConstraintSystemTypedTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { math::GF7::Init(); }
-};
+class ConstraintSystemTypedTest : public math::FiniteFieldTest<math::GF7> {};
 
 }  // namespace
 

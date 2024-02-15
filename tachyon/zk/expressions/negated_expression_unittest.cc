@@ -2,31 +2,29 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/zk/expressions/constant_expression.h"
 
 namespace tachyon::zk {
 
-using Fr = math::bn254::Fr;
+using F = math::GF7;
 
-class NegatedExpressionTest : public testing::Test {
- public:
-  static void SetUpTestSuite() { Fr::Init(); }
-};
+class NegatedExpressionTest : public math::FiniteFieldTest<F> {};
 
 TEST_F(NegatedExpressionTest, DegreeComplexity) {
-  std::unique_ptr<ConstantExpression<Fr>> expr =
-      ConstantExpression<Fr>::CreateForTesting(Fr::One());
+  std::unique_ptr<ConstantExpression<F>> expr =
+      ConstantExpression<F>::CreateForTesting(F::One());
 
   size_t expr_degree = expr->Degree();
   uint64_t expr_complexity = expr->Complexity();
 
-  std::unique_ptr<NegatedExpression<Fr>> negated_expression =
-      NegatedExpression<Fr>::CreateForTesting(std::move(expr));
+  std::unique_ptr<NegatedExpression<F>> negated_expression =
+      NegatedExpression<F>::CreateForTesting(std::move(expr));
 
   EXPECT_EQ(negated_expression->Degree(), expr_degree);
   EXPECT_EQ(negated_expression->Complexity(),
-            expr_complexity + NegatedExpression<Fr>::kOverhead);
+            expr_complexity + NegatedExpression<F>::kOverhead);
 }
 
 }  // namespace tachyon::zk

@@ -5,6 +5,7 @@
 
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/base/containers/cxx20_erase_vector.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -17,10 +18,8 @@ const size_t kMaxDegree = 5;
 using Poly = UnivariateSparsePolynomial<GF7, kMaxDegree>;
 using Coeffs = UnivariateSparseCoefficients<GF7, kMaxDegree>;
 
-class UnivariateSparsePolynomialTest : public testing::Test {
+class UnivariateSparsePolynomialTest : public FiniteFieldTest<GF7> {
  public:
-  static void SetUpTestSuite() { GF7::Init(); }
-
   void SetUp() override {
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}, {2, GF7(1)}, {4, GF7(2)}})));
     polys_.push_back(Poly(Coeffs({{0, GF7(3)}})));

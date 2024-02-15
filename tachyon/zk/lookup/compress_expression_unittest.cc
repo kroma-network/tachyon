@@ -9,11 +9,9 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/expressions/expression_factory.h"
-#include "tachyon/zk/lookup/test/compress_expression_test_setting.h"
+#include "tachyon/zk/lookup/test/compress_expression_test.h"
 
 namespace tachyon::zk {
-
-class CompressExpressionTest : public CompressExpressionTestSetting {};
 
 TEST_F(CompressExpressionTest, CompressExpressions) {
   const size_t kExpressionSize = 10;

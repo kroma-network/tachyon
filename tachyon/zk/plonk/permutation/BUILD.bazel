@@ -184,11 +184,14 @@ tachyon_cc_unittest(
         "unpermuted_table_unittest.cc",
     ],
     deps = [
-        ":permutation_argument_runner",
         ":permutation_assembly",
         ":permutation_table_store",
         "//tachyon/base/buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
+        "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",
+        "//tachyon/math/finite_fields/test:finite_field_test",
+        "//tachyon/math/finite_fields/test:gf7",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "//tachyon/zk/plonk/halo2:prover_test",
     ],
 )

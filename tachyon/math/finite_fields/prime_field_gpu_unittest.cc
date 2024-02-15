@@ -3,6 +3,7 @@
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
 #include "tachyon/math/finite_fields/prime_field_conversions.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7_gpu.h"
 #include "tachyon/math/test/launch_op_macros.h"
 
@@ -33,19 +34,19 @@ DEFINE_LAUNCH_COMPARISON_OP(Ge)
 
 using namespace device;
 
-class PrimeFieldGpuTest : public testing::Test {
+class PrimeFieldGpuTest : public FiniteFieldTest<GF7> {
  public:
   // Runs tests with |N| data.
   constexpr static size_t N = kThreadNum * 2;
 
   static void SetUpTestSuite() {
+    FiniteFieldTest<GF7>::SetUpTestSuite();
+
     GPU_MUST_SUCCESS(gpuDeviceReset(), "");
     xs_ = gpu::GpuMemory<GF7Gpu>::MallocManaged(N);
     ys_ = gpu::GpuMemory<GF7Gpu>::MallocManaged(N);
     results_ = gpu::GpuMemory<GF7Gpu>::MallocManaged(N);
     bool_results_ = gpu::GpuMemory<bool>::MallocManaged(N);
-
-    GF7::Init();
   }
 
   static void TearDownTestSuite() {

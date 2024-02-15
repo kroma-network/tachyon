@@ -6,22 +6,36 @@
 
 #include "tachyon/zk/plonk/halo2/witness_collection.h"
 
+#include <memory>
+
 #include "gtest/gtest.h"
 
+#include "tachyon/math/base/rational_field.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/base/value.h"
-#include "tachyon/zk/plonk/examples/simple_circuit.h"
-#include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk::plonk::halo2 {
 namespace {
 
-class WitnessCollectionTest : public halo2::ProverTest {
- public:
-  void SetUp() override {
-    halo2::ProverTest::SetUp();
+using F = math::bn254::Fr;
 
-    const Domain* domain = prover_->domain();
-    prover_->blinder().set_blinding_factors(5);
+class WitnessCollectionTest : public math::FiniteFieldTest<F> {
+ public:
+  constexpr static RowIndex N = 32;
+  constexpr static size_t kMaxDegree = N - 1;
+  constexpr static size_t kNumAdviceColumns = 3;
+  constexpr static RowIndex kBlindingFactors = 5;
+  constexpr static RowIndex kUsableRows = N - (kBlindingFactors + 1);
+
+  using Domain = math::UnivariateEvaluationDomain<F, kMaxDegree>;
+  using Evals = Domain::Evals;
+  using RationalEvals =
+      math::UnivariateEvaluations<math::RationalField<F>, kMaxDegree>;
+
+  void SetUp() override {
+    std::unique_ptr<Domain> domain = Domain::Create(N);
 
     // There is a single challenge in |expected_challenges_|.
     expected_challenges_[0] = F::Random();
@@ -29,7 +43,7 @@ class WitnessCollectionTest : public halo2::ProverTest {
 
     Phase current_phase(0);
     witness_collection_ = WitnessCollection<Evals, RationalEvals>(
-        domain, 3, prover_->GetUsableRows(), current_phase,
+        domain.get(), kNumAdviceColumns, kUsableRows, current_phase,
         expected_challenges_, expected_instance_columns_);
   }
 

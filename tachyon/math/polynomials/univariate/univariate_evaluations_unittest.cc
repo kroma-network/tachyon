@@ -4,6 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/buffer.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
@@ -14,10 +15,8 @@ const size_t kMaxDegree = 4;
 
 using Poly = UnivariateEvaluations<GF7, kMaxDegree>;
 
-class UnivariateEvaluationsTest : public testing::Test {
+class UnivariateEvaluationsTest : public FiniteFieldTest<GF7> {
  public:
-  static void SetUpTestSuite() { GF7::Init(); }
-
   void SetUp() override {
     polys_.push_back(Poly({GF7(3), GF7(6), GF7(4), GF7(6), GF7(6)}));
     polys_.push_back(Poly({GF7(3), GF7(4), GF7(5), GF7(0), GF7(2)}));

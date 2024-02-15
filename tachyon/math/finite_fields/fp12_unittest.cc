@@ -2,15 +2,13 @@
 
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fq12.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::math {
 
 namespace {
 
-class Fp12Test : public testing::Test {
- public:
-  static void SetUpTestSuite() { bn254::Fq12::Init(); }
-};
+class Fp12Test : public FiniteFieldTest<bn254::Fq12> {};
 
 }  // namespace
 

@@ -80,6 +80,7 @@ tachyon_cc_unittest(
     deps = [
         ":constraint_system",
         "//tachyon/base:random",
+        "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
     ],
 )
