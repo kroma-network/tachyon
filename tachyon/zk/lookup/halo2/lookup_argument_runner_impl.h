@@ -4,20 +4,20 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
-#define TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
+#ifndef TACHYON_ZK_LOOKUP_HALO2_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
+#define TACHYON_ZK_LOOKUP_HALO2_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
 
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/base/rotation.h"
-#include "tachyon/zk/lookup/compress_expression.h"
-#include "tachyon/zk/lookup/lookup_argument_runner.h"
-#include "tachyon/zk/lookup/permute_expression_pair.h"
+#include "tachyon/zk/lookup/halo2/compress_expression.h"
+#include "tachyon/zk/lookup/halo2/lookup_argument_runner.h"
+#include "tachyon/zk/lookup/halo2/permute_expression_pair.h"
 #include "tachyon/zk/plonk/permutation/grand_product_argument.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup::halo2 {
 
 // static
 template <typename Poly, typename Evals>
@@ -165,6 +165,6 @@ LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback(
   };
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup::halo2
 
-#endif  // TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_IMPL_H_
+#endif  // TACHYON_ZK_LOOKUP_HALO2_LOOKUP_ARGUMENT_RUNNER_IMPL_H_

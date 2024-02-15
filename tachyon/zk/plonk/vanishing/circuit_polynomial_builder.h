@@ -16,7 +16,7 @@
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/rotation.h"
-#include "tachyon/zk/lookup/lookup_committed.h"
+#include "tachyon/zk/lookup/halo2/lookup_committed.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/base/owned_table.h"
 #include "tachyon/zk/plonk/base/ref_table.h"
@@ -52,7 +52,7 @@ class CircuitPolynomialBuilder {
       absl::Span<const F> challenges,
       const ProvingKey<Poly, Evals, C>* proving_key,
       const std::vector<PermutationCommitted<Poly>>* committed_permutations,
-      const std::vector<std::vector<LookupCommitted<Poly>>>*
+      const std::vector<std::vector<lookup::halo2::LookupCommitted<Poly>>>*
           committed_lookups_vec,
       const std::vector<RefTable<Poly>>* poly_tables) {
     CircuitPolynomialBuilder builder;
@@ -327,8 +327,8 @@ class CircuitPolynomialBuilder {
 
   void UpdateVanishingLookups(size_t circuit_idx) {
     size_t num_lookups = (*committed_lookups_vec_)[circuit_idx].size();
-    const std::vector<LookupCommitted<Poly>>& current_committed_lookups =
-        (*committed_lookups_vec_)[circuit_idx];
+    const std::vector<lookup::halo2::LookupCommitted<Poly>>&
+        current_committed_lookups = (*committed_lookups_vec_)[circuit_idx];
     lookup_product_cosets_.resize(num_lookups);
     lookup_input_cosets_.resize(num_lookups);
     lookup_table_cosets_.resize(num_lookups);
@@ -394,7 +394,8 @@ class CircuitPolynomialBuilder {
   // not owned
   const std::vector<PermutationCommitted<Poly>>* committed_permutations_;
   // not owned
-  const std::vector<std::vector<LookupCommitted<Poly>>>* committed_lookups_vec_;
+  const std::vector<std::vector<lookup::halo2::LookupCommitted<Poly>>>*
+      committed_lookups_vec_;
   // not owned
   const std::vector<RefTable<Poly>>* poly_tables_;
 

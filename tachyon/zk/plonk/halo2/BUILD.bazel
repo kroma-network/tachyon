@@ -38,7 +38,7 @@ tachyon_cc_library(
         "//tachyon/base/numerics:checked_math",
         "//tachyon/zk/base:point_set",
         "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/lookup:lookup_argument_runner",
+        "//tachyon/zk/lookup/halo2:lookup_argument_runner",
         "//tachyon/zk/plonk/base:ref_table",
         "//tachyon/zk/plonk/constraint_system",
         "//tachyon/zk/plonk/constraint_system:query",

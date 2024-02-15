@@ -13,7 +13,7 @@
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/point_set.h"
-#include "tachyon/zk/lookup/lookup_argument_runner.h"
+#include "tachyon/zk/lookup/halo2/lookup_argument_runner.h"
 #include "tachyon/zk/plonk/base/ref_table.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/constraint_system/query.h"
@@ -25,11 +25,11 @@ namespace tachyon::zk::plonk::halo2 {
 
 template <typename PCS, typename F, typename Evals,
           typename Poly = typename PCS::Poly>
-std::vector<std::vector<LookupPermuted<Poly, Evals>>> BatchPermuteLookups(
-    ProverBase<PCS>* prover,
-    const std::vector<LookupArgument<F>>& lookup_arguments,
-    const std::vector<RefTable<Evals>>& tables, absl::Span<const F> challenges,
-    const F& theta) {
+std::vector<std::vector<lookup::halo2::LookupPermuted<Poly, Evals>>>
+BatchPermuteLookups(ProverBase<PCS>* prover,
+                    const std::vector<LookupArgument<F>>& lookup_arguments,
+                    const std::vector<RefTable<Evals>>& tables,
+                    absl::Span<const F> challenges, const F& theta) {
   size_t num_circuits = tables.size();
   // NOTE(chokobole): It's safe to downcast because domain is already checked.
   int32_t n = static_cast<int32_t>(prover->pcs().N());
@@ -37,53 +37,65 @@ std::vector<std::vector<LookupPermuted<Poly, Evals>>> BatchPermuteLookups(
                                            &lookup_arguments, &tables, &theta,
                                            n](size_t i) {
     const RefTable<Evals>& table = tables[i];
-    return base::Map(
-        lookup_arguments, [prover, challenges, &table, &theta,
-                           n](const LookupArgument<F>& lookup_argument) {
-          SimpleEvaluator<Evals> simple_evaluator(0, n, 1, table, challenges);
-          return LookupArgumentRunner<Poly, Evals>::PermuteArgument(
-              prover, lookup_argument, theta, simple_evaluator);
-        });
+    return base::Map(lookup_arguments, [prover, challenges, &table, &theta,
+                                        n](const LookupArgument<F>&
+                                               lookup_argument) {
+      SimpleEvaluator<Evals> simple_evaluator(0, n, 1, table, challenges);
+      return lookup::halo2::LookupArgumentRunner<Poly, Evals>::PermuteArgument(
+          prover, lookup_argument, theta, simple_evaluator);
+    });
   });
 }
 
 template <typename PCS, typename Poly, typename Evals, typename F>
-std::vector<std::vector<LookupCommitted<Poly>>> BatchCommitLookups(
+std::vector<std::vector<lookup::halo2::LookupCommitted<Poly>>>
+BatchCommitLookups(
     ProverBase<PCS>* prover,
-    std::vector<std::vector<LookupPermuted<Poly, Evals>>>&&
+    std::vector<std::vector<lookup::halo2::LookupPermuted<Poly, Evals>>>&&
         permuted_lookups_vec,
     const F& beta, const F& gamma) {
-  std::vector<std::vector<LookupCommitted<Poly>>> ret = base::Map(
-      permuted_lookups_vec,
-      [prover, &beta,
-       &gamma](std::vector<LookupPermuted<Poly, Evals>>& permuted_lookups) {
-        return base::Map(
-            permuted_lookups,
-            [prover, &beta,
-             &gamma](LookupPermuted<Poly, Evals>& permuted_lookup) {
-              return LookupArgumentRunner<Poly, Evals>::CommitPermuted(
-                  prover, std::move(permuted_lookup), beta, gamma);
-            });
-      });
+  std::vector<std::vector<lookup::halo2::LookupCommitted<Poly>>> ret =
+      base::Map(
+          permuted_lookups_vec,
+          [prover, &beta,
+           &gamma](std::vector<lookup::halo2::LookupPermuted<Poly, Evals>>&
+                       permuted_lookups) {
+            return base::Map(
+                permuted_lookups,
+                [prover, &beta,
+                 &gamma](lookup::halo2::LookupPermuted<Poly, Evals>&
+                             permuted_lookup) {
+                  return lookup::halo2::LookupArgumentRunner<
+                      Poly, Evals>::CommitPermuted(prover,
+                                                   std::move(permuted_lookup),
+                                                   beta, gamma);
+                });
+          });
   permuted_lookups_vec.clear();
   return ret;
 }
 
 template <typename PCS, typename Poly, typename F>
-std::vector<std::vector<LookupEvaluated<Poly>>> BatchEvaluateLookups(
+std::vector<std::vector<lookup::halo2::LookupEvaluated<Poly>>>
+BatchEvaluateLookups(
     ProverBase<PCS>* prover,
-    std::vector<std::vector<LookupCommitted<Poly>>>&& committed_lookups_vec,
+    std::vector<std::vector<lookup::halo2::LookupCommitted<Poly>>>&&
+        committed_lookups_vec,
     const F& x) {
-  std::vector<std::vector<LookupEvaluated<Poly>>> ret = base::Map(
-      committed_lookups_vec,
-      [prover, &x](std::vector<LookupCommitted<Poly>>& committed_lookups) {
-        return base::Map(
-            committed_lookups,
-            [prover, &x](LookupCommitted<Poly>& committed_lookup) {
-              return LookupArgumentRunner<Poly, typename PCS::Evals>::
-                  EvaluateCommitted(prover, std::move(committed_lookup), x);
-            });
-      });
+  std::vector<std::vector<lookup::halo2::LookupEvaluated<Poly>>> ret =
+      base::Map(
+          committed_lookups_vec,
+          [prover, &x](std::vector<lookup::halo2::LookupCommitted<Poly>>&
+                           committed_lookups) {
+            return base::Map(
+                committed_lookups,
+                [prover,
+                 &x](lookup::halo2::LookupCommitted<Poly>& committed_lookup) {
+                  return lookup::halo2::LookupArgumentRunner<
+                      Poly, typename PCS::Evals>::
+                      EvaluateCommitted(prover, std::move(committed_lookup), x);
+                });
+          });
   committed_lookups_vec.clear();
   return ret;
 }

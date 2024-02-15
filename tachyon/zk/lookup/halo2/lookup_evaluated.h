@@ -4,14 +4,14 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_LOOKUP_LOOKUP_EVALUATED_H_
-#define TACHYON_ZK_LOOKUP_LOOKUP_EVALUATED_H_
+#ifndef TACHYON_ZK_LOOKUP_HALO2_LOOKUP_EVALUATED_H_
+#define TACHYON_ZK_LOOKUP_HALO2_LOOKUP_EVALUATED_H_
 
 #include <utility>
 
 #include "tachyon/zk/base/blinded_polynomial.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup::halo2 {
 
 template <typename Poly>
 class LookupEvaluated {
@@ -39,6 +39,6 @@ class LookupEvaluated {
   BlindedPolynomial<Poly> product_poly_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup::halo2
 
-#endif  // TACHYON_ZK_LOOKUP_LOOKUP_EVALUATED_H_
+#endif  // TACHYON_ZK_LOOKUP_HALO2_LOOKUP_EVALUATED_H_

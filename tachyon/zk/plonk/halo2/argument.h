@@ -40,9 +40,10 @@ class Argument {
   }
 
   template <typename PCS>
-  std::vector<std::vector<LookupPermuted<Poly, Evals>>> PermuteLookupsStep(
-      ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
-      const F& theta) const {
+  std::vector<std::vector<lookup::halo2::LookupPermuted<Poly, Evals>>>
+  PermuteLookupsStep(ProverBase<PCS>* prover,
+                     const ConstraintSystem<F>& constraint_system,
+                     const F& theta) const {
     std::vector<RefTable<Evals>> tables = argument_data_->ExportColumnTables(
         absl::MakeConstSpan(*fixed_columns_));
     return BatchPermuteLookups(prover, constraint_system.lookups(), tables,
@@ -50,12 +51,12 @@ class Argument {
   }
 
   template <typename PCS>
-  StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
+  StepReturns<PermutationCommitted<Poly>, lookup::halo2::LookupCommitted<Poly>,
               VanishingCommitted<Poly>>
   CommitCircuitStep(
       ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
-      std::vector<std::vector<LookupPermuted<Poly, Evals>>>&&
+      std::vector<std::vector<lookup::halo2::LookupPermuted<Poly, Evals>>>&&
           permuted_lookups_vec,
       const F& beta, const F& gamma) {
     std::vector<RefTable<Evals>> tables = argument_data_->ExportColumnTables(
@@ -66,9 +67,9 @@ class Argument {
                                 permutation_proving_key, tables,
                                 constraint_system.ComputeDegree(), beta, gamma);
 
-    std::vector<std::vector<LookupCommitted<Poly>>> committed_lookups_vec =
-        BatchCommitLookups(prover, std::move(permuted_lookups_vec), beta,
-                           gamma);
+    std::vector<std::vector<lookup::halo2::LookupCommitted<Poly>>>
+        committed_lookups_vec = BatchCommitLookups(
+            prover, std::move(permuted_lookups_vec), beta, gamma);
 
     VanishingCommitted<Poly> committed_vanishing = CommitRandomPoly(prover);
 
@@ -94,7 +95,7 @@ class Argument {
 
   template <typename PCS, typename C, typename P, typename L, typename V,
             typename ExtendedPoly>
-  StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
+  StepReturns<PermutationEvaluated<Poly>, lookup::halo2::LookupEvaluated<Poly>,
               VanishingEvaluated<Poly>>
   EvaluateCircuitStep(
       ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
@@ -119,8 +120,9 @@ class Argument {
         BatchEvaluatePermutations(prover,
                                   std::move(committed).TakePermutations(), x);
 
-    std::vector<std::vector<LookupEvaluated<Poly>>> evaluated_lookups_vec =
-        BatchEvaluateLookups(prover, std::move(committed).TakeLookupsVec(), x);
+    std::vector<std::vector<lookup::halo2::LookupEvaluated<Poly>>>
+        evaluated_lookups_vec = BatchEvaluateLookups(
+            prover, std::move(committed).TakeLookupsVec(), x);
 
     return {std::move(evaluated_permutations), std::move(evaluated_lookups_vec),
             std::move(evaluated_vanishing)};
@@ -166,9 +168,11 @@ class Argument {
       // Generate openings for lookup columns of the specific circuit.
       openings = base::FlatMap(
           evaluated.lookups_vec()[i],
-          [prover, &x, this](const LookupEvaluated<Poly>& evaluated_lookup) {
-            return LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
-                prover, evaluated_lookup, x, opening_points_set_);
+          [prover, &x,
+           this](const lookup::halo2::LookupEvaluated<Poly>& evaluated_lookup) {
+            return lookup::halo2::LookupArgumentRunner<
+                Poly, Evals>::OpenEvaluated(prover, evaluated_lookup, x,
+                                            opening_points_set_);
           });
       ret.insert(ret.end(), std::make_move_iterator(openings.begin()),
                  std::make_move_iterator(openings.end()));

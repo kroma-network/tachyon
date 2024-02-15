@@ -4,14 +4,14 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/lookup/compress_expression.h"
+#include "tachyon/zk/lookup/halo2/compress_expression.h"
 
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/expressions/expression_factory.h"
-#include "tachyon/zk/lookup/test/compress_expression_test.h"
+#include "tachyon/zk/lookup/halo2/test/compress_expression_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup::halo2 {
 
 TEST_F(CompressExpressionTest, CompressExpressions) {
   const size_t kExpressionSize = 10;
@@ -40,4 +40,4 @@ TEST_F(CompressExpressionTest, CompressExpressions) {
   EXPECT_EQ(out, Evals(std::move(expected)));
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup::halo2

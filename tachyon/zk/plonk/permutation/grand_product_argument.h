@@ -10,8 +10,11 @@
 #include "tachyon/zk/base/entities/prover_base.h"
 
 namespace tachyon::zk {
+namespace lookup::halo2 {
 
 class LookupArgumentRunnerTest_ComputePermutationProduct_Test;
+
+}  // namespace lookup::halo2
 
 namespace plonk {
 
@@ -60,7 +63,8 @@ class GrandProductArgument {
   }
 
  private:
-  friend class zk::LookupArgumentRunnerTest_ComputePermutationProduct_Test;
+  friend class zk::lookup::halo2::
+      LookupArgumentRunnerTest_ComputePermutationProduct_Test;
 
   template <typename Evals, typename Callable>
   static Evals CreatePolynomial(RowIndex size, RowIndex usable_rows,

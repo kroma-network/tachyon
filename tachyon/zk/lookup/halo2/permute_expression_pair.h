@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_LOOKUP_PERMUTE_EXPRESSION_PAIR_H_
-#define TACHYON_ZK_LOOKUP_PERMUTE_EXPRESSION_PAIR_H_
+#ifndef TACHYON_ZK_LOOKUP_HALO2_PERMUTE_EXPRESSION_PAIR_H_
+#define TACHYON_ZK_LOOKUP_HALO2_PERMUTE_EXPRESSION_PAIR_H_
 
 #include <algorithm>
 #include <utility>
@@ -17,7 +17,7 @@
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/lookup/lookup_pair.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup::halo2 {
 
 // Given a vector of input values A and a vector of table values S,
 // this method permutes A and S to produce A' and S', such that:
@@ -142,6 +142,6 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
   return true;
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup::halo2
 
-#endif  // TACHYON_ZK_LOOKUP_PERMUTE_EXPRESSION_PAIR_H_
+#endif  // TACHYON_ZK_LOOKUP_HALO2_PERMUTE_EXPRESSION_PAIR_H_

@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_H_
-#define TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_H_
+#ifndef TACHYON_ZK_LOOKUP_HALO2_LOOKUP_ARGUMENT_RUNNER_H_
+#define TACHYON_ZK_LOOKUP_HALO2_LOOKUP_ARGUMENT_RUNNER_H_
 
 #include <vector>
 
@@ -15,12 +15,12 @@
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/point_set.h"
 #include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
+#include "tachyon/zk/lookup/halo2/lookup_committed.h"
+#include "tachyon/zk/lookup/halo2/lookup_evaluated.h"
+#include "tachyon/zk/lookup/halo2/lookup_permuted.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
-#include "tachyon/zk/lookup/lookup_committed.h"
-#include "tachyon/zk/lookup/lookup_evaluated.h"
-#include "tachyon/zk/lookup/lookup_permuted.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup::halo2 {
 
 template <typename Poly, typename Evals>
 class LookupArgumentRunner {
@@ -60,8 +60,8 @@ class LookupArgumentRunner {
       const F& gamma);
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup::halo2
 
-#include "tachyon/zk/lookup/lookup_argument_runner_impl.h"
+#include "tachyon/zk/lookup/halo2/lookup_argument_runner_impl.h"
 
-#endif  // TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_RUNNER_H_
+#endif  // TACHYON_ZK_LOOKUP_HALO2_LOOKUP_ARGUMENT_RUNNER_H_

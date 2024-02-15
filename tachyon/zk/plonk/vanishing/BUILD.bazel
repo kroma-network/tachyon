@@ -25,7 +25,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/numerics:checked_math",
         "//tachyon/zk/base:rotation",
-        "//tachyon/zk/lookup:lookup_committed",
+        "//tachyon/zk/lookup/halo2:lookup_committed",
         "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/base:owned_table",
         "//tachyon/zk/plonk/base:ref_table",

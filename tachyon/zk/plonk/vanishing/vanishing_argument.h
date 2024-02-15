@@ -90,7 +90,7 @@ class VanishingArgument {
       const F& beta, const F& gamma, const F& theta, const F& y, const F& zeta,
       absl::Span<const F> challenges,
       const std::vector<PermutationCommitted<Poly>>& committed_permutations,
-      const std::vector<std::vector<LookupCommitted<Poly>>>&
+      const std::vector<std::vector<lookup::halo2::LookupCommitted<Poly>>>&
           committed_lookups_vec,
       const std::vector<RefTable<Poly>>& poly_tables) const {
     RowIndex blinding_factors = prover->blinder().blinding_factors();

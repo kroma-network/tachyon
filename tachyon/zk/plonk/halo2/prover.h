@@ -132,16 +132,16 @@ class Prover : public ProverBase<PCS> {
     crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
     F theta = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(theta): " << theta.ToHexString(true);
-    std::vector<std::vector<LookupPermuted<Poly, Evals>>> permuted_lookups_vec =
-        argument.PermuteLookupsStep(
+    std::vector<std::vector<lookup::halo2::LookupPermuted<Poly, Evals>>>
+        permuted_lookups_vec = argument.PermuteLookupsStep(
             this, proving_key.verifying_key().constraint_system(), theta);
 
     F beta = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(beta): " << beta.ToHexString(true);
     F gamma = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(gamma): " << gamma.ToHexString(true);
-    StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
-                VanishingCommitted<Poly>>
+    StepReturns<PermutationCommitted<Poly>,
+                lookup::halo2::LookupCommitted<Poly>, VanishingCommitted<Poly>>
         committed_result = argument.CommitCircuitStep(
             this, proving_key.verifying_key().constraint_system(),
             proving_key.permutation_proving_key(),
@@ -159,8 +159,8 @@ class Prover : public ProverBase<PCS> {
 
     F x = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(x): " << x.ToHexString(true);
-    StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
-                VanishingEvaluated<Poly>>
+    StepReturns<PermutationEvaluated<Poly>,
+                lookup::halo2::LookupEvaluated<Poly>, VanishingEvaluated<Poly>>
         evaluated_result =
             argument.EvaluateCircuitStep(this, proving_key, committed_result,
                                          std::move(constructed_vanishing), x);
