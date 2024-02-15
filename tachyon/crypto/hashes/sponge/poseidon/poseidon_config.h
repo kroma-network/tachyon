@@ -6,13 +6,17 @@
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_CONFIG_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_CONFIG_H_
 
+#include <utility>
+
 #include "absl/types/span.h"
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/grain_lfsr.h"
 
-namespace tachyon::crypto {
+namespace tachyon {
+namespace crypto {
 
 template <typename PrimeField>
 struct PoseidonConfig;
@@ -219,6 +223,47 @@ PoseidonConfig<PrimeField> PoseidonConfigEntry::ToPoseidonConfig() const {
   return config;
 }
 
-}  // namespace tachyon::crypto
+}  // namespace crypto
+
+namespace base {
+
+template <typename PrimeField>
+class Copyable<crypto::PoseidonConfig<PrimeField>> {
+ public:
+  static bool WriteTo(const crypto::PoseidonConfig<PrimeField>& config,
+                      Buffer* buffer) {
+    return buffer->WriteMany(config.full_rounds, config.partial_rounds,
+                             config.alpha, config.ark, config.mds, config.rate,
+                             config.capacity);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       crypto::PoseidonConfig<PrimeField>* config) {
+    size_t full_rounds;
+    size_t partial_rounds;
+    uint64_t alpha;
+    math::Matrix<PrimeField> ark;
+    math::Matrix<PrimeField> mds;
+    size_t rate;
+    size_t capacity;
+    if (!buffer.ReadMany(&full_rounds, &partial_rounds, &alpha, &ark, &mds,
+                         &rate, &capacity)) {
+      return false;
+    }
+
+    *config = {full_rounds,    partial_rounds, alpha,   std::move(ark),
+               std::move(mds), rate,           capacity};
+    return true;
+  }
+
+  static size_t EstimateSize(const crypto::PoseidonConfig<PrimeField>& config) {
+    return base::EstimateSize(config.full_rounds, config.partial_rounds,
+                              config.alpha, config.ark, config.mds, config.rate,
+                              config.capacity);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_CONFIG_H_

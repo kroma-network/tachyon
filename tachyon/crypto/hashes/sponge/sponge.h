@@ -9,11 +9,13 @@
 #include <numeric>
 #include <vector>
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 
-namespace tachyon::crypto {
+namespace tachyon {
+namespace crypto {
 
 // Specifying the output field element size.
 class TACHYON_EXPORT FieldElementSize {
@@ -150,6 +152,8 @@ struct TACHYON_EXPORT DuplexSpongeMode {
     kSqueezing,
   };
 
+  constexpr DuplexSpongeMode() = default;
+
   constexpr static DuplexSpongeMode Absorbing(size_t next_index = 0) {
     return {Type::kAbsorbing, next_index};
   }
@@ -157,12 +161,12 @@ struct TACHYON_EXPORT DuplexSpongeMode {
     return {Type::kSqueezing, next_index};
   }
 
-  Type type;
+  Type type = Type::kAbsorbing;
   // When |type| is |kAbsorbing|, it is interpreted as next position of the
   // state to be XOR-ed when absorbing.
   // When |type| is |kSqueezing|, it is interpreted as next position of the
   // state to be outputted when squeezing.
-  size_t next_index;
+  size_t next_index = 0;
 
   bool operator==(const DuplexSpongeMode& other) const {
     return type == other.type && next_index == other.next_index;
@@ -172,10 +176,41 @@ struct TACHYON_EXPORT DuplexSpongeMode {
   }
 
  private:
+  friend class base::Copyable<DuplexSpongeMode>;
+
   constexpr DuplexSpongeMode(Type type, size_t next_index)
       : type(type), next_index(next_index) {}
 };
 
-}  // namespace tachyon::crypto
+}  // namespace crypto
+
+namespace base {
+
+template <>
+class Copyable<crypto::DuplexSpongeMode> {
+ public:
+  static bool WriteTo(const crypto::DuplexSpongeMode& mode, Buffer* buffer) {
+    return buffer->WriteMany(mode.type, mode.next_index);
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       crypto::DuplexSpongeMode* mode) {
+    crypto::DuplexSpongeMode::Type type;
+    size_t next_index;
+    if (!buffer.ReadMany(&type, &next_index)) {
+      return false;
+    }
+
+    *mode = {type, next_index};
+    return true;
+  }
+
+  static size_t EstimateSize(const crypto::DuplexSpongeMode& mode) {
+    return base::EstimateSize(mode.type, mode.next_index);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_CRYPTO_HASHES_SPONGE_SPONGE_H_
