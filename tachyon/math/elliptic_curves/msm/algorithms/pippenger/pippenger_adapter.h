@@ -75,23 +75,23 @@ class PippengerAdapter {
         bool valid;
       };
 
-      std::vector<Result> results;
-      results.resize(thread_nums);
-      size_t size = (scalars_size + thread_nums - 1) / thread_nums;
 #if defined(TACHYON_HAS_OPENMP)
       omp_set_num_threads(thread_nums);
 #endif
-      OPENMP_PARALLEL_FOR(int i = 0; i < thread_nums; ++i) {
+      size_t chunk_size = (scalars_size + thread_nums - 1) / thread_nums;
+      size_t num_chunks = (scalars_size + chunk_size - 1) / chunk_size;
+      std::vector<Result> results;
+      results.resize(num_chunks);
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+        size_t start = i * chunk_size;
+        size_t len = i == num_chunks - 1 ? scalars_size - start : chunk_size;
         Pippenger<Point> pippenger;
         pippenger.SetParallelWindows(
             strategy == PippengerParallelStrategy::kParallelWindowAndTerm);
-        auto bases_start = bases_first + size * i;
-        auto bases_end =
-            i == thread_nums - 1 ? bases_last : bases_first + size * (i + 1);
-        auto scalars_start = scalars_first + size * i;
-        auto scalars_end = i == thread_nums - 1
-                               ? scalars_last
-                               : scalars_first + size * (i + 1);
+        auto bases_start = bases_first + start;
+        auto bases_end = bases_start + len;
+        auto scalars_start = scalars_first + start;
+        auto scalars_end = scalars_start + len;
         results[i].valid = pippenger.Run(bases_start, bases_end, scalars_start,
                                          scalars_end, &results[i].value);
       }
