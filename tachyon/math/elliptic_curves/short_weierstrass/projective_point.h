@@ -304,8 +304,7 @@ class Copyable<math::ProjectivePoint<
   }
 
   static size_t EstimateSize(const math::ProjectivePoint<Curve>& point) {
-    return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
-           base::EstimateSize(point.z());
+    return base::EstimateSize(point.x(), point.y(), point.z());
   }
 };
 

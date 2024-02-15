@@ -338,8 +338,7 @@ class Copyable<typename math::UnivariateTerm<F>> {
   }
 
   static size_t EstimateSize(const Term& term) {
-    return base::EstimateSize(term.degree) +
-           base::EstimateSize(term.coefficient);
+    return base::EstimateSize(term.degree, term.coefficient);
   }
 };
 

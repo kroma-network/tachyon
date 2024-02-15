@@ -308,8 +308,7 @@ class Copyable<math::JacobianPoint<
   }
 
   static size_t EstimateSize(const math::JacobianPoint<Curve>& point) {
-    return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
-           base::EstimateSize(point.z());
+    return base::EstimateSize(point.x(), point.y(), point.z());
   }
 };
 

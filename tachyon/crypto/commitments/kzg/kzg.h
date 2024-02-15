@@ -187,8 +187,8 @@ class Copyable<crypto::KZG<G1Point, MaxDegree, Commitment>> {
   }
 
   static size_t EstimateSize(const PCS& pcs) {
-    return base::EstimateSize(pcs.g1_powers_of_tau()) +
-           base::EstimateSize(pcs.g1_powers_of_tau_lagrange());
+    return base::EstimateSize(pcs.g1_powers_of_tau(),
+                              pcs.g1_powers_of_tau_lagrange());
   }
 };
 

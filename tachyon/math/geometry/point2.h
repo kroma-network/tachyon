@@ -59,7 +59,7 @@ class Copyable<math::Point2<T>> {
   }
 
   static size_t EstimateSize(const math::Point2<T>& point) {
-    return base::EstimateSize(point.x) + base::EstimateSize(point.y);
+    return base::EstimateSize(point.x, point.y);
   }
 };
 

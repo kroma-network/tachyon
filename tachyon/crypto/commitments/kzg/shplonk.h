@@ -415,7 +415,7 @@ class Copyable<crypto::SHPlonk<Curve, MaxDegree, Commitment>> {
   }
 
   static size_t EstimateSize(const PCS& pcs) {
-    return base::EstimateSize(pcs.kzg()) + base::EstimateSize(pcs.s_g2());
+    return base::EstimateSize(pcs.kzg(), pcs.s_g2());
   }
 };
 

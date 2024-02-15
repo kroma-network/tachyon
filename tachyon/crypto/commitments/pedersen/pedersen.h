@@ -158,7 +158,7 @@ class Copyable<crypto::Pedersen<Point, MaxSize, Commitment>> {
   }
 
   static size_t EstimateSize(const PCS& pcs) {
-    return base::EstimateSize(pcs.h()) + base::EstimateSize(pcs.generators());
+    return base::EstimateSize(pcs.h(), pcs.generators());
   }
 };
 

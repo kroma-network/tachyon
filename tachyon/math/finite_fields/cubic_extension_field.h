@@ -396,9 +396,9 @@ class Copyable<Derived, std::enable_if_t<std::is_base_of_v<
 
   static size_t EstimateSize(
       const math::CubicExtensionField<Derived>& cubic_extension_field) {
-    return base::EstimateSize(cubic_extension_field.c0()) +
-           base::EstimateSize(cubic_extension_field.c1()) +
-           base::EstimateSize(cubic_extension_field.c2());
+    return base::EstimateSize(cubic_extension_field.c0(),
+                              cubic_extension_field.c1(),
+                              cubic_extension_field.c2());
   }
 };
 
