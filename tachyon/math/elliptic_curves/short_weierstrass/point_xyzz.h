@@ -110,8 +110,6 @@ class PointXYZZ<_Curve,
                      point.y_, point.zz_, point.zzz_);
   }
 
-  // TODO(chokobole): Implement parallel versioned |BatchNormalize| when doing
-  // chunking and zipping gets easier.
   template <typename PointXYZZContainer, typename AffineContainer>
   [[nodiscard]] constexpr static bool BatchNormalize(
       const PointXYZZContainer& point_xyzzs, AffineContainer* affine_points) {
@@ -122,18 +120,67 @@ class PointXYZZ<_Curve,
     }
     std::vector<BaseField> zzz_inverses = base::Map(
         point_xyzzs, [](const PointXYZZ& point) { return point.zzz_; });
+#if defined(TACHYON_HAS_OPENMP)
+    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
+    if (size >=
+        size_t{1} << (thread_nums /
+                      ScalarField::kParallelBatchInverseDivisorThreshold)) {
+      size_t chunk_size = base::GetNumElementsPerThread(point_xyzzs);
+      size_t num_chunks = (size + chunk_size - 1) / chunk_size;
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+        size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
+        absl::Span<AffinePoint<Curve>> affine_points_chunk(
+            std::data(*affine_points) + i * chunk_size, len);
+        absl::Span<const PointXYZZ> point_xyzzs_chunk(
+            std::data(point_xyzzs) + i * chunk_size, len);
+        absl::Span<BaseField> zzz_inverses_chunk(&zzz_inverses[i * chunk_size],
+                                                 len);
+
+        CHECK(BaseField::BatchInverseInPlaceSerial(zzz_inverses_chunk));
+        for (size_t i = 0; i < zzz_inverses_chunk.size(); ++i) {
+          const PointXYZZ& point_xyzz = point_xyzzs_chunk[i];
+          if (point_xyzz.zz_.IsZero()) {
+            affine_points_chunk[i] = AffinePoint<Curve>::Zero();
+          } else if (point_xyzz.zz_.IsOne()) {
+            affine_points_chunk[i] = {point_xyzz.x_, point_xyzz.y_};
+          } else {
+            const BaseField& z_inv_cubic = zzz_inverses_chunk[i];
+            BaseField z_inv_square = z_inv_cubic * point_xyzz.zz_;
+            z_inv_square.SquareInPlace();
+            affine_points_chunk[i] = {point_xyzz.x_ * z_inv_square,
+                                      point_xyzz.y_ * z_inv_cubic};
+          }
+        }
+      }
+      return true;
+    }
+#endif
+    return BatchNormalizeSerial(point_xyzzs, affine_points);
+  }
+
+  template <typename PointXYZZContainer, typename AffineContainer>
+  [[nodiscard]] constexpr static bool BatchNormalizeSerial(
+      const PointXYZZContainer& point_xyzzs, AffineContainer* affine_points) {
+    size_t size = std::size(point_xyzzs);
+    if (size != std::size(*affine_points)) {
+      LOG(ERROR) << "Size of |point_xyzzs| and |affine_points| do not match";
+      return false;
+    }
+    std::vector<BaseField> zzz_inverses = base::Map(
+        point_xyzzs, [](const PointXYZZ& point) { return point.zzz_; });
     if (!BaseField::BatchInverseInPlaceSerial(zzz_inverses)) return false;
     for (size_t i = 0; i < size; ++i) {
-      const BaseField& z_inv_cubic = zzz_inverses[i];
-      if (z_inv_cubic.IsZero()) {
+      const PointXYZZ& point_xyzz = point_xyzzs[i];
+      if (point_xyzz.zz_.IsZero()) {
         (*affine_points)[i] = AffinePoint<Curve>::Zero();
-      } else if (z_inv_cubic.IsOne()) {
-        (*affine_points)[i] = {point_xyzzs[i].x_, point_xyzzs[i].y_};
+      } else if (point_xyzz.zz_.IsOne()) {
+        (*affine_points)[i] = {point_xyzz.x_, point_xyzz.y_};
       } else {
-        BaseField z_inv_square = z_inv_cubic * point_xyzzs[i].zz_;
+        const BaseField& z_inv_cubic = zzz_inverses[i];
+        BaseField z_inv_square = z_inv_cubic * point_xyzz.zz_;
         z_inv_square.SquareInPlace();
-        (*affine_points)[i] = {point_xyzzs[i].x_ * z_inv_square,
-                               point_xyzzs[i].y_ * z_inv_cubic};
+        (*affine_points)[i] = {point_xyzz.x_ * z_inv_square,
+                               point_xyzz.y_ * z_inv_cubic};
       }
     }
     return true;

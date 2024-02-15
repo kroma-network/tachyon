@@ -68,7 +68,7 @@ class Prover : public ProverBase<PCS> {
   }
 
   template <typename Circuit>
-  void CreateProof(const ProvingKey<Poly, Evals, Commitment>& proving_key,
+  void CreateProof(ProvingKey<Poly, Evals, Commitment>& proving_key,
                    std::vector<std::vector<Evals>>&& instance_columns_vec,
                    std::vector<Circuit>& circuits) {
     size_t num_circuits = circuits.size();
@@ -112,8 +112,10 @@ class Prover : public ProverBase<PCS> {
         Blinder<F>(generator_.get(), this->blinder_.blinding_factors());
   }
 
-  void CreateProof(const ProvingKey<Poly, Evals, Commitment>& proving_key,
+  void CreateProof(ProvingKey<Poly, Evals, Commitment>& proving_key,
                    ArgumentData<Poly, Evals>* argument_data) {
+    using ExtendedPoly = typename PCS::ExtendedPoly;
+
     Argument<Poly, Evals> argument(&proving_key.fixed_columns(),
                                    &proving_key.fixed_polys(), argument_data);
     // NOTE(chokobole): This is an entry point fom Halo2 rust. So this is the
@@ -131,7 +133,7 @@ class Prover : public ProverBase<PCS> {
     F theta = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(theta): " << theta.ToHexString(true);
     std::vector<std::vector<LookupPermuted<Poly, Evals>>> permuted_lookups_vec =
-        argument.CompressLookupStep(
+        argument.PermuteLookupsStep(
             this, proving_key.verifying_key().constraint_system(), theta);
 
     F beta = writer->SqueezeChallenge();
@@ -148,12 +150,12 @@ class Prover : public ProverBase<PCS> {
     F y = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(y): " << y.ToHexString(true);
     argument.TransformAdvice(this->domain());
+    argument.DeallocateAllColumnsVec();
     ExtendedEvals circuit_column = argument.GenerateCircuitPolynomial(
         this, proving_key, committed_result, beta, gamma, theta, y);
-    VanishingConstructed<Poly> constructed_vanishing;
-    CHECK(CommitFinalHPoly(this, std::move(committed_result).TakeVanishing(),
-                           proving_key.verifying_key(), circuit_column,
-                           &constructed_vanishing));
+    VanishingConstructed<Poly, ExtendedPoly> constructed_vanishing =
+        CommitFinalHPoly(this, std::move(committed_result).TakeVanishing(),
+                         proving_key.verifying_key(), circuit_column);
 
     F x = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(x): " << x.ToHexString(true);

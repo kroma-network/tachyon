@@ -23,9 +23,8 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename PCS, typename Poly>
-[[nodiscard]] bool CommitRandomPoly(ProverBase<PCS>* prover,
-                                    VanishingCommitted<Poly>* out) {
+template <typename PCS, typename Poly = typename PCS::Poly>
+VanishingCommitted<Poly> CommitRandomPoly(ProverBase<PCS>* prover) {
   using F = typename PCS::Field;
 
   // Sample a random polynomial of degree n - 1
@@ -42,21 +41,17 @@ template <typename PCS, typename Poly>
 
   prover->CommitAndWriteToProof(random_poly);
 
-  *out = {std::move(random_poly), std::move(random_blind)};
-  return true;
+  return {std::move(random_poly), std::move(random_blind)};
 }
 
 template <typename PCS, typename Poly, typename F, typename C,
-          typename ExtendedEvals>
-[[nodiscard]] bool CommitFinalHPoly(
+          typename ExtendedEvals,
+          typename ExtendedPoly = typename PCS::ExtendedPoly>
+VanishingConstructed<Poly, ExtendedPoly> CommitFinalHPoly(
     ProverBase<PCS>* prover, VanishingCommitted<Poly>&& committed,
-    const VerifyingKey<F, C>& vk, ExtendedEvals& circuit_column,
-    VanishingConstructed<Poly>* constructed_out) {
-  using Coeffs = typename Poly::Coefficients;
-  using ExtendedPoly = typename PCS::ExtendedPoly;
-
+    const VerifyingKey<F, C>& vk, ExtendedEvals& circuit_column) {
   // Divide by t(X) = X^{params.n} - 1.
-  ExtendedEvals h_evals = DivideByVanishingPolyInPlace<F>(
+  ExtendedEvals& h_evals = DivideByVanishingPolyInPlace<F>(
       circuit_column, prover->extended_domain(), prover->domain());
 
   // Obtain final h(X) polynomial
@@ -69,31 +64,24 @@ template <typename PCS, typename Poly, typename F, typename C,
   std::vector<F>& h_coeffs = h_poly.coefficients().coefficients();
   const size_t quotient_poly_degree =
       vk.constraint_system().ComputeDegree() - 1;
-  h_coeffs.resize(prover->pcs().N() * quotient_poly_degree, F::Zero());
-
-  auto h_chunks = base::Chunked(h_coeffs, prover->pcs().N());
-  std::vector<Poly> h_pieces = base::Map(
-      h_chunks.begin(), h_chunks.end(), [](absl::Span<const F> h_piece) {
-        return Poly(
-            Coeffs(std::move(std::vector<F>(h_piece.begin(), h_piece.end()))));
-      });
+  size_t n = prover->pcs().N();
+  h_coeffs.resize(n * quotient_poly_degree, F::Zero());
 
   // Compute commitments to each h(X) piece
   if constexpr (PCS::kSupportsBatchMode) {
-    prover->pcs().SetBatchMode(h_pieces.size());
+    prover->pcs().SetBatchMode(quotient_poly_degree);
     base::ParallelizeByChunkSize(
-        h_coeffs, prover->pcs().N(),
-        [prover](absl::Span<const F> h_piece, size_t chunk_index) {
+        h_coeffs, n, [prover](absl::Span<const F> h_piece, size_t chunk_index) {
           prover->BatchCommitAt(h_piece, chunk_index);
         });
     prover->RetrieveAndWriteBatchCommitmentsToProof();
   } else {
     std::vector<C> commitments = base::ParallelizeMapByChunkSize(
-        h_coeffs, prover->pcs().N(), [prover](absl::Span<const F> h_piece) {
+        h_coeffs, n, [prover](absl::Span<const F> h_piece) {
           return prover->Commit(h_piece);
         });
     for (const C& commitment : commitments) {
-      if (!prover->GetWriter()->WriteToProof(commitment)) return false;
+      CHECK(prover->GetWriter()->WriteToProof(commitment));
     }
   }
 
@@ -102,30 +90,38 @@ template <typename PCS, typename Poly, typename F, typename C,
       base::CreateVector(quotient_poly_degree,
                          [prover]() { return prover->blinder().Generate(); });
 
-  *constructed_out = {std::move(h_pieces), std::move(h_blinds),
-                      std::move(committed)};
-  return true;
+  return {std::move(h_poly), std::move(h_blinds), std::move(committed)};
 }
 
-template <typename PCS, typename Poly, typename F, typename Commitment>
-[[nodiscard]] bool CommitRandomEval(
-    const PCS& pcs, VanishingConstructed<Poly>&& constructed, const F& x,
-    const F& x_n, crypto::TranscriptWriter<Commitment>* writer,
-    VanishingEvaluated<Poly>* evaluated_out) {
+template <typename PCS, typename Poly, typename ExtendedPoly, typename F,
+          typename Commitment>
+VanishingEvaluated<Poly> CommitRandomEval(
+    const PCS& pcs, VanishingConstructed<Poly, ExtendedPoly>&& constructed,
+    const F& x, const F& x_n, crypto::TranscriptWriter<Commitment>* writer) {
   using Coeffs = typename Poly::Coefficients;
 
-  Poly h_poly = Poly::template LinearCombination</*forward=*/false>(
-      constructed.h_pieces(), x_n);
+  size_t n = pcs.N();
+  auto h_chunks =
+      base::Chunked(constructed.h_poly().coefficients().coefficients(), n);
+  std::vector<absl::Span<F>> h_pieces =
+      base::Map(h_chunks.begin(), h_chunks.end(),
+                [](absl::Span<F> h_piece) { return h_piece; });
+  std::vector<F> coeffs = base::CreateVector(n, F::Zero());
+  for (size_t i = h_pieces.size() - 1; i != SIZE_MAX; --i) {
+    OPENMP_PARALLEL_FOR(size_t j = 0; j < n; ++j) {
+      coeffs[j] *= x_n;
+      coeffs[j] += h_pieces[i][j];
+    }
+  }
 
+  Poly h_poly(Coeffs(std::move(coeffs)));
   F h_blind = Poly(Coeffs(constructed.h_blinds())).Evaluate(x_n);
 
   VanishingCommitted<Poly> committed = std::move(constructed).TakeCommitted();
   F random_eval = committed.random_poly().Evaluate(x);
-  if (!writer->WriteToProof(random_eval)) return false;
+  CHECK(writer->WriteToProof(random_eval));
 
-  *evaluated_out = {std::move(h_poly), std::move(h_blind),
-                    std::move(committed)};
-  return true;
+  return {std::move(h_poly), std::move(h_blind), std::move(committed)};
 }
 
 template <typename Poly, typename F>

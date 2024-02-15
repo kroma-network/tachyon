@@ -31,7 +31,6 @@ tachyon_cc_library(
         ":v1_plan",
         ":v1_strategy",
         "//tachyon/base:logging",
-        "//tachyon/base/containers:adapters",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/plonk/layout/floor_planner",
         "@com_google_absl//absl/strings",

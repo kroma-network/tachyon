@@ -152,7 +152,7 @@ pub mod ffi {
         fn set_extended_domain(self: Pin<&mut SHPlonkProver>, pk: &ProvingKey);
         fn create_proof(
             self: Pin<&mut SHPlonkProver>,
-            key: &ProvingKey,
+            key: Pin<&mut ProvingKey>,
             instance_singles: &mut [InstanceSingle],
             advice_singles: &mut [AdviceSingle],
             challenges: &[Fr],
@@ -475,14 +475,17 @@ impl SHPlonkProver {
 
     pub fn create_proof(
         &mut self,
-        key: &ProvingKey,
+        key: &mut ProvingKey,
         instance_singles: &mut [InstanceSingle],
         advice_singles: &mut [AdviceSingle],
         challenges: &[Fr],
     ) {
-        self.inner
-            .pin_mut()
-            .create_proof(&key.inner, instance_singles, advice_singles, challenges)
+        self.inner.pin_mut().create_proof(
+            key.inner.pin_mut(),
+            instance_singles,
+            advice_singles,
+            challenges,
+        )
     }
 
     pub fn get_proof(&self) -> Vec<u8> {

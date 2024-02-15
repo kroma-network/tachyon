@@ -178,10 +178,10 @@ void tachyon_halo2_bn254_shplonk_prover_set_extended_domain(
 
 void tachyon_halo2_bn254_shplonk_prover_create_proof(
     tachyon_halo2_bn254_shplonk_prover* prover,
-    const tachyon_bn254_plonk_proving_key* pk,
+    tachyon_bn254_plonk_proving_key* pk,
     tachyon_halo2_bn254_argument_data* data) {
   reinterpret_cast<ProverImpl*>(prover)->CreateProof(
-      reinterpret_cast<const ProvingKey&>(*pk), reinterpret_cast<Data*>(data));
+      reinterpret_cast<ProvingKey&>(*pk), reinterpret_cast<Data*>(data));
 }
 
 void tachyon_halo2_bn254_shplonk_prover_get_proof(

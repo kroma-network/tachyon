@@ -5,7 +5,11 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "compress_expression",
     hdrs = ["compress_expression.h"],
-    deps = ["//tachyon/zk/expressions/evaluator:simple_evaluator"],
+    deps = [
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:openmp_util",
+        "//tachyon/zk/expressions/evaluator:simple_evaluator",
+    ],
 )
 
 tachyon_cc_library(
@@ -99,7 +103,7 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
-    name = "lookup_argument_unittests",
+    name = "lookup_unittests",
     srcs = [
         "compress_expression_unittest.cc",
         "lookup_argument_runner_unittest.cc",

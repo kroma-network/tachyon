@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/containers/adapters.h"
-#include "tachyon/base/containers/container_util.h"
+#include "absl/types/span.h"
+
 #include "tachyon/base/functional/functor_traits.h"
 #include "tachyon/base/openmp_util.h"
 
@@ -31,19 +31,18 @@ template <typename Container, typename Callable,
 void ParallelizeByChunkSize(Container& container, size_t chunk_size,
                             Callable callback) {
   if (chunk_size == 0) return;
-  internal::ChunkedAdapter<Container> chunked_adapter =
-      base::Chunked(container, chunk_size);
-  std::vector<SpanTy> chunks =
-      base::Map(chunked_adapter.begin(), chunked_adapter.end(),
-                [](SpanTy chunk) { return chunk; });
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < chunks.size(); ++i) {
+  size_t num_chunks = (std::size(container) + chunk_size - 1) / chunk_size;
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    size_t len = i == num_chunks - 1 ? std::size(container) - i * chunk_size
+                                     : chunk_size;
+    SpanTy chunk(std::data(container) + i * chunk_size, len);
     if constexpr (ArgNum == 1) {
-      callback(chunks[i]);
+      callback(chunk);
     } else if constexpr (ArgNum == 2) {
-      callback(chunks[i], i);
+      callback(chunk, i);
     } else {
       static_assert(ArgNum == 3);
-      callback(chunks[i], i, chunk_size);
+      callback(chunk, i, chunk_size);
     }
   }
 }
@@ -75,21 +74,19 @@ std::vector<ReturnType> ParallelizeMapByChunkSize(Container& container,
                                                   size_t chunk_size,
                                                   Callable callback) {
   if (chunk_size == 0) return {};
-  internal::ChunkedAdapter<Container> chunked_adapter =
-      base::Chunked(container, chunk_size);
-  std::vector<SpanTy> chunks =
-      base::Map(chunked_adapter.begin(), chunked_adapter.end(),
-                [](SpanTy chunk) { return chunk; });
-  std::vector<ReturnType> values;
-  values.resize(chunks.size());
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < chunks.size(); ++i) {
+  size_t num_chunks = (std::size(container) + chunk_size - 1) / chunk_size;
+  std::vector<ReturnType> values(num_chunks);
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+    size_t len = i == num_chunks - 1 ? std::size(container) - i * chunk_size
+                                     : chunk_size;
+    SpanTy chunk(std::data(container) + i * chunk_size, len);
     if constexpr (ArgNum == 1) {
-      values[i] = callback(chunks[i]);
+      values[i] = callback(chunk);
     } else if constexpr (ArgNum == 2) {
-      values[i] = callback(chunks[i], i);
+      values[i] = callback(chunk, i);
     } else {
       static_assert(ArgNum == 3);
-      values[i] = callback(chunks[i], i, chunk_size);
+      values[i] = callback(chunk, i, chunk_size);
     }
   }
   return values;

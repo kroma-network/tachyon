@@ -11,6 +11,7 @@
 
 #include "absl/types/span.h"
 
+#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/base/parallelize.h"
@@ -235,13 +236,12 @@ class CircuitPolynomialBuilder {
                 .permutation()
                 .columns();
         std::vector<absl::Span<const AnyColumnKey>> column_key_chunks =
-            base::ParallelizeMapByChunkSize(
-                column_keys, chunk_len_,
+            base::Map(
+                base::Chunked(column_keys, chunk_len_),
                 [](absl::Span<const AnyColumnKey> chunk) { return chunk; });
         std::vector<absl::Span<const Evals>> coset_chunks =
-            base::ParallelizeMapByChunkSize(
-                cosets, chunk_len_,
-                [](absl::Span<const Evals> chunk) { return chunk; });
+            base::Map(base::Chunked(cosets, chunk_len_),
+                      [](absl::Span<const Evals> chunk) { return chunk; });
 
         for (size_t j = 0; j < product_cosets.size(); ++j) {
           std::vector<base::Ref<const Evals>> column_chunk =
@@ -315,12 +315,12 @@ class CircuitPolynomialBuilder {
   }
 
   void UpdateVanishingPermutation(size_t circuit_idx) {
-    permutation_product_cosets_ = CoeffsToExtendedPart(
+    permutation_product_cosets_ = CoeffsToExtendedParts(
         domain_,
         absl::MakeConstSpan(
             (*committed_permutations_)[circuit_idx].product_polys()),
         *zeta_, current_extended_omega_);
-    permutation_cosets_ = CoeffsToExtendedPart(
+    permutation_cosets_ = CoeffsToExtendedParts(
         domain_,
         absl::MakeConstSpan(proving_key_->permutation_proving_key().polys()),
         *zeta_, current_extended_omega_);
@@ -328,35 +328,32 @@ class CircuitPolynomialBuilder {
 
   void UpdateVanishingLookups(size_t circuit_idx) {
     size_t num_lookups = (*committed_lookups_vec_)[circuit_idx].size();
-    std::vector<LookupCommitted<Poly>> current_committed_lookups =
+    const std::vector<LookupCommitted<Poly>>& current_committed_lookups =
         (*committed_lookups_vec_)[circuit_idx];
-    lookup_product_cosets_.clear();
-    lookup_input_cosets_.clear();
-    lookup_table_cosets_.clear();
-    lookup_product_cosets_.reserve(num_lookups);
-    lookup_input_cosets_.reserve(num_lookups);
-    lookup_table_cosets_.reserve(num_lookups);
+    lookup_product_cosets_.resize(num_lookups);
+    lookup_input_cosets_.resize(num_lookups);
+    lookup_table_cosets_.resize(num_lookups);
     for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_product_cosets_.push_back(CoeffToExtendedPart(
+      lookup_product_cosets_[i] = CoeffToExtendedPart(
           domain_, current_committed_lookups[i].product_poly(), *zeta_,
-          current_extended_omega_));
-      lookup_input_cosets_.push_back(CoeffToExtendedPart(
+          current_extended_omega_);
+      lookup_input_cosets_[i] = CoeffToExtendedPart(
           domain_, current_committed_lookups[i].permuted_input_poly(), *zeta_,
-          current_extended_omega_));
-      lookup_table_cosets_.push_back(CoeffToExtendedPart(
+          current_extended_omega_);
+      lookup_table_cosets_[i] = CoeffToExtendedPart(
           domain_, current_committed_lookups[i].permuted_table_poly(), *zeta_,
-          current_extended_omega_));
+          current_extended_omega_);
     }
   }
 
   void UpdateVanishingTable(size_t circuit_idx) {
-    std::vector<Evals> fixed_columns = CoeffsToExtendedPart(
+    std::vector<Evals> fixed_columns = CoeffsToExtendedParts(
         domain_, (*poly_tables_)[circuit_idx].GetFixedColumns(), *zeta_,
         current_extended_omega_);
-    std::vector<Evals> advice_columns = CoeffsToExtendedPart(
+    std::vector<Evals> advice_columns = CoeffsToExtendedParts(
         domain_, (*poly_tables_)[circuit_idx].GetAdviceColumns(), *zeta_,
         current_extended_omega_);
-    std::vector<Evals> instance_columns = CoeffsToExtendedPart(
+    std::vector<Evals> instance_columns = CoeffsToExtendedParts(
         domain_, (*poly_tables_)[circuit_idx].GetInstanceColumns(), *zeta_,
         current_extended_omega_);
     table_ =

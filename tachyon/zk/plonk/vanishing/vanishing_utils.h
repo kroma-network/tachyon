@@ -87,18 +87,6 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
   return evals;
 }
 
-// This divides the polynomial (in the extended domain) by the vanishing
-// polynomial of the 2ᵏ size domain.
-template <typename F, typename Domain, typename ExtendedDomain,
-          typename ExtendedEvals>
-ExtendedEvals DivideByVanishingPoly(const ExtendedEvals& evals,
-                                    const ExtendedDomain* extended_domain,
-                                    const Domain* domain) {
-  ExtendedEvals ret = evals;
-  DivideByVanishingPolyInPlace<F>(ret, extended_domain, domain);
-  return ret;
-}
-
 // Given a |poly| of coefficients  [a₀, a₁, a₂, ...], this returns
 // [a₀, ζa₁, ζ²a₂, a₃, ζa₄, ζ²a₅, a₆, ...], where ζ is a cube root of unity in
 // the multiplicative subgroup with order (p - 1), i.e. ζ³ = 1.
@@ -156,9 +144,9 @@ Evals CoeffToExtendedPart(const Domain* domain, const Poly& poly, const F& zeta,
 
 template <typename Domain, typename Poly, typename F,
           typename Evals = typename Domain::Evals>
-std::vector<Evals> CoeffsToExtendedPart(const Domain* domain,
-                                        absl::Span<Poly> polys, const F& zeta,
-                                        const F& extended_omega_factor) {
+std::vector<Evals> CoeffsToExtendedParts(const Domain* domain,
+                                         absl::Span<Poly> polys, const F& zeta,
+                                         const F& extended_omega_factor) {
   return base::Map(
       polys, [domain, &zeta, &extended_omega_factor](const Poly& poly) {
         return CoeffToExtendedPart(domain, poly, zeta, extended_omega_factor);
@@ -173,8 +161,8 @@ std::vector<F> BuildExtendedColumnWithColumns(
   size_t rows = columns[0].size();
 
   std::vector<F> flattened_transposed_columns(cols * rows);
-  for (size_t i = 0; i < columns.size(); ++i) {
-    OPENMP_PARALLEL_FOR(size_t j = 0; j < rows; ++j) {
+  OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < columns.size(); ++i) {
+    for (size_t j = 0; j < rows; ++j) {
       flattened_transposed_columns[j * cols + i] = columns[i][j];
     }
   }

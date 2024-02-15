@@ -10,7 +10,6 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/bits.h"
-#include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/parallelize.h"

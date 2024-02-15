@@ -69,7 +69,7 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_set_extended_domain(
 
 TACHYON_C_EXPORT void tachyon_halo2_bn254_shplonk_prover_create_proof(
     tachyon_halo2_bn254_shplonk_prover* prover,
-    const tachyon_bn254_plonk_proving_key* pk,
+    tachyon_bn254_plonk_proving_key* pk,
     tachyon_halo2_bn254_argument_data* data);
 
 // If |proof| is NULL, then it populates |proof_len| with length to be used.

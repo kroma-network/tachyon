@@ -23,6 +23,7 @@ class ProvingKey {
   ~ProvingKey();
 
   const tachyon_bn254_plonk_proving_key* pk() const { return pk_; }
+  tachyon_bn254_plonk_proving_key* pk() { return pk_; }
 
   rust::Vec<uint8_t> advice_column_phases() const;
   uint32_t blinding_factors() const;

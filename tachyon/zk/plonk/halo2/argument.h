@@ -22,7 +22,7 @@ class Argument {
   Argument() = default;
 
   // NOTE(chokobole): This is used by rust halo2 binding.
-  Argument(const std::vector<Evals>* fixed_columns,
+  Argument(std::vector<Evals>* fixed_columns,
            const std::vector<Poly>* fixed_polys,
            ArgumentData<Poly, Evals>* argument_data)
       : fixed_columns_(fixed_columns),
@@ -34,8 +34,13 @@ class Argument {
     return argument_data_->TransformAdvice(domain);
   }
 
+  void DeallocateAllColumnsVec() {
+    argument_data_->DeallocateAllColumnsVec();
+    fixed_columns_->clear();
+  }
+
   template <typename PCS>
-  std::vector<std::vector<LookupPermuted<Poly, Evals>>> CompressLookupStep(
+  std::vector<std::vector<LookupPermuted<Poly, Evals>>> PermuteLookupsStep(
       ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
       const F& theta) const {
     std::vector<RefTable<Evals>> tables = argument_data_->ExportColumnTables(
@@ -65,11 +70,10 @@ class Argument {
         BatchCommitLookups(prover, std::move(permuted_lookups_vec), beta,
                            gamma);
 
-    VanishingCommitted<Poly> vanishing_committed;
-    CHECK(CommitRandomPoly(prover, &vanishing_committed));
+    VanishingCommitted<Poly> committed_vanishing = CommitRandomPoly(prover);
 
     return {std::move(committed_permutations), std::move(committed_lookups_vec),
-            std::move(vanishing_committed)};
+            std::move(committed_vanishing)};
   }
 
   template <typename PCS, typename C, typename P, typename L, typename V,
@@ -88,14 +92,15 @@ class Argument {
         argument_data_->ExportPolyTables(absl::MakeConstSpan(*fixed_polys_)));
   }
 
-  template <typename PCS, typename C, typename P, typename L, typename V>
+  template <typename PCS, typename C, typename P, typename L, typename V,
+            typename ExtendedPoly>
   StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
               VanishingEvaluated<Poly>>
-  EvaluateCircuitStep(ProverBase<PCS>* prover,
-                      const ProvingKey<Poly, Evals, C>& proving_key,
-                      StepReturns<P, L, V>& committed,
-                      VanishingConstructed<Poly>&& constructed_vanishing,
-                      const F& x) const {
+  EvaluateCircuitStep(
+      ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
+      StepReturns<P, L, V>& committed,
+      VanishingConstructed<Poly, ExtendedPoly>&& constructed_vanishing,
+      const F& x) const {
     const ConstraintSystem<F>& cs =
         proving_key.verifying_key().constraint_system();
     std::vector<RefTable<Poly>> tables =
@@ -103,9 +108,9 @@ class Argument {
     EvaluateColumns(prover, cs, tables, x);
 
     F xn = x.Pow(prover->pcs().N());
-    VanishingEvaluated<Poly> evaluated_vanishing;
-    CHECK(CommitRandomEval(prover->pcs(), std::move(constructed_vanishing), x,
-                           xn, prover->GetWriter(), &evaluated_vanishing));
+    VanishingEvaluated<Poly> evaluated_vanishing =
+        CommitRandomEval(prover->pcs(), std::move(constructed_vanishing), x, xn,
+                         prover->GetWriter());
 
     PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
         prover, proving_key.permutation_proving_key(), x);
@@ -192,7 +197,7 @@ class Argument {
 
  private:
   // not owned
-  const std::vector<Evals>* fixed_columns_ = nullptr;
+  std::vector<Evals>* fixed_columns_ = nullptr;
   // not owned
   const std::vector<Poly>* fixed_polys_ = nullptr;
   // not owned

@@ -19,6 +19,7 @@
 
 namespace tachyon::zk {
 
+// static
 template <typename Poly, typename Evals>
 template <typename PCS>
 LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
@@ -54,6 +55,7 @@ LookupPermuted<Poly, Evals> LookupArgumentRunner<Poly, Evals>::PermuteArgument(
           std::move(permuted_input_poly), std::move(permuted_table_poly)};
 }
 
+// static
 template <typename Poly, typename Evals>
 template <typename PCS>
 LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
@@ -69,6 +71,7 @@ LookupCommitted<Poly> LookupArgumentRunner<Poly, Evals>::CommitPermuted(
                                std::move(grand_product_poly));
 }
 
+// static
 template <typename Poly, typename Evals>
 template <typename PCS>
 LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
@@ -95,6 +98,7 @@ LookupEvaluated<Poly> LookupArgumentRunner<Poly, Evals>::EvaluateCommitted(
   };
 }
 
+// static
 template <typename Poly, typename Evals>
 template <typename PCS>
 std::vector<crypto::PolynomialOpening<Poly>>
@@ -125,6 +129,7 @@ LookupArgumentRunner<Poly, Evals>::OpenEvaluated(
           evaluated.product_poly().poly().Evaluate(x_next))};
 }
 
+// static
 template <typename Poly, typename Evals>
 base::ParallelizeCallback3<typename Poly::Field>
 LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
@@ -142,6 +147,7 @@ LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
   };
 }
 
+// static
 template <typename Poly, typename Evals>
 base::ParallelizeCallback3<typename Poly::Field>
 LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback(

@@ -12,7 +12,6 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
-#include "tachyon/base/parallelize.h"
 #include "tachyon/export.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/plonk/permutation/cycle_store.h"
@@ -88,8 +87,7 @@ class TACHYON_EXPORT PermutationAssembly {
   template <typename PCS, typename Poly = typename PCS::Poly,
             typename Evals = typename PCS::Evals>
   constexpr PermutationProvingKey<Poly, Evals> BuildProvingKey(
-      const ProverBase<PCS>* prover,
-      const std::vector<Evals>& permutations) const {
+      const ProverBase<PCS>* prover, std::vector<Evals>&& permutations) const {
     using Domain = typename PCS::Domain;
 
     const Domain* domain = prover->domain();
@@ -120,20 +118,14 @@ class TACHYON_EXPORT PermutationAssembly {
         base::CreateVector(columns_.size(), domain->template Zero<Evals>());
 
     // Assign |unpermuted_table| to |permutations|.
-    base::Parallelize(
-        permutations, [&unpermuted_table, this](absl::Span<Evals> chunk,
-                                                size_t c, size_t chunk_size) {
-          size_t i = c * chunk_size;
-          for (Evals& evals : chunk) {
-            for (size_t j = 0; j < rows_; ++j) {
-              // NOTE(chokobole): It's safe to access since we created |kDegree|
-              // |Zeros()|.
-              evals.at(j) =
-                  unpermuted_table[cycle_store_.GetNextLabel(Label(i, j))];
-            }
-            ++i;
-          }
-        });
+    OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < permutations.size(); ++i) {
+      for (size_t j = 0; j < rows_; ++j) {
+        // NOTE(chokobole): It's safe to access since we created |kDegree|
+        // |Zeros()|.
+        permutations[i].at(j) =
+            unpermuted_table[cycle_store_.GetNextLabel(Label(i, j))];
+      }
+    }
     return permutations;
   }
 

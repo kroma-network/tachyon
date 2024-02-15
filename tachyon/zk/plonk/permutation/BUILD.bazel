@@ -17,6 +17,7 @@ tachyon_cc_library(
     hdrs = ["grand_product_argument.h"],
     deps = [
         "//tachyon/base:parallelize",
+        "//tachyon/base/containers:container_util",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base/entities:prover_base",
     ],
@@ -75,7 +76,6 @@ tachyon_cc_library(
         ":unpermuted_table",
         "//tachyon:export",
         "//tachyon/base:openmp_util",
-        "//tachyon/base:parallelize",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:prover_base",
     ],
@@ -164,6 +164,7 @@ tachyon_cc_library(
     deps = [
         ":label",
         ":permutation_utils",
+        "//tachyon/base:openmp_util",
         "//tachyon/base:range",
         "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",

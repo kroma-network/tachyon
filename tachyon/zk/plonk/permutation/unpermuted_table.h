@@ -13,6 +13,7 @@
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/range.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/plonk/permutation/label.h"
@@ -48,13 +49,7 @@ class UnpermutedTable {
   std::vector<base::Ref<const Evals>> GetColumns(
       base::Range<size_t> range) const {
     CHECK_EQ(range.Intersect(base::Range<size_t>::Until(table_.size())), range);
-
-    std::vector<base::Ref<const Evals>> ret;
-    ret.reserve(range.GetSize());
-    for (size_t i : range) {
-      ret.push_back(GetColumn(i));
-    }
-    return ret;
+    return base::Map(range, [this](size_t i) { return GetColumn(i); });
   }
 
   template <typename Domain>
@@ -75,9 +70,7 @@ class UnpermutedTable {
     // Assign [δⁱω⁰, δⁱω¹, δⁱω², ..., δⁱωⁿ⁻¹] to each col.
     for (size_t i = 1; i < cols; ++i) {
       std::vector<F> col = base::CreateVector(rows, F::Zero());
-      // TODO(dongchangYoo): Optimize this with
-      // https://github.com/kroma-network/tachyon/pull/115.
-      for (RowIndex j = 0; j < rows; ++j) {
+      OPENMP_PARALLEL_FOR(RowIndex j = 0; j < rows; ++j) {
         col[j] = unpermuted_table[i - 1][j] * delta;
       }
       unpermuted_table.push_back(Evals(std::move(col)));

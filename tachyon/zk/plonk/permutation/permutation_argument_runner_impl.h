@@ -24,6 +24,7 @@
 
 namespace tachyon::zk::plonk {
 
+// static
 template <typename Poly, typename Evals>
 template <typename PCS>
 PermutationCommitted<Poly>
@@ -78,6 +79,7 @@ PermutationArgumentRunner<Poly, Evals>::CommitArgument(
   return PermutationCommitted<Poly>(std::move(grand_product_polys));
 }
 
+// static
 template <typename Poly, typename Evals>
 template <typename PCS>
 PermutationEvaluated<Poly>
@@ -112,6 +114,7 @@ PermutationArgumentRunner<Poly, Evals>::EvaluateCommitted(
   return PermutationEvaluated<Poly>(std::move(product_polys));
 }
 
+// static
 template <typename Poly, typename Evals>
 template <typename PCS>
 std::vector<crypto::PolynomialOpening<Poly>>
@@ -147,6 +150,7 @@ PermutationArgumentRunner<Poly, Evals>::OpenEvaluated(
   return ret;
 }
 
+// static
 template <typename Poly, typename Evals>
 std::vector<crypto::PolynomialOpening<Poly>>
 PermutationArgumentRunner<Poly, Evals>::OpenPermutationProvingKey(
@@ -158,6 +162,7 @@ PermutationArgumentRunner<Poly, Evals>::OpenPermutationProvingKey(
   });
 }
 
+// static
 template <typename Poly, typename Evals>
 template <typename PCS>
 void PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
@@ -168,6 +173,7 @@ void PermutationArgumentRunner<Poly, Evals>::EvaluateProvingKey(
   }
 }
 
+// static
 template <typename Poly, typename Evals>
 std::function<base::ParallelizeCallback3<typename Poly::Field>(size_t)>
 PermutationArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
@@ -190,6 +196,7 @@ PermutationArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
   };
 }
 
+// static
 template <typename Poly, typename Evals>
 std::function<base::ParallelizeCallback3<typename Poly::Field>(size_t)>
 PermutationArgumentRunner<Poly, Evals>::CreateDenominatorCallback(

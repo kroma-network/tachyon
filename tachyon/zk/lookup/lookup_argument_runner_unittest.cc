@@ -54,7 +54,7 @@ TEST_F(LookupArgumentRunnerTest, ComputePermutationProduct) {
       BlindedPolynomial<Poly>(), BlindedPolynomial<Poly>());
 
   Evals z_evals = plonk::GrandProductArgument::CreatePolynomial<Evals>(
-      n, prover_->blinder().blinding_factors(),
+      n, prover_->GetUsableRows(),
       LookupArgumentRunner<Poly, Evals>::CreateNumeratorCallback(
           lookup_permuted, beta, gamma),
       LookupArgumentRunner<Poly, Evals>::CreateDenominatorCallback(

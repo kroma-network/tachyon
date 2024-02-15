@@ -36,7 +36,7 @@ tachyon_cc_library(
     hdrs = ["proving_key.h"],
     deps = [
         ":verifying_key",
-        "//tachyon/base:parallelize",
+        "//tachyon/base:openmp_util",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/permutation:permutation_proving_key",
         "//tachyon/zk/plonk/vanishing:vanishing_argument",
