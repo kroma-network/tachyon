@@ -29,7 +29,7 @@ class PippengerAdapter {
                          ScalarInputIterator scalars_last, Bucket* ret) {
     return RunWithStrategy(std::move(bases_first), std::move(bases_last),
                            std::move(scalars_first), std::move(scalars_last),
-                           PippengerParallelStrategy::kParallelWindow, ret);
+                           PippengerParallelStrategy::kParallelTerm, ret);
   }
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
