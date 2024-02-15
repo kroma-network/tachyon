@@ -13,6 +13,7 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
+#include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 using namespace tachyon;
 
@@ -39,13 +40,16 @@ tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
         base::Uint8VectorBuffer write_buf;
         std::unique_ptr<crypto::TranscriptWriter<math::bn254::G1AffinePoint>>
             writer;
-        if (transcript_type == TACHYON_HALO2_BLAKE_TRANSCRIPT) {
-          writer = std::make_unique<
-              zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
-              std::move(write_buf));
-        } else {
-          NOTREACHED();
+        switch (
+            static_cast<zk::plonk::halo2::TranscriptType>(transcript_type)) {
+          case zk::plonk::halo2::TranscriptType::kBlake2b: {
+            writer = std::make_unique<
+                zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
+                std::move(write_buf));
+            break;
+          }
         }
+        CHECK(writer);
         zk::plonk::halo2::Prover<PCS> prover =
             zk::plonk::halo2::Prover<PCS>::CreateFromRNG(
                 std::move(pcs), std::move(writer),
@@ -74,13 +78,16 @@ tachyon_halo2_bn254_shplonk_prover_create_from_params(uint8_t transcript_type,
         base::Uint8VectorBuffer write_buf;
         std::unique_ptr<crypto::TranscriptWriter<math::bn254::G1AffinePoint>>
             writer;
-        if (transcript_type == TACHYON_HALO2_BLAKE_TRANSCRIPT) {
-          writer = std::make_unique<
-              zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
-              std::move(write_buf));
-        } else {
-          NOTREACHED();
+        switch (
+            static_cast<zk::plonk::halo2::TranscriptType>(transcript_type)) {
+          case zk::plonk::halo2::TranscriptType::kBlake2b: {
+            writer = std::make_unique<
+                zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
+                std::move(write_buf));
+            break;
+          }
         }
+        CHECK(writer);
         zk::plonk::halo2::Prover<PCS> prover =
             zk::plonk::halo2::Prover<PCS>::CreateFromRNG(
                 std::move(pcs), std::move(writer),
@@ -150,17 +157,20 @@ void tachyon_halo2_bn254_shplonk_prover_set_transcript_state(
   ProverImpl* prover_impl = reinterpret_cast<ProverImpl*>(prover);
   uint8_t transcript_type = prover_impl->transcript_type();
   base::Uint8VectorBuffer write_buf;
-  if (transcript_type == TACHYON_HALO2_BLAKE_TRANSCRIPT) {
-    std::unique_ptr<zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>
-        writer = std::make_unique<
-            zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
-            std::move(write_buf));
-    absl::Span<const uint8_t> state_span(state, state_len);
-    writer->SetState(state_span);
-    prover_impl->SetTranscript(state_span, std::move(writer));
-  } else {
-    NOTREACHED();
+  switch (static_cast<zk::plonk::halo2::TranscriptType>(transcript_type)) {
+    case zk::plonk::halo2::TranscriptType::kBlake2b: {
+      std::unique_ptr<
+          zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>
+          writer = std::make_unique<
+              zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
+              std::move(write_buf));
+      absl::Span<const uint8_t> state_span(state, state_len);
+      writer->SetState(state_span);
+      prover_impl->SetTranscript(state_span, std::move(writer));
+      return;
+    }
   }
+  NOTREACHED();
 }
 
 void tachyon_halo2_bn254_shplonk_prover_set_extended_domain(

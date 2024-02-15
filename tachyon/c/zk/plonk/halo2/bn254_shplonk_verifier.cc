@@ -8,6 +8,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
+#include "tachyon/zk/plonk/halo2/transcript_type.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 
 using namespace tachyon;
@@ -32,13 +33,16 @@ tachyon_halo2_bn254_shplonk_verifier_create_from_params(
         read_buf = base::ReadOnlyBuffer(proof, proof_len);
         std::unique_ptr<crypto::TranscriptReader<math::bn254::G1AffinePoint>>
             reader;
-        if (transcript_type == TACHYON_HALO2_BLAKE_TRANSCRIPT) {
-          reader = std::make_unique<
-              zk::plonk::halo2::Blake2bReader<math::bn254::G1AffinePoint>>(
-              std::move(read_buf));
-        } else {
-          NOTREACHED();
+        switch (
+            static_cast<zk::plonk::halo2::TranscriptType>(transcript_type)) {
+          case zk::plonk::halo2::TranscriptType::kBlake2b: {
+            reader = std::make_unique<
+                zk::plonk::halo2::Blake2bReader<math::bn254::G1AffinePoint>>(
+                std::move(read_buf));
+            break;
+          }
         }
+        CHECK(reader);
         zk::plonk::halo2::Verifier<PCS> verifier(std::move(pcs),
                                                  std::move(reader));
         verifier.set_domain(PCS::Domain::Create(size_t{1} << k));
