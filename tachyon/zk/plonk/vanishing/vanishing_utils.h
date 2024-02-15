@@ -114,11 +114,11 @@ void DistributePowersZeta(ExtendedPoly& poly, bool into_coset) {
 // This function will panic if the provided vector is not the correct length.
 template <typename F, typename ExtendedPoly, typename ExtendedEvals,
           typename ExtendedDomain>
-ExtendedPoly ExtendedToCoeff(const ExtendedEvals& evals,
+ExtendedPoly ExtendedToCoeff(ExtendedEvals&& evals,
                              const ExtendedDomain* extended_domain) {
   CHECK_EQ(evals.NumElements(), extended_domain->size());
 
-  ExtendedPoly poly = extended_domain->IFFT(evals);
+  ExtendedPoly poly = extended_domain->IFFT(std::move(evals));
 
   // Distribute powers to move from coset; opposite from the
   // transformation we performed earlier.

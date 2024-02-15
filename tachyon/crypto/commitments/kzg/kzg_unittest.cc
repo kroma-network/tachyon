@@ -46,7 +46,7 @@ TEST_F(KZGTest, CommitLagrange) {
   ASSERT_TRUE(pcs.Commit(poly.coefficients().coefficients(), &commit));
 
   std::unique_ptr<Domain> domain = Domain::Create(N);
-  Evals poly_evals = domain->FFT(poly);
+  Evals poly_evals = domain->FFT(std::move(poly));
 
   math::bn254::G1AffinePoint commit_lagrange;
   ASSERT_TRUE(pcs.CommitLagrange(poly_evals.evaluations(), &commit_lagrange));
@@ -74,7 +74,7 @@ TEST_F(KZGTest, BatchCommitLagrange) {
 
   std::unique_ptr<Domain> domain = Domain::Create(N);
   std::vector<Evals> poly_evals = base::Map(
-      polys, [&domain](const Poly& poly) { return domain->FFT(poly); });
+      polys, [&domain](Poly& poly) { return domain->FFT(std::move(poly)); });
 
   state.batch_mode = true;
   state.batch_count = num_polys;

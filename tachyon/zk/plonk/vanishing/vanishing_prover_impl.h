@@ -78,8 +78,8 @@ void VanishingProver<Poly, Evals, ExtendedPoly,
                                   prover->domain());
 
   // Obtain final h(X) polynomial
-  h_poly_ =
-      ExtendedToCoeff<F, ExtendedPoly>(h_evals_, prover->extended_domain());
+  h_poly_ = ExtendedToCoeff<F, ExtendedPoly>(std::move(h_evals_),
+                                             prover->extended_domain());
 
   // FIXME(TomTaehoonKim): Remove this if possible.
   const size_t quotient_poly_degree = constraint_system.ComputeDegree() - 1;

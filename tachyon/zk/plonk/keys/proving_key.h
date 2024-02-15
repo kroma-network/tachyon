@@ -153,7 +153,7 @@ class ProvingKey : public Key {
       // |evals|, which is greater than |usable_rows|.
       evals.at(i) = F::One();
     }
-    l_active_row_ = domain->IFFT(evals);
+    l_active_row_ = domain->IFFT(std::move(evals));
 
     vanishing_argument_ =
         VanishingArgument<F>::Create(verifying_key_.constraint_system());
