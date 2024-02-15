@@ -201,6 +201,19 @@ class CircuitPolynomialBuilder {
     const std::vector<Evals>& product_cosets = permutation_product_cosets_;
     const std::vector<Evals>& cosets = permutation_cosets_;
 
+    const std::vector<AnyColumnKey>& column_keys = proving_key_->verifying_key()
+                                                       .constraint_system()
+                                                       .permutation()
+                                                       .columns();
+    std::vector<std::vector<base::Ref<const Evals>>> column_chunks =
+        base::Map(base::Chunked(column_keys, chunk_len_),
+                  [this](absl::Span<const AnyColumnKey> column_key_chunk) {
+                    return table_.GetColumns(column_key_chunk);
+                  });
+    std::vector<absl::Span<const Evals>> coset_chunks =
+        base::Map(base::Chunked(cosets, chunk_len_),
+                  [](absl::Span<const Evals> chunk) { return chunk; });
+
     size_t start = chunk_offset * chunk_size;
     F beta_term = current_extended_omega_ * omega_->Pow(start);
     for (size_t i = 0; i < chunk.size(); ++i) {
@@ -230,24 +243,10 @@ class CircuitPolynomialBuilder {
       F current_delta = delta_start_ * beta_term;
       RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
 
-      const std::vector<AnyColumnKey>& column_keys =
-          proving_key_->verifying_key()
-              .constraint_system()
-              .permutation()
-              .columns();
-      std::vector<absl::Span<const AnyColumnKey>> column_key_chunks =
-          base::Map(base::Chunked(column_keys, chunk_len_),
-                    [](absl::Span<const AnyColumnKey> chunk) { return chunk; });
-      std::vector<absl::Span<const Evals>> coset_chunks =
-          base::Map(base::Chunked(cosets, chunk_len_),
-                    [](absl::Span<const Evals> chunk) { return chunk; });
-
       for (size_t j = 0; j < product_cosets.size(); ++j) {
-        std::vector<base::Ref<const Evals>> column_chunk =
-            table_.GetColumns(column_key_chunks[j]);
-        F left = CalculateLeft(column_chunk, coset_chunks[j], idx,
+        F left = CalculateLeft(column_chunks[j], coset_chunks[j], idx,
                                product_cosets[j][r_next]);
-        F right = CalculateRight(column_chunk, &current_delta, idx,
+        F right = CalculateRight(column_chunks[j], &current_delta, idx,
                                  product_cosets[j][idx]);
         chunk[i] *= *y_;
         chunk[i] += (left - right) * l_active_row_[idx];
