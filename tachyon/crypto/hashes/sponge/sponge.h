@@ -164,6 +164,13 @@ struct TACHYON_EXPORT DuplexSpongeMode {
   // state to be outputted when squeezing.
   size_t next_index;
 
+  bool operator==(const DuplexSpongeMode& other) const {
+    return type == other.type && next_index == other.next_index;
+  }
+  bool operator!=(const DuplexSpongeMode& other) const {
+    return !operator==(other);
+  }
+
  private:
   constexpr DuplexSpongeMode(Type type, size_t next_index)
       : type(type), next_index(next_index) {}

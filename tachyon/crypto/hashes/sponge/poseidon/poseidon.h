@@ -52,6 +52,11 @@ struct PoseidonSponge
 
     F& operator[](size_t idx) { return elements[idx]; }
     const F& operator[](size_t idx) const { return elements[idx]; }
+
+    bool operator==(const State& other) const {
+      return elements == other.elements && mode == other.mode;
+    }
+    bool operator!=(const State& other) const { return !operator==(other); }
   };
 
   // Sponge Config
@@ -268,6 +273,13 @@ struct PoseidonSponge
     }
     NOTREACHED();
     return {};
+  }
+
+  bool operator==(const PoseidonSponge& other) const {
+    return config == other.config && state == other.state;
+  }
+  bool operator!=(const PoseidonSponge& other) const {
+    return !operator==(other);
   }
 };
 
