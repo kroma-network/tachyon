@@ -58,6 +58,16 @@ struct TACHYON_EXPORT PoseidonConfigEntry {
 
   template <typename PrimeField>
   PoseidonConfig<PrimeField> ToPoseidonConfig() const;
+
+  bool operator==(const PoseidonConfigEntry& other) const {
+    return rate == other.rate && alpha == other.alpha &&
+           full_rounds == other.full_rounds &&
+           partial_rounds == other.partial_rounds &&
+           skip_matrices == other.skip_matrices;
+  }
+  bool operator!=(const PoseidonConfigEntry& other) const {
+    return !operator==(other);
+  }
 };
 
 // An array of the default config optimized for constraints
@@ -185,6 +195,16 @@ struct PoseidonConfig {
            static_cast<size_t>(ark.cols()) == rate + capacity &&
            static_cast<size_t>(mds.rows()) == rate + capacity &&
            static_cast<size_t>(mds.cols()) == rate + capacity;
+  }
+
+  bool operator==(const PoseidonConfig& other) const {
+    return full_rounds == other.full_rounds &&
+           partial_rounds == other.partial_rounds && alpha == other.alpha &&
+           ark == other.ark && mds == other.mds && rate == other.rate &&
+           capacity == other.capacity;
+  }
+  bool operator!=(const PoseidonConfig& other) const {
+    return !operator==(other);
   }
 };
 
