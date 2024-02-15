@@ -48,6 +48,7 @@ class Verifier : public VerifierBase<PCS> {
   FRIEND_TEST(SimpleV1CircuitTest, Verify);
   FRIEND_TEST(SimpleLookupCircuitTest, Verify);
   FRIEND_TEST(SimpleLookupV1CircuitTest, Verify);
+  template <typename>
   FRIEND_TEST(ShuffleCircuitTest, Verify);
 
   bool VerifyProofForTesting(

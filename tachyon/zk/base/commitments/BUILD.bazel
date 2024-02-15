@@ -3,6 +3,15 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "gwc_extension",
+    hdrs = ["gwc_extension.h"],
+    deps = [
+        ":univariate_polynomial_commitment_scheme_extension",
+        "//tachyon/crypto/commitments/kzg:gwc",
+    ],
+)
+
+tachyon_cc_library(
     name = "shplonk_extension",
     hdrs = ["shplonk_extension.h"],
     deps = [

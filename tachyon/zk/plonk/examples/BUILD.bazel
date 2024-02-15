@@ -17,6 +17,7 @@ tachyon_cc_library(
     hdrs = ["shuffle_circuit.h"],
     deps = [
         "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/base/commitments:gwc_extension",
         "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/plonk/constraint_system:circuit",
         "@com_google_absl//absl/strings",
