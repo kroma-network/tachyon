@@ -12,7 +12,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/functional/bind_front.h"
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
@@ -59,7 +58,7 @@ class Verifier : public VerifierBase<PCS> {
 
     std::vector<std::vector<Commitment>> instance_commitments_vec;
     if constexpr (PCS::kQueryInstance) {
-      instance_commitments_vec = CommitColumnsVec(vkey, instance_columns_vec);
+      instance_commitments_vec = CommitColumnsVec(instance_columns_vec);
     } else {
       instance_commitments_vec.resize(instance_columns_vec.size());
     }
@@ -171,14 +170,16 @@ class Verifier : public VerifierBase<PCS> {
       std::vector<F> expanded_evals = column.evaluations();
       expanded_evals.resize(this->pcs_.N());
       Commitment c;
-      CHECK(this->pcs_.CommitLagrange(Evals(std::move(expanded_evals), &c)));
+      CHECK(this->pcs_.CommitLagrange(Evals(std::move(expanded_evals)), &c));
       return c;
     });
   }
 
   std::vector<std::vector<Commitment>> CommitColumnsVec(
       const std::vector<std::vector<Evals>>& columns_vec) {
-    return base::Map(columns_vec, absl::bind_front(&CommitColumns, this));
+    return base::Map(columns_vec, [this](const std::vector<Evals>& columns) {
+      return CommitColumns(columns);
+    });
   }
 
   static void WriteCommitmentsVecToTranscript(

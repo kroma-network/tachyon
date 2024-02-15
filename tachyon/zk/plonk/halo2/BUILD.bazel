@@ -221,7 +221,6 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/keys:verifying_key",
         "//tachyon/zk/plonk/permutation:permutation_verification",
         "//tachyon/zk/plonk/vanishing:vanishing_verification_evaluator",
-        "@com_google_absl//absl/functional:bind_front",
         "@com_google_googletest//:gtest_prod",
     ],
 )
