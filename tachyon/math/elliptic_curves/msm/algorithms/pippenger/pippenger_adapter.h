@@ -54,6 +54,10 @@ class PippengerAdapter {
         LOG(ERROR) << "bases_size and scalars_size don't match";
         return false;
       }
+      if (scalars_size == 0) {
+        *ret = Bucket::Zero();
+        return true;
+      }
 
 #if defined(TACHYON_HAS_OPENMP)
       int thread_nums = omp_get_max_threads();
