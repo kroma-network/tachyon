@@ -6,6 +6,12 @@
 
 namespace tachyon::base {
 
+enum class Color {
+  kRed,
+  kBlue,
+  kGreen,
+};
+
 TEST(CopyableTest, BuiltInSerializableTest) {
 #define TEST_BUILTIN_TYPES(type)                                   \
   EXPECT_TRUE(base::internal::IsBuiltinSerializable<type>::value); \
@@ -24,13 +30,7 @@ TEST(CopyableTest, BuiltInSerializableTest) {
   TEST_BUILTIN_TYPES(int32_t);
   TEST_BUILTIN_TYPES(int64_t);
 
-  enum class Color {
-    kRed,
-    kBlue,
-    kGreen,
-  };
-  TEST_BUILTIN_TYPES(Color);
-
+  TEST_NON_BUILTIN_TYPES(Color);
   TEST_NON_BUILTIN_TYPES(std::string_view);
   TEST_NON_BUILTIN_TYPES(std::string);
   TEST_NON_BUILTIN_TYPES(uint64_t[4]);
@@ -47,6 +47,7 @@ TEST(BufferTest, Write) {
   constexpr char kCharValue = 'c';
   constexpr int kIntValue = 12345;
   constexpr bool kBooleanValue = true;
+  Color kColor = Color::kBlue;
   const char* kCharPtrValue = "abc";
   std::string kStringValue = "def";
   uint64_t kIntBoundedArray[4] = {1, 2, 3, 4};
@@ -59,6 +60,7 @@ TEST(BufferTest, Write) {
     ASSERT_TRUE(write_buf.Write(kCharValue));
     ASSERT_TRUE(write_buf.Write(kIntValue));
     ASSERT_TRUE(write_buf.Write(kBooleanValue));
+    ASSERT_TRUE(write_buf.Write(kColor));
     ASSERT_TRUE(write_buf.Write(kCharPtrValue));
     ASSERT_TRUE(write_buf.Write(kStringValue));
     ASSERT_TRUE(write_buf.Write(kIntBoundedArray));
@@ -73,6 +75,8 @@ TEST(BufferTest, Write) {
     ASSERT_TRUE(read_buf.Read(&i));
     bool b;
     ASSERT_TRUE(read_buf.Read(&b));
+    Color color;
+    ASSERT_TRUE(read_buf.Read(&color));
     std::string s;
     ASSERT_TRUE(read_buf.Read(&s));
     std::string s2;
@@ -87,6 +91,7 @@ TEST(BufferTest, Write) {
     EXPECT_EQ(c, kCharValue);
     EXPECT_EQ(i, kIntValue);
     EXPECT_EQ(b, kBooleanValue);
+    EXPECT_EQ(color, kColor);
     EXPECT_EQ(s, kCharPtrValue);
     EXPECT_EQ(s2, kStringValue);
     EXPECT_THAT(iba, testing::ElementsAreArray(iba));
@@ -99,6 +104,7 @@ TEST(BufferTest, WriteMany) {
   constexpr char kCharValue = 'c';
   constexpr int kIntValue = 12345;
   constexpr bool kBooleanValue = true;
+  constexpr Color kColor = Color::kBlue;
   const char* kCharPtrValue = "abc";
   std::string kStringValue = "def";
   uint64_t kIntBoundedArray[4] = {1, 2, 3, 4};
@@ -109,7 +115,7 @@ TEST(BufferTest, WriteMany) {
     Uint8VectorBuffer write_buf;
     write_buf.set_endian(endian);
     ASSERT_TRUE(write_buf.WriteMany(kCharValue, kIntValue, kBooleanValue,
-                                    kCharPtrValue, kStringValue,
+                                    kColor, kCharPtrValue, kStringValue,
                                     kIntBoundedArray, kIntVector, kIntArray));
 
     Buffer read_buf(write_buf.buffer(), write_buf.buffer_len());
@@ -117,15 +123,17 @@ TEST(BufferTest, WriteMany) {
     char c;
     int i;
     bool b;
+    Color color;
     std::string s;
     std::string s2;
     uint64_t iba[4];
     std::vector<int> iv;
     std::array<int, 4> ia;
-    ASSERT_TRUE(read_buf.ReadMany(&c, &i, &b, &s, &s2, iba, &iv, &ia));
+    ASSERT_TRUE(read_buf.ReadMany(&c, &i, &b, &color, &s, &s2, iba, &iv, &ia));
     EXPECT_EQ(c, kCharValue);
     EXPECT_EQ(i, kIntValue);
     EXPECT_EQ(b, kBooleanValue);
+    EXPECT_EQ(color, kColor);
     EXPECT_EQ(s, kCharPtrValue);
     EXPECT_EQ(s2, kStringValue);
     EXPECT_THAT(iba, testing::ElementsAreArray(iba));
