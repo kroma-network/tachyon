@@ -77,12 +77,10 @@ tachyon_cc_unittest(
     name = "halo2_unittests",
     srcs = [
         "compress_expression_unittest.cc",
-        "lookup_argument_runner_unittest.cc",
         "permute_expression_pair_unittest.cc",
     ],
     deps = [
         ":compress_expression",
-        ":lookup_argument_runner",
         ":permute_expression_pair",
         "//tachyon/base:random",
         "//tachyon/zk/expressions:expression_factory",

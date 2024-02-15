@@ -9,14 +9,7 @@
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 
-namespace tachyon::zk {
-namespace lookup::halo2 {
-
-class LookupArgumentRunnerTest_ComputePermutationProduct_Test;
-
-}  // namespace lookup::halo2
-
-namespace plonk {
+namespace tachyon::zk::plonk {
 
 class GrandProductArgument {
  public:
@@ -63,9 +56,6 @@ class GrandProductArgument {
   }
 
  private:
-  friend class zk::lookup::halo2::
-      LookupArgumentRunnerTest_ComputePermutationProduct_Test;
-
   template <typename Evals, typename Callable>
   static Evals CreatePolynomial(RowIndex size, RowIndex usable_rows,
                                 Callable numerator_callback,
@@ -120,7 +110,6 @@ class GrandProductArgument {
   }
 };
 
-}  // namespace plonk
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_GRAND_PRODUCT_ARGUMENT_H_
