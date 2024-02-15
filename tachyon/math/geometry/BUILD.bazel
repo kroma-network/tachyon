@@ -43,7 +43,7 @@ tachyon_cc_unittest(
         ":point2",
         ":point3",
         ":point4",
-        "//tachyon/base/buffer",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/finite_fields/test:gf7",
     ],
 )

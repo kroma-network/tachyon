@@ -61,9 +61,8 @@ class KZGFamilyTest : public testing::Test {
   }
 
   void Copyable() {
-    std::vector<uint8_t> vec;
-    vec.resize(base::EstimateSize(pcs_));
-    base::Buffer write_buf(vec.data(), vec.size());
+    base::Uint8VectorBuffer write_buf;
+    ASSERT_TRUE(write_buf.Grow(base::EstimateSize(pcs_)));
     ASSERT_TRUE(write_buf.Write(pcs_));
     ASSERT_TRUE(write_buf.Done());
 

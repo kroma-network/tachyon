@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "tachyon/base/buffer/buffer.h"
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
@@ -186,9 +186,8 @@ TEST_F(PrimeFieldTest, DivBy2Exp) {
 TEST_F(PrimeFieldTest, Copyable) {
   const GF7 expected = GF7::Random();
 
-  std::vector<uint8_t> vec;
-  vec.resize(base::EstimateSize(expected));
-  base::Buffer write_buf(vec.data(), vec.size());
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
   ASSERT_TRUE(write_buf.Write(expected));
   ASSERT_TRUE(write_buf.Done());
 

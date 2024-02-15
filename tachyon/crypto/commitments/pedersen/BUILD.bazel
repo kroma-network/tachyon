@@ -23,7 +23,7 @@ tachyon_cc_unittest(
     srcs = ["pedersen_unittest.cc"],
     deps = [
         ":pedersen",
-        "//tachyon/base/buffer",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
     ],
 )

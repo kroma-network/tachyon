@@ -204,7 +204,7 @@ tachyon_cc_unittest(
     ],
     deps = [
         "//tachyon/base:bits",
-        "//tachyon/base/buffer",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/elliptic_curves/bn/bn254:fq12",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/test:finite_field_test",
