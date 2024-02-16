@@ -5,8 +5,7 @@
 #include <stdint.h>
 
 #include "tachyon/c/export.h"
-
-#define TACHYON_HALO2_BLAKE_TRANSCRIPT 0
+#include "tachyon/c/zk/plonk/halo2/constants.h"
 
 struct tachyon_halo2_bn254_transcript_writer {
   uint8_t type;
