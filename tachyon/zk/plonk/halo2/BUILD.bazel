@@ -3,19 +3,6 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "argument",
-    hdrs = ["argument.h"],
-    deps = [
-        ":argument_data",
-        "//tachyon/base:logging",
-        "//tachyon/crypto/commitments:polynomial_openings",
-        "//tachyon/zk/plonk/halo2:argument_util",
-        "//tachyon/zk/plonk/vanishing:prover_vanishing_argument",
-        "//tachyon/zk/plonk/vanishing:vanishing_argument",
-    ],
-)
-
-tachyon_cc_library(
     name = "argument_data",
     hdrs = ["argument_data.h"],
     deps = [
@@ -24,26 +11,6 @@ tachyon_cc_library(
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/plonk/base:ref_table",
-        "@com_google_absl//absl/types:span",
-    ],
-)
-
-tachyon_cc_library(
-    name = "argument_util",
-    hdrs = ["argument_util.h"],
-    deps = [
-        ":step_returns",
-        "//tachyon/base:ref",
-        "//tachyon/base/containers:container_util",
-        "//tachyon/base/numerics:checked_math",
-        "//tachyon/zk/base:point_set",
-        "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/lookup:lookup_argument_runner",
-        "//tachyon/zk/plonk/base:ref_table",
-        "//tachyon/zk/plonk/constraint_system",
-        "//tachyon/zk/plonk/constraint_system:query",
-        "//tachyon/zk/plonk/keys:proving_key",
-        "//tachyon/zk/plonk/permutation:permutation_argument_runner",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -173,11 +140,14 @@ tachyon_cc_library(
     name = "prover",
     hdrs = ["prover.h"],
     deps = [
-        ":argument",
+        ":argument_data",
         ":c_prover_impl_base_forward",
         ":random_field_generator",
         ":verifier",
         "//tachyon/zk/base/entities:prover_base",
+        "//tachyon/zk/lookup/halo2:prover",
+        "//tachyon/zk/plonk/permutation:permutation_prover",
+        "//tachyon/zk/plonk/vanishing:vanishing_prover",
     ],
 )
 
@@ -218,11 +188,6 @@ tachyon_cc_library(
         "//tachyon/math/base:big_int",
         "@com_google_boringssl//:crypto",
     ],
-)
-
-tachyon_cc_library(
-    name = "step_returns",
-    hdrs = ["step_returns.h"],
 )
 
 tachyon_cc_library(

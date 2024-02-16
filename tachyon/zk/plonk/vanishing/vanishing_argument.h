@@ -87,12 +87,12 @@ class VanishingArgument {
             typename ExtendedEvals = typename PCS::ExtendedEvals>
   ExtendedEvals BuildExtendedCircuitColumn(
       ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
-      const F& beta, const F& gamma, const F& theta, const F& y, const F& zeta,
-      absl::Span<const F> challenges,
-      const std::vector<PermutationCommitted<Poly>>& committed_permutations,
-      const std::vector<std::vector<LookupCommitted<Poly>>>&
-          committed_lookups_vec,
-      const std::vector<RefTable<Poly>>& poly_tables) const {
+      const std::vector<RefTable<Poly>>& poly_tables,
+      absl::Span<const F> challenges, const F& theta, const F& beta,
+      const F& gamma, const F& y, const F& zeta,
+      const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
+      const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers)
+      const {
     RowIndex blinding_factors = prover->blinder().blinding_factors();
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
@@ -100,9 +100,9 @@ class VanishingArgument {
     CircuitPolynomialBuilder<PCS> builder =
         CircuitPolynomialBuilder<PCS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
-            blinding_factors, cs_degree, &beta, &gamma, &theta, &y, &zeta,
-            challenges, &proving_key, &committed_permutations,
-            &committed_lookups_vec, &poly_tables);
+            blinding_factors, cs_degree, &poly_tables, challenges, &theta,
+            &beta, &gamma, &y, &zeta, &proving_key, &permutation_provers,
+            &lookup_provers);
 
     return builder.BuildExtendedCircuitColumn(custom_gates_, lookups_);
   }

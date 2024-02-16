@@ -4,7 +4,7 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#include "tachyon/zk/lookup/permute_expression_pair.h"
+#include "tachyon/zk/lookup/halo2/permute_expression_pair.h"
 
 #include <algorithm>
 #include <optional>
@@ -17,7 +17,7 @@
 #include "tachyon/base/random.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup::halo2 {
 
 class PermuteExpressionPairTest : public plonk::halo2::ProverTest {};
 
@@ -68,4 +68,4 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTestWrong) {
   ASSERT_FALSE(PermuteExpressionPair(prover_.get(), input, &output));
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup::halo2

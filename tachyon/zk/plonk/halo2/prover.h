@@ -12,10 +12,13 @@
 #include <vector>
 
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/plonk/halo2/argument.h"
+#include "tachyon/zk/lookup/halo2/prover.h"
+#include "tachyon/zk/plonk/halo2/argument_data.h"
 #include "tachyon/zk/plonk/halo2/c_prover_impl_base_forward.h"
 #include "tachyon/zk/plonk/halo2/random_field_generator.h"
 #include "tachyon/zk/plonk/halo2/verifier.h"
+#include "tachyon/zk/plonk/permutation/permutation_prover.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_prover.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
@@ -25,6 +28,8 @@ class Prover : public ProverBase<PCS> {
   using F = typename PCS::Field;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
+  using Domain = typename PCS::Domain;
+  using ExtendedPoly = typename PCS::ExtendedPoly;
   using ExtendedEvals = typename PCS::ExtendedEvals;
   using Commitment = typename PCS::Commitment;
 
@@ -114,10 +119,6 @@ class Prover : public ProverBase<PCS> {
 
   void CreateProof(ProvingKey<Poly, Evals, Commitment>& proving_key,
                    ArgumentData<Poly, Evals>* argument_data) {
-    using ExtendedPoly = typename PCS::ExtendedPoly;
-
-    Argument<Poly, Evals> argument(&proving_key.fixed_columns(),
-                                   &proving_key.fixed_polys(), argument_data);
     // NOTE(chokobole): This is an entry point fom Halo2 rust. So this is the
     // earliest time to log constraint system.
     VLOG(1) << "PCS name: " << this->pcs_.Name() << ", k: " << this->pcs_.K()
@@ -129,46 +130,197 @@ class Prover : public ProverBase<PCS> {
     VLOG(1) << "Halo2 Constraint System: "
             << proving_key.verifying_key().constraint_system().ToString();
 
+    size_t num_circuits = argument_data->GetNumCircuits();
+    std::vector<lookup::halo2::Prover<Poly, Evals>> lookup_provers(
+        num_circuits);
+    std::vector<PermutationProver<Poly, Evals>> permutation_provers(
+        num_circuits);
+    VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals> vanishing_prover;
+    const ConstraintSystem<F>& cs =
+        proving_key.verifying_key().constraint_system();
+    const Domain* domain = this->domain();
+
     crypto::TranscriptWriter<Commitment>* writer = this->GetWriter();
     F theta = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(theta): " << theta.ToHexString(true);
-    std::vector<std::vector<LookupPermuted<Poly, Evals>>> permuted_lookups_vec =
-        argument.PermuteLookupsStep(
-            this, proving_key.verifying_key().constraint_system(), theta);
+
+    std::vector<RefTable<Evals>> column_tables =
+        argument_data->ExportColumnTables(proving_key.fixed_columns());
+
+    lookup::halo2::Prover<Poly, Evals>::BatchCompressPairs(
+        lookup_provers, domain, cs.lookups(), theta, column_tables,
+        argument_data->GetChallenges());
+    lookup::halo2::Prover<Poly, Evals>::BatchPermutePairs(lookup_provers, this);
+
+    if constexpr (PCS::kSupportsBatchMode) {
+      this->pcs_.SetBatchMode(
+          lookup::halo2::Prover<Poly, Evals>::GetNumPermutedPairsCommitments(
+              lookup_provers));
+    }
+    size_t commit_idx = 0;
+    lookup::halo2::Prover<Poly, Evals>::BatchCommitPermutedPairs(
+        lookup_provers, this, commit_idx);
+    if constexpr (PCS::kSupportsBatchMode) {
+      this->RetrieveAndWriteBatchCommitmentsToProof();
+    }
 
     F beta = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(beta): " << beta.ToHexString(true);
     F gamma = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(gamma): " << gamma.ToHexString(true);
-    StepReturns<PermutationCommitted<Poly>, LookupCommitted<Poly>,
-                VanishingCommitted<Poly>>
-        committed_result = argument.CommitCircuitStep(
-            this, proving_key.verifying_key().constraint_system(),
-            proving_key.permutation_proving_key(),
-            std::move(permuted_lookups_vec), beta, gamma);
+
+    PermutationProver<Poly, Evals>::BatchCreateGrandProductPolys(
+        permutation_provers, this, cs.permutation(), column_tables,
+        cs.ComputeDegree(), proving_key.permutation_proving_key(), beta, gamma);
+    lookup::halo2::Prover<Poly, Evals>::BatchCreateGrandProductPolys(
+        lookup_provers, this, beta, gamma);
+    vanishing_prover.CreateRandomPoly(this);
+
+    if constexpr (PCS::kSupportsBatchMode) {
+      this->pcs_.SetBatchMode(
+          PermutationProver<Poly, Evals>::GetNumGrandProductPolysCommitments(
+              permutation_provers) +
+          lookup::halo2::Prover<
+              Poly, Evals>::GetNumGrandProductPolysCommitments(lookup_provers) +
+          VanishingProver<Poly, Evals, ExtendedPoly,
+                          ExtendedEvals>::GetNumRandomPolyCommitment());
+    }
+    commit_idx = 0;
+    PermutationProver<Poly, Evals>::BatchCommitGrandProductPolys(
+        permutation_provers, this, commit_idx);
+    lookup::halo2::Prover<Poly, Evals>::BatchCommitGrandProductPolys(
+        lookup_provers, this, commit_idx);
+    vanishing_prover.CommitRandomPoly(this, commit_idx);
+    if constexpr (PCS::kSupportsBatchMode) {
+      this->RetrieveAndWriteBatchCommitmentsToProof();
+    }
 
     F y = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(y): " << y.ToHexString(true);
-    argument.TransformAdvice(this->domain());
-    argument.DeallocateAllColumnsVec();
-    ExtendedEvals circuit_column = argument.GenerateCircuitPolynomial(
-        this, proving_key, committed_result, beta, gamma, theta, y);
-    VanishingConstructed<Poly, ExtendedPoly> constructed_vanishing =
-        CommitFinalHPoly(this, std::move(committed_result).TakeVanishing(),
-                         proving_key.verifying_key(), circuit_column);
+
+    argument_data->TransformEvalsToPoly(domain);
+    PermutationProver<Poly, Evals>::TransformEvalsToPoly(permutation_provers,
+                                                         domain);
+    lookup::halo2::Prover<Poly, Evals>::TransformEvalsToPoly(lookup_provers,
+                                                             domain);
+
+    argument_data->DeallocateAllColumnsVec();
+    proving_key.fixed_columns().clear();
+    column_tables.clear();
+
+    std::vector<RefTable<Poly>> poly_tables =
+        argument_data->ExportPolyTables(proving_key.fixed_polys());
+
+    vanishing_prover.CreateHEvals(
+        this, proving_key, poly_tables, argument_data->GetChallenges(), theta,
+        beta, gamma, y, permutation_provers, lookup_provers);
+    vanishing_prover.CreateFinalHPoly(this, cs);
+
+    if constexpr (PCS::kSupportsBatchMode) {
+      this->pcs_.SetBatchMode(
+          VanishingProver<Poly, Evals, ExtendedPoly,
+                          ExtendedEvals>::GetNumFinalHPolyCommitment(cs));
+    }
+    commit_idx = 0;
+    vanishing_prover.CommitFinalHPoly(this, cs, commit_idx);
+    if constexpr (PCS::kSupportsBatchMode) {
+      this->RetrieveAndWriteBatchCommitmentsToProof();
+    }
 
     F x = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(x): " << x.ToHexString(true);
-    StepReturns<PermutationEvaluated<Poly>, LookupEvaluated<Poly>,
-                VanishingEvaluated<Poly>>
-        evaluated_result =
-            argument.EvaluateCircuitStep(this, proving_key, committed_result,
-                                         std::move(constructed_vanishing), x);
+    F x_prev = Rotation::Prev().RotateOmega(domain, x);
+    F x_next = Rotation::Next().RotateOmega(domain, x);
+    Rotation last_rotation =
+        Rotation(-static_cast<int32_t>(this->blinder().blinding_factors() + 1));
+    F x_last = last_rotation.RotateOmega(domain, x);
 
+    PermutationOpeningPointSet<F> permutation_opening_point_set(x, x_next,
+                                                                x_last);
+    lookup::halo2::OpeningPointSet<F> lookup_opening_point_set(x, x_prev,
+                                                               x_next);
+    Evaluate(proving_key, poly_tables, vanishing_prover, permutation_provers,
+             lookup_provers, permutation_opening_point_set,
+             lookup_opening_point_set);
+
+    PointSet<F> point_set;
+    point_set.Insert(x);
+    point_set.Insert(x_prev);
+    point_set.Insert(x_next);
+    point_set.Insert(x_last);
     std::vector<crypto::PolynomialOpening<Poly>> openings =
-        argument.ConstructOpenings(this, proving_key, evaluated_result, x);
-
+        Open(proving_key, poly_tables, vanishing_prover, permutation_provers,
+             lookup_provers, permutation_opening_point_set,
+             lookup_opening_point_set, point_set);
     CHECK(this->pcs_.CreateOpeningProof(openings, this->GetWriter()));
+  }
+
+  void Evaluate(
+      const ProvingKey<Poly, Evals, Commitment>& proving_key,
+      const std::vector<RefTable<Poly>>& poly_tables,
+      VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
+          vanishing_prover,
+      const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
+      const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers,
+      const PermutationOpeningPointSet<F>& permutation_opening_point_set,
+      const lookup::halo2::OpeningPointSet<F>& lookup_opening_point_set) {
+    const ConstraintSystem<F>& constraint_system =
+        proving_key.verifying_key().constraint_system();
+
+    const F& x = permutation_opening_point_set.x;
+    F x_n = x.Pow(this->pcs_.N());
+    vanishing_prover.BatchEvaluate(this, constraint_system, poly_tables, x,
+                                   x_n);
+    PermutationProver<Poly, Evals>::EvaluateProvingKey(
+        this, proving_key.permutation_proving_key(),
+        permutation_opening_point_set);
+    PermutationProver<Poly, Evals>::BatchEvaluate(
+        permutation_provers, this, permutation_opening_point_set);
+    lookup::halo2::Prover<Poly, Evals>::BatchEvaluate(lookup_provers, this,
+                                                      lookup_opening_point_set);
+  }
+
+  std::vector<crypto::PolynomialOpening<Poly>> Open(
+      const ProvingKey<Poly, Evals, Commitment>& proving_key,
+      const std::vector<RefTable<Poly>>& poly_tables,
+      const VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
+          vanishing_prover,
+      const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
+      const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers,
+      const PermutationOpeningPointSet<F>& permutation_opening_point_set,
+      const lookup::halo2::OpeningPointSet<F>& lookup_opening_point_set,
+      PointSet<F>& point_set) const {
+    const ConstraintSystem<F>& constraint_system =
+        proving_key.verifying_key().constraint_system();
+    const Domain* domain = this->domain();
+
+    std::vector<crypto::PolynomialOpening<Poly>> openings;
+    size_t num_circuits = poly_tables.size();
+    size_t size =
+        VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
+            template GetNumOpenings<PCS>(num_circuits, constraint_system) +
+        PermutationProver<Poly, Evals>::GetNumOpenings(
+            permutation_provers, proving_key.permutation_proving_key()) +
+        lookup::halo2::Prover<Poly, Evals>::GetNumOpenings(lookup_provers);
+    openings.reserve(size);
+
+    const F& x = permutation_opening_point_set.x;
+    for (size_t i = 0; i < num_circuits; ++i) {
+      VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
+          template OpenAdviceInstanceColumns<PCS>(domain, constraint_system,
+                                                  poly_tables[i], x, point_set,
+                                                  openings);
+      permutation_provers[i].Open(permutation_opening_point_set, openings);
+      lookup_provers[i].Open(lookup_opening_point_set, openings);
+    }
+    VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::OpenFixedColumns(
+        domain, constraint_system, poly_tables[0], x, point_set, openings);
+    PermutationProver<Poly, Evals>::OpenPermutationProvingKey(
+        proving_key.permutation_proving_key(), permutation_opening_point_set,
+        openings);
+    vanishing_prover.Open(x, openings);
+    CHECK_EQ(openings.size(), size);
+    return openings;
   }
 
   std::unique_ptr<crypto::XORShiftRNG> rng_;

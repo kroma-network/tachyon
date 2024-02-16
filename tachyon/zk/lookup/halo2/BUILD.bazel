@@ -1,0 +1,66 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "compress_expression",
+    hdrs = ["compress_expression.h"],
+    deps = [
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:openmp_util",
+        "//tachyon/zk/expressions/evaluator:simple_evaluator",
+    ],
+)
+
+tachyon_cc_library(
+    name = "opening_point_set",
+    hdrs = ["opening_point_set.h"],
+)
+
+tachyon_cc_library(
+    name = "permute_expression_pair",
+    hdrs = ["permute_expression_pair.h"],
+    deps = [
+        "//tachyon/base/containers:container_util",
+        "//tachyon/zk/base/entities:prover_base",
+        "//tachyon/zk/lookup:lookup_pair",
+        "@com_google_absl//absl/container:btree",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prover",
+    hdrs = [
+        "prover.h",
+        "prover_impl.h",
+    ],
+    deps = [
+        ":compress_expression",
+        ":opening_point_set",
+        ":permute_expression_pair",
+        "//tachyon/base:ref",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/crypto/commitments:polynomial_openings",
+        "//tachyon/zk/base/entities:prover_base",
+        "//tachyon/zk/expressions/evaluator:simple_evaluator",
+        "//tachyon/zk/lookup:lookup_argument",
+        "//tachyon/zk/plonk/base:ref_table",
+        "//tachyon/zk/plonk/permutation:grand_product_argument",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "halo2_unittests",
+    srcs = [
+        "compress_expression_unittest.cc",
+        "permute_expression_pair_unittest.cc",
+    ],
+    deps = [
+        ":compress_expression",
+        ":permute_expression_pair",
+        "//tachyon/base:random",
+        "//tachyon/zk/expressions:expression_factory",
+        "//tachyon/zk/lookup/halo2/test:compress_expression_test",
+    ],
+)

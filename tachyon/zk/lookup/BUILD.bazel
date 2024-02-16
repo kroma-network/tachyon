@@ -1,16 +1,6 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
-
-tachyon_cc_library(
-    name = "compress_expression",
-    hdrs = ["compress_expression.h"],
-    deps = [
-        "//tachyon/base:compiler_specific",
-        "//tachyon/base:openmp_util",
-        "//tachyon/zk/expressions/evaluator:simple_evaluator",
-    ],
-)
 
 tachyon_cc_library(
     name = "lookup_argument",
@@ -22,53 +12,9 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "lookup_argument_runner",
-    hdrs = [
-        "lookup_argument_runner.h",
-        "lookup_argument_runner_impl.h",
-    ],
-    deps = [
-        ":compress_expression",
-        ":lookup_argument",
-        ":lookup_committed",
-        ":lookup_evaluated",
-        ":lookup_permuted",
-        "//tachyon/base:ref",
-        "//tachyon/crypto/commitments:polynomial_openings",
-        "//tachyon/zk/base:point_set",
-        "//tachyon/zk/base:rotation",
-        "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/expressions/evaluator:simple_evaluator",
-        "//tachyon/zk/lookup:permute_expression_pair",
-        "//tachyon/zk/plonk/permutation:grand_product_argument",
-    ],
-)
-
-tachyon_cc_library(
-    name = "lookup_committed",
-    hdrs = ["lookup_committed.h"],
-    deps = ["//tachyon/zk/base:blinded_polynomial"],
-)
-
-tachyon_cc_library(
-    name = "lookup_evaluated",
-    hdrs = ["lookup_evaluated.h"],
-    deps = ["//tachyon/zk/base:blinded_polynomial"],
-)
-
-tachyon_cc_library(
     name = "lookup_pair",
     hdrs = ["lookup_pair.h"],
     deps = ["//tachyon/base/json"],
-)
-
-tachyon_cc_library(
-    name = "lookup_permuted",
-    hdrs = ["lookup_permuted.h"],
-    deps = [
-        ":lookup_pair",
-        "//tachyon/zk/base:blinded_polynomial",
-    ],
 )
 
 tachyon_cc_library(
@@ -88,33 +34,5 @@ tachyon_cc_library(
         ":lookup_verification_data",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/plonk/vanishing:vanishing_verification_evaluator",
-    ],
-)
-
-tachyon_cc_library(
-    name = "permute_expression_pair",
-    hdrs = ["permute_expression_pair.h"],
-    deps = [
-        ":lookup_pair",
-        "//tachyon/base/containers:container_util",
-        "//tachyon/zk/base/entities:prover_base",
-        "@com_google_absl//absl/container:btree",
-    ],
-)
-
-tachyon_cc_unittest(
-    name = "lookup_unittests",
-    srcs = [
-        "compress_expression_unittest.cc",
-        "lookup_argument_runner_unittest.cc",
-        "permute_expression_pair_unittest.cc",
-    ],
-    deps = [
-        ":compress_expression",
-        ":lookup_argument_runner",
-        ":permute_expression_pair",
-        "//tachyon/base:random",
-        "//tachyon/zk/expressions:expression_factory",
-        "//tachyon/zk/lookup/test:compress_expression_test",
     ],
 )

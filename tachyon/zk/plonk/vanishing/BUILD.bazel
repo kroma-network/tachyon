@@ -25,13 +25,12 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/numerics:checked_math",
         "//tachyon/zk/base:rotation",
-        "//tachyon/zk/lookup:lookup_committed",
+        "//tachyon/zk/lookup/halo2:prover",
         "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/base:owned_table",
         "//tachyon/zk/plonk/base:ref_table",
         "//tachyon/zk/plonk/keys:proving_key_forward",
-        "//tachyon/zk/plonk/permutation:permutation_committed",
-        "//tachyon/zk/plonk/permutation:unpermuted_table",
+        "//tachyon/zk/plonk/permutation:permutation_prover",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -62,22 +61,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "prover_vanishing_argument",
-    hdrs = ["prover_vanishing_argument.h"],
-    deps = [
-        ":vanishing_committed",
-        ":vanishing_constructed",
-        ":vanishing_evaluated",
-        ":vanishing_utils",
-        "//tachyon/base:parallelize",
-        "//tachyon/crypto/commitments:polynomial_openings",
-        "//tachyon/crypto/transcripts:transcript",
-        "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/plonk/keys:verifying_key",
-    ],
-)
-
-tachyon_cc_library(
     name = "value_source",
     srcs = ["value_source.cc"],
     hdrs = ["value_source.h"],
@@ -101,20 +84,24 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "vanishing_committed",
-    hdrs = ["vanishing_committed.h"],
-)
-
-tachyon_cc_library(
-    name = "vanishing_constructed",
-    hdrs = ["vanishing_constructed.h"],
-    deps = [":vanishing_committed"],
-)
-
-tachyon_cc_library(
-    name = "vanishing_evaluated",
-    hdrs = ["vanishing_evaluated.h"],
-    deps = [":vanishing_committed"],
+    name = "vanishing_prover",
+    hdrs = [
+        "vanishing_prover.h",
+        "vanishing_prover_impl.h",
+    ],
+    deps = [
+        ":vanishing_argument",
+        "//tachyon/base:parallelize",
+        "//tachyon/crypto/commitments:polynomial_openings",
+        "//tachyon/zk/base:blinded_polynomial",
+        "//tachyon/zk/base:point_set",
+        "//tachyon/zk/base/entities:prover_base",
+        "//tachyon/zk/lookup/halo2:prover",
+        "//tachyon/zk/plonk/base:ref_table",
+        "//tachyon/zk/plonk/keys:proving_key",
+        "//tachyon/zk/plonk/permutation:permutation_prover",
+        "@com_google_absl//absl/types:span",
+    ],
 )
 
 tachyon_cc_library(

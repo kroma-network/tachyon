@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -29,10 +29,4 @@ tachyon_cc_library(
     name = "verifier_base",
     hdrs = ["verifier_base.h"],
     deps = [":entity"],
-)
-
-tachyon_cc_unittest(
-    name = "entities_unittests",
-    srcs = ["prover_base_unittest.cc"],
-    deps = ["//tachyon/zk/plonk/halo2:prover_test"],
 )

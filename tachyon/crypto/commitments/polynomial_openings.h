@@ -1,10 +1,12 @@
 #ifndef TACHYON_CRYPTO_COMMITMENTS_POLYNOMIAL_OPENINGS_H_
 #define TACHYON_CRYPTO_COMMITMENTS_POLYNOMIAL_OPENINGS_H_
 
+#include <string>
 #include <utility>
 #include <vector>
 
 #include "absl/container/btree_set.h"
+#include "absl/strings/substitute.h"
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
@@ -36,6 +38,31 @@ struct PolynomialOpening {
   PolynomialOpening(base::Ref<const PolyOracle> poly_oracle,
                     base::DeepRef<const Point> point, Field&& opening)
       : poly_oracle(poly_oracle), point(point), opening(std::move(opening)) {}
+
+  std::string ToString() const {
+    if constexpr (std::is_same_v<Poly, PolyOracle>) {
+      return absl::Substitute("{poly: $0, point: $1, opening: $2}",
+                              poly_oracle->ToString(), point->ToString(),
+                              opening.ToString());
+    } else {
+      return absl::Substitute("{commitment: $0, point: $1, opening: $2}",
+                              poly_oracle->ToString(), point->ToString(),
+                              opening.ToString());
+    }
+  }
+
+  std::string ToHexString(bool pad_zero = false) const {
+    if constexpr (std::is_same_v<Poly, PolyOracle>) {
+      return absl::Substitute(
+          "{poly: $0, point: $1, opening: $2}", poly_oracle->ToString(),
+          point->ToHexString(pad_zero), opening.ToHexString(pad_zero));
+    } else {
+      return absl::Substitute("{commitment: $0, point: $1, opening: $2}",
+                              poly_oracle->ToHexString(pad_zero),
+                              point->ToHexString(pad_zero),
+                              opening.ToHexString(pad_zero));
+    }
+  }
 };
 
 // A single polynomial oracle with multi openings.

@@ -110,6 +110,8 @@ class TACHYON_EXPORT PermutationAssembly {
   template <typename Evals, typename Domain>
   std::vector<Evals> GeneratePermutations(const Domain* domain) const {
     CHECK_EQ(domain->size(), size_t{rows_});
+    // TODO(chokobole): This should be changed to be created just once, but this
+    // is created again in `permutation_argument_runner_impl.h`.
     UnpermutedTable<Evals> unpermuted_table =
         UnpermutedTable<Evals>::Construct(columns_.size(), rows_, domain);
 
