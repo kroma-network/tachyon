@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
-#include "tachyon/base/parallelize.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
@@ -116,14 +115,12 @@ class PermutationProver {
   void Evaluate(ProverBase<PCS>* prover,
                 const PermutationOpeningPointSet<F>& point_set) const;
 
-  static std::function<base::ParallelizeCallback3<F>(size_t)>
-  CreateNumeratorCallback(
+  static std::function<F(size_t, RowIndex)> CreateNumeratorCallback(
       const std::vector<base::Ref<const Evals>>& unpermuted_columns,
       const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
       const F& gamma);
 
-  static std::function<base::ParallelizeCallback3<F>(size_t)>
-  CreateDenominatorCallback(
+  static std::function<F(size_t, RowIndex)> CreateDenominatorCallback(
       const std::vector<base::Ref<const Evals>>& permuted_columns,
       const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
       const F& gamma);

@@ -152,10 +152,10 @@ class Prover {
   void Evaluate(ProverBase<PCS>* prover,
                 const OpeningPointSet<F>& point_set) const;
 
-  static base::ParallelizeCallback3<F> CreateNumeratorCallback(
+  static std::function<F(RowIndex)> CreateNumeratorCallback(
       const LookupPair<Evals>& compressed_pair, const F& beta, const F& gamma);
 
-  static base::ParallelizeCallback3<F> CreateDenominatorCallback(
+  static std::function<F(RowIndex)> CreateDenominatorCallback(
       const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair,
       const F& beta, const F& gamma);
 
