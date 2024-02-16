@@ -20,7 +20,8 @@ namespace tachyon::zk::plonk {
 
 class TACHYON_EXPORT RegionColumn {
  public:
-  // NOTE(TomTaehoonKim): THE ORDER OF ELEMENTS ARE IMPORTANT!! DO NOT CHANGE!
+  // THE ORDER OF ELEMENTS ARE IMPORTANT!! DO NOT CHANGE!
+  // The comparison operator depends on the order of elements.
   enum class Type {
     kColumn,
     kSelector,

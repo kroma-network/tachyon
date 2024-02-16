@@ -17,7 +17,9 @@ namespace tachyon::zk::plonk {
 // As the names denotes, |kFixed|, |kAdvice| and |kInstance| types
 // represent fixed, advice and instance columns.
 // |kAny| type of column can be either fixed, advice or instance column
-// NOTE(TomTaehoonKim): THE ORDER OF ELEMENTS ARE IMPORTANT!! DO NOT CHANGE!
+// THE ORDER OF ELEMENTS ARE IMPORTANT!! DO NOT CHANGE!
+// The comparison operator depends on the order of elements.
+// Please refer to tachyon/zk/plonk/base/column_key.h for details.
 enum class ColumnType {
   kAny,
   kInstance,
