@@ -73,13 +73,11 @@ class KZG {
   }
 
   [[nodiscard]] bool UnsafeSetup(size_t size, const Field& tau) {
-    using G1JacobianPoint = math::JacobianPoint<typename G1Point::Curve>;
     using Domain = math::UnivariateEvaluationDomain<Field, kMaxDegree>;
 
     // |g1_powers_of_tau_| = [𝜏⁰g₁, 𝜏¹g₁, ... , 𝜏ⁿ⁻¹g₁]
     G1Point g1 = G1Point::Generator();
     std::vector<Field> powers_of_tau = Field::GetSuccessivePowers(size, tau);
-    std::vector<G1JacobianPoint> g1_powers_of_tau_jacobian;
 
     g1_powers_of_tau_.resize(size);
     if (!G1Point::BatchMapScalarFieldToPoint(g1, powers_of_tau,
@@ -91,7 +89,6 @@ class KZG {
     std::unique_ptr<Domain> domain = Domain::Create(size);
     std::vector<Field> lagrange_coeffs =
         domain->EvaluateAllLagrangeCoefficients(tau);
-    std::vector<G1JacobianPoint> g1_powers_of_tau_lagrange_jacobian;
 
     g1_powers_of_tau_lagrange_.resize(size);
     return G1Point::BatchMapScalarFieldToPoint(g1, lagrange_coeffs,
