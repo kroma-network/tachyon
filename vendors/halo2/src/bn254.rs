@@ -11,7 +11,8 @@ use halo2_proofs::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
 };
-use halo2curves::{Coordinates, CurveAffine};
+use halo2curves::{Coordinates, CurveAffine, FieldExt};
+use num_bigint::BigUint;
 
 use tachyon_rs::math::elliptic_curves::bn::bn254::{
     Fr as FrImpl, G1JacobianPoint as G1JacobianPointImpl, G1Point2 as G1Point2Impl,
@@ -76,6 +77,17 @@ pub mod ffi {
         fn new_blake2b_writer() -> UniquePtr<Blake2bWriter>;
         fn update(self: Pin<&mut Blake2bWriter>, data: &[u8]);
         fn finalize(self: Pin<&mut Blake2bWriter>, result: &mut [u8; 64]);
+        fn state(&self) -> Vec<u8>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_poseidon_writer.h");
+
+        type PoseidonWriter;
+
+        fn new_poseidon_writer() -> UniquePtr<PoseidonWriter>;
+        fn update(self: Pin<&mut PoseidonWriter>, data: &[u8]);
+        fn squeeze(self: Pin<&mut PoseidonWriter>) -> Box<Fr>;
         fn state(&self) -> Vec<u8>;
     }
 
@@ -249,6 +261,123 @@ impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
     fn finalize(self) -> W {
         // TODO: handle outstanding scalars? see issue #138
         self.writer
+    }
+}
+
+pub struct PoseidonWrite<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
+    state: cxx::UniquePtr<ffi::PoseidonWriter>,
+    writer: W,
+    _marker: PhantomData<(W, C, E)>,
+}
+
+fn field_to_bn<F: FieldExt>(f: &F) -> BigUint {
+    BigUint::from_bytes_le(f.to_repr().as_ref())
+}
+
+/// Input a big integer `bn`, compute a field element `f`
+/// such that `f == bn % F::MODULUS`.
+fn bn_to_field<F: FieldExt>(bn: &BigUint) -> F {
+    let mut buf = bn.to_bytes_le();
+    buf.resize(64, 0u8);
+
+    let mut buf_array = [0u8; 64];
+    buf_array.copy_from_slice(buf.as_ref());
+    F::from_bytes_wide(&buf_array)
+}
+
+/// Input a base field element `b`, output a scalar field
+/// element `s` s.t. `s == b % ScalarField::MODULUS`
+fn base_to_scalar<C: CurveAffine>(base: &C::Base) -> C::Scalar {
+    let bn = field_to_bn(base);
+    // bn_to_field will perform a mod reduction
+    bn_to_field(&bn)
+}
+
+impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
+    for PoseidonWrite<W, C, Challenge255<C>>
+{
+    fn squeeze_challenge(&mut self) -> Challenge255<C> {
+        let scalar = *unsafe {
+            std::mem::transmute::<_, Box<halo2curves::bn256::Fr>>(self.state.pin_mut().squeeze())
+        };
+        let mut scalar_bytes = scalar.to_repr().as_ref().to_vec();
+        scalar_bytes.resize(64, 0u8);
+        Challenge255::<C>::new(&scalar_bytes.try_into().unwrap())
+    }
+
+    fn common_point(&mut self, point: C) -> io::Result<()> {
+        let coords: Coordinates<C> = Option::from(point.coordinates()).ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                "cannot write points at infinity to the transcript",
+            )
+        })?;
+        let x = coords.x();
+        let y = coords.y();
+        let slice = &[base_to_scalar::<C>(x), base_to_scalar::<C>(y)];
+        let bytes = std::mem::size_of::<C::Scalar>() * 2;
+        unsafe {
+            self.state.pin_mut().update(std::slice::from_raw_parts(
+                slice.as_ptr() as *const u8,
+                bytes,
+            ));
+        }
+
+        Ok(())
+    }
+
+    fn common_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        let slice = &[scalar];
+        let bytes = std::mem::size_of::<C::Scalar>();
+        unsafe {
+            self.state.pin_mut().update(std::slice::from_raw_parts(
+                slice.as_ptr() as *const u8,
+                bytes,
+            ));
+        }
+
+        Ok(())
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
+    for PoseidonWrite<W, C, Challenge255<C>>
+{
+    fn write_point(&mut self, point: C) -> io::Result<()> {
+        self.common_point(point)?;
+        let compressed = point.to_bytes();
+        self.writer.write_all(compressed.as_ref())
+    }
+
+    fn write_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        self.common_scalar(scalar)?;
+        let data = scalar.to_repr();
+        self.writer.write_all(data.as_ref())
+    }
+}
+
+impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>> PoseidonWrite<W, C, E> {
+    /// Initialize a transcript given an output buffer.
+    pub fn init(writer: W) -> Self {
+        PoseidonWrite {
+            state: ffi::new_poseidon_writer(),
+            writer,
+            _marker: PhantomData,
+        }
+    }
+
+    /// Conclude the interaction and return the output buffer (writer).
+    pub fn finalize(self) -> W {
+        // TODO: handle outstanding scalars? see issue #138
+        self.writer
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
+    for PoseidonWrite<W, C, Challenge255<C>>
+{
+    fn state(&self) -> Vec<u8> {
+        self.state.state()
     }
 }
 

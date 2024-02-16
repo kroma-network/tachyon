@@ -1034,6 +1034,7 @@ dependencies = [
  "ff",
  "halo2_proofs",
  "halo2curves",
+ "num-bigint",
  "rand_core 0.6.4",
  "rand_xorshift",
  "tachyon_rs",

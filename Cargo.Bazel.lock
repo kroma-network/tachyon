@@ -1,5 +1,5 @@
 {
-  "checksum": "78504ed4df18400abd203d18dab21dca96cf3f1017e238f4f1c4f87bac1d1cfb",
+  "checksum": "f4a4114270e5961f9718a7898b69211d4bb78f95084f307c689ae1a19570c560",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -5671,6 +5671,10 @@
             {
               "id": "halo2curves 0.3.1",
               "target": "halo2curves"
+            },
+            {
+              "id": "num-bigint 0.4.3",
+              "target": "num_bigint"
             },
             {
               "id": "rand_core 0.6.4",

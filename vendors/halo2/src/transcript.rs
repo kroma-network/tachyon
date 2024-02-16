@@ -2,11 +2,14 @@
 mod test {
     use std::io;
 
-    use crate::bn254::{Blake2bWrite as TachyonBlake2bWrite, TranscriptWriteState};
+    use crate::bn254::{
+        Blake2bWrite as TachyonBlake2bWrite, PoseidonWrite as TachyonPoseidonWrite,
+        TranscriptWriteState,
+    };
     use ff::Field;
     use halo2_proofs::transcript::{
-        Blake2bWrite, Challenge255, ChallengeScalar, EncodedChallenge, TranscriptWrite,
-        TranscriptWriterBuffer,
+        Blake2bWrite, Challenge255, ChallengeScalar, EncodedChallenge, PoseidonWrite,
+        TranscriptWrite, TranscriptWriterBuffer,
     };
     use halo2curves::{
         bn256::{Bn256, Fr, G1Affine},
@@ -101,7 +104,7 @@ mod test {
     }
 
     #[test]
-    fn test_state() {
+    fn test_blake2b_state() {
         let transcript = TachyonBlake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
         assert_eq!(
             transcript.state(),
@@ -116,6 +119,78 @@ mod test {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0
+            ]
+        );
+    }
+
+    #[test]
+    fn test_poseidon_write_scalar_to_proof() {
+        let fr = Fr::random(OsRng);
+        let proof = {
+            let mut transcript = PoseidonWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
+            write_scalar_to_proof::<Bn256, _, _>(&mut transcript, fr.clone()).unwrap();
+            transcript.finalize()
+        };
+        let proof_tachyon = {
+            let mut transcript = TachyonPoseidonWrite::init(vec![]);
+            write_scalar_to_proof::<Bn256, _, _>(&mut transcript, fr).unwrap();
+            transcript.finalize()
+        };
+        assert_eq!(proof, proof_tachyon);
+    }
+
+    #[test]
+    fn test_poseidon_write_point_to_proof() {
+        let point = G1Affine::random(OsRng);
+        let proof = {
+            let mut transcript = PoseidonWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
+            write_point_to_proof::<Bn256, _, _>(&mut transcript, point.clone()).unwrap();
+            transcript.finalize()
+        };
+        let proof_tachyon = {
+            let mut transcript = TachyonPoseidonWrite::init(vec![]);
+            write_point_to_proof::<Bn256, _, _>(&mut transcript, point).unwrap();
+            transcript.finalize()
+        };
+        assert_eq!(proof, proof_tachyon);
+    }
+
+    #[test]
+    fn test_poseidon_squeeze_challenge() {
+        let point = G1Affine::random(OsRng);
+        let theta = {
+            let mut transcript = PoseidonWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
+            write_point_to_proof::<Bn256, _, _>(&mut transcript, point.clone()).unwrap();
+            let theta = squeeze_challenge::<Bn256, _, _>(&mut transcript);
+            *theta
+        };
+        let theta_tachyon = {
+            let mut transcript = TachyonPoseidonWrite::init(vec![]);
+            write_point_to_proof::<Bn256, _, _>(&mut transcript, point).unwrap();
+            let theta = squeeze_challenge::<Bn256, _, _>(&mut transcript);
+            *theta
+        };
+        assert_eq!(theta, theta_tachyon);
+    }
+
+    #[test]
+    fn test_poseidon_state() {
+        let transcript = TachyonPoseidonWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
+        assert_eq!(
+            transcript.state(),
+            vec![
+                9, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             ]
         );
     }

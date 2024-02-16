@@ -20,6 +20,7 @@ tachyon_rust_library(
         ":bn254_msm",
         ":bn254_msm_gpu",
         ":bn254_poly",
+        ":bn254_poseidon_writer",
         ":bn254_proving_key",
         ":bn254_rational_evals",
         ":bn254_shplonk_prover",
@@ -75,6 +76,7 @@ tachyon_cc_library(
         "include/bn254_msm.h",
         "include/bn254_msm_gpu.h",
         "include/bn254_poly.h",
+        "include/bn254_poseidon_writer.h",
         "include/bn254_proving_key.h",
         "include/bn254_rational_evals.h",
         "include/bn254_shplonk_prover.h",
@@ -132,6 +134,15 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "bn254_poly",
     srcs = ["src/bn254_poly.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_poseidon_writer",
+    srcs = ["src/bn254_poseidon_writer.cc"],
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
