@@ -8,7 +8,6 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/zk/base/row_index.h"
 #include "tachyon/zk/plonk/constraint_system/circuit.h"
 
 namespace tachyon::zk::plonk {

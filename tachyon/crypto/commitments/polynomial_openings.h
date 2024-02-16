@@ -39,6 +39,14 @@ struct PolynomialOpening {
                     base::DeepRef<const Point> point, Field&& opening)
       : poly_oracle(poly_oracle), point(point), opening(std::move(opening)) {}
 
+  bool operator==(const PolynomialOpening& other) const {
+    return poly_oracle == other.poly_oracle && point == other.point &&
+           opening == other.opening;
+  }
+  bool operator!=(const PolynomialOpening& other) const {
+    return !operator==(other);
+  }
+
   std::string ToString() const {
     if constexpr (std::is_same_v<Poly, PolyOracle>) {
       return absl::Substitute("{poly: $0, point: $1, opening: $2}",
@@ -79,6 +87,13 @@ struct PolynomialOpenings {
   PolynomialOpenings(base::Ref<const PolyOracle> poly_oracle,
                      std::vector<Field>&& openings)
       : poly_oracle(poly_oracle), openings(std::move(openings)) {}
+
+  bool operator==(const PolynomialOpenings& other) const {
+    return poly_oracle == other.poly_oracle && openings == other.openings;
+  }
+  bool operator!=(const PolynomialOpenings& other) const {
+    return !operator==(other);
+  }
 };
 
 // Multi polynomial oracles with multi openings grouped by shared points.
@@ -107,6 +122,14 @@ struct GroupedPolynomialOpenings {
     std::vector<Point> owned_points = CreateOwnedPoints();
     low_degree_extensions = CreateLowDegreeExtensions(owned_points);
     return CombineLowDegreeExtensions(r, owned_points, low_degree_extensions);
+  }
+
+  bool operator==(const GroupedPolynomialOpenings& other) const {
+    return poly_openings_vec == other.poly_openings_vec &&
+           point_refs == other.point_refs;
+  }
+  bool operator!=(const GroupedPolynomialOpenings& other) const {
+    return !operator==(other);
   }
 
  private:
@@ -174,6 +197,32 @@ class PolynomialOpeningGrouper {
     return super_point_set_;
   }
 
+  // Used by GWC.
+  void GroupBySinglePoint(
+      const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
+    for (const PolynomialOpening<Poly, PolyOracle>& poly_opening :
+         poly_openings) {
+      super_point_set_.insert(poly_opening.point);
+
+      auto it = std::find_if(
+          grouped_poly_openings_vec_.begin(), grouped_poly_openings_vec_.end(),
+          [&poly_opening](const GroupedPolynomialOpenings<Poly, PolyOracle>&
+                              grouped_poly_openings) {
+            return grouped_poly_openings.point_refs[0] == poly_opening.point;
+          });
+
+      PolynomialOpenings<Poly, PolyOracle> poly_openings(
+          poly_opening.poly_oracle, {poly_opening.opening});
+      if (it != grouped_poly_openings_vec_.end()) {
+        it->poly_openings_vec.push_back(std::move(poly_openings));
+      } else {
+        grouped_poly_openings_vec_.push_back(
+            {{std::move(poly_openings)}, {poly_opening.point}});
+      }
+    }
+  }
+
+  // Used by SHPlonk.
   void GroupByPolyOracleAndPoints(
       const std::vector<PolynomialOpening<Poly, PolyOracle>>& poly_openings) {
     // Group |poly_openings| by polynomial.

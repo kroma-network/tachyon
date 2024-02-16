@@ -15,25 +15,22 @@
 
 namespace tachyon::zk::plonk::halo2 {
 
+constexpr size_t kMaxDegree = (size_t{1} << 5) - 1;
+constexpr size_t kMaxDomainSize = kMaxDegree + 1;
+constexpr size_t kMaxExtendedDegree = (size_t{1} << 7) - 1;
+constexpr size_t kMaxExtendedDomainSize = kMaxExtendedDegree + 1;
+
+template <typename PCS>
 class ProverTest : public testing::Test {
  public:
-  constexpr static size_t kMaxDegree = (size_t{1} << 5) - 1;
-  constexpr static size_t kMaxDomainSize = kMaxDegree + 1;
-  constexpr static size_t kMaxExtendedDegree = (size_t{1} << 7) - 1;
-  constexpr static size_t kMaxExtendedDomainSize = kMaxExtendedDegree + 1;
-
-  using PCS = SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
-                               kMaxExtendedDegree, math::bn254::G1AffinePoint>;
-  using F = PCS::Field;
-  using Commitment = PCS::Commitment;
-  using Poly = PCS::Poly;
-  using Evals = PCS::Evals;
-  using RationalEvals = PCS::RationalEvals;
-  using Domain = PCS::Domain;
-  using ExtendedDomain = PCS::ExtendedDomain;
-  using ExtendedEvals = PCS::ExtendedEvals;
-
-  static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+  using RationalEvals = typename PCS::RationalEvals;
+  using Domain = typename PCS::Domain;
+  using ExtendedDomain = typename PCS::ExtendedDomain;
+  using ExtendedEvals = typename PCS::ExtendedEvals;
 
   void SetUp() override {
     PCS pcs;

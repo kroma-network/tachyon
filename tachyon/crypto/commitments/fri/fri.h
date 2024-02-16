@@ -86,7 +86,7 @@ class FRI final
   }
 
   [[nodiscard]] bool DoCreateOpeningProof(size_t index,
-                                          FRIProof<F>* fri_proof) const {
+                                          FRIProof<F>* fri_proof) {
     size_t domain_size = domain_->size();
     uint32_t num_layers = domain_->log_size_of_group();
     for (uint32_t i = 0; i < num_layers; ++i) {

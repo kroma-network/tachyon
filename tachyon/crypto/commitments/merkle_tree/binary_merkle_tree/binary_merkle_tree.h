@@ -86,8 +86,8 @@ class BinaryMerkleTree final
     return true;
   }
 
-  [[nodiscard]] bool DoCreateOpeningProof(
-      size_t index, BinaryMerkleProof<Hash>* proof) const {
+  [[nodiscard]] bool DoCreateOpeningProof(size_t index,
+                                          BinaryMerkleProof<Hash>* proof) {
     size_t size = storage_->GetSize();
     index = (size >> 1) + index;
     proof->paths.resize(base::bits::Log2Floor(size));

@@ -6,6 +6,9 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
+#include "tachyon/zk/base/commitments/gwc_extension.h"
+#include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/examples/circuit_test.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
@@ -16,7 +19,7 @@ namespace tachyon::zk::plonk::halo2 {
 
 namespace {
 
-constexpr uint8_t kExpectedProof[] = {
+constexpr uint8_t kSHPlonkExpectedProof[] = {
     122, 117, 229, 163, 114, 52,  159, 223, 87,  191, 210, 4,   56,  250, 59,
     18,  206, 131, 78,  129, 60,  202, 130, 174, 203, 80,  0,   221, 190, 150,
     199, 170, 97,  250, 239, 195, 165, 188, 251, 230, 129, 105, 212, 209, 41,
@@ -82,8 +85,78 @@ constexpr uint8_t kExpectedProof[] = {
     72,  67,  69,  61,  133, 160, 71,  211, 240, 160, 254, 68,  206, 47,  27,
     164, 205, 166, 188, 172, 123, 134, 154, 35,  148, 250, 50,  159, 23,  168};
 
+constexpr uint8_t kGWCExpectedProof[] = {
+    122, 117, 229, 163, 114, 52,  159, 223, 87,  191, 210, 4,   56,  250, 59,
+    18,  206, 131, 78,  129, 60,  202, 130, 174, 203, 80,  0,   221, 190, 150,
+    199, 170, 97,  250, 239, 195, 165, 188, 251, 230, 129, 105, 212, 209, 41,
+    124, 75,  202, 166, 142, 57,  16,  160, 164, 175, 119, 80,  96,  210, 1,
+    220, 55,  229, 150, 176, 0,   127, 136, 63,  27,  146, 170, 55,  152, 223,
+    250, 131, 165, 92,  170, 126, 214, 34,  187, 172, 236, 248, 250, 195, 21,
+    121, 118, 69,  108, 167, 132, 242, 42,  222, 129, 23,  144, 206, 50,  2,
+    128, 3,   44,  222, 217, 223, 35,  228, 184, 246, 76,  34,  146, 170, 5,
+    127, 243, 140, 134, 59,  224, 63,  139, 97,  91,  176, 229, 208, 22,  81,
+    76,  102, 212, 230, 42,  248, 115, 0,   57,  161, 155, 76,  46,  222, 63,
+    50,  191, 169, 117, 109, 77,  100, 113, 115, 163, 219, 109, 33,  128, 52,
+    174, 106, 188, 197, 159, 82,  64,  13,  77,  214, 88,  94,  3,   59,  239,
+    242, 15,  57,  52,  184, 96,  8,   195, 219, 8,   28,  165, 23,  155, 225,
+    52,  2,   100, 158, 139, 3,   255, 216, 141, 144, 92,  148, 43,  245, 117,
+    105, 244, 203, 45,  169, 199, 189, 108, 165, 254, 123, 192, 88,  166, 183,
+    219, 170, 20,  145, 67,  54,  188, 84,  208, 144, 229, 73,  102, 239, 199,
+    192, 67,  84,  125, 77,  150, 208, 152, 34,  245, 28,  245, 53,  241, 240,
+    142, 238, 116, 44,  171, 9,   62,  209, 106, 14,  52,  209, 60,  194, 175,
+    33,  157, 149, 131, 25,  211, 81,  22,  167, 97,  84,  92,  7,   120, 171,
+    195, 156, 29,  78,  254, 1,   92,  9,   249, 182, 255, 222, 133, 161, 215,
+    117, 56,  201, 12,  65,  236, 138, 136, 207, 214, 29,  1,   218, 176, 164,
+    120, 50,  120, 130, 42,  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   96,  134, 180, 185, 62,  13,  187, 73,
+    198, 194, 240, 58,  143, 101, 182, 194, 201, 129, 242, 182, 19,  7,   12,
+    75,  34,  92,  65,  156, 85,  241, 183, 171, 45,  201, 146, 14,  118, 58,
+    117, 27,  61,  108, 249, 137, 144, 71,  115, 19,  73,  98,  4,   77,  237,
+    52,  69,  171, 85,  201, 246, 215, 91,  71,  145, 175, 139, 126, 48,  67,
+    66,  130, 140, 51,  253, 115, 220, 250, 206, 22,  138, 113, 63,  0,   74,
+    233, 167, 144, 210, 243, 212, 44,  42,  58,  221, 5,   215, 30,  94,  146,
+    3,   134, 1,   201, 167, 90,  132, 197, 56,  187, 221, 23,  242, 164, 87,
+    157, 142, 157, 80,  235, 12,  136, 21,  115, 181, 19,  96,  199, 209, 5,
+    135, 209, 93,  98,  16,  78,  106, 217, 160, 233, 35,  255, 207, 251, 154,
+    71,  20,  253, 239, 202, 139, 237, 246, 171, 137, 255, 94,  92,  53,  190,
+    236, 34,  153, 4,   94,  63,  214, 40,  181, 15,  147, 150, 81,  110, 181,
+    99,  38,  34,  56,  239, 28,  121, 151, 11,  251, 82,  30,  105, 132, 33,
+    69,  126, 142, 15,  157, 153, 218, 141, 253, 210, 254, 249, 230, 130, 27,
+    49,  161, 88,  161, 222, 147, 49,  245, 92,  45,  16,  131, 95,  217, 194,
+    215, 16,  69,  71,  78,  29,  108, 202, 1,   68,  66,  44,  39,  172, 207,
+    144, 77,  121, 120, 114, 211, 147, 52,  200, 152, 197, 161, 235, 76,  139,
+    115, 141, 206, 208, 134, 251, 78,  15,  16,  93,  166, 218, 134, 85,  60,
+    230, 36,  206, 42,  75,  206, 2,   145, 43,  18,  145, 135, 107, 152, 229,
+    5,   62,  206, 252, 129, 232, 114, 75,  228, 33,  140, 218, 27,  139, 246,
+    80,  127, 36,  80,  115, 177, 219, 69,  80,  235, 123, 191, 251, 189, 206,
+    103, 248, 242, 58,  173, 185, 101, 112, 138, 176, 235, 34,  81,  60,  31,
+    132, 241, 220, 231, 212, 135, 74,  159, 124, 115, 227, 149, 192, 56,  152,
+    43,  182, 158, 246, 63,  125, 148, 144, 243, 217, 66,  119, 14,  38,  238,
+    129, 238, 25,  126, 177, 4,   135, 84,  255, 216, 141, 221, 137, 172, 22,
+    182, 33,  217, 8,   95,  92,  208, 83,  226, 5,   67,  65,  218, 137, 253,
+    12,  231, 216, 174, 122, 162, 239, 88,  16,  65,  125, 101, 123, 96,  188,
+    118, 164, 68,  145, 203, 129, 54,  95,  84,  4,   83,  98,  53,  87,  145,
+    106, 223, 26,  146, 169, 158, 159, 209, 157, 89,  102, 204, 254, 97,  92,
+    149, 104, 21,  94,  238, 231, 74,  192, 45,  11,  167, 112, 183, 54,  189,
+    61,  176, 204, 151, 2,   216, 147, 249, 148, 195, 213, 197, 49,  184, 7,
+    174, 45,  175, 251, 144, 126, 180, 32,  145, 186, 94,  84,  170, 71,  228,
+    213, 109, 89,  141, 161, 164, 38,  204, 163, 86,  138, 200, 222, 184, 232,
+    163, 254, 172, 253, 164, 60,  8,   91,  31,  113, 46,  55,  14,  133, 120,
+    246, 172, 208, 57,  35,  123, 179, 212, 32,  1,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   209, 212, 200, 125,
+    223, 94,  117, 108, 135, 235, 223, 52,  22,  57,  192, 220, 171, 220, 21,
+    114, 181, 209, 172, 136, 84,  166, 153, 21,  191, 31,  241, 162, 67,  132,
+    199, 67,  95,  218, 218, 119, 67,  127, 7,   147, 173, 104, 127, 197, 127,
+    234, 110, 49,  115, 143, 218, 23,  132, 5,   35,  0,   217, 55,  177, 128};
+
+constexpr size_t W = 2;
+constexpr size_t H = 8;
+constexpr size_t K = 4;
+
 // clang-format off
-std::vector<std::vector<std::vector<std::string_view>>> original_tables = {
+constexpr const char* original_tables[2][W][H] = {
   {
     {
         "0x0330fa29c0b79377aa26b9f89ad6c94912201b4c8a854c4fe1db0aae5d3e3139",
@@ -130,7 +203,7 @@ std::vector<std::vector<std::vector<std::string_view>>> original_tables = {
   }
 };
 
-std::vector<std::vector<std::vector<std::string_view>>> shuffled_tables = {
+constexpr const char* shuffled_tables[2][W][H] = {
   {
     {
         "0x23037b83210a774ff6b6caa3093f1c3a075ecc20f46ba78ce33f71214797853d",
@@ -178,31 +251,48 @@ std::vector<std::vector<std::vector<std::string_view>>> shuffled_tables = {
 };
 // clang-format on
 
-constexpr size_t W = 2;
-constexpr size_t H = 8;
-constexpr size_t K = 4;
-
-class ShuffleCircuitTest : public CircuitTest {
+template <typename PCS>
+class ShuffleCircuitTest : public CircuitTest<PCS> {
  public:
+  using F = typename PCS::Field;
+
+  static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
+
   static std::vector<std::vector<F>> CreateTable(
-      const std::vector<std::vector<std::string_view>>& table) {
-    return base::CreateVector(W, [&table](size_t i) {
-      std::vector<std::string_view> table_i = table[i];
+      const char* const table[W][H]) {
+    return base::CreateVector(W, [table](size_t i) {
       return base::CreateVector(
-          H, [&table_i](size_t j) { return F::FromHexString(table_i[j]); });
+          H, [table, i](size_t j) { return F::FromHexString(table[i][j]); });
     });
   }
 
   template <template <typename> class FloorPlanner>
   static ShuffleCircuit<F, W, H, FloorPlanner> GetCircuitForTest(size_t i = 0) {
-    CHECK_LT(i, original_tables.size());
+    CHECK_LT(i, std::size(original_tables));
     return {CreateTable(original_tables[i]), CreateTable(shuffled_tables[i])};
   }
 };
 
 }  // namespace
 
-TEST_F(ShuffleCircuitTest, Configure) {
+using GWC = GWCExtension<math::bn254::BN254Curve, kMaxDegree,
+                         kMaxExtendedDegree, math::bn254::G1AffinePoint>;
+using SHPlonk =
+    SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree, kMaxExtendedDegree,
+                     math::bn254::G1AffinePoint>;
+
+using PCSTypes = testing::Types<GWC, SHPlonk>;
+TYPED_TEST_SUITE(ShuffleCircuitTest, PCSTypes);
+
+TYPED_TEST(ShuffleCircuitTest, Configure) {
+  using PCS = TypeParam;
+  using F = typename PCS::Field;
+
+  if constexpr (!std::is_same_v<PCS, SHPlonk>) {
+    GTEST_SKIP() << "PCS independent test";
+    return;
+  }
+
   ConstraintSystem<F> constraint_system;
   ShuffleCircuitConfig<F, W> config =
       ShuffleCircuit<F, W, H, SimpleFloorPlanner>::Configure(constraint_system);
@@ -336,21 +426,32 @@ TEST_F(ShuffleCircuitTest, Configure) {
   EXPECT_FALSE(constraint_system.minimum_degree().has_value());
 }
 
-TEST_F(ShuffleCircuitTest, Synthesize) {
+TYPED_TEST(ShuffleCircuitTest, Synthesize) {
+  using PCS = TypeParam;
+  using Domain = typename PCS::Domain;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
+  using RationalEvals = typename PCS::RationalEvals;
+
+  if constexpr (!std::is_same_v<PCS, SHPlonk>) {
+    GTEST_SKIP() << "PCS independent test";
+    return;
+  }
+
   size_t n = 16;
-  CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
-  prover_->set_domain(Domain::Create(n));
-  const Domain* domain = prover_->domain();
+  CHECK(this->prover_->pcs().UnsafeSetup(n, F(2)));
+  this->prover_->set_domain(Domain::Create(n));
+  const Domain* domain = this->prover_->domain();
 
   ConstraintSystem<F> constraint_system;
   ShuffleCircuitConfig<F, W> config =
       ShuffleCircuit<F, W, H, SimpleFloorPlanner>::Configure(constraint_system);
   Assembly<RationalEvals> assembly =
-      VerifyingKey<F, Commitment>::CreateAssembly<RationalEvals>(
+      VerifyingKey<F, Commitment>::template CreateAssembly<RationalEvals>(
           domain, constraint_system);
 
   ShuffleCircuit<F, W, H, SimpleFloorPlanner> circuit =
-      GetCircuitForTest<SimpleFloorPlanner>();
+      this->template GetCircuitForTest<SimpleFloorPlanner>();
   typename ShuffleCircuit<F, W, H, SimpleFloorPlanner>::FloorPlanner
       floor_planner;
   floor_planner.Synthesize(&assembly, circuit, std::move(config),
@@ -378,16 +479,27 @@ TEST_F(ShuffleCircuitTest, Synthesize) {
   EXPECT_EQ(assembly.usable_rows(), base::Range<RowIndex>::Until(10));
 }
 
-TEST_F(ShuffleCircuitTest, LoadVerifyingKey) {
+TYPED_TEST(ShuffleCircuitTest, LoadVerifyingKey) {
+  using PCS = TypeParam;
+  using Domain = typename PCS::Domain;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
+  using Point = typename ShuffleCircuitTest<PCS>::Point;
+
+  if constexpr (!std::is_same_v<PCS, SHPlonk>) {
+    GTEST_SKIP() << "Should be implemented for GWC as well";
+    return;
+  }
+
   size_t n = 16;
-  CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
-  prover_->set_domain(Domain::Create(n));
+  CHECK(this->prover_->pcs().UnsafeSetup(n, F(2)));
+  this->prover_->set_domain(Domain::Create(n));
 
   ShuffleCircuit<F, W, H, SimpleFloorPlanner> circuit =
-      GetCircuitForTest<SimpleFloorPlanner>();
+      this->template GetCircuitForTest<SimpleFloorPlanner>();
 
   VerifyingKey<F, Commitment> vkey;
-  ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
+  ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit));
 
   EXPECT_TRUE(vkey.permutation_verifying_key().commitments().empty());
 
@@ -399,7 +511,7 @@ TEST_F(ShuffleCircuitTest, LoadVerifyingKey) {
         {"0x1025d577f7527c7c9a5d132164beef9ec3ebc63805b146843466f6cdf5fb37d4",
          "0x1ba406f864ec730f7f725b3478ce1e22c5579b6228593c9ba36e9cb18a10aab3"},
     };
-    expected_fixed_commitments = CreateCommitments(points);
+    expected_fixed_commitments = this->CreateCommitments(points);
   }
   EXPECT_EQ(vkey.fixed_commitments(), expected_fixed_commitments);
 
@@ -408,13 +520,25 @@ TEST_F(ShuffleCircuitTest, LoadVerifyingKey) {
   EXPECT_EQ(vkey.transcript_repr(), expected_transcript_repr);
 }
 
-TEST_F(ShuffleCircuitTest, LoadProvingKey) {
+TYPED_TEST(ShuffleCircuitTest, LoadProvingKey) {
+  using PCS = TypeParam;
+  using Domain = typename PCS::Domain;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+
+  if constexpr (!std::is_same_v<PCS, SHPlonk>) {
+    GTEST_SKIP() << "Should be implemented for GWC as well";
+    return;
+  }
+
   size_t n = 16;
-  CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
-  prover_->set_domain(Domain::Create(n));
+  CHECK(this->prover_->pcs().UnsafeSetup(n, F(2)));
+  this->prover_->set_domain(Domain::Create(n));
 
   ShuffleCircuit<F, W, H, SimpleFloorPlanner> circuit =
-      GetCircuitForTest<SimpleFloorPlanner>();
+      this->template GetCircuitForTest<SimpleFloorPlanner>();
 
   for (size_t i = 0; i < 2; ++i) {
     ProvingKey<Poly, Evals, Commitment> pkey;
@@ -423,11 +547,11 @@ TEST_F(ShuffleCircuitTest, LoadProvingKey) {
         absl::Substitute("load_verifying_key: $0", load_verifying_key));
     if (load_verifying_key) {
       VerifyingKey<F, Commitment> vkey;
-      ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
-      ASSERT_TRUE(
-          pkey.LoadWithVerifyingKey(prover_.get(), circuit, std::move(vkey)));
+      ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit));
+      ASSERT_TRUE(pkey.LoadWithVerifyingKey(this->prover_.get(), circuit,
+                                            std::move(vkey)));
     } else {
-      ASSERT_TRUE(pkey.Load(prover_.get(), circuit));
+      ASSERT_TRUE(pkey.Load(this->prover_.get(), circuit));
     }
 
     Poly expected_l_first;
@@ -450,7 +574,7 @@ TEST_F(ShuffleCircuitTest, LoadProvingKey) {
           "0x2d5e098bb31e86271ccb415b196942d755b0a9c3f21dd9882fa3d63ab1000001",
           "0x2d5e098bb31e86271ccb415b196942d755b0a9c3f21dd9882fa3d63ab1000001",
       };
-      expected_l_first = CreatePoly(poly);
+      expected_l_first = this->CreatePoly(poly);
     }
     EXPECT_EQ(pkey.l_first(), expected_l_first);
 
@@ -474,7 +598,7 @@ TEST_F(ShuffleCircuitTest, LoadProvingKey) {
           "0x2144f5eefad21e1ca37ae273a4ee5b4a7eef137cbbeb1d198c9e59c37ef70364",
           "0x2db11694c4a58b3789868bd388165969c30dc1120a37fff09a991abf43e42a19",
       };
-      expected_l_last = CreatePoly(poly);
+      expected_l_last = this->CreatePoly(poly);
     }
     EXPECT_EQ(pkey.l_last(), expected_l_last);
 
@@ -498,7 +622,7 @@ TEST_F(ShuffleCircuitTest, LoadProvingKey) {
           "0x30114169cfaa9b194b94fb3e12d441cabad6d0fa619f4a28d8ecb10f5d1bd5e9",
           "0x2edcc3ce4ec47abd9b83b31a4db9571236223b590c30997fd30ce24f7bf2fdd6",
       };
-      expected_l_active_row = CreatePoly(poly);
+      expected_l_active_row = this->CreatePoly(poly);
     }
     EXPECT_EQ(pkey.l_active_row(), expected_l_active_row);
 
@@ -542,7 +666,7 @@ TEST_F(ShuffleCircuitTest, LoadProvingKey) {
           "0x0000000000000000000000000000000000000000000000000000000000000000",
       }};
       // clang-format on
-      expected_fixed_columns = CreateColumns(evals);
+      expected_fixed_columns = this->CreateColumns(evals);
     }
     EXPECT_EQ(pkey.fixed_columns(), expected_fixed_columns);
 
@@ -586,7 +710,7 @@ TEST_F(ShuffleCircuitTest, LoadProvingKey) {
           "0x030644e72e131a029b85045b68181585d2833e84879b9709143e1f593f000000",
       }};
       // clang-format on
-      expected_fixed_polys = CreatePolys(polys);
+      expected_fixed_polys = this->CreatePolys(polys);
     }
     EXPECT_EQ(pkey.fixed_polys(), expected_fixed_polys);
 
@@ -595,67 +719,107 @@ TEST_F(ShuffleCircuitTest, LoadProvingKey) {
   }
 }
 
-TEST_F(ShuffleCircuitTest, CreateProof) {
+TYPED_TEST(ShuffleCircuitTest, CreateProof) {
+  using PCS = TypeParam;
+  using Domain = typename PCS::Domain;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+
   size_t n = size_t{1} << K;
-  CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
-  prover_->set_domain(Domain::Create(n));
+  CHECK(this->prover_->pcs().UnsafeSetup(n, F(2)));
+  this->prover_->set_domain(Domain::Create(n));
 
   std::vector<ShuffleCircuit<F, W, H, SimpleFloorPlanner>> circuits = {
-      GetCircuitForTest<SimpleFloorPlanner>(0),
-      GetCircuitForTest<SimpleFloorPlanner>(1)};
+      this->template GetCircuitForTest<SimpleFloorPlanner>(0),
+      this->template GetCircuitForTest<SimpleFloorPlanner>(1)};
 
   std::vector<Evals> instance_columns;
   std::vector<std::vector<Evals>> instance_columns_vec = {
       instance_columns, std::move(instance_columns)};
 
   ProvingKey<Poly, Evals, Commitment> pkey;
-  ASSERT_TRUE(pkey.Load(prover_.get(), circuits[0]));
-  prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
+  ASSERT_TRUE(pkey.Load(this->prover_.get(), circuits[0]));
+  this->prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
-  std::vector<uint8_t> proof = prover_->GetWriter()->buffer().owned_buffer();
-  std::vector<uint8_t> expected_proof(std::begin(kExpectedProof),
-                                      std::end(kExpectedProof));
+  std::vector<uint8_t> proof =
+      this->prover_->GetWriter()->buffer().owned_buffer();
+  std::vector<uint8_t> expected_proof;
+  if constexpr (std::is_same_v<PCS, SHPlonk>) {
+    expected_proof = {std::begin(kSHPlonkExpectedProof),
+                      std::end(kSHPlonkExpectedProof)};
+  } else {
+    expected_proof = {std::begin(kGWCExpectedProof),
+                      std::end(kGWCExpectedProof)};
+  }
   EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
-TEST_F(ShuffleCircuitTest, CreateV1Proof) {
+TYPED_TEST(ShuffleCircuitTest, CreateV1Proof) {
+  using PCS = TypeParam;
+  using Domain = typename PCS::Domain;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+
   size_t n = size_t{1} << K;
-  CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
-  prover_->set_domain(Domain::Create(n));
+  CHECK(this->prover_->pcs().UnsafeSetup(n, F(2)));
+  this->prover_->set_domain(Domain::Create(n));
 
   std::vector<ShuffleCircuit<F, W, H, V1FloorPlanner>> circuits = {
-      GetCircuitForTest<V1FloorPlanner>(0),
-      GetCircuitForTest<V1FloorPlanner>(1)};
+      this->template GetCircuitForTest<V1FloorPlanner>(0),
+      this->template GetCircuitForTest<V1FloorPlanner>(1)};
 
   std::vector<Evals> instance_columns;
   std::vector<std::vector<Evals>> instance_columns_vec = {
       instance_columns, std::move(instance_columns)};
 
   ProvingKey<Poly, Evals, Commitment> pkey;
-  ASSERT_TRUE(pkey.Load(prover_.get(), circuits[0]));
-  prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
+  ASSERT_TRUE(pkey.Load(this->prover_.get(), circuits[0]));
+  this->prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
-  std::vector<uint8_t> proof = prover_->GetWriter()->buffer().owned_buffer();
-  std::vector<uint8_t> expected_proof(std::begin(kExpectedProof),
-                                      std::end(kExpectedProof));
+  std::vector<uint8_t> proof =
+      this->prover_->GetWriter()->buffer().owned_buffer();
+  std::vector<uint8_t> expected_proof;
+  if constexpr (std::is_same_v<PCS, SHPlonk>) {
+    expected_proof = {std::begin(kSHPlonkExpectedProof),
+                      std::end(kSHPlonkExpectedProof)};
+  } else {
+    expected_proof = {std::begin(kGWCExpectedProof),
+                      std::end(kGWCExpectedProof)};
+  }
   EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
-TEST_F(ShuffleCircuitTest, Verify) {
+TYPED_TEST(ShuffleCircuitTest, Verify) {
+  using PCS = TypeParam;
+  using Domain = typename PCS::Domain;
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
+  using Evals = typename PCS::Evals;
+  using Point = typename ShuffleCircuitTest<PCS>::Point;
+
   size_t n = size_t{1} << K;
-  CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
-  prover_->set_domain(Domain::Create(n));
+  CHECK(this->prover_->pcs().UnsafeSetup(n, F(2)));
+  this->prover_->set_domain(Domain::Create(n));
 
   ShuffleCircuit<F, W, H, SimpleFloorPlanner> circuit =
-      GetCircuitForTest<SimpleFloorPlanner>();
+      this->template GetCircuitForTest<SimpleFloorPlanner>();
 
   VerifyingKey<F, Commitment> vkey;
-  ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
+  ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit));
 
-  std::vector<uint8_t> owned_proof(std::begin(kExpectedProof),
-                                   std::end(kExpectedProof));
-  Verifier<PCS> verifier =
-      CreateVerifier(CreateBufferWithProof(absl::MakeSpan(owned_proof)));
+  std::vector<uint8_t> owned_proof;
+  if constexpr (std::is_same_v<PCS, SHPlonk>) {
+    owned_proof = {std::begin(kSHPlonkExpectedProof),
+                   std::end(kSHPlonkExpectedProof)};
+  } else {
+    owned_proof = {std::begin(kGWCExpectedProof), std::end(kGWCExpectedProof)};
+  }
+  Verifier<PCS> verifier = this->CreateVerifier(
+      this->CreateBufferWithProof(absl::MakeSpan(owned_proof)));
 
   std::vector<Evals> instance_columns;
   std::vector<std::vector<Evals>> instance_columns_vec = {
@@ -666,6 +830,12 @@ TEST_F(ShuffleCircuitTest, Verify) {
   F h_eval;
   ASSERT_TRUE(verifier.VerifyProofForTesting(vkey, instance_columns_vec, &proof,
                                              &h_eval));
+
+  if constexpr (!std::is_same_v<PCS, SHPlonk>) {
+    GTEST_SKIP() << "Should add expected data for GWC after the test data is "
+                    "separated from the code";
+    return;
+  }
 
   std::vector<std::vector<Commitment>> expected_advice_commitments_vec;
   {
@@ -681,7 +851,7 @@ TEST_F(ShuffleCircuitTest, Verify) {
         {"0x1d9cc3ab78075c5461a71651d31983959d21afc23cd1340e6ad13e09ab2c74ee",
          "0x01badd1509eebaca90b100b0fbfbad42486e4619f186715c71aaaa8f8217cfa2"},
     };
-    expected_advice_commitments_vec.push_back(CreateCommitments(points));
+    expected_advice_commitments_vec.push_back(this->CreateCommitments(points));
 
     points = {
         {"0x237371644d6d75a9bf323fde2e4c9ba1390073f82ae6d4664c5116d0e5b05b61",
@@ -695,7 +865,7 @@ TEST_F(ShuffleCircuitTest, Verify) {
         {"0x2a82783278a4b0da011dd6cf888aec410cc93875d7a185deffb6f9095c01fe4e",
          "0x00610abd37a882e9635be4ec3ab465ac92fa1c029392a7a16c69358c46432450"},
     };
-    expected_advice_commitments_vec.push_back(CreateCommitments(points));
+    expected_advice_commitments_vec.push_back(this->CreateCommitments(points));
   }
   EXPECT_EQ(proof.advices_commitments_vec, expected_advice_commitments_vec);
 
@@ -704,7 +874,7 @@ TEST_F(ShuffleCircuitTest, Verify) {
     std::vector<std::string_view> challenges = {
         "0x2f2cdac7ef66f10d3c910f13e5a4344318eeeceae9edcdd75b4c1976de43475e",
         "0x154c67d8fa9170f88d424e7634e151902bcf91212c5f7192b58094f50f4da90c"};
-    expected_challenges = CreateEvals(challenges);
+    expected_challenges = this->CreateEvals(challenges);
   }
   EXPECT_EQ(proof.challenges, expected_challenges);
 
@@ -731,7 +901,7 @@ TEST_F(ShuffleCircuitTest, Verify) {
 
   Commitment expected_vanishing_random_poly_commitment;
   {
-    expected_vanishing_random_poly_commitment = CreateCommitment(
+    expected_vanishing_random_poly_commitment = this->CreateCommitment(
         {"0x0000000000000000000000000000000000000000000000000000000000000001",
          "0x0000000000000000000000000000000000000000000000000000000000000002"});
   }
@@ -750,7 +920,7 @@ TEST_F(ShuffleCircuitTest, Verify) {
         {"0x2f91475bd7f6c955ab4534ed4d0462491373479089f96c3d1b753a760e92c92d",
          "0x0f2b30e0179380f1a9dda5cb59eb5ff6c0c093f39ff3129b09a8fb4493fcb719"},
     };
-    expected_vanishing_h_poly_commitments = CreateCommitments(points);
+    expected_vanishing_h_poly_commitments = this->CreateCommitments(points);
   }
   EXPECT_EQ(proof.vanishing_h_poly_commitments,
             expected_vanishing_h_poly_commitments);
@@ -769,7 +939,7 @@ TEST_F(ShuffleCircuitTest, Verify) {
         "0x1d4e474510d7c2d95f83102d5cf53193dea158a1311b82e6f9fed2fd8dda999d",
         "0x0f4efb86d0ce8d738b4ceba1c598c83493d37278794d90cfac272c424401ca6c",
     };
-    expected_advice_evals_vec.push_back(CreateEvals(evals));
+    expected_advice_evals_vec.push_back(this->CreateEvals(evals));
 
     evals = {
         "0x21e44b72e881fcce3e05e5986b8791122b9102ce4b2ace24e63c5586daa65d10",
@@ -779,7 +949,7 @@ TEST_F(ShuffleCircuitTest, Verify) {
         "0x1adf6a915735625304545f3681cb9144a476bc607b657d411058efa27aaed8e7",
         "0x0297ccb03dbd36b770a70b2dc04ae7ee5e1568955c61fecc66599dd19f9ea992",
     };
-    expected_advice_evals_vec.push_back(CreateEvals(evals));
+    expected_advice_evals_vec.push_back(this->CreateEvals(evals));
   }
   EXPECT_EQ(proof.advice_evals_vec, expected_advice_evals_vec);
 
@@ -789,7 +959,7 @@ TEST_F(ShuffleCircuitTest, Verify) {
         "0x26a4a18d596dd5e447aa545eba9120b47e90fbaf2dae07b831c5d5c394f993d8",
         "0x20d4b37b2339d0acf678850e372e711f5b083ca4fdacfea3e8b8dec88a56a3cc",
     };
-    expected_fixed_evals = CreateEvals(evals);
+    expected_fixed_evals = this->CreateEvals(evals);
   }
   EXPECT_EQ(proof.fixed_evals, expected_fixed_evals);
 

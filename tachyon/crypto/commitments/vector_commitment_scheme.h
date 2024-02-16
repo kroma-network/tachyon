@@ -136,8 +136,8 @@ class VectorCommitmentScheme {
   // commitment.
   template <typename Container, typename Proof>
   [[nodiscard]] bool CreateOpeningProof(const Container& members,
-                                        Proof* proof) const {
-    const Derived* derived = static_cast<const Derived*>(this);
+                                        Proof* proof) {
+    Derived* derived = static_cast<Derived*>(this);
     return derived->DoCreateOpeningProof(members, proof);
   }
 

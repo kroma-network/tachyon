@@ -12,7 +12,6 @@
 #include <utility>
 #include <vector>
 
-#include "absl/functional/bind_front.h"
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
@@ -46,10 +45,11 @@ class Verifier : public VerifierBase<PCS> {
 
  private:
   FRIEND_TEST(SimpleCircuitTest, Verify);
-  FRIEND_TEST(SimpleLookupCircuitTest, Verify);
-  FRIEND_TEST(ShuffleCircuitTest, Verify);
   FRIEND_TEST(SimpleV1CircuitTest, Verify);
+  FRIEND_TEST(SimpleLookupCircuitTest, Verify);
   FRIEND_TEST(SimpleLookupV1CircuitTest, Verify);
+  template <typename>
+  FRIEND_TEST(ShuffleCircuitTest, Verify);
 
   bool VerifyProofForTesting(
       const VerifyingKey<F, Commitment>& vkey,
@@ -59,7 +59,7 @@ class Verifier : public VerifierBase<PCS> {
 
     std::vector<std::vector<Commitment>> instance_commitments_vec;
     if constexpr (PCS::kQueryInstance) {
-      instance_commitments_vec = CommitColumnsVec(vkey, instance_columns_vec);
+      instance_commitments_vec = CommitColumnsVec(instance_columns_vec);
     } else {
       instance_commitments_vec.resize(instance_columns_vec.size());
     }
@@ -111,7 +111,7 @@ class Verifier : public VerifierBase<PCS> {
   }
 
   void ComputeAuxValues(const ConstraintSystem<F>& constraint_system,
-                        Proof<F, Commitment>& proof) {
+                        Proof<F, Commitment>& proof) const {
     RowIndex blinding_factors = constraint_system.ComputeBlindingFactors();
     std::vector<F> l_evals = this->domain_->EvaluatePartialLagrangeCoefficients(
         proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
@@ -132,7 +132,7 @@ class Verifier : public VerifierBase<PCS> {
 
   bool ValidateInstanceColumnsVec(
       const VerifyingKey<F, Commitment>& vkey,
-      const std::vector<std::vector<Evals>>& instance_columns_vec) {
+      const std::vector<std::vector<Evals>>& instance_columns_vec) const {
     size_t num_instance_columns =
         vkey.constraint_system().num_instance_columns();
     auto check_num_instance_columns =
@@ -171,14 +171,16 @@ class Verifier : public VerifierBase<PCS> {
       std::vector<F> expanded_evals = column.evaluations();
       expanded_evals.resize(this->pcs_.N());
       Commitment c;
-      CHECK(this->pcs_.CommitLagrange(Evals(std::move(expanded_evals), &c)));
+      CHECK(this->pcs_.CommitLagrange(Evals(std::move(expanded_evals)), &c));
       return c;
     });
   }
 
   std::vector<std::vector<Commitment>> CommitColumnsVec(
       const std::vector<std::vector<Evals>>& columns_vec) {
-    return base::Map(columns_vec, absl::bind_front(&CommitColumns, this));
+    return base::Map(columns_vec, [this](const std::vector<Evals>& columns) {
+      return CommitColumns(columns);
+    });
   }
 
   static void WriteCommitmentsVecToTranscript(

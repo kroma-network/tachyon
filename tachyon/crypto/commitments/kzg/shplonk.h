@@ -83,8 +83,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   // UnivariatePolynomialCommitmentScheme methods
   template <typename Container>
   [[nodiscard]] bool DoCreateOpeningProof(
-      const Container& poly_openings,
-      TranscriptWriter<Commitment>* writer) const {
+      const Container& poly_openings, TranscriptWriter<Commitment>* writer) {
     PolynomialOpeningGrouper<Poly> grouper;
     grouper.GroupByPolyOracleAndPoints(poly_openings);
 
@@ -353,13 +352,13 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     p += (u * q);
 
     // clang-format off
-    // e(p, [1]₂) * e([Q(𝜏)]₁, [-𝜏]₂) ≟ gᴛ⁰
-    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) + u * Q(𝜏) - 𝜏 * Q(𝜏) ≟ 0
-    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏) ≟ (𝜏 - u) * Q(𝜏)
-    // (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏) - Zᴛ(u) * H(𝜏)) / Zᴛ\₀(u) ≟ (𝜏 - u) * Q(𝜏)
-    // L(𝜏) ≟ (𝜏 - u) * Q(𝜏) * Zᴛ\₀(u)
+    // e([Q(𝜏)]₁, [𝜏]₂) * e(p, [-1]₂) ≟ gᴛ⁰
+    // 𝜏 * Q(𝜏) - (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) + Z₀(u) * H(𝜏) - u * Q(𝜏) ≟ 0
+    // (𝜏 - u) * Q(𝜏) ≟ (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏)
+    // (𝜏 - u) * Q(𝜏) ≟ (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏) - Zᴛ(u) * H(𝜏)) / Zᴛ\₀(u)
+    // (𝜏 - u) * Q(𝜏) * Zᴛ\₀(u) ≟ L(𝜏)
     // clang-format on
-    G1Point g1_arr[] = {p.ToAffine(), std::move(q)};
+    G1Point g1_arr[] = {std::move(q), p.ToAffine()};
     return math::Pairing<Curve>(g1_arr, g2_arr_).IsOne();
   }
 
@@ -367,8 +366,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   [[nodiscard]] bool DoUnsafeSetupWithTau(size_t size,
                                           const Field& tau) override {
     s_g2_ = (G2Point::Generator() * tau).ToAffine();
-    g2_arr_ = {G2Prepared::From(G2Point::Generator()),
-               G2Prepared::From(-s_g2_)};
+    g2_arr_ = {G2Prepared::From(s_g2_),
+               G2Prepared::From(-G2Point::Generator())};
     return true;
   }
 

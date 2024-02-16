@@ -12,16 +12,24 @@
 
 namespace tachyon::zk::plonk::halo2 {
 
-class CircuitTest : public ProverTest {
+template <typename PCS>
+class CircuitTest : public ProverTest<PCS> {
  protected:
+  using F = typename PCS::Field;
+  using Commitment = typename PCS::Commitment;
+  using Poly = typename PCS::Poly;
+  using Evals = typename PCS::Evals;
+  using RationalEvals = typename PCS::RationalEvals;
+
   struct Point {
     std::string_view x;
     std::string_view y;
   };
 
   static Commitment CreateCommitment(const Point& point) {
-    return Commitment(math::bn254::Fq::FromHexString(point.x),
-                      math::bn254::Fq::FromHexString(point.y));
+    using BaseField = typename Commitment::BaseField;
+    return Commitment(BaseField::FromHexString(point.x),
+                      BaseField::FromHexString(point.y));
   }
 
   static std::vector<Commitment> CreateCommitments(

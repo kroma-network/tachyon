@@ -102,9 +102,9 @@ class UnivariateDenseCoefficients {
     // clang-format on
 
     std::vector<F> coefficients =
-        base::CreateVector(roots.size() + 1, F::Zero());
+        base::CreateVector(std::size(roots) + 1, F::Zero());
     coefficients[0] = F::One();
-    for (size_t i = 0; i < roots.size(); ++i) {
+    for (size_t i = 0; i < std::size(roots); ++i) {
       for (size_t j = i + 1; j > 0; --j) {
         coefficients[j] = coefficients[j - 1] - roots[i] * coefficients[j];
       }

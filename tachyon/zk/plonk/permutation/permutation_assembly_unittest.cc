@@ -4,15 +4,15 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/zk/plonk/halo2/prover_test.h"
+#include "tachyon/zk/plonk/halo2/bn254_shplonk_prover_test.h"
 
 namespace tachyon::zk::plonk {
 namespace {
 
-class PermutationAssemblyTest : public halo2::ProverTest {
+class PermutationAssemblyTest : public halo2::BN254SHPlonkProverTest {
  public:
   void SetUp() override {
-    halo2::ProverTest::SetUp();
+    halo2::BN254SHPlonkProverTest::SetUp();
 
     columns_ = {AnyColumnKey(0), AdviceColumnKey(1), FixedColumnKey(2),
                 InstanceColumnKey(3)};
@@ -48,7 +48,7 @@ TEST_F(PermutationAssemblyTest, GeneratePermutation) {
 }
 
 TEST_F(PermutationAssemblyTest, BuildKeys) {
-  const PCS& pcs = prover_->pcs();
+  const halo2::PCS& pcs = prover_->pcs();
 
   std::vector<Evals> permutations =
       assembly_.GeneratePermutations<Evals>(prover_->domain());

@@ -162,9 +162,10 @@ class ProofReader {
     CHECK_EQ(cursor_, ProofCursor::kInstanceEvals);
     size_t num_instance_queries =
         verifying_key_.constraint_system().instance_queries().size();
-    return base::CreateVector(num_circuits_, [this, num_instance_queries]() {
-      return ReadMany<F>(num_instance_queries);
-    });
+    proof_.instance_evals_vec =
+        base::CreateVector(num_circuits_, [this, num_instance_queries]() {
+          return ReadMany<F>(num_instance_queries);
+        });
     cursor_ = ProofCursor::kAdviceEvals;
   }
 

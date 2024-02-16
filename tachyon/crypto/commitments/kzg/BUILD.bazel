@@ -7,6 +7,19 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "gwc",
+    hdrs = ["gwc.h"],
+    deps = [
+        ":kzg_family",
+        "//tachyon/crypto/commitments:polynomial_openings",
+        "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
+        "//tachyon/crypto/transcripts:transcript",
+        "//tachyon/math/elliptic_curves/pairing",
+        "@com_google_googletest//:gtest_prod",
+    ],
+)
+
+tachyon_cc_library(
     name = "kzg",
     hdrs = ["kzg.h"],
     deps = [
@@ -26,6 +39,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "kzg_family_test",
+    testonly = True,
+    hdrs = ["kzg_family_test.h"],
+    deps = [
+        ":kzg",
+        "//tachyon/base/buffer",
+        "//tachyon/base/json",
+        "//tachyon/crypto/commitments/test:bn254_kzg_polynomial_openings",
+        "//tachyon/crypto/transcripts:simple_transcript",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+    ],
+)
+
+tachyon_cc_library(
     name = "shplonk",
     hdrs = ["shplonk.h"],
     deps = [
@@ -41,17 +70,13 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "kzg_unittests",
     srcs = [
+        "gwc_unittest.cc",
         "kzg_unittest.cc",
         "shplonk_unittest.cc",
     ],
     deps = [
+        ":gwc",
+        ":kzg_family_test",
         ":shplonk",
-        "//tachyon/base/buffer",
-        "//tachyon/base/json",
-        "//tachyon/crypto/commitments/test:bn254_kzg_polynomial_openings",
-        "//tachyon/crypto/transcripts:simple_transcript",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
     ],
 )

@@ -6,14 +6,19 @@ tachyon_cc_library(
     name = "circuit_test",
     testonly = True,
     hdrs = ["circuit_test.h"],
-    deps = ["//tachyon/zk/plonk/halo2:prover_test"],
+    deps = [
+        "//tachyon/zk/lookup:lookup_pair",
+        "//tachyon/zk/plonk/halo2:prover_test",
+    ],
 )
 
 tachyon_cc_library(
     name = "shuffle_circuit",
     hdrs = ["shuffle_circuit.h"],
     deps = [
-        "//tachyon/zk/base:row_index",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/base/commitments:gwc_extension",
+        "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/plonk/constraint_system:circuit",
         "@com_google_absl//absl/strings",
     ],
@@ -39,6 +44,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":shuffle_circuit",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
@@ -52,6 +59,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":simple_circuit",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
@@ -64,6 +73,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":simple_lookup_circuit",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
@@ -76,6 +87,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":simple_lookup_circuit",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
@@ -89,6 +102,8 @@ tachyon_cc_test(
     deps = [
         ":circuit_test",
         ":simple_circuit",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",

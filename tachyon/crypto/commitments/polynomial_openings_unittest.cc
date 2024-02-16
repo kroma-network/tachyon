@@ -1,6 +1,5 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 
-#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -106,24 +105,74 @@ TEST_F(PolynomialOpeningsTest, CreateCombinedLowDegreeExtensions) {
   EXPECT_EQ(actual_eval, expected_eval);
 }
 
+#define OPENING(poly, point) \
+  PolyRef(&poly), PointDeepRef(&point), poly.Evaluate(point)
+
+TEST_F(PolynomialOpeningsTest, GroupBySinglePoint) {
+  std::vector<PolynomialOpening<Poly>> poly_openings;
+  poly_openings.emplace_back(OPENING(polys_[0], points_[0]));
+  poly_openings.emplace_back(OPENING(polys_[0], points_[1]));
+  poly_openings.emplace_back(OPENING(polys_[1], points_[0]));
+  poly_openings.emplace_back(OPENING(polys_[1], points_[1]));
+  poly_openings.emplace_back(OPENING(polys_[2], points_[2]));
+  poly_openings.emplace_back(OPENING(polys_[3], points_[2]));
+  PolynomialOpeningGrouper<Poly> grouper;
+  grouper.GroupBySinglePoint(poly_openings);
+
+  absl::btree_set<PointDeepRef> expected_points = {
+      PointDeepRef(&points_[0]),
+      PointDeepRef(&points_[1]),
+      PointDeepRef(&points_[2]),
+  };
+  EXPECT_EQ(grouper.super_point_set(), expected_points);
+
+  const std::vector<GroupedPolynomialOpenings<Poly>>&
+      grouped_poly_openings_vec = grouper.grouped_poly_openings_vec();
+  ASSERT_EQ(grouped_poly_openings_vec.size(), 3);
+  std::vector<PointDeepRef> expected_points_vec = {
+      PointDeepRef(&points_[0]),
+  };
+  std::vector<PointDeepRef> expected_points_vec2 = {
+      PointDeepRef(&points_[1]),
+  };
+  std::vector<PointDeepRef> expected_points_vec3 = {
+      PointDeepRef(&points_[2]),
+  };
+  std::vector<PolynomialOpenings<Poly>> expected_polys_vec = {
+      PolynomialOpenings<Poly>(PolyRef(&polys_[0]), {poly_openings[0].opening}),
+      PolynomialOpenings<Poly>(PolyRef(&polys_[1]), {poly_openings[2].opening}),
+  };
+  std::vector<PolynomialOpenings<Poly>> expected_polys_vec2 = {
+      PolynomialOpenings<Poly>(PolyRef(&polys_[0]), {poly_openings[1].opening}),
+      PolynomialOpenings<Poly>(PolyRef(&polys_[1]), {poly_openings[3].opening}),
+  };
+  std::vector<PolynomialOpenings<Poly>> expected_polys_vec3 = {
+      PolynomialOpenings<Poly>(PolyRef(&polys_[2]), {poly_openings[4].opening}),
+      PolynomialOpenings<Poly>(PolyRef(&polys_[3]), {poly_openings[5].opening}),
+  };
+
+  EXPECT_EQ(grouped_poly_openings_vec[0].point_refs, expected_points_vec);
+  EXPECT_EQ(grouped_poly_openings_vec[1].point_refs, expected_points_vec2);
+  EXPECT_EQ(grouped_poly_openings_vec[2].point_refs, expected_points_vec3);
+  EXPECT_EQ(grouped_poly_openings_vec[0].poly_openings_vec, expected_polys_vec);
+  EXPECT_EQ(grouped_poly_openings_vec[1].poly_openings_vec,
+            expected_polys_vec2);
+  EXPECT_EQ(grouped_poly_openings_vec[2].poly_openings_vec,
+            expected_polys_vec3);
+}
+
 TEST_F(PolynomialOpeningsTest, GroupByPolyOracleAndPoints) {
   using GroupedPolyOraclePair =
       PolynomialOpeningGrouper<Poly>::GroupedPolyOraclePair;
   using GroupedPointPair = PolynomialOpeningGrouper<Poly>::GroupedPointPair;
 
   std::vector<PolynomialOpening<Poly>> poly_openings;
-  poly_openings.emplace_back(PolyRef(&polys_[0]), PointDeepRef(&points_[0]),
-                             polys_[0].Evaluate(points_[0]));
-  poly_openings.emplace_back(PolyRef(&polys_[0]), PointDeepRef(&points_[1]),
-                             polys_[0].Evaluate(points_[1]));
-  poly_openings.emplace_back(PolyRef(&polys_[1]), PointDeepRef(&points_[0]),
-                             polys_[1].Evaluate(points_[0]));
-  poly_openings.emplace_back(PolyRef(&polys_[1]), PointDeepRef(&points_[1]),
-                             polys_[1].Evaluate(points_[1]));
-  poly_openings.emplace_back(PolyRef(&polys_[2]), PointDeepRef(&points_[2]),
-                             polys_[2].Evaluate(points_[2]));
-  poly_openings.emplace_back(PolyRef(&polys_[3]), PointDeepRef(&points_[2]),
-                             polys_[3].Evaluate(points_[2]));
+  poly_openings.emplace_back(OPENING(polys_[0], points_[0]));
+  poly_openings.emplace_back(OPENING(polys_[0], points_[1]));
+  poly_openings.emplace_back(OPENING(polys_[1], points_[0]));
+  poly_openings.emplace_back(OPENING(polys_[1], points_[1]));
+  poly_openings.emplace_back(OPENING(polys_[2], points_[2]));
+  poly_openings.emplace_back(OPENING(polys_[3], points_[2]));
   PolynomialOpeningGrouper<Poly> grouper;
   std::vector<GroupedPolyOraclePair> poly_openings_grouped_by_poly =
       grouper.GroupByPolyOracle(poly_openings);
@@ -189,49 +238,24 @@ TEST_F(PolynomialOpeningsTest, GroupByPolyOracleAndPoints) {
   std::vector<PointDeepRef> expected_points_vec2 = {
       PointDeepRef(&points_[2]),
   };
-  std::vector<PolyRef> expected_polys_vec = {
-      PolyRef(&polys_[0]),
-      PolyRef(&polys_[1]),
+  std::vector<PolynomialOpenings<Poly>> expected_polys_vec = {
+      PolynomialOpenings<Poly>(PolyRef(&polys_[0]), {poly_openings[0].opening,
+                                                     poly_openings[1].opening}),
+      PolynomialOpenings<Poly>(PolyRef(&polys_[1]), {poly_openings[2].opening,
+                                                     poly_openings[3].opening}),
   };
-  std::vector<PolyRef> expected_polys_vec2 = {
-      PolyRef(&polys_[2]),
-      PolyRef(&polys_[3]),
+  std::vector<PolynomialOpenings<Poly>> expected_polys_vec2 = {
+      PolynomialOpenings<Poly>(PolyRef(&polys_[2]), {poly_openings[4].opening}),
+      PolynomialOpenings<Poly>(PolyRef(&polys_[3]), {poly_openings[5].opening}),
   };
 
-  if (grouped_poly_openings_vec[0].point_refs.size() == 2) {
-    EXPECT_EQ(grouped_poly_openings_vec[1].point_refs.size(), 1);
-    EXPECT_THAT(grouped_poly_openings_vec[0].point_refs,
-                testing::UnorderedElementsAreArray(expected_points_vec));
-    EXPECT_THAT(grouped_poly_openings_vec[1].point_refs,
-                testing::UnorderedElementsAreArray(expected_points_vec2));
-    for (const PolynomialOpenings<Poly>& poly_openings :
-         grouped_poly_openings_vec[0].poly_openings_vec) {
-      EXPECT_THAT(expected_polys_vec,
-                  testing::Contains(poly_openings.poly_oracle));
-    }
-    for (const PolynomialOpenings<Poly>& poly_openings :
-         grouped_poly_openings_vec[1].poly_openings_vec) {
-      EXPECT_THAT(expected_polys_vec2,
-                  testing::Contains(poly_openings.poly_oracle));
-    }
-  } else {
-    ASSERT_EQ(grouped_poly_openings_vec[0].point_refs.size(), 1);
-    EXPECT_EQ(grouped_poly_openings_vec[1].point_refs.size(), 2);
-    EXPECT_THAT(grouped_poly_openings_vec[0].point_refs,
-                testing::UnorderedElementsAreArray(expected_points_vec2));
-    EXPECT_THAT(grouped_poly_openings_vec[1].point_refs,
-                testing::UnorderedElementsAreArray(expected_points_vec));
-    for (const PolynomialOpenings<Poly>& poly_openings :
-         grouped_poly_openings_vec[0].poly_openings_vec) {
-      EXPECT_THAT(expected_polys_vec2,
-                  testing::Contains(poly_openings.poly_oracle));
-    }
-    for (const PolynomialOpenings<Poly>& poly_openings :
-         grouped_poly_openings_vec[1].poly_openings_vec) {
-      EXPECT_THAT(expected_polys_vec,
-                  testing::Contains(poly_openings.poly_oracle));
-    }
-  }
+  EXPECT_EQ(grouped_poly_openings_vec[0].point_refs, expected_points_vec);
+  EXPECT_EQ(grouped_poly_openings_vec[0].poly_openings_vec, expected_polys_vec);
+  EXPECT_EQ(grouped_poly_openings_vec[1].point_refs, expected_points_vec2);
+  EXPECT_EQ(grouped_poly_openings_vec[1].poly_openings_vec,
+            expected_polys_vec2);
 }
+
+#undef OPENING
 
 }  // namespace tachyon::crypto
