@@ -8,7 +8,7 @@ namespace tachyon::halo2_api::bn254 {
 
 Blake2bWriter::Blake2bWriter()
     : writer_(tachyon_halo2_bn254_transcript_writer_create(
-          TACHYON_HALO2_BLAKE_TRANSCRIPT)) {}
+          TACHYON_HALO2_BLAKE2B_TRANSCRIPT)) {}
 
 Blake2bWriter::~Blake2bWriter() {
   tachyon_halo2_bn254_transcript_writer_destroy(writer_);

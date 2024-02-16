@@ -47,7 +47,7 @@ class SHPlonkProverTest : public testing::TestWithParam<int> {
 };
 
 INSTANTIATE_TEST_SUITE_P(SHPlonkProverTest, SHPlonkProverTest,
-                         testing::Values(TACHYON_HALO2_BLAKE_TRANSCRIPT,
+                         testing::Values(TACHYON_HALO2_BLAKE2B_TRANSCRIPT,
                                          TACHYON_HALO2_POSEIDON_TRANSCRIPT,
                                          TACHYON_HALO2_SHA256_TRANSCRIPT));
 

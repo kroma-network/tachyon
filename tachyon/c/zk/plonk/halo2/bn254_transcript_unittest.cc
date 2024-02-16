@@ -41,7 +41,7 @@ TYPED_TEST(TranscriptWriterTest, APIs) {
   uint8_t type;
   if constexpr (std::is_same_v<TranscriptWriter,
                                Blake2bWriter<math::bn254::G1AffinePoint>>) {
-    type = TACHYON_HALO2_BLAKE_TRANSCRIPT;
+    type = TACHYON_HALO2_BLAKE2B_TRANSCRIPT;
     // NOLINTNEXTLINE(readability/braces)
   } else if constexpr (std::is_same_v<
                            TranscriptWriter,
