@@ -7,7 +7,7 @@ use std::{
 
 use crate::bn254::{
     AdviceSingle, Evals, InstanceSingle, ProvingKey as TachyonProvingKey, RationalEvals,
-    SHPlonkProver as TachyonSHPlonkProver, TranscriptWriteState,
+    TachyonProver, TranscriptWriteState,
 };
 use crate::xor_shift_rng::XORShiftRng as TachyonXORShiftRng;
 use ff::Field;
@@ -33,11 +33,12 @@ use halo2curves::{
 pub fn create_proof<
     'params,
     Scheme: CommitmentScheme,
+    P: TachyonProver<Scheme>,
     E: EncodedChallenge<Scheme::Curve>,
     T: TranscriptWriteState<Scheme::Curve, E>,
     ConcreteCircuit: Circuit<Scheme::Scalar>,
 >(
-    prover: &mut TachyonSHPlonkProver<Scheme>,
+    prover: &mut P,
     pk: &mut TachyonProvingKey<Scheme::Curve>,
     circuits: &[ConcreteCircuit],
     instances: &[&[&[Scheme::Scalar]]],
@@ -52,7 +53,7 @@ pub fn create_proof<
 
     prover.set_extended_domain(pk);
     // Hash verification key into transcript
-    transcript.common_scalar(pk.transcript_repr(prover))?;
+    transcript.common_scalar(prover.transcript_repr(pk))?;
 
     let mut meta = ConstraintSystem::default();
     let config = ConcreteCircuit::configure(&mut meta);
@@ -73,9 +74,9 @@ pub fn create_proof<
                     }
 
                     for i in 0..values.len() {
-                        // NOTE(chokobole): P::QUERY_INSTANCE is removed since this isn't compiled well with it.
-                        // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L91.
-                        transcript.common_scalar(values[i])?;
+                        if !P::QUERY_INSTANCE {
+                            transcript.common_scalar(values[i])?;
+                        }
                         poly.set_value(i, unsafe {
                             std::mem::transmute::<_, &halo2curves::bn256::Fr>(&values[i])
                         });
@@ -84,8 +85,25 @@ pub fn create_proof<
                 })
                 .collect::<Result<Vec<_>, _>>()?;
 
-            // NOTE(chokobole): P::QUERY_INSTANCE is removed since this isn't compiled well with it.
-            // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L100-L117.
+            if P::QUERY_INSTANCE {
+                let instance_commitments_projective: Vec<_> = instance_values
+                    .iter()
+                    .map(|poly| prover.commit_lagrange(poly))
+                    .collect();
+                let mut instance_commitments =
+                    vec![Scheme::Curve::identity(); instance_commitments_projective.len()];
+                <Scheme::Curve as CurveAffine>::CurveExt::batch_normalize(
+                    &instance_commitments_projective,
+                    &mut instance_commitments,
+                );
+                let instance_commitments = instance_commitments;
+                drop(instance_commitments_projective);
+
+                for commitment in &instance_commitments {
+                    transcript.common_point(*commitment)?;
+                }
+            }
+
             let instance_polys: Vec<_> = instance_values
                 .iter()
                 .map(|evals| prover.ifft(evals))
@@ -426,7 +444,10 @@ pub fn create_proof<
 
 #[cfg(test)]
 mod test {
-    use crate::{bn254::SHPlonkProver as TachyonSHPlonkProver, consts::TranscriptType};
+    use crate::{
+        bn254::{SHPlonkProver as TachyonSHPlonkProver, TachyonProver},
+        consts::TranscriptType,
+    };
     use ff::Field;
     use halo2_proofs::poly::{
         commitment::{Blind, Params, ParamsProver},

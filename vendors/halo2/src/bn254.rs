@@ -673,6 +673,44 @@ impl Poly {
     }
 }
 
+pub trait TachyonProver<Scheme: CommitmentScheme> {
+    const QUERY_INSTANCE: bool;
+
+    fn k(&self) -> u32;
+
+    fn n(&self) -> u64;
+
+    fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt;
+
+    fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt;
+
+    fn empty_evals(&self) -> Evals;
+
+    fn empty_rational_evals(&self) -> RationalEvals;
+
+    fn batch_evaluate(&self, rational_evals: &[RationalEvals], evals: &mut [Evals]);
+
+    fn ifft(&self, evals: &Evals) -> Poly;
+
+    fn set_rng(&mut self, state: &[u8]);
+
+    fn set_transcript(&mut self, state: &[u8]);
+
+    fn set_extended_domain(&mut self, pk: &ProvingKey<Scheme::Curve>);
+
+    fn create_proof(
+        &mut self,
+        key: &mut ProvingKey<Scheme::Curve>,
+        instance_singles: &mut [InstanceSingle],
+        advice_singles: &mut [AdviceSingle],
+        challenges: &[Fr],
+    );
+
+    fn get_proof(&self) -> Vec<u8>;
+
+    fn transcript_repr(&self, pk: &mut ProvingKey<Scheme::Curve>) -> Scheme::Scalar;
+}
+
 pub struct SHPlonkProver<Scheme: CommitmentScheme> {
     inner: cxx::UniquePtr<ffi::SHPlonkProver>,
     _marker: PhantomData<Scheme>,
@@ -686,16 +724,20 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
             _marker: PhantomData,
         }
     }
+}
 
-    pub fn k(&self) -> u32 {
+impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
+    const QUERY_INSTANCE: bool = false;
+
+    fn k(&self) -> u32 {
         self.inner.k()
     }
 
-    pub fn n(&self) -> u64 {
+    fn n(&self) -> u64 {
         self.inner.n()
     }
 
-    pub fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
+    fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
         *unsafe {
             std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
                 self.inner.commit(&poly.inner),
@@ -703,7 +745,7 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
         }
     }
 
-    pub fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt {
+    fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt {
         *unsafe {
             std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
                 self.inner.commit_lagrange(&evals.inner),
@@ -711,15 +753,15 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
         }
     }
 
-    pub fn empty_evals(&self) -> Evals {
+    fn empty_evals(&self) -> Evals {
         Evals::new(self.inner.empty_evals())
     }
 
-    pub fn empty_rational_evals(&self) -> RationalEvals {
+    fn empty_rational_evals(&self) -> RationalEvals {
         RationalEvals::new(self.inner.empty_rational_evals())
     }
 
-    pub fn batch_evaluate(&self, rational_evals: &[RationalEvals], evals: &mut [Evals]) {
+    fn batch_evaluate(&self, rational_evals: &[RationalEvals], evals: &mut [Evals]) {
         unsafe {
             let rational_evals: &[cxx::UniquePtr<ffi::RationalEvals>] =
                 std::mem::transmute(rational_evals);
@@ -728,23 +770,23 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
         }
     }
 
-    pub fn ifft(&self, evals: &Evals) -> Poly {
+    fn ifft(&self, evals: &Evals) -> Poly {
         Poly::new(self.inner.ifft(&evals.inner))
     }
 
-    pub fn set_rng(&mut self, state: &[u8]) {
+    fn set_rng(&mut self, state: &[u8]) {
         self.inner.pin_mut().set_rng(state)
     }
 
-    pub fn set_transcript(&mut self, state: &[u8]) {
+    fn set_transcript(&mut self, state: &[u8]) {
         self.inner.pin_mut().set_transcript(state)
     }
 
-    pub fn set_extended_domain(&mut self, pk: &ProvingKey<Scheme::Curve>) {
+    fn set_extended_domain(&mut self, pk: &ProvingKey<Scheme::Curve>) {
         self.inner.pin_mut().set_extended_domain(&pk.inner)
     }
 
-    pub fn create_proof(
+    fn create_proof(
         &mut self,
         key: &mut ProvingKey<Scheme::Curve>,
         instance_singles: &mut [InstanceSingle],
@@ -759,7 +801,14 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
         )
     }
 
-    pub fn get_proof(&self) -> Vec<u8> {
+    fn get_proof(&self) -> Vec<u8> {
         self.inner.get_proof()
+    }
+
+    fn transcript_repr(
+        &self,
+        pk: &mut ProvingKey<<Scheme as CommitmentScheme>::Curve>,
+    ) -> Scheme::Scalar {
+        pk.transcript_repr(self)
     }
 }

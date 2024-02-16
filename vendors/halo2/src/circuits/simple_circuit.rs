@@ -307,6 +307,7 @@ mod test {
     use crate::bn254::{
         Blake2bWrite as TachyonBlake2bWrite, PoseidonWrite as TachyonPoseidonWrite,
         ProvingKey as TachyonProvingKey, SHPlonkProver, Sha256Write as TachyonSha256Write,
+        TachyonProver,
     };
     use crate::circuits::simple_circuit::SimpleCircuit;
     use crate::consts::{TranscriptType, SEED};
@@ -395,7 +396,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone()],
@@ -445,7 +446,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonPoseidonWrite::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone()],
@@ -496,7 +497,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonSha256Write::init(vec![]);
 
-            tachyon_create_proof::<_, _, _, _>(
+            tachyon_create_proof::<_, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit.clone()],
