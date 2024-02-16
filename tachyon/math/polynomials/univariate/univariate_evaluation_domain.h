@@ -112,9 +112,11 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Compute a FFT.
   [[nodiscard]] constexpr virtual Evals FFT(const DensePoly& poly) const = 0;
+  [[nodiscard]] constexpr virtual Evals FFT(DensePoly&& poly) const = 0;
 
   // Compute an IFFT.
   [[nodiscard]] constexpr virtual DensePoly IFFT(const Evals& evals) const = 0;
+  [[nodiscard]] constexpr virtual DensePoly IFFT(Evals&& evals) const = 0;
 
   // Computes the first |size| roots of unity for the entire domain.
   // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it computes

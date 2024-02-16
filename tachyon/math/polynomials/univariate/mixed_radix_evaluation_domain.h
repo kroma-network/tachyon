@@ -89,6 +89,18 @@ class MixedRadixEvaluationDomain
 
     Evals evals;
     evals.evaluations_ = poly.coefficients_.coefficients_;
+    return DoFFT(std::move(evals));
+  }
+
+  [[nodiscard]] constexpr Evals FFT(DensePoly&& poly) const override {
+    if (poly.IsZero()) return {};
+
+    Evals evals;
+    evals.evaluations_ = std::move(poly.coefficients_.coefficients_);
+    return DoFFT(std::move(evals));
+  }
+
+  [[nodiscard]] constexpr Evals DoFFT(Evals&& evals) const {
     if (!this->offset_.IsOne()) {
       Base::DistributePowers(evals, this->offset_);
     }
@@ -104,6 +116,20 @@ class MixedRadixEvaluationDomain
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = evals.evaluations_;
+    return DoIFFT(std::move(poly));
+  }
+
+  [[nodiscard]] constexpr DensePoly IFFT(Evals&& evals) const override {
+    // NOTE(chokobole): This is not a faster check any more since
+    // https://github.com/kroma-network/tachyon/pull/104.
+    if (evals.IsZero()) return {};
+
+    DensePoly poly;
+    poly.coefficients_.coefficients_ = std::move(evals.evaluations_);
+    return DoIFFT(std::move(poly));
+  }
+
+  [[nodiscard]] constexpr DensePoly DoIFFT(DensePoly&& poly) const {
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     BestFFT(poly, this->group_gen_inv_);
     if (this->offset_.IsOne()) {

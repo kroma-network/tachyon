@@ -97,6 +97,18 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
     Evals evals;
     evals.evaluations_ = poly.coefficients_.coefficients_;
+    return DoFFT(std::move(evals));
+  }
+
+  [[nodiscard]] constexpr Evals FFT(DensePoly&& poly) const override {
+    if (poly.IsZero()) return {};
+
+    Evals evals;
+    evals.evaluations_ = std::move(poly.coefficients_.coefficients_);
+    return DoFFT(std::move(evals));
+  }
+
+  [[nodiscard]] constexpr Evals DoFFT(Evals&& evals) const {
     if (evals.evaluations_.size() * kDegreeAwareFFTThresholdFactor <=
         this->size_) {
       DegreeAwareFFTInPlace(evals);
@@ -114,6 +126,20 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = evals.evaluations_;
+    return DoIFFT(std::move(poly));
+  }
+
+  [[nodiscard]] constexpr DensePoly IFFT(Evals&& evals) const override {
+    // NOTE(chokobole): This is not a faster check any more since
+    // https://github.com/kroma-network/tachyon/pull/104.
+    if (evals.IsZero()) return {};
+
+    DensePoly poly;
+    poly.coefficients_.coefficients_ = std::move(evals.evaluations_);
+    return DoIFFT(std::move(poly));
+  }
+
+  [[nodiscard]] constexpr DensePoly DoIFFT(DensePoly&& poly) const {
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     InOrderIFFTInPlace(poly);
     poly.coefficients_.RemoveHighDegreeZeros();
