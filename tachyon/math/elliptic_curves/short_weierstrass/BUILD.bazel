@@ -21,6 +21,7 @@ tachyon_cc_library(
         "projective_point_impl.h",
     ],
     deps = [
+        "//tachyon/base:parallelize",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/json",

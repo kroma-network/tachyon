@@ -12,6 +12,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/math/base/groups.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/curve_type.h"
@@ -109,16 +110,7 @@ class AffinePoint<
   [[nodiscard]] constexpr static bool BatchMapScalarFieldToPoint(
       const AffinePoint& point, const ScalarFieldContainer& scalar_fields,
       AffineContainer* affine_points) {
-    return DoBatchMapScalarFieldToPoint<false>(point, scalar_fields,
-                                               affine_points);
-  }
-
-  template <typename ScalarFieldContainer, typename AffineContainer>
-  [[nodiscard]] constexpr static bool BatchMapScalarFieldToPointSerial(
-      const AffinePoint& point, const ScalarFieldContainer& scalar_fields,
-      AffineContainer* affine_points) {
-    return DoBatchMapScalarFieldToPoint<true>(point, scalar_fields,
-                                              affine_points);
+    return DoBatchMapScalarFieldToPoint(point, scalar_fields, affine_points);
   }
 
   constexpr const BaseField& x() const { return x_; }
@@ -201,8 +193,7 @@ class AffinePoint<
   }
 
  private:
-  template <bool IsSerial, typename ScalarFieldContainer,
-            typename AffineContainer>
+  template <typename ScalarFieldContainer, typename AffineContainer>
   [[nodiscard]] constexpr static bool DoBatchMapScalarFieldToPoint(
       const AffinePoint& point, const ScalarFieldContainer& scalar_fields,
       AffineContainer* affine_points) {
@@ -211,16 +202,20 @@ class AffinePoint<
       LOG(ERROR) << "Size of |scalar_fields| and |affine_points| do not match";
       return false;
     }
-    std::vector<JacobianPoint<Curve>> jacobian_points = base::Map(
-        scalar_fields,
-        [&point](const ScalarField& scalar) { return scalar * point; });
-    if constexpr (IsSerial) {
-      return JacobianPoint<Curve>::BatchNormalizeSerial(jacobian_points,
-                                                        affine_points);
-    } else {
-      return JacobianPoint<Curve>::BatchNormalize(jacobian_points,
-                                                  affine_points);
-    }
+    std::vector<JacobianPoint<Curve>> jacobian_points(size);
+    base::Parallelize(
+        jacobian_points, [&point, &scalar_fields, affine_points](
+                             absl::Span<JacobianPoint<Curve>> chunk,
+                             size_t chunk_idx, size_t chunk_size) {
+          size_t start = chunk_idx * chunk_size;
+          for (size_t i = 0; i < chunk.size(); ++i) {
+            chunk[i] = scalar_fields[start + i] * point;
+          }
+          absl::Span<AffinePoint> sub_affine =
+              absl::MakeSpan(*affine_points).subspan(start, chunk.size());
+          CHECK(JacobianPoint<Curve>::BatchNormalizeSerial(chunk, &sub_affine));
+        });
+    return true;
   }
 
   BaseField x_;

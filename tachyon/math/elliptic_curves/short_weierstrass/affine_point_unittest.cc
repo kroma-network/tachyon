@@ -113,10 +113,13 @@ TEST_F(AffinePointTest, ToPointXYZZ) {
   EXPECT_EQ(p.ToXYZZ(), test::PointXYZZ(GF7(3), GF7(2), GF7(1), GF7(1)));
 }
 
-#if defined(TACHYON_HAS_OPENMP)
 TEST_F(AffinePointTest, BatchMapScalarFieldToPoint) {
+#if defined(TACHYON_HAS_OPENMP)
   size_t size = size_t{1} << (static_cast<size_t>(omp_get_max_threads()) /
                               GF7::kParallelBatchInverseDivisorThreshold);
+#else
+  size_t size = 7;
+#endif  // defined(TACHYON_HAS_OPENMP)
   std::vector<GF7> scalar_fields =
       base::CreateVector(size, [](int i) { return GF7(i % 7); });
   test::AffinePoint point = test::AffinePoint::Generator();
@@ -128,28 +131,6 @@ TEST_F(AffinePointTest, BatchMapScalarFieldToPoint) {
 
   affine_points.resize(scalar_fields.size());
   ASSERT_TRUE(test::AffinePoint::BatchMapScalarFieldToPoint(
-      point, scalar_fields, &affine_points));
-
-  std::vector<test::AffinePoint> expected_affine_points =
-      base::Map(scalar_fields, [&point](const GF7& scalar_field) {
-        return (scalar_field * point).ToAffine();
-      });
-  EXPECT_EQ(affine_points, expected_affine_points);
-}
-#endif  // defined(TACHYON_HAS_OPENMP)
-
-TEST_F(AffinePointTest, BatchMapScalarFieldToPointSerial) {
-  std::vector<GF7> scalar_fields =
-      base::CreateVector(7, [](int i) { return GF7(i); });
-  test::AffinePoint point = test::AffinePoint::Generator();
-
-  std::vector<test::AffinePoint> affine_points;
-  affine_points.resize(6);
-  ASSERT_FALSE(test::AffinePoint::BatchMapScalarFieldToPointSerial(
-      point, scalar_fields, &affine_points));
-
-  affine_points.resize(7);
-  ASSERT_TRUE(test::AffinePoint::BatchMapScalarFieldToPointSerial(
       point, scalar_fields, &affine_points));
 
   std::vector<test::AffinePoint> expected_affine_points =
