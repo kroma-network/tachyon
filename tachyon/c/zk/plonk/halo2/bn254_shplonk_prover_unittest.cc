@@ -15,6 +15,7 @@
 #include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
+#include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
 
 namespace tachyon::zk::plonk::halo2::bn254 {
@@ -105,11 +106,14 @@ TEST_F(SHPlonkProverTest, SetTranscript) {
       []() { return base::Uniform(base::Range<uint8_t>()); });
   tachyon_halo2_bn254_transcript_writer_update(transcript, data.data(),
                                                data.size());
-  uint8_t state[sizeof(blake2b_state_st)];
+  std::vector<uint8_t> state(
+      reinterpret_cast<Blake2bWriter<math::bn254::G1AffinePoint>*>(
+          transcript->extra)
+          ->GetStateLen());
   size_t state_len;
-  tachyon_halo2_bn254_transcript_writer_get_state(transcript, state,
+  tachyon_halo2_bn254_transcript_writer_get_state(transcript, state.data(),
                                                   &state_len);
-  tachyon_halo2_bn254_shplonk_prover_set_transcript_state(prover_, state,
+  tachyon_halo2_bn254_shplonk_prover_set_transcript_state(prover_, state.data(),
                                                           state_len);
 
   EXPECT_EQ(

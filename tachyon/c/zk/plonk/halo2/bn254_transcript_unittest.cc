@@ -1,6 +1,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 
 #include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -45,18 +46,21 @@ TYPED_TEST(TranscriptWriterTest, APIs) {
             reinterpret_cast<TranscriptWriter*>(this->writer_->extra)
                 ->SqueezeChallenge());
 
+  size_t expected_state_len =
+      reinterpret_cast<TranscriptWriter*>(this->writer_->extra)->GetStateLen();
+
   size_t state_len;
   tachyon_halo2_bn254_transcript_writer_get_state(this->writer_, nullptr,
                                                   &state_len);
-  ASSERT_EQ(state_len, sizeof(blake2b_state_st));
+  ASSERT_EQ(state_len, expected_state_len);
 
-  uint8_t state[sizeof(blake2b_state_st)];
-  tachyon_halo2_bn254_transcript_writer_get_state(this->writer_, state,
+  std::vector<uint8_t> state(state_len);
+  tachyon_halo2_bn254_transcript_writer_get_state(this->writer_, state.data(),
                                                   &state_len);
-  ASSERT_EQ(state_len, sizeof(blake2b_state_st));
+  ASSERT_EQ(state_len, expected_state_len);
 
   this->writer_clone_ = tachyon_halo2_bn254_transcript_writer_create_from_state(
-      type, state, state_len);
+      type, state.data(), state_len);
 
   EXPECT_EQ(reinterpret_cast<TranscriptWriter*>(this->writer_->extra)
                 ->SqueezeChallenge(),

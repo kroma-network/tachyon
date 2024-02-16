@@ -147,8 +147,12 @@ class Blake2bWriter : public crypto::TranscriptWriter<AffinePoint>,
   explicit Blake2bWriter(base::Uint8VectorBuffer write_buf)
       : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {}
 
-  // NOTE(chokobole): |Update()|, |Finalize()|, |GetState()| and |SetState()|
-  // are called from rust binding.
+  // NOTE(chokobole): |GetDigestLen()|, |GetStateLen()|, |Update()|,
+  // |Finalize()|, |GetState()| and |SetState()| are called from rust binding.
+  size_t GetDigestLen() const { return BLAKE2B512_DIGEST_LENGTH; }
+
+  size_t GetStateLen() const { return sizeof(blake2b_state_st); }
+
   void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
 
   void Finalize(uint8_t result[BLAKE2B512_DIGEST_LENGTH]) {

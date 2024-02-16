@@ -94,11 +94,11 @@ void tachyon_halo2_bn254_transcript_writer_get_state(
     size_t* state_len) {
   switch (static_cast<zk::plonk::halo2::TranscriptType>(writer->type)) {
     case zk::plonk::halo2::TranscriptType::kBlake2b: {
-      *state_len = sizeof(blake2b_state_st);
+      Blake2bWriter* blake2b = reinterpret_cast<Blake2bWriter*>(writer->extra);
+      *state_len = blake2b->GetStateLen();
       if (state == nullptr) return;
-      std::vector<uint8_t> state_tmp =
-          reinterpret_cast<Blake2bWriter*>(writer->extra)->GetState();
-      memcpy(state, state_tmp.data(), sizeof(blake2b_state_st));
+      std::vector<uint8_t> state_tmp = blake2b->GetState();
+      memcpy(state, state_tmp.data(), *state_len);
       return;
     }
   }
