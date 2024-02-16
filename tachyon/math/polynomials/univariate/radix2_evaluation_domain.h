@@ -143,7 +143,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
                                    });
     }
     size_t start_gap = duplicity_of_initials;
-    OutInHelper(evals, this->group_gen_, start_gap);
+    OutInHelper(evals, start_gap);
   }
 
   constexpr void InOrderFFTInPlace(Evals& evals) const {
@@ -171,14 +171,14 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     uint32_t log_len = static_cast<uint32_t>(base::bits::Log2Ceiling(
         static_cast<uint32_t>(evals.evaluations_.size())));
     this->SwapElements(evals, evals.evaluations_.size() - 1, log_len);
-    OutInHelper(evals, this->group_gen_, 1);
+    OutInHelper(evals, 1);
   }
 
   // Handles doing an IFFT with handling of being in order and out of order.
   // The results here must all be divided by |poly|, which is left up to the
   // caller to do.
   constexpr void IFFTHelperInPlace(DensePoly& poly) const {
-    InOutHelper(poly, this->group_gen_inv_);
+    InOutHelper(poly);
     uint32_t log_len = static_cast<uint32_t>(base::bits::Log2Ceiling(
         static_cast<uint32_t>(poly.coefficients_.coefficients_.size())));
     this->SwapElements(poly, poly.coefficients_.coefficients_.size() - 1,
@@ -188,7 +188,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   template <FFTOrder Order, typename PolyOrEvals>
   constexpr static void ApplyButterfly(PolyOrEvals& poly_or_evals,
                                        absl::Span<const F> roots, size_t step,
-                                       size_t chunk_size, size_t thread_nums,
                                        size_t gap) {
     void (*fn)(F&, F&, const F&);
 
@@ -198,6 +197,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       static_assert(Order == FFTOrder::kOutIn);
       fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn;
     }
+
+    // Each butterfly cluster uses 2 * |gap| positions.
+    size_t chunk_size = 2 * gap;
     OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < poly_or_evals.NumElements();
                                i += chunk_size) {
       // If the chunk is sufficiently big that parallelism helps,
@@ -211,22 +213,15 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     }
   }
 
-  constexpr void InOutHelper(DensePoly& poly, const F& root) const {
-    std::vector<F> roots = this->GetRootsOfUnity(this->size_ / 2, root);
+  constexpr void InOutHelper(DensePoly& poly) const {
+    std::vector<F> roots =
+        this->GetRootsOfUnity(this->size_ / 2, this->group_gen_inv_);
     size_t step = 1;
     bool first = true;
 
-#if defined(TACHYON_HAS_OPENMP)
-    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-#else
-    size_t thread_nums = 1;
-#endif
-
     size_t gap = poly.coefficients_.coefficients_.size() / 2;
     while (gap > 0) {
-      // Each butterfly cluster uses 2 * |gap| positions.
-      size_t chunk_size = 2 * gap;
-      size_t num_chunks = poly.coefficients_.coefficients_.size() / chunk_size;
+      size_t num_chunks = poly.coefficients_.coefficients_.size() / (2 * gap);
 
       // Only compact roots to achieve cache locality/compactness if the roots
       // lookup is done a significant amount of times, which also implies a
@@ -254,15 +249,14 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       }
       first = false;
 
-      ApplyButterfly<FFTOrder::kInOut>(poly, roots, step, chunk_size,
-                                       thread_nums, gap);
+      ApplyButterfly<FFTOrder::kInOut>(poly, roots, step, gap);
       gap /= 2;
     }
   }
 
-  constexpr void OutInHelper(Evals& evals, const F& root,
-                             size_t start_gap) const {
-    std::vector<F> roots_cache = this->GetRootsOfUnity(this->size_ / 2, root);
+  constexpr void OutInHelper(Evals& evals, size_t start_gap) const {
+    std::vector<F> roots_cache =
+        this->GetRootsOfUnity(this->size_ / 2, this->group_gen_);
     // The |std::min| is only necessary for the case where
     // |min_num_chunks_for_compaction_ = 1|. Else, notice that we compact the
     // |roots_cache| by a |step| of at least |min_num_chunks_for_compaction_|.
@@ -270,12 +264,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
         std::min(roots_cache.size() / 2,
                  roots_cache.size() / min_num_chunks_for_compaction_);
     std::vector<F> compacted_roots(compaction_max_size, F::Zero());
-
-#if defined(TACHYON_HAS_OPENMP)
-    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-#else
-    size_t thread_nums = 1;
-#endif
 
     size_t gap = start_gap;
     while (gap < evals.evaluations_.size()) {
@@ -297,8 +285,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
           evals,
           should_compact ? absl::Span<const F>(compacted_roots.data(), gap)
                          : roots_cache,
-          /*step=*/should_compact ? 1 : num_chunks, chunk_size, thread_nums,
-          gap);
+          /*step=*/should_compact ? 1 : num_chunks, gap);
       gap *= 2;
     }
   }
