@@ -33,7 +33,7 @@ class Sha256Base {
     uint8_t result[SHA256_DIGEST_LENGTH] = {0};
     DoFinalize(result);
 
-    DoInit();
+    SHA256_Init(&state_);
     DoUpdate(result, SHA256_DIGEST_LENGTH);
 
     if constexpr (ScalarField::N <= 4) {
@@ -62,8 +62,6 @@ class Sha256Base {
     return true;
   }
 
-  void DoInit() { SHA256_Init(&state_); }
-
   void DoUpdate(const void* data, size_t len) {
     SHA256_Update(&state_, data, len);
   }
@@ -87,14 +85,6 @@ class Sha256Reader : public crypto::TranscriptReader<AffinePoint>,
   // Initialize a transcript given an input buffer.
   explicit Sha256Reader(base::ReadOnlyBuffer read_buf)
       : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
-
-  void Init() { this->DoInit(); }
-
-  void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
-
-  void Finalize(uint8_t result[SHA256_DIGEST_LENGTH]) {
-    this->DoFinalize(result);
-  }
 
   // crypto::TranscriptReader methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
@@ -128,8 +118,6 @@ class Sha256Writer : public crypto::TranscriptWriter<AffinePoint>,
       : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {
     SHA256_Init(&state_);
   }
-
-  void Init() { this->DoInit(); }
 
   void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
 
