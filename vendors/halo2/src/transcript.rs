@@ -2,9 +2,12 @@
 mod test {
     use std::io;
 
-    use crate::bn254::{
-        Blake2bWrite as TachyonBlake2bWrite, PoseidonWrite as TachyonPoseidonWrite,
-        TranscriptWriteState,
+    use crate::{
+        bn254::{
+            Blake2bWrite as TachyonBlake2bWrite, PoseidonWrite as TachyonPoseidonWrite,
+            Sha256Write as TachyonSha256Write, TranscriptWriteState,
+        },
+        sha::ShaWrite,
     };
     use ff::Field;
     use halo2_proofs::transcript::{
@@ -191,6 +194,74 @@ mod test {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ]
+        );
+    }
+
+    #[test]
+    fn test_sha256_write_scalar_to_proof() {
+        let fr = Fr::random(OsRng);
+        let proof = {
+            let mut transcript =
+                ShaWrite::<_, G1Affine, Challenge255<_>, sha2::Sha256>::init(vec![]);
+            write_scalar_to_proof::<Bn256, _, _>(&mut transcript, fr.clone()).unwrap();
+            transcript.finalize()
+        };
+        let proof_tachyon = {
+            let mut transcript = TachyonSha256Write::init(vec![]);
+            write_scalar_to_proof::<Bn256, _, _>(&mut transcript, fr).unwrap();
+            transcript.finalize()
+        };
+        assert_eq!(proof, proof_tachyon);
+    }
+
+    #[test]
+    fn test_sha256_write_point_to_proof() {
+        let point = G1Affine::random(OsRng);
+        let proof = {
+            let mut transcript =
+                ShaWrite::<_, G1Affine, Challenge255<_>, sha2::Sha256>::init(vec![]);
+            write_point_to_proof::<Bn256, _, _>(&mut transcript, point.clone()).unwrap();
+            transcript.finalize()
+        };
+        let proof_tachyon = {
+            let mut transcript = TachyonSha256Write::init(vec![]);
+            write_point_to_proof::<Bn256, _, _>(&mut transcript, point).unwrap();
+            transcript.finalize()
+        };
+        assert_eq!(proof, proof_tachyon);
+    }
+
+    #[test]
+    fn test_sha256_squeeze_challenge() {
+        let point = G1Affine::random(OsRng);
+        let theta = {
+            let mut transcript =
+                ShaWrite::<_, G1Affine, Challenge255<_>, sha2::Sha256>::init(vec![]);
+            write_point_to_proof::<Bn256, _, _>(&mut transcript, point.clone()).unwrap();
+            let theta = squeeze_challenge::<Bn256, _, _>(&mut transcript);
+            *theta
+        };
+        let theta_tachyon = {
+            let mut transcript = TachyonSha256Write::init(vec![]);
+            write_point_to_proof::<Bn256, _, _>(&mut transcript, point).unwrap();
+            let theta = squeeze_challenge::<Bn256, _, _>(&mut transcript);
+            *theta
+        };
+        assert_eq!(theta, theta_tachyon);
+    }
+
+    #[test]
+    fn test_sha256_state() {
+        let transcript = TachyonSha256Write::<_, G1Affine, Challenge255<_>>::init(vec![]);
+        assert_eq!(
+            transcript.state(),
+            vec![
+                103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82,
+                14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0
             ]
         );
     }

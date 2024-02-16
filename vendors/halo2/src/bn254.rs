@@ -3,7 +3,7 @@ use std::{
     marker::PhantomData,
 };
 
-use ff::PrimeField;
+use ff::{Field, PrimeField};
 use halo2_proofs::{
     plonk::{sealed, Column, Fixed},
     poly::commitment::{Blind, CommitmentScheme},
@@ -88,6 +88,17 @@ pub mod ffi {
         fn new_poseidon_writer() -> UniquePtr<PoseidonWriter>;
         fn update(self: Pin<&mut PoseidonWriter>, data: &[u8]);
         fn squeeze(self: Pin<&mut PoseidonWriter>) -> Box<Fr>;
+        fn state(&self) -> Vec<u8>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_sha256_writer.h");
+
+        type Sha256Writer;
+
+        fn new_sha256_writer() -> UniquePtr<Sha256Writer>;
+        fn update(self: Pin<&mut Sha256Writer>, data: &[u8]);
+        fn finalize(self: Pin<&mut Sha256Writer>, result: &mut [u8; 32]);
         fn state(&self) -> Vec<u8>;
     }
 
@@ -378,6 +389,120 @@ impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
 {
     fn state(&self) -> Vec<u8> {
         self.state.state()
+    }
+}
+
+pub struct Sha256Write<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
+    state: cxx::UniquePtr<ffi::Sha256Writer>,
+    writer: W,
+    _marker: PhantomData<(W, C, E)>,
+}
+
+impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
+    for Sha256Write<W, C, Challenge255<C>>
+{
+    fn squeeze_challenge(&mut self) -> Challenge255<C> {
+        const SHA256_PREFIX_CHALLENGE: u8 = 0;
+        self.state.pin_mut().update(&[SHA256_PREFIX_CHALLENGE]);
+        let mut result: [u8; 32] = [0; 32];
+        self.state.pin_mut().finalize(&mut result);
+
+        self.state = ffi::new_sha256_writer();
+        self.state.pin_mut().update(result.as_slice());
+
+        let mut bytes = result.to_vec();
+        bytes.resize(64, 0u8);
+        Challenge255::<C>::new(&bytes.try_into().unwrap())
+    }
+
+    fn common_point(&mut self, point: C) -> io::Result<()> {
+        const SHA256_PREFIX_POINT: u8 = 1;
+        self.state.pin_mut().update(&[0u8; 31]);
+        self.state.pin_mut().update(&[SHA256_PREFIX_POINT]);
+        let coords: Coordinates<C> = Option::from(point.coordinates()).ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                "cannot write points at infinity to the transcript",
+            )
+        })?;
+
+        for base in &[coords.x(), coords.y()] {
+            let mut buf = base.to_repr().as_ref().to_vec();
+            buf.resize(32, 0u8);
+            buf.reverse();
+            self.state.pin_mut().update(buf.as_slice());
+        }
+
+        Ok(())
+    }
+
+    fn common_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        const SHA256_PREFIX_SCALAR: u8 = 1;
+        self.state.pin_mut().update(&[0u8; 31]);
+        self.state.pin_mut().update(&[SHA256_PREFIX_SCALAR]);
+
+        {
+            let mut buf = scalar.to_repr().as_ref().to_vec();
+            buf.resize(32, 0u8);
+            buf.reverse();
+            self.state.pin_mut().update(buf.as_slice());
+        }
+
+        Ok(())
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
+    for Sha256Write<W, C, Challenge255<C>>
+{
+    fn write_point(&mut self, point: C) -> io::Result<()> {
+        self.common_point(point)?;
+
+        let coords = point.coordinates();
+        let x = coords
+            .map(|v| *v.x())
+            .unwrap_or(<C as CurveAffine>::Base::zero());
+        let y = coords
+            .map(|v| *v.y())
+            .unwrap_or(<C as CurveAffine>::Base::zero());
+
+        for base in &[&x, &y] {
+            self.writer.write_all(base.to_repr().as_ref())?;
+        }
+
+        Ok(())
+    }
+
+    fn write_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        self.common_scalar(scalar)?;
+        let data = scalar.to_repr();
+
+        self.writer.write_all(data.as_ref())
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
+    for Sha256Write<W, C, Challenge255<C>>
+{
+    fn state(&self) -> Vec<u8> {
+        self.state.state()
+    }
+}
+
+impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>> Sha256Write<W, C, E> {
+    /// Initialize a transcript given an output buffer.
+    pub fn init(writer: W) -> Self {
+        Sha256Write {
+            state: ffi::new_sha256_writer(),
+            writer,
+            _marker: PhantomData,
+        }
+    }
+
+    /// Conclude the interaction and return the output buffer (writer).
+    pub fn finalize(self) -> W {
+        // TODO: handle outstanding scalars? see issue #138
+        self.writer
     }
 }
 

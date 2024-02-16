@@ -23,6 +23,7 @@ tachyon_rust_library(
         ":bn254_poseidon_writer",
         ":bn254_proving_key",
         ":bn254_rational_evals",
+        ":bn254_sha256_writer",
         ":bn254_shplonk_prover",
         ":xor_shift_rng",
         ":xor_shift_rng_cxx_bridge",
@@ -79,6 +80,7 @@ tachyon_cc_library(
         "include/bn254_poseidon_writer.h",
         "include/bn254_proving_key.h",
         "include/bn254_rational_evals.h",
+        "include/bn254_sha256_writer.h",
         "include/bn254_shplonk_prover.h",
     ],
     deps = [
@@ -155,6 +157,16 @@ tachyon_cc_library(
     deps = [
         ":bn254_api_hdrs",
         ":bn254_cxx_bridge/include",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_sha256_writer",
+    srcs = ["src/bn254_sha256_writer.cc"],
+    deps = [
+        ":bn254_api_hdrs",
+        ":bn254_cxx_bridge/include",
+        "//tachyon/base:logging",
     ],
 )
 
