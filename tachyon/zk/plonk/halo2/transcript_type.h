@@ -17,6 +17,7 @@ namespace zk::plonk::halo2 {
 // Pleas refer to tachyon/c/zk/plonk/halo2/constants.h for details.
 enum class TranscriptType : uint8_t {
   kBlake2b,
+  kPoseidon,
 };
 
 }  // namespace zk::plonk::halo2

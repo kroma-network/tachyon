@@ -92,7 +92,7 @@ mod test {
         Blake2bWrite as TachyonBlake2bWrite, ProvingKey as TachyonProvingKey, SHPlonkProver,
     };
     use crate::circuits::simple_lookup_circuit::SimpleLookupCircuit;
-    use crate::consts::SEED;
+    use crate::consts::{TranscriptType, SEED};
     use crate::prover::create_proof as tachyon_create_proof;
     use crate::xor_shift_rng::XORShiftRng;
     use halo2_proofs::{
@@ -153,7 +153,7 @@ mod test {
         };
 
         let tachyon_proof = {
-            let mut prover = SHPlonkProver::new(k, &s);
+            let mut prover = SHPlonkProver::new(TranscriptType::Blake2b as u8, k, &s);
 
             let mut pk_bytes: Vec<u8> = vec![];
             pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)

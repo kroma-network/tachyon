@@ -413,7 +413,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
 
 #[cfg(test)]
 mod test {
-    use crate::bn254::SHPlonkProver as TachyonSHPlonkProver;
+    use crate::{bn254::SHPlonkProver as TachyonSHPlonkProver, consts::TranscriptType};
     use ff::Field;
     use halo2_proofs::poly::{
         commitment::{Blind, Params, ParamsProver},
@@ -429,7 +429,7 @@ mod test {
         const N: u64 = 16;
         let s = Fr::from(2);
         let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
-        let prover = TachyonSHPlonkProver::new(k, &s);
+        let prover = TachyonSHPlonkProver::new(TranscriptType::Blake2b as u8, k, &s);
         assert_eq!(prover.n(), N);
 
         let domain = EvaluationDomain::new(1, k);

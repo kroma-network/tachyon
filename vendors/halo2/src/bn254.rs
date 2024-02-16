@@ -134,7 +134,7 @@ pub mod ffi {
 
         type SHPlonkProver;
 
-        fn new_shplonk_prover(k: u32, s: &Fr) -> UniquePtr<SHPlonkProver>;
+        fn new_shplonk_prover(transcript_type: u8, k: u32, s: &Fr) -> UniquePtr<SHPlonkProver>;
         fn k(&self) -> u32;
         fn n(&self) -> u64;
         fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
@@ -411,10 +411,10 @@ pub struct SHPlonkProver {
 }
 
 impl SHPlonkProver {
-    pub fn new(k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver {
+    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver {
         let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
         SHPlonkProver {
-            inner: ffi::new_shplonk_prover(k, cpp_s),
+            inner: ffi::new_shplonk_prover(transcript_type, k, cpp_s),
         }
     }
 

@@ -12,6 +12,7 @@
 #include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
+#include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 
@@ -45,6 +46,12 @@ tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
           case zk::plonk::halo2::TranscriptType::kBlake2b: {
             writer = std::make_unique<
                 zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
+                std::move(write_buf));
+            break;
+          }
+          case zk::plonk::halo2::TranscriptType::kPoseidon: {
+            writer = std::make_unique<
+                zk::plonk::halo2::PoseidonWriter<math::bn254::G1AffinePoint>>(
                 std::move(write_buf));
             break;
           }
@@ -83,6 +90,12 @@ tachyon_halo2_bn254_shplonk_prover_create_from_params(uint8_t transcript_type,
           case zk::plonk::halo2::TranscriptType::kBlake2b: {
             writer = std::make_unique<
                 zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
+                std::move(write_buf));
+            break;
+          }
+          case zk::plonk::halo2::TranscriptType::kPoseidon: {
+            writer = std::make_unique<
+                zk::plonk::halo2::PoseidonWriter<math::bn254::G1AffinePoint>>(
                 std::move(write_buf));
             break;
           }
@@ -163,6 +176,17 @@ void tachyon_halo2_bn254_shplonk_prover_set_transcript_state(
           zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>
           writer = std::make_unique<
               zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>>(
+              std::move(write_buf));
+      absl::Span<const uint8_t> state_span(state, state_len);
+      writer->SetState(state_span);
+      prover_impl->SetTranscript(state_span, std::move(writer));
+      return;
+    }
+    case zk::plonk::halo2::TranscriptType::kPoseidon: {
+      std::unique_ptr<
+          zk::plonk::halo2::PoseidonWriter<math::bn254::G1AffinePoint>>
+          writer = std::make_unique<
+              zk::plonk::halo2::PoseidonWriter<math::bn254::G1AffinePoint>>(
               std::move(write_buf));
       absl::Span<const uint8_t> state_span(state, state_len);
       writer->SetState(state_span);

@@ -8,6 +8,7 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
+#include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 
@@ -38,6 +39,12 @@ tachyon_halo2_bn254_shplonk_verifier_create_from_params(
           case zk::plonk::halo2::TranscriptType::kBlake2b: {
             reader = std::make_unique<
                 zk::plonk::halo2::Blake2bReader<math::bn254::G1AffinePoint>>(
+                std::move(read_buf));
+            break;
+          }
+          case zk::plonk::halo2::TranscriptType::kPoseidon: {
+            reader = std::make_unique<
+                zk::plonk::halo2::PoseidonReader<math::bn254::G1AffinePoint>>(
                 std::move(read_buf));
             break;
           }

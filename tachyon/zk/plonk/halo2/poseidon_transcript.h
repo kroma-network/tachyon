@@ -9,6 +9,9 @@
 
 #include <array>
 #include <utility>
+#include <vector>
+
+#include "absl/types/span.h"
 
 #include "tachyon/crypto/transcripts/transcript.h"
 #include "tachyon/zk/plonk/halo2/poseidon_sponge.h"
@@ -42,8 +45,25 @@ class PoseidonBase {
     return state_.Absorb(scalar);
   }
 
-  // TODO(chokobole): Implement DoUpdate() and DoFinalize() like
-  // |Blake2bTranscript| or |Sha256Transcript|.
+  void DoUpdate(const ScalarField* data, size_t len) {
+    CHECK(state_.Absorb(absl::Span<const ScalarField>(data, len)));
+  }
+
+  std::vector<uint8_t> DoGetState() const {
+    base::Uint8VectorBuffer buffer;
+    buffer.set_endian(base::Endian::kLittle);
+    CHECK(buffer.Grow(base::EstimateSize(state_.state)));
+    CHECK(buffer.Write(state_.state));
+    CHECK(buffer.Done());
+    return std::move(buffer).TakeOwnedBuffer();
+  }
+
+  void DoSetState(absl::Span<const uint8_t> state) {
+    base::ReadOnlyBuffer buffer(state.data(), state.size());
+    buffer.set_endian(base::Endian::kLittle);
+    CHECK(buffer.Read(&state_.state));
+    CHECK(buffer.Done());
+  }
 
   PoseidonSponge<ScalarField> state_;
 };
@@ -86,10 +106,29 @@ class PoseidonWriter : public crypto::TranscriptWriter<AffinePoint>,
                        protected internal::PoseidonBase<AffinePoint> {
  public:
   using ScalarField = typename AffinePoint::ScalarField;
+  using ScalarBigInt = typename ScalarField::BigIntTy;
 
   // Initialize a transcript given an output buffer.
   explicit PoseidonWriter(base::Uint8VectorBuffer buffer)
       : crypto::TranscriptWriter<AffinePoint>(std::move(buffer)) {}
+
+  // NOTE(chokobole): |GetDigestLen()|, |GetStateLen()|, |Update()|,
+  // |Squeeze()|, |GetState()| and |SetState()| are called from rust binding.
+  size_t GetDigestLen() const { return ScalarBigInt::kByteNums; }
+
+  size_t GetStateLen() const { return base::EstimateSize(this->state_.state); }
+
+  void Update(const ScalarField* data, size_t len) {
+    this->DoUpdate(data, len);
+  }
+
+  ScalarField Squeeze() {
+    return this->state_.SqueezeNativeFieldElements(1)[0];
+  }
+
+  std::vector<uint8_t> GetState() const { return this->DoGetState(); }
+
+  void SetState(absl::Span<const uint8_t> state) { this->DoSetState(state); }
 
   // crypto::TranscriptWriter methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }

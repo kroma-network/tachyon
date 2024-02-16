@@ -8,12 +8,15 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
+#include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 using namespace tachyon;
 
 using Blake2bWriter =
     zk::plonk::halo2::Blake2bWriter<math::bn254::G1AffinePoint>;
+using PoseidonWriter =
+    zk::plonk::halo2::PoseidonWriter<math::bn254::G1AffinePoint>;
 
 tachyon_halo2_bn254_transcript_writer*
 tachyon_halo2_bn254_transcript_writer_create(uint8_t type) {
@@ -23,6 +26,10 @@ tachyon_halo2_bn254_transcript_writer_create(uint8_t type) {
   switch (static_cast<zk::plonk::halo2::TranscriptType>(type)) {
     case zk::plonk::halo2::TranscriptType::kBlake2b: {
       writer->extra = new Blake2bWriter(base::Uint8VectorBuffer());
+      return writer;
+    }
+    case zk::plonk::halo2::TranscriptType::kPoseidon: {
+      writer->extra = new PoseidonWriter(base::Uint8VectorBuffer());
       return writer;
     }
   }
@@ -44,6 +51,12 @@ tachyon_halo2_bn254_transcript_writer_create_from_state(uint8_t type,
       writer->extra = blake2b;
       return writer;
     }
+    case zk::plonk::halo2::TranscriptType::kPoseidon: {
+      PoseidonWriter* poseidon = new PoseidonWriter(base::Uint8VectorBuffer());
+      poseidon->SetState(absl::Span<const uint8_t>(state, state_len));
+      writer->extra = poseidon;
+      return writer;
+    }
   }
   NOTREACHED();
   return nullptr;
@@ -57,6 +70,11 @@ void tachyon_halo2_bn254_transcript_writer_destroy(
       delete writer;
       return;
     }
+    case zk::plonk::halo2::TranscriptType::kPoseidon: {
+      delete reinterpret_cast<PoseidonWriter*>(writer->extra);
+      delete writer;
+      return;
+    }
   }
   NOTREACHED();
 }
@@ -67,6 +85,12 @@ void tachyon_halo2_bn254_transcript_writer_update(
   switch (static_cast<zk::plonk::halo2::TranscriptType>(writer->type)) {
     case zk::plonk::halo2::TranscriptType::kBlake2b: {
       reinterpret_cast<Blake2bWriter*>(writer->extra)->Update(data, data_len);
+      return;
+    }
+    case zk::plonk::halo2::TranscriptType::kPoseidon: {
+      reinterpret_cast<PoseidonWriter*>(writer->extra)
+          ->Update(reinterpret_cast<const PoseidonWriter::ScalarField*>(data),
+                   data_len / PoseidonWriter::ScalarBigInt::kByteNums);
       return;
     }
   }
@@ -85,8 +109,28 @@ void tachyon_halo2_bn254_transcript_writer_finalize(
       memcpy(data, data_tmp, BLAKE2B512_DIGEST_LENGTH);
       return;
     }
+    case zk::plonk::halo2::TranscriptType::kPoseidon:
+      break;
   }
   NOTREACHED();
+}
+
+tachyon_bn254_fr tachyon_halo2_bn254_transcript_writer_squeeze(
+    tachyon_halo2_bn254_transcript_writer* writer) {
+  tachyon_bn254_fr ret;
+  math::bn254::Fr challenge;
+  switch (static_cast<zk::plonk::halo2::TranscriptType>(writer->type)) {
+    case zk::plonk::halo2::TranscriptType::kPoseidon: {
+      challenge = reinterpret_cast<PoseidonWriter*>(writer->extra)->Squeeze();
+      memcpy(ret.limbs, challenge.value().limbs,
+             math::bn254::Fr::BigIntTy::kByteNums);
+      return ret;
+    }
+    case zk::plonk::halo2::TranscriptType::kBlake2b:
+      break;
+  }
+  NOTREACHED();
+  return ret;
 }
 
 void tachyon_halo2_bn254_transcript_writer_get_state(
@@ -98,6 +142,15 @@ void tachyon_halo2_bn254_transcript_writer_get_state(
       *state_len = blake2b->GetStateLen();
       if (state == nullptr) return;
       std::vector<uint8_t> state_tmp = blake2b->GetState();
+      memcpy(state, state_tmp.data(), *state_len);
+      return;
+    }
+    case zk::plonk::halo2::TranscriptType::kPoseidon: {
+      PoseidonWriter* poseidon =
+          reinterpret_cast<PoseidonWriter*>(writer->extra);
+      *state_len = poseidon->GetStateLen();
+      if (state == nullptr) return;
+      std::vector<uint8_t> state_tmp = poseidon->GetState();
       memcpy(state, state_tmp.data(), *state_len);
       return;
     }

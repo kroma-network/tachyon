@@ -89,8 +89,10 @@ tachyon_cc_library(
         ":constants",
         "//tachyon/base:logging",
         "//tachyon/c:export",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/zk/plonk/halo2:blake2b_transcript",
+        "//tachyon/zk/plonk/halo2:poseidon_transcript",
         "//tachyon/zk/plonk/halo2:transcript_type",
     ],
 )

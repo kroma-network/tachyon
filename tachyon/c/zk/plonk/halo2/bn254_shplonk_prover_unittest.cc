@@ -16,11 +16,13 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
+#include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
+#include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 namespace tachyon::zk::plonk::halo2::bn254 {
 
-class SHPlonkProverTest : public testing::Test {
+class SHPlonkProverTest : public testing::TestWithParam<int> {
  public:
   using PCS = SHPlonkExtension<math::bn254::BN254Curve, c::math::kMaxDegree,
                                c::math::kMaxDegree, math::bn254::G1AffinePoint>;
@@ -30,7 +32,7 @@ class SHPlonkProverTest : public testing::Test {
     s_ = math::bn254::Fr(2);
     const tachyon_bn254_fr& c_s = cc::math::c_cast(s_);
     prover_ = tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
-        TACHYON_HALO2_BLAKE_TRANSCRIPT, k_, &c_s);
+        GetParam(), k_, &c_s);
   }
 
   void TearDown() override {
@@ -43,7 +45,11 @@ class SHPlonkProverTest : public testing::Test {
   math::bn254::Fr s_;
 };
 
-TEST_F(SHPlonkProverTest, Getters) {
+INSTANTIATE_TEST_SUITE_P(SHPlonkProverTest, SHPlonkProverTest,
+                         testing::Values(TACHYON_HALO2_BLAKE_TRANSCRIPT,
+                                         TACHYON_HALO2_POSEIDON_TRANSCRIPT));
+
+TEST_P(SHPlonkProverTest, Getters) {
   EXPECT_EQ(tachyon_halo2_bn254_shplonk_prover_get_k(prover_), k_);
   EXPECT_EQ(tachyon_halo2_bn254_shplonk_prover_get_n(prover_), size_t{1} << k_);
   EXPECT_EQ(tachyon_halo2_bn254_shplonk_prover_get_blinder(prover_),
@@ -54,7 +60,7 @@ TEST_F(SHPlonkProverTest, Getters) {
                 reinterpret_cast<Prover<PCS>*>(prover_)->domain()));
 }
 
-TEST_F(SHPlonkProverTest, Commit) {
+TEST_P(SHPlonkProverTest, Commit) {
   PCS::Domain::DensePoly poly = PCS::Domain::DensePoly::Random(5);
   tachyon_bn254_g1_jacobian* point = tachyon_halo2_bn254_shplonk_prover_commit(
       prover_,
@@ -64,7 +70,7 @@ TEST_F(SHPlonkProverTest, Commit) {
             cc::math::ToJacobianPoint(*point));
 }
 
-TEST_F(SHPlonkProverTest, CommitLagrange) {
+TEST_P(SHPlonkProverTest, CommitLagrange) {
   PCS::Domain::Evals evals = PCS::Domain::Evals::Random(5);
   tachyon_bn254_g1_jacobian* point =
       tachyon_halo2_bn254_shplonk_prover_commit_lagrange(
@@ -75,7 +81,7 @@ TEST_F(SHPlonkProverTest, CommitLagrange) {
             cc::math::ToJacobianPoint(*point));
 }
 
-TEST_F(SHPlonkProverTest, SetRng) {
+TEST_P(SHPlonkProverTest, SetRng) {
   std::vector<uint8_t> seed = base::CreateVector(
       crypto::XORShiftRNG::kSeedSize,
       []() { return base::Uniform(base::Range<uint8_t>()); });
@@ -97,20 +103,38 @@ TEST_F(SHPlonkProverTest, SetRng) {
   tachyon_rng_destroy(rng);
 }
 
-TEST_F(SHPlonkProverTest, SetTranscript) {
+TEST_P(SHPlonkProverTest, SetTranscript) {
+  uint8_t transcript_type = GetParam();
+
   tachyon_halo2_bn254_transcript_writer* transcript =
-      tachyon_halo2_bn254_transcript_writer_create(
-          TACHYON_HALO2_BLAKE_TRANSCRIPT);
+      tachyon_halo2_bn254_transcript_writer_create(transcript_type);
+
+  size_t digest_len = 0;
+  size_t state_len = 0;
+  switch (static_cast<TranscriptType>(transcript_type)) {
+    case TranscriptType::kBlake2b: {
+      Blake2bWriter<math::bn254::G1AffinePoint>* blake2b =
+          reinterpret_cast<Blake2bWriter<math::bn254::G1AffinePoint>*>(
+              transcript->extra);
+      digest_len = blake2b->GetDigestLen();
+      state_len = blake2b->GetStateLen();
+      break;
+    }
+    case TranscriptType::kPoseidon: {
+      PoseidonWriter<math::bn254::G1AffinePoint>* poseidon =
+          reinterpret_cast<PoseidonWriter<math::bn254::G1AffinePoint>*>(
+              transcript->extra);
+      digest_len = poseidon->GetDigestLen();
+      state_len = poseidon->GetStateLen();
+      break;
+    }
+  }
+
   std::vector<uint8_t> data = base::CreateVector(
-      BLAKE2B512_DIGEST_LENGTH,
-      []() { return base::Uniform(base::Range<uint8_t>()); });
+      digest_len, []() { return base::Uniform(base::Range<uint8_t>()); });
   tachyon_halo2_bn254_transcript_writer_update(transcript, data.data(),
                                                data.size());
-  std::vector<uint8_t> state(
-      reinterpret_cast<Blake2bWriter<math::bn254::G1AffinePoint>*>(
-          transcript->extra)
-          ->GetStateLen());
-  size_t state_len;
+  std::vector<uint8_t> state(state_len);
   tachyon_halo2_bn254_transcript_writer_get_state(transcript, state.data(),
                                                   &state_len);
   tachyon_halo2_bn254_shplonk_prover_set_transcript_state(prover_, state.data(),
