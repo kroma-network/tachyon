@@ -2,13 +2,12 @@
 
 use std::{
     collections::{BTreeSet, HashMap},
-    io::Write,
     ops::RangeTo,
 };
 
 use crate::bn254::{
-    AdviceSingle, Blake2bWrite as TachyonBlake2bWrite, Evals, InstanceSingle,
-    ProvingKey as TachyonProvingKey, RationalEvals, SHPlonkProver as TachyonSHPlonkProver,
+    AdviceSingle, Evals, InstanceSingle, ProvingKey as TachyonProvingKey, RationalEvals,
+    SHPlonkProver as TachyonSHPlonkProver, TranscriptWriteState,
 };
 use crate::xor_shift_rng::XORShiftRng as TachyonXORShiftRng;
 use ff::Field;
@@ -18,25 +17,32 @@ use halo2_proofs::{
         sealed, Advice, Any, Assigned, Assignment, Challenge, Circuit, Column, ConstraintSystem,
         Error, Fixed, FloorPlanner, Instance, Selector,
     },
-    poly::commitment::Blind,
-    transcript::{Challenge255, Transcript, TranscriptWrite},
+    poly::commitment::{Blind, CommitmentScheme},
+    transcript::EncodedChallenge,
 };
 use halo2curves::{
-    bn256::{Fr, G1Affine, G1},
+    bn256::Fr,
     group::{prime::PrimeCurveAffine, Curve},
+    CurveAffine,
 };
 
 /// This creates a proof for the provided `circuit` when given the public
 /// parameters `params` and the proving key [`ProvingKey`] that was
 /// generated previously for the same circuit. The provided `instances`
 /// are zero-padded internally.
-pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
-    prover: &mut TachyonSHPlonkProver,
-    pk: &mut TachyonProvingKey,
+pub fn create_proof<
+    'params,
+    Scheme: CommitmentScheme,
+    E: EncodedChallenge<Scheme::Curve>,
+    T: TranscriptWriteState<Scheme::Curve, E>,
+    ConcreteCircuit: Circuit<Scheme::Scalar>,
+>(
+    prover: &mut TachyonSHPlonkProver<Scheme>,
+    pk: &mut TachyonProvingKey<Scheme::Curve>,
     circuits: &[ConcreteCircuit],
-    instances: &[&[&[Fr]]],
+    instances: &[&[&[Scheme::Scalar]]],
     mut rng: TachyonXORShiftRng,
-    transcript: &mut TachyonBlake2bWrite<W, G1Affine, Challenge255<G1Affine>>,
+    transcript: &mut T,
 ) -> Result<(), Error> {
     for instance in instances.iter() {
         if instance.len() != pk.num_instance_columns() {
@@ -70,7 +76,9 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                         // NOTE(chokobole): P::QUERY_INSTANCE is removed since this isn't compiled well with it.
                         // See https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/prover.rs#L91.
                         transcript.common_scalar(values[i])?;
-                        poly.set_value(i, &values[i]);
+                        poly.set_value(i, unsafe {
+                            std::mem::transmute::<_, &halo2curves::bn256::Fr>(&values[i])
+                        });
                     }
                     Ok(poly)
                 })
@@ -260,7 +268,7 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
         #[cfg(feature = "phase-check")]
         let mut advice_assignments =
             vec![vec![prover.empty_rational_evals(); num_advice_columns]; instances.len()];
-        let mut challenges = HashMap::<usize, Fr>::with_capacity(num_challenges);
+        let mut challenges = HashMap::<usize, Scheme::Scalar>::with_capacity(num_challenges);
 
         let unusable_rows_start = prover.n() as usize - ((pk.blinding_factors() as usize) + 1);
         for current_phase in pk.phases() {
@@ -365,13 +373,18 @@ pub fn create_proof<'params, W: Write, ConcreteCircuit: Circuit<Fr>>(
                     .map(|(poly, _)| prover.commit_lagrange(poly))
                     .collect();
                 let mut advice_commitments =
-                    vec![G1Affine::identity(); advice_commitments_projective.len()];
-                G1::batch_normalize(&advice_commitments_projective, &mut advice_commitments);
+                    vec![Scheme::Curve::identity(); advice_commitments_projective.len()];
+                <Scheme::Curve as CurveAffine>::CurveExt::batch_normalize(
+                    &advice_commitments_projective,
+                    &mut advice_commitments,
+                );
                 let advice_commitments = advice_commitments;
                 drop(advice_commitments_projective);
 
                 for commitment in &advice_commitments {
-                    transcript.write_point(*commitment)?;
+                    transcript.write_point(unsafe {
+                        std::mem::transmute::<_, Scheme::Curve>(*commitment)
+                    })?;
                 }
                 for ((column_index, advice_values), blind) in
                     column_indices.iter().zip(advice_values).zip(blinds)
@@ -417,7 +430,7 @@ mod test {
     use ff::Field;
     use halo2_proofs::poly::{
         commitment::{Blind, Params, ParamsProver},
-        kzg::commitment::ParamsKZG,
+        kzg::commitment::{KZGCommitmentScheme, ParamsKZG},
         EvaluationDomain,
     };
     use halo2curves::bn256::{Bn256, Fr};
@@ -429,7 +442,11 @@ mod test {
         const N: u64 = 16;
         let s = Fr::from(2);
         let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
-        let prover = TachyonSHPlonkProver::new(TranscriptType::Blake2b as u8, k, &s);
+        let prover = TachyonSHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
+            TranscriptType::Blake2b as u8,
+            k,
+            &s,
+        );
         assert_eq!(prover.n(), N);
 
         let domain = EvaluationDomain::new(1, k);

@@ -153,7 +153,11 @@ mod test {
         };
 
         let tachyon_proof = {
-            let mut prover = SHPlonkProver::new(TranscriptType::Blake2b as u8, k, &s);
+            let mut prover = SHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
+                TranscriptType::Blake2b as u8,
+                k,
+                &s,
+            );
 
             let mut pk_bytes: Vec<u8> = vec![];
             pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
@@ -161,7 +165,7 @@ mod test {
             let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
-            tachyon_create_proof::<_, _>(
+            tachyon_create_proof::<_, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
                 &[circuit],

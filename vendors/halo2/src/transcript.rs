@@ -2,7 +2,7 @@
 mod test {
     use std::io;
 
-    use crate::bn254::Blake2bWrite as TachyonBlake2bWrite;
+    use crate::bn254::{Blake2bWrite as TachyonBlake2bWrite, TranscriptWriteState};
     use ff::Field;
     use halo2_proofs::transcript::{
         Blake2bWrite, Challenge255, ChallengeScalar, EncodedChallenge, TranscriptWrite,

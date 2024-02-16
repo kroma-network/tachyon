@@ -6,7 +6,7 @@ use std::{
 use ff::PrimeField;
 use halo2_proofs::{
     plonk::{sealed, Column, Fixed},
-    poly::commitment::Blind,
+    poly::commitment::{Blind, CommitmentScheme},
     transcript::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
@@ -161,16 +161,16 @@ pub mod ffi {
     }
 }
 
+pub trait TranscriptWriteState<C: CurveAffine, E: EncodedChallenge<C>>:
+    TranscriptWrite<C, E>
+{
+    fn state(&self) -> Vec<u8>;
+}
+
 pub struct Blake2bWrite<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
     state: cxx::UniquePtr<ffi::Blake2bWriter>,
     writer: W,
     _marker: PhantomData<(W, C, E)>,
-}
-
-impl<W: Write, C: CurveAffine> Blake2bWrite<W, C, Challenge255<C>> {
-    pub fn state(&self) -> Vec<u8> {
-        self.state.state()
-    }
 }
 
 impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
@@ -226,6 +226,14 @@ impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
     }
 }
 
+impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
+    for Blake2bWrite<W, C, Challenge255<C>>
+{
+    fn state(&self) -> Vec<u8> {
+        self.state.state()
+    }
+}
+
 impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
     for Blake2bWrite<W, C, Challenge255<C>>
 {
@@ -244,14 +252,16 @@ impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
     }
 }
 
-pub struct ProvingKey {
+pub struct ProvingKey<C: CurveAffine> {
     inner: cxx::UniquePtr<ffi::ProvingKey>,
+    _marker: PhantomData<C>,
 }
 
-impl ProvingKey {
-    pub fn from(data: &[u8]) -> ProvingKey {
+impl<C: CurveAffine> ProvingKey<C> {
+    pub fn from(data: &[u8]) -> ProvingKey<C> {
         ProvingKey {
             inner: ffi::new_proving_key(data),
+            _marker: PhantomData,
         }
     }
 
@@ -316,9 +326,12 @@ impl ProvingKey {
     }
 
     // pk.vk.transcript_repr
-    pub fn transcript_repr(&mut self, prover: &SHPlonkProver) -> halo2curves::bn256::Fr {
+    pub fn transcript_repr<Scheme: CommitmentScheme>(
+        &mut self,
+        prover: &SHPlonkProver<Scheme>,
+    ) -> C::Scalar {
         *unsafe {
-            std::mem::transmute::<_, Box<halo2curves::bn256::Fr>>(
+            std::mem::transmute::<_, Box<C::Scalar>>(
                 self.inner.pin_mut().transcript_repr(&prover.inner),
             )
         }
@@ -406,15 +419,17 @@ impl Poly {
     }
 }
 
-pub struct SHPlonkProver {
+pub struct SHPlonkProver<Scheme: CommitmentScheme> {
     inner: cxx::UniquePtr<ffi::SHPlonkProver>,
+    _marker: PhantomData<Scheme>,
 }
 
-impl SHPlonkProver {
-    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver {
+impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
+    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver<Scheme> {
         let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
         SHPlonkProver {
             inner: ffi::new_shplonk_prover(transcript_type, k, cpp_s),
+            _marker: PhantomData,
         }
     }
 
@@ -426,15 +441,17 @@ impl SHPlonkProver {
         self.inner.n()
     }
 
-    pub fn commit(&self, poly: &Poly) -> halo2curves::bn256::G1 {
+    pub fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
         *unsafe {
-            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(self.inner.commit(&poly.inner))
+            std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
+                self.inner.commit(&poly.inner),
+            )
         }
     }
 
-    pub fn commit_lagrange(&self, evals: &Evals) -> halo2curves::bn256::G1 {
+    pub fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt {
         *unsafe {
-            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(
+            std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
                 self.inner.commit_lagrange(&evals.inner),
             )
         }
@@ -469,13 +486,13 @@ impl SHPlonkProver {
         self.inner.pin_mut().set_transcript(state)
     }
 
-    pub fn set_extended_domain(&mut self, pk: &ProvingKey) {
+    pub fn set_extended_domain(&mut self, pk: &ProvingKey<Scheme::Curve>) {
         self.inner.pin_mut().set_extended_domain(&pk.inner)
     }
 
     pub fn create_proof(
         &mut self,
-        key: &mut ProvingKey,
+        key: &mut ProvingKey<Scheme::Curve>,
         instance_singles: &mut [InstanceSingle],
         advice_singles: &mut [AdviceSingle],
         challenges: &[Fr],
