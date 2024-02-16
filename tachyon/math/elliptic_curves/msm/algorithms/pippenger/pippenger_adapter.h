@@ -29,7 +29,7 @@ class PippengerAdapter {
                          ScalarInputIterator scalars_last, Bucket* ret) {
     return RunWithStrategy(std::move(bases_first), std::move(bases_last),
                            std::move(scalars_first), std::move(scalars_last),
-                           PippengerParallelStrategy::kParallelWindow, ret);
+                           PippengerParallelStrategy::kParallelTerm, ret);
   }
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
@@ -54,6 +54,10 @@ class PippengerAdapter {
         LOG(ERROR) << "bases_size and scalars_size don't match";
         return false;
       }
+      if (scalars_size == 0) {
+        *ret = Bucket::Zero();
+        return true;
+      }
 
 #if defined(TACHYON_HAS_OPENMP)
       int thread_nums = omp_get_max_threads();
@@ -71,23 +75,23 @@ class PippengerAdapter {
         bool valid;
       };
 
-      std::vector<Result> results;
-      results.resize(thread_nums);
-      size_t size = (scalars_size + thread_nums - 1) / thread_nums;
 #if defined(TACHYON_HAS_OPENMP)
       omp_set_num_threads(thread_nums);
 #endif
-      OPENMP_PARALLEL_FOR(int i = 0; i < thread_nums; ++i) {
+      size_t chunk_size = (scalars_size + thread_nums - 1) / thread_nums;
+      size_t num_chunks = (scalars_size + chunk_size - 1) / chunk_size;
+      std::vector<Result> results;
+      results.resize(num_chunks);
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+        size_t start = i * chunk_size;
+        size_t len = i == num_chunks - 1 ? scalars_size - start : chunk_size;
         Pippenger<Point> pippenger;
         pippenger.SetParallelWindows(
             strategy == PippengerParallelStrategy::kParallelWindowAndTerm);
-        auto bases_start = bases_first + size * i;
-        auto bases_end =
-            i == thread_nums - 1 ? bases_last : bases_first + size * (i + 1);
-        auto scalars_start = scalars_first + size * i;
-        auto scalars_end = i == thread_nums - 1
-                               ? scalars_last
-                               : scalars_first + size * (i + 1);
+        auto bases_start = bases_first + start;
+        auto bases_end = bases_start + len;
+        auto scalars_start = scalars_first + start;
+        auto scalars_end = scalars_start + len;
         results[i].valid = pippenger.Run(bases_start, bases_end, scalars_start,
                                          scalars_end, &results[i].value);
       }
