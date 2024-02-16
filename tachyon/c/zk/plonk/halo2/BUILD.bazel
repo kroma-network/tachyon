@@ -93,6 +93,7 @@ tachyon_cc_library(
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/zk/plonk/halo2:blake2b_transcript",
         "//tachyon/zk/plonk/halo2:poseidon_transcript",
+        "//tachyon/zk/plonk/halo2:sha256_transcript",
         "//tachyon/zk/plonk/halo2:transcript_type",
     ],
 )

@@ -18,6 +18,7 @@ namespace zk::plonk::halo2 {
 enum class TranscriptType : uint8_t {
   kBlake2b,
   kPoseidon,
+  kSha256,
 };
 
 }  // namespace zk::plonk::halo2

@@ -18,6 +18,7 @@
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
 #include "tachyon/zk/plonk/halo2/prover.h"
+#include "tachyon/zk/plonk/halo2/sha256_transcript.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 namespace tachyon::zk::plonk::halo2::bn254 {
@@ -47,7 +48,8 @@ class SHPlonkProverTest : public testing::TestWithParam<int> {
 
 INSTANTIATE_TEST_SUITE_P(SHPlonkProverTest, SHPlonkProverTest,
                          testing::Values(TACHYON_HALO2_BLAKE_TRANSCRIPT,
-                                         TACHYON_HALO2_POSEIDON_TRANSCRIPT));
+                                         TACHYON_HALO2_POSEIDON_TRANSCRIPT,
+                                         TACHYON_HALO2_SHA256_TRANSCRIPT));
 
 TEST_P(SHPlonkProverTest, Getters) {
   EXPECT_EQ(tachyon_halo2_bn254_shplonk_prover_get_k(prover_), k_);
@@ -126,6 +128,14 @@ TEST_P(SHPlonkProverTest, SetTranscript) {
               transcript->extra);
       digest_len = poseidon->GetDigestLen();
       state_len = poseidon->GetStateLen();
+      break;
+    }
+    case TranscriptType::kSha256: {
+      Sha256Writer<math::bn254::G1AffinePoint>* sha256 =
+          reinterpret_cast<Sha256Writer<math::bn254::G1AffinePoint>*>(
+              transcript->extra);
+      digest_len = sha256->GetDigestLen();
+      state_len = sha256->GetStateLen();
       break;
     }
   }
