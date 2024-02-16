@@ -192,47 +192,33 @@ void PermutationProver<Poly, Evals>::OpenPermutationProvingKey(
 
 // static
 template <typename Poly, typename Evals>
-std::function<base::ParallelizeCallback3<typename Poly::Field>(size_t)>
+std::function<typename Poly::Field(size_t, RowIndex)>
 PermutationProver<Poly, Evals>::CreateNumeratorCallback(
     const std::vector<base::Ref<const Evals>>& unpermuted_columns,
     const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
     const F& gamma) {
   // vᵢ(ωʲ) + β * δⁱ * ωʲ + γ
-  return [&unpermuted_columns, &value_columns, &beta,
-          &gamma](size_t column_index) {
+  return [&unpermuted_columns, &value_columns, &beta, &gamma](
+             size_t column_index, RowIndex row_index) {
     const Evals& unpermuted_values = *unpermuted_columns[column_index];
     const Evals& values = *value_columns[column_index];
-    return [&unpermuted_values, &values, &beta, &gamma](
-               absl::Span<F> chunk, size_t chunk_index, size_t chunk_size_in) {
-      size_t i = chunk_index * chunk_size_in;
-      for (F& result : chunk) {
-        result *= values[i] + beta * unpermuted_values[i] + gamma;
-        ++i;
-      }
-    };
+    return values[row_index] + beta * unpermuted_values[row_index] + gamma;
   };
 }
 
 // static
 template <typename Poly, typename Evals>
-std::function<base::ParallelizeCallback3<typename Poly::Field>(size_t)>
+std::function<typename Poly::Field(size_t, RowIndex)>
 PermutationProver<Poly, Evals>::CreateDenominatorCallback(
     const std::vector<base::Ref<const Evals>>& permuted_columns,
     const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
     const F& gamma) {
   // vᵢ(ωʲ) + β * sᵢ(ωʲ) + γ
-  return [&permuted_columns, &value_columns, &beta,
-          &gamma](size_t column_index) {
+  return [&permuted_columns, &value_columns, &beta, &gamma](
+             size_t column_index, RowIndex row_index) {
     const Evals& permuted_values = *permuted_columns[column_index];
     const Evals& values = *value_columns[column_index];
-    return [&permuted_values, &values, &beta, &gamma](
-               absl::Span<F> chunk, size_t chunk_index, size_t chunk_size_in) {
-      size_t i = chunk_index * chunk_size_in;
-      for (F& result : chunk) {
-        result *= values[i] + beta * permuted_values[i] + gamma;
-        ++i;
-      }
-    };
+    return values[row_index] + beta * permuted_values[row_index] + gamma;
   };
 }
 

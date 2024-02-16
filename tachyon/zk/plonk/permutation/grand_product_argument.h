@@ -36,6 +36,32 @@ class GrandProductArgument {
     return DoCreatePoly(prover, last_z, std::move(z));
   }
 
+  template <typename PCS, typename Callable,
+            typename Evals = typename PCS::Evals>
+  static Evals CreatePolySerial(ProverBase<PCS>* prover,
+                                Callable numerator_callback,
+                                Callable denominator_callback) {
+    using F = typename Evals::Field;
+
+    // NOTE(chokobole): It's safe to downcast because domain is already checked.
+    RowIndex size = static_cast<RowIndex>(prover->pcs().N());
+    std::vector<F> z = base::CreateVector(size + 1, F::Zero());
+    absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
+
+    for (RowIndex i = 0; i < size; ++i) {
+      grand_product[i] = denominator_callback(i);
+    }
+
+    CHECK(F::BatchInverseInPlaceSerial(grand_product));
+
+    for (RowIndex i = 0; i < size; ++i) {
+      grand_product[i] *= numerator_callback(i);
+    }
+
+    F last_z = F::One();
+    return DoCreatePoly(prover, last_z, std::move(z));
+  }
+
   // If the number of rows is out of the supported size of polynomial
   // commitment scheme, you should use this version. See permutation argument
   // for use case.
@@ -52,14 +78,26 @@ class GrandProductArgument {
     std::vector<F> z = base::CreateVector(size + 1, F::One());
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
-    for (size_t i = 0; i < num_cols; ++i) {
-      base::Parallelize(grand_product, denominator_callback(i));
-    }
+    size_t chunk_size = base::GetNumElementsPerThread(grand_product);
+    size_t num_chunks = (size + chunk_size - 1) / chunk_size;
 
-    CHECK(F::BatchInverseInPlace(grand_product));
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+      RowIndex start = i * chunk_size;
+      RowIndex end = i == num_chunks - 1 ? size : start + chunk_size;
+      for (size_t j = 0; j < num_cols; ++j) {
+        for (RowIndex k = start; k < end; ++k) {
+          grand_product[k] *= denominator_callback(j, k);
+        }
+      }
 
-    for (size_t i = 0; i < num_cols; ++i) {
-      base::Parallelize(grand_product, numerator_callback(i));
+      auto grand_subspan = grand_product.subspan(start, end - start);
+      CHECK(F::BatchInverseInPlaceSerial(grand_subspan));
+
+      for (size_t j = 0; j < num_cols; ++j) {
+        for (RowIndex k = start; k < end; ++k) {
+          grand_product[k] *= numerator_callback(j, k);
+        }
+      }
     }
 
     return DoCreatePoly(prover, last_z, std::move(z));

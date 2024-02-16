@@ -123,7 +123,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandProductPoly(
     ProverBase<PCS>* prover, const LookupPair<Evals>& compressed_pair,
     const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair,
     const F& beta, const F& gamma) {
-  return {plonk::GrandProductArgument::CreatePoly(
+  return {plonk::GrandProductArgument::CreatePolySerial(
               prover, CreateNumeratorCallback(compressed_pair, beta, gamma),
               CreateDenominatorCallback(permuted_pair, beta, gamma)),
           prover->blinder().Generate()};
@@ -135,14 +135,12 @@ void Prover<Poly, Evals>::CreateGrandProductPolys(ProverBase<PCS>* prover,
                                                   const F& beta,
                                                   const F& gamma) {
   CHECK_EQ(compressed_pairs_.size(), permuted_pairs_.size());
+  grand_product_polys_.resize(compressed_pairs_.size());
 
-  grand_product_polys_ =
-      base::Map(compressed_pairs_,
-                [this, prover, &beta, &gamma](
-                    size_t i, const LookupPair<Evals>& compressed_pair) {
-                  return CreateGrandProductPoly(
-                      prover, compressed_pair, permuted_pairs_[i], beta, gamma);
-                });
+  OPENMP_PARALLEL_FOR(size_t i = 0; i < grand_product_polys_.size(); ++i) {
+    grand_product_polys_[i] = CreateGrandProductPoly(
+        prover, compressed_pairs_[i], permuted_pairs_[i], beta, gamma);
+  }
   compressed_pairs_.clear();
 }
 
@@ -242,36 +240,26 @@ void Prover<Poly, Evals>::Open(
 
 // static
 template <typename Poly, typename Evals>
-base::ParallelizeCallback3<typename Poly::Field>
+std::function<typename Poly::Field(RowIndex)>
 Prover<Poly, Evals>::CreateNumeratorCallback(
     const LookupPair<Evals>& compressed_pair, const F& beta, const F& gamma) {
   // (A_compressed(xᵢ) + β) * (S_compressed(xᵢ) + γ)
-  return [&compressed_pair, &beta, &gamma](
-             absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
-    size_t i = chunk_index * chunk_size;
-    for (F& value : chunk) {
-      value *= (compressed_pair.input()[i] + beta);
-      value *= (compressed_pair.table()[i] + gamma);
-      ++i;
-    }
+  return [&compressed_pair, &beta, &gamma](RowIndex row_index) {
+    return (compressed_pair.input()[row_index] + beta) *
+           (compressed_pair.table()[row_index] + gamma);
   };
 }
 
 // static
 template <typename Poly, typename Evals>
-base::ParallelizeCallback3<typename Poly::Field>
+std::function<typename Poly::Field(RowIndex)>
 Prover<Poly, Evals>::CreateDenominatorCallback(
     const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair,
     const F& beta, const F& gamma) {
-  // (A'(xᵢ) + β) * (S'(xᵢ) + γ)
-  return [&permuted_pair, &beta, &gamma](
-             absl::Span<F> chunk, size_t chunk_index, size_t chunk_size) {
-    size_t i = chunk_index * chunk_size;
-    for (F& value : chunk) {
-      value = (permuted_pair.input().evals()[i] + beta) *
-              (permuted_pair.table().evals()[i] + gamma);
-      ++i;
-    }
+  return [&permuted_pair, &beta, &gamma](RowIndex row_index) {
+    // (A'(xᵢ) + β) * (S'(xᵢ) + γ)
+    return (permuted_pair.input().evals()[row_index] + beta) *
+           (permuted_pair.table().evals()[row_index] + gamma);
   };
 }
 
