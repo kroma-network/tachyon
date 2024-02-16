@@ -115,10 +115,7 @@ class ArgumentData {
     advice_polys_vec_ = base::Map(
         advice_columns_vec_, [domain](std::vector<Evals>& advice_columns) {
           return base::Map(advice_columns, [domain](Evals& advice_column) {
-            Poly poly = domain->IFFT(advice_column);
-            // NOTE(dongchangYoo): Release advice evals for memory optimization.
-            advice_column = Evals::Zero();
-            return poly;
+            return domain->IFFT(std::move(advice_column));
           });
         });
     advice_transformed_ = true;

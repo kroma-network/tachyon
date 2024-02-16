@@ -35,8 +35,7 @@ class BlindedPolynomial {
 
   template <typename Domain>
   void TransformEvalsToPoly(const Domain* domain) {
-    poly_ = domain->IFFT(evals_);
-    evals_ = Evals::Zero();
+    poly_ = domain->IFFT(std::move(evals_));
   }
 
   std::string ToString() const {

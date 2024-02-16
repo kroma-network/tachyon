@@ -1,5 +1,7 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 
+#include <utility>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/c/math/polynomials/constants.h"
@@ -69,7 +71,7 @@ TEST_F(UnivariateEvaluationDomainTest, FFT) {
           domain_,
           reinterpret_cast<const tachyon_bn254_univariate_dense_polynomial*>(
               &poly));
-  EXPECT_EQ(Domain::Create(kDegree + 1)->FFT(poly),
+  EXPECT_EQ(Domain::Create(kDegree + 1)->FFT(std::move(poly)),
             reinterpret_cast<Domain::Evals&>(*evals));
   tachyon_bn254_univariate_evaluations_destroy(evals);
 }
@@ -81,7 +83,7 @@ TEST_F(UnivariateEvaluationDomainTest, IFFT) {
           domain_,
           reinterpret_cast<const tachyon_bn254_univariate_evaluations*>(
               &evals));
-  EXPECT_EQ(Domain::Create(kDegree + 1)->IFFT(evals),
+  EXPECT_EQ(Domain::Create(kDegree + 1)->IFFT(std::move(evals)),
             reinterpret_cast<Domain::DensePoly&>(*poly));
   tachyon_bn254_univariate_dense_polynomial_destroy(poly);
 }

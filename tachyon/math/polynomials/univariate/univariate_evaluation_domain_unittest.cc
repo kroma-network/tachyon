@@ -268,7 +268,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FFTCorrectness) {
           for (size_t i = 0; i < domain_size; ++i) {
             EXPECT_EQ(poly_evals[i], rand_poly.Evaluate(d.GetElement(i)));
           }
-          EXPECT_EQ(rand_poly, d.IFFT(poly_evals));
+          EXPECT_EQ(rand_poly, d.IFFT(std::move(poly_evals)));
         });
   }
 }

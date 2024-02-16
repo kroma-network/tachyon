@@ -61,7 +61,7 @@ TEST_F(VanishingUtilsTest, CoeffToExtendedPart) {
                                       });
 
   Poly expected_poly(Coeffs(std::move(expected)));
-  EXPECT_EQ(extended_part, domain->FFT(expected_poly));
+  EXPECT_EQ(extended_part, domain->FFT(std::move(expected_poly)));
 }
 
 TEST_F(VanishingUtilsTest, BuildExtendedColumnWithColumns) {
