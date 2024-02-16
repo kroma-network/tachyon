@@ -7,6 +7,8 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/plonk/examples/circuit_test.h"
+#include "tachyon/zk/plonk/examples/shuffle_circuit_test_data.h"
+#include "tachyon/zk/plonk/halo2/pinned_constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "tachyon/zk/plonk/layout/floor_planner/simple_floor_planner.h"
@@ -15,72 +17,6 @@
 namespace tachyon::zk::plonk::halo2 {
 
 namespace {
-
-constexpr uint8_t kExpectedProof[] = {
-    122, 117, 229, 163, 114, 52,  159, 223, 87,  191, 210, 4,   56,  250, 59,
-    18,  206, 131, 78,  129, 60,  202, 130, 174, 203, 80,  0,   221, 190, 150,
-    199, 170, 97,  250, 239, 195, 165, 188, 251, 230, 129, 105, 212, 209, 41,
-    124, 75,  202, 166, 142, 57,  16,  160, 164, 175, 119, 80,  96,  210, 1,
-    220, 55,  229, 150, 176, 0,   127, 136, 63,  27,  146, 170, 55,  152, 223,
-    250, 131, 165, 92,  170, 126, 214, 34,  187, 172, 236, 248, 250, 195, 21,
-    121, 118, 69,  108, 167, 132, 242, 42,  222, 129, 23,  144, 206, 50,  2,
-    128, 3,   44,  222, 217, 223, 35,  228, 184, 246, 76,  34,  146, 170, 5,
-    127, 243, 140, 134, 59,  224, 63,  139, 97,  91,  176, 229, 208, 22,  81,
-    76,  102, 212, 230, 42,  248, 115, 0,   57,  161, 155, 76,  46,  222, 63,
-    50,  191, 169, 117, 109, 77,  100, 113, 115, 163, 219, 109, 33,  128, 52,
-    174, 106, 188, 197, 159, 82,  64,  13,  77,  214, 88,  94,  3,   59,  239,
-    242, 15,  57,  52,  184, 96,  8,   195, 219, 8,   28,  165, 23,  155, 225,
-    52,  2,   100, 158, 139, 3,   255, 216, 141, 144, 92,  148, 43,  245, 117,
-    105, 244, 203, 45,  169, 199, 189, 108, 165, 254, 123, 192, 88,  166, 183,
-    219, 170, 20,  145, 67,  54,  188, 84,  208, 144, 229, 73,  102, 239, 199,
-    192, 67,  84,  125, 77,  150, 208, 152, 34,  245, 28,  245, 53,  241, 240,
-    142, 238, 116, 44,  171, 9,   62,  209, 106, 14,  52,  209, 60,  194, 175,
-    33,  157, 149, 131, 25,  211, 81,  22,  167, 97,  84,  92,  7,   120, 171,
-    195, 156, 29,  78,  254, 1,   92,  9,   249, 182, 255, 222, 133, 161, 215,
-    117, 56,  201, 12,  65,  236, 138, 136, 207, 214, 29,  1,   218, 176, 164,
-    120, 50,  120, 130, 42,  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   96,  134, 180, 185, 62,  13,  187, 73,
-    198, 194, 240, 58,  143, 101, 182, 194, 201, 129, 242, 182, 19,  7,   12,
-    75,  34,  92,  65,  156, 85,  241, 183, 171, 45,  201, 146, 14,  118, 58,
-    117, 27,  61,  108, 249, 137, 144, 71,  115, 19,  73,  98,  4,   77,  237,
-    52,  69,  171, 85,  201, 246, 215, 91,  71,  145, 175, 139, 126, 48,  67,
-    66,  130, 140, 51,  253, 115, 220, 250, 206, 22,  138, 113, 63,  0,   74,
-    233, 167, 144, 210, 243, 212, 44,  42,  58,  221, 5,   215, 30,  94,  146,
-    3,   134, 1,   201, 167, 90,  132, 197, 56,  187, 221, 23,  242, 164, 87,
-    157, 142, 157, 80,  235, 12,  136, 21,  115, 181, 19,  96,  199, 209, 5,
-    135, 209, 93,  98,  16,  78,  106, 217, 160, 233, 35,  255, 207, 251, 154,
-    71,  20,  253, 239, 202, 139, 237, 246, 171, 137, 255, 94,  92,  53,  190,
-    236, 34,  153, 4,   94,  63,  214, 40,  181, 15,  147, 150, 81,  110, 181,
-    99,  38,  34,  56,  239, 28,  121, 151, 11,  251, 82,  30,  105, 132, 33,
-    69,  126, 142, 15,  157, 153, 218, 141, 253, 210, 254, 249, 230, 130, 27,
-    49,  161, 88,  161, 222, 147, 49,  245, 92,  45,  16,  131, 95,  217, 194,
-    215, 16,  69,  71,  78,  29,  108, 202, 1,   68,  66,  44,  39,  172, 207,
-    144, 77,  121, 120, 114, 211, 147, 52,  200, 152, 197, 161, 235, 76,  139,
-    115, 141, 206, 208, 134, 251, 78,  15,  16,  93,  166, 218, 134, 85,  60,
-    230, 36,  206, 42,  75,  206, 2,   145, 43,  18,  145, 135, 107, 152, 229,
-    5,   62,  206, 252, 129, 232, 114, 75,  228, 33,  140, 218, 27,  139, 246,
-    80,  127, 36,  80,  115, 177, 219, 69,  80,  235, 123, 191, 251, 189, 206,
-    103, 248, 242, 58,  173, 185, 101, 112, 138, 176, 235, 34,  81,  60,  31,
-    132, 241, 220, 231, 212, 135, 74,  159, 124, 115, 227, 149, 192, 56,  152,
-    43,  182, 158, 246, 63,  125, 148, 144, 243, 217, 66,  119, 14,  38,  238,
-    129, 238, 25,  126, 177, 4,   135, 84,  255, 216, 141, 221, 137, 172, 22,
-    182, 33,  217, 8,   95,  92,  208, 83,  226, 5,   67,  65,  218, 137, 253,
-    12,  231, 216, 174, 122, 162, 239, 88,  16,  65,  125, 101, 123, 96,  188,
-    118, 164, 68,  145, 203, 129, 54,  95,  84,  4,   83,  98,  53,  87,  145,
-    106, 223, 26,  146, 169, 158, 159, 209, 157, 89,  102, 204, 254, 97,  92,
-    149, 104, 21,  94,  238, 231, 74,  192, 45,  11,  167, 112, 183, 54,  189,
-    61,  176, 204, 151, 2,   216, 147, 249, 148, 195, 213, 197, 49,  184, 7,
-    174, 45,  175, 251, 144, 126, 180, 32,  145, 186, 94,  84,  170, 71,  228,
-    213, 109, 89,  141, 161, 164, 38,  204, 163, 86,  138, 200, 222, 184, 232,
-    163, 254, 172, 253, 164, 60,  8,   91,  31,  113, 46,  55,  14,  133, 120,
-    246, 172, 208, 57,  35,  123, 179, 212, 32,  1,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   194, 213, 8,   179,
-    79,  153, 219, 29,  172, 38,  212, 118, 159, 250, 149, 134, 98,  218, 34,
-    34,  95,  113, 0,   26,  133, 92,  226, 144, 186, 56,  200, 41,  115, 243,
-    72,  67,  69,  61,  133, 160, 71,  211, 240, 160, 254, 68,  206, 47,  27,
-    164, 205, 166, 188, 172, 123, 134, 154, 35,  148, 250, 50,  159, 23,  168};
 
 // clang-format off
 std::vector<std::vector<std::vector<std::string_view>>> original_tables = {
@@ -216,124 +152,13 @@ TEST_F(ShuffleCircuitTest, Configure) {
   EXPECT_EQ(config.theta(), Challenge(0, kFirstPhase));
   EXPECT_EQ(config.gamma(), Challenge(1, kFirstPhase));
   EXPECT_EQ(config.z(), AdviceColumnKey(2 * W, kSecondPhase));
-  EXPECT_EQ(constraint_system.num_fixed_columns(), 0);
-  EXPECT_EQ(constraint_system.num_advice_columns(), 5);
-  EXPECT_EQ(constraint_system.num_instance_columns(), 0);
-  EXPECT_EQ(constraint_system.num_selectors(), 3);
-  EXPECT_EQ(constraint_system.num_challenges(), 2);
 
-  std::vector<Phase> expected_advice_column_phases = {
-      kFirstPhase, kFirstPhase, kFirstPhase, kFirstPhase, kSecondPhase};
-  EXPECT_EQ(constraint_system.advice_column_phases(),
-            expected_advice_column_phases);
-  std::vector<Phase> expected_challenge_phases = {kFirstPhase, kFirstPhase};
-  EXPECT_EQ(constraint_system.challenge_phases(), expected_challenge_phases);
+  halo2::PinnedConstraintSystem<F> pinned_constraint_system(constraint_system);
+  EXPECT_EQ(shuffle::kPinnedConstraintSystem,
+            base::ToRustDebugString(pinned_constraint_system));
+
   EXPECT_TRUE(constraint_system.selector_map().empty());
-
-  std::vector<Gate<F>> expected_gates;
-  {
-    // First gate
-    std::vector<std::unique_ptr<Expression<F>>> polys;
-    {
-      std::unique_ptr<Expression<F>> poly = ExpressionFactory<F>::Product(
-          ExpressionFactory<F>::Selector(config.q_first()),
-          ExpressionFactory<F>::Sum(
-              ExpressionFactory<F>::Constant(F(1)),
-              ExpressionFactory<F>::Negated(ExpressionFactory<F>::Advice(
-                  AdviceQuery(0, Rotation::Cur(), config.z())))));
-      polys.push_back(std::move(poly));
-    }
-    expected_gates.push_back(Gate<F>("z should start with 1", {""},
-                                     std::move(polys), {config.q_first()},
-                                     {
-                                         {config.z(), Rotation::Cur()},
-                                     }));
-
-    // Second gate
-    std::vector<std::unique_ptr<Expression<F>>> polys2;
-    {
-      std::unique_ptr<Expression<F>> poly = ExpressionFactory<F>::Product(
-          ExpressionFactory<F>::Selector(config.q_last()),
-          ExpressionFactory<F>::Sum(
-              ExpressionFactory<F>::Constant(F(1)),
-              ExpressionFactory<F>::Negated(ExpressionFactory<F>::Advice(
-                  AdviceQuery(0, Rotation::Cur(), config.z())))));
-      polys2.push_back(std::move(poly));
-    }
-    expected_gates.push_back(Gate<F>("z should end with 1", {""},
-                                     std::move(polys2), {config.q_last()},
-                                     {
-                                         {config.z(), Rotation::Cur()},
-                                     }));
-
-    // Third gate
-    std::vector<std::unique_ptr<Expression<F>>> polys3;
-    {
-      std::unique_ptr<Expression<F>> poly = ExpressionFactory<F>::Product(
-          ExpressionFactory<F>::Selector(config.q_shuffle()),
-          ExpressionFactory<F>::Sum(
-              ExpressionFactory<F>::Product(
-                  ExpressionFactory<F>::Advice(
-                      AdviceQuery(0, Rotation::Cur(), config.z())),
-                  ExpressionFactory<F>::Sum(
-                      ExpressionFactory<F>::Sum(
-                          ExpressionFactory<F>::Product(
-                              ExpressionFactory<F>::Advice(AdviceQuery(
-                                  1, Rotation::Cur(),
-                                  config.original_column_keys()[0])),
-                              ExpressionFactory<F>::Challenge(config.theta())),
-                          ExpressionFactory<F>::Advice(
-                              AdviceQuery(2, Rotation::Cur(),
-                                          config.original_column_keys()[1]))),
-                      ExpressionFactory<F>::Challenge(config.gamma()))),
-              ExpressionFactory<F>::Negated(ExpressionFactory<F>::Product(
-                  ExpressionFactory<F>::Advice(
-                      AdviceQuery(5, Rotation::Next(), config.z())),
-                  ExpressionFactory<F>::Sum(
-                      ExpressionFactory<F>::Sum(
-                          ExpressionFactory<F>::Product(
-                              ExpressionFactory<F>::Advice(AdviceQuery(
-                                  3, Rotation::Cur(),
-                                  config.shuffled_column_keys()[0])),
-                              ExpressionFactory<F>::Challenge(config.theta())),
-                          ExpressionFactory<F>::Advice(
-                              AdviceQuery(4, Rotation::Cur(),
-                                          config.shuffled_column_keys()[1]))),
-                      ExpressionFactory<F>::Challenge(config.gamma()))))));
-      polys3.push_back(std::move(poly));
-    }
-    expected_gates.push_back(
-        Gate<F>("z should have valid transition", {""}, std::move(polys3),
-                {config.q_shuffle()},
-                {
-                    {config.original_column_keys()[0], Rotation::Cur()},
-                    {config.original_column_keys()[1], Rotation::Cur()},
-                    {config.shuffled_column_keys()[0], Rotation::Cur()},
-                    {config.shuffled_column_keys()[1], Rotation::Cur()},
-                    {config.z(), Rotation::Cur()},
-                    {config.z(), Rotation::Next()},
-                }));
-  }
-
-  EXPECT_EQ(constraint_system.gates(), expected_gates);
-  std::vector<AdviceQueryData> expected_advice_queries = {
-      AdviceQueryData(Rotation::Cur(), AdviceColumnKey(4, kSecondPhase)),
-      AdviceQueryData(Rotation::Cur(), AdviceColumnKey(0)),
-      AdviceQueryData(Rotation::Cur(), AdviceColumnKey(1)),
-      AdviceQueryData(Rotation::Cur(), AdviceColumnKey(2)),
-      AdviceQueryData(Rotation::Cur(), AdviceColumnKey(3)),
-      AdviceQueryData(Rotation::Next(), AdviceColumnKey(4, kSecondPhase)),
-  };
-  EXPECT_EQ(constraint_system.advice_queries(), expected_advice_queries);
-  std::vector<RowIndex> expected_num_advice_queries = {1, 1, 1, 1, 2};
-  EXPECT_EQ(constraint_system.num_advice_queries(),
-            expected_num_advice_queries);
-  EXPECT_TRUE(constraint_system.instance_queries().empty());
-  EXPECT_TRUE(constraint_system.fixed_queries().empty());
-  EXPECT_TRUE(constraint_system.permutation().columns().empty());
-  EXPECT_TRUE(constraint_system.lookups().empty());
   EXPECT_TRUE(constraint_system.general_column_annotations().empty());
-  EXPECT_FALSE(constraint_system.minimum_degree().has_value());
 }
 
 TEST_F(ShuffleCircuitTest, Synthesize) {
@@ -389,19 +214,8 @@ TEST_F(ShuffleCircuitTest, LoadVerifyingKey) {
   VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
-  EXPECT_TRUE(vkey.permutation_verifying_key().commitments().empty());
-
-  std::vector<Commitment> expected_fixed_commitments;
-  {
-    std::vector<Point> points = {
-        {"0x297ff8a661d1fa1196c065b6fb7df901fb16b5b83168ddca6c7749d963cc967a",
-         "0x1a7b1f2b5f3e35fc4c706ece6b8f646e95904f9aa417f8a31fd37a41da167ec1"},
-        {"0x1025d577f7527c7c9a5d132164beef9ec3ebc63805b146843466f6cdf5fb37d4",
-         "0x1ba406f864ec730f7f725b3478ce1e22c5579b6228593c9ba36e9cb18a10aab3"},
-    };
-    expected_fixed_commitments = CreateCommitments(points);
-  }
-  EXPECT_EQ(vkey.fixed_commitments(), expected_fixed_commitments);
+  halo2::PinnedVerifyingKey pinned_vkey(prover_.get(), vkey);
+  EXPECT_EQ(shuffle::kPinnedVerifyingKey, base::ToRustDebugString(pinned_vkey));
 
   F expected_transcript_repr = F::FromHexString(
       "0x220eecfcd245ace6db06b0c892cef067bb85cc36dc0401c6e05b618bb939f761");
@@ -613,8 +427,8 @@ TEST_F(ShuffleCircuitTest, CreateProof) {
   prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
   std::vector<uint8_t> proof = prover_->GetWriter()->buffer().owned_buffer();
-  std::vector<uint8_t> expected_proof(std::begin(kExpectedProof),
-                                      std::end(kExpectedProof));
+  std::vector<uint8_t> expected_proof(std::begin(shuffle::kExpectedProof),
+                                      std::end(shuffle::kExpectedProof));
   EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
@@ -636,12 +450,12 @@ TEST_F(ShuffleCircuitTest, CreateV1Proof) {
   prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
   std::vector<uint8_t> proof = prover_->GetWriter()->buffer().owned_buffer();
-  std::vector<uint8_t> expected_proof(std::begin(kExpectedProof),
-                                      std::end(kExpectedProof));
+  std::vector<uint8_t> expected_proof(std::begin(shuffle_v1::kExpectedProof),
+                                      std::end(shuffle_v1::kExpectedProof));
   EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
-TEST_F(ShuffleCircuitTest, Verify) {
+TEST_F(ShuffleCircuitTest, VerifyProof) {
   size_t n = size_t{1} << K;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
@@ -652,8 +466,8 @@ TEST_F(ShuffleCircuitTest, Verify) {
   VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
-  std::vector<uint8_t> owned_proof(std::begin(kExpectedProof),
-                                   std::end(kExpectedProof));
+  std::vector<uint8_t> owned_proof(std::begin(shuffle::kExpectedProof),
+                                   std::end(shuffle::kExpectedProof));
   Verifier<PCS> verifier =
       CreateVerifier(CreateBufferWithProof(absl::MakeSpan(owned_proof)));
 

@@ -4,6 +4,8 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/zk/plonk/examples/circuit_test.h"
+#include "tachyon/zk/plonk/examples/simple_circuit_test_data.h"
+#include "tachyon/zk/plonk/halo2/pinned_constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "tachyon/zk/plonk/layout/floor_planner/simple_floor_planner.h"
@@ -11,119 +13,6 @@
 namespace tachyon::zk::plonk::halo2 {
 
 namespace {
-
-constexpr uint8_t kExpectedProof[] = {
-    206, 109, 139, 136, 181, 35,  204, 231, 212, 93,  105, 116, 154, 77,  204,
-    23,  71,  148, 11,  151, 126, 145, 6,   150, 171, 185, 254, 230, 41,  136,
-    76,  141, 132, 227, 154, 206, 134, 35,  253, 67,  8,   186, 228, 143, 116,
-    139, 145, 119, 85,  253, 127, 208, 95,  153, 195, 112, 209, 116, 172, 45,
-    15,  175, 128, 142, 206, 109, 139, 136, 181, 35,  204, 231, 212, 93,  105,
-    116, 154, 77,  204, 23,  71,  148, 11,  151, 126, 145, 6,   150, 171, 185,
-    254, 230, 41,  136, 76,  141, 132, 227, 154, 206, 134, 35,  253, 67,  8,
-    186, 228, 143, 116, 139, 145, 119, 85,  253, 127, 208, 95,  153, 195, 112,
-    209, 116, 172, 45,  15,  175, 128, 142, 240, 229, 40,  5,   109, 36,  59,
-    227, 58,  205, 89,  157, 199, 193, 252, 51,  168, 195, 186, 126, 190, 9,
-    14,  29,  214, 95,  182, 184, 134, 94,  46,  41,  106, 156, 194, 192, 74,
-    238, 43,  10,  112, 155, 176, 178, 14,  10,  189, 165, 211, 91,  90,  42,
-    17,  165, 116, 23,  78,  117, 45,  125, 110, 1,   233, 170, 200, 135, 181,
-    143, 22,  0,   52,  134, 185, 92,  30,  3,   65,  216, 74,  165, 18,  77,
-    5,   55,  15,  109, 186, 248, 156, 119, 247, 24,  70,  41,  1,   16,  62,
-    36,  174, 136, 24,  93,  149, 45,  191, 112, 228, 131, 82,  170, 188, 118,
-    86,  196, 76,  197, 11,  167, 11,  216, 230, 14,  231, 164, 157, 39,  49,
-    38,  251, 240, 47,  6,   163, 23,  217, 174, 233, 203, 174, 0,   205, 128,
-    144, 251, 60,  132, 157, 32,  33,  112, 229, 156, 139, 47,  162, 5,   202,
-    84,  199, 47,  27,  98,  96,  122, 158, 193, 213, 226, 200, 103, 5,   218,
-    173, 125, 15,  210, 123, 98,  148, 53,  48,  206, 127, 172, 107, 33,  234,
-    174, 142, 79,  186, 134, 142, 249, 224, 82,  159, 246, 235, 120, 167, 5,
-    48,  155, 25,  120, 55,  94,  246, 75,  242, 253, 253, 152, 55,  94,  67,
-    65,  174, 82,  157, 209, 177, 132, 71,  170, 194, 199, 129, 201, 108, 111,
-    231, 243, 252, 145, 116, 7,   88,  87,  28,  81,  97,  30,  116, 31,  167,
-    99,  44,  21,  104, 160, 51,  70,  32,  5,   1,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   159, 45,  146, 241,
-    184, 125, 165, 48,  148, 73,  242, 94,  170, 139, 162, 0,   21,  231, 23,
-    74,  94,  214, 195, 249, 139, 29,  249, 198, 235, 204, 224, 27,  135, 78,
-    126, 51,  100, 157, 42,  110, 141, 157, 29,  152, 51,  209, 243, 76,  0,
-    200, 96,  204, 134, 244, 148, 187, 87,  7,   206, 106, 36,  190, 225, 163,
-    221, 191, 109, 9,   219, 247, 181, 207, 188, 191, 31,  65,  129, 49,  12,
-    89,  46,  245, 184, 213, 17,  43,  232, 225, 2,   80,  183, 171, 82,  185,
-    159, 35,  189, 66,  107, 20,  150, 2,   185, 176, 238, 76,  171, 30,  52,
-    254, 113, 233, 150, 92,  5,   25,  77,  216, 65,  95,  79,  148, 13,  116,
-    24,  183, 14,  46,  67,  229, 240, 109, 227, 68,  145, 172, 135, 53,  164,
-    146, 172, 217, 97,  115, 45,  46,  135, 153, 141, 33,  237, 14,  126, 112,
-    239, 91,  249, 224, 14,  16,  221, 191, 109, 9,   219, 247, 181, 207, 188,
-    191, 31,  65,  129, 49,  12,  89,  46,  245, 184, 213, 17,  43,  232, 225,
-    2,   80,  183, 171, 82,  185, 159, 35,  189, 66,  107, 20,  150, 2,   185,
-    176, 238, 76,  171, 30,  52,  254, 113, 233, 150, 92,  5,   25,  77,  216,
-    65,  95,  79,  148, 13,  116, 24,  183, 14,  46,  67,  229, 240, 109, 227,
-    68,  145, 172, 135, 53,  164, 146, 172, 217, 97,  115, 45,  46,  135, 153,
-    141, 33,  237, 14,  126, 112, 239, 91,  249, 224, 14,  16,  36,  203, 226,
-    64,  99,  130, 12,  59,  222, 24,  94,  88,  253, 218, 172, 0,   25,  215,
-    133, 149, 31,  158, 7,   250, 173, 225, 133, 200, 90,  69,  47,  25,  98,
-    34,  19,  103, 109, 218, 148, 30,  225, 90,  104, 37,  58,  197, 245, 62,
-    9,   238, 44,  199, 61,  72,  2,   28,  51,  231, 189, 28,  3,   29,  35,
-    18,  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   185, 220, 125, 19,  203, 252, 236, 223, 117, 57,  175, 183,
-    40,  37,  79,  31,  117, 165, 118, 41,  185, 125, 170, 158, 157, 74,  166,
-    57,  64,  149, 206, 40,  120, 244, 169, 170, 133, 173, 68,  101, 140, 48,
-    109, 103, 247, 3,   28,  4,   36,  59,  132, 43,  93,  119, 152, 208, 233,
-    222, 219, 94,  136, 106, 20,  11,  87,  104, 205, 179, 87,  159, 234, 122,
-    152, 191, 255, 13,  15,  38,  155, 81,  173, 252, 150, 180, 173, 179, 196,
-    214, 30,  37,  199, 22,  203, 126, 5,   43,  105, 245, 116, 211, 118, 74,
-    43,  166, 161, 118, 110, 238, 30,  223, 80,  204, 218, 180, 236, 139, 207,
-    173, 229, 182, 166, 225, 169, 205, 21,  196, 193, 24,  145, 35,  130, 126,
-    116, 70,  55,  29,  82,  53,  95,  80,  69,  203, 254, 226, 83,  17,  151,
-    238, 128, 120, 105, 242, 98,  98,  11,  81,  88,  20,  116, 14,  55,  241,
-    196, 81,  126, 218, 207, 52,  163, 159, 251, 43,  165, 147, 33,  107, 18,
-    209, 194, 240, 179, 217, 121, 221, 195, 5,   152, 146, 169, 81,  170, 34,
-    32,  97,  114, 73,  185, 104, 109, 151, 124, 157, 118, 48,  123, 213, 18,
-    111, 5,   102, 78,  130, 237, 77,  157, 116, 202, 124, 90,  51,  224, 114,
-    159, 45,  197, 61,  251, 242, 253, 129, 64,  250, 54,  14,  49,  62,  37,
-    97,  226, 172, 109, 168, 14,  33,  113, 47,  243, 44,  106, 229, 10,  62,
-    87,  83,  43,  7,   92,  6,   195, 239, 233, 58,  92,  12,  233, 115, 233,
-    81,  118, 184, 252, 142, 76,  197, 214, 144, 16,  95,  246, 169, 9,   78,
-    237, 145, 235, 141, 136, 1,   165, 83,  192, 177, 140, 190, 28,  139, 172,
-    249, 119, 129, 211, 92,  226, 51,  226, 185, 203, 21,  121, 174, 115, 152,
-    110, 69,  200, 142, 162, 71,  220, 22,  186, 134, 221, 207, 39,  208, 161,
-    130, 234, 61,  27,  72,  233, 172, 187, 198, 231, 11,  120, 243, 25,  89,
-    77,  38,  86,  20,  89,  80,  237, 100, 142, 41,  136, 32,  138, 31,  215,
-    84,  109, 62,  66,  227, 100, 175, 18,  174, 58,  112, 169, 193, 95,  240,
-    222, 15,  61,  236, 91,  90,  188, 94,  150, 212, 237, 16,  117, 27,  177,
-    202, 190, 133, 200, 85,  173, 174, 13,  89,  177, 186, 65,  146, 113, 41,
-    206, 142, 237, 73,  51,  196, 214, 34,  224, 184, 100, 209, 13,  29,  179,
-    244, 71,  38,  7,   16,  137, 20,  184, 72,  209, 27,  255, 185, 144, 75,
-    35,  7,   36,  68,  119, 203, 89,  205, 4,   242, 26,  190, 212, 139, 57,
-    26,  6,   252, 141, 116, 125, 123, 64,  138, 127, 97,  121, 221, 197, 244,
-    112, 113, 155, 70,  96,  133, 82,  7,   149, 25,  118, 141, 20,  42,  46,
-    88,  239, 42,  7,   96,  209, 165, 40,  191, 164, 67,  8,   89,  152, 7,
-    200, 100, 248, 171, 41,  218, 69,  252, 118, 179, 67,  9,   182, 148, 121,
-    104, 153, 44,  247, 9,   218, 204, 78,  16,  182, 29,  29,  0,   119, 160,
-    190, 17,  211, 11,  23,  241, 100, 12,  180, 243, 34,  102, 12,  187, 41,
-    193, 69,  50,  84,  21,  221, 23,  204, 183, 175, 109, 240, 93,  120, 136,
-    54,  66,  184, 194, 85,  59,  133, 86,  220, 246, 193, 244, 7,   216, 135,
-    59,  92,  158, 65,  144, 41,  220, 100, 28,  21,  111, 26,  217, 23,  179,
-    65,  205, 54,  26,  240, 52,  150, 157, 87,  210, 76,  217, 152, 132, 71,
-    150, 10,  95,  77,  14,  228, 86,  178, 21,  103, 6,   74,  89,  231, 106,
-    134, 147, 137, 174, 39,  174, 48,  221, 254, 215, 4,   39,  230, 15,  196,
-    75,  24,  245, 239, 152, 208, 193, 187, 175, 132, 241, 195, 34,  38,  55,
-    57,  17,  54,  64,  27,  138, 144, 11,  157, 37,  36,  5,   139, 117, 212,
-    173, 39,  85,  164, 25,  206, 217, 149, 150, 4,   250, 77,  130, 115, 9,
-    143, 200, 219, 182, 151, 215, 233, 194, 240, 248, 177, 123, 131, 209, 152,
-    81,  102, 187, 53,  150, 25,  204, 189, 65,  9,   86,  79,  99,  81,  250,
-    151, 4,   11,  172, 72,  139, 204, 43,  44,  115, 202, 121, 48,  124, 236,
-    53,  203, 245, 141, 110, 228, 145, 107, 49,  56,  58,  168, 222, 112, 147,
-    197, 179, 83,  10,  128, 240, 51,  82,  135, 247, 196, 23,  27,  22,  177,
-    117, 78,  249, 227, 93,  64,  8,   176, 132, 143, 218, 225, 185, 123, 159,
-    78,  200, 197, 254, 171, 0,   103, 14,  109, 105, 100, 65,  235, 96,  115,
-    178, 20,  89,  249, 152, 94,  113, 124, 134, 89,  134, 176, 129, 249, 140,
-    162, 116, 135, 158, 230, 87,  9,   32,  227, 25,  158, 147, 29,  22,  77,
-    43,  83,  154, 15,  112, 182, 222, 83,  80,  108, 218, 132, 95,  207, 89,
-    134, 152, 228, 205, 152, 172, 107, 188, 119, 46,  154, 108, 59,  219, 34,
-    8,   146, 12,  91,  13,  166, 147, 124, 190, 65,  228, 254, 170, 42,  228,
-    225, 100, 186, 38,  12,  202, 16,  176, 133, 49,  60,  16,  237, 211, 195,
-    59,  246, 51,  38,  12,  208, 190, 66,  35,  23,  195, 152, 31,  96,  15,
-    198, 165, 206, 149, 89,  130, 172, 23,  119, 105, 140, 216, 51,  6};
 
 class SimpleCircuitTest : public CircuitTest {};
 
@@ -140,67 +29,13 @@ TEST_F(SimpleCircuitTest, Configure) {
   EXPECT_EQ(config.advice(), expected_advice);
   EXPECT_EQ(config.instance(), InstanceColumnKey(0));
   EXPECT_EQ(config.s_mul(), Selector::Simple(0));
-  EXPECT_EQ(constraint_system.num_fixed_columns(), 1);
-  EXPECT_EQ(constraint_system.num_advice_columns(), 2);
-  EXPECT_EQ(constraint_system.num_instance_columns(), 1);
-  EXPECT_EQ(constraint_system.num_selectors(), 1);
-  EXPECT_EQ(constraint_system.num_challenges(), 0);
-  std::vector<Phase> expected_advice_column_phases = {kFirstPhase, kFirstPhase};
-  EXPECT_EQ(constraint_system.advice_column_phases(),
-            expected_advice_column_phases);
-  EXPECT_TRUE(constraint_system.challenge_phases().empty());
+
+  halo2::PinnedConstraintSystem<F> pinned_constraint_system(constraint_system);
+  EXPECT_EQ(simple::kPinnedConstraintSystem,
+            base::ToRustDebugString(pinned_constraint_system));
+
   EXPECT_TRUE(constraint_system.selector_map().empty());
-  std::vector<Gate<F>> expected_gates;
-  std::vector<std::unique_ptr<Expression<F>>> polys;
-  {
-    std::unique_ptr<Expression<F>> poly = ExpressionFactory<F>::Product(
-        ExpressionFactory<F>::Selector(config.s_mul()),
-        ExpressionFactory<F>::Sum(
-            ExpressionFactory<F>::Product(
-                ExpressionFactory<F>::Advice(
-                    AdviceQuery(0, Rotation::Cur(), config.advice()[0])),
-                ExpressionFactory<F>::Advice(
-                    AdviceQuery(1, Rotation::Cur(), config.advice()[1]))),
-            ExpressionFactory<F>::Negated(ExpressionFactory<F>::Advice(
-                AdviceQuery(2, Rotation::Next(), config.advice()[0])))));
-    polys.push_back(std::move(poly));
-  }
-  expected_gates.push_back(Gate<F>("mul", {""}, std::move(polys),
-                                   {Selector::Simple(0)},
-                                   {
-                                       {AdviceColumnKey(0), Rotation::Cur()},
-                                       {AdviceColumnKey(1), Rotation::Cur()},
-                                       {AdviceColumnKey(0), Rotation::Next()},
-                                   }));
-  EXPECT_EQ(constraint_system.gates(), expected_gates);
-  std::vector<AdviceQueryData> expected_advice_queries = {
-      AdviceQueryData(Rotation::Cur(), AdviceColumnKey(0)),
-      AdviceQueryData(Rotation::Cur(), AdviceColumnKey(1)),
-      AdviceQueryData(Rotation::Next(), AdviceColumnKey(0)),
-  };
-  EXPECT_EQ(constraint_system.advice_queries(), expected_advice_queries);
-  std::vector<RowIndex> expected_num_advice_queries = {2, 1};
-  EXPECT_EQ(constraint_system.num_advice_queries(),
-            expected_num_advice_queries);
-  std::vector<InstanceQueryData> expected_instance_queries = {
-      InstanceQueryData(Rotation::Cur(), InstanceColumnKey(0)),
-  };
-  EXPECT_EQ(constraint_system.instance_queries(), expected_instance_queries);
-  std::vector<FixedQueryData> expected_fixed_queries = {
-      FixedQueryData(Rotation::Cur(), FixedColumnKey(0)),
-  };
-  EXPECT_EQ(constraint_system.fixed_queries(), expected_fixed_queries);
-  std::vector<AnyColumnKey> expected_permutation_columns = {
-      InstanceColumnKey(0),
-      FixedColumnKey(0),
-      AdviceColumnKey(0),
-      AdviceColumnKey(1),
-  };
-  EXPECT_EQ(constraint_system.permutation().columns(),
-            expected_permutation_columns);
-  EXPECT_TRUE(constraint_system.lookups().empty());
   EXPECT_TRUE(constraint_system.general_column_annotations().empty());
-  EXPECT_FALSE(constraint_system.minimum_degree().has_value());
 }
 
 TEST_F(SimpleCircuitTest, Synthesize) {
@@ -294,34 +129,8 @@ TEST_F(SimpleCircuitTest, LoadVerifyingKey) {
   VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
-  std::vector<Commitment> expected_permutation_verifying_key;
-  {
-    std::vector<Point> points = {
-        {"0x0365b8986f1c38476aa6479eea1b688244b4070413eb393efa5b06441ac2aeaa",
-         "0x303ed0aaed99cb2848d844239ab4ab9a9191b86544edab860c42a2d4e504cf34"},
-        {"0x1af13f7dc79a97c1a690215e2ffd3d8386f682fe1a13bdb8588d2fbaa0161edc",
-         "0x10f0c0ddf9db782e88deb3e49464292b1276b2b9ad29b5a25971c85fe0b8aa96"},
-        {"0x09837455c613e5b0e0edd2a1d47f1efdee21eeeda00548f3686c733301e23da4",
-         "0x2e2b7776741eb2214916eb80ae0982c32b02e57e83c51e8907b5ffeab048bf2d"},
-        {"0x23e033260e2f2ed7dd27295a06d951fad7c1545a493f24e8d7f416ccc3c74670",
-         "0x0957c9d3b0c00ff783bc3357dd0b5cf891f49bc78f569126ba6e68bc394859ef"},
-    };
-    expected_permutation_verifying_key = CreateCommitments(points);
-  }
-  EXPECT_EQ(vkey.permutation_verifying_key().commitments(),
-            expected_permutation_verifying_key);
-
-  std::vector<Commitment> expected_fixed_commitments;
-  {
-    std::vector<Point> points = {
-        {"0x0f9cc629d0010671d7f755267acccfc8d5854f47d4e437ec84bddcc27b9f19d1",
-         "0x199b1dcc7aff518a4e49c6393bcf847cc3fde52ae69e326dea0d1d901424552a"},
-        {"0x10472018b5bfdcc76f3925ea4f660dc7167ef12c96fb70f686d0c1cf7791cde5",
-         "0x0358f44f7cb29a8d129dbe6b61fc1d921a903f1e9209abc137c7a6446c3ae38f"},
-    };
-    expected_fixed_commitments = CreateCommitments(points);
-  }
-  EXPECT_EQ(vkey.fixed_commitments(), expected_fixed_commitments);
+  halo2::PinnedVerifyingKey pinned_vkey(prover_.get(), vkey);
+  EXPECT_EQ(simple::kPinnedVerifyingKey, base::ToRustDebugString(pinned_vkey));
 
   F expected_transcript_repr = F::FromHexString(
       "0x03b30e0717f2047e825763ccf9c91fff91c82eef5ec0834f66f359f29a3d3b58");
@@ -699,12 +508,12 @@ TEST_F(SimpleCircuitTest, CreateProof) {
   prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
   std::vector<uint8_t> proof = prover_->GetWriter()->buffer().owned_buffer();
-  std::vector<uint8_t> expected_proof(std::begin(kExpectedProof),
-                                      std::end(kExpectedProof));
+  std::vector<uint8_t> expected_proof(std::begin(simple::kExpectedProof),
+                                      std::end(simple::kExpectedProof));
   EXPECT_THAT(proof, testing::ContainerEq(expected_proof));
 }
 
-TEST_F(SimpleCircuitTest, Verify) {
+TEST_F(SimpleCircuitTest, VerifyProof) {
   size_t n = 16;
   CHECK(prover_->pcs().UnsafeSetup(n, F(2)));
   prover_->set_domain(Domain::Create(n));
@@ -717,8 +526,8 @@ TEST_F(SimpleCircuitTest, Verify) {
   VerifyingKey<F, Commitment> vkey;
   ASSERT_TRUE(vkey.Load(prover_.get(), circuit));
 
-  std::vector<uint8_t> owned_proof(std::begin(kExpectedProof),
-                                   std::end(kExpectedProof));
+  std::vector<uint8_t> owned_proof(std::begin(simple::kExpectedProof),
+                                   std::end(simple::kExpectedProof));
   Verifier<PCS> verifier =
       CreateVerifier(CreateBufferWithProof(absl::MakeSpan(owned_proof)));
   F c = constant * a.Square() * b.Square();
