@@ -77,11 +77,8 @@ class Blake2bBase {
     base::Uint8VectorBuffer buffer;
     buffer.set_endian(base::Endian::kLittle);
     CHECK(buffer.Grow(sizeof(blake2b_state_st)));
-    CHECK(buffer.Write(state_impl->h));
-    CHECK(buffer.Write(state_impl->t_low));
-    CHECK(buffer.Write(state_impl->t_high));
-    CHECK(buffer.Write(state_impl->block));
-    CHECK(buffer.Write(state_impl->block_used));
+    CHECK(buffer.WriteMany(state_impl->h, state_impl->t_low, state_impl->t_high,
+                           state_impl->block, state_impl->block_used));
     CHECK(buffer.Done());
     return std::move(buffer).TakeOwnedBuffer();
   }
@@ -90,11 +87,9 @@ class Blake2bBase {
     base::ReadOnlyBuffer buffer(state.data(), state.size());
     buffer.set_endian(base::Endian::kLittle);
     blake2b_state_st* state_impl = reinterpret_cast<blake2b_state_st*>(&state_);
-    CHECK(buffer.Read(state_impl->h));
-    CHECK(buffer.Read(&state_impl->t_low));
-    CHECK(buffer.Read(&state_impl->t_high));
-    CHECK(buffer.Read(state_impl->block));
-    CHECK(buffer.Read(&state_impl->block_used));
+    CHECK(buffer.ReadMany(state_impl->h, &state_impl->t_low,
+                          &state_impl->t_high, state_impl->block,
+                          &state_impl->block_used));
     CHECK(buffer.Done());
   }
 
