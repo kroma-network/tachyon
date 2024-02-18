@@ -7,9 +7,10 @@
 
 namespace tachyon::c::zk::plonk::halo2::bn254 {
 
-using PCS = tachyon::zk::SHPlonkExtension<tachyon::math::bn254::BN254Curve,
-                                          math::kMaxDegree, math::kMaxDegree,
-                                          tachyon::math::bn254::G1AffinePoint>;
+using SHPlonkPCS =
+    tachyon::zk::SHPlonkExtension<tachyon::math::bn254::BN254Curve,
+                                  math::kMaxDegree, math::kMaxDegree,
+                                  tachyon::math::bn254::G1AffinePoint>;
 
 }  // namespace tachyon::c::zk::plonk::halo2::bn254
 

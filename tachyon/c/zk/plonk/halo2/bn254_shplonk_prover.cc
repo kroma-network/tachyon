@@ -7,8 +7,10 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_impl.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
+#include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
@@ -19,9 +21,9 @@
 
 using namespace tachyon;
 
-using PCS = c::zk::plonk::halo2::bn254::PCS;
+using PCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
 using CS = zk::plonk::ConstraintSystem<PCS::Field>;
-using ProverImpl = c::zk::plonk::halo2::bn254::SHPlonkProverImpl;
+using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS>;
 using ProvingKey =
     c::zk::plonk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>;
 using Data = zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;

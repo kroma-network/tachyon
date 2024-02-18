@@ -4,8 +4,9 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier_impl.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
+#include "tachyon/c/zk/plonk/halo2/verifier_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
 #include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
@@ -15,8 +16,8 @@
 
 using namespace tachyon;
 
-using PCS = c::zk::plonk::halo2::bn254::PCS;
-using Verifier = c::zk::plonk::halo2::bn254::SHPlonkVerifierImpl;
+using PCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
+using Verifier = c::zk::plonk::halo2::VerifierImpl<PCS>;
 using VKey =
     zk::plonk::VerifyingKey<math::bn254::Fr, math::bn254::G1AffinePoint>;
 

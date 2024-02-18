@@ -27,12 +27,13 @@ class ProvingKeyImplBase
   ProvingKeyImplBase(absl::Span<const uint8_t> state, bool read_only_vk)
       : read_only_vk_(read_only_vk) {
     std::string_view pk_str;
-    if (base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {
+    if (tachyon::base::Environment::Get("TACHYON_PK_LOG_PATH", &pk_str)) {
       VLOG(1) << "Save pk to: " << pk_str;
-      CHECK(base::WriteLargeFile(base::FilePath(pk_str), state));
+      CHECK(tachyon::base::WriteLargeFile(tachyon::base::FilePath(pk_str),
+                                          state));
     }
 
-    base::ReadOnlyBuffer buffer(state.data(), state.size());
+    tachyon::base::ReadOnlyBuffer buffer(state.data(), state.size());
 
     ReadProvingKey(buffer);
   }
@@ -52,7 +53,7 @@ class ProvingKeyImplBase
   }
 
  private:
-  void ReadProvingKey(const base::ReadOnlyBuffer& buffer) {
+  void ReadProvingKey(const tachyon::base::ReadOnlyBuffer& buffer) {
     ReadVerifyingKey(buffer, this->verifying_key_);
     if (read_only_vk_) return;
     ReadBuffer(buffer, this->l_first_);
@@ -67,7 +68,7 @@ class ProvingKeyImplBase
     CHECK(buffer.Done());
   }
 
-  static void ReadVerifyingKey(const base::ReadOnlyBuffer& buffer,
+  static void ReadVerifyingKey(const tachyon::base::ReadOnlyBuffer& buffer,
                                tachyon::zk::plonk::VerifyingKey<F, C>& vkey) {
     // NOTE(chokobole): For k
     ReadU32AsSizeT(buffer);
@@ -85,7 +86,7 @@ class ProvingKeyImplBase
   }
 
   static void ReadConstraintSystem(
-      const base::ReadOnlyBuffer& buffer,
+      const tachyon::base::ReadOnlyBuffer& buffer,
       tachyon::zk::plonk::ConstraintSystem<F>& cs) {
     cs.num_fixed_columns_ = ReadU32AsSizeT(buffer);
     cs.num_advice_columns_ = ReadU32AsSizeT(buffer);
@@ -97,7 +98,7 @@ class ProvingKeyImplBase
     ReadBuffer(buffer, cs.selector_map_);
     ReadBuffer(buffer, cs.gates_);
     ReadBuffer(buffer, cs.advice_queries_);
-    cs.num_advice_queries_ = base::CreateVector(
+    cs.num_advice_queries_ = tachyon::base::CreateVector(
         ReadU32AsSizeT(buffer),
         [&buffer]() { return BufferReader<uint32_t>::Read(buffer); });
     ReadBuffer(buffer, cs.instance_queries_);
