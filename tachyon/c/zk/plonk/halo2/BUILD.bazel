@@ -82,23 +82,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "bn254_transcript",
-    srcs = ["bn254_transcript.cc"],
-    hdrs = ["bn254_transcript.h"],
-    deps = [
-        ":constants",
-        "//tachyon/base:logging",
-        "//tachyon/c:export",
-        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
-        "//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "//tachyon/zk/plonk/halo2:blake2b_transcript",
-        "//tachyon/zk/plonk/halo2:poseidon_transcript",
-        "//tachyon/zk/plonk/halo2:sha256_transcript",
-        "//tachyon/zk/plonk/halo2:transcript_type",
-    ],
-)
-
-tachyon_cc_library(
     name = "bn254_shplonk_verifier",
     srcs = ["bn254_shplonk_verifier.cc"],
     hdrs = ["bn254_shplonk_verifier.h"],
@@ -117,6 +100,23 @@ tachyon_cc_library(
     deps = [
         ":bn254_shplonk_pcs",
         ":verifier_impl_base",
+    ],
+)
+
+tachyon_cc_library(
+    name = "bn254_transcript",
+    srcs = ["bn254_transcript.cc"],
+    hdrs = ["bn254_transcript.h"],
+    deps = [
+        ":constants",
+        "//tachyon/base:logging",
+        "//tachyon/c:export",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/zk/plonk/halo2:blake2b_transcript",
+        "//tachyon/zk/plonk/halo2:poseidon_transcript",
+        "//tachyon/zk/plonk/halo2:sha256_transcript",
+        "//tachyon/zk/plonk/halo2:transcript_type",
     ],
 )
 
