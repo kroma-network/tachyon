@@ -16,8 +16,8 @@
 #include "openssl/blake2.h"
 
 #include "tachyon/crypto/transcripts/transcript.h"
-#include "tachyon/math/base/big_int.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
 namespace tachyon::zk::plonk::halo2 {
@@ -35,8 +35,8 @@ class Blake2bBase {
     DoUpdate(kBlake2bPrefixChallenge, 1);
     uint8_t result[BLAKE2B512_DIGEST_LENGTH] = {0};
     DoFinalize(result);
-    return ScalarField::FromAnySizedBigInt(
-        math::BigInt<8>::FromBytesLE(result));
+
+    return FromUint512<ScalarField>(result);
   }
 
   bool DoWriteToTranscript(const AffinePoint& point) {

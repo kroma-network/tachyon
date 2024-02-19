@@ -11,10 +11,9 @@
 
 #include "openssl/sha.h"
 
-#include "tachyon/base/types/always_false.h"
 #include "tachyon/crypto/transcripts/transcript.h"
-#include "tachyon/math/base/big_int.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
 namespace tachyon::zk::plonk::halo2 {
@@ -36,12 +35,9 @@ class Sha256Base {
     SHA256_Init(&state_);
     DoUpdate(result, SHA256_DIGEST_LENGTH);
 
-    if constexpr (ScalarField::N <= 4) {
-      return ScalarField::FromAnySizedBigInt(
-          math::BigInt<4>::FromBytesLE(result));
-    } else {
-      base::AlwaysFalse<AffinePoint>();
-    }
+    uint8_t expanded_result[SHA256_DIGEST_LENGTH * 2] = {0};
+    memcpy(expanded_result, result, SHA256_DIGEST_LENGTH);
+    return FromUint512<ScalarField>(expanded_result);
   }
 
   bool DoWriteToTranscript(const AffinePoint& point) {

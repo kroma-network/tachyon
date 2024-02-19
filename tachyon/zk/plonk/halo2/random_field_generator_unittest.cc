@@ -16,21 +16,6 @@ class RandomFieldGeneratorTest : public math::FiniteFieldTest<math::bn254::Fq> {
 
 }  // namespace
 
-TEST_F(RandomFieldGeneratorTest, FromUint512) {
-  uint64_t limbs4[4] = {
-      0x1f8905a172affa8a,
-      0xde45ad177dcf3306,
-      0xaaa7987907d73ae2,
-      0x24d349431d468e30,
-  };
-  uint64_t limbs8[8] = {0xaaaaaaaaaaaaaaaa, 0xaaaaaaaaaaaaaaaa,
-                        0xaaaaaaaaaaaaaaaa, 0xaaaaaaaaaaaaaaaa,
-                        0xaaaaaaaaaaaaaaaa, 0xaaaaaaaaaaaaaaaa,
-                        0xaaaaaaaaaaaaaaaa, 0xaaaaaaaaaaaaaaaa};
-  EXPECT_EQ(F(math::BigInt<4>(limbs4)),
-            RandomFieldGenerator<F>::FromUint512(limbs8));
-}
-
 TEST_F(RandomFieldGeneratorTest, Random) {
   const char* kHexes[100] = {
       "0x04c0df95382d049b3f56cefbdebef7dc581a26714b42aa21726c2cfe23481d5a",

@@ -1,11 +1,9 @@
 #ifndef TACHYON_ZK_PLONK_HALO2_RANDOM_FIELD_GENERATOR_H_
 #define TACHYON_ZK_PLONK_HALO2_RANDOM_FIELD_GENERATOR_H_
 
-#include "gtest/gtest_prod.h"
-
 #include "tachyon/crypto/random/xor_shift/xor_shift_rng.h"
-#include "tachyon/math/base/big_int.h"
 #include "tachyon/zk/base/random_field_generator_base.h"
+#include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
@@ -26,37 +24,10 @@ class RandomFieldGenerator : public RandomFieldGeneratorBase<F> {
         generator_->NextUint64(), generator_->NextUint64(),
         generator_->NextUint64(), generator_->NextUint64(),
     };
-    return FromUint512(limbs);
+    return FromUint512<F>(limbs);
   }
 
  private:
-  FRIEND_TEST(RandomFieldGeneratorTest, FromUint512);
-
-  // See
-  // https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/derive/field.rs#L29-L47.
-  static F FromUint512(uint64_t limbs[8]) {
-    F d0 = F::FromMontgomery(
-        math::BigInt<4>({limbs[0], limbs[1], limbs[2], limbs[3]}));
-    F d1 = F::FromMontgomery(
-        math::BigInt<4>({limbs[4], limbs[5], limbs[6], limbs[7]}));
-    // NOTE(chokobole): When performing d0 * F::Config::kMontgomeryR2 + d1 *
-    // F::Config::kMontgomeryR3, the result may be incorrect. This is due to our
-    // prime field multiplication, where we utilize unused modulus bits for
-    // optimization purposes. However, the given |limbs| can sometimes exceed
-    // the allowed scope of bits.
-    math::BigInt<8> mul_result =
-        d0.ToMontgomery().Mul(F::Config::kMontgomeryR2);
-    math::BigInt<4> d2;
-    math::BigInt<4>::MontgomeryReduce64<false>(mul_result, F::Config::kModulus,
-                                               F::Config::kInverse64, &d2);
-    math::BigInt<8> mul_result2 =
-        d1.ToMontgomery().Mul(F::Config::kMontgomeryR3);
-    math::BigInt<4> d3;
-    math::BigInt<4>::MontgomeryReduce64<false>(mul_result2, F::Config::kModulus,
-                                               F::Config::kInverse64, &d3);
-    return F::FromMontgomery(d2) + F::FromMontgomery(d3);
-  }
-
   // not owned
   crypto::XORShiftRNG* const generator_;
 };
