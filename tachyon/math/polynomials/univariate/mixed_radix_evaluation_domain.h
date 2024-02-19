@@ -89,7 +89,8 @@ class MixedRadixEvaluationDomain
 
     Evals evals;
     evals.evaluations_ = poly.coefficients_.coefficients_;
-    return DoFFT(std::move(evals));
+    DoFFT(evals);
+    return evals;
   }
 
   [[nodiscard]] constexpr Evals FFT(DensePoly&& poly) const override {
@@ -97,16 +98,16 @@ class MixedRadixEvaluationDomain
 
     Evals evals;
     evals.evaluations_ = std::move(poly.coefficients_.coefficients_);
-    return DoFFT(std::move(evals));
+    DoFFT(evals);
+    return evals;
   }
 
-  [[nodiscard]] constexpr Evals DoFFT(Evals&& evals) const {
+  constexpr void DoFFT(Evals& evals) const {
     if (!this->offset_.IsOne()) {
       Base::DistributePowers(evals, this->offset_);
     }
     evals.evaluations_.resize(this->size_, F::Zero());
     BestFFT(evals, this->group_gen_);
-    return evals;
   }
 
   [[nodiscard]] constexpr DensePoly IFFT(const Evals& evals) const override {
@@ -116,7 +117,8 @@ class MixedRadixEvaluationDomain
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = evals.evaluations_;
-    return DoIFFT(std::move(poly));
+    DoIFFT(poly);
+    return poly;
   }
 
   [[nodiscard]] constexpr DensePoly IFFT(Evals&& evals) const override {
@@ -126,10 +128,11 @@ class MixedRadixEvaluationDomain
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = std::move(evals.evaluations_);
-    return DoIFFT(std::move(poly));
+    DoIFFT(poly);
+    return poly;
   }
 
-  [[nodiscard]] constexpr DensePoly DoIFFT(DensePoly&& poly) const {
+  constexpr void DoIFFT(DensePoly& poly) const {
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     BestFFT(poly, this->group_gen_inv_);
     if (this->offset_.IsOne()) {
@@ -143,7 +146,6 @@ class MixedRadixEvaluationDomain
                                           this->size_inv_);
     }
     poly.coefficients_.RemoveHighDegreeZeros();
-    return poly;
   }
 
   constexpr static bool ComputeSizeAndFactors(size_t num_coeffs,

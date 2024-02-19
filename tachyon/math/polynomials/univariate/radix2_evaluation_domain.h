@@ -97,7 +97,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
     Evals evals;
     evals.evaluations_ = poly.coefficients_.coefficients_;
-    return DoFFT(std::move(evals));
+    DoFFT(evals);
+    return evals;
   }
 
   [[nodiscard]] constexpr Evals FFT(DensePoly&& poly) const override {
@@ -105,10 +106,11 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
     Evals evals;
     evals.evaluations_ = std::move(poly.coefficients_.coefficients_);
-    return DoFFT(std::move(evals));
+    DoFFT(evals);
+    return evals;
   }
 
-  [[nodiscard]] constexpr Evals DoFFT(Evals&& evals) const {
+  constexpr void DoFFT(Evals& evals) const {
     if (evals.evaluations_.size() * kDegreeAwareFFTThresholdFactor <=
         this->size_) {
       DegreeAwareFFTInPlace(evals);
@@ -116,7 +118,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       evals.evaluations_.resize(this->size_, F::Zero());
       InOrderFFTInPlace(evals);
     }
-    return evals;
   }
 
   [[nodiscard]] constexpr DensePoly IFFT(const Evals& evals) const override {
@@ -126,7 +127,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = evals.evaluations_;
-    return DoIFFT(std::move(poly));
+    DoIFFT(poly);
+    return poly;
   }
 
   [[nodiscard]] constexpr DensePoly IFFT(Evals&& evals) const override {
@@ -136,14 +138,14 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = std::move(evals.evaluations_);
-    return DoIFFT(std::move(poly));
+    DoIFFT(poly);
+    return poly;
   }
 
-  [[nodiscard]] constexpr DensePoly DoIFFT(DensePoly&& poly) const {
+  constexpr void DoIFFT(DensePoly& poly) const {
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     InOrderIFFTInPlace(poly);
     poly.coefficients_.RemoveHighDegreeZeros();
-    return poly;
   }
 
   // Degree aware FFT that runs in O(n log d) instead of O(n log n).
