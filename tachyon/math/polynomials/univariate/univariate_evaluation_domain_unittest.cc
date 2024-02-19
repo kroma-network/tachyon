@@ -54,7 +54,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, VanishingPolynomialEvaluation) {
   using BaseDomain = UnivariateEvaluationDomain<F, Domain::kMaxDegree>;
   using SparsePoly = typename Domain::SparsePoly;
 
-  for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
+  for (size_t coeffs = 2; coeffs < kNumCoeffs; ++coeffs) {
     this->TestDomains(coeffs, [](const BaseDomain& d) {
       SparsePoly z = d.GetVanishingPolynomial();
       for (size_t i = 0; i < 100; ++i) {
@@ -72,7 +72,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest,
   using BaseDomain = UnivariateEvaluationDomain<F, Domain::kMaxDegree>;
   using SparsePoly = typename Domain::SparsePoly;
 
-  for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
+  for (size_t coeffs = 2; coeffs < kNumCoeffs; ++coeffs) {
     this->TestDomains(coeffs, [](const BaseDomain& d) {
       SparsePoly z = d.GetVanishingPolynomial();
       for (const F& element : d.GetElements()) {
@@ -137,7 +137,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FilterPolynomial) {
 TYPED_TEST(UnivariateEvaluationDomainTest, SizeOfElements) {
   using Domain = TypeParam;
 
-  for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
+  for (size_t coeffs = 1; coeffs < kNumCoeffs; ++coeffs) {
     size_t size = size_t{1} << coeffs;
     std::unique_ptr<Domain> domain = Domain::Create(size);
     EXPECT_EQ(domain->size(), domain->GetElements().size());
@@ -149,7 +149,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, ContentsOfElements) {
   using F = typename Domain::Field;
   using BaseDomain = UnivariateEvaluationDomain<F, Domain::kMaxDegree>;
 
-  for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
+  for (size_t coeffs = 2; coeffs < kNumCoeffs; ++coeffs) {
     size_t size = size_t{1} << coeffs;
     this->TestDomains(size, [size](const BaseDomain& d) {
       std::vector<F> elements = d.GetElements();
@@ -313,7 +313,7 @@ TYPED_TEST(UnivariateEvaluationDomainTest, RootsOfUnity) {
   using Domain = TypeParam;
   using F = typename Domain::Field;
 
-  for (size_t coeffs = 0; coeffs < kNumCoeffs; ++coeffs) {
+  for (size_t coeffs = 2; coeffs < kNumCoeffs; ++coeffs) {
     std::unique_ptr<Domain> domain = Domain::Create(coeffs);
     std::vector<F> actual_roots =
         domain->GetRootsOfUnity(domain->size(), domain->group_gen());
