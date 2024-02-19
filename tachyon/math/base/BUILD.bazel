@@ -138,7 +138,7 @@ tachyon_cc_unittest(
         ":groups",
         ":rational_field",
         ":sign",
-        "//tachyon/base/buffer",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/elliptic_curves/msm/test:variable_base_msm_test_set",
         "//tachyon/math/elliptic_curves/short_weierstrass/test:sw_curve_config",

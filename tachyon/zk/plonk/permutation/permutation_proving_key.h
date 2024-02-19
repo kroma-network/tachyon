@@ -69,8 +69,7 @@ class Copyable<zk::plonk::PermutationProvingKey<Poly, Evals>> {
 
   static size_t EstimateSize(
       const zk::plonk::PermutationProvingKey<Poly, Evals>& pk) {
-    return base::EstimateSize(pk.permutations()) +
-           base::EstimateSize(pk.polys());
+    return base::EstimateSize(pk.permutations(), pk.polys());
   }
 };
 

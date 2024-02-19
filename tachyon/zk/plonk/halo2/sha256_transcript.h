@@ -8,13 +8,13 @@
 #define TACHYON_ZK_PLONK_HALO2_SHA256_TRANSCRIPT_H_
 
 #include <utility>
+#include <vector>
 
 #include "openssl/sha.h"
 
-#include "tachyon/base/types/always_false.h"
 #include "tachyon/crypto/transcripts/transcript.h"
-#include "tachyon/math/base/big_int.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
 namespace tachyon::zk::plonk::halo2 {
@@ -33,15 +33,12 @@ class Sha256Base {
     uint8_t result[SHA256_DIGEST_LENGTH] = {0};
     DoFinalize(result);
 
-    DoInit();
+    SHA256_Init(&state_);
     DoUpdate(result, SHA256_DIGEST_LENGTH);
 
-    if constexpr (ScalarField::N <= 4) {
-      return ScalarField::FromAnySizedBigInt(
-          math::BigInt<4>::FromBytesLE(result));
-    } else {
-      base::AlwaysFalse<AffinePoint>();
-    }
+    uint8_t expanded_result[SHA256_DIGEST_LENGTH * 2] = {0};
+    memcpy(expanded_result, result, SHA256_DIGEST_LENGTH);
+    return FromUint512<ScalarField>(expanded_result);
   }
 
   bool DoWriteToTranscript(const AffinePoint& point) {
@@ -62,8 +59,6 @@ class Sha256Base {
     return true;
   }
 
-  void DoInit() { SHA256_Init(&state_); }
-
   void DoUpdate(const void* data, size_t len) {
     SHA256_Update(&state_, data, len);
   }
@@ -71,6 +66,29 @@ class Sha256Base {
   void DoFinalize(uint8_t result[SHA256_DIGEST_LENGTH]) {
     SHA256_CTX hasher = state_;
     SHA256_Final(result, &hasher);
+  }
+
+  std::vector<uint8_t> DoGetState() const {
+    const sha256_state_st* state_impl =
+        reinterpret_cast<const sha256_state_st*>(&state_);
+    base::Uint8VectorBuffer buffer;
+    buffer.set_endian(base::Endian::kLittle);
+    CHECK(buffer.Grow(sizeof(sha256_state_st)));
+    CHECK(buffer.WriteMany(state_impl->h, state_impl->Nl, state_impl->Nh,
+                           state_impl->data, state_impl->num,
+                           state_impl->md_len));
+    CHECK(buffer.Done());
+    return std::move(buffer).TakeOwnedBuffer();
+  }
+
+  void DoSetState(absl::Span<const uint8_t> state) {
+    base::ReadOnlyBuffer buffer(state.data(), state.size());
+    buffer.set_endian(base::Endian::kLittle);
+    sha256_state_st* state_impl = reinterpret_cast<sha256_state_st*>(&state_);
+    CHECK(buffer.ReadMany(state_impl->h, &state_impl->Nl, &state_impl->Nh,
+                          state_impl->data, &state_impl->num,
+                          &state_impl->md_len));
+    CHECK(buffer.Done());
   }
 
   SHA256_CTX state_;
@@ -87,14 +105,6 @@ class Sha256Reader : public crypto::TranscriptReader<AffinePoint>,
   // Initialize a transcript given an input buffer.
   explicit Sha256Reader(base::ReadOnlyBuffer read_buf)
       : crypto::TranscriptReader<AffinePoint>(std::move(read_buf)) {}
-
-  void Init() { this->DoInit(); }
-
-  void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
-
-  void Finalize(uint8_t result[SHA256_DIGEST_LENGTH]) {
-    this->DoFinalize(result);
-  }
 
   // crypto::TranscriptReader methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }
@@ -129,13 +139,21 @@ class Sha256Writer : public crypto::TranscriptWriter<AffinePoint>,
     SHA256_Init(&state_);
   }
 
-  void Init() { this->DoInit(); }
+  // NOTE(chokobole): |GetDigestLen()|, |GetStateLen()|, |Update()|,
+  // |Finalize()|, |GetState()| and |SetState()| are called from rust binding.
+  size_t GetDigestLen() const { return SHA256_DIGEST_LENGTH; }
+
+  size_t GetStateLen() const { return sizeof(sha256_state_st); }
 
   void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
 
   void Finalize(uint8_t result[SHA256_DIGEST_LENGTH]) {
     this->DoFinalize(result);
   }
+
+  std::vector<uint8_t> GetState() const { return this->DoGetState(); }
+
+  void SetState(absl::Span<const uint8_t> state) { this->DoSetState(state); }
 
   // crypto::TranscriptWriter methods
   ScalarField SqueezeChallenge() override { return this->DoSqueezeChallenge(); }

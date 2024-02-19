@@ -30,9 +30,9 @@ struct IsCopyable<
         decltype(Copyable<T>::EstimateSize(std::declval<const T&>()))>>
     : std::true_type {};
 
-template <typename T>
-size_t EstimateSize(const T& value) {
-  return Copyable<T>::EstimateSize(value);
+template <typename... Args>
+size_t EstimateSize(const Args&... args) {
+  return (... + Copyable<Args>::EstimateSize(args));
 }
 
 }  // namespace tachyon::base

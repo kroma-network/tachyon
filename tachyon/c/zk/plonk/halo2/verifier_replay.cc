@@ -7,9 +7,9 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier.h"
-#include "tachyon/c/zk/plonk/halo2/transcript_type.h"
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
+#include "tachyon/zk/plonk/halo2/transcript_type.h"
 #include "tachyon/zk/plonk/halo2/verifier.h"
 
 constexpr uint8_t kProof[] = {
@@ -61,15 +61,13 @@ int RunMain(int argc, char** argv) {
     return 1;
   }
 
-  c::zk::plonk::halo2::TranscriptType transcript_type;
+  zk::plonk::halo2::TranscriptType transcript_type;
   uint32_t k;
   std::string s_hex;
   base::FilePath pcs_params_path;
   base::FilePath pk_path;
   base::FlagParser parser;
-  parser
-      .AddFlag<base::Flag<c::zk::plonk::halo2::TranscriptType>>(
-          &transcript_type)
+  parser.AddFlag<base::Flag<zk::plonk::halo2::TranscriptType>>(&transcript_type)
       .set_long_name("--transcript_type")
       .set_required()
       .set_help("Transcript type");

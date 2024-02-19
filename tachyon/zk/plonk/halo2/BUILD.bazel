@@ -20,9 +20,9 @@ tachyon_cc_library(
     hdrs = ["blake2b_transcript.h"],
     deps = [
         ":constants",
+        ":prime_field_conversion",
         ":proof_serializer",
         "//tachyon/crypto/transcripts:transcript",
-        "//tachyon/math/base:big_int",
         "@com_google_absl//absl/types:span",
         "@com_google_boringssl//:crypto",
     ],
@@ -126,6 +126,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "prime_field_conversion",
+    hdrs = ["prime_field_conversion.h"],
+    deps = [
+        "//tachyon/base/buffer:read_only_buffer",
+        "//tachyon/base/types:always_false",
+        "//tachyon/math/base:big_int",
+    ],
+)
+
+tachyon_cc_library(
     name = "proof",
     hdrs = ["proof.h"],
     deps = [
@@ -190,10 +200,9 @@ tachyon_cc_library(
     name = "random_field_generator",
     hdrs = ["random_field_generator.h"],
     deps = [
+        ":prime_field_conversion",
         "//tachyon/crypto/random/xor_shift:xor_shift_rng",
-        "//tachyon/math/base:big_int",
         "//tachyon/zk/base:random_field_generator_base",
-        "@com_google_googletest//:gtest_prod",
     ],
 )
 
@@ -202,10 +211,9 @@ tachyon_cc_library(
     hdrs = ["sha256_transcript.h"],
     deps = [
         ":constants",
+        ":prime_field_conversion",
         ":proof_serializer",
-        "//tachyon/base/types:always_false",
         "//tachyon/crypto/transcripts:transcript",
-        "//tachyon/math/base:big_int",
         "@com_google_boringssl//:crypto",
     ],
 )
@@ -218,6 +226,15 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/constraint_system",
+    ],
+)
+
+tachyon_cc_library(
+    name = "transcript_type",
+    hdrs = ["transcript_type.h"],
+    deps = [
+        "//tachyon/base/flag",
+        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -254,6 +271,7 @@ tachyon_cc_unittest(
         "argument_data_unittest.cc",
         "blake2b_transcript_unittest.cc",
         "poseidon_transcript_unittest.cc",
+        "prime_field_conversion_unittest.cc",
         "proof_serializer_unittest.cc",
         "proof_unittest.cc",
         "random_field_generator_unittest.cc",

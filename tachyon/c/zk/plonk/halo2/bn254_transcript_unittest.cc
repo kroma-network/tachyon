@@ -1,12 +1,15 @@
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 
 #include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
+#include "tachyon/zk/plonk/halo2/poseidon_transcript.h"
+#include "tachyon/zk/plonk/halo2/sha256_transcript.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
@@ -24,7 +27,9 @@ class TranscriptWriterTest : public math::FiniteFieldTest<math::bn254::Fr> {
 };
 
 using TranscriptTypes =
-    testing::Types<Blake2bWriter<math::bn254::G1AffinePoint>>;
+    testing::Types<Blake2bWriter<math::bn254::G1AffinePoint>,
+                   PoseidonWriter<math::bn254::G1AffinePoint>,
+                   Sha256Writer<math::bn254::G1AffinePoint>>;
 TYPED_TEST_SUITE(TranscriptWriterTest, TranscriptTypes);
 
 TYPED_TEST(TranscriptWriterTest, APIs) {
@@ -37,6 +42,16 @@ TYPED_TEST(TranscriptWriterTest, APIs) {
   if constexpr (std::is_same_v<TranscriptWriter,
                                Blake2bWriter<math::bn254::G1AffinePoint>>) {
     type = TACHYON_HALO2_BLAKE_TRANSCRIPT;
+    // NOLINTNEXTLINE(readability/braces)
+  } else if constexpr (std::is_same_v<
+                           TranscriptWriter,
+                           PoseidonWriter<math::bn254::G1AffinePoint>>) {
+    type = TACHYON_HALO2_POSEIDON_TRANSCRIPT;
+    // NOLINTNEXTLINE(readability/braces)
+  } else if constexpr (std::is_same_v<
+                           TranscriptWriter,
+                           Sha256Writer<math::bn254::G1AffinePoint>>) {
+    type = TACHYON_HALO2_SHA256_TRANSCRIPT;
   }
 
   this->writer_ = tachyon_halo2_bn254_transcript_writer_create(type);
@@ -45,18 +60,21 @@ TYPED_TEST(TranscriptWriterTest, APIs) {
             reinterpret_cast<TranscriptWriter*>(this->writer_->extra)
                 ->SqueezeChallenge());
 
+  size_t expected_state_len =
+      reinterpret_cast<TranscriptWriter*>(this->writer_->extra)->GetStateLen();
+
   size_t state_len;
   tachyon_halo2_bn254_transcript_writer_get_state(this->writer_, nullptr,
                                                   &state_len);
-  ASSERT_EQ(state_len, sizeof(blake2b_state_st));
+  ASSERT_EQ(state_len, expected_state_len);
 
-  uint8_t state[sizeof(blake2b_state_st)];
-  tachyon_halo2_bn254_transcript_writer_get_state(this->writer_, state,
+  std::vector<uint8_t> state(state_len);
+  tachyon_halo2_bn254_transcript_writer_get_state(this->writer_, state.data(),
                                                   &state_len);
-  ASSERT_EQ(state_len, sizeof(blake2b_state_st));
+  ASSERT_EQ(state_len, expected_state_len);
 
   this->writer_clone_ = tachyon_halo2_bn254_transcript_writer_create_from_state(
-      type, state, state_len);
+      type, state.data(), state_len);
 
   EXPECT_EQ(reinterpret_cast<TranscriptWriter*>(this->writer_->extra)
                 ->SqueezeChallenge(),

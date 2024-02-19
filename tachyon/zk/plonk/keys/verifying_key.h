@@ -19,6 +19,7 @@
 #include "tachyon/base/strings/rust_stringifier.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key_forward.h"
+#include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
 #include "tachyon/zk/plonk/keys/c_proving_key_impl_base_forward.h"
 #include "tachyon/zk/plonk/keys/key.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
@@ -117,8 +118,7 @@ class VerifyingKey : public Key {
     uint8_t result[BLAKE2B512_DIGEST_LENGTH] = {0};
     BLAKE2B512_Final(result, &state);
 
-    transcript_repr_ =
-        F::FromAnySizedBigInt(math::BigInt<8>::FromBytesLE(result));
+    transcript_repr_ = halo2::FromUint512<F>(result);
     VLOG(2) << "Halo2(transcript_repr): " << transcript_repr_.ToHexString(true);
   }
 

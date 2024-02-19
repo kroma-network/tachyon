@@ -9,6 +9,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
@@ -37,6 +38,25 @@ TEST_F(PoseidonTest, AbsorbSqueeze) {
                         "38937334196346054068797"),
   };
   EXPECT_EQ(result, expected);
+}
+
+TEST_F(PoseidonTest, Copyable) {
+  using Fr = math::bls12_381::Fr;
+
+  PoseidonConfig<Fr> config = PoseidonConfig<Fr>::CreateDefault(2, false);
+  PoseidonSponge<Fr> expected(config);
+
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
+  ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Done());
+
+  write_buf.set_buffer_offset(0);
+
+  PoseidonSponge<Fr> value;
+  ASSERT_TRUE(write_buf.Read(&value));
+
+  EXPECT_EQ(value, expected);
 }
 
 }  // namespace tachyon::crypto

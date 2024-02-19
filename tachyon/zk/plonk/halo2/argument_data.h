@@ -260,11 +260,9 @@ class Copyable<zk::plonk::halo2::ArgumentData<Poly, Evals>> {
 
   static size_t EstimateSize(
       const zk::plonk::halo2::ArgumentData<Poly, Evals>& data) {
-    return base::EstimateSize(data.advice_columns_vec_) +
-           base::EstimateSize(data.advice_blinds_vec_) +
-           base::EstimateSize(data.challenges_) +
-           base::EstimateSize(data.instance_columns_vec_) +
-           base::EstimateSize(data.instance_polys_vec_);
+    return base::EstimateSize(data.advice_columns_vec_, data.advice_blinds_vec_,
+                              data.challenges_, data.instance_columns_vec_,
+                              data.instance_polys_vec_);
   }
 };
 

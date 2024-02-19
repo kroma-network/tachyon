@@ -21,6 +21,23 @@ class Copyable<T, std::enable_if_t<internal::IsBuiltinSerializable<T>::value>> {
   static size_t EstimateSize(const T& value) { return sizeof(T); }
 };
 
+template <typename T>
+class Copyable<T, std::enable_if_t<std::is_enum_v<T>>> {
+ public:
+  static bool WriteTo(const T& value, Buffer* buffer) {
+    return buffer->Write(static_cast<std::underlying_type_t<T>>(value));
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, T* value) {
+    std::underlying_type_t<T> underlying_value;
+    if (!buffer.Read(&underlying_value)) return false;
+    *value = static_cast<T>(underlying_value);
+    return true;
+  }
+
+  static size_t EstimateSize(T value) { return sizeof(T); }
+};
+
 template <typename CharTy>
 class Copyable<std::basic_string_view<CharTy>> {
  public:

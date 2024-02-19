@@ -18,7 +18,8 @@ namespace tachyon::zk::r1cs {
 
 class TACHYON_EXPORT Variable {
  public:
-  // NOTE(chokobole): THE ORDER OF ELEMENTS ARE IMPORTANT!! DO NOT CHANGE!
+  // THE ORDER OF ELEMENTS ARE IMPORTANT!! DO NOT CHANGE!
+  // The comparison operator depends on the order of elements.
   enum class Type {
     // Represents the "zero" constant.
     kZero,

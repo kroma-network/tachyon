@@ -7,10 +7,9 @@
 
 namespace tachyon::halo2_api::bn254 {
 
-SHPlonkProver::SHPlonkProver(uint32_t k, const Fr& s)
+SHPlonkProver::SHPlonkProver(uint8_t transcript_type, uint32_t k, const Fr& s)
     : prover_(tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
-          TACHYON_HALO2_BLAKE_TRANSCRIPT, k,
-          reinterpret_cast<const tachyon_bn254_fr*>(&s))) {}
+          transcript_type, k, reinterpret_cast<const tachyon_bn254_fr*>(&s))) {}
 
 SHPlonkProver::~SHPlonkProver() {
   tachyon_halo2_bn254_shplonk_prover_destroy(prover_);
@@ -179,8 +178,9 @@ rust::Vec<uint8_t> SHPlonkProver::get_proof() const {
   return proof;
 }
 
-std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint32_t k, const Fr& s) {
-  return std::make_unique<SHPlonkProver>(k, s);
+std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint8_t transcript_type,
+                                                  uint32_t k, const Fr& s) {
+  return std::make_unique<SHPlonkProver>(transcript_type, k, s);
 }
 
 rust::Box<Fr> ProvingKey::transcript_repr(const SHPlonkProver& prover) {

@@ -8,11 +8,11 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_impl.h"
-#include "tachyon/c/zk/plonk/halo2/transcript_type.h"
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h"
 #include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/transcript_type.h"
 
 namespace tachyon {
 namespace c::zk::plonk::halo2::bn254 {
@@ -105,7 +105,7 @@ int RunMain(int argc, char** argv) {
     return 1;
   }
 
-  c::zk::plonk::halo2::TranscriptType transcript_type;
+  zk::plonk::halo2::TranscriptType transcript_type;
   uint32_t k;
   std::string s_hex;
   base::FilePath pcs_params_path;
@@ -113,9 +113,7 @@ int RunMain(int argc, char** argv) {
   base::FilePath arg_data_path;
   base::FilePath transcript_state_path;
   base::FlagParser parser;
-  parser
-      .AddFlag<base::Flag<c::zk::plonk::halo2::TranscriptType>>(
-          &transcript_type)
+  parser.AddFlag<base::Flag<zk::plonk::halo2::TranscriptType>>(&transcript_type)
       .set_long_name("--transcript_type")
       .set_required()
       .set_help("Transcript type");

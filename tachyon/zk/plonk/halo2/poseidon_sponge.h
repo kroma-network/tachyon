@@ -13,7 +13,8 @@
 
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon.h"
 
-namespace tachyon::zk::plonk::halo2 {
+namespace tachyon {
+namespace zk::plonk::halo2 {
 
 template <typename F>
 struct PoseidonSponge final : public crypto::PoseidonSponge<F> {
@@ -52,6 +53,32 @@ struct PoseidonSponge final : public crypto::PoseidonSponge<F> {
   }
 };
 
-}  // namespace tachyon::zk::plonk::halo2
+}  // namespace zk::plonk::halo2
+
+namespace base {
+
+template <typename F>
+class Copyable<zk::plonk::halo2::PoseidonSponge<F>> {
+ public:
+  static bool WriteTo(const zk::plonk::halo2::PoseidonSponge<F>& poseidon,
+                      Buffer* buffer) {
+    return buffer->Write(
+        static_cast<const crypto::PoseidonSponge<F>&>(poseidon));
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       zk::plonk::halo2::PoseidonSponge<F>* poseidon) {
+    return buffer.Read(static_cast<crypto::PoseidonSponge<F>*>(poseidon));
+  }
+
+  static size_t EstimateSize(
+      const zk::plonk::halo2::PoseidonSponge<F>& poseidon) {
+    return base::EstimateSize(
+        static_cast<const crypto::PoseidonSponge<F>&>(poseidon));
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_ZK_PLONK_HALO2_POSEIDON_SPONGE_H_

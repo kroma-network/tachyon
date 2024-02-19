@@ -5,8 +5,8 @@
 #include <stdint.h>
 
 #include "tachyon/c/export.h"
-
-#define TACHYON_HALO2_BLAKE_TRANSCRIPT 0
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/c/zk/plonk/halo2/constants.h"
 
 struct tachyon_halo2_bn254_transcript_writer {
   uint8_t type;
@@ -34,9 +34,17 @@ TACHYON_C_EXPORT void tachyon_halo2_bn254_transcript_writer_update(
 
 // If |data| is NULL, then it populates |data_len| with length to be used.
 // If |data| is not NULL, then it populates |data| with the hash.
+// If the type of the transcript is poseidon, you should call
+// |tachyon_halo2_bn254_transcript_writer_squeeze| instead.
+// Otherwise, it terminates the program.
 TACHYON_C_EXPORT void tachyon_halo2_bn254_transcript_writer_finalize(
     tachyon_halo2_bn254_transcript_writer* writer, uint8_t* data,
     size_t* data_len);
+
+// If the type of the transcript is not poseidon, it terminates the
+// program.
+TACHYON_C_EXPORT tachyon_bn254_fr tachyon_halo2_bn254_transcript_writer_squeeze(
+    tachyon_halo2_bn254_transcript_writer* writer);
 
 // If |state| is NULL, then it populates |state_len| with length to be used.
 // If |state| is not NULL, then it populates |state| with its internal state.

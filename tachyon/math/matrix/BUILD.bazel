@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -14,7 +14,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "matrix_types",
     hdrs = ["matrix_types.h"],
-    deps = ["@eigen_archive//:eigen3"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "@eigen_archive//:eigen3",
+    ],
 )
 
 tachyon_cc_library(
@@ -23,5 +26,16 @@ tachyon_cc_library(
     deps = [
         "//tachyon/math/finite_fields:finite_field_forwards",
         "@eigen_archive//:eigen3",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "matrix_unittests",
+    srcs = ["matrix_types_unittest.cc"],
+    deps = [
+        ":matrix_types",
+        "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/math/finite_fields/test:finite_field_test",
+        "//tachyon/math/finite_fields/test:gf7",
     ],
 )

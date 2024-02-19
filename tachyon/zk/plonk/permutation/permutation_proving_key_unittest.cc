@@ -10,7 +10,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/base/buffer/buffer.h"
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
@@ -41,9 +41,8 @@ TEST_F(PermutationProvingKeyTest, Copyable) {
        domain->Random<Evals>()},
       {domain->Random<Poly>(), domain->Random<Poly>(), domain->Random<Poly>()});
 
-  std::vector<uint8_t> vec;
-  vec.resize(base::EstimateSize(expected));
-  base::Buffer write_buf(vec.data(), vec.size());
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
   ASSERT_TRUE(write_buf.Write(expected));
   ASSERT_TRUE(write_buf.Done());
 

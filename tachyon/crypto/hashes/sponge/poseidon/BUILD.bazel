@@ -7,6 +7,7 @@ tachyon_cc_library(
     hdrs = ["poseidon.h"],
     deps = [
         ":poseidon_config",
+        "//tachyon/base/buffer:copyable",
         "//tachyon/crypto/hashes:prime_field_serializable",
         "//tachyon/crypto/hashes/sponge",
     ],
@@ -17,6 +18,7 @@ tachyon_cc_library(
     hdrs = ["poseidon_config.h"],
     deps = [
         ":grain_lfsr",
+        "//tachyon/base/buffer:copyable",
         "//tachyon/base/ranges:algorithm",
         "@com_google_absl//absl/types:span",
     ],
@@ -42,6 +44,7 @@ tachyon_cc_unittest(
     deps = [
         ":poseidon",
         ":poseidon_config",
+        "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/test:finite_field_test",

@@ -15,6 +15,7 @@ filegroup(
         "bn254_shplonk_prover.h",
         "bn254_shplonk_verifier.h",
         "bn254_transcript.h",
+        "constants.h",
     ],
 )
 
@@ -85,10 +86,15 @@ tachyon_cc_library(
     srcs = ["bn254_transcript.cc"],
     hdrs = ["bn254_transcript.h"],
     deps = [
+        ":constants",
         "//tachyon/base:logging",
         "//tachyon/c:export",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/zk/plonk/halo2:blake2b_transcript",
+        "//tachyon/zk/plonk/halo2:poseidon_transcript",
+        "//tachyon/zk/plonk/halo2:sha256_transcript",
+        "//tachyon/zk/plonk/halo2:transcript_type",
     ],
 )
 
@@ -115,6 +121,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "constants",
+    hdrs = ["constants.h"],
+)
+
+tachyon_cc_library(
     name = "prover_impl_base",
     hdrs = ["prover_impl_base.h"],
     deps = [
@@ -130,7 +141,6 @@ tachyon_cc_binary(
     name = "prover_replay",
     srcs = ["prover_replay.cc"],
     deps = [
-        ":transcript_type",
         "//tachyon/base:logging",
         "//tachyon/base/console",
         "//tachyon/base/files:file_path_flag",
@@ -141,15 +151,7 @@ tachyon_cc_binary(
         "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key_impl",
         "//tachyon/cc/math/finite_fields:prime_field_conversions",
         "//tachyon/zk/plonk/halo2:constants",
-    ],
-)
-
-tachyon_cc_library(
-    name = "transcript_type",
-    hdrs = ["transcript_type.h"],
-    deps = [
-        "//tachyon/base/flag",
-        "@com_google_absl//absl/strings",
+        "//tachyon/zk/plonk/halo2:transcript_type",
     ],
 )
 
@@ -168,7 +170,6 @@ tachyon_cc_binary(
     srcs = ["verifier_replay.cc"],
     deps = [
         ":bn254_shplonk_verifier",
-        ":transcript_type",
         "//tachyon/base:logging",
         "//tachyon/base/console",
         "//tachyon/base/files:file_path_flag",
@@ -176,6 +177,7 @@ tachyon_cc_binary(
         "//tachyon/base/flag:flag_parser",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key_impl",
+        "//tachyon/zk/plonk/halo2:transcript_type",
     ],
 )
 

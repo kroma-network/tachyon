@@ -8,7 +8,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/base/buffer/buffer.h"
+#include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/test/sw_curve_config.h"
 
 namespace tachyon::zk::plonk {
@@ -29,9 +29,8 @@ TEST_F(PermutationVerifyingKeyTest, Copyable) {
                          math::test::AffinePoint::Random(),
                          math::test::AffinePoint::Random()});
 
-  std::vector<uint8_t> vec;
-  vec.resize(base::EstimateSize(expected));
-  base::Buffer write_buf(vec.data(), vec.size());
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
   ASSERT_TRUE(write_buf.Write(expected));
   ASSERT_TRUE(write_buf.Done());
 

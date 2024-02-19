@@ -35,8 +35,8 @@ class SimpleTranscript<math::AffinePoint<Curve>> {
   F DoSqueezeChallenge() { return state_.DoubleInPlace(); }
 
   bool DoWriteToTranscript(const math::AffinePoint<Curve>& point) {
-    state_ += CurveConfig::BaseToScalar(point.x());
-    state_ += CurveConfig::BaseToScalar(point.y());
+    state_ += BaseToScalar(point.x().value());
+    state_ += BaseToScalar(point.y().value());
     return true;
   }
 
@@ -46,6 +46,11 @@ class SimpleTranscript<math::AffinePoint<Curve>> {
   }
 
  private:
+  template <typename BigInt>
+  F BaseToScalar(const BigInt& base) {
+    return F::FromMontgomery(base % F::Config::kModulus);
+  }
+
   F state_ = F::Zero();
 };
 

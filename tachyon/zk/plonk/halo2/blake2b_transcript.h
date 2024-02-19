@@ -16,8 +16,8 @@
 #include "openssl/blake2.h"
 
 #include "tachyon/crypto/transcripts/transcript.h"
-#include "tachyon/math/base/big_int.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
+#include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
 #include "tachyon/zk/plonk/halo2/proof_serializer.h"
 
 namespace tachyon::zk::plonk::halo2 {
@@ -35,8 +35,8 @@ class Blake2bBase {
     DoUpdate(kBlake2bPrefixChallenge, 1);
     uint8_t result[BLAKE2B512_DIGEST_LENGTH] = {0};
     DoFinalize(result);
-    return ScalarField::FromAnySizedBigInt(
-        math::BigInt<8>::FromBytesLE(result));
+
+    return FromUint512<ScalarField>(result);
   }
 
   bool DoWriteToTranscript(const AffinePoint& point) {
@@ -77,11 +77,8 @@ class Blake2bBase {
     base::Uint8VectorBuffer buffer;
     buffer.set_endian(base::Endian::kLittle);
     CHECK(buffer.Grow(sizeof(blake2b_state_st)));
-    CHECK(buffer.Write(state_impl->h));
-    CHECK(buffer.Write(state_impl->t_low));
-    CHECK(buffer.Write(state_impl->t_high));
-    CHECK(buffer.Write(state_impl->block));
-    CHECK(buffer.Write(state_impl->block_used));
+    CHECK(buffer.WriteMany(state_impl->h, state_impl->t_low, state_impl->t_high,
+                           state_impl->block, state_impl->block_used));
     CHECK(buffer.Done());
     return std::move(buffer).TakeOwnedBuffer();
   }
@@ -90,11 +87,9 @@ class Blake2bBase {
     base::ReadOnlyBuffer buffer(state.data(), state.size());
     buffer.set_endian(base::Endian::kLittle);
     blake2b_state_st* state_impl = reinterpret_cast<blake2b_state_st*>(&state_);
-    CHECK(buffer.Read(state_impl->h));
-    CHECK(buffer.Read(&state_impl->t_low));
-    CHECK(buffer.Read(&state_impl->t_high));
-    CHECK(buffer.Read(state_impl->block));
-    CHECK(buffer.Read(&state_impl->block_used));
+    CHECK(buffer.ReadMany(state_impl->h, &state_impl->t_low,
+                          &state_impl->t_high, state_impl->block,
+                          &state_impl->block_used));
     CHECK(buffer.Done());
   }
 
@@ -147,8 +142,12 @@ class Blake2bWriter : public crypto::TranscriptWriter<AffinePoint>,
   explicit Blake2bWriter(base::Uint8VectorBuffer write_buf)
       : crypto::TranscriptWriter<AffinePoint>(std::move(write_buf)) {}
 
-  // NOTE(chokobole): |Update()|, |Finalize()|, |GetState()| and |SetState()|
-  // are called from rust binding.
+  // NOTE(chokobole): |GetDigestLen()|, |GetStateLen()|, |Update()|,
+  // |Finalize()|, |GetState()| and |SetState()| are called from rust binding.
+  size_t GetDigestLen() const { return BLAKE2B512_DIGEST_LENGTH; }
+
+  size_t GetStateLen() const { return sizeof(blake2b_state_st); }
+
   void Update(const void* data, size_t len) { this->DoUpdate(data, len); }
 
   void Finalize(uint8_t result[BLAKE2B512_DIGEST_LENGTH]) {

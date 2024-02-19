@@ -20,8 +20,7 @@ template <typename, typename = void>
 struct IsBuiltinSerializable : std::false_type {};
 
 template <typename T>
-struct IsBuiltinSerializable<
-    T, std::enable_if_t<std::is_fundamental_v<T> || std::is_enum_v<T>>>
+struct IsBuiltinSerializable<T, std::enable_if_t<std::is_fundamental_v<T>>>
     : std::true_type {};
 
 template <typename, typename = void>

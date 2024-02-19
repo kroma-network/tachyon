@@ -82,6 +82,17 @@ class PrimeFieldSerializable<absl::InlinedVector<T, N>> {
   }
 };
 
+template <typename T>
+class PrimeFieldSerializable<absl::Span<T>> {
+ public:
+  template <typename PrimeField>
+  constexpr static bool ToPrimeField(absl::Span<T> values,
+                                     std::vector<PrimeField>* fields) {
+    return PrimeFieldSerializable<std::remove_const_t<T>>::BatchToPrimeField(
+        absl::MakeConstSpan(values), fields);
+  }
+};
+
 template <typename T, size_t N>
 class PrimeFieldSerializable<std::array<T, N>> {
  public:

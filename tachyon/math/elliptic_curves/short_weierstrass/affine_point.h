@@ -253,8 +253,7 @@ class Copyable<math::AffinePoint<
   }
 
   static size_t EstimateSize(const math::AffinePoint<Curve>& point) {
-    return base::EstimateSize(point.x()) + base::EstimateSize(point.y()) +
-           base::EstimateSize(point.infinity());
+    return base::EstimateSize(point.x(), point.y(), point.infinity());
   }
 };
 
