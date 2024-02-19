@@ -127,31 +127,6 @@ ExtendedPoly ExtendedToCoeff(ExtendedEvals&& evals,
   return poly;
 }
 
-template <typename Domain, typename Poly, typename F, typename Evals>
-Evals CoeffToExtendedPart(const Domain* domain,
-                          const BlindedPolynomial<Poly, Evals>& poly,
-                          const F& zeta, const F& extended_omega_factor) {
-  return domain->GetCoset(zeta * extended_omega_factor)->FFT(poly.poly());
-}
-
-template <typename Domain, typename Poly, typename F,
-          typename Evals = typename Domain::Evals>
-Evals CoeffToExtendedPart(const Domain* domain, const Poly& poly, const F& zeta,
-                          const F& extended_omega_factor) {
-  return domain->GetCoset(zeta * extended_omega_factor)->FFT(poly);
-}
-
-template <typename Domain, typename Poly, typename F,
-          typename Evals = typename Domain::Evals>
-std::vector<Evals> CoeffsToExtendedParts(const Domain* domain,
-                                         absl::Span<Poly> polys, const F& zeta,
-                                         const F& extended_omega_factor) {
-  return base::Map(
-      polys, [domain, &zeta, &extended_omega_factor](const Poly& poly) {
-        return CoeffToExtendedPart(domain, poly, zeta, extended_omega_factor);
-      });
-}
-
 template <typename F>
 std::vector<F> BuildExtendedColumnWithColumns(
     const std::vector<std::vector<F>>& columns) {

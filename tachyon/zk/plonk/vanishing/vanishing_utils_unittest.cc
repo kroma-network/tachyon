@@ -6,8 +6,6 @@
 
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 
-#include <memory>
-#include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -39,29 +37,6 @@ TEST_F(VanishingUtilsTest, GetZeta) {
   F halo2_zeta = GetHalo2Zeta<F>();
   EXPECT_EQ(halo2_zeta.Pow(3), F::One());
   EXPECT_EQ(zeta * halo2_zeta, F::One());
-}
-
-TEST_F(VanishingUtilsTest, CoeffToExtendedPart) {
-  std::unique_ptr<Domain> domain = Domain::Create(N);
-
-  F zeta = GetHalo2Zeta<F>();
-  F extended_omega_factor = F::Random();
-  Poly poly = domain->Random<Poly>();
-
-  Evals extended_part =
-      CoeffToExtendedPart(domain.get(), poly, zeta, extended_omega_factor);
-
-  F offset = zeta * extended_omega_factor;
-  F base = F::One();
-  std::vector<F> expected = base::Map(poly.coefficients().coefficients(),
-                                      [&offset, &base](const F& coeff) {
-                                        F ret = coeff * base;
-                                        base *= offset;
-                                        return ret;
-                                      });
-
-  Poly expected_poly(Coeffs(std::move(expected)));
-  EXPECT_EQ(extended_part, domain->FFT(std::move(expected_poly)));
 }
 
 TEST_F(VanishingUtilsTest, BuildExtendedColumnWithColumns) {
