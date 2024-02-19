@@ -9,9 +9,8 @@
 
 #include <vector>
 
-#include "third_party/gmp/include/gmpxx.h"
-
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon.h"
+#include "tachyon/zk/plonk/halo2/prime_field_conversion.h"
 
 namespace tachyon {
 namespace zk::plonk::halo2 {
@@ -21,7 +20,7 @@ struct PoseidonSponge final : public crypto::PoseidonSponge<F> {
   PoseidonSponge() = default;
   explicit PoseidonSponge(const crypto::PoseidonConfig<F>& config)
       : crypto::PoseidonSponge<F>(config) {
-    this->state.elements[0] = F::FromMpzClass(mpz_class(1) << 64);
+    this->state.elements[0] = FromUint128<F>(absl::uint128(1) << 64);
   }
 
   // FieldBasedCryptographicSponge methods

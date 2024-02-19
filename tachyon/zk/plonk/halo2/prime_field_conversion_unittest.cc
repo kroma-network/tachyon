@@ -13,6 +13,18 @@ class PrimeFieldConversionTest : public math::FiniteFieldTest<F> {};
 
 }  // namespace
 
+TEST_F(PrimeFieldConversionTest, FromUint128) {
+  uint64_t limbs4[4] = {
+      0x0,
+      0x1,
+      0x0,
+      0x0,
+  };
+  F expected{math::BigInt<4>(limbs4)};
+
+  EXPECT_EQ(FromUint128<F>(absl::int128(1) << 64), expected);
+}
+
 TEST_F(PrimeFieldConversionTest, FromUint512) {
   uint64_t limbs4[4] = {
       0x1f8905a172affa8a,

@@ -3,11 +3,25 @@
 
 #include <stdint.h>
 
+#include "absl/numeric/int128.h"
+
 #include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/math/base/big_int.h"
 
 namespace tachyon::zk::plonk::halo2 {
+
+// See
+// https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/derive/field.rs#L301-L303.
+template <typename F>
+static F FromUint128(absl::uint128 value) {
+  if constexpr (F::N != 4) {
+    base::AlwaysFalse<F>();
+  }
+  uint64_t limbs[4] = {absl::Uint128Low64(value), absl::Uint128High64(value), 0,
+                       0};
+  return F(math::BigInt<4>(limbs));
+}
 
 // See
 // https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/derive/field.rs#L29-L47.

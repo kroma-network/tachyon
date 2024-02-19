@@ -110,8 +110,8 @@ tachyon_cc_library(
     name = "poseidon_sponge",
     hdrs = ["poseidon_sponge.h"],
     deps = [
+        ":prime_field_conversion",
         "//tachyon/crypto/hashes/sponge/poseidon",
-        "@local_config_gmp//:gmp",
     ],
 )
 
@@ -132,6 +132,7 @@ tachyon_cc_library(
         "//tachyon/base/buffer:read_only_buffer",
         "//tachyon/base/types:always_false",
         "//tachyon/math/base:big_int",
+        "@com_google_absl//absl/numeric:int128",
     ],
 )
 
