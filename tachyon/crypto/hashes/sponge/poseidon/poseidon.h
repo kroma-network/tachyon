@@ -6,6 +6,8 @@
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 
+#include <sstream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -44,6 +46,32 @@ struct PoseidonState {
   }
   bool operator!=(const PoseidonState& other) const {
     return !operator==(other);
+  }
+
+  std::string ToString() const {
+    std::stringstream ss;
+    ss << "[";
+    for (Eigen::Index i = 0; i < elements.size(); ++i) {
+      ss << elements[i].ToString();
+      if (i != elements.size() - 1) {
+        ss << ", ";
+      }
+    }
+    ss << "]";
+    return ss.str();
+  }
+
+  std::string ToHexString(bool pad_zero = false) const {
+    std::stringstream ss;
+    ss << "[";
+    for (Eigen::Index i = 0; i < elements.size(); ++i) {
+      ss << elements[i].ToHexString(pad_zero);
+      if (i != elements.size() - 1) {
+        ss << ", ";
+      }
+    }
+    ss << "]";
+    return ss.str();
   }
 };
 
