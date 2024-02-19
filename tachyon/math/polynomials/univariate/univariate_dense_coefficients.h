@@ -222,6 +222,7 @@ class UnivariateDenseCoefficients {
   friend class internal::UnivariatePolynomialOp<
       UnivariateSparseCoefficients<F, MaxDegree>>;
   friend class UnivariatePolynomial<UnivariateDenseCoefficients<F, MaxDegree>>;
+  friend class UnivariateEvaluationDomain<F, MaxDegree>;
   friend class Radix2EvaluationDomain<F, MaxDegree>;
   friend class MixedRadixEvaluationDomain<F, MaxDegree>;
   friend class base::Copyable<UnivariateDenseCoefficients<F, MaxDegree>>;
