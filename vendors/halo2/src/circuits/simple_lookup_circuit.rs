@@ -89,7 +89,7 @@ mod test {
     use std::marker::PhantomData;
 
     use crate::bn254::{
-        Blake2bWrite as TachyonBlake2bWrite, PoseidonWrite as TachyonPoseidonWrite,
+        Blake2bWrite as TachyonBlake2bWrite, GWCProver, PoseidonWrite as TachyonPoseidonWrite,
         ProvingKey as TachyonProvingKey, SHPlonkProver, Sha256Write as TachyonSha256Write,
         TachyonProver,
     };
@@ -103,7 +103,7 @@ mod test {
         plonk::keygen_pk2,
         poly::kzg::{
             commitment::{KZGCommitmentScheme, ParamsKZG},
-            multiopen::ProverSHPLONK,
+            multiopen::{ProverGWC, ProverSHPLONK},
         },
         transcript::{Blake2bWrite, Challenge255, TranscriptWriterBuffer},
     };
@@ -111,7 +111,82 @@ mod test {
     use rand_core::SeedableRng;
 
     #[test]
-    fn test_create_proof() {
+    fn test_create_gwc_proof() {
+        // ANCHOR: test-circuit
+        // The number of rows in our circuit cannot exceed 2ᵏ. Since our example
+        // circuit is very small, we can pick a very small value here.
+        let k = 5;
+
+        // Instantiate the circuit.
+        let circuit = SimpleLookupCircuit::<Fr> {
+            _marker: PhantomData,
+        };
+
+        // Arrange the public input.
+        let public_inputs = vec![];
+        let public_inputs2 = vec![&public_inputs[..]];
+
+        // Given the correct public input, our circuit will verify.
+        let s = Fr::from(2);
+        let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
+        let pk = keygen_pk2(&params, &circuit).expect("vk should not fail");
+
+        let rng = XORShiftRng::from_seed(SEED);
+
+        let halo2_proof = {
+            let mut transcript = Blake2bWrite::<_, G1Affine, Challenge255<_>>::init(vec![]);
+
+            halo2_proofs::plonk::create_proof::<
+                KZGCommitmentScheme<Bn256>,
+                ProverGWC<_>,
+                _,
+                _,
+                _,
+                _,
+            >(
+                &params,
+                &pk,
+                &[circuit.clone()],
+                public_inputs2.as_slice(),
+                rng.clone(),
+                &mut transcript,
+            )
+            .expect("proof generation should not fail");
+
+            transcript.finalize()
+        };
+
+        let tachyon_proof = {
+            let mut prover =
+                GWCProver::<KZGCommitmentScheme<Bn256>>::new(TranscriptType::Blake2b as u8, k, &s);
+
+            let mut pk_bytes: Vec<u8> = vec![];
+            pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
+                .unwrap();
+            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
+            let mut transcript = TachyonBlake2bWrite::init(vec![]);
+
+            tachyon_create_proof::<_, _, _, _, _>(
+                &mut prover,
+                &mut tachyon_pk,
+                &[circuit],
+                public_inputs2.as_slice(),
+                rng,
+                &mut transcript,
+            )
+            .expect("proof generation should not fail");
+
+            let mut proof = transcript.finalize();
+            let proof_last = prover.get_proof();
+            proof.extend_from_slice(&proof_last);
+            proof
+        };
+        assert_eq!(halo2_proof, tachyon_proof);
+        // ANCHOR_END: test-circuit
+    }
+
+    #[test]
+    fn test_create_shplonk_proof_with_various_transcripts() {
         // ANCHOR: test-circuit
         // The number of rows in our circuit cannot exceed 2ᵏ. Since our example
         // circuit is very small, we can pick a very small value here.
