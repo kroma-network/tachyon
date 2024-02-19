@@ -84,11 +84,8 @@ struct PoseidonState {
 // Squeeze: Squeeze elements out of the sponge.
 // This implementation of Poseidon is entirely Fractal's implementation in
 // [COS20][cos] with small syntax changes. See https://eprint.iacr.org/2019/1076
-// TODO(chokobole): We don't put `final` here because there's a child class that
-// inherits this, which is not a usual case.
-// See `tachyon/zk/plonk/halo2/poseidon_sponge.h`.
 template <typename PrimeField>
-struct PoseidonSponge
+struct PoseidonSponge final
     : public FieldBasedCryptographicSponge<PoseidonSponge<PrimeField>> {
   using F = PrimeField;
 

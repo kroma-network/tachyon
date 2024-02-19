@@ -107,20 +107,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "poseidon_sponge",
-    hdrs = ["poseidon_sponge.h"],
-    deps = [
-        ":prime_field_conversion",
-        "//tachyon/crypto/hashes/sponge/poseidon",
-    ],
-)
-
-tachyon_cc_library(
     name = "poseidon_transcript",
     hdrs = ["poseidon_transcript.h"],
     deps = [
-        ":poseidon_sponge",
+        ":prime_field_conversion",
         ":proof_serializer",
+        "//tachyon/crypto/hashes/sponge/poseidon",
         "//tachyon/crypto/transcripts:transcript",
     ],
 )

@@ -127,7 +127,9 @@ TEST_P(SHPlonkProverTest, SetTranscript) {
           reinterpret_cast<PoseidonWriter<math::bn254::G1AffinePoint>*>(
               transcript->extra);
       digest_len = poseidon->GetDigestLen();
-      state_len = poseidon->GetStateLen();
+      // NOTE(chokobole): In case of Poseidon transcript,
+      // |tachyon_halo2_bn254_transcript_writer_update()| touches an internal
+      // member |absorbing_|, so |state_len| has to be updated after this call.
       break;
     }
     case TranscriptType::kSha256: {
@@ -144,6 +146,15 @@ TEST_P(SHPlonkProverTest, SetTranscript) {
       digest_len, []() { return base::Uniform(base::Range<uint8_t>()); });
   tachyon_halo2_bn254_transcript_writer_update(transcript, data.data(),
                                                data.size());
+
+  if (static_cast<TranscriptType>(transcript_type) ==
+      TranscriptType::kPoseidon) {
+    PoseidonWriter<math::bn254::G1AffinePoint>* poseidon =
+        reinterpret_cast<PoseidonWriter<math::bn254::G1AffinePoint>*>(
+            transcript->extra);
+    state_len = poseidon->GetStateLen();
+  }
+
   std::vector<uint8_t> state(state_len);
   tachyon_halo2_bn254_transcript_writer_get_state(transcript, state.data(),
                                                   &state_len);
