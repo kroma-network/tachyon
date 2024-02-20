@@ -437,7 +437,7 @@ impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
     }
 
     fn common_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
-        const SHA256_PREFIX_SCALAR: u8 = 1;
+        const SHA256_PREFIX_SCALAR: u8 = 2;
         self.state.pin_mut().update(&[0u8; 31]);
         self.state.pin_mut().update(&[SHA256_PREFIX_SCALAR]);
 
