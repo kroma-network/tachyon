@@ -78,7 +78,38 @@ class LookupArgument {
 
   size_t RequiredDegree() const {
     CHECK_EQ(input_expressions_.size(), table_expressions_.size());
-
+    // See https://zcash.github.io/halo2/design/proving-system/lookup.html
+    // for more details.
+    //
+    // The first value in the permutation poly should be one.
+    // degree 2:
+    // l_first(X) * (1 - Z(X)) = 0
+    //
+    // The "last" value in the permutation poly should be a boolean, for
+    // completeness and soundness.
+    //
+    // degree 3:
+    // l_last(X) * (Z(X)² - Z(X)) = 0
+    //
+    // Enable the permutation argument for only the rows involved.
+    // degree (2 + max_input_degree + max_table_degree) or 4, whichever is
+    // larger:
+    // clang-format off
+    // (1 - (l_last(X) + l_blind(X))) * (Z(ω * X) * (A'(X) + β) * (S'(X) + γ) - Z(X) * (A_compressed(X) + β) * (S_compressed(X) + γ)) = 0
+    // clang-format on
+    //
+    // The first two values of A' and S' should be the same.
+    //
+    // degree 2:
+    // l_first(X) * (A'(X) - S'(X)) = 0
+    //
+    // Either the two values are the same, or the previous value of A' is the
+    // same as the current value.
+    //
+    // degree 3:
+    // clang-format off
+    // (1 - (l_last(X) + l_blind(X))) * (A′(X) − S′(X)) * (A′(X) − A′(ω⁻¹ * X)) = 0
+    // clang-format on
     size_t max_input_degree = std::accumulate(
         input_expressions_.begin(), input_expressions_.end(), 1,
         [](size_t degree, const std::unique_ptr<Expression<F>>& input_expr) {
@@ -91,7 +122,21 @@ class LookupArgument {
           return std::max(degree, table_expr->Degree());
         });
 
-    return 2 + max_input_degree + max_table_degree;
+    // In practice because input_degree and table_degree are initialized to
+    // one, the latter half of this max() invocation is at least 4 always,
+    // rendering this call pointless except to be explicit in case we change
+    // the initialization of input_degree/table_degree in the future.
+
+    // NOTE(chokobole): Even though, this actually is same as |2 +
+    // max_input_degree + max_table_degree|, for a better explanation, we follow
+    // the Halo2 style.
+    return std::max(
+        // (1 - (l_last + l_blind)) * Z(ω * X) * (A'(X) + β) * (S'(X) + γ)
+        size_t{4},
+        // clang-format off
+        // (1 - (l_last + l_blind)) * Z(X) * (A_compressed(X) + β) * (S_compressed(X) + γ)
+        // clang-format on
+        size_t{2} + max_input_degree + max_table_degree);
   }
 
  private:

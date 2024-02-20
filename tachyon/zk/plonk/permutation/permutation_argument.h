@@ -35,36 +35,36 @@ class TACHYON_EXPORT PermutationArgument {
   // The argument may use larger degree gates depending on the actual
   // circuit's degree and how many columns are involved in the permutation.
   size_t RequiredDegree() const {
-    // degree 2:
-    // l_first(X) * (1 - z(X)) = 0
+    // See https://zcash.github.io/halo2/design/proving-system/permutation.html
+    // for more details.
     //
-    // We will fit as many polynomials pᵢ(X) as possible
-    // into the required degree of the circuit, so the
-    // following will not affect the required degree of
-    // this middleware.
+    // degree 2:
+    // l_first(X) * (1 - Z(X)) = 0
+    //
+    // We will fit as many polynomials pᵢ(X) as possible into the required
+    // degree of the circuit, so the following will not affect the required
+    // degree of this middleware.
     //
     // clang-format off
-    // (1 - (l_last(X) + l_blind(X))) * (z(ω * X) Π (p(X) + β * sᵢ(X) + γ) - z(X) Π (p(X) + β * δⁱ * X + γ))
+    // (1 - (l_last(X) + l_blind(X))) * (Z(ω * X) Π (pᵢ(X) + β * sᵢ(X) + γ) - Z(X) Π (pᵢ(X) + β * δⁱ * X + γ))
     // clang-format on
     //
-    // On the first sets of columns, except the first
-    // set, we will do
+    // On the first sets of columns, except the first set, we will do
     //
-    // l_first(X) * (z(X) - z'(ω^(last) X)) = 0
+    // l_first(X) * (Z(X) - Z'(ω^(last) X)) = 0
     //
-    // where z'(X) is the permutation for the previous set
-    // of columns.
+    // where Z'(X) is the permutation for the previous set of columns.
     //
     // On the final set of columns, we will do
     //
     // degree 3:
-    // l_last(X) * (z'(X)² - z'(X)) = 0
+    // l_last(X) * (Z'(X)² - Z'(X)) = 0
     //
-    // which will allow the last value to be zero to
-    // ensure the argument is perfectly complete.
+    // which will allow the last value to be zero to ensure the argument is
+    // perfectly complete.
 
-    // There are constraints of degree 3 regardless of the
-    // number of columns involved.
+    // There are constraints of degree 3 regardless of the number of columns
+    // involved.
     return 3;
   }
 
