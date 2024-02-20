@@ -15,6 +15,61 @@
 3. Blazing Fast: Tachyon's foremost requirement is speed, and not just any speed, but blazing speed! This entails Tachyon delivering exceptional performance on both CPU and GPU platforms.
 4. GPU Interoperability: Tachyon's code is designed to be compatible with both CPU and GPU in the majority of scenarios.
 
+## List of Features
+
+Symbol Definitions:
+
+- :heavy_check_mark: Currently supported.
+- 🏗️ Partially implemented or is under active construction.
+- :x: Not currently supported.
+
+### Finite Fields
+
+|            | CPU                | GPU |
+| ---------- | ------------------ | --- |
+| Goldilocks | :heavy_check_mark: | :x: |
+
+### Elliptic Curves
+
+|           | CPU                | GPU                |
+| --------- | ------------------ | ------------------ |
+| bn254     | :heavy_check_mark: | :heavy_check_mark: |
+| bls12-381 | :heavy_check_mark: | :heavy_check_mark: |
+| secp256k1 | :heavy_check_mark: | :heavy_check_mark: |
+
+### Commitment Schemes
+
+|          | CPU                | GPU |
+| -------- | ------------------ | --- |
+| GWC      | :heavy_check_mark: | 🏗️  |
+| SHPlonk  | :heavy_check_mark: | 🏗️  |
+| FRI      | :heavy_check_mark: | :x: |
+| Pedersen | :heavy_check_mark: | :x: |
+
+### Hashes
+
+|          | CPU                | GPU |
+| -------- | ------------------ | --- |
+| Poseidon | :heavy_check_mark: | :x: |
+
+### Lookups
+
+|       | CPU                | GPU |
+| ----- | ------------------ | --- |
+| Halo2 | :heavy_check_mark: | :x: |
+
+### SNARKs
+
+|       | CPU                | GPU |
+| ----- | ------------------ | --- |
+| Halo2 | :heavy_check_mark: | :x: |
+
+### Frontends
+
+|       | CPU                | GPU |
+| ----- | ------------------ | --- |
+| Halo2 | :heavy_check_mark: | :x: |
+
 ## Prerequisites
 
 ### Bazel
