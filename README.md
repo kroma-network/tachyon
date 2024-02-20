@@ -70,6 +70,13 @@ Symbol Definitions:
 | ----- | ------------------ | --- |
 | Halo2 | :heavy_check_mark: | :x: |
 
+## Roadmap
+
+- [x] 2024Q1 - Enable producing the [zkEVM](https://github.com/kroma-network/zkevm-circuits) proof.
+- [ ] 2024Q2 - Replace Halo2 with Tachyon in [Kroma](https://kroma.network/) mainnet.
+- [ ] 2024Q3 - Implement Halo2 GPU.
+- [ ] 2024Q4 - Implement Halo2 Folding Scheme.
+
 ## Prerequisites
 
 ### Bazel
