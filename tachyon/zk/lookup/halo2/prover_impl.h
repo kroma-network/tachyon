@@ -137,10 +137,14 @@ void Prover<Poly, Evals>::CreateGrandProductPolys(ProverBase<PCS>* prover,
   CHECK_EQ(compressed_pairs_.size(), permuted_pairs_.size());
   grand_product_polys_.resize(compressed_pairs_.size());
 
-  OPENMP_PARALLEL_FOR(size_t i = 0; i < grand_product_polys_.size(); ++i) {
-    grand_product_polys_[i] = CreateGrandProductPoly(
-        prover, compressed_pairs_[i], permuted_pairs_[i], beta, gamma);
-  }
+  // NOTE(dongchangYoo): do not change this code to parallelized logic.
+  grand_product_polys_ =
+      base::Map(compressed_pairs_,
+                [this, prover, &beta, &gamma](
+                    size_t i, const LookupPair<Evals>& compressed_pair) {
+                  return CreateGrandProductPoly(
+                      prover, compressed_pair, permuted_pairs_[i], beta, gamma);
+                });
   compressed_pairs_.clear();
 }
 
