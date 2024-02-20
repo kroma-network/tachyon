@@ -159,8 +159,11 @@ class Prover {
       const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair,
       const F& beta, const F& gamma);
 
+  // A_compressedᵢ(X), S_compressedᵢ(X)
   std::vector<LookupPair<Evals>> compressed_pairs_;
+  // A'ᵢ(X), S'ᵢ(X)
   std::vector<LookupPair<BlindedPolynomial<Poly, Evals>>> permuted_pairs_;
+  // Zₗ,ᵢ(X)
   std::vector<BlindedPolynomial<Poly, Evals>> grand_product_polys_;
 };
 

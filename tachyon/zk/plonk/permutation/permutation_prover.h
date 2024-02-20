@@ -125,6 +125,7 @@ class PermutationProver {
       const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
       const F& gamma);
 
+  // Zₚ,ᵢ(X)
   std::vector<BlindedPolynomial<Poly, Evals>> grand_product_polys_;
 };
 

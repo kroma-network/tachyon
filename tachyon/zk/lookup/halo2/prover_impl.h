@@ -25,11 +25,11 @@ template <typename Domain>
 LookupPair<Evals> Prover<Poly, Evals>::CompressPair(
     const Domain* domain, const LookupArgument<F>& argument, const F& theta,
     const SimpleEvaluator<Evals>& evaluator_tpl) {
-  // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
+  // A_compressedᵢ(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
   Evals compressed_input = CompressExpressions(
       domain, argument.input_expressions(), theta, evaluator_tpl);
 
-  // S_compressed(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
+  // S_compressedᵢ(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
   Evals compressed_table = CompressExpressions(
       domain, argument.table_expressions(), theta, evaluator_tpl);
 
@@ -70,7 +70,7 @@ template <typename Poly, typename Evals>
 template <typename PCS>
 LookupPair<BlindedPolynomial<Poly, Evals>> Prover<Poly, Evals>::PermutePair(
     ProverBase<PCS>* prover, const LookupPair<Evals>& compressed_pair) {
-  // A'(X), S'(X)
+  // A'ᵢ(X), S'ᵢ(X)
   LookupPair<Evals> permuted_pair;
   CHECK(PermuteExpressionPair(prover, compressed_pair, &permuted_pair));
 
@@ -134,6 +134,7 @@ template <typename PCS>
 void Prover<Poly, Evals>::CreateGrandProductPolys(ProverBase<PCS>* prover,
                                                   const F& beta,
                                                   const F& gamma) {
+  // Zₗ,ᵢ(X)
   CHECK_EQ(compressed_pairs_.size(), permuted_pairs_.size());
   grand_product_polys_.resize(compressed_pairs_.size());
 
@@ -206,10 +207,15 @@ void Prover<Poly, Evals>::Evaluate(ProverBase<PCS>* prover,
     const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair =
         permuted_pairs_[i];
 
+    // Zₗ,ᵢ(x)
     EVALUATE(grand_product_poly, x);
+    // Zₗ,ᵢ(ω * x)
     EVALUATE(grand_product_poly, x_next);
+    // A'ᵢ(x)
     EVALUATE(permuted_pair.input(), x);
+    // A'ᵢ(ω⁻¹ * x)
     EVALUATE(permuted_pair.input(), x_prev);
+    // S'ᵢ(x)
     EVALUATE(permuted_pair.table(), x);
   }
 #undef EVALUATE
@@ -239,10 +245,15 @@ void Prover<Poly, Evals>::Open(
     const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair =
         permuted_pairs_[i];
 
+    // Zₗ,ᵢ(x)
     openings.emplace_back(OPENING(grand_product_poly, x));
+    // A'ᵢ(x)
     openings.emplace_back(OPENING(permuted_pair.input(), x));
+    // S'ᵢ(x)
     openings.emplace_back(OPENING(permuted_pair.table(), x));
+    // A'ᵢ(ω⁻¹ * x)
     openings.emplace_back(OPENING(permuted_pair.input(), x_prev));
+    // Zₗ,ᵢ(ω * x)
     openings.emplace_back(OPENING(grand_product_poly, x_next));
   }
 #undef OPENING
@@ -253,7 +264,7 @@ template <typename Poly, typename Evals>
 std::function<typename Poly::Field(RowIndex)>
 Prover<Poly, Evals>::CreateNumeratorCallback(
     const LookupPair<Evals>& compressed_pair, const F& beta, const F& gamma) {
-  // (A_compressed(xᵢ) + β) * (S_compressed(xᵢ) + γ)
+  // (A_compressedᵢ(x) + β) * (S_compressedᵢ(x) + γ)
   return [&compressed_pair, &beta, &gamma](RowIndex row_index) {
     return (compressed_pair.input()[row_index] + beta) *
            (compressed_pair.table()[row_index] + gamma);
@@ -267,7 +278,7 @@ Prover<Poly, Evals>::CreateDenominatorCallback(
     const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair,
     const F& beta, const F& gamma) {
   return [&permuted_pair, &beta, &gamma](RowIndex row_index) {
-    // (A'(xᵢ) + β) * (S'(xᵢ) + γ)
+    // (A'ᵢ(x) + β) * (S'ᵢ(x) + γ)
     return (permuted_pair.input().evals()[row_index] + beta) *
            (permuted_pair.table().evals()[row_index] + gamma);
   };
