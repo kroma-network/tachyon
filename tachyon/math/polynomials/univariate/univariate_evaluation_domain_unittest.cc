@@ -256,7 +256,11 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FFTCorrectness) {
   using DensePoly = typename Domain::DensePoly;
   using Evals = typename Domain::Evals;
 
+#if defined(TACHYON_HAS_OPENMP)
+  const size_t log_degree = 7;
+#else
   const size_t log_degree = 5;
+#endif
   const size_t degree = (size_t{1} << log_degree) - 1;
   DensePoly rand_poly = DensePoly::Random(degree);
   for (size_t log_domain_size = log_degree; log_domain_size < log_degree + 2;
