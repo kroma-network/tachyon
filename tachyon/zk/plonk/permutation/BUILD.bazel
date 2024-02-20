@@ -81,7 +81,7 @@ tachyon_cc_library(
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:row_index",
         "//tachyon/zk/base/entities:prover_base",
-        "//tachyon/zk/plonk/base:ref_table",
+        "//tachyon/zk/plonk/base:multi_phase_ref_table",
     ],
 )
 

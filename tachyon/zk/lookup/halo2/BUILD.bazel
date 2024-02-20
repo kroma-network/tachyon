@@ -43,7 +43,7 @@ tachyon_cc_library(
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/expressions/evaluator:simple_evaluator",
         "//tachyon/zk/lookup:lookup_argument",
-        "//tachyon/zk/plonk/base:ref_table",
+        "//tachyon/zk/plonk/base:multi_phase_ref_table",
         "//tachyon/zk/plonk/permutation:grand_product_argument",
         "@com_google_absl//absl/types:span",
     ],

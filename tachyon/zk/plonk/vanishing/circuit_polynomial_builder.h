@@ -48,9 +48,8 @@ class CircuitPolynomialBuilder {
   static CircuitPolynomialBuilder Create(
       const Domain* domain, const ExtendedDomain* extended_domain, size_t n,
       RowIndex blinding_factors, size_t cs_degree,
-      const std::vector<RefTable<Poly>>* poly_tables,
-      absl::Span<const F> challenges, const F* theta, const F* beta,
-      const F* gamma, const F* y, const F* zeta,
+      const std::vector<MultiPhaseRefTable<Poly>>* poly_tables, const F* theta,
+      const F* beta, const F* gamma, const F* y, const F* zeta,
       const ProvingKey<Poly, Evals, C>* proving_key,
       const std::vector<PermutationProver<Poly, Evals>>* permutation_provers,
       const std::vector<lookup::halo2::Prover<Poly, Evals>>* lookup_provers) {
@@ -69,7 +68,6 @@ class CircuitPolynomialBuilder {
     builder.theta_ = theta;
     builder.y_ = y;
     builder.zeta_ = zeta;
-    builder.challenges_ = challenges;
 
     base::CheckedNumeric<int32_t> last_rotation = blinding_factors;
     builder.last_rotation_ = Rotation((-last_rotation - 1).ValueOrDie());
@@ -262,8 +260,8 @@ class CircuitPolynomialBuilder {
   EvaluationInput<Evals> ExtractEvaluationInput(
       std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
     return EvaluationInput<Evals>(std::move(intermediates),
-                                  std::move(rotations), &table_, challenges_,
-                                  beta_, gamma_, theta_, y_, n_);
+                                  std::move(rotations), &table_, beta_, gamma_,
+                                  theta_, y_, n_);
   }
 
   template <typename Evals>
@@ -346,9 +344,9 @@ class CircuitPolynomialBuilder {
     std::vector<Evals> instance_columns =
         base::Map((*poly_tables_)[circuit_idx].GetInstanceColumns(),
                   [coset](const Poly& poly) { return coset->FFT(poly); });
-    table_ =
-        OwnedTable<Evals>(std::move(fixed_columns), std::move(advice_columns),
-                          std::move(instance_columns));
+    table_ = MultiPhaseOwnedTable<Evals>(
+        std::move(fixed_columns), std::move(advice_columns),
+        std::move(instance_columns), (*poly_tables_)[circuit_idx].challenges());
   }
 
   // not owned
@@ -376,7 +374,6 @@ class CircuitPolynomialBuilder {
   const F* y_ = nullptr;
   // not owned
   const F* zeta_ = nullptr;
-  absl::Span<const F> challenges_;
   Rotation last_rotation_;
   F delta_start_;
 
@@ -387,7 +384,7 @@ class CircuitPolynomialBuilder {
   // not owned
   const std::vector<lookup::halo2::Prover<Poly, Evals>>* lookup_provers_;
   // not owned
-  const std::vector<RefTable<Poly>>* poly_tables_;
+  const std::vector<MultiPhaseRefTable<Poly>>* poly_tables_;
 
   Evals l_first_;
   Evals l_last_;
@@ -400,7 +397,7 @@ class CircuitPolynomialBuilder {
   std::vector<Evals> lookup_input_cosets_;
   std::vector<Evals> lookup_table_cosets_;
 
-  OwnedTable<Evals> table_;
+  MultiPhaseOwnedTable<Evals> table_;
 };
 
 }  // namespace tachyon::zk::plonk

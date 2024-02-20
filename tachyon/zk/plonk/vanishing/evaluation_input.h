@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/plonk/base/owned_table.h"
+#include "tachyon/zk/plonk/base/multi_phase_owned_table.h"
 
 namespace tachyon::zk::plonk {
 
@@ -23,13 +23,11 @@ class EvaluationInput {
 
   EvaluationInput(std::vector<F>&& intermediates,
                   std::vector<int32_t>&& rotations,
-                  const OwnedTable<Evals>* table,
-                  absl::Span<const F> challenges, const F* beta, const F* gamma,
-                  const F* theta, const F* y, int32_t n)
+                  const MultiPhaseOwnedTable<Evals>* table, const F* beta,
+                  const F* gamma, const F* theta, const F* y, int32_t n)
       : intermediates_(std::move(intermediates)),
         rotations_(std::move(rotations)),
         table_(table),
-        challenges_(challenges),
         beta_(beta),
         gamma_(gamma),
         theta_(theta),
@@ -40,8 +38,7 @@ class EvaluationInput {
   std::vector<F>& intermediates() { return intermediates_; }
   const std::vector<int32_t>& rotations() const { return rotations_; }
   std::vector<int32_t>& rotations() { return rotations_; }
-  const OwnedTable<Evals>& table() const { return *table_; }
-  absl::Span<const F> challenges() const { return challenges_; }
+  const MultiPhaseOwnedTable<Evals>& table() const { return *table_; }
   const F& beta() const { return *beta_; }
   const F& gamma() const { return *gamma_; }
   const F& theta() const { return *theta_; }
@@ -52,8 +49,7 @@ class EvaluationInput {
   std::vector<F> intermediates_;
   std::vector<int32_t> rotations_;
   // not owned
-  const OwnedTable<Evals>* table_ = nullptr;
-  absl::Span<const F> challenges_;
+  const MultiPhaseOwnedTable<Evals>* table_ = nullptr;
   // not owned
   const F* beta_ = nullptr;
   // not owned

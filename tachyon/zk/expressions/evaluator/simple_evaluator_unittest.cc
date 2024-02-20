@@ -26,10 +26,10 @@ class SimpleEvaluatorTest : public EvaluatorTest {
       challenges_.push_back(GF7::Random());
     }
 
-    plonk::RefTable<Evals> columns(fixed_columns_, advice_columns_,
-                                   instance_columns_);
+    plonk::MultiPhaseRefTable<Evals> table(fixed_columns_, advice_columns_,
+                                           instance_columns_, challenges_);
     simple_evaluator_ =
-        std::make_unique<SimpleEvaluator<Evals>>(3, 4, 1, columns, challenges_);
+        std::make_unique<SimpleEvaluator<Evals>>(3, 4, 1, table);
   }
 
  protected:

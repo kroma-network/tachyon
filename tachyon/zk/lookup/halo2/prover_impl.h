@@ -54,13 +54,12 @@ template <typename Domain>
 void Prover<Poly, Evals>::BatchCompressPairs(
     std::vector<Prover>& lookup_provers, const Domain* domain,
     const std::vector<LookupArgument<F>>& arguments, const F& theta,
-    const std::vector<plonk::RefTable<Evals>>& tables,
-    absl::Span<const F> challenges) {
+    const std::vector<plonk::MultiPhaseRefTable<Evals>>& tables) {
   CHECK_EQ(lookup_provers.size(), tables.size());
   // NOTE(chokobole): It's safe to downcast because domain is already checked.
   int32_t n = static_cast<int32_t>(domain->size());
   for (size_t i = 0; i < lookup_provers.size(); ++i) {
-    SimpleEvaluator<Evals> simple_evaluator(0, n, 1, tables[i], challenges);
+    SimpleEvaluator<Evals> simple_evaluator(0, n, 1, tables[i]);
     lookup_provers[i].CompressPairs(domain, arguments, theta, simple_evaluator);
   }
 }

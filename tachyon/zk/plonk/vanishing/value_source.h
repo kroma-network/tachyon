@@ -142,7 +142,7 @@ class TACHYON_EXPORT ValueSource {
       case Type::kIntermediate:
         return data.intermediates()[index_];
       case Type::kChallenge:
-        return data.challenges()[index_];
+        return data.table().challenges()[index_];
       case Type::kFixed:
         return data.table()
             .GetFixedColumns()[column_index_]

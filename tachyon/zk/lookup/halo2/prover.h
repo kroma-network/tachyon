@@ -20,7 +20,7 @@
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/lookup/lookup_pair.h"
-#include "tachyon/zk/plonk/base/ref_table.h"
+#include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 
 namespace tachyon::zk::lookup::halo2 {
 
@@ -45,8 +45,7 @@ class Prover {
   static void BatchCompressPairs(
       std::vector<Prover>& lookup_provers, const Domain* domain,
       const std::vector<LookupArgument<F>>& arguments, const F& theta,
-      const std::vector<plonk::RefTable<Evals>>& tables,
-      absl::Span<const F> challenges);
+      const std::vector<plonk::MultiPhaseRefTable<Evals>>& tables);
 
   template <typename PCS>
   static void BatchPermutePairs(std::vector<Prover>& lookup_provers,

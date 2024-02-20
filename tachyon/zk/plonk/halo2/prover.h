@@ -144,12 +144,11 @@ class Prover : public ProverBase<PCS> {
     F theta = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(theta): " << theta.ToHexString(true);
 
-    std::vector<RefTable<Evals>> column_tables =
+    std::vector<MultiPhaseRefTable<Evals>> column_tables =
         argument_data->ExportColumnTables(proving_key.fixed_columns());
 
     lookup::halo2::Prover<Poly, Evals>::BatchCompressPairs(
-        lookup_provers, domain, cs.lookups(), theta, column_tables,
-        argument_data->GetChallenges());
+        lookup_provers, domain, cs.lookups(), theta, column_tables);
     lookup::halo2::Prover<Poly, Evals>::BatchPermutePairs(lookup_provers, this);
 
     if constexpr (PCS::kSupportsBatchMode) {
@@ -208,12 +207,12 @@ class Prover : public ProverBase<PCS> {
     proving_key.fixed_columns().clear();
     column_tables.clear();
 
-    std::vector<RefTable<Poly>> poly_tables =
+    std::vector<MultiPhaseRefTable<Poly>> poly_tables =
         argument_data->ExportPolyTables(proving_key.fixed_polys());
 
-    vanishing_prover.CreateHEvals(
-        this, proving_key, poly_tables, argument_data->GetChallenges(), theta,
-        beta, gamma, y, permutation_provers, lookup_provers);
+    vanishing_prover.CreateHEvals(this, proving_key, poly_tables, theta, beta,
+                                  gamma, y, permutation_provers,
+                                  lookup_provers);
     vanishing_prover.CreateFinalHPoly(this, cs);
 
     if constexpr (PCS::kSupportsBatchMode) {
@@ -257,7 +256,7 @@ class Prover : public ProverBase<PCS> {
 
   void Evaluate(
       const ProvingKey<Poly, Evals, Commitment>& proving_key,
-      const std::vector<RefTable<Poly>>& poly_tables,
+      const std::vector<MultiPhaseRefTable<Poly>>& poly_tables,
       VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
           vanishing_prover,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
@@ -282,7 +281,7 @@ class Prover : public ProverBase<PCS> {
 
   std::vector<crypto::PolynomialOpening<Poly>> Open(
       const ProvingKey<Poly, Evals, Commitment>& proving_key,
-      const std::vector<RefTable<Poly>>& poly_tables,
+      const std::vector<MultiPhaseRefTable<Poly>>& poly_tables,
       const VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
           vanishing_prover,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,

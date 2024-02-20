@@ -31,7 +31,7 @@ tachyon_cc_library(
         "//tachyon/zk/expressions:scaled_expression",
         "//tachyon/zk/expressions:selector_expression",
         "//tachyon/zk/expressions:sum_expression",
-        "//tachyon/zk/plonk/base:ref_table",
+        "//tachyon/zk/plonk/base:multi_phase_ref_table",
     ],
 )
 

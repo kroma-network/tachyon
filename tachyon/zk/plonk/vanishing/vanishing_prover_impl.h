@@ -54,15 +54,15 @@ template <typename Poly, typename Evals, typename ExtendedPoly,
 template <typename PCS, typename C>
 void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::CreateHEvals(
     ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
-    const std::vector<RefTable<Poly>>& tables, absl::Span<const F> challenges,
-    const F& theta, const F& beta, const F& gamma, const F& y,
+    const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& theta,
+    const F& beta, const F& gamma, const F& y,
     const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
     const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers) {
   VanishingArgument<F> vanishing_argument = VanishingArgument<F>::Create(
       proving_key.verifying_key().constraint_system());
   F zeta = GetHalo2Zeta<F>();
   h_evals_ = vanishing_argument.BuildExtendedCircuitColumn(
-      prover, proving_key, tables, challenges, theta, beta, gamma, y, zeta,
+      prover, proving_key, tables, theta, beta, gamma, y, zeta,
       permutation_provers, lookup_provers);
 }
 
@@ -143,7 +143,8 @@ template <typename Poly, typename Evals, typename ExtendedPoly,
 template <typename PCS>
 void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::BatchEvaluate(
     ProverBase<PCS>* prover, const ConstraintSystem<F>& constraint_system,
-    const std::vector<RefTable<Poly>>& tables, const F& x, const F& x_n) {
+    const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& x,
+    const F& x_n) {
   using Coefficients = typename Poly::Coefficients;
 
   size_t num_circuits = tables.size();
@@ -207,7 +208,8 @@ template <typename PCS, typename Domain>
 void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
     OpenAdviceInstanceColumns(
         const Domain* domain, const ConstraintSystem<F>& constraint_system,
-        const RefTable<Poly>& table, const F& x, PointSet<F>& point_set,
+        const MultiPhaseRefTable<Poly>& table, const F& x,
+        PointSet<F>& point_set,
         std::vector<crypto::PolynomialOpening<Poly>>& openings) {
   if constexpr (PCS::kQueryInstance) {
     OpenColumns(domain, table.GetInstanceColumns(),
@@ -224,7 +226,7 @@ template <typename Domain>
 void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
     OpenFixedColumns(const Domain* domain,
                      const ConstraintSystem<F>& constraint_system,
-                     const RefTable<Poly>& table, const F& x,
+                     const MultiPhaseRefTable<Poly>& table, const F& x,
                      PointSet<F>& point_set,
                      std::vector<crypto::PolynomialOpening<Poly>>& openings) {
   OpenColumns(domain, table.GetFixedColumns(),

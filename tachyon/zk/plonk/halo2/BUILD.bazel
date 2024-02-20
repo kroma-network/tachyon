@@ -10,7 +10,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
-        "//tachyon/zk/plonk/base:ref_table",
+        "//tachyon/zk/plonk/base:multi_phase_ref_table",
         "@com_google_absl//absl/types:span",
     ],
 )

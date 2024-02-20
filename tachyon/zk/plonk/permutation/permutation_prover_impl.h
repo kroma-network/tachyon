@@ -54,7 +54,8 @@ template <typename PCS>
 void PermutationProver<Poly, Evals>::BatchCreateGrandProductPolys(
     std::vector<PermutationProver>& permutation_provers,
     ProverBase<PCS>* prover, const PermutationArgument& argument,
-    const std::vector<RefTable<Evals>>& tables, size_t constraint_system_degree,
+    const std::vector<MultiPhaseRefTable<Evals>>& tables,
+    size_t constraint_system_degree,
     const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
     const F& beta, const F& gamma) {
   // How many columns can be included in a single permutation polynomial?

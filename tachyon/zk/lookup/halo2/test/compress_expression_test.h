@@ -14,10 +14,9 @@ class CompressExpressionTest : public plonk::halo2::BN254SHPlonkProverTest {
   void SetUp() override {
     plonk::halo2::BN254SHPlonkProverTest::SetUp();
 
-    plonk::RefTable<Evals> columns(fixed_columns_, advice_columns_,
-                                   instance_columns_);
-    evaluator_ = {0, static_cast<int32_t>(prover_->domain()->size()), 1,
-                  columns, challenges_};
+    plonk::MultiPhaseRefTable<Evals> table(fixed_columns_, advice_columns_,
+                                           instance_columns_, challenges_);
+    evaluator_ = {0, static_cast<int32_t>(prover_->domain()->size()), 1, table};
     theta_ = F(2);
   }
 

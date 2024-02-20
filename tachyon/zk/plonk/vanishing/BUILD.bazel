@@ -26,8 +26,8 @@ tachyon_cc_library(
         "//tachyon/zk/base:rotation",
         "//tachyon/zk/lookup/halo2:prover",
         "//tachyon/zk/plonk/base:column_key",
-        "//tachyon/zk/plonk/base:owned_table",
-        "//tachyon/zk/plonk/base:ref_table",
+        "//tachyon/zk/plonk/base:multi_phase_owned_table",
+        "//tachyon/zk/plonk/base:multi_phase_ref_table",
         "//tachyon/zk/plonk/keys:proving_key_forward",
         "//tachyon/zk/plonk/permutation:permutation_prover",
         "@com_google_absl//absl/types:span",
@@ -37,7 +37,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "evaluation_input",
     hdrs = ["evaluation_input.h"],
-    deps = ["//tachyon/zk/plonk/base:owned_table"],
+    deps = ["//tachyon/zk/plonk/base:multi_phase_owned_table"],
 )
 
 tachyon_cc_library(
@@ -96,7 +96,7 @@ tachyon_cc_library(
         "//tachyon/zk/base:point_set",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/lookup/halo2:prover",
-        "//tachyon/zk/plonk/base:ref_table",
+        "//tachyon/zk/plonk/base:multi_phase_ref_table",
         "//tachyon/zk/plonk/keys:proving_key",
         "//tachyon/zk/plonk/permutation:permutation_prover",
         "@com_google_absl//absl/types:span",

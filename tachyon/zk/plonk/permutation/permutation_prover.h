@@ -16,7 +16,7 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/plonk/base/ref_table.h"
+#include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_opening_point_set.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
@@ -42,7 +42,7 @@ class PermutationProver {
   static void BatchCreateGrandProductPolys(
       std::vector<PermutationProver>& permutation_provers,
       ProverBase<PCS>* prover, const PermutationArgument& argument,
-      const std::vector<RefTable<Evals>>& tables,
+      const std::vector<MultiPhaseRefTable<Evals>>& tables,
       size_t constraint_system_degree,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
       const F& beta, const F& gamma);
