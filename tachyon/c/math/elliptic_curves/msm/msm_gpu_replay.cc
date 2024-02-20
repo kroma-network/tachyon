@@ -88,9 +88,9 @@ int RealMain(int argc, char** argv) {
 
   for (int idx : idxes) {
     base::FilePath bases_txt(
-        absl::Substitute("$0/bases$1.txt", input_dir, idx));
+        absl::Substitute("$0/bases$1.txt", input_dir.value(), idx));
     base::FilePath scalars_txt(
-        absl::Substitute("$0/scalars$1.txt", input_dir, idx));
+        absl::Substitute("$0/scalars$1.txt", input_dir.value(), idx));
     auto bases = ReadAffinePoints(bases_txt);
     auto scalars = ReadScalarFields(scalars_txt);
     CHECK_EQ(bases.size(), scalars.size());
