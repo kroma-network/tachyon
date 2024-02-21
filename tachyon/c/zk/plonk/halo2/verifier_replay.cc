@@ -7,6 +7,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier_type_traits.h"
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
@@ -22,19 +23,25 @@ namespace c::zk::plonk::halo2::bn254 {
 
 using ProvingKey = plonk::bn254::ProvingKeyImpl;
 
+template <typename PCS>
 using Verifier = tachyon::zk::plonk::halo2::Verifier<PCS>;
 
-using VerifyingKey =
-    tachyon::zk::plonk::VerifyingKey<PCS::Field, PCS::Commitment>;
+template <typename PCS>
+using VerifyingKey = tachyon::zk::plonk::VerifyingKey<typename PCS::Field,
+                                                      typename PCS::Commitment>;
 
-std::vector<std::vector<PCS::Evals>> GetInstanceColumnsVec() {
+template <typename PCS>
+std::vector<std::vector<typename PCS::Evals>> GetInstanceColumnsVec() {
   // You need to fill here!
   return {{{}}};
 }
 
-bool VerifyProof(tachyon_halo2_bn254_shplonk_verifier* c_verifier,
-                 const std::vector<uint8_t>& pk_bytes) {
-  Verifier* verifier = reinterpret_cast<Verifier*>(c_verifier);
+template <typename CVerifier>
+bool VerifyProof(CVerifier* c_verifier, const std::vector<uint8_t>& pk_bytes) {
+  using NativeVerifier = typename base::TypeTraits<CVerifier>::NativeType;
+  using PCS = typename NativeVerifier::PCS;
+
+  NativeVerifier* verifier = base::native_cast(c_verifier);
   std::cout << "deserializing proving key" << std::endl;
   ProvingKey pk(absl::MakeConstSpan(pk_bytes), /*read_only_vk=*/true);
   std::cout << "done deserializing proving key" << std::endl;
@@ -45,7 +52,8 @@ bool VerifyProof(tachyon_halo2_bn254_shplonk_verifier* c_verifier,
       PCS::ExtendedDomain::Create(size_t{1} << extended_k));
   pk.SetTranscriptRepr(*verifier);
 
-  return verifier->VerifyProof(pk.verifying_key(), GetInstanceColumnsVec());
+  return verifier->VerifyProof(pk.verifying_key(),
+                               GetInstanceColumnsVec<PCS>());
 }
 
 }  // namespace c::zk::plonk::halo2::bn254

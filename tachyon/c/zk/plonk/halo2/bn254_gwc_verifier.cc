@@ -1,10 +1,10 @@
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_verifier.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_gwc_verifier.h"
 
 #include <memory>
 #include <utility>
 #include <vector>
 
-#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/verifier_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
@@ -16,18 +16,18 @@
 
 using namespace tachyon;
 
-using PCS = c::zk::plonk::halo2::bn254::SHPlonkPCS;
+using PCS = c::zk::plonk::halo2::bn254::GWCPCS;
 using Verifier = c::zk::plonk::halo2::VerifierImpl<PCS>;
 using VKey =
     zk::plonk::VerifyingKey<math::bn254::Fr, math::bn254::G1AffinePoint>;
 
-tachyon_halo2_bn254_shplonk_verifier*
-tachyon_halo2_bn254_shplonk_verifier_create_from_params(
+tachyon_halo2_bn254_gwc_verifier*
+tachyon_halo2_bn254_gwc_verifier_create_from_params(
     uint8_t transcript_type, uint32_t k, const uint8_t* params,
     size_t params_len, const uint8_t* proof, size_t proof_len) {
   math::bn254::BN254Curve::Init();
 
-  return reinterpret_cast<tachyon_halo2_bn254_shplonk_verifier*>(new Verifier(
+  return reinterpret_cast<tachyon_halo2_bn254_gwc_verifier*>(new Verifier(
       [transcript_type, k, params, params_len, proof, proof_len]() {
         PCS pcs;
         base::ReadOnlyBuffer read_buf(params, params_len);
@@ -66,13 +66,13 @@ tachyon_halo2_bn254_shplonk_verifier_create_from_params(
       transcript_type));
 }
 
-void tachyon_halo2_bn254_shplonk_verifier_destroy(
-    tachyon_halo2_bn254_shplonk_verifier* verifier) {
+void tachyon_halo2_bn254_gwc_verifier_destroy(
+    tachyon_halo2_bn254_gwc_verifier* verifier) {
   delete reinterpret_cast<Verifier*>(verifier);
 }
 
-bool tachyon_halo2_bn254_shplonk_verifier_verify_proof(
-    tachyon_halo2_bn254_shplonk_verifier* verifier,
+bool tachyon_halo2_bn254_gwc_verifier_verify_proof(
+    tachyon_halo2_bn254_gwc_verifier* verifier,
     const tachyon_bn254_plonk_verifying_key* vkey,
     tachyon_halo2_bn254_instance_columns_vec* instance_columns_vec) {
   bool ret = reinterpret_cast<Verifier*>(verifier)->VerifyProof(

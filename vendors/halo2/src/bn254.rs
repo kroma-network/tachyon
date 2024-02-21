@@ -116,7 +116,10 @@ pub mod ffi {
         fn num_challenges(&self) -> usize;
         fn num_instance_columns(&self) -> usize;
         fn phases(&self) -> Vec<u8>;
-        fn transcript_repr(self: Pin<&mut ProvingKey>, prover: &SHPlonkProver) -> Box<Fr>;
+        // TODO(chokobole): In this way, we need to add `transcript_repr_xxx` as more prover comes.
+        // We need to figure out how to make them a single method.
+        fn transcript_repr_gwc(self: Pin<&mut ProvingKey>, prover: &GWCProver) -> Box<Fr>;
+        fn transcript_repr_shplonk(self: Pin<&mut ProvingKey>, prover: &SHPlonkProver) -> Box<Fr>;
     }
 
     unsafe extern "C++" {
@@ -150,6 +153,37 @@ pub mod ffi {
         include!("vendors/halo2/include/bn254_poly.h");
 
         type Poly;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_gwc_prover.h");
+
+        type GWCProver;
+
+        fn new_gwc_prover(transcript_type: u8, k: u32, s: &Fr) -> UniquePtr<GWCProver>;
+        fn k(&self) -> u32;
+        fn n(&self) -> u64;
+        fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
+        fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
+        fn empty_evals(&self) -> UniquePtr<Evals>;
+        fn empty_rational_evals(&self) -> UniquePtr<RationalEvals>;
+        fn ifft(&self, evals: &Evals) -> UniquePtr<Poly>;
+        fn batch_evaluate(
+            &self,
+            rational_evals: &[UniquePtr<RationalEvals>],
+            evals: &mut [UniquePtr<Evals>],
+        );
+        fn set_rng(self: Pin<&mut GWCProver>, state: &[u8]);
+        fn set_transcript(self: Pin<&mut GWCProver>, state: &[u8]);
+        fn set_extended_domain(self: Pin<&mut GWCProver>, pk: &ProvingKey);
+        fn create_proof(
+            self: Pin<&mut GWCProver>,
+            key: Pin<&mut ProvingKey>,
+            instance_singles: &mut [InstanceSingle],
+            advice_singles: &mut [AdviceSingle],
+            challenges: &[Fr],
+        );
+        fn get_proof(self: &GWCProver) -> Vec<u8>;
     }
 
     unsafe extern "C++" {
@@ -580,13 +614,24 @@ impl<C: CurveAffine> ProvingKey<C> {
     }
 
     // pk.vk.transcript_repr
-    pub fn transcript_repr<Scheme: CommitmentScheme>(
+    pub fn transcript_repr_gwc<Scheme: CommitmentScheme>(
+        &mut self,
+        prover: &GWCProver<Scheme>,
+    ) -> C::Scalar {
+        *unsafe {
+            std::mem::transmute::<_, Box<C::Scalar>>(
+                self.inner.pin_mut().transcript_repr_gwc(&prover.inner),
+            )
+        }
+    }
+
+    pub fn transcript_repr_shplonk<Scheme: CommitmentScheme>(
         &mut self,
         prover: &SHPlonkProver<Scheme>,
     ) -> C::Scalar {
         *unsafe {
             std::mem::transmute::<_, Box<C::Scalar>>(
-                self.inner.pin_mut().transcript_repr(&prover.inner),
+                self.inner.pin_mut().transcript_repr_shplonk(&prover.inner),
             )
         }
     }
@@ -673,29 +718,71 @@ impl Poly {
     }
 }
 
-pub struct SHPlonkProver<Scheme: CommitmentScheme> {
-    inner: cxx::UniquePtr<ffi::SHPlonkProver>,
+pub trait TachyonProver<Scheme: CommitmentScheme> {
+    const QUERY_INSTANCE: bool;
+
+    fn k(&self) -> u32;
+
+    fn n(&self) -> u64;
+
+    fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt;
+
+    fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt;
+
+    fn empty_evals(&self) -> Evals;
+
+    fn empty_rational_evals(&self) -> RationalEvals;
+
+    fn batch_evaluate(&self, rational_evals: &[RationalEvals], evals: &mut [Evals]);
+
+    fn ifft(&self, evals: &Evals) -> Poly;
+
+    fn set_rng(&mut self, state: &[u8]);
+
+    fn set_transcript(&mut self, state: &[u8]);
+
+    fn set_extended_domain(&mut self, pk: &ProvingKey<Scheme::Curve>);
+
+    fn create_proof(
+        &mut self,
+        key: &mut ProvingKey<Scheme::Curve>,
+        instance_singles: &mut [InstanceSingle],
+        advice_singles: &mut [AdviceSingle],
+        challenges: &[Fr],
+    );
+
+    fn get_proof(&self) -> Vec<u8>;
+
+    fn transcript_repr(&self, pk: &mut ProvingKey<Scheme::Curve>) -> Scheme::Scalar;
+}
+
+pub struct GWCProver<Scheme: CommitmentScheme> {
+    inner: cxx::UniquePtr<ffi::GWCProver>,
     _marker: PhantomData<Scheme>,
 }
 
-impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
-    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver<Scheme> {
+impl<Scheme: CommitmentScheme> GWCProver<Scheme> {
+    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> GWCProver<Scheme> {
         let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
-        SHPlonkProver {
-            inner: ffi::new_shplonk_prover(transcript_type, k, cpp_s),
+        GWCProver {
+            inner: ffi::new_gwc_prover(transcript_type, k, cpp_s),
             _marker: PhantomData,
         }
     }
+}
 
-    pub fn k(&self) -> u32 {
+impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
+    const QUERY_INSTANCE: bool = true;
+
+    fn k(&self) -> u32 {
         self.inner.k()
     }
 
-    pub fn n(&self) -> u64 {
+    fn n(&self) -> u64 {
         self.inner.n()
     }
 
-    pub fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
+    fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
         *unsafe {
             std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
                 self.inner.commit(&poly.inner),
@@ -703,7 +790,7 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
         }
     }
 
-    pub fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt {
+    fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt {
         *unsafe {
             std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
                 self.inner.commit_lagrange(&evals.inner),
@@ -711,15 +798,15 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
         }
     }
 
-    pub fn empty_evals(&self) -> Evals {
+    fn empty_evals(&self) -> Evals {
         Evals::new(self.inner.empty_evals())
     }
 
-    pub fn empty_rational_evals(&self) -> RationalEvals {
+    fn empty_rational_evals(&self) -> RationalEvals {
         RationalEvals::new(self.inner.empty_rational_evals())
     }
 
-    pub fn batch_evaluate(&self, rational_evals: &[RationalEvals], evals: &mut [Evals]) {
+    fn batch_evaluate(&self, rational_evals: &[RationalEvals], evals: &mut [Evals]) {
         unsafe {
             let rational_evals: &[cxx::UniquePtr<ffi::RationalEvals>] =
                 std::mem::transmute(rational_evals);
@@ -728,23 +815,23 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
         }
     }
 
-    pub fn ifft(&self, evals: &Evals) -> Poly {
+    fn ifft(&self, evals: &Evals) -> Poly {
         Poly::new(self.inner.ifft(&evals.inner))
     }
 
-    pub fn set_rng(&mut self, state: &[u8]) {
+    fn set_rng(&mut self, state: &[u8]) {
         self.inner.pin_mut().set_rng(state)
     }
 
-    pub fn set_transcript(&mut self, state: &[u8]) {
+    fn set_transcript(&mut self, state: &[u8]) {
         self.inner.pin_mut().set_transcript(state)
     }
 
-    pub fn set_extended_domain(&mut self, pk: &ProvingKey<Scheme::Curve>) {
+    fn set_extended_domain(&mut self, pk: &ProvingKey<Scheme::Curve>) {
         self.inner.pin_mut().set_extended_domain(&pk.inner)
     }
 
-    pub fn create_proof(
+    fn create_proof(
         &mut self,
         key: &mut ProvingKey<Scheme::Curve>,
         instance_singles: &mut [InstanceSingle],
@@ -759,7 +846,116 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
         )
     }
 
-    pub fn get_proof(&self) -> Vec<u8> {
+    fn get_proof(&self) -> Vec<u8> {
         self.inner.get_proof()
+    }
+
+    fn transcript_repr(
+        &self,
+        pk: &mut ProvingKey<<Scheme as CommitmentScheme>::Curve>,
+    ) -> Scheme::Scalar {
+        pk.transcript_repr_gwc(self)
+    }
+}
+
+pub struct SHPlonkProver<Scheme: CommitmentScheme> {
+    inner: cxx::UniquePtr<ffi::SHPlonkProver>,
+    _marker: PhantomData<Scheme>,
+}
+
+impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
+    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver<Scheme> {
+        let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
+        SHPlonkProver {
+            inner: ffi::new_shplonk_prover(transcript_type, k, cpp_s),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
+    const QUERY_INSTANCE: bool = false;
+
+    fn k(&self) -> u32 {
+        self.inner.k()
+    }
+
+    fn n(&self) -> u64 {
+        self.inner.n()
+    }
+
+    fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
+        *unsafe {
+            std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
+                self.inner.commit(&poly.inner),
+            )
+        }
+    }
+
+    fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt {
+        *unsafe {
+            std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
+                self.inner.commit_lagrange(&evals.inner),
+            )
+        }
+    }
+
+    fn empty_evals(&self) -> Evals {
+        Evals::new(self.inner.empty_evals())
+    }
+
+    fn empty_rational_evals(&self) -> RationalEvals {
+        RationalEvals::new(self.inner.empty_rational_evals())
+    }
+
+    fn batch_evaluate(&self, rational_evals: &[RationalEvals], evals: &mut [Evals]) {
+        unsafe {
+            let rational_evals: &[cxx::UniquePtr<ffi::RationalEvals>] =
+                std::mem::transmute(rational_evals);
+            let evals: &mut [cxx::UniquePtr<ffi::Evals>] = std::mem::transmute(evals);
+            self.inner.batch_evaluate(rational_evals, evals)
+        }
+    }
+
+    fn ifft(&self, evals: &Evals) -> Poly {
+        Poly::new(self.inner.ifft(&evals.inner))
+    }
+
+    fn set_rng(&mut self, state: &[u8]) {
+        self.inner.pin_mut().set_rng(state)
+    }
+
+    fn set_transcript(&mut self, state: &[u8]) {
+        self.inner.pin_mut().set_transcript(state)
+    }
+
+    fn set_extended_domain(&mut self, pk: &ProvingKey<Scheme::Curve>) {
+        self.inner.pin_mut().set_extended_domain(&pk.inner)
+    }
+
+    fn create_proof(
+        &mut self,
+        key: &mut ProvingKey<Scheme::Curve>,
+        instance_singles: &mut [InstanceSingle],
+        advice_singles: &mut [AdviceSingle],
+        challenges: &[Fr],
+    ) {
+        self.inner.pin_mut().create_proof(
+            key.inner.pin_mut(),
+            instance_singles,
+            advice_singles,
+            challenges,
+        )
+    }
+
+    fn get_proof(&self) -> Vec<u8> {
+        self.inner.get_proof()
+    }
+
+    fn transcript_repr(
+        &self,
+        pk: &mut ProvingKey<<Scheme as CommitmentScheme>::Curve>,
+    ) -> Scheme::Scalar {
+        pk.transcript_repr_shplonk(self)
     }
 }

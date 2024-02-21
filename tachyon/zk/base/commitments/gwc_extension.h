@@ -17,11 +17,12 @@
 #include "tachyon/zk/base/commitments/univariate_polynomial_commitment_scheme_extension.h"
 
 namespace tachyon {
-namespace c::zk::plonk::halo2::bn254 {
+namespace c::zk::plonk::halo2 {
 
-class GWCProverImpl;
+template <typename PCS>
+class KZGFamilyProverImpl;
 
-}  // namespace c::zk::plonk::halo2::bn254
+}  // namespace c::zk::plonk::halo2
 
 namespace halo2_api::bn254 {
 
@@ -136,7 +137,8 @@ class GWCExtension final
   }
 
  private:
-  friend class c::zk::plonk::halo2::bn254::GWCProverImpl;
+  friend class c::zk::plonk::halo2::KZGFamilyProverImpl<
+      GWCExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
   friend class halo2_api::bn254::GWCProver;
   friend class base::Copyable<
       GWCExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;

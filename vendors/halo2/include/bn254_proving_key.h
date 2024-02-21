@@ -13,6 +13,7 @@
 namespace tachyon::halo2_api::bn254 {
 
 struct Fr;
+class GWCProver;
 class SHPlonkProver;
 
 class ProvingKey {
@@ -33,7 +34,8 @@ class ProvingKey {
   size_t num_challenges() const;
   size_t num_instance_columns() const;
   rust::Vec<uint8_t> phases() const;
-  rust::Box<Fr> transcript_repr(const SHPlonkProver& prover);
+  rust::Box<Fr> transcript_repr_gwc(const GWCProver& prover);
+  rust::Box<Fr> transcript_repr_shplonk(const SHPlonkProver& prover);
 
  private:
   const tachyon_bn254_plonk_verifying_key* GetVerifyingKey() const;
