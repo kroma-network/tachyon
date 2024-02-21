@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "absl/types/span.h"
+
 #include "tachyon/base/buffer/buffer.h"
 #include "tachyon/base/buffer/copyable_forward.h"
 #include "tachyon/base/logging.h"
@@ -179,6 +181,30 @@ class Copyable<std::array<T, N>> {
 
   static size_t EstimateSize(const std::array<T, N>& values) {
     return std::accumulate(values.begin(), values.end(), 0,
+                           [](size_t total, const T& value) {
+                             return total + base::EstimateSize(value);
+                           });
+  }
+};
+
+template <typename T>
+class Copyable<absl::Span<T>> {
+ public:
+  static bool WriteTo(absl::Span<T> values, Buffer* buffer) {
+    if (!buffer->Write(values.size())) return false;
+    for (const T& value : values) {
+      if (!buffer->Write(value)) return false;
+    }
+    return true;
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, absl::Span<T>* values) {
+    NOTREACHED() << "Not supported ReadFrom for absl::Span<T>";
+    return false;
+  }
+
+  static size_t EstimateSize(absl::Span<T> values) {
+    return std::accumulate(values.begin(), values.end(), sizeof(size_t),
                            [](size_t total, const T& value) {
                              return total + base::EstimateSize(value);
                            });

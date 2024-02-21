@@ -127,7 +127,7 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
   if (!msm_api.msm_gpu_input_dir.empty()) {
     base::Uint8VectorBuffer buffer;
     {
-      CHECK(buffer.Grow(msm_api.provider.bases()));
+      CHECK(buffer.Grow(base::EstimateSize(msm_api.provider.bases())));
       CHECK(buffer.Write(msm_api.provider.bases()));
       base::WriteFile(
           base::FilePath(absl::Substitute(
@@ -136,7 +136,7 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
     }
     {
       buffer.set_buffer_offset(0);
-      CHECK(buffer.Grow(msm_api.provider.scalars()));
+      CHECK(buffer.Grow(base::EstimateSize(msm_api.provider.scalars())));
       CHECK(buffer.Write(msm_api.provider.scalars()));
       base::WriteFile(
           base::FilePath(absl::Substitute(
