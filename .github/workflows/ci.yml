@@ -43,7 +43,9 @@ jobs:
 
       - name: Test OpenMP
         if: matrix.os == 'ubuntu-latest'
-        run: bazel test -c fastbuild --config linux --//:has_openmp --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
+        # NOTE(TomTaehoonKim): Test timeouts are overridden 1.5x of the default timeout due to timeout failure on GitHub Actions by change in
+        # https://github.com/kroma-network/tachyon/pull/309. See https://github.com/kroma-network/tachyon/actions/runs/7984233709/job/21800735269.
+        run: bazel test -c fastbuild --config linux --//:has_openmp --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
 
       - name: Test Node Binding
         run: |
