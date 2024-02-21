@@ -1,6 +1,7 @@
 pub enum TranscriptType {
     Blake2b,
     Poseidon,
+    Sha256,
 }
 
 pub const SEED: [u8; 16] = [

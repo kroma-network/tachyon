@@ -119,7 +119,15 @@ class Sha256Reader : public crypto::TranscriptReader<AffinePoint>,
 
  private:
   bool DoReadFromProof(AffinePoint* point) const override {
-    return ProofSerializer<AffinePoint>::ReadFromProof(this->buffer_, point);
+    using BaseField = typename AffinePoint::BaseField;
+
+    // See
+    // https://github.com/kroma-network/halo2-snark-aggregator/blob/2637b512397b255525782006439a9cedde5b79b8/halo2-snark-aggregator-api/src/transcript/sha.rs#L43-L61.
+    math::BigInt<4> x;
+    math::BigInt<4> y;
+    if (!this->buffer_.ReadMany(&x, &y)) return false;
+    *point = {BaseField(std::move(x)), BaseField(std::move(y))};
+    return true;
   }
 
   bool DoReadFromProof(ScalarField* scalar) const override {
@@ -168,7 +176,11 @@ class Sha256Writer : public crypto::TranscriptWriter<AffinePoint>,
 
  private:
   bool DoWriteToProof(const AffinePoint& point) override {
-    return ProofSerializer<AffinePoint>::WriteToProof(point, this->buffer_);
+    // See
+    // https://github.com/kroma-network/halo2-snark-aggregator/blob/2637b512397b255525782006439a9cedde5b79b8/halo2-snark-aggregator-api/src/transcript/sha.rs#L156-L173.
+    math::BigInt<4> x = point.x().ToBigInt();
+    math::BigInt<4> y = point.y().ToBigInt();
+    return this->buffer_.WriteMany(x, y);
   }
 
   bool DoWriteToProof(const ScalarField& scalar) override {

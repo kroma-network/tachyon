@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include <array>
 #include <memory>
 
 #include "openssl/blake2.h"

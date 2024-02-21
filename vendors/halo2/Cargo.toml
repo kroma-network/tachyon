@@ -16,9 +16,12 @@ publish = false
 
 [dependencies]
 cxx = "1.0"
+digest = "0.10.3"
 ff = "0.12"
+num-bigint = { version = "0.4", features = ["rand"] }
 halo2_proofs = { git = "https://github.com/kroma-network/halo2.git", rev = "be2e64f" }
 halo2curves = { git = "https://github.com/kroma-network/halo2curves.git", rev = "c0ac193" }
+sha2 = "0.10.2"
 tachyon_rs = { path = "../../tachyon/rs" }
 rand_core = { version = "0.6", default-features = false, features = [
     "getrandom",

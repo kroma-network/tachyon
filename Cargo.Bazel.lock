@@ -1,5 +1,5 @@
 {
-  "checksum": "78504ed4df18400abd203d18dab21dca96cf3f1017e238f4f1c4f87bac1d1cfb",
+  "checksum": "bb73b47ae32a6b2f6e89676d249aba74cb9733ddbd3d6d9c5b2f120341e3f46a",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -1068,6 +1068,45 @@
       },
       "license": "MIT"
     },
+    "block-buffer 0.10.4": {
+      "name": "block-buffer",
+      "version": "0.10.4",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/block-buffer/0.10.4/download",
+          "sha256": "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "block_buffer",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "block_buffer",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "generic-array 0.14.7",
+              "target": "generic_array"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.10.4"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "block-buffer 0.9.0": {
       "name": "block-buffer",
       "version": "0.9.0",
@@ -2034,6 +2073,12 @@
         "compile_data_glob": [
           "**"
         ],
+        "crate_features": {
+          "common": [
+            "std"
+          ],
+          "selects": {}
+        },
         "deps": {
           "common": [
             {
@@ -2312,12 +2357,20 @@
         ],
         "crate_features": {
           "common": [
-            "alloc"
+            "alloc",
+            "block-buffer",
+            "core-api",
+            "default",
+            "std"
           ],
           "selects": {}
         },
         "deps": {
           "common": [
+            {
+              "id": "block-buffer 0.10.4",
+              "target": "block_buffer"
+            },
             {
               "id": "crypto-common 0.1.6",
               "target": "crypto_common"
@@ -5359,6 +5412,63 @@
       },
       "license": "MIT OR Apache-2.0"
     },
+    "sha2 0.10.8": {
+      "name": "sha2",
+      "version": "0.10.8",
+      "repository": {
+        "Http": {
+          "url": "https://crates.io/api/v1/crates/sha2/0.10.8/download",
+          "sha256": "793db75ad2bcafc3ffa7c68b215fee268f537982cd901d132f89c6343f3a3dc8"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "sha2",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "sha2",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "default",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "cfg-if 1.0.0",
+              "target": "cfg_if"
+            },
+            {
+              "id": "digest 0.10.7",
+              "target": "digest"
+            }
+          ],
+          "selects": {
+            "cfg(any(target_arch = \"aarch64\", target_arch = \"x86_64\", target_arch = \"x86\"))": [
+              {
+                "id": "cpufeatures 0.2.9",
+                "target": "cpufeatures"
+              }
+            ]
+          }
+        },
+        "edition": "2018",
+        "version": "0.10.8"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
     "sha3 0.9.1": {
       "name": "sha3",
       "version": "0.9.1",
@@ -5661,6 +5771,10 @@
               "target": "cxx"
             },
             {
+              "id": "digest 0.10.7",
+              "target": "digest"
+            },
+            {
               "id": "ff 0.12.1",
               "target": "ff"
             },
@@ -5673,8 +5787,16 @@
               "target": "halo2curves"
             },
             {
+              "id": "num-bigint 0.4.3",
+              "target": "num_bigint"
+            },
+            {
               "id": "rand_core 0.6.4",
               "target": "rand_core"
+            },
+            {
+              "id": "sha2 0.10.8",
+              "target": "sha2"
             }
           ],
           "selects": {}
@@ -6391,6 +6513,28 @@
       "aarch64-apple-darwin",
       "aarch64-apple-ios",
       "aarch64-apple-ios-sim"
+    ],
+    "cfg(any(target_arch = \"aarch64\", target_arch = \"x86_64\", target_arch = \"x86\"))": [
+      "aarch64-apple-darwin",
+      "aarch64-apple-ios",
+      "aarch64-apple-ios-sim",
+      "aarch64-fuchsia",
+      "aarch64-linux-android",
+      "aarch64-pc-windows-msvc",
+      "aarch64-unknown-linux-gnu",
+      "i686-apple-darwin",
+      "i686-linux-android",
+      "i686-pc-windows-msvc",
+      "i686-unknown-freebsd",
+      "i686-unknown-linux-gnu",
+      "x86_64-apple-darwin",
+      "x86_64-apple-ios",
+      "x86_64-fuchsia",
+      "x86_64-linux-android",
+      "x86_64-pc-windows-msvc",
+      "x86_64-unknown-freebsd",
+      "x86_64-unknown-linux-gnu",
+      "x86_64-unknown-none"
     ],
     "cfg(not(all(target_arch = \"arm\", target_os = \"none\")))": [
       "aarch64-apple-darwin",

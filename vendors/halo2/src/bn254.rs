@@ -3,15 +3,16 @@ use std::{
     marker::PhantomData,
 };
 
-use ff::PrimeField;
+use ff::{Field, PrimeField};
 use halo2_proofs::{
     plonk::{sealed, Column, Fixed},
-    poly::commitment::Blind,
+    poly::commitment::{Blind, CommitmentScheme},
     transcript::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
 };
-use halo2curves::{Coordinates, CurveAffine};
+use halo2curves::{Coordinates, CurveAffine, FieldExt};
+use num_bigint::BigUint;
 
 use tachyon_rs::math::elliptic_curves::bn::bn254::{
     Fr as FrImpl, G1JacobianPoint as G1JacobianPointImpl, G1Point2 as G1Point2Impl,
@@ -76,6 +77,28 @@ pub mod ffi {
         fn new_blake2b_writer() -> UniquePtr<Blake2bWriter>;
         fn update(self: Pin<&mut Blake2bWriter>, data: &[u8]);
         fn finalize(self: Pin<&mut Blake2bWriter>, result: &mut [u8; 64]);
+        fn state(&self) -> Vec<u8>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_poseidon_writer.h");
+
+        type PoseidonWriter;
+
+        fn new_poseidon_writer() -> UniquePtr<PoseidonWriter>;
+        fn update(self: Pin<&mut PoseidonWriter>, data: &[u8]);
+        fn squeeze(self: Pin<&mut PoseidonWriter>) -> Box<Fr>;
+        fn state(&self) -> Vec<u8>;
+    }
+
+    unsafe extern "C++" {
+        include!("vendors/halo2/include/bn254_sha256_writer.h");
+
+        type Sha256Writer;
+
+        fn new_sha256_writer() -> UniquePtr<Sha256Writer>;
+        fn update(self: Pin<&mut Sha256Writer>, data: &[u8]);
+        fn finalize(self: Pin<&mut Sha256Writer>, result: &mut [u8; 32]);
         fn state(&self) -> Vec<u8>;
     }
 
@@ -161,16 +184,16 @@ pub mod ffi {
     }
 }
 
+pub trait TranscriptWriteState<C: CurveAffine, E: EncodedChallenge<C>>:
+    TranscriptWrite<C, E>
+{
+    fn state(&self) -> Vec<u8>;
+}
+
 pub struct Blake2bWrite<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
     state: cxx::UniquePtr<ffi::Blake2bWriter>,
     writer: W,
     _marker: PhantomData<(W, C, E)>,
-}
-
-impl<W: Write, C: CurveAffine> Blake2bWrite<W, C, Challenge255<C>> {
-    pub fn state(&self) -> Vec<u8> {
-        self.state.state()
-    }
 }
 
 impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
@@ -226,6 +249,14 @@ impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
     }
 }
 
+impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
+    for Blake2bWrite<W, C, Challenge255<C>>
+{
+    fn state(&self) -> Vec<u8> {
+        self.state.state()
+    }
+}
+
 impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
     for Blake2bWrite<W, C, Challenge255<C>>
 {
@@ -244,14 +275,247 @@ impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
     }
 }
 
-pub struct ProvingKey {
-    inner: cxx::UniquePtr<ffi::ProvingKey>,
+pub struct PoseidonWrite<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
+    state: cxx::UniquePtr<ffi::PoseidonWriter>,
+    writer: W,
+    _marker: PhantomData<(W, C, E)>,
 }
 
-impl ProvingKey {
-    pub fn from(data: &[u8]) -> ProvingKey {
+fn field_to_bn<F: FieldExt>(f: &F) -> BigUint {
+    BigUint::from_bytes_le(f.to_repr().as_ref())
+}
+
+/// Input a big integer `bn`, compute a field element `f`
+/// such that `f == bn % F::MODULUS`.
+fn bn_to_field<F: FieldExt>(bn: &BigUint) -> F {
+    let mut buf = bn.to_bytes_le();
+    buf.resize(64, 0u8);
+
+    let mut buf_array = [0u8; 64];
+    buf_array.copy_from_slice(buf.as_ref());
+    F::from_bytes_wide(&buf_array)
+}
+
+/// Input a base field element `b`, output a scalar field
+/// element `s` s.t. `s == b % ScalarField::MODULUS`
+fn base_to_scalar<C: CurveAffine>(base: &C::Base) -> C::Scalar {
+    let bn = field_to_bn(base);
+    // bn_to_field will perform a mod reduction
+    bn_to_field(&bn)
+}
+
+impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
+    for PoseidonWrite<W, C, Challenge255<C>>
+{
+    fn squeeze_challenge(&mut self) -> Challenge255<C> {
+        let scalar = *unsafe {
+            std::mem::transmute::<_, Box<halo2curves::bn256::Fr>>(self.state.pin_mut().squeeze())
+        };
+        let mut scalar_bytes = scalar.to_repr().as_ref().to_vec();
+        scalar_bytes.resize(64, 0u8);
+        Challenge255::<C>::new(&scalar_bytes.try_into().unwrap())
+    }
+
+    fn common_point(&mut self, point: C) -> io::Result<()> {
+        let coords: Coordinates<C> = Option::from(point.coordinates()).ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                "cannot write points at infinity to the transcript",
+            )
+        })?;
+        let x = coords.x();
+        let y = coords.y();
+        let slice = &[base_to_scalar::<C>(x), base_to_scalar::<C>(y)];
+        let bytes = std::mem::size_of::<C::Scalar>() * 2;
+        unsafe {
+            self.state.pin_mut().update(std::slice::from_raw_parts(
+                slice.as_ptr() as *const u8,
+                bytes,
+            ));
+        }
+
+        Ok(())
+    }
+
+    fn common_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        let slice = &[scalar];
+        let bytes = std::mem::size_of::<C::Scalar>();
+        unsafe {
+            self.state.pin_mut().update(std::slice::from_raw_parts(
+                slice.as_ptr() as *const u8,
+                bytes,
+            ));
+        }
+
+        Ok(())
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
+    for PoseidonWrite<W, C, Challenge255<C>>
+{
+    fn write_point(&mut self, point: C) -> io::Result<()> {
+        self.common_point(point)?;
+        let compressed = point.to_bytes();
+        self.writer.write_all(compressed.as_ref())
+    }
+
+    fn write_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        self.common_scalar(scalar)?;
+        let data = scalar.to_repr();
+        self.writer.write_all(data.as_ref())
+    }
+}
+
+impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>> PoseidonWrite<W, C, E> {
+    /// Initialize a transcript given an output buffer.
+    pub fn init(writer: W) -> Self {
+        PoseidonWrite {
+            state: ffi::new_poseidon_writer(),
+            writer,
+            _marker: PhantomData,
+        }
+    }
+
+    /// Conclude the interaction and return the output buffer (writer).
+    pub fn finalize(self) -> W {
+        // TODO: handle outstanding scalars? see issue #138
+        self.writer
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
+    for PoseidonWrite<W, C, Challenge255<C>>
+{
+    fn state(&self) -> Vec<u8> {
+        self.state.state()
+    }
+}
+
+pub struct Sha256Write<W: Write, C: CurveAffine, E: EncodedChallenge<C>> {
+    state: cxx::UniquePtr<ffi::Sha256Writer>,
+    writer: W,
+    _marker: PhantomData<(W, C, E)>,
+}
+
+impl<W: Write, C: CurveAffine> Transcript<C, Challenge255<C>>
+    for Sha256Write<W, C, Challenge255<C>>
+{
+    fn squeeze_challenge(&mut self) -> Challenge255<C> {
+        const SHA256_PREFIX_CHALLENGE: u8 = 0;
+        self.state.pin_mut().update(&[SHA256_PREFIX_CHALLENGE]);
+        let mut result: [u8; 32] = [0; 32];
+        self.state.pin_mut().finalize(&mut result);
+
+        self.state = ffi::new_sha256_writer();
+        self.state.pin_mut().update(result.as_slice());
+
+        let mut bytes = result.to_vec();
+        bytes.resize(64, 0u8);
+        Challenge255::<C>::new(&bytes.try_into().unwrap())
+    }
+
+    fn common_point(&mut self, point: C) -> io::Result<()> {
+        const SHA256_PREFIX_POINT: u8 = 1;
+        self.state.pin_mut().update(&[0u8; 31]);
+        self.state.pin_mut().update(&[SHA256_PREFIX_POINT]);
+        let coords: Coordinates<C> = Option::from(point.coordinates()).ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::Other,
+                "cannot write points at infinity to the transcript",
+            )
+        })?;
+
+        for base in &[coords.x(), coords.y()] {
+            let mut buf = base.to_repr().as_ref().to_vec();
+            buf.resize(32, 0u8);
+            buf.reverse();
+            self.state.pin_mut().update(buf.as_slice());
+        }
+
+        Ok(())
+    }
+
+    fn common_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        const SHA256_PREFIX_SCALAR: u8 = 2;
+        self.state.pin_mut().update(&[0u8; 31]);
+        self.state.pin_mut().update(&[SHA256_PREFIX_SCALAR]);
+
+        {
+            let mut buf = scalar.to_repr().as_ref().to_vec();
+            buf.resize(32, 0u8);
+            buf.reverse();
+            self.state.pin_mut().update(buf.as_slice());
+        }
+
+        Ok(())
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWrite<C, Challenge255<C>>
+    for Sha256Write<W, C, Challenge255<C>>
+{
+    fn write_point(&mut self, point: C) -> io::Result<()> {
+        self.common_point(point)?;
+
+        let coords = point.coordinates();
+        let x = coords
+            .map(|v| *v.x())
+            .unwrap_or(<C as CurveAffine>::Base::zero());
+        let y = coords
+            .map(|v| *v.y())
+            .unwrap_or(<C as CurveAffine>::Base::zero());
+
+        for base in &[&x, &y] {
+            self.writer.write_all(base.to_repr().as_ref())?;
+        }
+
+        Ok(())
+    }
+
+    fn write_scalar(&mut self, scalar: C::Scalar) -> io::Result<()> {
+        self.common_scalar(scalar)?;
+        let data = scalar.to_repr();
+
+        self.writer.write_all(data.as_ref())
+    }
+}
+
+impl<W: Write, C: CurveAffine> TranscriptWriteState<C, Challenge255<C>>
+    for Sha256Write<W, C, Challenge255<C>>
+{
+    fn state(&self) -> Vec<u8> {
+        self.state.state()
+    }
+}
+
+impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>> Sha256Write<W, C, E> {
+    /// Initialize a transcript given an output buffer.
+    pub fn init(writer: W) -> Self {
+        Sha256Write {
+            state: ffi::new_sha256_writer(),
+            writer,
+            _marker: PhantomData,
+        }
+    }
+
+    /// Conclude the interaction and return the output buffer (writer).
+    pub fn finalize(self) -> W {
+        // TODO: handle outstanding scalars? see issue #138
+        self.writer
+    }
+}
+
+pub struct ProvingKey<C: CurveAffine> {
+    inner: cxx::UniquePtr<ffi::ProvingKey>,
+    _marker: PhantomData<C>,
+}
+
+impl<C: CurveAffine> ProvingKey<C> {
+    pub fn from(data: &[u8]) -> ProvingKey<C> {
         ProvingKey {
             inner: ffi::new_proving_key(data),
+            _marker: PhantomData,
         }
     }
 
@@ -316,9 +580,12 @@ impl ProvingKey {
     }
 
     // pk.vk.transcript_repr
-    pub fn transcript_repr(&mut self, prover: &SHPlonkProver) -> halo2curves::bn256::Fr {
+    pub fn transcript_repr<Scheme: CommitmentScheme>(
+        &mut self,
+        prover: &SHPlonkProver<Scheme>,
+    ) -> C::Scalar {
         *unsafe {
-            std::mem::transmute::<_, Box<halo2curves::bn256::Fr>>(
+            std::mem::transmute::<_, Box<C::Scalar>>(
                 self.inner.pin_mut().transcript_repr(&prover.inner),
             )
         }
@@ -406,15 +673,17 @@ impl Poly {
     }
 }
 
-pub struct SHPlonkProver {
+pub struct SHPlonkProver<Scheme: CommitmentScheme> {
     inner: cxx::UniquePtr<ffi::SHPlonkProver>,
+    _marker: PhantomData<Scheme>,
 }
 
-impl SHPlonkProver {
-    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver {
+impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
+    pub fn new(transcript_type: u8, k: u32, s: &halo2curves::bn256::Fr) -> SHPlonkProver<Scheme> {
         let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
         SHPlonkProver {
             inner: ffi::new_shplonk_prover(transcript_type, k, cpp_s),
+            _marker: PhantomData,
         }
     }
 
@@ -426,15 +695,17 @@ impl SHPlonkProver {
         self.inner.n()
     }
 
-    pub fn commit(&self, poly: &Poly) -> halo2curves::bn256::G1 {
+    pub fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
         *unsafe {
-            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(self.inner.commit(&poly.inner))
+            std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
+                self.inner.commit(&poly.inner),
+            )
         }
     }
 
-    pub fn commit_lagrange(&self, evals: &Evals) -> halo2curves::bn256::G1 {
+    pub fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt {
         *unsafe {
-            std::mem::transmute::<_, Box<halo2curves::bn256::G1>>(
+            std::mem::transmute::<_, Box<<Scheme::Curve as CurveAffine>::CurveExt>>(
                 self.inner.commit_lagrange(&evals.inner),
             )
         }
@@ -469,13 +740,13 @@ impl SHPlonkProver {
         self.inner.pin_mut().set_transcript(state)
     }
 
-    pub fn set_extended_domain(&mut self, pk: &ProvingKey) {
+    pub fn set_extended_domain(&mut self, pk: &ProvingKey<Scheme::Curve>) {
         self.inner.pin_mut().set_extended_domain(&pk.inner)
     }
 
     pub fn create_proof(
         &mut self,
-        key: &mut ProvingKey,
+        key: &mut ProvingKey<Scheme::Curve>,
         instance_singles: &mut [InstanceSingle],
         advice_singles: &mut [AdviceSingle],
         challenges: &[Fr],

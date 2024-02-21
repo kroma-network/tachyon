@@ -1,4 +1,4 @@
-#include "vendors/halo2/include/bn254_blake2b_writer.h"
+#include "vendors/halo2/include/bn254_sha256_writer.h"
 
 #include <string.h>
 
@@ -6,30 +6,29 @@
 
 namespace tachyon::halo2_api::bn254 {
 
-Blake2bWriter::Blake2bWriter()
+Sha256Writer::Sha256Writer()
     : writer_(tachyon_halo2_bn254_transcript_writer_create(
-          TACHYON_HALO2_BLAKE2B_TRANSCRIPT)) {}
+          TACHYON_HALO2_SHA256_TRANSCRIPT)) {}
 
-Blake2bWriter::~Blake2bWriter() {
+Sha256Writer::~Sha256Writer() {
   tachyon_halo2_bn254_transcript_writer_destroy(writer_);
 }
 
-void Blake2bWriter::update(rust::Slice<const uint8_t> data) {
+void Sha256Writer::update(rust::Slice<const uint8_t> data) {
   tachyon_halo2_bn254_transcript_writer_update(writer_, data.data(),
                                                data.size());
 }
 
-void Blake2bWriter::finalize(
-    std::array<uint8_t, BLAKE2B512_DIGEST_LENGTH>& result) {
-  uint8_t data[BLAKE2B512_DIGEST_LENGTH];
+void Sha256Writer::finalize(std::array<uint8_t, SHA256_DIGEST_LENGTH>& result) {
+  uint8_t data[SHA256_DIGEST_LENGTH];
   size_t data_size;
   tachyon_halo2_bn254_transcript_writer_finalize(writer_, data, &data_size);
-  CHECK_EQ(data_size, size_t{BLAKE2B512_DIGEST_LENGTH});
+  CHECK_EQ(data_size, size_t{SHA256_DIGEST_LENGTH});
   memcpy(result.data(), data, data_size);
 }
 
-rust::Vec<uint8_t> Blake2bWriter::state() const {
-  constexpr size_t kStateSize = sizeof(blake2b_state_st);
+rust::Vec<uint8_t> Sha256Writer::state() const {
+  constexpr size_t kStateSize = sizeof(sha256_state_st);
   rust::Vec<uint8_t> ret;
   // NOTE(chokobole): |rust::Vec<uint8_t>| doesn't have |resize()|.
   ret.reserve(kStateSize);
@@ -43,8 +42,8 @@ rust::Vec<uint8_t> Blake2bWriter::state() const {
   return ret;
 }
 
-std::unique_ptr<Blake2bWriter> new_blake2b_writer() {
-  return std::make_unique<Blake2bWriter>();
+std::unique_ptr<Sha256Writer> new_sha256_writer() {
+  return std::make_unique<Sha256Writer>();
 }
 
 }  // namespace tachyon::halo2_api::bn254

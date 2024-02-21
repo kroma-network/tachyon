@@ -6,6 +6,8 @@
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 
+#include <sstream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -45,6 +47,32 @@ struct PoseidonState {
   bool operator!=(const PoseidonState& other) const {
     return !operator==(other);
   }
+
+  std::string ToString() const {
+    std::stringstream ss;
+    ss << "[";
+    for (Eigen::Index i = 0; i < elements.size(); ++i) {
+      ss << elements[i].ToString();
+      if (i != elements.size() - 1) {
+        ss << ", ";
+      }
+    }
+    ss << "]";
+    return ss.str();
+  }
+
+  std::string ToHexString(bool pad_zero = false) const {
+    std::stringstream ss;
+    ss << "[";
+    for (Eigen::Index i = 0; i < elements.size(); ++i) {
+      ss << elements[i].ToHexString(pad_zero);
+      if (i != elements.size() - 1) {
+        ss << ", ";
+      }
+    }
+    ss << "]";
+    return ss.str();
+  }
 };
 
 // Poseidon Sponge Hash: Absorb → Permute → Squeeze
@@ -56,11 +84,8 @@ struct PoseidonState {
 // Squeeze: Squeeze elements out of the sponge.
 // This implementation of Poseidon is entirely Fractal's implementation in
 // [COS20][cos] with small syntax changes. See https://eprint.iacr.org/2019/1076
-// TODO(chokobole): We don't put `final` here because there's a child class that
-// inherits this, which is not a usual case.
-// See `tachyon/zk/plonk/halo2/poseidon_sponge.h`.
 template <typename PrimeField>
-struct PoseidonSponge
+struct PoseidonSponge final
     : public FieldBasedCryptographicSponge<PoseidonSponge<PrimeField>> {
   using F = PrimeField;
 
