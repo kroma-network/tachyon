@@ -589,7 +589,7 @@ mod test {
                 &mut tachyon_pk,
                 &[circuit.clone(), circuit],
                 public_inputs3.as_slice(),
-                rng.clone(),
+                rng,
                 &mut transcript,
             )
             .expect("proof generation should not fail");
