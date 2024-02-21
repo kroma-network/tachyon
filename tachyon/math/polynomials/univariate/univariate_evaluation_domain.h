@@ -210,10 +210,6 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       // lᵢ = (Z_H(𝜏) * vᵢ)⁻¹ and rᵢ = 𝜏 - h * gⁱ. Notice that
       // since Z_H(𝜏) is i-independent, and vᵢ = g * vᵢ₋₁, it follows
       // that lᵢ = g⁻¹ * lᵢ₋₁
-      // TODO(TomTaehoonKim): consider caching the computation of |l_i| to save
-      // N multiplications
-      // (See
-      // https://github.com/arkworks-rs/algebra/blob/4152c41769ae0178fc110bfd15cc699673a2ce4b/poly/src/domain/mod.rs#L198)
 
       // t = m * hᵐ = v₀⁻¹ * h
       F t = size_as_field_element_ * offset_pow_size_;
@@ -224,17 +220,22 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       //    = (Z_H(𝜏) * gᵢ * v₀)⁻¹
       F l_i = (z_h_at_tau * omega_i).Inverse() * t;
       F negative_omega_i = -omega_i;
-      std::vector<F> lagrange_coefficients_inverse =
-          base::CreateVector(size, [this, &l_i, &tau, &negative_omega_i]() {
-            // 𝜏 - h * gⁱ
-            F r_i = tau + negative_omega_i;
-            // (Z_H(𝜏) * vᵢ)⁻¹ * (𝜏 - h * gⁱ)
-            F ret = l_i * r_i;
-            // lᵢ₊₁ = g⁻¹ * lᵢ
-            l_i *= group_gen_inv_;
-            // -h * gⁱ⁺¹
-            negative_omega_i *= group_gen_;
-            return ret;
+      std::vector<F> lagrange_coefficients_inverse(size);
+      base::Parallelize(
+          lagrange_coefficients_inverse,
+          [this, &l_i, &tau, &negative_omega_i](
+              absl::Span<F> chunk, size_t chunk_idx, size_t chunk_size) {
+            size_t n = chunk_idx * chunk_size;
+            F l_i_pow = l_i * group_gen_inv_.Pow(n);
+            F negative_omega_i_pow = negative_omega_i * group_gen_.Pow(n);
+            for (F& c : chunk) {
+              // (Z_H(𝜏) * vᵢ)⁻¹ * (𝜏 - h * gⁱ)
+              c = l_i_pow * (tau + negative_omega_i_pow);
+              // lᵢ₊₁ = g⁻¹ * lᵢ
+              l_i_pow *= group_gen_inv_;
+              // (- h * gⁱ) * g
+              negative_omega_i_pow *= group_gen_;
+            }
           });
 
       // Invert |lagrange_coefficients_inverse| to get the actual coefficients,
