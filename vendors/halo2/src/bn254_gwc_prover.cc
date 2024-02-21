@@ -98,7 +98,12 @@ void GWCProver::create_proof(ProvingKey& key,
 
   tachyon_halo2_bn254_argument_data* data =
       tachyon_halo2_bn254_argument_data_create(num_circuits);
+
   tachyon_halo2_bn254_argument_data_reserve_challenges(data, challenges.size());
+  for (size_t i = 0; i < challenges.size(); ++i) {
+    tachyon_halo2_bn254_argument_data_add_challenge(
+        data, reinterpret_cast<const tachyon_bn254_fr*>(&challenges[i]));
+  }
 
   size_t num_bytes = base::EstimateSize(rs::RustVec());
   for (size_t i = 0; i < num_circuits; ++i) {
