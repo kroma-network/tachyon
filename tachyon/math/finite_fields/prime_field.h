@@ -99,7 +99,12 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
 
   constexpr bool IsZero() const { return value_.IsZero(); }
 
-  constexpr bool IsOne() const { return ToBigInt().IsOne(); }
+  constexpr bool IsOne() const {
+    for (size_t i = 0; i < N; ++i) {
+      if (value_[i] != Config::kOne[i]) return false;
+    }
+    return true;
+  }
 
   std::string ToString() const { return ToBigInt().ToString(); }
   std::string ToHexString(bool pad_zero = false) const {

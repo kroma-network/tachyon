@@ -99,7 +99,12 @@ class PrimeFieldGpuDebug final
 
   constexpr bool IsZero() const { return ToBigInt().IsZero(); }
 
-  constexpr bool IsOne() const { return ToBigInt().IsOne(); }
+  constexpr bool IsOne() const {
+    for (size_t i = 0; i < N; ++i) {
+      if (value_[i] != Config::kOne[i]) return false;
+    }
+    return true;
+  }
 
   constexpr bool IsEven() const { return value_.IsEven(); }
 

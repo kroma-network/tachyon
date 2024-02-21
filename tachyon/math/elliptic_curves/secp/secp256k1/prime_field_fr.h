@@ -103,7 +103,9 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsSecp256k1Fr>> final
 
   constexpr bool IsZero() const { return Fnec_rawIsZero(value_.limbs); }
 
-  constexpr bool IsOne() const { return ToBigInt().IsOne(); }
+  constexpr bool IsOne() const {
+    return Fnec_rawIsEq(value_.limbs, Config::kOne.limbs);
+  }
 
   std::string ToString() const { return ToBigInt().ToString(); }
   std::string ToHexString(bool pad_zero = false) const {
