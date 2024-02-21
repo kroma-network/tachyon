@@ -167,18 +167,17 @@ class MultiplicativeSemigroup {
   // return: [c, c * g, c * g², ..., c * g^{|size| - 1}]
   constexpr static std::vector<MulResult> GetSuccessivePowers(
       size_t size, const G& generator, const G& c = G::One()) {
-    std::vector<MulResult> ret;
-    ret.resize(size);
-    size_t num_elems_per_thread =
-        base::GetNumElementsPerThread(ret, kDefaultParallelThreshold);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      MulResult pow = generator.Pow(i);
-      if (!c.IsOne()) pow *= c;
-      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        ret[j] = pow;
-        pow *= generator;
-      }
-    }
+    std::vector<MulResult> ret(size);
+    base::Parallelize(
+        ret, [&generator, &c](absl::Span<G> chunk, size_t chunk_offset,
+                              size_t chunk_size) {
+          MulResult pow = generator.Pow(chunk_offset * chunk_size);
+          if (!c.IsOne()) pow *= c;
+          for (G& v : chunk) {
+            v = pow;
+            pow *= generator;
+          }
+        });
     return ret;
   }
 
@@ -313,17 +312,16 @@ class AdditiveSemigroup {
   // it.
   constexpr static std::vector<AddResult> GetSuccessiveScalarMuls(
       size_t size, const G& generator) {
-    std::vector<AddResult> ret;
-    ret.resize(size);
-    size_t num_elems_per_thread =
-        base::GetNumElementsPerThread(ret, kDefaultParallelThreshold);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      AddResult scalar_mul = generator.ScalarMul(i);
-      for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
-        ret[j] = scalar_mul;
-        scalar_mul += generator;
-      }
-    }
+    std::vector<AddResult> ret(size);
+    base::Parallelize(
+        ret, [&generator](absl::Span<G> chunk, size_t chunk_offset,
+                          size_t chunk_size) {
+          AddResult scalar_mul = generator.ScalarMul(chunk_offset * chunk_size);
+          for (G& v : chunk) {
+            v = scalar_mul;
+            scalar_mul += generator;
+          }
+        });
     return ret;
   }
 
