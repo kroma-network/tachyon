@@ -172,7 +172,8 @@ class MultiplicativeSemigroup {
     size_t num_elems_per_thread =
         base::GetNumElementsPerThread(ret, kDefaultParallelThreshold);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += num_elems_per_thread) {
-      MulResult pow = c * generator.Pow(i);
+      MulResult pow = generator.Pow(i);
+      if (!c.IsOne()) pow *= c;
       for (size_t j = i; j < i + num_elems_per_thread && j < size; ++j) {
         ret[j] = pow;
         pow *= generator;

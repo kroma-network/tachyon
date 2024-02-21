@@ -176,7 +176,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     // Multiply |product_inv| by |coeff|, so all inverses will be scaled by
     // |coeff|.
     // c * (a₁ * a₂ * ... *  aₙ)⁻¹
-    product_inv *= coeff;
+    if (!coeff.IsOne()) product_inv *= coeff;
 
     // Second pass: iterate backwards to compute inverses.
     //              [c * a₁⁻¹, c * a₂,⁻¹ ..., c * aₙ⁻¹]
