@@ -65,9 +65,6 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
   // |t_evaluations| = [ζⁿ, ζⁿ * w'ⁿ, ζⁿ * w'²ⁿ, ...]
   std::vector<F> t_evaluations =
       F::GetSuccessivePowers(t_evaluations_size, coset_gen_pow_n, zeta_pow_n);
-  CHECK_EQ(t_evaluations.size(),
-           size_t{1} << (extended_domain->log_size_of_group() -
-                         domain->log_size_of_group()));
 
   // |t_evaluations| = [ζⁿ - 1, ζⁿ * w'ⁿ - 1, ζⁿ * w'²ⁿ - 1, ...]
   base::Parallelize(t_evaluations, [](absl::Span<F> chunk) {
