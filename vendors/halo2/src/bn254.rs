@@ -304,7 +304,8 @@ impl<W: Write, C: CurveAffine> TranscriptWriterBuffer<W, C, Challenge255<C>>
     }
 
     fn finalize(self) -> W {
-        // TODO: handle outstanding scalars? see issue #138
+        // TODO: handle outstanding scalars?
+        // See https://github.com/zcash/halo2/issues/138.
         self.writer
     }
 }
@@ -413,7 +414,8 @@ impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>> PoseidonWrite<W, C, E> {
 
     /// Conclude the interaction and return the output buffer (writer).
     pub fn finalize(self) -> W {
-        // TODO: handle outstanding scalars? see issue #138
+        // TODO: handle outstanding scalars?
+        // See https://github.com/zcash/halo2/issues/138.
         self.writer
     }
 }
@@ -535,7 +537,8 @@ impl<W: Write, C: CurveAffine, E: EncodedChallenge<C>> Sha256Write<W, C, E> {
 
     /// Conclude the interaction and return the output buffer (writer).
     pub fn finalize(self) -> W {
-        // TODO: handle outstanding scalars? see issue #138
+        // TODO: handle outstanding scalars?
+        // See https://github.com/zcash/halo2/issues/138.
         self.writer
     }
 }
