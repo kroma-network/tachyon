@@ -51,10 +51,8 @@ std::unique_ptr<RationalEvals> SHPlonkProver::empty_rational_evals() const {
 }
 
 std::unique_ptr<Poly> SHPlonkProver::ifft(const Evals& evals) const {
-  // NOTE(chokobole): The zero degrees might be removed. This might cause an
-  // unexpected error if you use this carelessly. Since this is only used to
-  // compute instance polynomial and this is used only in Tachyon side, so it's
-  // fine.
+  // NOTE(chokobole): Leading zero values may be removed at this point, so use
+  // this function cautiously. Tachyon currently uses this safely.
   return std::make_unique<Poly>(tachyon_bn254_univariate_evaluation_domain_ifft(
       tachyon_halo2_bn254_shplonk_prover_get_domain(prover_), evals.evals()));
 }
