@@ -351,7 +351,7 @@ mod test {
         // of the instance column, so we position it there in our public inputs.
         let public_inputs = vec![c];
         let public_inputs2 = vec![&public_inputs[..]];
-        let public_inputs3 = vec![&public_inputs2[..]];
+        let public_inputs3 = vec![&public_inputs2[..], &public_inputs2[..]];
 
         // Given the correct public input, our circuit will verify.
         let s = Fr::from(2);
@@ -373,7 +373,7 @@ mod test {
             >(
                 &params,
                 &pk,
-                &[circuit.clone()],
+                &[circuit.clone(), circuit.clone()],
                 public_inputs3.as_slice(),
                 rng.clone(),
                 &mut transcript,
@@ -396,7 +396,7 @@ mod test {
             tachyon_create_proof::<_, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
-                &[circuit],
+                &[circuit.clone(), circuit],
                 public_inputs3.as_slice(),
                 rng,
                 &mut transcript,
@@ -436,7 +436,7 @@ mod test {
         // of the instance column, so we position it there in our public inputs.
         let public_inputs = vec![c];
         let public_inputs2 = vec![&public_inputs[..]];
-        let public_inputs3 = vec![&public_inputs2[..]];
+        let public_inputs3 = vec![&public_inputs2[..], &public_inputs2[..]];
 
         // Given the correct public input, our circuit will verify.
         let s = Fr::from(2);
@@ -461,7 +461,7 @@ mod test {
             >(
                 &params,
                 &pk,
-                &[circuit.clone()],
+                &[circuit.clone(), circuit.clone()],
                 public_inputs3.as_slice(),
                 rng.clone(),
                 &mut transcript,
@@ -484,7 +484,7 @@ mod test {
             tachyon_create_proof::<_, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
-                &[circuit.clone()],
+                &[circuit.clone(), circuit.clone()],
                 public_inputs3.as_slice(),
                 rng.clone(),
                 &mut transcript,
@@ -511,7 +511,7 @@ mod test {
             >(
                 &params,
                 &pk,
-                &[circuit.clone()],
+                &[circuit.clone(), circuit.clone()],
                 public_inputs3.as_slice(),
                 rng.clone(),
                 &mut transcript,
@@ -534,7 +534,7 @@ mod test {
             tachyon_create_proof::<_, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
-                &[circuit.clone()],
+                &[circuit.clone(), circuit.clone()],
                 public_inputs3.as_slice(),
                 rng.clone(),
                 &mut transcript,
@@ -562,7 +562,7 @@ mod test {
             >(
                 &params,
                 &pk,
-                &[circuit.clone()],
+                &[circuit.clone(), circuit.clone()],
                 public_inputs3.as_slice(),
                 rng.clone(),
                 &mut transcript,
@@ -585,7 +585,7 @@ mod test {
             tachyon_create_proof::<_, _, _, _, _>(
                 &mut prover,
                 &mut tachyon_pk,
-                &[circuit.clone()],
+                &[circuit.clone(), circuit],
                 public_inputs3.as_slice(),
                 rng.clone(),
                 &mut transcript,
