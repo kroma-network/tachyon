@@ -256,12 +256,17 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FFTCorrectness) {
   using DensePoly = typename Domain::DensePoly;
   using Evals = typename Domain::Evals;
 
+  // NOTE(TomTaehoonKim): |degree| is set to 2⁵ -1 for default, but for the
+  // |Radix2EvaluationDomain| test with openmp, it is updated to
+  // |Radix2EvaluationDomain::kDefaultMinNumChunksForCompaction| - 1.
+  size_t log_degree = 5;
+  size_t degree = (size_t{1} << log_degree) - 1;
 #if defined(TACHYON_HAS_OPENMP)
-  const size_t log_degree = 7;
-#else
-  const size_t log_degree = 5;
+  if constexpr (std::is_same_v<F, bls12_381::Fr>) {
+    degree = Domain::kDefaultMinNumChunksForCompaction - 1;
+    log_degree = base::bits::SafeLog2Ceiling(degree);
+  }
 #endif
-  const size_t degree = (size_t{1} << log_degree) - 1;
   DensePoly rand_poly = DensePoly::Random(degree);
   for (size_t log_domain_size = log_degree; log_domain_size < log_degree + 2;
        ++log_domain_size) {
