@@ -88,27 +88,29 @@ impl<F: FieldExt> Circuit<F> for SimpleLookupCircuit<F> {
 mod test {
     use std::marker::PhantomData;
 
-    use crate::bn254::{
-        Blake2bWrite as TachyonBlake2bWrite, GWCProver, PoseidonWrite as TachyonPoseidonWrite,
-        ProvingKey as TachyonProvingKey, SHPlonkProver, Sha256Write as TachyonSha256Write,
-        TachyonProver,
-    };
-    use crate::circuits::simple_lookup_circuit::SimpleLookupCircuit;
-    use crate::consts::{TranscriptType, SEED};
-    use crate::prover::create_proof as tachyon_create_proof;
-    use crate::sha::ShaWrite;
-    use crate::xor_shift_rng::XORShiftRng;
-    use halo2_proofs::transcript::PoseidonWrite;
     use halo2_proofs::{
         plonk::keygen_pk2,
         poly::kzg::{
             commitment::{KZGCommitmentScheme, ParamsKZG},
             multiopen::{ProverGWC, ProverSHPLONK},
         },
-        transcript::{Blake2bWrite, Challenge255, TranscriptWriterBuffer},
+        transcript::{Blake2bWrite, Challenge255, PoseidonWrite, TranscriptWriterBuffer},
     };
     use halo2curves::bn256::{Bn256, Fr, G1Affine};
     use rand_core::SeedableRng;
+
+    use crate::{
+        bn254::{
+            Blake2bWrite as TachyonBlake2bWrite, GWCProver, PoseidonWrite as TachyonPoseidonWrite,
+            ProvingKey as TachyonProvingKey, SHPlonkProver, Sha256Write as TachyonSha256Write,
+            TachyonProver,
+        },
+        circuits::simple_lookup_circuit::SimpleLookupCircuit,
+        consts::{TranscriptType, SEED},
+        prover::create_proof as tachyon_create_proof,
+        sha::ShaWrite,
+        xor_shift_rng::XORShiftRng,
+    };
 
     #[test]
     fn test_create_gwc_proof() {
