@@ -17,7 +17,7 @@ SimpleECBenchmarkReporter::SimpleECBenchmarkReporter(
   for (uint64_t num : nums) {
     targets_.push_back(base::NumberToString(num));
   }
-  results_.resize(nums.size());
+  times_.resize(nums.size());
 }
 
 }  // namespace tachyon

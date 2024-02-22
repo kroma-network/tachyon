@@ -30,7 +30,7 @@ void SimpleBenchmarkReporter::Show() {
   for (size_t i = 0; i < targets_.size(); ++i) {
     writer.SetElement(i, 0, targets_[i]);
     for (size_t j = 0; j < column_headers_.size(); ++j) {
-      writer.SetElement(i, j + 1, base::NumberToString(results_[i][j]));
+      writer.SetElement(i, j + 1, base::NumberToString(times_[i][j]));
     }
   }
   writer.Print(true);
@@ -39,7 +39,7 @@ void SimpleBenchmarkReporter::Show() {
   py::scoped_interpreter guard{};
   auto plt = pyplot::import();
 
-  const double kBarWidth = 1.0 / (results_[0].size() + 1);
+  const double kBarWidth = 1.0 / (times_[0].size() + 1);
 
   std::vector<size_t> x_positions =
       base::CreateRangedVector(static_cast<size_t>(0), targets_.size());
@@ -50,7 +50,7 @@ void SimpleBenchmarkReporter::Show() {
     double offset = kBarWidth * i;
     std::vector<double> values;
     for (size_t j = 0; j < targets_.size(); ++j) {
-      values.push_back(results_[j][i]);
+      values.push_back(times_[j][i]);
     }
     auto rects = ax.bar(
         Args(py::reinterpret_borrow<py::tuple>(py::cast(base::Map(
