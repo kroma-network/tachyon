@@ -97,7 +97,7 @@ class PrimeFieldGpuDebug final
   const value_type& value() const { return value_; }
   size_t GetLimbSize() const { return N; }
 
-  constexpr bool IsZero() const { return ToBigInt().IsZero(); }
+  constexpr bool IsZero() const { return value_.IsZero(); }
 
   constexpr bool IsOne() const {
     for (size_t i = 0; i < N; ++i) {

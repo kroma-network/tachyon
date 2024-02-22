@@ -78,9 +78,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
     return FromBigInt(big_int);
   }
 
-  static void Init() {
-    // Do nothing.
-  }
+  static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
   const value_type& value() const { return value_; }
 
@@ -92,7 +90,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   std::string ToHexString(bool pad_zero = false) const {
     std::string str = Goldilocks::toString(value_, 16);
     if (pad_zero) {
-      str = base::ToHexStringWithLeadingZero(str);
+      str = base::ToHexStringWithLeadingZero(str, 16);
     }
     return base::MaybePrepend0x(str);
   }
