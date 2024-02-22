@@ -12,7 +12,6 @@
 
 #include "absl/strings/substitute.h"
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/expressions/advice_expression.h"
 #include "tachyon/zk/expressions/challenge_expression.h"
 #include "tachyon/zk/expressions/constant_expression.h"
@@ -210,10 +209,10 @@ class GraphEvaluator : public Evaluator<F, ValueSource> {
   }
 
   std::vector<F> CreateInitialIntermediates() const {
-    return base::CreateVector(num_intermediates_, F::Zero());
+    return std::vector<F>(num_intermediates_);
   }
   std::vector<int32_t> CreateEmptyRotations() const {
-    return base::CreateVector(rotations_.size(), 0);
+    return std::vector<int32_t>(rotations_.size(), 0);
   }
 
   // Currently does the simplest thing possible: just stores the

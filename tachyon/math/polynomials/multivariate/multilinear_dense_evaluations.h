@@ -53,7 +53,7 @@ class MultilinearDenseEvaluations {
 
   constexpr static MultilinearDenseEvaluations One(size_t degree) {
     return MultilinearDenseEvaluations(
-        base::CreateVector(size_t{1} << degree, F::One()));
+        std::vector<F>(size_t{1} << degree, F::One()));
   }
 
   constexpr static MultilinearDenseEvaluations Random(size_t degree) {
@@ -175,7 +175,7 @@ class MultilinearDenseEvaluations {
   // |degree| + 1.
   constexpr static MultilinearDenseEvaluations Zero(size_t degree) {
     MultilinearDenseEvaluations ret;
-    ret.evaluations_ = base::CreateVector(size_t{1} << degree, F::Zero());
+    ret.evaluations_ = std::vector<F>(size_t{1} << degree);
     return ret;
   }
 

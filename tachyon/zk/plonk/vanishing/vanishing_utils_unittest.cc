@@ -40,8 +40,8 @@ TEST_F(VanishingUtilsTest, GetZeta) {
 }
 
 TEST_F(VanishingUtilsTest, BuildExtendedColumnWithColumns) {
-  std::vector<std::vector<F>> columns = base::CreateVector(
-      4, [](size_t i) { return base::CreateVector(N, F(i)); });
+  std::vector<std::vector<F>> columns =
+      base::CreateVector(4, [](size_t i) { return std::vector<F>(N, F(i)); });
 
   std::vector<F> extended = BuildExtendedColumnWithColumns(columns);
   EXPECT_EQ(extended.size(), 4 * N);

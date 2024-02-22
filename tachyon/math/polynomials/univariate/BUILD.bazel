@@ -9,7 +9,6 @@ tachyon_cc_library(
         ":univariate_polynomial",
         "//tachyon/base:parallelize",
         "//tachyon/base:template_util",
-        "//tachyon/base/containers:container_util",
     ],
 )
 

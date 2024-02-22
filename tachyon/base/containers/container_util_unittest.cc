@@ -34,11 +34,6 @@ TEST(ContainerUtilTest, CreateVectorWithGenerator) {
               testing::ContainerEq(std::vector<int>{1, 2, 3, 4, 5}));
 }
 
-TEST(ContainerUtilTest, CreateVectorWithInitialValue) {
-  EXPECT_THAT(CreateVector(5, 1),
-              testing::ContainerEq(std::vector<int>{1, 1, 1, 1, 1}));
-}
-
 TEST(ContainerUtilTest, Map) {
   std::vector<int> arr({1, 2, 3});
   EXPECT_THAT(Map(arr.begin(), arr.end(),

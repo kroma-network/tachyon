@@ -29,10 +29,10 @@ class Synthesizer {
     advice_blinds_vec_.resize(num_circuits_);
     for (size_t i = 0; i < num_circuits_; ++i) {
       // And these may be assigned with random order.
-      advice_columns_vec_[i] = base::CreateVector(
-          constraint_system->num_advice_columns(), Evals::Zero());
-      advice_blinds_vec_[i] = base::CreateVector(
-          constraint_system->num_advice_columns(), F::Zero());
+      advice_columns_vec_[i] =
+          std::vector<Evals>(constraint_system->num_advice_columns());
+      advice_blinds_vec_[i] =
+          std::vector<F>(constraint_system->num_advice_columns());
     }
   }
 

@@ -17,7 +17,6 @@ tachyon_cc_library(
     hdrs = ["grand_product_argument.h"],
     deps = [
         "//tachyon/base:parallelize",
-        "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:prover_base",
     ],
 )

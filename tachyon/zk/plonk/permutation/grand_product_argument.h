@@ -4,7 +4,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 
@@ -23,7 +22,7 @@ class GrandProductArgument {
 
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
-    std::vector<F> z = base::CreateVector(size + 1, F::Zero());
+    std::vector<F> z(size + 1);
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
     base::Parallelize(grand_product, std::move(denominator_callback));
@@ -45,7 +44,7 @@ class GrandProductArgument {
 
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
-    std::vector<F> z = base::CreateVector(size + 1, F::Zero());
+    std::vector<F> z(size + 1);
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
     for (RowIndex i = 0; i < size; ++i) {
@@ -75,7 +74,7 @@ class GrandProductArgument {
                                    size_t num_cols, F& last_z) {
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex size = static_cast<RowIndex>(prover->pcs().N());
-    std::vector<F> z = base::CreateVector(size + 1, F::One());
+    std::vector<F> z(size + 1, F::One());
     absl::Span<F> grand_product = absl::MakeSpan(z).subspan(1);
 
     size_t chunk_size = base::GetNumElementsPerThread(grand_product);

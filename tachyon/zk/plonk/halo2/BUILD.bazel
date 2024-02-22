@@ -216,7 +216,6 @@ tachyon_cc_library(
     hdrs = ["synthesizer.h"],
     deps = [
         ":witness_collection",
-        "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/plonk/constraint_system",
     ],

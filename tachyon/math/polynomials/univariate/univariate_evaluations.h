@@ -71,7 +71,7 @@ class UnivariateEvaluations final
 
   constexpr static UnivariateEvaluations One(size_t degree) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = base::CreateVector(degree + 1, F::One());
+    ret.evaluations_ = std::vector<F>(degree + 1, F::One());
     return ret;
   }
 
@@ -214,7 +214,7 @@ class UnivariateEvaluations final
   // |degree| + 1.
   constexpr static UnivariateEvaluations Zero(size_t degree) {
     UnivariateEvaluations ret;
-    ret.evaluations_ = base::CreateVector(degree + 1, F::Zero());
+    ret.evaluations_ = std::vector<F>(degree + 1);
     return ret;
   }
 

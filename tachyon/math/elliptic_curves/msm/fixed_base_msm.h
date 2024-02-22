@@ -200,7 +200,7 @@ class FixedBaseMSM {
     // -------+-----------+-----------+-------+------------+------------+
 
     base_multiples_ = base::CreateVector(window_count, [window_size]() {
-      return base::CreateVector(window_size, AddResult::Zero());
+      return std::vector<AddResult>(window_size);
     });
     OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count; ++i) {
       size_t cur_window_size =

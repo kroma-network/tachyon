@@ -13,7 +13,6 @@
 
 #include "absl/container/btree_map.h"
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/lookup/lookup_pair.h"
 
@@ -52,8 +51,7 @@ template <typename PCS, typename Evals, typename F = typename Evals::Field>
     }
   }
 
-  std::vector<F> permuted_table_expressions =
-      base::CreateVector(domain_size, F::Zero());
+  std::vector<F> permuted_table_expressions(domain_size);
 
   std::vector<RowIndex> repeated_input_rows;
   repeated_input_rows.reserve(usable_rows - 1);

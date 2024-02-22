@@ -10,7 +10,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/template_util.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -38,7 +37,7 @@ bool LagrangeInterpolate(
 
   // points = [x₀, x₁, ..., xₙ₋₁]
   // |denoms[i]| = Dᵢ = 1 / (xᵢ - x₀)(xᵢ - x₁)...(xᵢ - xₙ₋₁)
-  std::vector<F> denoms = base::CreateVector(points.size(), F::One());
+  std::vector<F> denoms(points.size(), F::One());
   base::Parallelize(denoms, [&points](absl::Span<F> chunk, size_t chunk_offset,
                                       size_t chunk_size) {
     size_t i = chunk_offset * chunk_size;
