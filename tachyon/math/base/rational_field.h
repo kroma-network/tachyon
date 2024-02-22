@@ -52,14 +52,18 @@ class RationalField : public Field<RationalField<F>> {
       LOG(ERROR) << "Size of |ration_fields| and |results| do not match";
       return false;
     }
-    size_t size = std::size(ration_fields);
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
-      (*results)[i] = ration_fields[i].denominator_;
-    }
-    CHECK(F::BatchInverseInPlace(*results, coeff));
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
-      (*results)[i] *= ration_fields[i].numerator_;
-    }
+    base::Parallelize(*results,
+                      [&ration_fields](absl::Span<F> chunk, size_t chunk_offset,
+                                       size_t chunk_size) {
+                        size_t start = chunk_offset * chunk_size;
+                        for (size_t i = 0; i < chunk.size(); ++i) {
+                          chunk[i] = ration_fields[start + i].denominator_;
+                        }
+                        CHECK(F::BatchInverseInPlaceSerial(chunk));
+                        for (size_t i = 0; i < chunk.size(); ++i) {
+                          chunk[i] *= ration_fields[start + i].numerator_;
+                        }
+                      });
     return true;
   }
 
