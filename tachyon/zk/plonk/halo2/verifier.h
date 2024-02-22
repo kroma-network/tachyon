@@ -222,8 +222,7 @@ class Verifier : public VerifierBase<PCS> {
     const std::vector<F>& instances =
         instance_columns[instance_query.column().index()].evaluations();
     size_t offset = max_rotation - instance_query.rotation().value();
-    absl::Span<const F> sub_partial_lagrange_coeffs =
-        absl::MakeConstSpan(partial_lagrange_coeffs);
+    absl::Span<const F> sub_partial_lagrange_coeffs(partial_lagrange_coeffs);
     sub_partial_lagrange_coeffs =
         sub_partial_lagrange_coeffs.subspan(offset, instances.size());
     return F::SumOfProductsSerial(instances, sub_partial_lagrange_coeffs);

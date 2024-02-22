@@ -103,8 +103,8 @@ class Pippenger : public PippengerBase<Point> {
       AccumulateWindowSums(std::move(bases_first), scalars, &window_sums);
     }
 
-    *ret = PippengerBase<Point>::AccumulateWindowSums(
-        absl::MakeConstSpan(window_sums), ctx_.window_bits);
+    *ret = PippengerBase<Point>::AccumulateWindowSums(window_sums,
+                                                      ctx_.window_bits);
     return true;
   }
 
@@ -131,8 +131,7 @@ class Pippenger : public PippengerBase<Point> {
         buckets[static_cast<uint64_t>(-scalar - 1)] -= base;
       }
     }
-    *window_sum =
-        PippengerBase<Point>::AccumulateBuckets(absl::MakeConstSpan(buckets));
+    *window_sum = PippengerBase<Point>::AccumulateBuckets(buckets);
   }
 
   template <typename BaseInputIterator>
@@ -200,8 +199,7 @@ class Pippenger : public PippengerBase<Point> {
         }
       }
     }
-    *out = PippengerBase<Point>::AccumulateBuckets(absl::MakeConstSpan(buckets),
-                                                   window_sum);
+    *out = PippengerBase<Point>::AccumulateBuckets(buckets, window_sum);
   }
 
   template <typename BaseInputIterator>

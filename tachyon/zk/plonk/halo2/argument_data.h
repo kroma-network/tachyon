@@ -97,12 +97,10 @@ class ArgumentData {
 
   absl::Span<const F> GetAdviceBlinds(size_t circuit_idx) const {
     CHECK_LT(circuit_idx, GetNumCircuits());
-    return absl::MakeConstSpan(advice_blinds_vec_[circuit_idx]);
+    return advice_blinds_vec_[circuit_idx];
   }
 
-  absl::Span<const F> GetChallenges() const {
-    return absl::MakeConstSpan(challenges_);
-  }
+  absl::Span<const F> GetChallenges() const { return challenges_; }
 
   // Generate a vector of advice coefficient-formed polynomials with a vector
   // of advice evaluation-formed columns. (a.k.a. Batch IFFT)
@@ -130,14 +128,11 @@ class ArgumentData {
   std::vector<RefTable<Evals>> ExportColumnTables(
       absl::Span<const Evals> fixed_columns) const {
     CHECK(!advice_transformed_);
-    return base::CreateVector(GetNumCircuits(), [fixed_columns,
-                                                 this](size_t i) {
-      absl::Span<const Evals> advice_columns =
-          absl::MakeConstSpan(advice_columns_vec_[i]);
-      absl::Span<const Evals> instance_columns =
-          absl::MakeConstSpan(instance_columns_vec_[i]);
-      return RefTable<Evals>(fixed_columns, advice_columns, instance_columns);
-    });
+    return base::CreateVector(
+        GetNumCircuits(), [fixed_columns, this](size_t i) {
+          return RefTable<Evals>(fixed_columns, advice_columns_vec_[i],
+                                 instance_columns_vec_[i]);
+        });
   }
 
   // Return a table including every type of columns in coefficient form.
@@ -145,11 +140,8 @@ class ArgumentData {
       absl::Span<const Poly> fixed_polys) const {
     CHECK(advice_transformed_);
     return base::CreateVector(GetNumCircuits(), [fixed_polys, this](size_t i) {
-      absl::Span<const Poly> advice_polys =
-          absl::MakeConstSpan(advice_polys_vec_[i]);
-      absl::Span<const Poly> instance_polys =
-          absl::MakeConstSpan(instance_polys_vec_[i]);
-      return RefTable<Poly>(fixed_polys, advice_polys, instance_polys);
+      return RefTable<Poly>(fixed_polys, advice_polys_vec_[i],
+                            instance_polys_vec_[i]);
     });
   }
 

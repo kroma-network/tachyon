@@ -109,7 +109,7 @@ class GrandProductArgument {
                             std::vector<F>&& grand_product) {
     RowIndex usable_rows = prover->GetUsableRows();
 
-    absl::Span<F> z = absl::MakeSpan(grand_product);
+    absl::Span<F> z(grand_product);
     z[0] = last_z;
     for (RowIndex i = 0; i < usable_rows; ++i) {
       z[i + 1] = z[i] * grand_product[i + 1];

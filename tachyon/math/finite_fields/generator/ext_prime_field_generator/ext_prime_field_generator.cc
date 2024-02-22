@@ -107,8 +107,7 @@ int GenerationConfig::GenerateConfigHdr() const {
         std::all_of(non_residue.begin() + 1, non_residue.end(),
                     [](const std::string& e) { return e == "0"; });
 
-    init = math::GenerateInitExtField("kNonResidue", "BaseField",
-                                      absl::MakeConstSpan(non_residue),
+    init = math::GenerateInitExtField("kNonResidue", "BaseField", non_residue,
                                       /*is_prime_field=*/degree != 12);
   }
 

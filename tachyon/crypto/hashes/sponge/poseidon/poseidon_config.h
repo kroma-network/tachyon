@@ -165,9 +165,8 @@ struct PoseidonConfig {
 
   static PoseidonConfig CreateDefault(size_t rate, bool optimized_for_weights) {
     absl::Span<const PoseidonConfigEntry> param_set =
-        optimized_for_weights
-            ? absl::MakeConstSpan(kOptimizedWeightsDefaultParams)
-            : absl::MakeConstSpan(kOptimizedConstraintsDefaultParams);
+        optimized_for_weights ? kOptimizedWeightsDefaultParams
+                              : kOptimizedConstraintsDefaultParams;
 
     auto it = base::ranges::find_if(param_set.begin(), param_set.end(),
                                     [rate](const PoseidonConfigEntry& param) {

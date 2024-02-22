@@ -51,8 +51,7 @@ void WriteParams(CProver* c_prover,
   CHECK(buffer.Grow(tachyon::base::EstimateSize(prover->pcs())));
   CHECK(buffer.Write(prover->pcs()));
   CHECK(buffer.Done());
-  CHECK(tachyon::base::WriteLargeFile(
-      params_path, absl::MakeConstSpan(buffer.owned_buffer())));
+  CHECK(tachyon::base::WriteLargeFile(params_path, buffer.owned_buffer()));
 }
 
 template <typename CProver>
@@ -64,7 +63,7 @@ void CreateProof(CProver* c_prover, const std::vector<uint8_t>& pk_bytes,
 
   NativeProver* prover = base::native_cast(c_prover);
   std::cout << "deserializing proving key" << std::endl;
-  ProvingKey pk(absl::MakeConstSpan(pk_bytes), /*read_only_vk=*/false);
+  ProvingKey pk(pk_bytes, /*read_only_vk=*/false);
   std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(

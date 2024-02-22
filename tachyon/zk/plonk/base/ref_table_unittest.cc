@@ -48,9 +48,8 @@ TYPED_TEST(RefTableTest, GetColumns) {
       FixedColumnKey(2), AdviceColumnKey(2, kFirstPhase), InstanceColumnKey(2),
   };
 
-  RefTable<Evals> table(absl::MakeConstSpan(this->fixed_columns_),
-                        absl::MakeConstSpan(this->advice_columns_),
-                        absl::MakeConstSpan(this->instance_columns_));
+  RefTable<Evals> table(this->fixed_columns_, this->advice_columns_,
+                        this->instance_columns_);
 
   std::vector<base::Ref<const Evals>> evals_refs = table.GetColumns(targets);
 

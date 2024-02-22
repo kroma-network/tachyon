@@ -35,9 +35,8 @@ class PermutationTableStoreTest : public math::FiniteFieldTest<F> {
     instance_columns_ = base::CreateVector(
         3, [domain_ptr]() { return domain_ptr->Random<Evals>(); });
 
-    table_ = RefTable<Evals>(absl::MakeConstSpan(fixed_columns_),
-                             absl::MakeConstSpan(advice_columns_),
-                             absl::MakeConstSpan(instance_columns_));
+    table_ =
+        RefTable<Evals>(fixed_columns_, advice_columns_, instance_columns_);
 
     column_keys_ = {
         FixedColumnKey(0),  InstanceColumnKey(0), AdviceColumnKey(0),

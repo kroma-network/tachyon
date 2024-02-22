@@ -130,8 +130,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
       return true;
     }
 #endif
-    DoBatchInverse(absl::MakeConstSpan(groups), absl::MakeSpan(*inverses),
-                   coeff);
+    DoBatchInverse(groups, absl::MakeSpan(*inverses), coeff);
     return true;
   }
 
@@ -143,8 +142,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
       LOG(ERROR) << "Size of |groups| and |inverses| do not match";
       return false;
     }
-    DoBatchInverse(absl::MakeConstSpan(groups), absl::MakeSpan(*inverses),
-                   coeff);
+    DoBatchInverse(groups, absl::MakeSpan(*inverses), coeff);
     return true;
   }
 

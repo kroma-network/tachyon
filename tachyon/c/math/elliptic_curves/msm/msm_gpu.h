@@ -132,7 +132,7 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
       base::WriteFile(
           base::FilePath(absl::Substitute(
               "$0/bases$1.txt", msm_api.msm_gpu_input_dir, msm_api.idx - 1)),
-          absl::MakeConstSpan(buffer.owned_buffer()));
+          buffer.owned_buffer());
     }
     {
       buffer.set_buffer_offset(0);
@@ -141,7 +141,7 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
       base::WriteFile(
           base::FilePath(absl::Substitute(
               "$0/scalars$1.txt", msm_api.msm_gpu_input_dir, msm_api.idx - 1)),
-          absl::MakeConstSpan(buffer.owned_buffer()));
+          buffer.owned_buffer());
     }
   }
 

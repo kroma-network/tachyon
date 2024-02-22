@@ -155,8 +155,8 @@ TEST_F(MultiScalarMulTest, SingleScalarMultiBases) {
   {
     std::vector<test::JacobianPoint> actual;
     actual.resize(test_set_.bases.size());
-    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(
-        test_set_.scalars[0], absl::MakeConstSpan(test_set_.bases), &actual));
+    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(test_set_.scalars[0],
+                                                  test_set_.bases, &actual));
     EXPECT_EQ(actual, expected);
   }
 }
@@ -178,8 +178,8 @@ TEST_F(MultiScalarMulTest, MultiScalarsSingleBase) {
   {
     std::vector<test::JacobianPoint> actual;
     actual.resize(test_set_.bases.size());
-    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(
-        absl::MakeConstSpan(test_set_.scalars), test_set_.bases[0], &actual));
+    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(test_set_.scalars,
+                                                  test_set_.bases[0], &actual));
     EXPECT_EQ(actual, expected);
   }
 }
@@ -201,9 +201,8 @@ TEST_F(MultiScalarMulTest, MultiScalarsMultiBases) {
   {
     std::vector<test::JacobianPoint> actual;
     actual.resize(test_set_.bases.size());
-    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(
-        absl::MakeConstSpan(test_set_.scalars),
-        absl::MakeConstSpan(test_set_.bases), &actual));
+    ASSERT_TRUE(test::AffinePoint::MultiScalarMul(test_set_.scalars,
+                                                  test_set_.bases, &actual));
     EXPECT_EQ(actual, expected);
   }
 }
