@@ -21,8 +21,9 @@ using Commitment = math::bn254::G1AffinePoint;
 template <typename T>
 std::vector<std::vector<T>> CreateRandomElementsVec(RowIndex rows,
                                                     size_t cols) {
-  return base::CreateVector(
-      rows, [cols]() { return base::CreateVector(cols, T::Random()); });
+  return base::CreateVector(rows, [cols]() {
+    return base::CreateVector(cols, []() { return T::Random(); });
+  });
 }
 
 std::vector<std::vector<zk::LookupPair<Commitment>>> CreateRandomLookupPairsVec(
@@ -46,7 +47,8 @@ TEST(ProofTest, JsonValueConverter) {
   Proof<F, Commitment> expected_proof;
   expected_proof.advices_commitments_vec =
       CreateRandomElementsVec<Commitment>(num_circuits_, num_elements_);
-  expected_proof.challenges = base::CreateVector(num_circuits_, F::Random());
+  expected_proof.challenges =
+      base::CreateVector(num_circuits_, []() { return F::Random(); });
   expected_proof.theta = F::Random();
   expected_proof.lookup_permuted_commitments_vec =
       CreateRandomLookupPairsVec(num_circuits_, num_elements_);
@@ -59,23 +61,30 @@ TEST(ProofTest, JsonValueConverter) {
   expected_proof.vanishing_random_poly_commitment = Commitment::Random();
   expected_proof.y = F::Random();
   expected_proof.vanishing_h_poly_commitments =
-      base::CreateVector(5, Commitment::Random());
+      base::CreateVector(5, []() { return Commitment::Random(); });
   expected_proof.x = F::Random();
   expected_proof.instance_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
   expected_proof.advice_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
-  expected_proof.fixed_evals = base::CreateVector(num_circuits_, F::Random());
+  expected_proof.fixed_evals =
+      base::CreateVector(num_circuits_, []() { return F::Random(); });
   expected_proof.vanishing_random_eval = F::Random();
   expected_proof.common_permutation_evals =
-      base::CreateVector(num_circuits_, F::Random());
+      base::CreateVector(num_circuits_, []() { return F::Random(); });
   expected_proof.permutation_product_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
   expected_proof.permutation_product_next_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
-  expected_proof.permutation_product_last_evals_vec = {
-      base::CreateVector(5, std::optional<F>(F::Random())),
-      base::CreateVector(5, std::optional<F>())};
+  expected_proof.permutation_product_last_evals_vec =
+      std::vector<std::vector<std::optional<F>>>(
+          num_circuits_, base::CreateVector(num_elements_, [](size_t i) {
+            if (i % 2 == 0) {
+              return std::optional<F>(F::Random());
+            } else {
+              return std::optional<F>();
+            }
+          }));
   expected_proof.lookup_product_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
   expected_proof.lookup_product_next_evals_vec =

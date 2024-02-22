@@ -36,7 +36,8 @@ TEST_F(LinearCombinationTest, AddTermAndSumOfProducts) {
       });
   linear_combination.AddTerm(coefficient1, evals1);
 
-  Point evaluation_point = base::CreateVector(kMaxDegree, F::Random());
+  Point evaluation_point =
+      base::CreateVector(kMaxDegree, []() { return F::Random(); });
 
   // Set up the expected evaluation result for this 1 term
   F expected_evaluation =
@@ -52,8 +53,8 @@ TEST_F(LinearCombinationTest, AddTermAndSumOfProducts) {
 
   // Test |AddTerm()| and |SumOfProducts| on 2 terms
   F coefficient2 = F::Random();
-  std::vector<PolyPtr> evals2 =
-      base::CreateVector(5, std::make_shared<Poly>(Poly::Random(kMaxDegree)));
+  std::vector<PolyPtr> evals2 = base::CreateVector(
+      5, []() { return std::make_shared<Poly>(Poly::Random(kMaxDegree)); });
   linear_combination.AddTerm(coefficient2, evals2);
   expected_evaluation +=
       coefficient2 *
