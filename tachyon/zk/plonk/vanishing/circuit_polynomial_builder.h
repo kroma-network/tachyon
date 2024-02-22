@@ -6,6 +6,7 @@
 #ifndef TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
 #define TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -98,7 +99,11 @@ class CircuitPolynomialBuilder {
     for (size_t i = 0; i < num_parts_; ++i) {
       VLOG(1) << "BuildExtendedCircuitColumn part: (" << i << " / "
               << num_parts_ - 1 << ")";
-      UpdateVanishingProvingKey();
+
+      std::unique_ptr<Domain> coset =
+          domain_->GetCoset(*zeta_ * current_extended_omega_);
+
+      UpdateVanishingProvingKey(coset.get());
 
       std::vector<F> value_part =
           base::CreateVector(static_cast<size_t>(n_), F::Zero());
@@ -106,13 +111,13 @@ class CircuitPolynomialBuilder {
       for (size_t j = 0; j < circuit_num; ++j) {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
                 << j << " / " << circuit_num - 1 << ")";
-        UpdateVanishingTable(j);
+        UpdateVanishingTable(coset.get(), j);
         // Do iff there are permutation constraints.
         if ((*permutation_provers_)[j].grand_product_polys().size() > 0)
-          UpdateVanishingPermutation(j);
+          UpdateVanishingPermutation(coset.get(), j);
         // Do iff there are lookup constraints.
         if ((*lookup_provers_)[j].grand_product_polys().size() > 0)
-          UpdateVanishingLookups(j);
+          UpdateVanishingLookups(coset.get(), j);
         base::Parallelize(
             value_part,
             [this, &custom_gate_evaluator, &lookup_evaluators](
@@ -298,28 +303,24 @@ class CircuitPolynomialBuilder {
     }
   }
 
-  void UpdateVanishingProvingKey() {
-    l_first_ = CoeffToExtendedPart(domain_, proving_key_->l_first(), *zeta_,
-                                   current_extended_omega_);
-    l_last_ = CoeffToExtendedPart(domain_, proving_key_->l_last(), *zeta_,
-                                  current_extended_omega_);
-    l_active_row_ = CoeffToExtendedPart(domain_, proving_key_->l_active_row(),
-                                        *zeta_, current_extended_omega_);
+  void UpdateVanishingProvingKey(const Domain* coset) {
+    l_first_ = coset->FFT(proving_key_->l_first());
+    l_last_ = coset->FFT(proving_key_->l_last());
+    l_active_row_ = coset->FFT(proving_key_->l_active_row());
   }
 
-  void UpdateVanishingPermutation(size_t circuit_idx) {
-    permutation_product_cosets_ = CoeffsToExtendedParts(
-        domain_,
-        absl::MakeConstSpan(
-            (*permutation_provers_)[circuit_idx].grand_product_polys()),
-        *zeta_, current_extended_omega_);
-    permutation_cosets_ = CoeffsToExtendedParts(
-        domain_,
-        absl::MakeConstSpan(proving_key_->permutation_proving_key().polys()),
-        *zeta_, current_extended_omega_);
+  void UpdateVanishingPermutation(const Domain* coset, size_t circuit_idx) {
+    permutation_product_cosets_ =
+        base::Map((*permutation_provers_)[circuit_idx].grand_product_polys(),
+                  [coset](const BlindedPolynomial<Poly, Evals>& blinded_poly) {
+                    return coset->FFT(blinded_poly.poly());
+                  });
+    permutation_cosets_ =
+        base::Map(proving_key_->permutation_proving_key().polys(),
+                  [coset](const Poly& poly) { return coset->FFT(poly); });
   }
 
-  void UpdateVanishingLookups(size_t circuit_idx) {
+  void UpdateVanishingLookups(const Domain* coset, size_t circuit_idx) {
     size_t num_lookups =
         (*lookup_provers_)[circuit_idx].grand_product_polys().size();
     const lookup::halo2::Prover<Poly, Evals>& lookup_prover =
@@ -329,27 +330,24 @@ class CircuitPolynomialBuilder {
     lookup_table_cosets_.resize(num_lookups);
     for (size_t i = 0; i < num_lookups; ++i) {
       lookup_product_cosets_[i] =
-          CoeffToExtendedPart(domain_, lookup_prover.grand_product_polys()[i],
-                              *zeta_, current_extended_omega_);
-      lookup_input_cosets_[i] = CoeffToExtendedPart(
-          domain_, lookup_prover.permuted_pairs()[i].input(), *zeta_,
-          current_extended_omega_);
-      lookup_table_cosets_[i] = CoeffToExtendedPart(
-          domain_, lookup_prover.permuted_pairs()[i].table(), *zeta_,
-          current_extended_omega_);
+          coset->FFT(lookup_prover.grand_product_polys()[i].poly());
+      lookup_input_cosets_[i] =
+          coset->FFT(lookup_prover.permuted_pairs()[i].input().poly());
+      lookup_table_cosets_[i] =
+          coset->FFT(lookup_prover.permuted_pairs()[i].table().poly());
     }
   }
 
-  void UpdateVanishingTable(size_t circuit_idx) {
-    std::vector<Evals> fixed_columns = CoeffsToExtendedParts(
-        domain_, (*poly_tables_)[circuit_idx].GetFixedColumns(), *zeta_,
-        current_extended_omega_);
-    std::vector<Evals> advice_columns = CoeffsToExtendedParts(
-        domain_, (*poly_tables_)[circuit_idx].GetAdviceColumns(), *zeta_,
-        current_extended_omega_);
-    std::vector<Evals> instance_columns = CoeffsToExtendedParts(
-        domain_, (*poly_tables_)[circuit_idx].GetInstanceColumns(), *zeta_,
-        current_extended_omega_);
+  void UpdateVanishingTable(const Domain* coset, size_t circuit_idx) {
+    std::vector<Evals> fixed_columns =
+        base::Map((*poly_tables_)[circuit_idx].GetFixedColumns(),
+                  [coset](const Poly& poly) { return coset->FFT(poly); });
+    std::vector<Evals> advice_columns =
+        base::Map((*poly_tables_)[circuit_idx].GetAdviceColumns(),
+                  [coset](const Poly& poly) { return coset->FFT(poly); });
+    std::vector<Evals> instance_columns =
+        base::Map((*poly_tables_)[circuit_idx].GetInstanceColumns(),
+                  [coset](const Poly& poly) { return coset->FFT(poly); });
     table_ =
         OwnedTable<Evals>(std::move(fixed_columns), std::move(advice_columns),
                           std::move(instance_columns));

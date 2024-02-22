@@ -111,16 +111,56 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   }
 
   // Compute a FFT.
-  [[nodiscard]] constexpr virtual Evals FFT(const DensePoly& poly) const = 0;
-  [[nodiscard]] constexpr virtual Evals FFT(DensePoly&& poly) const = 0;
+  [[nodiscard]] constexpr Evals FFT(const DensePoly& poly) const {
+    if (poly.IsZero()) return {};
+
+    Evals evals;
+    evals.evaluations_ = poly.coefficients_.coefficients_;
+    DoFFT(evals);
+    return evals;
+  }
+
+  // Compute a FFT.
+  [[nodiscard]] constexpr Evals FFT(DensePoly&& poly) const {
+    if (poly.IsZero()) return {};
+
+    Evals evals;
+    evals.evaluations_ = std::move(poly.coefficients_.coefficients_);
+    DoFFT(evals);
+    return evals;
+  }
+
+  constexpr virtual void DoFFT(Evals& evals) const = 0;
 
   // Compute an IFFT.
-  [[nodiscard]] constexpr virtual DensePoly IFFT(const Evals& evals) const = 0;
-  [[nodiscard]] constexpr virtual DensePoly IFFT(Evals&& evals) const = 0;
+  [[nodiscard]] constexpr DensePoly IFFT(const Evals& evals) const {
+    // NOTE(chokobole): This is not a faster check any more since
+    // https://github.com/kroma-network/tachyon/pull/104.
+    if (evals.IsZero()) return {};
+
+    DensePoly poly;
+    poly.coefficients_.coefficients_ = evals.evaluations_;
+    DoIFFT(poly);
+    return poly;
+  }
+
+  // Compute an IFFT.
+  [[nodiscard]] constexpr DensePoly IFFT(Evals&& evals) const {
+    // NOTE(chokobole): This is not a faster check any more since
+    // https://github.com/kroma-network/tachyon/pull/104.
+    if (evals.IsZero()) return {};
+
+    DensePoly poly;
+    poly.coefficients_.coefficients_ = std::move(evals.evaluations_);
+    DoIFFT(poly);
+    return poly;
+  }
+
+  constexpr virtual void DoIFFT(DensePoly& poly) const = 0;
 
   // Computes the first |size| roots of unity for the entire domain.
-  // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it computes
-  // [1, g, g², ..., g^{(n / 2) - 1}]
+  // e.g. for the domain [1, g, g², ..., gⁿ⁻¹}] and |size| = n / 2, it
+  // computes [1, g, g², ..., g^{(n / 2) - 1}]
   constexpr std::vector<F> GetRootsOfUnity(size_t size, const F& root) const {
     return F::GetSuccessivePowers(size, root);
   }
@@ -238,9 +278,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
             }
           });
 
-      // Invert |lagrange_coefficients_inverse| to get the actual coefficients,
-      // and return these
-      // Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
+      // Invert |lagrange_coefficients_inverse| to get the actual
+      // coefficients, and return these Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
       CHECK(F::BatchInverseInPlace(lagrange_coefficients_inverse));
       return lagrange_coefficients_inverse;
     }

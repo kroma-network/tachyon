@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -47,8 +48,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   constexpr static size_t kMaxDegree = MaxDegree;
   // Factor that determines if a the degree aware FFT should be called.
   constexpr static size_t kDegreeAwareFFTThresholdFactor = 1 << 2;
-  // The minimum number of chunks at which root compaction is beneficial.
-  constexpr static size_t kDefaultMinNumChunksForCompaction = 1 << 7;
 
   enum class FFTOrder {
     // The input of the FFT must be in-order, but the output does not have to
@@ -60,8 +59,10 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   };
 
   static std::unique_ptr<Radix2EvaluationDomain> Create(size_t num_coeffs) {
-    return absl::WrapUnique(new Radix2EvaluationDomain(
+    auto ret = absl::WrapUnique(new Radix2EvaluationDomain(
         absl::bit_ceil(num_coeffs), base::bits::SafeLog2Ceiling(num_coeffs)));
+    ret->PrepareRootsVecCache();
+    return ret;
   }
 
   // libfqfft uses >
@@ -70,14 +71,6 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   // https://github.com/arkworks-rs/algebra/blob/master/poly/src/domain/radix2/mod.rs#L62)
   constexpr static bool IsValidNumCoeffs(size_t num_coeffs) {
     return base::bits::SafeLog2Ceiling(num_coeffs) <= F::Config::kTwoAdicity;
-  }
-
-  void set_min_num_chunks_for_compaction(size_t min_num_chunks_for_compaction) {
-    min_num_chunks_for_compaction_ = min_num_chunks_for_compaction;
-  }
-
-  size_t min_num_chunks_for_compaction() const {
-    return min_num_chunks_for_compaction_;
   }
 
  private:
@@ -92,23 +85,8 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     return absl::WrapUnique(new Radix2EvaluationDomain(*this));
   }
 
-  [[nodiscard]] constexpr Evals FFT(const DensePoly& poly) const override {
-    if (poly.IsZero()) return {};
-
-    Evals evals;
-    evals.evaluations_ = poly.coefficients_.coefficients_;
-    return DoFFT(std::move(evals));
-  }
-
-  [[nodiscard]] constexpr Evals FFT(DensePoly&& poly) const override {
-    if (poly.IsZero()) return {};
-
-    Evals evals;
-    evals.evaluations_ = std::move(poly.coefficients_.coefficients_);
-    return DoFFT(std::move(evals));
-  }
-
-  [[nodiscard]] constexpr Evals DoFFT(Evals&& evals) const {
+  // UnivariateEvaluationDomain methods
+  constexpr void DoFFT(Evals& evals) const override {
     if (evals.evaluations_.size() * kDegreeAwareFFTThresholdFactor <=
         this->size_) {
       DegreeAwareFFTInPlace(evals);
@@ -116,34 +94,13 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       evals.evaluations_.resize(this->size_, F::Zero());
       InOrderFFTInPlace(evals);
     }
-    return evals;
   }
 
-  [[nodiscard]] constexpr DensePoly IFFT(const Evals& evals) const override {
-    // NOTE(chokobole): This is not a faster check any more since
-    // https://github.com/kroma-network/tachyon/pull/104.
-    if (evals.IsZero()) return {};
-
-    DensePoly poly;
-    poly.coefficients_.coefficients_ = evals.evaluations_;
-    return DoIFFT(std::move(poly));
-  }
-
-  [[nodiscard]] constexpr DensePoly IFFT(Evals&& evals) const override {
-    // NOTE(chokobole): This is not a faster check any more since
-    // https://github.com/kroma-network/tachyon/pull/104.
-    if (evals.IsZero()) return {};
-
-    DensePoly poly;
-    poly.coefficients_.coefficients_ = std::move(evals.evaluations_);
-    return DoIFFT(std::move(poly));
-  }
-
-  [[nodiscard]] constexpr DensePoly DoIFFT(DensePoly&& poly) const {
+  // UnivariateEvaluationDomain methods
+  constexpr void DoIFFT(DensePoly& poly) const override {
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     InOrderIFFTInPlace(poly);
     poly.coefficients_.RemoveHighDegreeZeros();
-    return poly;
   }
 
   // Degree aware FFT that runs in O(n log d) instead of O(n log n).
@@ -179,7 +136,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
                                    });
     }
     size_t start_gap = duplicity_of_initials;
-    OutInHelper(evals, this->group_gen_, start_gap);
+    OutInHelper(evals, start_gap);
   }
 
   constexpr void InOrderFFTInPlace(Evals& evals) const {
@@ -207,14 +164,14 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     uint32_t log_len = static_cast<uint32_t>(base::bits::Log2Ceiling(
         static_cast<uint32_t>(evals.evaluations_.size())));
     this->SwapElements(evals, evals.evaluations_.size() - 1, log_len);
-    OutInHelper(evals, this->group_gen_, 1);
+    OutInHelper(evals, 1);
   }
 
   // Handles doing an IFFT with handling of being in order and out of order.
   // The results here must all be divided by |poly|, which is left up to the
   // caller to do.
   constexpr void IFFTHelperInPlace(DensePoly& poly) const {
-    InOutHelper(poly, this->group_gen_inv_);
+    InOutHelper(poly);
     uint32_t log_len = static_cast<uint32_t>(base::bits::Log2Ceiling(
         static_cast<uint32_t>(poly.coefficients_.coefficients_.size())));
     this->SwapElements(poly, poly.coefficients_.coefficients_.size() - 1,
@@ -223,9 +180,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
 
   template <FFTOrder Order, typename PolyOrEvals>
   constexpr static void ApplyButterfly(PolyOrEvals& poly_or_evals,
-                                       absl::Span<const F> roots, size_t step,
-                                       size_t chunk_size, size_t thread_nums,
-                                       size_t gap) {
+                                       absl::Span<const F> roots, size_t gap) {
     void (*fn)(F&, F&, const F&);
 
     if constexpr (Order == FFTOrder::kInOut) {
@@ -234,112 +189,89 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
       static_assert(Order == FFTOrder::kOutIn);
       fn = UnivariateEvaluationDomain<F, MaxDegree>::ButterflyFnOutIn;
     }
+
+    // Each butterfly cluster uses 2 * |gap| positions.
+    size_t chunk_size = 2 * gap;
     OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < poly_or_evals.NumElements();
                                i += chunk_size) {
       // If the chunk is sufficiently big that parallelism helps,
       // we parallelize the butterfly operation within the chunk.
       for (size_t j = 0; j < gap; ++j) {
-        if (j * step < roots.size()) {
-          fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap),
-             roots[j * step]);
+        if (j < roots.size()) {
+          fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap), roots[j]);
         }
       }
     }
   }
 
-  constexpr void InOutHelper(DensePoly& poly, const F& root) const {
-    std::vector<F> roots = this->GetRootsOfUnity(this->size_ / 2, root);
-    size_t step = 1;
-    bool first = true;
+  // clang-format off
+  // Precompute |roots_vec_| and |inv_roots_vec_| for |OutInHelper()| and |InOutHelper()|.
+  // Here is an example where |this->size_| equals 32.
+  // |root_vec_| = [
+  //   [1],
+  //   [1, ω⁸],
+  //   [1, ω⁴, ω⁸, ω¹²],
+  //   [1, ω², ω⁴, ω⁶, ω⁸, ω¹⁰, ω¹², ω¹⁴],
+  //   [1, ω, ω², ω³, ω⁴, ω⁵, ω⁶, ω⁷, ω⁸, ω⁹, ω¹⁰, ω¹¹, ω¹², ω¹³, ω¹⁴, ω¹⁵],
+  // ]
+  // |inv_root_vec_| = [
+  //   [1, ω⁻¹, ω⁻², ω⁻³, ω⁻⁴, ω⁻⁵, ω⁻⁶, ω⁻⁷, ω⁻⁸, ω⁻⁹, ω⁻¹⁰, ω⁻¹¹, ω⁻¹², ω⁻¹³, ω⁻¹⁴, ω⁻¹⁵],
+  //   [1, ω⁻², ω⁻⁴, ω⁻⁶, ω⁻⁸, ω⁻¹⁰, ω⁻¹², ω⁻¹⁴],
+  //   [1, ω⁻⁴, ω⁻⁸, ω⁻¹²],
+  //   [1, ω⁻⁸],
+  //   [1],
+  // ]
+  // clang-format on
+  constexpr void PrepareRootsVecCache() {
+    if (this->log_size_of_group_ == 0) return;
 
-#if defined(TACHYON_HAS_OPENMP)
-    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-#else
-    size_t thread_nums = 1;
-#endif
+    roots_vec_.resize(this->log_size_of_group_);
+    inv_roots_vec_.resize(this->log_size_of_group_);
 
-    size_t gap = poly.coefficients_.coefficients_.size() / 2;
-    while (gap > 0) {
-      // Each butterfly cluster uses 2 * |gap| positions.
-      size_t chunk_size = 2 * gap;
-      size_t num_chunks = poly.coefficients_.coefficients_.size() / chunk_size;
+    // Compute biggest vector of |root_vec_| and |inv_root_vec_| first.
+    roots_vec_[this->log_size_of_group_ - 1] =
+        this->GetRootsOfUnity(this->size_ / 2, this->group_gen_);
+    inv_roots_vec_[0] =
+        this->GetRootsOfUnity(this->size_ / 2, this->group_gen_inv_);
 
-      // Only compact roots to achieve cache locality/compactness if the roots
-      // lookup is done a significant amount of times, which also implies a
-      // large lookup stride.
-      bool should_compact = num_chunks >= min_num_chunks_for_compaction_;
-      if (should_compact) {
-        if (!first) {
-          size_t size = roots.size() / (step * 2);
-#if defined(TACHYON_HAS_OPENMP)
-          std::vector<F> new_roots(size);
-          OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
-            new_roots[i] = roots[i * (step * 2)];
-          }
-          roots = std::move(new_roots);
-#else
-          for (size_t i = 0; i < size; ++i) {
-            roots[i] = roots[i * (step * 2)];
-          }
-          roots.erase(roots.begin() + size, roots.end());
-#endif
-        }
-        step = 1;
-      } else {
-        step = num_chunks;
+    // Prepare space in each vector for the others.
+    size_t size = this->size_ / 2;
+    for (size_t i = 1; i < this->log_size_of_group_; ++i) {
+      size /= 2;
+      roots_vec_[this->log_size_of_group_ - i - 1].resize(size);
+      inv_roots_vec_[i].resize(size);
+    }
+
+    // Assign every element based on the biggest vector.
+    OPENMP_PARALLEL_FOR(size_t i = 1; i < this->log_size_of_group_; ++i) {
+      for (size_t j = 0; j < this->size_ / std::pow(2, i + 1); ++j) {
+        size_t k = std::pow(2, i) * j;
+        roots_vec_[this->log_size_of_group_ - i - 1][j] = roots_vec_.back()[k];
+        inv_roots_vec_[i][j] = inv_roots_vec_.front()[k];
       }
-      first = false;
+    }
+  }
 
-      ApplyButterfly<FFTOrder::kInOut>(poly, roots, step, chunk_size,
-                                       thread_nums, gap);
+  constexpr void InOutHelper(DensePoly& poly) const {
+    size_t gap = poly.coefficients_.coefficients_.size() / 2;
+    size_t idx = 0;
+    while (gap > 0) {
+      ApplyButterfly<FFTOrder::kInOut>(poly, inv_roots_vec_[idx++], gap);
       gap /= 2;
     }
   }
 
-  constexpr void OutInHelper(Evals& evals, const F& root,
-                             size_t start_gap) const {
-    std::vector<F> roots_cache = this->GetRootsOfUnity(this->size_ / 2, root);
-    // The |std::min| is only necessary for the case where
-    // |min_num_chunks_for_compaction_ = 1|. Else, notice that we compact the
-    // |roots_cache| by a |step| of at least |min_num_chunks_for_compaction_|.
-    size_t compaction_max_size =
-        std::min(roots_cache.size() / 2,
-                 roots_cache.size() / min_num_chunks_for_compaction_);
-    std::vector<F> compacted_roots(compaction_max_size, F::Zero());
-
-#if defined(TACHYON_HAS_OPENMP)
-    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-#else
-    size_t thread_nums = 1;
-#endif
-
+  constexpr void OutInHelper(Evals& evals, size_t start_gap) const {
     size_t gap = start_gap;
+    size_t idx = base::bits::SafeLog2Ceiling(start_gap);
     while (gap < evals.evaluations_.size()) {
-      // Each butterfly cluster uses 2 * |gap| positions
-      size_t chunk_size = 2 * gap;
-      size_t num_chunks = evals.evaluations_.size() / chunk_size;
-
-      // Only compact |roots| to achieve cache locality/compactness if the
-      // |roots| lookup is done a significant amount of times, which also
-      // implies a large lookup |step|.
-      bool should_compact = num_chunks >= min_num_chunks_for_compaction_ &&
-                            gap < evals.evaluations_.size() / 2;
-      if (should_compact) {
-        OPENMP_PARALLEL_FOR(size_t i = 0; i < gap; ++i) {
-          compacted_roots[i] = roots_cache[i * num_chunks];
-        }
-      }
-      ApplyButterfly<FFTOrder::kOutIn>(
-          evals,
-          should_compact ? absl::Span<const F>(compacted_roots.data(), gap)
-                         : roots_cache,
-          /*step=*/should_compact ? 1 : num_chunks, chunk_size, thread_nums,
-          gap);
+      ApplyButterfly<FFTOrder::kOutIn>(evals, roots_vec_[idx++], gap);
       gap *= 2;
     }
   }
 
-  size_t min_num_chunks_for_compaction_ = kDefaultMinNumChunksForCompaction;
+  std::vector<std::vector<F>> roots_vec_;
+  std::vector<std::vector<F>> inv_roots_vec_;
 };
 
 }  // namespace tachyon::math
