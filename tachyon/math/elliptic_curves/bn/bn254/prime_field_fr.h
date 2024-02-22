@@ -103,7 +103,9 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsBn254Fr>> final
 
   constexpr bool IsZero() const { return Fr_rawIsZero(value_.limbs); }
 
-  constexpr bool IsOne() const { return ToBigInt().IsOne(); }
+  constexpr bool IsOne() const {
+    return Fr_rawIsEq(value_.limbs, Config::kOne.limbs);
+  }
 
   std::string ToString() const { return ToBigInt().ToString(); }
   std::string ToHexString(bool pad_zero = false) const {
