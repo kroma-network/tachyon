@@ -134,9 +134,9 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Compute an IFFT.
   [[nodiscard]] constexpr DensePoly IFFT(const Evals& evals) const {
-    // NOTE(chokobole): This is not a faster check any more since
-    // https://github.com/kroma-network/tachyon/pull/104.
-    if (evals.IsZero()) return {};
+    // NOTE(chokobole): |evals.IsZero()| can be super slow!
+    // See https://github.com/kroma-network/tachyon/pull/104.
+    if (evals.evaluations_.empty()) return {};
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = evals.evaluations_;
@@ -146,9 +146,9 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // Compute an IFFT.
   [[nodiscard]] constexpr DensePoly IFFT(Evals&& evals) const {
-    // NOTE(chokobole): This is not a faster check any more since
-    // https://github.com/kroma-network/tachyon/pull/104.
-    if (evals.IsZero()) return {};
+    // NOTE(chokobole): |evals.IsZero()| can be super slow!
+    // See https://github.com/kroma-network/tachyon/pull/104.
+    if (evals.evaluations_.empty()) return {};
 
     DensePoly poly;
     poly.coefficients_.coefficients_ = std::move(evals.evaluations_);
