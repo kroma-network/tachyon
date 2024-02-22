@@ -90,7 +90,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   std::string ToHexString(bool pad_zero = false) const {
     std::string str = Goldilocks::toString(value_, 16);
     if (pad_zero) {
-      str = base::ToHexStringWithLeadingZero(str);
+      str = base::ToHexStringWithLeadingZero(str, 16);
     }
     return base::MaybePrepend0x(str);
   }
