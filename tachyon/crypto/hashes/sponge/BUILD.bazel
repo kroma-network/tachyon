@@ -8,7 +8,6 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base:logging",
         "//tachyon/base/buffer:copyable",
-        "//tachyon/base/containers:container_util",
         "//tachyon/math/finite_fields:finite_field_traits",
     ],
 )

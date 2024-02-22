@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "tachyon/base/buffer/copyable.h"
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/finite_fields/finite_field_traits.h"
 
@@ -75,8 +74,8 @@ class CryptographicSponge {
   // Squeeze |num_elements| nonnative field elements from the sponge.
   std::vector<F> SqueezeFieldElements(size_t num_elements) {
     Derived* derived = static_cast<Derived*>(this);
-    return derived->SqueezeFieldElementsWithSizes(base::CreateVector(
-        num_elements, []() { return FieldElementSize::Full(); }));
+    return derived->SqueezeFieldElementsWithSizes(
+        std::vector<FieldElementSize>(num_elements, FieldElementSize::Full()));
   }
 
   // Creates a new sponge with applied domain separation.
