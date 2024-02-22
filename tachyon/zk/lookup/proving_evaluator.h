@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_EXPRESSIONS_EVALUATOR_SIMPLE_EVALUATOR_H_
-#define TACHYON_ZK_EXPRESSIONS_EVALUATOR_SIMPLE_EVALUATOR_H_
+#ifndef TACHYON_ZK_LOOKUP_PROVING_EVALUATOR_H_
+#define TACHYON_ZK_LOOKUP_PROVING_EVALUATOR_H_
 
 #include <vector>
 
@@ -24,17 +24,17 @@
 #include "tachyon/zk/expressions/sum_expression.h"
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup {
 
 template <typename Evals>
-class SimpleEvaluator
+class ProvingEvaluator
     : public Evaluator<typename Evals::Field, typename Evals::Field> {
  public:
   using Field = typename Evals::Field;
 
-  SimpleEvaluator() = default;
-  SimpleEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
-                  const plonk::MultiPhaseRefTable<Evals>& table)
+  ProvingEvaluator() = default;
+  ProvingEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
+                   const plonk::MultiPhaseRefTable<Evals>& table)
       : idx_(idx), size_(size), rot_scale_(rot_scale), table_(table) {}
 
   int32_t idx() const { return idx_; }
@@ -46,13 +46,13 @@ class SimpleEvaluator
   Field Evaluate(const Expression<Field>* input) override {
     class ScopedIdxIncrement {
      public:
-      explicit ScopedIdxIncrement(SimpleEvaluator* evaluator)
+      explicit ScopedIdxIncrement(ProvingEvaluator* evaluator)
           : evaluator(evaluator) {}
       ~ScopedIdxIncrement() { ++evaluator->idx_; }
 
      private:
       // not owned
-      SimpleEvaluator* const evaluator;
+      ProvingEvaluator* const evaluator;
     };
     switch (input->type()) {
       case ExpressionType::kConstant:
@@ -115,6 +115,6 @@ class SimpleEvaluator
   plonk::MultiPhaseRefTable<Evals> table_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup
 
-#endif  // TACHYON_ZK_EXPRESSIONS_EVALUATOR_SIMPLE_EVALUATOR_H_
+#endif  // TACHYON_ZK_LOOKUP_PROVING_EVALUATOR_H_

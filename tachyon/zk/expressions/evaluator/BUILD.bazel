@@ -17,25 +17,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "simple_evaluator",
-    hdrs = ["simple_evaluator.h"],
-    deps = [
-        "//tachyon/zk/expressions:advice_expression",
-        "//tachyon/zk/expressions:challenge_expression",
-        "//tachyon/zk/expressions:constant_expression",
-        "//tachyon/zk/expressions:evaluator",
-        "//tachyon/zk/expressions:fixed_expression",
-        "//tachyon/zk/expressions:instance_expression",
-        "//tachyon/zk/expressions:negated_expression",
-        "//tachyon/zk/expressions:product_expression",
-        "//tachyon/zk/expressions:scaled_expression",
-        "//tachyon/zk/expressions:selector_expression",
-        "//tachyon/zk/expressions:sum_expression",
-        "//tachyon/zk/plonk/base:multi_phase_ref_table",
-    ],
-)
-
-tachyon_cc_library(
     name = "simple_selector_extractor",
     hdrs = ["simple_selector_extractor.h"],
     deps = [
@@ -61,13 +42,11 @@ tachyon_cc_unittest(
     name = "expression_unittests",
     srcs = [
         "selector_replacer_unittest.cc",
-        "simple_evaluator_unittest.cc",
         "simple_selector_extractor_unittest.cc",
         "simple_selector_finder_unittest.cc",
     ],
     deps = [
         ":selector_replacer",
-        ":simple_evaluator",
         ":simple_selector_extractor",
         ":simple_selector_finder",
         "//tachyon/zk/expressions:expression_factory",

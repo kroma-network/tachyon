@@ -1,17 +1,17 @@
-#include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
+#include "tachyon/zk/lookup/proving_evaluator.h"
 
 #include <memory>
 
 #include "tachyon/zk/expressions/evaluator/test/evaluator_test.h"
 #include "tachyon/zk/expressions/expression_factory.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup {
 
 namespace {
 
 using Expr = std::unique_ptr<Expression<GF7>>;
 
-class SimpleEvaluatorTest : public EvaluatorTest {
+class ProvingEvaluatorTest : public EvaluatorTest {
  public:
   void SetUp() override {
     std::vector<GF7> evaluations;
@@ -28,29 +28,29 @@ class SimpleEvaluatorTest : public EvaluatorTest {
 
     plonk::MultiPhaseRefTable<Evals> table(fixed_columns_, advice_columns_,
                                            instance_columns_, challenges_);
-    simple_evaluator_ =
-        std::make_unique<SimpleEvaluator<Evals>>(3, 4, 1, table);
+    proving_evaluator_ =
+        std::make_unique<ProvingEvaluator<Evals>>(3, 4, 1, table);
   }
 
  protected:
-  std::unique_ptr<SimpleEvaluator<Evals>> simple_evaluator_;
+  std::unique_ptr<ProvingEvaluator<Evals>> proving_evaluator_;
 };
 
 }  // namespace
 
-TEST_F(SimpleEvaluatorTest, Constant) {
+TEST_F(ProvingEvaluatorTest, Constant) {
   GF7 value = GF7::Random();
   Expr expr = ExpressionFactory<GF7>::Constant(value);
-  GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
+  GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(value, evaluated);
 }
 
-TEST_F(SimpleEvaluatorTest, Selector) {
+TEST_F(ProvingEvaluatorTest, Selector) {
   Expr expr = ExpressionFactory<GF7>::Selector(plonk::Selector::Simple(1));
-  EXPECT_DEATH(simple_evaluator_->Evaluate(expr.get()), "");
+  EXPECT_DEATH(proving_evaluator_->Evaluate(expr.get()), "");
 }
 
-TEST_F(SimpleEvaluatorTest, Fixed) {
+TEST_F(ProvingEvaluatorTest, Fixed) {
   struct {
     int32_t rotation;
     size_t column_index;
@@ -62,21 +62,21 @@ TEST_F(SimpleEvaluatorTest, Fixed) {
   };
 
   for (const auto& test : tests) {
-    int32_t idx = simple_evaluator_->idx();
-    int32_t rot_scale = simple_evaluator_->rot_scale();
-    int32_t size = simple_evaluator_->size();
+    int32_t idx = proving_evaluator_->idx();
+    int32_t rot_scale = proving_evaluator_->rot_scale();
+    int32_t size = proving_evaluator_->size();
     plonk::FixedQuery query(1, Rotation(test.rotation),
                             plonk::FixedColumnKey(test.column_index));
     RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7& expected = fixed_columns_[test.column_index][row_index];
     Expr expr = ExpressionFactory<GF7>::Fixed(query);
-    GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
+    GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, expected);
   }
 }
 
-TEST_F(SimpleEvaluatorTest, Advice) {
+TEST_F(ProvingEvaluatorTest, Advice) {
   struct {
     int32_t rotation;
     size_t column_index;
@@ -88,9 +88,9 @@ TEST_F(SimpleEvaluatorTest, Advice) {
   };
 
   for (const auto& test : tests) {
-    int32_t idx = simple_evaluator_->idx();
-    int32_t rot_scale = simple_evaluator_->rot_scale();
-    int32_t size = simple_evaluator_->size();
+    int32_t idx = proving_evaluator_->idx();
+    int32_t rot_scale = proving_evaluator_->rot_scale();
+    int32_t size = proving_evaluator_->size();
     plonk::AdviceQuery query(
         1, Rotation(test.rotation),
         plonk::AdviceColumnKey(test.column_index, plonk::Phase(0)));
@@ -98,12 +98,12 @@ TEST_F(SimpleEvaluatorTest, Advice) {
 
     const GF7& expected = advice_columns_[test.column_index][row_index];
     Expr expr = ExpressionFactory<GF7>::Advice(query);
-    GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
+    GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, expected);
   }
 }
 
-TEST_F(SimpleEvaluatorTest, Instance) {
+TEST_F(ProvingEvaluatorTest, Instance) {
   struct {
     int32_t rotation;
     size_t column_index;
@@ -115,63 +115,63 @@ TEST_F(SimpleEvaluatorTest, Instance) {
   };
 
   for (const auto& test : tests) {
-    int32_t idx = simple_evaluator_->idx();
-    int32_t rot_scale = simple_evaluator_->rot_scale();
-    int32_t size = simple_evaluator_->size();
+    int32_t idx = proving_evaluator_->idx();
+    int32_t rot_scale = proving_evaluator_->rot_scale();
+    int32_t size = proving_evaluator_->size();
     plonk::InstanceQuery query(1, Rotation(test.rotation),
                                plonk::InstanceColumnKey(test.column_index));
     RowIndex row_index = query.rotation().GetIndex(idx, rot_scale, size);
 
     const GF7& expected = instance_columns_[test.column_index][row_index];
     Expr expr = ExpressionFactory<GF7>::Instance(query);
-    GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
+    GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
     EXPECT_EQ(evaluated, expected);
   }
 }
 
-TEST_F(SimpleEvaluatorTest, Challenges) {
+TEST_F(ProvingEvaluatorTest, Challenges) {
   for (size_t i = 0; i < challenges_.size(); ++i) {
     Expr expr =
         ExpressionFactory<GF7>::Challenge(plonk::Challenge(i, plonk::Phase(0)));
-    GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
+    GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
     GF7 expected = challenges_[i];
     EXPECT_EQ(evaluated, expected);
   }
 }
 
-TEST_F(SimpleEvaluatorTest, Negated) {
+TEST_F(ProvingEvaluatorTest, Negated) {
   GF7 value = GF7::Random();
   Expr expr =
       ExpressionFactory<GF7>::Negated(ExpressionFactory<GF7>::Constant(value));
-  GF7 negated = simple_evaluator_->Evaluate(expr.get());
+  GF7 negated = proving_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(negated, -value);
 }
 
-TEST_F(SimpleEvaluatorTest, Sum) {
+TEST_F(ProvingEvaluatorTest, Sum) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
   Expr expr = ExpressionFactory<GF7>::Sum(ExpressionFactory<GF7>::Constant(a),
                                           ExpressionFactory<GF7>::Constant(b));
-  GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
+  GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(a + b, evaluated);
 }
 
-TEST_F(SimpleEvaluatorTest, Product) {
+TEST_F(ProvingEvaluatorTest, Product) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
   Expr expr = ExpressionFactory<GF7>::Product(
       ExpressionFactory<GF7>::Constant(a), ExpressionFactory<GF7>::Constant(b));
-  GF7 evaluated = simple_evaluator_->Evaluate(expr.get());
+  GF7 evaluated = proving_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(a * b, evaluated);
 }
 
-TEST_F(SimpleEvaluatorTest, Scaled) {
+TEST_F(ProvingEvaluatorTest, Scaled) {
   GF7 a = GF7::Random();
   GF7 b = GF7::Random();
   Expr expr =
       ExpressionFactory<GF7>::Scaled(ExpressionFactory<GF7>::Constant(a), b);
-  GF7 scaled_expr = simple_evaluator_->Evaluate(expr.get());
+  GF7 scaled_expr = proving_evaluator_->Evaluate(expr.get());
   EXPECT_EQ(scaled_expr, a * b);
 }
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup

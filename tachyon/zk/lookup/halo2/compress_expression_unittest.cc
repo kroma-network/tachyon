@@ -25,7 +25,7 @@ TEST_F(CompressExpressionTest, CompressExpressions) {
       });
 
   size_t n = prover_->pcs().N();
-  SimpleEvaluator<Evals> evaluator = evaluator_;
+  ProvingEvaluator<Evals> evaluator = evaluator_;
   std::vector<F> expected(n);
   for (size_t i = 0; i < expressions.size(); ++i) {
     F value = evaluator.Evaluate(expressions[i].get());

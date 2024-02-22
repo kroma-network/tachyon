@@ -6,6 +6,7 @@ tachyon_cc_library(
     hdrs = ["evaluator_test.h"],
     visibility = [
         "//tachyon/zk/expressions/evaluator:__pkg__",
+        "//tachyon/zk/lookup:__pkg__",
         "//tachyon/zk/plonk/vanishing:__pkg__",
     ],
     deps = [

@@ -16,10 +16,10 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/lookup/lookup_pair.h"
+#include "tachyon/zk/lookup/proving_evaluator.h"
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 
 namespace tachyon::zk::lookup::halo2 {
@@ -119,7 +119,7 @@ class Prover {
   template <typename Domain>
   static LookupPair<Evals> CompressPair(
       const Domain* domain, const LookupArgument<F>& argument, const F& theta,
-      const SimpleEvaluator<Evals>& evaluator_tpl);
+      const ProvingEvaluator<Evals>& evaluator_tpl);
 
   template <typename PCS>
   static LookupPair<BlindedPolynomial<Poly, Evals>> PermutePair(
@@ -135,7 +135,7 @@ class Prover {
   void CompressPairs(const Domain* domain,
                      const std::vector<LookupArgument<F>>& arguments,
                      const F& theta,
-                     const SimpleEvaluator<Evals>& evaluator_tpl);
+                     const ProvingEvaluator<Evals>& evaluator_tpl);
 
   template <typename PCS>
   void PermutePairs(ProverBase<PCS>* prover);
