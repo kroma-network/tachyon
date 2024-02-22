@@ -14,7 +14,7 @@ SimpleFFTBenchmarkReporter::SimpleFFTBenchmarkReporter(
   targets_ = base::Map(exponents, [](uint64_t exponent) {
     return base::NumberToString(exponent);
   });
-  results_.resize(exponents.size());
+  times_.resize(exponents.size());
   AddVendor("tachyon");
 }
 

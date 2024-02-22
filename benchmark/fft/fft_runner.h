@@ -58,7 +58,7 @@ class FFTRunner {
           reinterpret_cast<const tachyon_bn254_univariate_evaluation_domain*>(
               domains_[i].get()),
           reinterpret_cast<CPolyOrEvals>(&(*polys_)[i])));
-      reporter_->AddResult(i, (base::TimeTicks::Now() - now).InSecondsF());
+      reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
       results->push_back(*reinterpret_cast<RetPoly*>(ret.get()));
     }
   }
@@ -94,7 +94,7 @@ class FFTRunner {
         std::vector<F> res_vec(ret.get(), ret.get() + (*polys_)[i].Degree());
         results->emplace_back(std::move(res_vec));
       }
-      reporter_->AddResult(i, base::Microseconds(duration_in_us).InSecondsF());
+      reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
     }
   }
 

@@ -50,7 +50,7 @@ class MSMRunner {
       ret.reset(fn(msm, reinterpret_cast<const CPoint*>(bases_->data()),
                    reinterpret_cast<const CScalarField*>(scalars_->data()),
                    point_nums[i]));
-      reporter_->AddResult(i, (base::TimeTicks::Now() - now).InSecondsF());
+      reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
       results->push_back(*reinterpret_cast<RetPoint*>(ret.get()));
     }
   }
@@ -64,7 +64,7 @@ class MSMRunner {
       ret.reset(fn(reinterpret_cast<const CPoint*>(bases_->data()),
                    reinterpret_cast<const CScalarField*>(scalars_->data()),
                    point_nums[i], &duration_in_us));
-      reporter_->AddResult(i, base::Microseconds(duration_in_us).InSecondsF());
+      reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
       results->push_back(*reinterpret_cast<RetPoint*>(ret.get()));
     }
   }
