@@ -95,9 +95,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsSecp256k1Fq>> final
     return FromBigInt(big_int);
   }
 
-  static void Init() {
-    // Do nothing.
-  }
+  static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
   const value_type& value() const { return value_; }
 
