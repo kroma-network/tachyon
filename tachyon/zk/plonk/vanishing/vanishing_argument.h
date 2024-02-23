@@ -81,7 +81,7 @@ class VanishingArgument {
   }
 
   const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
-  const std::vector<GraphEvaluator<F>> lookups() const { return lookups_; }
+  const std::vector<GraphEvaluator<F>>& lookups() const { return lookups_; }
 
   template <typename PCS, typename Poly, typename Evals, typename C,
             typename ExtendedEvals = typename PCS::ExtendedEvals>
