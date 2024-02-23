@@ -11,7 +11,7 @@
 #include <utility>
 
 #include "tachyon/math/base/rational_field.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/layout/lookup_table_column.h"
 

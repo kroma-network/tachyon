@@ -9,7 +9,7 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/crypto/commitments:vector_commitment_scheme_traits_forward",
         "//tachyon/crypto/transcripts:transcript",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
     ],
 )
 

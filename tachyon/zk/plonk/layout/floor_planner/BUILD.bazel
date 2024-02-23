@@ -7,7 +7,7 @@ tachyon_cc_library(
     hdrs = ["allocated_region.h"],
     deps = [
         "//tachyon:export",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
     ],
 )
 
@@ -37,7 +37,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon:export",
         "//tachyon/base:range",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
     ],
 )
 

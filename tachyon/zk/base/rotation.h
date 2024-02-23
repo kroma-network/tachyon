@@ -13,7 +13,7 @@
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 
 namespace tachyon::zk {
 

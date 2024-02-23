@@ -7,7 +7,7 @@ tachyon_cc_library(
     hdrs = ["assigned_cell.h"],
     deps = [
         ":cell",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
         "//tachyon/zk/base:value",
     ],
 )
@@ -18,7 +18,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
         "//tachyon/zk/base:value",
         "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/constraint_system:challenge",
@@ -31,7 +31,7 @@ tachyon_cc_library(
     hdrs = ["cell.h"],
     deps = [
         "//tachyon:export",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
         "//tachyon/zk/plonk/base:column_key",
         "@com_google_absl//absl/strings",
     ],
@@ -47,7 +47,7 @@ tachyon_cc_library(
         ":lookup_table",
         ":region",
         "//tachyon/base/functional:callback",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
         "//tachyon/zk/plonk/constraint_system",
         "//tachyon/zk/plonk/constraint_system:challenge",
     ],
@@ -59,7 +59,7 @@ tachyon_cc_library(
     deps = [
         ":lookup_table_column",
         "//tachyon/math/base:rational_field",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
         "//tachyon/zk/base:value",
     ],
 )
@@ -101,7 +101,7 @@ tachyon_cc_library(
         ":assigned_cell",
         "//tachyon/base/functional:callback",
         "//tachyon/math/base:rational_field",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
         "//tachyon/zk/base:value",
         "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/constraint_system:selector",

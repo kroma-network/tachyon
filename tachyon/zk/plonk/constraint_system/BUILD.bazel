@@ -35,7 +35,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:contains",
         "//tachyon/base/functional:callback",
         "//tachyon/base/strings:string_util",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
         "//tachyon/zk/expressions/evaluator:simple_selector_finder",
         "//tachyon/zk/lookup:lookup_argument",
         "//tachyon/zk/plonk/constraint_system:constraint",
@@ -86,7 +86,7 @@ tachyon_cc_library(
     hdrs = ["selector.h"],
     deps = [
         "//tachyon:export",
-        "//tachyon/zk/base:row_index",
+        "//tachyon/zk/base:row_types",
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/strings",
     ],

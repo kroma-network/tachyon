@@ -12,7 +12,7 @@ tachyon_cc_library(
     hdrs = ["blinder.h"],
     deps = [
         ":random_field_generator_base",
-        ":row_index",
+        ":row_types",
     ],
 )
 
@@ -40,7 +40,7 @@ tachyon_cc_library(
     name = "rotation",
     hdrs = ["rotation.h"],
     deps = [
-        ":row_index",
+        ":row_types",
         "//tachyon/base:logging",
         "//tachyon/base/numerics:checked_math",
         "//tachyon/base/strings:string_number_conversions",
@@ -49,8 +49,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "row_index",
-    hdrs = ["row_index.h"],
+    name = "row_types",
+    hdrs = ["row_types.h"],
 )
 
 tachyon_cc_library(

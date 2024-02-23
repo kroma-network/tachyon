@@ -26,7 +26,7 @@
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/plonk/constraint_system/constraint.h"

@@ -8,7 +8,7 @@
 #define TACHYON_ZK_PLONK_LAYOUT_FLOOR_PLANNER_ALLOCATED_REGION_H_
 
 #include "tachyon/export.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 
 namespace tachyon::zk::plonk {
 

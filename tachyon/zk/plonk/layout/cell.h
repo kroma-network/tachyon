@@ -14,7 +14,7 @@
 #include "absl/strings/substitute.h"
 
 #include "tachyon/export.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 
 namespace tachyon::zk::plonk {

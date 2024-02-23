@@ -14,7 +14,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/commitments/vector_commitment_scheme_traits_forward.h"
 #include "tachyon/crypto/transcripts/transcript.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 
 namespace tachyon::zk {
 
