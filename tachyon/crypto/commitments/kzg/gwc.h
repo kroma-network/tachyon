@@ -143,7 +143,7 @@ class GWC final : public UnivariatePolynomialCommitmentScheme<
     const std::vector<GroupedPolynomialOpenings<Poly, Commitment>>&
         grouped_poly_openings_vec = grouper.grouped_poly_openings_vec();
 
-    // |commitments| = [[W₀(𝜏)]₁, [W₁(𝜏)]₁, [W₂(𝜏)]₁, [W₃(𝜏)]₁, [W₄(𝜏)]₁]
+    // |commitments| = [[W₀(τ)]₁, [W₁(τ)]₁, [W₂(τ)]₁, [W₃(τ)]₁, [W₄(τ)]₁]
     std::vector<Commitment> commitments;
     commitments.reserve(grouped_poly_openings_vec.size());
     for (size_t i = 0; i < grouped_poly_openings_vec.size(); ++i) {
@@ -200,26 +200,26 @@ class GWC final : public UnivariatePolynomialCommitmentScheme<
       opening_multi += opening_batch;
 
       // clang-format off
-      // |witness_with_aux| = Wₐᵤₓ = x₀[W₀(𝜏)]₁ + ux₁[W₁(𝜏)]₁ + u²x₂[W₂(𝜏)]₁ + u³x₃[W₃(𝜏)]₁ + u⁴x₄[W₄(𝜏)]₁
+      // |witness_with_aux| = Wₐᵤₓ = x₀[W₀(τ)]₁ + ux₁[W₁(τ)]₁ + u²x₂[W₂(τ)]₁ + u³x₃[W₃(τ)]₁ + u⁴x₄[W₄(τ)]₁
       // clang-format on
       witness_with_aux += power_of_u *
                           *grouped_poly_openings_vec[i].point_refs[0] *
                           commitments[i];
       // clang-format off
-      // |witness| = W = [W₀(𝜏)]₁ + u[W₁(𝜏)]₁ + u²[W₂(𝜏)]₁ + u³[W₃(𝜏)]₁ + u⁴[W₄(𝜏)]₁
+      // |witness| = W = [W₀(τ)]₁ + u[W₁(τ)]₁ + u²[W₂(τ)]₁ + u³[W₃(τ)]₁ + u⁴[W₄(τ)]₁
       // clang-format on
       witness += power_of_u * commitments[i];
 
       power_of_u *= u;
     }
     // clang-format off
-    // e(W, [𝜏]₂) * e(Wₐᵤₓ + Cₘᵤₗₜ - [Oₘᵤₗₜ]₁, [-1]₂) ≟ gᴛ⁰
-    // 𝜏(W₀(𝜏) + uW₁(𝜏) + u²W₂(𝜏) + u³W₃(𝜏) + u⁴W₄(𝜏)) - x₀W₀(𝜏) - ux₁W₁(𝜏) - u²x₂W₂(𝜏) - u³x₃W₃(𝜏) - u⁴x₄W₄(𝜏) -
-    // P₀(𝜏) - vP₁(𝜏) - v²P₂(𝜏) - u(P₀(𝜏) + vP₁(𝜏) + v²P₂(𝜏)) - u²(P₀(𝜏) + vP₁(𝜏) + v²P₂(𝜏) + v³P₃(𝜏)) -
-    // u³P₃(𝜏) - u⁴P₄(𝜏) + P₀(x₀) + vP₁(x₀) + v²P₂(x₀) + u(P₀(x₁) + vP₁(x₁) + v²P₂(x₁)) +
+    // e(W, [τ]₂) * e(Wₐᵤₓ + Cₘᵤₗₜ - [Oₘᵤₗₜ]₁, [-1]₂) ≟ gᴛ⁰
+    // τ(W₀(τ) + uW₁(τ) + u²W₂(τ) + u³W₃(τ) + u⁴W₄(τ)) - x₀W₀(τ) - ux₁W₁(τ) - u²x₂W₂(τ) - u³x₃W₃(τ) - u⁴x₄W₄(τ) -
+    // P₀(τ) - vP₁(τ) - v²P₂(τ) - u(P₀(τ) + vP₁(τ) + v²P₂(τ)) - u²(P₀(τ) + vP₁(τ) + v²P₂(τ) + v³P₃(τ)) -
+    // u³P₃(τ) - u⁴P₄(τ) + P₀(x₀) + vP₁(x₀) + v²P₂(x₀) + u(P₀(x₁) + vP₁(x₁) + v²P₂(x₁)) +
     // u²(P₀(x₂) + vP₁(x₂) + v²P₂(x₂) + v³P₃(x₂)) + u³P₃(x₃) + u⁴P₄(x₄) ≟ 0
-    // (𝜏 - x₀)W₀(𝜏) + u(𝜏 - x₁)W₁(𝜏) + u²(𝜏 - x₂)W₂(𝜏) + u³(𝜏 - x₃)W₃(𝜏) + u⁴(𝜏 - x₄)W₄(𝜏) -
-    // H₀(𝜏) - uH₁(𝜏) - u²H₂(𝜏) - u³H₃(𝜏) - u⁴H₄(𝜏) ≟ 0
+    // (τ - x₀)W₀(τ) + u(τ - x₁)W₁(τ) + u²(τ - x₂)W₂(τ) + u³(τ - x₃)W₃(τ) + u⁴(τ - x₄)W₄(τ) -
+    // H₀(τ) - uH₁(τ) - u²H₂(τ) - u³H₃(τ) - u⁴H₄(τ) ≟ 0
     // clang-format on
     G1JacobianPoint g1_jacobian_arr[] = {
         witness, (witness_with_aux + commitment_multi -
