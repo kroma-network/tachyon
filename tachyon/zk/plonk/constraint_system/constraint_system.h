@@ -518,6 +518,8 @@ class ConstraintSystem {
     return *cached_blinding_factors_;
   }
 
+  RowOffset ComputeLastRow() const { return -(ComputeBlindingFactors() + 1); }
+
   // Returns the minimum necessary rows that need to exist in order to
   // account for e.g. blinding factors.
   RowIndex ComputeMinimumRows() const {

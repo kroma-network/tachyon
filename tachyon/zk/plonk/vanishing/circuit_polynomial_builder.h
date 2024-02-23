@@ -47,7 +47,7 @@ class CircuitPolynomialBuilder {
 
   static CircuitPolynomialBuilder Create(
       const Domain* domain, const ExtendedDomain* extended_domain, size_t n,
-      RowIndex blinding_factors, size_t cs_degree,
+      RowOffset last_row, size_t cs_degree,
       const std::vector<MultiPhaseRefTable<Poly>>* poly_tables, const F* theta,
       const F* beta, const F* gamma, const F* y, const F* zeta,
       const ProvingKey<Poly, Evals, C>* proving_key,
@@ -69,8 +69,7 @@ class CircuitPolynomialBuilder {
     builder.y_ = y;
     builder.zeta_ = zeta;
 
-    base::CheckedNumeric<int32_t> last_rotation = blinding_factors;
-    builder.last_rotation_ = Rotation((-last_rotation - 1).ValueOrDie());
+    builder.last_rotation_ = Rotation(last_row);
     builder.delta_start_ = *beta * *zeta;
 
     builder.proving_key_ = proving_key;

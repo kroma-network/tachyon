@@ -6,6 +6,7 @@
 namespace tachyon::zk {
 
 using RowIndex = uint32_t;
+using RowOffset = int32_t;
 
 }  // namespace tachyon::zk
 

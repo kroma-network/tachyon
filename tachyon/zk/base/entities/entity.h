@@ -60,6 +60,10 @@ class Entity {
     return domain_->size() - (blinding_factors + 1);
   }
 
+  constexpr static RowOffset GetLastRow(RowIndex blinding_factors) {
+    return -(blinding_factors + 1);
+  }
+
   Commitment Commit(const Poly& poly) {
     Commitment commitment;
     CHECK(pcs_.Commit(poly, &commitment));

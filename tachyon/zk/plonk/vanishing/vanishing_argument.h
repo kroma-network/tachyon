@@ -92,15 +92,15 @@ class VanishingArgument {
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers)
       const {
-    RowIndex blinding_factors = prover->blinder().blinding_factors();
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 
     CircuitPolynomialBuilder<PCS> builder =
         CircuitPolynomialBuilder<PCS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
-            blinding_factors, cs_degree, &poly_tables, &theta, &beta, &gamma,
-            &y, &zeta, &proving_key, &permutation_provers, &lookup_provers);
+            prover->GetLastRow(), cs_degree, &poly_tables, &theta, &beta,
+            &gamma, &y, &zeta, &proving_key, &permutation_provers,
+            &lookup_provers);
 
     return builder.BuildExtendedCircuitColumn(custom_gates_, lookups_);
   }

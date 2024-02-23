@@ -230,8 +230,7 @@ class Prover : public ProverBase<PCS> {
     VLOG(2) << "Halo2(x): " << x.ToHexString(true);
     F x_prev = Rotation::Prev().RotateOmega(domain, x);
     F x_next = Rotation::Next().RotateOmega(domain, x);
-    Rotation last_rotation =
-        Rotation(-static_cast<int32_t>(this->blinder().blinding_factors() + 1));
+    Rotation last_rotation = Rotation(this->GetLastRow());
     F x_last = last_rotation.RotateOmega(domain, x);
 
     PermutationOpeningPointSet<F> permutation_opening_point_set(x, x_next,

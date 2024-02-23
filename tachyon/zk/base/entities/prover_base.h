@@ -47,6 +47,10 @@ class ProverBase : public Entity<PCS> {
     return Entity<PCS>::GetUsableRows(blinder_.blinding_factors());
   }
 
+  RowOffset GetLastRow() const {
+    return Entity<PCS>::GetLastRow(blinder_.blinding_factors());
+  }
+
   void CommitAndWriteToTranscript(const Poly& poly) {
     Commitment commitment = this->Commit(poly);
     CHECK(GetWriter()->WriteToTranscript(commitment));
