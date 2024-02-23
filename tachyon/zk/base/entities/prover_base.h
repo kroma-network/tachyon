@@ -17,7 +17,6 @@
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/blinder.h"
 #include "tachyon/zk/base/entities/entity.h"
-#include "tachyon/zk/base/row_index.h"
 
 namespace tachyon::zk {
 
@@ -45,7 +44,7 @@ class ProverBase : public Entity<PCS> {
   }
 
   RowIndex GetUsableRows() const {
-    return this->domain_->size() - (blinder_.blinding_factors() + 1);
+    return Entity<PCS>::GetUsableRows(blinder_.blinding_factors());
   }
 
   void CommitAndWriteToTranscript(const Poly& poly) {

@@ -145,11 +145,10 @@ class Verifier : public VerifierBase<PCS> {
           return true;
         };
 
-    // NOTE(chokobole): It's safe to downcast because domain is already checked.
-    RowIndex max_rows = static_cast<RowIndex>(this->pcs_.N()) -
-                        (vkey.constraint_system().ComputeBlindingFactors() + 1);
-    auto check_rows = [max_rows](const Evals& instance_columns) {
-      if (instance_columns.NumElements() > size_t{max_rows}) {
+    RowIndex usable_rows =
+        this->GetUsableRows(vkey.constraint_system().ComputeBlindingFactors());
+    auto check_rows = [usable_rows](const Evals& instance_columns) {
+      if (instance_columns.NumElements() > size_t{usable_rows}) {
         LOG(ERROR) << "Too many number of elements in instance column";
         return false;
       }

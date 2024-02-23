@@ -21,7 +21,6 @@ tachyon_cc_library(
         "//tachyon/base:logging",
         "//tachyon/zk/base:blinded_polynomial",
         "//tachyon/zk/base:blinder",
-        "//tachyon/zk/base:row_index",
     ],
 )
 

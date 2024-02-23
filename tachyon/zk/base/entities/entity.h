@@ -56,6 +56,10 @@ class Entity {
     return transcript_.get();
   }
 
+  RowIndex GetUsableRows(RowIndex blinding_factors) const {
+    return domain_->size() - (blinding_factors + 1);
+  }
+
   Commitment Commit(const Poly& poly) {
     Commitment commitment;
     CHECK(pcs_.Commit(poly, &commitment));
