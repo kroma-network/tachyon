@@ -43,3 +43,16 @@ load(
 
 tachyon_crate_repositories()
 # End of rules_rust
+
+local_repository(
+    name = "kroma_network_tachyon",
+    path = "../../",
+)
+
+load("@kroma_network_tachyon//bazel:tachyon_deps.bzl", "tachyon_deps")
+
+tachyon_deps()
+
+load("@kroma_network_tachyon//bazel:buildifier_deps.bzl", "buildifier_deps")
+
+buildifier_deps()
