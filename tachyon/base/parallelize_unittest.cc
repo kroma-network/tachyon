@@ -5,8 +5,6 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/base/containers/container_util.h"
-
 namespace tachyon::base {
 
 namespace {
@@ -40,8 +38,7 @@ TEST(ParallelizeTest, ParallelizeByChunks) {
   EXPECT_EQ(expected, test_in);
 
   expected = {2, 3, 4, 5, 6, 7};
-  std::vector<size_t> chunk_indices =
-      base::CreateVector(test_in.size() / chunk_size, size_t{0});
+  std::vector<size_t> chunk_indices(test_in.size() / chunk_size, size_t{0});
   ParallelizeByChunkSize(
       test_in, chunk_size,
       [chunk_size, &chunk_indices](absl::Span<int> chunk, size_t chunk_offset) {
@@ -53,9 +50,8 @@ TEST(ParallelizeTest, ParallelizeByChunks) {
   EXPECT_THAT(chunk_indices, testing::UnorderedElementsAreArray({0, 1, 2}));
 
   expected = {3, 4, 5, 6, 7, 8};
-  chunk_indices = base::CreateVector(test_in.size() / chunk_size, size_t{0});
-  std::vector<size_t> chunk_sizes =
-      base::CreateVector(test_in.size() / chunk_size, size_t{0});
+  chunk_indices = std::vector<size_t>(test_in.size() / chunk_size, size_t{0});
+  std::vector<size_t> chunk_sizes(test_in.size() / chunk_size, size_t{0});
   ParallelizeByChunkSize(
       test_in, chunk_size,
       [chunk_size, &chunk_indices, &chunk_sizes](

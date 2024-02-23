@@ -95,8 +95,8 @@ class TACHYON_EXPORT CycleStore {
           rows, [col](RowIndex row) { return Label(col, row); });
     }));
     aux_ = mapping_;
-    sizes_ =
-        Table(base::CreateVector(cols, base::CreateVector(rows, size_t{1})));
+    sizes_ = Table(std::vector<std::vector<size_t>>(
+        cols, std::vector<size_t>(rows, size_t{1})));
   }
 
   const Table<Label>& mapping() const { return mapping_; }

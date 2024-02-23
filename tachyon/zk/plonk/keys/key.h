@@ -38,11 +38,11 @@ class TACHYON_EXPORT Key {
     // NOTE(chokobole): It's safe to downcast because domain is already checked.
     RowIndex n = static_cast<RowIndex>(domain->size());
     return {
-        base::CreateVector(constraint_system.num_fixed_columns(),
-                           domain->template Zero<RationalEvals>()),
+        std::vector<RationalEvals>(constraint_system.num_fixed_columns(),
+                                   domain->template Zero<RationalEvals>()),
         PermutationAssembly(constraint_system.permutation(), n),
-        base::CreateVector(constraint_system.num_selectors(),
-                           base::CreateVector(n, false)),
+        std::vector<std::vector<bool>>(constraint_system.num_selectors(),
+                                       std::vector<bool>(n, false)),
         // NOTE(chokobole): Considering that this is called from a verifier,
         // then you can't load this number through |prover->GetUsableRows()|.
         base::Range<RowIndex>::Until(
@@ -81,8 +81,7 @@ class TACHYON_EXPORT Key {
 
     result->fixed_columns =
         base::Map(assembly.fixed_columns(), [](const RationalEvals& evals) {
-          std::vector<F> result =
-              base::CreateVector(evals.evaluations().size(), F::Zero());
+          std::vector<F> result(evals.evaluations().size());
           CHECK(math::RationalField<F>::BatchEvaluate(evals.evaluations(),
                                                       &result));
           return Evals(std::move(result));

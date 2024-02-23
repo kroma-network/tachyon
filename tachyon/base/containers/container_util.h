@@ -66,14 +66,6 @@ std::vector<ReturnType> CreateVector(size_t size, Generator&& generator) {
   return ret;
 }
 
-template <typename T,
-          std::enable_if_t<!internal::IsCallableObject<T>::value>* = nullptr>
-std::vector<T> CreateVector(size_t size, const T& initial_value) {
-  std::vector<T> ret;
-  ret.resize(size, initial_value);
-  return ret;
-}
-
 template <typename Iterator, typename UnaryOp,
           typename FunctorTraits = internal::MakeFunctorTraits<UnaryOp>,
           typename RunType = typename FunctorTraits::RunType,

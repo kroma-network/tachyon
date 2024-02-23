@@ -199,9 +199,8 @@ class FixedBaseMSM {
     //    31  |  31 * 2⁰G |  31 * 2⁵G |  ...  | 31 * 2²⁴⁵G |     0G     |
     // -------+-----------+-----------+-------+------------+------------+
 
-    base_multiples_ = base::CreateVector(window_count, [window_size]() {
-      return base::CreateVector(window_size, AddResult::Zero());
-    });
+    base_multiples_ = std::vector<std::vector<AddResult>>(
+        window_count, std::vector<AddResult>(window_size));
     OPENMP_PARALLEL_FOR(size_t i = 0; i < window_count; ++i) {
       size_t cur_window_size =
           i == window_count - 1 ? last_window_size : window_size;

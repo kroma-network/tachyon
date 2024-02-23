@@ -174,7 +174,7 @@ class SelectorCompressor {
   void CombineSimpleSelectors(size_t n, const ExclusionMatrix& exclusion_matrix,
                               size_t max_degree) {
     // Simple selectors that we've added to combinations already.
-    std::vector<bool> added = base::CreateVector(selectors_.size(), false);
+    std::vector<bool> added(selectors_.size(), false);
     // For example in the first iteration, it adds:
     //   s₀: SelectorDescription(0, [1, 0, 0, 0, 0, 0, 0, 0, 1], 3)
     //   s₃: SelectorDescription(3, [0, 1, 0, 0, 0, 1, 1, 1, 0], 3)
@@ -237,7 +237,7 @@ class SelectorCompressor {
   void ConstructCombinedSelector(
       size_t n, const std::vector<SelectorDescription>& combination) {
     // Now, compute the selector and combination assignments.
-    std::vector<F> combination_assignment = base::CreateVector(n, F::Zero());
+    std::vector<F> combination_assignment(n);
     size_t combination_len = combination.size();
     size_t combination_index = combination_assignments_.size();
     std::unique_ptr<Expression<F>> query = callback_.Run();

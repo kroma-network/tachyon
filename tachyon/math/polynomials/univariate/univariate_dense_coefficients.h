@@ -101,8 +101,7 @@ class UnivariateDenseCoefficients {
     // i = 3 | x₀x₁x₂x₃ | -(x₀x₁x₂ + x₀x₁x₃ + x₀x₂x₃ + x₁x₂x₃) | x₀x₁ + x₀x₂ + x₀x₃ + x₁x₂ + x₁x₃ + x₂x₃ | -(x₀ + x₁ + x₂ + x₃) |    1 |
     // clang-format on
 
-    std::vector<F> coefficients =
-        base::CreateVector(std::size(roots) + 1, F::Zero());
+    std::vector<F> coefficients(std::size(roots) + 1);
     coefficients[0] = F::One();
     for (size_t i = 0; i < std::size(roots); ++i) {
       for (size_t j = i + 1; j > 0; --j) {
@@ -171,8 +170,7 @@ class UnivariateDenseCoefficients {
   template <bool MulRandomWithEvens>
   constexpr UnivariateDenseCoefficients Fold(const Field& r) const {
     size_t size = coefficients_.size();
-    std::vector<F> coefficients =
-        base::CreateVector((size + 1) >> 1, F::Zero());
+    std::vector<F> coefficients((size + 1) >> 1);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += 2) {
       if constexpr (MulRandomWithEvens) {
         coefficients[i >> 1] = coefficients_[i];
@@ -232,7 +230,7 @@ class UnivariateDenseCoefficients {
   // with |IsZero()|, it returns false. So please use it carefully!
   constexpr static UnivariateDenseCoefficients Zero(size_t degree) {
     UnivariateDenseCoefficients ret;
-    ret.coefficients_ = base::CreateVector(degree + 1, F::Zero());
+    ret.coefficients_ = std::vector<F>(degree + 1);
     return ret;
   }
 

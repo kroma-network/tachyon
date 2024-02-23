@@ -12,7 +12,6 @@
 #include <vector>
 
 #include "tachyon/base/buffer/copyable.h"
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/hashes/prime_field_serializable.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config.h"
@@ -274,8 +273,8 @@ struct PoseidonSponge final
     if constexpr (std::is_same_v<F, F2>) {
       return SqueezeNativeFieldElements(num_elements);
     } else {
-      return SqueezeFieldElementsWithSizes<F2>(base::CreateVector(
-          num_elements, []() { return FieldElementSize::Full(); }));
+      return SqueezeFieldElementsWithSizes<F2>(std::vector<FieldElementSize>(
+          num_elements, FieldElementSize::Full()));
     }
   }
 
@@ -283,8 +282,7 @@ struct PoseidonSponge final
   // NOTE(TomTaehoonKim): If you ever update this, please update
   // |Halo2PoseidonSponge| for consistency.
   std::vector<F> SqueezeNativeFieldElements(size_t num_elements) {
-    std::vector<F> ret =
-        base::CreateVector(num_elements, []() { return F::Zero(); });
+    std::vector<F> ret(num_elements);
     switch (state.mode.type) {
       case DuplexSpongeMode::Type::kAbsorbing: {
         Permute();

@@ -271,11 +271,10 @@ TEST_F(UnivariateEvaluationsTest, Copyable) {
 }
 
 TEST_F(UnivariateEvaluationsTest, Hash) {
-  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
-      std::make_tuple(Poly(), Poly::Zero(),
-                      Poly({base::CreateVector(kMaxDegree + 1, GF7::Zero())}),
-                      Poly::One(kMaxDegree), Poly::Random(kMaxDegree),
-                      Poly::Random(kMaxDegree))));
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(std::make_tuple(
+      Poly(), Poly::Zero(), Poly({std::vector<GF7>(kMaxDegree + 1)}),
+      Poly::One(kMaxDegree), Poly::Random(kMaxDegree),
+      Poly::Random(kMaxDegree))));
 }
 
 TEST_F(UnivariateEvaluationsTest, JsonValueConverter) {

@@ -209,11 +209,11 @@ TEST_F(MultilinearDenseEvaluationsTest, MultiplicativeOperators) {
 }
 
 TEST_F(MultilinearDenseEvaluationsTest, Hash) {
-  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(std::make_tuple(
-      Poly(), Poly::Zero(),
-      Poly(Evals(base::CreateVector(size_t{1} << kMaxDegree, GF7::Zero()))),
-      Poly::One(kMaxDegree), Poly::Random(kMaxDegree),
-      Poly::Random(kMaxDegree))));
+  EXPECT_TRUE(absl::VerifyTypeImplementsAbslHashCorrectly(
+      std::make_tuple(Poly(), Poly::Zero(),
+                      Poly(Evals(std::vector<GF7>(size_t{1} << kMaxDegree))),
+                      Poly::One(kMaxDegree), Poly::Random(kMaxDegree),
+                      Poly::Random(kMaxDegree))));
 }
 
 }  // namespace tachyon::math

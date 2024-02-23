@@ -13,7 +13,6 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/containers/adapters.h"
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/rotation.h"
@@ -105,8 +104,7 @@ class CircuitPolynomialBuilder {
 
       UpdateVanishingProvingKey(coset.get());
 
-      std::vector<F> value_part =
-          base::CreateVector(static_cast<size_t>(n_), F::Zero());
+      std::vector<F> value_part(static_cast<size_t>(n_));
       size_t circuit_num = poly_tables_->size();
       for (size_t j = 0; j < circuit_num; ++j) {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("

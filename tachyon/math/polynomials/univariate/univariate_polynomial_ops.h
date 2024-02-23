@@ -59,7 +59,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     size_t other_degree = other.Degree();
     std::vector<F> upper_coeffs;
     if (degree < other_degree) {
-      upper_coeffs = base::CreateVector(other_degree - degree, F::Zero());
+      upper_coeffs = std::vector<F>(other_degree - degree);
     }
 
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
@@ -114,7 +114,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     size_t other_degree = other.Degree();
     std::vector<F> upper_coeffs;
     if (degree < other_degree) {
-      upper_coeffs = base::CreateVector(other_degree - degree, F::Zero());
+      upper_coeffs = std::vector<F>(other_degree - degree);
     }
 
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
@@ -171,8 +171,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     size_t degree = self.Degree();
     size_t other_degree = other.Degree();
-    std::vector<F> coefficients =
-        base::CreateVector(degree + other_degree + 1, F::Zero());
+    std::vector<F> coefficients(degree + other_degree + 1);
     for (size_t i = 0; i < r_coefficients.size(); ++i) {
       const F& r = r_coefficients[i];
       if (r.IsZero()) {
@@ -203,8 +202,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     size_t degree = self.Degree();
     size_t other_degree = other.Degree();
-    std::vector<F> coefficients =
-        base::CreateVector(degree + other_degree + 1, F::Zero());
+    std::vector<F> coefficients(degree + other_degree + 1);
 
     const std::vector<Term>& r_terms = other.coefficients().terms_;
     for (size_t i = 0; i < r_terms.size(); ++i) {
@@ -284,7 +282,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   static UnivariatePolynomial<D>& Copy(UnivariatePolynomial<D>& self,
                                        const UnivariatePolynomial<S>& other) {
     std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
-    l_coefficients = base::CreateVector(other.Degree() + 1, F::Zero());
+    l_coefficients = std::vector<F>(other.Degree() + 1);
 
     const std::vector<Term>& r_terms = other.coefficients().terms_;
     OPENMP_PARALLEL_FOR(const Term& r_term : r_terms) {
@@ -309,8 +307,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     } else if (self.Degree() < other.Degree()) {
       return {UnivariatePolynomial<D>::Zero(), self.ToDense()};
     }
-    std::vector<F> quotient =
-        base::CreateVector(self.Degree() - other.Degree() + 1, F::Zero());
+    std::vector<F> quotient(self.Degree() - other.Degree() + 1);
     UnivariatePolynomial<D> remainder = self.ToDense();
     std::vector<F>& r_coefficients = remainder.coefficients_.coefficients_;
     F divisor_leading_inv = other.GetLeadingCoefficient().Inverse();

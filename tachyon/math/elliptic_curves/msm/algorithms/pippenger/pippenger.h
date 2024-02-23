@@ -12,7 +12,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"
@@ -94,8 +93,7 @@ class Pippenger : public PippengerBase<Point> {
       scalars[i] = scalars_it->ToBigInt();
     }
 
-    std::vector<Bucket> window_sums =
-        base::CreateVector(ctx_.window_count, Bucket::Zero());
+    std::vector<Bucket> window_sums(ctx_.window_count);
 
     if (use_msm_window_naf_) {
       AccumulateWindowNAFSums(std::move(bases_first), scalars, &window_sums);
@@ -120,8 +118,7 @@ class Pippenger : public PippengerBase<Point> {
     } else {
       bucket_size = 1 << (ctx_.window_bits - 1);
     }
-    std::vector<Bucket> buckets =
-        base::CreateVector(bucket_size, Bucket::Zero());
+    std::vector<Bucket> buckets(bucket_size);
     for (size_t j = 0; j < scalar_digits.size(); ++j, ++bases_it) {
       const Point& base = *bases_it;
       int64_t scalar = scalar_digits[j][i];
@@ -169,8 +166,7 @@ class Pippenger : public PippengerBase<Point> {
     Bucket window_sum = Bucket::Zero();
     // We don't need the "zero" bucket, so we only have 2^{window_bits} - 1
     // buckets.
-    std::vector<Bucket> buckets =
-        base::CreateVector((1 << ctx_.window_bits) - 1, Bucket::Zero());
+    std::vector<Bucket> buckets((1 << ctx_.window_bits) - 1);
     auto bases_it = bases_first;
     for (size_t j = 0; j < scalars.size(); ++j, ++bases_it) {
       const BigInt<N>& scalar = scalars[j];

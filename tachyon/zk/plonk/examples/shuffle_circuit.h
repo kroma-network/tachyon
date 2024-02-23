@@ -196,10 +196,8 @@ class ShuffleCircuit : public Circuit<ShuffleCircuitConfig<F, W>> {
 
   std::unique_ptr<Circuit<ShuffleCircuitConfig<F, W>>> WithoutWitness()
       const override {
-    std::vector<std::vector<F>> dummy_original_table = base::CreateVector(
-        W, []() { return base::CreateVector(H, F::Zero()); });
-    std::vector<std::vector<F>> dummy_shuffled_table = base::CreateVector(
-        W, []() { return base::CreateVector(H, F::Zero()); });
+    std::vector<std::vector<F>> dummy_original_table(W, std::vector<F>(H));
+    std::vector<std::vector<F>> dummy_shuffled_table(W, std::vector<F>(H));
     ShuffleCircuit dummy_circuit(std::move(dummy_original_table),
                                  std::move(dummy_shuffled_table));
     return std::make_unique<ShuffleCircuit>(std::move(dummy_circuit));
@@ -285,7 +283,7 @@ class ShuffleCircuit : public Circuit<ShuffleCircuitConfig<F, W>> {
               z[i + 1] = z[i] * Value<F>::Known(product[i]);
             }
           } else {
-            z = base::CreateVector(H + 1, Value<F>::Unknown());
+            z = std::vector<Value<F>>(H + 1);
           }
 
           for (RowIndex i = 0; i < H + 1; ++i) {

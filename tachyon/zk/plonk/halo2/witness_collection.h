@@ -13,7 +13,6 @@
 
 #include "absl/container/btree_map.h"
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/range.h"
 #include "tachyon/zk/plonk/base/phase.h"
 #include "tachyon/zk/plonk/layout/assignment.h"
@@ -32,8 +31,8 @@ class WitnessCollection : public Assignment<typename Evals::Field> {
                     RowIndex usable_rows, Phase current_phase,
                     const absl::btree_map<size_t, F>& challenges,
                     const std::vector<Evals>& instance_columns)
-      : advices_(base::CreateVector(num_advice_columns,
-                                    domain->template Zero<RationalEvals>())),
+      : advices_(std::vector<RationalEvals>(
+            num_advice_columns, domain->template Zero<RationalEvals>())),
         usable_rows_(base::Range<RowIndex>::Until(usable_rows)),
         current_phase_(current_phase),
         challenges_(challenges),

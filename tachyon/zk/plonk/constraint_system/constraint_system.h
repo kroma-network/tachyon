@@ -296,8 +296,7 @@ class ConstraintSystem {
     // expressions in gates, as lookup arguments cannot support simple
     // selectors. Selectors that are complex or do not appear in any gates
     // will have degree zero.
-    std::vector<size_t> degrees =
-        base::CreateVector(selectors.size(), size_t{0});
+    std::vector<size_t> degrees(selectors.size(), size_t{0});
     for (const Gate<F>& gate : gates_) {
       for (const std::unique_ptr<Expression<F>>& expression : gate.polys()) {
         std::optional<Selector> selector = expression->ExtractSimpleSelector();
@@ -323,9 +322,9 @@ class ConstraintSystem {
 
     std::vector<FixedColumnKey> selector_map;
     selector_map.resize(selector_compressor.selector_assignments().size());
-    std::vector<base::Ref<const Expression<F>>> selector_replacements =
-        base::CreateVector(selector_compressor.selector_assignments().size(),
-                           base::Ref<const Expression<F>>());
+    std::vector<base::Ref<const Expression<F>>> selector_replacements(
+        selector_compressor.selector_assignments().size(),
+        base::Ref<const Expression<F>>());
     for (const SelectorAssignment<F>& assignment :
          selector_compressor.selector_assignments()) {
       selector_replacements[assignment.selector_index()] =
