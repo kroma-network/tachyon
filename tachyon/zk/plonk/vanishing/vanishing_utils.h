@@ -62,17 +62,16 @@ ExtendedEvals& DivideByVanishingPolyInPlace(
   // |coset_gen_pow_n| = w'ⁿ where w' is generator of extended domain.
   const F coset_gen_pow_n = extended_domain->group_gen().Pow(domain->size());
   const F zeta_pow_n = zeta.Pow(domain->size());
-  // |t_evaluations| = [ζⁿ, ζⁿ * w'ⁿ, ζⁿ * w'²ⁿ, ...]
-  std::vector<F> t_evaluations =
-      F::GetSuccessivePowers(t_evaluations_size, coset_gen_pow_n, zeta_pow_n);
-  CHECK_EQ(t_evaluations.size(),
-           size_t{1} << (extended_domain->log_size_of_group() -
-                         domain->log_size_of_group()));
-
+  std::vector<F> t_evaluations(t_evaluations_size);
   // |t_evaluations| = [ζⁿ - 1, ζⁿ * w'ⁿ - 1, ζⁿ * w'²ⁿ - 1, ...]
-  base::Parallelize(t_evaluations, [](absl::Span<F> chunk) {
+  base::Parallelize(t_evaluations, [&coset_gen_pow_n, &zeta_pow_n](
+                                       absl::Span<F> chunk, size_t chunk_offset,
+                                       size_t chunk_size) {
+    size_t start = chunk_offset * chunk_size;
+    F zeta_i = zeta_pow_n * coset_gen_pow_n.Pow(start);
     for (F& coeff : chunk) {
-      coeff -= F::One();
+      coeff = zeta_i - F::One();
+      zeta_i *= coset_gen_pow_n;
     }
     CHECK(F::BatchInverseInPlaceSerial(chunk));
   });
