@@ -13,7 +13,7 @@ struct LookupVerificationData : public plonk::VanishingVerificationData<F> {
   const F* product_eval = nullptr;
   const F* product_next_eval = nullptr;
   const F* permuted_input_eval = nullptr;
-  const F* permuted_input_inv_eval = nullptr;
+  const F* permuted_input_prev_eval = nullptr;
   const F* permuted_table_eval = nullptr;
   const F* theta = nullptr;
   const F* beta = nullptr;

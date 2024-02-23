@@ -91,7 +91,7 @@ TEST(ProofTest, JsonValueConverter) {
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
   expected_proof.lookup_permuted_input_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
-  expected_proof.lookup_permuted_input_inv_evals_vec =
+  expected_proof.lookup_permuted_input_prev_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
   expected_proof.lookup_permuted_table_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);

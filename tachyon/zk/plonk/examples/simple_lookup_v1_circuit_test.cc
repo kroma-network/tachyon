@@ -789,18 +789,18 @@ TEST_F(SimpleLookupV1CircuitTest, Verify) {
   EXPECT_EQ(proof.lookup_permuted_input_evals_vec,
             expected_lookup_permuted_input_evals_vec);
 
-  std::vector<std::vector<F>> expected_lookup_permuted_input_inv_evals_vec;
+  std::vector<std::vector<F>> expected_lookup_permuted_input_prev_evals_vec;
   {
     std::vector<std::string_view> evals = {
         "0x0a609f45a209c538da6647253d32fb29f7a7f910df06c97f9624b7cd8b0579e5"};
-    expected_lookup_permuted_input_inv_evals_vec.push_back(CreateEvals(evals));
+    expected_lookup_permuted_input_prev_evals_vec.push_back(CreateEvals(evals));
 
     evals = {
         "0x1acff9a60c9c210c040684f117fad6974057c586c300f96d56ded903d7ef4cac"};
-    expected_lookup_permuted_input_inv_evals_vec.push_back(CreateEvals(evals));
+    expected_lookup_permuted_input_prev_evals_vec.push_back(CreateEvals(evals));
   }
-  EXPECT_EQ(proof.lookup_permuted_input_inv_evals_vec,
-            expected_lookup_permuted_input_inv_evals_vec);
+  EXPECT_EQ(proof.lookup_permuted_input_prev_evals_vec,
+            expected_lookup_permuted_input_prev_evals_vec);
 
   std::vector<std::vector<F>> expected_lookup_permuted_table_evals_vec;
   {

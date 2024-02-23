@@ -40,7 +40,7 @@ struct Proof {
   std::vector<std::vector<F>> lookup_product_evals_vec;
   std::vector<std::vector<F>> lookup_product_next_evals_vec;
   std::vector<std::vector<F>> lookup_permuted_input_evals_vec;
-  std::vector<std::vector<F>> lookup_permuted_input_inv_evals_vec;
+  std::vector<std::vector<F>> lookup_permuted_input_prev_evals_vec;
   std::vector<std::vector<F>> lookup_permuted_table_evals_vec;
 
   // auxiliary values
@@ -82,8 +82,8 @@ struct Proof {
                other.lookup_product_next_evals_vec &&
            lookup_permuted_input_evals_vec ==
                other.lookup_permuted_input_evals_vec &&
-           lookup_permuted_input_inv_evals_vec ==
-               other.lookup_permuted_input_inv_evals_vec &&
+           lookup_permuted_input_prev_evals_vec ==
+               other.lookup_permuted_input_prev_evals_vec &&
            lookup_permuted_table_evals_vec ==
                other.lookup_permuted_table_evals_vec;
   }
@@ -133,7 +133,7 @@ struct Proof {
     ret.product_eval = &lookup_product_evals_vec[i][j];
     ret.product_next_eval = &lookup_product_next_evals_vec[i][j];
     ret.permuted_input_eval = &lookup_permuted_input_evals_vec[i][j];
-    ret.permuted_input_inv_eval = &lookup_permuted_input_inv_evals_vec[i][j];
+    ret.permuted_input_prev_eval = &lookup_permuted_input_prev_evals_vec[i][j];
     ret.permuted_table_eval = &lookup_permuted_table_evals_vec[i][j];
     ret.theta = &theta;
     ret.beta = &beta;
@@ -198,8 +198,8 @@ class RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>> {
                    value.lookup_product_next_evals_vec, allocator);
     AddJsonElement(object, "lookup_permuted_input_evals_vec",
                    value.lookup_permuted_input_evals_vec, allocator);
-    AddJsonElement(object, "lookup_permuted_input_inv_evals_vec",
-                   value.lookup_permuted_input_inv_evals_vec, allocator);
+    AddJsonElement(object, "lookup_permuted_input_prev_evals_vec",
+                   value.lookup_permuted_input_prev_evals_vec, allocator);
     AddJsonElement(object, "lookup_permuted_table_evals_vec",
                    value.lookup_permuted_table_evals_vec, allocator);
     return object;
@@ -276,8 +276,8 @@ class RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>> {
     if (!ParseJsonElement(json_value, "lookup_permuted_input_evals_vec",
                           &proof.lookup_permuted_input_evals_vec, error))
       return false;
-    if (!ParseJsonElement(json_value, "lookup_permuted_input_inv_evals_vec",
-                          &proof.lookup_permuted_input_inv_evals_vec, error))
+    if (!ParseJsonElement(json_value, "lookup_permuted_input_prev_evals_vec",
+                          &proof.lookup_permuted_input_prev_evals_vec, error))
       return false;
     if (!ParseJsonElement(json_value, "lookup_permuted_table_evals_vec",
                           &proof.lookup_permuted_table_evals_vec, error))

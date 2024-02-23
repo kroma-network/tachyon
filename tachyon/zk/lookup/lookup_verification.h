@@ -72,7 +72,7 @@ std::vector<F> CreateLookupVerificationExpressions(
   // (a'(X) − s'(X)) * (a'(X) − a'(ω⁻¹ * X)) = 0
   ret.push_back(active_rows *
                 (*data.permuted_input_eval - *data.permuted_table_eval) *
-                (*data.permuted_input_eval - *data.permuted_input_inv_eval));
+                (*data.permuted_input_eval - *data.permuted_input_prev_eval));
   return ret;
 }
 
@@ -98,7 +98,7 @@ std::vector<crypto::PolynomialOpening<Poly, C>> CreateLookupQueries(
   // Open lookup input commitments at ω⁻¹ * x.
   queries.emplace_back(base::Ref<const C>(&data.permuted_commitment->input()),
                        base::DeepRef<const F>(data.x_prev),
-                       *data.permuted_input_inv_eval);
+                       *data.permuted_input_prev_eval);
   // Open lookup product commitments at ω * x.
   queries.emplace_back(base::Ref<const C>(data.product_commitment),
                        base::DeepRef<const F>(data.x_next),
