@@ -12,10 +12,12 @@
 
 #include "absl/hash/hash.h"
 
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 #include "tachyon/math/polynomials/polynomial.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 // MultilinearExtension represents a multilinear polynomial in evaluation form.
 // Unlike UnivariateEvaluations, its evaluation domain is fixed to {0, 1}ᵏ (i.e.
@@ -166,7 +168,33 @@ H AbslHashValue(H h, const MultilinearExtension<Evaluations>& mle) {
   return H::combine(std::move(h), mle.evaluations());
 }
 
-}  // namespace tachyon::math
+}  // namespace math
+namespace base {
+
+template <typename Evaluations>
+class Copyable<math::MultilinearExtension<Evaluations>> {
+ public:
+  static bool WriteTo(const math::MultilinearExtension<Evaluations>& mle,
+                      Buffer* buffer) {
+    return buffer->Write(mle.evaluations());
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       math::MultilinearExtension<Evaluations>* mle) {
+    Evaluations evaluations;
+    if (!buffer.Read(&evaluations)) return false;
+    *mle = math::MultilinearExtension<Evaluations>(std::move(evaluations));
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const math::MultilinearExtension<Evaluations>& mle) {
+    return base::EstimateSize(mle.evaluations());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #include "tachyon/math/polynomials/multivariate/multilinear_extension_ops.h"
 

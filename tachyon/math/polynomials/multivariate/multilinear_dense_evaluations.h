@@ -15,12 +15,14 @@
 #include "absl/hash/hash.h"
 
 #include "tachyon/base/bits.h"
+#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/multivariate/support_poly_operators.h"
 
-namespace tachyon::math {
+namespace tachyon {
+namespace math {
 
 template <typename F, size_t MaxDegree>
 class MultilinearDenseEvaluations {
@@ -196,6 +198,35 @@ H AbslHashValue(H h, const MultilinearDenseEvaluations<F, MaxDegree>& evals) {
   return h;
 }
 
-}  // namespace tachyon::math
+}  // namespace math
+
+namespace base {
+
+template <typename F, size_t MaxDegree>
+class Copyable<math::MultilinearDenseEvaluations<F, MaxDegree>> {
+ public:
+  static bool WriteTo(
+      const math::MultilinearDenseEvaluations<F, MaxDegree>& evals,
+      Buffer* buffer) {
+    return buffer->Write(evals.evaluations());
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       math::MultilinearDenseEvaluations<F, MaxDegree>* evals) {
+    std::vector<F> evaluations;
+    if (!buffer.Read(&evaluations)) return false;
+    *evals =
+        math::MultilinearDenseEvaluations<F, MaxDegree>(std::move(evaluations));
+    return true;
+  }
+
+  static size_t EstimateSize(
+      const math::MultilinearDenseEvaluations<F, MaxDegree>& evals) {
+    return base::EstimateSize(evals.evaluations());
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTILINEAR_DENSE_EVALUATIONS_H_
