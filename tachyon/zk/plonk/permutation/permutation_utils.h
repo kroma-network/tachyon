@@ -34,6 +34,21 @@ constexpr F GetDelta() {
   }
 }
 
+constexpr size_t GetNumPermutationEvals(size_t num_circuits,
+                                        size_t num_grand_product_polys) {
+  if (num_circuits == 0) return 0;
+  if (num_grand_product_polys == 0) return 0;
+  return num_circuits * (2 * num_grand_product_polys + 1);
+}
+
+constexpr size_t GetNumPermutationOpenings(size_t num_circuits,
+                                           size_t num_grand_product_polys,
+                                           size_t num_permutations) {
+  if (num_circuits == 0) return 0;
+  if (num_grand_product_polys == 0) return 0;
+  return num_circuits * (num_grand_product_polys * 3 - 1) + num_permutations;
+}
+
 }  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_UTILS_H_

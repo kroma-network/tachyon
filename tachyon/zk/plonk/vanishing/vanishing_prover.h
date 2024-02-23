@@ -65,19 +65,6 @@ class VanishingProver {
                      const std::vector<MultiPhaseRefTable<Poly>>& tables,
                      const F& x, const F& x_n);
 
-  template <typename PCS>
-  constexpr static size_t GetNumOpenings(
-      size_t num_circuits, const ConstraintSystem<F>& constraint_system) {
-    size_t ret = constraint_system.advice_queries().size();
-    if (PCS::kQueryInstance) {
-      ret += constraint_system.instance_queries().size();
-    }
-    ret *= num_circuits;
-    ret += constraint_system.fixed_queries().size();
-    ret += 2;
-    return ret;
-  }
-
   template <typename PCS, typename Domain>
   static void OpenAdviceInstanceColumns(
       const Domain* domain, const ConstraintSystem<F>& constraint_system,

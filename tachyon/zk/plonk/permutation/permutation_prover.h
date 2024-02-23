@@ -84,16 +84,6 @@ class PermutationProver {
       const PermutationProvingKey<Poly, Evals>& proving_key,
       const PermutationOpeningPointSet<F>& point_set);
 
-  constexpr static size_t GetNumOpenings(
-      const std::vector<PermutationProver>& permutation_provers,
-      const PermutationProvingKey<Poly, Evals>& proving_key) {
-    if (permutation_provers.empty()) return 0;
-    if (permutation_provers[0].grand_product_polys_.empty()) return 0;
-    return permutation_provers.size() *
-               (permutation_provers[0].grand_product_polys_.size() * 3 - 1) +
-           proving_key.permutations().size();
-  }
-
   void Open(const PermutationOpeningPointSet<F>& point_set,
             std::vector<crypto::PolynomialOpening<Poly>>& openings) const;
 

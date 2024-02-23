@@ -15,6 +15,7 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/plonk/constraint_system/gate.h"
 
 namespace tachyon::zk::plonk {
 
@@ -140,6 +141,31 @@ std::vector<F> BuildExtendedColumnWithColumns(
     }
   }
   return flattened_transposed_columns;
+}
+
+template <typename F>
+static size_t GetNumVanishingEvals(size_t num_circuits,
+                                   const std::vector<Gate<F>>& gates) {
+  size_t num_polys = std::accumulate(gates.begin(), gates.end(), 0,
+                                     [](size_t acc, const Gate<F>& gate) {
+                                       return acc + gate.polys().size();
+                                     });
+  return num_circuits * num_polys;
+}
+
+template <typename PCS>
+constexpr static size_t GetNumVanishingOpenings(size_t num_circuits,
+                                                size_t num_advice_queries,
+                                                size_t num_instance_queries,
+                                                size_t num_fixed_queries) {
+  size_t ret = num_advice_queries;
+  if (PCS::kQueryInstance) {
+    ret += num_instance_queries;
+  }
+  ret *= num_circuits;
+  ret += num_fixed_queries;
+  ret += 2;
+  return ret;
 }
 
 }  // namespace tachyon::zk::plonk

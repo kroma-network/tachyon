@@ -105,13 +105,6 @@ class Prover {
     }
   }
 
-  constexpr static size_t GetNumOpenings(
-      const std::vector<Prover>& lookup_provers) {
-    if (lookup_provers.empty()) return 0;
-    return lookup_provers.size() *
-           lookup_provers[0].grand_product_polys_.size() * 5;
-  }
-
   void Open(const OpeningPointSet<F>& point_set,
             std::vector<crypto::PolynomialOpening<Poly>>& openings) const;
 

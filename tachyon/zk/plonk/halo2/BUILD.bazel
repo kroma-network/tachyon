@@ -133,9 +133,9 @@ tachyon_cc_library(
     hdrs = ["proof.h"],
     deps = [
         "//tachyon/zk/lookup:lookup_pair",
-        "//tachyon/zk/lookup:lookup_verification_data",
-        "//tachyon/zk/plonk/permutation:permutation_verification_data",
-        "//tachyon/zk/plonk/vanishing:vanishing_verification_data",
+        "//tachyon/zk/lookup/halo2:verifier_data",
+        "//tachyon/zk/plonk/permutation:permutation_verifier_data",
+        "//tachyon/zk/plonk/vanishing:vanishing_verifier_data",
     ],
 )
 
@@ -237,10 +237,12 @@ tachyon_cc_library(
         ":proof_reader",
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:verifier_base",
-        "//tachyon/zk/lookup:lookup_verification",
+        "//tachyon/zk/lookup/halo2:utils",
+        "//tachyon/zk/lookup/halo2:verifier",
         "//tachyon/zk/plonk/keys:verifying_key",
-        "//tachyon/zk/plonk/permutation:permutation_verification",
-        "//tachyon/zk/plonk/vanishing:vanishing_verification_evaluator",
+        "//tachyon/zk/plonk/permutation:permutation_verifier",
+        "//tachyon/zk/plonk/vanishing:vanishing_utils",
+        "//tachyon/zk/plonk/vanishing:vanishing_verifier",
         "@com_google_googletest//:gtest_prod",
     ],
 )

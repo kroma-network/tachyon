@@ -18,26 +18,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "lookup_verification_data",
-    hdrs = ["lookup_verification_data.h"],
-    deps = [
-        "//tachyon/zk/lookup:lookup_pair",
-        "//tachyon/zk/plonk/vanishing:vanishing_verification_data",
-    ],
-)
-
-tachyon_cc_library(
-    name = "lookup_verification",
-    hdrs = ["lookup_verification.h"],
-    deps = [
-        ":lookup_argument",
-        ":lookup_verification_data",
-        "//tachyon/crypto/commitments:polynomial_openings",
-        "//tachyon/zk/plonk/vanishing:vanishing_verification_evaluator",
-    ],
-)
-
-tachyon_cc_library(
     name = "proving_evaluator",
     hdrs = ["proving_evaluator.h"],
     deps = [
@@ -53,6 +33,25 @@ tachyon_cc_library(
         "//tachyon/zk/expressions:selector_expression",
         "//tachyon/zk/expressions:sum_expression",
         "//tachyon/zk/plonk/base:multi_phase_ref_table",
+    ],
+)
+
+tachyon_cc_library(
+    name = "verifying_evaluator",
+    hdrs = ["verifying_evaluator.h"],
+    deps = [
+        "//tachyon/zk/expressions:advice_expression",
+        "//tachyon/zk/expressions:challenge_expression",
+        "//tachyon/zk/expressions:constant_expression",
+        "//tachyon/zk/expressions:evaluator",
+        "//tachyon/zk/expressions:fixed_expression",
+        "//tachyon/zk/expressions:instance_expression",
+        "//tachyon/zk/expressions:negated_expression",
+        "//tachyon/zk/expressions:product_expression",
+        "//tachyon/zk/expressions:scaled_expression",
+        "//tachyon/zk/expressions:selector_expression",
+        "//tachyon/zk/expressions:sum_expression",
+        "//tachyon/zk/plonk/base:multi_phase_evaluations",
     ],
 )
 

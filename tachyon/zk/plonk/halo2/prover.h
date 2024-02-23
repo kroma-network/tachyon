@@ -295,11 +295,15 @@ class Prover : public ProverBase<PCS> {
     std::vector<crypto::PolynomialOpening<Poly>> openings;
     size_t num_circuits = poly_tables.size();
     size_t size =
-        VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
-            template GetNumOpenings<PCS>(num_circuits, constraint_system) +
-        PermutationProver<Poly, Evals>::GetNumOpenings(
-            permutation_provers, proving_key.permutation_proving_key()) +
-        lookup::halo2::Prover<Poly, Evals>::GetNumOpenings(lookup_provers);
+        GetNumVanishingOpenings<PCS>(
+            num_circuits, constraint_system.advice_queries().size(),
+            constraint_system.instance_queries().size(),
+            constraint_system.fixed_queries().size()) +
+        GetNumPermutationOpenings(
+            num_circuits, permutation_provers[0].grand_product_polys().size(),
+            proving_key.permutation_proving_key().permutations().size()) +
+        lookup::halo2::GetNumOpenings(lookup_provers.size(),
+                                      constraint_system.lookups().size());
     openings.reserve(size);
 
     const F& x = permutation_opening_point_set.x;
