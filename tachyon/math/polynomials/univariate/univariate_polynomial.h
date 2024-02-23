@@ -8,6 +8,8 @@
 
 #include <stddef.h>
 
+#include <algorithm>
+#include <functional>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -18,6 +20,7 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/parallelize.h"
 #include "tachyon/math/polynomials/polynomial.h"
 #include "tachyon/math/polynomials/univariate/univariate_dense_coefficients.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
@@ -120,12 +123,23 @@ class UnivariatePolynomial final
   }
 
   template <typename Container>
-  constexpr static Field EvaluateVanishingPolyByRoots(const Container& roots,
-                                                      const Field& point) {
+  constexpr static Field EvaluateVanishingPolyByRootsSerial(
+      const Container& roots, const Field& point) {
     return std::accumulate(roots.begin(), roots.end(), Field::One(),
                            [point](Field& acc, const Field& root) {
                              return acc *= (point - root);
                            });
+  }
+
+  template <typename Container>
+  constexpr static Field EvaluateVanishingPolyByRoots(const Container& roots,
+                                                      const Field& point) {
+    std::vector<Field> products =
+        base::ParallelizeMap(roots, [&point](absl::Span<const Field> chunk) {
+          return EvaluateVanishingPolyByRootsSerial(chunk, point);
+        });
+    return std::accumulate(products.begin(), products.end(), Field::One(),
+                           std::multiplies<>());
   }
 
   // Return a polynomial where the original polynomial reduces its degree

@@ -13,6 +13,7 @@ tachyon_cc_library(
     hdrs = ["polynomial_openings.h"],
     deps = [
         "//tachyon/base:logging",
+        "//tachyon/base:openmp_util",
         "//tachyon/base:ref",
         "//tachyon/base/containers:container_util",
         "//tachyon/math/polynomials/univariate:lagrange_interpolation",

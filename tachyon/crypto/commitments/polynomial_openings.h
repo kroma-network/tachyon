@@ -11,6 +11,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/openmp_util.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/math/polynomials/univariate/lagrange_interpolation.h"
 
@@ -162,12 +163,11 @@ struct GroupedPolynomialOpenings {
       const Field& r, const std::vector<Point>& owned_points,
       const std::vector<Poly>& low_degree_extensions) const {
     // numerators: [P₀(X) - R₀(X), P₁(X) - R₁(X), P₂(X) - R₂(X)]
-    std::vector<Poly> numerators = base::Map(
-        poly_openings_vec,
-        [&low_degree_extensions](
-            size_t i, const PolynomialOpenings<Poly>& poly_openings) {
-          return *poly_openings.poly_oracle - low_degree_extensions[i];
-        });
+    std::vector<Poly> numerators(low_degree_extensions.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < low_degree_extensions.size(); ++i) {
+      numerators[i] =
+          *poly_openings_vec[i].poly_oracle - low_degree_extensions[i];
+    }
 
     // Combine numerator polynomials with powers of |r|.
     // N(X) = (P₀(X) - R₀(X)) + r(P₁(X) - R₁(X)) + r²(P₂(X) - R₂(X))
