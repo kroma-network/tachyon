@@ -520,7 +520,7 @@ class ConstraintSystem {
 
   // Returns the minimum necessary rows that need to exist in order to
   // account for e.g. blinding factors.
-  size_t ComputeMinimumRows() const {
+  RowIndex ComputeMinimumRows() const {
     return ComputeBlindingFactors()  // m blinding factors
            + 1                       // for l_{-(m + 1)} (l_last)
            +
