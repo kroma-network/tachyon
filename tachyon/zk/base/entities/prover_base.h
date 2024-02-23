@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
-#include "tachyon/crypto/commitments/vector_commitment_scheme_traits_forward.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/blinder.h"
 #include "tachyon/zk/base/entities/entity.h"
@@ -49,76 +48,35 @@ class ProverBase : public Entity<PCS> {
     return this->domain_->size() - (blinder_.blinding_factors() + 1);
   }
 
-  Commitment Commit(const Poly& poly) {
-    Commitment commitment;
-    CHECK(this->pcs_.Commit(poly, &commitment));
-    return commitment;
-  }
-
-  template <typename T = PCS,
-            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
-                T>::kSupportsBatchMode>* = nullptr>
-  void BatchCommitAt(const Poly& poly, size_t index) {
-    CHECK(this->pcs_.Commit(poly, index));
-  }
-
   void CommitAndWriteToTranscript(const Poly& poly) {
-    Commitment commitment = Commit(poly);
+    Commitment commitment = this->Commit(poly);
     CHECK(GetWriter()->WriteToTranscript(commitment));
   }
 
   void CommitAndWriteToProof(const Poly& poly) {
-    Commitment commitment = Commit(poly);
+    Commitment commitment = this->Commit(poly);
     CHECK(GetWriter()->WriteToProof(commitment));
-  }
-
-  template <typename Container>
-  Commitment Commit(const Container& coeffs) {
-    Commitment commitment;
-    CHECK(this->pcs_.DoCommit(coeffs, &commitment));
-    return commitment;
-  }
-
-  template <typename T = PCS, typename Container,
-            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
-                T>::kSupportsBatchMode>* = nullptr>
-  void BatchCommitAt(const Container& coeffs, size_t index) {
-    CHECK(this->pcs_.DoCommit(coeffs, this->pcs_.batch_commitment_state(),
-                              index));
-  }
-
-  template <typename Container>
-  void CommitAndWriteToTranscript(const Container& coeffs) {
-    Commitment commitment = Commit(coeffs);
-    CHECK(GetWriter()->WriteToTranscript(commitment));
-  }
-
-  template <typename Container>
-  void CommitAndWriteToProof(const Container& coeffs) {
-    Commitment commitment = Commit(coeffs);
-    CHECK(GetWriter()->WriteToProof(commitment));
-  }
-
-  Commitment Commit(const Evals& evals) {
-    Commitment commitment;
-    CHECK(this->pcs_.CommitLagrange(evals, &commitment));
-    return commitment;
-  }
-
-  template <typename T = PCS,
-            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
-                T>::kSupportsBatchMode>* = nullptr>
-  void BatchCommitAt(const Evals& evals, size_t index) {
-    CHECK(this->pcs_.CommitLagrange(evals, index));
   }
 
   void CommitAndWriteToTranscript(const Evals& evals) {
-    Commitment commitment = Commit(evals);
+    Commitment commitment = this->Commit(evals);
     CHECK(GetWriter()->WriteToTranscript(commitment));
   }
 
   void CommitAndWriteToProof(const Evals& evals) {
-    Commitment commitment = Commit(evals);
+    Commitment commitment = this->Commit(evals);
+    CHECK(GetWriter()->WriteToProof(commitment));
+  }
+
+  template <typename Container>
+  void CommitAndWriteToTranscript(const Container& container) {
+    Commitment commitment = this->Commit(container);
+    CHECK(GetWriter()->WriteToTranscript(commitment));
+  }
+
+  template <typename Container>
+  void CommitAndWriteToProof(const Container& container) {
+    Commitment commitment = this->Commit(container);
     CHECK(GetWriter()->WriteToProof(commitment));
   }
 
