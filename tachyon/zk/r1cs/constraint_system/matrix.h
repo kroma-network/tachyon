@@ -57,6 +57,11 @@ class Matrix {
   bool operator==(const Matrix& other) const { return cells_ == other.cells_; }
   bool operator!=(const Matrix& other) const { return cells_ != other.cells_; }
 
+  std::vector<Cell<F>>& operator[](size_t index) { return cells_[index]; }
+  const std::vector<Cell<F>>& operator[](size_t index) const {
+    return cells_[index];
+  }
+
   std::string ToString() const {
     std::vector<std::string> rows =
         base::Map(cells_, [](const std::vector<Cell<F>>& row) {
