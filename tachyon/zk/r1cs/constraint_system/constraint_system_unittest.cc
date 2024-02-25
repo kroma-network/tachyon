@@ -60,15 +60,18 @@ TEST_F(ConstraintSystemTest, CreateInstanceVariable) {
       constraint_system.set_mode(SynthesisMode::Prove(false));
     }
     EXPECT_EQ(constraint_system.num_instance_variables(), 1);
+    Variable variable =
+        constraint_system.CreateInstanceVariable([]() { return F(3); });
+    EXPECT_EQ(variable, Variable::Instance(1));
+    EXPECT_EQ(constraint_system.num_instance_variables(), 2);
+    std::vector<F> expected_instance_assignments;
     if (i == 0) {
-      EXPECT_DEATH(
-          constraint_system.CreateInstanceVariable([]() { return F(3); }), "");
+      expected_instance_assignments = {F(1)};
     } else {
-      Variable variable =
-          constraint_system.CreateInstanceVariable([]() { return F(3); });
-      EXPECT_EQ(variable, Variable::Instance(1));
-      EXPECT_EQ(constraint_system.num_instance_variables(), 2);
+      expected_instance_assignments = {F(1), F(3)};
     }
+    EXPECT_EQ(constraint_system.instance_assignments(),
+              expected_instance_assignments);
   }
 }
 
@@ -83,14 +86,16 @@ TEST_F(ConstraintSystemTest, CreateWitnessVariable) {
       constraint_system.set_mode(SynthesisMode::Prove(false));
     }
     EXPECT_EQ(constraint_system.num_witness_variables(), 0);
+    Variable variable =
+        constraint_system.CreateWitnessVariable([]() { return F(3); });
+    EXPECT_EQ(variable, Variable::Witness(0));
+    EXPECT_EQ(constraint_system.num_witness_variables(), 1);
     if (i == 0) {
-      EXPECT_DEATH(
-          constraint_system.CreateWitnessVariable([]() { return F(3); }), "");
+      EXPECT_TRUE(constraint_system.witness_assignments().empty());
     } else {
-      Variable variable =
-          constraint_system.CreateWitnessVariable([]() { return F(3); });
-      EXPECT_EQ(variable, Variable::Witness(0));
-      EXPECT_EQ(constraint_system.num_witness_variables(), 1);
+      std::vector<F> expected_witness_assignments = {F(3)};
+      EXPECT_EQ(constraint_system.witness_assignments(),
+                expected_witness_assignments);
     }
   }
 }
