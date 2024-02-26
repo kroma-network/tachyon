@@ -31,7 +31,7 @@ def _generate_r1cs_impl(ctx):
     arguments.append("--output=" + out.dirname)
 
     ctx.actions.run(
-        inputs = ctx.files.srcs,
+        inputs = ctx.files.srcs + ctx.files.main,
         tools = [ctx.executable._tool],
         executable = ctx.executable._tool,
         progress_message = "Generating %s" % (out.short_path),

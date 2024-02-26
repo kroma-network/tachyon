@@ -6,9 +6,6 @@ exports_files(["multiplier_3.zkey"])
 
 generate_r1cs(
     name = "multiplier_n_r1cs",
-    srcs = [
-        "multiplier_2.circom",
-        "multiplier_n.circom",
-    ],
+    srcs = ["multiplier_2.circom"],
     main = "multiplier_n.circom",
 )
