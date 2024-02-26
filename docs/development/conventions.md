@@ -48,7 +48,7 @@ size_t foo = 10;
 
 #### Greek Letters
 
-Greek letters are often used in explanations of mathematical processes in our comments. We use the "Small" version of Greek unicode letters to standardize and assist searching capabilites.
+Greek letters are often used in explanations of mathematical processes in our comments. We use the "Small" version of Greek unicode letters to standardize and assist searching capabilities.
 
 For example:
 
