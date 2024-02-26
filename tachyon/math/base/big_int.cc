@@ -5,7 +5,19 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 
-namespace tachyon::math::internal {
+namespace tachyon::math {
+
+template class BigInt<1>;
+template class BigInt<2>;
+template class BigInt<3>;
+template class BigInt<4>;
+template class BigInt<5>;
+template class BigInt<6>;
+template class BigInt<7>;
+template class BigInt<8>;
+template class BigInt<9>;
+
+namespace internal {
 
 namespace {
 
@@ -48,4 +60,5 @@ std::string LimbsToHexString(const uint64_t* limbs, size_t limb_nums,
   return base::MaybePrepend0x(DoLimbsToString<16>(limbs, limb_nums, pad_zero));
 }
 
-}  // namespace tachyon::math::internal
+}  // namespace internal
+}  // namespace tachyon::math

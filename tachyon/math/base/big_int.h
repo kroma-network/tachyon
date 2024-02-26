@@ -996,6 +996,16 @@ class BitTraits<BigInt<N>> {
   }
 };
 
+extern template class TACHYON_EXPORT BigInt<1>;
+extern template class TACHYON_EXPORT BigInt<2>;
+extern template class TACHYON_EXPORT BigInt<3>;
+extern template class TACHYON_EXPORT BigInt<4>;
+extern template class TACHYON_EXPORT BigInt<5>;
+extern template class TACHYON_EXPORT BigInt<6>;
+extern template class TACHYON_EXPORT BigInt<7>;
+extern template class TACHYON_EXPORT BigInt<8>;
+extern template class TACHYON_EXPORT BigInt<9>;
+
 }  // namespace math
 
 namespace base {
