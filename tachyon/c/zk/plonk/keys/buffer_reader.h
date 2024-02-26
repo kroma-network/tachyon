@@ -346,16 +346,16 @@ class BufferReader<tachyon::zk::plonk::PermutationArgument> {
 };
 
 template <typename F>
-class BufferReader<tachyon::zk::LookupArgument<F>> {
+class BufferReader<tachyon::zk::lookup::Argument<F>> {
  public:
-  static tachyon::zk::LookupArgument<F> Read(
+  static tachyon::zk::lookup::Argument<F> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
     std::vector<std::unique_ptr<tachyon::zk::Expression<F>>> input_expressions;
     ReadBuffer(buffer, input_expressions);
     std::vector<std::unique_ptr<tachyon::zk::Expression<F>>> table_expressions;
     ReadBuffer(buffer, table_expressions);
-    return tachyon::zk::LookupArgument<F>("", std::move(input_expressions),
-                                          std::move(table_expressions));
+    return tachyon::zk::lookup::Argument<F>("", std::move(input_expressions),
+                                            std::move(table_expressions));
   }
 };
 

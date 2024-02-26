@@ -37,14 +37,14 @@ class CircuitTest : public ProverTest<PCS> {
     return base::Map(points, &CreateCommitment);
   }
 
-  static std::vector<LookupPair<Commitment>> CreateLookupPermutedCommitments(
+  static std::vector<lookup::Pair<Commitment>> CreateLookupPermutedCommitments(
       const std::vector<Point>& input_points,
       const std::vector<Point>& table_points) {
-    std::vector<LookupPair<Commitment>> lookup_pairs;
+    std::vector<lookup::Pair<Commitment>> lookup_pairs;
     return base::Map(
         input_points, [&table_points](size_t i, const Point& input_point) {
-          return LookupPair<Commitment>(CreateCommitment(input_point),
-                                        CreateCommitment(table_points[i]));
+          return lookup::Pair<Commitment>(CreateCommitment(input_point),
+                                          CreateCommitment(table_points[i]));
         });
   }
 

@@ -30,8 +30,8 @@ F CompressExpressions(
 }
 
 template <typename F, typename C>
-F CreateProductExpression(const LookupVerificationData<F, C>& data,
-                          const LookupArgument<F>& argument) {
+F CreateProductExpression(const lookup::VerificationData<F, C>& data,
+                          const lookup::Argument<F>& argument) {
   plonk::VanishingVerificationEvaluator<F> evaluator(data);
   // z(ω * X) * (a'(X) + β) * (s'(X) + γ)
   // - z(X) * (θᵐ⁻¹a₀(X) + ... + aₘ₋₁(X) + β) * (θᵐ⁻¹s₀(X) + ... + sₘ₋₁(X) + γ)
@@ -50,8 +50,8 @@ constexpr size_t GetSizeOfLookupVerificationExpressions() { return 5; }
 
 template <typename F, typename C>
 std::vector<F> CreateLookupVerificationExpressions(
-    const LookupVerificationData<F, C>& data,
-    const LookupArgument<F>& argument) {
+    const lookup::VerificationData<F, C>& data,
+    const lookup::Argument<F>& argument) {
   F active_rows = F::One() - (*data.l_last + *data.l_blind);
   std::vector<F> ret;
   ret.reserve(GetSizeOfLookupVerificationExpressions());
@@ -81,7 +81,7 @@ constexpr size_t GetSizeOfLookupVerifierQueries() { return 5; }
 template <typename PCS, typename F, typename C,
           typename Poly = typename PCS::Poly>
 std::vector<crypto::PolynomialOpening<Poly, C>> CreateLookupQueries(
-    const LookupVerificationData<F, C>& data) {
+    const lookup::VerificationData<F, C>& data) {
   std::vector<crypto::PolynomialOpening<Poly, C>> queries;
   queries.reserve(GetSizeOfLookupVerifierQueries());
   // Open lookup product commitment at x.

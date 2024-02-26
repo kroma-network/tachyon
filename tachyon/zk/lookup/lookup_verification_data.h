@@ -4,11 +4,11 @@
 #include "tachyon/zk/lookup/lookup_pair.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verification_data.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup {
 
 template <typename F, typename C>
-struct LookupVerificationData : public plonk::VanishingVerificationData<F> {
-  const LookupPair<C>* permuted_commitment = nullptr;
+struct VerificationData : public plonk::VanishingVerificationData<F> {
+  const Pair<C>* permuted_commitment = nullptr;
   const C* product_commitment = nullptr;
   const F* product_eval = nullptr;
   const F* product_next_eval = nullptr;
@@ -26,6 +26,6 @@ struct LookupVerificationData : public plonk::VanishingVerificationData<F> {
   const F* l_last = nullptr;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup
 
 #endif  // TACHYON_ZK_LOOKUP_LOOKUP_VERIFICATION_DATA_H_

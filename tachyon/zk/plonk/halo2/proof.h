@@ -20,7 +20,7 @@ struct Proof {
   std::vector<std::vector<C>> advices_commitments_vec;
   std::vector<F> challenges;
   F theta;
-  std::vector<std::vector<LookupPair<C>>> lookup_permuted_commitments_vec;
+  std::vector<std::vector<lookup::Pair<C>>> lookup_permuted_commitments_vec;
   F beta;
   F gamma;
   std::vector<std::vector<C>> permutation_product_commitments_vec;
@@ -121,9 +121,9 @@ struct Proof {
     return ret;
   }
 
-  LookupVerificationData<F, C> ToLookupVerificationData(size_t i,
-                                                        size_t j) const {
-    LookupVerificationData<F, C> ret;
+  lookup::VerificationData<F, C> ToLookupVerificationData(size_t i,
+                                                          size_t j) const {
+    lookup::VerificationData<F, C> ret;
     ret.fixed_evals = fixed_evals;
     ret.advice_evals = advice_evals_vec[i];
     ret.instance_evals = instance_evals_vec[i];

@@ -36,9 +36,9 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTest) {
             base::Range<RowIndex>::Until(usable_rows))];
       });
 
-  LookupPair<Evals> input(Evals(std::move(input_evals)),
-                          Evals(std::move(table_evals)));
-  LookupPair<Evals> output;
+  Pair<Evals> input(Evals(std::move(input_evals)),
+                    Evals(std::move(table_evals)));
+  Pair<Evals> output;
   ASSERT_TRUE(PermuteExpressionPair(prover_.get(), input, &output));
 
   // sanity check brought from halo2
@@ -63,9 +63,9 @@ TEST_F(PermuteExpressionPairTest, PermuteExpressionPairTestWrong) {
   std::vector<F> table_evals =
       base::CreateVector(n, [](size_t i) { return F(i * 3); });
 
-  LookupPair<Evals> input = {Evals(std::move(input_evals)),
-                             Evals(std::move(table_evals))};
-  LookupPair<Evals> output;
+  Pair<Evals> input = {Evals(std::move(input_evals)),
+                       Evals(std::move(table_evals))};
+  Pair<Evals> output;
   ASSERT_FALSE(PermuteExpressionPair(prover_.get(), input, &output));
 }
 

@@ -288,7 +288,8 @@ class Verifier : public VerifierBase<PCS> {
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
     std::vector<F> expressions;
     const std::vector<Gate<F>>& gates = constraint_system.gates();
-    const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
+    const std::vector<lookup::Argument<F>>& lookups =
+        constraint_system.lookups();
     size_t polys_size = std::accumulate(gates.begin(), gates.end(), 0,
                                         [](size_t acc, const Gate<F>& gate) {
                                           return acc + gate.polys().size();
@@ -318,7 +319,7 @@ class Verifier : public VerifierBase<PCS> {
           std::make_move_iterator(permutation_expressions.end()));
 
       for (size_t j = 0; j < lookups.size(); ++j) {
-        const LookupArgument<F>& lookup = lookups[j];
+        const lookup::Argument<F>& lookup = lookups[j];
         std::vector<F> lookup_expressions = CreateLookupVerificationExpressions(
             proof.ToLookupVerificationData(i, j), lookup);
         expressions.insert(expressions.end(),
@@ -370,7 +371,8 @@ class Verifier : public VerifierBase<PCS> {
     size_t num_circuits = instance_commitments_vec.size();
 
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
-    const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
+    const std::vector<lookup::Argument<F>>& lookups =
+        constraint_system.lookups();
     const std::vector<FixedQueryData>& fixed_queries =
         constraint_system.fixed_queries();
     const std::vector<Commitment>& common_permutation_commitments =

@@ -22,8 +22,8 @@ namespace tachyon::zk::lookup::halo2 {
 // static
 template <typename Poly, typename Evals>
 template <typename Domain>
-LookupPair<Evals> Prover<Poly, Evals>::CompressPair(
-    const Domain* domain, const LookupArgument<F>& argument, const F& theta,
+Pair<Evals> Prover<Poly, Evals>::CompressPair(
+    const Domain* domain, const Argument<F>& argument, const F& theta,
     const ProvingEvaluator<Evals>& evaluator_tpl) {
   // A_compressedᵢ(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
   Evals compressed_input = CompressExpressions(
@@ -39,11 +39,10 @@ LookupPair<Evals> Prover<Poly, Evals>::CompressPair(
 template <typename Poly, typename Evals>
 template <typename Domain>
 void Prover<Poly, Evals>::CompressPairs(
-    const Domain* domain, const std::vector<LookupArgument<F>>& arguments,
+    const Domain* domain, const std::vector<Argument<F>>& arguments,
     const F& theta, const ProvingEvaluator<Evals>& evaluator_tpl) {
   compressed_pairs_ = base::Map(
-      arguments,
-      [domain, &theta, &evaluator_tpl](const LookupArgument<F>& argument) {
+      arguments, [domain, &theta, &evaluator_tpl](const Argument<F>& argument) {
         return CompressPair(domain, argument, theta, evaluator_tpl);
       });
 }
@@ -53,7 +52,7 @@ template <typename Poly, typename Evals>
 template <typename Domain>
 void Prover<Poly, Evals>::BatchCompressPairs(
     std::vector<Prover>& lookup_provers, const Domain* domain,
-    const std::vector<LookupArgument<F>>& arguments, const F& theta,
+    const std::vector<Argument<F>>& arguments, const F& theta,
     const std::vector<plonk::MultiPhaseRefTable<Evals>>& tables) {
   CHECK_EQ(lookup_provers.size(), tables.size());
   // NOTE(chokobole): It's safe to downcast because domain is already checked.
@@ -68,10 +67,10 @@ void Prover<Poly, Evals>::BatchCompressPairs(
 // static
 template <typename Poly, typename Evals>
 template <typename PCS>
-LookupPair<BlindedPolynomial<Poly, Evals>> Prover<Poly, Evals>::PermutePair(
-    ProverBase<PCS>* prover, const LookupPair<Evals>& compressed_pair) {
+Pair<BlindedPolynomial<Poly, Evals>> Prover<Poly, Evals>::PermutePair(
+    ProverBase<PCS>* prover, const Pair<Evals>& compressed_pair) {
   // A'ᵢ(X), S'ᵢ(X)
-  LookupPair<Evals> permuted_pair;
+  Pair<Evals> permuted_pair;
   CHECK(PermuteExpressionPair(prover, compressed_pair, &permuted_pair));
 
   F input_blind = prover->blinder().Generate();
@@ -83,10 +82,10 @@ LookupPair<BlindedPolynomial<Poly, Evals>> Prover<Poly, Evals>::PermutePair(
 template <typename Poly, typename Evals>
 template <typename PCS>
 void Prover<Poly, Evals>::PermutePairs(ProverBase<PCS>* prover) {
-  permuted_pairs_ = base::Map(
-      compressed_pairs_, [prover](const LookupPair<Evals>& compressed_pair) {
-        return PermutePair(prover, compressed_pair);
-      });
+  permuted_pairs_ = base::Map(compressed_pairs_,
+                              [prover](const Pair<Evals>& compressed_pair) {
+                                return PermutePair(prover, compressed_pair);
+                              });
 }
 
 // static
@@ -99,7 +98,7 @@ void Prover<Poly, Evals>::BatchCommitPermutedPairs(
 
   if constexpr (PCS::kSupportsBatchMode) {
     for (const Prover& lookup_prover : lookup_provers) {
-      for (const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair :
+      for (const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair :
            lookup_prover.permuted_pairs_) {
         prover->BatchCommitAt(permuted_pair.input().evals(), commit_idx++);
         prover->BatchCommitAt(permuted_pair.table().evals(), commit_idx++);
@@ -107,7 +106,7 @@ void Prover<Poly, Evals>::BatchCommitPermutedPairs(
     }
   } else {
     for (const Prover& lookup_prover : lookup_provers) {
-      for (const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair :
+      for (const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair :
            lookup_prover.permuted_pairs_) {
         prover->CommitAndWriteToProof(permuted_pair.input().evals());
         prover->CommitAndWriteToProof(permuted_pair.table().evals());
@@ -120,9 +119,9 @@ void Prover<Poly, Evals>::BatchCommitPermutedPairs(
 template <typename Poly, typename Evals>
 template <typename PCS>
 BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandProductPoly(
-    ProverBase<PCS>* prover, const LookupPair<Evals>& compressed_pair,
-    const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair,
-    const F& beta, const F& gamma) {
+    ProverBase<PCS>* prover, const Pair<Evals>& compressed_pair,
+    const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair, const F& beta,
+    const F& gamma) {
   return {plonk::GrandProductArgument::CreatePolySerial(
               prover, CreateNumeratorCallback(compressed_pair, beta, gamma),
               CreateDenominatorCallback(permuted_pair, beta, gamma)),
@@ -139,13 +138,12 @@ void Prover<Poly, Evals>::CreateGrandProductPolys(ProverBase<PCS>* prover,
   grand_product_polys_.resize(compressed_pairs_.size());
 
   // NOTE(dongchangYoo): do not change this code to parallelized logic.
-  grand_product_polys_ =
-      base::Map(compressed_pairs_,
-                [this, prover, &beta, &gamma](
-                    size_t i, const LookupPair<Evals>& compressed_pair) {
-                  return CreateGrandProductPoly(
-                      prover, compressed_pair, permuted_pairs_[i], beta, gamma);
-                });
+  grand_product_polys_ = base::Map(
+      compressed_pairs_, [this, prover, &beta, &gamma](
+                             size_t i, const Pair<Evals>& compressed_pair) {
+        return CreateGrandProductPoly(prover, compressed_pair,
+                                      permuted_pairs_[i], beta, gamma);
+      });
   compressed_pairs_.clear();
 }
 
@@ -177,8 +175,7 @@ void Prover<Poly, Evals>::BatchCommitGrandProductPolys(
 template <typename Poly, typename Evals>
 template <typename Domain>
 void Prover<Poly, Evals>::TransformEvalsToPoly(const Domain* domain) {
-  for (LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair :
-       permuted_pairs_) {
+  for (Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair : permuted_pairs_) {
     permuted_pair.input().TransformEvalsToPoly(domain);
     permuted_pair.table().TransformEvalsToPoly(domain);
   }
@@ -204,7 +201,7 @@ void Prover<Poly, Evals>::Evaluate(ProverBase<PCS>* prover,
   for (size_t i = 0; i < size; ++i) {
     const BlindedPolynomial<Poly, Evals>& grand_product_poly =
         grand_product_polys_[i];
-    const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair =
+    const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair =
         permuted_pairs_[i];
 
     // Zₗ,ᵢ(x)
@@ -242,7 +239,7 @@ void Prover<Poly, Evals>::Open(
   for (size_t i = 0; i < size; ++i) {
     const BlindedPolynomial<Poly, Evals>& grand_product_poly =
         grand_product_polys_[i];
-    const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair =
+    const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair =
         permuted_pairs_[i];
 
     // Zₗ,ᵢ(x)
@@ -262,8 +259,8 @@ void Prover<Poly, Evals>::Open(
 // static
 template <typename Poly, typename Evals>
 std::function<typename Poly::Field(RowIndex)>
-Prover<Poly, Evals>::CreateNumeratorCallback(
-    const LookupPair<Evals>& compressed_pair, const F& beta, const F& gamma) {
+Prover<Poly, Evals>::CreateNumeratorCallback(const Pair<Evals>& compressed_pair,
+                                             const F& beta, const F& gamma) {
   // (A_compressedᵢ(x) + β) * (S_compressedᵢ(x) + γ)
   return [&compressed_pair, &beta, &gamma](RowIndex row_index) {
     return (compressed_pair.input()[row_index] + beta) *
@@ -275,8 +272,8 @@ Prover<Poly, Evals>::CreateNumeratorCallback(
 template <typename Poly, typename Evals>
 std::function<typename Poly::Field(RowIndex)>
 Prover<Poly, Evals>::CreateDenominatorCallback(
-    const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair,
-    const F& beta, const F& gamma) {
+    const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair, const F& beta,
+    const F& gamma) {
   return [&permuted_pair, &beta, &gamma](RowIndex row_index) {
     // (A'ᵢ(x) + β) * (S'ᵢ(x) + γ)
     return (permuted_pair.input().evals()[row_index] + beta) *

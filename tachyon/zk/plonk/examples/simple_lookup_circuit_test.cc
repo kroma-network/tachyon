@@ -126,9 +126,9 @@ TEST_F(SimpleLookupCircuitTest, Configure) {
   };
   EXPECT_EQ(constraint_system.fixed_queries(), expected_fixed_queries);
   EXPECT_TRUE(constraint_system.permutation().columns().empty());
-  std::vector<LookupArgument<F>> expected_lookups;
+  std::vector<lookup::Argument<F>> expected_lookups;
   {
-    LookupPairs<std::unique_ptr<Expression<F>>> pairs;
+    lookup::Pairs<std::unique_ptr<Expression<F>>> pairs;
     pairs.emplace_back(
         ExpressionFactory<F>::Sum(
             ExpressionFactory<F>::Product(
@@ -621,7 +621,7 @@ TEST_F(SimpleLookupCircuitTest, Verify) {
       "0x19f2e881193a280d2d77a8bc0f9edf053732ec86f93279a580830fb2befeccd7");
   EXPECT_EQ(proof.theta, expected_theta);
 
-  std::vector<std::vector<LookupPair<Commitment>>>
+  std::vector<std::vector<lookup::Pair<Commitment>>>
       expected_lookup_permuted_commitments_vec;
   {
     std::vector<Point> input_points = {

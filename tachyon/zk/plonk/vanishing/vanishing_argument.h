@@ -44,7 +44,7 @@ class VanishingArgument {
     evaluator.custom_gates_.AddCalculation(Calculation::Horner(
         ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));
 
-    for (const LookupArgument<F>& lookup : constraint_system.lookups()) {
+    for (const lookup::Argument<F>& lookup : constraint_system.lookups()) {
       GraphEvaluator<F> graph;
 
       auto compress =

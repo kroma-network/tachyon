@@ -16,25 +16,24 @@
 #include "tachyon/zk/expressions/expression.h"
 #include "tachyon/zk/lookup/lookup_pair.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup {
 
 template <typename F>
-class LookupArgument {
+class Argument {
  public:
-  LookupArgument() = default;
-  LookupArgument(std::string_view name,
-                 std::vector<std::unique_ptr<Expression<F>>> input_expressions,
-                 std::vector<std::unique_ptr<Expression<F>>> table_expressions)
+  Argument() = default;
+  Argument(std::string_view name,
+           std::vector<std::unique_ptr<Expression<F>>> input_expressions,
+           std::vector<std::unique_ptr<Expression<F>>> table_expressions)
       : name_(std::string(name)),
         input_expressions_(std::move(input_expressions)),
         table_expressions_(std::move(table_expressions)) {}
-  LookupArgument(std::string_view name,
-                 LookupPairs<std::unique_ptr<Expression<F>>> pairs)
+  Argument(std::string_view name, Pairs<std::unique_ptr<Expression<F>>> pairs)
       : name_(std::string(name)) {
     input_expressions_.reserve(pairs.size());
     table_expressions_.reserve(pairs.size());
 
-    for (LookupPair<std::unique_ptr<Expression<F>>>& pair : pairs) {
+    for (Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
       input_expressions_.push_back(std::move(pair).TakeInput());
       table_expressions_.push_back(std::move(pair).TakeTable());
     }
@@ -58,7 +57,7 @@ class LookupArgument {
     return table_expressions_;
   }
 
-  bool operator==(const LookupArgument& other) const {
+  bool operator==(const Argument& other) const {
     if (name_ != other.name_) return false;
     if (input_expressions_.size() != other.input_expressions_.size())
       return false;
@@ -72,9 +71,7 @@ class LookupArgument {
     }
     return true;
   }
-  bool operator!=(const LookupArgument& other) const {
-    return !operator==(other);
-  }
+  bool operator!=(const Argument& other) const { return !operator==(other); }
 
   size_t RequiredDegree() const {
     CHECK_EQ(input_expressions_.size(), table_expressions_.size());
@@ -145,6 +142,6 @@ class LookupArgument {
   std::vector<std::unique_ptr<Expression<F>>> table_expressions_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup
 
 #endif  // TACHYON_ZK_LOOKUP_LOOKUP_ARGUMENT_H_

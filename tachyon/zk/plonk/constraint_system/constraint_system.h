@@ -47,10 +47,10 @@ template <typename F>
 class ConstraintSystem {
  public:
   using LookupCallback =
-      base::OnceCallback<LookupPairs<std::unique_ptr<Expression<F>>,
-                                     LookupTableColumn>(VirtualCells<F>&)>;
+      base::OnceCallback<lookup::Pairs<std::unique_ptr<Expression<F>>,
+                                       LookupTableColumn>(VirtualCells<F>&)>;
   using LookupAnyCallback =
-      base::OnceCallback<LookupPairs<std::unique_ptr<Expression<F>>>(
+      base::OnceCallback<lookup::Pairs<std::unique_ptr<Expression<F>>>(
           VirtualCells<F>&)>;
   using ConstrainCallback =
       base::OnceCallback<std::vector<Constraint<F>>(VirtualCells<F>&)>;
@@ -97,7 +97,7 @@ class ConstraintSystem {
 
   const PermutationArgument& permutation() const { return permutation_; }
 
-  const std::vector<LookupArgument<F>>& lookups() const { return lookups_; }
+  const std::vector<lookup::Argument<F>>& lookups() const { return lookups_; }
 
   const absl::flat_hash_map<ColumnKeyBase, std::string>&
   general_column_annotations() const {
@@ -137,20 +137,20 @@ class ConstraintSystem {
   // columns they need to match.
   size_t Lookup(std::string_view name, LookupCallback callback) {
     VirtualCells cells(this);
-    LookupPairs<std::unique_ptr<Expression<F>>> pairs = base::Map(
-        std::move(callback).Run(cells),
-        [&cells](LookupPair<std::unique_ptr<Expression<F>>, LookupTableColumn>&
-                     pair) {
-          CHECK(!pair.input()->ContainsSimpleSelector())
-              << "expression containing simple selector "
-                 "supplied to lookup argument";
+    lookup::Pairs<std::unique_ptr<Expression<F>>> pairs =
+        base::Map(std::move(callback).Run(cells),
+                  [&cells](lookup::Pair<std::unique_ptr<Expression<F>>,
+                                        LookupTableColumn>& pair) {
+                    CHECK(!pair.input()->ContainsSimpleSelector())
+                        << "expression containing simple selector "
+                           "supplied to lookup argument";
 
-          std::unique_ptr<Expression<F>> table =
-              cells.QueryFixed(pair.table().column(), Rotation::Cur());
+                    std::unique_ptr<Expression<F>> table = cells.QueryFixed(
+                        pair.table().column(), Rotation::Cur());
 
-          return LookupPair<std::unique_ptr<Expression<F>>>(
-              std::move(pair).TakeInput(), std::move(table));
-        });
+                    return lookup::Pair<std::unique_ptr<Expression<F>>>(
+                        std::move(pair).TakeInput(), std::move(table));
+                  });
 
     lookups_.emplace_back(name, std::move(pairs));
     return lookups_.size() - 1;
@@ -162,10 +162,10 @@ class ConstraintSystem {
   // expressions they need to match.
   size_t LookupAny(std::string_view name, LookupAnyCallback callback) {
     VirtualCells cells(this);
-    LookupPairs<std::unique_ptr<Expression<F>>> pairs =
+    lookup::Pairs<std::unique_ptr<Expression<F>>> pairs =
         std::move(callback).Run(cells);
 
-    for (const LookupPair<std::unique_ptr<Expression<F>>>& pair : pairs) {
+    for (const lookup::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
       CHECK(!pair.input()->ContainsSimpleSelector())
           << "expression containing simple selector "
              "supplied to lookup argument";
@@ -340,7 +340,7 @@ class ConstraintSystem {
         expression = expression->ReplaceSelectors(selector_replacements, false);
       }
     }
-    for (LookupArgument<F>& lookup : lookups_) {
+    for (lookup::Argument<F>& lookup : lookups_) {
       for (std::unique_ptr<Expression<F>>& expression :
            lookup.input_expressions()) {
         expression = expression->ReplaceSelectors(selector_replacements, true);
@@ -581,7 +581,7 @@ class ConstraintSystem {
 
   size_t ComputeLookupRequiredDegree() const {
     std::vector<size_t> required_degrees =
-        base::Map(lookups_, [](const LookupArgument<F>& argument) {
+        base::Map(lookups_, [](const lookup::Argument<F>& argument) {
           return argument.RequiredDegree();
         });
     auto max_required_degree =
@@ -636,7 +636,7 @@ class ConstraintSystem {
   // Vector of lookup arguments, where each corresponds
   // to a sequence of input expressions and a sequence
   // of table expressions involved in the lookup.
-  std::vector<LookupArgument<F>> lookups_;
+  std::vector<lookup::Argument<F>> lookups_;
 
   // List of indexes of Fixed columns which are associated to a
   // circuit-general Column tied to their annotation.

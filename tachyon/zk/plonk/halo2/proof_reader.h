@@ -95,7 +95,7 @@ class ProofReader {
           return base::CreateVector(num_lookups, [this]() {
             C input = Read<C>();
             C table = Read<C>();
-            return LookupPair<C>(std::move(input), std::move(table));
+            return lookup::Pair<C>(std::move(input), std::move(table));
           });
         });
     cursor_ = ProofCursor::kBetaAndGamma;

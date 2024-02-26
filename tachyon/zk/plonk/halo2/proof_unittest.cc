@@ -26,12 +26,12 @@ std::vector<std::vector<T>> CreateRandomElementsVec(RowIndex rows,
   });
 }
 
-std::vector<std::vector<zk::LookupPair<Commitment>>> CreateRandomLookupPairsVec(
-    RowIndex rows, size_t cols) {
+std::vector<std::vector<zk::lookup::Pair<Commitment>>>
+CreateRandomLookupPairsVec(RowIndex rows, size_t cols) {
   return base::CreateVector(rows, [cols]() {
     return base::CreateVector(cols, []() {
-      return zk::LookupPair<Commitment>(Commitment::Random(),
-                                        Commitment::Random());
+      return zk::lookup::Pair<Commitment>(Commitment::Random(),
+                                          Commitment::Random());
     });
   });
 }

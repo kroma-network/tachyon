@@ -14,14 +14,13 @@
 #include "tachyon/base/json/json.h"
 
 namespace tachyon {
-namespace zk {
+namespace zk::lookup {
 
 template <typename T, typename U = T>
-class LookupPair {
+class Pair {
  public:
-  LookupPair() = default;
-  LookupPair(T input, U table)
-      : input_(std::move(input)), table_(std::move(table)) {}
+  Pair() = default;
+  Pair(T input, U table) : input_(std::move(input)), table_(std::move(table)) {}
 
   const T& input() const { return input_; }
   const U& table() const { return table_; }
@@ -31,10 +30,10 @@ class LookupPair {
   T&& TakeInput() && { return std::move(input_); }
   U&& TakeTable() && { return std::move(table_); }
 
-  bool operator==(const LookupPair& other) const {
+  bool operator==(const Pair& other) const {
     return input_ == other.input_ && table_ == other.table_;
   }
-  bool operator!=(const LookupPair& other) const { return !operator==(other); }
+  bool operator!=(const Pair& other) const { return !operator==(other); }
 
  private:
   T input_;
@@ -42,17 +41,17 @@ class LookupPair {
 };
 
 template <typename T, typename U = T>
-using LookupPairs = std::vector<LookupPair<T, U>>;
+using Pairs = std::vector<Pair<T, U>>;
 
-}  // namespace zk
+}  // namespace zk::lookup
 
 namespace base {
 
 template <typename T, typename U>
-class RapidJsonValueConverter<zk::LookupPair<T, U>> {
+class RapidJsonValueConverter<zk::lookup::Pair<T, U>> {
  public:
   template <typename Allocator>
-  static rapidjson::Value From(const zk::LookupPair<T, U>& value,
+  static rapidjson::Value From(const zk::lookup::Pair<T, U>& value,
                                Allocator& allocator) {
     rapidjson::Value object(rapidjson::kObjectType);
     AddJsonElement(object, "input", value.input(), allocator);
@@ -61,12 +60,12 @@ class RapidJsonValueConverter<zk::LookupPair<T, U>> {
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
-                 zk::LookupPair<T, U>* value, std::string* error) {
+                 zk::lookup::Pair<T, U>* value, std::string* error) {
     T input;
     U table;
     if (!ParseJsonElement(json_value, "input", &input, error)) return false;
     if (!ParseJsonElement(json_value, "table", &table, error)) return false;
-    *value = zk::LookupPair<T, U>(std::move(input), std::move(table));
+    *value = zk::lookup::Pair<T, U>(std::move(input), std::move(table));
     return true;
   }
 };
