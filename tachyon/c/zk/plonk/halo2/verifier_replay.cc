@@ -43,7 +43,7 @@ bool VerifyProof(CVerifier* c_verifier, const std::vector<uint8_t>& pk_bytes) {
 
   NativeVerifier* verifier = base::native_cast(c_verifier);
   std::cout << "deserializing proving key" << std::endl;
-  ProvingKey pk(absl::MakeConstSpan(pk_bytes), /*read_only_vk=*/true);
+  ProvingKey pk(pk_bytes, /*read_only_vk=*/true);
   std::cout << "done deserializing proving key" << std::endl;
 
   uint32_t extended_k = pk.verifying_key().constraint_system().ComputeExtendedK(

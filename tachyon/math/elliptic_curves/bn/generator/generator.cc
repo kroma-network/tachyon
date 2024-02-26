@@ -125,12 +125,12 @@ int GenerationConfig::GenerateConfigHdr() const {
   x_mpz = math::gmp::GetAbs(x_mpz);
   size_t x_size = math::gmp::GetLimbSize(x_mpz);
 
-  std::string twist_mul_by_q_x_init = math::GenerateInitExtField(
-      "kTwistMulByQX", "Fq2", absl::MakeConstSpan(twist_mul_by_q_x),
-      /*is_prime_field=*/true);
-  std::string twist_mul_by_q_y_init = math::GenerateInitExtField(
-      "kTwistMulByQY", "Fq2", absl::MakeConstSpan(twist_mul_by_q_y),
-      /*is_prime_field=*/true);
+  std::string twist_mul_by_q_x_init =
+      math::GenerateInitExtField("kTwistMulByQX", "Fq2", twist_mul_by_q_x,
+                                 /*is_prime_field=*/true);
+  std::string twist_mul_by_q_y_init =
+      math::GenerateInitExtField("kTwistMulByQY", "Fq2", twist_mul_by_q_y,
+                                 /*is_prime_field=*/true);
 
   std::string content = absl::StrReplaceAll(
       tpl_content,

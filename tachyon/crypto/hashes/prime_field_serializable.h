@@ -66,8 +66,7 @@ class PrimeFieldSerializable<std::vector<T>> {
   template <typename PrimeField>
   constexpr static bool ToPrimeField(const std::vector<T>& values,
                                      std::vector<PrimeField>* fields) {
-    return PrimeFieldSerializable<T>::BatchToPrimeField(
-        absl::MakeConstSpan(values), fields);
+    return PrimeFieldSerializable<T>::BatchToPrimeField(values, fields);
   }
 };
 
@@ -77,8 +76,7 @@ class PrimeFieldSerializable<absl::InlinedVector<T, N>> {
   template <typename PrimeField>
   constexpr static bool ToPrimeField(const absl::InlinedVector<T, N>& values,
                                      std::vector<PrimeField>* fields) {
-    return PrimeFieldSerializable<T>::BatchToPrimeField(
-        absl::MakeConstSpan(values), fields);
+    return PrimeFieldSerializable<T>::BatchToPrimeField(values, fields);
   }
 };
 
@@ -89,7 +87,7 @@ class PrimeFieldSerializable<absl::Span<T>> {
   constexpr static bool ToPrimeField(absl::Span<T> values,
                                      std::vector<PrimeField>* fields) {
     return PrimeFieldSerializable<std::remove_const_t<T>>::BatchToPrimeField(
-        absl::MakeConstSpan(values), fields);
+        values, fields);
   }
 };
 
@@ -99,8 +97,7 @@ class PrimeFieldSerializable<std::array<T, N>> {
   template <typename PrimeField>
   constexpr static bool ToPrimeField(const std::array<T, N>& values,
                                      std::vector<PrimeField>* fields) {
-    return PrimeFieldSerializable<T>::BatchToPrimeField(
-        absl::MakeConstSpan(values), fields);
+    return PrimeFieldSerializable<T>::BatchToPrimeField(values, fields);
   }
 };
 

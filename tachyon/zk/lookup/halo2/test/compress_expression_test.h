@@ -14,11 +14,10 @@ class CompressExpressionTest : public plonk::halo2::BN254SHPlonkProverTest {
   void SetUp() override {
     plonk::halo2::BN254SHPlonkProverTest::SetUp();
 
-    plonk::RefTable<Evals> columns(absl::MakeConstSpan(fixed_columns_),
-                                   absl::MakeConstSpan(advice_columns_),
-                                   absl::MakeConstSpan(instance_columns_));
+    plonk::RefTable<Evals> columns(fixed_columns_, advice_columns_,
+                                   instance_columns_);
     evaluator_ = {0, static_cast<int32_t>(prover_->domain()->size()), 1,
-                  columns, absl::MakeConstSpan(challenges_)};
+                  columns, challenges_};
     theta_ = F(2);
   }
 

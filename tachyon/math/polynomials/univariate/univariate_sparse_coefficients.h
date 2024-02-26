@@ -205,8 +205,7 @@ class UnivariateSparseCoefficients {
 
     F sum = F::Zero();
     for (const Term& term : terms_) {
-      sum += F::PowWithTable(absl::MakeConstSpan(powers_of_2),
-                             F(term.degree).ToBigInt()) *
+      sum += F::PowWithTable(powers_of_2, F(term.degree).ToBigInt()) *
              term.coefficient;
     }
     return sum;

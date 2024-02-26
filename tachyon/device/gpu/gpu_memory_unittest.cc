@@ -98,7 +98,7 @@ TEST(GpuMemoryTest, CopyFrom) {
 
     GPU_MUST_SUCCESS(gpuDeviceSynchronize(), "");
     for (size_t i = 0; i < memories.size(); ++i) {
-      EXPECT_EQ(absl::MakeConstSpan(results[i]), unified_memory_view);
+      EXPECT_EQ(results[i], unified_memory_view);
     }
   }
 #endif  // TACHYON_CUDA

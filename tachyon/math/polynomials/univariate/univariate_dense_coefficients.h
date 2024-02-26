@@ -254,7 +254,7 @@ class UnivariateDenseCoefficients {
     return std::accumulate(results.begin(), results.end(), F::Zero(),
                            std::plus<>());
 #else
-    return HornerEvaluate(absl::MakeConstSpan(coefficients_), point);
+    return HornerEvaluate(coefficients_, point);
 #endif
   }
 

@@ -172,15 +172,13 @@ int GenerationConfig::GenerateConfigHdr() const {
           return math::gmp::FromDecString(a) == mpz_class(0);
         });
 
-    a_init = math::GenerateInitExtField(
-        "kA", "BaseField", absl::MakeConstSpan(a), /*is_prime_field=*/true);
-    b_init = math::GenerateInitExtField(
-        "kB", "BaseField", absl::MakeConstSpan(b), /*is_prime_field=*/true);
-    x_init = math::GenerateInitExtField("kGenerator.x", "BaseField",
-                                        absl::MakeConstSpan(x),
+    a_init = math::GenerateInitExtField("kA", "BaseField", a,
                                         /*is_prime_field=*/true);
-    y_init = math::GenerateInitExtField("kGenerator.y", "BaseField",
-                                        absl::MakeConstSpan(y),
+    b_init = math::GenerateInitExtField("kB", "BaseField", b,
+                                        /*is_prime_field=*/true);
+    x_init = math::GenerateInitExtField("kGenerator.x", "BaseField", x,
+                                        /*is_prime_field=*/true);
+    y_init = math::GenerateInitExtField("kGenerator.y", "BaseField", y,
                                         /*is_prime_field=*/true);
   }
 
@@ -228,8 +226,7 @@ int GenerationConfig::GenerateConfigHdr() const {
           "kEndomorphismCoefficient", "BaseField", endomorphism_coefficient[0]);
     } else {
       endomorphism_coefficient_init = math::GenerateInitExtField(
-          "kEndomorphismCoefficient", "BaseField",
-          absl::MakeConstSpan(endomorphism_coefficient),
+          "kEndomorphismCoefficient", "BaseField", endomorphism_coefficient,
           /*is_prime_field=*/true);
     }
     lambda_init = math::GenerateInitField("kLambda", "ScalarField", lambda);

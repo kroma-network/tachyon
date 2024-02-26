@@ -91,28 +91,25 @@ struct Proof {
 
   VanishingVerificationData<F> ToVanishingVerificationData(size_t i) const {
     VanishingVerificationData<F> ret;
-    ret.fixed_evals = absl::MakeConstSpan(fixed_evals);
-    ret.advice_evals = absl::MakeConstSpan(advice_evals_vec[i]);
-    ret.instance_evals = absl::MakeConstSpan(instance_evals_vec[i]);
-    ret.challenges = absl::MakeConstSpan(challenges);
+    ret.fixed_evals = fixed_evals;
+    ret.advice_evals = advice_evals_vec[i];
+    ret.instance_evals = instance_evals_vec[i];
+    ret.challenges = challenges;
     return ret;
   }
 
   PermutationVerificationData<F, C> ToPermutationVerificationData(
       size_t i) const {
     PermutationVerificationData<F, C> ret;
-    ret.fixed_evals = absl::MakeConstSpan(fixed_evals);
-    ret.advice_evals = absl::MakeConstSpan(advice_evals_vec[i]);
-    ret.instance_evals = absl::MakeConstSpan(instance_evals_vec[i]);
-    ret.challenges = absl::MakeConstSpan(challenges);
-    ret.product_commitments =
-        absl::MakeConstSpan(permutation_product_commitments_vec[i]);
-    ret.common_evals = absl::MakeConstSpan(common_permutation_evals);
-    ret.product_evals = absl::MakeConstSpan(permutation_product_evals_vec[i]);
-    ret.product_next_evals =
-        absl::MakeConstSpan(permutation_product_next_evals_vec[i]);
-    ret.product_last_evals =
-        absl::MakeConstSpan(permutation_product_last_evals_vec[i]);
+    ret.fixed_evals = fixed_evals;
+    ret.advice_evals = advice_evals_vec[i];
+    ret.instance_evals = instance_evals_vec[i];
+    ret.challenges = challenges;
+    ret.product_commitments = permutation_product_commitments_vec[i];
+    ret.common_evals = common_permutation_evals;
+    ret.product_evals = permutation_product_evals_vec[i];
+    ret.product_next_evals = permutation_product_next_evals_vec[i];
+    ret.product_last_evals = permutation_product_last_evals_vec[i];
     ret.beta = &beta;
     ret.gamma = &gamma;
     ret.x = &x;
@@ -127,10 +124,10 @@ struct Proof {
   LookupVerificationData<F, C> ToLookupVerificationData(size_t i,
                                                         size_t j) const {
     LookupVerificationData<F, C> ret;
-    ret.fixed_evals = absl::MakeConstSpan(fixed_evals);
-    ret.advice_evals = absl::MakeConstSpan(advice_evals_vec[i]);
-    ret.instance_evals = absl::MakeConstSpan(instance_evals_vec[i]);
-    ret.challenges = absl::MakeConstSpan(challenges);
+    ret.fixed_evals = fixed_evals;
+    ret.advice_evals = advice_evals_vec[i];
+    ret.instance_evals = instance_evals_vec[i];
+    ret.challenges = challenges;
     ret.permuted_commitment = &lookup_permuted_commitments_vec[i][j];
     ret.product_commitment = &lookup_product_commitments_vec[i][j];
     ret.product_eval = &lookup_product_evals_vec[i][j];

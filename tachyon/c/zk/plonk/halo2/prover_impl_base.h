@@ -32,9 +32,8 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS> {
       tachyon::base::Uint8VectorBuffer buffer;
       CHECK(buffer.Grow(tachyon::base::EstimateSize(this->pcs_)));
       CHECK(buffer.Write(this->pcs_));
-      CHECK(
-          tachyon::base::WriteFile(tachyon::base::FilePath(pcs_params_str),
-                                   absl::MakeConstSpan(buffer.owned_buffer())));
+      CHECK(tachyon::base::WriteFile(tachyon::base::FilePath(pcs_params_str),
+                                     buffer.owned_buffer()));
     }
   }
 
@@ -80,9 +79,8 @@ class ProverImplBase : public tachyon::zk::plonk::halo2::Prover<PCS> {
       tachyon::base::Uint8VectorBuffer buffer;
       CHECK(buffer.Grow(tachyon::base::EstimateSize(*argument_data)));
       CHECK(buffer.Write(*argument_data));
-      CHECK(tachyon::base::WriteLargeFile(
-          tachyon::base::FilePath(arg_data_str),
-          absl::MakeConstSpan(buffer.owned_buffer())));
+      CHECK(tachyon::base::WriteLargeFile(tachyon::base::FilePath(arg_data_str),
+                                          buffer.owned_buffer()));
     }
 
     Base::CreateProof(proving_key, argument_data);

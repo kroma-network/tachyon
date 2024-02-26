@@ -52,7 +52,7 @@ class MSMInputProvider {
       bases_owned_[i] =
           AffinePoint(points[i], points[i].x.IsZero() && points[i].y.IsZero());
     }
-    bases_ = absl::MakeConstSpan(bases_owned_);
+    bases_ = bases_owned_;
 
     if (needs_align_) {
       scalars_owned_.resize(aligned_size);
@@ -62,7 +62,7 @@ class MSMInputProvider {
       for (size_t i = size; i < aligned_size; ++i) {
         scalars_owned_[i] = ScalarField::Zero();
       }
-      scalars_ = absl::MakeConstSpan(scalars_owned_);
+      scalars_ = scalars_owned_;
     } else {
       scalars_ = absl::MakeConstSpan(
           reinterpret_cast<const ScalarField*>(scalars_in), size);
@@ -87,8 +87,8 @@ class MSMInputProvider {
       for (size_t i = size; i < aligned_size; ++i) {
         scalars_owned_[i] = ScalarField::Zero();
       }
-      bases_ = absl::MakeConstSpan(bases_owned_);
-      scalars_ = absl::MakeConstSpan(scalars_owned_);
+      bases_ = bases_owned_;
+      scalars_ = scalars_owned_;
     } else {
       bases_ = absl::MakeConstSpan(
           reinterpret_cast<const AffinePoint*>(bases_in), size);
