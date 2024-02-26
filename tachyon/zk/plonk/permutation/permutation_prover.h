@@ -16,7 +16,7 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/plonk/base/ref_table.h"
+#include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 #include "tachyon/zk/plonk/permutation/permutation_argument.h"
 #include "tachyon/zk/plonk/permutation/permutation_opening_point_set.h"
 #include "tachyon/zk/plonk/permutation/permutation_proving_key.h"
@@ -42,7 +42,7 @@ class PermutationProver {
   static void BatchCreateGrandProductPolys(
       std::vector<PermutationProver>& permutation_provers,
       ProverBase<PCS>* prover, const PermutationArgument& argument,
-      const std::vector<RefTable<Evals>>& tables,
+      const std::vector<MultiPhaseRefTable<Evals>>& tables,
       size_t constraint_system_degree,
       const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
       const F& beta, const F& gamma);
@@ -84,16 +84,6 @@ class PermutationProver {
       const PermutationProvingKey<Poly, Evals>& proving_key,
       const PermutationOpeningPointSet<F>& point_set);
 
-  constexpr static size_t GetNumOpenings(
-      const std::vector<PermutationProver>& permutation_provers,
-      const PermutationProvingKey<Poly, Evals>& proving_key) {
-    if (permutation_provers.empty()) return 0;
-    if (permutation_provers[0].grand_product_polys_.empty()) return 0;
-    return permutation_provers.size() *
-               (permutation_provers[0].grand_product_polys_.size() * 3 - 1) +
-           proving_key.permutations().size();
-  }
-
   void Open(const PermutationOpeningPointSet<F>& point_set,
             std::vector<crypto::PolynomialOpening<Poly>>& openings) const;
 
@@ -125,6 +115,7 @@ class PermutationProver {
       const std::vector<base::Ref<const Evals>>& value_columns, const F& beta,
       const F& gamma);
 
+  // Zₚ,ᵢ(X)
   std::vector<BlindedPolynomial<Poly, Evals>> grand_product_polys_;
 };
 

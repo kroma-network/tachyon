@@ -144,12 +144,11 @@ class Prover : public ProverBase<PCS> {
     F theta = writer->SqueezeChallenge();
     VLOG(2) << "Halo2(theta): " << theta.ToHexString(true);
 
-    std::vector<RefTable<Evals>> column_tables =
+    std::vector<MultiPhaseRefTable<Evals>> column_tables =
         argument_data->ExportColumnTables(proving_key.fixed_columns());
 
     lookup::halo2::Prover<Poly, Evals>::BatchCompressPairs(
-        lookup_provers, domain, cs.lookups(), theta, column_tables,
-        argument_data->GetChallenges());
+        lookup_provers, domain, cs.lookups(), theta, column_tables);
     lookup::halo2::Prover<Poly, Evals>::BatchPermutePairs(lookup_provers, this);
 
     if constexpr (PCS::kSupportsBatchMode) {
@@ -208,12 +207,12 @@ class Prover : public ProverBase<PCS> {
     proving_key.fixed_columns().clear();
     column_tables.clear();
 
-    std::vector<RefTable<Poly>> poly_tables =
+    std::vector<MultiPhaseRefTable<Poly>> poly_tables =
         argument_data->ExportPolyTables(proving_key.fixed_polys());
 
-    vanishing_prover.CreateHEvals(
-        this, proving_key, poly_tables, argument_data->GetChallenges(), theta,
-        beta, gamma, y, permutation_provers, lookup_provers);
+    vanishing_prover.CreateHEvals(this, proving_key, poly_tables, theta, beta,
+                                  gamma, y, permutation_provers,
+                                  lookup_provers);
     vanishing_prover.CreateFinalHPoly(this, cs);
 
     if constexpr (PCS::kSupportsBatchMode) {
@@ -231,8 +230,7 @@ class Prover : public ProverBase<PCS> {
     VLOG(2) << "Halo2(x): " << x.ToHexString(true);
     F x_prev = Rotation::Prev().RotateOmega(domain, x);
     F x_next = Rotation::Next().RotateOmega(domain, x);
-    Rotation last_rotation =
-        Rotation(-static_cast<int32_t>(this->blinder().blinding_factors() + 1));
+    Rotation last_rotation = Rotation(this->GetLastRow());
     F x_last = last_rotation.RotateOmega(domain, x);
 
     PermutationOpeningPointSet<F> permutation_opening_point_set(x, x_next,
@@ -257,7 +255,7 @@ class Prover : public ProverBase<PCS> {
 
   void Evaluate(
       const ProvingKey<Poly, Evals, Commitment>& proving_key,
-      const std::vector<RefTable<Poly>>& poly_tables,
+      const std::vector<MultiPhaseRefTable<Poly>>& poly_tables,
       VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
           vanishing_prover,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
@@ -282,7 +280,7 @@ class Prover : public ProverBase<PCS> {
 
   std::vector<crypto::PolynomialOpening<Poly>> Open(
       const ProvingKey<Poly, Evals, Commitment>& proving_key,
-      const std::vector<RefTable<Poly>>& poly_tables,
+      const std::vector<MultiPhaseRefTable<Poly>>& poly_tables,
       const VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>&
           vanishing_prover,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
@@ -297,11 +295,15 @@ class Prover : public ProverBase<PCS> {
     std::vector<crypto::PolynomialOpening<Poly>> openings;
     size_t num_circuits = poly_tables.size();
     size_t size =
-        VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
-            template GetNumOpenings<PCS>(num_circuits, constraint_system) +
-        PermutationProver<Poly, Evals>::GetNumOpenings(
-            permutation_provers, proving_key.permutation_proving_key()) +
-        lookup::halo2::Prover<Poly, Evals>::GetNumOpenings(lookup_provers);
+        GetNumVanishingOpenings<PCS>(
+            num_circuits, constraint_system.advice_queries().size(),
+            constraint_system.instance_queries().size(),
+            constraint_system.fixed_queries().size()) +
+        GetNumPermutationOpenings(
+            num_circuits, permutation_provers[0].grand_product_polys().size(),
+            proving_key.permutation_proving_key().permutations().size()) +
+        lookup::halo2::GetNumOpenings(lookup_provers.size(),
+                                      constraint_system.lookups().size());
     openings.reserve(size);
 
     const F& x = permutation_opening_point_set.x;

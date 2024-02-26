@@ -114,12 +114,15 @@ class TranscriptReaderImpl<Commitment, false> : public Transcript<Commitment> {
   // Read a |commitment| from the proof. Note that it also writes the
   // |commitment| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool ReadFromProof(Commitment* commitment) {
+    VLOG(3) << "Proof[" << proof_idx_++
+            << "]: " << commitment->ToHexString(true);
     return DoReadFromProof(commitment) && this->WriteToTranscript(*commitment);
   }
 
   // Read a |value| from the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool ReadFromProof(Field* value) {
+    VLOG(3) << "Proof[" << proof_idx_++ << "]: " << value->ToHexString(true);
     return DoReadFromProof(value) && this->WriteToTranscript(*value);
   }
 
@@ -131,6 +134,7 @@ class TranscriptReaderImpl<Commitment, false> : public Transcript<Commitment> {
   [[nodiscard]] virtual bool DoReadFromProof(Field* value) const = 0;
 
   base::ReadOnlyBuffer buffer_;
+  size_t proof_idx_ = 0;
 };
 
 template <typename Field>
@@ -147,6 +151,7 @@ class TranscriptReaderImpl<Field, true> : public Transcript<Field> {
   // Read a |value| from the proof. Note that it also writes the
   // |value| to the transcript by calling |WriteToTranscript()| internally.
   [[nodiscard]] bool ReadFromProof(Field* value) {
+    VLOG(3) << "Proof[" << proof_idx_++ << "]: " << value->ToHexString(true);
     return DoReadFromProof(value) && this->WriteToTranscript(*value);
   }
 
@@ -155,6 +160,7 @@ class TranscriptReaderImpl<Field, true> : public Transcript<Field> {
   [[nodiscard]] virtual bool DoReadFromProof(Field* value) const = 0;
 
   base::ReadOnlyBuffer buffer_;
+  size_t proof_idx_ = 0;
 };
 
 template <typename T>

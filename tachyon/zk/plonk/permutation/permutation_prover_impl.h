@@ -54,7 +54,8 @@ template <typename PCS>
 void PermutationProver<Poly, Evals>::BatchCreateGrandProductPolys(
     std::vector<PermutationProver>& permutation_provers,
     ProverBase<PCS>* prover, const PermutationArgument& argument,
-    const std::vector<RefTable<Evals>>& tables, size_t constraint_system_degree,
+    const std::vector<MultiPhaseRefTable<Evals>>& tables,
+    size_t constraint_system_degree,
     const PermutationProvingKey<Poly, Evals>& permutation_proving_key,
     const F& beta, const F& gamma) {
   // How many columns can be included in a single permutation polynomial?
@@ -124,13 +125,15 @@ void PermutationProver<Poly, Evals>::Evaluate(
   // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/plonk/permutation/prover.rs#L231-L276.
   for (size_t i = 0; i < grand_product_polys_.size(); ++i) {
     const Poly& poly = grand_product_polys_[i].poly();
-
+    // Zₚ,ᵢ(x)
     prover->EvaluateAndWriteToProof(poly, point_set.x);
+    // Zₚ,ᵢ(ω * x)
     prover->EvaluateAndWriteToProof(poly, point_set.x_next);
     // If we have any remaining sets to process, evaluate this set at ωᵘ
     // so we can constrain the last value of its running product to equal the
     // first value of the next set's running product, chaining them together.
     if (i != grand_product_polys_.size() - 1) {
+      // Zₚ,ᵢ(ω^(last) * x)
       prover->EvaluateAndWriteToProof(poly, point_set.x_last);
     }
   }
@@ -167,13 +170,16 @@ void PermutationProver<Poly, Evals>::Open(
   for (const BlindedPolynomial<Poly, Evals>& grand_product_poly :
        grand_product_polys_) {
     const Poly& poly = grand_product_poly.poly();
+    // Zₚ,ᵢ(x)
     openings.emplace_back(OPENING(poly, x));
+    // Zₚ,ᵢ(ω * x)
     openings.emplace_back(OPENING(poly, x_next));
   }
 
   for (auto it = grand_product_polys_.rbegin() + 1;
        it != grand_product_polys_.rend(); ++it) {
     const Poly& poly = it->poly();
+    // Zₚ,ᵢ(ω^(last) * x)
     openings.emplace_back(OPENING(poly, x_last));
   }
 #undef OPENING

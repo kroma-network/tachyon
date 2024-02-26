@@ -7,10 +7,10 @@
 #include <vector>
 
 #include "tachyon/base/json/json.h"
+#include "tachyon/zk/lookup/halo2/verifier_data.h"
 #include "tachyon/zk/lookup/lookup_pair.h"
-#include "tachyon/zk/lookup/lookup_verification_data.h"
-#include "tachyon/zk/plonk/permutation/permutation_verification_data.h"
-#include "tachyon/zk/plonk/vanishing/vanishing_verification_data.h"
+#include "tachyon/zk/plonk/permutation/permutation_verifier_data.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_verifier_data.h"
 
 namespace tachyon {
 namespace zk::plonk::halo2 {
@@ -20,7 +20,7 @@ struct Proof {
   std::vector<std::vector<C>> advices_commitments_vec;
   std::vector<F> challenges;
   F theta;
-  std::vector<std::vector<LookupPair<C>>> lookup_permuted_commitments_vec;
+  std::vector<std::vector<lookup::Pair<C>>> lookup_permuted_commitments_vec;
   F beta;
   F gamma;
   std::vector<std::vector<C>> permutation_product_commitments_vec;
@@ -40,7 +40,7 @@ struct Proof {
   std::vector<std::vector<F>> lookup_product_evals_vec;
   std::vector<std::vector<F>> lookup_product_next_evals_vec;
   std::vector<std::vector<F>> lookup_permuted_input_evals_vec;
-  std::vector<std::vector<F>> lookup_permuted_input_inv_evals_vec;
+  std::vector<std::vector<F>> lookup_permuted_input_prev_evals_vec;
   std::vector<std::vector<F>> lookup_permuted_table_evals_vec;
 
   // auxiliary values
@@ -82,69 +82,67 @@ struct Proof {
                other.lookup_product_next_evals_vec &&
            lookup_permuted_input_evals_vec ==
                other.lookup_permuted_input_evals_vec &&
-           lookup_permuted_input_inv_evals_vec ==
-               other.lookup_permuted_input_inv_evals_vec &&
+           lookup_permuted_input_prev_evals_vec ==
+               other.lookup_permuted_input_prev_evals_vec &&
            lookup_permuted_table_evals_vec ==
                other.lookup_permuted_table_evals_vec;
   }
   bool operator!=(const Proof& other) const { return !operator==(other); }
 
-  VanishingVerificationData<F> ToVanishingVerificationData(size_t i) const {
-    VanishingVerificationData<F> ret;
-    ret.fixed_evals = fixed_evals;
-    ret.advice_evals = advice_evals_vec[i];
-    ret.instance_evals = instance_evals_vec[i];
-    ret.challenges = challenges;
-    return ret;
+  VanishingVerifierData<F, C> ToVanishingVerifierData(
+      size_t circuit_idx, absl::Span<const C> fixed_commitments,
+      absl::Span<const C> instance_commitments) const {
+    return {
+        fixed_commitments,
+        advices_commitments_vec[circuit_idx],
+        instance_commitments,
+        fixed_evals,
+        advice_evals_vec[circuit_idx],
+        instance_evals_vec[circuit_idx],
+        challenges,
+        vanishing_h_poly_commitments,
+        vanishing_random_poly_commitment,
+        vanishing_random_eval,
+    };
   }
 
-  PermutationVerificationData<F, C> ToPermutationVerificationData(
-      size_t i) const {
-    PermutationVerificationData<F, C> ret;
-    ret.fixed_evals = fixed_evals;
-    ret.advice_evals = advice_evals_vec[i];
-    ret.instance_evals = instance_evals_vec[i];
-    ret.challenges = challenges;
-    ret.product_commitments = permutation_product_commitments_vec[i];
-    ret.common_evals = common_permutation_evals;
-    ret.product_evals = permutation_product_evals_vec[i];
-    ret.product_next_evals = permutation_product_next_evals_vec[i];
-    ret.product_last_evals = permutation_product_last_evals_vec[i];
-    ret.beta = &beta;
-    ret.gamma = &gamma;
-    ret.x = &x;
-    ret.x_next = &x_next;
-    ret.x_last = &x_last;
-    ret.l_first = &l_first;
-    ret.l_blind = &l_blind;
-    ret.l_last = &l_last;
-    return ret;
+  PermutationVerifierData<F, C> ToPermutationVerifierData(
+      size_t circuit_idx,
+      absl::Span<const C> common_permutation_commitments) const {
+    return {
+        fixed_evals,
+        advice_evals_vec[circuit_idx],
+        instance_evals_vec[circuit_idx],
+        challenges,
+        permutation_product_commitments_vec[circuit_idx],
+        permutation_product_evals_vec[circuit_idx],
+        permutation_product_next_evals_vec[circuit_idx],
+        permutation_product_last_evals_vec[circuit_idx],
+        common_permutation_commitments,
+        common_permutation_evals,
+        beta,
+        gamma,
+    };
   }
 
-  LookupVerificationData<F, C> ToLookupVerificationData(size_t i,
-                                                        size_t j) const {
-    LookupVerificationData<F, C> ret;
-    ret.fixed_evals = fixed_evals;
-    ret.advice_evals = advice_evals_vec[i];
-    ret.instance_evals = instance_evals_vec[i];
-    ret.challenges = challenges;
-    ret.permuted_commitment = &lookup_permuted_commitments_vec[i][j];
-    ret.product_commitment = &lookup_product_commitments_vec[i][j];
-    ret.product_eval = &lookup_product_evals_vec[i][j];
-    ret.product_next_eval = &lookup_product_next_evals_vec[i][j];
-    ret.permuted_input_eval = &lookup_permuted_input_evals_vec[i][j];
-    ret.permuted_input_inv_eval = &lookup_permuted_input_inv_evals_vec[i][j];
-    ret.permuted_table_eval = &lookup_permuted_table_evals_vec[i][j];
-    ret.theta = &theta;
-    ret.beta = &beta;
-    ret.gamma = &gamma;
-    ret.x = &x;
-    ret.x_next = &x_next;
-    ret.x_prev = &x_prev;
-    ret.l_first = &l_first;
-    ret.l_blind = &l_blind;
-    ret.l_last = &l_last;
-    return ret;
+  lookup::halo2::VerifierData<F, C> ToLookupVerifierData(
+      size_t circuit_idx) const {
+    return {
+        fixed_evals,
+        advice_evals_vec[circuit_idx],
+        instance_evals_vec[circuit_idx],
+        challenges,
+        lookup_permuted_commitments_vec[circuit_idx],
+        lookup_product_commitments_vec[circuit_idx],
+        lookup_product_evals_vec[circuit_idx],
+        lookup_product_next_evals_vec[circuit_idx],
+        lookup_permuted_input_evals_vec[circuit_idx],
+        lookup_permuted_input_prev_evals_vec[circuit_idx],
+        lookup_permuted_table_evals_vec[circuit_idx],
+        theta,
+        beta,
+        gamma,
+    };
   }
 };
 
@@ -198,8 +196,8 @@ class RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>> {
                    value.lookup_product_next_evals_vec, allocator);
     AddJsonElement(object, "lookup_permuted_input_evals_vec",
                    value.lookup_permuted_input_evals_vec, allocator);
-    AddJsonElement(object, "lookup_permuted_input_inv_evals_vec",
-                   value.lookup_permuted_input_inv_evals_vec, allocator);
+    AddJsonElement(object, "lookup_permuted_input_prev_evals_vec",
+                   value.lookup_permuted_input_prev_evals_vec, allocator);
     AddJsonElement(object, "lookup_permuted_table_evals_vec",
                    value.lookup_permuted_table_evals_vec, allocator);
     return object;
@@ -276,8 +274,8 @@ class RapidJsonValueConverter<zk::plonk::halo2::Proof<F, C>> {
     if (!ParseJsonElement(json_value, "lookup_permuted_input_evals_vec",
                           &proof.lookup_permuted_input_evals_vec, error))
       return false;
-    if (!ParseJsonElement(json_value, "lookup_permuted_input_inv_evals_vec",
-                          &proof.lookup_permuted_input_inv_evals_vec, error))
+    if (!ParseJsonElement(json_value, "lookup_permuted_input_prev_evals_vec",
+                          &proof.lookup_permuted_input_prev_evals_vec, error))
       return false;
     if (!ParseJsonElement(json_value, "lookup_permuted_table_evals_vec",
                           &proof.lookup_permuted_table_evals_vec, error))

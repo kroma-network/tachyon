@@ -7,7 +7,7 @@
 #ifndef TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_OPENING_POINT_SET_H_
 #define TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_OPENING_POINT_SET_H_
 
-namespace tachyon::zk {
+namespace tachyon::zk::plonk {
 
 template <typename F>
 struct PermutationOpeningPointSet {
@@ -19,6 +19,6 @@ struct PermutationOpeningPointSet {
   const F& x_last;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_PERMUTATION_PERMUTATION_OPENING_POINT_SET_H_

@@ -11,7 +11,7 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/zk/plonk/base/ref_table.h"
+#include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 #include "tachyon/zk/plonk/halo2/argument_data.h"
 #include "tachyon/zk/plonk/halo2/synthesizer.h"
 
@@ -100,8 +100,6 @@ class ArgumentData {
     return advice_blinds_vec_[circuit_idx];
   }
 
-  absl::Span<const F> GetChallenges() const { return challenges_; }
-
   // Generate a vector of advice coefficient-formed polynomials with a vector
   // of advice evaluation-formed columns. (a.k.a. Batch IFFT)
   // And for memory optimization, every evaluations of advice will be released
@@ -125,23 +123,23 @@ class ArgumentData {
   }
 
   // Return tables including every type of columns in evaluation form.
-  std::vector<RefTable<Evals>> ExportColumnTables(
+  std::vector<MultiPhaseRefTable<Evals>> ExportColumnTables(
       absl::Span<const Evals> fixed_columns) const {
     CHECK(!advice_transformed_);
-    return base::CreateVector(
-        GetNumCircuits(), [fixed_columns, this](size_t i) {
-          return RefTable<Evals>(fixed_columns, advice_columns_vec_[i],
-                                 instance_columns_vec_[i]);
-        });
+    return base::CreateVector(GetNumCircuits(), [fixed_columns,
+                                                 this](size_t i) {
+      return MultiPhaseRefTable<Evals>(fixed_columns, advice_columns_vec_[i],
+                                       instance_columns_vec_[i], challenges_);
+    });
   }
 
   // Return a table including every type of columns in coefficient form.
-  std::vector<RefTable<Poly>> ExportPolyTables(
+  std::vector<MultiPhaseRefTable<Poly>> ExportPolyTables(
       absl::Span<const Poly> fixed_polys) const {
     CHECK(advice_transformed_);
     return base::CreateVector(GetNumCircuits(), [fixed_polys, this](size_t i) {
-      return RefTable<Poly>(fixed_polys, advice_polys_vec_[i],
-                            instance_polys_vec_[i]);
+      return MultiPhaseRefTable<Poly>(fixed_polys, advice_polys_vec_[i],
+                                      instance_polys_vec_[i], challenges_);
     });
   }
 

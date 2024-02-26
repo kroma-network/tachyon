@@ -26,8 +26,8 @@ namespace tachyon::zk::lookup::halo2 {
 // This method returns (A', S') if no errors are encountered.
 template <typename PCS, typename Evals, typename F = typename Evals::Field>
 [[nodiscard]] bool PermuteExpressionPair(ProverBase<PCS>* prover,
-                                         const LookupPair<Evals>& in,
-                                         LookupPair<Evals>* out) {
+                                         const Pair<Evals>& in,
+                                         Pair<Evals>* out) {
   size_t domain_size = prover->domain()->size();
   RowIndex usable_rows = prover->GetUsableRows();
 

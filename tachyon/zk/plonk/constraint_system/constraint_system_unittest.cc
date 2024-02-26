@@ -58,7 +58,7 @@ TEST_F(ConstraintSystemTest, Lookup) {
             std::unique_ptr<Expression<F>> advice0_expr =
                 cells.QueryAdvice(advice[0], Rotation::Cur());
 
-            LookupPairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
+            lookup::Pairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
                 lookup_pairs;
             lookup_pairs.emplace_back(
                 std::move(simple_selector_expr) * std::move(advice0_expr),
@@ -68,22 +68,23 @@ TEST_F(ConstraintSystemTest, Lookup) {
       "expression containing simple selector supplied to lookup argument");
 
   Selector complex_selector = constraint_system.CreateComplexSelector();
-  EXPECT_EQ(constraint_system.Lookup(
-                "lookup",
-                [complex_selector, &advice, &table](VirtualCells<F>& cells) {
-                  std::unique_ptr<Expression<F>> complex_selector_expr =
-                      cells.QuerySelector(complex_selector);
-                  std::unique_ptr<Expression<F>> advice0_expr =
-                      cells.QueryAdvice(advice[0], Rotation::Cur());
+  EXPECT_EQ(
+      constraint_system.Lookup(
+          "lookup",
+          [complex_selector, &advice, &table](VirtualCells<F>& cells) {
+            std::unique_ptr<Expression<F>> complex_selector_expr =
+                cells.QuerySelector(complex_selector);
+            std::unique_ptr<Expression<F>> advice0_expr =
+                cells.QueryAdvice(advice[0], Rotation::Cur());
 
-                  LookupPairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
-                      lookup_pairs;
-                  lookup_pairs.emplace_back(std::move(complex_selector_expr) *
-                                                std::move(advice0_expr),
-                                            table[0]);
-                  return lookup_pairs;
-                }),
-            0);
+            lookup::Pairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
+                lookup_pairs;
+            lookup_pairs.emplace_back(
+                std::move(complex_selector_expr) * std::move(advice0_expr),
+                table[0]);
+            return lookup_pairs;
+          }),
+      0);
 
   EXPECT_EQ(
       constraint_system.Lookup(
@@ -99,7 +100,7 @@ TEST_F(ConstraintSystemTest, Lookup) {
             std::unique_ptr<Expression<F>> default_expr =
                 ExpressionFactory<F>::Constant(F(2));
 
-            LookupPairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
+            lookup::Pairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
                 lookup_pairs;
             lookup_pairs.emplace_back(
                 std::move(complex_selector_expr) * std::move(advice1_expr) +
@@ -112,9 +113,9 @@ TEST_F(ConstraintSystemTest, Lookup) {
 
   EXPECT_EQ(constraint_system.ComputeLookupRequiredDegree(), 5);
 
-  std::vector<LookupArgument<F>> expected_lookups;
+  std::vector<lookup::Argument<F>> expected_lookups;
   {
-    LookupPairs<std::unique_ptr<Expression<F>>> pairs;
+    lookup::Pairs<std::unique_ptr<Expression<F>>> pairs;
     pairs.emplace_back(ExpressionFactory<F>::Product(
                            ExpressionFactory<F>::Selector(complex_selector),
                            ExpressionFactory<F>::Advice(
@@ -123,7 +124,7 @@ TEST_F(ConstraintSystemTest, Lookup) {
                            FixedQuery(0, Rotation::Cur(), table[0].column())));
     expected_lookups.emplace_back("lookup", std::move(pairs));
 
-    LookupPairs<std::unique_ptr<Expression<F>>> pairs2;
+    lookup::Pairs<std::unique_ptr<Expression<F>>> pairs2;
     pairs2.emplace_back(
         ExpressionFactory<F>::Sum(
             ExpressionFactory<F>::Product(
@@ -164,7 +165,7 @@ TEST_F(ConstraintSystemTest, LookupAny) {
             std::unique_ptr<Expression<F>> table_expr =
                 cells.QueryInstance(table, Rotation::Cur());
 
-            LookupPairs<std::unique_ptr<Expression<F>>> lookup_pairs;
+            lookup::Pairs<std::unique_ptr<Expression<F>>> lookup_pairs;
             lookup_pairs.emplace_back(
                 simple_selector_expr->Clone() * advice_expr->Clone(),
                 std::move(table_expr));
@@ -195,7 +196,7 @@ TEST_F(ConstraintSystemTest, LookupAny) {
             std::unique_ptr<Expression<F>> table_expr =
                 cells.QueryInstance(table, Rotation::Cur());
 
-            LookupPairs<std::unique_ptr<Expression<F>>> lookup_pairs;
+            lookup::Pairs<std::unique_ptr<Expression<F>>> lookup_pairs;
             lookup_pairs.emplace_back(
                 complex_selector_expr->Clone() * advice_expr->Clone() +
                     not_complex_selector_expr->Clone() * default_expr->Clone(),
@@ -211,9 +212,9 @@ TEST_F(ConstraintSystemTest, LookupAny) {
 
   EXPECT_EQ(constraint_system.ComputeLookupRequiredDegree(), 5);
 
-  std::vector<LookupArgument<F>> expected_lookups;
+  std::vector<lookup::Argument<F>> expected_lookups;
   {
-    LookupPairs<std::unique_ptr<Expression<F>>> pairs;
+    lookup::Pairs<std::unique_ptr<Expression<F>>> pairs;
     pairs.emplace_back(
         ExpressionFactory<F>::Sum(
             ExpressionFactory<F>::Product(

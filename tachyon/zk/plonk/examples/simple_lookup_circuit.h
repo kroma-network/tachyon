@@ -84,7 +84,7 @@ class SimpleLookupCircuit : public Circuit<SimpleLookupConfig<F, Bits>> {
       std::unique_ptr<Expression<F>> advice =
           meta.QueryAdvice(config.advice(), Rotation::Cur());
 
-      LookupPairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
+      lookup::Pairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
           lookup_pairs;
       lookup_pairs.emplace_back(
           std::move(selector) * std::move(advice) + std::move(not_selector),

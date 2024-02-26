@@ -16,10 +16,10 @@
 namespace tachyon::base::internal {
 
 template <typename F>
-class RustDebugStringifier<zk::LookupArgument<F>> {
+class RustDebugStringifier<zk::lookup::Argument<F>> {
  public:
   static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
-                                      const zk::LookupArgument<F>& argument) {
+                                      const zk::lookup::Argument<F>& argument) {
     return os << fmt.DebugStruct("Argument")
                      .Field("input_expressions", argument.input_expressions())
                      .Field("table_expressions", argument.table_expressions())

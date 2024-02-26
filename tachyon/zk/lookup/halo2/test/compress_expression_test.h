@@ -4,25 +4,24 @@
 #include <memory>
 #include <vector>
 
-#include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
+#include "tachyon/zk/lookup/proving_evaluator.h"
 #include "tachyon/zk/plonk/halo2/bn254_shplonk_prover_test.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup {
 
 class CompressExpressionTest : public plonk::halo2::BN254SHPlonkProverTest {
  public:
   void SetUp() override {
     plonk::halo2::BN254SHPlonkProverTest::SetUp();
 
-    plonk::RefTable<Evals> columns(fixed_columns_, advice_columns_,
-                                   instance_columns_);
-    evaluator_ = {0, static_cast<int32_t>(prover_->domain()->size()), 1,
-                  columns, challenges_};
+    plonk::MultiPhaseRefTable<Evals> table(fixed_columns_, advice_columns_,
+                                           instance_columns_, challenges_);
+    evaluator_ = {0, static_cast<int32_t>(prover_->domain()->size()), 1, table};
     theta_ = F(2);
   }
 
  protected:
-  SimpleEvaluator<Evals> evaluator_;
+  ProvingEvaluator<Evals> evaluator_;
   std::vector<Evals> fixed_columns_;
   std::vector<Evals> advice_columns_;
   std::vector<Evals> instance_columns_;
@@ -30,6 +29,6 @@ class CompressExpressionTest : public plonk::halo2::BN254SHPlonkProverTest {
   F theta_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup
 
 #endif  // TACHYON_ZK_LOOKUP_HALO2_TEST_COMPRESS_EXPRESSION_TEST_H_

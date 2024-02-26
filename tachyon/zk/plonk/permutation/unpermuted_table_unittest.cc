@@ -13,7 +13,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 
 namespace tachyon::zk::plonk {
 

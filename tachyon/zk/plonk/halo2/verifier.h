@@ -17,11 +17,14 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/entities/verifier_base.h"
-#include "tachyon/zk/lookup/lookup_verification.h"
+#include "tachyon/zk/lookup/halo2/utils.h"
+#include "tachyon/zk/lookup/halo2/verifier.h"
 #include "tachyon/zk/plonk/halo2/proof_reader.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
-#include "tachyon/zk/plonk/permutation/permutation_verification.h"
-#include "tachyon/zk/plonk/vanishing/vanishing_verification_evaluator.h"
+#include "tachyon/zk/plonk/permutation/permutation_utils.h"
+#include "tachyon/zk/plonk/permutation/permutation_verifier.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
+#include "tachyon/zk/plonk/vanishing/vanishing_verifier.h"
 
 namespace tachyon::zk::plonk::halo2 {
 
@@ -145,11 +148,10 @@ class Verifier : public VerifierBase<PCS> {
           return true;
         };
 
-    // NOTE(chokobole): It's safe to downcast because domain is already checked.
-    RowIndex max_rows = static_cast<RowIndex>(this->pcs_.N()) -
-                        (vkey.constraint_system().ComputeBlindingFactors() + 1);
-    auto check_rows = [max_rows](const Evals& instance_columns) {
-      if (instance_columns.NumElements() > size_t{max_rows}) {
+    RowIndex usable_rows =
+        this->GetUsableRows(vkey.constraint_system().ComputeBlindingFactors());
+    auto check_rows = [usable_rows](const Evals& instance_columns) {
+      if (instance_columns.NumElements() > size_t{usable_rows}) {
         LOG(ERROR) << "Too many number of elements in instance column";
         return false;
       }
@@ -170,9 +172,7 @@ class Verifier : public VerifierBase<PCS> {
     return base::Map(columns, [this](const Evals& column) {
       std::vector<F> expanded_evals = column.evaluations();
       expanded_evals.resize(this->pcs_.N());
-      Commitment c;
-      CHECK(this->pcs_.CommitLagrange(Evals(std::move(expanded_evals)), &c));
-      return c;
+      return this->Commit(expanded_evals);
     });
   }
 
@@ -285,171 +285,137 @@ class Verifier : public VerifierBase<PCS> {
                      });
   }
 
-  F ComputeExpectedHEval(size_t num_circuits,
-                         const VerifyingKey<F, Commitment>& vkey,
-                         const Proof<F, Commitment>& proof) {
+  F EvaluateH(
+      const std::vector<std::vector<Commitment>>& instance_commitments_vec,
+      const VerifyingKey<F, Commitment>& vkey,
+      const Proof<F, Commitment>& proof) {
+    size_t num_circuits = proof.advices_commitments_vec.size();
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
-    std::vector<F> expressions;
-    const std::vector<Gate<F>>& gates = constraint_system.gates();
-    const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
-    size_t polys_size = std::accumulate(gates.begin(), gates.end(), 0,
-                                        [](size_t acc, const Gate<F>& gate) {
-                                          return acc + gate.polys().size();
-                                        });
-    size_t expressions_size =
-        num_circuits *
-        (polys_size +
-         GetSizeOfPermutationVerificationExpressions(constraint_system) +
-         lookups.size() * GetSizeOfLookupVerificationExpressions());
-    expressions.reserve(expressions_size);
+    size_t size =
+        GetNumVanishingEvals(num_circuits, constraint_system.gates()) +
+        GetNumPermutationEvals(
+            num_circuits, proof.permutation_product_commitments_vec[0].size()) +
+        lookup::halo2::GetNumEvals(num_circuits,
+                                   constraint_system.lookups().size());
+    std::vector<F> evals;
+    evals.reserve(size);
+
+    LValues<F> l_values(proof.l_first, proof.l_blind, proof.l_last);
     for (size_t i = 0; i < num_circuits; ++i) {
-      VanishingVerificationData<F> data = proof.ToVanishingVerificationData(i);
-      VanishingVerificationEvaluator<F> vanishing_verification_evaluator(data);
-      for (const Gate<F>& gate : gates) {
-        for (const std::unique_ptr<Expression<F>>& poly : gate.polys()) {
-          expressions.push_back(
-              poly->Evaluate(&vanishing_verification_evaluator));
-        }
-      }
+      VanishingVerifierData<F, Commitment> vanishing_verifier_data =
+          proof.ToVanishingVerifierData(i, vkey.fixed_commitments(),
+                                        instance_commitments_vec[i]);
+      VanishingVerifier<F, Commitment> vanishing_verifier(
+          vanishing_verifier_data);
+      vanishing_verifier.Evaluate(constraint_system, evals);
 
-      std::vector<F> permutation_expressions =
-          CreatePermutationVerificationExpressions(
-              proof.ToPermutationVerificationData(i), constraint_system);
-      expressions.insert(
-          expressions.end(),
-          std::make_move_iterator(permutation_expressions.begin()),
-          std::make_move_iterator(permutation_expressions.end()));
+      PermutationVerifierData<F, Commitment> permutation_verifier_data =
+          proof.ToPermutationVerifierData(
+              i, vkey.permutation_verifying_key().commitments());
+      PermutationVerifier<F, Commitment> permutation_verifier(
+          permutation_verifier_data);
+      permutation_verifier.Evaluate(constraint_system, proof.x, l_values,
+                                    evals);
 
-      for (size_t j = 0; j < lookups.size(); ++j) {
-        const LookupArgument<F>& lookup = lookups[j];
-        std::vector<F> lookup_expressions = CreateLookupVerificationExpressions(
-            proof.ToLookupVerificationData(i, j), lookup);
-        expressions.insert(expressions.end(),
-                           std::make_move_iterator(lookup_expressions.begin()),
-                           std::make_move_iterator(lookup_expressions.end()));
-      }
+      lookup::halo2::VerifierData<F, Commitment> lookup_verifier_data =
+          proof.ToLookupVerifierData(i);
+      lookup::halo2::Verifier<F, Commitment> lookup_verifier(
+          lookup_verifier_data);
+      lookup_verifier.Evaluate(constraint_system.lookups(), l_values, evals);
     }
-    DCHECK_EQ(expressions.size(), expressions_size);
+    DCHECK_EQ(evals.size(), size);
     F expected_h_eval =
-        F::template LinearCombination</*forward=*/true>(expressions, proof.y);
+        F::template LinearCombination</*forward=*/true>(evals, proof.y);
     return expected_h_eval /= (proof.x_n - F::One());
   }
 
-  size_t GetSizeOfAdviceInstanceColumnQueries(
-      const ConstraintSystem<F>& constraint_system) {
-    const std::vector<AdviceQueryData>& advice_queries =
-        constraint_system.advice_queries();
-    size_t size = advice_queries.size();
-    if constexpr (PCS::kQueryInstance) {
-      const std::vector<InstanceQueryData>& instance_queries =
-          constraint_system.instance_queries();
-      size += instance_queries.size();
-    }
-    return size;
-  }
+  std::vector<Opening> Open(
+      const std::vector<std::vector<Commitment>>& instance_commitments_vec,
+      const VerifyingKey<F, Commitment>& vkey,
+      const Proof<F, Commitment>& proof, Commitment& expected_h_commitment,
+      const F& expected_h_eval, PointSet<F>& point_set) {
+    size_t num_circuits = proof.advices_commitments_vec.size();
+    const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
+    size_t size =
+        GetNumVanishingOpenings<PCS>(
+            num_circuits, constraint_system.advice_queries().size(),
+            constraint_system.instance_queries().size(),
+            constraint_system.fixed_queries().size()) +
+        GetNumPermutationOpenings(
+            num_circuits, proof.permutation_product_commitments_vec[0].size(),
+            vkey.permutation_verifying_key().commitments().size()) +
+        lookup::halo2::GetNumOpenings(num_circuits,
+                                      constraint_system.lookups().size());
+    std::vector<Opening> openings;
+    openings.reserve(size);
 
-  template <ColumnType C>
-  void CreateColumnQueries(const std::vector<QueryData<C>>& queries,
-                           const std::vector<Commitment>& commitments,
-                           const std::vector<F>& evals,
-                           const Proof<F, Commitment>& proof,
-                           std::vector<Opening>& openings,
-                           std::vector<F>& points) const {
-    for (size_t i = 0; i < queries.size(); ++i) {
-      const QueryData<C>& query = queries[i];
-      const ColumnKey<C>& column = query.column();
-      points.push_back(query.rotation().RotateOmega(this->domain(), proof.x));
-      openings.emplace_back(
-          base::Ref<const Commitment>(&commitments[column.index()]),
-          base::DeepRef<const F>(&points.back()), evals[i]);
+    PermutationOpeningPointSet<F> permutation_point_set(proof.x, proof.x_next,
+                                                        proof.x_last);
+    lookup::halo2::OpeningPointSet<F> lookup_point_set(proof.x, proof.x_prev,
+                                                       proof.x_next);
+
+    for (size_t i = 0; i < num_circuits; ++i) {
+      VanishingVerifierData<F, Commitment> vanishing_verifier_data =
+          proof.ToVanishingVerifierData(i, vkey.fixed_commitments(),
+                                        instance_commitments_vec[i]);
+      VanishingVerifier<F, Commitment> vanishing_verifier(
+          vanishing_verifier_data);
+      vanishing_verifier.template OpenAdviceInstanceColumns<PCS, Poly>(
+          this->domain(), proof.x, constraint_system, point_set, openings);
+
+      PermutationVerifierData<F, Commitment> permutation_verifier_data =
+          proof.ToPermutationVerifierData(
+              i, vkey.permutation_verifying_key().commitments());
+      PermutationVerifier<F, Commitment> permutation_verifier(
+          permutation_verifier_data);
+      permutation_verifier.template Open<Poly>(permutation_point_set, openings);
+
+      lookup::halo2::VerifierData<F, Commitment> lookup_verifier_data =
+          proof.ToLookupVerifierData(i);
+      lookup::halo2::Verifier<F, Commitment> lookup_verifier(
+          lookup_verifier_data);
+      lookup_verifier.template Open<Poly>(lookup_point_set, openings);
+
+      if (i == num_circuits - 1) {
+        vanishing_verifier.template OpenFixedColumns<Poly>(
+            this->domain(), proof.x, constraint_system, point_set, openings);
+
+        permutation_verifier.template OpenPermutationProvingKey<Poly>(proof.x,
+                                                                      openings);
+
+        vanishing_verifier.template Open<Poly>(proof.x, proof.x_n,
+                                               expected_h_commitment,
+                                               expected_h_eval, openings);
+      }
     }
+
+    DCHECK_EQ(openings.size(), size);
+    return openings;
   }
 
   bool DoVerify(
       const std::vector<std::vector<Commitment>>& instance_commitments_vec,
       const VerifyingKey<F, Commitment>& vkey,
       const Proof<F, Commitment>& proof, F* expected_h_eval_out) {
-    std::vector<Opening> queries;
-    size_t num_circuits = instance_commitments_vec.size();
-
-    const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
-    const std::vector<LookupArgument<F>>& lookups = constraint_system.lookups();
-    const std::vector<FixedQueryData>& fixed_queries =
-        constraint_system.fixed_queries();
-    const std::vector<Commitment>& common_permutation_commitments =
-        vkey.permutation_verifying_key().commitments();
-    size_t queries_size =
-        num_circuits *
-            (GetSizeOfAdviceInstanceColumnQueries(constraint_system) +
-             GetSizeOfPermutationVerifierQueries(constraint_system) +
-             lookups.size() * GetSizeOfLookupVerifierQueries()) +
-        fixed_queries.size() + common_permutation_commitments.size() + 2;
-    queries.reserve(queries_size);
-
-    std::vector<F> points;
-    size_t points_size =
-        num_circuits * GetSizeOfAdviceInstanceColumnQueries(constraint_system) +
-        fixed_queries.size();
-    points.reserve(points_size);
-
-    for (size_t i = 0; i < num_circuits; ++i) {
-      if constexpr (PCS::kQueryInstance) {
-        const std::vector<InstanceQueryData>& instance_queries =
-            constraint_system.instance_queries();
-        CreateColumnQueries(instance_queries, instance_commitments_vec[i],
-                            proof.instance_evals_vec[i], proof, queries,
-                            points);
-      }
-      const std::vector<AdviceQueryData>& advice_queries =
-          constraint_system.advice_queries();
-      CreateColumnQueries(advice_queries, proof.advices_commitments_vec[i],
-                          proof.advice_evals_vec[i], proof, queries, points);
-
-      std::vector<Opening> permutation_queries = CreatePermutationQueries<PCS>(
-          proof.ToPermutationVerificationData(i), constraint_system);
-      queries.insert(queries.end(),
-                     std::make_move_iterator(permutation_queries.begin()),
-                     std::make_move_iterator(permutation_queries.end()));
-
-      for (size_t j = 0; j < lookups.size(); ++j) {
-        std::vector<Opening> lookup_queries =
-            CreateLookupQueries<PCS>(proof.ToLookupVerificationData(i, j));
-        queries.insert(queries.end(),
-                       std::make_move_iterator(lookup_queries.begin()),
-                       std::make_move_iterator(lookup_queries.end()));
-      }
-    }
-
-    CreateColumnQueries(fixed_queries, vkey.fixed_commitments(),
-                        proof.fixed_evals, proof, queries, points);
-
-    for (size_t i = 0; i < proof.common_permutation_evals.size(); ++i) {
-      queries.emplace_back(
-          base::Ref<const Commitment>(&common_permutation_commitments[i]),
-          base::DeepRef<const F>(&proof.x), proof.common_permutation_evals[i]);
-    }
-
-    // TODO(chokobole): Remove |ToAffine()| since this assumes commitment is an
-    // elliptic curve point.
-    Commitment h_commitment =
-        Commitment::template LinearCombination</*forward=*/false>(
-            proof.vanishing_h_poly_commitments, proof.x_n)
-            .ToAffine();
-
-    F expected_h_eval = ComputeExpectedHEval(num_circuits, vkey, proof);
-
+    F expected_h_eval = EvaluateH(instance_commitments_vec, vkey, proof);
     if (expected_h_eval_out) {
       *expected_h_eval_out = expected_h_eval;
     }
 
-    queries.emplace_back(base::Ref<const Commitment>(&h_commitment),
-                         base::DeepRef<const F>(&proof.x), expected_h_eval);
-    queries.emplace_back(
-        base::Ref<const Commitment>(&proof.vanishing_random_poly_commitment),
-        base::DeepRef<const F>(&proof.x), proof.vanishing_random_eval);
-    DCHECK_EQ(queries.size(), queries_size);
-    DCHECK_EQ(points.size(), points_size);
-    return this->pcs_.VerifyOpeningProof(queries, this->GetReader());
+    PointSet<F> point_set;
+    point_set.Insert(proof.x);
+    point_set.Insert(proof.x_prev);
+    point_set.Insert(proof.x_next);
+    point_set.Insert(proof.x_last);
+
+    // TODO(chokobole): Remove |ToAffine()| since this assumes commitment is an
+    // elliptic curve point.
+    Commitment expected_h_commitment;
+    std::vector<Opening> openings =
+        Open(instance_commitments_vec, vkey, proof, expected_h_commitment,
+             expected_h_eval, point_set);
+
+    return this->pcs_.VerifyOpeningProof(openings, this->GetReader());
   }
 };
 

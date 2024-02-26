@@ -16,11 +16,11 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/expressions/evaluator/simple_evaluator.h"
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
 #include "tachyon/zk/lookup/lookup_pair.h"
-#include "tachyon/zk/plonk/base/ref_table.h"
+#include "tachyon/zk/lookup/proving_evaluator.h"
+#include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 
 namespace tachyon::zk::lookup::halo2 {
 
@@ -29,11 +29,11 @@ class Prover {
  public:
   using F = typename Poly::Field;
 
-  const std::vector<LookupPair<Evals>>& compressed_pairs() const {
+  const std::vector<Pair<Evals>>& compressed_pairs() const {
     return compressed_pairs_;
   }
-  const std::vector<LookupPair<BlindedPolynomial<Poly, Evals>>>&
-  permuted_pairs() const {
+  const std::vector<Pair<BlindedPolynomial<Poly, Evals>>>& permuted_pairs()
+      const {
     return permuted_pairs_;
   }
   const std::vector<BlindedPolynomial<Poly, Evals>>& grand_product_polys()
@@ -44,9 +44,8 @@ class Prover {
   template <typename Domain>
   static void BatchCompressPairs(
       std::vector<Prover>& lookup_provers, const Domain* domain,
-      const std::vector<LookupArgument<F>>& arguments, const F& theta,
-      const std::vector<plonk::RefTable<Evals>>& tables,
-      absl::Span<const F> challenges);
+      const std::vector<Argument<F>>& arguments, const F& theta,
+      const std::vector<plonk::MultiPhaseRefTable<Evals>>& tables);
 
   template <typename PCS>
   static void BatchPermutePairs(std::vector<Prover>& lookup_provers,
@@ -106,37 +105,29 @@ class Prover {
     }
   }
 
-  constexpr static size_t GetNumOpenings(
-      const std::vector<Prover>& lookup_provers) {
-    if (lookup_provers.empty()) return 0;
-    return lookup_provers.size() *
-           lookup_provers[0].grand_product_polys_.size() * 5;
-  }
-
   void Open(const OpeningPointSet<F>& point_set,
             std::vector<crypto::PolynomialOpening<Poly>>& openings) const;
 
  private:
   template <typename Domain>
-  static LookupPair<Evals> CompressPair(
-      const Domain* domain, const LookupArgument<F>& argument, const F& theta,
-      const SimpleEvaluator<Evals>& evaluator_tpl);
+  static Pair<Evals> CompressPair(const Domain* domain,
+                                  const Argument<F>& argument, const F& theta,
+                                  const ProvingEvaluator<Evals>& evaluator_tpl);
 
   template <typename PCS>
-  static LookupPair<BlindedPolynomial<Poly, Evals>> PermutePair(
-      ProverBase<PCS>* prover, const LookupPair<Evals>& compressed_pair);
+  static Pair<BlindedPolynomial<Poly, Evals>> PermutePair(
+      ProverBase<PCS>* prover, const Pair<Evals>& compressed_pair);
 
   template <typename PCS>
   static BlindedPolynomial<Poly, Evals> CreateGrandProductPoly(
-      ProverBase<PCS>* prover, const LookupPair<Evals>& compressed_pair,
-      const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair,
-      const F& beta, const F& gamma);
+      ProverBase<PCS>* prover, const Pair<Evals>& compressed_pair,
+      const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair, const F& beta,
+      const F& gamma);
 
   template <typename Domain>
   void CompressPairs(const Domain* domain,
-                     const std::vector<LookupArgument<F>>& arguments,
-                     const F& theta,
-                     const SimpleEvaluator<Evals>& evaluator_tpl);
+                     const std::vector<Argument<F>>& arguments, const F& theta,
+                     const ProvingEvaluator<Evals>& evaluator_tpl);
 
   template <typename PCS>
   void PermutePairs(ProverBase<PCS>* prover);
@@ -153,14 +144,17 @@ class Prover {
                 const OpeningPointSet<F>& point_set) const;
 
   static std::function<F(RowIndex)> CreateNumeratorCallback(
-      const LookupPair<Evals>& compressed_pair, const F& beta, const F& gamma);
+      const Pair<Evals>& compressed_pair, const F& beta, const F& gamma);
 
   static std::function<F(RowIndex)> CreateDenominatorCallback(
-      const LookupPair<BlindedPolynomial<Poly, Evals>>& permuted_pair,
-      const F& beta, const F& gamma);
+      const Pair<BlindedPolynomial<Poly, Evals>>& permuted_pair, const F& beta,
+      const F& gamma);
 
-  std::vector<LookupPair<Evals>> compressed_pairs_;
-  std::vector<LookupPair<BlindedPolynomial<Poly, Evals>>> permuted_pairs_;
+  // A_compressedᵢ(X), S_compressedᵢ(X)
+  std::vector<Pair<Evals>> compressed_pairs_;
+  // A'ᵢ(X), S'ᵢ(X)
+  std::vector<Pair<BlindedPolynomial<Poly, Evals>>> permuted_pairs_;
+  // Zₗ,ᵢ(X)
   std::vector<BlindedPolynomial<Poly, Evals>> grand_product_polys_;
 };
 

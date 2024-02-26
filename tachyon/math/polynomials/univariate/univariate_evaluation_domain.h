@@ -197,10 +197,10 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   //       https://people.maths.ox.ac.uk/trefethen/barycentric.pdf
   // - Lᵢ_H: The value of i-th lagrange coefficient for H
   //
-  // Evaluate all the lagrange polynomials defined by H at the point 𝜏. This
+  // Evaluate all the lagrange polynomials defined by H at the point τ. This
   // is computed in time O(m). Then given the evaluations of a degree d
-  // polynomial P over H, where d < m, P(𝜏) can be computed as P(𝜏) =
-  // Σ{i in m} Lᵢ_H(𝜏) * P(gⁱ).
+  // polynomial P over H, where d < m, P(τ) can be computed as P(τ) =
+  // Σ{i in m} Lᵢ_H(τ) * P(gⁱ).
   constexpr std::vector<F> EvaluateAllLagrangeCoefficients(const F& tau) const {
     return EvaluatePartialLagrangeCoefficients(
         tau, base::Range<size_t>::Until(size_));
@@ -217,18 +217,18 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     CHECK_LE(size, size_);
     if (size == 0) return {};
 
-    // Evaluate all Lagrange polynomials at 𝜏 to get the lagrange
+    // Evaluate all Lagrange polynomials at τ to get the lagrange
     // coefficients.
     //
-    // We then compute Lᵢ_H(𝜏) as Lᵢ_H(𝜏) = Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
+    // We then compute Lᵢ_H(τ) as Lᵢ_H(τ) = Z_H(τ) * vᵢ / (τ - h * gⁱ)
     //
-    // However, if 𝜏 is in H, both the numerator and denominator equal 0
-    // when i corresponds to the value 𝜏 equals, and the coefficient is 0
+    // However, if τ is in H, both the numerator and denominator equal 0
+    // when i corresponds to the value τ equals, and the coefficient is 0
     // everywhere else. We handle this case separately, and we can easily
-    // detect by checking if the vanishing poly evaluates to 0 at 𝜏.
+    // detect by checking if the vanishing poly evaluates to 0 at τ.
     F z_h_at_tau = EvaluateVanishingPolynomial(tau);
     if (z_h_at_tau.IsZero()) {
-      // In this case, we know that 𝜏 = h * gⁱ, for some value i.
+      // In this case, we know that τ = h * gⁱ, for some value i.
       // Then i-th lagrange coefficient in this case is then simply 1,
       // and all other lagrange coefficients are 0.
       // Thus we find i by brute force.
@@ -243,21 +243,21 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       }
       return u;
     } else {
-      // In this case we have to compute Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
+      // In this case we have to compute Z_H(τ) * vᵢ / (τ - h * gⁱ)
       // for i in 0..|size_|. We actually compute this by computing
-      // (Z_H(𝜏) * vᵢ)⁻¹ * (𝜏 - h * gⁱ) and then batch inverting to
+      // (Z_H(τ) * vᵢ)⁻¹ * (τ - h * gⁱ) and then batch inverting to
       // get the correct lagrange coefficients. We let
-      // lᵢ = (Z_H(𝜏) * vᵢ)⁻¹ and rᵢ = 𝜏 - h * gⁱ. Notice that
-      // since Z_H(𝜏) is i-independent, and vᵢ = g * vᵢ₋₁, it follows
+      // lᵢ = (Z_H(τ) * vᵢ)⁻¹ and rᵢ = τ - h * gⁱ. Notice that
+      // since Z_H(τ) is i-independent, and vᵢ = g * vᵢ₋₁, it follows
       // that lᵢ = g⁻¹ * lᵢ₋₁
 
       // t = m * hᵐ = v₀⁻¹ * h
       F t = size_as_field_element_ * offset_pow_size_;
       F omega_i = GetElement(range.from);
-      // lᵢ = (Z_H(𝜏) * h * gᵢ)⁻¹ * t
-      //    = (Z_H(𝜏) * h * gᵢ * t⁻¹)⁻¹
-      //    = (Z_H(𝜏) * h * gᵢ * v₀⁻¹ * h⁻¹)⁻¹
-      //    = (Z_H(𝜏) * gᵢ * v₀)⁻¹
+      // lᵢ = (Z_H(τ) * h * gᵢ)⁻¹ * t
+      //    = (Z_H(τ) * h * gᵢ * t⁻¹)⁻¹
+      //    = (Z_H(τ) * h * gᵢ * v₀⁻¹ * h⁻¹)⁻¹
+      //    = (Z_H(τ) * gᵢ * v₀)⁻¹
       F l_i = (z_h_at_tau * omega_i).Inverse() * t;
       F negative_omega_i = -omega_i;
       std::vector<F> lagrange_coefficients_inverse(size);
@@ -269,7 +269,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
             F l_i_pow = l_i * group_gen_inv_.Pow(n);
             F negative_omega_i_pow = negative_omega_i * group_gen_.Pow(n);
             for (F& c : chunk) {
-              // (Z_H(𝜏) * vᵢ)⁻¹ * (𝜏 - h * gⁱ)
+              // (Z_H(τ) * vᵢ)⁻¹ * (τ - h * gⁱ)
               c = l_i_pow * (tau + negative_omega_i_pow);
               // lᵢ₊₁ = g⁻¹ * lᵢ
               l_i_pow *= group_gen_inv_;
@@ -279,7 +279,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
           });
 
       // Invert |lagrange_coefficients_inverse| to get the actual
-      // coefficients, and return these Z_H(𝜏) * vᵢ / (𝜏 - h * gⁱ)
+      // coefficients, and return these Z_H(τ) * vᵢ / (τ - h * gⁱ)
       CHECK(F::BatchInverseInPlace(lagrange_coefficients_inverse));
       return lagrange_coefficients_inverse;
     }
@@ -298,7 +298,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // need this to be faster. (See
   // https://github.com/arkworks-rs/algebra/blob/4152c41769ae0178fc110bfd15cc699673a2ce4b/poly/src/domain/mod.rs#L232-L233)
   constexpr F EvaluateVanishingPolynomial(const F& tau) const {
-    // Z_H(𝜏) = Π{i in m} (𝜏 - h * gⁱ) = 𝜏ᵐ - hᵐ,
+    // Z_H(τ) = Π{i in m} (τ - h * gⁱ) = τᵐ - hᵐ,
     // where m = |size_| and hᵐ = |offset_pow_size_|.
     return tau.Pow(size_) - offset_pow_size_;
   }

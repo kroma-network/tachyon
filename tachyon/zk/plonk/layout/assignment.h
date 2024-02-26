@@ -12,7 +12,7 @@
 
 #include "tachyon/base/functional/callback.h"
 #include "tachyon/math/base/rational_field.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 #include "tachyon/zk/base/value.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/constraint_system/challenge.h"

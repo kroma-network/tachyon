@@ -21,6 +21,29 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "l_values",
+    hdrs = ["l_values.h"],
+)
+
+tachyon_cc_library(
+    name = "multi_phase_evaluations",
+    hdrs = ["multi_phase_evaluations.h"],
+    deps = ["@com_google_absl//absl/types:span"],
+)
+
+tachyon_cc_library(
+    name = "multi_phase_owned_table",
+    hdrs = ["multi_phase_owned_table.h"],
+    deps = [":owned_table"],
+)
+
+tachyon_cc_library(
+    name = "multi_phase_ref_table",
+    hdrs = ["multi_phase_ref_table.h"],
+    deps = [":ref_table"],
+)
+
+tachyon_cc_library(
     name = "owned_table",
     hdrs = ["owned_table.h"],
     deps = [":table_base"],

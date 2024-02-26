@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 #include "tachyon/zk/base/random_field_generator_base.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 
 namespace tachyon::zk {
 

@@ -961,8 +961,8 @@ TEST_F(SimpleV1CircuitTest, Verify) {
   ASSERT_EQ(proof.lookup_permuted_input_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_permuted_input_evals_vec[0].empty());
 
-  ASSERT_EQ(proof.lookup_permuted_input_inv_evals_vec.size(), num_circuits);
-  EXPECT_TRUE(proof.lookup_permuted_input_inv_evals_vec[0].empty());
+  ASSERT_EQ(proof.lookup_permuted_input_prev_evals_vec.size(), num_circuits);
+  EXPECT_TRUE(proof.lookup_permuted_input_prev_evals_vec[0].empty());
 
   ASSERT_EQ(proof.lookup_permuted_table_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_permuted_table_evals_vec[0].empty());

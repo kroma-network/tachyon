@@ -12,7 +12,7 @@
 #include <string>
 
 #include "tachyon/base/functional/callback.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 #include "tachyon/zk/plonk/constraint_system/challenge.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/layout/lookup_table.h"

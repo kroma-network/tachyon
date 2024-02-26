@@ -12,8 +12,9 @@
 #include <utility>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/crypto/commitments/vector_commitment_scheme_traits_forward.h"
 #include "tachyon/crypto/transcripts/transcript.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 
 namespace tachyon::zk {
 
@@ -53,6 +54,54 @@ class Entity {
   crypto::Transcript<Commitment>* transcript() { return transcript_.get(); }
   const crypto::Transcript<Commitment>* transcript() const {
     return transcript_.get();
+  }
+
+  RowIndex GetUsableRows(RowIndex blinding_factors) const {
+    return domain_->size() - (blinding_factors + 1);
+  }
+
+  constexpr static RowOffset GetLastRow(RowIndex blinding_factors) {
+    return -(blinding_factors + 1);
+  }
+
+  Commitment Commit(const Poly& poly) {
+    Commitment commitment;
+    CHECK(pcs_.Commit(poly, &commitment));
+    return commitment;
+  }
+
+  Commitment Commit(const Evals& evals) {
+    Commitment commitment;
+    CHECK(pcs_.CommitLagrange(evals, &commitment));
+    return commitment;
+  }
+
+  template <typename Container>
+  Commitment Commit(const Container& container) {
+    Commitment commitment;
+    CHECK(pcs_.DoCommit(container, &commitment));
+    return commitment;
+  }
+
+  template <typename T = PCS,
+            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
+                T>::kSupportsBatchMode>* = nullptr>
+  void BatchCommitAt(const Poly& poly, size_t index) {
+    CHECK(pcs_.Commit(poly, index));
+  }
+
+  template <typename T = PCS,
+            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
+                T>::kSupportsBatchMode>* = nullptr>
+  void BatchCommitAt(const Evals& evals, size_t index) {
+    CHECK(pcs_.CommitLagrange(evals, index));
+  }
+
+  template <typename T = PCS, typename Container,
+            std::enable_if_t<crypto::VectorCommitmentSchemeTraits<
+                T>::kSupportsBatchMode>* = nullptr>
+  void BatchCommitAt(const Container& container, size_t index) {
+    CHECK(pcs_.DoCommit(container, pcs_.batch_commitment_state(), index));
   }
 
  protected:

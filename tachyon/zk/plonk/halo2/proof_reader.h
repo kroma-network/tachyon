@@ -95,7 +95,7 @@ class ProofReader {
           return base::CreateVector(num_lookups, [this]() {
             C input = Read<C>();
             C table = Read<C>();
-            return LookupPair<C>(std::move(input), std::move(table));
+            return lookup::Pair<C>(std::move(input), std::move(table));
           });
         });
     cursor_ = ProofCursor::kBetaAndGamma;
@@ -231,20 +231,20 @@ class ProofReader {
     proof_.lookup_product_evals_vec.resize(num_circuits_);
     proof_.lookup_product_next_evals_vec.resize(num_circuits_);
     proof_.lookup_permuted_input_evals_vec.resize(num_circuits_);
-    proof_.lookup_permuted_input_inv_evals_vec.resize(num_circuits_);
+    proof_.lookup_permuted_input_prev_evals_vec.resize(num_circuits_);
     proof_.lookup_permuted_table_evals_vec.resize(num_circuits_);
     for (size_t i = 0; i < num_circuits_; ++i) {
       size_t size = proof_.lookup_product_commitments_vec[i].size();
       proof_.lookup_product_evals_vec[i].reserve(size);
       proof_.lookup_product_next_evals_vec[i].reserve(size);
       proof_.lookup_permuted_input_evals_vec[i].reserve(size);
-      proof_.lookup_permuted_input_inv_evals_vec[i].reserve(size);
+      proof_.lookup_permuted_input_prev_evals_vec[i].reserve(size);
       proof_.lookup_permuted_table_evals_vec[i].reserve(size);
       for (size_t j = 0; j < size; ++j) {
         proof_.lookup_product_evals_vec[i].push_back(Read<F>());
         proof_.lookup_product_next_evals_vec[i].push_back(Read<F>());
         proof_.lookup_permuted_input_evals_vec[i].push_back(Read<F>());
-        proof_.lookup_permuted_input_inv_evals_vec[i].push_back(Read<F>());
+        proof_.lookup_permuted_input_prev_evals_vec[i].push_back(Read<F>());
         proof_.lookup_permuted_table_evals_vec[i].push_back(Read<F>());
       }
     }

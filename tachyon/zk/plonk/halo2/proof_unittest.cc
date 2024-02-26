@@ -10,7 +10,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/zk/base/row_index.h"
+#include "tachyon/zk/base/row_types.h"
 
 namespace tachyon::zk::plonk::halo2 {
 namespace {
@@ -26,12 +26,12 @@ std::vector<std::vector<T>> CreateRandomElementsVec(RowIndex rows,
   });
 }
 
-std::vector<std::vector<zk::LookupPair<Commitment>>> CreateRandomLookupPairsVec(
-    RowIndex rows, size_t cols) {
+std::vector<std::vector<zk::lookup::Pair<Commitment>>>
+CreateRandomLookupPairsVec(RowIndex rows, size_t cols) {
   return base::CreateVector(rows, [cols]() {
     return base::CreateVector(cols, []() {
-      return zk::LookupPair<Commitment>(Commitment::Random(),
-                                        Commitment::Random());
+      return zk::lookup::Pair<Commitment>(Commitment::Random(),
+                                          Commitment::Random());
     });
   });
 }
@@ -91,7 +91,7 @@ TEST(ProofTest, JsonValueConverter) {
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
   expected_proof.lookup_permuted_input_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
-  expected_proof.lookup_permuted_input_inv_evals_vec =
+  expected_proof.lookup_permuted_input_prev_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
   expected_proof.lookup_permuted_table_evals_vec =
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);

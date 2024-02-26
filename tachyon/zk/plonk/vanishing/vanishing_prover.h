@@ -16,7 +16,7 @@
 #include "tachyon/zk/base/entities/prover_base.h"
 #include "tachyon/zk/base/point_set.h"
 #include "tachyon/zk/lookup/halo2/prover.h"
-#include "tachyon/zk/plonk/base/ref_table.h"
+#include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_prover.h"
 
@@ -39,8 +39,8 @@ class VanishingProver {
   template <typename PCS, typename C>
   void CreateHEvals(
       ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
-      const std::vector<RefTable<Poly>>& tables, absl::Span<const F> challenges,
-      const F& theta, const F& beta, const F& gamma, const F& y,
+      const std::vector<MultiPhaseRefTable<Poly>>& tables, const F& theta,
+      const F& beta, const F& gamma, const F& y,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers);
 
@@ -62,32 +62,21 @@ class VanishingProver {
   template <typename PCS>
   void BatchEvaluate(ProverBase<PCS>* prover,
                      const ConstraintSystem<F>& constraint_system,
-                     const std::vector<RefTable<Poly>>& tables, const F& x,
-                     const F& x_n);
-
-  template <typename PCS>
-  constexpr static size_t GetNumOpenings(
-      size_t num_circuits, const ConstraintSystem<F>& constraint_system) {
-    size_t ret = constraint_system.advice_queries().size();
-    if (PCS::kQueryInstance) {
-      ret += constraint_system.instance_queries().size();
-    }
-    ret *= num_circuits;
-    ret += constraint_system.fixed_queries().size();
-    ret += 2;
-    return ret;
-  }
+                     const std::vector<MultiPhaseRefTable<Poly>>& tables,
+                     const F& x, const F& x_n);
 
   template <typename PCS, typename Domain>
   static void OpenAdviceInstanceColumns(
       const Domain* domain, const ConstraintSystem<F>& constraint_system,
-      const RefTable<Poly>& tables, const F& x, PointSet<F>& point_set,
+      const MultiPhaseRefTable<Poly>& tables, const F& x,
+      PointSet<F>& point_set,
       std::vector<crypto::PolynomialOpening<Poly>>& openings);
 
   template <typename Domain>
   static void OpenFixedColumns(
       const Domain* domain, const ConstraintSystem<F>& constraint_system,
-      const RefTable<Poly>& tables, const F& x, PointSet<F>& point_set,
+      const MultiPhaseRefTable<Poly>& tables, const F& x,
+      PointSet<F>& point_set,
       std::vector<crypto::PolynomialOpening<Poly>>& openings);
 
   void Open(const F& x,

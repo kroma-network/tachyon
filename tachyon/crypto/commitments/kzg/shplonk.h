@@ -332,9 +332,9 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       }
 
       // clang-format off
-      // |normalized_l_commitments₀| = [L₀(𝜏)]₁ / Zᴛ\₀(u) = (C₀ - [R₀(u)]₁) + y(C₁ - [R₁(u)]₁) + y²(C₂ - [R₂(u)]₁) * Zᴛ\₀(u) / Zᴛ\₀(u)
-      // |normalized_l_commitments₁| = [L₁(𝜏)]₁ / Zᴛ\₀(u) = (C₁ - [R₁(u)]₁) * Zᴛ\₁(u) / Zᴛ\₀(u)
-      // |normalized_l_commitments₂| = [L₂(𝜏)]₁ / Zᴛ\₀(u) = (C₂ - [R₂(u)]₁) * Zᴛ\₂(u) / Zᴛ\₀(u)
+      // |normalized_l_commitments₀| = [L₀(τ)]₁ / Zᴛ\₀(u) = (C₀ - [R₀(u)]₁) + y(C₁ - [R₁(u)]₁) + y²(C₂ - [R₂(u)]₁) * Zᴛ\₀(u) / Zᴛ\₀(u)
+      // |normalized_l_commitments₁| = [L₁(τ)]₁ / Zᴛ\₀(u) = (C₁ - [R₁(u)]₁) * Zᴛ\₁(u) / Zᴛ\₀(u)
+      // |normalized_l_commitments₂| = [L₂(τ)]₁ / Zᴛ\₀(u) = (C₂ - [R₂(u)]₁) * Zᴛ\₂(u) / Zᴛ\₀(u)
       // clang-format on
       l_commitment *= normalized_z_diff;
       normalized_l_commitments.push_back(std::move(l_commitment));
@@ -342,7 +342,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     }
 
     // clang-format off
-    // |p| = ([L₀(𝜏)]₁ + v[L₁(𝜏)]₁ + v²[L₂(𝜏)]₁) / Zᴛ\₀(u) - Z₀(u)[H(𝜏)]₁ + u[Q(𝜏)]₁
+    // |p| = ([L₀(τ)]₁ + v[L₁(τ)]₁ + v²[L₂(τ)]₁) / Zᴛ\₀(u) - Z₀(u)[H(τ)]₁ + u[Q(τ)]₁
     // clang-format on
     G1JacobianPoint& p =
         G1JacobianPoint::template LinearCombinationInPlace</*forward=*/false>(
@@ -352,11 +352,11 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     p += (u * q);
 
     // clang-format off
-    // e([Q(𝜏)]₁, [𝜏]₂) * e(p, [-1]₂) ≟ gᴛ⁰
-    // 𝜏 * Q(𝜏) - (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) + Z₀(u) * H(𝜏) - u * Q(𝜏) ≟ 0
-    // (𝜏 - u) * Q(𝜏) ≟ (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏)) / Zᴛ\₀(u) - Z₀(u) * H(𝜏)
-    // (𝜏 - u) * Q(𝜏) ≟ (L₀(𝜏) + v * L₁(𝜏) + v² * L₂(𝜏) - Zᴛ(u) * H(𝜏)) / Zᴛ\₀(u)
-    // (𝜏 - u) * Q(𝜏) * Zᴛ\₀(u) ≟ L(𝜏)
+    // e([Q(τ)]₁, [τ]₂) * e(p, [-1]₂) ≟ gᴛ⁰
+    // τ * Q(τ) - (L₀(τ) + v * L₁(τ) + v² * L₂(τ)) / Zᴛ\₀(u) + Z₀(u) * H(τ) - u * Q(τ) ≟ 0
+    // (τ - u) * Q(τ) ≟ (L₀(τ) + v * L₁(τ) + v² * L₂(τ)) / Zᴛ\₀(u) - Z₀(u) * H(τ)
+    // (τ - u) * Q(τ) ≟ (L₀(τ) + v * L₁(τ) + v² * L₂(τ) - Zᴛ(u) * H(τ)) / Zᴛ\₀(u)
+    // (τ - u) * Q(τ) * Zᴛ\₀(u) ≟ L(τ)
     // clang-format on
     G1Point g1_arr[] = {std::move(q), p.ToAffine()};
     return math::Pairing<Curve>(g1_arr, g2_arr_).IsOne();

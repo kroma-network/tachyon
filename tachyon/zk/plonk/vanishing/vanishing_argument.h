@@ -44,7 +44,7 @@ class VanishingArgument {
     evaluator.custom_gates_.AddCalculation(Calculation::Horner(
         ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));
 
-    for (const LookupArgument<F>& lookup : constraint_system.lookups()) {
+    for (const lookup::Argument<F>& lookup : constraint_system.lookups()) {
       GraphEvaluator<F> graph;
 
       auto compress =
@@ -87,21 +87,19 @@ class VanishingArgument {
             typename ExtendedEvals = typename PCS::ExtendedEvals>
   ExtendedEvals BuildExtendedCircuitColumn(
       ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
-      const std::vector<RefTable<Poly>>& poly_tables,
-      absl::Span<const F> challenges, const F& theta, const F& beta,
-      const F& gamma, const F& y, const F& zeta,
+      const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
+      const F& beta, const F& gamma, const F& y, const F& zeta,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers)
       const {
-    RowIndex blinding_factors = prover->blinder().blinding_factors();
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 
     CircuitPolynomialBuilder<PCS> builder =
         CircuitPolynomialBuilder<PCS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
-            blinding_factors, cs_degree, &poly_tables, challenges, &theta,
-            &beta, &gamma, &y, &zeta, &proving_key, &permutation_provers,
+            prover->GetLastRow(), cs_degree, &poly_tables, &theta, &beta,
+            &gamma, &y, &zeta, &proving_key, &permutation_provers,
             &lookup_provers);
 
     return builder.BuildExtendedCircuitColumn(custom_gates_, lookups_);

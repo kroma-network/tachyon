@@ -4,8 +4,8 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_EXPRESSIONS_EVALUATOR_SIMPLE_EVALUATOR_H_
-#define TACHYON_ZK_EXPRESSIONS_EVALUATOR_SIMPLE_EVALUATOR_H_
+#ifndef TACHYON_ZK_LOOKUP_PROVING_EVALUATOR_H_
+#define TACHYON_ZK_LOOKUP_PROVING_EVALUATOR_H_
 
 #include <vector>
 
@@ -22,27 +22,20 @@
 #include "tachyon/zk/expressions/scaled_expression.h"
 #include "tachyon/zk/expressions/selector_expression.h"
 #include "tachyon/zk/expressions/sum_expression.h"
-#include "tachyon/zk/plonk/base/ref_table.h"
+#include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 
-namespace tachyon::zk {
+namespace tachyon::zk::lookup {
 
 template <typename Evals>
-class SimpleEvaluator
+class ProvingEvaluator
     : public Evaluator<typename Evals::Field, typename Evals::Field> {
  public:
   using Field = typename Evals::Field;
 
-  SimpleEvaluator() = default;
-  SimpleEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
-                  const plonk::RefTable<Evals>& table,
-                  absl::Span<const Field> challenges)
-      : idx_(idx),
-        size_(size),
-        rot_scale_(rot_scale),
-        fixed_columns_(table.GetFixedColumns()),
-        advice_columns_(table.GetAdviceColumns()),
-        instance_columns_(table.GetInstanceColumns()),
-        challenges_(challenges) {}
+  ProvingEvaluator() = default;
+  ProvingEvaluator(int32_t idx, int32_t size, int32_t rot_scale,
+                   const plonk::MultiPhaseRefTable<Evals>& table)
+      : idx_(idx), size_(size), rot_scale_(rot_scale), table_(table) {}
 
   int32_t idx() const { return idx_; }
   void set_idx(int32_t idx) { idx_ = idx; }
@@ -53,13 +46,13 @@ class SimpleEvaluator
   Field Evaluate(const Expression<Field>* input) override {
     class ScopedIdxIncrement {
      public:
-      explicit ScopedIdxIncrement(SimpleEvaluator* evaluator)
+      explicit ScopedIdxIncrement(ProvingEvaluator* evaluator)
           : evaluator(evaluator) {}
       ~ScopedIdxIncrement() { ++evaluator->idx_; }
 
      private:
       // not owned
-      SimpleEvaluator* const evaluator;
+      ProvingEvaluator* const evaluator;
     };
     switch (input->type()) {
       case ExpressionType::kConstant:
@@ -72,25 +65,26 @@ class SimpleEvaluator
       case ExpressionType::kFixed: {
         const FixedExpression<Field>* fixed_expr = input->ToFixed();
         const plonk::FixedQuery& query = fixed_expr->query();
-        const Evals& evals = fixed_columns_[query.column().index()];
+        const Evals& evals = table_.GetFixedColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
 
       case ExpressionType::kAdvice: {
         const AdviceExpression<Field>* advice_expr = input->ToAdvice();
         const plonk::AdviceQuery& query = advice_expr->query();
-        const Evals& evals = advice_columns_[query.column().index()];
+        const Evals& evals = table_.GetAdviceColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
 
       case ExpressionType::kInstance: {
         const InstanceExpression<Field>* instance_expr = input->ToInstance();
         const plonk::InstanceQuery& query = instance_expr->query();
-        const Evals& evals = instance_columns_[query.column().index()];
+        const Evals& evals =
+            table_.GetInstanceColumns()[query.column().index()];
         return evals[query.rotation().GetIndex(idx_, rot_scale_, size_)];
       }
       case ExpressionType::kChallenge:
-        return challenges_[input->ToChallenge()->challenge().index()];
+        return table_.challenges()[input->ToChallenge()->challenge().index()];
 
       case ExpressionType::kNegated:
         return -Evaluate(input->ToNegated()->expr());
@@ -118,12 +112,9 @@ class SimpleEvaluator
   int32_t idx_ = 0;
   int32_t size_ = 0;
   int32_t rot_scale_ = 0;
-  absl::Span<const Evals> fixed_columns_;
-  absl::Span<const Evals> advice_columns_;
-  absl::Span<const Evals> instance_columns_;
-  absl::Span<const Field> challenges_;
+  plonk::MultiPhaseRefTable<Evals> table_;
 };
 
-}  // namespace tachyon::zk
+}  // namespace tachyon::zk::lookup
 
-#endif  // TACHYON_ZK_EXPRESSIONS_EVALUATOR_SIMPLE_EVALUATOR_H_
+#endif  // TACHYON_ZK_LOOKUP_PROVING_EVALUATOR_H_
