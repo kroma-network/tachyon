@@ -87,13 +87,13 @@ Please follow the instructions [here](https://bazel.build/install).
 ### Ubuntu
 
 ```shell
-> sudo apt install libgmp-dev libomp-dev
+sudo apt install libgmp-dev libomp-dev
 ```
 
 ### Macos
 
 ```shell
-> brew install gmp
+brew install gmp
 ```
 
 ## Getting started
@@ -101,13 +101,13 @@ Please follow the instructions [here](https://bazel.build/install).
 ### Build
 
 ```shell
-> bazel build --config {os} //...
+bazel build --config {os} //...
 ```
 
 ### Test
 
 ```shell
-> bazel test --config {os} //...
+bazel test --config {os} //...
 ```
 
 Check [How To Build](/docs/how_to_use/how_to_build.md) for more information.

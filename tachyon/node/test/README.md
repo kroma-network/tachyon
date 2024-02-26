@@ -1,5 +1,5 @@
 ### tachyon node test
 
 ```shell
-> bazel test --config ${os} //...
+bazel test --config ${os} //...
 ```
