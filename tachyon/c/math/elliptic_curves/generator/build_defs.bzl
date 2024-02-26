@@ -28,7 +28,7 @@ generate_ec_point = rule(
         "fr_limb_nums": attr.int(mandatory = True),
         "has_specialized_g1_msm_kernels": attr.bool(mandatory = True),
         "_tool": attr.label(
-            # TODO(chokobole): Change it to "exec" we can build it on macos.
+            # TODO(chokobole): Change to "exec", so we can build on macos.
             cfg = "target",
             executable = True,
             allow_single_file = True,

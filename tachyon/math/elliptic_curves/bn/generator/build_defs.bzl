@@ -42,7 +42,7 @@ generate_bn_curve = rule(
         "twist_mul_by_q_y": attr.string_list(mandatory = True),
         "twist_type": attr.string(mandatory = True, values = ["M", "D"]),
         "_tool": attr.label(
-            # TODO(chokobole): Change it to "exec" we can build it on macos.
+            # TODO(chokobole): Change to "exec", so we can build on macos.
             cfg = "target",
             executable = True,
             allow_single_file = True,

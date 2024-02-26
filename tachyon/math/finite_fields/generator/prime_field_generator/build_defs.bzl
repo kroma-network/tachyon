@@ -57,7 +57,7 @@ def _attrs(type):
         "hdr_include_override": attr.string(),
         "special_prime_override": attr.string(),
         "_tool": attr.label(
-            # TODO(chokobole): Change it to "exec" we can build it on macos.
+            # TODO(chokobole): Change to "exec", so we can build on macos.
             cfg = "target",
             executable = True,
             allow_single_file = True,

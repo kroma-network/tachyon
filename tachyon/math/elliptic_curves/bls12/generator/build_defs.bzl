@@ -34,7 +34,7 @@ generate_bls12_curve = rule(
         "x": attr.string(mandatory = True),
         "twist_type": attr.string(mandatory = True, values = ["M", "D"]),
         "_tool": attr.label(
-            # TODO(chokobole): Change it to "exec" we can build it on macos.
+            # TODO(chokobole): Change to "exec", so we can build on macos.
             cfg = "target",
             executable = True,
             allow_single_file = True,
