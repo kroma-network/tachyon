@@ -1,0 +1,22 @@
+build:dbg -c dbg
+
+build:linux --cxxopt=-std=c++17
+build:linux --host_cxxopt=-std=c++17
+build:macos --cxxopt=-std=c++17
+build:macos --host_cxxopt=-std=c++17
+build:macos --objccopt=-std=c++17
+build:windows --cxxopt=/std:c++17
+build:windows --host_cxxopt=/std:c++17
+
+build:macos_x86_64 --config=macos
+build:macos_x86_64 --cpu=darwin_x86_64
+build:macos_x86_64 --host_cpu=darwin_x86_64
+build:macos_arm64 --config=macos
+build:macos_arm64 --cpu=darwin_arm64
+build:macos_arm64 --host_cpu=darwin_arm64
+
+# gmp needs exception.
+build --@kroma_network_tachyon//:has_exception
+
+# Load rc file with user-specific options.
+try-import %workspace%/.bazelrc.user

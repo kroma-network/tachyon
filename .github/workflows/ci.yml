@@ -59,6 +59,11 @@ jobs:
           cd tachyon/py/test
           bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
 
+      - name: Test Circom
+        run: |
+          cd vendors/circom
+          bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
+
   lint:
     runs-on: ubuntu-latest
     steps:

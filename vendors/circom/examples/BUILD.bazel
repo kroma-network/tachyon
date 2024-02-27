@@ -1,0 +1,12 @@
+load("//:build_defs.bzl", "generate_r1cs")
+
+package(default_visibility = ["//visibility:public"])
+
+generate_r1cs(
+    name = "multiplier_n_r1cs",
+    srcs = [
+        "multiplier_2.circom",
+        "multiplier_n.circom",
+    ],
+    main = "multiplier_n.circom",
+)

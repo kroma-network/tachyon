@@ -84,8 +84,8 @@ Related: #<issue number>
 #   │       │                 No period at the end.
 #   │       │
 #   │       └─⫸ Commit Scope: base|benchmark|build|c(subscope)|cc(subscope)|
-#   │                         crypto|device|examples|halo2|math|node(subscope)|
-#   │                         rs(subscope)|zk
+#   │                         circom|crypto|device|examples|halo2|math|
+#   │                         node(subscope)|rs(subscope)|zk
 #   │
 #   └─⫸ Commit Type: build|chore|ci|docs|feat|fix|perf|refac|test
 # ```

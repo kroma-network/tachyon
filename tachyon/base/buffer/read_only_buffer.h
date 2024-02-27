@@ -63,7 +63,9 @@ class TACHYON_EXPORT ReadOnlyBuffer {
   const void* buffer() const { return buffer_; }
 
   size_t buffer_offset() const { return buffer_offset_; }
-  void set_buffer_offset(size_t buffer_offset) {
+  // NOTE(chokobole): This is changed to const method to ensure
+  // |const ReadOnlyBuffer&| calls this.
+  void set_buffer_offset(size_t buffer_offset) const {
     buffer_offset_ = buffer_offset;
   }
 

@@ -22,7 +22,7 @@ generate_ec_point = rule(
         "out": attr.output(mandatory = True),
         "type": attr.string(mandatory = True),
         "_tool": attr.label(
-            # TODO(chokobole): Change it to "exec" we can build it on macos.
+            # TODO(chokobole): Change to "exec", so we can build on macos.
             cfg = "target",
             executable = True,
             allow_single_file = True,
