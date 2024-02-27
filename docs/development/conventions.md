@@ -63,7 +63,7 @@ Since styling Bazel files is not specified in the Google C++ style guide, here a
 2. Order targets alphabetically within each section.
 3. There should be only one unittest target per Bazel file. Name the unittest target name following the pattern `{directory-name}_unittests`. An example would be `base_unittests`.
 
-Refer to [`tachyon/base/BUILD.bazel`](https://github.com/kroma-network/tachyon/blob/main/tachyon/base/BUILD.bazel) as an example.
+Refer to [`tachyon/base/BUILD.bazel`](/tachyon/base/BUILD.bazel) as an example.
 
 ## Logging
 
