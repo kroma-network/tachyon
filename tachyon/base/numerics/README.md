@@ -118,7 +118,7 @@ of corner cases and employ various optimizations.
 When making exact calculations—such as for buffer lengths—it's often necessary
 to know when those calculations trigger an overflow, undefined behavior, or
 other boundary conditions. The `CheckedNumeric` template does this by storing
-a bit determining whether or not some arithmetic operation has occured that
+a bit determining whether or not some arithmetic operation has occurred that
 would put the variable in an "invalid" state. Attempting to extract the value
 from a variable in an invalid state will trigger a check/trap condition, that
 by default will result in process termination.
@@ -240,15 +240,14 @@ data types, and contains overloads for basic arithmetic operations (i.e.: `+`,
 `-`, `*`, `/` for all types and `%`, `<<`, `>>`, `&`, `|`, `^` for integers).
 However, *the [variadic template functions
 ](#CheckedNumeric_in-checked_math_h-Non_member-helper-functions)
-are the prefered API,* as they remove type ambiguities and help prevent a number
+are the preferred API,* as they remove type ambiguities and help prevent a number
 of common errors. The variadic functions can also be more performant, as they
 eliminate redundant expressions that are unavoidable with the with the operator
 overloads. (Ideally the compiler should optimize those away, but better to avoid
 them in the first place.)
 
 Type promotions are a slightly modified version of the [standard C/C++ numeric
-promotions
-](http://en.cppreference.com/w/cpp/language/implicit_conversion#Numeric_promotions)
+promotions](http://en.cppreference.com/w/cpp/language/implicit_conversion#Numeric_promotions)
 with the two differences being that *there is no default promotion to int*
 and *bitwise logical operations always return an unsigned of the wider type.*
 
@@ -353,7 +352,7 @@ disambiguator syntax when converting a destination type.
 *   `ValueOrDieForType<>()` in place of: `a.template ValueOrDie<>()`
 *   `ValueOrDefaultForType<>()` in place of: `a.template ValueOrDefault<>()`
 
-The following general utility methods is are useful for converting from
+The following general utility methods are useful for converting from
 arithmetic types to `CheckedNumeric` types:
 
 *   `MakeCheckedNum()` - Creates a new `CheckedNumeric` from the underlying type
@@ -370,16 +369,14 @@ all types and `%`, `<<`, `>>`, `&`, `|`, `^` for integers) along with comparison
 operators for arithmetic types of any size. However, *the [variadic template
 functions
 ](#ClampedNumeric_in-clamped_math_h-Non_member-helper-functions)
-are the prefered API,* as they remove type ambiguities and help prevent
+are the preferred API,* as they remove type ambiguities and help prevent
 a number of common errors. The variadic functions can also be more performant,
 as they eliminate redundant expressions that are unavoidable with the operator
-overloads. (Ideally the compiler should optimize those away, but better to avoid
+overloads. (Ideally, the compiler should optimize those away, but better to avoid
 them in the first place.)
 
 Type promotions are a slightly modified version of the [standard C/C++ numeric
-promotions
-](http://en.cppreference.com/w/cpp/language/implicit_conversion#Numeric_promotions)
-with the two differences being that *there is no default promotion to int*
+promotions](http://en.cppreference.com/w/cpp/language/implicit_conversion#Numeric_promotions) with the two differences being that *there is no default promotion to int*
 and *bitwise logical operations always return an unsigned of the wider type.*
 
 *** aside
