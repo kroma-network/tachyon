@@ -294,20 +294,21 @@ class PolynomialOpeningGrouper {
       const std::vector<GroupedPolyOraclePair>& grouped_poly_oracle_pairs) {
     std::vector<GroupedPointPair> ret;
     ret.reserve(grouped_poly_oracle_pairs.size());
-    for (const auto& poly_oracle_grouped_pair : grouped_poly_oracle_pairs) {
+    for (const GroupedPolyOraclePair& grouped_poly_oracle_pair :
+         grouped_poly_oracle_pairs) {
       auto it = std::find_if(ret.begin(), ret.end(),
-                             [&poly_oracle_grouped_pair](
+                             [&grouped_poly_oracle_pair](
                                  const GroupedPointPair& point_grouped_pair) {
                                return point_grouped_pair.points ==
-                                      poly_oracle_grouped_pair.points;
+                                      grouped_poly_oracle_pair.points;
                              });
 
       if (it != ret.end()) {
-        it->polys.push_back(poly_oracle_grouped_pair.poly_oracle);
+        it->polys.push_back(grouped_poly_oracle_pair.poly_oracle);
       } else {
         GroupedPointPair new_pair;
-        new_pair.points = poly_oracle_grouped_pair.points;
-        new_pair.polys.push_back(poly_oracle_grouped_pair.poly_oracle);
+        new_pair.points = grouped_poly_oracle_pair.points;
+        new_pair.polys.push_back(grouped_poly_oracle_pair.poly_oracle);
         ret.push_back(std::move(new_pair));
       }
     }
