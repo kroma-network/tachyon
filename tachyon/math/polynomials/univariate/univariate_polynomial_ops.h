@@ -11,6 +11,8 @@
 #include <utility>
 #include <vector>
 
+#include "third_party/pdqsort/include/pdqsort.h"
+
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/arithmetics_results.h"
@@ -440,7 +442,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
       }
     }
     l_terms = std::move(records);
-    base::ranges::sort(l_terms);
+    pdqsort(l_terms.begin(), l_terms.end());
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
   }

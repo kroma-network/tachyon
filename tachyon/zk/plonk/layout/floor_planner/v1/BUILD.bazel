@@ -73,5 +73,6 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/layout:region_shape",
         "//tachyon/zk/plonk/layout/floor_planner:allocations",
         "@com_google_absl//absl/container:flat_hash_map",
+        "@pdqsort",
     ],
 )

@@ -31,6 +31,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/base/ranges:algorithm",
         "@com_google_googletest//:gtest_prod",
+        "@pdqsort",
     ],
 )
 
