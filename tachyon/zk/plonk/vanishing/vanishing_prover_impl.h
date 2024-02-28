@@ -187,15 +187,13 @@ template <typename Domain, ColumnType C>
 void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::OpenColumns(
     const Domain* domain, const absl::Span<const Poly> polys,
     const std::vector<QueryData<C>>& queries, const F& x,
-    PointSet<F>& point_set,
     std::vector<crypto::PolynomialOpening<Poly>>& openings) {
 #define OPENING(poly, point) \
-  base::Ref<const Poly>(&poly), point##_ref, poly.Evaluate(point)
+  base::Ref<const Poly>(&poly), point, poly.Evaluate(point)
 
   for (const QueryData<C>& query : queries) {
     const Poly& poly = polys[query.column().index()];
     F point = query.rotation().RotateOmega(domain, x);
-    base::DeepRef<const F> point_ref = point_set.Insert(point);
     openings.emplace_back(OPENING(poly, point));
   }
 #undef OPENING
@@ -209,14 +207,13 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
     OpenAdviceInstanceColumns(
         const Domain* domain, const ConstraintSystem<F>& constraint_system,
         const MultiPhaseRefTable<Poly>& table, const F& x,
-        PointSet<F>& point_set,
         std::vector<crypto::PolynomialOpening<Poly>>& openings) {
   if constexpr (PCS::kQueryInstance) {
     OpenColumns(domain, table.GetInstanceColumns(),
-                constraint_system.instance_queries(), x, point_set, openings);
+                constraint_system.instance_queries(), x, openings);
   }
   OpenColumns(domain, table.GetAdviceColumns(),
-              constraint_system.advice_queries(), x, point_set, openings);
+              constraint_system.advice_queries(), x, openings);
 }
 
 // static
@@ -227,20 +224,17 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
     OpenFixedColumns(const Domain* domain,
                      const ConstraintSystem<F>& constraint_system,
                      const MultiPhaseRefTable<Poly>& table, const F& x,
-                     PointSet<F>& point_set,
                      std::vector<crypto::PolynomialOpening<Poly>>& openings) {
   OpenColumns(domain, table.GetFixedColumns(),
-              constraint_system.fixed_queries(), x, point_set, openings);
+              constraint_system.fixed_queries(), x, openings);
 }
 
 template <typename Poly, typename Evals, typename ExtendedPoly,
           typename ExtendedEvals>
 void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::Open(
     const F& x, std::vector<crypto::PolynomialOpening<Poly>>& openings) const {
-  base::DeepRef<const F> x_ref(&x);
-
 #define OPENING(poly, point) \
-  base::Ref<const Poly>(&poly), point##_ref, poly.Evaluate(point)
+  base::Ref<const Poly>(&poly), point, poly.Evaluate(point)
 
   openings.emplace_back(OPENING(combined_h_poly_, x));
   openings.emplace_back(OPENING(random_poly_.poly(), x));

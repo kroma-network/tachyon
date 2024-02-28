@@ -225,12 +225,8 @@ void Prover<Poly, Evals>::Open(
   size_t size = grand_product_polys_.size();
   CHECK_EQ(size, permuted_pairs_.size());
 
-  base::DeepRef<const F> x_ref(&point_set.x);
-  base::DeepRef<const F> x_prev_ref(&point_set.x_prev);
-  base::DeepRef<const F> x_next_ref(&point_set.x_next);
-
-#define OPENING(polynomial, point)                        \
-  base::Ref<const Poly>(&polynomial.poly()), point##_ref, \
+#define OPENING(polynomial, point)                            \
+  base::Ref<const Poly>(&polynomial.poly()), point_set.point, \
       polynomial.poly().Evaluate(point_set.point)
 
   // THE ORDER IS IMPORTANT!! DO NOT CHANGE!

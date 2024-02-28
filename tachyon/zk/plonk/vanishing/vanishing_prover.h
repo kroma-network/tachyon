@@ -14,7 +14,6 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/blinded_polynomial.h"
 #include "tachyon/zk/base/entities/prover_base.h"
-#include "tachyon/zk/base/point_set.h"
 #include "tachyon/zk/lookup/halo2/prover.h"
 #include "tachyon/zk/plonk/base/multi_phase_ref_table.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
@@ -69,14 +68,12 @@ class VanishingProver {
   static void OpenAdviceInstanceColumns(
       const Domain* domain, const ConstraintSystem<F>& constraint_system,
       const MultiPhaseRefTable<Poly>& tables, const F& x,
-      PointSet<F>& point_set,
       std::vector<crypto::PolynomialOpening<Poly>>& openings);
 
   template <typename Domain>
   static void OpenFixedColumns(
       const Domain* domain, const ConstraintSystem<F>& constraint_system,
       const MultiPhaseRefTable<Poly>& tables, const F& x,
-      PointSet<F>& point_set,
       std::vector<crypto::PolynomialOpening<Poly>>& openings);
 
   void Open(const F& x,
@@ -93,7 +90,6 @@ class VanishingProver {
   static void OpenColumns(
       const Domain* domain, const absl::Span<const Poly> polys,
       const std::vector<QueryData<C>>& queries, const F& x,
-      PointSet<F>& point_set,
       std::vector<crypto::PolynomialOpening<Poly>>& openings);
 
   BlindedPolynomial<Poly, Evals> random_poly_;

@@ -49,7 +49,6 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
   using Point = typename Poly::Point;
-  using PointDeepRef = base::DeepRef<const Point>;
 
   SHPlonk() = default;
   explicit SHPlonk(KZG<G1Point, MaxDegree, Commitment>&& kzg)
@@ -94,8 +93,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     // {[P₄], [x₄]}
     const std::vector<GroupedPolynomialOpenings<Poly>>&
         grouped_poly_openings_vec = grouper.grouped_poly_openings_vec();
-    const absl::btree_set<PointDeepRef>& super_point_set =
-        grouper.super_point_set();
+    const absl::btree_set<Point>& super_point_set = grouper.super_point_set();
 
     Field y = writer->SqueezeChallenge();
     VLOG(2) << "SHPlonk(y): " << y.ToHexString(true);
@@ -148,10 +146,10 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
             const GroupedPolynomialOpenings<Poly>& grouped_poly_openings) {
           std::vector<Point> diffs;
           diffs.reserve(super_point_set.size() -
-                        grouped_poly_openings.point_refs.size());
-          for (const PointDeepRef& point_ref : super_point_set) {
-            if (!base::Contains(grouped_poly_openings.point_refs, point_ref)) {
-              diffs.push_back(*point_ref);
+                        grouped_poly_openings.points.size());
+          for (const Point& point : super_point_set) {
+            if (!base::Contains(grouped_poly_openings.points, point)) {
+              diffs.push_back(point);
             }
           }
           // calculate difference vanishing polynomial evaluation
@@ -200,8 +198,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         Poly::template LinearCombinationInPlace</*forward=*/false>(l_polys, v);
 
     // Zᴛ = [x₀, x₁, x₂, x₃, x₄]
-    std::vector<Field> z_t =
-        base::Map(super_point_set, [](const PointDeepRef& p) { return *p; });
+    std::vector<Field> z_t(super_point_set.begin(), super_point_set.end());
     // Zᴛ(X) = (X - x₀)(X - x₁)(X - x₂)(X - x₃)(X - x₄)
     // Zᴛ(u) = (u - x₀)(u - x₁)(u - x₂)(u - x₃)(u - x₄)
     Field zt_eval = Poly::EvaluateVanishingPolyByRoots(z_t, u);
@@ -256,8 +253,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     // {[C₄], [x₄]}
     const std::vector<GroupedPolynomialOpenings<Poly, Commitment>>&
         grouped_poly_openings_vec = grouper.grouped_poly_openings_vec();
-    const absl::btree_set<PointDeepRef>& super_point_set =
-        grouper.super_point_set();
+    const absl::btree_set<Point>& super_point_set = grouper.super_point_set();
 
     Field first_z_diff_inverse = Field::Zero();
     Field first_z = Field::Zero();
@@ -265,8 +261,11 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     std::vector<G1JacobianPoint> normalized_l_commitments;
     normalized_l_commitments.reserve(grouped_poly_openings_vec.size());
     size_t i = 0;
-    for (const auto& [poly_openings_vec, point_refs] :
-         grouped_poly_openings_vec) {
+    for (const GroupedPolynomialOpenings<Poly, Commitment>&
+             grouped_poly_openings : grouped_poly_openings_vec) {
+      const std::vector<PolynomialOpenings<Poly, Commitment>>&
+          poly_openings_vec = grouped_poly_openings.poly_openings_vec;
+      const std::vector<Point>& points = grouped_poly_openings.points;
       // |commitments₀| = [C₀, C₁, C₂]
       // |commitments₁| = [C₃]
       // |commitments₂| = [C₄]
@@ -278,16 +277,14 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       // |points₀| = [x₀, x₁, x₂]
       // |points₁| = [x₂, x₃]
       // |points₂| = [x₄]
-      std::vector<Point> points = base::Map(
-          point_refs, [](const PointDeepRef& point_ref) { return *point_ref; });
       // |diffs₀| = [x₃, x₄]
       // |diffs₁| = [x₀, x₁, x₄]
       // |diffs₂| = [x₀, x₁, x₂, x₃]
       std::vector<Point> diffs;
-      diffs.reserve(super_point_set.size() - point_refs.size());
-      for (const PointDeepRef& point_ref : super_point_set) {
-        if (!base::Contains(point_refs, point_ref)) {
-          diffs.push_back(*point_ref);
+      diffs.reserve(super_point_set.size() - points.size());
+      for (const Point& point : super_point_set) {
+        if (!base::Contains(points, point)) {
+          diffs.push_back(point);
         }
       }
 

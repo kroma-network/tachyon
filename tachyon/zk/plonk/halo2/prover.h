@@ -241,15 +241,10 @@ class Prover : public ProverBase<PCS> {
              lookup_provers, permutation_opening_point_set,
              lookup_opening_point_set);
 
-    PointSet<F> point_set;
-    point_set.Insert(x);
-    point_set.Insert(x_prev);
-    point_set.Insert(x_next);
-    point_set.Insert(x_last);
     std::vector<crypto::PolynomialOpening<Poly>> openings =
         Open(proving_key, poly_tables, vanishing_prover, permutation_provers,
              lookup_provers, permutation_opening_point_set,
-             lookup_opening_point_set, point_set);
+             lookup_opening_point_set);
     CHECK(this->pcs_.CreateOpeningProof(openings, this->GetWriter()));
   }
 
@@ -286,8 +281,7 @@ class Prover : public ProverBase<PCS> {
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers,
       const PermutationOpeningPointSet<F>& permutation_opening_point_set,
-      const lookup::halo2::OpeningPointSet<F>& lookup_opening_point_set,
-      PointSet<F>& point_set) const {
+      const lookup::halo2::OpeningPointSet<F>& lookup_opening_point_set) const {
     const ConstraintSystem<F>& constraint_system =
         proving_key.verifying_key().constraint_system();
     const Domain* domain = this->domain();
@@ -310,13 +304,12 @@ class Prover : public ProverBase<PCS> {
     for (size_t i = 0; i < num_circuits; ++i) {
       VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::
           template OpenAdviceInstanceColumns<PCS>(domain, constraint_system,
-                                                  poly_tables[i], x, point_set,
-                                                  openings);
+                                                  poly_tables[i], x, openings);
       permutation_provers[i].Open(permutation_opening_point_set, openings);
       lookup_provers[i].Open(lookup_opening_point_set, openings);
     }
     VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::OpenFixedColumns(
-        domain, constraint_system, poly_tables[0], x, point_set, openings);
+        domain, constraint_system, poly_tables[0], x, openings);
     PermutationProver<Poly, Evals>::OpenPermutationProvingKey(
         proving_key.permutation_proving_key(), permutation_opening_point_set,
         openings);

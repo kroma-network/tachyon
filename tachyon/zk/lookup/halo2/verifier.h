@@ -59,12 +59,8 @@ class Verifier {
             std::vector<crypto::PolynomialOpening<Poly, C>>& openings) const {
     if (data_.grand_product_commitments.empty()) return;
 
-    base::DeepRef<const F> x_ref(&point_set.x);
-    base::DeepRef<const F> x_prev_ref(&point_set.x_prev);
-    base::DeepRef<const F> x_next_ref(&point_set.x_next);
-
 #define OPENING(commitment, point, eval) \
-  base::Ref<const C>(&data_.commitment), point##_ref, data_.eval
+  base::Ref<const C>(&data_.commitment), point_set.point, data_.eval
 
     for (size_t i = 0; i < data_.grand_product_commitments.size(); ++i) {
       openings.emplace_back(

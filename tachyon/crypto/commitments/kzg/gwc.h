@@ -48,7 +48,6 @@ class GWC final : public UnivariatePolynomialCommitmentScheme<
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
   using Point = typename Poly::Point;
-  using PointDeepRef = base::DeepRef<const Point>;
 
   GWC() = default;
   explicit GWC(KZG<G1Point, MaxDegree, Commitment>&& kzg)
@@ -202,9 +201,8 @@ class GWC final : public UnivariatePolynomialCommitmentScheme<
       // clang-format off
       // |witness_with_aux| = Wₐᵤₓ = x₀[W₀(τ)]₁ + ux₁[W₁(τ)]₁ + u²x₂[W₂(τ)]₁ + u³x₃[W₃(τ)]₁ + u⁴x₄[W₄(τ)]₁
       // clang-format on
-      witness_with_aux += power_of_u *
-                          *grouped_poly_openings_vec[i].point_refs[0] *
-                          commitments[i];
+      witness_with_aux +=
+          power_of_u * grouped_poly_openings_vec[i].points[0] * commitments[i];
       // clang-format off
       // |witness| = W = [W₀(τ)]₁ + u[W₁(τ)]₁ + u²[W₂(τ)]₁ + u³[W₃(τ)]₁ + u⁴[W₄(τ)]₁
       // clang-format on
