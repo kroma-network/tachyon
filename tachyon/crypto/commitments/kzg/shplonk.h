@@ -286,8 +286,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       std::vector<Point> diffs;
       diffs.reserve(super_point_set.size() - point_refs.size());
       for (const PointDeepRef& point_ref : super_point_set) {
-        if (std::find(point_refs.begin(), point_refs.end(), point_ref) ==
-            point_refs.end()) {
+        if (!base::Contains(point_refs, point_ref)) {
           diffs.push_back(*point_ref);
         }
       }
