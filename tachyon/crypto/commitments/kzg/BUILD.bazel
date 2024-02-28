@@ -59,6 +59,7 @@ tachyon_cc_library(
     hdrs = ["shplonk.h"],
     deps = [
         ":kzg_family",
+        "//tachyon/base/containers:contains",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
         "//tachyon/crypto/transcripts:transcript",

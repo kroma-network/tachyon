@@ -13,6 +13,7 @@
 
 #include "gtest/gtest_prod.h"
 
+#include "tachyon/base/containers/contains.h"
 #include "tachyon/crypto/commitments/kzg/kzg_family.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/crypto/commitments/univariate_polynomial_commitment_scheme.h"
@@ -145,18 +146,19 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         [&y, &u, &first_z_diff, &low_degree_extensions_vec, &super_point_set](
             size_t i,
             const GroupedPolynomialOpenings<Poly>& grouped_poly_openings) {
-          absl::btree_set<PointDeepRef> diffs = super_point_set;
-          for (PointDeepRef point_ref : grouped_poly_openings.point_refs) {
-            diffs.erase(point_ref);
+          std::vector<Point> diffs;
+          diffs.reserve(super_point_set.size() -
+                        grouped_poly_openings.point_refs.size());
+          for (const PointDeepRef& point_ref : super_point_set) {
+            if (!base::Contains(grouped_poly_openings.point_refs, point_ref)) {
+              diffs.push_back(*point_ref);
+            }
           }
-
-          std::vector<Point> diffs_vec = base::Map(
-              diffs, [](PointDeepRef point_ref) { return *point_ref; });
           // calculate difference vanishing polynomial evaluation
           // |z_diff₀| = Zᴛ\₀(u) = (u - x₃)(u - x₄)
           // |z_diff₁| = Zᴛ\₁(u) = (u - x₀)(u - x₁)(u - x₄)
           // |z_diff₂| = Zᴛ\₂(u) = (u - x₀)(u - x₁)(u - x₂)(u - x₃)
-          Field z_diff = Poly::EvaluateVanishingPolyByRoots(diffs_vec, u);
+          Field z_diff = Poly::EvaluateVanishingPolyByRoots(diffs, u);
           if (i == 0) {
             first_z_diff = z_diff;
           }
