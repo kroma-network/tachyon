@@ -157,12 +157,8 @@ void PermutationProver<Poly, Evals>::Open(
     std::vector<crypto::PolynomialOpening<Poly>>& openings) const {
   if (grand_product_polys_.empty()) return;
 
-  base::DeepRef<const F> x_ref(&point_set.x);
-  base::DeepRef<const F> x_next_ref(&point_set.x_next);
-  base::DeepRef<const F> x_last_ref(&point_set.x_last);
-
 #define OPENING(poly, point) \
-  base::Ref<const Poly>(&poly), point##_ref, poly.Evaluate(point_set.point)
+  base::Ref<const Poly>(&poly), point_set.point, poly.Evaluate(point_set.point)
 
   // THE ORDER IS IMPORTANT!! DO NOT CHANGE!
   // See
@@ -191,10 +187,8 @@ void PermutationProver<Poly, Evals>::OpenPermutationProvingKey(
     const PermutationProvingKey<Poly, Evals>& proving_key,
     const PermutationOpeningPointSet<F>& point_set,
     std::vector<crypto::PolynomialOpening<Poly>>& openings) {
-  base::DeepRef<const F> x_ref(&point_set.x);
-
 #define OPENING(poly, point) \
-  base::Ref<const Poly>(&poly), point##_ref, poly.Evaluate(point_set.point)
+  base::Ref<const Poly>(&poly), point_set.point, poly.Evaluate(point_set.point)
 
   for (const Poly& poly : proving_key.polys()) {
     openings.emplace_back(OPENING(poly, x));

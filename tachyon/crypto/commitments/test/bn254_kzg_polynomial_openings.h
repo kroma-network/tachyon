@@ -46,8 +46,7 @@ struct OwnedPolynomialOpenings {
         prover_openings,
         [](const OwnedPolynomialOpening<Poly, Commitment>& owned_opening) {
           return PolynomialOpening<Poly>(
-              base::Ref<const Poly>(&owned_opening.poly),
-              base::DeepRef<const Point>(&owned_opening.point),
+              base::Ref<const Poly>(&owned_opening.poly), owned_opening.point,
               owned_opening.opening);
         });
   }
@@ -59,8 +58,7 @@ struct OwnedPolynomialOpenings {
         [](const OwnedPolynomialOpening<Poly, Commitment>& owned_opening) {
           return PolynomialOpening<Poly, Commitment>(
               base::Ref<const Commitment>(&owned_opening.commitment),
-              base::DeepRef<const Point>(&owned_opening.point),
-              owned_opening.opening);
+              owned_opening.point, owned_opening.opening);
         });
   }
 };

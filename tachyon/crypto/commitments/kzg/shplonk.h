@@ -13,6 +13,7 @@
 
 #include "gtest/gtest_prod.h"
 
+#include "tachyon/base/containers/contains.h"
 #include "tachyon/crypto/commitments/kzg/kzg_family.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/crypto/commitments/univariate_polynomial_commitment_scheme.h"
@@ -48,7 +49,6 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
   using Point = typename Poly::Point;
-  using PointDeepRef = base::DeepRef<const Point>;
 
   SHPlonk() = default;
   explicit SHPlonk(KZG<G1Point, MaxDegree, Commitment>&& kzg)
@@ -93,8 +93,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     // {[P₄], [x₄]}
     const std::vector<GroupedPolynomialOpenings<Poly>>&
         grouped_poly_openings_vec = grouper.grouped_poly_openings_vec();
-    const absl::btree_set<PointDeepRef>& super_point_set =
-        grouper.super_point_set();
+    const absl::btree_set<Point>& super_point_set = grouper.super_point_set();
 
     Field y = writer->SqueezeChallenge();
     VLOG(2) << "SHPlonk(y): " << y.ToHexString(true);
@@ -145,18 +144,19 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         [&y, &u, &first_z_diff, &low_degree_extensions_vec, &super_point_set](
             size_t i,
             const GroupedPolynomialOpenings<Poly>& grouped_poly_openings) {
-          absl::btree_set<PointDeepRef> diffs = super_point_set;
-          for (PointDeepRef point_ref : grouped_poly_openings.point_refs) {
-            diffs.erase(point_ref);
+          std::vector<Point> diffs;
+          diffs.reserve(super_point_set.size() -
+                        grouped_poly_openings.points.size());
+          for (const Point& point : super_point_set) {
+            if (!base::Contains(grouped_poly_openings.points, point)) {
+              diffs.push_back(point);
+            }
           }
-
-          std::vector<Point> diffs_vec = base::Map(
-              diffs, [](PointDeepRef point_ref) { return *point_ref; });
           // calculate difference vanishing polynomial evaluation
           // |z_diff₀| = Zᴛ\₀(u) = (u - x₃)(u - x₄)
           // |z_diff₁| = Zᴛ\₁(u) = (u - x₀)(u - x₁)(u - x₄)
           // |z_diff₂| = Zᴛ\₂(u) = (u - x₀)(u - x₁)(u - x₂)(u - x₃)
-          Field z_diff = Poly::EvaluateVanishingPolyByRoots(diffs_vec, u);
+          Field z_diff = Poly::EvaluateVanishingPolyByRoots(diffs, u);
           if (i == 0) {
             first_z_diff = z_diff;
           }
@@ -198,8 +198,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         Poly::template LinearCombinationInPlace</*forward=*/false>(l_polys, v);
 
     // Zᴛ = [x₀, x₁, x₂, x₃, x₄]
-    std::vector<Field> z_t =
-        base::Map(super_point_set, [](const PointDeepRef& p) { return *p; });
+    std::vector<Field> z_t(super_point_set.begin(), super_point_set.end());
     // Zᴛ(X) = (X - x₀)(X - x₁)(X - x₂)(X - x₃)(X - x₄)
     // Zᴛ(u) = (u - x₀)(u - x₁)(u - x₂)(u - x₃)(u - x₄)
     Field zt_eval = Poly::EvaluateVanishingPolyByRoots(z_t, u);
@@ -254,8 +253,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     // {[C₄], [x₄]}
     const std::vector<GroupedPolynomialOpenings<Poly, Commitment>>&
         grouped_poly_openings_vec = grouper.grouped_poly_openings_vec();
-    const absl::btree_set<PointDeepRef>& super_point_set =
-        grouper.super_point_set();
+    const absl::btree_set<Point>& super_point_set = grouper.super_point_set();
 
     Field first_z_diff_inverse = Field::Zero();
     Field first_z = Field::Zero();
@@ -263,8 +261,11 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
     std::vector<G1JacobianPoint> normalized_l_commitments;
     normalized_l_commitments.reserve(grouped_poly_openings_vec.size());
     size_t i = 0;
-    for (const auto& [poly_openings_vec, point_refs] :
-         grouped_poly_openings_vec) {
+    for (const GroupedPolynomialOpenings<Poly, Commitment>&
+             grouped_poly_openings : grouped_poly_openings_vec) {
+      const std::vector<PolynomialOpenings<Poly, Commitment>>&
+          poly_openings_vec = grouped_poly_openings.poly_openings_vec;
+      const std::vector<Point>& points = grouped_poly_openings.points;
       // |commitments₀| = [C₀, C₁, C₂]
       // |commitments₁| = [C₃]
       // |commitments₂| = [C₄]
@@ -276,17 +277,14 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
       // |points₀| = [x₀, x₁, x₂]
       // |points₁| = [x₂, x₃]
       // |points₂| = [x₄]
-      std::vector<Point> points = base::Map(
-          point_refs, [](const PointDeepRef& point_ref) { return *point_ref; });
       // |diffs₀| = [x₃, x₄]
       // |diffs₁| = [x₀, x₁, x₄]
       // |diffs₂| = [x₀, x₁, x₂, x₃]
       std::vector<Point> diffs;
-      diffs.reserve(super_point_set.size() - point_refs.size());
-      for (const PointDeepRef& point_ref : super_point_set) {
-        if (std::find(point_refs.begin(), point_refs.end(), point_ref) ==
-            point_refs.end()) {
-          diffs.push_back(*point_ref);
+      diffs.reserve(super_point_set.size() - points.size());
+      for (const Point& point : super_point_set) {
+        if (!base::Contains(points, point)) {
+          diffs.push_back(point);
         }
       }
 

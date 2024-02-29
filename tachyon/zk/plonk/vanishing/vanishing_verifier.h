@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "tachyon/crypto/commitments/polynomial_openings.h"
-#include "tachyon/zk/base/point_set.h"
 #include "tachyon/zk/lookup/verifying_evaluator.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verifier_data.h"
@@ -37,26 +36,23 @@ class VanishingVerifier {
   template <typename PCS, typename Poly, typename Domain>
   void OpenAdviceInstanceColumns(
       const Domain* domain, const F& x,
-      const ConstraintSystem<F>& constraint_system, PointSet<F>& point_set,
+      const ConstraintSystem<F>& constraint_system,
       std::vector<crypto::PolynomialOpening<Poly, C>>& openings) const {
     if constexpr (PCS::kQueryInstance) {
       OpenColumns(domain, x, constraint_system.instance_queries(),
-                  data_.instance_commitments, data_.instance_evals, point_set,
-                  openings);
+                  data_.instance_commitments, data_.instance_evals, openings);
     }
     OpenColumns(domain, x, constraint_system.advice_queries(),
-                data_.advice_commitments, data_.advice_evals, point_set,
-                openings);
+                data_.advice_commitments, data_.advice_evals, openings);
   }
 
   template <typename Poly, typename Domain>
   void OpenFixedColumns(
       const Domain* domain, const F& x,
-      const ConstraintSystem<F>& constraint_system, PointSet<F>& point_set,
+      const ConstraintSystem<F>& constraint_system,
       std::vector<crypto::PolynomialOpening<Poly, C>>& openings) const {
     OpenColumns(domain, x, constraint_system.fixed_queries(),
-                data_.fixed_commitments, data_.fixed_evals, point_set,
-                openings);
+                data_.fixed_commitments, data_.fixed_evals, openings);
   }
 
   template <typename Poly>
@@ -68,10 +64,8 @@ class VanishingVerifier {
                        data_.h_poly_commitments, x_n)
                        .ToAffine();
 
-    base::DeepRef<const F> x_ref(&x);
-
 #define OPENING(commitment, point, eval) \
-  base::Ref<const C>(&commitment), point##_ref, eval
+  base::Ref<const C>(&commitment), point, eval
 
     openings.emplace_back(OPENING(h_commitment, x, h_eval));
     openings.emplace_back(
@@ -86,16 +80,14 @@ class VanishingVerifier {
       const Domain* domain, const F& x,
       const std::vector<QueryData<CType>>& queries,
       absl::Span<const C> commitments, absl::Span<const F> evals,
-      PointSet<F>& point_set,
       std::vector<crypto::PolynomialOpening<Poly, C>>& openings) {
 #define OPENING(commitment, point, eval) \
-  base::Ref<const C>(&commitment), point##_ref, eval
+  base::Ref<const C>(&commitment), point, eval
 
     for (size_t i = 0; i < queries.size(); ++i) {
       const QueryData<CType>& query = queries[i];
       const ColumnKey<CType>& column = query.column();
       F point = query.rotation().RotateOmega(domain, x);
-      base::DeepRef<const F> point_ref = point_set.Insert(point);
       openings.emplace_back(
           OPENING(commitments[column.index()], point, evals[i]));
     }

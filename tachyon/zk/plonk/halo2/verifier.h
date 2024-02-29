@@ -333,7 +333,7 @@ class Verifier : public VerifierBase<PCS> {
       const std::vector<std::vector<Commitment>>& instance_commitments_vec,
       const VerifyingKey<F, Commitment>& vkey,
       const Proof<F, Commitment>& proof, Commitment& expected_h_commitment,
-      const F& expected_h_eval, PointSet<F>& point_set) {
+      const F& expected_h_eval) {
     size_t num_circuits = proof.advices_commitments_vec.size();
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
     size_t size =
@@ -361,7 +361,7 @@ class Verifier : public VerifierBase<PCS> {
       VanishingVerifier<F, Commitment> vanishing_verifier(
           vanishing_verifier_data);
       vanishing_verifier.template OpenAdviceInstanceColumns<PCS, Poly>(
-          this->domain(), proof.x, constraint_system, point_set, openings);
+          this->domain(), proof.x, constraint_system, openings);
 
       PermutationVerifierData<F, Commitment> permutation_verifier_data =
           proof.ToPermutationVerifierData(
@@ -378,7 +378,7 @@ class Verifier : public VerifierBase<PCS> {
 
       if (i == num_circuits - 1) {
         vanishing_verifier.template OpenFixedColumns<Poly>(
-            this->domain(), proof.x, constraint_system, point_set, openings);
+            this->domain(), proof.x, constraint_system, openings);
 
         permutation_verifier.template OpenPermutationProvingKey<Poly>(proof.x,
                                                                       openings);
@@ -402,18 +402,12 @@ class Verifier : public VerifierBase<PCS> {
       *expected_h_eval_out = expected_h_eval;
     }
 
-    PointSet<F> point_set;
-    point_set.Insert(proof.x);
-    point_set.Insert(proof.x_prev);
-    point_set.Insert(proof.x_next);
-    point_set.Insert(proof.x_last);
-
     // TODO(chokobole): Remove |ToAffine()| since this assumes commitment is an
     // elliptic curve point.
     Commitment expected_h_commitment;
     std::vector<Opening> openings =
         Open(instance_commitments_vec, vkey, proof, expected_h_commitment,
-             expected_h_eval, point_set);
+             expected_h_eval);
 
     return this->pcs_.VerifyOpeningProof(openings, this->GetReader());
   }
