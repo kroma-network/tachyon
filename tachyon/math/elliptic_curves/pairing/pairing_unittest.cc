@@ -10,14 +10,7 @@ namespace tachyon::math {
 template <typename Curve>
 class PairingTest : public testing::Test {
  public:
-  static void SetUpTestSuite() {
-    using G1Curve = typename Curve::G1Curve;
-    using G2Curve = typename Curve::G2Curve;
-
-    G1Curve::Init();
-    G2Curve::Init();
-    Curve::Init();
-  }
+  static void SetUpTestSuite() { Curve::Init(); }
 };
 
 using CurveTypes = testing::Types<bn254::BN254Curve, bls12_381::BLS12_381Curve>;

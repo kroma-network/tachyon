@@ -60,9 +60,10 @@ Symbol Definitions:
 
 ### SNARKs
 
-|       | CPU                | GPU |
-| ----- | ------------------ | --- |
-| Halo2 | :heavy_check_mark: | :x: |
+|         | CPU                | GPU |
+| ------- | ------------------ | --- |
+| Groth16 | :heavy_check_mark: | :x: |
+| Halo2   | :heavy_check_mark: | :x: |
 
 ### Frontends
 

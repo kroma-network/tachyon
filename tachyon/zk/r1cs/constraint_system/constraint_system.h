@@ -94,19 +94,19 @@ class ConstraintSystem {
   // system.
   Variable CreateOne() const { return Variable::One(); }
 
-  // Obtain a variable representing a new public instance input. It terminates
-  // when |mode_.IsSetup()| is true.
+  // Obtain a variable representing a new public instance input.
   Variable CreateInstanceVariable(CreateVariableCallback callback) {
-    CHECK(!mode_.IsSetup());
-    instance_assignments_.push_back(std::move(callback).Run());
+    if (!mode_.IsSetup()) {
+      instance_assignments_.push_back(std::move(callback).Run());
+    }
     return Variable::Instance(num_instance_variables_++);
   }
 
-  // Obtain a variable representing a new private witness input. It terminates
-  // when |mode_.IsSetup()| is true.
+  // Obtain a variable representing a new private witness input.
   Variable CreateWitnessVariable(CreateVariableCallback callback) {
-    CHECK(!mode_.IsSetup());
-    witness_assignments_.push_back(std::move(callback).Run());
+    if (!mode_.IsSetup()) {
+      witness_assignments_.push_back(std::move(callback).Run());
+    }
     return Variable::Witness(num_witness_variables_++);
   }
 

@@ -3,6 +3,12 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "circuit",
+    hdrs = ["circuit.h"],
+    deps = [":constraint_system"],
+)
+
+tachyon_cc_library(
     name = "constraint_matrices",
     hdrs = ["constraint_matrices.h"],
     deps = [":matrix"],
@@ -47,6 +53,15 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "optimization_goal",
     hdrs = ["optimization_goal.h"],
+)
+
+tachyon_cc_library(
+    name = "quadratic_arithmetic_program",
+    hdrs = ["quadratic_arithmetic_program.h"],
+    deps = [
+        ":constraint_system",
+        "//tachyon/base:parallelize",
+    ],
 )
 
 tachyon_cc_library(
