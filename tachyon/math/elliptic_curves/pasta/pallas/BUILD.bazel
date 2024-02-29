@@ -1,0 +1,73 @@
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
+load(
+    "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
+    "SUBGROUP_GENERATOR",
+    "generate_fft_prime_fields",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+string_flag(
+    name = "fq_" + SUBGROUP_GENERATOR,
+    build_setting_default = "5",
+)
+
+# Parameters are from https://o1-labs.github.io/proof-systems/specs/pasta.html#pallas
+generate_fft_prime_fields(
+    name = "fq",
+    class_name = "Fq",
+    # Hex: 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001
+    modulus = "28948022309329048855892746252171976963363056481941560715954676764349967630337",
+    namespace = "tachyon::math::pallas",
+    subgroup_generator = ":fq_" + SUBGROUP_GENERATOR,
+)
+
+string_flag(
+    name = "fr_" + SUBGROUP_GENERATOR,
+    build_setting_default = "5",
+)
+
+generate_fft_prime_fields(
+    name = "fr",
+    class_name = "Fr",
+    # Hex: 0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001
+    modulus = "28948022309329048855892746252171976963363056481941647379679742748393362948097",
+    namespace = "tachyon::math::pallas",
+    subgroup_generator = ":fr_" + SUBGROUP_GENERATOR,
+)
+
+tachyon_cc_library(
+    name = "prime_field_fq",
+    hdrs = ["prime_field_fq.h"],
+    deps = [
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields:prime_field_base",
+    ],
+)
+
+tachyon_cc_library(
+    name = "prime_field_fr",
+    hdrs = ["prime_field_fr.h"],
+    deps = [
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields:prime_field_base",
+    ],
+)
+
+generate_ec_points(
+    name = "curve",
+    a = ["0"],
+    b = ["5"],
+    base_field = "Fq",
+    base_field_dep = ":fq",
+    base_field_hdr = "tachyon/math/elliptic_curves/pasta/pallas/fq.h",
+    gen_gpu = True,
+    namespace = "tachyon::math::pallas",
+    scalar_field = "Fr",
+    scalar_field_dep = ":fr",
+    scalar_field_hdr = "tachyon/math/elliptic_curves/pasta/pallas/fr.h",
+    x = ["-1"],
+    y = ["2"],
+)

@@ -4,6 +4,10 @@
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/elliptic_curves/pasta/pallas/fq.h"
+#include "tachyon/math/elliptic_curves/pasta/pallas/fr.h"
+#include "tachyon/math/elliptic_curves/pasta/vesta/fq.h"
+#include "tachyon/math/elliptic_curves/pasta/vesta/fr.h"
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fq.h"
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fr.h"
 #include "tachyon/math/finite_fields/goldilocks_prime/goldilocks.h"
@@ -22,7 +26,8 @@ class PrimeFieldGeneratorTest : public testing::Test {
 
 using PrimeFieldTypes =
     testing::Types<bls12_381::Fq, bls12_381::Fr, bn254::Fq, bn254::Fr,
-                   secp256k1::Fr, secp256k1::Fq, Goldilocks, Mersenne31>;
+                   pallas::Fq, pallas::Fr, vesta::Fq, vesta::Fr, secp256k1::Fr,
+                   secp256k1::Fq, Goldilocks, Mersenne31>;
 
 TYPED_TEST_SUITE(PrimeFieldGeneratorTest, PrimeFieldTypes);
 
