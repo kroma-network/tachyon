@@ -106,7 +106,7 @@ The following are the results of the `real_prover` test for the `Transfer 0` blo
 | before theta     |     191.66 |   177.91 |       33.89 |     27.02 |        407.25 |      405.87 |
 | theta            |      20.28 |    20.65 |       11.66 |     13.50 |        157.21 |      171.76 |
 | - compress       |      1.188 |     2.73 |        0.27 |      0.46 |          6.64 |       14.35 |
-| - permute        |      16.93 |    11.04 |        8.70 |      8.37 |        124.97 |       88.26 |
+| - permute        |       9.75 |    11.04 |        5.33 |      8.37 |         72.60 |       88.26 |
 | - commit         |      2.159 |     6.89 |        1.48 |      4.66 |         25.60 |       69.15 |
 | beta-gamma       |      19.04 |    32.18 |        9.31 |     14.62 |        108.95 |      174.76 |
 | y                |      218.3 |   261.97 |      205.93 |    218.37 |       3071.48 |     3426.80 |
@@ -114,8 +114,8 @@ The following are the results of the `real_prover` test for the `Transfer 0` blo
 | - build h poly   |     209.25 |   255.40 |      201.27 |    215.58 |       3019.72 |     3392.43 |
 | x                |       1.91 |     1.58 |        3.59 |      2.47 |         19.27 |       14.42 |
 | shplonk          |       8.86 |     5.87 |        1.49 |      3.31 |         40.75 |       25.30 |
-| backend total    |     268.38 |   322.25 |      231.97 |    252.27 |       3397.66 |     3813.04 |
-| end-to-end total |     460.00 |   500.16 |      265.86 |    279.29 |       3804.91 |     4218.91 |
+| backend total    |      261.2 |   322.25 |       228.6 |    252.27 |       3345.29 |     3813.04 |
+| end-to-end total |     452.82 |   500.16 |      262.49 |    279.29 |       3752.54 |     4218.91 |
 
 - Greek characters such as `theta` and `beta` are adopted from the [halo2-book](https://zcash.github.io/halo2/design/proving-system.html#tldr)
 - `before theta` refers to the total time taken by the Halo2 including the circuit frontend.
