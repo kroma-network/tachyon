@@ -118,7 +118,7 @@ bool MSMConfig::Parse(int argc, char** argv,
 std::vector<uint64_t> MSMConfig::GetPointNums() const {
   std::vector<uint64_t> point_nums;
   for (uint64_t degree : degrees_) {
-    point_nums.push_back(1 << degree);
+    point_nums.push_back(uint64_t{1} << degree);
   }
   return point_nums;
 }
