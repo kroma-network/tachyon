@@ -21,6 +21,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "sumcheck_verifier_msg",
+    hdrs = ["sumcheck_verifier_msg.h"],
+    deps = ["//tachyon/base/buffer:copyable"],
+)
+
+tachyon_cc_library(
     name = "sumcheck_verifying_key",
     hdrs = ["sumcheck_verifying_key.h"],
     deps = [
@@ -35,11 +41,13 @@ tachyon_cc_unittest(
     srcs = [
         "sumcheck_prover_msg_unittest.cc",
         "sumcheck_proving_key_unittest.cc",
+        "sumcheck_verifier_msg_unittest.cc",
         "sumcheck_verifying_key_unittest.cc",
     ],
     deps = [
         ":sumcheck_prover_msg",
         ":sumcheck_proving_key",
+        ":sumcheck_verifier_msg",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
