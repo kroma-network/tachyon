@@ -82,7 +82,7 @@ class LinearCombination {
   // Evaluates all terms together on an evaluation point for each variable:
   // ∑ᵢ₌₀..ₙ(coefficientᵢ⋅∏ⱼ₌₀..ₘevaluationᵢⱼ)
   // where n = total terms, m = number of evaluations per term
-  F SumOfProducts(const Point& point) const {
+  F Evaluate(const Point& point) const {
     CHECK_EQ(point.size(), num_variables_);
     std::vector<F> results = base::ParallelizeMap(
         terms_,
