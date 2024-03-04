@@ -79,6 +79,19 @@ class LinearCombination {
     terms_.push_back({coefficient, std::move(indexes)});
   }
 
+  // Combines the given |LinearCombination| into “H”, or the sum of all possible
+  // values of all the variables. Refer to
+  // https://people.cs.georgetown.edu/jthaler/sumcheck.pdf for more info.
+  F Combine() const {
+    std::vector<F> results = base::ParallelizeMap(
+        terms_, [this](absl::Span<const LinearCombinationTerm<F>> chunk) {
+          return CombineSerial(num_variables_, flattened_ml_evaluations_,
+                               chunk);
+        });
+    return std::accumulate(results.begin(), results.end(), F::Zero(),
+                           std::plus<>());
+  }
+
   // Evaluates all terms together on an evaluation point for each variable:
   // ∑ᵢ₌₀..ₙ(coefficientᵢ⋅∏ⱼ₌₀..ₘevaluationᵢⱼ)
   // where n = total terms, m = number of evaluations per term
@@ -94,6 +107,18 @@ class LinearCombination {
   }
 
  private:
+  static F CombineSerial(
+      size_t num_variables,
+      const std::vector<std::shared_ptr<MLE>>& flattened_ml_evaluations,
+      absl::Span<const LinearCombinationTerm<F>> terms) {
+    return std::accumulate(
+        terms.begin(), terms.end(), F::Zero(),
+        [num_variables, &flattened_ml_evaluations](
+            F& acc, const LinearCombinationTerm<F>& term) {
+          return acc += term.Combine(num_variables, flattened_ml_evaluations);
+        });
+  }
+
   static F EvaluateSerial(
       const Point& point,
       const std::vector<std::shared_ptr<MLE>>& flattened_ml_evaluations,

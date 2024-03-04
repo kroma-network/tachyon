@@ -32,6 +32,42 @@ struct LinearCombinationTerm {
                                          F::One(), std::multiplies<>());
   }
 
+  template <typename MLE>
+  F Combine(
+      size_t num_variables_,
+      const std::vector<std::shared_ptr<MLE>>& flattened_ml_evaluations) const {
+    size_t parallel_factor = 16;
+    CHECK(!indexes.empty());
+
+#if defined(TACHYON_HAS_OPENMP)
+    size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
+#else
+    size_t thread_nums = 1;
+#endif
+    size_t size = size_t{1} << num_variables_;
+    thread_nums = ((thread_nums * parallel_factor) <= size) ? thread_nums : 1;
+
+    size_t chunk_size = (size + thread_nums - 1) / thread_nums;
+    size_t num_chunks = (size + chunk_size - 1) / chunk_size;
+
+    std::vector<F> sums(num_chunks, F::Zero());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
+      size_t start = i * chunk_size;
+      size_t len = (i == num_chunks - 1) ? size - start : chunk_size;
+      for (size_t j = start; j < start + len; ++j) {
+        sums[i] += std::accumulate(
+            indexes.begin(), indexes.end(), F::One(),
+            [&flattened_ml_evaluations, j](F& acc, size_t index) {
+              const std::vector<F>& evals =
+                  flattened_ml_evaluations[index]->evaluations();
+              return (j < evals.size()) ? (acc *= evals[j]) : acc;
+            });
+      }
+    }
+    F sum = std::accumulate(sums.begin(), sums.end(), F::Zero());
+    return sum *= coefficient;
+  }
+
   bool operator==(const LinearCombinationTerm& other) const {
     return coefficient == other.coefficient && indexes == other.indexes;
   }
