@@ -3,6 +3,18 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "sumcheck_prover",
+    hdrs = ["sumcheck_prover.h"],
+    deps = [
+        ":sumcheck_prover_msg",
+        ":sumcheck_proving_key",
+        ":sumcheck_verifier_msg",
+        "//tachyon/math/polynomials/multivariate:linear_combination",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+    ],
+)
+
+tachyon_cc_library(
     name = "sumcheck_prover_msg",
     hdrs = ["sumcheck_prover_msg.h"],
     deps = [
