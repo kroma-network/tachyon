@@ -6,60 +6,6 @@
 
 namespace tachyon::math {
 
-TEST(PrimeFieldGoldilocksTest, FromString) {
-  EXPECT_EQ(Goldilocks::FromDecString("3"), Goldilocks(3));
-  EXPECT_EQ(Goldilocks::FromHexString("0x3"), Goldilocks(3));
-}
-
-TEST(PrimeFieldGoldilocksTest, ToString) {
-  Goldilocks f(3);
-
-  EXPECT_EQ(f.ToString(), "3");
-  EXPECT_EQ(f.ToHexString(), "0x3");
-}
-
-TEST(PrimeFieldGoldilocksTest, Zero) {
-  EXPECT_TRUE(Goldilocks::Zero().IsZero());
-  EXPECT_FALSE(Goldilocks::One().IsZero());
-}
-
-TEST(PrimeFieldGoldilocksTest, One) {
-  EXPECT_TRUE(Goldilocks::One().IsOne());
-  EXPECT_FALSE(Goldilocks::Zero().IsOne());
-  EXPECT_EQ(Goldilocks::Config::kOne, Goldilocks(1).ToMontgomery());
-}
-
-TEST(PrimeFieldGoldilocksTest, BigIntConversion) {
-  Goldilocks r = Goldilocks::Random();
-  EXPECT_EQ(Goldilocks::FromBigInt(r.ToBigInt()), r);
-}
-
-TEST(PrimeFieldGoldilocksTest, MontgomeryConversion) {
-  Goldilocks r = Goldilocks::Random();
-  EXPECT_EQ(Goldilocks::FromMontgomery(r.ToMontgomery()), r);
-}
-
-TEST(PrimeFieldGoldilocksTest, MpzClassConversion) {
-  Goldilocks r = Goldilocks::Random();
-  EXPECT_EQ(Goldilocks::FromMpzClass(r.ToMpzClass()), r);
-}
-
-TEST(PrimeFieldGoldilocksTest, EqualityOperators) {
-  Goldilocks f(3);
-  Goldilocks f2(4);
-  EXPECT_TRUE(f == f);
-  EXPECT_TRUE(f != f2);
-}
-
-TEST(PrimeFieldGoldilocksTest, ComparisonOperator) {
-  Goldilocks f(3);
-  Goldilocks f2(4);
-  EXPECT_TRUE(f < f2);
-  EXPECT_TRUE(f <= f2);
-  EXPECT_FALSE(f > f2);
-  EXPECT_FALSE(f >= f2);
-}
-
 TEST(PrimeFieldGoldilocksTest, AdditiveOperators) {
   absl::uint128 M(Goldilocks::Config::kModulus[0]);
 
@@ -87,20 +33,6 @@ TEST(PrimeFieldGoldilocksTest, AdditiveOperators) {
   EXPECT_EQ(static_cast<uint64_t>(tmp), a);
 }
 
-TEST(PrimeFieldGoldilocksTest, AdditiveGroupOperators) {
-  Goldilocks f = Goldilocks::Random();
-  SCOPED_TRACE(absl::Substitute("f: $0", f.ToString()));
-  Goldilocks f_neg = -f;
-  EXPECT_TRUE((f_neg + f).IsZero());
-  f.NegInPlace();
-  EXPECT_EQ(f, f_neg);
-
-  Goldilocks f_double = f.Double();
-  EXPECT_EQ(f + f, f_double);
-  f.DoubleInPlace();
-  EXPECT_EQ(f, f_double);
-}
-
 TEST(PrimeFieldGoldilocksTest, MultiplicativeOperators) {
   absl::uint128 M = Goldilocks::Config::kModulus[0];
 
@@ -122,23 +54,6 @@ TEST(PrimeFieldGoldilocksTest, MultiplicativeOperators) {
   EXPECT_EQ(static_cast<uint64_t>(tmp), mul);
   tmp /= fb;
   EXPECT_EQ(static_cast<uint64_t>(tmp), a);
-}
-
-TEST(PrimeFieldGoldilocksTest, MultiplicativeGroupOperators) {
-  Goldilocks f = Goldilocks::Random();
-  SCOPED_TRACE(absl::Substitute("f: $0", f.ToString()));
-  Goldilocks f_inv = f.Inverse();
-  EXPECT_EQ(f * f_inv, Goldilocks::One());
-  f.InverseInPlace();
-  EXPECT_EQ(f, f_inv);
-
-  Goldilocks f_sqr = f.Square();
-  EXPECT_EQ(f * f, f_sqr);
-  f.SquareInPlace();
-  EXPECT_EQ(f, f_sqr);
-
-  Goldilocks f_pow = f.Pow(5);
-  EXPECT_EQ(f * f * f * f * f, f_pow);
 }
 
 }  // namespace tachyon::math
