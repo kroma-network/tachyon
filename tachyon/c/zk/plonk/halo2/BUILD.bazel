@@ -281,10 +281,12 @@ tachyon_cc_binary(
 tachyon_cc_unittest(
     name = "halo2_unittests",
     srcs = [
+        "bn254_gwc_prover_unittest.cc",
         "bn254_shplonk_prover_unittest.cc",
         "bn254_transcript_unittest.cc",
     ],
     deps = [
+        ":bn254_gwc_prover",
         ":bn254_shplonk_prover",
         "//tachyon/c/crypto/random:rng",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:fr",
