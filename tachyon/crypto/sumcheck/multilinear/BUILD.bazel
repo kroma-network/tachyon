@@ -33,6 +33,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "sumcheck_verifier",
+    hdrs = ["sumcheck_verifier.h"],
+    deps = [
+        ":sumcheck_prover_msg",
+        ":sumcheck_verifier_msg",
+        ":sumcheck_verifying_key",
+    ],
+)
+
+tachyon_cc_library(
     name = "sumcheck_verifier_msg",
     hdrs = ["sumcheck_verifier_msg.h"],
     deps = ["//tachyon/base/buffer:copyable"],
