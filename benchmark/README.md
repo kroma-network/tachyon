@@ -37,7 +37,7 @@ build --build_tag_filters -rust //enables cuda targets
 build --build_tag_filters="" //enables all targets
 ```
 
-To harness the plot chart feature, first ensure that matplotlib is installed (refer to the [installation guide](https://github.com/kroma-network/tachyon#matplotlib)). Then, append the `--//:has_rtti` and `--//:has_matplotlib` flags to your command:
+To harness the plot chart feature, first ensure that matplotlib is installed (refer to the [installation guide](/docs/how_to_use/how_to_build.md#matplotliboptional)). Then, append the `--//:has_rtti` and `--//:has_matplotlib` flags to your command:
 
 ```shell
 bazel run -c opt --//:has_rtti --//:has_matplotlib //benchmark/path/to/target:target_name -- -n <test_set_size>
