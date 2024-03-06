@@ -152,12 +152,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
     return ToBigInt() >= other.ToBigInt();
   }
 
-  // This is needed by MSM.
-  // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
-  mpz_class DivBy2Exp(uint64_t exp) const {
-    return gmp::DivBy2Exp(ToMpzClass(), exp);
-  }
-
   // AdditiveSemigroup methods
   constexpr PrimeField& AddInPlace(const PrimeField& other) {
     PrimeField ret;

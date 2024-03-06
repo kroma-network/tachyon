@@ -63,8 +63,6 @@ TACHYON_EXPORT void CopyLimbs(const mpz_class& value, uint64_t* limbs);
 TACHYON_EXPORT void WriteLimbs(const uint64_t* limbs, size_t limb_size,
                                mpz_class* out);
 
-TACHYON_EXPORT mpz_class DivBy2Exp(const mpz_class& value, uint64_t exp);
-
 }  // namespace tachyon::math::gmp
 
 #endif  // TACHYON_MATH_BASE_GMP_GMP_UTIL_H_

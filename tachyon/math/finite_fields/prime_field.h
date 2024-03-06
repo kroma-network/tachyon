@@ -152,12 +152,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return ToBigInt() >= other.ToBigInt();
   }
 
-  // This is needed by MSM.
-  // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
-  BigInt<N> DivBy2Exp(uint32_t exp) const {
-    return ToBigInt().DivBy2ExpInPlace(exp);
-  }
-
   // AdditiveSemigroup methods
   constexpr PrimeField& AddInPlace(const PrimeField& other) {
     uint64_t carry = 0;

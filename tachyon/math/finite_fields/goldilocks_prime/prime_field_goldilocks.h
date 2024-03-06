@@ -142,12 +142,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
     return Goldilocks::toU64(value_) >= Goldilocks::toU64(other.value_);
   }
 
-  // This is needed by MSM.
-  // See tachyon/math/elliptic_curves/msm/variable_base_msm.h
-  mpz_class DivBy2Exp(uint64_t exp) const {
-    return gmp::DivBy2Exp(ToMpzClass(), exp);
-  }
-
   // AdditiveSemigroup methods
   constexpr PrimeField& AddInPlace(const PrimeField& other) {
     Goldilocks::add(value_, value_, other.value_);
