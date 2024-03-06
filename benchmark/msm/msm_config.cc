@@ -64,10 +64,10 @@ bool MSMConfig::Parse(int argc, char** argv,
                       const MSMConfig::Options& options) {
   base::FlagParser parser;
   // clang-format off
-  parser.AddFlag<base::Flag<std::vector<uint64_t>>>(&degrees_)
-      .set_short_name("-n")
+  parser.AddFlag<base::Flag<std::vector<uint64_t>>>(&exponents_)
+      .set_short_name("-k")
       .set_required()
-      .set_help("Specify the exponent 'n' where the number of points to test is 2ⁿ.");
+      .set_help("Specify the exponent 'k' where the number of points to test is 2ᵏ.");
   // clang-format on
   parser.AddFlag<base::BoolFlag>(&check_results_)
       .set_long_name("--check_results")
@@ -111,14 +111,14 @@ bool MSMConfig::Parse(int argc, char** argv,
     }
   }
 
-  base::ranges::sort(degrees_);
+  base::ranges::sort(exponents_);
   return true;
 }
 
 std::vector<uint64_t> MSMConfig::GetPointNums() const {
   std::vector<uint64_t> point_nums;
-  for (uint64_t degree : degrees_) {
-    point_nums.push_back(uint64_t{1} << degree);
+  for (uint64_t exponent : exponents_) {
+    point_nums.push_back(uint64_t{1} << exponent);
   }
   return point_nums;
 }

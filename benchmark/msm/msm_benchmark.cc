@@ -32,7 +32,7 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  SimpleMSMBenchmarkReporter reporter("MSM Benchmark", config.degrees());
+  SimpleMSMBenchmarkReporter reporter("MSM Benchmark", config.exponents());
   for (const MSMConfig::Vendor vendor : config.vendors()) {
     reporter.AddVendor(MSMConfig::VendorToString(vendor));
   }
@@ -41,7 +41,7 @@ int RealMain(int argc, char** argv) {
 
   tachyon_bn254_g1_init();
   tachyon_bn254_g1_msm_ptr msm =
-      tachyon_bn254_g1_create_msm(config.degrees().back());
+      tachyon_bn254_g1_create_msm(config.exponents().back());
 
   std::cout << "Generating random points..." << std::endl;
   uint64_t max_point_num = point_nums.back();

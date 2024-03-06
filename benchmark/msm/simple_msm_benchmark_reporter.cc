@@ -8,13 +8,13 @@
 namespace tachyon {
 
 SimpleMSMBenchmarkReporter::SimpleMSMBenchmarkReporter(
-    std::string_view title, const std::vector<uint64_t>& nums)
-    : nums_(nums) {
+    std::string_view title, const std::vector<uint64_t>& exponents)
+    : exponents_(exponents) {
   title_ = std::string(title);
-  for (uint64_t num : nums) {
-    targets_.push_back(base::NumberToString(num));
+  for (uint64_t exponent : exponents) {
+    targets_.push_back(base::NumberToString(exponent));
   }
-  results_.resize(nums.size());
+  results_.resize(exponents.size());
   AddVendor("tachyon");
 }
 

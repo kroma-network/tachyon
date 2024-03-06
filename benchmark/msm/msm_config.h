@@ -34,7 +34,7 @@ class MSMConfig {
   MSMConfig(const MSMConfig& other) = delete;
   MSMConfig& operator=(const MSMConfig& other) = delete;
 
-  const std::vector<uint64_t>& degrees() const { return degrees_; }
+  const std::vector<uint64_t>& exponents() const { return exponents_; }
   const std::vector<Vendor>& vendors() const { return vendors_; }
   int algorithm() const { return algorithm_; }
   bool check_results() const { return check_results_; }
@@ -60,7 +60,7 @@ class MSMConfig {
   }
 
  private:
-  std::vector<uint64_t> degrees_;
+  std::vector<uint64_t> exponents_;
   std::vector<Vendor> vendors_;
   int algorithm_ = 0;
   TestSet test_set_ = TestSet::kRandom;

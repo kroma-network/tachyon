@@ -10,7 +10,7 @@ namespace tachyon {
 class SimpleMSMBenchmarkReporter : public SimpleBenchmarkReporter {
  public:
   SimpleMSMBenchmarkReporter(std::string_view title,
-                             const std::vector<uint64_t>& nums);
+                             const std::vector<uint64_t>& exponents);
   SimpleMSMBenchmarkReporter(const SimpleMSMBenchmarkReporter& other) = delete;
   SimpleMSMBenchmarkReporter& operator=(
       const SimpleMSMBenchmarkReporter& other) = delete;
@@ -18,7 +18,7 @@ class SimpleMSMBenchmarkReporter : public SimpleBenchmarkReporter {
   void AddVendor(std::string_view name);
 
  private:
-  std::vector<uint64_t> nums_;
+  std::vector<uint64_t> exponents_;
 };
 
 }  // namespace tachyon
