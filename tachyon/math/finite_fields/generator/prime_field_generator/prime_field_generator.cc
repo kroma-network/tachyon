@@ -80,7 +80,6 @@ struct GenerationConfig : public build::CcWriter {
   std::string special_prime_override;
 
   int GenerateConfigHdr() const;
-  int GenerateConfigCpp() const;
   int GenerateConfigGpuHdr() const;
 };
 
