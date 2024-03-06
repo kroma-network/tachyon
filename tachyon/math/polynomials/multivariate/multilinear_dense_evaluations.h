@@ -124,13 +124,13 @@ class MultilinearDenseEvaluations {
     //           = (1(1 - s₀) + 2s₀)(1 - x₁) + (3(1 - s₀) + 4s₀)x₁
     //           = (left₀(1 - s₀) + right₀s₀)(1 - x₁) + (left₁(1 - s₀) + right₁s₀)x₁
     //             (where left₀ = 1, right₀ = 2, left₁ = 3 and right₁ = 4)
-    //           = (right₀ + s₀(right₀ - left₀))(1 - x₁) + (right₁ + s₀(right₁ - left₁))x₁
+    //           = (left₀ + s₀(right₀ - left₀))(1 - x₁) + (left₁ + s₀(right₁ - left₁))x₁
     //
     // Fixing s₁:
     // P(s₀, s₁) = (1 + (2 - 1)s₀)(1 - s₁) + (3 + (4 - 1)4s₀)s₁
     //           = (left₀(1 - s₀) + right₀s₀)(1 - x₁) + (left₁(1 - s₀) + right₁s₀)x₁
     //             (where left₀ = 1 + (2 - 1)s₀ and right₀ = (3 + (4 - 1)4s₀)
-    //           = right₀ + s₁(right₀ - left₀)
+    //           = left₀ + s₁(right₀ - left₀)
     // clang-format on
     for (size_t i = 1; i <= k; ++i) {
       const F& r = partial_point[i - 1];
