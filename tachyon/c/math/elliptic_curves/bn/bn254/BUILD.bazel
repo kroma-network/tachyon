@@ -35,3 +35,52 @@ tachyon_cc_library(
         "@com_google_googletest//:gtest",
     ],
 )
+
+tachyon_cc_library(
+    name = "extension_field",
+    srcs = [
+        "fp12.cc",
+        "fp2.cc",
+        "fp6.cc",
+    ],
+    hdrs = [
+        "extension_field_traits.h",
+        "fp12.h",
+        "fp2.h",
+        "fp6.h",
+    ],
+    deps = [
+        ":fq",
+        "//tachyon/c:export",
+        "//tachyon/cc/math/finite_fields:extension_field_conversions",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq12",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq2",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq6",
+    ],
+)
+
+# tachyon_cc_library(
+#     name = "fp6",
+#     hdrs = ["fp6.h"],
+#     deps = [":fp2"],
+# )
+
+# tachyon_cc_library(
+#     name = "fp12",
+#     hdrs = ["fp12.h"],
+#     deps = [":fp6"],
+# )
+
+# tachyon_cc_library(
+#     name = "extension_field_traits",
+#     srcs = ["extension_field_traits.h"],
+#     deps = [
+#         ":fp12",
+#         ":fp2",
+#         ":fp6",
+#         "//tachyon/cc/math/finite_fields:extension_field_traits_forward",
+#         "//tachyon/math/elliptic_curves/bn/bn254:fq12",
+#         "//tachyon/math/elliptic_curves/bn/bn254:fq2",
+#         "//tachyon/math/elliptic_curves/bn/bn254:fq6",
+#     ],
+# )
