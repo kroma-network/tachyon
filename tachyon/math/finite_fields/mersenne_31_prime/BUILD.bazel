@@ -9,7 +9,7 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 string_flag(
-    name = "fr_" + SUBGROUP_GENERATOR,
+    name = SUBGROUP_GENERATOR,
     build_setting_default = "7",
 )
 
@@ -20,7 +20,7 @@ generate_fft_prime_fields(
     # Hex: 0x7fffffff
     modulus = "2147483647",
     namespace = "tachyon::math",
-    subgroup_generator = ":fr_" + SUBGROUP_GENERATOR,
+    subgroup_generator = ":" + SUBGROUP_GENERATOR,
 )
 
 tachyon_cc_library(

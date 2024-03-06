@@ -26,7 +26,7 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 string_flag(
-    name = "fr_" + SUBGROUP_GENERATOR,
+    name = SUBGROUP_GENERATOR,
     build_setting_default = "{subgroup_generator}", # input Subgroup generator value
 )
 
@@ -35,7 +35,7 @@ generate_fft_prime_fields( # NOTE: Choose generator type
     class_name = "NewPrimeField",
     modulus = "{modulus_value}", # input modulus value
     namespace = "tachyon::math",
-    subgroup_generator = ":fr_" + SUBGROUP_GENERATOR,
+    subgroup_generator = ":" + SUBGROUP_GENERATOR,
 )
 
 tachyon_cc_library(

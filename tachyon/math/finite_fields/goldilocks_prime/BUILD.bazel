@@ -12,17 +12,17 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 string_flag(
-    name = "fr_" + SMALL_SUBGROUP_ADICITY,
+    name = SMALL_SUBGROUP_ADICITY,
     build_setting_default = "1",
 )
 
 string_flag(
-    name = "fr_" + SMALL_SUBGROUP_BASE,
+    name = SMALL_SUBGROUP_BASE,
     build_setting_default = "3",
 )
 
 string_flag(
-    name = "fr_" + SUBGROUP_GENERATOR,
+    name = SUBGROUP_GENERATOR,
     build_setting_default = "7",
 )
 
@@ -39,8 +39,8 @@ generate_large_fft_prime_fields(
     # Hex: 0xffffffff00000001
     modulus = "18446744069414584321",
     namespace = "tachyon::math",
-    small_subgroup_adicity = ":fr_" + SMALL_SUBGROUP_ADICITY,
-    small_subgroup_base = ":fr_" + SMALL_SUBGROUP_BASE,
+    small_subgroup_adicity = ":" + SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = ":" + SMALL_SUBGROUP_BASE,
     special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
 #if ARCH_CPU_X86_64
   constexpr static bool kIsSpecialPrime = true;
@@ -51,7 +51,7 @@ generate_large_fft_prime_fields(
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif""",
-    subgroup_generator = ":fr_" + SUBGROUP_GENERATOR,
+    subgroup_generator = ":" + SUBGROUP_GENERATOR,
     deps = if_polygon_zkevm_backend([
         ":prime_field_goldilocks",
         "//tachyon/build:build_config",
