@@ -112,16 +112,6 @@ bazel build --config macos_arm64 //...
 bazel build --config macos_arm64 --config dbg //...
 ```
 
-### Polygon zkEVM backend prime field
-
-_NOTE_: Only x86_64 is supported.
-
-- `--//:polygon_zkevm_backend`: Enable [goldilocks](https://github.com/0xPolygonHermez/goldilocks) and [zkevm-prover](https://github.com/0xPolygonHermez/zkevm-prover) prime field backend.
-
-  ```shell
-  bazel build --config ${os} --config avx512_${os} --//:polygon_zkevm_backend //...
-  ```
-
 ### Hardware acceleration
 
 #### CUDA backend
@@ -156,13 +146,12 @@ For example:
 
 build --config linux
 build --config dbg
-build --config polygon_zkevm_backend
 ```
 
 ```shell
 bazel build //...
 # With the preset options in .bazelrc.user, this is the same as:
-# bazel build --config linux --config dbg --config polygon_zkevm_backend //...
+# bazel build --config linux --config dbg //...
 ```
 
 ## Building Tachyon from a Bazel repository
@@ -194,11 +183,11 @@ http_archive(
 ## Debian packaging
 
 Build a Debian package with the supported scheme (only halo2 for now) and the [options](#options) you want.
-To build the Halo2 Debian package, `polygon_zkevm_backend` and `has_openmp` options are recommended. Run the following commands:
+To build the Halo2 Debian package, `halo2` and `has_openmp` options are recommended. Run the following commands:
 
 ```shell
-bazel build -c opt --config halo2 --//:polygon_zkevm_backend --//:has_openmp  --//:c_shared_object //scripts/packages/debian/runtime:debian
-bazel build -c opt --config halo2 --//:polygon_zkevm_backend --//:has_openmp  --//:c_shared_object //scripts/packages/debian/dev:debian
+bazel build -c opt --config halo2 --//:has_openmp  --//:c_shared_object //scripts/packages/debian/runtime:debian
+bazel build -c opt --config halo2 --//:has_openmp  --//:c_shared_object //scripts/packages/debian/dev:debian
 
 sudo dpkg -i bazel-bin/scripts/packages/debian/runtime/libtachyon_0.0.1_amd64.deb
 sudo dpkg -i bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.0.1_amd64.deb

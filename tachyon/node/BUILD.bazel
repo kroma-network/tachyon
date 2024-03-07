@@ -4,7 +4,7 @@ load("//bazel:tachyon_node.bzl", "tachyon_node_library")
 tachyon_node_library(
     name = "tachyon",
     srcs = if_node_binding(["tachyon.cc"]),
-    deps = [
+    deps = if_node_binding([
         "//tachyon/node/math",
-    ],
+    ]),
 )

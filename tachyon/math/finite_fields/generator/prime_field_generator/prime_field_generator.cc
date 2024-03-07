@@ -2,6 +2,7 @@
 
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/files/file_path_flag.h"
+#include "tachyon/base/files/file_util.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/cc_writer.h"
@@ -73,28 +74,80 @@ struct GenerationConfig : public build::CcWriter {
   std::string ns_name;
   std::string class_name;
   std::string modulus;
+  std::string flag;
+  base::FilePath x86_hdr_tpl_path;
+  base::FilePath fail_hdr_tpl_path;
+  base::FilePath fail_src_tpl_path;
   std::string subgroup_generator;
   std::string small_subgroup_base;
   std::string small_subgroup_adicity;
-  std::string hdr_include_override;
-  std::string special_prime_override;
 
+  int GenerateFailHdr() const;
+  int GenerateFailSrc() const;
+  int GeneratePrimeFieldX86Hdr() const;
   int GenerateConfigHdr() const;
-  int GenerateConfigGpuHdr() const;
+  int GenerateCpuHdr() const;
+  int GenerateGpuHdr() const;
+
+  std::string GetPrefix() const {
+    return absl::Substitute("$0_$1",
+                            absl::StrReplaceAll(ns_name, {{"::", "_"}}),
+                            base::ToLowerASCII(class_name));
+  }
 };
+
+int GenerationConfig::GenerateFailHdr() const {
+  std::string tpl_content;
+  CHECK(base::ReadFileToString(fail_hdr_tpl_path, &tpl_content));
+
+  std::string content =
+      absl::StrReplaceAll(tpl_content, {{"%{prefix}", GetPrefix()}});
+  return WriteHdr(content, false);
+}
+
+int GenerationConfig::GenerateFailSrc() const {
+  std::string tpl_content;
+  CHECK(base::ReadFileToString(fail_src_tpl_path, &tpl_content));
+
+  std::string content =
+      absl::StrReplaceAll(tpl_content, {{"%{prefix}", GetPrefix()}});
+  return WriteSrc(content);
+}
+
+int GenerationConfig::GeneratePrimeFieldX86Hdr() const {
+  std::string tpl_content;
+  CHECK(base::ReadFileToString(x86_hdr_tpl_path, &tpl_content));
+
+  mpz_class m = math::gmp::FromDecString(modulus);
+  size_t n = math::gmp::GetLimbSize(m);
+
+  std::string content =
+      absl::StrReplaceAll(tpl_content, {
+                                           {"%{prefix}", GetPrefix()},
+                                           {"%{n}", base::NumberToString(n)},
+                                           {"%{flag}", flag},
+                                       });
+  return WriteHdr(content, false);
+}
 
 int GenerationConfig::GenerateConfigHdr() const {
   // clang-format off
   std::vector<std::string> tpl = {
       "#include \"tachyon/export.h\"",
-      "#include \"tachyon/math/finite_fields/prime_field.h\"",
+      "#include \"tachyon/build/build_config.h\"",
+      "#include \"tachyon/math/base/big_int.h\"",
       "",
       "namespace %{namespace} {",
       "",
       "class TACHYON_EXPORT %{class}Config {",
       " public:",
       "  constexpr static const char* kName = \"%{namespace}::%{class}\";",
+      "#if ARCH_CPU_X86_64",
+      "  constexpr static bool kIsSpecialPrime = true;",
+      "  constexpr static bool %{flag} = true;",
+      "#else",
       "  constexpr static bool kIsSpecialPrime = false;",
+      "#endif",
       "",
       "  constexpr static size_t kModulusBits = %{modulus_bits};",
       "  constexpr static BigInt<%{n}> kModulus = BigInt<%{n}>({",
@@ -138,36 +191,9 @@ int GenerationConfig::GenerateConfigHdr() const {
       "  constexpr static bool kHasLargeSubgroupRootOfUnity = false;",
       "};",
       "",
-      "using %{class} = PrimeField<%{class}Config>;",
-      "",
       "}  // namespace %{namespace}",
   };
   // clang-format on
-
-  if (!hdr_include_override.empty()) {
-    for (size_t i = 0; i < tpl.size(); ++i) {
-      size_t idx =
-          tpl[i].find("#include \"tachyon/math/finite_fields/prime_field.h\"");
-      if (idx != std::string::npos) {
-        auto it = tpl.begin() + i;
-        tpl.erase(it);
-        tpl.insert(it, hdr_include_override);
-        break;
-      }
-    }
-  }
-
-  if (!special_prime_override.empty()) {
-    for (size_t i = 0; i < tpl.size(); ++i) {
-      size_t idx = tpl[i].find("kIsSpecialPrime");
-      if (idx != std::string::npos) {
-        auto it = tpl.begin() + i;
-        tpl.erase(it, it + 1);
-        tpl.insert(it, special_prime_override);
-        break;
-      }
-    }
-  }
 
   mpz_class m = math::gmp::FromDecString(modulus);
   auto it = math::BitIteratorBE<mpz_class>::begin(&m, true);
@@ -276,6 +302,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       {
           {"%{namespace}", ns_name},
           {"%{class}", class_name},
+          {"%{flag}", flag},
           {"%{modulus_bits}", base::NumberToString(num_bits)},
           {"%{n}", base::NumberToString(n)},
           {"%{modulus}", math::MpzClassToString(m)},
@@ -304,9 +331,45 @@ int GenerationConfig::GenerateConfigHdr() const {
   return WriteHdr(content, false);
 }
 
-int GenerationConfig::GenerateConfigGpuHdr() const {
+int GenerationConfig::GenerateCpuHdr() const {
   std::string_view tpl[] = {
-      "#include \"%{header_path}\"",
+      "#include \"%{config_header_path}\"",
+      "",
+      "#if ARCH_CPU_X86_64",
+      "#include \"%{prime_field_x86_hdr}\"",
+      "#else",
+      "#include \"tachyon/math/finite_fields/prime_field_generic.h\"",
+      "#endif",
+      "",
+      "namespace %{namespace} {",
+      "",
+      "using %{class} = PrimeField<%{class}Config>;",
+      "",
+      "}  // namespace %{namespace}",
+  };
+  std::string tpl_content = absl::StrJoin(tpl, "\n");
+
+  base::FilePath hdr_path = GetHdrPath();
+  base::FilePath basename = hdr_path.BaseName().RemoveExtension();
+  base::FilePath config_header_path =
+      hdr_path.DirName().Append(basename.value() + "_config.h");
+  base::FilePath prime_field_x86_hdr_path =
+      hdr_path.DirName().Append(basename.value() + "_prime_field_x86.h");
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content,
+      {
+          {"%{config_header_path}", config_header_path.value()},
+          {"%{prime_field_x86_hdr}", prime_field_x86_hdr_path.value()},
+          {"%{namespace}", ns_name},
+          {"%{class}", class_name},
+      });
+  return WriteHdr(content, false);
+}
+
+int GenerationConfig::GenerateGpuHdr() const {
+  std::string_view tpl[] = {
+      "#include \"%{config_header_path}\"",
       "",
       "#include \"tachyon/math/finite_fields/prime_field_gpu.h\"",
       "",
@@ -319,12 +382,12 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
   std::string content = absl::StrReplaceAll(
-      tpl_content,
-      {
-          {"%{header_path}", math::ConvertToCpuHdr(GetHdrPath()).value()},
-          {"%{namespace}", ns_name},
-          {"%{class}", class_name},
-      });
+      tpl_content, {
+                       {"%{config_header_path}",
+                        math::ConvertToConfigHdr(GetHdrPath()).value()},
+                       {"%{namespace}", ns_name},
+                       {"%{class}", class_name},
+                   });
   return WriteHdr(content, false);
 }
 
@@ -343,16 +406,24 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.modulus)
       .set_long_name("--modulus")
       .set_required();
+  parser.AddFlag<base::StringFlag>(&config.flag)
+      .set_long_name("--flag")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.x86_hdr_tpl_path)
+      .set_long_name("--x86_hdr_tpl_path")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.fail_hdr_tpl_path)
+      .set_long_name("--fail_hdr_tpl_path")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.fail_src_tpl_path)
+      .set_long_name("--fail_src_tpl_path")
+      .set_required();
   parser.AddFlag<base::StringFlag>(&config.subgroup_generator)
       .set_long_name("--subgroup_generator");
   parser.AddFlag<base::StringFlag>(&config.small_subgroup_base)
       .set_long_name("--small_subgroup_base");
   parser.AddFlag<base::StringFlag>(&config.small_subgroup_adicity)
       .set_long_name("--small_subgroup_adicity");
-  parser.AddFlag<base::StringFlag>(&config.hdr_include_override)
-      .set_long_name("--hdr_include_override");
-  parser.AddFlag<base::StringFlag>(&config.special_prime_override)
-      .set_long_name("--special_prime_override");
 
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {
@@ -360,10 +431,18 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  if (base::EndsWith(config.out.value(), "_gpu.h")) {
-    return config.GenerateConfigGpuHdr();
-  } else if (base::EndsWith(config.out.value(), ".h")) {
+  if (base::EndsWith(config.out.value(), "_fail.h")) {
+    return config.GenerateFailHdr();
+  } else if (base::EndsWith(config.out.value(), "_fail.cc")) {
+    return config.GenerateFailSrc();
+  } else if (base::EndsWith(config.out.value(), "_prime_field_x86.h")) {
+    return config.GeneratePrimeFieldX86Hdr();
+  } else if (base::EndsWith(config.out.value(), "_config.h")) {
     return config.GenerateConfigHdr();
+  } else if (base::EndsWith(config.out.value(), "_gpu.h")) {
+    return config.GenerateGpuHdr();
+  } else if (base::EndsWith(config.out.value(), ".h")) {
+    return config.GenerateCpuHdr();
   } else {
     tachyon_cerr << "not supported suffix:" << config.out << std::endl;
     return 1;

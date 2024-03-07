@@ -5,9 +5,15 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_binary(
     name = "prime_field_generator",
     srcs = ["prime_field_generator.cc"],
+    data = [
+        "fail.cc.tpl",
+        "fail.h.tpl",
+        "prime_field_x86.h.tpl",
+    ],
     deps = [
         "//tachyon/base/console",
         "//tachyon/base/files:file_path_flag",
+        "//tachyon/base/files:file_util",
         "//tachyon/base/flag:flag_parser",
         "//tachyon/build:cc_writer",
         "//tachyon/math/base:bit_iterator",

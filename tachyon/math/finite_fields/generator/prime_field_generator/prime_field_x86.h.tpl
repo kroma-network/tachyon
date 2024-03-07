@@ -1,30 +1,23 @@
-#ifndef TACHYON_MATH_ELLIPTIC_CURVES_PASTA_VESTA_PRIME_FIELD_FR_H_
-#define TACHYON_MATH_ELLIPTIC_CURVES_PASTA_VESTA_PRIME_FIELD_FR_H_
+// clang-format off
 
 #include <stddef.h>
 #include <stdint.h>
 
-#include <ostream>
 #include <string>
 
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
-extern "C" void Fr_rawAdd(uint64_t result[4], const uint64_t a[4],
-                          const uint64_t b[4]);
-extern "C" void Fr_rawSub(uint64_t result[4], const uint64_t a[4],
-                          const uint64_t b[4]);
-extern "C" void Fr_rawNeg(uint64_t result[4], const uint64_t a[4]);
-extern "C" void Fr_rawMMul(uint64_t result[4], const uint64_t a[4],
-                           const uint64_t b[4]);
-extern "C" void Fr_rawMSquare(uint64_t result[4], const uint64_t a[4]);
-extern "C" void Fr_rawMMul1(uint64_t result[4], const uint64_t a[4],
-                            uint64_t b);
-extern "C" void Fr_rawToMontgomery(uint64_t result[4], const uint64_t a[4]);
-extern "C" void Fr_rawFromMontgomery(uint64_t result[4], const uint64_t a[4]);
-extern "C" int Fr_rawIsEq(const uint64_t a[4], const uint64_t b[4]);
-extern "C" int Fr_rawIsZero(const uint64_t v[4]);
+extern "C" void %{prefix}_rawAdd(uint64_t result[%{n}], const uint64_t a[%{n}], const uint64_t b[%{n}]);
+extern "C" void %{prefix}_rawSub(uint64_t result[%{n}], const uint64_t a[%{n}], const uint64_t b[%{n}]);
+extern "C" void %{prefix}_rawNeg(uint64_t result[%{n}], const uint64_t a[%{n}]);
+extern "C" void %{prefix}_rawMMul(uint64_t result[%{n}], const uint64_t a[%{n}], const uint64_t b[%{n}]);
+extern "C" void %{prefix}_rawMSquare(uint64_t result[%{n}], const uint64_t a[%{n}]);
+extern "C" void %{prefix}_rawToMontgomery(uint64_t result[%{n}], const uint64_t a[%{n}]);
+extern "C" void %{prefix}_rawFromMontgomery(uint64_t result[%{n}], const uint64_t a[%{n}]);
+extern "C" int %{prefix}_rawIsEq(const uint64_t a[%{n}], const uint64_t b[%{n}]);
+extern "C" int %{prefix}_rawIsZero(const uint64_t v[%{n}]);
 
 namespace tachyon::math {
 
@@ -32,7 +25,7 @@ template <typename Config>
 class PrimeFieldGpu;
 
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
+class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
     : public PrimeFieldBase<PrimeField<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
@@ -53,7 +46,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
   constexpr explicit PrimeField(T value) : PrimeField(BigInt<N>(value)) {}
   constexpr explicit PrimeField(const BigInt<N>& value) {
     DCHECK_LT(value, Config::kModulus);
-    Fr_rawToMontgomery(value_.limbs, value.limbs);
+    %{prefix}_rawToMontgomery(value_.limbs, value.limbs);
   }
   constexpr PrimeField(const PrimeField& other) = default;
   constexpr PrimeField& operator=(const PrimeField& other) = default;
@@ -99,10 +92,10 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
 
   const value_type& value() const { return value_; }
 
-  constexpr bool IsZero() const { return Fr_rawIsZero(value_.limbs); }
+  constexpr bool IsZero() const { return %{prefix}_rawIsZero(value_.limbs); }
 
   constexpr bool IsOne() const {
-    return Fr_rawIsEq(value_.limbs, Config::kOne.limbs);
+    return %{prefix}_rawIsEq(value_.limbs, Config::kOne.limbs);
   }
 
   std::string ToString() const { return ToBigInt().ToString(); }
@@ -119,7 +112,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
   // TODO(chokobole): Support bigendian.
   constexpr BigInt<N> ToBigInt() const {
     BigInt<N> ret;
-    Fr_rawFromMontgomery(ret.limbs, value_.limbs);
+    %{prefix}_rawFromMontgomery(ret.limbs, value_.limbs);
     return ret;
   }
 
@@ -129,7 +122,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
   constexpr const uint64_t& operator[](size_t i) const { return value_[i]; }
 
   constexpr bool operator==(const PrimeField& other) const {
-    return Fr_rawIsEq(value_.limbs, other.value_.limbs);
+    return %{prefix}_rawIsEq(value_.limbs, other.value_.limbs);
   }
 
   constexpr bool operator!=(const PrimeField& other) const {
@@ -155,7 +148,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
   // AdditiveSemigroup methods
   constexpr PrimeField& AddInPlace(const PrimeField& other) {
     PrimeField ret;
-    Fr_rawAdd(ret.value_.limbs, value_.limbs, other.value_.limbs);
+    %{prefix}_rawAdd(ret.value_.limbs, value_.limbs, other.value_.limbs);
     *this = ret;
     return *this;
   }
@@ -165,14 +158,14 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
   // AdditiveGroup methods
   constexpr PrimeField& SubInPlace(const PrimeField& other) {
     PrimeField ret;
-    Fr_rawSub(ret.value_.limbs, value_.limbs, other.value_.limbs);
+    %{prefix}_rawSub(ret.value_.limbs, value_.limbs, other.value_.limbs);
     *this = ret;
     return *this;
   }
 
   constexpr PrimeField& NegInPlace() {
     PrimeField ret;
-    Fr_rawNeg(ret.value_.limbs, value_.limbs);
+    %{prefix}_rawNeg(ret.value_.limbs, value_.limbs);
     *this = ret;
     return *this;
   }
@@ -181,14 +174,14 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
   // MultiplicativeSemigroup methods
   constexpr PrimeField& MulInPlace(const PrimeField& other) {
     PrimeField ret;
-    Fr_rawMMul(ret.value_.limbs, value_.limbs, other.value_.limbs);
+    %{prefix}_rawMMul(ret.value_.limbs, value_.limbs, other.value_.limbs);
     *this = ret;
     return *this;
   }
 
   constexpr PrimeField& SquareInPlace() {
     PrimeField ret;
-    Fr_rawMSquare(ret.value_.limbs, value_.limbs);
+    %{prefix}_rawMSquare(ret.value_.limbs, value_.limbs);
     *this = ret;
     return *this;
   }
@@ -210,4 +203,4 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsVestaFr>> final
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_ELLIPTIC_CURVES_PASTA_VESTA_PRIME_FIELD_FR_H_
+// clang-format on

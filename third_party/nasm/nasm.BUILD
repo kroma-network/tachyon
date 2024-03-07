@@ -1,3 +1,5 @@
+package(default_visibility = ["//visibility:public"])
+
 licenses(["notice"])
 
 exports_files(["LICENSE"])
@@ -124,7 +126,6 @@ cc_binary(
     ],
     copts = COPTS,
     includes = INCLUDES,
-    visibility = ["@polygon_zkevm_zkevm_prover//:__pkg__"],
     deps = [
         ":nasm_2_14_02",
     ],

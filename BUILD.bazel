@@ -1,4 +1,3 @@
-load("@bazel_skylib//lib:selects.bzl", "selects")
 load("@bazel_skylib//rules:common_settings.bzl", "bool_flag")
 load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 
@@ -31,12 +30,6 @@ bool_flag(
 
 bool_flag(
     name = "has_openmp",
-    build_setting_default = False,
-)
-
-# prime field backend
-bool_flag(
-    name = "polygon_zkevm_backend",
     build_setting_default = False,
 )
 
@@ -144,11 +137,6 @@ config_setting(
 )
 
 config_setting(
-    name = "tachyon_polygon_zkevm_backend",
-    flag_values = {":polygon_zkevm_backend": "true"},
-)
-
-config_setting(
     name = "tachyon_has_matplotlib",
     flag_values = {":has_matplotlib": "true"},
 )
@@ -166,14 +154,6 @@ config_setting(
 config_setting(
     name = "tachyon_node_binding",
     flag_values = {"node_binding": "true"},
-)
-
-selects.config_setting_group(
-    name = "x86_64_and_polygon_zkevm",
-    match_all = [
-        "@platforms//cpu:x86_64",
-        "@kroma_network_tachyon//:tachyon_polygon_zkevm_backend",
-    ],
 )
 
 buildifier(

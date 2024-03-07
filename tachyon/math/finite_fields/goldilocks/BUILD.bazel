@@ -1,5 +1,5 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load("//bazel:tachyon.bzl", "if_polygon_zkevm_backend")
+load("//bazel:tachyon.bzl", "if_linux_x86_64")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 load(
     "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
@@ -29,52 +29,43 @@ string_flag(
 generate_large_fft_prime_fields(
     name = "goldilocks",
     class_name = "Goldilocks",
-    hdr_include_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
-#include "tachyon/math/finite_fields/goldilocks_prime/prime_field_goldilocks.h"
-#include "tachyon/build/build_config.h"
-#else
-#include "tachyon/math/finite_fields/prime_field.h"
-#endif  // defined(TACHYON_POLYGON_ZKEVM_BACKEND)""",
+    flag = "kIsGoldilocks",
     # 2⁶⁴ - 2³² + 1
     # Hex: 0xffffffff00000001
     modulus = "18446744069414584321",
     namespace = "tachyon::math",
     small_subgroup_adicity = ":" + SMALL_SUBGROUP_ADICITY,
     small_subgroup_base = ":" + SMALL_SUBGROUP_BASE,
-    special_prime_override = """#if defined(TACHYON_POLYGON_ZKEVM_BACKEND)
-#if ARCH_CPU_X86_64
-  constexpr static bool kIsSpecialPrime = true;
-  constexpr static bool kIsGoldilocks = true;
-#else
-  #error Goldilocks backend is only supported on x86_64 platform.
-#endif
-#else
-  constexpr static bool kIsSpecialPrime = false;
-#endif""",
     subgroup_generator = ":" + SUBGROUP_GENERATOR,
-    deps = if_polygon_zkevm_backend([
-        ":prime_field_goldilocks",
-        "//tachyon/build:build_config",
-    ]),
 )
 
 tachyon_cc_library(
-    name = "prime_field_goldilocks",
-    hdrs = ["prime_field_goldilocks.h"],
-    defines = ["TACHYON_POLYGON_ZKEVM_BACKEND"],
-    deps = [
+    name = "goldilocks_prime_field_x86_special",
+    srcs = if_linux_x86_64(["goldilocks_prime_field_x86_special.cc"]),
+    hdrs = if_linux_x86_64(["goldilocks_prime_field_x86_special.h"]),
+    copts = if_linux_x86_64(["-mavx512f"]),
+    deps = if_linux_x86_64([
+        ":goldilocks_config",
         "//tachyon/base:random",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base/gmp:gmp_util",
         "//tachyon/math/finite_fields:prime_field_base",
-    ] + if_polygon_zkevm_backend([
-        "@polygon_zkevm_goldilocks//:base_field",
+        "@goldilocks//:base_field",
     ]),
 )
 
+tachyon_cc_library(
+    name = "goldilocks_prime_field",
+    hdrs = ["goldilocks_prime_field.h"],
+    deps = [
+        ":goldilocks",
+        ":goldilocks_prime_field_x86_special",
+    ],
+)
+
 tachyon_cc_unittest(
-    name = "goldilocks_prime_unittests",
-    srcs = if_polygon_zkevm_backend(["prime_field_goldilocks_unittest.cc"]),
-    deps = [":goldilocks"],
+    name = "goldilocks_unittests",
+    srcs = ["goldilocks_prime_field_unittest.cc"],
+    deps = [":goldilocks_prime_field"],
 )

@@ -37,40 +37,21 @@ generate_fft_prime_fields( # NOTE: Choose generator type
     namespace = "tachyon::math",
     subgroup_generator = ":" + SUBGROUP_GENERATOR,
 )
-
-tachyon_cc_library(
-    name = "prime_field_<new_prime_field>",
-    hdrs = ["prime_field_<new_prime_field>.h"],
-    defines = ["TACHYON_POLYGON_ZKEVM_BACKEND"],
-    deps = [
-        "//tachyon/math/base/gmp:gmp_util",
-        "//tachyon/math/finite_fields:prime_field_base",
-    ],
-)
 ```
 
 Use the following files for reference:
 
-- [Goldilocks `BUILD.bazel`](/tachyon/math/finite_fields/goldilocks_prime/BUILD.bazel)
-- [Mersenne-31 `BUILD.bazel`](/tachyon/math/finite_fields/mersenne_31_prime/BUILD.bazel)
+- [Goldilocks `BUILD.bazel`](/tachyon/math/finite_fields/goldilocks/BUILD.bazel)
+- [Mersenne31 `BUILD.bazel`](/tachyon/math/finite_fields/mersenne31/BUILD.bazel)
 
-## 2. Add the header file
-
-Next, implement the logic for the new prime field in a header file named `prime_field_<prime_field_name>.h`. The code will then be generated in `bazel-bin/tachyon/math/finite_fields/<new_prime_field_dir>/<prime_field_name>.h` when Bazel builds the correlating target.
-
-Use the following files for reference:
-
-- [`prime_field_goldilocks.h`](/tachyon/math/finite_fields/goldilocks_prime/prime_field_goldilocks.h)
-- [`prime_field_mersenne_31.h`](/tachyon/math/finite_fields/mersenne_31_prime/prime_field_mersenne_31.h)
-
-## 3. Add to `prime_field_generator_unittest.cc`
+## 2. Add to `prime_field_generator_unittest.cc`
 
 Finally, ensure the prime field works well by incorporating it into `prime_field_generator_unittest.cc` at the two points shown below:
 
 ```cpp
 ...
-#include "tachyon/math/finite_fields/goldilocks_prime/goldilocks.h"
-#include "tachyon/math/finite_fields/mersenne_31_prime/mersenne_31.h"
+#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
+#include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 // ADD NEW PRIME FIELD HEADER FILE HERE
 // #include "tachyon/math/finite_fields/..."
 ...

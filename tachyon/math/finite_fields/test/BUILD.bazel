@@ -22,6 +22,7 @@ generate_fft_prime_fields(
     name = "gf7",
     testonly = True,
     class_name = "GF7",
+    flag = "kIsGF7",
     modulus = "7",
     namespace = "tachyon::math",
     subgroup_generator = ":" + SMALL_SUBGROUP_ADICITY,

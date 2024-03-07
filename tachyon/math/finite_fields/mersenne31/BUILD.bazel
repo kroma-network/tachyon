@@ -1,5 +1,4 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load(
     "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
     "SUBGROUP_GENERATOR",
@@ -14,20 +13,12 @@ string_flag(
 )
 
 generate_fft_prime_fields(
-    name = "mersenne_31",
+    name = "mersenne31",
     class_name = "Mersenne31",
+    flag = "kIsMersenne31",
     # 2³¹ - 1
     # Hex: 0x7fffffff
     modulus = "2147483647",
     namespace = "tachyon::math",
     subgroup_generator = ":" + SUBGROUP_GENERATOR,
-)
-
-tachyon_cc_library(
-    name = "prime_field_mersenne_31",
-    hdrs = ["prime_field_mersenne_31.h"],
-    deps = [
-        "//tachyon/math/base/gmp:gmp_util",
-        "//tachyon/math/finite_fields:prime_field_base",
-    ],
 )

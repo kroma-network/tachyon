@@ -1,4 +1,5 @@
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon.bzl", "if_c_shared_object")
 load(
     "//bazel:tachyon_cc.bzl",
     "collect_hdrs",
@@ -63,12 +64,12 @@ tachyon_cc_shared_library(
     linkstatic = True,
     soversion = VERSION,
     tags = ["manual"],
-    deps = CURVE_DEPS + [
+    deps = if_c_shared_object(CURVE_DEPS + [
         ":version",
         "//tachyon/c/crypto/random:rng",
         "//tachyon/c/math:bn254_math",
         "//tachyon/c/zk:bn254_zk",
-    ] + if_cuda([
+    ]) + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
     ]),
 )
