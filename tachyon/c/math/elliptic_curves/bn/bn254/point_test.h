@@ -4,12 +4,16 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g2.h"
 
 namespace tachyon::c::math::bn254 {
 
-class G1Test : public testing::Test {
+class PointTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { tachyon_bn254_g1_init(); }
+  static void SetUpTestSuite() {
+    tachyon_bn254_g1_init();
+    tachyon_bn254_g2_init();
+  }
 };
 
 }  // namespace tachyon::c::math::bn254

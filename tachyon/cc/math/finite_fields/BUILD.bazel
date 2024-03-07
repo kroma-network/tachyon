@@ -29,8 +29,15 @@ tachyon_cc_library(
 
 tachyon_cc_unittest(
     name = "finite_fields_unittests",
-    srcs = ["prime_field_unittest.cc"],
+    srcs = [
+        "extension_field_unittest.cc",
+        "prime_field_unittest.cc",
+    ],
     deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:extension_field",
+        "//tachyon/cc/math/elliptic_curves/bn/bn254:fp2",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/cc/math/finite_fields:extension_field_conversions",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq2",
     ],
 )

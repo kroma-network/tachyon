@@ -11,7 +11,7 @@ template <typename CExtensionField,
           typename ExtensionField =
               typename ExtensionFieldTraits<CExtensionField>::ExtensionField>
 const ExtensionField& native_cast(const CExtensionField& f) {
-  static_assert(sizeof(CExtensionField) == sizeof(ExtensionField));
+  static_assert(sizeof(ExtensionField) == sizeof(CExtensionField));
   return reinterpret_cast<const ExtensionField&>(f);
 }
 
@@ -19,7 +19,7 @@ template <typename CExtensionField,
           typename ExtensionField =
               typename ExtensionFieldTraits<CExtensionField>::ExtensionField>
 ExtensionField& native_cast(CExtensionField& f) {
-  static_assert(sizeof(CExtensionField) == sizeof(ExtensionField));
+  static_assert(sizeof(ExtensionField) == sizeof(CExtensionField));
   return reinterpret_cast<ExtensionField&>(f);
 }
 

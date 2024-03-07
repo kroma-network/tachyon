@@ -28,6 +28,7 @@ TYPED_TEST(PairingTest, Bilinearity) {
   G1AffinePoint g1 = G1AffinePoint::Random();
   G2AffinePoint g2 = G2AffinePoint::Random();
   ScalarField a = ScalarField::Random();
+  std::cout << g2.ToString() << std::endl;
   ScalarField b = ScalarField::Random();
 
   Fp12 result;

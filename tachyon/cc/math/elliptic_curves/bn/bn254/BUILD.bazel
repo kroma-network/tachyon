@@ -1,3 +1,4 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//tachyon/cc/math/elliptic_curves/generator:build_defs.bzl", "generate_ec_points")
 
 package(default_visibility = ["//visibility:public"])
@@ -18,5 +19,15 @@ generate_ec_points(
     g1_deps = [
         "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
         "//tachyon/math/elliptic_curves/bn/bn254:g1",
+    ],
+)
+
+tachyon_cc_library(
+    name = "fp2",
+    srcs = ["fp2.cc"],
+    hdrs = ["fp2.h"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:extension_field",
+        "//tachyon/cc:export",
     ],
 )

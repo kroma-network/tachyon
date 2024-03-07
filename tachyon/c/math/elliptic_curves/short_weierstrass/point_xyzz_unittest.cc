@@ -2,7 +2,7 @@
 
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_prime_field_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_test.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/point_test.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
@@ -10,7 +10,7 @@ namespace tachyon {
 
 namespace {
 
-class PointXYZZTest : public c::math::bn254::G1Test {
+class PointXYZZTest : public c::math::bn254::PointTest {
  public:
   void SetUp() override {
     a_ = math::bn254::G1PointXYZZ::Random();

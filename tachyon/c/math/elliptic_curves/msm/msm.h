@@ -43,9 +43,7 @@ CRetPoint* DoMSM(MSMApi<Point>& msm_api, const CPoint* bases,
   CHECK(msm_api.msm.Run(msm_api.provider.bases(), msm_api.provider.scalars(),
                         &bucket));
   auto ret = tachyon::math::ConvertPoint<RetPoint>(bucket);
-  CRetPoint* cret = new CRetPoint();
-  cc::math::ToCPoint3(ret, cret);
-  return cret;
+  return c_cast(&ret);
 }
 
 }  // namespace tachyon::c::math

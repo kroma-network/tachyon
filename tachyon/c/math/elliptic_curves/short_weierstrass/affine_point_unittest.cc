@@ -2,29 +2,37 @@
 
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_prime_field_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_test.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g2_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/point_test.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
 
 namespace tachyon {
 
 namespace {
 
-class AffinePointTest : public c::math::bn254::G1Test {
+class AffinePointTest : public c::math::bn254::PointTest {
  public:
   void SetUp() override {
-    a_ = math::bn254::G1AffinePoint::Random();
-    b_ = math::bn254::G1AffinePoint::Random();
+    a1_ = math::bn254::G1AffinePoint::Random();
+    b1_ = math::bn254::G1AffinePoint::Random();
+    a2_ = math::bn254::G1AffinePoint::Random();
+    b2_ = math::bn254::G1AffinePoint::Random();
 
     c_a_ = cc::math::ToCAffinePoint(a_);
     c_b_ = cc::math::ToCAffinePoint(b_);
   }
 
  protected:
-  math::bn254::G1AffinePoint a_;
-  math::bn254::G1AffinePoint b_;
-  tachyon_bn254_g1_affine c_a_;
-  tachyon_bn254_g1_affine c_b_;
+  math::bn254::G1AffinePoint a1_;
+  math::bn254::G1AffinePoint b1_;
+  math::bn254::G2AffinePoint a2_;
+  math::bn254::G2AffinePoint b2_;
+  tachyon_bn254_g1_affine c_a1_;
+  tachyon_bn254_g1_affine c_b1_;
+  tachyon_bn254_g2_affine c_a2_;
+  tachyon_bn254_g2_affine c_b2_;
 };
 
 }  // namespace

@@ -31,6 +31,7 @@ class GWCProver {
 
   uint32_t k() const;
   uint64_t n() const;
+  
   rust::Box<G1JacobianPoint> commit(const Poly& poly) const;
   rust::Box<G1JacobianPoint> commit_lagrange(const Evals& evals) const;
   std::unique_ptr<Evals> empty_evals() const;

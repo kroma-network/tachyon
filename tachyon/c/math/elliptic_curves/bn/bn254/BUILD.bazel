@@ -27,11 +27,12 @@ generate_ec_points(
 )
 
 tachyon_cc_library(
-    name = "g1_test",
+    name = "point_test",
     testonly = True,
-    hdrs = ["g1_test.h"],
+    hdrs = ["point_test.h"],
     deps = [
         ":g1",
+        ":g2",
         "@com_google_googletest//:gtest",
     ],
 )
@@ -59,28 +60,17 @@ tachyon_cc_library(
     ],
 )
 
-# tachyon_cc_library(
-#     name = "fp6",
-#     hdrs = ["fp6.h"],
-#     deps = [":fp2"],
-# )
-
-# tachyon_cc_library(
-#     name = "fp12",
-#     hdrs = ["fp12.h"],
-#     deps = [":fp6"],
-# )
-
-# tachyon_cc_library(
-#     name = "extension_field_traits",
-#     srcs = ["extension_field_traits.h"],
-#     deps = [
-#         ":fp12",
-#         ":fp2",
-#         ":fp6",
-#         "//tachyon/cc/math/finite_fields:extension_field_traits_forward",
-#         "//tachyon/math/elliptic_curves/bn/bn254:fq12",
-#         "//tachyon/math/elliptic_curves/bn/bn254:fq2",
-#         "//tachyon/math/elliptic_curves/bn/bn254:fq6",
-#     ],
-# )
+tachyon_cc_library(
+    name = "g2",
+    srcs = ["g2.cc"],
+    hdrs = [
+        "g2.h",
+        "g2_point_traits.h",
+    ],
+    deps = [
+        ":extension_field",
+        "//tachyon/c:export",
+        "//tachyon/cc/math/elliptic_curves:point_conversions",
+        "//tachyon/math/elliptic_curves/bn/bn254:g2",
+    ],
+)
