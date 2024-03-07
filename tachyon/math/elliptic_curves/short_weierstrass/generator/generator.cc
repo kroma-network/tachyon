@@ -8,7 +8,6 @@
 #include "tachyon/build/cc_writer.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
-#include "tachyon/math/finite_fields/prime_field.h"
 
 namespace tachyon {
 
