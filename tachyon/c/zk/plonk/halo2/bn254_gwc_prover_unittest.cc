@@ -45,7 +45,7 @@ class GWCProverTest : public testing::TestWithParam<int> {
 };
 
 INSTANTIATE_TEST_SUITE_P(GWCProverTest, GWCProverTest,
-                         testing::Values(TACHYON_HALO2_BLAKE_TRANSCRIPT,
+                         testing::Values(TACHYON_HALO2_BLAKE2B_TRANSCRIPT,
                                          TACHYON_HALO2_POSEIDON_TRANSCRIPT,
                                          TACHYON_HALO2_SHA256_TRANSCRIPT));
 
@@ -142,6 +142,15 @@ TEST_P(GWCProverTest, SetTranscript) {
       digest_len, []() { return base::Uniform(base::Range<uint8_t>()); });
   tachyon_halo2_bn254_transcript_writer_update(transcript, data.data(),
                                                data.size());
+
+  if (static_cast<TranscriptType>(transcript_type) ==
+      TranscriptType::kPoseidon) {
+    PoseidonWriter<math::bn254::G1AffinePoint>* poseidon =
+        reinterpret_cast<PoseidonWriter<math::bn254::G1AffinePoint>*>(
+            transcript->extra);
+    state_len = poseidon->GetStateLen();
+  }
+
   std::vector<uint8_t> state(state_len);
   tachyon_halo2_bn254_transcript_writer_get_state(transcript, state.data(),
                                                   &state_len);
