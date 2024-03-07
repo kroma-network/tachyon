@@ -10,10 +10,10 @@ Begin by creating a directory named `<new_prime_field>_prime` in `/tachyon/math/
 
 Choose among `generate_prime_fields()`, `generate_fft_prime_fields()`, or `generate_large_fft_prime_fields()` for code generation, depending on the prime field type. For more information, refer to [`prime_field_generator`](/tachyon/math/finite_fields/generator/prime_field_generator/build_defs.bzl).
 
-For instance, to implement a FFT prime field, create a directory (`/tachyon/math/finite_field/<new_prime_field>`) and add a `BUILD.bazel` file as shown below:
+For instance, to implement a FFT prime field, create a directory (`/tachyon/math/finite_fields/<new_prime_field>`) and add a `BUILD.bazel` file as shown below:
 
 ```bazel
-# /tachyon/math/finite_field/<new_prime_field>/BUILD.bazel
+# /tachyon/math/finite_fields/<new_prime_field>/BUILD.bazel
 
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
@@ -51,7 +51,7 @@ tachyon_cc_library(
 
 Use the following files for reference:
 
-- [Goldilocks `Build.bazel`](/tachyon/math/finite_fields/goldilocks_prime/BUILD.bazel)
+- [Goldilocks `BUILD.bazel`](/tachyon/math/finite_fields/goldilocks_prime/BUILD.bazel)
 - [Mersenne-31 `BUILD.bazel`](/tachyon/math/finite_fields/mersenne_31_prime/BUILD.bazel)
 
 ## 2. Add the header file
