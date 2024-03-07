@@ -105,7 +105,7 @@ class VerifyingKey : public Key {
     gamma_g2_ = std::move(beta_gamma_delta[1]);
     delta_g2_ = std::move(beta_gamma_delta[2]);
 
-    l_g1_query_.resize(2);
+    l_g1_query_.resize(l_g1_query_jacobian.size());
     return G1JacobianPoint::BatchNormalize(l_g1_query_jacobian, &l_g1_query_);
   }
 
