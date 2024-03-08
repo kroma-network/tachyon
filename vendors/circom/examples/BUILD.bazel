@@ -1,14 +1,30 @@
-load("//:build_defs.bzl", "generate_r1cs")
+load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
+load("//:build_defs.bzl", "compile_circuit", "witness_gen_library")
 
 package(default_visibility = ["//visibility:public"])
 
 exports_files(["multiplier_3.zkey"])
 
-generate_r1cs(
-    name = "multiplier_3_r1cs",
+PRIME = "bn128"
+
+compile_circuit(
+    name = "compile_multiplier_3",
     srcs = [
         "multiplier_2.circom",
         "multiplier_n.circom",
     ],
     main = "multiplier_3.circom",
+    prime = PRIME,
+)
+
+witness_gen_library(
+    name = "gen_witness_multiplier_3",
+    gendep = ":compile_multiplier_3",
+    prime = PRIME,
+)
+
+tachyon_cc_binary(
+    name = "compute_witness_multiplier_3",
+    srcs = ["compute_witness_multiplier_3.cc"],
+    deps = [":gen_witness_multiplier_3"],
 )
