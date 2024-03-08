@@ -1,0 +1,22 @@
+19,20c19,20
+<     u64 signalid;
+<     u64 signalsize;
+---
+>     u64 signalid; 
+>     u64 signalsize; 
+23c23
+< struct IODef {
+---
+> struct IODef { 
+29c29
+< struct IODefPair {
+---
+> struct IODefPair { 
+38c38
+<   FrElement* circuitConstants;
+---
+>   FrElement* circuitConstants;  
+49c49
+<   u64 idFather;
+---
+>   u64 idFather; 
