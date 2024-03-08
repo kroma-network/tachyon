@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "tachyon/base/console/iostream.h"
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/flag/flag_parser.h"
 
 namespace tachyon {
@@ -116,11 +117,8 @@ bool MSMConfig::Parse(int argc, char** argv,
 }
 
 std::vector<uint64_t> MSMConfig::GetPointNums() const {
-  std::vector<uint64_t> point_nums;
-  for (uint64_t exponent : exponents_) {
-    point_nums.push_back(uint64_t{1} << exponent);
-  }
-  return point_nums;
+  return base::Map(exponents_,
+                   [](uint64_t exponent) { return uint64_t{1} << exponent; });
 }
 
 }  // namespace tachyon
