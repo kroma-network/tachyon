@@ -11,7 +11,7 @@ namespace tachyon::circom {
 TEST(R1CSParser, Parse) {
   R1CSParser parser;
   std::unique_ptr<R1CS> r1cs =
-      parser.Parse(base::FilePath("examples/multiplier_n.r1cs"));
+      parser.Parse(base::FilePath("examples/multiplier_3.r1cs"));
   ASSERT_TRUE(r1cs);
   ASSERT_EQ(r1cs->GetVersion(), 1);
 

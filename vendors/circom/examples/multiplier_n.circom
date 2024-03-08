@@ -18,5 +18,3 @@ template MultiplierN(N) {
   }
   out <== comp[N-2].out;
 }
-
-component main = MultiplierN(3);

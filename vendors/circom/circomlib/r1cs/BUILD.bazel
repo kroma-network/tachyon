@@ -30,7 +30,7 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "r1cs_unittests",
     srcs = ["r1cs_parser_unittest.cc"],
-    data = ["//examples:multiplier_n_r1cs"],
+    data = ["//examples:multiplier_3_r1cs"],
     deps = [
         ":r1cs_parser",
         "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:fr",
