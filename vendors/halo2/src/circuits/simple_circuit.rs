@@ -389,10 +389,12 @@ mod test {
             let mut prover =
                 GWCProver::<KZGCommitmentScheme<Bn256>>::new(TranscriptType::Blake2b as u8, k, &s);
 
-            let mut pk_bytes: Vec<u8> = vec![];
-            pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
-                .unwrap();
-            let mut tachyon_pk = TachyonProvingKey::from(pk_bytes.as_slice());
+            let mut tachyon_pk = {
+                let mut pk_bytes: Vec<u8> = vec![];
+                pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
+                    .unwrap();
+                TachyonProvingKey::from(pk_bytes.as_slice())
+            };
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
 
             tachyon_create_proof::<_, _, _, _, _>(
