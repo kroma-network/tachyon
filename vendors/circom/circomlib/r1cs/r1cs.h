@@ -279,6 +279,7 @@ class Copyable<circom::v1::R1CS> {
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer, circom::v1::R1CS* r1cs) {
+    base::EndianAutoReset reset(buffer, base::Endian::kLittle);
     uint32_t num_sections;
     if (!buffer.Read(&num_sections)) return false;
     circom::v1::HeaderSection header;
