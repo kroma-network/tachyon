@@ -1,0 +1,24 @@
+load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "sections",
+    hdrs = ["sections.h"],
+    deps = [
+        "@kroma_network_tachyon//tachyon/base:logging",
+        "@kroma_network_tachyon//tachyon/base:range",
+        "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
+        "@kroma_network_tachyon//tachyon/base/buffer:read_only_buffer",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "base_unittests",
+    srcs = ["sections_unittest.cc"],
+    deps = [
+        ":sections",
+        "@kroma_network_tachyon//tachyon/base/buffer:copyable",
+        "@kroma_network_tachyon//tachyon/base/buffer:vector_buffer",
+    ],
+)

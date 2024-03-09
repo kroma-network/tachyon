@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "circomlib/base/sections.h"
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
@@ -281,40 +282,16 @@ class Copyable<circom::v1::R1CS> {
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer, circom::v1::R1CS* r1cs) {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
-    uint32_t num_sections;
-    if (!buffer.Read(&num_sections)) return false;
+    circom::Sections<circom::v1::R1CSSectionType> sections(
+        buffer, &circom::v1::R1CSSectionTypeToString);
+    if (!sections.Read()) return false;
+
+    if (!sections.MoveTo(circom::v1::R1CSSectionType::kHeader)) return false;
     circom::v1::R1CSHeaderSection header;
-    size_t constraints_section_offset;
-    size_t wire_to_labe_id_map_offset;
-    for (uint32_t i = 0; i < num_sections; ++i) {
-      circom::v1::R1CSSectionType section_type;
-      uint64_t section_size;
-      if (!buffer.ReadMany(&section_type, &section_size)) {
-        return false;
-      }
-      switch (section_type) {
-        case circom::v1::R1CSSectionType::kHeader: {
-          if (!buffer.Read(&header)) return false;
-          break;
-        }
-        case circom::v1::R1CSSectionType::kConstraints: {
-          constraints_section_offset = buffer.buffer_offset();
-          buffer.set_buffer_offset(buffer.buffer_offset() + section_size);
-          break;
-        }
-        case circom::v1::R1CSSectionType::kWire2LabelIdMap: {
-          wire_to_labe_id_map_offset = buffer.buffer_offset();
-          buffer.set_buffer_offset(buffer.buffer_offset() + section_size);
-          break;
-        }
-        case circom::v1::R1CSSectionType::kCustomGatesList:
-        case circom::v1::R1CSSectionType::kCustomGatesApplication: {
-          NOTIMPLEMENTED();
-          return false;
-        }
-      }
-    }
-    buffer.set_buffer_offset(constraints_section_offset);
+    if (!buffer.Read(&header)) return false;
+
+    if (!sections.MoveTo(circom::v1::R1CSSectionType::kConstraints))
+      return false;
     uint32_t field_size = header.modulus.bytes.size();
     circom::v1::R1CSConstraintsSection constraints;
     for (uint32_t i = 0; i < header.num_constraints; ++i) {
@@ -340,7 +317,8 @@ class Copyable<circom::v1::R1CS> {
       constraints.constraints.push_back(std::move(constraint));
     }
 
-    buffer.set_buffer_offset(wire_to_labe_id_map_offset);
+    if (!sections.MoveTo(circom::v1::R1CSSectionType::kWire2LabelIdMap))
+      return false;
     circom::v1::R1CSWireId2LabelIdMapSection wire_id_to_label_id_map;
     wire_id_to_label_id_map.label_ids.resize(header.num_wires);
     for (uint32_t i = 0; i < header.num_wires; ++i) {
