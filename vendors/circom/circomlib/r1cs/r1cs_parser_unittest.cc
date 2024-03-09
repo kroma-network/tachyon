@@ -16,7 +16,7 @@ TEST(R1CSParser, Parse) {
   ASSERT_EQ(r1cs->GetVersion(), 1);
 
   std::array<uint8_t, 32> bytes = math::bn254::FrConfig::kModulus.ToBytesLE();
-  v1::HeaderSection expected_header = {
+  v1::R1CSHeaderSection expected_header = {
       PrimeField{std::vector<uint8_t>(bytes.begin(), bytes.end())},
       6,
       1,
@@ -33,18 +33,18 @@ TEST(R1CSParser, Parse) {
   EXPECT_EQ(r1cs->ToV1()->header, expected_header);
   // -ω₂ * ω₃ = -ω₅
   // -ω₅ * ω₄ = -ω₁
-  v1::ConstraintsSection expected_constraints = {{{
-                                                      {{{2, neg_one}}},
-                                                      {{{3, one}}},
-                                                      {{{5, neg_one}}},
-                                                  },
-                                                  {
-                                                      {{{5, neg_one}}},
-                                                      {{{4, one}}},
-                                                      {{{1, neg_one}}},
-                                                  }}};
+  v1::R1CSConstraintsSection expected_constraints = {{{
+                                                          {{{2, neg_one}}},
+                                                          {{{3, one}}},
+                                                          {{{5, neg_one}}},
+                                                      },
+                                                      {
+                                                          {{{5, neg_one}}},
+                                                          {{{4, one}}},
+                                                          {{{1, neg_one}}},
+                                                      }}};
   EXPECT_EQ(r1cs->ToV1()->constraints, expected_constraints);
-  v1::WireId2LabelIdMapSection expected_wire_id_to_label_id_map = {{
+  v1::R1CSWireId2LabelIdMapSection expected_wire_id_to_label_id_map = {{
       0,
       1,
       2,

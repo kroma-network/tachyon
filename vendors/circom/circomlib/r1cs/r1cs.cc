@@ -31,17 +31,17 @@ std::string PrimeField::ToString() const {
 
 namespace v1 {
 
-std::string_view SectionTypeToString(SectionType type) {
+std::string_view R1CSSectionTypeToString(R1CSSectionType type) {
   switch (type) {
-    case SectionType::kHeader:
+    case R1CSSectionType::kHeader:
       return "Header";
-    case SectionType::kConstraints:
+    case R1CSSectionType::kConstraints:
       return "Constraints";
-    case SectionType::kWire2LabelIdMap:
+    case R1CSSectionType::kWire2LabelIdMap:
       return "Wire2LabelIdMap";
-    case SectionType::kCustomGatesList:
+    case R1CSSectionType::kCustomGatesList:
       return "CustomGatesList";
-    case SectionType::kCustomGatesApplication:
+    case R1CSSectionType::kCustomGatesApplication:
       return "CustomGatesApplication";
   }
   NOTREACHED();

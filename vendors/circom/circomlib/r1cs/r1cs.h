@@ -60,7 +60,7 @@ struct PrimeField {
 
 namespace v1 {
 
-enum class SectionType : uint32_t {
+enum class R1CSSectionType : uint32_t {
   kHeader = 0x1,
   kConstraints = 0x2,
   kWire2LabelIdMap = 0x3,
@@ -68,9 +68,9 @@ enum class SectionType : uint32_t {
   kCustomGatesApplication = 0x5,
 };
 
-std::string_view SectionTypeToString(SectionType type);
+std::string_view R1CSSectionTypeToString(R1CSSectionType type);
 
-struct HeaderSection {
+struct R1CSHeaderSection {
   PrimeField modulus;
   // Total number of wires including ONE signal (Index 0).
   uint32_t num_wires;
@@ -88,7 +88,7 @@ struct HeaderSection {
   // Total number of constraints.
   uint32_t num_constraints;
 
-  bool operator==(const HeaderSection& other) const {
+  bool operator==(const R1CSHeaderSection& other) const {
     return modulus == other.modulus && num_wires == other.num_wires &&
            num_public_outputs == other.num_public_outputs &&
            num_public_inputs == other.num_public_inputs &&
@@ -96,7 +96,7 @@ struct HeaderSection {
            num_labels == other.num_labels &&
            num_constraints == other.num_constraints;
   }
-  bool operator!=(const HeaderSection& other) const {
+  bool operator!=(const R1CSHeaderSection& other) const {
     return !operator==(other);
   }
 
@@ -171,26 +171,26 @@ struct Constraint {
   }
 };
 
-struct ConstraintsSection {
+struct R1CSConstraintsSection {
   std::vector<Constraint> constraints;
 
-  bool operator==(const ConstraintsSection& other) const {
+  bool operator==(const R1CSConstraintsSection& other) const {
     return constraints == other.constraints;
   }
-  bool operator!=(const ConstraintsSection& other) const {
+  bool operator!=(const R1CSConstraintsSection& other) const {
     return constraints != other.constraints;
   }
 
   std::string ToString() const { return base::VectorToString(constraints); }
 };
 
-struct WireId2LabelIdMapSection {
+struct R1CSWireId2LabelIdMapSection {
   std::vector<uint64_t> label_ids;
 
-  bool operator==(const WireId2LabelIdMapSection& other) const {
+  bool operator==(const R1CSWireId2LabelIdMapSection& other) const {
     return label_ids == other.label_ids;
   }
-  bool operator!=(const WireId2LabelIdMapSection& other) const {
+  bool operator!=(const R1CSWireId2LabelIdMapSection& other) const {
     return label_ids != other.label_ids;
   }
 
@@ -198,9 +198,9 @@ struct WireId2LabelIdMapSection {
 };
 
 struct R1CS : public circom::R1CS {
-  HeaderSection header;
-  ConstraintsSection constraints;
-  WireId2LabelIdMapSection wire_id_to_label_id_map;
+  R1CSHeaderSection header;
+  R1CSConstraintsSection constraints;
+  R1CSWireId2LabelIdMapSection wire_id_to_label_id_map;
 
   // circom::R1CS methods
   uint32_t GetVersion() const override { return 1; }
@@ -220,9 +220,10 @@ struct R1CS : public circom::R1CS {
 namespace base {
 
 template <>
-class Copyable<circom::v1::HeaderSection> {
+class Copyable<circom::v1::R1CSHeaderSection> {
  public:
-  static bool WriteTo(const circom::v1::HeaderSection& header, Buffer* buffer) {
+  static bool WriteTo(const circom::v1::R1CSHeaderSection& header,
+                      Buffer* buffer) {
     base::EndianAutoReset reset(*buffer, base::Endian::kLittle);
     uint32_t field_size = header.modulus.bytes.size();
     if (!buffer->Write(field_size)) return false;
@@ -233,7 +234,7 @@ class Copyable<circom::v1::HeaderSection> {
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       circom::v1::HeaderSection* header) {
+                       circom::v1::R1CSHeaderSection* header) {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
     uint32_t field_size;
     if (!buffer.Read(&field_size)) return false;
@@ -260,7 +261,7 @@ class Copyable<circom::v1::HeaderSection> {
     return true;
   }
 
-  static size_t EstimateSize(const circom::v1::HeaderSection& header) {
+  static size_t EstimateSize(const circom::v1::R1CSHeaderSection& header) {
     uint32_t field_size = header.modulus.bytes.size();
     return sizeof(uint32_t) + field_size * 8 +
            base::EstimateSize(header.num_wires, header.num_public_outputs,
@@ -282,32 +283,32 @@ class Copyable<circom::v1::R1CS> {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
     uint32_t num_sections;
     if (!buffer.Read(&num_sections)) return false;
-    circom::v1::HeaderSection header;
+    circom::v1::R1CSHeaderSection header;
     size_t constraints_section_offset;
     size_t wire_to_labe_id_map_offset;
     for (uint32_t i = 0; i < num_sections; ++i) {
-      circom::v1::SectionType section_type;
+      circom::v1::R1CSSectionType section_type;
       uint64_t section_size;
       if (!buffer.ReadMany(&section_type, &section_size)) {
         return false;
       }
       switch (section_type) {
-        case circom::v1::SectionType::kHeader: {
+        case circom::v1::R1CSSectionType::kHeader: {
           if (!buffer.Read(&header)) return false;
           break;
         }
-        case circom::v1::SectionType::kConstraints: {
+        case circom::v1::R1CSSectionType::kConstraints: {
           constraints_section_offset = buffer.buffer_offset();
           buffer.set_buffer_offset(buffer.buffer_offset() + section_size);
           break;
         }
-        case circom::v1::SectionType::kWire2LabelIdMap: {
+        case circom::v1::R1CSSectionType::kWire2LabelIdMap: {
           wire_to_labe_id_map_offset = buffer.buffer_offset();
           buffer.set_buffer_offset(buffer.buffer_offset() + section_size);
           break;
         }
-        case circom::v1::SectionType::kCustomGatesList:
-        case circom::v1::SectionType::kCustomGatesApplication: {
+        case circom::v1::R1CSSectionType::kCustomGatesList:
+        case circom::v1::R1CSSectionType::kCustomGatesApplication: {
           NOTIMPLEMENTED();
           return false;
         }
@@ -315,7 +316,7 @@ class Copyable<circom::v1::R1CS> {
     }
     buffer.set_buffer_offset(constraints_section_offset);
     uint32_t field_size = header.modulus.bytes.size();
-    circom::v1::ConstraintsSection constraints;
+    circom::v1::R1CSConstraintsSection constraints;
     for (uint32_t i = 0; i < header.num_constraints; ++i) {
       circom::v1::Constraint constraint;
       for (uint32_t j = 0; j < 3; ++j) {
@@ -340,7 +341,7 @@ class Copyable<circom::v1::R1CS> {
     }
 
     buffer.set_buffer_offset(wire_to_labe_id_map_offset);
-    circom::v1::WireId2LabelIdMapSection wire_id_to_label_id_map;
+    circom::v1::R1CSWireId2LabelIdMapSection wire_id_to_label_id_map;
     wire_id_to_label_id_map.label_ids.resize(header.num_wires);
     for (uint32_t i = 0; i < header.num_wires; ++i) {
       if (!buffer.Read(&wire_id_to_label_id_map.label_ids[i])) return false;
