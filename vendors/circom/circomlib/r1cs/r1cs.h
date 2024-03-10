@@ -10,12 +10,12 @@
 #include <utility>
 #include <vector>
 
+#include "circomlib/base/prime_field.h"
 #include "circomlib/base/sections.h"
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/math/base/big_int.h"
 
 namespace tachyon {
 namespace circom {
@@ -34,30 +34,6 @@ struct R1CS {
 };
 
 constexpr char kR1CSMagic[4] = {'r', '1', 'c', 's'};
-
-struct PrimeField {
-  std::vector<uint8_t> bytes;
-
-  bool operator==(const PrimeField& other) const {
-    return bytes == other.bytes;
-  }
-  bool operator!=(const PrimeField& other) const {
-    return bytes != other.bytes;
-  }
-
-  template <size_t N>
-  math::BigInt<N> ToBigInt() const {
-    return math::BigInt<N>::FromBytesLE(bytes);
-  }
-
-  template <size_t N>
-  static PrimeField FromBigInt(const math::BigInt<N>& big_int) {
-    std::array<uint8_t, N * 8> bytes = big_int.ToBytesLE();
-    return {{bytes.begin(), bytes.end()}};
-  }
-
-  std::string ToString() const;
-};
 
 namespace v1 {
 

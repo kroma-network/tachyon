@@ -7,12 +7,12 @@ tachyon_cc_library(
     srcs = ["r1cs.cc"],
     hdrs = ["r1cs.h"],
     deps = [
+        "//circomlib/base:prime_field",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:copyable",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
         "@kroma_network_tachyon//tachyon/base/strings:string_util",
-        "@kroma_network_tachyon//tachyon/math/base:big_int",
     ],
 )
 

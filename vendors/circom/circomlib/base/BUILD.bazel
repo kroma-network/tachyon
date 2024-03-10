@@ -3,6 +3,16 @@ load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tach
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "prime_field",
+    srcs = ["prime_field.cc"],
+    hdrs = ["prime_field.h"],
+    deps = [
+        "@kroma_network_tachyon//tachyon/base:logging",
+        "@kroma_network_tachyon//tachyon/math/base:big_int",
+    ],
+)
+
+tachyon_cc_library(
     name = "sections",
     hdrs = ["sections.h"],
     deps = [
@@ -15,8 +25,12 @@ tachyon_cc_library(
 
 tachyon_cc_unittest(
     name = "base_unittests",
-    srcs = ["sections_unittest.cc"],
+    srcs = [
+        "prime_field_unittest.cc",
+        "sections_unittest.cc",
+    ],
     deps = [
+        ":prime_field",
         ":sections",
         "@kroma_network_tachyon//tachyon/base/buffer:copyable",
         "@kroma_network_tachyon//tachyon/base/buffer:vector_buffer",
