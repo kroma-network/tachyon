@@ -8,6 +8,7 @@ tachyon_cc_library(
     hdrs = ["prime_field.h"],
     deps = [
         "@kroma_network_tachyon//tachyon/base:logging",
+        "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
         "@kroma_network_tachyon//tachyon/math/base:big_int",
     ],
 )

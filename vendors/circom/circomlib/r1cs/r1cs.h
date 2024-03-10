@@ -78,15 +78,7 @@ struct R1CSHeaderSection {
 
   bool Read(const base::ReadOnlyBuffer& buffer) {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
-    uint32_t field_size;
-    if (!buffer.Read(&field_size)) return false;
-    if (field_size % 8 != 0) {
-      LOG(ERROR) << "field size is not a multiple of 8";
-      return false;
-    }
-    std::vector<uint8_t> bytes(field_size);
-    if (!buffer.Read(bytes.data(), bytes.size())) return false;
-    modulus = {std::move(bytes)};
+    if (!modulus.Read(buffer)) return false;
     return buffer.ReadMany(&num_wires, &num_public_outputs, &num_public_inputs,
                            &num_private_inputs, &num_labels, &num_constraints);
   }
@@ -185,9 +177,7 @@ struct R1CSConstraintsSection {
         std::vector<Term> terms(n);
         for (uint32_t k = 0; k < n; ++k) {
           if (!buffer.Read(&terms[k].wire_id)) return false;
-          terms[k].coefficient.bytes.resize(field_size);
-          if (!buffer.Read(terms[k].coefficient.bytes.data(), field_size))
-            return false;
+          if (!terms[k].coefficient.Read(buffer, field_size)) return false;
         }
         if (j == 0) {
           constraint.a = {std::move(terms)};

@@ -6,8 +6,10 @@
 
 #include <array>
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/base/big_int.h"
 
@@ -33,6 +35,19 @@ struct PrimeField {
   static PrimeField FromBigInt(const math::BigInt<N>& big_int) {
     std::array<uint8_t, N * 8> bytes = big_int.ToBytesLE();
     return {{bytes.begin(), bytes.end()}};
+  }
+
+  bool Read(const base::ReadOnlyBuffer& buffer, uint32_t num_bytes = 0) {
+    base::EndianAutoReset reset(buffer, base::Endian::kLittle);
+    if (num_bytes == 0) {
+      if (!buffer.Read(&num_bytes)) return false;
+      if (num_bytes % 8 != 0) {
+        LOG(ERROR) << "field size is not a multiple of 8";
+        return false;
+      }
+    }
+    bytes.resize(num_bytes);
+    return buffer.Read(bytes.data(), bytes.size());
   }
 
   std::string ToString() const;
