@@ -4,16 +4,28 @@
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
+#include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::circom {
 
-TEST(PrimeFieldTest, Conversions) {
+using F = math::bn254::Fr;
+
+class PrimeFieldTest : public math::FiniteFieldTest<F> {};
+
+TEST_F(PrimeFieldTest, BigIntConversions) {
   math::BigInt<4> expected = math::BigInt<4>::Random();
   PrimeField field = PrimeField::FromBigInt(expected);
   EXPECT_EQ(field.ToBigInt<4>(), expected);
 }
 
-TEST(PrimeFieldTest, Read) {
+TEST_F(PrimeFieldTest, PrimeFieldConversions) {
+  F expected = F::Random();
+  PrimeField field = PrimeField::FromNative(expected);
+  EXPECT_EQ(field.ToNative<F>(), expected);
+}
+
+TEST_F(PrimeFieldTest, Read) {
   std::array<uint8_t, 8> data;
 
   {

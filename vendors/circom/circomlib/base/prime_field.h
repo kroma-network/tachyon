@@ -37,6 +37,16 @@ struct PrimeField {
     return {{bytes.begin(), bytes.end()}};
   }
 
+  template <typename F>
+  F ToNative() const {
+    return F::FromMontgomery(ToBigInt<F::kLimbNums>());
+  }
+
+  template <typename F>
+  static PrimeField FromNative(const F& prime_field) {
+    return FromBigInt(prime_field.ToMontgomery());
+  }
+
   bool Read(const base::ReadOnlyBuffer& buffer, uint32_t num_bytes = 0) {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
     if (num_bytes == 0) {
