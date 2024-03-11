@@ -22,7 +22,7 @@ std::unique_ptr<R1CS> R1CSParser::Parse(const base::FilePath& path) const {
   char magic[4];
   uint32_t version;
   if (!buffer.ReadMany(magic, &version)) return nullptr;
-  if (memcmp(magic, circom::kR1CSMagic, 4) != 0) {
+  if (memcmp(magic, kR1CSMagic, 4) != 0) {
     LOG(ERROR) << "Invalid magic: " << magic;
     return nullptr;
   }

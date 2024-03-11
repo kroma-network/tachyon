@@ -225,7 +225,7 @@ struct R1CS : public circom::R1CS {
 
   // circom::R1CS methods
   uint32_t GetVersion() const override { return 1; }
-  v1::R1CS* ToV1() override { return this; }
+  R1CS* ToV1() override { return this; }
 
   bool Read(const base::ReadOnlyBuffer& buffer) override {
     Sections<R1CSSectionType> sections(buffer, &R1CSSectionTypeToString);
