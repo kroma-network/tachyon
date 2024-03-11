@@ -1,6 +1,8 @@
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 def _generate_bls12_curve_impl(ctx):
+    curve_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/elliptic_curves/bls12/generator:curve.h.tpl)", [ctx.attr.curve_hdr_tpl_path])
+
     arguments = [
         "--out=%s" % (ctx.outputs.out.path),
         "--namespace=%s" % (ctx.attr.namespace),
@@ -9,11 +11,13 @@ def _generate_bls12_curve_impl(ctx):
         "--g2_hdr=%s" % (ctx.attr.g2_hdr),
         "-x=%s" % (ctx.attr.x),
         "--twist_type=%s" % (ctx.attr.twist_type),
+        "--curve_hdr_tpl_path=%s" % (curve_hdr_tpl_path),
     ]
     if len(ctx.attr.class_name) > 0:
         arguments.append("--class=%s" % (ctx.attr.class_name))
 
     ctx.actions.run(
+        inputs = [ctx.files.curve_hdr_tpl_path[0]],
         tools = [ctx.executable._tool],
         executable = ctx.executable._tool,
         outputs = [ctx.outputs.out],
@@ -33,6 +37,10 @@ generate_bls12_curve = rule(
         "g2_hdr": attr.string(mandatory = True),
         "x": attr.string(mandatory = True),
         "twist_type": attr.string(mandatory = True, values = ["M", "D"]),
+        "curve_hdr_tpl_path": attr.label(
+            allow_single_file = True,
+            default = Label("@kroma_network_tachyon//tachyon/math/elliptic_curves/bls12/generator:curve.h.tpl"),
+        ),
         "_tool": attr.label(
             # TODO(chokobole): Change to "exec", so we can build on macos.
             cfg = "target",
