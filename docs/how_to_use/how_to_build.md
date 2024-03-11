@@ -180,7 +180,7 @@ shasum -a 256 c6a38895cb6f9b9f73e3d64928d85a9762b66639.tar.gz
 Second, input the shasum output into your `WORKSPACE` file as the `sha256` argument like shown below:
 
 ```bzl
-# WORKSPACE 
+# WORKSPACE
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
