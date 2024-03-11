@@ -1,6 +1,9 @@
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 def _generate_ec_point_impl(ctx):
+    cpu_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/elliptic_curves/short_weierstrass/generator:cpu.h.tpl)", [ctx.attr.cpu_hdr_tpl_path])
+    gpu_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/elliptic_curves/short_weierstrass/generator:gpu.h.tpl)", [ctx.attr.gpu_hdr_tpl_path])
+
     arguments = [
         "--out=%s" % (ctx.outputs.out.path),
         "--namespace=%s" % (ctx.attr.namespace),
@@ -8,6 +11,8 @@ def _generate_ec_point_impl(ctx):
         "--base_field_hdr=%s" % (ctx.attr.base_field_hdr),
         "--scalar_field=%s" % (ctx.attr.scalar_field),
         "--scalar_field_hdr=%s" % (ctx.attr.scalar_field_hdr),
+        "--cpu_hdr_tpl_path=%s" % (cpu_hdr_tpl_path),
+        "--gpu_hdr_tpl_path=%s" % (gpu_hdr_tpl_path),
     ]
     if len(ctx.attr.class_name) > 0:
         arguments.append("--class=%s" % (ctx.attr.class_name))
@@ -37,6 +42,7 @@ def _generate_ec_point_impl(ctx):
             arguments.append("--glv_coefficients=%s" % glv_coeff)
 
     ctx.actions.run(
+        inputs = [ctx.files.cpu_hdr_tpl_path[0], ctx.files.gpu_hdr_tpl_path[0]],
         tools = [ctx.executable._tool],
         executable = ctx.executable._tool,
         outputs = [ctx.outputs.out],
@@ -63,6 +69,14 @@ generate_ec_point = rule(
         "endomorphism_coefficient": attr.string_list(),
         "lambda_": attr.string(),
         "glv_coeffs": attr.string_list(),
+        "cpu_hdr_tpl_path": attr.label(
+            allow_single_file = True,
+            default = Label("@kroma_network_tachyon//tachyon/math/elliptic_curves/short_weierstrass/generator:cpu.h.tpl"),
+        ),
+        "gpu_hdr_tpl_path": attr.label(
+            allow_single_file = True,
+            default = Label("@kroma_network_tachyon//tachyon/math/elliptic_curves/short_weierstrass/generator:gpu.h.tpl"),
+        ),
         "_tool": attr.label(
             # TODO(chokobole): Change to "exec", so we can build on macos.
             cfg = "target",
