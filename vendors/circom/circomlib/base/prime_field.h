@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <array>
 #include <string>
@@ -45,6 +46,13 @@ struct PrimeField {
   template <typename F>
   static PrimeField FromNative(const F& prime_field) {
     return FromBigInt(prime_field.ToMontgomery());
+  }
+
+  template <typename F>
+  void Normalize() {
+    std::array<uint8_t, F::kLimbNums * 8> bytes_to_copy =
+        ToBigInt<F::kLimbNums>().Mod(F::Config::kModulus).ToBytesLE();
+    memcpy(bytes.data(), bytes_to_copy.data(), bytes_to_copy.size());
   }
 
   bool Read(const base::ReadOnlyBuffer& buffer, uint32_t num_bytes = 0) {

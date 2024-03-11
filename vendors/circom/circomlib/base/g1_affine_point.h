@@ -46,6 +46,12 @@ struct G1AffinePoint {
            buffer.Read(y.bytes.data(), field_size);
   }
 
+  template <typename F>
+  void Normalize() {
+    x.Normalize<F>();
+    y.Normalize<F>();
+  }
+
   std::string ToString() const {
     return absl::Substitute("($0, $1)", x.ToString(), y.ToString());
   }
