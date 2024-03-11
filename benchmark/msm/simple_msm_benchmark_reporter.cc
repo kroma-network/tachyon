@@ -10,8 +10,7 @@ namespace tachyon {
 
 SimpleMSMBenchmarkReporter::SimpleMSMBenchmarkReporter(
     std::string_view title, const std::vector<uint64_t>& exponents)
-    : exponents_(exponents) {
-  title_ = std::string(title);
+    : SimpleBenchmarkReporter(title), exponents_(exponents) {
   targets_ = base::Map(exponents, [](uint64_t exponent) {
     return base::NumberToString(exponent);
   });

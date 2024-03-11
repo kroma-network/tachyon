@@ -11,8 +11,8 @@
 namespace tachyon {
 
 SimpleECBenchmarkReporter::SimpleECBenchmarkReporter(
-    std::string_view title, const std::vector<uint64_t>& nums) {
-  title_ = std::string(title);
+    std::string_view title, const std::vector<uint64_t>& nums)
+    : SimpleBenchmarkReporter(title) {
   column_headers_.push_back("CPU");
   column_headers_.push_back("GPU");
   targets_ =
