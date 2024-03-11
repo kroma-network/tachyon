@@ -29,7 +29,7 @@ std::unique_ptr<R1CS> R1CSParser::Parse(const base::FilePath& path) const {
   std::unique_ptr<R1CS> r1cs;
   if (version == 1) {
     r1cs.reset(new v1::R1CS());
-    CHECK(buffer.Read(r1cs->ToV1()));
+    CHECK(r1cs->ToV1()->Read(buffer));
   } else {
     LOG(ERROR) << "Invalid version: " << version;
     return nullptr;

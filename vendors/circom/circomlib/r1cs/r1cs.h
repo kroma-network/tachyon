@@ -11,13 +11,11 @@
 
 #include "circomlib/base/prime_field.h"
 #include "circomlib/base/sections.h"
-#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 
-namespace tachyon {
-namespace circom {
+namespace tachyon::circom {
 namespace v1 {
 
 struct R1CS;
@@ -30,6 +28,8 @@ struct R1CS {
   virtual uint32_t GetVersion() const = 0;
 
   virtual v1::R1CS* ToV1() { return nullptr; }
+
+  virtual bool Read(const base::ReadOnlyBuffer& buffer) = 0;
 };
 
 constexpr char kR1CSMagic[4] = {'r', '1', 'c', 's'};
@@ -74,6 +74,21 @@ struct R1CSHeaderSection {
   }
   bool operator!=(const R1CSHeaderSection& other) const {
     return !operator==(other);
+  }
+
+  bool Read(const base::ReadOnlyBuffer& buffer) {
+    base::EndianAutoReset reset(buffer, base::Endian::kLittle);
+    uint32_t field_size;
+    if (!buffer.Read(&field_size)) return false;
+    if (field_size % 8 != 0) {
+      LOG(ERROR) << "field size is not a multiple of 8";
+      return false;
+    }
+    std::vector<uint8_t> bytes(field_size);
+    if (!buffer.Read(bytes.data(), bytes.size())) return false;
+    modulus = {std::move(bytes)};
+    return buffer.ReadMany(&num_wires, &num_public_outputs, &num_public_inputs,
+                           &num_private_inputs, &num_labels, &num_constraints);
   }
 
   std::string ToString() const {
@@ -157,124 +172,17 @@ struct R1CSConstraintsSection {
     return constraints != other.constraints;
   }
 
-  std::string ToString() const { return base::VectorToString(constraints); }
-};
-
-struct R1CSWireId2LabelIdMapSection {
-  std::vector<uint64_t> label_ids;
-
-  bool operator==(const R1CSWireId2LabelIdMapSection& other) const {
-    return label_ids == other.label_ids;
-  }
-  bool operator!=(const R1CSWireId2LabelIdMapSection& other) const {
-    return label_ids != other.label_ids;
-  }
-
-  std::string ToString() const { return base::VectorToString(label_ids); }
-};
-
-struct R1CS : public circom::R1CS {
-  R1CSHeaderSection header;
-  R1CSConstraintsSection constraints;
-  R1CSWireId2LabelIdMapSection wire_id_to_label_id_map;
-
-  // circom::R1CS methods
-  uint32_t GetVersion() const override { return 1; }
-  v1::R1CS* ToV1() override { return this; }
-
-  std::string ToString() const {
-    return absl::Substitute(
-        "{header: $0, constraints: $1, wire_id_to_label_id_map: $2}",
-        header.ToString(), constraints.ToString(),
-        wire_id_to_label_id_map.ToString());
-  }
-};
-
-}  // namespace v1
-}  // namespace circom
-
-namespace base {
-
-template <>
-class Copyable<circom::v1::R1CSHeaderSection> {
- public:
-  static bool WriteTo(const circom::v1::R1CSHeaderSection& header,
-                      Buffer* buffer) {
-    base::EndianAutoReset reset(*buffer, base::Endian::kLittle);
-    uint32_t field_size = header.modulus.bytes.size();
-    if (!buffer->Write(field_size)) return false;
-    if (!buffer->Write(header.modulus.bytes.data(), field_size)) return false;
-    return buffer->WriteMany(
-        header.num_wires, header.num_public_outputs, header.num_public_inputs,
-        header.num_private_inputs, header.num_labels, header.num_constraints);
-  }
-
-  static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       circom::v1::R1CSHeaderSection* header) {
+  bool Read(const base::ReadOnlyBuffer& buffer,
+            const R1CSHeaderSection& header) {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
-    uint32_t field_size;
-    if (!buffer.Read(&field_size)) return false;
-    if (field_size % 8 != 0) {
-      LOG(ERROR) << "field size is not a multiple of 8";
-      return false;
-    }
-    std::vector<uint8_t> bytes(field_size);
-    if (!buffer.Read(bytes.data(), bytes.size())) return false;
-    uint32_t num_wires;
-    uint32_t num_public_outputs;
-    uint32_t num_public_inputs;
-    uint32_t num_private_inputs;
-    uint64_t num_labels;
-    uint32_t num_constraints;
-    if (!buffer.ReadMany(&num_wires, &num_public_outputs, &num_public_inputs,
-                         &num_private_inputs, &num_labels, &num_constraints))
-      return false;
-    *header = {
-        {bytes},           num_wires,          num_public_outputs,
-        num_public_inputs, num_private_inputs, num_labels,
-        num_constraints,
-    };
-    return true;
-  }
-
-  static size_t EstimateSize(const circom::v1::R1CSHeaderSection& header) {
     uint32_t field_size = header.modulus.bytes.size();
-    return sizeof(uint32_t) + field_size * 8 +
-           base::EstimateSize(header.num_wires, header.num_public_outputs,
-                              header.num_public_inputs,
-                              header.num_private_inputs, header.num_labels,
-                              header.num_constraints);
-  }
-};
-
-template <>
-class Copyable<circom::v1::R1CS> {
- public:
-  static bool WriteTo(const circom::v1::R1CS& r1cs, Buffer* buffer) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-
-  static bool ReadFrom(const ReadOnlyBuffer& buffer, circom::v1::R1CS* r1cs) {
-    base::EndianAutoReset reset(buffer, base::Endian::kLittle);
-    circom::Sections<circom::v1::R1CSSectionType> sections(
-        buffer, &circom::v1::R1CSSectionTypeToString);
-    if (!sections.Read()) return false;
-
-    if (!sections.MoveTo(circom::v1::R1CSSectionType::kHeader)) return false;
-    circom::v1::R1CSHeaderSection header;
-    if (!buffer.Read(&header)) return false;
-
-    if (!sections.MoveTo(circom::v1::R1CSSectionType::kConstraints))
-      return false;
-    uint32_t field_size = header.modulus.bytes.size();
-    circom::v1::R1CSConstraintsSection constraints;
+    constraints.reserve(header.num_constraints);
     for (uint32_t i = 0; i < header.num_constraints; ++i) {
-      circom::v1::Constraint constraint;
+      Constraint constraint;
       for (uint32_t j = 0; j < 3; ++j) {
         uint32_t n;
         if (!buffer.Read(&n)) return false;
-        std::vector<circom::v1::Term> terms(n);
+        std::vector<Term> terms(n);
         for (uint32_t k = 0; k < n; ++k) {
           if (!buffer.Read(&terms[k].wire_id)) return false;
           terms[k].coefficient.bytes.resize(field_size);
@@ -289,30 +197,70 @@ class Copyable<circom::v1::R1CS> {
           constraint.c = {std::move(terms)};
         }
       }
-      constraints.constraints.push_back(std::move(constraint));
+      constraints.push_back(std::move(constraint));
     }
-
-    if (!sections.MoveTo(circom::v1::R1CSSectionType::kWire2LabelIdMap))
-      return false;
-    circom::v1::R1CSWireId2LabelIdMapSection wire_id_to_label_id_map;
-    wire_id_to_label_id_map.label_ids.resize(header.num_wires);
-    for (uint32_t i = 0; i < header.num_wires; ++i) {
-      if (!buffer.Read(&wire_id_to_label_id_map.label_ids[i])) return false;
-    }
-
-    r1cs->header = std::move(header);
-    r1cs->constraints = std::move(constraints);
-    r1cs->wire_id_to_label_id_map = std::move(wire_id_to_label_id_map);
     return true;
   }
 
-  static size_t EstimateSize(const circom::v1::R1CS& r1cs) {
-    NOTIMPLEMENTED();
-    return 0;
+  std::string ToString() const { return base::VectorToString(constraints); }
+};
+
+struct R1CSWireId2LabelIdMapSection {
+  std::vector<uint64_t> label_ids;
+
+  bool operator==(const R1CSWireId2LabelIdMapSection& other) const {
+    return label_ids == other.label_ids;
+  }
+  bool operator!=(const R1CSWireId2LabelIdMapSection& other) const {
+    return label_ids != other.label_ids;
+  }
+
+  bool Read(const base::ReadOnlyBuffer& buffer,
+            const R1CSHeaderSection& header) {
+    base::EndianAutoReset reset(buffer, base::Endian::kLittle);
+    label_ids.resize(header.num_wires);
+    for (uint32_t i = 0; i < header.num_wires; ++i) {
+      if (!buffer.Read(&label_ids[i])) return false;
+    }
+    return true;
+  }
+
+  std::string ToString() const { return base::VectorToString(label_ids); }
+};
+
+struct R1CS : public circom::R1CS {
+  R1CSHeaderSection header;
+  R1CSConstraintsSection constraints;
+  R1CSWireId2LabelIdMapSection wire_id_to_label_id_map;
+
+  // circom::R1CS methods
+  uint32_t GetVersion() const override { return 1; }
+  v1::R1CS* ToV1() override { return this; }
+
+  bool Read(const base::ReadOnlyBuffer& buffer) override {
+    Sections<R1CSSectionType> sections(buffer, &R1CSSectionTypeToString);
+    if (!sections.Read()) return false;
+
+    if (!sections.MoveTo(R1CSSectionType::kHeader)) return false;
+    if (!header.Read(buffer)) return false;
+
+    if (!sections.MoveTo(R1CSSectionType::kConstraints)) return false;
+    if (!constraints.Read(buffer, header)) return false;
+
+    if (!sections.MoveTo(R1CSSectionType::kWire2LabelIdMap)) return false;
+    if (!wire_id_to_label_id_map.Read(buffer, header)) return false;
+    return true;
+  }
+
+  std::string ToString() const {
+    return absl::Substitute(
+        "{header: $0, constraints: $1, wire_id_to_label_id_map: $2}",
+        header.ToString(), constraints.ToString(),
+        wire_id_to_label_id_map.ToString());
   }
 };
 
-}  // namespace base
-}  // namespace tachyon
+}  // namespace v1
+}  // namespace tachyon::circom
 
 #endif  // VENDORS_CIRCOM_CIRCOMLIB_R1CS_R1CS_H_
