@@ -34,6 +34,7 @@ tachyon_cc_library(
     hdrs = ["cc_writer.h"],
     deps = [
         ":writer",
+        "//tachyon/base/containers:container_util",
         "//tachyon/base/files:file_path",
         "//tachyon/base/strings:string_util",
     ],

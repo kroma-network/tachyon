@@ -7,6 +7,7 @@
 #include "absl/strings/str_replace.h"
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 
@@ -115,6 +116,45 @@ int CcWriter::WriteSrc(const std::string& content) const {
                        {"%{content}", content},
                    });
   return Write(text);
+}
+
+// static
+bool CcWriter::DoRemoveOptionalLines(std::vector<std::string>& tpl_lines,
+                                     std::string_view start_line,
+                                     std::string_view end_line,
+                                     bool select_tag_block) {
+  auto result = base::FindIndex(tpl_lines, start_line);
+  if (!result.has_value()) return false;
+  size_t start_idx = result.value();
+
+  result = base::FindIndex(tpl_lines, end_line);
+  CHECK(result.has_value()) << "The tag starts but not ends";
+  size_t end_idx = result.value();
+
+  if (select_tag_block) {
+    // Remove the first |start_line| and |end_line|.
+    tpl_lines.erase(tpl_lines.begin() + start_idx);
+    tpl_lines.erase(tpl_lines.begin() + end_idx - 1);
+
+  } else {
+    // Remove lines between |start_line| and |end_line|.
+    tpl_lines.erase(tpl_lines.begin() + start_idx,
+                    tpl_lines.begin() + end_idx + 1);
+  }
+  return true;
+}
+
+// static
+void CcWriter::RemoveOptionalLines(std::vector<std::string>& tpl_lines,
+                                   std::string_view tag,
+                                   bool select_tag_block) {
+  std::string start_line = absl::Substitute("%{if $0}", tag);
+  std::string end_line = absl::Substitute("%{endif $0}", tag);
+  bool result = true;
+  while (result) {
+    result = DoRemoveOptionalLines(tpl_lines, start_line, end_line,
+                                   select_tag_block);
+  }
 }
 
 }  // namespace tachyon::build
