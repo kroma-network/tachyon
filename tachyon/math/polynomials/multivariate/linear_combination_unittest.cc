@@ -5,7 +5,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
-#include "tachyon/math/polynomials/multivariate/multilinear_extension.h"
+#include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 
 namespace tachyon::math {
 namespace {
@@ -13,7 +13,7 @@ namespace {
 const size_t kMaxDegree = 4;
 
 using F = GF7;
-using Poly = MultilinearExtension<MultilinearDenseEvaluations<F, kMaxDegree>>;
+using Poly = MultilinearDenseEvaluations<F, kMaxDegree>;
 using Point = Poly::Point;
 using PolyPtr = std::shared_ptr<Poly>;
 

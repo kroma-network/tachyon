@@ -5,7 +5,7 @@
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
-#include "tachyon/math/polynomials/multivariate/multilinear_extension.h"
+#include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 
 namespace tachyon::crypto {
 
@@ -13,8 +13,7 @@ namespace {
 
 const size_t kMaxDegree = 4;
 
-using Poly = math::MultilinearExtension<
-    math::MultilinearDenseEvaluations<math::GF7, kMaxDegree>>;
+using Poly = math::MultilinearDenseEvaluations<math::GF7, kMaxDegree>;
 
 class ProvingKeyTest : public math::FiniteFieldTest<math::GF7> {};
 
