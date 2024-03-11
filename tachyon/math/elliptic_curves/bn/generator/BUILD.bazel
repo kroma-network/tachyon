@@ -5,6 +5,7 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_binary(
     name = "generator",
     srcs = ["generator.cc"],
+    data = ["curve.h.tpl"],
     deps = [
         "//tachyon/base/console",
         "//tachyon/base/files:file_path_flag",

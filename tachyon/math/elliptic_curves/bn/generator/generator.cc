@@ -46,6 +46,8 @@ std::vector<int8_t> ComputeAteLoopCount(const mpz_class& x) {
 }
 
 struct GenerationConfig : public build::CcWriter {
+  base::FilePath curve_hdr_tpl_path;
+
   std::string ns_name;
   std::string class_name;
   base::FilePath fq12_hdr;
@@ -60,94 +62,36 @@ struct GenerationConfig : public build::CcWriter {
 };
 
 int GenerationConfig::GenerateConfigHdr() const {
-  std::vector<std::string_view> tpl = {
-      // clang-format off
-      "#include \"tachyon/base/logging.h\"",
-      "#include \"tachyon/math/elliptic_curves/bn/bn_curve.h\"",
-      "#include \"%{fq12_hdr}\"",
-      "#include \"%{g1_hdr}\"",
-      "#include \"%{g2_hdr}\"",
-      "#include \"tachyon/math/elliptic_curves/pairing/twist_type.h\"",
-      "",
-      "namespace %{namespace} {",
-      "",
-      "template <typename Fq, typename Fq2, typename Fq6, typename Fq12, typename _G1Curve, typename _G2Curve>",
-      "class %{class}Config {",
-      " public:",
-      "  constexpr static BigInt<%{x_size}> kX = BigInt<%{x_size}>({",
-      "    %{x}",
-      "  });",
-      "  constexpr static bool kXIsNegative = %{x_is_negative};",
-      "  constexpr static int8_t kAteLoopCount[] = {",
-      "    %{ate_loop_count}",
-      "  };",
-      "  constexpr static TwistType kTwistType = TwistType::k%{twist_type};",
-      "",
-      "  using Fp = Fq;",
-      "  using Fp2 = Fq2;",
-      "  using Fp6 = Fq6;",
-      "  using Fp12 = Fq12;",
-      "  using G1Curve = _G1Curve;",
-      "  using G2Curve = _G2Curve;",
-      "",
-      "  // NOTE(chokobole): Make them constexpr.",
-      "  static Fq2 kTwistMulByQX;",
-      "  static Fq2 kTwistMulByQY;",
-      "",
-      "  static void Init() {",
-      // TODO(chokobole): This line below is needed by |GenerateInitExtField()|.
-      // Later, I want GenerateInitExtField() to accept BasePrimeField as an argument.
-      "    using BasePrimeField = Fq;",
-      "%{twist_mul_by_q_x_init}",
-      "%{twist_mul_by_q_y_init}",
-      "    G1Curve::Init();",
-      "    G2Curve::Init();",
-      "    VLOG(1) << \"%{namespace}::%{class} initialized\";",
-      "  }",
-      "};",
-      "",
-      "template <typename Fq, typename Fq2, typename Fq6, typename Fq12, typename G1Curve, typename G2Curve>",
-      "Fq2 %{class}Config<Fq, Fq2, Fq6, Fq12, G1Curve, G2Curve>::kTwistMulByQX;",
-      "template <typename Fq, typename Fq2, typename Fq6, typename Fq12, typename G1Curve, typename G2Curve>",
-      "Fq2 %{class}Config<Fq, Fq2, Fq6, Fq12, G1Curve, G2Curve>::kTwistMulByQY;",
-      "",
-      "using %{class}Curve = BNCurve<%{class}Config<Fq, Fq2, Fq6, Fq12, G1Curve, G2Curve>>;",
-      "",
-      "}  // namespace %{namespace}",
-      // clang-format on
+  std::map<std::string, std::string> replace_map = {
+      {"%{namespace}", ns_name},
+      {"%{class}", class_name},
+      {"%{fq12_hdr}", fq12_hdr.value()},
+      {"%{g1_hdr}", g1_hdr.value()},
+      {"%{g2_hdr}", g2_hdr.value()},
+      {"%{twist_type}", TwistTypeToString(twist_type)},
   };
 
-  std::string tpl_content = absl::StrJoin(tpl, "\n");
-
   mpz_class x_mpz = math::gmp::FromDecString(x);
-  std::vector<int8_t> ate_loop_count = ComputeAteLoopCount(x_mpz);
-  bool x_is_negative = math::gmp::IsNegative(x_mpz);
+  replace_map["%{x_is_negative}"] =
+      base::BoolToString(math::gmp::IsNegative(x_mpz));
   x_mpz = math::gmp::GetAbs(x_mpz);
-  size_t x_size = math::gmp::GetLimbSize(x_mpz);
+  replace_map["%{x}"] = math::MpzClassToString(x_mpz);
+  replace_map["%{x_size}"] =
+      base::NumberToString(math::gmp::GetLimbSize(x_mpz));
 
-  std::string twist_mul_by_q_x_init =
+  std::vector<int8_t> ate_loop_count = ComputeAteLoopCount(x_mpz);
+  replace_map["%{ate_loop_count}"] = absl::StrJoin(ate_loop_count, ", ");
+
+  replace_map["%{twist_mul_by_q_x_init_code}"] =
       math::GenerateInitExtField("kTwistMulByQX", "Fq2", twist_mul_by_q_x,
                                  /*is_prime_field=*/true);
-  std::string twist_mul_by_q_y_init =
+  replace_map["%{twist_mul_by_q_y_init_code}"] =
       math::GenerateInitExtField("kTwistMulByQY", "Fq2", twist_mul_by_q_y,
                                  /*is_prime_field=*/true);
 
-  std::string content = absl::StrReplaceAll(
-      tpl_content,
-      {
-          {"%{fq12_hdr}", fq12_hdr.value()},
-          {"%{g1_hdr}", g1_hdr.value()},
-          {"%{g2_hdr}", g2_hdr.value()},
-          {"%{namespace}", ns_name},
-          {"%{class}", class_name},
-          {"%{x_size}", base::NumberToString(x_size)},
-          {"%{x}", math::MpzClassToString(x_mpz)},
-          {"%{x_is_negative}", base::BoolToString(x_is_negative)},
-          {"%{ate_loop_count}", absl::StrJoin(ate_loop_count, ", ")},
-          {"%{twist_type}", TwistTypeToString(twist_type)},
-          {"%{twist_mul_by_q_x_init}", twist_mul_by_q_x_init},
-          {"%{twist_mul_by_q_y_init}", twist_mul_by_q_y_init},
-      });
+  std::string tpl_content;
+  CHECK(base::ReadFileToString(curve_hdr_tpl_path, &tpl_content));
+  std::string content = absl::StrReplaceAll(tpl_content, replace_map);
   return WriteHdr(content, false);
 }
 
@@ -171,6 +115,9 @@ int RealMain(int argc, char** argv) {
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.g2_hdr)
       .set_long_name("--g2_hdr")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.curve_hdr_tpl_path)
+      .set_long_name("--curve_hdr_path")
       .set_required();
   parser.AddFlag<base::Flag<std::string>>(&config.x)
       .set_short_name("-x")
