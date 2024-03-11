@@ -46,9 +46,9 @@ class LinearCombination {
                                   size_t num_terms) {
     LinearCombination linear_combination(num_variables);
 
-    size_t max_evaluations = base::Uniform(max_evaluations_range);
     for (size_t i = 0; i < num_terms; ++i) {
       F coefficient = F::Random();
+      size_t max_evaluations = base::Uniform(max_evaluations_range);
       std::vector<std::shared_ptr<MLE>> evaluations =
           base::CreateVector(max_evaluations, [num_variables]() {
             return std::make_shared<MLE>(MLE::Random(num_variables));
