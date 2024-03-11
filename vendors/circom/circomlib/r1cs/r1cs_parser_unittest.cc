@@ -25,12 +25,11 @@ TEST(R1CSParser, Parse) {
       11,
       2,
   };
+  EXPECT_EQ(r1cs->ToV1()->header, expected_header);
 
   PrimeField one = PrimeField::FromBigInt(math::BigInt<4>::One());
   PrimeField neg_one = PrimeField::FromBigInt(math::bn254::FrConfig::kModulus -
                                               math::BigInt<4>::One());
-
-  EXPECT_EQ(r1cs->ToV1()->header, expected_header);
   // -ω₂ * ω₃ = -ω₅
   // -ω₅ * ω₄ = -ω₁
   v1::R1CSConstraintsSection expected_constraints = {{{
