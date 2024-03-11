@@ -108,40 +108,15 @@ class MultilinearDenseEvaluations {
     return base::bits::SafeLog2Ceiling(evaluations_.size());
   }
 
-  // Fix k variables out of n variables, where k is
-  // |partial_point.size()| and n is |Degree()|.
   MultilinearDenseEvaluations FixVariables(const Point& partial_point) const {
-    size_t k = partial_point.size();
-    size_t n = Degree();
-    CHECK_LE(k, n);
     std::vector<F> poly = evaluations_;
+    RunFixVariables(partial_point, poly);
+    return MultilinearDenseEvaluations(poly);
+  }
 
-    // clang-format off
-    // P(x₀, x₁) = 1(1 - x₀)(1 - x₁) + 2x₀(1 - x₁) + 3(1 - x₀)x₁ + 4x₀x₁
-    //
-    // Fixing s₀:
-    // P(s₀, x₁) = 1(1 - s₀)(1 - x₁) + 2s₀(1 - x₁) + 3(1 - s₀)x₁ + 4s₀x₁
-    //           = (1(1 - s₀) + 2s₀)(1 - x₁) + (3(1 - s₀) + 4s₀)x₁
-    //           = (left₀(1 - s₀) + right₀s₀)(1 - x₁) + (left₁(1 - s₀) + right₁s₀)x₁
-    //             (where left₀ = 1, right₀ = 2, left₁ = 3 and right₁ = 4)
-    //           = (left₀ + s₀(right₀ - left₀))(1 - x₁) + (left₁ + s₀(right₁ - left₁))x₁
-    //
-    // Fixing s₁:
-    // P(s₀, s₁) = (1 + (2 - 1)s₀)(1 - s₁) + (3 + (4 - 1)4s₀)s₁
-    //           = (left₀(1 - s₀) + right₀s₀)(1 - x₁) + (left₁(1 - s₀) + right₁s₀)x₁
-    //             (where left₀ = 1 + (2 - 1)s₀ and right₀ = (3 + (4 - 1)4s₀)
-    //           = left₀ + s₁(right₀ - left₀)
-    // clang-format on
-    for (size_t i = 1; i <= k; ++i) {
-      const F& r = partial_point[i - 1];
-      for (size_t b = 0; b < (size_t{1} << (n - i)); ++b) {
-        const F& left = poly[b << 1];
-        const F& right = poly[(b << 1) + 1];
-        poly[b] = left + r * (right - left);
-      }
-    }
-    return MultilinearDenseEvaluations(
-        std::vector<F>(poly.begin(), poly.begin() + (size_t{1} << (n - k))));
+  MultilinearDenseEvaluations FixVariablesInPlace(const Point& partial_point) {
+    RunFixVariables(partial_point, evaluations_);
+    return *this;
   }
 
   // Evaluate polynomial at |point|. It uses |FixVariables()| internally. The
@@ -177,6 +152,41 @@ class MultilinearDenseEvaluations {
     MultilinearDenseEvaluations ret;
     ret.evaluations_ = std::vector<F>(size_t{1} << degree);
     return ret;
+  }
+
+  // Fix k variables out of n variables, where k is
+  // |partial_point.size()| and n is |Degree()|.
+  void RunFixVariables(const Point& partial_point,
+                       std::vector<F>& evaluations) const {
+    size_t k = partial_point.size();
+    size_t n = Degree();
+    CHECK_LE(k, n);
+
+    // clang-format off
+    // P(x₀, x₁) = 1(1 - x₀)(1 - x₁) + 2x₀(1 - x₁) + 3(1 - x₀)x₁ + 4x₀x₁
+    //
+    // Fixing s₀:
+    // P(s₀, x₁) = 1(1 - s₀)(1 - x₁) + 2s₀(1 - x₁) + 3(1 - s₀)x₁ + 4s₀x₁
+    //           = (1(1 - s₀) + 2s₀)(1 - x₁) + (3(1 - s₀) + 4s₀)x₁
+    //           = (left₀(1 - s₀) + right₀s₀)(1 - x₁) + (left₁(1 - s₀) + right₁s₀)x₁
+    //             (where left₀ = 1, right₀ = 2, left₁ = 3 and right₁ = 4)
+    //           = (left₀ + s₀(right₀ - left₀))(1 - x₁) + (left₁ + s₀(right₁ - left₁))x₁
+    //
+    // Fixing s₁:
+    // P(s₀, s₁) = (1 + (2 - 1)s₀)(1 - s₁) + (3 + (4 - 1)4s₀)s₁
+    //           = (left₀(1 - s₀) + right₀s₀)(1 - x₁) + (left₁(1 - s₀) + right₁s₀)x₁
+    //             (where left₀ = 1 + (2 - 1)s₀ and right₀ = (3 + (4 - 1)4s₀)
+    //           = left₀ + s₁(right₀ - left₀)
+    // clang-format on
+    for (size_t i = 1; i <= k; ++i) {
+      const F& r = partial_point[i - 1];
+      for (size_t b = 0; b < (size_t{1} << (n - i)); ++b) {
+        const F& left = evaluations[b << 1];
+        const F& right = evaluations[(b << 1) + 1];
+        evaluations[b] = left + r * (right - left);
+      }
+    }
+    evaluations.resize(size_t{1} << (n - k));
   }
 
   std::vector<F> evaluations_;
