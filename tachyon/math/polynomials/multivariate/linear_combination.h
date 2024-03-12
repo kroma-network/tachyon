@@ -98,6 +98,18 @@ class LinearCombination {
   }
 
  private:
+  static F EvaluateSerial(
+      const Point& point,
+      const std::vector<std::shared_ptr<MLE>>& flattened_ml_evaluations,
+      absl::Span<const LinearCombinationTerm<F>> terms) {
+    return std::accumulate(terms.begin(), terms.end(), F::Zero(),
+                           [&point, &flattened_ml_evaluations](
+                               F& acc, const LinearCombinationTerm<F>& term) {
+                             return acc += term.Evaluate(
+                                        point, flattened_ml_evaluations);
+                           });
+  }
+
   // max number of evaluations for each term
   size_t max_evaluations_ = 0;
   // number of variables of the polynomial
@@ -111,18 +123,6 @@ class LinearCombination {
   // corresponding index in |flattened_ml_evaluations_|
   // not owned
   absl::flat_hash_map<const MLE*, size_t> lookup_table_;
-
-  static F EvaluateSerial(
-      const Point& point,
-      const std::vector<std::shared_ptr<MLE>>& flattened_ml_evaluations,
-      absl::Span<const LinearCombinationTerm<F>> terms) {
-    return std::accumulate(terms.begin(), terms.end(), F::Zero(),
-                           [&point, &flattened_ml_evaluations](
-                               F& acc, const LinearCombinationTerm<F>& term) {
-                             return acc += term.Evaluate(
-                                        point, flattened_ml_evaluations);
-                           });
-  }
 };
 
 }  // namespace tachyon::math
