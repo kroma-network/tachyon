@@ -41,12 +41,10 @@ jobs:
         run: sudo apt-get install -y libomp-dev
 
       - name: Build
-        # NOTE(chokobole): Since https://github.com/kroma-network/tachyon/pull/340, fastbuild config on mac fails.
-        run: bazel build -c dbg --config ${{ matrix.bazel_config }} //...
+        run: bazel build -c fastbuild --config ${{ matrix.bazel_config }} //...
 
       - name: Test Tachyon
-        # NOTE(chokobole): Since https://github.com/kroma-network/tachyon/pull/340, fastbuild config on mac fails.
-        run: bazel test -c dbg --config ${{ matrix.bazel_config }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
+        run: bazel test -c fastbuild --config ${{ matrix.bazel_config }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
 
       - name: Test OpenMP
         if: matrix.os == 'ubuntu-latest'
