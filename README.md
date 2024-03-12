@@ -25,9 +25,10 @@ Symbol Definitions:
 
 ### Finite Fields
 
-|            | CPU                | GPU |
-| ---------- | ------------------ | --- |
-| Goldilocks | :heavy_check_mark: | :x: |
+|             | CPU                | GPU |
+| ----------- | ------------------ | --- |
+| Goldilocks  | :heavy_check_mark: | :x: |
+| Mersenne-31 | :heavy_check_mark: | :x: |
 
 ### Elliptic Curves
 
@@ -36,6 +37,8 @@ Symbol Definitions:
 | bn254     | :heavy_check_mark: | :heavy_check_mark: |
 | bls12-381 | :heavy_check_mark: | :heavy_check_mark: |
 | secp256k1 | :heavy_check_mark: | :heavy_check_mark: |
+| pallas    | :heavy_check_mark: | :heavy_check_mark: |
+| vesta     | :heavy_check_mark: | :heavy_check_mark: |
 
 ### Commitment Schemes
 
