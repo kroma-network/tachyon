@@ -6,8 +6,8 @@
 
 namespace tachyon::crypto {
 
-TEST(VerifyingKeyTest, Copyable) {
-  VerifyingKey expected = VerifyingKey::Random();
+TEST(SumcheckVerifyingKeyTest, Copyable) {
+  SumcheckVerifyingKey expected = SumcheckVerifyingKey::Random();
 
   base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
@@ -16,7 +16,7 @@ TEST(VerifyingKeyTest, Copyable) {
 
   write_buf.set_buffer_offset(0);
 
-  VerifyingKey value;
+  SumcheckVerifyingKey value;
   ASSERT_TRUE(write_buf.Read(&value));
   EXPECT_EQ(expected, value);
 }

@@ -13,26 +13,26 @@
 namespace tachyon {
 namespace crypto {
 
-struct TACHYON_EXPORT VerifyingKey {
+struct TACHYON_EXPORT SumcheckVerifyingKey {
   size_t max_evaluations;
   size_t num_variables;
 
   template <typename MLE>
-  static VerifyingKey Build(
+  static SumcheckVerifyingKey Build(
       const math::LinearCombination<MLE>& linear_combination) {
     return {linear_combination.max_evaluations(),
             linear_combination.num_variables()};
   }
 
-  bool operator==(const VerifyingKey& other) const {
+  bool operator==(const SumcheckVerifyingKey& other) const {
     return max_evaluations == other.max_evaluations &&
            num_variables == other.num_variables;
   }
-  bool operator!=(const VerifyingKey& other) const {
+  bool operator!=(const SumcheckVerifyingKey& other) const {
     return !operator==(other);
   }
 
-  static VerifyingKey Random() {
+  static SumcheckVerifyingKey Random() {
     return {base::Uniform(base::Range<size_t>()),
             base::Uniform(base::Range<size_t>())};
   }
@@ -43,16 +43,16 @@ struct TACHYON_EXPORT VerifyingKey {
 namespace base {
 
 template <>
-class Copyable<crypto::VerifyingKey> {
+class Copyable<crypto::SumcheckVerifyingKey> {
  public:
-  static bool WriteTo(const crypto::VerifyingKey& verifying_key,
+  static bool WriteTo(const crypto::SumcheckVerifyingKey& verifying_key,
                       Buffer* buffer) {
     return buffer->WriteMany(verifying_key.max_evaluations,
                              verifying_key.num_variables);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::VerifyingKey* verifying_key) {
+                       crypto::SumcheckVerifyingKey* verifying_key) {
     size_t max_evaluations;
     size_t num_variables;
     if (!buffer.ReadMany(&max_evaluations, &num_variables)) return false;
@@ -60,7 +60,8 @@ class Copyable<crypto::VerifyingKey> {
     return true;
   }
 
-  static size_t EstimateSize(const crypto::VerifyingKey& verifying_key) {
+  static size_t EstimateSize(
+      const crypto::SumcheckVerifyingKey& verifying_key) {
     return base::EstimateSize(verifying_key.max_evaluations,
                               verifying_key.num_variables);
   }
