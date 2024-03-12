@@ -104,16 +104,12 @@ class MultivariateSparseCoefficients {
     }
 
     F Evaluate(const Point& points) const {
-#if defined(TACHYON_HAS_OPENMP)
       std::vector<F> results = base::ParallelizeMap(
           elements, [&points](absl::Span<const Element> chunk) {
             return EvaluateSerial(chunk, points);
           });
       return std::accumulate(results.begin(), results.end(), F::One(),
                              std::multiplies<>());
-#else
-      return EvaluateSerial(elements, points);
-#endif
     }
 
     std::string ToString() const {
@@ -276,16 +272,12 @@ class MultivariateSparseCoefficients {
     if (IsZero()) {
       return F::Zero();
     }
-#if defined(TACHYON_HAS_OPENMP)
     std::vector<F> results =
         base::ParallelizeMap(terms_, [&points](absl::Span<const Term> chunk) {
           return EvaluateSerial(chunk, points);
         });
     return std::accumulate(results.begin(), results.end(), F::Zero(),
                            std::plus<>());
-#else
-    return EvaluateSerial(terms_, points);
-#endif
   }
 
   std::string ToString() const {

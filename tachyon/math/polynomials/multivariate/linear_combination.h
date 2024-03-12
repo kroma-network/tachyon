@@ -84,7 +84,6 @@ class LinearCombination {
   // where n = total terms, m = number of evaluations per term
   F SumOfProducts(const Point& point) const {
     CHECK_EQ(point.size(), num_variables_);
-#if defined(TACHYON_HAS_OPENMP)
     std::vector<F> results = base::ParallelizeMap(
         terms_,
         [this, &point](absl::Span<const LinearCombinationTerm<F>> chunk) {
@@ -92,9 +91,6 @@ class LinearCombination {
         });
     return std::accumulate(results.begin(), results.end(), F::Zero(),
                            std::plus<>());
-#else
-    return EvaluateSerial(point, flattened_ml_evaluations_, terms_);
-#endif
   }
 
  private:

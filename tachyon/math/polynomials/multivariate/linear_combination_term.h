@@ -23,7 +23,6 @@ struct LinearCombinationTerm {
   F Evaluate(
       const Container& point,
       const std::vector<std::shared_ptr<MLE>>& flattened_ml_evaluations) const {
-#if defined(TACHYON_HAS_OPENMP)
     std::vector<F> results = base::ParallelizeMap(
         indexes,
         [&flattened_ml_evaluations, &point](absl::Span<const size_t> chunk) {
@@ -31,10 +30,6 @@ struct LinearCombinationTerm {
         });
     return coefficient * std::accumulate(results.begin(), results.end(),
                                          F::One(), std::multiplies<>());
-#else
-    return coefficient *
-           EvaluateSerial(point, flattened_ml_evaluations, indexes);
-#endif
   }
 
   bool operator==(const LinearCombinationTerm& other) const {
