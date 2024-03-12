@@ -1,15 +1,15 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//third_party/eigen3:workspace.bzl", eigen3 = "repo")
 load("//third_party/env:env_configure.bzl", "env_configure")
+load("//third_party/ffiasm:workspace.bzl", ffiasm = "repo")
 load("//third_party/gmp:gmp_configure.bzl", "gmp_configure")
+load("//third_party/goldilocks:workspace.bzl", goldilocks = "repo")
 load("//third_party/gpus:cuda_configure.bzl", "cuda_configure")
 load("//third_party/gpus:rocm_configure.bzl", "rocm_configure")
 load("//third_party/hwloc:workspace.bzl", hwloc = "repo")
 load("//third_party/nasm:workspace.bzl", nasm = "repo")
 load("//third_party/node_addon_api:install_node_addon_api.bzl", "install_node_addon_api")
 load("//third_party/pdqsort:workspace.bzl", pdqsort = "repo")
-load("//third_party/polygon_zkevm/goldilocks:workspace.bzl", goldilocks = "repo")
-load("//third_party/polygon_zkevm/zkevm_prover:workspace.bzl", zkevm_prover = "repo")
 load("//third_party/py:python_configure.bzl", "python_configure")
 
 def tachyon_deps():
@@ -20,11 +20,11 @@ def tachyon_deps():
     python_configure(name = "local_config_python")
 
     eigen3()
+    ffiasm()
     goldilocks()
     hwloc()
     nasm()
     pdqsort()
-    zkevm_prover()
 
     install_node_addon_api(name = "node_addon_api")
 

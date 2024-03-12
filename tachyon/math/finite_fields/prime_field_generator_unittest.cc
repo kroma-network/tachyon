@@ -10,8 +10,8 @@
 #include "tachyon/math/elliptic_curves/pasta/vesta/fr.h"
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fq.h"
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fr.h"
-#include "tachyon/math/finite_fields/goldilocks_prime/goldilocks.h"
-#include "tachyon/math/finite_fields/mersenne_31_prime/mersenne_31.h"
+#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
+#include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 
 namespace tachyon::math {
 

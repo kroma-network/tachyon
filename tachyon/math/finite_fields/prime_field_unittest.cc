@@ -166,23 +166,6 @@ TEST_F(PrimeFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TEST_F(PrimeFieldTest, DivBy2Exp) {
-  struct {
-    int v;
-  } tests[] = {
-      {5},
-      {0},
-  };
-
-  for (const auto& test : tests) {
-    GF7 p(test.v);
-    for (size_t i = 0; i < GF7::kModulusBits; ++i) {
-      BigInt<1> q = p.DivBy2Exp(i);
-      EXPECT_EQ(q, BigInt<1>(test.v / (1 << i)));
-    }
-  }
-}
-
 TEST_F(PrimeFieldTest, Copyable) {
   const GF7 expected = GF7::Random();
 

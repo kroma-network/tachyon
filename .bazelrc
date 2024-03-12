@@ -84,9 +84,6 @@ build:cuda --define absl=0
 # gmp needs exception.
 build --//:has_exception
 
-# Enable polygon zkevm backend for prime field.
-build:polygon_zkevm_backend --//:polygon_zkevm_backend
-
 test --test_tag_filters -benchmark,-manual,-cuda,-rust
 
 build:linux --build_tag_filters -objc,-cuda,-rust

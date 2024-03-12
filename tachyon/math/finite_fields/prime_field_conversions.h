@@ -1,11 +1,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CONVERSIONS_H_
 #define TACHYON_MATH_FINITE_FIELDS_PRIME_FIELD_CONVERSIONS_H_
 
-#include "tachyon/math/finite_fields/prime_field.h"
-#if TACHYON_CUDA
-#include "tachyon/math/finite_fields/prime_field_gpu.h"
-#endif  // TACHYON_CUDA
-#include "tachyon/math/finite_fields/prime_field_gpu_debug.h"
+#include "tachyon/math/finite_fields/finite_field_forwards.h"
 
 namespace tachyon::math {
 

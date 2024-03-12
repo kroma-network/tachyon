@@ -121,10 +121,4 @@ void WriteLimbs(const uint64_t* limbs_src, size_t limb_size, mpz_class* out) {
   mpz_limbs_finish(out->get_mpz_t(), limb_size);
 }
 
-mpz_class DivBy2Exp(const mpz_class& value, uint64_t exp) {
-  mpz_class ret;
-  mpz_fdiv_q_2exp(ret.get_mpz_t(), value.get_mpz_t(), exp);
-  return ret;
-}
-
 }  // namespace tachyon::math::gmp

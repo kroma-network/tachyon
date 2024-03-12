@@ -1,0 +1,71 @@
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load("//bazel:tachyon.bzl", "if_linux_x86_64")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load(
+    "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
+    "SMALL_SUBGROUP_ADICITY",
+    "SMALL_SUBGROUP_BASE",
+    "SUBGROUP_GENERATOR",
+    "generate_large_fft_prime_fields",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+string_flag(
+    name = SMALL_SUBGROUP_ADICITY,
+    build_setting_default = "1",
+)
+
+string_flag(
+    name = SMALL_SUBGROUP_BASE,
+    build_setting_default = "3",
+)
+
+string_flag(
+    name = SUBGROUP_GENERATOR,
+    build_setting_default = "7",
+)
+
+generate_large_fft_prime_fields(
+    name = "goldilocks",
+    class_name = "Goldilocks",
+    flag = "kIsGoldilocks",
+    # 2⁶⁴ - 2³² + 1
+    # Hex: 0xffffffff00000001
+    modulus = "18446744069414584321",
+    namespace = "tachyon::math",
+    small_subgroup_adicity = ":" + SMALL_SUBGROUP_ADICITY,
+    small_subgroup_base = ":" + SMALL_SUBGROUP_BASE,
+    subgroup_generator = ":" + SUBGROUP_GENERATOR,
+)
+
+tachyon_cc_library(
+    name = "goldilocks_prime_field_x86_special",
+    srcs = if_linux_x86_64(["goldilocks_prime_field_x86_special.cc"]),
+    hdrs = if_linux_x86_64(["goldilocks_prime_field_x86_special.h"]),
+    copts = if_linux_x86_64(["-mavx512f"]),
+    deps = if_linux_x86_64([
+        ":goldilocks_config",
+        "//tachyon/base:random",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/math/base/gmp:gmp_util",
+        "//tachyon/math/finite_fields:prime_field_base",
+        "@goldilocks//:base_field",
+    ]),
+)
+
+tachyon_cc_library(
+    name = "goldilocks_prime_field",
+    hdrs = ["goldilocks_prime_field.h"],
+    deps = [
+        ":goldilocks",
+        ":goldilocks_prime_field_x86_special",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "goldilocks_unittests",
+    srcs = ["goldilocks_prime_field_unittest.cc"],
+    deps = [":goldilocks_prime_field"],
+)

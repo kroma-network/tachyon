@@ -75,10 +75,10 @@ std::string GenerateFastMultiplication(int64_t value) {
   return ss.str();
 }
 
-base::FilePath ConvertToCpuHdr(const base::FilePath& path) {
+base::FilePath ConvertToConfigHdr(const base::FilePath& path) {
   std::string basename = path.BaseName().value();
   basename = basename.substr(0, basename.find("_gpu"));
-  return path.DirName().Append(basename + ".h");
+  return path.DirName().Append(basename + "_config.h");
 }
 
 base::FilePath ConvertToGpuHdr(const base::FilePath& path) {

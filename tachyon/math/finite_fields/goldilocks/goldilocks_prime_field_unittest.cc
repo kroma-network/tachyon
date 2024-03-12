@@ -1,16 +1,25 @@
+#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
+
 #include "absl/numeric/int128.h"
 #include "absl/strings/substitute.h"
 #include "gtest/gtest.h"
 
-#include "tachyon/math/finite_fields/goldilocks_prime/goldilocks.h"
-
 namespace tachyon::math {
 
-TEST(PrimeFieldGoldilocksTest, AdditiveOperators) {
+namespace {
+
+uint64_t RandomForTesting() {
+  return base::Uniform(
+      base::Range<uint64_t>::Until(Goldilocks::Config::kModulus[0]));
+}
+
+}  // namespace
+
+TEST(GoldilocksPrimeFieldTest, AdditiveOperators) {
   absl::uint128 M(Goldilocks::Config::kModulus[0]);
 
-  absl::uint128 a(Goldilocks::RandomForTesting());
-  absl::uint128 b(Goldilocks::RandomForTesting());
+  absl::uint128 a(RandomForTesting());
+  absl::uint128 b(RandomForTesting());
   SCOPED_TRACE(absl::Substitute("a: $0, b: $1", static_cast<uint64_t>(a),
                                 static_cast<uint64_t>(b)));
 
@@ -21,23 +30,23 @@ TEST(PrimeFieldGoldilocksTest, AdditiveOperators) {
   Goldilocks fa = Goldilocks(static_cast<uint64_t>(a));
   Goldilocks fb = Goldilocks(static_cast<uint64_t>(b));
 
-  EXPECT_EQ(static_cast<uint64_t>(fa + fb), sum);
-  EXPECT_EQ(static_cast<uint64_t>(fb + fa), sum);
-  EXPECT_EQ(static_cast<uint64_t>(fa - fb), amb);
-  EXPECT_EQ(static_cast<uint64_t>(fb - fa), bma);
+  EXPECT_EQ((fa + fb).ToBigInt()[0], sum);
+  EXPECT_EQ((fb + fa).ToBigInt()[0], sum);
+  EXPECT_EQ((fa - fb).ToBigInt()[0], amb);
+  EXPECT_EQ((fb - fa).ToBigInt()[0], bma);
 
   Goldilocks tmp = fa;
   tmp += fb;
-  EXPECT_EQ(static_cast<uint64_t>(tmp), sum);
+  EXPECT_EQ(tmp.ToBigInt()[0], sum);
   tmp -= fb;
-  EXPECT_EQ(static_cast<uint64_t>(tmp), a);
+  EXPECT_EQ(tmp.ToBigInt()[0], a);
 }
 
-TEST(PrimeFieldGoldilocksTest, MultiplicativeOperators) {
+TEST(GoldilocksPrimeFieldTest, MultiplicativeOperators) {
   absl::uint128 M = Goldilocks::Config::kModulus[0];
 
-  absl::uint128 a(Goldilocks::RandomForTesting());
-  absl::uint128 b(Goldilocks::RandomForTesting());
+  absl::uint128 a(RandomForTesting());
+  absl::uint128 b(RandomForTesting());
   SCOPED_TRACE(absl::Substitute("a: $0, b: $1", static_cast<uint64_t>(a),
                                 static_cast<uint64_t>(b)));
 
@@ -46,14 +55,14 @@ TEST(PrimeFieldGoldilocksTest, MultiplicativeOperators) {
   Goldilocks fa = Goldilocks(static_cast<uint64_t>(a));
   Goldilocks fb = Goldilocks(static_cast<uint64_t>(b));
 
-  EXPECT_EQ(static_cast<uint64_t>(fa * fb), mul);
-  EXPECT_EQ(static_cast<uint64_t>(fb * fa), mul);
+  EXPECT_EQ((fa * fb).ToBigInt()[0], mul);
+  EXPECT_EQ((fb * fa).ToBigInt()[0], mul);
 
   Goldilocks tmp = fa;
   tmp *= fb;
-  EXPECT_EQ(static_cast<uint64_t>(tmp), mul);
+  EXPECT_EQ((tmp).ToBigInt()[0], mul);
   tmp /= fb;
-  EXPECT_EQ(static_cast<uint64_t>(tmp), a);
+  EXPECT_EQ((tmp).ToBigInt()[0], a);
 }
 
 }  // namespace tachyon::math

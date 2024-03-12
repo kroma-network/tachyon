@@ -8,7 +8,6 @@
 #include "tachyon/build/cc_writer.h"
 #include "tachyon/math/base/gmp/bit_traits.h"
 #include "tachyon/math/finite_fields/generator/generator_util.h"
-#include "tachyon/math/finite_fields/prime_field.h"
 
 namespace tachyon {
 
@@ -254,7 +253,7 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
       // clang-format off
       "#include \"%{base_field_header}\"",
       "#include \"%{scalar_field_header}\"",
-      "#include \"%{header_path}\"",
+      "#include \"%{config_header_path}\"",
       "",
       "namespace %{namespace} {",
       "",
@@ -270,18 +269,18 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
   std::string tpl_content = absl::StrJoin(tpl, "\n");
 
   std::string content = absl::StrReplaceAll(
-      tpl_content,
-      {
-          {"%{base_field_header}",
-           math::ConvertToGpuHdr(base_field_hdr).value()},
-          {"%{scalar_field_header}",
-           math::ConvertToGpuHdr(scalar_field_hdr).value()},
-          {"%{header_path}", math::ConvertToCpuHdr(GetHdrPath()).value()},
-          {"%{namespace}", ns_name},
-          {"%{class}", class_name},
-          {"%{base_field}", base_field},
-          {"%{scalar_field}", scalar_field},
-      });
+      tpl_content, {
+                       {"%{base_field_header}",
+                        math::ConvertToGpuHdr(base_field_hdr).value()},
+                       {"%{scalar_field_header}",
+                        math::ConvertToGpuHdr(scalar_field_hdr).value()},
+                       {"%{config_header_path}",
+                        math::ConvertToConfigHdr(GetHdrPath()).value()},
+                       {"%{namespace}", ns_name},
+                       {"%{class}", class_name},
+                       {"%{base_field}", base_field},
+                       {"%{scalar_field}", scalar_field},
+                   });
   return WriteHdr(content, false);
 }
 

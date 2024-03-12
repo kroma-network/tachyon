@@ -1,5 +1,5 @@
-load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "objc_library")
 load("@local_config_cuda//cuda:build_defs.bzl", "cuda_library", "if_cuda")
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "objc_library")
 load(
     "//bazel:tachyon.bzl",
     "if_has_exception",

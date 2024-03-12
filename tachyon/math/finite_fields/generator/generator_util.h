@@ -42,7 +42,7 @@ std::string MpzClassToMontString(const mpz_class& v, const mpz_class& m);
 
 std::string GenerateFastMultiplication(int64_t value);
 
-base::FilePath ConvertToCpuHdr(const base::FilePath& path);
+base::FilePath ConvertToConfigHdr(const base::FilePath& path);
 
 base::FilePath ConvertToGpuHdr(const base::FilePath& path);
 

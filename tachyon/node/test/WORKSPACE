@@ -90,9 +90,9 @@ npm_translate_lock(
     yarn_lock = "//:yarn.lock",
 )
 
-load("@npm_deps//:repositories.bzl", "npm_repositories")
+load("@npm_deps//:repositories.bzl", npm_deps_respositores = "npm_repositories")
 
-npm_repositories()
+npm_deps_respositores()
 
 ###########################################
 
@@ -108,3 +108,24 @@ tachyon_deps()
 load("@kroma_network_tachyon//bazel:buildifier_deps.bzl", "buildifier_deps")
 
 buildifier_deps()
+
+load("@kroma_network_tachyon//bazel:js_deps.bzl", "js_deps")
+
+js_deps()
+
+load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies")
+
+aspect_bazel_lib_dependencies()
+
+npm_translate_lock(
+    name = "npm",
+    data = ["@iden3_ffiasm//:package.json"],
+    npm_package_lock = "@iden3_ffiasm//:package-lock.json",
+    pnpm_lock = "@iden3_ffiasm//:pnpm-lock.yaml",
+    update_pnpm_lock = True,
+    verify_node_modules_ignored = "@iden3_ffiasm//:.bazelignore",
+)
+
+load("@npm//:repositories.bzl", "npm_repositories")
+
+npm_repositories()

@@ -1,3 +1,4 @@
+load("//bazel:tachyon.bzl", "if_cc_shared_object")
 load(
     "//bazel:tachyon_cc.bzl",
     "collect_hdrs",
@@ -59,10 +60,10 @@ tachyon_cc_shared_library(
     linkstatic = True,
     soversion = VERSION,
     tags = ["manual"],
-    deps = [
+    deps = if_cc_shared_object([
         "//tachyon/cc/math/elliptic_curves/bls12/bls12_381:g1",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:g1",
-    ],
+    ]),
 )
 
 collect_hdrs(

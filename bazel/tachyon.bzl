@@ -94,18 +94,6 @@ def if_has_openmp(a, b = []):
         "//conditions:default": b,
     })
 
-def if_polygon_zkevm_backend(a, b = []):
-    return select({
-        "@kroma_network_tachyon//:tachyon_polygon_zkevm_backend": a,
-        "//conditions:default": b,
-    })
-
-def if_x86_64_and_polygon_zkevm_backend(a, b = []):
-    return select({
-        "@kroma_network_tachyon//:x86_64_and_polygon_zkevm": a,
-        "//conditions:default": b,
-    })
-
 def if_has_matplotlib(a, b = []):
     return select({
         "@kroma_network_tachyon//:tachyon_has_matplotlib": a,
@@ -115,6 +103,18 @@ def if_has_matplotlib(a, b = []):
 def if_has_numa(a, b = []):
     return select({
         "@kroma_network_tachyon//:tachyon_has_numa": a,
+        "//conditions:default": b,
+    })
+
+def if_c_shared_object(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:tachyon_c_shared_object": a,
+        "//conditions:default": b,
+    })
+
+def if_cc_shared_object(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:tachyon_cc_shared_object": a,
         "//conditions:default": b,
     })
 
