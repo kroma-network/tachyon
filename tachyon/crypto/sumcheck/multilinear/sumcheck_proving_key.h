@@ -1,5 +1,5 @@
-#ifndef TACHYON_CRYPTO_SUMCHECK_SUMCHECK_PROVING_KEY_H_
-#define TACHYON_CRYPTO_SUMCHECK_SUMCHECK_PROVING_KEY_H_
+#ifndef TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_PROVING_KEY_H_
+#define TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_PROVING_KEY_H_
 
 #include <memory>
 #include <utility>
@@ -7,7 +7,7 @@
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/container_util.h"
-#include "tachyon/crypto/sumcheck/sumcheck_verifying_key.h"
+#include "tachyon/crypto/sumcheck/multilinear/sumcheck_verifying_key.h"
 
 namespace tachyon {
 namespace crypto {
@@ -68,4 +68,4 @@ class Copyable<crypto::ProvingKey<MLE>> {
 }  // namespace base
 }  // namespace tachyon
 
-#endif  // TACHYON_CRYPTO_SUMCHECK_SUMCHECK_PROVING_KEY_H_
+#endif  // TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_PROVING_KEY_H_

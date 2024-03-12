@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_CRYPTO_SUMCHECK_SUMCHECK_VERIFYING_KEY_H_
-#define TACHYON_CRYPTO_SUMCHECK_SUMCHECK_VERIFYING_KEY_H_
+#ifndef TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_VERIFYING_KEY_H_
+#define TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_VERIFYING_KEY_H_
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/random.h"
@@ -69,4 +69,4 @@ class Copyable<crypto::VerifyingKey> {
 }  // namespace base
 }  // namespace tachyon
 
-#endif  // TACHYON_CRYPTO_SUMCHECK_SUMCHECK_VERIFYING_KEY_H_
+#endif  // TACHYON_CRYPTO_SUMCHECK_MULTILINEAR_SUMCHECK_VERIFYING_KEY_H_

@@ -22,7 +22,7 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
-    name = "sumcheck_unittests",
+    name = "multilinear_unittests",
     srcs = [
         "sumcheck_proving_key_unittest.cc",
         "sumcheck_verifying_key_unittest.cc",

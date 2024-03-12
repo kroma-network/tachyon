@@ -1,4 +1,4 @@
-#include "tachyon/crypto/sumcheck/sumcheck_proving_key.h"
+#include "tachyon/crypto/sumcheck/multilinear/sumcheck_proving_key.h"
 
 #include "gtest/gtest.h"
 
