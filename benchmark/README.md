@@ -37,11 +37,13 @@ build --build_tag_filters -rust //enables cuda targets
 build --build_tag_filters="" //enables all targets
 ```
 
-To harness the plot chart feature, first ensure that matplotlib is installed (refer to the [installation guide](https://github.com/kroma-network/tachyon#matplotlib)). Then, append the `--//:has_rtti` and `--//:has_matplotlib` flags to your command:
+To harness the plot chart feature, first ensure that matplotlib is installed (refer to the [installation guide](/docs/how_to_use/how_to_build.md#matplotliboptional)). Then, append the `--//:has_rtti` and `--//:has_matplotlib` flags to your command:
 
 ```shell
 bazel run -c opt --//:has_rtti --//:has_matplotlib //benchmark/path/to/target:target_name -- -n <test_set_size>
 ```
+
+A build error with error message like `terminate called after throwing an instance of 'pybind11::error_already_set' what():  ImportError: ... : undefined symbol: PyTuple_Type` may occur when building the benchmark. This is because bazel does not know about updates to the python environment. To fix this, set environment varible [`PYTHON_LIB_PATH`](/third_party/py/python_configure.bzl) and rebuild the benchmark.
 
 For executing GPU benchmarks, make sure to configure [GPU config](https://github.com/kroma-network/tachyon#hardware-acceleration) for your environment. For instance, in CUDA:
 

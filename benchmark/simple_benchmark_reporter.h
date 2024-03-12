@@ -9,6 +9,8 @@ namespace tachyon {
 class SimpleBenchmarkReporter {
  public:
   SimpleBenchmarkReporter() = default;
+  explicit SimpleBenchmarkReporter(std::string_view title)
+      : title_(std::string(title)) {}
   SimpleBenchmarkReporter(const SimpleBenchmarkReporter& other) = delete;
   SimpleBenchmarkReporter& operator=(const SimpleBenchmarkReporter& other) =
       delete;

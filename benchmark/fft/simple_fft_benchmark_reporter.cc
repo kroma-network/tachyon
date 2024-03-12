@@ -1,4 +1,4 @@
-#include "benchmark/msm/simple_msm_benchmark_reporter.h"
+#include "benchmark/fft/simple_fft_benchmark_reporter.h"
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 
 namespace tachyon {
 
-SimpleMSMBenchmarkReporter::SimpleMSMBenchmarkReporter(
+SimpleFFTBenchmarkReporter::SimpleFFTBenchmarkReporter(
     std::string_view title, const std::vector<uint64_t>& exponents)
     : SimpleBenchmarkReporter(title), exponents_(exponents) {
   targets_ = base::Map(exponents, [](uint64_t exponent) {
@@ -18,7 +18,7 @@ SimpleMSMBenchmarkReporter::SimpleMSMBenchmarkReporter(
   AddVendor("tachyon");
 }
 
-void SimpleMSMBenchmarkReporter::AddVendor(std::string_view name) {
+void SimpleFFTBenchmarkReporter::AddVendor(std::string_view name) {
   column_headers_.push_back(std::string(name));
 }
 

@@ -23,14 +23,14 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
-  SimpleMSMBenchmarkReporter reporter("MSM Benchmark GPU", config.degrees());
+  SimpleMSMBenchmarkReporter reporter("MSM Benchmark GPU", config.exponents());
   reporter.AddVendor("tachyon_gpu");
 
   std::vector<uint64_t> point_nums = config.GetPointNums();
 
   tachyon_bn254_g1_init();
   tachyon_bn254_g1_msm_ptr msm =
-      tachyon_bn254_g1_create_msm(config.degrees().back());
+      tachyon_bn254_g1_create_msm(config.exponents().back());
 
   std::cout << "Generating random points..." << std::endl;
   uint64_t max_point_num = point_nums.back();
@@ -46,7 +46,7 @@ int RealMain(int argc, char** argv) {
   tachyon_bn254_g1_destroy_msm(msm);
 
   tachyon_bn254_g1_msm_gpu_ptr msm_gpu = tachyon_bn254_g1_create_msm_gpu(
-      config.degrees().back(), config.algorithm());
+      config.exponents().back(), config.algorithm());
   std::vector<bn254::G1JacobianPoint> results_gpu;
   runner.Run(tachyon_bn254_g1_affine_msm_gpu, msm_gpu, point_nums,
              &results_gpu);

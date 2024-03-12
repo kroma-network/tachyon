@@ -5,18 +5,18 @@
 
 #include "absl/strings/substitute.h"
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 
 namespace tachyon {
 
 SimpleECBenchmarkReporter::SimpleECBenchmarkReporter(
-    std::string_view title, const std::vector<uint64_t>& nums) {
-  title_ = std::string(title);
+    std::string_view title, const std::vector<uint64_t>& nums)
+    : SimpleBenchmarkReporter(title) {
   column_headers_.push_back("CPU");
   column_headers_.push_back("GPU");
-  for (uint64_t num : nums) {
-    targets_.push_back(base::NumberToString(num));
-  }
+  targets_ =
+      base::Map(nums, [](uint64_t num) { return base::NumberToString(num); });
   results_.resize(nums.size());
 }
 
