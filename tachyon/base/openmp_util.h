@@ -12,9 +12,11 @@
 #define OPENMP_PARALLEL_FOR(expr) _Pragma("omp parallel for") for (expr)
 #define OPENMP_PARALLEL_NESTED_FOR(expr) \
   _Pragma("omp parallel for collapse(2)") for (expr)
+#define OPENMP_FOR(expr) _Pragma("omp for") for (expr)
 #else
 #define OPENMP_PARALLEL_FOR(expr) for (expr)
 #define OPENMP_PARALLEL_NESTED_FOR(expr) for (expr)
+#define OPENMP_FOR(expr) for (expr)
 #endif  // defined(TACHYON_HAS_OPENMP)
 
 namespace tachyon::base {
