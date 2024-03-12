@@ -5,6 +5,7 @@
 
 #include "absl/random/random.h"
 
+#include "tachyon/base/logging.h"
 #include "tachyon/base/range.h"
 #include "tachyon/export.h"
 
@@ -14,6 +15,7 @@ TACHYON_EXPORT absl::BitGen& GetAbslBitGen();
 
 template <typename T, bool IsStartInclusive, bool IsEndInclusive>
 T Uniform(const Range<T, IsStartInclusive, IsEndInclusive>& range) {
+  CHECK(!range.IsEmpty());
   if constexpr (IsStartInclusive && IsEndInclusive) {
     return absl::Uniform(absl::IntervalClosedClosed, GetAbslBitGen(),
                          range.from, range.to);

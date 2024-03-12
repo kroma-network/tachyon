@@ -5,7 +5,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
-#include "tachyon/math/polynomials/multivariate/multilinear_extension.h"
+#include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 
 namespace tachyon::math {
 namespace {
@@ -13,7 +13,7 @@ namespace {
 const size_t kMaxDegree = 4;
 
 using F = GF7;
-using Poly = MultilinearExtension<MultilinearDenseEvaluations<F, kMaxDegree>>;
+using Poly = MultilinearDenseEvaluations<F, kMaxDegree>;
 using Point = Poly::Point;
 using PolyPtr = std::shared_ptr<Poly>;
 
@@ -21,8 +21,8 @@ class LinearCombinationTest : public FiniteFieldTest<F> {};
 
 }  // namespace
 
-// Tests |AddTerm()| and |SumOfProducts()|
-TEST_F(LinearCombinationTest, AddTermAndSumOfProducts) {
+// Tests |AddTerm()| and |Evaluate()|
+TEST_F(LinearCombinationTest, AddTermAndEvaluate) {
   LinearCombination<Poly> linear_combination(kMaxDegree);
   F coefficient1 = F::Random();
 
@@ -47,11 +47,10 @@ TEST_F(LinearCombinationTest, AddTermAndSumOfProducts) {
                         return acc *= eval->Evaluate(evaluation_point);
                       });
 
-  // Test validity of |AddTerm()| and |SumOfProducts()| on 1 term
-  EXPECT_EQ(linear_combination.SumOfProducts(evaluation_point),
-            expected_evaluation);
+  // Test validity of |AddTerm()| and |Evaluate()| on 1 term
+  EXPECT_EQ(linear_combination.Evaluate(evaluation_point), expected_evaluation);
 
-  // Test |AddTerm()| and |SumOfProducts| on 2 terms
+  // Test |AddTerm()| and |Evaluate()| on 2 terms
   F coefficient2 = F::Random();
   std::vector<PolyPtr> evals2 = base::CreateVector(
       5, []() { return std::make_shared<Poly>(Poly::Random(kMaxDegree)); });
@@ -62,8 +61,7 @@ TEST_F(LinearCombinationTest, AddTermAndSumOfProducts) {
                       [&evaluation_point](F& acc, const PolyPtr eval) {
                         return acc *= eval->Evaluate(evaluation_point);
                       });
-  EXPECT_EQ(linear_combination.SumOfProducts(evaluation_point),
-            expected_evaluation);
+  EXPECT_EQ(linear_combination.Evaluate(evaluation_point), expected_evaluation);
 }
 
 }  // namespace tachyon::math

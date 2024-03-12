@@ -1,0 +1,91 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "multilinear_sumcheck",
+    hdrs = ["multilinear_sumcheck.h"],
+    deps = [
+        ":sumcheck_prover",
+        ":sumcheck_verifier",
+    ],
+)
+
+tachyon_cc_library(
+    name = "sumcheck_prover",
+    hdrs = ["sumcheck_prover.h"],
+    deps = [
+        ":sumcheck_prover_msg",
+        ":sumcheck_proving_key",
+        ":sumcheck_verifier_msg",
+        "//tachyon/math/polynomials/multivariate:linear_combination",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+    ],
+)
+
+tachyon_cc_library(
+    name = "sumcheck_prover_msg",
+    hdrs = ["sumcheck_prover_msg.h"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+    ],
+)
+
+tachyon_cc_library(
+    name = "sumcheck_proving_key",
+    hdrs = ["sumcheck_proving_key.h"],
+    deps = [
+        ":sumcheck_verifying_key",
+        "//tachyon/base/containers:container_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "sumcheck_verifier",
+    hdrs = ["sumcheck_verifier.h"],
+    deps = [
+        ":sumcheck_prover_msg",
+        ":sumcheck_verifier_msg",
+        ":sumcheck_verifying_key",
+    ],
+)
+
+tachyon_cc_library(
+    name = "sumcheck_verifier_msg",
+    hdrs = ["sumcheck_verifier_msg.h"],
+    deps = ["//tachyon/base/buffer:copyable"],
+)
+
+tachyon_cc_library(
+    name = "sumcheck_verifying_key",
+    hdrs = ["sumcheck_verifying_key.h"],
+    deps = [
+        "//tachyon/base:random",
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/math/polynomials/multivariate:linear_combination",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "multilinear_unittests",
+    srcs = [
+        "multilinear_sumcheck_unittest.cc",
+        "sumcheck_prover_msg_unittest.cc",
+        "sumcheck_proving_key_unittest.cc",
+        "sumcheck_verifier_msg_unittest.cc",
+        "sumcheck_verifying_key_unittest.cc",
+    ],
+    deps = [
+        ":multilinear_sumcheck",
+        ":sumcheck_prover_msg",
+        ":sumcheck_proving_key",
+        ":sumcheck_verifier_msg",
+        "//tachyon/base:range",
+        "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/math/finite_fields/test:finite_field_test",
+        "//tachyon/math/finite_fields/test:gf7",
+        "//tachyon/math/polynomials/multivariate:multilinear_extension",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+    ],
+)

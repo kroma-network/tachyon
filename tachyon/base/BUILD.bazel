@@ -94,6 +94,7 @@ tachyon_cc_library(
     srcs = ["random.cc"],
     hdrs = ["random.h"],
     deps = [
+        ":logging",
         ":range",
         "//tachyon:export",
         "@com_google_absl//absl/algorithm:container",

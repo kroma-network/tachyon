@@ -235,7 +235,6 @@ class UnivariateDenseCoefficients {
   }
 
   constexpr F DoEvaluate(const Point& point) const {
-#if defined(TACHYON_HAS_OPENMP)
     // Horner's method - parallel method
     // run Horner's method on each thread as follows:
     // 1) Split up the coefficients across each thread evenly.
@@ -253,9 +252,6 @@ class UnivariateDenseCoefficients {
         });
     return std::accumulate(results.begin(), results.end(), F::Zero(),
                            std::plus<>());
-#else
-    return HornerEvaluate(coefficients_, point);
-#endif
   }
 
   constexpr static F HornerEvaluate(absl::Span<const F> coefficients,
