@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-#include "absl/container/node_hash_map.h"
+#include "absl/container/flat_hash_map.h"
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/parallelize.h"
@@ -110,7 +110,7 @@ class LinearCombination {
   // holds all unique dense multilinear evaluations currently used & their
   // corresponding index in |flattened_ml_evaluations_|
   // not owned
-  absl::node_hash_map<const MLE*, size_t> lookup_table_;
+  absl::flat_hash_map<const MLE*, size_t> lookup_table_;
 
   static F EvaluateSerial(
       const Point& point,
