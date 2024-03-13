@@ -1,6 +1,8 @@
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 def _generate_bn_curve_impl(ctx):
+    curve_hdr_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/elliptic_curves/bn/generator:curve.h.tpl)", [ctx.attr.curve_hdr_path])
+
     arguments = [
         "--out=%s" % (ctx.outputs.out.path),
         "--namespace=%s" % (ctx.attr.namespace),
@@ -9,6 +11,7 @@ def _generate_bn_curve_impl(ctx):
         "--g2_hdr=%s" % (ctx.attr.g2_hdr),
         "-x=%s" % (ctx.attr.x),
         "--twist_type=%s" % (ctx.attr.twist_type),
+        "--curve_hdr_path=%s" % (curve_hdr_path),
     ]
     if len(ctx.attr.class_name) > 0:
         arguments.append("--class=%s" % (ctx.attr.class_name))
@@ -20,6 +23,7 @@ def _generate_bn_curve_impl(ctx):
         arguments.append("--twist_mul_by_q_y=%s" % (twist_mul_by_q_y))
 
     ctx.actions.run(
+        inputs = [ctx.files.curve_hdr_path[0]],
         tools = [ctx.executable._tool],
         executable = ctx.executable._tool,
         outputs = [ctx.outputs.out],
@@ -41,6 +45,10 @@ generate_bn_curve = rule(
         "twist_mul_by_q_x": attr.string_list(mandatory = True),
         "twist_mul_by_q_y": attr.string_list(mandatory = True),
         "twist_type": attr.string(mandatory = True, values = ["M", "D"]),
+        "curve_hdr_path": attr.label(
+            allow_single_file = True,
+            default = Label("@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/generator:curve.h.tpl"),
+        ),
         "_tool": attr.label(
             # TODO(chokobole): Change to "exec", so we can build on macos.
             cfg = "target",

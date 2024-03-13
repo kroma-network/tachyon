@@ -5,6 +5,10 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_binary(
     name = "generator",
     srcs = ["generator.cc"],
+    data = [
+        "cpu.h.tpl",
+        "gpu.h.tpl",
+    ],
     deps = [
         "//tachyon/base/console",
         "//tachyon/base/containers:container_util",
@@ -14,5 +18,6 @@ tachyon_cc_binary(
         "//tachyon/build:cc_writer",
         "//tachyon/math/base/gmp:bit_traits",
         "//tachyon/math/finite_fields/generator:generator_util",
+        "@com_google_absl//absl/container:flat_hash_map",
     ],
 )

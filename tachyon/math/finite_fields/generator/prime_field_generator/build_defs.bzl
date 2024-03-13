@@ -14,6 +14,9 @@ def _do_generate_prime_field_impl(ctx, type):
     x86_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:prime_field_x86.h.tpl)", [ctx.attr.x86_hdr_tpl])
     fail_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:fail.h.tpl)", [ctx.attr.fail_hdr_tpl])
     fail_src_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:fail.cc.tpl)", [ctx.attr.fail_src_tpl])
+    config_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:config.h.tpl)", [ctx.attr.config_hdr_tpl])
+    cpu_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:cpu.h.tpl)", [ctx.attr.cpu_hdr_tpl])
+    gpu_hdr_tpl_path = ctx.expand_location("$(location @kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:gpu.h.tpl)", [ctx.attr.gpu_hdr_tpl])
 
     arguments = [
         "--out=%s" % (ctx.outputs.out.path),
@@ -24,6 +27,9 @@ def _do_generate_prime_field_impl(ctx, type):
         "--x86_hdr_tpl_path=%s" % (x86_hdr_tpl_path),
         "--fail_hdr_tpl_path=%s" % (fail_hdr_tpl_path),
         "--fail_src_tpl_path=%s" % (fail_src_tpl_path),
+        "--config_hdr_tpl_path=%s" % (config_hdr_tpl_path),
+        "--cpu_hdr_tpl_path=%s" % (cpu_hdr_tpl_path),
+        "--gpu_hdr_tpl_path=%s" % (gpu_hdr_tpl_path),
     ]
 
     if type >= _FFT_PRIME_FIELD:
@@ -38,6 +44,9 @@ def _do_generate_prime_field_impl(ctx, type):
             ctx.files.x86_hdr_tpl[0],
             ctx.files.fail_hdr_tpl[0],
             ctx.files.fail_src_tpl[0],
+            ctx.files.config_hdr_tpl[0],
+            ctx.files.cpu_hdr_tpl[0],
+            ctx.files.gpu_hdr_tpl[0],
         ],
         tools = [ctx.executable._tool],
         executable = ctx.executable._tool,
@@ -74,6 +83,18 @@ def _attrs(type):
         "fail_src_tpl": attr.label(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:fail.cc.tpl"),
+        ),
+        "config_hdr_tpl": attr.label(
+            allow_single_file = True,
+            default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:config.h.tpl"),
+        ),
+        "cpu_hdr_tpl": attr.label(
+            allow_single_file = True,
+            default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:cpu.h.tpl"),
+        ),
+        "gpu_hdr_tpl": attr.label(
+            allow_single_file = True,
+            default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:gpu.h.tpl"),
         ),
         "_tool": attr.label(
             # TODO(chokobole): Change to "exec", so we can build on macos.
@@ -116,7 +137,6 @@ def _do_generate_prime_fields(
         name,
         namespace,
         modulus,
-        special_prime_field = False,
         **kwargs):
     prefix = namespace.replace("::", "_") + "_" + name
     generate_asm(
@@ -183,33 +203,32 @@ def _do_generate_prime_fields(
         deps = ["//tachyon/base:logging"],
     )
 
-    if special_prime_field == False:
-        tachyon_cc_library(
-            name = name,
-            hdrs = [
-                ":{}_gen_hdr".format(name),
-            ] + select({
-                "@kroma_network_tachyon//:linux_x86_64": [":{}_gen_prime_field_x86_hdr".format(name)],
-                "@kroma_network_tachyon//:macos_x86_64": [":{}_gen_prime_field_x86_hdr".format(name)],
-                "//conditions:default": [],
-            }),
-            deps = [
-                ":{}_config".format(name),
-            ] + select({
-                "@kroma_network_tachyon//:linux_x86_64": [
-                    ":{}_object".format(name),
-                    ":{}_fail".format(name),
-                    "//tachyon/math/finite_fields:prime_field_base",
-                ],
-                "@kroma_network_tachyon//:macos_x86_64": [
-                    ":{}_object".format(name),
-                    ":{}_fail".format(name),
-                    "//tachyon/math/finite_fields:prime_field_base",
-                ],
-                "//conditions:default": ["//tachyon/math/finite_fields:prime_field_generic"],
-            }),
-            **kwargs
-        )
+    tachyon_cc_library(
+        name = name,
+        hdrs = [
+            ":{}_gen_hdr".format(name),
+        ] + select({
+            "@kroma_network_tachyon//:linux_x86_64": [":{}_gen_prime_field_x86_hdr".format(name)],
+            "@kroma_network_tachyon//:macos_x86_64": [":{}_gen_prime_field_x86_hdr".format(name)],
+            "//conditions:default": [],
+        }),
+        deps = [
+            ":{}_config".format(name),
+        ] + select({
+            "@kroma_network_tachyon//:linux_x86_64": [
+                ":{}_object".format(name),
+                ":{}_fail".format(name),
+                "//tachyon/math/finite_fields:prime_field_base",
+            ],
+            "@kroma_network_tachyon//:macos_x86_64": [
+                ":{}_object".format(name),
+                ":{}_fail".format(name),
+                "//tachyon/math/finite_fields:prime_field_base",
+            ],
+            "//conditions:default": ["//tachyon/math/finite_fields:prime_field_generic"],
+        }),
+        **kwargs
+    )
 
     tachyon_cc_library(
         name = "{}_gpu".format(name),
@@ -237,7 +256,6 @@ def generate_prime_fields(
         class_name,
         modulus,
         flag,
-        special_prime_field = False,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_prime_field(
@@ -249,7 +267,7 @@ def generate_prime_fields(
             out = n[1],
         )
 
-    _do_generate_prime_fields(name, namespace, modulus, special_prime_field, **kwargs)
+    _do_generate_prime_fields(name, namespace, modulus, **kwargs)
 
 def generate_fft_prime_fields(
         name,
@@ -258,7 +276,6 @@ def generate_fft_prime_fields(
         modulus,
         flag,
         subgroup_generator,
-        special_prime_field = False,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_fft_prime_field(
@@ -271,7 +288,7 @@ def generate_fft_prime_fields(
             out = n[1],
         )
 
-    _do_generate_prime_fields(name, namespace, modulus, special_prime_field, **kwargs)
+    _do_generate_prime_fields(name, namespace, modulus, **kwargs)
 
 def generate_large_fft_prime_fields(
         name,
@@ -282,7 +299,6 @@ def generate_large_fft_prime_fields(
         small_subgroup_adicity,
         small_subgroup_base,
         subgroup_generator,
-        special_prime_field = False,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_large_fft_prime_field(
@@ -297,4 +313,4 @@ def generate_large_fft_prime_fields(
             out = n[1],
         )
 
-    _do_generate_prime_fields(name, namespace, modulus, special_prime_field, **kwargs)
+    _do_generate_prime_fields(name, namespace, modulus, **kwargs)

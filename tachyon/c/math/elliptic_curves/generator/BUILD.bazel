@@ -12,6 +12,18 @@ tachyon_cc_library(
 tachyon_cc_binary(
     name = "generator",
     srcs = ["generator.cc"],
+    data = [
+        "g1.cc.tpl",
+        "g1.h.tpl",
+        "g1_traits.h.tpl",
+        "msm.cc.tpl",
+        "msm.h.tpl",
+        "msm_gpu.cc.tpl",
+        "msm_gpu.h.tpl",
+        "prime_field.cc.tpl",
+        "prime_field.h.tpl",
+        "prime_field_traits.h.tpl",
+    ],
     deps = [
         ":generator_util",
         "//tachyon/base/console",
