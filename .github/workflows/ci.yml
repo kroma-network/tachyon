@@ -13,35 +13,38 @@ jobs:
         include:
           - os: ubuntu-latest
             bazel_config: linux
-          - os: macos-latest
-            bazel_config: macos_x86_64
+          - os: macos-latest-xlarge
+            bazel_config: macos_arm64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up Bazel
-        uses: bazelbuild/setup-bazelisk@v2
+        uses: bazelbuild/setup-bazelisk@v3
 
-      - name: Setup Python and Install numpy
+      - name: Setup Python on MacOS
+        if: matrix.os == 'macos-latest-xlarge'
+        run: brew install python@3.10
+
+      - name: Setup Python on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/setup-python@v4
         with:
           python-version: "3.10.12"
 
       - name: Install numpy
-        run: python -m pip install numpy
+        run: python3 -m pip install numpy
 
       - name: Install OpenMP
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install -y libomp-dev
 
       - name: Build
-        # NOTE(chokobole): Since https://github.com/kroma-network/tachyon/pull/340, fastbuild config on mac fails.
-        run: bazel build -c dbg --config ${{ matrix.bazel_config }} //...
+        run: bazel build -c fastbuild --config ${{ matrix.bazel_config }} //...
 
       - name: Test Tachyon
-        # NOTE(chokobole): Since https://github.com/kroma-network/tachyon/pull/340, fastbuild config on mac fails.
-        run: bazel test -c dbg --config ${{ matrix.bazel_config }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
+        run: bazel test -c fastbuild --config ${{ matrix.bazel_config }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
 
       - name: Test OpenMP
         if: matrix.os == 'ubuntu-latest'
