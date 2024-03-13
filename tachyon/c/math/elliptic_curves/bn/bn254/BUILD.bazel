@@ -7,6 +7,9 @@ filegroup(
     name = "bn254_hdrs",
     srcs = [
         "fq.h",
+        "fq12.h",
+        "fq2.h",
+        "fq6.h",
         "fr.h",
         "g1.h",
         "msm.h",
@@ -16,6 +19,9 @@ filegroup(
 
 generate_ec_points(
     name = "bn254",
+    fq12_deps = ["//tachyon/math/elliptic_curves/bn/bn254:fq12"],
+    fq2_deps = ["//tachyon/math/elliptic_curves/bn/bn254:fq2"],
+    fq6_deps = ["//tachyon/math/elliptic_curves/bn/bn254:fq6"],
     fq_limb_nums = 4,
     fr_limb_nums = 4,
     g1_deps = ["//tachyon/math/elliptic_curves/bn/bn254:g1"],

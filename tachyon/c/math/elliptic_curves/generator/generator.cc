@@ -16,6 +16,9 @@ struct GenerationConfig : public build::CcWriter {
   base::FilePath prime_field_hdr_tpl_path;
   base::FilePath prime_field_src_tpl_path;
   base::FilePath prime_field_traits_hdr_tpl_path;
+  base::FilePath ext_field_hdr_tpl_path;
+  base::FilePath ext_field_src_tpl_path;
+  base::FilePath ext_field_traits_hdr_tpl_path;
   base::FilePath g1_hdr_tpl_path;
   base::FilePath g1_src_tpl_path;
   base::FilePath g1_traits_hdr_tpl_path;
@@ -27,6 +30,8 @@ struct GenerationConfig : public build::CcWriter {
   std::string type;
   int fq_limb_nums;
   int fr_limb_nums;
+  int degree;
+  int base_field_degree;
   bool has_specialized_g1_msm_kernels;
 
   int GeneratePrimeFieldHdr(std::string_view suffix) const;
@@ -38,6 +43,9 @@ struct GenerationConfig : public build::CcWriter {
   int GenerateFrHdr() const;
   int GenerateFrSrc() const;
   int GenerateFrTraitsHdr() const;
+  int GenerateExtFieldHdr() const;
+  int GenerateExtFieldSrc() const;
+  int GenerateExtFieldTraitsHdr() const;
   int GenerateG1Hdr() const;
   int GenerateG1Src() const;
   int GenerateG1TraitsHdr() const;
@@ -112,6 +120,57 @@ int GenerationConfig::GenerateFrSrc() const {
 
 int GenerationConfig::GenerateFrTraitsHdr() const {
   return GeneratePrimeFieldTraitsHdr("fr");
+}
+
+int GenerationConfig::GenerateExtFieldHdr() const {
+  std::string tpl_content;
+  CHECK(base::ReadFileToString(ext_field_hdr_tpl_path, &tpl_content));
+
+  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
+  int degree_over_base_field = degree / base_field_degree;
+  RemoveOptionalLines(tpl_lines, "IsCubicExtension",
+                      degree_over_base_field == 3);
+  tpl_content = absl::StrJoin(tpl_lines, "\n");
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content,
+      {
+          {"%{header_dir_name}", c::math::GetLocation(type)},
+          {"%{type}", type},
+          {"%{degree}", base::NumberToString(degree)},
+          {"%{base_field_degree}",
+           base_field_degree == 1 ? ""
+                                  : base::NumberToString(base_field_degree)},
+      });
+  return WriteHdr(content, false);
+}
+
+int GenerationConfig::GenerateExtFieldSrc() const {
+  std::string tpl_content;
+  CHECK(base::ReadFileToString(ext_field_src_tpl_path, &tpl_content));
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content,
+      {
+          {"%{header_dir_name}", c::math::GetLocation(type)},
+          {"%{type}", type},
+          {"%{degree}", degree == 1 ? "" : base::NumberToString(degree)},
+      });
+  return WriteSrc(content);
+}
+
+int GenerationConfig::GenerateExtFieldTraitsHdr() const {
+  std::string tpl_content;
+  CHECK(base::ReadFileToString(ext_field_traits_hdr_tpl_path, &tpl_content));
+
+  std::string content = absl::StrReplaceAll(
+      tpl_content,
+      {
+          {"%{type}", type},
+          {"%{header_dir_name}", c::math::GetLocation(type)},
+          {"%{degree}", degree == 1 ? "" : base::NumberToString(degree)},
+      });
+  return WriteHdr(content, false);
 }
 
 int GenerationConfig::GenerateG1Hdr() const {
@@ -212,6 +271,12 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::IntFlag>(&config.fr_limb_nums)
       .set_long_name("--fr_limb_nums")
       .set_required();
+  parser.AddFlag<base::IntFlag>(&config.degree)
+      .set_long_name("--degree")
+      .set_required();
+  parser.AddFlag<base::IntFlag>(&config.base_field_degree)
+      .set_long_name("--base_field_degree")
+      .set_required();
   parser.AddFlag<base::BoolFlag>(&config.has_specialized_g1_msm_kernels)
       .set_long_name("--has_specialized_g1_msm_kernels")
       .set_required();
@@ -223,6 +288,15 @@ int RealMain(int argc, char** argv) {
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.prime_field_traits_hdr_tpl_path)
       .set_long_name("--prime_field_traits_hdr_tpl_path")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.ext_field_hdr_tpl_path)
+      .set_long_name("--ext_field_hdr_tpl_path")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.ext_field_src_tpl_path)
+      .set_long_name("--ext_field_src_tpl_path")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.ext_field_traits_hdr_tpl_path)
+      .set_long_name("--ext_field_traits_hdr_tpl_path")
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.g1_hdr_tpl_path)
       .set_long_name("--g1_hdr_tpl_path")
@@ -252,6 +326,9 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
+  std::string ext_field_name =
+      absl::Substitute("fq$0", base::NumberToString(config.degree));
+
   if (base::EndsWith(config.out.value(), "fq.h")) {
     return config.GenerateFqHdr();
   } else if (base::EndsWith(config.out.value(), "fq.cc")) {
@@ -264,6 +341,12 @@ int RealMain(int argc, char** argv) {
     return config.GenerateFrSrc();
   } else if (base::EndsWith(config.out.value(), "fr_traits.h")) {
     return config.GenerateFrTraitsHdr();
+  } else if (base::EndsWith(config.out.value(), ext_field_name + ".h")) {
+    return config.GenerateExtFieldHdr();
+  } else if (base::EndsWith(config.out.value(), ext_field_name + ".cc")) {
+    return config.GenerateExtFieldSrc();
+  } else if (base::EndsWith(config.out.value(), ext_field_name + "_traits.h")) {
+    return config.GenerateExtFieldTraitsHdr();
   } else if (base::EndsWith(config.out.value(), "g1.h")) {
     return config.GenerateG1Hdr();
   } else if (base::EndsWith(config.out.value(), "g1.cc")) {

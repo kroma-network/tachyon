@@ -13,6 +13,9 @@ tachyon_cc_binary(
     name = "generator",
     srcs = ["generator.cc"],
     data = [
+        "ext_field.cc.tpl",
+        "ext_field.h.tpl",
+        "ext_field_traits.h.tpl",
         "g1.cc.tpl",
         "g1.h.tpl",
         "g1_traits.h.tpl",

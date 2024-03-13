@@ -90,18 +90,14 @@ def generate_ec_points(
         name = "fq",
         hdrs = ["fq.h"],
         srcs = ["fq.cc"],
-        deps = g1_deps + [
-            "//tachyon/cc:export",
-        ],
+        deps = g1_deps + ["//tachyon/cc:export"],
     )
 
     tachyon_cc_library(
         name = "fr",
         hdrs = ["fr.h"],
         srcs = ["fr.cc"],
-        deps = g1_deps + [
-            "//tachyon/cc:export",
-        ],
+        deps = g1_deps + ["//tachyon/cc:export"],
     )
 
     tachyon_cc_library(
