@@ -8,7 +8,23 @@ _Note_: We have our own development conventions. Please read the [conventions do
 
 Begin by creating a directory named `<new_prime_field>_prime` in `/tachyon/math/finite_field/`. Add a `BUILD.bazel` file into this directory. Note that once parameters are added to `BUILD.bazel`, Bazel will automatically generate the prime field code based on these parameters when it builds the target.
 
-Choose among `generate_prime_fields()`, `generate_fft_prime_fields()`, or `generate_large_fft_prime_fields()` for code generation, depending on the prime field type. For more information, refer to [`prime_field_generator`](/tachyon/math/finite_fields/generator/prime_field_generator/build_defs.bzl).
+### Prime field generator
+
+Choose the [prime field generator](/tachyon/math/finite_fields/generator/prime_field_generator/build_defs.bzl) depending on the prime field type. The list of required properties for each prime field generator is included below. Note that each successive field type in this list additionally requires all properties mentioned in previous generator types.
+
+1. **`generate_prime_fields()`**:
+    - `name`: The name of the prime field.
+    - `namespace`: The selected namespace, commonly set as `tachyon::math`.
+    - `class_name`: The name of the class, usually the same as the name of the prime field (in PascalCase).
+    - `modulus`: The modulus value of the prime field.
+    - `flag`: The name of the flag exposed in the prime field's configuration (`kIs<PrimeFieldName>`).
+2. **`generate_fft_prime_fields()`**:
+    - `subgroup_generator`: The value used to generate elements of a subgroup within the prime field, facilitating Fast Fourier Transform (FFT) operations.
+      - _Note_: Every prime can be expressed in the following form: $p = 2^s * T + 1$, where $s$ and $T$ are integers, and $T$ is odd. According to Fermat's little Theorem, $a^{p-1} = 1 \mod p$ holds for any element $a$ in $F_p$. That is to say, $a^{2^s * T} = 1 \mod p$. A subgroup generator $g$ satisfies $(g^{2^{s-k} * T})^{2^k} = 1 \mod p$ for some $k \le s$, where $2^k = n$, making $\omega = g^{2^{s-k} * T}$ a $n$-th root of unity.
+3. **`generate_large_fft_prime_fields()`**:
+    - `small_subgroup_base`: Refers to the base element $b$ of a small subgroup.
+    - `small_subgroup_adicity`: Refers to the largest adicity $a$ (the exponent of the base) of a small subgroup such that $b^a$ is a divisor of $T$.
+      - _Note_: Large FFT prime fields can construct a larger domain than FFT prime fields through a small subgroup. Given `small_subgroup_base` = $b$ and `small_subgroup_adicity` = $a$, if $b^a$ is a divisor of $T$ and $g^{2^s * T} = 1 \mod p$, then $(g^{T/b^a})^{2^s*b^a} = 1 \mod p$. This manipulation enables a domain size up to $b^a$ times larger than the maximum domain size of $2^s$ that general FFT prime fields can create. Additionally, the $n$-th root of unity is now $\omega = g^{2^{s-k} * T/b^{a-q}}$, where $n = 2^k * b^{a-q} (k \le s, q \le a)$ since $\omega$ satisfies $\omega^{2^k * b^{a-q}} = (g^{2^{s-k} * T/b^{a-q}})^{2^k * b^{a-q}} = 1 \mod p$.
 
 For instance, to implement a FFT prime field, create a directory (`/tachyon/math/finite_fields/<new_prime_field>`) and add a `BUILD.bazel` file as shown below:
 
@@ -32,9 +48,10 @@ string_flag(
 
 generate_fft_prime_fields( # NOTE: Choose generator type
     name = "new_prime_field",
+    namespace = "tachyon::math",
     class_name = "NewPrimeField",
     modulus = "{modulus_value}", # input modulus value
-    namespace = "tachyon::math",
+    flag = "kIsNewPrimeField",
     subgroup_generator = ":" + SUBGROUP_GENERATOR,
 )
 ```
