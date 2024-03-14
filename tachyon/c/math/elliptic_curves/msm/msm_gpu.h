@@ -11,7 +11,7 @@
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/c/math/elliptic_curves/msm/algorithm.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
-#include "tachyon/cc/math/elliptic_curves/point_conversions.h"
+#include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
@@ -92,11 +92,10 @@ struct MSMGpuApi {
   }
 };
 
-template <
-    typename RetPoint, typename GpuCurve, typename CPoint,
-    typename CScalarField,
-    typename CRetPoint = typename cc::math::PointTraits<RetPoint>::CCurvePoint,
-    typename CpuCurve = typename GpuCurve::CpuCurve>
+template <typename RetPoint, typename GpuCurve, typename CPoint,
+          typename CScalarField,
+          typename CRetPoint = typename PointTraits<RetPoint>::CCurvePoint,
+          typename CpuCurve = typename GpuCurve::CpuCurve>
 CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
                     const CScalarField* scalars, size_t size) {
   msm_api.provider.Inject(bases, scalars, size);
@@ -113,7 +112,7 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
   CHECK(
       msm_api.msm->Run(msm_api.d_bases, msm_api.d_scalars, aligned_size, &ret));
   CRetPoint* cret = new CRetPoint();
-  cc::math::ToCPoint3(ret, cret);
+  ToCPoint3(ret, cret);
 
   if (msm_api.log_msm) {
     // NOTE(chokobole): This should be replaced with VLOG().

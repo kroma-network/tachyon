@@ -1,10 +1,10 @@
 // clang_format off
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fr.h"
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/g1.h"
-#include "tachyon/cc/math/elliptic_curves/point_traits_forward.h"
+#include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/elliptic_curves/%{header_dir_name}/g1.h"
 
-namespace tachyon::cc::math {
+namespace tachyon::c::math {
 
 template <>
 struct PointTraits<tachyon::math::%{type}::G1AffinePoint> {

@@ -9,9 +9,9 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
-#include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
@@ -68,7 +68,7 @@ TEST_P(SHPlonkProverTest, Commit) {
       reinterpret_cast<const tachyon_bn254_univariate_dense_polynomial*>(
           &poly));
   EXPECT_EQ(reinterpret_cast<Prover<PCS>*>(prover_)->Commit(poly).ToJacobian(),
-            cc::math::ToJacobianPoint(*point));
+            c::math::ToJacobianPoint(*point));
 }
 
 TEST_P(SHPlonkProverTest, CommitLagrange) {
@@ -79,7 +79,7 @@ TEST_P(SHPlonkProverTest, CommitLagrange) {
           reinterpret_cast<const tachyon_bn254_univariate_evaluations*>(
               &evals));
   EXPECT_EQ(reinterpret_cast<Prover<PCS>*>(prover_)->Commit(evals).ToJacobian(),
-            cc::math::ToJacobianPoint(*point));
+            c::math::ToJacobianPoint(*point));
 }
 
 TEST_P(SHPlonkProverTest, SetRng) {

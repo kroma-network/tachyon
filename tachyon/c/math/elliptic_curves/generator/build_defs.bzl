@@ -247,7 +247,7 @@ def generate_ec_points(
         deps = [
             ":fq",
             ":fr",
-            "//tachyon/cc/math/elliptic_curves:point_conversions",
+            "//tachyon/c/math/elliptic_curves:point_conversions",
         ],
     )
 

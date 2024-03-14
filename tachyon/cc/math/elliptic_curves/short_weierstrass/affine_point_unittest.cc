@@ -2,8 +2,8 @@
 
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/cc/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/cc/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
 namespace tachyon::cc::math {
@@ -18,8 +18,8 @@ class AffinePointTest : public testing::Test {
     a_ = tachyon::math::bn254::G1AffinePoint::Random();
     b_ = tachyon::math::bn254::G1AffinePoint::Random();
 
-    cc_a_ = bn254::G1AffinePoint(ToCAffinePoint(a_));
-    cc_b_ = bn254::G1AffinePoint(ToCAffinePoint(b_));
+    cc_a_ = bn254::G1AffinePoint(c::math::ToCAffinePoint(a_));
+    cc_b_ = bn254::G1AffinePoint(c::math::ToCAffinePoint(b_));
   }
 
  protected:
@@ -33,18 +33,18 @@ class AffinePointTest : public testing::Test {
 
 TEST_F(AffinePointTest, Zero) {
   bn254::G1AffinePoint cc_ret = bn254::G1AffinePoint::Zero();
-  EXPECT_TRUE(ToAffinePoint(cc_ret.ToCPoint()).IsZero());
+  EXPECT_TRUE(c::math::ToAffinePoint(cc_ret.ToCPoint()).IsZero());
 }
 
 TEST_F(AffinePointTest, Generator) {
   bn254::G1AffinePoint cc_ret = bn254::G1AffinePoint::Generator();
-  EXPECT_EQ(ToAffinePoint(cc_ret.ToCPoint()),
+  EXPECT_EQ(c::math::ToAffinePoint(cc_ret.ToCPoint()),
             tachyon::math::bn254::G1AffinePoint::Generator());
 }
 
 TEST_F(AffinePointTest, Random) {
   bn254::G1AffinePoint cc_ret = bn254::G1AffinePoint::Random();
-  EXPECT_NE(ToAffinePoint(cc_ret.ToCPoint()), a_);
+  EXPECT_NE(c::math::ToAffinePoint(cc_ret.ToCPoint()), a_);
 }
 
 TEST_F(AffinePointTest, Eq) { EXPECT_EQ(cc_a_ == cc_b_, a_ == b_); }
@@ -53,22 +53,22 @@ TEST_F(AffinePointTest, Ne) { EXPECT_EQ(cc_a_ != cc_b_, a_ != b_); }
 
 TEST_F(AffinePointTest, Add) {
   bn254::G1JacobianPoint cc_ret = cc_a_ + cc_b_;
-  EXPECT_EQ(ToJacobianPoint(cc_ret.ToCPoint()), a_ + b_);
+  EXPECT_EQ(c::math::ToJacobianPoint(cc_ret.ToCPoint()), a_ + b_);
 }
 
 TEST_F(AffinePointTest, Sub) {
   bn254::G1JacobianPoint cc_ret = cc_a_ - cc_b_;
-  EXPECT_EQ(ToJacobianPoint(cc_ret.ToCPoint()), a_ - b_);
+  EXPECT_EQ(c::math::ToJacobianPoint(cc_ret.ToCPoint()), a_ - b_);
 }
 
 TEST_F(AffinePointTest, Neg) {
   bn254::G1AffinePoint cc_ret = -cc_a_;
-  EXPECT_EQ(ToAffinePoint(cc_ret.ToCPoint()), -a_);
+  EXPECT_EQ(c::math::ToAffinePoint(cc_ret.ToCPoint()), -a_);
 }
 
 TEST_F(AffinePointTest, Dbl) {
   bn254::G1JacobianPoint cc_ret = cc_a_.Double();
-  EXPECT_EQ(ToJacobianPoint(cc_ret.ToCPoint()), a_.Double());
+  EXPECT_EQ(c::math::ToJacobianPoint(cc_ret.ToCPoint()), a_.Double());
 }
 
 }  // namespace tachyon::cc::math

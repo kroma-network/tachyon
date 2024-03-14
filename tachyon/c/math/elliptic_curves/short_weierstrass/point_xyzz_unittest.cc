@@ -3,7 +3,7 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_test.h"
-#include "tachyon/cc/math/elliptic_curves/point_conversions.h"
+#include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 
 namespace tachyon {
@@ -16,8 +16,8 @@ class PointXYZZTest : public c::math::bn254::G1Test {
     a_ = math::bn254::G1PointXYZZ::Random();
     b_ = math::bn254::G1PointXYZZ::Random();
 
-    c_a_ = cc::math::ToCPointXYZZ(a_);
-    c_b_ = cc::math::ToCPointXYZZ(b_);
+    c_a_ = c::math::ToCPointXYZZ(a_);
+    c_b_ = c::math::ToCPointXYZZ(b_);
   }
 
  protected:
@@ -31,18 +31,17 @@ class PointXYZZTest : public c::math::bn254::G1Test {
 
 TEST_F(PointXYZZTest, Zero) {
   tachyon_bn254_g1_xyzz c_ret = tachyon_bn254_g1_xyzz_zero();
-  EXPECT_TRUE(cc::math::ToPointXYZZ(c_ret).IsZero());
+  EXPECT_TRUE(c::math::ToPointXYZZ(c_ret).IsZero());
 }
 
 TEST_F(PointXYZZTest, Generator) {
   tachyon_bn254_g1_xyzz c_ret = tachyon_bn254_g1_xyzz_generator();
-  EXPECT_EQ(cc::math::ToPointXYZZ(c_ret),
-            math::bn254::G1PointXYZZ::Generator());
+  EXPECT_EQ(c::math::ToPointXYZZ(c_ret), math::bn254::G1PointXYZZ::Generator());
 }
 
 TEST_F(PointXYZZTest, Random) {
   tachyon_bn254_g1_xyzz c_ret = tachyon_bn254_g1_xyzz_random();
-  EXPECT_NE(cc::math::ToPointXYZZ(c_ret), a_);
+  EXPECT_NE(c::math::ToPointXYZZ(c_ret), a_);
 }
 
 TEST_F(PointXYZZTest, Eq) {
@@ -55,32 +54,32 @@ TEST_F(PointXYZZTest, Ne) {
 
 TEST_F(PointXYZZTest, Add) {
   tachyon_bn254_g1_xyzz c_ret = tachyon_bn254_g1_xyzz_add(&c_a_, &c_b_);
-  EXPECT_EQ(cc::math::ToPointXYZZ(c_ret), a_ + b_);
+  EXPECT_EQ(c::math::ToPointXYZZ(c_ret), a_ + b_);
 
   math::bn254::G1AffinePoint d = math::bn254::G1AffinePoint::Random();
-  tachyon_bn254_g1_affine c_d = cc::math::ToCAffinePoint(d);
+  tachyon_bn254_g1_affine c_d = c::math::ToCAffinePoint(d);
   c_ret = tachyon_bn254_g1_xyzz_add_mixed(&c_a_, &c_d);
-  EXPECT_EQ(cc::math::ToPointXYZZ(c_ret), a_ + d);
+  EXPECT_EQ(c::math::ToPointXYZZ(c_ret), a_ + d);
 }
 
 TEST_F(PointXYZZTest, Sub) {
   tachyon_bn254_g1_xyzz c_ret = tachyon_bn254_g1_xyzz_sub(&c_a_, &c_b_);
-  EXPECT_EQ(cc::math::ToPointXYZZ(c_ret), a_ - b_);
+  EXPECT_EQ(c::math::ToPointXYZZ(c_ret), a_ - b_);
 
   math::bn254::G1AffinePoint d = math::bn254::G1AffinePoint::Random();
-  tachyon_bn254_g1_affine c_d = cc::math::ToCAffinePoint(d);
+  tachyon_bn254_g1_affine c_d = c::math::ToCAffinePoint(d);
   c_ret = tachyon_bn254_g1_xyzz_sub_mixed(&c_a_, &c_d);
-  EXPECT_EQ(cc::math::ToPointXYZZ(c_ret), a_ - d);
+  EXPECT_EQ(c::math::ToPointXYZZ(c_ret), a_ - d);
 }
 
 TEST_F(PointXYZZTest, Neg) {
   tachyon_bn254_g1_xyzz c_ret = tachyon_bn254_g1_xyzz_neg(&c_a_);
-  EXPECT_EQ(cc::math::ToPointXYZZ(c_ret), -a_);
+  EXPECT_EQ(c::math::ToPointXYZZ(c_ret), -a_);
 }
 
 TEST_F(PointXYZZTest, Dbl) {
   tachyon_bn254_g1_xyzz c_ret = tachyon_bn254_g1_xyzz_dbl(&c_a_);
-  EXPECT_EQ(cc::math::ToPointXYZZ(c_ret), a_.Double());
+  EXPECT_EQ(c::math::ToPointXYZZ(c_ret), a_.Double());
 }
 
 }  // namespace tachyon

@@ -5,7 +5,7 @@
 
 #include "tachyon/base/console/console_stream.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
-#include "tachyon/cc/math/elliptic_curves/point_conversions.h"
+#include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 
@@ -34,7 +34,7 @@ struct MSMApi {
 
 template <
     typename RetPoint, typename Point, typename CPoint, typename CScalarField,
-    typename CRetPoint = typename cc::math::PointTraits<RetPoint>::CCurvePoint,
+    typename CRetPoint = typename PointTraits<RetPoint>::CCurvePoint,
     typename Bucket = typename tachyon::math::VariableBaseMSM<Point>::Bucket>
 CRetPoint* DoMSM(MSMApi<Point>& msm_api, const CPoint* bases,
                  const CScalarField* scalars, size_t size) {
@@ -44,7 +44,7 @@ CRetPoint* DoMSM(MSMApi<Point>& msm_api, const CPoint* bases,
                         &bucket));
   auto ret = tachyon::math::ConvertPoint<RetPoint>(bucket);
   CRetPoint* cret = new CRetPoint();
-  cc::math::ToCPoint3(ret, cret);
+  ToCPoint3(ret, cret);
   return cret;
 }
 

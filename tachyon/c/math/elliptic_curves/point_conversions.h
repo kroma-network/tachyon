@@ -1,17 +1,17 @@
-#ifndef TACHYON_CC_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
-#define TACHYON_CC_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
+#ifndef TACHYON_C_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
+#define TACHYON_C_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
 
 #include <stddef.h>
 
 #include <type_traits>
 
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/cc/math/elliptic_curves/point_traits_forward.h"
+#include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/geometry/point2.h"
 #include "tachyon/math/geometry/point3.h"
 #include "tachyon/math/geometry/point4.h"
 
-namespace tachyon::cc::math {
+namespace tachyon::c::math {
 
 template <typename CPoint,
           typename CurvePoint = typename PointTraits<CPoint>::CurvePoint,
@@ -174,6 +174,6 @@ void ToCPoint4(const Point& point_in, CPoint* point_out) {
          sizeof(uint64_t) * LimbNumbs);
 }
 
-}  // namespace tachyon::cc::math
+}  // namespace tachyon::c::math
 
-#endif  // TACHYON_CC_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_
+#endif  // TACHYON_C_MATH_ELLIPTIC_CURVES_POINT_CONVERSIONS_H_

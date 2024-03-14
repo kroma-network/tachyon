@@ -212,7 +212,7 @@ tachyon_cc_library(
     deps = [
         ":prover_impl_base",
         "//tachyon/base:logging",
-        "//tachyon/cc/math/elliptic_curves:point_traits_forward",
+        "//tachyon/c/math/elliptic_curves:point_traits_forward",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "@com_google_absl//absl/types:span",
     ],

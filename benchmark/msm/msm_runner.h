@@ -10,7 +10,7 @@
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
 // clang-format on
 #include "tachyon/base/time/time.h"
-#include "tachyon/cc/math/elliptic_curves/point_traits_forward.h"
+#include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/base/semigroups.h"
 
 namespace tachyon {
@@ -22,9 +22,9 @@ class MSMRunner {
   using RetPoint =
       typename math::internal::AdditiveSemigroupTraits<Point>::ReturnTy;
 
-  using CPoint = typename cc::math::PointTraits<Point>::CCurvePoint;
-  using CRetPoint = typename cc::math::PointTraits<RetPoint>::CCurvePoint;
-  using CScalarField = typename cc::math::PointTraits<Point>::CScalarField;
+  using CPoint = typename c::math::PointTraits<Point>::CCurvePoint;
+  using CRetPoint = typename c::math::PointTraits<RetPoint>::CCurvePoint;
+  using CScalarField = typename c::math::PointTraits<Point>::CScalarField;
 
   typedef CRetPoint* (*MSMAffineExternalFn)(const CPoint* bases,
                                             const CScalarField* scalars,

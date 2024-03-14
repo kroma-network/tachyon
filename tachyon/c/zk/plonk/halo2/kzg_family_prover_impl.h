@@ -8,8 +8,8 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/logging.h"
+#include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/c/zk/plonk/halo2/prover_impl_base.h"
-#include "tachyon/cc/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 
 namespace tachyon::c::zk::plonk::halo2 {
@@ -22,12 +22,9 @@ class KZGFamilyProverImpl : public ProverImplBase<PCS> {
   using JacobianPoint =
       tachyon::math::JacobianPoint<typename AffinePoint::Curve>;
   using ScalarField = typename AffinePoint::ScalarField;
-  using CAffinePoint =
-      typename tachyon::cc::math::PointTraits<AffinePoint>::CCurvePoint;
-  using CJacobianPoint =
-      typename tachyon::cc::math::PointTraits<JacobianPoint>::CCurvePoint;
-  using CScalarField =
-      typename tachyon::cc::math::PointTraits<AffinePoint>::CScalarField;
+  using CAffinePoint = typename math::PointTraits<AffinePoint>::CCurvePoint;
+  using CJacobianPoint = typename math::PointTraits<JacobianPoint>::CCurvePoint;
+  using CScalarField = typename math::PointTraits<AffinePoint>::CScalarField;
 
   using ProverImplBase<PCS>::ProverImplBase;
 

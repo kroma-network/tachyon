@@ -7,7 +7,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/base/openmp_util.h"
-#include "tachyon/cc/math/elliptic_curves/point_traits_forward.h"
+#include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/geometry/point2.h"
 
 namespace tachyon::c::math {
@@ -17,11 +17,9 @@ class MSMInputProvider {
  public:
   using BaseField = typename AffinePoint::BaseField;
   using ScalarField = typename AffinePoint::ScalarField;
-  using CCurvePoint =
-      typename tachyon::cc::math::PointTraits<AffinePoint>::CCurvePoint;
-  using CPoint = typename tachyon::cc::math::PointTraits<AffinePoint>::CPoint;
-  using CScalarField =
-      typename tachyon::cc::math::PointTraits<AffinePoint>::CScalarField;
+  using CCurvePoint = typename PointTraits<AffinePoint>::CCurvePoint;
+  using CPoint = typename PointTraits<AffinePoint>::CPoint;
+  using CScalarField = typename PointTraits<AffinePoint>::CScalarField;
 
   void set_needs_align(bool needs_align) { needs_align_ = needs_align; }
 
