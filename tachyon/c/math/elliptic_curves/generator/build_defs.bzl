@@ -124,8 +124,8 @@ def generate_ec_points(
         ("gen_fr_src", "fr.cc"),
         ("gen_g1_hdr", "g1.h"),
         ("gen_g1_src", "g1.cc"),
-        ("gen_fq_prime_field_traits", "fq_prime_field_traits.h"),
-        ("gen_fr_prime_field_traits", "fr_prime_field_traits.h"),
+        ("gen_fq_traits", "fq_traits.h"),
+        ("gen_fr_traits", "fr_traits.h"),
         ("gen_g1_point_traits", "g1_point_traits.h"),
         ("gen_msm_hdr", "msm.h"),
         ("gen_msm_src", "msm.cc"),
@@ -145,12 +145,12 @@ def generate_ec_points(
         name = "fq",
         hdrs = [
             "fq.h",
-            "fq_prime_field_traits.h",
+            "fq_traits.h",
         ],
         srcs = ["fq.cc"],
         deps = g1_deps + [
             "//tachyon/c:export",
-            "//tachyon/cc/math/finite_fields:prime_field_conversions",
+            "//tachyon/c/base:type_traits_forward",
         ],
     )
 
@@ -158,12 +158,12 @@ def generate_ec_points(
         name = "fr",
         hdrs = [
             "fr.h",
-            "fr_prime_field_traits.h",
+            "fr_traits.h",
         ],
         srcs = ["fr.cc"],
         deps = g1_deps + [
             "//tachyon/c:export",
-            "//tachyon/cc/math/finite_fields:prime_field_conversions",
+            "//tachyon/c/base:type_traits_forward",
         ],
     )
 

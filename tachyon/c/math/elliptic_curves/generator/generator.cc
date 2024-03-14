@@ -256,13 +256,13 @@ int RealMain(int argc, char** argv) {
     return config.GenerateFqHdr();
   } else if (base::EndsWith(config.out.value(), "fq.cc")) {
     return config.GenerateFqSrc();
-  } else if (base::EndsWith(config.out.value(), "fq_prime_field_traits.h")) {
+  } else if (base::EndsWith(config.out.value(), "fq_traits.h")) {
     return config.GenerateFqTraitsHdr();
   } else if (base::EndsWith(config.out.value(), "fr.h")) {
     return config.GenerateFrHdr();
   } else if (base::EndsWith(config.out.value(), "fr.cc")) {
     return config.GenerateFrSrc();
-  } else if (base::EndsWith(config.out.value(), "fr_prime_field_traits.h")) {
+  } else if (base::EndsWith(config.out.value(), "fr_traits.h")) {
     return config.GenerateFrTraitsHdr();
   } else if (base::EndsWith(config.out.value(), "g1.h")) {
     return config.GenerateG1Hdr();

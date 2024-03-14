@@ -5,14 +5,13 @@
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_proving_key_impl.h"
-#include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/plonk/halo2/constants.h"
 #include "tachyon/zk/plonk/halo2/transcript_type.h"
@@ -204,7 +203,7 @@ int RunMain(int argc, char** argv) {
       return 1;
     }
     math::bn254::Fr cpp_s = math::bn254::Fr::FromHexString(s_hex);
-    const tachyon_bn254_fr& s = cc::math::c_cast(cpp_s);
+    const tachyon_bn254_fr& s = c::base::c_cast(cpp_s);
 
     std::cout << "creating prover" << std::endl;
     prover = tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(

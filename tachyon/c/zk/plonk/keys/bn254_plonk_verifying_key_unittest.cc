@@ -2,8 +2,7 @@
 
 #include "gtest/gtest.h"
 
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
-#include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
@@ -26,7 +25,7 @@ TEST_F(Bn254PlonkVerifyingKeyTest, GetTranscriptRepr) {
       reinterpret_cast<tachyon_bn254_plonk_verifying_key*>(&cpp_vkey);
   tachyon_bn254_fr transcript_repr =
       tachyon_bn254_plonk_verifying_key_get_transcript_repr(vkey);
-  EXPECT_EQ(cc::math::native_cast(transcript_repr), cpp_transcript_repr);
+  EXPECT_EQ(c::base::native_cast(transcript_repr), cpp_transcript_repr);
 }
 
 }  // namespace tachyon::zk::plonk

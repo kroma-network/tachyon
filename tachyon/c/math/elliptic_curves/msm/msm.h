@@ -25,7 +25,7 @@ struct MSMApi {
     {
       // NOTE(chokobole): This should be replaced with VLOG().
       // Currently, there's no way to delegate VLOG flags from rust side.
-      base::ConsoleStream cs;
+      tachyon::base::ConsoleStream cs;
       cs.Green();
       std::cout << "CreateMSMApi()" << std::endl;
     }

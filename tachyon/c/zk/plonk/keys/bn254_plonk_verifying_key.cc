@@ -1,7 +1,6 @@
 #include "tachyon/c/zk/plonk/keys/bn254_plonk_verifying_key.h"
 
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
-#include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 
@@ -20,5 +19,5 @@ tachyon_bn254_plonk_verifying_key_get_constraint_system(
 
 tachyon_bn254_fr tachyon_bn254_plonk_verifying_key_get_transcript_repr(
     const tachyon_bn254_plonk_verifying_key* vk) {
-  return cc::math::c_cast(reinterpret_cast<const VKey*>(vk)->transcript_repr());
+  return c::base::c_cast(reinterpret_cast<const VKey*>(vk)->transcript_repr());
 }

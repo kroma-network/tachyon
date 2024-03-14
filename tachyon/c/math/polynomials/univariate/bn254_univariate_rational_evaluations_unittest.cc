@@ -6,9 +6,8 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
-#include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -67,7 +66,7 @@ TEST_F(UnivariateRationalEvaluationsTest, SetZero) {
 TEST_F(UnivariateRationalEvaluationsTest, SetTrivial) {
   RationalField<bn254::Fr> expected =
       RationalField<bn254::Fr>(bn254::Fr::Random());
-  const tachyon_bn254_fr& numerator = cc::math::c_cast(expected.numerator());
+  const tachyon_bn254_fr& numerator = c::base::c_cast(expected.numerator());
   tachyon_bn254_univariate_rational_evaluations_set_trivial(evals_, 0,
                                                             &numerator);
   EXPECT_EQ(reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
@@ -75,9 +74,8 @@ TEST_F(UnivariateRationalEvaluationsTest, SetTrivial) {
 
 TEST_F(UnivariateRationalEvaluationsTest, SetRational) {
   RationalField<bn254::Fr> expected = RationalField<bn254::Fr>::Random();
-  const tachyon_bn254_fr& numerator = cc::math::c_cast(expected.numerator());
-  const tachyon_bn254_fr& denominator =
-      cc::math::c_cast(expected.denominator());
+  const tachyon_bn254_fr& numerator = c::base::c_cast(expected.numerator());
+  const tachyon_bn254_fr& denominator = c::base::c_cast(expected.denominator());
   tachyon_bn254_univariate_rational_evaluations_set_rational(
       evals_, 0, &numerator, &denominator);
   EXPECT_EQ(reinterpret_cast<RationalEvals&>(*evals_)[0], expected);
@@ -88,9 +86,9 @@ TEST_F(UnivariateRationalEvaluationsTest, BatchEvaluate) {
       kDegree + 1, []() { return RationalField<bn254::Fr>::Random(); });
   for (size_t i = 0; i < rational_values.size(); ++i) {
     const tachyon_bn254_fr& numerator =
-        cc::math::c_cast(rational_values[i].numerator());
+        c::base::c_cast(rational_values[i].numerator());
     const tachyon_bn254_fr& denominator =
-        cc::math::c_cast(rational_values[i].denominator());
+        c::base::c_cast(rational_values[i].denominator());
     tachyon_bn254_univariate_rational_evaluations_set_rational(
         evals_, i, &numerator, &denominator);
   }

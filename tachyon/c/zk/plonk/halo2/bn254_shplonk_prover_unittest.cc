@@ -6,13 +6,12 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/c/crypto/random/rng.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fq_prime_field_traits.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fq_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/cc/math/elliptic_curves/point_conversions.h"
-#include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
@@ -31,7 +30,7 @@ class SHPlonkProverTest : public testing::TestWithParam<int> {
   void SetUp() override {
     k_ = 5;
     s_ = math::bn254::Fr(2);
-    const tachyon_bn254_fr& c_s = cc::math::c_cast(s_);
+    const tachyon_bn254_fr& c_s = c::base::c_cast(s_);
     prover_ = tachyon_halo2_bn254_shplonk_prover_create_from_unsafe_setup(
         GetParam(), k_, &c_s);
   }

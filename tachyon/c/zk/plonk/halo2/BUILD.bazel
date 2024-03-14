@@ -243,7 +243,6 @@ tachyon_cc_binary(
         "//tachyon/base/flag:flag_parser",
         "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/c/zk/plonk/keys:bn254_plonk_proving_key_impl",
-        "//tachyon/cc/math/finite_fields:prime_field_conversions",
         "//tachyon/zk/plonk/halo2:constants",
         "//tachyon/zk/plonk/halo2:transcript_type",
     ],
