@@ -11,17 +11,19 @@ use halo2_proofs::{
         Challenge255, EncodedChallenge, Transcript, TranscriptWrite, TranscriptWriterBuffer,
     },
 };
-use halo2curves::{Coordinates, CurveAffine, FieldExt};
+use halo2curves::{bn256::G2Affine, Coordinates, CurveAffine, FieldExt};
 use num_bigint::BigUint;
 
 use tachyon_rs::math::elliptic_curves::bn::bn254::{
     Fr as FrImpl, G1JacobianPoint as G1JacobianPointImpl, G1Point2 as G1Point2Impl,
+    G2AffinePoint as G2AffinePointImpl,
 };
 
 pub struct G1MSM;
 pub struct G1MSMGpu;
 pub struct G1JacobianPoint(pub G1JacobianPointImpl);
 pub struct G1Point2(pub G1Point2Impl);
+pub struct G2AffinePoint(pub G2AffinePointImpl);
 pub struct Fr(pub FrImpl);
 pub struct InstanceSingle {
     pub instance_values: Vec<Evals>,
@@ -40,6 +42,7 @@ pub mod ffi {
         type G1MSMGpu;
         type G1JacobianPoint;
         type G1Point2;
+        type G2AffinePoint;
         type Fr;
         type InstanceSingle;
         type AdviceSingle;
@@ -163,6 +166,7 @@ pub mod ffi {
         fn new_gwc_prover(transcript_type: u8, k: u32, s: &Fr) -> UniquePtr<GWCProver>;
         fn k(&self) -> u32;
         fn n(&self) -> u64;
+        fn s_g2(&self) -> Box<G2AffinePoint>;
         fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
         fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
         fn empty_evals(&self) -> UniquePtr<Evals>;
@@ -194,6 +198,7 @@ pub mod ffi {
         fn new_shplonk_prover(transcript_type: u8, k: u32, s: &Fr) -> UniquePtr<SHPlonkProver>;
         fn k(&self) -> u32;
         fn n(&self) -> u64;
+        fn s_g2(&self) -> Box<G2AffinePoint>;
         fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
         fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
         fn empty_evals(&self) -> UniquePtr<Evals>;
@@ -728,6 +733,8 @@ pub trait TachyonProver<Scheme: CommitmentScheme> {
 
     fn n(&self) -> u64;
 
+    fn s_g2(&self) -> G2Affine;
+
     fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt;
 
     fn commit_lagrange(&self, evals: &Evals) -> <Scheme::Curve as CurveAffine>::CurveExt;
@@ -783,6 +790,10 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
 
     fn n(&self) -> u64 {
         self.inner.n()
+    }
+
+    fn s_g2(&self) -> G2Affine {
+        *unsafe { std::mem::transmute::<_, Box<G2Affine>>(self.inner.s_g2()) }
     }
 
     fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
@@ -885,6 +896,10 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
 
     fn n(&self) -> u64 {
         self.inner.n()
+    }
+
+    fn s_g2(&self) -> G2Affine {
+        *unsafe { std::mem::transmute::<_, Box<G2Affine>>(self.inner.s_g2()) }
     }
 
     fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {

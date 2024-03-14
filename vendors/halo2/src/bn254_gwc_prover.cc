@@ -21,6 +21,12 @@ uint64_t GWCProver::n() const {
   return static_cast<uint64_t>(tachyon_halo2_bn254_gwc_prover_get_n(prover_));
 }
 
+rust::Box<G2AffinePoint> GWCProver::s_g2() const {
+  return rust::Box<G2AffinePoint>::from_raw(
+      reinterpret_cast<G2AffinePoint*>(new tachyon_bn254_g2_affine(
+          *tachyon_halo2_bn254_gwc_prover_get_s_g2(prover_))));
+}
+
 rust::Box<G1JacobianPoint> GWCProver::commit(const Poly& poly) const {
   return rust::Box<G1JacobianPoint>::from_raw(
       reinterpret_cast<G1JacobianPoint*>(

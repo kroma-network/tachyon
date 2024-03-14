@@ -24,6 +24,12 @@ uint64_t SHPlonkProver::n() const {
       tachyon_halo2_bn254_shplonk_prover_get_n(prover_));
 }
 
+rust::Box<G2AffinePoint> SHPlonkProver::s_g2() const {
+  return rust::Box<G2AffinePoint>::from_raw(
+      reinterpret_cast<G2AffinePoint*>(new tachyon_bn254_g2_affine(
+          *tachyon_halo2_bn254_shplonk_prover_get_s_g2(prover_))));
+}
+
 rust::Box<G1JacobianPoint> SHPlonkProver::commit(const Poly& poly) const {
   return rust::Box<G1JacobianPoint>::from_raw(
       reinterpret_cast<G1JacobianPoint*>(
