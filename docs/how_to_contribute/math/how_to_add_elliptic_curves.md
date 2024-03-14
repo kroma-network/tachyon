@@ -23,7 +23,7 @@ generate_ec_points(
     base_field = "Fq",
     base_field_dep = ":fq",
     base_field_hdr = "tachyon/math/elliptic_curves/<new_elliptic_curve>/fq.h",
-    gen_gpu = True, # False if the GPU code doesn't needed
+    gen_gpu = True, # False if the GPU code is not needed
     namespace = "tachyon::math::<new_elliptic_curve>",
     scalar_field = "Fr",
     scalar_field_dep = ":fr",
