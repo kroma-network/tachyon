@@ -1,5 +1,5 @@
 {
-  "checksum": "3fc84c5554788cd24a30c380edd9c7c958c3a279c5bc69a7b31433c56f15d6bd",
+  "checksum": "e988fcad2f5bc39024b99e0750a073c1188a481741e28f92f1f23e31b32f1b69",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -161,6 +161,96 @@
           "selects": {}
         },
         "edition": "2021",
+        "version": "0.4.0"
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "ark-crypto-primitives 0.4.0": {
+      "name": "ark-crypto-primitives",
+      "version": "0.4.0",
+      "repository": {
+        "Git": {
+          "remote": "https://github.com/arkworks-rs/crypto-primitives.git",
+          "commitish": {
+            "Tag": "v0.4.0"
+          }
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "ark_crypto_primitives",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "ark_crypto_primitives",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "default",
+            "sponge",
+            "std"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "ark-ec 0.4.2",
+              "target": "ark_ec"
+            },
+            {
+              "id": "ark-ff 0.4.2",
+              "target": "ark_ff"
+            },
+            {
+              "id": "ark-relations 0.4.0",
+              "target": "ark_relations"
+            },
+            {
+              "id": "ark-serialize 0.4.2",
+              "target": "ark_serialize"
+            },
+            {
+              "id": "ark-snark 0.4.0",
+              "target": "ark_snark"
+            },
+            {
+              "id": "ark-std 0.4.0",
+              "target": "ark_std"
+            },
+            {
+              "id": "blake2 0.10.6",
+              "target": "blake2"
+            },
+            {
+              "id": "digest 0.10.7",
+              "target": "digest"
+            },
+            {
+              "id": "sha2 0.10.8",
+              "target": "sha2"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "proc_macro_deps": {
+          "common": [
+            {
+              "id": "derivative 2.2.0",
+              "target": "derivative"
+            }
+          ],
+          "selects": {}
+        },
         "version": "0.4.0"
       },
       "license": "MIT/Apache-2.0"
@@ -521,6 +611,64 @@
       },
       "license": "MIT/Apache-2.0"
     },
+    "ark-relations 0.4.0": {
+      "name": "ark-relations",
+      "version": "0.4.0",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/ark-relations/0.4.0/download",
+          "sha256": "00796b6efc05a3f48225e59cb6a2cda78881e7c390872d5786aaf112f31fb4f0"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "ark_relations",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "ark_relations",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "crate_features": {
+          "common": [
+            "std",
+            "tracing-subscriber"
+          ],
+          "selects": {}
+        },
+        "deps": {
+          "common": [
+            {
+              "id": "ark-ff 0.4.2",
+              "target": "ark_ff"
+            },
+            {
+              "id": "ark-std 0.4.0",
+              "target": "ark_std"
+            },
+            {
+              "id": "tracing 0.1.37",
+              "target": "tracing"
+            },
+            {
+              "id": "tracing-subscriber 0.2.25",
+              "target": "tracing_subscriber"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.4.0"
+      },
+      "license": "MIT/Apache-2.0"
+    },
     "ark-serialize 0.4.2": {
       "name": "ark-serialize",
       "version": "0.4.2",
@@ -629,6 +777,57 @@
         },
         "edition": "2021",
         "version": "0.4.2"
+      },
+      "license": "MIT/Apache-2.0"
+    },
+    "ark-snark 0.4.0": {
+      "name": "ark-snark",
+      "version": "0.4.0",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/ark-snark/0.4.0/download",
+          "sha256": "84d3cc6833a335bb8a600241889ead68ee89a3cf8448081fb7694c0fe503da63"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "ark_snark",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "ark_snark",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "ark-ff 0.4.2",
+              "target": "ark_ff"
+            },
+            {
+              "id": "ark-relations 0.4.0",
+              "target": "ark_relations"
+            },
+            {
+              "id": "ark-serialize 0.4.2",
+              "target": "ark_serialize"
+            },
+            {
+              "id": "ark-std 0.4.0",
+              "target": "ark_std"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.4.0"
       },
       "license": "MIT/Apache-2.0"
     },
@@ -794,48 +993,6 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "arkworks_benchmark 0.0.1": {
-      "name": "arkworks_benchmark",
-      "version": "0.0.1",
-      "repository": null,
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "arkworks_benchmark",
-            "crate_root": "src/lib.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "arkworks_benchmark",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "ark-bn254 0.4.0",
-              "target": "ark_bn254"
-            },
-            {
-              "id": "ark-ec 0.4.2",
-              "target": "ark_ec"
-            },
-            {
-              "id": "ark-std 0.4.0",
-              "target": "ark_std"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2021",
-        "version": "0.0.1"
-      },
-      "license": "MIT OR Apache-2.0"
-    },
     "arkworks_fft_benchmark 0.0.1": {
       "name": "arkworks_fft_benchmark",
       "version": "0.0.1",
@@ -865,6 +1022,90 @@
             {
               "id": "ark-test-curves 0.4.2",
               "target": "ark_test_curves"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "arkworks_msm_benchmark 0.0.1": {
+      "name": "arkworks_msm_benchmark",
+      "version": "0.0.1",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "arkworks_msm_benchmark",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "arkworks_msm_benchmark",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "ark-bn254 0.4.0",
+              "target": "ark_bn254"
+            },
+            {
+              "id": "ark-ec 0.4.2",
+              "target": "ark_ec"
+            },
+            {
+              "id": "ark-std 0.4.0",
+              "target": "ark_std"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2021",
+        "version": "0.0.1"
+      },
+      "license": "MIT OR Apache-2.0"
+    },
+    "arkworks_poseidon_benchmark 0.0.1": {
+      "name": "arkworks_poseidon_benchmark",
+      "version": "0.0.1",
+      "repository": null,
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "arkworks_poseidon_benchmark",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "arkworks_poseidon_benchmark",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "ark-bn254 0.4.0",
+              "target": "ark_bn254"
+            },
+            {
+              "id": "ark-crypto-primitives 0.4.0",
+              "target": "ark_crypto_primitives"
+            },
+            {
+              "id": "ark-ff 0.4.2",
+              "target": "ark_ff"
             }
           ],
           "selects": {}
@@ -1394,6 +1635,45 @@
         "version": "1.0.1"
       },
       "license": "MIT"
+    },
+    "blake2 0.10.6": {
+      "name": "blake2",
+      "version": "0.10.6",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/blake2/0.10.6/download",
+          "sha256": "46502ad458c9a52b69d4d4d32775c788b7a1b85e8bc9d482d92250fc0e3f8efe"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "blake2",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "blake2",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "digest 0.10.7",
+              "target": "digest"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.10.6"
+      },
+      "license": "MIT OR Apache-2.0"
     },
     "blake2b_simd 1.0.1": {
       "name": "blake2b_simd",
@@ -2943,7 +3223,9 @@
             "block-buffer",
             "core-api",
             "default",
-            "std"
+            "mac",
+            "std",
+            "subtle"
           ],
           "selects": {}
         },
@@ -2956,6 +3238,10 @@
             {
               "id": "crypto-common 0.1.6",
               "target": "crypto_common"
+            },
+            {
+              "id": "subtle 2.5.0",
+              "target": "subtle"
             }
           ],
           "selects": {}
@@ -4024,14 +4310,14 @@
       },
       "license": "MIT/Apache-2.0"
     },
-    "halo2_benchmark 0.0.1": {
-      "name": "halo2_benchmark",
+    "halo2_fft_benchmark 0.0.1": {
+      "name": "halo2_fft_benchmark",
       "version": "0.0.1",
       "repository": null,
       "targets": [
         {
           "Library": {
-            "crate_name": "halo2_benchmark",
+            "crate_name": "halo2_fft_benchmark",
             "crate_root": "src/lib.rs",
             "srcs": [
               "**/*.rs"
@@ -4039,7 +4325,7 @@
           }
         }
       ],
-      "library_target_name": "halo2_benchmark",
+      "library_target_name": "halo2_fft_benchmark",
       "common_attrs": {
         "compile_data_glob": [
           "**"
@@ -4058,14 +4344,14 @@
       },
       "license": "MIT OR Apache-2.0"
     },
-    "halo2_fft_benchmark 0.0.1": {
-      "name": "halo2_fft_benchmark",
+    "halo2_msm_benchmark 0.0.1": {
+      "name": "halo2_msm_benchmark",
       "version": "0.0.1",
       "repository": null,
       "targets": [
         {
           "Library": {
-            "crate_name": "halo2_fft_benchmark",
+            "crate_name": "halo2_msm_benchmark",
             "crate_root": "src/lib.rs",
             "srcs": [
               "**/*.rs"
@@ -4073,7 +4359,7 @@
           }
         }
       ],
-      "library_target_name": "halo2_fft_benchmark",
+      "library_target_name": "halo2_msm_benchmark",
       "common_attrs": {
         "compile_data_glob": [
           "**"
@@ -7356,8 +7642,10 @@
         ],
         "crate_features": {
           "common": [
+            "default",
             "once_cell",
-            "std"
+            "std",
+            "valuable"
           ],
           "selects": {}
         },
@@ -7368,10 +7656,56 @@
               "target": "once_cell"
             }
           ],
-          "selects": {}
+          "selects": {
+            "cfg(tracing_unstable)": [
+              {
+                "id": "valuable 0.1.0",
+                "target": "valuable"
+              }
+            ]
+          }
         },
         "edition": "2018",
         "version": "0.1.31"
+      },
+      "license": "MIT"
+    },
+    "tracing-subscriber 0.2.25": {
+      "name": "tracing-subscriber",
+      "version": "0.2.25",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/tracing-subscriber/0.2.25/download",
+          "sha256": "0e0d2eaa99c3c2e41547cfa109e910a68ea03823cccad4a0525dcbc9b01e8c71"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "tracing_subscriber",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "tracing_subscriber",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "tracing-core 0.1.31",
+              "target": "tracing_core"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.2.25"
       },
       "license": "MIT"
     },
@@ -7457,6 +7791,59 @@
         "version": "1.0.11"
       },
       "license": "(MIT OR Apache-2.0) AND Unicode-DFS-2016"
+    },
+    "valuable 0.1.0": {
+      "name": "valuable",
+      "version": "0.1.0",
+      "repository": {
+        "Http": {
+          "url": "https://static.crates.io/crates/valuable/0.1.0/download",
+          "sha256": "830b7e5d4d90034032940e4ace0d9a9a057e7a45cd94e6c007832e39edb82f6d"
+        }
+      },
+      "targets": [
+        {
+          "Library": {
+            "crate_name": "valuable",
+            "crate_root": "src/lib.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        },
+        {
+          "BuildScript": {
+            "crate_name": "build_script_build",
+            "crate_root": "build.rs",
+            "srcs": [
+              "**/*.rs"
+            ]
+          }
+        }
+      ],
+      "library_target_name": "valuable",
+      "common_attrs": {
+        "compile_data_glob": [
+          "**"
+        ],
+        "deps": {
+          "common": [
+            {
+              "id": "valuable 0.1.0",
+              "target": "build_script_build"
+            }
+          ],
+          "selects": {}
+        },
+        "edition": "2018",
+        "version": "0.1.0"
+      },
+      "build_script_attrs": {
+        "data_glob": [
+          "**"
+        ]
+      },
+      "license": "MIT"
     },
     "version_check 0.9.4": {
       "name": "version_check",
@@ -7833,13 +8220,14 @@
   },
   "binary_crates": [],
   "workspace_members": {
-    "arkworks_benchmark 0.0.1": "benchmark/msm/arkworks",
     "arkworks_fft_benchmark 0.0.1": "benchmark/fft/arkworks",
+    "arkworks_msm_benchmark 0.0.1": "benchmark/msm/arkworks",
+    "arkworks_poseidon_benchmark 0.0.1": "benchmark/poseidon/arkworks",
     "bellman_benchmark 0.0.1": "benchmark/msm/bellman",
     "bellman_fft_benchmark 0.0.1": "benchmark/fft/bellman",
     "direct-cargo-bazel-deps 0.0.1": "",
-    "halo2_benchmark 0.0.1": "benchmark/msm/halo2",
     "halo2_fft_benchmark 0.0.1": "benchmark/fft/halo2",
+    "halo2_msm_benchmark 0.0.1": "benchmark/msm/halo2",
     "tachyon_halo2 0.0.1": "vendors/halo2",
     "tachyon_rs 0.0.1": "tachyon/rs"
   },
@@ -7956,6 +8344,7 @@
     "cfg(target_os = \"wasi\")": [
       "wasm32-wasi"
     ],
+    "cfg(tracing_unstable)": [],
     "cfg(unix)": [
       "aarch64-apple-darwin",
       "aarch64-apple-ios",

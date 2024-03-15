@@ -25,9 +25,26 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a22f4561524cd949590d78d7d4c5df8f592430d221f7f3c9497bbafd8972120f"
 dependencies = [
- "ark-ec 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "ark-ff 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ark-ec 0.4.2",
+ "ark-ff 0.4.2",
  "ark-std 0.4.0",
+]
+
+[[package]]
+name = "ark-crypto-primitives"
+version = "0.4.0"
+source = "git+https://github.com/arkworks-rs/crypto-primitives.git?tag=v0.4.0#c823c9ef0ebe8b1669e6100819cbed65f3dc25a5"
+dependencies = [
+ "ark-ec 0.4.2",
+ "ark-ff 0.4.2",
+ "ark-relations",
+ "ark-serialize 0.4.2",
+ "ark-snark",
+ "ark-std 0.4.0",
+ "blake2",
+ "derivative",
+ "digest 0.10.7",
+ "sha2",
 ]
 
 [[package]]
@@ -36,9 +53,9 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "defd9a439d56ac24968cca0571f598a61bc8c55f71d50a89cda591cb750670ba"
 dependencies = [
- "ark-ff 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "ark-poly 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "ark-serialize 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ark-ff 0.4.2",
+ "ark-poly 0.4.2",
+ "ark-serialize 0.4.2",
  "ark-std 0.4.0",
  "derivative",
  "hashbrown 0.13.2",
@@ -53,9 +70,9 @@ name = "ark-ec"
 version = "0.4.2"
 source = "git+https://github.com/kroma-network/algebra.git?rev=53f396c#53f396cccdb37dea4c71764353ae374d99464b93"
 dependencies = [
- "ark-ff 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
- "ark-poly 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
- "ark-serialize 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
+ "ark-ff 0.4.2",
+ "ark-poly 0.4.2",
+ "ark-serialize 0.4.2",
  "ark-std 0.4.0",
  "derivative",
  "hashbrown 0.14.2",
@@ -71,9 +88,9 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec847af850f44ad29048935519032c33da8aa03340876d351dfab5660d2966ba"
 dependencies = [
- "ark-ff-asm 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "ark-ff-macros 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "ark-serialize 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ark-ff-asm 0.4.2",
+ "ark-ff-macros 0.4.2",
+ "ark-serialize 0.4.2",
  "ark-std 0.4.0",
  "derivative",
  "digest 0.10.7",
@@ -91,9 +108,9 @@ name = "ark-ff"
 version = "0.4.2"
 source = "git+https://github.com/kroma-network/algebra.git?rev=53f396c#53f396cccdb37dea4c71764353ae374d99464b93"
 dependencies = [
- "ark-ff-asm 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
- "ark-ff-macros 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
- "ark-serialize 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
+ "ark-ff-asm 0.4.2",
+ "ark-ff-macros 0.4.2",
+ "ark-serialize 0.4.2",
  "ark-std 0.4.0",
  "arrayvec 0.7.4",
  "derivative",
@@ -155,8 +172,8 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d320bfc44ee185d899ccbadfa8bc31aab923ce1558716e1997a1e74057fe86bf"
 dependencies = [
- "ark-ff 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "ark-serialize 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ark-ff 0.4.2",
+ "ark-serialize 0.4.2",
  "ark-std 0.4.0",
  "derivative",
  "hashbrown 0.13.2",
@@ -168,11 +185,23 @@ name = "ark-poly"
 version = "0.4.2"
 source = "git+https://github.com/kroma-network/algebra.git?rev=53f396c#53f396cccdb37dea4c71764353ae374d99464b93"
 dependencies = [
- "ark-ff 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
- "ark-serialize 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
+ "ark-ff 0.4.2",
+ "ark-serialize 0.4.2",
  "ark-std 0.4.0",
  "derivative",
  "hashbrown 0.14.2",
+]
+
+[[package]]
+name = "ark-relations"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "00796b6efc05a3f48225e59cb6a2cda78881e7c390872d5786aaf112f31fb4f0"
+dependencies = [
+ "ark-ff 0.4.2",
+ "ark-std 0.4.0",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -181,7 +210,7 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "adb7b85a02b83d2f22f89bd5cac66c9c89474240cb6207cb1efc16d098e822a5"
 dependencies = [
- "ark-serialize-derive 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ark-serialize-derive 0.4.2",
  "ark-std 0.4.0",
  "digest 0.10.7",
  "num-bigint",
@@ -192,7 +221,7 @@ name = "ark-serialize"
 version = "0.4.2"
 source = "git+https://github.com/kroma-network/algebra.git?rev=53f396c#53f396cccdb37dea4c71764353ae374d99464b93"
 dependencies = [
- "ark-serialize-derive 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
+ "ark-serialize-derive 0.4.2",
  "ark-std 0.4.0",
  "digest 0.10.7",
  "num-bigint",
@@ -217,6 +246,18 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.28",
+]
+
+[[package]]
+name = "ark-snark"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "84d3cc6833a335bb8a600241889ead68ee89a3cf8448081fb7694c0fe503da63"
+dependencies = [
+ "ark-ff 0.4.2",
+ "ark-relations",
+ "ark-serialize 0.4.2",
+ "ark-std 0.4.0",
 ]
 
 [[package]]
@@ -245,27 +286,37 @@ name = "ark-test-curves"
 version = "0.4.2"
 source = "git+https://github.com/kroma-network/algebra.git?rev=53f396c#53f396cccdb37dea4c71764353ae374d99464b93"
 dependencies = [
- "ark-ec 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
- "ark-ff 0.4.2 (git+https://github.com/kroma-network/algebra.git?rev=53f396c)",
+ "ark-ec 0.4.2",
+ "ark-ff 0.4.2",
  "ark-std 0.4.0",
-]
-
-[[package]]
-name = "arkworks_benchmark"
-version = "0.0.1"
-dependencies = [
- "ark-bn254",
- "ark-ec 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "ark-std 0.4.0",
- "tachyon_rs",
 ]
 
 [[package]]
 name = "arkworks_fft_benchmark"
 version = "0.0.1"
 dependencies = [
- "ark-poly 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ark-poly 0.4.2",
  "ark-test-curves",
+ "tachyon_rs",
+]
+
+[[package]]
+name = "arkworks_msm_benchmark"
+version = "0.0.1"
+dependencies = [
+ "ark-bn254",
+ "ark-ec 0.4.2",
+ "ark-std 0.4.0",
+ "tachyon_rs",
+]
+
+[[package]]
+name = "arkworks_poseidon_benchmark"
+version = "0.0.1"
+dependencies = [
+ "ark-bn254",
+ "ark-crypto-primitives",
+ "ark-ff 0.4.2",
  "tachyon_rs",
 ]
 
@@ -297,7 +348,7 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 name = "bellman_benchmark"
 version = "0.0.1"
 dependencies = [
- "bellman_ce 0.3.1",
+ "bellman_ce 0.3.1 (git+https://github.com/kroma-network/bellman.git?rev=279a4bd#279a4bdd04d665ed71280a481ccf06d2734e26e4)",
  "tachyon_rs",
 ]
 
@@ -344,7 +395,7 @@ dependencies = [
 name = "bellman_fft_benchmark"
 version = "0.0.1"
 dependencies = [
- "bellman_ce 0.3.2",
+ "bellman_ce 0.3.2 (git+https://github.com/kroma-network/bellman.git?rev=bbac055#bbac0559fdc440b2331eca1c347a30559a3dd969)",
  "tachyon_rs",
 ]
 
@@ -373,6 +424,15 @@ dependencies = [
  "radium",
  "tap",
  "wyz",
+]
+
+[[package]]
+name = "blake2"
+version = "0.10.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46502ad458c9a52b69d4d4d32775c788b7a1b85e8bc9d482d92250fc0e3f8efe"
+dependencies = [
+ "digest 0.10.7",
 ]
 
 [[package]]
@@ -668,6 +728,14 @@ checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
 dependencies = [
  "block-buffer 0.10.4",
  "crypto-common",
+ "subtle",
+]
+
+[[package]]
+name = "direct-cargo-bazel-deps"
+version = "0.0.1"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -854,7 +922,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "halo2_benchmark"
+name = "halo2_fft_benchmark"
 version = "0.0.1"
 dependencies = [
  "halo2_proofs",
@@ -862,7 +930,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "halo2_fft_benchmark"
+name = "halo2_msm_benchmark"
 version = "0.0.1"
 dependencies = [
  "halo2_proofs",
@@ -1443,6 +1511,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0955b8137a1df6f1a2e9a37d8a6656291ff0297c1a97c24e0d8425fe2312f79a"
 dependencies = [
  "once_cell",
+ "valuable",
+]
+
+[[package]]
+name = "tracing-subscriber"
+version = "0.2.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0e0d2eaa99c3c2e41547cfa109e910a68ea03823cccad4a0525dcbc9b01e8c71"
+dependencies = [
+ "tracing-core",
 ]
 
 [[package]]
@@ -1456,6 +1534,12 @@ name = "unicode-ident"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "301abaae475aa91687eb82514b328ab47a211a533026cb25fc3e519b86adfc3c"
+
+[[package]]
+name = "valuable"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "830b7e5d4d90034032940e4ace0d9a9a057e7a45cd94e6c007832e39edb82f6d"
 
 [[package]]
 name = "version_check"

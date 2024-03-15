@@ -6,6 +6,7 @@ members = [
     "benchmark/fft/arkworks",
     "benchmark/fft/bellman",
     "benchmark/fft/halo2",
+    "benchmark/poseidon/arkworks",
     "tachyon/rs",
     "vendors/halo2",
 ]
