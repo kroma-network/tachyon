@@ -1,5 +1,5 @@
 [package]
-name = "arkworks_benchmark"
+name = "arkworks_msm_benchmark"
 version = "0.0.1"
 authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
 edition = "2021"
