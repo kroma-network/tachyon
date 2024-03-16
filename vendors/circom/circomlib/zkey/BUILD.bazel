@@ -3,24 +3,26 @@ load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tach
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "r1cs",
-    srcs = ["r1cs.cc"],
-    hdrs = ["r1cs.h"],
+    name = "zkey",
+    srcs = ["zkey.cc"],
+    hdrs = ["zkey.h"],
     deps = [
-        "//circomlib/base:prime_field",
+        "//circomlib/base:g1_affine_point",
+        "//circomlib/base:g2_affine_point",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
+        "@kroma_network_tachyon//tachyon/base/buffer:copyable",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
         "@kroma_network_tachyon//tachyon/base/strings:string_util",
     ],
 )
 
 tachyon_cc_library(
-    name = "r1cs_parser",
-    srcs = ["r1cs_parser.cc"],
-    hdrs = ["r1cs_parser.h"],
+    name = "zkey_parser",
+    srcs = ["zkey_parser.cc"],
+    hdrs = ["zkey_parser.h"],
     deps = [
-        ":r1cs",
+        ":zkey",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:read_only_buffer",
         "@kroma_network_tachyon//tachyon/base/files:file_util",
@@ -28,11 +30,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
-    name = "r1cs_unittests",
-    srcs = ["r1cs_parser_unittest.cc"],
-    data = ["//examples:multiplier_n_r1cs"],
+    name = "zkey_unittests",
+    srcs = ["zkey_parser_unittest.cc"],
+    data = ["//examples:multiplier_3.zkey"],
     deps = [
-        ":r1cs_parser",
-        "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:fr",
+        ":zkey_parser",
+        "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:g2",
     ],
 )

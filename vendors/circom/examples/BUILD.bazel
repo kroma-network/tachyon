@@ -2,6 +2,8 @@ load("//:build_defs.bzl", "generate_r1cs")
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["multiplier_3.zkey"])
+
 generate_r1cs(
     name = "multiplier_n_r1cs",
     srcs = [
