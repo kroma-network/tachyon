@@ -22,7 +22,7 @@ G1AffinePoint ToG1AffinePoint(std::string_view g1[2]) {
   math::bn254::Fq y = math::bn254::Fq::FromDecString(g1[1]);
   bool infinity = x.IsZero() && y.IsZero();
   math::bn254::G1AffinePoint affine_point(std::move(x), std::move(y), infinity);
-  return G1AffinePoint::FromNative(std::move(affine_point));
+  return G1AffinePoint::FromNative<true>(std::move(affine_point));
 }
 
 G2AffinePoint ToG2AffinePoint(std::string_view g2[2][2]) {
@@ -32,7 +32,7 @@ G2AffinePoint ToG2AffinePoint(std::string_view g2[2][2]) {
                      math::bn254::Fq::FromDecString(g2[1][1]));
   bool infinity = x.IsZero() && y.IsZero();
   math::bn254::G2AffinePoint affine_point(std::move(x), std::move(y), infinity);
-  return G2AffinePoint::FromNative(std::move(affine_point));
+  return G2AffinePoint::FromNative<true>(std::move(affine_point));
 }
 
 struct CellData {
@@ -42,7 +42,8 @@ struct CellData {
 
 v1::Cell ToCell(const CellData& data) {
   return {
-      PrimeField::FromNative(math::bn254::Fr::FromDecString(data.coefficient)),
+      PrimeField::FromNative<true>(
+          math::bn254::Fr::FromDecString(data.coefficient)),
       data.signal,
   };
 }

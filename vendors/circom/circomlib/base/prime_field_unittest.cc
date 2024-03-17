@@ -21,8 +21,16 @@ TEST_F(PrimeFieldTest, BigIntConversions) {
 
 TEST_F(PrimeFieldTest, PrimeFieldConversions) {
   F expected = F::Random();
-  PrimeField field = PrimeField::FromNative(expected);
-  EXPECT_EQ(field.ToNative<F>(), expected);
+  {
+    PrimeField field = PrimeField::FromNative<true>(expected);
+    F actual = field.ToNative<true, F>();
+    EXPECT_EQ(actual, expected);
+  }
+  {
+    PrimeField field = PrimeField::FromNative<false>(expected);
+    F actual = field.ToNative<false, F>();
+    EXPECT_EQ(actual, expected);
+  }
 }
 
 TEST_F(PrimeFieldTest, Read) {

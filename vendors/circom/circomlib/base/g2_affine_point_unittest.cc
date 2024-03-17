@@ -13,8 +13,18 @@ class G2AffinePointTest : public testing::Test {
 
 TEST_F(G2AffinePointTest, Conversions) {
   math::bn254::G2AffinePoint expected = math::bn254::G2AffinePoint::Random();
-  G2AffinePoint affine_point = G2AffinePoint::FromNative(expected);
-  EXPECT_EQ(affine_point.ToNative<math::bn254::G2Curve>(), expected);
+  {
+    G2AffinePoint affine_point = G2AffinePoint::FromNative<true>(expected);
+    math::bn254::G2AffinePoint actual =
+        affine_point.ToNative<true, math::bn254::G2Curve>();
+    EXPECT_EQ(actual, expected);
+  }
+  {
+    G2AffinePoint affine_point = G2AffinePoint::FromNative<false>(expected);
+    math::bn254::G2AffinePoint actual =
+        affine_point.ToNative<false, math::bn254::G2Curve>();
+    EXPECT_EQ(actual, expected);
+  }
 }
 
 }  // namespace tachyon::circom

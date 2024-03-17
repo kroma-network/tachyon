@@ -38,14 +38,22 @@ struct PrimeField {
     return {{bytes.begin(), bytes.end()}};
   }
 
-  template <typename F>
+  template <bool IsMontgomery, typename F>
   F ToNative() const {
-    return F::FromMontgomery(ToBigInt<F::kLimbNums>());
+    if constexpr (IsMontgomery) {
+      return F::FromMontgomery(ToBigInt<F::kLimbNums>());
+    } else {
+      return F(ToBigInt<F::kLimbNums>());
+    }
   }
 
-  template <typename F>
+  template <bool IsMontgomery, typename F>
   static PrimeField FromNative(const F& prime_field) {
-    return FromBigInt(prime_field.ToMontgomery());
+    if constexpr (IsMontgomery) {
+      return FromBigInt(prime_field.ToMontgomery());
+    } else {
+      return FromBigInt(prime_field.ToBigInt());
+    }
   }
 
   template <typename F>

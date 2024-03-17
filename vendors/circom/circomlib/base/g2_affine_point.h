@@ -25,24 +25,24 @@ struct G2AffinePoint {
     return !operator==(other);
   }
 
-  template <typename Curve>
+  template <bool IsMontgomery, typename Curve>
   math::AffinePoint<Curve> ToNative() const {
     using BaseField = typename math::AffinePoint<Curve>::BaseField;
     using BasePrimeField = typename BaseField::BasePrimeField;
-    BaseField native_x(x[0].ToNative<BasePrimeField>(),
-                       x[1].ToNative<BasePrimeField>());
-    BaseField native_y(y[0].ToNative<BasePrimeField>(),
-                       y[1].ToNative<BasePrimeField>());
+    BaseField native_x(x[0].ToNative<IsMontgomery, BasePrimeField>(),
+                       x[1].ToNative<IsMontgomery, BasePrimeField>());
+    BaseField native_y(y[0].ToNative<IsMontgomery, BasePrimeField>(),
+                       y[1].ToNative<IsMontgomery, BasePrimeField>());
     bool infinity = native_x.IsZero() && native_y.IsZero();
     return {std::move(native_x), std::move(native_y), infinity};
   }
 
-  template <typename Curve>
+  template <bool IsMontgomery, typename Curve>
   static G2AffinePoint FromNative(const math::AffinePoint<Curve>& point) {
-    return {{PrimeField::FromNative(point.x().c0()),
-             PrimeField::FromNative(point.x().c1())},
-            {PrimeField::FromNative(point.y().c0()),
-             PrimeField::FromNative(point.y().c1())}};
+    return {{PrimeField::FromNative<IsMontgomery>(point.x().c0()),
+             PrimeField::FromNative<IsMontgomery>(point.x().c1())},
+            {PrimeField::FromNative<IsMontgomery>(point.y().c0()),
+             PrimeField::FromNative<IsMontgomery>(point.y().c1())}};
   }
 
   bool Read(const base::ReadOnlyBuffer& buffer, uint32_t field_size) {
