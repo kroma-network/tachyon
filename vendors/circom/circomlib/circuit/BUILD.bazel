@@ -1,0 +1,13 @@
+load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "witness_loader",
+    hdrs = ["witness_loader.h"],
+    deps = [
+        "//circomlib/base:fr_element_conversion",
+        "@kroma_network_tachyon//tachyon/base/containers:container_util",
+        "@kroma_network_tachyon//tachyon/base/files:file_path",
+    ],
+)
