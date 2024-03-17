@@ -3,6 +3,11 @@ load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tach
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "fr_element_conversion",
+    hdrs = ["fr_element_conversion.h"],
+)
+
+tachyon_cc_library(
     name = "g1_affine_point",
     hdrs = ["g1_affine_point.h"],
     deps = [
