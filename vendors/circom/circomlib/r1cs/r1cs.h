@@ -30,6 +30,11 @@ struct R1CS {
   virtual v1::R1CS* ToV1() { return nullptr; }
 
   virtual bool Read(const base::ReadOnlyBuffer& buffer) = 0;
+
+  virtual size_t GetNumInstanceVariables() const = 0;
+  virtual size_t GetNumVariables() const = 0;
+  virtual const std::vector<Constraint>& GetConstraints() const = 0;
+  virtual const std::vector<uint64_t>& GetWireId2LabelIdMap() const = 0;
 };
 
 constexpr char kR1CSMagic[4] = {'r', '1', 'c', 's'};
@@ -179,6 +184,20 @@ struct R1CS : public circom::R1CS {
     if (!sections.MoveTo(R1CSSectionType::kWire2LabelIdMap)) return false;
     if (!wire_id_to_label_id_map.Read(buffer, header)) return false;
     return true;
+  }
+
+  size_t GetNumInstanceVariables() const override {
+    return 1 + header.num_public_outputs + header.num_public_inputs;
+  }
+
+  size_t GetNumVariables() const override { return header.num_wires; }
+
+  const std::vector<Constraint>& GetConstraints() const override {
+    return constraints.constraints;
+  }
+
+  const std::vector<uint64_t>& GetWireId2LabelIdMap() const override {
+    return wire_id_to_label_id_map.label_ids;
   }
 
   std::string ToString() const {
