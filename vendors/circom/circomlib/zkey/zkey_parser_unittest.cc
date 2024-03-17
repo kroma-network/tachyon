@@ -234,11 +234,6 @@ TEST_F(ZKeyParserTest, Parse) {
       [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
   EXPECT_EQ(v1_zkey->points_b1, expected_points_b1);
 
-  auto& data = v1_zkey->points_b2.commitments;
-  for (size_t i = 0; i < data.size(); ++i) {
-    LOG(ERROR) << data[i].ToNative<math::bn254::G2Curve>().ToString();
-  }
-
   // clang-format off
   std::string_view expected_points_b2_strs[][2][2] = {
     {
