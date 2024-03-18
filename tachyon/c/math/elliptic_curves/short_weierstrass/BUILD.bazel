@@ -8,5 +8,12 @@ tachyon_cc_unittest(
         "point_xyzz_unittest.cc",
         "projective_point_unittest.cc",
     ],
-    deps = ["//tachyon/c/math/elliptic_curves/bn/bn254:g1_test"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves:point_conversions",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1_test",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g2",
+        "//tachyon/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/bn/bn254:g2",
+    ],
 )

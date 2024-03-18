@@ -19,9 +19,9 @@ struct GenerationConfig : public build::CcWriter {
   base::FilePath ext_field_hdr_tpl_path;
   base::FilePath ext_field_src_tpl_path;
   base::FilePath ext_field_traits_hdr_tpl_path;
-  base::FilePath g1_hdr_tpl_path;
-  base::FilePath g1_src_tpl_path;
-  base::FilePath g1_traits_hdr_tpl_path;
+  base::FilePath point_hdr_tpl_path;
+  base::FilePath point_src_tpl_path;
+  base::FilePath point_traits_hdr_tpl_path;
   base::FilePath msm_hdr_tpl_path;
   base::FilePath msm_src_tpl_path;
   base::FilePath msm_gpu_hdr_tpl_path;
@@ -46,9 +46,17 @@ struct GenerationConfig : public build::CcWriter {
   int GenerateExtFieldHdr() const;
   int GenerateExtFieldSrc() const;
   int GenerateExtFieldTraitsHdr() const;
+  int GeneratePointHdr(std::string_view g1_or_g2,
+                       std::string_view base_field) const;
+  int GeneratePointSrc(std::string_view g1_or_g2,
+                       std::string_view base_field_trait_header) const;
+  int GeneratePointTraitsHdr(std::string_view g1_or_g2) const;
   int GenerateG1Hdr() const;
   int GenerateG1Src() const;
   int GenerateG1TraitsHdr() const;
+  int GenerateG2Hdr() const;
+  int GenerateG2Src() const;
+  int GenerateG2TraitsHdr() const;
   int GenerateMSMHdr() const;
   int GenerateMSMSrc() const;
   int GenerateMSMGpuHdr() const;
@@ -173,36 +181,73 @@ int GenerationConfig::GenerateExtFieldTraitsHdr() const {
   return WriteHdr(content, false);
 }
 
-int GenerationConfig::GenerateG1Hdr() const {
+int GenerationConfig::GeneratePointHdr(std::string_view g1_or_g2,
+                                       std::string_view base_field) const {
   std::string tpl_content;
-  CHECK(base::ReadFileToString(g1_hdr_tpl_path, &tpl_content));
+  CHECK(base::ReadFileToString(point_hdr_tpl_path, &tpl_content));
 
-  base::FilePath hdr_path = GetHdrPath();
-  std::string basename = hdr_path.BaseName().value();
-  std::string header_path = hdr_path.DirName().Append("fq.h").value();
   std::string content = absl::StrReplaceAll(
-      tpl_content, {{"%{header_path}", header_path}, {"%{type}", type}});
+      tpl_content, {{"%{header_dir_name}", c::math::GetLocation(type)},
+                    {"%{type}", type},
+                    {"%{g1_or_g2}", g1_or_g2},
+                    {"%{base_field}", base_field}});
   return WriteHdr(content, true);
 }
 
-int GenerationConfig::GenerateG1Src() const {
+int GenerationConfig::GenerateG1Hdr() const {
+  return GeneratePointHdr("g1", "fq");
+}
+
+int GenerationConfig::GenerateG2Hdr() const {
+  return GeneratePointHdr("g2", "fq2");
+}
+
+int GenerationConfig::GeneratePointSrc(
+    std::string_view g1_or_g2, std::string_view base_field_trait_header) const {
   std::string tpl_content;
-  CHECK(base::ReadFileToString(g1_src_tpl_path, &tpl_content));
+  CHECK(base::ReadFileToString(point_src_tpl_path, &tpl_content));
 
   std::string content = absl::StrReplaceAll(
-      tpl_content,
-      {{"%{header_dir_name}", c::math::GetLocation(type)}, {"%{type}", type}});
+      tpl_content, {{"%{header_dir_name}", c::math::GetLocation(type)},
+                    {"%{type}", type},
+                    {"%{g1_or_g2}", g1_or_g2},
+                    {"%{G1_or_G2}", base::ToUpperASCII(g1_or_g2)},
+                    {"%{base_field_trait_header}", base_field_trait_header}});
   return WriteSrc(content);
 }
 
-int GenerationConfig::GenerateG1TraitsHdr() const {
+int GenerationConfig::GenerateG1Src() const {
+  return GeneratePointSrc("g1", "fq_traits.h");
+}
+
+int GenerationConfig::GenerateG2Src() const {
+  return GeneratePointSrc("g2", "fq2_traits.h");
+}
+
+int GenerationConfig::GeneratePointTraitsHdr(std::string_view g1_or_g2) const {
   std::string tpl_content;
-  CHECK(base::ReadFileToString(g1_traits_hdr_tpl_path, &tpl_content));
+  CHECK(base::ReadFileToString(point_traits_hdr_tpl_path, &tpl_content));
+
+  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
+  RemoveOptionalLines(tpl_lines, "IsG2", g1_or_g2 == "g2");
+  tpl_content = absl::StrJoin(tpl_lines, "\n");
 
   std::string content = absl::StrReplaceAll(
-      tpl_content,
-      {{"%{header_dir_name}", c::math::GetLocation(type)}, {"%{type}", type}});
+      tpl_content, {
+                       {"%{header_dir_name}", c::math::GetLocation(type)},
+                       {"%{type}", type},
+                       {"%{g1_or_g2}", g1_or_g2},
+                       {"%{G1_or_G2}", base::ToUpperASCII(g1_or_g2)},
+                   });
   return WriteHdr(content, false);
+}
+
+int GenerationConfig::GenerateG1TraitsHdr() const {
+  return GeneratePointTraitsHdr("g1");
+}
+
+int GenerationConfig::GenerateG2TraitsHdr() const {
+  return GeneratePointTraitsHdr("g2");
 }
 
 int GenerationConfig::GenerateMSMHdr() const {
@@ -298,14 +343,14 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::FilePathFlag>(&config.ext_field_traits_hdr_tpl_path)
       .set_long_name("--ext_field_traits_hdr_tpl_path")
       .set_required();
-  parser.AddFlag<base::FilePathFlag>(&config.g1_hdr_tpl_path)
-      .set_long_name("--g1_hdr_tpl_path")
+  parser.AddFlag<base::FilePathFlag>(&config.point_hdr_tpl_path)
+      .set_long_name("--point_hdr_tpl_path")
       .set_required();
-  parser.AddFlag<base::FilePathFlag>(&config.g1_src_tpl_path)
-      .set_long_name("--g1_src_tpl_path")
+  parser.AddFlag<base::FilePathFlag>(&config.point_src_tpl_path)
+      .set_long_name("--point_src_tpl_path")
       .set_required();
-  parser.AddFlag<base::FilePathFlag>(&config.g1_traits_hdr_tpl_path)
-      .set_long_name("--g1_traits_hdr_tpl_path")
+  parser.AddFlag<base::FilePathFlag>(&config.point_traits_hdr_tpl_path)
+      .set_long_name("--point_traits_hdr_tpl_path")
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.msm_hdr_tpl_path)
       .set_long_name("--msm_hdr_tpl_path")
@@ -353,6 +398,12 @@ int RealMain(int argc, char** argv) {
     return config.GenerateG1Src();
   } else if (base::EndsWith(config.out.value(), "g1_point_traits.h")) {
     return config.GenerateG1TraitsHdr();
+  } else if (base::EndsWith(config.out.value(), "g2.h")) {
+    return config.GenerateG2Hdr();
+  } else if (base::EndsWith(config.out.value(), "g2.cc")) {
+    return config.GenerateG2Src();
+  } else if (base::EndsWith(config.out.value(), "g2_point_traits.h")) {
+    return config.GenerateG2TraitsHdr();
   } else if (base::EndsWith(config.out.value(), "msm.h")) {
     return config.GenerateMSMHdr();
   } else if (base::EndsWith(config.out.value(), "msm.cc")) {

@@ -12,6 +12,7 @@ filegroup(
         "fq6.h",
         "fr.h",
         "g1.h",
+        "g2.h",
         "msm.h",
         "msm_gpu.h",
     ],
@@ -30,6 +31,7 @@ generate_ec_points(
         "//tachyon/math/elliptic_curves/msm/kernels/bellman:bn254_bellman_msm_kernels",
         "//tachyon/math/elliptic_curves/msm/kernels/cuzk:bn254_cuzk_kernels",
     ],
+    g2_deps = ["//tachyon/math/elliptic_curves/bn/bn254:g2"],
 )
 
 tachyon_cc_library(

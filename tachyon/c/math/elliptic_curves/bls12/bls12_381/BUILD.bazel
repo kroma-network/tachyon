@@ -11,6 +11,7 @@ filegroup(
         "fq6.h",
         "fq12.h",
         "g1.h",
+        "g2.h",
         "msm.h",
         # Uncomment the following line.
         # See //tachyon/c/math/elliptic_curves/generator:build_defs.bzl
@@ -27,4 +28,5 @@ generate_ec_points(
     fr_limb_nums = 4,
     g1_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:g1"],
     g1_gpu_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:g1_gpu"],
+    g2_deps = ["//tachyon/math/elliptic_curves/bls12/bls12_381:g2"],
 )
