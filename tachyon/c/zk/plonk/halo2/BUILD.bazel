@@ -204,6 +204,28 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "buffer_reader",
+    hdrs = ["buffer_reader.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base/buffer:endian_auto_reset",
+        "//tachyon/base/buffer:read_only_buffer",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/math/elliptic_curves:points",
+        "//tachyon/math/finite_fields:prime_field_base",
+        "//tachyon/math/polynomials/univariate:univariate_evaluations",
+        "//tachyon/math/polynomials/univariate:univariate_polynomial",
+        "//tachyon/zk/expressions:expression_factory",
+        "//tachyon/zk/lookup:lookup_argument",
+        "//tachyon/zk/plonk/base:column_key",
+        "//tachyon/zk/plonk/base:phase",
+        "//tachyon/zk/plonk/constraint_system:gate",
+        "//tachyon/zk/plonk/permutation:permutation_argument",
+        "//tachyon/zk/plonk/permutation:permutation_proving_key",
+    ],
+)
+
+tachyon_cc_library(
     name = "constants",
     hdrs = ["constants.h"],
 )

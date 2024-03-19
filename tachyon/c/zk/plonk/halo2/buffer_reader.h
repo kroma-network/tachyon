@@ -1,5 +1,5 @@
-#ifndef TACHYON_C_ZK_PLONK_KEYS_BUFFER_READER_H_
-#define TACHYON_C_ZK_PLONK_KEYS_BUFFER_READER_H_
+#ifndef TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_
+#define TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_
 
 #include <memory>
 #include <type_traits>
@@ -10,7 +10,6 @@
 #include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/c/zk/plonk/keys/buffer_reader.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -375,4 +374,4 @@ class BufferReader<tachyon::zk::plonk::PermutationProvingKey<Poly, Evals>> {
 
 }  // namespace tachyon::c::zk::plonk
 
-#endif  // TACHYON_C_ZK_PLONK_KEYS_BUFFER_READER_H_
+#endif  // TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_
