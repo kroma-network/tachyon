@@ -164,6 +164,11 @@ pub mod ffi {
         type GWCProver;
 
         fn new_gwc_prover(transcript_type: u8, k: u32, s: &Fr) -> UniquePtr<GWCProver>;
+        fn new_gwc_prover_from_params(
+            transcript_type: u8,
+            k: u32,
+            params: &[u8],
+        ) -> UniquePtr<GWCProver>;
         fn k(&self) -> u32;
         fn n(&self) -> u64;
         fn s_g2(&self) -> Box<G2AffinePoint>;
@@ -196,6 +201,11 @@ pub mod ffi {
         type SHPlonkProver;
 
         fn new_shplonk_prover(transcript_type: u8, k: u32, s: &Fr) -> UniquePtr<SHPlonkProver>;
+        fn new_shplonk_prover_from_params(
+            transcript_type: u8,
+            k: u32,
+            params: &[u8],
+        ) -> UniquePtr<SHPlonkProver>;
         fn k(&self) -> u32;
         fn n(&self) -> u64;
         fn s_g2(&self) -> Box<G2AffinePoint>;
@@ -779,6 +789,13 @@ impl<Scheme: CommitmentScheme> GWCProver<Scheme> {
             _marker: PhantomData,
         }
     }
+
+    pub fn from_params(transcript_type: u8, k: u32, params: &[u8]) -> GWCProver<Scheme> {
+        GWCProver {
+            inner: ffi::new_gwc_prover_from_params(transcript_type, k, params),
+            _marker: PhantomData,
+        }
+    }
 }
 
 impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
@@ -882,6 +899,13 @@ impl<Scheme: CommitmentScheme> SHPlonkProver<Scheme> {
         let cpp_s = unsafe { std::mem::transmute::<_, &Fr>(s) };
         SHPlonkProver {
             inner: ffi::new_shplonk_prover(transcript_type, k, cpp_s),
+            _marker: PhantomData,
+        }
+    }
+
+    pub fn from_params(transcript_type: u8, k: u32, params: &[u8]) -> SHPlonkProver<Scheme> {
+        SHPlonkProver {
+            inner: ffi::new_shplonk_prover_from_params(transcript_type, k, params),
             _marker: PhantomData,
         }
     }

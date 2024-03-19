@@ -463,33 +463,47 @@ mod test {
         const N: u64 = 16;
         let s = Fr::from(2);
         let params = ParamsKZG::<Bn256>::unsafe_setup_with_s(k, s.clone());
-        let prover = TachyonSHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
+        let prover_from_s = TachyonSHPlonkProver::<KZGCommitmentScheme<Bn256>>::new(
             TranscriptType::Blake2b as u8,
             k,
             &s,
         );
-        assert_eq!(prover.n(), N);
+        let prover_from_params = {
+            let mut params_bytes: Vec<u8> = vec![];
+            params.write(&mut params_bytes).unwrap();
+            TachyonSHPlonkProver::<KZGCommitmentScheme<Bn256>>::from_params(
+                TranscriptType::Blake2b as u8,
+                k,
+                params_bytes.as_slice(),
+            )
+        };
+
+        assert_eq!(prover_from_s.n(), N);
+        assert_eq!(prover_from_params.n(), N);
 
         let expected_s_g2 = params.s_g2();
-        let s_g2 = prover.s_g2();
-        assert_eq!(s_g2, expected_s_g2);
+        assert_eq!(prover_from_s.s_g2(), expected_s_g2);
+        assert_eq!(prover_from_params.s_g2(), expected_s_g2);
 
         let domain = EvaluationDomain::new(1, k);
         let scalars = (0..N).map(|_| Fr::random(OsRng)).collect::<Vec<_>>();
-        let mut evals = prover.empty_evals();
+        let mut evals = prover_from_s.empty_evals();
         for i in 0..scalars.len() {
             evals.set_value(i, &scalars[i]);
         }
         let lagrange = domain.lagrange_from_vec(scalars.clone());
+        let expected_commitment = params.commit_lagrange(&lagrange, Blind::default());
+        assert_eq!(prover_from_s.commit_lagrange(&evals), expected_commitment);
         assert_eq!(
-            params.commit_lagrange(&lagrange, Blind::default()),
-            prover.commit_lagrange(&evals)
+            prover_from_params.commit_lagrange(&evals),
+            expected_commitment
         );
-        let cpp_poly = prover.ifft(&evals);
+
+        let cpp_poly = prover_from_s.ifft(&evals);
         let poly = domain.lagrange_to_coeff(lagrange);
-        assert_eq!(
-            params.commit(&poly, Blind::default()),
-            prover.commit(&cpp_poly)
-        );
+
+        let expected_commitment = params.commit(&poly, Blind::default());
+        assert_eq!(prover_from_s.commit(&cpp_poly), expected_commitment);
+        assert_eq!(prover_from_params.commit(&cpp_poly), expected_commitment);
     }
 }

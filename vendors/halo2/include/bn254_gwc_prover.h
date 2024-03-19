@@ -24,6 +24,8 @@ class Poly;
 class GWCProver {
  public:
   GWCProver(uint8_t transcript_type, uint32_t k, const Fr& s);
+  GWCProver(uint8_t transcript_type, uint32_t k, const uint8_t* params,
+            size_t params_len);
   GWCProver(const GWCProver& other) = delete;
   GWCProver& operator=(const GWCProver& other) = delete;
   ~GWCProver();
@@ -57,6 +59,9 @@ class GWCProver {
 
 std::unique_ptr<GWCProver> new_gwc_prover(uint8_t transcript_type, uint32_t k,
                                           const Fr& s);
+
+std::unique_ptr<GWCProver> new_gwc_prover_from_params(
+    uint8_t transcript_type, uint32_t k, rust::Slice<const uint8_t> params);
 
 }  // namespace tachyon::halo2_api::bn254
 
