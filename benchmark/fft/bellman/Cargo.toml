@@ -1,0 +1,22 @@
+[package]
+name = "bellman_fft_benchmark"
+version = "0.0.1"
+authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
+edition = "2021"
+rust-version = "1.56.1"
+description = """
+Bellman FFT Benchmark
+"""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/kroma-network/tachyon"
+documentation = "https://docs.rs/bellman_benchmark"
+readme = "README.md"
+categories = ["cryptography"]
+keywords = ["tachyon", "benchmark", "bellman"]
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bellman_ce = { git = "https://github.com/kroma-network/bellman.git", rev = "bbac055" }
+tachyon_rs = { path = "../../../tachyon/rs" }

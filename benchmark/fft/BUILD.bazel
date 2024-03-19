@@ -46,6 +46,8 @@ tachyon_cc_binary(
     deps = [
         ":fft_config",
         ":fft_runner",
+        "//benchmark/fft/arkworks",
+        "//benchmark/fft/bellman",
         "//benchmark/fft/halo2",
         "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
         "//tachyon/math/elliptic_curves/bn/bn254:fr",
