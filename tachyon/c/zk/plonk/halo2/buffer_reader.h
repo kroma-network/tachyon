@@ -11,7 +11,9 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/finite_fields/cubic_extension_field.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
+#include "tachyon/math/finite_fields/quadratic_extension_field.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 #include "tachyon/zk/expressions/expression_factory.h"
@@ -91,6 +93,37 @@ class BufferReader<
     BigInt montgomery;
     CHECK(buffer.Read(montgomery.limbs));
     return T::FromMontgomery(montgomery);
+  }
+};
+
+template <typename T>
+class BufferReader<T, std::enable_if_t<std::is_base_of_v<
+                          tachyon::math::QuadraticExtensionField<T>, T>>> {
+ public:
+  using BaseField = typename T::BaseField;
+
+  static T Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    tachyon::base::EndianAutoReset resetter(buffer,
+                                            tachyon::base::Endian::kLittle);
+    BaseField c0 = BufferReader<BaseField>::Read(buffer);
+    BaseField c1 = BufferReader<BaseField>::Read(buffer);
+    return {std::move(c0), std::move(c1)};
+  }
+};
+
+template <typename T>
+class BufferReader<T, std::enable_if_t<std::is_base_of_v<
+                          tachyon::math::CubicExtensionField<T>, T>>> {
+ public:
+  using BaseField = typename T::BaseField;
+
+  static T Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    tachyon::base::EndianAutoReset resetter(buffer,
+                                            tachyon::base::Endian::kLittle);
+    BaseField c0 = BufferReader<BaseField>::Read(buffer);
+    BaseField c1 = BufferReader<BaseField>::Read(buffer);
+    BaseField c2 = BufferReader<BaseField>::Read(buffer);
+    return {std::move(c0), std::move(c1), std::move(c1)};
   }
 };
 
