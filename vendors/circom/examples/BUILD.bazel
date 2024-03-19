@@ -1,5 +1,6 @@
+load("@kroma_network_rules_circom//:build_defs.bzl", "compile_circuit")
 load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
-load("//:build_defs.bzl", "compile_circuit", "witness_gen_library")
+load("//:build_defs.bzl", "witness_gen_library")
 
 package(default_visibility = ["//visibility:public"])
 

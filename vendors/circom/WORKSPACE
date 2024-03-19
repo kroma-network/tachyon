@@ -2,13 +2,18 @@ workspace(name = "kroma_network_circom")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# Start of rules_rust
 http_archive(
-    name = "rules_rust",
-    sha256 = "9d04e658878d23f4b00163a72da3db03ddb451273eb347df7d7c50838d698f49",
-    urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.26.0/rules_rust-v0.26.0.tar.gz"],
+    name = "kroma_network_rules_circom",
+    sha256 = "53f91f916b56e8f3070f1a594b625866afafe53057222a02796bee6f06dfc349",
+    strip_prefix = "rules_circom-977a8c486949d86bd4099a4e85deca56a9e47233",
+    urls = ["https://github.com/kroma-network/rules_circom/archive/977a8c486949d86bd4099a4e85deca56a9e47233.tar.gz"],
 )
 
+load("@kroma_network_rules_circom//:rules_circom_deps.bzl", "rules_circom_deps")
+
+rules_circom_deps()
+
+# Start of rules_rust
 load("@rules_rust//rust:repositories.bzl", "rules_rust_dependencies", "rust_register_toolchains")
 
 rules_rust_dependencies()
@@ -31,17 +36,14 @@ load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
 
 crates_repository(
     name = "crate_index",
-    cargo_lockfile = "//:Cargo.lock",
-    lockfile = "//:Cargo.Bazel.lock",
-    manifests = ["//:Cargo.toml"],
+    cargo_lockfile = "@kroma_network_rules_circom//:Cargo.lock",
+    lockfile = "@kroma_network_rules_circom//:Cargo.Bazel.lock",
+    manifests = ["@kroma_network_rules_circom//:Cargo.toml"],
 )
 
-load(
-    "@crate_index//:defs.bzl",
-    tachyon_crate_repositories = "crate_repositories",
-)
+load("@crate_index//:defs.bzl", "crate_repositories")
 
-tachyon_crate_repositories()
+crate_repositories()
 # End of rules_rust
 
 local_repository(
