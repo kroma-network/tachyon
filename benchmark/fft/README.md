@@ -12,7 +12,7 @@ CPU Caches:
 ## FFT
 
 ```shell
-bazel run -c opt --config halo2 --//:has_openmp --//:polygon_zkevm_backend --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23
+bazel run -c opt --config halo2 --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23
 ```
 
 | Exponent | Tachyon      | Halo2        |
@@ -31,7 +31,7 @@ bazel run -c opt --config halo2 --//:has_openmp --//:polygon_zkevm_backend --//:
 ## IFFT
 
 ```shell
-bazel run -c opt --config halo2 --//:has_openmp --//:polygon_zkevm_backend --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --run_ifft
+bazel run -c opt --config halo2 --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --run_ifft
 ```
 
 | Exponent | Tachyon      | Halo2        |
