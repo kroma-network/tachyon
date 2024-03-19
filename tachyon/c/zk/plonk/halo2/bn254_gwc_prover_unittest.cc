@@ -13,6 +13,7 @@
 #include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
+#include "tachyon/c/zk/plonk/halo2/test/bn254_halo2_params_data.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/base/commitments/gwc_extension.h"
 #include "tachyon/zk/plonk/halo2/blake2b_transcript.h"
@@ -48,6 +49,24 @@ INSTANTIATE_TEST_SUITE_P(GWCProverTest, GWCProverTest,
                          testing::Values(TACHYON_HALO2_BLAKE2B_TRANSCRIPT,
                                          TACHYON_HALO2_POSEIDON_TRANSCRIPT,
                                          TACHYON_HALO2_SHA256_TRANSCRIPT));
+
+TEST_P(GWCProverTest, Constructor) {
+  uint8_t transcript_type = GetParam();
+
+  tachyon_halo2_bn254_gwc_prover* prover_from_halo2_parmas =
+      tachyon_halo2_bn254_gwc_prover_create_from_params(
+          transcript_type, k_,
+          reinterpret_cast<const uint8_t*>(
+              c::zk::plonk::halo2::bn254::kExpectedHalo2Params),
+          std::size(c::zk::plonk::halo2::bn254::kExpectedHalo2Params));
+
+  const tachyon_bn254_g2_affine* expected_s_g2 =
+      tachyon_halo2_bn254_gwc_prover_get_s_g2(prover_);
+  const tachyon_bn254_g2_affine* s_g2 =
+      tachyon_halo2_bn254_gwc_prover_get_s_g2(prover_from_halo2_parmas);
+  ASSERT_TRUE(tachyon_bn254_g2_affine_eq(expected_s_g2, s_g2));
+  tachyon_halo2_bn254_gwc_prover_destroy(prover_from_halo2_parmas);
+}
 
 TEST_P(GWCProverTest, Getters) {
   EXPECT_EQ(tachyon_halo2_bn254_gwc_prover_get_k(prover_), k_);
