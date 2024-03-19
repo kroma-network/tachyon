@@ -45,6 +45,7 @@ class SHPlonkExtension final
 
   using Base = UnivariatePolynomialCommitmentSchemeExtension<
       SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
+  using G1Point = typename Curve::G1Curve::AffinePoint;
   using G2Point = typename Curve::G2Curve::AffinePoint;
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
@@ -54,6 +55,15 @@ class SHPlonkExtension final
   explicit SHPlonkExtension(
       crypto::SHPlonk<Curve, MaxDegree, Commitment>&& shplonk)
       : shplonk_(std::move(shplonk)) {}
+
+  SHPlonkExtension(std::vector<G1Point>&& g1_powers_of_tau,
+                   std::vector<G1Point>&& g1_powers_of_tau_lagrange,
+                   G2Point&& s_g2) {
+    crypto::KZG<G1Point, MaxDegree, Commitment> kzg(
+        std::move(g1_powers_of_tau), std::move(g1_powers_of_tau_lagrange));
+    shplonk_ = crypto::SHPlonk<Curve, MaxDegree, Commitment>(std::move(kzg),
+                                                             std::move(s_g2));
+  }
 
   const char* Name() { return shplonk_.Name(); }
 
@@ -146,8 +156,6 @@ class SHPlonkExtension final
   friend class halo2_api::bn254::SHPlonkProver;
   friend class base::Copyable<
       SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
-
-  using G1Point = typename Curve::G1Curve::AffinePoint;
 
   const std::vector<G1Point>& GetG1PowersOfTau() const {
     return this->shplonk_.kzg().g1_powers_of_tau();

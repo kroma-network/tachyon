@@ -10,6 +10,8 @@
 #include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/finite_fields/cubic_extension_field.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
@@ -402,6 +404,43 @@ class BufferReader<tachyon::zk::plonk::PermutationProvingKey<Poly, Evals>> {
     ReadBuffer(buffer, polys);
     return tachyon::zk::plonk::PermutationProvingKey<Poly, Evals>(
         std::move(permutations), std::move(polys));
+  }
+};
+
+template <typename T>
+class BufferReader<
+    T, std::enable_if_t<
+           std::is_same_v<T, c::zk::plonk::halo2::bn254::GWCPCS> ||
+           std::is_same_v<T, c::zk::plonk::halo2::bn254::SHPlonkPCS>>> {
+ public:
+  static T Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    using G1Point = typename T::G1Point;
+    using G2Point = typename T::G2Point;
+
+    uint32_t k;
+    CHECK(buffer.Read(&k));
+    size_t n = size_t{1} << k;
+    std::vector<G1Point> g1_powers_of_tau =
+        tachyon::base::CreateVector(n, [&buffer]() {
+          G1Point point;
+          ReadBuffer(buffer, point);
+          return point;
+        });
+    std::vector<G1Point> g1_powers_of_tau_lagrange =
+        tachyon::base::CreateVector(n, [&buffer]() {
+          G1Point point;
+          ReadBuffer(buffer, point);
+          return point;
+        });
+
+    // NOTE(dongchangYoo): read |g2| but do not use it.
+    G2Point g2;
+    ReadBuffer(buffer, g2);
+
+    G2Point s_g2;
+    ReadBuffer(buffer, s_g2);
+    return {std::move(g1_powers_of_tau), std::move(g1_powers_of_tau_lagrange),
+            std::move(s_g2)};
   }
 };
 

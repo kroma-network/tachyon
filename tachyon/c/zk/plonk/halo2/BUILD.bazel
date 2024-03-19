@@ -207,6 +207,8 @@ tachyon_cc_library(
     name = "buffer_reader",
     hdrs = ["buffer_reader.h"],
     deps = [
+        ":bn254_gwc_pcs",
+        ":bn254_shplonk_pcs",
         "//tachyon/base:logging",
         "//tachyon/base/buffer:endian_auto_reset",
         "//tachyon/base/buffer:read_only_buffer",
