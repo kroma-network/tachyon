@@ -1,0 +1,5 @@
+load("//circomlib/generated:build_defs.bzl", "fr_library")
+
+package(default_visibility = ["//visibility:public"])
+
+fr_library(modulus = "52435875175126190479447740508185965837690552500527637822603658699938581184513")

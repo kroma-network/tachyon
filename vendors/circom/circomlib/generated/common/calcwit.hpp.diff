@@ -1,0 +1,40 @@
+9d8
+< #include <vector>
+11,12d9
+< #include "absl/container/flat_hash_map.h"
+< 
+31,33c28,30
+<   FrElement* circuitConstants;
+<   std::map<u32,IODefPair> templateInsId2IOSignalInfo;
+<   std::string* listOfTemplateMessages;
+---
+>   FrElement* circuitConstants; 
+>   std::map<u32,IODefPair> templateInsId2IOSignalInfo; 
+>   std::string* listOfTemplateMessages; 
+47c44
+<   void setInputSignal(u64 h, uint i, FrElement const &val);
+---
+>   void setInputSignal(u64 h, uint i, FrElement &val);
+49c46
+< 
+---
+>   
+55c52
+< 
+---
+>   
+65c62
+< 
+---
+>   
+70c67
+< typedef void (*Circom_TemplateFunction)(uint __cIdx, Circom_CalcWit* __ctx);
+---
+> typedef void (*Circom_TemplateFunction)(uint __cIdx, Circom_CalcWit* __ctx); 
+72,77d68
+< Circom_Circuit* loadCircuit(std::string const &datFileName);
+< 
+< void loadWitness(Circom_CalcWit *ctx, absl::flat_hash_map<std::string, std::vector<FrElement>> const &witness);
+< 
+< void writeBinWitness(Circom_CalcWit *ctx, std::string const &wtnsFileName);
+< 

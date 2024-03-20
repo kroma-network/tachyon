@@ -1,5 +1,5 @@
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
-load("@iden3_ffiasm//:build_defs.bzl", "generate_asm")
+load("@iden3_ffiasm//:build_defs.bzl", generate_ffiasm_prime_field = "generate_prime_field")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 SMALL_SUBGROUP_ADICITY = "small_subgroup_adicity"
@@ -139,9 +139,9 @@ def _do_generate_prime_fields(
         modulus,
         **kwargs):
     prefix = namespace.replace("::", "_") + "_" + name
-    generate_asm(
+    generate_ffiasm_prime_field(
         name = prefix,
-        out = "{}.asm".format(name),
+        asm_out = "{}.asm".format(name),
         modulus = modulus,
     )
 

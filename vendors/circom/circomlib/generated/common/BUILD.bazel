@@ -1,0 +1,15 @@
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "common_hdrs",
+    hdrs = [
+        "calcwit.hpp",
+        "circom.hpp",
+    ],
+    includes = ["."],
+)
+
+filegroup(
+    name = "common_srcs",
+    srcs = ["calcwit.cpp"],
+)
