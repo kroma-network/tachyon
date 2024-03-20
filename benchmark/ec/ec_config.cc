@@ -1,10 +1,10 @@
 #include "benchmark/ec/ec_config.h"
 
-#include <algorithm>
 #include <string>
 
 #include "tachyon/base/console/iostream.h"
 #include "tachyon/base/flag/flag_parser.h"
+#include "tachyon/base/ranges/algorithm.h"
 
 namespace tachyon {
 
@@ -22,7 +22,7 @@ bool ECConfig::Parse(int argc, char** argv) {
     }
   }
 
-  base::ranges::sort(point_nums_);
+  base::ranges::sort(point_nums_);  // NOLINT
   return true;
 }
 
