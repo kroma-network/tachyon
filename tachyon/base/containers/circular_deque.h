@@ -650,7 +650,7 @@ class circular_deque {
   void resize(size_type count) {
     // SEE BELOW VERSION if you change this. The code is mostly the same.
     if (count > size()) {
-      // This could be slighly more efficient but expanding a queue with
+      // This could be slightly more efficient but expanding a queue with
       // identical elements is unusual and the extra computations of emplacing
       // one-by-one will typically be small relative to calling the constructor
       // for every item.
@@ -691,7 +691,7 @@ class circular_deque {
   // The implementation of insert isn't optimized as much as it could be. If
   // the insertion requires that the buffer be grown, it will first be grown
   // and everything moved, and then the items will be inserted, potentially
-  // moving some items twice. This simplifies the implemntation substantially
+  // moving some items twice. This simplifies the implementation substantially
   // and means less generated templatized code. Since this is an uncommon
   // operation for deques, and already relatively slow, it doesn't seem worth
   // the benefit to optimize this.
