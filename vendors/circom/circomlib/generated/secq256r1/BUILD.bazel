@@ -1,5 +1,8 @@
-load("//circomlib/generated:build_defs.bzl", "fr_library")
+load("@iden3_ffiasm//c:build_defs.bzl", "generate_prime_field")
 
 package(default_visibility = ["//visibility:public"])
 
-fr_library(modulus = "115792089237316195423570985008687907852837564279074904382605163141518161494337")
+generate_prime_field(
+    name = "fr",
+    modulus = "115792089237316195423570985008687907852837564279074904382605163141518161494337",
+)
