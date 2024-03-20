@@ -30,17 +30,17 @@ struct GenerationConfig : public build::CcWriter {
   bool has_specialized_g1_msm_kernels;
 
   int GeneratePrimeFieldHdr(std::string_view suffix) const;
-  int GenerateFqHdr() const;
-  int GenerateFrHdr() const;
   int GeneratePrimeFieldSrc(std::string_view suffix) const;
-  int GenerateFqSrc() const;
-  int GenerateFrSrc() const;
   int GeneratePrimeFieldTraitsHdr(std::string_view suffix) const;
+  int GenerateFqHdr() const;
+  int GenerateFqSrc() const;
   int GenerateFqTraitsHdr() const;
+  int GenerateFrHdr() const;
+  int GenerateFrSrc() const;
   int GenerateFrTraitsHdr() const;
-  int GenerateG1TraitsHdr() const;
   int GenerateG1Hdr() const;
   int GenerateG1Src() const;
+  int GenerateG1TraitsHdr() const;
   int GenerateMSMHdr() const;
   int GenerateMSMSrc() const;
   int GenerateMSMGpuHdr() const;
@@ -62,14 +62,6 @@ int GenerationConfig::GeneratePrimeFieldHdr(std::string_view suffix) const {
   return WriteHdr(content, true);
 }
 
-int GenerationConfig::GenerateFqHdr() const {
-  return GeneratePrimeFieldHdr("fq");
-}
-
-int GenerationConfig::GenerateFrHdr() const {
-  return GeneratePrimeFieldHdr("fr");
-}
-
 int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(prime_field_src_tpl_path, &tpl_content));
@@ -81,14 +73,6 @@ int GenerationConfig::GeneratePrimeFieldSrc(std::string_view suffix) const {
                        {"%{suffix}", suffix},
                    });
   return WriteSrc(content);
-}
-
-int GenerationConfig::GenerateFqSrc() const {
-  return GeneratePrimeFieldSrc("fq");
-}
-
-int GenerationConfig::GenerateFrSrc() const {
-  return GeneratePrimeFieldSrc("fr");
 }
 
 int GenerationConfig::GeneratePrimeFieldTraitsHdr(
@@ -106,8 +90,24 @@ int GenerationConfig::GeneratePrimeFieldTraitsHdr(
   return WriteHdr(content, false);
 }
 
+int GenerationConfig::GenerateFqHdr() const {
+  return GeneratePrimeFieldHdr("fq");
+}
+
+int GenerationConfig::GenerateFqSrc() const {
+  return GeneratePrimeFieldSrc("fq");
+}
+
 int GenerationConfig::GenerateFqTraitsHdr() const {
   return GeneratePrimeFieldTraitsHdr("fq");
+}
+
+int GenerationConfig::GenerateFrHdr() const {
+  return GeneratePrimeFieldHdr("fr");
+}
+
+int GenerationConfig::GenerateFrSrc() const {
+  return GeneratePrimeFieldSrc("fr");
 }
 
 int GenerationConfig::GenerateFrTraitsHdr() const {
