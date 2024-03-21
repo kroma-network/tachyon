@@ -1,6 +1,8 @@
 #ifndef BENCHMARK_SIMPLE_BENCHMARK_REPORTER_H_
 #define BENCHMARK_SIMPLE_BENCHMARK_REPORTER_H_
 
+#include <stddef.h>
+
 #include <string>
 #include <vector>
 
