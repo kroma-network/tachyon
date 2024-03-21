@@ -3,9 +3,8 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
-#include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -51,7 +50,7 @@ TEST_F(UnivariateEvaluationsTest, Len) {
 
 TEST_F(UnivariateEvaluationsTest, SetValue) {
   bn254::Fr cpp_value = bn254::Fr::Random();
-  const tachyon_bn254_fr& value = cc::math::c_cast(cpp_value);
+  const tachyon_bn254_fr& value = c::base::c_cast(cpp_value);
   tachyon_bn254_univariate_evaluations_set_value(evals_, 0, &value);
   // NOTE(chokobole): It's safe to access since we created |kDegree| |evals_|.
   EXPECT_EQ(reinterpret_cast<Evals&>(*evals_)[0], cpp_value);

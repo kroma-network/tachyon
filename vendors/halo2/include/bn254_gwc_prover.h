@@ -13,6 +13,7 @@ namespace tachyon::halo2_api::bn254 {
 
 struct Fr;
 struct G1JacobianPoint;
+struct G2AffinePoint;
 struct InstanceSingle;
 struct AdviceSingle;
 class ProvingKey;
@@ -31,6 +32,8 @@ class GWCProver {
 
   uint32_t k() const;
   uint64_t n() const;
+  // TODO(dongchangYoo): avoid copying through the use of |rust::Box|.
+  rust::Box<G2AffinePoint> s_g2() const;
   rust::Box<G1JacobianPoint> commit(const Poly& poly) const;
   rust::Box<G1JacobianPoint> commit_lagrange(const Evals& evals) const;
   std::unique_ptr<Evals> empty_evals() const;

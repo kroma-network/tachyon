@@ -7,6 +7,7 @@
 #include "tachyon/c/export.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g2.h"
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 #include "tachyon/c/zk/base/bn254_blinder.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_argument_data.h"
@@ -35,6 +36,10 @@ TACHYON_C_EXPORT uint32_t tachyon_halo2_bn254_gwc_prover_get_k(
     const tachyon_halo2_bn254_gwc_prover* prover);
 
 TACHYON_C_EXPORT size_t tachyon_halo2_bn254_gwc_prover_get_n(
+    const tachyon_halo2_bn254_gwc_prover* prover);
+
+TACHYON_C_EXPORT const tachyon_bn254_g2_affine*
+tachyon_halo2_bn254_gwc_prover_get_s_g2(
     const tachyon_halo2_bn254_gwc_prover* prover);
 
 TACHYON_C_EXPORT tachyon_bn254_blinder*

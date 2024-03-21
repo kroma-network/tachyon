@@ -26,7 +26,7 @@ tachyon_cc_library(
     deps = [
         ":simple_msm_benchmark_reporter",
         "//tachyon/base/time",
-        "//tachyon/cc/math/elliptic_curves:point_traits_forward",
+        "//tachyon/c/math/elliptic_curves:point_traits_forward",
     ],
 )
 

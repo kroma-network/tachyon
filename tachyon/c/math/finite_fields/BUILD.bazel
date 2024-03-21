@@ -1,6 +1,16 @@
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_unittest")
 
 tachyon_cc_unittest(
+    name = "extension_field_unittests",
+    srcs = ["extension_field_unittest.cc"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fq12",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fq2",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fq6",
+    ],
+)
+
+tachyon_cc_unittest(
     name = "finite_fields_unittests",
     srcs = ["prime_field_unittest.cc"],
     deps = [

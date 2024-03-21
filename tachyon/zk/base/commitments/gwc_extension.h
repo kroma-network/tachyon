@@ -45,6 +45,7 @@ class GWCExtension final
 
   using Base = UnivariatePolynomialCommitmentSchemeExtension<
       GWCExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
+  using G2Point = typename Curve::G2Curve::AffinePoint;
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
   using Evals = typename Base::Evals;
@@ -58,6 +59,8 @@ class GWCExtension final
   size_t N() const { return gwc_.N(); }
 
   size_t D() const { return N() - 1; }
+
+  const G2Point& SG2() const { return gwc_.s_g2(); }
 
   crypto::BatchCommitmentState& batch_commitment_state() {
     return gwc_.batch_commitment_state();

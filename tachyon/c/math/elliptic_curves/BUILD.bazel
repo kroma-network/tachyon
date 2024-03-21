@@ -7,7 +7,7 @@ tachyon_cc_library(
     hdrs = ["point_conversions.h"],
     deps = [
         ":point_traits_forward",
-        "//tachyon/cc/math/finite_fields:prime_field_conversions",
+        "//tachyon/c/base:type_traits_forward",
         "//tachyon/math/geometry:point2",
         "//tachyon/math/geometry:point3",
         "//tachyon/math/geometry:point4",

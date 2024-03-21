@@ -1,8 +1,7 @@
 #include "gtest/gtest.h"
 
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_prime_field_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
 #include "tachyon/cc/math/elliptic_curves/bn/bn254/fr.h"
-#include "tachyon/cc/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 
 namespace tachyon::cc::math {
@@ -15,8 +14,8 @@ class PrimeFieldTest : public testing::Test {
     a_ = tachyon::math::bn254::Fr::Random();
     b_ = tachyon::math::bn254::Fr::Random();
 
-    cc_a_ = bn254::Fr(c_cast(a_));
-    cc_b_ = bn254::Fr(c_cast(b_));
+    cc_a_ = bn254::Fr(c::base::c_cast(a_));
+    cc_b_ = bn254::Fr(c::base::c_cast(b_));
   }
 
  protected:
@@ -30,53 +29,53 @@ class PrimeFieldTest : public testing::Test {
 
 TEST_F(PrimeFieldTest, Zero) {
   bn254::Fr zero = bn254::Fr::Zero();
-  EXPECT_TRUE(cc::math::native_cast(zero.value()).IsZero());
+  EXPECT_TRUE(c::base::native_cast(zero.value()).IsZero());
 }
 
 TEST_F(PrimeFieldTest, One) {
   bn254::Fr one = bn254::Fr::One();
-  EXPECT_TRUE(cc::math::native_cast(one.value()).IsOne());
+  EXPECT_TRUE(c::base::native_cast(one.value()).IsOne());
 }
 
 TEST_F(PrimeFieldTest, Random) {
   bn254::Fr random = bn254::Fr::Random();
-  EXPECT_NE(cc::math::native_cast(random.value()), a_);
+  EXPECT_NE(c::base::native_cast(random.value()), a_);
 }
 
 TEST_F(PrimeFieldTest, Add) {
-  EXPECT_EQ(cc::math::native_cast((cc_a_ + cc_b_).value()), a_ + b_);
-  EXPECT_EQ(cc::math::native_cast((cc_a_ += cc_b_).value()), a_ += b_);
+  EXPECT_EQ(c::base::native_cast((cc_a_ + cc_b_).value()), a_ + b_);
+  EXPECT_EQ(c::base::native_cast((cc_a_ += cc_b_).value()), a_ += b_);
 }
 
 TEST_F(PrimeFieldTest, Sub) {
-  EXPECT_EQ(cc::math::native_cast((cc_a_ - cc_b_).value()), a_ - b_);
-  EXPECT_EQ(cc::math::native_cast((cc_a_ -= cc_b_).value()), a_ -= b_);
+  EXPECT_EQ(c::base::native_cast((cc_a_ - cc_b_).value()), a_ - b_);
+  EXPECT_EQ(c::base::native_cast((cc_a_ -= cc_b_).value()), a_ -= b_);
 }
 
 TEST_F(PrimeFieldTest, Mul) {
-  EXPECT_EQ(cc::math::native_cast((cc_a_ * cc_b_).value()), a_ * b_);
-  EXPECT_EQ(cc::math::native_cast((cc_a_ *= cc_b_).value()), a_ *= b_);
+  EXPECT_EQ(c::base::native_cast((cc_a_ * cc_b_).value()), a_ * b_);
+  EXPECT_EQ(c::base::native_cast((cc_a_ *= cc_b_).value()), a_ *= b_);
 }
 
 TEST_F(PrimeFieldTest, Div) {
-  EXPECT_EQ(cc::math::native_cast((cc_a_ / cc_b_).value()), a_ / b_);
-  EXPECT_EQ(cc::math::native_cast((cc_a_ /= cc_b_).value()), a_ /= b_);
+  EXPECT_EQ(c::base::native_cast((cc_a_ / cc_b_).value()), a_ / b_);
+  EXPECT_EQ(c::base::native_cast((cc_a_ /= cc_b_).value()), a_ /= b_);
 }
 
 TEST_F(PrimeFieldTest, Negative) {
-  EXPECT_EQ(cc::math::native_cast((-cc_a_).value()), -a_);
+  EXPECT_EQ(c::base::native_cast((-cc_a_).value()), -a_);
 }
 
 TEST_F(PrimeFieldTest, Double) {
-  EXPECT_EQ(cc::math::native_cast(cc_a_.Double().value()), a_.Double());
+  EXPECT_EQ(c::base::native_cast(cc_a_.Double().value()), a_.Double());
 }
 
 TEST_F(PrimeFieldTest, Square) {
-  EXPECT_EQ(cc::math::native_cast(cc_a_.Square().value()), a_.Square());
+  EXPECT_EQ(c::base::native_cast(cc_a_.Square().value()), a_.Square());
 }
 
 TEST_F(PrimeFieldTest, Inverse) {
-  EXPECT_EQ(cc::math::native_cast(cc_a_.Inverse().value()), a_.Inverse());
+  EXPECT_EQ(c::base::native_cast(cc_a_.Inverse().value()), a_.Inverse());
 }
 
 TEST_F(PrimeFieldTest, Eq) { EXPECT_EQ(cc_a_ == cc_b_, a_ == b_); }

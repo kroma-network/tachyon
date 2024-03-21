@@ -143,6 +143,12 @@ size_t tachyon_halo2_bn254_gwc_prover_get_n(
   return reinterpret_cast<const ProverImpl*>(prover)->pcs().N();
 }
 
+const tachyon_bn254_g2_affine* tachyon_halo2_bn254_gwc_prover_get_s_g2(
+    const tachyon_halo2_bn254_gwc_prover* prover) {
+  return reinterpret_cast<const tachyon_bn254_g2_affine*>(
+      &(reinterpret_cast<const ProverImpl*>(prover)->pcs().SG2()));
+}
+
 tachyon_bn254_blinder* tachyon_halo2_bn254_gwc_prover_get_blinder(
     tachyon_halo2_bn254_gwc_prover* prover) {
   return reinterpret_cast<tachyon_bn254_blinder*>(
