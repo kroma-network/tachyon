@@ -45,6 +45,7 @@ class GWCExtension final
 
   using Base = UnivariatePolynomialCommitmentSchemeExtension<
       GWCExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
+  using G1Point = typename Curve::G1Curve::AffinePoint;
   using G2Point = typename Curve::G2Curve::AffinePoint;
   using Field = typename Base::Field;
   using Poly = typename Base::Poly;
@@ -53,6 +54,15 @@ class GWCExtension final
   GWCExtension() = default;
   explicit GWCExtension(crypto::GWC<Curve, MaxDegree, Commitment>&& gwc)
       : gwc_(std::move(gwc)) {}
+
+  GWCExtension(std::vector<G1Point>&& g1_powers_of_tau,
+               std::vector<G1Point>&& g1_powers_of_tau_lagrange,
+               G2Point&& s_g2) {
+    crypto::KZG<G1Point, MaxDegree, Commitment> kzg(
+        std::move(g1_powers_of_tau), std::move(g1_powers_of_tau_lagrange));
+    gwc_ = crypto::GWC<Curve, MaxDegree, Commitment>(std::move(kzg),
+                                                     std::move(s_g2));
+  }
 
   const char* Name() { return gwc_.Name(); }
 
@@ -145,8 +155,6 @@ class GWCExtension final
   friend class halo2_api::bn254::GWCProver;
   friend class base::Copyable<
       GWCExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
-
-  using G1Point = typename Curve::G1Curve::AffinePoint;
 
   const std::vector<G1Point>& GetG1PowersOfTau() const {
     return this->gwc_.kzg().g1_powers_of_tau();

@@ -1,5 +1,5 @@
-#ifndef TACHYON_C_ZK_PLONK_KEYS_BUFFER_READER_H_
-#define TACHYON_C_ZK_PLONK_KEYS_BUFFER_READER_H_
+#ifndef TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_
+#define TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_
 
 #include <memory>
 #include <type_traits>
@@ -10,9 +10,12 @@
 #include "tachyon/base/buffer/read_only_buffer.h"
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/c/zk/plonk/keys/buffer_reader.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
+#include "tachyon/math/finite_fields/cubic_extension_field.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
+#include "tachyon/math/finite_fields/quadratic_extension_field.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 #include "tachyon/zk/expressions/expression_factory.h"
@@ -92,6 +95,37 @@ class BufferReader<
     BigInt montgomery;
     CHECK(buffer.Read(montgomery.limbs));
     return T::FromMontgomery(montgomery);
+  }
+};
+
+template <typename T>
+class BufferReader<T, std::enable_if_t<std::is_base_of_v<
+                          tachyon::math::QuadraticExtensionField<T>, T>>> {
+ public:
+  using BaseField = typename T::BaseField;
+
+  static T Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    tachyon::base::EndianAutoReset resetter(buffer,
+                                            tachyon::base::Endian::kLittle);
+    BaseField c0 = BufferReader<BaseField>::Read(buffer);
+    BaseField c1 = BufferReader<BaseField>::Read(buffer);
+    return {std::move(c0), std::move(c1)};
+  }
+};
+
+template <typename T>
+class BufferReader<T, std::enable_if_t<std::is_base_of_v<
+                          tachyon::math::CubicExtensionField<T>, T>>> {
+ public:
+  using BaseField = typename T::BaseField;
+
+  static T Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    tachyon::base::EndianAutoReset resetter(buffer,
+                                            tachyon::base::Endian::kLittle);
+    BaseField c0 = BufferReader<BaseField>::Read(buffer);
+    BaseField c1 = BufferReader<BaseField>::Read(buffer);
+    BaseField c2 = BufferReader<BaseField>::Read(buffer);
+    return {std::move(c0), std::move(c1), std::move(c1)};
   }
 };
 
@@ -373,6 +407,43 @@ class BufferReader<tachyon::zk::plonk::PermutationProvingKey<Poly, Evals>> {
   }
 };
 
+template <typename T>
+class BufferReader<
+    T, std::enable_if_t<
+           std::is_same_v<T, c::zk::plonk::halo2::bn254::GWCPCS> ||
+           std::is_same_v<T, c::zk::plonk::halo2::bn254::SHPlonkPCS>>> {
+ public:
+  static T Read(const tachyon::base::ReadOnlyBuffer& buffer) {
+    using G1Point = typename T::G1Point;
+    using G2Point = typename T::G2Point;
+
+    uint32_t k;
+    CHECK(buffer.Read(&k));
+    size_t n = size_t{1} << k;
+    std::vector<G1Point> g1_powers_of_tau =
+        tachyon::base::CreateVector(n, [&buffer]() {
+          G1Point point;
+          ReadBuffer(buffer, point);
+          return point;
+        });
+    std::vector<G1Point> g1_powers_of_tau_lagrange =
+        tachyon::base::CreateVector(n, [&buffer]() {
+          G1Point point;
+          ReadBuffer(buffer, point);
+          return point;
+        });
+
+    // NOTE(dongchangYoo): read |g2| but do not use it.
+    G2Point g2;
+    ReadBuffer(buffer, g2);
+
+    G2Point s_g2;
+    ReadBuffer(buffer, s_g2);
+    return {std::move(g1_powers_of_tau), std::move(g1_powers_of_tau_lagrange),
+            std::move(s_g2)};
+  }
+};
+
 }  // namespace tachyon::c::zk::plonk
 
-#endif  // TACHYON_C_ZK_PLONK_KEYS_BUFFER_READER_H_
+#endif  // TACHYON_C_ZK_PLONK_HALO2_BUFFER_READER_H_

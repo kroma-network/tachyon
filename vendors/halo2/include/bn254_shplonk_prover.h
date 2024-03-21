@@ -24,6 +24,8 @@ class Poly;
 class SHPlonkProver {
  public:
   SHPlonkProver(uint8_t transcript_type, uint32_t k, const Fr& s);
+  SHPlonkProver(uint8_t transcript_type, uint32_t k, const uint8_t* params,
+                size_t params_len);
   SHPlonkProver(const SHPlonkProver& other) = delete;
   SHPlonkProver& operator=(const SHPlonkProver& other) = delete;
   ~SHPlonkProver();
@@ -57,6 +59,9 @@ class SHPlonkProver {
 
 std::unique_ptr<SHPlonkProver> new_shplonk_prover(uint8_t transcript_type,
                                                   uint32_t k, const Fr& s);
+
+std::unique_ptr<SHPlonkProver> new_shplonk_prover_from_params(
+    uint8_t transcript_type, uint32_t k, rust::Slice<const uint8_t> params);
 
 }  // namespace tachyon::halo2_api::bn254
 

@@ -89,7 +89,7 @@ tachyon_halo2_bn254_gwc_prover_create_from_params(uint8_t transcript_type,
       [transcript_type, k, params, params_len]() {
         PCS pcs;
         base::ReadOnlyBuffer read_buf(params, params_len);
-        CHECK(read_buf.Read(&pcs));
+        c::zk::plonk::ReadBuffer(read_buf, pcs);
 
         base::Uint8VectorBuffer write_buf;
         std::unique_ptr<crypto::TranscriptWriter<math::bn254::G1AffinePoint>>

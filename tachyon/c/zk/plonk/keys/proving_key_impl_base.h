@@ -12,7 +12,7 @@
 #include "tachyon/base/environment.h"
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/c/zk/plonk/keys/buffer_reader.h"
+#include "tachyon/c/zk/plonk/halo2/buffer_reader.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
 

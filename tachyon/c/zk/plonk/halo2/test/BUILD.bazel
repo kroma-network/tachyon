@@ -1,0 +1,9 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "bn254_halo2_params_data",
+    testonly = True,
+    hdrs = ["bn254_halo2_params_data.h"],
+)
