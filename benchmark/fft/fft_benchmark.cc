@@ -17,6 +17,28 @@ namespace tachyon {
 
 using namespace math;
 
+extern "C" tachyon_bn254_fr* run_fft_arkworks(const tachyon_bn254_fr* coeffs,
+                                              size_t n,
+                                              const tachyon_bn254_fr* omega,
+                                              uint32_t k,
+                                              uint64_t* duration_in_us);
+
+extern "C" tachyon_bn254_fr* run_ifft_arkworks(
+    const tachyon_bn254_fr* coeffs, size_t n, const tachyon_bn254_fr* omega_inv,
+    uint32_t k, uint64_t* duration_in_us);
+
+extern "C" tachyon_bn254_fr* run_fft_bellman(const tachyon_bn254_fr* coeffs,
+                                             size_t n,
+                                             const tachyon_bn254_fr* omega,
+                                             uint32_t k,
+                                             uint64_t* duration_in_us);
+
+extern "C" tachyon_bn254_fr* run_ifft_bellman(const tachyon_bn254_fr* coeffs,
+                                              size_t n,
+                                              const tachyon_bn254_fr* omega_inv,
+                                              uint32_t k,
+                                              uint64_t* duration_in_us);
+
 extern "C" tachyon_bn254_fr* run_fft_halo2(const tachyon_bn254_fr* coeffs,
                                            size_t n,
                                            const tachyon_bn254_fr* omega,
@@ -31,9 +53,9 @@ extern "C" tachyon_bn254_fr* run_ifft_halo2(const tachyon_bn254_fr* coeffs,
 
 template <typename PolyOrEvals>
 void CheckResults(bool check_results, const std::vector<PolyOrEvals>& results,
-                  const std::vector<PolyOrEvals>& results_halo2) {
+                  const std::vector<PolyOrEvals>& results_vendor) {
   if (check_results) {
-    CHECK(results == results_halo2) << "Results not matched";
+    CHECK(results == results_vendor) << "Results not matched";
   }
 }
 
@@ -46,7 +68,9 @@ void Run(const FFTConfig& config) {
   // Benchmark" in the code, but for the plots in benchmark.md, I used "FFT
   // Benchmark" and "IFFT Benchmark" for better readability.
   SimpleFFTBenchmarkReporter reporter("(I)FFT Benchmark", config.exponents());
-  reporter.AddVendor("halo2");
+  for (const FFTConfig::Vendor vendor : config.vendors()) {
+    reporter.AddVendor(FFTConfig::VendorToString(vendor));
+  }
 
   std::vector<uint64_t> degrees = config.GetDegrees();
 
@@ -61,19 +85,41 @@ void Run(const FFTConfig& config) {
   runner.SetInputs(&polys, std::move(domains));
 
   std::vector<RetPoly> results;
-  std::vector<RetPoly> results_halo2;
   if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
     runner.Run(tachyon_bn254_univariate_evaluation_domain_ifft, degrees,
                &results);
-    runner.RunExternal(run_ifft_halo2, config.exponents(), &results_halo2);
+    for (const FFTConfig::Vendor vendor : config.vendors()) {
+      std::vector<RetPoly> results_vendor;
+      if (vendor == FFTConfig::Vendor::kArkworks) {
+        runner.RunExternal(run_ifft_arkworks, config.exponents(),
+                           &results_vendor);
+      } else if (vendor == FFTConfig::Vendor::kBellman) {
+        runner.RunExternal(run_ifft_bellman, config.exponents(),
+                           &results_vendor);
+      } else if (vendor == FFTConfig::Vendor::kHalo2) {
+        runner.RunExternal(run_ifft_halo2, config.exponents(), &results_vendor);
+      }
+      CheckResults(config.check_results(), results, results_vendor);
+    }
     // NOLINTNEXTLINE(readability/braces)
   } else if constexpr (std::is_same_v<PolyOrEvals,
                                       typename Domain::DensePoly>) {
     runner.Run(tachyon_bn254_univariate_evaluation_domain_fft, degrees,
                &results);
-    runner.RunExternal(run_fft_halo2, config.exponents(), &results_halo2);
+    for (const FFTConfig::Vendor vendor : config.vendors()) {
+      std::vector<RetPoly> results_vendor;
+      if (vendor == FFTConfig::Vendor::kArkworks) {
+        runner.RunExternal(run_fft_arkworks, config.exponents(),
+                           &results_vendor);
+      } else if (vendor == FFTConfig::Vendor::kBellman) {
+        runner.RunExternal(run_fft_bellman, config.exponents(),
+                           &results_vendor);
+      } else if (vendor == FFTConfig::Vendor::kHalo2) {
+        runner.RunExternal(run_fft_halo2, config.exponents(), &results_vendor);
+      }
+      CheckResults(config.check_results(), results, results_vendor);
+    }
   }
-  CheckResults(config.check_results(), results, results_halo2);
 
   reporter.Show();
 }

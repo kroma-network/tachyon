@@ -3,6 +3,8 @@ members = [
     "benchmark/msm/arkworks",
     "benchmark/msm/bellman",
     "benchmark/msm/halo2",
+    "benchmark/fft/arkworks",
+    "benchmark/fft/bellman",
     "benchmark/fft/halo2",
     "tachyon/rs",
     "vendors/halo2",
