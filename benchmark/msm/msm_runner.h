@@ -71,7 +71,7 @@ class MSMRunner {
 
  private:
   // not owned
-  SimpleMSMBenchmarkReporter* reporter_ = nullptr;
+  SimpleMSMBenchmarkReporter* const reporter_;
   // not owned
   const std::vector<Point>* bases_ = nullptr;
   // not owned
