@@ -164,8 +164,6 @@ class QuadraticArithmeticProgram {
     b_evals = coset_domain->FFT(std::move(b_poly));
     c_evals = coset_domain->FFT(std::move(c_poly));
 
-    Evals& ab_evals = a_evals *= b_evals;
-
     F vanishing_polynomial_over_coset =
         domain
             ->EvaluateVanishingPolynomial(
@@ -173,14 +171,14 @@ class QuadraticArithmeticProgram {
             .Inverse();
 
     // |h_evals[i]| = (|a[i]| * |b[i]| - |c[i]|)) / (g * ωⁿ⁺ˡ⁺¹ - 1)
-    Evals& h_evals = ab_evals;
     OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {
-      F& h_evals_i = ab_evals.at(i);
+      F& h_evals_i = a_evals.at(i);
+      h_evals_i *= b_evals[i];
       h_evals_i -= c_evals[i];
       h_evals_i *= vanishing_polynomial_over_coset;
     }
 
-    return coset_domain->IFFT(std::move(h_evals))
+    return coset_domain->IFFT(std::move(a_evals))
         .TakeCoefficients()
         .TakeCoefficients();
   }
