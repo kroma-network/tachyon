@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "circomlib/base/sections.h"
+#include "circomlib/zkey/cell.h"
 #include "circomlib/zkey/verifying_key.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
@@ -146,21 +147,6 @@ using PointsB1Section = CommitmentsSection<G1AffinePoint>;
 using PointsB2Section = CommitmentsSection<G2AffinePoint>;
 using PointsC1Section = CommitmentsSection<G1AffinePoint>;
 using PointsH1Section = CommitmentsSection<G1AffinePoint>;
-
-struct Cell {
-  PrimeField coefficient;
-  uint32_t signal;
-
-  bool operator==(const Cell& other) const {
-    return coefficient == other.coefficient && signal == other.signal;
-  }
-  bool operator!=(const Cell& other) const { return !operator==(other); }
-
-  // NOTE(chokobole): the fields are represented in montgomery form.
-  std::string ToString() const {
-    return absl::Substitute("($0, $1)", coefficient.ToString(), signal);
-  }
-};
 
 struct CoefficientsSection {
   std::vector<std::vector<Cell>> a;

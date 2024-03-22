@@ -40,7 +40,7 @@ struct CellData {
   uint32_t signal = 0;
 };
 
-v1::Cell ToCell(const CellData& data) {
+Cell ToCell(const CellData& data) {
   return {
       PrimeField::FromNative<true>(
           math::bn254::Fr::FromDecString(data.coefficient)),
@@ -161,10 +161,10 @@ TEST_F(ZKeyParserTest, Parse) {
 
   v1::CoefficientsSection expected_coefficients;
   expected_coefficients.a = base::Map(a, [](const CellData row[1]) {
-    return std::vector<v1::Cell>{ToCell(row[0])};
+    return std::vector<Cell>{ToCell(row[0])};
   });
   expected_coefficients.b = base::Map(b, [](const CellData row[1]) {
-    return std::vector<v1::Cell>{ToCell(row[0])};
+    return std::vector<Cell>{ToCell(row[0])};
   });
   expected_coefficients.b.resize(4);
   EXPECT_EQ(v1_zkey->coefficients, expected_coefficients);

@@ -3,6 +3,15 @@ load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tach
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "cell",
+    hdrs = ["cell.h"],
+    deps = [
+        "//circomlib/base:prime_field",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
     name = "verifying_key",
     hdrs = ["verifying_key.h"],
     deps = [
@@ -16,6 +25,7 @@ tachyon_cc_library(
     srcs = ["zkey.cc"],
     hdrs = ["zkey.h"],
     deps = [
+        ":cell",
         ":verifying_key",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
