@@ -44,6 +44,7 @@ tachyon_cc_unittest(
         ":circuit_test",
         "//circomlib/r1cs:r1cs_parser",
         "//examples:gen_witness_adder",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:quadratic_arithmetic_program",
     ],
 )
 
@@ -55,5 +56,6 @@ tachyon_cc_unittest(
         ":circuit_test",
         "//circomlib/r1cs:r1cs_parser",
         "//examples:gen_witness_multiplier_3",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:quadratic_arithmetic_program",
     ],
 )

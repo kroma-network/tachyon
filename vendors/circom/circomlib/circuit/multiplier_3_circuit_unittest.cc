@@ -1,5 +1,6 @@
 #include "circomlib/circuit/circuit_test.h"
 #include "circomlib/r1cs/r1cs_parser.h"
+#include "tachyon/zk/r1cs/constraint_system/quadratic_arithmetic_program.h"
 
 namespace tachyon::circom {
 
@@ -26,7 +27,8 @@ TEST_F(Multiplier3CircuitTest, Synthesize) { this->SynthesizeTest(); }
 
 TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerify) {
   constexpr size_t kMaxDegree = 31;
-  this->Groth16ProveAndVerifyTest<kMaxDegree>();
+  this->Groth16ProveAndVerifyTest<kMaxDegree,
+                                  zk::r1cs::QuadraticArithmeticProgram<F>>();
 }
 
 }  // namespace tachyon::circom

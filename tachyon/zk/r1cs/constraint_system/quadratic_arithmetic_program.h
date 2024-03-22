@@ -16,41 +16,39 @@
 
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/r1cs/constraint_system/constraint_system.h"
+#include "tachyon/zk/r1cs/constraint_system/qap_instance_map_result.h"
+#include "tachyon/zk/r1cs/constraint_system/qap_witness_map_result.h"
 
 namespace tachyon::zk::r1cs {
 
 template <typename F>
+F EvaluateConstraint(const std::vector<Cell<F>>& cells,
+                     absl::Span<const F> assignments) {
+  std::vector<F> sums = base::ParallelizeMap(
+      cells, [assignments](absl::Span<const Cell<F>> chunk) {
+        F sum;
+        for (const Cell<F>& cell : chunk) {
+          if (cell.coefficient.IsOne()) {
+            sum += assignments[cell.index];
+          } else {
+            sum += assignments[cell.index] * cell.coefficient;
+          }
+        }
+        return sum;
+      });
+  return std::accumulate(sums.begin(), sums.end(), F::Zero(), std::plus<>());
+}
+
+template <typename F>
 class QuadraticArithmeticProgram {
  public:
-  struct InstanceMapResult {
-    std::vector<F> a;
-    std::vector<F> b;
-    std::vector<F> c;
-    // t(x) = xⁿ⁺ˡ⁺¹ - 1
-    F t_x;
-    // n
-    size_t num_constraints;
-    // l + 1
-    size_t num_instance_variables;
-    // m - l
-    size_t num_witness_variables;
-    // m
-    size_t num_qap_variables;
-  };
-
-  template <typename Poly>
-  struct WitnessMapResult {
-    Poly h;
-    std::vector<F> full_assignments;
-  };
-
   QuadraticArithmeticProgram() = delete;
 
   // Computes a QAP instance corresponding to the R1CS instance defined by |cs|.
   template <typename Domain>
-  static InstanceMapResult InstanceMap(const Domain* domain,
-                                       const ConstraintSystem<F>& cs,
-                                       const F& x) {
+  static QAPInstanceMapResult<F> InstanceMap(const Domain* domain,
+                                             const ConstraintSystem<F>& cs,
+                                             const F& x) {
     std::optional<ConstraintMatrices<F>> matrices = cs.ToMatrices();
     // |num_constraint| = n
     size_t num_constraints = cs.num_constraints();
@@ -99,8 +97,8 @@ class QuadraticArithmeticProgram {
             num_witness_variables, num_qap_variables};
   }
 
-  template <typename Domain, typename DensePoly = typename Domain::DensePoly>
-  static WitnessMapResult<DensePoly> WitnessMap(
+  template <typename Domain>
+  static QAPWitnessMapResult<F> WitnessMap(
       const Domain* domain, const ConstraintSystem<F>& constraint_system) {
     std::optional<ConstraintMatrices<F>> matrices =
         constraint_system.ToMatrices();
@@ -114,18 +112,19 @@ class QuadraticArithmeticProgram {
                             constraint_system.witness_assignments().begin(),
                             constraint_system.witness_assignments().end());
 
-    DensePoly h_poly = WitnessMapFromMatrices(
+    std::vector<F> h_poly = WitnessMapFromMatrices(
         domain, matrices.value(), constraint_system.num_instance_variables(),
         constraint_system.num_constraints(), full_assignments);
     return {std::move(h_poly), std::move(full_assignments)};
   }
 
-  template <typename Domain, typename DensePoly = typename Domain::DensePoly>
-  static DensePoly WitnessMapFromMatrices(
+  template <typename Domain>
+  static std::vector<F> WitnessMapFromMatrices(
       const Domain* domain, const ConstraintMatrices<F>& matrices,
       size_t num_instance_variables, size_t num_constraints,
       absl::Span<const F> full_assignments) {
     using Evals = typename Domain::Evals;
+    using DensePoly = typename Domain::DensePoly;
 
     std::vector<F> a(domain->size());
     std::vector<F> b(domain->size());
@@ -181,7 +180,9 @@ class QuadraticArithmeticProgram {
       h_evals_i *= vanishing_polynomial_over_coset;
     }
 
-    return coset_domain->IFFT(std::move(h_evals));
+    return coset_domain->IFFT(std::move(h_evals))
+        .TakeCoefficients()
+        .TakeCoefficients();
   }
 
   template <typename Domain>
@@ -202,24 +203,6 @@ class QuadraticArithmeticProgram {
       }
     });
     return h_query;
-  }
-
- private:
-  static F EvaluateConstraint(const std::vector<Cell<F>>& cells,
-                              absl::Span<const F> assignments) {
-    std::vector<F> sums = base::ParallelizeMap(
-        cells, [assignments](absl::Span<const Cell<F>> chunk) {
-          F sum;
-          for (const Cell<F>& cell : chunk) {
-            if (cell.coefficient.IsOne()) {
-              sum += assignments[cell.index];
-            } else {
-              sum += assignments[cell.index] * cell.coefficient;
-            }
-          }
-          return sum;
-        });
-    return std::accumulate(sums.begin(), sums.end(), F::Zero(), std::plus<>());
   }
 };
 

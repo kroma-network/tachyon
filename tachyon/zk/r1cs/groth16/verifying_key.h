@@ -49,11 +49,11 @@ class VerifyingKey : public Key {
   const G2Point& delta_g2() const { return delta_g2_; }
   const std::vector<G1Point>& l_g1_query() const { return l_g1_query_; }
 
-  template <size_t MaxDegree>
+  template <size_t MaxDegree, typename QAP>
   [[nodiscard]] bool Load(ToxicWaste<Curve>& toxic_waste,
                           const Circuit<F>& circuit) {
     KeyPreLoadResult<G1Point, MaxDegree> result;
-    PreLoad(toxic_waste, circuit, &result);
+    PreLoad<QAP>(toxic_waste, circuit, &result);
     return Load(toxic_waste, result);
   }
 
@@ -68,12 +68,10 @@ class VerifyingKey : public Key {
   [[nodiscard]] bool Load(const ToxicWaste<Curve>& toxic_waste,
                           KeyPreLoadResult<G1Point, MaxDegree>& result,
                           const F& gamma_inverse) {
-    using QAPInstanceMapResult =
-        typename QuadraticArithmeticProgram<F>::InstanceMapResult;
     using G1JacobianPoint = typename Curve::G1Curve::JacobianPoint;
     using G2JacobianPoint = typename Curve::G2Curve::JacobianPoint;
 
-    const QAPInstanceMapResult& qap_instance_map_result =
+    const QAPInstanceMapResult<F>& qap_instance_map_result =
         result.qap_instance_map_result;
     math::FixedBaseMSM<G1Point>& g1_msm = result.g1_msm;
 

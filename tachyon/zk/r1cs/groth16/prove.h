@@ -15,6 +15,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
+#include "tachyon/zk/r1cs/constraint_system/qap_witness_map_result.h"
 #include "tachyon/zk/r1cs/groth16/proof.h"
 #include "tachyon/zk/r1cs/groth16/proving_key.h"
 
@@ -121,14 +122,11 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
 
 // Create a Groth16 proof using randomness |r| and |s| and the provided
 // R1CS-to-QAP reduction.
-template <size_t MaxDegree, typename F, typename Curve>
+template <size_t MaxDegree, typename QAP, typename F, typename Curve>
 Proof<Curve> CreateProofWithReduction(const Circuit<F>& circuit,
                                       const ProvingKey<Curve>& pk, const F& r,
                                       const F& s) {
   using Domain = math::UnivariateEvaluationDomain<F, MaxDegree>;
-  using DensePoly = typename Domain::DensePoly;
-  using QAPWitnessMapResult = typename QuadraticArithmeticProgram<
-      F>::template WitnessMapResult<DensePoly>;
 
   ConstraintSystem<F> cs;
   cs.set_optimization_goal(OptimizationGoal::kConstraints);
@@ -140,13 +138,12 @@ Proof<Curve> CreateProofWithReduction(const Circuit<F>& circuit,
   std::unique_ptr<Domain> domain =
       Domain::Create(cs.num_constraints() + cs.num_instance_variables());
 
-  QAPWitnessMapResult result =
-      QuadraticArithmeticProgram<F>::WitnessMap(domain.get(), cs);
+  QAPWitnessMapResult<F> result = QAP::WitnessMap(domain.get(), cs);
 
   const std::vector<F>& instance_assignments = cs.instance_assignments();
   const std::vector<F>& witness_assignments = cs.witness_assignments();
   return CreateProofWithAssignment(
-      pk, r, s, absl::MakeConstSpan(result.h.coefficients().coefficients()),
+      pk, r, s, absl::MakeConstSpan(result.h),
       absl::MakeConstSpan(instance_assignments).subspan(1),
       absl::MakeConstSpan(witness_assignments),
       absl::MakeConstSpan(result.full_assignments).subspan(1));
@@ -154,19 +151,20 @@ Proof<Curve> CreateProofWithReduction(const Circuit<F>& circuit,
 
 // Create a Groth16 proof that is zero-knowledge using the provided
 // R1CS-to-QAP reduction.
-template <size_t MaxDegree, typename F, typename Curve>
+template <size_t MaxDegree, typename QAP, typename F, typename Curve>
 Proof<Curve> CreateProofWithReductionZK(const Circuit<F>& circuit,
                                         const ProvingKey<Curve>& pk) {
-  return CreateProofWithReduction<MaxDegree>(circuit, pk, F::Random(),
-                                             F::Random());
+  return CreateProofWithReduction<MaxDegree, QAP>(circuit, pk, F::Random(),
+                                                  F::Random());
 }
 
 // Create a Groth16 proof that isn't zero-knowledge using the provided
 // R1CS-to-QAP reduction.
-template <size_t MaxDegree, typename F, typename Curve>
+template <size_t MaxDegree, typename QAP, typename F, typename Curve>
 Proof<Curve> CreateProofWithReductionNoZK(const Circuit<F>& circuit,
                                           const ProvingKey<Curve>& pk) {
-  return CreateProofWithReduction<MaxDegree>(circuit, pk, F::Zero(), F::Zero());
+  return CreateProofWithReduction<MaxDegree, QAP>(circuit, pk, F::Zero(),
+                                                  F::Zero());
 }
 
 // Given a Groth16 proof, returns a fresh proof of the same statement. For a

@@ -86,6 +86,8 @@ class UnivariatePolynomial final
   const Coefficients& coefficients() const { return coefficients_; }
   Coefficients& coefficients() { return coefficients_; }
 
+  Coefficients&& TakeCoefficients() && { return std::move(coefficients_); }
+
   constexpr bool operator==(const UnivariatePolynomial& other) const {
     return coefficients_ == other.coefficients_;
   }

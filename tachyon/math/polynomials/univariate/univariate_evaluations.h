@@ -83,6 +83,10 @@ class UnivariateEvaluations final
   constexpr const std::vector<F>& evaluations() const { return evaluations_; }
   constexpr std::vector<F>& evaluations() { return evaluations_; }
 
+  constexpr std::vector<F>&& TakeEvaluations() && {
+    return std::move(evaluations_);
+  }
+
   // NOTE(chokobole): Sometimes, this degree doesn't match with the exact
   // degree of the coefficients that is produced by IFFT. We leave it for
   // consistency with another polynomial.

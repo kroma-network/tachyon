@@ -30,14 +30,16 @@ class CircuitTest : public testing::Test {
     ASSERT_TRUE(constraint_system.IsSatisfied());
   }
 
-  template <size_t MaxDegree>
+  template <size_t MaxDegree, typename QAP>
   void Groth16ProveAndVerifyTest() {
     zk::r1cs::groth16::ToxicWaste<Curve> toxic_waste =
         zk::r1cs::groth16::ToxicWaste<Curve>::RandomWithoutX();
     zk::r1cs::groth16::ProvingKey<Curve> pk;
-    ASSERT_TRUE(pk.Load<MaxDegree>(toxic_waste, *circuit_));
+    bool loaded = pk.Load<MaxDegree, QAP>(toxic_waste, *circuit_);
+    ASSERT_TRUE(loaded);
     zk::r1cs::groth16::Proof<Curve> proof =
-        zk::r1cs::groth16::CreateProofWithReductionZK<MaxDegree>(*circuit_, pk);
+        zk::r1cs::groth16::CreateProofWithReductionZK<MaxDegree, QAP>(*circuit_,
+                                                                      pk);
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> pvk =
         std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
     std::vector<F> public_inputs = circuit_->GetPublicInputs();

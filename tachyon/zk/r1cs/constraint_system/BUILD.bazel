@@ -56,10 +56,22 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "qap_instance_map_result",
+    hdrs = ["qap_instance_map_result.h"],
+)
+
+tachyon_cc_library(
+    name = "qap_witness_map_result",
+    hdrs = ["qap_witness_map_result.h"],
+)
+
+tachyon_cc_library(
     name = "quadratic_arithmetic_program",
     hdrs = ["quadratic_arithmetic_program.h"],
     deps = [
         ":constraint_system",
+        ":qap_instance_map_result",
+        ":qap_witness_map_result",
         "//tachyon/base:parallelize",
     ],
 )
