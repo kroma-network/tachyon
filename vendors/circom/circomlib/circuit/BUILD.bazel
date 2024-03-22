@@ -37,6 +37,17 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
+    name = "adder_circuit_unittest",
+    srcs = ["adder_circuit_unittest.cc"],
+    data = ["//examples:compile_adder"],
+    deps = [
+        ":circuit_test",
+        "//circomlib/r1cs:r1cs_parser",
+        "//examples:gen_witness_adder",
+    ],
+)
+
+tachyon_cc_unittest(
     name = "multiplier_3_circuit_unittest",
     srcs = ["multiplier_3_circuit_unittest.cc"],
     data = ["//examples:compile_multiplier_3"],

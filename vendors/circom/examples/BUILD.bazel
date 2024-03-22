@@ -9,6 +9,22 @@ exports_files(["multiplier_3.zkey"])
 PRIME = "bn128"
 
 compile_circuit(
+    name = "compile_adder",
+    main = "adder.circom",
+    prime = PRIME,
+    deps = [
+        "@kroma_network_circomlib//circuits:binsum",
+        "@kroma_network_circomlib//circuits:bitify",
+    ],
+)
+
+witness_gen_library(
+    name = "gen_witness_adder",
+    gendep = ":compile_adder",
+    prime = PRIME,
+)
+
+compile_circuit(
     name = "compile_multiplier_3",
     srcs = [
         "multiplier_2.circom",

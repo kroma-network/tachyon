@@ -1,4 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//third_party/circomlib:workspace.bzl", circomlib = "repo")
 load("//third_party/eigen3:workspace.bzl", eigen3 = "repo")
 load("//third_party/env:env_configure.bzl", "env_configure")
 load("//third_party/ffiasm:workspace.bzl", ffiasm = "repo")
@@ -19,6 +20,7 @@ def tachyon_deps():
     rocm_configure(name = "local_config_rocm")
     python_configure(name = "local_config_python")
 
+    circomlib()
     eigen3()
     ffiasm()
     goldilocks()
