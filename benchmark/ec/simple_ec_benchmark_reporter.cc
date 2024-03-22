@@ -15,7 +15,7 @@ SimpleECBenchmarkReporter::SimpleECBenchmarkReporter(
   column_headers_.push_back("GPU");
   targets_ =
       base::Map(nums, [](uint64_t num) { return base::NumberToString(num); });
-  results_.resize(nums.size());
+  times_.resize(nums.size());
 }
 
 }  // namespace tachyon

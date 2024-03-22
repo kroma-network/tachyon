@@ -1,0 +1,13 @@
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load("//bazel:tachyon_rust.bzl", "tachyon_rust_static_library")
+
+tachyon_rust_static_library(
+    name = "arkworks",
+    srcs = glob(["src/**/*.rs"]),
+    aliases = aliases(),
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    visibility = ["//benchmark/poseidon:__pkg__"],
+    deps = all_crate_deps(normal = True) + [
+        "//tachyon/rs:tachyon_rs",
+    ],
+)

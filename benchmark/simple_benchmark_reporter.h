@@ -1,6 +1,8 @@
 #ifndef BENCHMARK_SIMPLE_BENCHMARK_REPORTER_H_
 #define BENCHMARK_SIMPLE_BENCHMARK_REPORTER_H_
 
+#include <stddef.h>
+
 #include <string>
 #include <vector>
 
@@ -15,7 +17,7 @@ class SimpleBenchmarkReporter {
   SimpleBenchmarkReporter& operator=(const SimpleBenchmarkReporter& other) =
       delete;
 
-  void AddResult(size_t idx, double result) { results_[idx].push_back(result); }
+  void AddTime(size_t idx, double time) { times_[idx].push_back(time); }
 
   void Show();
 
@@ -23,7 +25,7 @@ class SimpleBenchmarkReporter {
   std::string title_;
   std::vector<std::string> column_headers_;
   std::vector<std::string> targets_;
-  std::vector<std::vector<double>> results_;
+  std::vector<std::vector<double>> times_;
 };
 
 }  // namespace tachyon
