@@ -3,12 +3,20 @@ load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tach
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "verifying_key",
+    hdrs = ["verifying_key.h"],
+    deps = [
+        "//circomlib/base:g1_affine_point",
+        "//circomlib/base:g2_affine_point",
+    ],
+)
+
+tachyon_cc_library(
     name = "zkey",
     srcs = ["zkey.cc"],
     hdrs = ["zkey.h"],
     deps = [
-        "//circomlib/base:g1_affine_point",
-        "//circomlib/base:g2_affine_point",
+        ":verifying_key",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:copyable",
