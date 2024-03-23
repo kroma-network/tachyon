@@ -120,6 +120,28 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
   };
 }
 
+template <typename Curve, typename F>
+Proof<Curve> CreateProofWithAssignmentZK(
+    const ProvingKey<Curve>& pk, absl::Span<const F> h_coefficients,
+    absl::Span<const F> instance_assignments,
+    absl::Span<const F> witness_assignments,
+    absl::Span<const F> full_assignments) {
+  return CreateProofWithAssignment(pk, F::Random(), F::Random(), h_coefficients,
+                                   instance_assignments, witness_assignments,
+                                   full_assignments);
+}
+
+template <typename Curve, typename F>
+Proof<Curve> CreateProofWithAssignmentNoZK(
+    const ProvingKey<Curve>& pk, absl::Span<const F> h_coefficients,
+    absl::Span<const F> instance_assignments,
+    absl::Span<const F> witness_assignments,
+    absl::Span<const F> full_assignments) {
+  return CreateProofWithAssignment(pk, F::Zero(), F::Zero(), h_coefficients,
+                                   instance_assignments, witness_assignments,
+                                   full_assignments);
+}
+
 // Create a Groth16 proof using randomness |r| and |s| and the provided
 // R1CS-to-QAP reduction.
 template <size_t MaxDegree, typename QAP, typename F, typename Curve>
