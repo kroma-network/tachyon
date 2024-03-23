@@ -112,16 +112,14 @@ class QuadraticArithmeticProgram {
                             constraint_system.witness_assignments().begin(),
                             constraint_system.witness_assignments().end());
 
-    std::vector<F> h_poly = WitnessMapFromMatrices(
-        domain, matrices.value(), constraint_system.num_instance_variables(),
-        constraint_system.num_constraints(), full_assignments);
+    std::vector<F> h_poly =
+        WitnessMapFromMatrices(domain, matrices.value(), full_assignments);
     return {std::move(h_poly), std::move(full_assignments)};
   }
 
   template <typename Domain>
   static std::vector<F> WitnessMapFromMatrices(
       const Domain* domain, const ConstraintMatrices<F>& matrices,
-      size_t num_instance_variables, size_t num_constraints,
       absl::Span<const F> full_assignments) {
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
@@ -139,15 +137,15 @@ class QuadraticArithmeticProgram {
     //        = 0                      (otherwise)
     // where x is |full_assignments|.
     // clang-format on
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < num_constraints; ++i) {
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < matrices.num_constraints; ++i) {
       a[i] = EvaluateConstraint(matrices.a[i], full_assignments);
       b[i] = EvaluateConstraint(matrices.b[i], full_assignments);
       c[i] = EvaluateConstraint(matrices.c[i], full_assignments);
     }
 
-    for (size_t i = num_constraints;
-         i < num_constraints + num_instance_variables; ++i) {
-      a[i] = full_assignments[i - num_constraints];
+    for (size_t i = matrices.num_constraints;
+         i < matrices.num_constraints + matrices.num_instance_variables; ++i) {
+      a[i] = full_assignments[i - matrices.num_constraints];
     }
 
     Evals a_evals(std::move(a));
