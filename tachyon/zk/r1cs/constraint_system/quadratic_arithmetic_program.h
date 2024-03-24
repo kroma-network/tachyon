@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+#include "tachyon/base/logging.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/r1cs/constraint_system/constraint_system.h"
 #include "tachyon/zk/r1cs/constraint_system/qap_instance_map_result.h"
@@ -49,6 +50,7 @@ class QuadraticArithmeticProgram {
   static QAPInstanceMapResult<F> InstanceMap(const Domain* domain,
                                              const ConstraintSystem<F>& cs,
                                              const F& x) {
+    CHECK_GE(domain->size(), cs.num_constraints());
     std::optional<ConstraintMatrices<F>> matrices = cs.ToMatrices();
     // |num_constraint| = n
     size_t num_constraints = cs.num_constraints();
@@ -123,6 +125,8 @@ class QuadraticArithmeticProgram {
       absl::Span<const F> full_assignments) {
     using Evals = typename Domain::Evals;
     using DensePoly = typename Domain::DensePoly;
+
+    CHECK_GE(domain->size(), matrices.num_constraints);
 
     std::vector<F> a(domain->size());
     std::vector<F> b(domain->size());
