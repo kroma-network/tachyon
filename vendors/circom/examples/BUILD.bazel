@@ -4,7 +4,10 @@ load("//:build_defs.bzl", "witness_gen_library")
 
 package(default_visibility = ["//visibility:public"])
 
-exports_files(["multiplier_3.zkey"])
+exports_files([
+    "adder.zkey",
+    "multiplier_3.zkey",
+])
 
 PRIME = "bn128"
 

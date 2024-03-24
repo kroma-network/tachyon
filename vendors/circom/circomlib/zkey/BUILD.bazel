@@ -8,6 +8,27 @@ tachyon_cc_library(
     deps = [
         "//circomlib/base:prime_field",
         "@com_google_absl//absl/strings",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:matrix",
+    ],
+)
+
+tachyon_cc_library(
+    name = "constraint_matrices",
+    hdrs = ["constraint_matrices.h"],
+    deps = [
+        ":cell",
+        "@kroma_network_tachyon//tachyon/base/strings:string_util",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:constraint_matrices",
+    ],
+)
+
+tachyon_cc_library(
+    name = "proving_key",
+    hdrs = ["proving_key.h"],
+    deps = [
+        ":verifying_key",
+        "@kroma_network_tachyon//tachyon/base/strings:string_util",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:proving_key",
     ],
 )
 
@@ -25,8 +46,8 @@ tachyon_cc_library(
     srcs = ["zkey.cc"],
     hdrs = ["zkey.h"],
     deps = [
-        ":cell",
-        ":verifying_key",
+        ":constraint_matrices",
+        ":proving_key",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:copyable",

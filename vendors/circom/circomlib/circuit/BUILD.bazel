@@ -13,6 +13,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "quadratic_arithmetic_program",
+    hdrs = ["quadratic_arithmetic_program.h"],
+    deps = [
+        "@kroma_network_tachyon//tachyon/base:logging",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:quadratic_arithmetic_program",
+    ],
+)
+
+tachyon_cc_library(
     name = "witness_loader",
     hdrs = ["witness_loader.h"],
     deps = [
@@ -29,6 +38,7 @@ tachyon_cc_library(
     deps = [
         ":circuit",
         "//circomlib/r1cs",
+        "//circomlib/zkey",
         "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254",
         "@kroma_network_tachyon//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
         "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:prove",
@@ -39,10 +49,15 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "adder_circuit_unittest",
     srcs = ["adder_circuit_unittest.cc"],
-    data = ["//examples:compile_adder"],
+    data = [
+        "//examples:adder.zkey",
+        "//examples:compile_adder",
+    ],
     deps = [
         ":circuit_test",
+        ":quadratic_arithmetic_program",
         "//circomlib/r1cs:r1cs_parser",
+        "//circomlib/zkey:zkey_parser",
         "//examples:gen_witness_adder",
         "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:quadratic_arithmetic_program",
     ],
@@ -51,10 +66,15 @@ tachyon_cc_unittest(
 tachyon_cc_unittest(
     name = "multiplier_3_circuit_unittest",
     srcs = ["multiplier_3_circuit_unittest.cc"],
-    data = ["//examples:compile_multiplier_3"],
+    data = [
+        "//examples:compile_multiplier_3",
+        "//examples:multiplier_3.zkey",
+    ],
     deps = [
         ":circuit_test",
+        ":quadratic_arithmetic_program",
         "//circomlib/r1cs:r1cs_parser",
+        "//circomlib/zkey:zkey_parser",
         "//examples:gen_witness_multiplier_3",
         "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:quadratic_arithmetic_program",
     ],

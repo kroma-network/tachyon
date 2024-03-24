@@ -1,5 +1,7 @@
 #include "circomlib/circuit/circuit_test.h"
+#include "circomlib/circuit/quadratic_arithmetic_program.h"
 #include "circomlib/r1cs/r1cs_parser.h"
+#include "circomlib/zkey/zkey_parser.h"
 #include "tachyon/zk/r1cs/constraint_system/quadratic_arithmetic_program.h"
 
 namespace tachyon::circom {
@@ -29,6 +31,23 @@ TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerify) {
   constexpr size_t kMaxDegree = 31;
   this->Groth16ProveAndVerifyTest<kMaxDegree,
                                   zk::r1cs::QuadraticArithmeticProgram<F>>();
+}
+
+TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerifyUsingZkey) {
+  constexpr size_t kMaxDegree = 3;
+
+  ZKeyParser parser;
+  std::unique_ptr<ZKey> zkey =
+      parser.Parse(base::FilePath("examples/multiplier_3.zkey"));
+  ASSERT_TRUE(zkey);
+
+  std::vector<F> full_assignments = base::CreateVector(
+      r1cs_->GetNumVariables(),
+      [this](size_t i) { return circuit_->witness_loader().Get(i); });
+
+  this->Groth16ProveAndVerifyUsingZKeyTest<kMaxDegree,
+                                           QuadraticArithmeticProgram<F>>(
+      std::move(*zkey), full_assignments);
 }
 
 }  // namespace tachyon::circom
