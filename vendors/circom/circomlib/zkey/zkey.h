@@ -241,10 +241,11 @@ struct ZKey : public circom::ZKey {
     if (!points_b2.Read(buffer, num_vars, q_field_size)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsC1)) return false;
-    if (!points_c1.Read(buffer, num_vars, q_field_size)) return false;
+    if (!points_c1.Read(buffer, num_vars - num_public_inputs - 1, q_field_size))
+      return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsH1)) return false;
-    if (!points_h1.Read(buffer, num_vars, q_field_size)) return false;
+    if (!points_h1.Read(buffer, domain_size, q_field_size)) return false;
     return true;
   }
 
