@@ -152,7 +152,7 @@ BENCHMARK_TEMPLATE(BM_NestedForLoopParallelCollapse, math::bn254::Fr)
 // BM_NestedForLoopParallelRows<math::bn254::Fr>/900/16384        51485399 ns     48692191 ns           36
 // BM_NestedForLoopParallelRows<math::bn254::Fr>/1000/16384      176147251 ns    161074240 ns           17
 // BM_NestedForLoopParallelRows<math::bn254::Fr>/500/32768        78185296 ns     73173143 ns           10
-// ^BBM_NestedForLoopParallelRows<math::bn254::Fr>/600/32768       149321532 ns    139500894 ns           10
+// BM_NestedForLoopParallelRows<math::bn254::Fr>/600/32768       149321532 ns    139500894 ns           10
 // BM_NestedForLoopParallelRows<math::bn254::Fr>/700/32768       291554535 ns    250161912 ns           17
 // BM_NestedForLoopParallelRows<math::bn254::Fr>/800/32768       130893564 ns    120231909 ns           10
 // BM_NestedForLoopParallelRows<math::bn254::Fr>/900/32768       115641832 ns    109627786 ns           11
