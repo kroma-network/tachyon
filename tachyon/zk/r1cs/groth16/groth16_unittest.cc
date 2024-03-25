@@ -36,10 +36,10 @@ TEST_F(Groth16Test, ProveAndVerify) {
   PreparedVerifyingKey<Curve> pvk =
       std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
   std::vector<F> public_inputs = circuit.GetPublicInputs();
-  ASSERT_TRUE(Verify(pvk, proof, public_inputs));
+  ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
 
   proof = ReRandomizeProof(pvk.verifying_key(), proof);
-  ASSERT_TRUE(Verify(pvk, proof, public_inputs));
+  ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
 }
 
 }  // namespace tachyon::zk::r1cs::groth16

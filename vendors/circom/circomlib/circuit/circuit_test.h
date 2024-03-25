@@ -44,7 +44,7 @@ class CircuitTest : public testing::Test {
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> pvk =
         std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
     std::vector<F> public_inputs = circuit_->GetPublicInputs();
-    ASSERT_TRUE(Verify(pvk, proof, public_inputs));
+    ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
   }
 
   template <size_t MaxDegree, typename QAP>
@@ -72,7 +72,7 @@ class CircuitTest : public testing::Test {
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> pvk =
         std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
     std::vector<F> public_inputs = circuit_->GetPublicInputs();
-    ASSERT_TRUE(Verify(pvk, proof, public_inputs));
+    ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
   }
 
   std::unique_ptr<R1CS> r1cs_;
