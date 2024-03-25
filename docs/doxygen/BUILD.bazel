@@ -1,0 +1,30 @@
+load("//tachyon/c:version.bzl", "VERSION")
+
+genrule(
+    name = "doxyfile",
+    srcs = ["Doxyfile.in"],
+    outs = ["Doxyfile"],
+    cmd = "sed " +
+          "-e 's|$${TACHYON_VERSION}|" + VERSION + "|g' " +
+          "-e 's|$${TACHYON_BINARY_DIR}|$(GENDIR)|g' " +
+          "-e 's|$${TACHYON_SOURCE_DIR}|tachyon|g' " +
+          "$(location Doxyfile.in) > $(location Doxyfile)",
+    tags = ["doxygen"],
+)
+
+genrule(
+    name = "generate_docs",
+    srcs = [
+        "main_page.md",
+        ":doxyfile",
+        "//tachyon/c:tachyon_hdrs",
+        "//tachyon/c/examples",
+    ],
+    outs = ["tachyon_api_docs.zip"],
+    cmd = """
+    $(location @doxygen_archive//:doxygen_bin) $(locations //docs/doxygen:doxyfile) && \
+    zip -r $(@) $(GENDIR)/docs/doxygen/html
+    """,
+    tags = ["doxygen"],
+    tools = ["@doxygen_archive//:doxygen_bin"],
+)
