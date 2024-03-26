@@ -1,0 +1,44 @@
+FROM ubuntu:jammy AS builder
+LABEL maintainer="The Tachyon Authors <tachyon-discuss@kroma.network>"
+
+ARG PYTHON_VERSION=3.10.12
+
+RUN apt update && \
+    apt install -y --no-install-recommends \
+    wget \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+RUN wget https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 && \
+    chmod +x bazelisk-linux-amd64 && \
+    mv bazelisk-linux-amd64 /usr/local/bin/bazel
+
+ENV HOME /root
+RUN echo 'Etc/UTC' > /etc/timezone && \
+    ln -s /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
+    apt update && \
+    apt install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    libbz2-dev \
+    liblzma-dev \
+    libncursesw5-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    make \
+    python-is-python3 \
+    tk-dev \
+    xz-utils \
+    zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/*
+RUN curl https://pyenv.run | bash
+RUN CONFIGURE_OPTS=--enable-shared $HOME/.pyenv/bin/pyenv install ${PYTHON_VERSION}
+RUN mkdir -p $HOME/bin
+ENV PATH="${HOME}/.pyenv/shims:${HOME}/.pyenv/bin:${HOME}/bin:${PATH}"
+
+RUN apt update && \
+    apt install -y --no-install-recommends \
+    libgmp-dev \
+    libomp-dev && \
+    rm -rf /var/lib/apt/lists/*
