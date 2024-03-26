@@ -242,3 +242,14 @@ Additionally, please include these lines in your `.bazelc.user`.
 build --action_env=PATH=/usr/bin:/usr/local/bin
 build --host_action_env=PATH=/usr/bin:/usr/local/bin
 ```
+
+### Generate C API documents using Doxygen
+
+Doxygen generates C API documents (`tachyon_api_docs.zip`) in the binary directory (`bazel-bin/docs/doxygen/`). Currently this feature is available only on Linux.
+
+```shell
+bazel build --config linux //docs/doxygen:generate_docs &&
+unzip -o bazel-bin/docs/doxygen/tachyon_api_docs.zip &&
+google-chrome bazel-bin/docs/doxygen/html/index.html
+# generate HTML files and open on Chrome browser.
+```
