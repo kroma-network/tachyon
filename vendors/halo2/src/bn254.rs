@@ -171,7 +171,7 @@ pub mod ffi {
         ) -> UniquePtr<GWCProver>;
         fn k(&self) -> u32;
         fn n(&self) -> u64;
-        fn s_g2(&self) -> Box<G2AffinePoint>;
+        fn s_g2(&self) -> &G2AffinePoint;
         fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
         fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
         fn empty_evals(&self) -> UniquePtr<Evals>;
@@ -208,7 +208,7 @@ pub mod ffi {
         ) -> UniquePtr<SHPlonkProver>;
         fn k(&self) -> u32;
         fn n(&self) -> u64;
-        fn s_g2(&self) -> Box<G2AffinePoint>;
+        fn s_g2(&self) -> &G2AffinePoint;
         fn commit(&self, poly: &Poly) -> Box<G1JacobianPoint>;
         fn commit_lagrange(&self, evals: &Evals) -> Box<G1JacobianPoint>;
         fn empty_evals(&self) -> UniquePtr<Evals>;
@@ -743,7 +743,7 @@ pub trait TachyonProver<Scheme: CommitmentScheme> {
 
     fn n(&self) -> u64;
 
-    fn s_g2(&self) -> G2Affine;
+    fn s_g2(&self) -> &G2Affine;
 
     fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt;
 
@@ -809,8 +809,8 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for GWCProver<Scheme> {
         self.inner.n()
     }
 
-    fn s_g2(&self) -> G2Affine {
-        *unsafe { std::mem::transmute::<_, Box<G2Affine>>(self.inner.s_g2()) }
+    fn s_g2(&self) -> &G2Affine {
+        unsafe { std::mem::transmute::<_, &G2Affine>(self.inner.s_g2()) }
     }
 
     fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {
@@ -922,8 +922,8 @@ impl<Scheme: CommitmentScheme> TachyonProver<Scheme> for SHPlonkProver<Scheme> {
         self.inner.n()
     }
 
-    fn s_g2(&self) -> G2Affine {
-        *unsafe { std::mem::transmute::<_, Box<G2Affine>>(self.inner.s_g2()) }
+    fn s_g2(&self) -> &G2Affine {
+        unsafe { std::mem::transmute::<_, &G2Affine>(self.inner.s_g2()) }
     }
 
     fn commit(&self, poly: &Poly) -> <Scheme::Curve as CurveAffine>::CurveExt {

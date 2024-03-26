@@ -482,8 +482,8 @@ mod test {
         assert_eq!(prover_from_params.n(), N);
 
         let expected_s_g2 = params.s_g2();
-        assert_eq!(prover_from_s.s_g2(), expected_s_g2);
-        assert_eq!(prover_from_params.s_g2(), expected_s_g2);
+        assert_eq!(prover_from_s.s_g2(), &expected_s_g2);
+        assert_eq!(prover_from_params.s_g2(), &expected_s_g2);
 
         let domain = EvaluationDomain::new(1, k);
         let scalars = (0..N).map(|_| Fr::random(OsRng)).collect::<Vec<_>>();
