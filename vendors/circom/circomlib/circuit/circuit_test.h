@@ -57,7 +57,9 @@ class CircuitTest : public testing::Test {
     zk::r1cs::ConstraintMatrices<F> constraint_matrices =
         std::move(zkey).TakeConstraintMatrices().ToNative<F>();
 
-    std::unique_ptr<Domain> domain = Domain::Create(MaxDegree + 1);
+    std::unique_ptr<Domain> domain =
+        Domain::Create(constraint_matrices.num_constraints +
+                       constraint_matrices.num_instance_variables);
     std::vector<F> h_evals = QAP::WitnessMapFromMatrices(
         domain.get(), constraint_matrices, full_assignments);
 
