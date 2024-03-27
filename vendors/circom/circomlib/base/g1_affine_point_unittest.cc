@@ -3,7 +3,6 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::circom {
 
@@ -14,8 +13,18 @@ class G1AffinePointTest : public testing::Test {
 
 TEST_F(G1AffinePointTest, Conversions) {
   math::bn254::G1AffinePoint expected = math::bn254::G1AffinePoint::Random();
-  G1AffinePoint affine_point = G1AffinePoint::FromNative(expected);
-  EXPECT_EQ(affine_point.ToNative<math::bn254::G1Curve>(), expected);
+  {
+    G1AffinePoint affine_point = G1AffinePoint::FromNative<true>(expected);
+    math::bn254::G1AffinePoint actual =
+        affine_point.ToNative<true, math::bn254::G1Curve>();
+    EXPECT_EQ(actual, expected);
+  }
+  {
+    G1AffinePoint affine_point = G1AffinePoint::FromNative<false>(expected);
+    math::bn254::G1AffinePoint actual =
+        affine_point.ToNative<false, math::bn254::G1Curve>();
+    EXPECT_EQ(actual, expected);
+  }
 }
 
 }  // namespace tachyon::circom

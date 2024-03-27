@@ -22,6 +22,36 @@ class ProvingKey : public Key {
   using G2Point = typename Curve::G2Curve::AffinePoint;
   using F = typename G1Point::ScalarField;
 
+  ProvingKey() = default;
+  ProvingKey(const VerifyingKey<Curve>& verifying_key, const G1Point& beta_g1,
+             const G1Point& delta_g1, const std::vector<G1Point>& a_g1_query,
+             const std::vector<G1Point>& b_g1_query,
+             const std::vector<G2Point>& b_g2_query,
+             const std::vector<G1Point>& h_g1_query,
+             const std::vector<G1Point>& l_g1_query)
+      : verifying_key_(verifying_key),
+        beta_g1_(beta_g1),
+        delta_g1_(delta_g1),
+        a_g1_query_(a_g1_query),
+        b_g1_query_(b_g1_query),
+        b_g2_query_(b_g2_query),
+        h_g1_query_(h_g1_query),
+        l_g1_query_(l_g1_query) {}
+  ProvingKey(VerifyingKey<Curve>&& verifying_key, G1Point&& beta_g1,
+             G1Point&& delta_g1, std::vector<G1Point>&& a_g1_query,
+             std::vector<G1Point>&& b_g1_query,
+             std::vector<G2Point>&& b_g2_query,
+             std::vector<G1Point>&& h_g1_query,
+             std::vector<G1Point>&& l_g1_query)
+      : verifying_key_(std::move(verifying_key)),
+        beta_g1_(std::move(beta_g1)),
+        delta_g1_(std::move(delta_g1)),
+        a_g1_query_(std::move(a_g1_query)),
+        b_g1_query_(std::move(b_g1_query)),
+        b_g2_query_(std::move(b_g2_query)),
+        h_g1_query_(std::move(h_g1_query)),
+        l_g1_query_(std::move(l_g1_query)) {}
+
   const VerifyingKey<Curve>& verifying_key() const { return verifying_key_; }
   VerifyingKey<Curve>&& TakeVerifyingKey() && {
     return std::move(verifying_key_);
@@ -35,11 +65,9 @@ class ProvingKey : public Key {
   const std::vector<G1Point>& h_g1_query() const { return h_g1_query_; }
   const std::vector<G1Point>& l_g1_query() const { return l_g1_query_; }
 
-  template <size_t MaxDegree>
+  template <size_t MaxDegree, typename QAP>
   [[nodiscard]] bool Load(ToxicWaste<Curve>& toxic_waste,
                           const Circuit<F>& circuit) {
-    using QAPInstanceMapResult =
-        typename QuadraticArithmeticProgram<F>::InstanceMapResult;
     using G1JacobianPoint = typename Curve::G1Curve::JacobianPoint;
     using G2JacobianPoint = typename Curve::G2Curve::JacobianPoint;
 
@@ -50,9 +78,9 @@ class ProvingKey : public Key {
     CHECK(F::BatchInverseInPlace(gamma_delta_inverse));
 
     KeyPreLoadResult<G1Point, MaxDegree> result;
-    PreLoad(toxic_waste, circuit, &result);
+    PreLoad<QAP>(toxic_waste, circuit, &result);
 
-    QAPInstanceMapResult& qap_instance_map_result =
+    QAPInstanceMapResult<F>& qap_instance_map_result =
         result.qap_instance_map_result;
     math::FixedBaseMSM<G1Point>& g1_msm = result.g1_msm;
 
@@ -62,9 +90,9 @@ class ProvingKey : public Key {
     const F& delta_inverse = gamma_delta_inverse[1];
 
     // |h[i]| = (xⁱ * t(x)) / δ
-    std::vector<F> h = QuadraticArithmeticProgram<F>::ComputeHQuery(
-        result.domain.get(), qap_instance_map_result.t_x, toxic_waste.x(),
-        delta_inverse);
+    std::vector<F> h =
+        QAP::ComputeHQuery(result.domain.get(), qap_instance_map_result.t_x,
+                           toxic_waste.x(), delta_inverse);
 
     // |l[i]| = (β * aᵢ(x) + α * bᵢ(x) + cᵢ(x)) / δ
     std::vector<F> l(qap_instance_map_result.num_witness_variables);

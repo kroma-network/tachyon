@@ -70,10 +70,10 @@ Symbol Definitions:
 
 ### Frontends
 
-|        | CPU                | GPU |
-| ------ | ------------------ | --- |
-| Circom | 🏗️                 | :x: |
-| Halo2  | :heavy_check_mark: | :x: |
+|                 | CPU                | GPU |
+| --------------- | ------------------ | --- |
+| Circom(groth16) | :heavy_check_mark: | :x: |
+| Halo2           | :heavy_check_mark: | :x: |
 
 ## Roadmap
 

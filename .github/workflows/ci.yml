@@ -67,7 +67,7 @@ jobs:
       - name: Test Circom
         run: |
           cd vendors/circom
-          bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
+          CARGO_BAZEL_REPIN=true bazel test --config ${{ matrix.bazel_config }} --test_output=errors //...
 
   lint:
     runs-on: ubuntu-latest

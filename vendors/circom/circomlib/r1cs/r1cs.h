@@ -4,13 +4,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "circomlib/base/prime_field.h"
 #include "circomlib/base/sections.h"
+#include "circomlib/r1cs/constraint.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
@@ -30,6 +30,11 @@ struct R1CS {
   virtual v1::R1CS* ToV1() { return nullptr; }
 
   virtual bool Read(const base::ReadOnlyBuffer& buffer) = 0;
+
+  virtual size_t GetNumInstanceVariables() const = 0;
+  virtual size_t GetNumVariables() const = 0;
+  virtual const std::vector<Constraint>& GetConstraints() const = 0;
+  virtual const std::vector<uint64_t>& GetWireId2LabelIdMap() const = 0;
 };
 
 constexpr char kR1CSMagic[4] = {'r', '1', 'c', 's'};
@@ -90,67 +95,6 @@ struct R1CSHeaderSection {
         "num_constraints: $6}",
         modulus.ToString(), num_wires, num_public_outputs, num_public_inputs,
         num_private_inputs, num_labels, num_constraints);
-  }
-};
-
-struct Term {
-  uint32_t wire_id;
-  PrimeField coefficient;
-
-  bool operator==(const Term& other) const {
-    return wire_id == other.wire_id && coefficient == other.coefficient;
-  }
-  bool operator!=(const Term& other) const { return !operator==(other); }
-
-  std::string ToString() const {
-    return absl::Substitute("$0ω_$1", coefficient.ToString(), wire_id);
-  }
-};
-
-struct LinearCombination {
-  std::vector<Term> terms;
-
-  bool operator==(const LinearCombination& other) const {
-    return terms == other.terms;
-  }
-  bool operator!=(const LinearCombination& other) const {
-    return terms != other.terms;
-  }
-
-  std::string ToString() const {
-    std::stringstream ss;
-    for (size_t i = 0; i < terms.size(); ++i) {
-      ss << terms[i].ToString();
-      if (i != terms.size() - 1) ss << " + ";
-    }
-    return ss.str();
-  }
-};
-
-struct Constraint {
-  LinearCombination a;
-  LinearCombination b;
-  LinearCombination c;
-
-  bool operator==(const Constraint& other) const {
-    return a == other.a && b == other.b && c == other.c;
-  }
-  bool operator!=(const Constraint& other) const { return !operator==(other); }
-
-  std::string ToString() const {
-    if (a.terms.size() > 1 && b.terms.size() > 1) {
-      return absl::Substitute("($0) * ($1) = $2", a.ToString(), b.ToString(),
-                              c.ToString());
-    } else if (a.terms.size() > 1) {
-      return absl::Substitute("($0) * $1 = $2", a.ToString(), b.ToString(),
-                              c.ToString());
-    } else if (b.terms.size() > 1) {
-      return absl::Substitute("$0 * ($1) = $2", a.ToString(), b.ToString(),
-                              c.ToString());
-    } else {
-      return absl::Substitute("$0 * $1 = $2", a.ToString(), b.ToString(),
-                              c.ToString());
-    }
   }
 };
 
@@ -240,6 +184,20 @@ struct R1CS : public circom::R1CS {
     if (!sections.MoveTo(R1CSSectionType::kWire2LabelIdMap)) return false;
     if (!wire_id_to_label_id_map.Read(buffer, header)) return false;
     return true;
+  }
+
+  size_t GetNumInstanceVariables() const override {
+    return 1 + header.num_public_outputs + header.num_public_inputs;
+  }
+
+  size_t GetNumVariables() const override { return header.num_wires; }
+
+  const std::vector<Constraint>& GetConstraints() const override {
+    return constraints.constraints;
+  }
+
+  const std::vector<uint64_t>& GetWireId2LabelIdMap() const override {
+    return wire_id_to_label_id_map.label_ids;
   }
 
   std::string ToString() const {

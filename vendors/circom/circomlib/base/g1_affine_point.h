@@ -24,19 +24,19 @@ struct G1AffinePoint {
     return !operator==(other);
   }
 
-  template <typename Curve>
+  template <bool IsMontgomery, typename Curve>
   math::AffinePoint<Curve> ToNative() const {
     using BaseField = typename math::AffinePoint<Curve>::BaseField;
-    BaseField native_x = x.ToNative<BaseField>();
-    BaseField native_y = y.ToNative<BaseField>();
+    BaseField native_x = x.ToNative<IsMontgomery, BaseField>();
+    BaseField native_y = y.ToNative<IsMontgomery, BaseField>();
     bool infinity = native_x.IsZero() && native_y.IsZero();
     return {std::move(native_x), std::move(native_y), infinity};
   }
 
-  template <typename Curve>
+  template <bool IsMontgomery, typename Curve>
   static G1AffinePoint FromNative(const math::AffinePoint<Curve>& point) {
-    return {PrimeField::FromNative(point.x()),
-            PrimeField::FromNative(point.y())};
+    return {PrimeField::FromNative<IsMontgomery>(point.x()),
+            PrimeField::FromNative<IsMontgomery>(point.y())};
   }
 
   bool Read(const base::ReadOnlyBuffer& buffer, uint32_t field_size) {

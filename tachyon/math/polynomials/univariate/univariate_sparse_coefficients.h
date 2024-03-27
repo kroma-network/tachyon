@@ -146,6 +146,8 @@ class UnivariateSparseCoefficients {
   constexpr const std::vector<Term>& terms() const { return terms_; }
   constexpr std::vector<Term>& terms() { return terms_; }
 
+  std::vector<Term>&& TakeTerms() && { return std::move(terms_); }
+
   constexpr bool operator==(const UnivariateSparseCoefficients& other) const {
     return terms_ == other.terms_;
   }

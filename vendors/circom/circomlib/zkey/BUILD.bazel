@@ -3,12 +3,51 @@ load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tach
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "cell",
+    hdrs = ["cell.h"],
+    deps = [
+        "//circomlib/base:prime_field",
+        "@com_google_absl//absl/strings",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:matrix",
+    ],
+)
+
+tachyon_cc_library(
+    name = "constraint_matrices",
+    hdrs = ["constraint_matrices.h"],
+    deps = [
+        ":cell",
+        "@kroma_network_tachyon//tachyon/base/strings:string_util",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:constraint_matrices",
+    ],
+)
+
+tachyon_cc_library(
+    name = "proving_key",
+    hdrs = ["proving_key.h"],
+    deps = [
+        ":verifying_key",
+        "@kroma_network_tachyon//tachyon/base/strings:string_util",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:proving_key",
+    ],
+)
+
+tachyon_cc_library(
+    name = "verifying_key",
+    hdrs = ["verifying_key.h"],
+    deps = [
+        "//circomlib/base:g1_affine_point",
+        "//circomlib/base:g2_affine_point",
+    ],
+)
+
+tachyon_cc_library(
     name = "zkey",
     srcs = ["zkey.cc"],
     hdrs = ["zkey.h"],
     deps = [
-        "//circomlib/base:g1_affine_point",
-        "//circomlib/base:g2_affine_point",
+        ":constraint_matrices",
+        ":proving_key",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:copyable",

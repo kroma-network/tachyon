@@ -1,13 +1,14 @@
 #ifndef VENDORS_CIRCOM_CIRCOMLIB_ZKEY_ZKEY_H_
 #define VENDORS_CIRCOM_CIRCOMLIB_ZKEY_ZKEY_H_
 
+#include <algorithm>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "circomlib/base/g1_affine_point.h"
-#include "circomlib/base/g2_affine_point.h"
 #include "circomlib/base/sections.h"
+#include "circomlib/zkey/constraint_matrices.h"
+#include "circomlib/zkey/proving_key.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
@@ -27,6 +28,9 @@ struct ZKey {
   virtual v1::ZKey* ToV1() { return nullptr; }
 
   virtual bool Read(const base::ReadOnlyBuffer& buffer) = 0;
+
+  virtual ProvingKey TakeProvingKey() && = 0;
+  virtual ConstraintMatrices TakeConstraintMatrices() && = 0;
 };
 
 constexpr char kZkeyMagic[4] = {'z', 'k', 'e', 'y'};
@@ -70,42 +74,6 @@ struct ZKeyHeaderSection {
 
   std::string ToString() const {
     return absl::Substitute("{prover_type: $0}", prover_type);
-  }
-};
-
-struct VerifyingKey {
-  G1AffinePoint alpha_g1;
-  G1AffinePoint beta_g1;
-  G2AffinePoint beta_g2;
-  G2AffinePoint gamma_g2;
-  G1AffinePoint delta_g1;
-  G2AffinePoint delta_g2;
-
-  bool operator==(const VerifyingKey& other) const {
-    return alpha_g1 == other.alpha_g1 && beta_g1 == other.beta_g1 &&
-           beta_g2 == other.beta_g2 && gamma_g2 == other.gamma_g2 &&
-           delta_g1 == other.delta_g1 && delta_g2 == other.delta_g2;
-  }
-  bool operator!=(const VerifyingKey& other) const {
-    return !operator==(other);
-  }
-
-  bool Read(const base::ReadOnlyBuffer& buffer, uint32_t field_size) {
-    return alpha_g1.Read(buffer, field_size) &&
-           beta_g1.Read(buffer, field_size) &&
-           beta_g2.Read(buffer, field_size) &&
-           gamma_g2.Read(buffer, field_size) &&
-           delta_g1.Read(buffer, field_size) &&
-           delta_g2.Read(buffer, field_size);
-  }
-
-  // NOTE(chokobole): the fields are represented in montgomery form.
-  std::string ToString() const {
-    return absl::Substitute(
-        "{alpha_g1: $0, beta_g1: $1, beta_g2: $2, gamma_g2: $3, delta_g1: $4, "
-        "delta_g2: $5}",
-        alpha_g1.ToString(), beta_g1.ToString(), beta_g2.ToString(),
-        gamma_g2.ToString(), delta_g1.ToString(), delta_g2.ToString());
   }
 };
 
@@ -184,24 +152,10 @@ using PointsB2Section = CommitmentsSection<G2AffinePoint>;
 using PointsC1Section = CommitmentsSection<G1AffinePoint>;
 using PointsH1Section = CommitmentsSection<G1AffinePoint>;
 
-struct Cell {
-  PrimeField coefficient;
-  uint32_t signal;
-
-  bool operator==(const Cell& other) const {
-    return coefficient == other.coefficient && signal == other.signal;
-  }
-  bool operator!=(const Cell& other) const { return !operator==(other); }
-
-  // NOTE(chokobole): the fields are represented in montgomery form.
-  std::string ToString() const {
-    return absl::Substitute("($0, $1)", coefficient.ToString(), signal);
-  }
-};
-
 struct CoefficientsSection {
   std::vector<std::vector<Cell>> a;
   std::vector<std::vector<Cell>> b;
+  uint32_t max_constraint;
 
   bool operator==(const CoefficientsSection& other) const {
     return a == other.a && b == other.b;
@@ -217,10 +171,12 @@ struct CoefficientsSection {
     if (!buffer.Read(&num_coefficients)) return false;
     a.resize(domain_size);
     b.resize(domain_size);
+    max_constraint = 0;
     for (uint32_t i = 0; i < num_coefficients; ++i) {
       Cell cell;
       uint32_t matrix, constraint;
       if (!buffer.ReadMany(&matrix, &constraint, &cell.signal)) return false;
+      max_constraint = std::max(constraint, max_constraint);
       if (!cell.coefficient.Read(buffer, field_size)) return false;
       if (matrix == 0) {
         a[constraint].push_back(std::move(cell));
@@ -292,11 +248,55 @@ struct ZKey : public circom::ZKey {
     if (!points_b2.Read(buffer, num_vars, q_field_size)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsC1)) return false;
-    if (!points_c1.Read(buffer, num_vars, q_field_size)) return false;
+    if (!points_c1.Read(buffer, num_vars - num_public_inputs - 1, q_field_size))
+      return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsH1)) return false;
-    if (!points_h1.Read(buffer, num_vars, q_field_size)) return false;
+    if (!points_h1.Read(buffer, domain_size, q_field_size)) return false;
     return true;
+  }
+
+  ProvingKey TakeProvingKey() && override {
+    return {
+        std::move(header_groth.vkey),     std::move(ic.commitments),
+        std::move(points_a1.commitments), std::move(points_b1.commitments),
+        std::move(points_b2.commitments), std::move(points_c1.commitments),
+        std::move(points_h1.commitments),
+    };
+  }
+
+  ConstraintMatrices TakeConstraintMatrices() && override {
+    size_t num_constraints =
+        coefficients.max_constraint - header_groth.num_public_inputs;
+    if (coefficients.a.size() > num_constraints) {
+      coefficients.a.resize(num_constraints);
+    }
+    if (coefficients.b.size() > num_constraints) {
+      coefficients.b.resize(num_constraints);
+    }
+
+    size_t a_num_non_zero =
+        std::accumulate(coefficients.a.begin(), coefficients.a.end(), 0,
+                        [](size_t acc, const std::vector<Cell>& cells) {
+                          return acc + cells.size();
+                        });
+    size_t b_num_non_zero =
+        std::accumulate(coefficients.b.begin(), coefficients.b.end(), 0,
+                        [](size_t acc, const std::vector<Cell>& cells) {
+                          return acc + cells.size();
+                        });
+
+    return {
+        header_groth.num_public_inputs + 1,
+        header_groth.num_vars - header_groth.num_public_inputs - 1,
+        num_constraints,
+
+        a_num_non_zero,
+        b_num_non_zero,
+
+        std::move(coefficients.a),
+        std::move(coefficients.b),
+    };
   }
 
   template <typename Fq, typename Fr>

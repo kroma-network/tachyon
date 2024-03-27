@@ -3,11 +3,20 @@ load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tach
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "constraint",
+    hdrs = ["constraint.h"],
+    deps = [
+        "//circomlib/base:prime_field",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+tachyon_cc_library(
     name = "r1cs",
     srcs = ["r1cs.cc"],
     hdrs = ["r1cs.h"],
     deps = [
-        "//circomlib/base:prime_field",
+        ":constraint",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",

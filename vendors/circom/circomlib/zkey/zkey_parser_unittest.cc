@@ -22,7 +22,7 @@ G1AffinePoint ToG1AffinePoint(std::string_view g1[2]) {
   math::bn254::Fq y = math::bn254::Fq::FromDecString(g1[1]);
   bool infinity = x.IsZero() && y.IsZero();
   math::bn254::G1AffinePoint affine_point(std::move(x), std::move(y), infinity);
-  return G1AffinePoint::FromNative(std::move(affine_point));
+  return G1AffinePoint::FromNative<true>(std::move(affine_point));
 }
 
 G2AffinePoint ToG2AffinePoint(std::string_view g2[2][2]) {
@@ -32,7 +32,7 @@ G2AffinePoint ToG2AffinePoint(std::string_view g2[2][2]) {
                      math::bn254::Fq::FromDecString(g2[1][1]));
   bool infinity = x.IsZero() && y.IsZero();
   math::bn254::G2AffinePoint affine_point(std::move(x), std::move(y), infinity);
-  return G2AffinePoint::FromNative(std::move(affine_point));
+  return G2AffinePoint::FromNative<true>(std::move(affine_point));
 }
 
 struct CellData {
@@ -40,9 +40,10 @@ struct CellData {
   uint32_t signal = 0;
 };
 
-v1::Cell ToCell(const CellData& data) {
+Cell ToCell(const CellData& data) {
   return {
-      PrimeField::FromNative(math::bn254::Fr::FromDecString(data.coefficient)),
+      PrimeField::FromNative<true>(
+          math::bn254::Fr::FromDecString(data.coefficient)),
       data.signal,
   };
 }
@@ -160,10 +161,10 @@ TEST_F(ZKeyParserTest, Parse) {
 
   v1::CoefficientsSection expected_coefficients;
   expected_coefficients.a = base::Map(a, [](const CellData row[1]) {
-    return std::vector<v1::Cell>{ToCell(row[0])};
+    return std::vector<Cell>{ToCell(row[0])};
   });
   expected_coefficients.b = base::Map(b, [](const CellData row[1]) {
-    return std::vector<v1::Cell>{ToCell(row[0])};
+    return std::vector<Cell>{ToCell(row[0])};
   });
   expected_coefficients.b.resize(4);
   EXPECT_EQ(v1_zkey->coefficients, expected_coefficients);
@@ -233,11 +234,6 @@ TEST_F(ZKeyParserTest, Parse) {
       expected_points_b1_strs,
       [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
   EXPECT_EQ(v1_zkey->points_b1, expected_points_b1);
-
-  auto& data = v1_zkey->points_b2.commitments;
-  for (size_t i = 0; i < data.size(); ++i) {
-    LOG(ERROR) << data[i].ToNative<math::bn254::G2Curve>().ToString();
-  }
 
   // clang-format off
   std::string_view expected_points_b2_strs[][2][2] = {
@@ -326,14 +322,6 @@ TEST_F(ZKeyParserTest, Parse) {
       "18284461151151484053721771333035891989697029546383442693996002288554315091425",
       "16368214353654036882062732785064467942017556803959036709508171804841339585293",
     },
-    {
-      "13799891262364334113092492696681113644767160978978423923444090646637445829366",
-      "21817512644570475526328905079894860465191133013055011328862074452304470193979",
-    },
-    {
-      "14900154237806117654428245543120553669312852589416966773246604080248430222261",
-      "7675978835693145729047834348611190256329030591981472542571236564514537011183",
-    },
   };
   // clang-format on
   v1::PointsC1Section expected_points_c1 = {base::Map(
@@ -358,14 +346,6 @@ TEST_F(ZKeyParserTest, Parse) {
     {
       "2710629677537908437939962149843601091625518295461558128309313181856887222076",
       "5586033426926327725348881354712158558954133315341909946743947206034841045334",
-    },
-    {
-      "16523045173369232641094893604146741639872155500205836459758326906838174648272",
-      "813724097286641904560567218381803591310069910987003887064138120291079077026",
-    },
-    {
-      "2172014136459685771018922551281430100351000112093021404912323023725630091690",
-      "12988650882854312625161548884822129322874029156286047493802854793209038406202",
     },
   };
   // clang-format on

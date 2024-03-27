@@ -118,6 +118,8 @@ class UnivariateDenseCoefficients {
   constexpr const std::vector<F>& coefficients() const { return coefficients_; }
   constexpr std::vector<F>& coefficients() { return coefficients_; }
 
+  std::vector<F>&& TakeCoefficients() && { return std::move(coefficients_); }
+
   constexpr bool operator==(const UnivariateDenseCoefficients& other) const {
     return coefficients_ == other.coefficients_;
   }
