@@ -166,6 +166,7 @@ mod test {
                 let mut pk_bytes: Vec<u8> = vec![];
                 pk.write(&mut pk_bytes, halo2_proofs::SerdeFormat::RawBytesUnchecked)
                     .unwrap();
+                drop(pk);
                 TachyonProvingKey::from(pk_bytes.as_slice())
             };
             let mut transcript = TachyonBlake2bWrite::init(vec![]);
