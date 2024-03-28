@@ -44,6 +44,8 @@ std::string GenerateFastMultiplication(int64_t value);
 
 base::FilePath ConvertToConfigHdr(const base::FilePath& path);
 
+base::FilePath ConvertToCpuHdr(const base::FilePath& path);
+
 base::FilePath ConvertToGpuHdr(const base::FilePath& path);
 
 std::string GenerateInitMpzClass(std::string_view name, std::string_view value);

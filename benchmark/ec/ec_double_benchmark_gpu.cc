@@ -77,7 +77,7 @@ int RealMain(int argc, char** argv) {
   base::TimeInterval interval(base::TimeTicks::Now());
   for (size_t i = 0; i < point_nums.size(); ++i) {
     TestDoubleOnCPU(bases, results_cpu, point_nums[i]);
-    reporter.AddResult(i, interval.GetTimeDelta().InSecondsF());
+    reporter.AddTime(i, interval.GetTimeDelta().InSecondsF());
   }
 
   GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
@@ -91,7 +91,7 @@ int RealMain(int argc, char** argv) {
   interval.Reset();
   for (size_t i = 0; i < point_nums.size(); ++i) {
     TestDoubleOnGPU(bases_cuda.get(), results_cuda.get(), bases, point_nums[i]);
-    reporter.AddResult(i, interval.GetTimeDelta().InSecondsF());
+    reporter.AddTime(i, interval.GetTimeDelta().InSecondsF());
   }
 
   reporter.Show();

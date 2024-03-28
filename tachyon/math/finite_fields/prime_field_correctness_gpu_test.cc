@@ -2,6 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/device/gpu/gpu_memory.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/fq.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fq_gpu.h"
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
 #include "tachyon/math/finite_fields/prime_field_conversions.h"

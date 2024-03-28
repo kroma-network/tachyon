@@ -4,6 +4,7 @@
 #include "tachyon/math/finite_fields/kernels/prime_field_ops.cu.h"
 #include "tachyon/math/finite_fields/prime_field_conversions.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
+#include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/finite_fields/test/gf7_gpu.h"
 #include "tachyon/math/test/launch_op_macros.h"
 

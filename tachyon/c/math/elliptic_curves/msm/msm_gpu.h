@@ -56,18 +56,18 @@ struct MSMGpuApi {
     {
       // NOTE(chokobole): This should be replaced with VLOG().
       // Currently, there's no way to delegate VLOG flags from rust side.
-      base::ConsoleStream cs;
+      tachyon::base::ConsoleStream cs;
       cs.Green();
       std::cout << "CreateMSMGpuApi()" << std::endl;
     }
 
     std::string_view msm_gpu_input_dir_str;
-    if (base::Environment::Get("TACHYON_MSM_GPU_INPUT_DIR",
-                               &msm_gpu_input_dir_str)) {
+    if (tachyon::base::Environment::Get("TACHYON_MSM_GPU_INPUT_DIR",
+                                        &msm_gpu_input_dir_str)) {
       msm_gpu_input_dir = std::string(msm_gpu_input_dir_str);
     }
     std::string_view log_msm_str;
-    if (base::Environment::Get("TACHYON_LOG_MSM", &log_msm_str)) {
+    if (tachyon::base::Environment::Get("TACHYON_LOG_MSM", &log_msm_str)) {
       if (log_msm_str == "1") log_msm = true;
     }
 
@@ -117,28 +117,29 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
   if (msm_api.log_msm) {
     // NOTE(chokobole): This should be replaced with VLOG().
     // Currently, there's no way to delegate VLOG flags from rust side.
-    base::ConsoleStream cs;
+    tachyon::base::ConsoleStream cs;
     cs.Yellow();
     std::cout << "DoMSMGpu()" << msm_api.idx++ << std::endl;
     std::cout << ret.ToHexString() << std::endl;
   }
 
   if (!msm_api.msm_gpu_input_dir.empty()) {
-    base::Uint8VectorBuffer buffer;
+    tachyon::base::Uint8VectorBuffer buffer;
     {
-      CHECK(buffer.Grow(base::EstimateSize(msm_api.provider.bases())));
+      CHECK(buffer.Grow(tachyon::base::EstimateSize(msm_api.provider.bases())));
       CHECK(buffer.Write(msm_api.provider.bases()));
-      base::WriteFile(
-          base::FilePath(absl::Substitute(
+      tachyon::base::WriteFile(
+          tachyon::base::FilePath(absl::Substitute(
               "$0/bases$1.txt", msm_api.msm_gpu_input_dir, msm_api.idx - 1)),
           buffer.owned_buffer());
     }
     {
       buffer.set_buffer_offset(0);
-      CHECK(buffer.Grow(base::EstimateSize(msm_api.provider.scalars())));
+      CHECK(
+          buffer.Grow(tachyon::base::EstimateSize(msm_api.provider.scalars())));
       CHECK(buffer.Write(msm_api.provider.scalars()));
-      base::WriteFile(
-          base::FilePath(absl::Substitute(
+      tachyon::base::WriteFile(
+          tachyon::base::FilePath(absl::Substitute(
               "$0/scalars$1.txt", msm_api.msm_gpu_input_dir, msm_api.idx - 1)),
           buffer.owned_buffer());
     }
