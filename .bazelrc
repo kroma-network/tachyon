@@ -87,8 +87,8 @@ build --//:has_exception
 test --test_tag_filters -benchmark,-manual,-cuda,-rust
 
 build:linux --build_tag_filters -objc,-cuda,-rust
-build:macos --build_tag_filters -cuda,-rust
-build:windows --build_tag_filters -objc,-cuda,-rust
+build:macos --build_tag_filters -cuda,-rust,-doxygen
+build:windows --build_tag_filters -objc,-cuda,-rust,-doxygen
 
 # Halo2 uses subgroup generator of bn254 scalar field as 7.
 # See https://github.com/kroma-network/halo2curves/blob/c0ac1935e5da2a620204b5b011be2c924b1e0155/src/bn256/fr.rs#L68-L70

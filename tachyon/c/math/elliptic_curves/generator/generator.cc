@@ -272,7 +272,7 @@ int GenerationConfig::GenerateMSMSrc() const {
 
 int GenerationConfig::GenerateMSMGpuHdr() const {
   std::string tpl_content;
-  CHECK(base::ReadFileToString(msm_gpu_src_tpl_path, &tpl_content));
+  CHECK(base::ReadFileToString(msm_gpu_hdr_tpl_path, &tpl_content));
 
   std::string content = absl::StrReplaceAll(
       tpl_content, {

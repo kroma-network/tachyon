@@ -1,0 +1,89 @@
+filegroup(
+    name = "examples",
+    srcs = [
+        "affine_point.cc",
+        "extension_field.cc",
+        "jacobian_point.cc",
+        "msm.cc",
+        "point_xyzz.cc",
+        "prime_field.cc",
+        "projective_point.cc",
+        "rng.cc",
+        "version.cc",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "affine_point",
+    srcs = ["affine_point.cc"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g2",
+    ],
+)
+
+cc_binary(
+    name = "extension_field",
+    srcs = ["extension_field.cc"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fq12",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fq2",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fq6",
+    ],
+)
+
+cc_binary(
+    name = "jacobian_point",
+    srcs = ["jacobian_point.cc"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g2",
+    ],
+)
+
+cc_binary(
+    name = "msm",
+    srcs = ["msm.cc"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:msm",
+    ],
+)
+
+cc_binary(
+    name = "point_xyzz",
+    srcs = ["point_xyzz.cc"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g2",
+    ],
+)
+
+cc_binary(
+    name = "prime_field",
+    srcs = ["prime_field.cc"],
+    deps = ["//tachyon/c/math/elliptic_curves/bn/bn254:fr"],
+)
+
+cc_binary(
+    name = "projective_point",
+    srcs = ["projective_point.cc"],
+    deps = [
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g2",
+    ],
+)
+
+cc_binary(
+    name = "rng",
+    srcs = ["rng.cc"],
+    deps = ["//tachyon/c/crypto/random:rng"],
+)
+
+cc_binary(
+    name = "version",
+    srcs = ["version.cc"],
+    deps = ["//tachyon/c:version"],
+)
