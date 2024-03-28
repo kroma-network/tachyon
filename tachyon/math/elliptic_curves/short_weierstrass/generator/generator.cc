@@ -144,7 +144,7 @@ int GenerationConfig::GenerateConfigGpuHdr() const {
       {"%{scalar_field}", scalar_field},
       {"%{scalar_field_header}",
        math::ConvertToGpuHdr(scalar_field_hdr).value()},
-      {"%{config_header_path}", math::ConvertToConfigHdr(GetHdrPath()).value()},
+      {"%{cpu_header_path}", math::ConvertToCpuHdr(GetHdrPath()).value()},
   };
 
   std::string tpl_content;
