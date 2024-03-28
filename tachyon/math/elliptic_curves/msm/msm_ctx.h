@@ -29,7 +29,7 @@ struct TACHYON_EXPORT MSMCtx {
   // See https://github.com/scipr-lab/zexe/issues/79#issue-556220473
   constexpr static unsigned int LnWithoutFloats(size_t a) {
     // log2(a) * ln(2)
-    return log2(a) * 69 / 100;
+    return std::log2(a) * 69 / 100;
   }
 
   constexpr static unsigned int ComputeWindowsBits(size_t size) {

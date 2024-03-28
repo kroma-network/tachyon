@@ -57,9 +57,9 @@ template <typename Curve, typename Bucket>
 }
 
 template <typename Curve, typename Container>
-[[nodiscard]] bool Verify(const PreparedVerifyingKey<Curve>& pvk,
-                          const Proof<Curve>& proof,
-                          const Container& public_inputs) {
+[[nodiscard]] bool VerifyProof(const PreparedVerifyingKey<Curve>& pvk,
+                               const Proof<Curve>& proof,
+                               const Container& public_inputs) {
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using Bucket = typename math::VariableBaseMSM<G1Point>::Bucket;
   Bucket prepared_inputs;

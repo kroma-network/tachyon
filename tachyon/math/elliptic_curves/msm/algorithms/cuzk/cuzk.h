@@ -199,7 +199,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
     unsigned int row_ptrs_size = csr_matrix.rows + 1;
     unsigned int stride = (row_ptrs_size + thread_num - 1) / thread_num;
 
-    for (unsigned int i = 0; i < log2(thread_num); ++i) {
+    for (unsigned int i = 0; i < std::log2(thread_num); ++i) {
       cuzk::ConvertELLToCSRTransposedStep3<<<grid_size_ / 2, block_size_>>>(
           csr_matrix, i, stride);
       error = gpuGetLastError();

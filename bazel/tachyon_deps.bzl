@@ -9,10 +9,12 @@ load("//third_party/goldilocks:workspace.bzl", goldilocks = "repo")
 load("//third_party/gpus:cuda_configure.bzl", "cuda_configure")
 load("//third_party/gpus:rocm_configure.bzl", "rocm_configure")
 load("//third_party/hwloc:workspace.bzl", hwloc = "repo")
+load("//third_party/json:workspace.bzl", json = "repo")
 load("//third_party/nasm:workspace.bzl", nasm = "repo")
 load("//third_party/node_addon_api:install_node_addon_api.bzl", "install_node_addon_api")
 load("//third_party/pdqsort:workspace.bzl", pdqsort = "repo")
 load("//third_party/py:python_configure.bzl", "python_configure")
+load("//third_party/rapidsnark:workspace.bzl", rapidsnark = "repo")
 
 def tachyon_deps():
     cuda_configure(name = "local_config_cuda")
@@ -27,8 +29,10 @@ def tachyon_deps():
     ffiasm()
     goldilocks()
     hwloc()
+    json()
     nasm()
     pdqsort()
+    rapidsnark()
 
     install_node_addon_api(name = "node_addon_api")
 
