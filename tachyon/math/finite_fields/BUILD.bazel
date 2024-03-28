@@ -147,6 +147,8 @@ tachyon_cc_library(
     hdrs = ["prime_field_gpu.h"],
     deps = [
         ":finite_field_forwards",
+        ":modulus",
+        ":prime_field_base",
         "//tachyon/math/finite_fields/kernels:carry_chain",
     ],
 )
@@ -247,6 +249,7 @@ tachyon_cuda_unittest(
         "//tachyon/device/gpu:gpu_memory",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
         "//tachyon/math/finite_fields/test:finite_field_test",
+        "//tachyon/math/finite_fields/test:gf7",
         "//tachyon/math/finite_fields/test:gf7_gpu",
         "//tachyon/math/test:launch_op_macros",
     ],
@@ -259,6 +262,7 @@ tachyon_cuda_test(
     deps = [
         ":prime_field_conversions",
         "//tachyon/device/gpu:gpu_memory",
+        "//tachyon/math/elliptic_curves/bn/bn254:fq",
         "//tachyon/math/elliptic_curves/bn/bn254:fq_gpu",
         "//tachyon/math/finite_fields/kernels:prime_field_ops",
         "//tachyon/math/finite_fields/test:finite_field_test",
