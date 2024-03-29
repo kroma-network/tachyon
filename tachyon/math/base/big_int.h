@@ -409,13 +409,11 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return SubInPlace(other);
   }
 
-  constexpr BigInt operator*(const BigInt& other) const {
-    BigInt ret = *this;
-    return ret.MulInPlace(other);
-  }
+  constexpr BigInt operator*(const BigInt& other) const { return Mul(other); }
 
   constexpr BigInt& operator*=(const BigInt& other) {
-    return MulInPlace(other);
+    *this = Mul(other);
+    return *this;
   }
 
   constexpr BigInt operator/(const BigInt& other) const { return Div(other); }
@@ -514,35 +512,29 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
-  constexpr BigInt& MulInPlace(const BigInt& other) {
-    BigInt hi;
-    return MulInPlace(other, hi);
+  constexpr BigInt Mul(const BigInt& other) const { return Multiply(other).lo; }
+
+  constexpr BigInt<2 * N> MulExtend(const BigInt& other) const {
+    MulResult<BigInt> result = Multiply(other);
+    BigInt<2 * N> ret;
+    memcpy(&ret[0], &result.lo[0], sizeof(uint64_t) * N);
+    memcpy(&ret[N], &result.hi[0], sizeof(uint64_t) * N);
+    return ret;
   }
 
-  constexpr BigInt& MulInPlace(const BigInt& other, BigInt& hi) {
-    BigInt lo;
+  constexpr MulResult<BigInt> Multiply(const BigInt& other) const {
+    MulResult<BigInt> ret;
     MulResult<uint64_t> mul_result;
     FOR_FROM_SMALLEST(i, 0, N) {
       FOR_FROM_SMALLEST(j, 0, N) {
-        uint64_t& limb = (i + j) >= N ? hi.limbs[(i + j) - N] : lo.limbs[i + j];
-        mul_result = internal::u64::MulAddWithCarry(
-            limb, limbs[i], other.limbs[j], mul_result.hi);
+        uint64_t& limb = (i + j) >= N ? ret.hi[(i + j) - N] : ret.lo[i + j];
+        mul_result = internal::u64::MulAddWithCarry(limb, limbs[i], other[j],
+                                                    mul_result.hi);
         limb = mul_result.lo;
       }
-      hi[i] = mul_result.hi;
+      ret.hi[i] = mul_result.hi;
       mul_result.hi = 0;
     }
-    *this = lo;
-    return *this;
-  }
-
-  constexpr BigInt<2 * N> Mul(const BigInt& other) const {
-    BigInt<2 * N> ret;
-    BigInt lo = *this;
-    BigInt hi;
-    lo.MulInPlace(other, hi);
-    memcpy(&ret[0], &lo[0], sizeof(uint64_t) * N);
-    memcpy(&ret[N], &hi[0], sizeof(uint64_t) * N);
     return ret;
   }
 

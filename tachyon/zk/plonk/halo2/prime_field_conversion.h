@@ -39,11 +39,13 @@ static F FromUint512(uint64_t limbs[8]) {
   // prime field multiplication, where we utilize unused modulus bits for
   // optimization purposes. However, the given |limbs| can sometimes exceed
   // the allowed scope of bits.
-  math::BigInt<8> mul_result = d0.ToMontgomery().Mul(F::Config::kMontgomeryR2);
+  math::BigInt<8> mul_result =
+      d0.ToMontgomery().MulExtend(F::Config::kMontgomeryR2);
   math::BigInt<4> d2;
   math::BigInt<4>::MontgomeryReduce64<false>(mul_result, F::Config::kModulus,
                                              F::Config::kInverse64, &d2);
-  math::BigInt<8> mul_result2 = d1.ToMontgomery().Mul(F::Config::kMontgomeryR3);
+  math::BigInt<8> mul_result2 =
+      d1.ToMontgomery().MulExtend(F::Config::kMontgomeryR3);
   math::BigInt<4> d3;
   math::BigInt<4>::MontgomeryReduce64<false>(mul_result2, F::Config::kModulus,
                                              F::Config::kInverse64, &d3);

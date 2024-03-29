@@ -234,11 +234,10 @@ TEST(BigIntTest, Operations) {
   {
     BigInt<2> a = big_int;
     BigInt<2> b = big_int2;
-    BigInt<2> hi;
-    a.MulInPlace(b, hi);
-    EXPECT_EQ(
-        a, BigInt<2>::FromDecString("335394729415762779748307316131549975568"));
-    EXPECT_EQ(hi,
+    MulResult<BigInt<2>> ret = a.Multiply(b);
+    EXPECT_EQ(ret.lo, BigInt<2>::FromDecString(
+                          "335394729415762779748307316131549975568"));
+    EXPECT_EQ(ret.hi,
               BigInt<2>::FromDecString("266511138036132956757991041665338"));
   }
   {

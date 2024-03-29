@@ -277,7 +277,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
   }
 
   constexpr PrimeField& SlowMulInPlace(const PrimeField& other) {
-    BigInt<2 * N> r = value_.Mul(other.value_);
+    BigInt<2 * N> r = value_.MulExtend(other.value_);
     BigInt<N>::template MontgomeryReduce64<Config::kModulusHasSpareBit>(
         r, Config::kModulus, Config::kInverse64, &value_);
     return *this;
