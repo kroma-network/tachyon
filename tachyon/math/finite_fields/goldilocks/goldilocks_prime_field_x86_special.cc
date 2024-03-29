@@ -59,22 +59,26 @@ CLASS CLASS::FromMontgomery(const BigInt<N>& big_int) {
 
 template <typename Config>
 bool CLASS::IsZero() const {
-  return ::Goldilocks::isZero(::Goldilocks::Element{value_});
+  return ::Goldilocks::isZero(
+      reinterpret_cast<const ::Goldilocks::Element&>(value_));
 }
 
 template <typename Config>
 bool CLASS::IsOne() const {
-  return ::Goldilocks::isOne(::Goldilocks::Element{value_});
+  return ::Goldilocks::isOne(
+      reinterpret_cast<const ::Goldilocks::Element&>(value_));
 }
 
 template <typename Config>
 std::string CLASS::ToString() const {
-  return ::Goldilocks::toString(::Goldilocks::Element{value_}, 10);
+  return ::Goldilocks::toString(
+      reinterpret_cast<const ::Goldilocks::Element&>(value_), 10);
 }
 
 template <typename Config>
 std::string CLASS::ToHexString(bool pad_zero) const {
-  std::string str = ::Goldilocks::toString(::Goldilocks::Element{value_}, 16);
+  std::string str = ::Goldilocks::toString(
+      reinterpret_cast<const ::Goldilocks::Element&>(value_), 16);
   if (pad_zero) {
     str = base::ToHexStringWithLeadingZero(str, 16);
   }
@@ -101,62 +105,56 @@ CLASS::operator uint64_t() const {
 
 template <typename Config>
 CLASS& CLASS::AddInPlace(const PrimeField& other) {
-  ::Goldilocks::Element result;
-  ::Goldilocks::add(result, ::Goldilocks::Element{value_},
-                    ::Goldilocks::Element{other.value_});
-  value_ = result.fe;
+  ::Goldilocks::add(
+      reinterpret_cast<::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(other.value_));
   return *this;
 }
 
 template <typename Config>
 CLASS& CLASS::DoubleInPlace() {
-  ::Goldilocks::Element result;
-  ::Goldilocks::add(result, ::Goldilocks::Element{value_},
-                    ::Goldilocks::Element{value_});
-  value_ = result.fe;
-  return *this;
+  return AddInPlace(*this);
 }
 
 template <typename Config>
 CLASS& CLASS::SubInPlace(const PrimeField& other) {
-  ::Goldilocks::Element result;
-  ::Goldilocks::sub(result, ::Goldilocks::Element{value_},
-                    ::Goldilocks::Element{other.value_});
-  value_ = result.fe;
+  ::Goldilocks::sub(
+      reinterpret_cast<::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(other.value_));
   return *this;
 }
 
 template <typename Config>
 CLASS& CLASS::NegInPlace() {
-  ::Goldilocks::Element result;
-  ::Goldilocks::neg(result, ::Goldilocks::Element{value_});
-  value_ = result.fe;
+  ::Goldilocks::neg(reinterpret_cast<::Goldilocks::Element&>(value_),
+                    reinterpret_cast<const ::Goldilocks::Element&>(value_));
   return *this;
 }
 
 template <typename Config>
 CLASS& CLASS::MulInPlace(const PrimeField& other) {
-  ::Goldilocks::Element result;
-  ::Goldilocks::mul(result, ::Goldilocks::Element{value_},
-                    ::Goldilocks::Element{other.value_});
-  value_ = result.fe;
+  ::Goldilocks::mul(
+      reinterpret_cast<::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(other.value_));
   return *this;
 }
 
 template <typename Config>
 CLASS& CLASS::DivInPlace(const PrimeField& other) {
-  ::Goldilocks::Element result;
-  ::Goldilocks::div(result, ::Goldilocks::Element{value_},
-                    ::Goldilocks::Element{other.value_});
-  value_ = result.fe;
+  ::Goldilocks::div(
+      reinterpret_cast<::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(other.value_));
   return *this;
 }
 
 template <typename Config>
 CLASS& CLASS::SquareInPlace() {
-  ::Goldilocks::Element result;
-  ::Goldilocks::square(result, ::Goldilocks::Element{value_});
-  value_ = result.fe;
+  ::Goldilocks::square(reinterpret_cast<::Goldilocks::Element&>(value_),
+                       reinterpret_cast<const ::Goldilocks::Element&>(value_));
   return *this;
 }
 
@@ -164,9 +162,8 @@ template <typename Config>
 CLASS& CLASS::InverseInPlace() {
   // See https://github.com/kroma-network/tachyon/issues/76
   CHECK(!IsZero());
-  ::Goldilocks::Element result;
-  ::Goldilocks::inv(result, ::Goldilocks::Element{value_});
-  value_ = result.fe;
+  ::Goldilocks::inv(reinterpret_cast<::Goldilocks::Element&>(value_),
+                    reinterpret_cast<const ::Goldilocks::Element&>(value_));
   return *this;
 }
 
