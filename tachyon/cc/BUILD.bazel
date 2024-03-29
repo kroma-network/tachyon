@@ -71,6 +71,8 @@ collect_hdrs(
     hdrs = [
         "api.h",
         "export.h",
+        "version.h",
+        ":version_generated",
     ],
     deps = [
         "//tachyon/cc/math:math_hdrs",
