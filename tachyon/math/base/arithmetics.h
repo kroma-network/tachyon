@@ -94,7 +94,7 @@ ALWAYS_INLINE AddResult<uint64_t> AddWithCarry(uint64_t a, uint64_t b,
 }
 
 // Calculates a - b - borrow.
-ALWAYS_INLINE SubResult<uint64_t> SubWithBorrow(uint64_t& a, uint64_t b,
+ALWAYS_INLINE SubResult<uint64_t> SubWithBorrow(uint64_t a, uint64_t b,
                                                 uint64_t borrow = 0) {
   SubResult<uint64_t> result;
 #if defined(__clang__) && HAS_BUILTIN(__builtin_subcl)
