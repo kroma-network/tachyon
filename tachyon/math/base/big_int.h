@@ -397,10 +397,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return true;
   }
 
-  constexpr BigInt operator+(const BigInt& other) const {
-    BigInt ret = *this;
-    return ret.AddInPlace(other);
-  }
+  constexpr BigInt operator+(const BigInt& other) const { return Add(other); }
 
   constexpr BigInt& operator+=(const BigInt& other) {
     return AddInPlace(other);
@@ -438,47 +435,24 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
+  constexpr BigInt Add(const BigInt& other) {
+    uint64_t unused = 0;
+    return Add(other, unused);
+  }
+
+  constexpr BigInt Add(const BigInt& other, uint64_t& carry) {
+    BigInt ret;
+    DoAdd(*this, other, carry, ret);
+    return ret;
+  }
+
   constexpr BigInt& AddInPlace(const BigInt& other) {
     uint64_t unused = 0;
     return AddInPlace(other, unused);
   }
 
   constexpr BigInt& AddInPlace(const BigInt& other, uint64_t& carry) {
-    AddResult<uint64_t> result;
-
-#define ADD_WITH_CARRY_INLINE(num)                                       \
-  do {                                                                   \
-    if constexpr (N >= (num + 1)) {                                      \
-      result = internal::u64::AddWithCarry(limbs[num], other.limbs[num], \
-                                           result.carry);                \
-      limbs[num] = result.result;                                        \
-    }                                                                    \
-  } while (false)
-
-#if ARCH_CPU_BIG_ENDIAN
-    ADD_WITH_CARRY_INLINE(N - 1);
-    ADD_WITH_CARRY_INLINE(N - 2);
-    ADD_WITH_CARRY_INLINE(N - 3);
-    ADD_WITH_CARRY_INLINE(N - 4);
-    ADD_WITH_CARRY_INLINE(N - 5);
-    ADD_WITH_CARRY_INLINE(N - 6);
-#else  // ARCH_CPU_LITTLE_ENDIAN
-    ADD_WITH_CARRY_INLINE(0);
-    ADD_WITH_CARRY_INLINE(1);
-    ADD_WITH_CARRY_INLINE(2);
-    ADD_WITH_CARRY_INLINE(3);
-    ADD_WITH_CARRY_INLINE(4);
-    ADD_WITH_CARRY_INLINE(5);
-#endif
-
-#undef ADD_WITH_CARRY_INLINE
-
-    FOR_FROM_SMALLEST(i, 6, N) {
-      result =
-          internal::u64::AddWithCarry(limbs[i], other.limbs[i], result.carry);
-      limbs[i] = result.result;
-    }
-    carry = result.carry;
+    DoAdd(*this, other, carry, *this);
     return *this;
   }
 
@@ -845,6 +819,43 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
  private:
+  constexpr static void DoAdd(const BigInt& a, const BigInt& b, uint64_t& carry,
+                              BigInt& c) {
+    AddResult<uint64_t> result;
+
+#define ADD_WITH_CARRY_INLINE(num)                                        \
+  do {                                                                    \
+    if constexpr (N >= (num + 1)) {                                       \
+      result = internal::u64::AddWithCarry(a[num], b[num], result.carry); \
+      c[num] = result.result;                                             \
+    }                                                                     \
+  } while (false)
+
+#if ARCH_CPU_BIG_ENDIAN
+    ADD_WITH_CARRY_INLINE(N - 1);
+    ADD_WITH_CARRY_INLINE(N - 2);
+    ADD_WITH_CARRY_INLINE(N - 3);
+    ADD_WITH_CARRY_INLINE(N - 4);
+    ADD_WITH_CARRY_INLINE(N - 5);
+    ADD_WITH_CARRY_INLINE(N - 6);
+#else  // ARCH_CPU_LITTLE_ENDIAN
+    ADD_WITH_CARRY_INLINE(0);
+    ADD_WITH_CARRY_INLINE(1);
+    ADD_WITH_CARRY_INLINE(2);
+    ADD_WITH_CARRY_INLINE(3);
+    ADD_WITH_CARRY_INLINE(4);
+    ADD_WITH_CARRY_INLINE(5);
+#endif
+
+#undef ADD_WITH_CARRY_INLINE
+
+    FOR_FROM_SMALLEST(i, 6, N) {
+      result = internal::u64::AddWithCarry(a[i], b[i], result.carry);
+      c[i] = result.result;
+    }
+    carry = result.carry;
+  }
+
   template <typename T>
   constexpr T ExtractBits(size_t bit_offset, size_t bit_count) const {
     size_t nums = 0;
