@@ -80,6 +80,7 @@ collect_hdrs(
         "api.h",
         "export.h",
         "version.h",
+        ":version_generated",
     ],
     deps = [
         "//tachyon/c/crypto:crypto_hdrs",
