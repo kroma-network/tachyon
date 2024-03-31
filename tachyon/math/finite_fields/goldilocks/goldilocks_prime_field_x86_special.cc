@@ -134,6 +134,16 @@ CLASS& CLASS::NegInPlace() {
 }
 
 template <typename Config>
+CLASS CLASS::Mul(const PrimeField& other) const {
+  PrimeField ret;
+  ::Goldilocks::mul(
+      reinterpret_cast<::Goldilocks::Element&>(ret.value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(other.value_));
+  return ret;
+}
+
+template <typename Config>
 CLASS& CLASS::MulInPlace(const PrimeField& other) {
   ::Goldilocks::mul(
       reinterpret_cast<::Goldilocks::Element&>(value_),

@@ -197,6 +197,10 @@ class UnivariatePolynomial final
   // MultiplicativeSemigroup methods
   OPERATION_METHOD(Mul)
 
+  UnivariatePolynomial Mul(const Field& scalar) const {
+    return internal::UnivariatePolynomialOp<Coefficients>::Mul(*this, scalar);
+  }
+
   UnivariatePolynomial& MulInPlace(const Field& scalar) {
     return internal::UnivariatePolynomialOp<Coefficients>::MulInPlace(*this,
                                                                       scalar);

@@ -99,6 +99,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   // TODO(chokobole): Support bigendian.
   // MultiplicativeSemigroup methods
+  PrimeField Mul(const PrimeField& other) const;
   PrimeField& MulInPlace(const PrimeField& other);
   PrimeField& DivInPlace(const PrimeField& other);
   PrimeField& SquareInPlace();

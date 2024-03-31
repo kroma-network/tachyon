@@ -166,6 +166,12 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
 
   // TODO(chokobole): Support bigendian.
   // MultiplicativeSemigroup methods
+  constexpr PrimeField Mul(const PrimeField& other) const {
+    PrimeField ret;
+    %{prefix}_rawMMul(ret.value_.limbs, value_.limbs, other.value_.limbs);
+    return ret;
+  }
+
   constexpr PrimeField& MulInPlace(const PrimeField& other) {
     %{prefix}_rawMMul(value_.limbs, value_.limbs, other.value_.limbs);
     return *this;

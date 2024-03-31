@@ -92,18 +92,11 @@ class MultiplicativeSemigroup {
       typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy;
 
   // Multiplication: a * b
-  template <
-      typename G2,
-      std::enable_if_t<internal::SupportsMul<G, G2>::value ||
-                       internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
+  template <typename G2,
+            std::enable_if_t<internal::SupportsMul<G, G2>::value>* = nullptr>
   constexpr auto operator*(const G2& other) const {
-    if constexpr (internal::SupportsMul<G, G2>::value) {
-      const G* g = static_cast<const G*>(this);
-      return g->Mul(other);
-    } else {
-      G g = *static_cast<const G*>(this);
-      return g.MulInPlace(other);
-    }
+    const G* g = static_cast<const G*>(this);
+    return g->Mul(other);
   }
 
   // Multiplication in place: a *= b

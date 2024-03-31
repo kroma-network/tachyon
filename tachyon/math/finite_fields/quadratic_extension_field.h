@@ -148,53 +148,23 @@ class QuadraticExtensionField
   }
 
   // MultiplicativeSemigroup methods
-  constexpr Derived& MulInPlace(const Derived& other) {
-    // clang-format off
-    // (c0, c1) * (other.c0, other.c1)
-    //   = (c0 + c1 * x) * (other.c0 + other.c1 * x)
-    //   = c0 * other.c0 + (c0 * other.c1 + c1 * other.c0) * x + c1 * other.c1 * x²
-    //   = c0 * other.c0 + c1 * other.c1 * x² + (c0 * other.c1 + c1 * other.c0) * x
-    //   = c0 * other.c0 + c1 * other.c1 * q + (c0 * other.c1 + c1 * other.c0) * x
-    //   = (c0 * other.c0 + c1 * other.c1 * q, c0 * other.c0 +  c1 * other.c0)
-    // Where q is Config::kNonResidue.
-    // clang-format on
-    if constexpr (ExtensionDegree() == 2) {
-      BaseField c0;
-      {
-        BaseField lefts[] = {c0_, Config::MulByNonResidue(c1_)};
-        BaseField rights[] = {other.c0_, other.c1_};
-        c0 = BaseField::SumOfProductsSerial(lefts, rights);
-      }
-      BaseField c1;
-      {
-        BaseField lefts[] = {c0_, c1_};
-        BaseField rights[] = {other.c1_, other.c0_};
-        c1 = BaseField::SumOfProductsSerial(lefts, rights);
-      }
-      c0_ = std::move(c0);
-      c1_ = std::move(c1);
-    } else {
-      // See https://www.math.u-bordeaux.fr/~damienrobert/csi/book/book.pdf
-      // Karatsuba multiplication;
-      // Guide to Pairing-based cryptography, Algorithm 5.16.
-      // v0 = c0 * other.c0
-      BaseField v0 = c0_ * other.c0_;
-      // v1 = c1 * other.c1
-      BaseField v1 = c1_ * other.c1_;
+  constexpr Derived Mul(const Derived& other) const {
+    Derived ret;
+    DoMul(*static_cast<const Derived*>(this), other, ret);
+    return ret;
+  }
 
-      // c1 = c0 + c1
-      c1_ += c0_;
-      // c1 = (c0 + c1) * (other.c0 + other.c1)
-      // c1 = c0 * other.c0 + c0 * other.c1 + c1 * other.c0 + c1 * other.c1
-      c1_ *= (other.c0_ + other.c1_);
-      // c1 = c0 * other.c1 + c1 * other.c0 + c1 * other.c1
-      c1_ -= v0;
-      // c1 = c0 * other.c1 + c1 * other.c0
-      c1_ -= v1;
-      // c0 = c0 * other.c0 + q * c1 * other.c1
-      c0_ = v0 + Config::MulByNonResidue(v1);
-    }
+  constexpr Derived& MulInPlace(const Derived& other) {
+    DoMul(*static_cast<const Derived*>(this), other,
+          *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);
+  }
+
+  constexpr Derived Mul(const BaseField& element) const {
+    return {
+        c0_ * element,
+        c1_ * element,
+    };
   }
 
   constexpr Derived& MulInPlace(const BaseField& element) {
@@ -292,6 +262,52 @@ class QuadraticExtensionField
   }
 
  protected:
+  constexpr static void DoMul(const Derived& a, const Derived& b, Derived& c) {
+    // clang-format off
+    // (a.c0, a.c1) * (b.c0, b.c1)
+    //   = (a.c0 + a.c1 * x) * (b.c0 + b.c1 * x)
+    //   = a.c0 * b.c0 + (a.c0 * b.c1 + a.c1 * b.c0) * x + a.c1 * b.c1 * x²
+    //   = a.c0 * b.c0 + a.c1 * b.c1 * x² + (a.c0 * b.c1 + a.c1 * b.c0) * x
+    //   = a.c0 * b.c0 + a.c1 * b.c1 * q + (a.c0 * b.c1 + a.c1 * b.c0) * x
+    //   = (a.c0 * b.c0 + a.c1 * b.c1 * q, a.c0 * b.c1 + a.c1 * b.c0)
+    // Where q is Config::kNonResidue.
+    // clang-format on
+    if constexpr (ExtensionDegree() == 2) {
+      BaseField c0;
+      {
+        BaseField lefts[] = {a.c0_, Config::MulByNonResidue(a.c1_)};
+        BaseField rights[] = {b.c0_, b.c1_};
+        c0 = BaseField::SumOfProductsSerial(lefts, rights);
+      }
+      {
+        BaseField lefts[] = {a.c0_, a.c1_};
+        BaseField rights[] = {b.c1_, b.c0_};
+        c.c1_ = BaseField::SumOfProductsSerial(lefts, rights);
+      }
+      c.c0_ = std::move(c0);
+    } else {
+      // See https://www.math.u-bordeaux.fr/~damienrobert/csi/book/book.pdf
+      // Karatsuba multiplication;
+      // Guide to Pairing-based cryptography, Algorithm 5.16.
+      // v0 = a.c0 * b.c0
+      BaseField v0 = a.c0_ * b.c0_;
+      // v1 = a.c1 * b.c1
+      BaseField v1 = a.c1_ * b.c1_;
+
+      // c.c1 = a.c0 + a.c1
+      c.c1_ = a.c0_ + a.c1_;
+      // c.c1 = (a.c0 + a.c1) * (b.c0 + b.c1)
+      // c.c1 = a.c0 * b.c0 + a.c0 * b.c1 + a.c1 * b.c0 + a.c1 * b.c1
+      c.c1_ *= (b.c0_ + b.c1_);
+      // c.c1 = a.c0 * b.c1 + a.c1 * b.c0 + a.c1 * b.c1
+      c.c1_ -= v0;
+      // c.c1 = a.c0 * b.c1 + a.c1 * b.c0
+      c.c1_ -= v1;
+      // c.c0 = a.c0 * b.c0 + a.c1 * b.c1 * q
+      c.c0_ = v0 + Config::MulByNonResidue(v1);
+    }
+  }
+
   // c = c0_ + c1_ * X
   BaseField c0_;
   BaseField c1_;

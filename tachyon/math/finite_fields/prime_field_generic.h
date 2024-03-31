@@ -189,12 +189,23 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
 
   // TODO(chokobole): Support bigendian.
   // MultiplicativeSemigroup methods
+  constexpr PrimeField Mul(const PrimeField& other) const {
+    PrimeField ret;
+    if constexpr (Config::kCanUseNoCarryMulOptimization) {
+      DoFastMul(*this, other, ret);
+    } else {
+      DoSlowMul(*this, other, ret);
+    }
+    return ret;
+  }
+
   constexpr PrimeField& MulInPlace(const PrimeField& other) {
     if constexpr (Config::kCanUseNoCarryMulOptimization) {
-      return FastMulInPlace(other);
+      DoFastMul(*this, other, *this);
     } else {
-      return SlowMulInPlace(other);
+      DoSlowMul(*this, other, *this);
     }
+    return *this;
   }
 
   constexpr PrimeField& SquareInPlace() {
@@ -249,11 +260,12 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
   template <typename PrimeField>
   FRIEND_TEST(PrimeFieldCorrectnessTest, MultiplicativeOperators);
 
-  constexpr PrimeField& FastMulInPlace(const PrimeField& other) {
+  constexpr static void DoFastMul(const PrimeField& a, const PrimeField& b,
+                                  PrimeField& c) {
     BigInt<N> r;
     for (size_t i = 0; i < N; ++i) {
       MulResult<uint64_t> result;
-      result = internal::u64::MulAddWithCarry(r[0], value_[0], other.value_[i]);
+      result = internal::u64::MulAddWithCarry(r[0], a[0], b[i]);
       r[0] = result.lo;
 
       uint64_t k = r[0] * Config::kInverse64;
@@ -261,8 +273,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
       result2 = internal::u64::MulAddWithCarry(r[0], k, Config::kModulus[0]);
 
       for (size_t j = 1; j < N; ++j) {
-        result = internal::u64::MulAddWithCarry(r[j], value_[j],
-                                                other.value_[i], result.hi);
+        result = internal::u64::MulAddWithCarry(r[j], a[j], b[i], result.hi);
         r[j] = result.lo;
         result2 = internal::u64::MulAddWithCarry(r[j], k, Config::kModulus[j],
                                                  result2.hi);
@@ -270,17 +281,16 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
       }
       r[N - 1] = result.hi + result2.hi;
     }
-    value_ = r;
+    c.value_ = r;
     BigInt<N>::template Clamp<Config::kModulusHasSpareBit>(Config::kModulus,
-                                                           &value_, 0);
-    return *this;
+                                                           &c.value_, 0);
   }
 
-  constexpr PrimeField& SlowMulInPlace(const PrimeField& other) {
-    BigInt<2 * N> r = value_.MulExtend(other.value_);
+  constexpr static void DoSlowMul(const PrimeField& a, const PrimeField& b,
+                                  PrimeField& c) {
+    BigInt<2 * N> r = a.value_.MulExtend(b.value_);
     BigInt<N>::template MontgomeryReduce64<Config::kModulusHasSpareBit>(
-        r, Config::kModulus, Config::kInverse64, &value_);
-    return *this;
+        r, Config::kModulus, Config::kInverse64, &c.value_);
   }
 
   BigInt<N> value_;

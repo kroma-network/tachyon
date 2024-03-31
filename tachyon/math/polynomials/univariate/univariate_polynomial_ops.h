@@ -144,6 +144,19 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
+  static UnivariatePolynomial<D> Mul(const UnivariatePolynomial<D>& self,
+                                     const F& scalar) {
+    if (self.IsZero() || scalar.IsOne()) {
+      return self;
+    }
+    const std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
+    std::vector<F> o_coefficients(l_coefficients.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_coefficients.size(); ++i) {
+      o_coefficients[i] = l_coefficients[i] * scalar;
+    }
+    return UnivariatePolynomial<D>(D(std::move(o_coefficients)));
+  }
+
   static UnivariatePolynomial<D>& MulInPlace(UnivariatePolynomial<D>& self,
                                              const F& scalar) {
     if (self.IsZero() || scalar.IsOne()) {
@@ -156,6 +169,21 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
       coefficient *= scalar;
     }
     return self;
+  }
+
+  static UnivariatePolynomial<D> Mul(const UnivariatePolynomial<D>& self,
+                                     const UnivariatePolynomial<D>& other) {
+    if (self.IsZero() || other.IsZero()) {
+      return UnivariatePolynomial<D>::Zero();
+    } else if (self.IsOne()) {
+      return other;
+    } else if (other.IsOne()) {
+      return self;
+    }
+
+    UnivariatePolynomial<D> ret;
+    DoMul(self, other, ret);
+    return ret;
   }
 
   static UnivariatePolynomial<D>& MulInPlace(
@@ -172,23 +200,23 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
       return self;
     }
 
-    size_t degree = self.Degree();
-    size_t other_degree = other.Degree();
-    std::vector<F> coefficients(degree + other_degree + 1);
-    for (size_t i = 0; i < r_coefficients.size(); ++i) {
-      const F& r = r_coefficients[i];
-      if (r.IsZero()) {
-        continue;
-      } else {
-        for (size_t j = 0; j < l_coefficients.size(); ++j) {
-          coefficients[i + j] += l_coefficients[j] * r;
-        }
-      }
+    DoMul(self, other, self);
+    return self;
+  }
+
+  static UnivariatePolynomial<D> Mul(const UnivariatePolynomial<D>& self,
+                                     const UnivariatePolynomial<S>& other) {
+    if (self.IsZero() || other.IsZero()) {
+      return UnivariatePolynomial<D>::Zero();
+    } else if (self.IsOne()) {
+      return other.ToDense();
+    } else if (other.IsOne()) {
+      return self;
     }
 
-    l_coefficients = std::move(coefficients);
-    self.coefficients_.RemoveHighDegreeZeros();
-    return self;
+    UnivariatePolynomial<D> ret;
+    DoMul(self, other, ret);
+    return ret;
   }
 
   static UnivariatePolynomial<D>& MulInPlace(
@@ -203,25 +231,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
       return self;
     }
 
-    size_t degree = self.Degree();
-    size_t other_degree = other.Degree();
-    std::vector<F> coefficients(degree + other_degree + 1);
-
-    const std::vector<Term>& r_terms = other.coefficients().terms_;
-    for (size_t i = 0; i < r_terms.size(); ++i) {
-      const F& r = r_terms[i].coefficient;
-      if (r.IsZero()) {
-        continue;
-      } else {
-        size_t r_degree = r_terms[i].degree;
-        for (size_t j = 0; j < l_coefficients.size(); ++j) {
-          coefficients[r_degree + j] += l_coefficients[j] * r;
-        }
-      }
-    }
-
-    l_coefficients = std::move(coefficients);
-    self.coefficients_.RemoveHighDegreeZeros();
+    DoMul(self, other, self);
     return self;
   }
 
@@ -309,6 +319,55 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     }
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
+  }
+
+  static void DoMul(const UnivariatePolynomial<D>& a,
+                    const UnivariatePolynomial<D>& b,
+                    UnivariatePolynomial<D>& c) {
+    size_t a_degree = a.Degree();
+    size_t b_degree = b.Degree();
+
+    const std::vector<F>& a_coefficients = a.coefficients_.coefficients_;
+    const std::vector<F>& b_coefficients = b.coefficients_.coefficients_;
+    std::vector<F> c_coefficients(a_degree + b_degree + 1);
+    for (size_t i = 0; i < b_coefficients.size(); ++i) {
+      const F& b = b_coefficients[i];
+      if (b.IsZero()) {
+        continue;
+      } else {
+        for (size_t j = 0; j < a_coefficients.size(); ++j) {
+          c_coefficients[i + j] += a_coefficients[j] * b;
+        }
+      }
+    }
+
+    c.coefficients_.coefficients_ = std::move(c_coefficients);
+    c.coefficients_.RemoveHighDegreeZeros();
+  }
+
+  static void DoMul(const UnivariatePolynomial<D>& a,
+                    const UnivariatePolynomial<S>& b,
+                    UnivariatePolynomial<D>& c) {
+    size_t a_degree = a.Degree();
+    size_t b_degree = b.Degree();
+
+    const std::vector<F>& a_coefficients = a.coefficients_.coefficients_;
+    const std::vector<Term>& b_terms = b.coefficients().terms_;
+    std::vector<F> c_coefficients(a_degree + b_degree + 1);
+    for (size_t i = 0; i < b_terms.size(); ++i) {
+      const F& b = b_terms[i].coefficient;
+      if (b.IsZero()) {
+        continue;
+      } else {
+        size_t b_degree = b_terms[i].degree;
+        for (size_t j = 0; j < a_coefficients.size(); ++j) {
+          c_coefficients[b_degree + j] += a_coefficients[j] * b;
+        }
+      }
+    }
+
+    c.coefficients_.coefficients_ = std::move(c_coefficients);
+    c.coefficients_.RemoveHighDegreeZeros();
   }
 
   template <typename DOrS>
@@ -405,6 +464,19 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return other * self;
   }
 
+  static UnivariatePolynomial<S> Mul(const UnivariatePolynomial<S>& self,
+                                     const F& scalar) {
+    if (self.IsZero() || scalar.IsOne()) {
+      return UnivariatePolynomial<S>::Zero();
+    }
+    const std::vector<Term>& l_terms = self.coefficients_.terms_;
+    std::vector<Term> o_terms(l_terms.size());
+    for (size_t i = 0; i < l_terms.size(); ++i) {
+      o_terms[i] = l_terms[i] * scalar;
+    }
+    return UnivariatePolynomial<S>(S(std::move(o_terms)));
+  }
+
   static UnivariatePolynomial<S>& MulInPlace(UnivariatePolynomial<S>& self,
                                              const F& scalar) {
     if (self.IsZero() || scalar.IsOne()) {
@@ -415,6 +487,21 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
       term.coefficient *= scalar;
     }
     return self;
+  }
+
+  static UnivariatePolynomial<S> Mul(const UnivariatePolynomial<S>& self,
+                                     const UnivariatePolynomial<S>& other) {
+    if (self.IsZero() || other.IsZero()) {
+      return UnivariatePolynomial<S>::Zero();
+    } else if (self.IsOne()) {
+      return other;
+    } else if (other.IsOne()) {
+      return self;
+    }
+
+    UnivariatePolynomial<S> ret;
+    DoMul(self, other, ret);
+    return ret;
   }
 
   static UnivariatePolynomial<S>& MulInPlace(
@@ -428,30 +515,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
       return self;
     }
 
-    std::vector<Term>& l_terms = self.coefficients_.terms_;
-    const std::vector<Term>& r_terms = other.coefficients_.terms_;
-    std::vector<Term> records;
-    for (const Term& l_term : l_terms) {
-      for (const Term& r_term : r_terms) {
-        F f = l_term.coefficient * r_term.coefficient;
-        if (f.IsZero()) continue;
-        size_t degree = l_term.degree + r_term.degree;
-        auto it = base::ranges::find_if(records, [degree](const Term& term) {
-          return term.degree == degree;
-        });
-        if (it != records.end()) {
-          it->coefficient += f;
-          if (it->coefficient.IsZero()) {
-            records.erase(it);
-          }
-        } else {
-          records.push_back({degree, std::move(f)});
-        }
-      }
-    }
-    l_terms = std::move(records);
-    pdqsort(l_terms.begin(), l_terms.end());
-    self.coefficients_.RemoveHighDegreeZeros();
+    DoMul(self, other, self);
     return self;
   }
 
@@ -563,6 +627,35 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     l_terms = std::move(ret);
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
+  }
+
+  static void DoMul(const UnivariatePolynomial<S>& a,
+                    const UnivariatePolynomial<S>& b,
+                    UnivariatePolynomial<S>& c) {
+    const std::vector<Term>& a_terms = a.coefficients_.terms_;
+    const std::vector<Term>& b_terms = b.coefficients_.terms_;
+    std::vector<Term> c_terms;
+    for (const Term& a_term : a_terms) {
+      for (const Term& b_term : b_terms) {
+        F f = a_term.coefficient * b_term.coefficient;
+        if (f.IsZero()) continue;
+        size_t degree = a_term.degree + b_term.degree;
+        auto it = base::ranges::find_if(c_terms, [degree](const Term& term) {
+          return term.degree == degree;
+        });
+        if (it != c_terms.end()) {
+          it->coefficient += f;
+          if (it->coefficient.IsZero()) {
+            c_terms.erase(it);
+          }
+        } else {
+          c_terms.push_back({degree, std::move(f)});
+        }
+      }
+    }
+    pdqsort(c_terms.begin(), c_terms.end());
+    c.coefficients_ = S(std::move(c_terms));
+    c.coefficients_.RemoveHighDegreeZeros();
   }
 };
 
