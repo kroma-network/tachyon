@@ -1,7 +1,7 @@
 // clang-format off
 #include "%{config_header_path}"
 
-#include "tachyon/math/finite_fields/prime_field_gpu.h",
+#include "tachyon/math/finite_fields/prime_field_gpu.h"
 
 namespace %{namespace} {
 

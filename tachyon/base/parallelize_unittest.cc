@@ -1,6 +1,7 @@
 #include "tachyon/base/parallelize.h"
 
 #include <functional>
+#include <numeric>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"

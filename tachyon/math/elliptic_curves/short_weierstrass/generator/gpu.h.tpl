@@ -1,7 +1,7 @@
 // clang-format off
 #include "%{base_field_header}"
 #include "%{scalar_field_header}"
-#include "%{config_header_path}"
+#include "%{cpu_header_path}"
 
 namespace %{namespace} {
 
