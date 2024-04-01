@@ -26,7 +26,7 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    22    | **1.22393**  | 2.18742  | 2.00827  | 1.99418  |
 |    23    | **2.34737**  | 4.34471  | 3.2081   | 3.62107  |
 
-![image](/benchmark/msm/MSM%20Benchmark(random,%20bellman_msm).png)
+![image](</benchmark/msm/MSM%20Benchmark(random,%20bellman_msm).png>)
 
 ## Non-uniform points with bellman msm algorithm
 
@@ -45,4 +45,4 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    22    | **1.14408**  | 1.61699      | 1.29853  | 1.88522  |
 |    23    | **1.91659**  | 3.13911      | 2.16368  | 3.46701  |
 
-![image](/benchmark/msm/MSM%20Benchmark(non_uniform,%20bellman_msm).png)
+![image](</benchmark/msm/MSM%20Benchmark(non_uniform,%20bellman_msm).png>)
