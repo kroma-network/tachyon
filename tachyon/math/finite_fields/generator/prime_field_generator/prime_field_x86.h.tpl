@@ -147,9 +147,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
 
   // AdditiveSemigroup methods
   constexpr PrimeField& AddInPlace(const PrimeField& other) {
-    PrimeField ret;
-    %{prefix}_rawAdd(ret.value_.limbs, value_.limbs, other.value_.limbs);
-    *this = ret;
+    %{prefix}_rawAdd(value_.limbs, value_.limbs, other.value_.limbs);
     return *this;
   }
 
@@ -157,32 +155,24 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
 
   // AdditiveGroup methods
   constexpr PrimeField& SubInPlace(const PrimeField& other) {
-    PrimeField ret;
-    %{prefix}_rawSub(ret.value_.limbs, value_.limbs, other.value_.limbs);
-    *this = ret;
+    %{prefix}_rawSub(value_.limbs, value_.limbs, other.value_.limbs);
     return *this;
   }
 
   constexpr PrimeField& NegInPlace() {
-    PrimeField ret;
-    %{prefix}_rawNeg(ret.value_.limbs, value_.limbs);
-    *this = ret;
+    %{prefix}_rawNeg(value_.limbs, value_.limbs);
     return *this;
   }
 
   // TODO(chokobole): Support bigendian.
   // MultiplicativeSemigroup methods
   constexpr PrimeField& MulInPlace(const PrimeField& other) {
-    PrimeField ret;
-    %{prefix}_rawMMul(ret.value_.limbs, value_.limbs, other.value_.limbs);
-    *this = ret;
+    %{prefix}_rawMMul(value_.limbs, value_.limbs, other.value_.limbs);
     return *this;
   }
 
   constexpr PrimeField& SquareInPlace() {
-    PrimeField ret;
-    %{prefix}_rawMSquare(ret.value_.limbs, value_.limbs);
-    *this = ret;
+    %{prefix}_rawMSquare(value_.limbs, value_.limbs);
     return *this;
   }
 
