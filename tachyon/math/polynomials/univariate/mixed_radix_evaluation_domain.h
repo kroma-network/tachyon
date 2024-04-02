@@ -158,7 +158,7 @@ class MixedRadixEvaluationDomain
       uint32_t two_adicity = 0;
       while (r < min_size) {
         r *= 2;
-        two_adicity += 1;
+        ++two_adicity;
       }
       if (two_adicity <= F::Config::kTwoAdicity) {
         best = std::min(best, r);

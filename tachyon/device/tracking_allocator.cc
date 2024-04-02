@@ -57,7 +57,7 @@ void* TrackingAllocator::AllocateRaw(
     size_t allocated_bytes = allocator_->AllocatedSizeSlow(ptr);
     allocated_bytes = std::max(num_bytes, allocated_bytes);
     absl::MutexLock lock(&mu_);
-    next_allocation_id_ += 1;
+    ++next_allocation_id_;
     Chunk chunk = {num_bytes, allocated_bytes, next_allocation_id_};
     in_use_.emplace(std::make_pair(ptr, chunk));
     allocated_ += allocated_bytes;
