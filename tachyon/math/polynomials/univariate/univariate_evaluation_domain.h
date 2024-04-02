@@ -413,13 +413,11 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   // Note that the coefficients are in order and evaluations are out of order(should be swapped after).
   // clang-format on
   constexpr static void ButterflyFnInOut(F& lo, F& hi, const F& root) {
-    F neg = lo;
-    neg -= hi;
+    F neg = lo - hi;
 
     lo += hi;
 
-    hi = std::move(neg);
-    hi *= root;
+    hi = neg * root;
   }
 
   // See https://en.wikipedia.org/wiki/Butterfly_diagram
@@ -456,8 +454,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   constexpr static void ButterflyFnOutIn(F& lo, F& hi, const F& root) {
     hi *= root;
 
-    F neg = lo;
-    neg -= hi;
+    F neg = lo - hi;
 
     lo += hi;
 

@@ -175,12 +175,10 @@ class UnivariateDenseCoefficients {
     std::vector<F> coefficients((size + 1) >> 1);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += 2) {
       if constexpr (MulRandomWithEvens) {
-        coefficients[i >> 1] = coefficients_[i];
-        coefficients[i >> 1] *= r;
+        coefficients[i >> 1] = coefficients_[i] * r;
         coefficients[i >> 1] += coefficients_[i + 1];
       } else {
-        coefficients[i >> 1] = coefficients_[i + 1];
-        coefficients[i >> 1] *= r;
+        coefficients[i >> 1] = coefficients_[i + 1] * r;
         coefficients[i >> 1] += coefficients_[i];
       }
     }
@@ -248,9 +246,8 @@ class UnivariateDenseCoefficients {
     std::vector<F> results = base::ParallelizeMap(
         coefficients_, [&point](absl::Span<const F> chunk, size_t chunk_offset,
                                 size_t chunk_size) {
-          F result = HornerEvaluate(chunk, point);
-          result *= point.Pow(chunk_offset * chunk_size);
-          return result;
+          return HornerEvaluate(chunk, point) *
+                 point.Pow(chunk_offset * chunk_size);
         });
     return std::accumulate(results.begin(), results.end(), F::Zero(),
                            std::plus<>());

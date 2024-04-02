@@ -315,29 +315,15 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     // α = (α₀ + α₁x + α₂x²) * β₁x
     //   = α₂β₁q + α₀β₁x + α₁β₁x², where q is a cubic non residue.
 
-    // t0 = α₂
-    Fp2 t0 = this->c2_;
     // t0 = α₂β₁
-    t0 *= beta1;
-    // t0 = α₂β₁q
-    t0 = Config::MulByNonResidue(t0);
+    Fp2 t0 = this->c2_ * beta1;
 
-    // t1 = α₀
-    Fp2 t1 = this->c0_;
-    // t1 = α₀β₁
-    t1 *= beta1;
-
-    // t2 = α₁
-    Fp2 t2 = this->c1_;
-    // t2 = α₁β₁
-    t2 *= beta1;
-
-    // c0 = α₂β₁q
-    this->c0_ = std::move(t0);
-    // c1 = α₀β₁
-    this->c1_ = std::move(t1);
     // c2 = α₁β₁
-    this->c2_ = std::move(t2);
+    this->c2_ = this->c1_ * beta1;
+    // c1 = α₀β₁
+    this->c1_ = this->c0_ * beta1;
+    // c0 = α₂β₁q
+    this->c0_ = Config::MulByNonResidue(t0);
     return *this;
   }
 
@@ -351,21 +337,17 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     // optimized to multiply 5 times.
 
     // a_a = α₀β₀
-    Fp2 a_a = this->c0_;
-    a_a *= beta0;
+    Fp2 a_a = this->c0_ * beta0;
     // b_b = α₁β₁
-    Fp2 b_b = this->c1_;
-    b_b *= beta1;
+    Fp2 b_b = this->c1_ * beta1;
 
-    // t0 = β₁
-    Fp2 t0 = beta1;
+    Fp2 t0;
     {
       // tmp = α₁ + α₂
-      Fp2 tmp = this->c1_;
-      tmp += this->c2_;
+      Fp2 tmp = this->c1_ + this->c2_;
 
       // t0 = (α₁ + α₂)β₁ = α₁β₁ + α₂β₁
-      t0 *= tmp;
+      t0 = tmp * beta1;
       // t0 = α₂β₁
       t0 -= b_b;
       // t0 = α₂β₁q
@@ -374,14 +356,11 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
       t0 += a_a;
     }
 
-    // t1 = β₀
-    Fp2 t1 = beta0;
     // t1 = β₀ + β₁
-    t1 += beta1;
+    Fp2 t1 = beta0 + beta1;
     {
       // tmp = α₀ + α₁
-      Fp2 tmp = this->c0_;
-      tmp += this->c1_;
+      Fp2 tmp = this->c0_ + this->c1_;
 
       // t1 = (α₀ + α₁)(β₀ + β₁) = α₀β₀ + α₀β₁ + α₁β₀ + α₁β₁
       t1 *= tmp;
@@ -392,14 +371,13 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     }
 
     // t2 = β₀
-    Fp2 t2 = beta0;
+    Fp2 t2;
     {
       // tmp = α₀ + α₂
-      Fp2 tmp = this->c0_;
-      tmp += this->c2_;
+      Fp2 tmp = this->c0_ + this->c2_;
 
       // t2 = (α₀ + α₂)β₀ = α₀β₀ + α₂β₀
-      t2 *= tmp;
+      t2 = tmp * beta0;
       // t2 = α₂β₀
       t2 -= a_a;
       // t2 = α₂β₀ + α₁β₁

@@ -213,8 +213,7 @@ class QuadraticExtensionField
     // When q = -1, we can re-use intermediate additions to improve performance.
 
     // v0 = c0 - c1
-    BaseField v0 = c0_;
-    v0 -= c1_;
+    BaseField v0 = c0_ - c1_;
     // v1 = c0 * c1
     BaseField v1 = c0_ * c1_;
     if constexpr (Config::kNonResidueIsMinusOne) {
@@ -243,8 +242,7 @@ class QuadraticExtensionField
       // c0 = v0 + (q + 1) * c0 * c1
       // c0 = c0² + c1² * q - (q + 1) * c0 * c1 + (q + 1) * c0 * c1
       // c0 = c0² + c1² * q
-      c0_ = std::move(v0);
-      c0_ += v1;
+      c0_ = v0 + v1;
       c0_ += Config::MulByNonResidue(v1);
       // c1 = 2 * c0 * c1
       c1_ = v1.Double();

@@ -249,8 +249,7 @@ class MixedRadixEvaluationDomain
             for (size_t i = 0; i < q; ++i) {
               a.at(k + j + i * m) = base_term;
               for (size_t l = 1; l < q; ++l) {
-                F tmp = terms[l - 1];
-                tmp *= qth_roots[(i * l) % q];
+                F tmp = terms[l - 1] * qth_roots[(i * l) % q];
                 a.at(k + j + i * m) += tmp;
               }
             }
@@ -348,10 +347,9 @@ class MixedRadixEvaluationDomain
           size_t idx = i + (c * coset_size);
           // t = the value of a corresponding to the ith element of
           // the sth coset.
-          F t = a[idx];
-          // elt = g^{k * idx}
-          t *= elt;
+          F t = a[idx] * elt;
           kth_poly_coeffs.at(i) += t;
+          // elt = g^{k * idx}
           elt *= omega_step;
         }
         elt *= omega_k;

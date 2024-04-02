@@ -29,21 +29,17 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
   BaseField z2z2 = other.z_.Square();
 
   // U1 = X1 * Z2Z2
-  BaseField u1 = x_;
-  u1 *= z2z2;
+  BaseField u1 = x_ * z2z2;
 
   // U2 = X2 * Z1Z1
-  BaseField u2 = other.x_;
-  u2 *= z1z1;
+  BaseField u2 = other.x_ * z1z1;
 
   // S1 = Y1 * Z2 * Z2Z2
-  BaseField s1 = y_;
-  s1 *= other.z_;
+  BaseField s1 = y_ * other.z_;
   s1 *= z2z2;
 
   // S2 = Y2 * Z1 * Z1Z1
-  BaseField s2 = other.y_;
-  s2 *= z_;
+  BaseField s2 = other.y_ * z_;
   s2 *= z1z1;
 
   if (u1 == u2 && s1 == s2) {
@@ -53,39 +49,32 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
     // If we're adding -a and a together, z_ becomes zero as H becomes zero.
 
     // H = U2 - U1
-    BaseField h = u2;
-    h -= u1;
+    BaseField h = u2 - u1;
 
     // I = (2 * H)²
-    BaseField i = h;
-    i.DoubleInPlace().SquareInPlace();
+    BaseField i = h.Double();
+    i.SquareInPlace();
 
     // J = -H * I
-    BaseField j = h;
+    BaseField j = h * i;
     j.NegInPlace();
-    j *= i;
 
     // r = 2 * (S2 - S1)
-    BaseField r = std::move(s2);
-    r -= s1;
+    BaseField r = s2 - s1;
     r.DoubleInPlace();
 
     // V = U1 * I
-    BaseField v = std::move(u1);
-    v *= i;
+    BaseField v = u1 * i;
 
     // X3 = r² + J - 2 * V
-    x_ = r;
-    x_.SquareInPlace();
+    x_ = r.Square();
     x_ += j;
     x_ -= v.Double();
 
     // Y3 = r * (V - X3) + 2 * S1 * J
-    v -= x_;
-    y_ = s1;
-    y_.DoubleInPlace();
+    y_ = s1.Double();
     BaseField lefts[] = {std::move(r), y_};
-    BaseField rights[] = {std::move(v), std::move(j)};
+    BaseField rights[] = {v - x_, std::move(j)};
     y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
     // Z3 = ((Z1 + Z2)² - Z1Z1 - Z2Z2) * H
@@ -107,16 +96,13 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
 
   // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-madd-2007-bl
   // Z1Z1 = Z1²
-  BaseField z1z1 = z_;
-  z1z1.SquareInPlace();
+  BaseField z1z1 = z_.Square();
 
   // U2 = X2 * Z1Z1
-  BaseField u2 = other.x();
-  u2 *= z1z1;
+  BaseField u2 = other.x() * z1z1;
 
   // S2 = Y2 * Z1 * Z1Z1
-  BaseField s2 = other.y();
-  s2 *= z_;
+  BaseField s2 = other.y() * z_;
   s2 *= z1z1;
 
   if (x_ == u2 && y_ == s2) {
@@ -126,30 +112,25 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
     // If we're adding -a and a together, z_ becomes zero as H becomes zero.
 
     // H = U2 - X1
-    BaseField h = u2;
-    h -= x_;
+    BaseField h = u2 - x_;
 
     // HH = H²
-    BaseField hh = h;
-    hh.SquareInPlace();
+    BaseField hh = h.Square();
 
     // I = 4 * HH
-    BaseField i = hh;
-    i.DoubleInPlace().DoubleInPlace();
+    BaseField i = hh.Double();
+    i.DoubleInPlace();
 
     // J = -H * I
-    BaseField j = h;
+    BaseField j = h * i;
     j.NegInPlace();
-    j *= i;
 
     // r = 2 * (S2 - Y1)
-    BaseField r = s2;
-    r -= y_;
+    BaseField r = s2 - y_;
     r.DoubleInPlace();
 
     // V = X1 * I
-    BaseField v = x_;
-    v *= i;
+    BaseField v = x_ * i;
 
     // X3 = r² + J - 2 * V
     x_ = r.Square();
@@ -179,16 +160,13 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   if constexpr (Curve::Config::kAIsZero) {
     // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
     // A = X1²
-    BaseField a = x_;
-    a.SquareInPlace();
+    BaseField a = x_.Square();
 
     // B = Y1²
-    BaseField b = y_;
-    b.SquareInPlace();
+    BaseField b = y_.Square();
 
     // C = B²
-    BaseField c = b;
-    c.SquareInPlace();
+    BaseField c = b.Square();
 
     // D = 2 * ((X1 + B)² - A - C)
     //   = 2 * ((X1 + Y1²)² - A - C)
@@ -196,12 +174,10 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     BaseField d;
     if constexpr (BaseField::ExtensionDegree() == 1 ||
                   BaseField::ExtensionDegree() == 2) {
-      d = x_;
-      d *= b;
+      d = x_ * b;
       d.DoubleInPlace().DoubleInPlace();
     } else {
-      d = x_;
-      d += b;
+      d = x_ + b;
       d.SquareInPlace();
       d -= a;
       d -= c;
@@ -209,21 +185,19 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     }
 
     // E = 3 * A
-    BaseField e = a + a.Double();
+    BaseField e = a.Double();
+    e += a;
 
     // Z3 = 2 * Y1 * Z1
     z_ *= y_;
     z_.DoubleInPlace();
 
-    // F = E²
-    // X3 = F - 2 * D
-    x_ = e;
-    x_.SquareInPlace();
+    // X3 = E² - 2 * D
+    x_ = e.Square();
     x_ -= d.Double();
 
     // Y3 = E * (D - X3) - 8 * C
-    y_ = std::move(d);
-    y_ -= x_;
+    y_ = d - x_;
     y_ *= e;
     y_ -= c.DoubleInPlace().DoubleInPlace().DoubleInPlace();
   } else {
@@ -235,19 +209,20 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     BaseField yy = y_.Square();
 
     // YYYY = YY²
-    BaseField yyyy = yy;
-    yyyy.SquareInPlace();
+    BaseField yyyy = yy.Square();
 
     // ZZ = Z1²
-    BaseField zz = z_;
-    zz.SquareInPlace();
+    BaseField zz = z_.Square();
 
     // S = 2 * ((X1 + YY)² - XX - YYYY)
-    BaseField s = ((x_ + yy).Square() - xx - yyyy).Double();
+    BaseField s = x_ + yy;
+    s.SquareInPlace();
+    s -= xx;
+    s -= yyyy;
+    s.DoubleInPlace();
 
     // M = 3 * XX + a * ZZ²
-    BaseField m = xx;
-    m.DoubleInPlace();
+    BaseField m = xx.Double();
     m += xx;
     if constexpr (!Curve::Config::kAIsZero) {
       m += Curve::Config::MulByA(zz.Square());
@@ -255,8 +230,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
 
     // T = M² - 2 * S
     // X3 = T
-    x_ = m;
-    x_.SquareInPlace();
+    x_ = m.Square();
     x_ -= s.Double();
 
     // Z3 = (Y1 + Z1)² - YY - ZZ
@@ -265,8 +239,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
     z_.DoubleInPlace();
 
     // Y3 = M * (S - X3) - 8 * YYYY
-    y_ = std::move(s);
-    y_ -= x_;
+    y_ = s - x_;
     y_ *= m;
     y_ -= yyyy.DoubleInPlace().DoubleInPlace().DoubleInPlace();
   }
