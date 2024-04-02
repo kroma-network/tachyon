@@ -202,7 +202,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
       return MulInPlace(*this);
     }
 
-    BigInt<N * 2> r;
+    BigInt<2 * N> r;
     MulResult<uint64_t> mul_result;
     for (size_t i = 0; i < N - 1; ++i) {
       for (size_t j = i + 1; j < N; ++j) {
@@ -277,7 +277,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
   }
 
   constexpr PrimeField& SlowMulInPlace(const PrimeField& other) {
-    BigInt<N * 2> r = value_.Mul(other.value_);
+    BigInt<2 * N> r = value_.Mul(other.value_);
     BigInt<N>::template MontgomeryReduce64<Config::kModulusHasSpareBit>(
         r, Config::kModulus, Config::kInverse64, &value_);
     return *this;
