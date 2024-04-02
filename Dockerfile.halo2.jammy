@@ -4,8 +4,8 @@ LABEL maintainer="The Tachyon Authors <tachyon-discuss@kroma.network>"
 COPY . /usr/src/tachyon
 WORKDIR /usr/src/tachyon
 
-RUN bazel build -c opt --config halo2 --//:has_openmp --//:c_shared_object //scripts/packages/debian/runtime:debian && \
-    bazel build -c opt --config halo2 --//:has_openmp --//:c_shared_object //scripts/packages/debian/dev:debian
+RUN bazel build -c opt --config linux --config halo2 --//:has_openmp --//:c_shared_object //scripts/packages/debian/runtime:debian && \
+    bazel build -c opt --config linux --config halo2 --//:has_openmp --//:c_shared_object //scripts/packages/debian/dev:debian
 
 FROM ubuntu:jammy AS tachyon-halo2
 LABEL maintainer="The Tachyon Authors <tachyon-discuss@kroma.network>"
