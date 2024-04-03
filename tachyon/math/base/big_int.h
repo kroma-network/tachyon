@@ -397,31 +397,23 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return true;
   }
 
-  constexpr BigInt operator+(const BigInt& other) const {
-    BigInt ret = *this;
-    return ret.AddInPlace(other);
-  }
+  constexpr BigInt operator+(const BigInt& other) const { return Add(other); }
 
   constexpr BigInt& operator+=(const BigInt& other) {
     return AddInPlace(other);
   }
 
-  constexpr BigInt operator-(const BigInt& other) const {
-    BigInt ret = *this;
-    return ret.SubInPlace(other);
-  }
+  constexpr BigInt operator-(const BigInt& other) const { return Sub(other); }
 
   constexpr BigInt& operator-=(const BigInt& other) {
     return SubInPlace(other);
   }
 
-  constexpr BigInt operator*(const BigInt& other) const {
-    BigInt ret = *this;
-    return ret.MulInPlace(other);
-  }
+  constexpr BigInt operator*(const BigInt& other) const { return Mul(other); }
 
   constexpr BigInt& operator*=(const BigInt& other) {
-    return MulInPlace(other);
+    *this = Mul(other);
+    return *this;
   }
 
   constexpr BigInt operator/(const BigInt& other) const { return Div(other); }
@@ -438,48 +430,36 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
+  constexpr BigInt Add(const BigInt& other) {
+    uint64_t unused = 0;
+    return Add(other, unused);
+  }
+
+  constexpr BigInt Add(const BigInt& other, uint64_t& carry) {
+    BigInt ret;
+    DoAdd(*this, other, carry, ret);
+    return ret;
+  }
+
   constexpr BigInt& AddInPlace(const BigInt& other) {
     uint64_t unused = 0;
     return AddInPlace(other, unused);
   }
 
   constexpr BigInt& AddInPlace(const BigInt& other, uint64_t& carry) {
-    AddResult<uint64_t> result;
-
-#define ADD_WITH_CARRY_INLINE(num)                                       \
-  do {                                                                   \
-    if constexpr (N >= (num + 1)) {                                      \
-      result = internal::u64::AddWithCarry(limbs[num], other.limbs[num], \
-                                           result.carry);                \
-      limbs[num] = result.result;                                        \
-    }                                                                    \
-  } while (false)
-
-#if ARCH_CPU_BIG_ENDIAN
-    ADD_WITH_CARRY_INLINE(N - 1);
-    ADD_WITH_CARRY_INLINE(N - 2);
-    ADD_WITH_CARRY_INLINE(N - 3);
-    ADD_WITH_CARRY_INLINE(N - 4);
-    ADD_WITH_CARRY_INLINE(N - 5);
-    ADD_WITH_CARRY_INLINE(N - 6);
-#else  // ARCH_CPU_LITTLE_ENDIAN
-    ADD_WITH_CARRY_INLINE(0);
-    ADD_WITH_CARRY_INLINE(1);
-    ADD_WITH_CARRY_INLINE(2);
-    ADD_WITH_CARRY_INLINE(3);
-    ADD_WITH_CARRY_INLINE(4);
-    ADD_WITH_CARRY_INLINE(5);
-#endif
-
-#undef ADD_WITH_CARRY_INLINE
-
-    FOR_FROM_SMALLEST(i, 6, N) {
-      result =
-          internal::u64::AddWithCarry(limbs[i], other.limbs[i], result.carry);
-      limbs[i] = result.result;
-    }
-    carry = result.carry;
+    DoAdd(*this, other, carry, *this);
     return *this;
+  }
+
+  constexpr BigInt Sub(const BigInt& other) const {
+    uint64_t unused = 0;
+    return Sub(other, unused);
+  }
+
+  constexpr BigInt Sub(const BigInt& other, uint64_t& borrow) const {
+    BigInt ret;
+    DoSub(*this, other, borrow, ret);
+    return ret;
   }
 
   constexpr BigInt& SubInPlace(const BigInt& other) {
@@ -488,41 +468,7 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   constexpr BigInt& SubInPlace(const BigInt& other, uint64_t& borrow) {
-    SubResult<uint64_t> result;
-
-#define SUB_WITH_BORROW_INLINE(num)                                       \
-  do {                                                                    \
-    if constexpr (N >= (num + 1)) {                                       \
-      result = internal::u64::SubWithBorrow(limbs[num], other.limbs[num], \
-                                            result.borrow);               \
-      limbs[num] = result.result;                                         \
-    }                                                                     \
-  } while (false)
-
-#if ARCH_CPU_BIG_ENDIAN
-    SUB_WITH_BORROW_INLINE(N - 1);
-    SUB_WITH_BORROW_INLINE(N - 2);
-    SUB_WITH_BORROW_INLINE(N - 3);
-    SUB_WITH_BORROW_INLINE(N - 4);
-    SUB_WITH_BORROW_INLINE(N - 5);
-    SUB_WITH_BORROW_INLINE(N - 6);
-#else  // ARCH_CPU_LITTLE_ENDIAN
-    SUB_WITH_BORROW_INLINE(0);
-    SUB_WITH_BORROW_INLINE(1);
-    SUB_WITH_BORROW_INLINE(2);
-    SUB_WITH_BORROW_INLINE(3);
-    SUB_WITH_BORROW_INLINE(4);
-    SUB_WITH_BORROW_INLINE(5);
-#endif
-
-#undef SUB_WITH_BORROW_INLINE
-
-    FOR_FROM_SMALLEST(i, 6, N) {
-      result =
-          internal::u64::SubWithBorrow(limbs[i], other.limbs[i], result.borrow);
-      limbs[i] = result.result;
-    }
-    borrow = result.borrow;
+    DoSub(*this, other, borrow, *this);
     return *this;
   }
 
@@ -566,35 +512,29 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
-  constexpr BigInt& MulInPlace(const BigInt& other) {
-    BigInt hi;
-    return MulInPlace(other, hi);
+  constexpr BigInt Mul(const BigInt& other) const { return Multiply(other).lo; }
+
+  constexpr BigInt<2 * N> MulExtend(const BigInt& other) const {
+    MulResult<BigInt> result = Multiply(other);
+    BigInt<2 * N> ret;
+    memcpy(&ret[0], &result.lo[0], sizeof(uint64_t) * N);
+    memcpy(&ret[N], &result.hi[0], sizeof(uint64_t) * N);
+    return ret;
   }
 
-  constexpr BigInt& MulInPlace(const BigInt& other, BigInt& hi) {
-    BigInt lo;
+  constexpr MulResult<BigInt> Multiply(const BigInt& other) const {
+    MulResult<BigInt> ret;
     MulResult<uint64_t> mul_result;
     FOR_FROM_SMALLEST(i, 0, N) {
       FOR_FROM_SMALLEST(j, 0, N) {
-        uint64_t& limb = (i + j) >= N ? hi.limbs[(i + j) - N] : lo.limbs[i + j];
-        mul_result = internal::u64::MulAddWithCarry(
-            limb, limbs[i], other.limbs[j], mul_result.hi);
+        uint64_t& limb = (i + j) >= N ? ret.hi[(i + j) - N] : ret.lo[i + j];
+        mul_result = internal::u64::MulAddWithCarry(limb, limbs[i], other[j],
+                                                    mul_result.hi);
         limb = mul_result.lo;
       }
-      hi[i] = mul_result.hi;
+      ret.hi[i] = mul_result.hi;
       mul_result.hi = 0;
     }
-    *this = lo;
-    return *this;
-  }
-
-  constexpr BigInt<2 * N> Mul(const BigInt& other) const {
-    BigInt<2 * N> ret;
-    BigInt lo = *this;
-    BigInt hi;
-    lo.MulInPlace(other, hi);
-    memcpy(&ret[0], &lo[0], sizeof(uint64_t) * N);
-    memcpy(&ret[N], &hi[0], sizeof(uint64_t) * N);
     return ret;
   }
 
@@ -845,6 +785,80 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
  private:
+  constexpr static void DoAdd(const BigInt& a, const BigInt& b, uint64_t& carry,
+                              BigInt& c) {
+    AddResult<uint64_t> result;
+
+#define ADD_WITH_CARRY_INLINE(num)                                        \
+  do {                                                                    \
+    if constexpr (N >= (num + 1)) {                                       \
+      result = internal::u64::AddWithCarry(a[num], b[num], result.carry); \
+      c[num] = result.result;                                             \
+    }                                                                     \
+  } while (false)
+
+#if ARCH_CPU_BIG_ENDIAN
+    ADD_WITH_CARRY_INLINE(N - 1);
+    ADD_WITH_CARRY_INLINE(N - 2);
+    ADD_WITH_CARRY_INLINE(N - 3);
+    ADD_WITH_CARRY_INLINE(N - 4);
+    ADD_WITH_CARRY_INLINE(N - 5);
+    ADD_WITH_CARRY_INLINE(N - 6);
+#else  // ARCH_CPU_LITTLE_ENDIAN
+    ADD_WITH_CARRY_INLINE(0);
+    ADD_WITH_CARRY_INLINE(1);
+    ADD_WITH_CARRY_INLINE(2);
+    ADD_WITH_CARRY_INLINE(3);
+    ADD_WITH_CARRY_INLINE(4);
+    ADD_WITH_CARRY_INLINE(5);
+#endif
+
+#undef ADD_WITH_CARRY_INLINE
+
+    FOR_FROM_SMALLEST(i, 6, N) {
+      result = internal::u64::AddWithCarry(a[i], b[i], result.carry);
+      c[i] = result.result;
+    }
+    carry = result.carry;
+  }
+
+  constexpr static void DoSub(const BigInt& a, const BigInt& b,
+                              uint64_t& borrow, BigInt& c) {
+    SubResult<uint64_t> result;
+
+#define SUB_WITH_BORROW_INLINE(num)                                         \
+  do {                                                                      \
+    if constexpr (N >= (num + 1)) {                                         \
+      result = internal::u64::SubWithBorrow(a[num], b[num], result.borrow); \
+      c[num] = result.result;                                               \
+    }                                                                       \
+  } while (false)
+
+#if ARCH_CPU_BIG_ENDIAN
+    SUB_WITH_BORROW_INLINE(N - 1);
+    SUB_WITH_BORROW_INLINE(N - 2);
+    SUB_WITH_BORROW_INLINE(N - 3);
+    SUB_WITH_BORROW_INLINE(N - 4);
+    SUB_WITH_BORROW_INLINE(N - 5);
+    SUB_WITH_BORROW_INLINE(N - 6);
+#else  // ARCH_CPU_LITTLE_ENDIAN
+    SUB_WITH_BORROW_INLINE(0);
+    SUB_WITH_BORROW_INLINE(1);
+    SUB_WITH_BORROW_INLINE(2);
+    SUB_WITH_BORROW_INLINE(3);
+    SUB_WITH_BORROW_INLINE(4);
+    SUB_WITH_BORROW_INLINE(5);
+#endif
+
+#undef SUB_WITH_BORROW_INLINE
+
+    FOR_FROM_SMALLEST(i, 6, N) {
+      result = internal::u64::SubWithBorrow(a[i], b[i], result.borrow);
+      c[i] = result.result;
+    }
+    borrow = result.borrow;
+  }
+
   template <typename T>
   constexpr T ExtractBits(size_t bit_offset, size_t bit_count) const {
     size_t nums = 0;
