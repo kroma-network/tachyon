@@ -188,7 +188,7 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
           // clang-format on
           Poly& l = Poly::template LinearCombinationInPlace</*forward=*/false>(
               polys, y);
-          return l *= z_diff;
+          return l * z_diff;
         });
 
     // Create a linear combination of polynomials [L₀(X), L₁(X), L₂(X)] with
