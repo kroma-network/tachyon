@@ -1,4 +1,4 @@
-# Benchmark
+# Benchmarking
 
 Tachyon offers a suite of benchmarking tools and scripts designed to evaluate the performance of cryptographic and mathematical operations. These benchmarks span both functionalities inherent to Tachyon and those provided by other libraries. Our aim is to present a comparative landscape, assisting both users and developers in grasping the nuances of performance trade-offs.
 

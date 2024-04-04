@@ -1,0 +1,77 @@
+load("@kroma_network_rules_circom//:build_defs.bzl", "compile_circuit")
+load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_binary", "tachyon_cc_library")
+load("//:build_defs.bzl", "witness_gen_library")
+
+package(default_visibility = ["//visibility:public"])
+
+compile_circuit(
+    name = "compile_sha256_512",
+    main = "sha256_512.circom",
+    deps = ["@kroma_network_circomlib//circuits/sha256"],
+)
+
+witness_gen_library(
+    name = "gen_witness_sha256_512",
+    gendep = ":compile_sha256_512",
+)
+
+tachyon_cc_library(
+    name = "bit_conversion",
+    hdrs = ["bit_conversion.h"],
+    deps = ["@com_google_absl//absl/types:span"],
+)
+
+tachyon_cc_library(
+    name = "rapidsnark_runner",
+    hdrs = ["rapidsnark_runner.h"],
+    deps = [
+        ":runner",
+        "@iden3_rapidsnark//:rapidsnark",
+    ],
+)
+
+tachyon_cc_library(
+    name = "runner",
+    hdrs = ["runner.h"],
+    deps = [
+        "@com_google_absl//absl/types:span",
+        "@kroma_network_tachyon//tachyon/base/files:file_path",
+        "@kroma_network_tachyon//tachyon/base/time",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:proof",
+    ],
+)
+
+tachyon_cc_library(
+    name = "tachyon_runner",
+    hdrs = ["tachyon_runner.h"],
+    deps = [
+        ":runner",
+        "//circomlib/circuit:quadratic_arithmetic_program",
+        "//circomlib/circuit:witness_loader",
+        "//circomlib/zkey:zkey_parser",
+        "@kroma_network_tachyon//tachyon/math/polynomials/univariate:univariate_evaluation_domain_factory",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:prove",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:verify",
+    ],
+)
+
+tachyon_cc_binary(
+    name = "circom_benchmark",
+    testonly = True,
+    srcs = ["circom_benchmark.cc"],
+    data = [
+        "sha256_512.zkey",
+        "sha256_512_verification_key.json",
+        ":compile_sha256_512",
+    ],
+    deps = [
+        ":bit_conversion",
+        ":gen_witness_sha256_512",
+        ":rapidsnark_runner",
+        ":tachyon_runner",
+        "@com_google_boringssl//:crypto",
+        "@kroma_network_tachyon//tachyon/base/console",
+        "@kroma_network_tachyon//tachyon/base/flag:flag_parser",
+        "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254",
+    ],
+)

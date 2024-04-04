@@ -5,7 +5,11 @@ load("//third_party:repo.bzl", "tachyon_http_archive", "tf_mirror_urls")
 def repo():
     tachyon_http_archive(
         name = "iden3_ffiasm",
-        urls = tf_mirror_urls("https://github.com/kroma-network/ffiasm/archive/3ea01c80d3e1709ba554d4d6d1b24bec101520c7.tar.gz"),
-        sha256 = "9b570f5177e28793f9e96cb951bdb419f16d10787fe5f3af63cabfb89f376800",
-        strip_prefix = "ffiasm-3ea01c80d3e1709ba554d4d6d1b24bec101520c7",
+        urls = tf_mirror_urls("https://github.com/kroma-network/ffiasm/archive/7db5a442b12dba825ec35361441aa116dc3bff8b.tar.gz"),
+        sha256 = "f46b13887bbf5c9f07b3b8eda577a95264408b496a16d96f70c7f3a899d4fa0c",
+        strip_prefix = "ffiasm-7db5a442b12dba825ec35361441aa116dc3bff8b",
+        link_files = {
+            "//third_party/ffiasm:ffiasm.BUILD": "c/BUILD.bazel",
+            "//third_party/ffiasm:build_defs.bzl": "c/build_defs.bzl",
+        },
     )

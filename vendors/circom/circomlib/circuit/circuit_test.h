@@ -44,7 +44,7 @@ class CircuitTest : public testing::Test {
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> pvk =
         std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
     std::vector<F> public_inputs = circuit_->GetPublicInputs();
-    ASSERT_TRUE(Verify(pvk, proof, public_inputs));
+    ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
   }
 
   template <size_t MaxDegree, typename QAP>
@@ -57,7 +57,9 @@ class CircuitTest : public testing::Test {
     zk::r1cs::ConstraintMatrices<F> constraint_matrices =
         std::move(zkey).TakeConstraintMatrices().ToNative<F>();
 
-    std::unique_ptr<Domain> domain = Domain::Create(MaxDegree + 1);
+    std::unique_ptr<Domain> domain =
+        Domain::Create(constraint_matrices.num_constraints +
+                       constraint_matrices.num_instance_variables);
     std::vector<F> h_evals = QAP::WitnessMapFromMatrices(
         domain.get(), constraint_matrices, full_assignments);
 
@@ -72,7 +74,7 @@ class CircuitTest : public testing::Test {
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> pvk =
         std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
     std::vector<F> public_inputs = circuit_->GetPublicInputs();
-    ASSERT_TRUE(Verify(pvk, proof, public_inputs));
+    ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
   }
 
   std::unique_ptr<R1CS> r1cs_;

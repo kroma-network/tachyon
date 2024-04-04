@@ -1,0 +1,15 @@
+diff --git a/src/groth16.cpp b/src/groth16.cpp
+index e7eda1f..7d99076 100644
+--- a/src/groth16.cpp
++++ b/src/groth16.cpp
+@@ -244,8 +244,10 @@ std::unique_ptr<Proof<Engine>> Prover<Engine>::prove(typename Engine::FrElement
+     E.fr.copy(r, E.fr.zero());
+     E.fr.copy(s, E.fr.zero());
+ 
++#ifndef NOZK
+     randombytes_buf((void *)&(r.v[0]), sizeof(r)-1);
+     randombytes_buf((void *)&(s.v[0]), sizeof(s)-1);
++#endif
+ 
+ #ifndef USE_OPENMP
+     pA_future.get();
