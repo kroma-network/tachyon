@@ -12,7 +12,7 @@ uint32_t ComputeAdicity(uint32_t k, mpz_class n) {
   uint32_t adicity = 0;
   while (n > 1) {
     if (n % k == 0) {
-      adicity += 1;
+      ++adicity;
       n /= k;
     } else {
       break;

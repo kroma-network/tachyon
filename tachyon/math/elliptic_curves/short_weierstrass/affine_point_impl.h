@@ -19,8 +19,7 @@ constexpr ProjectivePoint<Curve> CLASS::DoubleProjective() const {
 
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#doubling-mdbl-2007-bl
   // XX = X1²
-  BaseField xx = x_;
-  xx.SquareInPlace();
+  BaseField xx = x_.Square();
 
   // w = a + 3 * XX
   BaseField w = xx;
@@ -32,42 +31,34 @@ constexpr ProjectivePoint<Curve> CLASS::DoubleProjective() const {
   }
 
   // Y1Y1 = Y1²
-  BaseField y1y1 = y_;
-  y1y1.SquareInPlace();
+  BaseField y1y1 = y_.Square();
 
   // R = 2 * Y1Y1
-  BaseField r = std::move(y1y1);
-  r.DoubleInPlace();
+  BaseField r = y1y1.Double();
 
   // sss = 4 * Y1 * R
-  BaseField sss = y_;
-  sss *= r;
+  BaseField sss = y_ * r;
   sss.DoubleInPlace().DoubleInPlace();
 
   // RR = R²
-  BaseField rr = r;
-  r.SquareInPlace();
+  BaseField rr = r.Square();
 
   // B = (X1 + R)² - XX - RR
-  BaseField b = std::move(r);
-  b += x_;
+  BaseField b = x_ + r;
   b.SquareInPlace();
   b -= xx;
   b -= rr;
 
   // h = w² - 2 * B
-  BaseField h = w;
-  h.SquareInPlace();
+  BaseField h = w.Square();
   h -= b.Double();
 
   // X3 = 2 * h * Y1
-  BaseField x = std::move(y_);
-  x *= h;
+  BaseField x = h * y_;
   x.DoubleInPlace();
 
   // Y3 = w * (B - h) - 2 * RR
-  BaseField y = std::move(b);
-  y -= h;
+  BaseField y = b - h;
   y *= w;
   y -= rr.Double();
 
@@ -85,24 +76,19 @@ constexpr PointXYZZ<Curve> CLASS::DoubleXYZZ() const {
 
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-xyzz.html#doubling-mdbl-2008-s-1
   // U = 2 * Y1
-  BaseField u = y_;
-  u.DoubleInPlace();
+  BaseField u = y_.Double();
 
   // V = U²
-  BaseField v = u;
-  v.SquareInPlace();
+  BaseField v = u.Square();
 
   // W = U * V
-  BaseField w = u;
-  w *= v;
+  BaseField w = u * v;
 
   // S = X1 * V
-  BaseField s = x_;
-  s *= v;
+  BaseField s = x_ * v;
 
   // M = 3 * X1² + a
-  BaseField m = x_;
-  m.SquareInPlace();
+  BaseField m = x_.Square();
   m += m.Double();
   if constexpr (!Curve::Config::kAIsZero) {
     // TODO(chokobole): Implement constexpr version of Curve::Config::AddByA()
@@ -111,8 +97,7 @@ constexpr PointXYZZ<Curve> CLASS::DoubleXYZZ() const {
   }
 
   // X3 = M² - 2 * S
-  BaseField x = m;
-  x.SquareInPlace();
+  BaseField x = m.Square();
   x -= s.Double();
 
   // Y3 = M * (S - X3) - W * Y1

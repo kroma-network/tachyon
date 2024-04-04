@@ -196,8 +196,7 @@ class QuadraticArithmeticProgram {
       F x_i = x.Pow(i);
       for (F& v : chunk) {
         // (xⁱ * t(x)) / δ
-        v = x_i;
-        v *= t_x;
+        v = x_i * t_x;
         v *= delta_inverse;
         x_i *= x;
       }

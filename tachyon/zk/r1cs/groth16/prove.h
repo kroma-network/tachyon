@@ -30,8 +30,7 @@ Bucket CalculateCoeff(const Bucket& initial,
   Bucket acc;
   CHECK(msm.Run(query.subspan(1), assignments, &acc));
 
-  Bucket ret = initial;
-  ret += query[0];
+  Bucket ret = initial + query[0];
   ret += acc;
   ret += vk_param;
   return ret;

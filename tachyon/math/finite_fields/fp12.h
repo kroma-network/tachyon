@@ -255,9 +255,6 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     //   = (α₃β₃ + α₅β₄q) + (α₃β₄ + α₄β₃)x + (α₄β₄ + α₅β₃)x², where q = x³
     Fp6 b = this->c1_;
     b.MulInPlaceBy01(beta3, beta4);
-    // o = β₀ + β₃
-    Fp2 o = beta0;
-    o += beta3;
 
     // c1 = (α₀ + α₃) + (α₁ + α₄)x + (α₂ + α₅)x²
     this->c1_ += this->c0_;
@@ -271,7 +268,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     //    = (α₀β₀ + α₀β₃ + α₂β₄q + α₃β₀ + α₃β₃ + α₅β₄q) +
     //      (α₀β₄ + α₁β₀ + α₁β₃ + α₃β₄ + α₄β₀ + α₄β₃)x +
     //      (α₁β₄ + α₂β₀ + α₂β₃ + α₄β₄ + α₅β₀ + α₅β₃)x², where q = x³
-    this->c1_.MulInPlaceBy01(o, beta4);
+    this->c1_.MulInPlaceBy01(beta0 + beta3, beta4);
     // c1 = (α₀β₃ + α₂β₄q + α₃β₀ + α₃β₃ + α₅β₄q) +
     //      (α₀β₄ + α₁β₃ + α₃β₄ + α₄β₀ + α₄β₃)x +
     //      (α₁β₄ + α₂β₃ + α₄β₄ + α₅β₀ + α₅β₃)x², where q = x³
@@ -314,9 +311,6 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     //   = α₅β₄q + α₃β₄x + α₄β₄x²
     Fp6 b = this->c1_;
     b.MulInPlaceBy1(beta4);
-    // o = β₁ + β₄
-    Fp2 o = beta1;
-    o += beta4;
 
     // c1 = (α₀ + α₃) + (α₁ + α₄)x + (α₂ + α₅)x²
     this->c1_ += this->c0_;
@@ -330,7 +324,7 @@ class Fp12 final : public QuadraticExtensionField<Fp12<Config>> {
     //    = (α₀β₀ + α₂β₁q + α₂β₄q + α₃β₀ + α₅β₁q + α₅β₄q) +
     //      (α₀β₁ + α₀β₄ + α₁β₀ + α₃β₁ + α₃β₄ + α₄β₀)x +
     //      (α₁β₁ + α₁β₄ + α₂β₀ + α₄β₁ + α₄β₄ + α₅β₀)x², where q = x³
-    this->c1_.MulInPlaceBy01(beta0, o);
+    this->c1_.MulInPlaceBy01(beta0, beta1 + beta4);
     // c1 = (α₂β₄q + α₃β₀ + α₅β₁q + α₅β₄q) +
     //      (α₀β₄ + α₃β₁ + α₃β₄ + α₄β₀)x +
     //      (α₁β₄ + α₄β₁ + α₄β₄ + α₅β₀)x², where q = x³

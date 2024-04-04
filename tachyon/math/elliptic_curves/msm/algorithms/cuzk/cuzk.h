@@ -300,7 +300,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
       unsigned int start = row_ptrs[i];
       unsigned int end = row_ptrs[i + 1];
       if ((end - start > gz) || (end - start < z)) continue;
-      n_other_total += 1;
+      ++n_other_total;
     }
     if (n_other_total == 0) {
       return true;
@@ -322,7 +322,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
       unsigned int n = (end - start) / z;
       row_ptrs2[n_other_total_idx + 1] = row_ptrs2[n_other_total_idx] + n;
 
-      n_other_total_idx += 1;
+      ++n_other_total_idx;
     }
 
     auto intermediate_datas =
@@ -358,7 +358,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
       }
 
       stream_id = (stream_id + 1) % grid_size_;
-      n_other_total_idx += 1;
+      ++n_other_total_idx;
     }
 
     for (unsigned int i = 0; i < grid_size_; ++i) {

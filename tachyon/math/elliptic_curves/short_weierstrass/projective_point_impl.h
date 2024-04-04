@@ -22,25 +22,20 @@ constexpr CLASS& CLASS::AddInPlace(const ProjectivePoint& other) {
 
   // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#addition-add-1998-cmo-2
   // Y1Z2 = Y1 * Z2
-  BaseField y1z2 = y_;
-  y1z2 *= other.z_;
+  BaseField y1z2 = y_ * other.z_;
 
   // X1Z2 = X1 * Z2
-  BaseField x1z2 = x_;
-  x1z2 *= other.z_;
+  BaseField x1z2 = x_ * other.z_;
 
   // Z1Z2 = Z1 * Z2
-  BaseField z1z2 = z_;
-  z1z2 *= other.z_;
+  BaseField z1z2 = z_ * other.z_;
 
   // u = Y2 * Z1 - Y1Z2
-  BaseField u = other.y_;
-  u *= z_;
+  BaseField u = other.y_ * z_;
   u -= y1z2;
 
   // v = X2 * Z1 - X1Z2
-  BaseField v = other.x_;
-  v *= z_;
+  BaseField v = other.x_ * z_;
   v -= x1z2;
 
   if (u.IsZero() && v.IsZero()) {
@@ -48,30 +43,24 @@ constexpr CLASS& CLASS::AddInPlace(const ProjectivePoint& other) {
   }
 
   // uu = u²
-  BaseField uu = u;
-  uu.SquareInPlace();
+  BaseField uu = u.Square();
 
   // vv = v²
-  BaseField vv = v;
-  vv.SquareInPlace();
+  BaseField vv = v.Square();
 
   // vvv = v * vv
-  BaseField vvv = v;
-  vvv *= vv;
+  BaseField vvv = v * vv;
 
   // R = vv * X1Z2
-  BaseField r = std::move(vv);
-  r *= x1z2;
+  BaseField r = vv * x1z2;
 
   // A = uu * Z1Z2 - vvv - 2 * R
-  BaseField a = std::move(uu);
-  a *= z1z2;
+  BaseField a = uu * z1z2;
   a -= vvv;
   a -= r.Double();
 
   // X3 = v * A
-  x_ = std::move(v);
-  x_ *= a;
+  x_ = v * a;
 
   // Y3 = u * (R - A) - vvv * Y1Z2
   BaseField lefts[] = {std::move(u), -vvv};
@@ -79,8 +68,7 @@ constexpr CLASS& CLASS::AddInPlace(const ProjectivePoint& other) {
   y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // Z3 = vvv * Z1Z2
-  z_ = std::move(vvv);
-  z_ *= z1z2;
+  z_ = vvv * z1z2;
 
   return *this;
 }
@@ -97,13 +85,11 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
 
   // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#addition-madd-1998-cmo
   // u = Y2 * Z1 - Y1
-  BaseField u = other.y();
-  u *= z_;
+  BaseField u = other.y() * z_;
   u -= y_;
 
   // v = X2 * Z1 - X1
-  BaseField v = other.x();
-  v *= z_;
+  BaseField v = other.x() * z_;
   v -= x_;
 
   if (u.IsZero() && v.IsZero()) {
@@ -111,30 +97,24 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
   }
 
   // uu = u²
-  BaseField uu = u;
-  uu.SquareInPlace();
+  BaseField uu = u.Square();
 
   // vv = v²
-  BaseField vv = v;
-  vv.SquareInPlace();
+  BaseField vv = v.Square();
 
   // vvv = v * vv
-  BaseField vvv = v;
-  vvv *= vv;
+  BaseField vvv = v * vv;
 
   // R = vv * X1
-  BaseField r = std::move(vv);
-  r *= x_;
+  BaseField r = vv * x_;
 
   // A = uu * Z1 - vvv - 2 * R
-  BaseField a = std::move(uu);
-  a *= z_;
+  BaseField a = uu * z_;
   a -= vvv;
   a -= r.Double();
 
   // X3 = v * A
-  x_ = std::move(v);
-  x_ *= a;
+  x_ = v * a;
 
   // Y3 = u * (R - A) - vvv * Y1
   BaseField lefts[] = {std::move(u), -vvv};
@@ -155,60 +135,49 @@ constexpr CLASS& CLASS::DoubleInPlace() {
 
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#doubling-dbl-2007-bl
   // XX = X1²
-  BaseField xx = x_;
-  xx.SquareInPlace();
+  BaseField xx = x_.Square();
 
   // ZZ = Z1²
-  BaseField zz = z_;
-  zz.SquareInPlace();
+  BaseField zz = z_.Square();
 
   // w = a * ZZ + 3 * XX
-  BaseField w = xx;
-  w += w.Double();
+  BaseField w = xx.Double();
+  w += xx;
   if constexpr (!Curve::Config::kAIsZero) {
     w += Curve::Config::MulByA(zz);
   }
 
   // s = 2 * Y1 * Z1
-  BaseField s = y_;
-  s *= z_;
+  BaseField s = y_ * z_;
   s.DoubleInPlace();
 
   // ss = s²
-  BaseField ss = s;
-  ss.SquareInPlace();
+  BaseField ss = s.Square();
 
   // sss = s * ss
-  BaseField sss = s;
-  sss *= ss;
+  BaseField sss = s * ss;
 
   // R = Y1 * s
-  BaseField r = y_;
-  r *= s;
+  BaseField r = y_ * s;
 
   // RR = R²
-  BaseField rr = r;
-  rr.SquareInPlace();
+  BaseField rr = r.Square();
 
   // B = (X1 + R)² - XX - RR
-  BaseField b = x_;
-  b += r;
+  BaseField b = x_ + r;
   b.SquareInPlace();
   b -= xx;
   b -= rr;
 
   // h = w² - 2 * B
-  BaseField h = w;
-  h.SquareInPlace();
+  BaseField h = w.Square();
   h -= b.Double();
 
   // X3 = h * s
-  x_ = std::move(s);
-  x_ *= h;
+  x_ = h * s;
 
   // Y3 = w * (B - h) - 2 * RR
-  y_ = std::move(b);
-  y_ -= h;
+  y_ = b - h;
   y_ *= w;
   y_ -= rr.Double();
 

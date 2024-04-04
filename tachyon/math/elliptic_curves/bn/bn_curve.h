@@ -82,9 +82,8 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     // Follows, e.g., Beuchat et al page 9, by computing result as follows:
     //   f^((q⁶ - 1) * (q² + 1)) = (conj(f) * f⁻¹)^(q² + 1)
 
-    // f1 = f.CyclotomicInverseInPlace() = f^(q⁶)
-    Fp12 f1 = f;
-    f1.CyclotomicInverseInPlace();
+    // f1 = f.CyclotomicInverse() = f^(q⁶)
+    Fp12 f1 = f.CyclotomicInverse();
 
     // f2 = f⁻¹
     Fp12 f2 = f.Inverse();

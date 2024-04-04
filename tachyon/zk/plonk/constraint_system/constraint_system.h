@@ -192,7 +192,7 @@ class ConstraintSystem {
 
     // Make a new query
     advice_queries_.emplace_back(at, column);
-    num_advice_queries_[column.index()] += 1;
+    ++num_advice_queries_[column.index()];
     return advice_queries_.size() - 1;
   }
 
