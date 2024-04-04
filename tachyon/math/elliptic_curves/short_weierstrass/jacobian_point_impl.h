@@ -181,7 +181,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
       d.SquareInPlace();
       d -= a;
       d -= c;
-      d.SquareInPlace();
+      d.DoubleInPlace();
     }
 
     // E = 3 * A
