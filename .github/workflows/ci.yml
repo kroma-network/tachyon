@@ -43,8 +43,11 @@ jobs:
       - name: Build
         run: bazel build -c fastbuild --config ${{ matrix.bazel_config }} //...
 
-      - name: Test Tachyon
+      - name: Test Tachyon (fastbuild)
         run: bazel test -c fastbuild --config ${{ matrix.bazel_config }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
+
+      - name: Test Tachyon (optimized)
+        run: bazel test -c opt --config ${{ matrix.bazel_config }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
 
       - name: Test OpenMP
         if: matrix.os == 'ubuntu-latest'
