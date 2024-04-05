@@ -29,7 +29,7 @@ TEST_F(SelectorReplacerTest, Selector) {
   replacements.emplace_back(owned_replacements[0].get());
   replacements.emplace_back(owned_replacements[1].get());
 
-  EXPECT_DEATH(expr->ReplaceSelectors(replacements, true), "");
+  EXPECT_DEBUG_DEATH(expr->ReplaceSelectors(replacements, true), "");
   EXPECT_EQ(*expr->ReplaceSelectors(replacements, false), *replacements[1]);
 
   expr = ExpressionFactory<GF7>::Selector(plonk::Selector::Complex(1));
