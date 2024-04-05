@@ -15,7 +15,7 @@ cc_library(
         "src/goldilocks_base_field_scalar.hpp",
         "src/goldilocks_base_field_tools.hpp",
     ],
-    copts = ["-mavx512f"],
+    copts = ["-mavx2"],
     include_prefix = "third_party/goldilocks/include",
     includes = ["src"],
     strip_include_prefix = "src",
