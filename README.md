@@ -115,3 +115,11 @@ bazel test --config {os} //...
 ```
 
 Check [How To Build](/docs/how_to_use/how_to_build.md) for more information.
+
+## Join Our Developer Community
+
+We're thrilled to have you become a part of our community!
+
+If your passion for Tachyon matches ours, we extend a warm invitation for you to join our developer community on [Telegram](https://t.me/zktachyon). Ask questions, share insights, or simply stay informed on Tachyon's newest updates with other developers and the original team through our Telegram group. We hope to see you there!
+
+Thank you for your keen interest in contributing to Tachyon! ✨
