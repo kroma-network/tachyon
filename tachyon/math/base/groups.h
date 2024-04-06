@@ -14,7 +14,6 @@
 namespace tachyon::math {
 namespace internal {
 
-SUPPORTS_UNARY_IN_PLACE_OPERATOR(Inverse);
 SUPPORTS_BINARY_OPERATOR(Sub);
 SUPPORTS_UNARY_IN_PLACE_OPERATOR(Neg);
 
@@ -53,15 +52,6 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     } else {
       static_assert(base::AlwaysFalse<G>);
     }
-  }
-
-  // Inverse: a⁻¹
-  template <
-      typename G2 = G,
-      std::enable_if_t<internal::SupportsInverseInPlace<G2>::value>* = nullptr>
-  [[nodiscard]] constexpr auto Inverse() const {
-    G ret = *static_cast<const G*>(this);
-    return ret.InverseInPlace();
   }
 
   template <typename Container>

@@ -107,6 +107,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   PrimeField& DoSquareInPlace();
 
   // MultiplicativeGroup methods
+  PrimeField Inverse() const;
   PrimeField& InverseInPlace();
 
  private:

@@ -164,6 +164,8 @@ class RationalField : public Field<RationalField<F>> {
   }
 
   // MultiplicativeGroup methods
+  constexpr RationalField Inverse() const { return {denominator_, numerator_}; }
+
   constexpr RationalField& InverseInPlace() {
     std::swap(numerator_, denominator_);
     return *this;

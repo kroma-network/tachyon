@@ -263,44 +263,14 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   }
 
   // MultiplicativeGroup methods
+  __device__ constexpr PrimeFieldGpu Inverse() const {
+    PrimeFieldGpu ret;
+    DoInverse(*this, ret);
+    return ret;
+  }
+
   __device__ constexpr PrimeFieldGpu& InverseInPlace() {
-    if (IsZero()) return *this;
-
-    BigInt<N> u = value_;
-    BigInt<N> v = GetModulus();
-    PrimeFieldGpu b;
-    b.value_ = Config::kMontgomeryR2;
-    // NOTE(chokobole): Do not use this.
-    // PrimeFieldGpu c = PrimeFieldGpu::Zero();
-    PrimeFieldGpu c;
-
-    while (!u.IsOne() && !v.IsOne()) {
-      while (u.IsEven()) {
-        u = DivBy2Limbs(u);
-        if (b.IsOdd()) AddLimbs<false>(b.value_, GetModulus(), b.value_);
-        b.value_ = DivBy2Limbs(b.value_);
-      }
-
-      while (v.IsEven()) {
-        v = DivBy2Limbs(v);
-        if (c.IsOdd()) AddLimbs<false>(c.value_, GetModulus(), c.value_);
-        c.value_ = DivBy2Limbs(c.value_);
-      }
-
-      if (v < u) {
-        SubLimbs<false>(u, v, u);
-        b -= c;
-      } else {
-        SubLimbs<false>(v, u, v);
-        c -= b;
-      }
-    }
-    if (u.IsOne()) {
-      *this = b;
-    } else {
-      *this = c;
-    }
-
+    DoInverse(*this, *this);
     return *this;
   }
 
@@ -437,6 +407,46 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     PrimeFieldGpu results;
     return SubLimbs<true>(xs.value_, GetModulus(), results.value_) ? xs
                                                                    : results;
+  }
+
+  __device__ constexpr static void DoInverse(const PrimeFieldGpu& a,
+                                             PrimeFieldGpu& b) {
+    if (a.IsZero()) return;
+
+    BigInt<N> u = a.value_;
+    BigInt<N> v = GetModulus();
+    PrimeFieldGpu c;
+    c.value_ = Config::kMontgomeryR2;
+    // NOTE(chokobole): Do not use this.
+    // PrimeFieldGpu d = PrimeFieldGpu::Zero();
+    PrimeFieldGpu d;
+
+    while (!u.IsOne() && !v.IsOne()) {
+      while (u.IsEven()) {
+        u = DivBy2Limbs(u);
+        if (c.IsOdd()) AddLimbs<false>(c.value_, GetModulus(), c.value_);
+        c.value_ = DivBy2Limbs(c.value_);
+      }
+
+      while (v.IsEven()) {
+        v = DivBy2Limbs(v);
+        if (d.IsOdd()) AddLimbs<false>(d.value_, GetModulus(), d.value_);
+        d.value_ = DivBy2Limbs(d.value_);
+      }
+
+      if (v < u) {
+        SubLimbs<false>(u, v, u);
+        c -= d;
+      } else {
+        SubLimbs<false>(v, u, v);
+        d -= c;
+      }
+    }
+    if (u.IsOne()) {
+      b = c;
+    } else {
+      b = d;
+    }
   }
 
   BigInt<N> value_;

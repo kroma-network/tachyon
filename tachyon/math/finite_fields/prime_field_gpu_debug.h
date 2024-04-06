@@ -211,40 +211,14 @@ class PrimeFieldGpuDebug final
 
   // MultiplicativeGroup methods
   // TODO(chokobole): Share codes with PrimeField and PrimeFieldGpu.
+  constexpr PrimeFieldGpuDebug Inverse() const {
+    PrimeFieldGpuDebug ret;
+    DoInverse(*this, ret);
+    return ret;
+  }
+
   constexpr PrimeFieldGpuDebug& InverseInPlace() {
-    CHECK(!IsZero());
-
-    BigInt<N> u = value_;
-    BigInt<N> v = Config::kModulus;
-    PrimeFieldGpuDebug b;
-    b.value_ = Config::kMontgomeryR2;
-    PrimeFieldGpuDebug c = PrimeFieldGpuDebug::Zero();
-
-    while (!u.IsOne() && !v.IsOne()) {
-      while (u.IsEven()) {
-        u.DivBy2InPlace();
-        if (b.IsOdd()) AddLimbs<false>(b.value_, Config::kModulus, b.value_);
-        b.value_.DivBy2InPlace();
-      }
-
-      while (v.IsEven()) {
-        v.DivBy2InPlace();
-        if (c.IsOdd()) AddLimbs<false>(c.value_, Config::kModulus, c.value_);
-        c.value_.DivBy2InPlace();
-      }
-      if (v < u) {
-        SubLimbs<false>(u, v, u);
-        b -= c;
-      } else {
-        SubLimbs<false>(v, u, v);
-        c -= b;
-      }
-    }
-    if (u.IsOne()) {
-      *this = b;
-    } else {
-      *this = c;
-    }
+    DoInverse(*this, *this);
     return *this;
   }
 
@@ -389,6 +363,43 @@ class PrimeFieldGpuDebug final
     return SubLimbs<true>(xs.value_, Config::kModulus, results.value_)
                ? xs
                : results;
+  }
+
+  constexpr static void DoInverse(const PrimeFieldGpuDebug& a,
+                                  PrimeFieldGpuDebug& b) {
+    CHECK(!a.IsZero());
+
+    BigInt<N> u = a.value_;
+    BigInt<N> v = Config::kModulus;
+    PrimeFieldGpuDebug c;
+    c.value_ = Config::kMontgomeryR2;
+    PrimeFieldGpuDebug d = PrimeFieldGpuDebug::Zero();
+
+    while (!u.IsOne() && !v.IsOne()) {
+      while (u.IsEven()) {
+        u.DivBy2InPlace();
+        if (c.IsOdd()) AddLimbs<false>(c.value_, Config::kModulus, c.value_);
+        c.value_.DivBy2InPlace();
+      }
+
+      while (v.IsEven()) {
+        v.DivBy2InPlace();
+        if (d.IsOdd()) AddLimbs<false>(d.value_, Config::kModulus, d.value_);
+        d.value_.DivBy2InPlace();
+      }
+      if (v < u) {
+        SubLimbs<false>(u, v, u);
+        c -= d;
+      } else {
+        SubLimbs<false>(v, u, v);
+        d -= c;
+      }
+    }
+    if (u.IsOne()) {
+      b = c;
+    } else {
+      b = d;
+    }
   }
 
   BigInt<N> value_;

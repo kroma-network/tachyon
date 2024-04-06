@@ -126,6 +126,11 @@ class Value : public math::Field<Value<T>> {
   }
 
   // MultiplicativeGroup methods
+  constexpr Value Inverse() const {
+    if (IsNone()) return Unknown();
+    return Value::Known(value_->Inverse());
+  }
+
   constexpr Value& InverseInPlace() {
     if (IsNone()) return *this;
     value_->InverseInPlace();

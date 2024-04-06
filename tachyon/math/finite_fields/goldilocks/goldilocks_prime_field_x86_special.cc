@@ -183,6 +183,16 @@ CLASS& CLASS::DoSquareInPlace() {
 }
 
 template <typename Config>
+CLASS CLASS::Inverse() const {
+  // See https://github.com/kroma-network/tachyon/issues/76
+  CHECK(!IsZero());
+  PrimeField ret;
+  ::Goldilocks::inv(reinterpret_cast<::Goldilocks::Element&>(ret.value_),
+                    reinterpret_cast<const ::Goldilocks::Element&>(value_));
+  return ret;
+}
+
+template <typename Config>
 CLASS& CLASS::InverseInPlace() {
   // See https://github.com/kroma-network/tachyon/issues/76
   CHECK(!IsZero());
