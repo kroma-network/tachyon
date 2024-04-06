@@ -497,11 +497,10 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   }
 
   static UnivariatePolynomial<D> ToDense(const UnivariatePolynomial<S>& self) {
-    std::vector<F> coefficients;
     size_t size = self.Degree() + 1;
-    coefficients.reserve(size);
-    for (size_t i = 0; i < size; ++i) {
-      coefficients.push_back(self[i]);
+    std::vector<F> coefficients(size);
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
+      coefficients[i] = self[i];
     }
     return UnivariatePolynomial<D>(D(std::move(coefficients)));
   }
