@@ -12,6 +12,21 @@ namespace tachyon::math {
       Curve, std::enable_if_t<Curve::kType == CurveType::kShortWeierstrass>>
 
 template <typename Curve>
+constexpr CLASS CLASS::Add(const JacobianPoint& other) const {
+  if (IsZero()) {
+    return other;
+  }
+
+  if (other.IsZero()) {
+    return *this;
+  }
+
+  JacobianPoint ret;
+  DoAdd(*this, other, ret);
+  return ret;
+}
+
+template <typename Curve>
 constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
   if (IsZero()) {
     return *this = other;
@@ -21,32 +36,44 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
     return *this;
   }
 
+  DoAdd(*this, other, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoAdd(const JacobianPoint& a, const JacobianPoint& b,
+                            JacobianPoint& c) {
   // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-add-2007-bl
   // Z1Z1 = Z1²
-  BaseField z1z1 = z_.Square();
+  BaseField z1z1 = a.z_.Square();
 
   // Z2Z2 = Z2²
-  BaseField z2z2 = other.z_.Square();
+  BaseField z2z2 = b.z_.Square();
 
   // U1 = X1 * Z2Z2
-  BaseField u1 = x_ * z2z2;
+  BaseField u1 = a.x_ * z2z2;
 
   // U2 = X2 * Z1Z1
-  BaseField u2 = other.x_ * z1z1;
+  BaseField u2 = b.x_ * z1z1;
 
   // S1 = Y1 * Z2 * Z2Z2
-  BaseField s1 = y_ * other.z_;
+  BaseField s1 = a.y_ * b.z_;
   s1 *= z2z2;
 
   // S2 = Y2 * Z1 * Z1Z1
-  BaseField s2 = other.y_ * z_;
+  BaseField s2 = b.y_ * a.z_;
   s2 *= z1z1;
 
   if (u1 == u2 && s1 == s2) {
     // The two points are equal, so we Double.
-    DoubleInPlace();
+    if (&a == &c) {
+      c.DoubleInPlace();
+    } else {
+      c = a.Double();
+    }
   } else {
-    // If we're adding -a and a together, z_ becomes zero as H becomes zero.
+    // If we're adding -a and a together, c.z_ becomes zero as H becomes zero.
 
     // H = U2 - U1
     BaseField h = u2 - u1;
@@ -67,24 +94,34 @@ constexpr CLASS& CLASS::AddInPlace(const JacobianPoint& other) {
     BaseField v = u1 * i;
 
     // X3 = r² + J - 2 * V
-    x_ = r.Square();
-    x_ += j;
-    x_ -= v.Double();
+    c.x_ = r.Square();
+    c.x_ += j;
+    c.x_ -= v.Double();
 
     // Y3 = r * (V - X3) + 2 * S1 * J
-    y_ = s1.Double();
-    BaseField lefts[] = {std::move(r), y_};
-    BaseField rights[] = {v - x_, std::move(j)};
-    y_ = BaseField::SumOfProductsSerial(lefts, rights);
+    BaseField lefts[] = {std::move(r), s1.Double()};
+    BaseField rights[] = {v - c.x_, std::move(j)};
+    c.y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
     // Z3 = ((Z1 + Z2)² - Z1Z1 - Z2Z2) * H
     // This is equal to Z3 = 2 * Z1 * Z2 * H, and computing it this way is
     // faster.
-    z_ *= other.z_;
-    z_.DoubleInPlace();
-    z_ *= h;
+    c.z_ = a.z_ * b.z_;
+    c.z_.DoubleInPlace();
+    c.z_ *= h;
   }
-  return *this;
+}
+
+template <typename Curve>
+constexpr CLASS CLASS::Add(const AffinePoint<Curve>& other) const {
+  if (other.infinity()) return *this;
+  if (IsZero()) {
+    return JacobianPoint::FromAffine(other);
+  }
+
+  JacobianPoint ret;
+  DoAdd(*this, other, ret);
+  return ret;
 }
 
 template <typename Curve>
@@ -94,25 +131,37 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
     return *this = JacobianPoint::FromAffine(other);
   }
 
+  DoAdd(*this, other, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoAdd(const JacobianPoint& a, const AffinePoint<Curve>& b,
+                            JacobianPoint& c) {
   // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#addition-madd-2007-bl
   // Z1Z1 = Z1²
-  BaseField z1z1 = z_.Square();
+  BaseField z1z1 = a.z_.Square();
 
   // U2 = X2 * Z1Z1
-  BaseField u2 = other.x() * z1z1;
+  BaseField u2 = b.x() * z1z1;
 
   // S2 = Y2 * Z1 * Z1Z1
-  BaseField s2 = other.y() * z_;
+  BaseField s2 = b.y() * a.z_;
   s2 *= z1z1;
 
-  if (x_ == u2 && y_ == s2) {
-    // The two points are equal, so we double.
-    DoubleInPlace();
+  if (a.x_ == u2 && a.y_ == s2) {
+    // The two points are equal, so we Double.
+    if (&a == &c) {
+      c.DoubleInPlace();
+    } else {
+      c = a.Double();
+    }
   } else {
-    // If we're adding -a and a together, z_ becomes zero as H becomes zero.
+    // If we're adding -a and a together, c.z_ becomes zero as H becomes zero.
 
     // H = U2 - X1
-    BaseField h = u2 - x_;
+    BaseField h = u2 - a.x_;
 
     // HH = H²
     BaseField hh = h.Square();
@@ -126,29 +175,28 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
     j.NegInPlace();
 
     // r = 2 * (S2 - Y1)
-    BaseField r = s2 - y_;
+    BaseField r = s2 - a.y_;
     r.DoubleInPlace();
 
     // V = X1 * I
-    BaseField v = x_ * i;
+    BaseField v = a.x_ * i;
 
     // X3 = r² + J - 2 * V
-    x_ = r.Square();
-    x_ += j;
-    x_ -= v.Double();
+    c.x_ = r.Square();
+    c.x_ += j;
+    c.x_ -= v.Double();
 
     // Y3 = r * (V - X3) + 2 * Y1 * J
-    BaseField lefts[] = {std::move(r), y_.Double()};
-    BaseField rights[] = {v - x_, std::move(j)};
-    y_ = BaseField::SumOfProductsSerial(lefts, rights);
+    BaseField lefts[] = {std::move(r), a.y_.Double()};
+    BaseField rights[] = {v - c.x_, std::move(j)};
+    c.y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
     // Z3 = 2 * Z1 * H;
     // Can alternatively be computed as (Z1 + H)² - Z1Z1 - HH, but the latter is
     // slower.
-    z_ *= h;
-    z_.DoubleInPlace();
+    c.z_ = a.z_ * h;
+    c.z_.DoubleInPlace();
   }
-  return *this;
 }
 
 template <typename Curve>

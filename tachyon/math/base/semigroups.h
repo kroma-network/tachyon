@@ -209,18 +209,11 @@ class AdditiveSemigroup {
   using AddResult = typename internal::AdditiveSemigroupTraits<G>::ReturnTy;
 
   // Addition: a + b
-  template <
-      typename G2,
-      std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
-                       internal::SupportsAddInPlace<G, G2>::value>* = nullptr>
+  template <typename G2,
+            std::enable_if_t<internal::SupportsAdd<G, G2>::value>* = nullptr>
   constexpr auto operator+(const G2& other) const {
-    if constexpr (internal::SupportsAdd<G, G2>::value) {
-      const G* g = static_cast<const G*>(this);
-      return g->Add(other);
-    } else {
-      G g = *static_cast<const G*>(this);
-      return g.AddInPlace(other);
-    }
+    const G* g = static_cast<const G*>(this);
+    return g->Add(other);
   }
 
   // Addition in place: a += b

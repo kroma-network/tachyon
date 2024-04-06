@@ -104,6 +104,16 @@ CLASS::operator uint64_t() const {
 }
 
 template <typename Config>
+CLASS CLASS::Add(const PrimeField& other) const {
+  PrimeField ret;
+  ::Goldilocks::add(
+      reinterpret_cast<::Goldilocks::Element&>(ret.value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(other.value_));
+  return ret;
+}
+
+template <typename Config>
 CLASS& CLASS::AddInPlace(const PrimeField& other) {
   ::Goldilocks::add(
       reinterpret_cast<::Goldilocks::Element&>(value_),

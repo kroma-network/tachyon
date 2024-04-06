@@ -27,6 +27,28 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   using S = UnivariateSparseCoefficients<F, MaxDegree>;
   using Term = typename S::Term;
 
+  static UnivariatePolynomial<D> Add(const UnivariatePolynomial<D>& self,
+                                     const UnivariatePolynomial<D>& other) {
+    if (self.IsZero()) {
+      return other;
+    } else if (other.IsZero()) {
+      return self;
+    }
+
+    const std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
+    const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
+    UnivariatePolynomial<D> ret;
+    std::vector<F>& o_coefficients = ret.coefficients_.coefficients_;
+    o_coefficients.resize(
+        std::max(l_coefficients.size(), r_coefficients.size()));
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
+      o_coefficients[i] = self.coefficients_[i] + other.coefficients_[i];
+    }
+
+    ret.coefficients_.RemoveHighDegreeZeros();
+    return ret;
+  }
+
   static UnivariatePolynomial<D>& AddInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<D>& other) {
     if (self.IsZero()) {
@@ -45,6 +67,27 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
+  }
+
+  static UnivariatePolynomial<D> Add(const UnivariatePolynomial<D>& self,
+                                     const UnivariatePolynomial<S>& other) {
+    if (self.IsZero()) {
+      return other.ToDense();
+    } else if (other.IsZero()) {
+      return self;
+    }
+
+    size_t degree = self.Degree();
+    size_t other_degree = other.Degree();
+    UnivariatePolynomial<D> ret;
+    std::vector<F>& o_coefficients = ret.coefficients_.coefficients_;
+    o_coefficients.resize(std::max(degree, other_degree) + 1);
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
+      o_coefficients[i] = self.coefficients_[i] + other.coefficients()[i];
+    }
+
+    ret.coefficients_.RemoveHighDegreeZeros();
+    return ret;
   }
 
   static UnivariatePolynomial<D>& AddInPlace(
@@ -424,6 +467,19 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return other + self;
   }
 
+  static UnivariatePolynomial<S> Add(const UnivariatePolynomial<S>& self,
+                                     const UnivariatePolynomial<S>& other) {
+    if (self.IsZero()) {
+      return other;
+    } else if (other.IsZero()) {
+      return self;
+    }
+
+    UnivariatePolynomial<S> ret;
+    DoAdd<false>(self, other, ret);
+    return ret;
+  }
+
   static UnivariatePolynomial<S>& AddInPlace(
       UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
     if (self.IsZero()) {
@@ -432,7 +488,8 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
       return self;
     }
 
-    return DoAddition<false>(self, other);
+    DoAdd<false>(self, other, self);
+    return self;
   }
 
   static UnivariatePolynomial<D> Sub(const UnivariatePolynomial<S>& self,
@@ -448,7 +505,8 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
       return self;
     }
 
-    return DoAddition<true>(self, other);
+    DoAdd<true>(self, other, self);
+    return self;
   }
 
   static UnivariatePolynomial<S>& NegInPlace(UnivariatePolynomial<S>& self) {
@@ -575,58 +633,58 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
  private:
   template <bool NEGATION>
-  static UnivariatePolynomial<S>& DoAddition(
-      UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
-    std::vector<Term>& l_terms = self.coefficients_.terms_;
-    const std::vector<Term>& r_terms = other.coefficients_.terms_;
+  static void DoAdd(const UnivariatePolynomial<S>& a,
+                    const UnivariatePolynomial<S>& b,
+                    UnivariatePolynomial<S>& c) {
+    const std::vector<Term>& a_terms = a.coefficients_.terms_;
+    const std::vector<Term>& b_terms = b.coefficients_.terms_;
+    std::vector<Term> c_terms;
+    c_terms.reserve(std::max(a_terms.size(), b_terms.size()));
 
-    auto l_it = l_terms.begin();
-    auto r_it = r_terms.begin();
-    std::vector<Term> ret;
-    ret.reserve(std::max(l_terms.size(), r_terms.size()));
-    while (l_it != l_terms.end() || r_it != r_terms.end()) {
-      if (l_it == l_terms.end()) {
+    auto a_it = a_terms.begin();
+    auto b_it = b_terms.begin();
+    while (a_it != a_terms.end() || b_it != b_terms.end()) {
+      if (a_it == a_terms.end()) {
         if constexpr (NEGATION) {
-          ret.push_back(-(*r_it));
+          c_terms.push_back(-(*b_it));
         } else {
-          ret.push_back(*r_it);
+          c_terms.push_back(*b_it);
         }
-        ++r_it;
+        ++b_it;
         continue;
       }
-      if (r_it == r_terms.end()) {
-        ret.push_back(*l_it);
-        ++l_it;
+      if (b_it == b_terms.end()) {
+        c_terms.push_back(*a_it);
+        ++a_it;
         continue;
       }
-      if (l_it->degree < r_it->degree) {
-        ret.push_back(*l_it);
-        ++l_it;
-      } else if (l_it->degree > r_it->degree) {
+      if (a_it->degree < b_it->degree) {
+        c_terms.push_back(*a_it);
+        ++a_it;
+      } else if (a_it->degree > b_it->degree) {
         if constexpr (NEGATION) {
-          ret.push_back(-(*r_it));
+          c_terms.push_back(-(*b_it));
         } else {
-          ret.push_back(*r_it);
+          c_terms.push_back(*b_it);
         }
-        ++r_it;
+        ++b_it;
       } else {
         F coeff;
         if constexpr (NEGATION) {
-          coeff = l_it->coefficient - r_it->coefficient;
+          coeff = a_it->coefficient - b_it->coefficient;
         } else {
-          coeff = l_it->coefficient + r_it->coefficient;
+          coeff = a_it->coefficient + b_it->coefficient;
         }
         if (!coeff.IsZero()) {
-          ret.push_back({l_it->degree, std::move(coeff)});
+          c_terms.push_back({a_it->degree, std::move(coeff)});
         }
-        ++l_it;
-        ++r_it;
+        ++a_it;
+        ++b_it;
       }
     }
 
-    l_terms = std::move(ret);
-    self.coefficients_.RemoveHighDegreeZeros();
-    return self;
+    c.coefficients_ = S(std::move(c_terms));
+    c.coefficients_.RemoveHighDegreeZeros();
   }
 
   static void DoMul(const UnivariatePolynomial<S>& a,

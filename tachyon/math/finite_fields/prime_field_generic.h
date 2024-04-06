@@ -153,6 +153,15 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
   }
 
   // AdditiveSemigroup methods
+  constexpr PrimeField Add(const PrimeField& other) const {
+    PrimeField ret;
+    uint64_t carry = 0;
+    ret.value_ = value_.Add(other.value_, carry);
+    BigInt<N>::template Clamp<Config::kModulusHasSpareBit>(Config::kModulus,
+                                                           &ret.value_, carry);
+    return ret;
+  }
+
   constexpr PrimeField& AddInPlace(const PrimeField& other) {
     uint64_t carry = 0;
     value_.AddInPlace(other.value_, carry);

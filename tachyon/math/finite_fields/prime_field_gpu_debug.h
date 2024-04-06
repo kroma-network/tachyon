@@ -156,6 +156,12 @@ class PrimeFieldGpuDebug final
   }
 
   // AdditiveSemigroup methods
+  constexpr PrimeFieldGpuDebug Add(const PrimeFieldGpuDebug& other) const {
+    PrimeFieldGpuDebug ret;
+    AddLimbs<false>(value_, other.value_, ret.value_);
+    return Clamp(ret);
+  }
+
   constexpr PrimeFieldGpuDebug& AddInPlace(const PrimeFieldGpuDebug& other) {
     AddLimbs<false>(value_, other.value_, value_);
     *this = Clamp(*this);

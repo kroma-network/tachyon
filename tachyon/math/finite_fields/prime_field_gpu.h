@@ -200,6 +200,12 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   }
 
   // AdditiveSemigroup methods
+  __device__ constexpr PrimeFieldGpu Add(const PrimeFieldGpu& other) const {
+    PrimeFieldGpu ret;
+    AddLimbs<false>(value_, other.value_, ret.value_);
+    return Clamp(ret);
+  }
+
   __device__ constexpr PrimeFieldGpu& AddInPlace(const PrimeFieldGpu& other) {
     AddLimbs<false>(value_, other.value_, value_);
     *this = Clamp(*this);

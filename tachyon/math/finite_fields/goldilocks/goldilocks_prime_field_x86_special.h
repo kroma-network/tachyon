@@ -90,6 +90,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   }
 
   // AdditiveSemigroup methods
+  PrimeField Add(const PrimeField& other) const;
   PrimeField& AddInPlace(const PrimeField& other);
   PrimeField& DoubleInPlace();
 

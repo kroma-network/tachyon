@@ -255,7 +255,9 @@ class ProjectivePoint<
   }
 
   // AdditiveSemigroup methods
+  constexpr ProjectivePoint Add(const ProjectivePoint& other) const;
   constexpr ProjectivePoint& AddInPlace(const ProjectivePoint& other);
+  constexpr ProjectivePoint Add(const AffinePoint<Curve>& other) const;
   constexpr ProjectivePoint& AddInPlace(const AffinePoint<Curve>& other);
   constexpr ProjectivePoint& DoubleInPlace();
 
@@ -273,6 +275,11 @@ class ProjectivePoint<
   }
 
  private:
+  constexpr static void DoAdd(const ProjectivePoint& a,
+                              const ProjectivePoint& b, ProjectivePoint& c);
+  constexpr static void DoAdd(const ProjectivePoint& a,
+                              const AffinePoint<Curve>& b, ProjectivePoint& c);
+
   BaseField x_;
   BaseField y_;
   BaseField z_;

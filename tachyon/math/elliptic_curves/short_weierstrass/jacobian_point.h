@@ -261,7 +261,9 @@ class JacobianPoint<
   }
 
   // AdditiveSemigroup methods
+  constexpr JacobianPoint Add(const JacobianPoint& other) const;
   constexpr JacobianPoint& AddInPlace(const JacobianPoint& other);
+  constexpr JacobianPoint Add(const AffinePoint<Curve>& other) const;
   constexpr JacobianPoint& AddInPlace(const AffinePoint<Curve>& other);
   constexpr JacobianPoint& DoubleInPlace();
 
@@ -279,6 +281,11 @@ class JacobianPoint<
   }
 
  private:
+  constexpr static void DoAdd(const JacobianPoint& a, const JacobianPoint& b,
+                              JacobianPoint& c);
+  constexpr static void DoAdd(const JacobianPoint& a,
+                              const AffinePoint<Curve>& b, JacobianPoint& c);
+
   BaseField x_;
   BaseField y_;
   BaseField z_;
