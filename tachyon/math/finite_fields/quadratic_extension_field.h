@@ -135,7 +135,14 @@ class QuadraticExtensionField
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived& DoubleInPlace() {
+  constexpr Derived DoDouble() const {
+    return {
+        c0_.Double(),
+        c1_.Double(),
+    };
+  }
+
+  constexpr Derived& DoDoubleInPlace() {
     c0_.DoubleInPlace();
     c1_.DoubleInPlace();
     return *static_cast<Derived*>(this);

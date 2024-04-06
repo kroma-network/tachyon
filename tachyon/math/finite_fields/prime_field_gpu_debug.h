@@ -168,8 +168,6 @@ class PrimeFieldGpuDebug final
     return *this;
   }
 
-  constexpr PrimeFieldGpuDebug& DoubleInPlace() { return AddInPlace(*this); }
-
   // AdditiveGroup methods
   constexpr PrimeFieldGpuDebug& SubInPlace(const PrimeFieldGpuDebug& other) {
     uint64_t carry = SubLimbs<true>(value_, other.value_, value_);

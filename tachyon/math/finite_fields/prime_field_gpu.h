@@ -212,10 +212,6 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return *this;
   }
 
-  __device__ constexpr PrimeFieldGpu& DoubleInPlace() {
-    return AddInPlace(*this);
-  }
-
   // AdditiveGroup methods
   __device__ constexpr PrimeFieldGpu& SubInPlace(const PrimeFieldGpu& other) {
     uint64_t carry = SubLimbs<true>(value_, other.value_, value_);

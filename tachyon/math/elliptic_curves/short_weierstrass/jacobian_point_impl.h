@@ -200,70 +200,88 @@ constexpr void CLASS::DoAdd(const JacobianPoint& a, const AffinePoint<Curve>& b,
 }
 
 template <typename Curve>
-constexpr CLASS& CLASS::DoubleInPlace() {
+constexpr CLASS CLASS::DoDouble() const {
+  if (IsZero()) {
+    return JacobianPoint::Zero();
+  }
+
+  JacobianPoint ret;
+  DoDoubleImpl(*this, ret);
+  return ret;
+}
+
+template <typename Curve>
+constexpr CLASS& CLASS::DoDoubleInPlace() {
   if (IsZero()) {
     return *this;
   }
 
+  DoDoubleImpl(*this, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoDoubleImpl(const JacobianPoint& a, JacobianPoint& b) {
   if constexpr (Curve::Config::kAIsZero) {
     // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
-    // A = X1²
-    BaseField a = x_.Square();
+    // XX = X1²
+    BaseField xx = a.x_.Square();
 
-    // B = Y1²
-    BaseField b = y_.Square();
+    // YY = Y1²
+    BaseField yy = a.y_.Square();
 
-    // C = B²
-    BaseField c = b.Square();
+    // YYYY = YY²
+    BaseField yyyy = yy.Square();
 
-    // D = 2 * ((X1 + B)² - A - C)
-    //   = 2 * ((X1 + Y1²)² - A - C)
+    // D = 2 * ((X1 + B)² - XX - YYYY)
+    //   = 2 * ((X1 + Y1²)² - XX - YYYY)
     //   = 2 * 2 * X1 * Y1²
     BaseField d;
     if constexpr (BaseField::ExtensionDegree() == 1 ||
                   BaseField::ExtensionDegree() == 2) {
-      d = x_ * b;
+      d = a.x_ * yy;
       d.DoubleInPlace().DoubleInPlace();
     } else {
-      d = x_ + b;
+      d = a.x_ + yy;
       d.SquareInPlace();
-      d -= a;
-      d -= c;
+      d -= xx;
+      d -= yyyy;
       d.DoubleInPlace();
     }
 
-    // E = 3 * A
-    BaseField e = a.Double();
-    e += a;
+    // E = 3 * XX
+    BaseField e = xx.Double();
+    e += xx;
 
     // Z3 = 2 * Y1 * Z1
-    z_ *= y_;
-    z_.DoubleInPlace();
+    b.z_ = a.y_ * a.z_;
+    b.z_.DoubleInPlace();
 
     // X3 = E² - 2 * D
-    x_ = e.Square();
-    x_ -= d.Double();
+    b.x_ = e.Square();
+    b.x_ -= d.Double();
 
-    // Y3 = E * (D - X3) - 8 * C
-    y_ = d - x_;
-    y_ *= e;
-    y_ -= c.DoubleInPlace().DoubleInPlace().DoubleInPlace();
+    // Y3 = E * (D - X3) - 8 * YYYY
+    b.y_ = d - b.x_;
+    b.y_ *= e;
+    b.y_ -= yyyy.DoubleInPlace().DoubleInPlace().DoubleInPlace();
   } else {
     // https://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian.html#doubling-dbl-2007-bl
     // XX = X1²
-    BaseField xx = x_.Square();
+    BaseField xx = a.x_.Square();
 
     // YY = Y1²
-    BaseField yy = y_.Square();
+    BaseField yy = a.y_.Square();
 
     // YYYY = YY²
     BaseField yyyy = yy.Square();
 
     // ZZ = Z1²
-    BaseField zz = z_.Square();
+    BaseField zz = a.z_.Square();
 
     // S = 2 * ((X1 + YY)² - XX - YYYY)
-    BaseField s = x_ + yy;
+    BaseField s = a.x_ + yy;
     s.SquareInPlace();
     s -= xx;
     s -= yyyy;
@@ -278,20 +296,19 @@ constexpr CLASS& CLASS::DoubleInPlace() {
 
     // T = M² - 2 * S
     // X3 = T
-    x_ = m.Square();
-    x_ -= s.Double();
+    b.x_ = m.Square();
+    b.x_ -= s.Double();
 
     // Z3 = (Y1 + Z1)² - YY - ZZ
     // Can be calculated as Z3 = 2 * Y1 * Z1, and this is faster.
-    z_ *= y_;
-    z_.DoubleInPlace();
+    b.z_ = a.y_ + a.z_;
+    b.z_.DoubleInPlace();
 
     // Y3 = M * (S - X3) - 8 * YYYY
-    y_ = s - x_;
-    y_ *= m;
-    y_ -= yyyy.DoubleInPlace().DoubleInPlace().DoubleInPlace();
+    b.y_ = s - b.x_;
+    b.y_ *= m;
+    b.y_ -= yyyy.DoubleInPlace().DoubleInPlace().DoubleInPlace();
   }
-  return *this;
 }
 
 #undef CLASS

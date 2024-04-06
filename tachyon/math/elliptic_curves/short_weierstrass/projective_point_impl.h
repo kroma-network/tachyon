@@ -180,17 +180,36 @@ constexpr void CLASS::DoAdd(const ProjectivePoint& a,
 }
 
 template <typename Curve>
-constexpr CLASS& CLASS::DoubleInPlace() {
+constexpr CLASS CLASS::DoDouble() const {
+  if (IsZero()) {
+    return ProjectivePoint::Zero();
+  }
+
+  ProjectivePoint ret;
+  DoDoubleImpl(*this, ret);
+  return ret;
+}
+
+template <typename Curve>
+constexpr CLASS& CLASS::DoDoubleInPlace() {
   if (IsZero()) {
     return *this;
   }
 
+  DoDoubleImpl(*this, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoDoubleImpl(const ProjectivePoint& a,
+                                   ProjectivePoint& b) {
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#doubling-dbl-2007-bl
   // XX = X1²
-  BaseField xx = x_.Square();
+  BaseField xx = a.x_.Square();
 
   // ZZ = Z1²
-  BaseField zz = z_.Square();
+  BaseField zz = a.z_.Square();
 
   // w = a * ZZ + 3 * XX
   BaseField w = xx.Double();
@@ -200,7 +219,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   }
 
   // s = 2 * Y1 * Z1
-  BaseField s = y_ * z_;
+  BaseField s = a.y_ * a.z_;
   s.DoubleInPlace();
 
   // ss = s²
@@ -210,33 +229,31 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   BaseField sss = s * ss;
 
   // R = Y1 * s
-  BaseField r = y_ * s;
+  BaseField r = a.y_ * s;
 
   // RR = R²
   BaseField rr = r.Square();
 
-  // B = (X1 + R)² - XX - RR
-  BaseField b = x_ + r;
-  b.SquareInPlace();
-  b -= xx;
-  b -= rr;
+  // D = (X1 + R)² - XX - RR
+  BaseField d = a.x_ + r;
+  d.SquareInPlace();
+  d -= xx;
+  d -= rr;
 
-  // h = w² - 2 * B
+  // h = w² - 2 * D
   BaseField h = w.Square();
-  h -= b.Double();
+  h -= d.Double();
 
   // X3 = h * s
-  x_ = h * s;
+  b.x_ = h * s;
 
-  // Y3 = w * (B - h) - 2 * RR
-  y_ = b - h;
-  y_ *= w;
-  y_ -= rr.Double();
+  // Y3 = w * (D - h) - 2 * RR
+  b.y_ = d - h;
+  b.y_ *= w;
+  b.y_ -= rr.Double();
 
   // Z3 = sss
-  z_ = std::move(sss);
-
-  return *this;
+  b.z_ = std::move(sss);
 }
 
 #undef CLASS

@@ -182,14 +182,32 @@ constexpr void CLASS::DoAdd(const PointXYZZ& a, const AffinePoint<Curve>& b,
 }
 
 template <typename Curve>
-constexpr CLASS& CLASS::DoubleInPlace() {
+constexpr CLASS CLASS::DoDouble() const {
+  if (IsZero()) {
+    return PointXYZZ::Zero();
+  }
+
+  PointXYZZ ret;
+  DoDoubleImpl(*this, ret);
+  return ret;
+}
+
+template <typename Curve>
+constexpr CLASS& CLASS::DoDoubleInPlace() {
   if (IsZero()) {
     return *this;
   }
 
+  DoDoubleImpl(*this, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoDoubleImpl(const PointXYZZ& a, PointXYZZ& b) {
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-xyzz.html#doubling-dbl-2008-s-1
   // U = 2 * Y1
-  BaseField u = y_.Double();
+  BaseField u = a.y_.Double();
 
   // V = U²
   BaseField v = u.Square();
@@ -198,31 +216,29 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   BaseField w = u * v;
 
   // S = X1 * V
-  BaseField s = x_ * v;
+  BaseField s = a.x_ * v;
 
   // M = 3 * X1² + a * ZZ1²
-  BaseField m = x_.Square();
+  BaseField m = a.x_.Square();
   m += m.Double();
   if constexpr (!Curve::Config::kAIsZero) {
-    m += Curve::Config::MulByA(zz_.Square());
+    m += Curve::Config::MulByA(a.zz_.Square());
   }
 
   // X3 = M² - 2 * S
-  x_ = m.Square();
-  x_ -= s.Double();
+  b.x_ = m.Square();
+  b.x_ -= s.Double();
 
   // Y3 = M * (S - X3) - W * Y1
   BaseField lefts[] = {std::move(m), -w};
-  BaseField rights[] = {s - x_, y_};
-  y_ = BaseField::SumOfProductsSerial(lefts, rights);
+  BaseField rights[] = {s - b.x_, a.y_};
+  b.y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // ZZ3 = V * ZZ1
-  zz_ *= v;
+  b.zz_ = v * a.zz_;
 
   // ZZZ3 = W * ZZZ1
-  zzz_ *= w;
-
-  return *this;
+  b.zzz_ = w * a.zzz_;
 }
 
 #undef CLASS

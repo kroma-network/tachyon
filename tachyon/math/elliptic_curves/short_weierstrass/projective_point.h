@@ -259,7 +259,8 @@ class ProjectivePoint<
   constexpr ProjectivePoint& AddInPlace(const ProjectivePoint& other);
   constexpr ProjectivePoint Add(const AffinePoint<Curve>& other) const;
   constexpr ProjectivePoint& AddInPlace(const AffinePoint<Curve>& other);
-  constexpr ProjectivePoint& DoubleInPlace();
+  constexpr ProjectivePoint DoDouble() const;
+  constexpr ProjectivePoint& DoDoubleInPlace();
 
   // AdditiveGroup methods
   constexpr ProjectivePoint& NegInPlace() {
@@ -279,6 +280,8 @@ class ProjectivePoint<
                               const ProjectivePoint& b, ProjectivePoint& c);
   constexpr static void DoAdd(const ProjectivePoint& a,
                               const AffinePoint<Curve>& b, ProjectivePoint& c);
+  constexpr static void DoDoubleImpl(const ProjectivePoint& a,
+                                     ProjectivePoint& b);
 
   BaseField x_;
   BaseField y_;

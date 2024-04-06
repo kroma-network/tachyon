@@ -67,7 +67,7 @@ namespace internal {
 SUPPORTS_BINARY_OPERATOR(Mul);
 SUPPORTS_UNARY_OPERATOR(DoSquare);
 SUPPORTS_BINARY_OPERATOR(Add);
-SUPPORTS_UNARY_IN_PLACE_OPERATOR(Double);
+SUPPORTS_UNARY_OPERATOR(DoDouble);
 
 template <typename T, typename = void>
 struct SupportsToBigInt : std::false_type {};
@@ -256,11 +256,23 @@ class AdditiveSemigroup {
 
   // a.Double(): 2a
   [[nodiscard]] constexpr auto Double() const {
-    if constexpr (internal::SupportsDoubleInPlace<G>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.DoubleInPlace();
+    if constexpr (internal::SupportsDoDouble<G>::value) {
+      const G* g = static_cast<const G*>(this);
+      return g->DoDouble();
     } else {
       return operator+(static_cast<const G&>(*this));
+    }
+  }
+
+  // a.DoubleInPlace(): a = 2a
+  constexpr G& DoubleInPlace() {
+    if constexpr (internal::SupportsDoDoubleInPlace<G>::value) {
+      G* g = static_cast<G*>(this);
+      return g->DoDoubleInPlace();
+    } else if constexpr (internal::SupportsAddInPlace<G, G>::value) {
+      return operator+=(static_cast<const G&>(*this));
+    } else {
+      static_assert(base::AlwaysFalse<G>);
     }
   }
 
@@ -419,7 +431,8 @@ class AdditiveSemigroup {
     auto it = BitIteratorBE<BigInt<N>>::begin(&scalar, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&scalar);
     while (it != end) {
-      if constexpr (internal::SupportsDoubleInPlace<G>::value) {
+      if constexpr (internal::SupportsDoDoubleInPlace<G>::value ||
+                    internal::SupportsAddInPlace<G, G>::value) {
         ret.DoubleInPlace();
       } else {
         ret = ret.Double();

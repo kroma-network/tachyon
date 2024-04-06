@@ -279,7 +279,8 @@ class PointXYZZ<_Curve,
   constexpr PointXYZZ& AddInPlace(const PointXYZZ& other);
   constexpr PointXYZZ Add(const AffinePoint<Curve>& other) const;
   constexpr PointXYZZ& AddInPlace(const AffinePoint<Curve>& other);
-  constexpr PointXYZZ& DoubleInPlace();
+  constexpr PointXYZZ DoDouble() const;
+  constexpr PointXYZZ& DoDoubleInPlace();
 
   // AdditiveGroup methods
   constexpr PointXYZZ& NegInPlace() {
@@ -299,6 +300,7 @@ class PointXYZZ<_Curve,
                               PointXYZZ& c);
   constexpr static void DoAdd(const PointXYZZ& a, const AffinePoint<Curve>& b,
                               PointXYZZ& c);
+  constexpr static void DoDoubleImpl(const PointXYZZ& a, PointXYZZ& b);
 
   BaseField x_;
   BaseField y_;

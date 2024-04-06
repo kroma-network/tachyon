@@ -123,11 +123,6 @@ CLASS& CLASS::AddInPlace(const PrimeField& other) {
 }
 
 template <typename Config>
-CLASS& CLASS::DoubleInPlace() {
-  return AddInPlace(*this);
-}
-
-template <typename Config>
 CLASS& CLASS::SubInPlace(const PrimeField& other) {
   ::Goldilocks::sub(
       reinterpret_cast<::Goldilocks::Element&>(value_),
