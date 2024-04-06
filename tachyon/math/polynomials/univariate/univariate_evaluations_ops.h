@@ -10,7 +10,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
@@ -27,10 +26,12 @@ class UnivariateEvaluationsOp {
     const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty()) {
       // 0 + g(x)
-      l_evaluations = r_evaluations;
+      return self = other;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) + 0
       return self;
     }
-    // f(x) + 0 skips this for loop.
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] += r_evaluations[i];
     }
@@ -42,9 +43,12 @@ class UnivariateEvaluationsOp {
     const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty()) {
       // 0 - g(x)
-      l_evaluations.resize(r_evaluations.size());
+      return self = -other;
     }
-    // f(x) - 0 skips this for loop.
+    if (r_evaluations.empty()) {
+      // f(x) - 0
+      return self;
+    }
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] -= r_evaluations[i];
     }
@@ -53,6 +57,9 @@ class UnivariateEvaluationsOp {
 
   static Poly& NegInPlace(Poly& self) {
     std::vector<F>& evaluations = self.evaluations_;
+    if (evaluations.empty()) {
+      return self;
+    }
     // clang-format off
     OPENMP_PARALLEL_FOR(F& evaluation : evaluations) {
       // clang-format on
@@ -104,6 +111,9 @@ class UnivariateEvaluationsOp {
 
   static Poly& DivInPlace(Poly& self, const F& scalar) {
     std::vector<F>& l_evaluations = self.evaluations_;
+    if (l_evaluations.empty()) {
+      return self;
+    }
     F scalar_inv = scalar.Inverse();
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
       l_evaluations[i] *= scalar_inv;

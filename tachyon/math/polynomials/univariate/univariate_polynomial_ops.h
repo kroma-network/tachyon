@@ -13,7 +13,6 @@
 
 #include "third_party/pdqsort/include/pdqsort.h"
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/base/arithmetics_results.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -30,15 +29,14 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<D>& AddInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<D>& other) {
-    std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
-    const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
     if (self.IsZero()) {
-      l_coefficients = r_coefficients;
-      return self;
+      return self = other;
     } else if (other.IsZero()) {
       return self;
     }
 
+    std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
+    const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
     l_coefficients.resize(
         std::max(l_coefficients.size(), r_coefficients.size()));
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
@@ -83,17 +81,14 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<D>& SubInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<D>& other) {
-    std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
-    const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
     if (self.IsZero()) {
-      l_coefficients = base::CreateVector(
-          r_coefficients.size(),
-          [&r_coefficients](size_t idx) { return -r_coefficients[idx]; });
-      return self;
+      return self = -other;
     } else if (other.IsZero()) {
       return self;
     }
 
+    std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
+    const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
     l_coefficients.resize(
         std::max(l_coefficients.size(), r_coefficients.size()));
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_coefficients.size(); ++i) {
@@ -137,6 +132,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   }
 
   static UnivariatePolynomial<D>& NegInPlace(UnivariatePolynomial<D>& self) {
+    if (self.IsZero()) {
+      return self;
+    }
     std::vector<F>& coefficients = self.coefficients_.coefficients_;
     // clang-format off
     OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
@@ -148,6 +146,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<D>& MulInPlace(UnivariatePolynomial<D>& self,
                                              const F& scalar) {
+    if (self.IsZero() || scalar.IsOne()) {
+      return self;
+    }
     std::vector<F>& coefficients = self.coefficients_.coefficients_;
     // clang-format off
     OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
@@ -226,6 +227,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<D>& DivInPlace(UnivariatePolynomial<D>& self,
                                              const F& scalar) {
+    if (self.IsZero() || scalar.IsOne()) {
+      return self;
+    }
     std::vector<F>& coefficients = self.coefficients_.coefficients_;
     F scalar_inv = scalar.Inverse();
     // clang-format off
@@ -239,6 +243,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   template <typename DOrS>
   static UnivariatePolynomial<D>& DivInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
+    if (self.IsZero()) {
+      return self;
+    }
     DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
     self = std::move(result.quotient);
     self.coefficients_.RemoveHighDegreeZeros();
@@ -248,6 +255,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   template <typename DOrS>
   static UnivariatePolynomial<D>& ModInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
+    if (self.IsZero()) {
+      return self = other.ToDense();
+    }
     DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
     self = std::move(result.remainder);
     self.coefficients_.RemoveHighDegreeZeros();
@@ -258,6 +268,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   static DivResult<UnivariatePolynomial<D>> DivMod(
       const UnivariatePolynomial<D>& self,
       const UnivariatePolynomial<DOrS>& other) {
+    if (self.IsZero()) {
+      return {UnivariatePolynomial<D>::Zero(), other.ToDense()};
+    }
     return Divide(self, other);
   }
 
@@ -354,11 +367,8 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S>& AddInPlace(
       UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
-    std::vector<Term>& l_terms = self.coefficients_.terms_;
-    const std::vector<Term>& r_terms = other.coefficients_.terms_;
     if (self.IsZero()) {
-      l_terms = r_terms;
-      return self;
+      return self = other;
     } else if (other.IsZero()) {
       return self;
     }
@@ -373,12 +383,8 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S>& SubInPlace(
       UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
-    std::vector<Term>& l_terms = self.coefficients_.terms_;
-    const std::vector<Term>& r_terms = other.coefficients_.terms_;
     if (self.IsZero()) {
-      l_terms = base::CreateVector(
-          r_terms.size(), [&r_terms](size_t idx) { return -r_terms[idx]; });
-      return self;
+      return self = -other;
     } else if (other.IsZero()) {
       return self;
     }
@@ -401,6 +407,9 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S>& MulInPlace(UnivariatePolynomial<S>& self,
                                              const F& scalar) {
+    if (self.IsZero() || scalar.IsOne()) {
+      return self;
+    }
     std::vector<Term>& terms = self.coefficients_.terms_;
     for (Term& term : terms) {
       term.coefficient *= scalar;
@@ -410,18 +419,17 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S>& MulInPlace(
       UnivariatePolynomial<S>& self, const UnivariatePolynomial<S>& other) {
-    std::vector<Term>& l_terms = self.coefficients_.terms_;
-    const std::vector<Term>& r_terms = other.coefficients_.terms_;
     if (self.IsZero() || other.IsOne()) {
       return self;
     } else if (self.IsOne()) {
-      l_terms = r_terms;
-      return self;
+      return self = other;
     } else if (other.IsZero()) {
-      l_terms = {};
+      self.coefficients_.terms_.clear();
       return self;
     }
 
+    std::vector<Term>& l_terms = self.coefficients_.terms_;
+    const std::vector<Term>& r_terms = other.coefficients_.terms_;
     std::vector<Term> records;
     for (const Term& l_term : l_terms) {
       for (const Term& r_term : r_terms) {
@@ -449,6 +457,9 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S>& DivInPlace(UnivariatePolynomial<S>& self,
                                              const F& scalar) {
+    if (self.IsZero() || scalar.IsOne()) {
+      return self;
+    }
     std::vector<Term>& terms = self.coefficients_.terms_;
     F scalar_inv = scalar.Inverse();
     for (Term& term : terms) {
@@ -460,12 +471,18 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   template <typename DOrS>
   static UnivariatePolynomial<D> Div(const UnivariatePolynomial<S>& self,
                                      const UnivariatePolynomial<DOrS>& other) {
+    if (self.IsZero()) {
+      return UnivariatePolynomial<D>::Zero();
+    }
     return self.ToDense() / other;
   }
 
   template <typename DOrS>
   static UnivariatePolynomial<D> Mod(const UnivariatePolynomial<S>& self,
                                      const UnivariatePolynomial<DOrS>& other) {
+    if (self.IsZero()) {
+      return other.ToDense();
+    }
     return self.ToDense() % other;
   }
 
@@ -473,6 +490,9 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   static DivResult<UnivariatePolynomial<D>> DivMod(
       const UnivariatePolynomial<S>& self,
       const UnivariatePolynomial<DOrS>& other) {
+    if (self.IsZero()) {
+      return {UnivariatePolynomial<D>::Zero(), other.ToDense()};
+    }
     return self.ToDense().DivMod(other);
   }
 

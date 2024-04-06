@@ -9,7 +9,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/polynomials/multivariate/multivariate_polynomial.h"
 
@@ -36,12 +35,8 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
 
   static MultivariatePolynomial<S>& SubInPlace(
       MultivariatePolynomial<S>& self, const MultivariatePolynomial<S>& other) {
-    Terms& l_terms = self.coefficients_.terms_;
-    const Terms& r_terms = other.coefficients_.terms_;
     if (self.IsZero()) {
-      l_terms = base::CreateVector(
-          r_terms.size(), [&r_terms](size_t idx) { return -r_terms[idx]; });
-      return self;
+      return self = -other;
     } else if (other.IsZero()) {
       return self;
     }
