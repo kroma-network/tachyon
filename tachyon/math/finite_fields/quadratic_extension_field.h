@@ -200,10 +200,6 @@ class QuadraticExtensionField
   }
 
   // MultiplicativeGroup methods
-  Derived& DivInPlace(const Derived& other) {
-    return MulInPlace(other.Inverse());
-  }
-
   constexpr Derived& InverseInPlace() {
     // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
     // See https://github.com/kroma-network/tachyon/issues/76
