@@ -186,7 +186,7 @@ There are two ways to install the Tachyon package. While it is recommended to in
 
 ### Install package from pre-built binaries
 
-``` shell
+```shell
 curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.1.0/libtachyon_0.1.0_amd64.deb
 curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.1.0/libtachyon-dev_0.1.0_amd64.deb
 
