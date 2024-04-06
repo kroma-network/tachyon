@@ -252,8 +252,8 @@ sudo apt install python-is-python3
 Additionally, please include these lines in your `.bazelc.user`.
 
 ```
-build --action_env=PATH=/usr/bin:/usr/local/bin
-build --host_action_env=PATH=/usr/bin:/usr/local/bin
+build:cuda --action_env=PATH=/usr/bin:/usr/local/bin
+build:cuda --host_action_env=PATH=/usr/bin:/usr/local/bin
 ```
 
 ### Generate C API documents using Doxygen
