@@ -95,6 +95,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   PrimeField& AddInPlace(const PrimeField& other);
 
   // AdditiveGroup methods
+  PrimeField Sub(const PrimeField& other) const;
   PrimeField& SubInPlace(const PrimeField& other);
   PrimeField& NegInPlace();
 

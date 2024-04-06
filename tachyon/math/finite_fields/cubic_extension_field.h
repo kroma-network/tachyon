@@ -188,6 +188,14 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   // AdditiveGroup methods
+  constexpr Derived Sub(const Derived& other) const {
+    return {
+        c0_ - other.c0_,
+        c1_ - other.c1_,
+        c2_ - other.c2_,
+    };
+  }
+
   constexpr Derived& SubInPlace(const Derived& other) {
     c0_ -= other.c0_;
     c1_ -= other.c1_;

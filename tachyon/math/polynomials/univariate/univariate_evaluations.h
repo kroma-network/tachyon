@@ -157,6 +157,10 @@ class UnivariateEvaluations final
   }
 
   // AdditiveGroup methods
+  UnivariateEvaluations Sub(const UnivariateEvaluations& other) const {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Sub(*this, other);
+  }
+
   UnivariateEvaluations& SubInPlace(const UnivariateEvaluations& other) {
     return internal::UnivariateEvaluationsOp<F, MaxDegree>::SubInPlace(*this,
                                                                        other);

@@ -56,6 +56,24 @@ class UnivariateEvaluationsOp {
     return self;
   }
 
+  static Poly Sub(const Poly& self, const Poly& other) {
+    const std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
+    if (l_evaluations.empty()) {
+      // 0 - g(x)
+      return -other;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) - 0
+      return self;
+    }
+    std::vector<F> o_evaluations(r_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+      o_evaluations[i] = l_evaluations[i] - r_evaluations[i];
+    }
+    return Poly(std::move(o_evaluations));
+  }
+
   static Poly& SubInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;

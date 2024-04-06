@@ -182,19 +182,13 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
   // Subtraction:
   //   1) a - b if subtraction is supported.
   //   2) a + (-b) otherwise
-  template <
-      typename G2,
-      std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
-                       internal::SupportsAddInPlace<G, G2>::value ||
-                       internal::SupportsSub<G, G2>::value ||
-                       internal::SupportsSubInPlace<G, G2>::value>* = nullptr>
+  template <typename G2,
+            std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
+                             internal::SupportsSub<G, G2>::value>* = nullptr>
   constexpr auto operator-(const G2& other) const {
     if constexpr (internal::SupportsSub<G, G2>::value) {
       const G* g = static_cast<const G*>(this);
       return g->Sub(other);
-    } else if constexpr (internal::SupportsSubInPlace<G, G2>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.SubInPlace(other);
     } else {
       return this->operator+(-other);
     }

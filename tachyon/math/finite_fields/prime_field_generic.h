@@ -196,6 +196,17 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
   }
 
   // AdditiveGroup methods
+  constexpr PrimeField Sub(const PrimeField& other) const {
+    PrimeField ret;
+    if (other.value_ > value_) {
+      ret.value_ = value_.Add(Config::kModulus);
+      ret.value_.SubInPlace(other.value_);
+    } else {
+      ret.value_ = value_.Sub(other.value_);
+    }
+    return ret;
+  }
+
   constexpr PrimeField& SubInPlace(const PrimeField& other) {
     if (other.value_ > value_) {
       value_.AddInPlace(Config::kModulus);

@@ -175,6 +175,14 @@ class PrimeFieldGpuDebug final
   }
 
   // AdditiveGroup methods
+  constexpr PrimeFieldGpuDebug Sub(const PrimeFieldGpuDebug& other) const {
+    PrimeFieldGpuDebug ret;
+    uint64_t carry = SubLimbs<true>(value_, other.value_, ret.value_);
+    if (carry == 0) return ret;
+    AddLimbs<false>(ret.value_, Config::kModulus, ret.value_);
+    return ret;
+  }
+
   constexpr PrimeFieldGpuDebug& SubInPlace(const PrimeFieldGpuDebug& other) {
     uint64_t carry = SubLimbs<true>(value_, other.value_, value_);
     if (carry == 0) return *this;

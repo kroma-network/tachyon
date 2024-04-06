@@ -47,6 +47,19 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
     return self;
   }
 
+  static MultivariatePolynomial<S> Sub(const MultivariatePolynomial<S>& self,
+                                       const MultivariatePolynomial<S>& other) {
+    if (self.IsZero()) {
+      return -other;
+    } else if (other.IsZero()) {
+      return self;
+    }
+
+    MultivariatePolynomial<S> ret;
+    DoAdd<true>(self, other, ret);
+    return ret;
+  }
+
   static MultivariatePolynomial<S>& SubInPlace(
       MultivariatePolynomial<S>& self, const MultivariatePolynomial<S>& other) {
     if (self.IsZero()) {

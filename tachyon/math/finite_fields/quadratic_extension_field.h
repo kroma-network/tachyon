@@ -149,6 +149,13 @@ class QuadraticExtensionField
   }
 
   // AdditiveGroup methods
+  constexpr Derived Sub(const Derived& other) const {
+    return {
+        c0_ - other.c0_,
+        c1_ - other.c1_,
+    };
+  }
+
   constexpr Derived& SubInPlace(const Derived& other) {
     c0_ -= other.c0_;
     c1_ -= other.c1_;

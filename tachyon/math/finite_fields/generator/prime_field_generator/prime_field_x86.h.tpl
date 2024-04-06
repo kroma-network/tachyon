@@ -163,6 +163,12 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
   }
 
   // AdditiveGroup methods
+  constexpr PrimeField Sub(const PrimeField& other) const {
+    PrimeField ret;
+    %{prefix}_rawSub(ret.value_.limbs, value_.limbs, other.value_.limbs);
+    return ret;
+  }
+
   constexpr PrimeField& SubInPlace(const PrimeField& other) {
     %{prefix}_rawSub(value_.limbs, value_.limbs, other.value_.limbs);
     return *this;

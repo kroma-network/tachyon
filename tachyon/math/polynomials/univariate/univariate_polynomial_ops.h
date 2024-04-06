@@ -122,6 +122,28 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
+  static UnivariatePolynomial<D> Sub(const UnivariatePolynomial<D>& self,
+                                     const UnivariatePolynomial<D>& other) {
+    if (self.IsZero()) {
+      return -other;
+    } else if (other.IsZero()) {
+      return self;
+    }
+
+    const std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
+    const std::vector<F>& r_coefficients = other.coefficients_.coefficients_;
+    UnivariatePolynomial<D> ret;
+    std::vector<F>& o_coefficients = ret.coefficients_.coefficients_;
+    o_coefficients.resize(
+        std::max(l_coefficients.size(), r_coefficients.size()));
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
+      o_coefficients[i] = self.coefficients_[i] - other.coefficients_[i];
+    }
+
+    ret.coefficients_.RemoveHighDegreeZeros();
+    return ret;
+  }
+
   static UnivariatePolynomial<D>& SubInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<D>& other) {
     if (self.IsZero()) {
@@ -140,6 +162,27 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
+  }
+
+  static UnivariatePolynomial<D> Sub(const UnivariatePolynomial<D>& self,
+                                     const UnivariatePolynomial<S>& other) {
+    if (self.IsZero()) {
+      return (-other).ToDense();
+    } else if (other.IsZero()) {
+      return self;
+    }
+
+    size_t degree = self.Degree();
+    size_t other_degree = other.Degree();
+    UnivariatePolynomial<D> ret;
+    std::vector<F>& o_coefficients = ret.coefficients_.coefficients_;
+    o_coefficients.resize(std::max(degree, other_degree) + 1);
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_coefficients.size(); ++i) {
+      o_coefficients[i] = self.coefficients_[i] - other.coefficients()[i];
+    }
+
+    ret.coefficients_.RemoveHighDegreeZeros();
+    return ret;
   }
 
   static UnivariatePolynomial<D>& SubInPlace(
@@ -514,6 +557,19 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   static UnivariatePolynomial<D> Sub(const UnivariatePolynomial<S>& self,
                                      const UnivariatePolynomial<D>& other) {
     return -other + self;
+  }
+
+  static UnivariatePolynomial<S> Sub(const UnivariatePolynomial<S>& self,
+                                     const UnivariatePolynomial<S>& other) {
+    if (self.IsZero()) {
+      return -other;
+    } else if (other.IsZero()) {
+      return self;
+    }
+
+    UnivariatePolynomial<S> ret;
+    DoAdd<true>(self, other, ret);
+    return ret;
   }
 
   static UnivariatePolynomial<S>& SubInPlace(
