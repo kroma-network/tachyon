@@ -252,10 +252,6 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return *this;
   }
 
-  __device__ constexpr PrimeFieldGpu& SquareInPlace() {
-    return MulInPlace(*this);
-  }
-
   // MultiplicativeGroup methods
   __device__ constexpr PrimeFieldGpu& InverseInPlace() {
     if (IsZero()) return *this;

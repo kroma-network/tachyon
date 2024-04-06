@@ -180,50 +180,15 @@ class QuadraticExtensionField
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived& SquareInPlace() {
-    // (c0, c1)² = (c0 + c1 * x)²
-    //            = c0² + 2 * c0 * c1 * x + c1² * x²
-    //            = c0² + c1² * x² + 2 * c0 * c1 * x
-    //            = c0² + c1² * q + 2 * c0 * c1 * x
-    //            = (c0² + c1² * q, 2 * c0 * c1)
-    // Where q is Config::kNonResidue.
-    // When q = -1, we can re-use intermediate additions to improve performance.
+  constexpr Derived DoSquare() const {
+    Derived ret;
+    DoSquareImpl(*static_cast<const Derived*>(this), ret);
+    return ret;
+  }
 
-    // v0 = c0 - c1
-    BaseField v0 = c0_ - c1_;
-    // v1 = c0 * c1
-    BaseField v1 = c0_ * c1_;
-    if constexpr (Config::kNonResidueIsMinusOne) {
-      // When the non-residue is -1, we save 2 intermediate additions,
-      // and use one fewer intermediate variable
-
-      // v0 = (c0 - c1) * (c0 + c1)
-      //    = c0² - c1²
-      v0 *= (c0_ + c1_);
-
-      // c0 = c0² - c1²
-      c0_ = std::move(v0);
-      // c1 = 2 * c0 * c1
-      c1_ = v1.Double();
-    } else {
-      // v2 = c0 - q * c1
-      BaseField v2 = c0_ - Config::MulByNonResidue(c1_);
-
-      // v0 = (v0 * v2)
-      // v0 = (c0 - c1) * (c0 - c1 * q)
-      // v0 = c0² - c0 * c1 * q - c0 * c1 + c1² * q
-      // v0 = c0² - (q + 1) * c0 * c1 + c1² * q
-      // v0 = c0² + c1² * q - (q + 1) * c0 * c1
-      v0 *= v2;
-
-      // c0 = v0 + (q + 1) * c0 * c1
-      // c0 = c0² + c1² * q - (q + 1) * c0 * c1 + (q + 1) * c0 * c1
-      // c0 = c0² + c1² * q
-      c0_ = v0 + v1;
-      c0_ += Config::MulByNonResidue(v1);
-      // c1 = 2 * c0 * c1
-      c1_ = v1.Double();
-    }
+  constexpr Derived& DoSquareInPlace() {
+    DoSquareImpl(*static_cast<const Derived*>(this),
+                 *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);
   }
 
@@ -312,6 +277,52 @@ class QuadraticExtensionField
       c.c1_ -= v1;
       // c.c0 = a.c0 * b.c0 + a.c1 * b.c1 * q
       c.c0_ = v0 + Config::MulByNonResidue(v1);
+    }
+  }
+
+  constexpr static void DoSquareImpl(const Derived& a, Derived& b) {
+    // (c0, c1)² = (c0 + c1 * x)²
+    //            = c0² + 2 * c0 * c1 * x + c1² * x²
+    //            = c0² + c1² * x² + 2 * c0 * c1 * x
+    //            = c0² + c1² * q + 2 * c0 * c1 * x
+    //            = (c0² + c1² * q, 2 * c0 * c1)
+    // Where q is Config::kNonResidue.
+    // When q = -1, we can re-use intermediate additions to improve performance.
+
+    // v0 = c0 - c1
+    BaseField v0 = a.c0_ - a.c1_;
+    // v1 = c0 * c1
+    BaseField v1 = a.c0_ * a.c1_;
+    if constexpr (Config::kNonResidueIsMinusOne) {
+      // When the non-residue is -1, we save 2 intermediate additions,
+      // and use one fewer intermediate variable
+
+      // v0 = (c0 - c1) * (c0 + c1)
+      //    = c0² - c1²
+      v0 *= (a.c0_ + a.c1_);
+
+      // c0 = c0² - c1²
+      b.c0_ = std::move(v0);
+      // c1 = 2 * c0 * c1
+      b.c1_ = v1.Double();
+    } else {
+      // v2 = c0 - q * c1
+      BaseField v2 = a.c0_ - Config::MulByNonResidue(a.c1_);
+
+      // v0 = (v0 * v2)
+      // v0 = (c0 - c1) * (c0 - c1 * q)
+      // v0 = c0² - c0 * c1 * q - c0 * c1 + c1² * q
+      // v0 = c0² - (q + 1) * c0 * c1 + c1² * q
+      // v0 = c0² + c1² * q - (q + 1) * c0 * c1
+      v0 *= v2;
+
+      // c0 = v0 + (q + 1) * c0 * c1
+      // c0 = c0² + c1² * q - (q + 1) * c0 * c1 + (q + 1) * c0 * c1
+      // c0 = c0² + c1² * q
+      b.c0_ = v0 + v1;
+      b.c0_ += Config::MulByNonResidue(v1);
+      // c1 = 2 * c0 * c1
+      b.c1_ = v1.Double();
     }
   }
 

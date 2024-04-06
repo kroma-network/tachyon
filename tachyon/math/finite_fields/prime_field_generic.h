@@ -217,40 +217,20 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return *this;
   }
 
-  constexpr PrimeField& SquareInPlace() {
+  constexpr PrimeField DoSquare() const {
+    if (N == 1) {
+      return Mul(*this);
+    }
+    PrimeField ret;
+    DoSquareImpl(*this, ret);
+    return ret;
+  }
+
+  constexpr PrimeField& DoSquareInPlace() {
     if (N == 1) {
       return MulInPlace(*this);
     }
-
-    BigInt<2 * N> r;
-    MulResult<uint64_t> mul_result;
-    for (size_t i = 0; i < N - 1; ++i) {
-      for (size_t j = i + 1; j < N; ++j) {
-        mul_result = internal::u64::MulAddWithCarry(r[i + j], value_[i],
-                                                    value_[j], mul_result.hi);
-        r[i + j] = mul_result.lo;
-      }
-      r[i + N] = mul_result.hi;
-      mul_result.hi = 0;
-    }
-
-    r[2 * N - 1] = r[2 * N - 2] >> 63;
-    for (size_t i = 2; i < 2 * N - 1; ++i) {
-      r[2 * N - i] = (r[2 * N - i] << 1) | (r[2 * N - (i + 1)] >> 63);
-    }
-    r[1] <<= 1;
-
-    AddResult<uint64_t> add_result;
-    for (size_t i = 0; i < N; ++i) {
-      mul_result = internal::u64::MulAddWithCarry(r[2 * i], value_[i],
-                                                  value_[i], mul_result.hi);
-      r[2 * i] = mul_result.lo;
-      add_result = internal::u64::AddWithCarry(r[2 * i + 1], mul_result.hi);
-      r[2 * i + 1] = add_result.result;
-      mul_result.hi = add_result.carry;
-    }
-    BigInt<N>::template MontgomeryReduce64<Config::kModulusHasSpareBit>(
-        r, Config::kModulus, Config::kInverse64, &value_);
+    DoSquareImpl(*this, *this);
     return *this;
   }
 
@@ -300,6 +280,38 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     BigInt<2 * N> r = a.value_.MulExtend(b.value_);
     BigInt<N>::template MontgomeryReduce64<Config::kModulusHasSpareBit>(
         r, Config::kModulus, Config::kInverse64, &c.value_);
+  }
+
+  constexpr static void DoSquareImpl(const PrimeField& a, PrimeField& b) {
+    BigInt<2 * N> r;
+    MulResult<uint64_t> mul_result;
+    for (size_t i = 0; i < N - 1; ++i) {
+      for (size_t j = i + 1; j < N; ++j) {
+        mul_result =
+            internal::u64::MulAddWithCarry(r[i + j], a[i], a[j], mul_result.hi);
+        r[i + j] = mul_result.lo;
+      }
+      r[i + N] = mul_result.hi;
+      mul_result.hi = 0;
+    }
+
+    r[2 * N - 1] = r[2 * N - 2] >> 63;
+    for (size_t i = 2; i < 2 * N - 1; ++i) {
+      r[2 * N - i] = (r[2 * N - i] << 1) | (r[2 * N - (i + 1)] >> 63);
+    }
+    r[1] <<= 1;
+
+    AddResult<uint64_t> add_result;
+    for (size_t i = 0; i < N; ++i) {
+      mul_result =
+          internal::u64::MulAddWithCarry(r[2 * i], a[i], a[i], mul_result.hi);
+      r[2 * i] = mul_result.lo;
+      add_result = internal::u64::AddWithCarry(r[2 * i + 1], mul_result.hi);
+      r[2 * i + 1] = add_result.result;
+      mul_result.hi = add_result.carry;
+    }
+    BigInt<N>::template MontgomeryReduce64<Config::kModulusHasSpareBit>(
+        r, Config::kModulus, Config::kInverse64, &b.value_);
   }
 
   BigInt<N> value_;

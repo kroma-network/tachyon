@@ -36,6 +36,22 @@
                                          std::declval<const R&>())))>         \
       : std::true_type {}
 
+#define SUPPORTS_UNARY_OPERATOR(Name)                                        \
+  template <typename T, typename = void>                                     \
+  struct Supports##Name : std::false_type {};                                \
+                                                                             \
+  template <typename T>                                                      \
+  struct Supports##Name<T, decltype(void(std::declval<T>().Name()))>         \
+      : std::true_type {};                                                   \
+                                                                             \
+  template <typename T, typename = void>                                     \
+  struct Supports##Name##InPlace : std::false_type {};                       \
+                                                                             \
+  template <typename T>                                                      \
+  struct Supports##Name##InPlace<T, decltype(void(                           \
+                                        std::declval<T>().Name##InPlace()))> \
+      : std::true_type {}
+
 #define SUPPORTS_UNARY_IN_PLACE_OPERATOR(Name)                               \
   template <typename T, typename = void>                                     \
   struct Supports##Name##InPlace : std::false_type {};                       \
@@ -49,7 +65,7 @@ namespace tachyon::math {
 namespace internal {
 
 SUPPORTS_BINARY_OPERATOR(Mul);
-SUPPORTS_UNARY_IN_PLACE_OPERATOR(Square);
+SUPPORTS_UNARY_OPERATOR(DoSquare);
 SUPPORTS_BINARY_OPERATOR(Add);
 SUPPORTS_UNARY_IN_PLACE_OPERATOR(Double);
 
@@ -110,11 +126,23 @@ class MultiplicativeSemigroup {
 
   // a.Square(): a²
   [[nodiscard]] constexpr auto Square() const {
-    if constexpr (internal::SupportsSquareInPlace<G>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.SquareInPlace();
+    if constexpr (internal::SupportsDoSquare<G>::value) {
+      const G* g = static_cast<const G*>(this);
+      return g->DoSquare();
     } else {
       return operator*(static_cast<const G&>(*this));
+    }
+  }
+
+  // a.SquareInPlace(): a = a²
+  constexpr G& SquareInPlace() {
+    if constexpr (internal::SupportsDoSquareInPlace<G>::value) {
+      G* g = static_cast<G*>(this);
+      return g->DoSquareInPlace();
+    } else if constexpr (internal::SupportsMulInPlace<G, G>::value) {
+      return operator*=(static_cast<const G&>(*this));
+    } else {
+      static_assert(base::AlwaysFalse<G>);
     }
   }
 
@@ -184,7 +212,8 @@ class MultiplicativeSemigroup {
     auto it = BitIteratorBE<BigInt<N>>::begin(&exponent, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&exponent);
     while (it != end) {
-      if constexpr (internal::SupportsSquareInPlace<G>::value) {
+      if constexpr (internal::SupportsDoSquareInPlace<G>::value ||
+                    internal::SupportsMulInPlace<G, G>::value) {
         ret.SquareInPlace();
       } else {
         ret = ret.Square();

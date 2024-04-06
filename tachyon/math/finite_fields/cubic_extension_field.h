@@ -222,44 +222,15 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived& SquareInPlace() {
-    // clang-format off
-    // (c0, c1, c2)²
-    //   = (c0 + c1 * x + c2 * x²)²
-    //   = c0² + 2 * c0 * c1 * x + (c1² + 2 * c0 * c2) * x² + 2 * c1 * c2 * x³ + c2² * x⁴
-    //   = c0² + 2 * c0 * c1 * x + 2 * c1 * c2 * x³ + (c1² + 2 * c0 * c2) * x² + c2² * x⁴
-    //   = c0² + 2 * c1 * c2 * x³ + 2 * c0 * c1 * x + c2² * x⁴ + (c1² + 2 * c0 * c2) * x²
-    //   = c0² + 2 * c1 * c2 * q + (2 * c0 * c1  + c2² * q) * x + (c1² + 2 * c0 * c2) * x²
-    //   = (c0² + 2 * c1 * c2 * q, 2 * c0 * c1  + c2² * q, c1² + 2 * c0 * c2)
-    // Where q is Config::kNonResidue.
+  constexpr Derived DoSquare() const {
+    Derived ret;
+    DoSquareImpl(*static_cast<const Derived*>(this), ret);
+    return ret;
+  }
 
-    // See https://eprint.iacr.org/2006/471.pdf
-    // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (CH-SQR2)
-    // clang-format on
-
-    // s0 = c0²
-    BaseField s0 = c0_.Square();
-    // s1 = 2 * c0 * c1
-    BaseField s1 = (c0_ * c1_).Double();
-    // s2 = (c0 - c1 + c2)²
-    //    = c0² + c1² + c2² - 2 * c0 * c1 - 2 c1 * c2 + 2 * c0 * c2
-    BaseField s2 = (c0_ - c1_ + c2_).Square();
-    // s3 = 2 * c1 * c2
-    BaseField s3 = (c1_ * c2_).Double();
-    // s4 = c2²
-    BaseField s4 = c2_.Square();
-
-    // c0 = c0² + 2 * c1 * c2 * q
-    c0_ = s0 + Config::MulByNonResidue(s3);
-    // c1 = 2 * c0 * c1 + c2² * q
-    c1_ = s1 + Config::MulByNonResidue(s4);
-    // c2 = 2 * c0 * c1 +
-    //      c0² + c1² + c2² - 2 * c0 * c1 - 2 c1 * c2 + 2 * c0 * c2 +
-    //      2 * c1 * c2 -
-    //      c0² -
-    //      c2²
-    //    = c1² + 2 * c0 * c2
-    c2_ = s1 + s2 + s3 - s0 - s4;
+  constexpr Derived& DoSquareInPlace() {
+    DoSquareImpl(*static_cast<const Derived*>(this),
+                 *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);
   }
 
@@ -375,6 +346,46 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     c.c1_ = x + Config::MulByNonResidue(v2);
     // c.c2 = a.c0 * b.c2 + a.c2 * b.c0 + a.c1 * b.c1
     c.c2_ = y + v1;
+  }
+
+  constexpr static void DoSquareImpl(const Derived& a, Derived& b) {
+    // clang-format off
+    // (c0, c1, c2)²
+    //   = (c0 + c1 * x + c2 * x²)²
+    //   = c0² + 2 * c0 * c1 * x + (c1² + 2 * c0 * c2) * x² + 2 * c1 * c2 * x³ + c2² * x⁴
+    //   = c0² + 2 * c0 * c1 * x + 2 * c1 * c2 * x³ + (c1² + 2 * c0 * c2) * x² + c2² * x⁴
+    //   = c0² + 2 * c1 * c2 * x³ + 2 * c0 * c1 * x + c2² * x⁴ + (c1² + 2 * c0 * c2) * x²
+    //   = c0² + 2 * c1 * c2 * q + (2 * c0 * c1  + c2² * q) * x + (c1² + 2 * c0 * c2) * x²
+    //   = (c0² + 2 * c1 * c2 * q, 2 * c0 * c1  + c2² * q, c1² + 2 * c0 * c2)
+    // Where q is Config::kNonResidue.
+
+    // See https://eprint.iacr.org/2006/471.pdf
+    // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (CH-SQR2)
+    // clang-format on
+
+    // s0 = c0²
+    BaseField s0 = a.c0_.Square();
+    // s1 = 2 * c0 * c1
+    BaseField s1 = (a.c0_ * a.c1_).Double();
+    // s2 = (c0 - c1 + c2)²
+    //    = c0² + c1² + c2² - 2 * c0 * c1 - 2 c1 * c2 + 2 * c0 * c2
+    BaseField s2 = (a.c0_ - a.c1_ + a.c2_).Square();
+    // s3 = 2 * c1 * c2
+    BaseField s3 = (a.c1_ * a.c2_).Double();
+    // s4 = c2²
+    BaseField s4 = a.c2_.Square();
+
+    // c0 = c0² + 2 * c1 * c2 * q
+    b.c0_ = s0 + Config::MulByNonResidue(s3);
+    // c1 = 2 * c0 * c1 + c2² * q
+    b.c1_ = s1 + Config::MulByNonResidue(s4);
+    // c2 = 2 * c0 * c1 +
+    //      c0² + c1² + c2² - 2 * c0 * c1 - 2 c1 * c2 + 2 * c0 * c2 +
+    //      2 * c1 * c2 -
+    //      c0² -
+    //      c2²
+    //    = c1² + 2 * c0 * c2
+    b.c2_ = s1 + s2 + s3 - s0 - s4;
   }
 
   // c = c0_ + c1_ * X + c2_ * X²

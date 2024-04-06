@@ -197,8 +197,6 @@ class PrimeFieldGpuDebug final
     return *this;
   }
 
-  constexpr PrimeFieldGpuDebug& SquareInPlace() { return MulInPlace(*this); }
-
   // MultiplicativeGroup methods
   // TODO(chokobole): Share codes with PrimeField and PrimeFieldGpu.
   constexpr PrimeFieldGpuDebug& InverseInPlace() {
