@@ -180,6 +180,8 @@ class AffinePoint<
     return ToXYZZ() + other;
   }
 
+  constexpr AffinePoint Negative() const { return {x_, -y_, infinity_}; }
+
   constexpr AffinePoint& NegInPlace() {
     y_.NegInPlace();
     return *this;

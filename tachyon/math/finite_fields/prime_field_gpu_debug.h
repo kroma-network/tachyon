@@ -190,6 +190,12 @@ class PrimeFieldGpuDebug final
     return *this;
   }
 
+  constexpr PrimeFieldGpuDebug Negative() const {
+    PrimeFieldGpuDebug ret;
+    SubLimbs<false>(Config::kModulus, value_, ret.value_);
+    return ret;
+  }
+
   constexpr PrimeFieldGpuDebug& NegInPlace() {
     BigInt<N> result;
     SubLimbs<false>(Config::kModulus, value_, result);

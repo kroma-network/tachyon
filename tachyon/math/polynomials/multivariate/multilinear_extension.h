@@ -126,6 +126,10 @@ class MultilinearExtension final
   // AdditiveGroup methods
   OPERATION_METHOD(Sub)
 
+  MultilinearExtension Negative() const {
+    return internal::MultilinearExtensionOp<Evaluations>::Negative(*this);
+  }
+
   MultilinearExtension& NegInPlace() {
     return internal::MultilinearExtensionOp<Evaluations>::NegInPlace(*this);
   }

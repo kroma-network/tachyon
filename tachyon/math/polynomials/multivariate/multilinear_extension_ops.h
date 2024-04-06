@@ -94,6 +94,18 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     return self;
   }
 
+  static MultilinearExtension<D> Negative(const MultilinearExtension<D>& self) {
+    const std::vector<F>& i_evaluations = self.evaluations_.evaluations_;
+    if (i_evaluations.empty()) {
+      return self;
+    }
+    std::vector<F> o_evaluations(i_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_evaluations.size(); ++i) {
+      o_evaluations[i] = -i_evaluations[i];
+    }
+    return MultilinearExtension<D>(D(std::move(o_evaluations)));
+  }
+
   static MultilinearExtension<D>& NegInPlace(MultilinearExtension<D>& self) {
     std::vector<F>& evaluations = self.evaluations_.evaluations_;
     if (evaluations.empty()) {

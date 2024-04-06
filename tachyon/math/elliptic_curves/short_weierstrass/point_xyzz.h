@@ -283,6 +283,8 @@ class PointXYZZ<_Curve,
   constexpr PointXYZZ& DoDoubleInPlace();
 
   // AdditiveGroup methods
+  constexpr PointXYZZ Negative() const { return {x_, -y_, zz_, zzz_}; }
+
   constexpr PointXYZZ& NegInPlace() {
     y_.NegInPlace();
     return *this;

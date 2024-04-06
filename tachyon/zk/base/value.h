@@ -97,6 +97,11 @@ class Value : public math::Field<Value<T>> {
     return Value::Known(*value_ - other);
   }
 
+  constexpr Value Negative() const {
+    if (IsNone()) return Unknown();
+    return Value::Known(-*value_);
+  }
+
   constexpr Value& NegInPlace() {
     if (IsNone()) return *this;
     value_->NegInPlace();

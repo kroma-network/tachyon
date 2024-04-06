@@ -72,6 +72,20 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
     return self;
   }
 
+  static MultivariatePolynomial<S> Negative(
+      const MultivariatePolynomial<S>& self) {
+    if (self.IsZero()) {
+      return self;
+    }
+    const Terms& i_terms = self.coefficients_.terms_;
+    Terms o_terms(i_terms.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_terms.size(); ++i) {
+      o_terms[i] = -i_terms[i];
+    }
+    return MultivariatePolynomial<S>(
+        S(self.coefficients_.num_vars_, std::move(o_terms)));
+  }
+
   static MultivariatePolynomial<S>& NegInPlace(
       MultivariatePolynomial<S>& self) {
     if (self.IsZero()) {

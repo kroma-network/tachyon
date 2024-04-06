@@ -142,6 +142,14 @@ CLASS& CLASS::SubInPlace(const PrimeField& other) {
 }
 
 template <typename Config>
+CLASS CLASS::Negative() const {
+  PrimeField ret;
+  ::Goldilocks::neg(reinterpret_cast<::Goldilocks::Element&>(ret.value_),
+                    reinterpret_cast<const ::Goldilocks::Element&>(value_));
+  return ret;
+}
+
+template <typename Config>
 CLASS& CLASS::NegInPlace() {
   ::Goldilocks::neg(reinterpret_cast<::Goldilocks::Element&>(value_),
                     reinterpret_cast<const ::Goldilocks::Element&>(value_));

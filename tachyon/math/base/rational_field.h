@@ -137,6 +137,10 @@ class RationalField : public Field<RationalField<F>> {
     return *this;
   }
 
+  constexpr RationalField Negative() const {
+    return {-numerator_, denominator_};
+  }
+
   constexpr RationalField& NegInPlace() {
     numerator_.NegInPlace();
     return *this;

@@ -97,6 +97,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   // AdditiveGroup methods
   PrimeField Sub(const PrimeField& other) const;
   PrimeField& SubInPlace(const PrimeField& other);
+  PrimeField Negative() const;
   PrimeField& NegInPlace();
 
   // TODO(chokobole): Support bigendian.

@@ -91,6 +91,18 @@ class UnivariateEvaluationsOp {
     return self;
   }
 
+  static Poly Negative(const Poly& self) {
+    const std::vector<F>& i_evaluations = self.evaluations_;
+    if (i_evaluations.empty()) {
+      return self;
+    }
+    std::vector<F> o_evaluations(i_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < i_evaluations.size(); ++i) {
+      o_evaluations[i] = -i_evaluations[i];
+    }
+    return Poly(std::move(o_evaluations));
+  }
+
   static Poly& NegInPlace(Poly& self) {
     std::vector<F>& evaluations = self.evaluations_;
     if (evaluations.empty()) {

@@ -15,7 +15,6 @@ namespace tachyon::math {
 namespace internal {
 
 SUPPORTS_BINARY_OPERATOR(Sub);
-SUPPORTS_UNARY_IN_PLACE_OPERATOR(Neg);
 
 }  // namespace internal
 
@@ -205,13 +204,8 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
 
   // Negation: -a
   constexpr auto operator-() const {
-    if constexpr (internal::SupportsNegInPlace<G>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.NegInPlace();
-    } else {
-      const G* g = static_cast<const G*>(this);
-      return g->Negative();
-    }
+    const G* g = static_cast<const G*>(this);
+    return g->Negative();
   }
 };
 

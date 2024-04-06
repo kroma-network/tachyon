@@ -203,6 +203,14 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return *static_cast<Derived*>(this);
   }
 
+  constexpr Derived Negative() const {
+    return {
+        -c0_,
+        -c1_,
+        -c2_,
+    };
+  }
+
   constexpr Derived& NegInPlace() {
     c0_.NegInPlace();
     c1_.NegInPlace();
