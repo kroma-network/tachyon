@@ -430,12 +430,12 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
-  constexpr BigInt Add(const BigInt& other) {
+  constexpr BigInt Add(const BigInt& other) const {
     uint64_t unused = 0;
     return Add(other, unused);
   }
 
-  constexpr BigInt Add(const BigInt& other, uint64_t& carry) {
+  constexpr BigInt Add(const BigInt& other, uint64_t& carry) const {
     BigInt ret;
     DoAdd(*this, other, carry, ret);
     return ret;
