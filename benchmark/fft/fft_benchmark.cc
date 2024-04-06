@@ -86,7 +86,7 @@ void Run(const FFTConfig& config) {
 
   std::vector<RetPoly> results;
   if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
-    runner.Run(tachyon_bn254_univariate_evaluation_domain_ifft, degrees,
+    runner.Run(tachyon_bn254_univariate_evaluation_domain_ifft_inplace, degrees,
                &results);
     for (const FFTConfig::Vendor vendor : config.vendors()) {
       std::vector<RetPoly> results_vendor;
@@ -104,7 +104,7 @@ void Run(const FFTConfig& config) {
     // NOLINTNEXTLINE(readability/braces)
   } else if constexpr (std::is_same_v<PolyOrEvals,
                                       typename Domain::DensePoly>) {
-    runner.Run(tachyon_bn254_univariate_evaluation_domain_fft, degrees,
+    runner.Run(tachyon_bn254_univariate_evaluation_domain_fft_inplace, degrees,
                &results);
     for (const FFTConfig::Vendor vendor : config.vendors()) {
       std::vector<RetPoly> results_vendor;

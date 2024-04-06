@@ -93,6 +93,20 @@ tachyon_bn254_univariate_evaluation_domain_fft(
     const tachyon_bn254_univariate_dense_polynomial* poly);
 
 /**
+ * @brief Performs the in-place Fast Fourier Transform (FFT) on a given
+ * polynomial within the domain. Note that memory space in poly is altered
+ * after this call.
+ *
+ * @param domain Pointer to the evaluation domain.
+ * @param poly Pointer to the polynomial to transform.
+ * @return Pointer to the evaluations resulting from the FFT.
+ */
+TACHYON_C_EXPORT tachyon_bn254_univariate_evaluations*
+tachyon_bn254_univariate_evaluation_domain_fft_inplace(
+    const tachyon_bn254_univariate_evaluation_domain* domain,
+    tachyon_bn254_univariate_dense_polynomial* poly);
+
+/**
  * @brief Performs the inverse Fast Fourier Transform (IFFT) on given
  * evaluations within the domain.
  *
@@ -104,6 +118,20 @@ TACHYON_C_EXPORT tachyon_bn254_univariate_dense_polynomial*
 tachyon_bn254_univariate_evaluation_domain_ifft(
     const tachyon_bn254_univariate_evaluation_domain* domain,
     const tachyon_bn254_univariate_evaluations* evals);
+
+/**
+ * @brief Performs the in-place inverse Fast Fourier Transform (IFFT) on given
+ * evaluations within the domain. Note that memory space in evals is altered
+ * after this call.
+ *
+ * @param domain Pointer to the evaluation domain.
+ * @param evals Pointer to the evaluations to transform back into a polynomial.
+ * @return Pointer to the dense polynomial resulting from the IFFT.
+ */
+TACHYON_C_EXPORT tachyon_bn254_univariate_dense_polynomial*
+tachyon_bn254_univariate_evaluation_domain_ifft_inplace(
+    const tachyon_bn254_univariate_evaluation_domain* domain,
+    tachyon_bn254_univariate_evaluations* evals);
 
 #ifdef __cplusplus
 }  // extern "C"
