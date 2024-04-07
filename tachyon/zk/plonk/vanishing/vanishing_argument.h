@@ -65,12 +65,12 @@ class VanishingArgument {
       // S_compressed(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
       ValueSource compressed_table_coset = compress(lookup.table_expressions());
 
-      // S_compressed(X) + γ
-      ValueSource right = graph.AddCalculation(
-          Calculation::Add(compressed_table_coset, ValueSource::Gamma()));
       // A_compressed(X) + β
       ValueSource left = graph.AddCalculation(
           Calculation::Add(compressed_input_coset, ValueSource::Beta()));
+      // S_compressed(X) + γ
+      ValueSource right = graph.AddCalculation(
+          Calculation::Add(compressed_table_coset, ValueSource::Gamma()));
       // (A_compressed(X) + β) * (S_compressed(X) + γ)
       graph.AddCalculation(Calculation::Mul(left, right));
 

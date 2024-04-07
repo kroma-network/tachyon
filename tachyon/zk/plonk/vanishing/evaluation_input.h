@@ -23,14 +23,14 @@ class EvaluationInput {
 
   EvaluationInput(std::vector<F>&& intermediates,
                   std::vector<int32_t>&& rotations,
-                  const MultiPhaseOwnedTable<Evals>& table, const F& beta,
-                  const F& gamma, const F& theta, const F& y, int32_t n)
+                  const MultiPhaseOwnedTable<Evals>& table, const F& theta,
+                  const F& beta, const F& gamma, const F& y, int32_t n)
       : intermediates_(std::move(intermediates)),
         rotations_(std::move(rotations)),
         table_(table),
+        theta_(theta),
         beta_(beta),
         gamma_(gamma),
-        theta_(theta),
         y_(y),
         n_(n) {}
 
@@ -39,9 +39,9 @@ class EvaluationInput {
   const std::vector<int32_t>& rotations() const { return rotations_; }
   std::vector<int32_t>& rotations() { return rotations_; }
   const MultiPhaseOwnedTable<Evals>& table() const { return table_; }
+  const F& theta() const { return theta_; }
   const F& beta() const { return beta_; }
   const F& gamma() const { return gamma_; }
-  const F& theta() const { return theta_; }
   const F& y() const { return y_; }
   int32_t n() const { return n_; }
 
@@ -49,9 +49,9 @@ class EvaluationInput {
   std::vector<F> intermediates_;
   std::vector<int32_t> rotations_;
   const MultiPhaseOwnedTable<Evals>& table_;
+  const F& theta_;
   const F& beta_;
   const F& gamma_;
-  const F& theta_;
   const F& y_;
   int32_t n_ = 0;
 };

@@ -44,17 +44,17 @@ class CircuitPolynomialBuilder {
   using ExtendedEvals = typename PCS::ExtendedEvals;
 
   CircuitPolynomialBuilder(
-      const F& omega, const F& extended_omega, const F& beta, const F& gamma,
-      const F& theta, const F& y, const F& zeta,
+      const F& omega, const F& extended_omega, const F& theta, const F& beta,
+      const F& gamma, const F& y, const F& zeta,
       const ProvingKey<Poly, Evals, C>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables)
       : omega_(omega),
         extended_omega_(extended_omega),
+        theta_(theta),
         beta_(beta),
         gamma_(gamma),
-        theta_(theta),
         y_(y),
         zeta_(zeta),
         proving_key_(proving_key),
@@ -71,7 +71,7 @@ class CircuitPolynomialBuilder {
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
       const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers) {
     CircuitPolynomialBuilder builder(
-        domain->group_gen(), extended_domain->group_gen(), beta, gamma, theta,
+        domain->group_gen(), extended_domain->group_gen(), theta, beta, gamma,
         y, zeta, proving_key, permutation_provers, lookup_provers, poly_tables);
     builder.domain_ = domain;
 
@@ -265,8 +265,8 @@ class CircuitPolynomialBuilder {
   EvaluationInput<Evals> ExtractEvaluationInput(
       std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
     return EvaluationInput<Evals>(std::move(intermediates),
-                                  std::move(rotations), table_, beta_, gamma_,
-                                  theta_, y_, n_);
+                                  std::move(rotations), table_, theta_, beta_,
+                                  gamma_, y_, n_);
   }
 
   template <typename Evals>
@@ -367,9 +367,9 @@ class CircuitPolynomialBuilder {
   const F& omega_;
   const F& extended_omega_;
   F delta_;
+  const F& theta_;
   const F& beta_;
   const F& gamma_;
-  const F& theta_;
   const F& y_;
   const F& zeta_;
   Rotation last_rotation_;
