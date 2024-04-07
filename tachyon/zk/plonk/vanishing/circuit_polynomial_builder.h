@@ -102,23 +102,22 @@ class CircuitPolynomialBuilder {
       VLOG(1) << "BuildExtendedCircuitColumn part: (" << i + 1 << " / "
               << num_parts_ << ")";
 
-      std::unique_ptr<Domain> coset =
-          domain_->GetCoset(zeta_ * current_extended_omega_);
+      coset_domain_ = domain_->GetCoset(zeta_ * current_extended_omega_);
 
-      UpdateLPolys(coset.get());
+      UpdateLPolys();
 
       std::vector<F> value_part(static_cast<size_t>(n_));
       size_t circuit_num = poly_tables_.size();
       for (size_t j = 0; j < circuit_num; ++j) {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
                 << j + 1 << " / " << circuit_num << ")";
-        UpdateTable(coset.get(), j);
+        UpdateTable(j);
         // Do iff there are permutation constraints.
         if (permutation_provers_[j].grand_product_polys().size() > 0)
-          UpdatePermutation(coset.get(), j);
+          UpdatePermutation(j);
         // Do iff there are lookup constraints.
         if (lookup_provers_[j].grand_product_polys().size() > 0)
-          UpdateLookups(coset.get(), j);
+          UpdateLookups(j);
         base::Parallelize(
             value_part,
             [this, &custom_gate_evaluator, &lookup_evaluators](
@@ -304,24 +303,24 @@ class CircuitPolynomialBuilder {
     }
   }
 
-  void UpdateLPolys(const Domain* coset) {
-    l_first_ = coset->FFT(proving_key_.l_first());
-    l_last_ = coset->FFT(proving_key_.l_last());
-    l_active_row_ = coset->FFT(proving_key_.l_active_row());
+  void UpdateLPolys() {
+    l_first_ = coset_domain_->FFT(proving_key_.l_first());
+    l_last_ = coset_domain_->FFT(proving_key_.l_last());
+    l_active_row_ = coset_domain_->FFT(proving_key_.l_active_row());
   }
 
-  void UpdatePermutation(const Domain* coset, size_t circuit_idx) {
+  void UpdatePermutation(size_t circuit_idx) {
     permutation_product_cosets_ =
         base::Map(permutation_provers_[circuit_idx].grand_product_polys(),
-                  [coset](const BlindedPolynomial<Poly, Evals>& blinded_poly) {
-                    return coset->FFT(blinded_poly.poly());
+                  [this](const BlindedPolynomial<Poly, Evals>& blinded_poly) {
+                    return coset_domain_->FFT(blinded_poly.poly());
                   });
-    permutation_cosets_ =
-        base::Map(proving_key_.permutation_proving_key().polys(),
-                  [coset](const Poly& poly) { return coset->FFT(poly); });
+    permutation_cosets_ = base::Map(
+        proving_key_.permutation_proving_key().polys(),
+        [this](const Poly& poly) { return coset_domain_->FFT(poly); });
   }
 
-  void UpdateLookups(const Domain* coset, size_t circuit_idx) {
+  void UpdateLookups(size_t circuit_idx) {
     size_t num_lookups =
         lookup_provers_[circuit_idx].grand_product_polys().size();
     const lookup::halo2::Prover<Poly, Evals>& lookup_prover =
@@ -331,24 +330,24 @@ class CircuitPolynomialBuilder {
     lookup_table_cosets_.resize(num_lookups);
     for (size_t i = 0; i < num_lookups; ++i) {
       lookup_product_cosets_[i] =
-          coset->FFT(lookup_prover.grand_product_polys()[i].poly());
+          coset_domain_->FFT(lookup_prover.grand_product_polys()[i].poly());
       lookup_input_cosets_[i] =
-          coset->FFT(lookup_prover.permuted_pairs()[i].input().poly());
+          coset_domain_->FFT(lookup_prover.permuted_pairs()[i].input().poly());
       lookup_table_cosets_[i] =
-          coset->FFT(lookup_prover.permuted_pairs()[i].table().poly());
+          coset_domain_->FFT(lookup_prover.permuted_pairs()[i].table().poly());
     }
   }
 
-  void UpdateTable(const Domain* coset, size_t circuit_idx) {
-    std::vector<Evals> fixed_columns =
-        base::Map(poly_tables_[circuit_idx].GetFixedColumns(),
-                  [coset](const Poly& poly) { return coset->FFT(poly); });
-    std::vector<Evals> advice_columns =
-        base::Map(poly_tables_[circuit_idx].GetAdviceColumns(),
-                  [coset](const Poly& poly) { return coset->FFT(poly); });
-    std::vector<Evals> instance_columns =
-        base::Map(poly_tables_[circuit_idx].GetInstanceColumns(),
-                  [coset](const Poly& poly) { return coset->FFT(poly); });
+  void UpdateTable(size_t circuit_idx) {
+    std::vector<Evals> fixed_columns = base::Map(
+        poly_tables_[circuit_idx].GetFixedColumns(),
+        [this](const Poly& poly) { return coset_domain_->FFT(poly); });
+    std::vector<Evals> advice_columns = base::Map(
+        poly_tables_[circuit_idx].GetAdviceColumns(),
+        [this](const Poly& poly) { return coset_domain_->FFT(poly); });
+    std::vector<Evals> instance_columns = base::Map(
+        poly_tables_[circuit_idx].GetInstanceColumns(),
+        [this](const Poly& poly) { return coset_domain_->FFT(poly); });
     table_ = MultiPhaseOwnedTable<Evals>(
         std::move(fixed_columns), std::move(advice_columns),
         std::move(instance_columns), poly_tables_[circuit_idx].challenges());
@@ -356,6 +355,7 @@ class CircuitPolynomialBuilder {
 
   // not owned
   const Domain* domain_ = nullptr;
+  std::unique_ptr<Domain> coset_domain_;
 
   F one_ = F::One();
   F current_extended_omega_ = F::One();
