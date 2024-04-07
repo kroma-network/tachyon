@@ -98,9 +98,8 @@ class VanishingArgument {
     CircuitPolynomialBuilder<PCS> builder =
         CircuitPolynomialBuilder<PCS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
-            prover->GetLastRow(), cs_degree, &poly_tables, &theta, &beta,
-            &gamma, &y, &zeta, &proving_key, &permutation_provers,
-            &lookup_provers);
+            prover->GetLastRow(), cs_degree, poly_tables, theta, beta, gamma, y,
+            zeta, proving_key, permutation_provers, lookup_provers);
 
     return builder.BuildExtendedCircuitColumn(custom_gates_, lookups_);
   }
