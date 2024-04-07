@@ -56,6 +56,13 @@ class QuadraticExtensionField
     return 2 * BaseField::ExtensionDegree();
   }
 
+  constexpr Derived Conjugate() const {
+    return {
+        c0_,
+        -c1_,
+    };
+  }
+
   constexpr Derived& ConjugateInPlace() {
     c1_.NegInPlace();
     return *static_cast<Derived*>(this);
@@ -226,7 +233,7 @@ class QuadraticExtensionField
   }
 
   // CyclotomicMultiplicativeSubgroup methods
-  constexpr Derived& FastCyclotomicInverseInPlace() {
+  constexpr Derived FastCyclotomicInverse() const {
     // As the multiplicative subgroup is of order p² - 1, the
     // only non-trivial cyclotomic subgroup is of order p + 1
     // Therefore, for any element in the cyclotomic subgroup, we have that
@@ -234,7 +241,10 @@ class QuadraticExtensionField
     // field is equal to the norm in the base field, so we have that
     // |x * x.Conjugate() = 1|. By uniqueness of inverses, for this subgroup,
     // |x.Inverse() = x.Conjugate()|.
+    return Conjugate();
+  }
 
+  constexpr Derived& FastCyclotomicInverseInPlace() {
     // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
     // See https://github.com/kroma-network/tachyon/issues/76
     if (IsZero()) return *static_cast<Derived*>(this);
