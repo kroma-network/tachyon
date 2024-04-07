@@ -1,0 +1,29 @@
+load("//tachyon/math/circle/generator:build_defs.bzl", "generate_circle_points")
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+
+package(default_visibility = ["//visibility:public"])
+
+generate_circle_points(
+    name = "g1",
+    base_field = "Mersenne31",
+    base_field_dep = "//tachyon/math/finite_fields/mersenne31",
+    base_field_hdr = "tachyon/math/finite_fields/mersenne31/mersenne31.h",
+    class_name = "G1",
+    namespace = "tachyon::math::stark",
+    scalar_field = "Fr",
+    scalar_field_dep = ":fr",
+    scalar_field_hdr = "tachyon/math/circle/stark/fr.h",
+    x = "2",
+    y = "1268011823",
+)
+
+generate_prime_fields(
+    name = "fr",
+    class_name = "Fr",
+    flag = "kIsStarkFr",
+    # 2³¹
+    # Hex: 0x80000000
+    modulus = "2147483648",
+    namespace = "tachyon::math::stark",
+    reduce = "    return static_cast<uint32_t>(v & (kModulus[0] - 1));",
+)
