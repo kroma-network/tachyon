@@ -235,13 +235,13 @@ class CircuitPolynomialBuilder {
       chunk[i] += l_last_[idx] * (last_coset[idx].Square() - last_coset[idx]);
 
       // Except for the first set, enforce:
-      // l_first(X) * (zᵢ(X) - zᵢ₋₁(w⁻¹X)) = 0
+      // l_first(X) * (zⱼ(X) - zⱼ₋₁(w⁻¹X)) = 0
       RowIndex r_last = last_rotation_.GetIndex(idx, rot_scale_, n_);
-      for (size_t set_idx = 0; set_idx < product_cosets.size(); ++set_idx) {
-        if (set_idx == 0) continue;
+      for (size_t j = 0; j < product_cosets.size(); ++j) {
+        if (j == 0) continue;
         chunk[i] *= y_;
-        chunk[i] += l_first_[idx] * (product_cosets[set_idx][idx] -
-                                     product_cosets[set_idx - 1][r_last]);
+        chunk[i] += l_first_[idx] *
+                    (product_cosets[j][idx] - product_cosets[j - 1][r_last]);
       }
 
       // And for all the sets we enforce: (1 - (l_last(X) + l_blind(X))) *
