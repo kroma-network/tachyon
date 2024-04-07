@@ -23,8 +23,8 @@ class EvaluationInput {
 
   EvaluationInput(std::vector<F>&& intermediates,
                   std::vector<int32_t>&& rotations,
-                  const MultiPhaseOwnedTable<Evals>* table, const F* beta,
-                  const F* gamma, const F* theta, const F* y, int32_t n)
+                  const MultiPhaseOwnedTable<Evals>& table, const F& beta,
+                  const F& gamma, const F& theta, const F& y, int32_t n)
       : intermediates_(std::move(intermediates)),
         rotations_(std::move(rotations)),
         table_(table),
@@ -38,26 +38,21 @@ class EvaluationInput {
   std::vector<F>& intermediates() { return intermediates_; }
   const std::vector<int32_t>& rotations() const { return rotations_; }
   std::vector<int32_t>& rotations() { return rotations_; }
-  const MultiPhaseOwnedTable<Evals>& table() const { return *table_; }
-  const F& beta() const { return *beta_; }
-  const F& gamma() const { return *gamma_; }
-  const F& theta() const { return *theta_; }
-  const F& y() const { return *y_; }
+  const MultiPhaseOwnedTable<Evals>& table() const { return table_; }
+  const F& beta() const { return beta_; }
+  const F& gamma() const { return gamma_; }
+  const F& theta() const { return theta_; }
+  const F& y() const { return y_; }
   int32_t n() const { return n_; }
 
  private:
   std::vector<F> intermediates_;
   std::vector<int32_t> rotations_;
-  // not owned
-  const MultiPhaseOwnedTable<Evals>* table_ = nullptr;
-  // not owned
-  const F* beta_ = nullptr;
-  // not owned
-  const F* gamma_ = nullptr;
-  // not owned
-  const F* theta_ = nullptr;
-  // not owned
-  const F* y_ = nullptr;
+  const MultiPhaseOwnedTable<Evals>& table_;
+  const F& beta_;
+  const F& gamma_;
+  const F& theta_;
+  const F& y_;
   int32_t n_ = 0;
 };
 

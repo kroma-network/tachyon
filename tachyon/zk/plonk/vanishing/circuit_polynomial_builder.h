@@ -259,8 +259,8 @@ class CircuitPolynomialBuilder {
   EvaluationInput<Evals> ExtractEvaluationInput(
       std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
     return EvaluationInput<Evals>(std::move(intermediates),
-                                  std::move(rotations), &table_, beta_, gamma_,
-                                  theta_, y_, n_);
+                                  std::move(rotations), table_, *beta_, *gamma_,
+                                  *theta_, *y_, n_);
   }
 
   template <typename Evals>
