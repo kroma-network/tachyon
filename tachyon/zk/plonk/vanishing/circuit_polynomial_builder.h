@@ -105,20 +105,20 @@ class CircuitPolynomialBuilder {
       std::unique_ptr<Domain> coset =
           domain_->GetCoset(zeta_ * current_extended_omega_);
 
-      UpdateVanishingProvingKey(coset.get());
+      UpdateLPolys(coset.get());
 
       std::vector<F> value_part(static_cast<size_t>(n_));
       size_t circuit_num = poly_tables_.size();
       for (size_t j = 0; j < circuit_num; ++j) {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
                 << j + 1 << " / " << circuit_num << ")";
-        UpdateVanishingTable(coset.get(), j);
+        UpdateTable(coset.get(), j);
         // Do iff there are permutation constraints.
         if (permutation_provers_[j].grand_product_polys().size() > 0)
-          UpdateVanishingPermutation(coset.get(), j);
+          UpdatePermutation(coset.get(), j);
         // Do iff there are lookup constraints.
         if (lookup_provers_[j].grand_product_polys().size() > 0)
-          UpdateVanishingLookups(coset.get(), j);
+          UpdateLookups(coset.get(), j);
         base::Parallelize(
             value_part,
             [this, &custom_gate_evaluator, &lookup_evaluators](
@@ -304,13 +304,13 @@ class CircuitPolynomialBuilder {
     }
   }
 
-  void UpdateVanishingProvingKey(const Domain* coset) {
+  void UpdateLPolys(const Domain* coset) {
     l_first_ = coset->FFT(proving_key_.l_first());
     l_last_ = coset->FFT(proving_key_.l_last());
     l_active_row_ = coset->FFT(proving_key_.l_active_row());
   }
 
-  void UpdateVanishingPermutation(const Domain* coset, size_t circuit_idx) {
+  void UpdatePermutation(const Domain* coset, size_t circuit_idx) {
     permutation_product_cosets_ =
         base::Map(permutation_provers_[circuit_idx].grand_product_polys(),
                   [coset](const BlindedPolynomial<Poly, Evals>& blinded_poly) {
@@ -321,7 +321,7 @@ class CircuitPolynomialBuilder {
                   [coset](const Poly& poly) { return coset->FFT(poly); });
   }
 
-  void UpdateVanishingLookups(const Domain* coset, size_t circuit_idx) {
+  void UpdateLookups(const Domain* coset, size_t circuit_idx) {
     size_t num_lookups =
         lookup_provers_[circuit_idx].grand_product_polys().size();
     const lookup::halo2::Prover<Poly, Evals>& lookup_prover =
@@ -339,7 +339,7 @@ class CircuitPolynomialBuilder {
     }
   }
 
-  void UpdateVanishingTable(const Domain* coset, size_t circuit_idx) {
+  void UpdateTable(const Domain* coset, size_t circuit_idx) {
     std::vector<Evals> fixed_columns =
         base::Map(poly_tables_[circuit_idx].GetFixedColumns(),
                   [coset](const Poly& poly) { return coset->FFT(poly); });
