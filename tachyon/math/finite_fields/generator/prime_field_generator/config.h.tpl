@@ -51,15 +51,14 @@ class TACHYON_EXPORT %{class}Config {
     %{one_mont_form}
   });
 
-  constexpr static BigInt<%{n}> kSubgroupGenerator = BigInt<%{n}>({
-    %{subgroup_generator}
-  });
-
   constexpr static bool kHasTwoAdicRootOfUnity = %{has_two_adic_root_of_unity};
 
   constexpr static bool kHasLargeSubgroupRootOfUnity = %{has_large_subgroup_root_of_unity};
 
 %{if kHasTwoAdicRootOfUnity}
+  constexpr static BigInt<%{n}> kSubgroupGenerator = BigInt<%{n}>({
+    %{subgroup_generator}
+  });
   constexpr static uint32_t kTwoAdicity = %{two_adicity};
   constexpr static BigInt<%{n}> kTwoAdicRootOfUnity = BigInt<%{n}>({
     %{two_adic_root_of_unity}
