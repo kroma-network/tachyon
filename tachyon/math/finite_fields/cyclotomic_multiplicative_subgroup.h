@@ -15,7 +15,7 @@
 namespace tachyon::math {
 namespace internal {
 
-SUPPORTS_UNARY_IN_PLACE_OPERATOR(FastCyclotomicSquare);
+SUPPORTS_UNARY_OPERATOR(FastCyclotomicSquare);
 SUPPORTS_UNARY_IN_PLACE_OPERATOR(FastCyclotomicInverse);
 
 }  // namespace internal
@@ -31,8 +31,12 @@ template <typename F>
 class CyclotomicMultiplicativeSubgroup : public FiniteField<F> {
  public:
   [[nodiscard]] constexpr F CyclotomicSquare() const {
-    F f = *static_cast<const F*>(this);
-    return f.CyclotomicSquareInPlace();
+    const F* f = static_cast<const F*>(this);
+    if constexpr (internal::SupportsFastCyclotomicSquare<F>::value) {
+      return f->FastCyclotomicSquare();
+    } else {
+      return f->Square();
+    }
   }
 
   constexpr F& CyclotomicSquareInPlace() {
