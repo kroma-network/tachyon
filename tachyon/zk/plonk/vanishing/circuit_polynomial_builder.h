@@ -155,10 +155,10 @@ class CircuitPolynomialBuilder {
         size_t idx = start + j;
 
         F zero = F::Zero();
-        F table_value = ev.Evaluate(evaluation_input, idx, rot_scale_, zero);
+        F table_value = ev.Evaluate(evaluation_input, idx, /*scale=*/1, zero);
 
-        RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
-        RowIndex r_prev = Rotation(-1).GetIndex(idx, rot_scale_, n_);
+        RowIndex r_next = Rotation(1).GetIndex(idx, /*scale=*/1, n_);
+        RowIndex r_prev = Rotation(-1).GetIndex(idx, /*scale=*/1, n_);
 
         F a_minus_s = input_coset[idx] - table_coset[idx];
 
@@ -236,7 +236,7 @@ class CircuitPolynomialBuilder {
 
       // Except for the first set, enforce:
       // l_first(X) * (zⱼ(X) - zⱼ₋₁(w⁻¹X)) = 0
-      RowIndex r_last = last_rotation_.GetIndex(idx, rot_scale_, n_);
+      RowIndex r_last = last_rotation_.GetIndex(idx, /*scale=*/1, n_);
       for (size_t j = 0; j < product_cosets.size(); ++j) {
         if (j == 0) continue;
         chunk[i] *= y_;
@@ -247,7 +247,7 @@ class CircuitPolynomialBuilder {
       // And for all the sets we enforce: (1 - (l_last(X) + l_blind(X))) *
       // (zⱼ(wX) * Πⱼ(p(X) + βsⱼ(X) + γ) - zⱼ(X) Πⱼ(p(X) + δʲβX + γ))
       F current_delta = delta_start_ * beta_term;
-      RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
+      RowIndex r_next = Rotation(1).GetIndex(idx, /*scale=*/1, n_);
 
       for (size_t j = 0; j < product_cosets.size(); ++j) {
         F left = CalculateLeft(column_chunks[j], coset_chunks[j], idx,
@@ -300,7 +300,7 @@ class CircuitPolynomialBuilder {
     size_t start = chunk_offset * chunk_size;
     for (size_t i = 0; i < chunk.size(); ++i) {
       chunk[i] = custom_gate_evaluator.Evaluate(evaluation_input, start + i,
-                                                rot_scale_, chunk[i]);
+                                                /*scale=*/1, chunk[i]);
     }
   }
 
@@ -359,7 +359,6 @@ class CircuitPolynomialBuilder {
 
   F one_ = F::One();
   F current_extended_omega_ = F::One();
-  size_t rot_scale_ = 1;
 
   int32_t n_ = 0;
   size_t num_parts_ = 0;
