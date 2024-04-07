@@ -99,8 +99,8 @@ class CircuitPolynomialBuilder {
     value_parts.reserve(num_parts_);
     // Calculate the quotient polynomial for each part
     for (size_t i = 0; i < num_parts_; ++i) {
-      VLOG(1) << "BuildExtendedCircuitColumn part: (" << i << " / "
-              << num_parts_ - 1 << ")";
+      VLOG(1) << "BuildExtendedCircuitColumn part: (" << i + 1 << " / "
+              << num_parts_ << ")";
 
       std::unique_ptr<Domain> coset =
           domain_->GetCoset(zeta_ * current_extended_omega_);
@@ -111,7 +111,7 @@ class CircuitPolynomialBuilder {
       size_t circuit_num = poly_tables_.size();
       for (size_t j = 0; j < circuit_num; ++j) {
         VLOG(1) << "BuildExtendedCircuitColumn part: " << i << " circuit: ("
-                << j << " / " << circuit_num - 1 << ")";
+                << j + 1 << " / " << circuit_num << ")";
         UpdateVanishingTable(coset.get(), j);
         // Do iff there are permutation constraints.
         if (permutation_provers_[j].grand_product_polys().size() > 0)
