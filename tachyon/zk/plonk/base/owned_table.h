@@ -25,6 +25,10 @@ class OwnedTable : public TableBase<PolyOrEvals> {
         advice_columns_(std::move(advice_columns)),
         instance_columns_(std::move(instance_columns)) {}
 
+  std::vector<PolyOrEvals>& fixed_columns() { return fixed_columns_; }
+  std::vector<PolyOrEvals>& advice_columns() { return advice_columns_; }
+  std::vector<PolyOrEvals>& instance_columns() { return instance_columns_; }
+
   // TableBase<PolyOrEvals> methods
   absl::Span<const PolyOrEvals> GetFixedColumns() const override {
     return fixed_columns_;

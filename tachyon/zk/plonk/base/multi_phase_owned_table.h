@@ -23,6 +23,9 @@ class MultiPhaseOwnedTable : public OwnedTable<PolyOrEvals> {
                                 std::move(instance_columns)),
         challenges_(challenges) {}
 
+  void set_challenges(absl::Span<const F> challenges) {
+    challenges_ = challenges;
+  }
   absl::Span<const F> challenges() const { return challenges_; }
 
  private:

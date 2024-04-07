@@ -310,14 +310,20 @@ class CircuitPolynomialBuilder {
   }
 
   void UpdatePermutation(size_t circuit_idx) {
-    permutation_product_cosets_ =
-        base::Map(permutation_provers_[circuit_idx].grand_product_polys(),
-                  [this](const BlindedPolynomial<Poly, Evals>& blinded_poly) {
-                    return coset_domain_->FFT(blinded_poly.poly());
-                  });
-    permutation_cosets_ = base::Map(
-        proving_key_.permutation_proving_key().polys(),
-        [this](const Poly& poly) { return coset_domain_->FFT(poly); });
+    const std::vector<BlindedPolynomial<Poly, Evals>>& grand_product_polys =
+        permutation_provers_[circuit_idx].grand_product_polys();
+    permutation_product_cosets_.resize(grand_product_polys.size());
+    for (size_t i = 0; i < grand_product_polys.size(); ++i) {
+      permutation_product_cosets_[i] =
+          coset_domain_->FFT(grand_product_polys[i].poly());
+    }
+
+    const std::vector<Poly>& polys =
+        proving_key_.permutation_proving_key().polys();
+    permutation_cosets_.resize(polys.size());
+    for (size_t i = 0; i < polys.size(); ++i) {
+      permutation_cosets_[i] = coset_domain_->FFT(polys[i]);
+    }
   }
 
   void UpdateLookups(size_t circuit_idx) {
@@ -339,18 +345,31 @@ class CircuitPolynomialBuilder {
   }
 
   void UpdateTable(size_t circuit_idx) {
-    std::vector<Evals> fixed_columns = base::Map(
-        poly_tables_[circuit_idx].GetFixedColumns(),
-        [this](const Poly& poly) { return coset_domain_->FFT(poly); });
-    std::vector<Evals> advice_columns = base::Map(
-        poly_tables_[circuit_idx].GetAdviceColumns(),
-        [this](const Poly& poly) { return coset_domain_->FFT(poly); });
-    std::vector<Evals> instance_columns = base::Map(
-        poly_tables_[circuit_idx].GetInstanceColumns(),
-        [this](const Poly& poly) { return coset_domain_->FFT(poly); });
-    table_ = MultiPhaseOwnedTable<Evals>(
-        std::move(fixed_columns), std::move(advice_columns),
-        std::move(instance_columns), poly_tables_[circuit_idx].challenges());
+    absl::Span<const Poly> new_fixed_columns =
+        poly_tables_[circuit_idx].GetFixedColumns();
+    std::vector<Evals>& fixed_columns = table_.fixed_columns();
+    fixed_columns.resize(new_fixed_columns.size());
+    for (size_t i = 0; i < new_fixed_columns.size(); ++i) {
+      fixed_columns[i] = coset_domain_->FFT(new_fixed_columns[i]);
+    }
+
+    absl::Span<const Poly> new_advice_columns =
+        poly_tables_[circuit_idx].GetAdviceColumns();
+    std::vector<Evals>& advice_columns = table_.advice_columns();
+    advice_columns.resize(new_advice_columns.size());
+    for (size_t i = 0; i < new_advice_columns.size(); ++i) {
+      advice_columns[i] = coset_domain_->FFT(new_advice_columns[i]);
+    }
+
+    absl::Span<const Poly> new_instance_columns =
+        poly_tables_[circuit_idx].GetInstanceColumns();
+    std::vector<Evals>& instance_columns = table_.instance_columns();
+    instance_columns.resize(new_instance_columns.size());
+    for (size_t i = 0; i < new_instance_columns.size(); ++i) {
+      instance_columns[i] = coset_domain_->FFT(new_instance_columns[i]);
+    }
+
+    table_.set_challenges(poly_tables_[circuit_idx].challenges());
   }
 
   // not owned
