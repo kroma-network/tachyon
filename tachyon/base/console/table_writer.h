@@ -2,6 +2,7 @@
 #define TACHYON_BASE_CONSOLE_TABLE_WRITER_H_
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include <ostream>
 #include <string>
