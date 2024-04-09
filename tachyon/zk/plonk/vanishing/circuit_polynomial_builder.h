@@ -245,7 +245,7 @@ class CircuitPolynomialBuilder {
       }
 
       // And for all the sets we enforce: (1 - (l_last(X) + l_blind(X))) *
-      // (zᵢ(wX) * Πⱼ(p(X) + βsⱼ(X) + γ) - zᵢ(X) Πⱼ(p(X) + δʲβX + γ))
+      // (zⱼ(wX) * Πⱼ(p(X) + βsⱼ(X) + γ) - zⱼ(X) Πⱼ(p(X) + δʲβX + γ))
       F current_delta = delta_start_ * beta_term;
       RowIndex r_next = Rotation(1).GetIndex(idx, rot_scale_, n_);
 
