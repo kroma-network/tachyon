@@ -109,10 +109,6 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
 
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
-  constexpr static BigInt<N> GetModulus() { return Config::kModulus; }
-
-  constexpr static BigInt<N> GetOne() { return Config::kOne; }
-
   __host__ __device__ const value_type& value() const { return value_; }
   __host__ __device__ size_t GetLimbSize() const { return N; }
 
@@ -291,6 +287,10 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   }
 
  private:
+  constexpr static BigInt<N> GetModulus() { return Config::kModulus; }
+
+  constexpr static BigInt<N> GetOne() { return Config::kOne; }
+
   template <bool CarryOut>
   __device__ constexpr static uint64_t AddLimbs(const BigInt<N>& xs,
                                                 const BigInt<N>& ys,
