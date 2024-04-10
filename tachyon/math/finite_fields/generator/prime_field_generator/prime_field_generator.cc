@@ -189,11 +189,6 @@ int GenerationConfig::GenerateConfigHdr() const {
   replacements["%{inverse64}"] = base::NumberToString(modulus_info.inverse64);
   replacements["%{inverse32}"] = base::NumberToString(modulus_info.inverse32);
 
-  mpz_class subgroup_generator_mpz =
-      math::gmp::FromDecString(subgroup_generator);
-  replacements["%{subgroup_generator}"] =
-      math::MpzClassToMontString(subgroup_generator_mpz, m);
-
   std::string tpl_content;
   CHECK(base::ReadFileToString(config_hdr_tpl_path, &tpl_content));
   std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, "\n");
@@ -203,7 +198,12 @@ int GenerationConfig::GenerateConfigHdr() const {
       std::to_string(has_two_adic_root_of_unity);
   RemoveOptionalLines(tpl_lines, "kHasTwoAdicRootOfUnity",
                       has_two_adic_root_of_unity);
+  mpz_class subgroup_generator_mpz;
   if (has_two_adic_root_of_unity) {
+    subgroup_generator_mpz = math::gmp::FromDecString(subgroup_generator);
+    replacements["%{subgroup_generator}"] =
+        math::MpzClassToMontString(subgroup_generator_mpz, m);
+
     // 1) 2ˢ * t = m - 1,
     // According to Fermat's Little Theorem, the following equations hold:
     // 2) g^(m - 1) = 1 (mod m)

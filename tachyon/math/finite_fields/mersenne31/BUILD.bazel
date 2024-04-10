@@ -1,18 +1,8 @@
-load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load(
-    "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
-    "SUBGROUP_GENERATOR",
-    "generate_fft_prime_fields",
-)
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
 
-string_flag(
-    name = SUBGROUP_GENERATOR,
-    build_setting_default = "7",
-)
-
-generate_fft_prime_fields(
+generate_prime_fields(
     name = "mersenne31",
     class_name = "Mersenne31",
     flag = "kIsMersenne31",
@@ -20,5 +10,4 @@ generate_fft_prime_fields(
     # Hex: 0x7fffffff
     modulus = "2147483647",
     namespace = "tachyon::math",
-    subgroup_generator = ":" + SUBGROUP_GENERATOR,
 )
