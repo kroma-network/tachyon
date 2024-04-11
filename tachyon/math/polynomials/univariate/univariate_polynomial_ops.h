@@ -303,7 +303,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
       const UnivariatePolynomial<D>& self,
       const UnivariatePolynomial<DOrS>& other) {
     if (self.IsZero()) {
-      return {UnivariatePolynomial<D>::Zero(), UnivariatePolynomial<D>::Zero()};
+      return {UnivariatePolynomial<D>::Zero(), other.ToDense()};
     } else if (other.IsZero()) {
       NOTREACHED() << "Divide by zero polynomial";
     } else if (self.Degree() < other.Degree()) {

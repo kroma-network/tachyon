@@ -234,7 +234,7 @@ TEST_F(UnivariateDensePolynomialTest, MultiplicativeOperators) {
           zero,
           zero,
           zero,
-          zero,
+          a,
       },
   };
 
