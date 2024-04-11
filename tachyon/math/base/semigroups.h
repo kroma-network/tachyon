@@ -158,10 +158,8 @@ class MultiplicativeSemigroup {
   [[nodiscard]] constexpr auto Pow(const Scalar& scalar) const {
     if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
       return DoPow(BigInt<1>(scalar));
-    } else if constexpr (internal::SupportsToBigInt<Scalar>::value) {
-      return DoPow(scalar.ToBigInt());
     } else {
-      static_assert(base::AlwaysFalse<G>);
+      return DoPow(scalar.ToBigInt());
     }
   }
 
@@ -291,10 +289,8 @@ class AdditiveSemigroup {
   [[nodiscard]] constexpr auto ScalarMul(const Scalar& scalar) const {
     if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
       return DoScalarMul(BigInt<1>(scalar));
-    } else if constexpr (internal::SupportsToBigInt<Scalar>::value) {
-      return DoScalarMul(scalar.ToBigInt());
     } else {
-      static_assert(base::AlwaysFalse<G>);
+      return DoScalarMul(scalar.ToBigInt());
     }
   }
 
@@ -325,10 +321,8 @@ class AdditiveSemigroup {
       return MultiScalarMulMSMB(scalar_or_scalars, base_or_bases, outputs);
     } else if constexpr (internal::SupportsSize<ScalarOrScalars>::value) {
       return MultiScalarMulMSSB(scalar_or_scalars, base_or_bases, outputs);
-    } else if constexpr (internal::SupportsSize<BaseOrBases>::value) {
-      return MultiScalarMulSSMB(scalar_or_scalars, base_or_bases, outputs);
     } else {
-      static_assert(base::AlwaysFalse<G>);
+      return MultiScalarMulSSMB(scalar_or_scalars, base_or_bases, outputs);
     }
   }
 
