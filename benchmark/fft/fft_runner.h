@@ -52,12 +52,13 @@ class FFTRunner {
   void Run(Fn fn, const std::vector<uint64_t>& degrees,
            std::vector<RetPoly>* results) {
     for (size_t i = 0; i < degrees.size(); ++i) {
+      PolyOrEvals poly = (*polys_)[i];
       base::TimeTicks now = base::TimeTicks::Now();
       std::unique_ptr<CRetPoly> ret;
       ret.reset(fn(
           reinterpret_cast<const tachyon_bn254_univariate_evaluation_domain*>(
               domains_[i].get()),
-          reinterpret_cast<CPolyOrEvals>(&(*polys_)[i])));
+          reinterpret_cast<CPolyOrEvals>(&poly)));
       reporter_->AddTime(i, (base::TimeTicks::Now() - now).InSecondsF());
       results->push_back(*reinterpret_cast<RetPoly*>(ret.get()));
     }

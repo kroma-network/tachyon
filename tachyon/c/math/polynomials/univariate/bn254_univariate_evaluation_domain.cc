@@ -1,5 +1,7 @@
 #include "tachyon/c/math/polynomials/univariate/bn254_univariate_evaluation_domain.h"
 
+#include <utility>
+
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
@@ -58,6 +60,16 @@ tachyon_bn254_univariate_evaluation_domain_fft(
   return reinterpret_cast<tachyon_bn254_univariate_evaluations*>(evals);
 }
 
+tachyon_bn254_univariate_evaluations*
+tachyon_bn254_univariate_evaluation_domain_fft_inplace(
+    const tachyon_bn254_univariate_evaluation_domain* domain,
+    tachyon_bn254_univariate_dense_polynomial* poly) {
+  Domain::Evals* evals =
+      new Domain::Evals(reinterpret_cast<const Domain*>(domain)->FFT(
+          reinterpret_cast<Domain::DensePoly&&>(std::move(*poly))));
+  return reinterpret_cast<tachyon_bn254_univariate_evaluations*>(evals);
+}
+
 tachyon_bn254_univariate_dense_polynomial*
 tachyon_bn254_univariate_evaluation_domain_ifft(
     const tachyon_bn254_univariate_evaluation_domain* domain,
@@ -65,5 +77,15 @@ tachyon_bn254_univariate_evaluation_domain_ifft(
   Domain::DensePoly* poly =
       new Domain::DensePoly(reinterpret_cast<const Domain*>(domain)->IFFT(
           reinterpret_cast<const Domain::Evals&>(*evals)));
+  return reinterpret_cast<tachyon_bn254_univariate_dense_polynomial*>(poly);
+}
+
+tachyon_bn254_univariate_dense_polynomial*
+tachyon_bn254_univariate_evaluation_domain_ifft_inplace(
+    const tachyon_bn254_univariate_evaluation_domain* domain,
+    tachyon_bn254_univariate_evaluations* evals) {
+  Domain::DensePoly* poly =
+      new Domain::DensePoly(reinterpret_cast<const Domain*>(domain)->IFFT(
+          reinterpret_cast<Domain::Evals&&>(std::move(*evals))));
   return reinterpret_cast<tachyon_bn254_univariate_dense_polynomial*>(poly);
 }
