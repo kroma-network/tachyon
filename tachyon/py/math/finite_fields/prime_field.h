@@ -4,6 +4,7 @@
 #include <string>
 
 #include "pybind11/operators.h"
+#include "pybind11/stl.h"
 
 #include "tachyon/py/base/pybind11.h"
 #include "tachyon/py/math/base/big_int.h"

@@ -29,19 +29,19 @@ TEST(BigIntTest, One) {
 
 TEST(BigIntTest, DecString) {
   // 1 << 65
-  BigInt<2> big_int = BigInt<2>::FromDecString("36893488147419103232");
+  BigInt<2> big_int = *BigInt<2>::FromDecString("36893488147419103232");
   EXPECT_EQ(big_int.ToString(), "36893488147419103232");
 }
 
 TEST(BigIntTest, HexString) {
   {
     // 1 << 65
-    BigInt<2> big_int = BigInt<2>::FromHexString("20000000000000000");
+    BigInt<2> big_int = *BigInt<2>::FromHexString("20000000000000000");
     EXPECT_EQ(big_int.ToHexString(), "0x20000000000000000");
   }
   {
     // 1 << 65
-    BigInt<2> big_int = BigInt<2>::FromHexString("0x20000000000000000");
+    BigInt<2> big_int = *BigInt<2>::FromHexString("0x20000000000000000");
     EXPECT_EQ(big_int.ToHexString(), "0x20000000000000000");
   }
 }
@@ -53,9 +53,9 @@ TEST(BigIntTest, BitsLEConversion) {
       "000010011110011110001011111101111001100001100000111010000101111101010010"
       "101011110101110101011101011001100110000");
   BigInt<4> big_int = BigInt<4>::FromBitsLE(input);
-  ASSERT_EQ(big_int,
-            BigInt<4>::FromDecString("27117311055620256798560880810000042840428"
-                                     "971800021819916023577129547249660720"));
+  ASSERT_EQ(big_int, *BigInt<4>::FromDecString(
+                         "27117311055620256798560880810000042840428"
+                         "971800021819916023577129547249660720"));
   EXPECT_EQ(big_int.ToBitsLE<255>(), input);
 }
 
@@ -66,9 +66,9 @@ TEST(BigIntTest, BitsBEConversion) {
       "001101111001110110111001110000110001000110011111010111000101110111011110"
       "1100100110010101010110111100111111011100110000");
   BigInt<4> big_int = BigInt<4>::FromBitsBE(input);
-  ASSERT_EQ(big_int,
-            BigInt<4>::FromDecString("27117311055620256798560880810000042840428"
-                                     "971800021819916023577129547249660720"));
+  ASSERT_EQ(big_int, *BigInt<4>::FromDecString(
+                         "27117311055620256798560880810000042840428"
+                         "971800021819916023577129547249660720"));
   EXPECT_EQ(big_int.ToBitsBE<255>(), input);
 }
 
@@ -78,7 +78,7 @@ template <typename Container>
 class BigIntConversionTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
-    expected_ = BigInt<4>::FromDecString(
+    expected_ = *BigInt<4>::FromDecString(
         "271173110556202567985608808100000428404289718000"
         "21819916023577129547249660720");
   }
@@ -161,8 +161,8 @@ TYPED_TEST(BigIntConversionTest, BytesBEConversion) {
 
 TEST(BigIntTest, Comparison) {
   // 1 << 65
-  BigInt<2> big_int = BigInt<2>::FromHexString("20000000000000000");
-  BigInt<2> big_int2 = BigInt<2>::FromHexString("20000000000000001");
+  BigInt<2> big_int = *BigInt<2>::FromHexString("20000000000000000");
+  BigInt<2> big_int2 = *BigInt<2>::FromHexString("20000000000000001");
   EXPECT_TRUE(big_int == big_int);
   EXPECT_TRUE(big_int != big_int2);
   EXPECT_TRUE(big_int < big_int2);
@@ -188,14 +188,14 @@ TEST(BigIntTest, ExtractBits) {
 
 TEST(BigIntTest, Operations) {
   BigInt<2> big_int =
-      BigInt<2>::FromDecString("123456789012345678909876543211235312");
+      *BigInt<2>::FromDecString("123456789012345678909876543211235312");
   BigInt<2> big_int2 =
-      BigInt<2>::FromDecString("734581237591230158128731489729873983");
+      *BigInt<2>::FromDecString("734581237591230158128731489729873983");
   {
     uint64_t carry = 0;
     BigInt<2> a = big_int;
     BigInt<2> sum =
-        BigInt<2>::FromDecString("858038026603575837038608032941109295");
+        *BigInt<2>::FromDecString("858038026603575837038608032941109295");
     BigInt<2> b = big_int2;
     EXPECT_EQ(a.AddInPlace(big_int2, carry), sum);
     EXPECT_EQ(carry, 0);
@@ -206,12 +206,12 @@ TEST(BigIntTest, Operations) {
     uint64_t borrow = 0;
     BigInt<2> a = big_int;
     BigInt<2> amb =
-        BigInt<2>::FromDecString("339671242472359578984155752485249572785");
+        *BigInt<2>::FromDecString("339671242472359578984155752485249572785");
     EXPECT_EQ(a.SubInPlace(big_int2, borrow), amb);
     EXPECT_EQ(borrow, 1);
     BigInt<2> b = big_int2;
     BigInt<2> bma =
-        BigInt<2>::FromDecString("611124448578884479218854946518638671");
+        *BigInt<2>::FromDecString("611124448578884479218854946518638671");
     EXPECT_EQ(b.SubInPlace(big_int, borrow), bma);
     EXPECT_EQ(borrow, 0);
   }
@@ -219,7 +219,7 @@ TEST(BigIntTest, Operations) {
     uint64_t carry = 0;
     BigInt<2> a = big_int;
     BigInt<2> mulby2 =
-        BigInt<2>::FromDecString("246913578024691357819753086422470624");
+        *BigInt<2>::FromDecString("246913578024691357819753086422470624");
     EXPECT_EQ(a.MulBy2InPlace(carry), mulby2);
     EXPECT_EQ(carry, 0);
   }
@@ -227,7 +227,7 @@ TEST(BigIntTest, Operations) {
     uint64_t carry = 0;
     BigInt<2> a = big_int;
     BigInt<2> mulbyn =
-        BigInt<2>::FromDecString("3950617248395061725116049382759529984");
+        *BigInt<2>::FromDecString("3950617248395061725116049382759529984");
     EXPECT_EQ(a.MulBy2ExpInPlace(5), mulbyn);
     EXPECT_EQ(carry, 0);
   }
@@ -235,21 +235,21 @@ TEST(BigIntTest, Operations) {
     BigInt<2> a = big_int;
     BigInt<2> b = big_int2;
     MulResult<BigInt<2>> ret = a.Multiply(b);
-    EXPECT_EQ(ret.lo, BigInt<2>::FromDecString(
+    EXPECT_EQ(ret.lo, *BigInt<2>::FromDecString(
                           "335394729415762779748307316131549975568"));
     EXPECT_EQ(ret.hi,
-              BigInt<2>::FromDecString("266511138036132956757991041665338"));
+              *BigInt<2>::FromDecString("266511138036132956757991041665338"));
   }
   {
     BigInt<2> a = big_int;
     BigInt<2> divby2 =
-        BigInt<2>::FromDecString("61728394506172839454938271605617656");
+        *BigInt<2>::FromDecString("61728394506172839454938271605617656");
     EXPECT_EQ(a.DivBy2InPlace(), divby2);
   }
   {
     BigInt<2> a = big_int;
     BigInt<2> divbyn =
-        BigInt<2>::FromDecString("3858024656635802465933641975351103");
+        *BigInt<2>::FromDecString("3858024656635802465933641975351103");
     EXPECT_EQ(a.DivBy2ExpInPlace(5), divbyn);
   }
   {
@@ -262,7 +262,7 @@ TEST(BigIntTest, Operations) {
     EXPECT_EQ(a.Divide(b), adb);
     DivResult<BigInt<2>> bda = {
         BigInt<2>(5),
-        BigInt<2>::FromDecString("117297292529501763579348773673697423"),
+        *BigInt<2>::FromDecString("117297292529501763579348773673697423"),
     };
     EXPECT_EQ(b.Divide(a), bda);
   }

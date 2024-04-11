@@ -18,18 +18,18 @@ class ZKeyParserTest : public testing::Test {
 };
 
 G1AffinePoint ToG1AffinePoint(std::string_view g1[2]) {
-  math::bn254::Fq x = math::bn254::Fq::FromDecString(g1[0]);
-  math::bn254::Fq y = math::bn254::Fq::FromDecString(g1[1]);
+  math::bn254::Fq x = *math::bn254::Fq::FromDecString(g1[0]);
+  math::bn254::Fq y = *math::bn254::Fq::FromDecString(g1[1]);
   bool infinity = x.IsZero() && y.IsZero();
   math::bn254::G1AffinePoint affine_point(std::move(x), std::move(y), infinity);
   return G1AffinePoint::FromNative<true>(std::move(affine_point));
 }
 
 G2AffinePoint ToG2AffinePoint(std::string_view g2[2][2]) {
-  math::bn254::Fq2 x(math::bn254::Fq::FromDecString(g2[0][0]),
-                     math::bn254::Fq::FromDecString(g2[0][1]));
-  math::bn254::Fq2 y(math::bn254::Fq::FromDecString(g2[1][0]),
-                     math::bn254::Fq::FromDecString(g2[1][1]));
+  math::bn254::Fq2 x(*math::bn254::Fq::FromDecString(g2[0][0]),
+                     *math::bn254::Fq::FromDecString(g2[0][1]));
+  math::bn254::Fq2 y(*math::bn254::Fq::FromDecString(g2[1][0]),
+                     *math::bn254::Fq::FromDecString(g2[1][1]));
   bool infinity = x.IsZero() && y.IsZero();
   math::bn254::G2AffinePoint affine_point(std::move(x), std::move(y), infinity);
   return G2AffinePoint::FromNative<true>(std::move(affine_point));
@@ -43,7 +43,7 @@ struct CellData {
 Cell ToCell(const CellData& data) {
   return {
       PrimeField::FromNative<true>(
-          math::bn254::Fr::FromDecString(data.coefficient)),
+          *math::bn254::Fr::FromDecString(data.coefficient)),
       data.signal,
   };
 }

@@ -42,7 +42,7 @@ TEST_F(ProofSerializerTest, SerializeScalar) {
     std::vector<uint8_t> buffer;
     buffer.resize(test.proof.size());
     base::Buffer write_buf(buffer.data(), buffer.size());
-    Fr expected = Fr::FromHexString(test.hex);
+    Fr expected = *Fr::FromHexString(test.hex);
     ASSERT_TRUE(ProofSerializer<Fr>::WriteToProof(expected, write_buf));
     EXPECT_THAT(buffer, testing::ElementsAreArray(test.proof));
 
@@ -80,8 +80,8 @@ TEST_F(ProofSerializerTest, SerializeProof) {
     std::vector<uint8_t> buffer;
     buffer.resize(test.proof.size());
     base::Buffer write_buf(buffer.data(), buffer.size());
-    Fq x = Fq::FromHexString(test.hex[0]);
-    Fq y = Fq::FromHexString(test.hex[1]);
+    Fq x = *Fq::FromHexString(test.hex[0]);
+    Fq y = *Fq::FromHexString(test.hex[1]);
     G1AffinePoint expected(x, y);
     ASSERT_TRUE(
         ProofSerializer<G1AffinePoint>::WriteToProof(expected, write_buf));

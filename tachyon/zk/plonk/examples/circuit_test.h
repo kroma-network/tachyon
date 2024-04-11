@@ -28,8 +28,8 @@ class CircuitTest : public ProverTest<PCS> {
 
   static Commitment CreateCommitment(const Point& point) {
     using BaseField = typename Commitment::BaseField;
-    return Commitment(BaseField::FromHexString(point.x),
-                      BaseField::FromHexString(point.y));
+    return Commitment(*BaseField::FromHexString(point.x),
+                      *BaseField::FromHexString(point.y));
   }
 
   static std::vector<Commitment> CreateCommitments(
@@ -49,8 +49,9 @@ class CircuitTest : public ProverTest<PCS> {
   }
 
   static Evals CreateColumn(const std::vector<std::string_view>& column) {
-    std::vector<F> evaluations = base::Map(
-        column, [](std::string_view coeff) { return F::FromHexString(coeff); });
+    std::vector<F> evaluations = base::Map(column, [](std::string_view coeff) {
+      return *F::FromHexString(coeff);
+    });
     return Evals(std::move(evaluations));
   }
 
@@ -63,7 +64,7 @@ class CircuitTest : public ProverTest<PCS> {
       const std::vector<std::string_view>& column) {
     std::vector<math::RationalField<F>> evaluations =
         base::Map(column, [](std::string_view coeff) {
-          return math::RationalField<F>(F::FromHexString(coeff));
+          return math::RationalField<F>(*F::FromHexString(coeff));
         });
     return RationalEvals(std::move(evaluations));
   }
@@ -75,7 +76,7 @@ class CircuitTest : public ProverTest<PCS> {
 
   static Poly CreatePoly(const std::vector<std::string_view>& poly) {
     std::vector<F> coefficients = base::Map(
-        poly, [](std::string_view coeff) { return F::FromHexString(coeff); });
+        poly, [](std::string_view coeff) { return *F::FromHexString(coeff); });
     return Poly(math::UnivariateDenseCoefficients<F, kMaxDegree>(
         std::move(coefficients)));
   }
@@ -88,14 +89,14 @@ class CircuitTest : public ProverTest<PCS> {
   static std::vector<F> CreateEvals(
       const std::vector<std::string_view>& evals) {
     return base::Map(
-        evals, [](std::string_view eval) { return F::FromHexString(eval); });
+        evals, [](std::string_view eval) { return *F::FromHexString(eval); });
   }
 
   static std::vector<std::optional<F>> CreateOptionalEvals(
       const std::vector<std::string_view>& evals) {
     return base::Map(evals, [](std::string_view eval) {
       if (eval.empty()) return std::optional<F>();
-      return std::optional<F>(F::FromHexString(eval));
+      return F::FromHexString(eval);
     });
   }
 

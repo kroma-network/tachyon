@@ -4,7 +4,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <optional>
 #include <string>
+#include <utility>
 
 #include "tachyon/base/random.h"
 #include "tachyon/math/base/arithmetics.h"
@@ -68,10 +70,14 @@ class PrimeFieldGpuDebug final
   }
 
   constexpr static PrimeFieldGpuDebug FromDecString(std::string_view str) {
-    return PrimeFieldGpuDebug(BigInt<N>::FromDecString(str));
+    std::optional<BigInt<N>> value = BigInt<N>::FromDecString(str);
+    if (!value.has_value()) return std::nullopt;
+    return PrimeFieldGpuDebug(std::move(value).value());
   }
   constexpr static PrimeFieldGpuDebug FromHexString(std::string_view str) {
-    return PrimeFieldGpuDebug(BigInt<N>::FromHexString(str));
+    std::optional<BigInt<N>> value = BigInt<N>::FromHexString(str);
+    if (!value.has_value()) return std::nullopt;
+    return PrimeFieldGpuDebug(std::move(value).value());
   }
 
   constexpr static PrimeFieldGpuDebug FromBigInt(const BigInt<N>& big_int) {

@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <optional>
 #include <string>
 
 #include "tachyon/math/base/gmp/gmp_util.h"
@@ -35,8 +36,8 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   static PrimeField One();
   static PrimeField Random();
 
-  static PrimeField FromDecString(std::string_view str);
-  static PrimeField FromHexString(std::string_view str);
+  static std::optional<PrimeField> FromDecString(std::string_view str);
+  static std::optional<PrimeField> FromHexString(std::string_view str);
   static PrimeField FromBigInt(const BigInt<N>& big_int);
   static PrimeField FromMontgomery(const BigInt<N>& big_int);
 

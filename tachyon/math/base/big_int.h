@@ -12,6 +12,7 @@
 #include <array>
 #include <bitset>
 #include <limits>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -116,16 +117,16 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   // Convert a decimal string to a BigInt.
-  constexpr static BigInt FromDecString(std::string_view str) {
+  constexpr static std::optional<BigInt> FromDecString(std::string_view str) {
     BigInt ret;
-    CHECK(internal::StringToLimbs(str, ret.limbs, N));
+    if (!internal::StringToLimbs(str, ret.limbs, N)) return std::nullopt;
     return ret;
   }
 
   // Convert a hexadecimal string to a BigInt.
-  constexpr static BigInt FromHexString(std::string_view str) {
+  constexpr static std::optional<BigInt> FromHexString(std::string_view str) {
     BigInt ret;
-    CHECK(internal::HexStringToLimbs(str, ret.limbs, N));
+    if (!(internal::HexStringToLimbs(str, ret.limbs, N))) return std::nullopt;
     return ret;
   }
 
@@ -1053,7 +1054,10 @@ class RapidJsonValueConverter<math::BigInt<N>> {
     if (!RapidJsonValueConverter<std::string_view>::To(json_value, "",
                                                        &value_str, error))
       return false;
-    *value = math::BigInt<N>::FromHexString(value_str);
+    std::optional<math::BigInt<N>> tmp =
+        math::BigInt<N>::FromHexString(value_str);
+    if (!tmp.has_value()) return false;
+    *value = std::move(tmp).value();
     return true;
   }
 };

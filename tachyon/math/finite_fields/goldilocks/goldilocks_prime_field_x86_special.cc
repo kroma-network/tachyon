@@ -31,17 +31,17 @@ CLASS CLASS::Random() {
 
 // static
 template <typename Config>
-CLASS CLASS::FromDecString(std::string_view str) {
+std::optional<CLASS> CLASS::FromDecString(std::string_view str) {
   uint64_t value = 0;
-  CHECK(base::StringToUint64(str, &value));
+  if (!base::StringToUint64(str, &value)) return std::nullopt;
   return PrimeField(::Goldilocks::fromU64(value).fe);
 }
 
 // static
 template <typename Config>
-CLASS CLASS::FromHexString(std::string_view str) {
+std::optional<CLASS> CLASS::FromHexString(std::string_view str) {
   uint64_t value = 0;
-  CHECK(base::HexStringToUint64(str, &value));
+  if (!base::HexStringToUint64(str, &value)) return std::nullopt;
   return PrimeField(::Goldilocks::fromU64(value).fe);
 }
 

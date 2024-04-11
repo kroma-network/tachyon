@@ -330,7 +330,7 @@ TEST_F(SimpleV1CircuitTest, LoadVerifyingKey) {
   }
   EXPECT_EQ(vkey.fixed_commitments(), expected_fixed_commitments);
 
-  F expected_transcript_repr = F::FromHexString(
+  F expected_transcript_repr = *F::FromHexString(
       "0x012577899026da8b4a257e25b4edf52711038e19083900a458e1c1e18c29eb08");
   EXPECT_EQ(vkey.transcript_repr(), expected_transcript_repr);
 }
@@ -762,18 +762,18 @@ TEST_F(SimpleV1CircuitTest, Verify) {
 
   EXPECT_TRUE(proof.challenges.empty());
 
-  F expected_theta = F::FromHexString(
+  F expected_theta = *F::FromHexString(
       "0x1bbbaa33ab11f8073b8fd7cd635376bf76535666874fed4eda0aa27081c7224d");
   EXPECT_EQ(proof.theta, expected_theta);
 
   ASSERT_EQ(proof.lookup_permuted_commitments_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_permuted_commitments_vec[0].empty());
 
-  F expected_beta = F::FromHexString(
+  F expected_beta = *F::FromHexString(
       "0x2ea3ec52fc8914364d92275b8e2cc142ff57c1833be6ff1010c0afcb49e418f5");
   EXPECT_EQ(proof.beta, expected_beta);
 
-  F expected_gamma = F::FromHexString(
+  F expected_gamma = *F::FromHexString(
       "0x1b9c1308750907b62d2039a8a1ab39aef60f44d5c0f983c8996a02f282eb6a67");
   EXPECT_EQ(proof.gamma, expected_gamma);
 
@@ -821,7 +821,7 @@ TEST_F(SimpleV1CircuitTest, Verify) {
   EXPECT_EQ(proof.vanishing_random_poly_commitment,
             expected_vanishing_random_poly_commitment);
 
-  F expected_y = F::FromHexString(
+  F expected_y = *F::FromHexString(
       "0x144fee08a5557e8bbd9a9ec6e9f5e9ce0b65701a0549dc6b6edacf18414667c3");
   EXPECT_EQ(proof.y, expected_y);
 
@@ -838,7 +838,7 @@ TEST_F(SimpleV1CircuitTest, Verify) {
   EXPECT_EQ(proof.vanishing_h_poly_commitments,
             expected_vanishing_h_poly_commitments);
 
-  F expected_x = F::FromHexString(
+  F expected_x = *F::FromHexString(
       "0x2e04b4bdc49c7acd56eabd66f8d404477dbf0e8f0f928b7aea12d312c3bc9421");
   EXPECT_EQ(proof.x, expected_x);
 
@@ -870,7 +870,7 @@ TEST_F(SimpleV1CircuitTest, Verify) {
   }
   EXPECT_EQ(proof.fixed_evals, expected_fixed_evals);
 
-  F expected_vanishing_random_eval = F::FromHexString(
+  F expected_vanishing_random_eval = *F::FromHexString(
       "0x0000000000000000000000000000000000000000000000000000000000000001");
   EXPECT_EQ(proof.vanishing_random_eval, expected_vanishing_random_eval);
 
@@ -967,7 +967,7 @@ TEST_F(SimpleV1CircuitTest, Verify) {
   ASSERT_EQ(proof.lookup_permuted_table_evals_vec.size(), num_circuits);
   EXPECT_TRUE(proof.lookup_permuted_table_evals_vec[0].empty());
 
-  F expected_h_eval = F::FromHexString(
+  F expected_h_eval = *F::FromHexString(
       "0x2af439530de48c1318f0ecc2905916d3d1b0dfcccdf3dd2a3eeefd6cffae9f62");
   EXPECT_EQ(h_eval, expected_h_eval);
 }

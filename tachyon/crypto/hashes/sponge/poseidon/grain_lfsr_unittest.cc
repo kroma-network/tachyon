@@ -50,10 +50,10 @@ TEST_F(PoseidonGrainLFSRTest, GetFieldElementsModP) {
 
   // clang-format off
   EXPECT_EQ(lfsr.GetFieldElementsModP(1)[0],
-            math::bls12_381::Fr::FromDecString(
+            *math::bls12_381::Fr::FromDecString(
                 "27117311055620256798560880810000042840428971800021819916023577129547249660720"));
   EXPECT_EQ(lfsr.GetFieldElementsModP(1)[0],
-            math::bls12_381::Fr::FromDecString(
+            *math::bls12_381::Fr::FromDecString(
                 "51641662388546346858987925410984003801092143452466182801674685248597955169158"));
   // clang-format on
 }
@@ -63,10 +63,10 @@ TEST_F(PoseidonGrainLFSRTest, GetFieldElementsRejectionSampling) {
 
   // clang-format off
   EXPECT_EQ(lfsr.GetFieldElementsRejectionSampling(1)[0],
-            math::bls12_381::Fr::FromDecString(
+            *math::bls12_381::Fr::FromDecString(
                 "27117311055620256798560880810000042840428971800021819916023577129547249660720"));
   EXPECT_EQ(lfsr.GetFieldElementsRejectionSampling(1)[0],
-            math::bls12_381::Fr::FromDecString(
+            *math::bls12_381::Fr::FromDecString(
                 "51641662388546346858987925410984003801092143452466182801674685248597955169158"));
   // clang-format on
 }
@@ -76,16 +76,16 @@ TEST_F(PoseidonGrainLFSRTest, GrainLFSRConsistency) {
 
   // clang-format off
   EXPECT_EQ(lfsr.GetFieldElementsRejectionSampling(1)[0],
-            math::bls12_381::Fr::FromDecString(
+            *math::bls12_381::Fr::FromDecString(
                 "27117311055620256798560880810000042840428971800021819916023577129547249660720"));
   EXPECT_EQ(lfsr.GetFieldElementsRejectionSampling(1)[0],
-            math::bls12_381::Fr::FromDecString(
+            *math::bls12_381::Fr::FromDecString(
                 "51641662388546346858987925410984003801092143452466182801674685248597955169158"));
   EXPECT_EQ(lfsr.GetFieldElementsModP(1)[0],
-            math::bls12_381::Fr::FromDecString(
+            *math::bls12_381::Fr::FromDecString(
                 "30468495022634911716522728179277518871747767531215914044579216845399211650580"));
   EXPECT_EQ(lfsr.GetFieldElementsModP(1)[0],
-            math::bls12_381::Fr::FromDecString(
+            *math::bls12_381::Fr::FromDecString(
                 "17250718238509906485015112994867732544602358855445377986727968022920517907825"));
   // clang-format on
 }

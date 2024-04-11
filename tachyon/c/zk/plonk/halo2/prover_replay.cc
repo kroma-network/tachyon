@@ -202,7 +202,7 @@ int RunMain(int argc, char** argv) {
       tachyon_cerr << "s_hex is empty" << std::endl;
       return 1;
     }
-    math::bn254::Fr cpp_s = math::bn254::Fr::FromHexString(s_hex);
+    math::bn254::Fr cpp_s = *math::bn254::Fr::FromHexString(s_hex);
     const tachyon_bn254_fr& s = c::base::c_cast(cpp_s);
 
     std::cout << "creating prover" << std::endl;

@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include <string>
+#include <optional>
 
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
@@ -65,11 +66,15 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
     return PrimeField(BigInt<N>::Random(Config::kModulus));
   }
 
-  constexpr static PrimeField FromDecString(std::string_view str) {
-    return PrimeField(BigInt<N>::FromDecString(str));
+  constexpr static std::optional<PrimeField> FromDecString(std::string_view str) {
+    std::optional<BigInt<N>> value = BigInt<N>::FromDecString(str);
+    if (!value.has_value()) return std::nullopt;
+    return PrimeField(std::move(value).value());
   }
-  constexpr static PrimeField FromHexString(std::string_view str) {
-    return PrimeField(BigInt<N>::FromHexString(str));
+  constexpr static std::optional<PrimeField> FromHexString(std::string_view str) {
+    std::optional<BigInt<N>> value = BigInt<N>::FromHexString(str);
+    if (!value.has_value()) return std::nullopt;
+    return PrimeField(std::move(value).value());
   }
 
   constexpr static PrimeField FromBigInt(const BigInt<N>& big_int) {

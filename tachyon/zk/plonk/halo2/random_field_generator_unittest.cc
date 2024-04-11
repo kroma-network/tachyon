@@ -126,7 +126,7 @@ TEST_F(RandomFieldGeneratorTest, Random) {
   crypto::XORShiftRNG rng = crypto::XORShiftRNG::FromSeed(seed);
   RandomFieldGenerator<F> generator(&rng);
   for (size_t i = 0; i < 100; ++i) {
-    EXPECT_EQ(generator.Generate(), F::FromHexString(kHexes[i]));
+    EXPECT_EQ(generator.Generate(), *F::FromHexString(kHexes[i]));
   }
 }
 
