@@ -401,7 +401,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return Divide(self, other);
   }
 
-  static UnivariatePolynomial<D> ToDense(const UnivariatePolynomial<D>& self) {
+  static const UnivariatePolynomial<D>& ToDense(
+      const UnivariatePolynomial<D>& self) {
     return self;
   }
 
@@ -726,7 +727,8 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return UnivariatePolynomial<D>(D(std::move(coefficients)));
   }
 
-  static UnivariatePolynomial<S> ToSparse(const UnivariatePolynomial<S>& self) {
+  static const UnivariatePolynomial<S>& ToSparse(
+      const UnivariatePolynomial<S>& self) {
     return self;
   }
 

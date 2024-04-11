@@ -95,7 +95,7 @@ class MultilinearExtension final
     return evaluations_.Evaluate(point);
   }
 
-  auto ToDense() const {
+  decltype(auto) ToDense() const {
     return internal::MultilinearExtensionOp<Evaluations>::ToDense(*this);
   }
 

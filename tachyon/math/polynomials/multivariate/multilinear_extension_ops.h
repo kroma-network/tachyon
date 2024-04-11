@@ -188,7 +188,8 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     return self;
   }
 
-  static MultilinearExtension<D> ToDense(const MultilinearExtension<D>& self) {
+  static const MultilinearExtension<D>& ToDense(
+      const MultilinearExtension<D>& self) {
     return self;
   }
 };

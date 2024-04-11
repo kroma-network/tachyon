@@ -154,11 +154,11 @@ class UnivariatePolynomial final
         coefficients_.template Fold<MulRandomWithEvens>(r));
   }
 
-  auto ToSparse() const {
+  decltype(auto) ToSparse() const {
     return internal::UnivariatePolynomialOp<Coefficients>::ToSparse(*this);
   }
 
-  auto ToDense() const {
+  decltype(auto) ToDense() const {
     return internal::UnivariatePolynomialOp<Coefficients>::ToDense(*this);
   }
 
