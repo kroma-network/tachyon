@@ -186,7 +186,7 @@ There are two ways to install the Tachyon package. While it is recommended to in
 
 ### Install package from pre-built binaries
 
-``` shell
+```shell
 curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.1.0/libtachyon_0.1.0_amd64.deb
 curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.1.0/libtachyon-dev_0.1.0_amd64.deb
 
@@ -252,8 +252,8 @@ sudo apt install python-is-python3
 Additionally, please include these lines in your `.bazelc.user`.
 
 ```
-build --action_env=PATH=/usr/bin:/usr/local/bin
-build --host_action_env=PATH=/usr/bin:/usr/local/bin
+build:cuda --action_env=PATH=/usr/bin:/usr/local/bin
+build:cuda --host_action_env=PATH=/usr/bin:/usr/local/bin
 ```
 
 ### Generate C API documents using Doxygen
