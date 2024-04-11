@@ -65,12 +65,12 @@ class VanishingArgument {
       // S_compressed(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
       ValueSource compressed_table_coset = compress(lookup.table_expressions());
 
-      // S_compressed(X) + γ
-      ValueSource right = graph.AddCalculation(
-          Calculation::Add(compressed_table_coset, ValueSource::Gamma()));
       // A_compressed(X) + β
       ValueSource left = graph.AddCalculation(
           Calculation::Add(compressed_input_coset, ValueSource::Beta()));
+      // S_compressed(X) + γ
+      ValueSource right = graph.AddCalculation(
+          Calculation::Add(compressed_table_coset, ValueSource::Gamma()));
       // (A_compressed(X) + β) * (S_compressed(X) + γ)
       graph.AddCalculation(Calculation::Mul(left, right));
 
@@ -98,9 +98,8 @@ class VanishingArgument {
     CircuitPolynomialBuilder<PCS> builder =
         CircuitPolynomialBuilder<PCS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
-            prover->GetLastRow(), cs_degree, &poly_tables, &theta, &beta,
-            &gamma, &y, &zeta, &proving_key, &permutation_provers,
-            &lookup_provers);
+            prover->GetLastRow(), cs_degree, poly_tables, theta, beta, gamma, y,
+            zeta, proving_key, permutation_provers, lookup_provers);
 
     return builder.BuildExtendedCircuitColumn(custom_gates_, lookups_);
   }
