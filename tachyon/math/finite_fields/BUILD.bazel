@@ -130,7 +130,6 @@ tachyon_cc_library(
     name = "prime_field_generic",
     hdrs = ["prime_field_generic.h"],
     deps = [
-        ":modulus",
         ":prime_field_base",
         "//tachyon/base:compiler_specific",
         "//tachyon/base:logging",
