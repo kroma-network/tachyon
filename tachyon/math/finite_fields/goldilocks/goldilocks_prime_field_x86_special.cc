@@ -65,7 +65,15 @@ CLASS CLASS::FromBigInt(const BigInt<N>& big_int) {
 // static
 template <typename Config>
 CLASS CLASS::FromMontgomery(const BigInt<N>& big_int) {
-  return PrimeField(::Goldilocks::from_montgomery(big_int[0]));
+  PrimeField ret;
+  // See
+  // https://github.com/0xPolygonHermez/goldilocks/blob/f89eb016830f8c4301482d83691aed22e5a92742/src/goldilocks_base_field_tools.hpp#L66-L73.
+#if USE_MONTGOMERY == 1
+  ret.value_ = big_int[0];
+#else
+  ret.value_ = ::Goldilocks::from_montgomery(big_int[0]);
+#endif
+  return ret;
 }
 
 template <typename Config>
