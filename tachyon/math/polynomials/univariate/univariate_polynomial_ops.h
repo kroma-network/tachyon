@@ -640,10 +640,13 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S>& MulInPlace(UnivariatePolynomial<S>& self,
                                              const F& scalar) {
+    std::vector<Term>& terms = self.coefficients_.terms_;
     if (self.IsZero() || scalar.IsOne()) {
       return self;
+    } else if (scalar.IsZero()) {
+      terms.clear();
+      return self;
     }
-    std::vector<Term>& terms = self.coefficients_.terms_;
     for (Term& term : terms) {
       term.coefficient *= scalar;
     }
