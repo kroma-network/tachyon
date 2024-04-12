@@ -201,7 +201,7 @@ int GenerationConfig::GenerateConfigHdr() const {
 
   bool has_two_adic_root_of_unity = !subgroup_generator.empty();
   replacements["%{has_two_adic_root_of_unity}"] =
-      std::to_string(has_two_adic_root_of_unity);
+      base::BoolToString(has_two_adic_root_of_unity);
   RemoveOptionalLines(tpl_lines, "kHasTwoAdicRootOfUnity",
                       has_two_adic_root_of_unity);
   mpz_class subgroup_generator_mpz;
@@ -222,14 +222,14 @@ int GenerationConfig::GenerateConfigHdr() const {
              subgroup_generator_mpz.get_mpz_t(), trace.get_mpz_t(),
              m.get_mpz_t());
     replacements["%{two_adicity}"] =
-        std::to_string(math::ComputeAdicity(2, m - mpz_class(1)));
+        base::NumberToString(math::ComputeAdicity(2, m - mpz_class(1)));
     replacements["%{two_adic_root_of_unity}"] =
         math::MpzClassToMontString(two_adic_root_of_unity, m);
   }
 
   bool has_large_subgroup_root_of_unity = !small_subgroup_base.empty();
   replacements["%{has_large_subgroup_root_of_unity}"] =
-      std::to_string(has_large_subgroup_root_of_unity);
+      base::BoolToString(has_large_subgroup_root_of_unity);
   RemoveOptionalLines(tpl_lines, "kHasLargeSubgroupRootOfUnity",
                       has_large_subgroup_root_of_unity);
   if (has_two_adic_root_of_unity && has_large_subgroup_root_of_unity) {
