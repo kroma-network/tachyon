@@ -239,6 +239,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
       // clang-format on
       coefficient.NegInPlace();
     }
+    self.coefficients_.RemoveHighDegreeZeros();
     return self;
   }
 
@@ -268,6 +269,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
       // clang-format on
       coefficient *= scalar;
     }
+    self.coefficients_.RemoveHighDegreeZeros();
     return self;
   }
 
