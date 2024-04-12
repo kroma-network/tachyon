@@ -12,7 +12,10 @@ namespace tachyon::math {
 #define CLASS PrimeField<Config, std::enable_if_t<Config::kIsGoldilocks>>
 
 template <typename Config>
-CLASS::PrimeField(uint64_t value) : value_(value) {}
+CLASS::PrimeField(uint64_t value) : value_(value) {
+  DCHECK_LT(value_, Config::kModulus[0]);
+  value_ = ::Goldilocks::fromU64(value_).fe;
+}
 
 // static
 template <typename Config>
@@ -38,7 +41,7 @@ std::optional<CLASS> CLASS::FromDecString(std::string_view str) {
     LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
     return std::nullopt;
   }
-  return PrimeField(::Goldilocks::fromU64(value).fe);
+  return PrimeField(value);
 }
 
 // static
@@ -50,13 +53,13 @@ std::optional<CLASS> CLASS::FromHexString(std::string_view str) {
     LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
     return std::nullopt;
   }
-  return PrimeField(::Goldilocks::fromU64(value).fe);
+  return PrimeField(value);
 }
 
 // static
 template <typename Config>
 CLASS CLASS::FromBigInt(const BigInt<N>& big_int) {
-  return PrimeField(::Goldilocks::fromU64(big_int[0]).fe);
+  return PrimeField(big_int[0]);
 }
 
 // static
