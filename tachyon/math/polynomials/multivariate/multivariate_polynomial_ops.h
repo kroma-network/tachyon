@@ -9,7 +9,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/polynomials/multivariate/multivariate_polynomial.h"
 
@@ -23,6 +22,19 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
   using Term = typename S::Term;
   using Terms = std::vector<Term>;
 
+  static MultivariatePolynomial<S> Add(const MultivariatePolynomial<S>& self,
+                                       const MultivariatePolynomial<S>& other) {
+    if (self.IsZero()) {
+      return other;
+    } else if (other.IsZero()) {
+      return self;
+    }
+
+    MultivariatePolynomial<S> ret;
+    DoAdd<false>(self, other, ret);
+    return ret;
+  }
+
   static MultivariatePolynomial<S>& AddInPlace(
       MultivariatePolynomial<S>& self, const MultivariatePolynomial<S>& other) {
     if (self.IsZero()) {
@@ -31,27 +43,25 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
       return self;
     }
 
-    return DoAddition<false>(self, other);
+    DoAdd<false>(self, other, self);
+    return self;
   }
 
   static MultivariatePolynomial<S>& SubInPlace(
       MultivariatePolynomial<S>& self, const MultivariatePolynomial<S>& other) {
-    Terms& l_terms = self.coefficients_.terms_;
-    const Terms& r_terms = other.coefficients_.terms_;
     if (self.IsZero()) {
-      l_terms = base::CreateVector(
-          r_terms.size(), [&r_terms](size_t idx) { return -r_terms[idx]; });
-      return self;
+      return self = -other;
     } else if (other.IsZero()) {
       return self;
     }
 
-    return DoAddition<true>(self, other);
+    DoAdd<true>(self, other, self);
+    return self;
   }
 
   static MultivariatePolynomial<S>& NegInPlace(
       MultivariatePolynomial<S>& self) {
-    Terms& terms = self.terms_;
+    Terms& terms = self.coefficients_.terms_;
     // clang-format off
     OPENMP_PARALLEL_FOR(Term& term : terms) { term.coefficient.NegInPlace(); }
     // clang-format on
@@ -60,57 +70,57 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
 
  private:
   template <bool NEGATION>
-  static MultivariatePolynomial<S>& DoAddition(
-      MultivariatePolynomial<S>& self, const MultivariatePolynomial<S>& other) {
-    Terms& l_terms = self.coefficients_.terms_;
-    const Terms& r_terms = other.coefficients_.terms_;
+  static void DoAdd(const MultivariatePolynomial<S>& a,
+                    const MultivariatePolynomial<S>& b,
+                    MultivariatePolynomial<S>& c) {
+    const Terms& a_terms = a.coefficients_.terms_;
+    const Terms& b_terms = b.coefficients_.terms_;
+    Terms c_terms;
 
-    auto l_it = l_terms.begin();
-    auto r_it = r_terms.begin();
-    Terms ret;
-    while (l_it != l_terms.end() || r_it != r_terms.end()) {
-      if (l_it == l_terms.end()) {
+    auto a_it = a_terms.begin();
+    auto b_it = b_terms.begin();
+    while (a_it != a_terms.end() || b_it != b_terms.end()) {
+      if (a_it == a_terms.end()) {
         if constexpr (NEGATION) {
-          ret.push_back(-(*r_it));
+          c_terms.push_back(-(*b_it));
         } else {
-          ret.push_back(*r_it);
+          c_terms.push_back(*b_it);
         }
-        ++r_it;
+        ++b_it;
         continue;
       }
-      if (r_it == r_terms.end()) {
-        ret.push_back(*l_it);
-        ++l_it;
+      if (b_it == b_terms.end()) {
+        c_terms.push_back(*a_it);
+        ++a_it;
         continue;
       }
-      if (l_it->literal < r_it->literal) {
-        ret.push_back(*l_it);
-        ++l_it;
-      } else if (r_it->literal < l_it->literal) {
+      if (a_it->literal < b_it->literal) {
+        c_terms.push_back(*a_it);
+        ++a_it;
+      } else if (b_it->literal < a_it->literal) {
         if constexpr (NEGATION) {
-          ret.push_back(-(*r_it));
+          c_terms.push_back(-(*b_it));
         } else {
-          ret.push_back(*r_it);
+          c_terms.push_back(*b_it);
         }
-        ++r_it;
+        ++b_it;
       } else {
         F coeff;
         if constexpr (NEGATION) {
-          coeff = l_it->coefficient - r_it->coefficient;
+          coeff = a_it->coefficient - b_it->coefficient;
         } else {
-          coeff = l_it->coefficient + r_it->coefficient;
+          coeff = a_it->coefficient + b_it->coefficient;
         }
         if (!coeff.IsZero()) {
-          ret.push_back({l_it->literal, std::move(coeff)});
+          c_terms.push_back({a_it->literal, std::move(coeff)});
         }
-        ++l_it;
-        ++r_it;
+        ++a_it;
+        ++b_it;
       }
     }
 
-    l_terms = std::move(ret);
-    self.coefficients_.Compact();
-    return self;
+    c.coefficients_.terms_ = std::move(c_terms);
+    c.coefficients_.Compact();
   }
 };
 

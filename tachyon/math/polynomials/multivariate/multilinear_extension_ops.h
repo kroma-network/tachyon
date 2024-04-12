@@ -2,6 +2,7 @@
 #define TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTILINEAR_EXTENSION_OPS_H_
 
 #include <algorithm>
+#include <utility>
 #include <vector>
 
 #include "tachyon/base/openmp_util.h"
@@ -15,10 +16,38 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
  public:
   using D = MultilinearDenseEvaluations<F, MaxDegree>;
 
+  static MultilinearExtension<D> Add(const MultilinearExtension<D>& self,
+                                     const MultilinearExtension<D>& other) {
+    const std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (l_evaluations.empty()) {
+      // 0 + g(x)
+      return other;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) + 0
+      return self;
+    }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    std::vector<F> o_evaluations(r_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+      o_evaluations[i] = l_evaluations[i] + r_evaluations[i];
+    }
+    return MultilinearExtension<D>(D(std::move(o_evaluations)));
+  }
+
   static MultilinearExtension<D>& AddInPlace(
       MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {
     std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (l_evaluations.empty()) {
+      // 0 + g(x)
+      return self = other;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) + 0
+      return self;
+    }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] += r_evaluations[i];
@@ -30,6 +59,14 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
       MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {
     std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (l_evaluations.empty()) {
+      // 0 - g(x)
+      return self = -other;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) - 0
+      return self;
+    }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] -= r_evaluations[i];
@@ -39,6 +76,9 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
 
   static MultilinearExtension<D>& NegInPlace(MultilinearExtension<D>& self) {
     std::vector<F>& evaluations = self.evaluations_.evaluations_;
+    if (evaluations.empty()) {
+      return self;
+    }
     // clang-format off
     OPENMP_PARALLEL_FOR(F& evaluation : evaluations) {
       // clang-format on
@@ -47,10 +87,35 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     return self;
   }
 
+  static MultilinearExtension<D> Mul(const MultilinearExtension<D>& self,
+                                     const MultilinearExtension<D>& other) {
+    const std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (l_evaluations.empty() || r_evaluations.empty()) {
+      // 0 * g(x) or f(x) * 0
+      return MultilinearExtension<D>::Zero();
+    }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    std::vector<F> o_evaluations(r_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+      o_evaluations[i] = l_evaluations[i] * r_evaluations[i];
+    }
+    return MultilinearExtension<D>(D(std::move(o_evaluations)));
+  }
+
   static MultilinearExtension<D>& MulInPlace(
       MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {
     std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (l_evaluations.empty()) {
+      // 0 * g(x)
+      return self;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) * 0
+      l_evaluations.clear();
+      return self;
+    }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
       l_evaluations[i] *= r_evaluations[i];
@@ -61,9 +126,14 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
   static MultilinearExtension<D>& DivInPlace(
       MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {
     std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
+    if (l_evaluations.empty()) {
+      // 0 / g(x)
+      return self;
+    }
+    // TODO(chokobole): Check division by zero polynomial.
+    // f(x) / 0 skips this for loop.
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
-    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] /= r_evaluations[i];
     }
     return self;

@@ -10,7 +10,6 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
@@ -22,15 +21,35 @@ class UnivariateEvaluationsOp {
  public:
   using Poly = UnivariateEvaluations<F, MaxDegree>;
 
+  static Poly Add(const Poly& self, const Poly& other) {
+    const std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
+    if (l_evaluations.empty()) {
+      // 0 + g(x)
+      return other;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) + 0
+      return self;
+    }
+    std::vector<F> o_evaluations(r_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+      o_evaluations[i] = l_evaluations[i] + r_evaluations[i];
+    }
+    return Poly(std::move(o_evaluations));
+  }
+
   static Poly& AddInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty()) {
       // 0 + g(x)
-      l_evaluations = r_evaluations;
+      return self = other;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) + 0
       return self;
     }
-    // f(x) + 0 skips this for loop.
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] += r_evaluations[i];
     }
@@ -42,9 +61,12 @@ class UnivariateEvaluationsOp {
     const std::vector<F>& r_evaluations = other.evaluations_;
     if (l_evaluations.empty()) {
       // 0 - g(x)
-      l_evaluations.resize(r_evaluations.size());
+      return self = -other;
     }
-    // f(x) - 0 skips this for loop.
+    if (r_evaluations.empty()) {
+      // f(x) - 0
+      return self;
+    }
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] -= r_evaluations[i];
     }
@@ -53,12 +75,29 @@ class UnivariateEvaluationsOp {
 
   static Poly& NegInPlace(Poly& self) {
     std::vector<F>& evaluations = self.evaluations_;
+    if (evaluations.empty()) {
+      return self;
+    }
     // clang-format off
     OPENMP_PARALLEL_FOR(F& evaluation : evaluations) {
       // clang-format on
       evaluation.NegInPlace();
     }
     return self;
+  }
+
+  static Poly Mul(const Poly& self, const Poly& other) {
+    const std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
+    if (l_evaluations.empty() || r_evaluations.empty()) {
+      // 0 * g(x) or f(x) * 0
+      return Poly::Zero();
+    }
+    std::vector<F> o_evaluations(r_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+      o_evaluations[i] = l_evaluations[i] * r_evaluations[i];
+    }
+    return Poly(std::move(o_evaluations));
   }
 
   static Poly& MulInPlace(Poly& self, const Poly& other) {
@@ -77,6 +116,15 @@ class UnivariateEvaluationsOp {
       l_evaluations[i] *= r_evaluations[i];
     }
     return self;
+  }
+
+  static Poly Mul(const Poly& self, const F& scalar) {
+    const std::vector<F>& l_evaluations = self.evaluations_;
+    std::vector<F> o_evaluations(l_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+      o_evaluations[i] = l_evaluations[i] * scalar;
+    }
+    return Poly(std::move(o_evaluations));
   }
 
   static Poly& MulInPlace(Poly& self, const F& scalar) {
@@ -104,6 +152,9 @@ class UnivariateEvaluationsOp {
 
   static Poly& DivInPlace(Poly& self, const F& scalar) {
     std::vector<F>& l_evaluations = self.evaluations_;
+    if (l_evaluations.empty()) {
+      return self;
+    }
     F scalar_inv = scalar.Inverse();
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
       l_evaluations[i] *= scalar_inv;

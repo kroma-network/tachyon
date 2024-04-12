@@ -12,6 +12,21 @@ namespace tachyon::math {
             std::enable_if_t<Curve::kType == CurveType::kShortWeierstrass>>
 
 template <typename Curve>
+constexpr CLASS CLASS::Add(const PointXYZZ& other) const {
+  if (IsZero()) {
+    return other;
+  }
+
+  if (other.IsZero()) {
+    return *this;
+  }
+
+  PointXYZZ ret;
+  DoAdd(*this, other, ret);
+  return ret;
+}
+
+template <typename Curve>
 constexpr CLASS& CLASS::AddInPlace(const PointXYZZ& other) {
   if (IsZero()) {
     return *this = other;
@@ -21,18 +36,26 @@ constexpr CLASS& CLASS::AddInPlace(const PointXYZZ& other) {
     return *this;
   }
 
+  DoAdd(*this, other, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoAdd(const PointXYZZ& a, const PointXYZZ& b,
+                            PointXYZZ& c) {
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-xyzz.html#addition-add-2008-s
   // U1 = X1 * ZZ2
-  BaseField u1 = x_ * other.zz_;
+  BaseField u1 = a.x_ * b.zz_;
 
   // U2 = X2 * ZZ1
-  BaseField u2 = other.x_ * zz_;
+  BaseField u2 = b.x_ * a.zz_;
 
   // S1 = Y1 * ZZZ2
-  BaseField s1 = y_ * other.zzz_;
+  BaseField s1 = a.y_ * b.zzz_;
 
   // S2 = Y2 * ZZZ1
-  BaseField s2 = other.y_ * zzz_;
+  BaseField s2 = b.y_ * a.zzz_;
 
   // P = U2 - U1
   BaseField p = u2 - u1;
@@ -41,7 +64,12 @@ constexpr CLASS& CLASS::AddInPlace(const PointXYZZ& other) {
   BaseField r = s2 - s1;
 
   if (p.IsZero() && r.IsZero()) {
-    return DoubleInPlace();
+    if (&a == &c) {
+      c.DoubleInPlace();
+    } else {
+      c = a.Double();
+    }
+    return;
   }
 
   // PP = P²
@@ -54,24 +82,37 @@ constexpr CLASS& CLASS::AddInPlace(const PointXYZZ& other) {
   BaseField q = u1 * pp;
 
   // X3 = R² - PPP - 2 * Q
-  x_ = r.Square();
-  x_ -= ppp;
-  x_ -= q.Double();
+  c.x_ = r.Square();
+  c.x_ -= ppp;
+  c.x_ -= q.Double();
 
   // Y3 = R * (Q - X3) - S1 * PPP
   BaseField lefts[] = {std::move(r), -s1};
-  BaseField rights[] = {q - x_, ppp};
-  y_ = BaseField::SumOfProductsSerial(lefts, rights);
+  BaseField rights[] = {q - c.x_, ppp};
+  c.y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // ZZ3 = ZZ1 * ZZ2 * PP
-  zz_ *= other.zz_;
-  zz_ *= pp;
+  c.zz_ = a.zz_ * b.zz_;
+  c.zz_ *= pp;
 
   // ZZZ3 = ZZZ1 * ZZZ2 * PPP
-  zzz_ *= other.zzz_;
-  zzz_ *= ppp;
+  c.zzz_ = a.zzz_ * b.zzz_;
+  c.zzz_ *= ppp;
+}
 
-  return *this;
+template <typename Curve>
+constexpr CLASS CLASS::Add(const AffinePoint<Curve>& other) const {
+  if (IsZero()) {
+    return other.ToXYZZ();
+  }
+
+  if (other.IsZero()) {
+    return *this;
+  }
+
+  PointXYZZ ret;
+  DoAdd(*this, other, ret);
+  return ret;
 }
 
 template <typename Curve>
@@ -84,21 +125,34 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
     return *this;
   }
 
+  DoAdd(*this, other, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoAdd(const PointXYZZ& a, const AffinePoint<Curve>& b,
+                            PointXYZZ& c) {
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-xyzz.html#addition-madd-2008-s
   // U2 = X2 * ZZ1
-  BaseField u2 = other.x() * zz_;
+  BaseField u2 = b.x() * a.zz_;
 
   // S2 = Y2 * ZZZ1
-  BaseField s2 = other.y() * zzz_;
+  BaseField s2 = b.y() * a.zzz_;
 
   // P = U2 - X1
-  BaseField p = u2 - x_;
+  BaseField p = u2 - a.x_;
 
   // R = S2 - Y1
-  BaseField r = s2 - y_;
+  BaseField r = s2 - a.y_;
 
   if (p.IsZero() && r.IsZero()) {
-    return DoubleInPlace();
+    if (&a == &c) {
+      c.DoubleInPlace();
+    } else {
+      c = a.Double();
+    }
+    return;
   }
 
   // PP = P²
@@ -108,36 +162,52 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
   BaseField ppp = p * pp;
 
   // Q = X1 * PP
-  BaseField q = x_ * pp;
+  BaseField q = a.x_ * pp;
 
   // X3 = R² - PPP - 2 * Q
-  x_ = r.Square();
-  x_ -= ppp;
-  x_ -= q.Double();
+  c.x_ = r.Square();
+  c.x_ -= ppp;
+  c.x_ -= q.Double();
 
   // Y3 = R * (Q - X3) - Y1 * PPP
-  BaseField lefts[] = {std::move(r), -y_};
-  BaseField rights[] = {q - x_, ppp};
-  y_ = BaseField::SumOfProductsSerial(lefts, rights);
+  BaseField lefts[] = {std::move(r), -a.y_};
+  BaseField rights[] = {q - c.x_, ppp};
+  c.y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // ZZ3 = ZZ1 * PP
-  zz_ *= pp;
+  c.zz_ = a.zz_ * pp;
 
   // ZZZ3 = ZZZ1 * PPP
-  zzz_ *= ppp;
-
-  return *this;
+  c.zzz_ = a.zzz_ * ppp;
 }
 
 template <typename Curve>
-constexpr CLASS& CLASS::DoubleInPlace() {
+constexpr CLASS CLASS::DoDouble() const {
+  if (IsZero()) {
+    return PointXYZZ::Zero();
+  }
+
+  PointXYZZ ret;
+  DoDoubleImpl(*this, ret);
+  return ret;
+}
+
+template <typename Curve>
+constexpr CLASS& CLASS::DoDoubleInPlace() {
   if (IsZero()) {
     return *this;
   }
 
+  DoDoubleImpl(*this, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoDoubleImpl(const PointXYZZ& a, PointXYZZ& b) {
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-xyzz.html#doubling-dbl-2008-s-1
   // U = 2 * Y1
-  BaseField u = y_.Double();
+  BaseField u = a.y_.Double();
 
   // V = U²
   BaseField v = u.Square();
@@ -146,31 +216,29 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   BaseField w = u * v;
 
   // S = X1 * V
-  BaseField s = x_ * v;
+  BaseField s = a.x_ * v;
 
   // M = 3 * X1² + a * ZZ1²
-  BaseField m = x_.Square();
+  BaseField m = a.x_.Square();
   m += m.Double();
   if constexpr (!Curve::Config::kAIsZero) {
-    m += Curve::Config::MulByA(zz_.Square());
+    m += Curve::Config::MulByA(a.zz_.Square());
   }
 
   // X3 = M² - 2 * S
-  x_ = m.Square();
-  x_ -= s.Double();
+  b.x_ = m.Square();
+  b.x_ -= s.Double();
 
   // Y3 = M * (S - X3) - W * Y1
   BaseField lefts[] = {std::move(m), -w};
-  BaseField rights[] = {s - x_, y_};
-  y_ = BaseField::SumOfProductsSerial(lefts, rights);
+  BaseField rights[] = {s - b.x_, a.y_};
+  b.y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // ZZ3 = V * ZZ1
-  zz_ *= v;
+  b.zz_ = v * a.zz_;
 
   // ZZZ3 = W * ZZZ1
-  zzz_ *= w;
-
-  return *this;
+  b.zzz_ = w * a.zzz_;
 }
 
 #undef CLASS

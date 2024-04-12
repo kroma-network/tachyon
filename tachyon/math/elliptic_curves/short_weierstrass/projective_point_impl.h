@@ -11,6 +11,21 @@ namespace tachyon::math {
       Curve, std::enable_if_t<Curve::kType == CurveType::kShortWeierstrass>>
 
 template <typename Curve>
+constexpr CLASS CLASS::Add(const ProjectivePoint& other) const {
+  if (IsZero()) {
+    return other;
+  }
+
+  if (other.IsZero()) {
+    return *this;
+  }
+
+  ProjectivePoint ret;
+  DoAdd(*this, other, ret);
+  return ret;
+}
+
+template <typename Curve>
 constexpr CLASS& CLASS::AddInPlace(const ProjectivePoint& other) {
   if (IsZero()) {
     return *this = other;
@@ -20,26 +35,39 @@ constexpr CLASS& CLASS::AddInPlace(const ProjectivePoint& other) {
     return *this;
   }
 
+  DoAdd(*this, other, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoAdd(const ProjectivePoint& a, const ProjectivePoint& b,
+                            ProjectivePoint& c) {
   // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#addition-add-1998-cmo-2
   // Y1Z2 = Y1 * Z2
-  BaseField y1z2 = y_ * other.z_;
+  BaseField y1z2 = a.y_ * b.z_;
 
   // X1Z2 = X1 * Z2
-  BaseField x1z2 = x_ * other.z_;
+  BaseField x1z2 = a.x_ * b.z_;
 
   // Z1Z2 = Z1 * Z2
-  BaseField z1z2 = z_ * other.z_;
+  BaseField z1z2 = a.z_ * b.z_;
 
   // u = Y2 * Z1 - Y1Z2
-  BaseField u = other.y_ * z_;
+  BaseField u = b.y_ * a.z_;
   u -= y1z2;
 
   // v = X2 * Z1 - X1Z2
-  BaseField v = other.x_ * z_;
+  BaseField v = b.x_ * a.z_;
   v -= x1z2;
 
   if (u.IsZero() && v.IsZero()) {
-    return DoubleInPlace();
+    if (&a == &c) {
+      c.DoubleInPlace();
+    } else {
+      c = a.Double();
+    }
+    return;
   }
 
   // uu = u²
@@ -54,23 +82,36 @@ constexpr CLASS& CLASS::AddInPlace(const ProjectivePoint& other) {
   // R = vv * X1Z2
   BaseField r = vv * x1z2;
 
-  // A = uu * Z1Z2 - vvv - 2 * R
-  BaseField a = uu * z1z2;
-  a -= vvv;
-  a -= r.Double();
+  // D = uu * Z1Z2 - vvv - 2 * R
+  BaseField d = uu * z1z2;
+  d -= vvv;
+  d -= r.Double();
 
-  // X3 = v * A
-  x_ = v * a;
+  // X3 = v * D
+  c.x_ = v * d;
 
-  // Y3 = u * (R - A) - vvv * Y1Z2
+  // Y3 = u * (R - D) - vvv * Y1Z2
   BaseField lefts[] = {std::move(u), -vvv};
-  BaseField rights[] = {r - a, std::move(y1z2)};
-  y_ = BaseField::SumOfProductsSerial(lefts, rights);
+  BaseField rights[] = {r - d, std::move(y1z2)};
+  c.y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // Z3 = vvv * Z1Z2
-  z_ = vvv * z1z2;
+  c.z_ = vvv * z1z2;
+}
 
-  return *this;
+template <typename Curve>
+constexpr CLASS CLASS::Add(const AffinePoint<Curve>& other) const {
+  if (IsZero()) {
+    return other.ToProjective();
+  }
+
+  if (other.IsZero()) {
+    return *this;
+  }
+
+  ProjectivePoint ret;
+  DoAdd(*this, other, ret);
+  return ret;
 }
 
 template <typename Curve>
@@ -83,17 +124,30 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
     return *this;
   }
 
+  DoAdd(*this, other, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoAdd(const ProjectivePoint& a,
+                            const AffinePoint<Curve>& b, ProjectivePoint& c) {
   // http://www.hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#addition-madd-1998-cmo
   // u = Y2 * Z1 - Y1
-  BaseField u = other.y() * z_;
-  u -= y_;
+  BaseField u = b.y() * a.z_;
+  u -= a.y_;
 
   // v = X2 * Z1 - X1
-  BaseField v = other.x() * z_;
-  v -= x_;
+  BaseField v = b.x() * a.z_;
+  v -= a.x_;
 
   if (u.IsZero() && v.IsZero()) {
-    return DoubleInPlace();
+    if (&a == &c) {
+      c.DoubleInPlace();
+    } else {
+      c = a.Double();
+    }
+    return;
   }
 
   // uu = u²
@@ -106,39 +160,56 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
   BaseField vvv = v * vv;
 
   // R = vv * X1
-  BaseField r = vv * x_;
+  BaseField r = vv * a.x_;
 
-  // A = uu * Z1 - vvv - 2 * R
-  BaseField a = uu * z_;
-  a -= vvv;
-  a -= r.Double();
+  // D = uu * Z1 - vvv - 2 * R
+  BaseField d = uu * a.z_;
+  d -= vvv;
+  d -= r.Double();
 
-  // X3 = v * A
-  x_ = v * a;
+  // X3 = v * D
+  c.x_ = v * d;
 
-  // Y3 = u * (R - A) - vvv * Y1
+  // Y3 = u * (R - D) - vvv * Y1
   BaseField lefts[] = {std::move(u), -vvv};
-  BaseField rights[] = {r - a, std::move(y_)};
-  y_ = BaseField::SumOfProductsSerial(lefts, rights);
+  BaseField rights[] = {r - d, a.y_};
+  c.y_ = BaseField::SumOfProductsSerial(lefts, rights);
 
   // Z3 = vvv * Z1
-  z_ *= vvv;
-
-  return *this;
+  c.z_ = vvv * a.z_;
 }
 
 template <typename Curve>
-constexpr CLASS& CLASS::DoubleInPlace() {
+constexpr CLASS CLASS::DoDouble() const {
+  if (IsZero()) {
+    return ProjectivePoint::Zero();
+  }
+
+  ProjectivePoint ret;
+  DoDoubleImpl(*this, ret);
+  return ret;
+}
+
+template <typename Curve>
+constexpr CLASS& CLASS::DoDoubleInPlace() {
   if (IsZero()) {
     return *this;
   }
 
+  DoDoubleImpl(*this, *this);
+  return *this;
+}
+
+// static
+template <typename Curve>
+constexpr void CLASS::DoDoubleImpl(const ProjectivePoint& a,
+                                   ProjectivePoint& b) {
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-projective.html#doubling-dbl-2007-bl
   // XX = X1²
-  BaseField xx = x_.Square();
+  BaseField xx = a.x_.Square();
 
   // ZZ = Z1²
-  BaseField zz = z_.Square();
+  BaseField zz = a.z_.Square();
 
   // w = a * ZZ + 3 * XX
   BaseField w = xx.Double();
@@ -148,7 +219,7 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   }
 
   // s = 2 * Y1 * Z1
-  BaseField s = y_ * z_;
+  BaseField s = a.y_ * a.z_;
   s.DoubleInPlace();
 
   // ss = s²
@@ -158,33 +229,31 @@ constexpr CLASS& CLASS::DoubleInPlace() {
   BaseField sss = s * ss;
 
   // R = Y1 * s
-  BaseField r = y_ * s;
+  BaseField r = a.y_ * s;
 
   // RR = R²
   BaseField rr = r.Square();
 
-  // B = (X1 + R)² - XX - RR
-  BaseField b = x_ + r;
-  b.SquareInPlace();
-  b -= xx;
-  b -= rr;
+  // D = (X1 + R)² - XX - RR
+  BaseField d = a.x_ + r;
+  d.SquareInPlace();
+  d -= xx;
+  d -= rr;
 
-  // h = w² - 2 * B
+  // h = w² - 2 * D
   BaseField h = w.Square();
-  h -= b.Double();
+  h -= d.Double();
 
   // X3 = h * s
-  x_ = h * s;
+  b.x_ = h * s;
 
-  // Y3 = w * (B - h) - 2 * RR
-  y_ = b - h;
-  y_ *= w;
-  y_ -= rr.Double();
+  // Y3 = w * (D - h) - 2 * RR
+  b.y_ = d - h;
+  b.y_ *= w;
+  b.y_ -= rr.Double();
 
   // Z3 = sss
-  z_ = std::move(sss);
-
-  return *this;
+  b.z_ = std::move(sss);
 }
 
 #undef CLASS

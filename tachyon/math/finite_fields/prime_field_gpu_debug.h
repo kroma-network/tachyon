@@ -156,13 +156,17 @@ class PrimeFieldGpuDebug final
   }
 
   // AdditiveSemigroup methods
+  constexpr PrimeFieldGpuDebug Add(const PrimeFieldGpuDebug& other) const {
+    PrimeFieldGpuDebug ret;
+    AddLimbs<false>(value_, other.value_, ret.value_);
+    return Clamp(ret);
+  }
+
   constexpr PrimeFieldGpuDebug& AddInPlace(const PrimeFieldGpuDebug& other) {
     AddLimbs<false>(value_, other.value_, value_);
     *this = Clamp(*this);
     return *this;
   }
-
-  constexpr PrimeFieldGpuDebug& DoubleInPlace() { return AddInPlace(*this); }
 
   // AdditiveGroup methods
   constexpr PrimeFieldGpuDebug& SubInPlace(const PrimeFieldGpuDebug& other) {
@@ -190,8 +194,6 @@ class PrimeFieldGpuDebug final
     *this = Clamp(*this);
     return *this;
   }
-
-  constexpr PrimeFieldGpuDebug& SquareInPlace() { return MulInPlace(*this); }
 
   // MultiplicativeGroup methods
   // TODO(chokobole): Share codes with PrimeField and PrimeFieldGpu.

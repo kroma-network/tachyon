@@ -269,7 +269,7 @@ TEST_F(UnivariateSparsePolynomialTest, MultiplicativeOperators) {
           zero.ToDense(),
           zero.ToDense(),
           zero.ToDense(),
-          zero.ToDense(),
+          a.ToDense(),
       },
   };
 

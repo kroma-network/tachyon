@@ -147,6 +147,10 @@ class UnivariateEvaluations final
   std::string ToString() const { return base::VectorToString(evaluations_); }
 
   // AdditiveSemigroup methods
+  UnivariateEvaluations Add(const UnivariateEvaluations& other) const {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Add(*this, other);
+  }
+
   UnivariateEvaluations& AddInPlace(const UnivariateEvaluations& other) {
     return internal::UnivariateEvaluationsOp<F, MaxDegree>::AddInPlace(*this,
                                                                        other);
@@ -163,9 +167,17 @@ class UnivariateEvaluations final
   }
 
   // MultiplicativeSemigroup methods
+  UnivariateEvaluations Mul(const UnivariateEvaluations& other) const {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Mul(*this, other);
+  }
+
   UnivariateEvaluations& MulInPlace(const UnivariateEvaluations& other) {
     return internal::UnivariateEvaluationsOp<F, MaxDegree>::MulInPlace(*this,
                                                                        other);
+  }
+
+  UnivariateEvaluations Mul(const F& scalar) const {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Mul(*this, scalar);
   }
 
   UnivariateEvaluations& MulInPlace(const F& scalar) {

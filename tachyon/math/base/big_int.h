@@ -430,12 +430,12 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
-  constexpr BigInt Add(const BigInt& other) {
+  constexpr BigInt Add(const BigInt& other) const {
     uint64_t unused = 0;
     return Add(other, unused);
   }
 
-  constexpr BigInt Add(const BigInt& other, uint64_t& carry) {
+  constexpr BigInt Add(const BigInt& other, uint64_t& carry) const {
     BigInt ret;
     DoAdd(*this, other, carry, ret);
     return ret;
@@ -472,19 +472,24 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
+  constexpr BigInt MulBy2() const {
+    uint64_t unused = 0;
+    return MulBy2(unused);
+  }
+
+  constexpr BigInt MulBy2(uint64_t& carry) const {
+    BigInt ret;
+    DoMulBy2(*this, carry, ret);
+    return ret;
+  }
+
   constexpr BigInt& MulBy2InPlace() {
     uint64_t unused = 0;
     return MulBy2InPlace(unused);
   }
 
   constexpr BigInt& MulBy2InPlace(uint64_t& carry) {
-    carry = 0;
-    FOR_FROM_SMALLEST(i, 0, N) {
-      uint64_t temp = limbs[i] >> 63;
-      limbs[i] <<= 1;
-      limbs[i] |= carry;
-      carry = temp;
-    }
+    DoMulBy2(*this, carry, *this);
     return *this;
   }
 
@@ -857,6 +862,15 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       c[i] = result.result;
     }
     borrow = result.borrow;
+  }
+
+  constexpr static void DoMulBy2(const BigInt& a, uint64_t& carry, BigInt& b) {
+    FOR_FROM_SMALLEST(i, 0, N) {
+      uint64_t temp = a[i] >> 63;
+      b[i] = a[i] << 1;
+      b[i] |= carry;
+      carry = temp;
+    }
   }
 
   template <typename T>

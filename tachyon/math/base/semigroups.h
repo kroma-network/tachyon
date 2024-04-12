@@ -36,6 +36,22 @@
                                          std::declval<const R&>())))>         \
       : std::true_type {}
 
+#define SUPPORTS_UNARY_OPERATOR(Name)                                        \
+  template <typename T, typename = void>                                     \
+  struct Supports##Name : std::false_type {};                                \
+                                                                             \
+  template <typename T>                                                      \
+  struct Supports##Name<T, decltype(void(std::declval<T>().Name()))>         \
+      : std::true_type {};                                                   \
+                                                                             \
+  template <typename T, typename = void>                                     \
+  struct Supports##Name##InPlace : std::false_type {};                       \
+                                                                             \
+  template <typename T>                                                      \
+  struct Supports##Name##InPlace<T, decltype(void(                           \
+                                        std::declval<T>().Name##InPlace()))> \
+      : std::true_type {}
+
 #define SUPPORTS_UNARY_IN_PLACE_OPERATOR(Name)                               \
   template <typename T, typename = void>                                     \
   struct Supports##Name##InPlace : std::false_type {};                       \
@@ -49,9 +65,9 @@ namespace tachyon::math {
 namespace internal {
 
 SUPPORTS_BINARY_OPERATOR(Mul);
-SUPPORTS_UNARY_IN_PLACE_OPERATOR(Square);
+SUPPORTS_UNARY_OPERATOR(DoSquare);
 SUPPORTS_BINARY_OPERATOR(Add);
-SUPPORTS_UNARY_IN_PLACE_OPERATOR(Double);
+SUPPORTS_UNARY_OPERATOR(DoDouble);
 
 template <typename T, typename = void>
 struct SupportsToBigInt : std::false_type {};
@@ -92,18 +108,11 @@ class MultiplicativeSemigroup {
       typename internal::MultiplicativeSemigroupTraits<G>::ReturnTy;
 
   // Multiplication: a * b
-  template <
-      typename G2,
-      std::enable_if_t<internal::SupportsMul<G, G2>::value ||
-                       internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
+  template <typename G2,
+            std::enable_if_t<internal::SupportsMul<G, G2>::value>* = nullptr>
   constexpr auto operator*(const G2& other) const {
-    if constexpr (internal::SupportsMul<G, G2>::value) {
-      const G* g = static_cast<const G*>(this);
-      return g->Mul(other);
-    } else {
-      G g = *static_cast<const G*>(this);
-      return g.MulInPlace(other);
-    }
+    const G* g = static_cast<const G*>(this);
+    return g->Mul(other);
   }
 
   // Multiplication in place: a *= b
@@ -117,11 +126,23 @@ class MultiplicativeSemigroup {
 
   // a.Square(): a²
   [[nodiscard]] constexpr auto Square() const {
-    if constexpr (internal::SupportsSquareInPlace<G>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.SquareInPlace();
+    if constexpr (internal::SupportsDoSquare<G>::value) {
+      const G* g = static_cast<const G*>(this);
+      return g->DoSquare();
     } else {
       return operator*(static_cast<const G&>(*this));
+    }
+  }
+
+  // a.SquareInPlace(): a = a²
+  constexpr G& SquareInPlace() {
+    if constexpr (internal::SupportsDoSquareInPlace<G>::value) {
+      G* g = static_cast<G*>(this);
+      return g->DoSquareInPlace();
+    } else if constexpr (internal::SupportsMulInPlace<G, G>::value) {
+      return operator*=(static_cast<const G&>(*this));
+    } else {
+      static_assert(base::AlwaysFalse<G>);
     }
   }
 
@@ -137,10 +158,8 @@ class MultiplicativeSemigroup {
   [[nodiscard]] constexpr auto Pow(const Scalar& scalar) const {
     if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
       return DoPow(BigInt<1>(scalar));
-    } else if constexpr (internal::SupportsToBigInt<Scalar>::value) {
-      return DoPow(scalar.ToBigInt());
     } else {
-      static_assert(base::AlwaysFalse<G>);
+      return DoPow(scalar.ToBigInt());
     }
   }
 
@@ -191,7 +210,8 @@ class MultiplicativeSemigroup {
     auto it = BitIteratorBE<BigInt<N>>::begin(&exponent, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&exponent);
     while (it != end) {
-      if constexpr (internal::SupportsSquareInPlace<G>::value) {
+      if constexpr (internal::SupportsDoSquareInPlace<G>::value ||
+                    internal::SupportsMulInPlace<G, G>::value) {
         ret.SquareInPlace();
       } else {
         ret = ret.Square();
@@ -216,18 +236,11 @@ class AdditiveSemigroup {
   using AddResult = typename internal::AdditiveSemigroupTraits<G>::ReturnTy;
 
   // Addition: a + b
-  template <
-      typename G2,
-      std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
-                       internal::SupportsAddInPlace<G, G2>::value>* = nullptr>
+  template <typename G2,
+            std::enable_if_t<internal::SupportsAdd<G, G2>::value>* = nullptr>
   constexpr auto operator+(const G2& other) const {
-    if constexpr (internal::SupportsAdd<G, G2>::value) {
-      const G* g = static_cast<const G*>(this);
-      return g->Add(other);
-    } else {
-      G g = *static_cast<const G*>(this);
-      return g.AddInPlace(other);
-    }
+    const G* g = static_cast<const G*>(this);
+    return g->Add(other);
   }
 
   // Addition in place: a += b
@@ -241,11 +254,23 @@ class AdditiveSemigroup {
 
   // a.Double(): 2a
   [[nodiscard]] constexpr auto Double() const {
-    if constexpr (internal::SupportsDoubleInPlace<G>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.DoubleInPlace();
+    if constexpr (internal::SupportsDoDouble<G>::value) {
+      const G* g = static_cast<const G*>(this);
+      return g->DoDouble();
     } else {
       return operator+(static_cast<const G&>(*this));
+    }
+  }
+
+  // a.DoubleInPlace(): a = 2a
+  constexpr G& DoubleInPlace() {
+    if constexpr (internal::SupportsDoDoubleInPlace<G>::value) {
+      G* g = static_cast<G*>(this);
+      return g->DoDoubleInPlace();
+    } else if constexpr (internal::SupportsAddInPlace<G, G>::value) {
+      return operator+=(static_cast<const G&>(*this));
+    } else {
+      static_assert(base::AlwaysFalse<G>);
     }
   }
 
@@ -264,10 +289,8 @@ class AdditiveSemigroup {
   [[nodiscard]] constexpr auto ScalarMul(const Scalar& scalar) const {
     if constexpr (std::is_constructible_v<BigInt<1>, Scalar>) {
       return DoScalarMul(BigInt<1>(scalar));
-    } else if constexpr (internal::SupportsToBigInt<Scalar>::value) {
-      return DoScalarMul(scalar.ToBigInt());
     } else {
-      static_assert(base::AlwaysFalse<G>);
+      return DoScalarMul(scalar.ToBigInt());
     }
   }
 
@@ -298,10 +321,8 @@ class AdditiveSemigroup {
       return MultiScalarMulMSMB(scalar_or_scalars, base_or_bases, outputs);
     } else if constexpr (internal::SupportsSize<ScalarOrScalars>::value) {
       return MultiScalarMulMSSB(scalar_or_scalars, base_or_bases, outputs);
-    } else if constexpr (internal::SupportsSize<BaseOrBases>::value) {
-      return MultiScalarMulSSMB(scalar_or_scalars, base_or_bases, outputs);
     } else {
-      static_assert(base::AlwaysFalse<G>);
+      return MultiScalarMulSSMB(scalar_or_scalars, base_or_bases, outputs);
     }
   }
 
@@ -404,7 +425,8 @@ class AdditiveSemigroup {
     auto it = BitIteratorBE<BigInt<N>>::begin(&scalar, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&scalar);
     while (it != end) {
-      if constexpr (internal::SupportsDoubleInPlace<G>::value) {
+      if constexpr (internal::SupportsDoDoubleInPlace<G>::value ||
+                    internal::SupportsAddInPlace<G, G>::value) {
         ret.DoubleInPlace();
       } else {
         ret = ret.Double();

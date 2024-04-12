@@ -157,6 +157,14 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   // AdditiveSemigroup methods
+  constexpr Derived Add(const Derived& other) const {
+    return {
+        c0_ + other.c0_,
+        c1_ + other.c1_,
+        c2_ + other.c2_,
+    };
+  }
+
   constexpr Derived& AddInPlace(const Derived& other) {
     c0_ += other.c0_;
     c1_ += other.c1_;
@@ -164,7 +172,15 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived& DoubleInPlace() {
+  constexpr Derived DoDouble() const {
+    return {
+        c0_.Double(),
+        c1_.Double(),
+        c2_.Double(),
+    };
+  }
+
+  constexpr Derived& DoDoubleInPlace() {
     c0_.DoubleInPlace();
     c1_.DoubleInPlace();
     c2_.DoubleInPlace();
@@ -187,45 +203,24 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   // MultiplicativeSemigroup methods
+  constexpr Derived Mul(const Derived& other) const {
+    Derived ret;
+    DoMul(*static_cast<const Derived*>(this), other, ret);
+    return ret;
+  }
+
   constexpr Derived& MulInPlace(const Derived& other) {
-    // clang-format off
-    // (c0, c1, c2) * (other.c0, other.c1, other.c2)
-    //   = (c0 + c1 * x + c2 * x²) * (other.c0 + other.c1 * x + other.c2 * x²)
-    //   = c0 * other.c0 + (c0 * other.c1 + c1 * other.c0) * x + (c0 * other.c2 + c1 * other.c1 + c2 * other.c0) * x² +
-    //     (c1 * other.c2 + c2 * other.c1) * x³ + c2 * other.c2 * x⁴
-    //   = c0 * other.c0 + (c1 * other.c2 + c2 * other.c1) * x³ +
-    //     (c0 * other.c1 + c1 * other.c0) * x + c2 * other.c2 * x⁴ +
-    //     (c0 * other.c2 + c1 * other.c1 + c2 * other.c0) * x²
-    //   = c0 * other.c0 + (c1 * other.c2 + c2 * other.c1) * q +
-    //     (c0 * other.c1 + c1 * other.c0) * x + c2 * other.c2 * q * x +
-    //     (c0 * other.c2 + c1 * other.c1 + c2 * other.c0) * x²
-    //   = (c0 * other.c0 + (c1 * other.c2 + c2 * other.c1) * q,
-    //     c0 * other.c1 + c1 * other.c0 + c2 * other.c2 * q,
-    //     c0 * other.c2 + c1 * other.c1 + c2 * other.c0)
-    // Where q is Config::kNonResidue.
-
-    // See https://eprint.iacr.org/2006/471.pdf
-    // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (Karatsuba)
-    // clang-format on
-
-    BaseField v0 = c0_ * other.c0_;
-    BaseField v1 = c1_ * other.c1_;
-    BaseField v2 = c2_ * other.c2_;
-
-    // x = c0 * other.c1 + c1 * other.c0
-    BaseField x = (c0_ + c1_) * (other.c0_ + other.c1_) - v0 - v1;
-    // y = c0 * other.c2 + c2 * other.c0
-    BaseField y = (c0_ + c2_) * (other.c0_ + other.c2_) - v0 - v2;
-    // z = c1 * other.c2 + c2 * other.c1
-    BaseField z = (c1_ + c2_) * (other.c1_ + other.c2_) - v1 - v2;
-
-    // c0 = c0 * other.c0 + (c1 * other.c2 + c2.other.c1) * q
-    c0_ = v0 + Config::MulByNonResidue(z);
-    // c1 = c0 * other.c1 + c1 * other.c0 + c2 * other.c2 * q
-    c1_ = x + Config::MulByNonResidue(v2);
-    // c2 = c0 * other.c2 + c2 * other.c0 - c1 * other.c1
-    c2_ = y + v1;
+    DoMul(*static_cast<const Derived*>(this), other,
+          *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);
+  }
+
+  constexpr Derived Mul(const BaseField& element) const {
+    return {
+        c0_ * element,
+        c1_ * element,
+        c2_ * element,
+    };
   }
 
   constexpr Derived& MulInPlace(const BaseField& element) {
@@ -235,44 +230,15 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived& SquareInPlace() {
-    // clang-format off
-    // (c0, c1, c2)²
-    //   = (c0 + c1 * x + c2 * x²)²
-    //   = c0² + 2 * c0 * c1 * x + (c1² + 2 * c0 * c2) * x² + 2 * c1 * c2 * x³ + c2² * x⁴
-    //   = c0² + 2 * c0 * c1 * x + 2 * c1 * c2 * x³ + (c1² + 2 * c0 * c2) * x² + c2² * x⁴
-    //   = c0² + 2 * c1 * c2 * x³ + 2 * c0 * c1 * x + c2² * x⁴ + (c1² + 2 * c0 * c2) * x²
-    //   = c0² + 2 * c1 * c2 * q + (2 * c0 * c1  + c2² * q) * x + (c1² + 2 * c0 * c2) * x²
-    //   = (c0² + 2 * c1 * c2 * q, 2 * c0 * c1  + c2² * q, c1² + 2 * c0 * c2)
-    // Where q is Config::kNonResidue.
+  constexpr Derived DoSquare() const {
+    Derived ret;
+    DoSquareImpl(*static_cast<const Derived*>(this), ret);
+    return ret;
+  }
 
-    // See https://eprint.iacr.org/2006/471.pdf
-    // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (CH-SQR2)
-    // clang-format on
-
-    // s0 = c0²
-    BaseField s0 = c0_.Square();
-    // s1 = 2 * c0 * c1
-    BaseField s1 = (c0_ * c1_).Double();
-    // s2 = (c0 - c1 + c2)²
-    //    = c0² + c1² + c2² - 2 * c0 * c1 - 2 c1 * c2 + 2 * c0 * c2
-    BaseField s2 = (c0_ - c1_ + c2_).Square();
-    // s3 = 2 * c1 * c2
-    BaseField s3 = (c1_ * c2_).Double();
-    // s4 = c2²
-    BaseField s4 = c2_.Square();
-
-    // c0 = c0² + 2 * c1 * c2 * q
-    c0_ = s0 + Config::MulByNonResidue(s3);
-    // c1 = 2 * c0 * c1 + c2² * q
-    c1_ = s1 + Config::MulByNonResidue(s4);
-    // c2 = 2 * c0 * c1 +
-    //      c0² + c1² + c2² - 2 * c0 * c1 - 2 c1 * c2 + 2 * c0 * c2 +
-    //      2 * c1 * c2 -
-    //      c0² -
-    //      c2²
-    //    = c1² + 2 * c0 * c2
-    c2_ = s1 + s2 + s3 - s0 - s4;
+  constexpr Derived& DoSquareInPlace() {
+    DoSquareImpl(*static_cast<const Derived*>(this),
+                 *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);
   }
 
@@ -349,6 +315,86 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   friend class Fp6;
   template <typename Config>
   friend class Fp12;
+
+  constexpr static void DoMul(const Derived& a, const Derived& b, Derived& c) {
+    // clang-format off
+    // (a.c0, a.c1, a.c2) * (b.c0, b.c1, b.c2)
+    //   = (a.c0 + a.c1 * x + a.c2 * x²) * (b.c0 + b.c1 * x + b.c2 * x²)
+    //   = a.c0 * b.c0 + (a.c0 * b.c1 + a.c1 * b.c0) * x + (a.c0 * b.c2 + a.c1 * b.c1 + a.c2 * b.c0) * x² +
+    //     (a.c1 * b.c2 + a.c2 * b.c1) * x³ + a.c2 * b.c2 * x⁴
+    //   = a.c0 * b.c0 + (a.c1 * b.c2 + a.c2 * b.c1) * x³ +
+    //     (a.c0 * b.c1 + a.c1 * b.c0) * x + a.c2 * b.c2 * x⁴ +
+    //     (a.c0 * b.c2 + a.c1 * b.c1 + a.c2 * b.c0) * x²
+    //   = a.c0 * b.c0 + (a.c1 * b.c2 + a.c2 * b.c1) * q +
+    //     (a.c0 * b.c1 + a.c1 * b.c0) * x + a.c2 * b.c2 * q * x +
+    //     (a.c0 * b.c2 + a.c1 * b.c1 + a.c2 * b.c0) * x²
+    //   = (a.c0 * b.c0 + (a.c1 * b.c2 + a.c2 * b.c1) * q,
+    //     a.c0 * b.c1 + a.c1 * b.c0 + a.c2 * b.c2 * q,
+    //     a.c0 * b.c2 + a.c1 * b.c1 + a.c2 * b.c0)
+    // Where q is Config::kNonResidue.
+
+    // See https://eprint.iacr.org/2006/471.pdf
+    // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (Karatsuba)
+    // clang-format on
+
+    BaseField v0 = a.c0_ * b.c0_;
+    BaseField v1 = a.c1_ * b.c1_;
+    BaseField v2 = a.c2_ * b.c2_;
+
+    // x = a.c0 * b.c1 + a.c1 * b.c0
+    BaseField x = (a.c0_ + a.c1_) * (b.c0_ + b.c1_) - v0 - v1;
+    // y = a.c0 * b.c2 + a.c2 * b.c0
+    BaseField y = (a.c0_ + a.c2_) * (b.c0_ + b.c2_) - v0 - v2;
+    // z = a.c1 * b.c2 + a.c2 * b.c1
+    BaseField z = (a.c1_ + a.c2_) * (b.c1_ + b.c2_) - v1 - v2;
+
+    // c.c0 = a.c0 * b.c0 + (a.c1 * b.c2 + a.c2 * b.c1) * q
+    c.c0_ = v0 + Config::MulByNonResidue(z);
+    // c.c1 = a.c0 * b.c1 + a.c1 * b.c0 + a.c2 * b.c2 * q
+    c.c1_ = x + Config::MulByNonResidue(v2);
+    // c.c2 = a.c0 * b.c2 + a.c2 * b.c0 + a.c1 * b.c1
+    c.c2_ = y + v1;
+  }
+
+  constexpr static void DoSquareImpl(const Derived& a, Derived& b) {
+    // clang-format off
+    // (c0, c1, c2)²
+    //   = (c0 + c1 * x + c2 * x²)²
+    //   = c0² + 2 * c0 * c1 * x + (c1² + 2 * c0 * c2) * x² + 2 * c1 * c2 * x³ + c2² * x⁴
+    //   = c0² + 2 * c0 * c1 * x + 2 * c1 * c2 * x³ + (c1² + 2 * c0 * c2) * x² + c2² * x⁴
+    //   = c0² + 2 * c1 * c2 * x³ + 2 * c0 * c1 * x + c2² * x⁴ + (c1² + 2 * c0 * c2) * x²
+    //   = c0² + 2 * c1 * c2 * q + (2 * c0 * c1  + c2² * q) * x + (c1² + 2 * c0 * c2) * x²
+    //   = (c0² + 2 * c1 * c2 * q, 2 * c0 * c1  + c2² * q, c1² + 2 * c0 * c2)
+    // Where q is Config::kNonResidue.
+
+    // See https://eprint.iacr.org/2006/471.pdf
+    // Devegili OhEig Scott Dahab --- Multiplication and Squaring on AbstractPairing-Friendly Fields.pdf; Section 4 (CH-SQR2)
+    // clang-format on
+
+    // s0 = c0²
+    BaseField s0 = a.c0_.Square();
+    // s1 = 2 * c0 * c1
+    BaseField s1 = (a.c0_ * a.c1_).Double();
+    // s2 = (c0 - c1 + c2)²
+    //    = c0² + c1² + c2² - 2 * c0 * c1 - 2 c1 * c2 + 2 * c0 * c2
+    BaseField s2 = (a.c0_ - a.c1_ + a.c2_).Square();
+    // s3 = 2 * c1 * c2
+    BaseField s3 = (a.c1_ * a.c2_).Double();
+    // s4 = c2²
+    BaseField s4 = a.c2_.Square();
+
+    // c0 = c0² + 2 * c1 * c2 * q
+    b.c0_ = s0 + Config::MulByNonResidue(s3);
+    // c1 = 2 * c0 * c1 + c2² * q
+    b.c1_ = s1 + Config::MulByNonResidue(s4);
+    // c2 = 2 * c0 * c1 +
+    //      c0² + c1² + c2² - 2 * c0 * c1 - 2 c1 * c2 + 2 * c0 * c2 +
+    //      2 * c1 * c2 -
+    //      c0² -
+    //      c2²
+    //    = c1² + 2 * c0 * c2
+    b.c2_ = s1 + s2 + s3 - s0 - s4;
+  }
 
   // c = c0_ + c1_ * X + c2_ * X²
   BaseField c0_;
