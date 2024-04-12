@@ -191,6 +191,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
                                      const F& scalar) {
     if (self.IsZero() || scalar.IsOne()) {
       return self;
+    } else if (scalar.IsZero()) {
+      return UnivariatePolynomial<D>::Zero();
     }
     const std::vector<F>& l_coefficients = self.coefficients_.coefficients_;
     std::vector<F> o_coefficients(l_coefficients.size());
@@ -510,6 +512,9 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   }
 
   static UnivariatePolynomial<S>& NegInPlace(UnivariatePolynomial<S>& self) {
+    if (self.IsZero()) {
+      return self;
+    }
     std::vector<Term>& terms = self.coefficients_.terms_;
     for (Term& term : terms) {
       term.coefficient.NegInPlace();

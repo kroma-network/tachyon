@@ -61,6 +61,9 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
 
   static MultivariatePolynomial<S>& NegInPlace(
       MultivariatePolynomial<S>& self) {
+    if (self.IsZero()) {
+      return self;
+    }
     Terms& terms = self.coefficients_.terms_;
     // clang-format off
     OPENMP_PARALLEL_FOR(Term& term : terms) { term.coefficient.NegInPlace(); }

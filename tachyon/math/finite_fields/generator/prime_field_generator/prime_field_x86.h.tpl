@@ -162,8 +162,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
     return *this;
   }
 
-  constexpr PrimeField& DoubleInPlace() { return AddInPlace(*this); }
-
   // AdditiveGroup methods
   constexpr PrimeField& SubInPlace(const PrimeField& other) {
     %{prefix}_rawSub(value_.limbs, value_.limbs, other.value_.limbs);

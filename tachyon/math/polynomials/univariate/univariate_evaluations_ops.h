@@ -120,6 +120,14 @@ class UnivariateEvaluationsOp {
 
   static Poly Mul(const Poly& self, const F& scalar) {
     const std::vector<F>& l_evaluations = self.evaluations_;
+    if (l_evaluations.empty() || scalar.IsZero()) {
+      // 0 * s or f(x) * 0
+      return Poly::Zero();
+    }
+    if (scalar.IsOne()) {
+      // f(x) * 1
+      return self;
+    }
     std::vector<F> o_evaluations(l_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] * scalar;
@@ -129,6 +137,10 @@ class UnivariateEvaluationsOp {
 
   static Poly& MulInPlace(Poly& self, const F& scalar) {
     std::vector<F>& l_evaluations = self.evaluations_;
+    if (l_evaluations.empty() || scalar.IsOne()) {
+      // 0 * s or f(x) * 1
+      return self;
+    }
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
       l_evaluations[i] *= scalar;
     }
