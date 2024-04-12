@@ -627,7 +627,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S> Mul(const UnivariatePolynomial<S>& self,
                                      const F& scalar) {
-    if (self.IsZero() || scalar.IsOne()) {
+    if (self.IsZero() || scalar.IsZero()) {
       return UnivariatePolynomial<S>::Zero();
     }
     const std::vector<Term>& l_terms = self.coefficients_.terms_;
