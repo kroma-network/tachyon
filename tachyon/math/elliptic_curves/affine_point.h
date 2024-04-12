@@ -3,10 +3,8 @@
 
 #include <utility>
 
-#include "tachyon/base/buffer/copyable.h"
 #include "tachyon/math/elliptic_curves/jacobian_point.h"
 #include "tachyon/math/elliptic_curves/point_conversions_forward.h"
-#include "tachyon/math/geometry/point2.h"
 
 namespace tachyon::math {
 
