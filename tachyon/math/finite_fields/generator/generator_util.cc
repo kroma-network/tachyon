@@ -110,7 +110,7 @@ std::string GenerateInitField(std::string_view name, std::string_view type,
   if (base::ConsumePrefix(&value, "-")) {
     ss << "-";
   }
-  ss << type << "::FromDecString(\"" << value << "\");";
+  ss << "*" << type << "::FromDecString(\"" << value << "\");";
   return ss.str();
 }
 
@@ -129,7 +129,7 @@ std::string GenerateInitExtField(std::string_view name, std::string_view type,
       ss << "-";
     }
     if (is_prime_field) {
-      ss << "BasePrimeField::FromDecString(\"" << value << "\")";
+      ss << "*BasePrimeField::FromDecString(\"" << value << "\")";
     } else {
       uint64_t abs_value;
       CHECK(base::StringToUint64(value, &abs_value));

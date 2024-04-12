@@ -50,8 +50,8 @@ TEST(PoseidonConfigTest, CreateDefault) {
     PoseidonConfig<F> config =
         PoseidonConfig<F>::CreateDefault(test.rate, test.optimized_for_weights);
     ASSERT_TRUE(config.IsValid());
-    EXPECT_EQ(config.ark(0, 0), F::FromDecString(test.ark00_str));
-    EXPECT_EQ(config.mds(0, 0), F::FromDecString(test.mds00_str));
+    EXPECT_EQ(config.ark(0, 0), *F::FromDecString(test.ark00_str));
+    EXPECT_EQ(config.mds(0, 0), *F::FromDecString(test.mds00_str));
   }
 }
 
@@ -83,7 +83,7 @@ TEST(PoseidonConfigTest, CreateCustom) {
         test.rate, test.alpha, test.full_rounds, test.partial_rounds,
         test.skip_matrices);
     ASSERT_TRUE(config.IsValid());
-    EXPECT_EQ(config.mds(0, 0), F::FromDecString(test.mds00_str));
+    EXPECT_EQ(config.mds(0, 0), *F::FromDecString(test.mds00_str));
   }
 }
 

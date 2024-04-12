@@ -100,8 +100,8 @@ gpu::GpuMemory<bool> PrimeFieldGpuTest::bool_results_;
   ASSERT_EQ(bool_results_[i], tests[i].result)
 
 TEST_F(PrimeFieldGpuTest, FromString) {
-  EXPECT_EQ(GF7Gpu::FromDecString("3"), GF7Gpu(3));
-  EXPECT_EQ(GF7Gpu::FromHexString("0x3"), GF7Gpu(3));
+  EXPECT_EQ(*GF7Gpu::FromDecString("3"), GF7Gpu(3));
+  EXPECT_EQ(*GF7Gpu::FromHexString("0x3"), GF7Gpu(3));
 }
 
 TEST_F(PrimeFieldGpuTest, ToString) {

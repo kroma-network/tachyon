@@ -13,8 +13,8 @@ class PrimeFieldTest : public FiniteFieldTest<GF7> {};
 }  // namespace
 
 TEST_F(PrimeFieldTest, FromString) {
-  EXPECT_EQ(GF7::FromDecString("3"), GF7(3));
-  EXPECT_EQ(GF7::FromHexString("0x3"), GF7(3));
+  EXPECT_EQ(*GF7::FromDecString("3"), GF7(3));
+  EXPECT_EQ(*GF7::FromHexString("0x3"), GF7(3));
 }
 
 TEST_F(PrimeFieldTest, ToString) {

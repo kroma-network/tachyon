@@ -9,7 +9,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <optional>
 #include <string>
+#include <utility>
 
 #include "gtest/gtest_prod.h"
 
@@ -69,11 +71,17 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return PrimeField(BigInt<N>::Random(Config::kModulus));
   }
 
-  constexpr static PrimeField FromDecString(std::string_view str) {
-    return PrimeField(BigInt<N>::FromDecString(str));
+  constexpr static std::optional<PrimeField> FromDecString(
+      std::string_view str) {
+    std::optional<BigInt<N>> value = BigInt<N>::FromDecString(str);
+    if (!value.has_value()) return std::nullopt;
+    return PrimeField(std::move(value).value());
   }
-  constexpr static PrimeField FromHexString(std::string_view str) {
-    return PrimeField(BigInt<N>::FromHexString(str));
+  constexpr static std::optional<PrimeField> FromHexString(
+      std::string_view str) {
+    std::optional<BigInt<N>> value = BigInt<N>::FromHexString(str);
+    if (!value.has_value()) return std::nullopt;
+    return PrimeField(std::move(value).value());
   }
 
   constexpr static PrimeField FromBigInt(const BigInt<N>& big_int) {

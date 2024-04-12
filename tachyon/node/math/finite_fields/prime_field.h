@@ -15,12 +15,14 @@ PrimeField PrimeFieldFromNumber(const tachyon::math::BigInt<N>& value) {
 
 template <typename PrimeField>
 PrimeField PrimeFieldFromDecString(const std::string& str) {
-  return PrimeField::FromDecString(str);
+  // TODO(chokobole): Throw errors
+  return *PrimeField::FromDecString(str);
 }
 
 template <typename PrimeField>
 PrimeField PrimeFieldFromHexString(const std::string& str) {
-  return PrimeField::FromHexString(str);
+  // TODO(chokobole): Throw errors
+  return *PrimeField::FromHexString(str);
 }
 
 template <typename PrimeField, size_t N = PrimeField::N>

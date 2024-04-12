@@ -9,7 +9,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <optional>
 #include <string>
+#include <utility>
 
 #if TACHYON_CUDA
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
@@ -69,10 +71,14 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   }
 
   constexpr static PrimeFieldGpu FromDecString(std::string_view str) {
-    return PrimeFieldGpu(BigInt<N>::FromDecString(str));
+    std::optional<BigInt<N>> value = BigInt<N>::FromDecString(str);
+    if (!value.has_value()) return std::nullopt;
+    return PrimeFieldGpu(std::move(value).value());
   }
   constexpr static PrimeFieldGpu FromHexString(std::string_view str) {
-    return PrimeFieldGpu(BigInt<N>::FromHexString(str));
+    std::optional<BigInt<N>> value = BigInt<N>::FromHexString(str);
+    if (!value.has_value()) return std::nullopt;
+    return PrimeFieldGpu(std::move(value).value());
   }
 
   constexpr static PrimeFieldGpu FromBigInt(const BigInt<N>& big_int) {
