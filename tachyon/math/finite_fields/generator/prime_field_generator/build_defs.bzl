@@ -32,6 +32,9 @@ def _do_generate_prime_field_impl(ctx, type):
         "--gpu_hdr_tpl_path=%s" % (gpu_hdr_tpl_path),
     ]
 
+    if len(ctx.attr.reduce) > 0:
+        arguments.append("--reduce=%s" % (ctx.attr.reduce))
+
     if type >= _FFT_PRIME_FIELD:
         arguments.append("--subgroup_generator=%s" % (ctx.attr.subgroup_generator[BuildSettingInfo].value))
 
@@ -72,6 +75,7 @@ def _attrs(type):
         "class_name": attr.string(mandatory = True),
         "modulus": attr.string(mandatory = True),
         "flag": attr.string(mandatory = True),
+        "reduce": attr.string(mandatory = True),
         "x86_hdr_tpl": attr.label(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:prime_field_x86.h.tpl"),
@@ -138,46 +142,6 @@ def _do_generate_prime_fields(
         namespace,
         modulus,
         **kwargs):
-    prefix = namespace.replace("::", "_") + "_" + name
-    generate_ffiasm_prime_field(
-        name = prefix,
-        asm_out = "{}.asm".format(name),
-        modulus = modulus,
-    )
-
-    cmd_linux_x86 = "\n".join([
-        "for out in $(OUTS); do",
-        "$(location @nasm//:nasm) -f elf64 -o $$out $$(dirname $(location " + name + ".asm))/$$(basename $${out%.o}.asm)",
-        "done",
-    ])
-    cmd_macos_x86 = "\n".join([
-        "for out in $(OUTS); do",
-        "$(location @nasm//:nasm) -f macho64 --prefix _ -o $$out $$(dirname $(location " + name + ".asm))/$$(basename $${out%.o}.asm)",
-        "done",
-    ])
-
-    native.genrule(
-        name = "{}_asm".format(name),
-        srcs = ["{}.asm".format(name)],
-        outs = ["{}.o".format(name)],
-        cmd = select({
-            "@kroma_network_tachyon//:linux_x86_64": cmd_linux_x86,
-            "@kroma_network_tachyon//:macos_x86_64": cmd_macos_x86,
-            "//conditions:default": "touch $@",
-        }),
-        tools = ["@nasm"],
-    )
-
-    tachyon_cc_library(
-        name = "{}_object".format(name),
-        srcs = select({
-            "@kroma_network_tachyon//:linux_x86_64": ["{}.o".format(name)],
-            "@kroma_network_tachyon//:macos_x86_64": ["{}.o".format(name)],
-            "//conditions:default": [],
-        }),
-        linkstatic = True,
-    )
-
     tachyon_cc_library(
         name = "{}_config".format(name),
         hdrs = [":{}_gen_config_hdr".format(name)],
@@ -188,47 +152,98 @@ def _do_generate_prime_fields(
         ],
     )
 
-    tachyon_cc_library(
-        name = "{}_fail".format(name),
-        srcs = select({
-            "@kroma_network_tachyon//:linux_x86_64": [":{}_gen_fail_src".format(name)],
-            "@kroma_network_tachyon//:macos_x86_64": [":{}_gen_fail_src".format(name)],
-            "//conditions:default": [],
-        }),
-        hdrs = select({
-            "@kroma_network_tachyon//:linux_x86_64": [":{}_gen_fail_hdr".format(name)],
-            "@kroma_network_tachyon//:macos_x86_64": [":{}_gen_fail_hdr".format(name)],
-            "//conditions:default": [],
-        }),
-        deps = ["//tachyon/base:logging"],
-    )
+    if int(modulus) < 1 << 32:
+        tachyon_cc_library(
+            name = name,
+            hdrs = [":{}_gen_hdr".format(name)],
+            deps = [
+                ":{}_config".format(name),
+                "//tachyon/math/finite_fields:small_prime_field_generic",
+            ],
+            **kwargs
+        )
+    else:
+        prefix = namespace.replace("::", "_") + "_" + name
+        generate_ffiasm_prime_field(
+            name = prefix,
+            asm_out = "{}.asm".format(name),
+            modulus = modulus,
+        )
 
-    tachyon_cc_library(
-        name = name,
-        hdrs = [
-            ":{}_gen_hdr".format(name),
-        ] + select({
-            "@kroma_network_tachyon//:linux_x86_64": [":{}_gen_prime_field_x86_hdr".format(name)],
-            "@kroma_network_tachyon//:macos_x86_64": [":{}_gen_prime_field_x86_hdr".format(name)],
-            "//conditions:default": [],
-        }),
-        deps = [
-            ":{}_config".format(name),
-        ] + select({
-            "@kroma_network_tachyon//:linux_x86_64": [
-                ":{}_object".format(name),
-                ":{}_fail".format(name),
-                "//tachyon/math/finite_fields:prime_field_base",
-            ],
-            "@kroma_network_tachyon//:macos_x86_64": [
-                ":{}_object".format(name),
-                ":{}_fail".format(name),
-                "//tachyon/math/finite_fields:prime_field_base",
-            ],
-            "//conditions:default": ["//tachyon/math/finite_fields:prime_field_generic"],
-        }),
-        **kwargs
-    )
+        cmd_linux_x86 = "\n".join([
+            "for out in $(OUTS); do",
+            "$(location @nasm//:nasm) -f elf64 -o $$out $$(dirname $(location " + name + ".asm))/$$(basename $${out%.o}.asm)",
+            "done",
+        ])
+        cmd_macos_x86 = "\n".join([
+            "for out in $(OUTS); do",
+            "$(location @nasm//:nasm) -f macho64 --prefix _ -o $$out $$(dirname $(location " + name + ".asm))/$$(basename $${out%.o}.asm)",
+            "done",
+        ])
+
+        native.genrule(
+            name = "{}_asm".format(name),
+            srcs = ["{}.asm".format(name)],
+            outs = ["{}.o".format(name)],
+            cmd = select({
+                "@kroma_network_tachyon//:linux_x86_64": cmd_linux_x86,
+                "@kroma_network_tachyon//:macos_x86_64": cmd_macos_x86,
+                "//conditions:default": "touch $@",
+            }),
+            tools = ["@nasm"],
+        )
+
+        tachyon_cc_library(
+            name = "{}_object".format(name),
+            srcs = select({
+                "@kroma_network_tachyon//:linux_x86_64": ["{}.o".format(name)],
+                "@kroma_network_tachyon//:macos_x86_64": ["{}.o".format(name)],
+                "//conditions:default": [],
+            }),
+            linkstatic = True,
+        )
+
+        tachyon_cc_library(
+            name = "{}_fail".format(name),
+            srcs = select({
+                "@kroma_network_tachyon//:linux_x86_64": [":{}_gen_fail_src".format(name)],
+                "@kroma_network_tachyon//:macos_x86_64": [":{}_gen_fail_src".format(name)],
+                "//conditions:default": [],
+            }),
+            hdrs = select({
+                "@kroma_network_tachyon//:linux_x86_64": [":{}_gen_fail_hdr".format(name)],
+                "@kroma_network_tachyon//:macos_x86_64": [":{}_gen_fail_hdr".format(name)],
+                "//conditions:default": [],
+            }),
+            deps = ["//tachyon/base:logging"],
+        )
+
+        tachyon_cc_library(
+            name = name,
+            hdrs = [
+                ":{}_gen_hdr".format(name),
+            ] + select({
+                "@kroma_network_tachyon//:linux_x86_64": [":{}_gen_prime_field_x86_hdr".format(name)],
+                "@kroma_network_tachyon//:macos_x86_64": [":{}_gen_prime_field_x86_hdr".format(name)],
+                "//conditions:default": [],
+            }),
+            deps = [
+                ":{}_config".format(name),
+            ] + select({
+                "@kroma_network_tachyon//:linux_x86_64": [
+                    ":{}_object".format(name),
+                    ":{}_fail".format(name),
+                    "//tachyon/math/finite_fields:prime_field_base",
+                ],
+                "@kroma_network_tachyon//:macos_x86_64": [
+                    ":{}_object".format(name),
+                    ":{}_fail".format(name),
+                    "//tachyon/math/finite_fields:prime_field_base",
+                ],
+                "//conditions:default": ["//tachyon/math/finite_fields:prime_field_generic"],
+            }),
+            **kwargs
+        )
 
     tachyon_cc_library(
         name = "{}_gpu".format(name),
@@ -256,6 +271,7 @@ def generate_prime_fields(
         class_name,
         modulus,
         flag,
+        reduce = "",
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_prime_field(
@@ -263,6 +279,7 @@ def generate_prime_fields(
             class_name = class_name,
             modulus = modulus,
             flag = flag,
+            reduce = reduce,
             name = n[0],
             out = n[1],
         )
@@ -276,6 +293,7 @@ def generate_fft_prime_fields(
         modulus,
         flag,
         subgroup_generator,
+        reduce = "",
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_fft_prime_field(
@@ -283,6 +301,7 @@ def generate_fft_prime_fields(
             class_name = class_name,
             modulus = modulus,
             flag = flag,
+            reduce = reduce,
             subgroup_generator = subgroup_generator,
             name = n[0],
             out = n[1],
@@ -299,6 +318,7 @@ def generate_large_fft_prime_fields(
         small_subgroup_adicity,
         small_subgroup_base,
         subgroup_generator,
+        reduce = "",
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_large_fft_prime_field(
@@ -306,6 +326,7 @@ def generate_large_fft_prime_fields(
             class_name = class_name,
             modulus = modulus,
             flag = flag,
+            reduce = reduce,
             small_subgroup_adicity = small_subgroup_adicity,
             small_subgroup_base = small_subgroup_base,
             subgroup_generator = subgroup_generator,

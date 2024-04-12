@@ -47,7 +47,7 @@ class PrimeFieldGpuDebug final
   constexpr explicit PrimeFieldGpuDebug(const BigInt<N>& value) {
     DCHECK_LT(value, Config::kModulus);
     PrimeField<Config> p(value);
-    value_ = p.value();
+    value_ = p.ToMontgomery();
   }
   constexpr PrimeFieldGpuDebug(const PrimeFieldGpuDebug& other) = default;
   constexpr PrimeFieldGpuDebug& operator=(const PrimeFieldGpuDebug& other) =
@@ -65,7 +65,7 @@ class PrimeFieldGpuDebug final
 
   static PrimeFieldGpuDebug Random() {
     PrimeFieldGpuDebug ret;
-    ret.value_ = PrimeField<Config>::Random().value();
+    ret.value_ = PrimeField<Config>::Random().ToMontgomery();
     return ret;
   }
 

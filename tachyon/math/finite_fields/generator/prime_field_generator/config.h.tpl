@@ -8,12 +8,18 @@ namespace %{namespace} {
 class TACHYON_EXPORT %{class}Config {
  public:
   constexpr static const char* kName = "%{namespace}::%{class}";
+
+%{if kIsSmallField}
+  constexpr static bool kIsSpecialPrime = false;
+%{endif kIsSmallField}
+%{if !kIsSmallField}
 #if ARCH_CPU_X86_64
   constexpr static bool kIsSpecialPrime = true;
   constexpr static bool %{flag} = true;
 #else
   constexpr static bool kIsSpecialPrime = false;
 #endif
+%{endif !kIsSmallField}
 
   constexpr static size_t kModulusBits = %{modulus_bits};
   constexpr static BigInt<%{n}> kModulus = BigInt<%{n}>({
@@ -73,6 +79,12 @@ class TACHYON_EXPORT %{class}Config {
   });
 %{endif kHasLargeSubgroupRootOfUnity}
 %{endif kHasTwoAdicRootOfUnity}
+
+%{if kIsSmallField}
+  constexpr static uint32_t Reduce(uint64_t v) {
+%{reduce}
+  }
+%{endif kIsSmallField}
 };
 
 }  // namespace %{namespace}

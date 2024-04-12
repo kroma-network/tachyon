@@ -25,6 +25,7 @@ generate_fft_prime_fields(
     flag = "kIsGF7",
     modulus = "7",
     namespace = "tachyon::math",
+    reduce = "    return static_cast<uint32_t>(v % ((1 << kModulusBits) - 1));",
     subgroup_generator = ":" + SMALL_SUBGROUP_ADICITY,
 )
 

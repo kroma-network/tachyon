@@ -28,8 +28,9 @@ class PrimeFieldGpu;
 
 // A prime field is finite field GF(p) where p is a prime number.
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
-    : public PrimeFieldBase<PrimeField<_Config>> {
+class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
+                                           (_Config::kModulusBits > 32)>>
+    final : public PrimeFieldBase<PrimeField<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;

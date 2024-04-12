@@ -97,6 +97,7 @@ struct GenerationConfig : public build::CcWriter {
   std::string class_name;
   std::string modulus;
   std::string flag;
+  std::string reduce;
   std::string subgroup_generator;
   std::string small_subgroup_base;
   std::string small_subgroup_adicity;
@@ -193,6 +194,11 @@ int GenerationConfig::GenerateConfigHdr() const {
   CHECK(base::ReadFileToString(config_hdr_tpl_path, &tpl_content));
   std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, "\n");
 
+  bool is_small_field = num_bits <= 32;
+  RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
+  RemoveOptionalLines(tpl_lines, "!kIsSmallField", !is_small_field);
+  if (is_small_field) replacements["%{reduce}"] = reduce;
+
   bool has_two_adic_root_of_unity = !subgroup_generator.empty();
   replacements["%{has_two_adic_root_of_unity}"] =
       std::to_string(has_two_adic_root_of_unity);
@@ -271,14 +277,26 @@ int GenerationConfig::GenerateCpuHdr() const {
   base::FilePath prime_field_x86_hdr_path =
       hdr_path.DirName().Append(basename.value() + "_prime_field_x86.h");
 
-  std::string content = absl::StrReplaceAll(
-      tpl_content,
-      {
-          {"%{config_header_path}", config_header_path.value()},
-          {"%{prime_field_x86_hdr}", prime_field_x86_hdr_path.value()},
-          {"%{namespace}", ns_name},
-          {"%{class}", class_name},
-      });
+  absl::flat_hash_map<std::string, std::string> replacements = {
+      {"%{config_header_path}", config_header_path.value()},
+      {"%{prime_field_x86_hdr}", prime_field_x86_hdr_path.value()},
+      {"%{namespace}", ns_name},
+      {"%{class}", class_name},
+  };
+
+  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, "\n");
+
+  mpz_class m = math::gmp::FromDecString(modulus);
+  size_t num_bits = GetNumBits(m);
+  bool is_small_field = num_bits <= 32;
+  RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
+  RemoveOptionalLines(tpl_lines, "!kIsSmallField", !is_small_field);
+
+  tpl_content = absl::StrJoin(tpl_lines, "\n");
+
+  std::string content =
+      absl::StrReplaceAll(tpl_content, std::move(replacements));
+
   return WriteHdr(content, false);
 }
 
@@ -314,6 +332,7 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.flag)
       .set_long_name("--flag")
       .set_required();
+  parser.AddFlag<base::StringFlag>(&config.reduce).set_long_name("--reduce");
   parser.AddFlag<base::FilePathFlag>(&config.x86_hdr_tpl_path)
       .set_long_name("--x86_hdr_tpl_path")
       .set_required();

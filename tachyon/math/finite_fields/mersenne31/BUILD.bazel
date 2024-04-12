@@ -10,4 +10,5 @@ generate_prime_fields(
     # Hex: 0x7fffffff
     modulus = "2147483647",
     namespace = "tachyon::math",
+    reduce = "    return static_cast<uint32_t>(((((v >> kModulusBits) + v + 1) >> kModulusBits) + v) & kModulus[0]);",
 )
