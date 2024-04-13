@@ -34,6 +34,10 @@ template <typename Config>
 std::optional<CLASS> CLASS::FromDecString(std::string_view str) {
   uint64_t value = 0;
   if (!base::StringToUint64(str, &value)) return std::nullopt;
+  if (value >= Config::kModulus[0]) {
+    LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
+    return std::nullopt;
+  }
   return PrimeField(::Goldilocks::fromU64(value).fe);
 }
 
@@ -42,6 +46,10 @@ template <typename Config>
 std::optional<CLASS> CLASS::FromHexString(std::string_view str) {
   uint64_t value = 0;
   if (!base::HexStringToUint64(str, &value)) return std::nullopt;
+  if (value >= Config::kModulus[0]) {
+    LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
+    return std::nullopt;
+  }
   return PrimeField(::Goldilocks::fromU64(value).fe);
 }
 
