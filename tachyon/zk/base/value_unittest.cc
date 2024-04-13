@@ -98,6 +98,9 @@ TEST(ValueTest, AdditiveGroupOperators) {
 TEST(ValueTest, MultiplicativeOperators) {
   math::GF7 a = math::GF7::Random();
   math::GF7 b = math::GF7::Random();
+  while (a.IsZero()) {
+    a = math::GF7::Random();
+  }
   while (b.IsZero()) {
     b = math::GF7::Random();
   }
