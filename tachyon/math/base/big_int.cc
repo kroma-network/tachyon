@@ -13,8 +13,17 @@ namespace {
 template <size_t Base>
 bool DoStringToLimbs(std::string_view str, uint64_t* limbs, size_t limb_nums) {
   mpz_class out;
-  if (!gmp::ParseIntoMpz(str, Base, &out)) return false;
-  if (gmp::GetLimbSize(out) > limb_nums) return false;
+  if (!gmp::ParseIntoMpz(str, Base, &out)) {
+    LOG(ERROR) << "failed to parse string(" << str << ") with base(" << Base
+               << ")";
+    return false;
+  }
+  size_t actual_limb_nums = gmp::GetLimbSize(out);
+  if (actual_limb_nums > limb_nums) {
+    LOG(ERROR) << "actual limb nums(" << actual_limb_nums
+               << ") is greater than expected limb nums(" << limb_nums << ")";
+    return false;
+  }
   gmp::CopyLimbs(out, limbs);
   return true;
 }
