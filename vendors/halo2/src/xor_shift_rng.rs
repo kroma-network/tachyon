@@ -12,12 +12,16 @@ pub mod ffi {
     }
 }
 
+pub trait RngState {
+    fn state(&self) -> Vec<u8>;
+}
+
 pub struct XORShiftRng {
     inner: cxx::UniquePtr<ffi::XORShiftRng>,
 }
 
-impl XORShiftRng {
-    pub fn state(&self) -> Vec<u8> {
+impl RngState for XORShiftRng {
+    fn state(&self) -> Vec<u8> {
         self.inner.state()
     }
 }
@@ -63,9 +67,9 @@ impl rand_core::RngCore for XORShiftRng {
 
 #[cfg(test)]
 mod test {
-    use rand_core::{RngCore, SeedableRng};
-
+    use super::RngState;
     use crate::consts::SEED;
+    use rand_core::{RngCore, SeedableRng};
 
     #[test]
     fn test_rng() {
