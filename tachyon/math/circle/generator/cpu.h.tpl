@@ -12,6 +12,7 @@ template <typename _BaseField, typename _ScalarField>
 class %{class}CircleConfig {
  public:
   using BaseField = _BaseField;
+  using BasePrimeField = %{base_prime_field};
   using ScalarField = _ScalarField;
 
   // TODO(chokobole): Make them constexpr.

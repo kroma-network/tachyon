@@ -98,6 +98,7 @@ struct GenerationConfig : public build::CcWriter {
   std::string modulus;
   std::string flag;
   std::string reduce;
+  bool use_asm = false;
   std::string subgroup_generator;
   std::string small_subgroup_base;
   std::string small_subgroup_adicity;
@@ -197,7 +198,11 @@ int GenerationConfig::GenerateConfigHdr() const {
   bool is_small_field = num_bits <= 32;
   RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
   RemoveOptionalLines(tpl_lines, "!kIsSmallField", !is_small_field);
-  if (is_small_field) replacements["%{reduce}"] = reduce;
+  if (is_small_field) {
+    replacements["%{reduce}"] = reduce;
+  } else {
+    RemoveOptionalLines(tpl_lines, "kUseAsm", use_asm);
+  }
 
   bool has_two_adic_root_of_unity = !subgroup_generator.empty();
   replacements["%{has_two_adic_root_of_unity}"] =
@@ -291,6 +296,7 @@ int GenerationConfig::GenerateCpuHdr() const {
   bool is_small_field = num_bits <= 32;
   RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
   RemoveOptionalLines(tpl_lines, "!kIsSmallField", !is_small_field);
+  if (!is_small_field) RemoveOptionalLines(tpl_lines, "kUseAsm", use_asm);
 
   tpl_content = absl::StrJoin(tpl_lines, "\n");
 
@@ -333,6 +339,7 @@ int RealMain(int argc, char** argv) {
       .set_long_name("--flag")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.reduce).set_long_name("--reduce");
+  parser.AddFlag<base::BoolFlag>(&config.use_asm).set_long_name("--use_asm");
   parser.AddFlag<base::FilePathFlag>(&config.x86_hdr_tpl_path)
       .set_long_name("--x86_hdr_tpl_path")
       .set_required();

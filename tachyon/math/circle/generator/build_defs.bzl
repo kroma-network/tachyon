@@ -6,16 +6,21 @@ def _generate_circle_point_impl(ctx):
     arguments = [
         "--out=%s" % (ctx.outputs.out.path),
         "--namespace=%s" % (ctx.attr.namespace),
+        "--base_field_degree=%s" % (ctx.attr.base_field_degree),
         "--base_field=%s" % (ctx.attr.base_field),
         "--base_field_hdr=%s" % (ctx.attr.base_field_hdr),
         "--scalar_field=%s" % (ctx.attr.scalar_field),
         "--scalar_field_hdr=%s" % (ctx.attr.scalar_field_hdr),
-        "-x=%s" % (ctx.attr.x),
-        "-y=%s" % (ctx.attr.y),
         "--cpu_hdr_tpl_path=%s" % (cpu_hdr_tpl_path),
     ]
     if len(ctx.attr.class_name) > 0:
         arguments.append("--class=%s" % (ctx.attr.class_name))
+
+    for x in ctx.attr.x:
+        arguments.append("-x=%s" % (x))
+
+    for y in ctx.attr.y:
+        arguments.append("-y=%s" % (y))
 
     ctx.actions.run(
         inputs = [ctx.files.cpu_hdr_tpl_path[0]],
@@ -34,11 +39,12 @@ generate_circle_point = rule(
         "namespace": attr.string(mandatory = True),
         "class_name": attr.string(),
         "base_field": attr.string(mandatory = True),
+        "base_field_degree": attr.int(mandatory = True),
         "base_field_hdr": attr.string(mandatory = True),
         "scalar_field": attr.string(mandatory = True),
         "scalar_field_hdr": attr.string(mandatory = True),
-        "x": attr.string(mandatory = True),
-        "y": attr.string(mandatory = True),
+        "x": attr.string_list(mandatory = True),
+        "y": attr.string_list(mandatory = True),
         "cpu_hdr_tpl_path": attr.label(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/math/circle/generator:cpu.h.tpl"),
@@ -56,6 +62,7 @@ generate_circle_point = rule(
 def generate_circle_points(
         name,
         namespace,
+        base_field_degree,
         base_field,
         base_field_hdr,
         base_field_dep,
@@ -72,6 +79,7 @@ def generate_circle_points(
         generate_circle_point(
             namespace = namespace,
             class_name = class_name,
+            base_field_degree = base_field_degree,
             base_field = base_field,
             base_field_hdr = base_field_hdr,
             scalar_field = scalar_field,

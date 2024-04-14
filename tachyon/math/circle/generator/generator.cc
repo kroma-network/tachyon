@@ -15,17 +15,20 @@ struct GenerationConfig : public build::CcWriter {
 
   std::string ns_name;
   std::string class_name;
+  int base_field_degree;
   std::string base_field;
   base::FilePath base_field_hdr;
   std::string scalar_field;
   base::FilePath scalar_field_hdr;
-  std::string x;
-  std::string y;
+  std::vector<std::string> x;
+  std::vector<std::string> y;
 
   int GenerateConfigHdr() const;
 };
 
 int GenerationConfig::GenerateConfigHdr() const {
+  CHECK_EQ(x.size(), y.size());
+
   absl::flat_hash_map<std::string, std::string> replacements = {
       {"%{namespace}", ns_name},
       {"%{class}", class_name},
@@ -33,8 +36,20 @@ int GenerationConfig::GenerateConfigHdr() const {
       {"%{base_field_hdr}", base_field_hdr.value()},
       {"%{scalar_field}", scalar_field},
       {"%{scalar_field_hdr}", scalar_field_hdr.value()},
-      {"%{x_init}", math::GenerateInitField("kGenerator.x", "BaseField", x)},
-      {"%{y_init}", math::GenerateInitField("kGenerator.y", "BaseField", y)}};
+      {"%{base_prime_field}",
+       x.size() == 1 ? "BaseField" : "typename BaseField::BasePrimeField"}};
+
+  if (x.size() == 1) {
+    replacements["%{x_init}"] =
+        math::GenerateInitField("kGenerator.x", "BaseField", x[0]);
+    replacements["%{y_init}"] =
+        math::GenerateInitField("kGenerator.y", "BaseField", y[0]);
+  } else {
+    replacements["%{x_init}"] = math::GenerateInitExtField(
+        "kGenerator.x", "BaseField", x, base_field_degree);
+    replacements["%{y_init}"] = math::GenerateInitExtField(
+        "kGenerator.y", "BaseField", y, base_field_degree);
+  }
 
   std::string tpl_content;
   CHECK(base::ReadFileToString(cpu_hdr_tpl_path, &tpl_content));
@@ -55,6 +70,9 @@ int RealMain(int argc, char** argv) {
       .set_long_name("--namespace")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.class_name).set_long_name("--class");
+  parser.AddFlag<base::IntFlag>(&config.base_field_degree)
+      .set_long_name("--base_field_degree")
+      .set_required();
   parser.AddFlag<base::StringFlag>(&config.base_field)
       .set_long_name("--base_field")
       .set_required();
@@ -70,10 +88,10 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::FilePathFlag>(&config.cpu_hdr_tpl_path)
       .set_long_name("--cpu_hdr_tpl_path")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.x)
+  parser.AddFlag<base::Flag<std::vector<std::string>>>(&config.x)
       .set_short_name("-x")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.y)
+  parser.AddFlag<base::Flag<std::vector<std::string>>>(&config.y)
       .set_short_name("-y")
       .set_required();
 

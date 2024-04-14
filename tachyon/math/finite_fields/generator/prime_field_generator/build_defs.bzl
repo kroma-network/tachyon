@@ -32,6 +32,9 @@ def _do_generate_prime_field_impl(ctx, type):
         "--gpu_hdr_tpl_path=%s" % (gpu_hdr_tpl_path),
     ]
 
+    if ctx.attr.use_asm:
+        arguments.append("--use_asm")
+
     if len(ctx.attr.reduce) > 0:
         arguments.append("--reduce=%s" % (ctx.attr.reduce))
 
@@ -76,6 +79,7 @@ def _attrs(type):
         "modulus": attr.string(mandatory = True),
         "flag": attr.string(mandatory = True),
         "reduce": attr.string(mandatory = True),
+        "use_asm": attr.bool(mandatory = True),
         "x86_hdr_tpl": attr.label(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:prime_field_x86.h.tpl"),
@@ -141,6 +145,7 @@ def _do_generate_prime_fields(
         name,
         namespace,
         modulus,
+        use_asm,
         **kwargs):
     tachyon_cc_library(
         name = "{}_config".format(name),
@@ -162,7 +167,7 @@ def _do_generate_prime_fields(
             ],
             **kwargs
         )
-    else:
+    elif use_asm:
         prefix = namespace.replace("::", "_") + "_" + name
         generate_ffiasm_prime_field(
             name = prefix,
@@ -244,6 +249,16 @@ def _do_generate_prime_fields(
             }),
             **kwargs
         )
+    else:
+        tachyon_cc_library(
+            name = name,
+            hdrs = [":{}_gen_hdr".format(name)],
+            deps = [
+                ":{}_config".format(name),
+                "//tachyon/math/finite_fields:prime_field_generic",
+            ],
+            **kwargs
+        )
 
     tachyon_cc_library(
         name = "{}_gpu".format(name),
@@ -272,6 +287,7 @@ def generate_prime_fields(
         modulus,
         flag,
         reduce = "",
+        use_asm = True,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_prime_field(
@@ -280,11 +296,12 @@ def generate_prime_fields(
             modulus = modulus,
             flag = flag,
             reduce = reduce,
+            use_asm = use_asm,
             name = n[0],
             out = n[1],
         )
 
-    _do_generate_prime_fields(name, namespace, modulus, **kwargs)
+    _do_generate_prime_fields(name, namespace, modulus, use_asm, **kwargs)
 
 def generate_fft_prime_fields(
         name,
@@ -294,6 +311,7 @@ def generate_fft_prime_fields(
         flag,
         subgroup_generator,
         reduce = "",
+        use_asm = True,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_fft_prime_field(
@@ -302,12 +320,13 @@ def generate_fft_prime_fields(
             modulus = modulus,
             flag = flag,
             reduce = reduce,
+            use_asm = use_asm,
             subgroup_generator = subgroup_generator,
             name = n[0],
             out = n[1],
         )
 
-    _do_generate_prime_fields(name, namespace, modulus, **kwargs)
+    _do_generate_prime_fields(name, namespace, modulus, use_asm, **kwargs)
 
 def generate_large_fft_prime_fields(
         name,
@@ -319,6 +338,7 @@ def generate_large_fft_prime_fields(
         small_subgroup_base,
         subgroup_generator,
         reduce = "",
+        use_asm = True,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_large_fft_prime_field(
@@ -327,6 +347,7 @@ def generate_large_fft_prime_fields(
             modulus = modulus,
             flag = flag,
             reduce = reduce,
+            use_asm = use_asm,
             small_subgroup_adicity = small_subgroup_adicity,
             small_subgroup_base = small_subgroup_base,
             subgroup_generator = subgroup_generator,
@@ -334,4 +355,4 @@ def generate_large_fft_prime_fields(
             out = n[1],
         )
 
-    _do_generate_prime_fields(name, namespace, modulus, **kwargs)
+    _do_generate_prime_fields(name, namespace, modulus, use_asm, **kwargs)
