@@ -45,7 +45,7 @@ class FieldConfig {
   // This is the public input (instance) column.
   InstanceColumnKey instance_;
   // We need a selector to enable the multiplication gate, so that we aren't
-  // placing any constraints on cells where |NumericInstructions::Mul| is not
+  // placing any constraints on cells where |FieldChip::Mul| is not
   // being used. This is important when building larger circuits, where columns
   // are used by multiple sets of instructions.
   Selector s_mul_;
