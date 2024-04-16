@@ -102,7 +102,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   // MultiplicativeSemigroup methods
   PrimeField Mul(const PrimeField& other) const;
   PrimeField& MulInPlace(const PrimeField& other);
-  PrimeField& DivInPlace(const PrimeField& other);
   PrimeField DoSquare() const;
   PrimeField& DoSquareInPlace();
 

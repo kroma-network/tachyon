@@ -38,39 +38,18 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   // number of cpu cores.
   constexpr static size_t kParallelBatchInverseDivisorThreshold = 2;
 
-  // Division:
-  //   1) a / b if division is supported.
-  //   2) a * b⁻¹ otherwise
-  template <
-      typename G2,
-      std::enable_if_t<internal::SupportsMul<G, G2>::value ||
-                       internal::SupportsMulInPlace<G, G2>::value ||
-                       internal::SupportsDiv<G, G2>::value ||
-                       internal::SupportsDivInPlace<G, G2>::value>* = nullptr>
+  // Division: a * b⁻¹
+  template <typename G2>
   constexpr auto operator/(const G2& other) const {
-    if constexpr (internal::SupportsDiv<G, G2>::value) {
-      const G* g = static_cast<const G*>(this);
-      return g->Div(other);
-    } else if constexpr (internal::SupportsDivInPlace<G, G2>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.DivInPlace(other);
-    } else {
-      return this->operator*(other.Inverse());
-    }
+    return this->operator*(other.Inverse());
   }
 
-  // Division in place: a /= b
-  //   1) a /= b if division is supported.
-  //   2) a *= b⁻¹ otherwise
+  // Division in place: a *= b⁻¹
   template <
       typename G2,
-      std::enable_if_t<internal::SupportsDivInPlace<G, G2>::value ||
-                       internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
+      std::enable_if_t<internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
   constexpr G& operator/=(const G2& other) {
-    if constexpr (internal::SupportsDivInPlace<G, G2>::value) {
-      G* g = static_cast<G*>(this);
-      return g->DivInPlace(other);
-    } else if constexpr (internal::SupportsMulInPlace<G, G2>::value) {
+    if constexpr (internal::SupportsMulInPlace<G, G2>::value) {
       G* g = static_cast<G*>(this);
       return g->MulInPlace(other.Inverse());
     } else {

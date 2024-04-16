@@ -126,16 +126,6 @@ class Value : public math::Field<Value<T>> {
   }
 
   // MultiplicativeGroup methods
-  constexpr Value Div(const Value& other) const {
-    if (IsNone() || other.IsNone()) return Unknown();
-    return Value::Known(*value_ / *other.value_);
-  }
-
-  constexpr Value Div(const T& other) const {
-    if (IsNone()) return Unknown();
-    return Value::Known(*value_ / other);
-  }
-
   constexpr Value& InverseInPlace() {
     if (IsNone()) return *this;
     value_->InverseInPlace();
