@@ -95,7 +95,7 @@ class UnivariateEvaluationsOp {
     return self;
   }
 
-  static Poly Negative(const Poly& self) {
+  static Poly Negate(const Poly& self) {
     const std::vector<F>& i_evaluations = self.evaluations_;
     if (i_evaluations.empty()) {
       return self;

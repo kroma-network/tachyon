@@ -223,7 +223,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return *this;
   }
 
-  constexpr PrimeField Negative() const {
+  constexpr PrimeField Negate() const {
     PrimeField ret;
     if (!IsZero()) {
       ret.value_ = Config::kModulus;

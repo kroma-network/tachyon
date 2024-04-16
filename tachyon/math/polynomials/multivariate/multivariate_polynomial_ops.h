@@ -72,7 +72,7 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
     return self;
   }
 
-  static MultivariatePolynomial<S> Negative(
+  static MultivariatePolynomial<S> Negate(
       const MultivariatePolynomial<S>& self) {
     if (self.IsZero()) {
       return self;

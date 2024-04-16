@@ -217,7 +217,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
-  static UnivariatePolynomial<D> Negative(const UnivariatePolynomial<D>& self) {
+  static UnivariatePolynomial<D> Negate(const UnivariatePolynomial<D>& self) {
     if (self.IsZero()) {
       return self;
     }
@@ -599,7 +599,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return self;
   }
 
-  static UnivariatePolynomial<S> Negative(const UnivariatePolynomial<S>& self) {
+  static UnivariatePolynomial<S> Negate(const UnivariatePolynomial<S>& self) {
     if (self.IsZero()) {
       return self;
     }

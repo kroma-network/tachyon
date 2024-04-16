@@ -203,7 +203,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived Negative() const {
+  constexpr Derived Negate() const {
     return {
         -c0_,
         -c1_,

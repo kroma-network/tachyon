@@ -64,21 +64,21 @@ DEFINE_DOUBLE_OP(PointXYZZ, PointXYZZ)
 
 #undef DEFINE_DOUBLE_OP
 
-#define DEFINE_NEGATIVE_OP(src_type, dst_type)                             \
-  template <typename Config>                                               \
-  __global__ void Negative(const src_type<Config>* x,                      \
-                           dst_type<Config>* result, unsigned int count) { \
-    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;              \
-    if (gid >= count) return;                                              \
-    result[gid] = -x[gid];                                                 \
+#define DEFINE_NEGATE_OP(src_type, dst_type)                                  \
+  template <typename Config>                                                  \
+  __global__ void Negate(const src_type<Config>* x, dst_type<Config>* result, \
+                         unsigned int count) {                                \
+    unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;                 \
+    if (gid >= count) return;                                                 \
+    result[gid] = -x[gid];                                                    \
   }
 
-DEFINE_NEGATIVE_OP(AffinePoint, AffinePoint)
-DEFINE_NEGATIVE_OP(JacobianPoint, JacobianPoint)
-DEFINE_NEGATIVE_OP(ProjectivePoint, ProjectivePoint)
-DEFINE_NEGATIVE_OP(PointXYZZ, PointXYZZ)
+DEFINE_NEGATE_OP(AffinePoint, AffinePoint)
+DEFINE_NEGATE_OP(JacobianPoint, JacobianPoint)
+DEFINE_NEGATE_OP(ProjectivePoint, ProjectivePoint)
+DEFINE_NEGATE_OP(PointXYZZ, PointXYZZ)
 
-#undef DEFINE_NEGATIVE_OP
+#undef DEFINE_NEGATE_OP
 
 }  // namespace tachyon::math::kernels
 

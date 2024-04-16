@@ -190,8 +190,8 @@ class UnivariatePolynomial final
   // AdditiveGroup methods
   OPERATION_METHOD(Sub)
 
-  UnivariatePolynomial Negative() const {
-    return internal::UnivariatePolynomialOp<Coefficients>::Negative(*this);
+  UnivariatePolynomial Negate() const {
+    return internal::UnivariatePolynomialOp<Coefficients>::Negate(*this);
   }
 
   UnivariatePolynomial& NegInPlace() {

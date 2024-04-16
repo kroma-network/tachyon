@@ -244,7 +244,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return *this;
   }
 
-  __device__ constexpr PrimeFieldGpu Negative() const {
+  __device__ constexpr PrimeFieldGpu Negate() const {
     PrimeFieldGpu ret;
     SubLimbs<false>(GetModulus(), value_, ret.value_);
     return ret;

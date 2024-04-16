@@ -94,7 +94,7 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     return self;
   }
 
-  static MultilinearExtension<D> Negative(const MultilinearExtension<D>& self) {
+  static MultilinearExtension<D> Negate(const MultilinearExtension<D>& self) {
     const std::vector<F>& i_evaluations = self.evaluations_.evaluations_;
     if (i_evaluations.empty()) {
       return self;

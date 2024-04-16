@@ -21,7 +21,7 @@ DEFINE_LAUNCH_FIELD_BINARY_OP(Add)
 
 DEFINE_LAUNCH_UNARY_OP(kThreadNum, Double, bn254::G1AffinePointGpu,
                        bn254::G1JacobianPointGpu)
-DEFINE_LAUNCH_UNARY_OP(kThreadNum, Negative, bn254::G1AffinePointGpu,
+DEFINE_LAUNCH_UNARY_OP(kThreadNum, Negate, bn254::G1AffinePointGpu,
                        bn254::G1AffinePointGpu)
 
 #undef DEFINE_LAUNCH_FIELD_BINARY_OP
@@ -131,8 +131,8 @@ TEST_F(AffinePointCorrectnessGpuTest, Double) {
   }
 }
 
-TEST_F(AffinePointCorrectnessGpuTest, Negative) {
-  GPU_MUST_SUCCESS(LaunchNegative(xs_.get(), affine_results_.get(), N), "");
+TEST_F(AffinePointCorrectnessGpuTest, Negate) {
+  GPU_MUST_SUCCESS(LaunchNegate(xs_.get(), affine_results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", xs_[i].ToString()));
     auto result = ConvertPoint<bn254::G1AffinePoint>(affine_results_[i]);

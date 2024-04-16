@@ -100,7 +100,7 @@ TEST(GroupsTest, Sub) {
     Int(const Int& other) : value_(other.value_) {}
 
     MOCK_METHOD(Int, Add, (const Int& other), (const));
-    MOCK_METHOD(Int, Negative, (), (const));
+    MOCK_METHOD(Int, Negate, (), (const));
 
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
@@ -111,7 +111,7 @@ TEST(GroupsTest, Sub) {
   Int a(3);
   Int b(4);
   EXPECT_CALL(a, Add(testing::_)).Times(testing::Exactly(1));
-  EXPECT_CALL(b, Negative()).Times(testing::Exactly(1));
+  EXPECT_CALL(b, Negate()).Times(testing::Exactly(1));
 
   Int c = a - b;
   static_cast<void>(c);
@@ -144,14 +144,14 @@ TEST(GroupsTest, SubOverAdd) {
   static_cast<void>(c);
 }
 
-TEST(GroupsTest, NegativeOverride) {
-  class IntNegative {
+TEST(GroupsTest, NegateOverride) {
+  class IntNegate {
    public:
-    IntNegative() = default;
-    explicit IntNegative(int value) : value_(value) {}
-    IntNegative(const IntNegative& other) : value_(other.value_) {}
+    IntNegate() = default;
+    explicit IntNegate(int value) : value_(value) {}
+    IntNegate(const IntNegate& other) : value_(other.value_) {}
 
-    bool operator==(const IntNegative& other) const {
+    bool operator==(const IntNegate& other) const {
       return value_ == other.value_;
     }
 
@@ -165,7 +165,7 @@ TEST(GroupsTest, NegativeOverride) {
     explicit Int(int value) : value_(value) {}
     Int(const Int& other) : value_(other.value_) {}
 
-    IntNegative Negative() const { return IntNegative(-value_); }
+    IntNegate Negate() const { return IntNegate(-value_); }
 
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
@@ -174,7 +174,7 @@ TEST(GroupsTest, NegativeOverride) {
   };
 
   Int a(3);
-  EXPECT_EQ(-a, IntNegative(-3));
+  EXPECT_EQ(-a, IntNegate(-3));
 }
 
 }  // namespace tachyon::math

@@ -263,7 +263,7 @@ class ProjectivePoint<
   constexpr ProjectivePoint& DoDoubleInPlace();
 
   // AdditiveGroup methods
-  constexpr ProjectivePoint Negative() const { return {x_, -y_, z_}; }
+  constexpr ProjectivePoint Negate() const { return {x_, -y_, z_}; }
 
   constexpr ProjectivePoint& NegInPlace() {
     y_.NegInPlace();

@@ -166,8 +166,8 @@ class UnivariateEvaluations final
                                                                        other);
   }
 
-  UnivariateEvaluations Negative() const {
-    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Negative(*this);
+  UnivariateEvaluations Negate() const {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Negate(*this);
   }
 
   UnivariateEvaluations& NegInPlace() {

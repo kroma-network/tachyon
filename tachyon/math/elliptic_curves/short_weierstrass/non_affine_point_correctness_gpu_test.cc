@@ -34,7 +34,7 @@ DEFINE_LAUNCH_FIELD_BINARY_OP(Add)
                          bn254::G1PointXYZZGpu)
 
 DEFINE_LAUNCH_FIELD_UNARY_OP(Double)
-DEFINE_LAUNCH_FIELD_UNARY_OP(Negative)
+DEFINE_LAUNCH_FIELD_UNARY_OP(Negate)
 
 #undef DEFINE_LAUNCH_FIELD_UNARY_OP
 
@@ -182,12 +182,11 @@ TYPED_TEST(PointCorrectnessGpuTest, Double) {
   }
 }
 
-TYPED_TEST(PointCorrectnessGpuTest, Negative) {
+TYPED_TEST(PointCorrectnessGpuTest, Negate) {
   using Expected = typename TypeParam::Expected;
   size_t N = PointCorrectnessGpuTest<TypeParam>::N;
 
-  GPU_MUST_SUCCESS(LaunchNegative(this->xs_.get(), this->results_.get(), N),
-                   "");
+  GPU_MUST_SUCCESS(LaunchNegate(this->xs_.get(), this->results_.get(), N), "");
   for (size_t i = 0; i < N; ++i) {
     SCOPED_TRACE(absl::Substitute("a: $0", this->xs_[i].ToString()));
     auto result = ConvertPoint<Expected>(this->results_[i]);
