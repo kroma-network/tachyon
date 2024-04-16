@@ -186,6 +186,12 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
     return *this;
   }
 
+  constexpr PrimeField Square() const {
+    PrimeField ret;
+    %{prefix}_rawMSquare(ret.value_.limbs, value_.limbs);
+    return ret;
+  }
+
   constexpr PrimeField& SquareInPlace() {
     %{prefix}_rawMSquare(value_.limbs, value_.limbs);
     return *this;
