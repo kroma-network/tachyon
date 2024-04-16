@@ -70,9 +70,6 @@ constexpr void CLASS::DoAdd(const ProjectivePoint& a, const ProjectivePoint& b,
     return;
   }
 
-  // uu = u²
-  BaseField uu = u.Square();
-
   // vv = v²
   BaseField vv = v.Square();
 
@@ -82,8 +79,9 @@ constexpr void CLASS::DoAdd(const ProjectivePoint& a, const ProjectivePoint& b,
   // R = vv * X1Z2
   BaseField r = vv * x1z2;
 
-  // D = uu * Z1Z2 - vvv - 2 * R
-  BaseField d = uu * z1z2;
+  // D = u² * Z1Z2 - vvv - 2 * R
+  BaseField d = u.Square();
+  d *= z1z2;
   d -= vvv;
   d -= r.Double();
 
@@ -150,9 +148,6 @@ constexpr void CLASS::DoAdd(const ProjectivePoint& a,
     return;
   }
 
-  // uu = u²
-  BaseField uu = u.Square();
-
   // vv = v²
   BaseField vv = v.Square();
 
@@ -162,8 +157,9 @@ constexpr void CLASS::DoAdd(const ProjectivePoint& a,
   // R = vv * X1
   BaseField r = vv * a.x_;
 
-  // D = uu * Z1 - vvv - 2 * R
-  BaseField d = uu * a.z_;
+  // D = u² * Z1 - vvv - 2 * R
+  BaseField d = u.Square();
+  d *= a.z_;
   d -= vvv;
   d -= r.Double();
 
@@ -222,11 +218,9 @@ constexpr void CLASS::DoDoubleImpl(const ProjectivePoint& a,
   BaseField s = a.y_ * a.z_;
   s.DoubleInPlace();
 
-  // ss = s²
-  BaseField ss = s.Square();
-
-  // sss = s * ss
-  BaseField sss = s * ss;
+  // sss = s³
+  BaseField sss = s.Square();
+  sss *= s;
 
   // R = Y1 * s
   BaseField r = a.y_ * s;

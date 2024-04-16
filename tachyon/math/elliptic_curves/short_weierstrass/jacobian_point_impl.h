@@ -163,12 +163,9 @@ constexpr void CLASS::DoAdd(const JacobianPoint& a, const AffinePoint<Curve>& b,
     // H = U2 - X1
     BaseField h = u2 - a.x_;
 
-    // HH = H²
-    BaseField hh = h.Square();
-
-    // I = 4 * HH
-    BaseField i = hh.Double();
-    i.DoubleInPlace();
+    // I = 4 * H²
+    BaseField i = h.Square();
+    i.DoubleInPlace().DoubleInPlace();
 
     // J = -H * I
     BaseField j = h * i;

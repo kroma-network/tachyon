@@ -30,11 +30,9 @@ constexpr ProjectivePoint<Curve> CLASS::DoubleProjective() const {
     w += Curve::Config::kA;
   }
 
-  // Y1Y1 = Y1²
-  BaseField y1y1 = y_.Square();
-
-  // R = 2 * Y1Y1
-  BaseField r = y1y1.Double();
+  // R = 2 * Y1²
+  BaseField r = y_.Square();
+  r.DoubleInPlace();
 
   // sss = 4 * Y1 * R
   BaseField sss = y_ * r;
