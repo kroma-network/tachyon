@@ -208,13 +208,13 @@ class QuadraticExtensionField
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived DoSquare() const {
+  constexpr Derived SquareImpl() const {
     Derived ret;
     DoSquareImpl(*static_cast<const Derived*>(this), ret);
     return ret;
   }
 
-  constexpr Derived& DoSquareInPlace() {
+  constexpr Derived& SquareImplInPlace() {
     DoSquareImpl(*static_cast<const Derived*>(this),
                  *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);

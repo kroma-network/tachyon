@@ -155,11 +155,11 @@ class RationalField : public Field<RationalField<F>> {
     return *this;
   }
 
-  constexpr RationalField Square() const {
+  constexpr RationalField SquareImpl() const {
     return {numerator_.Square(), denominator_.Square()};
   }
 
-  constexpr RationalField& DoSquareInPlace() {
+  constexpr RationalField& SquareImplInPlace() {
     numerator_.SquareInPlace();
     denominator_.SquareInPlace();
     return *this;

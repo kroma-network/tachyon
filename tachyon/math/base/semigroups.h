@@ -56,7 +56,7 @@ namespace tachyon::math {
 namespace internal {
 
 SUPPORTS_BINARY_OPERATOR(Mul);
-SUPPORTS_UNARY_OPERATOR(DoSquare);
+SUPPORTS_UNARY_OPERATOR(SquareImpl);
 SUPPORTS_BINARY_OPERATOR(Add);
 SUPPORTS_UNARY_OPERATOR(DoDouble);
 
@@ -117,9 +117,9 @@ class MultiplicativeSemigroup {
 
   // a.Square(): a²
   [[nodiscard]] constexpr auto Square() const {
-    if constexpr (internal::SupportsDoSquare<G>::value) {
+    if constexpr (internal::SupportsSquareImpl<G>::value) {
       const G* g = static_cast<const G*>(this);
-      return g->DoSquare();
+      return g->SquareImpl();
     } else {
       return operator*(static_cast<const G&>(*this));
     }
@@ -127,9 +127,9 @@ class MultiplicativeSemigroup {
 
   // a.SquareInPlace(): a = a²
   constexpr G& SquareInPlace() {
-    if constexpr (internal::SupportsDoSquareInPlace<G>::value) {
+    if constexpr (internal::SupportsSquareImplInPlace<G>::value) {
       G* g = static_cast<G*>(this);
-      return g->DoSquareInPlace();
+      return g->SquareImplInPlace();
     } else if constexpr (internal::SupportsMulInPlace<G, G>::value) {
       return operator*=(static_cast<const G&>(*this));
     } else {
@@ -201,7 +201,7 @@ class MultiplicativeSemigroup {
     auto it = BitIteratorBE<BigInt<N>>::begin(&exponent, true);
     auto end = BitIteratorBE<BigInt<N>>::end(&exponent);
     while (it != end) {
-      if constexpr (internal::SupportsDoSquareInPlace<G>::value ||
+      if constexpr (internal::SupportsSquareImplInPlace<G>::value ||
                     internal::SupportsMulInPlace<G, G>::value) {
         ret.SquareInPlace();
       } else {

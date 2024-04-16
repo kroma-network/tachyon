@@ -262,7 +262,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return *this;
   }
 
-  constexpr PrimeField DoSquare() const {
+  constexpr PrimeField SquareImpl() const {
     if (N == 1) {
       return Mul(*this);
     }
@@ -271,7 +271,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return ret;
   }
 
-  constexpr PrimeField& DoSquareInPlace() {
+  constexpr PrimeField& SquareImplInPlace() {
     if (N == 1) {
       return MulInPlace(*this);
     }

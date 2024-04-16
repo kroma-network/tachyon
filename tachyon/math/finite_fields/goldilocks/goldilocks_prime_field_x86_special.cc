@@ -184,7 +184,7 @@ CLASS& CLASS::MulInPlace(const PrimeField& other) {
 }
 
 template <typename Config>
-CLASS CLASS::DoSquare() const {
+CLASS CLASS::SquareImpl() const {
   PrimeField ret;
   ::Goldilocks::square(reinterpret_cast<::Goldilocks::Element&>(ret.value_),
                        reinterpret_cast<const ::Goldilocks::Element&>(value_));
@@ -192,7 +192,7 @@ CLASS CLASS::DoSquare() const {
 }
 
 template <typename Config>
-CLASS& CLASS::DoSquareInPlace() {
+CLASS& CLASS::SquareImplInPlace() {
   ::Goldilocks::square(reinterpret_cast<::Goldilocks::Element&>(value_),
                        reinterpret_cast<const ::Goldilocks::Element&>(value_));
   return *this;

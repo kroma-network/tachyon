@@ -119,12 +119,12 @@ class Value : public math::Field<Value<T>> {
     return Value::Known(*value_ * other);
   }
 
-  constexpr Value DoSquare() const {
+  constexpr Value SquareImpl() const {
     if (IsNone()) return Unknown();
     return Value::Known(value_->Square());
   }
 
-  constexpr Value& DoSquareInPlace() {
+  constexpr Value& SquareImplInPlace() {
     if (IsNone()) return *this;
     value_->SquareInPlace();
     return *this;
