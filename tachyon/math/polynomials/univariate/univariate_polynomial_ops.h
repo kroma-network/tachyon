@@ -280,9 +280,25 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
+  static UnivariatePolynomial<D> Div(const UnivariatePolynomial<D>& self,
+                                     const F& scalar) {
+    return Mul(self, scalar.Inverse());
+  }
+
   static UnivariatePolynomial<D>& DivInPlace(UnivariatePolynomial<D>& self,
                                              const F& scalar) {
     return MulInPlace(self, scalar.Inverse());
+  }
+
+  template <typename DOrS>
+  static UnivariatePolynomial<D> Div(const UnivariatePolynomial<D>& self,
+                                     const UnivariatePolynomial<DOrS>& other) {
+    if (self.IsZero()) {
+      return self;
+    }
+    DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    result.quotient.coefficients_.RemoveHighDegreeZeros();
+    return result.quotient;
   }
 
   template <typename DOrS>
@@ -570,6 +586,11 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
     DoMul(self, other, self);
     return self;
+  }
+
+  static UnivariatePolynomial<S> Div(const UnivariatePolynomial<S>& self,
+                                     const F& scalar) {
+    return Mul(self, scalar.Inverse());
   }
 
   static UnivariatePolynomial<S>& DivInPlace(UnivariatePolynomial<S>& self,

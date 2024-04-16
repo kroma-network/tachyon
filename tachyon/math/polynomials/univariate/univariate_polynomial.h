@@ -212,9 +212,7 @@ class UnivariatePolynomial final
 #undef OPERATION_METHOD
 
   UnivariatePolynomial operator/(const Field& scalar) const {
-    UnivariatePolynomial poly = *this;
-    poly /= scalar;
-    return poly;
+    return internal::UnivariatePolynomialOp<Coefficients>::Div(*this, scalar);
   }
 
   UnivariatePolynomial& operator/=(const Field& scalar) {
@@ -225,14 +223,7 @@ class UnivariatePolynomial final
   template <typename Coefficients2>
   constexpr auto operator/(
       const UnivariatePolynomial<Coefficients2>& other) const {
-    if constexpr (internal::SupportsDiv<
-                      UnivariatePolynomial,
-                      UnivariatePolynomial<Coefficients2>>::value) {
-      return Div(other);
-    } else {
-      UnivariatePolynomial poly = *this;
-      return poly.DivInPlace(other);
-    }
+    return Div(other);
   }
 
   template <typename Coefficients2>

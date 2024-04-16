@@ -137,8 +137,7 @@ class MultilinearExtension final
 
   constexpr MultilinearExtension operator/(
       const MultilinearExtension& other) const {
-    MultilinearExtension poly = *this;
-    return poly.DivInPlace(other);
+    return Div(other);
   }
 
   constexpr MultilinearExtension& operator/=(

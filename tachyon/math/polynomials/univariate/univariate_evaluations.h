@@ -185,9 +185,17 @@ class UnivariateEvaluations final
                                                                        scalar);
   }
 
+  UnivariateEvaluations Div(const UnivariateEvaluations& other) const {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Div(*this, other);
+  }
+
   UnivariateEvaluations& DivInPlace(const UnivariateEvaluations& other) {
     return internal::UnivariateEvaluationsOp<F, MaxDegree>::DivInPlace(*this,
                                                                        other);
+  }
+
+  UnivariateEvaluations Div(const F& scalar) const {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Div(*this, scalar);
   }
 
   UnivariateEvaluations& DivInPlace(const F& scalar) {
@@ -197,8 +205,7 @@ class UnivariateEvaluations final
 
   constexpr UnivariateEvaluations operator/(
       const UnivariateEvaluations& other) const {
-    UnivariateEvaluations poly = *this;
-    return poly.DivInPlace(other);
+    return Div(other);
   }
 
   constexpr UnivariateEvaluations& operator/=(
@@ -207,8 +214,7 @@ class UnivariateEvaluations final
   }
 
   constexpr UnivariateEvaluations operator/(const F& scalar) const {
-    UnivariateEvaluations poly = *this;
-    return poly.DivInPlace(scalar);
+    return Div(scalar);
   }
 
   constexpr UnivariateEvaluations& operator/=(const F& scalar) {

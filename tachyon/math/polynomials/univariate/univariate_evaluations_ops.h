@@ -147,6 +147,22 @@ class UnivariateEvaluationsOp {
     return self;
   }
 
+  static Poly Div(const Poly& self, const Poly& other) {
+    const std::vector<F>& l_evaluations = self.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_;
+    if (l_evaluations.empty()) {
+      // 0 / g(x)
+      return self;
+    }
+    // TODO(chokobole): Check division by zero polynomial.
+    // f(x) / 0 skips this for loop.
+    std::vector<F> o_evaluations(r_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+      o_evaluations[i] = l_evaluations[i] / r_evaluations[i];
+    }
+    return Poly(std::move(o_evaluations));
+  }
+
   static Poly& DivInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
@@ -162,16 +178,12 @@ class UnivariateEvaluationsOp {
     return self;
   }
 
+  static Poly Div(const Poly& self, const F& scalar) {
+    return Mul(self, scalar.Inverse());
+  }
+
   static Poly& DivInPlace(Poly& self, const F& scalar) {
-    std::vector<F>& l_evaluations = self.evaluations_;
-    if (l_evaluations.empty()) {
-      return self;
-    }
-    F scalar_inv = scalar.Inverse();
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
-      l_evaluations[i] *= scalar_inv;
-    }
-    return self;
+    return MulInPlace(self, scalar.Inverse());
   }
 };
 
