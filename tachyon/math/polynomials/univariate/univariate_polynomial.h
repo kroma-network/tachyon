@@ -194,8 +194,8 @@ class UnivariatePolynomial final
     return internal::UnivariatePolynomialOp<Coefficients>::Negate(*this);
   }
 
-  UnivariatePolynomial& NegInPlace() {
-    return internal::UnivariatePolynomialOp<Coefficients>::NegInPlace(*this);
+  UnivariatePolynomial& NegateInPlace() {
+    return internal::UnivariatePolynomialOp<Coefficients>::NegateInPlace(*this);
   }
 
   // MultiplicativeSemigroup methods

@@ -214,7 +214,7 @@ __global__ void AggregateBucketsKernel(
     auto base =
         Load<AffinePoint<Curve>, CacheOperator::kNone>(&bases[base_index]);
     if (sign) {
-      base.NegInPlace();
+      base.NegateInPlace();
     }
     bucket = base.ToXYZZ();
   } else {
@@ -246,7 +246,7 @@ __global__ void AggregateBucketsKernel(
     auto base =
         Load<AffinePoint<Curve>, CacheOperator::kNone>(&bases[base_index]);
     if (sign) {
-      base.NegInPlace();
+      base.NegateInPlace();
     }
     bucket += base;
   }

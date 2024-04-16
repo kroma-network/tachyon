@@ -64,7 +64,7 @@ class QuadraticExtensionField
   }
 
   constexpr Derived& ConjugateInPlace() {
-    c1_.NegInPlace();
+    c1_.NegateInPlace();
     return *static_cast<Derived*>(this);
   }
 
@@ -176,9 +176,9 @@ class QuadraticExtensionField
     };
   }
 
-  constexpr Derived& NegInPlace() {
-    c0_.NegInPlace();
-    c1_.NegInPlace();
+  constexpr Derived& NegateInPlace() {
+    c0_.NegateInPlace();
+    c1_.NegateInPlace();
     return *static_cast<Derived*>(this);
   }
 
@@ -360,7 +360,7 @@ class QuadraticExtensionField
     v1 = v0.Inverse();
     b.c0_ = a.c0_ * v1;
     b.c1_ = a.c1_ * v1;
-    b.c1_.NegInPlace();
+    b.c1_.NegateInPlace();
   }
 
   // c = c0_ + c1_ * X

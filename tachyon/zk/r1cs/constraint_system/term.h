@@ -33,8 +33,8 @@ struct Term {
       : coefficient(std::move(coefficient)), variable(std::move(variable)) {}
 
   Term operator-() const { return {-coefficient, variable}; }
-  Term& NegInPlace() {
-    coefficient.NegInPlace();
+  Term& NegateInPlace() {
+    coefficient.NegateInPlace();
     return *this;
   }
 

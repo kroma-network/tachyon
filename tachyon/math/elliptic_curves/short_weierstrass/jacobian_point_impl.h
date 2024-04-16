@@ -84,7 +84,7 @@ constexpr void CLASS::DoAdd(const JacobianPoint& a, const JacobianPoint& b,
 
     // J = -H * I
     BaseField j = h * i;
-    j.NegInPlace();
+    j.NegateInPlace();
 
     // r = 2 * (S2 - S1)
     BaseField r = s2 - s1;
@@ -169,7 +169,7 @@ constexpr void CLASS::DoAdd(const JacobianPoint& a, const AffinePoint<Curve>& b,
 
     // J = -H * I
     BaseField j = h * i;
-    j.NegInPlace();
+    j.NegateInPlace();
 
     // r = 2 * (S2 - Y1)
     BaseField r = s2 - a.y_;

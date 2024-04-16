@@ -119,7 +119,7 @@ TEST_F(PointXYZZTest, AdditiveGroupOperators) {
   EXPECT_EQ(-p, test::PointXYZZ(GF7(5), GF7(2), GF7(1), GF7(1)));
   {
     test::PointXYZZ p_tmp = p;
-    p_tmp.NegInPlace();
+    p_tmp.NegateInPlace();
     EXPECT_EQ(p_tmp, test::PointXYZZ(GF7(5), GF7(2), GF7(1), GF7(1)));
   }
 

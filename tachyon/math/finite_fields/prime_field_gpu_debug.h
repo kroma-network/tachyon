@@ -206,7 +206,7 @@ class PrimeFieldGpuDebug final
     return ret;
   }
 
-  constexpr PrimeFieldGpuDebug& NegInPlace() {
+  constexpr PrimeFieldGpuDebug& NegateInPlace() {
     BigInt<N> result;
     SubLimbs<false>(Config::kModulus, value_, result);
     value_ = result;

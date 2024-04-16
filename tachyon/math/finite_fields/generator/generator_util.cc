@@ -71,7 +71,7 @@ std::string GenerateFastMultiplication(int64_t value) {
     }
     ++it;
   }
-  if (is_negative) ss << ".NegInPlace()";
+  if (is_negative) ss << ".NegateInPlace()";
   return ss.str();
 }
 

@@ -250,7 +250,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return ret;
   }
 
-  __device__ constexpr PrimeFieldGpu& NegInPlace() {
+  __device__ constexpr PrimeFieldGpu& NegateInPlace() {
     BigInt<N> result;
     SubLimbs<false>(GetModulus(), value_, result);
     value_ = result;

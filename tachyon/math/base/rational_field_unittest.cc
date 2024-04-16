@@ -122,7 +122,7 @@ TEST_F(RationalFieldTest, AdditiveGroupOperators) {
   R r(GF7(3), GF7(2));
   R neg_expected(GF7(4), GF7(2));
   EXPECT_EQ(-r, neg_expected);
-  r.NegInPlace();
+  r.NegateInPlace();
   EXPECT_EQ(r, neg_expected);
 
   r = R(GF7(3), GF7(2));

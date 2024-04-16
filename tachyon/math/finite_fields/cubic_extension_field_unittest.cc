@@ -109,7 +109,7 @@ TEST_F(CubicExtensionFieldTest, AdditiveGroupOperators) {
   GF7_3 f(GF7(3), GF7(4), GF7(5));
   GF7_3 f_neg(GF7(4), GF7(3), GF7(2));
   EXPECT_EQ(-f, f_neg);
-  f.NegInPlace();
+  f.NegateInPlace();
   EXPECT_EQ(f, f_neg);
 
   f = GF7_3(GF7(3), GF7(4), GF7(5));

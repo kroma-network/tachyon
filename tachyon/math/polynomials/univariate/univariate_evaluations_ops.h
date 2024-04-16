@@ -107,7 +107,7 @@ class UnivariateEvaluationsOp {
     return Poly(std::move(o_evaluations));
   }
 
-  static Poly& NegInPlace(Poly& self) {
+  static Poly& NegateInPlace(Poly& self) {
     std::vector<F>& evaluations = self.evaluations_;
     if (evaluations.empty()) {
       return self;
@@ -115,7 +115,7 @@ class UnivariateEvaluationsOp {
     // clang-format off
     OPENMP_PARALLEL_FOR(F& evaluation : evaluations) {
       // clang-format on
-      evaluation.NegInPlace();
+      evaluation.NegateInPlace();
     }
     return self;
   }

@@ -86,14 +86,14 @@ class MultivariatePolynomialOp<MultivariateSparseCoefficients<F, MaxDegree>> {
         S(self.coefficients_.num_vars_, std::move(o_terms)));
   }
 
-  static MultivariatePolynomial<S>& NegInPlace(
+  static MultivariatePolynomial<S>& NegateInPlace(
       MultivariatePolynomial<S>& self) {
     if (self.IsZero()) {
       return self;
     }
     Terms& terms = self.coefficients_.terms_;
     // clang-format off
-    OPENMP_PARALLEL_FOR(Term& term : terms) { term.coefficient.NegInPlace(); }
+    OPENMP_PARALLEL_FOR(Term& term : terms) { term.coefficient.NegateInPlace(); }
     // clang-format on
     return self;
   }

@@ -124,8 +124,9 @@ class MultivariatePolynomial final
     return internal::MultivariatePolynomialOp<Coefficients>::Negate(*this);
   }
 
-  MultivariatePolynomial& NegInPlace() {
-    return internal::MultivariatePolynomialOp<Coefficients>::NegInPlace(*this);
+  MultivariatePolynomial& NegateInPlace() {
+    return internal::MultivariatePolynomialOp<Coefficients>::NegateInPlace(
+        *this);
   }
 #undef OPERATION_METHOD
 

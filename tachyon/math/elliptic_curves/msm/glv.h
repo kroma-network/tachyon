@@ -80,10 +80,10 @@ class GLV {
     Point b2 = Endomorphism(p);
 
     if (result.k1.sign == Sign::kNegative) {
-      b1.NegInPlace();
+      b1.NegateInPlace();
     }
     if (result.k2.sign == Sign::kNegative) {
-      b2.NegInPlace();
+      b2.NegateInPlace();
     }
 
     RetPoint b1b2 = b1 + b2;

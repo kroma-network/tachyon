@@ -232,7 +232,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return ret;
   }
 
-  constexpr PrimeField& NegInPlace() {
+  constexpr PrimeField& NegateInPlace() {
     if (!IsZero()) {
       BigInt<N> tmp(Config::kModulus);
       tmp.SubInPlace(value_);

@@ -211,10 +211,10 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     };
   }
 
-  constexpr Derived& NegInPlace() {
-    c0_.NegInPlace();
-    c1_.NegInPlace();
-    c2_.NegInPlace();
+  constexpr Derived& NegateInPlace() {
+    c0_.NegateInPlace();
+    c1_.NegateInPlace();
+    c2_.NegateInPlace();
     return *static_cast<Derived*>(this);
   }
 

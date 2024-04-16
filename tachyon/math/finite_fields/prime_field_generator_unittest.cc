@@ -102,7 +102,7 @@ TYPED_TEST(PrimeFieldGeneratorTest, AdditiveGroupOperators) {
   SCOPED_TRACE(absl::Substitute("f: $0", f.ToString()));
   PrimeField f_neg = -f;
   EXPECT_TRUE((f_neg + f).IsZero());
-  f.NegInPlace();
+  f.NegateInPlace();
   EXPECT_EQ(f, f_neg);
 
   PrimeField f_double = f.Double();

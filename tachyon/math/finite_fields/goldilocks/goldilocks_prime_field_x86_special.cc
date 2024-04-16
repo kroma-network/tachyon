@@ -158,7 +158,7 @@ CLASS CLASS::Negate() const {
 }
 
 template <typename Config>
-CLASS& CLASS::NegInPlace() {
+CLASS& CLASS::NegateInPlace() {
   ::Goldilocks::neg(reinterpret_cast<::Goldilocks::Element&>(value_),
                     reinterpret_cast<const ::Goldilocks::Element&>(value_));
   return *this;

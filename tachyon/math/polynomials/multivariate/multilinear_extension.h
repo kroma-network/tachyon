@@ -130,8 +130,8 @@ class MultilinearExtension final
     return internal::MultilinearExtensionOp<Evaluations>::Negate(*this);
   }
 
-  MultilinearExtension& NegInPlace() {
-    return internal::MultilinearExtensionOp<Evaluations>::NegInPlace(*this);
+  MultilinearExtension& NegateInPlace() {
+    return internal::MultilinearExtensionOp<Evaluations>::NegateInPlace(*this);
   }
 
   // MultiplicativeSemigroup methods
