@@ -61,7 +61,7 @@ tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_add(const tachyon_%{type
   using NativeType =
       typename TypeTraits<tachyon_%{type}_fq%{degree}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.AddInPlace(native_cast(*b)));
+  return c_cast(native_a += native_cast(*b));
 }
 
 tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_sub(const tachyon_%{type}_fq%{degree}* a,
@@ -70,7 +70,7 @@ tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_sub(const tachyon_%{type
   using NativeType =
       typename TypeTraits<tachyon_%{type}_fq%{degree}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.SubInPlace(native_cast(*b)));
+  return c_cast(native_a -= native_cast(*b));
 }
 
 tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_mul(const tachyon_%{type}_fq%{degree}* a,
@@ -79,7 +79,7 @@ tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_mul(const tachyon_%{type
   using NativeType =
       typename TypeTraits<tachyon_%{type}_fq%{degree}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.MulInPlace(native_cast(*b)));
+  return c_cast(native_a *= native_cast(*b));
 }
 
 tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_div(const tachyon_%{type}_fq%{degree}* a,
