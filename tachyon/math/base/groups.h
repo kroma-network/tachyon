@@ -45,12 +45,8 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
       typename G2,
       std::enable_if_t<internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
   constexpr G& operator/=(const G2& other) {
-    if constexpr (internal::SupportsMulInPlace<G, G2>::value) {
-      G* g = static_cast<G*>(this);
-      return g->MulInPlace(other.Inverse());
-    } else {
-      static_assert(base::AlwaysFalse<G>);
-    }
+    G* g = static_cast<G*>(this);
+    return g->MulInPlace(other.Inverse());
   }
 
   template <typename Container>
@@ -194,11 +190,9 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
     if constexpr (internal::SupportsSubInPlace<G, G2>::value) {
       G* g = static_cast<G*>(this);
       return g->SubInPlace(other);
-    } else if constexpr (internal::SupportsAddInPlace<G, G2>::value) {
+    } else {
       G* g = static_cast<G*>(this);
       return g->AddInPlace(-other);
-    } else {
-      static_assert(base::AlwaysFalse<G>);
     }
   }
 
