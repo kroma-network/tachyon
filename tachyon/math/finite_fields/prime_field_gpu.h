@@ -73,11 +73,19 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   constexpr static PrimeFieldGpu FromDecString(std::string_view str) {
     std::optional<BigInt<N>> value = BigInt<N>::FromDecString(str);
     if (!value.has_value()) return std::nullopt;
+    if (value >= Config::kModulus) {
+      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
+      return std::nullopt;
+    }
     return PrimeFieldGpu(std::move(value).value());
   }
   constexpr static PrimeFieldGpu FromHexString(std::string_view str) {
     std::optional<BigInt<N>> value = BigInt<N>::FromHexString(str);
     if (!value.has_value()) return std::nullopt;
+    if (value >= Config::kModulus) {
+      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
+      return std::nullopt;
+    }
     return PrimeFieldGpu(std::move(value).value());
   }
 

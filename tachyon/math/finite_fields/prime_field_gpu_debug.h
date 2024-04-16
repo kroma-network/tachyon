@@ -72,11 +72,19 @@ class PrimeFieldGpuDebug final
   constexpr static PrimeFieldGpuDebug FromDecString(std::string_view str) {
     std::optional<BigInt<N>> value = BigInt<N>::FromDecString(str);
     if (!value.has_value()) return std::nullopt;
+    if (value >= Config::kModulus) {
+      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
+      return std::nullopt;
+    }
     return PrimeFieldGpuDebug(std::move(value).value());
   }
   constexpr static PrimeFieldGpuDebug FromHexString(std::string_view str) {
     std::optional<BigInt<N>> value = BigInt<N>::FromHexString(str);
     if (!value.has_value()) return std::nullopt;
+    if (value >= Config::kModulus) {
+      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
+      return std::nullopt;
+    }
     return PrimeFieldGpuDebug(std::move(value).value());
   }
 
