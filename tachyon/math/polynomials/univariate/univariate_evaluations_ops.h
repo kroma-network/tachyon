@@ -32,6 +32,7 @@ class UnivariateEvaluationsOp {
       // f(x) + 0
       return self;
     }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     std::vector<F> o_evaluations(r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] + r_evaluations[i];
@@ -50,6 +51,7 @@ class UnivariateEvaluationsOp {
       // f(x) + 0
       return self;
     }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] += r_evaluations[i];
     }
@@ -67,6 +69,7 @@ class UnivariateEvaluationsOp {
       // f(x) - 0
       return self;
     }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     std::vector<F> o_evaluations(r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] - r_evaluations[i];
@@ -85,6 +88,7 @@ class UnivariateEvaluationsOp {
       // f(x) - 0
       return self;
     }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] -= r_evaluations[i];
     }
@@ -123,6 +127,7 @@ class UnivariateEvaluationsOp {
       // 0 * g(x) or f(x) * 0
       return Poly::Zero();
     }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     std::vector<F> o_evaluations(r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] * r_evaluations[i];
@@ -142,6 +147,7 @@ class UnivariateEvaluationsOp {
       l_evaluations.clear();
       return self;
     }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] *= r_evaluations[i];
     }
@@ -180,12 +186,17 @@ class UnivariateEvaluationsOp {
   static Poly Div(const Poly& self, const Poly& other) {
     const std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
+    if (r_evaluations.empty()) {
+      // f(x) / 0
+      // TODO(chokobole): It should return std::nullopt.
+      // See https://github.com/kroma-network/tachyon/issues/76.
+      return Poly::Zero();
+    }
     if (l_evaluations.empty()) {
       // 0 / g(x)
       return self;
     }
-    // TODO(chokobole): Check division by zero polynomial.
-    // f(x) / 0 skips this for loop.
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     std::vector<F> o_evaluations(r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] / r_evaluations[i];
@@ -196,12 +207,17 @@ class UnivariateEvaluationsOp {
   static Poly& DivInPlace(Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
+    if (r_evaluations.empty()) {
+      // f(x) / 0
+      // TODO(chokobole): It should return std::nullopt.
+      // See https://github.com/kroma-network/tachyon/issues/76.
+      return self;
+    }
     if (l_evaluations.empty()) {
       // 0 / g(x)
       return self;
     }
-    // TODO(chokobole): Check division by zero polynomial.
-    // f(x) / 0 skips this for loop.
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] /= r_evaluations[i];
     }

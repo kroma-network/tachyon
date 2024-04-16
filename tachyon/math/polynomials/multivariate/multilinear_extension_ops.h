@@ -159,12 +159,17 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
                                      const MultilinearExtension<D>& other) {
     const std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (r_evaluations.empty()) {
+      // f(x) / 0
+      // TODO(chokobole): It should return std::nullopt.
+      // See https://github.com/kroma-network/tachyon/issues/76.
+      return MultilinearExtension<D>::Zero();
+    }
     if (l_evaluations.empty()) {
       // 0 / g(x)
       return self;
     }
-    // TODO(chokobole): Check division by zero polynomial.
-    // f(x) / 0 skips this for loop.
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     std::vector<F> o_evaluations(r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
       o_evaluations[i] = l_evaluations[i] / r_evaluations[i];
@@ -175,13 +180,18 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
   static MultilinearExtension<D>& DivInPlace(
       MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {
     std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (r_evaluations.empty()) {
+      // f(x) / 0
+      // TODO(chokobole): It should return std::nullopt.
+      // See https://github.com/kroma-network/tachyon/issues/76.
+      return self;
+    }
     if (l_evaluations.empty()) {
       // 0 / g(x)
       return self;
     }
-    // TODO(chokobole): Check division by zero polynomial.
-    // f(x) / 0 skips this for loop.
-    const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] /= r_evaluations[i];
     }
