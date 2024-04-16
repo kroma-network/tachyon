@@ -56,6 +56,13 @@ class QuadraticExtensionField
     return 2 * BaseField::ExtensionDegree();
   }
 
+  constexpr Derived Conjugate() const {
+    return {
+        c0_,
+        -c1_,
+    };
+  }
+
   constexpr Derived& ConjugateInPlace() {
     c1_.NegInPlace();
     return *static_cast<Derived*>(this);
@@ -149,10 +156,24 @@ class QuadraticExtensionField
   }
 
   // AdditiveGroup methods
+  constexpr Derived Sub(const Derived& other) const {
+    return {
+        c0_ - other.c0_,
+        c1_ - other.c1_,
+    };
+  }
+
   constexpr Derived& SubInPlace(const Derived& other) {
     c0_ -= other.c0_;
     c1_ -= other.c1_;
     return *static_cast<Derived*>(this);
+  }
+
+  constexpr Derived Negative() const {
+    return {
+        -c0_,
+        -c1_,
+    };
   }
 
   constexpr Derived& NegInPlace() {
@@ -200,31 +221,19 @@ class QuadraticExtensionField
   }
 
   // MultiplicativeGroup methods
-  Derived& DivInPlace(const Derived& other) {
-    return MulInPlace(other.Inverse());
+  constexpr Derived Inverse() const {
+    Derived ret;
+    DoInverse(*static_cast<const Derived*>(this), ret);
+    return ret;
   }
 
   constexpr Derived& InverseInPlace() {
-    // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
-    // See https://github.com/kroma-network/tachyon/issues/76
-    if (IsZero()) return *static_cast<Derived*>(this);
-    // See https://www.math.u-bordeaux.fr/~damienrobert/csi/book/book.pdf
-    // Guide to Pairing-based Cryptography, Algorithm 5.19.
-    // v1 = c1²
-    BaseField v1 = c1_.Square();
-    // v0 = c0² - q * v1
-    BaseField v0 = c0_.Square();
-    v0 -= Config::MulByNonResidue(v1);
-
-    v1 = v0.Inverse();
-    c0_ *= v1;
-    c1_ *= v1;
-    c1_.NegInPlace();
+    DoInverse(*static_cast<const Derived*>(this), *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);
   }
 
   // CyclotomicMultiplicativeSubgroup methods
-  constexpr Derived& FastCyclotomicInverseInPlace() {
+  constexpr Derived FastCyclotomicInverse() const {
     // As the multiplicative subgroup is of order p² - 1, the
     // only non-trivial cyclotomic subgroup is of order p + 1
     // Therefore, for any element in the cyclotomic subgroup, we have that
@@ -232,7 +241,10 @@ class QuadraticExtensionField
     // field is equal to the norm in the base field, so we have that
     // |x * x.Conjugate() = 1|. By uniqueness of inverses, for this subgroup,
     // |x.Inverse() = x.Conjugate()|.
+    return Conjugate();
+  }
 
+  constexpr Derived& FastCyclotomicInverseInPlace() {
     // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
     // See https://github.com/kroma-network/tachyon/issues/76
     if (IsZero()) return *static_cast<Derived*>(this);
@@ -331,6 +343,24 @@ class QuadraticExtensionField
       // c1 = 2 * c0 * c1
       b.c1_ = v1.Double();
     }
+  }
+
+  constexpr static void DoInverse(const Derived& a, Derived& b) {
+    // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
+    // See https://github.com/kroma-network/tachyon/issues/76
+    if (a.IsZero()) return;
+    // See https://www.math.u-bordeaux.fr/~damienrobert/csi/book/book.pdf
+    // Guide to Pairing-based Cryptography, Algorithm 5.19.
+    // v1 = c1²
+    BaseField v1 = a.c1_.Square();
+    // v0 = c0² - q * v1
+    BaseField v0 = a.c0_.Square();
+    v0 -= Config::MulByNonResidue(v1);
+
+    v1 = v0.Inverse();
+    b.c0_ = a.c0_ * v1;
+    b.c1_ = a.c1_ * v1;
+    b.c1_.NegInPlace();
   }
 
   // c = c0_ + c1_ * X

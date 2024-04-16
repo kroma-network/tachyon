@@ -25,28 +25,28 @@ tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_add(const tachyon_%{type}_%{
   using namespace tachyon::c::base;
   using NativeType = typename TypeTraits<tachyon_%{type}_%{suffix}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.AddInPlace(native_cast(*b)));
+  return c_cast(native_a += native_cast(*b));
 }
 
 tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_sub(const tachyon_%{type}_%{suffix}* a, const tachyon_%{type}_%{suffix}* b) {
   using namespace tachyon::c::base;
   using NativeType = typename TypeTraits<tachyon_%{type}_%{suffix}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.SubInPlace(native_cast(*b)));
+  return c_cast(native_a -= native_cast(*b));
 }
 
 tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_mul(const tachyon_%{type}_%{suffix}* a, const tachyon_%{type}_%{suffix}* b) {
   using namespace tachyon::c::base;
   using NativeType = typename TypeTraits<tachyon_%{type}_%{suffix}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.MulInPlace(native_cast(*b)));
+  return c_cast(native_a *= native_cast(*b));
 }
 
 tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_div(const tachyon_%{type}_%{suffix}* a, const tachyon_%{type}_%{suffix}* b) {
   using namespace tachyon::c::base;
   using NativeType = typename TypeTraits<tachyon_%{type}_%{suffix}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.DivInPlace(native_cast(*b)));
+  return c_cast(native_a /= native_cast(*b));
 }
 
 tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_neg(const tachyon_%{type}_%{suffix}* a) {

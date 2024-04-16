@@ -55,6 +55,26 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     return self;
   }
 
+  static MultilinearExtension<D> Sub(const MultilinearExtension<D>& self,
+                                     const MultilinearExtension<D>& other) {
+    const std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (l_evaluations.empty()) {
+      // 0 - g(x)
+      return -other;
+    }
+    if (r_evaluations.empty()) {
+      // f(x) - 0
+      return self;
+    }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    std::vector<F> o_evaluations(r_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
+      o_evaluations[i] = l_evaluations[i] - r_evaluations[i];
+    }
+    return MultilinearExtension<D>(D(std::move(o_evaluations)));
+  }
+
   static MultilinearExtension<D>& SubInPlace(
       MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {
     std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
@@ -72,6 +92,18 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
       l_evaluations[i] -= r_evaluations[i];
     }
     return self;
+  }
+
+  static MultilinearExtension<D> Negative(const MultilinearExtension<D>& self) {
+    const std::vector<F>& i_evaluations = self.evaluations_.evaluations_;
+    if (i_evaluations.empty()) {
+      return self;
+    }
+    std::vector<F> o_evaluations(i_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < o_evaluations.size(); ++i) {
+      o_evaluations[i] = -i_evaluations[i];
+    }
+    return MultilinearExtension<D>(D(std::move(o_evaluations)));
   }
 
   static MultilinearExtension<D>& NegInPlace(MultilinearExtension<D>& self) {
@@ -123,23 +155,51 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     return self;
   }
 
-  static MultilinearExtension<D>& DivInPlace(
-      MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {
-    std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
+  static MultilinearExtension<D> Div(const MultilinearExtension<D>& self,
+                                     const MultilinearExtension<D>& other) {
+    const std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
+    const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (r_evaluations.empty()) {
+      // f(x) / 0
+      // TODO(chokobole): It should return std::nullopt.
+      // See https://github.com/kroma-network/tachyon/issues/76.
+      return MultilinearExtension<D>::Zero();
+    }
     if (l_evaluations.empty()) {
       // 0 / g(x)
       return self;
     }
-    // TODO(chokobole): Check division by zero polynomial.
-    // f(x) / 0 skips this for loop.
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    std::vector<F> o_evaluations(r_evaluations.size());
+    OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
+      o_evaluations[i] = l_evaluations[i] / r_evaluations[i];
+    }
+    return MultilinearExtension<D>(D(std::move(o_evaluations)));
+  }
+
+  static MultilinearExtension<D>& DivInPlace(
+      MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {
+    std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
+    if (r_evaluations.empty()) {
+      // f(x) / 0
+      // TODO(chokobole): It should return std::nullopt.
+      // See https://github.com/kroma-network/tachyon/issues/76.
+      return self;
+    }
+    if (l_evaluations.empty()) {
+      // 0 / g(x)
+      return self;
+    }
+    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       l_evaluations[i] /= r_evaluations[i];
     }
     return self;
   }
 
-  static MultilinearExtension<D> ToDense(const MultilinearExtension<D>& self) {
+  static const MultilinearExtension<D>& ToDense(
+      const MultilinearExtension<D>& self) {
     return self;
   }
 };

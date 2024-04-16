@@ -170,12 +170,22 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
     return *this;
   }
 
-  constexpr PrimeField& DoubleInPlace() { return AddInPlace(*this); }
-
   // AdditiveGroup methods
+  constexpr PrimeField Sub(const PrimeField& other) const {
+    PrimeField ret;
+    %{prefix}_rawSub(ret.value_.limbs, value_.limbs, other.value_.limbs);
+    return ret;
+  }
+
   constexpr PrimeField& SubInPlace(const PrimeField& other) {
     %{prefix}_rawSub(value_.limbs, value_.limbs, other.value_.limbs);
     return *this;
+  }
+
+  constexpr PrimeField Negative() const {
+    PrimeField ret;
+    %{prefix}_rawNeg(ret.value_.limbs, value_.limbs);
+    return ret;
   }
 
   constexpr PrimeField& NegInPlace() {
@@ -196,14 +206,23 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
     return *this;
   }
 
+  constexpr PrimeField Square() const {
+    PrimeField ret;
+    %{prefix}_rawMSquare(ret.value_.limbs, value_.limbs);
+    return ret;
+  }
+
   constexpr PrimeField& SquareInPlace() {
     %{prefix}_rawMSquare(value_.limbs, value_.limbs);
     return *this;
   }
 
   // MultiplicativeGroup methods
-  PrimeField& DivInPlace(const PrimeField& other) {
-    return MulInPlace(other.Inverse());
+  constexpr PrimeField Inverse() const {
+    PrimeField ret;
+    ret.value_ = value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
+        Config::kModulus, Config::kMontgomeryR2);
+    return ret;
   }
 
   constexpr PrimeField& InverseInPlace() {

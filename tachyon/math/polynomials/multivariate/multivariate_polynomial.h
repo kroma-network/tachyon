@@ -120,6 +120,10 @@ class MultivariatePolynomial final
   // AdditiveGroup methods
   OPERATION_METHOD(Sub)
 
+  MultivariatePolynomial Negative() const {
+    return internal::MultivariatePolynomialOp<Coefficients>::Negative(*this);
+  }
+
   MultivariatePolynomial& NegInPlace() {
     return internal::MultivariatePolynomialOp<Coefficients>::NegInPlace(*this);
   }

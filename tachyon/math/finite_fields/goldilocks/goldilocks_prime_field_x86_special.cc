@@ -131,12 +131,30 @@ CLASS& CLASS::AddInPlace(const PrimeField& other) {
 }
 
 template <typename Config>
+CLASS CLASS::Sub(const PrimeField& other) const {
+  PrimeField ret;
+  ::Goldilocks::sub(
+      reinterpret_cast<::Goldilocks::Element&>(ret.value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(value_),
+      reinterpret_cast<const ::Goldilocks::Element&>(other.value_));
+  return ret;
+}
+
+template <typename Config>
 CLASS& CLASS::SubInPlace(const PrimeField& other) {
   ::Goldilocks::sub(
       reinterpret_cast<::Goldilocks::Element&>(value_),
       reinterpret_cast<const ::Goldilocks::Element&>(value_),
       reinterpret_cast<const ::Goldilocks::Element&>(other.value_));
   return *this;
+}
+
+template <typename Config>
+CLASS CLASS::Negative() const {
+  PrimeField ret;
+  ::Goldilocks::neg(reinterpret_cast<::Goldilocks::Element&>(ret.value_),
+                    reinterpret_cast<const ::Goldilocks::Element&>(value_));
+  return ret;
 }
 
 template <typename Config>
@@ -166,15 +184,6 @@ CLASS& CLASS::MulInPlace(const PrimeField& other) {
 }
 
 template <typename Config>
-CLASS& CLASS::DivInPlace(const PrimeField& other) {
-  ::Goldilocks::div(
-      reinterpret_cast<::Goldilocks::Element&>(value_),
-      reinterpret_cast<const ::Goldilocks::Element&>(value_),
-      reinterpret_cast<const ::Goldilocks::Element&>(other.value_));
-  return *this;
-}
-
-template <typename Config>
 CLASS CLASS::DoSquare() const {
   PrimeField ret;
   ::Goldilocks::square(reinterpret_cast<::Goldilocks::Element&>(ret.value_),
@@ -187,6 +196,16 @@ CLASS& CLASS::DoSquareInPlace() {
   ::Goldilocks::square(reinterpret_cast<::Goldilocks::Element&>(value_),
                        reinterpret_cast<const ::Goldilocks::Element&>(value_));
   return *this;
+}
+
+template <typename Config>
+CLASS CLASS::Inverse() const {
+  // See https://github.com/kroma-network/tachyon/issues/76
+  CHECK(!IsZero());
+  PrimeField ret;
+  ::Goldilocks::inv(reinterpret_cast<::Goldilocks::Element&>(ret.value_),
+                    reinterpret_cast<const ::Goldilocks::Element&>(value_));
+  return ret;
 }
 
 template <typename Config>

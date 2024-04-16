@@ -154,11 +154,11 @@ class UnivariatePolynomial final
         coefficients_.template Fold<MulRandomWithEvens>(r));
   }
 
-  auto ToSparse() const {
+  decltype(auto) ToSparse() const {
     return internal::UnivariatePolynomialOp<Coefficients>::ToSparse(*this);
   }
 
-  auto ToDense() const {
+  decltype(auto) ToDense() const {
     return internal::UnivariatePolynomialOp<Coefficients>::ToDense(*this);
   }
 
@@ -190,6 +190,10 @@ class UnivariatePolynomial final
   // AdditiveGroup methods
   OPERATION_METHOD(Sub)
 
+  UnivariatePolynomial Negative() const {
+    return internal::UnivariatePolynomialOp<Coefficients>::Negative(*this);
+  }
+
   UnivariatePolynomial& NegInPlace() {
     return internal::UnivariatePolynomialOp<Coefficients>::NegInPlace(*this);
   }
@@ -212,9 +216,7 @@ class UnivariatePolynomial final
 #undef OPERATION_METHOD
 
   UnivariatePolynomial operator/(const Field& scalar) const {
-    UnivariatePolynomial poly = *this;
-    poly /= scalar;
-    return poly;
+    return internal::UnivariatePolynomialOp<Coefficients>::Div(*this, scalar);
   }
 
   UnivariatePolynomial& operator/=(const Field& scalar) {
@@ -225,14 +227,7 @@ class UnivariatePolynomial final
   template <typename Coefficients2>
   constexpr auto operator/(
       const UnivariatePolynomial<Coefficients2>& other) const {
-    if constexpr (internal::SupportsDiv<
-                      UnivariatePolynomial,
-                      UnivariatePolynomial<Coefficients2>>::value) {
-      return Div(other);
-    } else {
-      UnivariatePolynomial poly = *this;
-      return poly.DivInPlace(other);
-    }
+    return Div(other);
   }
 
   template <typename Coefficients2>
@@ -243,14 +238,7 @@ class UnivariatePolynomial final
   template <typename Coefficients2>
   constexpr auto operator%(
       const UnivariatePolynomial<Coefficients2>& other) const {
-    if constexpr (internal::SupportsMod<
-                      UnivariatePolynomial,
-                      UnivariatePolynomial<Coefficients2>>::value) {
-      return Mod(other);
-    } else {
-      UnivariatePolynomial poly = *this;
-      return poly.ModInPlace(other);
-    }
+    return Mod(other);
   }
 
   template <typename Coefficients2>

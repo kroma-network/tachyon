@@ -14,11 +14,7 @@
 namespace tachyon::math {
 namespace internal {
 
-SUPPORTS_BINARY_OPERATOR(Div);
-SUPPORTS_BINARY_OPERATOR(Mod);
-SUPPORTS_UNARY_IN_PLACE_OPERATOR(Inverse);
 SUPPORTS_BINARY_OPERATOR(Sub);
-SUPPORTS_UNARY_IN_PLACE_OPERATOR(Neg);
 
 }  // namespace internal
 
@@ -38,53 +34,19 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   // number of cpu cores.
   constexpr static size_t kParallelBatchInverseDivisorThreshold = 2;
 
-  // Division:
-  //   1) a / b if division is supported.
-  //   2) a * b⁻¹ otherwise
-  template <
-      typename G2,
-      std::enable_if_t<internal::SupportsMul<G, G2>::value ||
-                       internal::SupportsMulInPlace<G, G2>::value ||
-                       internal::SupportsDiv<G, G2>::value ||
-                       internal::SupportsDivInPlace<G, G2>::value>* = nullptr>
+  // Division: a * b⁻¹
+  template <typename G2>
   constexpr auto operator/(const G2& other) const {
-    if constexpr (internal::SupportsDiv<G, G2>::value) {
-      const G* g = static_cast<const G*>(this);
-      return g->Div(other);
-    } else if constexpr (internal::SupportsDivInPlace<G, G2>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.DivInPlace(other);
-    } else {
-      return this->operator*(other.Inverse());
-    }
+    return this->operator*(other.Inverse());
   }
 
-  // Division in place: a /= b
-  //   1) a /= b if division is supported.
-  //   2) a *= b⁻¹ otherwise
+  // Division in place: a *= b⁻¹
   template <
       typename G2,
-      std::enable_if_t<internal::SupportsDivInPlace<G, G2>::value ||
-                       internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
+      std::enable_if_t<internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
   constexpr G& operator/=(const G2& other) {
-    if constexpr (internal::SupportsDivInPlace<G, G2>::value) {
-      G* g = static_cast<G*>(this);
-      return g->DivInPlace(other);
-    } else if constexpr (internal::SupportsMulInPlace<G, G2>::value) {
-      G* g = static_cast<G*>(this);
-      return g->MulInPlace(other.Inverse());
-    } else {
-      static_assert(base::AlwaysFalse<G>);
-    }
-  }
-
-  // Inverse: a⁻¹
-  template <
-      typename G2 = G,
-      std::enable_if_t<internal::SupportsInverseInPlace<G2>::value>* = nullptr>
-  [[nodiscard]] constexpr auto Inverse() const {
-    G ret = *static_cast<const G*>(this);
-    return ret.InverseInPlace();
+    G* g = static_cast<G*>(this);
+    return g->MulInPlace(other.Inverse());
   }
 
   template <typename Container>
@@ -205,19 +167,13 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
   // Subtraction:
   //   1) a - b if subtraction is supported.
   //   2) a + (-b) otherwise
-  template <
-      typename G2,
-      std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
-                       internal::SupportsAddInPlace<G, G2>::value ||
-                       internal::SupportsSub<G, G2>::value ||
-                       internal::SupportsSubInPlace<G, G2>::value>* = nullptr>
+  template <typename G2,
+            std::enable_if_t<internal::SupportsAdd<G, G2>::value ||
+                             internal::SupportsSub<G, G2>::value>* = nullptr>
   constexpr auto operator-(const G2& other) const {
     if constexpr (internal::SupportsSub<G, G2>::value) {
       const G* g = static_cast<const G*>(this);
       return g->Sub(other);
-    } else if constexpr (internal::SupportsSubInPlace<G, G2>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.SubInPlace(other);
     } else {
       return this->operator+(-other);
     }
@@ -234,23 +190,16 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
     if constexpr (internal::SupportsSubInPlace<G, G2>::value) {
       G* g = static_cast<G*>(this);
       return g->SubInPlace(other);
-    } else if constexpr (internal::SupportsAddInPlace<G, G2>::value) {
+    } else {
       G* g = static_cast<G*>(this);
       return g->AddInPlace(-other);
-    } else {
-      static_assert(base::AlwaysFalse<G>);
     }
   }
 
   // Negation: -a
   constexpr auto operator-() const {
-    if constexpr (internal::SupportsNegInPlace<G>::value) {
-      G g = *static_cast<const G*>(this);
-      return g.NegInPlace();
-    } else {
-      const G* g = static_cast<const G*>(this);
-      return g->Negative();
-    }
+    const G* g = static_cast<const G*>(this);
+    return g->Negative();
   }
 };
 

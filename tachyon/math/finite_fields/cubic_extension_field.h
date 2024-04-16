@@ -188,11 +188,27 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   // AdditiveGroup methods
+  constexpr Derived Sub(const Derived& other) const {
+    return {
+        c0_ - other.c0_,
+        c1_ - other.c1_,
+        c2_ - other.c2_,
+    };
+  }
+
   constexpr Derived& SubInPlace(const Derived& other) {
     c0_ -= other.c0_;
     c1_ -= other.c1_;
     c2_ -= other.c2_;
     return *static_cast<Derived*>(this);
+  }
+
+  constexpr Derived Negative() const {
+    return {
+        -c0_,
+        -c1_,
+        -c2_,
+    };
   }
 
   constexpr Derived& NegInPlace() {
@@ -243,70 +259,14 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   // MultiplicativeGroup methods
-  Derived& DivInPlace(const Derived& other) {
-    return MulInPlace(other.Inverse());
+  constexpr Derived Inverse() const {
+    Derived ret;
+    DoInverse(*static_cast<const Derived*>(this), ret);
+    return ret;
   }
 
   constexpr Derived& InverseInPlace() {
-    // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
-    // See https://github.com/kroma-network/tachyon/issues/76
-    if (IsZero()) return *static_cast<Derived*>(this);
-    // clang-format off
-    // See https://eprint.iacr.org/2010/354.pdf
-    // From "High-Speed Software Implementation of the Optimal Ate AbstractPairing over Barreto-Naehrig Curves"; Algorithm 17
-    // clang-format on
-
-    // t0 = c0²
-    BaseField t0 = c0_.Square();
-    // t1 = c1²
-    BaseField t1 = c1_.Square();
-    // t2 = c2²
-    BaseField t2 = c2_.Square();
-    // t3 = c0 * c1
-    BaseField t3 = c0_ * c1_;
-    // t4 = c0 * c2
-    BaseField t4 = c0_ * c2_;
-    // t5 = c1 * c2
-    BaseField t5 = c1_ * c2_;
-
-    // s0 = t0 - t5 * q
-    //    = t0 - c1 * c2 * q
-    BaseField s0 = t0 - Config::MulByNonResidue(t5);
-    // s1 = t2 * q - t3
-    //    = c2² * q - c0 * c1
-    BaseField s1 = Config::MulByNonResidue(t2) - t3;
-    // See
-    // https://github.com/arkworks-rs/algebra/blob/c92be0e8815875460e736086a6b02fed9e4273ff/ff/src/fields/models/cubic_extension.rs#L315
-    // s2 = t1 - t4
-    //    = c1² - c0 * c2
-    BaseField s2 = t1 - t4;
-
-    // a1 = c2 * s1
-    //    = c2 * (c2² * q - c0 * c1)
-    //    = c2³ * q - c0 * c1 * c2
-    BaseField a1 = c2_ * s1;
-    // a2 = c1 * s2
-    //    = c1 * (c1² - c0 * c2)
-    //    = c1³ - c0 * c1 * c2
-    BaseField a2 = c1_ * s2;
-    // a3 = c1³ + c2³ * q - 2 * c0 * c1 * c2
-    BaseField a3 = Config::MulByNonResidue(a1 + a2);
-    // t6 = 1 / (c0 * s0 + a3)
-    //    = 1 / (c0 * (t0 - t5 * q) + c1³ + c2³ * q - 2 * c0 * c1 * c2)
-    //    = 1 / (c0 * (c0² - c1 * c2 * q) + c1³ + c2³ * q - 2 * c0 * c1 * c2)
-    //    = 1 / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
-    BaseField t6 = (c0_ * s0 + a3).Inverse();
-
-    // c0 = s0 * t6
-    // c0 = (t0 - c1 * c2 * q) / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
-    //    = (c0² - c1 * c2 * q) / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
-    c0_ = s0 * t6;
-    // c1 = s1 * t6
-    //    = (c2² * q - c0 * c1) / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
-    c1_ = s1 * t6;
-    // c2 = s1 * t6
-    //    = (c1² - c0 * c2) / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
-    c2_ = s2 * t6;
+    DoInverse(*static_cast<const Derived*>(this), *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);
   }
 
@@ -394,6 +354,68 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     //      c2²
     //    = c1² + 2 * c0 * c2
     b.c2_ = s1 + s2 + s3 - s0 - s4;
+  }
+
+  constexpr static void DoInverse(const Derived& a, Derived& b) {
+    // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
+    // See https://github.com/kroma-network/tachyon/issues/76
+    if (a.IsZero()) return;
+    // clang-format off
+    // See https://eprint.iacr.org/2010/354.pdf
+    // From "High-Speed Software Implementation of the Optimal Ate AbstractPairing over Barreto-Naehrig Curves"; Algorithm 17
+    // clang-format on
+
+    // t0 = c0²
+    BaseField t0 = a.c0_.Square();
+    // t1 = c1²
+    BaseField t1 = a.c1_.Square();
+    // t2 = c2²
+    BaseField t2 = a.c2_.Square();
+    // t3 = c0 * c1
+    BaseField t3 = a.c0_ * a.c1_;
+    // t4 = c0 * c2
+    BaseField t4 = a.c0_ * a.c2_;
+    // t5 = c1 * c2
+    BaseField t5 = a.c1_ * a.c2_;
+
+    // s0 = t0 - t5 * q
+    //    = t0 - c1 * c2 * q
+    BaseField s0 = t0 - Config::MulByNonResidue(t5);
+    // s1 = t2 * q - t3
+    //    = c2² * q - c0 * c1
+    BaseField s1 = Config::MulByNonResidue(t2) - t3;
+    // See
+    // https://github.com/arkworks-rs/algebra/blob/c92be0e8815875460e736086a6b02fed9e4273ff/ff/src/fields/models/cubic_extension.rs#L315
+    // s2 = t1 - t4
+    //    = c1² - c0 * c2
+    BaseField s2 = t1 - t4;
+
+    // a1 = c2 * s1
+    //    = c2 * (c2² * q - c0 * c1)
+    //    = c2³ * q - c0 * c1 * c2
+    BaseField a1 = a.c2_ * s1;
+    // a2 = c1 * s2
+    //    = c1 * (c1² - c0 * c2)
+    //    = c1³ - c0 * c1 * c2
+    BaseField a2 = a.c1_ * s2;
+    // a3 = c1³ + c2³ * q - 2 * c0 * c1 * c2
+    BaseField a3 = Config::MulByNonResidue(a1 + a2);
+    // t6 = 1 / (c0 * s0 + a3)
+    //    = 1 / (c0 * (t0 - t5 * q) + c1³ + c2³ * q - 2 * c0 * c1 * c2)
+    //    = 1 / (c0 * (c0² - c1 * c2 * q) + c1³ + c2³ * q - 2 * c0 * c1 * c2)
+    //    = 1 / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
+    BaseField t6 = (a.c0_ * s0 + a3).Inverse();
+
+    // c0 = s0 * t6
+    // c0 = (t0 - c1 * c2 * q) / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
+    //    = (c0² - c1 * c2 * q) / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
+    b.c0_ = s0 * t6;
+    // c1 = s1 * t6
+    //    = (c2² * q - c0 * c1) / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
+    b.c1_ = s1 * t6;
+    // c2 = s1 * t6
+    //    = (c1² - c0 * c2) / (c0³ + c1³ + c2³ - (2 + q) * c0 * c1 * c2)
+    b.c2_ = s2 * t6;
   }
 
   // c = c0_ + c1_ * X + c2_ * X²

@@ -52,15 +52,6 @@
                                         std::declval<T>().Name##InPlace()))> \
       : std::true_type {}
 
-#define SUPPORTS_UNARY_IN_PLACE_OPERATOR(Name)                               \
-  template <typename T, typename = void>                                     \
-  struct Supports##Name##InPlace : std::false_type {};                       \
-                                                                             \
-  template <typename T>                                                      \
-  struct Supports##Name##InPlace<T, decltype(void(                           \
-                                        std::declval<T>().Name##InPlace()))> \
-      : std::true_type {}
-
 namespace tachyon::math {
 namespace internal {
 

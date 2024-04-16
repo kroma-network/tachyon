@@ -221,10 +221,13 @@ class UnivariateSparseCoefficients {
   constexpr UnivariateSparseCoefficients Fold(const Field& r) const {
     std::vector<Term> terms;
     terms.reserve(terms_.size() >> 1);
+    bool r_is_zero = r.IsZero();
     for (const Term& term : terms_) {
       if (term.degree % 2 == 0) {
         if constexpr (MulRandomWithEvens) {
-          terms.push_back({term.degree >> 1, term.coefficient * r});
+          if (!r_is_zero) {
+            terms.push_back({term.degree >> 1, term.coefficient * r});
+          }
         } else {
           terms.push_back({term.degree >> 1, term.coefficient});
         }
@@ -232,7 +235,7 @@ class UnivariateSparseCoefficients {
         if (!terms.empty() && terms.back().degree == (term.degree >> 1)) {
           if constexpr (MulRandomWithEvens) {
             terms.back() += term.coefficient;
-          } else {
+          } else if (!r_is_zero) {
             terms.back() += (term.coefficient * r);
           }
           if (terms.back().coefficient.IsZero()) {
@@ -241,7 +244,7 @@ class UnivariateSparseCoefficients {
         } else {
           if constexpr (MulRandomWithEvens) {
             terms.push_back({term.degree >> 1, term.coefficient});
-          } else {
+          } else if (!r_is_zero) {
             terms.push_back({term.degree >> 1, term.coefficient * r});
           }
         }

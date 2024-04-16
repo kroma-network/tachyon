@@ -95,7 +95,7 @@ class MultilinearExtension final
     return evaluations_.Evaluate(point);
   }
 
-  auto ToDense() const {
+  decltype(auto) ToDense() const {
     return internal::MultilinearExtensionOp<Evaluations>::ToDense(*this);
   }
 
@@ -126,6 +126,10 @@ class MultilinearExtension final
   // AdditiveGroup methods
   OPERATION_METHOD(Sub)
 
+  MultilinearExtension Negative() const {
+    return internal::MultilinearExtensionOp<Evaluations>::Negative(*this);
+  }
+
   MultilinearExtension& NegInPlace() {
     return internal::MultilinearExtensionOp<Evaluations>::NegInPlace(*this);
   }
@@ -137,8 +141,7 @@ class MultilinearExtension final
 
   constexpr MultilinearExtension operator/(
       const MultilinearExtension& other) const {
-    MultilinearExtension poly = *this;
-    return poly.DivInPlace(other);
+    return Div(other);
   }
 
   constexpr MultilinearExtension& operator/=(
