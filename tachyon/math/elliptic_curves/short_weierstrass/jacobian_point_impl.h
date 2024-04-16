@@ -197,7 +197,7 @@ constexpr void CLASS::DoAdd(const JacobianPoint& a, const AffinePoint<Curve>& b,
 }
 
 template <typename Curve>
-constexpr CLASS CLASS::DoDouble() const {
+constexpr CLASS CLASS::DoubleImpl() const {
   if (IsZero()) {
     return JacobianPoint::Zero();
   }
@@ -208,7 +208,7 @@ constexpr CLASS CLASS::DoDouble() const {
 }
 
 template <typename Curve>
-constexpr CLASS& CLASS::DoDoubleInPlace() {
+constexpr CLASS& CLASS::DoubleImplInPlace() {
   if (IsZero()) {
     return *this;
   }

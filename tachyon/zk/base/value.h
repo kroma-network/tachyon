@@ -75,12 +75,12 @@ class Value : public math::Field<Value<T>> {
     return Value::Known(*value_ + other);
   }
 
-  constexpr Value DoDouble() const {
+  constexpr Value DoubleImpl() const {
     if (IsNone()) return Unknown();
     return Value::Known(value_->Double());
   }
 
-  constexpr Value& DoDoubleInPlace() {
+  constexpr Value& DoubleImplInPlace() {
     if (IsNone()) return *this;
     value_->DoubleInPlace();
     return *this;

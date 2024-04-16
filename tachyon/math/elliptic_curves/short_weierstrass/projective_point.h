@@ -259,8 +259,8 @@ class ProjectivePoint<
   constexpr ProjectivePoint& AddInPlace(const ProjectivePoint& other);
   constexpr ProjectivePoint Add(const AffinePoint<Curve>& other) const;
   constexpr ProjectivePoint& AddInPlace(const AffinePoint<Curve>& other);
-  constexpr ProjectivePoint DoDouble() const;
-  constexpr ProjectivePoint& DoDoubleInPlace();
+  constexpr ProjectivePoint DoubleImpl() const;
+  constexpr ProjectivePoint& DoubleImplInPlace();
 
   // AdditiveGroup methods
   constexpr ProjectivePoint Negate() const { return {x_, -y_, z_}; }

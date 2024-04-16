@@ -186,7 +186,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return *this;
   }
 
-  constexpr PrimeField DoDouble() const {
+  constexpr PrimeField DoubleImpl() const {
     PrimeField ret;
     uint64_t carry = 0;
     ret.value_ = value_.MulBy2(carry);
@@ -195,7 +195,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return ret;
   }
 
-  constexpr PrimeField& DoDoubleInPlace() {
+  constexpr PrimeField& DoubleImplInPlace() {
     uint64_t carry = 0;
     value_.MulBy2InPlace(carry);
     BigInt<N>::template Clamp<Config::kModulusHasSpareBit>(Config::kModulus,

@@ -265,8 +265,8 @@ class JacobianPoint<
   constexpr JacobianPoint& AddInPlace(const JacobianPoint& other);
   constexpr JacobianPoint Add(const AffinePoint<Curve>& other) const;
   constexpr JacobianPoint& AddInPlace(const AffinePoint<Curve>& other);
-  constexpr JacobianPoint DoDouble() const;
-  constexpr JacobianPoint& DoDoubleInPlace();
+  constexpr JacobianPoint DoubleImpl() const;
+  constexpr JacobianPoint& DoubleImplInPlace();
 
   // AdditiveGroup methods
   constexpr JacobianPoint Negate() const { return {x_, -y_, z_}; }
