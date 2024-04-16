@@ -314,6 +314,17 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   }
 
   template <typename DOrS>
+  static UnivariatePolynomial<D> Mod(const UnivariatePolynomial<D>& self,
+                                     const UnivariatePolynomial<DOrS>& other) {
+    if (self.IsZero()) {
+      return other.ToDense();
+    }
+    DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    result.remainder.coefficients_.RemoveHighDegreeZeros();
+    return result.remainder;
+  }
+
+  template <typename DOrS>
   static UnivariatePolynomial<D>& ModInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
     if (self.IsZero()) {

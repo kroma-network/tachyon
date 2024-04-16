@@ -234,14 +234,7 @@ class UnivariatePolynomial final
   template <typename Coefficients2>
   constexpr auto operator%(
       const UnivariatePolynomial<Coefficients2>& other) const {
-    if constexpr (internal::SupportsMod<
-                      UnivariatePolynomial,
-                      UnivariatePolynomial<Coefficients2>>::value) {
-      return Mod(other);
-    } else {
-      UnivariatePolynomial poly = *this;
-      return poly.ModInPlace(other);
-    }
+    return Mod(other);
   }
 
   template <typename Coefficients2>
