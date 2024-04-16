@@ -70,7 +70,8 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return PrimeFieldGpu(BigInt<N>::Random(Config::kModulus));
   }
 
-  constexpr static PrimeFieldGpu FromDecString(std::string_view str) {
+  constexpr static std::optional<PrimeFieldGpu> FromDecString(
+      std::string_view str) {
     std::optional<BigInt<N>> value = BigInt<N>::FromDecString(str);
     if (!value.has_value()) return std::nullopt;
     if (value >= Config::kModulus) {
@@ -79,7 +80,8 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     }
     return PrimeFieldGpu(std::move(value).value());
   }
-  constexpr static PrimeFieldGpu FromHexString(std::string_view str) {
+  constexpr static std::optional<PrimeFieldGpu> FromHexString(
+      std::string_view str) {
     std::optional<BigInt<N>> value = BigInt<N>::FromHexString(str);
     if (!value.has_value()) return std::nullopt;
     if (value >= Config::kModulus) {
