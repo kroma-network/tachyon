@@ -115,9 +115,9 @@ describe('PrimeField', () => {
     expect(f.div(f2).eq(tachyon.math.bn254.Fq.fromDecString('14592161914559516814830937163504850059130874104865215775126025263096817472390'))).toBe(true);
   });
 
-  test('PrimeField.negative()', () => {
+  test('PrimeField.negate()', () => {
     const f = tachyon.math.bn254.Fq.fromNumber(4);
-    expect(f.negative().eq(tachyon.math.bn254.Fq.fromDecString('21888242871839275222246405745257275088696311157297823662689037894645226208579'))).toBe(true);
+    expect(f.negate().eq(tachyon.math.bn254.Fq.fromDecString('21888242871839275222246405745257275088696311157297823662689037894645226208579'))).toBe(true);
   });
 
   test('PrimeField.double()', () => {

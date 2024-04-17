@@ -95,11 +95,11 @@ describe('PointXYZZ', () => {
     expect(p.subMixed(p2).isZero()).toBe(true);
   });
 
-  test('PointXYZZ.negative()', () => {
+  test('PointXYZZ.negate()', () => {
     const p = tachyon.math.bn254.G1PointXYZZ.generator();
-    expect(p.negative().eq(new tachyon.math.bn254.G1PointXYZZ(
+    expect(p.negate().eq(new tachyon.math.bn254.G1PointXYZZ(
       p.x,
-      p.y.negative(),
+      p.y.negate(),
       p.zz,
       p.zzz,
     ))).toBe(true);

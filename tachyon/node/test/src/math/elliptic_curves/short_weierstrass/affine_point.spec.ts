@@ -73,11 +73,11 @@ describe('AffinePoint', () => {
     expect(p.sub(p2).isZero()).toBe(true);
   });
 
-  test('AffinePoint.negative()', () => {
+  test('AffinePoint.negate()', () => {
     const p = tachyon.math.bn254.G1AffinePoint.generator();
-    expect(p.negative().eq(new tachyon.math.bn254.G1AffinePoint(
+    expect(p.negate().eq(new tachyon.math.bn254.G1AffinePoint(
       p.x,
-      p.y.negative(),
+      p.y.negate(),
     ))).toBe(true);
   });
 
