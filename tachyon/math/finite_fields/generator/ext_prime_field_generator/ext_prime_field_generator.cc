@@ -54,10 +54,12 @@ std::string GenerationConfig::GenerateFastMulByNonResidueCode(
 std::string GenerationConfig::GenerateMulByNonResidueCodeByDegree() const {
   std::stringstream ss;
   // clang-format off
-  ss << "    // See [[DESD06, Section 5.1]](https://eprint.iacr.org/2006/471.pdf)." << std::endl;
-  if (degree == 4) {
+
+  if (degree == 4 && non_residue.size() == 2 && non_residue[0] == "0" && non_residue[1] == "1") {
+    ss << "    // See [[DESD06, Section 5.1]](https://eprint.iacr.org/2006/471.pdf)." << std::endl;
     ss << "    return BaseField(BaseField::Config::MulByNonResidue(v.c1()), v.c0());";
-  } else if (degree == 12) {
+  } else if (degree == 12 && non_residue.size() == 3 && non_residue[0] == "0" && non_residue[1] == "1" && non_residue[2] == "0") {
+    ss << "    // See [[DESD06, Section 6.1]](https://eprint.iacr.org/2006/471.pdf)." << std::endl;
     ss << "    return BaseField(BaseField::Config::MulByNonResidue(v.c2()), v.c0(), v.c1());";
   } else {
     return "    return v * kNonResidue;";
