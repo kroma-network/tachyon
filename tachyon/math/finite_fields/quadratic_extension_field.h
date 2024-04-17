@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "absl/strings/substitute.h"
+#include "absl/types/span.h"
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
@@ -25,6 +26,7 @@ class QuadraticExtensionField
  public:
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
+  using BasePrimeField = typename Config::BasePrimeField;
   using MontgomeryTy = Point2<typename BaseField::MontgomeryTy>;
 
   constexpr QuadraticExtensionField() = default;
@@ -46,6 +48,21 @@ class QuadraticExtensionField
   constexpr static Derived FromMontgomery(const MontgomeryTy& mont) {
     return {BaseField::FromMontgomery(mont.x),
             BaseField::FromMontgomery(mont.y)};
+  }
+
+  static Derived FromBasePrimeFields(
+      absl::Span<const BasePrimeField> prime_fields) {
+    CHECK_EQ(prime_fields.size(), ExtensionDegree());
+    constexpr size_t base_field_degree = BaseField::ExtensionDegree();
+    if constexpr (base_field_degree == 1) {
+      return Derived(prime_fields[0], prime_fields[1]);
+    } else {
+      BaseField c0 = BaseField::FromBasePrimeFields(
+          prime_fields.subspan(0, base_field_degree));
+      BaseField c1 = BaseField::FromBasePrimeFields(
+          prime_fields.subspan(base_field_degree));
+      return Derived(std::move(c0), std::move(c1));
+    }
   }
 
   constexpr bool IsZero() const { return c0_.IsZero() && c1_.IsZero(); }

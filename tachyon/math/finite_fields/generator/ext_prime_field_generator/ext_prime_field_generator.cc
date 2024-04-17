@@ -36,7 +36,7 @@ std::string GenerationConfig::GenerateInitCode(
     init = math::GenerateInitField("kNonResidue", "BaseField", non_residue[0]);
   } else {
     init = math::GenerateInitExtField("kNonResidue", "BaseField", non_residue,
-                                      /*is_prime_field=*/degree != 12);
+                                      base_field_degree);
   }
   return init;
 }

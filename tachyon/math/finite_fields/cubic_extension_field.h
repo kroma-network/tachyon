@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "absl/strings/substitute.h"
+#include "absl/types/span.h"
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
@@ -24,6 +25,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
  public:
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
+  using BasePrimeField = typename Config::BasePrimeField;
   using MontgomeryTy = Point3<typename BaseField::MontgomeryTy>;
 
   constexpr CubicExtensionField() = default;
@@ -49,6 +51,23 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return {BaseField::FromMontgomery(mont.x),
             BaseField::FromMontgomery(mont.y),
             BaseField::FromMontgomery(mont.z)};
+  }
+
+  static Derived FromBasePrimeFields(
+      absl::Span<const BasePrimeField> prime_fields) {
+    CHECK_EQ(prime_fields.size(), ExtensionDegree());
+    constexpr size_t base_field_degree = BaseField::ExtensionDegree();
+    if constexpr (base_field_degree == 1) {
+      return Derived(prime_fields[0], prime_fields[1], prime_fields[2]);
+    } else {
+      BaseField c0 = BaseField::FromBasePrimeFields(
+          prime_fields.subspan(0, base_field_degree));
+      BaseField c1 = BaseField::FromBasePrimeFields(
+          prime_fields.subspan(base_field_degree, base_field_degree));
+      BaseField c2 = BaseField::FromBasePrimeFields(
+          prime_fields.subspan(2 * base_field_degree, base_field_degree));
+      return Derived(std::move(c0), std::move(c1), std::move(c2));
+    }
   }
 
   constexpr bool IsZero() const {

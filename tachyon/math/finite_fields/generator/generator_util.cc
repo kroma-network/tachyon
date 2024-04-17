@@ -116,13 +116,19 @@ std::string GenerateInitField(std::string_view name, std::string_view type,
 
 std::string GenerateInitExtField(std::string_view name, std::string_view type,
                                  absl::Span<const std::string> values,
-                                 bool is_prime_field) {
+                                 size_t degree) {
   std::stringstream ss;
   ss << "    ";
   ss << name;
   ss << " = ";
   ss << type;
-  ss << "(";
+
+  bool is_prime_field = values.size() == degree;
+  if (is_prime_field) {
+    ss << "::FromBasePrimeFields(std::vector<BasePrimeField>{";
+  } else {
+    ss << "(";
+  }
   for (size_t i = 0; i < values.size(); ++i) {
     std::string_view value = values[i];
     if (base::ConsumePrefix(&value, "-")) {
@@ -144,6 +150,9 @@ std::string GenerateInitExtField(std::string_view name, std::string_view type,
     if (i != values.size() - 1) {
       ss << ", ";
     }
+  }
+  if (is_prime_field) {
+    ss << "}";
   }
   ss << ");";
   return ss.str();

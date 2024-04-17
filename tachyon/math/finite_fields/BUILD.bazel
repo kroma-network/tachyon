@@ -18,6 +18,7 @@ tachyon_cc_library(
         "//tachyon/base/json",
         "//tachyon/math/geometry:point3",
         "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
     ],
 )
 
@@ -197,6 +198,7 @@ tachyon_cc_library(
         "//tachyon/base/json",
         "//tachyon/math/geometry:point2",
         "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

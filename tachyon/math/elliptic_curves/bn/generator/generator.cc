@@ -83,11 +83,9 @@ int GenerationConfig::GenerateConfigHdr() const {
   replace_map["%{ate_loop_count}"] = absl::StrJoin(ate_loop_count, ", ");
 
   replace_map["%{twist_mul_by_q_x_init_code}"] =
-      math::GenerateInitExtField("kTwistMulByQX", "Fq2", twist_mul_by_q_x,
-                                 /*is_prime_field=*/true);
+      math::GenerateInitExtField("kTwistMulByQX", "Fq2", twist_mul_by_q_x, 2);
   replace_map["%{twist_mul_by_q_y_init_code}"] =
-      math::GenerateInitExtField("kTwistMulByQY", "Fq2", twist_mul_by_q_y,
-                                 /*is_prime_field=*/true);
+      math::GenerateInitExtField("kTwistMulByQY", "Fq2", twist_mul_by_q_y, 2);
 
   std::string tpl_content;
   CHECK(base::ReadFileToString(curve_hdr_tpl_path, &tpl_content));

@@ -55,7 +55,7 @@ std::string GenerateInitField(std::string_view name, std::string_view type,
 
 std::string GenerateInitExtField(std::string_view name, std::string_view type,
                                  absl::Span<const std::string> values,
-                                 bool is_prime_field);
+                                 size_t degree);
 
 }  // namespace tachyon::math
 
