@@ -214,6 +214,15 @@ class PrimeFieldGpuDebug final
   }
 
   // MultiplicativeSemigroup methods
+  constexpr PrimeFieldGpuDebug Mul(const PrimeFieldGpuDebug& other) const {
+    // Forces us to think more carefully about the last carry bit if we use a
+    // modulus with fewer than 2 leading zeroes of slack.
+    static_assert(!(Config::kModulus[N - 1] >> 62));
+    PrimeFieldGpuDebug ret;
+    MulLimbs(value_, other.value_, ret.value_);
+    return Clamp(ret);
+  }
+
   constexpr PrimeFieldGpuDebug& MulInPlace(const PrimeFieldGpuDebug& other) {
     // Forces us to think more carefully about the last carry bit if we use a
     // modulus with fewer than 2 leading zeroes of slack.
