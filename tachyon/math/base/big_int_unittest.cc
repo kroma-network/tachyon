@@ -31,6 +31,8 @@ TEST(BigIntTest, DecString) {
   // 1 << 65
   BigInt<2> big_int = *BigInt<2>::FromDecString("36893488147419103232");
   EXPECT_EQ(big_int.ToString(), "36893488147419103232");
+
+  EXPECT_FALSE(BigInt<2>::FromDecString("x").has_value());
 }
 
 TEST(BigIntTest, HexString) {
@@ -44,6 +46,8 @@ TEST(BigIntTest, HexString) {
     BigInt<2> big_int = *BigInt<2>::FromHexString("0x20000000000000000");
     EXPECT_EQ(big_int.ToHexString(), "0x20000000000000000");
   }
+
+  EXPECT_FALSE(BigInt<2>::FromHexString("x").has_value());
 }
 
 TEST(BigIntTest, BitsLEConversion) {

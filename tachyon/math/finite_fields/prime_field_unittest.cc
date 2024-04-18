@@ -21,7 +21,9 @@ TYPED_TEST(PrimeFieldTest, FromString) {
   using F = TypeParam;
 
   EXPECT_EQ(*F::FromDecString("3"), F(3));
+  EXPECT_FALSE(F::FromDecString("a").has_value());
   EXPECT_EQ(*F::FromHexString("0x3"), F(3));
+  EXPECT_FALSE(F::FromHexString("a").has_value());
 }
 
 TYPED_TEST(PrimeFieldTest, ToString) {
