@@ -69,7 +69,8 @@ class PrimeFieldGpuDebug final
     return ret;
   }
 
-  constexpr static PrimeFieldGpuDebug FromDecString(std::string_view str) {
+  constexpr static std::optional<PrimeFieldGpuDebug> FromDecString(
+      std::string_view str) {
     std::optional<BigInt<N>> value = BigInt<N>::FromDecString(str);
     if (!value.has_value()) return std::nullopt;
     if (value >= Config::kModulus) {
@@ -78,7 +79,8 @@ class PrimeFieldGpuDebug final
     }
     return PrimeFieldGpuDebug(std::move(value).value());
   }
-  constexpr static PrimeFieldGpuDebug FromHexString(std::string_view str) {
+  constexpr static std::optional<PrimeFieldGpuDebug> FromHexString(
+      std::string_view str) {
     std::optional<BigInt<N>> value = BigInt<N>::FromHexString(str);
     if (!value.has_value()) return std::nullopt;
     if (value >= Config::kModulus) {
@@ -212,6 +214,15 @@ class PrimeFieldGpuDebug final
   }
 
   // MultiplicativeSemigroup methods
+  constexpr PrimeFieldGpuDebug Mul(const PrimeFieldGpuDebug& other) const {
+    // Forces us to think more carefully about the last carry bit if we use a
+    // modulus with fewer than 2 leading zeroes of slack.
+    static_assert(!(Config::kModulus[N - 1] >> 62));
+    PrimeFieldGpuDebug ret;
+    MulLimbs(value_, other.value_, ret.value_);
+    return Clamp(ret);
+  }
+
   constexpr PrimeFieldGpuDebug& MulInPlace(const PrimeFieldGpuDebug& other) {
     // Forces us to think more carefully about the last carry bit if we use a
     // modulus with fewer than 2 leading zeroes of slack.
@@ -274,20 +285,18 @@ class PrimeFieldGpuDebug final
     constexpr uint32_t n = N32;
     const uint32_t* x = reinterpret_cast<const uint32_t*>(xs.limbs);
     const uint32_t* y = reinterpret_cast<const uint32_t*>(ys.limbs);
-    BigInt<N + 1> results2;
     uint32_t* even = reinterpret_cast<uint32_t*>(results.limbs);
-    uint32_t* odd = reinterpret_cast<uint32_t*>(results2.limbs);
+
+    ALIGNAS(8)
+    uint32_t odd[n + 1] = {
+        0,
+    };
     size_t i = 0;
     for (i = 0; i < n; i += 2) {
       MadNRedc(&even[0], &odd[0], x, y[i], i == 0);
       MadNRedc(&odd[0], &even[0], x, y[i + 1]);
     }
 
-    BigInt<N> l;
-    uint32_t* l_tmp = reinterpret_cast<uint32_t*>(l.limbs);
-    for (size_t i = 1; i < 9; ++i) {
-      l_tmp[i - 1] = odd[i];
-    }
     // merge |even| and |odd|
     AddResult<uint32_t> result;
     result = internal::u32::AddCc(even[0], odd[1]);

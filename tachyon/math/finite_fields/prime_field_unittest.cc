@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/math/finite_fields/prime_field_gpu_debug.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
@@ -8,74 +9,100 @@ namespace tachyon::math {
 
 namespace {
 
-class PrimeFieldTest : public FiniteFieldTest<GF7> {};
+template <typename PrimeField>
+class PrimeFieldTest : public FiniteFieldTest<PrimeField> {};
 
 }  // namespace
 
-TEST_F(PrimeFieldTest, FromString) {
-  EXPECT_EQ(*GF7::FromDecString("3"), GF7(3));
-  EXPECT_EQ(*GF7::FromHexString("0x3"), GF7(3));
+using PrimeFieldTypes = testing::Types<GF7, PrimeFieldGpuDebug<GF7Config>>;
+TYPED_TEST_SUITE(PrimeFieldTest, PrimeFieldTypes);
+
+TYPED_TEST(PrimeFieldTest, FromString) {
+  using F = TypeParam;
+
+  EXPECT_EQ(*F::FromDecString("3"), F(3));
+  EXPECT_FALSE(F::FromDecString("a").has_value());
+  EXPECT_EQ(*F::FromHexString("0x3"), F(3));
+  EXPECT_FALSE(F::FromHexString("a").has_value());
 }
 
-TEST_F(PrimeFieldTest, ToString) {
-  GF7 f(3);
+TYPED_TEST(PrimeFieldTest, ToString) {
+  using F = TypeParam;
+
+  F f(3);
 
   EXPECT_EQ(f.ToString(), "3");
   EXPECT_EQ(f.ToHexString(), "0x3");
 }
 
-TEST_F(PrimeFieldTest, Zero) {
-  EXPECT_TRUE(GF7::Zero().IsZero());
-  EXPECT_FALSE(GF7::One().IsZero());
+TYPED_TEST(PrimeFieldTest, Zero) {
+  using F = TypeParam;
+
+  EXPECT_TRUE(F::Zero().IsZero());
+  EXPECT_FALSE(F::One().IsZero());
 }
 
-TEST_F(PrimeFieldTest, One) {
-  EXPECT_TRUE(GF7::One().IsOne());
-  EXPECT_FALSE(GF7::Zero().IsOne());
-  EXPECT_EQ(GF7::Config::kOne, GF7(1).ToMontgomery());
+TYPED_TEST(PrimeFieldTest, One) {
+  using F = TypeParam;
+
+  EXPECT_TRUE(F::One().IsOne());
+  EXPECT_FALSE(F::Zero().IsOne());
+  EXPECT_EQ(F::Config::kOne, F(1).ToMontgomery());
 }
 
-TEST_F(PrimeFieldTest, BigIntConversion) {
-  GF7 r = GF7::Random();
-  EXPECT_EQ(GF7::FromBigInt(r.ToBigInt()), r);
+TYPED_TEST(PrimeFieldTest, BigIntConversion) {
+  using F = TypeParam;
+
+  F r = F::Random();
+  EXPECT_EQ(F::FromBigInt(r.ToBigInt()), r);
 }
 
-TEST_F(PrimeFieldTest, MontgomeryConversion) {
-  GF7 r = GF7::Random();
-  EXPECT_EQ(GF7::FromMontgomery(r.ToMontgomery()), r);
+TYPED_TEST(PrimeFieldTest, MontgomeryConversion) {
+  using F = TypeParam;
+
+  F r = F::Random();
+  EXPECT_EQ(F::FromMontgomery(r.ToMontgomery()), r);
 }
 
-TEST_F(PrimeFieldTest, MpzClassConversion) {
-  GF7 r = GF7::Random();
-  EXPECT_EQ(GF7::FromMpzClass(r.ToMpzClass()), r);
+TYPED_TEST(PrimeFieldTest, MpzClassConversion) {
+  using F = TypeParam;
+
+  F r = F::Random();
+  EXPECT_EQ(F::FromMpzClass(r.ToMpzClass()), r);
 }
 
-TEST_F(PrimeFieldTest, EqualityOperators) {
-  GF7 f(3);
-  GF7 f2(4);
+TYPED_TEST(PrimeFieldTest, EqualityOperators) {
+  using F = TypeParam;
+
+  F f(3);
+  F f2(4);
   EXPECT_TRUE(f == f);
   EXPECT_TRUE(f != f2);
 }
 
-TEST_F(PrimeFieldTest, ComparisonOperator) {
-  GF7 f(3);
-  GF7 f2(4);
+TYPED_TEST(PrimeFieldTest, ComparisonOperator) {
+  using F = TypeParam;
+
+  F f(3);
+  F f2(4);
   EXPECT_TRUE(f < f2);
   EXPECT_TRUE(f <= f2);
   EXPECT_FALSE(f > f2);
   EXPECT_FALSE(f >= f2);
 }
 
-TEST_F(PrimeFieldTest, AdditiveOperators) {
+TYPED_TEST(PrimeFieldTest, AdditiveOperators) {
+  using F = TypeParam;
+
   struct {
-    GF7 a;
-    GF7 b;
-    GF7 sum;
-    GF7 amb;
-    GF7 bma;
+    F a;
+    F b;
+    F sum;
+    F amb;
+    F bma;
   } tests[] = {
-      {GF7(3), GF7(2), GF7(5), GF7(1), GF7(6)},
-      {GF7(5), GF7(3), GF7(1), GF7(2), GF7(5)},
+      {F(3), F(2), F(5), F(1), F(6)},
+      {F(5), F(3), F(1), F(2), F(5)},
   };
 
   for (const auto& test : tests) {
@@ -84,7 +111,7 @@ TEST_F(PrimeFieldTest, AdditiveOperators) {
     EXPECT_EQ(test.a - test.b, test.amb);
     EXPECT_EQ(test.b - test.a, test.bma);
 
-    GF7 tmp = test.a;
+    F tmp = test.a;
     tmp += test.b;
     EXPECT_EQ(tmp, test.sum);
     tmp -= test.b;
@@ -92,28 +119,32 @@ TEST_F(PrimeFieldTest, AdditiveOperators) {
   }
 }
 
-TEST_F(PrimeFieldTest, AdditiveGroupOperators) {
-  GF7 f(3);
-  EXPECT_EQ(-f, GF7(4));
-  f.NegInPlace();
-  EXPECT_EQ(f, GF7(4));
+TYPED_TEST(PrimeFieldTest, AdditiveGroupOperators) {
+  using F = TypeParam;
 
-  f = GF7(3);
-  EXPECT_EQ(f.Double(), GF7(6));
+  F f(3);
+  EXPECT_EQ(-f, F(4));
+  f.NegInPlace();
+  EXPECT_EQ(f, F(4));
+
+  f = F(3);
+  EXPECT_EQ(f.Double(), F(6));
   f.DoubleInPlace();
-  EXPECT_EQ(f, GF7(6));
+  EXPECT_EQ(f, F(6));
 }
 
-TEST_F(PrimeFieldTest, MultiplicativeOperators) {
+TYPED_TEST(PrimeFieldTest, MultiplicativeOperators) {
+  using F = TypeParam;
+
   struct {
-    GF7 a;
-    GF7 b;
-    GF7 mul;
-    GF7 adb;
-    GF7 bda;
+    F a;
+    F b;
+    F mul;
+    F adb;
+    F bda;
   } tests[] = {
-      {GF7(3), GF7(2), GF7(6), GF7(5), GF7(3)},
-      {GF7(5), GF7(3), GF7(1), GF7(4), GF7(2)},
+      {F(3), F(2), F(6), F(5), F(3)},
+      {F(5), F(3), F(1), F(4), F(2)},
   };
 
   for (const auto& test : tests) {
@@ -122,7 +153,7 @@ TEST_F(PrimeFieldTest, MultiplicativeOperators) {
     EXPECT_EQ(test.a / test.b, test.adb);
     EXPECT_EQ(test.b / test.a, test.bda);
 
-    GF7 tmp = test.a;
+    F tmp = test.a;
     tmp *= test.b;
     EXPECT_EQ(tmp, test.mul);
     tmp /= test.b;
@@ -130,35 +161,41 @@ TEST_F(PrimeFieldTest, MultiplicativeOperators) {
   }
 }
 
-TEST_F(PrimeFieldTest, MultiplicativeGroupOperators) {
+TYPED_TEST(PrimeFieldTest, MultiplicativeGroupOperators) {
+  using F = TypeParam;
+
   for (int i = 1; i < 7; ++i) {
-    GF7 f(i);
-    EXPECT_EQ(f * f.Inverse(), GF7::One());
-    GF7 f_tmp = f;
+    F f(i);
+    EXPECT_EQ(f * f.Inverse(), F::One());
+    F f_tmp = f;
     f.InverseInPlace();
-    EXPECT_EQ(f * f_tmp, GF7::One());
+    EXPECT_EQ(f * f_tmp, F::One());
   }
 
-  GF7 f(3);
-  EXPECT_EQ(f.Square(), GF7(2));
+  F f(3);
+  EXPECT_EQ(f.Square(), F(2));
   f.SquareInPlace();
-  EXPECT_EQ(f, GF7(2));
+  EXPECT_EQ(f, F(2));
 
-  f = GF7(3);
-  EXPECT_EQ(f.Pow(5), GF7(5));
+  f = F(3);
+  EXPECT_EQ(f.Pow(5), F(5));
 }
 
-TEST_F(PrimeFieldTest, SumOfProductsSerial) {
-  const GF7 a[] = {GF7(3), GF7(2)};
-  const GF7 b[] = {GF7(2), GF7(5)};
-  EXPECT_EQ(GF7::SumOfProductsSerial(a, b), GF7(2));
+TYPED_TEST(PrimeFieldTest, SumOfProductsSerial) {
+  using F = TypeParam;
+
+  const F a[] = {F(3), F(2)};
+  const F b[] = {F(2), F(5)};
+  EXPECT_EQ(F::SumOfProductsSerial(a, b), F(2));
 }
 
-TEST_F(PrimeFieldTest, Random) {
+TYPED_TEST(PrimeFieldTest, Random) {
+  using F = TypeParam;
+
   bool success = false;
-  GF7 r = GF7::Random();
+  F r = F::Random();
   for (size_t i = 0; i < 100; ++i) {
-    if (r != GF7::Random()) {
+    if (r != F::Random()) {
       success = true;
       break;
     }
@@ -166,8 +203,10 @@ TEST_F(PrimeFieldTest, Random) {
   EXPECT_TRUE(success);
 }
 
-TEST_F(PrimeFieldTest, Copyable) {
-  const GF7 expected = GF7::Random();
+TYPED_TEST(PrimeFieldTest, Copyable) {
+  using F = TypeParam;
+
+  const F expected = F::Random();
 
   base::Uint8VectorBuffer write_buf;
   ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
@@ -176,7 +215,7 @@ TEST_F(PrimeFieldTest, Copyable) {
 
   write_buf.set_buffer_offset(0);
 
-  GF7 value;
+  F value;
   ASSERT_TRUE(write_buf.Read(&value));
   EXPECT_EQ(expected, value);
 }

@@ -34,7 +34,9 @@ TYPED_TEST_SUITE(PrimeFieldGeneratorTest, PrimeFieldTypes);
 TYPED_TEST(PrimeFieldGeneratorTest, FromString) {
   using PrimeField = TypeParam;
   EXPECT_EQ(*PrimeField::FromDecString("3"), PrimeField(3));
+  EXPECT_FALSE(PrimeField::FromDecString("x").has_value());
   EXPECT_EQ(*PrimeField::FromHexString("0x3"), PrimeField(3));
+  EXPECT_FALSE(PrimeField::FromHexString("x").has_value());
 }
 
 TYPED_TEST(PrimeFieldGeneratorTest, ToString) {
