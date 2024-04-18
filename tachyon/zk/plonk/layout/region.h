@@ -19,6 +19,7 @@
 
 namespace tachyon::zk::plonk {
 
+// See the comments in tachyon/zk/plonk/layout/region_layouter.h
 template <typename F>
 class Region {
  public:
@@ -26,18 +27,15 @@ class Region {
 
   explicit Region(RegionLayouter<F>* layouter) : layouter_(layouter) {}
 
-  // See the comment above.
   void EnableSelector(std::string_view name, Selector selector,
                       RowIndex offset) {
     layouter_->EnableSelector(name, selector, offset);
   }
 
-  // See the comment above.
   void NameColumn(std::string_view name, const AnyColumnKey& column) {
     layouter_->NameColumn(name, column);
   }
 
-  // See the comment above.
   AssignedCell<F> AssignAdvice(std::string_view name,
                                const AdviceColumnKey& column, RowIndex offset,
                                AssignCallback assign) {
@@ -50,7 +48,6 @@ class Region {
     return {std::move(cell), std::move(value)};
   }
 
-  // See the comment above.
   AssignedCell<F> AssignAdviceFromConstant(std::string_view name,
                                            const AdviceColumnKey& column,
                                            RowIndex offset, const F& constant) {
@@ -59,7 +56,6 @@ class Region {
     return {std::move(cell), Value<F>::Known(constant)};
   }
 
-  // See the comment above.
   AssignedCell<F> AssignAdviceFromInstance(std::string_view name,
                                            const InstanceColumnKey& instance,
                                            RowIndex row,
@@ -69,7 +65,6 @@ class Region {
                                                offset);
   }
 
-  // See the comment above.
   AssignedCell<F> AssignFixed(std::string_view name,
                               const FixedColumnKey& column, RowIndex offset,
                               AssignCallback assign) {
@@ -82,13 +77,11 @@ class Region {
     return {std::move(cell), std::move(value)};
   }
 
-  // See the comment above.
   void ConstrainConstant(const Cell& cell,
                          const math::RationalField<F>& constant) {
     layouter_->ConstrainConstant(cell, constant);
   }
 
-  // See the comment above.
   void ConstrainEqual(const Cell& left, const Cell& right) {
     layouter_->ConstrainEqual(left, right);
   }
