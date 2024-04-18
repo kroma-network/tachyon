@@ -43,7 +43,7 @@ tachyon_cc_library(
     name = "goldilocks_prime_field_x86_special",
     srcs = if_x86_64(["goldilocks_prime_field_x86_special.cc"]),
     hdrs = if_x86_64(["goldilocks_prime_field_x86_special.h"]),
-    copts = if_x86_64(["-mavx512f"]),
+    copts = if_x86_64(["-mavx2"]),
     deps = if_x86_64([
         ":goldilocks_config",
         "//tachyon/base:random",
