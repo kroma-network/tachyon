@@ -186,7 +186,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return *this;
   }
 
-  constexpr PrimeField DoDouble() const {
+  constexpr PrimeField DoubleImpl() const {
     PrimeField ret;
     uint64_t carry = 0;
     ret.value_ = value_.MulBy2(carry);
@@ -195,7 +195,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return ret;
   }
 
-  constexpr PrimeField& DoDoubleInPlace() {
+  constexpr PrimeField& DoubleImplInPlace() {
     uint64_t carry = 0;
     value_.MulBy2InPlace(carry);
     BigInt<N>::template Clamp<Config::kModulusHasSpareBit>(Config::kModulus,
@@ -223,7 +223,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return *this;
   }
 
-  constexpr PrimeField Negative() const {
+  constexpr PrimeField Negate() const {
     PrimeField ret;
     if (!IsZero()) {
       ret.value_ = Config::kModulus;
@@ -232,7 +232,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return ret;
   }
 
-  constexpr PrimeField& NegInPlace() {
+  constexpr PrimeField& NegateInPlace() {
     if (!IsZero()) {
       BigInt<N> tmp(Config::kModulus);
       tmp.SubInPlace(value_);
@@ -262,7 +262,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return *this;
   }
 
-  constexpr PrimeField DoSquare() const {
+  constexpr PrimeField SquareImpl() const {
     if (N == 1) {
       return Mul(*this);
     }
@@ -271,7 +271,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
     return ret;
   }
 
-  constexpr PrimeField& DoSquareInPlace() {
+  constexpr PrimeField& SquareImplInPlace() {
     if (N == 1) {
       return MulInPlace(*this);
     }

@@ -62,7 +62,7 @@ TEST_F(PrimeFieldTest, Div) {
   EXPECT_EQ(c::base::native_cast((cc_a_ /= cc_b_).value()), a_ /= b_);
 }
 
-TEST_F(PrimeFieldTest, Negative) {
+TEST_F(PrimeFieldTest, Negate) {
   EXPECT_EQ(c::base::native_cast((-cc_a_).value()), -a_);
 }
 

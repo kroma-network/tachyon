@@ -182,13 +182,13 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
     return *this;
   }
 
-  constexpr PrimeField Negative() const {
+  constexpr PrimeField Negate() const {
     PrimeField ret;
     %{prefix}_rawNeg(ret.value_.limbs, value_.limbs);
     return ret;
   }
 
-  constexpr PrimeField& NegInPlace() {
+  constexpr PrimeField& NegateInPlace() {
     %{prefix}_rawNeg(value_.limbs, value_.limbs);
     return *this;
   }

@@ -118,7 +118,7 @@ TEST_F(JacobianPointTest, AdditiveGroupOperators) {
   EXPECT_EQ(-jp, test::JacobianPoint(GF7(5), GF7(2), GF7(1)));
   {
     test::JacobianPoint jp_tmp = jp;
-    jp_tmp.NegInPlace();
+    jp_tmp.NegateInPlace();
     EXPECT_EQ(jp_tmp, test::JacobianPoint(GF7(5), GF7(2), GF7(1)));
   }
 

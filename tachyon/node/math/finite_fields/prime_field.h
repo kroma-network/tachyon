@@ -50,8 +50,8 @@ void AddPrimeField(NodeModule& m, std::string_view name) {
       .AddMethod("sub", &PrimeField::template operator- <const PrimeField&>)
       .AddMethod("mul", &PrimeField::template operator* <const PrimeField&>)
       .AddMethod("div", &PrimeField::template operator/ <const PrimeField&>)
-      .AddMethod("negative", static_cast<PrimeField (PrimeField::*)() const>(
-                                 &PrimeField::operator-))
+      .AddMethod("negate", static_cast<PrimeField (PrimeField::*)() const>(
+                               &PrimeField::operator-))
       .AddMethod("double", &PrimeField::Double)
       .AddMethod("square", &PrimeField::Square);
 }

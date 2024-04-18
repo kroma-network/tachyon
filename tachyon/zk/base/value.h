@@ -75,12 +75,12 @@ class Value : public math::Field<Value<T>> {
     return Value::Known(*value_ + other);
   }
 
-  constexpr Value DoDouble() const {
+  constexpr Value DoubleImpl() const {
     if (IsNone()) return Unknown();
     return Value::Known(value_->Double());
   }
 
-  constexpr Value& DoDoubleInPlace() {
+  constexpr Value& DoubleImplInPlace() {
     if (IsNone()) return *this;
     value_->DoubleInPlace();
     return *this;
@@ -97,14 +97,14 @@ class Value : public math::Field<Value<T>> {
     return Value::Known(*value_ - other);
   }
 
-  constexpr Value Negative() const {
+  constexpr Value Negate() const {
     if (IsNone()) return Unknown();
     return Value::Known(-*value_);
   }
 
-  constexpr Value& NegInPlace() {
+  constexpr Value& NegateInPlace() {
     if (IsNone()) return *this;
-    value_->NegInPlace();
+    value_->NegateInPlace();
     return *this;
   }
 
@@ -119,12 +119,12 @@ class Value : public math::Field<Value<T>> {
     return Value::Known(*value_ * other);
   }
 
-  constexpr Value DoSquare() const {
+  constexpr Value SquareImpl() const {
     if (IsNone()) return Unknown();
     return Value::Known(value_->Square());
   }
 
-  constexpr Value& DoSquareInPlace() {
+  constexpr Value& SquareImplInPlace() {
     if (IsNone()) return *this;
     value_->SquareInPlace();
     return *this;

@@ -90,11 +90,11 @@ describe('JacobianPoint', () => {
     expect(p.subMixed(p2).isZero()).toBe(true);
   });
 
-  test('JacobianPoint.negative()', () => {
+  test('JacobianPoint.negate()', () => {
     const p = tachyon.math.bn254.G1JacobianPoint.generator();
-    expect(p.negative().eq(new tachyon.math.bn254.G1JacobianPoint(
+    expect(p.negate().eq(new tachyon.math.bn254.G1JacobianPoint(
       p.x,
-      p.y.negative(),
+      p.y.negate(),
       p.z,
     ))).toBe(true);
   });

@@ -152,22 +152,22 @@ tachyon_%{type}_%{g1_or_g2}_xyzz tachyon_%{type}_%{g1_or_g2}_xyzz_sub_mixed(cons
 
 tachyon_%{type}_%{g1_or_g2}_affine tachyon_%{type}_%{g1_or_g2}_affine_neg(const tachyon_%{type}_%{g1_or_g2}_affine* a) {
   using namespace tachyon::c::math;
-  return ToCAffinePoint(ToAffinePoint(*a).NegInPlace());
+  return ToCAffinePoint(ToAffinePoint(*a).NegateInPlace());
 }
 
 tachyon_%{type}_%{g1_or_g2}_projective tachyon_%{type}_%{g1_or_g2}_projective_neg(const tachyon_%{type}_%{g1_or_g2}_projective* a) {
   using namespace tachyon::c::math;
-  return ToCProjectivePoint(ToProjectivePoint(*a).NegInPlace());
+  return ToCProjectivePoint(ToProjectivePoint(*a).NegateInPlace());
 }
 
 tachyon_%{type}_%{g1_or_g2}_jacobian tachyon_%{type}_%{g1_or_g2}_jacobian_neg(const tachyon_%{type}_%{g1_or_g2}_jacobian* a) {
   using namespace tachyon::c::math;
-  return ToCJacobianPoint(ToJacobianPoint(*a).NegInPlace());
+  return ToCJacobianPoint(ToJacobianPoint(*a).NegateInPlace());
 }
 
 tachyon_%{type}_%{g1_or_g2}_xyzz tachyon_%{type}_%{g1_or_g2}_xyzz_neg(const tachyon_%{type}_%{g1_or_g2}_xyzz* a) {
   using namespace tachyon::c::math;
-  return ToCPointXYZZ(ToPointXYZZ(*a).NegInPlace());
+  return ToCPointXYZZ(ToPointXYZZ(*a).NegateInPlace());
 }
 
 tachyon_%{type}_%{g1_or_g2}_jacobian tachyon_%{type}_%{g1_or_g2}_affine_dbl(const tachyon_%{type}_%{g1_or_g2}_affine* a) {

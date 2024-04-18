@@ -62,10 +62,10 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
 
       G2AffinePoint q1 = MulByCharacteristic(q);
       G2AffinePoint q2 = MulByCharacteristic(q1);
-      q2.NegInPlace();
+      q2.NegateInPlace();
 
       if constexpr (Config::kXIsNegative) {
-        r.NegInPlace();
+        r.NegateInPlace();
       }
 
       ell_coeffs.push_back(r.AddInPlace(q1));

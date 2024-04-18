@@ -176,7 +176,7 @@ constexpr void CLASS::DoAdd(const ProjectivePoint& a,
 }
 
 template <typename Curve>
-constexpr CLASS CLASS::DoDouble() const {
+constexpr CLASS CLASS::DoubleImpl() const {
   if (IsZero()) {
     return ProjectivePoint::Zero();
   }
@@ -187,7 +187,7 @@ constexpr CLASS CLASS::DoDouble() const {
 }
 
 template <typename Curve>
-constexpr CLASS& CLASS::DoDoubleInPlace() {
+constexpr CLASS& CLASS::DoubleImplInPlace() {
   if (IsZero()) {
     return *this;
   }

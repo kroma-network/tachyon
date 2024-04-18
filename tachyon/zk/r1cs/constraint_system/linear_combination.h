@@ -154,9 +154,9 @@ class LinearCombination {
     return LinearCombination(
         base::Map(terms_, [](const Term<F>& term) { return -term; }));
   }
-  LinearCombination& NegInPlace() {
+  LinearCombination& NegateInPlace() {
     for (Term<F>& term : terms_) {
-      term.NegInPlace();
+      term.NegateInPlace();
     }
     return *this;
   }

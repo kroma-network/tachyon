@@ -53,7 +53,7 @@ tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_neg(const tachyon_%{type}_%{
   using namespace tachyon::c::base;
   using NativeType = typename TypeTraits<tachyon_%{type}_%{suffix}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.NegInPlace());
+  return c_cast(native_a.NegateInPlace());
 }
 
 tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_dbl(const tachyon_%{type}_%{suffix}* a) {

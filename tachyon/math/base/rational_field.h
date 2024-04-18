@@ -115,11 +115,11 @@ class RationalField : public Field<RationalField<F>> {
     return *this;
   }
 
-  constexpr RationalField DoDouble() const {
+  constexpr RationalField DoubleImpl() const {
     return {numerator_.Double(), denominator_};
   }
 
-  constexpr RationalField& DoDoubleInPlace() {
+  constexpr RationalField& DoubleImplInPlace() {
     numerator_.DoubleInPlace();
     return *this;
   }
@@ -137,12 +137,10 @@ class RationalField : public Field<RationalField<F>> {
     return *this;
   }
 
-  constexpr RationalField Negative() const {
-    return {-numerator_, denominator_};
-  }
+  constexpr RationalField Negate() const { return {-numerator_, denominator_}; }
 
-  constexpr RationalField& NegInPlace() {
-    numerator_.NegInPlace();
+  constexpr RationalField& NegateInPlace() {
+    numerator_.NegateInPlace();
     return *this;
   }
 
@@ -157,11 +155,11 @@ class RationalField : public Field<RationalField<F>> {
     return *this;
   }
 
-  constexpr RationalField Square() const {
+  constexpr RationalField SquareImpl() const {
     return {numerator_.Square(), denominator_.Square()};
   }
 
-  constexpr RationalField& DoSquareInPlace() {
+  constexpr RationalField& SquareImplInPlace() {
     numerator_.SquareInPlace();
     denominator_.SquareInPlace();
     return *this;

@@ -64,7 +64,7 @@ class QuadraticExtensionField
   }
 
   constexpr Derived& ConjugateInPlace() {
-    c1_.NegInPlace();
+    c1_.NegateInPlace();
     return *static_cast<Derived*>(this);
   }
 
@@ -142,14 +142,14 @@ class QuadraticExtensionField
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived DoDouble() const {
+  constexpr Derived DoubleImpl() const {
     return {
         c0_.Double(),
         c1_.Double(),
     };
   }
 
-  constexpr Derived& DoDoubleInPlace() {
+  constexpr Derived& DoubleImplInPlace() {
     c0_.DoubleInPlace();
     c1_.DoubleInPlace();
     return *static_cast<Derived*>(this);
@@ -169,16 +169,16 @@ class QuadraticExtensionField
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived Negative() const {
+  constexpr Derived Negate() const {
     return {
         -c0_,
         -c1_,
     };
   }
 
-  constexpr Derived& NegInPlace() {
-    c0_.NegInPlace();
-    c1_.NegInPlace();
+  constexpr Derived& NegateInPlace() {
+    c0_.NegateInPlace();
+    c1_.NegateInPlace();
     return *static_cast<Derived*>(this);
   }
 
@@ -208,13 +208,13 @@ class QuadraticExtensionField
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived DoSquare() const {
+  constexpr Derived SquareImpl() const {
     Derived ret;
     DoSquareImpl(*static_cast<const Derived*>(this), ret);
     return ret;
   }
 
-  constexpr Derived& DoSquareInPlace() {
+  constexpr Derived& SquareImplInPlace() {
     DoSquareImpl(*static_cast<const Derived*>(this),
                  *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);
@@ -360,7 +360,7 @@ class QuadraticExtensionField
     v1 = v0.Inverse();
     b.c0_ = a.c0_ * v1;
     b.c1_ = a.c1_ * v1;
-    b.c1_.NegInPlace();
+    b.c1_.NegateInPlace();
   }
 
   // c = c0_ + c1_ * X

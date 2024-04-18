@@ -279,14 +279,14 @@ class PointXYZZ<_Curve,
   constexpr PointXYZZ& AddInPlace(const PointXYZZ& other);
   constexpr PointXYZZ Add(const AffinePoint<Curve>& other) const;
   constexpr PointXYZZ& AddInPlace(const AffinePoint<Curve>& other);
-  constexpr PointXYZZ DoDouble() const;
-  constexpr PointXYZZ& DoDoubleInPlace();
+  constexpr PointXYZZ DoubleImpl() const;
+  constexpr PointXYZZ& DoubleImplInPlace();
 
   // AdditiveGroup methods
-  constexpr PointXYZZ Negative() const { return {x_, -y_, zz_, zzz_}; }
+  constexpr PointXYZZ Negate() const { return {x_, -y_, zz_, zzz_}; }
 
-  constexpr PointXYZZ& NegInPlace() {
-    y_.NegInPlace();
+  constexpr PointXYZZ& NegateInPlace() {
+    y_.NegateInPlace();
     return *this;
   }
 

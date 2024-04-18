@@ -119,7 +119,7 @@ TEST_F(ProjectivePointTest, AdditiveGroupOperators) {
   EXPECT_EQ(-pp, test::ProjectivePoint(GF7(5), GF7(2), GF7(1)));
   {
     test::ProjectivePoint pp_tmp = pp;
-    pp_tmp.NegInPlace();
+    pp_tmp.NegateInPlace();
     EXPECT_EQ(pp_tmp, test::ProjectivePoint(GF7(5), GF7(2), GF7(1)));
   }
 

@@ -199,7 +199,7 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
   // Negation: -a
   constexpr auto operator-() const {
     const G* g = static_cast<const G*>(this);
-    return g->Negative();
+    return g->Negate();
   }
 };
 

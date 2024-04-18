@@ -217,7 +217,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
-  static UnivariatePolynomial<D> Negative(const UnivariatePolynomial<D>& self) {
+  static UnivariatePolynomial<D> Negate(const UnivariatePolynomial<D>& self) {
     if (self.IsZero()) {
       return self;
     }
@@ -229,7 +229,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return UnivariatePolynomial<D>(D(std::move(o_coefficients)));
   }
 
-  static UnivariatePolynomial<D>& NegInPlace(UnivariatePolynomial<D>& self) {
+  static UnivariatePolynomial<D>& NegateInPlace(UnivariatePolynomial<D>& self) {
     if (self.IsZero()) {
       return self;
     }
@@ -237,7 +237,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     // clang-format off
     OPENMP_PARALLEL_FOR(F& coefficient : coefficients) {
       // clang-format on
-      coefficient.NegInPlace();
+      coefficient.NegateInPlace();
     }
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
@@ -599,7 +599,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return self;
   }
 
-  static UnivariatePolynomial<S> Negative(const UnivariatePolynomial<S>& self) {
+  static UnivariatePolynomial<S> Negate(const UnivariatePolynomial<S>& self) {
     if (self.IsZero()) {
       return self;
     }
@@ -611,13 +611,13 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return UnivariatePolynomial<S>(S(std::move(o_terms)));
   }
 
-  static UnivariatePolynomial<S>& NegInPlace(UnivariatePolynomial<S>& self) {
+  static UnivariatePolynomial<S>& NegateInPlace(UnivariatePolynomial<S>& self) {
     if (self.IsZero()) {
       return self;
     }
     std::vector<Term>& terms = self.coefficients_.terms_;
     for (Term& term : terms) {
-      term.coefficient.NegInPlace();
+      term.coefficient.NegateInPlace();
     }
     return self;
   }

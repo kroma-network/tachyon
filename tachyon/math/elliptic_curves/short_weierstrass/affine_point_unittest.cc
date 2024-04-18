@@ -85,7 +85,7 @@ TEST_F(AffinePointTest, AdditiveGroupOperators) {
   EXPECT_EQ(-ap, test::AffinePoint(GF7(5), GF7(2)));
   {
     test::AffinePoint ap_tmp = ap;
-    ap_tmp.NegInPlace();
+    ap_tmp.NegateInPlace();
     EXPECT_EQ(ap_tmp, test::AffinePoint(GF7(5), GF7(2)));
   }
 

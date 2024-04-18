@@ -97,15 +97,15 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   // AdditiveGroup methods
   PrimeField Sub(const PrimeField& other) const;
   PrimeField& SubInPlace(const PrimeField& other);
-  PrimeField Negative() const;
-  PrimeField& NegInPlace();
+  PrimeField Negate() const;
+  PrimeField& NegateInPlace();
 
   // TODO(chokobole): Support bigendian.
   // MultiplicativeSemigroup methods
   PrimeField Mul(const PrimeField& other) const;
   PrimeField& MulInPlace(const PrimeField& other);
-  PrimeField DoSquare() const;
-  PrimeField& DoSquareInPlace();
+  PrimeField SquareImpl() const;
+  PrimeField& SquareImplInPlace();
 
   // MultiplicativeGroup methods
   PrimeField Inverse() const;

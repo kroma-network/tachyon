@@ -90,11 +90,11 @@ describe('ProjectivePoint', () => {
     expect(p.subMixed(p2).isZero()).toBe(true);
   });
 
-  test('ProjectivePoint.negative()', () => {
+  test('ProjectivePoint.negate()', () => {
     const p = tachyon.math.bn254.G1ProjectivePoint.generator();
-    expect(p.negative().eq(new tachyon.math.bn254.G1ProjectivePoint(
+    expect(p.negate().eq(new tachyon.math.bn254.G1ProjectivePoint(
       p.x,
-      p.y.negative(),
+      p.y.negate(),
       p.z,
     ))).toBe(true);
   });

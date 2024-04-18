@@ -78,13 +78,13 @@ TEST(ValueTest, AdditiveGroupOperators) {
   for (auto& test : tests) {
     if (test.a.IsNone()) {
       EXPECT_TRUE(-test.a.IsNone());
-      EXPECT_TRUE(test.a.NegInPlace().IsNone());
+      EXPECT_TRUE(test.a.NegateInPlace().IsNone());
       EXPECT_TRUE(test.a.Double().IsNone());
       EXPECT_TRUE(test.a.DoubleInPlace().IsNone());
     } else {
       EXPECT_EQ(-test.a, test.neg);
       Value<math::GF7> a_tmp = test.a;
-      a_tmp.NegInPlace();
+      a_tmp.NegateInPlace();
       EXPECT_EQ(a_tmp, test.neg);
 
       EXPECT_EQ(test.a.Double(), test.dbl);

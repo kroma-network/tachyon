@@ -172,7 +172,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived DoDouble() const {
+  constexpr Derived DoubleImpl() const {
     return {
         c0_.Double(),
         c1_.Double(),
@@ -180,7 +180,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     };
   }
 
-  constexpr Derived& DoDoubleInPlace() {
+  constexpr Derived& DoubleImplInPlace() {
     c0_.DoubleInPlace();
     c1_.DoubleInPlace();
     c2_.DoubleInPlace();
@@ -203,7 +203,7 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived Negative() const {
+  constexpr Derived Negate() const {
     return {
         -c0_,
         -c1_,
@@ -211,10 +211,10 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     };
   }
 
-  constexpr Derived& NegInPlace() {
-    c0_.NegInPlace();
-    c1_.NegInPlace();
-    c2_.NegInPlace();
+  constexpr Derived& NegateInPlace() {
+    c0_.NegateInPlace();
+    c1_.NegateInPlace();
+    c2_.NegateInPlace();
     return *static_cast<Derived*>(this);
   }
 
@@ -246,13 +246,13 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     return *static_cast<Derived*>(this);
   }
 
-  constexpr Derived DoSquare() const {
+  constexpr Derived SquareImpl() const {
     Derived ret;
     DoSquareImpl(*static_cast<const Derived*>(this), ret);
     return ret;
   }
 
-  constexpr Derived& DoSquareInPlace() {
+  constexpr Derived& SquareImplInPlace() {
     DoSquareImpl(*static_cast<const Derived*>(this),
                  *static_cast<Derived*>(this));
     return *static_cast<Derived*>(this);

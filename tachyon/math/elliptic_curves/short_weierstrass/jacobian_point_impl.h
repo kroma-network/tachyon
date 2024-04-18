@@ -84,7 +84,7 @@ constexpr void CLASS::DoAdd(const JacobianPoint& a, const JacobianPoint& b,
 
     // J = -H * I
     BaseField j = h * i;
-    j.NegInPlace();
+    j.NegateInPlace();
 
     // r = 2 * (S2 - S1)
     BaseField r = s2 - s1;
@@ -169,7 +169,7 @@ constexpr void CLASS::DoAdd(const JacobianPoint& a, const AffinePoint<Curve>& b,
 
     // J = -H * I
     BaseField j = h * i;
-    j.NegInPlace();
+    j.NegateInPlace();
 
     // r = 2 * (S2 - Y1)
     BaseField r = s2 - a.y_;
@@ -197,7 +197,7 @@ constexpr void CLASS::DoAdd(const JacobianPoint& a, const AffinePoint<Curve>& b,
 }
 
 template <typename Curve>
-constexpr CLASS CLASS::DoDouble() const {
+constexpr CLASS CLASS::DoubleImpl() const {
   if (IsZero()) {
     return JacobianPoint::Zero();
   }
@@ -208,7 +208,7 @@ constexpr CLASS CLASS::DoDouble() const {
 }
 
 template <typename Curve>
-constexpr CLASS& CLASS::DoDoubleInPlace() {
+constexpr CLASS& CLASS::DoubleImplInPlace() {
   if (IsZero()) {
     return *this;
   }

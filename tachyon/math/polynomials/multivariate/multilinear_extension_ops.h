@@ -94,7 +94,7 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     return self;
   }
 
-  static MultilinearExtension<D> Negative(const MultilinearExtension<D>& self) {
+  static MultilinearExtension<D> Negate(const MultilinearExtension<D>& self) {
     const std::vector<F>& i_evaluations = self.evaluations_.evaluations_;
     if (i_evaluations.empty()) {
       return self;
@@ -106,7 +106,7 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     return MultilinearExtension<D>(D(std::move(o_evaluations)));
   }
 
-  static MultilinearExtension<D>& NegInPlace(MultilinearExtension<D>& self) {
+  static MultilinearExtension<D>& NegateInPlace(MultilinearExtension<D>& self) {
     std::vector<F>& evaluations = self.evaluations_.evaluations_;
     if (evaluations.empty()) {
       return self;
@@ -114,7 +114,7 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     // clang-format off
     OPENMP_PARALLEL_FOR(F& evaluation : evaluations) {
       // clang-format on
-      evaluation.NegInPlace();
+      evaluation.NegateInPlace();
     }
     return self;
   }

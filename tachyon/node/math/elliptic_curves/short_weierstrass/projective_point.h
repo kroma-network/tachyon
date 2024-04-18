@@ -35,7 +35,7 @@ void AddProjectivePoint(NodeModule& m, std::string_view name) {
                  &ProjectivePoint::template operator- <const ProjectivePoint&>)
       .AddMethod("subMixed",
                  &ProjectivePoint::template operator- <const AffinePointTy&>)
-      .AddMethod("negative",
+      .AddMethod("negate",
                  static_cast<ProjectivePoint (ProjectivePoint::*)() const>(
                      &ProjectivePoint::operator-))
       .AddMethod("double", &ProjectivePoint::Double);

@@ -166,12 +166,13 @@ class UnivariateEvaluations final
                                                                        other);
   }
 
-  UnivariateEvaluations Negative() const {
-    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Negative(*this);
+  UnivariateEvaluations Negate() const {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::Negate(*this);
   }
 
-  UnivariateEvaluations& NegInPlace() {
-    return internal::UnivariateEvaluationsOp<F, MaxDegree>::NegInPlace(*this);
+  UnivariateEvaluations& NegateInPlace() {
+    return internal::UnivariateEvaluationsOp<F, MaxDegree>::NegateInPlace(
+        *this);
   }
 
   // MultiplicativeSemigroup methods

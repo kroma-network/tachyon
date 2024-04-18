@@ -48,10 +48,10 @@ TYPED_TEST(GLVTest, Decompose) {
   ScalarField k1 = ScalarField::FromMpzClass(result.k1.abs_value);
   ScalarField k2 = ScalarField::FromMpzClass(result.k2.abs_value);
   if (result.k1.sign == Sign::kNegative) {
-    k1.NegInPlace();
+    k1.NegateInPlace();
   }
   if (result.k2.sign == Sign::kNegative) {
-    k2.NegInPlace();
+    k2.NegateInPlace();
   }
   EXPECT_EQ(scalar, k1 + Point::Curve::Config::kLambda * k2);
 }
