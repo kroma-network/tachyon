@@ -1,5 +1,5 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
-load("//bazel:tachyon.bzl", "if_linux_x86_64")
+load("//bazel:tachyon.bzl", "if_x86_64")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 load(
     "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
@@ -41,10 +41,10 @@ generate_large_fft_prime_fields(
 
 tachyon_cc_library(
     name = "goldilocks_prime_field_x86_special",
-    srcs = if_linux_x86_64(["goldilocks_prime_field_x86_special.cc"]),
-    hdrs = if_linux_x86_64(["goldilocks_prime_field_x86_special.h"]),
-    copts = if_linux_x86_64(["-mavx512f"]),
-    deps = if_linux_x86_64([
+    srcs = if_x86_64(["goldilocks_prime_field_x86_special.cc"]),
+    hdrs = if_x86_64(["goldilocks_prime_field_x86_special.h"]),
+    copts = if_x86_64(["-mavx512f"]),
+    deps = if_x86_64([
         ":goldilocks_config",
         "//tachyon/base:random",
         "//tachyon/base/strings:string_number_conversions",
