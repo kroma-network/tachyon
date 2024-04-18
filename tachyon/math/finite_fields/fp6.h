@@ -336,52 +336,33 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     // The naive approach you need to multiply 6 times, but this code is
     // optimized to multiply 5 times.
 
-    // a_a = α₀β₀
-    Fp2 a_a = this->c0_ * beta0;
-    // b_b = α₁β₁
-    Fp2 b_b = this->c1_ * beta1;
-
-    Fp2 t0;
+    // t0 = α₂β₁
+    Fp2 t0 = this->c2_ * beta1;
+    // t0 = α₂β₁q
+    t0 = Config::MulByNonResidue(t0);
     {
-      // tmp = α₁ + α₂
-      Fp2 tmp = this->c1_ + this->c2_;
-
-      // t0 = (α₁ + α₂)β₁ = α₁β₁ + α₂β₁
-      t0 = tmp * beta1;
-      // t0 = α₂β₁
-      t0 -= b_b;
-      // t0 = α₂β₁q
-      t0 = Config::MulByNonResidue(t0);
+      // tmp = α₀β₀
+      Fp2 tmp = this->c0_ * beta0;
       // t0 = α₀β₀ + α₂β₁q
-      t0 += a_a;
+      t0 += tmp;
     }
 
-    // t1 = β₀ + β₁
-    Fp2 t1 = beta0 + beta1;
+    // t1 = α₀β₁
+    Fp2 t1 = this->c0_ * beta1;
     {
-      // tmp = α₀ + α₁
-      Fp2 tmp = this->c0_ + this->c1_;
-
-      // t1 = (α₀ + α₁)(β₀ + β₁) = α₀β₀ + α₀β₁ + α₁β₀ + α₁β₁
-      t1 *= tmp;
-      // t1 = α₀β₁ + α₁β₀ + α₁β₁
-      t1 -= a_a;
+      // tmp = α₁β₀
+      Fp2 tmp = this->c1_ * beta0;
       // t1 = α₀β₁ + α₁β₀
-      t1 -= b_b;
+      t1 += tmp;
     }
 
-    // t2 = β₀
-    Fp2 t2;
+    // t2 = α₂β₀
+    Fp2 t2 = this->c2_ * beta0;
     {
-      // tmp = α₀ + α₂
-      Fp2 tmp = this->c0_ + this->c2_;
-
-      // t2 = (α₀ + α₂)β₀ = α₀β₀ + α₂β₀
-      t2 = tmp * beta0;
-      // t2 = α₂β₀
-      t2 -= a_a;
+      // tmp = α₁β₁
+      Fp2 tmp = this->c1_ * beta1;
       // t2 = α₂β₀ + α₁β₁
-      t2 += b_b;
+      t2 += tmp;
     }
 
     // c0 = α₀β₀ + α₂β₁q

@@ -48,20 +48,16 @@ constexpr void CLASS::DoAdd(const PointXYZZ& a, const PointXYZZ& b,
   // U1 = X1 * ZZ2
   BaseField u1 = a.x_ * b.zz_;
 
-  // U2 = X2 * ZZ1
-  BaseField u2 = b.x_ * a.zz_;
-
   // S1 = Y1 * ZZZ2
   BaseField s1 = a.y_ * b.zzz_;
 
-  // S2 = Y2 * ZZZ1
-  BaseField s2 = b.y_ * a.zzz_;
+  // P = X2 * ZZ1 - U1
+  BaseField p = b.x_ * a.zz_;
+  p -= u1;
 
-  // P = U2 - U1
-  BaseField p = u2 - u1;
-
-  // R = S2 - S1
-  BaseField r = s2 - s1;
+  // R = Y2 * ZZZ1 - S1
+  BaseField r = b.y_ * a.zzz_;
+  r -= s1;
 
   if (p.IsZero() && r.IsZero()) {
     if (&a == &c) {
@@ -134,17 +130,14 @@ template <typename Curve>
 constexpr void CLASS::DoAdd(const PointXYZZ& a, const AffinePoint<Curve>& b,
                             PointXYZZ& c) {
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-xyzz.html#addition-madd-2008-s
-  // U2 = X2 * ZZ1
-  BaseField u2 = b.x() * a.zz_;
 
-  // S2 = Y2 * ZZZ1
-  BaseField s2 = b.y() * a.zzz_;
+  // P = X2 * ZZ1 - X1
+  BaseField p = b.x() * a.zz_;
+  p -= a.x_;
 
-  // P = U2 - X1
-  BaseField p = u2 - a.x_;
-
-  // R = S2 - Y1
-  BaseField r = s2 - a.y_;
+  // R = Y2 * ZZZ1 - Y1
+  BaseField r = b.y() * a.zzz_;
+  r -= a.y_;
 
   if (p.IsZero() && r.IsZero()) {
     if (&a == &c) {
