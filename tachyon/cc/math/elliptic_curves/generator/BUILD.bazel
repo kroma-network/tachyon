@@ -18,5 +18,6 @@ tachyon_cc_binary(
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/build:cc_writer",
         "//tachyon/c/math/elliptic_curves/generator:generator_util",
+        "@com_google_absl//absl/strings",
     ],
 )
