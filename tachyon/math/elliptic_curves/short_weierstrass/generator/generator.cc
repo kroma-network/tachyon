@@ -217,7 +217,7 @@ int RealMain(int argc, char** argv) {
   } else if (base::EndsWith(config.out.value(), ".h")) {
     return config.GenerateConfigHdr();
   } else {
-    tachyon_cerr << "not supported suffix:" << config.out << std::endl;
+    tachyon_cerr << "suffix not supported:" << config.out << std::endl;
     return 1;
   }
 }
