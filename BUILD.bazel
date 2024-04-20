@@ -34,6 +34,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "has_avx512",
+    build_setting_default = False,
+)
+
+bool_flag(
     name = "has_matplotlib",
     build_setting_default = False,
 )
@@ -134,6 +139,12 @@ config_setting(
 config_setting(
     name = "tachyon_has_openmp",
     flag_values = {":has_openmp": "true"},
+)
+
+config_setting(
+    name = "tachyon_has_avx512",
+    constraint_values = ["@platforms//cpu:x86_64"],
+    flag_values = {":has_avx512": "true"},
 )
 
 config_setting(
