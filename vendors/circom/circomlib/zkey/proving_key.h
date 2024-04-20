@@ -85,10 +85,12 @@ struct ProvingKey {
     return absl::Substitute(
         "{verifying_key: $0, ic:$1, a_g1_query: $2, b_g1_query: $3, "
         "b_g2_query: $4, c_g1_query: $5, h_g1_query: $6}",
-        verifying_key.ToString(), base::VectorToString(ic),
-        base::VectorToString(a_g1_query), base::VectorToString(b_g1_query),
-        base::VectorToString(b_g2_query), base::VectorToString(c_g1_query),
-        base::VectorToString(h_g1_query));
+        verifying_key.ToString(), base::ContainerToString(ic),
+        base::ContainerToString(a_g1_query),
+        base::ContainerToString(b_g1_query),
+        base::ContainerToString(b_g2_query),
+        base::ContainerToString(c_g1_query),
+        base::ContainerToString(h_g1_query));
   }
 };
 

@@ -34,7 +34,7 @@ std::string Calculation::ToString() const {
     case Type::kHorner:
       return absl::Substitute("Horner($0, $1, $2)", horner().init.ToString(),
                               horner().factor.ToString(),
-                              base::VectorToString(horner().parts));
+                              base::ContainerToString(horner().parts));
   }
   NOTREACHED();
   return "";

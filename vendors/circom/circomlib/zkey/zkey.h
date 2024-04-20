@@ -142,7 +142,7 @@ struct CommitmentsSection {
   }
 
   // NOTE(chokobole): the fields are represented in montgomery form.
-  std::string ToString() const { return base::VectorToString(commitments); }
+  std::string ToString() const { return base::ContainerToString(commitments); }
 };
 
 using ICSection = CommitmentsSection<G1AffinePoint>;
@@ -197,8 +197,8 @@ struct CoefficientsSection {
   }
 
   std::string ToString() const {
-    return absl::Substitute("{a: $0, b: $1}", base::Vector2DToString(a),
-                            base::Vector2DToString(b));
+    return absl::Substitute("{a: $0, b: $1}", base::Container2DToString(a),
+                            base::Container2DToString(b));
   }
 };
 

@@ -136,7 +136,7 @@ struct R1CSConstraintsSection {
     return true;
   }
 
-  std::string ToString() const { return base::VectorToString(constraints); }
+  std::string ToString() const { return base::ContainerToString(constraints); }
 };
 
 struct R1CSWireId2LabelIdMapSection {
@@ -159,7 +159,7 @@ struct R1CSWireId2LabelIdMapSection {
     return true;
   }
 
-  std::string ToString() const { return base::VectorToString(label_ids); }
+  std::string ToString() const { return base::ContainerToString(label_ids); }
 };
 
 struct R1CS : public circom::R1CS {

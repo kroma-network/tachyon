@@ -71,8 +71,8 @@ struct ConstraintMatrices {
         "num_constraints: $2, a_num_non_zero: $3, b_num_non_zero: $4, a: $5, "
         "b: $6}",
         num_instance_variables, num_witness_variables, num_constraints,
-        a_num_non_zero, b_num_non_zero, base::Vector2DToString(a),
-        base::Vector2DToString(b));
+        a_num_non_zero, b_num_non_zero, base::Container2DToString(a),
+        base::Container2DToString(b));
   }
 };
 

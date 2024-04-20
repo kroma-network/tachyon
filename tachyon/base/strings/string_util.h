@@ -130,14 +130,14 @@ std::string OptionalToString(const std::optional<T>& value) {
   return ss.str();
 }
 
-template <typename T>
-std::string VectorToString(const std::vector<T>& data) {
+template <typename Container>
+std::string ContainerToString(const Container& data) {
   std::stringstream ss;
   ss << "[";
-  for (size_t i = 0; i < data.size(); ++i) {
+  for (size_t i = 0; i < std::size(data); ++i) {
     // NOTE(chokobole): This is a trick to call |operator<<()| or |ToString()|.
     google::MakeCheckOpValueString(&ss, data[i]);
-    if (i != data.size() - 1) {
+    if (i != std::size(data) - 1) {
       ss << ", ";
     }
   }
@@ -145,13 +145,13 @@ std::string VectorToString(const std::vector<T>& data) {
   return ss.str();
 }
 
-template <typename T>
-std::string Vector2DToString(const std::vector<std::vector<T>>& data) {
+template <typename Container>
+std::string Container2DToString(const Container& data) {
   std::stringstream ss;
   ss << "[";
-  for (size_t i = 0; i < data.size(); ++i) {
-    ss << VectorToString(data[i]);
-    if (i != data.size() - 1) {
+  for (size_t i = 0; i < std::size(data); ++i) {
+    ss << ContainerToString(data[i]);
+    if (i != std::size(data) - 1) {
       ss << ",";
     }
   }
