@@ -68,7 +68,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     uint64_t value;
     if (!base::StringToUint64(str, &value)) return std::nullopt;
     if (value >= uint64_t{GetModulus()}) {
-      LOG(ERROR) << "value(" << str << ") is grater than modulus";
+      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
       return std::nullopt;
     }
     return PrimeField(value);
@@ -77,7 +77,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     uint64_t value;
     if (!base::HexStringToUint64(str, &value)) return std::nullopt;
     if (value >= uint64_t{GetModulus()}) {
-      LOG(ERROR) << "value(" << str << ") is grater than modulus";
+      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
       return std::nullopt;
     }
     return PrimeField(value);
