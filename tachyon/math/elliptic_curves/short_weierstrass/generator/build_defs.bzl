@@ -8,6 +8,7 @@ def _generate_ec_point_impl(ctx):
         "--out=%s" % (ctx.outputs.out.path),
         "--namespace=%s" % (ctx.attr.namespace),
         "--base_field=%s" % (ctx.attr.base_field),
+        "--base_field_degree=%s" % (ctx.attr.base_field_degree),
         "--base_field_hdr=%s" % (ctx.attr.base_field_hdr),
         "--scalar_field=%s" % (ctx.attr.scalar_field),
         "--scalar_field_hdr=%s" % (ctx.attr.scalar_field_hdr),
@@ -57,6 +58,7 @@ generate_ec_point = rule(
         "out": attr.output(mandatory = True),
         "namespace": attr.string(mandatory = True),
         "class_name": attr.string(),
+        "base_field_degree": attr.int(mandatory = True),
         "base_field": attr.string(mandatory = True),
         "base_field_hdr": attr.string(mandatory = True),
         "scalar_field": attr.string(mandatory = True),
@@ -90,6 +92,7 @@ generate_ec_point = rule(
 def generate_ec_points(
         name,
         namespace,
+        base_field_degree,
         base_field,
         base_field_hdr,
         base_field_dep,
@@ -114,6 +117,7 @@ def generate_ec_points(
         generate_ec_point(
             namespace = namespace,
             class_name = class_name,
+            base_field_degree = base_field_degree,
             base_field = base_field,
             base_field_hdr = base_field_hdr,
             scalar_field = scalar_field,

@@ -143,8 +143,12 @@ template <
     typename H, typename F,
     std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<F>, F>>* = nullptr>
 H AbslHashValue(H h, const F& prime_field) {
-  for (uint64_t limb : prime_field.value().limbs) {
-    h = H::combine(std::move(h), limb);
+  if constexpr (F::Config::kModulusBits > 32) {
+    for (uint64_t limb : prime_field.value().limbs) {
+      h = H::combine(std::move(h), limb);
+    }
+  } else {
+    h = H::combine(std::move(h), prime_field.value());
   }
   return h;
 }

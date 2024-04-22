@@ -20,6 +20,7 @@ generate_ec_points(
     # y² = x³ + ax + b
     a = ["{a}"],
     b = ["{b}"],
+    base_field_degree = 1,
     base_field = "Fq",
     base_field_dep = ":fq",
     base_field_hdr = "tachyon/math/elliptic_curves/<new_elliptic_curve>/fq.h",

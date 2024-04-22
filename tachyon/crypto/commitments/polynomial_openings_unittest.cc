@@ -2,6 +2,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/base/containers/contains.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
@@ -81,6 +82,9 @@ TEST_F(PolynomialOpeningsTest, CreateCombinedLowDegreeExtensions) {
 
   // NOTE(chokobole): Check whether the evaluations are same.
   Point x = Point::Random();
+  while (base::Contains(points, x)) {
+    x = Point::Random();
+  }
   GF7 actual_eval = combined_low_degree_extension.Evaluate(x);
   GF7 expected_eval =
       grouped_poly_opening.poly_openings_vec[0].poly_oracle->Evaluate(x) -

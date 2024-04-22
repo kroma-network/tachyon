@@ -12,7 +12,10 @@ namespace tachyon::math {
 #define CLASS PrimeField<Config, std::enable_if_t<Config::kIsGoldilocks>>
 
 template <typename Config>
-CLASS::PrimeField(uint64_t value) : value_(value) {}
+CLASS::PrimeField(uint64_t value) : value_(value) {
+  DCHECK_LT(value_, Config::kModulus[0]);
+  value_ = ::Goldilocks::fromU64(value_).fe;
+}
 
 // static
 template <typename Config>
@@ -38,7 +41,7 @@ std::optional<CLASS> CLASS::FromDecString(std::string_view str) {
     LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
     return std::nullopt;
   }
-  return PrimeField(::Goldilocks::fromU64(value).fe);
+  return PrimeField(value);
 }
 
 // static
@@ -50,19 +53,27 @@ std::optional<CLASS> CLASS::FromHexString(std::string_view str) {
     LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
     return std::nullopt;
   }
-  return PrimeField(::Goldilocks::fromU64(value).fe);
+  return PrimeField(value);
 }
 
 // static
 template <typename Config>
 CLASS CLASS::FromBigInt(const BigInt<N>& big_int) {
-  return PrimeField(::Goldilocks::fromU64(big_int[0]).fe);
+  return PrimeField(big_int[0]);
 }
 
 // static
 template <typename Config>
 CLASS CLASS::FromMontgomery(const BigInt<N>& big_int) {
-  return PrimeField(::Goldilocks::from_montgomery(big_int[0]));
+  PrimeField ret;
+  // See
+  // https://github.com/0xPolygonHermez/goldilocks/blob/f89eb016830f8c4301482d83691aed22e5a92742/src/goldilocks_base_field_tools.hpp#L66-L73.
+#if USE_MONTGOMERY == 1
+  ret.value_ = big_int[0];
+#else
+  ret.value_ = ::Goldilocks::from_montgomery(big_int[0]);
+#endif
+  return ret;
 }
 
 template <typename Config>

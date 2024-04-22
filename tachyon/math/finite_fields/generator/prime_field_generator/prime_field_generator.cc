@@ -97,6 +97,8 @@ struct GenerationConfig : public build::CcWriter {
   std::string class_name;
   std::string modulus;
   std::string flag;
+  std::string reduce;
+  bool use_asm = false;
   std::string subgroup_generator;
   std::string small_subgroup_base;
   std::string small_subgroup_adicity;
@@ -193,9 +195,18 @@ int GenerationConfig::GenerateConfigHdr() const {
   CHECK(base::ReadFileToString(config_hdr_tpl_path, &tpl_content));
   std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, "\n");
 
+  bool is_small_field = num_bits <= 32;
+  RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
+  RemoveOptionalLines(tpl_lines, "!kIsSmallField", !is_small_field);
+  if (is_small_field) {
+    replacements["%{reduce}"] = reduce;
+  } else {
+    RemoveOptionalLines(tpl_lines, "kUseAsm", use_asm);
+  }
+
   bool has_two_adic_root_of_unity = !subgroup_generator.empty();
   replacements["%{has_two_adic_root_of_unity}"] =
-      std::to_string(has_two_adic_root_of_unity);
+      base::BoolToString(has_two_adic_root_of_unity);
   RemoveOptionalLines(tpl_lines, "kHasTwoAdicRootOfUnity",
                       has_two_adic_root_of_unity);
   mpz_class subgroup_generator_mpz;
@@ -216,14 +227,14 @@ int GenerationConfig::GenerateConfigHdr() const {
              subgroup_generator_mpz.get_mpz_t(), trace.get_mpz_t(),
              m.get_mpz_t());
     replacements["%{two_adicity}"] =
-        std::to_string(math::ComputeAdicity(2, m - mpz_class(1)));
+        base::NumberToString(math::ComputeAdicity(2, m - mpz_class(1)));
     replacements["%{two_adic_root_of_unity}"] =
         math::MpzClassToMontString(two_adic_root_of_unity, m);
   }
 
   bool has_large_subgroup_root_of_unity = !small_subgroup_base.empty();
   replacements["%{has_large_subgroup_root_of_unity}"] =
-      std::to_string(has_large_subgroup_root_of_unity);
+      base::BoolToString(has_large_subgroup_root_of_unity);
   RemoveOptionalLines(tpl_lines, "kHasLargeSubgroupRootOfUnity",
                       has_large_subgroup_root_of_unity);
   if (has_two_adic_root_of_unity && has_large_subgroup_root_of_unity) {
@@ -271,14 +282,27 @@ int GenerationConfig::GenerateCpuHdr() const {
   base::FilePath prime_field_x86_hdr_path =
       hdr_path.DirName().Append(basename.value() + "_prime_field_x86.h");
 
-  std::string content = absl::StrReplaceAll(
-      tpl_content,
-      {
-          {"%{config_header_path}", config_header_path.value()},
-          {"%{prime_field_x86_hdr}", prime_field_x86_hdr_path.value()},
-          {"%{namespace}", ns_name},
-          {"%{class}", class_name},
-      });
+  absl::flat_hash_map<std::string, std::string> replacements = {
+      {"%{config_header_path}", config_header_path.value()},
+      {"%{prime_field_x86_hdr}", prime_field_x86_hdr_path.value()},
+      {"%{namespace}", ns_name},
+      {"%{class}", class_name},
+  };
+
+  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, "\n");
+
+  mpz_class m = math::gmp::FromDecString(modulus);
+  size_t num_bits = GetNumBits(m);
+  bool is_small_field = num_bits <= 32;
+  RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
+  RemoveOptionalLines(tpl_lines, "!kIsSmallField", !is_small_field);
+  if (!is_small_field) RemoveOptionalLines(tpl_lines, "kUseAsm", use_asm);
+
+  tpl_content = absl::StrJoin(tpl_lines, "\n");
+
+  std::string content =
+      absl::StrReplaceAll(tpl_content, std::move(replacements));
+
   return WriteHdr(content, false);
 }
 
@@ -314,6 +338,8 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.flag)
       .set_long_name("--flag")
       .set_required();
+  parser.AddFlag<base::StringFlag>(&config.reduce).set_long_name("--reduce");
+  parser.AddFlag<base::BoolFlag>(&config.use_asm).set_long_name("--use_asm");
   parser.AddFlag<base::FilePathFlag>(&config.x86_hdr_tpl_path)
       .set_long_name("--x86_hdr_tpl_path")
       .set_required();
@@ -358,7 +384,7 @@ int RealMain(int argc, char** argv) {
   } else if (base::EndsWith(config.out.value(), ".h")) {
     return config.GenerateCpuHdr();
   } else {
-    tachyon_cerr << "not supported suffix:" << config.out << std::endl;
+    tachyon_cerr << "suffix not supported:" << config.out << std::endl;
     return 1;
   }
 }

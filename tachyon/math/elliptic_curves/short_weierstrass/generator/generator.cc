@@ -29,6 +29,7 @@ struct GenerationConfig : public build::CcWriter {
 
   std::string ns_name;
   std::string class_name;
+  int base_field_degree;
   std::string base_field;
   base::FilePath base_field_hdr;
   std::string scalar_field;
@@ -73,15 +74,14 @@ int GenerationConfig::GenerateConfigHdr() const {
     replacements["%{y_init}"] =
         math::GenerateInitField("kGenerator.y", "BaseField", y[0]);
   } else {
-    bool is_prime_field = true;
     replacements["%{a_init}"] =
-        math::GenerateInitExtField("kA", "BaseField", a, is_prime_field);
+        math::GenerateInitExtField("kA", "BaseField", a, base_field_degree);
     replacements["%{b_init}"] =
-        math::GenerateInitExtField("kB", "BaseField", b, is_prime_field);
+        math::GenerateInitExtField("kB", "BaseField", b, base_field_degree);
     replacements["%{x_init}"] = math::GenerateInitExtField(
-        "kGenerator.x", "BaseField", x, is_prime_field);
+        "kGenerator.x", "BaseField", x, base_field_degree);
     replacements["%{y_init}"] = math::GenerateInitExtField(
-        "kGenerator.y", "BaseField", y, is_prime_field);
+        "kGenerator.y", "BaseField", y, base_field_degree);
   }
 
   int64_t a_value;
@@ -114,8 +114,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       replacements["%{endomorphism_coefficient_init_code}"] =
           math::GenerateInitExtField("kEndomorphismCoefficient", "BaseField",
                                      endomorphism_coefficient,
-                                     /*is_prime_field=*/
-                                     true);
+                                     base_field_degree);
     }
     replacements["%{lambda_init_code}"] =
         math::GenerateInitField("kLambda", "ScalarField", lambda);
@@ -166,6 +165,9 @@ int RealMain(int argc, char** argv) {
       .set_long_name("--namespace")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.class_name).set_long_name("--class");
+  parser.AddFlag<base::IntFlag>(&config.base_field_degree)
+      .set_long_name("--base_field_degree")
+      .set_required();
   parser.AddFlag<base::StringFlag>(&config.base_field)
       .set_long_name("--base_field")
       .set_required();
@@ -217,7 +219,7 @@ int RealMain(int argc, char** argv) {
   } else if (base::EndsWith(config.out.value(), ".h")) {
     return config.GenerateConfigHdr();
   } else {
-    tachyon_cerr << "not supported suffix:" << config.out << std::endl;
+    tachyon_cerr << "suffix not supported:" << config.out << std::endl;
     return 1;
   }
 }

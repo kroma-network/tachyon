@@ -19,7 +19,6 @@
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
-#include "tachyon/math/finite_fields/modulus.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::math {
@@ -29,8 +28,9 @@ class PrimeFieldGpu;
 
 // A prime field is finite field GF(p) where p is a prime number.
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime>> final
-    : public PrimeFieldBase<PrimeField<_Config>> {
+class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
+                                           (_Config::kModulusBits > 32)>>
+    final : public PrimeFieldBase<PrimeField<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;

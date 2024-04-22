@@ -44,6 +44,7 @@ generate_ec_points(
     a = ["0"],
     b = ["5"],
     base_field = "Fq",
+    base_field_degree = 1,
     base_field_dep = ":fq",
     base_field_hdr = "tachyon/math/elliptic_curves/pasta/vesta/fq.h",
     gen_gpu = True,

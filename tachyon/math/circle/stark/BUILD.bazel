@@ -1,0 +1,94 @@
+load("//tachyon/math/circle/generator:build_defs.bzl", "generate_circle_points")
+load(
+    "//tachyon/math/finite_fields/generator/ext_prime_field_generator:build_defs.bzl",
+    "generate_fp2s",
+    "generate_fp4s",
+)
+load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
+
+package(default_visibility = ["//visibility:public"])
+
+generate_circle_points(
+    name = "g1",
+    base_field = "Mersenne31",
+    base_field_degree = 1,
+    base_field_dep = "//tachyon/math/finite_fields/mersenne31",
+    base_field_hdr = "tachyon/math/finite_fields/mersenne31/mersenne31.h",
+    class_name = "G1",
+    namespace = "tachyon::math::stark",
+    scalar_field = "Fr",
+    scalar_field_dep = ":fr",
+    scalar_field_hdr = "tachyon/math/circle/stark/fr.h",
+    x = ["2"],
+    y = ["1268011823"],
+)
+
+generate_prime_fields(
+    name = "fr",
+    class_name = "Fr",
+    flag = "kIsStarkFr",
+    # 2³¹
+    # Hex: 0x80000000
+    modulus = "2147483648",
+    namespace = "tachyon::math::stark",
+    reduce = "    return static_cast<uint32_t>(v & (kModulus[0] - 1));",
+)
+
+generate_fp2s(
+    name = "fq2",
+    base_field = "Mersenne31",
+    base_field_hdr = "tachyon/math/finite_fields/mersenne31/mersenne31.h",
+    class_name = "Fq2",
+    namespace = "tachyon::math::stark",
+    non_residue = ["-1"],
+    deps = ["//tachyon/math/finite_fields/mersenne31"],
+)
+
+generate_fp4s(
+    name = "fq4",
+    base_field = "Fq2",
+    base_field_hdr = "tachyon/math/circle/stark/fq2.h",
+    class_name = "Fq4",
+    namespace = "tachyon::math::stark",
+    non_residue = [
+        "2",
+        "1",
+    ],
+    deps = [":fq2"],
+)
+
+generate_prime_fields(
+    name = "fr4",
+    class_name = "Fr4",
+    flag = "kIsStarkFr4",
+    # (2³¹ - 1)⁴ - 1
+    # Hex: 0xfffffff800000017ffffffe00000000
+    modulus = "21267647892944572736998860269687930880",
+    namespace = "tachyon::math::stark",
+    use_asm = False,
+)
+
+generate_circle_points(
+    name = "g4",
+    base_field = "Fq4",
+    base_field_degree = 4,
+    base_field_dep = ":fq4",
+    base_field_hdr = "tachyon/math/circle/stark/fq4.h",
+    class_name = "G4",
+    namespace = "tachyon::math::stark",
+    scalar_field = "Fr4",
+    scalar_field_dep = ":fr4",
+    scalar_field_hdr = "tachyon/math/circle/stark/fr4.h",
+    x = [
+        "1",
+        "0",
+        "478637715",
+        "513582971",
+    ],
+    y = [
+        "992285211",
+        "649143431",
+        "740191619",
+        "1186584352",
+    ],
+)

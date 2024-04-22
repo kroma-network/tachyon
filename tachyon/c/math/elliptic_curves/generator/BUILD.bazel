@@ -34,5 +34,6 @@ tachyon_cc_binary(
         "//tachyon/base/flag:flag_parser",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/build:cc_writer",
+        "@com_google_absl//absl/strings",
     ],
 )
