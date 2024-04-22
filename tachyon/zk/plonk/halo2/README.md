@@ -94,28 +94,28 @@ Considering the memory used by polynomials is typically high, reducing the numbe
 
 We provide benchmarks of Tachyon and Halo2 for three main circuits by [Privacy-scaling-explorations](https://github.com/privacy-scaling-explorations/zkevm-circuits) and [Scroll](https://github.com/scroll-tech/zkevm-circuits).
 
-- Tachyon commit hash: 48891d59
-- halo2 commit hash: 0918c29e
-- zkevm-circuit commit hash: ea2c2102
+- Tachyon commit hash: [2c6c4c4](https://github.com/kroma-network/tachyon/commit/2c6c4c47a0fe249dbefc20eeaa75127197b7dedc)
+- halo2 commit hash: [0918c29e](https://github.com/kroma-network/halo2/commit/0918c29ed04096929ef2d006454b8eea6296d21f)
+- zkevm-circuit commit hash: [4f431bf](https://github.com/kroma-network/zkevm-circuits/commit/4f431bfed7243da4f2a1183868f1939028d1a00c)
 
 The following are the results of the `real_prover` test for the `Transfer 0` block in [the integration tests](https://github.com/kroma-network/zkevm-circuits/blob/dev/integration-tests/tests/circuits.rs) of `zkevm-circuits`. The times, in seconds, were recorded on an AWS EC2 instance (name: r6i.8xlarge, vCPU: 32, RAM: 256GB).
 
-| Steps            | Tx:Tachyon | Tx:Halo2 | EVM:Tachyon | EVM:Halo2 | Super:Tachyon | Super:Halo2 |
-| :--------------- | ---------: | -------: | ----------: | --------: | ------------: | ----------: |
-| degree           |         20 |       20 |          18 |        18 |            20 |          20 |
-| before theta     |     191.66 |   177.91 |       33.89 |     27.02 |        407.25 |      405.87 |
-| theta            |      20.28 |    20.65 |       11.66 |     13.50 |        157.21 |      171.76 |
-| - compress       |      1.188 |     2.73 |        0.27 |      0.46 |          6.64 |       14.35 |
-| - permute        |       9.75 |    11.04 |        5.33 |      8.37 |         72.60 |       88.26 |
-| - commit         |      2.159 |     6.89 |        1.48 |      4.66 |         25.60 |       69.15 |
-| beta-gamma       |      19.04 |    32.18 |        9.31 |     14.62 |        108.95 |      174.76 |
-| y                |      218.3 |   261.97 |      205.93 |    218.37 |       3071.48 |     3426.80 |
-| - transform poly |       9.05 |     6.57 |        4.66 |      2.79 |         51.76 |       34.37 |
-| - build h poly   |     209.25 |   255.40 |      201.27 |    215.58 |       3019.72 |     3392.43 |
-| x                |       1.91 |     1.58 |        3.59 |      2.47 |         19.27 |       14.42 |
-| shplonk          |       8.86 |     5.87 |        1.49 |      3.31 |         40.75 |       25.30 |
-| backend total    |      261.2 |   322.25 |       228.6 |    252.27 |       3345.29 |     3813.04 |
-| end-to-end total |     452.82 |   500.16 |      262.49 |    279.29 |       3752.54 |     4218.91 |
+| Steps            | Tx:Tachyon |   Tx:Halo2 | EVM:Tachyon | EVM:Halo2 | Super:Tachyon | Super:Halo2 |
+| :--------------- | ---------: | ---------: | ----------: | --------: | ------------: | ----------: |
+| degree           |         20 |         20 |          18 |        18 |            20 |          20 |
+| before theta     |     191.06 | **177.91** |       34.64 | **27.02** |    **404.06** |      405.87 |
+| theta            |  **12.87** |      20.65 |    **6.47** |     13.50 |    **102.99** |      171.76 |
+| - compress       |   **1.12** |       2.73 |    **0.21** |      0.46 |      **6.60** |       14.35 |
+| - permute        |   **9.70** |      11.04 |    **4.91** |      8.37 |     **72.30** |       88.26 |
+| - commit         |   **2.06** |       6.89 |    **1.35** |      4.66 |     **24.09** |       69.15 |
+| beta-gamma       |  **16.28** |      32.18 |    **7.79** |     14.62 |     **91.04** |      174.76 |
+| y                | **213.85** |     261.97 |  **188.16** |    218.37 |   **2819.59** |     3426.80 |
+| - transform poly |       8.89 |   **6.57** |        4.47 |  **2.79** |         52.76 |   **34.37** |
+| - build h poly   | **204.95** |     255.40 |  **183.69** |    215.58 |   **2766.83** |     3392.43 |
+| x                |   **1.49** |       1.58 |        4.22 |  **2.47** |         15.90 |   **14.42** |
+| shplonk          |       8.10 |   **5.87** |    **1.38** |      3.31 |         37.49 |   **25.30** |
+| backend total    | **252.58** |     322.25 |  **208.02** |    252.27 |   **3067.02** |     3813.04 |
+| end-to-end total | **443.64** |     500.16 |  **242.66** |    279.29 |   **3471.08** |     4218.91 |
 
 - Greek characters such as `theta` and `beta` are adopted from the [halo2-book](https://zcash.github.io/halo2/design/proving-system.html#tldr)
 - `before theta` refers to the total time taken by the Halo2 including the circuit frontend.
