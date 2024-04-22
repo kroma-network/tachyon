@@ -2,7 +2,7 @@
 #include "%{config_header_path}"
 
 %{if kIsSmallField}
-#include "tachyon/math/finite_fields/small_prime_field_generic.h"
+#include "tachyon/math/finite_fields/small_prime_field.h"
 %{endif kIsSmallField}
 %{if !kIsSmallField}
 %{if kUseAsm}
@@ -10,7 +10,7 @@
 #include "%{prime_field_x86_hdr}"
 #else
 %{endif kUseAsm}
-#include "tachyon/math/finite_fields/prime_field_generic.h"
+#include "tachyon/math/finite_fields/prime_field_fallback.h"
 %{if kUseAsm}
 #endif
 %{endif kUseAsm}

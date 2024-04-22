@@ -163,7 +163,7 @@ def _do_generate_prime_fields(
             hdrs = [":{}_gen_hdr".format(name)],
             deps = [
                 ":{}_config".format(name),
-                "//tachyon/math/finite_fields:small_prime_field_generic",
+                "//tachyon/math/finite_fields:small_prime_field",
             ],
             **kwargs
         )
@@ -245,7 +245,7 @@ def _do_generate_prime_fields(
                     ":{}_fail".format(name),
                     "//tachyon/math/finite_fields:prime_field_base",
                 ],
-                "//conditions:default": ["//tachyon/math/finite_fields:prime_field_generic"],
+                "//conditions:default": ["//tachyon/math/finite_fields:prime_field_fallback"],
             }),
             **kwargs
         )
@@ -255,7 +255,7 @@ def _do_generate_prime_fields(
             hdrs = [":{}_gen_hdr".format(name)],
             deps = [
                 ":{}_config".format(name),
-                "//tachyon/math/finite_fields:prime_field_generic",
+                "//tachyon/math/finite_fields:prime_field_fallback",
             ],
             **kwargs
         )
