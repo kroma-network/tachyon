@@ -58,7 +58,7 @@ class TACHYON_EXPORT %{class}Config {
   constexpr static uint32_t kInverse32 = %{inverse32};
 
   constexpr static BigInt<%{n}> kOne = BigInt<%{n}>({
-    %{one_mont_form}
+    %{one}
   });
 
   constexpr static bool kHasTwoAdicRootOfUnity = %{has_two_adic_root_of_unity};

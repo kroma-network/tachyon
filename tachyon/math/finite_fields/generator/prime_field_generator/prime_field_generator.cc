@@ -99,6 +99,7 @@ struct GenerationConfig : public build::CcWriter {
   std::string flag;
   std::string reduce;
   bool use_asm = false;
+  bool use_montgomery = false;
   std::string subgroup_generator;
   std::string small_subgroup_base;
   std::string small_subgroup_adicity;
@@ -168,8 +169,6 @@ int GenerationConfig::GenerateConfigHdr() const {
       base::BoolToString(m % mpz_class(4) == mpz_class(3));
   replacements["%{modulus_mod_six_is_one}"] =
       base::BoolToString(m % mpz_class(6) == mpz_class(1));
-  replacements["%{one_mont_form}"] =
-      math::MpzClassToMontString(mpz_class(1), m);
 
   mpz_class trace = math::ComputeTrace(2, m - mpz_class(1));
   replacements["%{trace}"] = math::MpzClassToString(trace);
@@ -190,6 +189,12 @@ int GenerationConfig::GenerateConfigHdr() const {
   replacements["%{r3}"] = math::MpzClassToString(modulus_info.r3);
   replacements["%{inverse64}"] = base::NumberToString(modulus_info.inverse64);
   replacements["%{inverse32}"] = base::NumberToString(modulus_info.inverse32);
+
+  if (use_montgomery) {
+    replacements["%{one}"] = math::MpzClassToMontString(mpz_class(1), m);
+  } else {
+    replacements["%{one}"] = "1";
+  }
 
   std::string tpl_content;
   CHECK(base::ReadFileToString(config_hdr_tpl_path, &tpl_content));
@@ -340,6 +345,8 @@ int RealMain(int argc, char** argv) {
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.reduce).set_long_name("--reduce");
   parser.AddFlag<base::BoolFlag>(&config.use_asm).set_long_name("--use_asm");
+  parser.AddFlag<base::BoolFlag>(&config.use_montgomery)
+      .set_long_name("--use_montgomery");
   parser.AddFlag<base::FilePathFlag>(&config.x86_hdr_tpl_path)
       .set_long_name("--x86_hdr_tpl_path")
       .set_required();

@@ -35,6 +35,9 @@ def _do_generate_prime_field_impl(ctx, type):
     if ctx.attr.use_asm:
         arguments.append("--use_asm")
 
+    if ctx.attr.use_montgomery:
+        arguments.append("--use_montgomery")
+
     if len(ctx.attr.reduce) > 0:
         arguments.append("--reduce=%s" % (ctx.attr.reduce))
 
@@ -80,6 +83,7 @@ def _attrs(type):
         "flag": attr.string(mandatory = True),
         "reduce": attr.string(mandatory = True),
         "use_asm": attr.bool(mandatory = True),
+        "use_montgomery": attr.bool(mandatory = True),
         "x86_hdr_tpl": attr.label(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:prime_field_x86.h.tpl"),
@@ -288,6 +292,7 @@ def generate_prime_fields(
         flag,
         reduce = "",
         use_asm = True,
+        use_montgomery = True,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_prime_field(
@@ -297,6 +302,7 @@ def generate_prime_fields(
             flag = flag,
             reduce = reduce,
             use_asm = use_asm,
+            use_montgomery = use_montgomery,
             name = n[0],
             out = n[1],
         )
@@ -312,6 +318,7 @@ def generate_fft_prime_fields(
         subgroup_generator,
         reduce = "",
         use_asm = True,
+        use_montgomery = True,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_fft_prime_field(
@@ -321,6 +328,7 @@ def generate_fft_prime_fields(
             flag = flag,
             reduce = reduce,
             use_asm = use_asm,
+            use_montgomery = use_montgomery,
             subgroup_generator = subgroup_generator,
             name = n[0],
             out = n[1],
@@ -339,6 +347,7 @@ def generate_large_fft_prime_fields(
         subgroup_generator,
         reduce = "",
         use_asm = True,
+        use_montgomery = True,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_large_fft_prime_field(
@@ -348,6 +357,7 @@ def generate_large_fft_prime_fields(
             flag = flag,
             reduce = reduce,
             use_asm = use_asm,
+            use_montgomery = use_montgomery,
             small_subgroup_adicity = small_subgroup_adicity,
             small_subgroup_base = small_subgroup_base,
             subgroup_generator = subgroup_generator,

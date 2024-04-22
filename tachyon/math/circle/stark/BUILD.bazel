@@ -32,6 +32,7 @@ generate_prime_fields(
     modulus = "2147483648",
     namespace = "tachyon::math::stark",
     reduce = "    return static_cast<uint32_t>(v & (kModulus[0] - 1));",
+    use_montgomery = False,
 )
 
 generate_fp2s(
