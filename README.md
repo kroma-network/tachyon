@@ -25,10 +25,10 @@ Symbol Definitions:
 
 ### Finite Fields
 
-|             | CPU                | GPU |
-| ----------- | ------------------ | --- |
-| Goldilocks  | :heavy_check_mark: | :x: |
-| Mersenne-31 | :heavy_check_mark: | :x: |
+|             | CPU                | GPU                |
+| ----------- | ------------------ | ------------------ |
+| Goldilocks  | :heavy_check_mark: | :x:                |
+| Mersenne-31 | :heavy_check_mark: | :heavy_check_mark: |
 
 ### Elliptic Curves
 
