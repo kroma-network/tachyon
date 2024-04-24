@@ -547,7 +547,7 @@ constexpr auto find_if_not(Range&& range, Pred pred, Proj proj = {}) {
 //
 // Returns: `i`
 // Note: std::ranges::find_end(I1 first1,...) returns a range, rather than an
-// iterator. For simplicitly we match std::find_end's return type instead.
+// iterator. For simplicity we match std::find_end's return type instead.
 //
 // Complexity:
 // At most `(last2 - first2) * (last1 - first1 - (last2 - first2) + 1)`
@@ -587,7 +587,7 @@ constexpr auto find_end(ForwardIterator1 first1,
 //
 // Returns: `i`
 // Note: std::ranges::find_end(R1&& r1,...) returns a range, rather than an
-// iterator. For simplicitly we match std::find_end's return type instead.
+// iterator. For simplicity we match std::find_end's return type instead.
 //
 // Complexity: At most `size(range2) * (size(range1) - size(range2) + 1)`
 // applications of the corresponding predicate and any projections.
@@ -1072,7 +1072,7 @@ constexpr bool is_permutation(Range1&& range1,
 // is `true`.
 // Returns `last1` if no such iterator exists.
 // Note: std::ranges::search(I1 first1,...) returns a range, rather than an
-// iterator. For simplicitly we match std::search's return type instead.
+// iterator. For simplicity we match std::search's return type instead.
 //
 // Complexity: At most `(last1 - first1) * (last2 - first2)` applications of the
 // corresponding predicate and projections.
@@ -1106,7 +1106,7 @@ constexpr auto search(ForwardIterator1 first1,
 //                    invoke(proj2, *(begin(range2) + n))))` is `true`.
 // Returns `end(range1)` if no such iterator exists.
 // Note: std::ranges::search(R1&& r1,...) returns a range, rather than an
-// iterator. For simplicitly we match std::search's return type instead.
+// iterator. For simplicity we match std::search's return type instead.
 //
 // Complexity: At most `size(range1) * size(range2)` applications of the
 // corresponding predicate and projections.
@@ -1140,7 +1140,7 @@ constexpr auto search(Range1&& range1,
 // `invoke(pred, invoke(proj, *(i + n)), value)`.
 // Returns `last` if no such iterator is found.
 // Note: std::ranges::search_n(I1 first1,...) returns a range, rather than an
-// iterator. For simplicitly we match std::search_n's return type instead.
+// iterator. For simplicity we match std::search_n's return type instead.
 //
 // Complexity: At most `last - first` applications of the corresponding
 // predicate and projection.
@@ -1174,7 +1174,7 @@ constexpr auto search_n(ForwardIterator first,
 // `invoke(pred, invoke(proj, *(i + n)), value)`.
 // Returns `end(arnge)` if no such iterator is found.
 // Note: std::ranges::search_n(R1&& r1,...) returns a range, rather than an
-// iterator. For simplicitly we match std::search_n's return type instead.
+// iterator. For simplicity we match std::search_n's return type instead.
 //
 // Complexity: At most `size(range)` applications of the corresponding predicate
 // and projection.
