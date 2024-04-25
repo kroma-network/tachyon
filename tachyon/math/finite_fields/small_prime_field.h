@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_GENERIC_H_
-#define TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_GENERIC_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_H_
+#define TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -68,7 +68,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     uint64_t value;
     if (!base::StringToUint64(str, &value)) return std::nullopt;
     if (value >= uint64_t{GetModulus()}) {
-      LOG(ERROR) << "value(" << str << ") is grater than modulus";
+      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
       return std::nullopt;
     }
     return PrimeField(value);
@@ -77,7 +77,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     uint64_t value;
     if (!base::HexStringToUint64(str, &value)) return std::nullopt;
     if (value >= uint64_t{GetModulus()}) {
-      LOG(ERROR) << "value(" << str << ") is grater than modulus";
+      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
       return std::nullopt;
     }
     return PrimeField(value);
@@ -227,4 +227,4 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_GENERIC_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_H_
