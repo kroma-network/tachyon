@@ -49,7 +49,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     DCHECK_LT(value_, GetModulus());
   }
   constexpr explicit PrimeField(const BigInt<N>& value) : PrimeField(value[0]) {
-    DCHECK_LT(value_, GetModulus());
+    DCHECK_LT(value[0], GetModulus());
   }
   constexpr PrimeField(const PrimeField& other) = default;
   constexpr PrimeField& operator=(const PrimeField& other) = default;
