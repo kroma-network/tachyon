@@ -94,6 +94,12 @@ def if_has_openmp(a, b = []):
         "//conditions:default": b,
     })
 
+def if_has_avx512(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:tachyon_has_avx512": a,
+        "//conditions:default": b,
+    })
+
 def if_has_matplotlib(a, b = []):
     return select({
         "@kroma_network_tachyon//:tachyon_has_matplotlib": a,

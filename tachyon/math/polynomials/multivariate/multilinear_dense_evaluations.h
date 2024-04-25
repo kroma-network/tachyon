@@ -140,7 +140,7 @@ class MultilinearDenseEvaluations {
     return fixed.evaluations_[0];
   }
 
-  std::string ToString() const { return base::VectorToString(evaluations_); }
+  std::string ToString() const { return base::ContainerToString(evaluations_); }
 
  private:
   friend class internal::MultilinearExtensionOp<

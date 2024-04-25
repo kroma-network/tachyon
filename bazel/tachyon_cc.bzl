@@ -2,6 +2,7 @@ load("@local_config_cuda//cuda:build_defs.bzl", "cuda_library", "if_cuda")
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "objc_library")
 load(
     "//bazel:tachyon.bzl",
+    "if_has_avx512",
     "if_has_exception",
     "if_has_matplotlib",
     "if_has_openmp",
@@ -42,6 +43,9 @@ def tachyon_cxxopts(safe_code = True, force_exceptions = False, force_rtti = Fal
 
 def tachyon_openmp_defines():
     return if_has_openmp(["TACHYON_HAS_OPENMP"])
+
+def tachyon_avx512_defines():
+    return if_has_avx512(["TACHYON_HAS_AVX512"])
 
 def tachyon_cuda_defines():
     return if_cuda(["TACHYON_CUDA"])

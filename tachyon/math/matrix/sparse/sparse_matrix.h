@@ -165,8 +165,8 @@ class ELLSparseMatrix {
   std::string ToString() const {
     std::stringstream ss;
     ss << "{\n";
-    ss << "  data: " << base::Vector2DToString(GetData()) << "\n";
-    ss << "  col_indices: " << base::Vector2DToString(GetColumnIndices())
+    ss << "  data: " << base::Container2DToString(GetData()) << "\n";
+    ss << "  col_indices: " << base::Container2DToString(GetColumnIndices())
        << "\n";
     ss << "}";
     return ss.str();
@@ -325,9 +325,10 @@ class CSRSparseMatrix {
   std::string ToString() const {
     std::stringstream ss;
     ss << "{\n";
-    ss << "  data: " << base::VectorToString(GetData()) << "\n";
-    ss << "  col_indices: " << base::VectorToString(GetColumnIndices()) << "\n";
-    ss << "  row_ptrs: " << base::VectorToString(row_ptrs_) << "\n";
+    ss << "  data: " << base::ContainerToString(GetData()) << "\n";
+    ss << "  col_indices: " << base::ContainerToString(GetColumnIndices())
+       << "\n";
+    ss << "  row_ptrs: " << base::ContainerToString(row_ptrs_) << "\n";
     ss << "}";
     return ss.str();
   }

@@ -107,6 +107,39 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "packed_prime_field_base",
+    hdrs = ["packed_prime_field_base.h"],
+    deps = [
+        ":packed_prime_field_traits_forward",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/strings:string_util",
+    ],
+)
+
+tachyon_cc_library(
+    name = "packed_prime_field_traits_forward",
+    hdrs = ["packed_prime_field_traits_forward.h"],
+)
+
+tachyon_cc_library(
+    name = "packed_prime_field32_avx2",
+    hdrs = ["packed_prime_field32_avx2.h"],
+    deps = ["//tachyon/base:compiler_specific"],
+)
+
+tachyon_cc_library(
+    name = "packed_prime_field32_avx512",
+    hdrs = ["packed_prime_field32_avx512.h"],
+    deps = ["//tachyon/base:compiler_specific"],
+)
+
+tachyon_cc_library(
+    name = "packed_prime_field32_neon",
+    hdrs = ["packed_prime_field32_neon.h"],
+    deps = ["//tachyon/base:compiler_specific"],
+)
+
+tachyon_cc_library(
     name = "prime_field_base",
     hdrs = ["prime_field_base.h"],
     deps = [
@@ -229,13 +262,18 @@ tachyon_cc_unittest(
         "prime_field_generator_unittest.cc",
         "prime_field_unittest.cc",
         "quadratic_extension_field_unittest.cc",
-    ],
+    ] + select({
+        "@platforms//cpu:x86_64": ["packed_prime_field_unittest.cc"],
+        "@platforms//cpu:aarch64": ["packed_prime_field_unittest.cc"],
+        "//conditions:default": [],
+    }),
     deps = [
         ":modulus",
         ":prime_field_base",
         ":prime_field_gpu_debug",
         "//tachyon/base:bits",
         "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/build:build_config",
         "//tachyon/math/elliptic_curves/bls12/bls12_381:fq",
         "//tachyon/math/elliptic_curves/bls12/bls12_381:fr",
         "//tachyon/math/elliptic_curves/bn/bn254:fq",
@@ -254,7 +292,16 @@ tachyon_cc_unittest(
         "//tachyon/math/finite_fields/test:gf7_2",
         "//tachyon/math/finite_fields/test:gf7_3",
         "@com_google_absl//absl/hash:hash_testing",
-    ],
+    ] + select({
+        "@platforms//cpu:x86_64": [
+            "//tachyon/math/finite_fields/mersenne31:packed_mersenne31_avx2",
+            "//tachyon/math/finite_fields/mersenne31:packed_mersenne31_avx512",
+        ],
+        "@platforms//cpu:aarch64": [
+            "//tachyon/math/finite_fields/mersenne31:packed_mersenne31_neon",
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 tachyon_cuda_unittest(

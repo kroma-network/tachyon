@@ -144,7 +144,7 @@ class UnivariateEvaluations final
     return kZero;
   }
 
-  std::string ToString() const { return base::VectorToString(evaluations_); }
+  std::string ToString() const { return base::ContainerToString(evaluations_); }
 
   // AdditiveSemigroup methods
   UnivariateEvaluations Add(const UnivariateEvaluations& other) const {

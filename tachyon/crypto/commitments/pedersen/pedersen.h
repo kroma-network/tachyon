@@ -70,7 +70,7 @@ class Pedersen final
 
   std::string ToString() const {
     std::stringstream ss;
-    ss << "h: " << h_ << ", generators: " << VectorToString(generators_);
+    ss << "h: " << h_ << ", generators: " << ContainerToString(generators_);
     return ss.str();
   }
 
