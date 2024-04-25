@@ -97,7 +97,8 @@ struct GenerationConfig : public build::CcWriter {
   std::string class_name;
   std::string modulus;
   std::string flag;
-  std::string reduce;
+  std::string reduce32;
+  std::string reduce64;
   bool use_asm = false;
   bool use_montgomery = false;
   std::string subgroup_generator;
@@ -204,7 +205,20 @@ int GenerationConfig::GenerateConfigHdr() const {
   RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
   RemoveOptionalLines(tpl_lines, "!kIsSmallField", !is_small_field);
   if (is_small_field) {
-    replacements["%{reduce}"] = reduce;
+    if (reduce32.empty()) {
+      // clang-format off
+      replacements["%{reduce32}"] = "return v >= static_cast<uint32_t>(kModulus[0])? v - static_cast<uint32_t>(kModulus[0]) : v;";
+      // clang-format on
+    } else {
+      replacements["%{reduce32}"] = reduce32;
+    }
+    if (reduce64.empty()) {
+      // clang-format off
+      replacements["%{reduce64}"] = "return v >= kModulus[0]? v - kModulus[0] : v;";
+      // clang-format on
+    } else {
+      replacements["%{reduce64}"] = reduce64;
+    }
   } else {
     RemoveOptionalLines(tpl_lines, "kUseAsm", use_asm);
   }
@@ -343,7 +357,10 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.flag)
       .set_long_name("--flag")
       .set_required();
-  parser.AddFlag<base::StringFlag>(&config.reduce).set_long_name("--reduce");
+  parser.AddFlag<base::StringFlag>(&config.reduce32)
+      .set_long_name("--reduce32");
+  parser.AddFlag<base::StringFlag>(&config.reduce64)
+      .set_long_name("--reduce64");
   parser.AddFlag<base::BoolFlag>(&config.use_asm).set_long_name("--use_asm");
   parser.AddFlag<base::BoolFlag>(&config.use_montgomery)
       .set_long_name("--use_montgomery");

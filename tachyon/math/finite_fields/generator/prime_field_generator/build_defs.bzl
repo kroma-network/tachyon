@@ -38,8 +38,11 @@ def _do_generate_prime_field_impl(ctx, type):
     if ctx.attr.use_montgomery:
         arguments.append("--use_montgomery")
 
-    if len(ctx.attr.reduce) > 0:
-        arguments.append("--reduce=%s" % (ctx.attr.reduce))
+    if len(ctx.attr.reduce32) > 0:
+        arguments.append("--reduce32=%s" % (ctx.attr.reduce32))
+
+    if len(ctx.attr.reduce64) > 0:
+        arguments.append("--reduce64=%s" % (ctx.attr.reduce64))
 
     if type >= _FFT_PRIME_FIELD:
         arguments.append("--subgroup_generator=%s" % (ctx.attr.subgroup_generator[BuildSettingInfo].value))
@@ -81,7 +84,8 @@ def _attrs(type):
         "class_name": attr.string(mandatory = True),
         "modulus": attr.string(mandatory = True),
         "flag": attr.string(mandatory = True),
-        "reduce": attr.string(mandatory = True),
+        "reduce32": attr.string(mandatory = True),
+        "reduce64": attr.string(mandatory = True),
         "use_asm": attr.bool(mandatory = True),
         "use_montgomery": attr.bool(mandatory = True),
         "x86_hdr_tpl": attr.label(
@@ -290,7 +294,8 @@ def generate_prime_fields(
         class_name,
         modulus,
         flag,
-        reduce = "",
+        reduce32 = "",
+        reduce64 = "",
         use_asm = True,
         use_montgomery = True,
         **kwargs):
@@ -300,7 +305,8 @@ def generate_prime_fields(
             class_name = class_name,
             modulus = modulus,
             flag = flag,
-            reduce = reduce,
+            reduce32 = reduce32,
+            reduce64 = reduce64,
             use_asm = use_asm,
             use_montgomery = use_montgomery,
             name = n[0],
@@ -316,7 +322,8 @@ def generate_fft_prime_fields(
         modulus,
         flag,
         subgroup_generator,
-        reduce = "",
+        reduce32 = "",
+        reduce64 = "",
         use_asm = True,
         use_montgomery = True,
         **kwargs):
@@ -326,7 +333,8 @@ def generate_fft_prime_fields(
             class_name = class_name,
             modulus = modulus,
             flag = flag,
-            reduce = reduce,
+            reduce32 = reduce32,
+            reduce64 = reduce64,
             use_asm = use_asm,
             use_montgomery = use_montgomery,
             subgroup_generator = subgroup_generator,
@@ -345,7 +353,8 @@ def generate_large_fft_prime_fields(
         small_subgroup_adicity,
         small_subgroup_base,
         subgroup_generator,
-        reduce = "",
+        reduce32 = "",
+        reduce64 = "",
         use_asm = True,
         use_montgomery = True,
         **kwargs):
@@ -355,7 +364,8 @@ def generate_large_fft_prime_fields(
             class_name = class_name,
             modulus = modulus,
             flag = flag,
-            reduce = reduce,
+            reduce32 = reduce32,
+            reduce64 = reduce64,
             use_asm = use_asm,
             use_montgomery = use_montgomery,
             small_subgroup_adicity = small_subgroup_adicity,

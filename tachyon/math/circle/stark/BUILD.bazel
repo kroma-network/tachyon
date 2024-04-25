@@ -31,7 +31,8 @@ generate_prime_fields(
     # Hex: 0x80000000
     modulus = "2147483648",
     namespace = "tachyon::math::stark",
-    reduce = "    return v & (static_cast<uint32_t>(kModulus[0]) - 1);",
+    reduce32 = "return v & (static_cast<uint32_t>(kModulus[0]) - 1);",
+    reduce64 = "return v & (static_cast<uint32_t>(kModulus[0]) - 1);",
     use_montgomery = False,
 )
 
