@@ -1057,7 +1057,7 @@ class circular_deque {
   }
 
 #if DCHECK_IS_ON()
-  // Asserts the given index is dereferencable. The index is an index into the
+  // Asserts the given index is dereferenceable. The index is an index into the
   // buffer, not an index used by operator[] or at() which will be offsets from
   // begin.
   void CheckValidIndex(size_t i) const {
@@ -1067,7 +1067,7 @@ class circular_deque {
       DCHECK((i >= begin_ && i < buffer_.capacity()) || i < end_);
   }
 
-  // Asserts the given index is either dereferencable or points to end().
+  // Asserts the given index is either dereferenceable or points to end().
   void CheckValidIndexOrEnd(size_t i) const {
     if (i != end_)
       CheckValidIndex(i);
