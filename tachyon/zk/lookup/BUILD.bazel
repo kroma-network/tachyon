@@ -37,6 +37,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "type",
+    hdrs = ["type.h"],
+)
+
+tachyon_cc_library(
     name = "verifying_evaluator",
     hdrs = ["verifying_evaluator.h"],
     deps = [

@@ -60,6 +60,18 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "scheme",
+    hdrs = ["scheme.h"],
+    deps = [
+        ":evaluator",
+        ":prover",
+        ":verifier",
+        ":verifier_data",
+        "//tachyon/zk/lookup:type",
+    ],
+)
+
+tachyon_cc_library(
     name = "utils",
     hdrs = ["utils.h"],
 )
