@@ -85,6 +85,20 @@ class TACHYON_EXPORT %{class}Config {
 %{endif kHasTwoAdicRootOfUnity}
 
 %{if kIsSmallField}
+  constexpr static uint32_t AddMod(uint32_t a, uint32_t b) {
+    // NOTE(chokobole): This assumes that the 2m - 2 < 2³², where m is modulus.
+    uint32_t ret = a + b;
+    if (ret >= static_cast<uint32_t>(kModulus[0])) return ret - static_cast<uint32_t>(kModulus[0]);
+    return ret;
+  }
+
+  constexpr static uint32_t SubMod(uint32_t a, uint32_t b) {
+    // NOTE(chokobole): This assumes that the 2m - 2 < 2³², where m is modulus.
+    uint32_t ret = a + static_cast<uint32_t>(kModulus[0]) - b;
+    if (ret >= static_cast<uint32_t>(kModulus[0])) return ret - static_cast<uint32_t>(kModulus[0]);
+    return ret;
+  }
+
   constexpr static uint32_t Reduce(uint64_t v) {
 %{reduce}
   }

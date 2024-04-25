@@ -146,31 +146,30 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   // AdditiveSemigroup methods
   constexpr PrimeField Add(PrimeField other) const {
-    return PrimeField(Config::Reduce(uint64_t{value_} + other.value_));
+    return PrimeField(Config::AddMod(value_, other.value_));
   }
 
   constexpr PrimeField& AddInPlace(PrimeField other) {
-    value_ = Config::Reduce(uint64_t{value_} + other.value_);
+    value_ = Config::AddMod(value_, other.value_);
     return *this;
   }
 
   // AdditiveGroup methods
   constexpr PrimeField Sub(PrimeField other) const {
-    return PrimeField(
-        Config::Reduce(uint64_t{value_} + GetModulus() - other.value_));
+    return PrimeField(Config::SubMod(value_, other.value_));
   }
 
   constexpr PrimeField& SubInPlace(PrimeField other) {
-    value_ = Config::Reduce(uint64_t{value_} + GetModulus() - other.value_);
+    value_ = Config::SubMod(value_, other.value_);
     return *this;
   }
 
   constexpr PrimeField Negate() const {
-    return PrimeField(Config::Reduce(uint64_t{GetModulus()} - value_));
+    return PrimeField(Config::SubMod(0, value_));
   }
 
   constexpr PrimeField& NegateInPlace() {
-    value_ = Config::Reduce(uint64_t{GetModulus()} - value_);
+    value_ = Config::SubMod(0, value_);
     return *this;
   }
 
