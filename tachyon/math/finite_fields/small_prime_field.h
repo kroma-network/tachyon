@@ -198,9 +198,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
     DCHECK_EQ(result.r, 1);
     if (result.s > 0) {
-      return PrimeField(Config::Reduce(result.s));
+      return PrimeField(result.s);
     } else {
-      return PrimeField(Config::Reduce(uint64_t{GetModulus()} + result.s));
+      return PrimeField(int64_t{GetModulus()} + result.s);
     }
   }
 
@@ -209,9 +209,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
     DCHECK_EQ(result.r, 1);
     if (result.s > 0) {
-      value_ = Config::Reduce(result.s);
+      value_ = result.s;
     } else {
-      value_ = Config::Reduce(uint64_t{GetModulus()} + result.s);
+      value_ = int64_t{GetModulus()} + result.s;
     }
     return *this;
   }
