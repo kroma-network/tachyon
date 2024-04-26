@@ -1,3 +1,5 @@
+load("//bazel:tachyon.bzl", "if_aarch64", "if_has_avx512", "if_x86_64")
+load("//bazel:tachyon_cc.bzl", "tachyon_avx512_defines", "tachyon_cc_library")
 load("//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl", "generate_prime_fields")
 
 package(default_visibility = ["//visibility:public"])
@@ -11,4 +13,52 @@ generate_prime_fields(
     modulus = "2013265921",
     namespace = "tachyon::math",
     use_montgomery = True,
+)
+
+tachyon_cc_library(
+    name = "packed_baby_bear_avx2",
+    srcs = if_x86_64(["packed_baby_bear_avx2.cc"]),
+    hdrs = if_x86_64(["packed_baby_bear_avx2.h"]),
+    copts = if_x86_64(["-mavx2"]),
+    deps = [
+        ":baby_bear",
+        "//tachyon/math/finite_fields:packed_prime_field32_avx2",
+        "//tachyon/math/finite_fields:packed_prime_field_base",
+    ],
+)
+
+tachyon_cc_library(
+    name = "packed_baby_bear_avx512",
+    srcs = if_x86_64(["packed_baby_bear_avx512.cc"]),
+    hdrs = if_x86_64(["packed_baby_bear_avx512.h"]),
+    copts = if_x86_64(["-mavx512f"]),
+    deps = [
+        ":baby_bear",
+        "//tachyon/math/finite_fields:packed_prime_field32_avx512",
+        "//tachyon/math/finite_fields:packed_prime_field_base",
+    ],
+)
+
+tachyon_cc_library(
+    name = "packed_baby_bear_neon",
+    srcs = if_aarch64(["packed_baby_bear_neon.cc"]),
+    hdrs = if_aarch64(["packed_baby_bear_neon.h"]),
+    deps = [
+        ":baby_bear",
+        "//tachyon/math/finite_fields:packed_prime_field32_neon",
+        "//tachyon/math/finite_fields:packed_prime_field_base",
+    ],
+)
+
+tachyon_cc_library(
+    name = "packed_baby_bear",
+    hdrs = ["packed_baby_bear.h"],
+    defines = tachyon_avx512_defines(),
+    deps = [
+        ":packed_baby_bear_neon",
+        "//tachyon/build:build_config",
+    ] + if_has_avx512(
+        [":packed_baby_bear_avx512"],
+        [":packed_baby_bear_avx2"],
+    ),
 )

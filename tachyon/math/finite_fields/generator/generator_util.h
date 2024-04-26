@@ -21,7 +21,8 @@ std::string MpzClassToMontString(const mpz_class& v_in, const mpz_class& m_in) {
   BigInt<N> m;
 
   if constexpr (N == 1) {
-    if (m_in < mpz_class(uint64_t{1} << 32)) {
+    // NOLINTNEXTLINE(runtime/int)
+    if (m_in < mpz_class(static_cast<unsigned long>(uint64_t{1} << 32))) {
       return MpzClassToString(mpz_class((v_in.get_ui() << 32) % m_in.get_ui()));
     }
   }

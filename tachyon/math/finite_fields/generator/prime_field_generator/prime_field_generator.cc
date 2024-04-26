@@ -45,7 +45,8 @@ struct ModulusInfo {
 
     ModulusInfo ret;
     if constexpr (N == 1) {
-      if (m_in < mpz_class(uint64_t{1} << 32)) {
+      // NOLINTNEXTLINE(runtime/int)
+      if (m_in < mpz_class(static_cast<unsigned long>(uint64_t{1} << 32))) {
         ret.inverse32 = -math::Modulus<N>::template Inverse<uint32_t>(m);
         return ret;
       }

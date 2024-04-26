@@ -38,29 +38,6 @@ __m512i Sub(__m512i lhs, __m512i rhs) { return SubMod32(lhs, rhs, kP); }
 
 __m512i Negate(__m512i val) { return NegateMod32(val, kP); }
 
-__m512i movehdup_epi32(__m512i a) {
-  // The instruction is only available in the floating-point flavor; this
-  // distinction is only for historical reasons and no longer matters. We cast
-  // to floats, do the thing, and cast back.
-  return _mm512_castps_si512(_mm512_movehdup_ps(_mm512_castsi512_ps(a)));
-}
-
-__m512i mask_movehdup_epi32(__m512i src, __mmask16 k, __m512i a) {
-  // The instruction is only available in the floating-point flavor; this
-  // distinction is only for historical reasons and no longer matters. We cast
-  // to floats, do the thing, and cast back.
-  return _mm512_castps_si512(_mm512_mask_movehdup_ps(
-      _mm512_castsi512_ps(src), k, _mm512_castsi512_ps(a)));
-}
-
-__m512i mask_moveldup_epi32(__m512i src, __mmask16 k, __m512i a) {
-  // The instruction is only available in the floating-point flavor; this
-  // distinction is only for historical reasons and no longer matters. We cast
-  // to floats, do the thing, and cast back.
-  return _mm512_castps_si512(_mm512_mask_moveldup_ps(
-      _mm512_castsi512_ps(src), k, _mm512_castsi512_ps(a)));
-}
-
 __m512i Mul(__m512i lhs, __m512i rhs) {
   // We want this to compile to:
   // vpaddd     lhs_evn_dbl, lhs, lhs
