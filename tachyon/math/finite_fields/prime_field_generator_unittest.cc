@@ -12,6 +12,7 @@
 #include "tachyon/math/elliptic_curves/secp/secp256k1/fr.h"
 #include "tachyon/math/finite_fields/baby_bear/baby_bear.h"
 #include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
+#include "tachyon/math/finite_fields/koala_bear/koala_bear.h"
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 
 namespace tachyon::math {
@@ -28,7 +29,7 @@ class PrimeFieldGeneratorTest : public testing::Test {
 using PrimeFieldTypes =
     testing::Types<bls12_381::Fq, bls12_381::Fr, bn254::Fq, bn254::Fr,
                    pallas::Fq, pallas::Fr, vesta::Fq, vesta::Fr, secp256k1::Fr,
-                   secp256k1::Fq, BabyBear, Goldilocks, Mersenne31>;
+                   secp256k1::Fq, BabyBear, Goldilocks, KoalaBear, Mersenne31>;
 
 TYPED_TEST_SUITE(PrimeFieldGeneratorTest, PrimeFieldTypes);
 

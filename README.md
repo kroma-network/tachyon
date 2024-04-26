@@ -30,6 +30,7 @@ Symbol Definitions:
 | BabyBear    | :heavy_check_mark: | :heavy_check_mark: |
 | Goldilocks  | :heavy_check_mark: | :x:                |
 | Mersenne-31 | :heavy_check_mark: | :heavy_check_mark: |
+| KoalaBear   | :heavy_check_mark: | :heavy_check_mark: |
 
 ### Elliptic Curves
 
