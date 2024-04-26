@@ -2,7 +2,12 @@
 #include "%{config_header_path}"
 
 %{if kIsSmallField}
+%{if kUseMontgomery}
+#include "tachyon/math/finite_fields/small_prime_field_mont.h"
+%{endif kUseMontgomery}
+%{if !kUseMontgomery}
 #include "tachyon/math/finite_fields/small_prime_field.h"
+%{endif !kUseMontgomery}
 %{endif kIsSmallField}
 %{if !kIsSmallField}
 %{if kUseAsm}

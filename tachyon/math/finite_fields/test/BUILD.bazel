@@ -28,6 +28,7 @@ generate_fft_prime_fields(
     reduce32 = "return static_cast<uint32_t>(v % ((1 << kModulusBits) - 1));",
     reduce64 = "return static_cast<uint32_t>(static_cast<uint32_t>(v) % ((1 << kModulusBits) - 1));",
     subgroup_generator = ":" + SMALL_SUBGROUP_ADICITY,
+    use_montgomery = False,
 )
 
 generate_fp2s(

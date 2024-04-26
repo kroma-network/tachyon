@@ -44,6 +44,12 @@ struct ModulusInfo {
     math::gmp::CopyLimbs(m_in, m.limbs);
 
     ModulusInfo ret;
+    if constexpr (N == 1) {
+      if (m_in < mpz_class(uint64_t{1} << 32)) {
+        ret.inverse32 = -math::Modulus<N>::template Inverse<uint32_t>(m);
+        return ret;
+      }
+    }
     ret.modulus_has_spare_bit = math::Modulus<N>::HasSpareBit(m);
     ret.can_use_no_carry_mul_optimization =
         math::Modulus<N>::CanUseNoCarryMulOptimization(m);
@@ -191,6 +197,7 @@ int GenerationConfig::GenerateConfigHdr() const {
   replacements["%{inverse64}"] = base::NumberToString(modulus_info.inverse64);
   replacements["%{inverse32}"] = base::NumberToString(modulus_info.inverse32);
 
+  replacements["%{use_montgomery}"] = base::BoolToString(use_montgomery);
   if (use_montgomery) {
     replacements["%{one}"] = math::MpzClassToMontString(mpz_class(1), m);
   } else {
@@ -200,6 +207,9 @@ int GenerationConfig::GenerateConfigHdr() const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(config_hdr_tpl_path, &tpl_content));
   std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, "\n");
+
+  RemoveOptionalLines(tpl_lines, "kUseMontgomery", use_montgomery);
+  RemoveOptionalLines(tpl_lines, "!kUseMontgomery", !use_montgomery);
 
   bool is_small_field = num_bits <= 32;
   RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
@@ -315,6 +325,9 @@ int GenerationConfig::GenerateCpuHdr() const {
   bool is_small_field = num_bits <= 32;
   RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
   RemoveOptionalLines(tpl_lines, "!kIsSmallField", !is_small_field);
+
+  RemoveOptionalLines(tpl_lines, "kUseMontgomery", use_montgomery);
+  RemoveOptionalLines(tpl_lines, "!kUseMontgomery", !use_montgomery);
   if (!is_small_field) RemoveOptionalLines(tpl_lines, "kUseAsm", use_asm);
 
   tpl_content = absl::StrJoin(tpl_lines, "\n");
