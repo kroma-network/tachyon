@@ -1,0 +1,85 @@
+// Copyright (c) 2022 The Plonky3 Authors
+// Use of this source code is governed by a MIT/Apache-2.0 style license that
+// can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
+// file.
+
+#include "tachyon/math/finite_fields/koala_bear/packed_koala_bear_neon.h"
+
+#include <arm_neon.h>
+
+#include "tachyon/math/finite_fields/packed_prime_field32_neon.h"
+
+namespace tachyon::math {
+
+namespace {
+
+uint32x4_t kP;
+uint32x4_t kInv;
+uint32x4_t kZero;
+uint32x4_t kOne;
+
+uint32x4_t ToVector(const PackedKoalaBearNeon& packed) {
+  return vld1q_u32(reinterpret_cast<const uint32_t*>(packed.values().data()));
+}
+
+PackedKoalaBearNeon FromVector(uint32x4_t vector) {
+  PackedKoalaBearNeon ret;
+  vst1q_u32(reinterpret_cast<uint32_t*>(ret.values().data()), vector);
+  return ret;
+}
+
+uint32x4_t Add(uint32x4_t lhs, uint32x4_t rhs) {
+  return AddMod32(lhs, rhs, kP);
+}
+
+uint32x4_t Sub(uint32x4_t lhs, uint32x4_t rhs) {
+  return SubMod32(lhs, rhs, kP);
+}
+
+uint32x4_t Negate(uint32x4_t val) { return NegateMod32(val, kP); }
+
+uint32x4_t Mul(uint32x4_t lhs, uint32x4_t rhs) {
+  return MontMulMod32(lhs, rhs, kP, kInv);
+}
+
+}  // namespace
+
+// static
+void PackedKoalaBearNeon::Init() {
+  kP = vdupq_n_u32(KoalaBear::Config::kModulus[0]);
+  kInv = vdupq_n_u32(KoalaBear::Config::kInverse32);
+  kZero = vdupq_n_u32(0);
+  kOne = vdupq_n_u32(KoalaBear::Config::kOne[0]);
+}
+
+// static
+PackedKoalaBearNeon PackedKoalaBearNeon::Zero() { return FromVector(kZero); }
+
+// static
+PackedKoalaBearNeon PackedKoalaBearNeon::One() { return FromVector(kOne); }
+
+// static
+PackedKoalaBearNeon PackedKoalaBearNeon::Broadcast(const PrimeField& value) {
+  return FromVector(vdupq_n_u32(value.value()));
+}
+
+PackedKoalaBearNeon PackedKoalaBearNeon::Add(
+    const PackedKoalaBearNeon& other) const {
+  return FromVector(tachyon::math::Add(ToVector(*this), ToVector(other)));
+}
+
+PackedKoalaBearNeon PackedKoalaBearNeon::Sub(
+    const PackedKoalaBearNeon& other) const {
+  return FromVector(tachyon::math::Sub(ToVector(*this), ToVector(other)));
+}
+
+PackedKoalaBearNeon PackedKoalaBearNeon::Negate() const {
+  return FromVector(tachyon::math::Negate(ToVector(*this)));
+}
+
+PackedKoalaBearNeon PackedKoalaBearNeon::Mul(
+    const PackedKoalaBearNeon& other) const {
+  return FromVector(tachyon::math::Mul(ToVector(*this), ToVector(other)));
+}
+
+}  // namespace tachyon::math

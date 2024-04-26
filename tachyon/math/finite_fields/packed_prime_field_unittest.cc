@@ -5,13 +5,16 @@
 
 #if ARCH_CPU_X86_64
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_avx2.h"
+#include "tachyon/math/finite_fields/koala_bear/packed_koala_bear_avx2.h"
 #include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_avx2.h"
 #if defined(TACHYON_HAS_AVX512)
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_avx512.h"
+#include "tachyon/math/finite_fields/koala_bear/packed_koala_bear_avx512.h"
 #include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_avx512.h"
 #endif
 #elif ARCH_CPU_ARM64
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_neon.h"
+#include "tachyon/math/finite_fields/koala_bear/packed_koala_bear_neon.h"
 #include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_neon.h"
 #endif
 
@@ -26,13 +29,13 @@ class PackedPrimeFieldTest : public FiniteFieldTest<PackedPrimeField> {};
 
 using PackedPrimeFieldTypes = testing::Types<
 #if ARCH_CPU_X86_64
-    PackedBabyBearAVX2, PackedMersenne31AVX2
+    PackedBabyBearAVX2, PackedMersenne31AVX2, PackedKoalaBearAVX2
 #if defined(TACHYON_HAS_AVX512)
     ,
-    PackedBabyBearAVX512, PackedMersenne31AVX512
+    PackedBabyBearAVX512, PackedMersenne31AVX512, PackedKoalaBearAVX512
 #endif
 #elif ARCH_CPU_ARM64
-    PackedBabyBearNeon, PackedMersenne31Neon
+    PackedBabyBearNeon, PackedMersenne31Neon, PackedKoalaBearNeon
 #endif
     >;
 
