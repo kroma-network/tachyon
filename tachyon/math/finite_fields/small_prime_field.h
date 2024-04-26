@@ -131,17 +131,29 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   constexpr operator uint32_t() const { return value_; }
 
-  uint32_t operator[](size_t i) const {
+  constexpr uint32_t operator[](size_t i) const {
     DCHECK_EQ(i, size_t{0});
     return value_;
   }
 
-  bool operator==(PrimeField other) const { return value_ == other.value_; }
-  bool operator!=(PrimeField other) const { return value_ != other.value_; }
-  bool operator<(PrimeField other) const { return value_ < other.value_; }
-  bool operator>(PrimeField other) const { return value_ > other.value_; }
-  bool operator<=(PrimeField other) const { return value_ <= other.value_; }
-  bool operator>=(PrimeField other) const { return value_ >= other.value_; }
+  constexpr bool operator==(PrimeField other) const {
+    return value_ == other.value_;
+  }
+  constexpr bool operator!=(PrimeField other) const {
+    return value_ != other.value_;
+  }
+  constexpr bool operator<(PrimeField other) const {
+    return value_ < other.value_;
+  }
+  constexpr bool operator>(PrimeField other) const {
+    return value_ > other.value_;
+  }
+  constexpr bool operator<=(PrimeField other) const {
+    return value_ <= other.value_;
+  }
+  constexpr bool operator>=(PrimeField other) const {
+    return value_ >= other.value_;
+  }
 
   // AdditiveSemigroup methods
   constexpr PrimeField Add(PrimeField other) const {
