@@ -49,6 +49,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "has_asm_prime_field",
+    build_setting_default = True,
+)
+
+bool_flag(
     name = "py_binding",
     build_setting_default = False,
 )
@@ -155,6 +160,11 @@ config_setting(
 config_setting(
     name = "tachyon_has_numa",
     flag_values = {"has_numa": "true"},
+)
+
+config_setting(
+    name = "tachyon_has_asm_prime_field",
+    flag_values = {"has_asm_prime_field": "true"},
 )
 
 config_setting(

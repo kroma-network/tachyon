@@ -1,5 +1,6 @@
 load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
 load("@iden3_ffiasm//:build_defs.bzl", generate_ffiasm_prime_field = "generate_prime_field")
+load("//bazel:tachyon.bzl", "if_has_asm_prime_field")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 SMALL_SUBGROUP_ADICITY = "small_subgroup_adicity"
@@ -33,7 +34,8 @@ def _do_generate_prime_field_impl(ctx, type):
     ]
 
     if ctx.attr.use_asm:
-        arguments.append("--use_asm")
+        if ctx.attr._has_asm_prime_field[BuildSettingInfo].value:
+            arguments.append("--use_asm")
 
     if len(ctx.attr.reduce) > 0:
         arguments.append("--reduce=%s" % (ctx.attr.reduce))
@@ -103,6 +105,9 @@ def _attrs(type):
         "gpu_hdr_tpl": attr.label(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:gpu.h.tpl"),
+        ),
+        "_has_asm_prime_field": attr.label(
+            default = Label("@kroma_network_tachyon//:has_asm_prime_field"),
         ),
         "_tool": attr.label(
             # TODO(chokobole): Change to "exec", so we can build on macos.
@@ -224,7 +229,7 @@ def _do_generate_prime_fields(
         )
 
         tachyon_cc_library(
-            name = name,
+            name = "{}_ffiasm_impl".format(name),
             hdrs = [
                 ":{}_gen_hdr".format(name),
             ] + select({
@@ -248,6 +253,24 @@ def _do_generate_prime_fields(
                 "//conditions:default": ["//tachyon/math/finite_fields:prime_field_fallback"],
             }),
             **kwargs
+        )
+
+        tachyon_cc_library(
+            name = "{}_fallback_impl".format(name),
+            hdrs = [":{}_gen_hdr".format(name)],
+            deps = [
+                ":{}_config".format(name),
+                "//tachyon/math/finite_fields:prime_field_fallback",
+            ],
+            **kwargs
+        )
+
+        tachyon_cc_library(
+            name = name,
+            deps = if_has_asm_prime_field(
+                [":{}_ffiasm_impl".format(name)],
+                [":{}_fallback_impl".format(name)],
+            ),
         )
     else:
         tachyon_cc_library(

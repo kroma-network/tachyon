@@ -1,6 +1,6 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("//bazel:tachyon.bzl", "if_x86_64")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+load("//bazel:tachyon_cc.bzl", "tachyon_asm_prime_field_defines", "tachyon_cc_library", "tachyon_cc_unittest")
 load(
     "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
     "SMALL_SUBGROUP_ADICITY",
@@ -44,6 +44,7 @@ tachyon_cc_library(
     srcs = if_x86_64(["goldilocks_prime_field_x86_special.cc"]),
     hdrs = if_x86_64(["goldilocks_prime_field_x86_special.h"]),
     copts = if_x86_64(["-mavx2"]),
+    defines = tachyon_asm_prime_field_defines(),
     deps = if_x86_64([
         ":goldilocks_config",
         "//tachyon/base:random",

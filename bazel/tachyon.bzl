@@ -112,6 +112,12 @@ def if_has_numa(a, b = []):
         "//conditions:default": b,
     })
 
+def if_has_asm_prime_field(a, b = []):
+    return select({
+        "@kroma_network_tachyon//:tachyon_has_asm_prime_field": a,
+        "//conditions:default": b,
+    })
+
 def if_c_shared_object(a, b = []):
     return select({
         "@kroma_network_tachyon//:tachyon_c_shared_object": a,

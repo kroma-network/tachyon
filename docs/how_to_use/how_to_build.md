@@ -266,3 +266,11 @@ unzip -o bazel-bin/docs/doxygen/tachyon_api_docs.zip &&
 google-chrome bazel-bin/docs/doxygen/html/index.html
 # generate HTML files and open on Chrome browser.
 ```
+
+### Build without assembly-optimized prime field
+
+You may encounter an illegal instruction error when running unit tests. Although the exact cause is not yet known, thanks to @zkbitcoin, we discovered that this issue is related to [ffiasm](https://github.com/iden3/ffiasm). Temporarily disabling assembly-optimized prime field can resolve this problem.
+
+```shell
+bazel build --config ${os} --//:has_asm_prime_field=false //...
+```
