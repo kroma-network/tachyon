@@ -73,7 +73,7 @@ __m512i Mul(__m512i lhs, __m512i rhs) {
   // vmovsldup  prod_lo_dbl{kOdds prod_odd_dbl
   // vpsrld     prod_lo, prod_lo_dbl, 1
   // vpaddd     t, prod_lo, prod_hi
-  // vpsubd     u, t, P
+  // vpsubd     u, t, p
   // vpminud    r, t, u
   // throughput: 5.5 cyc/vec (2.91 els/cyc)
   // latency: (lhs->r) 15 cyc, (rhs->r) 14 cyc

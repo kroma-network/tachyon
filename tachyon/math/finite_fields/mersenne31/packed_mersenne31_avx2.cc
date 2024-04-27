@@ -52,9 +52,9 @@ __m256i Mul(__m256i lhs, __m256i rhs) {
   // vpsrlq     prod_evn_hi, prod_evn, 31
   // vpblendd   prod_lo_dirty, prod_evn, prod_odd_lo_dirty, aah
   // vpblendd   prod_hi, prod_evn_hi, prod_odd_dbl, aah
-  // vpand      prod_lo, prod_lo_dirty, P
+  // vpand      prod_lo, prod_lo_dirty, p
   // vpaddd     t, prod_lo, prod_hi
-  // vpsubd     u, t, P
+  // vpsubd     u, t, p
   // vpminud    r, t, u
   // throughput: 4 cyc/vec (2 els/cyc)
   // latency: 13 cyc
