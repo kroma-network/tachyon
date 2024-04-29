@@ -35,8 +35,14 @@ def _do_generate_prime_field_impl(ctx, type):
     if ctx.attr.use_asm:
         arguments.append("--use_asm")
 
-    if len(ctx.attr.reduce) > 0:
-        arguments.append("--reduce=%s" % (ctx.attr.reduce))
+    if ctx.attr.use_montgomery:
+        arguments.append("--use_montgomery")
+
+    if len(ctx.attr.reduce32) > 0:
+        arguments.append("--reduce32=%s" % (ctx.attr.reduce32))
+
+    if len(ctx.attr.reduce64) > 0:
+        arguments.append("--reduce64=%s" % (ctx.attr.reduce64))
 
     if type >= _FFT_PRIME_FIELD:
         arguments.append("--subgroup_generator=%s" % (ctx.attr.subgroup_generator[BuildSettingInfo].value))
@@ -78,8 +84,10 @@ def _attrs(type):
         "class_name": attr.string(mandatory = True),
         "modulus": attr.string(mandatory = True),
         "flag": attr.string(mandatory = True),
-        "reduce": attr.string(mandatory = True),
+        "reduce32": attr.string(mandatory = True),
+        "reduce64": attr.string(mandatory = True),
         "use_asm": attr.bool(mandatory = True),
+        "use_montgomery": attr.bool(mandatory = True),
         "x86_hdr_tpl": attr.label(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/math/finite_fields/generator/prime_field_generator:prime_field_x86.h.tpl"),
@@ -286,8 +294,10 @@ def generate_prime_fields(
         class_name,
         modulus,
         flag,
-        reduce = "",
+        reduce32 = "",
+        reduce64 = "",
         use_asm = True,
+        use_montgomery = True,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_prime_field(
@@ -295,8 +305,10 @@ def generate_prime_fields(
             class_name = class_name,
             modulus = modulus,
             flag = flag,
-            reduce = reduce,
+            reduce32 = reduce32,
+            reduce64 = reduce64,
             use_asm = use_asm,
+            use_montgomery = use_montgomery,
             name = n[0],
             out = n[1],
         )
@@ -310,8 +322,10 @@ def generate_fft_prime_fields(
         modulus,
         flag,
         subgroup_generator,
-        reduce = "",
+        reduce32 = "",
+        reduce64 = "",
         use_asm = True,
+        use_montgomery = True,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_fft_prime_field(
@@ -319,8 +333,10 @@ def generate_fft_prime_fields(
             class_name = class_name,
             modulus = modulus,
             flag = flag,
-            reduce = reduce,
+            reduce32 = reduce32,
+            reduce64 = reduce64,
             use_asm = use_asm,
+            use_montgomery = use_montgomery,
             subgroup_generator = subgroup_generator,
             name = n[0],
             out = n[1],
@@ -337,8 +353,10 @@ def generate_large_fft_prime_fields(
         small_subgroup_adicity,
         small_subgroup_base,
         subgroup_generator,
-        reduce = "",
+        reduce32 = "",
+        reduce64 = "",
         use_asm = True,
+        use_montgomery = True,
         **kwargs):
     for n in _gen_name_out_pairs(name):
         generate_large_fft_prime_field(
@@ -346,8 +364,10 @@ def generate_large_fft_prime_fields(
             class_name = class_name,
             modulus = modulus,
             flag = flag,
-            reduce = reduce,
+            reduce32 = reduce32,
+            reduce64 = reduce64,
             use_asm = use_asm,
+            use_montgomery = use_montgomery,
             small_subgroup_adicity = small_subgroup_adicity,
             small_subgroup_base = small_subgroup_base,
             subgroup_generator = subgroup_generator,

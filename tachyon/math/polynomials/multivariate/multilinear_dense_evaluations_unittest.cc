@@ -22,8 +22,10 @@ class MultilinearDenseEvaluationsTest : public FiniteFieldTest<GF7> {
   void SetUp() override {
     polys_.push_back(Poly(Evals({GF7(2), GF7(3)})));
     polys_.push_back(Poly(Evals({GF7(4), GF7(2)})));
-    polys_.push_back(Poly(Evals({GF7(2), GF7(3), GF7(2), GF7(6), GF7(5)})));
-    polys_.push_back(Poly(Evals({GF7(3), GF7(1), GF7(1), GF7(4), GF7(2)})));
+    polys_.push_back(Poly(Evals(
+        {GF7(2), GF7(3), GF7(2), GF7(6), GF7(5), GF7(1), GF7(4), GF7(2)})));
+    polys_.push_back(Poly(Evals(
+        {GF7(3), GF7(1), GF7(1), GF7(4), GF7(2), GF7(3), GF7(2), GF7(5)})));
   }
 
  protected:
@@ -68,8 +70,8 @@ TEST_F(MultilinearDenseEvaluationsTest, IndexingOperator) {
   } tests[] = {
       {polys_[0], {2, 3}},
       {polys_[1], {4, 2}},
-      {polys_[2], {2, 3, 2, 6, 5}},
-      {polys_[3], {3, 1, 1, 4, 2}},
+      {polys_[2], {2, 3, 2, 6, 5, 1, 4, 2}},
+      {polys_[3], {3, 1, 1, 4, 2, 3, 2, 5}},
   };
 
   for (const auto& test : tests) {
@@ -123,8 +125,8 @@ TEST_F(MultilinearDenseEvaluationsTest, ToString) {
   } tests[] = {
       {polys_[0], "[2, 3]"},
       {polys_[1], "[4, 2]"},
-      {polys_[2], "[2, 3, 2, 6, 5]"},
-      {polys_[3], "[3, 1, 1, 4, 2]"},
+      {polys_[2], "[2, 3, 2, 6, 5, 1, 4, 2]"},
+      {polys_[3], "[3, 1, 1, 4, 2, 3, 2, 5]"},
   };
 
   for (const auto& test : tests) {
@@ -150,9 +152,12 @@ TEST_F(MultilinearDenseEvaluationsTest, AdditiveOperators) {
       {
           polys_[2],
           polys_[3],
-          Poly(Evals({GF7(5), GF7(4), GF7(3), GF7(3), GF7(0)})),
-          Poly(Evals({GF7(6), GF7(2), GF7(1), GF7(2), GF7(3)})),
-          Poly(Evals({GF7(1), GF7(5), GF7(6), GF7(5), GF7(4)})),
+          Poly(Evals({GF7(5), GF7(4), GF7(3), GF7(3), GF7(0), GF7(4), GF7(6),
+                      GF7(0)})),
+          Poly(Evals({GF7(6), GF7(2), GF7(1), GF7(2), GF7(3), GF7(5), GF7(2),
+                      GF7(4)})),
+          Poly(Evals({GF7(1), GF7(5), GF7(6), GF7(5), GF7(4), GF7(2), GF7(5),
+                      GF7(3)})),
       },
   };
 
@@ -188,9 +193,12 @@ TEST_F(MultilinearDenseEvaluationsTest, MultiplicativeOperators) {
       {
           polys_[2],
           polys_[3],
-          Poly(Evals({GF7(6), GF7(3), GF7(2), GF7(3), GF7(3)})),
-          Poly(Evals({GF7(3), GF7(3), GF7(2), GF7(5), GF7(6)})),
-          Poly(Evals({GF7(5), GF7(5), GF7(4), GF7(3), GF7(6)})),
+          Poly(Evals({GF7(6), GF7(3), GF7(2), GF7(3), GF7(3), GF7(3), GF7(1),
+                      GF7(3)})),
+          Poly(Evals({GF7(3), GF7(3), GF7(2), GF7(5), GF7(6), GF7(5), GF7(2),
+                      GF7(6)})),
+          Poly(Evals({GF7(5), GF7(5), GF7(4), GF7(3), GF7(6), GF7(3), GF7(4),
+                      GF7(6)})),
       },
   };
 

@@ -58,7 +58,7 @@ class TACHYON_EXPORT %{class}Config {
   constexpr static uint32_t kInverse32 = %{inverse32};
 
   constexpr static BigInt<%{n}> kOne = BigInt<%{n}>({
-    %{one_mont_form}
+    %{one}
   });
 
   constexpr static bool kHasTwoAdicRootOfUnity = %{has_two_adic_root_of_unity};
@@ -85,8 +85,22 @@ class TACHYON_EXPORT %{class}Config {
 %{endif kHasTwoAdicRootOfUnity}
 
 %{if kIsSmallField}
+  constexpr static uint32_t AddMod(uint32_t a, uint32_t b) {
+    // NOTE(chokobole): This assumes that the 2m - 2 < 2³², where m is modulus.
+    return Reduce(a + b);
+  }
+
+  constexpr static uint32_t SubMod(uint32_t a, uint32_t b) {
+    // NOTE(chokobole): This assumes that the 2m - 2 < 2³², where m is modulus.
+    return Reduce(a + static_cast<uint32_t>(kModulus[0]) - b);
+  }
+
+  constexpr static uint32_t Reduce(uint32_t v) {
+    %{reduce32}
+  }
+
   constexpr static uint32_t Reduce(uint64_t v) {
-%{reduce}
+    %{reduce64}
   }
 %{endif kIsSmallField}
 };
