@@ -1,0 +1,37 @@
+load("@kroma_network_circom//:build_defs.bzl", "witness_gen_library")
+load("@kroma_network_rules_circom//:build_defs.bzl", "compile_circuit")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files(["multiplier_3.zkey"])
+
+PRIME = "bn128"
+
+compile_circuit(
+    name = "compile_plonky2",
+    srcs = [
+        "challenges.circom",
+        "constants.circom",
+        "fri.circom",
+        "gates.circom",
+        "goldilocks.circom",
+        "goldilocks_ext.circom",
+        "plonk.circom",
+        "poseidon.circom",
+        "utils.circom",
+    ],
+    main = "plonky2.circom",
+    prime = PRIME,
+    deps = [
+        "@kroma_network_circomlib//circuits:binsum",
+        "@kroma_network_circomlib//circuits:bitify",
+        "@kroma_network_circomlib//circuits:comparators",
+        "@kroma_network_circomlib//circuits:poseidon",
+    ],
+)
+
+witness_gen_library(
+    name = "gen_witness_plonky2",
+    gendep = ":compile_plonky2",
+    prime = PRIME,
+)

@@ -10,6 +10,7 @@
 
 #include "fileloader.hpp"  // NOLINT(build/include_subdir)
 #include "groth16.hpp"     // NOLINT(build/include_subdir)
+#include "logger.hpp"      // NOLINT(build/include_subdir)
 #include "zkey_utils.hpp"  // NOLINT(build/include_subdir)
 
 // clang-format off
@@ -85,6 +86,11 @@ class RapidsnarkRunner : public Runner<Curve> {
       BigInt bigint = full_assignments_in[i].ToBigInt();
       memcpy(full_assignments[i].v, bigint.limbs, BigInt::kByteNums);
     }
+
+    CPlusPlusLogging::Logger::getInstance()->updateLogLevel(
+        CPlusPlusLogging::ENABLE_LOG);
+    CPlusPlusLogging::Logger::getInstance()->updateLogType(
+        CPlusPlusLogging::CONSOLE);
 
     std::unique_ptr<Groth16::Proof<Engine>> proof =
         prover_->prove(full_assignments.data());

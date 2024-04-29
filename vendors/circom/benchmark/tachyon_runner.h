@@ -60,6 +60,8 @@ class TachyonRunner : public Runner<Curve> {
         QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
             domain.get(), constraint_matrices_, full_assignments);
 
+    LOG(ERROR) << "Witness map: " << base::TimeTicks::Now() - now;
+
     zk::r1cs::groth16::Proof<Curve> proof =
         zk::r1cs::groth16::CreateProofWithAssignmentNoZK(
             proving_key_, absl::MakeConstSpan(h_evals),
