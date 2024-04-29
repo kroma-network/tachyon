@@ -14,13 +14,15 @@
 #include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/halo2/verifier_data.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
+#include "tachyon/zk/lookup/verifier.h"
 #include "tachyon/zk/lookup/verifying_evaluator.h"
 #include "tachyon/zk/plonk/base/l_values.h"
 
-namespace tachyon::zk::lookup::halo2 {
+namespace tachyon::zk::lookup {
+namespace halo2 {
 
 template <typename F, typename C>
-class Verifier {
+class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
  public:
   explicit Verifier(const VerifierData<F, C>& data) : data_(data) {}
 
@@ -110,6 +112,13 @@ class Verifier {
   const VerifierData<F, C>& data_;
 };
 
-}  // namespace tachyon::zk::lookup::halo2
+}  // namespace halo2
+
+template <typename F, typename C>
+struct VerifierTraits<halo2::Verifier<F, C>> {
+  using Field = F;
+};
+
+}  // namespace tachyon::zk::lookup
 
 #endif  // TACHYON_ZK_LOOKUP_HALO2_VERIFIER_H_

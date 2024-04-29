@@ -84,6 +84,7 @@ tachyon_cc_library(
         ":verifier_data",
         "//tachyon/crypto/commitments:polynomial_openings",
         "//tachyon/zk/lookup:lookup_argument",
+        "//tachyon/zk/lookup:verifier",
         "//tachyon/zk/lookup:verifying_evaluator",
         "//tachyon/zk/plonk/base:l_values",
     ],
