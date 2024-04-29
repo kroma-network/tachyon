@@ -1,8 +1,7 @@
-9d8
+9,11d8
 < #include <vector>
-11,12d9
-< #include "absl/container/flat_hash_map.h"
 < 
+< #include "absl/container/flat_hash_map.h"
 31,33c28,30
 <   FrElement* circuitConstants;
 <   std::map<u32,IODefPair> templateInsId2IOSignalInfo;
@@ -27,14 +26,15 @@
 < 
 ---
 >   
-70c67
+70,78c67
 < typedef void (*Circom_TemplateFunction)(uint __cIdx, Circom_CalcWit* __ctx);
----
-> typedef void (*Circom_TemplateFunction)(uint __cIdx, Circom_CalcWit* __ctx); 
-72,77d68
+< 
 < Circom_Circuit* loadCircuit(std::string const &datFileName);
+< 
+< void loadJson(Circom_CalcWit *ctx, std::string filename);
 < 
 < void loadWitness(Circom_CalcWit *ctx, absl::flat_hash_map<std::string, std::vector<FrElement>> const &witness);
 < 
 < void writeBinWitness(Circom_CalcWit *ctx, std::string const &wtnsFileName);
-< 
+---
+> typedef void (*Circom_TemplateFunction)(uint __cIdx, Circom_CalcWit* __ctx); 
