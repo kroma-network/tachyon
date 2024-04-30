@@ -13,6 +13,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "evaluator",
+    hdrs = ["evaluator.h"],
+    deps = [
+        ":prover",
+        "//tachyon/zk/plonk/vanishing:circuit_polynomial_builder_forward",
+        "//tachyon/zk/plonk/vanishing:graph_evaluator",
+    ],
+)
+
+tachyon_cc_library(
     name = "opening_point_set",
     hdrs = ["opening_point_set.h"],
 )

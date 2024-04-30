@@ -156,7 +156,7 @@ class ProvingKey : public Key {
     l_active_row_ = domain->IFFT(std::move(evals));
 
     vanishing_argument_ =
-        VanishingArgument<F>::Create(verifying_key_.constraint_system());
+        VanishingArgument<F, Evals>::Create(verifying_key_.constraint_system());
     return true;
   }
 
@@ -167,7 +167,7 @@ class ProvingKey : public Key {
   std::vector<Evals> fixed_columns_;
   std::vector<Poly> fixed_polys_;
   PermutationProvingKey<Poly, Evals> permutation_proving_key_;
-  VanishingArgument<F> vanishing_argument_;
+  VanishingArgument<F, Evals> vanishing_argument_;
 };
 
 }  // namespace zk::plonk

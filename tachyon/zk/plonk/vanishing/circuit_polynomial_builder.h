@@ -42,6 +42,7 @@ class CircuitPolynomialBuilder {
   using Domain = typename PCS::Domain;
   using ExtendedDomain = typename PCS::ExtendedDomain;
   using ExtendedEvals = typename PCS::ExtendedEvals;
+  using LookupEvaluator = lookup::halo2::Evaluator<F, Evals>;
 
   CircuitPolynomialBuilder(
       const F& omega, const F& extended_omega, const F& theta, const F& beta,
@@ -94,7 +95,7 @@ class CircuitPolynomialBuilder {
   // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
   ExtendedEvals BuildExtendedCircuitColumn(
       const GraphEvaluator<F>& custom_gate_evaluator,
-      const std::vector<GraphEvaluator<F>>& lookup_evaluators) {
+      LookupEvaluator& lookup_evaluator) {
     std::vector<std::vector<F>> value_parts;
     value_parts.reserve(num_parts_);
     // Calculate the quotient polynomial for each part
@@ -117,16 +118,16 @@ class CircuitPolynomialBuilder {
           UpdatePermutationCosets(j);
         // Do iff there are lookup constraints.
         if (lookup_provers_[j].grand_product_polys().size() > 0)
-          UpdateLookupCosets(j);
+          lookup_evaluator.UpdateLookupCosets(*this, j);
         base::Parallelize(
             value_part,
-            [this, &custom_gate_evaluator, &lookup_evaluators](
+            [this, &custom_gate_evaluator, &lookup_evaluator](
                 absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
               UpdateChunkByCustomGates(custom_gate_evaluator, chunk,
                                        chunk_offset, chunk_size);
               UpdateChunkByPermutation(chunk, chunk_offset, chunk_size);
-              UpdateChunkByLookups(lookup_evaluators, chunk, chunk_offset,
-                                   chunk_size);
+              lookup_evaluator.UpdateChunkByLookups(*this, chunk, chunk_offset,
+                                                    chunk_size);
             });
       }
 
@@ -135,68 +136,6 @@ class CircuitPolynomialBuilder {
     }
     std::vector<F> extended = BuildExtendedColumnWithColumns(value_parts);
     return ExtendedEvals(std::move(extended));
-  }
-
-  void UpdateChunkByLookups(
-      const std::vector<GraphEvaluator<F>>& lookup_evaluators,
-      absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
-    for (size_t i = 0; i < lookup_evaluators.size(); ++i) {
-      const GraphEvaluator<F>& ev = lookup_evaluators[i];
-      const Evals& input_coset = lookup_input_cosets_[i];
-      const Evals& table_coset = lookup_table_cosets_[i];
-      const Evals& product_coset = lookup_product_cosets_[i];
-
-      EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
-          ev.CreateInitialIntermediates(), ev.CreateEmptyRotations());
-
-      size_t start = chunk_offset * chunk_size;
-      for (size_t j = 0; j < chunk.size(); ++j) {
-        size_t idx = start + j;
-
-        F zero = F::Zero();
-        F table_value = ev.Evaluate(evaluation_input, idx, /*scale=*/1, zero);
-
-        RowIndex r_next = Rotation(1).GetIndex(idx, /*scale=*/1, n_);
-        RowIndex r_prev = Rotation(-1).GetIndex(idx, /*scale=*/1, n_);
-
-        F a_minus_s = input_coset[idx] - table_coset[idx];
-
-        // l_first(X) * (1 - z(X)) = 0
-        chunk[j] *= y_;
-        chunk[j] += (one_ - product_coset[idx]) * l_first_[idx];
-
-        // l_last(X) * (z(X)² - z(X)) = 0
-        chunk[j] *= y_;
-        chunk[j] +=
-            (product_coset[idx].Square() - product_coset[idx]) * l_last_[idx];
-
-        // clang-format off
-        // A * (B - C) = 0 where
-        //  - A = 1 - (l_last(X) + l_blind(X))
-        //  - B = z(wX) * (a'(X) + β) * (s'(X) + γ)
-        //  - C = z(X) * (θᵐ⁻¹ a₀(X) + ... + aₘ₋₁(X) + β) * (θᵐ⁻¹ s₀(X) + ... + sₘ₋₁(X) + γ)
-        // clang-format on
-        chunk[j] *= y_;
-        chunk[j] += (product_coset[r_next] * (input_coset[idx] + beta_) *
-                         (table_coset[idx] + gamma_) -
-                     product_coset[idx] * table_value) *
-                    l_active_row_[idx];
-
-        // Check that the first values in the permuted input expression and
-        // permuted fixed expression are the same.
-        // l_first(X) * (a'(X) - s'(X)) = 0
-        chunk[j] *= y_;
-        chunk[j] += a_minus_s * l_first_[idx];
-
-        // Check that each value in the permuted lookup input expression is
-        // either equal to the value above it, or the value at the same
-        // index in the permuted table expression. (1 - (l_last + l_blind)) *
-        // (a′(X) − s′(X))⋅(a′(X) − a′(w⁻¹X)) = 0
-        chunk[j] *= y_;
-        chunk[j] += a_minus_s * (input_coset[idx] - input_coset[r_prev]) *
-                    l_active_row_[idx];
-      }
-    }
   }
 
   void UpdateChunkByPermutation(absl::Span<F> chunk, size_t chunk_offset,
@@ -261,6 +200,8 @@ class CircuitPolynomialBuilder {
   }
 
  private:
+  friend class lookup::halo2::Evaluator<F, Evals>;
+
   EvaluationInput<Evals> ExtractEvaluationInput(
       std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
     return EvaluationInput<Evals>(std::move(intermediates),
@@ -323,24 +264,6 @@ class CircuitPolynomialBuilder {
     permutation_cosets_.resize(polys.size());
     for (size_t i = 0; i < polys.size(); ++i) {
       permutation_cosets_[i] = coset_domain_->FFT(polys[i]);
-    }
-  }
-
-  void UpdateLookupCosets(size_t circuit_idx) {
-    size_t num_lookups =
-        lookup_provers_[circuit_idx].grand_product_polys().size();
-    const lookup::halo2::Prover<Poly, Evals>& lookup_prover =
-        lookup_provers_[circuit_idx];
-    lookup_product_cosets_.resize(num_lookups);
-    lookup_input_cosets_.resize(num_lookups);
-    lookup_table_cosets_.resize(num_lookups);
-    for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_product_cosets_[i] =
-          coset_domain_->FFT(lookup_prover.grand_product_polys()[i].poly());
-      lookup_input_cosets_[i] =
-          coset_domain_->FFT(lookup_prover.permuted_pairs()[i].input().poly());
-      lookup_table_cosets_[i] =
-          coset_domain_->FFT(lookup_prover.permuted_pairs()[i].table().poly());
     }
   }
 

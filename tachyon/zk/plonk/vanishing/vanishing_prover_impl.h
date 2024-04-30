@@ -58,8 +58,9 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::CreateHEvals(
     const F& beta, const F& gamma, const F& y,
     const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
     const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers) {
-  VanishingArgument<F> vanishing_argument = VanishingArgument<F>::Create(
-      proving_key.verifying_key().constraint_system());
+  VanishingArgument<F, Evals> vanishing_argument =
+      VanishingArgument<F, Evals>::Create(
+          proving_key.verifying_key().constraint_system());
   F zeta = GetHalo2Zeta<F>();
   h_evals_ = vanishing_argument.BuildExtendedCircuitColumn(
       prover, proving_key, tables, theta, beta, gamma, y, zeta,

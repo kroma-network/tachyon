@@ -63,7 +63,7 @@ class ProvingKeyImplBase
     ReadBuffer(buffer, this->fixed_polys_);
     ReadBuffer(buffer, this->permutation_proving_key_);
     this->vanishing_argument_ =
-        tachyon::zk::plonk::VanishingArgument<F>::Create(
+        tachyon::zk::plonk::VanishingArgument<F, Evals>::Create(
             this->verifying_key_.constraint_system_);
     CHECK(buffer.Done());
   }
