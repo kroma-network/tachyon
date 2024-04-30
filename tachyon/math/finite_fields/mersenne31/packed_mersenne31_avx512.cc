@@ -81,26 +81,46 @@ __m512i Mul(__m512i lhs, __m512i rhs) {
   // vpmuludq only reads the bottom 32 bits of every 64-bit quadword.
   // The even indices are already in the bottom 32 bits of a quadword, so we
   // can leave them.
+  //            ┌──────┬──────┬─────┬───────┬───────┐
+  // |rhs_evn|: │ rhs₀ │ rhs₁ │ ... │ rhs₁₄ │ rhs₁₅ │
+  //            └──────┴──────┴─────┴───────┴───────┘
   __m512i rhs_evn = rhs;
   // Again, vpmuludq only reads the bottom 32 bits so we don't need to clear
   // the top. But we do want to double the lhs.
+  //                ┌──────────┬──────────┬─────┬───────────┬───────────┐
+  // |lhs_evn_dbl|: │ 2 * lhs₀ │ 2 * lhs₁ │ ... │ 2 * lhs₁₄ │ 2 * lhs₁₅ │
+  //                └──────────┴──────────┴─────┴───────────┴───────────┘
   __m512i lhs_evn_dbl = _mm512_add_epi32(lhs, lhs);
   // Copy the high 32 bits in each quadword of rhs down to the low 32.
+  //            ┌──────┬──────┬─────┬───────┬───────┐
+  // |rhs_odd|: │ rhs₁ │ rhs₁ │ ... │ rhs₁₅ │ rhs₁₅ │
+  //            └──────┴──────┴─────┴───────┴───────┘
   __m512i rhs_odd = movehdup_epi32(rhs);
   // Right shift by 31 is equivalent to moving the high 32 bits down to the
   // low 32, and then doubling it. So these are the odd indices in lhs, but
   // doubled.
+  //                ┌──────────┬───┬─────┬───────────┬───┐
+  // |lhs_odd_dbl|: │ 2 * lhs₁ │ 0 │ ... │ 2 * lhs₁₅ │ 0 │
+  //                └──────────┴───┴─────┴───────────┴───┘
   __m512i lhs_odd_dbl = _mm512_srli_epi64(lhs, 31);
 
-  // Multiply odd indices; since lhs_odd_dbl is doubled, these products are
-  // also doubled. prod_odd_dbl.quadword[i] = 2 * lhs.doubleword[2 * i + 1] *
-  // rhs.doubleword[2 * i + 1]
+  // Multiply odd indices; since |lhs_odd_dbl| is doubled, these products are
+  // also doubled.
+  // clang-format off
+  //                 ┌─────────────────────┬─────────────────────┬─────┬───────────────────────┬───────────────────────┐
+  // |prod_odd_dbl|: │ Lo(2 * lhs₁ * rhs₁) │ Hi(2 * lhs₁ * rhs₁) | ... │ Lo(2 * lhs₁₅ * rhs₁₅) │ Hi(2 * lhs₁₅ * rhs₁₅) |
+  //                 └─────────────────────┴─────────────────────┴─────┴───────────────────────┴───────────────────────┘
+  // clang-format on
   __m512i prod_odd_dbl = _mm512_mul_epu32(lhs_odd_dbl, rhs_odd);
   // Multiply even indices; these are also doubled.
-  // prod_evn_dbl.quadword[i] = 2 * lhs.doubleword[2 * i] * rhs.doubleword[2 *
-  // i]
+  // clang-format off
+  //                 ┌─────────────────────┬─────────────────────┬─────┬───────────────────────┬───────────────────────┐
+  // |prod_odd_dbl|: │ Lo(2 * lhs₀ * rhs₀) │ Hi(2 * lhs₀ * rhs₀) | ... │ Lo(2 * lhs₁₄ * rhs₁₄) │ Hi(2 * lhs₁₄ * rhs₁₄) |
+  //                 └─────────────────────┴─────────────────────┴─────┴───────────────────────┴───────────────────────┘
+  // clang-format on
   __m512i prod_evn_dbl = _mm512_mul_epu32(lhs_evn_dbl, rhs_evn);
 
+  // TODO(chokobole): Add diagram for better explanation.
   // Move the low halves of odd products into odd positions; keep the low
   // halves of even products in even positions (where they already are). Note
   // that the products are doubled, so the result is a vector of all the low
