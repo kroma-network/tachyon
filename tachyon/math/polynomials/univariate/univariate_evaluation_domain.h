@@ -464,7 +464,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   template <typename PolyOrEvals>
   constexpr static void SwapElements(PolyOrEvals& poly_or_evals, size_t size,
                                      uint32_t log_len) {
-    for (size_t idx = 1; idx < size; ++idx) {
+    OPENMP_PARALLEL_FOR(size_t idx = 1; idx < size; ++idx) {
       size_t ridx = base::bits::BitRev(idx) >> (sizeof(size_t) * 8 - log_len);
       if (idx < ridx) {
         std::swap(poly_or_evals.at(idx), poly_or_evals.at(ridx));
