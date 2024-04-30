@@ -17,10 +17,19 @@ tachyon_cc_library(
     name = "poseidon_config",
     hdrs = ["poseidon_config.h"],
     deps = [
+        ":poseidon_config_base",
         ":poseidon_config_entry",
-        "//tachyon/base/buffer:copyable",
         "//tachyon/base/ranges:algorithm",
         "@com_google_absl//absl/types:span",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon_config_base",
+    hdrs = ["poseidon_config_base.h"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/math/matrix:matrix_types",
     ],
 )
 

@@ -13,6 +13,7 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ranges/algorithm.h"
+#include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config_base.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config_entry.h"
 
 namespace tachyon {
@@ -56,31 +57,19 @@ void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
 }
 
 template <typename PrimeField>
-struct PoseidonConfig {
+struct PoseidonConfig : public PoseidonConfigBase<PrimeField> {
   using F = PrimeField;
-
-  // Number of rounds in a full-round operation.
-  size_t full_rounds = 0;
-
-  // Number of rounds in a partial-round operation.
-  size_t partial_rounds = 0;
-
-  // Exponent used in S-boxes.
-  uint64_t alpha = 0;
-
-  // Additive Round Keys added before each MDS matrix application to make it an
-  // affine shift. They are indexed by |ark[round_num][state_element_index]|.
-  math::Matrix<PrimeField> ark;
 
   // Maximally Distance Separating (MDS) Matrix.
   math::Matrix<PrimeField> mds;
 
-  // The rate (in terms of number of field elements).
-  // See https://iacr.org/archive/eurocrypt2008/49650180/49650180.pdf
-  size_t rate = 0;
-
-  // The capacity (in terms of number of field elements).
-  size_t capacity = 0;
+  PoseidonConfig() = default;
+  PoseidonConfig(const PoseidonConfigBase<PrimeField>& base,
+                 const math::Matrix<PrimeField>& mds)
+      : PoseidonConfigBase<PrimeField>(base), mds(mds) {}
+  PoseidonConfig(PoseidonConfigBase<PrimeField>&& base,
+                 math::Matrix<PrimeField>&& mds)
+      : PoseidonConfigBase<PrimeField>(std::move(base)), mds(std::move(mds)) {}
 
   static PoseidonConfig CreateDefault(size_t rate, bool optimized_for_weights) {
     absl::Span<const PoseidonConfigEntry> param_set =
@@ -112,18 +101,15 @@ struct PoseidonConfig {
     return ret;
   }
 
-  bool IsValid() const {
-    return static_cast<size_t>(ark.rows()) == full_rounds + partial_rounds &&
-           static_cast<size_t>(ark.cols()) == rate + capacity &&
-           static_cast<size_t>(mds.rows()) == rate + capacity &&
-           static_cast<size_t>(mds.cols()) == rate + capacity;
+  bool IsValid() const override {
+    return PoseidonConfigBase<PrimeField>::IsValid() &&
+           static_cast<size_t>(mds.rows()) == this->rate + this->capacity &&
+           static_cast<size_t>(mds.cols()) == this->rate + this->capacity;
   }
 
   bool operator==(const PoseidonConfig& other) const {
-    return full_rounds == other.full_rounds &&
-           partial_rounds == other.partial_rounds && alpha == other.alpha &&
-           ark == other.ark && mds == other.mds && rate == other.rate &&
-           capacity == other.capacity;
+    return PoseidonConfigBase<PrimeField>::operator==(other) &&
+           mds == other.mds;
   }
   bool operator!=(const PoseidonConfig& other) const {
     return !operator==(other);
@@ -150,34 +136,27 @@ class Copyable<crypto::PoseidonConfig<PrimeField>> {
  public:
   static bool WriteTo(const crypto::PoseidonConfig<PrimeField>& config,
                       Buffer* buffer) {
-    return buffer->WriteMany(config.full_rounds, config.partial_rounds,
-                             config.alpha, config.ark, config.mds, config.rate,
-                             config.capacity);
+    return Copyable<crypto::PoseidonConfigBase<PrimeField>>::WriteTo(config,
+                                                                     buffer) &&
+           buffer->Write(config.mds);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        crypto::PoseidonConfig<PrimeField>* config) {
-    size_t full_rounds;
-    size_t partial_rounds;
-    uint64_t alpha;
-    math::Matrix<PrimeField> ark;
+    crypto::PoseidonConfigBase<PrimeField> base;
     math::Matrix<PrimeField> mds;
-    size_t rate;
-    size_t capacity;
-    if (!buffer.ReadMany(&full_rounds, &partial_rounds, &alpha, &ark, &mds,
-                         &rate, &capacity)) {
+    if (!buffer.ReadMany(&base, &mds)) {
       return false;
     }
 
-    *config = {full_rounds,    partial_rounds, alpha,   std::move(ark),
-               std::move(mds), rate,           capacity};
+    *config = {std::move(base), std::move(mds)};
     return true;
   }
 
   static size_t EstimateSize(const crypto::PoseidonConfig<PrimeField>& config) {
-    return base::EstimateSize(config.full_rounds, config.partial_rounds,
-                              config.alpha, config.ark, config.mds, config.rate,
-                              config.capacity);
+    const crypto::PoseidonConfigBase<PrimeField>& base =
+        static_cast<const crypto::PoseidonConfigBase<PrimeField>&>(config);
+    return base::EstimateSize(base, config.mds);
   }
 };
 
