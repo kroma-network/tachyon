@@ -1,3 +1,5 @@
+#if defined(TACHYON_HAS_ASM_PRIME_FIELD)
+
 #include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field_x86_special.h"
 
 #include "third_party/goldilocks/include/goldilocks_base_field.hpp"
@@ -233,3 +235,5 @@ CLASS& CLASS::InverseInPlace() {
 template class PrimeField<GoldilocksConfig>;
 
 }  // namespace tachyon::math
+
+#endif  // TACHYON_HAS_ASM_PRIME_FIELD

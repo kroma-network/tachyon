@@ -3,7 +3,7 @@
 
 #include "tachyon/build/build_config.h"
 
-#if ARCH_CPU_X86_64
+#if defined(TACHYON_HAS_ASM_PRIME_FIELD) && ARCH_CPU_X86_64
 #include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field_x86_special.h"
 #else
 #include "tachyon/math/finite_fields/goldilocks/goldilocks.h"

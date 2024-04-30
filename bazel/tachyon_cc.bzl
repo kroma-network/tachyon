@@ -2,6 +2,7 @@ load("@local_config_cuda//cuda:build_defs.bzl", "cuda_library", "if_cuda")
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test", "objc_library")
 load(
     "//bazel:tachyon.bzl",
+    "if_has_asm_prime_field",
     "if_has_avx512",
     "if_has_exception",
     "if_has_matplotlib",
@@ -46,6 +47,9 @@ def tachyon_openmp_defines():
 
 def tachyon_avx512_defines():
     return if_has_avx512(["TACHYON_HAS_AVX512"])
+
+def tachyon_asm_prime_field_defines():
+    return if_has_asm_prime_field(["TACHYON_HAS_ASM_PRIME_FIELD"])
 
 def tachyon_cuda_defines():
     return if_cuda(["TACHYON_CUDA"])
