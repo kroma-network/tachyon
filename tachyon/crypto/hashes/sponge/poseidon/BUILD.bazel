@@ -17,7 +17,7 @@ tachyon_cc_library(
     name = "poseidon_config",
     hdrs = ["poseidon_config.h"],
     deps = [
-        ":grain_lfsr",
+        ":poseidon_grain_lfsr",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/ranges:algorithm",
         "@com_google_absl//absl/types:span",
@@ -25,8 +25,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "grain_lfsr",
-    hdrs = ["grain_lfsr.h"],
+    name = "poseidon_grain_lfsr",
+    hdrs = ["poseidon_grain_lfsr.h"],
     deps = [
         "//tachyon/math/base:big_int",
         "//tachyon/math/matrix:matrix_types",
@@ -37,8 +37,8 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "poseidon_unittests",
     srcs = [
-        "grain_lfsr_unittest.cc",
         "poseidon_config_unittest.cc",
+        "poseidon_grain_lfsr_unittest.cc",
         "poseidon_unittest.cc",
     ],
     deps = [

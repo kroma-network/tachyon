@@ -3,7 +3,7 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#include "tachyon/crypto/hashes/sponge/poseidon/grain_lfsr.h"
+#include "tachyon/crypto/hashes/sponge/poseidon/poseidon_grain_lfsr.h"
 
 #include "gtest/gtest.h"
 
