@@ -195,9 +195,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < poly_or_evals.NumElements();
                                i += chunk_size) {
       for (size_t j = 0; j < gap; ++j) {
-        if (j < roots.size()) {
-          fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap), roots[j]);
-        }
+        fn(poly_or_evals.at(i + j), poly_or_evals.at(i + j + gap), roots[j]);
       }
     }
   }
