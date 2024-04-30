@@ -274,3 +274,19 @@ You may encounter an illegal instruction error when running unit tests. Although
 ```shell
 bazel build --config ${os} --//:has_asm_prime_field=false //...
 ```
+
+## Performance Tuning
+
+### Use Intel OpenMP Runtime Library(libiomp)
+
+By default, Tachyon uses GNU OpenMP (GNU `libgomp`) for parallel computation. On Intel platforms, Intel OpenMP Runtime Library (`libiomp`) provides OpenMP API specification support. It sometimes brings more performance benefits compared to `libgomp`.
+
+You can install `libomp` by following the [instructions](https://www.intel.com/content/www/us/en/developer/tools/oneapi/hpc-toolkit-download.html).
+
+To link `libomp`, you need to add an additional flag `--//:has_intel_openmp`.
+
+```shell
+bazel build --config ${os} --//:has_openmp --//:has_intel_openmp //...
+```
+
+See also [PyTorch Recipes/Performance Tuning Guide/Intel OpenMP Library](https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html#intel-openmp-runtime-library-libiomp).

@@ -78,7 +78,11 @@ def tachyon_local_defines_compile_library():
     return if_static([], ["TACHYON_COMPILE_LIBRARY"])
 
 def tachyon_openmp_linkopts():
-    return if_has_openmp(["-fopenmp"])
+    return select({
+        "@kroma_network_tachyon//:tachyon_has_openmp": ["-fopenmp"],
+        "@kroma_network_tachyon//:tachyon_has_intel_openmp": ["-liomp5"],
+        "//conditions:default": [],
+    })
 
 def tachyon_linkopts():
     return tachyon_openmp_linkopts()

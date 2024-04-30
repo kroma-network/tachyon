@@ -34,6 +34,11 @@ bool_flag(
 )
 
 bool_flag(
+    name = "has_intel_openmp",
+    build_setting_default = False,
+)
+
+bool_flag(
     name = "has_avx512",
     build_setting_default = False,
 )
@@ -144,6 +149,14 @@ config_setting(
 config_setting(
     name = "tachyon_has_openmp",
     flag_values = {":has_openmp": "true"},
+)
+
+config_setting(
+    name = "tachyon_has_intel_openmp",
+    flag_values = {
+        ":has_openmp": "true",
+        ":has_intel_openmp": "true",
+    },
 )
 
 config_setting(
