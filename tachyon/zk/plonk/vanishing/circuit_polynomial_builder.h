@@ -114,19 +114,19 @@ class CircuitPolynomialBuilder {
         UpdateTable(j);
         // Do iff there are permutation constraints.
         if (permutation_provers_[j].grand_product_polys().size() > 0)
-          UpdatePermutation(j);
+          UpdatePermutationCosets(j);
         // Do iff there are lookup constraints.
         if (lookup_provers_[j].grand_product_polys().size() > 0)
-          UpdateLookups(j);
+          UpdateLookupCosets(j);
         base::Parallelize(
             value_part,
             [this, &custom_gate_evaluator, &lookup_evaluators](
                 absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
-              UpdateValuesByCustomGates(custom_gate_evaluator, chunk,
-                                        chunk_offset, chunk_size);
-              UpdateValuesByPermutation(chunk, chunk_offset, chunk_size);
-              UpdateValuesByLookups(lookup_evaluators, chunk, chunk_offset,
-                                    chunk_size);
+              UpdateChunkByCustomGates(custom_gate_evaluator, chunk,
+                                       chunk_offset, chunk_size);
+              UpdateChunkByPermutation(chunk, chunk_offset, chunk_size);
+              UpdateChunkByLookups(lookup_evaluators, chunk, chunk_offset,
+                                   chunk_size);
             });
       }
 
@@ -137,7 +137,7 @@ class CircuitPolynomialBuilder {
     return ExtendedEvals(std::move(extended));
   }
 
-  void UpdateValuesByLookups(
+  void UpdateChunkByLookups(
       const std::vector<GraphEvaluator<F>>& lookup_evaluators,
       absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
     for (size_t i = 0; i < lookup_evaluators.size(); ++i) {
@@ -199,8 +199,8 @@ class CircuitPolynomialBuilder {
     }
   }
 
-  void UpdateValuesByPermutation(absl::Span<F> chunk, size_t chunk_offset,
-                                 size_t chunk_size) {
+  void UpdateChunkByPermutation(absl::Span<F> chunk, size_t chunk_offset,
+                                size_t chunk_size) {
     if (permutation_product_cosets_.empty()) return;
 
     const std::vector<Evals>& product_cosets = permutation_product_cosets_;
@@ -290,9 +290,9 @@ class CircuitPolynomialBuilder {
     return right;
   }
 
-  void UpdateValuesByCustomGates(const GraphEvaluator<F>& custom_gate_evaluator,
-                                 absl::Span<F> chunk, size_t chunk_offset,
-                                 size_t chunk_size) {
+  void UpdateChunkByCustomGates(const GraphEvaluator<F>& custom_gate_evaluator,
+                                absl::Span<F> chunk, size_t chunk_offset,
+                                size_t chunk_size) {
     EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
         custom_gate_evaluator.CreateInitialIntermediates(),
         custom_gate_evaluator.CreateEmptyRotations());
@@ -309,7 +309,7 @@ class CircuitPolynomialBuilder {
     l_active_row_ = coset_domain_->FFT(proving_key_.l_active_row());
   }
 
-  void UpdatePermutation(size_t circuit_idx) {
+  void UpdatePermutationCosets(size_t circuit_idx) {
     const std::vector<BlindedPolynomial<Poly, Evals>>& grand_product_polys =
         permutation_provers_[circuit_idx].grand_product_polys();
     permutation_product_cosets_.resize(grand_product_polys.size());
@@ -326,7 +326,7 @@ class CircuitPolynomialBuilder {
     }
   }
 
-  void UpdateLookups(size_t circuit_idx) {
+  void UpdateLookupCosets(size_t circuit_idx) {
     size_t num_lookups =
         lookup_provers_[circuit_idx].grand_product_polys().size();
     const lookup::halo2::Prover<Poly, Evals>& lookup_prover =
