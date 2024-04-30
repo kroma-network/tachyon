@@ -33,7 +33,7 @@ namespace tachyon::zk::plonk {
 // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
 // You can find more detailed theory in "Halo2 book"
 // https://zcash.github.io/halo2/design/proving-system/vanishing.html
-template <typename PCS>
+template <typename PCS, typename LS>
 class CircuitPolynomialBuilder {
  public:
   using F = typename PCS::Field;
@@ -43,14 +43,15 @@ class CircuitPolynomialBuilder {
   using Domain = typename PCS::Domain;
   using ExtendedDomain = typename PCS::ExtendedDomain;
   using ExtendedEvals = typename PCS::ExtendedEvals;
-  using LookupEvaluator = lookup::halo2::Evaluator<F, Evals>;
+  using LookupProver = typename LS::Prover;
+  using LookupEvaluator = typename LS::Evaluator;
 
   CircuitPolynomialBuilder(
       const F& omega, const F& extended_omega, const F& theta, const F& beta,
       const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<Poly, Evals, C>& proving_key,
+      const ProvingKey<LS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers,
+      const std::vector<LookupProver>& lookup_provers,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables)
       : omega_(omega),
         extended_omega_(extended_omega),
@@ -69,9 +70,9 @@ class CircuitPolynomialBuilder {
       RowOffset last_row, size_t cs_degree,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<Poly, Evals, C>& proving_key,
+      const ProvingKey<LS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers) {
+      const std::vector<LookupProver>& lookup_provers) {
     CircuitPolynomialBuilder builder(
         domain->group_gen(), extended_domain->group_gen(), theta, beta, gamma,
         y, zeta, proving_key, permutation_provers, lookup_provers, poly_tables);
@@ -317,9 +318,9 @@ class CircuitPolynomialBuilder {
   Rotation last_rotation_;
   F delta_start_;
 
-  const ProvingKey<Poly, Evals, C>& proving_key_;
+  const ProvingKey<LS>& proving_key_;
   const std::vector<PermutationProver<Poly, Evals>>& permutation_provers_;
-  const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers_;
+  const std::vector<LookupProver>& lookup_provers_;
   const std::vector<MultiPhaseRefTable<Poly>>& poly_tables_;
 
   Evals l_first_;

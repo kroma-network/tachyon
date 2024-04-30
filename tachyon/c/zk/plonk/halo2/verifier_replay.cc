@@ -23,10 +23,10 @@ namespace c::zk::plonk::halo2::bn254 {
 
 using ProvingKey = plonk::bn254::ProvingKeyImpl;
 
-template <typename PCS>
-using Verifier = tachyon::zk::plonk::halo2::Verifier<PCS>;
+template <typename PCS, typename LS>
+using Verifier = tachyon::zk::plonk::halo2::Verifier<PCS, LS>;
 
-template <typename PCS>
+template <typename PCS, typename LS>
 using VerifyingKey = tachyon::zk::plonk::VerifyingKey<typename PCS::Field,
                                                       typename PCS::Commitment>;
 

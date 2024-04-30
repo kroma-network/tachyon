@@ -69,9 +69,9 @@ class VerifyingKey : public Key {
   }
 
  private:
-  template <typename Poly, typename Evals, typename Commitment>
+  template <typename LS>
   friend class ProvingKey;
-  template <typename Poly, typename Evals, typename Commitment>
+  template <typename LS>
   friend class c::zk::plonk::ProvingKeyImplBase;
 
   template <typename PCS, typename Evals, typename RationalEvals>

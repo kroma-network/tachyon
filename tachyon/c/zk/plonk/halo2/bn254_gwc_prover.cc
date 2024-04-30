@@ -9,6 +9,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/kzg_family_prover_impl.h"
 #include "tachyon/c/zk/plonk/keys/proving_key_impl_base.h"
@@ -22,10 +23,10 @@
 using namespace tachyon;
 
 using PCS = c::zk::plonk::halo2::bn254::GWCPCS;
+using LS = c::zk::plonk::halo2::bn254::LS;
 using CS = zk::plonk::ConstraintSystem<PCS::Field>;
-using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS>;
-using ProvingKey =
-    c::zk::plonk::ProvingKeyImplBase<PCS::Poly, PCS::Evals, PCS::Commitment>;
+using ProverImpl = c::zk::plonk::halo2::KZGFamilyProverImpl<PCS, LS>;
+using ProvingKey = c::zk::plonk::ProvingKeyImplBase<LS>;
 using Data = zk::plonk::halo2::ArgumentData<PCS::Poly, PCS::Evals>;
 
 tachyon_halo2_bn254_gwc_prover*
@@ -66,8 +67,8 @@ tachyon_halo2_bn254_gwc_prover_create_from_unsafe_setup(
           }
         }
         CHECK(writer);
-        zk::plonk::halo2::Prover<PCS> prover =
-            zk::plonk::halo2::Prover<PCS>::CreateFromRNG(
+        zk::plonk::halo2::Prover<PCS, LS> prover =
+            zk::plonk::halo2::Prover<PCS, LS>::CreateFromRNG(
                 std::move(pcs), std::move(writer),
                 /*rng=*/nullptr,
                 /*blinding_factors=*/0);
@@ -116,8 +117,8 @@ tachyon_halo2_bn254_gwc_prover_create_from_params(uint8_t transcript_type,
           }
         }
         CHECK(writer);
-        zk::plonk::halo2::Prover<PCS> prover =
-            zk::plonk::halo2::Prover<PCS>::CreateFromRNG(
+        zk::plonk::halo2::Prover<PCS, LS> prover =
+            zk::plonk::halo2::Prover<PCS, LS>::CreateFromRNG(
                 std::move(pcs), std::move(writer),
                 /*rng=*/nullptr,
                 /*blinding_factors=*/0);

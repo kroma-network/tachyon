@@ -87,6 +87,7 @@ tachyon_cc_library(
         "//tachyon/zk/lookup:verifier",
         "//tachyon/zk/lookup:verifying_evaluator",
         "//tachyon/zk/plonk/base:l_values",
+        "//tachyon/zk/plonk/halo2:proof",
     ],
 )
 

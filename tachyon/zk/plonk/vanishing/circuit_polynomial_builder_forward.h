@@ -9,7 +9,7 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename PCS>
+template <typename PCS, typename LS>
 class CircuitPolynomialBuilder;
 
 }  // namespace tachyon::zk::plonk

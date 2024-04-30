@@ -23,10 +23,13 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename F, typename Evals>
+template <typename LS>
 class VanishingArgument {
  public:
-  using LookupEvaluator = lookup::halo2::Evaluator<F, Evals>;
+  using F = typename LS::Field;
+  using Evals = typename LS::Evals;
+  using LookupEvaluator = typename LS::Evaluator;
+  using LookupProver = typename LS::Prover;
 
   VanishingArgument() = default;
 
@@ -55,19 +58,19 @@ class VanishingArgument {
   const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
   const LookupEvaluator& lookup_evaluator() const { return lookup_evaluator_; }
 
-  template <typename PCS, typename Poly, typename C,
+  template <typename PCS, typename Poly,
             typename ExtendedEvals = typename PCS::ExtendedEvals>
   ExtendedEvals BuildExtendedCircuitColumn(
-      ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<LS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers) {
+      const std::vector<LookupProver>& lookup_provers) {
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 
-    CircuitPolynomialBuilder<PCS> builder =
-        CircuitPolynomialBuilder<PCS>::Create(
+    CircuitPolynomialBuilder<PCS, LS> builder =
+        CircuitPolynomialBuilder<PCS, LS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
             prover->GetLastRow(), cs_degree, poly_tables, theta, beta, gamma, y,
             zeta, proving_key, permutation_provers, lookup_provers);

@@ -18,7 +18,6 @@
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/entities/verifier_base.h"
 #include "tachyon/zk/lookup/halo2/utils.h"
-#include "tachyon/zk/lookup/halo2/verifier.h"
 #include "tachyon/zk/plonk/halo2/proof_reader.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
 #include "tachyon/zk/plonk/permutation/permutation_utils.h"
@@ -28,7 +27,7 @@
 
 namespace tachyon::zk::plonk::halo2 {
 
-template <typename PCS>
+template <typename PCS, typename LS>
 class Verifier : public VerifierBase<PCS> {
  public:
   using F = typename PCS::Field;
@@ -37,6 +36,7 @@ class Verifier : public VerifierBase<PCS> {
   using Poly = typename PCS::Poly;
   using Coefficients = typename Poly::Coefficients;
   using Opening = crypto::PolynomialOpening<Poly, Commitment>;
+  using LookupVerifier = typename LS::Verifier;
 
   using VerifierBase<PCS>::VerifierBase;
 
@@ -317,11 +317,8 @@ class Verifier : public VerifierBase<PCS> {
       permutation_verifier.Evaluate(constraint_system, proof.x, l_values,
                                     evals);
 
-      lookup::halo2::VerifierData<F, Commitment> lookup_verifier_data =
-          proof.ToLookupVerifierData(i);
-      lookup::halo2::Verifier<F, Commitment> lookup_verifier(
-          lookup_verifier_data);
-      lookup_verifier.Evaluate(constraint_system.lookups(), l_values, evals);
+      LookupVerifier lookup_verifier(proof, i, l_values);
+      lookup_verifier.Evaluate(constraint_system.lookups(), evals);
     }
     DCHECK_EQ(evals.size(), size);
     F expected_h_eval =
@@ -370,11 +367,8 @@ class Verifier : public VerifierBase<PCS> {
           permutation_verifier_data);
       permutation_verifier.template Open<Poly>(permutation_point_set, openings);
 
-      lookup::halo2::VerifierData<F, Commitment> lookup_verifier_data =
-          proof.ToLookupVerifierData(i);
-      lookup::halo2::Verifier<F, Commitment> lookup_verifier(
-          lookup_verifier_data);
-      lookup_verifier.template Open<Poly>(lookup_point_set, openings);
+      LookupVerifier lookup_verifier(proof, i);
+      lookup_verifier.Open(lookup_point_set, openings);
 
       if (i == num_circuits - 1) {
         vanishing_verifier.template OpenFixedColumns<Poly>(

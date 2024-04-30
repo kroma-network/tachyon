@@ -9,6 +9,7 @@
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/base/commitments/gwc_extension.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
+#include "tachyon/zk/lookup/halo2/scheme.h"
 #include "tachyon/zk/plonk/examples/circuit_test.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
@@ -251,9 +252,18 @@ constexpr const char* shuffled_tables[2][W][H] = {
 };
 // clang-format on
 
-template <typename PCS>
-class ShuffleCircuitTest : public CircuitTest<PCS> {
+template <typename _PCS, typename _LS>
+struct ProverType {
+  using PCS = _PCS;
+  using LS = _LS;
+};
+
+template <typename ProverType>
+class ShuffleCircuitTest
+    : public CircuitTest<typename ProverType::PCS, typename ProverType::LS> {
  public:
+  using PCS = typename ProverType::PCS;
+  using LS = typename ProverType::LS;
   using F = typename PCS::Field;
 
   static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
@@ -281,11 +291,20 @@ using SHPlonk =
     SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree, kMaxExtendedDegree,
                      math::bn254::G1AffinePoint>;
 
-using PCSTypes = testing::Types<GWC, SHPlonk>;
-TYPED_TEST_SUITE(ShuffleCircuitTest, PCSTypes);
+using Poly = typename SHPlonk::Poly;
+using Evals = typename SHPlonk::Evals;
+using Commitment = typename SHPlonk::Commitment;
+
+using Halo2LS = typename lookup::halo2::Scheme<Poly, Evals, Commitment>;
+
+using GWCHalo2 = ProverType<GWC, Halo2LS>;
+using SHPlonkHalo2 = ProverType<SHPlonk, Halo2LS>;
+
+using CircuitTypes = testing::Types<GWCHalo2, SHPlonkHalo2>;
+TYPED_TEST_SUITE(ShuffleCircuitTest, CircuitTypes);
 
 TYPED_TEST(ShuffleCircuitTest, Configure) {
-  using PCS = TypeParam;
+  using PCS = typename TestFixture::PCS;
   using F = typename PCS::Field;
 
   if constexpr (!std::is_same_v<PCS, SHPlonk>) {
@@ -427,7 +446,7 @@ TYPED_TEST(ShuffleCircuitTest, Configure) {
 }
 
 TYPED_TEST(ShuffleCircuitTest, Synthesize) {
-  using PCS = TypeParam;
+  using PCS = typename TestFixture::PCS;
   using Domain = typename PCS::Domain;
   using F = typename PCS::Field;
   using Commitment = typename PCS::Commitment;
@@ -480,11 +499,11 @@ TYPED_TEST(ShuffleCircuitTest, Synthesize) {
 }
 
 TYPED_TEST(ShuffleCircuitTest, LoadVerifyingKey) {
-  using PCS = TypeParam;
+  using PCS = typename TestFixture::PCS;
   using Domain = typename PCS::Domain;
   using F = typename PCS::Field;
   using Commitment = typename PCS::Commitment;
-  using Point = typename ShuffleCircuitTest<PCS>::Point;
+  using Point = typename TestFixture::Point;
 
   if constexpr (!std::is_same_v<PCS, SHPlonk>) {
     GTEST_SKIP() << "Should be implemented for GWC as well";
@@ -521,12 +540,13 @@ TYPED_TEST(ShuffleCircuitTest, LoadVerifyingKey) {
 }
 
 TYPED_TEST(ShuffleCircuitTest, LoadProvingKey) {
-  using PCS = TypeParam;
+  using PCS = typename TestFixture::PCS;
   using Domain = typename PCS::Domain;
   using F = typename PCS::Field;
   using Commitment = typename PCS::Commitment;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
+  using LS = typename TestFixture::LS;
 
   if constexpr (!std::is_same_v<PCS, SHPlonk>) {
     GTEST_SKIP() << "Should be implemented for GWC as well";
@@ -541,7 +561,7 @@ TYPED_TEST(ShuffleCircuitTest, LoadProvingKey) {
       this->template GetCircuitForTest<SimpleFloorPlanner>();
 
   for (size_t i = 0; i < 2; ++i) {
-    ProvingKey<Poly, Evals, Commitment> pkey;
+    ProvingKey<LS> pkey;
     bool load_verifying_key = i == 0;
     SCOPED_TRACE(
         absl::Substitute("load_verifying_key: $0", load_verifying_key));
@@ -720,12 +740,11 @@ TYPED_TEST(ShuffleCircuitTest, LoadProvingKey) {
 }
 
 TYPED_TEST(ShuffleCircuitTest, CreateProof) {
-  using PCS = TypeParam;
+  using PCS = typename TestFixture::PCS;
   using Domain = typename PCS::Domain;
   using F = typename PCS::Field;
-  using Commitment = typename PCS::Commitment;
-  using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
+  using LS = typename TestFixture::LS;
 
   size_t n = size_t{1} << K;
   CHECK(this->prover_->pcs().UnsafeSetup(n, F(2)));
@@ -739,7 +758,7 @@ TYPED_TEST(ShuffleCircuitTest, CreateProof) {
   std::vector<std::vector<Evals>> instance_columns_vec = {
       instance_columns, std::move(instance_columns)};
 
-  ProvingKey<Poly, Evals, Commitment> pkey;
+  ProvingKey<LS> pkey;
   ASSERT_TRUE(pkey.Load(this->prover_.get(), circuits[0]));
   this->prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
@@ -757,12 +776,11 @@ TYPED_TEST(ShuffleCircuitTest, CreateProof) {
 }
 
 TYPED_TEST(ShuffleCircuitTest, CreateV1Proof) {
-  using PCS = TypeParam;
+  using PCS = typename TestFixture::PCS;
   using Domain = typename PCS::Domain;
   using F = typename PCS::Field;
-  using Commitment = typename PCS::Commitment;
-  using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
+  using LS = typename TestFixture::LS;
 
   size_t n = size_t{1} << K;
   CHECK(this->prover_->pcs().UnsafeSetup(n, F(2)));
@@ -776,7 +794,7 @@ TYPED_TEST(ShuffleCircuitTest, CreateV1Proof) {
   std::vector<std::vector<Evals>> instance_columns_vec = {
       instance_columns, std::move(instance_columns)};
 
-  ProvingKey<Poly, Evals, Commitment> pkey;
+  ProvingKey<LS> pkey;
   ASSERT_TRUE(pkey.Load(this->prover_.get(), circuits[0]));
   this->prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
@@ -794,12 +812,13 @@ TYPED_TEST(ShuffleCircuitTest, CreateV1Proof) {
 }
 
 TYPED_TEST(ShuffleCircuitTest, Verify) {
-  using PCS = TypeParam;
+  using PCS = typename TestFixture::PCS;
   using Domain = typename PCS::Domain;
   using F = typename PCS::Field;
   using Commitment = typename PCS::Commitment;
   using Evals = typename PCS::Evals;
-  using Point = typename ShuffleCircuitTest<PCS>::Point;
+  using Point = typename TestFixture::Point;
+  using LS = typename TestFixture::LS;
 
   size_t n = size_t{1} << K;
   CHECK(this->prover_->pcs().UnsafeSetup(n, F(2)));
@@ -818,7 +837,7 @@ TYPED_TEST(ShuffleCircuitTest, Verify) {
   } else {
     owned_proof = {std::begin(kGWCExpectedProof), std::end(kGWCExpectedProof)};
   }
-  Verifier<PCS> verifier = this->CreateVerifier(
+  Verifier<PCS, LS> verifier = this->CreateVerifier(
       this->CreateBufferWithProof(absl::MakeSpan(owned_proof)));
 
   std::vector<Evals> instance_columns;

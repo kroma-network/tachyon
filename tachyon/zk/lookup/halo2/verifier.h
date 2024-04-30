@@ -17,6 +17,7 @@
 #include "tachyon/zk/lookup/verifier.h"
 #include "tachyon/zk/lookup/verifying_evaluator.h"
 #include "tachyon/zk/plonk/base/l_values.h"
+#include "tachyon/zk/plonk/halo2/proof.h"
 
 namespace tachyon::zk::lookup {
 namespace halo2 {
@@ -24,20 +25,27 @@ namespace halo2 {
 template <typename F, typename C>
 class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
  public:
-  explicit Verifier(const VerifierData<F, C>& data) : data_(data) {}
+  using Proof = plonk::halo2::Proof<F, C>;
 
-  void Evaluate(const std::vector<lookup::Argument<F>>& arguments,
-                const plonk::LValues<F>& l_values, std::vector<F>& evals) {
+  Verifier(const Proof& proof, size_t circuit_idx)
+      : data_(proof.ToLookupVerifierData(circuit_idx)) {}
+
+  Verifier(const Proof& proof, size_t circuit_idx,
+           const plonk::LValues<F>& l_values)
+      : data_(proof.ToLookupVerifierData(circuit_idx)), l_values_(&l_values) {}
+
+  void DoEvaluate(const std::vector<lookup::Argument<F>>& arguments,
+                  std::vector<F>& evals) {
     lookup::VerifyingEvaluator<F> evaluator(data_);
 
-    F active_rows = F::One() - (l_values.last + l_values.blind);
+    F active_rows = F::One() - (l_values_->last + l_values_->blind);
     for (size_t i = 0; i < data_.grand_product_commitments.size(); ++i) {
       // l_first(x) * (1 - Zₗ,ᵢ(x)) = 0
-      evals.push_back(l_values.first *
+      evals.push_back(l_values_->first *
                       (F::One() - data_.grand_product_evals[i]));
       // l_last(x) * (Zₗ,ᵢ(x)² - Zₗ,ᵢ(x)) = 0
-      evals.push_back(l_values.last * (data_.grand_product_evals[i].Square() -
-                                       data_.grand_product_evals[i]));
+      evals.push_back(l_values_->last * (data_.grand_product_evals[i].Square() -
+                                         data_.grand_product_evals[i]));
       // (1 - (l_last(x) + l_blind(x))) * (
       //  Zₗ,ᵢ(ω * x) * (A'ᵢ(x) + β) * (S'ᵢ(x) + γ) -
       //  Zₗ,ᵢ(x) * (A_compressedᵢ(x) + β) * (S_compressedᵢ(x) + γ)
@@ -45,8 +53,8 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
       evals.push_back(active_rows *
                       CreateGrandProductEvaluation(i, arguments[i], evaluator));
       // l_first(x) * (A'ᵢ(x) - S'ᵢ(x)) = 0
-      evals.push_back(l_values.first * (data_.permuted_input_evals[i] -
-                                        data_.permuted_table_evals[i]));
+      evals.push_back(l_values_->first * (data_.permuted_input_evals[i] -
+                                          data_.permuted_table_evals[i]));
       // (1 - (l_last(x) + l_blind(x))) *
       // (A'ᵢ(x) − S'ᵢ(x)) * (A'ᵢ(x) − A'ᵢ(ω⁻¹ * x)) = 0
       evals.push_back(
@@ -57,8 +65,8 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
   }
 
   template <typename Poly>
-  void Open(const OpeningPointSet<F>& point_set,
-            std::vector<crypto::PolynomialOpening<Poly, C>>& openings) const {
+  void DoOpen(const OpeningPointSet<F>& point_set,
+              std::vector<crypto::PolynomialOpening<Poly, C>>& openings) const {
     if (data_.grand_product_commitments.empty()) return;
 
 #define OPENING(commitment, point, eval) \
@@ -109,7 +117,8 @@ class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
     return left - right;
   }
 
-  const VerifierData<F, C>& data_;
+  VerifierData<F, C> data_;
+  const plonk::LValues<F>* l_values_ = nullptr;
 };
 
 }  // namespace halo2

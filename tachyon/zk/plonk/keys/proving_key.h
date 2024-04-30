@@ -20,10 +20,13 @@ namespace tachyon {
 
 namespace zk::plonk {
 
-template <typename Poly, typename Evals, typename C>
+template <typename LS>
 class ProvingKey : public Key {
  public:
-  using F = typename Poly::Field;
+  using F = typename LS::Field;
+  using Poly = typename LS::Poly;
+  using Evals = typename LS::Evals;
+  using C = typename LS::Commitment;
 
   ProvingKey() = default;
 
@@ -64,7 +67,7 @@ class ProvingKey : public Key {
   }
 
  private:
-  friend class c::zk::plonk::ProvingKeyImplBase<Poly, Evals, C>;
+  friend class c::zk::plonk::ProvingKeyImplBase<LS>;
 
   template <typename PCS, typename RationalEvals>
   bool DoLoad(ProverBase<PCS>* prover,
@@ -156,7 +159,7 @@ class ProvingKey : public Key {
     l_active_row_ = domain->IFFT(std::move(evals));
 
     vanishing_argument_ =
-        VanishingArgument<F, Evals>::Create(verifying_key_.constraint_system());
+        VanishingArgument<LS>::Create(verifying_key_.constraint_system());
     return true;
   }
 
@@ -167,7 +170,7 @@ class ProvingKey : public Key {
   std::vector<Evals> fixed_columns_;
   std::vector<Poly> fixed_polys_;
   PermutationProvingKey<Poly, Evals> permutation_proving_key_;
-  VanishingArgument<F, Evals> vanishing_argument_;
+  VanishingArgument<LS> vanishing_argument_;
 };
 
 }  // namespace zk::plonk

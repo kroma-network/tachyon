@@ -50,6 +50,7 @@ tachyon_cc_library(
     deps = [
         ":bn254_argument_data",
         ":bn254_gwc_pcs",
+        ":bn254_ls",
         ":bn254_transcript",
         ":kzg_family_prover_impl",
         "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
@@ -70,6 +71,7 @@ tachyon_cc_library(
     ],
     deps = [
         ":bn254_gwc_pcs",
+        ":bn254_ls",
         ":kzg_family_prover_impl",
         "//tachyon/c/base:type_traits_forward",
     ],
@@ -82,6 +84,7 @@ tachyon_cc_library(
     deps = [
         ":bn254_gwc_pcs",
         ":bn254_instance_columns_vec",
+        ":bn254_ls",
         ":bn254_transcript",
         ":verifier_impl",
         "//tachyon/c/zk/plonk/keys:bn254_plonk_verifying_key",
@@ -97,6 +100,7 @@ tachyon_cc_library(
     ],
     deps = [
         ":bn254_gwc_pcs",
+        ":bn254_ls",
         ":verifier_impl",
         "//tachyon/c/base:type_traits_forward",
     ],
@@ -118,6 +122,18 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "bn254_ls",
+    hdrs = ["bn254_ls.h"],
+    deps = [
+        "//tachyon/c/math/polynomials:constants",
+        "//tachyon/c/math/polynomials/univariate:bn254_univariate_dense_polynomial",
+        "//tachyon/c/math/polynomials/univariate:bn254_univariate_evaluation_domain",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/lookup/halo2:scheme",
+    ],
+)
+
+tachyon_cc_library(
     name = "bn254_shplonk_pcs",
     hdrs = ["bn254_shplonk_pcs.h"],
     deps = [
@@ -133,6 +149,7 @@ tachyon_cc_library(
     hdrs = ["bn254_shplonk_prover.h"],
     deps = [
         ":bn254_argument_data",
+        ":bn254_ls",
         ":bn254_shplonk_pcs",
         ":bn254_transcript",
         ":kzg_family_prover_impl",
@@ -153,6 +170,7 @@ tachyon_cc_library(
         "bn254_shplonk_prover_type_traits.h",
     ],
     deps = [
+        ":bn254_ls",
         ":bn254_shplonk_pcs",
         ":kzg_family_prover_impl",
         "//tachyon/c/base:type_traits_forward",
@@ -165,6 +183,7 @@ tachyon_cc_library(
     hdrs = ["bn254_shplonk_verifier.h"],
     deps = [
         ":bn254_instance_columns_vec",
+        ":bn254_ls",
         ":bn254_shplonk_pcs",
         ":bn254_transcript",
         ":verifier_impl",
@@ -180,6 +199,7 @@ tachyon_cc_library(
         "bn254_shplonk_verifier_type_traits.h",
     ],
     deps = [
+        ":bn254_ls",
         ":bn254_shplonk_pcs",
         ":verifier_impl",
         "//tachyon/c/base:type_traits_forward",
@@ -322,5 +342,6 @@ tachyon_cc_unittest(
         "//tachyon/c/zk/plonk/halo2/test:bn254_halo2_params_data",
         "//tachyon/cc/math/elliptic_curves/bn/bn254:fr",
         "//tachyon/math/finite_fields/test:finite_field_test",
+        "//tachyon/zk/lookup/halo2:scheme",
     ],
 )

@@ -61,8 +61,8 @@ class Evaluator {
     }
   }
 
-  template <typename PCS>
-  void UpdateChunkByLookups(plonk::CircuitPolynomialBuilder<PCS>& builder,
+  template <typename PCS, typename LS>
+  void UpdateChunkByLookups(plonk::CircuitPolynomialBuilder<PCS, LS>& builder,
                             absl::Span<F> chunk, size_t chunk_offset,
                             size_t chunk_size) {
     for (size_t i = 0; i < lookup_evaluators_.size(); ++i) {
@@ -126,8 +126,8 @@ class Evaluator {
     }
   }
 
-  template <typename PCS>
-  void UpdateLookupCosets(plonk::CircuitPolynomialBuilder<PCS>& builder,
+  template <typename PCS, typename LS>
+  void UpdateLookupCosets(plonk::CircuitPolynomialBuilder<PCS, LS>& builder,
                           size_t circuit_idx) {
     using LookupProver = Prover<typename PCS::Poly, Evals>;
 

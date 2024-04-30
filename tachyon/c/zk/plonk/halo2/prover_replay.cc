@@ -24,8 +24,8 @@ using ArgumentData =
     tachyon::zk::plonk::halo2::ArgumentData<typename PCS::Poly,
                                             typename PCS::Evals>;
 
-template <typename PCS>
-using Prover = KZGFamilyProverImpl<PCS>;
+template <typename PCS, typename LS>
+using Prover = KZGFamilyProverImpl<PCS, LS>;
 
 using ProvingKey = plonk::bn254::ProvingKeyImpl;
 

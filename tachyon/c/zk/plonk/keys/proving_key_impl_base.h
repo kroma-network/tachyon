@@ -18,11 +18,11 @@
 
 namespace tachyon::c::zk::plonk {
 
-template <typename Poly, typename Evals, typename C>
-class ProvingKeyImplBase
-    : public tachyon::zk::plonk::ProvingKey<Poly, Evals, C> {
+template <typename LS>
+class ProvingKeyImplBase : public tachyon::zk::plonk::ProvingKey<LS> {
  public:
-  using F = typename Poly::Field;
+  using F = typename LS::Field;
+  using C = typename LS::Commitment;
 
   ProvingKeyImplBase(absl::Span<const uint8_t> state, bool read_only_vk)
       : read_only_vk_(read_only_vk) {
@@ -63,7 +63,7 @@ class ProvingKeyImplBase
     ReadBuffer(buffer, this->fixed_polys_);
     ReadBuffer(buffer, this->permutation_proving_key_);
     this->vanishing_argument_ =
-        tachyon::zk::plonk::VanishingArgument<F, Evals>::Create(
+        tachyon::zk::plonk::VanishingArgument<LS>::Create(
             this->verifying_key_.constraint_system_);
     CHECK(buffer.Done());
   }

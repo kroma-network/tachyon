@@ -5,6 +5,7 @@
 
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
+#include "tachyon/zk/lookup/halo2/scheme.h"
 #include "tachyon/zk/plonk/examples/circuit_test.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
@@ -16,6 +17,10 @@ namespace {
 
 using PCS = SHPlonkExtension<math::bn254::BN254Curve, kMaxDegree,
                              kMaxExtendedDegree, math::bn254::G1AffinePoint>;
+using Poly = typename PCS::Poly;
+using Evals = typename PCS::Evals;
+using Commitment = typename PCS::Commitment;
+using LS = lookup::halo2::Scheme<Poly, Evals, Commitment>;
 
 constexpr uint8_t kExpectedProof[] = {
     206, 109, 139, 136, 181, 35,  204, 231, 212, 93,  105, 116, 154, 77,  204,
@@ -130,7 +135,7 @@ constexpr uint8_t kExpectedProof[] = {
     59,  246, 51,  38,  12,  208, 190, 66,  35,  23,  195, 152, 31,  96,  15,
     198, 165, 206, 149, 89,  130, 172, 23,  119, 105, 140, 216, 51,  6};
 
-class SimpleCircuitTest : public CircuitTest<PCS> {
+class SimpleCircuitTest : public CircuitTest<PCS, LS> {
  public:
   static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
 };
@@ -347,7 +352,7 @@ TEST_F(SimpleCircuitTest, LoadProvingKey) {
   SimpleCircuit<F, SimpleFloorPlanner> circuit(constant, a, b);
 
   for (size_t i = 0; i < 2; ++i) {
-    ProvingKey<Poly, Evals, Commitment> pkey;
+    ProvingKey<LS> pkey;
     bool load_verifying_key = i == 0;
     SCOPED_TRACE(
         absl::Substitute("load_verifying_key: $0", load_verifying_key));
@@ -702,7 +707,7 @@ TEST_F(SimpleCircuitTest, CreateProof) {
   std::vector<std::vector<Evals>> instance_columns_vec = {
       instance_columns, std::move(instance_columns)};
 
-  ProvingKey<Poly, Evals, Commitment> pkey;
+  ProvingKey<LS> pkey;
   ASSERT_TRUE(pkey.Load(prover_.get(), circuit));
   prover_->CreateProof(pkey, std::move(instance_columns_vec), circuits);
 
@@ -727,7 +732,7 @@ TEST_F(SimpleCircuitTest, Verify) {
 
   std::vector<uint8_t> owned_proof(std::begin(kExpectedProof),
                                    std::end(kExpectedProof));
-  Verifier<PCS> verifier =
+  Verifier<PCS, LS> verifier =
       CreateVerifier(CreateBufferWithProof(absl::MakeSpan(owned_proof)));
   F c = constant * a.Square() * b.Square();
   std::vector<F> instance_column = {std::move(c)};

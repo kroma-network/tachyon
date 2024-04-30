@@ -12,10 +12,10 @@
 
 namespace tachyon::c::zk::plonk::halo2 {
 
-template <typename PCS>
-class VerifierImpl : public tachyon::zk::plonk::halo2::Verifier<PCS> {
+template <typename PCS, typename LS>
+class VerifierImpl : public tachyon::zk::plonk::halo2::Verifier<PCS, LS> {
  public:
-  using Base = tachyon::zk::plonk::halo2::Verifier<PCS>;
+  using Base = tachyon::zk::plonk::halo2::Verifier<PCS, LS>;
   using Callback = tachyon::base::OnceCallback<Base()>;
   using F = typename PCS::Field;
   using Commitment = typename PCS::Commitment;
