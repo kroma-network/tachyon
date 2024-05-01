@@ -10,26 +10,24 @@
 namespace tachyon {
 namespace math {
 
-template <typename PrimeField>
-using Matrix = Eigen::Matrix<PrimeField, Eigen::Dynamic, Eigen::Dynamic>;
+template <typename Field>
+using Matrix = Eigen::Matrix<Field, Eigen::Dynamic, Eigen::Dynamic>;
 
-template <typename PrimeField>
-using Vector = Eigen::Matrix<PrimeField, Eigen::Dynamic, 1>;
+template <typename Field>
+using Vector = Eigen::Matrix<Field, Eigen::Dynamic, 1>;
 
-template <typename PrimeField>
-using RowVector = Eigen::Matrix<PrimeField, 1, Eigen::Dynamic>;
+template <typename Field>
+using RowVector = Eigen::Matrix<Field, 1, Eigen::Dynamic>;
 
 }  // namespace math
 
 namespace base {
 
-template <typename PrimeField, int Rows, int Cols, int Options, int MaxRows,
+template <typename Field, int Rows, int Cols, int Options, int MaxRows,
           int MaxCols>
-class Copyable<
-    Eigen::Matrix<PrimeField, Rows, Cols, Options, MaxRows, MaxCols>> {
+class Copyable<Eigen::Matrix<Field, Rows, Cols, Options, MaxRows, MaxCols>> {
  public:
-  using Matrix =
-      Eigen::Matrix<PrimeField, Rows, Cols, Options, MaxRows, MaxCols>;
+  using Matrix = Eigen::Matrix<Field, Rows, Cols, Options, MaxRows, MaxCols>;
 
   static bool WriteTo(const Matrix& matrix, Buffer* buffer) {
     if (!buffer->WriteMany(matrix.rows(), matrix.cols())) return false;
@@ -62,7 +60,7 @@ class Copyable<
   }
 
   static size_t EstimateSize(const Matrix& matrix) {
-    return matrix.size() * sizeof(PrimeField) + sizeof(Eigen::Index) * 2;
+    return matrix.size() * sizeof(Field) + sizeof(Eigen::Index) * 2;
   }
 };
 
