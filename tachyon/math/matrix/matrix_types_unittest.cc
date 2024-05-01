@@ -3,6 +3,7 @@
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
+#include "tachyon/math/matrix/prime_field_num_traits.h"
 
 namespace tachyon::math {
 
@@ -34,13 +35,13 @@ TEST_F(MatrixTypesTest, CopyableDynamicMatrix) {
     write_buf.set_buffer_offset(0);
     Matrix<GF7, 3, 3> value;
     ASSERT_TRUE(write_buf.Read(&value));
-    EXPECT_TRUE(value == expected);
+    EXPECT_EQ(value, expected);
   }
   {
     write_buf.set_buffer_offset(0);
     Matrix<GF7> value;
     ASSERT_TRUE(write_buf.Read(&value));
-    EXPECT_TRUE(value == expected);
+    EXPECT_EQ(value, expected);
   }
 }
 
@@ -72,13 +73,13 @@ TEST_F(MatrixTypesTest, Copyable3x3Matrix) {
     write_buf.set_buffer_offset(0);
     Matrix<GF7, 3, 3> value;
     ASSERT_TRUE(write_buf.Read(&value));
-    EXPECT_TRUE(value == expected);
+    EXPECT_EQ(value, expected);
   }
   {
     write_buf.set_buffer_offset(0);
     Matrix<GF7> value;
     ASSERT_TRUE(write_buf.Read(&value));
-    EXPECT_TRUE(value == expected);
+    EXPECT_EQ(value, expected);
   }
 }
 

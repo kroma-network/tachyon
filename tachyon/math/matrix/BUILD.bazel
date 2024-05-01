@@ -34,6 +34,7 @@ tachyon_cc_unittest(
     srcs = ["matrix_types_unittest.cc"],
     deps = [
         ":matrix_types",
+        ":prime_field_num_traits",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
