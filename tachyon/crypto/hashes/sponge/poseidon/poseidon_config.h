@@ -26,14 +26,14 @@ namespace crypto {
 // after the MDS is at least |state| + 1.
 template <typename PrimeField>
 void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
-                           size_t skip_matrices, math::Matrix<PrimeField>* ark,
-                           math::Matrix<PrimeField>* mds) {
+                           size_t skip_matrices, math::Matrix<PrimeField>& ark,
+                           math::Matrix<PrimeField>& mds) {
   PoseidonGrainLFSR<PrimeField> lfsr(config);
-  *ark = math::Matrix<PrimeField>(
+  ark = math::Matrix<PrimeField>(
       config.num_full_rounds + config.num_partial_rounds, config.state_len);
   for (size_t i = 0; i < config.num_full_rounds + config.num_partial_rounds;
        ++i) {
-    ark->row(i) = lfsr.GetFieldElementsRejectionSampling(config.state_len);
+    ark.row(i) = lfsr.GetFieldElementsRejectionSampling(config.state_len);
   }
 
   for (uint64_t i = 0; i < skip_matrices; ++i) {
@@ -48,10 +48,10 @@ void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
   math::Vector<PrimeField> xs = lfsr.GetFieldElementsModP(config.state_len);
   math::Vector<PrimeField> ys = lfsr.GetFieldElementsModP(config.state_len);
 
-  *mds = math::Matrix<PrimeField>(config.state_len, config.state_len);
-  for (Eigen::Index i = 0; i < mds->rows(); ++i) {
-    for (Eigen::Index j = 0; j < mds->cols(); ++j) {
-      (*mds)(i, j) = (xs[i] + ys[j]).Inverse();
+  mds = math::Matrix<PrimeField>(config.state_len, config.state_len);
+  for (Eigen::Index i = 0; i < mds.rows(); ++i) {
+    for (Eigen::Index j = 0; j < mds.cols(); ++j) {
+      mds(i, j) = (xs[i] + ys[j]).Inverse();
     }
   }
 }
@@ -84,7 +84,7 @@ struct PoseidonConfig : public PoseidonConfigBase<PrimeField> {
     PoseidonConfig ret = it->template ToPoseidonConfig<PrimeField>();
     FindPoseidonArkAndMds<PrimeField>(
         it->template ToPoseidonGrainLFSRConfig<PrimeField>(), it->skip_matrices,
-        &ret.ark, &ret.mds);
+        ret.ark, ret.mds);
     return ret;
   }
 
@@ -97,7 +97,7 @@ struct PoseidonConfig : public PoseidonConfigBase<PrimeField> {
     PoseidonConfig ret = config_entry.ToPoseidonConfig<PrimeField>();
     FindPoseidonArkAndMds<PrimeField>(
         config_entry.ToPoseidonGrainLFSRConfig<PrimeField>(), skip_matrices,
-        &ret.ark, &ret.mds);
+        ret.ark, ret.mds);
     return ret;
   }
 
