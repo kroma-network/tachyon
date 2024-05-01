@@ -14,6 +14,9 @@ template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
           int Options = 0, int MaxRows = Rows, int MaxCols = Cols>
 using Matrix = Eigen::Matrix<Field, Rows, Cols, Options, MaxRows, MaxCols>;
 
+template <typename Field, int Size = Eigen::Dynamic, int MaxSize = Size>
+using DiagonalMatrix = Eigen::DiagonalMatrix<Field, Size, MaxSize>;
+
 template <typename Field, int Rows = Eigen::Dynamic, int Options = 0,
           int MaxRows = Rows>
 using Vector = Eigen::Matrix<Field, Rows, 1, Options, MaxRows, 1>;
@@ -64,6 +67,42 @@ class Copyable<Eigen::Matrix<Field, Rows, Cols, Options, MaxRows, MaxCols>> {
 
   static size_t EstimateSize(const Matrix& matrix) {
     return matrix.size() * sizeof(Field) + sizeof(Eigen::Index) * 2;
+  }
+};
+
+template <typename Field, int Size, int MaxSize>
+class Copyable<Eigen::DiagonalMatrix<Field, Size, MaxSize>> {
+ public:
+  using DiagonalMatrix = Eigen::DiagonalMatrix<Field, Size, MaxSize>;
+  using DiagonalVector = typename DiagonalMatrix::DiagonalVectorType;
+
+  static bool WriteTo(const DiagonalMatrix& matrix, Buffer* buffer) {
+    if (!buffer->WriteMany(matrix.rows())) return false;
+    const DiagonalVector& diagonal = matrix.diagonal();
+    for (Eigen::Index i = 0; i < diagonal.size(); ++i) {
+      if (!buffer->Write(diagonal.data()[i])) return false;
+    }
+    return true;
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer, DiagonalMatrix* matrix) {
+    Eigen::Index size;
+    DiagonalVector vector_tmp;
+    if (!buffer.ReadMany(&size)) return false;
+    if (Size != Eigen::Dynamic) {
+      if (size != Size) return false;
+    } else {
+      vector_tmp.resize(size);
+    }
+    for (Eigen::Index i = 0; i < vector_tmp.size(); ++i) {
+      if (!buffer.Read(&vector_tmp.data()[i])) return false;
+    }
+    *matrix = DiagonalMatrix(std::move(vector_tmp));
+    return true;
+  }
+
+  static size_t EstimateSize(const DiagonalMatrix& matrix) {
+    return matrix.rows() * sizeof(Field) + sizeof(Eigen::Index);
   }
 };
 

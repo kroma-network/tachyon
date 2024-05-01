@@ -83,4 +83,58 @@ TEST_F(MatrixTypesTest, Copyable3x3Matrix) {
   }
 }
 
+TEST_F(MatrixTypesTest, CopyableDynamicDiagonalMatrix) {
+  DiagonalMatrix<GF7> expected{{GF7(1), GF7(2), GF7(3)}};
+
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
+  ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Done());
+
+  {
+    write_buf.set_buffer_offset(0);
+    DiagonalMatrix<GF7, 2> value;
+    ASSERT_FALSE(write_buf.Read(&value));
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    DiagonalMatrix<GF7, 3> value;
+    ASSERT_TRUE(write_buf.Read(&value));
+    EXPECT_EQ(value.diagonal(), expected.diagonal());
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    DiagonalMatrix<GF7> value;
+    ASSERT_TRUE(write_buf.Read(&value));
+    EXPECT_EQ(value.diagonal(), expected.diagonal());
+  }
+}
+
+TEST_F(MatrixTypesTest, Copyable3x3DiagonalMatrix) {
+  DiagonalMatrix<GF7, 3> expected{GF7(1), GF7(2), GF7(3)};
+
+  base::Uint8VectorBuffer write_buf;
+  ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
+  ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Done());
+
+  {
+    write_buf.set_buffer_offset(0);
+    DiagonalMatrix<GF7, 2> value;
+    ASSERT_FALSE(write_buf.Read(&value));
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    DiagonalMatrix<GF7, 3> value;
+    ASSERT_TRUE(write_buf.Read(&value));
+    EXPECT_EQ(value.diagonal(), expected.diagonal());
+  }
+  {
+    write_buf.set_buffer_offset(0);
+    DiagonalMatrix<GF7> value;
+    ASSERT_TRUE(write_buf.Read(&value));
+    EXPECT_EQ(value.diagonal(), expected.diagonal());
+  }
+}
+
 }  // namespace tachyon::math
