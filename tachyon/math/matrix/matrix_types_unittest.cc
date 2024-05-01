@@ -22,17 +22,17 @@ TEST_F(MatrixTypesTest, CopyableDynamicMatrix) {
 
   {
     write_buf.set_buffer_offset(0);
-    Eigen::Matrix<GF7, 2, 3> value;
+    Matrix<GF7, 2, 3> value;
     ASSERT_FALSE(write_buf.Read(&value));
   }
   {
     write_buf.set_buffer_offset(0);
-    Eigen::Matrix<GF7, 3, 2> value;
+    Matrix<GF7, 3, 2> value;
     ASSERT_FALSE(write_buf.Read(&value));
   }
   {
     write_buf.set_buffer_offset(0);
-    Eigen::Matrix<GF7, 3, 3> value;
+    Matrix<GF7, 3, 3> value;
     ASSERT_TRUE(write_buf.Read(&value));
     EXPECT_TRUE(value == expected);
   }
@@ -45,7 +45,7 @@ TEST_F(MatrixTypesTest, CopyableDynamicMatrix) {
 }
 
 TEST_F(MatrixTypesTest, Copyable3x3Matrix) {
-  Eigen::Matrix<GF7, 3, 3> expected{
+  Matrix<GF7, 3, 3> expected{
       {GF7(0), GF7(1), GF7(2)},
       {GF7(3), GF7(4), GF7(5)},
       {GF7(6), GF7(0), GF7(1)},
@@ -60,17 +60,17 @@ TEST_F(MatrixTypesTest, Copyable3x3Matrix) {
 
   {
     write_buf.set_buffer_offset(0);
-    Eigen::Matrix<GF7, 2, 3> value;
+    Matrix<GF7, 2, 3> value;
     ASSERT_FALSE(write_buf.Read(&value));
   }
   {
     write_buf.set_buffer_offset(0);
-    Eigen::Matrix<GF7, 3, 2> value;
+    Matrix<GF7, 3, 2> value;
     ASSERT_FALSE(write_buf.Read(&value));
   }
   {
     write_buf.set_buffer_offset(0);
-    Eigen::Matrix<GF7, 3, 3> value;
+    Matrix<GF7, 3, 3> value;
     ASSERT_TRUE(write_buf.Read(&value));
     EXPECT_TRUE(value == expected);
   }
