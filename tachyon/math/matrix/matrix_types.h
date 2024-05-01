@@ -10,14 +10,17 @@
 namespace tachyon {
 namespace math {
 
-template <typename Field>
-using Matrix = Eigen::Matrix<Field, Eigen::Dynamic, Eigen::Dynamic>;
+template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
+          int Options = 0, int MaxRows = Rows, int MaxCols = Cols>
+using Matrix = Eigen::Matrix<Field, Rows, Cols, Options, MaxRows, MaxCols>;
 
-template <typename Field>
-using Vector = Eigen::Matrix<Field, Eigen::Dynamic, 1>;
+template <typename Field, int Rows = Eigen::Dynamic, int Options = 0,
+          int MaxRows = Rows>
+using Vector = Eigen::Matrix<Field, Rows, 1, Options, MaxRows, 1>;
 
-template <typename Field>
-using RowVector = Eigen::Matrix<Field, 1, Eigen::Dynamic>;
+template <typename Field, int Cols = Eigen::Dynamic, int Options = 0,
+          int MaxCols = Cols>
+using RowVector = Eigen::Matrix<Field, 1, Cols, Options, 1, MaxCols>;
 
 }  // namespace math
 
