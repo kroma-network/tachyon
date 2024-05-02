@@ -1,9 +1,12 @@
 #include "tachyon/math/base/groups.h"
 
+#include <string>
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "tachyon/base/containers/container_util.h"
+#include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
 namespace tachyon::math {
@@ -19,6 +22,8 @@ TEST(GroupsTest, Div) {
     MOCK_METHOD(Int, Inverse, (), (const));
 
     bool operator==(const Int& other) const { return value_ == other.value_; }
+
+    std::string ToString() const { return base::NumberToString(value_); }
 
    private:
     int value_ = 0;
@@ -43,6 +48,8 @@ TEST(GroupsTest, InverseOverride) {
     bool operator==(const IntInverse& other) const {
       return denominator_ == other.denominator_;
     }
+
+    std::string ToString() const { return base::NumberToString(denominator_); }
 
    private:
     int denominator_ = 0;
@@ -104,6 +111,8 @@ TEST(GroupsTest, Sub) {
 
     bool operator==(const Int& other) const { return value_ == other.value_; }
 
+    std::string ToString() const { return base::NumberToString(value_); }
+
    private:
     int value_ = 0;
   };
@@ -129,6 +138,8 @@ TEST(GroupsTest, SubOverAdd) {
     MOCK_METHOD(Int, Inverse, (), (const));
 
     bool operator==(const Int& other) const { return value_ == other.value_; }
+
+    std::string ToString() const { return base::NumberToString(value_); }
 
    private:
     int value_ = 0;

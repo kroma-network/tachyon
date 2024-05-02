@@ -1,6 +1,7 @@
 #ifndef TACHYON_MATH_BASE_FIELD_H_
 #define TACHYON_MATH_BASE_FIELD_H_
 
+#include <ostream>
 #include <utility>
 
 #include "tachyon/math/base/ring.h"
@@ -31,6 +32,12 @@ class Field : public AdditiveGroup<F>, public MultiplicativeGroup<F> {
     return Ring<F>::SumOfProductsSerial(a, b);
   }
 };
+
+template <typename F>
+std::ostream& operator<<(std::ostream& os, const Field<F>& f) {
+  const F& derived = static_cast<const F&>(f);
+  return os << derived.ToString();
+}
 
 }  // namespace tachyon::math
 
