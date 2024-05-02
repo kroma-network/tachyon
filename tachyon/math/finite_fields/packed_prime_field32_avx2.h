@@ -74,7 +74,7 @@ ALWAYS_INLINE __m256i SubMod32(__m256i lhs, __m256i rhs, __m256i p) {
   return _mm256_min_epu32(t, u);
 }
 
-ALWAYS_INLINE __m256i NegMod32(__m256i val, __m256i p) {
+ALWAYS_INLINE __m256i NegateMod32(__m256i val, __m256i p) {
   // We want this to compile to:
   //      vpsubd   t, p, val
   //      vpsignd  r, t, val

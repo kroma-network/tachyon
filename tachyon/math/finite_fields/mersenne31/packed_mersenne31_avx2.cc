@@ -33,7 +33,7 @@ __m256i Add(__m256i lhs, __m256i rhs) { return AddMod32(lhs, rhs, kP); }
 
 __m256i Sub(__m256i lhs, __m256i rhs) { return SubMod32(lhs, rhs, kP); }
 
-__m256i Neg(__m256i val) { return NegMod32(val, kP); }
+__m256i Negate(__m256i val) { return NegateMod32(val, kP); }
 
 __m256i movehdup_epi32(__m256i x) {
   // The instruction is only available in the floating-point flavor; this
@@ -135,7 +135,7 @@ PackedMersenne31AVX2 PackedMersenne31AVX2::Sub(
 }
 
 PackedMersenne31AVX2 PackedMersenne31AVX2::Negate() const {
-  return FromVector(tachyon::math::Neg(ToVector(*this)));
+  return FromVector(tachyon::math::Negate(ToVector(*this)));
 }
 
 PackedMersenne31AVX2 PackedMersenne31AVX2::Mul(

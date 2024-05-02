@@ -74,7 +74,7 @@ ALWAYS_INLINE __m512i SubMod32(__m512i lhs, __m512i rhs, __m512i p) {
   return _mm512_min_epu32(t, u);
 }
 
-ALWAYS_INLINE __m512i NegMod32(__m512i val, __m512i p) {
+ALWAYS_INLINE __m512i NegateMod32(__m512i val, __m512i p) {
   // We want this to compile to:
   //      vptestmd  nonzero, val, val
   //      vpsubd    res{nonzero}{z}, P, val

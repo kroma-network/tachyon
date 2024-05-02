@@ -94,7 +94,7 @@ ALWAYS_INLINE uint32x4_t SubMod32(uint32x4_t lhs, uint32x4_t rhs,
   return vmlsq_u32(diff, underflow, p);
 }
 
-ALWAYS_INLINE uint32x4_t NegMod32(uint32x4_t val, uint32x4_t p) {
+ALWAYS_INLINE uint32x4_t NegateMod32(uint32x4_t val, uint32x4_t p) {
   // We want this to compile to:
   //      sub   t.4s, p.4s, val.4s
   //      cmeq  is_zero.4s, val.4s, #0
