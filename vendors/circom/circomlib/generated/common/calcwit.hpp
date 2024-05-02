@@ -71,6 +71,8 @@ typedef void (*Circom_TemplateFunction)(uint __cIdx, Circom_CalcWit* __ctx);
 
 Circom_Circuit* loadCircuit(std::string const &datFileName);
 
+void loadJson(Circom_CalcWit *ctx, std::string filename);
+
 void loadWitness(Circom_CalcWit *ctx, absl::flat_hash_map<std::string, std::vector<FrElement>> const &witness);
 
 void writeBinWitness(Circom_CalcWit *ctx, std::string const &wtnsFileName);

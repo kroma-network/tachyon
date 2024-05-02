@@ -12,7 +12,9 @@ class AdderCircuitTest : public CircuitTest {
     R1CSParser parser;
     r1cs_ = parser.Parse(base::FilePath("examples/adder.r1cs"));
     ASSERT_TRUE(r1cs_);
+  }
 
+  void LoadRandomWitness() {
     circuit_.reset(new Circuit<F>(
         r1cs_.get(), base::FilePath("examples/adder_cpp/adder.dat")));
     std::vector<uint32_t> values = base::CreateVector(
@@ -24,12 +26,29 @@ class AdderCircuitTest : public CircuitTest {
     ASSERT_EQ(public_inputs.size(), 1);
     ASSERT_EQ(public_inputs[0], F(values[0] + values[1]));
   }
+
+  void LoadWitnessFromJson() {
+    circuit_.reset(new Circuit<F>(
+        r1cs_.get(), base::FilePath("examples/adder_cpp/adder.dat")));
+    circuit_->witness_loader().Load(
+        base::FilePath("circomlib/circuit/adder_data.json"));
+    std::vector<F> public_inputs = circuit_->GetPublicInputs();
+    ASSERT_EQ(public_inputs.size(), 1);
+    ASSERT_EQ(public_inputs[0], F(7));
+  }
 };
 
-TEST_F(AdderCircuitTest, Synthesize) { this->SynthesizeTest(); }
+TEST_F(AdderCircuitTest, Synthesize) {
+  LoadRandomWitness();
+  this->SynthesizeTest();
+
+  LoadWitnessFromJson();
+  this->SynthesizeTest();
+}
 
 TEST_F(AdderCircuitTest, Groth16ProveAndVerify) {
   constexpr size_t kMaxDegree = 127;
+  LoadRandomWitness();
   this->Groth16ProveAndVerifyTest<kMaxDegree,
                                   zk::r1cs::QuadraticArithmeticProgram<F>>();
 }
@@ -37,6 +56,7 @@ TEST_F(AdderCircuitTest, Groth16ProveAndVerify) {
 TEST_F(AdderCircuitTest, Groth16ProveAndVerifyUsingZkey) {
   constexpr size_t kMaxDegree = 127;
 
+  LoadRandomWitness();
   ZKeyParser parser;
   std::unique_ptr<ZKey> zkey =
       parser.Parse(base::FilePath("examples/adder.zkey"));

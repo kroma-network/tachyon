@@ -50,6 +50,7 @@ tachyon_cc_unittest(
     name = "adder_circuit_unittest",
     srcs = ["adder_circuit_unittest.cc"],
     data = [
+        "adder_data.json",
         "//examples:adder.zkey",
         "//examples:compile_adder",
     ],
@@ -67,6 +68,7 @@ tachyon_cc_unittest(
     name = "multiplier_3_circuit_unittest",
     srcs = ["multiplier_3_circuit_unittest.cc"],
     data = [
+        "multiplier_3_data.json",
         "//examples:compile_multiplier_3",
         "//examples:multiplier_3.zkey",
     ],

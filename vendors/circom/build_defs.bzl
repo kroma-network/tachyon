@@ -13,5 +13,6 @@ def witness_gen_library(
             "@com_google_absl//absl/container:flat_hash_map",
             "@kroma_network_circom//circomlib/generated/common:common_hdrs",
             "@kroma_network_circom//circomlib/generated/{}:fr".format(prime),
+            "@nlohmann_json//:json",
         ],
     )

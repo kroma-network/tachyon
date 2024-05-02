@@ -30,6 +30,10 @@ class WitnessLoader {
 
   void Load() { loadWitness(calc_wit_.get(), witness_); }
 
+  void Load(const base::FilePath& json) {
+    loadJson(calc_wit_.get(), json.value());
+  }
+
   F Get(uint32_t i) const {
     FrElement v;
     calc_wit_->getWitness(i, &v);

@@ -12,7 +12,9 @@ class Multiplier3CircuitTest : public CircuitTest {
     R1CSParser parser;
     r1cs_ = parser.Parse(base::FilePath("examples/multiplier_3.r1cs"));
     ASSERT_TRUE(r1cs_);
+  }
 
+  void LoadRandomWitness() {
     circuit_.reset(new Circuit<F>(
         r1cs_.get(),
         base::FilePath("examples/multiplier_3_cpp/multiplier_3.dat")));
@@ -23,12 +25,30 @@ class Multiplier3CircuitTest : public CircuitTest {
     ASSERT_EQ(public_inputs.size(), 1);
     ASSERT_EQ(public_inputs[0], values[0] * values[1] * values[2]);
   }
+
+  void LoadWitnessFromJson() {
+    circuit_.reset(new Circuit<F>(
+        r1cs_.get(),
+        base::FilePath("examples/multiplier_3_cpp/multiplier_3.dat")));
+    circuit_->witness_loader().Load(
+        base::FilePath("circomlib/circuit/multiplier_3_data.json"));
+    std::vector<F> public_inputs = circuit_->GetPublicInputs();
+    ASSERT_EQ(public_inputs.size(), 1);
+    ASSERT_EQ(public_inputs[0], F(60));
+  }
 };
 
-TEST_F(Multiplier3CircuitTest, Synthesize) { this->SynthesizeTest(); }
+TEST_F(Multiplier3CircuitTest, Synthesize) {
+  LoadRandomWitness();
+  this->SynthesizeTest();
+
+  LoadWitnessFromJson();
+  this->SynthesizeTest();
+}
 
 TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerify) {
   constexpr size_t kMaxDegree = 31;
+  LoadRandomWitness();
   this->Groth16ProveAndVerifyTest<kMaxDegree,
                                   zk::r1cs::QuadraticArithmeticProgram<F>>();
 }
@@ -36,6 +56,7 @@ TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerify) {
 TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerifyUsingZkey) {
   constexpr size_t kMaxDegree = 3;
 
+  LoadRandomWitness();
   ZKeyParser parser;
   std::unique_ptr<ZKey> zkey =
       parser.Parse(base::FilePath("examples/multiplier_3.zkey"));
