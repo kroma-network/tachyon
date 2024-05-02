@@ -47,17 +47,21 @@ struct TACHYON_EXPORT PoseidonConfigEntry : public PoseidonConfigEntryBase {
 // for rate = 2, 3, 4, 5, 6, 7, 8
 // Here, |skip_matrices| denotes how many matrices to skip before finding one
 // that satisfy all the requirements.
-constexpr const PoseidonConfigEntry kOptimizedConstraintsDefaultParams[] = {
-    PoseidonConfigEntry(2, 17, 8, 31, 0), PoseidonConfigEntry(3, 5, 8, 56, 0),
-    PoseidonConfigEntry(4, 5, 8, 56, 0),  PoseidonConfigEntry(5, 5, 8, 57, 0),
-    PoseidonConfigEntry(6, 5, 8, 57, 0),  PoseidonConfigEntry(7, 5, 8, 57, 0),
-    PoseidonConfigEntry(8, 5, 8, 57, 0),
+constexpr const PoseidonConfigEntry
+    kPoseidonOptimizedConstraintsDefaultParams[] = {
+        PoseidonConfigEntry(2, 17, 8, 31, 0),
+        PoseidonConfigEntry(3, 5, 8, 56, 0),
+        PoseidonConfigEntry(4, 5, 8, 56, 0),
+        PoseidonConfigEntry(5, 5, 8, 57, 0),
+        PoseidonConfigEntry(6, 5, 8, 57, 0),
+        PoseidonConfigEntry(7, 5, 8, 57, 0),
+        PoseidonConfigEntry(8, 5, 8, 57, 0),
 };
 
 // An array of the default config optimized for weights
 // (rate, alpha, full_rounds, partial_rounds, skip_matrices)
 // for rate = 2, 3, 4, 5, 6, 7, 8
-constexpr const PoseidonConfigEntry kOptimizedWeightsDefaultParams[] = {
+constexpr const PoseidonConfigEntry kPoseidonOptimizedWeightsDefaultParams[] = {
     PoseidonConfigEntry(2, 257, 8, 13, 0),
     PoseidonConfigEntry(3, 257, 8, 13, 0),
     PoseidonConfigEntry(4, 257, 8, 13, 0),
