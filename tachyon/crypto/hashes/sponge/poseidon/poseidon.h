@@ -15,64 +15,10 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/hashes/prime_field_serializable.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config.h"
-#include "tachyon/crypto/hashes/sponge/sponge.h"
+#include "tachyon/crypto/hashes/sponge/poseidon/poseidon_state.h"
 
 namespace tachyon {
 namespace crypto {
-
-template <typename PrimeField>
-struct PoseidonState {
-  // Current sponge's state (current elements in the permutation block)
-  math::Vector<PrimeField> elements;
-
-  // Current mode (whether its absorbing or squeezing)
-  DuplexSpongeMode mode = DuplexSpongeMode::Absorbing();
-
-  PoseidonState() = default;
-  explicit PoseidonState(size_t size) : elements(size) {
-    for (size_t i = 0; i < size; ++i) {
-      elements[i] = PrimeField::Zero();
-    }
-  }
-
-  size_t size() const { return elements.size(); }
-
-  PrimeField& operator[](size_t idx) { return elements[idx]; }
-  const PrimeField& operator[](size_t idx) const { return elements[idx]; }
-
-  bool operator==(const PoseidonState& other) const {
-    return elements == other.elements && mode == other.mode;
-  }
-  bool operator!=(const PoseidonState& other) const {
-    return !operator==(other);
-  }
-
-  std::string ToString() const {
-    std::stringstream ss;
-    ss << "[";
-    for (Eigen::Index i = 0; i < elements.size(); ++i) {
-      ss << elements[i].ToString();
-      if (i != elements.size() - 1) {
-        ss << ", ";
-      }
-    }
-    ss << "]";
-    return ss.str();
-  }
-
-  std::string ToHexString(bool pad_zero = false) const {
-    std::stringstream ss;
-    ss << "[";
-    for (Eigen::Index i = 0; i < elements.size(); ++i) {
-      ss << elements[i].ToHexString(pad_zero);
-      if (i != elements.size() - 1) {
-        ss << ", ";
-      }
-    }
-    ss << "]";
-    return ss.str();
-  }
-};
 
 // Poseidon Sponge Hash: Absorb → Permute → Squeeze
 // Absorb: Absorb elements into the sponge.
@@ -319,32 +265,6 @@ struct CryptographicSpongeTraits<PoseidonSponge<PrimeField>> {
 }  // namespace crypto
 
 namespace base {
-
-template <typename PrimeField>
-class Copyable<crypto::PoseidonState<PrimeField>> {
- public:
-  static bool WriteTo(const crypto::PoseidonState<PrimeField>& state,
-                      Buffer* buffer) {
-    return buffer->WriteMany(state.elements, state.mode);
-  }
-
-  static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::PoseidonState<PrimeField>* state) {
-    math::Vector<PrimeField> elements;
-    crypto::DuplexSpongeMode mode;
-    if (!buffer.ReadMany(&elements, &mode)) {
-      return false;
-    }
-
-    state->elements = std::move(elements);
-    state->mode = mode;
-    return true;
-  }
-
-  static size_t EstimateSize(const crypto::PoseidonState<PrimeField>& state) {
-    return base::EstimateSize(state.elements, state.mode);
-  }
-};
 
 template <typename PrimeField>
 class Copyable<crypto::PoseidonSponge<PrimeField>> {
