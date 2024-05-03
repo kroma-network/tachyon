@@ -225,8 +225,6 @@ struct PoseidonSponge final
   }
 
   // FieldBasedCryptographicSponge methods
-  // NOTE(TomTaehoonKim): If you ever update this, please update
-  // |Halo2PoseidonSponge| for consistency.
   std::vector<F> SqueezeNativeFieldElements(size_t num_elements) {
     std::vector<F> ret(num_elements);
     switch (state.mode.type) {
