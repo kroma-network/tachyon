@@ -65,6 +65,15 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "poseidon2",
+    hdrs = ["poseidon2.h"],
+    deps = [
+        ":goldilocks_prime_field",
+        "//tachyon/base/types:always_false",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "goldilocks_unittests",
     srcs = ["goldilocks_prime_field_unittest.cc"],
