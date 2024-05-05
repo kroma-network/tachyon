@@ -10,7 +10,7 @@
 #include <string>
 #include <utility>
 
-#include "tachyon/crypto/hashes/sponge/sponge.h"
+#include "tachyon/crypto/hashes/sponge/duplex_sponge_mode.h"
 #include "tachyon/math/matrix/matrix_types.h"
 
 namespace tachyon {

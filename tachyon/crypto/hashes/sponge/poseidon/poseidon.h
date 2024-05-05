@@ -14,6 +14,7 @@
 #include "tachyon/crypto/hashes/prime_field_serializable.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_state.h"
+#include "tachyon/crypto/hashes/sponge/sponge.h"
 
 namespace tachyon {
 namespace crypto {

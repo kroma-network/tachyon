@@ -1,13 +1,29 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "duplex_sponge_mode",
+    hdrs = ["duplex_sponge_mode.h"],
+    deps = ["//tachyon/base/buffer:copyable"],
+)
 
 tachyon_cc_library(
     name = "sponge",
     hdrs = ["sponge.h"],
     deps = [
+        ":duplex_sponge_mode",
         "//tachyon/base:logging",
         "//tachyon/base/buffer:copyable",
         "//tachyon/math/finite_fields:finite_field_traits",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "sponge_unittests",
+    srcs = ["duplex_sponge_mode_unittest.cc"],
+    deps = [
+        ":duplex_sponge_mode",
+        "//tachyon/base/buffer:vector_buffer",
     ],
 )

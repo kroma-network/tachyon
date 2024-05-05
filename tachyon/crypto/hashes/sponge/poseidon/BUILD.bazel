@@ -60,7 +60,7 @@ tachyon_cc_library(
     name = "poseidon_state",
     hdrs = ["poseidon_state.h"],
     deps = [
-        "//tachyon/crypto/hashes/sponge",
+        "//tachyon/crypto/hashes/sponge:duplex_sponge_mode",
         "//tachyon/math/matrix:matrix_types",
     ],
 )
