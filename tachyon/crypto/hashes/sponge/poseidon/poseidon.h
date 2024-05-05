@@ -6,8 +6,6 @@
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_H_
 
-#include <sstream>
-#include <string>
 #include <utility>
 #include <vector>
 
