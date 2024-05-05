@@ -7,10 +7,9 @@ tachyon_cc_library(
     hdrs = ["poseidon.h"],
     deps = [
         ":poseidon_config",
+        ":poseidon_sponge_base",
         ":poseidon_state",
         "//tachyon/base/buffer:copyable",
-        "//tachyon/crypto/hashes:prime_field_serializable",
-        "//tachyon/crypto/hashes/sponge",
     ],
 )
 
@@ -20,6 +19,7 @@ tachyon_cc_library(
     deps = [
         ":poseidon_config_base",
         ":poseidon_config_entry",
+        "//tachyon/base/buffer:copyable",
         "//tachyon/base/ranges:algorithm",
         "@com_google_absl//absl/types:span",
     ],
@@ -53,6 +53,17 @@ tachyon_cc_library(
         "//tachyon/math/base:big_int",
         "//tachyon/math/matrix:matrix_types",
         "//tachyon/math/matrix:prime_field_num_traits",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon_sponge_base",
+    hdrs = ["poseidon_sponge_base.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/crypto/hashes:prime_field_serializable",
+        "//tachyon/crypto/hashes/sponge",
+        "@eigen_archive//:eigen3",
     ],
 )
 
