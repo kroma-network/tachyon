@@ -134,11 +134,11 @@ long sched_setattr(pid_t pid,
 #endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if !BUILDFLAG(IS_NACL)
+/*
+TODO(chokobole):
 const char kCgroupDirectory[] =
     "/sys/fs/cgroup";
 
-/*
-TODO(chokobole):
 FilePath ThreadTypeToCgroupDirectory(const FilePath& cgroup_filepath,
                                      ThreadType thread_type) {
   switch (thread_type) {
