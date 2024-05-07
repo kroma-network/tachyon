@@ -9,7 +9,6 @@ Bellman MSM Benchmark
 """
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/kroma-network/tachyon"
-documentation = "https://docs.rs/bellman_benchmark"
 readme = "README.md"
 categories = ["cryptography"]
 keywords = ["tachyon", "benchmark", "bellman"]
