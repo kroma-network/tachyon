@@ -561,7 +561,7 @@ class ConstraintSystem {
   }
 
  private:
-  template <typename Poly, typename Evals, typename C>
+  template <typename LS>
   friend class c::zk::plonk::ProvingKeyImplBase;
 
   FRIEND_TEST(ConstraintSystemTest, Lookup);

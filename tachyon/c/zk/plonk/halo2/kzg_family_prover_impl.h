@@ -14,10 +14,10 @@
 
 namespace tachyon::c::zk::plonk::halo2 {
 
-template <typename PCS>
-class KZGFamilyProverImpl : public ProverImplBase<PCS> {
+template <typename PCS, typename LS>
+class KZGFamilyProverImpl : public ProverImplBase<PCS, LS> {
  public:
-  using Callback = typename ProverImplBase<PCS>::Callback;
+  using Callback = typename ProverImplBase<PCS, LS>::Callback;
   using AffinePoint = typename PCS::Commitment;
   using JacobianPoint =
       tachyon::math::JacobianPoint<typename AffinePoint::Curve>;
@@ -26,7 +26,7 @@ class KZGFamilyProverImpl : public ProverImplBase<PCS> {
   using CJacobianPoint = typename math::PointTraits<JacobianPoint>::CCurvePoint;
   using CScalarField = typename math::PointTraits<AffinePoint>::CScalarField;
 
-  using ProverImplBase<PCS>::ProverImplBase;
+  using ProverImplBase<PCS, LS>::ProverImplBase;
 
   CJacobianPoint* Commit(const std::vector<ScalarField>& scalars) const {
     return DoMSM(this->pcs_.GetG1PowersOfTau(), scalars);

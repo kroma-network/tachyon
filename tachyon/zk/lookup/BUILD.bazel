@@ -37,6 +37,25 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "type",
+    hdrs = ["type.h"],
+)
+
+tachyon_cc_library(
+    name = "verifier",
+    hdrs = ["verifier.h"],
+    deps = [
+        ":lookup_argument",
+        ":verifier_traits_forward",
+    ],
+)
+
+tachyon_cc_library(
+    name = "verifier_traits_forward",
+    hdrs = ["verifier_traits_forward.h"],
+)
+
+tachyon_cc_library(
     name = "verifying_evaluator",
     hdrs = ["verifying_evaluator.h"],
     deps = [

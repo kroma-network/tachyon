@@ -9,7 +9,7 @@
 
 namespace tachyon::c::zk::plonk {
 
-template <typename Poly, typename Evals, typename C>
+template <typename LS>
 class ProvingKeyImplBase;
 
 }  // namespace tachyon::c::zk::plonk

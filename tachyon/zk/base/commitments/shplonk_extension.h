@@ -19,7 +19,7 @@
 namespace tachyon {
 namespace c::zk::plonk::halo2 {
 
-template <typename PCS>
+template <typename PCS, typename LS>
 class KZGFamilyProverImpl;
 
 }  // namespace c::zk::plonk::halo2
@@ -151,8 +151,8 @@ class SHPlonkExtension final
   }
 
  private:
-  friend class c::zk::plonk::halo2::KZGFamilyProverImpl<
-      SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;
+  template <typename PCS, typename LS>
+  friend class c::zk::plonk::halo2::KZGFamilyProverImpl;
   friend class halo2_api::bn254::SHPlonkProver;
   friend class base::Copyable<
       SHPlonkExtension<Curve, MaxDegree, MaxExtendedDegree, Commitment>>;

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
+#include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/verifier_impl.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
@@ -17,7 +18,8 @@
 using namespace tachyon;
 
 using PCS = c::zk::plonk::halo2::bn254::GWCPCS;
-using Verifier = c::zk::plonk::halo2::VerifierImpl<PCS>;
+using LS = c::zk::plonk::halo2::bn254::LS;
+using Verifier = c::zk::plonk::halo2::VerifierImpl<PCS, LS>;
 using VKey =
     zk::plonk::VerifyingKey<math::bn254::Fr, math::bn254::G1AffinePoint>;
 
@@ -58,8 +60,8 @@ tachyon_halo2_bn254_gwc_verifier_create_from_params(
           }
         }
         CHECK(reader);
-        zk::plonk::halo2::Verifier<PCS> verifier(std::move(pcs),
-                                                 std::move(reader));
+        zk::plonk::halo2::Verifier<PCS, LS> verifier(std::move(pcs),
+                                                     std::move(reader));
         verifier.set_domain(PCS::Domain::Create(size_t{1} << k));
         return verifier;
       },

@@ -24,6 +24,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:adapters",
         "//tachyon/base/numerics:checked_math",
         "//tachyon/zk/base:rotation",
+        "//tachyon/zk/lookup/halo2:evaluator",
         "//tachyon/zk/lookup/halo2:prover",
         "//tachyon/zk/plonk/base:column_key",
         "//tachyon/zk/plonk/base:multi_phase_owned_table",
@@ -32,6 +33,11 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/permutation:permutation_prover",
         "@com_google_absl//absl/types:span",
     ],
+)
+
+tachyon_cc_library(
+    name = "circuit_polynomial_builder_forward",
+    hdrs = ["circuit_polynomial_builder_forward.h"],
 )
 
 tachyon_cc_library(
@@ -78,6 +84,7 @@ tachyon_cc_library(
         ":circuit_polynomial_builder",
         ":graph_evaluator",
         "//tachyon/base/containers:container_util",
+        "//tachyon/zk/lookup/halo2:evaluator",
         "//tachyon/zk/plonk/constraint_system",
     ],
 )

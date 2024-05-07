@@ -15,6 +15,7 @@
 
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/zk/base/entities/prover_base.h"
+#include "tachyon/zk/lookup/halo2/evaluator.h"
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/keys/proving_key_forward.h"
 #include "tachyon/zk/plonk/vanishing/circuit_polynomial_builder.h"
@@ -22,9 +23,14 @@
 
 namespace tachyon::zk::plonk {
 
-template <typename F>
+template <typename LS>
 class VanishingArgument {
  public:
+  using F = typename LS::Field;
+  using Evals = typename LS::Evals;
+  using LookupEvaluator = typename LS::Evaluator;
+  using LookupProver = typename LS::Prover;
+
   VanishingArgument() = default;
 
   static VanishingArgument Create(
@@ -44,69 +50,37 @@ class VanishingArgument {
     evaluator.custom_gates_.AddCalculation(Calculation::Horner(
         ValueSource::PreviousValue(), std::move(parts), ValueSource::Y()));
 
-    for (const lookup::Argument<F>& lookup : constraint_system.lookups()) {
-      GraphEvaluator<F> graph;
-
-      auto compress =
-          [&graph](
-              const std::vector<std::unique_ptr<Expression<F>>>& expressions) {
-            std::vector<ValueSource> parts = base::Map(
-                expressions,
-                [&graph](const std::unique_ptr<Expression<F>>& expression) {
-                  return graph.AddExpression(expression.get());
-                });
-            return graph.AddCalculation(
-                Calculation::Horner(ValueSource::ZeroConstant(),
-                                    std::move(parts), ValueSource::Theta()));
-          };
-
-      // A_compressed(X) = θᵐ⁻¹A₀(X) + θᵐ⁻²A₁(X) + ... + θAₘ₋₂(X) + Aₘ₋₁(X)
-      ValueSource compressed_input_coset = compress(lookup.input_expressions());
-      // S_compressed(X) = θᵐ⁻¹S₀(X) + θᵐ⁻²S₁(X) + ... + θSₘ₋₂(X) + Sₘ₋₁(X)
-      ValueSource compressed_table_coset = compress(lookup.table_expressions());
-
-      // A_compressed(X) + β
-      ValueSource left = graph.AddCalculation(
-          Calculation::Add(compressed_input_coset, ValueSource::Beta()));
-      // S_compressed(X) + γ
-      ValueSource right = graph.AddCalculation(
-          Calculation::Add(compressed_table_coset, ValueSource::Gamma()));
-      // (A_compressed(X) + β) * (S_compressed(X) + γ)
-      graph.AddCalculation(Calculation::Mul(left, right));
-
-      evaluator.lookups_.push_back(std::move(graph));
-    }
+    evaluator.lookup_evaluator_.EvaluateLookups(constraint_system.lookups());
 
     return evaluator;
   }
 
   const GraphEvaluator<F>& custom_gates() const { return custom_gates_; }
-  const std::vector<GraphEvaluator<F>>& lookups() const { return lookups_; }
+  const LookupEvaluator& lookup_evaluator() const { return lookup_evaluator_; }
 
-  template <typename PCS, typename Poly, typename Evals, typename C,
+  template <typename PCS, typename Poly,
             typename ExtendedEvals = typename PCS::ExtendedEvals>
   ExtendedEvals BuildExtendedCircuitColumn(
-      ProverBase<PCS>* prover, const ProvingKey<Poly, Evals, C>& proving_key,
+      ProverBase<PCS>* prover, const ProvingKey<LS>& proving_key,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers)
-      const {
+      const std::vector<LookupProver>& lookup_provers) {
     size_t cs_degree =
         proving_key.verifying_key().constraint_system().ComputeDegree();
 
-    CircuitPolynomialBuilder<PCS> builder =
-        CircuitPolynomialBuilder<PCS>::Create(
+    CircuitPolynomialBuilder<PCS, LS> builder =
+        CircuitPolynomialBuilder<PCS, LS>::Create(
             prover->domain(), prover->extended_domain(), prover->pcs().N(),
             prover->GetLastRow(), cs_degree, poly_tables, theta, beta, gamma, y,
             zeta, proving_key, permutation_provers, lookup_provers);
 
-    return builder.BuildExtendedCircuitColumn(custom_gates_, lookups_);
+    return builder.BuildExtendedCircuitColumn(custom_gates_, lookup_evaluator_);
   }
 
  private:
   GraphEvaluator<F> custom_gates_;
-  std::vector<GraphEvaluator<F>> lookups_;
+  LookupEvaluator lookup_evaluator_;
 };
 
 }  // namespace tachyon::zk::plonk

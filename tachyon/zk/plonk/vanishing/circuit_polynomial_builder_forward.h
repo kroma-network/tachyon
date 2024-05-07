@@ -4,14 +4,14 @@
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
 
-#ifndef TACHYON_ZK_PLONK_KEYS_PROVING_KEY_FORWARD_H_
-#define TACHYON_ZK_PLONK_KEYS_PROVING_KEY_FORWARD_H_
+#ifndef TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_FORWARD_H_
+#define TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_FORWARD_H_
 
 namespace tachyon::zk::plonk {
 
-template <typename LS>
-class ProvingKey;
+template <typename PCS, typename LS>
+class CircuitPolynomialBuilder;
 
 }  // namespace tachyon::zk::plonk
 
-#endif  // TACHYON_ZK_PLONK_KEYS_PROVING_KEY_FORWARD_H_
+#endif  // TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_FORWARD_H_

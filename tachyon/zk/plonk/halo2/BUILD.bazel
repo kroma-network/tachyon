@@ -36,6 +36,7 @@ tachyon_cc_library(
         ":prover_test",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/base/commitments:gwc_extension",
+        "//tachyon/zk/lookup/halo2:scheme",
     ],
 )
 
@@ -47,6 +48,7 @@ tachyon_cc_library(
         ":prover_test",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/base/commitments:shplonk_extension",
+        "//tachyon/zk/lookup/halo2:scheme",
     ],
 )
 
@@ -133,6 +135,7 @@ tachyon_cc_library(
     hdrs = ["proof.h"],
     deps = [
         "//tachyon/zk/lookup:lookup_pair",
+        "//tachyon/zk/lookup:type",
         "//tachyon/zk/lookup/halo2:verifier_data",
         "//tachyon/zk/plonk/permutation:permutation_verifier_data",
         "//tachyon/zk/plonk/vanishing:vanishing_verifier_data",
@@ -169,6 +172,7 @@ tachyon_cc_library(
         ":c_prover_impl_base_forward",
         ":random_field_generator",
         ":verifier",
+        "//tachyon/base/types:always_false",
         "//tachyon/zk/base/entities:prover_base",
         "//tachyon/zk/lookup/halo2:prover",
         "//tachyon/zk/plonk/permutation:permutation_prover",
@@ -238,7 +242,6 @@ tachyon_cc_library(
         "//tachyon/base/containers:container_util",
         "//tachyon/zk/base/entities:verifier_base",
         "//tachyon/zk/lookup/halo2:utils",
-        "//tachyon/zk/lookup/halo2:verifier",
         "//tachyon/zk/plonk/keys:verifying_key",
         "//tachyon/zk/plonk/permutation:permutation_verifier",
         "//tachyon/zk/plonk/vanishing:vanishing_utils",

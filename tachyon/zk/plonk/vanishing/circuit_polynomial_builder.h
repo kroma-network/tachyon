@@ -3,6 +3,7 @@
 // Use of this source code is governed by a MIT/Apache-2.0 style license that
 // can be found in the LICENSE-MIT.halo2 and the LICENCE-APACHE.halo2
 // file.
+
 #ifndef TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
 #define TACHYON_ZK_PLONK_VANISHING_CIRCUIT_POLYNOMIAL_BUILDER_H_
 
@@ -32,7 +33,7 @@ namespace tachyon::zk::plonk {
 // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
 // You can find more detailed theory in "Halo2 book"
 // https://zcash.github.io/halo2/design/proving-system/vanishing.html
-template <typename PCS>
+template <typename PCS, typename LS>
 class CircuitPolynomialBuilder {
  public:
   using F = typename PCS::Field;
@@ -42,13 +43,15 @@ class CircuitPolynomialBuilder {
   using Domain = typename PCS::Domain;
   using ExtendedDomain = typename PCS::ExtendedDomain;
   using ExtendedEvals = typename PCS::ExtendedEvals;
+  using LookupProver = typename LS::Prover;
+  using LookupEvaluator = typename LS::Evaluator;
 
   CircuitPolynomialBuilder(
       const F& omega, const F& extended_omega, const F& theta, const F& beta,
       const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<Poly, Evals, C>& proving_key,
+      const ProvingKey<LS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers,
+      const std::vector<LookupProver>& lookup_provers,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables)
       : omega_(omega),
         extended_omega_(extended_omega),
@@ -67,9 +70,9 @@ class CircuitPolynomialBuilder {
       RowOffset last_row, size_t cs_degree,
       const std::vector<MultiPhaseRefTable<Poly>>& poly_tables, const F& theta,
       const F& beta, const F& gamma, const F& y, const F& zeta,
-      const ProvingKey<Poly, Evals, C>& proving_key,
+      const ProvingKey<LS>& proving_key,
       const std::vector<PermutationProver<Poly, Evals>>& permutation_provers,
-      const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers) {
+      const std::vector<LookupProver>& lookup_provers) {
     CircuitPolynomialBuilder builder(
         domain->group_gen(), extended_domain->group_gen(), theta, beta, gamma,
         y, zeta, proving_key, permutation_provers, lookup_provers, poly_tables);
@@ -94,7 +97,7 @@ class CircuitPolynomialBuilder {
   // - gate₀(X) + y * gate₁(X) + ... + yⁱ * gateᵢ(X) + ...
   ExtendedEvals BuildExtendedCircuitColumn(
       const GraphEvaluator<F>& custom_gate_evaluator,
-      const std::vector<GraphEvaluator<F>>& lookup_evaluators) {
+      LookupEvaluator& lookup_evaluator) {
     std::vector<std::vector<F>> value_parts;
     value_parts.reserve(num_parts_);
     // Calculate the quotient polynomial for each part
@@ -114,19 +117,19 @@ class CircuitPolynomialBuilder {
         UpdateTable(j);
         // Do iff there are permutation constraints.
         if (permutation_provers_[j].grand_product_polys().size() > 0)
-          UpdatePermutation(j);
+          UpdatePermutationCosets(j);
         // Do iff there are lookup constraints.
         if (lookup_provers_[j].grand_product_polys().size() > 0)
-          UpdateLookups(j);
+          lookup_evaluator.UpdateLookupCosets(*this, j);
         base::Parallelize(
             value_part,
-            [this, &custom_gate_evaluator, &lookup_evaluators](
+            [this, &custom_gate_evaluator, &lookup_evaluator](
                 absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
-              UpdateValuesByCustomGates(custom_gate_evaluator, chunk,
-                                        chunk_offset, chunk_size);
-              UpdateValuesByPermutation(chunk, chunk_offset, chunk_size);
-              UpdateValuesByLookups(lookup_evaluators, chunk, chunk_offset,
-                                    chunk_size);
+              UpdateChunkByCustomGates(custom_gate_evaluator, chunk,
+                                       chunk_offset, chunk_size);
+              UpdateChunkByPermutation(chunk, chunk_offset, chunk_size);
+              lookup_evaluator.UpdateChunkByLookups(*this, chunk, chunk_offset,
+                                                    chunk_size);
             });
       }
 
@@ -137,70 +140,8 @@ class CircuitPolynomialBuilder {
     return ExtendedEvals(std::move(extended));
   }
 
-  void UpdateValuesByLookups(
-      const std::vector<GraphEvaluator<F>>& lookup_evaluators,
-      absl::Span<F> chunk, size_t chunk_offset, size_t chunk_size) {
-    for (size_t i = 0; i < lookup_evaluators.size(); ++i) {
-      const GraphEvaluator<F>& ev = lookup_evaluators[i];
-      const Evals& input_coset = lookup_input_cosets_[i];
-      const Evals& table_coset = lookup_table_cosets_[i];
-      const Evals& product_coset = lookup_product_cosets_[i];
-
-      EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
-          ev.CreateInitialIntermediates(), ev.CreateEmptyRotations());
-
-      size_t start = chunk_offset * chunk_size;
-      for (size_t j = 0; j < chunk.size(); ++j) {
-        size_t idx = start + j;
-
-        F zero = F::Zero();
-        F table_value = ev.Evaluate(evaluation_input, idx, /*scale=*/1, zero);
-
-        RowIndex r_next = Rotation(1).GetIndex(idx, /*scale=*/1, n_);
-        RowIndex r_prev = Rotation(-1).GetIndex(idx, /*scale=*/1, n_);
-
-        F a_minus_s = input_coset[idx] - table_coset[idx];
-
-        // l_first(X) * (1 - z(X)) = 0
-        chunk[j] *= y_;
-        chunk[j] += (one_ - product_coset[idx]) * l_first_[idx];
-
-        // l_last(X) * (z(X)² - z(X)) = 0
-        chunk[j] *= y_;
-        chunk[j] +=
-            (product_coset[idx].Square() - product_coset[idx]) * l_last_[idx];
-
-        // clang-format off
-        // A * (B - C) = 0 where
-        //  - A = 1 - (l_last(X) + l_blind(X))
-        //  - B = z(wX) * (a'(X) + β) * (s'(X) + γ)
-        //  - C = z(X) * (θᵐ⁻¹ a₀(X) + ... + aₘ₋₁(X) + β) * (θᵐ⁻¹ s₀(X) + ... + sₘ₋₁(X) + γ)
-        // clang-format on
-        chunk[j] *= y_;
-        chunk[j] += (product_coset[r_next] * (input_coset[idx] + beta_) *
-                         (table_coset[idx] + gamma_) -
-                     product_coset[idx] * table_value) *
-                    l_active_row_[idx];
-
-        // Check that the first values in the permuted input expression and
-        // permuted fixed expression are the same.
-        // l_first(X) * (a'(X) - s'(X)) = 0
-        chunk[j] *= y_;
-        chunk[j] += a_minus_s * l_first_[idx];
-
-        // Check that each value in the permuted lookup input expression is
-        // either equal to the value above it, or the value at the same
-        // index in the permuted table expression. (1 - (l_last + l_blind)) *
-        // (a′(X) − s′(X))⋅(a′(X) − a′(w⁻¹X)) = 0
-        chunk[j] *= y_;
-        chunk[j] += a_minus_s * (input_coset[idx] - input_coset[r_prev]) *
-                    l_active_row_[idx];
-      }
-    }
-  }
-
-  void UpdateValuesByPermutation(absl::Span<F> chunk, size_t chunk_offset,
-                                 size_t chunk_size) {
+  void UpdateChunkByPermutation(absl::Span<F> chunk, size_t chunk_offset,
+                                size_t chunk_size) {
     if (permutation_product_cosets_.empty()) return;
 
     const std::vector<Evals>& product_cosets = permutation_product_cosets_;
@@ -261,6 +202,8 @@ class CircuitPolynomialBuilder {
   }
 
  private:
+  friend class lookup::halo2::Evaluator<F, Evals>;
+
   EvaluationInput<Evals> ExtractEvaluationInput(
       std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {
     return EvaluationInput<Evals>(std::move(intermediates),
@@ -290,9 +233,9 @@ class CircuitPolynomialBuilder {
     return right;
   }
 
-  void UpdateValuesByCustomGates(const GraphEvaluator<F>& custom_gate_evaluator,
-                                 absl::Span<F> chunk, size_t chunk_offset,
-                                 size_t chunk_size) {
+  void UpdateChunkByCustomGates(const GraphEvaluator<F>& custom_gate_evaluator,
+                                absl::Span<F> chunk, size_t chunk_offset,
+                                size_t chunk_size) {
     EvaluationInput<Evals> evaluation_input = ExtractEvaluationInput(
         custom_gate_evaluator.CreateInitialIntermediates(),
         custom_gate_evaluator.CreateEmptyRotations());
@@ -309,7 +252,7 @@ class CircuitPolynomialBuilder {
     l_active_row_ = coset_domain_->FFT(proving_key_.l_active_row());
   }
 
-  void UpdatePermutation(size_t circuit_idx) {
+  void UpdatePermutationCosets(size_t circuit_idx) {
     const std::vector<BlindedPolynomial<Poly, Evals>>& grand_product_polys =
         permutation_provers_[circuit_idx].grand_product_polys();
     permutation_product_cosets_.resize(grand_product_polys.size());
@@ -323,24 +266,6 @@ class CircuitPolynomialBuilder {
     permutation_cosets_.resize(polys.size());
     for (size_t i = 0; i < polys.size(); ++i) {
       permutation_cosets_[i] = coset_domain_->FFT(polys[i]);
-    }
-  }
-
-  void UpdateLookups(size_t circuit_idx) {
-    size_t num_lookups =
-        lookup_provers_[circuit_idx].grand_product_polys().size();
-    const lookup::halo2::Prover<Poly, Evals>& lookup_prover =
-        lookup_provers_[circuit_idx];
-    lookup_product_cosets_.resize(num_lookups);
-    lookup_input_cosets_.resize(num_lookups);
-    lookup_table_cosets_.resize(num_lookups);
-    for (size_t i = 0; i < num_lookups; ++i) {
-      lookup_product_cosets_[i] =
-          coset_domain_->FFT(lookup_prover.grand_product_polys()[i].poly());
-      lookup_input_cosets_[i] =
-          coset_domain_->FFT(lookup_prover.permuted_pairs()[i].input().poly());
-      lookup_table_cosets_[i] =
-          coset_domain_->FFT(lookup_prover.permuted_pairs()[i].table().poly());
     }
   }
 
@@ -393,9 +318,9 @@ class CircuitPolynomialBuilder {
   Rotation last_rotation_;
   F delta_start_;
 
-  const ProvingKey<Poly, Evals, C>& proving_key_;
+  const ProvingKey<LS>& proving_key_;
   const std::vector<PermutationProver<Poly, Evals>>& permutation_provers_;
-  const std::vector<lookup::halo2::Prover<Poly, Evals>>& lookup_provers_;
+  const std::vector<LookupProver>& lookup_provers_;
   const std::vector<MultiPhaseRefTable<Poly>>& poly_tables_;
 
   Evals l_first_;

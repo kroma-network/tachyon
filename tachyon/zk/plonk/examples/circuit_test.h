@@ -12,8 +12,8 @@
 
 namespace tachyon::zk::plonk::halo2 {
 
-template <typename PCS>
-class CircuitTest : public ProverTest<PCS> {
+template <typename PCS, typename LS>
+class CircuitTest : public ProverTest<PCS, LS> {
  protected:
   using F = typename PCS::Field;
   using Commitment = typename PCS::Commitment;
