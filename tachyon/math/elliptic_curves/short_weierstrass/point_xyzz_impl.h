@@ -127,8 +127,8 @@ constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
 
 // static
 template <typename Curve>
-constexpr void CLASS::DoAdd(const PointXYZZ& a, const AffinePoint<Curve>& b,
-                            PointXYZZ& c) {
+OPENMP_CONSTEXPR void CLASS::DoAdd(const PointXYZZ& a,
+                                   const AffinePoint<Curve>& b, PointXYZZ& c) {
   // https://hyperelliptic.org/EFD/g1p/auto-shortw-xyzz.html#addition-madd-2008-s
 
   // P = X2 * ZZ1 - X1

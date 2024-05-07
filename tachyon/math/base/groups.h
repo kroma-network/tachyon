@@ -66,9 +66,9 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   // https://github.com/arkworks-rs/algebra/blob/5dfeedf560da6937a5de0a2163b7958bd32cd551/ff/src/fields/mod.rs#L355-L418.
   // Batch inverse: [a₁, a₂, ..., aₙ] -> [a₁⁻¹, a₂⁻¹, ... , aₙ⁻¹]
   template <typename InputContainer, typename OutputContainer>
-  [[nodiscard]] constexpr static bool BatchInverse(const InputContainer& groups,
-                                                   OutputContainer* inverses,
-                                                   const G& coeff = G::One()) {
+  [[nodiscard]] OPENMP_CONSTEXPR static bool BatchInverse(
+      const InputContainer& groups, OutputContainer* inverses,
+      const G& coeff = G::One()) {
     size_t size = std::size(groups);
     if (size != std::size(*inverses)) {
       LOG(ERROR) << "Size of |groups| and |inverses| do not match";

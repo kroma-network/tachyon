@@ -105,7 +105,7 @@ class ProjectivePoint<
   }
 
   template <typename ProjectiveContainer, typename AffineContainer>
-  [[nodiscard]] constexpr static bool BatchNormalize(
+  [[nodiscard]] OPENMP_CONSTEXPR static bool BatchNormalize(
       const ProjectiveContainer& projective_points,
       AffineContainer* affine_points) {
     size_t size = std::size(projective_points);

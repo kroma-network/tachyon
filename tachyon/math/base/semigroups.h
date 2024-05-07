@@ -437,9 +437,9 @@ class AdditiveSemigroup {
   // Multi Scalar Multi Base
   template <typename ScalarContainer, typename BaseContainer,
             typename OutputContainer>
-  constexpr static bool MultiScalarMulMSMB(const ScalarContainer& scalars,
-                                           const BaseContainer& bases,
-                                           OutputContainer* outputs) {
+  OPENMP_CONSTEXPR static bool MultiScalarMulMSMB(
+      const ScalarContainer& scalars, const BaseContainer& bases,
+      OutputContainer* outputs) {
     size_t size = scalars.size();
     if (size != std::size(bases)) return false;
     if (size != std::size(*outputs)) return false;
@@ -455,9 +455,8 @@ class AdditiveSemigroup {
 
   // Multi Scalar Single Base
   template <typename ScalarContainer, typename OutputContainer>
-  constexpr static bool MultiScalarMulMSSB(const ScalarContainer& scalars,
-                                           const G& base,
-                                           OutputContainer* outputs) {
+  OPENMP_CONSTEXPR static bool MultiScalarMulMSSB(
+      const ScalarContainer& scalars, const G& base, OutputContainer* outputs) {
     size_t size = std::size(scalars);
     if (size != std::size(*outputs)) return false;
     if (size == 0) {
@@ -472,9 +471,9 @@ class AdditiveSemigroup {
 
   // Single Scalar Multi Base
   template <typename Scalar, typename BaseContainer, typename OutputContainer>
-  constexpr static bool MultiScalarMulSSMB(const Scalar& scalar,
-                                           const BaseContainer& bases,
-                                           OutputContainer* outputs) {
+  OPENMP_CONSTEXPR static bool MultiScalarMulSSMB(const Scalar& scalar,
+                                                  const BaseContainer& bases,
+                                                  OutputContainer* outputs) {
     size_t size = std::size(bases);
     if (size != std::size(*outputs)) return false;
     if (size == 0) {
