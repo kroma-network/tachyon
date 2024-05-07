@@ -89,12 +89,12 @@ class Evaluator {
 
         // l_first(X) * (1 - z(X)) = 0
         chunk[j] *= builder.y_;
-        chunk[j] += (builder.one_ - product_coset[idx]) * builder.l_first_[idx];
+        chunk[j] += builder.l_first_[idx] * (builder.one_ - product_coset[idx]);
 
         // l_last(X) * (z(X)² - z(X)) = 0
         chunk[j] *= builder.y_;
-        chunk[j] += (product_coset[idx].Square() - product_coset[idx]) *
-                    builder.l_last_[idx];
+        chunk[j] += builder.l_last_[idx] *
+                    (product_coset[idx].Square() - product_coset[idx]);
 
         // clang-format off
         // A * (B - C) = 0 where
@@ -104,24 +104,24 @@ class Evaluator {
         // clang-format on
         chunk[j] *= builder.y_;
         chunk[j] +=
+            builder.l_active_row_[idx] *
             (product_coset[r_next] * (input_coset[idx] + builder.beta_) *
                  (table_coset[idx] + builder.gamma_) -
-             product_coset[idx] * table_value) *
-            builder.l_active_row_[idx];
+             product_coset[idx] * table_value);
 
         // Check that the first values in the permuted input expression and
         // permuted fixed expression are the same.
         // l_first(X) * (a'(X) - s'(X)) = 0
         chunk[j] *= builder.y_;
-        chunk[j] += a_minus_s * builder.l_first_[idx];
+        chunk[j] += builder.l_first_[idx] * a_minus_s;
 
         // Check that each value in the permuted lookup input expression is
         // either equal to the value above it, or the value at the same
         // index in the permuted table expression. (1 - (l_last + l_blind)) *
-        // (a′(X) − s′(X))⋅(a′(X) − a′(w⁻¹X)) = 0
+        // (a′(X) − s′(X)) * (a′(X) − a′(w⁻¹X)) = 0
         chunk[j] *= builder.y_;
-        chunk[j] += a_minus_s * (input_coset[idx] - input_coset[r_prev]) *
-                    builder.l_active_row_[idx];
+        chunk[j] += builder.l_active_row_[idx] * a_minus_s *
+                    (input_coset[idx] - input_coset[r_prev]);
       }
     }
   }
