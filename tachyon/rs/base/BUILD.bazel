@@ -6,7 +6,7 @@ package(default_visibility = ["//visibility:public"])
 # We need to change the default value if we change the default rustc version.
 bool_flag(
     name = "rustc_version_ge_1.67.0",
-    build_setting_default = False,
+    build_setting_default = True,
 )
 
 config_setting(
