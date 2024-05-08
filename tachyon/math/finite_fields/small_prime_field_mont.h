@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_H_
-#define TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_MONT_H_
+#define TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_MONT_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -30,7 +30,7 @@ class PrimeFieldGpu;
 template <typename _Config>
 class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
                                            (_Config::kModulusBits <= 32) &&
-                                           !_Config::kUseMontgomery>>
+                                           _Config::kUseMontgomery>>
     final : public PrimeFieldBase<PrimeField<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
@@ -46,8 +46,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   using GpuField = PrimeFieldGpu<Config>;
 
   constexpr PrimeField() = default;
-  constexpr explicit PrimeField(uint32_t value) : value_(value) {
-    DCHECK_LT(value_, GetModulus());
+  constexpr explicit PrimeField(uint32_t value)
+      : value_(Config::ToMontgomery(value)) {
+    DCHECK_LT(value, GetModulus());
   }
   constexpr explicit PrimeField(const BigInt<N>& value) : PrimeField(value[0]) {
     DCHECK_LT(value[0], GetModulus());
@@ -58,7 +59,11 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   constexpr PrimeField& operator=(PrimeField&& other) = default;
 
   constexpr static PrimeField Zero() { return PrimeField(); }
-  constexpr static PrimeField One() { return PrimeField(1); }
+  constexpr static PrimeField One() {
+    PrimeField ret;
+    ret.value_ = static_cast<uint32_t>(Config::kOne[0]);
+    return ret;
+  }
 
   static PrimeField Random() {
     return PrimeField(
@@ -89,7 +94,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   }
 
   constexpr static PrimeField FromMontgomery(const MontgomeryTy& mont) {
-    return PrimeField(Config::FromMontgomery(mont[0]));
+    PrimeField ret;
+    ret.value_ = mont[0];
+    return ret;
   }
 
   static PrimeField FromMpzClass(const mpz_class& value) {
@@ -104,12 +111,16 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   constexpr bool IsZero() const { return value_ == 0; }
 
-  constexpr bool IsOne() const { return value_ == 1; }
+  constexpr bool IsOne() const {
+    return value_ == static_cast<uint32_t>(Config::kOne[0]);
+  }
 
-  std::string ToString() const { return base::NumberToString(value_); }
+  std::string ToString() const {
+    return base::NumberToString(Config::FromMontgomery(value_));
+  }
 
   std::string ToHexString(bool pad_zero = false) const {
-    std::string str = base::HexToString(value_);
+    std::string str = base::HexToString(Config::FromMontgomery(value_));
     if (pad_zero) {
       str = base::ToHexStringWithLeadingZero(str, 8);
     }
@@ -123,11 +134,11 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   }
 
   // TODO(chokobole): Support bigendian.
-  constexpr BigInt<N> ToBigInt() const { return BigInt<N>(value_); }
-
-  constexpr MontgomeryTy ToMontgomery() const {
-    return MontgomeryTy(Config::ToMontgomery(value_));
+  constexpr BigInt<N> ToBigInt() const {
+    return BigInt<N>(Config::FromMontgomery(value_));
   }
+
+  constexpr MontgomeryTy ToMontgomery() const { return MontgomeryTy(value_); }
 
   constexpr operator uint32_t() const { return value_; }
 
@@ -143,21 +154,27 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     return value_ != other.value_;
   }
   constexpr bool operator<(PrimeField other) const {
-    return value_ < other.value_;
+    return Config::FromMontgomery(value_) <
+           Config::FromMontgomery(other.value_);
   }
   constexpr bool operator>(PrimeField other) const {
-    return value_ > other.value_;
+    return Config::FromMontgomery(value_) >
+           Config::FromMontgomery(other.value_);
   }
   constexpr bool operator<=(PrimeField other) const {
-    return value_ <= other.value_;
+    return Config::FromMontgomery(value_) <=
+           Config::FromMontgomery(other.value_);
   }
   constexpr bool operator>=(PrimeField other) const {
-    return value_ >= other.value_;
+    return Config::FromMontgomery(value_) >=
+           Config::FromMontgomery(other.value_);
   }
 
   // AdditiveSemigroup methods
   constexpr PrimeField Add(PrimeField other) const {
-    return PrimeField(Config::AddMod(value_, other.value_));
+    PrimeField ret;
+    ret.value_ = Config::AddMod(value_, other.value_);
+    return ret;
   }
 
   constexpr PrimeField& AddInPlace(PrimeField other) {
@@ -167,7 +184,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   // AdditiveGroup methods
   constexpr PrimeField Sub(PrimeField other) const {
-    return PrimeField(Config::SubMod(value_, other.value_));
+    PrimeField ret;
+    ret.value_ = Config::SubMod(value_, other.value_);
+    return ret;
   }
 
   constexpr PrimeField& SubInPlace(PrimeField other) {
@@ -176,7 +195,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   }
 
   constexpr PrimeField Negate() const {
-    return PrimeField(Config::SubMod(0, value_));
+    PrimeField ret;
+    ret.value_ = Config::SubMod(0, value_);
+    return ret;
   }
 
   constexpr PrimeField& NegateInPlace() {
@@ -186,47 +207,21 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   // MultiplicativeSemigroup methods
   constexpr PrimeField Mul(PrimeField other) const {
-// NOTE(chokobole): g++ 11.4.0 gives a warning. It seems to be a g++ bug.
-#if defined(COMPILER_GCC) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-    return PrimeField(Config::Reduce(uint64_t{value_} * other.value_));
-#if defined(COMPILER_GCC) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
+    PrimeField ret;
+    ret.value_ = Config::FromMontgomery(uint64_t{value_} * other.value_);
+    return ret;
   }
 
   constexpr PrimeField& MulInPlace(PrimeField other) {
-    value_ = Config::Reduce(uint64_t{value_} * other.value_);
+    value_ = Config::FromMontgomery(uint64_t{value_} * other.value_);
     return *this;
   }
 
   // MultiplicativeGroup methods
-  constexpr PrimeField Inverse() const {
-    // TODO(chokobole): Benchmark between this and |this->Pow(GetModulus() - 2)|
-    // and use the faster one.
-    // |result.s| * |value_| + |result.t| * |GetModulus()| = |result.r|
-    // |result.s| * |value_| = |result.r| (mod |GetModulus()|)
-    EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
-    DCHECK_EQ(result.r, 1);
-    if (result.s > 0) {
-      return PrimeField(result.s);
-    } else {
-      return PrimeField(int64_t{GetModulus()} + result.s);
-    }
-  }
+  constexpr PrimeField Inverse() const { return this->Pow(GetModulus() - 2); }
 
   constexpr PrimeField& InverseInPlace() {
-    // See comment in |Inverse()|.
-    EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
-    DCHECK_EQ(result.r, 1);
-    if (result.s > 0) {
-      value_ = result.s;
-    } else {
-      value_ = int64_t{GetModulus()} + result.s;
-    }
-    return *this;
+    return *this = this->Pow(GetModulus() - 2);
   }
 
  private:
@@ -239,4 +234,4 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_SMALL_PRIME_FIELD_MONT_H_

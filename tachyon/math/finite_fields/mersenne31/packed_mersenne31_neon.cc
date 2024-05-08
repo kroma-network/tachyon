@@ -35,7 +35,7 @@ uint32x4_t Sub(uint32x4_t lhs, uint32x4_t rhs) {
   return SubMod32(lhs, rhs, kP);
 }
 
-uint32x4_t Neg(uint32x4_t val) { return NegMod32(val, kP); }
+uint32x4_t Negate(uint32x4_t val) { return NegateMod32(val, kP); }
 
 // Multiply two 31-bit numbers to obtain a 62-bit immediate result, and return
 // the high 31 bits of that result. Results are arbitrary if the inputs do not
@@ -120,7 +120,7 @@ PackedMersenne31Neon PackedMersenne31Neon::Sub(
 }
 
 PackedMersenne31Neon PackedMersenne31Neon::Negate() const {
-  return FromVector(tachyon::math::Neg(ToVector(*this)));
+  return FromVector(tachyon::math::Negate(ToVector(*this)));
 }
 
 PackedMersenne31Neon PackedMersenne31Neon::Mul(

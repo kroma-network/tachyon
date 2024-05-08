@@ -249,6 +249,20 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "small_prime_field_mont",
+    hdrs = ["small_prime_field_mont.h"],
+    deps = [
+        ":prime_field_base",
+        "//tachyon/base:logging",
+        "//tachyon/base:random",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/build:build_config",
+        "//tachyon/math/base:egcd",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "finite_fields_unittests",
     srcs = [
@@ -285,7 +299,9 @@ tachyon_cc_unittest(
         "//tachyon/math/elliptic_curves/pasta/vesta:fr",
         "//tachyon/math/elliptic_curves/secp/secp256k1:fq",
         "//tachyon/math/elliptic_curves/secp/secp256k1:fr",
+        "//tachyon/math/finite_fields/baby_bear",
         "//tachyon/math/finite_fields/goldilocks:goldilocks_prime_field",
+        "//tachyon/math/finite_fields/koala_bear",
         "//tachyon/math/finite_fields/mersenne31",
         "//tachyon/math/finite_fields/test:finite_field_test",
         "//tachyon/math/finite_fields/test:gf7",
@@ -294,10 +310,16 @@ tachyon_cc_unittest(
         "@com_google_absl//absl/hash:hash_testing",
     ] + select({
         "@platforms//cpu:x86_64": [
+            "//tachyon/math/finite_fields/baby_bear:packed_baby_bear_avx2",
+            "//tachyon/math/finite_fields/baby_bear:packed_baby_bear_avx512",
+            "//tachyon/math/finite_fields/koala_bear:packed_koala_bear_avx2",
+            "//tachyon/math/finite_fields/koala_bear:packed_koala_bear_avx512",
             "//tachyon/math/finite_fields/mersenne31:packed_mersenne31_avx2",
             "//tachyon/math/finite_fields/mersenne31:packed_mersenne31_avx512",
         ],
         "@platforms//cpu:aarch64": [
+            "//tachyon/math/finite_fields/baby_bear:packed_baby_bear_neon",
+            "//tachyon/math/finite_fields/koala_bear:packed_koala_bear_neon",
             "//tachyon/math/finite_fields/mersenne31:packed_mersenne31_neon",
         ],
         "//conditions:default": [],
