@@ -16,9 +16,7 @@ using namespace crypto;
 
 using Field = math::bn254::Fr;
 
-extern "C" tachyon_bn254_fr* run_poseidon_arkworks(
-    const tachyon_bn254_fr* pre_images, size_t aborbing_num,
-    size_t squeezing_num, uint64_t* duration);
+extern "C" tachyon_bn254_fr* run_poseidon_arkworks(uint64_t* duration);
 
 int RealMain(int argc, char** argv) {
   tachyon::PoseidonConfig config;

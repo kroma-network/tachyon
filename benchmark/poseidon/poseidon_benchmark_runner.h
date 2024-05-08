@@ -26,44 +26,36 @@ class PoseidonBenchmarkRunner {
  public:
   using CPrimeField = typename c::base::TypeTraits<Field>::CType;
 
-  typedef CPrimeField* (*PoseidonExternalFn)(const CPrimeField* pre_images,
-                                             size_t absorbing_num,
-                                             size_t squeezing_num,
-                                             uint64_t* duration);
+  typedef CPrimeField* (*PoseidonExternalFn)(uint64_t* duration);
 
   PoseidonBenchmarkRunner(SimplePoseidonBenchmarkReporter* reporter,
                           PoseidonConfig* config)
-      : reporter_(reporter), config_(config) {
-    pre_images_ = base::CreateVector(config->absorbing_num(),
-                                     []() { return Field::Random(); });
-  }
+      : reporter_(reporter), config_(config) {}
 
   Field Run() {
-    std::vector<Field> squeezed_elements;
+    Field ret;
     for (size_t i = 0; i < config_->repeating_num(); ++i) {
       crypto::PoseidonConfig<Field> config =
           crypto::PoseidonConfig<Field>::CreateCustom(8, 5, 8, 63, 0);
       crypto::PoseidonSponge<Field> sponge(config);
       base::TimeTicks start = base::TimeTicks::Now();
-      for (size_t j = 0; j < config_->absorbing_num(); ++j) {
-        sponge.Absorb(pre_images_[j]);
-      }
-      squeezed_elements = sponge.SqueezeFieldElements(config_->squeezing_num());
+      sponge.Permute();
       reporter_->AddTime(i, (base::TimeTicks::Now() - start).InSecondsF());
+      if (i == 0) {
+        ret = sponge.state.elements[1];
+      }
     }
-    return squeezed_elements[0];
+    return ret;
   }
 
   Field RunExternal(PoseidonExternalFn fn) {
-    std::unique_ptr<CPrimeField> last_squeezed_element;
+    std::unique_ptr<CPrimeField> ret;
     for (size_t i = 0; i < config_->repeating_num(); ++i) {
       uint64_t duration_in_us;
-      last_squeezed_element.reset(fn(
-          reinterpret_cast<const CPrimeField*>(pre_images_.data()),
-          config_->absorbing_num(), config_->squeezing_num(), &duration_in_us));
+      ret.reset(fn(&duration_in_us));
       reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
     }
-    return *reinterpret_cast<Field*>(last_squeezed_element.get());
+    return *reinterpret_cast<Field*>(ret.get());
   }
 
  private:
@@ -71,7 +63,6 @@ class PoseidonBenchmarkRunner {
   SimplePoseidonBenchmarkReporter* const reporter_;
   // not owned
   PoseidonConfig* const config_;
-  std::vector<Field> pre_images_;
 };
 
 }  // namespace tachyon

@@ -33,7 +33,7 @@ dependencies = [
 [[package]]
 name = "ark-crypto-primitives"
 version = "0.4.0"
-source = "git+https://github.com/arkworks-rs/crypto-primitives.git?tag=v0.4.0#c823c9ef0ebe8b1669e6100819cbed65f3dc25a5"
+source = "git+https://github.com/kroma-network/crypto-primitives.git?rev=99f5aff#99f5aff812b90caea22f969ee3df167a5e447685"
 dependencies = [
  "ark-ec 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ark-ff 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",

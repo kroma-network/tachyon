@@ -19,7 +19,7 @@ publish = false
 [dependencies]
 ark-ff = { version = "^0.4.0", default-features = false }
 ark-bn254 = "0.4.0"
-ark-crypto-primitives = { git = "https://github.com/arkworks-rs/crypto-primitives.git", features = [
+ark-crypto-primitives = { git = "https://github.com/kroma-network/crypto-primitives.git", features = [
     "sponge",
-], tag = "v0.4.0" }
+], rev = "99f5aff" }
 tachyon_rs = { path = "../../../tachyon/rs" }

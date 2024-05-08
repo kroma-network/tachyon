@@ -1,5 +1,5 @@
 {
-  "checksum": "aff93f09e6d25ede7e662cd0296a5145b6365cc76ad58cea5a2f560b10b75bf7",
+  "checksum": "f90b6ff89b5b13e14ad4372e91a7511217c49f5680c90b63c0d9a2c8b9e4d62e",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -170,9 +170,9 @@
       "version": "0.4.0",
       "repository": {
         "Git": {
-          "remote": "https://github.com/arkworks-rs/crypto-primitives.git",
+          "remote": "https://github.com/kroma-network/crypto-primitives.git",
           "commitish": {
-            "Tag": "v0.4.0"
+            "Rev": "99f5aff"
           }
         }
       },
