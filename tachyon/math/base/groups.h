@@ -2,6 +2,7 @@
 #define TACHYON_MATH_BASE_GROUPS_H_
 
 #include <limits>
+#include <ostream>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -158,6 +159,12 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   }
 };
 
+template <typename G>
+std::ostream& operator<<(std::ostream& os, const MultiplicativeGroup<G>& g) {
+  const G& derived = static_cast<const G&>(g);
+  return os << derived.ToString();
+}
+
 // AdditiveGroup is a group with the group operation '+'.
 // AdditiveGroup supports subtraction and negation, inheriting the
 // properties of AdditiveSemigroup.
@@ -202,6 +209,12 @@ class AdditiveGroup : public AdditiveSemigroup<G> {
     return g->Negate();
   }
 };
+
+template <typename G>
+std::ostream& operator<<(std::ostream& os, const AdditiveGroup<G>& g) {
+  const G& derived = static_cast<const G&>(g);
+  return os << derived.ToString();
+}
 
 }  // namespace tachyon::math
 
