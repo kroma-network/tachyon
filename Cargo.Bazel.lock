@@ -1,5 +1,5 @@
 {
-  "checksum": "f90b6ff89b5b13e14ad4372e91a7511217c49f5680c90b63c0d9a2c8b9e4d62e",
+  "checksum": "8f248863a2585ea5d0bb45ed46fe2949827c09d76a83ab760060e1593ea7938d",
   "crates": {
     "ahash 0.8.3": {
       "name": "ahash",
@@ -371,6 +371,8 @@
         ],
         "crate_features": {
           "common": [
+            "asm",
+            "default",
             "parallel",
             "rayon",
             "std"

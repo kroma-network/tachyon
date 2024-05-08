@@ -17,7 +17,7 @@ publish = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ark-ff = { version = "^0.4.0", default-features = false }
+ark-ff = { version = "^0.4.0", features = ["asm"] }
 ark-bn254 = "0.4.0"
 ark-crypto-primitives = { git = "https://github.com/kroma-network/crypto-primitives.git", features = [
     "sponge",
