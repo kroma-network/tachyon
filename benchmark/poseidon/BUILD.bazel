@@ -4,6 +4,8 @@ load(
     "tachyon_cc_library",
 )
 
+package(default_visibility = ["//benchmark/poseidon2:__pkg__"])
+
 tachyon_cc_library(
     name = "poseidon_config",
     testonly = True,

@@ -1,0 +1,21 @@
+[package]
+name = "horizen_poseidon2_benchmark"
+version = "0.0.1"
+authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
+edition = "2021"
+rust-version = "1.56.1"
+description = """
+Horizen Poseidon2 Hash Benchmark
+"""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/kroma-network/tachyon"
+readme = "README.md"
+categories = ["cryptography"]
+keywords = ["tachyon", "benchmark", "horizen"]
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+zkhash = { git = "https://github.com/HorizenLabs/poseidon2.git", rev = "bb476b9" }
+tachyon_rs = { path = "../../../tachyon/rs" }

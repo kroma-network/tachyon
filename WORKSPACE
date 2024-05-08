@@ -55,6 +55,8 @@ crates_repository(
         "//benchmark/fft/bellman:Cargo.toml",
         "//benchmark/fft/halo2:Cargo.toml",
         "//benchmark/poseidon/arkworks:Cargo.toml",
+        "//benchmark/poseidon2/horizen:Cargo.toml",
+        "//benchmark/poseidon2/plonky3:Cargo.toml",
         "//tachyon/rs:Cargo.toml",
         "//vendors/halo2:Cargo.toml",
     ],
