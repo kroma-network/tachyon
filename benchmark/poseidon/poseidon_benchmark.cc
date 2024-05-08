@@ -32,16 +32,11 @@ int RealMain(int argc, char** argv) {
   reporter.AddVendor("arkworks");
   PoseidonBenchmarkRunner<Field> runner(&reporter, &config);
 
-  std::vector<Field> results;
-  results.reserve(config.repeating_num());
-  runner.Run(&results);
-
-  std::vector<Field> results_vendor;
-  results_vendor.reserve(config.repeating_num());
-  runner.RunExternal(run_poseidon_arkworks, &results_vendor);
+  Field result = runner.Run();
+  Field result_arkworks = runner.RunExternal(run_poseidon_arkworks);
 
   if (config.check_results()) {
-    CHECK(results == results_vendor) << "Result not matched";
+    CHECK_EQ(result, result_arkworks) << "Result not matched";
   }
 
   reporter.AddAverageToLastRow();

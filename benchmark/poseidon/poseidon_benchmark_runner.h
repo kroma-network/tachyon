@@ -38,7 +38,8 @@ class PoseidonBenchmarkRunner {
                                      []() { return Field::Random(); });
   }
 
-  void Run(std::vector<Field>* results) {
+  Field Run() {
+    std::vector<Field> squeezed_elements;
     for (size_t i = 0; i < config_->repeating_num(); ++i) {
       crypto::PoseidonConfig<Field> config =
           crypto::PoseidonConfig<Field>::CreateCustom(8, 5, 8, 63, 0);
@@ -47,24 +48,22 @@ class PoseidonBenchmarkRunner {
       for (size_t j = 0; j < config_->absorbing_num(); ++j) {
         sponge.Absorb(pre_images_[j]);
       }
-      std::vector<Field> squeezed_elements =
-          sponge.SqueezeFieldElements(config_->squeezing_num());
+      squeezed_elements = sponge.SqueezeFieldElements(config_->squeezing_num());
       reporter_->AddTime(i, (base::TimeTicks::Now() - start).InSecondsF());
-      results->push_back(std::move(squeezed_elements[0]));
     }
+    return squeezed_elements[0];
   }
 
-  void RunExternal(PoseidonExternalFn fn, std::vector<Field>* results) {
+  Field RunExternal(PoseidonExternalFn fn) {
+    std::unique_ptr<CPrimeField> last_squeezed_element;
     for (size_t i = 0; i < config_->repeating_num(); ++i) {
-      std::unique_ptr<CPrimeField> last_squeezed_element;
       uint64_t duration_in_us;
       last_squeezed_element.reset(fn(
           reinterpret_cast<const CPrimeField*>(pre_images_.data()),
           config_->absorbing_num(), config_->squeezing_num(), &duration_in_us));
       reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
-      results->push_back(
-          *reinterpret_cast<Field*>(last_squeezed_element.get()));
     }
+    return *reinterpret_cast<Field*>(last_squeezed_element.get());
   }
 
  private:
