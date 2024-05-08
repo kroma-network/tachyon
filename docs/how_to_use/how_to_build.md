@@ -232,6 +232,28 @@ export CXX=/usr/bin/g++-10
 export GCC_HOST_COMPILER_PATH=/usr/bin/gcc-10
 ```
 
+### Building with Clang on Ubuntu 22.04
+
+To utilize features like [always_inline](https://releases.llvm.org/15.0.0/tools/clang/docs/AttributeReference.html#always-inline-force-inline),
+you'll need clang++ at version 15 or higher. By default, Ubuntu 22.04 installs `clang-14` via `apt install clang`,
+so you'll need to manually install a newer version of clang and update `openmp` accordingly.
+
+First, install `clang-15` and the appropriate OpenMP libraries:
+
+```shell
+sudo apt install clang-15 libomp5-15 libomp-15-dev
+```
+
+Next, update `CC` and `CXX` to point to the newly installed `clang-15` and `clang++-15`:
+
+```shell
+export CC=/usr/bin/clang-15
+export CXX=/usr/bin/clang++-15
+```
+
+Make sure `CC` and `CXX` are properly updated to `clang-15` and `clang++-15`.
+These commands ensure that your build environment uses clang version 15 for compilation.
+
 ### Build CUDA with rust toolchain
 
 You may run into the following problem:
