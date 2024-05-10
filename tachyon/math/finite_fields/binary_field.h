@@ -11,6 +11,7 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <type_traits>
 
 #include "tachyon/base/logging.h"
@@ -18,6 +19,7 @@
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
+#include "tachyon/math/finite_fields/binary_field_traits_forward.h"
 #include "tachyon/math/finite_fields/binary_tower_operations.h"
 #include "tachyon/math/finite_fields/finite_field.h"
 
@@ -31,7 +33,11 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   constexpr static size_t N = kLimbNums;
 
   using Config = _Config;
-  using Type = uint8_t;
+  using Type = std::conditional_t<
+      kBits <= 8, uint8_t,
+      std::conditional_t<kBits == 16, uint16_t,
+                         std::conditional_t<kBits == 32, uint32_t, uint64_t>>>;
+  using SubField = BinaryField<typename BinaryFieldTraits<Config>::SubConfig>;
   using BigIntTy = BigInt<N>;
   using value_type = Type;
 
@@ -63,9 +69,12 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
     using MaybePromotedType = std::conditional_t<(kBits <= 32), uint32_t, Type>;
     MaybePromotedType value;
     if (!absl::SimpleAtoi(str, &value)) return std::nullopt;
-    if (value > GetMax()) {
-      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
-      return std::nullopt;
+    if constexpr (kBits <= 16) {
+      if (value > GetMax()) {
+        LOG(ERROR) << "value(" << str
+                   << ") is greater than or equal to modulus";
+        return std::nullopt;
+      }
     }
     return BinaryField(value);
   }
@@ -73,15 +82,27 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
     using MaybePromotedType = std::conditional_t<(kBits <= 32), uint32_t, Type>;
     MaybePromotedType value;
     if (!absl::SimpleHexAtoi(str, &value)) return std::nullopt;
-    if (value > GetMax()) {
-      LOG(ERROR) << "value(" << str << ") is greater than or equal to modulus";
-      return std::nullopt;
+    if constexpr (kBits <= 16) {
+      if (value > GetMax()) {
+        LOG(ERROR) << "value(" << str
+                   << ") is greater than or equal to modulus";
+        return std::nullopt;
+      }
     }
     return BinaryField(value);
   }
 
   constexpr static BinaryField FromBigInt(BigInt<N> big_int) {
     return BinaryField(big_int);
+  }
+
+  template <typename T = Type,
+            std::enable_if_t<!std::is_same_v<T, uint8_t>>* = nullptr>
+  constexpr static BinaryField Compose(SubField lo, SubField hi) {
+    using sub_value_type = typename SubField::value_type;
+    return BinaryField(
+        (value_type{hi.value()} << (sizeof(sub_value_type) * 8)) +
+        value_type{lo.value()});
   }
 
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
@@ -91,6 +112,17 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   constexpr bool IsZero() const { return value_ == 0; }
 
   constexpr bool IsOne() const { return value_ == 1; }
+
+  template <typename T = Type,
+            std::enable_if_t<!std::is_same_v<T, uint8_t>>* = nullptr>
+  constexpr std::tuple<SubField, SubField> Decompose() const {
+    std::tuple<SubField, SubField> ret;
+    using sub_value_type = typename SubField::value_type;
+    std::get<0>(ret) = SubField(static_cast<sub_value_type>(value_));
+    std::get<1>(ret) = SubField(
+        static_cast<sub_value_type>(value_ >> (sizeof(sub_value_type) * 8)));
+    return ret;
+  }
 
   std::string ToString() const { return base::NumberToString(value_); }
 
@@ -175,7 +207,13 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   }
 
  private:
-  constexpr static Type GetMax() { return (Type{1} << kBits) - 1; }
+  constexpr static Type GetMax() {
+    if constexpr (kBits <= 8) {
+      return (Type{1} << kBits) - 1;
+    } else {
+      return static_cast<Type>(std::numeric_limits<Type>::max());
+    }
+  }
 
   Type value_;
 };

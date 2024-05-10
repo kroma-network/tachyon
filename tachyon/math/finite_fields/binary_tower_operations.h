@@ -312,6 +312,72 @@ struct BinaryTowerOperations<F, std::enable_if_t<F::kBits == 8>> {
   }
 };
 
+template <typename F>
+struct BinaryTowerOperations<F, std::enable_if_t<(F::kBits >= 16)>> {
+  using SubField = typename F::SubField;
+
+  constexpr static F Mul(F lhs, F rhs) {
+    // clang-format off
+    //   (lhs₀ + lhs₁X) * (rhs₀ + rhs₁X)
+    // = lhs₀ * rhs₀ + (lhs₀ * rhs₁ + lhs₁ * rhs₀)X + (lhs₁ * rhs₁)X²
+    // = lhs₀ * rhs₀ + (lhs₀ * rhs₁ + lhs₁ * rhs₀)X + (lhs₁ * rhs₁)(αX + 1)
+    // = lhs₀ * rhs₀ + lhs₁ * rhs₁ + (lhs₀ * rhs₁ + lhs₁ * rhs₀ + lhs₁ * rhs₁ * α)X
+    // clang-format on
+    auto [lhs0, lhs1] = lhs.Decompose();
+    auto [rhs0, rhs1] = rhs.Decompose();
+    SubField z0 = lhs0 * rhs0;
+    SubField z1 = lhs1 * rhs1;
+    SubField z0z1 = z0 + z1;
+    SubField z2 = (lhs0 + lhs1) * (rhs0 + rhs1) - z0z1;
+    SubField z1a = BinaryTowerOperations<SubField>::MulByAlpha(z1);
+    return F::Compose(z0z1, z2 + z1a);
+  }
+
+  constexpr static F MulByAlpha(F x) {
+    //   (x₀ + x₁X) * X
+    // = x₀X + x₁X²
+    // = x₀X + x₁(αX + 1)
+    // = x₁ + (x₀ + x₁ * α)X
+    auto [x0, x1] = x.Decompose();
+    SubField x1a = BinaryTowerOperations<SubField>::MulByAlpha(x1);
+    return F::Compose(x1, x0 + x1a);
+  }
+
+  constexpr static F Square(F x) {
+    //   (x₀ + x₁X)²
+    // = x₀² + (2 * x₀ * x₁)X + x₁²X²
+    // = x₀² + x₁²X²
+    // = x₀² + x₁²(αX + 1)
+    // = x₀² + x₁² + (x₁² * α)X
+    auto [x0, x1] = x.Decompose();
+    SubField z0 = x0.Square();
+    SubField z1 = x1.Square();
+    SubField z1a = BinaryTowerOperations<SubField>::MulByAlpha(z1);
+    return F::Compose(z0 + z1, z1a);
+  }
+
+  constexpr static std::optional<F> Inverse(F x) {
+    //   (x₀ + x₁X)(x₀ + x₁ * α + x₁X)
+    // = x₀² + x₀ * x₁ * α + (x₀ * x₁)X + (x₀ * x₁)X + (x₁² * α)X + x₁²X²
+    // = x₀² + x₀ * x₁ * α + (x₁² * α)X + x₁²X²
+    // = x₀² + x₀ * x₁ * α + x₁²(αX + X²)
+    // = x₀² + x₀ * x₁ * α + x₁²
+    // = x₀(x₀ + x₁ * α) + x₁²
+    // = δ
+    // Therefore, (x₀ + x₁X)⁻¹ = δ⁻¹(x₀ + x₁ * α + x₁X)
+    auto [x0, x1] = x.Decompose();
+    SubField x0x1a = x0 + BinaryTowerOperations<SubField>::MulByAlpha(x1);
+    SubField delta = x0 * x0x1a + x1.Square();
+    std::optional<SubField> delta_inv = delta.Inverse();
+    if (LIKELY(delta_inv)) {
+      SubField inv0 = *delta_inv * x0x1a;
+      SubField inv1 = *delta_inv * x1;
+      return F::Compose(inv0, inv1);
+    }
+    return std::nullopt;
+  }
+};
+
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_BINARY_TOWER_OPERATIONS_H_

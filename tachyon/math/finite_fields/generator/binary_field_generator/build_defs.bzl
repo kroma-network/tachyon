@@ -77,10 +77,13 @@ def generate_binary_fields(
             out = n[1],
         )
 
+    modulus_int = int(modulus)
+    needs_bigint = modulus_int == 1 << 64
+
     tachyon_cc_library(
         name = "{}_config".format(name),
         hdrs = [":{}_gen_config_hdr".format(name)],
-        deps = ["//tachyon:export"],
+        deps = ["//tachyon:export"] + ["//tachyon/math/base:big_int"] if needs_bigint else [],
     )
 
     tachyon_cc_library(

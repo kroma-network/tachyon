@@ -1,5 +1,8 @@
 // clang-format off
 #include "tachyon/export.h"
+%{if NeedsBigInt}
+#include "tachyon/math/base/big_int.h"
+%{endif NeedsBigInt}
 
 namespace %{namespace} {
 

@@ -48,34 +48,52 @@ int GenerationConfig::GenerateConfigHdr() const {
   };
 
   mpz_class m = math::gmp::FromDecString(modulus);
-  replacements["%{modulus}"] = math::MpzClassToString(m);
-
   size_t num_bits = GetNumBits(m);
+  if (num_bits == 64 + 1) {
+    replacements["%{modulus}"] =
+        absl::Substitute("BigInt<2>{$0}", math::MpzClassToString(m));
+    replacements["%{modulus_type}"] = "BigInt<2>";
+    replacements["%{value_type}"] = "uint64_t";
+    replacements["%{value}"] = "1";
+  } else {
+    replacements["%{modulus}"] = math::MpzClassToString(m);
+    std::string modulus_type;
+    std::string value_type;
+    switch (num_bits) {
+      case 1 + 1:
+      case 2 + 1:
+      case 4 + 1:
+        modulus_type = "uint8_t";
+        value_type = "uint8_t";
+        break;
+      case 8 + 1:
+        modulus_type = "uint16_t";
+        value_type = "uint8_t";
+        break;
+      case 16 + 1:
+        modulus_type = "uint32_t";
+        value_type = "uint16_t";
+        break;
+      case 32 + 1:
+        modulus_type = "uint64_t";
+        value_type = "uint32_t";
+        break;
+      default:
+        NOTREACHED();
+    }
+    replacements["%{modulus_type}"] = modulus_type;
+    replacements["%{value_type}"] = value_type;
+    replacements["%{value}"] = "1";
+  }
   replacements["%{modulus_bits}"] = base::NumberToString(num_bits);
 
   std::string tpl_content;
   CHECK(base::ReadFileToString(binary_config_hdr_tpl_path, &tpl_content));
 
-  std::string modulus_type;
-  std::string value_type;
-  switch (num_bits) {
-    case 1 + 1:
-    case 2 + 1:
-    case 4 + 1:
-      modulus_type = "uint8_t";
-      value_type = "uint8_t";
-      break;
-    case 8 + 1:
-      modulus_type = "uint16_t";
-      value_type = "uint8_t";
-      break;
-    default:
-      NOTREACHED();
-  }
-  replacements["%{modulus_type}"] = modulus_type;
-  replacements["%{value_type}"] = value_type;
-  replacements["%{value}"] = "1";
+  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
+  RemoveOptionalLines(tpl_lines, "NeedsBigInt", num_bits == 64 + 1);
 
+  tpl_content = absl::StrJoin(tpl_lines, "\n");
   std::string content =
       absl::StrReplaceAll(tpl_content, std::move(replacements));
 

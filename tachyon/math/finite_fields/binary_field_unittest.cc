@@ -14,7 +14,8 @@ class BinaryFieldTest : public testing::Test {
 }  // namespace
 
 using BinaryFieldTypes =
-    testing::Types<BinaryField1, BinaryField2, BinaryField4, BinaryField8>;
+    testing::Types<BinaryField1, BinaryField2, BinaryField4, BinaryField8,
+                   BinaryField16, BinaryField32, BinaryField64>;
 
 TYPED_TEST_SUITE(BinaryFieldTest, BinaryFieldTypes);
 

@@ -11,6 +11,9 @@ BITS = [
     2,
     4,
     8,
+    16,
+    32,
+    64,
 ]
 
 [
@@ -26,10 +29,14 @@ BITS = [
 tachyon_cc_library(
     name = "binary_fields",
     hdrs = ["binary_fields.h"],
+    # buildifier: leave-alone
     deps = [
         ":binary_field1",
         ":binary_field2",
         ":binary_field4",
         ":binary_field8",
+        ":binary_field16",
+        ":binary_field32",
+        ":binary_field64",
     ],
 )

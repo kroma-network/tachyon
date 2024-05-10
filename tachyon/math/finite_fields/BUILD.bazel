@@ -13,6 +13,7 @@ tachyon_cc_library(
     name = "binary_field",
     hdrs = [
         "binary_field.h",
+        "binary_field_traits_forward.h",
         "binary_tower_operations.h",
     ],
     deps = [
