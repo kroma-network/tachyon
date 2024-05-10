@@ -23,8 +23,9 @@ namespace tachyon::zk::plonk {
 
 class TACHYON_EXPORT ColumnKeyBase {
  public:
-  ColumnKeyBase() = default;
-  ColumnKeyBase(ColumnType type, size_t index) : type_(type), index_(index) {}
+  constexpr ColumnKeyBase() = default;
+  constexpr ColumnKeyBase(ColumnType type, size_t index)
+      : type_(type), index_(index) {}
 
   ColumnType type() const { return type_; }
   size_t index() const { return index_; }
@@ -62,8 +63,8 @@ class ColumnKey : public ColumnKeyBase {
  public:
   constexpr static ColumnType kDefaultType = C;
 
-  ColumnKey() : ColumnKeyBase(C, 0) {}
-  explicit ColumnKey(size_t index) : ColumnKeyBase(C, index) {}
+  constexpr ColumnKey() : ColumnKeyBase(C, 0) {}
+  constexpr explicit ColumnKey(size_t index) : ColumnKeyBase(C, index) {}
 
   // NOTE(chokobole): AdviceColumnKey can be constructed with an additional
   // argument |phase|.
@@ -71,7 +72,7 @@ class ColumnKey : public ColumnKeyBase {
   //   AdviceColumnKey column(1, kSecondPhase);
   template <ColumnType C2 = C,
             std::enable_if_t<C2 == ColumnType::kAdvice>* = nullptr>
-  ColumnKey(size_t index, Phase phase)
+  constexpr ColumnKey(size_t index, Phase phase)
       : ColumnKeyBase(C, index), phase_(phase) {}
 
   // NOTE(chokobole): in this case, |type_| is changed!
@@ -84,7 +85,7 @@ class ColumnKey : public ColumnKeyBase {
   //   CHECK_EQ(c.phase(), kSecondPhase);
   template <ColumnType C2,
             std::enable_if_t<C == ColumnType::kAny && C != C2>* = nullptr>
-  ColumnKey(const ColumnKey<C2>& other)
+  constexpr ColumnKey(const ColumnKey<C2>& other)
       : ColumnKeyBase(other.type_, other.index_), phase_(other.phase_) {}
 
   // NOTE(chokobole): in this case, |type_| is not changed!
@@ -98,11 +99,11 @@ class ColumnKey : public ColumnKeyBase {
   //   CHECK_EQ(c2.phase(), kSecondPhase);
   template <ColumnType C2, std::enable_if_t<C != ColumnType::kAny &&
                                             C2 == ColumnType::kAny>* = nullptr>
-  ColumnKey(const ColumnKey<C2>& other)
+  constexpr ColumnKey(const ColumnKey<C2>& other)
       : ColumnKeyBase(C, other.index_), phase_(other.phase_) {}
 
   // FixedColumnKey c(FixedColumnKey(1));
-  ColumnKey(const ColumnKey& other) = default;
+  constexpr ColumnKey(const ColumnKey& other) = default;
 
   // NOTE(chokobole): in this case, |type_| is changed!
   //
