@@ -6,6 +6,8 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/array_to_vector.h"
+#include "tachyon/zk/plonk/examples/shuffle_circuit.h"
+#include "tachyon/zk/plonk/examples/shuffle_circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/simple_circuit.h"
 #include "tachyon/zk/plonk/examples/simple_circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/simple_lookup_circuit.h"
@@ -473,6 +475,8 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
 namespace {
 
 const size_t kBits = 3;
+const size_t kW = 2;
+const size_t kH = 8;
 
 }  // namespace
 
@@ -501,5 +505,18 @@ template class CircuitTest<
     SimpleLookupTestData<
         SimpleLookupCircuit<BN254SHPlonk::Field, kBits, V1FloorPlanner>,
         BN254SHPlonk, BN254Halo2LS>>;
+
+template class CircuitTest<
+    TestArguments<
+        ShuffleCircuit<BN254SHPlonk::Field, kW, kH, SimpleFloorPlanner>,
+        BN254SHPlonk, BN254Halo2LS>,
+    ShuffleTestData<
+        ShuffleCircuit<BN254SHPlonk::Field, kW, kH, SimpleFloorPlanner>,
+        BN254SHPlonk, BN254Halo2LS>>;
+template class CircuitTest<
+    TestArguments<ShuffleCircuit<BN254SHPlonk::Field, kW, kH, V1FloorPlanner>,
+                  BN254SHPlonk, BN254Halo2LS>,
+    ShuffleTestData<ShuffleCircuit<BN254SHPlonk::Field, kW, kH, V1FloorPlanner>,
+                    BN254SHPlonk, BN254Halo2LS>>;
 
 }  // namespace tachyon::zk::plonk
