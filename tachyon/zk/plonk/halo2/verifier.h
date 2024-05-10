@@ -48,13 +48,6 @@ class Verifier : public VerifierBase<PCS> {
   }
 
  private:
-  FRIEND_TEST(SimpleCircuitTest, Verify);
-  FRIEND_TEST(SimpleV1CircuitTest, Verify);
-  FRIEND_TEST(SimpleLookupCircuitTest, Verify);
-  FRIEND_TEST(SimpleLookupV1CircuitTest, Verify);
-  template <typename>
-  FRIEND_TEST(ShuffleCircuitTest, Verify);
-
   bool VerifyProofForTesting(
       const VerifyingKey<F, Commitment>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec,

@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_test")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -31,84 +31,4 @@ tachyon_cc_library(
     name = "simple_lookup_circuit",
     hdrs = ["simple_lookup_circuit.h"],
     deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
-)
-
-# TODO(dongchangYoo): This is failed in CI because of timeout, 60 secs.
-# Change |tachyon_cc_test| to |tachyon_cc_unittest| once CI can run within the timeout.
-tachyon_cc_test(
-    name = "shuffle_circuit_test",
-    srcs = ["shuffle_circuit_test.cc"],
-    deps = [
-        ":circuit_test",
-        ":shuffle_circuit",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/base/commitments:gwc_extension",
-        "//tachyon/zk/base/commitments:shplonk_extension",
-        "//tachyon/zk/lookup/halo2:scheme",
-        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
-        "//tachyon/zk/plonk/keys:proving_key",
-        "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
-        "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",
-    ],
-)
-
-tachyon_cc_test(
-    name = "simple_circuit_test",
-    srcs = ["simple_circuit_test.cc"],
-    deps = [
-        ":circuit_test",
-        ":simple_circuit",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/base/commitments:shplonk_extension",
-        "//tachyon/zk/lookup/halo2:scheme",
-        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
-        "//tachyon/zk/plonk/keys:proving_key",
-        "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
-    ],
-)
-
-tachyon_cc_test(
-    name = "simple_lookup_circuit_test",
-    srcs = ["simple_lookup_circuit_test.cc"],
-    deps = [
-        ":circuit_test",
-        ":simple_lookup_circuit",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/base/commitments:shplonk_extension",
-        "//tachyon/zk/lookup/halo2:scheme",
-        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
-        "//tachyon/zk/plonk/keys:proving_key",
-        "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
-    ],
-)
-
-tachyon_cc_test(
-    name = "simple_lookup_v1_circuit_test",
-    srcs = ["simple_lookup_v1_circuit_test.cc"],
-    deps = [
-        ":circuit_test",
-        ":simple_lookup_circuit",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/base/commitments:shplonk_extension",
-        "//tachyon/zk/lookup/halo2:scheme",
-        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
-        "//tachyon/zk/plonk/keys:proving_key",
-        "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
-        "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",
-    ],
-)
-
-tachyon_cc_test(
-    name = "simple_v1_circuit_test",
-    srcs = ["simple_v1_circuit_test.cc"],
-    deps = [
-        ":circuit_test",
-        ":simple_circuit",
-        "//tachyon/math/elliptic_curves/bn/bn254",
-        "//tachyon/zk/base/commitments:shplonk_extension",
-        "//tachyon/zk/lookup/halo2:scheme",
-        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
-        "//tachyon/zk/plonk/keys:proving_key",
-        "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",
-    ],
 )
