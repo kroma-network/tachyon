@@ -8,6 +8,8 @@
 #include "tachyon/base/array_to_vector.h"
 #include "tachyon/zk/plonk/examples/simple_circuit.h"
 #include "tachyon/zk/plonk/examples/simple_circuit_test_data.h"
+#include "tachyon/zk/plonk/examples/simple_lookup_circuit.h"
+#include "tachyon/zk/plonk/examples/simple_lookup_circuit_test_data.h"
 #include "tachyon/zk/plonk/halo2/pinned_constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
@@ -468,6 +470,12 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
   EXPECT_EQ(h_eval, expected_h_eval);
 }
 
+namespace {
+
+const size_t kBits = 3;
+
+}  // namespace
+
 template class CircuitTest<
     TestArguments<SimpleCircuit<BN254SHPlonk::Field, SimpleFloorPlanner>,
                   BN254SHPlonk, BN254Halo2LS>,
@@ -478,5 +486,20 @@ template class CircuitTest<
                   BN254SHPlonk, BN254Halo2LS>,
     SimpleTestData<SimpleCircuit<BN254SHPlonk::Field, V1FloorPlanner>,
                    BN254SHPlonk, BN254Halo2LS>>;
+
+template class CircuitTest<
+    TestArguments<
+        SimpleLookupCircuit<BN254SHPlonk::Field, kBits, SimpleFloorPlanner>,
+        BN254SHPlonk, BN254Halo2LS>,
+    SimpleLookupTestData<
+        SimpleLookupCircuit<BN254SHPlonk::Field, kBits, SimpleFloorPlanner>,
+        BN254SHPlonk, BN254Halo2LS>>;
+template class CircuitTest<
+    TestArguments<
+        SimpleLookupCircuit<BN254SHPlonk::Field, kBits, V1FloorPlanner>,
+        BN254SHPlonk, BN254Halo2LS>,
+    SimpleLookupTestData<
+        SimpleLookupCircuit<BN254SHPlonk::Field, kBits, V1FloorPlanner>,
+        BN254SHPlonk, BN254Halo2LS>>;
 
 }  // namespace tachyon::zk::plonk

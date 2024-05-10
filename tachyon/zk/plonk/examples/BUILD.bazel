@@ -46,6 +46,8 @@ tachyon_cc_library(
         ":point",
         ":simple_circuit",
         ":simple_circuit_test_data",
+        ":simple_lookup_circuit",
+        ":simple_lookup_circuit_test_data",
         "//tachyon/base:array_to_vector",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/lookup:lookup_pair",
@@ -91,11 +93,27 @@ tachyon_cc_library(
     deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
 )
 
+tachyon_cc_library(
+    name = "simple_lookup_circuit_test_data",
+    testonly = True,
+    hdrs = ["simple_lookup_circuit_test_data.h"],
+    deps = COMMON_TEST_DATA_DEPS + ["//tachyon/base:range"],
+)
+
 tachyon_cc_unittest(
     name = "simple_circuit_test",
     srcs = ["simple_circuit_test.cc"],
     deps = COMMON_TEST_DEPS + [
         ":simple_circuit",
         ":simple_circuit_test_data",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "simple_lookup_circuit_test",
+    srcs = ["simple_lookup_circuit_test.cc"],
+    deps = COMMON_TEST_DEPS + [
+        ":simple_lookup_circuit",
+        ":simple_lookup_circuit_test_data",
     ],
 )
