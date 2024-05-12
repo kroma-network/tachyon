@@ -49,7 +49,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   constexpr explicit PrimeField(uint32_t value) : value_(value) {
     DCHECK_LT(value_, GetModulus());
   }
-  constexpr explicit PrimeField(const BigInt<N>& value) : PrimeField(value[0]) {
+  constexpr explicit PrimeField(BigInt<N> value) : PrimeField(value[0]) {
     DCHECK_LT(value[0], GetModulus());
   }
   constexpr PrimeField(const PrimeField& other) = default;
@@ -84,7 +84,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     return PrimeField(value);
   }
 
-  constexpr static PrimeField FromBigInt(const BigInt<N>& big_int) {
+  constexpr static PrimeField FromBigInt(BigInt<N> big_int) {
     return PrimeField(big_int);
   }
 

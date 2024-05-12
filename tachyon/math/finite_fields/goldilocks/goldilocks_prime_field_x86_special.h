@@ -38,8 +38,8 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   static std::optional<PrimeField> FromDecString(std::string_view str);
   static std::optional<PrimeField> FromHexString(std::string_view str);
-  static PrimeField FromBigInt(const BigInt<N>& big_int);
-  static PrimeField FromMontgomery(const BigInt<N>& big_int);
+  static PrimeField FromBigInt(BigInt<N> big_int);
+  static PrimeField FromMontgomery(BigInt<N> big_int);
 
   static PrimeField FromMpzClass(const mpz_class& value) {
     BigInt<N> big_int;
