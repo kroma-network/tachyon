@@ -6,6 +6,7 @@
 #include <string>
 #include <type_traits>
 
+#include "absl/numeric/int128.h"
 #include "absl/strings/substitute.h"
 
 namespace tachyon::base {
@@ -16,7 +17,9 @@ struct Range;
 
 template <typename T, bool IsStartInclusive, bool IsEndInclusive>
 struct Range<T, IsStartInclusive, IsEndInclusive,
-             std::enable_if_t<std::is_arithmetic_v<T>>> {
+             std::enable_if_t<std::is_arithmetic_v<T> ||
+                              std::is_same_v<T, absl::uint128> ||
+                              std::is_same_v<T, absl::int128>>> {
   constexpr static bool kIsStartInclusive = IsStartInclusive;
   constexpr static bool kIsEndInclusive = IsEndInclusive;
 
