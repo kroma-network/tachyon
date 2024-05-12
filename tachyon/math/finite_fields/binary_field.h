@@ -15,6 +15,7 @@
 #include <type_traits>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/numerics/safe_conversions.h"
 #include "tachyon/base/random.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
@@ -35,8 +36,11 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   using Config = _Config;
   using Type = std::conditional_t<
       kBits <= 8, uint8_t,
-      std::conditional_t<kBits == 16, uint16_t,
-                         std::conditional_t<kBits == 32, uint32_t, uint64_t>>>;
+      std::conditional_t<
+          kBits == 16, uint16_t,
+          std::conditional_t<
+              kBits == 32, uint32_t,
+              std::conditional_t<kBits == 64, uint64_t, BigInt<2>>>>>;
   using SubField = BinaryField<typename BinaryFieldTraits<Config>::SubConfig>;
   using BigIntTy = BigInt<N>;
   using value_type = Type;
@@ -45,12 +49,21 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   using GpuField = BinaryField<Config>;
 
   constexpr BinaryField() = default;
-  constexpr explicit BinaryField(Type value) : value_(value) {
-    DCHECK_GE(value_, Type{0});
-    DCHECK_LE(value_, GetMax());
+  template <typename T, std::enable_if_t<std::is_integral_v<T>>* = nullptr>
+  constexpr explicit BinaryField(T value) {
+    if constexpr (kBits <= 64) {
+      DCHECK(base::IsValueInRangeForNumericType<Type>(value));
+      DCHECK_LE(static_cast<Type>(value), GetMax());
+      value_ = static_cast<Type>(value);
+    } else {
+      value_[0] = value;
+    }
   }
-  constexpr explicit BinaryField(BigInt<N> value) : BinaryField(value[0]) {
-    DCHECK_LE(value[0], GetMax());
+  constexpr explicit BinaryField(BigInt<1> value) : BinaryField(value[0]) {
+    static_assert(kBits <= 64);
+  }
+  constexpr explicit BinaryField(BigInt<2> value) : value_(value) {
+    static_assert(kBits == 128);
   }
   constexpr BinaryField(const BinaryField& other) = default;
   constexpr BinaryField& operator=(const BinaryField& other) = default;
@@ -61,35 +74,56 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   constexpr static BinaryField One() { return BinaryField(1); }
 
   static BinaryField Random() {
-    return BinaryField(
-        base::Uniform(base::Range<Type, true, true>::Until(GetMax())));
+    if constexpr (kBits <= 64) {
+      return BinaryField(
+          base::Uniform(base::Range<Type, true, true>::Until(GetMax())));
+    } else {
+      static_assert(kBits == 128);
+      return BinaryField(BigInt<2>::Random());
+    }
   }
 
   static std::optional<BinaryField> FromDecString(std::string_view str) {
-    using MaybePromotedType = std::conditional_t<(kBits <= 32), uint32_t, Type>;
-    MaybePromotedType value;
-    if (!absl::SimpleAtoi(str, &value)) return std::nullopt;
-    if constexpr (kBits <= 16) {
-      if (value > GetMax()) {
-        LOG(ERROR) << "value(" << str
-                   << ") is greater than or equal to modulus";
-        return std::nullopt;
+    if constexpr (kBits <= 64) {
+      using MaybePromotedType =
+          std::conditional_t<(kBits <= 32), uint32_t, Type>;
+      MaybePromotedType value;
+      if (!absl::SimpleAtoi(str, &value)) return std::nullopt;
+      if constexpr (kBits <= 16) {
+        if (value > GetMax()) {
+          LOG(ERROR) << "value(" << str
+                     << ") is greater than or equal to modulus";
+          return std::nullopt;
+        }
       }
+      return BinaryField(value);
+    } else {
+      static_assert(kBits == 128);
+      std::optional<BigInt<2>> value = BigInt<2>::FromDecString(str);
+      if (!value) return std::nullopt;
+      return BinaryField(*value);
     }
-    return BinaryField(value);
   }
   static std::optional<BinaryField> FromHexString(std::string_view str) {
-    using MaybePromotedType = std::conditional_t<(kBits <= 32), uint32_t, Type>;
-    MaybePromotedType value;
-    if (!absl::SimpleHexAtoi(str, &value)) return std::nullopt;
-    if constexpr (kBits <= 16) {
-      if (value > GetMax()) {
-        LOG(ERROR) << "value(" << str
-                   << ") is greater than or equal to modulus";
-        return std::nullopt;
+    if constexpr (kBits <= 64) {
+      using MaybePromotedType =
+          std::conditional_t<(kBits <= 32), uint32_t, Type>;
+      MaybePromotedType value;
+      if (!absl::SimpleHexAtoi(str, &value)) return std::nullopt;
+      if constexpr (kBits <= 16) {
+        if (value > GetMax()) {
+          LOG(ERROR) << "value(" << str
+                     << ") is greater than or equal to modulus";
+          return std::nullopt;
+        }
       }
+      return BinaryField(value);
+    } else {
+      static_assert(kBits == 128);
+      std::optional<BigInt<2>> value = BigInt<2>::FromHexString(str);
+      if (!value) return std::nullopt;
+      return BinaryField(*value);
     }
-    return BinaryField(value);
   }
 
   constexpr static BinaryField FromBigInt(BigInt<N> big_int) {
@@ -99,42 +133,86 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   template <typename T = Type,
             std::enable_if_t<!std::is_same_v<T, uint8_t>>* = nullptr>
   constexpr static BinaryField Compose(SubField lo, SubField hi) {
-    using sub_value_type = typename SubField::value_type;
-    return BinaryField(
-        (value_type{hi.value()} << (sizeof(sub_value_type) * 8)) +
-        value_type{lo.value()});
+    if constexpr (kBits <= 64) {
+      using sub_value_type = typename SubField::value_type;
+      return BinaryField(
+          (value_type{hi.value()} << (sizeof(sub_value_type) * 8)) +
+          value_type{lo.value()});
+    } else {
+      static_assert(kBits == 128);
+      return BinaryField(BigInt<2>{lo.value(), hi.value()});
+    }
   }
 
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
   constexpr value_type value() const { return value_; }
 
-  constexpr bool IsZero() const { return value_ == 0; }
+  constexpr bool IsZero() const {
+    if constexpr (kBits <= 64) {
+      return value_ == 0;
+    } else {
+      static_assert(kBits == 128);
+      return value_.IsZero();
+    }
+  }
 
-  constexpr bool IsOne() const { return value_ == 1; }
+  constexpr bool IsOne() const {
+    if constexpr (kBits <= 64) {
+      return value_ == 1;
+    } else {
+      static_assert(kBits == 128);
+      return value_.IsOne();
+    }
+  }
 
   template <typename T = Type,
             std::enable_if_t<!std::is_same_v<T, uint8_t>>* = nullptr>
   constexpr std::tuple<SubField, SubField> Decompose() const {
     std::tuple<SubField, SubField> ret;
-    using sub_value_type = typename SubField::value_type;
-    std::get<0>(ret) = SubField(static_cast<sub_value_type>(value_));
-    std::get<1>(ret) = SubField(
-        static_cast<sub_value_type>(value_ >> (sizeof(sub_value_type) * 8)));
+    if constexpr (kBits <= 64) {
+      using sub_value_type = typename SubField::value_type;
+      std::get<0>(ret) = SubField(static_cast<sub_value_type>(value_));
+      std::get<1>(ret) = SubField(
+          static_cast<sub_value_type>(value_ >> (sizeof(sub_value_type) * 8)));
+    } else {
+      static_assert(kBits == 128);
+      std::get<0>(ret) = SubField(value_[0]);
+      std::get<1>(ret) = SubField(value_[1]);
+    }
     return ret;
   }
 
-  std::string ToString() const { return base::NumberToString(value_); }
-
-  std::string ToHexString(bool pad_zero = false) const {
-    std::string str = base::HexToString(value_);
-    if (pad_zero) {
-      str = base::ToHexStringWithLeadingZero(str, 8);
+  std::string ToString() const {
+    if constexpr (kBits <= 64) {
+      return base::NumberToString(value_);
+    } else {
+      static_assert(kBits == 128);
+      return ToBigInt().ToString();
     }
-    return base::MaybePrepend0x(str);
   }
 
-  constexpr BigInt<N> ToBigInt() const { return BigInt<N>(value_); }
+  std::string ToHexString(bool pad_zero = false) const {
+    if constexpr (kBits <= 64) {
+      std::string str = base::HexToString(value_);
+      if (pad_zero) {
+        str = base::ToHexStringWithLeadingZero(str, 8);
+      }
+      return base::MaybePrepend0x(str);
+    } else {
+      static_assert(kBits == 128);
+      return ToBigInt().ToHexString(pad_zero);
+    }
+  }
+
+  constexpr BigInt<N> ToBigInt() const {
+    if constexpr (kBits <= 64) {
+      return BigInt<1>(value_);
+    } else {
+      static_assert(kBits == 128);
+      return value_;
+    }
+  }
 
   bool operator==(BinaryField other) const { return value_ == other.value_; }
   bool operator!=(BinaryField other) const { return value_ != other.value_; }
@@ -156,7 +234,7 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   constexpr BinaryField DoubleImpl() const { return BinaryField::Zero(); }
 
   constexpr BinaryField& DoubleImplInPlace() {
-    value_ = 0;
+    value_ = Type{0};
     return *this;
   }
 
@@ -210,8 +288,11 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
   constexpr static Type GetMax() {
     if constexpr (kBits <= 8) {
       return (Type{1} << kBits) - 1;
-    } else {
+    } else if constexpr (kBits <= 64) {
       return static_cast<Type>(std::numeric_limits<Type>::max());
+    } else {
+      static_assert(kBits == 128);
+      return BigInt<2>::Max();
     }
   }
 

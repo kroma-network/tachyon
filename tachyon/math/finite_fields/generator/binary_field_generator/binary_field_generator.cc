@@ -49,7 +49,13 @@ int GenerationConfig::GenerateConfigHdr() const {
 
   mpz_class m = math::gmp::FromDecString(modulus);
   size_t num_bits = GetNumBits(m);
-  if (num_bits == 64 + 1) {
+  if (num_bits == 128 + 1) {
+    replacements["%{modulus}"] =
+        absl::Substitute("BigInt<3>{$0}", math::MpzClassToString(m));
+    replacements["%{modulus_type}"] = "BigInt<3>";
+    replacements["%{value_type}"] = "BigInt<2>";
+    replacements["%{value}"] = "BigInt<2>{1}";
+  } else if (num_bits == 64 + 1) {
     replacements["%{modulus}"] =
         absl::Substitute("BigInt<2>{$0}", math::MpzClassToString(m));
     replacements["%{modulus_type}"] = "BigInt<2>";
@@ -91,7 +97,7 @@ int GenerationConfig::GenerateConfigHdr() const {
   CHECK(base::ReadFileToString(binary_config_hdr_tpl_path, &tpl_content));
 
   std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
-  RemoveOptionalLines(tpl_lines, "NeedsBigInt", num_bits == 64 + 1);
+  RemoveOptionalLines(tpl_lines, "NeedsBigInt", num_bits >= 64 + 1);
 
   tpl_content = absl::StrJoin(tpl_lines, "\n");
   std::string content =

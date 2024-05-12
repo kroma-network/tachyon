@@ -13,6 +13,7 @@
 #include "tachyon/math/finite_fields/binary_fields/binary_field16_config.h"
 #include "tachyon/math/finite_fields/binary_fields/binary_field32_config.h"
 #include "tachyon/math/finite_fields/binary_fields/binary_field64_config.h"
+#include "tachyon/math/finite_fields/binary_fields/binary_field128_config.h"
 // clang-format on
 #include "tachyon/math/finite_fields/binary_field_traits_forward.h"
 
@@ -53,6 +54,11 @@ struct BinaryFieldTraits<BinaryField64Config> {
   using SubConfig = BinaryField32Config;
 };
 
+template <>
+struct BinaryFieldTraits<BinaryField128Config> {
+  using SubConfig = BinaryField64Config;
+};
+
 }  // namespace tachyon::math
 
 // clang-format off
@@ -63,6 +69,7 @@ struct BinaryFieldTraits<BinaryField64Config> {
 #include "tachyon/math/finite_fields/binary_fields/binary_field16.h"
 #include "tachyon/math/finite_fields/binary_fields/binary_field32.h"
 #include "tachyon/math/finite_fields/binary_fields/binary_field64.h"
+#include "tachyon/math/finite_fields/binary_fields/binary_field128.h"
 // clang-format on
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_BINARY_FIELDS_BINARY_FIELDS_H_

@@ -25,12 +25,13 @@ Symbol Definitions:
 
 ### Finite Fields
 
-|             | CPU                | GPU                |
-| ----------- | ------------------ | ------------------ |
-| BabyBear    | :heavy_check_mark: | :heavy_check_mark: |
-| Goldilocks  | :heavy_check_mark: | :x:                |
-| Mersenne-31 | :heavy_check_mark: | :heavy_check_mark: |
-| KoalaBear   | :heavy_check_mark: | :heavy_check_mark: |
+|              | CPU                | GPU                |
+| ------------ | ------------------ | ------------------ |
+| BabyBear     | :heavy_check_mark: | :heavy_check_mark: |
+| BinaryFields | :heavy_check_mark: | :heavy_check_mark: |
+| Goldilocks   | :heavy_check_mark: | :x:                |
+| Mersenne-31  | :heavy_check_mark: | :heavy_check_mark: |
+| KoalaBear    | :heavy_check_mark: | :heavy_check_mark: |
 
 ### Elliptic Curves
 

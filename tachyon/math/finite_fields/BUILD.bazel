@@ -20,6 +20,7 @@ tachyon_cc_library(
         ":finite_field",
         "//tachyon/base:logging",
         "//tachyon/base:random",
+        "//tachyon/base/numerics:safe_conversions",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",

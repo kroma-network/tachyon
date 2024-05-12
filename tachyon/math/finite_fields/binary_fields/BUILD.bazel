@@ -14,6 +14,7 @@ BITS = [
     16,
     32,
     64,
+    128,
 ]
 
 [
@@ -38,5 +39,6 @@ tachyon_cc_library(
         ":binary_field16",
         ":binary_field32",
         ":binary_field64",
+        ":binary_field128",
     ],
 )
