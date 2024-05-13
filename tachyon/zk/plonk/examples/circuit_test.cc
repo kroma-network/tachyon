@@ -11,6 +11,8 @@
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci1_circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci2_circuit.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci2_circuit_test_data.h"
+#include "tachyon/zk/plonk/examples/fibonacci/fibonacci3_circuit.h"
+#include "tachyon/zk/plonk/examples/fibonacci/fibonacci3_circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/shuffle_circuit.h"
 #include "tachyon/zk/plonk/examples/shuffle_circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/simple_circuit.h"
@@ -549,6 +551,18 @@ template class CircuitTest<
     TestArguments<Fibonacci2Circuit<BN254SHPlonk::Field, V1FloorPlanner>,
                   BN254SHPlonk, BN254Halo2LS>,
     Fibonacci2TestData<Fibonacci2Circuit<BN254SHPlonk::Field, V1FloorPlanner>,
+                       BN254SHPlonk, BN254Halo2LS>>;
+
+template class CircuitTest<
+    TestArguments<Fibonacci3Circuit<BN254SHPlonk::Field, SimpleFloorPlanner>,
+                  BN254SHPlonk, BN254Halo2LS>,
+    Fibonacci3TestData<
+        Fibonacci3Circuit<BN254SHPlonk::Field, SimpleFloorPlanner>,
+        BN254SHPlonk, BN254Halo2LS>>;
+template class CircuitTest<
+    TestArguments<Fibonacci3Circuit<BN254SHPlonk::Field, V1FloorPlanner>,
+                  BN254SHPlonk, BN254Halo2LS>,
+    Fibonacci3TestData<Fibonacci3Circuit<BN254SHPlonk::Field, V1FloorPlanner>,
                        BN254SHPlonk, BN254Halo2LS>>;
 
 }  // namespace tachyon::zk::plonk
