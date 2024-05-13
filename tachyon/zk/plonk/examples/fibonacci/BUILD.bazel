@@ -27,6 +27,19 @@ tachyon_cc_library(
     deps = COMMON_TEST_DATA_DEPS,
 )
 
+tachyon_cc_library(
+    name = "fibonacci2_circuit",
+    hdrs = ["fibonacci2_circuit.h"],
+    deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
+)
+
+tachyon_cc_library(
+    name = "fibonacci2_circuit_test_data",
+    testonly = True,
+    hdrs = ["fibonacci2_circuit_test_data.h"],
+    deps = COMMON_TEST_DATA_DEPS,
+)
+
 tachyon_cc_unittest(
     name = "fibonacci1_circuit_test",
     testonly = True,
@@ -34,5 +47,15 @@ tachyon_cc_unittest(
     deps = COMMON_TEST_DEPS + [
         "fibonacci1_circuit_test_data",
         ":fibonacci1_circuit",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "fibonacci2_circuit_test",
+    testonly = True,
+    srcs = ["fibonacci2_circuit_test.cc"],
+    deps = COMMON_TEST_DEPS + [
+        "fibonacci2_circuit_test_data",
+        ":fibonacci2_circuit",
     ],
 )

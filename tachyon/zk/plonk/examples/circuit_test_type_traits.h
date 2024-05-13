@@ -8,6 +8,7 @@
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/lookup/halo2/scheme.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci1_circuit.h"
+#include "tachyon/zk/plonk/examples/fibonacci/fibonacci2_circuit.h"
 #include "tachyon/zk/plonk/layout/floor_planner/simple_floor_planner.h"
 #include "tachyon/zk/plonk/layout/floor_planner/v1/v1_floor_planner.h"
 
@@ -81,6 +82,11 @@ struct IsFibonacciImpl {
 
 template <typename F, template <typename> class FloorPlanner>
 struct IsFibonacciImpl<Fibonacci1Circuit<F, FloorPlanner>> {
+  static constexpr bool value = true;
+};
+
+template <typename F, template <typename> class FloorPlanner>
+struct IsFibonacciImpl<Fibonacci2Circuit<F, FloorPlanner>> {
   static constexpr bool value = true;
 };
 
