@@ -6,6 +6,9 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/array_to_vector.h"
+#include "tachyon/zk/plonk/examples/circuit_test_type_traits.h"
+#include "tachyon/zk/plonk/examples/fibonacci/fibonacci1_circuit.h"
+#include "tachyon/zk/plonk/examples/fibonacci/fibonacci1_circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/shuffle_circuit.h"
 #include "tachyon/zk/plonk/examples/shuffle_circuit_test_data.h"
 #include "tachyon/zk/plonk/examples/simple_circuit.h"
@@ -468,8 +471,11 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
     EXPECT_TRUE(proof.lookup_permuted_table_evals_vec[0].empty());
   }
 
-  F expected_h_eval = *F::FromHexString(TestData::kHEval);
-  EXPECT_EQ(h_eval, expected_h_eval);
+  // TODO(ashjeong): get |h_eval| for fibonacci tests
+  if constexpr (!IsFibonacci<Circuit>) {
+    F expected_h_eval = *F::FromHexString(TestData::kHEval);
+    EXPECT_EQ(h_eval, expected_h_eval);
+  }
 }
 
 namespace {
@@ -518,5 +524,17 @@ template class CircuitTest<
                   BN254SHPlonk, BN254Halo2LS>,
     ShuffleTestData<ShuffleCircuit<BN254SHPlonk::Field, kW, kH, V1FloorPlanner>,
                     BN254SHPlonk, BN254Halo2LS>>;
+
+template class CircuitTest<
+    TestArguments<Fibonacci1Circuit<BN254SHPlonk::Field, SimpleFloorPlanner>,
+                  BN254SHPlonk, BN254Halo2LS>,
+    Fibonacci1TestData<
+        Fibonacci1Circuit<BN254SHPlonk::Field, SimpleFloorPlanner>,
+        BN254SHPlonk, BN254Halo2LS>>;
+template class CircuitTest<
+    TestArguments<Fibonacci1Circuit<BN254SHPlonk::Field, V1FloorPlanner>,
+                  BN254SHPlonk, BN254Halo2LS>,
+    Fibonacci1TestData<Fibonacci1Circuit<BN254SHPlonk::Field, V1FloorPlanner>,
+                       BN254SHPlonk, BN254Halo2LS>>;
 
 }  // namespace tachyon::zk::plonk
