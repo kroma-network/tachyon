@@ -187,11 +187,11 @@ There are two ways to install the Tachyon package. While it is recommended to in
 ### Install package from pre-built binaries
 
 ```shell
-curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.1.0/libtachyon_0.1.0_amd64.deb
-curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.1.0/libtachyon-dev_0.1.0_amd64.deb
+curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.2.0/libtachyon_0.2.0_amd64.deb
+curl -LO https://github.com/kroma-network/tachyon/releases/download/v0.2.0/libtachyon-dev_0.2.0_amd64.deb
 
-sudo dpkg -i libtachyon_0.1.0_amd64.deb
-sudo dpkg -i libtachyon-dev_0.1.0_amd64.deb
+sudo dpkg -i libtachyon_0.2.0_amd64.deb
+sudo dpkg -i libtachyon-dev_0.2.0_amd64.deb
 ```
 
 ### Build package from source
@@ -203,8 +203,8 @@ To build the Halo2 Debian package, `halo2` and `has_openmp` options are recommen
 bazel build -c opt --config ${os} --config halo2 --//:has_openmp  --//:c_shared_object //scripts/packages/debian/runtime:debian
 bazel build -c opt --config ${os} --config halo2 --//:has_openmp  --//:c_shared_object //scripts/packages/debian/dev:debian
 
-sudo dpkg -i bazel-bin/scripts/packages/debian/runtime/libtachyon_0.1.0_amd64.deb
-sudo dpkg -i bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.1.0_amd64.deb
+sudo dpkg -i bazel-bin/scripts/packages/debian/runtime/libtachyon_0.2.0_amd64.deb
+sudo dpkg -i bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.2.0_amd64.deb
 ```
 
 ## Other Info
