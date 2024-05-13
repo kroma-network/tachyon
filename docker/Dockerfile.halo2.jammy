@@ -1,4 +1,4 @@
-FROM zktachyon/base:jammy-latest AS builder
+FROM zktachyon/base:latest AS builder
 LABEL maintainer="The Tachyon Authors <tachyon-discuss@kroma.network>"
 
 COPY . /usr/src/tachyon
