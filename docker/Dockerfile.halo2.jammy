@@ -10,15 +10,15 @@ RUN bazel build -c opt --config linux --config halo2 --//:has_openmp --//:c_shar
 FROM ubuntu:jammy AS tachyon-halo2
 LABEL maintainer="The Tachyon Authors <tachyon-discuss@kroma.network>"
 
-COPY --from=builder /usr/src/tachyon/bazel-bin/scripts/packages/debian/runtime/libtachyon_0.1.0_amd64.deb /usr/src/tachyon/bazel-bin/scripts/packages/debian/runtime/libtachyon_0.1.0_amd64.deb
-COPY --from=builder /usr/src/tachyon/bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.1.0_amd64.deb /usr/src/tachyon/bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.1.0_amd64.deb
+COPY --from=builder /usr/src/tachyon/bazel-bin/scripts/packages/debian/runtime/libtachyon_0.2.0_amd64.deb /usr/src/tachyon/bazel-bin/scripts/packages/debian/runtime/libtachyon_0.2.0_amd64.deb
+COPY --from=builder /usr/src/tachyon/bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.2.0_amd64.deb /usr/src/tachyon/bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.2.0_amd64.deb
 
 RUN apt update && \
     apt install -y --no-install-recommends \
     libgmp-dev \
     libomp-dev && \
     rm -rf /var/lib/apt/lists/*
-RUN dpkg -i /usr/src/tachyon/bazel-bin/scripts/packages/debian/runtime/libtachyon_0.1.0_amd64.deb && \
-    dpkg -i /usr/src/tachyon/bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.1.0_amd64.deb && \
-    rm /usr/src/tachyon/bazel-bin/scripts/packages/debian/runtime/libtachyon_0.1.0_amd64.deb && \
-    rm /usr/src/tachyon/bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.1.0_amd64.deb
+RUN dpkg -i /usr/src/tachyon/bazel-bin/scripts/packages/debian/runtime/libtachyon_0.2.0_amd64.deb && \
+    dpkg -i /usr/src/tachyon/bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.2.0_amd64.deb && \
+    rm /usr/src/tachyon/bazel-bin/scripts/packages/debian/runtime/libtachyon_0.2.0_amd64.deb && \
+    rm /usr/src/tachyon/bazel-bin/scripts/packages/debian/dev/libtachyon-dev_0.2.0_amd64.deb
