@@ -1,0 +1,29 @@
+load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_library(
+    name = "wtns",
+    srcs = ["wtns.cc"],
+    hdrs = ["wtns.h"],
+    deps = [
+        "//circomlib/base:modulus",
+        "//circomlib/base:sections",
+        "@kroma_network_tachyon//tachyon/base:logging",
+        "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
+        "@kroma_network_tachyon//tachyon/base/buffer:read_only_buffer",
+        "@kroma_network_tachyon//tachyon/base/files:file_util",
+        "@kroma_network_tachyon//tachyon/base/strings:string_util",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "wtns_unittests",
+    srcs = ["wtns_unittest.cc"],
+    data = ["multiplier_3.wtns"],
+    deps = [
+        ":wtns",
+        "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "@kroma_network_tachyon//tachyon/math/finite_fields/test:finite_field_test",
+    ],
+)
