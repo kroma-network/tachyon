@@ -9,5 +9,6 @@ licenses(["notice"])  # MIT, BSD and JSON
 cc_library(
     name = "rapidjson",
     hdrs = glob(["include/rapidjson/**/*.h"]),
+    defines = ["RAPIDJSON_HAS_STDSTRING"],
     includes = ["include"],
 )
