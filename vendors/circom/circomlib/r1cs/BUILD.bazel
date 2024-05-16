@@ -18,30 +18,18 @@ tachyon_cc_library(
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
-        "@kroma_network_tachyon//tachyon/base/strings:string_util",
-    ],
-)
-
-tachyon_cc_library(
-    name = "r1cs_parser",
-    hdrs = [
-        "r1cs_parser.cc",
-        "r1cs_parser.h",
-    ],
-    deps = [
-        ":r1cs",
-        "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:read_only_buffer",
         "@kroma_network_tachyon//tachyon/base/files:file_util",
+        "@kroma_network_tachyon//tachyon/base/strings:string_util",
     ],
 )
 
 tachyon_cc_unittest(
     name = "r1cs_unittests",
-    srcs = ["r1cs_parser_unittest.cc"],
+    srcs = ["r1cs_unittest.cc"],
     data = ["//examples:compile_multiplier_3"],
     deps = [
-        ":r1cs_parser",
+        ":r1cs",
         "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:fr",
         "@kroma_network_tachyon//tachyon/math/finite_fields/test:finite_field_test",
     ],

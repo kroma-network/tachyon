@@ -1,4 +1,4 @@
-#include "circomlib/r1cs/r1cs_parser.h"
+#include "circomlib/r1cs/r1cs.h"
 
 #include <vector>
 
@@ -13,14 +13,13 @@ using F = math::bn254::Fr;
 
 namespace {
 
-class R1CSParserTest : public math::FiniteFieldTest<F> {};
+class R1CSTest : public math::FiniteFieldTest<F> {};
 
 }  // namespace
 
-TEST_F(R1CSParserTest, Parse) {
-  R1CSParser<F> parser;
+TEST(R1CSTest, Parse) {
   std::unique_ptr<R1CS<F>> r1cs =
-      parser.Parse(base::FilePath("examples/multiplier_3.r1cs"));
+      ParseR1CS<F>(base::FilePath("examples/multiplier_3.r1cs"));
   ASSERT_TRUE(r1cs);
   ASSERT_EQ(r1cs->GetVersion(), 1);
 

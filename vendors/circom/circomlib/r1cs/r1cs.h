@@ -3,7 +3,10 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
+#include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -12,6 +15,8 @@
 #include "circomlib/base/sections.h"
 #include "circomlib/r1cs/constraint.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
+#include "tachyon/base/buffer/read_only_buffer.h"
+#include "tachyon/base/files/file_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 
@@ -40,6 +45,35 @@ struct R1CS {
 };
 
 constexpr char kR1CSMagic[4] = {'r', '1', 'c', 's'};
+
+// Return nullptr if the parser failed to parse.
+template <typename F>
+std::unique_ptr<R1CS<F>> ParseR1CS(const base::FilePath& path) {
+  std::optional<std::vector<uint8_t>> r1cs_data = base::ReadFileToBytes(path);
+  if (!r1cs_data.has_value()) {
+    LOG(ERROR) << "Failed to read file: " << path.value();
+    return nullptr;
+  }
+
+  base::ReadOnlyBuffer buffer(r1cs_data->data(), r1cs_data->size());
+  buffer.set_endian(base::Endian::kLittle);
+  char magic[4];
+  uint32_t version;
+  if (!buffer.ReadMany(magic, &version)) return nullptr;
+  if (memcmp(magic, kR1CSMagic, 4) != 0) {
+    LOG(ERROR) << "Invalid magic: " << magic;
+    return nullptr;
+  }
+  std::unique_ptr<R1CS<F>> r1cs;
+  if (version == 1) {
+    r1cs.reset(new v1::R1CS<F>());
+    CHECK(r1cs->ToV1()->Read(buffer));
+  } else {
+    LOG(ERROR) << "Invalid version: " << version;
+    return nullptr;
+  }
+  return r1cs;
+}
 
 namespace v1 {
 

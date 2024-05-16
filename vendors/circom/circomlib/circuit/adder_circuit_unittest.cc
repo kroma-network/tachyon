@@ -1,6 +1,6 @@
 #include "circomlib/circuit/circuit_test.h"
 #include "circomlib/circuit/quadratic_arithmetic_program.h"
-#include "circomlib/r1cs/r1cs_parser.h"
+#include "circomlib/r1cs/r1cs.h"
 #include "circomlib/zkey/zkey_parser.h"
 #include "tachyon/zk/r1cs/constraint_system/quadratic_arithmetic_program.h"
 
@@ -9,8 +9,7 @@ namespace tachyon::circom {
 class AdderCircuitTest : public CircuitTest {
  public:
   void SetUp() override {
-    R1CSParser<F> parser;
-    r1cs_ = parser.Parse(base::FilePath("examples/adder.r1cs"));
+    r1cs_ = ParseR1CS<F>(base::FilePath("examples/adder.r1cs"));
     ASSERT_TRUE(r1cs_);
   }
 
