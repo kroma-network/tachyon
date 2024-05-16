@@ -26,7 +26,12 @@
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verifier.h"
 
-namespace tachyon::zk::plonk::halo2 {
+namespace tachyon::zk::plonk {
+
+template <typename TestArguments, typename TestData>
+class CircuitTest;
+
+namespace halo2 {
 
 template <typename PCS, typename LS>
 class Verifier : public VerifierBase<PCS> {
@@ -48,6 +53,9 @@ class Verifier : public VerifierBase<PCS> {
   }
 
  private:
+  template <typename TestArguments, typename TestData>
+  friend class plonk::CircuitTest;
+
   bool VerifyProofForTesting(
       const VerifyingKey<F, Commitment>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec,
@@ -401,6 +409,7 @@ class Verifier : public VerifierBase<PCS> {
   }
 };
 
-}  // namespace tachyon::zk::plonk::halo2
+}  // namespace halo2
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_HALO2_VERIFIER_H_

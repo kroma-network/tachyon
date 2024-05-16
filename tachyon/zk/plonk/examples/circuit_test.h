@@ -7,21 +7,44 @@
 
 #include "absl/types/span.h"
 
+#include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/zk/lookup/lookup_pair.h"
 #include "tachyon/zk/plonk/examples/point.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
-namespace tachyon::zk::plonk::halo2 {
+namespace tachyon::zk::plonk {
 
-template <typename PCS, typename LS>
-class CircuitTest : public ProverTest<PCS, LS> {
- protected:
+template <typename _Circuit, typename _PCS, typename _LS>
+struct TestArguments {
+  using Circuit = _Circuit;
+  using PCS = _PCS;
+  using LS = _LS;
+};
+
+template <typename TestArguments, typename TestData>
+class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
+                                             typename TestArguments::LS> {
+ public:
+  using Circuit = typename TestArguments::Circuit;
+  using PCS = typename TestArguments::PCS;
+  using LS = typename TestArguments::LS;
   using F = typename PCS::Field;
-  using Commitment = typename PCS::Commitment;
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
+  using Domain = typename PCS::Domain;
+  using Commitment = typename PCS::Commitment;
   using RationalEvals = typename PCS::RationalEvals;
 
+  static void SetUpTestSuite() { math::bn254::BN254Curve::Init(); }
+
+  void ConfigureTest();
+  void SynthesizeTest();
+  void LoadVerifyingKeyTest();
+  void LoadProvingKeyTest();
+  void CreateProofTest();
+  void VerifyProofTest();
+
+ private:
   static Commitment CreateCommitment(const Point& point) {
     using BaseField = typename Commitment::BaseField;
     return Commitment(*BaseField::FromHexString(point.x),
@@ -73,7 +96,7 @@ class CircuitTest : public ProverTest<PCS, LS> {
   static Poly CreatePoly(const std::vector<std::string_view>& poly) {
     std::vector<F> coefficients = base::Map(
         poly, [](std::string_view coeff) { return *F::FromHexString(coeff); });
-    return Poly(math::UnivariateDenseCoefficients<F, kMaxDegree>(
+    return Poly(math::UnivariateDenseCoefficients<F, halo2::kMaxDegree>(
         std::move(coefficients)));
   }
 
@@ -101,6 +124,6 @@ class CircuitTest : public ProverTest<PCS, LS> {
   }
 };
 
-}  // namespace tachyon::zk::plonk::halo2
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_EXAMPLES_CIRCUIT_TEST_H_

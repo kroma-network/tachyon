@@ -28,11 +28,17 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "circuit_test",
     testonly = True,
+    srcs = ["circuit_test.cc"],
     hdrs = ["circuit_test.h"],
     deps = [
-        "//tachyon/zk/lookup:lookup_pair",
         ":point",
+        "//tachyon/base:array_to_vector",
+        "//tachyon/math/elliptic_curves/bn/bn254",
+        "//tachyon/zk/lookup:lookup_pair",
+        "//tachyon/zk/plonk/halo2:pinned_constraint_system",
+        "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/halo2:prover_test",
+        "//tachyon/zk/plonk/keys:proving_key",
     ],
 )
 
