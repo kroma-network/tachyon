@@ -7,9 +7,9 @@ tachyon_cc_library(
     hdrs = ["poseidon.h"],
     deps = [
         ":poseidon_config",
+        ":poseidon_sponge_base",
+        ":poseidon_state",
         "//tachyon/base/buffer:copyable",
-        "//tachyon/crypto/hashes:prime_field_serializable",
-        "//tachyon/crypto/hashes/sponge",
     ],
 )
 
@@ -17,7 +17,8 @@ tachyon_cc_library(
     name = "poseidon_config",
     hdrs = ["poseidon_config.h"],
     deps = [
-        ":grain_lfsr",
+        ":poseidon_config_base",
+        ":poseidon_config_entry",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/ranges:algorithm",
         "@com_google_absl//absl/types:span",
@@ -25,8 +26,29 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "grain_lfsr",
-    hdrs = ["grain_lfsr.h"],
+    name = "poseidon_config_base",
+    hdrs = ["poseidon_config_base.h"],
+    deps = [
+        "//tachyon/base/buffer:copyable",
+        "//tachyon/math/matrix:matrix_types",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon_config_entry",
+    hdrs = ["poseidon_config_entry.h"],
+    deps = [":poseidon_config_entry_base"],
+)
+
+tachyon_cc_library(
+    name = "poseidon_config_entry_base",
+    hdrs = ["poseidon_config_entry_base.h"],
+    deps = [":poseidon_grain_lfsr"],
+)
+
+tachyon_cc_library(
+    name = "poseidon_grain_lfsr",
+    hdrs = ["poseidon_grain_lfsr.h"],
     deps = [
         "//tachyon/math/base:big_int",
         "//tachyon/math/matrix:matrix_types",
@@ -34,11 +56,31 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "poseidon_sponge_base",
+    hdrs = ["poseidon_sponge_base.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/crypto/hashes:prime_field_serializable",
+        "//tachyon/crypto/hashes/sponge",
+        "@eigen_archive//:eigen3",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon_state",
+    hdrs = ["poseidon_state.h"],
+    deps = [
+        "//tachyon/crypto/hashes/sponge:duplex_sponge_mode",
+        "//tachyon/math/matrix:matrix_types",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "poseidon_unittests",
     srcs = [
-        "grain_lfsr_unittest.cc",
         "poseidon_config_unittest.cc",
+        "poseidon_grain_lfsr_unittest.cc",
         "poseidon_unittest.cc",
     ],
     deps = [

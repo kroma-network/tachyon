@@ -64,6 +64,11 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   constexpr static size_t kBitNums = kByteNums * 8;
 
   constexpr BigInt() = default;
+  constexpr explicit BigInt(int64_t value)
+      : BigInt(static_cast<uint64_t>(value)) {
+    DCHECK_GE(value, int64_t{0});
+  }
+  constexpr explicit BigInt(uint64_t value) { limbs[kSmallestLimbIdx] = value; }
   constexpr explicit BigInt(int value) : BigInt(static_cast<uint64_t>(value)) {
     DCHECK_GE(value, 0);
   }

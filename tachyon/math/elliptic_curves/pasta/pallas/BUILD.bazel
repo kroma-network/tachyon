@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 load("//tachyon/math/elliptic_curves/short_weierstrass/generator:build_defs.bzl", "generate_ec_points")
 load(
     "//tachyon/math/finite_fields/generator/prime_field_generator:build_defs.bzl",
@@ -54,4 +55,13 @@ generate_ec_points(
     scalar_field_hdr = "tachyon/math/elliptic_curves/pasta/pallas/fr.h",
     x = ["-1"],
     y = ["2"],
+)
+
+tachyon_cc_library(
+    name = "poseidon2",
+    hdrs = ["poseidon2.h"],
+    deps = [
+        ":fr",
+        "//tachyon/base/types:always_false",
+    ],
 )

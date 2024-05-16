@@ -53,9 +53,10 @@ Symbol Definitions:
 
 ### Hashes
 
-|          | CPU                | GPU |
-| -------- | ------------------ | --- |
-| Poseidon | :heavy_check_mark: | :x: |
+|           | CPU                | GPU |
+| --------- | ------------------ | --- |
+| Poseidon  | :heavy_check_mark: | :x: |
+| Poseidon2 | :heavy_check_mark: | :x: |
 
 ### Lookups
 

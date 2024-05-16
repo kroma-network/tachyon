@@ -1,0 +1,48 @@
+load(
+    "//bazel:tachyon_cc.bzl",
+    "tachyon_cc_binary",
+    "tachyon_cc_library",
+)
+
+tachyon_cc_library(
+    name = "poseidon2_config",
+    testonly = True,
+    srcs = ["poseidon2_config.cc"],
+    hdrs = ["poseidon2_config.h"],
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/flag:flag_parser",
+    ],
+)
+
+tachyon_cc_library(
+    name = "poseidon2_benchmark_runner",
+    testonly = True,
+    hdrs = ["poseidon2_benchmark_runner.h"],
+    deps = [
+        ":poseidon2_config",
+        "//benchmark/poseidon:simple_poseidon_benchmark_reporter",
+        "//tachyon/base:logging",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/time",
+        "//tachyon/c/base:type_traits_forward",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:fr",
+        "//tachyon/crypto/hashes/sponge/poseidon2",
+        "//tachyon/crypto/hashes/sponge/poseidon2:poseidon2_horizen_external_matrix",
+    ],
+)
+
+tachyon_cc_binary(
+    name = "poseidon2_benchmark",
+    testonly = True,
+    srcs = ["poseidon2_benchmark.cc"],
+    deps = [
+        ":poseidon2_benchmark_runner",
+        ":poseidon2_config",
+        "//benchmark/poseidon:simple_poseidon_benchmark_reporter",
+        "//benchmark/poseidon2/horizen",
+        "//benchmark/poseidon2/plonky3",
+        "//tachyon/c/math/elliptic_curves/bn/bn254:g1",
+        "//tachyon/math/elliptic_curves/bn/bn254:poseidon2",
+    ],
+)

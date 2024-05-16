@@ -55,12 +55,16 @@ int RealMain(int argc, char** argv) {
   runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, &results);
   for (const MSMConfig::Vendor vendor : config.vendors()) {
     std::vector<bn254::G1JacobianPoint> results_vendor;
-    if (vendor == MSMConfig::Vendor::kArkworks) {
-      runner.RunExternal(run_msm_arkworks, point_nums, &results_vendor);
-    } else if (vendor == MSMConfig::Vendor::kBellman) {
-      runner.RunExternal(run_msm_bellman, point_nums, &results_vendor);
-    } else if (vendor == MSMConfig::Vendor::kHalo2) {
-      runner.RunExternal(run_msm_halo2, point_nums, &results_vendor);
+    switch (vendor) {
+      case MSMConfig::Vendor::kArkworks:
+        runner.RunExternal(run_msm_arkworks, point_nums, &results_vendor);
+        break;
+      case MSMConfig::Vendor::kBellman:
+        runner.RunExternal(run_msm_bellman, point_nums, &results_vendor);
+        break;
+      case MSMConfig::Vendor::kHalo2:
+        runner.RunExternal(run_msm_halo2, point_nums, &results_vendor);
+        break;
     }
 
     if (config.check_results()) {
