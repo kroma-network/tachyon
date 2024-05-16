@@ -8,6 +8,7 @@
 #include "absl/types/span.h"
 
 #include "tachyon/zk/lookup/lookup_pair.h"
+#include "tachyon/zk/plonk/examples/point.h"
 #include "tachyon/zk/plonk/halo2/prover_test.h"
 
 namespace tachyon::zk::plonk::halo2 {
@@ -20,11 +21,6 @@ class CircuitTest : public ProverTest<PCS, LS> {
   using Poly = typename PCS::Poly;
   using Evals = typename PCS::Evals;
   using RationalEvals = typename PCS::RationalEvals;
-
-  struct Point {
-    std::string_view x;
-    std::string_view y;
-  };
 
   static Commitment CreateCommitment(const Point& point) {
     using BaseField = typename Commitment::BaseField;

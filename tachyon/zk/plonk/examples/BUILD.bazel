@@ -21,8 +21,14 @@ tachyon_cc_library(
     hdrs = ["circuit_test.h"],
     deps = [
         "//tachyon/zk/lookup:lookup_pair",
+        ":point",
         "//tachyon/zk/plonk/halo2:prover_test",
     ],
+)
+
+tachyon_cc_library(
+    name = "point",
+    hdrs = ["point.h"],
 )
 
 tachyon_cc_library(
