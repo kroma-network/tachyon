@@ -1,6 +1,18 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
+
+COMMON_TEST_DATA_DEPS = [
+    ":circuit_test_data",
+    ":circuit_test_type_traits",
+    ":point",
+]
+
+COMMON_TEST_DEPS = [
+    ":circuit_test",
+    "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
+    "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",
+]
 
 tachyon_cc_library(
     name = "circuit_test_data",
@@ -32,6 +44,8 @@ tachyon_cc_library(
     hdrs = ["circuit_test.h"],
     deps = [
         ":point",
+        ":simple_circuit",
+        ":simple_circuit_test_data",
         "//tachyon/base:array_to_vector",
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/lookup:lookup_pair",
@@ -39,6 +53,8 @@ tachyon_cc_library(
         "//tachyon/zk/plonk/halo2:pinned_verifying_key",
         "//tachyon/zk/plonk/halo2:prover_test",
         "//tachyon/zk/plonk/keys:proving_key",
+        "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
+        "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",
     ],
 )
 
@@ -63,7 +79,23 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "simple_circuit_test_data",
+    testonly = True,
+    hdrs = ["simple_circuit_test_data.h"],
+    deps = COMMON_TEST_DATA_DEPS,
+)
+
+tachyon_cc_library(
     name = "simple_lookup_circuit",
     hdrs = ["simple_lookup_circuit.h"],
     deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
+)
+
+tachyon_cc_unittest(
+    name = "simple_circuit_test",
+    srcs = ["simple_circuit_test.cc"],
+    deps = COMMON_TEST_DEPS + [
+        ":simple_circuit",
+        ":simple_circuit_test_data",
+    ],
 )

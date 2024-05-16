@@ -6,9 +6,13 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/array_to_vector.h"
+#include "tachyon/zk/plonk/examples/simple_circuit.h"
+#include "tachyon/zk/plonk/examples/simple_circuit_test_data.h"
 #include "tachyon/zk/plonk/halo2/pinned_constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_verifying_key.h"
 #include "tachyon/zk/plonk/keys/proving_key.h"
+#include "tachyon/zk/plonk/layout/floor_planner/simple_floor_planner.h"
+#include "tachyon/zk/plonk/layout/floor_planner/v1/v1_floor_planner.h"
 
 namespace tachyon::zk::plonk {
 
@@ -463,5 +467,16 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
   F expected_h_eval = *F::FromHexString(TestData::kHEval);
   EXPECT_EQ(h_eval, expected_h_eval);
 }
+
+template class CircuitTest<
+    TestArguments<SimpleCircuit<BN254SHPlonk::Field, SimpleFloorPlanner>,
+                  BN254SHPlonk, BN254Halo2LS>,
+    SimpleTestData<SimpleCircuit<BN254SHPlonk::Field, SimpleFloorPlanner>,
+                   BN254SHPlonk, BN254Halo2LS>>;
+template class CircuitTest<
+    TestArguments<SimpleCircuit<BN254SHPlonk::Field, V1FloorPlanner>,
+                  BN254SHPlonk, BN254Halo2LS>,
+    SimpleTestData<SimpleCircuit<BN254SHPlonk::Field, V1FloorPlanner>,
+                   BN254SHPlonk, BN254Halo2LS>>;
 
 }  // namespace tachyon::zk::plonk
