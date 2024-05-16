@@ -10,6 +10,12 @@
 | SimpleLookupCircuit | V1FloorPlanner     | SHPlonk | Halo2LS |
 | ShuffleCircuit      | SimpleFloorPlanner | SHPlonk | Halo2LS |
 | ShuffleCircuit      | V1FloorPlanner     | SHPlonk | Halo2LS |
+| Fibonacci1Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS |
+| Fibonacci1Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS |
+| Fibonacci2Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS |
+| Fibonacci2Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS |
+| Fibonacci3Circuit   | SimpleFloorPlanner | SHPlonk | Halo2LS |
+| Fibonacci3Circuit   | V1FloorPlanner     | SHPlonk | Halo2LS |
 
 **In Progress**:
 
@@ -24,6 +30,8 @@ The following circuits result in the same test data when using `SimpleFloorPlann
 
 - SimpleLookupCircuit
 - ShuffleCircuit
+- Fibonacci2Circuit
+- Fibonacci3Circuit
 
 ## Test Data Variables
 
