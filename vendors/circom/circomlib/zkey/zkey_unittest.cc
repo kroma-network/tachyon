@@ -1,4 +1,4 @@
-#include "circomlib/zkey/zkey_parser.h"
+#include "circomlib/zkey/zkey.h"
 
 #include <utility>
 #include <vector>
@@ -16,7 +16,7 @@ using G1AffinePoint = math::bn254::G1AffinePoint;
 using G2AffinePoint = math::bn254::G2AffinePoint;
 using F = math::bn254::Fr;
 
-class ZKeyParserTest : public testing::Test {
+class ZKeyTest : public testing::Test {
  public:
   static void SetUpTestSuite() { Curve::Init(); }
 };
@@ -51,10 +51,9 @@ Cell<F> ToCell(const CellData& data) {
 
 }  // namespace
 
-TEST_F(ZKeyParserTest, Parse) {
-  ZKeyParser<Curve> parser;
+TEST_F(ZKeyTest, Parse) {
   std::unique_ptr<ZKey<Curve>> zkey =
-      parser.Parse(base::FilePath("examples/multiplier_3.zkey"));
+      ParseZKey<Curve>(base::FilePath("examples/multiplier_3.zkey"));
   ASSERT_TRUE(zkey);
   ASSERT_EQ(zkey->GetVersion(), 1);
 

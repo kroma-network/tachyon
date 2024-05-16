@@ -1,7 +1,7 @@
 #include "circomlib/circuit/circuit_test.h"
 #include "circomlib/circuit/quadratic_arithmetic_program.h"
 #include "circomlib/r1cs/r1cs.h"
-#include "circomlib/zkey/zkey_parser.h"
+#include "circomlib/zkey/zkey.h"
 #include "tachyon/zk/r1cs/constraint_system/quadratic_arithmetic_program.h"
 
 namespace tachyon::circom {
@@ -56,9 +56,8 @@ TEST_F(AdderCircuitTest, Groth16ProveAndVerifyUsingZkey) {
   constexpr size_t kMaxDegree = 127;
 
   LoadRandomWitness();
-  ZKeyParser<Curve> parser;
   std::unique_ptr<ZKey<Curve>> zkey =
-      parser.Parse(base::FilePath("examples/adder.zkey"));
+      ParseZKey<Curve>(base::FilePath("examples/adder.zkey"));
   ASSERT_TRUE(zkey);
 
   std::vector<F> full_assignments = base::CreateVector(
