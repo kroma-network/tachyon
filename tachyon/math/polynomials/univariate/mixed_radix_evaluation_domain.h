@@ -94,7 +94,7 @@ class MixedRadixEvaluationDomain
   }
 
   // UnivariateEvaluationDomain methods
-  constexpr void DoIFFT(DensePoly& poly) const override {
+  OPENMP_CONSTEXPR void DoIFFT(DensePoly& poly) const override {
     poly.coefficients_.coefficients_.resize(this->size_, F::Zero());
     BestFFT(poly, this->group_gen_inv_);
     if (this->offset_.IsOne()) {

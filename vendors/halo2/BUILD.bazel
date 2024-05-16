@@ -1,8 +1,8 @@
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@cxx.rs//tools/bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
-load("//bazel:tachyon.bzl", "if_gpu_is_configured", "if_has_openmp")
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_openmp_linkopts")
 load("//bazel:tachyon_rust.bzl", "tachyon_rust_library", "tachyon_rust_test")
 
 FEATURES = if_gpu_is_configured(["gpu"])
@@ -37,7 +37,7 @@ tachyon_rust_library(
 # rustc_flags = if_has_openmp(["-lgomp"]),
 cc_library(
     name = "openmp",
-    linkopts = if_has_openmp(["-fopenmp"]),
+    linkopts = tachyon_openmp_linkopts(),
 )
 
 tachyon_rust_test(

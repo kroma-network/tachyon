@@ -146,7 +146,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
     FFTHelperInPlace(evals);
   }
 
-  constexpr void InOrderIFFTInPlace(DensePoly& poly) const {
+  OPENMP_CONSTEXPR void InOrderIFFTInPlace(DensePoly& poly) const {
     IFFTHelperInPlace(poly);
     if (this->offset_.IsOne()) {
       // clang-format off
@@ -179,8 +179,9 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   }
 
   template <FFTOrder Order, typename PolyOrEvals>
-  constexpr static void ApplyButterfly(PolyOrEvals& poly_or_evals,
-                                       absl::Span<const F> roots, size_t gap) {
+  OPENMP_CONSTEXPR static void ApplyButterfly(PolyOrEvals& poly_or_evals,
+                                              absl::Span<const F> roots,
+                                              size_t gap) {
     void (*fn)(F&, F&, const F&);
 
     if constexpr (Order == FFTOrder::kInOut) {
@@ -218,7 +219,7 @@ class Radix2EvaluationDomain : public UnivariateEvaluationDomain<F, MaxDegree> {
   //   [1],
   // ]
   // clang-format on
-  constexpr void PrepareRootsVecCache() {
+  OPENMP_CONSTEXPR void PrepareRootsVecCache() {
     if (this->log_size_of_group_ == 0) return;
 
     roots_vec_.resize(this->log_size_of_group_);

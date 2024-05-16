@@ -365,7 +365,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
  protected:
   // Multiply the i-th element of |poly_or_evals| with |c|*|g|ⁱ.
   template <typename PolyOrEvals>
-  constexpr static void DistributePowersAndMulByConst(
+  OPENMP_CONSTEXPR static void DistributePowersAndMulByConst(
       PolyOrEvals& poly_or_evals, const F& g, const F& c) {
 #if defined(TACHYON_HAS_OPENMP)
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
@@ -462,8 +462,8 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   }
 
   template <typename PolyOrEvals>
-  constexpr static void SwapElements(PolyOrEvals& poly_or_evals, size_t size,
-                                     uint32_t log_len) {
+  OPENMP_CONSTEXPR static void SwapElements(PolyOrEvals& poly_or_evals,
+                                            size_t size, uint32_t log_len) {
     OPENMP_PARALLEL_FOR(size_t idx = 1; idx < size; ++idx) {
       size_t ridx = base::bits::BitRev(idx) >> (sizeof(size_t) * 8 - log_len);
       if (idx < ridx) {

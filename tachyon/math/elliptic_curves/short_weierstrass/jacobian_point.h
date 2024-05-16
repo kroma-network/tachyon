@@ -107,7 +107,7 @@ class JacobianPoint<
   }
 
   template <typename JacobianContainer, typename AffineContainer>
-  [[nodiscard]] constexpr static bool BatchNormalize(
+  [[nodiscard]] OPENMP_CONSTEXPR static bool BatchNormalize(
       const JacobianContainer& jacobian_points,
       AffineContainer* affine_points) {
     size_t size = std::size(jacobian_points);
