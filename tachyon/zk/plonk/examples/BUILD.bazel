@@ -3,6 +3,16 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "circuit_test_data",
+    testonly = True,
+    hdrs = ["circuit_test_data.h"],
+    deps = [
+        ":point",
+        "//tachyon/base:range",
+    ],
+)
+
+tachyon_cc_library(
     name = "circuit_test_type_traits",
     hdrs = ["circuit_test_type_traits.h"],
     deps = [
