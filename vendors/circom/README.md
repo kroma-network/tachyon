@@ -18,6 +18,44 @@
 4. Integrated Build System: Tachyon seamlessly integrates circom compilation into the build system, specifically bazel. When you make changes to a circom file, it's compiled accordingly and built in parallel, ensuring a safe and efficient process.
 5. Field Support: Tachyon isn't limited to bn128; it easily supports all fields!
 
-## How to migrate
+## How to build
 
-See [circom-example](https://github.com/kroma-network/circom-example/) for more details.
+Go to [prerequisites](../../docs/how_to_use/how_to_build.md#Prerequisites) and follow the instructions.
+
+### Linux
+
+```shell
+bazel build --@kroma_network_tachyon//:has_openmp -c opt --config linux //:prover_main
+```
+
+### MacOS arm64
+
+```shell
+bazel build -c opt --config macos_arm64 //:prover_main
+```
+
+### MacOS x64
+
+```shell
+bazel build -c opt --config macos_x86_64 //:prover_main
+```
+
+## How to run
+
+```shell
+bazel-bin/prover_main -h
+Usage:
+
+bazel-bin/prover_main zkey wtns proof public [OPTIONS]
+
+Positional arguments:
+
+zkey                The path to zkey file
+wtns                The path to wtns file
+proof               The path to proof json
+public              The path to public json
+
+Optional arguments:
+
+--curve             The curve type among ('bn254', bls12_381'), by default 'bn254'
+```
