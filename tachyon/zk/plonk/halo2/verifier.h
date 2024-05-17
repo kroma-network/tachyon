@@ -17,6 +17,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/crypto/commitments/polynomial_openings.h"
 #include "tachyon/zk/base/entities/verifier_base.h"
+#include "tachyon/zk/lookup/halo2/opening_point_set.h"
 #include "tachyon/zk/lookup/halo2/utils.h"
 #include "tachyon/zk/plonk/halo2/proof_reader.h"
 #include "tachyon/zk/plonk/keys/verifying_key.h"
@@ -25,7 +26,12 @@
 #include "tachyon/zk/plonk/vanishing/vanishing_utils.h"
 #include "tachyon/zk/plonk/vanishing/vanishing_verifier.h"
 
-namespace tachyon::zk::plonk::halo2 {
+namespace tachyon::zk::plonk {
+
+template <typename TestArguments, typename TestData>
+class CircuitTest;
+
+namespace halo2 {
 
 template <typename PCS, typename LS>
 class Verifier : public VerifierBase<PCS> {
@@ -47,12 +53,8 @@ class Verifier : public VerifierBase<PCS> {
   }
 
  private:
-  FRIEND_TEST(SimpleCircuitTest, Verify);
-  FRIEND_TEST(SimpleV1CircuitTest, Verify);
-  FRIEND_TEST(SimpleLookupCircuitTest, Verify);
-  FRIEND_TEST(SimpleLookupV1CircuitTest, Verify);
-  template <typename>
-  FRIEND_TEST(ShuffleCircuitTest, Verify);
+  template <typename TestArguments, typename TestData>
+  friend class plonk::CircuitTest;
 
   bool VerifyProofForTesting(
       const VerifyingKey<F, Commitment>& vkey,
@@ -407,6 +409,7 @@ class Verifier : public VerifierBase<PCS> {
   }
 };
 
-}  // namespace tachyon::zk::plonk::halo2
+}  // namespace halo2
+}  // namespace tachyon::zk::plonk
 
 #endif  // TACHYON_ZK_PLONK_HALO2_VERIFIER_H_
