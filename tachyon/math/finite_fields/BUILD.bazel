@@ -285,6 +285,7 @@ tachyon_cc_unittest(
         ":modulus",
         ":prime_field_base",
         ":prime_field_gpu_debug",
+        "//tachyon/base:auto_reset",
         "//tachyon/base:bits",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/build:build_config",

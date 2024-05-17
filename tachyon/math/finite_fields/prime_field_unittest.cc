@@ -2,6 +2,7 @@
 
 #include "tachyon/base/buffer/vector_buffer.h"
 // #include "tachyon/math/finite_fields/prime_field_gpu_debug.h"
+#include "tachyon/base/auto_reset.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
@@ -215,10 +216,31 @@ TYPED_TEST(PrimeFieldTest, Copyable) {
 
   const F expected = F::Random();
 
+  for (size_t i = 0; i < 2; ++i) {
+    bool s_is_in_montgomery = i == 0;
+    SCOPED_TRACE(
+        absl::Substitute("s_is_in_montgomery: $0", s_is_in_montgomery));
+    base::AutoReset<bool> auto_reset(&base::Copyable<F>::s_is_in_montgomery,
+                                     s_is_in_montgomery);
+    base::Uint8VectorBuffer write_buf;
+    ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
+    ASSERT_TRUE(write_buf.Write(expected));
+    ASSERT_TRUE(write_buf.Done());
+
+    write_buf.set_buffer_offset(0);
+
+    F value;
+    ASSERT_TRUE(write_buf.Read(&value));
+    EXPECT_EQ(expected, value);
+  }
+
   base::Uint8VectorBuffer write_buf;
-  ASSERT_TRUE(write_buf.Grow(base::EstimateSize(expected)));
-  ASSERT_TRUE(write_buf.Write(expected));
+  ASSERT_TRUE(write_buf.Grow(sizeof(uint64_t)));
+  ASSERT_TRUE(write_buf.Write(expected.value() + F::Config::kModulus[0]));
   ASSERT_TRUE(write_buf.Done());
+
+  base::AutoReset<bool> auto_reset(
+      &base::Copyable<F>::s_allow_value_greater_than_or_equal_to_modulus, true);
 
   write_buf.set_buffer_offset(0);
 
