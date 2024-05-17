@@ -215,6 +215,14 @@ void CircuitTest<TestArguments, TestData>::CreateProofTest() {
 
   std::vector<uint8_t> proof =
       this->prover_->GetWriter()->buffer().owned_buffer();
+  std::cout << "[";
+  for (size_t i = 0; i < proof.size(); ++i) {
+    std::cout << uint32_t{proof[i]};
+    if (i != proof.size() - 1) {
+      std::cout << ", ";
+    }
+  }
+  std::cout << "]" << std::endl;
   EXPECT_EQ(proof, base::ArrayToVector(TestData::kProof));
 }
 
