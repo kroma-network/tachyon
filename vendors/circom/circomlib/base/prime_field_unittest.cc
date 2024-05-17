@@ -19,20 +19,6 @@ TEST_F(PrimeFieldTest, BigIntConversions) {
   EXPECT_EQ(field.ToBigInt<4>(), expected);
 }
 
-TEST_F(PrimeFieldTest, PrimeFieldConversions) {
-  F expected = F::Random();
-  {
-    PrimeField field = PrimeField::FromNative<true>(expected);
-    F actual = field.ToNative<true, F>();
-    EXPECT_EQ(actual, expected);
-  }
-  {
-    PrimeField field = PrimeField::FromNative<false>(expected);
-    F actual = field.ToNative<false, F>();
-    EXPECT_EQ(actual, expected);
-  }
-}
-
 TEST_F(PrimeFieldTest, Read) {
   std::array<uint8_t, 8> data;
 
@@ -68,21 +54,6 @@ TEST_F(PrimeFieldTest, Read) {
     buffer.set_buffer_offset(0);
     PrimeField field;
     ASSERT_TRUE(field.Read(buffer));
-  }
-
-  {
-    base::Uint8VectorBuffer buffer;
-    PrimeField field;
-    // Should return false when it fails to read the field data.
-    ASSERT_FALSE(field.Read(buffer, 8));
-  }
-
-  {
-    base::Uint8VectorBuffer buffer;
-    ASSERT_TRUE(buffer.Write(data));
-    buffer.set_buffer_offset(0);
-    PrimeField field;
-    ASSERT_TRUE(field.Read(buffer, 8));
   }
 }
 

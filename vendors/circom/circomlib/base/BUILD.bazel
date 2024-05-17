@@ -8,26 +8,6 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "g1_affine_point",
-    hdrs = ["g1_affine_point.h"],
-    deps = [
-        ":prime_field",
-        "@com_google_absl//absl/strings",
-        "@kroma_network_tachyon//tachyon/math/elliptic_curves:points",
-    ],
-)
-
-tachyon_cc_library(
-    name = "g2_affine_point",
-    hdrs = ["g2_affine_point.h"],
-    deps = [
-        ":prime_field",
-        "@com_google_absl//absl/strings",
-        "@kroma_network_tachyon//tachyon/math/elliptic_curves:points",
-    ],
-)
-
-tachyon_cc_library(
     name = "prime_field",
     srcs = ["prime_field.cc"],
     hdrs = ["prime_field.h"],
@@ -52,19 +32,15 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "base_unittests",
     srcs = [
-        "g1_affine_point_unittest.cc",
-        "g2_affine_point_unittest.cc",
         "prime_field_unittest.cc",
         "sections_unittest.cc",
     ],
     deps = [
-        ":g1_affine_point",
-        ":g2_affine_point",
+        ":prime_field",
         ":sections",
         "@kroma_network_tachyon//tachyon/base/buffer:copyable",
         "@kroma_network_tachyon//tachyon/base/buffer:vector_buffer",
         "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:g2",
         "@kroma_network_tachyon//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )
