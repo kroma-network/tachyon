@@ -276,7 +276,8 @@ class RapidJsonValueConverter<math::AffinePoint<
     Field y;
     if (!ParseJsonElement(json_value, "x", &x, error)) return false;
     if (!ParseJsonElement(json_value, "y", &y, error)) return false;
-    *value = math::AffinePoint<Curve>(std::move(x), std::move(y));
+    *value = math::AffinePoint<Curve>(std::move(x), std::move(y),
+                                      x.IsZero() && y.IsZero());
     return true;
   }
 };
