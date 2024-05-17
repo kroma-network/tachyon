@@ -9,7 +9,7 @@ namespace tachyon::circom {
 class Multiplier3CircuitTest : public CircuitTest {
  public:
   void SetUp() override {
-    R1CSParser parser;
+    R1CSParser<F> parser;
     r1cs_ = parser.Parse(base::FilePath("examples/multiplier_3.r1cs"));
     ASSERT_TRUE(r1cs_);
   }

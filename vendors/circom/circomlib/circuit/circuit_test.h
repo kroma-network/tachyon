@@ -77,7 +77,7 @@ class CircuitTest : public testing::Test {
     ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
   }
 
-  std::unique_ptr<R1CS> r1cs_;
+  std::unique_ptr<R1CS<F>> r1cs_;
   std::unique_ptr<Circuit<F>> circuit_;
 };
 

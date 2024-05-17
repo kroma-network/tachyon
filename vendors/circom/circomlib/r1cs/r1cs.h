@@ -18,22 +18,24 @@
 namespace tachyon::circom {
 namespace v1 {
 
+template <typename F>
 struct R1CS;
 
 }  // namespace v1
 
+template <typename F>
 struct R1CS {
   virtual ~R1CS() = default;
 
   virtual uint32_t GetVersion() const = 0;
 
-  virtual v1::R1CS* ToV1() { return nullptr; }
+  virtual v1::R1CS<F>* ToV1() { return nullptr; }
 
   virtual bool Read(const base::ReadOnlyBuffer& buffer) = 0;
 
   virtual size_t GetNumInstanceVariables() const = 0;
   virtual size_t GetNumVariables() const = 0;
-  virtual const std::vector<Constraint>& GetConstraints() const = 0;
+  virtual const std::vector<Constraint<F>>& GetConstraints() const = 0;
   virtual const std::vector<uint64_t>& GetWireId2LabelIdMap() const = 0;
 };
 
@@ -98,8 +100,9 @@ struct R1CSHeaderSection {
   }
 };
 
+template <typename F>
 struct R1CSConstraintsSection {
-  std::vector<Constraint> constraints;
+  std::vector<Constraint<F>> constraints;
 
   bool operator==(const R1CSConstraintsSection& other) const {
     return constraints == other.constraints;
@@ -111,17 +114,16 @@ struct R1CSConstraintsSection {
   bool Read(const base::ReadOnlyBuffer& buffer,
             const R1CSHeaderSection& header) {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
-    uint32_t field_size = header.modulus.bytes.size();
     constraints.reserve(header.num_constraints);
     for (uint32_t i = 0; i < header.num_constraints; ++i) {
-      Constraint constraint;
+      Constraint<F> constraint;
       for (uint32_t j = 0; j < 3; ++j) {
         uint32_t n;
         if (!buffer.Read(&n)) return false;
-        std::vector<Term> terms(n);
+        std::vector<Term<F>> terms(n);
         for (uint32_t k = 0; k < n; ++k) {
-          if (!buffer.Read(&terms[k].wire_id)) return false;
-          if (!terms[k].coefficient.Read(buffer, field_size)) return false;
+          if (!buffer.ReadMany(&terms[k].wire_id, &terms[k].coefficient))
+            return false;
         }
         if (j == 0) {
           constraint.a = {std::move(terms)};
@@ -162,14 +164,15 @@ struct R1CSWireId2LabelIdMapSection {
   std::string ToString() const { return base::ContainerToString(label_ids); }
 };
 
-struct R1CS : public circom::R1CS {
+template <typename F>
+struct R1CS : public circom::R1CS<F> {
   R1CSHeaderSection header;
-  R1CSConstraintsSection constraints;
+  R1CSConstraintsSection<F> constraints;
   R1CSWireId2LabelIdMapSection wire_id_to_label_id_map;
 
   // circom::R1CS methods
   uint32_t GetVersion() const override { return 1; }
-  R1CS* ToV1() override { return this; }
+  R1CS<F>* ToV1() override { return this; }
 
   bool Read(const base::ReadOnlyBuffer& buffer) override {
     Sections<R1CSSectionType> sections(buffer, &R1CSSectionTypeToString);
@@ -192,7 +195,7 @@ struct R1CS : public circom::R1CS {
 
   size_t GetNumVariables() const override { return header.num_wires; }
 
-  const std::vector<Constraint>& GetConstraints() const override {
+  const std::vector<Constraint<F>>& GetConstraints() const override {
     return constraints.constraints;
   }
 

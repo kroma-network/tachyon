@@ -10,7 +10,9 @@
 
 namespace tachyon::circom {
 
-std::unique_ptr<R1CS> R1CSParser::Parse(const base::FilePath& path) const {
+template <typename F>
+std::unique_ptr<R1CS<F>> R1CSParser<F>::Parse(
+    const base::FilePath& path) const {
   std::optional<std::vector<uint8_t>> r1cs_data = base::ReadFileToBytes(path);
   if (!r1cs_data.has_value()) {
     LOG(ERROR) << "Failed to read file: " << path.value();
@@ -26,9 +28,9 @@ std::unique_ptr<R1CS> R1CSParser::Parse(const base::FilePath& path) const {
     LOG(ERROR) << "Invalid magic: " << magic;
     return nullptr;
   }
-  std::unique_ptr<R1CS> r1cs;
+  std::unique_ptr<R1CS<F>> r1cs;
   if (version == 1) {
-    r1cs.reset(new v1::R1CS());
+    r1cs.reset(new v1::R1CS<F>());
     CHECK(r1cs->ToV1()->Read(buffer));
   } else {
     LOG(ERROR) << "Invalid version: " << version;

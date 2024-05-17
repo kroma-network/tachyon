@@ -14,7 +14,7 @@ namespace tachyon::circom {
 template <typename F>
 class Circuit : public zk::r1cs::Circuit<F> {
  public:
-  Circuit(R1CS* r1cs, const base::FilePath& data)
+  Circuit(R1CS<F>* r1cs, const base::FilePath& data)
       : r1cs_(r1cs), witness_loader_(data) {}
 
   WitnessLoader<F>& witness_loader() { return witness_loader_; }
@@ -30,7 +30,7 @@ class Circuit : public zk::r1cs::Circuit<F> {
       constraint_system.CreateWitnessVariable(
           [this, i]() { return witness_loader_.Get(i); });
     }
-    for (const Constraint& constraint : r1cs_->GetConstraints()) {
+    for (const Constraint<F>& constraint : r1cs_->GetConstraints()) {
       constraint_system.EnforceConstraint(
           MakeLC(constraint.a), MakeLC(constraint.b), MakeLC(constraint.c));
     }
@@ -43,9 +43,9 @@ class Circuit : public zk::r1cs::Circuit<F> {
   }
 
  private:
-  zk::r1cs::LinearCombination<F> MakeLC(const LinearCombination& lc) const {
+  zk::r1cs::LinearCombination<F> MakeLC(const LinearCombination<F>& lc) const {
     return zk::r1cs::LinearCombination<F>::CreateDeduplicated(
-        base::Map(lc.terms, [this](const Term& term) {
+        base::Map(lc.terms, [this](const Term<F>& term) {
           zk::r1cs::Variable variable;
           if (term.wire_id < r1cs_->GetNumInstanceVariables()) {
             variable = zk::r1cs::Variable::Instance(term.wire_id);
@@ -53,12 +53,11 @@ class Circuit : public zk::r1cs::Circuit<F> {
             variable = zk::r1cs::Variable::Witness(
                 term.wire_id - r1cs_->GetNumInstanceVariables());
           }
-          return zk::r1cs::Term<F>(term.coefficient.ToNative<false, F>(),
-                                   variable);
+          return zk::r1cs::Term<F>(term.coefficient, variable);
         }));
   }
 
-  R1CS* const r1cs_;
+  R1CS<F>* const r1cs_;
   WitnessLoader<F> witness_loader_;
 };
 

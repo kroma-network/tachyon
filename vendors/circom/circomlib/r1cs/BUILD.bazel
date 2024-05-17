@@ -5,10 +5,7 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "constraint",
     hdrs = ["constraint.h"],
-    deps = [
-        "//circomlib/base:prime_field",
-        "@com_google_absl//absl/strings",
-    ],
+    deps = ["@com_google_absl//absl/strings"],
 )
 
 tachyon_cc_library(
@@ -17,6 +14,7 @@ tachyon_cc_library(
     hdrs = ["r1cs.h"],
     deps = [
         ":constraint",
+        "//circomlib/base:prime_field",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
@@ -26,8 +24,10 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "r1cs_parser",
-    srcs = ["r1cs_parser.cc"],
-    hdrs = ["r1cs_parser.h"],
+    hdrs = [
+        "r1cs_parser.cc",
+        "r1cs_parser.h",
+    ],
     deps = [
         ":r1cs",
         "@kroma_network_tachyon//tachyon/base:logging",
@@ -43,5 +43,6 @@ tachyon_cc_unittest(
     deps = [
         ":r1cs_parser",
         "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:fr",
+        "@kroma_network_tachyon//tachyon/math/finite_fields/test:finite_field_test",
     ],
 )
