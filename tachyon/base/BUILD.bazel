@@ -9,6 +9,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "auto_reset",
+    hdrs = ["auto_reset.h"],
+    deps = ["//tachyon/base:logging"],
+)
+
+tachyon_cc_library(
     name = "bit_cast",
     hdrs = ["bit_cast.h"],
     deps = ["//tachyon/base:compiler_specific"],
@@ -144,6 +150,7 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "base_unittests",
     srcs = [
+        "auto_reset_unittest.cc",
         "bit_cast_unittest.cc",
         "bits_unittest.cc",
         "cxx20_is_constant_evaluated_unittest.cc",
@@ -156,6 +163,7 @@ tachyon_cc_unittest(
         "scoped_generic_unittest.cc",
     ],
     deps = [
+        ":auto_reset",
         ":bit_cast",
         ":bits",
         ":cxx20_is_constant_evaluated",
