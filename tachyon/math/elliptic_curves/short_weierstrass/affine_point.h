@@ -235,22 +235,22 @@ class Copyable<math::AffinePoint<
     std::enable_if_t<Curve::kType == math::CurveType::kShortWeierstrass>>> {
  public:
   static bool WriteTo(const math::AffinePoint<Curve>& point, Buffer* buffer) {
-    return buffer->WriteMany(point.x(), point.y(), point.infinity());
+    return buffer->WriteMany(point.x(), point.y());
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        math::AffinePoint<Curve>* point) {
     using BaseField = typename math::AffinePoint<Curve>::BaseField;
     BaseField x, y;
-    bool infinity;
-    if (!buffer.ReadMany(&x, &y, &infinity)) return false;
+    if (!buffer.ReadMany(&x, &y)) return false;
 
-    *point = math::AffinePoint<Curve>(std::move(x), std::move(y), infinity);
+    *point = math::AffinePoint<Curve>(std::move(x), std::move(y),
+                                      x.IsZero() && y.IsZero());
     return true;
   }
 
   static size_t EstimateSize(const math::AffinePoint<Curve>& point) {
-    return base::EstimateSize(point.x(), point.y(), point.infinity());
+    return base::EstimateSize(point.x(), point.y());
   }
 };
 
