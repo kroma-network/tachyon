@@ -57,8 +57,8 @@ TEST_F(AdderCircuitTest, Groth16ProveAndVerifyUsingZkey) {
   constexpr size_t kMaxDegree = 127;
 
   LoadRandomWitness();
-  ZKeyParser parser;
-  std::unique_ptr<ZKey> zkey =
+  ZKeyParser<Curve> parser;
+  std::unique_ptr<ZKey<Curve>> zkey =
       parser.Parse(base::FilePath("examples/adder.zkey"));
   ASSERT_TRUE(zkey);
 

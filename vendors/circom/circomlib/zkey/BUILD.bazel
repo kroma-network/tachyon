@@ -6,7 +6,6 @@ tachyon_cc_library(
     name = "cell",
     hdrs = ["cell.h"],
     deps = [
-        "//circomlib/base:prime_field",
         "@com_google_absl//absl/strings",
         "@kroma_network_tachyon//tachyon/zk/r1cs/constraint_system:matrix",
     ],
@@ -35,10 +34,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "verifying_key",
     hdrs = ["verifying_key.h"],
-    deps = [
-        "//circomlib/base:g1_affine_point",
-        "//circomlib/base:g2_affine_point",
-    ],
+    deps = ["@kroma_network_tachyon//tachyon/base/buffer:copyable"],
 )
 
 tachyon_cc_library(
@@ -48,7 +44,9 @@ tachyon_cc_library(
     deps = [
         ":constraint_matrices",
         ":proving_key",
+        "//circomlib/base:prime_field",
         "//circomlib/base:sections",
+        "@kroma_network_tachyon//tachyon/base:auto_reset",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:copyable",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",
@@ -58,8 +56,10 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "zkey_parser",
-    srcs = ["zkey_parser.cc"],
-    hdrs = ["zkey_parser.h"],
+    hdrs = [
+        "zkey_parser.cc",
+        "zkey_parser.h",
+    ],
     deps = [
         ":zkey",
         "@kroma_network_tachyon//tachyon/base:logging",
@@ -74,7 +74,6 @@ tachyon_cc_unittest(
     data = ["//examples:multiplier_3.zkey"],
     deps = [
         ":zkey_parser",
-        "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:g1",
-        "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:g2",
+        "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254",
     ],
 )

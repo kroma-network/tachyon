@@ -6,9 +6,11 @@
 #include <utility>
 #include <vector>
 
+#include "circomlib/base/prime_field.h"
 #include "circomlib/base/sections.h"
 #include "circomlib/zkey/constraint_matrices.h"
 #include "circomlib/zkey/proving_key.h"
+#include "tachyon/base/auto_reset.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
@@ -16,21 +18,25 @@
 namespace tachyon::circom {
 namespace v1 {
 
+template <typename Curve>
 struct ZKey;
 
 }  // namespace v1
 
+template <typename Curve>
 struct ZKey {
+  using F = typename Curve::G1Curve::ScalarField;
+
   virtual ~ZKey() = default;
 
   virtual uint32_t GetVersion() const = 0;
 
-  virtual v1::ZKey* ToV1() { return nullptr; }
+  virtual v1::ZKey<Curve>* ToV1() { return nullptr; }
 
   virtual bool Read(const base::ReadOnlyBuffer& buffer) = 0;
 
-  virtual ProvingKey TakeProvingKey() && = 0;
-  virtual ConstraintMatrices TakeConstraintMatrices() && = 0;
+  virtual ProvingKey<Curve> TakeProvingKey() && = 0;
+  virtual ConstraintMatrices<F> TakeConstraintMatrices() && = 0;
 };
 
 constexpr char kZkeyMagic[4] = {'z', 'k', 'e', 'y'};
@@ -77,13 +83,14 @@ struct ZKeyHeaderSection {
   }
 };
 
+template <typename Curve>
 struct ZKeyHeaderGrothSection {
   PrimeField q;
   PrimeField r;
   uint32_t num_vars;
   uint32_t num_public_inputs;
   uint32_t domain_size;
-  VerifyingKey vkey;
+  VerifyingKey<Curve> vkey;
 
   bool operator==(const ZKeyHeaderGrothSection& other) const {
     return q == other.q && r == other.r && num_vars == other.num_vars &&
@@ -98,11 +105,7 @@ struct ZKeyHeaderGrothSection {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
     if (!q.Read(buffer)) return false;
     if (!r.Read(buffer)) return false;
-    if (!buffer.ReadMany(&num_vars, &num_public_inputs, &domain_size))
-      return false;
-
-    uint32_t field_size = q.bytes.size();
-    return vkey.Read(buffer, field_size);
+    return buffer.ReadMany(&num_vars, &num_public_inputs, &domain_size, &vkey);
   }
 
   std::string ToString() const {
@@ -125,36 +128,35 @@ struct CommitmentsSection {
     return commitments != other.commitments;
   }
 
-  bool Read(const base::ReadOnlyBuffer& buffer, uint32_t num_commitments,
-            uint32_t field_size) {
+  bool Read(const base::ReadOnlyBuffer& buffer, uint32_t num_commitments) {
     commitments.resize(num_commitments);
     for (uint32_t i = 0; i < num_commitments; ++i) {
-      if (!commitments[i].Read(buffer, field_size)) return false;
+      if (!buffer.Read(&commitments[i])) return false;
     }
     return true;
-  }
-
-  template <typename F>
-  void Normalize() {
-    for (T& commitment : commitments) {
-      commitment.template Normalize<F>();
-    }
   }
 
   // NOTE(chokobole): the fields are represented in montgomery form.
   std::string ToString() const { return base::ContainerToString(commitments); }
 };
 
-using ICSection = CommitmentsSection<G1AffinePoint>;
-using PointsA1Section = CommitmentsSection<G1AffinePoint>;
-using PointsB1Section = CommitmentsSection<G1AffinePoint>;
-using PointsB2Section = CommitmentsSection<G2AffinePoint>;
-using PointsC1Section = CommitmentsSection<G1AffinePoint>;
-using PointsH1Section = CommitmentsSection<G1AffinePoint>;
+template <typename C>
+using ICSection = CommitmentsSection<C>;
+template <typename C>
+using PointsA1Section = CommitmentsSection<C>;
+template <typename C>
+using PointsB1Section = CommitmentsSection<C>;
+template <typename C>
+using PointsB2Section = CommitmentsSection<C>;
+template <typename C>
+using PointsC1Section = CommitmentsSection<C>;
+template <typename C>
+using PointsH1Section = CommitmentsSection<C>;
 
+template <typename F>
 struct CoefficientsSection {
-  std::vector<std::vector<Cell>> a;
-  std::vector<std::vector<Cell>> b;
+  std::vector<std::vector<Cell<F>>> a;
+  std::vector<std::vector<Cell<F>>> b;
   uint32_t max_constraint;
 
   bool operator==(const CoefficientsSection& other) const {
@@ -164,8 +166,7 @@ struct CoefficientsSection {
     return !operator==(other);
   }
 
-  bool Read(const base::ReadOnlyBuffer& buffer, uint32_t domain_size,
-            uint32_t field_size) {
+  bool Read(const base::ReadOnlyBuffer& buffer, uint32_t domain_size) {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
     uint32_t num_coefficients;
     if (!buffer.Read(&num_coefficients)) return false;
@@ -173,11 +174,12 @@ struct CoefficientsSection {
     b.resize(domain_size);
     max_constraint = 0;
     for (uint32_t i = 0; i < num_coefficients; ++i) {
-      Cell cell;
+      Cell<F> cell;
       uint32_t matrix, constraint;
-      if (!buffer.ReadMany(&matrix, &constraint, &cell.signal)) return false;
+      if (!buffer.ReadMany(&matrix, &constraint, &cell.signal,
+                           &cell.coefficient))
+        return false;
       max_constraint = std::max(constraint, max_constraint);
-      if (!cell.coefficient.Read(buffer, field_size)) return false;
       if (matrix == 0) {
         a[constraint].push_back(std::move(cell));
       } else {
@@ -187,37 +189,47 @@ struct CoefficientsSection {
     return true;
   }
 
-  template <typename F>
-  void Normalize() {
-    for (std::vector<Cell>& constraint : a) {
-      for (Cell& cell : constraint) {
-        cell.coefficient.Normalize<F>();
-      }
-    }
-  }
-
   std::string ToString() const {
     return absl::Substitute("{a: $0, b: $1}", base::Container2DToString(a),
                             base::Container2DToString(b));
   }
 };
 
-struct ZKey : public circom::ZKey {
+template <typename Curve>
+struct ZKey : public circom::ZKey<Curve> {
+  using G1AffinePoint = typename Curve::G1Curve::AffinePoint;
+  using G2AffinePoint = typename Curve::G2Curve::AffinePoint;
+  using F = typename G1AffinePoint::ScalarField;
+
   ZKeyHeaderSection header;
-  ZKeyHeaderGrothSection header_groth;
-  ICSection ic;
-  CoefficientsSection coefficients;
-  PointsA1Section points_a1;
-  PointsB1Section points_b1;
-  PointsB2Section points_b2;
-  PointsC1Section points_c1;
-  PointsH1Section points_h1;
+  ZKeyHeaderGrothSection<Curve> header_groth;
+  ICSection<G1AffinePoint> ic;
+  CoefficientsSection<F> coefficients;
+  PointsA1Section<G1AffinePoint> points_a1;
+  PointsB1Section<G1AffinePoint> points_b1;
+  PointsB2Section<G2AffinePoint> points_b2;
+  PointsC1Section<G1AffinePoint> points_c1;
+  PointsH1Section<G1AffinePoint> points_h1;
 
   // circom::ZKey methods
   uint32_t GetVersion() const override { return 1; }
-  ZKey* ToV1() override { return this; }
+  ZKey<Curve>* ToV1() override { return this; }
 
   bool Read(const base::ReadOnlyBuffer& buffer) override {
+    using BaseField = typename G1AffinePoint::BaseField;
+
+    base::AutoReset<bool> auto_reset(
+        &base::Copyable<F>::s_allow_value_greater_than_or_equal_to_modulus,
+        true);
+    base::AutoReset<bool> auto_reset2(
+        &base::Copyable<
+            BaseField>::s_allow_value_greater_than_or_equal_to_modulus,
+        true);
+    base::AutoReset<bool> auto_reset3(&base::Copyable<F>::s_is_in_montgomery,
+                                      true);
+    base::AutoReset<bool> auto_reset4(
+        &base::Copyable<BaseField>::s_is_in_montgomery, true);
+
     Sections<ZKeySectionType> sections(buffer, &ZKeySectionTypeToString);
     if (!sections.Read()) return false;
 
@@ -226,37 +238,34 @@ struct ZKey : public circom::ZKey {
 
     if (!sections.MoveTo(ZKeySectionType::kHeaderGroth)) return false;
     if (!header_groth.Read(buffer)) return false;
-    uint32_t q_field_size = header_groth.q.bytes.size();
-    uint32_t r_field_size = header_groth.r.bytes.size();
     uint32_t num_vars = header_groth.num_vars;
     uint32_t num_public_inputs = header_groth.num_public_inputs;
     uint32_t domain_size = header_groth.domain_size;
 
     if (!sections.MoveTo(ZKeySectionType::kIC)) return false;
-    if (!ic.Read(buffer, num_public_inputs + 1, q_field_size)) return false;
+    if (!ic.Read(buffer, num_public_inputs + 1)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kCoefficients)) return false;
-    if (!coefficients.Read(buffer, domain_size, r_field_size)) return false;
+    if (!coefficients.Read(buffer, domain_size)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsA1)) return false;
-    if (!points_a1.Read(buffer, num_vars, q_field_size)) return false;
+    if (!points_a1.Read(buffer, num_vars)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsB1)) return false;
-    if (!points_b1.Read(buffer, num_vars, q_field_size)) return false;
+    if (!points_b1.Read(buffer, num_vars)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsB2)) return false;
-    if (!points_b2.Read(buffer, num_vars, q_field_size)) return false;
+    if (!points_b2.Read(buffer, num_vars)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsC1)) return false;
-    if (!points_c1.Read(buffer, num_vars - num_public_inputs - 1, q_field_size))
-      return false;
+    if (!points_c1.Read(buffer, num_vars - num_public_inputs - 1)) return false;
 
     if (!sections.MoveTo(ZKeySectionType::kPointsH1)) return false;
-    if (!points_h1.Read(buffer, domain_size, q_field_size)) return false;
+    if (!points_h1.Read(buffer, domain_size)) return false;
     return true;
   }
 
-  ProvingKey TakeProvingKey() && override {
+  ProvingKey<Curve> TakeProvingKey() && override {
     return {
         std::move(header_groth.vkey),     std::move(ic.commitments),
         std::move(points_a1.commitments), std::move(points_b1.commitments),
@@ -265,7 +274,7 @@ struct ZKey : public circom::ZKey {
     };
   }
 
-  ConstraintMatrices TakeConstraintMatrices() && override {
+  ConstraintMatrices<F> TakeConstraintMatrices() && override {
     size_t num_constraints =
         coefficients.max_constraint - header_groth.num_public_inputs;
     if (coefficients.a.size() > num_constraints) {
@@ -277,12 +286,12 @@ struct ZKey : public circom::ZKey {
 
     size_t a_num_non_zero =
         std::accumulate(coefficients.a.begin(), coefficients.a.end(), 0,
-                        [](size_t acc, const std::vector<Cell>& cells) {
+                        [](size_t acc, const std::vector<Cell<F>>& cells) {
                           return acc + cells.size();
                         });
     size_t b_num_non_zero =
         std::accumulate(coefficients.b.begin(), coefficients.b.end(), 0,
-                        [](size_t acc, const std::vector<Cell>& cells) {
+                        [](size_t acc, const std::vector<Cell<F>>& cells) {
                           return acc + cells.size();
                         });
 
@@ -297,17 +306,6 @@ struct ZKey : public circom::ZKey {
         std::move(coefficients.a),
         std::move(coefficients.b),
     };
-  }
-
-  template <typename Fq, typename Fr>
-  void Normalize() {
-    ic.Normalize<Fq>();
-    coefficients.Normalize<Fr>();
-    points_a1.Normalize<Fq>();
-    points_b1.Normalize<Fq>();
-    points_b2.Normalize<Fq>();
-    points_c1.Normalize<Fq>();
-    points_h1.Normalize<Fq>();
   }
 
   std::string ToString() const {

@@ -10,7 +10,9 @@
 
 namespace tachyon::circom {
 
-std::unique_ptr<ZKey> ZKeyParser::Parse(const base::FilePath& path) const {
+template <typename Curve>
+std::unique_ptr<ZKey<Curve>> ZKeyParser<Curve>::Parse(
+    const base::FilePath& path) const {
   std::optional<std::vector<uint8_t>> zkey_data = base::ReadFileToBytes(path);
   if (!zkey_data.has_value()) {
     LOG(ERROR) << "Failed to read file: " << path.value();
@@ -26,9 +28,9 @@ std::unique_ptr<ZKey> ZKeyParser::Parse(const base::FilePath& path) const {
     LOG(ERROR) << "Invalid magic: " << magic;
     return nullptr;
   }
-  std::unique_ptr<ZKey> zkey;
+  std::unique_ptr<ZKey<Curve>> zkey;
   if (version == 1) {
-    zkey.reset(new v1::ZKey());
+    zkey.reset(new v1::ZKey<Curve>());
     CHECK(zkey->ToV1()->Read(buffer));
   } else {
     LOG(ERROR) << "Invalid version: " << version;

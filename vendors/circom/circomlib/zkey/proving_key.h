@@ -14,8 +14,12 @@
 
 namespace tachyon::circom {
 
+template <typename Curve>
 struct ProvingKey {
-  VerifyingKey verifying_key;
+  using G1AffinePoint = typename Curve::G1Curve::AffinePoint;
+  using G2AffinePoint = typename Curve::G2Curve::AffinePoint;
+
+  VerifyingKey<Curve> verifying_key;
   std::vector<G1AffinePoint> ic;
   std::vector<G1AffinePoint> a_g1_query;
   std::vector<G1AffinePoint> b_g1_query;
@@ -31,52 +35,26 @@ struct ProvingKey {
   }
   bool operator!=(const ProvingKey& other) const { return !operator==(other); }
 
-  template <typename Curve>
   zk::r1cs::groth16::VerifyingKey<Curve> ToNativeVerifyingKey() const {
-    using G1Curve = typename Curve::G1Curve;
-    using G2Curve = typename Curve::G2Curve;
-
     return {
-        verifying_key.alpha_g1.ToNative<true, G1Curve>(),
-        verifying_key.beta_g2.ToNative<true, G2Curve>(),
-        verifying_key.gamma_g2.ToNative<true, G2Curve>(),
-        verifying_key.delta_g2.ToNative<true, G2Curve>(),
-        base::Map(ic,
-                  [](const G1AffinePoint& point) {
-                    return point.ToNative<true, G1Curve>();
-                  }),
+        verifying_key.alpha_g1,
+        verifying_key.beta_g2,
+        verifying_key.gamma_g2,
+        verifying_key.delta_g2,
+        ic,
     };
   }
 
-  template <typename Curve>
   zk::r1cs::groth16::ProvingKey<Curve> ToNativeProvingKey() const {
-    using G1Curve = typename Curve::G1Curve;
-    using G2Curve = typename Curve::G2Curve;
-
     return {
-        ToNativeVerifyingKey<Curve>(),
-        verifying_key.beta_g1.ToNative<true, G1Curve>(),
-        verifying_key.delta_g1.ToNative<true, G1Curve>(),
-        base::Map(a_g1_query,
-                  [](const G1AffinePoint& point) {
-                    return point.ToNative<true, G1Curve>();
-                  }),
-        base::Map(b_g1_query,
-                  [](const G1AffinePoint& point) {
-                    return point.ToNative<true, G1Curve>();
-                  }),
-        base::Map(b_g2_query,
-                  [](const G2AffinePoint& point) {
-                    return point.ToNative<true, G2Curve>();
-                  }),
-        base::Map(h_g1_query,
-                  [](const G1AffinePoint& point) {
-                    return point.ToNative<true, G1Curve>();
-                  }),
-        base::Map(c_g1_query,
-                  [](const G1AffinePoint& point) {
-                    return point.ToNative<true, G1Curve>();
-                  }),
+        ToNativeVerifyingKey(),
+        verifying_key.beta_g1,
+        verifying_key.delta_g1,
+        a_g1_query,
+        b_g1_query,
+        b_g2_query,
+        h_g1_query,
+        c_g1_query,
     };
   }
 

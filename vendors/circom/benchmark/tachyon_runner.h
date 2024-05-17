@@ -39,14 +39,12 @@ class TachyonRunner : public Runner<Curve> {
   }
 
   void LoadZkey(const base::FilePath& zkey_path) override {
-    ZKeyParser zkey_parser;
-    std::unique_ptr<ZKey> zkey = zkey_parser.Parse(zkey_path);
+    ZKeyParser<Curve> zkey_parser;
+    std::unique_ptr<ZKey<Curve>> zkey = zkey_parser.Parse(zkey_path);
     CHECK(zkey);
 
-    proving_key_ =
-        std::move(*zkey).TakeProvingKey().ToNativeProvingKey<Curve>();
-    constraint_matrices_ =
-        std::move(*zkey).TakeConstraintMatrices().ToNative<F>();
+    proving_key_ = std::move(*zkey).TakeProvingKey().ToNativeProvingKey();
+    constraint_matrices_ = std::move(*zkey).TakeConstraintMatrices().ToNative();
   }
 
   zk::r1cs::groth16::Proof<Curve> Run(const std::vector<F>& full_assignments,

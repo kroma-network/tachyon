@@ -57,8 +57,8 @@ TEST_F(Multiplier3CircuitTest, Groth16ProveAndVerifyUsingZkey) {
   constexpr size_t kMaxDegree = 3;
 
   LoadRandomWitness();
-  ZKeyParser parser;
-  std::unique_ptr<ZKey> zkey =
+  ZKeyParser<Curve> parser;
+  std::unique_ptr<ZKey<Curve>> zkey =
       parser.Parse(base::FilePath("examples/multiplier_3.zkey"));
   ASSERT_TRUE(zkey);
 

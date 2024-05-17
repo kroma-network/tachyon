@@ -4,15 +4,20 @@
 #include <stdint.h>
 
 #include <string>
+#include <utility>
 
 #include "absl/strings/substitute.h"
 
-#include "circomlib/base/g1_affine_point.h"
-#include "circomlib/base/g2_affine_point.h"
+#include "tachyon/base/buffer/copyable.h"
 
-namespace tachyon::circom {
+namespace tachyon {
+namespace circom {
 
+template <typename Curve>
 struct VerifyingKey {
+  using G1AffinePoint = typename Curve::G1Curve::AffinePoint;
+  using G2AffinePoint = typename Curve::G2Curve::AffinePoint;
+
   G1AffinePoint alpha_g1;
   G1AffinePoint beta_g1;
   G2AffinePoint beta_g2;
@@ -29,15 +34,6 @@ struct VerifyingKey {
     return !operator==(other);
   }
 
-  bool Read(const base::ReadOnlyBuffer& buffer, uint32_t field_size) {
-    return alpha_g1.Read(buffer, field_size) &&
-           beta_g1.Read(buffer, field_size) &&
-           beta_g2.Read(buffer, field_size) &&
-           gamma_g2.Read(buffer, field_size) &&
-           delta_g1.Read(buffer, field_size) &&
-           delta_g2.Read(buffer, field_size);
-  }
-
   // NOTE(chokobole): the fields are represented in montgomery form.
   std::string ToString() const {
     return absl::Substitute(
@@ -48,6 +44,44 @@ struct VerifyingKey {
   }
 };
 
-}  // namespace tachyon::circom
+}  // namespace circom
+
+namespace base {
+
+template <typename Curve>
+class Copyable<circom::VerifyingKey<Curve>> {
+ public:
+  static bool WriteTo(const circom::VerifyingKey<Curve>& vk, Buffer* buffer) {
+    NOTREACHED();
+    return false;
+  }
+
+  static bool ReadFrom(const ReadOnlyBuffer& buffer,
+                       circom::VerifyingKey<Curve>* vk) {
+    using G1AffinePoint = typename Curve::G1Curve::AffinePoint;
+    using G2AffinePoint = typename Curve::G2Curve::AffinePoint;
+
+    G1AffinePoint alpha_g1;
+    G1AffinePoint beta_g1;
+    G2AffinePoint beta_g2;
+    G2AffinePoint gamma_g2;
+    G1AffinePoint delta_g1;
+    G2AffinePoint delta_g2;
+    if (!buffer.ReadMany(&alpha_g1, &beta_g1, &beta_g2, &gamma_g2, &delta_g1,
+                         &delta_g2))
+      return false;
+    *vk = {std::move(alpha_g1), std::move(beta_g1),  std::move(beta_g2),
+           std::move(gamma_g2), std::move(delta_g1), std::move(delta_g2)};
+    return true;
+  }
+
+  static size_t EstimateSize(const circom::VerifyingKey<Curve>& vk) {
+    return base::EstimateSize(vk.alpha_g1, vk.beta_g1, vk.beta_g2, vk.gamma_g2,
+                              vk.delta_g1, vk.delta_g2);
+  }
+};
+
+}  // namespace base
+}  // namespace tachyon
 
 #endif  // VENDORS_CIRCOM_CIRCOMLIB_ZKEY_VERIFYING_KEY_H_

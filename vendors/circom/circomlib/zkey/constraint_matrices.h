@@ -14,6 +14,7 @@
 
 namespace tachyon::circom {
 
+template <typename F>
 struct ConstraintMatrices {
   size_t num_instance_variables;
   size_t num_witness_variables;
@@ -22,8 +23,8 @@ struct ConstraintMatrices {
   size_t a_num_non_zero;
   size_t b_num_non_zero;
 
-  std::vector<std::vector<Cell>> a;
-  std::vector<std::vector<Cell>> b;
+  std::vector<std::vector<Cell<F>>> a;
+  std::vector<std::vector<Cell<F>>> b;
 
   bool operator==(const ConstraintMatrices& other) const {
     return num_instance_variables == other.num_instance_variables &&
@@ -37,7 +38,6 @@ struct ConstraintMatrices {
     return !operator==(other);
   }
 
-  template <typename F>
   zk::r1cs::ConstraintMatrices<F> ToNative() const {
     return {
         num_instance_variables,
@@ -47,17 +47,17 @@ struct ConstraintMatrices {
         b_num_non_zero,
         0,
         zk::r1cs::Matrix<F>(base::Map(a,
-                                      [](const std::vector<Cell>& cells) {
+                                      [](const std::vector<Cell<F>>& cells) {
                                         return base::Map(
-                                            cells, [](const Cell& cell) {
-                                              return cell.ToNative<F>();
+                                            cells, [](const Cell<F>& cell) {
+                                              return cell.ToNative();
                                             });
                                       })),
         zk::r1cs::Matrix<F>(base::Map(b,
-                                      [](const std::vector<Cell>& cells) {
+                                      [](const std::vector<Cell<F>>& cells) {
                                         return base::Map(
-                                            cells, [](const Cell& cell) {
-                                              return cell.ToNative<F>();
+                                            cells, [](const Cell<F>& cell) {
+                                              return cell.ToNative();
                                             });
                                       })),
         {},
