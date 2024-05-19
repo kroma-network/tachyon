@@ -9,14 +9,33 @@
 
 #include <stddef.h>
 
+#include "tachyon/base/logging.h"
+#include "tachyon/zk/lookup/type.h"
+
 namespace tachyon::zk::lookup::halo2 {
 
-constexpr size_t GetNumEvals(size_t num_circuits, size_t num_lookups) {
-  return num_circuits * num_lookups * 5;
+constexpr size_t GetNumEvals(Type lookup_type, size_t num_circuits,
+                             size_t num_lookups) {
+  switch (lookup_type) {
+    case Type::kHalo2:
+      return num_circuits * num_lookups * 5;
+    case Type::kLogDerivativeHalo2:
+      return num_circuits * num_lookups * 3;
+  }
+  NOTREACHED();
+  return 0;
 }
 
-constexpr size_t GetNumOpenings(size_t num_circuits, size_t num_lookups) {
-  return num_circuits * num_lookups * 5;
+constexpr size_t GetNumOpenings(Type lookup_type, size_t num_circuits,
+                                size_t num_lookups) {
+  switch (lookup_type) {
+    case Type::kHalo2:
+      return num_circuits * num_lookups * 5;
+    case Type::kLogDerivativeHalo2:
+      return num_circuits * num_lookups * 3;
+  }
+  NOTREACHED();
+  return 0;
 }
 
 }  // namespace tachyon::zk::lookup::halo2

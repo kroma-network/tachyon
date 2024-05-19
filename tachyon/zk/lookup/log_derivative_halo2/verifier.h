@@ -25,7 +25,7 @@ template <typename F, typename C>
 class Verifier final
     : public lookup::Verifier<typename log_derivative_halo2::Verifier<F, C>> {
  public:
-  using Proof = plonk::halo2::LogUpProof<F, C>;
+  using Proof = plonk::halo2::LogDerivativeHalo2Proof<F, C>;
 
   Verifier(const Proof& proof, size_t circuit_idx)
       : data_(proof.ToLookupVerifierData(circuit_idx)) {}

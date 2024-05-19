@@ -297,7 +297,7 @@ class Verifier : public VerifierBase<PCS> {
         GetNumVanishingEvals(num_circuits, constraint_system.gates()) +
         GetNumPermutationEvals(
             num_circuits, proof.permutation_product_commitments_vec[0].size()) +
-        lookup::halo2::GetNumEvals(num_circuits,
+        lookup::halo2::GetNumEvals(LS::type, num_circuits,
                                    constraint_system.lookups().size());
     std::vector<F> evals;
     evals.reserve(size);
@@ -344,7 +344,7 @@ class Verifier : public VerifierBase<PCS> {
         GetNumPermutationOpenings(
             num_circuits, proof.permutation_product_commitments_vec[0].size(),
             vkey.permutation_verifying_key().commitments().size()) +
-        lookup::halo2::GetNumOpenings(num_circuits,
+        lookup::halo2::GetNumOpenings(LS::type, num_circuits,
                                       constraint_system.lookups().size());
     std::vector<Opening> openings;
     openings.reserve(size);
