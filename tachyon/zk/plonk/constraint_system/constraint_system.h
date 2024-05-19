@@ -135,7 +135,7 @@ class ConstraintSystem {
   //
   // |callback| returns a map between the input expressions and the table
   // columns they need to match.
-  size_t Lookup(std::string_view name, LookupCallback callback) {
+  void Lookup(std::string_view name, LookupCallback callback) {
     VirtualCells cells(this);
     lookup::Pairs<std::unique_ptr<Expression<F>>> pairs =
         base::Map(std::move(callback).Run(cells),
@@ -153,14 +153,13 @@ class ConstraintSystem {
                   });
 
     lookups_.emplace_back(name, std::move(pairs));
-    return lookups_.size() - 1;
   }
 
   // Add a lookup argument for some input expressions and table expressions.
   //
   // |callback| returns a map between the input expressions and the table
   // expressions they need to match.
-  size_t LookupAny(std::string_view name, LookupAnyCallback callback) {
+  void LookupAny(std::string_view name, LookupAnyCallback callback) {
     VirtualCells cells(this);
     lookup::Pairs<std::unique_ptr<Expression<F>>> pairs =
         std::move(callback).Run(cells);
@@ -172,7 +171,6 @@ class ConstraintSystem {
     }
 
     lookups_.emplace_back(name, std::move(pairs));
-    return lookups_.size() - 1;
   }
 
   size_t QueryFixedIndex(const FixedColumnKey& column, Rotation at) {

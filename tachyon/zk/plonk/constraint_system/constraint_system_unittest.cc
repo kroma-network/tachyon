@@ -68,48 +68,44 @@ TEST_F(ConstraintSystemTest, Lookup) {
       "expression containing simple selector supplied to lookup argument");
 
   Selector complex_selector = constraint_system.CreateComplexSelector();
-  EXPECT_EQ(
-      constraint_system.Lookup(
-          "lookup",
-          [complex_selector, &advice, &table](VirtualCells<F>& cells) {
-            std::unique_ptr<Expression<F>> complex_selector_expr =
-                cells.QuerySelector(complex_selector);
-            std::unique_ptr<Expression<F>> advice0_expr =
-                cells.QueryAdvice(advice[0], Rotation::Cur());
+  constraint_system.Lookup("lookup", [complex_selector, &advice,
+                                      &table](VirtualCells<F>& cells) {
+    std::unique_ptr<Expression<F>> complex_selector_expr =
+        cells.QuerySelector(complex_selector);
+    std::unique_ptr<Expression<F>> advice0_expr =
+        cells.QueryAdvice(advice[0], Rotation::Cur());
 
-            lookup::Pairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
-                lookup_pairs;
-            lookup_pairs.emplace_back(
-                std::move(complex_selector_expr) * std::move(advice0_expr),
-                table[0]);
-            return lookup_pairs;
-          }),
-      0);
+    lookup::Pairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
+        lookup_pairs;
+    lookup_pairs.emplace_back(
+        std::move(complex_selector_expr) * std::move(advice0_expr), table[0]);
+    return lookup_pairs;
+  });
 
-  EXPECT_EQ(
-      constraint_system.Lookup(
-          "lookup",
-          [complex_selector, &advice, &table](VirtualCells<F>& cells) {
-            std::unique_ptr<Expression<F>> complex_selector_expr =
-                cells.QuerySelector(complex_selector);
-            std::unique_ptr<Expression<F>> advice1_expr =
-                cells.QueryAdvice(advice[1], Rotation::Cur());
-            std::unique_ptr<Expression<F>> not_complex_selector_expr =
-                ExpressionFactory<F>::Constant(F::One()) -
-                complex_selector_expr->Clone();
-            std::unique_ptr<Expression<F>> default_expr =
-                ExpressionFactory<F>::Constant(F(2));
+  EXPECT_EQ(constraint_system.lookups().size(), 1);
 
-            lookup::Pairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
-                lookup_pairs;
-            lookup_pairs.emplace_back(
-                std::move(complex_selector_expr) * std::move(advice1_expr) +
-                    std::move(not_complex_selector_expr) *
-                        std::move(default_expr),
-                table[1]);
-            return lookup_pairs;
-          }),
-      1);
+  constraint_system.Lookup(
+      "lookup", [complex_selector, &advice, &table](VirtualCells<F>& cells) {
+        std::unique_ptr<Expression<F>> complex_selector_expr =
+            cells.QuerySelector(complex_selector);
+        std::unique_ptr<Expression<F>> advice1_expr =
+            cells.QueryAdvice(advice[1], Rotation::Cur());
+        std::unique_ptr<Expression<F>> not_complex_selector_expr =
+            ExpressionFactory<F>::Constant(F::One()) -
+            complex_selector_expr->Clone();
+        std::unique_ptr<Expression<F>> default_expr =
+            ExpressionFactory<F>::Constant(F(2));
+
+        lookup::Pairs<std::unique_ptr<Expression<F>>, LookupTableColumn>
+            lookup_pairs;
+        lookup_pairs.emplace_back(
+            std::move(complex_selector_expr) * std::move(advice1_expr) +
+                std::move(not_complex_selector_expr) * std::move(default_expr),
+            table[1]);
+        return lookup_pairs;
+      });
+
+  EXPECT_EQ(constraint_system.lookups().size(), 2);
 
   EXPECT_EQ(constraint_system.ComputeLookupRequiredDegree(), 5);
 
@@ -177,40 +173,36 @@ TEST_F(ConstraintSystemTest, LookupAny) {
       "expression containing simple selector supplied to lookup argument");
 
   Selector complex_selector = constraint_system.CreateComplexSelector();
-  EXPECT_EQ(
-      constraint_system.LookupAny(
-          "lookup",
-          [&advice, complex_selector, &advice_table,
-           &table](VirtualCells<F>& cells) {
-            std::unique_ptr<Expression<F>> advice_expr =
-                cells.QueryAdvice(advice, Rotation::Cur());
-            std::unique_ptr<Expression<F>> complex_selector_expr =
-                cells.QuerySelector(complex_selector);
-            std::unique_ptr<Expression<F>> not_complex_selector_expr =
-                ExpressionFactory<F>::Constant(F::One()) -
-                complex_selector_expr->Clone();
-            std::unique_ptr<Expression<F>> default_expr =
-                ExpressionFactory<F>::Constant(F(2));
-            std::unique_ptr<Expression<F>> advice_table_expr =
-                cells.QueryAdvice(advice_table, Rotation::Cur());
-            std::unique_ptr<Expression<F>> table_expr =
-                cells.QueryInstance(table, Rotation::Cur());
+  constraint_system.LookupAny(
+      "lookup", [&advice, complex_selector, &advice_table,
+                 &table](VirtualCells<F>& cells) {
+        std::unique_ptr<Expression<F>> advice_expr =
+            cells.QueryAdvice(advice, Rotation::Cur());
+        std::unique_ptr<Expression<F>> complex_selector_expr =
+            cells.QuerySelector(complex_selector);
+        std::unique_ptr<Expression<F>> not_complex_selector_expr =
+            ExpressionFactory<F>::Constant(F::One()) -
+            complex_selector_expr->Clone();
+        std::unique_ptr<Expression<F>> default_expr =
+            ExpressionFactory<F>::Constant(F(2));
+        std::unique_ptr<Expression<F>> advice_table_expr =
+            cells.QueryAdvice(advice_table, Rotation::Cur());
+        std::unique_ptr<Expression<F>> table_expr =
+            cells.QueryInstance(table, Rotation::Cur());
 
-            lookup::Pairs<std::unique_ptr<Expression<F>>> lookup_pairs;
-            lookup_pairs.emplace_back(
-                complex_selector_expr->Clone() * advice_expr->Clone() +
-                    not_complex_selector_expr->Clone() * default_expr->Clone(),
-                std::move(table_expr));
-            lookup_pairs.emplace_back(
-                std::move(complex_selector_expr) * std::move(advice_expr) +
-                    std::move(not_complex_selector_expr) *
-                        std::move(default_expr),
-                std::move(advice_table_expr));
-            return lookup_pairs;
-          }),
-      0);
+        lookup::Pairs<std::unique_ptr<Expression<F>>> lookup_pairs;
+        lookup_pairs.emplace_back(
+            complex_selector_expr->Clone() * advice_expr->Clone() +
+                not_complex_selector_expr->Clone() * default_expr->Clone(),
+            std::move(table_expr));
+        lookup_pairs.emplace_back(
+            std::move(complex_selector_expr) * std::move(advice_expr) +
+                std::move(not_complex_selector_expr) * std::move(default_expr),
+            std::move(advice_table_expr));
+        return lookup_pairs;
+      });
 
-  EXPECT_EQ(constraint_system.ComputeLookupRequiredDegree(), 5);
+  EXPECT_EQ(constraint_system.lookups().size(), 1);
 
   std::vector<lookup::Argument<F>> expected_lookups;
   {
