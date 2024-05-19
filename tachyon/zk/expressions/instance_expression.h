@@ -42,6 +42,11 @@ class InstanceExpression : public Expression<F> {
                             query_.ToString());
   }
 
+  void WriteIdentifier(std::ostream& out) const override {
+    out << "instance[" << query_.column().index() << "]["
+        << query_.rotation().value() << "]";
+  }
+
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const InstanceExpression* instance = other.ToInstance();

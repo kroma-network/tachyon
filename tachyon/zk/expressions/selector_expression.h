@@ -43,6 +43,10 @@ class SelectorExpression : public Expression<F> {
                             selector_.ToString());
   }
 
+  void WriteIdentifier(std::ostream& out) const override {
+    out << "selector[" << selector_.index() << "]";
+  }
+
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const SelectorExpression* selector = other.ToSelector();

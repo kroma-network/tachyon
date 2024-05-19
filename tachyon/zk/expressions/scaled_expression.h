@@ -48,6 +48,10 @@ class ScaledExpression : public Expression<F> {
                             expr_->ToString(), scale_.ToString());
   }
 
+  void WriteIdentifier(std::ostream& out) const override {
+    out << "*" << scale_.ToString();
+  }
+
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const ScaledExpression* scaled = other.ToScaled();

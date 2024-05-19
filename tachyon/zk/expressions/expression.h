@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -71,6 +72,14 @@ class Expression {
   virtual std::string ToString() const = 0;
 
   virtual std::unique_ptr<Expression> Clone() const = 0;
+
+  virtual void WriteIdentifier(std::ostream& out) const = 0;
+
+  std::string Identifier() const {
+    std::ostringstream ss;
+    WriteIdentifier(ss);
+    return ss.str();
+  }
 
   virtual bool operator==(const Expression& other) const {
     return type_ == other.type_;
