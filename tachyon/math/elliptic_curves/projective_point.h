@@ -31,10 +31,10 @@ struct PointConversions<ProjectivePoint<Curve>, ProjectivePoint<Curve>> {
 template <typename SrcCurve, typename DstCurve>
 struct PointConversions<ProjectivePoint<SrcCurve>, ProjectivePoint<DstCurve>,
                         std::enable_if_t<!std::is_same_v<SrcCurve, DstCurve>>> {
-  static ProjectivePoint<DstCurve> Convert(
+  static const ProjectivePoint<DstCurve>& Convert(
       const ProjectivePoint<SrcCurve>& src_point) {
     static_assert(SrcCurve::kType == DstCurve::kType);
-    return ProjectivePoint<DstCurve>::FromMontgomery(src_point.ToMontgomery());
+    return reinterpret_cast<const ProjectivePoint<DstCurve>&>(src_point);
   }
 };
 
