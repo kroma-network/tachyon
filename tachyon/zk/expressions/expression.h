@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/expressions/expression_type.h"
@@ -95,6 +96,13 @@ class Expression {
 
   // Extracts a simple selector from this gate, if present.
   std::optional<plonk::Selector> ExtractSimpleSelector() const;
+
+  static std::vector<std::unique_ptr<Expression>> CloneExpressions(
+      const std::vector<std::unique_ptr<Expression>>& expressions) {
+    return base::CreateVector(expressions.size(), [&expressions](size_t i) {
+      return expressions[i]->Clone();
+    });
+  }
 
   std::unique_ptr<Expression<F>> ReplaceSelectors(
       const std::vector<base::Ref<const Expression<F>>>& replacements,
