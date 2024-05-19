@@ -39,7 +39,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
-  using MontgomeryTy = BigInt<N>;
   using value_type = uint32_t;
 
   using CpuField = PrimeField<Config>;
@@ -93,9 +92,9 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     return PrimeField(big_int);
   }
 
-  constexpr static PrimeField FromMontgomery(const MontgomeryTy& mont) {
+  constexpr static PrimeField FromMontgomery(const uint32_t value) {
     PrimeField ret;
-    ret.value_ = mont[0];
+    ret.value_ = value;
     return ret;
   }
 
@@ -135,8 +134,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   constexpr BigInt<N> ToBigInt() const {
     return BigInt<N>(Config::FromMontgomery(value_));
   }
-
-  constexpr MontgomeryTy ToMontgomery() const { return MontgomeryTy(value_); }
 
   constexpr operator uint32_t() const { return value_; }
 

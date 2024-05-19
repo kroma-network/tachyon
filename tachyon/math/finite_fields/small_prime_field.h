@@ -39,7 +39,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
-  using MontgomeryTy = BigInt<N>;
   using value_type = uint32_t;
 
   using CpuField = PrimeField<Config>;
@@ -88,10 +87,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     return PrimeField(big_int);
   }
 
-  constexpr static PrimeField FromMontgomery(const MontgomeryTy& mont) {
-    return PrimeField(Config::FromMontgomery(mont[0]));
-  }
-
   static PrimeField FromMpzClass(const mpz_class& value) {
     BigInt<N> big_int;
     gmp::CopyLimbs(value, big_int.limbs);
@@ -124,10 +119,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   // TODO(chokobole): Support bigendian.
   constexpr BigInt<N> ToBigInt() const { return BigInt<N>(value_); }
-
-  constexpr MontgomeryTy ToMontgomery() const {
-    return MontgomeryTy(Config::ToMontgomery(value_));
-  }
 
   constexpr operator uint32_t() const { return value_; }
 

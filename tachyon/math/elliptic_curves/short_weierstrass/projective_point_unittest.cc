@@ -36,11 +36,6 @@ TEST_F(ProjectivePointTest, Generator) {
                             GF7::One()));
 }
 
-TEST_F(ProjectivePointTest, Montgomery) {
-  test::ProjectivePoint r = test::ProjectivePoint::Random();
-  EXPECT_EQ(r, test::ProjectivePoint::FromMontgomery(r.ToMontgomery()));
-}
-
 TEST_F(ProjectivePointTest, Random) {
   bool success = false;
   test::ProjectivePoint r = test::ProjectivePoint::Random();

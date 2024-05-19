@@ -19,6 +19,7 @@
 #include "tachyon/math/elliptic_curves/msm/algorithms/pippenger/pippenger_base.h"
 #include "tachyon/math/elliptic_curves/msm/kernels/cuzk/cuzk_kernels.cu.h"
 #include "tachyon/math/elliptic_curves/msm/msm_ctx.h"
+#include "tachyon/math/elliptic_curves/point_conversions.h"
 
 namespace tachyon::math {
 
@@ -108,8 +109,7 @@ class CUZK : public PippengerBase<AffinePoint<GpuCurve>>,
     gpuError_t error = gpuDeviceSynchronize();
     if (error != gpuSuccess) return false;
 
-    *cpu_result =
-        PointXYZZ<CpuCurve>::FromMontgomery(gpu_result->ToMontgomery());
+    *cpu_result = ConvertPoint<PointXYZZ<CpuCurve>>(*gpu_result);
     return true;
   }
 

@@ -35,11 +35,6 @@ TEST_F(JacobianPointTest, Generator) {
                 test::JacobianPoint::Curve::Config::kGenerator.y, GF7::One()));
 }
 
-TEST_F(JacobianPointTest, Montgomery) {
-  test::JacobianPoint r = test::JacobianPoint::Random();
-  EXPECT_EQ(r, test::JacobianPoint::FromMontgomery(r.ToMontgomery()));
-}
-
 TEST_F(JacobianPointTest, Random) {
   bool success = false;
   test::JacobianPoint r = test::JacobianPoint::Random();

@@ -31,6 +31,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   PrimeField() = default;
   explicit PrimeField(uint64_t value);
+  explicit PrimeField(BigInt<N> value) : PrimeField(value[0]) {}
   PrimeField(const PrimeField& other) = default;
   PrimeField& operator=(const PrimeField& other) = default;
   PrimeField(PrimeField&& other) = default;
@@ -43,7 +44,9 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   static std::optional<PrimeField> FromDecString(std::string_view str);
   static std::optional<PrimeField> FromHexString(std::string_view str);
   static PrimeField FromBigInt(BigInt<N> big_int);
+#if USE_MONTGOMERY == 1
   static PrimeField FromMontgomery(BigInt<N> big_int);
+#endif
 
   static PrimeField FromMpzClass(const mpz_class& value) {
     BigInt<N> big_int;
@@ -67,8 +70,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   // TODO(chokobole): Support bigendian.
   BigInt<N> ToBigInt() const { return BigInt<N>(value_); }
-
-  BigInt<N> ToMontgomery() const;
 
   operator uint64_t() const { return value_; }
 

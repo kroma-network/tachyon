@@ -33,7 +33,6 @@ class PrimeFieldGpuDebug final
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
-  using MontgomeryTy = BigInt<N>;
   using value_type = BigInt<N>;
 
   using CpuField = PrimeFieldGpuDebug<Config>;
@@ -47,7 +46,7 @@ class PrimeFieldGpuDebug final
   constexpr explicit PrimeFieldGpuDebug(const BigInt<N>& value) {
     DCHECK_LT(value, Config::kModulus);
     PrimeField<Config> p(value);
-    value_ = p.ToMontgomery();
+    value_ = p.value();
   }
   constexpr PrimeFieldGpuDebug(const PrimeFieldGpuDebug& other) = default;
   constexpr PrimeFieldGpuDebug& operator=(const PrimeFieldGpuDebug& other) =
@@ -65,7 +64,7 @@ class PrimeFieldGpuDebug final
 
   static PrimeFieldGpuDebug Random() {
     PrimeFieldGpuDebug ret;
-    ret.value_ = PrimeField<Config>::Random().ToMontgomery();
+    ret.value_ = PrimeField<Config>::Random().value();
     return ret;
   }
 
@@ -94,7 +93,7 @@ class PrimeFieldGpuDebug final
     return PrimeFieldGpuDebug(big_int);
   }
 
-  constexpr static PrimeFieldGpuDebug FromMontgomery(const MontgomeryTy& mont) {
+  constexpr static PrimeFieldGpuDebug FromMontgomery(const BigInt<N>& mont) {
     PrimeFieldGpuDebug ret;
     ret.value_ = mont;
     return ret;
@@ -141,8 +140,6 @@ class PrimeFieldGpuDebug final
     return BigInt<N>::FromMontgomery64(value_, Config::kModulus,
                                        Config::kInverse64);
   }
-
-  constexpr const BigInt<N>& ToMontgomery() const { return value_; }
 
   constexpr uint64_t& operator[](size_t i) { return value_[i]; }
   constexpr const uint64_t& operator[](size_t i) const { return value_[i]; }

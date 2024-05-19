@@ -91,12 +91,6 @@ class AffinePoint<
     return point.ToAffine();
   }
 
-  constexpr static AffinePoint FromMontgomery(
-      const Point2<typename BaseField::MontgomeryTy>& point) {
-    return {BaseField::FromMontgomery(point.x),
-            BaseField::FromMontgomery(point.y)};
-  }
-
   constexpr static AffinePoint Random() {
     return FromJacobian(JacobianPoint<Curve>::Random());
   }
@@ -150,10 +144,6 @@ class AffinePoint<
   constexpr PointXYZZ<Curve> ToXYZZ() const {
     if (infinity_) return PointXYZZ<Curve>::Zero();
     return {x_, y_, BaseField::One(), BaseField::One()};
-  }
-
-  constexpr Point2<typename BaseField::MontgomeryTy> ToMontgomery() const {
-    return {x_.ToMontgomery(), y_.ToMontgomery()};
   }
 
   std::string ToString() const {

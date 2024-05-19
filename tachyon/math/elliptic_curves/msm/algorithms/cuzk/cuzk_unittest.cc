@@ -13,6 +13,7 @@
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/affine_point.h"
 #include "tachyon/math/elliptic_curves/short_weierstrass/point_xyzz.h"
+#include "tachyon/math/finite_fields/prime_field_conversions.h"
 
 namespace tachyon::math {
 
@@ -72,13 +73,11 @@ TEST_F(CUZKTest, RunWithRandom) {
 
   auto bases = gpu::GpuMemory<bn254::G1AffinePointGpu>::MallocManaged(size);
   for (size_t i = 0; i < bases.size(); ++i) {
-    bases[i] = bn254::G1AffinePointGpu::FromMontgomery(
-        test_set.bases[i].ToMontgomery());
+    bases[i] = ConvertPoint<bn254::G1AffinePointGpu>(test_set.bases[i]);
   }
   auto scalars = gpu::GpuMemory<bn254::FrGpu>::MallocManaged(size);
   for (size_t i = 0; i < scalars.size(); ++i) {
-    scalars[i] =
-        bn254::FrGpu::FromMontgomery(test_set.scalars[i].ToMontgomery());
+    scalars[i] = ConvertPrimeField<bn254::FrGpu>(test_set.scalars[i]);
   }
   CUZK<bn254::G1CurveGpu> cuzk;
   bn254::G1PointXYZZ ret;

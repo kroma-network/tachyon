@@ -96,7 +96,11 @@ class PrimeFieldBase : public FiniteField<F> {
         return false;
       }
 
-      omega = F::FromMontgomery(Config::kLargeSubgroupRootOfUnity);
+      if constexpr (F::Config::kUseMontgomery) {
+        omega = F::FromMontgomery(Config::kLargeSubgroupRootOfUnity);
+      } else {
+        omega = F(Config::kLargeSubgroupRootOfUnity);
+      }
       for (size_t i = factors.q_adicity; i < Config::kSmallSubgroupAdicity;
            ++i) {
         omega = omega.Pow(Config::kSmallSubgroupBase);
@@ -113,7 +117,11 @@ class PrimeFieldBase : public FiniteField<F> {
         return false;
       }
 
-      omega = F::FromMontgomery(Config::kTwoAdicRootOfUnity);
+      if constexpr (F::Config::kUseMontgomery) {
+        omega = F::FromMontgomery(Config::kTwoAdicRootOfUnity);
+      } else {
+        omega = F(Config::kTwoAdicRootOfUnity);
+      }
       for (uint32_t i = log_size_of_group; i < Config::kTwoAdicity; ++i) {
         omega.SquareInPlace();
       }
@@ -165,11 +173,12 @@ class Copyable<
   static bool s_is_in_montgomery;
 
   static bool WriteTo(const T& prime_field, Buffer* buffer) {
-    if (s_is_in_montgomery) {
-      return buffer->Write(prime_field.ToMontgomery());
-    } else {
-      return buffer->Write(prime_field.ToBigInt());
+    if constexpr (T::Config::kUseMontgomery) {
+      if (s_is_in_montgomery) {
+        return buffer->Write(prime_field.value());
+      }
     }
+    return buffer->Write(prime_field.ToBigInt());
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer, T* prime_field) {
@@ -181,11 +190,13 @@ class Copyable<
         v = v.Mod(BigInt(T::Config::kModulus));
       }
     }
-    if (s_is_in_montgomery) {
-      *prime_field = T::FromMontgomery(v);
-    } else {
-      *prime_field = T::FromBigInt(v);
+    if constexpr (T::Config::kUseMontgomery) {
+      if (s_is_in_montgomery) {
+        *prime_field = T::FromMontgomery(v);
+        return true;
+      }
     }
+    *prime_field = T::FromBigInt(v);
     return true;
   }
 
@@ -217,11 +228,13 @@ class RapidJsonValueConverter<
   template <typename Allocator>
   static rapidjson::Value From(const T& value, Allocator& allocator) {
     rapidjson::Value object(rapidjson::kObjectType);
-    if (s_is_in_montgomery) {
-      AddJsonElement(object, "value", value.ToMontgomery(), allocator);
-    } else {
-      AddJsonElement(object, "value", value.ToBigInt(), allocator);
+    if constexpr (T::Config::kUseMontgomery) {
+      if (s_is_in_montgomery) {
+        AddJsonElement(object, "value", value.value(), allocator);
+        return object;
+      }
     }
+    AddJsonElement(object, "value", value.ToBigInt(), allocator);
     return object;
   }
 
@@ -235,11 +248,13 @@ class RapidJsonValueConverter<
         v = v.Mod(BigInt(T::Config::kModulus));
       }
     }
-    if (s_is_in_montgomery) {
-      *value = T::FromMontgomery(v);
-    } else {
-      *value = T::FromBigInt(v);
+    if constexpr (T::Config::kUseMontgomery) {
+      if (s_is_in_montgomery) {
+        *value = T::FromMontgomery(v);
+        return true;
+      }
     }
+    *value = T::FromBigInt(v);
     return true;
   }
 };

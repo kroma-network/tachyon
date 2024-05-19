@@ -38,7 +38,6 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
-  using MontgomeryTy = BigInt<N>;
   using value_type = BigInt<N>;
 
   using CpuField = PrimeField<Config>;
@@ -95,7 +94,7 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return PrimeFieldGpu(big_int);
   }
 
-  constexpr static PrimeFieldGpu FromMontgomery(const MontgomeryTy& mont) {
+  constexpr static PrimeFieldGpu FromMontgomery(const BigInt<N>& mont) {
     PrimeFieldGpu ret;
     ret.value_ = mont;
     return ret;
@@ -150,8 +149,6 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
     return BigInt<N>::FromMontgomery64(value_, Config::kModulus,
                                        Config::kInverse64);
   }
-
-  constexpr const BigInt<N>& ToMontgomery() const { return value_; }
 
   // This is needed by MSM.
   // See

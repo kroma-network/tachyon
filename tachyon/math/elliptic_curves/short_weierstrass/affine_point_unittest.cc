@@ -31,14 +31,6 @@ TEST_F(AffinePointTest, Generator) {
                               test::G1Curve::Config::kGenerator.y));
 }
 
-TEST_F(AffinePointTest, Montgomery) {
-  test::AffinePoint r = test::AffinePoint::Random();
-  while (r.infinity()) {
-    r = test::AffinePoint::Random();
-  }
-  EXPECT_EQ(r, test::AffinePoint::FromMontgomery(r.ToMontgomery()));
-}
-
 TEST_F(AffinePointTest, Random) {
   bool success = false;
   test::AffinePoint r = test::AffinePoint::Random();
