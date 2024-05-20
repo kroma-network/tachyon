@@ -4,7 +4,7 @@
 #include <array>
 
 #include "tachyon/base/types/always_false.h"
-#include "tachyon/math/finite_fields/goldilocks/goldilocks.h"
+#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
 
 namespace tachyon::math {
 
