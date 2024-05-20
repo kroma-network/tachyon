@@ -155,14 +155,14 @@ void CircuitTest<TestArguments, TestData>::LoadProvingKeyTest() {
           CreatePoly(base::ArrayToVector(TestData::kLFirst));
       EXPECT_EQ(pkey.l_first(), expected_l_first);
     } else {
-      EXPECT_TRUE(pkey.l_first().empty());
+      EXPECT_EQ(pkey.l_first().NumElements(), 0);
     }
 
     if constexpr (TestData::kLLastFlag) {
       Poly expected_l_last = CreatePoly(base::ArrayToVector(TestData::kLLast));
       EXPECT_EQ(pkey.l_last(), expected_l_last);
     } else {
-      EXPECT_TRUE(pkey.l_last().empty());
+      EXPECT_EQ(pkey.l_last().NumElements(), 0);
     }
 
     if constexpr (TestData::kLActiveRowFlag) {
@@ -170,7 +170,7 @@ void CircuitTest<TestArguments, TestData>::LoadProvingKeyTest() {
           CreatePoly(base::ArrayToVector(TestData::kLActiveRow));
       EXPECT_EQ(pkey.l_active_row(), expected_l_active_row);
     } else {
-      EXPECT_TRUE(pkey.l_active_row().empty());
+      EXPECT_EQ(pkey.l_active_row().NumElements(), 0);
     }
 
     if constexpr (TestData::kFixedColumnsFlag) {
