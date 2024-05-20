@@ -44,10 +44,10 @@ __m512i Mul(__m512i lhs, __m512i rhs) {
 
 // static
 void PackedKoalaBearAVX512::Init() {
-  kP = _mm512_set1_epi32(KoalaBear::Config::kModulus[0]);
+  kP = _mm512_set1_epi32(KoalaBear::Config::kModulus);
   kInv = _mm512_set1_epi32(KoalaBear::Config::kInverse32);
   kZero = _mm512_set1_epi32(0);
-  kOne = _mm512_set1_epi32(KoalaBear::Config::kOne[0]);
+  kOne = _mm512_set1_epi32(KoalaBear::Config::kOne);
 }
 
 // static

@@ -17,13 +17,17 @@ template <typename _Config>
 class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
     : public PrimeFieldBase<PrimeField<_Config>> {
  public:
+#if defined(USE_MONTGOMERY)
+  static_assert(USE_MONTGOMERY == 0);
+#endif  // defined(USE_MONTGOMERY)
+
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;
   constexpr static size_t N = kLimbNums;
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
-  using value_type = uint64_t;
+  using value_type = BigInt<N>;
 
   PrimeField() = default;
   explicit PrimeField(uint64_t value);
@@ -49,7 +53,9 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
-  value_type value() const { return value_; }
+  // NOTE(chokobole): To be consistent with `PrimeField<F>` defined in
+  // prime_field_fallback.h, it returns the value as a `BigInt<N>`.
+  value_type value() const { return value_type(value_); }
 
   bool IsZero() const;
   bool IsOne() const;
@@ -60,34 +66,34 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   mpz_class ToMpzClass() const;
 
   // TODO(chokobole): Support bigendian.
-  BigInt<N> ToBigInt() const { return BigInt<N>(uint64_t{*this}); }
+  BigInt<N> ToBigInt() const { return BigInt<N>(value_); }
 
   BigInt<N> ToMontgomery() const;
 
-  operator uint64_t() const;
+  operator uint64_t() const { return value_; }
 
   uint64_t operator[](size_t i) const {
     DCHECK_EQ(i, size_t{0});
-    return uint64_t{*this};
+    return value_;
   }
 
   bool operator==(const PrimeField& other) const {
-    return uint64_t{*this} == uint64_t{other};
+    return value_ == other.value_;
   }
   bool operator!=(const PrimeField& other) const {
-    return uint64_t{*this} != uint64_t{other};
+    return value_ != other.value_;
   }
   bool operator<(const PrimeField& other) const {
-    return uint64_t{*this} < uint64_t{other};
+    return value_ < other.value_;
   }
   bool operator>(const PrimeField& other) const {
-    return uint64_t{*this} > uint64_t{other};
+    return value_ > other.value_;
   }
   bool operator<=(const PrimeField& other) const {
-    return uint64_t{*this} <= uint64_t{other};
+    return value_ <= other.value_;
   }
   bool operator>=(const PrimeField& other) const {
-    return uint64_t{*this} >= uint64_t{other};
+    return value_ >= other.value_;
   }
 
   // AdditiveSemigroup methods

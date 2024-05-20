@@ -230,9 +230,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   }
 
  private:
-  constexpr static uint32_t GetModulus() {
-    return static_cast<uint32_t>(Config::kModulus[0]);
-  }
+  constexpr static uint32_t GetModulus() { return Config::kModulus; }
 
   uint32_t value_;
 };

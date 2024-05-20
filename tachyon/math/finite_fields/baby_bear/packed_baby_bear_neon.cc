@@ -46,10 +46,10 @@ uint32x4_t Mul(uint32x4_t lhs, uint32x4_t rhs) {
 
 // static
 void PackedBabyBearNeon::Init() {
-  kP = vdupq_n_u32(BabyBear::Config::kModulus[0]);
+  kP = vdupq_n_u32(BabyBear::Config::kModulus);
   kInv = vdupq_n_u32(BabyBear::Config::kInverse32);
   kZero = vdupq_n_u32(0);
-  kOne = vdupq_n_u32(BabyBear::Config::kOne[0]);
+  kOne = vdupq_n_u32(BabyBear::Config::kOne);
 }
 
 // static

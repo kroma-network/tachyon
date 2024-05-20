@@ -59,11 +59,7 @@ TYPED_TEST(PrimeFieldGeneratorTest, One) {
   using PrimeField = TypeParam;
   EXPECT_TRUE(PrimeField::One().IsOne());
   EXPECT_FALSE(PrimeField::Zero().IsOne());
-  if constexpr (PrimeField::Config::kUseMontgomery) {
-    EXPECT_EQ(PrimeField::Config::kOne, PrimeField(1).ToMontgomery());
-  } else {
-    EXPECT_EQ(PrimeField::Config::kOne, PrimeField(1).ToBigInt());
-  }
+  EXPECT_EQ(PrimeField::Config::kOne, PrimeField(1).value());
 }
 
 TYPED_TEST(PrimeFieldGeneratorTest, BigIntConversion) {

@@ -177,8 +177,8 @@ class Copyable<
     BigInt v;
     if (!buffer.Read(&v)) return false;
     if (s_allow_value_greater_than_or_equal_to_modulus) {
-      if (v >= T::Config::kModulus) {
-        v = v.Mod(T::Config::kModulus);
+      if (v >= BigInt(T::Config::kModulus)) {
+        v = v.Mod(BigInt(T::Config::kModulus));
       }
     }
     if (s_is_in_montgomery) {
@@ -227,11 +227,12 @@ class RapidJsonValueConverter<
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
                  T* value, std::string* error) {
-    typename T::BigIntTy v;
+    using BigInt = typename T::BigIntTy;
+    BigInt v;
     if (!ParseJsonElement(json_value, "value", &v, error)) return false;
     if (s_allow_value_greater_than_or_equal_to_modulus) {
-      if (v >= T::Config::kModulus) {
-        v = v.Mod(T::Config::kModulus);
+      if (v >= BigInt(T::Config::kModulus)) {
+        v = v.Mod(BigInt(T::Config::kModulus));
       }
     }
     if (s_is_in_montgomery) {

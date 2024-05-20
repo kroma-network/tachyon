@@ -37,6 +37,8 @@ generate_large_fft_prime_fields(
     small_subgroup_adicity = ":" + SMALL_SUBGROUP_ADICITY,
     small_subgroup_base = ":" + SMALL_SUBGROUP_BASE,
     subgroup_generator = ":" + SUBGROUP_GENERATOR,
+    # NOTE(chokobole): Polygon's Goldilocks doesn't use montgomery reduction by default.
+    use_montgomery = if_x86_64(False, True),
 )
 
 tachyon_cc_library(

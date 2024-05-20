@@ -120,11 +120,6 @@ BigInt<CLASS::N> CLASS::ToMontgomery() const {
 }
 
 template <typename Config>
-CLASS::operator uint64_t() const {
-  return ::Goldilocks::toU64(::Goldilocks::Element{value_});
-}
-
-template <typename Config>
 CLASS CLASS::Add(const PrimeField& other) const {
   PrimeField ret;
   ::Goldilocks::add(

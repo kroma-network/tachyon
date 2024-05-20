@@ -61,7 +61,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   constexpr static PrimeField Zero() { return PrimeField(); }
   constexpr static PrimeField One() {
     PrimeField ret;
-    ret.value_ = static_cast<uint32_t>(Config::kOne[0]);
+    ret.value_ = Config::kOne;
     return ret;
   }
 
@@ -111,9 +111,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   constexpr bool IsZero() const { return value_ == 0; }
 
-  constexpr bool IsOne() const {
-    return value_ == static_cast<uint32_t>(Config::kOne[0]);
-  }
+  constexpr bool IsOne() const { return value_ == Config::kOne; }
 
   std::string ToString() const {
     return base::NumberToString(Config::FromMontgomery(value_));
@@ -225,9 +223,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   }
 
  private:
-  constexpr static uint32_t GetModulus() {
-    return static_cast<uint32_t>(Config::kModulus[0]);
-  }
+  constexpr static uint32_t GetModulus() { return Config::kModulus; }
 
   uint32_t value_;
 };
