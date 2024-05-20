@@ -121,13 +121,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     return BigInt<N>(Config::FromMontgomery(value_));
   }
 
-  constexpr operator uint32_t() const { return value_; }
-
-  constexpr uint32_t operator[](size_t i) const {
-    DCHECK_EQ(i, size_t{0});
-    return value_;
-  }
-
   constexpr bool operator==(PrimeField other) const {
     return value_ == other.value_;
   }

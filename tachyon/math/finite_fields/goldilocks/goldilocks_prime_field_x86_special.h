@@ -64,11 +64,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   operator uint64_t() const { return value_; }
 
-  uint64_t operator[](size_t i) const {
-    DCHECK_EQ(i, size_t{0});
-    return value_;
-  }
-
   bool operator==(const PrimeField& other) const {
     return value_ == other.value_;
   }
