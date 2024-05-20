@@ -95,6 +95,7 @@ struct ModulusInfo {
 struct GenerationConfig : public build::CcWriter {
   base::FilePath config_hdr_tpl_path;
   base::FilePath cpu_hdr_tpl_path;
+  base::FilePath small_cpu_hdr_tpl_path;
   base::FilePath fail_src_tpl_path;
   base::FilePath fail_hdr_tpl_path;
   base::FilePath gpu_hdr_tpl_path;
@@ -303,8 +304,16 @@ int GenerationConfig::GenerateConfigHdr() const {
 }
 
 int GenerationConfig::GenerateCpuHdr() const {
+  mpz_class m = math::gmp::FromDecString(modulus);
+  size_t num_bits = GetNumBits(m);
+  bool is_small_field = num_bits <= 32;
+
   std::string tpl_content;
-  CHECK(base::ReadFileToString(cpu_hdr_tpl_path, &tpl_content));
+  if (is_small_field) {
+    CHECK(base::ReadFileToString(small_cpu_hdr_tpl_path, &tpl_content));
+  } else {
+    CHECK(base::ReadFileToString(cpu_hdr_tpl_path, &tpl_content));
+  }
 
   base::FilePath hdr_path = GetHdrPath();
   base::FilePath basename = hdr_path.BaseName().RemoveExtension();
@@ -321,12 +330,6 @@ int GenerationConfig::GenerateCpuHdr() const {
   };
 
   std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, "\n");
-
-  mpz_class m = math::gmp::FromDecString(modulus);
-  size_t num_bits = GetNumBits(m);
-  bool is_small_field = num_bits <= 32;
-  RemoveOptionalLines(tpl_lines, "kIsSmallField", is_small_field);
-  RemoveOptionalLines(tpl_lines, "!kIsSmallField", !is_small_field);
 
   RemoveOptionalLines(tpl_lines, "kUseMontgomery", use_montgomery);
   RemoveOptionalLines(tpl_lines, "!kUseMontgomery", !use_montgomery);
@@ -410,6 +413,9 @@ int RealMain(int argc, char** argv) {
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.cpu_hdr_tpl_path)
       .set_long_name("--cpu_hdr_tpl_path")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.small_cpu_hdr_tpl_path)
+      .set_long_name("--small_cpu_hdr_tpl_path")
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.gpu_hdr_tpl_path)
       .set_long_name("--gpu_hdr_tpl_path")

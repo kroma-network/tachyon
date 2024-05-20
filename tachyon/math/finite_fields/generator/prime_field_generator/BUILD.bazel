@@ -7,11 +7,12 @@ tachyon_cc_binary(
     srcs = ["prime_field_generator.cc"],
     data = [
         "config.h.tpl",
-        "cpu.h.tpl",
         "fail.cc.tpl",
         "fail.h.tpl",
+        "prime_field_cpu.h.tpl",
         "prime_field_gpu.h.tpl",
         "prime_field_x86.h.tpl",
+        "small_prime_field_cpu.h.tpl",
         "small_prime_field_gpu.h.tpl",
     ],
     deps = [
