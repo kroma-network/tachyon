@@ -14,7 +14,7 @@ tachyon_cc_library(
     hdrs = ["r1cs.h"],
     deps = [
         ":constraint",
-        "//circomlib/base:prime_field",
+        "//circomlib/base:modulus",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
         "@kroma_network_tachyon//tachyon/base/buffer:endian_auto_reset",

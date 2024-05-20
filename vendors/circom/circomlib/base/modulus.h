@@ -1,5 +1,5 @@
-#ifndef VENDORS_CIRCOM_CIRCOMLIB_BASE_PRIME_FIELD_H_
-#define VENDORS_CIRCOM_CIRCOMLIB_BASE_PRIME_FIELD_H_
+#ifndef VENDORS_CIRCOM_CIRCOMLIB_BASE_MODULUS_H_
+#define VENDORS_CIRCOM_CIRCOMLIB_BASE_MODULUS_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -16,15 +16,11 @@
 
 namespace tachyon::circom {
 
-struct PrimeField {
+struct Modulus {
   std::vector<uint8_t> bytes;
 
-  bool operator==(const PrimeField& other) const {
-    return bytes == other.bytes;
-  }
-  bool operator!=(const PrimeField& other) const {
-    return bytes != other.bytes;
-  }
+  bool operator==(const Modulus& other) const { return bytes == other.bytes; }
+  bool operator!=(const Modulus& other) const { return bytes != other.bytes; }
 
   template <size_t N>
   math::BigInt<N> ToBigInt() const {
@@ -33,7 +29,7 @@ struct PrimeField {
   }
 
   template <size_t N>
-  static PrimeField FromBigInt(const math::BigInt<N>& big_int) {
+  static Modulus FromBigInt(const math::BigInt<N>& big_int) {
     std::array<uint8_t, N * 8> bytes = big_int.ToBytesLE();
     return {{bytes.begin(), bytes.end()}};
   }
@@ -55,4 +51,4 @@ struct PrimeField {
 
 }  // namespace tachyon::circom
 
-#endif  // VENDORS_CIRCOM_CIRCOMLIB_BASE_PRIME_FIELD_H_
+#endif  // VENDORS_CIRCOM_CIRCOMLIB_BASE_MODULUS_H_

@@ -26,7 +26,7 @@ TEST_F(R1CSParserTest, Parse) {
 
   std::array<uint8_t, 32> bytes = math::bn254::FrConfig::kModulus.ToBytesLE();
   v1::R1CSHeaderSection expected_header = {
-      PrimeField{std::vector<uint8_t>(bytes.begin(), bytes.end())},
+      Modulus{std::vector<uint8_t>(bytes.begin(), bytes.end())},
       6,
       1,
       0,

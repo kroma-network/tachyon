@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "circomlib/base/prime_field.h"
+#include "circomlib/base/modulus.h"
 #include "circomlib/base/sections.h"
 #include "circomlib/r1cs/constraint.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
@@ -54,7 +54,7 @@ enum class R1CSSectionType : uint32_t {
 std::string_view R1CSSectionTypeToString(R1CSSectionType type);
 
 struct R1CSHeaderSection {
-  PrimeField modulus;
+  Modulus modulus;
   // Total number of wires including ONE signal (Index 0).
   uint32_t num_wires;
   // Total number of public output wires. They should be starting at

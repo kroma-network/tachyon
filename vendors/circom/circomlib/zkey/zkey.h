@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include "circomlib/base/prime_field.h"
+#include "circomlib/base/modulus.h"
 #include "circomlib/base/sections.h"
 #include "circomlib/zkey/constraint_matrices.h"
 #include "circomlib/zkey/proving_key.h"
@@ -85,8 +85,8 @@ struct ZKeyHeaderSection {
 
 template <typename Curve>
 struct ZKeyHeaderGrothSection {
-  PrimeField q;
-  PrimeField r;
+  Modulus q;
+  Modulus r;
   uint32_t num_vars;
   uint32_t num_public_inputs;
   uint32_t domain_size;

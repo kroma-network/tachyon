@@ -1,4 +1,4 @@
-#include "circomlib/base/prime_field.h"
+#include "circomlib/base/modulus.h"
 
 #include "gtest/gtest.h"
 
@@ -11,20 +11,20 @@ namespace tachyon::circom {
 
 using F = math::bn254::Fr;
 
-class PrimeFieldTest : public math::FiniteFieldTest<F> {};
+class ModulusTest : public math::FiniteFieldTest<F> {};
 
-TEST_F(PrimeFieldTest, BigIntConversions) {
+TEST_F(ModulusTest, BigIntConversions) {
   math::BigInt<4> expected = math::BigInt<4>::Random();
-  PrimeField field = PrimeField::FromBigInt(expected);
+  Modulus field = Modulus::FromBigInt(expected);
   EXPECT_EQ(field.ToBigInt<4>(), expected);
 }
 
-TEST_F(PrimeFieldTest, Read) {
+TEST_F(ModulusTest, Read) {
   std::array<uint8_t, 8> data;
 
   {
     base::Uint8VectorBuffer buffer;
-    PrimeField field;
+    Modulus field;
     // Should return false when it fails to read the field size.
     ASSERT_FALSE(field.Read(buffer));
   }
@@ -33,7 +33,7 @@ TEST_F(PrimeFieldTest, Read) {
     base::Uint8VectorBuffer buffer;
     ASSERT_TRUE(buffer.Write(uint32_t{3}));
     buffer.set_buffer_offset(0);
-    PrimeField field;
+    Modulus field;
     // Should return false when the field size is not a multiple of 8.
     ASSERT_FALSE(field.Read(buffer));
   }
@@ -42,7 +42,7 @@ TEST_F(PrimeFieldTest, Read) {
     base::Uint8VectorBuffer buffer;
     ASSERT_TRUE(buffer.Write(uint32_t{8}));
     buffer.set_buffer_offset(0);
-    PrimeField field;
+    Modulus field;
     // Should return false when it fails to read the field data.
     ASSERT_FALSE(field.Read(buffer));
   }
@@ -52,7 +52,7 @@ TEST_F(PrimeFieldTest, Read) {
     ASSERT_TRUE(buffer.Write(uint32_t{8}));
     ASSERT_TRUE(buffer.Write(data));
     buffer.set_buffer_offset(0);
-    PrimeField field;
+    Modulus field;
     ASSERT_TRUE(field.Read(buffer));
   }
 }

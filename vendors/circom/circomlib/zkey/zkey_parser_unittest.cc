@@ -114,8 +114,8 @@ TEST_F(ZKeyParserTest, Parse) {
   // clang-format on
 
   v1::ZKeyHeaderGrothSection<Curve> expected_header_groth = {
-      PrimeField{std::vector<uint8_t>(fq_bytes.begin(), fq_bytes.end())},
-      PrimeField{std::vector<uint8_t>(fr_bytes.begin(), fr_bytes.end())},
+      Modulus{std::vector<uint8_t>(fq_bytes.begin(), fq_bytes.end())},
+      Modulus{std::vector<uint8_t>(fr_bytes.begin(), fr_bytes.end())},
       6,
       1,
       4,

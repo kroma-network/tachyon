@@ -44,7 +44,7 @@ tachyon_cc_library(
     deps = [
         ":constraint_matrices",
         ":proving_key",
-        "//circomlib/base:prime_field",
+        "//circomlib/base:modulus",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:auto_reset",
         "@kroma_network_tachyon//tachyon/base:logging",
