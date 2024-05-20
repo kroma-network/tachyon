@@ -7,7 +7,6 @@
 #include <optional>
 #include <string>
 
-#include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/goldilocks/goldilocks_config.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
@@ -48,12 +47,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   static PrimeField FromMontgomery(BigInt<N> big_int);
 #endif
 
-  static PrimeField FromMpzClass(const mpz_class& value) {
-    BigInt<N> big_int;
-    gmp::CopyLimbs(value, big_int.limbs);
-    return FromBigInt(big_int);
-  }
-
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
   // NOTE(chokobole): To be consistent with `PrimeField<F>` defined in
@@ -65,8 +58,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   std::string ToString() const;
   std::string ToHexString(bool pad_zero = false) const;
-
-  mpz_class ToMpzClass() const;
 
   // TODO(chokobole): Support bigendian.
   BigInt<N> ToBigInt() const { return BigInt<N>(value_); }

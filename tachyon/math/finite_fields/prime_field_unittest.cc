@@ -61,13 +61,6 @@ TYPED_TEST(PrimeFieldTest, BigIntConversion) {
   EXPECT_EQ(F::FromBigInt(r.ToBigInt()), r);
 }
 
-TYPED_TEST(PrimeFieldTest, MpzClassConversion) {
-  using F = TypeParam;
-
-  F r = F::Random();
-  EXPECT_EQ(F::FromMpzClass(r.ToMpzClass()), r);
-}
-
 TYPED_TEST(PrimeFieldTest, EqualityOperators) {
   using F = TypeParam;
 

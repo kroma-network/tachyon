@@ -18,7 +18,6 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/egcd.h"
-#include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::math {
@@ -87,12 +86,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     return PrimeField(big_int);
   }
 
-  static PrimeField FromMpzClass(const mpz_class& value) {
-    BigInt<N> big_int;
-    gmp::CopyLimbs(value, big_int.limbs);
-    return FromBigInt(big_int);
-  }
-
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
   constexpr value_type value() const { return value_; }
@@ -109,12 +102,6 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
       str = base::ToHexStringWithLeadingZero(str, 8);
     }
     return base::MaybePrepend0x(str);
-  }
-
-  mpz_class ToMpzClass() const {
-    mpz_class ret;
-    gmp::WriteLimbs(ToBigInt().limbs, N, &ret);
-    return ret;
   }
 
   // TODO(chokobole): Support bigendian.

@@ -103,14 +103,6 @@ std::string CLASS::ToHexString(bool pad_zero) const {
 }
 
 template <typename Config>
-mpz_class CLASS::ToMpzClass() const {
-  mpz_class ret;
-  uint64_t limbs[] = {uint64_t{*this}};
-  gmp::WriteLimbs(limbs, N, &ret);
-  return ret;
-}
-
-template <typename Config>
 CLASS CLASS::Add(const PrimeField& other) const {
   PrimeField ret;
   ::Goldilocks::add(
