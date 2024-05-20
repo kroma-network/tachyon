@@ -49,7 +49,7 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
-  const value_type& value() const { return value_; }
+  value_type value() const { return value_; }
 
   bool IsZero() const;
   bool IsOne() const;
