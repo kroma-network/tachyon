@@ -119,8 +119,8 @@ TEST_F(PrimeFieldGpuTest, Zero) {
 }
 
 TEST_F(PrimeFieldGpuTest, One) {
-  EXPECT_TRUE(GF7Gpu::One().IsOneHost());
-  EXPECT_FALSE(GF7Gpu::Zero().IsOneHost());
+  EXPECT_TRUE(GF7Gpu::One().IsOne());
+  EXPECT_FALSE(GF7Gpu::Zero().IsOne());
 }
 
 TEST_F(PrimeFieldGpuTest, Add) {

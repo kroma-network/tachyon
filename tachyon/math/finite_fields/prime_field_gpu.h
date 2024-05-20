@@ -112,26 +112,17 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
   constexpr const value_type& value() const { return value_; }
   constexpr size_t GetLimbSize() const { return N; }
 
-  __device__ constexpr bool IsZero() const {
+  constexpr bool IsZero() const {
     const uint64_t* x = value_.limbs;
     uint64_t limbs_or = x[0];
     for (size_t i = 1; i < N; ++i) limbs_or |= x[i];
     return limbs_or == 0;
   }
 
-  __device__ constexpr bool IsOne() const {
+  constexpr bool IsOne() const {
     BigInt<N> one = GetOne();
     for (size_t i = 0; i < N; ++i) {
       if (value_[i] != one[i]) return false;
-    }
-    return true;
-  }
-
-  constexpr bool IsZeroHost() const { return value_.IsZero(); }
-
-  constexpr bool IsOneHost() const {
-    for (size_t i = 0; i < N; ++i) {
-      if (value_[i] != Config::kOne[i]) return false;
     }
     return true;
   }
