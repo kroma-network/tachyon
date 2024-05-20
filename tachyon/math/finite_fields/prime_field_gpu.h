@@ -109,8 +109,8 @@ class PrimeFieldGpu final : public PrimeFieldBase<PrimeFieldGpu<_Config>> {
 
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
-  __host__ __device__ const value_type& value() const { return value_; }
-  __host__ __device__ size_t GetLimbSize() const { return N; }
+  constexpr const value_type& value() const { return value_; }
+  constexpr size_t GetLimbSize() const { return N; }
 
   __device__ constexpr bool IsZero() const {
     const uint64_t* x = value_.limbs;
