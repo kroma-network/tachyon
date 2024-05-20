@@ -18,6 +18,7 @@
 #include "tachyon/base/parallelize.h"
 #include "tachyon/base/types/always_false.h"
 #include "tachyon/zk/base/rotation.h"
+#include "tachyon/zk/lookup/halo2/evaluator.h"
 #include "tachyon/zk/lookup/halo2/prover.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/evaluator.h"
 #include "tachyon/zk/plonk/base/column_key.h"
