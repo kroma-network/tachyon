@@ -175,7 +175,7 @@ class Verifier : public VerifierBase<PCS> {
     return base::Map(columns, [this](const Evals& column) {
       std::vector<F> expanded_evals = column.evaluations();
       expanded_evals.resize(this->pcs_.N());
-      return this->Commit(expanded_evals);
+      return this->Commit(Evals(expanded_evals));
     });
   }
 
