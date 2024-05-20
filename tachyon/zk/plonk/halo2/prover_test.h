@@ -15,7 +15,7 @@ namespace tachyon::zk::plonk::halo2 {
 
 constexpr size_t kMaxDegree = (size_t{1} << 5) - 1;
 constexpr size_t kMaxDomainSize = kMaxDegree + 1;
-constexpr size_t kMaxExtendedDegree = (size_t{1} << 7) - 1;
+constexpr size_t kMaxExtendedDegree = (size_t{1} << 8) - 1;
 constexpr size_t kMaxExtendedDomainSize = kMaxExtendedDegree + 1;
 
 template <typename PCS, typename LS>
