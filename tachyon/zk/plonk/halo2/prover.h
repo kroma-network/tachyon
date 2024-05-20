@@ -158,6 +158,16 @@ class Prover : public ProverBase<PCS> {
             LookupProver::GetNumPermutedPairsCommitments(lookup_provers));
       }
       LookupProver::BatchCommitPermutedPairs(lookup_provers, this, commit_idx);
+    } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
+      LookupProver::BatchCompressPairs(lookup_provers, domain, cs.lookups(),
+                                       theta, column_tables);
+      LookupProver::BatchComputeMPolys(lookup_provers, this);
+
+      if constexpr (PCS::kSupportsBatchMode) {
+        this->pcs_.SetBatchMode(
+            LookupProver::GetNumMPolysCommitments(lookup_provers));
+      }
+      LookupProver::BatchCommitMPolys(lookup_provers, this, commit_idx);
     } else {
       static_assert(base::AlwaysFalse<LS>);
     }
@@ -174,8 +184,16 @@ class Prover : public ProverBase<PCS> {
     PermutationProver<Poly, Evals>::BatchCreateGrandProductPolys(
         permutation_provers, this, cs.permutation(), column_tables,
         cs.ComputeDegree(), proving_key.permutation_proving_key(), beta, gamma);
-    LookupProver::BatchCreateGrandProductPolys(lookup_provers, this, beta,
-                                               gamma);
+
+    if constexpr (LS::type == lookup::Type::kHalo2) {
+      LookupProver::BatchCreateGrandProductPolys(lookup_provers, this, beta,
+                                                 gamma);
+    } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
+      LookupProver::BatchCreateGrandSumPolys(lookup_provers, this, beta);
+    } else {
+      static_assert(base::AlwaysFalse<LS>);
+    }
+
     vanishing_prover.CreateRandomPoly(this);
 
     if constexpr (PCS::kSupportsBatchMode) {
@@ -183,6 +201,9 @@ class Prover : public ProverBase<PCS> {
       if constexpr (LS::type == lookup::Type::kHalo2) {
         num_lookup_poly =
             LookupProver::GetNumGrandProductPolysCommitments(lookup_provers);
+      } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
+        num_lookup_poly =
+            LookupProver::GetNumGrandSumPolysCommitments(lookup_provers);
       } else {
         static_assert(base::AlwaysFalse<LS>);
       }
@@ -199,6 +220,8 @@ class Prover : public ProverBase<PCS> {
     if constexpr (LS::type == lookup::Type::kHalo2) {
       LookupProver::BatchCommitGrandProductPolys(lookup_provers, this,
                                                  commit_idx);
+    } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
+      LookupProver::BatchCommitGrandSumPolys(lookup_provers, this, commit_idx);
     } else {
       static_assert(base::AlwaysFalse<LS>);
     }
