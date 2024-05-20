@@ -22,9 +22,6 @@
 
 namespace tachyon::math {
 
-template <typename Config>
-class PrimeFieldGpu;
-
 // A prime field is finite field GF(p) where p is a prime number.
 template <typename _Config>
 class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
@@ -41,7 +38,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   using value_type = uint32_t;
 
   using CpuField = PrimeField<Config>;
-  using GpuField = PrimeFieldGpu<Config>;
+  using GpuField = PrimeField<Config>;
 
   constexpr PrimeField() = default;
   constexpr explicit PrimeField(uint32_t value) : value_(value) {
