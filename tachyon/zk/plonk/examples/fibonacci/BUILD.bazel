@@ -1,0 +1,97 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
+
+package(default_visibility = ["//visibility:public"])
+
+COMMON_TEST_DATA_DEPS = [
+    "//tachyon/zk/plonk/examples:circuit_test_data",
+    "//tachyon/zk/plonk/examples:circuit_test_type_traits",
+    "//tachyon/zk/plonk/examples:point",
+]
+
+COMMON_TEST_DEPS = [
+    "//tachyon/zk/plonk/examples:circuit_test",
+    "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
+    "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",
+]
+
+tachyon_cc_library(
+    name = "fibonacci1_circuit",
+    hdrs = ["fibonacci1_circuit.h"],
+    deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
+)
+
+tachyon_cc_library(
+    name = "fibonacci1_circuit_test_data",
+    testonly = True,
+    hdrs = ["fibonacci1_circuit_test_data.h"],
+    deps = COMMON_TEST_DATA_DEPS,
+)
+
+tachyon_cc_library(
+    name = "fibonacci2_circuit",
+    hdrs = ["fibonacci2_circuit.h"],
+    deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
+)
+
+tachyon_cc_library(
+    name = "fibonacci2_circuit_test_data",
+    testonly = True,
+    hdrs = ["fibonacci2_circuit_test_data.h"],
+    deps = COMMON_TEST_DATA_DEPS,
+)
+
+tachyon_cc_library(
+    name = "fibonacci3_circuit",
+    hdrs = ["fibonacci3_circuit.h"],
+    deps = [
+        ":is_zero_chip",
+        "//tachyon/zk/plonk/constraint_system:circuit",
+    ],
+)
+
+tachyon_cc_library(
+    name = "fibonacci3_circuit_test_data",
+    testonly = True,
+    hdrs = ["fibonacci3_circuit_test_data.h"],
+    deps = COMMON_TEST_DATA_DEPS,
+)
+
+tachyon_cc_library(
+    name = "is_zero_chip",
+    hdrs = ["is_zero_chip.h"],
+    deps = [
+        "//tachyon/zk/expressions:expression_factory",
+        "//tachyon/zk/plonk/constraint_system",
+        "//tachyon/zk/plonk/layout:region",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "fibonacci1_circuit_test",
+    testonly = True,
+    srcs = ["fibonacci1_circuit_test.cc"],
+    deps = COMMON_TEST_DEPS + [
+        "fibonacci1_circuit_test_data",
+        ":fibonacci1_circuit",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "fibonacci2_circuit_test",
+    testonly = True,
+    srcs = ["fibonacci2_circuit_test.cc"],
+    deps = COMMON_TEST_DEPS + [
+        "fibonacci2_circuit_test_data",
+        ":fibonacci2_circuit",
+    ],
+)
+
+tachyon_cc_unittest(
+    name = "fibonacci3_circuit_test",
+    testonly = True,
+    srcs = ["fibonacci3_circuit_test.cc"],
+    deps = COMMON_TEST_DEPS + [
+        "fibonacci3_circuit_test_data",
+        ":fibonacci3_circuit",
+    ],
+)
