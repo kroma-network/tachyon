@@ -38,13 +38,6 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
     }
   }
 
-  void ApplyARK(Eigen::Index round_number) {
-    Derived& derived = static_cast<Derived&>(*this);
-    auto& config = derived.config;
-    auto& state = derived.state;
-    state.elements += config.ark.row(round_number);
-  }
-
   void Permute() {
     Derived& derived = static_cast<Derived&>(*this);
     auto& config = derived.config;
@@ -54,19 +47,19 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
 
     size_t full_rounds_over_2 = config.full_rounds / 2;
     for (size_t i = 0; i < full_rounds_over_2; ++i) {
-      ApplyARK(i);
+      derived.ApplyARK(i, true);
       ApplySBox(true);
       derived.ApplyMix(true);
     }
     for (size_t i = full_rounds_over_2;
          i < full_rounds_over_2 + config.partial_rounds; ++i) {
-      ApplyARK(i);
+      derived.ApplyARK(i, false);
       ApplySBox(false);
       derived.ApplyMix(false);
     }
     for (size_t i = full_rounds_over_2 + config.partial_rounds;
          i < config.partial_rounds + config.full_rounds; ++i) {
-      ApplyARK(i);
+      derived.ApplyARK(i, true);
       ApplySBox(true);
       derived.ApplyMix(true);
     }

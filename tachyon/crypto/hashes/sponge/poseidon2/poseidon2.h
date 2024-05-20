@@ -47,6 +47,14 @@ struct Poseidon2Sponge final
       : config(config), state(std::move(state)) {}
 
   // PoseidonSpongeBase methods
+  void ApplyARK(Eigen::Index round_number, bool is_full_round) {
+    if (is_full_round) {
+      state.elements += config.ark.row(round_number);
+    } else {
+      state.elements[0] += config.ark.row(round_number)[0];
+    }
+  }
+
   void ApplyMix(bool is_full_round) {
     if (is_full_round) {
       ExternalMatrix::Apply(state.elements);
