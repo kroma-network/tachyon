@@ -10,8 +10,9 @@ tachyon_cc_binary(
         "cpu.h.tpl",
         "fail.cc.tpl",
         "fail.h.tpl",
-        "gpu.h.tpl",
+        "prime_field_gpu.h.tpl",
         "prime_field_x86.h.tpl",
+        "small_prime_field_gpu.h.tpl",
     ],
     deps = [
         "//tachyon/base/console",

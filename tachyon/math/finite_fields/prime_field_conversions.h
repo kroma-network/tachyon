@@ -15,6 +15,14 @@ constexpr DstPrimeField ConvertPrimeField(
       src_prime_field);
 }
 
+template <typename Config>
+struct PrimeFieldConversions<PrimeField<Config>, PrimeField<Config>> {
+  constexpr static const PrimeField<Config>& Convert(
+      const PrimeField<Config>& src_prime_field) {
+    return reinterpret_cast<const PrimeField<Config>&>(src_prime_field);
+  }
+};
+
 #if TACHYON_CUDA
 template <typename Config>
 struct PrimeFieldConversions<PrimeField<Config>, PrimeFieldGpu<Config>> {

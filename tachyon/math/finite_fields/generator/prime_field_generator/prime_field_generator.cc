@@ -98,6 +98,7 @@ struct GenerationConfig : public build::CcWriter {
   base::FilePath fail_src_tpl_path;
   base::FilePath fail_hdr_tpl_path;
   base::FilePath gpu_hdr_tpl_path;
+  base::FilePath small_gpu_hdr_tpl_path;
   base::FilePath x86_hdr_tpl_path;
 
   std::string ns_name;
@@ -340,16 +341,33 @@ int GenerationConfig::GenerateCpuHdr() const {
 }
 
 int GenerationConfig::GenerateGpuHdr() const {
-  std::string tpl_content;
-  CHECK(base::ReadFileToString(gpu_hdr_tpl_path, &tpl_content));
+  mpz_class m = math::gmp::FromDecString(modulus);
+  size_t num_bits = GetNumBits(m);
+  bool is_small_field = num_bits <= 32;
 
-  std::string content = absl::StrReplaceAll(
-      tpl_content, {
-                       {"%{config_header_path}",
-                        math::ConvertToConfigHdr(GetHdrPath()).value()},
-                       {"%{namespace}", ns_name},
-                       {"%{class}", class_name},
-                   });
+  std::string tpl_content;
+  if (is_small_field) {
+    CHECK(base::ReadFileToString(small_gpu_hdr_tpl_path, &tpl_content));
+  } else {
+    CHECK(base::ReadFileToString(gpu_hdr_tpl_path, &tpl_content));
+  }
+
+  absl::flat_hash_map<std::string, std::string> replacements = {
+      {"%{config_header_path}", math::ConvertToConfigHdr(GetHdrPath()).value()},
+      {"%{namespace}", ns_name},
+      {"%{class}", class_name},
+  };
+
+  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, "\n");
+
+  RemoveOptionalLines(tpl_lines, "kUseMontgomery", use_montgomery);
+  RemoveOptionalLines(tpl_lines, "!kUseMontgomery", !use_montgomery);
+
+  tpl_content = absl::StrJoin(tpl_lines, "\n");
+
+  std::string content =
+      absl::StrReplaceAll(tpl_content, std::move(replacements));
+
   return WriteHdr(content, false);
 }
 
@@ -395,6 +413,9 @@ int RealMain(int argc, char** argv) {
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.gpu_hdr_tpl_path)
       .set_long_name("--gpu_hdr_tpl_path")
+      .set_required();
+  parser.AddFlag<base::FilePathFlag>(&config.small_gpu_hdr_tpl_path)
+      .set_long_name("--small_gpu_hdr_tpl_path")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.subgroup_generator)
       .set_long_name("--subgroup_generator");

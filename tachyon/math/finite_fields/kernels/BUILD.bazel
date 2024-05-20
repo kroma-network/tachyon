@@ -12,7 +12,9 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "prime_field_ops",
     hdrs = ["prime_field_ops.cu.h"],
-    deps = ["//tachyon/math/finite_fields:prime_field_gpu"],
+    deps = if_cuda([
+        "@local_config_cuda//cuda:cuda_headers",
+    ]),
 )
 
 tachyon_cc_library(
