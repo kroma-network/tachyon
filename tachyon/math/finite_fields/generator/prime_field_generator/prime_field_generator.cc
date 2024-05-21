@@ -168,6 +168,7 @@ int GenerationConfig::GenerateConfigHdr() const {
       {"%{namespace}", ns_name},
       {"%{class}", class_name},
       {"%{flag}", flag},
+      {"%{use_asm}", base::BoolToString(use_asm)},
   };
 
   mpz_class m = math::gmp::FromDecString(modulus);
@@ -237,6 +238,7 @@ int GenerationConfig::GenerateConfigHdr() const {
     }
   } else {
     RemoveOptionalLines(tpl_lines, "kUseAsm", use_asm);
+    RemoveOptionalLines(tpl_lines, "!kUseAsm", !use_asm);
   }
 
   bool has_two_adic_root_of_unity = !subgroup_generator.empty();

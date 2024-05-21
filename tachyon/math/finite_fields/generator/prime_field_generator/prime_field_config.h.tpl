@@ -12,14 +12,15 @@ class TACHYON_EXPORT %{class}Config {
   constexpr static bool kUseMontgomery = %{use_montgomery};
 %{if kUseAsm}
 #if ARCH_CPU_X86_64
-  constexpr static bool kIsSpecialPrime = true;
+  constexpr static bool kUseAsm = %{use_asm};
   constexpr static bool %{flag} = true;
 #else
-%{endif kUseAsm}
-  constexpr static bool kIsSpecialPrime = false;
-%{if kUseAsm}
+  constexpr static bool kUseAsm = false;
 #endif
 %{endif kUseAsm}
+%{if !kUseAsm}
+  constexpr static bool kUseAsm = false;
+%{endif !kUseAsm}
 
   constexpr static size_t kModulusBits = %{modulus_bits};
   constexpr static BigInt<%{n}> kModulus = BigInt<%{n}>({

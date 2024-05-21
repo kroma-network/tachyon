@@ -23,8 +23,7 @@ namespace tachyon::math {
 
 // A prime field is finite field GF(p) where p is a prime number.
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
-                                           (_Config::kModulusBits <= 32) &&
+class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
                                            _Config::kUseMontgomery>>
     final : public PrimeFieldBase<PrimeField<_Config>> {
  public:

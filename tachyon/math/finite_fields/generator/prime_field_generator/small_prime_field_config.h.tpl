@@ -11,7 +11,6 @@ class TACHYON_EXPORT %{class}Config {
   constexpr static const char* kName = "%{namespace}::%{class}";
 
   constexpr static bool kUseMontgomery = %{use_montgomery};
-  constexpr static bool kIsSpecialPrime = false;
 
   constexpr static size_t kModulusBits = %{modulus_bits};
   constexpr static uint32_t kModulus = %{modulus};
