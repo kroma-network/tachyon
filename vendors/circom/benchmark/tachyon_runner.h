@@ -11,7 +11,7 @@
 // clang-format on
 #include "circomlib/circuit/quadratic_arithmetic_program.h"
 #include "circomlib/circuit/witness_loader.h"
-#include "circomlib/zkey/zkey_parser.h"
+#include "circomlib/zkey/zkey.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/time/time.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
@@ -39,14 +39,11 @@ class TachyonRunner : public Runner<Curve> {
   }
 
   void LoadZkey(const base::FilePath& zkey_path) override {
-    ZKeyParser zkey_parser;
-    std::unique_ptr<ZKey> zkey = zkey_parser.Parse(zkey_path);
+    std::unique_ptr<ZKey<Curve>> zkey = ParseZKey<Curve>(zkey_path);
     CHECK(zkey);
 
-    proving_key_ =
-        std::move(*zkey).TakeProvingKey().ToNativeProvingKey<Curve>();
-    constraint_matrices_ =
-        std::move(*zkey).TakeConstraintMatrices().ToNative<F>();
+    proving_key_ = std::move(*zkey).TakeProvingKey().ToNativeProvingKey();
+    constraint_matrices_ = std::move(*zkey).TakeConstraintMatrices().ToNative();
   }
 
   zk::r1cs::groth16::Proof<Curve> Run(const std::vector<F>& full_assignments,

@@ -15,7 +15,6 @@ tachyon_cc_library(
     deps = [
         ":transcript_traits",
         "//tachyon/base/buffer:vector_buffer",
-        "//tachyon/math/base:big_int",
     ],
 )
 

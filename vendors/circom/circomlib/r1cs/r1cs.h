@@ -3,41 +3,77 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
+#include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "circomlib/base/prime_field.h"
+#include "circomlib/base/modulus.h"
 #include "circomlib/base/sections.h"
 #include "circomlib/r1cs/constraint.h"
 #include "tachyon/base/buffer/endian_auto_reset.h"
+#include "tachyon/base/buffer/read_only_buffer.h"
+#include "tachyon/base/files/file_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/strings/string_util.h"
 
 namespace tachyon::circom {
 namespace v1 {
 
+template <typename F>
 struct R1CS;
 
 }  // namespace v1
 
+template <typename F>
 struct R1CS {
   virtual ~R1CS() = default;
 
   virtual uint32_t GetVersion() const = 0;
 
-  virtual v1::R1CS* ToV1() { return nullptr; }
+  virtual v1::R1CS<F>* ToV1() { return nullptr; }
 
   virtual bool Read(const base::ReadOnlyBuffer& buffer) = 0;
 
   virtual size_t GetNumInstanceVariables() const = 0;
   virtual size_t GetNumVariables() const = 0;
-  virtual const std::vector<Constraint>& GetConstraints() const = 0;
+  virtual const std::vector<Constraint<F>>& GetConstraints() const = 0;
   virtual const std::vector<uint64_t>& GetWireId2LabelIdMap() const = 0;
 };
 
 constexpr char kR1CSMagic[4] = {'r', '1', 'c', 's'};
+
+// Return nullptr if the parser failed to parse.
+template <typename F>
+std::unique_ptr<R1CS<F>> ParseR1CS(const base::FilePath& path) {
+  std::optional<std::vector<uint8_t>> r1cs_data = base::ReadFileToBytes(path);
+  if (!r1cs_data.has_value()) {
+    LOG(ERROR) << "Failed to read file: " << path.value();
+    return nullptr;
+  }
+
+  base::ReadOnlyBuffer buffer(r1cs_data->data(), r1cs_data->size());
+  buffer.set_endian(base::Endian::kLittle);
+  char magic[4];
+  uint32_t version;
+  if (!buffer.ReadMany(magic, &version)) return nullptr;
+  if (memcmp(magic, kR1CSMagic, 4) != 0) {
+    LOG(ERROR) << "Invalid magic: " << magic;
+    return nullptr;
+  }
+  std::unique_ptr<R1CS<F>> r1cs;
+  if (version == 1) {
+    r1cs.reset(new v1::R1CS<F>());
+    CHECK(r1cs->ToV1()->Read(buffer));
+  } else {
+    LOG(ERROR) << "Invalid version: " << version;
+    return nullptr;
+  }
+  return r1cs;
+}
 
 namespace v1 {
 
@@ -52,7 +88,7 @@ enum class R1CSSectionType : uint32_t {
 std::string_view R1CSSectionTypeToString(R1CSSectionType type);
 
 struct R1CSHeaderSection {
-  PrimeField modulus;
+  Modulus modulus;
   // Total number of wires including ONE signal (Index 0).
   uint32_t num_wires;
   // Total number of public output wires. They should be starting at
@@ -98,8 +134,9 @@ struct R1CSHeaderSection {
   }
 };
 
+template <typename F>
 struct R1CSConstraintsSection {
-  std::vector<Constraint> constraints;
+  std::vector<Constraint<F>> constraints;
 
   bool operator==(const R1CSConstraintsSection& other) const {
     return constraints == other.constraints;
@@ -111,17 +148,16 @@ struct R1CSConstraintsSection {
   bool Read(const base::ReadOnlyBuffer& buffer,
             const R1CSHeaderSection& header) {
     base::EndianAutoReset reset(buffer, base::Endian::kLittle);
-    uint32_t field_size = header.modulus.bytes.size();
     constraints.reserve(header.num_constraints);
     for (uint32_t i = 0; i < header.num_constraints; ++i) {
-      Constraint constraint;
+      Constraint<F> constraint;
       for (uint32_t j = 0; j < 3; ++j) {
         uint32_t n;
         if (!buffer.Read(&n)) return false;
-        std::vector<Term> terms(n);
+        std::vector<Term<F>> terms(n);
         for (uint32_t k = 0; k < n; ++k) {
-          if (!buffer.Read(&terms[k].wire_id)) return false;
-          if (!terms[k].coefficient.Read(buffer, field_size)) return false;
+          if (!buffer.ReadMany(&terms[k].wire_id, &terms[k].coefficient))
+            return false;
         }
         if (j == 0) {
           constraint.a = {std::move(terms)};
@@ -162,14 +198,15 @@ struct R1CSWireId2LabelIdMapSection {
   std::string ToString() const { return base::ContainerToString(label_ids); }
 };
 
-struct R1CS : public circom::R1CS {
+template <typename F>
+struct R1CS : public circom::R1CS<F> {
   R1CSHeaderSection header;
-  R1CSConstraintsSection constraints;
+  R1CSConstraintsSection<F> constraints;
   R1CSWireId2LabelIdMapSection wire_id_to_label_id_map;
 
   // circom::R1CS methods
   uint32_t GetVersion() const override { return 1; }
-  R1CS* ToV1() override { return this; }
+  R1CS<F>* ToV1() override { return this; }
 
   bool Read(const base::ReadOnlyBuffer& buffer) override {
     Sections<R1CSSectionType> sections(buffer, &R1CSSectionTypeToString);
@@ -192,7 +229,7 @@ struct R1CS : public circom::R1CS {
 
   size_t GetNumVariables() const override { return header.num_wires; }
 
-  const std::vector<Constraint>& GetConstraints() const override {
+  const std::vector<Constraint<F>>& GetConstraints() const override {
     return constraints.constraints;
   }
 

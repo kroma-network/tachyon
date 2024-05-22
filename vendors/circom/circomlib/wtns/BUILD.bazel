@@ -3,17 +3,10 @@ load("@kroma_network_tachyon//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tach
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "constraint",
-    hdrs = ["constraint.h"],
-    deps = ["@com_google_absl//absl/strings"],
-)
-
-tachyon_cc_library(
-    name = "r1cs",
-    srcs = ["r1cs.cc"],
-    hdrs = ["r1cs.h"],
+    name = "wtns",
+    srcs = ["wtns.cc"],
+    hdrs = ["wtns.h"],
     deps = [
-        ":constraint",
         "//circomlib/base:modulus",
         "//circomlib/base:sections",
         "@kroma_network_tachyon//tachyon/base:logging",
@@ -25,11 +18,11 @@ tachyon_cc_library(
 )
 
 tachyon_cc_unittest(
-    name = "r1cs_unittests",
-    srcs = ["r1cs_unittest.cc"],
-    data = ["//examples:compile_multiplier_3"],
+    name = "wtns_unittests",
+    srcs = ["wtns_unittest.cc"],
+    data = ["multiplier_3.wtns"],
     deps = [
-        ":r1cs",
+        ":wtns",
         "@kroma_network_tachyon//tachyon/math/elliptic_curves/bn/bn254:fr",
         "@kroma_network_tachyon//tachyon/math/finite_fields/test:finite_field_test",
     ],

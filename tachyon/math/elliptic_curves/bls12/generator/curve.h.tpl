@@ -11,6 +11,8 @@ namespace %{namespace} {
 template <typename Fq, typename Fq2, typename Fq6, typename Fq12, typename _G1Curve, typename _G2Curve>
 class %{class}Config {
  public:
+  constexpr static const char* kName = "%{namespace}::%{class}";
+
   constexpr static BigInt<%{x_size}> kX = BigInt<%{x_size}>({
     %{x}
   });

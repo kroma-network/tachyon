@@ -9,13 +9,12 @@
 
 #include "absl/strings/substitute.h"
 
-#include "circomlib/base/prime_field.h"
-
 namespace tachyon::circom {
 
+template <typename F>
 struct Term {
   uint32_t wire_id;
-  PrimeField coefficient;
+  F coefficient;
 
   bool operator==(const Term& other) const {
     return wire_id == other.wire_id && coefficient == other.coefficient;
@@ -27,8 +26,9 @@ struct Term {
   }
 };
 
+template <typename F>
 struct LinearCombination {
-  std::vector<Term> terms;
+  std::vector<Term<F>> terms;
 
   bool operator==(const LinearCombination& other) const {
     return terms == other.terms;
@@ -47,10 +47,11 @@ struct LinearCombination {
   }
 };
 
+template <typename F>
 struct Constraint {
-  LinearCombination a;
-  LinearCombination b;
-  LinearCombination c;
+  LinearCombination<F> a;
+  LinearCombination<F> b;
+  LinearCombination<F> c;
 
   bool operator==(const Constraint& other) const {
     return a == other.a && b == other.b && c == other.c;

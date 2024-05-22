@@ -7,13 +7,13 @@
 
 #include "absl/strings/substitute.h"
 
-#include "circomlib/base/prime_field.h"
 #include "tachyon/zk/r1cs/constraint_system/matrix.h"
 
 namespace tachyon::circom {
 
+template <typename F>
 struct Cell {
-  PrimeField coefficient;
+  F coefficient;
   uint32_t signal;
 
   bool operator==(const Cell& other) const {
@@ -23,10 +23,9 @@ struct Cell {
 
   // Need to divide by R, since snarkjs outputs the zkey with coefficients
   // multiplied by R².
-  template <typename F>
   zk::r1cs::Cell<F> ToNative() const {
     return {
-        F::FromMontgomery(coefficient.ToNative<true, F>().ToBigInt()),
+        F::FromMontgomery(coefficient.ToBigInt()),
         signal,
     };
   }

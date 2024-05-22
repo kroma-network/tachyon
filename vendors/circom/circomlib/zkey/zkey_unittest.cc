@@ -1,28 +1,31 @@
-#include "circomlib/zkey/zkey_parser.h"
+#include "circomlib/zkey/zkey.h"
 
 #include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
 
-#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g2.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 
 namespace tachyon::circom {
 
 namespace {
 
-class ZKeyParserTest : public testing::Test {
+using Curve = math::bn254::BN254Curve;
+using G1AffinePoint = math::bn254::G1AffinePoint;
+using G2AffinePoint = math::bn254::G2AffinePoint;
+using F = math::bn254::Fr;
+
+class ZKeyTest : public testing::Test {
  public:
-  static void SetUpTestSuite() { math::bn254::G2Curve::Init(); }
+  static void SetUpTestSuite() { Curve::Init(); }
 };
 
 G1AffinePoint ToG1AffinePoint(std::string_view g1[2]) {
   math::bn254::Fq x = *math::bn254::Fq::FromDecString(g1[0]);
   math::bn254::Fq y = *math::bn254::Fq::FromDecString(g1[1]);
   bool infinity = x.IsZero() && y.IsZero();
-  math::bn254::G1AffinePoint affine_point(std::move(x), std::move(y), infinity);
-  return G1AffinePoint::FromNative<true>(std::move(affine_point));
+  return {std::move(x), std::move(y), infinity};
 }
 
 G2AffinePoint ToG2AffinePoint(std::string_view g2[2][2]) {
@@ -31,8 +34,7 @@ G2AffinePoint ToG2AffinePoint(std::string_view g2[2][2]) {
   math::bn254::Fq2 y(*math::bn254::Fq::FromDecString(g2[1][0]),
                      *math::bn254::Fq::FromDecString(g2[1][1]));
   bool infinity = x.IsZero() && y.IsZero();
-  math::bn254::G2AffinePoint affine_point(std::move(x), std::move(y), infinity);
-  return G2AffinePoint::FromNative<true>(std::move(affine_point));
+  return {std::move(x), std::move(y), infinity};
 }
 
 struct CellData {
@@ -40,25 +42,22 @@ struct CellData {
   uint32_t signal = 0;
 };
 
-Cell ToCell(const CellData& data) {
+Cell<F> ToCell(const CellData& data) {
   return {
-      PrimeField::FromNative<true>(
-          *math::bn254::Fr::FromDecString(data.coefficient)),
+      *F::FromDecString(data.coefficient),
       data.signal,
   };
 }
 
 }  // namespace
 
-TEST_F(ZKeyParserTest, Parse) {
-  ZKeyParser parser;
-  std::unique_ptr<ZKey> zkey =
-      parser.Parse(base::FilePath("examples/multiplier_3.zkey"));
+TEST_F(ZKeyTest, Parse) {
+  std::unique_ptr<ZKey<Curve>> zkey =
+      ParseZKey<Curve>(base::FilePath("examples/multiplier_3.zkey"));
   ASSERT_TRUE(zkey);
   ASSERT_EQ(zkey->GetVersion(), 1);
 
-  v1::ZKey* v1_zkey = zkey->ToV1();
-  v1_zkey->Normalize<math::bn254::Fq, math::bn254::Fr>();
+  v1::ZKey<Curve>* v1_zkey = zkey->ToV1();
 
   v1::ZKeyHeaderSection expected_header = {1};
   EXPECT_EQ(v1_zkey->header, expected_header);
@@ -113,9 +112,9 @@ TEST_F(ZKeyParserTest, Parse) {
   };
   // clang-format on
 
-  v1::ZKeyHeaderGrothSection expected_header_groth = {
-      PrimeField{std::vector<uint8_t>(fq_bytes.begin(), fq_bytes.end())},
-      PrimeField{std::vector<uint8_t>(fr_bytes.begin(), fr_bytes.end())},
+  v1::ZKeyHeaderGrothSection<Curve> expected_header_groth = {
+      Modulus{std::vector<uint8_t>(fq_bytes.begin(), fq_bytes.end())},
+      Modulus{std::vector<uint8_t>(fr_bytes.begin(), fr_bytes.end())},
       6,
       1,
       4,
@@ -141,7 +140,7 @@ TEST_F(ZKeyParserTest, Parse) {
     }
   };
   // clang-format on
-  v1::ICSection expected_ic = {base::Map(
+  v1::ICSection<G1AffinePoint> expected_ic = {base::Map(
       expected_ic_strs,
       [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
   EXPECT_EQ(v1_zkey->ic, expected_ic);
@@ -159,12 +158,12 @@ TEST_F(ZKeyParserTest, Parse) {
   };
   // clang-format on
 
-  v1::CoefficientsSection expected_coefficients;
+  v1::CoefficientsSection<F> expected_coefficients;
   expected_coefficients.a = base::Map(a, [](const CellData row[1]) {
-    return std::vector<Cell>{ToCell(row[0])};
+    return std::vector<Cell<F>>{ToCell(row[0])};
   });
   expected_coefficients.b = base::Map(b, [](const CellData row[1]) {
-    return std::vector<Cell>{ToCell(row[0])};
+    return std::vector<Cell<F>>{ToCell(row[0])};
   });
   expected_coefficients.b.resize(4);
   EXPECT_EQ(v1_zkey->coefficients, expected_coefficients);
@@ -197,7 +196,7 @@ TEST_F(ZKeyParserTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsA1Section expected_points_a1 = {base::Map(
+  v1::PointsA1Section<G1AffinePoint> expected_points_a1 = {base::Map(
       expected_points_a1_strs,
       [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
   EXPECT_EQ(v1_zkey->points_a1, expected_points_a1);
@@ -230,7 +229,7 @@ TEST_F(ZKeyParserTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsB1Section expected_points_b1 = {base::Map(
+  v1::PointsB1Section<G1AffinePoint> expected_points_b1 = {base::Map(
       expected_points_b1_strs,
       [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
   EXPECT_EQ(v1_zkey->points_b1, expected_points_b1);
@@ -299,7 +298,7 @@ TEST_F(ZKeyParserTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsB2Section expected_points_b2 = {base::Map(
+  v1::PointsB2Section<G2AffinePoint> expected_points_b2 = {base::Map(
       expected_points_b2_strs,
       [](std::string_view g2_str[2][2]) { return ToG2AffinePoint(g2_str); })};
   EXPECT_EQ(v1_zkey->points_b2, expected_points_b2);
@@ -324,7 +323,7 @@ TEST_F(ZKeyParserTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsC1Section expected_points_c1 = {base::Map(
+  v1::PointsC1Section<G1AffinePoint> expected_points_c1 = {base::Map(
       expected_points_c1_strs,
       [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
   EXPECT_EQ(v1_zkey->points_c1, expected_points_c1);
@@ -349,7 +348,7 @@ TEST_F(ZKeyParserTest, Parse) {
     },
   };
   // clang-format on
-  v1::PointsH1Section expected_points_h1 = {base::Map(
+  v1::PointsH1Section<G1AffinePoint> expected_points_h1 = {base::Map(
       expected_points_h1_strs,
       [](std::string_view g1_str[2]) { return ToG1AffinePoint(g1_str); })};
   EXPECT_EQ(v1_zkey->points_h1, expected_points_h1);
