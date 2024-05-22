@@ -159,7 +159,7 @@ class Prover : public ProverBase<PCS> {
       }
       LookupProver::BatchCommitPermutedPairs(lookup_provers, this, commit_idx);
     } else {
-      base::AlwaysFalse<PCS>();
+      static_assert(base::AlwaysFalse<LS>);
     }
 
     if constexpr (PCS::kSupportsBatchMode) {
@@ -184,7 +184,7 @@ class Prover : public ProverBase<PCS> {
         num_lookup_poly =
             LookupProver::GetNumGrandProductPolysCommitments(lookup_provers);
       } else {
-        base::AlwaysFalse<PCS>();
+        static_assert(base::AlwaysFalse<LS>);
       }
       this->pcs_.SetBatchMode(
           PermutationProver<Poly, Evals>::GetNumGrandProductPolysCommitments(
@@ -200,7 +200,7 @@ class Prover : public ProverBase<PCS> {
       LookupProver::BatchCommitGrandProductPolys(lookup_provers, this,
                                                  commit_idx);
     } else {
-      base::AlwaysFalse<PCS>();
+      static_assert(base::AlwaysFalse<LS>);
     }
     vanishing_prover.CommitRandomPoly(this, commit_idx);
     if constexpr (PCS::kSupportsBatchMode) {
