@@ -11,7 +11,8 @@
 
 namespace tachyon::math {
 
-#define CLASS PrimeField<Config, std::enable_if_t<Config::kIsGoldilocks>>
+#define CLASS \
+  PrimeField<Config, std::enable_if_t<Config::kIsTachyonMathGoldilocks>>
 
 template <typename Config>
 CLASS::PrimeField(uint64_t value) : value_(value) {

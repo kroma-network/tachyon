@@ -13,8 +13,8 @@
 namespace tachyon::math {
 
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
-    : public PrimeFieldBase<PrimeField<_Config>> {
+class PrimeField<_Config, std::enable_if_t<_Config::kIsTachyonMathGoldilocks>>
+    final : public PrimeFieldBase<PrimeField<_Config>> {
  public:
 #if defined(USE_MONTGOMERY)
   static_assert(USE_MONTGOMERY == 0);

@@ -26,7 +26,6 @@ generate_circle_points(
 generate_prime_fields(
     name = "fr",
     class_name = "Fr",
-    flag = "kIsStarkFr",
     # 2³¹
     # Hex: 0x80000000
     modulus = "2147483648",
@@ -62,7 +61,6 @@ generate_fp4s(
 generate_prime_fields(
     name = "fr4",
     class_name = "Fr4",
-    flag = "kIsStarkFr4",
     # (2³¹ - 1)⁴ - 1
     # Hex: 0xfffffff800000017ffffffe00000000
     modulus = "21267647892944572736998860269687930880",

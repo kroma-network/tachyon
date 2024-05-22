@@ -18,6 +18,16 @@
 
 namespace tachyon {
 
+std::string CreateAsmFlagName(std::string_view ns_name,
+                              std::string_view class_name) {
+  std::vector<std::string> ns_components = absl::StrSplit(ns_name, "::");
+  for (std::string& ns_component : ns_components) {
+    ns_component[0] = absl::ascii_toupper(ns_component[0]);
+  }
+  std::string camel_ns_name = absl::StrJoin(ns_components, "");
+  return absl::Substitute("kIs$0$1", camel_ns_name, class_name);
+}
+
 size_t GetNumBits(const mpz_class& m) {
   auto it = math::BitIteratorBE<mpz_class>::begin(&m, true);
   auto end = math::BitIteratorBE<mpz_class>::end(&m);
@@ -106,7 +116,6 @@ struct GenerationConfig : public build::CcWriter {
   std::string ns_name;
   std::string class_name;
   std::string modulus;
-  std::string flag;
   std::string reduce32;
   std::string reduce64;
   bool use_asm = false;
@@ -154,12 +163,12 @@ int GenerationConfig::GeneratePrimeFieldX86Hdr() const {
   mpz_class m = math::gmp::FromDecString(modulus);
   size_t n = math::gmp::GetLimbSize(m);
 
-  std::string content =
-      absl::StrReplaceAll(tpl_content, {
-                                           {"%{prefix}", GetPrefix()},
-                                           {"%{n}", base::NumberToString(n)},
-                                           {"%{flag}", flag},
-                                       });
+  std::string content = absl::StrReplaceAll(
+      tpl_content, {
+                       {"%{prefix}", GetPrefix()},
+                       {"%{n}", base::NumberToString(n)},
+                       {"%{asm_flag}", CreateAsmFlagName(ns_name, class_name)},
+                   });
   return WriteHdr(content, false);
 }
 
@@ -167,7 +176,7 @@ int GenerationConfig::GenerateConfigHdr() const {
   absl::flat_hash_map<std::string, std::string> replacements = {
       {"%{namespace}", ns_name},
       {"%{class}", class_name},
-      {"%{flag}", flag},
+      {"%{asm_flag}", CreateAsmFlagName(ns_name, class_name)},
       {"%{use_asm}", base::BoolToString(use_asm)},
   };
 
@@ -393,9 +402,6 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::StringFlag>(&config.class_name).set_long_name("--class");
   parser.AddFlag<base::StringFlag>(&config.modulus)
       .set_long_name("--modulus")
-      .set_required();
-  parser.AddFlag<base::StringFlag>(&config.flag)
-      .set_long_name("--flag")
       .set_required();
   parser.AddFlag<base::StringFlag>(&config.reduce32)
       .set_long_name("--reduce32");

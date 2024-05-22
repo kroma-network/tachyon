@@ -13,7 +13,7 @@ class TACHYON_EXPORT %{class}Config {
 %{if kUseAsm}
 #if ARCH_CPU_X86_64
   constexpr static bool kUseAsm = %{use_asm};
-  constexpr static bool %{flag} = true;
+  constexpr static bool %{asm_flag} = true;
 #else
   constexpr static bool kUseAsm = false;
 #endif

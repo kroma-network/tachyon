@@ -18,7 +18,6 @@ string_flag(
 generate_fft_prime_fields(
     name = "fq",
     class_name = "Fq",
-    flag = "kIsVestaFq",
     # Hex: 0x40000000000000000000000000000000224698fc0994a8dd8c46eb2100000001
     modulus = "28948022309329048855892746252171976963363056481941647379679742748393362948097",
     namespace = "tachyon::math::vesta",
@@ -33,7 +32,6 @@ string_flag(
 generate_fft_prime_fields(
     name = "fr",
     class_name = "Fr",
-    flag = "kIsVestaFr",
     # Hex: 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001
     modulus = "28948022309329048855892746252171976963363056481941560715954676764349967630337",
     namespace = "tachyon::math::vesta",
