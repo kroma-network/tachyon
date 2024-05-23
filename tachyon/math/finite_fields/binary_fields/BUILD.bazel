@@ -1,0 +1,35 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load(
+    "//tachyon/math/finite_fields/generator/binary_field_generator:build_defs.bzl",
+    "generate_binary_fields",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+BITS = [
+    1,
+    2,
+    4,
+    8,
+]
+
+[
+    generate_binary_fields(
+        name = "binary_field{}".format(bit),
+        class_name = "BinaryField{}".format(bit),
+        modulus = str(1 << bit),
+        namespace = "tachyon::math",
+    )
+    for bit in BITS
+]
+
+tachyon_cc_library(
+    name = "binary_fields",
+    hdrs = ["binary_fields.h"],
+    deps = [
+        ":binary_field1",
+        ":binary_field2",
+        ":binary_field4",
+        ":binary_field8",
+    ],
+)

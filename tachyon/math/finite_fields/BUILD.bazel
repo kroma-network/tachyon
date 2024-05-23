@@ -10,6 +10,23 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "binary_field",
+    hdrs = [
+        "binary_field.h",
+        "binary_tower_operations.h",
+    ],
+    deps = [
+        ":finite_field",
+        "//tachyon/base:logging",
+        "//tachyon/base:random",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/build:build_config",
+        "//tachyon/math/base:invalid_operation",
+    ],
+)
+
+tachyon_cc_library(
     name = "cubic_extension_field",
     hdrs = ["cubic_extension_field.h"],
     deps = [
@@ -274,6 +291,7 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "finite_fields_unittests",
     srcs = [
+        "binary_field_unittest.cc",
         "cubic_extension_field_unittest.cc",
         "finite_field_unittest.cc",
         "fp12_unittest.cc",
@@ -310,6 +328,7 @@ tachyon_cc_unittest(
         "//tachyon/math/elliptic_curves/secp/secp256k1:fq",
         "//tachyon/math/elliptic_curves/secp/secp256k1:fr",
         "//tachyon/math/finite_fields/baby_bear",
+        "//tachyon/math/finite_fields/binary_fields",
         "//tachyon/math/finite_fields/goldilocks:goldilocks_prime_field",
         "//tachyon/math/finite_fields/koala_bear",
         "//tachyon/math/finite_fields/mersenne31",

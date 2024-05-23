@@ -3,6 +3,9 @@
 
 namespace tachyon::math {
 
+template <typename Config>
+class BinaryField;
+
 template <typename Config, typename SFINAE = void>
 class PrimeField;
 
