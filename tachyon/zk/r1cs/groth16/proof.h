@@ -19,6 +19,7 @@ class Proof {
   using G1Point = typename Curve::G1Curve::AffinePoint;
   using G2Point = typename Curve::G2Curve::AffinePoint;
 
+  Proof() = default;
   Proof(const G1Point& a, const G2Point& b, const G1Point& c)
       : a_(a), b_(b), c_(c) {}
   Proof(G1Point&& a, G2Point&& b, G1Point&& c)
