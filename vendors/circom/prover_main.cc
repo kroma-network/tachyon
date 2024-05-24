@@ -47,7 +47,7 @@ template <typename Curve>
 void CreateProof(const base::FilePath& zkey_path,
                  const base::FilePath& witness_path,
                  const base::FilePath& proof_path,
-                 const base::FilePath& public_path) {
+                 const base::FilePath& public_path, bool no_zk) {
   using F = typename Curve::G1Curve::ScalarField;
   using Domain = math::UnivariateEvaluationDomain<F, SIZE_MAX>;
 
@@ -75,13 +75,22 @@ void CreateProof(const base::FilePath& zkey_path,
       QuadraticArithmeticProgram<F>::WitnessMapFromMatrices(
           domain.get(), constraint_matrices, full_assignments);
 
-  zk::r1cs::groth16::Proof<Curve> proof =
-      zk::r1cs::groth16::CreateProofWithAssignmentNoZK(
-          proving_key, absl::MakeConstSpan(h_evals),
-          full_assignments.subspan(
-              1, constraint_matrices.num_instance_variables - 1),
-          full_assignments.subspan(constraint_matrices.num_instance_variables),
-          full_assignments.subspan(1));
+  zk::r1cs::groth16::Proof<Curve> proof;
+  if (no_zk) {
+    proof = zk::r1cs::groth16::CreateProofWithAssignmentNoZK(
+        proving_key, absl::MakeConstSpan(h_evals),
+        full_assignments.subspan(
+            1, constraint_matrices.num_instance_variables - 1),
+        full_assignments.subspan(constraint_matrices.num_instance_variables),
+        full_assignments.subspan(1));
+  } else {
+    proof = zk::r1cs::groth16::CreateProofWithAssignmentZK(
+        proving_key, absl::MakeConstSpan(h_evals),
+        full_assignments.subspan(
+            1, constraint_matrices.num_instance_variables - 1),
+        full_assignments.subspan(constraint_matrices.num_instance_variables),
+        full_assignments.subspan(1));
+  }
 
   zk::r1cs::groth16::PreparedVerifyingKey<Curve> prepared_verifying_key =
       std::move(proving_key).TakeVerifyingKey().ToPreparedVerifyingKey();
@@ -103,6 +112,7 @@ int RealMain(int argc, char** argv) {
   base::FilePath proof_path;
   base::FilePath public_path;
   Curve curve;
+  bool no_zk = false;
   parser.AddFlag<base::FilePathFlag>(&zkey_path)
       .set_name("zkey")
       .set_help("The path to zkey file");
@@ -117,6 +127,9 @@ int RealMain(int argc, char** argv) {
       .set_help("The path to public json");
   parser.AddFlag<base::Flag<Curve>>(&curve).set_long_name("--curve").set_help(
       "The curve type among ('bn254', bls12_381'), by default 'bn254'");
+  parser.AddFlag<base::BoolFlag>(&no_zk).set_long_name("--no_zk").set_help(
+      "Create proof without zk. By default zk is enabled. Use this flag to "
+      "compare the proof with rapidsnark.");
 
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {
@@ -126,12 +139,12 @@ int RealMain(int argc, char** argv) {
 
   switch (curve) {
     case Curve::kBN254:
-      circom::CreateProof<math::bn254::BN254Curve>(zkey_path, witness_path,
-                                                   proof_path, public_path);
+      circom::CreateProof<math::bn254::BN254Curve>(
+          zkey_path, witness_path, proof_path, public_path, no_zk);
       break;
     case Curve::kBLS12_381:
       circom::CreateProof<math::bls12_381::BLS12_381Curve>(
-          zkey_path, witness_path, proof_path, public_path);
+          zkey_path, witness_path, proof_path, public_path, no_zk);
       break;
   }
   return 0;

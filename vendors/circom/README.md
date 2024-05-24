@@ -58,4 +58,5 @@ public              The path to public json
 Optional arguments:
 
 --curve             The curve type among ('bn254', bls12_381'), by default 'bn254'
+--no_zk             Create proof without zk. By default zk is enabled. Use this flag in case you want to compare the proof with rapidsnark.
 ```
