@@ -146,7 +146,7 @@ TACHYON_C_EXPORT tachyon_%{type}_%{g1_or_g2}_xyzz tachyon_%{type}_%{g1_or_g2}_xy
 
 /**
  * @brief Returns the generator of the affine group %{g1_or_g2}.
- * 
+ *
  * This function returns the predefined generator point of the affine group
  * %{g1_or_g2}, which is a fundamental element for elliptic curve operations.
  *
@@ -156,7 +156,7 @@ TACHYON_C_EXPORT tachyon_%{type}_%{g1_or_g2}_affine tachyon_%{type}_%{g1_or_g2}_
 
 /**
  * @brief Returns the generator of the projective group %{g1_or_g2}.
- * 
+ *
  * This function returns the predefined generator point of the projective group
  * %{g1_or_g2}, which is used in elliptic curve cryptographic algorithms where
  * projective coordinates provide efficiency improvements.
@@ -167,7 +167,7 @@ TACHYON_C_EXPORT tachyon_%{type}_%{g1_or_g2}_projective tachyon_%{type}_%{g1_or_
 
 /**
  * @brief Returns the generator of the jacobian group %{g1_or_g2}.
- * 
+ *
  * This function returns the predefined generator point of the jacobian group
  * %{g1_or_g2}. jacobian coordinates are used in elliptic curve cryptography to
  * optimize point addition and doubling operations.
@@ -178,7 +178,7 @@ TACHYON_C_EXPORT tachyon_%{type}_%{g1_or_g2}_jacobian tachyon_%{type}_%{g1_or_g2
 
 /**
  * @brief Returns the generator of the XYZZ group %{g1_or_g2}.
- * 
+ *
  * This function returns the predefined generator point of the XYZZ group
  * %{g1_or_g2}, where the ZZ and ZZZ values are precomputed to optimize certain
  * elliptic curve operations. It's an advanced representation for specific algorithms.
