@@ -39,7 +39,7 @@ pub extern "C" fn run_ifft_bellman(
         let coeffs: &[CppFr] = slice::from_raw_parts(coeffs, n);
 
         let coeffs: &[Scalar<Bn256>] = mem::transmute(coeffs);
-        let mut coeffs = coeffs.to_vec();
+        let coeffs = coeffs.to_vec();
 
         let worker = Worker::new();
         let mut domain = EvaluationDomain::from_coeffs(coeffs).unwrap();
