@@ -2,8 +2,8 @@
  * @file
  * @brief Finite field operations for the %{type} curve.
  *
- * This header file defines operations and structures for manipulating elements of the finite field %{suffix} associated with the %{type} elliptic curve. 
- * It provides fundamental arithmetic operations necessary for elliptic curve cryptography on this curve such as addition, subtraction, 
+ * This header file defines operations and structures for manipulating elements of the finite field %{suffix} associated with the %{type} elliptic curve.
+ * It provides fundamental arithmetic operations necessary for elliptic curve cryptography on this curve such as addition, subtraction,
  * and multiplication of field elements.
  * @example prime_field.cc
  */
@@ -17,7 +17,7 @@
  * @struct tachyon_%{type}_%{suffix}
  * @brief Represents an element in the finite field %{suffix} for the %{type} curve.
  *
- * This structure is used to represent an element in the finite field %{suffix}, 
+ * This structure is used to represent an element in the finite field %{suffix},
  * of the %{type} curve. It stores the element as an array of 64-bit limbs.
  */
 struct tachyon_%{type}_%{suffix} {
