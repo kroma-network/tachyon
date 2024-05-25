@@ -13,24 +13,20 @@ class AffinePointTest(absltest.TestCase):
         p = tachyon.math.bn254.G1AffinePoint()
         self.assertTrue(p.x.is_zero())
         self.assertTrue(p.y.is_zero())
-        self.assertTrue(p.infinity)
 
         x = tachyon.math.bn254.Fq.random()
         y = tachyon.math.bn254.Fq.random()
-        p2 = tachyon.math.bn254.G1AffinePoint(x, y, False)
+        p2 = tachyon.math.bn254.G1AffinePoint(x, y)
         self.assertEqual(p2.x, x)
         self.assertEqual(p2.y, y)
-        self.assertEqual(p2.infinity, False)
 
     def test_zero(self):
         p = tachyon.math.bn254.G1AffinePoint.zero()
         self.assertTrue(p.is_zero())
-        self.assertTrue(p.infinity)
 
     def test_generator(self):
         p = tachyon.math.bn254.G1AffinePoint.generator()
         self.assertTrue(p.is_on_curve())
-        self.assertFalse(p.infinity)
 
     def test_random(self):
         p = tachyon.math.bn254.G1AffinePoint.random()

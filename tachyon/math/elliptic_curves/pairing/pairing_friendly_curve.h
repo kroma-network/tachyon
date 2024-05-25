@@ -74,7 +74,7 @@ class PairingFriendlyCurve {
     std::vector<Pair> pairs;
     pairs.reserve(size);
     for (size_t i = 0; i < size; ++i) {
-      if (!a[i].infinity() && !b[i].infinity()) {
+      if (!a[i].IsZero() && !b[i].infinity()) {
         pairs.emplace_back(&a[i], &b[i].ell_coeffs());
       }
     }

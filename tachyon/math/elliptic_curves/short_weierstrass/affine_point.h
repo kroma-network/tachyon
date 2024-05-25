@@ -36,21 +36,15 @@ class AffinePoint<
   using BaseField = typename Curve::BaseField;
   using ScalarField = typename Curve::ScalarField;
 
-  constexpr AffinePoint()
-      : AffinePoint(BaseField::Zero(), BaseField::Zero(), true) {}
+  constexpr AffinePoint() : AffinePoint(BaseField::Zero(), BaseField::Zero()) {}
   explicit constexpr AffinePoint(const Point2<BaseField>& point)
-      : AffinePoint(point.x, point.y, false) {}
-  constexpr AffinePoint(const Point2<BaseField>& point, bool infinity)
-      : AffinePoint(point.x, point.y, infinity) {}
+      : AffinePoint(point.x, point.y) {}
   explicit constexpr AffinePoint(Point2<BaseField>&& point)
-      : AffinePoint(std::move(point.x), std::move(point.y), false) {}
-  constexpr AffinePoint(Point2<BaseField>&& point, bool infinity)
-      : AffinePoint(std::move(point.x), std::move(point.y), infinity) {}
-  constexpr AffinePoint(const BaseField& x, const BaseField& y,
-                        bool infinity = false)
-      : x_(x), y_(y), infinity_(infinity) {}
-  constexpr AffinePoint(BaseField&& x, BaseField&& y, bool infinity = false)
-      : x_(std::move(x)), y_(std::move(y)), infinity_(infinity) {}
+      : AffinePoint(std::move(point.x), std::move(point.y)) {}
+  constexpr AffinePoint(const BaseField& x, const BaseField& y)
+      : x_(x), y_(y) {}
+  constexpr AffinePoint(BaseField&& x, BaseField&& y)
+      : x_(std::move(x)), y_(std::move(y)) {}
 
   constexpr static AffinePoint CreateChecked(const BaseField& x,
                                              const BaseField& y) {
@@ -109,14 +103,13 @@ class AffinePoint<
 
   constexpr const BaseField& x() const { return x_; }
   constexpr const BaseField& y() const { return y_; }
-  constexpr bool infinity() const { return infinity_; }
 
   constexpr bool operator==(const AffinePoint& other) const {
-    if (infinity_) {
-      return other.infinity_;
+    if (IsZero()) {
+      return other.IsZero();
     }
 
-    if (other.infinity_) {
+    if (other.IsZero()) {
       return false;
     }
 
@@ -127,22 +120,22 @@ class AffinePoint<
     return !operator==(other);
   }
 
-  constexpr bool IsZero() const { return infinity_; }
+  constexpr bool IsZero() const { return x_.IsZero() && y_.IsZero(); }
 
   constexpr bool IsOnCurve() { return Curve::IsOnCurve(*this); }
 
   constexpr ProjectivePoint<Curve> ToProjective() const {
-    if (infinity_) return ProjectivePoint<Curve>::Zero();
+    if (IsZero()) return ProjectivePoint<Curve>::Zero();
     return {x_, y_, BaseField::One()};
   }
 
   constexpr JacobianPoint<Curve> ToJacobian() const {
-    if (infinity_) return JacobianPoint<Curve>::Zero();
+    if (IsZero()) return JacobianPoint<Curve>::Zero();
     return {x_, y_, BaseField::One()};
   }
 
   constexpr PointXYZZ<Curve> ToXYZZ() const {
-    if (infinity_) return PointXYZZ<Curve>::Zero();
+    if (IsZero()) return PointXYZZ<Curve>::Zero();
     return {x_, y_, BaseField::One(), BaseField::One()};
   }
 
@@ -170,7 +163,7 @@ class AffinePoint<
     return ToXYZZ() + other;
   }
 
-  constexpr AffinePoint Negate() const { return {x_, -y_, infinity_}; }
+  constexpr AffinePoint Negate() const { return {x_, -y_}; }
 
   constexpr AffinePoint& NegateInPlace() {
     y_.NegateInPlace();
@@ -212,7 +205,6 @@ class AffinePoint<
 
   BaseField x_;
   BaseField y_;
-  bool infinity_;
 };
 
 }  // namespace math
@@ -234,8 +226,7 @@ class Copyable<math::AffinePoint<
     BaseField x, y;
     if (!buffer.ReadMany(&x, &y)) return false;
 
-    *point = math::AffinePoint<Curve>(std::move(x), std::move(y),
-                                      x.IsZero() && y.IsZero());
+    *point = math::AffinePoint<Curve>(std::move(x), std::move(y));
     return true;
   }
 
@@ -266,8 +257,7 @@ class RapidJsonValueConverter<math::AffinePoint<
     Field y;
     if (!ParseJsonElement(json_value, "x", &x, error)) return false;
     if (!ParseJsonElement(json_value, "y", &y, error)) return false;
-    *value = math::AffinePoint<Curve>(std::move(x), std::move(y),
-                                      x.IsZero() && y.IsZero());
+    *value = math::AffinePoint<Curve>(std::move(x), std::move(y));
     return true;
   }
 };

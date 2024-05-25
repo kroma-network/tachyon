@@ -20,7 +20,6 @@ class AffinePointTest : public testing::Test {
 }  // namespace
 
 TEST_F(AffinePointTest, Zero) {
-  EXPECT_TRUE(test::AffinePoint::Zero().infinity());
   EXPECT_TRUE(test::AffinePoint::Zero().IsZero());
   EXPECT_FALSE(test::AffinePoint(GF7(1), GF7(2)).IsZero());
 }

@@ -16,14 +16,13 @@ template <typename AffinePoint,
 void AddAffinePoint(py11::module& m, const std::string& name) {
   py11::class_<AffinePoint>(m, name.data())
       .def(py11::init<>())
-      .def(py11::init<const BaseField&, const BaseField&, bool>(),
-           py11::arg("x"), py11::arg("y"), py11::arg("infinity") = false)
+      .def(py11::init<const BaseField&, const BaseField&>(), py11::arg("x"),
+           py11::arg("y"))
       .def_static("zero", &AffinePoint::Zero)
       .def_static("generator", &AffinePoint::Generator)
       .def_static("random", &AffinePoint::Random)
       .def_property_readonly("x", &AffinePoint::x)
       .def_property_readonly("y", &AffinePoint::y)
-      .def_property_readonly("infinity", &AffinePoint::infinity)
       .def("is_zero", &AffinePoint::IsZero)
       .def("is_on_curve", &AffinePoint::IsOnCurve)
       .def("to_string", &AffinePoint::ToString)

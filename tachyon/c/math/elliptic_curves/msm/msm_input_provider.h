@@ -6,7 +6,6 @@
 #include "absl/numeric/bits.h"
 #include "absl/types/span.h"
 
-#include "tachyon/base/openmp_util.h"
 #include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/geometry/point2.h"
 
@@ -33,24 +32,21 @@ class MSMInputProvider {
 
   void Inject(const CPoint* bases_in, const CScalarField* scalars_in,
               size_t size) {
-    absl::Span<const tachyon::math::Point2<BaseField>> points(
-        reinterpret_cast<const tachyon::math::Point2<BaseField>*>(bases_in),
-        size);
     size_t aligned_size = 0;
     if (needs_align_) {
       aligned_size = absl::bit_ceil(size);
       bases_owned_.resize(aligned_size);
+      for (size_t i = 0; i < size; ++i) {
+        bases_owned_[i] = reinterpret_cast<const AffinePoint*>(bases_in)[i];
+      }
       for (size_t i = size; i < aligned_size; ++i) {
         bases_owned_[i] = AffinePoint::Zero();
       }
+      bases_ = bases_owned_;
     } else {
-      bases_owned_.resize(size);
+      bases_ = absl::MakeConstSpan(
+          reinterpret_cast<const AffinePoint*>(bases_in), size);
     }
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
-      bases_owned_[i] =
-          AffinePoint(points[i], points[i].x.IsZero() && points[i].y.IsZero());
-    }
-    bases_ = bases_owned_;
 
     if (needs_align_) {
       scalars_owned_.resize(aligned_size);

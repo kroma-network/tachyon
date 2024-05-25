@@ -1,5 +1,6 @@
 use ark_bn254::{Fr, G1Affine, G1Projective};
 use ark_ec::VariableBaseMSM;
+use ark_ff::Zero;
 use std::{mem, slice, time::Instant};
 use tachyon_rs::math::elliptic_curves::bn::bn254::{
     Fr as CppFr, G1AffinePoint as CppG1AffinePoint, G1JacobianPoint as CppG1JacobianPoint,
@@ -19,10 +20,12 @@ pub extern "C" fn run_msm_arkworks(
         let mut bases_vec = Vec::<G1Affine>::new();
         bases_vec.reserve_exact(bases.len());
         for i in 0..size {
+            let x = mem::transmute(bases[i].x);
+            let y = mem::transmute(bases[i].y);
             bases_vec.push(G1Affine {
-                x: mem::transmute(bases[i].x),
-                y: mem::transmute(bases[i].y),
-                infinity: bases[i].infinity,
+                x,
+                y,
+                infinity: x.is_zero() && y.is_zero(),
             });
         }
 

@@ -41,7 +41,7 @@ class Blake2bBase {
 
   bool DoWriteToTranscript(const AffinePoint& point) {
     DoUpdate(kBlake2bPrefixPoint, 1);
-    if (point.infinity()) {
+    if (point.IsZero()) {
       DoUpdate(BaseField::BigIntTy::Zero().ToBytesLE().data(),
                BaseField::BigIntTy::kByteNums);
       DoUpdate(typename BaseField::BigIntTy(5).ToBytesLE().data(),

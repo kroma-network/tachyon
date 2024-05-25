@@ -11,26 +11,22 @@ describe('AffinePoint', () => {
     const p = new tachyon.math.bn254.G1AffinePoint();
     expect(p.x.isZero()).toBe(true);
     expect(p.y.isZero()).toBe(true);
-    expect(p.infinity).toBe(true);
 
     const x = tachyon.math.bn254.Fq.random();
     const y = tachyon.math.bn254.Fq.random();
-    const p2 = new tachyon.math.bn254.G1AffinePoint(x, y, false);
+    const p2 = new tachyon.math.bn254.G1AffinePoint(x, y);
     expect(p2.x.eq(x)).toBe(true);
     expect(p2.y.eq(y)).toBe(true);
-    expect(p2.infinity).toBe(false);
   });
 
   test('AffinePoint.zero()', () => {
     const p = tachyon.math.bn254.G1AffinePoint.zero();
     expect(p.isZero()).toBe(true);
-    expect(p.infinity).toBe(true);
   });
 
   test('AffinePoint.generator()', () => {
     const p = tachyon.math.bn254.G1AffinePoint.generator();
     expect(p.isOnCurve()).toBe(true);
-    expect(p.infinity).toBe(false);
   });
 
   test('AffinePoint.random()', () => {

@@ -73,12 +73,8 @@ class BufferReader<tachyon::math::AffinePoint<Curve>> {
 
   static tachyon::math::AffinePoint<Curve> Read(
       const tachyon::base::ReadOnlyBuffer& buffer) {
-    BaseField x = BufferReader<BaseField>::Read(buffer);
-    BaseField y = BufferReader<BaseField>::Read(buffer);
-    if (x.IsZero() && y.IsZero()) {
-      return {};
-    }
-    return {std::move(x), std::move(y)};
+    return {BufferReader<BaseField>::Read(buffer),
+            BufferReader<BaseField>::Read(buffer)};
   }
 };
 

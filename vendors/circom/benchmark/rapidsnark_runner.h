@@ -115,12 +115,10 @@ class RapidsnarkRunner : public Runner<Curve> {
     using BigInt = typename BaseField::BigIntTy;
     BigInt x_bigint;
     memcpy(x_bigint.limbs, &point.x, BigInt::kByteNums);
-    BaseField x = BaseField::FromMontgomery(x_bigint);
     BigInt y_bigint;
     memcpy(y_bigint.limbs, &point.y, BigInt::kByteNums);
-    BaseField y = BaseField::FromMontgomery(y_bigint);
-    bool infinity = x.IsZero() && y.IsZero();
-    return {std::move(x), std::move(y), infinity};
+    return {BaseField::FromMontgomery(x_bigint),
+            BaseField::FromMontgomery(y_bigint)};
   }
 
   static G2AffinePoint G2AffinePointToNative(const G2PointAffine& point) {
@@ -147,8 +145,7 @@ class RapidsnarkRunner : public Runner<Curve> {
       BasePrimeField b = BasePrimeField::FromMontgomery(b_bigint);
       y = BaseField(std::move(a), std::move(b));
     }
-    bool infinity = x.IsZero() && y.IsZero();
-    return {std::move(x), std::move(y), infinity};
+    return {std::move(x), std::move(y)};
   }
 
   Groth16::VerificationKey<AltBn128::Engine> verification_key_;

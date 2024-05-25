@@ -318,6 +318,7 @@ version = "0.0.1"
 dependencies = [
  "ark-bn254",
  "ark-ec 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ark-ff 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "ark-std 0.4.0",
  "tachyon_rs",
 ]

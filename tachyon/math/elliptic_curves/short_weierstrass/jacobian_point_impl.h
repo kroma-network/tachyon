@@ -114,7 +114,7 @@ constexpr void CLASS::DoAdd(const JacobianPoint& a, const JacobianPoint& b,
 
 template <typename Curve>
 constexpr CLASS CLASS::Add(const AffinePoint<Curve>& other) const {
-  if (other.infinity()) return *this;
+  if (other.IsZero()) return *this;
   if (IsZero()) {
     return JacobianPoint::FromAffine(other);
   }
@@ -126,7 +126,7 @@ constexpr CLASS CLASS::Add(const AffinePoint<Curve>& other) const {
 
 template <typename Curve>
 constexpr CLASS& CLASS::AddInPlace(const AffinePoint<Curve>& other) {
-  if (other.infinity()) return *this;
+  if (other.IsZero()) return *this;
   if (IsZero()) {
     return *this = JacobianPoint::FromAffine(other);
   }
