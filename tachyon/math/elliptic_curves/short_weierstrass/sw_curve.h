@@ -82,7 +82,7 @@ class SWCurve {
   }
 
   constexpr static bool IsOnCurve(const AffinePoint& point) {
-    if (point.infinity()) return false;
+    if (point.IsZero()) return false;
     BaseField right = point.x().Square() * point.x() + Config::kB;
     if constexpr (!Config::kAIsZero) {
       right += Config::kA * point.x();

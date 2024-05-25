@@ -131,10 +131,9 @@ TEST_F(JacobianPointTest, ScalarMulOperator) {
   EXPECT_THAT(
       points,
       testing::UnorderedElementsAreArray(std::vector<test::AffinePoint>{
-          test::AffinePoint(GF7(0), GF7(0), true),
-          test::AffinePoint(GF7(3), GF7(2)), test::AffinePoint(GF7(5), GF7(2)),
-          test::AffinePoint(GF7(6), GF7(2)), test::AffinePoint(GF7(3), GF7(5)),
-          test::AffinePoint(GF7(5), GF7(5)),
+          test::AffinePoint(GF7(0), GF7(0)), test::AffinePoint(GF7(3), GF7(2)),
+          test::AffinePoint(GF7(5), GF7(2)), test::AffinePoint(GF7(6), GF7(2)),
+          test::AffinePoint(GF7(3), GF7(5)), test::AffinePoint(GF7(5), GF7(5)),
           test::AffinePoint(GF7(6), GF7(5))}));
 }
 

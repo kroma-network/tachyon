@@ -20,7 +20,7 @@ CurvePoint ToAffinePoint(const CPoint& point_in) {
   tachyon::math::Point2<BaseField> point;
   point.x = c::base::native_cast(point_in.x);
   point.y = c::base::native_cast(point_in.y);
-  return CurvePoint(point, point_in.infinity);
+  return CurvePoint(point);
 }
 
 template <typename CPoint,
@@ -93,7 +93,6 @@ CPoint ToCAffinePoint(const Point& point_in) {
   CPoint ret;
   ret.x = c::base::c_cast(point_in.x());
   ret.y = c::base::c_cast(point_in.y());
-  ret.infinity = point_in.infinity();
   return ret;
 }
 

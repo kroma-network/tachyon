@@ -66,7 +66,7 @@ class ProofSerializer<math::AffinePoint<Curve>> {
 
   [[nodiscard]] static bool WriteToProof(const math::AffinePoint<Curve>& point,
                                          base::Buffer& buffer) {
-    if (point.infinity()) {
+    if (point.IsZero()) {
       constexpr uint8_t kZeroBytes[kByteSize] = {
           0,
       };

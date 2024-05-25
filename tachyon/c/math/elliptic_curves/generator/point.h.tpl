@@ -15,17 +15,13 @@
  * @struct tachyon_%{type}_%{g1_or_g2}_affine
  * @brief Represents an affine point on the %{type} %{g1_or_g2} curve.
  *
- * This structure models an affine point on the %{type} curve with x and y coordinates,
- * and a boolean flag to indicate if the point is at infinity.
+ * This structure models an affine point on the %{type} curve with x and y coordinates.
  *
  * @example affine_point.cc
  */
-struct __attribute__((aligned(32))) tachyon_%{type}_%{g1_or_g2}_affine {
+struct tachyon_%{type}_%{g1_or_g2}_affine {
   tachyon_%{type}_%{base_field} x;
   tachyon_%{type}_%{base_field} y;
-  // needs to occupy 32 byte
-  // NOTE(chokobole): See LimbsAlignment() in tachyon/math/base/big_int.h
-  bool infinity;
 };
 
 /**
