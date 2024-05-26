@@ -23,7 +23,7 @@ template <typename Curve, typename Container, typename Bucket>
                                  const Container& public_inputs,
                                  Bucket* prepared_inputs) {
   using G1Point = typename Curve::G1Curve::AffinePoint;
-  const std::vector<G1Point>& l_g1_query = pvk.verifying_key().l_g1_query();
+  absl::Span<const G1Point> l_g1_query = pvk.verifying_key().l_g1_query();
   absl::Span<const G1Point> l_g1_query_first_skipped =
       absl::MakeConstSpan(l_g1_query).subspan(1);
   math::VariableBaseMSM<G1Point> msm;

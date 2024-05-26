@@ -35,7 +35,8 @@ struct ProvingKey {
   }
   bool operator!=(const ProvingKey& other) const { return !operator==(other); }
 
-  zk::r1cs::groth16::VerifyingKey<Curve> ToNativeVerifyingKey() const {
+  zk::r1cs::groth16::OwnedVerifyingKey<Curve> ToNativeOwnedVerifyingKey()
+      const {
     return {
         verifying_key.alpha_g1,
         verifying_key.beta_g2,
@@ -47,7 +48,7 @@ struct ProvingKey {
 
   zk::r1cs::groth16::ProvingKey<Curve> ToNativeProvingKey() const {
     return {
-        ToNativeVerifyingKey(),
+        ToNativeOwnedVerifyingKey(),
         verifying_key.beta_g1,
         verifying_key.delta_g1,
         a_g1_query,

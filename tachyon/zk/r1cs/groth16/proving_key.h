@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include "tachyon/zk/r1cs/groth16/verifying_key.h"
+#include "tachyon/zk/r1cs/groth16/owned_verifying_key.h"
 
 namespace tachyon::zk::r1cs::groth16 {
 
@@ -23,13 +23,14 @@ class ProvingKey : public Key {
   using F = typename G1Point::ScalarField;
 
   ProvingKey() = default;
-  ProvingKey(const VerifyingKey<Curve>& verifying_key, const G1Point& beta_g1,
-             const G1Point& delta_g1, const std::vector<G1Point>& a_g1_query,
+  ProvingKey(const OwnedVerifyingKey<Curve>& verifying_key,
+             const G1Point& beta_g1, const G1Point& delta_g1,
+             const std::vector<G1Point>& a_g1_query,
              const std::vector<G1Point>& b_g1_query,
              const std::vector<G2Point>& b_g2_query,
              const std::vector<G1Point>& h_g1_query,
              const std::vector<G1Point>& l_g1_query)
-      : verifying_key_(verifying_key),
+      : owned_verifying_key_(verifying_key),
         beta_g1_(beta_g1),
         delta_g1_(delta_g1),
         a_g1_query_(a_g1_query),
@@ -37,13 +38,13 @@ class ProvingKey : public Key {
         b_g2_query_(b_g2_query),
         h_g1_query_(h_g1_query),
         l_g1_query_(l_g1_query) {}
-  ProvingKey(VerifyingKey<Curve>&& verifying_key, G1Point&& beta_g1,
+  ProvingKey(OwnedVerifyingKey<Curve>&& verifying_key, G1Point&& beta_g1,
              G1Point&& delta_g1, std::vector<G1Point>&& a_g1_query,
              std::vector<G1Point>&& b_g1_query,
              std::vector<G2Point>&& b_g2_query,
              std::vector<G1Point>&& h_g1_query,
              std::vector<G1Point>&& l_g1_query)
-      : verifying_key_(std::move(verifying_key)),
+      : owned_verifying_key_(std::move(verifying_key)),
         beta_g1_(std::move(beta_g1)),
         delta_g1_(std::move(delta_g1)),
         a_g1_query_(std::move(a_g1_query)),
@@ -52,9 +53,11 @@ class ProvingKey : public Key {
         h_g1_query_(std::move(h_g1_query)),
         l_g1_query_(std::move(l_g1_query)) {}
 
-  const VerifyingKey<Curve>& verifying_key() const { return verifying_key_; }
-  VerifyingKey<Curve>&& TakeVerifyingKey() && {
-    return std::move(verifying_key_);
+  const OwnedVerifyingKey<Curve>& verifying_key() const {
+    return owned_verifying_key_;
+  }
+  OwnedVerifyingKey<Curve>&& TakeVerifyingKey() && {
+    return std::move(owned_verifying_key_);
   }
 
   const G1Point& beta_g1() const { return beta_g1_; }
@@ -84,7 +87,7 @@ class ProvingKey : public Key {
         result.qap_instance_map_result;
     math::FixedBaseMSM<G1Point>& g1_msm = result.g1_msm;
 
-    if (!verifying_key_.Load(toxic_waste, result, gamma_delta_inverse[0]))
+    if (!owned_verifying_key_.Load(toxic_waste, result, gamma_delta_inverse[0]))
       return false;
 
     const F& delta_inverse = gamma_delta_inverse[1];
@@ -158,7 +161,7 @@ class ProvingKey : public Key {
   }
 
  private:
-  VerifyingKey<Curve> verifying_key_;
+  OwnedVerifyingKey<Curve> owned_verifying_key_;
   // [β]₁
   G1Point beta_g1_;
   // [δ]₁
