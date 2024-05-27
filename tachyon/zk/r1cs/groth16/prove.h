@@ -62,7 +62,7 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
     CHECK(msm.Run(pk.h_g1_query(), h_coefficients_subspan, &h_acc));
   } else {
     absl::Span<const G1AffinePoint> h_g1_query_subspan =
-        absl::MakeConstSpan(pk.h_g1_query()).subspan(0, h_coefficients.size());
+        pk.h_g1_query().subspan(0, h_coefficients.size());
     CHECK(msm.Run(h_g1_query_subspan, h_coefficients, &h_acc));
   }
 
@@ -73,7 +73,7 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
   // |ac_g1_bucket[0]| = [A]₁ = [α + Σᵢ₌₀..ₘ (xᵢ * aᵢ(x)) + rδ]₁
   // where x is |full_assignments|.
   ac_g1_bucket[0] =
-      CalculateCoeff(r_delta_g1_bucket, absl::MakeConstSpan(pk.a_g1_query()),
+      CalculateCoeff(r_delta_g1_bucket, pk.a_g1_query(),
                      pk.verifying_key().alpha_g1(), full_assignments);
 
   // |s_delta_g2_bucket| = [sδ]₂
@@ -82,7 +82,7 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
   // |b_g2_bucket| = [B]₂ = [β + Σᵢ₌₀..ₘ (xᵢ * bᵢ(x)) + sδ]₂
   // where x is |full_assignments|.
   G2Bucket b_g2_bucket =
-      CalculateCoeff(s_delta_g2_bucket, absl::MakeConstSpan(pk.b_g2_query()),
+      CalculateCoeff(s_delta_g2_bucket, pk.b_g2_query(),
                      pk.verifying_key().beta_g2(), full_assignments);
 
   // |ac_g1_bucket[1]| = [As]₁
@@ -94,9 +94,8 @@ Proof<Curve> CreateProofWithAssignment(const ProvingKey<Curve>& pk, const F& r,
         math::ConvertPoint<G1Bucket>(s * pk.delta_g1());
     // |b_g1_bucket| = [B]₁ = [β + Σᵢ₌₀..ₘ (xᵢ * bᵢ(x)) + sδ]₁
     // where x is |full_assignments|.
-    G1Bucket b_g1_bucket =
-        CalculateCoeff(s_delta_g1_bucket, absl::MakeConstSpan(pk.b_g1_query()),
-                       pk.beta_g1(), full_assignments);
+    G1Bucket b_g1_bucket = CalculateCoeff(s_delta_g1_bucket, pk.b_g1_query(),
+                                          pk.beta_g1(), full_assignments);
     ac_g1_bucket[1] += (r * b_g1_bucket);
     ac_g1_bucket[1] -= (s * r_delta_g1_bucket);
   }

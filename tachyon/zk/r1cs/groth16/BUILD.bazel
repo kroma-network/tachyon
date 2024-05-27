@@ -26,6 +26,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "owned_proving_key",
+    hdrs = ["owned_proving_key.h"],
+    deps = [
+        ":owned_verifying_key",
+        ":proving_key",
+    ],
+)
+
+tachyon_cc_library(
     name = "owned_verifying_key",
     hdrs = ["owned_verifying_key.h"],
     deps = [
@@ -63,7 +72,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "proving_key",
     hdrs = ["proving_key.h"],
-    deps = [":owned_verifying_key"],
+    deps = [":verifying_key"],
 )
 
 tachyon_cc_library(
@@ -96,6 +105,7 @@ tachyon_cc_unittest(
     name = "groth16_unittests",
     srcs = ["groth16_unittest.cc"],
     deps = [
+        ":owned_proving_key",
         ":prove",
         ":verify",
         "//tachyon/math/elliptic_curves/bn/bn254",

@@ -4,6 +4,7 @@
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
 #include "tachyon/zk/r1cs/constraint_system/quadratic_arithmetic_program.h"
 #include "tachyon/zk/r1cs/constraint_system/test/simple_circuit.h"
+#include "tachyon/zk/r1cs/groth16/owned_proving_key.h"
 #include "tachyon/zk/r1cs/groth16/prove.h"
 #include "tachyon/zk/r1cs/groth16/verify.h"
 
@@ -26,15 +27,15 @@ class Groth16Test : public testing::Test {
 TEST_F(Groth16Test, ProveAndVerify) {
   SimpleCircuit<F> circuit(F::Random(), F::Random());
   ToxicWaste<Curve> toxic_waste = ToxicWaste<Curve>::RandomWithoutX();
-  ProvingKey<Curve> pk;
+  OwnedProvingKey<Curve> opk;
   bool loaded =
-      pk.Load<MaxDegree, QuadraticArithmeticProgram<F>>(toxic_waste, circuit);
+      opk.Load<MaxDegree, QuadraticArithmeticProgram<F>>(toxic_waste, circuit);
   ASSERT_TRUE(loaded);
   Proof<Curve> proof =
       CreateProofWithReductionZK<MaxDegree, QuadraticArithmeticProgram<F>>(
-          circuit, pk);
+          circuit, opk);
   PreparedVerifyingKey<Curve> pvk =
-      std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
+      std::move(opk).TakeOwnedVerifyingKey().ToPreparedVerifyingKey();
   std::vector<F> public_inputs = circuit.GetPublicInputs();
   ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
 

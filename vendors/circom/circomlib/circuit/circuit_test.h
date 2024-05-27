@@ -12,6 +12,7 @@
 #include "circomlib/zkey/zkey.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/bn254.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
+#include "tachyon/zk/r1cs/groth16/owned_proving_key.h"
 #include "tachyon/zk/r1cs/groth16/prove.h"
 #include "tachyon/zk/r1cs/groth16/verify.h"
 
@@ -35,14 +36,14 @@ class CircuitTest : public testing::Test {
   void Groth16ProveAndVerifyTest() {
     zk::r1cs::groth16::ToxicWaste<Curve> toxic_waste =
         zk::r1cs::groth16::ToxicWaste<Curve>::RandomWithoutX();
-    zk::r1cs::groth16::ProvingKey<Curve> pk;
-    bool loaded = pk.Load<MaxDegree, QAP>(toxic_waste, *circuit_);
+    zk::r1cs::groth16::OwnedProvingKey<Curve> opk;
+    bool loaded = opk.Load<MaxDegree, QAP>(toxic_waste, *circuit_);
     ASSERT_TRUE(loaded);
     zk::r1cs::groth16::Proof<Curve> proof =
         zk::r1cs::groth16::CreateProofWithReductionZK<MaxDegree, QAP>(*circuit_,
-                                                                      pk);
+                                                                      opk);
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> pvk =
-        std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
+        std::move(opk).TakeOwnedVerifyingKey().ToPreparedVerifyingKey();
     std::vector<F> public_inputs = circuit_->GetPublicInputs();
     ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
   }
@@ -52,8 +53,8 @@ class CircuitTest : public testing::Test {
       ZKey<Curve>&& zkey, absl::Span<const F> full_assignments) {
     using Domain = math::UnivariateEvaluationDomain<F, MaxDegree>;
 
-    zk::r1cs::groth16::ProvingKey<Curve> pk =
-        std::move(zkey).TakeProvingKey().ToNativeProvingKey();
+    zk::r1cs::groth16::OwnedProvingKey<Curve> opk =
+        std::move(zkey).TakeProvingKey().ToNativeOwnedProvingKey();
     zk::r1cs::ConstraintMatrices<F> constraint_matrices =
         std::move(zkey).TakeConstraintMatrices().ToNative();
 
@@ -65,14 +66,14 @@ class CircuitTest : public testing::Test {
 
     zk::r1cs::groth16::Proof<Curve> proof =
         zk::r1cs::groth16::CreateProofWithAssignmentZK(
-            pk, absl::MakeConstSpan(h_evals),
+            opk, absl::MakeConstSpan(h_evals),
             full_assignments.subspan(
                 1, constraint_matrices.num_instance_variables - 1),
             full_assignments.subspan(
                 constraint_matrices.num_instance_variables),
             full_assignments.subspan(1));
     zk::r1cs::groth16::PreparedVerifyingKey<Curve> pvk =
-        std::move(pk).TakeVerifyingKey().ToPreparedVerifyingKey();
+        std::move(opk).TakeOwnedVerifyingKey().ToPreparedVerifyingKey();
     std::vector<F> public_inputs = circuit_->GetPublicInputs();
     ASSERT_TRUE(VerifyProof(pvk, proof, public_inputs));
   }

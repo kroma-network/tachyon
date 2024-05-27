@@ -15,6 +15,7 @@
 #include "tachyon/base/logging.h"
 #include "tachyon/base/time/time.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_factory.h"
+#include "tachyon/zk/r1cs/groth16/owned_proving_key.h"
 #include "tachyon/zk/r1cs/groth16/prove.h"
 #include "tachyon/zk/r1cs/groth16/verify.h"
 
@@ -42,7 +43,7 @@ class TachyonRunner : public Runner<Curve> {
     std::unique_ptr<ZKey<Curve>> zkey = ParseZKey<Curve>(zkey_path);
     CHECK(zkey);
 
-    proving_key_ = std::move(*zkey).TakeProvingKey().ToNativeProvingKey();
+    proving_key_ = std::move(*zkey).TakeProvingKey().ToNativeOwnedProvingKey();
     constraint_matrices_ = std::move(*zkey).TakeConstraintMatrices().ToNative();
   }
 
@@ -72,8 +73,9 @@ class TachyonRunner : public Runner<Curve> {
     delta = base::TimeTicks::Now() - now;
 
     if (!prepared_verifying_key_.has_value()) {
-      prepared_verifying_key_ =
-          std::move(proving_key_).TakeVerifyingKey().ToPreparedVerifyingKey();
+      prepared_verifying_key_ = std::move(proving_key_)
+                                    .TakeOwnedVerifyingKey()
+                                    .ToPreparedVerifyingKey();
     }
     CHECK(zk::r1cs::groth16::VerifyProof(*prepared_verifying_key_, proof,
                                          public_inputs));
@@ -83,7 +85,7 @@ class TachyonRunner : public Runner<Curve> {
 
  private:
   WitnessLoader<F> witness_loader_;
-  zk::r1cs::groth16::ProvingKey<Curve> proving_key_;
+  zk::r1cs::groth16::OwnedProvingKey<Curve> proving_key_;
   zk::r1cs::ConstraintMatrices<F> constraint_matrices_;
   std::optional<zk::r1cs::groth16::PreparedVerifyingKey<Curve>>
       prepared_verifying_key_;

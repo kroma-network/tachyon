@@ -10,7 +10,7 @@
 
 #include "circomlib/zkey/verifying_key.h"
 #include "tachyon/base/strings/string_util.h"
-#include "tachyon/zk/r1cs/groth16/proving_key.h"
+#include "tachyon/zk/r1cs/groth16/owned_proving_key.h"
 
 namespace tachyon::circom {
 
@@ -46,7 +46,7 @@ struct ProvingKey {
     };
   }
 
-  zk::r1cs::groth16::ProvingKey<Curve> ToNativeProvingKey() const {
+  zk::r1cs::groth16::OwnedProvingKey<Curve> ToNativeOwnedProvingKey() const {
     return {
         ToNativeOwnedVerifyingKey(),
         verifying_key.beta_g1,

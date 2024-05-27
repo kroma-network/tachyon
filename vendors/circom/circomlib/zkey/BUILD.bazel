@@ -27,7 +27,7 @@ tachyon_cc_library(
     deps = [
         ":verifying_key",
         "@kroma_network_tachyon//tachyon/base/strings:string_util",
-        "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:proving_key",
+        "@kroma_network_tachyon//tachyon/zk/r1cs/groth16:owned_proving_key",
     ],
 )
 
