@@ -253,16 +253,9 @@ struct ZKey : public circom::ZKey<Curve> {
   bool Read(const base::ReadOnlyBuffer& buffer) override {
     using BaseField = typename G1AffinePoint::BaseField;
 
-    base::AutoReset<bool> auto_reset(
-        &base::Copyable<F>::s_allow_value_greater_than_or_equal_to_modulus,
-        true);
+    base::AutoReset<bool> auto_reset(&base::Copyable<F>::s_is_in_montgomery,
+                                     true);
     base::AutoReset<bool> auto_reset2(
-        &base::Copyable<
-            BaseField>::s_allow_value_greater_than_or_equal_to_modulus,
-        true);
-    base::AutoReset<bool> auto_reset3(&base::Copyable<F>::s_is_in_montgomery,
-                                      true);
-    base::AutoReset<bool> auto_reset4(
         &base::Copyable<BaseField>::s_is_in_montgomery, true);
 
     Sections<ZKeySectionType> sections(buffer, &ZKeySectionTypeToString);
