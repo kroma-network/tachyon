@@ -42,26 +42,29 @@ struct PoseidonSpongeBase : public FieldBasedCryptographicSponge<Derived> {
     Derived& derived = static_cast<Derived&>(*this);
     auto& config = derived.config;
     if constexpr (kApplyMixAtFront) {
-      derived.ApplyMix(true);
+      derived.ApplyMix(/*is_full_round=*/true);
     }
 
     size_t full_rounds_over_2 = config.full_rounds / 2;
     for (size_t i = 0; i < full_rounds_over_2; ++i) {
-      derived.ApplyARK(i, true);
-      ApplySBox(true);
-      derived.ApplyMix(true);
+      bool is_full_round = true;
+      derived.ApplyARK(i, is_full_round);
+      ApplySBox(is_full_round);
+      derived.ApplyMix(is_full_round);
     }
     for (size_t i = full_rounds_over_2;
          i < full_rounds_over_2 + config.partial_rounds; ++i) {
-      derived.ApplyARK(i, false);
-      ApplySBox(false);
-      derived.ApplyMix(false);
+      bool is_full_round = false;
+      derived.ApplyARK(i, is_full_round);
+      ApplySBox(is_full_round);
+      derived.ApplyMix(is_full_round);
     }
     for (size_t i = full_rounds_over_2 + config.partial_rounds;
          i < config.partial_rounds + config.full_rounds; ++i) {
-      derived.ApplyARK(i, true);
-      ApplySBox(true);
-      derived.ApplyMix(true);
+      bool is_full_round = true;
+      derived.ApplyARK(i, is_full_round);
+      ApplySBox(is_full_round);
+      derived.ApplyMix(is_full_round);
     }
   }
 
