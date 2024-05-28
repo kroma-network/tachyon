@@ -7,26 +7,30 @@
 #include <optional>
 #include <string>
 
-#include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/goldilocks/goldilocks_config.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::math {
 
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
-    : public PrimeFieldBase<PrimeField<_Config>> {
+class PrimeField<_Config, std::enable_if_t<_Config::kIsTachyonMathGoldilocks>>
+    final : public PrimeFieldBase<PrimeField<_Config>> {
  public:
+#if defined(USE_MONTGOMERY)
+  static_assert(USE_MONTGOMERY == 0);
+#endif  // defined(USE_MONTGOMERY)
+
   constexpr static size_t kModulusBits = _Config::kModulusBits;
   constexpr static size_t kLimbNums = (kModulusBits + 63) / 64;
   constexpr static size_t N = kLimbNums;
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
-  using value_type = uint64_t;
+  using value_type = BigInt<N>;
 
   PrimeField() = default;
   explicit PrimeField(uint64_t value);
+  explicit PrimeField(BigInt<N> value) : PrimeField(value[0]) {}
   PrimeField(const PrimeField& other) = default;
   PrimeField& operator=(const PrimeField& other) = default;
   PrimeField(PrimeField&& other) = default;
@@ -38,18 +42,16 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
 
   static std::optional<PrimeField> FromDecString(std::string_view str);
   static std::optional<PrimeField> FromHexString(std::string_view str);
-  static PrimeField FromBigInt(const BigInt<N>& big_int);
-  static PrimeField FromMontgomery(const BigInt<N>& big_int);
-
-  static PrimeField FromMpzClass(const mpz_class& value) {
-    BigInt<N> big_int;
-    gmp::CopyLimbs(value, big_int.limbs);
-    return FromBigInt(big_int);
-  }
+  static PrimeField FromBigInt(BigInt<N> big_int);
+#if USE_MONTGOMERY == 1
+  static PrimeField FromMontgomery(BigInt<N> big_int);
+#endif
 
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
 
-  const value_type& value() const { return value_; }
+  // NOTE(chokobole): To be consistent with `PrimeField<F>` defined in
+  // prime_field_fallback.h, it returns the value as a `BigInt<N>`.
+  value_type value() const { return value_type(value_); }
 
   bool IsZero() const;
   bool IsOne() const;
@@ -57,37 +59,28 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsGoldilocks>> final
   std::string ToString() const;
   std::string ToHexString(bool pad_zero = false) const;
 
-  mpz_class ToMpzClass() const;
-
   // TODO(chokobole): Support bigendian.
-  BigInt<N> ToBigInt() const { return BigInt<N>(uint64_t{*this}); }
+  BigInt<N> ToBigInt() const { return BigInt<N>(value_); }
 
-  BigInt<N> ToMontgomery() const;
-
-  operator uint64_t() const;
-
-  uint64_t operator[](size_t i) const {
-    DCHECK_EQ(i, size_t{0});
-    return uint64_t{*this};
-  }
+  operator uint64_t() const { return value_; }
 
   bool operator==(const PrimeField& other) const {
-    return uint64_t{*this} == uint64_t{other};
+    return value_ == other.value_;
   }
   bool operator!=(const PrimeField& other) const {
-    return uint64_t{*this} != uint64_t{other};
+    return value_ != other.value_;
   }
   bool operator<(const PrimeField& other) const {
-    return uint64_t{*this} < uint64_t{other};
+    return value_ < other.value_;
   }
   bool operator>(const PrimeField& other) const {
-    return uint64_t{*this} > uint64_t{other};
+    return value_ > other.value_;
   }
   bool operator<=(const PrimeField& other) const {
-    return uint64_t{*this} <= uint64_t{other};
+    return value_ <= other.value_;
   }
   bool operator>=(const PrimeField& other) const {
-    return uint64_t{*this} >= uint64_t{other};
+    return value_ >= other.value_;
   }
 
   // AdditiveSemigroup methods

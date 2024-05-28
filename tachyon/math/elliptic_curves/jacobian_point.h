@@ -30,10 +30,10 @@ struct PointConversions<JacobianPoint<Curve>, JacobianPoint<Curve>> {
 template <typename SrcCurve, typename DstCurve>
 struct PointConversions<JacobianPoint<SrcCurve>, JacobianPoint<DstCurve>,
                         std::enable_if_t<!std::is_same_v<SrcCurve, DstCurve>>> {
-  static JacobianPoint<DstCurve> Convert(
+  static const JacobianPoint<DstCurve>& Convert(
       const JacobianPoint<SrcCurve>& src_point) {
     static_assert(SrcCurve::kType == DstCurve::kType);
-    return JacobianPoint<DstCurve>::FromMontgomery(src_point.ToMontgomery());
+    return reinterpret_cast<const JacobianPoint<DstCurve>&>(src_point);
   }
 };
 

@@ -93,7 +93,7 @@ uint32x4_t Mul(uint32x4_t lhs, uint32x4_t rhs) {
 
 // static
 void PackedMersenne31Neon::Init() {
-  kP = vdupq_n_u32(Mersenne31::Config::kModulus[0]);
+  kP = vdupq_n_u32(Mersenne31::Config::kModulus);
   kZero = vdupq_n_u32(0);
   kOne = vdupq_n_u32(1);
 }

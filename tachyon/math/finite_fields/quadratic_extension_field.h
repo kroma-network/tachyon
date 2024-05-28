@@ -27,7 +27,6 @@ class QuadraticExtensionField
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
   using BasePrimeField = typename Config::BasePrimeField;
-  using MontgomeryTy = Point2<typename BaseField::MontgomeryTy>;
 
   constexpr QuadraticExtensionField() = default;
   constexpr QuadraticExtensionField(const BaseField& c0, const BaseField& c1)
@@ -44,11 +43,6 @@ class QuadraticExtensionField
   }
 
   static Derived Random() { return {BaseField::Random(), BaseField::Random()}; }
-
-  constexpr static Derived FromMontgomery(const MontgomeryTy& mont) {
-    return {BaseField::FromMontgomery(mont.x),
-            BaseField::FromMontgomery(mont.y)};
-  }
 
   static Derived FromBasePrimeFields(
       absl::Span<const BasePrimeField> prime_fields) {
@@ -99,10 +93,6 @@ class QuadraticExtensionField
     c1_ *=
         Config::kFrobeniusCoeffs[exponent % Config::kDegreeOverBasePrimeField];
     return *static_cast<Derived*>(this);
-  }
-
-  constexpr MontgomeryTy ToMontgomery() const {
-    return {c0_.ToMontgomery(), c1_.ToMontgomery()};
   }
 
   std::string ToString() const {

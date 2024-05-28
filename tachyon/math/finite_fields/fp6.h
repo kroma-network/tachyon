@@ -50,7 +50,11 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 2>> final
     constexpr uint64_t N = BasePrimeField::kLimbNums;
     // m₁ = P
     mpz_class m1;
-    gmp::WriteLimbs(BasePrimeField::Config::kModulus.limbs, N, &m1);
+    if constexpr (BasePrimeField::Config::kModulusBits <= 32) {
+      m1 = mpz_class(BasePrimeField::Config::kModulus);
+    } else {
+      gmp::WriteLimbs(BasePrimeField::Config::kModulus.limbs, N, &m1);
+    }
 
 #define SET_M(d, d_prev) mpz_class m##d = m##d_prev * m1
 
@@ -240,7 +244,11 @@ class Fp6<Config, std::enable_if_t<Config::kDegreeOverBaseField == 3>> final
     constexpr uint64_t N = BasePrimeField::kLimbNums;
     // m₁ = P
     mpz_class m1;
-    gmp::WriteLimbs(BasePrimeField::Config::kModulus.limbs, N, &m1);
+    if constexpr (BasePrimeField::Config::kModulusBits <= 32) {
+      m1 = mpz_class(BasePrimeField::Config::kModulus);
+    } else {
+      gmp::WriteLimbs(BasePrimeField::Config::kModulus.limbs, N, &m1);
+    }
 
 #define SET_M(d, d_prev) mpz_class m##d = m##d_prev * m1
 

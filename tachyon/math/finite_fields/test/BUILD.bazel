@@ -22,7 +22,6 @@ generate_fft_prime_fields(
     name = "gf7",
     testonly = True,
     class_name = "GF7",
-    flag = "kIsGF7",
     modulus = "7",
     namespace = "tachyon::math",
     reduce32 = "return static_cast<uint32_t>(v % ((1 << kModulusBits) - 1));",

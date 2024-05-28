@@ -44,10 +44,10 @@ __m256i Mul(__m256i lhs, __m256i rhs) {
 
 // static
 void PackedBabyBearAVX2::Init() {
-  kP = _mm256_set1_epi32(BabyBear::Config::kModulus[0]);
+  kP = _mm256_set1_epi32(BabyBear::Config::kModulus);
   kInv = _mm256_set1_epi32(BabyBear::Config::kInverse32);
   kZero = _mm256_set1_epi32(0);
-  kOne = _mm256_set1_epi32(BabyBear::Config::kOne[0]);
+  kOne = _mm256_set1_epi32(BabyBear::Config::kOne);
 }
 
 // static

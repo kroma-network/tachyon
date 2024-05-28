@@ -88,13 +88,6 @@ class ProjectivePoint<
     return point.ToProjective();
   }
 
-  constexpr static ProjectivePoint FromMontgomery(
-      const Point3<typename BaseField::MontgomeryTy>& point) {
-    return {BaseField::FromMontgomery(point.x),
-            BaseField::FromMontgomery(point.y),
-            BaseField::FromMontgomery(point.z)};
-  }
-
   constexpr static ProjectivePoint Random() {
     return ScalarField::Random() * Generator();
   }
@@ -238,10 +231,6 @@ class ProjectivePoint<
   constexpr PointXYZZ<Curve> ToXYZZ() const {
     BaseField zz = z_.Square();
     return {x_ * z_, y_ * zz, zz, z_ * zz};
-  }
-
-  constexpr Point3<typename BaseField::MontgomeryTy> ToMontgomery() const {
-    return {x_.ToMontgomery(), y_.ToMontgomery(), z_.ToMontgomery()};
   }
 
   std::string ToString() const {

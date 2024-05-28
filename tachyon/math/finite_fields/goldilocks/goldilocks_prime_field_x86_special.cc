@@ -11,7 +11,8 @@
 
 namespace tachyon::math {
 
-#define CLASS PrimeField<Config, std::enable_if_t<Config::kIsGoldilocks>>
+#define CLASS \
+  PrimeField<Config, std::enable_if_t<Config::kIsTachyonMathGoldilocks>>
 
 template <typename Config>
 CLASS::PrimeField(uint64_t value) : value_(value) {
@@ -60,23 +61,19 @@ std::optional<CLASS> CLASS::FromHexString(std::string_view str) {
 
 // static
 template <typename Config>
-CLASS CLASS::FromBigInt(const BigInt<N>& big_int) {
+CLASS CLASS::FromBigInt(BigInt<N> big_int) {
   return PrimeField(big_int[0]);
 }
 
+#if USE_MONTGOMERY == 1
 // static
 template <typename Config>
-CLASS CLASS::FromMontgomery(const BigInt<N>& big_int) {
+CLASS CLASS::FromMontgomery(BigInt<N> big_int) {
   PrimeField ret;
-  // See
-  // https://github.com/0xPolygonHermez/goldilocks/blob/f89eb016830f8c4301482d83691aed22e5a92742/src/goldilocks_base_field_tools.hpp#L66-L73.
-#if USE_MONTGOMERY == 1
   ret.value_ = big_int[0];
-#else
-  ret.value_ = ::Goldilocks::from_montgomery(big_int[0]);
-#endif
   return ret;
 }
+#endif
 
 template <typename Config>
 bool CLASS::IsZero() const {
@@ -104,24 +101,6 @@ std::string CLASS::ToHexString(bool pad_zero) const {
     str = base::ToHexStringWithLeadingZero(str, 16);
   }
   return base::MaybePrepend0x(str);
-}
-
-template <typename Config>
-mpz_class CLASS::ToMpzClass() const {
-  mpz_class ret;
-  uint64_t limbs[] = {uint64_t{*this}};
-  gmp::WriteLimbs(limbs, N, &ret);
-  return ret;
-}
-
-template <typename Config>
-BigInt<CLASS::N> CLASS::ToMontgomery() const {
-  return BigInt<N>(::Goldilocks::to_montgomery(uint64_t{*this}));
-}
-
-template <typename Config>
-CLASS::operator uint64_t() const {
-  return ::Goldilocks::toU64(::Goldilocks::Element{value_});
 }
 
 template <typename Config>

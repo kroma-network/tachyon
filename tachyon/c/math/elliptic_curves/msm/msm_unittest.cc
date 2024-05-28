@@ -39,8 +39,10 @@ std::vector<VariableBaseMSMTestSet<bn254::G1AffinePoint>> MSMTest::test_sets_;
 TEST_F(MSMTest, MSMPoint2) {
   for (const VariableBaseMSMTestSet<bn254::G1AffinePoint>& t : test_sets_) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
-    std::vector<Point2<BigInt<4>>> bases = base::CreateVector(
-        t.bases.size(), [&t](size_t i) { return t.bases[i].ToMontgomery(); });
+    std::vector<Point2<bn254::Fq>> bases =
+        base::CreateVector(t.bases.size(), [&t](size_t i) {
+          return Point2<bn254::Fq>(t.bases[i].x(), t.bases[i].y());
+        });
     ret.reset(tachyon_bn254_g1_point2_msm(
         msm_, reinterpret_cast<const tachyon_bn254_g1_point2*>(bases.data()),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),

@@ -46,6 +46,10 @@ struct PoseidonSponge final
       : config(config), state(std::move(state)) {}
 
   // PoseidonSpongeBase methods
+  void ApplyARK(Eigen::Index round_number, bool) {
+    state.elements += config.ark.row(round_number);
+  }
+
   void ApplyMix(bool) { state.elements = config.mds * state.elements; }
 
   bool operator==(const PoseidonSponge& other) const {

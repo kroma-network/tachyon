@@ -27,8 +27,13 @@ class PrimeFieldSerializable<T, std::enable_if_t<std::is_integral_v<T>>> {
   template <typename PrimeField>
   constexpr static bool ToPrimeField(const T& value,
                                      std::vector<PrimeField>* fields) {
-    if (math::BigInt<1>(value) >= PrimeField::Config::kModulus) return false;
-    fields->push_back(PrimeField::FromBigInt(math::BigInt<1>(value)));
+    if constexpr (PrimeField::Config::kModulusBits <= 32) {
+      if (value >= PrimeField::Config::kModulus) return false;
+    } else {
+      using BigInt = typename PrimeField::BigIntTy;
+      if (BigInt(value) >= PrimeField::Config::kModulus) return false;
+    }
+    fields->push_back(PrimeField(value));
     return true;
   }
 

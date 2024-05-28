@@ -26,7 +26,7 @@ template <typename Config>
 class PrimeFieldGpu;
 
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
+class PrimeField<_Config, std::enable_if_t<_Config::%{asm_flag}>> final
     : public PrimeFieldBase<PrimeField<_Config>> {
  public:
   constexpr static size_t kModulusBits = _Config::kModulusBits;
@@ -35,7 +35,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
-  using MontgomeryTy = BigInt<N>;
   using value_type = BigInt<N>;
 
   using CpuField = PrimeField<Config>;
@@ -128,8 +127,6 @@ class PrimeField<_Config, std::enable_if_t<_Config::%{flag}>> final
     %{prefix}_rawFromMontgomery(ret.limbs, value_.limbs);
     return ret;
   }
-
-  constexpr const BigInt<N>& ToMontgomery() const { return value_; }
 
   constexpr uint64_t& operator[](size_t i) { return value_[i]; }
   constexpr const uint64_t& operator[](size_t i) const { return value_[i]; }

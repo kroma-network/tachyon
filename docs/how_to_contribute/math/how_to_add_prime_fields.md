@@ -17,7 +17,6 @@ Choose the [prime field generator](/tachyon/math/finite_fields/generator/prime_f
     - `namespace`: The selected namespace, commonly set as `tachyon::math`.
     - `class_name`: The name of the class, usually the same as the name of the prime field (in PascalCase).
     - `modulus`: The modulus value of the prime field.
-    - `flag`: The name of the flag exposed in the prime field's configuration (`kIs<PrimeFieldName>`).
 2. **`generate_fft_prime_fields()`**:
     - `subgroup_generator`: The value used to generate elements of a subgroup within the prime field, facilitating Fast Fourier Transform (FFT) operations.
       - _Note_: Every prime can be expressed in the following form: $p = 2^s * T + 1$, where $s$ and $T$ are integers, and $T$ is odd. According to Fermat's little Theorem, $a^{p-1} = 1 \mod p$ holds for any element $a$ in $F_p$. That is to say, $a^{2^s * T} = 1 \mod p$. A subgroup generator $g$ satisfies $(g^{2^{s-k} * T})^{2^k} = 1 \mod p$ for some $k \le s$, where $2^k = n$, making $\omega = g^{2^{s-k} * T}$ a $n$-th root of unity.
@@ -51,7 +50,6 @@ generate_fft_prime_fields( # NOTE: Choose generator type
     namespace = "tachyon::math",
     class_name = "NewPrimeField",
     modulus = "{modulus_value}", # input modulus value
-    flag = "kIsNewPrimeField",
     subgroup_generator = ":" + SUBGROUP_GENERATOR,
 )
 ```

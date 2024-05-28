@@ -26,7 +26,6 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   using Config = typename FiniteField<Derived>::Config;
   using BaseField = typename Config::BaseField;
   using BasePrimeField = typename Config::BasePrimeField;
-  using MontgomeryTy = Point3<typename BaseField::MontgomeryTy>;
 
   constexpr CubicExtensionField() = default;
   constexpr CubicExtensionField(const BaseField& c0, const BaseField& c1,
@@ -45,12 +44,6 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
 
   static Derived Random() {
     return {BaseField::Random(), BaseField::Random(), BaseField::Random()};
-  }
-
-  constexpr static Derived FromMontgomery(const MontgomeryTy& mont) {
-    return {BaseField::FromMontgomery(mont.x),
-            BaseField::FromMontgomery(mont.y),
-            BaseField::FromMontgomery(mont.z)};
   }
 
   static Derived FromBasePrimeFields(
@@ -114,10 +107,6 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
     c2_ *=
         Config::kFrobeniusCoeffs2[exponent % Config::kDegreeOverBasePrimeField];
     return *static_cast<Derived*>(this);
-  }
-
-  constexpr MontgomeryTy ToMontgomery() const {
-    return {c0_.ToMontgomery(), c1_.ToMontgomery(), c2_.ToMontgomery()};
   }
 
   std::string ToString() const {

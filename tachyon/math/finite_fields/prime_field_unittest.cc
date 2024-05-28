@@ -51,11 +51,7 @@ TYPED_TEST(PrimeFieldTest, One) {
 
   EXPECT_TRUE(F::One().IsOne());
   EXPECT_FALSE(F::Zero().IsOne());
-  if constexpr (F::Config::kUseMontgomery) {
-    EXPECT_EQ(F::Config::kOne, F(1).ToMontgomery());
-  } else {
-    EXPECT_EQ(F::Config::kOne, F(1).ToBigInt());
-  }
+  EXPECT_EQ(F::Config::kOne, F(1).value());
 }
 
 TYPED_TEST(PrimeFieldTest, BigIntConversion) {
@@ -63,20 +59,6 @@ TYPED_TEST(PrimeFieldTest, BigIntConversion) {
 
   F r = F::Random();
   EXPECT_EQ(F::FromBigInt(r.ToBigInt()), r);
-}
-
-TYPED_TEST(PrimeFieldTest, MontgomeryConversion) {
-  using F = TypeParam;
-
-  F r = F::Random();
-  EXPECT_EQ(F::FromMontgomery(r.ToMontgomery()), r);
-}
-
-TYPED_TEST(PrimeFieldTest, MpzClassConversion) {
-  using F = TypeParam;
-
-  F r = F::Random();
-  EXPECT_EQ(F::FromMpzClass(r.ToMpzClass()), r);
 }
 
 TYPED_TEST(PrimeFieldTest, EqualityOperators) {
@@ -233,20 +215,6 @@ TYPED_TEST(PrimeFieldTest, Copyable) {
     ASSERT_TRUE(write_buf.Read(&value));
     EXPECT_EQ(expected, value);
   }
-
-  base::Uint8VectorBuffer write_buf;
-  ASSERT_TRUE(write_buf.Grow(sizeof(uint64_t)));
-  ASSERT_TRUE(write_buf.Write(expected.value() + F::Config::kModulus[0]));
-  ASSERT_TRUE(write_buf.Done());
-
-  base::AutoReset<bool> auto_reset(
-      &base::Copyable<F>::s_allow_value_greater_than_or_equal_to_modulus, true);
-
-  write_buf.set_buffer_offset(0);
-
-  F value;
-  ASSERT_TRUE(write_buf.Read(&value));
-  EXPECT_EQ(expected, value);
 }
 
 }  // namespace tachyon::math

@@ -15,51 +15,56 @@ constexpr DstPrimeField ConvertPrimeField(
       src_prime_field);
 }
 
+template <typename Config>
+struct PrimeFieldConversions<PrimeField<Config>, PrimeField<Config>> {
+  constexpr static const PrimeField<Config>& Convert(
+      const PrimeField<Config>& src_prime_field) {
+    return reinterpret_cast<const PrimeField<Config>&>(src_prime_field);
+  }
+};
+
 #if TACHYON_CUDA
 template <typename Config>
 struct PrimeFieldConversions<PrimeField<Config>, PrimeFieldGpu<Config>> {
-  constexpr static PrimeFieldGpu<Config> Convert(
+  constexpr static const PrimeFieldGpu<Config>& Convert(
       const PrimeField<Config>& src_prime_field) {
-    return PrimeFieldGpu<Config>::FromMontgomery(
-        src_prime_field.ToMontgomery());
+    return reinterpret_cast<const PrimeFieldGpu<Config>&>(src_prime_field);
   }
 };
 #endif  // TACHYON_CUDA
 
 template <typename Config>
 struct PrimeFieldConversions<PrimeField<Config>, PrimeFieldGpuDebug<Config>> {
-  constexpr static PrimeFieldGpuDebug<Config> Convert(
+  constexpr static const PrimeFieldGpuDebug<Config>& Convert(
       const PrimeField<Config>& src_prime_field) {
-    return PrimeFieldGpuDebug<Config>::FromMontgomery(
-        src_prime_field.ToMontgomery());
+    return reinterpret_cast<const PrimeFieldGpuDebug<Config>&>(src_prime_field);
   }
 };
 
 #if TACHYON_CUDA
 template <typename Config>
 struct PrimeFieldConversions<PrimeFieldGpu<Config>, PrimeField<Config>> {
-  constexpr static PrimeField<Config> Convert(
+  constexpr static const PrimeField<Config>& Convert(
       const PrimeFieldGpu<Config>& src_prime_field) {
-    return PrimeField<Config>::FromMontgomery(src_prime_field.ToMontgomery());
+    return reinterpret_cast<const PrimeField<Config>&>(src_prime_field);
   }
 };
 
 template <typename Config>
 struct PrimeFieldConversions<PrimeFieldGpu<Config>,
                              PrimeFieldGpuDebug<Config>> {
-  constexpr static PrimeFieldGpuDebug<Config> Convert(
+  constexpr static const PrimeFieldGpuDebug<Config>& Convert(
       const PrimeFieldGpu<Config>& src_prime_field) {
-    return PrimeFieldGpuDebug<Config>::FromMontgomery(
-        src_prime_field.ToMontgomery());
+    return reinterpret_cast<const PrimeFieldGpuDebug<Config>&>(src_prime_field);
   }
 };
 #endif  // TACHYON_CUDA
 
 template <typename Config>
 struct PrimeFieldConversions<PrimeFieldGpuDebug<Config>, PrimeField<Config>> {
-  constexpr static PrimeField<Config> Convert(
+  constexpr static const PrimeField<Config>& Convert(
       const PrimeFieldGpuDebug<Config>& src_prime_field) {
-    return PrimeField<Config>::FromMontgomery(src_prime_field.ToMontgomery());
+    return reinterpret_cast<const PrimeField<Config>&>(src_prime_field);
   }
 };
 
@@ -67,10 +72,9 @@ struct PrimeFieldConversions<PrimeFieldGpuDebug<Config>, PrimeField<Config>> {
 template <typename Config>
 struct PrimeFieldConversions<PrimeFieldGpuDebug<Config>,
                              PrimeFieldGpu<Config>> {
-  constexpr static PrimeFieldGpu<Config> Convert(
+  constexpr static const PrimeFieldGpu<Config>& Convert(
       const PrimeFieldGpuDebug<Config>& src_prime_field) {
-    return PrimeFieldGpu<Config>::FromMontgomery(
-        src_prime_field.ToMontgomery());
+    return reinterpret_cast<const PrimeFieldGpu<Config>&>(src_prime_field);
   }
 };
 #endif  // TACHYON_CUDA

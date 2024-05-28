@@ -19,12 +19,11 @@ config_setting(
 generate_prime_fields(
     name = "mersenne31",
     class_name = "Mersenne31",
-    flag = "kIsMersenne31",
     # 2³¹ - 1
     # Hex: 0x7fffffff
     modulus = "2147483647",
     namespace = "tachyon::math",
-    reduce64 = "return ((((v >> kModulusBits) + v + 1) >> kModulusBits) + v) & static_cast<uint32_t>(kModulus[0]);",
+    reduce64 = "return ((((v >> kModulusBits) + v + 1) >> kModulusBits) + v) & kModulus;",
     use_montgomery = False,
 )
 

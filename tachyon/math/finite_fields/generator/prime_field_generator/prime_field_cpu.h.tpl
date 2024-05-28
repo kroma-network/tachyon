@@ -1,15 +1,6 @@
 // clang-format off
 #include "%{config_header_path}"
 
-%{if kIsSmallField}
-%{if kUseMontgomery}
-#include "tachyon/math/finite_fields/small_prime_field_mont.h"
-%{endif kUseMontgomery}
-%{if !kUseMontgomery}
-#include "tachyon/math/finite_fields/small_prime_field.h"
-%{endif !kUseMontgomery}
-%{endif kIsSmallField}
-%{if !kIsSmallField}
 %{if kUseAsm}
 #if ARCH_CPU_X86_64
 #include "%{prime_field_x86_hdr}"
@@ -19,7 +10,6 @@
 %{if kUseAsm}
 #endif
 %{endif kUseAsm}
-%{endif !kIsSmallField}
 
 namespace %{namespace} {
 

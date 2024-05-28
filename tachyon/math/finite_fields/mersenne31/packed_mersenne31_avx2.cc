@@ -160,7 +160,7 @@ __m256i Mul(__m256i lhs, __m256i rhs) {
 
 // static
 void PackedMersenne31AVX2::Init() {
-  kP = _mm256_set1_epi32(Mersenne31::Config::kModulus[0]);
+  kP = _mm256_set1_epi32(Mersenne31::Config::kModulus);
   kZero = _mm256_set1_epi32(0);
   kOne = _mm256_set1_epi32(1);
 }

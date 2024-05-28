@@ -29,7 +29,6 @@ string_flag(
 generate_large_fft_prime_fields(
     name = "goldilocks",
     class_name = "Goldilocks",
-    flag = "kIsGoldilocks",
     # 2⁶⁴ - 2³² + 1
     # Hex: 0xffffffff00000001
     modulus = "18446744069414584321",
@@ -37,6 +36,8 @@ generate_large_fft_prime_fields(
     small_subgroup_adicity = ":" + SMALL_SUBGROUP_ADICITY,
     small_subgroup_base = ":" + SMALL_SUBGROUP_BASE,
     subgroup_generator = ":" + SUBGROUP_GENERATOR,
+    # NOTE(chokobole): Polygon's Goldilocks doesn't use montgomery reduction by default.
+    use_montgomery = if_x86_64(False, True),
 )
 
 tachyon_cc_library(
@@ -50,7 +51,6 @@ tachyon_cc_library(
         "//tachyon/base:random",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
-        "//tachyon/math/base/gmp:gmp_util",
         "//tachyon/math/finite_fields:prime_field_base",
         "@goldilocks//:base_field",
     ]),

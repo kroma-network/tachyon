@@ -30,9 +30,10 @@ struct PointConversions<PointXYZZ<Curve>, PointXYZZ<Curve>> {
 template <typename SrcCurve, typename DstCurve>
 struct PointConversions<PointXYZZ<SrcCurve>, PointXYZZ<DstCurve>,
                         std::enable_if_t<!std::is_same_v<SrcCurve, DstCurve>>> {
-  static PointXYZZ<DstCurve> Convert(const PointXYZZ<SrcCurve>& src_point) {
+  static const PointXYZZ<DstCurve>& Convert(
+      const PointXYZZ<SrcCurve>& src_point) {
     static_assert(SrcCurve::kType == DstCurve::kType);
-    return PointXYZZ<DstCurve>::FromMontgomery(src_point.ToMontgomery());
+    return reinterpret_cast<const PointXYZZ<DstCurve>&>(src_point);
   }
 };
 

@@ -18,18 +18,13 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/egcd.h"
-#include "tachyon/math/base/gmp/gmp_util.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::math {
 
-template <typename Config>
-class PrimeFieldGpu;
-
 // A prime field is finite field GF(p) where p is a prime number.
 template <typename _Config>
-class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
-                                           (_Config::kModulusBits <= 32) &&
+class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
                                            !_Config::kUseMontgomery>>
     final : public PrimeFieldBase<PrimeField<_Config>> {
  public:
@@ -39,17 +34,16 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
 
   using Config = _Config;
   using BigIntTy = BigInt<N>;
-  using MontgomeryTy = BigInt<N>;
   using value_type = uint32_t;
 
   using CpuField = PrimeField<Config>;
-  using GpuField = PrimeFieldGpu<Config>;
+  using GpuField = PrimeField<Config>;
 
   constexpr PrimeField() = default;
   constexpr explicit PrimeField(uint32_t value) : value_(value) {
     DCHECK_LT(value_, GetModulus());
   }
-  constexpr explicit PrimeField(const BigInt<N>& value) : PrimeField(value[0]) {
+  constexpr explicit PrimeField(BigInt<N> value) : PrimeField(value[0]) {
     DCHECK_LT(value[0], GetModulus());
   }
   constexpr PrimeField(const PrimeField& other) = default;
@@ -84,18 +78,8 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     return PrimeField(value);
   }
 
-  constexpr static PrimeField FromBigInt(const BigInt<N>& big_int) {
+  constexpr static PrimeField FromBigInt(BigInt<N> big_int) {
     return PrimeField(big_int);
-  }
-
-  constexpr static PrimeField FromMontgomery(const MontgomeryTy& mont) {
-    return PrimeField(Config::FromMontgomery(mont[0]));
-  }
-
-  static PrimeField FromMpzClass(const mpz_class& value) {
-    BigInt<N> big_int;
-    gmp::CopyLimbs(value, big_int.limbs);
-    return FromBigInt(big_int);
   }
 
   static void Init() { VLOG(1) << Config::kName << " initialized"; }
@@ -116,25 +100,8 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
     return base::MaybePrepend0x(str);
   }
 
-  mpz_class ToMpzClass() const {
-    mpz_class ret;
-    gmp::WriteLimbs(ToBigInt().limbs, N, &ret);
-    return ret;
-  }
-
   // TODO(chokobole): Support bigendian.
   constexpr BigInt<N> ToBigInt() const { return BigInt<N>(value_); }
-
-  constexpr MontgomeryTy ToMontgomery() const {
-    return MontgomeryTy(Config::ToMontgomery(value_));
-  }
-
-  constexpr operator uint32_t() const { return value_; }
-
-  constexpr uint32_t operator[](size_t i) const {
-    DCHECK_EQ(i, size_t{0});
-    return value_;
-  }
 
   constexpr bool operator==(PrimeField other) const {
     return value_ == other.value_;
@@ -230,9 +197,7 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kIsSpecialPrime &&
   }
 
  private:
-  constexpr static uint32_t GetModulus() {
-    return static_cast<uint32_t>(Config::kModulus[0]);
-  }
+  constexpr static uint32_t GetModulus() { return Config::kModulus; }
 
   uint32_t value_;
 };

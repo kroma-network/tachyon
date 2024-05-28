@@ -36,11 +36,6 @@ TEST_F(PointXYZZTest, Generator) {
                             GF7::One(), GF7::One()));
 }
 
-TEST_F(PointXYZZTest, Montgomery) {
-  test::PointXYZZ r = test::PointXYZZ::Random();
-  EXPECT_EQ(r, test::PointXYZZ::FromMontgomery(r.ToMontgomery()));
-}
-
 TEST_F(PointXYZZTest, Random) {
   bool success = false;
   test::PointXYZZ r = test::PointXYZZ::Random();

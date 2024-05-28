@@ -44,10 +44,10 @@ __m256i Mul(__m256i lhs, __m256i rhs) {
 
 // static
 void PackedKoalaBearAVX2::Init() {
-  kP = _mm256_set1_epi32(KoalaBear::Config::kModulus[0]);
+  kP = _mm256_set1_epi32(KoalaBear::Config::kModulus);
   kInv = _mm256_set1_epi32(KoalaBear::Config::kInverse32);
   kZero = _mm256_set1_epi32(0);
-  kOne = _mm256_set1_epi32(KoalaBear::Config::kOne[0]);
+  kOne = _mm256_set1_epi32(KoalaBear::Config::kOne);
 }
 
 // static

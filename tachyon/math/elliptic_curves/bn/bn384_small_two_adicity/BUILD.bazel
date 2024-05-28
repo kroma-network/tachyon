@@ -28,7 +28,6 @@ string_flag(
 generate_large_fft_prime_fields(
     name = "fq",
     class_name = "Fq",
-    flag = "kIsBn384Fq",
     # Hex: 0x26a192ce09033aefd13bdbf17786104ad304fe31dc79b326e86a281d61074bec649bdd411682c645207c4e269a431001
     modulus = "5945877603251831796258517492029536515488649313567122628447476625319762940580461319088175968449723373773214087057409",
     namespace = "tachyon::math::bn384_small_two_adicity",
@@ -56,7 +55,6 @@ string_flag(
 generate_large_fft_prime_fields(
     name = "fr",
     class_name = "Fr",
-    flag = "kIsBn384Fr",
     # Hex: 0x26a192ce09033aefd13bdbf17786104ad304fe31dc79b32684f7e52225e599a5b91f07ba93282245f13a3723b4c31001
     modulus = "5945877603251831796258517492029536515488649313567122628445038208291596545947608789992834434053176523624102324539393",
     namespace = "tachyon::math::bn384_small_two_adicity",

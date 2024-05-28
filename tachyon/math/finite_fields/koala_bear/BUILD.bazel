@@ -7,7 +7,6 @@ package(default_visibility = ["//visibility:public"])
 generate_prime_fields(
     name = "koala_bear",
     class_name = "KoalaBear",
-    flag = "kIsKoalaBear",
     # 2³¹ - 2²⁴ + 1
     # Hex: 0x7f000001
     modulus = "2130706433",

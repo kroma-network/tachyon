@@ -64,8 +64,7 @@ TEST_F(PrimeFieldSerializableTest, SerializeBatchToField) {
 
 TEST_F(PrimeFieldSerializableTest, SerializationFailureDueToModulus) {
   std::vector<math::GF7> fields;
-  ASSERT_FALSE(
-      SerializeToFieldElements(math::GF7::Config::kModulus[0], &fields));
+  ASSERT_FALSE(SerializeToFieldElements(math::GF7::Config::kModulus, &fields));
   EXPECT_TRUE(fields.empty());
 }
 

@@ -37,7 +37,6 @@ string_flag(
 generate_large_fft_prime_fields(
     name = "fq",
     class_name = "Fq",
-    flag = "kIsBls12381Fq",
     # Hex: 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
     modulus = "4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787",
     namespace = "tachyon::math::bls12_381",
@@ -64,7 +63,6 @@ string_flag(
 generate_large_fft_prime_fields(
     name = "fr",
     class_name = "Fr",
-    flag = "kIsBls12381Fr",
     # Hex: 0x73eda753299d7d483339d80809a1d80553bda402fffe5bfeffffffff00000001
     modulus = "52435875175126190479447740508185965837690552500527637822603658699938581184513",
     namespace = "tachyon::math::bls12_381",

@@ -61,13 +61,6 @@ SUPPORTS_BINARY_OPERATOR(Add);
 SUPPORTS_UNARY_OPERATOR(DoubleImpl);
 
 template <typename T, typename = void>
-struct SupportsToBigInt : std::false_type {};
-
-template <typename T>
-struct SupportsToBigInt<T, decltype(void(std::declval<T>().ToBigInt()))>
-    : std::true_type {};
-
-template <typename T, typename = void>
 struct SupportsSize : std::false_type {};
 
 template <typename T>

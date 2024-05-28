@@ -30,9 +30,10 @@ struct PointConversions<AffinePoint<Curve>, AffinePoint<Curve>> {
 template <typename SrcCurve, typename DstCurve>
 struct PointConversions<AffinePoint<SrcCurve>, AffinePoint<DstCurve>,
                         std::enable_if_t<!std::is_same_v<SrcCurve, DstCurve>>> {
-  static AffinePoint<DstCurve> Convert(const AffinePoint<SrcCurve>& src_point) {
+  static const AffinePoint<DstCurve>& Convert(
+      const AffinePoint<SrcCurve>& src_point) {
     static_assert(SrcCurve::kType == DstCurve::kType);
-    return AffinePoint<DstCurve>::FromMontgomery(src_point.ToMontgomery());
+    return reinterpret_cast<const AffinePoint<DstCurve>&>(src_point);
   }
 };
 

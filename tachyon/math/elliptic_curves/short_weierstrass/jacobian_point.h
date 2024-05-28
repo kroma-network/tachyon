@@ -90,13 +90,6 @@ class JacobianPoint<
     return point.ToJacobian();
   }
 
-  constexpr static JacobianPoint FromMontgomery(
-      const Point3<typename BaseField::MontgomeryTy>& point) {
-    return {BaseField::FromMontgomery(point.x),
-            BaseField::FromMontgomery(point.y),
-            BaseField::FromMontgomery(point.z)};
-  }
-
   constexpr static JacobianPoint Random() {
     return ScalarField::Random() * Generator();
   }
@@ -244,10 +237,6 @@ class JacobianPoint<
   constexpr PointXYZZ<Curve> ToXYZZ() const {
     BaseField zz = z_.Square();
     return {x_, y_, zz, zz * z_};
-  }
-
-  constexpr Point3<typename BaseField::MontgomeryTy> ToMontgomery() const {
-    return {x_.ToMontgomery(), y_.ToMontgomery(), z_.ToMontgomery()};
   }
 
   std::string ToString() const {
