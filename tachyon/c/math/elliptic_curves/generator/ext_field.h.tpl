@@ -1,3 +1,4 @@
+// clang-format off
 /**
  * @file
  * @brief Defines operations over the finite field extension Fq%{degree} for the %{type} curve.
@@ -9,7 +10,6 @@
  * @example extension_field.cc
  */
 
-// clang-format off
 #include <stdint.h>
 
 #include "tachyon/c/export.h"

@@ -1,3 +1,4 @@
+// clang-format off
 /**
  * @file
  * @brief Defines structures and operations for elliptic curve points in %{g1_or_g2} group using %{type} curve.
@@ -7,7 +8,6 @@
  * The operations are optimized for efficiency and are crucial for cryptographic algorithms implemented using elliptic curves.
  */
 
-// clang-format off
 #include "tachyon/c/export.h"
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{base_field}.h"
 

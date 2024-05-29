@@ -1,3 +1,4 @@
+// clang-format off
 /**
  * @file
  * @brief Finite field operations for the %{type} curve.
@@ -8,7 +9,6 @@
  * @example prime_field.cc
  */
 
-// clang-format off
 #include <stdint.h>
 
 #include "tachyon/c/export.h"

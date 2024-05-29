@@ -1,3 +1,4 @@
+// clang-format off
 /**
  * @file
  * @brief GPU-accelerated multi-scalar multiplication (MSM) operations for %{type} curve points in a G1 group.
@@ -6,7 +7,6 @@
  * operations on points of the G1 group of the %{type} curve.
  */
 
-// clang-format off
 #include <stddef.h>
 #include <stdint.h>
 

@@ -1,3 +1,4 @@
+// clang-format off
 /**
  * @file
  * @brief Multi-scalar multiplication (MSM) operations for %{type} curve points in a G1 group.
@@ -10,7 +11,6 @@
  * @example msm.cc
  */
 
-// clang-format off
 #include <stddef.h>
 #include <stdint.h>
 
