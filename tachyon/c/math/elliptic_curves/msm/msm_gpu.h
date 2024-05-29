@@ -96,11 +96,17 @@ CRetPoint* DoMSMGpu(MSMGpuApi<GpuCurve>& msm_api, const CPoint* bases,
                                    tachyon::device::gpu::GpuMemoryType::kHost,
                                    0, aligned_size));
 
-  RetPoint ret;
+  tachyon::math::ProjectivePoint<CpuCurve> ret;
   CHECK(
       msm_api.msm->Run(msm_api.d_bases, msm_api.d_scalars, aligned_size, &ret));
   CRetPoint* cret = new CRetPoint();
-  ToCPoint3(ret, cret);
+  if constexpr (std::is_same_v<RetPoint,
+                               tachyon::math::ProjectivePoint<CpuCurve>>) {
+    ToCPoint3(ret, cret);
+  } else {
+    RetPoint ret_tmp = tachyon::math::ConvertPoint<RetPoint>(ret);
+    ToCPoint3(ret_tmp, cret);
+  }
 
   if (msm_api.log_msm) {
     // NOTE(chokobole): This should be replaced with VLOG().
