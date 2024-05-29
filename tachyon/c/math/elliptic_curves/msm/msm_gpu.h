@@ -33,8 +33,6 @@ struct MSMGpuApi {
   size_t idx = 0;
 
   explicit MSMGpuApi(uint8_t degree) {
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
-
     {
       // NOTE(chokobole): This should be replaced with VLOG().
       // Currently, there's no way to delegate VLOG flags from rust side.
