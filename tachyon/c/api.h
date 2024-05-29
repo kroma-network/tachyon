@@ -13,7 +13,6 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm_gpu.h"
-#include "tachyon/c/math/elliptic_curves/msm/algorithm.h"
 #include "tachyon/c/version.h"
 
 #endif  // TACHYON_C_API_H_

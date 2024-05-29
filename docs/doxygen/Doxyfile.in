@@ -1009,7 +1009,6 @@ EXCLUDE                = ${TACHYON_SOURCE_DIR}/c/base/type_traits_forward.h \
                          ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/generator/generator_util.h \
                          ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/point_conversions.h \
                          ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/point_traits_forward.h \
-                         ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/msm/algorithm.h \
                          ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/msm/msm.h \
                          ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/msm/msm_gpu.h \
                          ${TACHYON_SOURCE_DIR}/c/math/elliptic_curves/msm/msm_input_provider.h \

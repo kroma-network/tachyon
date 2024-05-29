@@ -5,13 +5,15 @@
 
 #include "third_party/icicle/include/fields/id.h"
 
+#include "tachyon/device/gpu/gpu_memory.h"
+#include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm_bn254.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/msm_algorithm.h"
+#include "tachyon/math/elliptic_curves/projective_point.h"
 
 namespace tachyon::math {
 
 template <typename GpuCurve>
-class IcicleMSM : public MSMGpuAlgorithm<GpuCurve> {
+class IcicleMSM {
  public:
   using ScalarField = typename AffinePoint<GpuCurve>::ScalarField;
   using CpuCurve = typename GpuCurve::CpuCurve;
@@ -37,11 +39,10 @@ class IcicleMSM : public MSMGpuAlgorithm<GpuCurve> {
   IcicleMSM(const IcicleMSM& other) = delete;
   IcicleMSM& operator=(const IcicleMSM& other) = delete;
 
-  // MSMGpuAlgorithm methods
   [[nodiscard]] bool Run(
       const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
       const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
-      JacobianPoint<CpuCurve>* cpu_result) override {
+      JacobianPoint<CpuCurve>* cpu_result) {
 #if FIELD_ID != BN254
 #error Only Bn254 is supported
 #endif
