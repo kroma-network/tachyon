@@ -1,0 +1,13 @@
+diff --git a/icicle/include/gpu-utils/modifiers.cu.h b/icicle/include/gpu-utils/modifiers.cu.h
+index 04ad395..3be1f5d 100644
+--- a/icicle/include/gpu-utils/modifiers.cu.h
++++ b/icicle/include/gpu-utils/modifiers.cu.h
+@@ -3,7 +3,7 @@
+ #define UNROLL
+ #else
+ #define INLINE_MACRO __forceinline__
+-#define UNROLL       #pragma unroll
++#define UNROLL       _Pragma("unroll")
+ #endif
+ 
+ #define HOST_INLINE        __host__ INLINE_MACRO
