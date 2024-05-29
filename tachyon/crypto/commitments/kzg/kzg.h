@@ -30,6 +30,7 @@ class KZG {
  public:
   using Field = typename G1Point::ScalarField;
   using Bucket = typename math::Pippenger<G1Point>::Bucket;
+  using Curve = typename G1Point::Curve;
 
   static constexpr size_t kMaxDegree = MaxDegree;
 
@@ -57,9 +58,13 @@ class KZG {
     std::vector<Commitment> batch_commitments;
     if constexpr (std::is_same_v<Commitment, Bucket>) {
       batch_commitments = std::move(batch_commitments_);
-    } else {
+    } else if constexpr (std::is_same_v<Commitment, math::AffinePoint<Curve>>) {
       batch_commitments.resize(batch_commitments_.size());
       CHECK(Bucket::BatchNormalize(batch_commitments_, &batch_commitments));
+      batch_commitments_.clear();
+    } else {
+      batch_commitments.resize(batch_commitments_.size());
+      CHECK(math::ConvertPoints(batch_commitments_, &batch_commitments));
       batch_commitments_.clear();
     }
     state.Reset();
