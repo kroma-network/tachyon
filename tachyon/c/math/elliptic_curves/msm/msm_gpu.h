@@ -47,6 +47,9 @@ struct MSMGpuApi {
       case TACHYON_MSM_ALGO_CUZK:
         algorithm = tachyon::math::MSMAlgorithmKind::kCUZK;
         break;
+      case TACHYON_MSM_ALGO_ICICLE_MSM:
+        algorithm = tachyon::math::MSMAlgorithmKind::kIcicle;
+        break;
       default:
         NOTREACHED() << "Not supported algorithm";
     }
