@@ -42,13 +42,13 @@ class IcicleMSM {
   [[nodiscard]] bool Run(
       const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
       const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
-      JacobianPoint<CpuCurve>* cpu_result) {
+      ProjectivePoint<CpuCurve>* cpu_result) {
 #if FIELD_ID != BN254
 #error Only Bn254 is supported
 #endif
 
-    using CpuBaseField = typename JacobianPoint<CpuCurve>::BaseField;
-    using BigInt = typename JacobianPoint<CpuCurve>::BaseField::BigIntTy;
+    using CpuBaseField = typename ProjectivePoint<CpuCurve>::BaseField;
+    using BigInt = typename ProjectivePoint<CpuCurve>::BaseField::BigIntTy;
 
     ::bn254::projective_t ret;
     gpuError_t error = tachyon_bn254_msm_cuda(
@@ -56,12 +56,9 @@ class IcicleMSM {
         reinterpret_cast<const ::bn254::affine_t*>(bases.get()), size, *config_,
         &ret);
     if (error != gpuSuccess) return false;
-    *cpu_result =
-        ProjectivePoint<CpuCurve>{
-            CpuBaseField(reinterpret_cast<const BigInt&>(ret.x)),
-            CpuBaseField(reinterpret_cast<const BigInt&>(ret.y)),
-            CpuBaseField(reinterpret_cast<const BigInt&>(ret.z))}
-            .ToJacobian();
+    *cpu_result = {CpuBaseField(reinterpret_cast<const BigInt&>(ret.x)),
+                   CpuBaseField(reinterpret_cast<const BigInt&>(ret.y)),
+                   CpuBaseField(reinterpret_cast<const BigInt&>(ret.z))};
     return true;
   }
 

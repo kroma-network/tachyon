@@ -10,7 +10,7 @@ namespace tachyon::math {
 template <typename GpuCurve>
 class VariableBaseMSMGpu {
  public:
-  using ScalarField = typename JacobianPoint<GpuCurve>::ScalarField;
+  using ScalarField = typename ProjectivePoint<GpuCurve>::ScalarField;
   using CpuCurve = typename GpuCurve::CpuCurve;
 
   VariableBaseMSMGpu(gpuMemPool_t mem_pool, gpuStream_t stream)
@@ -20,7 +20,7 @@ class VariableBaseMSMGpu {
 
   bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
            const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
-           JacobianPoint<CpuCurve>* cpu_result) {
+           ProjectivePoint<CpuCurve>* cpu_result) {
     return impl_->Run(bases, scalars, size, cpu_result);
   }
 
