@@ -1,0 +1,13 @@
+diff --git a/icicle/include/msm/msm.cu.h b/icicle/include/msm/msm.cu.h
+index 1bd27a48..29b7e9b8 100644
+--- a/icicle/include/msm/msm.cu.h
++++ b/icicle/include/msm/msm.cu.h
+@@ -85,7 +85,7 @@ namespace msm {
+    * A function that returns the default value of [MSMConfig](@ref MSMConfig) for the [MSM](@ref MSM) function.
+    * @return Default value of [MSMConfig](@ref MSMConfig).
+    */
+-  static MSMConfig
++  inline MSMConfig
+   default_msm_config(const device_context::DeviceContext& ctx = device_context::get_default_device_context())
+   {
+     MSMConfig config = {
