@@ -104,7 +104,7 @@ class PointXYZZ<_Curve,
   }
 
   template <typename PointXYZZContainer, typename AffineContainer>
-  [[nodiscard]] OPENMP_CONSTEXPR static bool BatchNormalize(
+  [[nodiscard]] CONSTEXPR_IF_NOT_OPENMP static bool BatchNormalize(
       const PointXYZZContainer& point_xyzzs, AffineContainer* affine_points) {
     size_t size = std::size(point_xyzzs);
     if (size != std::size(*affine_points)) {
@@ -288,8 +288,9 @@ class PointXYZZ<_Curve,
  private:
   constexpr static void DoAdd(const PointXYZZ& a, const PointXYZZ& b,
                               PointXYZZ& c);
-  OPENMP_CONSTEXPR static void DoAdd(const PointXYZZ& a,
-                                     const AffinePoint<Curve>& b, PointXYZZ& c);
+  CONSTEXPR_IF_NOT_OPENMP static void DoAdd(const PointXYZZ& a,
+                                            const AffinePoint<Curve>& b,
+                                            PointXYZZ& c);
   constexpr static void DoDoubleImpl(const PointXYZZ& a, PointXYZZ& b);
 
   BaseField x_;

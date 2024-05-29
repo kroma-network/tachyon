@@ -170,7 +170,8 @@ class UnivariateDenseCoefficients {
   // multiplying either set of coefficients by a specified random field |r|,
   // and summing them together.
   template <bool MulRandomWithEvens>
-  OPENMP_CONSTEXPR UnivariateDenseCoefficients Fold(const Field& r) const {
+  CONSTEXPR_IF_NOT_OPENMP UnivariateDenseCoefficients
+  Fold(const Field& r) const {
     size_t size = coefficients_.size();
     std::vector<F> coefficients((size + 1) >> 1);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; i += 2) {
