@@ -15,7 +15,6 @@ namespace tachyon::math {
 template <typename Point>
 class VariableBaseMSM {
  public:
-  using ScalarField = typename Point::ScalarField;
   using Bucket = typename Pippenger<Point>::Bucket;
 
   template <typename BaseInputIterator, typename ScalarInputIterator>
