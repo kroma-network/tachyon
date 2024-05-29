@@ -17,7 +17,8 @@ tachyon_cuda_library(
     hdrs = ["icicle_msm.h"],
     deps = [
         ":icicle_msm_bn254",
-        "//tachyon/device/gpu:gpu_memory",
+        "//tachyon/device/gpu:gpu_device_functions",
+        "//tachyon/device/gpu:gpu_enums",
         "//tachyon/math/elliptic_curves:points",
     ],
 )
