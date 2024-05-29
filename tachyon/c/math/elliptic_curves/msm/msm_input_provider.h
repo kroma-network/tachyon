@@ -34,18 +34,16 @@ class MSMInputProvider {
     if (needs_align_) {
       size_t aligned_size = absl::bit_ceil(size);
       bases_owned_.resize(aligned_size);
-      for (size_t i = 0; i < size; ++i) {
-        bases_owned_[i] = reinterpret_cast<const AffinePoint*>(bases_in)[i];
-      }
-      for (size_t i = size; i < aligned_size; ++i) {
-        bases_owned_[i] = AffinePoint::Zero();
-      }
       scalars_owned_.resize(aligned_size);
-      for (size_t i = 0; i < size; ++i) {
-        scalars_owned_[i] = reinterpret_cast<const ScalarField*>(scalars_in)[i];
-      }
-      for (size_t i = size; i < aligned_size; ++i) {
-        scalars_owned_[i] = ScalarField::Zero();
+      OPENMP_PARALLEL_FOR(size_t i = 0; i < aligned_size; ++i) {
+        if (i < size) {
+          bases_owned_[i] = reinterpret_cast<const AffinePoint*>(bases_in)[i];
+          scalars_owned_[i] =
+              reinterpret_cast<const ScalarField*>(scalars_in)[i];
+        } else {
+          bases_owned_[i] = AffinePoint::Zero();
+          scalars_owned_[i] = ScalarField::Zero();
+        }
       }
       bases_ = bases_owned_;
       scalars_ = scalars_owned_;
