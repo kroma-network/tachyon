@@ -19,7 +19,6 @@ using namespace math;
 int RealMain(int argc, char** argv) {
   MSMConfig config;
   MSMConfig::Options options;
-  options.include_algos = true;
   if (!config.Parse(argc, argv, options)) {
     return 1;
   }
@@ -46,8 +45,8 @@ int RealMain(int argc, char** argv) {
   runner.Run(tachyon_bn254_g1_affine_msm, msm, point_nums, &results_cpu);
   tachyon_bn254_g1_destroy_msm(msm);
 
-  tachyon_bn254_g1_msm_gpu_ptr msm_gpu = tachyon_bn254_g1_create_msm_gpu(
-      config.exponents().back(), config.algorithm());
+  tachyon_bn254_g1_msm_gpu_ptr msm_gpu =
+      tachyon_bn254_g1_create_msm_gpu(config.exponents().back());
   std::vector<bn254::G1JacobianPoint> results_gpu;
   runner.Run(tachyon_bn254_g1_affine_msm_gpu, msm_gpu, point_nums,
              &results_gpu);

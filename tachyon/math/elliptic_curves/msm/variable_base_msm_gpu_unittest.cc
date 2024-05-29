@@ -7,9 +7,8 @@
 #include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
+#include "tachyon/device/gpu/scoped_stream.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
-#include "tachyon/math/elliptic_curves/msm/kernels/bellman/bn254_bellman_msm_kernels.cu.h"
-#include "tachyon/math/elliptic_curves/msm/kernels/cuzk/bn254_cuzk_kernels.cu.h"
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
@@ -73,15 +72,10 @@ TEST_F(VariableMSMCorrectnessGpuTest, MSM) {
 
   gpu::ScopedStream stream = gpu::CreateStream();
 
-  for (MSMAlgorithmKind algorithm :
-       {MSMAlgorithmKind::kBellmanMSM, MSMAlgorithmKind::kCUZK,
-        MSMAlgorithmKind::kIcicle}) {
-    VariableBaseMSMGpu<bn254::G1CurveGpu> msm_gpu(algorithm, mem_pool.get(),
-                                                  stream.get());
-    bn254::G1JacobianPoint actual;
-    ASSERT_TRUE(msm_gpu.Run(d_bases_, d_scalars_, kCount, &actual));
-    EXPECT_EQ(actual, expected_);
-  }
+  VariableBaseMSMGpu<bn254::G1CurveGpu> msm_gpu(mem_pool.get(), stream.get());
+  bn254::G1JacobianPoint actual;
+  ASSERT_TRUE(msm_gpu.Run(d_bases_, d_scalars_, kCount, &actual));
+  EXPECT_EQ(actual, expected_);
 }
 
 }  // namespace tachyon::math

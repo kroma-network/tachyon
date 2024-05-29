@@ -6,14 +6,13 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
-#include "tachyon/c/math/elliptic_curves/msm/algorithm.h"
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
 
 constexpr size_t kNums[] = {32, 2, 5};
 
-class MSMGpuTest : public testing::TestWithParam<int> {
+class MSMGpuTest : public testing::Test {
  public:
   static void SetUpTestSuite() {
     tachyon_bn254_g1_init();
@@ -31,17 +30,10 @@ class MSMGpuTest : public testing::TestWithParam<int> {
 std::vector<VariableBaseMSMTestSet<bn254::G1AffinePoint>>
     MSMGpuTest::test_sets_;
 
-INSTANTIATE_TEST_SUITE_P(BellmanMSM, MSMGpuTest,
-                         testing::Values(TACHYON_MSM_ALGO_BELLMAN_MSM));
-INSTANTIATE_TEST_SUITE_P(CUZK, MSMGpuTest,
-                         testing::Values(TACHYON_MSM_ALGO_CUZK));
-INSTANTIATE_TEST_SUITE_P(IcicleMSM, MSMGpuTest,
-                         testing::Values(TACHYON_MSM_ALGO_ICICLE_MSM));
-
-TEST_P(MSMGpuTest, MSMPoint2) {
+TEST_F(MSMGpuTest, MSMPoint2) {
   size_t max_num = *std::max_element(std::begin(kNums), std::end(kNums));
-  tachyon_bn254_g1_msm_gpu_ptr msm = tachyon_bn254_g1_create_msm_gpu(
-      base::bits::Log2Ceiling(max_num), GetParam());
+  tachyon_bn254_g1_msm_gpu_ptr msm =
+      tachyon_bn254_g1_create_msm_gpu(base::bits::Log2Ceiling(max_num));
 
   for (const VariableBaseMSMTestSet<bn254::G1AffinePoint>& t :
        this->test_sets_) {
@@ -58,10 +50,10 @@ TEST_P(MSMGpuTest, MSMPoint2) {
   tachyon_bn254_g1_destroy_msm_gpu(msm);
 }
 
-TEST_P(MSMGpuTest, MSMG1Affine) {
+TEST_F(MSMGpuTest, MSMG1Affine) {
   size_t max_num = *std::max_element(std::begin(kNums), std::end(kNums));
-  tachyon_bn254_g1_msm_gpu_ptr msm = tachyon_bn254_g1_create_msm_gpu(
-      base::bits::Log2Ceiling(max_num), GetParam());
+  tachyon_bn254_g1_msm_gpu_ptr msm =
+      tachyon_bn254_g1_create_msm_gpu(base::bits::Log2Ceiling(max_num));
 
   for (const VariableBaseMSMTestSet<bn254::G1AffinePoint>& t :
        this->test_sets_) {

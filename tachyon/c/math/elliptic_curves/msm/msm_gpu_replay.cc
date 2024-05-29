@@ -46,7 +46,6 @@ int RealMain(int argc, char** argv) {
   std::vector<int> idxes;
   int degree;
   base::FilePath input_dir;
-  int algorithm = 0;
   parser.AddFlag<base::Flag<std::vector<int>>>(&idxes)
       .set_long_name("--idx")
       .set_required();
@@ -56,26 +55,6 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::FilePathFlag>(&input_dir)
       .set_long_name("--input_dir")
       .set_required();
-  parser
-      .AddFlag<base::IntFlag>(
-          [&algorithm](std::string_view arg, std::string* reason) {
-            if (arg == "bellman_msm") {
-              algorithm = 0;
-              return true;
-            } else if (arg == "cuzk") {
-              algorithm = 1;
-              return true;
-            } else if (arg == "icicle_msm") {
-              algorithm = 2;
-              return true;
-            }
-            *reason = absl::Substitute("Not supported algorithm: $0", arg);
-            return false;
-          })
-      .set_long_name("--algo")
-      .set_help(
-          "Algorithms to be benchmarked with. (supported algorithms: "
-          "bellman_msm, cuzk, icicle_msm)");
   {
     std::string error;
     if (!parser.Parse(argc, argv, &error)) {
@@ -85,8 +64,7 @@ int RealMain(int argc, char** argv) {
   }
 
   tachyon_bn254_g1_init();
-  tachyon_bn254_g1_msm_gpu_ptr msm =
-      tachyon_bn254_g1_create_msm_gpu(degree, algorithm);
+  tachyon_bn254_g1_msm_gpu_ptr msm = tachyon_bn254_g1_create_msm_gpu(degree);
 
   for (int idx : idxes) {
     base::FilePath bases_txt(

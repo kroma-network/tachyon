@@ -25,7 +25,6 @@ class MSMConfig {
 
   struct Options {
     bool include_vendors = false;
-    bool include_algos = false;
   };
 
   static std::string VendorToString(Vendor vendor);
@@ -36,7 +35,6 @@ class MSMConfig {
 
   const std::vector<uint64_t>& exponents() const { return exponents_; }
   const std::vector<Vendor>& vendors() const { return vendors_; }
-  int algorithm() const { return algorithm_; }
   bool check_results() const { return check_results_; }
 
   bool Parse(int argc, char** argv, const Options& options);
@@ -62,7 +60,6 @@ class MSMConfig {
  private:
   std::vector<uint64_t> exponents_;
   std::vector<Vendor> vendors_;
-  int algorithm_ = 0;
   TestSet test_set_ = TestSet::kRandom;
   bool check_results_ = false;
 };

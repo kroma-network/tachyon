@@ -10,10 +10,10 @@
 #include "tachyon/base/environment.h"
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/c/math/elliptic_curves/msm/algorithm.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_input_provider.h"
 #include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
+#include "tachyon/device/gpu/scoped_stream.h"
 #include "tachyon/math/elliptic_curves/affine_point.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
@@ -38,22 +38,7 @@ struct MSMGpuApi {
   bool log_msm = false;
   size_t idx = 0;
 
-  MSMGpuApi(uint8_t degree, int algorithm_in) {
-    tachyon::math::MSMAlgorithmKind algorithm;
-    switch (algorithm_in) {
-      case TACHYON_MSM_ALGO_BELLMAN_MSM:
-        algorithm = tachyon::math::MSMAlgorithmKind::kBellmanMSM;
-        break;
-      case TACHYON_MSM_ALGO_CUZK:
-        algorithm = tachyon::math::MSMAlgorithmKind::kCUZK;
-        break;
-      case TACHYON_MSM_ALGO_ICICLE_MSM:
-        algorithm = tachyon::math::MSMAlgorithmKind::kIcicle;
-        break;
-      default:
-        NOTREACHED() << "Not supported algorithm";
-    }
-
+  explicit MSMGpuApi(uint8_t degree) {
     GPU_MUST_SUCCESS(gpuDeviceReset(), "Failed to gpuDeviceReset()");
 
     {
@@ -90,8 +75,8 @@ struct MSMGpuApi {
 
     stream = tachyon::device::gpu::CreateStream();
     provider.set_needs_align(true);
-    msm.reset(new tachyon::math::VariableBaseMSMGpu<GpuCurve>(
-        algorithm, mem_pool.get(), stream.get()));
+    msm.reset(new tachyon::math::VariableBaseMSMGpu<GpuCurve>(mem_pool.get(),
+                                                              stream.get()));
   }
 };
 

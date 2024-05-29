@@ -24,7 +24,6 @@ def _generate_ec_point_impl(ctx):
         "--fr_limb_nums=%s" % (ctx.attr.fr_limb_nums),
         "--degree=%s" % (ctx.attr.degree),
         "--base_field_degree=%s" % (ctx.attr.base_field_degree),
-        "--has_specialized_g1_msm_kernels=%s" % (ctx.attr.has_specialized_g1_msm_kernels),
         "--prime_field_hdr_tpl_path=%s" % (prime_field_hdr_tpl_path),
         "--prime_field_src_tpl_path=%s" % (prime_field_src_tpl_path),
         "--prime_field_type_traits_hdr_tpl_path=%s" % (prime_field_type_traits_hdr_tpl_path),
@@ -75,7 +74,6 @@ generate_ec_point = rule(
         "fr_limb_nums": attr.int(mandatory = True),
         "degree": attr.int(mandatory = True),
         "base_field_degree": attr.int(mandatory = True),
-        "has_specialized_g1_msm_kernels": attr.bool(mandatory = True),
         "prime_field_hdr_tpl_path": attr.label(
             allow_single_file = True,
             default = Label("@kroma_network_tachyon//tachyon/c/math/elliptic_curves/generator:prime_field.h.tpl"),
@@ -151,8 +149,7 @@ def generate_ec_points(
         fq12_deps,
         g1_deps,
         g2_deps,
-        g1_gpu_deps,
-        g1_msm_kernels_deps = []):
+        g1_gpu_deps):
     for n in [
         ("gen_fq_hdr", "fq.h", 0, 0),
         ("gen_fq_src", "fq.cc", 0, 0),
@@ -191,7 +188,6 @@ def generate_ec_points(
             out = n[1],
             degree = n[2],
             base_field_degree = n[3],
-            has_specialized_g1_msm_kernels = len(g1_msm_kernels_deps) > 0,
         )
 
     tachyon_cc_library(
@@ -296,7 +292,7 @@ def generate_ec_points(
             name = "msm_gpu",
             hdrs = ["msm_gpu.h"],
             srcs = if_gpu_is_configured(["msm_gpu.cc"]),
-            deps = g1_gpu_deps + g1_msm_kernels_deps + [
+            deps = g1_gpu_deps + [
                 ":g1",
                 "//tachyon/c/math/elliptic_curves/msm:msm_gpu",
             ],

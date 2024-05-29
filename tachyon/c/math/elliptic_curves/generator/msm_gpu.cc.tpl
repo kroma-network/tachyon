@@ -5,17 +5,13 @@
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm_gpu.h"
 #include "tachyon/math/elliptic_curves/%{header_dir_name}/g1_gpu.h"
-%{if HasSpecializedG1MsmKernels}
-#include "tachyon/math/elliptic_curves/msm/kernels/bellman/%{type}_bellman_msm_kernels.cu.h"
-#include "tachyon/math/elliptic_curves/msm/kernels/cuzk/%{type}_cuzk_kernels.cu.h"
-%{endif HasSpecializedG1MsmKernels}
 
 struct tachyon_%{type}_g1_msm_gpu : public tachyon::c::math::MSMGpuApi<tachyon::math::%{type}::G1CurveGpu> {
   using tachyon::c::math::MSMGpuApi<tachyon::math::%{type}::G1CurveGpu>::MSMGpuApi;
 };
 
-tachyon_%{type}_g1_msm_gpu_ptr tachyon_%{type}_g1_create_msm_gpu(uint8_t degree, int algorithm) {
-  return new tachyon_%{type}_g1_msm_gpu(degree, algorithm);
+tachyon_%{type}_g1_msm_gpu_ptr tachyon_%{type}_g1_create_msm_gpu(uint8_t degree) {
+  return new tachyon_%{type}_g1_msm_gpu(degree);
 }
 
 void tachyon_%{type}_g1_destroy_msm_gpu(tachyon_%{type}_g1_msm_gpu_ptr ptr) {
