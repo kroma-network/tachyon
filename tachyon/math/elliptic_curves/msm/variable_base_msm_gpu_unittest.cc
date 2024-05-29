@@ -37,7 +37,7 @@ class VariableMSMCorrectnessGpuTest : public testing::Test {
     CHECK(d_bases_.CopyFrom(test_set.bases.data(), gpu::GpuMemoryType::kHost));
     CHECK(d_scalars_.CopyFrom(test_set.scalars.data(),
                               gpu::GpuMemoryType::kHost));
-    expected_ = test_set.answer.ToJacobian();
+    expected_ = test_set.answer.ToProjective();
   }
 
   static void TearDownTestSuite() {
@@ -50,12 +50,12 @@ class VariableMSMCorrectnessGpuTest : public testing::Test {
  protected:
   static gpu::GpuMemory<bn254::G1AffinePointGpu> d_bases_;
   static gpu::GpuMemory<bn254::FrGpu> d_scalars_;
-  static bn254::G1JacobianPoint expected_;
+  static bn254::G1ProjectivePoint expected_;
 };
 
 gpu::GpuMemory<bn254::G1AffinePointGpu> VariableMSMCorrectnessGpuTest::d_bases_;
 gpu::GpuMemory<bn254::FrGpu> VariableMSMCorrectnessGpuTest::d_scalars_;
-bn254::G1JacobianPoint VariableMSMCorrectnessGpuTest::expected_;
+bn254::G1ProjectivePoint VariableMSMCorrectnessGpuTest::expected_;
 
 }  // namespace
 
@@ -73,7 +73,7 @@ TEST_F(VariableMSMCorrectnessGpuTest, MSM) {
   gpu::ScopedStream stream = gpu::CreateStream();
 
   VariableBaseMSMGpu<bn254::G1CurveGpu> msm_gpu(mem_pool.get(), stream.get());
-  bn254::G1JacobianPoint actual;
+  bn254::G1ProjectivePoint actual;
   ASSERT_TRUE(msm_gpu.Run(d_bases_, d_scalars_, kCount, &actual));
   EXPECT_EQ(actual, expected_);
 }
