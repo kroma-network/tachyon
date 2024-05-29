@@ -3,8 +3,6 @@
 
 #include <memory>
 
-#include "tachyon/math/elliptic_curves/msm/algorithms/bellman/bellman_msm.h"
-#include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm.h"
 
 namespace tachyon::math {
@@ -15,37 +13,19 @@ class VariableBaseMSMGpu {
   using ScalarField = typename JacobianPoint<GpuCurve>::ScalarField;
   using CpuCurve = typename GpuCurve::CpuCurve;
 
-  VariableBaseMSMGpu(MSMAlgorithmKind kind, gpuMemPool_t mem_pool,
-                     gpuStream_t stream) {
-    algo_ = Create(kind, mem_pool, stream);
-  }
+  VariableBaseMSMGpu(gpuMemPool_t mem_pool, gpuStream_t stream)
+      : impl_(std::make_unique<IcicleMSM<GpuCurve>>(mem_pool, stream)) {}
   VariableBaseMSMGpu(const VariableBaseMSMGpu& other) = delete;
   VariableBaseMSMGpu& operator=(const VariableBaseMSMGpu& other) = delete;
 
   bool Run(const device::gpu::GpuMemory<AffinePoint<GpuCurve>>& bases,
            const device::gpu::GpuMemory<ScalarField>& scalars, size_t size,
            JacobianPoint<CpuCurve>* cpu_result) {
-    return algo_->Run(bases, scalars, size, cpu_result);
+    return impl_->Run(bases, scalars, size, cpu_result);
   }
 
  private:
-  static std::unique_ptr<MSMGpuAlgorithm<GpuCurve>> Create(
-      MSMAlgorithmKind kind, gpuMemPool_t mem_pool, gpuStream_t stream) {
-    switch (kind) {
-      case MSMAlgorithmKind::kBellmanMSM:
-        return std::make_unique<BellmanMSM<GpuCurve>>(mem_pool, stream);
-      case MSMAlgorithmKind::kCUZK:
-        return std::make_unique<CUZK<GpuCurve>>(mem_pool, stream);
-      case MSMAlgorithmKind::kIcicle:
-        return std::make_unique<IcicleMSM<GpuCurve>>(mem_pool, stream);
-      case MSMAlgorithmKind::kPippenger:
-        break;
-    }
-    NOTREACHED();
-    return nullptr;
-  }
-
-  std::unique_ptr<MSMGpuAlgorithm<GpuCurve>> algo_;
+  std::unique_ptr<IcicleMSM<GpuCurve>> impl_;
 };
 
 }  // namespace tachyon::math

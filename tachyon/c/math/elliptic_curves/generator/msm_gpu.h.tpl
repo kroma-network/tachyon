@@ -19,12 +19,11 @@ typedef struct tachyon_%{type}_g1_msm_gpu* tachyon_%{type}_g1_msm_gpu_ptr;
 %{extern_c_front}
 
 /**
- * @brief Creates a new GPU-accelerated MSM context for the G1 group with a specified polynomial degree and algorithm choice.
+ * @brief Creates a new GPU-accelerated MSM context for the G1 group with a specified polynomial degree.
  * @param degree The degree of the polynomial for the MSM operation. This parameter may influence the allocation and optimization strategy.
- * @param algorithm The specific algorithm to use for MSM on the GPU. Different algorithms may be better suited to different scenarios.
  * @return A pointer to the newly created GPU-accelerated MSM context.
  */
-TACHYON_C_EXPORT tachyon_%{type}_g1_msm_gpu_ptr tachyon_%{type}_g1_create_msm_gpu(uint8_t degree, int algorithm);
+TACHYON_C_EXPORT tachyon_%{type}_g1_msm_gpu_ptr tachyon_%{type}_g1_create_msm_gpu(uint8_t degree);
 
 /**
  * @brief Destroys a GPU-accelerated MSM context, freeing its resources.

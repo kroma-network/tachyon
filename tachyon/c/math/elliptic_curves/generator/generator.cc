@@ -33,7 +33,6 @@ struct GenerationConfig : public build::CcWriter {
   int fr_limb_nums;
   int degree;
   int base_field_degree;
-  bool has_specialized_g1_msm_kernels;
 
   int GeneratePrimeFieldHdr(std::string_view suffix) const;
   int GeneratePrimeFieldSrc(std::string_view suffix) const;
@@ -317,11 +316,6 @@ int GenerationConfig::GenerateMSMGpuSrc() const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(msm_gpu_src_tpl_path, &tpl_content));
 
-  std::vector<std::string> tpl_lines = absl::StrSplit(tpl_content, '\n');
-  RemoveOptionalLines(tpl_lines, "HasSpecializedG1MsmKernels",
-                      has_specialized_g1_msm_kernels);
-  tpl_content = absl::StrJoin(tpl_lines, "\n");
-
   std::string content = absl::StrReplaceAll(
       tpl_content, {
                        {"%{header_dir_name}", c::math::GetLocation(type)},
@@ -352,9 +346,6 @@ int RealMain(int argc, char** argv) {
       .set_required();
   parser.AddFlag<base::IntFlag>(&config.base_field_degree)
       .set_long_name("--base_field_degree")
-      .set_required();
-  parser.AddFlag<base::BoolFlag>(&config.has_specialized_g1_msm_kernels)
-      .set_long_name("--has_specialized_g1_msm_kernels")
       .set_required();
   parser.AddFlag<base::FilePathFlag>(&config.prime_field_hdr_tpl_path)
       .set_long_name("--prime_field_hdr_tpl_path")
