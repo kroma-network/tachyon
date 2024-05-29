@@ -10,6 +10,7 @@ namespace tachyon::math {
 enum class MSMAlgorithmKind {
   kBellmanMSM,
   kCUZK,
+  kIcicle,
   kPippenger,
 };
 

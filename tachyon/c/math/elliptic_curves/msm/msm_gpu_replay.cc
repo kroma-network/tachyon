@@ -65,6 +65,9 @@ int RealMain(int argc, char** argv) {
             } else if (arg == "cuzk") {
               algorithm = 1;
               return true;
+            } else if (arg == "icicle_msm") {
+              algorithm = 2;
+              return true;
             }
             *reason = absl::Substitute("Not supported algorithm: $0", arg);
             return false;
@@ -72,7 +75,7 @@ int RealMain(int argc, char** argv) {
       .set_long_name("--algo")
       .set_help(
           "Algorithms to be benchmarked with. (supported algorithms: "
-          "bellman_msm, cuzk)");
+          "bellman_msm, cuzk, icicle_msm)");
   {
     std::string error;
     if (!parser.Parse(argc, argv, &error)) {

@@ -98,6 +98,9 @@ bool MSMConfig::Parse(int argc, char** argv,
               } else if (arg == "cuzk") {
                 algorithm_ = 1;
                 return true;
+              } else if (arg == "icicle_msm") {
+                algorithm_ = 1;
+                return true;
               }
               *reason = absl::Substitute("Not supported algorithm: $0", arg);
               return false;
@@ -105,7 +108,7 @@ bool MSMConfig::Parse(int argc, char** argv,
         .set_long_name("--algo")
         .set_help(
             "Algorithms to be benchmarked with. (supported algorithms: "
-            "bellman_msm, cuzk)");
+            "bellman_msm, cuzk, icicle_msm)");
   }
   {
     std::string error;

@@ -35,6 +35,8 @@ INSTANTIATE_TEST_SUITE_P(BellmanMSM, MSMGpuTest,
                          testing::Values(TACHYON_MSM_ALGO_BELLMAN_MSM));
 INSTANTIATE_TEST_SUITE_P(CUZK, MSMGpuTest,
                          testing::Values(TACHYON_MSM_ALGO_CUZK));
+INSTANTIATE_TEST_SUITE_P(IcicleMSM, MSMGpuTest,
+                         testing::Values(TACHYON_MSM_ALGO_ICICLE_MSM));
 
 TEST_P(MSMGpuTest, MSMPoint2) {
   size_t max_num = *std::max_element(std::begin(kNums), std::end(kNums));
