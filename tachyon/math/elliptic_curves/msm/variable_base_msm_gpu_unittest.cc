@@ -5,10 +5,9 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/device/gpu/gpu_enums.h"
-#include "tachyon/device/gpu/gpu_memory.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/device/gpu/scoped_stream.h"
-#include "tachyon/math/elliptic_curves/bn/bn254/g1_gpu.h"
+#include "tachyon/math/elliptic_curves/bn/bn254/g1.h"
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
@@ -27,34 +26,21 @@ class VariableMSMCorrectnessGpuTest : public testing::Test {
   static void SetUpTestSuite() {
     bn254::G1Curve::Init();
 
-    VariableBaseMSMTestSet<bn254::G1AffinePoint> test_set =
-        VariableBaseMSMTestSet<bn254::G1AffinePoint>::Random(
-            kCount, VariableBaseMSMMethod::kMSM);
+    test_set_ = VariableBaseMSMTestSet<bn254::G1AffinePoint>::Random(
+        kCount, VariableBaseMSMMethod::kMSM);
 
-    d_bases_ = gpu::GpuMemory<bn254::G1AffinePointGpu>::Malloc(kCount);
-    d_scalars_ = gpu::GpuMemory<bn254::FrGpu>::Malloc(kCount);
-
-    CHECK(d_bases_.CopyFrom(test_set.bases.data(), gpu::GpuMemoryType::kHost));
-    CHECK(d_scalars_.CopyFrom(test_set.scalars.data(),
-                              gpu::GpuMemoryType::kHost));
-    expected_ = test_set.answer.ToProjective();
+    expected_ = test_set_.answer.ToProjective();
   }
 
-  static void TearDownTestSuite() {
-    d_bases_.reset();
-    d_scalars_.reset();
-
-    GPU_MUST_SUCCESS(gpuDeviceReset(), "");
-  }
+  static void TearDownTestSuite() { GPU_MUST_SUCCESS(gpuDeviceReset(), ""); }
 
  protected:
-  static gpu::GpuMemory<bn254::G1AffinePointGpu> d_bases_;
-  static gpu::GpuMemory<bn254::FrGpu> d_scalars_;
+  static VariableBaseMSMTestSet<bn254::G1AffinePoint> test_set_;
   static bn254::G1ProjectivePoint expected_;
 };
 
-gpu::GpuMemory<bn254::G1AffinePointGpu> VariableMSMCorrectnessGpuTest::d_bases_;
-gpu::GpuMemory<bn254::FrGpu> VariableMSMCorrectnessGpuTest::d_scalars_;
+VariableBaseMSMTestSet<bn254::G1AffinePoint>
+    VariableMSMCorrectnessGpuTest::test_set_;
 bn254::G1ProjectivePoint VariableMSMCorrectnessGpuTest::expected_;
 
 }  // namespace
@@ -72,9 +58,10 @@ TEST_F(VariableMSMCorrectnessGpuTest, MSM) {
 
   gpu::ScopedStream stream = gpu::CreateStream();
 
-  VariableBaseMSMGpu<bn254::G1CurveGpu> msm_gpu(mem_pool.get(), stream.get());
+  VariableBaseMSMGpu<bn254::G1AffinePoint> msm_gpu(mem_pool.get(),
+                                                   stream.get());
   bn254::G1ProjectivePoint actual;
-  ASSERT_TRUE(msm_gpu.Run(d_bases_, d_scalars_, kCount, &actual));
+  ASSERT_TRUE(msm_gpu.Run(test_set_.bases, test_set_.scalars, &actual));
   EXPECT_EQ(actual, expected_);
 }
 
