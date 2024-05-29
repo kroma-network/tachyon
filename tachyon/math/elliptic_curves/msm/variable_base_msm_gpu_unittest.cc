@@ -74,7 +74,8 @@ TEST_F(VariableMSMCorrectnessGpuTest, MSM) {
   gpu::ScopedStream stream = gpu::CreateStream();
 
   for (MSMAlgorithmKind algorithm :
-       {MSMAlgorithmKind::kBellmanMSM, MSMAlgorithmKind::kCUZK}) {
+       {MSMAlgorithmKind::kBellmanMSM, MSMAlgorithmKind::kCUZK,
+        MSMAlgorithmKind::kIcicle}) {
     VariableBaseMSMGpu<bn254::G1CurveGpu> msm_gpu(algorithm, mem_pool.get(),
                                                   stream.get());
     bn254::G1JacobianPoint actual;

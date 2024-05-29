@@ -5,6 +5,7 @@
 
 #include "tachyon/math/elliptic_curves/msm/algorithms/bellman/bellman_msm.h"
 #include "tachyon/math/elliptic_curves/msm/algorithms/cuzk/cuzk.h"
+#include "tachyon/math/elliptic_curves/msm/algorithms/icicle/icicle_msm.h"
 
 namespace tachyon::math {
 
@@ -35,6 +36,8 @@ class VariableBaseMSMGpu {
         return std::make_unique<BellmanMSM<GpuCurve>>(mem_pool, stream);
       case MSMAlgorithmKind::kCUZK:
         return std::make_unique<CUZK<GpuCurve>>(mem_pool, stream);
+      case MSMAlgorithmKind::kIcicle:
+        return std::make_unique<IcicleMSM<GpuCurve>>(mem_pool, stream);
       case MSMAlgorithmKind::kPippenger:
         break;
     }

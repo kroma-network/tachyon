@@ -57,6 +57,7 @@ tachyon_cc_library(
     deps = [
         "//tachyon/math/elliptic_curves/msm/algorithms/bellman:bellman_msm",
         "//tachyon/math/elliptic_curves/msm/algorithms/cuzk",
+        "//tachyon/math/elliptic_curves/msm/algorithms/icicle:icicle_msm",
     ],
 )
 
