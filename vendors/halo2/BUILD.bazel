@@ -46,6 +46,14 @@ tachyon_rust_test(
     aliases = aliases(),
     crate = ":halo2",
     crate_features = FEATURES,
+    # NOTE(chokobole): Running msm gpu in parallel causes test failures.
+    # TODO(chokbole): Change it to `if_gpu_is_configured()`.
+    env = if_cuda(
+        {
+            "RUST_TEST_THREADS": "1",
+        },
+        {},
+    ),
     proc_macro_deps = all_crate_deps(proc_macro_dev = True),
     deps = all_crate_deps(normal_dev = True) + [
         ":openmp",

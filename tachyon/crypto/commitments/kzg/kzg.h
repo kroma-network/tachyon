@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include <algorithm>
+#include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -20,6 +21,12 @@
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain.h"
+
+#if TACHYON_CUDA
+#include "tachyon/device/gpu/scoped_mem_pool.h"
+#include "tachyon/device/gpu/scoped_stream.h"
+#include "tachyon/math/elliptic_curves/msm/variable_base_msm_gpu.h"
+#endif
 
 namespace tachyon {
 namespace crypto {
@@ -42,6 +49,9 @@ class KZG {
         g1_powers_of_tau_lagrange_(std::move(g1_powers_of_tau_lagrange)) {
     CHECK_EQ(g1_powers_of_tau_.size(), g1_powers_of_tau_lagrange_.size());
     CHECK_LE(g1_powers_of_tau_.size(), kMaxDegree + 1);
+#if TACHYON_CUDA
+    SetupForGpu();
+#endif
   }
 
   const std::vector<G1Point>& g1_powers_of_tau() const {
@@ -52,21 +62,73 @@ class KZG {
     return g1_powers_of_tau_lagrange_;
   }
 
-  void ResizeBatchCommitments(size_t size) { batch_commitments_.resize(size); }
+#if TACHYON_CUDA
+  void SetupForGpu() {
+    if (msm_gpu_) return;
+
+    gpuMemPoolProps props = {gpuMemAllocationTypePinned,
+                             gpuMemHandleTypeNone,
+                             {gpuMemLocationTypeDevice, 0}};
+    mem_pool_ = device::gpu::CreateMemPool(&props);
+
+    uint64_t mem_pool_threshold = std::numeric_limits<uint64_t>::max();
+    gpuError_t error = gpuMemPoolSetAttribute(
+        mem_pool_.get(), gpuMemPoolAttrReleaseThreshold, &mem_pool_threshold);
+    CHECK_EQ(error, gpuSuccess);
+    stream_ = device::gpu::CreateStream();
+
+    msm_gpu_.reset(
+        new math::VariableBaseMSMGpu<G1Point>(mem_pool_.get(), stream_.get()));
+  }
+#endif
+
+  void ResizeBatchCommitments(size_t size) {
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      gpu_batch_commitments_.resize(size);
+      return;
+    }
+#endif
+    cpu_batch_commitments_.resize(size);
+  }
 
   std::vector<Commitment> GetBatchCommitments(BatchCommitmentState& state) {
     std::vector<Commitment> batch_commitments;
-    if constexpr (std::is_same_v<Commitment, Bucket>) {
-      batch_commitments = std::move(batch_commitments_);
-    } else if constexpr (std::is_same_v<Commitment, math::AffinePoint<Curve>>) {
-      batch_commitments.resize(batch_commitments_.size());
-      CHECK(Bucket::BatchNormalize(batch_commitments_, &batch_commitments));
-      batch_commitments_.clear();
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      if constexpr (std::is_same_v<Commitment, math::ProjectivePoint<Curve>>) {
+        batch_commitments = std::move(gpu_batch_commitments_);
+        // NOLINTNEXTLINE(readability/braces)
+      } else if constexpr (std::is_same_v<Commitment,
+                                          math::AffinePoint<Curve>>) {
+        batch_commitments.resize(gpu_batch_commitments_.size());
+        CHECK(math::ProjectivePoint<Curve>::BatchNormalize(
+            gpu_batch_commitments_, &batch_commitments));
+        gpu_batch_commitments_.clear();
+      } else {
+        batch_commitments.resize(gpu_batch_commitments_.size());
+        CHECK(math::ConvertPoints(gpu_batch_commitments_, &batch_commitments));
+        gpu_batch_commitments_.clear();
+      }
     } else {
-      batch_commitments.resize(batch_commitments_.size());
-      CHECK(math::ConvertPoints(batch_commitments_, &batch_commitments));
-      batch_commitments_.clear();
+#endif
+      if constexpr (std::is_same_v<Commitment, Bucket>) {
+        batch_commitments = std::move(cpu_batch_commitments_);
+        // NOLINTNEXTLINE(readability/braces)
+      } else if constexpr (std::is_same_v<Commitment,
+                                          math::AffinePoint<Curve>>) {
+        batch_commitments.resize(cpu_batch_commitments_.size());
+        CHECK(
+            Bucket::BatchNormalize(cpu_batch_commitments_, &batch_commitments));
+        cpu_batch_commitments_.clear();
+      } else {
+        batch_commitments.resize(cpu_batch_commitments_.size());
+        CHECK(math::ConvertPoints(cpu_batch_commitments_, &batch_commitments));
+        cpu_batch_commitments_.clear();
+      }
+#if TACHYON_CUDA
     }
+#endif
     state.Reset();
     return batch_commitments;
   }
@@ -96,8 +158,15 @@ class KZG {
         domain->EvaluateAllLagrangeCoefficients(tau);
 
     g1_powers_of_tau_lagrange_.resize(size);
-    return G1Point::BatchMapScalarFieldToPoint(g1, lagrange_coeffs,
-                                               &g1_powers_of_tau_lagrange_);
+    if (!G1Point::BatchMapScalarFieldToPoint(g1, lagrange_coeffs,
+                                             &g1_powers_of_tau_lagrange_)) {
+      return false;
+    }
+
+#if TACHYON_CUDA
+    SetupForGpu();
+#endif
+    return true;
   }
 
   // Return false if |n| >= |N()|.
@@ -133,8 +202,22 @@ class KZG {
 
  private:
   template <typename BaseContainer, typename ScalarContainer>
-  static bool DoMSM(const BaseContainer& bases, const ScalarContainer& scalars,
-                    Commitment* out) {
+  bool DoMSM(const BaseContainer& bases, const ScalarContainer& scalars,
+             Commitment* out) const {
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
+          bases.data(), std::min(bases.size(), scalars.size()));
+      if constexpr (std::is_same_v<Commitment, math::ProjectivePoint<Curve>>) {
+        return msm_gpu_->Run(bases_span, scalars, out);
+      } else {
+        math::ProjectivePoint<Curve> result;
+        if (!msm_gpu_->Run(bases_span, scalars, &result)) return false;
+        *out = math::ConvertPoint<Commitment>(result);
+        return true;
+      }
+    }
+#endif
     math::VariableBaseMSM<G1Point> msm;
     absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
         bases.data(), std::min(bases.size(), scalars.size()));
@@ -151,15 +234,28 @@ class KZG {
   template <typename BaseContainer, typename ScalarContainer>
   bool DoMSM(const BaseContainer& bases, const ScalarContainer& scalars,
              BatchCommitmentState& state, size_t index) {
+#if TACHYON_CUDA
+    if (msm_gpu_) {
+      absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
+          bases.data(), std::min(bases.size(), scalars.size()));
+      return msm_gpu_->Run(bases_span, scalars, &gpu_batch_commitments_[index]);
+    }
+#endif
     math::VariableBaseMSM<G1Point> msm;
     absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
         bases.data(), std::min(bases.size(), scalars.size()));
-    return msm.Run(bases_span, scalars, &batch_commitments_[index]);
+    return msm.Run(bases_span, scalars, &cpu_batch_commitments_[index]);
   }
 
   std::vector<G1Point> g1_powers_of_tau_;
   std::vector<G1Point> g1_powers_of_tau_lagrange_;
-  std::vector<Bucket> batch_commitments_;
+  std::vector<Bucket> cpu_batch_commitments_;
+#if TACHYON_CUDA
+  device::gpu::ScopedMemPool mem_pool_;
+  device::gpu::ScopedStream stream_;
+  std::unique_ptr<math::VariableBaseMSMGpu<G1Point>> msm_gpu_;
+  std::vector<math::ProjectivePoint<Curve>> gpu_batch_commitments_;
+#endif
 };
 
 }  // namespace crypto

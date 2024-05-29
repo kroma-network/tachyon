@@ -1,3 +1,4 @@
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
 load("//bazel:tachyon.bzl", "if_gpu_is_configured")
 load(
     "//bazel:tachyon_cc.bzl",
@@ -54,7 +55,9 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "variable_base_msm_gpu",
     hdrs = ["variable_base_msm_gpu.h"],
-    deps = ["//tachyon/math/elliptic_curves/msm/algorithms/icicle:icicle_msm"],
+    deps = ["//tachyon/math/elliptic_curves/msm/algorithms/icicle:icicle_msm"] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
 )
 
 tachyon_cc_unittest(
