@@ -31,7 +31,7 @@ class G2Prepared : public G2PreparedBase<BLS12CurveConfig> {
       : G2PreparedBase<BLS12CurveConfig>(std::move(ell_coeffs)) {}
 
   static G2Prepared From(const G2AffinePoint& q) {
-    if (q.infinity()) {
+    if (q.IsZero()) {
       return {};
     } else {
       Fp two_inv = Fp(2).Inverse();

@@ -1,3 +1,4 @@
+// clang-format off
 /**
  * @file
  * @brief Multi-scalar multiplication (MSM) operations for %{type} curve points in a G1 group.
@@ -10,7 +11,6 @@
  * @example msm.cc
  */
 
-// clang-format off
 #include <stddef.h>
 #include <stdint.h>
 
@@ -58,4 +58,4 @@ TACHYON_C_EXPORT tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_point2_msm(
 TACHYON_C_EXPORT tachyon_%{type}_g1_jacobian* tachyon_%{type}_g1_affine_msm(
     tachyon_%{type}_g1_msm_ptr ptr, const tachyon_%{type}_g1_affine* bases,
     const tachyon_%{type}_fr* scalars, size_t size);
-// clang-format off
+// clang-format on

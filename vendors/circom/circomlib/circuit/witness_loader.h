@@ -34,6 +34,10 @@ class WitnessLoader {
     loadJson(calc_wit_.get(), json.value());
   }
 
+  void Save(const base::FilePath& wtns) {
+    writeBinWitness(calc_wit_.get(), wtns.value());
+  }
+
   F Get(uint32_t i) const {
     FrElement v;
     calc_wit_->getWitness(i, &v);

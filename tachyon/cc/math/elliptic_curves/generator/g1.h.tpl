@@ -211,23 +211,19 @@ class TACHYON_CC_EXPORT G1AffinePoint {
  public:
   G1AffinePoint() = default;
   explicit G1AffinePoint(const tachyon_%{type}_g1_affine& point)
-      : G1AffinePoint(point.x, point.y, point.infinity) {}
-  G1AffinePoint(const tachyon_%{type}_fq& x, const tachyon_%{type}_fq& y, bool infinity = false)
-      : infinity_(infinity) {
+      : G1AffinePoint(point.x, point.y) {}
+  G1AffinePoint(const tachyon_%{type}_fq& x, const tachyon_%{type}_fq& y) {
     memcpy(x_.value().limbs, x.limbs, sizeof(uint64_t) * %{fq_limb_nums});
     memcpy(y_.value().limbs, y.limbs, sizeof(uint64_t) * %{fq_limb_nums});
   }
-  G1AffinePoint(const Fq& x, const Fq& y, bool infinity = false)
-      : x_(x), y_(y), infinity_(infinity) {}
+  G1AffinePoint(const Fq& x, const Fq& y)
+      : x_(x), y_(y) {}
 
   const Fq& x() const { return x_; }
   Fq& x() { return x_; }
 
   const Fq& y() const { return y_; }
   Fq& y() { return y_; }
-
-  const bool infinity() const { return infinity_; }
-  bool infinity() { return infinity_; }
 
   static G1AffinePoint Zero() {
     return G1AffinePoint(tachyon_%{type}_g1_affine_zero());
@@ -254,7 +250,7 @@ class TACHYON_CC_EXPORT G1AffinePoint {
   }
 
   G1AffinePoint operator-() const {
-    return {x_, -y_, infinity_};
+    return {x_, -y_};
   }
 
   G1JacobianPoint Double() const {
@@ -278,7 +274,6 @@ class TACHYON_CC_EXPORT G1AffinePoint {
     tachyon_%{type}_g1_affine ret;
     memcpy(ret.x.limbs, x_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});
     memcpy(ret.y.limbs, y_.value().limbs, sizeof(uint64_t) * %{fq_limb_nums});
-    ret.infinity = infinity_;
     return ret;
   }
 
@@ -287,7 +282,6 @@ class TACHYON_CC_EXPORT G1AffinePoint {
  private:
   Fq x_;
   Fq y_;
-  bool infinity_ = false;
 };
 
 TACHYON_CC_EXPORT std::ostream& operator<<(std::ostream& os, const G1AffinePoint& value);

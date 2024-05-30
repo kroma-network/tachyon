@@ -229,4 +229,4 @@ bool tachyon_%{type}_%{g1_or_g2}_xyzz_ne(const tachyon_%{type}_%{g1_or_g2}_xyzz*
   using namespace tachyon::c::math;
   return ToPointXYZZ(*a) != ToPointXYZZ(*b);
 }
-// clang-format off
+// clang-format on

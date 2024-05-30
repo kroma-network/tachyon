@@ -39,7 +39,7 @@ struct Wtns {
 
   virtual size_t GetNumWitness() const = 0;
 
-  virtual const absl::Span<const F> GetWitnesses() const = 0;
+  virtual absl::Span<const F> GetWitnesses() const = 0;
 };
 
 constexpr char kWtnsMagic[4] = {'w', 't', 'n', 's'};
@@ -152,9 +152,7 @@ struct Wtns : public circom::Wtns<F> {
 
   size_t GetNumWitness() const override { return data.witnesses.size(); }
 
-  const absl::Span<const F> GetWitnesses() const override {
-    return data.witnesses;
-  }
+  absl::Span<const F> GetWitnesses() const override { return data.witnesses; }
 
   std::string ToString() const {
     return absl::Substitute("{header: $0, data: $1}", header.ToString(),
