@@ -29,7 +29,8 @@ namespace tachyon::zk::plonk {
 
 template <typename TestArguments, typename TestData>
 void CircuitTest<TestArguments, TestData>::ConfigureTest() {
-  ConstraintSystem<F> constraint_system;
+  ConstraintSystem<F> constraint_system(TestArguments::LS::type);
+
   auto config = Circuit::Configure(constraint_system);
 
   TestData::TestConfig(config);
@@ -48,7 +49,8 @@ void CircuitTest<TestArguments, TestData>::SynthesizeTest() {
   this->prover_->set_domain(Domain::Create(TestData::kN));
   const Domain* domain = this->prover_->domain();
 
-  ConstraintSystem<F> constraint_system;
+  ConstraintSystem<F> constraint_system(TestArguments::LS::type);
+
   auto config = Circuit::Configure(constraint_system);
   Assembly<RationalEvals> assembly =
       VerifyingKey<F, Commitment>::template CreateAssembly<RationalEvals>(
@@ -116,7 +118,7 @@ void CircuitTest<TestArguments, TestData>::LoadVerifyingKeyTest() {
   Circuit circuit = TestData::GetCircuit();
 
   VerifyingKey<F, Commitment> vkey;
-  ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit));
+  ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit, TestArguments::LS::type));
 
   halo2::PinnedVerifyingKey pinned_vkey(this->prover_.get(), vkey);
   EXPECT_EQ(base::ToRustDebugString(pinned_vkey),
@@ -140,7 +142,8 @@ void CircuitTest<TestArguments, TestData>::LoadProvingKeyTest() {
         absl::Substitute("load_verifying_key: $0", load_verifying_key));
     if (load_verifying_key) {
       VerifyingKey<F, Commitment> vkey;
-      ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit));
+      ASSERT_TRUE(
+          vkey.Load(this->prover_.get(), circuit, TestArguments::LS::type));
       ASSERT_TRUE(pkey.LoadWithVerifyingKey(this->prover_.get(), circuit,
                                             std::move(vkey)));
     } else {
@@ -233,7 +236,7 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
   Circuit circuit = TestData::GetCircuit();
 
   VerifyingKey<F, Commitment> vkey;
-  ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit));
+  ASSERT_TRUE(vkey.Load(this->prover_.get(), circuit, TestArguments::LS::type));
 
   std::vector<uint8_t> owned_proof = base::ArrayToVector(TestData::kProof);
 

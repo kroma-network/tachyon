@@ -28,6 +28,10 @@ struct KeyPreLoadResult {
   ConstraintSystem<F> constraint_system;
   Assembly<RationalEvals> assembly;
   std::vector<Evals> fixed_columns;
+
+  KeyPreLoadResult() = default;
+  explicit KeyPreLoadResult(lookup::Type lookup_type)
+      : constraint_system(ConstraintSystem<F>(lookup_type)) {}
 };
 
 class TACHYON_EXPORT Key {
@@ -61,6 +65,10 @@ class TACHYON_EXPORT Key {
 
     ConstraintSystem<F>& constraint_system = result->constraint_system;
     Config config = Circuit::Configure(constraint_system);
+
+    if (constraint_system.lookup_type() == lookup::Type::kLogDerivativeHalo2) {
+      constraint_system.ChunkLookups();
+    }
 
     PCS& pcs = entity->pcs();
     if (pcs.N() < constraint_system.ComputeMinimumRows()) {

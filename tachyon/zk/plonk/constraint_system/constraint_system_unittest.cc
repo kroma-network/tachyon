@@ -38,7 +38,8 @@ TEST_F(ConstraintSystemTest, EnableConstant) {
 }
 
 TEST_F(ConstraintSystemTest, Lookup) {
-  ConstraintSystem<F> constraint_system;
+  ConstraintSystem<F> constraint_system(lookup::Type::kHalo2);
+
   std::array<AdviceColumnKey, 2> advice = {
       constraint_system.CreateAdviceColumn(),
       constraint_system.CreateAdviceColumn(),
@@ -141,7 +142,8 @@ TEST_F(ConstraintSystemTest, Lookup) {
 }
 
 TEST_F(ConstraintSystemTest, LookupAny) {
-  ConstraintSystem<F> constraint_system;
+  ConstraintSystem<F> constraint_system(lookup::Type::kHalo2);
+
   AdviceColumnKey advice = constraint_system.CreateAdviceColumn();
   InstanceColumnKey table = constraint_system.CreateInstanceColumn();
   AdviceColumnKey advice_table = constraint_system.CreateAdviceColumn();

@@ -32,6 +32,7 @@ tachyon_cc_library(
     deps = [
         ":constraint",
         ":gate",
+        ":lookup_tracker",
         ":query",
         ":selector_compressor",
         ":virtual_cells",
@@ -43,11 +44,14 @@ tachyon_cc_library(
         "//tachyon/zk/base:row_types",
         "//tachyon/zk/expressions/evaluator:simple_selector_finder",
         "//tachyon/zk/lookup:lookup_argument",
+        "//tachyon/zk/lookup:type",
         "//tachyon/zk/plonk/keys:c_proving_key_impl_base_forward",
         "//tachyon/zk/plonk/layout:lookup_table_column",
         "//tachyon/zk/plonk/permutation:permutation_argument",
         "//tachyon/zk/plonk/permutation:permutation_utils",
+        "@com_google_absl//absl/container:btree",
         "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/numeric:bits",
     ],
 )
 
@@ -70,6 +74,12 @@ tachyon_cc_library(
         "//tachyon/zk/expressions:expression",
         "@com_google_absl//absl/strings",
     ],
+)
+
+tachyon_cc_library(
+    name = "lookup_tracker",
+    hdrs = ["lookup_tracker.h"],
+    deps = ["//tachyon/zk/expressions:expression"],
 )
 
 tachyon_cc_library(
