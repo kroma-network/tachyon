@@ -113,7 +113,13 @@ class ConstraintSystem {
   // Sets the minimum degree required by the circuit, which can be set to a
   // larger amount than actually needed. This can be used, for example, to
   // force the permutation argument to involve more columns in the same set.
-  void set_minimum_degree(size_t degree) { minimum_degree_ = degree; }
+  void set_minimum_degree(size_t degree) {
+    if (minimum_degree_) {
+      minimum_degree_ = std::max(minimum_degree_.value(), degree);
+    } else {
+      minimum_degree_ = degree;
+    }
+  }
 
   // Enables this fixed |column| to be used for global constant assignments.
   // The |column| will be equality-enabled, too.
