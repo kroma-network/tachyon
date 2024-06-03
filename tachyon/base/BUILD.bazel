@@ -91,6 +91,12 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "optional",
+    hdrs = ["optional.h"],
+    deps = [":logging"],
+)
+
+tachyon_cc_library(
     name = "parallelize",
     hdrs = ["parallelize.h"],
     deps = [
