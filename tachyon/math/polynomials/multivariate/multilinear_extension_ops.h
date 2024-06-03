@@ -172,7 +172,11 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     if (l_evaluations.empty()) {
       return self;
     }
-    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    // f(x) & g(x) unequal evaluation sizes
+    if (UNLIKELY(InvalidOperation(l_evaluations.size() != r_evaluations.size(),
+                                  "Evaluation sizes unequal for division"))) {
+      return std::nullopt;
+    }
     std::vector<F> o_evaluations(r_evaluations.size());
     std::atomic<bool> check_valid(true);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
@@ -205,7 +209,11 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     if (l_evaluations.empty()) {
       return &self;
     }
-    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    // f(x) & g(x) unequal evaluation sizes
+    if (UNLIKELY(InvalidOperation(l_evaluations.size() != r_evaluations.size(),
+                                  "Evaluation sizes unequal for division"))) {
+      return std::nullopt;
+    }
     std::atomic<bool> check_valid(true);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
       if (UNLIKELY(!(l_evaluations[i] /= r_evaluations[i])))

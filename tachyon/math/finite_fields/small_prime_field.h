@@ -180,7 +180,9 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
       return std::nullopt;
     }
     EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
-    DCHECK_EQ(result.r, 1);
+    if (UNLIKELY(InvalidOperation(result.r != 1, "result.r != 1"))) {
+      return std::nullopt;
+    }
     if (result.s > 0) {
       return PrimeField(result.s);
     } else {
@@ -194,7 +196,9 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
       return std::nullopt;
     }
     EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
-    DCHECK_EQ(result.r, 1);
+    if (UNLIKELY(InvalidOperation(result.r != 1, "result.r != 1"))) {
+      return std::nullopt;
+    }
     if (result.s > 0) {
       value_ = result.s;
     } else {
