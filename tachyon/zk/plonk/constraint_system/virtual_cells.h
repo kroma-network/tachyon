@@ -8,6 +8,7 @@
 #include "tachyon/zk/expressions/expression_factory.h"
 #include "tachyon/zk/plonk/constraint_system/selector.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cell.h"
+#include "tachyon/zk/plonk/layout/lookup_table_column.h"
 
 namespace tachyon::zk::plonk {
 
@@ -85,6 +86,17 @@ class VirtualCells {
   // Query a challenge
   std::unique_ptr<Expression<F>> QueryChallenge(Challenge challenge) {
     return ExpressionFactory<F>::Challenge(challenge);
+  }
+
+  // Query a lookup table
+  std::unique_ptr<Expression<F>> QueryLookupTable(
+      const lookup::Pair<std::unique_ptr<Expression<F>>, LookupTableColumn>&
+          pair,
+      Rotation at) {
+    CHECK(!pair.input()->ContainsSimpleSelector())
+        << "expression containing simple selector supplied to lookup argument";
+
+    return QueryFixed(pair.table().column(), at);
   }
 
  private:
