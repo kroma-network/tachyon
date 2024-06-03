@@ -1,5 +1,5 @@
 {
-  "checksum": "6e8c5a03634985e0207ec86924f999ed552cb1cad813cb9d0745a83b4c481ad8",
+  "checksum": "c0348955d885006a0765c8162a7ffefe534b48e9db5ccc6e1835d789abcf665b",
   "crates": {
     "addchain 0.2.0": {
       "name": "addchain",
@@ -3331,40 +3331,6 @@
         "version": "0.9.0"
       },
       "license": "MIT OR Apache-2.0"
-    },
-    "direct-cargo-bazel-deps 0.0.1": {
-      "name": "direct-cargo-bazel-deps",
-      "version": "0.0.1",
-      "repository": null,
-      "targets": [
-        {
-          "Library": {
-            "crate_name": "direct_cargo_bazel_deps",
-            "crate_root": ".direct_cargo_bazel_deps.rs",
-            "srcs": [
-              "**/*.rs"
-            ]
-          }
-        }
-      ],
-      "library_target_name": "direct_cargo_bazel_deps",
-      "common_attrs": {
-        "compile_data_glob": [
-          "**"
-        ],
-        "deps": {
-          "common": [
-            {
-              "id": "serde 1.0.164",
-              "target": "serde"
-            }
-          ],
-          "selects": {}
-        },
-        "edition": "2018",
-        "version": "0.0.1"
-      },
-      "license": null
     },
     "either 1.11.0": {
       "name": "either",
@@ -9716,7 +9682,6 @@
     "arkworks_poseidon_benchmark 0.0.1": "benchmark/poseidon/arkworks",
     "bellman_benchmark 0.0.1": "benchmark/msm/bellman",
     "bellman_fft_benchmark 0.0.1": "benchmark/fft/bellman",
-    "direct-cargo-bazel-deps 0.0.1": "",
     "halo2_fft_benchmark 0.0.1": "benchmark/fft/halo2",
     "halo2_msm_benchmark 0.0.1": "benchmark/msm/halo2",
     "horizen_poseidon2_benchmark 0.0.1": "benchmark/poseidon2/horizen",

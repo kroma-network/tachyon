@@ -60,10 +60,6 @@ crates_repository(
         "//tachyon/rs:Cargo.toml",
         "//vendors/halo2:Cargo.toml",
     ],
-    packages = {
-        # See https://github.com/bazelbuild/rules_rust/issues/2071#issuecomment-1656204269
-        "serde": crate.spec(version = "=1.0.164"),
-    },
 )
 
 load(
