@@ -11,13 +11,13 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "auto_reset",
     hdrs = ["auto_reset.h"],
-    deps = ["//tachyon/base:logging"],
+    deps = [":logging"],
 )
 
 tachyon_cc_library(
     name = "bit_cast",
     hdrs = ["bit_cast.h"],
-    deps = ["//tachyon/base:compiler_specific"],
+    deps = [":compiler_specific"],
 )
 
 tachyon_cc_library(
@@ -25,8 +25,8 @@ tachyon_cc_library(
     srcs = ["bits.cc"],
     hdrs = ["bits.h"],
     deps = [
-        "//tachyon/base:compiler_specific",
-        "//tachyon/base:logging",
+        ":compiler_specific",
+        ":logging",
         "//tachyon/build:build_config",
     ],
 )
@@ -46,7 +46,7 @@ tachyon_cc_library(
     name = "endian",
     srcs = ["endian.cc"],
     hdrs = ["endian.h"],
-    deps = ["//tachyon/base:logging"],
+    deps = [":logging"],
 )
 
 tachyon_cc_library(
