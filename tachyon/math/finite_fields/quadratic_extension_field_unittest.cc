@@ -1,3 +1,5 @@
+#include <optional>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bn/bn254/fq6.h"
@@ -158,14 +160,15 @@ TEST_F(QuadraticExtensionFieldTest, MultiplicativeOperators2) {
 
 TEST_F(QuadraticExtensionFieldTest, MultiplicativeGroupOperators) {
   GF7_2 f = GF7_2::Random();
-  while (f.IsZero()) {
-    f = GF7_2::Random();
+  std::optional<GF7_2> f_inv = f.Inverse();
+  if (UNLIKELY(f.IsZero())) {
+    ASSERT_FALSE(f_inv);
+    ASSERT_FALSE(f.InverseInPlace());
+  } else {
+    EXPECT_EQ(f * *f_inv, GF7_2::One());
+    GF7_2 f_tmp = f;
+    EXPECT_EQ(**f.InverseInPlace() * f_tmp, GF7_2::One());
   }
-  GF7_2 f_inv = f.Inverse();
-  EXPECT_EQ(f * f_inv, GF7_2::One());
-  GF7_2 f_tmp = f;
-  f.InverseInPlace();
-  EXPECT_EQ(f * f_tmp, GF7_2::One());
 
   f = GF7_2(GF7(3), GF7(4));
   GF7_2 f_sqr = GF7_2(GF7(0), GF7(3));
@@ -178,8 +181,13 @@ TEST(CyclotomicInverseTest, FastCyclotomicInverse) {
   bn254::Fq6::Init();
   bn254::Fq6 f = bn254::Fq6::Random();
   bn254::Fq6 f_tmp = f;
-  f.InverseInPlace();
-  f_tmp.CyclotomicInverseInPlace();
+  if (UNLIKELY(f.IsZero())) {
+    ASSERT_FALSE(f.InverseInPlace());
+    ASSERT_FALSE(f_tmp.CyclotomicInverseInPlace());
+  } else {
+    ASSERT_TRUE(f.InverseInPlace());
+    ASSERT_TRUE(f_tmp.CyclotomicInverseInPlace());
+  }
   EXPECT_EQ(f, f_tmp);
 }
 

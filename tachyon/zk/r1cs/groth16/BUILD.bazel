@@ -37,6 +37,7 @@ tachyon_cc_library(
     deps = [
         ":proof",
         ":proving_key",
+        "//tachyon/base:optional",
         "//tachyon/math/elliptic_curves/msm:variable_base_msm",
         "//tachyon/zk/r1cs/constraint_system:qap_witness_map_result",
     ],
@@ -71,6 +72,7 @@ tachyon_cc_library(
     deps = [
         ":key",
         "//tachyon/base:openmp_util",
+        "//tachyon/base:optional",
     ],
 )
 

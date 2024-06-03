@@ -1,11 +1,13 @@
 #ifndef TACHYON_MATH_BASE_RATIONAL_FIELD_H_
 #define TACHYON_MATH_BASE_RATIONAL_FIELD_H_
 
+#include <optional>
 #include <string>
 #include <utility>
 
 #include "tachyon/base/template_util.h"
 #include "tachyon/math/base/field.h"
+#include "tachyon/math/base/invalid_operation.h"
 
 namespace tachyon::math {
 
@@ -166,11 +168,19 @@ class RationalField : public Field<RationalField<F>> {
   }
 
   // MultiplicativeGroup methods
-  constexpr RationalField Inverse() const { return {denominator_, numerator_}; }
+  constexpr std::optional<RationalField> Inverse() const {
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
+    return RationalField(denominator_, numerator_);
+  }
 
-  constexpr RationalField& InverseInPlace() {
+  [[nodiscard]] constexpr std::optional<RationalField*> InverseInPlace() {
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
     std::swap(numerator_, denominator_);
-    return *this;
+    return this;
   }
 
  private:

@@ -6,6 +6,7 @@
 #ifndef TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 #define TACHYON_MATH_FINITE_FIELDS_QUADRATIC_EXTENSION_FIELD_H_
 
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -14,6 +15,7 @@
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
+#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
 #include "tachyon/math/geometry/point2.h"
 
@@ -228,19 +230,27 @@ class QuadraticExtensionField
   }
 
   // MultiplicativeGroup methods
-  constexpr Derived Inverse() const {
+  constexpr std::optional<Derived> Inverse() const {
     Derived ret;
-    DoInverse(*static_cast<const Derived*>(this), ret);
+    if (UNLIKELY(InvalidOperation(
+            !DoInverse(*static_cast<const Derived*>(this), ret),
+            "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
     return ret;
   }
 
-  constexpr Derived& InverseInPlace() {
-    DoInverse(*static_cast<const Derived*>(this), *static_cast<Derived*>(this));
-    return *static_cast<Derived*>(this);
+  [[nodiscard]] constexpr std::optional<Derived*> InverseInPlace() {
+    if (UNLIKELY(InvalidOperation(!DoInverse(*static_cast<const Derived*>(this),
+                                             *static_cast<Derived*>(this)),
+                                  "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
+    return static_cast<Derived*>(this);
   }
 
   // CyclotomicMultiplicativeSubgroup methods
-  constexpr Derived FastCyclotomicInverse() const {
+  constexpr std::optional<Derived> FastCyclotomicInverse() const {
     // As the multiplicative subgroup is of order p² - 1, the
     // only non-trivial cyclotomic subgroup is of order p + 1
     // Therefore, for any element in the cyclotomic subgroup, we have that
@@ -248,15 +258,19 @@ class QuadraticExtensionField
     // field is equal to the norm in the base field, so we have that
     // |x * x.Conjugate() = 1|. By uniqueness of inverses, for this subgroup,
     // |x.Inverse() = x.Conjugate()|.
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
     return Conjugate();
   }
 
-  constexpr Derived& FastCyclotomicInverseInPlace() {
-    // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
-    // See https://github.com/kroma-network/tachyon/issues/76
-    if (IsZero()) return *static_cast<Derived*>(this);
-
-    return ConjugateInPlace();
+  [[nodiscard]] constexpr std::optional<Derived*>
+  FastCyclotomicInverseInPlace() {
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
+    ConjugateInPlace();
+    return static_cast<Derived*>(this);
   }
 
  protected:
@@ -352,10 +366,10 @@ class QuadraticExtensionField
     }
   }
 
-  constexpr static void DoInverse(const Derived& a, Derived& b) {
-    // NOTE(chokobole): CHECK(!IsZero()) is not a device code.
-    // See https://github.com/kroma-network/tachyon/issues/76
-    if (a.IsZero()) return;
+  [[nodiscard]] constexpr static bool DoInverse(const Derived& a, Derived& b) {
+    if (UNLIKELY(InvalidOperation(a.IsZero(), "Inverse of zero attempted"))) {
+      return false;
+    }
     // See https://www.math.u-bordeaux.fr/~damienrobert/csi/book/book.pdf
     // Guide to Pairing-based Cryptography, Algorithm 5.19.
     // v1 = c1²
@@ -364,10 +378,14 @@ class QuadraticExtensionField
     BaseField v0 = a.c0_.Square();
     v0 -= Config::MulByNonResidue(v1);
 
-    v1 = v0.Inverse();
+    const std::optional<BaseField> v0_inv = v0.Inverse();
+    if (UNLIKELY(!v0_inv)) return false;
+    v1 = std::move(*v0_inv);
     b.c0_ = a.c0_ * v1;
     b.c1_ = a.c1_ * v1;
     b.c1_.NegateInPlace();
+
+    return true;
   }
 
   // c = c0_ + c1_ * X

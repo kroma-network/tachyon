@@ -16,6 +16,7 @@ tachyon_cc_library(
         ":cyclotomic_multiplicative_subgroup",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/json",
+        "//tachyon/math/base:invalid_operation",
         "//tachyon/math/geometry:point3",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
@@ -27,6 +28,7 @@ tachyon_cc_library(
     hdrs = ["cyclotomic_multiplicative_subgroup.h"],
     deps = [
         ":finite_field",
+        "//tachyon/base:optional",
         "//tachyon/base/containers:adapters",
     ],
 )
@@ -170,6 +172,7 @@ tachyon_cc_library(
         "//tachyon/base/containers:adapters",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:arithmetics",
+        "//tachyon/math/base:invalid_operation",
         "//tachyon/math/base/gmp:gmp_util",
         "@com_google_googletest//:gtest_prod",
     ],
@@ -193,7 +196,10 @@ tachyon_cc_library(
         "prime_field_gpu_debug.h",
         "prime_field_ops_internal.h",
     ],
-    deps = [":finite_field_forwards"],
+    deps = [
+        ":finite_field_forwards",
+        "//tachyon/math/base:invalid_operation",
+    ],
 )
 
 tachyon_cc_library(
@@ -229,6 +235,7 @@ tachyon_cc_library(
         ":cyclotomic_multiplicative_subgroup",
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/json",
+        "//tachyon/math/base:invalid_operation",
         "//tachyon/math/geometry:point2",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
@@ -246,6 +253,7 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
         "//tachyon/math/base:egcd",
+        "//tachyon/math/base:invalid_operation",
     ],
 )
 
@@ -259,6 +267,7 @@ tachyon_cc_library(
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
         "//tachyon/build:build_config",
+        "//tachyon/math/base:invalid_operation",
     ],
 )
 
@@ -286,6 +295,7 @@ tachyon_cc_unittest(
         ":prime_field_gpu_debug",
         "//tachyon/base:auto_reset",
         "//tachyon/base:bits",
+        "//tachyon/base:optional",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/build:build_config",
         "//tachyon/math/elliptic_curves/bls12/bls12_381:fq",

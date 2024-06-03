@@ -8,6 +8,7 @@
 
 #include <utility>
 
+#include "tachyon/base/optional.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/bit_iterator.h"
 #include "tachyon/math/elliptic_curves/pairing/g2_prepared_base.h"
@@ -34,7 +35,7 @@ class G2Prepared : public G2PreparedBase<BLS12CurveConfig> {
     if (q.IsZero()) {
       return {};
     } else {
-      Fp two_inv = Fp(2).Inverse();
+      Fp two_inv = unwrap<Fp>(Fp(2).Inverse());
 
       EllCoeffs<Fp2> ell_coeffs;
       size_t size = Config::kXLimbNums * 64;

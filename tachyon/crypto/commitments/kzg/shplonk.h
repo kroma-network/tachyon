@@ -299,7 +299,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         // |first_z| = Z₀(u) = Zᴛ(u) / Zᴛ\₀(u) = (u - x₀)(u - x₁)(u - x₂)
         first_z = Poly::EvaluateVanishingPolyByRoots(points, u);
         // Z₀(u)⁻¹ = (u - x₃)(u - x₄)⁻¹
-        first_z_diff_inverse = normalized_z_diff.InverseInPlace();
+        CHECK(normalized_z_diff.InverseInPlace());
+        first_z_diff_inverse = std::move(normalized_z_diff);
         normalized_z_diff = Field::One();
       } else {
         normalized_z_diff *= first_z_diff_inverse;

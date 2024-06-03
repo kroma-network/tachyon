@@ -9,6 +9,7 @@
 #include <functional>
 #include <vector>
 
+#include "tachyon/base/optional.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/math/elliptic_curves/bn/g2_prepared.h"
 #include "tachyon/math/elliptic_curves/pairing/pairing_friendly_curve.h"
@@ -57,7 +58,7 @@ class BNCurve : public PairingFriendlyCurve<Config> {
                              std::multiplies<>());
 
     if constexpr (Config::kXIsNegative) {
-      f.CyclotomicInverseInPlace();
+      CHECK(f.CyclotomicInverseInPlace());
     }
 
     for (const Pair& pair : pairs) {
@@ -83,10 +84,10 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     //   f^((q⁶ - 1) * (q² + 1)) = (conj(f) * f⁻¹)^(q² + 1)
 
     // f1 = f.CyclotomicInverse() = f^(q⁶)
-    Fp12 f1 = f.CyclotomicInverse();
+    Fp12 f1 = unwrap<Fp12>(f.CyclotomicInverse());
 
     // f2 = f⁻¹
-    Fp12 f2 = f.Inverse();
+    Fp12 f2 = unwrap<Fp12>(f.Inverse());
 
     // r = f^(q⁶ - 1)
     Fp12 r = f1 * f2;
@@ -128,9 +129,9 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     // y6 = (y5)⁻ˣ = r^(-12x³)
     Fp12 y6 = Base::PowByNegX(y5);
     // y3 = (y3)⁻¹ = r^(6x)
-    y3.CyclotomicInverseInPlace();
+    CHECK(y3.CyclotomicInverseInPlace());
     // y6 = (y6)⁻¹ = r^(12x³)
-    y6.CyclotomicInverseInPlace();
+    CHECK(y6.CyclotomicInverseInPlace());
     // y7 = y6 * y4 = r^(12x³ + 6x²)
     Fp12& y7 = y6 *= y4;
     // y8 = y7 * y3 = r^(12x³ + 6x² + 6x)
@@ -153,7 +154,7 @@ class BNCurve : public PairingFriendlyCurve<Config> {
     //                     q  * (12x³ +  6x² + 4x) +
     //                     1  * (12x³ + 12x² + 6x + 1))
     Fp12& y14 = y8 *= y13;
-    r.CyclotomicInverseInPlace();
+    CHECK(r.CyclotomicInverseInPlace());
     // y15 = r⁻¹ * y9 = r^(12x³ + 6x² + 4x - 1)
     Fp12& y15 = r *= y9;
     // y15 = (y15)^q³ = r^(q³ * (12x³ + 6x² + 4x - 1))

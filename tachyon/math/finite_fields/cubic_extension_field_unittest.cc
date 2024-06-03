@@ -1,3 +1,5 @@
+#include <optional>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -160,14 +162,15 @@ TEST_F(CubicExtensionFieldTest, MultiplicativeOperators2) {
 
 TEST_F(CubicExtensionFieldTest, MultiplicativeGroupOperators) {
   GF7_3 f = GF7_3::Random();
-  while (f.IsZero()) {
-    f = GF7_3::Random();
+  std::optional<GF7_3> f_inv = f.Inverse();
+  if (UNLIKELY(f.IsZero())) {
+    ASSERT_FALSE(f_inv);
+    ASSERT_FALSE(f.InverseInPlace());
+  } else {
+    EXPECT_EQ(f * *f_inv, GF7_3::One());
+    GF7_3 f_tmp = f;
+    EXPECT_EQ(**f.InverseInPlace() * f_tmp, GF7_3::One());
   }
-  GF7_3 f_inv = f.Inverse();
-  EXPECT_EQ(f * f_inv, GF7_3::One());
-  GF7_3 f_tmp = f;
-  f.InverseInPlace();
-  EXPECT_EQ(f * f_tmp, GF7_3::One());
 
   f = GF7_3(GF7(3), GF7(4), GF7(5));
   GF7_3 f_sqr = GF7_3(GF7(5), GF7(4), GF7(4));

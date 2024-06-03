@@ -8,6 +8,7 @@
 
 #include "tachyon/base/containers/contains.h"
 #include "tachyon/base/functional/function_ref.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
 #include "tachyon/math/elliptic_curves/bn/bn384_small_two_adicity/fq.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -116,8 +117,8 @@ TYPED_TEST(UnivariateEvaluationDomainTest, FilterPolynomial) {
           DensePoly filter_poly = domain->GetFilterPolynomial(*coset);
           EXPECT_EQ(filter_poly.Degree(), domain_size - subdomain_size);
           for (const bls12_381::Fr& element : domain->GetElements()) {
-            bls12_381::Fr evaluation =
-                domain->EvaluateFilterPolynomial(*coset, element);
+            bls12_381::Fr evaluation = unwrap<bls12_381::Fr>(
+                domain->EvaluateFilterPolynomial(*coset, element));
             EXPECT_EQ(evaluation, filter_poly.Evaluate(element));
             if (base::Contains(coset_elements, element)) {
               EXPECT_TRUE(evaluation.IsOne());

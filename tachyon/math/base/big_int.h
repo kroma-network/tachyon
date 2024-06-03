@@ -27,6 +27,7 @@
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/bit_traits_forward.h"
+#include "tachyon/math/base/invalid_operation.h"
 
 namespace tachyon {
 namespace math {
@@ -681,10 +682,12 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   template <bool ModulusHasSpareBit>
-  constexpr BigInt MontgomeryInverse(const BigInt& modulus,
-                                     const BigInt& r2) const {
-    // See https://github.com/kroma-network/tachyon/issues/76
-    CHECK(!IsZero());
+  [[nodiscard]] constexpr bool MontgomeryInverse(const BigInt& modulus,
+                                                 const BigInt& r2,
+                                                 BigInt& output) const {
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return false;
+    }
 
     // Guajardo Kumar Paar Pelzl
     // Efficient Software-Implementation of Finite Fields with Applications to
@@ -749,10 +752,11 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     }
 
     if (u.IsOne()) {
-      return b;
+      output = b;
     } else {
-      return c;
+      output = c;
     }
+    return true;
   }
 
   // TODO(chokobole): This can be optimized since the element of vector occupies

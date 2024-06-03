@@ -42,7 +42,7 @@ class PairingFriendlyCurve {
   static Fp12 PowByX(const Fp12& f_in) {
     Fp12 f = f_in.CyclotomicPow(Config::kX);
     if constexpr (Config::kXIsNegative) {
-      f.CyclotomicInverseInPlace();
+      CHECK(f.CyclotomicInverseInPlace());
     }
     return f;
   }
@@ -50,7 +50,7 @@ class PairingFriendlyCurve {
   static Fp12 PowByNegX(const Fp12& f_in) {
     Fp12 f = f_in.CyclotomicPow(Config::kX);
     if constexpr (!Config::kXIsNegative) {
-      f.CyclotomicInverseInPlace();
+      CHECK(f.CyclotomicInverseInPlace());
     }
     return f;
   }

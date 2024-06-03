@@ -8,6 +8,7 @@
 
 #include <utility>
 
+#include "tachyon/base/optional.h"
 #include "tachyon/math/elliptic_curves/pairing/g2_prepared_base.h"
 #include "tachyon/math/elliptic_curves/pairing/g2_projective.h"
 
@@ -43,7 +44,7 @@ class G2Prepared : public G2PreparedBase<BNCurveConfig> {
 
       G2AffinePoint neg_q = -q;
 
-      Fp two_inv = Fp(2).Inverse();
+      Fp two_inv = unwrap<Fp>(Fp(2).Inverse());
       // NOTE(chokobole): skip the fist.
       for (size_t i = size - 2; i != SIZE_MAX; --i) {
         ell_coeffs.push_back(r.DoubleInPlace(two_inv));

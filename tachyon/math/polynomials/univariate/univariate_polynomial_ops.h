@@ -8,12 +8,14 @@
 
 #include <algorithm>
 #include <iterator>
+#include <optional>
 #include <utility>
 #include <vector>
 
 #include "third_party/pdqsort/include/pdqsort.h"
 
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/math/base/arithmetics_results.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
@@ -339,12 +341,14 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<D> Div(const UnivariatePolynomial<D>& self,
                                      const F& scalar) {
-    return Mul(self, scalar.Inverse());
+    const F scalar_inv = unwrap<F>(scalar.Inverse());
+    return Mul(self, scalar_inv);
   }
 
   static UnivariatePolynomial<D>& DivInPlace(UnivariatePolynomial<D>& self,
                                              const F& scalar) {
-    return MulInPlace(self, scalar.Inverse());
+    const F scalar_inv = unwrap<F>(scalar.Inverse());
+    return MulInPlace(self, scalar_inv);
   }
 
   template <typename DOrS>
@@ -504,7 +508,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     std::vector<F> quotient(self.Degree() - other.Degree() + 1);
     UnivariatePolynomial<D> remainder = self.ToDense();
     std::vector<F>& r_coefficients = remainder.coefficients_.coefficients_;
-    F divisor_leading_inv = other.GetLeadingCoefficient().Inverse();
+    F divisor_leading_inv = *other.GetLeadingCoefficient().Inverse();
 
     while (!remainder.IsZero() && remainder.Degree() >= other.Degree()) {
       F q_coeff =
@@ -687,12 +691,14 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
 
   static UnivariatePolynomial<S> Div(const UnivariatePolynomial<S>& self,
                                      const F& scalar) {
-    return Mul(self, scalar.Inverse());
+    const F scalar_inv = unwrap<F>(scalar.Inverse());
+    return Mul(self, scalar_inv);
   }
 
   static UnivariatePolynomial<S>& DivInPlace(UnivariatePolynomial<S>& self,
                                              const F& scalar) {
-    return MulInPlace(self, scalar.Inverse());
+    const F scalar_inv = unwrap<F>(scalar.Inverse());
+    return MulInPlace(self, scalar_inv);
   }
 
   template <typename DOrS>

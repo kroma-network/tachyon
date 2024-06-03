@@ -52,7 +52,8 @@ tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_inv(const tachyon_%{type
   using NativeType =
       typename TypeTraits<tachyon_%{type}_fq%{degree}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.InverseInPlace());
+  CHECK(native_a.InverseInPlace());
+  return c_cast(native_a);
 }
 
 tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_add(const tachyon_%{type}_fq%{degree}* a,

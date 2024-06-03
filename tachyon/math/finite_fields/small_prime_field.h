@@ -18,6 +18,7 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/egcd.h"
+#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::math {
@@ -170,11 +171,14 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
   }
 
   // MultiplicativeGroup methods
-  constexpr PrimeField Inverse() const {
+  constexpr std::optional<PrimeField> Inverse() const {
     // TODO(chokobole): Benchmark between this and |this->Pow(GetModulus() - 2)|
     // and use the faster one.
     // |result.s| * |value_| + |result.t| * |GetModulus()| = |result.r|
     // |result.s| * |value_| = |result.r| (mod |GetModulus()|)
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
     EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
     DCHECK_EQ(result.r, 1);
     if (result.s > 0) {
@@ -184,8 +188,11 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
     }
   }
 
-  constexpr PrimeField& InverseInPlace() {
+  [[nodiscard]] constexpr std::optional<PrimeField*> InverseInPlace() {
     // See comment in |Inverse()|.
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
     EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
     DCHECK_EQ(result.r, 1);
     if (result.s > 0) {
@@ -193,7 +200,7 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
     } else {
       value_ = int64_t{GetModulus()} + result.s;
     }
-    return *this;
+    return this;
   }
 
  private:

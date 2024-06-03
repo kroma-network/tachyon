@@ -37,7 +37,7 @@ void BM_InverseParallelFor(benchmark::State& state) {
       state.range(0), [](size_t i) { return F::FromBigInt(BigInt(i + 1)); });
   for (auto _ : state) {
     OPENMP_PARALLEL_FOR(size_t i = 0; i < fields.size(); ++i) {
-      fields[i].InverseInPlace();
+      CHECK(fields[i].InverseInPlace());
     }
   }
   benchmark::DoNotOptimize(fields);

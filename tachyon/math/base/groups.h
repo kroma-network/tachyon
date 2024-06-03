@@ -1,7 +1,9 @@
 #ifndef TACHYON_MATH_BASE_GROUPS_H_
 #define TACHYON_MATH_BASE_GROUPS_H_
 
+#include <atomic>
 #include <limits>
+#include <optional>
 #include <ostream>
 #include <tuple>
 #include <utility>
@@ -10,6 +12,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/types/always_false.h"
+#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/base/semigroups.h"
 
 namespace tachyon::math {
@@ -37,8 +40,13 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
 
   // Division: a * b⁻¹
   template <typename G2>
-  constexpr auto operator/(const G2& other) const {
-    return this->operator*(other.Inverse());
+  constexpr G operator/(const G2& other) const {
+    const std::optional<G> other_inv = other.Inverse();
+    const G* g = static_cast<const G*>(this);
+    if (UNLIKELY(!other_inv)) {
+      // TODO(ashjeong): action if div is invalid!
+    }
+    return g->Mul(*other_inv);
   }
 
   // Division in place: a *= b⁻¹
@@ -46,8 +54,12 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
       typename G2,
       std::enable_if_t<internal::SupportsMulInPlace<G, G2>::value>* = nullptr>
   constexpr G& operator/=(const G2& other) {
+    const std::optional<G> other_inv = other.Inverse();
     G* g = static_cast<G*>(this);
-    return g->MulInPlace(other.Inverse());
+    if (UNLIKELY(!other_inv)) {
+      // TODO(ashjeong): action if div is invalid!
+    }
+    return g->MulInPlace(*other_inv);
   }
 
   template <typename Container>
@@ -76,25 +88,31 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     }
 
 #if defined(TACHYON_HAS_OPENMP)
-    using G2 = decltype(std::declval<G>().Inverse());
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
     if (size >=
         size_t{1} << (thread_nums / kParallelBatchInverseDivisorThreshold)) {
       size_t chunk_size = base::GetNumElementsPerThread(groups);
       size_t num_chunks = (size + chunk_size - 1) / chunk_size;
+      std::atomic<bool> check_valid(true);
       OPENMP_PARALLEL_FOR(size_t i = 0; i < num_chunks; ++i) {
         size_t len = i == num_chunks - 1 ? size - i * chunk_size : chunk_size;
         absl::Span<const G> groups_chunk(std::data(groups) + i * chunk_size,
                                          len);
-        absl::Span<G2> inverses_chunk(std::data(*inverses) + i * chunk_size,
-                                      len);
-        DoBatchInverse(groups_chunk, inverses_chunk, coeff);
+        absl::Span<G> inverses_chunk(std::data(*inverses) + i * chunk_size,
+                                     len);
+        if (UNLIKELY(!DoBatchInverse(groups_chunk, inverses_chunk, coeff))) {
+          check_valid.store(false, std::memory_order_relaxed);
+          continue;
+        }
+      }
+      if (UNLIKELY(!check_valid.load(std::memory_order_relaxed))) {
+        LOG(ERROR) << "Inverse of zero attempted";
+        return false;
       }
       return true;
     }
 #endif
-    DoBatchInverse(groups, absl::MakeSpan(*inverses), coeff);
-    return true;
+    return DoBatchInverse(groups, absl::MakeSpan(*inverses), coeff);
   }
 
   template <typename InputContainer, typename OutputContainer>
@@ -105,13 +123,13 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
       LOG(ERROR) << "Size of |groups| and |inverses| do not match";
       return false;
     }
-    DoBatchInverse(groups, absl::MakeSpan(*inverses), coeff);
-    return true;
+    return DoBatchInverse(groups, absl::MakeSpan(*inverses), coeff);
   }
 
  private:
-  constexpr static void DoBatchInverse(absl::Span<const G> groups,
-                                       absl::Span<G> inverses, const G& coeff) {
+  [[nodiscard]] constexpr static bool DoBatchInverse(absl::Span<const G> groups,
+                                                     absl::Span<G> inverses,
+                                                     const G& coeff) {
     // Montgomery’s Trick and Fast Implementation of Masked AES
     // Genelle, Prouff and Quisquater
     // Section 3.2
@@ -132,7 +150,12 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
 
     // Invert |product|.
     // (a₁ * a₂ * ... *  aₙ)⁻¹
-    G product_inv = product.Inverse();
+    std::optional<G> product_inv_opt = product.Inverse();
+    if (UNLIKELY(
+            InvalidOperation(!product_inv_opt, "Inverse of zero attempted"))) {
+      return false;
+    }
+    G product_inv = std::move(*product_inv_opt);
 
     // Multiply |product_inv| by |coeff|, so all inverses will be scaled by
     // |coeff|.
@@ -156,6 +179,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
         inverses[i] = G::Zero();
       }
     }
+    return true;
   }
 };
 

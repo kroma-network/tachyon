@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/base/optional.h"
 // #include "tachyon/math/finite_fields/prime_field_gpu_debug.h"
 #include "tachyon/base/auto_reset.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -154,12 +155,17 @@ TYPED_TEST(PrimeFieldTest, MultiplicativeOperators) {
 TYPED_TEST(PrimeFieldTest, MultiplicativeGroupOperators) {
   using F = TypeParam;
 
-  for (int i = 1; i < 7; ++i) {
+  for (int i = 0; i < 7; ++i) {
     F f(i);
-    EXPECT_EQ(f * f.Inverse(), F::One());
-    F f_tmp = f;
-    f.InverseInPlace();
-    EXPECT_EQ(f * f_tmp, F::One());
+    std::optional<F> f_inv = f.Inverse();
+    if (f.IsZero()) {
+      ASSERT_FALSE(f_inv);
+      ASSERT_FALSE(f.InverseInPlace());
+    } else {
+      EXPECT_EQ(f * *f_inv, F::One());
+      F f_tmp = f;
+      EXPECT_EQ(**f.InverseInPlace() * f_tmp, F::One());
+    }
   }
 
   F f(3);

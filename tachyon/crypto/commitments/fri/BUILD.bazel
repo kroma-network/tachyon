@@ -21,6 +21,7 @@ tachyon_cc_library(
         ":fri_proof",
         ":fri_storage",
         "//tachyon/base:logging",
+        "//tachyon/base:optional",
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/commitments:univariate_polynomial_commitment_scheme",
         "//tachyon/crypto/commitments/merkle_tree/binary_merkle_tree",

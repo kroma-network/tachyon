@@ -17,6 +17,7 @@
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
+#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::math {
@@ -188,10 +189,19 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
   }
 
   // MultiplicativeGroup methods
-  constexpr PrimeField Inverse() const { return this->Pow(GetModulus() - 2); }
+  constexpr std::optional<PrimeField> Inverse() const {
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
+    return this->Pow(GetModulus() - 2);
+  }
 
-  constexpr PrimeField& InverseInPlace() {
-    return *this = this->Pow(GetModulus() - 2);
+  [[nodiscard]] constexpr std::optional<PrimeField*> InverseInPlace() {
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return std::nullopt;
+    }
+    *this = this->Pow(GetModulus() - 2);
+    return this;
   }
 
  private:

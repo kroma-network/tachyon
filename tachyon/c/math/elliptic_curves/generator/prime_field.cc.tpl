@@ -74,7 +74,8 @@ tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_inv(const tachyon_%{type}_%{
   using namespace tachyon::c::base;
   using NativeType = typename TypeTraits<tachyon_%{type}_%{suffix}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a.InverseInPlace());
+  CHECK(native_a.InverseInPlace());
+  return c_cast(native_a);
 }
 
 bool tachyon_%{type}_%{suffix}_eq(const tachyon_%{type}_%{suffix}* a, const tachyon_%{type}_%{suffix}* b) {

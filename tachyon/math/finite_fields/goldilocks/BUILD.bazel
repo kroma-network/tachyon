@@ -51,6 +51,7 @@ tachyon_cc_library(
         "//tachyon/base:random",
         "//tachyon/base/strings:string_number_conversions",
         "//tachyon/base/strings:string_util",
+        "//tachyon/math/base:invalid_operation",
         "//tachyon/math/finite_fields:prime_field_base",
         "@goldilocks//:base_field",
     ]),

@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/base/parallelize.h"
 #include "tachyon/zk/r1cs/constraint_system/constraint_system.h"
 #include "tachyon/zk/r1cs/constraint_system/qap_instance_map_result.h"
@@ -167,10 +168,10 @@ class QuadraticArithmeticProgram {
     c_evals = coset_domain->FFT(std::move(c_poly));
 
     F vanishing_polynomial_over_coset =
-        domain
-            ->EvaluateVanishingPolynomial(
-                F::FromMontgomery(F::Config::kSubgroupGenerator))
-            .Inverse();
+        unwrap<F>(domain
+                      ->EvaluateVanishingPolynomial(
+                          F::FromMontgomery(F::Config::kSubgroupGenerator))
+                      .Inverse());
 
     // |h_evals[i]| = (|a[i]| * |b[i]| - |c[i]|)) / (g * ωⁿ⁺ˡ⁺¹ - 1)
     OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {

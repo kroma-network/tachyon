@@ -219,7 +219,9 @@ class PointXYZZ<_Curve,
     } else if (zz_.IsOne()) {
       return {x_, y_};
     } else {
-      BaseField z_inv_cubic = zzz_.Inverse();
+      // NOTE(ashjeong): if |zzz_| is 0, |IsZero()| will also evaluate to true,
+      // and this block will not be executed
+      BaseField z_inv_cubic = *zzz_.Inverse();
       BaseField z_inv_square = z_inv_cubic * zz_;
       z_inv_square.SquareInPlace();
       return {x_ * z_inv_square, y_ * z_inv_cubic};

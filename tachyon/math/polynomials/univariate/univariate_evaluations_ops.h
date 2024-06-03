@@ -7,10 +7,12 @@
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_EVALUATIONS_OPS_H_
 
 #include <algorithm>
+#include <optional>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
 namespace tachyon::math {
@@ -225,11 +227,13 @@ class UnivariateEvaluationsOp {
   }
 
   static Poly Div(const Poly& self, const F& scalar) {
-    return Mul(self, scalar.Inverse());
+    const F scalar_inv = unwrap<F>(scalar.Inverse());
+    return Mul(self, scalar_inv);
   }
 
   static Poly& DivInPlace(Poly& self, const F& scalar) {
-    return MulInPlace(self, scalar.Inverse());
+    const F scalar_inv = unwrap<F>(scalar.Inverse());
+    return MulInPlace(self, scalar_inv);
   }
 };
 

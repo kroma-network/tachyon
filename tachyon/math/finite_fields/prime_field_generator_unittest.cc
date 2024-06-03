@@ -1,3 +1,5 @@
+#include <optional>
+
 #include "gtest/gtest.h"
 
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fq.h"
@@ -105,10 +107,14 @@ TYPED_TEST(PrimeFieldGeneratorTest, MultiplicativeGroupOperators) {
   using PrimeField = TypeParam;
   PrimeField f = PrimeField::Random();
   SCOPED_TRACE(absl::Substitute("f: $0", f.ToString()));
-  PrimeField f_inv = f.Inverse();
-  EXPECT_EQ(f * f_inv, PrimeField::One());
-  f.InverseInPlace();
-  EXPECT_EQ(f, f_inv);
+  std::optional<PrimeField> f_inv = f.Inverse();
+  if (UNLIKELY(f.IsZero())) {
+    ASSERT_FALSE(f_inv);
+    ASSERT_FALSE(f.InverseInPlace());
+  } else {
+    EXPECT_EQ(f * *f_inv, PrimeField::One());
+    EXPECT_EQ(**f.InverseInPlace(), f_inv);
+  }
 
   PrimeField f_sqr = f.Square();
   EXPECT_EQ(f * f, f_sqr);
