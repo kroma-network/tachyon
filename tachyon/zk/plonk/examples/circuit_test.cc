@@ -290,8 +290,15 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
         };
     EXPECT_EQ(proof.lookup_permuted_commitments_vec,
               expected_lookup_permuted_commitments_vec);
-  } else {
-    EXPECT_TRUE(proof.lookup_permuted_commitments_vec[0].empty());
+  } else if constexpr (TestData::kLookupMPolyCommitmentsFlag) {
+    std::vector<std::vector<Commitment>> expected_lookup_m_poly_commitments_vec{
+        CreateCommitments(
+            base::ArrayToVector(TestData::kLookupMPolyCommitments[0])),
+        CreateCommitments(
+            base::ArrayToVector(TestData::kLookupMPolyCommitments[1])),
+    };
+    EXPECT_EQ(proof.lookup_m_poly_commitments_vec,
+              expected_lookup_m_poly_commitments_vec);
   }
 
   F expected_beta = *F::FromHexString(TestData::kBeta);
@@ -324,8 +331,16 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
         };
     EXPECT_EQ(proof.lookup_product_commitments_vec,
               expected_lookup_product_commitments_vec);
-  } else {
-    EXPECT_TRUE(proof.lookup_product_commitments_vec[0].empty());
+  } else if constexpr (TestData::kLookupSumCommitmentsFlag) {
+    std::vector<std::vector<Commitment>>
+        expected_lookup_sum_commitments_commitments_vec{
+            CreateCommitments(
+                base::ArrayToVector(TestData::kLookupSumCommitments[0])),
+            CreateCommitments(
+                base::ArrayToVector(TestData::kLookupSumCommitments[1])),
+        };
+    EXPECT_EQ(proof.lookup_sum_commitments_vec,
+              expected_lookup_sum_commitments_commitments_vec);
   }
 
   Commitment expected_vanishing_random_poly_commitment =
@@ -425,8 +440,12 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
     };
     EXPECT_EQ(proof.lookup_product_evals_vec,
               expected_lookup_product_evals_vec);
-  } else {
-    EXPECT_TRUE(proof.lookup_product_evals_vec[0].empty());
+  } else if constexpr (TestData::kLookupSumEvalsFlag) {
+    std::vector<std::vector<F>> expected_lookup_sum_evals_vec{
+        CreateEvals(base::ArrayToVector(TestData::kLookupSumEvals[0])),
+        CreateEvals(base::ArrayToVector(TestData::kLookupSumEvals[1])),
+    };
+    EXPECT_EQ(proof.lookup_sum_evals_vec, expected_lookup_sum_evals_vec);
   }
 
   if constexpr (TestData::kLookupProductNextEvalsFlag) {
@@ -436,8 +455,13 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
     };
     EXPECT_EQ(proof.lookup_product_next_evals_vec,
               expected_lookup_product_next_evals_vec);
-  } else {
-    EXPECT_TRUE(proof.lookup_product_next_evals_vec[0].empty());
+  } else if constexpr (TestData::kLookupSumNextEvalsFlag) {
+    std::vector<std::vector<F>> expected_lookup_sum_next_evals_vec{
+        CreateEvals(base::ArrayToVector(TestData::kLookupSumNextEvals[0])),
+        CreateEvals(base::ArrayToVector(TestData::kLookupSumNextEvals[1])),
+    };
+    EXPECT_EQ(proof.lookup_sum_next_evals_vec,
+              expected_lookup_sum_next_evals_vec);
   }
 
   if constexpr (TestData::kLookupPermutedInputEvalsFlag) {
@@ -449,8 +473,6 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
     };
     EXPECT_EQ(proof.lookup_permuted_input_evals_vec,
               expected_lookup_permuted_input_evals_vec);
-  } else {
-    EXPECT_TRUE(proof.lookup_permuted_input_evals_vec[0].empty());
   }
 
   if constexpr (TestData::kLookupPermutedInputPrevEvalsFlag) {
@@ -462,8 +484,6 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
     };
     EXPECT_EQ(proof.lookup_permuted_input_prev_evals_vec,
               expected_lookup_permuted_input_prev_evals_vec);
-  } else {
-    EXPECT_TRUE(proof.lookup_permuted_input_prev_evals_vec[0].empty());
   }
 
   if constexpr (TestData::kLookupPermutedTableEvalsFlag) {
@@ -475,8 +495,14 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
     };
     EXPECT_EQ(proof.lookup_permuted_table_evals_vec,
               expected_lookup_permuted_table_evals_vec);
-  } else {
-    EXPECT_TRUE(proof.lookup_permuted_table_evals_vec[0].empty());
+  }
+
+  if constexpr (TestData::kLookupMEvalsFlag) {
+    std::vector<std::vector<F>> expected_lookup_m_evals_vec{
+        CreateEvals(base::ArrayToVector(TestData::kLookupMEvals[0])),
+        CreateEvals(base::ArrayToVector(TestData::kLookupMEvals[1])),
+    };
+    EXPECT_EQ(proof.lookup_m_evals_vec, expected_lookup_m_evals_vec);
   }
 
   // TODO(ashjeong): get |h_eval| for fibonacci tests

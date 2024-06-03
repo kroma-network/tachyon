@@ -74,10 +74,12 @@ Refer to the following files to learn more about these variables:
 1. :red_square: kTheta
 1. :blue_square: kLookupPermutedCommitmentsInputPoints
 1. :blue_square: kLookupPermutedCommitmentsTablePoints
+1. :blue_square: kLookupMPolyCommitments
 1. :red_square: kBeta
 1. :red_square: kGamma
 1. :blue_square: kPermutationProductCommitments
 1. :blue_square: kLookupProductCommitments
+1. :blue_square: kLookupSumCommitments
 1. :red_square: kY
 1. :blue_square: kVanishingHPolyCommitments
 1. :red_square: kX
@@ -88,8 +90,11 @@ Refer to the following files to learn more about these variables:
 1. :blue_square: kPermutationProductNextEvals
 1. :blue_square: kPermutationProductLastEvals
 1. :blue_square: kLookupProductEvals
+1. :blue_square: kLookupSumEvals
 1. :blue_square: kLookupProductNextEvals
+1. :blue_square: kLookupSumNextEvals
 1. :blue_square: kLookupPermutedInputEvals
 1. :blue_square: kLookupPermutedInputPrevEvals
 1. :blue_square: kLookupPermutedTableEvals
+1. :blue_square: kLookupMEvals
 1. :blue_square: kHEval
