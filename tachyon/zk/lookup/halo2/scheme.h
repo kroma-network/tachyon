@@ -21,7 +21,7 @@ struct Scheme {
   using VerifierData = lookup::halo2::VerifierData<Field, Commitment>;
   using Evaluator = lookup::halo2::Evaluator<Field, Evals>;
 
-  static constexpr Type type = Type::kHalo2;
+  constexpr static Type type = Type::kHalo2;
 };
 
 }  // namespace tachyon::zk::lookup::halo2
