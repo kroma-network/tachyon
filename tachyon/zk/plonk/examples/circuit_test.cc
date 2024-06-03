@@ -274,19 +274,19 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
   F expected_theta = *F::FromHexString(TestData::kTheta);
   EXPECT_EQ(proof.theta, expected_theta);
 
-  if constexpr (TestData::kPermutationProductCommitmentsPointsFlag) {
+  if constexpr (TestData::kLookupPermutedCommitmentsPointsFlag) {
     std::vector<std::vector<lookup::Pair<Commitment>>>
         expected_lookup_permuted_commitments_vec{
             CreateLookupPermutedCommitments(
                 base::ArrayToVector(
-                    TestData::kPermutationProductCommitmentsInputPoints[0]),
+                    TestData::kLookupPermutedCommitmentsInputPoints[0]),
                 base::ArrayToVector(
-                    TestData::kPermutationProductCommitmentsTablePoints[0])),
+                    TestData::kLookupPermutedCommitmentsTablePoints[0])),
             CreateLookupPermutedCommitments(
                 base::ArrayToVector(
-                    TestData::kPermutationProductCommitmentsInputPoints[1]),
+                    TestData::kLookupPermutedCommitmentsInputPoints[1]),
                 base::ArrayToVector(
-                    TestData::kPermutationProductCommitmentsTablePoints[1])),
+                    TestData::kLookupPermutedCommitmentsTablePoints[1])),
         };
     EXPECT_EQ(proof.lookup_permuted_commitments_vec,
               expected_lookup_permuted_commitments_vec);
