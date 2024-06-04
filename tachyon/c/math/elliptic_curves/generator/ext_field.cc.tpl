@@ -89,7 +89,8 @@ tachyon_%{type}_fq%{degree} tachyon_%{type}_fq%{degree}_div(const tachyon_%{type
   using NativeType =
       typename TypeTraits<tachyon_%{type}_fq%{degree}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a /= native_cast(*b));
+  CHECK(native_a /= native_cast(*b));
+  return c_cast(native_a);
 }
 
 bool tachyon_%{type}_fq%{degree}_eq(const tachyon_%{type}_fq%{degree}* a,

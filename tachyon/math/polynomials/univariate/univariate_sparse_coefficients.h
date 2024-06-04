@@ -22,6 +22,7 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/polynomials/univariate/support_poly_operators.h"
@@ -67,11 +68,11 @@ struct UnivariateTerm {
   }
 
   UnivariateTerm operator/(const F& scalar) const {
-    return {degree, coefficient / scalar};
+    return UnivariateTerm{degree, unwrap<F>(coefficient / scalar)};
   }
 
   UnivariateTerm& operator/=(const F& scalar) {
-    coefficient /= scalar;
+    CHECK(coefficient /= scalar);
     return *this;
   }
 

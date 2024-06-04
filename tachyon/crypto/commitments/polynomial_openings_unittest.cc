@@ -98,7 +98,11 @@ TEST_F(PolynomialOpeningsTest, CreateCombinedLowDegreeExtensions) {
     power *= r;
   }
   for (const Point& point : points) {
-    expected_eval /= (x - point);
+    if (UNLIKELY((x - point).IsZero())) {
+      ASSERT_FALSE(expected_eval /= (x - point));
+    } else {
+      ASSERT_TRUE(expected_eval /= (x - point));
+    }
   }
   EXPECT_EQ(actual_eval, expected_eval);
 }

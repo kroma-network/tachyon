@@ -46,7 +46,8 @@ tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_div(const tachyon_%{type}_%{
   using namespace tachyon::c::base;
   using NativeType = typename TypeTraits<tachyon_%{type}_%{suffix}>::NativeType;
   NativeType native_a = native_cast(*a);
-  return c_cast(native_a /= native_cast(*b));
+  CHECK(native_a /= native_cast(*b));
+  return c_cast(native_a);
 }
 
 tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_neg(const tachyon_%{type}_%{suffix}* a) {

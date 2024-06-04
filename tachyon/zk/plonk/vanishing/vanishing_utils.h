@@ -28,7 +28,7 @@ constexpr F GetZeta() {
   // NOTE(chokobole): The result of the exponential operation does not exceed
   // the modulus of the scalar field.
   exp.MulBy2ExpInPlace(F::Config::kTwoAdicity);
-  exp /= BigInt(3);
+  CHECK(exp /= BigInt(3));
   return F::FromMontgomery(F::Config::kSubgroupGenerator).Pow(exp);
 }
 

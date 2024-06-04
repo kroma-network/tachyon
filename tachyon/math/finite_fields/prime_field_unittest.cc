@@ -147,7 +147,7 @@ TYPED_TEST(PrimeFieldTest, MultiplicativeOperators) {
     F tmp = test.a;
     tmp *= test.b;
     EXPECT_EQ(tmp, test.mul);
-    tmp /= test.b;
+    ASSERT_TRUE(tmp /= test.b);
     EXPECT_EQ(tmp, test.a);
   }
 }

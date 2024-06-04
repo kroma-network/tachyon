@@ -17,6 +17,7 @@
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
 #include "tachyon/base/range.h"
+#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/polynomials/evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -326,15 +327,19 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // This evaluates at |tau| the filter polynomial for |*this| with respect to
   // |subdomain|.
-  constexpr F EvaluateFilterPolynomial(
+  constexpr std::optional<F> EvaluateFilterPolynomial(
       const UnivariateEvaluationDomain& subdomain, const F& tau) const {
     F v_subdomain_of_tau = subdomain.EvaluateVanishingPolynomial(tau);
     if (v_subdomain_of_tau.IsZero()) {
       return F::One();
     } else {
-      return subdomain.size_as_field_element_ *
-             EvaluateVanishingPolynomial(tau) /
-             (size_as_field_element_ * v_subdomain_of_tau);
+      const std::optional<F> div =
+          EvaluateVanishingPolynomial(tau) /
+          (size_as_field_element_ * v_subdomain_of_tau);
+      if (UNLIKELY(InvalidOperation(!div, "Division by zero attempted"))) {
+        return std::nullopt;
+      }
+      return subdomain.size_as_field_element_ * std::move(*div);
     }
   }
 

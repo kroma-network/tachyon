@@ -59,8 +59,16 @@ TEST_F(PrimeFieldTest, Mul) {
 }
 
 TEST_F(PrimeFieldTest, Div) {
-  EXPECT_EQ(c::base::native_cast((cc_a_ / cc_b_).value()), a_ / b_);
-  EXPECT_EQ(c::base::native_cast((cc_a_ /= cc_b_).value()), a_ /= b_);
+  if (b_.IsZero()) {
+    ASSERT_FALSE(a_ / b_);
+    ASSERT_FALSE(a_ /= b_);
+  } else {
+    bn254::Fr cc_div = unwrap<bn254::Fr>(cc_a_ / cc_b_);
+    tachyon::math::bn254::Fr div = unwrap<tachyon::math::bn254::Fr>(a_ / b_);
+    EXPECT_EQ(c::base::native_cast((cc_div).value()), div);
+    ASSERT_TRUE(a_ /= b_);
+    EXPECT_EQ(c::base::native_cast((cc_a_ /= cc_b_).value()), a_);
+  }
 }
 
 TEST_F(PrimeFieldTest, Negate) {

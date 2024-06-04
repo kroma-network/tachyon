@@ -2,10 +2,13 @@
 #define TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTILINEAR_EXTENSION_OPS_H_
 
 #include <algorithm>
+#include <atomic>
+#include <optional>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/polynomials/multivariate/multilinear_extension.h"
 
 namespace tachyon::math {
@@ -155,47 +158,64 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     return self;
   }
 
-  static MultilinearExtension<D> Div(const MultilinearExtension<D>& self,
-                                     const MultilinearExtension<D>& other) {
+  CONSTEXPR_IF_NOT_OPENMP static std::optional<MultilinearExtension<D>> Div(
+      const MultilinearExtension<D>& self,
+      const MultilinearExtension<D>& other) {
     const std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
-    if (r_evaluations.empty()) {
-      // f(x) / 0
-      // TODO(chokobole): It should return std::nullopt.
-      // See https://github.com/kroma-network/tachyon/issues/76.
-      return MultilinearExtension<D>::Zero();
+    // f(x) / 0
+    if (UNLIKELY(InvalidOperation(r_evaluations.empty(),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
     }
+    // 0 / g(x)
     if (l_evaluations.empty()) {
-      // 0 / g(x)
       return self;
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
     std::vector<F> o_evaluations(r_evaluations.size());
+    std::atomic<bool> check_valid(true);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < l_evaluations.size(); ++i) {
-      o_evaluations[i] = l_evaluations[i] / r_evaluations[i];
+      std::optional<F> div = l_evaluations[i] / r_evaluations[i];
+      if (UNLIKELY(!div)) {
+        check_valid.store(false, std::memory_order_relaxed);
+        continue;
+      }
+      o_evaluations[i] = std::move(div).value();
+    }
+    if (UNLIKELY(InvalidOperation(!check_valid.load(std::memory_order_relaxed),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
     }
     return MultilinearExtension<D>(D(std::move(o_evaluations)));
   }
 
-  static MultilinearExtension<D>& DivInPlace(
-      MultilinearExtension<D>& self, const MultilinearExtension<D>& other) {
+  [[nodiscard]] CONSTEXPR_IF_NOT_OPENMP static std::optional<
+      MultilinearExtension<D>*>
+  DivInPlace(MultilinearExtension<D>& self,
+             const MultilinearExtension<D>& other) {
     std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
-    if (r_evaluations.empty()) {
-      // f(x) / 0
-      // TODO(chokobole): It should return std::nullopt.
-      // See https://github.com/kroma-network/tachyon/issues/76.
-      return self;
+    // f(x) / 0
+    if (UNLIKELY(InvalidOperation(r_evaluations.empty(),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
     }
+    // 0 / g(x)
     if (l_evaluations.empty()) {
-      // 0 / g(x)
-      return self;
+      return &self;
     }
     CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    std::atomic<bool> check_valid(true);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
-      l_evaluations[i] /= r_evaluations[i];
+      if (UNLIKELY(!(l_evaluations[i] /= r_evaluations[i])))
+        check_valid.store(false, std::memory_order_relaxed);
     }
-    return self;
+    if (UNLIKELY(InvalidOperation(!check_valid.load(std::memory_order_relaxed),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    return &self;
   }
 
   static const MultilinearExtension<D>& ToDense(

@@ -194,39 +194,44 @@ class UnivariateEvaluations final
                                                                        scalar);
   }
 
-  UnivariateEvaluations Div(const UnivariateEvaluations& other) const {
+  constexpr std::optional<UnivariateEvaluations> Div(
+      const UnivariateEvaluations& other) const {
     return internal::UnivariateEvaluationsOp<F, MaxDegree>::Div(*this, other);
   }
 
-  UnivariateEvaluations& DivInPlace(const UnivariateEvaluations& other) {
+  [[nodiscard]] constexpr std::optional<UnivariateEvaluations*> DivInPlace(
+      const UnivariateEvaluations& other) {
     return internal::UnivariateEvaluationsOp<F, MaxDegree>::DivInPlace(*this,
                                                                        other);
   }
 
-  UnivariateEvaluations Div(const F& scalar) const {
+  constexpr std::optional<UnivariateEvaluations> Div(const F& scalar) const {
     return internal::UnivariateEvaluationsOp<F, MaxDegree>::Div(*this, scalar);
   }
 
-  UnivariateEvaluations& DivInPlace(const F& scalar) {
+  [[nodiscard]] constexpr std::optional<UnivariateEvaluations*> DivInPlace(
+      const F& scalar) {
     return internal::UnivariateEvaluationsOp<F, MaxDegree>::DivInPlace(*this,
                                                                        scalar);
   }
 
-  constexpr UnivariateEvaluations operator/(
+  constexpr std::optional<UnivariateEvaluations> operator/(
       const UnivariateEvaluations& other) const {
     return Div(other);
   }
 
-  constexpr UnivariateEvaluations& operator/=(
+  [[nodiscard]] constexpr std::optional<UnivariateEvaluations*> operator/=(
       const UnivariateEvaluations& other) {
     return DivInPlace(other);
   }
 
-  constexpr UnivariateEvaluations operator/(const F& scalar) const {
+  constexpr std::optional<UnivariateEvaluations> operator/(
+      const F& scalar) const {
     return Div(scalar);
   }
 
-  constexpr UnivariateEvaluations& operator/=(const F& scalar) {
+  [[nodiscard]] constexpr std::optional<UnivariateEvaluations*> operator/=(
+      const F& scalar) {
     return DivInPlace(scalar);
   }
 

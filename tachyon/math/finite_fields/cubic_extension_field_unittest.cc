@@ -147,7 +147,7 @@ TEST_F(CubicExtensionFieldTest, MultiplicativeOperators) {
     GF7_3 tmp = test.a;
     tmp *= test.b;
     EXPECT_EQ(tmp, test.mul);
-    tmp /= test.b;
+    ASSERT_TRUE(tmp /= test.b);
     EXPECT_EQ(tmp, test.a);
   }
 }

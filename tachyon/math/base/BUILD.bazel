@@ -152,6 +152,7 @@ tachyon_cc_unittest(
         ":groups",
         ":rational_field",
         ":sign",
+        "//tachyon/base:optional",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/strings:string_number_conversions",

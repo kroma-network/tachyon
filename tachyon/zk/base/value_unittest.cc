@@ -115,8 +115,8 @@ TEST(ValueTest, MultiplicativeOperators) {
     Value<math::GF7> bda;
   } tests[] = {
       {Value<math::GF7>::Known(a), Value<math::GF7>::Known(b),
-       Value<math::GF7>::Known(a * b), Value<math::GF7>::Known(a / b),
-       Value<math::GF7>::Known(b / a)},
+       Value<math::GF7>::Known(a * b), Value<math::GF7>::Known(*(a / b)),
+       Value<math::GF7>::Known(*(b / a))},
       {Value<math::GF7>::Known(a), Value<math::GF7>::Unknown(),
        Value<math::GF7>::Unknown(), Value<math::GF7>::Unknown(),
        Value<math::GF7>::Unknown()},
@@ -126,13 +126,13 @@ TEST(ValueTest, MultiplicativeOperators) {
     if (test.a.IsNone() || test.b.IsNone()) {
       EXPECT_TRUE((test.a * test.b).IsNone());
       EXPECT_TRUE((test.b * test.a).IsNone());
-      EXPECT_TRUE((test.a / test.b).IsNone());
-      EXPECT_TRUE((test.b / test.a).IsNone());
+      EXPECT_TRUE((*(test.a / test.b)).IsNone());
+      EXPECT_TRUE((*(test.b / test.a)).IsNone());
     } else {
       EXPECT_EQ(test.a * test.b, test.mul);
       EXPECT_EQ(test.b * test.a, test.mul);
-      EXPECT_EQ(test.a / test.b, test.adb);
-      EXPECT_EQ(test.b / test.a, test.bda);
+      EXPECT_EQ(*(test.a / test.b), test.adb);
+      EXPECT_EQ(*(test.b / test.a), test.bda);
     }
   }
 }

@@ -1,3 +1,5 @@
+#include <tuple>
+
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
@@ -246,28 +248,38 @@ TEST_F(UnivariateDensePolynomialTest, MultiplicativeOperators) {
     if (!test.b.IsZero()) {
       EXPECT_EQ(test.a / test.b, test.adb);
       EXPECT_EQ(test.a % test.b, test.amb);
+    } else {
+      ASSERT_FALSE(test.a / test.b);
     }
     if (!test.a.IsZero()) {
       EXPECT_EQ(test.b / test.a, test.bda);
       EXPECT_EQ(test.b % test.a, test.bma);
+    } else {
+      ASSERT_FALSE(test.b / test.a);
     }
     EXPECT_EQ(test.a * b_sparse, test.mul);
     EXPECT_EQ(test.b * a_sparse, test.mul);
     if (!b_sparse.IsZero()) {
       EXPECT_EQ(test.a / b_sparse, test.adb);
       EXPECT_EQ(test.a % b_sparse, test.amb);
+    } else {
+      ASSERT_FALSE(test.a / b_sparse);
     }
     if (!a_sparse.IsZero()) {
       EXPECT_EQ(test.b / a_sparse, test.bda);
       EXPECT_EQ(test.b % a_sparse, test.bma);
+    } else {
+      ASSERT_FALSE(test.b / a_sparse);
     }
 
     Poly tmp = test.a;
     tmp *= test.b;
     EXPECT_EQ(tmp, test.mul);
     if (!test.b.IsZero()) {
-      tmp /= test.b;
+      ASSERT_TRUE(tmp /= test.b);
       EXPECT_EQ(tmp, test.a);
+    } else {
+      ASSERT_FALSE(tmp /= test.b);
     }
   }
 }
@@ -301,13 +313,13 @@ TEST_F(UnivariateDensePolynomialTest, DivScalar) {
   const std::vector<GF7>& coeffs = poly.coefficients().coefficients();
   expected_coeffs.reserve(coeffs.size());
   for (size_t i = 0; i < coeffs.size(); ++i) {
-    expected_coeffs.push_back(coeffs[i] / scalar);
+    expected_coeffs.push_back(unwrap<GF7>(coeffs[i] / scalar));
   }
 
-  Poly actual = poly / scalar;
+  Poly actual = unwrap<Poly>(poly / scalar);
   Poly expected(Coeffs(std::move(expected_coeffs)));
   EXPECT_EQ(actual, expected);
-  poly /= scalar;
+  ASSERT_TRUE(poly /= scalar);
   EXPECT_EQ(poly, expected);
 }
 

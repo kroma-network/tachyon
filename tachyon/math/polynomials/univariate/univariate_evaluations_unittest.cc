@@ -4,6 +4,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/base/buffer/vector_buffer.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/finite_fields/test/gf7.h"
 
@@ -200,18 +201,24 @@ TEST_F(UnivariateEvaluationsTest, MultiplicativeOperators) {
     EXPECT_EQ(test.a * test.b, test.mul);
     EXPECT_EQ(test.b * test.a, test.mul);
     if (!test.b.IsZero()) {
-      EXPECT_EQ(test.a / test.b, test.adb);
+      EXPECT_EQ(*(test.a / test.b), test.adb);
+    } else {
+      ASSERT_FALSE(test.a / test.b);
     }
     if (!test.a.IsZero()) {
-      EXPECT_EQ(test.b / test.a, test.bda);
+      EXPECT_EQ(*(test.b / test.a), test.bda);
+    } else {
+      ASSERT_FALSE(test.b / test.a);
     }
     Poly tmp = test.a;
     tmp *= test.b;
     EXPECT_EQ(tmp, test.mul);
+    tmp = test.a;
     if (!test.b.IsZero()) {
-      tmp = test.a;
-      tmp /= test.b;
+      ASSERT_TRUE(tmp /= test.b);
       EXPECT_EQ(tmp, test.adb);
+    } else {
+      ASSERT_FALSE(tmp /= test.b);
     }
   }
 }
@@ -245,14 +252,13 @@ TEST_F(UnivariateEvaluationsTest, DivScalar) {
   const std::vector<GF7>& evals = poly.evaluations();
   expected_evals.reserve(evals.size());
   for (size_t i = 0; i < evals.size(); ++i) {
-    expected_evals.push_back(evals[i] / scalar);
+    expected_evals.push_back(unwrap<GF7>(evals[i] / scalar));
   }
 
-  Poly actual = poly / scalar;
+  Poly actual = unwrap<Poly>(poly / scalar);
   Poly expected(std::move(expected_evals));
   EXPECT_EQ(actual, expected);
-  poly /= scalar;
-  EXPECT_EQ(poly, expected);
+  EXPECT_EQ(**(poly /= scalar), expected);
 }
 
 TEST_F(UnivariateEvaluationsTest, Copyable) {

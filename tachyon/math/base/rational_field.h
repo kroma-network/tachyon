@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 
+#include "tachyon/base/optional.h"
 #include "tachyon/base/template_util.h"
 #include "tachyon/math/base/field.h"
 #include "tachyon/math/base/invalid_operation.h"
@@ -102,7 +103,7 @@ class RationalField : public Field<RationalField<F>> {
     return numerator_ * other.denominator_ >= other.numerator_ * denominator_;
   }
 
-  F Evaluate() const { return numerator_ / denominator_; }
+  F Evaluate() const { return unwrap<F>(numerator_ / denominator_); }
 
   // AdditiveSemigroup methods
   constexpr RationalField Add(const RationalField& other) const {

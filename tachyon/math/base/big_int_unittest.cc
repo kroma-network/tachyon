@@ -263,12 +263,16 @@ TEST(BigIntTest, Operations) {
         BigInt<2>(),
         a,
     };
-    EXPECT_EQ(a.Divide(b), adb);
+    DivResult<BigInt<2>> div1;
+    ASSERT_TRUE(a.Divide(b, div1));
+    EXPECT_EQ(div1, adb);
     DivResult<BigInt<2>> bda = {
         BigInt<2>(5),
         *BigInt<2>::FromDecString("117297292529501763579348773673697423"),
     };
-    EXPECT_EQ(b.Divide(a), bda);
+    DivResult<BigInt<2>> div2;
+    ASSERT_TRUE(b.Divide(a, div2));
+    EXPECT_EQ(div2, bda);
   }
 }
 

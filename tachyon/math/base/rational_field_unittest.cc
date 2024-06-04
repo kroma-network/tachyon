@@ -156,7 +156,7 @@ TEST_F(RationalFieldTest, MultiplicativeOperators) {
     R tmp = test.a;
     tmp *= test.b;
     EXPECT_EQ(tmp, test.mul);
-    tmp /= test.b;
+    ASSERT_TRUE(tmp /= test.b);
     EXPECT_EQ(tmp, test.a);
   }
 }
