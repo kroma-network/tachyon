@@ -60,19 +60,19 @@ std::string HexEncode(absl::Span<const uint8_t> bytes, bool use_lower_case) {
 }
 
 bool HexStringToInt(std::string_view input, int* output) {
-  return absl::numbers_internal::safe_strtoi_base(input, output, 16);
+  return absl::SimpleHexAtoi(input, output);
 }
 
 bool HexStringToUint(std::string_view input, unsigned* output) {
-  return absl::numbers_internal::safe_strtoi_base(input, output, 16);
+  return absl::SimpleHexAtoi(input, output);
 }
 
 bool HexStringToInt64(std::string_view input, int64_t* output) {
-  return absl::numbers_internal::safe_strtoi_base(input, output, 16);
+  return absl::SimpleHexAtoi(input, output);
 }
 
 bool HexStringToUint64(std::string_view input, uint64_t* output) {
-  return absl::numbers_internal::safe_strtoi_base(input, output, 16);
+  return absl::SimpleHexAtoi(input, output);
 }
 
 bool HexStringToBytes(std::string_view input, std::vector<uint8_t>* output) {

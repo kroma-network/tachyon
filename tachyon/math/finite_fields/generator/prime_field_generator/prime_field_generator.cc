@@ -450,6 +450,19 @@ int RealMain(int argc, char** argv) {
     return 1;
   }
 
+  if (config.use_montgomery) {
+    if (!config.reduce32.empty()) {
+      tachyon_cerr << "reduce32 and use_montgomery shouldn't be used together"
+                   << std::endl;
+      return 1;
+    }
+    if (!config.reduce64.empty()) {
+      tachyon_cerr << "reduce64 and use_montgomery shouldn't be used together"
+                   << std::endl;
+      return 1;
+    }
+  }
+
   if (base::EndsWith(config.out.value(), "_fail.h")) {
     return config.GenerateFailHdr();
   } else if (base::EndsWith(config.out.value(), "_fail.cc")) {

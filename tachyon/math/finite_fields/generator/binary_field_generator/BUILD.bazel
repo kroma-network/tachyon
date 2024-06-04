@@ -1,0 +1,26 @@
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_binary")
+
+package(default_visibility = ["//visibility:public"])
+
+tachyon_cc_binary(
+    name = "binary_field_generator",
+    srcs = ["binary_field_generator.cc"],
+    data = [
+        "binary_field_config.h.tpl",
+        "binary_field_cpu.h.tpl",
+        "binary_field_gpu.h.tpl",
+    ],
+    deps = [
+        "//tachyon/base/console",
+        "//tachyon/base/containers:container_util",
+        "//tachyon/base/files:file_path_flag",
+        "//tachyon/base/files:file_util",
+        "//tachyon/base/flag:flag_parser",
+        "//tachyon/build:cc_writer",
+        "//tachyon/math/base:bit_iterator",
+        "//tachyon/math/base/gmp:bit_traits",
+        "//tachyon/math/finite_fields/generator:generator_util",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/strings",
+    ],
+)

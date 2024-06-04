@@ -25,22 +25,23 @@ Symbol Definitions:
 
 ### Finite Fields
 
-|             | CPU                | GPU                |
-| ----------- | ------------------ | ------------------ |
-| BabyBear    | :heavy_check_mark: | :heavy_check_mark: |
-| Goldilocks  | :heavy_check_mark: | :x:                |
-| Mersenne-31 | :heavy_check_mark: | :heavy_check_mark: |
-| KoalaBear   | :heavy_check_mark: | :heavy_check_mark: |
+|              | CPU                | GPU                |
+| ------------ | ------------------ | ------------------ |
+| BabyBear     | :heavy_check_mark: | :heavy_check_mark: |
+| BinaryFields | :heavy_check_mark: | :heavy_check_mark: |
+| Goldilocks   | :heavy_check_mark: | :x:                |
+| Mersenne-31  | :heavy_check_mark: | :heavy_check_mark: |
+| KoalaBear    | :heavy_check_mark: | :heavy_check_mark: |
 
 ### Elliptic Curves
 
 |           | CPU                | GPU                |
 | --------- | ------------------ | ------------------ |
-| bn254     | :heavy_check_mark: | :heavy_check_mark: |
-| bls12-381 | :heavy_check_mark: | :heavy_check_mark: |
-| secp256k1 | :heavy_check_mark: | :heavy_check_mark: |
-| pallas    | :heavy_check_mark: | :heavy_check_mark: |
-| vesta     | :heavy_check_mark: | :heavy_check_mark: |
+| BN254     | :heavy_check_mark: | :heavy_check_mark: |
+| BLS12-381 | :heavy_check_mark: | :heavy_check_mark: |
+| Secp256k1 | :heavy_check_mark: | :heavy_check_mark: |
+| Pallas    | :heavy_check_mark: | :heavy_check_mark: |
+| Vesta     | :heavy_check_mark: | :heavy_check_mark: |
 
 ### Commitment Schemes
 

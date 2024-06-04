@@ -445,6 +445,81 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
+  constexpr BigInt operator&(const BigInt& other) const {
+    BigInt ret;
+    if constexpr (N == 1) {
+      ret[0] = limbs[0] & other[0];
+    } else if constexpr (N == 2) {
+      ret[0] = limbs[0] & other[0];
+      ret[1] = limbs[1] & other[1];
+    } else {
+      DoAnd(*this, other, ret);
+    }
+    return ret;
+  }
+
+  constexpr BigInt& operator&=(const BigInt& other) {
+    if constexpr (N == 1) {
+      limbs[0] &= other[0];
+    } else if constexpr (N == 2) {
+      limbs[0] &= other[0];
+      limbs[1] &= other[1];
+    } else {
+      DoAnd(*this, other, *this);
+    }
+    return *this;
+  }
+
+  constexpr BigInt operator|(const BigInt& other) const {
+    BigInt ret;
+    if constexpr (N == 1) {
+      ret[0] = limbs[0] | other[0];
+    } else if constexpr (N == 2) {
+      ret[0] = limbs[0] | other[0];
+      ret[1] = limbs[1] | other[1];
+    } else {
+      DoOr(*this, other, ret);
+    }
+    return ret;
+  }
+
+  constexpr BigInt& operator|=(const BigInt& other) {
+    if constexpr (N == 1) {
+      limbs[0] |= other[0];
+    } else if constexpr (N == 2) {
+      limbs[0] |= other[0];
+      limbs[1] |= other[1];
+    } else {
+      DoOr(*this, other, *this);
+    }
+    return *this;
+  }
+
+  constexpr BigInt operator^(const BigInt& other) const {
+    BigInt ret;
+    if constexpr (N == 1) {
+      ret[0] = limbs[0] ^ other[0];
+    } else if constexpr (N == 2) {
+      ret[0] = limbs[0] ^ other[0];
+      ret[1] = limbs[1] ^ other[1];
+    } else {
+      DoXor(*this, other, ret);
+    }
+    return ret;
+  }
+
+  constexpr BigInt& operator^=(const BigInt& other) {
+    if constexpr (N == 1) {
+      limbs[0] ^= other[0];
+    } else if constexpr (N == 2) {
+      limbs[0] ^= other[0];
+      limbs[1] ^= other[1];
+    } else {
+      DoXor(*this, other, *this);
+    }
+    return *this;
+  }
+
   constexpr BigInt Add(const BigInt& other) const {
     uint64_t unused = 0;
     return Add(other, unused);
@@ -901,6 +976,24 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       b[i] = a[i] << 1;
       b[i] |= carry;
       carry = temp;
+    }
+  }
+
+  constexpr static void DoAnd(const BigInt& a, const BigInt& b, BigInt& c) {
+    for (size_t i = 0; i < N; ++i) {
+      c[i] = a[i] & b[i];
+    }
+  }
+
+  constexpr static void DoOr(const BigInt& a, const BigInt& b, BigInt& c) {
+    for (size_t i = 0; i < N; ++i) {
+      c[i] = a[i] | b[i];
+    }
+  }
+
+  constexpr static void DoXor(const BigInt& a, const BigInt& b, BigInt& c) {
+    for (size_t i = 0; i < N; ++i) {
+      c[i] = a[i] ^ b[i];
     }
   }
 

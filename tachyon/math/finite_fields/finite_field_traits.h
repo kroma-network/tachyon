@@ -12,6 +12,14 @@ struct FiniteFieldTraits {
 };
 
 template <typename _Config>
+struct FiniteFieldTraits<BinaryField<_Config>> {
+  static constexpr bool kIsPrimeField = false;
+  static constexpr bool kIsExtensionField = true;
+
+  using Config = _Config;
+};
+
+template <typename _Config>
 struct FiniteFieldTraits<PrimeField<_Config>> {
   static constexpr bool kIsPrimeField = true;
   static constexpr bool kIsExtensionField = false;
