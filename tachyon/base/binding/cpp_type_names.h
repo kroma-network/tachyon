@@ -21,8 +21,10 @@ constexpr const char* kCppMapTypePrefix = "map<";
 constexpr const char* kCppTupleTypePrefix = "tuple<";
 constexpr const char* kCppSharedPtrTypePrefix = "shared_ptr<";
 constexpr const char* kCppUniquePtrTypePrefix = "unique_ptr<";
+constexpr const char* kCppOptionalPrefix = "optional<";
 
 TACHYON_EXPORT std::string MakeCppVectorTypeName(std::string_view type);
+TACHYON_EXPORT std::string MakeCppOptionalTypeName(std::string_view type);
 TACHYON_EXPORT std::string MakeCppMapTypeName(std::string_view key_type,
                                               std::string_view value_type);
 TACHYON_EXPORT std::string MakeCppTupleTypeName(

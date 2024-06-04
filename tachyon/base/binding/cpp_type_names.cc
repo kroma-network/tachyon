@@ -8,6 +8,10 @@ std::string MakeCppVectorTypeName(std::string_view type) {
   return absl::Substitute("$0$1>", kCppVectorTypePrefix, type);
 }
 
+std::string MakeCppOptionalTypeName(std::string_view type) {
+  return absl::Substitute("$0$1>", kCppOptionalPrefix, type);
+}
+
 std::string MakeCppMapTypeName(std::string_view key_type,
                                std::string_view value_type) {
   return absl::Substitute("$0$1,$2>", kCppMapTypePrefix, key_type, value_type);

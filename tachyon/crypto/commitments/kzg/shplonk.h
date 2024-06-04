@@ -212,11 +212,12 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
 
     // Q(X) = L(X) / (X - u)
     Poly vanishing_poly = Poly::FromRoots(std::vector<Field>({u}));
-    Poly& q_poly = l_poly /= vanishing_poly;
+    CHECK(l_poly /= vanishing_poly);
+    Poly& q_poly = l_poly;
 
     // Normalize
     // Q(X) = L(X) / ((X - u) * Zᴛ\₀(u))
-    q_poly /= first_z_diff;
+    CHECK(q_poly /= first_z_diff);
 
     // Commit Q(X)
     Commitment q;
@@ -299,7 +300,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
         // |first_z| = Z₀(u) = Zᴛ(u) / Zᴛ\₀(u) = (u - x₀)(u - x₁)(u - x₂)
         first_z = Poly::EvaluateVanishingPolyByRoots(points, u);
         // Z₀(u)⁻¹ = (u - x₃)(u - x₄)⁻¹
-        first_z_diff_inverse = normalized_z_diff.InverseInPlace();
+        CHECK(normalized_z_diff.InverseInPlace());
+        first_z_diff_inverse = std::move(normalized_z_diff);
         normalized_z_diff = Field::One();
       } else {
         normalized_z_diff *= first_z_diff_inverse;

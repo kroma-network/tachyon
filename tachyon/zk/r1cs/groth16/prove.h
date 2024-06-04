@@ -14,6 +14,7 @@
 
 #include "absl/types/span.h"
 
+#include "tachyon/base/optional.h"
 #include "tachyon/math/elliptic_curves/msm/variable_base_msm.h"
 #include "tachyon/zk/r1cs/constraint_system/qap_witness_map_result.h"
 #include "tachyon/zk/r1cs/groth16/proof.h"
@@ -223,7 +224,8 @@ Proof<Curve> ReRandomizeProof(const VerifyingKey<Curve>& vk,
   //   B' = r₁B + r₁r₂(δG₂)
   //   C' = C + r₂A
   G1JacobianPoint ac_jacobian[2];
-  ac_jacobian[0] = proof.a() * randoms.r1.Inverse();
+  F inv = unwrap<F>(randoms.r1.Inverse());
+  ac_jacobian[0] = proof.a() * inv;
 
   ac_jacobian[1] = proof.a() * randoms.r2;
   ac_jacobian[1] += proof.c();

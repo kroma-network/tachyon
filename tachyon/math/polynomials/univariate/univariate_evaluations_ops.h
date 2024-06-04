@@ -7,10 +7,13 @@
 #define TACHYON_MATH_POLYNOMIALS_UNIVARIATE_UNIVARIATE_EVALUATIONS_OPS_H_
 
 #include <algorithm>
+#include <atomic>
+#include <optional>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
 namespace tachyon::math {
@@ -183,53 +186,86 @@ class UnivariateEvaluationsOp {
     return self;
   }
 
-  static Poly Div(const Poly& self, const Poly& other) {
+  CONSTEXPR_IF_NOT_OPENMP static std::optional<Poly> Div(const Poly& self,
+                                                         const Poly& other) {
     const std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
-    if (r_evaluations.empty()) {
-      // f(x) / 0
-      // TODO(chokobole): It should return std::nullopt.
-      // See https://github.com/kroma-network/tachyon/issues/76.
-      return Poly::Zero();
+    // f(x) / 0
+    if (UNLIKELY(InvalidOperation(r_evaluations.empty(),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
     }
+    // 0 / g(x)
     if (l_evaluations.empty()) {
-      // 0 / g(x)
       return self;
     }
-    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    // f(x) & g(x) unequal evaluation sizes
+    if (UNLIKELY(InvalidOperation(l_evaluations.size() != r_evaluations.size(),
+                                  "Evaluation sizes unequal for division"))) {
+      return std::nullopt;
+    }
     std::vector<F> o_evaluations(r_evaluations.size());
+    std::atomic<bool> check_valid(true);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
-      o_evaluations[i] = l_evaluations[i] / r_evaluations[i];
+      const std::optional<F> div = l_evaluations[i] / r_evaluations[i];
+      if (UNLIKELY(!div)) {
+        check_valid.store(false, std::memory_order_relaxed);
+        continue;
+      }
+      o_evaluations[i] = std::move(*div);
+    }
+    if (UNLIKELY(InvalidOperation(!check_valid.load(std::memory_order_relaxed),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
     }
     return Poly(std::move(o_evaluations));
   }
 
-  static Poly& DivInPlace(Poly& self, const Poly& other) {
+  [[nodiscard]] CONSTEXPR_IF_NOT_OPENMP static std::optional<Poly*> DivInPlace(
+      Poly& self, const Poly& other) {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
-    if (r_evaluations.empty()) {
-      // f(x) / 0
-      // TODO(chokobole): It should return std::nullopt.
-      // See https://github.com/kroma-network/tachyon/issues/76.
-      return self;
+    // f(x) / 0
+    if (UNLIKELY(InvalidOperation(r_evaluations.empty(),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
     }
+    // 0 / g(x)
     if (l_evaluations.empty()) {
-      // 0 / g(x)
-      return self;
+      return &self;
     }
-    CHECK_EQ(l_evaluations.size(), r_evaluations.size());
+    // f(x) & g(x) unequal evaluation sizes
+    if (UNLIKELY(InvalidOperation(l_evaluations.size() != r_evaluations.size(),
+                                  "Evaluation sizes unequal for division"))) {
+      return std::nullopt;
+    }
+    std::atomic<bool> check_valid(true);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < r_evaluations.size(); ++i) {
-      l_evaluations[i] /= r_evaluations[i];
+      if (UNLIKELY(!(l_evaluations[i] /= r_evaluations[i])))
+        check_valid.store(false, std::memory_order_relaxed);
     }
-    return self;
+    if (UNLIKELY(InvalidOperation(!check_valid.load(std::memory_order_relaxed),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    return &self;
   }
 
-  static Poly Div(const Poly& self, const F& scalar) {
-    return Mul(self, scalar.Inverse());
+  constexpr static std::optional<Poly> Div(const Poly& self, const F& scalar) {
+    const std::optional<F> scalar_inv = scalar.Inverse();
+    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    return Mul(self, *scalar_inv);
   }
 
-  static Poly& DivInPlace(Poly& self, const F& scalar) {
-    return MulInPlace(self, scalar.Inverse());
+  [[nodiscard]] constexpr static std::optional<Poly*> DivInPlace(
+      Poly& self, const F& scalar) {
+    const std::optional<F> scalar_inv = scalar.Inverse();
+    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    return &MulInPlace(self, *scalar_inv);
   }
 };
 

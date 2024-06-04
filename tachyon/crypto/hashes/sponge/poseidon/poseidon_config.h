@@ -12,6 +12,7 @@
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/logging.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config_base.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config_entry.h"
@@ -51,7 +52,7 @@ void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
   mds = math::Matrix<PrimeField>(config.state_len, config.state_len);
   for (Eigen::Index i = 0; i < mds.rows(); ++i) {
     for (Eigen::Index j = 0; j < mds.cols(); ++j) {
-      mds(i, j) = (xs[i] + ys[j]).Inverse();
+      mds(i, j) = unwrap<PrimeField>((xs[i] + ys[j]).Inverse());
     }
   }
 }

@@ -2,12 +2,15 @@
 
 #include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field_x86_special.h"
 
+#include <optional>
+
 #include "third_party/goldilocks/include/goldilocks_base_field.hpp"
 
 #include "tachyon/base/random.h"
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
+#include "tachyon/math/base/invalid_operation.h"
 
 namespace tachyon::math {
 
@@ -191,9 +194,10 @@ CLASS& CLASS::SquareImplInPlace() {
 }
 
 template <typename Config>
-CLASS CLASS::Inverse() const {
-  // See https://github.com/kroma-network/tachyon/issues/76
-  CHECK(!IsZero());
+std::optional<CLASS> CLASS::Inverse() const {
+  if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+    return std::nullopt;
+  }
   PrimeField ret;
   ::Goldilocks::inv(reinterpret_cast<::Goldilocks::Element&>(ret.value_),
                     reinterpret_cast<const ::Goldilocks::Element&>(value_));
@@ -201,12 +205,13 @@ CLASS CLASS::Inverse() const {
 }
 
 template <typename Config>
-CLASS& CLASS::InverseInPlace() {
-  // See https://github.com/kroma-network/tachyon/issues/76
-  CHECK(!IsZero());
+std::optional<CLASS*> CLASS::InverseInPlace() {
+  if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+    return std::nullopt;
+  }
   ::Goldilocks::inv(reinterpret_cast<::Goldilocks::Element&>(value_),
                     reinterpret_cast<const ::Goldilocks::Element&>(value_));
-  return *this;
+  return this;
 }
 
 #undef CLASS

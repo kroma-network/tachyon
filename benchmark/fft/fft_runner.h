@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -69,11 +70,10 @@ class FFTRunner {
                    std::vector<RetPoly>* results) const {
     for (size_t i = 0; i < exponents.size(); ++i) {
       uint64_t duration_in_us;
-      const F omega = domains_[i]->group_gen();
 
       std::unique_ptr<F> ret;
       if constexpr (std::is_same_v<PolyOrEvals, typename Domain::Evals>) {
-        const F omega_inv = omega.Inverse();
+        const F omega_inv = domains_[i]->group_gen_inv();
         ret.reset(reinterpret_cast<F*>(
             fn(reinterpret_cast<const tachyon_bn254_fr*>(
                    (*polys_)[i].evaluations().data()),
@@ -86,6 +86,7 @@ class FFTRunner {
         // NOLINTNEXTLINE(readability/braces)
       } else if constexpr (std::is_same_v<PolyOrEvals,
                                           typename Domain::DensePoly>) {
+        const F omega = domains_[i]->group_gen();
         ret.reset(reinterpret_cast<F*>(
             fn(reinterpret_cast<const tachyon_bn254_fr*>(
                    (*polys_)[i].coefficients().coefficients().data()),

@@ -12,6 +12,7 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/math/polynomials/univariate/lagrange_interpolation.h"
 
@@ -167,7 +168,7 @@ struct GroupedPolynomialOpenings {
     // Divide combined polynomial by vanishing polynomial of evaluation points.
     // H(X) = N(X) / (X - x₀)(X - x₁)(X - x₂)
     Poly vanishing_poly = Poly::FromRoots(points);
-    return n / vanishing_poly;
+    return unwrap<Poly>(n / vanishing_poly);
   }
 };
 

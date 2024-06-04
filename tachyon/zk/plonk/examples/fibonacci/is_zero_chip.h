@@ -2,6 +2,7 @@
 #define TACHYON_ZK_PLONK_EXAMPLES_FIBONACCI_IS_ZERO_CHIP_H_
 
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -75,9 +76,10 @@ class IsZeroChip {
   }
 
   void Assign(Region<F>& region, RowIndex offset, const Value<F>& value) const {
-    const F value_inv = value.IsZero() ? F::Zero() : value.value().Inverse();
+    std::optional<F> value_inv = value.value().Inverse();
+    if (UNLIKELY(!value_inv)) *value_inv = F::Zero();
     region.AssignAdvice("value inv", config_.value_inv(), offset,
-                        [&value_inv]() { return Value<F>::Known(value_inv); });
+                        [&value_inv]() { return Value<F>::Known(*value_inv); });
   }
 
  private:

@@ -1,5 +1,6 @@
 #include "tachyon/math/base/rational_field.h"
 
+#include <optional>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -155,17 +156,22 @@ TEST_F(RationalFieldTest, MultiplicativeOperators) {
     R tmp = test.a;
     tmp *= test.b;
     EXPECT_EQ(tmp, test.mul);
-    tmp /= test.b;
+    ASSERT_TRUE(tmp /= test.b);
     EXPECT_EQ(tmp, test.a);
   }
 }
 
 TEST_F(RationalFieldTest, MultiplicativeGroupOperators) {
   R r = R::Random();
-  EXPECT_TRUE((r * r.Inverse()).IsOne());
-  R r_tmp = r;
-  r.InverseInPlace();
-  EXPECT_TRUE((r * r_tmp).IsOne());
+  std::optional<R> r_inv = r.Inverse();
+  if (UNLIKELY(r.IsZero())) {
+    ASSERT_FALSE(r_inv);
+    ASSERT_FALSE(r.InverseInPlace());
+  } else {
+    EXPECT_TRUE((r * *r_inv).IsOne());
+    R r_tmp = r;
+    EXPECT_TRUE((**r.InverseInPlace() * r_tmp).IsOne());
+  }
 
   r = R(GF7(3), GF7(2));
   R expected = R(GF7(2), GF7(4));

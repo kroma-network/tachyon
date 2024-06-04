@@ -485,6 +485,31 @@ class CppValueTraits<base::CppStackValue<T>> {
 };
 
 template <typename T>
+class CppValueTraits<std::optional<T>> {
+ public:
+  static bool ToNativeValue(const Napi::Value& value, std::optional<T>* v) {
+    if (value.IsUndefined() || value.IsNull())
+      *v = std::nullopt;
+    else
+      *v = reinterpret_cast<T>(value);
+    return true;
+  }
+
+  static Napi::Value ToJSValue(const Napi::CallbackInfo& info,
+                               const std::optional<T>& value) {
+    if (!value)
+      return Napi::Value(info.Env(), nullptr);
+    else
+      return CppValueTraits<NativeCppType<T>>::ToJSValue(info, *value);
+  }
+
+  static std::string GetTypeName() {
+    return base::MakeCppOptionalTypeName(
+        CppValueTraits<NativeCppType<T>>::GetTypeName());
+  }
+};
+
+template <typename T>
 bool ToNativeValue(const Napi::Value& value, T* v) {
   return CppValueTraits<NativeCppType<T>>::ToNativeValue(value, v);
 }

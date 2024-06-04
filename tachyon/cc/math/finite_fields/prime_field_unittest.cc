@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "tachyon/base/optional.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
 #include "tachyon/cc/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
@@ -58,8 +59,16 @@ TEST_F(PrimeFieldTest, Mul) {
 }
 
 TEST_F(PrimeFieldTest, Div) {
-  EXPECT_EQ(c::base::native_cast((cc_a_ / cc_b_).value()), a_ / b_);
-  EXPECT_EQ(c::base::native_cast((cc_a_ /= cc_b_).value()), a_ /= b_);
+  if (b_.IsZero()) {
+    ASSERT_FALSE(a_ / b_);
+    ASSERT_FALSE(a_ /= b_);
+  } else {
+    bn254::Fr cc_div = unwrap<bn254::Fr>(cc_a_ / cc_b_);
+    tachyon::math::bn254::Fr div = unwrap<tachyon::math::bn254::Fr>(a_ / b_);
+    EXPECT_EQ(c::base::native_cast((cc_div).value()), div);
+    ASSERT_TRUE(a_ /= b_);
+    EXPECT_EQ(c::base::native_cast((cc_a_ /= cc_b_).value()), a_);
+  }
 }
 
 TEST_F(PrimeFieldTest, Negate) {
@@ -75,7 +84,14 @@ TEST_F(PrimeFieldTest, Square) {
 }
 
 TEST_F(PrimeFieldTest, Inverse) {
-  EXPECT_EQ(c::base::native_cast(cc_a_.Inverse().value()), a_.Inverse());
+  if (a_.IsZero()) {
+    ASSERT_FALSE(a_.Inverse());
+  } else {
+    bn254::Fr cc_a_inv = unwrap<bn254::Fr>(cc_a_.Inverse());
+    tachyon::math::bn254::Fr a_inv =
+        unwrap<tachyon::math::bn254::Fr>(a_.Inverse());
+    EXPECT_EQ(c::base::native_cast((cc_a_inv).value()), a_inv);
+  }
 }
 
 TEST_F(PrimeFieldTest, Eq) { EXPECT_EQ(cc_a_ == cc_b_, a_ == b_); }

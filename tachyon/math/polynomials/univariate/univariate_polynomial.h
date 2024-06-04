@@ -164,6 +164,7 @@ class UnivariatePolynomial final
 
   std::string ToString() const { return coefficients_.ToString(); }
 
+// TODO(ashjeong): change all internal functions to constexpr
 #define OPERATION_METHOD(Name)                                                 \
   template <typename Coefficients2,                                            \
             std::enable_if_t<internal::SupportsPoly##Name<                     \
@@ -210,16 +211,35 @@ class UnivariatePolynomial final
                                                                       scalar);
   }
 
-  OPERATION_METHOD(Div)
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolyDiv<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  constexpr auto Div(const UnivariatePolynomial<Coefficients2>& other) const {
+    return internal::UnivariatePolynomialOp<Coefficients>::Div(*this, other);
+  }
+
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolyDivInPlace<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  [[nodiscard]] constexpr auto DivInPlace(
+      const UnivariatePolynomial<Coefficients2>& other) {
+    return internal::UnivariatePolynomialOp<Coefficients>::DivInPlace(*this,
+                                                                      other);
+  }
+
   OPERATION_METHOD(Mod)
 
 #undef OPERATION_METHOD
 
-  UnivariatePolynomial operator/(const Field& scalar) const {
+  constexpr std::optional<UnivariatePolynomial> operator/(
+      const Field& scalar) const {
     return internal::UnivariatePolynomialOp<Coefficients>::Div(*this, scalar);
   }
 
-  UnivariatePolynomial& operator/=(const Field& scalar) {
+  [[nodiscard]] constexpr std::optional<UnivariatePolynomial*> operator/=(
+      const Field& scalar) {
     return internal::UnivariatePolynomialOp<Coefficients>::DivInPlace(*this,
                                                                       scalar);
   }
@@ -231,7 +251,8 @@ class UnivariatePolynomial final
   }
 
   template <typename Coefficients2>
-  constexpr auto& operator/=(const UnivariatePolynomial<Coefficients2>& other) {
+  [[nodiscard]] constexpr auto operator/=(
+      const UnivariatePolynomial<Coefficients2>& other) {
     return DivInPlace(other);
   }
 

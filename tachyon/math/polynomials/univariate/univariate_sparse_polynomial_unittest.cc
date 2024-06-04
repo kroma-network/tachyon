@@ -282,20 +282,28 @@ TEST_F(UnivariateSparsePolynomialTest, MultiplicativeOperators) {
     if (!test.b.IsZero()) {
       EXPECT_EQ(test.a / test.b, test.adb);
       EXPECT_EQ(test.a % test.b, test.amb);
+    } else {
+      ASSERT_FALSE(test.a / test.b);
     }
     if (!test.a.IsZero()) {
       EXPECT_EQ(test.b / test.a, test.bda);
       EXPECT_EQ(test.b % test.a, test.bma);
+    } else {
+      ASSERT_FALSE(test.b / test.a);
     }
     EXPECT_EQ(test.a * b_dense, mul_dense);
     EXPECT_EQ(test.b * a_dense, mul_dense);
     if (!b_dense.IsZero()) {
       EXPECT_EQ(test.a / b_dense, test.adb);
       EXPECT_EQ(test.a % b_dense, test.amb);
+    } else {
+      ASSERT_FALSE(test.a / b_dense);
     }
     if (!a_dense.IsZero()) {
       EXPECT_EQ(test.b / a_dense, test.bda);
       EXPECT_EQ(test.b % a_dense, test.bma);
+    } else {
+      ASSERT_FALSE(test.a / a_dense);
     }
 
     Poly tmp = test.a;
@@ -325,6 +333,7 @@ TEST_F(UnivariateSparsePolynomialTest, MulScalar) {
 TEST_F(UnivariateSparsePolynomialTest, DivScalar) {
   Poly poly = Poly::Random(kMaxDegree);
   GF7 scalar = GF7::Random();
+  // NOTE(ashjeong): |scalar| is guaranteed to not be zero
   while (scalar.IsZero()) {
     scalar = GF7::Random();
   }
@@ -336,10 +345,10 @@ TEST_F(UnivariateSparsePolynomialTest, DivScalar) {
     expected_terms.push_back(terms[i] / scalar);
   }
 
-  Poly actual = poly / scalar;
+  Poly actual = unwrap<Poly>(poly / scalar);
   Poly expected(Coeffs(std::move(expected_terms)));
   EXPECT_EQ(actual, expected);
-  poly /= scalar;
+  ASSERT_TRUE(poly /= scalar);
   EXPECT_EQ(poly, expected);
 }
 

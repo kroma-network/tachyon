@@ -8,13 +8,16 @@
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
 #include "tachyon/base/bits.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/base/range.h"
+#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/polynomials/evaluation_domain.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluation_domain_forwards.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -45,14 +48,14 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   constexpr UnivariateEvaluationDomain(size_t size, uint32_t log_size_of_group)
       : size_(size), log_size_of_group_(log_size_of_group) {
     size_as_field_element_ = F::FromBigInt(typename F::BigIntTy(size_));
-    size_inv_ = size_as_field_element_.Inverse();
+    size_inv_ = unwrap<F>(size_as_field_element_.Inverse());
 
     // Compute the generator for the multiplicative subgroup.
     // It should be the 2^|log_size_of_group_| root of unity.
     CHECK(F::GetRootOfUnity(size_, &group_gen_));
     // Check that it is indeed the 2^(log_size_of_group) root of unity.
     DCHECK_EQ(group_gen_.Pow(size_), F::One());
-    group_gen_inv_ = group_gen_.Inverse();
+    group_gen_inv_ = unwrap<F>(group_gen_.Inverse());
   }
 
   virtual ~UnivariateEvaluationDomain() = default;
@@ -86,7 +89,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       const F& offset) const {
     std::unique_ptr<UnivariateEvaluationDomain> coset = Clone();
     coset->offset_ = offset;
-    coset->offset_inv_ = offset.Inverse();
+    coset->offset_inv_ = unwrap<F>(offset.Inverse());
     coset->offset_pow_size_ = offset.Pow(size_);
     return coset;
   }
@@ -258,7 +261,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       //    = (Z_H(τ) * h * gᵢ * t⁻¹)⁻¹
       //    = (Z_H(τ) * h * gᵢ * v₀⁻¹ * h⁻¹)⁻¹
       //    = (Z_H(τ) * gᵢ * v₀)⁻¹
-      F l_i = (z_h_at_tau * omega_i).Inverse() * t;
+      F l_i = unwrap<F>((z_h_at_tau * omega_i).Inverse()) * t;
       F negative_omega_i = -omega_i;
       std::vector<F> lagrange_coefficients_inverse(size);
       base::Parallelize(
@@ -324,15 +327,19 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
 
   // This evaluates at |tau| the filter polynomial for |*this| with respect to
   // |subdomain|.
-  constexpr F EvaluateFilterPolynomial(
+  constexpr std::optional<F> EvaluateFilterPolynomial(
       const UnivariateEvaluationDomain& subdomain, const F& tau) const {
     F v_subdomain_of_tau = subdomain.EvaluateVanishingPolynomial(tau);
     if (v_subdomain_of_tau.IsZero()) {
       return F::One();
     } else {
-      return subdomain.size_as_field_element_ *
-             EvaluateVanishingPolynomial(tau) /
-             (size_as_field_element_ * v_subdomain_of_tau);
+      const std::optional<F> div =
+          EvaluateVanishingPolynomial(tau) /
+          (size_as_field_element_ * v_subdomain_of_tau);
+      if (UNLIKELY(InvalidOperation(!div, "Division by zero attempted"))) {
+        return std::nullopt;
+      }
+      return subdomain.size_as_field_element_ * std::move(*div);
     }
   }
 
@@ -365,7 +372,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
  protected:
   // Multiply the i-th element of |poly_or_evals| with |c|*|g|ⁱ.
   template <typename PolyOrEvals>
-  OPENMP_CONSTEXPR static void DistributePowersAndMulByConst(
+  CONSTEXPR_IF_NOT_OPENMP static void DistributePowersAndMulByConst(
       PolyOrEvals& poly_or_evals, const F& g, const F& c) {
 #if defined(TACHYON_HAS_OPENMP)
     size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
@@ -462,8 +469,9 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
   }
 
   template <typename PolyOrEvals>
-  OPENMP_CONSTEXPR static void SwapElements(PolyOrEvals& poly_or_evals,
-                                            size_t size, uint32_t log_len) {
+  CONSTEXPR_IF_NOT_OPENMP static void SwapElements(PolyOrEvals& poly_or_evals,
+                                                   size_t size,
+                                                   uint32_t log_len) {
     OPENMP_PARALLEL_FOR(size_t idx = 1; idx < size; ++idx) {
       size_t ridx = base::bits::BitRev(idx) >> (sizeof(size_t) * 8 - log_len);
       if (idx < ridx) {

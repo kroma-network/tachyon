@@ -3,6 +3,9 @@
 
 #include <stddef.h>
 
+#include <optional>
+#include <utility>
+
 #include "third_party/gpus/cuda/include/cuda_runtime.h"
 
 namespace tachyon::math::kernels {
@@ -19,7 +22,15 @@ namespace tachyon::math::kernels {
 DEFINE_FIELD_OP(Add, +)
 DEFINE_FIELD_OP(Sub, -)
 DEFINE_FIELD_OP(Mul, *)
-DEFINE_FIELD_OP(Div, /)
+
+template <typename T>
+__global__ void Div(const T* x, const T* y, T* result, unsigned int count) {
+  unsigned int gid = blockIdx.x * blockDim.x + threadIdx.x;
+  if (gid >= count) return;
+  const std::optional<T> div = x[gid] / y[gid];
+  assert(div);
+  result[gid] = std::move(*div);
+}
 
 #undef DEFINE_FIELD_OP
 

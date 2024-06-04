@@ -104,7 +104,7 @@ class PointXYZZ<_Curve,
   }
 
   template <typename PointXYZZContainer, typename AffineContainer>
-  [[nodiscard]] OPENMP_CONSTEXPR static bool BatchNormalize(
+  [[nodiscard]] CONSTEXPR_IF_NOT_OPENMP static bool BatchNormalize(
       const PointXYZZContainer& point_xyzzs, AffineContainer* affine_points) {
     size_t size = std::size(point_xyzzs);
     if (size != std::size(*affine_points)) {
@@ -219,7 +219,9 @@ class PointXYZZ<_Curve,
     } else if (zz_.IsOne()) {
       return {x_, y_};
     } else {
-      BaseField z_inv_cubic = zzz_.Inverse();
+      // NOTE(ashjeong): if |zzz_| is 0, |IsZero()| will also evaluate to true,
+      // and this block will not be executed
+      BaseField z_inv_cubic = *zzz_.Inverse();
       BaseField z_inv_square = z_inv_cubic * zz_;
       z_inv_square.SquareInPlace();
       return {x_ * z_inv_square, y_ * z_inv_cubic};
@@ -288,8 +290,9 @@ class PointXYZZ<_Curve,
  private:
   constexpr static void DoAdd(const PointXYZZ& a, const PointXYZZ& b,
                               PointXYZZ& c);
-  OPENMP_CONSTEXPR static void DoAdd(const PointXYZZ& a,
-                                     const AffinePoint<Curve>& b, PointXYZZ& c);
+  CONSTEXPR_IF_NOT_OPENMP static void DoAdd(const PointXYZZ& a,
+                                            const AffinePoint<Curve>& b,
+                                            PointXYZZ& c);
   constexpr static void DoDoubleImpl(const PointXYZZ& a, PointXYZZ& b);
 
   BaseField x_;

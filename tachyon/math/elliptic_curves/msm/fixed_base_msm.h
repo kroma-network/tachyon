@@ -144,7 +144,7 @@ class FixedBaseMSM {
                      std::move(outputs_first), std::move(outputs_last));
   }
 
-  OPENMP_CONSTEXPR void UpdateWindowTable(const Point& base) {
+  CONSTEXPR_IF_NOT_OPENMP void UpdateWindowTable(const Point& base) {
     AddResult window_base;
     if constexpr (std::is_same_v<AddResult, Point>) {
       window_base = base;

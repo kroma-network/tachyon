@@ -325,7 +325,8 @@ class Verifier : public VerifierBase<PCS> {
     DCHECK_EQ(evals.size(), size);
     F expected_h_eval =
         F::template LinearCombination</*forward=*/true>(evals, proof.y);
-    return expected_h_eval /= (proof.x_n - F::One());
+    CHECK(expected_h_eval /= (proof.x_n - F::One()));
+    return expected_h_eval;
   }
 
   std::vector<Opening> Open(

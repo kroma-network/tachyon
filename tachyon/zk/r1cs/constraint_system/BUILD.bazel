@@ -72,6 +72,7 @@ tachyon_cc_library(
         ":constraint_system",
         ":qap_instance_map_result",
         ":qap_witness_map_result",
+        "//tachyon/base:optional",
         "//tachyon/base:parallelize",
     ],
 )

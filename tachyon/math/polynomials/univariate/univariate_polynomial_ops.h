@@ -8,13 +8,16 @@
 
 #include <algorithm>
 #include <iterator>
+#include <optional>
 #include <utility>
 #include <vector>
 
 #include "third_party/pdqsort/include/pdqsort.h"
 
 #include "tachyon/base/openmp_util.h"
+#include "tachyon/base/optional.h"
 #include "tachyon/math/base/arithmetics_results.h"
+#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
@@ -337,37 +340,55 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     return self;
   }
 
-  static UnivariatePolynomial<D> Div(const UnivariatePolynomial<D>& self,
-                                     const F& scalar) {
-    return Mul(self, scalar.Inverse());
+  static std::optional<UnivariatePolynomial<D>> Div(
+      const UnivariatePolynomial<D>& self, const F& scalar) {
+    const std::optional<F> scalar_inv = scalar.Inverse();
+    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    return Mul(self, std::move(*scalar_inv));
   }
 
-  static UnivariatePolynomial<D>& DivInPlace(UnivariatePolynomial<D>& self,
-                                             const F& scalar) {
-    return MulInPlace(self, scalar.Inverse());
+  [[nodiscard]] static std::optional<UnivariatePolynomial<D>*> DivInPlace(
+      UnivariatePolynomial<D>& self, const F& scalar) {
+    const std::optional<F> scalar_inv = scalar.Inverse();
+    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    return &MulInPlace(self, std::move(*scalar_inv));
   }
 
   template <typename DOrS>
-  static UnivariatePolynomial<D> Div(const UnivariatePolynomial<D>& self,
-                                     const UnivariatePolynomial<DOrS>& other) {
+  constexpr static std::optional<UnivariatePolynomial<D>> Div(
+      const UnivariatePolynomial<D>& self,
+      const UnivariatePolynomial<DOrS>& other) {
     if (self.IsZero()) {
       return self;
     }
-    DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    DivResult<UnivariatePolynomial<D>> result;
+    if (UNLIKELY(InvalidOperation(!Divide(self, other, result),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
+    }
     result.quotient.coefficients_.RemoveHighDegreeZeros();
     return result.quotient;
   }
 
   template <typename DOrS>
-  static UnivariatePolynomial<D>& DivInPlace(
-      UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
-    if (self.IsZero()) {
-      return self;
+  [[nodiscard]] constexpr static std::optional<UnivariatePolynomial<D>*>
+  DivInPlace(UnivariatePolynomial<D>& self,
+             const UnivariatePolynomial<DOrS>& other) {
+    DivResult<UnivariatePolynomial<D>> result;
+    if (UNLIKELY(InvalidOperation(!Divide(self, other, result),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
     }
-    DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    if (self.IsZero()) {
+      return &self;
+    }
     self = std::move(result.quotient);
     self.coefficients_.RemoveHighDegreeZeros();
-    return self;
+    return &self;
   }
 
   template <typename DOrS>
@@ -376,7 +397,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     if (self.IsZero()) {
       return other.ToDense();
     }
-    DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    DivResult<UnivariatePolynomial<D>> result;
+    CHECK(Divide(self, other, result));
     result.remainder.coefficients_.RemoveHighDegreeZeros();
     return result.remainder;
   }
@@ -387,7 +409,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     if (self.IsZero()) {
       return self = other.ToDense();
     }
-    DivResult<UnivariatePolynomial<D>> result = Divide(self, other);
+    DivResult<UnivariatePolynomial<D>> result;
+    CHECK(Divide(self, other, result));
     self = std::move(result.remainder);
     self.coefficients_.RemoveHighDegreeZeros();
     return self;
@@ -400,7 +423,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     if (self.IsZero()) {
       return {UnivariatePolynomial<D>::Zero(), other.ToDense()};
     }
-    return Divide(self, other);
+    DivResult<UnivariatePolynomial<D>> result;
+    CHECK(Divide(self, other, result));
+    return result;
   }
 
   static const UnivariatePolynomial<D>& ToDense(
@@ -491,20 +516,26 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   }
 
   template <typename DOrS>
-  static DivResult<UnivariatePolynomial<D>> Divide(
-      const UnivariatePolynomial<D>& self,
-      const UnivariatePolynomial<DOrS>& other) {
+  constexpr static bool Divide(const UnivariatePolynomial<D>& self,
+                               const UnivariatePolynomial<DOrS>& other,
+                               DivResult<UnivariatePolynomial<D>>& output) {
+    if (UNLIKELY(
+            InvalidOperation(other.IsZero(), "Division by zero attempted"))) {
+      return false;
+    }
     if (self.IsZero()) {
-      return {UnivariatePolynomial<D>::Zero(), other.ToDense()};
-    } else if (other.IsZero()) {
-      NOTREACHED() << "Divide by zero polynomial";
+      output = DivResult<UnivariatePolynomial<D>>{
+          UnivariatePolynomial<D>::Zero(), other.ToDense()};
+      return true;
     } else if (self.Degree() < other.Degree()) {
-      return {UnivariatePolynomial<D>::Zero(), self.ToDense()};
+      output = DivResult<UnivariatePolynomial<D>>{
+          UnivariatePolynomial<D>::Zero(), self.ToDense()};
+      return true;
     }
     std::vector<F> quotient(self.Degree() - other.Degree() + 1);
     UnivariatePolynomial<D> remainder = self.ToDense();
     std::vector<F>& r_coefficients = remainder.coefficients_.coefficients_;
-    F divisor_leading_inv = other.GetLeadingCoefficient().Inverse();
+    F divisor_leading_inv = *other.GetLeadingCoefficient().Inverse();
 
     while (!remainder.IsZero() && remainder.Degree() >= other.Degree()) {
       F q_coeff =
@@ -528,7 +559,9 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     }
     D d(std::move(quotient));
     d.RemoveHighDegreeZeros();
-    return {UnivariatePolynomial<D>(std::move(d)), std::move(remainder)};
+    output = DivResult<UnivariatePolynomial<D>>{
+        UnivariatePolynomial<D>(std::move(d)), std::move(remainder)};
+    return true;
   }
 };
 
@@ -685,19 +718,28 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     return self;
   }
 
-  static UnivariatePolynomial<S> Div(const UnivariatePolynomial<S>& self,
-                                     const F& scalar) {
-    return Mul(self, scalar.Inverse());
+  static std::optional<UnivariatePolynomial<S>> Div(
+      const UnivariatePolynomial<S>& self, const F& scalar) {
+    const std::optional<F> scalar_inv = scalar.Inverse();
+    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    return Mul(self, std::move(*scalar_inv));
   }
 
-  static UnivariatePolynomial<S>& DivInPlace(UnivariatePolynomial<S>& self,
-                                             const F& scalar) {
-    return MulInPlace(self, scalar.Inverse());
+  [[nodiscard]] static std::optional<UnivariatePolynomial<S>*> DivInPlace(
+      UnivariatePolynomial<S>& self, const F& scalar) {
+    const std::optional<F> scalar_inv = scalar.Inverse();
+    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    return &MulInPlace(self, std::move(*scalar_inv));
   }
 
   template <typename DOrS>
-  static UnivariatePolynomial<D> Div(const UnivariatePolynomial<S>& self,
-                                     const UnivariatePolynomial<DOrS>& other) {
+  constexpr static std::optional<UnivariatePolynomial<D>> Div(
+      const UnivariatePolynomial<S>& self,
+      const UnivariatePolynomial<DOrS>& other) {
     if (self.IsZero()) {
       return UnivariatePolynomial<D>::Zero();
     }

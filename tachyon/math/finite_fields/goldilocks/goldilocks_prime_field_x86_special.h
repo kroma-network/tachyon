@@ -101,8 +101,8 @@ class PrimeField<_Config, std::enable_if_t<_Config::kIsTachyonMathGoldilocks>>
   PrimeField& SquareImplInPlace();
 
   // MultiplicativeGroup methods
-  PrimeField Inverse() const;
-  PrimeField& InverseInPlace();
+  std::optional<PrimeField> Inverse() const;
+  [[nodiscard]] std::optional<PrimeField*> InverseInPlace();
 
  private:
   uint64_t value_;

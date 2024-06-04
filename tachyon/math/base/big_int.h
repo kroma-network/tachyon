@@ -14,6 +14,7 @@
 #include <limits>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -27,6 +28,7 @@
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/bit_traits_forward.h"
+#include "tachyon/math/base/invalid_operation.h"
 
 namespace tachyon {
 namespace math {
@@ -422,11 +424,18 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
-  constexpr BigInt operator/(const BigInt& other) const { return Div(other); }
+  constexpr std::optional<BigInt> operator/(const BigInt& other) const {
+    return Div(other);
+  }
 
-  constexpr BigInt& operator/=(const BigInt& other) {
-    *this = Div(other);
-    return *this;
+  [[nodiscard]] constexpr std::optional<BigInt*> operator/=(
+      const BigInt& other) {
+    const std::optional<BigInt> div = Div(other);
+    if (UNLIKELY(InvalidOperation(!div, "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    *this = std::move(*div);
+    return this;
   }
 
   constexpr BigInt operator%(const BigInt& other) const { return Mod(other); }
@@ -586,18 +595,30 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
-  constexpr BigInt Div(const BigInt& other) const {
-    return Divide(other).quotient;
+  constexpr std::optional<BigInt> Div(const BigInt& other) const {
+    DivResult<BigInt> result;
+    if (UNLIKELY(InvalidOperation(!Divide(other, result),
+                                  "Division by zero attempted"))) {
+      return std::nullopt;
+    }
+    return result.quotient;
   }
 
+  // NOTE(ashjeong): we assume that mod 0 will never occur
   constexpr BigInt Mod(const BigInt& other) const {
-    return Divide(other).remainder;
+    DivResult<BigInt> result;
+    std::ignore = Divide(other, result);
+    return result.remainder;
   }
 
-  constexpr DivResult<BigInt> Divide(const BigInt<N>& divisor) const {
+  [[nodiscard]] constexpr bool Divide(const BigInt<N>& divisor,
+                                      DivResult<BigInt>& output) const {
     // Stupid slow base-2 long division taken from
     // https://en.wikipedia.org/wiki/Division_algorithm
-    CHECK(!divisor.IsZero());
+    if (UNLIKELY(
+            InvalidOperation(divisor.IsZero(), "Division by zero attempted"))) {
+      return false;
+    }
     BigInt quotient;
     BigInt remainder;
     size_t bits = BitTraits<BigInt>::GetNumBits(*this);
@@ -610,11 +631,12 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
       if (remainder >= divisor || carry) {
         uint64_t borrow = 0;
         remainder.SubInPlace(divisor, borrow);
-        CHECK_EQ(borrow, carry);
+        if (UNLIKELY(borrow != carry)) return false;
         BitTraits<BigInt>::SetBit(quotient, i, 1);
       }
     }
-    return {quotient, remainder};
+    output = DivResult<BigInt>{std::move(quotient), std::move(remainder)};
+    return true;
   }
 
   std::string ToString() const { return internal::LimbsToString(limbs, N); }
@@ -681,10 +703,12 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   }
 
   template <bool ModulusHasSpareBit>
-  constexpr BigInt MontgomeryInverse(const BigInt& modulus,
-                                     const BigInt& r2) const {
-    // See https://github.com/kroma-network/tachyon/issues/76
-    CHECK(!IsZero());
+  [[nodiscard]] constexpr bool MontgomeryInverse(const BigInt& modulus,
+                                                 const BigInt& r2,
+                                                 BigInt& output) const {
+    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+      return false;
+    }
 
     // Guajardo Kumar Paar Pelzl
     // Efficient Software-Implementation of Finite Fields with Applications to
@@ -749,10 +773,11 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     }
 
     if (u.IsOne()) {
-      return b;
+      output = b;
     } else {
-      return c;
+      output = c;
     }
+    return true;
   }
 
   // TODO(chokobole): This can be optimized since the element of vector occupies

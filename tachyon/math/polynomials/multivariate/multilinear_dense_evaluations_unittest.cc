@@ -1,5 +1,7 @@
 #include "tachyon/math/polynomials/multivariate/multilinear_dense_evaluations.h"
 
+#include <tuple>
+
 #include "absl/hash/hash_testing.h"
 #include "gtest/gtest.h"
 
@@ -211,7 +213,7 @@ TEST_F(MultilinearDenseEvaluationsTest, MultiplicativeOperators) {
     Poly tmp = test.a;
     tmp *= test.b;
     EXPECT_EQ(tmp, test.mul);
-    tmp /= test.b;
+    ASSERT_TRUE(tmp /= test.b);
     EXPECT_EQ(tmp, test.a);
   }
 }

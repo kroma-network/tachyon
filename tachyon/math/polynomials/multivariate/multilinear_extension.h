@@ -6,6 +6,7 @@
 #ifndef TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTILINEAR_EXTENSION_H_
 #define TACHYON_MATH_POLYNOMIALS_MULTIVARIATE_MULTILINEAR_EXTENSION_H_
 
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -101,6 +102,7 @@ class MultilinearExtension final
 
   std::string ToString() const { return evaluations_.ToString(); }
 
+// TODO(ashjeong): change all internal functions to constexpr
 #define OPERATION_METHOD(Name)                                                 \
   template <typename Evaluations2,                                             \
             std::enable_if_t<internal::SupportsPoly##Name<                     \
@@ -137,14 +139,30 @@ class MultilinearExtension final
   // MultiplicativeSemigroup methods
   OPERATION_METHOD(Mul)
 
-  OPERATION_METHOD(Div)
+  template <typename Evaluations2,
+            std::enable_if_t<internal::SupportsPolyDiv<
+                Evaluations, MultilinearExtension<Evaluations>,
+                MultilinearExtension<Evaluations2>>::value>* = nullptr>
+  constexpr auto Div(const MultilinearExtension<Evaluations2>& other) const {
+    return internal::MultilinearExtensionOp<Evaluations>::Div(*this, other);
+  }
 
-  constexpr MultilinearExtension operator/(
+  template <typename Evaluations2,
+            std::enable_if_t<internal::SupportsPolyDivInPlace<
+                Evaluations, MultilinearExtension<Evaluations>,
+                MultilinearExtension<Evaluations2>>::value>* = nullptr>
+  [[nodiscard]] constexpr auto DivInPlace(
+      const MultilinearExtension<Evaluations2>& other) {
+    return internal::MultilinearExtensionOp<Evaluations>::DivInPlace(*this,
+                                                                     other);
+  }
+
+  constexpr std::optional<MultilinearExtension> operator/(
       const MultilinearExtension& other) const {
     return Div(other);
   }
 
-  constexpr MultilinearExtension& operator/=(
+  [[nodiscard]] constexpr std::optional<MultilinearExtension*> operator/=(
       const MultilinearExtension& other) {
     return DivInPlace(other);
   }
