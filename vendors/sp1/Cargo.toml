@@ -17,9 +17,16 @@ publish = false
 [dependencies]
 anyhow = "1.0.83"
 cxx = "1.0"
+p3-challenger = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+p3-commit = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+p3-dft = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+p3-field = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+p3-fri = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
+p3-matrix = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
 p3-maybe-rayon = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f", features = [
   "parallel",
 ] }
+p3-util = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f" }
 sp1-core = { git = "https://github.com/kroma-network/sp1.git", rev = "353bf42" }
 sp1-prover = { git = "https://github.com/kroma-network/sp1.git", rev = "353bf42" }
 tachyon_rs = { path = "../../tachyon/rs" }

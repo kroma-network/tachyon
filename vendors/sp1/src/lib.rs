@@ -1,3 +1,5 @@
+pub mod sp1;
+
 #[cfg(test)]
 mod test {
     use anyhow::Result;
