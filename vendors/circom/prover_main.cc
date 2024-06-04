@@ -47,7 +47,7 @@ template <typename Curve>
 void CreateProof(const base::FilePath& zkey_path,
                  const base::FilePath& witness_path,
                  const base::FilePath& proof_path,
-                 const base::FilePath& public_path, bool no_zk) {
+                 const base::FilePath& public_path, bool no_zk, bool verify) {
   using F = typename Curve::G1Curve::ScalarField;
   using Domain = math::UnivariateEvaluationDomain<F, SIZE_MAX>;
 
@@ -96,8 +96,10 @@ void CreateProof(const base::FilePath& zkey_path,
       std::move(proving_key).TakeVerifyingKey().ToPreparedVerifyingKey();
   absl::Span<const F> public_inputs = full_assignments.subspan(
       1, constraint_matrices.num_instance_variables - 1);
-  CHECK(zk::r1cs::groth16::VerifyProof(prepared_verifying_key, proof,
-                                       public_inputs));
+  if (verify) {
+    CHECK(zk::r1cs::groth16::VerifyProof(prepared_verifying_key, proof,
+                                         public_inputs));
+  }
 
   CHECK(WriteToJson(proof, proof_path));
   CHECK(WriteToJson(public_inputs, public_path));
@@ -113,6 +115,7 @@ int RealMain(int argc, char** argv) {
   base::FilePath public_path;
   Curve curve;
   bool no_zk = false;
+  bool verify = false;
   parser.AddFlag<base::FilePathFlag>(&zkey_path)
       .set_name("zkey")
       .set_help("The path to zkey file");
@@ -130,6 +133,11 @@ int RealMain(int argc, char** argv) {
   parser.AddFlag<base::BoolFlag>(&no_zk).set_long_name("--no_zk").set_help(
       "Create proof without zk. By default zk is enabled. Use this flag to "
       "compare the proof with rapidsnark.");
+  parser.AddFlag<base::BoolFlag>(&verify)
+      .set_long_name("--verify")
+      .set_help(
+          "Verify the proof. By default verify is disabled. Use this flag "
+          "to verify the proof with the public inputs.");
 
   std::string error;
   if (!parser.Parse(argc, argv, &error)) {
@@ -140,11 +148,11 @@ int RealMain(int argc, char** argv) {
   switch (curve) {
     case Curve::kBN254:
       circom::CreateProof<math::bn254::BN254Curve>(
-          zkey_path, witness_path, proof_path, public_path, no_zk);
+          zkey_path, witness_path, proof_path, public_path, no_zk, verify);
       break;
     case Curve::kBLS12_381:
       circom::CreateProof<math::bls12_381::BLS12_381Curve>(
-          zkey_path, witness_path, proof_path, public_path, no_zk);
+          zkey_path, witness_path, proof_path, public_path, no_zk, verify);
       break;
   }
   return 0;
