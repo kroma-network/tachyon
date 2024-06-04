@@ -35,14 +35,26 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install -y libomp-dev
 
+      - name: Add .bazelrc.user on linux
+        if: matrix.os == 'ubuntu-latest'
+        run: echo "build --config linux" > .bazelrc.user &&
+             echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user
+
+      - name: Add .bazelrc.user on macos
+        if: matrix.os == 'macos-latest-xlarge'
+        run: brew install coreutils &&
+             export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH" &&
+             echo "build --config macos_arm64" > .bazelrc.user &&
+             echo "build --action_env=CARGO=$HOME/.cargo/bin/cargo" >> .bazelrc.user
+
       - name: Build
-        run: bazel build -c fastbuild --config ${{ matrix.bazel_config }} //...
+        run: bazel build -c fastbuild //...
 
       - name: Test Tachyon (fastbuild)
-        run: bazel test -c fastbuild --config ${{ matrix.bazel_config }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
+        run: bazel test -c fastbuild --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
 
       - name: Test Tachyon (optimized)
-        run: bazel test -c opt --config ${{ matrix.bazel_config }} --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
+        run: bazel test -c opt --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
 
       - name: Test OpenMP
         if: matrix.os == 'ubuntu-latest'

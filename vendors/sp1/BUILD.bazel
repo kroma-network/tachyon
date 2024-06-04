@@ -1,0 +1,42 @@
+load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
+load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
+load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load("//bazel:tachyon_cc.bzl", "tachyon_openmp_linkopts")
+load("//bazel:tachyon_rust.bzl", "tachyon_rust_library", "tachyon_rust_test")
+
+FEATURES = if_gpu_is_configured(["gpu"])
+
+tachyon_rust_library(
+    name = "sp1",
+    srcs = glob(["src/**/*.rs"]),
+    aliases = aliases(),
+    crate_features = FEATURES,
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    deps = all_crate_deps(normal = True) + [
+        "//tachyon/rs:tachyon_rs",
+    ],
+)
+
+# NOTE(chokobole): This attribute could be added to `sp1_test`,
+# but this approach doesn't work when compiling with nvcc.
+# rustc_flags = if_has_openmp(["-lgomp"]),
+cc_library(
+    name = "openmp",
+    linkopts = tachyon_openmp_linkopts(),
+)
+
+tachyon_rust_test(
+    name = "sp1_test",
+    size = "small",
+    aliases = aliases(),
+    crate = ":sp1",
+    crate_features = FEATURES,
+    data = ["src/tests/fibonacci/elf/riscv32im-succinct-zkvm-elf"],
+    proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+    deps = all_crate_deps(normal_dev = True) + [
+        ":openmp",
+        "@local_config_gmp//:gmp",
+    ] + if_cuda([
+        "@local_config_cuda//cuda:cudart_static",
+    ]),
+)

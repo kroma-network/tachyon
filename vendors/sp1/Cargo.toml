@@ -1,0 +1,31 @@
+[package]
+name = "tachyon_sp1"
+version = "0.0.1"
+authors = ["The Tachyon Authors <tachyon-discuss@kroma.network>"]
+edition = "2021"
+rust-version = "1.56.1"
+description = """
+SP1 unittest based on tachyon
+"""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/kroma-network/tachyon"
+readme = "README.md"
+categories = ["cryptography"]
+keywords = ["tachyon", "sp1", "proofs", "zkp", "zkSNARKs"]
+publish = false
+
+[dependencies]
+anyhow = "1.0.83"
+cxx = "1.0"
+p3-maybe-rayon = { git = "https://github.com/kroma-network/Plonky3.git", rev = "3b5265f", features = [
+  "parallel",
+] }
+sp1-core = { git = "https://github.com/kroma-network/sp1.git", rev = "353bf42" }
+sp1-prover = { git = "https://github.com/kroma-network/sp1.git", rev = "353bf42" }
+tachyon_rs = { path = "../../tachyon/rs" }
+
+[dev-dependencies]
+
+[features]
+default = []
+gpu = []
