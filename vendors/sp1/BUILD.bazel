@@ -28,6 +28,8 @@ cc_library(
 tachyon_rust_test(
     name = "sp1_test",
     size = "small",
+    # NOTE(chokobole): Timeout time increased due to CI.
+    timeout = "moderate",
     aliases = aliases(),
     crate = ":sp1",
     crate_features = FEATURES,
