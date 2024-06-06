@@ -1,4 +1,4 @@
-load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
+load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 load(
     "//tachyon/math/finite_fields/generator/binary_field_generator:build_defs.bzl",
     "generate_binary_fields",
@@ -28,6 +28,25 @@ BITS = [
 ]
 
 tachyon_cc_library(
+    name = "binary_field",
+    hdrs = [
+        "binary_field.h",
+        "binary_field_traits_forward.h",
+        "binary_tower_operations.h",
+    ],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/base:random",
+        "//tachyon/base/numerics:safe_conversions",
+        "//tachyon/base/strings:string_number_conversions",
+        "//tachyon/base/strings:string_util",
+        "//tachyon/build:build_config",
+        "//tachyon/math/base:invalid_operation",
+        "//tachyon/math/finite_fields:finite_field",
+    ],
+)
+
+tachyon_cc_library(
     name = "binary_fields",
     hdrs = ["binary_fields.h"],
     # buildifier: leave-alone
@@ -41,4 +60,10 @@ tachyon_cc_library(
         ":binary_field64",
         ":binary_field128",
     ],
+)
+
+tachyon_cc_unittest(
+    name = "binary_fields_unittests",
+    srcs = ["binary_fields_unittest.cc"],
+    deps = [":binary_fields"],
 )

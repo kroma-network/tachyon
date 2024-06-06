@@ -1,4 +1,7 @@
 // clang-format off
+#include <stddef.h>
+#include <stdint.h>
+
 #include "tachyon/export.h"
 %{if NeedsBigInt}
 #include "tachyon/math/base/big_int.h"

@@ -15,7 +15,7 @@
 #include "tachyon/math/finite_fields/binary_fields/binary_field64_config.h"
 #include "tachyon/math/finite_fields/binary_fields/binary_field128_config.h"
 // clang-format on
-#include "tachyon/math/finite_fields/binary_field_traits_forward.h"
+#include "tachyon/math/finite_fields/binary_fields/binary_field_traits_forward.h"
 
 namespace tachyon::math {
 
