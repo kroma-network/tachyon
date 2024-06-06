@@ -8,4 +8,4 @@ namespace %{namespace} {
 using %{class} = BinaryField<%{class}Config>;
 
 }  // namespace %{namespace}
-     // clang-format on
+// clang-format on
