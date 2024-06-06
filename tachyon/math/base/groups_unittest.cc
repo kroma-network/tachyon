@@ -35,7 +35,7 @@ TEST(GroupsTest, Div) {
   EXPECT_CALL(a, Mul(testing::_)).Times(testing::Exactly(1));
   EXPECT_CALL(b, Inverse()).Times(testing::Exactly(1));
 
-  Int c = unwrap<Int>(a / b);
+  Int c = unwrap(a / b);
   static_cast<void>(c);
 }
 

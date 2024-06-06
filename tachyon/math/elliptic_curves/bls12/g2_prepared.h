@@ -35,7 +35,7 @@ class G2Prepared : public G2PreparedBase<BLS12CurveConfig> {
     if (q.IsZero()) {
       return {};
     } else {
-      Fp two_inv = unwrap<Fp>(Fp(2).Inverse());
+      Fp two_inv = unwrap(Fp(2).Inverse());
 
       EllCoeffs<Fp2> ell_coeffs;
       size_t size = Config::kXLimbNums * 64;

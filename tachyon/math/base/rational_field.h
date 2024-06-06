@@ -103,7 +103,7 @@ class RationalField : public Field<RationalField<F>> {
     return numerator_ * other.denominator_ >= other.numerator_ * denominator_;
   }
 
-  F Evaluate() const { return unwrap<F>(numerator_ / denominator_); }
+  F Evaluate() const { return unwrap(numerator_ / denominator_); }
 
   // AdditiveSemigroup methods
   constexpr RationalField Add(const RationalField& other) const {

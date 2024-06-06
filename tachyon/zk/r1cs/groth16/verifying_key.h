@@ -61,7 +61,7 @@ class VerifyingKey : public Key {
   template <size_t MaxDegree>
   [[nodiscard]] bool Load(const ToxicWaste<Curve>& toxic_waste,
                           KeyPreLoadResult<G1Point, MaxDegree>& result) {
-    F gamma_inverse = unwrap<F>(toxic_waste.gamma().Inverse());
+    F gamma_inverse = unwrap(toxic_waste.gamma().Inverse());
     return Load(toxic_waste, result, gamma_inverse);
   }
 

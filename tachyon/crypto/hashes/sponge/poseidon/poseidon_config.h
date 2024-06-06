@@ -52,7 +52,7 @@ void FindPoseidonArkAndMds(const PoseidonGrainLFSRConfig& config,
   mds = math::Matrix<PrimeField>(config.state_len, config.state_len);
   for (Eigen::Index i = 0; i < mds.rows(); ++i) {
     for (Eigen::Index j = 0; j < mds.cols(); ++j) {
-      mds(i, j) = unwrap<PrimeField>((xs[i] + ys[j]).Inverse());
+      mds(i, j) = unwrap((xs[i] + ys[j]).Inverse());
     }
   }
 }

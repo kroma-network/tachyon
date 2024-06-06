@@ -99,7 +99,7 @@ class CyclotomicMultiplicativeSubgroup : public FiniteField<F> {
     // base. Otherwise we do nothing with the variable, so we default it to one.
     F inverse = F::One();
     if constexpr (internal::SupportsFastCyclotomicInverse<F>::value) {
-      inverse = unwrap<F>(CyclotomicInverse());
+      inverse = unwrap(CyclotomicInverse());
     } else {
       std::ignore = inverse;
     }
