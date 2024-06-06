@@ -339,7 +339,7 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
       if (UNLIKELY(InvalidOperation(!div, "Division by zero attempted"))) {
         return std::nullopt;
       }
-      return subdomain.size_as_field_element_ * std::move(*div);
+      return subdomain.size_as_field_element_ * *div;
     }
   }
 

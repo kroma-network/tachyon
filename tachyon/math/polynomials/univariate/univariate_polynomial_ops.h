@@ -346,7 +346,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
       return std::nullopt;
     }
-    return Mul(self, std::move(*scalar_inv));
+    return Mul(self, *scalar_inv);
   }
 
   [[nodiscard]] static std::optional<UnivariatePolynomial<D>*> DivInPlace(
@@ -355,7 +355,7 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
     if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
       return std::nullopt;
     }
-    return &MulInPlace(self, std::move(*scalar_inv));
+    return &MulInPlace(self, *scalar_inv);
   }
 
   template <typename DOrS>
@@ -724,7 +724,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
       return std::nullopt;
     }
-    return Mul(self, std::move(*scalar_inv));
+    return Mul(self, *scalar_inv);
   }
 
   [[nodiscard]] static std::optional<UnivariatePolynomial<S>*> DivInPlace(
@@ -733,7 +733,7 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
       return std::nullopt;
     }
-    return &MulInPlace(self, std::move(*scalar_inv));
+    return &MulInPlace(self, *scalar_inv);
   }
 
   template <typename DOrS>

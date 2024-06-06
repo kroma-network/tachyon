@@ -46,7 +46,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     if (UNLIKELY(InvalidOperation(!other_inv, "Division by zero attempted"))) {
       return std::nullopt;
     }
-    return g->Mul(std::move(*other_inv));
+    return g->Mul(*other_inv);
   }
 
   // Division in place: a *= b⁻¹
@@ -59,7 +59,7 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     if (UNLIKELY(InvalidOperation(!other_inv, "Division by zero attempted"))) {
       return std::nullopt;
     }
-    return &g->MulInPlace(std::move(*other_inv));
+    return &g->MulInPlace(*other_inv);
   }
 
   template <typename Container>
