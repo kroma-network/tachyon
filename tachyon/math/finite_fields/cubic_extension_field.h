@@ -15,7 +15,6 @@
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
 #include "tachyon/math/geometry/point3.h"
 
@@ -271,21 +270,18 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   // MultiplicativeGroup methods
   constexpr std::optional<Derived> Inverse() const {
     Derived ret;
-    if (UNLIKELY(InvalidOperation(
-            !DoInverse(*static_cast<const Derived*>(this), ret),
-            "Inverse of zero attempted"))) {
-      return std::nullopt;
-    }
-    return ret;
+    if (LIKELY(DoInverse(*static_cast<const Derived*>(this), ret))) return ret;
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] constexpr std::optional<Derived*> InverseInPlace() {
-    if (UNLIKELY(InvalidOperation(!DoInverse(*static_cast<const Derived*>(this),
-                                             *static_cast<Derived*>(this)),
-                                  "Inverse of zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(DoInverse(*static_cast<const Derived*>(this),
+                         *static_cast<Derived*>(this)))) {
+      return static_cast<Derived*>(this);
     }
-    return static_cast<Derived*>(this);
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
  protected:
@@ -375,7 +371,8 @@ class CubicExtensionField : public CyclotomicMultiplicativeSubgroup<Derived> {
   }
 
   [[nodiscard]] constexpr static bool DoInverse(const Derived& a, Derived& b) {
-    if (UNLIKELY(InvalidOperation(a.IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(a.IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return false;
     }
     // clang-format off

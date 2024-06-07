@@ -119,4 +119,10 @@ TACHYON_EXPORT bool ShouldCreateLogMessage(int severity);
   } while (0);                                         \
   EAT_STREAM_PARAMETERS
 
+#if TACHYON_CUDA
+#define LOG_IF_NOT_GPU(severity) EAT_STREAM_PARAMETERS
+#else
+#define LOG_IF_NOT_GPU(severity) LOG(severity)
+#endif
+
 #endif  // TACHYON_BASE_LOGGING_H_

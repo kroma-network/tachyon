@@ -32,7 +32,6 @@ tachyon_cc_library(
     deps = [
         ":arithmetics",
         ":bit_traits_forward",
-        ":invalid_operation",
         "//tachyon/base:bit_cast",
         "//tachyon/base:compiler_specific",
         "//tachyon/base:endian_utils",
@@ -71,19 +70,9 @@ tachyon_cc_library(
     name = "groups",
     hdrs = ["groups.h"],
     deps = [
-        ":invalid_operation",
         ":semigroups",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/types:always_false",
-    ],
-)
-
-tachyon_cc_library(
-    name = "invalid_operation",
-    hdrs = ["invalid_operation.h"],
-    deps = [
-        "//tachyon/base:compiler_specific",
-        "//tachyon/base:logging",
     ],
 )
 
@@ -92,7 +81,6 @@ tachyon_cc_library(
     hdrs = ["rational_field.h"],
     deps = [
         ":field",
-        ":invalid_operation",
         "//tachyon/base:optional",
         "//tachyon/base:template_util",
     ],

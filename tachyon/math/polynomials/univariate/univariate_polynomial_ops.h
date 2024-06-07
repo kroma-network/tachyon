@@ -17,7 +17,6 @@
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/optional.h"
 #include "tachyon/math/base/arithmetics_results.h"
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/polynomials/univariate/univariate_polynomial.h"
 
 namespace tachyon::math {
@@ -343,19 +342,17 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   static std::optional<UnivariatePolynomial<D>> Div(
       const UnivariatePolynomial<D>& self, const F& scalar) {
     const std::optional<F> scalar_inv = scalar.Inverse();
-    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
-      return std::nullopt;
-    }
-    return Mul(self, *scalar_inv);
+    if (LIKELY(scalar_inv)) return Mul(self, *scalar_inv);
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] static std::optional<UnivariatePolynomial<D>*> DivInPlace(
       UnivariatePolynomial<D>& self, const F& scalar) {
     const std::optional<F> scalar_inv = scalar.Inverse();
-    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
-      return std::nullopt;
-    }
-    return &MulInPlace(self, *scalar_inv);
+    if (LIKELY(scalar_inv)) return &MulInPlace(self, *scalar_inv);
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   template <typename DOrS>
@@ -363,12 +360,12 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
       const UnivariatePolynomial<D>& self,
       const UnivariatePolynomial<DOrS>& other) {
     DivResult<UnivariatePolynomial<D>> result;
-    if (UNLIKELY(InvalidOperation(!Divide(self, other, result),
-                                  "Division by zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(Divide(self, other, result))) {
+      result.quotient.coefficients_.RemoveHighDegreeZeros();
+      return result.quotient;
     }
-    result.quotient.coefficients_.RemoveHighDegreeZeros();
-    return result.quotient;
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   template <typename DOrS>
@@ -376,13 +373,13 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   DivInPlace(UnivariatePolynomial<D>& self,
              const UnivariatePolynomial<DOrS>& other) {
     DivResult<UnivariatePolynomial<D>> result;
-    if (UNLIKELY(InvalidOperation(!Divide(self, other, result),
-                                  "Division by zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(Divide(self, other, result))) {
+      self = std::move(result.quotient);
+      self.coefficients_.RemoveHighDegreeZeros();
+      return &self;
     }
-    self = std::move(result.quotient);
-    self.coefficients_.RemoveHighDegreeZeros();
-    return &self;
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   template <typename DOrS>
@@ -504,8 +501,8 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   constexpr static bool Divide(const UnivariatePolynomial<D>& self,
                                const UnivariatePolynomial<DOrS>& other,
                                DivResult<UnivariatePolynomial<D>>& output) {
-    if (UNLIKELY(
-            InvalidOperation(other.IsZero(), "Division by zero attempted"))) {
+    if (UNLIKELY(other.IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
       return false;
     }
     if (self.IsZero()) {
@@ -706,19 +703,17 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   static std::optional<UnivariatePolynomial<S>> Div(
       const UnivariatePolynomial<S>& self, const F& scalar) {
     const std::optional<F> scalar_inv = scalar.Inverse();
-    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
-      return std::nullopt;
-    }
-    return Mul(self, *scalar_inv);
+    if (LIKELY(scalar_inv)) return Mul(self, *scalar_inv);
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] static std::optional<UnivariatePolynomial<S>*> DivInPlace(
       UnivariatePolynomial<S>& self, const F& scalar) {
     const std::optional<F> scalar_inv = scalar.Inverse();
-    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
-      return std::nullopt;
-    }
-    return &MulInPlace(self, *scalar_inv);
+    if (LIKELY(scalar_inv)) return &MulInPlace(self, *scalar_inv);
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   template <typename DOrS>

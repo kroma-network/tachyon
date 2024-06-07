@@ -56,10 +56,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "value",
     hdrs = ["value.h"],
-    deps = [
-        "//tachyon/math/base:invalid_operation",
-        "//tachyon/math/base:rational_field",
-    ],
+    deps = ["//tachyon/math/base:rational_field"],
 )
 
 tachyon_cc_unittest(

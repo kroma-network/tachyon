@@ -12,7 +12,6 @@
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/finite_fields/carry_chain.h"
 #include "tachyon/math/finite_fields/finite_field_forwards.h"
 #include "tachyon/math/finite_fields/modulus.h"
@@ -236,19 +235,15 @@ class PrimeFieldGpuDebug final
   // TODO(chokobole): Share codes with PrimeField and PrimeFieldGpu.
   constexpr std::optional<PrimeFieldGpuDebug> Inverse() const {
     PrimeFieldGpuDebug ret;
-    if (UNLIKELY(InvalidOperation(!DoInverse(*this, ret),
-                                  "Inverse of zero attempted"))) {
-      return std::nullopt;
-    }
-    return ret;
+    if (LIKELY(DoInverse(*this, ret))) return ret;
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] constexpr std::optional<PrimeFieldGpuDebug*> InverseInPlace() {
-    if (UNLIKELY(InvalidOperation(!DoInverse(*this, *this),
-                                  "Inverse of zero attempted"))) {
-      return std::nullopt;
-    }
-    return this;
+    if (LIKELY(DoInverse(*this, *this))) return this;
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
  private:
@@ -394,7 +389,8 @@ class PrimeFieldGpuDebug final
 
   [[nodiscard]] constexpr static bool DoInverse(const PrimeFieldGpuDebug& a,
                                                 PrimeFieldGpuDebug& b) {
-    if (UNLIKELY(InvalidOperation(a.IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(a.IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return false;
     }
 

@@ -10,7 +10,6 @@
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
-#include "tachyon/math/base/invalid_operation.h"
 
 namespace tachyon::math {
 
@@ -195,7 +194,8 @@ CLASS& CLASS::SquareImplInPlace() {
 
 template <typename Config>
 std::optional<CLASS> CLASS::Inverse() const {
-  if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+  if (UNLIKELY(IsZero())) {
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
     return std::nullopt;
   }
   PrimeField ret;
@@ -206,7 +206,8 @@ std::optional<CLASS> CLASS::Inverse() const {
 
 template <typename Config>
 std::optional<CLASS*> CLASS::InverseInPlace() {
-  if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+  if (UNLIKELY(IsZero())) {
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
     return std::nullopt;
   }
   ::Goldilocks::inv(reinterpret_cast<::Goldilocks::Element&>(value_),

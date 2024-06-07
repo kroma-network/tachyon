@@ -9,7 +9,6 @@
 #include <stdint.h>
 
 #include "tachyon/base/logging.h"
-#include "tachyon/math/base/invalid_operation.h"
 
 namespace tachyon::math {
 
@@ -94,7 +93,8 @@ struct BinaryTowerOperations<F, std::enable_if_t<F::kBits == 1>> {
   constexpr static F Square(F x) { return x; }
 
   constexpr static std::optional<F> Inverse(F x) {
-    if (UNLIKELY(InvalidOperation(x.IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(x.IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     return x;
@@ -112,7 +112,8 @@ struct BinaryTowerOperations<F, std::enable_if_t<F::kBits == 2>> {
   constexpr static F Square(F x) { return Mul(x, x); }
 
   constexpr static std::optional<F> Inverse(F x) {
-    if (UNLIKELY(InvalidOperation(x.IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(x.IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     return F(internal::DoBinaryInverse(x.value()));
@@ -130,7 +131,8 @@ struct BinaryTowerOperations<F, std::enable_if_t<F::kBits == 4>> {
   constexpr static F Square(F x) { return Mul(x, x); }
 
   constexpr static std::optional<F> Inverse(F x) {
-    if (UNLIKELY(InvalidOperation(x.IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(x.IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     return F(internal::DoBinaryInverse(x.value()));
@@ -305,7 +307,8 @@ struct BinaryTowerOperations<F, std::enable_if_t<F::kBits == 8>> {
   }
 
   constexpr static std::optional<F> Inverse(F x) {
-    if (UNLIKELY(InvalidOperation(x.IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(x.IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     return F(internal::DoBinaryInverse(x.value()));

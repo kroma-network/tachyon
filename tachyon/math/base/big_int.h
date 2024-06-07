@@ -28,7 +28,6 @@
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/bit_traits_forward.h"
-#include "tachyon/math/base/invalid_operation.h"
 
 namespace tachyon {
 namespace math {
@@ -431,11 +430,12 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   [[nodiscard]] constexpr std::optional<BigInt*> operator/=(
       const BigInt& other) {
     const std::optional<BigInt> div = Div(other);
-    if (UNLIKELY(InvalidOperation(!div, "Division by zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(div)) {
+      *this = std::move(*div);
+      return this;
     }
-    *this = std::move(*div);
-    return this;
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   constexpr BigInt operator%(const BigInt& other) const { return Mod(other); }
@@ -672,11 +672,9 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
 
   constexpr std::optional<BigInt> Div(const BigInt& other) const {
     DivResult<BigInt> result;
-    if (UNLIKELY(InvalidOperation(!Divide(other, result),
-                                  "Division by zero attempted"))) {
-      return std::nullopt;
-    }
-    return result.quotient;
+    if (LIKELY(Divide(other, result))) return result.quotient;
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   // NOTE(ashjeong): we assume that mod 0 will never occur
@@ -690,8 +688,8 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
                                       DivResult<BigInt>& output) const {
     // Stupid slow base-2 long division taken from
     // https://en.wikipedia.org/wiki/Division_algorithm
-    if (UNLIKELY(
-            InvalidOperation(divisor.IsZero(), "Division by zero attempted"))) {
+    if (UNLIKELY((divisor.IsZero()))) {
+      LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
       return false;
     }
     BigInt quotient;
@@ -781,7 +779,8 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
   [[nodiscard]] constexpr bool MontgomeryInverse(const BigInt& modulus,
                                                  const BigInt& r2,
                                                  BigInt& output) const {
-    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return false;
     }
 

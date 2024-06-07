@@ -15,7 +15,6 @@
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/json/json.h"
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/finite_fields/cyclotomic_multiplicative_subgroup.h"
 #include "tachyon/math/geometry/point2.h"
 
@@ -232,21 +231,20 @@ class QuadraticExtensionField
   // MultiplicativeGroup methods
   constexpr std::optional<Derived> Inverse() const {
     Derived ret;
-    if (UNLIKELY(InvalidOperation(
-            !DoInverse(*static_cast<const Derived*>(this), ret),
-            "Inverse of zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(DoInverse(*static_cast<const Derived*>(this), ret))) {
+      return ret;
     }
-    return ret;
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] constexpr std::optional<Derived*> InverseInPlace() {
-    if (UNLIKELY(InvalidOperation(!DoInverse(*static_cast<const Derived*>(this),
-                                             *static_cast<Derived*>(this)),
-                                  "Inverse of zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(DoInverse(*static_cast<const Derived*>(this),
+                         *static_cast<Derived*>(this)))) {
+      return static_cast<Derived*>(this);
     }
-    return static_cast<Derived*>(this);
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
   // CyclotomicMultiplicativeSubgroup methods
@@ -258,7 +256,8 @@ class QuadraticExtensionField
     // field is equal to the norm in the base field, so we have that
     // |x * x.Conjugate() = 1|. By uniqueness of inverses, for this subgroup,
     // |x.Inverse() = x.Conjugate()|.
-    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     return Conjugate();
@@ -266,7 +265,8 @@ class QuadraticExtensionField
 
   [[nodiscard]] constexpr std::optional<Derived*>
   FastCyclotomicInverseInPlace() {
-    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     ConjugateInPlace();
@@ -367,7 +367,8 @@ class QuadraticExtensionField
   }
 
   [[nodiscard]] constexpr static bool DoInverse(const Derived& a, Derived& b) {
-    if (UNLIKELY(InvalidOperation(a.IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(a.IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return false;
     }
     // See https://www.math.u-bordeaux.fr/~damienrobert/csi/book/book.pdf
