@@ -362,9 +362,6 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   constexpr static std::optional<UnivariatePolynomial<D>> Div(
       const UnivariatePolynomial<D>& self,
       const UnivariatePolynomial<DOrS>& other) {
-    if (self.IsZero()) {
-      return self;
-    }
     DivResult<UnivariatePolynomial<D>> result;
     if (UNLIKELY(InvalidOperation(!Divide(self, other, result),
                                   "Division by zero attempted"))) {
@@ -383,9 +380,6 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
                                   "Division by zero attempted"))) {
       return std::nullopt;
     }
-    if (self.IsZero()) {
-      return &self;
-    }
     self = std::move(result.quotient);
     self.coefficients_.RemoveHighDegreeZeros();
     return &self;
@@ -394,9 +388,6 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   template <typename DOrS>
   static UnivariatePolynomial<D> Mod(const UnivariatePolynomial<D>& self,
                                      const UnivariatePolynomial<DOrS>& other) {
-    if (self.IsZero()) {
-      return other.ToDense();
-    }
     DivResult<UnivariatePolynomial<D>> result;
     CHECK(Divide(self, other, result));
     result.remainder.coefficients_.RemoveHighDegreeZeros();
@@ -406,9 +397,6 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   template <typename DOrS>
   static UnivariatePolynomial<D>& ModInPlace(
       UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
-    if (self.IsZero()) {
-      return self = other.ToDense();
-    }
     DivResult<UnivariatePolynomial<D>> result;
     CHECK(Divide(self, other, result));
     self = std::move(result.remainder);
@@ -420,9 +408,6 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   static DivResult<UnivariatePolynomial<D>> DivMod(
       const UnivariatePolynomial<D>& self,
       const UnivariatePolynomial<DOrS>& other) {
-    if (self.IsZero()) {
-      return {UnivariatePolynomial<D>::Zero(), other.ToDense()};
-    }
     DivResult<UnivariatePolynomial<D>> result;
     CHECK(Divide(self, other, result));
     return result;
