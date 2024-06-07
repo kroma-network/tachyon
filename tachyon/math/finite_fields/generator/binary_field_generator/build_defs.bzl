@@ -91,7 +91,7 @@ def generate_binary_fields(
         hdrs = [":{}_gen_hdr".format(name)],
         deps = [
             ":{}_config".format(name),
-            "//tachyon/math/finite_fields:binary_field",
+            "//tachyon/math/finite_fields/binary_fields:binary_field",
         ],
         **kwargs
     )
@@ -101,7 +101,7 @@ def generate_binary_fields(
         hdrs = [":{}_gen_gpu_hdr".format(name)],
         deps = [
             ":{}_config".format(name),
-            "//tachyon/math/finite_fields:binary_field",
+            "//tachyon/math/finite_fields/binary_fields:binary_field",
         ],
         **kwargs
     )

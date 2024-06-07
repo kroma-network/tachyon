@@ -2,8 +2,8 @@
 // Use of this source code is governed by a Apache-2.0 style license that
 // can be found in the LICENSE.ulvetanna file.
 
-#ifndef TACHYON_MATH_FINITE_FIELDS_BINARY_FIELD_H_
-#define TACHYON_MATH_FINITE_FIELDS_BINARY_FIELD_H_
+#ifndef TACHYON_MATH_FINITE_FIELDS_BINARY_FIELDS_BINARY_FIELD_H_
+#define TACHYON_MATH_FINITE_FIELDS_BINARY_FIELDS_BINARY_FIELD_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -20,8 +20,8 @@
 #include "tachyon/base/strings/string_number_conversions.h"
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
-#include "tachyon/math/finite_fields/binary_field_traits_forward.h"
-#include "tachyon/math/finite_fields/binary_tower_operations.h"
+#include "tachyon/math/finite_fields/binary_fields/binary_field_traits_forward.h"
+#include "tachyon/math/finite_fields/binary_fields/binary_tower_operations.h"
 #include "tachyon/math/finite_fields/finite_field.h"
 
 namespace tachyon::math {
@@ -301,4 +301,4 @@ class BinaryField final : public FiniteField<BinaryField<_Config>> {
 
 }  // namespace tachyon::math
 
-#endif  // TACHYON_MATH_FINITE_FIELDS_BINARY_FIELD_H_
+#endif  // TACHYON_MATH_FINITE_FIELDS_BINARY_FIELDS_BINARY_FIELD_H_

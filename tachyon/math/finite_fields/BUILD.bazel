@@ -10,25 +10,6 @@ load(
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "binary_field",
-    hdrs = [
-        "binary_field.h",
-        "binary_field_traits_forward.h",
-        "binary_tower_operations.h",
-    ],
-    deps = [
-        ":finite_field",
-        "//tachyon/base:logging",
-        "//tachyon/base:random",
-        "//tachyon/base/numerics:safe_conversions",
-        "//tachyon/base/strings:string_number_conversions",
-        "//tachyon/base/strings:string_util",
-        "//tachyon/build:build_config",
-        "//tachyon/math/base:invalid_operation",
-    ],
-)
-
-tachyon_cc_library(
     name = "cubic_extension_field",
     hdrs = ["cubic_extension_field.h"],
     deps = [
@@ -293,7 +274,6 @@ tachyon_cc_library(
 tachyon_cc_unittest(
     name = "finite_fields_unittests",
     srcs = [
-        "binary_field_unittest.cc",
         "cubic_extension_field_unittest.cc",
         "finite_field_unittest.cc",
         "fp12_unittest.cc",

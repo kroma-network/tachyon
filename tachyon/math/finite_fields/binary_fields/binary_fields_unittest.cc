@@ -1,12 +1,12 @@
-#include "gtest/gtest.h"
-
 #include "tachyon/math/finite_fields/binary_fields/binary_fields.h"
+
+#include "gtest/gtest.h"
 
 namespace tachyon::math {
 
 namespace {
 template <typename BinaryField>
-class BinaryFieldTest : public testing::Test {
+class BinaryFieldsTest : public testing::Test {
  public:
   static void SetUpTestSuite() { BinaryField::Init(); }
 };
@@ -17,9 +17,9 @@ using BinaryFieldTypes =
     testing::Types<BinaryField1, BinaryField2, BinaryField4, BinaryField8,
                    BinaryField16, BinaryField32, BinaryField64>;
 
-TYPED_TEST_SUITE(BinaryFieldTest, BinaryFieldTypes);
+TYPED_TEST_SUITE(BinaryFieldsTest, BinaryFieldTypes);
 
-TYPED_TEST(BinaryFieldTest, FromString) {
+TYPED_TEST(BinaryFieldsTest, FromString) {
   using BinaryField = TypeParam;
   if constexpr (BinaryField::Config::kModulusBits > 2) {
     EXPECT_EQ(*BinaryField::FromDecString("3"), BinaryField(3));
@@ -31,7 +31,7 @@ TYPED_TEST(BinaryFieldTest, FromString) {
   }
 }
 
-TYPED_TEST(BinaryFieldTest, ToString) {
+TYPED_TEST(BinaryFieldsTest, ToString) {
   using BinaryField = TypeParam;
   if constexpr (BinaryField::Config::kModulusBits > 2) {
     BinaryField f(3);
@@ -43,26 +43,26 @@ TYPED_TEST(BinaryFieldTest, ToString) {
   }
 }
 
-TYPED_TEST(BinaryFieldTest, Zero) {
+TYPED_TEST(BinaryFieldsTest, Zero) {
   using BinaryField = TypeParam;
   EXPECT_TRUE(BinaryField::Zero().IsZero());
   EXPECT_FALSE(BinaryField::One().IsZero());
 }
 
-TYPED_TEST(BinaryFieldTest, One) {
+TYPED_TEST(BinaryFieldsTest, One) {
   using BinaryField = TypeParam;
   EXPECT_TRUE(BinaryField::One().IsOne());
   EXPECT_FALSE(BinaryField::Zero().IsOne());
   EXPECT_EQ(BinaryField::Config::kOne, BinaryField(1).value());
 }
 
-TYPED_TEST(BinaryFieldTest, BigIntConversion) {
+TYPED_TEST(BinaryFieldsTest, BigIntConversion) {
   using BinaryField = TypeParam;
   BinaryField r = BinaryField::Random();
   EXPECT_EQ(BinaryField::FromBigInt(r.ToBigInt()), r);
 }
 
-TYPED_TEST(BinaryFieldTest, EqualityOperators) {
+TYPED_TEST(BinaryFieldsTest, EqualityOperators) {
   using BinaryField = TypeParam;
   if constexpr (BinaryField::Config::kModulusBits > 3) {
     BinaryField f(3);
@@ -74,7 +74,7 @@ TYPED_TEST(BinaryFieldTest, EqualityOperators) {
   }
 }
 
-TYPED_TEST(BinaryFieldTest, ComparisonOperator) {
+TYPED_TEST(BinaryFieldsTest, ComparisonOperator) {
   using BinaryField = TypeParam;
   if constexpr (BinaryField::Config::kModulusBits > 3) {
     BinaryField f(3);
@@ -88,7 +88,7 @@ TYPED_TEST(BinaryFieldTest, ComparisonOperator) {
   }
 }
 
-TYPED_TEST(BinaryFieldTest, AdditiveGroupOperators) {
+TYPED_TEST(BinaryFieldsTest, AdditiveGroupOperators) {
   using BinaryField = TypeParam;
   BinaryField f = BinaryField::Random();
   SCOPED_TRACE(absl::Substitute("f: $0", f.ToString()));
@@ -103,7 +103,7 @@ TYPED_TEST(BinaryFieldTest, AdditiveGroupOperators) {
   EXPECT_EQ(f, f_double);
 }
 
-TYPED_TEST(BinaryFieldTest, MultiplicativeGroupOperators) {
+TYPED_TEST(BinaryFieldsTest, MultiplicativeGroupOperators) {
   using BinaryField = TypeParam;
   BinaryField f = BinaryField::Random();
   SCOPED_TRACE(absl::Substitute("f: $0", f.ToString()));
