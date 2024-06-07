@@ -318,10 +318,11 @@ class UnivariateEvaluationDomain : public EvaluationDomain<F, MaxDegree> {
     SparsePoly subdomain_vanishing_poly =
         subdomain.GetVanishingPolynomial() *
         SparsePoly(SparseCoeffs({{0, size_as_field_element_}}));
-    DivResult<DensePoly> result =
+    std::optional<DivResult<DensePoly>> result =
         domain_vanishing_poly.DivMod(subdomain_vanishing_poly);
-    CHECK(result.remainder.IsZero());
-    return result.quotient;
+    CHECK(result);
+    CHECK(result->remainder.IsZero());
+    return result->quotient;
   }
 
   // This evaluates at |tau| the filter polynomial for |*this| with respect to

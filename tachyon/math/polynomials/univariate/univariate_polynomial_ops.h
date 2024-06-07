@@ -383,31 +383,40 @@ class UnivariatePolynomialOp<UnivariateDenseCoefficients<F, MaxDegree>> {
   }
 
   template <typename DOrS>
-  static UnivariatePolynomial<D> Mod(const UnivariatePolynomial<D>& self,
-                                     const UnivariatePolynomial<DOrS>& other) {
-    DivResult<UnivariatePolynomial<D>> result;
-    CHECK(Divide(self, other, result));
-    result.remainder.coefficients_.RemoveHighDegreeZeros();
-    return result.remainder;
-  }
-
-  template <typename DOrS>
-  static UnivariatePolynomial<D>& ModInPlace(
-      UnivariatePolynomial<D>& self, const UnivariatePolynomial<DOrS>& other) {
-    DivResult<UnivariatePolynomial<D>> result;
-    CHECK(Divide(self, other, result));
-    self = std::move(result.remainder);
-    self.coefficients_.RemoveHighDegreeZeros();
-    return self;
-  }
-
-  template <typename DOrS>
-  static DivResult<UnivariatePolynomial<D>> DivMod(
+  constexpr static std::optional<UnivariatePolynomial<D>> Mod(
       const UnivariatePolynomial<D>& self,
       const UnivariatePolynomial<DOrS>& other) {
     DivResult<UnivariatePolynomial<D>> result;
-    CHECK(Divide(self, other, result));
-    return result;
+    if (LIKELY(Divide(self, other, result))) {
+      result.remainder.coefficients_.RemoveHighDegreeZeros();
+      return result.remainder;
+    }
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted by mod";
+    return std::nullopt;
+  }
+
+  template <typename DOrS>
+  [[nodiscard]] constexpr static std::optional<UnivariatePolynomial<D>*>
+  ModInPlace(UnivariatePolynomial<D>& self,
+             const UnivariatePolynomial<DOrS>& other) {
+    DivResult<UnivariatePolynomial<D>> result;
+    if (LIKELY(Divide(self, other, result))) {
+      self = std::move(result.remainder);
+      self.coefficients_.RemoveHighDegreeZeros();
+      return &self;
+    }
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted by mod";
+    return std::nullopt;
+  }
+
+  template <typename DOrS>
+  constexpr static std::optional<DivResult<UnivariatePolynomial<D>>> DivMod(
+      const UnivariatePolynomial<D>& self,
+      const UnivariatePolynomial<DOrS>& other) {
+    DivResult<UnivariatePolynomial<D>> result;
+    if (LIKELY(Divide(self, other, result))) return result;
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted by divmod";
+    return std::nullopt;
   }
 
   static const UnivariatePolynomial<D>& ToDense(
@@ -727,8 +736,9 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   }
 
   template <typename DOrS>
-  static UnivariatePolynomial<D> Mod(const UnivariatePolynomial<S>& self,
-                                     const UnivariatePolynomial<DOrS>& other) {
+  constexpr static std::optional<UnivariatePolynomial<D>> Mod(
+      const UnivariatePolynomial<S>& self,
+      const UnivariatePolynomial<DOrS>& other) {
     if (self.IsZero()) {
       return other.ToDense();
     }
@@ -736,11 +746,12 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   }
 
   template <typename DOrS>
-  static DivResult<UnivariatePolynomial<D>> DivMod(
+  constexpr static std::optional<DivResult<UnivariatePolynomial<D>>> DivMod(
       const UnivariatePolynomial<S>& self,
       const UnivariatePolynomial<DOrS>& other) {
     if (self.IsZero()) {
-      return {UnivariatePolynomial<D>::Zero(), other.ToDense()};
+      return DivResult<UnivariatePolynomial<D>>{UnivariatePolynomial<D>::Zero(),
+                                                other.ToDense()};
     }
     return self.ToDense().DivMod(other);
   }
