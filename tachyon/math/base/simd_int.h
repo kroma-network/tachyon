@@ -11,6 +11,7 @@
 #include <string>
 #include <type_traits>
 
+#include "tachyon/build/build_config.h"
 #include "tachyon/export.h"
 #include "tachyon/math/base/big_int.h"
 
@@ -110,6 +111,9 @@ class SimdInt {
 // clang-format on
 
 SPECIALIZE_SIMD_INT(128);
+#if ARCH_CPU_X86_64
+SPECIALIZE_SIMD_INT(256);
+#endif
 
 #undef SPECIALIZE_SIMD_INT
 

@@ -7,7 +7,12 @@ namespace tachyon::math {
 template <typename SimdInt>
 class SimdIntTest : public testing::Test {};
 
-using SimdIntTypes = testing::Types<SimdInt128>;
+using SimdIntTypes = testing::Types<SimdInt128
+#if ARCH_CPU_X86_64
+                                    ,
+                                    SimdInt256
+#endif
+                                    >;
 TYPED_TEST_SUITE(SimdIntTest, SimdIntTypes);
 
 TYPED_TEST(SimdIntTest, Zero) {
