@@ -11,6 +11,10 @@ using SimdIntTypes = testing::Types<SimdInt128
 #if ARCH_CPU_X86_64
                                     ,
                                     SimdInt256
+#if defined(TACHYON_HAS_AVX512)
+                                    ,
+                                    SimdInt512
+#endif
 #endif
                                     >;
 TYPED_TEST_SUITE(SimdIntTest, SimdIntTypes);

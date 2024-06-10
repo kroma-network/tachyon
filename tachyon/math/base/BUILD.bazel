@@ -1,6 +1,7 @@
-load("//bazel:tachyon.bzl", "if_aarch64", "if_x86_64")
+load("//bazel:tachyon.bzl", "if_aarch64", "if_has_avx512", "if_x86_64")
 load(
     "//bazel:tachyon_cc.bzl",
+    "tachyon_avx512_defines",
     "tachyon_cc_benchmark",
     "tachyon_cc_library",
     "tachyon_cc_unittest",
@@ -126,13 +127,18 @@ tachyon_cc_library(
     srcs = if_x86_64([
         "simd_int128_x86.cc",
         "simd_int256_x86.cc",
+    ]) + if_has_avx512([
+        "simd_int512_x86.cc",
     ]) + if_aarch64([
         "simd_int128_arm64.cc",
     ]),
     hdrs = ["simd_int.h"],
     copts = if_x86_64([
         "-mavx2",
+    ]) + if_has_avx512([
+        "-mavx512f",
     ]),
+    defines = tachyon_avx512_defines(),
     deps = [
         "//tachyon:export",
         "//tachyon/base:bit_cast",
