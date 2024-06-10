@@ -107,17 +107,9 @@ class Argument {
     // clang-format off
     // (1 - (l_last(X) + l_blind(X))) * (A′(X) − S′(X)) * (A′(X) − A′(ω⁻¹ * X)) = 0
     // clang-format on
-    size_t max_input_degree = std::accumulate(
-        input_expressions_.begin(), input_expressions_.end(), 1,
-        [](size_t degree, const std::unique_ptr<Expression<F>>& input_expr) {
-          return std::max(degree, input_expr->Degree());
-        });
+    size_t max_input_degree = GetMaxExprDegree(input_expressions_);
 
-    size_t max_table_degree = std::accumulate(
-        table_expressions_.begin(), table_expressions_.end(), 1,
-        [](size_t degree, const std::unique_ptr<Expression<F>>& table_expr) {
-          return std::max(degree, table_expr->Degree());
-        });
+    size_t max_table_degree = GetMaxExprDegree(table_expressions_);
 
     // In practice because input_degree and table_degree are initialized to
     // one, the latter half of this max() invocation is at least 4 always,
@@ -137,6 +129,15 @@ class Argument {
   }
 
  private:
+  static size_t GetMaxExprDegree(
+      const std::vector<std::unique_ptr<Expression<F>>>& expressions) {
+    return std::accumulate(
+        expressions.begin(), expressions.end(), 1,
+        [](size_t degree, const std::unique_ptr<Expression<F>>& expr_ptr) {
+          return std::max(degree, expr_ptr->Degree());
+        });
+  }
+
   std::string name_;
   std::vector<std::unique_ptr<Expression<F>>> input_expressions_;
   std::vector<std::unique_ptr<Expression<F>>> table_expressions_;
