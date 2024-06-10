@@ -394,7 +394,7 @@ class PrimeFieldGpuDebug final
 
   [[nodiscard]] constexpr static bool DoInverse(const PrimeFieldGpuDebug& a,
                                                 PrimeFieldGpuDebug& b) {
-    if (UNLIKELY(InvalidOperation(!a.IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(InvalidOperation(a.IsZero(), "Inverse of zero attempted"))) {
       return false;
     }
 
