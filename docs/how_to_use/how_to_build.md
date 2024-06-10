@@ -217,6 +217,24 @@ Please add this line to your `.bazelrc.user`.
 build --spawn_strategy=local
 ```
 
+### Control build && test
+
+As you can see in [.bazelrc](/.bazelrc), we don't enable all of the build and test targets. To enable additional targets, you may add customized `--build_tag_filters` and `--test_tag_filters` to your `.bazelrc.user` file.
+
+For example, add the following to `.bazelrc.user` to build rust on linux:
+
+```
+build --build_tag_filters -objc,-cuda
+```
+
+### Build SP1 Rust code
+
+Since [scale-info](https://crates.io/crates/scale-info) needs a `CARGO` environment variable, add this to your `.bazelrc.user`.
+
+```
+build --action_env=CARGO=<path to cargo>
+```
+
 ### Py Binding
 
 `ModuleNotFoundError` may occur in certain python versions (v3.11.6). Python v3.10.12 is recommended.

@@ -32,8 +32,8 @@ tachyon_rust_library(
     ],
 )
 
-# NOTE(chokobole): Maybe we can add this attribute to `halo2_test`.
-# But this approach doesn't work when compiling with nvcc.
+# NOTE(chokobole): This attribute could be added to `halo2_test`,
+# but this approach doesn't work when compiling with nvcc.
 # rustc_flags = if_has_openmp(["-lgomp"]),
 cc_library(
     name = "openmp",

@@ -44,6 +44,18 @@ load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository")
 
 crates_repository(
     name = "crate_index",
+    annotations = {
+        "ring": [crate.annotation(
+            build_script_env = {
+                "CARGO_MANIFEST_LINKS": "ring_core_0_17_8",
+            },
+        )],
+        "sp1-prover": [crate.annotation(
+            data = [
+                "src/fibonacci/program/elf/riscv32im-succinct-zkvm-elf",
+            ],
+        )],
+    },
     cargo_lockfile = "//:Cargo.lock",
     lockfile = "//:Cargo.Bazel.lock",
     manifests = [
@@ -59,10 +71,20 @@ crates_repository(
         "//benchmark/poseidon2/plonky3:Cargo.toml",
         "//tachyon/rs:Cargo.toml",
         "//vendors/halo2:Cargo.toml",
+        "//vendors/sp1:Cargo.toml",
     ],
     packages = {
-        # See https://github.com/bazelbuild/rules_rust/issues/2071#issuecomment-1656204269
-        "serde": crate.spec(version = "=1.0.164"),
+        "hashbrown": crate.spec(
+            features = ["raw"],
+            version = "0.12.3",
+        ),
+        "deranged": crate.spec(
+            features = [
+                "powerfmt",
+                "std",
+            ],
+            version = "0.3.9",
+        ),
     },
 )
 
