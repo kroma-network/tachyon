@@ -230,6 +230,7 @@ void CircuitTest<TestArguments, TestData>::CreateProofTest() {
 
 template <typename TestArguments, typename TestData>
 void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
+  using Proof = typename TestArguments::LS::Proof;
   CHECK(this->prover_->pcs().UnsafeSetup(TestData::kN, F(2)));
   this->prover_->set_domain(Domain::Create(TestData::kN));
 
@@ -247,7 +248,7 @@ void CircuitTest<TestArguments, TestData>::VerifyProofTest() {
   std::vector<std::vector<Evals>> instance_columns_vec = {
       instance_columns, std::move(instance_columns)};
 
-  halo2::Proof<F, Commitment> proof;
+  Proof proof;
   F h_eval;
   ASSERT_TRUE(verifier.VerifyProofForTesting(vkey, instance_columns_vec, &proof,
                                              &h_eval));

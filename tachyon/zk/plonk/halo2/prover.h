@@ -307,7 +307,7 @@ class Prover : public ProverBase<PCS> {
         GetNumPermutationOpenings(
             num_circuits, permutation_provers[0].grand_product_polys().size(),
             proving_key.permutation_proving_key().permutations().size()) +
-        lookup::halo2::GetNumOpenings(lookup_provers.size(),
+        lookup::halo2::GetNumOpenings(LS::type, lookup_provers.size(),
                                       constraint_system.lookups().size());
     openings.reserve(size);
 

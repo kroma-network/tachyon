@@ -25,7 +25,7 @@ namespace halo2 {
 template <typename F, typename C>
 class Verifier final : public lookup::Verifier<typename halo2::Verifier<F, C>> {
  public:
-  using Proof = plonk::halo2::Proof<F, C>;
+  using Proof = plonk::halo2::Halo2Proof<F, C>;
 
   Verifier(const Proof& proof, size_t circuit_idx)
       : data_(proof.ToLookupVerifierData(circuit_idx)) {}

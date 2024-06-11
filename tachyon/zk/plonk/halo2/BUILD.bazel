@@ -138,6 +138,7 @@ tachyon_cc_library(
         "//tachyon/zk/lookup:lookup_pair",
         "//tachyon/zk/lookup:type",
         "//tachyon/zk/lookup/halo2:verifier_data",
+        "//tachyon/zk/lookup/log_derivative_halo2:verifier_data",
         "//tachyon/zk/plonk/permutation:permutation_verifier_data",
         "//tachyon/zk/plonk/vanishing:vanishing_verifier_data",
     ],

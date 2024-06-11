@@ -38,13 +38,13 @@ CreateRandomLookupPairsVec(RowIndex rows, size_t cols) {
 
 }  // namespace
 
-TEST(ProofTest, JsonValueConverter) {
+TEST(ProofTest, Halo2JsonValueConverter) {
   math::bn254::G1Curve::Init();
 
   size_t num_circuits_ = 2;
   size_t num_elements_ = 3;
 
-  Proof<F, Commitment> expected_proof;
+  Halo2Proof<F, Commitment> expected_proof;
   expected_proof.advices_commitments_vec =
       CreateRandomElementsVec<Commitment>(num_circuits_, num_elements_);
   expected_proof.challenges =
@@ -97,7 +97,68 @@ TEST(ProofTest, JsonValueConverter) {
       CreateRandomElementsVec<F>(num_circuits_, num_elements_);
   std::string json = base::WriteToJson(expected_proof);
 
-  Proof<F, Commitment> proof;
+  Halo2Proof<F, Commitment> proof;
+  std::string error;
+  ASSERT_TRUE(base::ParseJson(json, &proof, &error));
+  ASSERT_TRUE(error.empty());
+  EXPECT_EQ(proof, expected_proof);
+}
+
+TEST(ProofTest, LogDerivativeHalo2JsonValueConverter) {
+  math::bn254::G1Curve::Init();
+
+  size_t num_circuits_ = 2;
+  size_t num_elements_ = 3;
+
+  LogDerivativeHalo2Proof<F, Commitment> expected_proof;
+  expected_proof.advices_commitments_vec =
+      CreateRandomElementsVec<Commitment>(num_circuits_, num_elements_);
+  expected_proof.challenges =
+      base::CreateVector(num_circuits_, []() { return F::Random(); });
+  expected_proof.theta = F::Random();
+  expected_proof.lookup_m_poly_commitments_vec =
+      CreateRandomElementsVec<Commitment>(num_circuits_, num_elements_);
+  expected_proof.beta = F::Random();
+  expected_proof.permutation_product_commitments_vec =
+      CreateRandomElementsVec<Commitment>(num_circuits_, num_elements_);
+  expected_proof.lookup_sum_commitments_vec =
+      CreateRandomElementsVec<Commitment>(num_circuits_, num_elements_);
+  expected_proof.vanishing_random_poly_commitment = Commitment::Random();
+  expected_proof.y = F::Random();
+  expected_proof.vanishing_h_poly_commitments =
+      base::CreateVector(5, []() { return Commitment::Random(); });
+  expected_proof.x = F::Random();
+  expected_proof.instance_evals_vec =
+      CreateRandomElementsVec<F>(num_circuits_, num_elements_);
+  expected_proof.advice_evals_vec =
+      CreateRandomElementsVec<F>(num_circuits_, num_elements_);
+  expected_proof.fixed_evals =
+      base::CreateVector(num_circuits_, []() { return F::Random(); });
+  expected_proof.vanishing_random_eval = F::Random();
+  expected_proof.common_permutation_evals =
+      base::CreateVector(num_circuits_, []() { return F::Random(); });
+  expected_proof.permutation_product_evals_vec =
+      CreateRandomElementsVec<F>(num_circuits_, num_elements_);
+  expected_proof.permutation_product_next_evals_vec =
+      CreateRandomElementsVec<F>(num_circuits_, num_elements_);
+  expected_proof.permutation_product_last_evals_vec =
+      std::vector<std::vector<std::optional<F>>>(
+          num_circuits_, base::CreateVector(num_elements_, [](size_t i) {
+            if (i % 2 == 0) {
+              return std::optional<F>(F::Random());
+            } else {
+              return std::optional<F>();
+            }
+          }));
+  expected_proof.lookup_sum_evals_vec =
+      CreateRandomElementsVec<F>(num_circuits_, num_elements_);
+  expected_proof.lookup_sum_next_evals_vec =
+      CreateRandomElementsVec<F>(num_circuits_, num_elements_);
+  expected_proof.lookup_m_evals_vec =
+      CreateRandomElementsVec<F>(num_circuits_, num_elements_);
+  std::string json = base::WriteToJson(expected_proof);
+
+  LogDerivativeHalo2Proof<F, Commitment> proof;
   std::string error;
   ASSERT_TRUE(base::ParseJson(json, &proof, &error));
   ASSERT_TRUE(error.empty());

@@ -6,6 +6,7 @@
 #include "tachyon/zk/lookup/halo2/verifier.h"
 #include "tachyon/zk/lookup/halo2/verifier_data.h"
 #include "tachyon/zk/lookup/type.h"
+#include "tachyon/zk/plonk/halo2/proof.h"
 
 namespace tachyon::zk::lookup::halo2 {
 
@@ -20,6 +21,7 @@ struct Scheme {
   using Verifier = lookup::halo2::Verifier<Field, Commitment>;
   using VerifierData = lookup::halo2::VerifierData<Field, Commitment>;
   using Evaluator = lookup::halo2::Evaluator<Field, Evals>;
+  using Proof = plonk::halo2::Halo2Proof<Field, Commitment>;
 
   constexpr static Type type = Type::kHalo2;
 };
