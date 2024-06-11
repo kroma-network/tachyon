@@ -12,7 +12,6 @@
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
 #include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
-#include "tachyon/math/finite_fields/goldilocks/goldilocks_prime_field.h"
 #include "tachyon/math/finite_fields/goldilocks/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/matrix/prime_field_num_traits.h"

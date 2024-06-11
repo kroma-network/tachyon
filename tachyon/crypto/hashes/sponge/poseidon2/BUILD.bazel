@@ -89,7 +89,6 @@ tachyon_cc_unittest(
         ":poseidon2_plonky3_internal_matrix",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/math/finite_fields/baby_bear:poseidon2",
-        "//tachyon/math/finite_fields/goldilocks:goldilocks_prime_field",
         "//tachyon/math/finite_fields/goldilocks:poseidon2",
         "//tachyon/math/finite_fields/mersenne31",
         "//tachyon/math/finite_fields/test:finite_field_test",
