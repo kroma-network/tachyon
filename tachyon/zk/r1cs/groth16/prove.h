@@ -224,7 +224,7 @@ Proof<Curve> ReRandomizeProof(const VerifyingKey<Curve>& vk,
   //   B' = r₁B + r₁r₂(δG₂)
   //   C' = C + r₂A
   G1JacobianPoint ac_jacobian[2];
-  F inv = unwrap<F>(randoms.r1.Inverse());
+  F inv = unwrap(randoms.r1.Inverse());
   ac_jacobian[0] = proof.a() * inv;
 
   ac_jacobian[1] = proof.a() * randoms.r2;

@@ -313,10 +313,10 @@ TEST_F(UnivariateDensePolynomialTest, DivScalar) {
   const std::vector<GF7>& coeffs = poly.coefficients().coefficients();
   expected_coeffs.reserve(coeffs.size());
   for (size_t i = 0; i < coeffs.size(); ++i) {
-    expected_coeffs.push_back(unwrap<GF7>(coeffs[i] / scalar));
+    expected_coeffs.push_back(unwrap(coeffs[i] / scalar));
   }
 
-  Poly actual = unwrap<Poly>(poly / scalar);
+  Poly actual = unwrap(poly / scalar);
   Poly expected(Coeffs(std::move(expected_coeffs)));
   EXPECT_EQ(actual, expected);
   ASSERT_TRUE(poly /= scalar);

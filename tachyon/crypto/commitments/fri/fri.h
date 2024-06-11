@@ -128,7 +128,7 @@ class FRI final
     F beta;
     F evaluation;
     F evaluation_sym;
-    F two_inv = unwrap<F>(F(2).Inverse());
+    F two_inv = unwrap(F(2).Inverse());
     for (uint32_t i = 0; i < num_layers; ++i) {
       BinaryMerkleTreeStorage<F>* layer = storage_->GetLayer(i);
       BinaryMerkleTree<F, F, MaxDegree + 1> tree(layer, hasher_);
@@ -184,7 +184,7 @@ class FRI final
       }
       beta = reader->SqueezeChallenge();
       VLOG(2) << "FRI(beta[" << i << "]): " << beta.ToHexString(true);
-      beta *= unwrap<F>(x.Inverse());
+      beta *= unwrap(x.Inverse());
       domain_size = domain_size >> 1;
     }
 

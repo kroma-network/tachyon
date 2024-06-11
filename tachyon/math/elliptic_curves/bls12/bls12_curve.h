@@ -78,7 +78,7 @@ class BLS12Curve : public PairingFriendlyCurve<Config> {
     CHECK(f1.CyclotomicInverseInPlace());
 
     // f2 = f⁻¹
-    Fp12 f2 = unwrap<Fp12>(f.Inverse());
+    Fp12 f2 = unwrap(f.Inverse());
 
     // r = f^(q⁶ - 1)
     Fp12 r = f1 * f2;
@@ -98,7 +98,7 @@ class BLS12Curve : public PairingFriendlyCurve<Config> {
     // y1 = (r)ˣ
     Fp12 y1 = Base::PowByX(r);
     // y2 = (r)⁻¹
-    Fp12 y2 = unwrap<Fp12>(r.CyclotomicInverse());
+    Fp12 y2 = unwrap(r.CyclotomicInverse());
     // y1 = y1 * y2 = r^(x - 1)
     y1 *= y2;
     // y2 = (y1)ˣ = r^(x² - x)

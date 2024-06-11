@@ -12,7 +12,6 @@
 #include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/openmp_util.h"
 #include "tachyon/base/types/always_false.h"
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/base/semigroups.h"
 
 namespace tachyon::math {
@@ -43,10 +42,9 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   constexpr std::optional<G> operator/(const G2& other) const {
     const std::optional<G> other_inv = other.Inverse();
     const G* g = static_cast<const G*>(this);
-    if (UNLIKELY(InvalidOperation(!other_inv, "Division by zero attempted"))) {
-      return std::nullopt;
-    }
-    return g->Mul(std::move(*other_inv));
+    if (LIKELY(other_inv)) return g->Mul(*other_inv);
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   // Division in place: a *= b⁻¹
@@ -56,10 +54,9 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
   [[nodiscard]] constexpr std::optional<G*> operator/=(const G2& other) {
     const std::optional<G> other_inv = other.Inverse();
     G* g = static_cast<G*>(this);
-    if (UNLIKELY(InvalidOperation(!other_inv, "Division by zero attempted"))) {
-      return std::nullopt;
-    }
-    return &g->MulInPlace(std::move(*other_inv));
+    if (LIKELY(other_inv)) return &g->MulInPlace(*other_inv);
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   template <typename Container>
@@ -151,8 +148,8 @@ class MultiplicativeGroup : public MultiplicativeSemigroup<G> {
     // Invert |product|.
     // (a₁ * a₂ * ... *  aₙ)⁻¹
     std::optional<G> product_inv_opt = product.Inverse();
-    if (UNLIKELY(
-            InvalidOperation(!product_inv_opt, "Inverse of zero attempted"))) {
+    if (UNLIKELY(!product_inv_opt)) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return false;
     }
     G product_inv = std::move(*product_inv_opt);

@@ -168,10 +168,10 @@ class QuadraticArithmeticProgram {
     c_evals = coset_domain->FFT(std::move(c_poly));
 
     F vanishing_polynomial_over_coset =
-        unwrap<F>(domain
-                      ->EvaluateVanishingPolynomial(
-                          F::FromMontgomery(F::Config::kSubgroupGenerator))
-                      .Inverse());
+        unwrap(domain
+                   ->EvaluateVanishingPolynomial(
+                       F::FromMontgomery(F::Config::kSubgroupGenerator))
+                   .Inverse());
 
     // |h_evals[i]| = (|a[i]| * |b[i]| - |c[i]|)) / (g * ωⁿ⁺ˡ⁺¹ - 1)
     OPENMP_PARALLEL_FOR(size_t i = 0; i < domain->size(); ++i) {

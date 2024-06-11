@@ -68,7 +68,7 @@ struct UnivariateTerm {
   }
 
   UnivariateTerm operator/(const F& scalar) const {
-    return UnivariateTerm{degree, unwrap<F>(coefficient / scalar)};
+    return UnivariateTerm{degree, unwrap(coefficient / scalar)};
   }
 
   UnivariateTerm& operator/=(const F& scalar) {

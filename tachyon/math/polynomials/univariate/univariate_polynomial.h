@@ -229,7 +229,23 @@ class UnivariatePolynomial final
                                                                       other);
   }
 
-  OPERATION_METHOD(Mod)
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolyMod<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  constexpr auto Mod(const UnivariatePolynomial<Coefficients2>& other) const {
+    return internal::UnivariatePolynomialOp<Coefficients>::Mod(*this, other);
+  }
+
+  template <typename Coefficients2,
+            std::enable_if_t<internal::SupportsPolyModInPlace<
+                Coefficients, UnivariatePolynomial<Coefficients>,
+                UnivariatePolynomial<Coefficients2>>::value>* = nullptr>
+  [[nodiscard]] constexpr auto ModInPlace(
+      const UnivariatePolynomial<Coefficients2>& other) {
+    return internal::UnivariatePolynomialOp<Coefficients>::ModInPlace(*this,
+                                                                      other);
+  }
 
 #undef OPERATION_METHOD
 

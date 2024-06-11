@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "tachyon/base/openmp_util.h"
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
 
 namespace tachyon::math {
@@ -191,8 +190,8 @@ class UnivariateEvaluationsOp {
     const std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
     // f(x) / 0
-    if (UNLIKELY(InvalidOperation(r_evaluations.empty(),
-                                  "Division by zero attempted"))) {
+    if (UNLIKELY(r_evaluations.empty())) {
+      LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
       return std::nullopt;
     }
     // 0 / g(x)
@@ -200,8 +199,8 @@ class UnivariateEvaluationsOp {
       return self;
     }
     // f(x) & g(x) unequal evaluation sizes
-    if (UNLIKELY(InvalidOperation(l_evaluations.size() != r_evaluations.size(),
-                                  "Evaluation sizes unequal for division"))) {
+    if (UNLIKELY(l_evaluations.size() != r_evaluations.size())) {
+      LOG_IF_NOT_GPU(ERROR) << "Evaluation sizes unequal for division";
       return std::nullopt;
     }
     std::vector<F> o_evaluations(r_evaluations.size());
@@ -214,11 +213,11 @@ class UnivariateEvaluationsOp {
       }
       o_evaluations[i] = std::move(*div);
     }
-    if (UNLIKELY(InvalidOperation(!check_valid.load(std::memory_order_relaxed),
-                                  "Division by zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(check_valid.load(std::memory_order_relaxed))) {
+      return Poly(std::move(o_evaluations));
     }
-    return Poly(std::move(o_evaluations));
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] CONSTEXPR_IF_NOT_OPENMP static std::optional<Poly*> DivInPlace(
@@ -226,8 +225,8 @@ class UnivariateEvaluationsOp {
     std::vector<F>& l_evaluations = self.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_;
     // f(x) / 0
-    if (UNLIKELY(InvalidOperation(r_evaluations.empty(),
-                                  "Division by zero attempted"))) {
+    if (UNLIKELY(r_evaluations.empty())) {
+      LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
       return std::nullopt;
     }
     // 0 / g(x)
@@ -235,8 +234,8 @@ class UnivariateEvaluationsOp {
       return &self;
     }
     // f(x) & g(x) unequal evaluation sizes
-    if (UNLIKELY(InvalidOperation(l_evaluations.size() != r_evaluations.size(),
-                                  "Evaluation sizes unequal for division"))) {
+    if (UNLIKELY(l_evaluations.size() != r_evaluations.size())) {
+      LOG_IF_NOT_GPU(ERROR) << "Evaluation sizes unequal for division";
       return std::nullopt;
     }
     std::atomic<bool> check_valid(true);
@@ -244,28 +243,26 @@ class UnivariateEvaluationsOp {
       if (UNLIKELY(!(l_evaluations[i] /= r_evaluations[i])))
         check_valid.store(false, std::memory_order_relaxed);
     }
-    if (UNLIKELY(InvalidOperation(!check_valid.load(std::memory_order_relaxed),
-                                  "Division by zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(check_valid.load(std::memory_order_relaxed))) {
+      return &self;
     }
-    return &self;
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   constexpr static std::optional<Poly> Div(const Poly& self, const F& scalar) {
     const std::optional<F> scalar_inv = scalar.Inverse();
-    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
-      return std::nullopt;
-    }
-    return Mul(self, *scalar_inv);
+    if (LIKELY(scalar_inv)) return Mul(self, *scalar_inv);
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] constexpr static std::optional<Poly*> DivInPlace(
       Poly& self, const F& scalar) {
     const std::optional<F> scalar_inv = scalar.Inverse();
-    if (UNLIKELY(InvalidOperation(!scalar_inv, "Division by zero attempted"))) {
-      return std::nullopt;
-    }
-    return &MulInPlace(self, *scalar_inv);
+    if (LIKELY(scalar_inv)) return &MulInPlace(self, *scalar_inv);
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 };
 

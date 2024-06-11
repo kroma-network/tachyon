@@ -19,7 +19,6 @@
 #include "tachyon/math/base/arithmetics.h"
 #include "tachyon/math/base/big_int.h"
 #include "tachyon/math/base/gmp/gmp_util.h"
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::math {
@@ -280,23 +279,21 @@ class PrimeField<_Config, std::enable_if_t<!_Config::kUseAsm &&
   // MultiplicativeGroup methods
   constexpr std::optional<PrimeField> Inverse() const {
     PrimeField ret;
-    if (UNLIKELY(InvalidOperation(
-            !value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
-                Config::kModulus, Config::kMontgomeryR2, ret.value_),
-            "Inverse of zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
+            Config::kModulus, Config::kMontgomeryR2, ret.value_))) {
+      return ret;
     }
-    return ret;
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] constexpr std::optional<PrimeField*> InverseInPlace() {
-    if (UNLIKELY(InvalidOperation(
-            !value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
-                Config::kModulus, Config::kMontgomeryR2, value_),
-            "Inverse of zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(value_.template MontgomeryInverse<Config::kModulusHasSpareBit>(
+            Config::kModulus, Config::kMontgomeryR2, value_))) {
+      return this;
     }
-    return this;
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
  private:

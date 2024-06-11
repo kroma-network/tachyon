@@ -11,7 +11,6 @@
 #include <string>
 #include <utility>
 
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/base/rational_field.h"
 
 namespace tachyon::zk {
@@ -135,20 +134,16 @@ class Value : public math::Field<Value<T>> {
   constexpr std::optional<Value> Inverse() const {
     if (IsNone()) return Unknown();
     const std::optional<T> val_inv = value_->Inverse();
-    if (UNLIKELY(tachyon::math::InvalidOperation(
-            !val_inv, "Inverse of zero attempted"))) {
-      return std::nullopt;
-    }
-    return Value::Known(std::move(*val_inv));
+    if (LIKELY(val_inv)) return Value::Known(std::move(*val_inv));
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] constexpr std::optional<Value*> InverseInPlace() {
     if (IsNone()) return this;
-    if (UNLIKELY(tachyon::math::InvalidOperation(
-            !(*value_).InverseInPlace(), "Inverse of zero attempted"))) {
-      return std::nullopt;
-    }
-    return this;
+    if (LIKELY((*value_).InverseInPlace())) return this;
+    LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
+    return std::nullopt;
   }
 
   Value<math::RationalField<T>> ToRationalFieldValue() const {

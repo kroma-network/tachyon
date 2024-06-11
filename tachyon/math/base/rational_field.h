@@ -8,7 +8,6 @@
 #include "tachyon/base/optional.h"
 #include "tachyon/base/template_util.h"
 #include "tachyon/math/base/field.h"
-#include "tachyon/math/base/invalid_operation.h"
 
 namespace tachyon::math {
 
@@ -103,7 +102,7 @@ class RationalField : public Field<RationalField<F>> {
     return numerator_ * other.denominator_ >= other.numerator_ * denominator_;
   }
 
-  F Evaluate() const { return unwrap<F>(numerator_ / denominator_); }
+  F Evaluate() const { return unwrap(numerator_ / denominator_); }
 
   // AdditiveSemigroup methods
   constexpr RationalField Add(const RationalField& other) const {
@@ -170,14 +169,16 @@ class RationalField : public Field<RationalField<F>> {
 
   // MultiplicativeGroup methods
   constexpr std::optional<RationalField> Inverse() const {
-    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     return RationalField(denominator_, numerator_);
   }
 
   [[nodiscard]] constexpr std::optional<RationalField*> InverseInPlace() {
-    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     std::swap(numerator_, denominator_);

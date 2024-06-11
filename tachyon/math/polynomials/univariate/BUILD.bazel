@@ -48,7 +48,6 @@ tachyon_cc_library(
         "//tachyon/base:openmp_util",
         "//tachyon/base:optional",
         "//tachyon/base:range",
-        "//tachyon/math/base:invalid_operation",
         "//tachyon/math/polynomials:evaluation_domain",
     ],
 )
@@ -81,7 +80,6 @@ tachyon_cc_library(
         "//tachyon/base/buffer:copyable",
         "//tachyon/base/containers:container_util",
         "//tachyon/base/json",
-        "//tachyon/math/base:invalid_operation",
         "//tachyon/math/polynomials:polynomial",
     ],
 )
@@ -107,7 +105,6 @@ tachyon_cc_library(
         "//tachyon/base/ranges:algorithm",
         "//tachyon/base/strings:string_util",
         "//tachyon/math/base:arithmetics_results",
-        "//tachyon/math/base:invalid_operation",
         "//tachyon/math/polynomials:polynomial",
         "@com_google_absl//absl/hash",
         "@com_google_absl//absl/numeric:bits",

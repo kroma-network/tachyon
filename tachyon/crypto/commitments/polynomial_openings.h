@@ -168,7 +168,7 @@ struct GroupedPolynomialOpenings {
     // Divide combined polynomial by vanishing polynomial of evaluation points.
     // H(X) = N(X) / (X - x₀)(X - x₁)(X - x₂)
     Poly vanishing_poly = Poly::FromRoots(points);
-    return unwrap<Poly>(n / vanishing_poly);
+    return unwrap(n / vanishing_poly);
   }
 };
 

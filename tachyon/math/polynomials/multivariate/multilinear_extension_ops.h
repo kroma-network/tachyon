@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "tachyon/base/openmp_util.h"
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/polynomials/multivariate/multilinear_extension.h"
 
 namespace tachyon::math {
@@ -164,8 +163,8 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     const std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
     // f(x) / 0
-    if (UNLIKELY(InvalidOperation(r_evaluations.empty(),
-                                  "Division by zero attempted"))) {
+    if (UNLIKELY(r_evaluations.empty())) {
+      LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
       return std::nullopt;
     }
     // 0 / g(x)
@@ -173,8 +172,8 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
       return self;
     }
     // f(x) & g(x) unequal evaluation sizes
-    if (UNLIKELY(InvalidOperation(l_evaluations.size() != r_evaluations.size(),
-                                  "Evaluation sizes unequal for division"))) {
+    if (UNLIKELY(l_evaluations.size() != r_evaluations.size())) {
+      LOG_IF_NOT_GPU(ERROR) << "Evaluation sizes unequal for division";
       return std::nullopt;
     }
     std::vector<F> o_evaluations(r_evaluations.size());
@@ -187,11 +186,11 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
       }
       o_evaluations[i] = std::move(div).value();
     }
-    if (UNLIKELY(InvalidOperation(!check_valid.load(std::memory_order_relaxed),
-                                  "Division by zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(check_valid.load(std::memory_order_relaxed))) {
+      return MultilinearExtension<D>(D(std::move(o_evaluations)));
     }
-    return MultilinearExtension<D>(D(std::move(o_evaluations)));
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   [[nodiscard]] CONSTEXPR_IF_NOT_OPENMP static std::optional<
@@ -201,8 +200,8 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
     std::vector<F>& l_evaluations = self.evaluations_.evaluations_;
     const std::vector<F>& r_evaluations = other.evaluations_.evaluations_;
     // f(x) / 0
-    if (UNLIKELY(InvalidOperation(r_evaluations.empty(),
-                                  "Division by zero attempted"))) {
+    if (UNLIKELY(r_evaluations.empty())) {
+      LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
       return std::nullopt;
     }
     // 0 / g(x)
@@ -210,8 +209,8 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
       return &self;
     }
     // f(x) & g(x) unequal evaluation sizes
-    if (UNLIKELY(InvalidOperation(l_evaluations.size() != r_evaluations.size(),
-                                  "Evaluation sizes unequal for division"))) {
+    if (UNLIKELY(l_evaluations.size() != r_evaluations.size())) {
+      LOG_IF_NOT_GPU(ERROR) << "Evaluation sizes unequal for division";
       return std::nullopt;
     }
     std::atomic<bool> check_valid(true);
@@ -219,11 +218,11 @@ class MultilinearExtensionOp<MultilinearDenseEvaluations<F, MaxDegree>> {
       if (UNLIKELY(!(l_evaluations[i] /= r_evaluations[i])))
         check_valid.store(false, std::memory_order_relaxed);
     }
-    if (UNLIKELY(InvalidOperation(!check_valid.load(std::memory_order_relaxed),
-                                  "Division by zero attempted"))) {
-      return std::nullopt;
+    if (LIKELY(check_valid.load(std::memory_order_relaxed))) {
+      return &self;
     }
-    return &self;
+    LOG_IF_NOT_GPU(ERROR) << "Division by zero attempted";
+    return std::nullopt;
   }
 
   static const MultilinearExtension<D>& ToDense(

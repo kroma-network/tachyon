@@ -64,7 +64,7 @@ TEST_F(PrimeFieldTest, Div) {
     ASSERT_FALSE(a_ /= b_);
   } else {
     bn254::Fr cc_div = unwrap<bn254::Fr>(cc_a_ / cc_b_);
-    tachyon::math::bn254::Fr div = unwrap<tachyon::math::bn254::Fr>(a_ / b_);
+    tachyon::math::bn254::Fr div = unwrap(a_ / b_);
     EXPECT_EQ(c::base::native_cast((cc_div).value()), div);
     ASSERT_TRUE(a_ /= b_);
     EXPECT_EQ(c::base::native_cast((cc_a_ /= cc_b_).value()), a_);
@@ -88,8 +88,7 @@ TEST_F(PrimeFieldTest, Inverse) {
     ASSERT_FALSE(a_.Inverse());
   } else {
     bn254::Fr cc_a_inv = unwrap<bn254::Fr>(cc_a_.Inverse());
-    tachyon::math::bn254::Fr a_inv =
-        unwrap<tachyon::math::bn254::Fr>(a_.Inverse());
+    tachyon::math::bn254::Fr a_inv = unwrap(a_.Inverse());
     EXPECT_EQ(c::base::native_cast((cc_a_inv).value()), a_inv);
   }
 }

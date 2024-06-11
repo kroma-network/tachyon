@@ -18,7 +18,6 @@
 #include "tachyon/base/strings/string_util.h"
 #include "tachyon/build/build_config.h"
 #include "tachyon/math/base/egcd.h"
-#include "tachyon/math/base/invalid_operation.h"
 #include "tachyon/math/finite_fields/prime_field_base.h"
 
 namespace tachyon::math {
@@ -176,11 +175,13 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
     // and use the faster one.
     // |result.s| * |value_| + |result.t| * |GetModulus()| = |result.r|
     // |result.s| * |value_| = |result.r| (mod |GetModulus()|)
-    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
-    if (UNLIKELY(InvalidOperation(result.r != 1, "result.r != 1"))) {
+    if (UNLIKELY(result.r != 1)) {
+      LOG_IF_NOT_GPU(ERROR) << "result.r != 1";
       return std::nullopt;
     }
     if (result.s > 0) {
@@ -192,11 +193,13 @@ class PrimeField<_Config, std::enable_if_t<(_Config::kModulusBits <= 32) &&
 
   [[nodiscard]] constexpr std::optional<PrimeField*> InverseInPlace() {
     // See comment in |Inverse()|.
-    if (UNLIKELY(InvalidOperation(IsZero(), "Inverse of zero attempted"))) {
+    if (UNLIKELY(IsZero())) {
+      LOG_IF_NOT_GPU(ERROR) << "Inverse of zero attempted";
       return std::nullopt;
     }
     EGCD<int64_t>::Result result = EGCD<int64_t>::Compute(value_, GetModulus());
-    if (UNLIKELY(InvalidOperation(result.r != 1, "result.r != 1"))) {
+    if (UNLIKELY(result.r != 1)) {
+      LOG_IF_NOT_GPU(ERROR) << "result.r != 1";
       return std::nullopt;
     }
     if (result.s > 0) {
