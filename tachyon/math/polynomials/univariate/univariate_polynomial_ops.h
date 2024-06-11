@@ -835,7 +835,6 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     }
 
     c.coefficients_ = S(std::move(c_terms));
-    c.coefficients_.RemoveHighDegreeZeros();
   }
 
   static void DoMul(const UnivariatePolynomial<S>& a,
@@ -864,7 +863,6 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     }
     pdqsort(c_terms.begin(), c_terms.end());
     c.coefficients_ = S(std::move(c_terms));
-    c.coefficients_.RemoveHighDegreeZeros();
   }
 };
 
