@@ -3,8 +3,8 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON2_POSEIDON2_INTERNAL_MATRIX_H_
-#define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON2_POSEIDON2_INTERNAL_MATRIX_H_
+#ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON2_POSEIDON2_HORIZEN_INTERNAL_MATRIX_H_
+#define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON2_POSEIDON2_HORIZEN_INTERNAL_MATRIX_H_
 
 #include <numeric>
 
@@ -13,7 +13,7 @@
 namespace tachyon::crypto {
 
 template <typename PrimeField>
-class Poseidon2InternalMatrix {
+class Poseidon2HorizenInternalMatrix {
  public:
   static void Apply(math::Vector<PrimeField>& v,
                     const math::Vector<PrimeField>& diagonal_minus_one) {
@@ -41,4 +41,4 @@ class Poseidon2InternalMatrix {
 
 }  // namespace tachyon::crypto
 
-#endif  // TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON2_POSEIDON2_INTERNAL_MATRIX_H_
+#endif  // TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON2_POSEIDON2_HORIZEN_INTERNAL_MATRIX_H_

@@ -7,7 +7,7 @@ tachyon_cc_library(
     hdrs = ["poseidon2.h"],
     deps = [
         ":poseidon2_config",
-        ":poseidon2_internal_matrix",
+        ":poseidon2_horizen_internal_matrix",
         "//tachyon/base/buffer:copyable",
         "//tachyon/crypto/hashes/sponge/poseidon:poseidon_sponge_base",
         "//tachyon/crypto/hashes/sponge/poseidon:poseidon_state",
@@ -54,8 +54,8 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
-    name = "poseidon2_internal_matrix",
-    hdrs = ["poseidon2_internal_matrix.h"],
+    name = "poseidon2_horizen_internal_matrix",
+    hdrs = ["poseidon2_horizen_internal_matrix.h"],
     deps = ["//tachyon/math/matrix:matrix_types"],
 )
 

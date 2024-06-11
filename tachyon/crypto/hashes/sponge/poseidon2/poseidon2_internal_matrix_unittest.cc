@@ -3,10 +3,9 @@
 // can be found in the LICENSE-MIT.plonky3 and the LICENCE-APACHE.plonky3
 // file.
 
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_internal_matrix.h"
-
 #include "gtest/gtest.h"
 
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_internal_matrix.h"
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/matrix/prime_field_num_traits.h"
@@ -21,7 +20,7 @@ class Poseidon2InternalMatrixTest : public math::FiniteFieldTest<F> {};
 
 }  // namespace
 
-TEST_F(Poseidon2InternalMatrixTest, Apply) {
+TEST_F(Poseidon2InternalMatrixTest, ApplyHorizen) {
   math::Vector<F> diagonal_minus_one_vec{
       {F::Random() - F::One(), F::Random() - F::One(), F::Random() - F::One()}};
 
@@ -33,7 +32,7 @@ TEST_F(Poseidon2InternalMatrixTest, Apply) {
 
   math::Vector<F> state{{F::Random(), F::Random(), F::Random()}};
   math::Vector<F> state2 = state;
-  Poseidon2InternalMatrix<F>::Apply(state2, diagonal_minus_one_vec);
+  Poseidon2HorizenInternalMatrix<F>::Apply(state2, diagonal_minus_one_vec);
   EXPECT_EQ(matrix * state, state2);
 }
 
