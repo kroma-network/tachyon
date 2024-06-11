@@ -102,15 +102,16 @@ class UnivariateSparseCoefficients {
 
   constexpr UnivariateSparseCoefficients() = default;
   constexpr explicit UnivariateSparseCoefficients(
-      const std::vector<Term>& terms)
+      const std::vector<Term>& terms, bool cleanup = false)
       : terms_(terms) {
+    if (cleanup) RemoveHighDegreeZeros();
     CHECK_LE(Degree(), kMaxDegree);
-    RemoveHighDegreeZeros();
   }
-  constexpr explicit UnivariateSparseCoefficients(std::vector<Term>&& terms)
+  constexpr explicit UnivariateSparseCoefficients(std::vector<Term>&& terms,
+                                                  bool cleanup = false)
       : terms_(std::move(terms)) {
+    if (cleanup) RemoveHighDegreeZeros();
     CHECK_LE(Degree(), kMaxDegree);
-    RemoveHighDegreeZeros();
   }
 
   constexpr static UnivariateSparseCoefficients CreateChecked(
@@ -155,6 +156,15 @@ class UnivariateSparseCoefficients {
 
   constexpr bool operator!=(const UnivariateSparseCoefficients& other) const {
     return !operator==(other);
+  }
+
+  constexpr bool IsClean() const {
+    for (const Term& term : terms_) {
+      if (term.coefficient.IsZero()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   constexpr F& at(size_t i) {

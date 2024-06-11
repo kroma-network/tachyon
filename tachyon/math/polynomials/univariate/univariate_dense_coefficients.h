@@ -49,15 +49,17 @@ class UnivariateDenseCoefficients {
 
   constexpr UnivariateDenseCoefficients() = default;
   constexpr explicit UnivariateDenseCoefficients(
-      const std::vector<F>& coefficients)
+      const std::vector<F>& coefficients, bool cleanup = false)
       : coefficients_(coefficients) {
+    if (cleanup) RemoveHighDegreeZeros();
     CHECK_LE(Degree(), kMaxDegree);
-    RemoveHighDegreeZeros();
   }
-  constexpr explicit UnivariateDenseCoefficients(std::vector<F>&& coefficients)
+
+  constexpr explicit UnivariateDenseCoefficients(std::vector<F>&& coefficients,
+                                                 bool cleanup = false)
       : coefficients_(std::move(coefficients)) {
+    if (cleanup) RemoveHighDegreeZeros();
     CHECK_LE(Degree(), kMaxDegree);
-    RemoveHighDegreeZeros();
   }
 
   constexpr static UnivariateDenseCoefficients Zero() {
@@ -189,7 +191,7 @@ class UnivariateDenseCoefficients {
         coefficients[size >> 1] *= r;
       }
     }
-    return UnivariateDenseCoefficients(std::move(coefficients));
+    return UnivariateDenseCoefficients(std::move(coefficients), true);
   }
 
   std::string ToString() const {
@@ -213,6 +215,20 @@ class UnivariateDenseCoefficients {
       }
     }
     return ss.str();
+  }
+
+  void RemoveHighDegreeZeros() {
+    while (!IsZero()) {
+      if (coefficients_.back().IsZero()) {
+        coefficients_.pop_back();
+      } else {
+        break;
+      }
+    }
+  }
+
+  constexpr bool IsClean() const {
+    return coefficients_.size() == 0 || !coefficients_.back().IsZero();
   }
 
  private:
@@ -261,16 +277,6 @@ class UnivariateDenseCoefficients {
                              result *= point;
                              return result += coeff;
                            });
-  }
-
-  void RemoveHighDegreeZeros() {
-    while (!IsZero()) {
-      if (coefficients_.back().IsZero()) {
-        coefficients_.pop_back();
-      } else {
-        break;
-      }
-    }
   }
 
   std::vector<F> coefficients_;

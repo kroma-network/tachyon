@@ -39,7 +39,8 @@ class UnivariateSparsePolynomialTest : public FiniteFieldTest<GF7> {
 TEST_F(UnivariateSparsePolynomialTest, IsZero) {
   EXPECT_TRUE(Poly().IsZero());
   EXPECT_TRUE(Poly::Zero().IsZero());
-  EXPECT_TRUE(Poly(Coeffs({{0, GF7(0)}})).IsZero());
+  EXPECT_TRUE(Poly(Coeffs({{0, GF7(0)}, {1, GF7(0)}}, true)).IsZero());
+
   for (size_t i = 0; i < polys_.size() - 1; ++i) {
     EXPECT_FALSE(polys_[i].IsZero());
   }
@@ -324,7 +325,7 @@ TEST_F(UnivariateSparsePolynomialTest, MulScalar) {
   }
 
   Poly actual = poly * scalar;
-  Poly expected(Coeffs(std::move(expected_terms)));
+  Poly expected(Coeffs(std::move(expected_terms), true));
   EXPECT_EQ(actual, expected);
   poly *= scalar;
   EXPECT_EQ(poly, expected);

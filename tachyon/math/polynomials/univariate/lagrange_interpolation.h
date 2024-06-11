@@ -31,7 +31,7 @@ bool LagrangeInterpolate(
   }
 
   if (points.size() == 1) {
-    *ret = Poly(Coeffs({evals[0]}));
+    *ret = Poly(Coeffs({evals[0]}, true));
     return true;
   }
 
@@ -101,7 +101,7 @@ bool LagrangeInterpolate(
       coeffs_sums[0][j] += coeffs_sums[i][j];
     }
   }
-  *ret = Poly(Coeffs(std::move(coeffs_sums[0])));
+  *ret = Poly(Coeffs(std::move(coeffs_sums[0]), true));
   return true;
 }
 
