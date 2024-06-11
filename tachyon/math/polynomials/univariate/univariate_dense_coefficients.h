@@ -71,8 +71,12 @@ class UnivariateDenseCoefficients {
   }
 
   constexpr static UnivariateDenseCoefficients Random(size_t degree) {
-    return UnivariateDenseCoefficients(
-        base::CreateVector(degree + 1, []() { return F::Random(); }));
+    std::vector v =
+        base::CreateVector(degree + 1, []() { return F::Random(); });
+    if (v[degree].IsZero()) {
+      v[degree] = F::One();
+    }
+    return UnivariateDenseCoefficients(std::move(v));
   }
 
   // Return dense coefficients according to the given |roots|.
