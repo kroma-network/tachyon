@@ -8,6 +8,7 @@ tachyon_cc_library(
     deps = [
         ":poseidon2_config",
         ":poseidon2_horizen_internal_matrix",
+        ":poseidon2_plonky3_internal_matrix",
         "//tachyon/base/buffer:copyable",
         "//tachyon/crypto/hashes/sponge/poseidon:poseidon_sponge_base",
         "//tachyon/crypto/hashes/sponge/poseidon:poseidon_state",
@@ -65,6 +66,15 @@ tachyon_cc_library(
     deps = [":poseidon2_external_matrix"],
 )
 
+tachyon_cc_library(
+    name = "poseidon2_plonky3_internal_matrix",
+    hdrs = ["poseidon2_plonky3_internal_matrix.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/math/matrix:matrix_types",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "poseidon2_unittests",
     srcs = [
@@ -76,7 +86,9 @@ tachyon_cc_unittest(
         ":poseidon2",
         ":poseidon2_horizen_external_matrix",
         ":poseidon2_plonky3_external_matrix",
+        ":poseidon2_plonky3_internal_matrix",
         "//tachyon/base/buffer:vector_buffer",
+        "//tachyon/math/finite_fields/baby_bear:poseidon2",
         "//tachyon/math/finite_fields/goldilocks:goldilocks_prime_field",
         "//tachyon/math/finite_fields/goldilocks:poseidon2",
         "//tachyon/math/finite_fields/mersenne31",

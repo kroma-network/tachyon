@@ -41,6 +41,22 @@ std::array<BabyBear, N> GetPoseidon2BabyBearInternalDiagonalVector() {
   }
 }
 
+template <size_t N>
+std::array<uint8_t, N> GetPoseidon2BabyBearInternalShiftVector() {
+  // This is taken and modified from
+  // https://github.com/Plonky3/Plonky3/blob/fde81db95b8eeb39e07890f4099a7d59daeec52f/baby-bear/src/poseidon2.rs.
+  if constexpr (N == 15) {
+    return {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15};
+  } else if constexpr (N == 23) {
+    return {
+        0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11,
+        12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23,
+    };
+  } else {
+    static_assert(base::AlwaysFalse<std::array<uint8_t, N>>);
+  }
+}
+
 }  // namespace tachyon::math
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_BABY_BEAR_POSEIDON2_H_

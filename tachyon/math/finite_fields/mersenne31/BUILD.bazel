@@ -74,3 +74,12 @@ tachyon_cc_library(
         "//tachyon/math/finite_fields:packed_prime_field_base",
     ],
 )
+
+tachyon_cc_library(
+    name = "poseidon2",
+    hdrs = ["poseidon2.h"],
+    deps = [
+        ":mersenne31",
+        "//tachyon/base/types:always_false",
+    ],
+)

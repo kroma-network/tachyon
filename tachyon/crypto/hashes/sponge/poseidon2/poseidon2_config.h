@@ -49,6 +49,7 @@ struct Poseidon2Config : public PoseidonConfigBase<PrimeField> {
   using F = PrimeField;
 
   math::Vector<PrimeField> internal_diagonal_minus_one;
+  math::Vector<uint8_t> internal_shifts;
 
   Poseidon2Config() = default;
   Poseidon2Config(const PoseidonConfigBase<PrimeField>& base,
@@ -69,6 +70,21 @@ struct Poseidon2Config : public PoseidonConfigBase<PrimeField> {
     ret.internal_diagonal_minus_one = math::Vector<PrimeField>(N);
     for (size_t i = 0; i < N; ++i) {
       ret.internal_diagonal_minus_one[i] = internal_diagonal_minus_one[i];
+    }
+    FindPoseidon2Ark<PrimeField>(
+        config_entry.ToPoseidonGrainLFSRConfig<PrimeField>(), ret.ark);
+    return ret;
+  }
+
+  template <size_t N>
+  constexpr static Poseidon2Config CreateCustom(
+      size_t rate, uint64_t alpha, size_t full_rounds, size_t partial_rounds,
+      const std::array<uint8_t, N>& internal_shifts) {
+    Poseidon2ConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds);
+    Poseidon2Config ret = config_entry.ToPoseidon2Config<PrimeField>();
+    ret.internal_shifts = math::Vector<uint8_t>(N);
+    for (size_t i = 0; i < N; ++i) {
+      ret.internal_shifts[i] = internal_shifts[i];
     }
     FindPoseidon2Ark<PrimeField>(
         config_entry.ToPoseidonGrainLFSRConfig<PrimeField>(), ret.ark);

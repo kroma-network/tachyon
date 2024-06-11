@@ -6,6 +6,7 @@
 #include "gtest/gtest.h"
 
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_internal_matrix.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_internal_matrix.h"
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/matrix/prime_field_num_traits.h"
