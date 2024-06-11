@@ -52,7 +52,7 @@ std::array<Fr, N> GetPoseidon2InternalDiagonalVector() {
         // clang-format on
     };
   } else {
-    static_assert(base::AlwaysFalse<std::array<Fr, N>>());
+    static_assert(base::AlwaysFalse<std::array<Fr, N>>);
   }
 }
 

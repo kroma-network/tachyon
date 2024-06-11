@@ -91,7 +91,7 @@ std::array<Goldilocks, N> GetPoseidon2GoldilocksInternalDiagonalVector() {
         Goldilocks{UINT64_C(0x774487b8c40089bb)},
     };
   } else {
-    static_assert(base::AlwaysFalse<std::array<Goldilocks, N>>());
+    static_assert(base::AlwaysFalse<std::array<Goldilocks, N>>);
   }
 }
 

@@ -16,7 +16,7 @@ namespace tachyon::zk::plonk::halo2 {
 template <typename F>
 static F FromUint128(absl::uint128 value) {
   if constexpr (F::N != 4) {
-    static_assert(base::AlwaysFalse<F>());
+    static_assert(base::AlwaysFalse<F>);
   }
   uint64_t limbs[4] = {absl::Uint128Low64(value), absl::Uint128High64(value), 0,
                        0};
@@ -28,7 +28,7 @@ static F FromUint128(absl::uint128 value) {
 template <typename F>
 static F FromUint512(uint64_t limbs[8]) {
   if constexpr (F::N != 4) {
-    static_assert(base::AlwaysFalse<F>());
+    static_assert(base::AlwaysFalse<F>);
   }
   F d0 = F::FromMontgomery(
       math::BigInt<4>({limbs[0], limbs[1], limbs[2], limbs[3]}));
