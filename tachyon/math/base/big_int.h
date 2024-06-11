@@ -520,6 +520,28 @@ struct ALIGNAS(internal::LimbsAlignment(N)) BigInt {
     return *this;
   }
 
+  constexpr BigInt operator<<(uint32_t count) const {
+    BigInt ret = *this;
+    ret.MulBy2ExpInPlace(count);
+    return ret;
+  }
+
+  constexpr BigInt& operator<<=(uint32_t count) {
+    MulBy2ExpInPlace(count);
+    return *this;
+  }
+
+  constexpr BigInt operator>>(uint32_t count) const {
+    BigInt ret = *this;
+    ret.DivBy2ExpInPlace(count);
+    return ret;
+  }
+
+  constexpr BigInt& operator>>=(uint32_t count) {
+    DivBy2ExpInPlace(count);
+    return *this;
+  }
+
   constexpr BigInt Add(const BigInt& other) const {
     uint64_t unused = 0;
     return Add(other, unused);

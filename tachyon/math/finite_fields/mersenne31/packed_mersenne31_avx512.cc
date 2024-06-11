@@ -21,14 +21,12 @@ __mmask16 kEvens = 0b0101010101010101;
 __mmask16 kOdds = 0b1010101010101010;
 
 __m512i ToVector(const PackedMersenne31AVX512& packed) {
-  return _mm512_loadu_si512(
-      reinterpret_cast<const __m512i_u*>(packed.values().data()));
+  return _mm512_loadu_si512(packed.values().data());
 }
 
 PackedMersenne31AVX512 FromVector(__m512i vector) {
   PackedMersenne31AVX512 ret;
-  _mm512_storeu_si512(reinterpret_cast<__m512i_u*>(ret.values().data()),
-                      vector);
+  _mm512_storeu_si512(ret.values().data(), vector);
   return ret;
 }
 

@@ -19,14 +19,12 @@ __m512i kZero;
 __m512i kOne;
 
 __m512i ToVector(const PackedBabyBearAVX512& packed) {
-  return _mm512_loadu_si512(
-      reinterpret_cast<const __m512i_u*>(packed.values().data()));
+  return _mm512_loadu_si512(packed.values().data());
 }
 
 PackedBabyBearAVX512 FromVector(__m512i vector) {
   PackedBabyBearAVX512 ret;
-  _mm512_storeu_si512(reinterpret_cast<__m512i_u*>(ret.values().data()),
-                      vector);
+  _mm512_storeu_si512(ret.values().data(), vector);
   return ret;
 }
 

@@ -1,5 +1,7 @@
+load("//bazel:tachyon.bzl", "if_aarch64", "if_has_avx512", "if_x86_64")
 load(
     "//bazel:tachyon_cc.bzl",
+    "tachyon_avx512_defines",
     "tachyon_cc_benchmark",
     "tachyon_cc_library",
     "tachyon_cc_unittest",
@@ -120,6 +122,33 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "simd_int",
+    srcs = if_x86_64([
+        "simd_int128_x86.cc",
+        "simd_int256_x86.cc",
+    ]) + if_has_avx512([
+        "simd_int512_x86.cc",
+    ]) + if_aarch64([
+        "simd_int128_arm64.cc",
+    ]),
+    hdrs = ["simd_int.h"],
+    copts = if_x86_64([
+        "-mavx2",
+    ]) + if_has_avx512([
+        "-mavx512f",
+    ]),
+    defines = tachyon_avx512_defines(),
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base:bit_cast",
+        "//tachyon/base:compiler_specific",
+        "//tachyon/base:logging",
+        "//tachyon/build:build_config",
+        "//tachyon/math/base:big_int",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "base_unittests",
     srcs = [
@@ -132,6 +161,7 @@ tachyon_cc_unittest(
         "rational_field_unittest.cc",
         "semigroups_unittest.cc",
         "sign_unittest.cc",
+        "simd_int_unittest.cc",
     ],
     deps = [
         ":big_int",
@@ -140,6 +170,7 @@ tachyon_cc_unittest(
         ":groups",
         ":rational_field",
         ":sign",
+        ":simd_int",
         "//tachyon/base:optional",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/containers:container_util",
