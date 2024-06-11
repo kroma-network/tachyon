@@ -1,6 +1,7 @@
 #ifndef TACHYON_ZK_LOOKUP_LOG_DERIVATIVE_HALO2_SCHEME_H_
 #define TACHYON_ZK_LOOKUP_LOG_DERIVATIVE_HALO2_SCHEME_H_
 
+#include "tachyon/zk/lookup/log_derivative_halo2/evaluator.h"
 #include "tachyon/zk/lookup/log_derivative_halo2/prover.h"
 #include "tachyon/zk/lookup/type.h"
 
@@ -14,6 +15,7 @@ struct Scheme {
   using Field = typename Poly::Field;
 
   using Prover = lookup::log_derivative_halo2::Prover<Poly, Evals>;
+  using Evaluator = lookup::log_derivative_halo2::Evaluator<Field, Evals>;
 
   constexpr static Type type = Type::kLogDerivativeHalo2;
 };

@@ -3,6 +3,16 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
+    name = "evaluator",
+    hdrs = ["evaluator.h"],
+    deps = [
+        ":prover",
+        "//tachyon/zk/plonk/vanishing:circuit_polynomial_builder_forward",
+        "//tachyon/zk/plonk/vanishing:graph_evaluator",
+    ],
+)
+
+tachyon_cc_library(
     name = "prover",
     hdrs = [
         "prover.h",
@@ -27,6 +37,7 @@ tachyon_cc_library(
     name = "scheme",
     hdrs = ["scheme.h"],
     deps = [
+        ":evaluator",
         ":prover",
         "//tachyon/zk/lookup:type",
     ],
