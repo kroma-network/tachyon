@@ -28,15 +28,26 @@ tachyon_cc_library(
     ],
 )
 
+tachyon_cc_library(
+    name = "truncated_permutation",
+    hdrs = ["truncated_permutation.h"],
+    deps = [
+        ":sponge",
+        "//tachyon/crypto/hashes:compressor",
+    ],
+)
+
 tachyon_cc_unittest(
     name = "sponge_unittests",
     srcs = [
         "duplex_sponge_mode_unittest.cc",
         "padding_free_sponge_unittest.cc",
+        "truncated_permutation_unittest.cc",
     ],
     deps = [
         ":duplex_sponge_mode",
         ":padding_free_sponge",
+        ":truncated_permutation",
         "//tachyon/base/buffer:vector_buffer",
         "//tachyon/base/containers:container_util",
         "//tachyon/crypto/hashes/sponge/poseidon2",
