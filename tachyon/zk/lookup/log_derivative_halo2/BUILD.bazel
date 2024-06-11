@@ -39,6 +39,29 @@ tachyon_cc_library(
     deps = [
         ":evaluator",
         ":prover",
+        ":verifier",
+        ":verifier_data",
         "//tachyon/zk/lookup:type",
     ],
+)
+
+tachyon_cc_library(
+    name = "verifier",
+    hdrs = ["verifier.h"],
+    deps = [
+        ":verifier_data",
+        "//tachyon/crypto/commitments:polynomial_openings",
+        "//tachyon/zk/lookup:lookup_argument",
+        "//tachyon/zk/lookup:verifier",
+        "//tachyon/zk/lookup:verifying_evaluator",
+        "//tachyon/zk/lookup/halo2:opening_point_set",
+        "//tachyon/zk/plonk/base:l_values",
+        "//tachyon/zk/plonk/halo2:proof",
+    ],
+)
+
+tachyon_cc_library(
+    name = "verifier_data",
+    hdrs = ["verifier_data.h"],
+    deps = ["//tachyon/zk/plonk/base:multi_phase_evaluations"],
 )
