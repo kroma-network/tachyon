@@ -12,7 +12,6 @@
 #elif ARCH_CPU_ARM64
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_neon.h"
 #endif
-#endif
 
 namespace tachyon::math {
 

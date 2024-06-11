@@ -12,7 +12,6 @@
 #elif ARCH_CPU_ARM64
 #include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_neon.h"
 #endif
-#endif
 
 namespace tachyon::math {
 
