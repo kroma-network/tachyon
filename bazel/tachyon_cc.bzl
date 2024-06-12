@@ -34,7 +34,11 @@ def tachyon_simd_copts():
     return if_linux_x86_64(["-msse3"])
 
 def tachyon_openmp():
-    return if_has_openmp(["-fopenmp"])
+    return select({
+        "@kroma_network_tachyon//:tachyon_has_openmp_on_macos": ["-Xclang -fopenmp"],
+        "@kroma_network_tachyon//:tachyon_has_openmp": ["-fopenmp"],
+        "//conditions:default": [],
+    })
 
 def tachyon_copts(safe_code = True):
     return tachyon_warnings(safe_code) + tachyon_hide_symbols() + tachyon_simd_copts() + tachyon_openmp()
@@ -79,6 +83,7 @@ def tachyon_local_defines_compile_library():
 
 def tachyon_openmp_linkopts():
     return select({
+        "@kroma_network_tachyon//:tachyon_has_openmp_on_macos": ["-Xclang -fopenmp"],
         "@kroma_network_tachyon//:tachyon_has_openmp": ["-fopenmp"],
         "@kroma_network_tachyon//:tachyon_has_intel_openmp": ["-liomp5"],
         "//conditions:default": [],
