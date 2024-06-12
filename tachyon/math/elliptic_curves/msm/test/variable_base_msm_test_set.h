@@ -82,7 +82,6 @@ struct VariableBaseMSMTestSet {
     return base::WriteFile(dir.Append("scalars.txt"), ss.str());
   }
 
- private:
   void ComputeAnswer(VariableBaseMSMMethod method) {
     answer = Bucket::Zero();
     switch (method) {

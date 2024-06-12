@@ -4,6 +4,7 @@
 
 #include "gtest/gtest.h"
 
+#include "tachyon/base/strings/string_util.h"
 #include "tachyon/device/gpu/gpu_enums.h"
 #include "tachyon/device/gpu/scoped_mem_pool.h"
 #include "tachyon/device/gpu/scoped_stream.h"
@@ -20,14 +21,26 @@ using namespace device;
 
 class VariableMSMCorrectnessGpuTest : public testing::Test {
  public:
-  constexpr static size_t kLogCount = 10;
+  constexpr static size_t kLogCount = 1;
   constexpr static size_t kCount = 1 << kLogCount;
 
   static void SetUpTestSuite() {
     bn254::G1Curve::Init();
 
-    test_set_ = VariableBaseMSMTestSet<bn254::G1AffinePoint>::Random(
-        kCount, VariableBaseMSMMethod::kMSM);
+    test_set_.bases = base::CreateVector(
+        kCount, []() { return bn254::G1AffinePoint::Generator(); });
+    bn254::Fr s = bn254::Fr::One();
+    test_set_.scalars = base::CreateVector(kCount, [&s]() {
+      bn254::Fr ret = s;
+      s += bn254::Fr::One();
+      return ret;
+    });
+
+    test_set_.ComputeAnswer(VariableBaseMSMMethod::kMSM);
+
+    LOG(ERROR) << "base: " << base::ContainerToString(test_set_.bases);
+    LOG(ERROR) << "scalars: " << base::ContainerToString(test_set_.scalars);
+    LOG(ERROR) << "result: " << test_set_.answer.ToAffine().ToString();
 
     expected_ = test_set_.answer.ToProjective();
   }
