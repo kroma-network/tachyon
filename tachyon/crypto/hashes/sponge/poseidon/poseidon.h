@@ -12,7 +12,7 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_sponge_base.h"
-#include "tachyon/crypto/hashes/sponge/poseidon/poseidon_state.h"
+#include "tachyon/crypto/hashes/sponge/sponge_state.h"
 
 namespace tachyon {
 namespace crypto {
@@ -31,15 +31,14 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
   // Sponge Config
   PoseidonConfig<F> config;
 
-  // Sponge State
-  PoseidonState<F> state;
+  SpongeState<F> state;
 
   PoseidonSponge() = default;
   explicit PoseidonSponge(const PoseidonConfig<F>& config)
       : config(config), state(config.rate + config.capacity) {}
-  PoseidonSponge(const PoseidonConfig<F>& config, const PoseidonState<F>& state)
+  PoseidonSponge(const PoseidonConfig<F>& config, const SpongeState<F>& state)
       : config(config), state(state) {}
-  PoseidonSponge(const PoseidonConfig<F>& config, PoseidonState<F>&& state)
+  PoseidonSponge(const PoseidonConfig<F>& config, SpongeState<F>&& state)
       : config(config), state(std::move(state)) {}
 
   // PoseidonSpongeBase methods
@@ -78,7 +77,7 @@ class Copyable<crypto::PoseidonSponge<F>> {
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        crypto::PoseidonSponge<F>* poseidon) {
     crypto::PoseidonConfig<F> config;
-    crypto::PoseidonState<F> state;
+    crypto::SpongeState<F> state;
     if (!buffer.ReadMany(&config, &state)) {
       return false;
     }

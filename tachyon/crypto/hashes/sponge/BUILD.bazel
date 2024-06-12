@@ -38,6 +38,16 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "sponge_state",
+    hdrs = ["sponge_state.h"],
+    deps = [
+        ":duplex_sponge_mode",
+        ":sponge_config",
+        "//tachyon/math/matrix:matrix_types",
+    ],
+)
+
+tachyon_cc_library(
     name = "truncated_permutation",
     hdrs = ["truncated_permutation.h"],
     deps = [

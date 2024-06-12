@@ -12,10 +12,10 @@
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_sponge_base.h"
-#include "tachyon/crypto/hashes/sponge/poseidon/poseidon_state.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_internal_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_internal_matrix.h"
+#include "tachyon/crypto/hashes/sponge/sponge_state.h"
 
 namespace tachyon {
 namespace crypto {
@@ -35,16 +35,14 @@ struct Poseidon2Sponge final
   // Sponge Config
   Poseidon2Config<F> config;
 
-  // Sponge State
-  PoseidonState<F> state;
+  SpongeState<F> state;
 
   Poseidon2Sponge() = default;
   explicit Poseidon2Sponge(const Poseidon2Config<F>& config)
       : config(config), state(config.rate + config.capacity) {}
-  Poseidon2Sponge(const Poseidon2Config<F>& config,
-                  const PoseidonState<F>& state)
+  Poseidon2Sponge(const Poseidon2Config<F>& config, const SpongeState<F>& state)
       : config(config), state(state) {}
-  Poseidon2Sponge(const Poseidon2Config<F>& config, PoseidonState<F>&& state)
+  Poseidon2Sponge(const Poseidon2Config<F>& config, SpongeState<F>&& state)
       : config(config), state(std::move(state)) {}
 
   // PoseidonSpongeBase methods
@@ -103,7 +101,7 @@ class Copyable<crypto::Poseidon2Sponge<ExternalMatrix>> {
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
                        crypto::Poseidon2Sponge<ExternalMatrix>* poseidon) {
     crypto::Poseidon2Config<F> config;
-    crypto::PoseidonState<F> state;
+    crypto::SpongeState<F> state;
     if (!buffer.ReadMany(&config, &state)) {
       return false;
     }

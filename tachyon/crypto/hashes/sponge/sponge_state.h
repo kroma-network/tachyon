@@ -3,29 +3,32 @@
 // can be found in the LICENSE-MIT.arkworks and the LICENCE-APACHE.arkworks
 // file.
 
-#ifndef TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_STATE_H_
-#define TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_STATE_H_
+#ifndef TACHYON_CRYPTO_HASHES_SPONGE_SPONGE_STATE_H_
+#define TACHYON_CRYPTO_HASHES_SPONGE_SPONGE_STATE_H_
 
 #include <sstream>
 #include <string>
 #include <utility>
 
 #include "tachyon/crypto/hashes/sponge/duplex_sponge_mode.h"
+#include "tachyon/crypto/hashes/sponge/sponge_config.h"
 #include "tachyon/math/matrix/matrix_types.h"
 
 namespace tachyon {
 namespace crypto {
 
 template <typename F>
-struct PoseidonState {
+struct SpongeState {
   // Current sponge's state (current elements in the permutation block)
   math::Vector<F> elements;
 
   // Current mode (whether its absorbing or squeezing)
   DuplexSpongeMode mode = DuplexSpongeMode::Absorbing();
 
-  PoseidonState() = default;
-  explicit PoseidonState(size_t size) : elements(size) {
+  SpongeState() = default;
+  explicit SpongeState(const SpongeConfig& config)
+      : SpongeState(config.rate + config.capacity) {}
+  explicit SpongeState(size_t size) : elements(size) {
     for (size_t i = 0; i < size; ++i) {
       elements[i] = F::Zero();
     }
@@ -36,12 +39,10 @@ struct PoseidonState {
   F& operator[](size_t idx) { return elements[idx]; }
   const F& operator[](size_t idx) const { return elements[idx]; }
 
-  bool operator==(const PoseidonState& other) const {
+  bool operator==(const SpongeState& other) const {
     return elements == other.elements && mode == other.mode;
   }
-  bool operator!=(const PoseidonState& other) const {
-    return !operator==(other);
-  }
+  bool operator!=(const SpongeState& other) const { return !operator==(other); }
 
   std::string ToString() const {
     std::stringstream ss;
@@ -75,14 +76,14 @@ struct PoseidonState {
 namespace base {
 
 template <typename F>
-class Copyable<crypto::PoseidonState<F>> {
+class Copyable<crypto::SpongeState<F>> {
  public:
-  static bool WriteTo(const crypto::PoseidonState<F>& state, Buffer* buffer) {
+  static bool WriteTo(const crypto::SpongeState<F>& state, Buffer* buffer) {
     return buffer->WriteMany(state.elements, state.mode);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::PoseidonState<F>* state) {
+                       crypto::SpongeState<F>* state) {
     math::Vector<F> elements;
     crypto::DuplexSpongeMode mode;
     if (!buffer.ReadMany(&elements, &mode)) {
@@ -94,7 +95,7 @@ class Copyable<crypto::PoseidonState<F>> {
     return true;
   }
 
-  static size_t EstimateSize(const crypto::PoseidonState<F>& state) {
+  static size_t EstimateSize(const crypto::SpongeState<F>& state) {
     return base::EstimateSize(state.elements, state.mode);
   }
 };
@@ -102,4 +103,4 @@ class Copyable<crypto::PoseidonState<F>> {
 }  // namespace base
 }  // namespace tachyon
 
-#endif  // TACHYON_CRYPTO_HASHES_SPONGE_POSEIDON_POSEIDON_STATE_H_
+#endif  // TACHYON_CRYPTO_HASHES_SPONGE_SPONGE_STATE_H_
