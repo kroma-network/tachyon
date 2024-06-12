@@ -201,19 +201,21 @@ class KZG {
   }
 
  private:
-  template <typename BaseContainer, typename ScalarContainer>
+  template <typename BaseContainer, typename ScalarContainer,
+            typename OutCommitment>
   bool DoMSM(const BaseContainer& bases, const ScalarContainer& scalars,
-             Commitment* out) const {
+             OutCommitment* out) const {
 #if TACHYON_CUDA
     if (msm_gpu_) {
       absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
           bases.data(), std::min(bases.size(), scalars.size()));
-      if constexpr (std::is_same_v<Commitment, math::ProjectivePoint<Curve>>) {
+      if constexpr (std::is_same_v<OutCommitment,
+                                   math::ProjectivePoint<Curve>>) {
         return msm_gpu_->Run(bases_span, scalars, out);
       } else {
         math::ProjectivePoint<Curve> result;
         if (!msm_gpu_->Run(bases_span, scalars, &result)) return false;
-        *out = math::ConvertPoint<Commitment>(result);
+        *out = math::ConvertPoint<OutCommitment>(result);
         return true;
       }
     }
@@ -221,12 +223,12 @@ class KZG {
     math::VariableBaseMSM<G1Point> msm;
     absl::Span<const G1Point> bases_span = absl::Span<const G1Point>(
         bases.data(), std::min(bases.size(), scalars.size()));
-    if constexpr (std::is_same_v<Commitment, Bucket>) {
+    if constexpr (std::is_same_v<OutCommitment, Bucket>) {
       return msm.Run(bases_span, scalars, out);
     } else {
       Bucket result;
       if (!msm.Run(bases_span, scalars, &result)) return false;
-      *out = math::ConvertPoint<Commitment>(result);
+      *out = math::ConvertPoint<OutCommitment>(result);
       return true;
     }
   }
