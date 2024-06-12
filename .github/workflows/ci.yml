@@ -123,6 +123,6 @@ jobs:
 
       - name: Run Buildifier
         run: |
-          find tachyon/ -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --lint=fix
-          find tachyon/ -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --mode=check
+          find . -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --lint=fix
+          find . -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --mode=check
           git diff --exit-code
