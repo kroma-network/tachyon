@@ -1,6 +1,6 @@
 load("@crate_index//:defs.bzl", "aliases", "all_crate_deps")
 load("@local_config_cuda//cuda:build_defs.bzl", "if_cuda")
-load("//bazel:tachyon.bzl", "if_gpu_is_configured")
+load("//bazel:tachyon.bzl", "if_gpu_is_configured", "if_has_openmp_on_macos")
 load("//bazel:tachyon_cc.bzl", "tachyon_openmp_linkopts")
 load("//bazel:tachyon_rust.bzl", "tachyon_rust_library", "tachyon_rust_test")
 
@@ -40,5 +40,7 @@ tachyon_rust_test(
         "@local_config_gmp//:gmp",
     ] + if_cuda([
         "@local_config_cuda//cuda:cudart_static",
+    ]) + if_has_openmp_on_macos([
+        "@local_config_omp//:omp",
     ]),
 )
