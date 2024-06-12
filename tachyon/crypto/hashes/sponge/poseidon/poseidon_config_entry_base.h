@@ -35,10 +35,10 @@ struct TACHYON_EXPORT PoseidonConfigEntryBase {
         full_rounds(full_rounds),
         partial_rounds(partial_rounds) {}
 
-  template <typename PrimeField>
+  template <typename F>
   PoseidonGrainLFSRConfig ToPoseidonGrainLFSRConfig() const {
     PoseidonGrainLFSRConfig config;
-    config.prime_num_bits = PrimeField::kModulusBits;
+    config.prime_num_bits = F::kModulusBits;
     config.state_len = rate + 1;
     config.num_full_rounds = full_rounds;
     config.num_partial_rounds = partial_rounds;

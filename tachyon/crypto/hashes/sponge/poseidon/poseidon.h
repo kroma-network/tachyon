@@ -26,11 +26,8 @@ namespace crypto {
 // Squeeze: Squeeze elements out of the sponge.
 // This implementation of Poseidon is entirely Fractal's implementation in
 // [COS20][cos] with small syntax changes. See https://eprint.iacr.org/2019/1076
-template <typename PrimeField>
-struct PoseidonSponge final
-    : public PoseidonSpongeBase<PoseidonSponge<PrimeField>> {
-  using F = PrimeField;
-
+template <typename F>
+struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
   // Sponge Config
   PoseidonConfig<F> config;
 
@@ -60,9 +57,9 @@ struct PoseidonSponge final
   }
 };
 
-template <typename PrimeField>
-struct CryptographicSpongeTraits<PoseidonSponge<PrimeField>> {
-  using F = PrimeField;
+template <typename Field>
+struct CryptographicSpongeTraits<PoseidonSponge<Field>> {
+  using F = Field;
   constexpr static bool kApplyMixAtFront = false;
 };
 
@@ -70,18 +67,18 @@ struct CryptographicSpongeTraits<PoseidonSponge<PrimeField>> {
 
 namespace base {
 
-template <typename PrimeField>
-class Copyable<crypto::PoseidonSponge<PrimeField>> {
+template <typename F>
+class Copyable<crypto::PoseidonSponge<F>> {
  public:
-  static bool WriteTo(const crypto::PoseidonSponge<PrimeField>& poseidon,
+  static bool WriteTo(const crypto::PoseidonSponge<F>& poseidon,
                       Buffer* buffer) {
     return buffer->WriteMany(poseidon.config, poseidon.state);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::PoseidonSponge<PrimeField>* poseidon) {
-    crypto::PoseidonConfig<PrimeField> config;
-    crypto::PoseidonState<PrimeField> state;
+                       crypto::PoseidonSponge<F>* poseidon) {
+    crypto::PoseidonConfig<F> config;
+    crypto::PoseidonState<F> state;
     if (!buffer.ReadMany(&config, &state)) {
       return false;
     }
@@ -90,8 +87,7 @@ class Copyable<crypto::PoseidonSponge<PrimeField>> {
     return true;
   }
 
-  static size_t EstimateSize(
-      const crypto::PoseidonSponge<PrimeField>& poseidon) {
+  static size_t EstimateSize(const crypto::PoseidonSponge<F>& poseidon) {
     return base::EstimateSize(poseidon.config, poseidon.state);
   }
 };

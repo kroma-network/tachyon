@@ -13,7 +13,7 @@
 
 namespace tachyon::crypto {
 
-template <typename PrimeField>
+template <typename F>
 struct PoseidonConfig;
 
 // An entry in the Poseidon config
@@ -30,8 +30,8 @@ struct TACHYON_EXPORT PoseidonConfigEntry : public PoseidonConfigEntryBase {
       : PoseidonConfigEntryBase(rate, alpha, full_rounds, partial_rounds),
         skip_matrices(skip_matrices) {}
 
-  template <typename PrimeField>
-  PoseidonConfig<PrimeField> ToPoseidonConfig() const;
+  template <typename F>
+  PoseidonConfig<F> ToPoseidonConfig() const;
 
   bool operator==(const PoseidonConfigEntry& other) const {
     return PoseidonConfigEntryBase::operator==(other) &&

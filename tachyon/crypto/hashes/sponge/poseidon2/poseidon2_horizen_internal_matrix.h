@@ -12,11 +12,11 @@
 
 namespace tachyon::crypto {
 
-template <typename PrimeField>
+template <typename F>
 class Poseidon2HorizenInternalMatrix {
  public:
-  static void Apply(math::Vector<PrimeField>& v,
-                    const math::Vector<PrimeField>& diagonal_minus_one) {
+  static void Apply(math::Vector<F>& v,
+                    const math::Vector<F>& diagonal_minus_one) {
     // +-----+-----+-----+-----+   +-----+-----+-----+-----+
     // |  v₀ |  v₁ | ... | vₙ₋₁| * |  μ₀ |  1  | ... |  1  |
     // +-----+-----+-----+-----+   +-----+-----+-----+-----+
@@ -29,9 +29,9 @@ class Poseidon2HorizenInternalMatrix {
     // |v[i]| = v₀ + v₁ + ... + μᵢvᵢ + ... + vₙ₋₂ + vₙ₋₁
     //        = (μᵢ - 1)vᵢ + v₀ + v₁ + ... + vₙ₋₂ + vₙ₋₁
     //        = (μᵢ - 1)vᵢ + |sum|
-    PrimeField sum = std::accumulate(
-        v.begin(), v.end(), PrimeField::Zero(),
-        [](PrimeField& acc, const PrimeField& value) { return acc += value; });
+    F sum =
+        std::accumulate(v.begin(), v.end(), F::Zero(),
+                        [](F& acc, const F& value) { return acc += value; });
     for (Eigen::Index i = 0; i < v.size(); ++i) {
       v[i] *= diagonal_minus_one[i];
       v[i] += sum;

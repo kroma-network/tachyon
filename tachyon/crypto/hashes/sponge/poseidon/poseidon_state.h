@@ -16,10 +16,10 @@
 namespace tachyon {
 namespace crypto {
 
-template <typename PrimeField>
+template <typename F>
 struct PoseidonState {
   // Current sponge's state (current elements in the permutation block)
-  math::Vector<PrimeField> elements;
+  math::Vector<F> elements;
 
   // Current mode (whether its absorbing or squeezing)
   DuplexSpongeMode mode = DuplexSpongeMode::Absorbing();
@@ -27,14 +27,14 @@ struct PoseidonState {
   PoseidonState() = default;
   explicit PoseidonState(size_t size) : elements(size) {
     for (size_t i = 0; i < size; ++i) {
-      elements[i] = PrimeField::Zero();
+      elements[i] = F::Zero();
     }
   }
 
   size_t size() const { return elements.size(); }
 
-  PrimeField& operator[](size_t idx) { return elements[idx]; }
-  const PrimeField& operator[](size_t idx) const { return elements[idx]; }
+  F& operator[](size_t idx) { return elements[idx]; }
+  const F& operator[](size_t idx) const { return elements[idx]; }
 
   bool operator==(const PoseidonState& other) const {
     return elements == other.elements && mode == other.mode;
@@ -74,17 +74,16 @@ struct PoseidonState {
 
 namespace base {
 
-template <typename PrimeField>
-class Copyable<crypto::PoseidonState<PrimeField>> {
+template <typename F>
+class Copyable<crypto::PoseidonState<F>> {
  public:
-  static bool WriteTo(const crypto::PoseidonState<PrimeField>& state,
-                      Buffer* buffer) {
+  static bool WriteTo(const crypto::PoseidonState<F>& state, Buffer* buffer) {
     return buffer->WriteMany(state.elements, state.mode);
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::PoseidonState<PrimeField>* state) {
-    math::Vector<PrimeField> elements;
+                       crypto::PoseidonState<F>* state) {
+    math::Vector<F> elements;
     crypto::DuplexSpongeMode mode;
     if (!buffer.ReadMany(&elements, &mode)) {
       return false;
@@ -95,7 +94,7 @@ class Copyable<crypto::PoseidonState<PrimeField>> {
     return true;
   }
 
-  static size_t EstimateSize(const crypto::PoseidonState<PrimeField>& state) {
+  static size_t EstimateSize(const crypto::PoseidonState<F>& state) {
     return base::EstimateSize(state.elements, state.mode);
   }
 };

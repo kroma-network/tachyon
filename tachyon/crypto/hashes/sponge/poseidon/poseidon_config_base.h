@@ -17,10 +17,8 @@
 namespace tachyon {
 namespace crypto {
 
-template <typename PrimeField>
+template <typename F>
 struct PoseidonConfigBase {
-  using F = PrimeField;
-
   // Number of rounds in a full-round operation.
   size_t full_rounds = 0;
 
@@ -32,7 +30,7 @@ struct PoseidonConfigBase {
 
   // Additive Round Keys added before each MDS matrix application to make it an
   // affine shift. They are indexed by |ark[round_num][state_element_index]|.
-  math::Matrix<PrimeField> ark;
+  math::Matrix<F> ark;
 
   // The rate (in terms of number of field elements).
   // See https://iacr.org/archive/eurocrypt2008/49650180/49650180.pdf
@@ -43,8 +41,7 @@ struct PoseidonConfigBase {
 
   PoseidonConfigBase() = default;
   PoseidonConfigBase(size_t full_rounds, size_t partial_rounds, uint64_t alpha,
-                     const math::Matrix<PrimeField>& ark, size_t rate,
-                     size_t capacity)
+                     const math::Matrix<F>& ark, size_t rate, size_t capacity)
       : full_rounds(full_rounds),
         partial_rounds(partial_rounds),
         alpha(alpha),
@@ -52,8 +49,7 @@ struct PoseidonConfigBase {
         rate(rate),
         capacity(capacity) {}
   PoseidonConfigBase(size_t full_rounds, size_t partial_rounds, uint64_t alpha,
-                     math::Matrix<PrimeField>&& ark, size_t rate,
-                     size_t capacity)
+                     math::Matrix<F>&& ark, size_t rate, size_t capacity)
       : full_rounds(full_rounds),
         partial_rounds(partial_rounds),
         alpha(alpha),
@@ -82,10 +78,10 @@ struct PoseidonConfigBase {
 
 namespace base {
 
-template <typename PrimeField>
-class Copyable<crypto::PoseidonConfigBase<PrimeField>> {
+template <typename F>
+class Copyable<crypto::PoseidonConfigBase<F>> {
  public:
-  static bool WriteTo(const crypto::PoseidonConfigBase<PrimeField>& config,
+  static bool WriteTo(const crypto::PoseidonConfigBase<F>& config,
                       Buffer* buffer) {
     return buffer->WriteMany(config.full_rounds, config.partial_rounds,
                              config.alpha, config.ark, config.rate,
@@ -93,11 +89,11 @@ class Copyable<crypto::PoseidonConfigBase<PrimeField>> {
   }
 
   static bool ReadFrom(const ReadOnlyBuffer& buffer,
-                       crypto::PoseidonConfigBase<PrimeField>* config) {
+                       crypto::PoseidonConfigBase<F>* config) {
     size_t full_rounds;
     size_t partial_rounds;
     uint64_t alpha;
-    math::Matrix<PrimeField> ark;
+    math::Matrix<F> ark;
     size_t rate;
     size_t capacity;
     if (!buffer.ReadMany(&full_rounds, &partial_rounds, &alpha, &ark, &rate,
@@ -110,8 +106,7 @@ class Copyable<crypto::PoseidonConfigBase<PrimeField>> {
     return true;
   }
 
-  static size_t EstimateSize(
-      const crypto::PoseidonConfigBase<PrimeField>& config) {
+  static size_t EstimateSize(const crypto::PoseidonConfigBase<F>& config) {
     return base::EstimateSize(config.full_rounds, config.partial_rounds,
                               config.alpha, config.ark, config.rate,
                               config.capacity);

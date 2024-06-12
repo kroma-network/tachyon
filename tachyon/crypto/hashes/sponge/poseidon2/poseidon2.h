@@ -30,7 +30,7 @@ namespace crypto {
 template <typename ExternalMatrix>
 struct Poseidon2Sponge final
     : public PoseidonSpongeBase<Poseidon2Sponge<ExternalMatrix>> {
-  using F = typename ExternalMatrix::PrimeField;
+  using F = typename ExternalMatrix::Field;
 
   // Sponge Config
   Poseidon2Config<F> config;
@@ -82,7 +82,7 @@ struct Poseidon2Sponge final
 
 template <typename ExternalMatrix>
 struct CryptographicSpongeTraits<Poseidon2Sponge<ExternalMatrix>> {
-  using F = typename ExternalMatrix::PrimeField;
+  using F = typename ExternalMatrix::Field;
   constexpr static bool kApplyMixAtFront = true;
 };
 
@@ -93,7 +93,7 @@ namespace base {
 template <typename ExternalMatrix>
 class Copyable<crypto::Poseidon2Sponge<ExternalMatrix>> {
  public:
-  using F = typename ExternalMatrix::PrimeField;
+  using F = typename ExternalMatrix::Field;
 
   static bool WriteTo(const crypto::Poseidon2Sponge<ExternalMatrix>& poseidon,
                       Buffer* buffer) {

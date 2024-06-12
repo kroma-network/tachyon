@@ -10,36 +10,34 @@
 
 namespace tachyon::crypto {
 
-template <typename PrimeField>
+template <typename F>
 class Poseidon2HorizenExternalMatrix final
-    : public Poseidon2ExternalMatrix<
-          Poseidon2HorizenExternalMatrix<PrimeField>> {
+    : public Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>> {
  public:
-  static void DoApply(math::Vector<PrimeField>& v) {
-    PrimeField t0 = v[0] + v[1];
-    PrimeField t1 = v[2] + v[3];
-    PrimeField t2 = v[1] + v[1] + t1;
-    PrimeField t3 = v[3] + v[3] + t0;
+  static void DoApply(math::Vector<F>& v) {
+    F t0 = v[0] + v[1];
+    F t1 = v[2] + v[3];
+    F t2 = v[1] + v[1] + t1;
+    F t3 = v[3] + v[3] + t0;
     v[3] = t1.Double().Double() + t3;
     v[1] = t0.Double().Double() + t2;
     v[0] = t3 + v[1];
     v[2] = t2 + v[3];
   }
 
-  static math::Matrix<PrimeField> DoConstruct() {
-    return math::Matrix<PrimeField>{
-        {PrimeField(5), PrimeField(7), PrimeField(1), PrimeField(3)},
-        {PrimeField(4), PrimeField(6), PrimeField(1), PrimeField(1)},
-        {PrimeField(1), PrimeField(3), PrimeField(5), PrimeField(7)},
-        {PrimeField(1), PrimeField(1), PrimeField(4), PrimeField(6)},
+  static math::Matrix<F> DoConstruct() {
+    return math::Matrix<F>{
+        {F(5), F(7), F(1), F(3)},
+        {F(4), F(6), F(1), F(1)},
+        {F(1), F(3), F(5), F(7)},
+        {F(1), F(1), F(4), F(6)},
     };
   }
 };
 
-template <typename PrimeField_>
-struct Poseidon2ExternalMatrixTraits<
-    Poseidon2HorizenExternalMatrix<PrimeField_>> {
-  using PrimeField = PrimeField_;
+template <typename Field_>
+struct Poseidon2ExternalMatrixTraits<Poseidon2HorizenExternalMatrix<Field_>> {
+  using Field = Field_;
 };
 
 }  // namespace tachyon::crypto
