@@ -29,6 +29,18 @@
 #endif
 
 namespace tachyon {
+namespace zk {
+
+template <typename Curve, size_t MaxDegree, size_t MaxExtendedDegree,
+          typename Commitment>
+class GWCExtension;
+
+template <typename Curve, size_t MaxDegree, size_t MaxExtendedDegree,
+          typename Commitment>
+class SHPlonkExtension;
+
+}  // namespace zk
+
 namespace crypto {
 
 template <typename G1Point, size_t MaxDegree,
@@ -201,6 +213,12 @@ class KZG {
   }
 
  private:
+  template <typename, size_t, size_t, typename>
+  friend class tachyon::zk::GWCExtension;
+
+  template <typename, size_t, size_t, typename>
+  friend class tachyon::zk::SHPlonkExtension;
+
   template <typename BaseContainer, typename ScalarContainer,
             typename OutCommitment>
   bool DoMSM(const BaseContainer& bases, const ScalarContainer& scalars,

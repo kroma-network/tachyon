@@ -165,6 +165,14 @@ class SHPlonkExtension final
     return this->shplonk_.kzg().g1_powers_of_tau_lagrange();
   }
 
+  template <typename BaseContainer, typename ScalarContainer,
+            typename OutCommitment>
+  [[nodiscard]] bool DoMSM(const BaseContainer& bases,
+                           const ScalarContainer& scalars,
+                           OutCommitment* out) const {
+    return this->shplonk_.kzg().DoMSM(bases, scalars, out);
+  }
+
   crypto::SHPlonk<Curve, MaxDegree, Commitment> shplonk_;
 };
 
