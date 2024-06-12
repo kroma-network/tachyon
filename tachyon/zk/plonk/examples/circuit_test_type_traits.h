@@ -10,6 +10,7 @@
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci1_circuit.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci2_circuit.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci3_circuit.h"
+#include "tachyon/zk/plonk/halo2/prover_test.h"
 #include "tachyon/zk/plonk/layout/floor_planner/simple_floor_planner.h"
 #include "tachyon/zk/plonk/layout/floor_planner/v1/v1_floor_planner.h"
 
