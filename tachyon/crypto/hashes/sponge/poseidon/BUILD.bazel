@@ -31,6 +31,7 @@ tachyon_cc_library(
     hdrs = ["poseidon_config_base.h"],
     deps = [
         "//tachyon/base/buffer:copyable",
+        "//tachyon/crypto/hashes/sponge:sponge_config",
         "//tachyon/math/matrix:matrix_types",
     ],
 )

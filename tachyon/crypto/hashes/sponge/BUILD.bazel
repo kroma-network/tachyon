@@ -29,6 +29,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "sponge_config",
+    hdrs = ["sponge_config.h"],
+    deps = [
+        "//tachyon:export",
+        "//tachyon/base/buffer:copyable",
+    ],
+)
+
+tachyon_cc_library(
     name = "truncated_permutation",
     hdrs = ["truncated_permutation.h"],
     deps = [
