@@ -1,5 +1,5 @@
-load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 load("@pybind11_bazel//:build_defs.bzl", "PYBIND_COPTS", "PYBIND_DEPS", "PYBIND_FEATURES")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 load(":tachyon_cc.bzl", "tachyon_cc_binary", "tachyon_cc_library")
 
 def tachyon_pybind_extension(
