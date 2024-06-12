@@ -164,6 +164,14 @@ class GWCExtension final
     return this->gwc_.kzg().g1_powers_of_tau_lagrange();
   }
 
+  template <typename BaseContainer, typename ScalarContainer,
+            typename OutCommitment>
+  [[nodiscard]] bool DoMSM(const BaseContainer& bases,
+                           const ScalarContainer& scalars,
+                           OutCommitment* out) const {
+    return this->gwc_.kzg().DoMSM(bases, scalars, out);
+  }
+
   crypto::GWC<Curve, MaxDegree, Commitment> gwc_;
 };
 

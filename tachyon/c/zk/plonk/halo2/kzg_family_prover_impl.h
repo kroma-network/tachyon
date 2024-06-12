@@ -39,15 +39,11 @@ class KZGFamilyProverImpl : public ProverImplBase<PCS, LS> {
   }
 
  private:
-  static CJacobianPoint* DoMSM(const std::vector<AffinePoint>& bases,
-                               const std::vector<ScalarField>& scalars) {
-    using MSM = tachyon::math::VariableBaseMSM<AffinePoint>;
-    MSM msm;
-    typename MSM::Bucket bucket;
-    absl::Span<const AffinePoint> bases_span(
-        bases.data(), std::min(bases.size(), scalars.size()));
-    CHECK(msm.Run(bases_span, scalars, &bucket));
-    return base::c_cast(new JacobianPoint(bucket.ToJacobian()));
+  CJacobianPoint* DoMSM(const std::vector<AffinePoint>& bases,
+                        const std::vector<ScalarField>& scalars) const {
+    JacobianPoint* ret = new JacobianPoint();
+    CHECK(this->pcs_.DoMSM(bases, scalars, ret));
+    return c::base::c_cast(ret);
   }
 };
 
