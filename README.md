@@ -101,7 +101,7 @@ sudo apt install libgmp-dev libomp-dev
 ### Macos
 
 ```shell
-brew install gmp
+brew install gmp libomp
 ```
 
 ## Getting started

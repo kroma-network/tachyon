@@ -7,6 +7,12 @@ CPU Caches:
   L1 Instruction 32 KiB (x16)
   L2 Unified 2048 KiB (x16)
   L3 Unified 36864 KiB (x1)
+
+Run on Apple M3 Pro (12 X 4050 MHz)
+CPU Caches:
+  L1 Data 64 KiB (x12)
+  L1 Instruction 128 KiB (x12)
+  L2 Unified 4096 KiB (x12)
 ```
 
 ## FFT
@@ -14,6 +20,8 @@ CPU Caches:
 ```shell
 bazel run --config halo2 -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --check_results
 ```
+
+### On Intel i9-13900K
 
 | Exponent | Tachyon      | Arkworks     | Bellman  | Halo2    |
 | :------: | ------------ | ------------ | -------- | -------- |
@@ -28,11 +36,28 @@ bazel run --config halo2 -c opt --//:has_openmp --//:has_rtti --//:has_matplotli
 
 ![image](/benchmark/fft/FFT%20Benchmark.png)
 
+### On Mac M3 Pro
+
+| Exponent | Tachyon      | Arkworks     | Bellman  | Halo2    |
+| :------: | ------------ | ------------ | -------- | -------- |
+|    16    | **0.002735** | 0.003468     | 0.007731 | 0.006372 |
+|    17    | **0.005237** | 0.006043     | 0.015891 | 0.012804 |
+|    18    | **0.009494** | 0.010686     | 0.027312 | 0.02485  |
+|    19    | 0.020251     | **0.020156** | 0.055652 | 0.045714 |
+|    20    | **0.038186** | 0.040006     | 0.110531 | 0.096778 |
+|    21    | **0.085204** | 0.087181     | 0.228044 | 0.191695 |
+|    22    | **0.166863** | 0.179635     | 0.472941 | 0.386844 |
+|    23    | **0.347128** | 0.378249     | 0.970552 | 0.814043 |
+
+![image](/benchmark/fft/FFT%20Benchmark%20MacM3.png)
+
 ## IFFT
 
 ```shell
 bazel run -c opt --config halo2 --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/fft:fft_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --run_ifft --check_results
 ```
+
+### On Intel i9-13900K
 
 | Exponent | Tachyon      | Arkworks     | Bellman  | Halo2       |
 | :------: | ------------ | ------------ | -------- | ----------- |
@@ -46,3 +71,18 @@ bazel run -c opt --config halo2 --//:has_openmp --//:has_rtti --//:has_matplotli
 |    23    | **0.317353** | 0.400472     | 0.845031 | 0.407396    |
 
 ![image](/benchmark/fft/IFFT%20Benchmark.png)
+
+### On Mac M3 Pro
+
+| Exponent | Tachyon      | Arkworks | Bellman  | Halo2    |
+| :------: | ------------ | -------- | -------- | -------- |
+|    16    | **0.002766** | 0.004274 | 0.007948 | 0.006638 |
+|    17    | **0.005883** | 0.006978 | 0.016308 | 0.013121 |
+|    18    | **0.010532** | 0.012815 | 0.029066 | 0.028791 |
+|    19    | **0.020781** | 0.024054 | 0.059351 | 0.048824 |
+|    20    | **0.041061** | 0.048806 | 0.11825  | 0.099004 |
+|    21    | **0.090855** | 0.101232 | 0.236775 | 0.210805 |
+|    22    | **0.170776** | 0.203109 | 0.488306 | 0.423618 |
+|    23    | **0.383255** | 0.454968 | 1.03129  | 0.881795 |
+
+![image](/benchmark/fft/IFFT%20Benchmark%20MacM3.png)

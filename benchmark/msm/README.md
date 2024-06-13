@@ -7,6 +7,12 @@ CPU Caches:
   L1 Instruction 32 KiB (x16)
   L2 Unified 2048 KiB (x16)
   L3 Unified 36864 KiB (x1)
+
+Run on Apple M3 Pro (12 X 4050 MHz)
+CPU Caches:
+  L1 Data 64 KiB (x12)
+  L1 Instruction 128 KiB (x12)
+  L2 Unified 4096 KiB (x12)
 ```
 
 ## Random points with bellman msm algorithm
@@ -14,6 +20,8 @@ CPU Caches:
 ```shell
 bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2
 ```
+
+### On Intel i9-13900K
 
 | Exponent | Tachyon      | Arkworks | Bellman  | Halo2    |
 | :------: | ------------ | -------- | -------- | -------- |
@@ -28,11 +36,28 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 
 ![image](</benchmark/msm/MSM%20Benchmark(random,%20bellman_msm).png>)
 
+### On Mac M3 Pro
+
+| Exponent | Tachyon      | Arkworks | Bellman  | Halo2    |
+| :------: | ------------ | -------- | -------- | -------- |
+|    16    | **0.049285** | 0.052368 | 0.118564 | 0.079168 |
+|    17    | **0.088628** | 0.105875 | 0.16704  | 0.142758 |
+|    18    | **0.157609** | 0.19186  | 0.299953 | 0.278592 |
+|    19    | **0.282686** | 0.351326 | 0.578682 | 0.506371 |
+|    20    | **0.571241** | 0.702036 | 0.901252 | 0.974515 |
+|    21    | **1.106550** | 1.54553  | 1.63521  | 1.85615  |
+|    22    | **2.276600** | 3.35888  | 3.274    | 3.68391  |
+|    23    | **4.191330** | 6.41272  | 5.86292  | 6.89936  |
+
+![image](</benchmark/msm/MSM%20Benchmark%20MacM3(random,%20bellman_msm).png>)
+
 ## Non-uniform points with bellman msm algorithm
 
 ```shell
 bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/msm:msm_benchmark -- -k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 --vendor arkworks --vendor bellman --vendor halo2 --test_set non_uniform
 ```
+
+### On Intel i9-13900K
 
 | Exponent | Tachyon      | Arkworks     | Bellman  | Halo2    |
 | :------: | ------------ | ------------ | -------- | -------- |
@@ -46,3 +71,18 @@ bazel run -c opt --//:has_openmp --//:has_rtti --//:has_matplotlib //benchmark/m
 |    23    | **1.91659**  | 3.13911      | 2.16368  | 3.46701  |
 
 ![image](</benchmark/msm/MSM%20Benchmark(non_uniform,%20bellman_msm).png>)
+
+### On Mac M3 Pro
+
+| Exponent | Tachyon      | Arkworks     | Bellman  | Halo2    |
+| :------: | ------------ | ------------ | -------- | -------- |
+|    16    | **0.040045** | 0.049862     | 0.083292 | 0.082423 |
+|    17    | **0.074318** | 0.091205     | 0.128679 | 0.157111 |
+|    18    | **0.140125** | 0.177842     | 0.232212 | 0.310648 |
+|    19    | **0.287691** | 0.330268     | 0.437016 | 0.535915 |
+|    20    | **0.55437**  | 0.651841     | 0.713282 | 1.01238  |
+|    21    | **1.01053**  | 1.36348      | 1.29945  | 1.75816  |
+|    22    | **2.00677**  | 2.56         | 2.49532  | 3.55769  |
+|    23    | **4.02119**  | 5.2982       | 4.56454  | 7.11582  |
+
+![image](</benchmark/msm/MSM%20Benchmark%20MacM3(non_uniform,%20bellman_msm).png>)

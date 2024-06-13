@@ -31,9 +31,13 @@ jobs:
       - name: Install numpy
         run: python3 -m pip install numpy
 
-      - name: Install OpenMP
+      - name: Install OpenMP on linux
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install -y libomp-dev
+
+      - name: Install OpenMP on macos
+        if: matrix.os == 'macos-latest-xlarge'
+        run: brew install libomp
 
       - name: Add .bazelrc.user on linux
         if: matrix.os == 'ubuntu-latest'
@@ -57,10 +61,9 @@ jobs:
         run: bazel test -c opt --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //...
 
       - name: Test OpenMP
-        if: matrix.os == 'ubuntu-latest'
         # NOTE(TomTaehoonKim): Test timeouts are overridden 1.5x of the default timeout due to timeout failure on GitHub Actions by change in
         # https://github.com/kroma-network/tachyon/pull/309. See https://github.com/kroma-network/tachyon/actions/runs/7984233709/job/21800735269.
-        run: bazel test -c fastbuild --config linux --//:has_openmp --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
+        run: bazel test -c fastbuild --//:has_openmp --test_output=errors --test_tag_filters -benchmark,-manual,-cuda //... --test_timeout=90,450,1350,5400
 
       - name: Test Node Binding
         run: |
@@ -120,6 +123,6 @@ jobs:
 
       - name: Run Buildifier
         run: |
-          find tachyon/ -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --lint=fix
-          find tachyon/ -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --mode=check
+          find . -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --lint=fix
+          find . -iname "*.bazel" -o -iname "*.bzl" | xargs buildifier --mode=check
           git diff --exit-code

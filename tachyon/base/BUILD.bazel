@@ -1,4 +1,4 @@
-load("//bazel:tachyon.bzl", "if_posix")
+load("//bazel:tachyon.bzl", "if_has_openmp_on_macos", "if_posix")
 load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 
 package(default_visibility = ["//visibility:public"])
@@ -88,6 +88,7 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "openmp_util",
     hdrs = ["openmp_util.h"],
+    deps = if_has_openmp_on_macos(["@local_config_omp//:omp"]),
 )
 
 tachyon_cc_library(
