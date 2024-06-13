@@ -11,6 +11,7 @@
 
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/math/elliptic_curves/bls12/bls12_381/fr.h"
+#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 
 namespace tachyon::crypto {
@@ -60,6 +61,34 @@ TEST_F(PoseidonTest, Copyable) {
   ASSERT_TRUE(write_buf.Read(&value));
 
   EXPECT_EQ(value, expected);
+}
+
+namespace {
+
+class PackedPoseidonTest : public math::FiniteFieldTest<math::PackedBabyBear> {
+};
+
+}  // namespace
+
+TEST_F(PackedPoseidonTest, AbsorbSqueeze) {
+  using PackedF = math::PackedBabyBear;
+  using F = math::BabyBear;
+
+  PoseidonConfig<PackedF> packed_config =
+      PoseidonConfig<PackedF>::CreateDefault(2, false);
+  PoseidonSponge<PackedF> packed_sponge(packed_config);
+  std::vector<PackedF> packed_inputs = {PackedF(0), PackedF(1), PackedF(2)};
+  ASSERT_TRUE(packed_sponge.Absorb(packed_inputs));
+  std::vector<PackedF> packed_result =
+      packed_sponge.SqueezeNativeFieldElements(1);
+
+  PoseidonConfig<F> config = PoseidonConfig<F>::CreateDefault(2, false);
+  PoseidonSponge<F> sponge(config);
+  std::vector<F> inputs = {F(0), F(1), F(2)};
+  ASSERT_TRUE(sponge.Absorb(inputs));
+  std::vector<F> result = sponge.SqueezeNativeFieldElements(1);
+
+  EXPECT_EQ(packed_result[0], PackedF::Broadcast(result[0]));
 }
 
 }  // namespace tachyon::crypto
