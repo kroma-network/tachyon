@@ -7,6 +7,8 @@
 #include <type_traits>
 #include <vector>
 
+#include "absl/container/btree_map.h"
+
 #include "tachyon/export.h"
 
 namespace tachyon::base {
@@ -98,6 +100,33 @@ class TACHYON_EXPORT DebugList {
   bool has_entry_ = false;
 };
 
+class TACHYON_EXPORT DebugMap {
+ public:
+  explicit DebugMap(RustFormatter& fmt) : fmt_(fmt) { ss_ << "{"; }
+
+  template <typename T, typename U>
+  DebugMap& Pair(const T& key, const U& value) {
+    if (has_entry_) {
+      ss_ << ", ";
+    }
+    RustDebugStringifier<T>::AppendToStream(ss_, fmt_, key);
+    ss_ << ": ";
+    RustDebugStringifier<U>::AppendToStream(ss_, fmt_, value);
+    has_entry_ = true;
+    return *this;
+  }
+
+  std::string Finish() {
+    ss_ << "}";
+    return ss_.str();
+  }
+
+ private:
+  RustFormatter& fmt_;
+  std::stringstream ss_;
+  bool has_entry_ = false;
+};
+
 }  // namespace internal
 
 class TACHYON_EXPORT RustFormatter {
@@ -113,6 +142,8 @@ class TACHYON_EXPORT RustFormatter {
   }
 
   internal::DebugList DebugList() { return internal::DebugList(*this); }
+
+  internal::DebugMap DebugMap() { return internal::DebugMap(*this); }
 };
 
 namespace internal {
@@ -195,6 +226,19 @@ class RustDebugStringifier<std::vector<T>> {
       debug_list.Entry(value);
     }
     return os << debug_list.Finish();
+  }
+};
+
+template <typename K, typename V>
+class RustDebugStringifier<absl::btree_map<K, V>> {
+ public:
+  static std::ostream& AppendToStream(std::ostream& os, RustFormatter& fmt,
+                                      const absl::btree_map<K, V>& btree_map) {
+    DebugMap debug_map = fmt.DebugMap();
+    for (const auto& [key, value] : btree_map) {
+      debug_map.Pair(key, value);
+    }
+    return os << debug_map.Finish();
   }
 };
 

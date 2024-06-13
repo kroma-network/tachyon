@@ -69,6 +69,7 @@ tachyon_cc_library(
         ":pinned_gates",
         "//tachyon/zk/plonk/constraint_system",
         "//tachyon/zk/plonk/halo2/stringifiers:lookup_argument_stringifier",
+        "//tachyon/zk/plonk/halo2/stringifiers:lookup_tracker_stringifier",
         "//tachyon/zk/plonk/halo2/stringifiers:permutation_argument_stringifier",
         "//tachyon/zk/plonk/halo2/stringifiers:phase_stringifier",
         "//tachyon/zk/plonk/halo2/stringifiers:query_stringifier",

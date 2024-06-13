@@ -14,6 +14,7 @@
 #include "tachyon/zk/plonk/constraint_system/constraint_system.h"
 #include "tachyon/zk/plonk/halo2/pinned_gates.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/lookup_argument_stringifier.h"
+#include "tachyon/zk/plonk/halo2/stringifiers/lookup_tracker_stringifier.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/permutation_argument_stringifier.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/phase_stringifier.h"
 #include "tachyon/zk/plonk/halo2/stringifiers/query_stringifier.h"
@@ -25,7 +26,8 @@ template <typename F>
 class PinnedConstraintSystem {
  public:
   explicit PinnedConstraintSystem(const ConstraintSystem<F>& constraint_system)
-      : num_fixed_columns_(constraint_system.num_fixed_columns()),
+      : lookup_type_(constraint_system.lookup_type()),
+        num_fixed_columns_(constraint_system.num_fixed_columns()),
         num_advice_columns_(constraint_system.num_advice_columns()),
         num_instance_columns_(constraint_system.num_instance_columns()),
         num_selectors_(constraint_system.num_selectors()),
@@ -38,9 +40,11 @@ class PinnedConstraintSystem {
         fixed_queries_(constraint_system.fixed_queries()),
         permutation_(constraint_system.permutation()),
         lookups_(constraint_system.lookups()),
+        lookups_map_(constraint_system.lookups_map()),
         constants_(constraint_system.constants()),
         minimum_degree_(constraint_system.minimum_degree()) {}
 
+  lookup::Type lookup_type() const { return lookup_type_; }
   size_t num_fixed_columns() const { return num_fixed_columns_; }
   size_t num_advice_columns() const { return num_advice_columns_; }
   size_t num_instance_columns() const { return num_instance_columns_; }
@@ -65,11 +69,15 @@ class PinnedConstraintSystem {
   const PermutationArgument& permutation() const { return permutation_; }
   const std::vector<lookup::Argument<F>>& lookups() const { return lookups_; }
   const std::vector<FixedColumnKey>& constants() const { return constants_; }
+  const absl::btree_map<std::string, LookupTracker<F>>& lookups_map() const {
+    return lookups_map_;
+  }
   const std::optional<size_t>& minimum_degree() const {
     return minimum_degree_;
   }
 
  private:
+  lookup::Type lookup_type_;
   size_t num_fixed_columns_;
   size_t num_advice_columns_;
   size_t num_instance_columns_;
@@ -83,6 +91,7 @@ class PinnedConstraintSystem {
   const std::vector<FixedQueryData>& fixed_queries_;
   PermutationArgument permutation_;
   const std::vector<lookup::Argument<F>>& lookups_;
+  const absl::btree_map<std::string, LookupTracker<F>>& lookups_map_;
   const std::vector<FixedColumnKey>& constants_;
   const std::optional<size_t>& minimum_degree_;
 };
@@ -113,9 +122,14 @@ class RustDebugStringifier<zk::plonk::halo2::PinnedConstraintSystem<F>> {
         .Field("advice_queries", constraint_system.advice_queries())
         .Field("instance_queries", constraint_system.instance_queries())
         .Field("fixed_queries", constraint_system.fixed_queries())
-        .Field("permutation", constraint_system.permutation())
-        .Field("lookups", constraint_system.lookups())
-        .Field("constants", constraint_system.constants())
+        .Field("permutation", constraint_system.permutation());
+    if (constraint_system.lookup_type() == zk::lookup::Type::kHalo2) {
+      debug_struct.Field("lookups", constraint_system.lookups());
+    } else if (constraint_system.lookup_type() ==
+               zk::lookup::Type::kLogDerivativeHalo2) {
+      debug_struct.Field("lookups_map", constraint_system.lookups_map());
+    }
+    debug_struct.Field("constants", constraint_system.constants())
         .Field("minimum_degree", constraint_system.minimum_degree());
     return os << debug_struct.Finish();
   }
