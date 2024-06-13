@@ -142,4 +142,34 @@ TEST(ContainerUtilTest, Shuffle) {
   FAIL() << "shuffle seems not working";
 }
 
+TEST(ContainerUtilTest, BinarySearchByKey) {
+  struct TestData {
+    std::vector<int> data;
+    int value;
+    std::optional<size_t> expected_index;
+  };
+
+  std::vector<TestData> tests = {
+      {{1, 2, 3, 4, 5}, 3, 2}, {{1, 2, 3, 4, 5}, 1, 0},
+      {{1, 2, 3, 4, 5}, 5, 4}, {{1, 2, 3, 4, 5}, 6, std::nullopt},
+      {{}, 3, std::nullopt},
+  };
+
+  for (const auto& test : tests) {
+    auto it = BinarySearchByKey(test.data.begin(), test.data.end(), test.value,
+                                [](const int& elem, const int& value) {
+                                  if (elem < value) return Ordering::Less;
+                                  if (elem > value) return Ordering::Greater;
+                                  return Ordering::Equal;
+                                });
+
+    if (test.expected_index.has_value()) {
+      EXPECT_EQ(std::distance(test.data.begin(), it),
+                test.expected_index.value());
+    } else {
+      EXPECT_EQ(it, test.data.end());
+    }
+  }
+}
+
 }  // namespace tachyon::base

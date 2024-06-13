@@ -134,6 +134,28 @@ auto FlatMap(Container&& container, UnaryOp&& op) {
                  std::forward<UnaryOp>(op));
 }
 
+enum class Ordering { Less, Equal, Greater };
+
+template <typename Iterator, typename T, typename Comparator>
+Iterator BinarySearchByKey(Iterator begin, Iterator end, const T& value,
+                           Comparator cmp) {
+  Iterator left = begin;
+  Iterator right = end;
+
+  while (left < right) {
+    Iterator mid = left + (std::distance(left, right) / 2);
+    Ordering order = cmp(*mid, value);
+    if (order == Ordering::Less) {
+      left = mid + 1;
+    } else if (order == Ordering::Greater) {
+      right = mid;
+    } else {
+      return mid;
+    }
+  }
+  return end;
+}
+
 template <typename Iterator, typename T>
 std::optional<size_t> FindIndex(Iterator begin, Iterator end, const T& value) {
   auto it = std::find(begin, end, value);
