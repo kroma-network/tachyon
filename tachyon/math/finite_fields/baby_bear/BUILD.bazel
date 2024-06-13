@@ -15,6 +15,20 @@ generate_prime_fields(
 )
 
 tachyon_cc_library(
+    name = "packed_baby_bear",
+    hdrs = ["packed_baby_bear.h"],
+    defines = tachyon_avx512_defines(),
+    deps = [
+        ":packed_baby_bear_neon",
+        "//tachyon/build:build_config",
+        "//tachyon/math/finite_fields:finite_field_traits",
+    ] + if_has_avx512(
+        [":packed_baby_bear_avx512"],
+        [":packed_baby_bear_avx2"],
+    ),
+)
+
+tachyon_cc_library(
     name = "packed_baby_bear_avx2",
     srcs = if_x86_64(["packed_baby_bear_avx2.cc"]),
     hdrs = if_x86_64(["packed_baby_bear_avx2.h"]),
@@ -50,20 +64,6 @@ tachyon_cc_library(
         "//tachyon/math/finite_fields:packed_prime_field32_neon",
         "//tachyon/math/finite_fields:packed_prime_field_base",
     ],
-)
-
-tachyon_cc_library(
-    name = "packed_baby_bear",
-    hdrs = ["packed_baby_bear.h"],
-    defines = tachyon_avx512_defines(),
-    deps = [
-        ":packed_baby_bear_neon",
-        "//tachyon/build:build_config",
-        "//tachyon/math/finite_fields:finite_field_traits",
-    ] + if_has_avx512(
-        [":packed_baby_bear_avx512"],
-        [":packed_baby_bear_avx2"],
-    ),
 )
 
 tachyon_cc_library(
