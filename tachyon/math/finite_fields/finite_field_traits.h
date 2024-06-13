@@ -27,6 +27,7 @@ struct FiniteFieldTraits<PrimeField<_Config>> {
   static constexpr bool kIsPackedPrimeField = false;
   static constexpr bool kIsExtensionField = false;
 
+  using PrimeField = tachyon::math::PrimeField<_Config>;
   using Config = _Config;
 };
 

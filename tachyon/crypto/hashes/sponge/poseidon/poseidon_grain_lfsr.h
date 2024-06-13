@@ -10,6 +10,7 @@
 
 #include "tachyon/export.h"
 #include "tachyon/math/base/big_int.h"
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 #include "tachyon/math/matrix/matrix_types.h"
 #include "tachyon/math/matrix/prime_field_num_traits.h"
 
@@ -35,7 +36,7 @@ struct PoseidonGrainLFSR {
 
   explicit PoseidonGrainLFSR(const PoseidonGrainLFSRConfig& config);
 
-  std::bitset<F::kModulusBits> GetBits(size_t num_bits);
+  auto GetBits(size_t num_bits);
 
   math::Vector<F> GetFieldElementsRejectionSampling(size_t num_elems);
 
@@ -101,8 +102,11 @@ PoseidonGrainLFSR<F>::PoseidonGrainLFSR(const PoseidonGrainLFSRConfig& config)
 }
 
 template <typename F>
-std::bitset<F::kModulusBits> PoseidonGrainLFSR<F>::GetBits(size_t num_bits) {
-  std::bitset<F::kModulusBits> ret;
+auto PoseidonGrainLFSR<F>::GetBits(size_t num_bits) {
+  using PrimeField =
+      std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
+                         typename math::FiniteFieldTraits<F>::PrimeField, F>;
+  std::bitset<PrimeField::kModulusBits> ret;
   for (size_t i = 0; i < num_bits; ++i) {
     // Obtain the first bit
     bool new_bit = Update();
@@ -125,9 +129,12 @@ std::bitset<F::kModulusBits> PoseidonGrainLFSR<F>::GetBits(size_t num_bits) {
 template <typename F>
 math::Vector<F> PoseidonGrainLFSR<F>::GetFieldElementsRejectionSampling(
     size_t num_elems) {
-  using BigInt = typename F::BigIntTy;
+  using PrimeField =
+      std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
+                         typename math::FiniteFieldTraits<F>::PrimeField, F>;
+  using BigInt = typename PrimeField::BigIntTy;
 
-  CHECK_EQ(F::Config::kModulusBits, prime_num_bits);
+  CHECK_EQ(PrimeField::Config::kModulusBits, prime_num_bits);
 
   math::Vector<F> ret(num_elems);
 
@@ -135,11 +142,15 @@ math::Vector<F> PoseidonGrainLFSR<F>::GetFieldElementsRejectionSampling(
     // Perform rejection sampling
     while (true) {
       // Obtain n bits and make it most-significant-bit first
-      std::bitset<F::kModulusBits> bits = GetBits(prime_num_bits);
+      std::bitset<PrimeField::kModulusBits> bits = GetBits(prime_num_bits);
       BigInt bigint = BigInt::FromBitsBE(bits);
 
-      if (bigint < BigInt(F::Config::kModulus)) {
-        ret[i] = F::FromBigInt(bigint);
+      if (bigint < BigInt(PrimeField::Config::kModulus)) {
+        if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
+          ret[i] = F::Broadcast(PrimeField::FromBigInt(bigint));
+        } else {
+          ret[i] = PrimeField::FromBigInt(bigint);
+        }
         break;
       }
     }
@@ -151,20 +162,27 @@ math::Vector<F> PoseidonGrainLFSR<F>::GetFieldElementsRejectionSampling(
 // Samples n bits and computes the remainder modulo P.
 template <typename F>
 math::Vector<F> PoseidonGrainLFSR<F>::GetFieldElementsModP(size_t num_elems) {
-  using BigInt = typename F::BigIntTy;
+  using PrimeField =
+      std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
+                         typename math::FiniteFieldTraits<F>::PrimeField, F>;
+  using BigInt = typename PrimeField::BigIntTy;
 
-  CHECK_EQ(F::Config::kModulusBits, prime_num_bits);
+  CHECK_EQ(PrimeField::Config::kModulusBits, prime_num_bits);
 
   math::Vector<F> ret(num_elems);
 
   for (size_t i = 0; i < num_elems; ++i) {
     // Obtain n bits and make it most-significant-bit first
-    std::bitset<F::kModulusBits> bits = GetBits(prime_num_bits);
+    std::bitset<PrimeField::kModulusBits> bits = GetBits(prime_num_bits);
 
     BigInt bigint = BigInt::FromBitsBE(bits);
-    bigint %= BigInt(F::Config::kModulus);
+    bigint %= BigInt(PrimeField::Config::kModulus);
 
-    ret[i] = F::FromBigInt(bigint);
+    if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
+      ret[i] = F::Broadcast(PrimeField::FromBigInt(bigint));
+    } else {
+      ret[i] = PrimeField::FromBigInt(bigint);
+    }
   }
 
   return ret;

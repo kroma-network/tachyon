@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_grain_lfsr.h"
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::crypto {
 
@@ -37,8 +38,12 @@ struct TACHYON_EXPORT PoseidonConfigEntryBase {
 
   template <typename F>
   PoseidonGrainLFSRConfig ToPoseidonGrainLFSRConfig() const {
+    using PrimeField =
+        std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
+                           typename math::FiniteFieldTraits<F>::PrimeField, F>;
+
     PoseidonGrainLFSRConfig config;
-    config.prime_num_bits = F::kModulusBits;
+    config.prime_num_bits = PrimeField::kModulusBits;
     config.state_len = rate + 1;
     config.num_full_rounds = full_rounds;
     config.num_partial_rounds = partial_rounds;
