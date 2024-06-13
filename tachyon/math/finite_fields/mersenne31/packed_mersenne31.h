@@ -13,6 +13,7 @@
 #include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_neon.h"
 #endif
 #include "tachyon/math/finite_fields/finite_field_traits.h"
+#include "tachyon/math/matrix/prime_field_num_traits.h"
 
 namespace tachyon::math {
 
@@ -37,5 +38,26 @@ struct FiniteFieldTraits<PackedMersenne31> {
 };
 
 }  // namespace tachyon::math
+
+namespace Eigen {
+
+template <>
+struct NumTraits<tachyon::math::PackedMersenne31>
+    : GenericNumTraits<tachyon::math::PackedMersenne31> {
+  using PrimeField = tachyon::math::Mersenne31;
+  constexpr static size_t N = tachyon::math::PackedMersenne31::N;
+
+  enum {
+    IsInteger = 1,
+    IsSigned = 0,
+    IsComplex = 0,
+    RequireInitialization = 1,
+    ReadCost = CostCalculator<PrimeField>::ComputeReadCost() * N,
+    AddCost = CostCalculator<PrimeField>::ComputeAddCost() * N,
+    MulCost = CostCalculator<PrimeField>::ComputeMulCost() * N,
+  };
+};
+
+}  // namespace Eigen
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_MERSENNE31_PACKED_MERSENNE31_H_

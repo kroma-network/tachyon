@@ -13,6 +13,7 @@
 #include "tachyon/math/finite_fields/koala_bear/packed_koala_bear_neon.h"
 #endif
 #include "tachyon/math/finite_fields/finite_field_traits.h"
+#include "tachyon/math/matrix/prime_field_num_traits.h"
 
 namespace tachyon::math {
 
@@ -37,5 +38,26 @@ struct FiniteFieldTraits<PackedKoalaBear> {
 };
 
 }  // namespace tachyon::math
+
+namespace Eigen {
+
+template <>
+struct NumTraits<tachyon::math::PackedKoalaBear>
+    : GenericNumTraits<tachyon::math::PackedKoalaBear> {
+  using PrimeField = tachyon::math::KoalaBear;
+  constexpr static size_t N = tachyon::math::PackedKoalaBear::N;
+
+  enum {
+    IsInteger = 1,
+    IsSigned = 0,
+    IsComplex = 0,
+    RequireInitialization = 1,
+    ReadCost = CostCalculator<PrimeField>::ComputeReadCost() * N,
+    AddCost = CostCalculator<PrimeField>::ComputeAddCost() * N,
+    MulCost = CostCalculator<PrimeField>::ComputeMulCost() * N,
+  };
+};
+
+}  // namespace Eigen
 
 #endif  // TACHYON_MATH_FINITE_FIELDS_KOALA_BEAR_PACKED_KOALA_BEAR_H_

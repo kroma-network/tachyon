@@ -22,6 +22,7 @@ tachyon_cc_library(
         ":packed_koala_bear_neon",
         "//tachyon/build:build_config",
         "//tachyon/math/finite_fields:finite_field_traits",
+        "//tachyon/math/matrix:prime_field_num_traits",
     ] + if_has_avx512(
         [":packed_koala_bear_avx512"],
         [":packed_koala_bear_avx2"],
