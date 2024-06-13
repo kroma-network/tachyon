@@ -87,7 +87,7 @@ Related: #<issue number>
 #   │                         circom|crypto|device|examples|halo2|math|
 #   │                         node(subscope)|rs(subscope)|sp1|zk
 #   │
-#   └─⫸ Commit Type: build|chore|ci|docs|feat|fix|perf|refac|test
+#   └─⫸ Commit Type: build|chore|ci|docs|feat|fix|perf|refac|style|test
 # ```
 #
 # Commit Message Body
