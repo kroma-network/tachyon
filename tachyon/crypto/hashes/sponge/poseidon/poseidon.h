@@ -46,7 +46,42 @@ struct PoseidonSponge final : public PoseidonSpongeBase<PoseidonSponge<F>> {
     state.elements += config.ark.row(round_number);
   }
 
-  void ApplyMix(bool) { state.elements = config.mds * state.elements; }
+  void ApplyMix(bool) {
+    // NOTE (chokobole): Eigen matrix multiplication has a computational
+    // overhead unlike naive matrix multiplication.
+    //
+    // Example: Multiplying a 2x2 matrix by a 2x1 vector:
+    //
+    // +----+----+   +----+
+    // | m₀ | m₁ | * | v₀ |
+    // +----+----+   +----+
+    // | m₂ | m₃ |   | v₁ |
+    // +----+----+   +----+
+    //
+    // The operations involved in this multiplication are as follows:
+    //
+    // 1 * 1
+    // 1 * 1
+    // m₀ * v₀
+    // m₀v₀ + 0
+    // m₂ * v₀
+    // m₂v₀ + 0
+    // m₁ * v₁
+    // m₁v₁ + m₀v₀
+    // m₃ * v₁
+    // m₃v₁ + m₂v₀
+    // m₁v₁ + m₀v₀ * 1
+    // m₁v₁ + m₀v₀ + 0
+    // m₃v₁ + m₂v₀ * 1
+    // m₃v₁ + m₂v₀ + 0
+    math::Vector<F> elements(state.elements.size());
+    for (Eigen::Index i = 0; i < config.mds.rows(); ++i) {
+      for (Eigen::Index j = 0; j < config.mds.cols(); ++j) {
+        elements[i] += config.mds(i, j) * state.elements[j];
+      }
+    }
+    state.elements = std::move(elements);
+  }
 
   bool operator==(const PoseidonSponge& other) const {
     return config == other.config && state == other.state;
