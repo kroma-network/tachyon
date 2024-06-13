@@ -196,4 +196,35 @@ TYPED_TEST(PackedPrimeFieldTest, Mul) {
   }
 }
 
+TYPED_TEST(PackedPrimeFieldTest, Inverse) {
+  using PackedPrimeField = TypeParam;
+
+  PackedPrimeField a = PackedPrimeField::Random();
+  PackedPrimeField zero = PackedPrimeField::Zero();
+
+  struct {
+    PackedPrimeField a;
+  } tests[] = {
+      {a},
+      {zero},
+  };
+
+  for (auto& test : tests) {
+    std::optional<PackedPrimeField> c = test.a.Inverse();
+    if (test.a.IsZero()) {
+      for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+        EXPECT_TRUE((*c)[i].IsZero());
+      }
+    } else {
+      for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+        EXPECT_EQ((*c)[i], test.a[i].Inverse());
+      }
+    }
+    ASSERT_TRUE(test.a.InverseInPlace());
+    for (size_t i = 0; i < PackedPrimeField::N; ++i) {
+      EXPECT_EQ((*c)[i], test.a[i]);
+    }
+  }
+}
+
 }  // namespace tachyon::math
