@@ -45,7 +45,6 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "circuit_test",
     testonly = True,
-    srcs = ["circuit_test.cc"],
     hdrs = ["circuit_test.h"],
     deps = [
         ":point",
