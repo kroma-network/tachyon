@@ -10,7 +10,7 @@ namespace tachyon::math::pallas {
 
 template <size_t N>
 std::array<Fr, N> GetPoseidon2InternalDiagonalVector() {
-  // TODO(chokobole): remove this function once we can generate these parameters
+  // TODO(chokobole): Remove this function once we can generate these parameters
   // internally.
   // This is taken and modified from
   // https://github.com/HorizenLabs/poseidon2/blob/bb476b9ca38198cf5092487283c8b8c5d4317c4e/plain_implementations/src/poseidon2/poseidon2_instance_pallas.rs.
@@ -46,7 +46,7 @@ std::array<Fr, N> GetPoseidon2InternalDiagonalVector() {
         // clang-format on
     };
   } else {
-    static_assert(base::AlwaysFalse<std::array<Fr, N>>());
+    static_assert(base::AlwaysFalse<std::array<Fr, N>>);
   }
 }
 

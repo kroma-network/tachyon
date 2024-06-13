@@ -6,6 +6,7 @@
 #ifndef TACHYON_CRYPTO_HASHES_SPONGE_SPONGE_H_
 #define TACHYON_CRYPTO_HASHES_SPONGE_SPONGE_H_
 
+#include <bitset>
 #include <numeric>
 #include <vector>
 

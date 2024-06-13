@@ -14,7 +14,8 @@
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_sponge_base.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_state.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config.h"
-#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_internal_matrix.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_internal_matrix.h"
+#include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_internal_matrix.h"
 
 namespace tachyon {
 namespace crypto {
@@ -59,8 +60,15 @@ struct Poseidon2Sponge final
     if (is_full_round) {
       ExternalMatrix::Apply(state.elements);
     } else {
-      Poseidon2InternalMatrix<F>::Apply(state.elements,
-                                        config.internal_diagonal_minus_one);
+      if constexpr (F::Config::kModulusBits <= 32) {
+        if (config.internal_diagonal_minus_one.rows() == 0) {
+          Poseidon2Plonky3InternalMatrix<F>::Apply(state.elements,
+                                                   config.internal_shifts);
+          return;
+        }
+      }
+      Poseidon2HorizenInternalMatrix<F>::Apply(
+          state.elements, config.internal_diagonal_minus_one);
     }
   }
 

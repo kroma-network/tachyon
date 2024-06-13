@@ -61,3 +61,12 @@ tachyon_cc_library(
         [":packed_baby_bear_avx2"],
     ),
 )
+
+tachyon_cc_library(
+    name = "poseidon2",
+    hdrs = ["poseidon2.h"],
+    deps = [
+        ":baby_bear",
+        "//tachyon/base/types:always_false",
+    ],
+)
