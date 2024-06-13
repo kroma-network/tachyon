@@ -97,7 +97,7 @@ class CircuitTest : public halo2::ProverTest<typename TestArguments::PCS,
     std::vector<F> coefficients = base::Map(
         poly, [](std::string_view coeff) { return *F::FromHexString(coeff); });
     return Poly(math::UnivariateDenseCoefficients<F, halo2::kMaxDegree>(
-        std::move(coefficients)));
+        std::move(coefficients), true));
   }
 
   static std::vector<Poly> CreatePolys(
