@@ -16,6 +16,16 @@ template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
           int Options = 0, int MaxRows = Rows, int MaxCols = Cols>
 using Matrix = Eigen::Matrix<Field, Rows, Cols, Options, MaxRows, MaxCols>;
 
+template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
+          int MaxRows = Rows, int MaxCols = Cols>
+using ColMajorMatrix =
+    Eigen::Matrix<Field, Rows, Cols, Eigen::ColMajor, MaxRows, MaxCols>;
+
+template <typename Field, int Rows = Eigen::Dynamic, int Cols = Eigen::Dynamic,
+          int MaxRows = Rows, int MaxCols = Cols>
+using RowMajorMatrix =
+    Eigen::Matrix<Field, Rows, Cols, Eigen::RowMajor, MaxRows, MaxCols>;
+
 template <typename Field, int Size = Eigen::Dynamic, int MaxSize = Size>
 using DiagonalMatrix = Eigen::DiagonalMatrix<Field, Size, MaxSize>;
 
