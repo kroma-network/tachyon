@@ -175,7 +175,7 @@ void VanishingProver<Poly, Evals, ExtendedPoly, ExtendedEvals>::BatchEvaluate(
       coeffs[j] += h_pieces[i][j];
     }
   }
-  combined_h_poly_ = Poly(Coefficients(std::move(coeffs)));
+  combined_h_poly_ = Poly(Coefficients(std::move(coeffs), true));
 
   prover->EvaluateAndWriteToProof(random_poly_.poly(), x);
 }

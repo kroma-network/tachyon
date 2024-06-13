@@ -757,6 +757,9 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
   }
 
   static UnivariatePolynomial<D> ToDense(const UnivariatePolynomial<S>& self) {
+    if (self.IsZero()) {
+      return UnivariatePolynomial<D>::Zero();
+    }
     size_t size = self.Degree() + 1;
     std::vector<F> coefficients(size);
     OPENMP_PARALLEL_FOR(size_t i = 0; i < size; ++i) {
@@ -823,7 +826,6 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     }
 
     c.coefficients_ = S(std::move(c_terms));
-    c.coefficients_.RemoveHighDegreeZeros();
   }
 
   static void DoMul(const UnivariatePolynomial<S>& a,
@@ -852,7 +854,6 @@ class UnivariatePolynomialOp<UnivariateSparseCoefficients<F, MaxDegree>> {
     }
     pdqsort(c_terms.begin(), c_terms.end());
     c.coefficients_ = S(std::move(c_terms));
-    c.coefficients_.RemoveHighDegreeZeros();
   }
 };
 

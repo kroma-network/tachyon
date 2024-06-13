@@ -20,6 +20,7 @@
 
 #include "tachyon/base/buffer/copyable.h"
 #include "tachyon/base/containers/adapters.h"
+#include "tachyon/base/containers/cxx20_erase_vector.h"
 #include "tachyon/base/json/json.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/optional.h"
@@ -102,15 +103,16 @@ class UnivariateSparseCoefficients {
 
   constexpr UnivariateSparseCoefficients() = default;
   constexpr explicit UnivariateSparseCoefficients(
-      const std::vector<Term>& terms)
+      const std::vector<Term>& terms, bool cleanup = false)
       : terms_(terms) {
+    if (cleanup) RemoveZeros();
     CHECK_LE(Degree(), kMaxDegree);
-    RemoveHighDegreeZeros();
   }
-  constexpr explicit UnivariateSparseCoefficients(std::vector<Term>&& terms)
+  constexpr explicit UnivariateSparseCoefficients(std::vector<Term>&& terms,
+                                                  bool cleanup = false)
       : terms_(std::move(terms)) {
+    if (cleanup) RemoveZeros();
     CHECK_LE(Degree(), kMaxDegree);
-    RemoveHighDegreeZeros();
   }
 
   constexpr static UnivariateSparseCoefficients CreateChecked(
@@ -155,6 +157,15 @@ class UnivariateSparseCoefficients {
 
   constexpr bool operator!=(const UnivariateSparseCoefficients& other) const {
     return !operator==(other);
+  }
+
+  constexpr bool IsClean() const {
+    for (const Term& term : terms_) {
+      if (term.coefficient.IsZero()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   constexpr F& at(size_t i) {
@@ -273,6 +284,10 @@ class UnivariateSparseCoefficients {
     return ss.str();
   }
 
+  void RemoveZeros() {
+    base::EraseIf(terms_, [](const Term& x) { return x.coefficient.IsZero(); });
+  }
+
  private:
   friend class internal::UnivariatePolynomialOp<
       UnivariateDenseCoefficients<F, MaxDegree>>;
@@ -287,16 +302,6 @@ class UnivariateSparseCoefficients {
     if (it == terms_.end()) return nullptr;
     if (it->degree != i) return nullptr;
     return &it->coefficient;
-  }
-
-  void RemoveHighDegreeZeros() {  // Fix to RemoveZeros
-    while (!IsZero()) {
-      if (terms_.back().coefficient.IsZero()) {
-        terms_.pop_back();
-      } else {
-        break;
-      }
-    }
   }
 
   std::vector<Term> terms_;

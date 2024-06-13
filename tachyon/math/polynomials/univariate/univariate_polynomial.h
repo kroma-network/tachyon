@@ -47,9 +47,13 @@ class UnivariatePolynomial final
 
   constexpr UnivariatePolynomial() = default;
   constexpr explicit UnivariatePolynomial(const Coefficients& coefficients)
-      : coefficients_(coefficients) {}
+      : coefficients_(coefficients) {
+    DCHECK(coefficients_.IsClean()) << "Coefficients are not cleaned up.";
+  }
   constexpr explicit UnivariatePolynomial(Coefficients&& coefficients)
-      : coefficients_(std::move(coefficients)) {}
+      : coefficients_(std::move(coefficients)) {
+    DCHECK(coefficients_.IsClean()) << "Coefficients are not cleaned up.";
+  }
 
   constexpr static bool IsCoefficientForm() { return true; }
 
@@ -370,6 +374,7 @@ class RapidJsonValueConverter<math::UnivariateDensePolynomial<F, MaxDegree>> {
     math::UnivariateDenseCoefficients<F, MaxDegree> dense_coeffs;
     if (!ParseJsonElement(json_value, "coefficients", &dense_coeffs, error))
       return false;
+    dense_coeffs.RemoveHighDegreeZeros();
     *value = math::UnivariatePolynomial(std::move(dense_coeffs));
     return true;
   }
