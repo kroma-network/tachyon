@@ -48,6 +48,7 @@ tachyon_cc_library(
     copts = if_x86_64(["-mavx2"]),
     deps = [
         ":mersenne31",
+        "//tachyon:export",
         "//tachyon/math/finite_fields:packed_prime_field32_avx2",
         "//tachyon/math/finite_fields:packed_prime_field_base",
     ],
@@ -60,6 +61,7 @@ tachyon_cc_library(
     copts = if_x86_64(["-mavx512f"]),
     deps = [
         ":mersenne31",
+        "//tachyon:export",
         "//tachyon/math/finite_fields:packed_prime_field32_avx512",
         "//tachyon/math/finite_fields:packed_prime_field_base",
     ],
@@ -71,6 +73,7 @@ tachyon_cc_library(
     hdrs = if_aarch64(["packed_mersenne31_neon.h"]),
     deps = [
         ":mersenne31",
+        "//tachyon:export",
         "//tachyon/math/finite_fields:packed_prime_field32_neon",
         "//tachyon/math/finite_fields:packed_prime_field_base",
     ],

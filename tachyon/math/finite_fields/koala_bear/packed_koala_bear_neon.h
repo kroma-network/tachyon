@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include "tachyon/export.h"
 #include "tachyon/math/finite_fields/koala_bear/koala_bear.h"
 #include "tachyon/math/finite_fields/packed_prime_field_base.h"
 
@@ -22,7 +23,7 @@ struct PackedPrimeFieldTraits<PackedKoalaBearNeon> {
   constexpr static size_t N = 4;
 };
 
-class PackedKoalaBearNeon final
+class TACHYON_EXPORT PackedKoalaBearNeon final
     : public PackedPrimeFieldBase<PackedKoalaBearNeon> {
  public:
   using PrimeField = KoalaBear;

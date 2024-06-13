@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include "tachyon/export.h"
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
 #include "tachyon/math/finite_fields/packed_prime_field_base.h"
 
@@ -22,7 +23,7 @@ struct PackedPrimeFieldTraits<PackedMersenne31Neon> {
   constexpr static size_t N = 4;
 };
 
-class PackedMersenne31Neon final
+class TACHYON_EXPORT PackedMersenne31Neon final
     : public PackedPrimeFieldBase<PackedMersenne31Neon> {
  public:
   using PrimeField = Mersenne31;
