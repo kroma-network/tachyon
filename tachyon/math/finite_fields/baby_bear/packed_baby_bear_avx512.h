@@ -31,6 +31,8 @@ class TACHYON_EXPORT PackedBabyBearAVX512 final
   constexpr static size_t N = 16;
 
   PackedBabyBearAVX512() = default;
+  // NOTE(chokobole): This is needed by Eigen matrix.
+  explicit PackedBabyBearAVX512(uint32_t value);
   PackedBabyBearAVX512(const PackedBabyBearAVX512& other) = default;
   PackedBabyBearAVX512& operator=(const PackedBabyBearAVX512& other) = default;
   PackedBabyBearAVX512(PackedBabyBearAVX512&& other) = default;

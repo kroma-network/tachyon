@@ -42,6 +42,11 @@ __m256i Mul(__m256i lhs, __m256i rhs) {
 
 }  // namespace
 
+PackedBabyBearAVX2::PackedBabyBearAVX2(uint32_t value) {
+  __m256i vector = _mm256_set1_epi32(BabyBear::Config::ToMontgomery(value));
+  _mm256_storeu_si256(reinterpret_cast<__m256i_u*>(values_.data()), vector);
+}
+
 // static
 void PackedBabyBearAVX2::Init() {
   kP = _mm256_set1_epi32(BabyBear::Config::kModulus);

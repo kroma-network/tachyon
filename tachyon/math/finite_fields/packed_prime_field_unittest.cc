@@ -72,6 +72,8 @@ TYPED_TEST(PackedPrimeFieldTest, Broadcast) {
   for (size_t i = 0; i < PackedPrimeField::N; ++i) {
     EXPECT_EQ(f[i], r);
   }
+
+  EXPECT_EQ(f, PackedPrimeField(r.ToBigInt()[0]));
 }
 
 TYPED_TEST(PackedPrimeFieldTest, Random) {

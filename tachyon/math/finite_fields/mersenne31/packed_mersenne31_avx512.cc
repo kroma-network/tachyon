@@ -115,6 +115,11 @@ __m512i Mul(__m512i lhs, __m512i rhs) {
 
 }  // namespace
 
+PackedMersenne31AVX512::PackedMersenne31AVX512(uint32_t value) {
+  __m512i vector = _mm512_set1_epi32(value);
+  _mm512_storeu_si512(values_.data(), vector);
+}
+
 // static
 void PackedMersenne31AVX512::Init() {
   kP = _mm512_set1_epi32(Mersenne31::Config::kModulus);

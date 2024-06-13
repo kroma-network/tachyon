@@ -91,6 +91,11 @@ uint32x4_t Mul(uint32x4_t lhs, uint32x4_t rhs) {
 
 }  // namespace
 
+PackedMersenne31Neon::PackedMersenne31Neon(uint32_t value) {
+  uint32x4_t vector = vdupq_n_u32(value);
+  vst1q_u32(reinterpret_cast<uint32_t*>(values_.data()), vector);
+}
+
 // static
 void PackedMersenne31Neon::Init() {
   kP = vdupq_n_u32(Mersenne31::Config::kModulus);

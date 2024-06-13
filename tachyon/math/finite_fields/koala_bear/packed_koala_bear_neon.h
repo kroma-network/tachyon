@@ -31,6 +31,8 @@ class TACHYON_EXPORT PackedKoalaBearNeon final
   constexpr static size_t N = 4;
 
   PackedKoalaBearNeon() = default;
+  // NOTE(chokobole): This is needed by Eigen matrix.
+  explicit PackedKoalaBearNeon(uint32_t value);
   PackedKoalaBearNeon(const PackedKoalaBearNeon& other) = default;
   PackedKoalaBearNeon& operator=(const PackedKoalaBearNeon& other) = default;
   PackedKoalaBearNeon(PackedKoalaBearNeon&& other) = default;

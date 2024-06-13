@@ -31,6 +31,8 @@ class TACHYON_EXPORT PackedBabyBearNeon final
   constexpr static size_t N = 4;
 
   PackedBabyBearNeon() = default;
+  // NOTE(chokobole): This is needed by Eigen matrix.
+  explicit PackedBabyBearNeon(uint32_t value);
   PackedBabyBearNeon(const PackedBabyBearNeon& other) = default;
   PackedBabyBearNeon& operator=(const PackedBabyBearNeon& other) = default;
   PackedBabyBearNeon(PackedBabyBearNeon&& other) = default;

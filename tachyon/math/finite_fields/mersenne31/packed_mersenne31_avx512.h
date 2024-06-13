@@ -31,6 +31,8 @@ class TACHYON_EXPORT PackedMersenne31AVX512 final
   constexpr static size_t N = PackedPrimeFieldTraits<PackedMersenne31AVX512>::N;
 
   PackedMersenne31AVX512() = default;
+  // NOTE(chokobole): This is needed by Eigen matrix.
+  explicit PackedMersenne31AVX512(uint32_t value);
   PackedMersenne31AVX512(const PackedMersenne31AVX512& other) = default;
   PackedMersenne31AVX512& operator=(const PackedMersenne31AVX512& other) =
       default;
