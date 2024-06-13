@@ -3,7 +3,7 @@
 
 namespace tachyon::zk::lookup {
 
-enum class Type { kHalo2 };
+enum class Type { kHalo2, kLogDerivativeHalo2 };
 
 }  // namespace tachyon::zk::lookup
 

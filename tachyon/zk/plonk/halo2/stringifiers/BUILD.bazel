@@ -70,6 +70,15 @@ tachyon_cc_library(
 )
 
 tachyon_cc_library(
+    name = "lookup_tracker_stringifier",
+    hdrs = ["lookup_tracker_stringifier.h"],
+    deps = [
+        "//tachyon/base/strings:rust_stringifier",
+        "//tachyon/zk/plonk/constraint_system:lookup_tracker",
+    ],
+)
+
+tachyon_cc_library(
     name = "permutation_argument_stringifier",
     hdrs = ["permutation_argument_stringifier.h"],
     deps = [

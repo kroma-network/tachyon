@@ -55,6 +55,14 @@ class SumExpression : public Expression<F> {
                             left_->ToString(), right_->ToString());
   }
 
+  void WriteIdentifier(std::ostream& out) const override {
+    out << "(";
+    left_->WriteIdentifier(out);
+    out << "+";
+    right_->WriteIdentifier(out);
+    out << ")";
+  }
+
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const SumExpression* sum = other.ToSum();

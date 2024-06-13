@@ -45,7 +45,9 @@ class Synthesizer {
     VLOG(2) << "Generating advice columns";
     CHECK_EQ(num_circuits_, circuits.size());
 
-    ConstraintSystem<F> empty_constraint_system;
+    ConstraintSystem<F> empty_constraint_system(
+        constraint_system_->lookup_type());
+
     typename Circuit::Config config =
         Circuit::Configure(empty_constraint_system);
 

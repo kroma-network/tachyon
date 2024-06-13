@@ -44,6 +44,10 @@ class ChallengeExpression : public Expression<F> {
                             challenge_.ToString());
   }
 
+  void WriteIdentifier(std::ostream& out) const override {
+    out << "challenge[" << challenge_.index() << "]";
+  }
+
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const ChallengeExpression* challenge = other.ToChallenge();

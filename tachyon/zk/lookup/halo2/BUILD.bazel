@@ -74,6 +74,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "utils",
     hdrs = ["utils.h"],
+    deps = [
+        "//tachyon/base:logging",
+        "//tachyon/zk/lookup:type",
+    ],
 )
 
 tachyon_cc_library(

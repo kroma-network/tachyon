@@ -43,6 +43,7 @@ class Verifier : public VerifierBase<PCS> {
   using Coefficients = typename Poly::Coefficients;
   using Opening = crypto::PolynomialOpening<Poly, Commitment>;
   using LookupVerifier = typename LS::Verifier;
+  using Proof = typename LS::Proof;
 
   using VerifierBase<PCS>::VerifierBase;
 
@@ -59,7 +60,7 @@ class Verifier : public VerifierBase<PCS> {
   bool VerifyProofForTesting(
       const VerifyingKey<F, Commitment>& vkey,
       const std::vector<std::vector<Evals>>& instance_columns_vec,
-      Proof<F, Commitment>* proof_out, F* expected_h_eval_out) {
+      Proof* proof_out, F* expected_h_eval_out) {
     if (!ValidateInstanceColumnsVec(vkey, instance_columns_vec)) return false;
 
     std::vector<std::vector<Commitment>> instance_commitments_vec;
@@ -78,15 +79,15 @@ class Verifier : public VerifierBase<PCS> {
       WriteColumnsVecToTranscript(transcript, instance_columns_vec);
     }
 
-    ProofReader<PCS> proof_reader(vkey, transcript,
-                                  instance_commitments_vec.size());
-    Proof<F, Commitment>& proof = proof_reader.proof();
+    ProofReader<PCS, LS> proof_reader(vkey, transcript,
+                                      instance_commitments_vec.size());
+    Proof& proof = proof_reader.proof();
     proof_reader.ReadAdviceCommitmentsVecAndChallenges();
     proof_reader.ReadTheta();
-    proof_reader.ReadLookupPermutedCommitments();
+    proof_reader.ReadLookupPreparedCommitments();
     proof_reader.ReadBetaAndGamma();
     proof_reader.ReadPermutationProductCommitments();
-    proof_reader.ReadLookupProductCommitments();
+    proof_reader.ReadLookupGrandCommitments();
     proof_reader.ReadVanishingRandomPolyCommitment();
     proof_reader.ReadY();
     proof_reader.ReadVanishingHPolyCommitments();
@@ -116,7 +117,7 @@ class Verifier : public VerifierBase<PCS> {
   }
 
   void ComputeAuxValues(const ConstraintSystem<F>& constraint_system,
-                        Proof<F, Commitment>& proof) const {
+                        Proof& proof) const {
     RowIndex blinding_factors = constraint_system.ComputeBlindingFactors();
     std::vector<F> l_evals = this->domain_->EvaluatePartialLagrangeCoefficients(
         proof.x, base::Range<int32_t, /*IsStartInclusive=*/true,
@@ -174,7 +175,7 @@ class Verifier : public VerifierBase<PCS> {
     return base::Map(columns, [this](const Evals& column) {
       std::vector<F> expanded_evals = column.evaluations();
       expanded_evals.resize(this->pcs_.N());
-      return this->Commit(expanded_evals);
+      return this->Commit(Evals(expanded_evals));
     });
   }
 
@@ -289,15 +290,14 @@ class Verifier : public VerifierBase<PCS> {
 
   F EvaluateH(
       const std::vector<std::vector<Commitment>>& instance_commitments_vec,
-      const VerifyingKey<F, Commitment>& vkey,
-      const Proof<F, Commitment>& proof) {
+      const VerifyingKey<F, Commitment>& vkey, const Proof& proof) {
     size_t num_circuits = proof.advices_commitments_vec.size();
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
     size_t size =
         GetNumVanishingEvals(num_circuits, constraint_system.gates()) +
         GetNumPermutationEvals(
             num_circuits, proof.permutation_product_commitments_vec[0].size()) +
-        lookup::halo2::GetNumEvals(num_circuits,
+        lookup::halo2::GetNumEvals(LS::type, num_circuits,
                                    constraint_system.lookups().size());
     std::vector<F> evals;
     evals.reserve(size);
@@ -331,9 +331,8 @@ class Verifier : public VerifierBase<PCS> {
 
   std::vector<Opening> Open(
       const std::vector<std::vector<Commitment>>& instance_commitments_vec,
-      const VerifyingKey<F, Commitment>& vkey,
-      const Proof<F, Commitment>& proof, Commitment& expected_h_commitment,
-      const F& expected_h_eval) {
+      const VerifyingKey<F, Commitment>& vkey, const Proof& proof,
+      Commitment& expected_h_commitment, const F& expected_h_eval) {
     size_t num_circuits = proof.advices_commitments_vec.size();
     const ConstraintSystem<F>& constraint_system = vkey.constraint_system();
     size_t size =
@@ -344,7 +343,7 @@ class Verifier : public VerifierBase<PCS> {
         GetNumPermutationOpenings(
             num_circuits, proof.permutation_product_commitments_vec[0].size(),
             vkey.permutation_verifying_key().commitments().size()) +
-        lookup::halo2::GetNumOpenings(num_circuits,
+        lookup::halo2::GetNumOpenings(LS::type, num_circuits,
                                       constraint_system.lookups().size());
     std::vector<Opening> openings;
     openings.reserve(size);
@@ -392,8 +391,8 @@ class Verifier : public VerifierBase<PCS> {
 
   bool DoVerify(
       const std::vector<std::vector<Commitment>>& instance_commitments_vec,
-      const VerifyingKey<F, Commitment>& vkey,
-      const Proof<F, Commitment>& proof, F* expected_h_eval_out) {
+      const VerifyingKey<F, Commitment>& vkey, const Proof& proof,
+      F* expected_h_eval_out) {
     F expected_h_eval = EvaluateH(instance_commitments_vec, vkey, proof);
     if (expected_h_eval_out) {
       *expected_h_eval_out = expected_h_eval;

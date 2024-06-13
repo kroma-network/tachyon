@@ -42,6 +42,10 @@ class ConstantExpression : public Expression<F> {
                             value_.ToString());
   }
 
+  void WriteIdentifier(std::ostream& out) const override {
+    out << value_.ToString();
+  }
+
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const ConstantExpression* constant = other.ToConstant();

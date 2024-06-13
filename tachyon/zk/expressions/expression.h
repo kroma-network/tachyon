@@ -9,9 +9,11 @@
 
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <vector>
 
+#include "tachyon/base/containers/container_util.h"
 #include "tachyon/base/logging.h"
 #include "tachyon/base/ref.h"
 #include "tachyon/zk/expressions/expression_type.h"
@@ -72,6 +74,14 @@ class Expression {
 
   virtual std::unique_ptr<Expression> Clone() const = 0;
 
+  virtual void WriteIdentifier(std::ostream& out) const = 0;
+
+  std::string Identifier() const {
+    std::ostringstream ss;
+    WriteIdentifier(ss);
+    return ss.str();
+  }
+
   virtual bool operator==(const Expression& other) const {
     return type_ == other.type_;
   }
@@ -86,6 +96,13 @@ class Expression {
 
   // Extracts a simple selector from this gate, if present.
   std::optional<plonk::Selector> ExtractSimpleSelector() const;
+
+  static std::vector<std::unique_ptr<Expression>> CloneExpressions(
+      const std::vector<std::unique_ptr<Expression>>& expressions) {
+    return base::CreateVector(expressions.size(), [&expressions](size_t i) {
+      return expressions[i]->Clone();
+    });
+  }
 
   std::unique_ptr<Expression<F>> ReplaceSelectors(
       const std::vector<base::Ref<const Expression<F>>>& replacements,

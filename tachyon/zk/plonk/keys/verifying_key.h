@@ -57,10 +57,11 @@ class VerifyingKey : public Key {
 
   // Return true if it is able to load from an instance of |circuit|.
   template <typename PCS, typename Circuit>
-  [[nodiscard]] bool Load(Entity<PCS>* entity, const Circuit& circuit) {
+  [[nodiscard]] bool Load(Entity<PCS>* entity, const Circuit& circuit,
+                          lookup::Type lookup_type) {
     using Evals = typename PCS::Evals;
     using RationalEvals = typename PCS::RationalEvals;
-    KeyPreLoadResult<Evals, RationalEvals> result;
+    KeyPreLoadResult<Evals, RationalEvals> result(lookup_type);
     if (!this->PreLoad(entity, circuit, &result)) return false;
     // NOTE(chokobole): This helps the compiler to infer type easily.
     // Without this line, it won't compile.

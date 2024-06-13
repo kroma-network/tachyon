@@ -45,7 +45,7 @@ class ProvingKey : public Key {
   template <typename PCS, typename Circuit>
   [[nodiscard]] bool Load(ProverBase<PCS>* prover, const Circuit& circuit) {
     using RationalEvals = typename PCS::RationalEvals;
-    KeyPreLoadResult<Evals, RationalEvals> pre_load_result;
+    KeyPreLoadResult<Evals, RationalEvals> pre_load_result(LS::type);
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     VerifyingKeyLoadResult<Evals> vk_result;
     if (!verifying_key_.DoLoad(prover, std::move(pre_load_result), &vk_result))
@@ -60,7 +60,7 @@ class ProvingKey : public Key {
                                           const Circuit& circuit,
                                           VerifyingKey<F, C>&& verifying_key) {
     using RationalEvals = typename PCS::RationalEvals;
-    KeyPreLoadResult<Evals, RationalEvals> pre_load_result;
+    KeyPreLoadResult<Evals, RationalEvals> pre_load_result(LS::type);
     if (!this->PreLoad(prover, circuit, &pre_load_result)) return false;
     verifying_key_ = std::move(verifying_key);
     return DoLoad(prover, std::move(pre_load_result), nullptr);

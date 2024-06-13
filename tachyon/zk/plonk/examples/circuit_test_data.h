@@ -30,9 +30,11 @@ class CircuitTestData {
   constexpr static bool kPermutationsPolysFlag = false;
   constexpr static bool kAdviceCommitmentsFlag = false;
   constexpr static bool kChallengesFlag = false;
-  constexpr static bool kPermutationProductCommitmentsPointsFlag = false;
+  constexpr static bool kLookupPermutedCommitmentsPointsFlag = false;
+  constexpr static bool kLookupMPolyCommitmentsFlag = false;
   constexpr static bool kPermutationProductCommitmentsFlag = false;
   constexpr static bool kLookupProductCommitmentsFlag = false;
+  constexpr static bool kLookupSumCommitmentsFlag = false;
   constexpr static bool kVanishingHPolyCommitmentsFlag = false;
   constexpr static bool kAdviceEvalsFlag = false;
   constexpr static bool kFixedEvalsFlag = false;
@@ -41,10 +43,13 @@ class CircuitTestData {
   constexpr static bool kPermutationProductNextEvalsFlag = false;
   constexpr static bool kPermutationProductLastEvalsFlag = false;
   constexpr static bool kLookupProductEvalsFlag = false;
+  constexpr static bool kLookupSumEvalsFlag = false;
   constexpr static bool kLookupProductNextEvalsFlag = false;
+  constexpr static bool kLookupSumNextEvalsFlag = false;
   constexpr static bool kLookupPermutedInputEvalsFlag = false;
   constexpr static bool kLookupPermutedInputPrevEvalsFlag = false;
   constexpr static bool kLookupPermutedTableEvalsFlag = false;
+  constexpr static bool kLookupMEvalsFlag = false;
 
   constexpr static base::Range<RowIndex> kUsableRows =
       base::Range<RowIndex>::Until(10);

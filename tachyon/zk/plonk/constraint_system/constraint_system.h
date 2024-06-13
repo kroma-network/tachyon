@@ -18,7 +18,9 @@
 #include <utility>
 #include <vector>
 
+#include "absl/container/btree_map.h"
 #include "absl/container/flat_hash_map.h"
+#include "absl/numeric/bits.h"
 #include "gtest/gtest_prod.h"
 
 #include "tachyon/base/containers/container_util.h"
@@ -29,8 +31,10 @@
 #include "tachyon/zk/base/row_types.h"
 #include "tachyon/zk/expressions/evaluator/simple_selector_finder.h"
 #include "tachyon/zk/lookup/lookup_argument.h"
+#include "tachyon/zk/lookup/type.h"
 #include "tachyon/zk/plonk/constraint_system/constraint.h"
 #include "tachyon/zk/plonk/constraint_system/gate.h"
+#include "tachyon/zk/plonk/constraint_system/lookup_tracker.h"
 #include "tachyon/zk/plonk/constraint_system/query.h"
 #include "tachyon/zk/plonk/constraint_system/selector_compressor.h"
 #include "tachyon/zk/plonk/constraint_system/virtual_cells.h"
@@ -54,6 +58,13 @@ class ConstraintSystem {
           VirtualCells<F>&)>;
   using ConstrainCallback =
       base::OnceCallback<std::vector<Constraint<F>>(VirtualCells<F>&)>;
+
+  ConstraintSystem() = default;
+
+  explicit ConstraintSystem(lookup::Type lookup_type)
+      : lookup_type_(lookup_type) {}
+
+  lookup::Type lookup_type() const { return lookup_type_; }
 
   size_t num_fixed_columns() const { return num_fixed_columns_; }
 
@@ -99,6 +110,10 @@ class ConstraintSystem {
 
   const std::vector<lookup::Argument<F>>& lookups() const { return lookups_; }
 
+  const absl::btree_map<std::string, LookupTracker<F>>& lookups_map() const {
+    return lookups_map_;
+  }
+
   const absl::flat_hash_map<ColumnKeyBase, std::string>&
   general_column_annotations() const {
     return general_column_annotations_;
@@ -113,7 +128,13 @@ class ConstraintSystem {
   // Sets the minimum degree required by the circuit, which can be set to a
   // larger amount than actually needed. This can be used, for example, to
   // force the permutation argument to involve more columns in the same set.
-  void set_minimum_degree(size_t degree) { minimum_degree_ = degree; }
+  void set_minimum_degree(size_t degree) {
+    if (minimum_degree_) {
+      minimum_degree_ = std::max(minimum_degree_.value(), degree);
+    } else {
+      minimum_degree_ = degree;
+    }
+  }
 
   // Enables this fixed |column| to be used for global constant assignments.
   // The |column| will be equality-enabled, too.
@@ -135,44 +156,168 @@ class ConstraintSystem {
   //
   // |callback| returns a map between the input expressions and the table
   // columns they need to match.
-  size_t Lookup(std::string_view name, LookupCallback callback) {
+  void Lookup(std::string_view name, LookupCallback callback) {
     VirtualCells cells(this);
-    lookup::Pairs<std::unique_ptr<Expression<F>>> pairs =
-        base::Map(std::move(callback).Run(cells),
-                  [&cells](lookup::Pair<std::unique_ptr<Expression<F>>,
-                                        LookupTableColumn>& pair) {
-                    CHECK(!pair.input()->ContainsSimpleSelector())
-                        << "expression containing simple selector "
-                           "supplied to lookup argument";
+    lookup::Pairs<std::unique_ptr<Expression<F>>, LookupTableColumn> pairs =
+        std::move(callback).Run(cells);
 
-                    std::unique_ptr<Expression<F>> table = cells.QueryFixed(
-                        pair.table().column(), Rotation::Cur());
+    switch (lookup_type_) {
+      case lookup::Type::kHalo2: {
+        lookup::Pairs<std::unique_ptr<Expression<F>>> lookup_pairs = base::Map(
+            pairs, [&cells](lookup::Pair<std::unique_ptr<Expression<F>>,
+                                         LookupTableColumn>& pair) {
+              std::unique_ptr<Expression<F>> table =
+                  cells.QueryLookupTable(pair, Rotation::Cur());
+              return lookup::Pair<std::unique_ptr<Expression<F>>>(
+                  std::move(pair).TakeInput(), std::move(table));
+            });
+        lookups_.emplace_back(name, std::move(lookup_pairs));
+        break;
+      }
+      case lookup::Type::kLogDerivativeHalo2: {
+        std::vector<std::unique_ptr<Expression<F>>> input_expressions;
+        std::vector<std::unique_ptr<Expression<F>>> table_expressions;
 
-                    return lookup::Pair<std::unique_ptr<Expression<F>>>(
-                        std::move(pair).TakeInput(), std::move(table));
-                  });
+        input_expressions.reserve(pairs.size());
+        table_expressions.reserve(pairs.size());
 
-    lookups_.emplace_back(name, std::move(pairs));
-    return lookups_.size() - 1;
+        for (lookup::Pair<std::unique_ptr<Expression<F>>, LookupTableColumn>&
+                 pair : pairs) {
+          std::unique_ptr<Expression<F>> table =
+              cells.QueryLookupTable(pair, Rotation::Cur());
+          input_expressions.push_back(std::move(pair).TakeInput());
+          table_expressions.push_back(std::move(table));
+        }
+        CreateLookupsMap(name, std::move(input_expressions),
+                         std::move(table_expressions));
+        break;
+      }
+    }
   }
 
   // Add a lookup argument for some input expressions and table expressions.
   //
   // |callback| returns a map between the input expressions and the table
   // expressions they need to match.
-  size_t LookupAny(std::string_view name, LookupAnyCallback callback) {
+  void LookupAny(std::string_view name, LookupAnyCallback callback) {
     VirtualCells cells(this);
     lookup::Pairs<std::unique_ptr<Expression<F>>> pairs =
         std::move(callback).Run(cells);
 
-    for (const lookup::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
-      CHECK(!pair.input()->ContainsSimpleSelector())
-          << "expression containing simple selector "
-             "supplied to lookup argument";
+    switch (lookup_type_) {
+      case lookup::Type::kHalo2: {
+        for (const lookup::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
+          CHECK(!pair.input()->ContainsSimpleSelector())
+              << "expression containing simple selector "
+                 "supplied to lookup argument";
+        }
+        lookups_.emplace_back(name, std::move(pairs));
+        break;
+      }
+      case lookup::Type::kLogDerivativeHalo2: {
+        std::vector<std::unique_ptr<Expression<F>>> input_expressions;
+        std::vector<std::unique_ptr<Expression<F>>> table_expressions;
+
+        input_expressions.reserve(pairs.size());
+        table_expressions.reserve(pairs.size());
+
+        for (lookup::Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
+          CHECK(!pair.input()->ContainsSimpleSelector())
+              << "expression containing simple selector "
+                 "supplied to lookup argument";
+
+          input_expressions.push_back(std::move(pair).TakeInput());
+          table_expressions.push_back(std::move(pair).TakeTable());
+        }
+
+        CreateLookupsMap(name, std::move(input_expressions),
+                         std::move(table_expressions));
+        break;
+      }
+    }
+  }
+
+  // Chunk lookup arguments into pieces below a given degree bound. Compute the
+  // |minimum_degree| from gates and lookups, and then construct the
+  // |lookup_arguments| of chunks smaller than the |minimum_degree| from the
+  // |lookups_map|.
+  void ChunkLookups() {
+    CHECK_EQ(lookup_type_, lookup::Type::kLogDerivativeHalo2);
+
+    if (lookups_map_.empty()) {
+      return;
     }
 
-    lookups_.emplace_back(name, std::move(pairs));
-    return lookups_.size() - 1;
+    size_t max_gate_degree = ComputeGateRequiredDegree();
+
+    size_t max_single_lookup_degree = 0;
+    for (const auto& [_, lookup_tracker] : lookups_map_) {
+      size_t table_degree = ComputeColumnDegree(lookup_tracker.table);
+
+      // Compute base degree only from table without inputs.
+      size_t base_lookup_degree = ComputeBaseDegree(table_degree);
+
+      size_t max_inputs_degree = 0;
+      for (const std::vector<std::unique_ptr<Expression<F>>>& input :
+           lookup_tracker.inputs) {
+        max_inputs_degree =
+            std::max(max_inputs_degree, ComputeColumnDegree(input));
+      }
+
+      size_t current_degree =
+          ComputeDegreeWithInput(base_lookup_degree, max_inputs_degree);
+      max_single_lookup_degree =
+          std::max(max_single_lookup_degree, current_degree);
+    }
+
+    size_t required_degree =
+        std::max(max_gate_degree, max_single_lookup_degree);
+
+    // The smallest power of 2 greater than or equal to |required_degree|.
+    size_t next_power_of_two = absl::bit_ceil(required_degree);
+
+    set_minimum_degree(next_power_of_two + 1);
+
+    size_t minimum_degree = minimum_degree_.value();
+
+    for (const auto& [_, lookup_tracker] : lookups_map_) {
+      std::vector<std::unique_ptr<Expression<F>>> cloned_input =
+          Expression<F>::CloneExpressions(lookup_tracker.inputs[0]);
+      std::vector<std::unique_ptr<Expression<F>>> cloned_table =
+          Expression<F>::CloneExpressions(lookup_tracker.table);
+      lookups_.emplace_back(lookup_tracker.name, std::move(cloned_input),
+                            std::move(cloned_table));
+
+      for (auto input = lookup_tracker.inputs.begin() + 1;
+           input != lookup_tracker.inputs.end(); ++input) {
+        // Compute the degree of the current set of input expressions.
+        size_t cur_input_degree = ComputeColumnDegree(*input);
+
+        bool added = false;
+        for (lookup::Argument<F>& lookup_argument : lookups_) {
+          // Try to fit input into one of the |lookup_arguments|.
+          size_t cur_argument_degree = lookup_argument.RequiredDegree();
+          size_t new_potential_degree = cur_argument_degree + cur_input_degree;
+          if (new_potential_degree <= minimum_degree) {
+            std::vector<std::unique_ptr<Expression<F>>> cloned_input =
+                Expression<F>::CloneExpressions(*input);
+            lookup_argument.inputs_expressions().push_back(
+                std::move(cloned_input));
+            added = true;
+            break;
+          }
+        }
+
+        if (!added) {
+          std::vector<std::unique_ptr<Expression<F>>> cloned_input =
+              Expression<F>::CloneExpressions(*input);
+          std::vector<std::unique_ptr<Expression<F>>> cloned_table =
+              Expression<F>::CloneExpressions(lookup_tracker.table);
+          lookups_.emplace_back(lookup_tracker.name, std::move(cloned_input),
+                                std::move(cloned_table));
+        }
+      }
+    }
   }
 
   size_t QueryFixedIndex(const FixedColumnKey& column, Rotation at) {
@@ -341,9 +486,12 @@ class ConstraintSystem {
       }
     }
     for (lookup::Argument<F>& lookup : lookups_) {
-      for (std::unique_ptr<Expression<F>>& expression :
-           lookup.input_expressions()) {
-        expression = expression->ReplaceSelectors(selector_replacements, true);
+      for (std::vector<std::unique_ptr<Expression<F>>>& input_expressions :
+           lookup.inputs_expressions()) {
+        for (std::unique_ptr<Expression<F>>& expression : input_expressions) {
+          expression =
+              expression->ReplaceSelectors(selector_replacements, true);
+        }
       }
       for (std::unique_ptr<Expression<F>>& expression :
            lookup.table_expressions()) {
@@ -567,6 +715,27 @@ class ConstraintSystem {
   FRIEND_TEST(ConstraintSystemTest, Lookup);
   FRIEND_TEST(ConstraintSystemTest, LookupAny);
 
+  void CreateLookupsMap(
+      std::string_view name,
+      std::vector<std::unique_ptr<Expression<F>>>&& input_expressions,
+      std::vector<std::unique_ptr<Expression<F>>>&& table_expressions) {
+    std::stringstream table_expressions_ss;
+    for (const std::unique_ptr<Expression<F>>& expr : table_expressions) {
+      table_expressions_ss << expr->Identifier();
+    }
+
+    std::string table_expressions_identifier = table_expressions_ss.str();
+
+    auto it = lookups_map_.find(table_expressions_identifier);
+    if (it != lookups_map_.end()) {
+      it->second.inputs.push_back(std::move(input_expressions));
+    } else {
+      LookupTracker<F> lookup_tracker(name, std::move(table_expressions),
+                                      std::move(input_expressions));
+      lookups_map_[table_expressions_identifier] = std::move(lookup_tracker);
+    }
+  }
+
   template <typename QueryData, typename Column>
   static bool QueryIndex(const std::vector<QueryData>& queries,
                          const Column& column, Rotation at, size_t* index_out) {
@@ -577,6 +746,16 @@ class ConstraintSystem {
     if (!index.has_value()) return false;
     *index_out = index.value();
     return true;
+  }
+
+  static size_t ComputeColumnDegree(
+      const std::vector<std::unique_ptr<Expression<F>>>& column) {
+    return (*std::max_element(column.begin(), column.end(),
+                              [](const std::unique_ptr<Expression<F>>& a,
+                                 const std::unique_ptr<Expression<F>>& b) {
+                                return a->Degree() < b->Degree();
+                              }))
+        ->Degree();
   }
 
   size_t ComputeLookupRequiredDegree() const {
@@ -603,6 +782,32 @@ class ConstraintSystem {
     if (max_required_degree == required_degrees.end()) return 0;
     return *max_required_degree;
   }
+
+  // Degree of lookup without inputs
+  constexpr static size_t ComputeBaseDegree(size_t table_degree) {
+    // φᵢ(X) = fᵢ(X) + α
+    // τ(X) = t(X) + α
+    //
+    // LHS = τ(X) * Π(φᵢ(X)) * (ϕ(gX) - ϕ(X))
+    // ↪ DEG(LHS) = |table_degree| + inputs_degree(= 0) + 1
+    //            = |table_degree| + 1
+    //
+    // RHS = τ(X) * Π(φᵢ(X)) * (∑ 1/(φᵢ(X)) - m(X) / τ(X))
+    // ↪ DEG(RHS) = |table_degree|
+    //
+    // (1 - (l_last(X) + l_blind(X))) * (LHS - RHS)
+    // ↪ degree = DEG(LHS) + 1 = |table_degree| + 2
+    return std::max(size_t{3}, table_degree + 2);
+  }
+
+  constexpr static size_t ComputeDegreeWithInput(
+      size_t base_degree, size_t input_expression_degree) {
+    return base_degree + input_expression_degree;
+  }
+
+  // TODO(Insun35): Change default |lookup_type_| to |kLogDerivativeHalo2|
+  // after implementing C API for LogDerivativeHalo2 scheme.
+  lookup::Type lookup_type_ = lookup::Type::kHalo2;
 
   size_t num_fixed_columns_ = 0;
   size_t num_advice_columns_ = 0;
@@ -637,6 +842,11 @@ class ConstraintSystem {
   // to a sequence of input expressions and a sequence
   // of table expressions involved in the lookup.
   std::vector<lookup::Argument<F>> lookups_;
+
+  // NOTE(Insun35): |lookups_map_| is only used for LogDerivativeHalo2.
+  // btree_map with |table_expressions_identifier| as a key and |LookupTracker|
+  // as values.
+  absl::btree_map<std::string, LookupTracker<F>> lookups_map_;
 
   // List of indexes of Fixed columns which are associated to a
   // circuit-general Column tied to their annotation.

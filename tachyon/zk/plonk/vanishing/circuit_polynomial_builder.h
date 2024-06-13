@@ -16,8 +16,11 @@
 #include "tachyon/base/containers/adapters.h"
 #include "tachyon/base/numerics/checked_math.h"
 #include "tachyon/base/parallelize.h"
+#include "tachyon/base/types/always_false.h"
 #include "tachyon/zk/base/rotation.h"
+#include "tachyon/zk/lookup/halo2/evaluator.h"
 #include "tachyon/zk/lookup/halo2/prover.h"
+#include "tachyon/zk/lookup/log_derivative_halo2/evaluator.h"
 #include "tachyon/zk/plonk/base/column_key.h"
 #include "tachyon/zk/plonk/base/owned_table.h"
 #include "tachyon/zk/plonk/base/ref_table.h"
@@ -119,8 +122,16 @@ class CircuitPolynomialBuilder {
         if (permutation_provers_[j].grand_product_polys().size() > 0)
           UpdatePermutationCosets(j);
         // Do iff there are lookup constraints.
-        if (lookup_provers_[j].grand_product_polys().size() > 0)
-          lookup_evaluator.UpdateLookupCosets(*this, j);
+        size_t lookup_polys_num = 0;
+        if constexpr (LS::type == lookup::Type::kHalo2) {
+          lookup_polys_num = lookup_provers_[j].grand_product_polys().size();
+        } else if constexpr (LS::type == lookup::Type::kLogDerivativeHalo2) {
+          lookup_polys_num = lookup_provers_[j].grand_sum_polys().size();
+        } else {
+          static_assert(base::AlwaysFalse<LS>);
+        }
+
+        if (lookup_polys_num > 0) lookup_evaluator.UpdateLookupCosets(*this, j);
         base::Parallelize(
             value_part,
             [this, &custom_gate_evaluator, &lookup_evaluator](
@@ -203,6 +214,7 @@ class CircuitPolynomialBuilder {
 
  private:
   friend class lookup::halo2::Evaluator<F, Evals>;
+  friend class lookup::log_derivative_halo2::Evaluator<F, Evals>;
 
   EvaluationInput<Evals> ExtractEvaluationInput(
       std ::vector<F>&& intermediates, std::vector<int32_t>&& rotations) {

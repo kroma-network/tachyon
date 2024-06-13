@@ -11,7 +11,10 @@ package(default_visibility = ["//visibility:public"])
 tachyon_cc_library(
     name = "rust_stringifier",
     hdrs = ["rust_stringifier.h"],
-    deps = ["//tachyon:export"],
+    deps = [
+        "//tachyon:export",
+        "@com_google_absl//absl/container:btree",
+    ],
 )
 
 tachyon_cc_library(

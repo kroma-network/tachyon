@@ -177,8 +177,8 @@ class SHPlonk final : public UnivariatePolynomialCommitmentScheme<
                   return poly;
                 }
 
-                return Poly(
-                    Coefficients({-low_degree_extensions[i].Evaluate(u)}));
+                return Poly(Coefficients(
+                    {-low_degree_extensions[i].Evaluate(u)}, true));
               });
 
           // clang-format off

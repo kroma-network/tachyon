@@ -26,15 +26,18 @@ tachyon_cc_library(
 
 tachyon_cc_library(
     name = "circuit_test_type_traits",
+    testonly = True,
     hdrs = ["circuit_test_type_traits.h"],
     deps = [
         "//tachyon/math/elliptic_curves/bn/bn254",
         "//tachyon/zk/base/commitments:gwc_extension",
         "//tachyon/zk/base/commitments:shplonk_extension",
         "//tachyon/zk/lookup/halo2:scheme",
+        "//tachyon/zk/lookup/log_derivative_halo2:scheme",
         "//tachyon/zk/plonk/examples/fibonacci:fibonacci1_circuit",
         "//tachyon/zk/plonk/examples/fibonacci:fibonacci2_circuit",
         "//tachyon/zk/plonk/examples/fibonacci:fibonacci3_circuit",
+        "//tachyon/zk/plonk/halo2:prover_test",
         "//tachyon/zk/plonk/layout/floor_planner:simple_floor_planner",
         "//tachyon/zk/plonk/layout/floor_planner/v1:v1_floor_planner",
     ],
@@ -43,9 +46,10 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "circuit_test",
     testonly = True,
-    srcs = ["circuit_test.cc"],
     hdrs = ["circuit_test.h"],
     deps = [
+        ":multi_lookup_circuit",
+        ":multi_lookup_circuit_test_data",
         ":point",
         ":shuffle_circuit",
         ":shuffle_circuit_test_data",
@@ -74,6 +78,19 @@ tachyon_cc_library(
 tachyon_cc_library(
     name = "point",
     hdrs = ["point.h"],
+)
+
+tachyon_cc_library(
+    name = "multi_lookup_circuit",
+    hdrs = ["multi_lookup_circuit.h"],
+    deps = ["//tachyon/zk/plonk/constraint_system:circuit"],
+)
+
+tachyon_cc_library(
+    name = "multi_lookup_circuit_test_data",
+    testonly = True,
+    hdrs = ["multi_lookup_circuit_test_data.h"],
+    deps = COMMON_TEST_DATA_DEPS,
 )
 
 tachyon_cc_library(
@@ -116,6 +133,15 @@ tachyon_cc_library(
     testonly = True,
     hdrs = ["simple_lookup_circuit_test_data.h"],
     deps = COMMON_TEST_DATA_DEPS + ["//tachyon/base:range"],
+)
+
+tachyon_cc_unittest(
+    name = "multi_lookup_circuit_test",
+    srcs = ["multi_lookup_circuit_test.cc"],
+    deps = COMMON_TEST_DEPS + [
+        ":multi_lookup_circuit",
+        ":multi_lookup_circuit_test_data",
+    ],
 )
 
 tachyon_cc_unittest(

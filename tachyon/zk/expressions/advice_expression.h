@@ -42,6 +42,11 @@ class AdviceExpression : public Expression<F> {
                             query_.ToString());
   }
 
+  void WriteIdentifier(std::ostream& out) const override {
+    out << "advice[" << query_.column().index() << "]["
+        << query_.rotation().value() << "]";
+  }
+
   bool operator==(const Expression<F>& other) const override {
     if (!Expression<F>::operator==(other)) return false;
     const AdviceExpression* advice = other.ToAdvice();

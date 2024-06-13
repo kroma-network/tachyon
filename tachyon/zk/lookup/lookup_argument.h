@@ -26,27 +26,47 @@ class Argument {
            std::vector<std::unique_ptr<Expression<F>>> input_expressions,
            std::vector<std::unique_ptr<Expression<F>>> table_expressions)
       : name_(std::string(name)),
-        input_expressions_(std::move(input_expressions)),
+        table_expressions_(std::move(table_expressions)) {
+    inputs_expressions_.push_back(std::move(input_expressions));
+  }
+  Argument(std::string_view name,
+           std::vector<std::vector<std::unique_ptr<Expression<F>>>>
+               inputs_expressions,
+           std::vector<std::unique_ptr<Expression<F>>> table_expressions)
+      : name_(std::string(name)),
+        inputs_expressions_(std::move(inputs_expressions)),
         table_expressions_(std::move(table_expressions)) {}
   Argument(std::string_view name, Pairs<std::unique_ptr<Expression<F>>> pairs)
       : name_(std::string(name)) {
-    input_expressions_.reserve(pairs.size());
+    std::vector<std::unique_ptr<Expression<F>>> input_expressions;
+    input_expressions.reserve(pairs.size());
     table_expressions_.reserve(pairs.size());
 
     for (Pair<std::unique_ptr<Expression<F>>>& pair : pairs) {
-      input_expressions_.push_back(std::move(pair).TakeInput());
+      input_expressions.push_back(std::move(pair).TakeInput());
       table_expressions_.push_back(std::move(pair).TakeTable());
     }
+    inputs_expressions_.push_back(std::move(input_expressions));
 
     pairs.clear();
   }
 
+  const std::vector<std::vector<std::unique_ptr<Expression<F>>>>&
+  inputs_expressions() const {
+    return inputs_expressions_;
+  }
+
+  std::vector<std::vector<std::unique_ptr<Expression<F>>>>&
+  inputs_expressions() {
+    return inputs_expressions_;
+  }
+
   const std::vector<std::unique_ptr<Expression<F>>>& input_expressions() const {
-    return input_expressions_;
+    return inputs_expressions_[0];
   }
 
   std::vector<std::unique_ptr<Expression<F>>>& input_expressions() {
-    return input_expressions_;
+    return inputs_expressions_[0];
   }
 
   const std::vector<std::unique_ptr<Expression<F>>>& table_expressions() const {
@@ -59,12 +79,17 @@ class Argument {
 
   bool operator==(const Argument& other) const {
     if (name_ != other.name_) return false;
-    if (input_expressions_.size() != other.input_expressions_.size())
+    if (inputs_expressions_.size() != other.inputs_expressions_.size())
       return false;
     if (table_expressions_.size() != other.table_expressions_.size())
       return false;
-    for (size_t i = 0; i < input_expressions_.size(); ++i) {
-      if (*input_expressions_[i] != *other.input_expressions_[i]) return false;
+    for (size_t i = 0; i < inputs_expressions_.size(); ++i) {
+      if (inputs_expressions_[i].size() != other.inputs_expressions_[i].size())
+        return false;
+      for (size_t j = 0; j < inputs_expressions_[i].size(); ++j) {
+        if (*inputs_expressions_[i][j] != *other.inputs_expressions_[i][j])
+          return false;
+      }
     }
     for (size_t i = 0; i < table_expressions_.size(); ++i) {
       if (*table_expressions_[i] != *other.table_expressions_[i]) return false;
@@ -74,7 +99,11 @@ class Argument {
   bool operator!=(const Argument& other) const { return !operator==(other); }
 
   size_t RequiredDegree() const {
-    CHECK_EQ(input_expressions_.size(), table_expressions_.size());
+    for (const std::vector<std::unique_ptr<Expression<F>>>& input_expressions :
+         inputs_expressions_) {
+      CHECK_EQ(input_expressions.size(), table_expressions_.size());
+    }
+    // [Halo2 Lookup]
     // See https://zcash.github.io/halo2/design/proving-system/lookup.html
     // for more details.
     //
@@ -89,8 +118,8 @@ class Argument {
     // l_last(X) * (Z(X)² - Z(X)) = 0
     //
     // Enable the permutation argument for only the rows involved.
-    // degree (2 + max_input_degree + max_table_degree) or 4, whichever is
-    // larger:
+    // degree (2 + |combined_input_degree| + |max_table_degree|) or 4, whichever
+    // is larger:
     // clang-format off
     // (1 - (l_last(X) + l_blind(X))) * (Z(ω * X) * (A'(X) + β) * (S'(X) + γ) - Z(X) * (A_compressed(X) + β) * (S_compressed(X) + γ)) = 0
     // clang-format on
@@ -107,38 +136,83 @@ class Argument {
     // clang-format off
     // (1 - (l_last(X) + l_blind(X))) * (A′(X) − S′(X)) * (A′(X) − A′(ω⁻¹ * X)) = 0
     // clang-format on
-    size_t max_input_degree = std::accumulate(
-        input_expressions_.begin(), input_expressions_.end(), 1,
-        [](size_t degree, const std::unique_ptr<Expression<F>>& input_expr) {
-          return std::max(degree, input_expr->Degree());
+    //
+    // [LogDerivativeHalo2]
+    // The first value in the sum poly should be zero.
+    // degree 2:
+    // l_first(X) * ϕ(X) = 0
+    //
+    // The last value in the sum poly should be zero.
+    // degree 2:
+    // l_last(X) * ϕ(X) = 0
+    //
+    // Enable the sum argument for only the rows involved.
+    // degree (2 + |combined_input_degree| + |max_table_degree|) or
+    // (3 + |inputs_expressions_.size()|), whichever is larger:
+    // clang-format off
+    // φᵢ(X) = fᵢ(X) + β
+    // τ(X) = t(X) + β
+    // LHS = τ(X) * Π(φᵢ(X)) * (ϕ(ω * X) - ϕ(X))
+    //     ↪ DEG(LHS) = |max_table_degree| + |combined_input_degree| + 1
+    // RHS = τ(X) * Π(φᵢ(X)) * ((Σ 1/φᵢ(X)) - m(X) / τ(X))
+    //     ↪ DEG(RHS) = |combined_input_degree| + 1
+    // (1 - (l_last(X) + l_blind(X))) * (ϕ(ω * X) * τ(X) * Π(φᵢ(X)) - (LHS - RHS))
+    // clang-format on
+    size_t combined_input_degree = std::accumulate(
+        inputs_expressions_.begin(), inputs_expressions_.end(), 0,
+        [](size_t combined_degree,
+           const std::vector<std::unique_ptr<Expression<F>>>&
+               input_expressions) {
+          return combined_degree + GetMaxExprDegree(input_expressions);
         });
 
-    size_t max_table_degree = std::accumulate(
-        table_expressions_.begin(), table_expressions_.end(), 1,
-        [](size_t degree, const std::unique_ptr<Expression<F>>& table_expr) {
-          return std::max(degree, table_expr->Degree());
-        });
+    size_t max_table_degree = GetMaxExprDegree(table_expressions_);
 
     // In practice because input_degree and table_degree are initialized to
     // one, the latter half of this max() invocation is at least 4 always,
     // rendering this call pointless except to be explicit in case we change
     // the initialization of input_degree/table_degree in the future.
-
-    // NOTE(chokobole): Even though, this actually is same as |2 +
-    // max_input_degree + max_table_degree|, for a better explanation, we follow
-    // the Halo2 style.
     return std::max(
-        // (1 - (l_last + l_blind)) * Z(ω * X) * (A'(X) + β) * (S'(X) + γ)
-        size_t{4},
         // clang-format off
-        // (1 - (l_last + l_blind)) * Z(X) * (A_compressed(X) + β) * (S_compressed(X) + γ)
+        // [Halo2 Lookup]
+        // NOTE(Insun35): The size of |inputs_expressions_| for Halo2 lookup is 1.
+        // Thus, (3 + |inputs_expressions_.size()|) is always 4.
+        // (1 - (l_last(X) + l_blind(X))) * Z(ω * X) * (A'(X) + β) * (S'(X) + γ)
+        //   ↪ degree = 4
+        //
+        // [LogDerivativeHalo2]
+        // (1 - (l_last(X) + l_blind(X))) * ϕ(ω * X) * τ(X) * Π(φᵢ(X))
+        //   ↪ degree = |3 + inputs_expressions_.size()|
         // clang-format on
-        size_t{2} + max_input_degree + max_table_degree);
+        3 + inputs_expressions_.size(),
+        // clang-format off
+        // [Halo2 Lookup]
+        // max_degree =
+        //    DEG((l_last(X) + l_blind(X))) * Z(X) * (A_compressed(X) + β) * (S_compressed(X) + γ))
+        //
+        // [LogDerivativeHalo2]
+        // LHS = τ(X) * Π(φᵢ(X)) * (ϕ(ω * X) - ϕ(X))
+        //     ↪ DEG(LHS) = |max_table_degree| + |combined_input_degree| + 1
+        // RHS = τ(X) * Π(φᵢ(X)) * ((Σ 1/φᵢ(X)) - m(X) / τ(X))
+        //     ↪ DEG(RHS) = |combined_input_degree| + 1
+        // max_degree = DEG((1 - (l_last(X) + l_blind(X))) * (LHS - RHS))
+        //            = 1 + DEG(LHS) = 2 + |combined_input_degree| + |max_table_degree|
+        // clang-format on
+        size_t{2} + combined_input_degree + max_table_degree);
   }
 
  private:
+  static size_t GetMaxExprDegree(
+      const std::vector<std::unique_ptr<Expression<F>>>& expressions) {
+    return std::accumulate(
+        expressions.begin(), expressions.end(), 1,
+        [](size_t degree, const std::unique_ptr<Expression<F>>& expr_ptr) {
+          return std::max(degree, expr_ptr->Degree());
+        });
+  }
+
   std::string name_;
-  std::vector<std::unique_ptr<Expression<F>>> input_expressions_;
+  std::vector<std::vector<std::unique_ptr<Expression<F>>>> inputs_expressions_;
   std::vector<std::unique_ptr<Expression<F>>> table_expressions_;
 };
 
