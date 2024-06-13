@@ -7,6 +7,7 @@
 #include "tachyon/zk/base/commitments/gwc_extension.h"
 #include "tachyon/zk/base/commitments/shplonk_extension.h"
 #include "tachyon/zk/lookup/halo2/scheme.h"
+#include "tachyon/zk/lookup/log_derivative_halo2/scheme.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci1_circuit.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci2_circuit.h"
 #include "tachyon/zk/plonk/examples/fibonacci/fibonacci3_circuit.h"
@@ -25,6 +26,11 @@ using BN254GWC =
 using BN254Halo2LS = lookup::halo2::Scheme<typename BN254SHPlonk::Poly,
                                            typename BN254SHPlonk::Evals,
                                            typename BN254SHPlonk::Commitment>;
+
+using BN254LogDerivativeHalo2LS =
+    lookup::log_derivative_halo2::Scheme<typename BN254SHPlonk::Poly,
+                                         typename BN254SHPlonk::Evals,
+                                         typename BN254SHPlonk::Commitment>;
 
 template <typename Circuit>
 constexpr bool IsSimpleFloorPlanner =
