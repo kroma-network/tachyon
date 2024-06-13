@@ -22,7 +22,8 @@ struct PackedPrimeFieldTraits<PackedMersenne31Neon> {
   constexpr static size_t N = 4;
 };
 
-class PackedMersenne31Neon : public PackedPrimeFieldBase<PackedMersenne31Neon> {
+class PackedMersenne31Neon final
+    : public PackedPrimeFieldBase<PackedMersenne31Neon> {
  public:
   using PrimeField = Mersenne31;
 

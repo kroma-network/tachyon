@@ -22,7 +22,8 @@ struct PackedPrimeFieldTraits<PackedBabyBearNeon> {
   constexpr static size_t N = 4;
 };
 
-class PackedBabyBearNeon : public PackedPrimeFieldBase<PackedBabyBearNeon> {
+class PackedBabyBearNeon final
+    : public PackedPrimeFieldBase<PackedBabyBearNeon> {
  public:
   using PrimeField = BabyBear;
 

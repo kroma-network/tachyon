@@ -22,7 +22,7 @@ struct PackedPrimeFieldTraits<PackedKoalaBearAVX512> {
   constexpr static size_t N = 16;
 };
 
-class PackedKoalaBearAVX512
+class PackedKoalaBearAVX512 final
     : public PackedPrimeFieldBase<PackedKoalaBearAVX512> {
  public:
   using PrimeField = KoalaBear;

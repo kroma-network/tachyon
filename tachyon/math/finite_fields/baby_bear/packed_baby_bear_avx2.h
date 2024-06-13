@@ -22,7 +22,8 @@ struct PackedPrimeFieldTraits<PackedBabyBearAVX2> {
   constexpr static size_t N = 8;
 };
 
-class PackedBabyBearAVX2 : public PackedPrimeFieldBase<PackedBabyBearAVX2> {
+class PackedBabyBearAVX2 final
+    : public PackedPrimeFieldBase<PackedBabyBearAVX2> {
  public:
   using PrimeField = BabyBear;
 
