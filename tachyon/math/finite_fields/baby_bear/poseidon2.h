@@ -10,7 +10,7 @@ namespace tachyon::math {
 
 template <size_t N>
 std::array<BabyBear, N> GetPoseidon2BabyBearInternalDiagonalVector() {
-  // TODO(chokobole): remove this function once we can generate these parameters
+  // TODO(chokobole): Remove this function once we can generate these parameters
   // internally.
   // This is taken and modified from
   // https://github.com/HorizenLabs/poseidon2/blob/bb476b9ca38198cf5092487283c8b8c5d4317c4e/plain_implementations/src/poseidon2/poseidon2_instance_babybear.rs.
