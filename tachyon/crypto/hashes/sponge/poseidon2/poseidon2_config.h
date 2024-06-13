@@ -16,6 +16,7 @@
 #include "tachyon/base/ranges/algorithm.h"
 #include "tachyon/crypto/hashes/sponge/poseidon/poseidon_config_base.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_config_entry.h"
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 #include "tachyon/math/matrix/matrix_utils.h"
 
 namespace tachyon {
@@ -46,8 +47,13 @@ void FindPoseidon2Ark(const PoseidonGrainLFSRConfig& config,
 
 template <typename F>
 struct Poseidon2Config : public PoseidonConfigBase<F> {
+  using PrimeField =
+      std::conditional_t<math::FiniteFieldTraits<F>::kIsPackedPrimeField,
+                         typename math::FiniteFieldTraits<F>::PrimeField, F>;
+
   math::Vector<F> internal_diagonal_minus_one;
   math::Vector<uint8_t> internal_shifts;
+  bool use_plonky3_internal_matrix = false;
 
   Poseidon2Config() = default;
   Poseidon2Config(const PoseidonConfigBase<F>& base,
@@ -62,12 +68,17 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
   template <size_t N>
   constexpr static Poseidon2Config CreateCustom(
       size_t rate, uint64_t alpha, size_t full_rounds, size_t partial_rounds,
-      const std::array<F, N>& internal_diagonal_minus_one) {
+      const std::array<PrimeField, N>& internal_diagonal_minus_one) {
     Poseidon2ConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds);
     Poseidon2Config ret = config_entry.ToPoseidon2Config<F>();
     ret.internal_diagonal_minus_one = math::Vector<F>(N);
     for (size_t i = 0; i < N; ++i) {
-      ret.internal_diagonal_minus_one[i] = internal_diagonal_minus_one[i];
+      if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
+        ret.internal_diagonal_minus_one[i] =
+            F::Broadcast(internal_diagonal_minus_one[i]);
+      } else {
+        ret.internal_diagonal_minus_one[i] = internal_diagonal_minus_one[i];
+      }
     }
     FindPoseidon2Ark<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
     return ret;
@@ -79,9 +90,18 @@ struct Poseidon2Config : public PoseidonConfigBase<F> {
       const std::array<uint8_t, N>& internal_shifts) {
     Poseidon2ConfigEntry config_entry(rate, alpha, full_rounds, partial_rounds);
     Poseidon2Config ret = config_entry.ToPoseidon2Config<F>();
-    ret.internal_shifts = math::Vector<uint8_t>(N);
-    for (size_t i = 0; i < N; ++i) {
-      ret.internal_shifts[i] = internal_shifts[i];
+    ret.use_plonky3_internal_matrix = true;
+    if constexpr (math::FiniteFieldTraits<F>::kIsPackedPrimeField) {
+      ret.internal_diagonal_minus_one = math::Vector<F>(N + 1);
+      ret.internal_diagonal_minus_one[0] = F(PrimeField::Config::kModulus - 2);
+      for (size_t i = 1; i < N + 1; ++i) {
+        ret.internal_diagonal_minus_one[i] = F(1 << internal_shifts[i - 1]);
+      }
+    } else {
+      ret.internal_shifts = math::Vector<uint8_t>(N);
+      for (size_t i = 0; i < N; ++i) {
+        ret.internal_shifts[i] = internal_shifts[i];
+      }
     }
     FindPoseidon2Ark<F>(config_entry.ToPoseidonGrainLFSRConfig<F>(), ret.ark);
     return ret;

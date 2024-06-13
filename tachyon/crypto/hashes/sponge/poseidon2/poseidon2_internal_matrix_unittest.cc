@@ -8,20 +8,25 @@
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_internal_matrix.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_plonky3_internal_matrix.h"
 #include "tachyon/math/finite_fields/mersenne31/mersenne31.h"
+#include "tachyon/math/finite_fields/mersenne31/packed_mersenne31.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
 #include "tachyon/math/matrix/prime_field_num_traits.h"
 
 namespace tachyon::crypto {
 
-using F = math::Mersenne31;
-
 namespace {
 
+template <typename F>
 class Poseidon2InternalMatrixTest : public math::FiniteFieldTest<F> {};
 
 }  // namespace
 
-TEST_F(Poseidon2InternalMatrixTest, ApplyHorizen) {
+using FieldTypes = testing::Types<math::Mersenne31, math::PackedMersenne31>;
+TYPED_TEST_SUITE(Poseidon2InternalMatrixTest, FieldTypes);
+
+TYPED_TEST(Poseidon2InternalMatrixTest, ApplyHorizen) {
+  using F = TypeParam;
+
   math::Vector<F> diagonal_minus_one_vec{
       {F::Random() - F::One(), F::Random() - F::One(), F::Random() - F::One()}};
 

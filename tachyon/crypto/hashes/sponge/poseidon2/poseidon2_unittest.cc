@@ -11,6 +11,7 @@
 
 #include "tachyon/base/buffer/vector_buffer.h"
 #include "tachyon/crypto/hashes/sponge/poseidon2/poseidon2_horizen_external_matrix.h"
+#include "tachyon/math/finite_fields/baby_bear/packed_baby_bear.h"
 #include "tachyon/math/finite_fields/baby_bear/poseidon2.h"
 #include "tachyon/math/finite_fields/goldilocks/poseidon2.h"
 #include "tachyon/math/finite_fields/test/finite_field_test.h"
@@ -69,7 +70,8 @@ TEST_F(Poseidon2GoldilocksTest, Copyable) {
 
 namespace {
 
-class Poseidon2BabyBearTest : public math::FiniteFieldTest<math::BabyBear> {};
+class Poseidon2BabyBearTest
+    : public math::FiniteFieldTest<math::PackedBabyBear> {};
 
 }  // namespace
 
@@ -91,6 +93,36 @@ TEST_F(Poseidon2BabyBearTest, Permute) {
       {F(697740550)},  {F(1854502887)}, {F(1201727753)}, {F(1802410886)},
   };
   EXPECT_EQ(sponge.state.elements, expected);
+}
+
+TEST_F(Poseidon2BabyBearTest, PermutePacked) {
+  using PackedF = math::PackedBabyBear;
+  using F = math::BabyBear;
+
+  Poseidon2Config<PackedF> packed_config =
+      Poseidon2Config<PackedF>::CreateCustom(
+          15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+  Poseidon2Sponge<
+      Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<PackedF>>>
+      packed_sponge(packed_config);
+  for (size_t i = 0; i < 16; ++i) {
+    packed_sponge.state.elements[i] = PackedF(i);
+  }
+  packed_sponge.Permute();
+
+  Poseidon2Config<F> config = Poseidon2Config<F>::CreateCustom(
+      15, 7, 8, 13, math::GetPoseidon2BabyBearInternalShiftVector<15>());
+  Poseidon2Sponge<Poseidon2ExternalMatrix<Poseidon2HorizenExternalMatrix<F>>>
+      sponge(config);
+  for (size_t i = 0; i < 16; ++i) {
+    sponge.state.elements[i] = F(i);
+  }
+  sponge.Permute();
+
+  for (size_t i = 0; i < 16; ++i) {
+    EXPECT_EQ(packed_sponge.state.elements[i],
+              PackedF::Broadcast(sponge.state.elements[i]));
+  }
 }
 
 }  // namespace tachyon::crypto
