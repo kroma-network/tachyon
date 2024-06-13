@@ -12,6 +12,7 @@
 #elif ARCH_CPU_ARM64
 #include "tachyon/math/finite_fields/baby_bear/packed_baby_bear_neon.h"
 #endif
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::math {
 
@@ -24,6 +25,16 @@ using PackedBabyBear = PackedBabyBearAVX2;
 #elif ARCH_CPU_ARM64
 using PackedBabyBear = PackedBabyBearNeon;
 #endif
+
+template <>
+struct FiniteFieldTraits<PackedBabyBear> {
+  static constexpr bool kIsPrimeField = true;
+  static constexpr bool kIsPackedPrimeField = true;
+  static constexpr bool kIsExtensionField = false;
+
+  using PrimeField = BabyBear;
+  using Config = BabyBear::Config;
+};
 
 }  // namespace tachyon::math
 

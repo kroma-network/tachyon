@@ -34,6 +34,7 @@ tachyon_cc_library(
     deps = [
         ":packed_mersenne31_neon",
         "//tachyon/build:build_config",
+        "//tachyon/math/finite_fields:finite_field_traits",
     ] + if_has_avx512(
         [":packed_mersenne31_avx512"],
         [":packed_mersenne31_avx2"],

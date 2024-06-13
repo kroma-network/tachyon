@@ -12,6 +12,7 @@
 #elif ARCH_CPU_ARM64
 #include "tachyon/math/finite_fields/mersenne31/packed_mersenne31_neon.h"
 #endif
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::math {
 
@@ -24,6 +25,16 @@ using PackedMersenne31 = PackedMersenne31AVX2;
 #elif ARCH_CPU_ARM64
 using PackedMersenne31 = PackedMersenne31Neon;
 #endif
+
+template <>
+struct FiniteFieldTraits<PackedMersenne31> {
+  static constexpr bool kIsPrimeField = true;
+  static constexpr bool kIsPackedPrimeField = true;
+  static constexpr bool kIsExtensionField = false;
+
+  using PrimeField = Mersenne31;
+  using Config = Mersenne31::Config;
+};
 
 }  // namespace tachyon::math
 

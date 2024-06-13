@@ -12,6 +12,7 @@
 #elif ARCH_CPU_ARM64
 #include "tachyon/math/finite_fields/koala_bear/packed_koala_bear_neon.h"
 #endif
+#include "tachyon/math/finite_fields/finite_field_traits.h"
 
 namespace tachyon::math {
 
@@ -24,6 +25,16 @@ using PackedKoalaBear = PackedKoalaBearAVX2;
 #elif ARCH_CPU_ARM64
 using PackedKoalaBear = PackedKoalaBearNeon;
 #endif
+
+template <>
+struct FiniteFieldTraits<PackedKoalaBear> {
+  static constexpr bool kIsPrimeField = true;
+  static constexpr bool kIsPackedPrimeField = true;
+  static constexpr bool kIsExtensionField = false;
+
+  using PrimeField = KoalaBear;
+  using Config = KoalaBear::Config;
+};
 
 }  // namespace tachyon::math
 
