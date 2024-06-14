@@ -288,6 +288,36 @@ std::vector<std::vector<T>> Array2DToVector2D(const T (&arr)[N][M]) {
   return vec;
 }
 
+template <size_t N, typename Generator,
+          typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>,
+          std::enable_if_t<ArgNum == 0>* = nullptr>
+std::array<ReturnType, N> CreateArray(Generator&& generator) {
+  std::array<ReturnType, N> ret;
+  for (size_t i = 0; i < N; ++i) {
+    ret[i] = generator();
+  }
+  return ret;
+}
+
+template <size_t N, typename Generator,
+          typename FunctorTraits = internal::MakeFunctorTraits<Generator>,
+          typename ReturnType = typename FunctorTraits::ReturnType,
+          typename RunType = typename FunctorTraits::RunType,
+          typename ArgList = internal::ExtractArgs<RunType>,
+          size_t ArgNum = internal::GetSize<ArgList>,
+          std::enable_if_t<ArgNum == 1>* = nullptr>
+std::array<ReturnType, N> CreateArray(Generator&& generator) {
+  std::array<ReturnType, N> ret;
+  for (size_t i = 0; i < N; ++i) {
+    ret[i] = generator(i);
+  }
+  return ret;
+}
+
 }  // namespace tachyon::base
 
 #endif  // TACHYON_BASE_CONTAINERS_CONTAINER_UTIL_H_

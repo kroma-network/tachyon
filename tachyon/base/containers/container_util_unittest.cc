@@ -169,4 +169,11 @@ TEST(ContainerUtilTest, BinarySearchByKey) {
   }
 }
 
+TEST(ContainerUtilTest, CreateArrayWithGenerator) {
+  EXPECT_THAT(CreateArray<5>(([]() { return 3; })),
+              testing::ContainerEq(std::array<int, 5>{3, 3, 3, 3, 3}));
+  EXPECT_THAT(CreateArray<5>(([](int idx) { return idx + 1; })),
+              testing::ContainerEq(std::array<int, 5>{1, 2, 3, 4, 5}));
+}
+
 }  // namespace tachyon::base
