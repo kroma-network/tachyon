@@ -4,11 +4,6 @@ load("//bazel:tachyon_cc.bzl", "tachyon_cc_library", "tachyon_cc_unittest")
 package(default_visibility = ["//visibility:public"])
 
 tachyon_cc_library(
-    name = "array_to_vector",
-    hdrs = ["array_to_vector.h"],
-)
-
-tachyon_cc_library(
     name = "auto_reset",
     hdrs = ["auto_reset.h"],
     deps = [":logging"],
