@@ -29,24 +29,27 @@ class TruncatedPermutation final
  private:
   friend class Compressor<TruncatedPermutation<Derived, Chunk, N>>;
 
+  SpongeState<F> CreateEmptyState() const {
+    return SpongeState<F>(derived_.config);
+  }
+
   template <typename T>
-  std::array<F, Chunk> DoCompress(const T& input) const {
-    auto& state = derived_.state;
+  std::array<F, Chunk> DoCompress(SpongeState<F>& state, const T& input) const {
     size_t idx = 0;
     for (size_t i = 0; i < N; ++i) {
       for (size_t j = 0; j < Chunk; ++j) {
         state[idx++] = input[i][j];
       }
     }
-    derived_.Permute();
+    derived_.Permute(state);
     std::array<F, Chunk> ret;
     for (size_t i = 0; i < Chunk; ++i) {
-      ret[i] = state[i];
+      ret[i] = std::move(state[i]);
     }
     return ret;
   }
 
-  mutable Derived derived_;
+  Derived derived_;
 };
 
 }  // namespace tachyon::crypto

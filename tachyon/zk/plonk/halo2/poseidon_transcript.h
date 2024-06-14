@@ -37,11 +37,11 @@ class PoseidonBase {
       : poseidon_(
             // See
             // https://github.com/kroma-network/halo2/blob/7d0a36990452c8e7ebd600de258420781a9b7917/halo2_proofs/src/transcript/poseidon.rs#L28.
-            crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63, 0)) {
+            crypto::PoseidonConfig<ScalarField>::CreateCustom(8, 5, 8, 63, 0)),
+        state_(poseidon_.config) {
     // See
     // https://github.com/kroma-network/poseidon/blob/00a2fe049208860a5835b1f24d2a80105439b995/src/spec.rs#L15.
-    poseidon_.state.elements[0] =
-        FromUint128<ScalarField>(absl::uint128(1) << 64);
+    state_.elements[0] = FromUint128<ScalarField>(absl::uint128(1) << 64);
   }
 
   ScalarField DoSqueezeChallenge() {
@@ -75,15 +75,15 @@ class PoseidonBase {
     // Add the last chunk of inputs to the state for the final permutation
     // cycle.
     for (size_t i = 0; i < last_chunk.size(); ++i) {
-      poseidon_.state[i + 1] += last_chunk[i];
+      state_[i + 1] += last_chunk[i];
     }
 
     // Perform final permutation.
-    poseidon_.Permute();
+    poseidon_.Permute(state_);
 
     // Flush the absorption line.
     absorbing_.clear();
-    return poseidon_.state[1];
+    return state_[1];
   }
 
   // See
@@ -105,11 +105,11 @@ class PoseidonBase {
       } else {
         // Add new chunk of inputs for the next permutation cycle.
         for (size_t i = 0; i < poseidon_.config.rate; ++i) {
-          poseidon_.state[i + 1] += chunk[i];
+          state_[i + 1] += chunk[i];
         }
 
         // Perform intermediate permutation.
-        poseidon_.Permute();
+        poseidon_.Permute(state_);
 
         // Flush the absorption line.
         absorbing_.clear();
@@ -120,8 +120,8 @@ class PoseidonBase {
   std::vector<uint8_t> DoGetState() const {
     base::Uint8VectorBuffer buffer;
     buffer.set_endian(base::Endian::kLittle);
-    CHECK(buffer.Grow(base::EstimateSize(poseidon_.state, absorbing_)));
-    CHECK(buffer.WriteMany(poseidon_.state, absorbing_));
+    CHECK(buffer.Grow(base::EstimateSize(state_, absorbing_)));
+    CHECK(buffer.WriteMany(state_, absorbing_));
     CHECK(buffer.Done());
     return std::move(buffer).TakeOwnedBuffer();
   }
@@ -129,12 +129,13 @@ class PoseidonBase {
   void DoSetState(absl::Span<const uint8_t> state) {
     base::ReadOnlyBuffer buffer(state.data(), state.size());
     buffer.set_endian(base::Endian::kLittle);
-    CHECK(buffer.ReadMany(&poseidon_.state, &absorbing_));
+    CHECK(buffer.ReadMany(&state_, &absorbing_));
     CHECK(buffer.Done());
   }
 
   crypto::PoseidonSponge<ScalarField> poseidon_;
   std::vector<ScalarField> absorbing_;
+  crypto::SpongeState<ScalarField> state_;
 
  private:
   // See
@@ -198,7 +199,7 @@ class PoseidonWriter : public crypto::TranscriptWriter<AffinePoint>,
   size_t GetDigestLen() const { return ScalarBigInt::kByteNums; }
 
   size_t GetStateLen() const {
-    return base::EstimateSize(this->poseidon_.state, this->absorbing_);
+    return base::EstimateSize(this->state_, this->absorbing_);
   }
 
   void Update(const ScalarField* data, size_t len) {

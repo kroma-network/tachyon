@@ -27,9 +27,10 @@ TEST_F(PoseidonTest, AbsorbSqueeze) {
 
   PoseidonConfig<Fr> config = PoseidonConfig<Fr>::CreateDefault(2, false);
   PoseidonSponge<Fr> sponge(config);
+  SpongeState<Fr> state(config);
   std::vector<Fr> inputs = {Fr(0), Fr(1), Fr(2)};
-  ASSERT_TRUE(sponge.Absorb(inputs));
-  std::vector<Fr> result = sponge.SqueezeNativeFieldElements(3);
+  ASSERT_TRUE(sponge.Absorb(state, inputs));
+  std::vector<Fr> result = sponge.SqueezeNativeFieldElements(state, 3);
   std::vector<Fr> expected = {
       *Fr::FromDecString(
           "404427934635713040283377530022421867103101638970489622"
@@ -77,16 +78,18 @@ TEST_F(PackedPoseidonTest, AbsorbSqueeze) {
   PoseidonConfig<PackedF> packed_config =
       PoseidonConfig<PackedF>::CreateDefault(2, false);
   PoseidonSponge<PackedF> packed_sponge(packed_config);
+  SpongeState<PackedF> packed_state(packed_config);
   std::vector<PackedF> packed_inputs = {PackedF(0), PackedF(1), PackedF(2)};
-  ASSERT_TRUE(packed_sponge.Absorb(packed_inputs));
+  ASSERT_TRUE(packed_sponge.Absorb(packed_state, packed_inputs));
   std::vector<PackedF> packed_result =
-      packed_sponge.SqueezeNativeFieldElements(1);
+      packed_sponge.SqueezeNativeFieldElements(packed_state, 1);
 
   PoseidonConfig<F> config = PoseidonConfig<F>::CreateDefault(2, false);
   PoseidonSponge<F> sponge(config);
+  SpongeState<F> state(config);
   std::vector<F> inputs = {F(0), F(1), F(2)};
-  ASSERT_TRUE(sponge.Absorb(inputs));
-  std::vector<F> result = sponge.SqueezeNativeFieldElements(1);
+  ASSERT_TRUE(sponge.Absorb(state, inputs));
+  std::vector<F> result = sponge.SqueezeNativeFieldElements(state, 1);
 
   EXPECT_EQ(packed_result[0], PackedF::Broadcast(result[0]));
 }
