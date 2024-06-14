@@ -113,6 +113,7 @@ tachyon_cc_library(
     deps = [
         ":packed_prime_field_traits_forward",
         "//tachyon/base/containers:container_util",
+        "//tachyon/base/functional:callback",
         "//tachyon/base/strings:string_util",
     ],
 )
