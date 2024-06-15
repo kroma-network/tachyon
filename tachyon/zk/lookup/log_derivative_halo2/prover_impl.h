@@ -81,19 +81,6 @@ void Prover<Poly, Evals>::BatchCompressPairs(
 }
 
 template <typename BigInt>
-struct TableEvalWithIndex {
-  RowIndex index;
-  BigInt eval;
-
-  TableEvalWithIndex(RowIndex index, const BigInt& eval)
-      : index(index), eval(eval) {}
-
-  bool operator<(const TableEvalWithIndex& other) const {
-    return eval < other.eval;
-  }
-};
-
-template <typename BigInt>
 struct LessThan {
   bool operator()(const TableEvalWithIndex<BigInt>& a, const BigInt& b) const {
     return a.eval < b;
@@ -109,37 +96,35 @@ template <typename Poly, typename Evals>
 template <typename PCS>
 BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
     ProverBase<PCS>* prover, const std::vector<Evals>& compressed_inputs,
-    const Evals& compressed_table) {
-  RowIndex usable_rows = static_cast<RowIndex>(prover->GetUsableRows());
+    const Evals& compressed_table, ComputeMPolysTempStorage<BigInt>& storage) {
+  RowIndex usable_rows = prover->GetUsableRows();
 
-  std::vector<TableEvalWithIndex<typename F::BigIntTy>>
-      sorted_table_with_indices =
-          base::CreateVector(usable_rows, [&compressed_table](RowIndex i) {
-            return TableEvalWithIndex(i, compressed_table[i].ToBigInt());
-          });
+  OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
+    storage.sorted_table_with_indices[i] = {i, compressed_table[i].ToBigInt()};
+  }
 
-  pdqsort(sorted_table_with_indices.begin(), sorted_table_with_indices.end());
+  pdqsort(storage.sorted_table_with_indices.begin(),
+          storage.sorted_table_with_indices.end());
 
-  std::vector<std::atomic<size_t>> m_values_atomic(prover->pcs().N());
-  std::fill(m_values_atomic.begin(), m_values_atomic.end(), 0);
   OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < compressed_inputs.size(); ++i) {
     for (RowIndex j = 0; j < usable_rows; ++j) {
-      typename F::BigIntTy input = compressed_inputs[i][j].ToBigInt();
-      auto it = base::BinarySearchByKey(sorted_table_with_indices.begin(),
-                                        sorted_table_with_indices.end(), input,
-                                        LessThan<typename F::BigIntTy>{});
-      if (it != sorted_table_with_indices.end()) {
-        m_values_atomic[it->index].fetch_add(1, std::memory_order_relaxed);
+      BigInt input = compressed_inputs[i][j].ToBigInt();
+      auto it = base::BinarySearchByKey(
+          storage.sorted_table_with_indices.begin(),
+          storage.sorted_table_with_indices.end(), input, LessThan<BigInt>{});
+      if (it != storage.sorted_table_with_indices.end()) {
+        storage.m_values_atomic[it->index].fetch_add(1,
+                                                     std::memory_order_relaxed);
       }
     }
   }
 
   // Convert atomic |m_values| to |Evals|.
-  std::vector<F> m_values(m_values_atomic.size());
-  std::transform(m_values_atomic.begin(), m_values_atomic.end(),
-                 m_values.begin(), [](const std::atomic<size_t>& val) {
-                   return F(val.load(std::memory_order_relaxed));
-                 });
+  std::vector<F> m_values(prover->pcs().N());
+  OPENMP_PARALLEL_FOR(RowIndex i = 0; i < usable_rows; ++i) {
+    m_values[i] =
+        F(storage.m_values_atomic[i].exchange(0, std::memory_order_relaxed));
+  }
 
   BlindedPolynomial<Poly, Evals> m_poly(Evals(std::move(m_values)),
                                         prover->blinder().Generate());
@@ -148,13 +133,16 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
 
 template <typename Poly, typename Evals>
 template <typename PCS>
-void Prover<Poly, Evals>::ComputeMPolys(ProverBase<PCS>* prover) {
+void Prover<Poly, Evals>::ComputeMPolys(
+    ProverBase<PCS>* prover, ComputeMPolysTempStorage<BigInt>& storage) {
   CHECK_EQ(compressed_inputs_vec_.size(), compressed_tables_.size());
-  m_polys_ = base::Map(
-      compressed_inputs_vec_,
-      [this, prover](size_t i, const std::vector<Evals>& compressed_inputs) {
-        return ComputeMPoly(prover, compressed_inputs, compressed_tables_[i]);
-      });
+  m_polys_ =
+      base::Map(compressed_inputs_vec_,
+                [this, prover, &storage](
+                    size_t i, const std::vector<Evals>& compressed_inputs) {
+                  return ComputeMPoly(prover, compressed_inputs,
+                                      compressed_tables_[i], storage);
+                });
 }
 
 // static
