@@ -128,7 +128,7 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
       auto it = base::BinarySearchByKey(sorted_table_with_indices.begin(),
                                         sorted_table_with_indices.end(), input,
                                         LessThan<typename F::BigIntTy>{});
-      if (it != sorted_table_with_indices.end() && it->eval == input) {
+      if (it != sorted_table_with_indices.end()) {
         m_values_atomic[it->index].fetch_add(1, std::memory_order_relaxed);
       }
     }
