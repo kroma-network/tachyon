@@ -47,6 +47,16 @@ struct ComputeMPolysTempStorage {
   }
 };
 
+template <typename F>
+struct GrandSumPolysTempStorage {
+  std::vector<F> inputs_log_derivatives;
+  std::vector<F> table_log_derivatives;
+
+  explicit GrandSumPolysTempStorage(size_t usable_rows)
+      : inputs_log_derivatives(usable_rows),
+        table_log_derivatives(usable_rows) {}
+};
+
 template <typename Poly, typename Evals>
 class Prover {
  public:
@@ -94,8 +104,9 @@ class Prover {
   template <typename PCS>
   static void BatchCreateGrandSumPolys(std::vector<Prover>& lookup_provers,
                                        ProverBase<PCS>* prover, const F& beta) {
+    GrandSumPolysTempStorage<F> storage(prover->GetUsableRows());
     for (Prover& lookup_prover : lookup_provers) {
-      lookup_prover.CreateGrandSumPolys(prover, beta);
+      lookup_prover.CreateGrandSumPolys(prover, beta, storage);
     }
   }
 
@@ -163,10 +174,12 @@ class Prover {
   static BlindedPolynomial<Poly, Evals> CreateGrandSumPoly(
       ProverBase<PCS>* prover, const Evals& m_values,
       const std::vector<Evals>& compressed_inputs,
-      const Evals& compressed_table, const F& beta);
+      const Evals& compressed_table, const F& beta,
+      GrandSumPolysTempStorage<F>& storage);
 
   template <typename PCS>
-  void CreateGrandSumPolys(ProverBase<PCS>* prover, const F& beta);
+  void CreateGrandSumPolys(ProverBase<PCS>* prover, const F& beta,
+                           GrandSumPolysTempStorage<F>& storage);
 
   template <typename Domain>
   void TransformEvalsToPoly(const Domain* domain);

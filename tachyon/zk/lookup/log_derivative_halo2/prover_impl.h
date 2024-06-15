@@ -192,34 +192,43 @@ template <typename PCS>
 BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
     ProverBase<PCS>* prover, const Evals& m_values,
     const std::vector<Evals>& compressed_inputs, const Evals& compressed_table,
-    const F& beta) {
+    const F& beta, GrandSumPolysTempStorage<F>& storage) {
   size_t n = prover->pcs().N();
+  RowIndex usable_rows = prover->GetUsableRows();
 
   // Σ 1/(φᵢ(X))
-  std::vector<F> inputs_log_derivatives(n, F::Zero());
-  std::vector<F> input_log_derivatives(
-      compressed_inputs[0].evaluations().size());
-  for (const Evals& compressed_input : compressed_inputs) {
-    ComputeLogDerivatives(compressed_input, beta, input_log_derivatives);
+  // NOTE(chokobole): To save memory, |input_log_derivatives| uses the storage
+  // space of |storage.table_log_derivatives| since
+  // |storage.table_log_derivatives| is currently empty and will be assigned
+  // with relevant values after |input_log_derivatives| is finished being used.
+  std::vector<F>& input_log_derivatives = storage.table_log_derivatives;
+  for (size_t i = 0; i < compressed_inputs.size(); ++i) {
+    ComputeLogDerivatives(compressed_inputs[i], beta, input_log_derivatives);
 
-    OPENMP_PARALLEL_FOR(size_t i = 0; i < n; ++i) {
-      inputs_log_derivatives[i] += input_log_derivatives[i];
+    if (i == 0) {
+      OPENMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
+        storage.inputs_log_derivatives[j] = input_log_derivatives[j];
+      }
+    } else {
+      OPENMP_PARALLEL_FOR(size_t j = 0; j < usable_rows; ++j) {
+        storage.inputs_log_derivatives[j] += input_log_derivatives[j];
+      }
     }
   }
 
   // 1 / τ(X)
-  std::vector<F> table_log_derivatives(compressed_table.evaluations().size());
-  ComputeLogDerivatives(compressed_table, beta, table_log_derivatives);
+  ComputeLogDerivatives(compressed_table, beta, storage.table_log_derivatives);
 
   std::vector<F> grand_sum(n);
   grand_sum[0] = F::Zero();
 
   // (Σ 1/φᵢ(X)) - m(X) / τ(X)
-  RowIndex usable_rows = prover->GetUsableRows();
-  std::vector<F> log_derivatives_diff(usable_rows);
+  // NOTE(chokobole): To save memory, |log_derivatives_diff| overwrites
+  // |storage.inputs_log_derivatives| since the current values of
+  // |storage.inputs_log_derivatives| are not needed anymore.
+  std::vector<F>& log_derivatives_diff = storage.inputs_log_derivatives;
   OPENMP_PARALLEL_FOR(size_t i = 0; i < usable_rows; ++i) {
-    log_derivatives_diff[i] =
-        inputs_log_derivatives[i] - m_values[i] * table_log_derivatives[i];
+    log_derivatives_diff[i] -= m_values[i] * storage.table_log_derivatives[i];
     if (i != usable_rows - 1) {
       grand_sum[i + 1] = log_derivatives_diff[i];
     }
@@ -238,7 +247,10 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
   }
   size_t num_chunks = (usable_rows + chunk_size - 1) / chunk_size;
 
-  std::vector<F> segment_sum(num_chunks, F::Zero());
+  // NOTE(chokobole): To save memory, |segment_sum| overwrites
+  // |storage.table_log_derivatives| since the current values of
+  // |storage.table_log_derivatives| are not needed anymore.
+  std::vector<F>& segment_sum = storage.table_log_derivatives;
 
   OPENMP_PARALLEL_FOR(size_t chunk_idx = 0; chunk_idx < num_chunks;
                       ++chunk_idx) {
@@ -278,16 +290,18 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
 
 template <typename Poly, typename Evals>
 template <typename PCS>
-void Prover<Poly, Evals>::CreateGrandSumPolys(ProverBase<PCS>* prover,
-                                              const F& beta) {
+void Prover<Poly, Evals>::CreateGrandSumPolys(
+    ProverBase<PCS>* prover, const F& beta,
+    GrandSumPolysTempStorage<F>& storage) {
   CHECK_EQ(compressed_inputs_vec_.size(), compressed_tables_.size());
+
   grand_sum_polys_ =
       base::Map(compressed_inputs_vec_,
-                [this, &prover, &beta](
+                [this, &prover, &beta, &storage](
                     size_t i, const std::vector<Evals>& compressed_inputs) {
-                  return CreateGrandSumPoly(prover, m_polys_[i].evals(),
-                                            compressed_inputs,
-                                            compressed_tables_[i], beta);
+                  return CreateGrandSumPoly(
+                      prover, m_polys_[i].evals(), compressed_inputs,
+                      compressed_tables_[i], beta, storage);
                 });
 }
 
