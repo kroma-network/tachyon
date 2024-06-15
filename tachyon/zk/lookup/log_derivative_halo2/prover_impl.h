@@ -93,6 +93,17 @@ struct TableEvalWithIndex {
   }
 };
 
+template <typename BigInt>
+struct LessThan {
+  bool operator()(const TableEvalWithIndex<BigInt>& a, const BigInt& b) const {
+    return a.eval < b;
+  }
+
+  bool operator()(const BigInt& a, const TableEvalWithIndex<BigInt>& b) const {
+    return a < b.eval;
+  }
+};
+
 // static
 template <typename Poly, typename Evals>
 template <typename PCS>
@@ -114,19 +125,9 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::ComputeMPoly(
   OPENMP_PARALLEL_NESTED_FOR(size_t i = 0; i < compressed_inputs.size(); ++i) {
     for (RowIndex j = 0; j < usable_rows; ++j) {
       typename F::BigIntTy input = compressed_inputs[i][j].ToBigInt();
-      auto it = base::BinarySearchByKey(
-          sorted_table_with_indices.begin(), sorted_table_with_indices.end(),
-          input,
-          [](const TableEvalWithIndex<typename F::BigIntTy>& elem,
-             const typename F::BigIntTy& value) {
-            if (elem.eval < value) {
-              return base::Ordering::Less;
-            } else if (value < elem.eval) {
-              return base::Ordering::Greater;
-            } else {
-              return base::Ordering::Equal;
-            }
-          });
+      auto it = base::BinarySearchByKey(sorted_table_with_indices.begin(),
+                                        sorted_table_with_indices.end(), input,
+                                        LessThan<typename F::BigIntTy>{});
       if (it != sorted_table_with_indices.end() && it->eval == input) {
         m_values_atomic[it->index].fetch_add(1, std::memory_order_relaxed);
       }

@@ -156,12 +156,9 @@ TEST(ContainerUtilTest, BinarySearchByKey) {
   };
 
   for (const auto& test : tests) {
-    auto it = BinarySearchByKey(test.data.begin(), test.data.end(), test.value,
-                                [](const int& elem, const int& value) {
-                                  if (elem < value) return Ordering::Less;
-                                  if (elem > value) return Ordering::Greater;
-                                  return Ordering::Equal;
-                                });
+    auto it = BinarySearchByKey(
+        test.data.begin(), test.data.end(), test.value,
+        [](const int& elem, const int& value) { return elem < value; });
 
     if (test.expected_index.has_value()) {
       EXPECT_EQ(std::distance(test.data.begin(), it),
