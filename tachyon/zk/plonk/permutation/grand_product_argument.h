@@ -108,6 +108,7 @@ class GrandProductArgument {
                             std::vector<F>&& grand_product) {
     RowIndex usable_rows = prover->GetUsableRows();
 
+    // TODO(chokobole): Apply the same optimization trick used in grand sum.
     absl::Span<F> z(grand_product);
     z[0] = last_z;
     for (RowIndex i = 0; i < usable_rows; ++i) {

@@ -240,41 +240,37 @@ BlindedPolynomial<Poly, Evals> Prover<Poly, Evals>::CreateGrandSumPoly(
 // ...
 // ϕ(ω^last) = L(ω⁰) + L(ω¹) + ... + L(ω^{usable_rows - 1})
 #if defined(TACHYON_HAS_OPENMP)
-  size_t thread_nums = static_cast<size_t>(omp_get_max_threads());
-  size_t chunk_size = usable_rows / thread_nums;
-  if (chunk_size < thread_nums) {
-    chunk_size = 1;
-  }
-  size_t num_chunks = (usable_rows + chunk_size - 1) / chunk_size;
-
   // NOTE(chokobole): To save memory, |segment_sum| overwrites
   // |storage.table_log_derivatives| since the current values of
   // |storage.table_log_derivatives| are not needed anymore.
   std::vector<F>& segment_sum = storage.table_log_derivatives;
 
-  OPENMP_PARALLEL_FOR(size_t chunk_idx = 0; chunk_idx < num_chunks;
-                      ++chunk_idx) {
-    size_t start = chunk_idx * chunk_size;
-    size_t end = std::min(start + chunk_size, static_cast<size_t>(usable_rows));
-    for (size_t i = start + 1; i < end; ++i) {
-      grand_sum[i] = grand_sum[i - 1] + log_derivatives_diff[i - 1];
-    }
-    segment_sum[chunk_idx] = grand_sum[end - 1];
-  }
+  absl::Span<F> grand_sum_sub_span =
+      absl::MakeSpan(grand_sum).subspan(0, usable_rows);
+  base::Parallelize(
+      grand_sum_sub_span,
+      [&log_derivatives_diff, &segment_sum](
+          absl::Span<F> chunk, size_t chunk_idx, size_t chunk_size) {
+        size_t start = chunk_idx * chunk_size;
+        for (size_t i = 1; i < chunk.size(); ++i) {
+          chunk[i] = chunk[i - 1] + log_derivatives_diff[start + i - 1];
+        }
+        segment_sum[chunk_idx] = chunk.back();
+      });
 
   for (size_t i = 1; i < segment_sum.size(); ++i) {
     segment_sum[i] += segment_sum[i - 1];
   }
 
-  OPENMP_PARALLEL_FOR(size_t chunk_idx = 1; chunk_idx < num_chunks;
-                      ++chunk_idx) {
-    size_t start = chunk_idx * chunk_size;
-    size_t end = std::min(start + chunk_size, static_cast<size_t>(usable_rows));
-    F prefix_sum = segment_sum[chunk_idx - 1];
-    for (size_t i = start; i < end; ++i) {
-      grand_sum[i] += prefix_sum;
-    }
-  }
+  base::Parallelize(
+      grand_sum_sub_span,
+      [&segment_sum](absl::Span<F> chunk, size_t chunk_idx, size_t chunk_size) {
+        if (chunk_idx == 0) return;
+        const F& prefix_sum = segment_sum[chunk_idx - 1];
+        for (F& v : chunk) {
+          v += prefix_sum;
+        }
+      });
 #else
   std::partial_sum(log_derivatives_diff.begin(), log_derivatives_diff.end() - 1,
                    grand_sum.begin() + 1);
