@@ -5,8 +5,8 @@
 #include "tachyon/base/bits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/msm/algorithm.h"
-#include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"
 
 namespace tachyon::math {
@@ -52,7 +52,7 @@ TEST_P(MSMGpuTest, MSMPoint2) {
         msm, reinterpret_cast<const tachyon_bn254_g1_point2*>(bases.data()),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
         t.scalars.size()));
-    EXPECT_EQ(c::math::ToJacobianPoint(*ret), t.answer.ToJacobian());
+    EXPECT_EQ(c::base::native_cast(*ret), t.answer.ToJacobian());
   }
   tachyon_bn254_g1_destroy_msm_gpu(msm);
 }
@@ -69,7 +69,7 @@ TEST_P(MSMGpuTest, MSMG1Affine) {
         msm, reinterpret_cast<const tachyon_bn254_g1_affine*>(t.bases.data()),
         reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
         t.scalars.size()));
-    EXPECT_EQ(c::math::ToJacobianPoint(*ret), t.answer.ToJacobian());
+    EXPECT_EQ(c::base::native_cast(*ret), t.answer.ToJacobian());
   }
   tachyon_bn254_g1_destroy_msm_gpu(msm);
 }

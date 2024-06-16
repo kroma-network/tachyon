@@ -1,12 +1,12 @@
 // clang-format off
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fq_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_traits.h"
-#include "tachyon/c/math/elliptic_curves/point_conversions.h"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_type_traits.h"
 
 namespace tachyon::cc::math::%{type} {
 
 std::string G1AffinePoint::ToString() const {
-  return c::math::ToAffinePoint(ToCPoint()).ToString();
+  return c::base::native_cast(ToCPoint()).ToString();
 }
 
 std::ostream& operator<<(std::ostream& os, const G1AffinePoint& value) {
@@ -14,7 +14,7 @@ std::ostream& operator<<(std::ostream& os, const G1AffinePoint& value) {
 }
 
 std::string G1ProjectivePoint::ToString() const {
-  return c::math::ToProjectivePoint(ToCPoint()).ToString();
+  return c::base::native_cast(ToCPoint()).ToString();
 }
 
 std::ostream& operator<<(std::ostream& os, const G1ProjectivePoint& value) {
@@ -22,7 +22,7 @@ std::ostream& operator<<(std::ostream& os, const G1ProjectivePoint& value) {
 }
 
 std::string G1JacobianPoint::ToString() const {
-  return c::math::ToJacobianPoint(ToCPoint()).ToString();
+  return c::base::native_cast(ToCPoint()).ToString();
 }
 
 std::ostream& operator<<(std::ostream& os, const G1JacobianPoint& value) {
@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream& os, const G1JacobianPoint& value) {
 }
 
 std::string G1PointXYZZ::ToString() const {
-  return c::math::ToPointXYZZ(ToCPoint()).ToString();
+  return c::base::native_cast(ToCPoint()).ToString();
 }
 
 std::ostream& operator<<(std::ostream& os, const G1PointXYZZ& value) {
@@ -38,7 +38,7 @@ std::ostream& operator<<(std::ostream& os, const G1PointXYZZ& value) {
 }
 
 std::string G1Point2::ToString() const {
-  return c::math::ToPoint2(ToCPoint()).ToString();
+  return c::base::native_cast(ToCPoint()).ToString();
 }
 
 std::ostream& operator<<(std::ostream& os, const G1Point2& value) {
@@ -46,7 +46,7 @@ std::ostream& operator<<(std::ostream& os, const G1Point2& value) {
 }
 
 std::string G1Point3::ToString() const {
-  return c::math::ToPoint3(ToCPoint()).ToString();
+  return c::base::native_cast(ToCPoint()).ToString();
 }
 
 std::ostream& operator<<(std::ostream& os, const G1Point3& value) {
@@ -54,7 +54,7 @@ std::ostream& operator<<(std::ostream& os, const G1Point3& value) {
 }
 
 std::string G1Point4::ToString() const {
-  return c::math::ToPoint4(ToCPoint()).ToString();
+  return c::base::native_cast(ToCPoint()).ToString();
 }
 
 std::ostream& operator<<(std::ostream& os, const G1Point4& value) {

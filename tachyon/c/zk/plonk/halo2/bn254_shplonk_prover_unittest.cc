@@ -9,8 +9,9 @@
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fq_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g2_point_traits.h"
-#include "tachyon/c/math/elliptic_curves/point_conversions.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g2_point_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
 #include "tachyon/c/zk/plonk/halo2/test/bn254_halo2_params_data.h"
@@ -90,8 +91,8 @@ TEST_P(SHPlonkProverTest, Getters) {
       tachyon_bn254_g2_affine_dbl(&expected_gen);
   const tachyon_bn254_g2_affine* s_g2_affine =
       tachyon_halo2_bn254_shplonk_prover_get_s_g2(prover_);
-  EXPECT_EQ(c::math::ToAffinePoint(*s_g2_affine),
-            c::math::ToJacobianPoint(expected_s_g2_jacob).ToAffine());
+  EXPECT_EQ(c::base::native_cast(*s_g2_affine),
+            c::base::native_cast(expected_s_g2_jacob).ToAffine());
 }
 
 TEST_P(SHPlonkProverTest, Commit) {
@@ -102,7 +103,7 @@ TEST_P(SHPlonkProverTest, Commit) {
           &poly));
   EXPECT_EQ(
       (reinterpret_cast<Prover<PCS, LS>*>(prover_)->Commit(poly).ToJacobian()),
-      c::math::ToJacobianPoint(*point));
+      c::base::native_cast(*point));
 }
 
 TEST_P(SHPlonkProverTest, CommitLagrange) {
@@ -114,7 +115,7 @@ TEST_P(SHPlonkProverTest, CommitLagrange) {
               &evals));
   EXPECT_EQ(
       (reinterpret_cast<Prover<PCS, LS>*>(prover_)->Commit(evals).ToJacobian()),
-      c::math::ToJacobianPoint(*point));
+      c::base::native_cast(*point));
 }
 
 TEST_P(SHPlonkProverTest, SetRng) {
