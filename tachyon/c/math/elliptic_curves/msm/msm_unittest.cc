@@ -43,10 +43,9 @@ TEST_F(MSMTest, MSMPoint2) {
         base::CreateVector(t.bases.size(), [&t](size_t i) {
           return Point2<bn254::Fq>(t.bases[i].x(), t.bases[i].y());
         });
-    ret.reset(tachyon_bn254_g1_point2_msm(
-        msm_, reinterpret_cast<const tachyon_bn254_g1_point2*>(bases.data()),
-        reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
-        t.scalars.size()));
+    ret.reset(tachyon_bn254_g1_point2_msm(msm_, c::base::c_cast(bases.data()),
+                                          c::base::c_cast(t.scalars.data()),
+                                          t.scalars.size()));
     EXPECT_EQ(c::base::native_cast(*ret), t.answer.ToJacobian());
   }
 }
@@ -54,10 +53,9 @@ TEST_F(MSMTest, MSMPoint2) {
 TEST_F(MSMTest, MSMG1Affine) {
   for (const VariableBaseMSMTestSet<bn254::G1AffinePoint>& t : test_sets_) {
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret;
-    ret.reset(tachyon_bn254_g1_affine_msm(
-        msm_, reinterpret_cast<const tachyon_bn254_g1_affine*>(t.bases.data()),
-        reinterpret_cast<const tachyon_bn254_fr*>(t.scalars.data()),
-        t.scalars.size()));
+    ret.reset(tachyon_bn254_g1_affine_msm(msm_, c::base::c_cast(t.bases.data()),
+                                          c::base::c_cast(t.scalars.data()),
+                                          t.scalars.size()));
     EXPECT_EQ(c::base::native_cast(*ret), t.answer.ToJacobian());
   }
 }

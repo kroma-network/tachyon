@@ -7,6 +7,7 @@
 #include "benchmark/msm/simple_msm_benchmark_reporter.h"
 // clang-format on
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/msm_gpu.h"
 #include "tachyon/math/elliptic_curves/msm/test/variable_base_msm_test_set.h"

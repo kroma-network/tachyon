@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "tachyon/base/logging.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/base/rational_field.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
@@ -52,7 +53,7 @@ void tachyon_bn254_univariate_rational_evaluations_set_trivial(
     const tachyon_bn254_fr* numerator) {
   // NOTE(chokobole): Boundary check is the responsibility of API callers.
   reinterpret_cast<RationalEvals&>(*evals).at(i) =
-      RationalField<bn254::Fr>(reinterpret_cast<const bn254::Fr&>(*numerator));
+      RationalField<bn254::Fr>(tachyon::c::base::native_cast(*numerator));
 }
 
 void tachyon_bn254_univariate_rational_evaluations_set_rational(
@@ -60,8 +61,8 @@ void tachyon_bn254_univariate_rational_evaluations_set_rational(
     const tachyon_bn254_fr* numerator, const tachyon_bn254_fr* denominator) {
   // NOTE(chokobole): Boundary check is the responsibility of API callers.
   reinterpret_cast<RationalEvals&>(*evals).at(i) = {
-      reinterpret_cast<const bn254::Fr&>(*numerator),
-      reinterpret_cast<const bn254::Fr&>(*denominator),
+      tachyon::c::base::native_cast(*numerator),
+      tachyon::c::base::native_cast(*denominator),
   };
 }
 

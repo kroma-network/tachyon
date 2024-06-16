@@ -55,7 +55,7 @@ class PoseidonBenchmarkRunner {
       ret.reset(fn(&duration_in_us));
       reporter_->AddTime(i, base::Microseconds(duration_in_us).InSecondsF());
     }
-    return *reinterpret_cast<Field*>(ret.get());
+    return *c::base::native_cast(ret.get());
   }
 
  private:

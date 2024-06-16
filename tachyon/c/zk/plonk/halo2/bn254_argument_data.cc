@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/polynomials/constants.h"
 #include "tachyon/math/elliptic_curves/bn/bn254/fr.h"
 #include "tachyon/math/polynomials/univariate/univariate_evaluations.h"
@@ -93,5 +94,5 @@ void tachyon_halo2_bn254_argument_data_reserve_challenges(
 void tachyon_halo2_bn254_argument_data_add_challenge(
     tachyon_halo2_bn254_argument_data* data, const tachyon_bn254_fr* value) {
   reinterpret_cast<Data*>(data)->challenges().push_back(
-      reinterpret_cast<const math::bn254::Fr&>(*value));
+      tachyon::c::base::native_cast(*value));
 }

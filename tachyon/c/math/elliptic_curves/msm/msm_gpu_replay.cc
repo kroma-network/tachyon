@@ -97,10 +97,9 @@ int RealMain(int argc, char** argv) {
 
     base::TimeTicks now = base::TimeTicks::Now();
     std::unique_ptr<tachyon_bn254_g1_jacobian> ret(
-        tachyon_bn254_g1_affine_msm_gpu(
-            msm, reinterpret_cast<const tachyon_bn254_g1_affine*>(bases.data()),
-            reinterpret_cast<const tachyon_bn254_fr*>(scalars.data()),
-            scalars.size()));
+        tachyon_bn254_g1_affine_msm_gpu(msm, c::base::c_cast(bases.data()),
+                                        c::base::c_cast(scalars.data()),
+                                        scalars.size()));
     std::cout << (base::TimeTicks::Now() - now) << std::endl;
     std::cout << c::base::native_cast(*ret).ToAffine().ToHexString()
               << std::endl;

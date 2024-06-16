@@ -1,6 +1,7 @@
 // clang-format off
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/g1_point_type_traits.h"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fr_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/msm/msm.h"
 #include "tachyon/math/elliptic_curves/%{header_dir_name}/g1.h"
 

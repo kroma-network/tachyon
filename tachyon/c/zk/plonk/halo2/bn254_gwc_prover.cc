@@ -8,6 +8,7 @@
 
 #include "tachyon/base/logging.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_type_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_gwc_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_ls.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_transcript.h"
