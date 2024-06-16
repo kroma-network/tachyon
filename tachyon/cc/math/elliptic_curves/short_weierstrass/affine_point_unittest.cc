@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fq_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fq_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/cc/math/elliptic_curves/bn/bn254/g1.h"

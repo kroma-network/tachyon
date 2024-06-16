@@ -5,7 +5,7 @@
 #include "tachyon/base/files/file_util.h"
 #include "tachyon/base/flag/flag_parser.h"
 #include "tachyon/base/logging.h"
-#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_traits.h"
+#include "tachyon/c/math/elliptic_curves/bn/bn254/fr_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/bn/bn254/g1_point_traits.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_pcs.h"
 #include "tachyon/c/zk/plonk/halo2/bn254_shplonk_prover.h"

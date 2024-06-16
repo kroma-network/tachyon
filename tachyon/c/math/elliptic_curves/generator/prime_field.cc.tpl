@@ -1,6 +1,6 @@
 // clang-format off
 #include "tachyon/c/base/type_traits_forward.h"
-#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{suffix}_traits.h"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{suffix}_type_traits.h"
 #include "tachyon/math/elliptic_curves/%{header_dir_name}/%{suffix}.h"
 
 tachyon_%{type}_%{suffix} tachyon_%{type}_%{suffix}_zero() {

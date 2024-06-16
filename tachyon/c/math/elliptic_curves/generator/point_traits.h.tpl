@@ -1,10 +1,10 @@
 // clang-format off
-#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fq_traits.h"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fq_type_traits.h"
 %{if IsG2}
-#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fq2_traits.h"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fq2_type_traits.h"
 %{endif IsG2}
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fr.h"
-#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fr_traits.h"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fr_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{g1_or_g2}.h"
 #include "tachyon/c/math/elliptic_curves/point_traits_forward.h"
 #include "tachyon/math/elliptic_curves/%{header_dir_name}/%{g1_or_g2}.h"
