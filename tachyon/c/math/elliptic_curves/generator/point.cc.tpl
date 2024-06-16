@@ -1,5 +1,5 @@
 // clang-format off
-#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{base_field_trait_header}"
+#include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{fq_or_fq2}_type_traits.h"
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/%{g1_or_g2}_point_traits.h"
 #include "tachyon/c/math/elliptic_curves/point_conversions.h"
 #include "tachyon/math/elliptic_curves/%{header_dir_name}/%{g1_or_g2}.h"

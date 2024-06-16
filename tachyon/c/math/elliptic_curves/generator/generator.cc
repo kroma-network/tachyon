@@ -47,9 +47,9 @@ struct GenerationConfig : public build::CcWriter {
   int GenerateExtFieldSrc() const;
   int GenerateExtFieldTypeTraitsHdr() const;
   int GeneratePointHdr(std::string_view g1_or_g2,
-                       std::string_view base_field) const;
+                       std::string_view fq_or_fq2) const;
   int GeneratePointSrc(std::string_view g1_or_g2,
-                       std::string_view base_field_trait_header) const;
+                       std::string_view fq_or_fq2) const;
   int GeneratePointTraitsHdr(std::string_view g1_or_g2) const;
   int GenerateG1Hdr() const;
   int GenerateG1Src() const;
@@ -184,7 +184,7 @@ int GenerationConfig::GenerateExtFieldTypeTraitsHdr() const {
 }
 
 int GenerationConfig::GeneratePointHdr(std::string_view g1_or_g2,
-                                       std::string_view base_field) const {
+                                       std::string_view fq_or_fq2) const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(point_hdr_tpl_path, &tpl_content));
 
@@ -192,7 +192,7 @@ int GenerationConfig::GeneratePointHdr(std::string_view g1_or_g2,
       tpl_content, {{"%{header_dir_name}", c::math::GetLocation(type)},
                     {"%{type}", type},
                     {"%{g1_or_g2}", g1_or_g2},
-                    {"%{base_field}", base_field}});
+                    {"%{fq_or_fq2}", fq_or_fq2}});
   return WriteHdr(content, true);
 }
 
@@ -204,8 +204,8 @@ int GenerationConfig::GenerateG2Hdr() const {
   return GeneratePointHdr("g2", "fq2");
 }
 
-int GenerationConfig::GeneratePointSrc(
-    std::string_view g1_or_g2, std::string_view base_field_trait_header) const {
+int GenerationConfig::GeneratePointSrc(std::string_view g1_or_g2,
+                                       std::string_view fq_or_fq2) const {
   std::string tpl_content;
   CHECK(base::ReadFileToString(point_src_tpl_path, &tpl_content));
 
@@ -214,16 +214,16 @@ int GenerationConfig::GeneratePointSrc(
                     {"%{type}", type},
                     {"%{g1_or_g2}", g1_or_g2},
                     {"%{G1_or_G2}", base::ToUpperASCII(g1_or_g2)},
-                    {"%{base_field_trait_header}", base_field_trait_header}});
+                    {"%{fq_or_fq2}", fq_or_fq2}});
   return WriteSrc(content);
 }
 
 int GenerationConfig::GenerateG1Src() const {
-  return GeneratePointSrc("g1", "fq_type_traits.h");
+  return GeneratePointSrc("g1", "fq");
 }
 
 int GenerationConfig::GenerateG2Src() const {
-  return GeneratePointSrc("g2", "fq2_type_traits.h");
+  return GeneratePointSrc("g2", "fq2");
 }
 
 int GenerationConfig::GeneratePointTraitsHdr(std::string_view g1_or_g2) const {
