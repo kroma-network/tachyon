@@ -23,6 +23,7 @@ tachyon_cc_binary(
         "point.cc.tpl",
         "point.h.tpl",
         "point_traits.h.tpl",
+        "point_type_traits.h.tpl",
         "prime_field.cc.tpl",
         "prime_field.h.tpl",
         "prime_field_type_traits.h.tpl",
