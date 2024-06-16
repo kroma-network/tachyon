@@ -1,4 +1,4 @@
-// clang_format off
+// clang-format off
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fq_traits.h"
 %{if IsG2}
 #include "tachyon/c/math/elliptic_curves/%{header_dir_name}/fq2_traits.h"
@@ -78,5 +78,5 @@ struct PointTraits<tachyon_%{type}_%{g1_or_g2}_point4> {
   using Point = tachyon::math::Point4<tachyon::math::%{type}::Fq>;
 };
 
-}  // namespace tachyon::cc::math
-// clang_format off
+}  // namespace tachyon::c::math
+// clang-format on

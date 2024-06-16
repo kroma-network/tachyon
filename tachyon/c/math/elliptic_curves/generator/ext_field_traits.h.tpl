@@ -15,5 +15,5 @@ struct TypeTraits<tachyon_%{type}_fq%{degree}> {
   using NativeType = tachyon::math::%{type}::Fq%{degree};
 };
 
-}  // namespace tachyon::cc::math
+}  // namespace tachyon::c::base
 // clang-format on
