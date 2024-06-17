@@ -9,10 +9,22 @@
 namespace tachyon::c::math {
 
 template <>
+struct PointTraits<tachyon_%{type}_%{g1_or_g2}_affine> {
+  using Point = tachyon::math::Point2<tachyon::math::%{type}::%{Fq_or_Fq2}>;
+  using CurvePoint = tachyon::math::%{type}::%{G1_or_G2}AffinePoint;
+};
+
+template <>
 struct PointTraits<tachyon::math::%{type}::%{G1_or_G2}AffinePoint> {
   using CPoint = tachyon_%{type}_%{g1_or_g2}_point2;
   using CCurvePoint = tachyon_%{type}_%{g1_or_g2}_affine;
   using CScalarField = tachyon_%{type}_fr;
+};
+
+template <>
+struct PointTraits<tachyon_%{type}_%{g1_or_g2}_projective> {
+  using Point = tachyon::math::Point3<tachyon::math::%{type}::%{Fq_or_Fq2}>;
+  using CurvePoint = tachyon::math::%{type}::%{G1_or_G2}ProjectivePoint;
 };
 
 template <>
@@ -23,6 +35,12 @@ struct PointTraits<tachyon::math::%{type}::%{G1_or_G2}ProjectivePoint> {
 };
 
 template <>
+struct PointTraits<tachyon_%{type}_%{g1_or_g2}_jacobian> {
+  using Point = tachyon::math::Point3<tachyon::math::%{type}::%{Fq_or_Fq2}>;
+  using CurvePoint = tachyon::math::%{type}::%{G1_or_G2}JacobianPoint;
+};
+
+template <>
 struct PointTraits<tachyon::math::%{type}::%{G1_or_G2}JacobianPoint> {
   using CPoint = tachyon_%{type}_%{g1_or_g2}_point3;
   using CCurvePoint = tachyon_%{type}_%{g1_or_g2}_jacobian;
@@ -30,34 +48,16 @@ struct PointTraits<tachyon::math::%{type}::%{G1_or_G2}JacobianPoint> {
 };
 
 template <>
+struct PointTraits<tachyon_%{type}_%{g1_or_g2}_xyzz> {
+  using Point = tachyon::math::Point4<tachyon::math::%{type}::%{Fq_or_Fq2}>;
+  using CurvePoint = tachyon::math::%{type}::%{G1_or_G2}PointXYZZ;
+};
+
+template <>
 struct PointTraits<tachyon::math::%{type}::%{G1_or_G2}PointXYZZ> {
   using CPoint = tachyon_%{type}_%{g1_or_g2}_point4;
   using CCurvePoint = tachyon_%{type}_%{g1_or_g2}_xyzz;
   using CScalarField = tachyon_%{type}_fr;
-};
-
-template <>
-struct PointTraits<tachyon_%{type}_%{g1_or_g2}_affine> {
-  using Point = tachyon::math::Point2<tachyon::math::%{type}::%{Fq_or_Fq2}>;
-  using CurvePoint = tachyon::math::%{type}::%{G1_or_G2}AffinePoint;
-};
-
-template <>
-struct PointTraits<tachyon_%{type}_%{g1_or_g2}_projective> {
-  using Point = tachyon::math::Point3<tachyon::math::%{type}::%{Fq_or_Fq2}>;
-  using CurvePoint = tachyon::math::%{type}::%{G1_or_G2}ProjectivePoint;
-};
-
-template <>
-struct PointTraits<tachyon_%{type}_%{g1_or_g2}_jacobian> {
-  using Point = tachyon::math::Point3<tachyon::math::%{type}::%{Fq_or_Fq2}>;
-  using CurvePoint = tachyon::math::%{type}::%{G1_or_G2}JacobianPoint;
-};
-
-template <>
-struct PointTraits<tachyon_%{type}_%{g1_or_g2}_xyzz> {
-  using Point = tachyon::math::Point4<tachyon::math::%{type}::%{Fq_or_Fq2}>;
-  using CurvePoint = tachyon::math::%{type}::%{G1_or_G2}PointXYZZ;
 };
 
 template <>
