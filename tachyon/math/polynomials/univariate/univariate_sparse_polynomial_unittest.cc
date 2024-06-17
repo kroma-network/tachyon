@@ -451,7 +451,7 @@ TEST_F(UnivariateSparsePolynomialTest, Hash) {
 TEST_F(UnivariateSparsePolynomialTest, JsonValueConverter) {
   Poly expected_poly(Coeffs({{0, GF7(1)}, {1, GF7(2)}, {4, GF7(3)}}));
   std::string expected_json =
-      R"({"coefficients":{"terms":[{"degree":0,"coefficient":"0x1"},{"degree":1,"coefficient":"0x2"},{"degree":4,"coefficient":"0x3"}]}})";
+      R"({"coefficients":{"terms":[{"degree":0,"coefficient":1},{"degree":1,"coefficient":2},{"degree":4,"coefficient":3}]}})";
 
   Poly poly;
   std::string error;

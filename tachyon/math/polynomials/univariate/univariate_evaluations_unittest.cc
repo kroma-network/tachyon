@@ -285,8 +285,7 @@ TEST_F(UnivariateEvaluationsTest, Hash) {
 
 TEST_F(UnivariateEvaluationsTest, JsonValueConverter) {
   Poly expected_poly({GF7(1), GF7(2), GF7(3), GF7(4), GF7(5)});
-  std::string expected_json =
-      R"({"evaluations":["0x1","0x2","0x3","0x4","0x5"]})";
+  std::string expected_json = R"({"evaluations":[1,2,3,4,5]})";
 
   Poly poly;
   std::string error;

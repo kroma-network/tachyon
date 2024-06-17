@@ -253,7 +253,7 @@ TEST_F(JacobianPointTest, Copyable) {
 
 TEST_F(JacobianPointTest, JsonValueConverter) {
   test::JacobianPoint expected_point(GF7(1), GF7(2), GF7(3));
-  std::string expected_json = R"({"x":"0x1","y":"0x2","z":"0x3"})";
+  std::string expected_json = R"({"x":1,"y":2,"z":3})";
 
   test::JacobianPoint p;
   std::string error;

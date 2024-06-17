@@ -177,7 +177,7 @@ TEST_F(AffinePointTest, Copyable) {
 
 TEST_F(AffinePointTest, JsonValueConverter) {
   test::AffinePoint expected_point(GF7(1), GF7(2));
-  std::string expected_json = R"({"x":"0x1","y":"0x2"})";
+  std::string expected_json = R"({"x":1,"y":2})";
 
   test::AffinePoint p;
   std::string error;

@@ -399,7 +399,7 @@ TEST_F(UnivariateDensePolynomialTest, Hash) {
 TEST_F(UnivariateDensePolynomialTest, JsonValueConverter) {
   Poly expected_poly(Coeffs({GF7(1), GF7(2), GF7(3), GF7(4), GF7(5)}));
   std::string expected_json =
-      R"({"coefficients":{"coefficients":["0x1","0x2","0x3","0x4","0x5"]}})";
+      R"({"coefficients":{"coefficients":[1,2,3,4,5]}})";
 
   Poly poly;
   std::string error;

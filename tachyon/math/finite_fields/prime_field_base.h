@@ -222,6 +222,7 @@ template <typename T>
 class RapidJsonValueConverter<
     T, std::enable_if_t<std::is_base_of_v<math::PrimeFieldBase<T>, T>>> {
  public:
+  using value_type = typename T::value_type;
   using BigInt = typename T::BigIntTy;
 
   static bool s_allow_value_greater_than_or_equal_to_modulus;
@@ -231,21 +232,32 @@ class RapidJsonValueConverter<
   static rapidjson::Value From(const T& value, Allocator& allocator) {
     if constexpr (T::Config::kUseMontgomery) {
       if (s_is_in_montgomery) {
-        return RapidJsonValueConverter<BigInt>::From(value.value(), allocator);
+        return RapidJsonValueConverter<value_type>::From(value.value(),
+                                                         allocator);
       }
     }
-    return RapidJsonValueConverter<BigInt>::From(value.ToBigInt(), allocator);
+    if constexpr (T::Config::kModulusBits <= 32) {
+      if constexpr (T::Config::kUseMontgomery) {
+        return RapidJsonValueConverter<uint32_t>::From(
+            T::Config::FromMontgomery(value.value()), allocator);
+      } else {
+        return RapidJsonValueConverter<uint32_t>::From(value.value(),
+                                                       allocator);
+      }
+    } else {
+      return RapidJsonValueConverter<BigInt>::From(value.ToBigInt(), allocator);
+    }
   }
 
   static bool To(const rapidjson::Value& json_value, std::string_view key,
                  T* value, std::string* error) {
-    BigInt v;
-    if (!RapidJsonValueConverter<BigInt>::To(json_value, key, &v, error))
+    value_type v;
+    if (!RapidJsonValueConverter<value_type>::To(json_value, key, &v, error))
       return false;
 
     if (s_allow_value_greater_than_or_equal_to_modulus) {
-      if (v >= BigInt(T::Config::kModulus)) {
-        v = v.Mod(BigInt(T::Config::kModulus));
+      if (v >= T::Config::kModulus) {
+        v %= T::Config::kModulus;
       }
     }
     if constexpr (T::Config::kUseMontgomery) {
@@ -254,7 +266,7 @@ class RapidJsonValueConverter<
         return true;
       }
     }
-    *value = T::FromBigInt(v);
+    *value = T(v);
     return true;
   }
 };
