@@ -89,6 +89,12 @@ TEST_F(JsonTest, ParseInvalidJson) {
   std::string error;
   ASSERT_FALSE(ParseJson(json, &simple_data, &error));
   EXPECT_EQ(error, "\"message\" key is not found");
+
+  // invalid value
+  json = R"({"message":3})";
+  ASSERT_FALSE(ParseJson(json, &simple_data, &error));
+  EXPECT_EQ(error,
+            "\"message\" expects type \"string\" but type \"number\" comes");
 }
 
 TEST_F(JsonTest, WriteToJson) {
